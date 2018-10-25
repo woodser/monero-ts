@@ -1,4 +1,4 @@
-# Monero JavaScript
+# Monero JavaScrip (under development, not ready for use)
 
 ## Introduction
 
