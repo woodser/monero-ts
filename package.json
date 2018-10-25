@@ -1,0 +1,42 @@
+{
+  "name": "MoneroJavaScript",
+  "description": "Monero API (daemon and wallet) implemented in JavaScript",
+  "version": "0.0.1",
+  "license": "MIT License",
+  "repository": "https://github.com/woodser/monero-javascript",
+  "private": false,
+  "main": "todo",
+  "scripts": {
+    "start": "todo"
+  },
+  "build": {
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "woodser",
+        "repo": "monero-javascript"
+      }
+    ]
+  },
+  "engines": {
+    "node": "7.4.0"
+  },
+  "dependencies": {
+    "async": "2.6.1",
+    "html5-fs": "0.1.1",
+    "uuid": "3.3.2",
+    "xhr": "2.5.0"
+  },
+  "devDependencies": {
+    "babel-core": "6.26.3",
+    "babel-loader": "8.0.2",
+    "babel-minify": "0.4.3",
+    "electron": "3.0.3",
+    "eslint": "5.6.0",
+    "request": "2.88.0",
+    "webpack": "4.19.1",
+    "webpack-cli": "3.1.0",
+    "webpack-merge": "4.1.4",
+    "worker-loader": "2.0.0"
+  }
+}
