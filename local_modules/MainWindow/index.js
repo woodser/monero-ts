@@ -1,6 +1,8 @@
 "use strict"
 
 const MoneroWalletMM = require("./MoneroWalletMM");
+const MoneroRPC = require("../monerojs");
+
 
 window.BootApp = function() {
   console.log("Booting app...");
@@ -9,8 +11,22 @@ window.BootApp = function() {
     let wallet = new MoneroWalletMM(monero_utils);
     console.log("Wallet initialized");
     console.log("Seed: " + wallet.getSeed());
-    console.log("Height: " + wallet.getHeight());
-    console.log("Now what?");
+    //console.log("Height: " + wallet.getHeight());
+    //console.log("Now what?");
+    
+    console.log("Lets interact with a daemon");
+    const daemonRPC = new MoneroRPC.daemonRPC({ autoconnect: true, random: true })
+    .then(daemon => {
+      daemonRPC = daemon; // Store daemon interface in global variable
+      
+      daemonRPC.getblockcount()
+      .then(blocks => {
+        console.log(`Block count: ${blocks['count'] - 1}`);
+      });
+    })
+    .catch(err => {
+      console.error(err);
+    });
 	});
 }
 window.BootApp()
