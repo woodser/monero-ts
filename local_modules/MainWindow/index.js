@@ -46,12 +46,12 @@ window.BootApp = function() {
                   console.log("Downloaded block at height " + header.height);
                   console.log("Blob: " + blockResp.blob);
                 })
-                .error(errResp => {
+                .catch(errResp => {
                   console.log("Error fetching block! " + errResp);
                 });
             }
           })
-          .error(errResp => {
+          .catch(errResp => {
             console.log("Error get headers range! " + errResp);
           });
       });
