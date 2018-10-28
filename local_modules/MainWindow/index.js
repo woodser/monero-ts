@@ -7,6 +7,8 @@ const MoneroRPC = require("../monerojs");
 window.BootApp = function() {
   
   /*
+   * https://stackoverflow.com/questions/24586110/resolve-promises-one-after-another-i-e-in-sequence
+   * 
    * serial executes Promises sequentially.
    * @param {funcs} An array of funcs that return promises.
    * @example
