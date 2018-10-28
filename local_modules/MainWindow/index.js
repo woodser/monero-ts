@@ -2,7 +2,7 @@
 
 const MoneroWalletMM = require("./MoneroWalletMM");
 const MoneroRPC = require("../monerojs");
-
+//const WalletHostPollingController = require('../Wallets/Controllers/WalletHostPollingController')
 
 window.BootApp = function() {
   console.log("Booting app...");
@@ -14,12 +14,22 @@ window.BootApp = function() {
     //console.log("Height: " + wallet.getHeight());
     //console.log("Now what?");
     
+//    console.log("Lets call to mymonero server");
+//    const self = this
+//    let options = { 
+//      wallet: self,
+//      factorOfIsFetchingStateDidUpdate_fn: function()
+//      {
+//        self.emit(self.EventName_isFetchingUpdatesChanged())
+//      }
+//    }
+//    let context = self.context
+//    self.hostPollingController = new WalletHostPollingController(options, context)
+    
     console.log("Lets interact with a daemon");
-    const daemonRPC = new MoneroRPC.daemonRPC({ autoconnect: true, random: true })
+    new MoneroRPC.daemonRPC({ autoconnect: true, random: true, user: "superuser", pass: "abctesting123" })
     .then(daemon => {
-      daemonRPC = daemon; // Store daemon interface in global variable
-      
-      daemonRPC.getblockcount()
+      daemon.getblockcount()
       .then(blocks => {
         console.log(`Block count: ${blocks['count'] - 1}`);
       });
