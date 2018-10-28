@@ -29,10 +29,43 @@ window.BootApp = function() {
     console.log("Lets interact with a daemon");
     new MoneroRPC.daemonRPC({ autoconnect: true, random: true, user: "superuser", pass: "abctesting123" })
     .then(daemon => {
-      daemon.getblockcount()
-      .then(blocks => {
-        console.log(`Block count: ${blocks['count'] - 1}`);
+      
+      const NUM_BLOCKS = 100;
+      daemon.get_height().then(resp => {
+        console.log("Height: " + resp.height);
+        
+        let endHeight = resp.height - 1;
+        let startHeight = endHeight - NUM_BLOCKS;
+        console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
+        daemon.get_block_headers_range(startHeight, endHeight)
+          .then(headersResp => {
+            for (let header of headersResp.headers) {
+              console.log("Fetching block at height: " + header.height);
+              daemon.getblock_by_height(header.height)
+                .then(blockResp => {
+                  console.log("Downloaded block at height " + header.height);
+                  console.log("Blob: " + blockResp.blob);
+                })
+                .error(errResp => {
+                  console.log("Error fetching block! " + errResp);
+                });
+            }
+          })
+          .error(errResp => {
+            console.log("Error get headers range! " + errResp);
+          });
       });
+      
+      
+//      daemon.getblockcount()
+//      .then(blocks => {
+//        console.log(`Block count: ${blocks['count'] - 1}`);
+//        
+//        
+//        
+//        daemon.get_block_headers_range()
+//        
+//      });
     })
     .catch(err => {
       console.error(err);
