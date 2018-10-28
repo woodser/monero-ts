@@ -28,7 +28,7 @@ window.BootApp = function() {
     
     console.log("Lets interact with a daemon");
     
-    const NUM_BLOCKS = 1;
+    const NUM_BLOCKS = 2;
     
     let daemon;
     new MoneroRPC.daemonRPC({ autoconnect: true, random: true, user: "superuser", pass: "abctesting123" })
