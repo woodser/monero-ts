@@ -5,6 +5,19 @@ const MoneroRPC = require("../monerojs");
 //const WalletHostPollingController = require('../Wallets/Controllers/WalletHostPollingController')
 
 window.BootApp = function() {
+  
+  /*
+   * serial executes Promises sequentially.
+   * @param {funcs} An array of funcs that return promises.
+   * @example
+   * const urls = ['/url1', '/url2', '/url3']
+   * serial(urls.map(url => () => $.ajax(url)))
+   *     .then(console.log.bind(console))
+   */
+  const serial = funcs =>
+      funcs.reduce((promise, func) =>
+          promise.then(result => func().then(Array.prototype.concat.bind(result))), Promise.resolve([]))
+  
   console.log("Booting app...");
 	require('../mymonero_core_js/monero_utils/monero_utils').then(function(monero_utils) {
 	  console.log("Monero utils loaded");
@@ -28,7 +41,7 @@ window.BootApp = function() {
     
     console.log("Lets interact with a daemon");
     
-    const NUM_BLOCKS = 2;
+    const NUM_BLOCKS = 100;
     
     let daemon;
     new MoneroRPC.daemonRPC({ autoconnect: true, random: true, user: "superuser", pass: "abctesting123" })
@@ -42,17 +55,47 @@ window.BootApp = function() {
         console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
         daemon.get_block_headers_range(startHeight, endHeight)
           .then(headersResp => {
+            
+            // fetch blocks
+            let blockRequests = [];
             for (let header of headersResp.headers) {
-              console.log("Fetching block at height: " + header.height);
-              daemon.getblock_by_height(header.height)
-                .then(blockResp => {
-                  console.log("Downloaded block at height " + header.height);
-                  console.log("Blob: " + blockResp.blob);
-                })
-                .catch(errResp => {
-                  console.log("Error fetching block! " + errResp);
-                });
+              blockRequests.push(function() { return daemon.getblock_by_height(header.height) });
             }
+            serial(blockRequests)
+              .then(blocks => {
+                console.log(blocks);
+              })
+              .catch(err => {
+                console.log(err);
+              });
+            
+            
+            
+//            headersResp.headers.map(header => {
+//              
+//              console.log("Fetching block at height: " + header.height);
+//              daemon.getblock_by_height(header.height)
+//                .then(blockResp => {
+//                  console.log("Downloaded block at height " + header.height);
+//                  console.log("Blob: " + blockResp.blob);
+//                })
+//                .catch(errResp => {
+//                  console.log("Error fetching block! " + errResp);
+//                });
+//              
+//            });
+            
+//            for (let header of headersResp.headers) {
+//              console.log("Fetching block at height: " + header.height);
+//              daemon.getblock_by_height(header.height)
+//                .then(blockResp => {
+//                  console.log("Downloaded block at height " + header.height);
+//                  console.log("Blob: " + blockResp.blob);
+//                })
+//                .catch(errResp => {
+//                  console.log("Error fetching block! " + errResp);
+//                });
+//            }
           })
           .catch(errResp => {
             console.log("Error get headers range! " + errResp);
