@@ -58,18 +58,26 @@ window.BootApp = function() {
         daemon.get_block_headers_range(startHeight, endHeight)
           .then(headersResp => {
             
-            // fetch blocks
-            let blockRequests = [];
-            for (let header of headersResp.headers) {
-              blockRequests.push(function() { return daemon.getblock_by_height(header.height) });
-            }
-            serial(blockRequests)
-              .then(blocks => {
-                console.log(blocks);
-              })
-              .catch(err => {
-                console.log(err);
-              });
+//            // fetch blocks 1
+//            let blockRequests = [];
+//            for (let header of headersResp.headers) {
+//              blockRequests.push(function() { return daemon.getblock_by_height(header.height) });
+//            }
+//            serial(blockRequests).then(blocks => {
+//              console.log(blocks);
+//            }).catch(err => {
+//              console.log(err);
+//            });
+            
+            // fetch blocks 2
+            let requests = headersResp.headers.map(header => () => daemon.getblock_by_height(header.height));
+            serial(requests).then(blocks => {
+              console.log(blocks);
+            }).catch(err => {
+              console.log(err);
+            })
+            
+
             
             
             
