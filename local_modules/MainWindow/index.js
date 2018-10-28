@@ -27,15 +27,18 @@ window.BootApp = function() {
 //    self.hostPollingController = new WalletHostPollingController(options, context)
     
     console.log("Lets interact with a daemon");
+    
+    const NUM_BLOCKS = 1;
+    
+    let daemon;
     new MoneroRPC.daemonRPC({ autoconnect: true, random: true, user: "superuser", pass: "abctesting123" })
-    .then(daemon => {
-      
-      const NUM_BLOCKS = 100;
+    .then(daemonRPC => {
+      daemon = daemonRPC;
       daemon.get_height().then(resp => {
         console.log("Height: " + resp.height);
         
         let endHeight = resp.height - 1;
-        let startHeight = endHeight - NUM_BLOCKS;
+        let startHeight = endHeight - NUM_BLOCKS + 1;
         console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
         daemon.get_block_headers_range(startHeight, endHeight)
           .then(headersResp => {
