@@ -43,7 +43,7 @@ window.BootApp = function() {
     
     console.log("Lets interact with a daemon");
     
-    const NUM_BLOCKS = 100;
+    const NUM_BLOCKS = 10;
     
     let daemon;
     new MoneroRPC.daemonRPC({ autoconnect: true, random: true, user: "superuser", pass: "abctesting123" })
@@ -58,54 +58,15 @@ window.BootApp = function() {
         daemon.get_block_headers_range(startHeight, endHeight)
           .then(headersResp => {
             
-//            // fetch blocks 1
-//            let blockRequests = [];
-//            for (let header of headersResp.headers) {
-//              blockRequests.push(function() { return daemon.getblock_by_height(header.height) });
-//            }
-//            serial(blockRequests).then(blocks => {
-//              console.log(blocks);
-//            }).catch(err => {
-//              console.log(err);
-//            });
-            
             // fetch blocks 2
             let requests = headersResp.headers.map(header => () => daemon.getblock_by_height(header.height));
             serial(requests).then(blocks => {
-              console.log(blocks);
+              for (let block of blocks) {
+                console.log(block);
+              }
             }).catch(err => {
               console.log(err);
             })
-            
-
-            
-            
-            
-//            headersResp.headers.map(header => {
-//              
-//              console.log("Fetching block at height: " + header.height);
-//              daemon.getblock_by_height(header.height)
-//                .then(blockResp => {
-//                  console.log("Downloaded block at height " + header.height);
-//                  console.log("Blob: " + blockResp.blob);
-//                })
-//                .catch(errResp => {
-//                  console.log("Error fetching block! " + errResp);
-//                });
-//              
-//            });
-            
-//            for (let header of headersResp.headers) {
-//              console.log("Fetching block at height: " + header.height);
-//              daemon.getblock_by_height(header.height)
-//                .then(blockResp => {
-//                  console.log("Downloaded block at height " + header.height);
-//                  console.log("Blob: " + blockResp.blob);
-//                })
-//                .catch(errResp => {
-//                  console.log("Error fetching block! " + errResp);
-//                });
-//            }
           })
           .catch(errResp => {
             console.log("Error get headers range! " + errResp);
