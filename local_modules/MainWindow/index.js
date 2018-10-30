@@ -4,85 +4,16 @@ const MoneroWalletMM = require("./MoneroWalletMM");
 const MoneroRPC = require("../monerojs");
 //const WalletHostPollingController = require('../Wallets/Controllers/WalletHostPollingController')
 
-window.BootApp = function() {
-  
-  /*
-   * https://stackoverflow.com/questions/24586110/resolve-promises-one-after-another-i-e-in-sequence
-   * 
-   * serial executes Promises sequentially.
-   * @param {funcs} An array of funcs that return promises.
-   * @example
-   * const urls = ['/url1', '/url2', '/url3']
-   * serial(urls.map(url => () => $.ajax(url)))
-   *     .then(console.log.bind(console))
-   */
-  const serial = funcs =>
-      funcs.reduce((promise, func) =>
-          promise.then(result => func().then(Array.prototype.concat.bind(result))), Promise.resolve([]))
-  
+window.BootApp = function() {  
   console.log("Booting app...");
 	require('../mymonero_core_js/monero_utils/monero_utils').then(function(monero_utils) {
 	  console.log("Monero utils loaded");
-    let wallet = new MoneroWalletMM(monero_utils);
-    console.log("Wallet initialized");
-    console.log("Seed: " + wallet.getSeed());
-    //console.log("Height: " + wallet.getHeight());
-    //console.log("Now what?");
-    
-//    console.log("Lets call to mymonero server");
-//    const self = this
-//    let options = { 
-//      wallet: self,
-//      factorOfIsFetchingStateDidUpdate_fn: function()
-//      {
-//        self.emit(self.EventName_isFetchingUpdatesChanged())
-//      }
-//    }
-//    let context = self.context
-//    self.hostPollingController = new WalletHostPollingController(options, context)
-    
-    console.log("Lets interact with a daemon");
-    
-    const NUM_BLOCKS = 10;
-    
-    let daemon;
+	  console.log(monero_utils);
+	  
     new MoneroRPC.daemonRPC({ autoconnect: true, random: true, user: "superuser", pass: "abctesting123" })
     .then(daemonRPC => {
-      daemon = daemonRPC;
-      daemon.get_height().then(resp => {
-        console.log("Height: " + resp.height);
-        
-        let endHeight = resp.height - 1;
-        let startHeight = endHeight - NUM_BLOCKS + 1;
-        console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
-        daemon.get_block_headers_range(startHeight, endHeight)
-          .then(headersResp => {
-            
-            // fetch blocks 2
-            let requests = headersResp.headers.map(header => () => daemon.getblock_by_height(header.height));
-            serial(requests).then(blocks => {
-              for (let block of blocks) {
-                console.log(block);
-              }
-            }).catch(err => {
-              console.log(err);
-            })
-          })
-          .catch(errResp => {
-            console.log("Error get headers range! " + errResp);
-          });
-      });
-      
-      
-//      daemon.getblockcount()
-//      .then(blocks => {
-//        console.log(`Block count: ${blocks['count'] - 1}`);
-//        
-//        
-//        
-//        daemon.get_block_headers_range()
-//        
-//      });
+      let wallet = new MoneroWalletMM(daemonRPC, monero_utils);
+      wallet.sync();
     })
     .catch(err => {
       console.error(err);
