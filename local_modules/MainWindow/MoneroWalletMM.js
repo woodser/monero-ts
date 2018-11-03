@@ -27,8 +27,6 @@ class MoneroWalletMM {
   }
   
   async sync() {
-   
-
     
     // get height
     let resp = await this.daemon.get_height();
@@ -49,47 +47,20 @@ class MoneroWalletMM {
     
     // collect transaction hashes
 //    let txHashes = blocks.map(block => block.tx_hashes === undefined ? [] : block.tx_hashes).reduce((a, b) => a.concat(b)); // works but bad memory profile
-//    let txHashes = blocks.map(block => block.tx_hashes === undefined ? [] : block.tx_hashes).reduce((a, b) => { a.push.apply(a, b); return a; }); // works
-    
-    let txHashes = [];
-    for (let block of blocks) {
-      if (block.tx_hashes === undefined) continue;
-      for (let txHash of block.tx_hashes) {
-        txHashes.push(txHash);
-      }
-    }
-    
+    let txHashes = blocks.map(block => block.tx_hashes === undefined ? [] : block.tx_hashes).reduce((a, b) => { a.push.apply(a, b); return a; }); // works
+//    let txHashes = [];
+//    for (let block of blocks) {
+//      if (block.tx_hashes === undefined) continue;
+//      for (let txHash of block.tx_hashes) {
+//        txHashes.push(txHash);
+//      }
+//    }
     console.log(txHashes);
     
-    
-    
-//    let txHashes = [["1"], ["2", "3"]].reduce((a, b) => a.concat(b), []);
-//    console.log(txHashes);
-    //blocks.map(block => block.tx_hashes === undefined ? [] : block.tx_hashes)
-    
-    
-    
+    // fetch transactions
+    // TODO
     
 
-    
-//    console.log(requests);
-//    for (let request of requests) {
-//      console.log(request instanceof Promise);
-//      request.then(function() {
-//        console.log("request RESOLVED!");
-//      }).catch(function() {
-//        console.log("request FAILED");
-//      });
-//    }
-    
-    
-    //console.log(await requests[0]);
-    
-//    for (let request of requests) {
-//      console.log(requests);
-//      let block = await request;
-//      console.log(block);
-//    }
     
 //    const serial = funcs =>
 //      funcs.reduce((promise, func) =>
