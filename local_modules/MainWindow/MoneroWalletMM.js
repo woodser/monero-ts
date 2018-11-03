@@ -2,12 +2,22 @@ const nettype = require("../mymonero_core_js/cryptonote_utils/nettype");
 
 class MoneroWalletMM {
   
-  constructor(daemon, monero_utils) {
+  constructor(daemon, monero_utils, seed) {
     this.monero_utils = monero_utils;
     this.daemon = daemon;
+    let network = nettype.network_type.STAGENET;  // TODO: determined from daemon
     
-    // collect keys
-    const keys = this.monero_utils.newly_created_wallet("en", nettype.network_type.MAINNET);
+    // initialize key
+    let keys = null;
+    if (seed !== undefined) {
+      keys = this.monero_utils.address_and_keys_from_seed(seed, network); // initialize keys from seed
+      keys.mnemonic_string = seed;
+      keys.mnemonic_language = "en";
+    } else {
+      keys = this.monero_utils.newly_created_wallet("en", network);  // autogenerate seed and keys
+    }
+    
+    // initialize wallet keys
     this.seed = keys.mnemonic_string;
     this.seedLang = keys.mnemonic_language;
     this.seedHex = keys.sec_seed_string;
@@ -20,6 +30,10 @@ class MoneroWalletMM {
   
   getSeed() {
     return this.seed;
+  }
+  
+  getPrimaryAddress() {
+    return this.primaryAddress;
   }
   
   getHeight() {
@@ -61,9 +75,10 @@ class MoneroWalletMM {
     let txs = txResp.txs_as_json.map(txStr => JSON.parse(txStr));
     
     // process transactions
+    let numOwned = 0;
     console.log("Processing transactions...");
     for (let tx of txs) {
-      console.log(tx);
+//      console.log(tx);
       
       // process outputs
       for (let idx = 0; idx < tx.vout.length; idx++) {
@@ -85,6 +100,7 @@ class MoneroWalletMM {
         // check if wallet owns output
         if (pubKey === pubKeyDerived) {
           console.log("This my output!!!");
+          numOwned++;
           console.log(out);
           
           // TODO: determine amount and test
@@ -92,7 +108,7 @@ class MoneroWalletMM {
       }
     }
     
-    console.log("Done processing");
+    console.log("Done processing, " + numOwned + " owned outputs found");
     
 
     
