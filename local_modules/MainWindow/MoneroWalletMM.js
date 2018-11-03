@@ -12,9 +12,9 @@ class MoneroWalletMM {
     this.seedLang = keys.mnemonic_language;
     this.seedHex = keys.sec_seed_string;
     this.viewKeyPub = keys.pub_viewKey_string;
-    this.viewKeySec = keys.sec_viewKey_string;
+    this.viewKeyPrv = keys.sec_viewKey_string;
     this.spendKeyPub = keys.pub_spendKey_string;
-    this.spendKeySec = keys.sec_spendKey_string;
+    this.spendKeyPrv = keys.sec_spendKey_string;
     this.primaryAddress = keys.address_string;
   }
   
@@ -32,7 +32,7 @@ class MoneroWalletMM {
     let resp = await this.daemon.get_height();
     
     // fetch block headers
-    const NUM_BLOCKS = 10;
+    const NUM_BLOCKS = 100;
     let endHeight = resp.height - 1;
     let startHeight = endHeight - NUM_BLOCKS + 1;
     console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
@@ -55,13 +55,42 @@ class MoneroWalletMM {
 //        txHashes.push(txHash);
 //      }
 //    }
-    console.log(txHashes);
     
     // fetch transactions
     let txResp = await this.daemon.get_transactions(txHashes, true, false);
-    console.log(txResp);
     let txs = txResp.txs_as_json.map(txStr => JSON.parse(txStr));
-    console.log(txs);
+    
+    // process transactions
+    console.log("Processing transactions...");
+    for (let tx of txs) {
+//      console.log(tx);
+      
+      // process outputs
+      for (let idx = 0; idx < tx.vout.length; idx++) {
+        let out = tx.vout[idx];
+        let pubKey = out.target.key;
+        let amount = out.target.amount;
+        
+//        console.log("View key prv: " + this.viewKeyPrv);
+//        console.log("Spend key pub: " + this.spendKeyPub);
+//        console.log("Pub key: " + pubKey);
+//        console.log("Amount: " + amount);
+//        console.log("Index: " + idx);
+        
+        let derivation = this.monero_utils.generate_key_derivation(pubKey, this.viewKeyPrv);
+//        console.log("Derivation: " + derivation);
+        
+        let pubKeyDerived = this.monero_utils.derive_public_key(derivation, idx, this.spendKeyPub);
+//        console.log("Pub key derived: " + pubKeyDerived);
+        
+        if (pubKey === pubKeyDerived) {
+          console.log("This my output!!!");
+          console.log(out);
+        }
+      }
+    }
+    
+    console.log("Done processing");
     
 
     
