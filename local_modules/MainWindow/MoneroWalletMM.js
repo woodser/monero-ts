@@ -58,7 +58,10 @@ class MoneroWalletMM {
     console.log(txHashes);
     
     // fetch transactions
-    // TODO
+    let txResp = await this.daemon.get_transactions(txHashes, true, false);
+    console.log(txResp);
+    let txs = txResp.txs_as_json.map(txStr => JSON.parse(txStr));
+    console.log(txs);
     
 
     
