@@ -16,7 +16,7 @@ window.BootApp = function() {
       wallet.sync();
     })
     .catch(err => {
-      console.error(err);;
+      console.error(err);
     });
 	});
 }
