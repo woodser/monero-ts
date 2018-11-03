@@ -63,13 +63,12 @@ class MoneroWalletMM {
     // process transactions
     console.log("Processing transactions...");
     for (let tx of txs) {
-//      console.log(tx);
+      console.log(tx);
       
       // process outputs
       for (let idx = 0; idx < tx.vout.length; idx++) {
         let out = tx.vout[idx];
         let pubKey = out.target.key;
-        let amount = out.target.amount;
         
 //        console.log("View key prv: " + this.viewKeyPrv);
 //        console.log("Spend key pub: " + this.spendKeyPub);
@@ -83,9 +82,12 @@ class MoneroWalletMM {
         let pubKeyDerived = this.monero_utils.derive_public_key(derivation, idx, this.spendKeyPub);
 //        console.log("Pub key derived: " + pubKeyDerived);
         
+        // check if wallet owns output
         if (pubKey === pubKeyDerived) {
           console.log("This my output!!!");
           console.log(out);
+          
+          // TODO: determine amount and test
         }
       }
     }
