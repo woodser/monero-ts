@@ -55,12 +55,19 @@ class MoneroWalletMM {
           // fetch blocks
           let requests = headersResp.headers.map(header => () => this.daemon.getblock_by_height(header.height));
           serial(requests).then(blocks => {
+            
+            // collect transaction hashes
+            let txHashes = [];
             for (let block of blocks) {
               console.log(block);
-              
-              
-              
+              if (block.tx_hashes === undefined) continue;
+              for (let txHash of block.tx_hashes) {
+                txHashes.push(txHash);
+              }
             }
+            
+            // fetch transactions
+            console.log(txHashes);
           }).catch(err => {
             console.log(err);
           })
