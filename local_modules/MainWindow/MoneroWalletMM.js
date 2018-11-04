@@ -91,6 +91,7 @@ class MoneroWalletMM {
       console.log(tx);
       
       let pubKey = tx.extra;
+      if (tx.extra.length !== 33) throw "Can't yet handle non-standard extra data"; // TODO
       console.log("What's this pub key: " + pubKey);
       
       // process outputs
