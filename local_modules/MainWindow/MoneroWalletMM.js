@@ -5,7 +5,7 @@ class MoneroWalletMM {
   constructor(daemon, monero_utils, mnemonic) {
     this.monero_utils = monero_utils;
     this.daemon = daemon;
-    let network = nettype.network_type.STAGENET;  // TODO: determined from daemon
+    let network = nettype.network_type.MAINNET;  // TODO: determined from daemon
     
     // initialize key
     let keys;
@@ -97,7 +97,9 @@ class MoneroWalletMM {
       
       // get tx pub key
       if (tx.extra.length !== 33) console.warn("Cannot handle non-stardard tx pub key in tx.extra: " + tx.extra); // TODO: handle non-stardard tx pub key
-      let pubKey = Buffer.from(new Uint8Array(tx.extra.slice(1, 33))).toString('hex');
+      let nums = new Uint8Array(tx.extra.slice(1, 33));
+      console.log(nums);
+      let pubKey = Buffer.from(new Uint8Array(tx.extra.slice(1, 33))).toString('utf-8');
       console.log("Pub key from tx.extra: " + pubKey);
       
       // process outputs
