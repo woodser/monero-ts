@@ -115,10 +115,9 @@ class MoneroWalletMM {
 //        console.log("Derivation: " + derivation);
         
         let pubKeyDerived = this.monero_utils.derive_public_key(derivation, idx, this.spendKeyPub);
-//        console.log("Pub key derived: " + pubKeyDerived);
+        console.log("Pub key derived: " + pubKeyDerived);
         
         // check if wallet owns output
-        console.log("Public key derived: " + pubKeyDerived);
         if (pubKey === pubKeyDerived) {
           console.log("This my output!!!");
           numOwned++;
