@@ -79,6 +79,7 @@ class MoneroWalletMM {
     // fetch transactions
     let txResp = await this.daemon.get_transactions(txHashes, true, false);
     let txs = txResp.txs_as_json.map(txStr => JSON.parse(txStr));
+    if (txHashes.length !== txs.length) throw new Error("Missing fetched transactions");
     
     console.log(this.viewKeyPrv);
     console.log(this.spendKeyPub);
@@ -88,8 +89,11 @@ class MoneroWalletMM {
     let numOwned = 0;
     let numUnowned = 0;
     console.log("Processing transactions...");
-    for (let tx of txs) {
+    for (let txIdx = 0; txIdx < txHashes.length; txIdx++) {
+      let tx = txs[txIdx];
+      console.log("Tx hash: " + txHashes[txIdx]);
       console.log(tx);
+ 
       
       // get tx pub key
       if (tx.extra.length !== 33) console.warn("Cannot handle non-stardard tx pub key in tx.extra: " + tx.extra); // TODO: handle non-stardard tx pub key
@@ -114,7 +118,7 @@ class MoneroWalletMM {
 //        console.log("Pub key derived: " + pubKeyDerived);
         
         // check if wallet owns output
-        console.log(pubKey + " vs " + pubKeyDerived);
+        console.log("Public key derived: " + pubKeyDerived);
         if (pubKey === pubKeyDerived) {
           console.log("This my output!!!");
           numOwned++;
