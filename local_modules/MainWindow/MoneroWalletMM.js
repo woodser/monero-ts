@@ -84,15 +84,17 @@ class MoneroWalletMM {
     console.log(this.spendKeyPub);
     
     // process transactions
+    //let decoder = new TextDecoder("utf-8");
     let numOwned = 0;
     let numUnowned = 0;
     console.log("Processing transactions...");
     for (let tx of txs) {
       console.log(tx);
       
-      let pubKey = tx.extra;
-      if (tx.extra.length !== 33) throw "Can't yet handle non-standard extra data"; // TODO
-      console.log("What's this pub key: " + pubKey);
+      // get tx pub key
+      if (tx.extra.length !== 33) throw "Cannot handle non-stardard tx pub key in tx.extra: " + tx.extra;
+      let pubKey = Buffer.from(new Uint8Array(tx.extra.slice(1, 33))).toString('hex');
+      console.log("Pub key from tx.extra: " + pubKey);
       
       // process outputs
       for (let idx = 0; idx < tx.vout.length; idx++) {
