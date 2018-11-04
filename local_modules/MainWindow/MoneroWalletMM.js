@@ -13,6 +13,7 @@ class MoneroWalletMM {
       keys = this.monero_utils.address_and_keys_from_seed(seed, network); // initialize keys from seed
       keys.mnemonic_string = seed;
       keys.mnemonic_language = "en";
+      console.log(keys);
     } else {
       keys = this.monero_utils.newly_created_wallet("en", network);  // autogenerate seed and keys
     }
