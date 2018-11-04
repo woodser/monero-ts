@@ -82,6 +82,7 @@ class MoneroWalletMM {
     
     // process transactions
     let numOwned = 0;
+    let numUnowned = 0;
     console.log("Processing transactions...");
     for (let tx of txs) {
 //      console.log(tx);
@@ -110,11 +111,13 @@ class MoneroWalletMM {
           console.log(out);
           
           // TODO: determine amount and test
+        } else {
+          numUnowned++;
         }
       }
     }
     
-    console.log("Done processing, " + numOwned + " owned outputs found");
+    console.log("Done processing, " + numOwned + " owned outputs found, " + numUnowned + " unowned");
     
 
     
