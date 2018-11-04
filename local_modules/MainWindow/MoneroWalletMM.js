@@ -2,26 +2,25 @@ const nettype = require("../mymonero_core_js/cryptonote_utils/nettype");
 
 class MoneroWalletMM {
   
-  constructor(daemon, monero_utils, seed) {
+  constructor(daemon, monero_utils, mnemonic) {
     this.monero_utils = monero_utils;
     this.daemon = daemon;
     let network = nettype.network_type.STAGENET;  // TODO: determined from daemon
     
     // initialize key
-    let keys = null;
-    if (seed !== undefined) {
-      keys = this.monero_utils.address_and_keys_from_seed(seed, network); // initialize keys from seed
-      keys.mnemonic_string = seed;
-      keys.mnemonic_language = "en";
-      console.log(keys);
+    let keys;
+    if (mnemonic !== undefined) {
+      keys = this.monero_utils.seed_and_keys_from_mnemonic(mnemonic, network); // initialize keys from mnemonic
+      keys.mnemonic_string = mnemonic;
+      keys.mnemonic_language = "en";  // TODO: passed in
     } else {
-      keys = this.monero_utils.newly_created_wallet("en", network);  // autogenerate seed and keys
+      keys = this.monero_utils.newly_created_wallet("en", network);  // randomly generate keys
     }
     
     // initialize wallet keys
-    this.seed = keys.mnemonic_string;
-    this.seedLang = keys.mnemonic_language;
-    this.seedHex = keys.sec_seed_string;
+    this.seed = keys.sec_seed_string;
+    this.mnemonic = keys.mnemonic_string;
+    this.mnemonicLang = keys.mnemonic_language;
     this.viewKeyPub = keys.pub_viewKey_string;
     this.viewKeyPrv = keys.sec_viewKey_string;
     this.spendKeyPub = keys.pub_spendKey_string;
@@ -31,6 +30,10 @@ class MoneroWalletMM {
   
   getSeed() {
     return this.seed;
+  }
+  
+  getMnemonic() {
+    return this.mnemonic;
   }
   
   getPrimaryAddress() {
