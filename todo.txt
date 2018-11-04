@@ -1,0 +1,2 @@
+run in node so no web assembling
+cannot use compare editor in eclipse
