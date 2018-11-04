@@ -80,17 +80,23 @@ class MoneroWalletMM {
     let txResp = await this.daemon.get_transactions(txHashes, true, false);
     let txs = txResp.txs_as_json.map(txStr => JSON.parse(txStr));
     
+    console.log(this.viewKeyPrv);
+    console.log(this.spendKeyPub);
+    
     // process transactions
     let numOwned = 0;
     let numUnowned = 0;
     console.log("Processing transactions...");
     for (let tx of txs) {
-//      console.log(tx);
+      console.log(tx);
+      
+      let pubKey = tx.extra;
+      console.log("What's this pub key: " + pubKey);
       
       // process outputs
       for (let idx = 0; idx < tx.vout.length; idx++) {
         let out = tx.vout[idx];
-        let pubKey = out.target.key;
+        //let pubKey = out.target.key;
         
 //        console.log("View key prv: " + this.viewKeyPrv);
 //        console.log("Spend key pub: " + this.spendKeyPub);
