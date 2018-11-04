@@ -53,6 +53,8 @@ class MoneroWalletMM {
     const NUM_BLOCKS = 100;
     let endHeight = resp.height - 1;
     let startHeight = endHeight - NUM_BLOCKS + 1;
+    startHeight = 197085;
+    endHeight = startHeight + NUM_BLOCKS;
     console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
     let headersResp = await this.daemon.get_block_headers_range(startHeight, endHeight);
     
