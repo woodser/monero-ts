@@ -92,7 +92,7 @@ class MoneroWalletMM {
       console.log(tx);
       
       // get tx pub key
-      if (tx.extra.length !== 33) throw "Cannot handle non-stardard tx pub key in tx.extra: " + tx.extra;
+      if (tx.extra.length !== 33) console.warn("Cannot handle non-stardard tx pub key in tx.extra: " + tx.extra); // TODO: handle non-stardard tx pub key
       let pubKey = Buffer.from(new Uint8Array(tx.extra.slice(1, 33))).toString('hex');
       console.log("Pub key from tx.extra: " + pubKey);
       
@@ -114,6 +114,7 @@ class MoneroWalletMM {
 //        console.log("Pub key derived: " + pubKeyDerived);
         
         // check if wallet owns output
+        console.log(pubKey + " vs " + pubKeyDerived);
         if (pubKey === pubKeyDerived) {
           console.log("This my output!!!");
           numOwned++;
