@@ -27,6 +27,7 @@ class MoneroWalletMM {
     this.spendKeyPub = keys.pub_spendKey_string;
     this.spendKeyPrv = keys.sec_spendKey_string;
     this.primaryAddress = keys.address_string;
+    console.log(this);
   }
   
   getSeed() {
@@ -82,13 +83,14 @@ class MoneroWalletMM {
     let txs = txResp.txs_as_json.map(txStr => JSON.parse(txStr));
     if (txHashes.length !== txs.length) throw new Error("Missing fetched transactions");
     
-    console.log(this.viewKeyPrv);
-    console.log(this.spendKeyPub);
-    
     // process transactions
     //let decoder = new TextDecoder("utf-8");
     let numOwned = 0;
     let numUnowned = 0;
+    
+    console.log("View key prv: " + this.viewKeyPrv);
+    console.log("Spend key pub: " + this.spendKeyPub);
+    
     console.log("Processing transactions...");
     for (let txIdx = 0; txIdx < txHashes.length; txIdx++) {
       let tx = txs[txIdx];
@@ -112,14 +114,12 @@ class MoneroWalletMM {
         let out = tx.vout[idx];
         //let pubKey = out.target.key;
         
-//        console.log("View key prv: " + this.viewKeyPrv);
-//        console.log("Spend key pub: " + this.spendKeyPub);
-//        console.log("Pub key: " + pubKey);
+
 //        console.log("Amount: " + amount);
-//        console.log("Index: " + idx);
+        console.log("Index: " + idx);
         
         let derivation = this.monero_utils.generate_key_derivation(lastPubKey, this.viewKeyPrv);
-//        console.log("Derivation: " + derivation);
+        console.log("Derivation: " + derivation);
         
         let pubKeyDerived = this.monero_utils.derive_public_key(derivation, idx, this.spendKeyPub);
         console.log("Pub key derived: " + pubKeyDerived);
