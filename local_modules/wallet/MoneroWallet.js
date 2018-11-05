@@ -3,7 +3,7 @@
  */
 class MoneroWallet {
   
-  constructor() {
+  getSeed() {
     throw new Error("Subclass must implement");
   }
   
@@ -11,3 +11,5 @@ class MoneroWallet {
     throw new Error("Subclass must implement");
   }
 }
+
+module.exports = MoneroWallet;

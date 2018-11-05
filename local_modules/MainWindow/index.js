@@ -1,6 +1,6 @@
 "use strict"
 
-const MoneroWalletMM = require("./MoneroWalletMM");
+const MoneroWalletLocal = require("../wallet/MoneroWalletLocal");
 const MoneroRPC = require("../monerojs");
 //const WalletHostPollingController = require('../Wallets/Controllers/WalletHostPollingController')
 
@@ -22,9 +22,8 @@ window.BootApp = function() {
 //    new MoneroRPC.daemonRPC({ autoconnect: true, random: true, user: "superuser", pass: "abctesting123" })
     .then(daemonRPC => {
       console.log("Daemon initialized");
-      let wallet = new MoneroWalletMM(daemonRPC, monero_utils, mnemonic);
+      let wallet = new MoneroWalletLocal(daemonRPC, monero_utils, mnemonic);
       if (primaryAddress !== wallet.getPrimaryAddress()) throw "Addresses do not match";
-      
       wallet.sync();
     })
     .catch(err => {
