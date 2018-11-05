@@ -1,4 +1,5 @@
 const nettype = require("../mymonero_core_js/cryptonote_utils/nettype");
+const MoneroUtils = require("./MoneroUtils");
 
 class MoneroWalletMM {
   
@@ -93,14 +94,10 @@ class MoneroWalletMM {
       let tx = txs[txIdx];
       console.log("Tx hash: " + txHashes[txIdx]);
       console.log(tx);
- 
       
       // get tx pub key
-      if (tx.extra.length !== 33) console.warn("Cannot handle non-stardard tx pub key in tx.extra: " + tx.extra); // TODO: handle non-stardard tx pub key
-      let nums = new Uint8Array(tx.extra.slice(1, 33));
-      console.log(nums);
-      let pubKey = Buffer.from(new Uint8Array(tx.extra.slice(1, 33))).toString('utf-8');
-      console.log("Pub key from tx.extra: " + pubKey);
+      let lastPubKey = MoneroUtils.getLastTxPubKey(tx.extra);
+      console.log("Last pub key: " + lastPubKey);
       
       // process outputs
       for (let idx = 0; idx < tx.vout.length; idx++) {
@@ -113,14 +110,14 @@ class MoneroWalletMM {
 //        console.log("Amount: " + amount);
 //        console.log("Index: " + idx);
         
-        let derivation = this.monero_utils.generate_key_derivation(pubKey, this.viewKeyPrv);
+        let derivation = this.monero_utils.generate_key_derivation(lastPubKey, this.viewKeyPrv);
 //        console.log("Derivation: " + derivation);
         
         let pubKeyDerived = this.monero_utils.derive_public_key(derivation, idx, this.spendKeyPub);
-        console.log("Pub key derived: " + pubKeyDerived);
+        //console.log("Pub key derived: " + pubKeyDerived);
         
         // check if wallet owns output
-        if (pubKey === pubKeyDerived) {
+        if (lastPubKey === pubKeyDerived) {
           console.log("This my output!!!");
           numOwned++;
           console.log(out);

@@ -24,6 +24,7 @@ window.BootApp = function() {
       console.log("Daemon initialized");
       let wallet = new MoneroWalletMM(daemonRPC, monero_utils, mnemonic);
       //if (primaryAddress !== wallet.getPrimaryAddress()) throw "Addresses do not match";
+      
       wallet.sync();
     })
     .catch(err => {

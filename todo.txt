@@ -1,2 +1,3 @@
 run in node so no web assembling
 cannot use compare editor in eclipse
+need to be able to debug
