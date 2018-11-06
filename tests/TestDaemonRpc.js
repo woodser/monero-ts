@@ -28,9 +28,12 @@ describe("Daemon RPC Tests", function() {
     // determine start and end height based on number of blocks and how many blocks ago
     let numBlocks = 25;
     let numBlocksAgo = 100;
-    let currentHeight = await daemon.getHeight();
+    let currentHeight = (await daemon.getHeight()).getHeight();
     let startHeight = currentHeight - numBlocksAgo;
     let endHeight = currentHeight - (numBlocksAgo - numBlocks) - 1;
+    
+    console.log(startHeight);
+    console.log(endHeight);
     
     // fetch headers
     let headers = await daemon.getBlockHeaders(startHeight, endHeight);
@@ -38,7 +41,7 @@ describe("Daemon RPC Tests", function() {
     // test headers
     assert.equal(numBlocks, headers.length);
     for (let i = 0; i < numBlocks; i++) {
-      let header = headers.get(i);
+      let header = headers[i];
       assert.equal(startHeight + i, header.getHeight());
       testDaemonResponseInfo(header, true, true);
       testBlockHeader(header);
