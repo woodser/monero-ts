@@ -17,9 +17,10 @@ describe("Daemon RPC Tests", function() {
   });
   
   it("getHeight()", async function() {
-    let height = await daemon.getHeight();
-    assert(height, "Height must be initialized");
-    assert(height > 0, "Height must be greater than 0");
+    let resp = await daemon.getHeight();
+    testDaemonResponseInfo(resp, true, false);
+    assert(resp.getHeight(), "Height must be initialized");
+    assert(resp.getHeight() > 0, "Height must be greater than 0");
   });
 
   it("getBlockHeaders()", async function() {
@@ -45,7 +46,7 @@ describe("Daemon RPC Tests", function() {
   });
 });
 
-function testDaemonResponseInfo(daemonModel) {
+function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted) {
   throw new Error("Not implemented");
 }
 
