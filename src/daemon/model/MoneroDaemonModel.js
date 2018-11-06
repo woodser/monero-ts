@@ -15,3 +15,5 @@ class MoneroDaemonModel {
     this.respInfo = respInfo;
   }
 }
+
+module.exports = MoneroDaemonModel;

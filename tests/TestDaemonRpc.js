@@ -47,7 +47,11 @@ describe("Daemon RPC Tests", function() {
 });
 
 function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted) {
-  throw new Error("Not implemented");
+  assert(model.getResponseInfo());
+  if (initializedStatus) assert.equal("OK", model.getResponseInfo().getStatus());
+  else assert(model.getResponseInfo().getStatus() === undefined);
+  if (initializedIsUntrusted) assert(model.getResponseInfo());
+  else assert(model.getResponseInfo().getIsTrusted() === undefined);
 }
 
 function testDaemonBlockHeader(header) {

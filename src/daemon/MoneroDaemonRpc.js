@@ -1,5 +1,7 @@
-const MoneroDaemon = require("./MoneroDaemon");
 const MoneroRpc = require("../rpc/MoneroRpc")
+const MoneroDaemon = require("./MoneroDaemon");
+const MoneroDaemonResponseInfo = require("./model/MoneroDaemonResponseInfo"); 
+const MoneroHeight = require("./model/MoneroHeight");
 
 /**
  * Implements a Monero daemon using monero-daemon-rpc.
@@ -24,11 +26,18 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getHeight() {
     let resp = await this.rpc.sendJsonRpcRequest("get_block_count");
-    return resp.count;
+    let height = new MoneroHeight(resp.count);
+    MoneroDaemonRpc._setResponseInfo(resp, height);
+    return height;
   }
   
   async getBlockHeaders(startHeight, endHeight) {
     throw new Error("Not implemented");
+  }
+  
+  static _setResponseInfo(resp, model) {
+    let responseInfo = new MoneroDaemonResponseInfo(resp.status, resp.untrusted ? !resp.untrusted : resp.untrusted);  // invert api's isUntrusted to isTrusted
+    model.setResponseInfo(responseInfo);
   }
 }
 

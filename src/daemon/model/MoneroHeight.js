@@ -1,6 +1,11 @@
-const MoneroDaemonModel = require("MoneroDaemonModel");
+const MoneroDaemonModel = require("./MoneroDaemonModel");
 
 class MoneroHeight extends MoneroDaemonModel {
+  
+  constructor(height) {
+    super();
+    this.setHeight(height);
+  }
   
   getHeight() {
     return this.height;
@@ -11,4 +16,4 @@ class MoneroHeight extends MoneroDaemonModel {
   }
 }
 
-module.exports = MoneroDaemonModel;
+module.exports = MoneroHeight;
