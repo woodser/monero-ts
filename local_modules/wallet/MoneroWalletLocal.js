@@ -39,7 +39,6 @@ class MoneroWalletLocal extends MoneroWallet {
     this.spendKeyPub = keys.pub_spendKey_string;
     this.spendKeyPrv = keys.sec_spendKey_string;
     this.primaryAddress = keys.address_string;
-    console.log(this);
   }
   
   getSeed() {
