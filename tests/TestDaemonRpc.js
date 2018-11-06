@@ -58,5 +58,20 @@ function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted
 }
 
 function testBlockHeader(header) {
-  throw new Error("Not implemented");
+  // TODO: just want to make sure these are initialized
+  assert(header);
+  assert(header.getBlockSize());
+  assert(header.getDepth());
+  assert(header.getDepth());
+  assert(header.getDifficulty());
+  assert(header.getHash());
+  assert(header.getHeight());
+  assert(header.getMajorVersion());
+  assert(header.getMinorVersion());
+  assert(header.getNonce());
+  assert(header.getNumTxs());
+  assert(header.getOrphanStatus());
+  assert(header.getPrevHash());
+  assert(header.getReward());
+  assert(header.getTimestamp());
 }
