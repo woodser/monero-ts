@@ -1,6 +1,6 @@
 /**
- * Implements a Monero Wallet using monero-wallet-rpc.
+ * Implements a Monero wallet using monero-wallet-rpc.
  */
-class MoneroWalletRpc extends MoneroWallet {
+class MoneroWalletRpc extends MoneroWalletBase {
   
 }
