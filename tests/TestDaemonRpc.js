@@ -57,6 +57,6 @@ function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted
   else assert(model.getResponseInfo().getIsTrusted() === undefined);
 }
 
-function testDaemonBlockHeader(header) {
+function testBlockHeader(header) {
   throw new Error("Not implemented");
 }

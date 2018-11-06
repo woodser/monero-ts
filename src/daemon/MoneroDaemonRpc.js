@@ -1,3 +1,4 @@
+const BigInteger = require("../mymonero_core_js/cryptonote_utils/biginteger").BigInteger;
 const MoneroRpc = require("../rpc/MoneroRpc")
 const MoneroDaemon = require("./MoneroDaemon");
 const MoneroDaemonResponseInfo = require("./model/MoneroDaemonResponseInfo"); 
@@ -64,17 +65,17 @@ class MoneroDaemonRpc extends MoneroDaemon {
       let val = respHeader[key];
       if (key === "block_size") header.setBlockSize(val);
       else if (key === "depth") header.setDepth(val);
-      else if (key === "difficulty") throw new Error("Not implemented");
-      else if (key === "hash") throw new Error("Not implemented");
-      else if (key === "height") throw new Error("Not implemented");
-      else if (key === "major_version") throw new Error("Not implemented");
-      else if (key === "minor_version") throw new Error("Not implemented");
-      else if (key === "nonce") throw new Error("Not implemented");
-      else if (key === "num_txes") throw new Error("Not implemented");
-      else if (key === "orphan_status") throw new Error("Not implemented");
-      else if (key === "prev_hash") throw new Error("Not implemented");
-      else if (key === "reward") throw new Error("Not implemented");
-      else if (key === "timestamp") throw new Error("Not implemented");
+      else if (key === "difficulty") header.setDifficulty(new BigInteger(val));
+      else if (key === "hash") header.setHash(val);
+      else if (key === "height") header.setHeight(val);
+      else if (key === "major_version") header.setMajorVersion(val);
+      else if (key === "minor_version") header.setMinorVersion(val);
+      else if (key === "nonce") header.setNonce(val);
+      else if (key === "num_txes") header.setNumTxs(val);
+      else if (key === "orphan_status") header.setOrphanStatus(val);
+      else if (key === "prev_hash") header.setPrevHash(val);
+      else if (key === "reward") header.setReward(new BigInteger(val));
+      else if (key === "timestamp") header.setTimestamp(val);
       else console.log("WARNING: ignoring unexpected block header field: '" + key + "'");
     }
     return header;
