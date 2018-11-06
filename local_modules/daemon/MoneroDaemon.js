@@ -13,4 +13,4 @@ class MoneroDaemon {
   }
 }
 
-modules.export = MoneroDaemon;
+module.exports = MoneroDaemon;

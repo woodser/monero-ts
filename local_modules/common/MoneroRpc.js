@@ -11,7 +11,7 @@ const MoneroRpcConfigDefault = {
 }
 
 /**
- * Sends requests to the Monero RPC API.
+ * Interacts with a Monero RPC API.
  */
 class MoneroRpc {
   
@@ -30,4 +30,4 @@ class MoneroRpc {
   }
 }
 
-modules.export = MoneroRpc;
+module.exports = MoneroRpc;
