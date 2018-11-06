@@ -1,3 +1,5 @@
+const request = require('request-promise');
+
 /**
  * Default RPC configuration.
  */
@@ -21,11 +23,15 @@ class MoneroRpc {
    * @param config defines the rpc configuration as a map
    */
   constructor(config) {
+    
+    // merge config with defaults
     config = Object.assign({}, MoneroRpcConfigDefault, config);
     
     console.log("Constructing RPC connection with this config:");
     console.log(config);
-    
+  }
+  
+  sendRpcRequest(method, params) {
     throw new Error("Not implemented");
   }
 }

@@ -20,8 +20,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
     } else {
       this.rpc = new MoneroRpc(rpcOrConfig);
     }
-
-    throw new Error("Not implemented");
   }
   
   async getHeight() {

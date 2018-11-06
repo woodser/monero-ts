@@ -60,6 +60,10 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async sync() {
     
+    // get height from new daemon
+    let height = await this.daemon.getHeight();
+    console.log("Fetched height from daemon: " + height);
+    
     // get height
     let resp = await this.daemon.get_height();
     
