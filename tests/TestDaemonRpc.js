@@ -23,6 +23,32 @@ describe("Daemon RPC Tests", function() {
   });
 
   it("getBlockHeaders()", async function() {
-    throw new Error("Not implemented");
+    
+    // determine start and end height based on number of blocks and how many blocks ago
+    let numBlocks = 25;
+    let numBlocksAgo = 100;
+    let currentHeight = await daemon.getHeight();
+    let startHeight = currentHeight - numBlocksAgo;
+    let endHeight = currentHeight - (numBlocksAgo - numBlocks) - 1;
+    
+    // fetch headers
+    let headers = await daemon.getBlockHeaders(startHeight, endHeight);
+
+    // test headers
+    assertEquals(numBlocks, headers.length);
+    for (let i = 0; i < numBlocks; i++) {
+      let header = headers.get(i);
+      assert.equal(startHeight + i, header.getHeight());
+      testDaemonResponseInfo(header, true, true);
+      testBlockHeader(header);
+    }
   });
 });
+
+function testDaemonResponseInfo(daemonModel) {
+  throw new Error("Not implemented");
+}
+
+function testDaemonBlockHeader(header) {
+  throw new Error("Not implemented");
+}
