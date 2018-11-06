@@ -26,6 +26,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let resp = await this.rpc.sendJsonRpcRequest("get_block_count");
     return resp.count;
   }
+  
+  async getBlockHeaders(startHeight, endHeight) {
+    throw new Error("Not implemented");
+  }
 }
 
 module.exports = MoneroDaemonRpc;

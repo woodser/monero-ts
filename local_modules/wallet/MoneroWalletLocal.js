@@ -59,23 +59,17 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async sync() {
     
-    // get height from new daemon
-    let height = await this.daemon.getHeight();
-    console.log("Fetched height from daemon: " + height);
-    
-    throw new Error("Rest of sync function not implemented with your daemon API");
-    
     // get height
-    let resp = await this.daemon.get_height();
+    let height = await this.daemon.getHeight();
     
     // fetch block headers
     const NUM_BLOCKS = 100;
-    let endHeight = resp.height - 1;
+    let endHeight = height - 1;
     let startHeight = endHeight - NUM_BLOCKS + 1;
     startHeight = 197085;
     endHeight = startHeight + NUM_BLOCKS;
     console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
-    let headersResp = await this.daemon.get_block_headers_range(startHeight, endHeight);
+    let headersResp = await this.daemon.getBlockHeaders(startHeight, endHeight);
     
     // fetch blocks
     let requests = headersResp.headers.map(header => () => this.daemon.getblock_by_height(header.height));
