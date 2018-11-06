@@ -36,9 +36,6 @@ class MoneroRpc {
     } else {
       this.config.uri = this.config.protocol + "://" + this.config.host + ":" + this.config.port;
     }
-    
-    console.log("Constructing RPC connection with this config:");
-    console.log(this.config);
   }
   
   /**
