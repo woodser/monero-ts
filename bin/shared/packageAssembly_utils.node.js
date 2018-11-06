@@ -38,7 +38,7 @@ function assembleWith(
 )
 {
 	const numberOf_doNotCopyOrEnterFilepathsMatching = doNotCopyOrEnterFilepathsMatching.length
-	const pathTo_localModules = path.join(__dirname, "..", "..", "local_modules")
+	const pathTo_localModules = path.join(__dirname, "..", "..", "src")
 	const pathTo_assembled_www = path.join(__dirname, "..", "..", relativePathTo_assembledWWWDirectory )
 	//
 	// (in case www doesn't exist…)

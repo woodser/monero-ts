@@ -1,6 +1,6 @@
-[submodule "local_modules/mymonero_core_js"]
-	path = local_modules/mymonero_core_js
+[submodule "src/mymonero_core_js"]
+	path = src/mymonero_core_js
 	url = https://github.com/mymonero/mymonero-core-js
-[submodule "local_modules/monerojs"]
-	path = local_modules/monerojs
+[submodule "src/monerojs"]
+	path = src/monerojs
 	url = https://github.com/monerojs/monerojs.git

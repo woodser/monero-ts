@@ -1,13 +1,13 @@
 "use strict"
 
-const MoneroDaemonRpc = require("../daemon/MoneroDaemonRpc");
-const MoneroWalletLocal = require("../wallet/MoneroWalletLocal");
+const MoneroDaemonRpc = require("./daemon/MoneroDaemonRpc");
+const MoneroWalletLocal = require("./wallet/MoneroWalletLocal");
 
-const MoneroRPC = require("../monerojs");
+const MoneroRPC = require("./monerojs");
 //const WalletHostPollingController = require('../Wallets/Controllers/WalletHostPollingController')
 
 console.log("Booting app...");
-require('../mymonero_core_js/monero_utils/monero_utils')().then(function(monero_utils) {
+require('./mymonero_core_js/monero_utils/monero_utils')().then(function(monero_utils) {
   console.log("Monero utils loaded");
   //console.log(monero_utils);
   
