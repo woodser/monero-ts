@@ -1,5 +1,5 @@
 const MoneroDaemon = require("./MoneroDaemon");
-const MoneroRpc = require("../common/MoneroRpc")
+const MoneroRpc = require("../rpc/MoneroRpc")
 
 /**
  * Implements a Monero daemon using monero-daemon-rpc.

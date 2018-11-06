@@ -1,4 +1,4 @@
-const MoneroRpcError = require("../common/MoneroRpcError");
+const MoneroRpcError = require("../rpc/MoneroRpcError");
 const request = require("request-promise");
 const http = require('http');
 
