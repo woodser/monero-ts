@@ -10,10 +10,12 @@ before(function() {
 beforeEach(function() {
 });
 
-describe("Daemon", function() {
-  it("Has a height", async function() {
-    let height = await daemon.getHeight();
-    assert(height, "Height must be initialized");
-    assert(height > 0, "Height must be greater than 0");
-  });
+it("getHeight()", async function() {
+  let height = await daemon.getHeight();
+  assert(height, "Height must be initialized");
+  assert(height > 0, "Height must be greater than 0");
+});
+
+it("getBlockHeaders()", async function() {
+  throw new Error("Not implemented");
 });
