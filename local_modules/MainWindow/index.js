@@ -16,20 +16,28 @@ window.BootApp = function() {
 	  //let primaryAddress = "51sLpF8fWaK11111111111111111111111111111111112N1GuTZeagfRbbKcALdcZev4QXGGuoLh2x36LhaxLSxCZiDpfU";  // just for reference
 	  let mnemonic = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
 	  let primaryAddress = "59aZULsUF3YNSKGiHz4JPMfjGYkm1S4TB3sPsTr3j85HhXb9crZqGa7jJ8cA87U48kT5wzi2VzGZnN2PKojEwoyaHqtpeZh";  // just for reference
+	  
+	  console.log("1");
+	  let daemonRpc = new MoneroDaemonRpc({ port: 38081, user: "superuser", pass: "abctesting123", protocol: "http", network: "stagenet" });
+	  console.log("2");
+	  let wallet = new MoneroWalletLocal(daemonRpc, monero_utils, mnemonic);
+	  if (primaryAddress !== wallet.getPrimaryAddress()) throw "Addresses do not match";
+    wallet.sync();
+    console.log("hello");
   
-    new MoneroRPC.daemonRPC({ hostname: "localhost", port: 38081, user: "superuser", pass: "abctesting123", protocol: "http", network: "stagenet" })
-//	  new MoneroRPC.daemonRPC("localhost", 38081, "superuser", "abctesting123", "http", "mainnet")
-//    new MoneroRPC.daemonRPC({ autoconnect: true, random: true, user: "superuser", pass: "abctesting123" })
-    .then(daemonRPC => {
-      console.log("Daemon initialized");
-      let wallet = new MoneroWalletLocal(daemonRPC, monero_utils, mnemonic);
-      if (primaryAddress !== wallet.getPrimaryAddress()) throw "Addresses do not match";
-      wallet.sync();
-    })
-    .catch(err => {
-      console.log("Error");
-      console.error(err);
-    });
+//    new MoneroRPC.daemonRPC({ hostname: "localhost", port: 38081, user: "superuser", pass: "abctesting123", protocol: "http", network: "stagenet" })
+////	  new MoneroRPC.daemonRPC("localhost", 38081, "superuser", "abctesting123", "http", "mainnet")
+////    new MoneroRPC.daemonRPC({ autoconnect: true, random: true, user: "superuser", pass: "abctesting123" })
+//    .then(daemonRPC => {
+//      console.log("Daemon initialized");
+//      let wallet = new MoneroWalletLocal(daemonRPC, monero_utils, mnemonic);
+//      if (primaryAddress !== wallet.getPrimaryAddress()) throw "Addresses do not match";
+//      wallet.sync();
+//    })
+//    .catch(err => {
+//      console.log("Error");
+//      console.error(err);
+//    });
 	});
 }
 window.BootApp()

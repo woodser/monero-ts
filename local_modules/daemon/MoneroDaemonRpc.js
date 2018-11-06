@@ -5,7 +5,8 @@ const MoneroDaemon = require("./MoneroDaemon");
  */
 class MoneroDaemonRpc extends MoneroDaemon {
   
-  constructor() {
+  constructor(rpcConnection) {
+    super();
     throw new Error("Not implemented");
   }
   
@@ -13,3 +14,5 @@ class MoneroDaemonRpc extends MoneroDaemon {
     throw new Error("Not implemented");
   }
 }
+
+modules.export = MoneroDaemonRpc;
