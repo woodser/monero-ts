@@ -1,5 +1,5 @@
 const MoneroWallet = require("./MoneroWallet");
-const MoneroUtils = require("../common/MoneroUtils");
+const MoneroUtils = require("../utils/MoneroUtils");
 const nettype = require("../mymonero_core_js/cryptonote_utils/nettype");
 
 /**
