@@ -1,7 +1,7 @@
 /**
  * Monero daemon interface and default implementations.
  */
-class MoneroDaemonBase {
+class MoneroDaemon {
   
   /**
    * Get how many blocks are in the longest chain known to the node.
@@ -13,4 +13,4 @@ class MoneroDaemonBase {
   }
 }
 
-modules.export = MoneroDaemonBase;
+modules.export = MoneroDaemon;

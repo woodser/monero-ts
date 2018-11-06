@@ -1,9 +1,9 @@
-const MoneroDaemonBase = require("./MoneroDaemonBase");
+const MoneroDaemon = require("./MoneroDaemon");
 
 /**
  * Implements a Monero daemon using monero-daemon-rpc.
  */
-class MoneroDaemonRpc extends MoneroDaemonBase {
+class MoneroDaemonRpc extends MoneroDaemon {
   
   constructor() {
     throw new Error("Not implemented");

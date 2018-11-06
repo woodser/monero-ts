@@ -1,7 +1,7 @@
 /**
  * Monero wallet interface and default implementations.
  */
-class MoneroWalletBase {
+class MoneroWallet {
   
   getSeed() {
     throw new Error("Subclass must implement");
@@ -12,4 +12,4 @@ class MoneroWalletBase {
   }
 }
 
-module.exports = MoneroWalletBase;
+module.exports = MoneroWallet;

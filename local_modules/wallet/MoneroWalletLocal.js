@@ -1,11 +1,11 @@
-const MoneroWalletBase = require("./MoneroWalletBase");
+const MoneroWallet = require("./MoneroWallet");
 const MoneroUtils = require("../common/MoneroUtils");
 const nettype = require("../mymonero_core_js/cryptonote_utils/nettype");
 
 /**
  * Implements a Monero wallet using client-side crypto and a daemon.
  */
-class MoneroWalletLocal extends MoneroWalletBase {
+class MoneroWalletLocal extends MoneroWallet {
   
   /**
    * Constructs the wallet.
