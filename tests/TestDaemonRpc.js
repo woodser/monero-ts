@@ -36,7 +36,7 @@ describe("Daemon RPC Tests", function() {
     let headers = await daemon.getBlockHeaders(startHeight, endHeight);
 
     // test headers
-    assertEquals(numBlocks, headers.length);
+    assert.equal(numBlocks, headers.length);
     for (let i = 0; i < numBlocks; i++) {
       let header = headers.get(i);
       assert.equal(startHeight + i, header.getHeight());

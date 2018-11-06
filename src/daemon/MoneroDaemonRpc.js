@@ -32,12 +32,32 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getBlockHeaders(startHeight, endHeight) {
-    throw new Error("Not implemented");
+    
+    // fetch block headers
+    let resp = await this.rpc.sendJsonRpcRequest("get_block_headers_range", {
+      start_height: startHeight,
+      end_height: endHeight
+    });
+    
+    // build headers
+    let headers = [];
+    for (let respHeader of resp.headers) {
+      let header = MoneroDaemonRpc._initializeBlockHeader(resp.respHeader);
+      headers.push(header);
+      MoneroDaemonRpc._setResponseInfo(resp, header);
+    }
+    return headers;
   }
+  
+  // ------------------------------- PRIVATE STATIC ---------------------------
   
   static _setResponseInfo(resp, model) {
     let responseInfo = new MoneroDaemonResponseInfo(resp.status, resp.untrusted ? !resp.untrusted : resp.untrusted);  // invert api's isUntrusted to isTrusted
     model.setResponseInfo(responseInfo);
+  }
+  
+  static _initializeBlockHeader(respHeader) {
+    throw new Error("Not implemented");
   }
 }
 
