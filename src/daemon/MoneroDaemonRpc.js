@@ -63,6 +63,18 @@ class MoneroDaemonRpc extends MoneroDaemon {
       let key = prop.toString();
       let val = respHeader[key];
       if (key === "block_size") header.setBlockSize(val);
+      else if (key === "depth") header.setDepth(val);
+      else if (key === "difficulty") throw new Error("Not implemented");
+      else if (key === "hash") throw new Error("Not implemented");
+      else if (key === "height") throw new Error("Not implemented");
+      else if (key === "major_version") throw new Error("Not implemented");
+      else if (key === "minor_version") throw new Error("Not implemented");
+      else if (key === "nonce") throw new Error("Not implemented");
+      else if (key === "num_txes") throw new Error("Not implemented");
+      else if (key === "orphan_status") throw new Error("Not implemented");
+      else if (key === "prev_hash") throw new Error("Not implemented");
+      else if (key === "reward") throw new Error("Not implemented");
+      else if (key === "timestamp") throw new Error("Not implemented");
       else console.log("WARNING: ignoring unexpected block header field: '" + key + "'");
     }
     return header;
