@@ -1,0 +1,2 @@
+require("./TestDaemonRpc");
+require("./TestWalletLocal");
