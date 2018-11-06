@@ -63,6 +63,8 @@ class MoneroWalletLocal extends MoneroWallet {
     let height = await this.daemon.getHeight();
     console.log("Fetched height from daemon: " + height);
     
+    throw new Error("Rest of sync function not implemented with your daemon API");
+    
     // get height
     let resp = await this.daemon.get_height();
     

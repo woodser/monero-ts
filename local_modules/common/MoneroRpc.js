@@ -75,7 +75,7 @@ class MoneroRpc {
     // send request and await response
     let resp = await request.post(this.config.uri + "/json_rpc", opts);
     if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
-    return resp;
+    return resp.result;
   }
 }
 
