@@ -15,7 +15,7 @@ describe("Test Daemon RPC", function() {
   });
 
   // TODO: test lower and upper bounds
-  it("getBlockHeaders()", async function() {
+  it("getBlockHeadersByRange()", async function() {
     
     // determine start and end height based on number of blocks and how many blocks ago
     let numBlocks = 25;
@@ -25,7 +25,7 @@ describe("Test Daemon RPC", function() {
     let endHeight = currentHeight - (numBlocksAgo - numBlocks) - 1;
     
     // fetch headers
-    let headers = await daemon.getBlockHeaders(startHeight, endHeight);
+    let headers = await daemon.getBlockHeadersByRange(startHeight, endHeight);
 
     // test headers
     assert.equal(numBlocks, headers.length);
@@ -35,6 +35,14 @@ describe("Test Daemon RPC", function() {
       testDaemonResponseInfo(header, true, true);
       testBlockHeader(header);
     }
+  });
+  
+  it("getBlockByHash()", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("getBlockByHeight()", async function() {
+    throw new Error("Not implemented");
   });
 });
 

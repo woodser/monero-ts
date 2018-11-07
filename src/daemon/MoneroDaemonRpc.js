@@ -33,7 +33,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return height;
   }
   
-  async getBlockHeaders(startHeight, endHeight) {
+  async getBlockHeadersByRange(startHeight, endHeight) {
     
     // fetch block headers
     let resp = await this.rpc.sendJsonRpcRequest("get_block_headers_range", {

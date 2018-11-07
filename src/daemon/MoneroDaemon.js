@@ -19,7 +19,7 @@ class MoneroDaemon {
    * @param endHeight is the end height lower bound (optional)
    * @returns List<MoneroBlockHeader> for the given range
    */
-  async getBlockHeaders(startHeight, endHeight) {
+  async getBlockHeadersByRange(startHeight, endHeight) {
     throw new Error("Subclass must implement");
   }
   
