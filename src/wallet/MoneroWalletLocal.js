@@ -60,36 +60,25 @@ class MoneroWalletLocal extends MoneroWallet {
   async sync() {
     
     // get height
-    let height = await this.daemon.getHeight();
+    let height = (await this.daemon.getHeight()).getHeight(); // TODO: imporove this?
     
-    // fetch block headers
+    // determine heights to fetch
     const NUM_BLOCKS = 100;
     let endHeight = height - 1;
     let startHeight = endHeight - NUM_BLOCKS + 1;
-    startHeight = 197085;
-    endHeight = startHeight + NUM_BLOCKS;
-    console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
-    let headers = await this.daemon.getBlockHeadersByRange(startHeight, endHeight);
-    
-//    // fetch blocks
-//    let heights = headers.map(header => header.getHeight());
-//    let blocks = await this.daemon.getBlocksByHeight(heights);
-    
-    
-    
-    
+    //startHeight = 197085;
+    //endHeight = startHeight + NUM_BLOCKS - 1;
     
     // fetch blocks
-    let requests = headers.map(header => () => this.daemon.getBlockByHeight(header.getHeight()));
+    console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
     let blocks = [];
-    for (let request of requests) {
-      blocks.push(await request());
+    for (let height = startHeight; height < endHeight; height++) {
+      blocks.push(await this.daemon.getBlockByHeight(height));
     }
-    console.log(blocks);
     
     // collect transaction hashes
 //    let txHashes = blocks.map(block => block.tx_hashes === undefined ? [] : block.tx_hashes).reduce((a, b) => a.concat(b)); // works but bad memory profile
-    let txHashes = blocks.map(block => block.tx_hashes === undefined ? [] : block.tx_hashes).reduce((a, b) => { a.push.apply(a, b); return a; }); // works
+    let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; }); // works
 //    let txHashes = [];
 //    for (let block of blocks) {
 //      if (block.tx_hashes === undefined) continue;

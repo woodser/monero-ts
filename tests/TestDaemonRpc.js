@@ -31,7 +31,7 @@ describe("Test Daemon RPC", function() {
   it("getBlockHeadersByRange()", async function() {
     
     // determine start and end height based on number of blocks and how many blocks ago
-    let numBlocks = 25;
+    let numBlocks = 100;
     let numBlocksAgo = 100;
     let currentHeight = (await daemon.getHeight()).getHeight();
     let startHeight = currentHeight - numBlocksAgo;
@@ -118,6 +118,7 @@ function testBlock(block) {
   assert(block.getBlob());
   assert(block.getBlob().length > 1);
   assert(Array.isArray(block.getTxHashes()));
+  assert(block.getTxHashes().length >= 0);
   testBlockHeader(block.getHeader());
   testMinerTx(block.getMinerTx());
 }

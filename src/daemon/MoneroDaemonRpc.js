@@ -113,18 +113,16 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   static _initializeBlock(respBlock) {
 
-    // parse json string
-    let json = JSON.parse(respBlock.json);
-    
     // initialize block
     let block = new MoneroBlock();
     block.setBlob(respBlock.blob);
     block.setHeader(MoneroDaemonRpc._initializeBlockHeader(respBlock.block_header));
-    block.setTxHashes(json.tx_hashes);
+    block.setTxHashes(respBlock.tx_hashes === undefined ? [] : respBlock.tx_hashes);
     
     // initialize miner tx from json
     let minerTx = new MoneroMinerTx();
     block.setMinerTx(minerTx);
+    let json = JSON.parse(respBlock.json);
     minerTx.setVersion(json.miner_tx.version);
     minerTx.setUnlockTime(json.miner_tx.unlock_time);
     minerTx.setExtra(json.miner_tx.extra);
