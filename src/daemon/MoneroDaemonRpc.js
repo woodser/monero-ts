@@ -33,6 +33,17 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return height;
   }
   
+  async getBlockHash(height) {
+    return await this.rpc.sendJsonRpcRequest("on_get_block_hash", [height]);
+  }
+  
+  async getLastBlockHeader() {
+    let resp = await this.rpc.sendJsonRpcRequest("get_last_block_header");
+    let header = MoneroDaemonRpc._initializeBlockHeader(resp.block_header);
+    MoneroDaemonRpc._setResponseInfo(resp, header);
+    return header;
+  }
+  
   async getBlockHeadersByRange(startHeight, endHeight) {
     
     // fetch block headers
@@ -49,6 +60,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
       MoneroDaemonRpc._setResponseInfo(resp, header);
     }
     return headers;
+  }
+  
+  async getBlockByHash(hash) {
+    let resp = await this.rpc.sendJsonRpcRequest("get_block", {hash: hash});
+    let block = MoneroDaemonRpc._initializeBlock(resp);
+    MoneroDaemonRpc._setResponseInfo(resp, block);
+    return block;
   }
   
   // ------------------------------- PRIVATE STATIC ---------------------------
@@ -82,6 +100,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else console.log("WARNING: ignoring unexpected block header field: '" + key + "': " + val);
     }
     return header;
+  }
+  
+  static _initializeBlock(respBlock) {
+    throw new Error("Not implemented");
   }
 }
 

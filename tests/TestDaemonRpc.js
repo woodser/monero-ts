@@ -13,7 +13,20 @@ describe("Test Daemon RPC", function() {
     assert(resp.getHeight(), "Height must be initialized");
     assert(resp.getHeight() > 0, "Height must be greater than 0");
   });
-
+  
+  it("getBlockHash()", async function() {
+    let lastHeader = await daemon.getLastBlockHeader();
+    let hash = await daemon.getBlockHash(lastHeader.getHeight());
+    assert(hash);
+    assert.equal(64, hash.length);
+  });
+  
+  it ("getLastBlockHeader()", async function() {
+    let lastHeader = await daemon.getLastBlockHeader();
+    testDaemonResponseInfo(lastHeader, true, true);
+    testBlockHeader(lastHeader);
+  });
+  
   // TODO: test lower and upper bounds
   it("getBlockHeadersByRange()", async function() {
     
@@ -38,7 +51,21 @@ describe("Test Daemon RPC", function() {
   });
   
   it("getBlockByHash()", async function() {
-    throw new Error("Not implemented");
+    
+    // retrieve by hash of last block
+    let lastHeader = await daemon.getLastBlockHeader();
+    let hash = await daemon.getBlockHash(lastHeader.getHeight());
+    let block = await daemon.getBlockByHash(hash);
+    testDaemonResponseInfo(block, true, true);
+    testBlock(block);
+    assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
+    
+    // retrieve by hash of previous to last block
+    hash = await daemon.getBlockHash(lastHeader().getHeight() - 1);
+    block = await daemon.getBlock(hash);
+    testDaemonResponseInfo(block, true, true);
+    testBlock(block);
+    assert.deepEqual(await daemon.getBlockByHeight(lastHeader.getHeight() - 1), block);
   });
   
   it("getBlockByHeight()", async function() {
@@ -57,8 +84,7 @@ function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted
 function testBlockHeader(header) {
   assert(header);
   assert(header.getBlockSize());
-  assert(header.getDepth());
-  assert(header.getDepth());
+  assert(header.getDepth() >= 0);
   assert(header.getDifficulty());
   assert(header.getCumulativeDifficulty());
   assert(header.getHash());
