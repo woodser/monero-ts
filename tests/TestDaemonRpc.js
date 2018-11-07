@@ -69,7 +69,19 @@ describe("Test Daemon RPC", function() {
   });
   
   it("getBlockByHeight()", async function() {
-    throw new Error("Not implemented");
+    
+    // retrieve by height of last block
+    let lastHeader = await daemon.getLastBlockHeader();
+    let block = await daemon.getBlockByHeight(lastHeader.getHeight());
+    testDaemonResponseInfo(block, true, true);
+    testBlock(block);
+    assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
+    
+    // retrieve by height of previous to last block
+    block = await daemon.getBlockByHeight(lastHeader.getHeight() - 1);
+    testDaemonResponseInfo(block, true, true);
+    testBlock(block);
+    assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
   });
 });
 
