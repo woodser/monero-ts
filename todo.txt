@@ -1,3 +1,1 @@
 what exactly is a resolved promise
-cannot use compare editor in eclipse
-need to be able to debug
