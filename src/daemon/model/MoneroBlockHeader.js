@@ -29,6 +29,14 @@ class MoneroBlockHeader extends MoneroDaemonModel {
     this.difficulty = difficulty;
   }
   
+  getCumulativeDifficulty() {
+    return this.cumulativeDifficulty;
+  }
+  
+  setCumulativeDifficulty(cumulativeDifficulty) {
+    this.cumulativeDifficulty = cumulativeDifficulty;
+  }
+  
   getHash() {
     return this.hash;
   }
@@ -107,6 +115,22 @@ class MoneroBlockHeader extends MoneroDaemonModel {
   
   setTimestamp(timestamp) {
     this.timestamp = timestamp;
+  }
+  
+  getBlockWeight() {
+    return this.blockWeight;
+  }
+  
+  setBlockWeight(blockWeight) {
+    this.blockWeight = blockWeight;
+  }
+  
+  getPowHash() {
+    return this.powHash;
+  }
+  
+  setPowHash(powHash) {
+    this.powHash = powHash;
   }
 }
 

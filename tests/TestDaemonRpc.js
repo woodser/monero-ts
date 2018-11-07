@@ -11,10 +11,6 @@ describe("Daemon RPC Tests", function() {
   before(function() {
     daemon = new MoneroDaemonRpc({ port: 38081, user: "superuser", pass: "abctesting123", protocol: "http" });
   })
-
-  beforeEach(function() {
-    console.log("Before each test");
-  });
   
   it("getHeight()", async function() {
     let resp = await daemon.getHeight();
@@ -31,9 +27,6 @@ describe("Daemon RPC Tests", function() {
     let currentHeight = (await daemon.getHeight()).getHeight();
     let startHeight = currentHeight - numBlocksAgo;
     let endHeight = currentHeight - (numBlocksAgo - numBlocks) - 1;
-    
-    console.log(startHeight);
-    console.log(endHeight);
     
     // fetch headers
     let headers = await daemon.getBlockHeaders(startHeight, endHeight);
@@ -63,6 +56,7 @@ function testBlockHeader(header) {
   assert(header.getDepth());
   assert(header.getDepth());
   assert(header.getDifficulty());
+  assert(header.getCumulativeDifficulty());
   assert(header.getHash());
   assert(header.getHeight());
   assert(header.getMajorVersion());
@@ -73,4 +67,6 @@ function testBlockHeader(header) {
   assert(header.getPrevHash());
   assert(header.getReward());
   assert(header.getTimestamp());
+  assert(header.getBlockWeight());
+  assert(header.getPowHash() === undefined);
 }

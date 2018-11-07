@@ -66,6 +66,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       if (key === "block_size") header.setBlockSize(val);
       else if (key === "depth") header.setDepth(val);
       else if (key === "difficulty") header.setDifficulty(new BigInteger(val));
+      else if (key === "cumulative_difficulty") header.setCumulativeDifficulty(new BigInteger(val));
       else if (key === "hash") header.setHash(val);
       else if (key === "height") header.setHeight(val);
       else if (key === "major_version") header.setMajorVersion(val);
@@ -76,7 +77,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "prev_hash") header.setPrevHash(val);
       else if (key === "reward") header.setReward(new BigInteger(val));
       else if (key === "timestamp") header.setTimestamp(val);
-      else console.log("WARNING: ignoring unexpected block header field: '" + key + "'");
+      else if (key === "block_weight") header.setBlockWeight(val);
+      else if (key === "pow_hash") header.setPowHash(val === "" ? undefined : val);
+      else console.log("WARNING: ignoring unexpected block header field: '" + key + "': " + val);
     }
     return header;
   }
