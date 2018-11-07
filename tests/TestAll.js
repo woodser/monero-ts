@@ -1,2 +1,2 @@
 require("./TestDaemonRpc");
-//require("./TestWalletLocal");
+require("./TestWalletLocal");

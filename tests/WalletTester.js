@@ -26,8 +26,8 @@ class WalletTester {
       });
       
       it("sync()", async function() {
+        await wallet.sync();
         throw new Error("Not implemented");
-        //await wallet.sync();
       });
     });
   }

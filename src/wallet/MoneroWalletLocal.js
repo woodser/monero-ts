@@ -71,31 +71,34 @@ class MoneroWalletLocal extends MoneroWallet {
     console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
     let headers = await this.daemon.getBlockHeadersByRange(startHeight, endHeight);
     
-    // fetch blocks
-    let heights = headers.map(header => header.getHeight());
-    let blocks = await this.daemon.getBlocksByHeight(heights);
-    
-    
-    
-    
-    
 //    // fetch blocks
-//    let requests = headers.map(header => () => this.daemon.getblock_by_height(header.getHeight()));
-//    let blocks = [];
-//    for (let request of requests) {
-//      blocks.push(await request());
+//    let heights = headers.map(header => header.getHeight());
+//    let blocks = await this.daemon.getBlocksByHeight(heights);
+    
+    
+    
+    
+    
+    // fetch blocks
+    let requests = headers.map(header => () => this.daemon.getBlockByHeight(header.getHeight()));
+    let blocks = [];
+    for (let request of requests) {
+      blocks.push(await request());
+    }
+    console.log(blocks);
+    
+    // collect transaction hashes
+//    let txHashes = blocks.map(block => block.tx_hashes === undefined ? [] : block.tx_hashes).reduce((a, b) => a.concat(b)); // works but bad memory profile
+    let txHashes = blocks.map(block => block.tx_hashes === undefined ? [] : block.tx_hashes).reduce((a, b) => { a.push.apply(a, b); return a; }); // works
+//    let txHashes = [];
+//    for (let block of blocks) {
+//      if (block.tx_hashes === undefined) continue;
+//      for (let txHash of block.tx_hashes) {
+//        txHashes.push(txHash);
+//      }
 //    }
-//    
-//    // collect transaction hashes
-////    let txHashes = blocks.map(block => block.tx_hashes === undefined ? [] : block.tx_hashes).reduce((a, b) => a.concat(b)); // works but bad memory profile
-//    let txHashes = blocks.map(block => block.tx_hashes === undefined ? [] : block.tx_hashes).reduce((a, b) => { a.push.apply(a, b); return a; }); // works
-////    let txHashes = [];
-////    for (let block of blocks) {
-////      if (block.tx_hashes === undefined) continue;
-////      for (let txHash of block.tx_hashes) {
-////        txHashes.push(txHash);
-////      }
-////    }
+    console.log("TX hashes: " + txHashes.length);
+    
 //    
 //    // fetch transactions
 //    let txResp = await this.daemon.get_transactions(txHashes, true, false);
