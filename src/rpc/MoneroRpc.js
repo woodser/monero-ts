@@ -2,7 +2,6 @@ const MoneroRpcError = require("./MoneroRpcError");
 const request = require("request-promise");
 const http = require('http');
 
-
 /**
  * Default RPC configuration.
  */
@@ -55,7 +54,7 @@ class MoneroRpc {
           method: method,
           params: params
         },
-        agent: new http.Agent({
+        agent: new http.Agent({ // TODO: recycle agent?
           keepAlive: true,
           maxSockets: 1
         })
@@ -71,6 +70,40 @@ class MoneroRpc {
     
     // send request and await response
     let resp = await request.post(this.config.uri + "/json_rpc", opts);
+    if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
+    return resp.result;
+  }
+  
+  /**
+   * Sends a binary RPC request.
+   * 
+   * @param method is the binary RPC method to invoke
+   * @params are the request parameters
+   * @return a Promise invoked with the response
+   */
+  async sendBinRpcRequest(method, params) {
+    
+    // build request
+    let opts = {
+        agent: new http.Agent({ // TODO: recycle agent?
+          keepAlive: true,
+          maxSockets: 1
+        }),
+        encoding: null,
+        body: null, // TODO: how to do parameters
+    };
+    if (this.config.user) {
+      opts.forever = true;
+      opts.auth = {
+          user: this.config.user,
+          pass: this.config.pass,
+          sendImmediately: false
+      }
+    }
+    
+    // send request and await response
+    console.log("Sending to: " + this.config.uri + "/" + method);
+    let resp = await request.post(this.config.uri + "/" + method, opts);
     if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
     return resp.result;
   }
