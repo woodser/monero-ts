@@ -73,7 +73,7 @@ class MoneroWalletLocal extends MoneroWallet {
     
     // fetch blocks
     let heights = headers.map(header => header.getHeight());
-    let blocks = await this.daemon.getBlocks(heights);
+    let blocks = await this.daemon.getBlocksByHeight(heights);
     
     
     

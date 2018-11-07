@@ -14,6 +14,7 @@ describe("Test Daemon RPC", function() {
     assert(resp.getHeight() > 0, "Height must be greater than 0");
   });
 
+  // TODO: test lower and upper bounds
   it("getBlockHeaders()", async function() {
     
     // determine start and end height based on number of blocks and how many blocks ago
