@@ -150,6 +150,26 @@ class MoneroWalletLocal extends MoneroWallet {
     
     console.log("Done processing, " + numOwned + " owned outputs found, " + numUnowned + " unowned");
   }
+  
+  // ------------------------------- PRIVATE STATIC ---------------------------
+  
+  /**
+   * Get Monero Core utils for client-side wallet crypto.
+   */
+  static async getCoreUtils() {
+    return await require('../mymonero_core_js/monero_utils/monero_utils')();
+  }
+  
+  /**
+   * Creates a new instance.
+   * 
+   * @param daemon is the daemon to support the wallet
+   * @param mnemonic is a pre-existing seed to import (optional)
+   */
+  static async newInstance(daemon, mnemonic) {
+    let coreUtils = await this.getCoreUtils();
+    return new MoneroWalletLocal(daemon, await coreUtils, mnemonic);    
+  }
 }
 
 module.exports = MoneroWalletLocal;

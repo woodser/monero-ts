@@ -1,6 +1,13 @@
-const WalletTester = require("./WalletTester");
 const TestUtils = require("./TestUtils");
-require('../src/mymonero_core_js/monero_utils/monero_utils')().then(function(coreUtils) {
+const WalletTester = require("./WalletTester");
+const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
+
+// get core utils
+MoneroWalletLocal.getCoreUtils().then(function(coreUtils) {
+  
+  // get wallet
   let wallet = TestUtils.getWalletLocal(coreUtils);
+
+  // test wallet
   new WalletTester("Test Wallet Local", wallet).run();
 });
