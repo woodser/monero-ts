@@ -1,16 +1,11 @@
 const assert = require("assert");
 const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
+const TestUtils = require("./TestUtils");
 
-/**
- * Tests the daemon RPC client.
- */
-describe("Daemon RPC Tests", function() {
-  
-  let daemon; // daemon to test
+// daemon to test
+let daemon = TestUtils.getDaemonRpc();
 
-  before(function() {
-    daemon = new MoneroDaemonRpc({ port: 38081, user: "superuser", pass: "abctesting123", protocol: "http" });
-  })
+describe("Test Daemon RPC", function() {
   
   it("getHeight()", async function() {
     let resp = await daemon.getHeight();
