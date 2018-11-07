@@ -48,6 +48,8 @@ class MoneroRpc {
     
     // build request
     let opts = {
+        method: "POST",
+        uri: this.config.uri + "/json_rpc",
         json: {
           id: "0",
           jsonrpc: "2.0",
@@ -69,7 +71,7 @@ class MoneroRpc {
     }
     
     // send request and await response
-    let resp = await request.post(this.config.uri + "/json_rpc", opts);
+    let resp = await request(opts);
     if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
     return resp.result;
   }
@@ -85,12 +87,15 @@ class MoneroRpc {
     
     // build request
     let opts = {
+        method: "POST",
+        uri: this.config.uri + "/" + method,
         agent: new http.Agent({ // TODO: recycle agent?
           keepAlive: true,
           maxSockets: 1
         }),
+        resolveWithFullResponse: true,
         encoding: null,
-        body: null, // TODO: how to do parameters
+        body: Buffer.from(JSON.stringify(params)), // TODO: how to do parameters
     };
     if (this.config.user) {
       opts.forever = true;
@@ -104,7 +109,7 @@ class MoneroRpc {
     // send request and await response
     console.log("Sending to: " + this.config.uri + "/" + method);
     console.log(opts);
-    let resp = await request.post(this.config.uri + "/" + method, opts);
+    let resp = await request(opts);
     if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
     return resp.result;
   }
