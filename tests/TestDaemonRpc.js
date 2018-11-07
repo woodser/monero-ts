@@ -61,8 +61,8 @@ describe("Test Daemon RPC", function() {
     assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
     
     // retrieve by hash of previous to last block
-    hash = await daemon.getBlockHash(lastHeader().getHeight() - 1);
-    block = await daemon.getBlock(hash);
+    hash = await daemon.getBlockHash(lastHeader.getHeight() - 1);
+    block = await daemon.getBlockByHash(hash);
     testDaemonResponseInfo(block, true, true);
     testBlock(block);
     assert.deepEqual(await daemon.getBlockByHeight(lastHeader.getHeight() - 1), block);
@@ -105,8 +105,8 @@ function testBlock(block) {
   assert(block);
   assert(block.getBlob());
   assert(block.getBlob().length > 1);
+  assert(Array.isArray(block.getTxHashes()));
   testBlockHeader(block.getHeader());
-  console.log(Array.isArray(block.getTxHashes()));
   testMinerTx(block.getMinerTx());
 }
 

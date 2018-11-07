@@ -71,6 +71,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return block;
   }
   
+  async getBlockByHeight(height) {
+    let resp = await this.rpc.sendJsonRpcRequest("get_block", {height: height});
+    let block = MoneroDaemonRpc._initializeBlock(resp);
+    MoneroDaemonRpc._setResponseInfo(resp, block);
+    return block;
+  }
+  
   // ------------------------------- PRIVATE STATIC ---------------------------
   
   static _setResponseInfo(resp, model) {
@@ -121,7 +128,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
     minerTx.setVersion(json.miner_tx.version);
     minerTx.setUnlockTime(json.miner_tx.unlock_time);
     minerTx.setExtra(json.miner_tx.extra);
-    
     return block;
   }
 }
