@@ -100,3 +100,20 @@ function testBlockHeader(header) {
   assert(header.getBlockWeight());
   assert(header.getPowHash() === undefined);
 }
+
+function testBlock(block) {
+  assert(block);
+  assert(block.getBlob());
+  assert(block.getBlob().length > 1);
+  testBlockHeader(block.getHeader());
+  console.log(Array.isArray(block.getTxHashes()));
+  testMinerTx(block.getMinerTx());
+}
+
+function testMinerTx(minerTx) {
+  assert(minerTx);
+  assert(minerTx.getVersion() >= 0)
+  assert(Array.isArray(minerTx.getExtra()));
+  assert(minerTx.getExtra().length > 0);
+  assert(minerTx.getUnlockTime() >= 0);
+}
