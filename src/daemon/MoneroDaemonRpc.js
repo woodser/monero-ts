@@ -51,6 +51,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return headers;
   }
   
+  async getBlocks(heights) {
+    throw new Error("Not implemented");
+  }
+  
   // ------------------------------- PRIVATE STATIC ---------------------------
   
   static _setResponseInfo(resp, model) {
