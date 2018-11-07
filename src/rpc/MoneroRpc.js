@@ -103,6 +103,7 @@ class MoneroRpc {
     
     // send request and await response
     console.log("Sending to: " + this.config.uri + "/" + method);
+    console.log(opts);
     let resp = await request.post(this.config.uri + "/" + method, opts);
     if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
     return resp.result;
