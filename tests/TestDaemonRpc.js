@@ -58,7 +58,6 @@ function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted
 }
 
 function testBlockHeader(header) {
-  // TODO: just want to make sure these are initialized
   assert(header);
   assert(header.getBlockSize());
   assert(header.getDepth());
@@ -69,8 +68,8 @@ function testBlockHeader(header) {
   assert(header.getMajorVersion());
   assert(header.getMinorVersion());
   assert(header.getNonce());
-  assert(header.getNumTxs());
-  assert(header.getOrphanStatus());
+  assert(header.getNumTxs() >= 0);
+  assert(typeof header.getOrphanStatus() === "boolean");
   assert(header.getPrevHash());
   assert(header.getReward());
   assert(header.getTimestamp());
