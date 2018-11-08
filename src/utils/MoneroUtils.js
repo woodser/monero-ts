@@ -1,7 +1,18 @@
+const MoneroTx = require("../daemon/model/MoneroTx");
+
 /**
  * Collection of Monero utilitlies.
  */
 class MoneroUtils {
+  
+  /**
+   * Builds a MoneroTx from a daemon RPC transaction map.
+   * 
+   * @param txMap are transaction key/values from the RPC API
+   */
+  static daemonTxMapToTx(txMap) {
+    return new MoneroTx();
+  }
     
     /**
      * Decodes tx extra according to https://cryptonote.org/cns/cns005.txt and

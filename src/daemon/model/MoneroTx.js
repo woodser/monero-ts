@@ -1,7 +1,9 @@
+const MoneroDaemonModel = require("./MoneroDaemonModel");
+
 /**
  * Represents a transaction on the Monero network.
  */
-class MoneroTx {
+class MoneroTx extends MoneroDaemonModel {
   
   getId() {
     return this.id;

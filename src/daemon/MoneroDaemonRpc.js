@@ -1,4 +1,5 @@
 const assert = require("assert");
+const MoneroUtils = require("../utils/MoneroUtils");
 const BigInteger = require("../mymonero_core_js/cryptonote_utils/biginteger").BigInteger;
 const MoneroRpc = require("../rpc/MoneroRpc")
 const MoneroDaemon = require("./MoneroDaemon");
@@ -116,8 +117,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
     });
     
     // build transaction models
-    console.log(resp);
-    throw new Error("Not implemented");
+    let txs = resp.txs.map(tx => MoneroUtils.daemonTxMapToTx(tx));
+    txs.map(tx => MoneroDaemonRpc._setResponseInfo(resp, tx));
+    return txs;
   }
   
   // ------------------------------- PRIVATE STATIC ---------------------------

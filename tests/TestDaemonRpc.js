@@ -169,7 +169,7 @@ describe("Test Daemon RPC", function() {
     let txs = await daemon.getTxs(txHashes, true, false);
     for (let tx of txs) {
       testDaemonResponseInfo(tx, true, true); // TODO: duplicating response info is going to be too expensive so must be common reference
-      testMoneroTx(tx); 
+      testMoneroDaemonTx(tx);
     }
     
     // TODO: test binary vs json encoding
@@ -222,6 +222,6 @@ function testMinerTx(minerTx) {
   assert(minerTx.getUnlockTime() >= 0);
 }
 
-function testMoneroTx(tx) {
+function testMoneroDaemonTx(tx) {
   throw new Error("Not implemented");
 }
