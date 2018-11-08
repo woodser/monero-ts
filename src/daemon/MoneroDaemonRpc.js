@@ -82,8 +82,19 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async getBlocksByHeight(heights) {
     assert(Array.isArray(heights));
     assert(heights.length > 0);
+    
+    const blocksChunk = 100;  // number of blocks to fetch in a chunk
+    const timeout = 5000;     // timeout between chunks
+    
+    // fetch blocks in chunks
     let blocks = [];
-    for (let height of heights) blocks.push(await this.getBlockByHeight(height));
+    for (let i = 0; i < heights.length; i++) {
+      if (i > 0 && i % blocksChunk === 0) {
+        console.log("CHUNK");
+        await new Promise(resolve => setTimeout(resolve, timeout)); // wait between chunks
+      }
+      blocks.push(await this.getBlockByHeight(heights[i]));
+    }
     return blocks;
   }
   
