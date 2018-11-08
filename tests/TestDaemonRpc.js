@@ -110,7 +110,7 @@ describe("Test Daemon RPC", function() {
   // TODO: test start with no end, vice versa, inclusivity
   it("getBlocksByRange()", async function() {
     
-    // test start and end range
+    // get start and end range
     const numBlocks = 190;
     const numBlocksAgo = 500;
     let currentHeight = (await daemon.getHeight()).getHeight();
@@ -124,6 +124,10 @@ describe("Test Daemon RPC", function() {
     for (let block of blocks) {
       testDaemonResponseInfo(block, true, true);
       testBlock(block, true);
+    }
+    
+    function testRange(startHeight, endHeight) {
+      throw new Error("Not implemented"); // TODO
     }
   });
   
