@@ -84,37 +84,74 @@ describe("Test Daemon RPC", function() {
     assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
   });
   
-  it("getBlocksByHeight()", async function() {
-    
-    // set number of blocks to test
-    const numBlocks = 190;
-    
-    // select random heights
-    let currentHeight = await daemon.getHeight();
-    let allHeights = [];
-    for (let i = 0; i < currentHeight - 1; i++) allHeights.push(i);
-    GenUtils.shuffle(allHeights);
-    let heights = [];
-    for (let i = 0; i < numBlocks; i++) heights.push(allHeights[i]);
-    
-    // fetch blocks
-    let blocks = await daemon.getBlocksByHeight(heights);
-    assert.equal(numBlocks, blocks.length);
-    for (let i = 0; i < heights.length; i++) {
-      let block = blocks[i];
-      testDaemonResponseInfo(block, true, true);
-      testBlock(block, true);
-      assert.equal(heights[i], block.getHeader().getHeight());      
-    }
-  });
+//  it("getBlocksByHeight()", async function() {
+//    
+//    // set number of blocks to test
+//    const numBlocks = 190;
+//    
+//    // select random heights
+//    let currentHeight = await daemon.getHeight();
+//    let allHeights = [];
+//    for (let i = 0; i < currentHeight - 1; i++) allHeights.push(i);
+//    GenUtils.shuffle(allHeights);
+//    let heights = [];
+//    for (let i = 0; i < numBlocks; i++) heights.push(allHeights[i]);
+//    
+//    // fetch blocks
+//    let blocks = await daemon.getBlocksByHeight(heights);
+//    assert.equal(numBlocks, blocks.length);
+//    for (let i = 0; i < heights.length; i++) {
+//      let block = blocks[i];
+//      testDaemonResponseInfo(block, true, true);
+//      testBlock(block, true);
+//      assert.equal(heights[i], block.getHeader().getHeight());      
+//    }
+//  });
+//  
+//  it("getBlocksByRange()", async function() {
+//    
+//    // get current height
+//    let height = await daemon.getHeight();
+//    
+//    // get valid height range
+//    let numBlocks = 1; // TODO: RequestError: Error: read ECONNRESET or  RequestError: Error: socket hang up if > 64 or (or > 1 if test getBlocksByHeight() runs first)
+//    let numBlocksAgo = 190;
+//    assert(numBlocks > 0);
+//    assert(numBlocksAgo >= numBlocks);
+//    assert(height - numBlocksAgo + numBlocks - 1 < height);
+//    let startHeight = height - numBlocksAgo;
+//    let endHeight = height - numBlocksAgo + numBlocks - 1;
+//    
+//    // test known start and end heights
+//    //console.log("Height: " + height);
+//    //console.log("Fecthing " + (endHeight - startHeight + 1) + " blocks [" + startHeight + ", " + endHeight + "]");
+//    await testRange(startHeight, endHeight);
+//    
+//    // test unspecified start
+//    await testRange(null, numBlocks - 1);
+//    
+//    // test unspecified end
+//    await testRange(height - numBlocks - 1, null);
+//    
+//    // test unspecified start and end 
+//    //await testRange(null, null);  // TODO: RequestError: Error: socket hang up
+//    
+//    async function testRange(startHeight, endHeight) {
+//      let realStartHeight = startHeight === null ? 0 : startHeight;
+//      let realEndHeight = endHeight === null ? height - 1 : endHeight;
+//      let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
+//      assert.equal(realEndHeight - realStartHeight + 1, blocks.length);
+//      for (let i = 0; i < blocks.length; i++) {
+//        assert.equal(realStartHeight + i, blocks[i].getHeader().getHeight());
+//      }
+//    }
+//  });
   
-  it("getBlocksByRange()", async function() {
-    
-    // get current height
-    let height = await daemon.getHeight();
+  it("getTxs()", async function() {
     
     // get valid height range
-    let numBlocks = 1; // TODO: RequestError: Error: read ECONNRESET or  RequestError: Error: socket hang up if > 64 or (or > 1 if test getBlocksByHeight() runs first)
+    let height = await daemon.getHeight();
+    let numBlocks = 50;
     let numBlocksAgo = 190;
     assert(numBlocks > 0);
     assert(numBlocksAgo >= numBlocks);
@@ -122,33 +159,18 @@ describe("Test Daemon RPC", function() {
     let startHeight = height - numBlocksAgo;
     let endHeight = height - numBlocksAgo + numBlocks - 1;
     
-    // test known start and end heights
-    //console.log("Height: " + height);
-    //console.log("Fecthing " + (endHeight - startHeight + 1) + " blocks [" + startHeight + ", " + endHeight + "]");
-    await testRange(startHeight, endHeight);
+    // get blocks
+    let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
     
-    // test unspecified start
-    await testRange(null, numBlocks - 1);
+    // collect tx hashes
+    let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; });
     
-    // test unspecified end
-    await testRange(height - numBlocks - 1, null);
-    
-    // test unspecified start and end 
-    //await testRange(null, null);  // TODO: RequestError: Error: socket hang up
-    
-    async function testRange(startHeight, endHeight) {
-      let realStartHeight = startHeight === null ? 0 : startHeight;
-      let realEndHeight = endHeight === null ? height - 1 : endHeight;
-      let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
-      assert.equal(realEndHeight - realStartHeight + 1, blocks.length);
-      for (let i = 0; i < blocks.length; i++) {
-        assert.equal(realStartHeight + i, blocks[i].getHeader().getHeight());
-      }
+    // fetch txs by hash
+    let txs = await daemon.getTxs(txHashes, true, false);
+    for (let tx of txs) {
+      testDaemonResponseInfo(tx, true, true); // TODO: duplicating response info is going to be too expensive so must be common reference
+      testTx(tx, true);
     }
-  });
-  
-  it("getTransactions()", async function() {    
-    throw new Error("Not implemented");
   });
 });
 
@@ -196,4 +218,8 @@ function testMinerTx(minerTx) {
   assert(Array.isArray(minerTx.getExtra()));
   assert(minerTx.getExtra().length > 0);
   assert(minerTx.getUnlockTime() >= 0);
+}
+
+function testMoneroTx(tx) {
+  throw new Error("Not implemented");
 }

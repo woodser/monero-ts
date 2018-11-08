@@ -6,7 +6,7 @@ class MoneroDaemon {
   /**
    * Get the number of blocks in the longest chain known to the node.
    * 
-   * @return the number of blocks
+   * @returns the number of blocks
    */
   async getHeight() {
     throw new Error("Subclass must implement");
@@ -25,7 +25,7 @@ class MoneroDaemon {
   /**
    * Get the last block's header.
    * 
-   * @return MoneroBlockHeader is the last block's header
+   * @returns MoneroBlockHeader is the last block's header
    */
   async getLastBlockHeader() {
     throw new Error("Subclass must implement");
@@ -66,7 +66,7 @@ class MoneroDaemon {
    * Get blocks at the given heights.
    * 
    * @param heights are the heights of the blocks to get
-   * @returns a list of blocks at the given heights
+   * @returns List<MoneroBlock> are blocks at the given heights
    */
   async getBlocksByHeight(heights) {
     throw new Error("Subclass must implement");
@@ -80,6 +80,18 @@ class MoneroDaemon {
    * @returns List<MoneroBlock> are blocks in the given height range
    */
   async getBlocksByRange(startHeight, endHeight) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get transactions with the given hashes.
+   * 
+   * @param txHashes specifies the transaction hashes to get
+   * @param decodeAsJson decodes the returned transactions as JSON rather than binary if true
+   * @param prune (documentation missing) // TODO: documentation missing
+   * @returns List<MoneroTx> are the transactions with the given hashes
+   */
+  async getTxs(txHashes, decodeAsJson, prune) {
     throw new Error("Subclass must implement");
   }
 }

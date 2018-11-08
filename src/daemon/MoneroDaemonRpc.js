@@ -106,6 +106,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return await this.getBlocksByHeight(heights);
   }
   
+  async getTxs(txHashes, decodeAsJson, prune) {
+    throw new Error("Not implemented");
+  }
+  
   // ------------------------------- PRIVATE STATIC ---------------------------
   
   static _setResponseInfo(resp, model) {
