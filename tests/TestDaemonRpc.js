@@ -169,8 +169,10 @@ describe("Test Daemon RPC", function() {
     let txs = await daemon.getTxs(txHashes, true, false);
     for (let tx of txs) {
       testDaemonResponseInfo(tx, true, true); // TODO: duplicating response info is going to be too expensive so must be common reference
-      testTx(tx, true);
+      testMoneroTx(tx); 
     }
+    
+    // TODO: test binary vs json encoding
   });
 });
 
