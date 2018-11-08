@@ -88,7 +88,7 @@ describe("Test Daemon RPC", function() {
   it("getBlocksByHeight()", async function() {
     
     // set number of blocks to test
-    const numBlocks = 1000;
+    const numBlocks = 196;
     
     // select random heights
     let currentHeight = (await daemon.getHeight()).getHeight();
