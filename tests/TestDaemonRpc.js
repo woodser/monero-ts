@@ -83,6 +83,39 @@ describe("Test Daemon RPC", function() {
     testBlock(block);
     assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
   });
+  
+  if ("getBlocksByHeight()", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("getBlocksByRange()", async function() {
+    
+    // determine range of blocks to fetch
+    const numBlocks = 1000;
+    const numBlocksAgo = 1100;
+    let currentHeight = (await daemon.getHeight()).getHeight();
+    let startHeight = currentHeight - numBlocksAgo;
+    let endHeight = currentHeight - (numBlocksAgo - numBlocks) - 1;
+    
+    // fetch blocks
+    let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
+    assert.deepEqual(await daemon.getBlockByHeight(startHeight), blocks[0]);  // test one block for deep equality with tested method
+    assert.equal(numBlocks, blocks.length);
+    for (let block of blocks) {
+      testDaemonResponse(block, true, true);
+      testBlock(true);
+    }
+  });
+  
+  it("getTransactions()", async function() {
+    
+    // deteremine heights of blocks to fetch
+    const NUM_BLOCKS = 100;
+    let endHeight = height - 1;
+    let startHeight = endHeight - NUM_BLOCKS + 1;
+    
+    throw new Error("Not implemented");
+  });
 });
 
 function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted) {

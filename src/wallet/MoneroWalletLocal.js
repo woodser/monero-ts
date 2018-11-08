@@ -76,21 +76,15 @@ class MoneroWalletLocal extends MoneroWallet {
       blocks.push(await this.daemon.getBlockByHeight(height));
     }
     
+    // 
+    
     // collect transaction hashes
 //    let txHashes = blocks.map(block => block.tx_hashes === undefined ? [] : block.tx_hashes).reduce((a, b) => a.concat(b)); // works but bad memory profile
     let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; }); // works
-//    let txHashes = [];
-//    for (let block of blocks) {
-//      if (block.tx_hashes === undefined) continue;
-//      for (let txHash of block.tx_hashes) {
-//        txHashes.push(txHash);
-//      }
-//    }
     console.log("TX hashes: " + txHashes.length);
     
-//    
 //    // fetch transactions
-//    let txResp = await this.daemon.get_transactions(txHashes, true, false);
+//    let txResp = await this.daemon.getTransactions(txHashes, true, false);
 //    let txs = txResp.txs_as_json.map(txStr => JSON.parse(txStr));
 //    if (txHashes.length !== txs.length) throw new Error("Missing fetched transactions");
 //    
@@ -148,7 +142,7 @@ class MoneroWalletLocal extends MoneroWallet {
 //      }
 //    }
     
-    console.log("Done processing, " + numOwned + " owned outputs found, " + numUnowned + " unowned");
+//    console.log("Done processing, " + numOwned + " owned outputs found, " + numUnowned + " unowned");
   }
   
   // ------------------------------- PRIVATE STATIC ---------------------------
