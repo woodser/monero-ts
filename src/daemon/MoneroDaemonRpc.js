@@ -30,10 +30,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getHeight() {
-    let resp = await this.rpc.sendJsonRpcRequest("get_block_count");
-    let height = new MoneroHeight(resp.count);
-    MoneroDaemonRpc._setResponseInfo(resp, height);
-    return height;
+    return (await this.rpc.sendJsonRpcRequest("get_block_count")).count;
   }
   
   async getBlockHash(height) {
@@ -103,7 +100,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getBlocksByRange(startHeight, endHeight) {
     if (typeof startHeight !== "number") startHeight = 0;
-    if (typeof endHeight !== "number") endHeight = (await this.getHeight()).getHeight() - 1;
+    if (typeof endHeight !== "number") endHeight = await this.getHeight() - 1;
     let heights = [];
     for (let height = startHeight; height <= endHeight; height++) heights.push(height);
     return await this.getBlocksByHeight(heights);
