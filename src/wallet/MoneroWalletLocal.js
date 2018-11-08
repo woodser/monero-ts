@@ -63,11 +63,10 @@ class MoneroWalletLocal extends MoneroWallet {
     let height = (await this.daemon.getHeight()).getHeight(); // TODO: imporove this?
     
     // determine heights to fetch
-    const NUM_BLOCKS = 100;
-    let endHeight = height - 1;
-    let startHeight = endHeight - NUM_BLOCKS + 1;
-    //startHeight = 197085;
-    //endHeight = startHeight + NUM_BLOCKS - 1;
+    const numBlocks = 100;
+    const numBlocksAgo = 100;
+    let startHeight = height - numBlocksAgo - 1;
+    let endHeight = height - (numBlocksAgo - numBlocks) - 1;
     
     // fetch blocks
     console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");

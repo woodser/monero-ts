@@ -34,8 +34,8 @@ class MoneroDaemon {
   /**
    * Get block headers for the given range.
    * 
-   * @param startHeight is the start height lower bound (optional)
-   * @param endHeight is the end height lower bound (optional)
+   * @param startHeight is the start height lower bound inclusive (optional)
+   * @param endHeight is the end height upper bound inclusive (optional)
    * @returns List<MoneroBlockHeader> for the given range
    */
   async getBlockHeadersByRange(startHeight, endHeight) {
@@ -75,8 +75,8 @@ class MoneroDaemon {
   /**
    * Get blocks in the given height range.
    * 
-   * @param startHeight is the start height lower bound (optional)
-   * @param endHeight is the end height lower bound (optional)
+   * @param startHeight is the start height lower bound inclusive (optional)
+   * @param endHeight is the end height upper bound inclusive (optional)
    * @returns List<MoneroBlock> are blocks in the given height range
    */
   async getBlocksByRange(startHeight, endHeight) {

@@ -1,6 +1,7 @@
 const assert = require("assert");
 const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
 const TestUtils = require("./TestUtils");
+const GenUtils = require("../src/utils/GenUtils");
 
 // daemon to test
 let daemon = TestUtils.getDaemonRpc();
@@ -27,7 +28,7 @@ describe("Test Daemon RPC", function() {
     testBlockHeader(lastHeader);
   });
   
-  // TODO: test lower and upper bounds
+  // TODO: test start with no end, vice versa, inclusivity
   it("getBlockHeadersByRange()", async function() {
     
     // determine start and end height based on number of blocks and how many blocks ago
@@ -84,17 +85,36 @@ describe("Test Daemon RPC", function() {
     assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
   });
   
-  if ("getBlocksByHeight()", async function() {
-    throw new Error("Not implemented");
+  it("getBlocksByHeight()", async function() {
+    
+    // set number of blocks to test
+    const numBlocks = 100;
+    
+    // select random heights
+    let currentHeight = (await daemon.getHeight()).getHeight();
+    let allHeights = [];
+    for (let i = 0; i < currentHeight - 1; i++) allHeights.push(i);
+    GenUtils.shuffle(allHeights);
+    let heights = [];
+    for (let i = 0; i < numBlocks; i++) heights.push(allHeights[i]);
+    
+    // fetch blocks
+    let blocks = await daemon.getBlocksByHeight(heights);
+    assert.equal(numBlocks, blocks.length);
+    for (let block of blocks) {
+      testDaemonResponseInfo(block, true, true);
+      testBlock(block, true);
+    }
   });
   
+  // TODO: test start with no end, vice versa, inclusivity
   it("getBlocksByRange()", async function() {
     
-    // determine range of blocks to fetch
-    const numBlocks = 1000;
-    const numBlocksAgo = 1100;
+    // test start and end range
+    const numBlocks = 190;
+    const numBlocksAgo = 500;
     let currentHeight = (await daemon.getHeight()).getHeight();
-    let startHeight = currentHeight - numBlocksAgo;
+    let startHeight = currentHeight - numBlocksAgo - 1;
     let endHeight = currentHeight - (numBlocksAgo - numBlocks) - 1;
     
     // fetch blocks
@@ -102,18 +122,12 @@ describe("Test Daemon RPC", function() {
     assert.deepEqual(await daemon.getBlockByHeight(startHeight), blocks[0]);  // test one block for deep equality with tested method
     assert.equal(numBlocks, blocks.length);
     for (let block of blocks) {
-      testDaemonResponse(block, true, true);
-      testBlock(true);
+      testDaemonResponseInfo(block, true, true);
+      testBlock(block, true);
     }
   });
   
-  it("getTransactions()", async function() {
-    
-    // deteremine heights of blocks to fetch
-    const NUM_BLOCKS = 100;
-    let endHeight = height - 1;
-    let startHeight = endHeight - NUM_BLOCKS + 1;
-    
+  it("getTransactions()", async function() {    
     throw new Error("Not implemented");
   });
 });

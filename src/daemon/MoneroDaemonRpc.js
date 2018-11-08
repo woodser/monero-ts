@@ -1,3 +1,4 @@
+const assert = require("assert");
 const BigInteger = require("../mymonero_core_js/cryptonote_utils/biginteger").BigInteger;
 const MoneroRpc = require("../rpc/MoneroRpc")
 const MoneroDaemon = require("./MoneroDaemon");
@@ -65,25 +66,31 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getBlockByHash(hash) {
-    let resp = await this.rpc.sendJsonRpcRequest("get_block", {hash: hash});
+    let resp = await this.rpc.sendJsonRpcRequest("get_block", { hash: hash });
     let block = MoneroDaemonRpc._initializeBlock(resp);
     MoneroDaemonRpc._setResponseInfo(resp, block);
     return block;
   }
   
   async getBlockByHeight(height) {
-    let resp = await this.rpc.sendJsonRpcRequest("get_block", {height: height});
+    let resp = await this.rpc.sendJsonRpcRequest("get_block", { height: height });
     let block = MoneroDaemonRpc._initializeBlock(resp);
     MoneroDaemonRpc._setResponseInfo(resp, block);
     return block;
   }
   
   async getBlocksByHeight(heights) {
-    throw new Error("Not implemented");
+    assert(Array.isArray(heights));
+    assert(heights.length > 0);
+    let blocks = [];
+    for (let height of heights) blocks.push(await this.getBlockByHeight(height));
+    return blocks;
   }
   
-  async getBlocksByRange(startHeight, endHeight) {
-    throw new Error("Not implemented");
+  async getBlocksByRange(startHeight, endHeight) {  // TODO: correctly determine and test height range
+    let heights = [];
+    for (let height = startHeight; height <= endHeight; height++) heights.push(height);
+    return await this.getBlocksByHeight(heights);
   }
   
   // ------------------------------- PRIVATE STATIC ---------------------------

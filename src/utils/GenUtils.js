@@ -1196,6 +1196,20 @@ class GenUtils {
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
   }
+  
+  /**
+   * Randomize array element order in-place using Durstenfeld shuffle algorithm.
+   * 
+   * Credit: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+   */
+  static shuffle(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+  }
 }
 
 module.exports = GenUtils;
