@@ -107,6 +107,17 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getTxs(txHashes, decodeAsJson, prune) {
+    
+    // fetch transactions
+    let resp = await this.rpc.sendJsonRpcRequest("get_transactions", {
+      tx_hashes: txHashes,
+      decode_as_json: decodeAsJson,
+      prune: prune
+    });
+    
+    console.log(resp);
+    
+    
     throw new Error("Not implemented");
   }
   
