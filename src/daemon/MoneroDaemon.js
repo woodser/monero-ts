@@ -6,7 +6,7 @@ class MoneroDaemon {
   /**
    * Get the number of blocks in the longest chain known to the node.
    * 
-   * @return int is the number of blocks
+   * @return the number of blocks
    */
   async getHeight() {
     throw new Error("Subclass must implement");
