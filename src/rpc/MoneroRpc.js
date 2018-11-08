@@ -77,6 +77,38 @@ class MoneroRpc {
   }
   
   /**
+   * Sends a RPC request to the given path and with the given paramters.
+   * 
+   * E.g. "/get_transactions" with params
+   */
+  async sendPathRpcRequest(path, params) {
+    
+    // build request
+    let opts = {
+        method: "POST",
+        uri: this.config.uri + "/" + path,
+        agent: new http.Agent({ // TODO: recycle agent?
+          keepAlive: true,
+          maxSockets: 1
+        }),
+        json: params
+    };
+    if (this.config.user) {
+      opts.forever = true;
+      opts.auth = {
+          user: this.config.user,
+          pass: this.config.pass,
+          sendImmediately: false
+      }
+    }
+    
+    // send request and await response
+    let resp = await request(opts);
+    if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
+    return resp.result;
+  }
+  
+  /**
    * Sends a binary RPC request.
    * 
    * @param method is the binary RPC method to invoke

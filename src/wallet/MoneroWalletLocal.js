@@ -1,3 +1,4 @@
+const assert = require("assert");
 const MoneroWallet = require("./MoneroWallet");
 const MoneroUtils = require("../utils/MoneroUtils");
 const nettype = require("../mymonero_core_js/cryptonote_utils/nettype");
@@ -62,13 +63,16 @@ class MoneroWalletLocal extends MoneroWallet {
     throw new Error("Not implemented");
     
     // get height
-    let height = (await this.daemon.getHeight()).getHeight(); // TODO: imporove this?
+    let height = await this.daemon.getHeight();
     
     // determine heights to fetch
-    const numBlocks = 100;
-    const numBlocksAgo = 100;
+    let numBlocks = 50;
+    let numBlocksAgo = 190;
+    assert(numBlocks > 0);
+    assert(numBlocksAgo >= numBlocks);
+    assert(height - numBlocksAgo + numBlocks - 1 < height);
     let startHeight = height - numBlocksAgo;
-    let endHeight = height - (numBlocksAgo - numBlocks) - 1;
+    let endHeight = height - numBlocksAgo + numBlocks - 1;
     
     // fetch blocks
     console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
@@ -84,10 +88,13 @@ class MoneroWalletLocal extends MoneroWallet {
     let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; }); // works
     console.log("TX hashes: " + txHashes.length);
     
-//    // fetch transactions
-//    let txResp = await this.daemon.getTransactions(txHashes, true, false);
-//    let txs = txResp.txs_as_json.map(txStr => JSON.parse(txStr));
-//    if (txHashes.length !== txs.length) throw new Error("Missing fetched transactions");
+    
+    
+    // fetch transactions
+    let txs = await this.daemon.getTxs(txHashes, true, false);
+    console.log("Fetched " + txs.length + " transactions");
+    if (txHashes.length !== txs.length) throw new Error("Missing fetched transactions");
+    
 //    
 //    // process transactions
 //    //let decoder = new TextDecoder("utf-8");

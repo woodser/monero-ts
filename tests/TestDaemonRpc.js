@@ -8,81 +8,81 @@ let daemon = TestUtils.getDaemonRpc();
 
 describe("Test Daemon RPC", function() {
   
-  it("getHeight()", async function() {
-    let height = await daemon.getHeight();
-    assert(height, "Height must be initialized");
-    assert(height > 0, "Height must be greater than 0");
-  });
-  
-  it("getBlockHash()", async function() {
-    let lastHeader = await daemon.getLastBlockHeader();
-    let hash = await daemon.getBlockHash(lastHeader.getHeight());
-    assert(hash);
-    assert.equal(64, hash.length);
-  });
-  
-  it ("getLastBlockHeader()", async function() {
-    let lastHeader = await daemon.getLastBlockHeader();
-    testDaemonResponseInfo(lastHeader, true, true);
-    testBlockHeader(lastHeader);
-  });
-  
-  // TODO: test start with no end, vice versa, inclusivity
-  it("getBlockHeadersByRange()", async function() {
-    
-    // determine start and end height based on number of blocks and how many blocks ago
-    let numBlocks = 100;
-    let numBlocksAgo = 100;
-    let currentHeight = await daemon.getHeight();
-    let startHeight = currentHeight - numBlocksAgo;
-    let endHeight = currentHeight - (numBlocksAgo - numBlocks) - 1;
-    
-    // fetch headers
-    let headers = await daemon.getBlockHeadersByRange(startHeight, endHeight);
-
-    // test headers
-    assert.equal(numBlocks, headers.length);
-    for (let i = 0; i < numBlocks; i++) {
-      let header = headers[i];
-      assert.equal(startHeight + i, header.getHeight());
-      testDaemonResponseInfo(header, true, true);
-      testBlockHeader(header);
-    }
-  });
-  
-  it("getBlockByHash()", async function() {
-    
-    // retrieve by hash of last block
-    let lastHeader = await daemon.getLastBlockHeader();
-    let hash = await daemon.getBlockHash(lastHeader.getHeight());
-    let block = await daemon.getBlockByHash(hash);
-    testDaemonResponseInfo(block, true, true);
-    testBlock(block);
-    assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
-    
-    // retrieve by hash of previous to last block
-    hash = await daemon.getBlockHash(lastHeader.getHeight() - 1);
-    block = await daemon.getBlockByHash(hash);
-    testDaemonResponseInfo(block, true, true);
-    testBlock(block);
-    assert.deepEqual(await daemon.getBlockByHeight(lastHeader.getHeight() - 1), block);
-  });
-  
-  it("getBlockByHeight()", async function() {
-    
-    // retrieve by height of last block
-    let lastHeader = await daemon.getLastBlockHeader();
-    let block = await daemon.getBlockByHeight(lastHeader.getHeight());
-    testDaemonResponseInfo(block, true, true);
-    testBlock(block);
-    assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
-    
-    // retrieve by height of previous to last block
-    block = await daemon.getBlockByHeight(lastHeader.getHeight() - 1);
-    testDaemonResponseInfo(block, true, true);
-    testBlock(block);
-    assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
-  });
+//  it("getHeight()", async function() {
+//    let height = await daemon.getHeight();
+//    assert(height, "Height must be initialized");
+//    assert(height > 0, "Height must be greater than 0");
+//  });
+//  
+//  it("getBlockHash()", async function() {
+//    let lastHeader = await daemon.getLastBlockHeader();
+//    let hash = await daemon.getBlockHash(lastHeader.getHeight());
+//    assert(hash);
+//    assert.equal(64, hash.length);
+//  });
+//  
+//  it ("getLastBlockHeader()", async function() {
+//    let lastHeader = await daemon.getLastBlockHeader();
+//    testDaemonResponseInfo(lastHeader, true, true);
+//    testBlockHeader(lastHeader);
+//  });
+//  
+//  // TODO: test start with no end, vice versa, inclusivity
+//  it("getBlockHeadersByRange()", async function() {
+//    
+//    // determine start and end height based on number of blocks and how many blocks ago
+//    let numBlocks = 100;
+//    let numBlocksAgo = 100;
+//    let currentHeight = await daemon.getHeight();
+//    let startHeight = currentHeight - numBlocksAgo;
+//    let endHeight = currentHeight - (numBlocksAgo - numBlocks) - 1;
+//    
+//    // fetch headers
+//    let headers = await daemon.getBlockHeadersByRange(startHeight, endHeight);
+//
+//    // test headers
+//    assert.equal(numBlocks, headers.length);
+//    for (let i = 0; i < numBlocks; i++) {
+//      let header = headers[i];
+//      assert.equal(startHeight + i, header.getHeight());
+//      testDaemonResponseInfo(header, true, true);
+//      testBlockHeader(header);
+//    }
+//  });
+//  
+//  it("getBlockByHash()", async function() {
+//    
+//    // retrieve by hash of last block
+//    let lastHeader = await daemon.getLastBlockHeader();
+//    let hash = await daemon.getBlockHash(lastHeader.getHeight());
+//    let block = await daemon.getBlockByHash(hash);
+//    testDaemonResponseInfo(block, true, true);
+//    testBlock(block);
+//    assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
+//    
+//    // retrieve by hash of previous to last block
+//    hash = await daemon.getBlockHash(lastHeader.getHeight() - 1);
+//    block = await daemon.getBlockByHash(hash);
+//    testDaemonResponseInfo(block, true, true);
+//    testBlock(block);
+//    assert.deepEqual(await daemon.getBlockByHeight(lastHeader.getHeight() - 1), block);
+//  });
+//  
+//  it("getBlockByHeight()", async function() {
+//    
+//    // retrieve by height of last block
+//    let lastHeader = await daemon.getLastBlockHeader();
+//    let block = await daemon.getBlockByHeight(lastHeader.getHeight());
+//    testDaemonResponseInfo(block, true, true);
+//    testBlock(block);
+//    assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
+//    
+//    // retrieve by height of previous to last block
+//    block = await daemon.getBlockByHeight(lastHeader.getHeight() - 1);
+//    testDaemonResponseInfo(block, true, true);
+//    testBlock(block);
+//    assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
+//  });
   
 //  it("getBlocksByHeight()", async function() {
 //    
