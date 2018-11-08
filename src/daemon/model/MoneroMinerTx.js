@@ -1,4 +1,4 @@
-const MoneroTx = require("../../wallet/model/MoneroTx");
+const MoneroTx = require("./MoneroTx");
 
 /**
  * Represents a miner tx in a block.

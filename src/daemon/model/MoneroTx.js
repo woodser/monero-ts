@@ -11,44 +11,12 @@ class MoneroTx {
     this.id = id;
   }
   
-  getSrcAddress() {
-    return this.srcAddress;
-  }
-  
-  setSrcAddress(srcAddress) {
-    this.srcAddress = srcAddress;
-  }
-  
-  getSrcAccountIndex() {
-    return this.srcAccountIndex;
-  }
-  
-  setSrcAccountIndex(srcAccountIndex) {
-    this.srcAccountIndex = srcAccountIndex;
-  }
-  
-  getSrcSubaddrIndex() {
-    return this.srcSubaddrIndex;
-  }
-  
-  setSrcSubaddrIndex(srcSubaddrIndex) {
-    this.srcSubaddrIndex = srcSubaddrIndex;
-  }
-  
   getTotalAmount() {
     return this.totalAmount;
   }
   
   setTotalAmount(totalAmount) {
     this.totalAmount = totalAmount;
-  }
-  
-  getPayments() {
-    return this.payments;
-  }
-  
-  setPayments(payments) {
-    this.payments = payments;
   }
   
   getPaymentId() {
@@ -97,14 +65,6 @@ class MoneroTx {
   
   setHeight(height) {
     this.height = height;
-  }
-  
-  getNote() {
-    return this.note;
-  }
-  
-  setNote(note) {
-    this.note = note;
   }
   
   getTimestamp() {
