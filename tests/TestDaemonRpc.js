@@ -109,7 +109,6 @@ describe("Test Daemon RPC", function() {
     }
   });
   
-  // TODO: test start with no end, vice versa, inclusivity
   it("getBlocksByRange()", async function() {
     
     // get current height
