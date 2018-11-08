@@ -59,13 +59,15 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async sync() {
     
+    throw new Error("Not implemented");
+    
     // get height
     let height = (await this.daemon.getHeight()).getHeight(); // TODO: imporove this?
     
     // determine heights to fetch
     const numBlocks = 100;
     const numBlocksAgo = 100;
-    let startHeight = height - numBlocksAgo - 1;
+    let startHeight = height - numBlocksAgo;
     let endHeight = height - (numBlocksAgo - numBlocks) - 1;
     
     // fetch blocks

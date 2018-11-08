@@ -88,7 +88,7 @@ describe("Test Daemon RPC", function() {
   it("getBlocksByHeight()", async function() {
     
     // set number of blocks to test
-    const numBlocks = 196;
+    const numBlocks = 190;
     
     // select random heights
     let currentHeight = (await daemon.getHeight()).getHeight();
@@ -101,33 +101,44 @@ describe("Test Daemon RPC", function() {
     // fetch blocks
     let blocks = await daemon.getBlocksByHeight(heights);
     assert.equal(numBlocks, blocks.length);
-    for (let block of blocks) {
+    for (let i = 0; i < heights.length; i++) {
+      let block = blocks[i];
       testDaemonResponseInfo(block, true, true);
       testBlock(block, true);
+      assert.equal(heights[i], block.getHeader().getHeight());      
     }
   });
   
   // TODO: test start with no end, vice versa, inclusivity
   it("getBlocksByRange()", async function() {
     
-    // get start and end range
+    // get current height
+    let currentHeight = (await daemon.getHeight()).getHeight();
+    
+    // test known start and end heights
     const numBlocks = 190;
     const numBlocksAgo = 500;
-    let currentHeight = (await daemon.getHeight()).getHeight();
-    let startHeight = currentHeight - numBlocksAgo - 1;
+    let startHeight = currentHeight - numBlocksAgo;
     let endHeight = currentHeight - (numBlocksAgo - numBlocks) - 1;
+    await testRange(startHeight, endHeight);
     
-    // fetch blocks
-    let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
-    assert.deepEqual(await daemon.getBlockByHeight(startHeight), blocks[0]);  // test one block for deep equality with tested method
-    assert.equal(numBlocks, blocks.length);
-    for (let block of blocks) {
-      testDaemonResponseInfo(block, true, true);
-      testBlock(block, true);
-    }
+    // test unspecified start
+    await testRange(null, numBlocks - 1);
     
-    function testRange(startHeight, endHeight) {
-      throw new Error("Not implemented"); // TODO
+    // test unspecified end
+    await testRange(currentHeight - numBlocks - 1, null);
+    
+    // test unspecified start and end 
+    await testRange(null, null);
+    
+    async function testRange(startHeight, endHeight) {
+      let realStartHeight = startHeight === null ? 0 : startHeight;
+      let realEndHeight = endHeight === null ? currentHeight - 1 : endHeight;
+      let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
+      assert.equal(realEndHeight - realStartHeight + 1, blocks.length);
+      for (let i = 0; i < blocks.length; i++) {
+        assert.equal(realStartHeight + i, blocks[i].getHeader().getHeight());
+      }
     }
   });
   

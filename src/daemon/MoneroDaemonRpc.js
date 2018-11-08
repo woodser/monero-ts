@@ -101,7 +101,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
 //    return blocks;
   }
   
-  async getBlocksByRange(startHeight, endHeight) {  // TODO: correctly determine and test height range
+  async getBlocksByRange(startHeight, endHeight) {
+    if (typeof startHeight !== "number") startHeight = 0;
+    if (typeof endHeight !== "number") endHeight = (await this.getHeight()).getHeight() - 1;
     let heights = [];
     for (let height = startHeight; height <= endHeight; height++) heights.push(height);
     return await this.getBlocksByHeight(heights);
