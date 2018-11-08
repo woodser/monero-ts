@@ -8,3 +8,6 @@ binary rpc requests
 
 MEDIUM
 license headers
+
+RPC SUGGESTED IMPOVEMENTS
+/get_transactions returns duplicate data per transaction

@@ -96,16 +96,16 @@ class MoneroRpc {
     if (this.config.user) {
       opts.forever = true;
       opts.auth = {
-          user: this.config.user,
-          pass: this.config.pass,
-          sendImmediately: false
+        user: this.config.user,
+        pass: this.config.pass,
+        sendImmediately: false
       }
     }
     
     // send request and await response
     let resp = await request(opts);
     if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
-    return resp.result;
+    return resp;
   }
   
   /**

@@ -115,7 +115,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
       prune: prune
     });
     
-    // build transaction models    
+    // build transaction models
+    console.log(resp);
     throw new Error("Not implemented");
   }
   
