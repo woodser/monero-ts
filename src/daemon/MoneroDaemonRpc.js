@@ -6,7 +6,7 @@ const MoneroDaemonResponseInfo = require("./model/MoneroDaemonResponseInfo");
 const MoneroHeight = require("./model/MoneroHeight");
 const MoneroBlockHeader = require("./model/MoneroBlockHeader");
 const MoneroBlock = require("./model/MoneroBlock");
-const MoneroMinerTx = require("./model/MoneroMinerTx");
+const MoneroTx = require("./model/MoneroTx");
 
 /**
  * Implements a Monero daemon using monero-daemon-rpc.
@@ -162,7 +162,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     block.setTxHashes(respBlock.tx_hashes === undefined ? [] : respBlock.tx_hashes);
     
     // initialize miner tx from json
-    let minerTx = new MoneroMinerTx();
+    let minerTx = new MoneroTx();
     block.setMinerTx(minerTx);
     let json = JSON.parse(respBlock.json);
     minerTx.setVersion(json.miner_tx.version);

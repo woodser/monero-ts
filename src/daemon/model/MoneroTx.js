@@ -11,12 +11,12 @@ class MoneroTx {
     this.id = id;
   }
   
-  getTotalAmount() {
-    return this.totalAmount;
+  getVersion() {
+    return this.version;
   }
   
-  setTotalAmount(totalAmount) {
-    this.totalAmount = totalAmount;
+  setVersion(version) {
+    this.version = version;
   }
   
   getPaymentId() {
@@ -137,6 +137,14 @@ class MoneroTx {
   
   setCommonTxSets(commonTxSets) {
     this.commonTxSets = commonTxSets;
+  }
+  
+  getExtra() {
+    return this.extra;
+  }
+  
+  setExtra(extra) {
+    this.extra = extra;
   }
 }
 

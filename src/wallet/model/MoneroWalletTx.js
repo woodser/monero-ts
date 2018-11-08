@@ -4,6 +4,14 @@ const MoneroTx = require("../../daemon/model/MoneroTx");
  * Models a Monero transaction with additional fields known to wallet.
  */
 class MoneroWalletTx extends MoneroTx {
+  
+  getTotalAmount() {
+    return this.totalAmount;
+  }
+  
+  setTotalAmount(totalAmount) {
+    this.totalAmount = totalAmount;
+  }
 
   getSrcAddress() {
     return this.srcAddress;
