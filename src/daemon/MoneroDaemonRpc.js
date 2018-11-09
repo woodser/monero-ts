@@ -119,7 +119,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     //if (resp.txs) console.log(resp.txs[0].as_json);
     
     // build transaction models
-    let txs = resp.txs.map(tx => MoneroUtils.daemonTxMapToTx(tx));
+    let txs = resp.txs ? resp.txs.map(tx => MoneroUtils.daemonTxMapToTx(tx)) : [];
     txs.map(tx => MoneroDaemonRpc._setResponseInfo(resp, tx));
     return txs;
   }

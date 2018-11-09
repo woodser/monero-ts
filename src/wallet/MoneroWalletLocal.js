@@ -72,12 +72,13 @@ class MoneroWalletLocal extends MoneroWallet {
     let startHeight = height - numBlocksAgo;
     let endHeight = height - numBlocksAgo + numBlocks - 1;
     
+    // override for known incoming transactions
+    startHeight = 197085;
+    endHeight = startHeight + numBlocks - 1;
+    
     // fetch blocks
     console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
-    let blocks = [];
-    for (let height = startHeight; height < endHeight; height++) {
-      blocks.push(await this.daemon.getBlockByHeight(height));
-    }
+    let blocks = await this.daemon.getBlocksByRange(startHeight, endHeight);
     
     // collect transaction hashes
 //    let txHashes = blocks.map(block => block.tx_hashes === undefined ? [] : block.tx_hashes).reduce((a, b) => a.concat(b)); // works but bad memory profile
