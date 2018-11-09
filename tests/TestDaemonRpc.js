@@ -169,7 +169,7 @@ describe("Test Daemon RPC", function() {
     let txs = await daemon.getTxs(txHashes, true, false);
     for (let tx of txs) {
       testDaemonResponseInfo(tx, true, true); // TODO: duplicating response info is going to be too expensive so must be common reference
-      testMoneroTx(tx, height, true);
+      testDaemonTx(tx, height, true);
     }
     
     // TODO: test binary vs json encoding
@@ -211,7 +211,7 @@ function testBlock(block) {
   assert(Array.isArray(block.getTxHashes()));
   assert(block.getTxHashes().length >= 0);
   testBlockHeader(block.getHeader());
-  testMinerTx(block.getMinerTx());  // TODO: miner tx doesn't have as much stuff, can't call testMoneroTx?
+  testMinerTx(block.getMinerTx());  // TODO: miner tx doesn't have as much stuff, can't call testDaemonTx?
 }
 
 function testMinerTx(minerTx) {
@@ -222,7 +222,7 @@ function testMinerTx(minerTx) {
   assert(minerTx.getUnlockTime() >= 0);
 }
 
-function testMoneroTx(tx, chainHeight, hasHex) {
+function testDaemonTx(tx, chainHeight, hasHex) {
   assert(tx);
   if (hasHex) assert(tx.getHex().length > 0);
   assert(tx.getHeight() >= 0);
@@ -233,6 +233,12 @@ function testMoneroTx(tx, chainHeight, hasHex) {
   assert(tx.getVersion() >= 0);
   assert(Array.isArray(tx.getExtra()));
   assert(tx.getExtra().length > 0);
-  // TODO: vin, vout, rct stuff
-  throw new Error("Not implemented");
+  assert(tx.getVin() && Array.isArray(tx.getVin()) && tx.getVin().length >= 0);
+  if (tx.getVin().length > 0) assert(tx.getVin()[0].key.key_image.length === 64);
+  assert(tx.getVout() && Array.isArray(tx.getVout()) && tx.getVout().length >= 0);
+  if (tx.getVout().length > 0) assert(tx.getVout()[0].target.key.length === 64);
+  assert(tx.getRctSignatures());
+  assert(tx.getRctSigPrunable());
+  assert(tx.getMgs() && Array.isArray(tx.getMgs()) && tx.getMgs().length > 0);
+  assert(tx.getPseudoOuts() && Array.isArray(tx.getPseudoOuts()));
 }
