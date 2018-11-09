@@ -60,6 +60,8 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async sync() {
     
+    throw new Error("Not implemented");
+    
     // get height
     let height = await this.daemon.getHeight();
     

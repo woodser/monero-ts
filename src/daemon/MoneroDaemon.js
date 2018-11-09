@@ -72,6 +72,10 @@ class MoneroDaemon {
     throw new Error("Subclass must implement");
   }
   
+  async getBlocksByHeightBinary(heights) {
+    throw new Error("Subclass must implement");
+  }
+  
   /**
    * Get blocks in the given height range.
    * 

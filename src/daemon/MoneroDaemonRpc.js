@@ -99,6 +99,11 @@ class MoneroDaemonRpc extends MoneroDaemon {
 //    return blocks;
   }
   
+  async getBlocksByHeightBinary(heights) {
+    let resp = await this.rpc.sendBinRpcRequest("get_blocks_by_height.bin", heights);
+    throw new Error("Not implemented!");
+  }
+  
   async getBlocksByRange(startHeight, endHeight) {
     if (typeof startHeight !== "number") startHeight = 0;
     if (typeof endHeight !== "number") endHeight = await this.getHeight() - 1;
