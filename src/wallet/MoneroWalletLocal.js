@@ -128,7 +128,7 @@ class MoneroWalletLocal extends MoneroWallet {
         console.log("Output key: " + vout.target.key + "\n\n");
         
         // check if wallet owns output
-        if (lastPubKey === pubKeyDerived) {
+        if (vout.target.key === pubKeyDerived) {
           console.log("This my output!!!");
           numOwned++;
           console.log(out);
