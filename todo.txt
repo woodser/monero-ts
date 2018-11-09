@@ -10,3 +10,4 @@ tx hex returned from rpc api even if not needed
 
 RPC SUGGESTED IMPOVEMENTS
 /get_transactions returns duplicate data per transaction
+non-standardized serialization/deserialization for binary requests adds complexity to clients

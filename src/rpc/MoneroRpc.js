@@ -111,39 +111,73 @@ class MoneroRpc {
   /**
    * Sends a binary RPC request.
    * 
-   * @param method is the binary RPC method to invoke
+   * @param path is the path of the binary RPC method to invoke
    * @params are the request parameters
    * @return a Promise invoked with the response
    */
-  async sendBinRpcRequest(method, params) {
+  async sendBinRpcRequest(path, params) {
+    console.log("sendBinRpcRequest(" + path + ", " + params + ")");
     
     // build request
     let opts = {
         method: "POST",
-        uri: this.config.uri + "/" + method,
+        uri: this.config.uri + "/" + path,
         agent: new http.Agent({ // TODO: recycle agent?
           keepAlive: true,
           maxSockets: 1
         }),
-        resolveWithFullResponse: true,
         encoding: null,
-        body: Buffer.from(JSON.stringify(params)), // TODO: how to do parameters
+        json: params
     };
     if (this.config.user) {
       opts.forever = true;
       opts.auth = {
-          user: this.config.user,
-          pass: this.config.pass,
-          sendImmediately: false
+        user: this.config.user,
+        pass: this.config.pass,
+        sendImmediately: false
       }
     }
     
-    // send request and await response
-    console.log("Sending to: " + this.config.uri + "/" + method);
     console.log(opts);
+    
+    // send request and await response
     let resp = await request(opts);
+    console.log(resp);
     if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
-    return resp.result;
+    return resp;
+    
+//    // send request and await response
+//    let resp = await request(opts);
+//    if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
+//    return resp;
+//    
+//    // build request
+//    let opts = {
+//        method: "POST",
+//        uri: this.config.uri + "/" + method,
+//        agent: new http.Agent({ // TODO: recycle agent?
+//          keepAlive: true,
+//          maxSockets: 1
+//        }),
+//        resolveWithFullResponse: true,
+//        encoding: null,
+//        body: Buffer.from(JSON.stringify(params)), // TODO: how to do parameters
+//    };
+//    if (this.config.user) {
+//      opts.forever = true;
+//      opts.auth = {
+//          user: this.config.user,
+//          pass: this.config.pass,
+//          sendImmediately: false
+//      }
+//    }
+//    
+//    // send request and await response
+//    console.log("Sending to: " + this.config.uri + "/" + method);
+//    console.log(opts);
+//    let resp = await request(opts);
+//    if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
+//    return resp.result;
   }
 }
 
