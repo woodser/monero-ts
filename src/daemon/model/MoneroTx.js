@@ -73,7 +73,7 @@ class MoneroTx extends MoneroDaemonModel {
     return this.timestamp;
   }
   
-  setTimestamp() {
+  setTimestamp(timestamp) {
     this.timestamp = timestamp;
   }
   
@@ -101,12 +101,12 @@ class MoneroTx extends MoneroDaemonModel {
     this.key = key;
   }
   
-  getBlob() {
-    return this.blob;
+  getHex() {
+    return this.hex;
   }
   
-  setBlob(blob) {
-    this.blob = blob;
+  setHex(hex) {
+    this.hex = hex;
   }
   
   getMetadata() {

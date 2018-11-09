@@ -11,7 +11,21 @@ class MoneroUtils {
    * @param txMap are transaction key/values from the RPC API
    */
   static daemonTxMapToTx(txMap) {
-    return new MoneroTx();
+    let tx = new MoneroTx();
+    tx.setHex(txMap.as_hex);
+    tx.setHeight(txMap.block_height);
+    tx.setTimestamp(txMap.timestamp);
+    tx.setIsDoubleSpend(txMap.double_spend_seen);
+    
+    
+    // the juicy stuff is in the json
+    if (txMap.json) {
+      let json = JSON.parse(txMap.as_json);
+    }
+    
+    
+    
+    return tx;
   }
     
     /**

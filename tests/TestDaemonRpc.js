@@ -169,7 +169,7 @@ describe("Test Daemon RPC", function() {
     let txs = await daemon.getTxs(txHashes, true, false);
     for (let tx of txs) {
       testDaemonResponseInfo(tx, true, true); // TODO: duplicating response info is going to be too expensive so must be common reference
-      testMoneroDaemonTx(tx);
+      testMoneroTx(tx, height, true);
     }
     
     // TODO: test binary vs json encoding
@@ -191,7 +191,7 @@ function testBlockHeader(header) {
   assert(header.getDifficulty());
   assert(header.getCumulativeDifficulty());
   assert(header.getHash());
-  assert(header.getHeight());
+  assert(header.getHeight() >= 0);
   assert(header.getMajorVersion());
   assert(header.getMinorVersion());
   assert(header.getNonce());
@@ -211,7 +211,7 @@ function testBlock(block) {
   assert(Array.isArray(block.getTxHashes()));
   assert(block.getTxHashes().length >= 0);
   testBlockHeader(block.getHeader());
-  testMinerTx(block.getMinerTx());
+  testMinerTx(block.getMinerTx());  // TODO: miner tx doesn't have as much stuff, can't call testMoneroTx?
 }
 
 function testMinerTx(minerTx) {
@@ -222,6 +222,17 @@ function testMinerTx(minerTx) {
   assert(minerTx.getUnlockTime() >= 0);
 }
 
-function testMoneroDaemonTx(tx) {
+function testMoneroTx(tx, chainHeight, hasHex) {
+  assert(tx);
+  if (hasHex) assert(tx.getHex().length > 0);
+  assert(tx.getHeight() >= 0);
+  assert.equal(chainHeight - tx.getHeight(), tx.getNumConfirmations());
+  assert(tx.getTimestamp() >= 0);
+  assert(typeof tx.getIsDoubleSpend() === "boolean");
+  assert(tx.getHash().length === 64);
+  assert(tx.getVersion() >= 0);
+  assert(Array.isArray(tx.getExtra()));
+  assert(tx.getExtra().length > 0);
+  // TODO: vin, vout, rct stuff
   throw new Error("Not implemented");
 }
