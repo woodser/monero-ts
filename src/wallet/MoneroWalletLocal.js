@@ -60,14 +60,12 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async sync() {
     
-    throw new Error("Not implemented");
-    
     // get height
     let height = await this.daemon.getHeight();
     
     // determine heights to fetch
-    let numBlocks = 50;
-    let numBlocksAgo = 190;
+    let numBlocks = 100;
+    let numBlocksAgo = 400;
     assert(numBlocks > 0);
     assert(numBlocksAgo >= numBlocks);
     assert(height - numBlocksAgo + numBlocks - 1 < height);
@@ -81,76 +79,61 @@ class MoneroWalletLocal extends MoneroWallet {
       blocks.push(await this.daemon.getBlockByHeight(height));
     }
     
-    // 
-    
     // collect transaction hashes
 //    let txHashes = blocks.map(block => block.tx_hashes === undefined ? [] : block.tx_hashes).reduce((a, b) => a.concat(b)); // works but bad memory profile
     let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; }); // works
-    console.log("TX hashes: " + txHashes.length);
-    
-    
     
     // fetch transactions
     let txs = await this.daemon.getTxs(txHashes, true, false);
     console.log("Fetched " + txs.length + " transactions");
     if (txHashes.length !== txs.length) throw new Error("Missing fetched transactions");
     
-//    
-//    // process transactions
-//    //let decoder = new TextDecoder("utf-8");
-//    let numOwned = 0;
-//    let numUnowned = 0;
-//    
-//    console.log("View key prv: " + this.viewKeyPrv);
-//    console.log("Spend key pub: " + this.spendKeyPub);
-//    
-//    console.log("Processing transactions...");
-//    for (let txIdx = 0; txIdx < txHashes.length; txIdx++) {
-//      let tx = txs[txIdx];
-//      if (txHashes[txIdx] !== "cb8258a925b63a43f4447fd3c838b0d5b9389d1df1cd4c6e18b0476d2c221c9f") continue;
-//      
-//      console.log("Tx hash: " + txHashes[txIdx]);
-//      console.log(tx);
-//      
-//      // get tx pub key
-//      let lastPubKey;
-//      try {
-//        lastPubKey = MoneroUtils.getLastTxPubKey(tx.extra);
-//        console.log("Last pub key: " + lastPubKey);
-//      } catch (err) {
-//        console.log("Could not process nonstandard extra: " + tx.extra);
-//        continue;
-//      }
-//      
-//      // process outputs
-//      for (let idx = 0; idx < tx.vout.length; idx++) {
-//        let out = tx.vout[idx];
-//        //let pubKey = out.target.key;
-//        
-//
-////        console.log("Amount: " + amount);
-//        console.log("Index: " + idx);
-//        
-//        let derivation = this.coreUtils.generate_key_derivation(lastPubKey, this.viewKeyPrv);
-//        console.log("Derivation: " + derivation);
-//        
-//        let pubKeyDerived = this.coreUtils.derive_public_key(derivation, idx, this.spendKeyPub);
-//        console.log("Pub key derived: " + pubKeyDerived);
-//        
-//        // check if wallet owns output
-//        if (lastPubKey === pubKeyDerived) {
-//          console.log("This my output!!!");
-//          numOwned++;
-//          console.log(out);
-//          
-//          // TODO: determine amount and test
-//        } else {
-//          numUnowned++;
-//        }
-//      }
-//    }
+    // process transactions
+    let numOwned = 0;
+    let numUnowned = 0;
     
-//    console.log("Done processing, " + numOwned + " owned outputs found, " + numUnowned + " unowned");
+    console.log("View key prv: " + this.viewKeyPrv);
+    console.log("Spend key pub: " + this.spendKeyPub);
+    
+    console.log("Processing transactions...");
+    for (let txIdx = 0; txIdx < txHashes.length; txIdx++) {
+      let tx = txs[txIdx];
+//      if (txHashes[txIdx] !== "cb8258a925b63a43f4447fd3c838b0d5b9389d1df1cd4c6e18b0476d2c221c9f") continue;
+      
+      // get tx pub key
+      let lastPubKey;
+      try {
+        lastPubKey = MoneroUtils.getLastTxPubKey(tx.getExtra());
+        console.log("Last pub key: " + lastPubKey);
+      } catch (err) {
+        console.log("Could not process nonstandard extra: " + tx.getExtra());
+        continue;
+      }
+      
+      // process outputs
+      for (let vout of tx.getVout()) {
+        console.log("Out index: " + vout.index);
+        
+        let derivation = this.coreUtils.generate_key_derivation(lastPubKey, this.viewKeyPrv);
+        console.log("Derivation: " + derivation);
+        
+        let pubKeyDerived = this.coreUtils.derive_public_key(derivation, vout.index, this.spendKeyPub);
+        console.log("Pub key derived: " + pubKeyDerived);
+        
+        // check if wallet owns output
+        if (lastPubKey === pubKeyDerived) {
+          console.log("This my output!!!");
+          numOwned++;
+          console.log(out);
+          
+          // TODO: determine amount and test
+        } else {
+          numUnowned++;
+        }
+      }
+    }
+    
+    console.log("Done processing, " + numOwned + " owned outputs found, " + numUnowned + " unowned");
   }
   
   // ------------------------------- PRIVATE STATIC ---------------------------
