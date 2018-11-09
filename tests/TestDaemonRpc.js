@@ -152,7 +152,7 @@ describe("Test Daemon RPC", function() {
     // get valid height range
     let height = await daemon.getHeight();
     let numBlocks = 50;
-    let numBlocksAgo = 190;
+    let numBlocksAgo = 250;
     assert(numBlocks > 0);
     assert(numBlocksAgo >= numBlocks);
     assert(height - numBlocksAgo + numBlocks - 1 < height);
@@ -164,6 +164,7 @@ describe("Test Daemon RPC", function() {
     
     // collect tx hashes
     let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; });
+    assert(txHashes.length > 0, "No transactions found in the range [" + startHeight + ", " + endHeight + "]");
     
     // fetch txs by hash
     let txs = await daemon.getTxs(txHashes, true, false);
@@ -226,10 +227,11 @@ function testDaemonTx(tx, chainHeight, hasHex) {
   assert(tx);
   if (hasHex) assert(tx.getHex().length > 0);
   assert(tx.getHeight() >= 0);
-  assert.equal(chainHeight - tx.getHeight(), tx.getNumConfirmations());
+  assert(typeof tx.getIsConfirmed() === "boolean");
+  assert(tx.getNumConfirmations() === undefined);
   assert(tx.getTimestamp() >= 0);
   assert(typeof tx.getIsDoubleSpend() === "boolean");
-  assert(tx.getHash().length === 64);
+  assert(tx.getId().length === 64);
   assert(tx.getVersion() >= 0);
   assert(Array.isArray(tx.getExtra()));
   assert(tx.getExtra().length > 0);

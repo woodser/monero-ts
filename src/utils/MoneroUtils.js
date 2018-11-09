@@ -14,8 +14,10 @@ class MoneroUtils {
     let tx = new MoneroTx();
     tx.setHex(txMap.as_hex);
     tx.setHeight(txMap.block_height);
-    tx.setTimestamp(txMap.timestamp);
+    tx.setTimestamp(txMap.block_timestamp);
     tx.setIsDoubleSpend(txMap.double_spend_seen);
+    tx.setIsConfirmed(!txMap.in_pool);
+    tx.setId(txMap.tx_hash);
     
     
     // the juicy stuff is in the json
