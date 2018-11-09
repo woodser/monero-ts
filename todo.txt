@@ -6,6 +6,7 @@ update on save B-)
 output ownership using core utils
 binary rpc requests
 license headers
+tx hex returned from rpc api even if not needed
 
 RPC SUGGESTED IMPOVEMENTS
 /get_transactions returns duplicate data per transaction

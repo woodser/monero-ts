@@ -73,8 +73,10 @@ class MoneroWalletLocal extends MoneroWallet {
     let endHeight = height - numBlocksAgo + numBlocks - 1;
     
     // override for known incoming transactions
-    startHeight = 197085;
-    endHeight = startHeight + numBlocks - 1;
+//    startHeight = 197085;
+//    endHeight = startHeight + numBlocks - 1;
+    startHeight = 197148;
+    endHeight = 197148
     
     // fetch blocks
     console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
@@ -93,19 +95,20 @@ class MoneroWalletLocal extends MoneroWallet {
     let numOwned = 0;
     let numUnowned = 0;
     
-    console.log("View key prv: " + this.viewKeyPrv);
-    console.log("Spend key pub: " + this.spendKeyPub);
+    //console.log("View key prv: " + this.viewKeyPrv);
+    //console.log("Spend key pub: " + this.spendKeyPub);
     
     console.log("Processing transactions...");
     for (let txIdx = 0; txIdx < txHashes.length; txIdx++) {
       let tx = txs[txIdx];
-//      if (txHashes[txIdx] !== "cb8258a925b63a43f4447fd3c838b0d5b9389d1df1cd4c6e18b0476d2c221c9f") continue;
+      console.log(tx);
+      if (txHashes[txIdx] !== "cb8258a925b63a43f4447fd3c838b0d5b9389d1df1cd4c6e18b0476d2c221c9f") continue;
       
       // get tx pub key
       let lastPubKey;
       try {
         lastPubKey = MoneroUtils.getLastTxPubKey(tx.getExtra());
-        console.log("Last pub key: " + lastPubKey);
+        //console.log("Last pub key: " + lastPubKey);
       } catch (err) {
         console.log("Could not process nonstandard extra: " + tx.getExtra());
         continue;
@@ -113,13 +116,15 @@ class MoneroWalletLocal extends MoneroWallet {
       
       // process outputs
       for (let vout of tx.getVout()) {
-        console.log("Out index: " + vout.index);
         
+        console.log("Last pub key: " + lastPubKey);
+        console.log("Private view key: " + this.viewKeyPrv);
         let derivation = this.coreUtils.generate_key_derivation(lastPubKey, this.viewKeyPrv);
         console.log("Derivation: " + derivation);
-        
+        console.log("Out index: " + vout.index);
+        console.log("Spend key public: " + this.spendKeyPub);
         let pubKeyDerived = this.coreUtils.derive_public_key(derivation, vout.index, this.spendKeyPub);
-        console.log("Pub key derived: " + pubKeyDerived);
+        console.log("Pub key derived: " + pubKeyDerived + "\n\n");
         
         // check if wallet owns output
         if (lastPubKey === pubKeyDerived) {
