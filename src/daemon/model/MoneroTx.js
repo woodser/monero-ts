@@ -158,6 +158,38 @@ class MoneroTx extends MoneroDaemonModel {
   setExtra(extra) {
     this.extra = extra;
   }
+  
+  getVin() {
+    return this.vin;
+  }
+  
+  setVin(vin) {
+    this.vin = vin;
+  }
+  
+  getVout() {
+    return this.vout;
+  }
+  
+  setVout(vout) {
+    this.vout = vout;
+  }
+  
+  getRctSignatures() {
+    return this.rctSignatures;
+  }
+  
+  setRctSignatures(rctSignatures) {
+    this.rctSignatures = rctSignatures;
+  }
+  
+  getRctSigPrunable() {
+    return this.rctSigPrunable;
+  }
+  
+  setRctSigPrunable(rctSigPrunable) {
+    this.rctSigPrunable = rctSigPrunable;
+  }
 }
 
 module.exports = MoneroTx;

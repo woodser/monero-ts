@@ -11,6 +11,8 @@ class MoneroUtils {
    * @param txMap are transaction key/values from the RPC API
    */
   static daemonTxMapToTx(txMap) {
+    
+    // root level fields
     let tx = new MoneroTx();
     tx.setHex(txMap.as_hex);
     tx.setHeight(txMap.block_height);
@@ -19,14 +21,23 @@ class MoneroUtils {
     tx.setIsConfirmed(!txMap.in_pool);
     tx.setId(txMap.tx_hash);
     
-    
-    // the juicy stuff is in the json
-    if (txMap.json) {
+    // parse from json
+    if (txMap.as_json) {
       let json = JSON.parse(txMap.as_json);
+      tx.setVersion(json.version);
+      tx.setExtra(json.extra);
+      tx.setVin(json.vin);
+      tx.setVout(json.vout);
+      tx.setRctSignatures(json.rct_signatures);
+      tx.setRctSigPrunable(json.rctsig_prunable);
+    } else {
+      tx.setVout([txMap.output_indices.length]);
     }
     
-    
-    
+    // assign output indices
+    for (let i = 0; i < txMap.output_indices.length; i++) {
+      tx.getVout()[i].index = txMap.output_indices[i];
+    }
     return tx;
   }
     
