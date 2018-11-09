@@ -122,7 +122,7 @@ class MoneroWalletLocal extends MoneroWallet {
         let derivation = this.coreUtils.generate_key_derivation(lastPubKey, this.viewKeyPrv);
         console.log("Derivation: " + derivation);
         console.log("Out index: " + vout.index);
-        console.log("Spend key public: " + this.spendKeyPub);
+        console.log("Public spend key: " + this.spendKeyPub);
         let pubKeyDerived = this.coreUtils.derive_public_key(derivation, vout.index, this.spendKeyPub);
         console.log("Pub key derived: " + pubKeyDerived);
         console.log("Output key: " + vout.target.key + "\n\n");
