@@ -6,6 +6,16 @@ const MoneroTx = require("../daemon/model/MoneroTx");
 class MoneroUtils {
   
   /**
+   * Get Monero Core utils for client-side wallet crypto and making binary requests.
+   */
+  static async getCoreUtils() {
+    
+    // cache and return core utils
+    if (MoneroUtils.coreUtils === undefined) MoneroUtils.coreUtils = await require('../mymonero_core_js/monero_utils/monero_utils')();
+    return MoneroUtils.coreUtils;
+  }
+  
+  /**
    * Builds a MoneroTx from a daemon RPC transaction map.
    * 
    * @param txMap are transaction key/values from the RPC API

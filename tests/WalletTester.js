@@ -1,4 +1,5 @@
 const assert = require("assert");
+const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
 
 /**
  * Tests a given wallet.
@@ -24,11 +25,12 @@ class WalletTester {
         assert(wallet.getMnemonic());
         throw new Error("Not implemented");
       });
+
       
-      it("sync()", async function() {
-        await wallet.sync();
-        throw new Error("Not implemented");
-      });
+//      it("sync()", async function() {
+//        await wallet.sync();
+//        throw new Error("Not implemented");
+//      });
     });
   }
 }

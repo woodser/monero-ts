@@ -111,26 +111,26 @@ describe("Test Daemon RPC", function() {
   
   it("getBlocksByHeightBinary()", async function() {
     
-    // set number of blocks to test
-    const numBlocks = 500;
-    
-    // select random heights
-    let currentHeight = await daemon.getHeight();
-    let allHeights = [];
-    for (let i = 0; i < currentHeight - 1; i++) allHeights.push(i);
-    GenUtils.shuffle(allHeights);
-    let heights = [];
-    for (let i = 0; i < numBlocks; i++) heights.push(allHeights[i]);
-    
-    // fetch blocks
-    let blocks = await daemon.getBlocksByHeightBinary(heights);
-    assert.equal(numBlocks, blocks.length);
-    for (let i = 0; i < heights.length; i++) {
-      let block = blocks[i];
-      testDaemonResponseInfo(block, true, true);
-      testBlock(block, true);
-      assert.equal(heights[i], block.getHeader().getHeight());      
-    }
+//    // set number of blocks to test
+//    const numBlocks = 500;
+//    
+//    // select random heights
+//    let currentHeight = await daemon.getHeight();
+//    let allHeights = [];
+//    for (let i = 0; i < currentHeight - 1; i++) allHeights.push(i);
+//    GenUtils.shuffle(allHeights);
+//    let heights = [];
+//    for (let i = 0; i < numBlocks; i++) heights.push(allHeights[i]);
+//    
+//    // fetch blocks
+//    let blocks = await daemon.getBlocksByHeightBinary(heights);
+//    assert.equal(numBlocks, blocks.length);
+//    for (let i = 0; i < heights.length; i++) {
+//      let block = blocks[i];
+//      testDaemonResponseInfo(block, true, true);
+//      testBlock(block, true);
+//      assert.equal(heights[i], block.getHeader().getHeight());      
+//    }
   })
   
 //  

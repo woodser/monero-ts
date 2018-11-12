@@ -1,4 +1,5 @@
 const MoneroRpcError = require("./MoneroRpcError");
+const MoneroUtils = require("../utils/MoneroUtils.js");
 const request = require("request-promise");
 const http = require('http');
 
@@ -116,7 +117,19 @@ class MoneroRpc {
    * @return a Promise invoked with the response
    */
   async sendBinRpcRequest(path, params) {
-    console.log("sendBinRpcRequest(" + path + ", " + params + ")");
+    params = {
+        heights: [136332, 115163, 124907]
+    };
+    //console.log("sendBinRpcRequest(" + path + ", " + params + ")");
+    
+    // get core utils to serialize and deserialize binary requests
+    let coreUtils = await MoneroUtils.getCoreUtils();
+    
+    // serialize params
+    console.log("Sending with these params");
+    console.log(params);
+    let paramsBin = coreUtils.json_to_binary(params);
+    console.log(paramsBin);
     
     // build request
     let opts = {
@@ -127,7 +140,7 @@ class MoneroRpc {
           maxSockets: 1
         }),
         encoding: null,
-        json: params
+        body: paramsBin
     };
     if (this.config.user) {
       opts.forever = true;
