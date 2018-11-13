@@ -27,10 +27,10 @@ class WalletTester {
       });
 
       
-//      it("sync()", async function() {
-//        await wallet.sync();
-//        throw new Error("Not implemented");
-//      });
+      it("sync()", async function() {
+        await wallet.sync();
+        throw new Error("Not implemented");
+      });
     });
   }
 }

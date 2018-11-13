@@ -88,12 +88,6 @@ class MoneroWalletLocal extends MoneroWallet {
     startHeight = 197148;
     endHeight = 197148
     
-    console.log("Right here");
-    console.log(this.coreUtils.say_something("Hi there!!!"));
-    
-    await this.daemon.getBlocksByHeightBinary([startHeight]);
-    console.log("Right after");
-    
     // fetch blocks
     console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
     let blocks = await this.daemon.getBlocksByRange(startHeight, endHeight);
@@ -104,6 +98,7 @@ class MoneroWalletLocal extends MoneroWallet {
     
     // fetch transactions
     let txs = await this.daemon.getTxs(txHashes, true, false);
+
     console.log("Fetched " + txs.length + " transactions");
     if (txHashes.length !== txs.length) throw new Error("Missing fetched transactions");
     
@@ -117,7 +112,7 @@ class MoneroWalletLocal extends MoneroWallet {
     console.log("Processing transactions...");
     for (let txIdx = 0; txIdx < txHashes.length; txIdx++) {
       let tx = txs[txIdx];
-      console.log(tx);
+      //console.log(tx);
       if (txHashes[txIdx] !== "cb8258a925b63a43f4447fd3c838b0d5b9389d1df1cd4c6e18b0476d2c221c9f") continue;
       
       // get tx pub key
@@ -131,15 +126,14 @@ class MoneroWalletLocal extends MoneroWallet {
       }
       
       // process outputs
-      for (let vout of tx.getVout()) {
-        
+      for (let outIdx = 0; outIdx < tx.getVout().length; outIdx) {
         console.log("Last pub key: " + lastPubKey);
         console.log("Private view key: " + this.viewKeyPrv);
         let derivation = this.coreUtils.generate_key_derivation(lastPubKey, this.viewKeyPrv);
         console.log("Derivation: " + derivation);
-        console.log("Out index: " + vout.index);
+        console.log("Out index: " + tx.getVout()[outIdx].index);
         console.log("Public spend key: " + this.spendKeyPub);
-        let pubKeyDerived = this.coreUtils.derive_public_key(derivation, vout.index, this.spendKeyPub);
+        let pubKeyDerived = this.coreUtils.derive_public_key(derivation, tx.getVout()[outIdx].index, this.spendKeyPub);
         console.log("Pub key derived: " + pubKeyDerived);
         console.log("Output key: " + vout.target.key + "\n\n");
         
