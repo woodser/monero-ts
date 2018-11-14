@@ -118,7 +118,7 @@ class MoneroRpc {
    */
   async sendBinRpcRequest(path, params) {
     params = {
-        heights: [136332, 115163, 124907]
+        heights: [111, 222, 333]
     };
     //console.log("sendBinRpcRequest(" + path + ", " + params + ")");
     
@@ -126,10 +126,12 @@ class MoneroRpc {
     let coreUtils = await MoneroUtils.getCoreUtils();
     
     // serialize params
-    console.log("Sending with these params");
     console.log(params);
     let paramsBin = coreUtils.json_to_binary(params);
+    console.log("Sending with these params");
     console.log(paramsBin);
+    console.log("Converted back for shiggles");
+    console.log(coreUtils.binary_to_json(paramsBin));
     
     // build request
     let opts = {

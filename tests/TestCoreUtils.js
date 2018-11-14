@@ -14,12 +14,21 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
     });
     
     it("Test binary serialization", async function() {
-      let json = { heights: [111, 222, 333], myObject: {test1: "Hello", test2: "There"} };
+      
+      // test 1
+      let json = { heights: [111, 222, 333] };
       let binary = coreUtils.json_to_binary(json);
       assert(binary);
       console.log("Received binary from core utils: " + binary);
       let json2 = coreUtils.binary_to_json(binary);
       assert.deepEqual(json, json2);
+      
+//      // test 2
+//      json = { heights: [136332, 115163, 124907] };
+//      binary = coreUtils.json_to_binary(json);
+//      assert(binary);
+//      json2 = coreUtils.binary_to_json(binary);
+//      assert.deepEqual(json, json2);
     });
   });
 });
