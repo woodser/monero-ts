@@ -14,7 +14,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
     });
     
     it("Test binary serialization", async function() {
-      let json = { heights: [111, 222, 333] };
+      let json = { heights: [111, 222, 333], myObject: {test1: "Hello", test2: "There"} };
       let binary = coreUtils.json_to_binary(json);
       assert(binary);
       console.log("Received binary from core utils: " + binary);
