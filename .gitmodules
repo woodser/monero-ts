@@ -4,3 +4,9 @@
 [submodule "src/monerojs"]
 	path = src/monerojs
 	url = https://github.com/monerojs/monerojs.git
+[submodule "src/mymonero-core-js"]
+	path = src/mymonero-core-js
+	url = https://github.com/woodser/mymonero-core-js.git
+[submodule "src/submodules/mymonero-core-js"]
+	path = src/submodules/mymonero-core-js
+	url = https://github.com/woodser/mymonero-core-js.git

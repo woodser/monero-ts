@@ -23,12 +23,19 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       let json2 = coreUtils.binary_to_json(binary);
       assert.deepEqual(json, json2);
       
-//      // test 2
-//      json = { heights: [136332, 115163, 124907] };
-//      binary = coreUtils.json_to_binary(json);
-//      assert(binary);
-//      json2 = coreUtils.binary_to_json(binary);
-//      assert.deepEqual(json, json2);
+      // test 2
+      json = { msg: 'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' };
+      binary = coreUtils.json_to_binary(json);
+      assert(binary);
+      json2 = coreUtils.binary_to_json(binary);
+      assert.deepEqual(json, json2);
+      
+      // test 3
+      json = { heights: [123456, 1234567, 870987] };
+      binary = coreUtils.json_to_binary(json);
+      assert(binary);
+      json2 = coreUtils.binary_to_json(binary);
+      assert.deepEqual(json, json2);
     });
   });
 });

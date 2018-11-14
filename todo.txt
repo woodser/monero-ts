@@ -1,4 +1,6 @@
 HIGH
+is mymonero freeing memory from bridge?
+
 how to json.parse() with binary text
 how to make request with binary body
 
