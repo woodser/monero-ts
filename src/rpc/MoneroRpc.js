@@ -127,7 +127,7 @@ class MoneroRpc {
     
     // serialize params
     console.log(params);
-    let paramsBin = coreUtils.malloc_json_to_binary(params);
+    let paramsBin = coreUtils.json_to_binary(params);
     console.log("Sending with these params");
     console.log(paramsBin);
     console.log("Converted back for shiggles");
