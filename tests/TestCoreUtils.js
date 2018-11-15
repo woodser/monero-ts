@@ -3,7 +3,9 @@ const MoneroUtils = require("../src/utils/MoneroUtils");
 const GenUtils = require("../src/utils/GenUtils");
 const TestUtils = require("./TestUtils");
 
-//get core utils
+/**
+ * Test core utils ported from c++ at application layer.
+ */
 MoneroUtils.getCoreUtils().then(function(coreUtils) {
   
   describe("Monero Core Utils", function() {
@@ -14,7 +16,6 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       let json = { heights: [111, 222, 333] };
       let binary = coreUtils.json_to_binary(json);
       assert(binary);
-      console.log("Received binary from core utils: " + binary);
       let json2 = coreUtils.binary_to_json(binary);
       assert.deepEqual(json, json2);
       
