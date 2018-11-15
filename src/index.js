@@ -7,7 +7,7 @@ const MoneroRPC = require("./monerojs");
 //const WalletHostPollingController = require('../Wallets/Controllers/WalletHostPollingController')
 
 console.log("Booting app...");
-require('./submodules/mymonero_core_js/monero_utils/monero_utils')().then(function(coreUtils) {
+require('./submodules/mymonero-core-js/monero_utils/monero_utils')().then(function(coreUtils) {
   console.log("Core utils loaded");
   //console.log(coreUtils);
   

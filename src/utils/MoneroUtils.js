@@ -11,7 +11,7 @@ class MoneroUtils {
   static async getCoreUtils() {
     
     // cache and return core utils
-    if (MoneroUtils.coreUtils === undefined) MoneroUtils.coreUtils = await require('../submodules/mymonero_core_js/monero_utils/monero_utils')();
+    if (MoneroUtils.coreUtils === undefined) MoneroUtils.coreUtils = await require('../submodules/mymonero-core-js/monero_utils/monero_utils')();
     return MoneroUtils.coreUtils;
   }
   
