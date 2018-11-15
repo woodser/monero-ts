@@ -1,7 +1,7 @@
 const assert = require("assert");
 const MoneroWallet = require("./MoneroWallet");
 const MoneroUtils = require("../utils/MoneroUtils");
-const nettype = require("../mymonero_core_js/cryptonote_utils/nettype");
+const nettype = require("../submodules/mymonero_core_js/cryptonote_utils/nettype");
 
 /**
  * Implements a Monero wallet using client-side crypto and a daemon.
