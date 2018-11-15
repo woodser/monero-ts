@@ -1,9 +1,8 @@
 HIGH
-is mymonero freeing memory from bridge?
-
+is mymonero memory freed from bridge?
 how to json.parse() with binary text
 how to make request with binary body
-
+source formatting
 getHeight() -> getBlockCount()?
 getBlocksByHash(), getBlocksByHeight(), getBlocksByRange() where first two can take single elem or array and return type is based on that
 socket hang up on repeated block calls
