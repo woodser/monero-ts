@@ -1,3 +1,5 @@
+console.log("Enter TestWalletLocal");
+
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const TestUtils = require("./TestUtils");
 const WalletTester = require("./WalletTester");

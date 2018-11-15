@@ -17,29 +17,28 @@ class MoneroDaemonRpc extends MoneroDaemon {
   /**
    * Constructs the daemon.
    * 
-   * @param rpcOrConfig is an RPC connection or a configuration for one
+   * @param config is the daemon configuration	// TODO: default configuration
    */
-  constructor(rpcOrConfig) {
+  constructor(config) {
     super();
     
-    // set rpc connection
-    if (rpcOrConfig instanceof MoneroRpc) {
-      this.rpc = rpcOrConfig;
-    } else {
-      this.rpc = new MoneroRpc(rpcOrConfig);
-    }
+    // assign config
+    this.config = Object.assign({}, config);
+    
+    // initialize rpc if not given
+    if (!this.config.rpc) this.config.rpc = new MoneroRpc(config);
   }
   
   async getHeight() {
-    return (await this.rpc.sendJsonRpcRequest("get_block_count")).count;
+    return (await this.config.rpc.sendJsonRpcRequest("get_block_count")).count;
   }
   
   async getBlockHash(height) {
-    return await this.rpc.sendJsonRpcRequest("on_get_block_hash", [height]);
+    return await this.config.rpc.sendJsonRpcRequest("on_get_block_hash", [height]);
   }
   
   async getLastBlockHeader() {
-    let resp = await this.rpc.sendJsonRpcRequest("get_last_block_header");
+    let resp = await this.config.rpc.sendJsonRpcRequest("get_last_block_header");
     let header = MoneroDaemonRpc._initializeBlockHeader(resp.block_header);
     MoneroDaemonRpc._setResponseInfo(resp, header);
     return header;
@@ -48,7 +47,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async getBlockHeadersByRange(startHeight, endHeight) {
     
     // fetch block headers
-    let resp = await this.rpc.sendJsonRpcRequest("get_block_headers_range", {
+    let resp = await this.config.rpc.sendJsonRpcRequest("get_block_headers_range", {
       start_height: startHeight,
       end_height: endHeight
     });
@@ -64,14 +63,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getBlockByHash(hash) {
-    let resp = await this.rpc.sendJsonRpcRequest("get_block", { hash: hash });
+    let resp = await this.config.rpc.sendJsonRpcRequest("get_block", { hash: hash });
     let block = MoneroDaemonRpc._initializeBlock(resp);
     MoneroDaemonRpc._setResponseInfo(resp, block);
     return block;
   }
   
   async getBlockByHeight(height) {
-    let resp = await this.rpc.sendJsonRpcRequest("get_block", { height: height });
+    let resp = await this.config.rpc.sendJsonRpcRequest("get_block", { height: height });
     let block = MoneroDaemonRpc._initializeBlock(resp);
     MoneroDaemonRpc._setResponseInfo(resp, block);
     return block;
@@ -100,10 +99,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getBlocksByHeightBinary(heights) {
-    let resp = await this.rpc.sendBinRpcRequest("get_blocks_by_height.bin", { heights: heights });
-    console.log("get_blocks_by_height.bin response:");
-    console.log(resp);
-    throw new Error("Not implemented!");
+    let resp = await this.config.rpc.sendBinRpcRequest("get_blocks_by_height.bin", { heights: heights });
+    console.log("get_blocks_by_height.bin response: " + resp.length);
+    let blocks = this.config.coreUtils.binary_blocks_to_json(resp);
+    console.log("CONVERTED BLOCKS!!!");
+    console.log(blocks);
+    return blocks;
   }
   
   async getBlocksByRange(startHeight, endHeight) {
@@ -117,7 +118,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async getTxs(txHashes, decodeAsJson, prune) {
     
     // fetch transactions
-    let resp = await this.rpc.sendPathRpcRequest("get_transactions", {
+    let resp = await this.config.rpc.sendPathRpcRequest("get_transactions", {
       txs_hashes: txHashes,
       decode_as_json: decodeAsJson,
       prune: prune

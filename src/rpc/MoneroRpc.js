@@ -114,24 +114,16 @@ class MoneroRpc {
    * 
    * @param path is the path of the binary RPC method to invoke
    * @params are the request parameters
-   * @return a Promise invoked with the response
+   * @returns a Uint8Array with the binary response
    */
   async sendBinRpcRequest(path, params) {
-    params = {
-        heights: [111, 222, 333]
-    };
-    //console.log("sendBinRpcRequest(" + path + ", " + params + ")");
+    console.log("sendBinRpcRequest(" + path + ", " + JSON.stringify(params) + ")");
     
     // get core utils to serialize and deserialize binary requests
     let coreUtils = await MoneroUtils.getCoreUtils();
     
     // serialize params
-    console.log(params);
     let paramsBin = coreUtils.json_to_binary(params);
-    console.log("Sending with these params");
-    console.log(paramsBin);
-    console.log("Converted back for shiggles");
-    console.log(coreUtils.binary_to_json(paramsBin));
     
     // build request
     let opts = {
@@ -153,46 +145,10 @@ class MoneroRpc {
       }
     }
     
-    ;
     // send request and await response
-    let respBin = await request(opts);
-    console.log("BINARY RESPONSE!");
-    console.log(respBin);
-    let respJson = coreUtils.binary_to_json(new Uint8Array(respBin, 0, respBin.length));
+    let resp = await request(opts);
     if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
-    
-//    // send request and await response
-//    let resp = await request(opts);
-//    if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
-//    return resp;
-//    
-//    // build request
-//    let opts = {
-//        method: "POST",
-//        uri: this.config.uri + "/" + method,
-//        agent: new http.Agent({ // TODO: recycle agent?
-//          keepAlive: true,
-//          maxSockets: 1
-//        }),
-//        resolveWithFullResponse: true,
-//        encoding: null,
-//        body: Buffer.from(JSON.stringify(params)), // TODO: how to do parameters
-//    };
-//    if (this.config.user) {
-//      opts.forever = true;
-//      opts.auth = {
-//          user: this.config.user,
-//          pass: this.config.pass,
-//          sendImmediately: false
-//      }
-//    }
-//    
-//    // send request and await response
-//    console.log("Sending to: " + this.config.uri + "/" + method);
-//    console.log(opts);
-//    let resp = await request(opts);
-//    if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
-//    return resp.result;
+    return new Uint8Array(resp, 0, resp.length);
   }
 }
 
