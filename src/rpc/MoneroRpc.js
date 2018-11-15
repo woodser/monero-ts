@@ -153,13 +153,13 @@ class MoneroRpc {
       }
     }
     
-    console.log(opts);
-    
+    ;
     // send request and await response
-    let resp = await request(opts);
-    console.log(resp);
+    let respBin = await request(opts);
+    console.log("BINARY RESPONSE!");
+    console.log(respBin);
+    let respJson = coreUtils.binary_to_json(new Uint8Array(respBin, 0, respBin.length));
     if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
-    return resp;
     
 //    // send request and await response
 //    let resp = await request(opts);

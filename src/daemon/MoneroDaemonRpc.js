@@ -101,7 +101,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getBlocksByHeightBinary(heights) {
     let resp = await this.rpc.sendBinRpcRequest("get_blocks_by_height.bin", { heights: heights });
-    console.log("RESPONSE!!!!");
+    console.log("get_blocks_by_height.bin response:");
     console.log(resp);
     throw new Error("Not implemented!");
   }
