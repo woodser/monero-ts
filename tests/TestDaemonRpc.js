@@ -117,7 +117,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
     it("getBlocksByHeightBinary()", async function() {
       
       // set number of blocks to test
-      const numBlocks = 100;
+      const numBlocks = 10;
       
       // select random heights
       let currentHeight = await daemon.getHeight();
@@ -135,8 +135,6 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       assert.equal(numBlocks, blocks.length);
       for (let i = 0; i < heights.length; i++) {
         let block = blocks[i];
-        console.log("We have our first block back!!!");
-        console.log(block);
         testDaemonResponseInfo(block, true, true);
         testBlock(block, false);
         assert.equal(heights[i], block.getHeader().getHeight());      
