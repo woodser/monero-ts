@@ -123,9 +123,9 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       let currentHeight = await daemon.getHeight();
       let allHeights = [];
       for (let i = 0; i < currentHeight - 1; i++) allHeights.push(i);
-      GenUtils.shuffle(allHeights);
+      //GenUtils.shuffle(allHeights);
       let heights = [];
-      for (let i = 0; i < numBlocks; i++) heights.push(allHeights[i]);
+      for (let i = allHeights.length - numBlocks; i < allHeights.length; i++) heights.push(allHeights[i]);
       
       // TODO: don't override heights
       //heights = [111, 222, 333];
