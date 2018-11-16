@@ -100,10 +100,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getBlocksByHeightBinary(heights) {
     let resp = await this.config.rpc.sendBinRpcRequest("get_blocks_by_height.bin", { heights: heights });
-    console.log("get_blocks_by_height.bin response: " + resp.length);
-    let blocks = this.config.coreUtils.binary_blocks_to_json(resp);
-    console.log("CONVERTED BLOCKS!!!");
-    console.log(blocks);
+    let blocksRaw = this.config.coreUtils.binary_blocks_to_json(resp);
+    
+    //  TODO: convert raw blocks to MoneroBlock
+    console.log(blocksRaw);
+    
+    let blocks = [];
     return blocks;
   }
   
