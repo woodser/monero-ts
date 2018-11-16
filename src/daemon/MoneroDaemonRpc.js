@@ -100,12 +100,15 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getBlocksByHeightBinary(heights) {
     let resp = await this.config.rpc.sendBinRpcRequest("get_blocks_by_height.bin", { heights: heights });
-    let blocksRaw = this.config.coreUtils.binary_blocks_to_json(resp);
+    let blocksRpc = this.config.coreUtils.binary_blocks_to_json(resp);
     
-    //  TODO: convert raw blocks to MoneroBlock
-    console.log(blocksRaw);
-    
+    // convert rpc blocks to MoneroBlocks
+    // TODO: add response info, txs
     let blocks = [];
+    for (let blockRpc of blocksRpc.blocks) {
+      blocks.push(MoneroDaemonRpc._initializeBlock(blockRpc));  // convert rpc block to MoneroBlock
+    }
+    
     return blocks;
   }
   
@@ -169,19 +172,19 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   static _initializeBlock(respBlock) {
 
-    // initialize block
+    // initialize MoneroBlock
     let block = new MoneroBlock();
     block.setBlob(respBlock.blob);
     block.setHeader(MoneroDaemonRpc._initializeBlockHeader(respBlock.block_header));
     block.setTxHashes(respBlock.tx_hashes === undefined ? [] : respBlock.tx_hashes);
     
-    // initialize miner tx from json
+    // initialize MineroTx
     let minerTx = new MoneroTx();
     block.setMinerTx(minerTx);
-    let json = JSON.parse(respBlock.json);
-    minerTx.setVersion(json.miner_tx.version);
-    minerTx.setUnlockTime(json.miner_tx.unlock_time);
-    minerTx.setExtra(json.miner_tx.extra);
+    let minerTxRpc = respBlock.json ? JSON.parse(respBlock.json).miner_tx : respBlock.miner_tx; // get miner tx from rpc
+    minerTx.setVersion(minerTxRpc.version);
+    minerTx.setUnlockTime(minerTxRpc.unlock_time);
+    minerTx.setExtra(minerTxRpc.extra);
     return block;
   }
 }

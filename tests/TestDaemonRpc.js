@@ -128,13 +128,15 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       for (let i = 0; i < numBlocks; i++) heights.push(allHeights[i]);
       
       // TODO: don't override heights
-      heights = [111, 222, 333];
+      //heights = [111, 222, 333];
       
       // fetch blocks
       let blocks = await daemon.getBlocksByHeightBinary(heights);
       assert.equal(numBlocks, blocks.length);
       for (let i = 0; i < heights.length; i++) {
         let block = blocks[i];
+        console.log("We have our first block back!!!");
+        console.log(block);
         testDaemonResponseInfo(block, true, true);
         testBlock(block, true);
         assert.equal(heights[i], block.getHeader().getHeight());      
