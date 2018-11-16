@@ -62,14 +62,14 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
 //      let hash = await daemon.getBlockHash(lastHeader.getHeight());
 //      let block = await daemon.getBlockByHash(hash);
 //      testDaemonResponseInfo(block, true, true);
-//      testBlock(block);
+//      testBlock(block, true);
 //      assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
 //      
 //      // retrieve by hash of previous to last block
 //      hash = await daemon.getBlockHash(lastHeader.getHeight() - 1);
 //      block = await daemon.getBlockByHash(hash);
 //      testDaemonResponseInfo(block, true, true);
-//      testBlock(block);
+//      testBlock(block, true);
 //      assert.deepEqual(await daemon.getBlockByHeight(lastHeader.getHeight() - 1), block);
 //    });
   //  
@@ -79,13 +79,13 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
 //      let lastHeader = await daemon.getLastBlockHeader();
 //      let block = await daemon.getBlockByHeight(lastHeader.getHeight());
 //      testDaemonResponseInfo(block, true, true);
-//      testBlock(block);
+//      testBlock(block, true);
 //      assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
 //      
 //      // retrieve by height of previous to last block
 //      block = await daemon.getBlockByHeight(lastHeader.getHeight() - 1);
 //      testDaemonResponseInfo(block, true, true);
-//      testBlock(block);
+//      testBlock(block, true);
 //      assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
 //    });
   //  
@@ -138,7 +138,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
         console.log("We have our first block back!!!");
         console.log(block);
         testDaemonResponseInfo(block, true, true);
-        testBlock(block, true);
+        testBlock(block, false);
         assert.equal(heights[i], block.getHeader().getHeight());      
       }
     })
@@ -222,6 +222,28 @@ function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted
   else assert(model.getResponseInfo().getIsTrusted() === undefined);
 }
 
+function testBlock(block, hasBlob) {
+  assert(block);
+  if (hasBlob) {
+    assert(block.getBlob());
+    assert(block.getBlob().length > 1);
+  } else {
+    assert(block.getBlob() === undefined)
+  }
+  assert(Array.isArray(block.getTxHashes()));
+  assert(block.getTxHashes().length >= 0);
+  testBlockHeader(block.getHeader());
+  testMinerTx(block.getMinerTx());  // TODO: miner tx doesn't have as much stuff, can't call testDaemonTx?
+  
+  // test transactions
+  if (block.getTxs()) {
+    assert(typeof block.getTxs() === "array");
+    for (let tx of block.getTxs()) testDaemonTx(tx);
+  } else {
+    assert(block.getTxs() === undefined);
+  }
+}
+
 function testBlockHeader(header) {
   assert(header);
   assert(header.getBlockSize());
@@ -240,16 +262,6 @@ function testBlockHeader(header) {
   assert(header.getTimestamp());
   assert(header.getBlockWeight());
   assert(header.getPowHash() === undefined);
-}
-
-function testBlock(block) {
-  assert(block);
-  assert(block.getBlob());
-  assert(block.getBlob().length > 1);
-  assert(Array.isArray(block.getTxHashes()));
-  assert(block.getTxHashes().length >= 0);
-  testBlockHeader(block.getHeader());
-  testMinerTx(block.getMinerTx());  // TODO: miner tx doesn't have as much stuff, can't call testDaemonTx?
 }
 
 function testMinerTx(minerTx) {

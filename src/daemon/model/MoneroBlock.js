@@ -29,12 +29,20 @@ class MoneroBlock extends MoneroDaemonModel {
     this.minerTx = minerTx;
   }
   
-  getTxHashes() {
+  getTxHashes() { // TODO: collapse with getTxs() so no redundant information?
     return this.txHashes;
   }
   
   setTxHashes(txHashes) {
     this.txHashes = txHashes;
+  }
+  
+  getTxs() {
+    return this.txs;
+  }
+  
+  setTxs(txs) {
+    this.txs = txs;
   }
 }
 

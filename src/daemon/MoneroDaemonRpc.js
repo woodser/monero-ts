@@ -99,14 +99,21 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getBlocksByHeightBinary(heights) {
-    let resp = await this.config.rpc.sendBinRpcRequest("get_blocks_by_height.bin", { heights: heights });
-    let blocksRpc = this.config.coreUtils.binary_blocks_to_json(resp);
     
-    // convert rpc blocks to MoneroBlocks
-    // TODO: add response info, txs
+    // fetch blocks in binary
+    let respBin = await this.config.rpc.sendBinRpcRequest("get_blocks_by_height.bin", { heights: heights });
+    
+    // convert binary blocks to json
+    let respJson = this.config.coreUtils.binary_blocks_to_json(respBin);
+    
+    // build complete blocks
+    assert.equal(respJson.blocks.length, respJson.txs.length);    
     let blocks = [];
-    for (let blockRpc of blocksRpc.blocks) {
-      blocks.push(MoneroDaemonRpc._initializeBlock(blockRpc));  // convert rpc block to MoneroBlock
+    for (let blockIdx = 0; blockIdx < respJson.blocks.length; blockIdx++) {
+      let block = MoneroDaemonRpc._initializeBlock(respJson.blocks[blockIdx]);
+      block.setTxs(respJson.txs[blockIdx].map(tx => MoneroDaemonRpc._daemonTxMapToTx(tx)));
+      MoneroDaemonRpc._setResponseInfo(respJson, block);
+      blocks.push(block);
     }
     
     return blocks;
@@ -140,11 +147,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
   // ------------------------------- PRIVATE STATIC ---------------------------
   
   static _setResponseInfo(resp, model) {
-    let responseInfo = new MoneroDaemonResponseInfo(resp.status, resp.untrusted ? !resp.untrusted : resp.untrusted);  // invert api's isUntrusted to isTrusted
+    let responseInfo = new MoneroDaemonResponseInfo(resp.status, resp.untrusted ? !resp.untrusted : resp.untrusted);  // invert api's isUntrusted to isTrusted  // TODO: uninvert
     model.setResponseInfo(responseInfo);
   }
   
   static _initializeBlockHeader(respHeader) {
+    if (!respHeader) return undefined;
     let header = new MoneroBlockHeader();
     for (var prop in respHeader) {
       let key = prop.toString();
@@ -186,6 +194,34 @@ class MoneroDaemonRpc extends MoneroDaemon {
     minerTx.setUnlockTime(minerTxRpc.unlock_time);
     minerTx.setExtra(minerTxRpc.extra);
     return block;
+  }
+  
+  /**
+   * Builds a MoneroTx from a daemon RPC transaction map.
+   * 
+   * @param txMap are transaction key/values from the RPC API
+   */
+  static _daemonTxMapToTx(txMap) {
+    
+    // root level fields
+    let tx = new MoneroTx();
+    tx.setHex(txMap.as_hex);
+    tx.setHeight(txMap.block_height);
+    tx.setTimestamp(txMap.block_timestamp);
+    tx.setIsDoubleSpend(txMap.double_spend_seen);
+    tx.setIsConfirmed(!txMap.in_pool);
+    tx.setId(txMap.tx_hash);
+    
+    // additional fields can be under root or as_json
+    // TODO: what about txMap.output_indices
+    let txBase = txMap.as_json ? JSON.parse(txMap.as_json) : txMap;
+    tx.setVersion(txBase.version);
+    tx.setExtra(txBase.extra);
+    tx.setVin(txBase.vin);
+    tx.setVout(txBase.vout);
+    tx.setRctSignatures(txBase.rct_signatures);
+    tx.setRctSigPrunable(txBase.rctsig_prunable);    
+    return tx;
   }
 }
 
