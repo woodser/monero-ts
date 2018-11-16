@@ -105,6 +105,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     
     // convert binary blocks to json
     let respJson = this.config.coreUtils.binary_blocks_to_json(respBin);
+    console.log(respJson);
     
     // build complete blocks
     assert.equal(respJson.blocks.length, respJson.txs.length);    
