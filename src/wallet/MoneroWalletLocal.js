@@ -92,15 +92,13 @@ class MoneroWalletLocal extends MoneroWallet {
     console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
     let blocks = await this.daemon.getBlocksByRange(startHeight, endHeight);
     
-    // collect transaction hashes
-//    let txHashes = blocks.map(block => block.tx_hashes === undefined ? [] : block.tx_hashes).reduce((a, b) => a.concat(b)); // works but bad memory profile
-    let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; }); // works
-    
-    // fetch transactions
-    let txs = await this.daemon.getTxs(txHashes, true, false);
-
+    // collect transactions
+    let txs = blocks.map(block => block.getTxs()).reduce((a, b) => { a.push.apply(a, b); return a; });
     console.log("Fetched " + txs.length + " transactions");
-    if (txHashes.length !== txs.length) throw new Error("Missing fetched transactions");
+    
+    // fetch transactions by hash
+    //let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; }); // works
+    //let txs = await this.daemon.getTxs(txHashes, true, false);
     
     // process transactions
     let numOwned = 0;
@@ -110,10 +108,9 @@ class MoneroWalletLocal extends MoneroWallet {
     //console.log("Spend key pub: " + this.spendKeyPub);
     
     console.log("Processing transactions...");
-    for (let txIdx = 0; txIdx < txHashes.length; txIdx++) {
+    for (let txIdx = 0; txIdx < txs.length; txIdx++) {
       let tx = txs[txIdx];
-      //console.log(tx);
-      if (txHashes[txIdx] !== "cb8258a925b63a43f4447fd3c838b0d5b9389d1df1cd4c6e18b0476d2c221c9f") continue;
+      if (tx.getId() !== "cb8258a925b63a43f4447fd3c838b0d5b9389d1df1cd4c6e18b0476d2c221c9f") continue;
       
       // get tx pub key
       let lastPubKey;

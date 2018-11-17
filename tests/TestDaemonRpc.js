@@ -91,12 +91,12 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
     });
     
-    it("Can get blocks by height", async function() {
+    it("Can get blocks by height which is a binary request and includes transactions", async function() {
       
       // set number of blocks to test
-      const numBlocks = 10;
+      const numBlocks = 30;
       
-      // select random heights
+      // select random heights  // TODO: this is horribly inefficient way of computing last 100 blocks if not shuffling
       let currentHeight = await daemon.getHeight();
       let allHeights = [];
       for (let i = 0; i < currentHeight - 1; i++) allHeights.push(i);
@@ -185,7 +185,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       let txs = await daemon.getTxs(txHashes, true, false);
       for (let tx of txs) {
         testDaemonResponseInfo(tx, true, true); // TODO: duplicating response info is going to be too expensive so must be common reference
-        testDaemonTx(tx, height, true);
+        testDaemonTx(tx, true, true);
       }
       
       // TODO: test binary vs json encoding
@@ -201,7 +201,7 @@ function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted
   else assert(model.getResponseInfo().getIsTrusted() === undefined);
 }
 
-function testBlock(block, hasBlob, isHeaderFull) {
+function testBlock(block, hasBlob, isFull) {
   assert(block);
   if (hasBlob) {
     assert(block.getBlob());
@@ -211,13 +211,13 @@ function testBlock(block, hasBlob, isHeaderFull) {
   }
   assert(Array.isArray(block.getTxHashes())); // TODO: tx hashes probably part of tx
   assert(block.getTxHashes().length >= 0);
-  testBlockHeader(block.getHeader(), isHeaderFull);
+  testBlockHeader(block.getHeader(), isFull);
   testMinerTx(block.getMinerTx());  // TODO: miner tx doesn't have as much stuff, can't call testDaemonTx?
   
   // test transactions
   if (block.getTxs()) {
     assert(block.getTxs() instanceof Array);
-    for (let tx of block.getTxs()) testDaemonTx(tx);
+    for (let tx of block.getTxs()) testDaemonTx(tx, false, isFull); //  TODO: always no tx hex when attached to block?
   } else {
     assert(block.getTxs() === undefined);
   }
@@ -231,27 +231,38 @@ function testMinerTx(minerTx) {
   assert(minerTx.getUnlockTime() >= 0);
 }
 
-function testDaemonTx(tx, chainHeight, hasHex) {
+
+/**
+ * Tests a tx from a daemon.
+ * 
+ * @param tx is the tx to test
+ * @param hasHex specifies if hex is expected
+ * @param isFull specifies if only ... are initialized or all fields
+ */
+function testDaemonTx(tx, hasHex, isFull) {
   assert(tx);
+  assert(typeof hasHex === "boolean");
+  assert(typeof isFull === "boolean");
+  
+  // may or may not have hex
   if (hasHex) assert(tx.getHex().length > 0);
-  assert(tx.getHeight() >= 0);
-  assert(typeof tx.getIsConfirmed() === "boolean");
-  assert(tx.getNumConfirmations() === undefined);
-  assert(tx.getTimestamp() >= 0);
-  assert(typeof tx.getIsDoubleSpend() === "boolean");
+  
+  // required fields
   assert(tx.getId().length === 64);
+  assert(tx.getHeight() >= 0);
   assert(tx.getVersion() >= 0);
-  assert(Array.isArray(tx.getExtra()));
-  assert(tx.getExtra().length > 0);
+  assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
   assert(tx.getVin() && Array.isArray(tx.getVin()) && tx.getVin().length >= 0);
-  if (tx.getVin().length > 0) assert(tx.getVin()[0].key.k_image.length === 64);
+  assert(tx.getVin()[0].key.k_image.length === 64);
   assert(tx.getVout() && Array.isArray(tx.getVout()) && tx.getVout().length >= 0);
-  for (let vout of tx.getVout()) {
-    //assert(vout.index >= 0);  // assigned from rpc_tx.output_indices  // TODO: what to do with rpc_tx.output_indices?
-    if (vout.target) assert(vout.target.key.length === 64);
-  }
-  assert(tx.getRctSignatures());
-  assert(tx.getRctSigPrunable());
+  tx.getVout().map(vout => { if (vout.target) assert(vout.target.key.length === 64); });
+  assert(typeof tx.getRctSignatures().type === "number");
+  assert(typeof tx.getRctSigPrunable().nbp === "number");
+  
+  // may or may not include these
+  assert(!isFull ? undefined === tx.getTimestamp() : tx.getTimestamp() >= 0);
+  assert(!isFull ? undefined === tx.getIsConfirmed() : tx.getIsConfirmed() >= 0);
+  assert(!isFull ? undefined === tx.getIsDoubleSpend() : tx.getIsDoubleSpend() >= 0);
 }
 
 /**
@@ -260,9 +271,8 @@ function testDaemonTx(tx, chainHeight, hasHex) {
  * TODO: way to always get complete header?
  * 
  * @param header is the header to test
- * @param isFull specifies if the header should contain complete information or
- *        only height, major version, minor version, timestamp, prev hash, and 
- *        nonce
+ * @param isFull specifies if only height, major version, minor version,
+ *               timestamp, prev hash, and nonce are initialized or all fields
  */
 function testBlockHeader(header, isFull) {
   assert(typeof isFull === "boolean");

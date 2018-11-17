@@ -117,22 +117,12 @@ class MoneroTx extends MoneroDaemonModel {
     this.metadata = metadata;
   }
   
-  getNumConfirmations() {
-    return this.numConfirmations;
-  }
-  
-  setNumConfirmations(numConfirmations) {
-    this.numConfirmations = numConfirmations;
-    this.isConfirmed = numConfirmations > 0;
-  }
-  
   getIsConfirmed() {
     return this.isConfirmed;
   }
   
   setIsConfirmed(isConfirmed) {
     this.isConfirmed = isConfirmed;
-    if (!isConfirmed) this.numConfirmations = 0;
   }
   
   getNumEstimatedBocksUntilConfirmed() {

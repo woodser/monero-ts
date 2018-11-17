@@ -82,16 +82,20 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let respBin = await this.config.rpc.sendBinRpcRequest("get_blocks_by_height.bin", { heights: heights });
     
     // convert binary blocks to json
-    let respJson = this.config.coreUtils.binary_blocks_to_json(respBin);
+    let rpcBlocks = this.config.coreUtils.binary_blocks_to_json(respBin);
     
     // build complete blocks
-    assert.equal(respJson.blocks.length, respJson.txs.length);    
+    assert.equal(rpcBlocks.blocks.length, rpcBlocks.txs.length);    
     let blocks = [];
-    for (let blockIdx = 0; blockIdx < respJson.blocks.length; blockIdx++) {
-      let block = MoneroDaemonRpc._buildMoneroBlock(respJson.blocks[blockIdx]);
-      block.getHeader().setHeight(heights[blockIdx]);
-      block.setTxs(respJson.txs[blockIdx].map(tx => MoneroDaemonRpc._buildMoneroTx(tx)));
-      MoneroDaemonRpc._setResponseInfo(respJson, block);
+    for (let blockIdx = 0; blockIdx < rpcBlocks.blocks.length; blockIdx++) {
+      let block = MoneroDaemonRpc._buildMoneroBlock(rpcBlocks.blocks[blockIdx]);                  // create block
+      block.getHeader().setHeight(heights[blockIdx]);                                             // set header height
+      block.setTxs(rpcBlocks.txs[blockIdx].map(rpcTx => MoneroDaemonRpc._buildMoneroTx(rpcTx)));  // create transactions
+      for (let txIdx = 0; txIdx < block.getTxs().length; txIdx++) {
+        block.getTxs()[txIdx].setId(rpcBlocks.blocks[blockIdx].tx_hashes[txIdx]);                 // set tx id
+        block.getTxs()[txIdx].setHeight(block.getHeader().getHeight());                           // set tx height
+      }
+      MoneroDaemonRpc._setResponseInfo(rpcBlocks, block);
       blocks.push(block);
     }
     
