@@ -2,9 +2,9 @@
 
 ## Introduction
 
-Monero wallet and daemon API in modern JavaScript.
+Monero wallet and daemon JavaScript API.
 
-Provides JavaScript APIs for:
+Modern JavaScript APIs for:
 
 - A wallet that scans the blockchain locally and does not share the view key (requires a node running monero-daemon-rpc)
 - A wallet that shares the view key with a MyMonero-compatible server to remotely scan the blockchain (**future consideration)
@@ -15,11 +15,11 @@ Provides JavaScript APIs for:
 
 TODO
 
-## Examples
+## Using
 
 TODO
 
-## API
+## Running Tests
 
 TODO
 
