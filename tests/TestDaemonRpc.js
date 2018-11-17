@@ -109,14 +109,19 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       
       // fetch blocks
       let blocks = await daemon.getBlocksByHeight(heights);
+      
+      // test blocks
+      let txFound = false;
       assert.equal(numBlocks, blocks.length);
       for (let i = 0; i < heights.length; i++) {
         let block = blocks[i];
+        if (block.getTxs().length) txFound = true;
         testDaemonResponseInfo(block, true, true);
         testBlock(block, false, false);
         assert.equal(heights[i], block.getHeader().getHeight());      
       }
-    })
+      assert(txFound, "No transactions found to test");
+    });
     
     it("Can get blocks by range", async function() {
       
