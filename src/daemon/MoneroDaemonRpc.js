@@ -105,13 +105,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
     
     // convert binary blocks to json
     let respJson = this.config.coreUtils.binary_blocks_to_json(respBin);
-    //console.log(respJson);
     
     // build complete blocks
     assert.equal(respJson.blocks.length, respJson.txs.length);    
     let blocks = [];
     for (let blockIdx = 0; blockIdx < respJson.blocks.length; blockIdx++) {
       let block = MoneroDaemonRpc._buildMoneroBlock(respJson.blocks[blockIdx]);
+      block.getHeader().setHeight(heights[blockIdx]);
       block.setTxs(respJson.txs[blockIdx].map(tx => MoneroDaemonRpc._buildMoneroTx(tx)));
       MoneroDaemonRpc._setResponseInfo(respJson, block);
       blocks.push(block);
@@ -169,31 +169,23 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "nonce") header.setNonce(val);
       else if (key === "num_txes") header.setNumTxs(val);
       else if (key === "orphan_status") header.setOrphanStatus(val);
-      else if (key === "prev_hash") header.setPrevHash(val);
+      else if (key === "prev_hash" || key === "prev_id") header.setPrevHash(val);
       else if (key === "reward") header.setReward(new BigInteger(val));
       else if (key === "timestamp") header.setTimestamp(val);
       else if (key === "block_weight") header.setBlockWeight(val);
       else if (key === "pow_hash") header.setPowHash(val === "" ? undefined : val);
-      else console.log("WARNING: ignoring unexpected block header field: '" + key + "': " + val);
+      //else console.log("WARNING: ignoring unexpected block header field: '" + key + "': " + val);
     }
     return header;
   }
   
-  static _buildMoneroBlock(respBlock) {
-
-    // initialize MoneroBlock
+  static _buildMoneroBlock(rpcBlock) {
     let block = new MoneroBlock();
-    block.setBlob(respBlock.blob);
-    block.setHeader(MoneroDaemonRpc._buildMoneroBlockHeader(respBlock.block_header));
-    block.setTxHashes(respBlock.tx_hashes === undefined ? [] : respBlock.tx_hashes);
-    
-    // initialize MineroTx
-    let minerTx = new MoneroTx();
-    block.setMinerTx(minerTx);
-    let minerTxRpc = respBlock.json ? JSON.parse(respBlock.json).miner_tx : respBlock.miner_tx; // get miner tx from rpc
-    minerTx.setVersion(minerTxRpc.version);
-    minerTx.setUnlockTime(minerTxRpc.unlock_time);
-    minerTx.setExtra(minerTxRpc.extra);
+    block.setBlob(rpcBlock.blob);
+    block.setHeader(MoneroDaemonRpc._buildMoneroBlockHeader(rpcBlock.block_header ? rpcBlock.block_header : rpcBlock));
+    block.setTxHashes(rpcBlock.tx_hashes === undefined ? [] : rpcBlock.tx_hashes);
+    let minerTxRpc = rpcBlock.json ? JSON.parse(rpcBlock.json).miner_tx : rpcBlock.miner_tx; // get miner tx from rpc
+    block.setMinerTx(MoneroDaemonRpc._buildMoneroTx(minerTxRpc));
     return block;
   }
   
@@ -206,7 +198,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
    */
   static _buildMoneroTx(rpcTx, tx) {
     if (!tx) tx = new MoneroTx();
-    if (rpcTx === undefined) return tx; 
+    if (rpcTx === undefined) return tx;
     MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, rpcTx.as_hex);
     MoneroUtils.safeSet(tx, tx.getHeight, tx.setHeight, rpcTx.block_height);
     MoneroUtils.safeSet(tx, tx.getTimestamp, tx.setTimestamp, rpcTx.block_timestamp);
@@ -219,6 +211,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     MoneroUtils.safeSet(tx, tx.getVout, tx.setVout, rpcTx.vout);
     MoneroUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, rpcTx.rct_signatures);
     MoneroUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, rpcTx.rctsig_prunable);
+    MoneroUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, rpcTx.unlock_time);
     if (rpcTx.as_json) MoneroDaemonRpc._buildMoneroTx(JSON.parse(rpcTx.as_json), tx);  // may need to read tx from json str
     return tx;
   }

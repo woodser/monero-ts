@@ -136,7 +136,6 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       assert.equal(numBlocks, blocks.length);
       for (let i = 0; i < heights.length; i++) {
         let block = blocks[i];
-        console.log(block);
         testDaemonResponseInfo(block, true, true);
         testBlock(block, false, false);
         assert.equal(heights[i], block.getHeader().getHeight());      
@@ -236,7 +235,7 @@ function testBlock(block, hasBlob, isHeaderFull) {
   
   // test transactions
   if (block.getTxs()) {
-    assert(typeof block.getTxs() === "array");
+    assert(block.getTxs() instanceof Array);
     for (let tx of block.getTxs()) testDaemonTx(tx);
   } else {
     assert(block.getTxs() === undefined);
@@ -294,13 +293,13 @@ function testBlockHeader(header, isFull) {
   assert(header.getPrevHash());
   assert(header.getNonce());
   assert(header.getPowHash() === undefined);  // never seen defined
-  assert(!isFull ? undefined : header.getBlockSize());
-  assert(!isFull ? undefined : header.getDepth() >= 0);
-  assert(!isFull ? undefined : header.getDifficulty());
-  assert(!isFull ? undefined : header.getCumulativeDifficulty());
-  assert(!isFull ? undefined : header.getHash());
-  assert(!isFull ? undefined : header.getNumTxs() >= 0);
-  assert(!isFull ? undefined : typeof header.getOrphanStatus() === "boolean");
-  assert(!isFull ? undefined : header.getReward());
-  assert(!isFull ? undefined : header.getBlockWeight());
+  assert(!isFull ? undefined === header.getBlockSize() : header.getBlockSize());
+  assert(!isFull ? undefined === header.getDepth() : header.getDepth() >= 0);
+  assert(!isFull ? undefined === header.getDifficulty() : header.getDifficulty());
+  assert(!isFull ? undefined === header.getCumulativeDifficulty() : header.getCumulativeDifficulty());
+  assert(!isFull ? undefined === header.getHash() : header.getHash());
+  assert(!isFull ? undefined === header.getNumTxs() : header.getNumTxs() >= 0);
+  assert(!isFull ? undefined === header.getOrphanStatus() : typeof header.getOrphanStatus() === "boolean");
+  assert(!isFull ? undefined === header.getReward() : header.getReward());
+  assert(!isFull ? undefined === header.getBlockWeight() : header.getBlockWeight());
 }
