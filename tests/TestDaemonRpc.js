@@ -13,29 +13,29 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
   let daemon = TestUtils.getDaemonRpc(coreUtils);
   
   // test daemon
-  describe("Test Daemon RPC", function() {
-    
-    it("getHeight()", async function() {
+  describe("Monero Daemon RPC", function() {
+
+    it("Can get the blockchain height", async function() {
       let height = await daemon.getHeight();
       assert(height, "Height must be initialized");
       assert(height > 0, "Height must be greater than 0");
     });
 
-    it("getBlockHash()", async function() {
+    it("Can get a block hash by height", async function() {
       let lastHeader = await daemon.getLastBlockHeader();
       let hash = await daemon.getBlockHash(lastHeader.getHeight());
       assert(hash);
       assert.equal(64, hash.length);
     });
 
-    it ("getLastBlockHeader()", async function() {
+    it ("Can get the last block's header", async function() {
       let lastHeader = await daemon.getLastBlockHeader();
       testDaemonResponseInfo(lastHeader, true, true);
       testBlockHeader(lastHeader, true);
     });
     
     // TODO: test start with no end, vice versa, inclusivity
-    it("getBlockHeadersByRange()", async function() {
+    it("Can get block headers by range", async function() {
       
       // determine start and end height based on number of blocks and how many blocks ago
       let numBlocks = 100;
@@ -57,7 +57,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       }
     });
     
-    it("getBlockByHash()", async function() {
+    it("Can get a block by hash", async function() {
       
       // retrieve by hash of last block
       let lastHeader = await daemon.getLastBlockHeader();
@@ -75,7 +75,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       assert.deepEqual(await daemon.getBlockByHeight(lastHeader.getHeight() - 1), block);
     });
     
-    it("getBlockByHeight()", async function() {
+    it("Can get a block by height", async function() {
       
       // retrieve by height of last block
       let lastHeader = await daemon.getLastBlockHeader();
@@ -91,34 +91,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
     });
     
-    it("getBlocksByHeight()", async function() {
-      
-      // set number of blocks to test
-      const numBlocks = 100;
-      
-      // select random heights
-      let currentHeight = await daemon.getHeight();
-      let allHeights = [];
-      for (let i = 0; i < currentHeight - 1; i++) allHeights.push(i);
-      //GenUtils.shuffle(allHeights);
-      let heights = [];
-      for (let i = allHeights.length - numBlocks; i < allHeights.length; i++) heights.push(allHeights[i]);
-      
-      // TODO: don't override heights
-      //heights = [111, 222, 333];
-      
-      // fetch blocks
-      let blocks = await daemon.getBlocksByHeight(heights);
-      assert.equal(numBlocks, blocks.length);
-      for (let i = 0; i < heights.length; i++) {
-        let block = blocks[i];
-        testDaemonResponseInfo(block, true, true);
-        testBlock(block, false, false);
-        assert.equal(heights[i], block.getHeader().getHeight());      
-      }
-    })
-    
-    it("getBlocksByRange()", async function() {
+    it("Can get blocks by range", async function() {
       
       // get current height
       let height = await daemon.getHeight();
@@ -157,7 +130,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       }
     });
     
-    it("getTxs()", async function() {
+    it("Can get transactions", async function() {
       
       // get valid height range
       let height = await daemon.getHeight();
