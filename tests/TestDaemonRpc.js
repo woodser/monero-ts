@@ -91,13 +91,40 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
     });
     
+    it("Can get blocks by height", async function() {
+      
+      // set number of blocks to test
+      const numBlocks = 10;
+      
+      // select random heights
+      let currentHeight = await daemon.getHeight();
+      let allHeights = [];
+      for (let i = 0; i < currentHeight - 1; i++) allHeights.push(i);
+      //GenUtils.shuffle(allHeights);
+      let heights = [];
+      for (let i = allHeights.length - numBlocks; i < allHeights.length; i++) heights.push(allHeights[i]);
+      
+      // TODO: don't override heights
+      //heights = [111, 222, 333];
+      
+      // fetch blocks
+      let blocks = await daemon.getBlocksByHeight(heights);
+      assert.equal(numBlocks, blocks.length);
+      for (let i = 0; i < heights.length; i++) {
+        let block = blocks[i];
+        testDaemonResponseInfo(block, true, true);
+        testBlock(block, false, false);
+        assert.equal(heights[i], block.getHeader().getHeight());      
+      }
+    })
+    
     it("Can get blocks by range", async function() {
       
       // get current height
       let height = await daemon.getHeight();
       
       // get valid height range
-      let numBlocks = 1; // TODO: RequestError: Error: read ECONNRESET or  RequestError: Error: socket hang up if > 64 or (or > 1 if test getBlocksByHeight() runs first)
+      let numBlocks = 10; // TODO: RequestError: Error: read ECONNRESET or  RequestError: Error: socket hang up if > 64 or (or > 1 if test getBlocksByHeight() runs first)
       let numBlocksAgo = 190;
       assert(numBlocks > 0);
       assert(numBlocksAgo >= numBlocks);
@@ -134,7 +161,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       
       // get valid height range
       let height = await daemon.getHeight();
-      let numBlocks = 75;
+      let numBlocks = 10;
       let numBlocksAgo = 75;
       assert(numBlocks > 0);
       assert(numBlocksAgo >= numBlocks);
