@@ -118,7 +118,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
     it("getBlocksByHeightBinary()", async function() {
       
       // set number of blocks to test
-      const numBlocks = 10;
+      const numBlocks = 100;
       
       // select random heights
       let currentHeight = await daemon.getHeight();
