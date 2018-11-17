@@ -144,7 +144,7 @@ class MoneroRpc {
       }
     }
     
-    // send request and await response
+    // send request and store binary response as Uint8Array
     let resp = await request(opts);
     if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
     return new Uint8Array(resp, 0, resp.length);
