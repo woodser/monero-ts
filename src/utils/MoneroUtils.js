@@ -14,10 +14,27 @@ class MoneroUtils {
     if (MoneroUtils.coreUtils === undefined) MoneroUtils.coreUtils = await require('../submodules/mymonero-core-js/monero_utils/monero_utils')();
     return MoneroUtils.coreUtils;
   }
+  
+  /**
+   * Sets the given value ensuring a previous value is not overwritten.
+   * 
+   * @param obj is the object to invoke the getter and setter on
+   * @param getFn gets the current value
+   * @param setFn sets the current value
+   * @param val is the value to set iff it does not overwrite a previous value
+   */
+  static safeSet(obj, getFn, setFn, val) {
+    if (val === undefined) return;
+    let curVal = getFn.call(obj);
+    if (curVal === undefined) setFn.call(obj, val);
+    else if (curVal !== val) throw new Error("Cannot overwrite existing value " + curVal + " with new value " + val);
+  }
     
   /**
    * Decodes tx extra according to https://cryptonote.org/cns/cns005.txt and
    * returns the last tx pub key.
+   * 
+   * TODO: use c++ bridge for this
    * 
    * @param txExtra is an array of tx extra bytes
    * @return the last pub key as a hexidecimal string

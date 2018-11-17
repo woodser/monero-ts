@@ -136,6 +136,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       assert.equal(numBlocks, blocks.length);
       for (let i = 0; i < heights.length; i++) {
         let block = blocks[i];
+        console.log(block);
         testDaemonResponseInfo(block, true, true);
         testBlock(block, false, false);
         assert.equal(heights[i], block.getHeader().getHeight());      
@@ -228,7 +229,7 @@ function testBlock(block, hasBlob, isHeaderFull) {
   } else {
     assert(block.getBlob() === undefined)
   }
-  assert(Array.isArray(block.getTxHashes()));
+  assert(Array.isArray(block.getTxHashes())); // TODO: tx hashes probably part of tx
   assert(block.getTxHashes().length >= 0);
   testBlockHeader(block.getHeader(), isHeaderFull);
   testMinerTx(block.getMinerTx());  // TODO: miner tx doesn't have as much stuff, can't call testDaemonTx?

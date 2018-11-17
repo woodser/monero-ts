@@ -39,7 +39,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getLastBlockHeader() {
     let resp = await this.config.rpc.sendJsonRpcRequest("get_last_block_header");
-    let header = MoneroDaemonRpc._initializeBlockHeader(resp.block_header);
+    let header = MoneroDaemonRpc._buildMoneroBlockHeader(resp.block_header);
     MoneroDaemonRpc._setResponseInfo(resp, header);
     return header;
   }
@@ -55,7 +55,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     // build headers
     let headers = [];
     for (let respHeader of resp.headers) {
-      let header = MoneroDaemonRpc._initializeBlockHeader(respHeader);
+      let header = MoneroDaemonRpc._buildMoneroBlockHeader(respHeader);
       headers.push(header);
       MoneroDaemonRpc._setResponseInfo(resp, header);
     }
@@ -64,14 +64,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getBlockByHash(hash) {
     let resp = await this.config.rpc.sendJsonRpcRequest("get_block", { hash: hash });
-    let block = MoneroDaemonRpc._initializeBlock(resp);
+    let block = MoneroDaemonRpc._buildMoneroBlock(resp);
     MoneroDaemonRpc._setResponseInfo(resp, block);
     return block;
   }
   
   async getBlockByHeight(height) {
     let resp = await this.config.rpc.sendJsonRpcRequest("get_block", { height: height });
-    let block = MoneroDaemonRpc._initializeBlock(resp);
+    let block = MoneroDaemonRpc._buildMoneroBlock(resp);
     MoneroDaemonRpc._setResponseInfo(resp, block);
     return block;
   }
@@ -111,8 +111,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
     assert.equal(respJson.blocks.length, respJson.txs.length);    
     let blocks = [];
     for (let blockIdx = 0; blockIdx < respJson.blocks.length; blockIdx++) {
-      let block = MoneroDaemonRpc._initializeBlock(respJson.blocks[blockIdx]);
-      block.setTxs(respJson.txs[blockIdx].map(tx => MoneroDaemonRpc._daemonTxMapToTx(tx)));
+      let block = MoneroDaemonRpc._buildMoneroBlock(respJson.blocks[blockIdx]);
+      block.setTxs(respJson.txs[blockIdx].map(tx => MoneroDaemonRpc._buildMoneroTx(tx)));
       MoneroDaemonRpc._setResponseInfo(respJson, block);
       blocks.push(block);
     }
@@ -140,7 +140,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     //if (resp.txs) console.log(resp.txs[0]);
     
     // build transaction models
-    let txs = resp.txs ? resp.txs.map(tx => MoneroDaemonRpc._daemonTxMapToTx(tx)) : [];
+    let txs = resp.txs ? resp.txs.map(tx => MoneroDaemonRpc._buildMoneroTx(tx)) : [];
     txs.map(tx => MoneroDaemonRpc._setResponseInfo(resp, tx));
     return txs;
   }
@@ -152,7 +152,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     model.setResponseInfo(responseInfo);
   }
   
-  static _initializeBlockHeader(respHeader) {
+  static _buildMoneroBlockHeader(respHeader) {
     if (!respHeader) return undefined;
     let header = new MoneroBlockHeader();
     for (var prop in respHeader) {
@@ -179,12 +179,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return header;
   }
   
-  static _initializeBlock(respBlock) {
+  static _buildMoneroBlock(respBlock) {
 
     // initialize MoneroBlock
     let block = new MoneroBlock();
     block.setBlob(respBlock.blob);
-    block.setHeader(MoneroDaemonRpc._initializeBlockHeader(respBlock.block_header));
+    block.setHeader(MoneroDaemonRpc._buildMoneroBlockHeader(respBlock.block_header));
     block.setTxHashes(respBlock.tx_hashes === undefined ? [] : respBlock.tx_hashes);
     
     // initialize MineroTx
@@ -198,30 +198,28 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   /**
-   * Builds a MoneroTx from a daemon RPC transaction map.
+   * Transfers RPC tx fields to a given MoneroTx without overwriting previous values.
    * 
-   * @param txMap are transaction key/values from the RPC API
+   * @param rpcTx is the RPC map containing transaction fields
+   * @param tx is the MoneroTx to populate with values (optional)
+   * @returns tx is the same tx that was passed in or a new one if none given
    */
-  static _daemonTxMapToTx(txMap) {
-    
-    // root level fields
-    let tx = new MoneroTx();
-    tx.setHex(txMap.as_hex);
-    tx.setHeight(txMap.block_height);
-    tx.setTimestamp(txMap.block_timestamp);
-    tx.setIsDoubleSpend(txMap.double_spend_seen);
-    tx.setIsConfirmed(!txMap.in_pool);
-    tx.setId(txMap.tx_hash);
-    
-    // additional fields can be under root or as_json
-    // TODO: what about txMap.output_indices
-    let txBase = txMap.as_json ? JSON.parse(txMap.as_json) : txMap;
-    tx.setVersion(txBase.version);
-    tx.setExtra(txBase.extra);
-    tx.setVin(txBase.vin);
-    tx.setVout(txBase.vout);
-    tx.setRctSignatures(txBase.rct_signatures);
-    tx.setRctSigPrunable(txBase.rctsig_prunable);    
+  static _buildMoneroTx(rpcTx, tx) {
+    if (!tx) tx = new MoneroTx();
+    if (rpcTx === undefined) return tx; 
+    MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, rpcTx.as_hex);
+    MoneroUtils.safeSet(tx, tx.getHeight, tx.setHeight, rpcTx.block_height);
+    MoneroUtils.safeSet(tx, tx.getTimestamp, tx.setTimestamp, rpcTx.block_timestamp);
+    MoneroUtils.safeSet(tx, tx.getIsDoubleSpend, tx.setIsDoubleSpend, rpcTx.double_spend_seen);
+    MoneroUtils.safeSet(tx, tx.getIsConfirmed, tx.setIsConfirmed, rpcTx.in_pool === undefined ? undefined : !rpcTx.in_pool);
+    MoneroUtils.safeSet(tx, tx.getId, tx.setId, rpcTx.tx_hash);
+    MoneroUtils.safeSet(tx, tx.getVersion, tx.setVersion, rpcTx.version);
+    MoneroUtils.safeSet(tx, tx.getExtra, tx.setExtra, rpcTx.extra);
+    MoneroUtils.safeSet(tx, tx.getVin, tx.setVin, rpcTx.vin);
+    MoneroUtils.safeSet(tx, tx.getVout, tx.setVout, rpcTx.vout);
+    MoneroUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, rpcTx.rct_signatures);
+    MoneroUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, rpcTx.rctsig_prunable);
+    if (rpcTx.as_json) MoneroDaemonRpc._buildMoneroTx(JSON.parse(rpcTx.as_json), tx);  // may need to read tx from json str
     return tx;
   }
 }
