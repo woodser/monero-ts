@@ -31,7 +31,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
     it ("getLastBlockHeader()", async function() {
       let lastHeader = await daemon.getLastBlockHeader();
       testDaemonResponseInfo(lastHeader, true, true);
-      testBlockHeader(lastHeader);
+      testBlockHeader(lastHeader, true);
     });
     
     // TODO: test start with no end, vice versa, inclusivity
@@ -53,7 +53,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
         let header = headers[i];
         assert.equal(startHeight + i, header.getHeight());
         testDaemonResponseInfo(header, true, true);
-        testBlockHeader(header);
+        testBlockHeader(header, true);
       }
     });
     
@@ -64,14 +64,14 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       let hash = await daemon.getBlockHash(lastHeader.getHeight());
       let block = await daemon.getBlockByHash(hash);
       testDaemonResponseInfo(block, true, true);
-      testBlock(block, true);
+      testBlock(block, true, true);
       assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
       
       // retrieve by hash of previous to last block
       hash = await daemon.getBlockHash(lastHeader.getHeight() - 1);
       block = await daemon.getBlockByHash(hash);
       testDaemonResponseInfo(block, true, true);
-      testBlock(block, true);
+      testBlock(block, true, true);
       assert.deepEqual(await daemon.getBlockByHeight(lastHeader.getHeight() - 1), block);
     });
     
@@ -81,13 +81,13 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       let lastHeader = await daemon.getLastBlockHeader();
       let block = await daemon.getBlockByHeight(lastHeader.getHeight());
       testDaemonResponseInfo(block, true, true);
-      testBlock(block, true);
+      testBlock(block, true, true);
       assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
       
       // retrieve by height of previous to last block
       block = await daemon.getBlockByHeight(lastHeader.getHeight() - 1);
       testDaemonResponseInfo(block, true, true);
-      testBlock(block, true);
+      testBlock(block, true, true);
       assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
     });
 
@@ -110,7 +110,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       for (let i = 0; i < heights.length; i++) {
         let block = blocks[i];
         testDaemonResponseInfo(block, true, true);
-        testBlock(block, true);
+        testBlock(block, true, true);
         assert.equal(heights[i], block.getHeader().getHeight());      
       }
     });
@@ -137,7 +137,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       for (let i = 0; i < heights.length; i++) {
         let block = blocks[i];
         testDaemonResponseInfo(block, true, true);
-        testBlock(block, false);
+        testBlock(block, false, false);
         assert.equal(heights[i], block.getHeader().getHeight());      
       }
     })
@@ -185,8 +185,8 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       
       // get valid height range
       let height = await daemon.getHeight();
-      let numBlocks = 50;
-      let numBlocksAgo = 300;
+      let numBlocks = 75;
+      let numBlocksAgo = 75;
       assert(numBlocks > 0);
       assert(numBlocksAgo >= numBlocks);
       assert(height - numBlocksAgo + numBlocks - 1 < height);
@@ -220,7 +220,7 @@ function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted
   else assert(model.getResponseInfo().getIsTrusted() === undefined);
 }
 
-function testBlock(block, hasBlob) {
+function testBlock(block, hasBlob, isHeaderFull) {
   assert(block);
   if (hasBlob) {
     assert(block.getBlob());
@@ -230,7 +230,7 @@ function testBlock(block, hasBlob) {
   }
   assert(Array.isArray(block.getTxHashes()));
   assert(block.getTxHashes().length >= 0);
-  testBlockHeader(block.getHeader());
+  testBlockHeader(block.getHeader(), isHeaderFull);
   testMinerTx(block.getMinerTx());  // TODO: miner tx doesn't have as much stuff, can't call testDaemonTx?
   
   // test transactions
@@ -240,26 +240,6 @@ function testBlock(block, hasBlob) {
   } else {
     assert(block.getTxs() === undefined);
   }
-}
-
-function testBlockHeader(header) {
-  assert(header);
-  assert(header.getBlockSize());
-  assert(header.getDepth() >= 0);
-  assert(header.getDifficulty());
-  assert(header.getCumulativeDifficulty());
-  assert(header.getHash());
-  assert(header.getHeight() >= 0);
-  assert(header.getMajorVersion());
-  assert(header.getMinorVersion());
-  assert(header.getNonce());
-  assert(header.getNumTxs() >= 0);
-  assert(typeof header.getOrphanStatus() === "boolean");
-  assert(header.getPrevHash());
-  assert(header.getReward());
-  assert(header.getTimestamp());
-  assert(header.getBlockWeight());
-  assert(header.getPowHash() === undefined);
 }
 
 function testMinerTx(minerTx) {
@@ -291,4 +271,35 @@ function testDaemonTx(tx, chainHeight, hasHex) {
   }
   assert(tx.getRctSignatures());
   assert(tx.getRctSigPrunable());
+}
+
+/**
+ * Tests a header.
+ * 
+ * TODO: way to always get complete header?
+ * 
+ * @param header is the header to test
+ * @param isFull specifies if the header should contain complete information or
+ *        only height, major version, minor version, timestamp, prev hash, and 
+ *        nonce
+ */
+function testBlockHeader(header, isFull) {
+  assert(typeof isFull === "boolean");
+  assert(header);
+  assert(header.getHeight() >= 0);
+  assert(header.getMajorVersion());
+  assert(header.getMinorVersion());
+  assert(header.getTimestamp());
+  assert(header.getPrevHash());
+  assert(header.getNonce());
+  assert(header.getPowHash() === undefined);  // never seen defined
+  assert(!isFull ? undefined : header.getBlockSize());
+  assert(!isFull ? undefined : header.getDepth() >= 0);
+  assert(!isFull ? undefined : header.getDifficulty());
+  assert(!isFull ? undefined : header.getCumulativeDifficulty());
+  assert(!isFull ? undefined : header.getHash());
+  assert(!isFull ? undefined : header.getNumTxs() >= 0);
+  assert(!isFull ? undefined : typeof header.getOrphanStatus() === "boolean");
+  assert(!isFull ? undefined : header.getReward());
+  assert(!isFull ? undefined : header.getBlockWeight());
 }
