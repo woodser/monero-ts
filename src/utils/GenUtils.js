@@ -23,7 +23,7 @@
  */
 
 /**
- * Collection of general-purpose utilities.
+ * Collection of general purpose utilities.
  */
 class GenUtils {
   
