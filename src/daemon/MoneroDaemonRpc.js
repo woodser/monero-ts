@@ -105,7 +105,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     
     // convert binary blocks to json
     let respJson = this.config.coreUtils.binary_blocks_to_json(respBin);
-    console.log(respJson);
+    //console.log(respJson);
     
     // build complete blocks
     assert.equal(respJson.blocks.length, respJson.txs.length);    
@@ -140,7 +140,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     //if (resp.txs) console.log(resp.txs[0]);
     
     // build transaction models
-    let txs = resp.txs ? resp.txs.map(tx => MoneroUtils.daemonTxMapToTx(tx)) : [];
+    let txs = resp.txs ? resp.txs.map(tx => MoneroDaemonRpc._daemonTxMapToTx(tx)) : [];
     txs.map(tx => MoneroDaemonRpc._setResponseInfo(resp, tx));
     return txs;
   }
