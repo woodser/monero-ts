@@ -1,4 +1,5 @@
-HIGH
+TODO
+move submodule out of src directory so search is easy
 is mymonero memory freed from bridge?
 how to json.parse() with binary text
 how to make request with binary body
