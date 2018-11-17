@@ -90,32 +90,8 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       testBlock(block, true, true);
       assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
     });
-
-    it("getBlocksByHeight()", async function() {
-      
-      // set number of blocks to test
-      const numBlocks = 15;  // tested up to 190 but eventually requests are rejected
-      
-      // select random heights
-      let currentHeight = await daemon.getHeight();
-      let allHeights = [];
-      for (let i = 0; i < currentHeight - 1; i++) allHeights.push(i);
-      GenUtils.shuffle(allHeights);
-      let heights = [];
-      for (let i = 0; i < numBlocks; i++) heights.push(allHeights[i]);
-      
-      // fetch blocks
-      let blocks = await daemon.getBlocksByHeight(heights);
-      assert.equal(numBlocks, blocks.length);
-      for (let i = 0; i < heights.length; i++) {
-        let block = blocks[i];
-        testDaemonResponseInfo(block, true, true);
-        testBlock(block, true, true);
-        assert.equal(heights[i], block.getHeader().getHeight());      
-      }
-    });
     
-    it("getBlocksByHeightBinary()", async function() {
+    it("getBlocksByHeight()", async function() {
       
       // set number of blocks to test
       const numBlocks = 100;
@@ -132,7 +108,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       //heights = [111, 222, 333];
       
       // fetch blocks
-      let blocks = await daemon.getBlocksByHeightBinary(heights);
+      let blocks = await daemon.getBlocksByHeight(heights);
       assert.equal(numBlocks, blocks.length);
       for (let i = 0; i < heights.length; i++) {
         let block = blocks[i];
