@@ -267,7 +267,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       throw new Error("Not implemented");
     });
     
-    it("Can get the known blocks hashes which are not on the main chain.", async function() {
+    it("Can get the known blocks hashes which are not on the main chain", async function() {
       throw new Error("Not implemented");
     });
     
