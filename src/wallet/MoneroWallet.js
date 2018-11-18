@@ -14,6 +14,10 @@ class MoneroWallet {
   getHeight() {
     throw new Error("Subclass must implement");
   }
+  
+  refresh() {
+    throw new Error("Subclass must implement");
+  }
 }
 
 module.exports = MoneroWallet;

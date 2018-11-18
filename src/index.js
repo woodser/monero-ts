@@ -20,5 +20,5 @@ require('./submodules/mymonero-core-js/monero_utils/monero_utils')().then(functi
   let daemonRpc = new MoneroDaemonRpc({ port: 38081, user: "superuser", pass: "abctesting123", protocol: "http", coreUtils: coreUtils });
   let wallet = new MoneroWalletLocal(daemonRpc, coreUtils, mnemonic);
   if (primaryAddress !== wallet.getPrimaryAddress()) throw "Addresses do not match";
-  wallet.sync();
+  wallet.refresh();
 });

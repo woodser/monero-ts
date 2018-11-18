@@ -3,10 +3,6 @@ const MoneroUtils = require("../src/utils/MoneroUtils");
 
 function testWallet(wallet) {
   
-  it("Can synchronize (whatever that means yet :)", async function() {
-    await wallet.sync();
-  });
-  
   it("Can get the current height that the wallet is synchronized to", function() {
     throw new Error("Not implemented");
   });
@@ -20,7 +16,15 @@ function testWallet(wallet) {
     MoneroUtils.validateMnemonic(mnemonic);
   });
   
+  it("Can refresh", async function() {
+    await wallet.refresh();
+  });
+  
   it("Can get the language of the mnemonic phrase", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get a list of supported languages", async function() {
     throw new Error("Not implemented");
   });
   
@@ -100,59 +104,91 @@ function testWallet(wallet) {
     throw new Error("Not implemented");
   });
   
-  it("TODO", async function() {
+  it("Can get txs pertaining to the wallet", async function() {
     throw new Error("Not implemented");
   });
   
-  it("TODO", async function() {
+  it("Can get txs pertaining to an account", async function() {
     throw new Error("Not implemented");
   });
   
-  it("TODO", async function() {
+  it("Can get txs pertaining to a subaddress", async function() {
     throw new Error("Not implemented");
   });
   
-  it("TODO", async function() {
+  it("Can get txs filtered by having payments or not", async function() {
     throw new Error("Not implemented");
   });
   
-  it("TODO", async function() {
+  it("Can get wallet txs by id", async function() {
     throw new Error("Not implemented");
   });
   
-  it("TODO", async function() {
+  it("Can get wallet txs with a filter", async function() {
     throw new Error("Not implemented");
   });
   
-  it("TODO", async function() {
+  it("Has a balance that is the sum of all unspent incoming transactions", async function() {
     throw new Error("Not implemented");
   });
   
-  it("TODO", async function() {
+  it("Can get and set a tx note", async function() {
     throw new Error("Not implemented");
   });
   
-  it("TODO", async function() {
+  it("Can get and set multiple tx notes", async function() {
     throw new Error("Not implemented");
   });
   
-  it("TODO", async function() {
+  it("Can check a transaction using secret key", async function() {
     throw new Error("Not implemented");
   });
   
-  it("TODO", async function() {
+  it("Can prove a transaction by checking its signature", async function() {
     throw new Error("Not implemented");
   });
   
-  it("TODO", async function() {
+  it("Can prove a spend using a generated signature and no destination public address", async function() {
     throw new Error("Not implemented");
   });
   
-  it("TODO", async function() {
+  it("Can prove reserves in the wallet", async function() {
     throw new Error("Not implemented");
   });
   
-  it("TODO", async function() {
+  it("Can prove reserves in an account", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get outputs in hex format", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can import outputs in hex format", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get key images", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can import key images", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can sign and verify messages", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get and set arbitrary key/value attributes", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can create a payment URI using the official URI spec", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can parse a payment URI using the official URI spec", async function() {
     throw new Error("Not implemented");
   });
 }

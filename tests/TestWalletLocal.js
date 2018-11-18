@@ -10,9 +10,11 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
   
   describe("Monero Wallet Local", function() {
     
+    it("Can refresh which reports progress", async function() {
+      throw new Error("Not implemented");
+    });
+    
     // run common tests
     TestWallet.testWallet(wallet);
-    
-    // tests specific to local wallet here
   });
 });

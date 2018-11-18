@@ -66,7 +66,7 @@ class MoneroWalletLocal extends MoneroWallet {
     throw "getHeight() not implemented";
   }
   
-  async sync() {
+  async refresh() {
     
 //    throw new Error("Not implemented");
     
