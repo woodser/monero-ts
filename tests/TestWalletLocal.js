@@ -7,7 +7,12 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
   
   // get wallet
   let wallet = TestUtils.getWalletLocal(coreUtils);
-
-  // test wallet
-  new TestWallet("Test Wallet Local", wallet).run();
+  
+  describe("Monero Wallet Local", function() {
+    
+    // run common tests
+    TestWallet.testWallet(wallet);
+    
+    // tests specific to local wallet here
+  });
 });
