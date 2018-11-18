@@ -85,8 +85,8 @@ class MoneroWalletLocal extends MoneroWallet {
     // override for known incoming transactions
 //    startHeight = 197085;
 //    endHeight = startHeight + numBlocks - 1;
-    startHeight = 197148;
-    endHeight = 197148
+    startHeight = 196148;
+    endHeight = 198148
     
     // fetch blocks
     console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
