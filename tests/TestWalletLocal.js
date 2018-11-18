@@ -1,6 +1,6 @@
 const TestUtils = require("./TestUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
-const WalletTester = require("./WalletTester");
+const TestWallet = require("./TestWallet");
 
 // get core utils
 MoneroUtils.getCoreUtils().then(function(coreUtils) {
@@ -9,5 +9,5 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
   let wallet = TestUtils.getWalletLocal(coreUtils);
 
   // test wallet
-  new WalletTester("Test Wallet Local", wallet).run();
+  new TestWallet("Test Wallet Local", wallet).run();
 });

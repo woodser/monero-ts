@@ -5,7 +5,7 @@ const MoneroUtils = require("../src/utils/MoneroUtils");
 /**
  * Tests a given wallet.
  */
-class WalletTester {
+class TestWallet {
   
   /**
    * Constructs the tester.
@@ -120,4 +120,4 @@ class WalletTester {
   }
 }
 
-module.exports = WalletTester;
+module.exports = TestWallet;

@@ -1,8 +1,8 @@
 const TestUtils = require("./TestUtils");
-const WalletTester = require("./WalletTester");
+const TestWallet = require("./TestWallet");
 
 // get wallet
 let wallet = TestUtils.getWalletRpc();
 
 // test wallet
-new WalletTester("Test Wallet RPC", wallet).run();
+new TestWallet("Test Wallet RPC", wallet).run();
