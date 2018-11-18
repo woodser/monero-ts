@@ -1,18 +1,14 @@
 TODO
 move submodule out of src directory so search is easy
 is mymonero memory freed from bridge?
-how to json.parse() with binary text
-how to make request with binary body
 source formatting
 getHeight() -> getBlockCount()?
 getBlocksByHash(), getBlocksByHeight(), getBlocksByRange() where first two can take single elem or array and return type is based on that
-socket hang up on repeated block calls
 update on save B-)
-output ownership using core utils
-binary rpc requests
 license headers
 tx hex returned from rpc api even if not needed
 remove text-encoding dependency
+package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 
 RPC SUGGESTED IMPOVEMENTS
 /get_transactions returns duplicate data per transaction
