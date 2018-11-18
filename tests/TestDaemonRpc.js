@@ -27,11 +27,23 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       assert(hash);
       assert.equal(64, hash.length);
     });
+    
+    it("Can get a block template", async function() {
+      throw new Error("Not implemented");
+    });
 
-    it ("Can get the last block's header", async function() {
+    it("Can get the last block's header", async function() {
       let lastHeader = await daemon.getLastBlockHeader();
       testDaemonResponseInfo(lastHeader, true, true);
       testBlockHeader(lastHeader, true);
+    });
+    
+    it("Can get a block header by hash", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can get a block header by height", async function() {
+      throw new Error("Not implemented");
     });
     
     // TODO: test start with no end, vice versa, inclusivity
@@ -189,6 +201,110 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       }
       
       // TODO: test binary vs json encoding
+    });
+    
+    it("Has connections to peers", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Has general information", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Has has sync information", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Has hard fork information", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can ban a peer", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can ban multiple peers", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can flush a transaction from the pool by id", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can flush multiple transactions from the pool by id", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can get an output histogram", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can get an output distribution", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can get the coinbase transaction sum", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can get a fee estimate", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can get alternative chains", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can get relay a transaction", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can get relay multiple transactions", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can get the transaction pool backlog", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can get the known blocks hashes which are not on the main chain.", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can determine if key images can be spent", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can start mining", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can stop mining", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can get mining status", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can set bandwidth limit", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can get bandwidth limit", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can limit the number of outgoing peers", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can limit the number of incoming peers", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can submit a block to the network", async function() {
+      throw new Error("Not implemented");
     });
   });
 });

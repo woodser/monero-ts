@@ -124,15 +124,15 @@ class MoneroWalletLocal extends MoneroWallet {
       
       // process outputs
       for (let outIdx = 0; outIdx < tx.getVout().length; outIdx++) {
-        console.log("Last pub key: " + lastPubKey);
-        console.log("Private view key: " + this.viewKeyPrv);
+        //console.log("Last pub key: " + lastPubKey);
+        //console.log("Private view key: " + this.viewKeyPrv);
         let derivation = this.coreUtils.generate_key_derivation(lastPubKey, this.viewKeyPrv);
-        console.log("Derivation: " + derivation);
-        console.log("Out index: " + outIdx);
-        console.log("Public spend key: " + this.spendKeyPub);
+        //console.log("Derivation: " + derivation);
+        //console.log("Out index: " + outIdx);
+        //console.log("Public spend key: " + this.spendKeyPub);
         let pubKeyDerived = this.coreUtils.derive_public_key(derivation, outIdx, this.spendKeyPub);
-        console.log("Pub key derived: " + pubKeyDerived);
-        console.log("Output key: " + tx.getVout()[outIdx].target.key + "\n\n");
+        //console.log("Pub key derived: " + pubKeyDerived);
+        //console.log("Output key: " + tx.getVout()[outIdx].target.key + "\n\n");
         
         // check if wallet owns output
         if (tx.getVout()[outIdx].target.key === pubKeyDerived) {
