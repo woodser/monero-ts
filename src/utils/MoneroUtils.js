@@ -29,6 +29,16 @@ class MoneroUtils {
     if (curVal === undefined) setFn.call(obj, val);
     else if (curVal !== val) throw new Error("Cannot overwrite existing value " + curVal + " with new value " + val);
   }
+  
+  /**
+   * Validates the given mnemonic seed.
+   * 
+   * @param seed is the seed to validate
+   * @throws Error if the given seed is invalid // TODO: specific error type?
+   */
+  static validateMnemonic(seed) {
+    throw new Error("Not implemented");s
+  }
     
   /**
    * Decodes tx extra according to https://cryptonote.org/cns/cns005.txt and

@@ -211,7 +211,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       throw new Error("Not implemented");
     });
     
-    it("Has has sync information", async function() {
+    it("Has sync information", async function() {
       throw new Error("Not implemented");
     });
     

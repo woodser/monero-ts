@@ -7,6 +7,10 @@ class MoneroWallet {
     throw new Error("Subclass must implement");
   }
   
+  getMnemonic() {
+    throw new Error("Subclass must implement");
+  }
+  
   getHeight() {
     throw new Error("Subclass must implement");
   }

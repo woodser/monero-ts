@@ -1,4 +1,5 @@
 require("./TestDaemonRpc");
+require("./TestWalletRpc");
 require("./TestWalletLocal");
 require("./TestCoreUtils");
 

@@ -7,4 +7,4 @@ class MoneroWalletRpc extends MoneroWallet {
   
 }
 
-modules.export = MoneroWalletRpc;
+module.exports = MoneroWalletRpc;

@@ -107,7 +107,6 @@ class MoneroWalletLocal extends MoneroWallet {
     //console.log("View key prv: " + this.viewKeyPrv);
     //console.log("Spend key pub: " + this.spendKeyPub);
     
-    console.log("Processing transactions...");
     for (let txIdx = 0; txIdx < txs.length; txIdx++) {
       let tx = txs[txIdx];
       if (tx.getId() !== "cb8258a925b63a43f4447fd3c838b0d5b9389d1df1cd4c6e18b0476d2c221c9f") continue;

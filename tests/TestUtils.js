@@ -1,4 +1,5 @@
 const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
+const MoneroWalletRpc = require("../src/wallet/MoneroWalletRpc");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
 
 /**
@@ -9,6 +10,11 @@ class TestUtils {
   static getDaemonRpc(coreUtils) {
     if (this.daemonRpc === undefined) this.daemonRpc = new MoneroDaemonRpc({ port: 38081, user: "superuser", pass: "abctesting123", protocol: "http", coreUtils: coreUtils });
     return this.daemonRpc;
+  }
+  
+  static getWalletRpc() {
+    if (this.walletRpc === undefined) this.walletRpc = new MoneroWalletRpc(); // TODO: host info
+    return this.walletRpc;
   }
   
   static getWalletLocal(coreUtils) {
