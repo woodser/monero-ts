@@ -15,7 +15,7 @@ class MoneroWallet {
     throw new Error("Subclass must implement");
   }
   
-  refresh(onProgress) {
+  async refresh(onProgress) {
     throw new Error("Subclass must implement");
   }
 }

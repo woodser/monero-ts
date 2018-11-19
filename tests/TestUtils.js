@@ -29,7 +29,7 @@ class TestUtils {
     return this.daemonRpc;
   }
   
-  static getWalletRpc() {
+  static async getWalletRpc() {
     
     // check if wallet is already cached
     if (this.walletRpc) return this.walletRpc;
@@ -48,7 +48,7 @@ class TestUtils {
     
     // create wallet if necessary
     try {
-      this.walletRpc.createWallet(walletName, walletPassword, "English");
+      await this.walletRpc.createWallet(walletName, walletPassword, "English");
     } catch (e) {
       assert(e instanceof MoneroRpcError);
       assert.equal(-21, e.getRpcCode()); // exception is ok if wallet already created
@@ -56,13 +56,14 @@ class TestUtils {
     
     // open test wallet
     try {
-      this.walletRpc.openWallet(walletName, walletPassword);
+      await this.walletRpc.openWallet(walletName, walletPassword);
     } catch (e) {
+      assert(e instanceof MoneroRpcError);
       assert.equal(-1, e.getRpcCode()); // TODO (monero-wallet-rpc): -1: Failed to open wallet if wallet is already open; better code and message
     }
     
     // refresh wallet
-    this.walletRpc.rescanSpent();
+    await this.walletRpc.rescanSpent();
     
     // returned cached wallet
     return this.walletRpc;

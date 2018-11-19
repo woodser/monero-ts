@@ -24,6 +24,13 @@ class MoneroWalletRpc extends MoneroWallet {
   async getHeight() {
     return (await this.config.rpc.sendJsonRpcRequest("get_height")).height;
   }
+  
+  
+  // -------------------------------- WALLET RPC ------------------------------
+  
+  async createWallet() {
+    throw new Error("Not implemented");
+  }
 }
 
 module.exports = MoneroWalletRpc;
