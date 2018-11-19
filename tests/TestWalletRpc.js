@@ -20,12 +20,12 @@ TestUtils.getWalletRpc().catch(function(err) {
     it("Can create and open a wallet", async function() {
       throw new Error("Not implemented");
     });
-    
-    it("Can save the blockchain", async function() {
+
+    it("Can rescan spent", async function() {
       throw new Error("Not implemented");
     });
     
-    it("Can rescan spent", async function() {
+    it("Can save the blockchain", async function() {
       throw new Error("Not implemented");
     });
     

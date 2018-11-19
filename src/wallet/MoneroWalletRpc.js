@@ -26,9 +26,17 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   
-  // -------------------------------- WALLET RPC ------------------------------
+  // -------------------------- SPECIFIC TO RPC WALLET ------------------------
   
   async createWallet() {
+    throw new Error("Not implemented");
+  }
+  
+  async openWallet() {
+    throw new Error("Not implemented");
+  }
+  
+  async rescanSpent() {
     throw new Error("Not implemented");
   }
 }
