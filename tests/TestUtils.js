@@ -4,14 +4,10 @@ const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
 const MoneroWalletRpc = require("../src/wallet/MoneroWalletRpc");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
 
-let defaultDaemonRpc = {
-    
-}
-
 /**
  * Collection of test utilities and configurations.
  * 
- * TODO: move hard coded to config
+ * TODO: move hard coded to config;
  */
 class TestUtils {
   
@@ -77,5 +73,11 @@ class TestUtils {
     return this.walletLocal;
   }
 }
+
+//static test config
+TestUtils.TEST_WALLET_1_NAME = "test_wallet_1";
+TestUtils.TEST_WALLET_1_PW = "supersecretpassword123"
+TestUtils.TEST_WALLET_2_NAME = "test_wallet_2";
+TestUtils.TEST_WALLET_2_PW = "supersecretpassword123"
 
 module.exports = TestUtils;

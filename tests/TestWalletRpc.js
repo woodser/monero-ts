@@ -18,7 +18,29 @@ TestUtils.getWalletRpc().catch(function(err) {
     });
     
     it("Can create and open a wallet", async function() {
-      throw new Error("Not implemented");
+      
+      let walletName2 = "test_wallet_2";  // TODO: move these to config
+      let walletPassword2 = "supersecretpassword123"; // TODO: continue
+      
+      // create test wallet 2 which throws rpc code -21 if it already exists
+      try {
+        await wallet.createWallet(TestUtils.TEST_WALLET_2_NAME, TestUtils.TEST_WALLET_2_PW, "English");
+      } catch (e) {
+        assert(e instanceof MoneroRpcError); 
+        assert.equal(-21, e.getRpcCode());
+      }
+      
+      // open test wallet 2
+      await wallet.openWallet(TestUtils.TEST_WALLET_2_NAME, TestUtils.TEST_WALLET_2_PW);
+      
+      // assert wallet is empty
+      let txs = wallet.getTxs();
+      assert(txs.isEmpty());
+      
+      // open test wallet 1
+      await wallet.openWallet(TestUtils.TEST_WALLET_1_NAME, TestUtils.TEST_WALLET_1_PW);
+      txs = wallet.getTxs();
+      assert(!txs.isEmpty());  // wallet is used
     });
 
     it("Can rescan spent", async function() {
