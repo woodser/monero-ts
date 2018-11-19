@@ -30,21 +30,12 @@ class TestUtils {
     // check if wallet is already cached
     if (this.walletRpc) return this.walletRpc;
     
-    let walletName = "test_wallet_1";
-    let walletPassword = "supersecretpassword123";
-    
     // connect wallet to rpc endpoint
-    this.walletRpc = new MoneroWalletRpc({
-      protocol: "http",
-      host: "localhost",
-      port: 38083,
-      user: "rpc_user",
-      pass: "abc123"
-    });
+    this.walletRpc = new MoneroWalletRpc(TestUtils.WALLET_RPC_CONFIG);
     
     // create wallet if necessary
     try {
-      await this.walletRpc.createWallet(walletName, walletPassword, "English");
+      await this.walletRpc.createWallet(TestUtils.WALLET_1_NAME, TestUtils.WALLET_NAME_PW, "English");
     } catch (e) {
       assert(e instanceof MoneroRpcError);
       assert.equal(-21, e.getRpcCode()); // exception is ok if wallet already created
@@ -52,7 +43,7 @@ class TestUtils {
     
     // open test wallet
     try {
-      await this.walletRpc.openWallet(walletName, walletPassword);
+      await this.walletRpc.openWallet(TestUtils.WALLET_1_NAME, TestUtils.WALLET_2_PW);
     } catch (e) {
       assert(e instanceof MoneroRpcError);
       assert.equal(-1, e.getRpcCode()); // TODO (monero-wallet-rpc): -1: Failed to open wallet if wallet is already open; better code and message
@@ -74,10 +65,17 @@ class TestUtils {
   }
 }
 
-//static test config
-TestUtils.TEST_WALLET_1_NAME = "test_wallet_1";
-TestUtils.TEST_WALLET_1_PW = "supersecretpassword123"
-TestUtils.TEST_WALLET_2_NAME = "test_wallet_2";
-TestUtils.TEST_WALLET_2_PW = "supersecretpassword123"
+// static test config
+TestUtils.WALLET_1_NAME = "test_wallet_1";
+TestUtils.WALLET_1_PW = "supersecretpassword123"
+TestUtils.WALLET_2_NAME = "test_wallet_2";
+TestUtils.WALLET_2_PW = "supersecretpassword123"
+TestUtils.WALLET_RPC_CONFIG = {
+  protocol: "http",
+  host: "localhost",
+  port: 38083,
+  user: "rpc_user",
+  pass: "abc123"
+};
 
 module.exports = TestUtils;

@@ -29,6 +29,10 @@ class MoneroWalletRpc extends MoneroWallet {
   // -------------------------- SPECIFIC TO RPC WALLET ------------------------
   
   async createWallet() {
+    
+    
+    
+    
     throw new Error("Not implemented");
   }
   
