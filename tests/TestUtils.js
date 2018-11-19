@@ -13,14 +13,7 @@ class TestUtils {
   
   static getDaemonRpc(coreUtils) {
     if (this.daemonRpc === undefined) {
-      this.daemonRpc = new MoneroDaemonRpc({ 
-        protocol: "http",
-        host: "localhost",
-        port: 38081,
-        user: "superuser",
-        pass: "abctesting123",
-        coreUtils: coreUtils
-      });
+      this.daemonRpc = new MoneroDaemonRpc(Object.assign(TestUtils.DAEMON_RPC_CONFIG, { coreUtils: coreUtils }));
     }
     return this.daemonRpc;
   }
@@ -35,10 +28,10 @@ class TestUtils {
     
     // create wallet if necessary
     try {
-      await this.walletRpc.createWallet(TestUtils.WALLET_1_NAME, TestUtils.WALLET_NAME_PW, "English");
+      await this.walletRpc.createWallet(TestUtils.WALLET_1_NAME, TestUtils.WALLET_1_PW, "English");
     } catch (e) {
       assert(e instanceof MoneroRpcError);
-      assert.equal(-21, e.getRpcCode()); // exception is ok if wallet already created
+      assert.equal(-21, e.getCode()); // exception is ok if wallet already created
     }
     
     // open test wallet
@@ -46,7 +39,7 @@ class TestUtils {
       await this.walletRpc.openWallet(TestUtils.WALLET_1_NAME, TestUtils.WALLET_2_PW);
     } catch (e) {
       assert(e instanceof MoneroRpcError);
-      assert.equal(-1, e.getRpcCode()); // TODO (monero-wallet-rpc): -1: Failed to open wallet if wallet is already open; better code and message
+      assert.equal(-1, e.getCode()); // TODO (monero-wallet-rpc): -1: Failed to open wallet if wallet is already open; better code and message
     }
     
     // refresh wallet
@@ -65,17 +58,27 @@ class TestUtils {
   }
 }
 
-// static test config
+// ---------------------------- STATIC TEST CONFIG ----------------------------
+
 TestUtils.WALLET_1_NAME = "test_wallet_1";
 TestUtils.WALLET_1_PW = "supersecretpassword123"
 TestUtils.WALLET_2_NAME = "test_wallet_2";
 TestUtils.WALLET_2_PW = "supersecretpassword123"
+  
 TestUtils.WALLET_RPC_CONFIG = {
   protocol: "http",
   host: "localhost",
   port: 38083,
   user: "rpc_user",
   pass: "abc123"
+};
+
+TestUtils.DAEMON_RPC_CONFIG = { 
+  protocol: "http",
+  host: "localhost",
+  port: 38081,
+  user: "superuser",
+  pass: "abctesting123",
 };
 
 module.exports = TestUtils;
