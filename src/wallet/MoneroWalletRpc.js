@@ -45,7 +45,7 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async rescanSpent() {
-    throw new Error("Not implemented");
+    await this.config.rpc.sendJsonRpcRequest("rescan_spent", null);
   }
 }
 

@@ -5,7 +5,7 @@ function testWallet(wallet) {
   
   it("Can get the current height that the wallet is synchronized to", async function() {
     let height = await wallet.getHeight();
-    assertTrue(height >= 0);
+    assert(height >= 0);
   });
   
   it("Can get the seed", async function() {
