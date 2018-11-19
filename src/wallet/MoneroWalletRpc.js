@@ -25,6 +25,11 @@ class MoneroWalletRpc extends MoneroWallet {
     return (await this.config.rpc.sendJsonRpcRequest("get_height")).height;
   }
   
+  async getMnemonic() {
+    let resp = await this.config.rpc.sendJsonRpcRequest("query_key", { key_type: "mnemonic" });
+    return resp.key;
+  }
+  
   
   // -------------------------- SPECIFIC TO RPC WALLET ------------------------
   
