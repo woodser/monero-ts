@@ -35,7 +35,9 @@ class MoneroUtils {
    * Validates the given mnemonic phrase.
    */
   static validateMnemonic(mnemonic) {
-    throw new Error("Not implemented");
+    assert(mnemonic, "Mnemonic phrase is not initialized");
+    let words = mnemonic.split(" ");
+    if (words.length !== MoneroUtils.NUM_MNEMONIC_WORDS) throw new Error("Mnemonic phrase is " + words.length + " words but must be " + MoneroUtils.NUM_MNEMONIC_WORDS);
   }
   
   /**
@@ -69,5 +71,7 @@ class MoneroUtils {
     return Buffer.from(new Uint8Array(txExtra.slice(lastPubKeyIdx, lastPubKeyIdx + 32))).toString("hex");
   }
 }
+
+MoneroUtils.NUM_MNEMONIC_WORDS = 25;
 
 module.exports = MoneroUtils;
