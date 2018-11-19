@@ -36,7 +36,7 @@ class TestUtils {
     
     // open test wallet
     try {
-      await this.walletRpc.openWallet(TestUtils.WALLET_1_NAME, TestUtils.WALLET_2_PW);
+      await this.walletRpc.openWallet(TestUtils.WALLET_1_NAME, TestUtils.WALLET_1_PW);
     } catch (e) {
       assert(e instanceof MoneroRpcError);
       assert.equal(-1, e.getCode()); // TODO (monero-wallet-rpc): -1: Failed to open wallet if wallet is already open; better code and message

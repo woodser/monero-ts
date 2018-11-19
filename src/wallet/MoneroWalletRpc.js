@@ -36,8 +36,12 @@ class MoneroWalletRpc extends MoneroWallet {
     await this.config.rpc.sendJsonRpcRequest("create_wallet", params);
   }
   
-  async openWallet() {
-    throw new Error("Not implemented");
+  async openWallet(filename, password) {
+    if (!filename) throw new Error("Filename is not initialized");
+    if (!password) throw new Error("Password is not initialized");
+    let params = { filename: filename, password: password };
+    await this.config.rpc.sendJsonRpcRequest("open_wallet", params);
+    //adressCache.clear();  // TODO: for when you're at the point of caching addresses
   }
   
   async rescanSpent() {
