@@ -3,19 +3,19 @@
  */
 class MoneroWallet {
   
-  getSeed() {
+  async getSeed() {
     throw new Error("Subclass must implement");
   }
   
-  getMnemonic() {
+  async getMnemonic() {
     throw new Error("Subclass must implement");
   }
   
-  getHeight() {
+  async getHeight() {
     throw new Error("Subclass must implement");
   }
   
-  refresh() {
+  refresh(onProgress) {
     throw new Error("Subclass must implement");
   }
 }

@@ -50,19 +50,19 @@ class MoneroWalletLocal extends MoneroWallet {
     return this.coreUtils;
   }
   
-  getSeed() {
+  async getSeed() {
     return this.seed;
   }
   
-  getMnemonic() {
+  async getMnemonic() {
     return this.mnemonic;
   }
   
-  getPrimaryAddress() {
+  async getPrimaryAddress() {
     return this.primaryAddress;
   }
   
-  getHeight() {
+  async getHeight() {
     throw "getHeight() not implemented";
   }
   

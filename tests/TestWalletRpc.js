@@ -6,6 +6,9 @@ let wallet = TestUtils.getWalletRpc();
 
 describe("Monero Wallet RPC", function() {
   
+  // run common tests
+  TestWallet.testWallet(wallet);
+  
   it("Can indicate if multisig import is needed for correct balance information", async function() {
     throw new Error("Not implemented");
   });
@@ -37,7 +40,4 @@ describe("Monero Wallet RPC", function() {
   it("Has an address book", async function() {
     throw new Error("Not implemented");
   });
-  
-  // run common tests
-  TestWallet.testWallet(wallet);
 });

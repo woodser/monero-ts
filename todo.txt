@@ -1,4 +1,6 @@
 TODO
+preconnect when wallet created to verify connection?
+coreUtils can be retrieved async on construction since all methods are async
 move submodule out of src directory so search is easy
 is mymonero memory freed from bridge?
 source formatting

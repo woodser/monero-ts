@@ -3,8 +3,9 @@ const MoneroUtils = require("../src/utils/MoneroUtils");
 
 function testWallet(wallet) {
   
-  it("Can get the current height that the wallet is synchronized to", function() {
-    throw new Error("Not implemented");
+  it("Can get the current height that the wallet is synchronized to", async function() {
+    let height = await wallet.getHeight();
+    assertTrue(height >= 0);
   });
   
   it("Can get the seed", async function() {
@@ -16,8 +17,10 @@ function testWallet(wallet) {
     MoneroUtils.validateMnemonic(mnemonic);
   });
   
-  it("Can refresh", async function() {
-    await wallet.refresh();
+  it("Can refresh (without progress)", async function() {
+    let resp = await wallet.refresh();
+    assert(resp.blocks_fetched >= 0);
+    assert(typeof resp.received_money === "boolean");
   });
   
   it("Can get the language of the mnemonic phrase", async function() {
