@@ -1,3 +1,4 @@
+const assert = require("assert");
 const TestUtils = require("./TestUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const TestWallet = require("./TestWallet");
@@ -15,6 +16,11 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
     
     it("Can refresh which reports progress", async function() {
       throw new Error("Not implemented");
+    });
+    
+    it("Can get the seed", async function() {
+      let seed = await wallet.getSeed();
+      MoneroUtils.validateSeed(seed);
     });
   });
 });

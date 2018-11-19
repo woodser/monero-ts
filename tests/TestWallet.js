@@ -8,10 +8,6 @@ function testWallet(wallet) {
     assert(height >= 0);
   });
   
-  it("Can get the seed", async function() {
-    throw new Error("Not implemented");
-  });
-  
   it("Can get the mnemonic phrase derived from the seed", async function() {
     let mnemonic = await wallet.getMnemonic();
     MoneroUtils.validateMnemonic(mnemonic);

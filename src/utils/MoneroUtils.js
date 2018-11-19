@@ -1,3 +1,4 @@
+const assert = require("assert");
 const MoneroTx = require("../daemon/model/MoneroTx");
 
 /**
@@ -31,13 +32,18 @@ class MoneroUtils {
   }
   
   /**
-   * Validates the given mnemonic seed.
-   * 
-   * @param seed is the seed to validate
-   * @throws Error if the given seed is invalid // TODO: specific error type?
+   * Validates the given mnemonic phrase.
    */
-  static validateMnemonic(seed) {
-    throw new Error("Not implemented");s
+  static validateMnemonic(mnemonic) {
+    throw new Error("Not implemented");
+  }
+  
+  /**
+   * Validates the given seed.
+   */
+  static validateSeed(seed) {
+    assert(typeof seed === "string");
+    assert(seed.length === 64);
   }
     
   /**
