@@ -30,6 +30,9 @@ class MoneroWalletRpc extends MoneroWallet {
     return resp.key;
   }
   
+  async refresh() {
+    return await this.config.rpc.sendJsonRpcRequest("refresh");
+  }
   
   // -------------------------- SPECIFIC TO RPC WALLET ------------------------
   

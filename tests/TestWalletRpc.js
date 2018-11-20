@@ -19,9 +19,6 @@ TestUtils.getWalletRpc().catch(function(err) {
     
     it("Can create and open a wallet", async function() {
       
-      let walletName2 = "test_wallet_2";  // TODO: move these to config
-      let walletPassword2 = "supersecretpassword123"; // TODO: continue
-      
       // create test wallet 2 which throws rpc code -21 if it already exists
       try {
         await wallet.createWallet(TestUtils.WALLET_2_NAME, TestUtils.WALLET_2_PW, "English");

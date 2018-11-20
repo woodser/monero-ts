@@ -394,9 +394,9 @@ function testBlockHeader(header, isFull) {
   assert(typeof isFull === "boolean");
   assert(header);
   assert(header.getHeight() >= 0);
-  assert(header.getMajorVersion());
-  assert(header.getMinorVersion());
-  assert(header.getTimestamp());
+  assert(header.getMajorVersion() >= 0);
+  assert(header.getMinorVersion() >= 0);
+  assert(header.getTimestamp() >= 0);
   assert(header.getPrevHash());
   assert(header.getNonce());
   assert(header.getPowHash() === undefined);  // never seen defined
