@@ -19,11 +19,7 @@ function testWallet(wallet) {
     assert(typeof resp.received_money === "boolean");
   });
   
-  it("Can get the language of the mnemonic phrase", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get a list of supported languages", async function() {
+  it("Can get a list of supported languages for the mnemonic phrase", async function() {
     throw new Error("Not implemented");
   });
   

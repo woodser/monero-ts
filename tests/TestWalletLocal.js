@@ -22,5 +22,9 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       let seed = await wallet.getSeed();
       MoneroUtils.validateSeed(seed);
     });
+    
+    it("Can get the language of the mnemonic phrase", async function() {
+      throw new Error("Not implemented");
+    });
   });
 });
