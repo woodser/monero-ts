@@ -1,4 +1,5 @@
 TODO
+wallet local tests doesn't download blocks if daemon tests not run first
 wallet rpc tests don't run unless daemon tests run
 preconnect when wallet created to verify connection?
 coreUtils can be retrieved async on construction since all methods are async

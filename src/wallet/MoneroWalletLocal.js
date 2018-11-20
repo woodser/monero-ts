@@ -90,8 +90,6 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async refresh() {
     
-//    throw new Error("Not implemented");
-    
     // get height
     let height = await this.daemon.getHeight();
     
@@ -114,9 +112,27 @@ class MoneroWalletLocal extends MoneroWallet {
     console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
     let blocks = await this.daemon.getBlocksByRange(startHeight, endHeight);
     
-    // collect transactions
-    let txs = blocks.map(block => block.getTxs()).reduce((a, b) => { a.push.apply(a, b); return a; });
-    console.log("Fetched " + txs.length + " transactions");
+//    for (let block of blocks) {
+//      if (block.getTxs().length) {
+//        console.log(block);
+//      }
+//    }
+    
+    // process each block
+    for (let block of blocks) {
+      this._processBlock(block);
+    }
+  }
+  
+  // -------------------------------- PRIVATE ---------------------------------
+  
+  /**
+   * Processes a single block.
+   */
+  _processBlock(block) {
+    //console.log("Processing block...");
+    //console.log(block);
+    ///console.log("Block contains " + block.getTxs().length + " transactions");
     
     // fetch transactions by hash
     //let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; }); // works
@@ -129,8 +145,8 @@ class MoneroWalletLocal extends MoneroWallet {
     //console.log("View key prv: " + this.prvViewKey);
     //console.log("Spend key pub: " + this.pubSpendKey);
     
-    for (let txIdx = 0; txIdx < txs.length; txIdx++) {
-      let tx = txs[txIdx];
+    for (let txIdx = 0; txIdx < block.getTxs().length; txIdx++) {
+      let tx = block.getTxs()[txIdx];
       if (tx.getId() !== "cb8258a925b63a43f4447fd3c838b0d5b9389d1df1cd4c6e18b0476d2c221c9f") continue;
       
       // get tx pub key
@@ -167,7 +183,7 @@ class MoneroWalletLocal extends MoneroWallet {
       }
     }
     
-    console.log("Done processing, " + numOwned + " owned outputs found, " + numUnowned + " unowned");
+    //console.log("Done processing, " + numOwned + " owned outputs found, " + numUnowned + " unowned");
   }
 }
 
