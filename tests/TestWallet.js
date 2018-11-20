@@ -20,7 +20,10 @@ function testWallet(wallet) {
   });
   
   it("Can get a list of supported languages for the mnemonic phrase", async function() {
-    throw new Error("Not implemented");
+    let languages = await wallet.getLanguages();
+    assert(Array.isArray(languages));
+    assert(languages.length);
+    for (let language of languages) assert(language);
   });
   
   it("Can get the public view key", async function() {

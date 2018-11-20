@@ -1,4 +1,5 @@
 TODO
+wallet rpc tests don't run unless daemon tests run
 preconnect when wallet created to verify connection?
 coreUtils can be retrieved async on construction since all methods are async
 move submodule out of src directory so search is easy

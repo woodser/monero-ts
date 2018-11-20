@@ -34,6 +34,10 @@ class MoneroWalletRpc extends MoneroWallet {
     return await this.config.rpc.sendJsonRpcRequest("refresh");
   }
   
+  async getLanguages() {
+    return (await this.config.rpc.sendJsonRpcRequest("get_languages")).languages;
+  }
+  
   // -------------------------- SPECIFIC TO RPC WALLET ------------------------
   
   async createWallet(filename, password, language) {
