@@ -60,6 +60,26 @@ class MoneroWalletLocal extends MoneroWallet {
     return this.mnemonic;
   }
   
+  async getMnemonicLanguage() {
+    return this.mnemonicLang;
+  }
+  
+  async getPublicViewKey() {
+    return this.pubViewKey;
+  }
+  
+  async getPrivateViewKey() {
+    return this.prvViewKey;
+  }
+  
+  async getPublicSpendKey() {
+    return this.pubSpendKey;
+  }
+  
+  async getPrivateSpendKey() {
+    return this.prvSpendKey;
+  }
+  
   async getPrimaryAddress() {
     return this.primaryAddress;
   }

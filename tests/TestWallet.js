@@ -33,7 +33,6 @@ function testWallet(wallet) {
   
   it("Can get the primary address", async function() {
     let primaryAddress = await wallet.getPrimaryAddress();
-    console.log("GOT PRIMARY ADDRESS: " + primaryAddress);
     MoneroUtils.validateAddress(primaryAddress);
     assert.equal((await wallet.getSubaddress(0, 0)).getAddress(), primaryAddress);
   });
