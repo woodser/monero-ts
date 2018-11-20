@@ -31,13 +31,17 @@ class MoneroUtils {
     else if (curVal !== val) throw new Error("Cannot overwrite existing value " + curVal + " with new value " + val);
   }
   
-  /**
-   * Validates the given mnemonic phrase.
-   */
+  // TODO: beef this up
   static validateMnemonic(mnemonic) {
     assert(mnemonic, "Mnemonic phrase is not initialized");
     let words = mnemonic.split(" ");
     if (words.length !== MoneroUtils.NUM_MNEMONIC_WORDS) throw new Error("Mnemonic phrase is " + words.length + " words but must be " + MoneroUtils.NUM_MNEMONIC_WORDS);
+  }
+  
+  // TODO: beef this up
+  static validatePrivateViewKey(privateViewKey) {
+    assert(typeof privateViewKey === "string");
+    assert(privateViewKey.length === 64);
   }
   
   /**

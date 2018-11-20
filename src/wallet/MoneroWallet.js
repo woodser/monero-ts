@@ -11,6 +11,14 @@ class MoneroWallet {
     throw new Error("Subclass must implement");
   }
   
+  async getPublicViewKey() {
+    throw new Error("Subclass must implement");
+  }
+  
+  async getPrivateViewKey() {
+    throw new Error("Subclass must implement");
+  }
+  
   async getHeight() {
     throw new Error("Subclass must implement");
   }

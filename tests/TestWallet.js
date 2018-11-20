@@ -26,20 +26,9 @@ function testWallet(wallet) {
     for (let language of languages) assert(language);
   });
   
-  it("Can get the public view key", async function() {
-    throw new Error("Not implemented");
-  });
-  
   it("Can get the private view key", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get the public spend key", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get the private spend key", async function() {
-    throw new Error("Not implemented");
+    let privateViewKey = await wallet.getPrivateViewKey()
+    MoneroUtils.validatePrivateViewKey(privateViewKey);
   });
   
   it("Can get the primary address", async function() {

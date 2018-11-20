@@ -26,5 +26,17 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
     it("Can get the language of the mnemonic phrase", async function() {
       throw new Error("Not implemented");
     });
+    
+    it("Can get the public view key", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can get the public spend key", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can get the private spend key", async function() {
+      throw new Error("Not implemented");
+    });
   });
 });

@@ -30,6 +30,15 @@ class MoneroWalletRpc extends MoneroWallet {
     return resp.key;
   }
   
+  async getPublicViewKey() {
+    throw new Error("Not implemented");
+  }
+  
+  async getPrivateViewKey() {
+    let resp = await this.config.rpc.sendJsonRpcRequest("query_key", { key_type: "view_key" });
+    return resp.key;
+  }
+  
   async refresh() {
     return await this.config.rpc.sendJsonRpcRequest("refresh");
   }

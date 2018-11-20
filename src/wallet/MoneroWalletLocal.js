@@ -37,10 +37,10 @@ class MoneroWalletLocal extends MoneroWallet {
     this.seed = keys.sec_seed_string;
     this.mnemonic = keys.mnemonic_string;
     this.mnemonicLang = keys.mnemonic_language;
-    this.viewKeyPub = keys.pub_viewKey_string;
-    this.viewKeyPrv = keys.sec_viewKey_string;
-    this.spendKeyPub = keys.pub_spendKey_string;
-    this.spendKeyPrv = keys.sec_spendKey_string;
+    this.pubViewKey = keys.pub_viewKey_string;
+    this.prvViewKey = keys.sec_viewKey_string;
+    this.pubSpendKey = keys.pub_spendKey_string;
+    this.prvSpendKey = keys.sec_spendKey_string;
     this.primaryAddress = keys.address_string;
   }
   
@@ -106,8 +106,8 @@ class MoneroWalletLocal extends MoneroWallet {
     let numOwned = 0;
     let numUnowned = 0;
     
-    //console.log("View key prv: " + this.viewKeyPrv);
-    //console.log("Spend key pub: " + this.spendKeyPub);
+    //console.log("View key prv: " + this.prvViewKey);
+    //console.log("Spend key pub: " + this.pubSpendKey);
     
     for (let txIdx = 0; txIdx < txs.length; txIdx++) {
       let tx = txs[txIdx];
@@ -126,12 +126,12 @@ class MoneroWalletLocal extends MoneroWallet {
       // process outputs
       for (let outIdx = 0; outIdx < tx.getVout().length; outIdx++) {
         //console.log("Last pub key: " + lastPubKey);
-        //console.log("Private view key: " + this.viewKeyPrv);
-        let derivation = this.coreUtils.generate_key_derivation(lastPubKey, this.viewKeyPrv);
+        //console.log("Private view key: " + this.prvViewKey);
+        let derivation = this.coreUtils.generate_key_derivation(lastPubKey, this.prvViewKey);
         //console.log("Derivation: " + derivation);
         //console.log("Out index: " + outIdx);
-        //console.log("Public spend key: " + this.spendKeyPub);
-        let pubKeyDerived = this.coreUtils.derive_public_key(derivation, outIdx, this.spendKeyPub);
+        //console.log("Public spend key: " + this.pubSpendKey);
+        let pubKeyDerived = this.coreUtils.derive_public_key(derivation, outIdx, this.pubSpendKey);
         //console.log("Pub key derived: " + pubKeyDerived);
         //console.log("Output key: " + tx.getVout()[outIdx].target.key + "\n\n");
         
