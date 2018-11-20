@@ -26,6 +26,10 @@ class MoneroWallet {
   async refresh(onProgress) {
     throw new Error("Subclass must implement");
   }
+  
+  async getPrimaryAddress() {
+    throw new Error("Subclass must implement");
+  }
 }
 
 module.exports = MoneroWallet;

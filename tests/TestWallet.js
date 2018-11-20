@@ -32,7 +32,10 @@ function testWallet(wallet) {
   });
   
   it("Can get the primary address", async function() {
-    throw new Error("Not implemented");
+    let primaryAddress = await wallet.getPrimaryAddress();
+    console.log("GOT PRIMARY ADDRESS: " + primaryAddress);
+    MoneroUtils.validateAddress(primaryAddress);
+    assert.equal((await wallet.getSubaddress(0, 0)).getAddress(), primaryAddress);
   });
   
   it("Can get an integrated address given a payment id", async function() {

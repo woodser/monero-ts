@@ -44,6 +44,11 @@ class MoneroUtils {
     assert(privateViewKey.length === 64);
   }
   
+  // TODO: implement this, will require knowing network type
+  static validateAddress(address) {
+    
+  }
+  
   /**
    * Validates the given seed.
    */
