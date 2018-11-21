@@ -95,7 +95,7 @@ class MoneroWalletLocal extends MoneroWallet {
     console.log("Total height: " + height);
     
     // iterate to fetch blocks in chunks
-    let startHeight = 100000;
+    let startHeight = 196000;
     let numBlocksPerRequest = 1000;
     let numTxs = 0;
     for (let curHeight = startHeight; curHeight < height; curHeight += numBlocksPerRequest) {
