@@ -92,25 +92,39 @@ class MoneroWalletLocal extends MoneroWallet {
     
     // get height
     let height = await this.daemon.getHeight();
+    console.log("Total height: " + height);
     
-    // determine heights to fetch
-    let numBlocks = 100;
-    let numBlocksAgo = 400;
-    assert(numBlocks > 0);
-    assert(numBlocksAgo >= numBlocks);
-    assert(height - numBlocksAgo + numBlocks - 1 < height);
-    let startHeight = height - numBlocksAgo;
-    let endHeight = height - numBlocksAgo + numBlocks - 1;
+    // iterate to fetch blocks in chunks
+    let startHeight = 100000;
+    let numBlocksPerRequest = 1000;
+    let numTxs = 0;
+    for (let curHeight = startHeight; curHeight < height; curHeight += numBlocksPerRequest) {
+      let blocks = await this.daemon.getBlocksByRange(curHeight, curHeight + numBlocksPerRequest);
+      for (let block of blocks) {
+        numTxs += block.getTxs().length;
+        this._processBlock(block);
+      }
+      console.log(curHeight + " (" + ((curHeight + numBlocksPerRequest) / height * 100) + "%) " + numTxs + " transactions");
+    }
+    
+//    // determine heights to fetch
+//    let numBlocks = 100;
+//    let numBlocksAgo = 400;
+//    assert(numBlocks > 0);
+//    assert(numBlocksAgo >= numBlocks);
+//    assert(height - numBlocksAgo + numBlocks - 1 < height);
+//    let startHeight = height - numBlocksAgo;
+//    let endHeight = height - numBlocksAgo + numBlocks - 1;
     
     // override for known incoming transactions
 //    startHeight = 197085;
 //    endHeight = startHeight + numBlocks - 1;
-    startHeight = 196148;
-    endHeight = 198148
+//    startHeight = 196148;
+//    endHeight = 198148
     
     // fetch blocks
-    console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
-    let blocks = await this.daemon.getBlocksByRange(startHeight, endHeight);
+//    console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
+//    let blocks = await this.daemon.getBlocksByRange(startHeight, endHeight);
     
 //    for (let block of blocks) {
 //      if (block.getTxs().length) {
@@ -118,10 +132,10 @@ class MoneroWalletLocal extends MoneroWallet {
 //      }
 //    }
     
-    // process each block
-    for (let block of blocks) {
-      this._processBlock(block);
-    }
+//    // process each block
+//    for (let block of blocks) {
+//      this._processBlock(block);
+//    }
   }
   
   // -------------------------------- PRIVATE ---------------------------------
@@ -133,6 +147,8 @@ class MoneroWalletLocal extends MoneroWallet {
     //console.log("Processing block...");
     //console.log(block);
     ///console.log("Block contains " + block.getTxs().length + " transactions");
+    
+    //if (block.getTxs().length) console.log("Block contains " + block.getTxs().length + " txs");
     
     // fetch transactions by hash
     //let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; }); // works
@@ -147,7 +163,7 @@ class MoneroWalletLocal extends MoneroWallet {
     
     for (let txIdx = 0; txIdx < block.getTxs().length; txIdx++) {
       let tx = block.getTxs()[txIdx];
-      if (tx.getId() !== "cb8258a925b63a43f4447fd3c838b0d5b9389d1df1cd4c6e18b0476d2c221c9f") continue;
+      //if (tx.getId() !== "cb8258a925b63a43f4447fd3c838b0d5b9389d1df1cd4c6e18b0476d2c221c9f") continue;
       
       // get tx pub key
       let lastPubKey;
@@ -155,7 +171,7 @@ class MoneroWalletLocal extends MoneroWallet {
         lastPubKey = MoneroUtils.getLastTxPubKey(tx.getExtra());
         //console.log("Last pub key: " + lastPubKey);
       } catch (err) {
-        console.log("Could not process nonstandard extra: " + tx.getExtra());
+        //console.log("Could not process nonstandard extra: " + tx.getExtra());
         continue;
       }
       
