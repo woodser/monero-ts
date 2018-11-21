@@ -12,7 +12,6 @@ async function startApp() {
   
   // get core utils TODO: if daemon and wallet functions are already async could not do this instead, then again would be nice to have some functions not be async (e.g. getPrimaryAddress())
   let coreUtils = await MoneroUtils.getCoreUtils();
-  console.log(coreUtils);
   
   // mnemonic for testing or undefined
   let mnemonic = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
