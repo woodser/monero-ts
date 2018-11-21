@@ -43,6 +43,26 @@ class MoneroDaemon {
   }
   
   /**
+   * Get a block header by its hash.
+   * 
+   * @param hash is the hash of the block to get the header of
+   * @return MoneroBlockHeader is the block's header
+   */
+  async getBlockHeaderByHash(hash) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get a block header by its height.
+   * 
+   * @param height is the height of the block to get the header of
+   * @return MoneroBlockHeader is the block's header
+   */
+  async getBlockHeaderByHeight(height) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Get block headers for the given range.
    * 
    * @param startHeight is the start height lower bound inclusive (optional)

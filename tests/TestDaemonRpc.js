@@ -41,11 +41,37 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
     });
     
     it("Can get a block header by hash", async function() {
-      throw new Error("Not implemented");
+      
+      // retrieve by hash of last block
+      let lastHeader = await daemon.getLastBlockHeader();
+      let hash = await daemon.getBlockHash(lastHeader.getHeight());
+      let header = await daemon.getBlockHeaderByHash(hash);
+      testDaemonResponseInfo(header, true, true);
+      testBlockHeader(header, true);
+      assert.deepEqual(lastHeader, header);
+      
+      // retrieve by hash of previous to last block
+      hash = await daemon.getBlockHash(lastHeader.getHeight() - 1);
+      header = await daemon.getBlockHeaderByHash(hash);
+      testDaemonResponseInfo(header, true, true);
+      testBlockHeader(header, true);
+      assert.equal(lastHeader.getHeight() - 1, header.getHeight());
     });
     
     it("Can get a block header by height", async function() {
-      throw new Error("Not implemented");
+      
+      // retrieve by height of last block
+      let lastHeader = await daemon.getLastBlockHeader();
+      let header = await daemon.getBlockHeaderByHeight(lastHeader.getHeight());
+      testDaemonResponseInfo(header, true, true);
+      testBlockHeader(header, true);
+      assert.deepEqual(lastHeader, header);
+      
+      // retrieve by height of previous to last block
+      header = await daemon.getBlockHeaderByHeight(lastHeader.getHeight() - 1);
+      testDaemonResponseInfo(header, true, true);
+      testBlockHeader(header, true);
+      assert.equal(lastHeader.getHeight() - 1, header.getHeight());
     });
     
     // TODO: test start with no end, vice versa, inclusivity
@@ -108,7 +134,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
     it("Can get blocks by height which is a binary request and includes transactions", async function() {
       
       // set number of blocks to test
-      const numBlocks = 10;
+      const numBlocks = 1;
       
       // select random heights  // TODO: this is horribly inefficient way of computing last 100 blocks if not shuffling
       let currentHeight = await daemon.getHeight();
@@ -143,7 +169,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       let height = await daemon.getHeight();
       
       // get valid height range
-      let numBlocks = 10; // TODO: RequestError: Error: read ECONNRESET or  RequestError: Error: socket hang up if > 64 or (or > 1 if test getBlocksByHeight() runs first)
+      let numBlocks = 1; // TODO: RequestError: Error: read ECONNRESET or  RequestError: Error: socket hang up if > 64 or (or > 1 if test getBlocksByHeight() runs first)
       let numBlocksAgo = 190;
       assert(numBlocks > 0);
       assert(numBlocksAgo >= numBlocks);
