@@ -8,6 +8,7 @@ const MoneroHeight = require("./model/MoneroHeight");
 const MoneroBlockHeader = require("./model/MoneroBlockHeader");
 const MoneroBlock = require("./model/MoneroBlock");
 const MoneroTx = require("./model/MoneroTx");
+const MoneroBlockTemplate = require("./model/MoneroBlockTemplate");
 
 /**
  * Implements a Monero daemon using monero-daemon-rpc.
@@ -35,6 +36,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getBlockHash(height) {
     return await this.config.rpc.sendJsonRpcRequest("on_get_block_hash", [height]);
+  }
+  
+  async getBlockTemplate(walletAddress, reserveSize) {
+    let resp = await this.config.rpc.sendJsonRpcRequest("get_block_template", { wallet_address: walletAddress, reserve_size: reserveSize });
+    let template = MoneroDaemonRpc._buildBlockTemplate(resp);
+    MoneroDaemonRpc._setResponseInfo(resp, template);
+    return template;
   }
   
   async getLastBlockHeader() {
@@ -194,6 +202,25 @@ class MoneroDaemonRpc extends MoneroDaemon {
     MoneroUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, rpcTx.unlock_time);
     if (rpcTx.as_json) MoneroDaemonRpc._buildMoneroTx(JSON.parse(rpcTx.as_json), tx);  // may need to read tx from json str
     return tx;
+  }
+  
+  static _buildBlockTemplate(rpcTemplate) {
+    let template = new MoneroBlockTemplate();
+    for (let key in rpcTemplate) {
+      if (!rpcTemplate.hasOwnProperty(key)) continue;
+      let val = rpcTemplate[key];
+      if (key === "blockhashing_blob") template.setTemplateBlob(val);
+      else if (key === "blocktemplate_blob") template.setHashBlob(val);
+      else if (key === "difficulty") template.setDifficulty(val);
+      else if (key === "expected_reward") template.setExpectedReward(val);
+      else if (key === "height") template.setHeight(val);
+      else if (key === "prev_hash") template.setPrevHash(val);
+      else if (key === "reserved_offset") template.setReservedOffset(val);
+      else if (key === "status") {}  // set elsewhere
+      else if (key === "untrusted") {}  // set elsewhere
+      else console.log("Ignoring unexpected field in block template: '" + key + "'");
+    }
+    return template;
   }
 }
 

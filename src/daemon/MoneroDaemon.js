@@ -23,6 +23,17 @@ class MoneroDaemon {
   }
   
   /**
+   * Get a block template for mining a new block.
+   * 
+   * @param walletAddress is the address of the wallet to receive coinbase transactions if block is successfully mined
+   * @param reserveSize is the reserve size
+   * @return MoneroBlockTemplate is a block template for mining a new block
+   */
+  async getBlockTemplate(walletAddress, reserveSize) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Get the last block's header.
    * 
    * @returns MoneroBlockHeader is the last block's header

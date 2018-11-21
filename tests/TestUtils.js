@@ -64,6 +64,7 @@ TestUtils.WALLET_1_NAME = "test_wallet_1";
 TestUtils.WALLET_1_PW = "supersecretpassword123"
 TestUtils.WALLET_2_NAME = "test_wallet_2";
 TestUtils.WALLET_2_PW = "supersecretpassword123"
+TestUtils.TEST_ADDRESS = "55AepZuUKYV7Wrf9BMiczAELg2gcZuWQsYmg4kXHGAiW8uhVC1VVhqA5HzFcePKhuNgS2d9ag5imvC1jxsJbbnHm5kF753Z";
   
 TestUtils.WALLET_RPC_CONFIG = {
   protocol: "http",

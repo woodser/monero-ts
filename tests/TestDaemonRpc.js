@@ -29,7 +29,9 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
     });
     
     it("Can get a block template", async function() {
-      throw new Error("Not implemented");
+      let template = await daemon.getBlockTemplate(TestUtils.TEST_ADDRESS, 2);
+      testDaemonResponseInfo(template, true, true);
+      testBlockTemplate(template);
     });
 
     it("Can get the last block's header", async function() {
@@ -106,7 +108,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
     it("Can get blocks by height which is a binary request and includes transactions", async function() {
       
       // set number of blocks to test
-      const numBlocks = 30;
+      const numBlocks = 10;
       
       // select random heights  // TODO: this is horribly inefficient way of computing last 100 blocks if not shuffling
       let currentHeight = await daemon.getHeight();
@@ -409,4 +411,15 @@ function testBlockHeader(header, isFull) {
   assert(!isFull ? undefined === header.getOrphanStatus() : typeof header.getOrphanStatus() === "boolean");
   assert(!isFull ? undefined === header.getReward() : header.getReward());
   assert(!isFull ? undefined === header.getBlockWeight() : header.getBlockWeight());
+}
+
+function testBlockTemplate(template) {
+  assert(template);
+  assert(template.getTemplateBlob());
+  assert(template.getHashBlob());
+  assert(template.getDifficulty());
+  assert(template.getExpectedReward());
+  assert(template.getHeight());
+  assert(template.getPrevHash());
+  assert(template.getReservedOffset());
 }
