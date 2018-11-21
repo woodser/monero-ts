@@ -11,7 +11,7 @@ class MoneroWalletLocal extends MoneroWallet {
   /**
    * Constructs the wallet.
    * 
-   * TODO: needs to take in language
+   * TODO: needs to take in language, change config to {...}
    * 
    * @param daemon is the daemon to support the wallet
    * @param coreUtils provides utils from Monero Core to build a wallet
