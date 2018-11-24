@@ -1,4 +1,5 @@
 TODO
+binary_blocks_to_json property_tree conversion throws memory exception if too big
 wallet local tests doesn't download blocks if daemon tests not run first
 wallet rpc tests don't run unless daemon tests run
 processing block 5 / 1001 means 1001 blocks being processed, not 1000 in monero_binary_utils.cpp
