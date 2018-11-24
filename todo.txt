@@ -1,6 +1,8 @@
 TODO
 wallet local tests doesn't download blocks if daemon tests not run first
 wallet rpc tests don't run unless daemon tests run
+processing block 5 / 1001 means 1001 blocks being processed, not 1000 in monero_binary_utils.cpp
+build process to not read mymonero-core-js build and contrib to browser build
 preconnect when wallet created to verify connection?
 coreUtils can be retrieved async on construction since all methods are async
 move submodule out of src directory so search is easy
