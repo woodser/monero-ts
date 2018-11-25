@@ -90,22 +90,39 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async refresh() {
     
-    // get height
-    let height = await this.daemon.getHeight();
-    console.log("Total height: " + height);
+    let maxSize = 500000;
+    let startHeight = 0;  // TODO: auto figure out
     
-    // iterate to fetch blocks in chunks
-    let startHeight = 190000;
-    let numBlocksPerRequest = 1000;
-    for (let curHeight = startHeight; curHeight < height; curHeight += numBlocksPerRequest) {
-      let blocks = await this.daemon.getBlocksByRange(curHeight, curHeight + numBlocksPerRequest);
+    // get total height
+    let totalHeight = await this.daemon.getHeight();
+    
+    // get blocks in fixed size chunks
+    let curHeight = startHeight;
+    let endHeight = null;
+    while (true) {
+      endHeight = await this._getEndHeight(curHeight, maxSize);
+      if (curHeight === endHeight) break;
+      let blocks = await this.daemon.getBlocksByRange(curHeight, endHeight);
       let numTxs = 0;
       for (let block of blocks) {
         numTxs += block.getTxs().length;
         this._processBlock(block);
       }
-      console.log(curHeight + " (" + ((curHeight + numBlocksPerRequest) / height * 100) + "%) " + numTxs + " transactions");
+      console.log(endHeight + " (" + (endHeight / totalHeight * 100) + "%) " + numTxs + " transactions");
     }
+    
+//    // iterate to fetch blocks in chunks
+//    let startHeight = 190000;
+//    let numBlocksPerRequest = 1000;
+//    for (let curHeight = startHeight; curHeight < height; curHeight += numBlocksPerRequest) {
+//      let blocks = await this.daemon.getBlocksByRange(curHeight, curHeight + numBlocksPerRequest);
+//      let numTxs = 0;
+//      for (let block of blocks) {
+//        numTxs += block.getTxs().length;
+//        this._processBlock(block);
+//      }
+//      console.log(curHeight + " (" + ((curHeight + numBlocksPerRequest) / height * 100) + "%) " + numTxs + " transactions");
+//    }
     
 //    // determine heights to fetch
 //    let numBlocks = 100;
@@ -139,6 +156,19 @@ class MoneroWalletLocal extends MoneroWallet {
   }
   
   // -------------------------------- PRIVATE ---------------------------------
+  
+  /**
+   * Gets the height of the block where the total size of blocks between it and
+   * the given start block is up to but no more than the given maximum size.
+   * 
+   * @param startHeight is the starting height to compute total block size from
+   * @param maxSize is the maximum size of all blocks between the start and end blocks
+   * @return the height of the block where the total size of all blocks between the
+   *         start and end is up to but no more than the given maximum size
+   */
+  async _getEndHeight(startHeight, maxSize) {
+    throw new Error("Not implemented");
+  }
   
   /**
    * Processes a single block.
