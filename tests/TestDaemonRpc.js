@@ -134,7 +134,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
     it("Can get blocks by height which is a binary request and includes transactions", async function() {
       
       // set number of blocks to test
-      const numBlocks = 1;
+      const numBlocks = 25;
       
       // select random heights  // TODO: this is horribly inefficient way of computing last 100 blocks if not shuffling
       let currentHeight = await daemon.getHeight();
