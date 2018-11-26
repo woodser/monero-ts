@@ -90,8 +90,8 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async refresh() {
     
-    let maxSize = 500000;
-    let startHeight = 0;  // TODO: auto figure out
+    let maxSize = 5000000;
+    let startHeight = 125982;  // TODO: auto figure out
     
     // get total height
     let totalHeight = await this.daemon.getHeight();
@@ -99,9 +99,12 @@ class MoneroWalletLocal extends MoneroWallet {
     // get blocks in fixed size chunks
     let curHeight = startHeight;
     let endHeight = null;
-    while (true) {
+    while (curHeight < totalHeight) {
       endHeight = await this._getEndHeight(curHeight, maxSize);
-      if (curHeight === endHeight) break;
+//      if (curHeight === endHeight) {
+//        console.log("curHeight === endHeight === " + curHeight);
+//        break;
+//      }
       let blocks = await this.daemon.getBlocksByRange(curHeight, endHeight);
       let numTxs = 0;
       for (let block of blocks) {
@@ -109,6 +112,7 @@ class MoneroWalletLocal extends MoneroWallet {
         this._processBlock(block);
       }
       console.log(endHeight + " (" + (endHeight / totalHeight * 100) + "%) " + numTxs + " transactions");
+      curHeight = endHeight + 1;
     }
     
 //    // iterate to fetch blocks in chunks
@@ -170,11 +174,20 @@ class MoneroWalletLocal extends MoneroWallet {
     
     let numHeadersPerRequest = 1000;
     
+    let totalSize = 0;
     let curHeight = startHeight;
-    for (let i = 0; i < 3; i++) {
-      let headers = await this.daemon.getBlockHeadersByRange(curHeight, curHeight + numHeadersPerRequest);
+    while (totalSize <= maxSize) {  // TODO: could break because of repeat calls
+      let headers = await this.daemon.getBlockHeadersByRange(curHeight, curHeight + numHeadersPerRequest);  // TODO: this will duplicate header requests
+      curHeight += numHeadersPerRequest;
+      let lastHeader = null;
       for (let header of headers) {
-        console.log(header.getBlockSize());
+        if (header.getBlockSize() > maxSize) throw new Error("Block is too big to process: " + header.getBlockSize());
+        if (totalSize + header.getBlockSize() > maxSize) {
+          console.log("Returning " + lastHeader.getHeight() + " with size of " + totalSize);
+          return lastHeader.getHeight();
+        }
+        totalSize += header.getBlockSize();
+        lastHeader = header;
       }
     }
     
