@@ -167,6 +167,18 @@ class MoneroWalletLocal extends MoneroWallet {
    *         start and end is up to but no more than the given maximum size
    */
   async _getEndHeight(startHeight, maxSize) {
+    
+    let numHeadersPerRequest = 1000;
+    
+    let curHeight = startHeight;
+    for (let i = 0; i < 3; i++) {
+      let headers = await this.daemon.getBlockHeadersByRange(curHeight, curHeight + numHeadersPerRequest);
+      for (let header of headers) {
+        console.log(header.getBlockSize());
+      }
+    }
+    
+    
     throw new Error("Not implemented");
   }
   
