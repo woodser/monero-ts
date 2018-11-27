@@ -90,8 +90,9 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async refresh() {
     
-    let maxSize = 5000000;
-    let startHeight = 125982;  // TODO: auto figure out
+    let maxSize = 3000000;
+    let startHeight = 0;
+    //let startHeight = 125982;  // TODO: auto figure out
     
     // get total height
     let totalHeight = await this.daemon.getHeight();
@@ -100,7 +101,7 @@ class MoneroWalletLocal extends MoneroWallet {
     let curHeight = startHeight;
     let endHeight = null;
     while (curHeight < totalHeight) {
-      endHeight = await this._getEndHeight(curHeight, maxSize);
+      endHeight = await this._getEndHeight(curHeight, totalHeight, maxSize);
 //      if (curHeight === endHeight) {
 //        console.log("curHeight === endHeight === " + curHeight);
 //        break;
@@ -166,33 +167,34 @@ class MoneroWalletLocal extends MoneroWallet {
    * the given start block is up to but no more than the given maximum size.
    * 
    * @param startHeight is the starting height to compute total block size from
+   * @param chainHeight is the current chain height to not be exceeded
    * @param maxSize is the maximum size of all blocks between the start and end blocks
    * @return the height of the block where the total size of all blocks between the
    *         start and end is up to but no more than the given maximum size
    */
-  async _getEndHeight(startHeight, maxSize) {
+  async _getEndHeight(startHeight, chainHeight, maxSize) {
     
     let numHeadersPerRequest = 1000;
     
+    let lastHeader = null;
     let totalSize = 0;
     let curHeight = startHeight;
-    while (totalSize <= maxSize) {  // TODO: could break because of repeat calls
-      let headers = await this.daemon.getBlockHeadersByRange(curHeight, curHeight + numHeadersPerRequest);  // TODO: this will duplicate header requests
-      curHeight += numHeadersPerRequest;
-      let lastHeader = null;
+    while (true) {  // TODO: could break because of repeat calls
+      let endHeight = Math.min(chainHeight, curHeight + numHeadersPerRequest);
+      let headers = await this.daemon.getBlockHeadersByRange(curHeight, endHeight);  // TODO: this will duplicate header requests
+      curHeight = endHeight + 1;
       for (let header of headers) {
         if (header.getBlockSize() > maxSize) throw new Error("Block is too big to process: " + header.getBlockSize());
-        if (totalSize + header.getBlockSize() > maxSize) {
-          console.log("Returning " + lastHeader.getHeight() + " with size of " + totalSize);
-          return lastHeader.getHeight();
+        if (totalSize + header.getBlockSize() > maxSize || curHeight > chainHeight) {
+          return lastHeader ? lastHeader.getHeight() : chainHeight;
         }
-        totalSize += header.getBlockSize();
         lastHeader = header;
+        totalSize += header.getBlockSize();
       }
     }
     
     
-    throw new Error("Not implemented");
+    throw new Error("Should never get here");
   }
   
   /**
