@@ -126,7 +126,7 @@ class MoneroWalletLocal extends MoneroWallet {
 //        console.log("curHeight === endHeight === " + curHeight);
 //        break;
 //      }
-      console.log("Fetching blocks [" + curHeight + ", " + endHeight + "]")
+      //console.log("Fetching blocks [" + curHeight + ", " + endHeight + "]")
       let blocks = await this.daemon.getBlocksByRange(curHeight, endHeight);
       let numTxs = 0;
       for (let block of blocks) {
