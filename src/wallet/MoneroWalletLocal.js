@@ -102,47 +102,50 @@ class MoneroWalletLocal extends MoneroWallet {
     //let startHeight = 125982;  // TODO: auto figure out // TODO: doesn't work with how headers are passed in and processed currently
     
     // get total height
-    let totalHeight = await this.config.daemon.getHeight();
+    let chainHeight = await this.config.daemon.getHeight();
     
     // get all headers
-    console.log("Fetching headers...");
-    let headers = await this.config.daemon.getBlockHeadersByRange(startHeight, totalHeight - 1); // TODO: fetch in chunks if needed
+    console.log("Fetching headers cache...");
+    let headersCache = {};
+    await MoneroWalletLocal._buildHeadersCache(this.config.daemon, startHeight, chainHeight - 1, headersCache);
+    //let headers = await this.config.daemon.getBlockHeadersByRange(startHeight, chainHeight - 1); // TODO: fetch in chunks if needed
     console.log("Done.");
+    console.log(headersCache);
     
-    let totalSize = 0;
-    let totalTxs = 0;
-    for (let header of headers) {
-      totalSize += header.getBlockSize();
-      totalTxs += header.getNumTxs();
-    }
-    console.log("Total size: " + totalSize);
-    console.log("Total txs: " + totalTxs);
-    
-    // get blocks in fixed size chunks
-    let curHeight = startHeight;
-    let endHeight = null;
-    let processedSize = 0;
-    let numProcessedBlocks = 0;
-    let numProcessedTxs = 0;
-    while (curHeight < totalHeight) {
-      endHeight = await this._getEndHeight(curHeight, totalHeight, maxSize, headers);
-//      if (curHeight === endHeight) {
-//        console.log("curHeight === endHeight === " + curHeight);
-//        break;
+//    let totalSize = 0;
+//    let totalTxs = 0;
+//    for (let header of headers) {
+//      totalSize += header.getBlockSize();
+//      totalTxs += header.getNumTxs();
+//    }
+//    console.log("Total size: " + totalSize);
+//    console.log("Total txs: " + totalTxs);
+//    
+//    // get blocks in fixed size chunks
+//    let curHeight = startHeight;
+//    let endHeight = null;
+//    let processedSize = 0;
+//    let numProcessedBlocks = 0;
+//    let numProcessedTxs = 0;
+//    while (curHeight < chainHeight) {
+//      endHeight = await this._getEndHeight(curHeight, chainHeight, maxSize, headers);
+////      if (curHeight === endHeight) {
+////        console.log("curHeight === endHeight === " + curHeight);
+////        break;
+////      }
+//      //console.log("Fetching blocks [" + curHeight + ", " + endHeight + "]")
+//      let blocks = await this.config.daemon.getBlocksByRange(curHeight, endHeight);
+//      let numTxs = 0;
+//      for (let block of blocks) {
+//        numTxs += block.getTxs().length;
+//        this._processBlock(block);
+//        processedSize += headers[numProcessedBlocks].getBlockSize();
+//        numProcessedTxs += headers[numProcessedBlocks].getNumTxs();
+//        numProcessedBlocks++;
 //      }
-      //console.log("Fetching blocks [" + curHeight + ", " + endHeight + "]")
-      let blocks = await this.config.daemon.getBlocksByRange(curHeight, endHeight);
-      let numTxs = 0;
-      for (let block of blocks) {
-        numTxs += block.getTxs().length;
-        this._processBlock(block);
-        processedSize += headers[numProcessedBlocks].getBlockSize();
-        numProcessedTxs += headers[numProcessedBlocks].getNumTxs();
-        numProcessedBlocks++;
-      }
-      console.log(endHeight + " (" + (endHeight / totalHeight * 100) + "%) OR (" + (processedSize / totalSize) + "%) OR (" + (numProcessedTxs / totalTxs) + "%) " + numTxs + " transactions");
-      curHeight = endHeight + 1;
-    }
+//      console.log(endHeight + " (" + (endHeight / chainHeight * 100) + "%) OR (" + (processedSize / totalSize) + "%) OR (" + (numProcessedTxs / totalTxs) + "%) " + numTxs + " transactions");
+//      curHeight = endHeight + 1;
+//    }
     
 //    // iterate to fetch blocks in chunks
 //    let startHeight = 190000;
@@ -189,6 +192,62 @@ class MoneroWalletLocal extends MoneroWallet {
   }
   
   // -------------------------------- PRIVATE ---------------------------------
+  
+  static async _buildHeadersCache(daemon, startHeight, endHeight, headersCache) {
+    
+    const NUM_HEADERS_PER_REQUEST = 1000;
+    const MAX_REQUESTS_PER_SECOND = 2;
+    
+    let maxRecursionLevel = MAX_REQUESTS_PER_SECOND < 1 ? 1 : Math.floor(MAX_REQUESTS_PER_SECOND);
+    let minMsPerRequest = 1 / MAX_REQUESTS_PER_SECOND * 1000;
+    let minMsRecursion = maxRecursionLevel * minMsPerRequest;
+    
+//    console.log("max recursion level: " + maxRecursionLevel);
+//    console.log("min ms per request: " + minMsPerRequest);
+//    console.log("min ms recursion: " + minMsRecursion);
+    
+    let curHeight = startHeight;
+    while (curHeight < endHeight) {
+      let startTime = +new Date();
+      let endRecursionHeight = await _buildHeaderCacheRecursively(daemon, curHeight, endHeight, NUM_HEADERS_PER_REQUEST, maxRecursionLevel, headersCache);
+      let recurseTime = +new Date() - startTime;
+      if (recurseTime < minMsRecursion) {
+        console.log("Slowing this puppy down...");
+        await timeout(minMsRecursion - recurseTime);  // throttle requests    
+      }
+      curHeight = endRecursionHeight + 1;
+    }
+    
+    function timeout(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    
+    async function _buildHeaderCacheRecursively(daemon, startHeight, maxHeight, numHeadersPerRequest, numMaxRecursion, headersCache) {
+      
+      // compute end height
+      let endHeight = Math.min(maxHeight, startHeight + numHeadersPerRequest - 1);
+
+      // fetch headers
+      let headers = await daemon.getBlockHeadersByRange(startHeight, endHeight);
+      
+      // recurse to start fetching next headers
+      let recursePromise = null;
+      if (endHeight + 1 < maxHeight && numMaxRecursion > 1) {
+        recursePromise = _buildHeaderCacheRecursively(daemon, endHeight + 1, maxHeight, numHeadersPerRequest, numMaxRecursion - 1, headersCache);
+      }
+      
+      // cache headers
+      for (let header of headers) {
+        headersCache[header.getHeight()] = "Hi!";
+      }
+      
+      // return result from recursion or max height if base case
+      if (recursePromise) return await recursePromise;
+      else return headers[headers.length - 1].getHeight();
+    }
+  }
+  
+  
   
   /**
    * Gets the height of the block where the total size of blocks between it and
