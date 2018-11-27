@@ -92,7 +92,7 @@ class MoneroWalletLocal extends MoneroWallet {
     
     let maxSize = 3000000;
     let startHeight = 0;
-    //let startHeight = 125982;  // TODO: auto figure out
+    //let startHeight = 125982;  // TODO: auto figure out // TODO: doesn't work with how headers are passed in and processed currently
     
     // get total height
     let totalHeight = await this.daemon.getHeight();
@@ -103,29 +103,37 @@ class MoneroWalletLocal extends MoneroWallet {
     console.log("Done.");
     
     let totalSize = 0;
-    for (let header of headers) totalSize += header.getBlockSize();
+    let totalTxs = 0;
+    for (let header of headers) {
+      totalSize += header.getBlockSize();
+      totalTxs += header.getNumTxs();
+    }
     console.log("Total size: " + totalSize);
+    console.log("Total txs: " + totalTxs);
     
     // get blocks in fixed size chunks
     let curHeight = startHeight;
     let endHeight = null;
     let processedSize = 0;
-    let processedCount = 0;
+    let numProcessedBlocks = 0;
+    let numProcessedTxs = 0;
     while (curHeight < totalHeight) {
       endHeight = await this._getEndHeight(curHeight, totalHeight, maxSize, headers);
 //      if (curHeight === endHeight) {
 //        console.log("curHeight === endHeight === " + curHeight);
 //        break;
 //      }
+      console.log("Fetching blocks [" + curHeight + ", " + endHeight + "]")
       let blocks = await this.daemon.getBlocksByRange(curHeight, endHeight);
       let numTxs = 0;
       for (let block of blocks) {
         numTxs += block.getTxs().length;
         this._processBlock(block);
-        processedSize += headers[processedCount].getBlockSize();
-        processedCount++;
+        processedSize += headers[numProcessedBlocks].getBlockSize();
+        numProcessedTxs += headers[numProcessedBlocks].getNumTxs();
+        numProcessedBlocks++;
       }
-      console.log(endHeight + " (" + (endHeight / totalHeight * 100) + "%) OR (" + (processedSize / totalSize) + "%) " + numTxs + " transactions");
+      console.log(endHeight + " (" + (endHeight / totalHeight * 100) + "%) OR (" + (processedSize / totalSize) + "%) OR (" + (numProcessedTxs / totalTxs) + "%) " + numTxs + " transactions");
       curHeight = endHeight + 1;
     }
     
