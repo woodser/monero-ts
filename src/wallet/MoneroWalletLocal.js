@@ -97,11 +97,22 @@ class MoneroWalletLocal extends MoneroWallet {
     // get total height
     let totalHeight = await this.daemon.getHeight();
     
+    // get all headers
+    console.log("Fetching headers...");
+    let headers = await this.daemon.getBlockHeadersByRange(startHeight, totalHeight - 1); // TODO: fetch in chunks if needed
+    console.log("Done.");
+    
+    let totalSize = 0;
+    for (let header of headers) totalSize += header.getBlockSize();
+    console.log("Total size: " + totalSize);
+    
     // get blocks in fixed size chunks
     let curHeight = startHeight;
     let endHeight = null;
+    let processedSize = 0;
+    let processedCount = 0;
     while (curHeight < totalHeight) {
-      endHeight = await this._getEndHeight(curHeight, totalHeight, maxSize);
+      endHeight = await this._getEndHeight(curHeight, totalHeight, maxSize, headers);
 //      if (curHeight === endHeight) {
 //        console.log("curHeight === endHeight === " + curHeight);
 //        break;
@@ -111,8 +122,10 @@ class MoneroWalletLocal extends MoneroWallet {
       for (let block of blocks) {
         numTxs += block.getTxs().length;
         this._processBlock(block);
+        processedSize += headers[processedCount].getBlockSize();
+        processedCount++;
       }
-      console.log(endHeight + " (" + (endHeight / totalHeight * 100) + "%) " + numTxs + " transactions");
+      console.log(endHeight + " (" + (endHeight / totalHeight * 100) + "%) OR (" + (processedSize / totalSize) + "%) " + numTxs + " transactions");
       curHeight = endHeight + 1;
     }
     
@@ -168,33 +181,20 @@ class MoneroWalletLocal extends MoneroWallet {
    * 
    * @param startHeight is the starting height to compute total block size from
    * @param chainHeight is the current chain height to not be exceeded
+   * @param headers are headers to inform block retrieval size
    * @param maxSize is the maximum size of all blocks between the start and end blocks
    * @return the height of the block where the total size of all blocks between the
    *         start and end is up to but no more than the given maximum size
    */
-  async _getEndHeight(startHeight, chainHeight, maxSize) {
-    
-    let numHeadersPerRequest = 1000;
-    
-    let lastHeader = null;
+  async _getEndHeight(startHeight, chainHeight, maxSize, headers) {
     let totalSize = 0;
-    let curHeight = startHeight;
-    while (true) {  // TODO: could break because of repeat calls
-      let endHeight = Math.min(chainHeight, curHeight + numHeadersPerRequest);
-      let headers = await this.daemon.getBlockHeadersByRange(curHeight, endHeight);  // TODO: this will duplicate header requests
-      curHeight = endHeight + 1;
-      for (let header of headers) {
-        if (header.getBlockSize() > maxSize) throw new Error("Block is too big to process: " + header.getBlockSize());
-        if (totalSize + header.getBlockSize() > maxSize || curHeight > chainHeight) {
-          return lastHeader ? lastHeader.getHeight() : chainHeight;
-        }
-        lastHeader = header;
-        totalSize += header.getBlockSize();
-      }
+    for (let headerIdx = startHeight; headerIdx < headers.length; headerIdx++) {
+      let header = headers[headerIdx];
+      if (header.getBlockSize() > maxSize) throw new Error("Block is too big to process: " + header.getBlockSize());
+      if (headerIdx < headers.length - 1 && totalSize + headers[headerIdx + 1].getBlockSize() > maxSize) return header.getHeight();
+      totalSize += header.getBlockSize();
     }
-    
-    
-    throw new Error("Should never get here");
+    return headers[headers.length - 1].getHeight();
   }
   
   /**
