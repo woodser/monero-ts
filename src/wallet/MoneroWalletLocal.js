@@ -17,20 +17,24 @@ class MoneroWalletLocal extends MoneroWallet {
    * @param coreUtils provides utils from Monero Core to build a wallet
    * @param mnemonic is a pre-existing seed to import (optional)
    */
-  constructor(daemon, coreUtils, mnemonic = null) {
+  constructor(config) {
     super();
-    this.coreUtils = coreUtils;
-    this.daemon = daemon;
+    
+    // assign config
+    this.config = Object.assign({}, config);
+    assert(this.config.daemon, "Daemon is not defined in initialization config");
+    assert(this.config.coreUtils, "Core utils is not defined in initialization config");
+    //assert(this.config.network, "Network type not defined in initialization config");
     let network = nettype.network_type.STAGENET;  // TODO: determined from daemon
     
     // initialize keys
     let keys;
-    if (mnemonic !== undefined) {
-      keys = this.coreUtils.seed_and_keys_from_mnemonic(mnemonic, network); // initialize keys from mnemonic
-      keys.mnemonic_string = mnemonic;
+    if (this.config.mnemonic !== undefined) {
+      keys = this.config.coreUtils.seed_and_keys_from_mnemonic(this.config.mnemonic, network); // initialize keys from mnemonic
+      keys.mnemonic_string = this.config.mnemonic;
       keys.mnemonic_language = "en";  // TODO: passed in
     } else {
-      keys = this.coreUtils.newly_created_wallet("en", network);  // randomly generate keys
+      keys = this.config.coreUtils.newly_created_wallet("en", network);  // randomly generate keys
     }
     
     // initialize wallet keys
@@ -45,11 +49,11 @@ class MoneroWalletLocal extends MoneroWallet {
   }
   
   getDaemon() {
-    return this.daemon;
+    return this.config.daemon;
   }
   
   getCoreUtils() {
-    return this.coreUtils;
+    return this.config.coreUtils;
   }
   
   async getSeed() {
@@ -98,11 +102,11 @@ class MoneroWalletLocal extends MoneroWallet {
     //let startHeight = 125982;  // TODO: auto figure out // TODO: doesn't work with how headers are passed in and processed currently
     
     // get total height
-    let totalHeight = await this.daemon.getHeight();
+    let totalHeight = await this.config.daemon.getHeight();
     
     // get all headers
     console.log("Fetching headers...");
-    let headers = await this.daemon.getBlockHeadersByRange(startHeight, totalHeight - 1); // TODO: fetch in chunks if needed
+    let headers = await this.config.daemon.getBlockHeadersByRange(startHeight, totalHeight - 1); // TODO: fetch in chunks if needed
     console.log("Done.");
     
     let totalSize = 0;
@@ -127,7 +131,7 @@ class MoneroWalletLocal extends MoneroWallet {
 //        break;
 //      }
       //console.log("Fetching blocks [" + curHeight + ", " + endHeight + "]")
-      let blocks = await this.daemon.getBlocksByRange(curHeight, endHeight);
+      let blocks = await this.config.daemon.getBlocksByRange(curHeight, endHeight);
       let numTxs = 0;
       for (let block of blocks) {
         numTxs += block.getTxs().length;
@@ -247,11 +251,11 @@ class MoneroWalletLocal extends MoneroWallet {
       for (let outIdx = 0; outIdx < tx.getVout().length; outIdx++) {
         //console.log("Last pub key: " + lastPubKey);
         //console.log("Private view key: " + this.prvViewKey);
-        let derivation = this.coreUtils.generate_key_derivation(lastPubKey, this.prvViewKey);
+        let derivation = this.config.coreUtils.generate_key_derivation(lastPubKey, this.prvViewKey);
         //console.log("Derivation: " + derivation);
         //console.log("Out index: " + outIdx);
         //console.log("Public spend key: " + this.pubSpendKey);
-        let pubKeyDerived = this.coreUtils.derive_public_key(derivation, outIdx, this.pubSpendKey);
+        let pubKeyDerived = this.config.coreUtils.derive_public_key(derivation, outIdx, this.pubSpendKey);
         //console.log("Pub key derived: " + pubKeyDerived);
         //console.log("Output key: " + tx.getVout()[outIdx].target.key + "\n\n");
         

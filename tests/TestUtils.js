@@ -52,7 +52,7 @@ class TestUtils {
   static getWalletLocal(coreUtils) {
     if (this.walletLocal === undefined) {
       let mnemonic = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
-      this.walletLocal = new MoneroWalletLocal(this.getDaemonRpc(), coreUtils, mnemonic);
+      this.walletLocal = new MoneroWalletLocal({ daemon: this.getDaemonRpc(), coreUtils: coreUtils, mnemonic: mnemonic });
     }
     return this.walletLocal;
   }

@@ -21,7 +21,7 @@ async function startApp() {
   let daemonRpc = new MoneroDaemonRpc({ port: 38081, user: "superuser", pass: "abctesting123", protocol: "http", coreUtils: coreUtils });
   
   // make wallet with daemon and core utils
-  let wallet = new MoneroWalletLocal(daemonRpc, coreUtils, mnemonic); // TODO: {...} config
+  let wallet = new MoneroWalletLocal({daemon: daemonRpc, coreUtils: coreUtils, mnemonic: mnemonic });
   if (primaryAddress !== await wallet.getPrimaryAddress()) throw "Addresses do not match";
   wallet.refresh();
 }
