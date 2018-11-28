@@ -5,12 +5,12 @@ const MoneroDaemonModel = require("./MoneroDaemonModel");
  */
 class MoneroBlock extends MoneroDaemonModel {
   
-  getBlob() {
-    return this.blob;
+  getHex() {
+    return this.hex;
   }
   
-  setBlob(blob) {
-    this.blob = blob;
+  setHex(hex) {
+    this.hex = hex;
   }
   
   getHeader() {

@@ -99,35 +99,43 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
     
     it("Can get a block by hash", async function() {
       
+      // config for testing blocks
+      let testBlockConfig = { hasHex: true, headerIsFull: true, hasTxs: false };
+      
       // retrieve by hash of last block
       let lastHeader = await daemon.getLastBlockHeader();
       let hash = await daemon.getBlockHash(lastHeader.getHeight());
       let block = await daemon.getBlockByHash(hash);
       testDaemonResponseInfo(block, true, true);
-      testBlock(block, true, true);
+      testBlock(block, testBlockConfig);
       assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
+      assert(block.getTxs() === undefined);
       
       // retrieve by hash of previous to last block
       hash = await daemon.getBlockHash(lastHeader.getHeight() - 1);
       block = await daemon.getBlockByHash(hash);
       testDaemonResponseInfo(block, true, true);
-      testBlock(block, true, true);
+      testBlock(block, testBlockConfig);
       assert.deepEqual(await daemon.getBlockByHeight(lastHeader.getHeight() - 1), block);
+      assert(block.getTxs() === undefined);
     });
     
     it("Can get a block by height", async function() {
+      
+      // config for testing blocks
+      let testBlockConfig = { hasHex: true, headerIsFull: true, hasTxs: false };
       
       // retrieve by height of last block
       let lastHeader = await daemon.getLastBlockHeader();
       let block = await daemon.getBlockByHeight(lastHeader.getHeight());
       testDaemonResponseInfo(block, true, true);
-      testBlock(block, true, true);
+      testBlock(block, testBlockConfig);
       assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
       
       // retrieve by height of previous to last block
       block = await daemon.getBlockByHeight(lastHeader.getHeight() - 1);
       testDaemonResponseInfo(block, true, true);
-      testBlock(block, true, true);
+      testBlock(block, testBlockConfig);
       assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
     });
     
@@ -150,6 +158,9 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       // fetch blocks
       let blocks = await daemon.getBlocksByHeight(heights);
       
+      // config for testing blocks
+      let testBlockConfig = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { hasHex: false, hasJson: true, isPruned: true, isFull: false } };
+      
       // test blocks
       let txFound = false;
       assert.equal(numBlocks, blocks.length);
@@ -157,7 +168,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
         let block = blocks[i];
         if (block.getTxs().length) txFound = true;
         testDaemonResponseInfo(block, true, true);
-        testBlock(block, false, false);
+        testBlock(block, testBlockConfig);
         assert.equal(heights[i], block.getHeader().getHeight());      
       }
       assert(txFound, "No transactions found to test");
@@ -222,10 +233,12 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       assert(txHashes.length > 0, "No transactions found in the range [" + startHeight + ", " + endHeight + "]");
       
       // fetch txs by hash
-      let txs = await daemon.getTxs(txHashes, true, false);
+      let decodeAsJson = true;
+      let prune = false;
+      let txs = await daemon.getTxs(txHashes, decodeAsJson, prune);
       for (let tx of txs) {
         testDaemonResponseInfo(tx, true, true); // TODO: duplicating response info is going to be too expensive so must be common reference
-        testDaemonTx(tx, true, true);
+        testDaemonTx(tx, { hasHex: true, hasJson: decodeAsJson, isPruned: prune, isFull: true });
       }
       
       // TODO: test binary vs json encoding
@@ -345,79 +358,6 @@ function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted
   else assert(model.getResponseInfo().getIsTrusted() === undefined);
 }
 
-function testBlock(block, hasBlob, isFull) {
-  assert(block);
-  if (hasBlob) {
-    assert(block.getBlob());
-    assert(block.getBlob().length > 1);
-  } else {
-    assert(block.getBlob() === undefined)
-  }
-  assert(Array.isArray(block.getTxHashes())); // TODO: tx hashes probably part of tx
-  assert(block.getTxHashes().length >= 0);
-  testBlockHeader(block.getHeader(), isFull);
-  testMinerTx(block.getMinerTx());  // TODO: miner tx doesn't have as much stuff, can't call testDaemonTx?
-  
-  // test transactions
-  if (block.getTxs()) {
-    assert(block.getTxs() instanceof Array);
-    for (let tx of block.getTxs()) testDaemonTx(tx, false, isFull); //  TODO: always no tx hex when attached to block?
-  } else {
-    assert(block.getTxs() === undefined);
-  }
-}
-
-function testMinerTx(minerTx) {
-  assert(minerTx);
-  assert(minerTx.getVersion() >= 0)
-  assert(Array.isArray(minerTx.getExtra()));
-  assert(minerTx.getExtra().length > 0);
-  assert(minerTx.getUnlockTime() >= 0);
-}
-
-
-/**
- * Tests a tx from a daemon.
- * 
- * @param tx is the tx to test
- * @param hasHex specifies if hex is expected
- * @param isFull specifies if only ... are initialized or all fields
- */
-function testDaemonTx(tx, hasHex, isFull) {
-  assert(tx);
-  assert(typeof hasHex === "boolean");
-  assert(typeof isFull === "boolean");
-  
-  // may or may not have hex
-  if (hasHex) assert(tx.getHex().length > 0);
-  
-  // required fields
-  assert(tx.getId().length === 64);
-  assert(tx.getHeight() >= 0);
-  assert(tx.getVersion() >= 0);
-  assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
-  assert(tx.getVin() && Array.isArray(tx.getVin()) && tx.getVin().length >= 0);
-  assert(tx.getVin()[0].key.k_image.length === 64);
-  assert(tx.getVout() && Array.isArray(tx.getVout()) && tx.getVout().length >= 0);
-  tx.getVout().map(vout => { if (vout.target) assert(vout.target.key.length === 64); });
-  assert(typeof tx.getRctSignatures().type === "number");
-  assert(typeof tx.getRctSigPrunable().nbp === "number");
-  
-  // may or may not include these
-  assert(!isFull ? undefined === tx.getTimestamp() : tx.getTimestamp() >= 0);
-  assert(!isFull ? undefined === tx.getIsConfirmed() : tx.getIsConfirmed() >= 0);
-  assert(!isFull ? undefined === tx.getIsDoubleSpend() : tx.getIsDoubleSpend() >= 0);
-}
-
-/**
- * Tests a header.
- * 
- * TODO: way to always get complete header?
- * 
- * @param header is the header to test
- * @param isFull specifies if only height, major version, minor version,
- *               timestamp, prev hash, and nonce are initialized or all fields
- */
 function testBlockHeader(header, isFull) {
   assert(typeof isFull === "boolean");
   assert(header);
@@ -437,6 +377,91 @@ function testBlockHeader(header, isFull) {
   assert(!isFull ? undefined === header.getOrphanStatus() : typeof header.getOrphanStatus() === "boolean");
   assert(!isFull ? undefined === header.getReward() : header.getReward());
   assert(!isFull ? undefined === header.getBlockWeight() : header.getBlockWeight());
+}
+
+function testBlock(block, config) {
+  
+  // check inputs
+  assert(config);
+  assert(typeof config.hasHex === "boolean");
+  assert(typeof config.headerIsFull === "boolean");
+  assert(typeof config.hasTxs === "boolean");
+  
+  // test required fields
+  assert(block);
+  assert(Array.isArray(block.getTxHashes())); // TODO: tx hashes probably part of tx
+  assert(block.getTxHashes().length >= 0);
+  testMinerTx(block.getMinerTx());            // TODO: miner tx doesn't have as much stuff, can't call testDaemonTx?
+  testBlockHeader(block.getHeader(), config.headerIsFull);
+  
+  if (config.hasHex) {
+    assert(block.getHex());
+    assert(block.getHex().length > 1);
+  } else {
+    assert(block.getHex() === undefined)
+  }
+  
+  if (config.hasTxs) {
+    assert(typeof config.txConfig === "object");
+    assert(block.getTxs() instanceof Array);
+    for (let tx of block.getTxs()) testDaemonTx(tx, config.txConfig);
+  } else {
+    assert(config.txConfig === undefined);
+    assert(block.getTxs() === undefined);
+  }
+}
+
+function testMinerTx(minerTx) {
+  assert(minerTx);
+  assert(minerTx.getVersion() >= 0)
+  assert(Array.isArray(minerTx.getExtra()));
+  assert(minerTx.getExtra().length > 0);
+  assert(minerTx.getUnlockTime() >= 0);
+}
+
+function testDaemonTx(tx, config) {
+  
+  // check inputs
+  assert(tx);
+  assert(typeof config === "object");
+  assert(typeof config.hasHex === "boolean");
+  assert(typeof config.hasJson === "boolean");
+  assert(typeof config.isPruned === "boolean");
+  assert(typeof config.isFull === "boolean");
+  
+  // required fields
+  assert(tx.getId().length === 64);
+  assert(tx.getHeight() >= 0);
+  
+  // fields that come with decoded json
+  if (config.hasJson) {
+    assert(tx.getVersion() >= 0);
+    assert(tx.getUnlockTime() >= 0);
+    assert(tx.getVin() && Array.isArray(tx.getVin()) && tx.getVin().length >= 0);
+    assert(tx.getVin()[0].key.k_image.length === 64);
+    assert(tx.getVout() && Array.isArray(tx.getVout()) && tx.getVout().length >= 0);
+    tx.getVout().map(vout => { if (vout.target) assert(vout.target.key.length === 64); });
+    assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
+    assert(typeof tx.getRctSignatures().type === "number");
+  } else {
+    assert(tx.getVersion() === undefined);
+    assert(tx.getUnlockTime() === undefined);
+    assert(tx.getVin() === undefined);
+    assert(tx.getVout() === undefined);
+    assert(tx.getExtra() === undefined);
+    assert(tx.getRctSignatures() === undefined);    
+  }
+  
+  // prunable
+  assert(config.isPruned ? undefined === tx.getRctSigPrunable() : typeof tx.getRctSigPrunable().nbp === "number");
+  
+  // hex only comes from /get_transactions
+  assert(!config.hasHex ? undefined === tx.getHex() : tx.getHex().length > 0);
+  
+  // fields that only come with /get_transactions
+  assert(!config.isFull ? undefined === tx.getTimestamp() : tx.getTimestamp() >= 0);
+  assert(!config.isFull ? undefined === tx.getIsConfirmed() : tx.getIsConfirmed() >= 0);
+  assert(!config.isFull ? undefined === tx.getIsDoubleSpend() : tx.getIsDoubleSpend() >= 0);
 }
 
 function testBlockTemplate(template) {

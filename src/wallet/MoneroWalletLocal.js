@@ -97,6 +97,8 @@ class MoneroWalletLocal extends MoneroWallet {
     // TODO: only process blocks that contain transactions
     // TODO: make next network request while processing blocks
     
+    throw new Error("Not implemented");
+    
     let maxSize = 3000000;
     let startHeight = 0;
     //let startHeight = 125982;  // TODO: auto figure out // TODO: doesn't work with how headers are passed in and processed currently
@@ -196,7 +198,7 @@ class MoneroWalletLocal extends MoneroWallet {
   static async _buildHeadersCache(daemon, startHeight, endHeight, headersCache) {
     
     const NUM_HEADERS_PER_REQUEST = 1000;
-    const MAX_REQUESTS_PER_SECOND = 2;
+    const MAX_REQUESTS_PER_SECOND = 1;
     
     let maxRecursionLevel = MAX_REQUESTS_PER_SECOND < 1 ? 1 : Math.floor(MAX_REQUESTS_PER_SECOND);
     let minMsPerRequest = 1 / MAX_REQUESTS_PER_SECOND * 1000;
