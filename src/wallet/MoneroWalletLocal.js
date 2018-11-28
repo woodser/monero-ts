@@ -202,156 +202,168 @@ class MoneroWalletLocal extends MoneroWallet {
     
     // configuration
     const MAX_REQ_SIZE = 3000000;
-    const MAX_REQ_PER_SECOND = 1;
+    const MAX_RECURSION = 1000;
     
-    // compute maximum consecutive requests, minimum time per request, and minimum time for consecutive requests
-    let maxConsecutiveReqs = MAX_REQ_PER_SECOND < 1 ? 1 : Math.floor(MAX_REQ_PER_SECOND);
-    let minMsPerReq = 1 / MAX_REQ_PER_SECOND * 1000;
-    let minMsPerChunks = maxConsecutiveReqs * minMsPerReq;
-    
-    // cache header info while working
+    // initialize header cache
+    delete this.cache.headers;
     this.cache.headers = {};
     
     // process blocks in chunks
     let curHeight = startHeight;
     while (curHeight < endHeight) {
-      let startTime = +new Date();
-      let endChunksHeight = await this._processBlockChunks(curHeight, endHeight, MAX_REQ_SIZE, maxConsecutiveReqs);
-      let msChunks = +new Date() - startTime;
-      if (msChunks < minMsPerChunks) {
-        console.log("Slowing this puppy down...");
-        await timeout(minMsPerChunks - msChunks);  // throttle requests    
-      }
+      let endChunksHeight = await this._processBlockChunks(curHeight, endHeight, MAX_REQ_SIZE, MAX_RECURSION);
       curHeight = endChunksHeight + 1;
     }
   }
   
-  async _processBlockChunks(startHeight, maxHeight, maxReqSize, maxConsecutiveReqs) {
+  async _processBlockChunks(startHeight, maxHeight, maxReqSize, maxRecursion) {
     
-    // determine request end height by totaling the request size
-    let reqSize = 0;
-    let endHeight = startHeight;
+    // determine end height of blocks to retrieve based on max size of request
+    let reqSize = 0;              // total size of request to fetch blocks
+    let endHeight = startHeight;  // end height with total request size
     while (endHeight < maxHeight) {
       
-      // get cached header
-      let cachedHeader = this.cache.headers[endHeight];
-      if (!cachedHeader) {
-        
-        // fetch and cache headers in chunks until req size reached
-        await MoneroWalletLocal._fetchHeadersByTotalBlockSize(this.config.daemon, endHeight, maxHeight, reqSize, this.cache.headers);
-        
-        // get cached header
-        cachedHeader = this.cache.headers[endHeight];
-        assert(cachedHeader);
-      }
+      // get cached header to know block size
+      let cachedHeader = await this._getHeaderCached(endHeight);
       
       // block cannot be bigger than max request size
-      if (cachedHeader.blockSize > maxSize) throw new Error("Block " + endHeight + " is too big to process: " + cachedHeader.blockSize);
+      if (cachedHeader.blockSize > maxReqSize) throw new Error("Block " + endHeight + " is too big to process: " + cachedHeader.blockSize);
+      
+      // add block size to total request size
+      reqSize += cachedHeader.blockSize;
       
       // this is end height if next block exceeds max height or size limit
-      if (endHeight < maxHeight - 1 && reqSize + cachedHeader.blockSize > maxReqSize) break;
+      if (endHeight < maxHeight - 1 && reqSize + (await this._getHeaderCached(endHeight + 1)).blockSize > maxReqSize) break;
       
       // otherwise the search continues
-      reqSize += cachedHeader.blockSize;
+      endHeight++;
     }
     
     // fetch blocks
-    let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
+    let blocks = await this.config.daemon.getBlocksByRange(startHeight, endHeight);
     
     // recurse to start fetching next blocks without waiting
     let recursePromise = null;
-    if (endHeight + 1 < maxHeight && maxConsecutiveReqs > 1) {
-      recursePromise = _processBlockChunks(endHeight + 1, maxHeight, maxReqSize, maxConsecutiveReqs - 1);
+    if (endHeight + 1 < maxHeight && maxRecursion > 1) {
+      recursePromise = this._processBlockChunks(endHeight + 1, maxHeight, maxReqSize, maxRecursion - 1);
     }
     
     // process blocks
     blocks.map(block => this._processBlock(block));
     
+    console.log("Done processing blocks [" + startHeight + ", " + endHeight + "]");
+    
     // await recursion to return
-    if (recursePromise) await recursePromise;
+    if (recursePromise) return await recursePromise;
+    else return endHeight;
   }
-  
-  static async _fetchHeadersByTotalBlockSize(daemon, startHeight, maxHeight, totalBlockSize, headerCache) {
-    throw new Error("Not implemented");
-  };
- 
-  static async _buildHeadersCache(daemon, startHeight, endHeight, headersCache) {
-    
-    const NUM_HEADERS_PER_REQUEST = 1000;
-    const MAX_REQUESTS_PER_SECOND = 1;
-    
-    let maxRecursionLevel = MAX_REQUESTS_PER_SECOND < 1 ? 1 : Math.floor(MAX_REQUESTS_PER_SECOND);
-    let minMsPerRequest = 1 / MAX_REQUESTS_PER_SECOND * 1000;
-    let minMsRecursion = maxRecursionLevel * minMsPerRequest;
-    
-//    console.log("max recursion level: " + maxRecursionLevel);
-//    console.log("min ms per request: " + minMsPerRequest);
-//    console.log("min ms recursion: " + minMsRecursion);
-    
-    let curHeight = startHeight;
-    while (curHeight < endHeight) {
-      let startTime = +new Date();
-      let endRecursionHeight = await _buildHeaderCacheRecursively(daemon, curHeight, endHeight, NUM_HEADERS_PER_REQUEST, maxRecursionLevel, headersCache);
-      let recurseTime = +new Date() - startTime;
-      if (recurseTime < minMsRecursion) {
-        console.log("Slowing this puppy down...");
-        await timeout(minMsRecursion - recurseTime);  // throttle requests    
-      }
-      curHeight = endRecursionHeight + 1;
-    }
-    
-    function timeout(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-    
-    async function _buildHeaderCacheRecursively(daemon, startHeight, maxHeight, numHeadersPerRequest, numMaxRecursion, headersCache) {
-      
-      // compute end height
-      let endHeight = Math.min(maxHeight, startHeight + numHeadersPerRequest - 1);
-
-      // fetch headers
-      let headers = await daemon.getBlockHeadersByRange(startHeight, endHeight);
-      
-      // recurse to start fetching next headers
-      let recursePromise = null;
-      if (endHeight + 1 < maxHeight && numMaxRecursion > 1) {
-        recursePromise = _buildHeaderCacheRecursively(daemon, endHeight + 1, maxHeight, numHeadersPerRequest, numMaxRecursion - 1, headersCache);
-      }
-      
-      // cache headers
-      for (let header of headers) {
-        headersCache[header.getHeight()] = "Hi!";
-      }
-      
-      // return result from recursion or max height if base case
-      if (recursePromise) return await recursePromise;
-      else return headers[headers.length - 1].getHeight();
-    }
-  }
-  
-  
   
   /**
-   * Gets the height of the block where the total size of blocks between it and
-   * the given start block is up to but no more than the given maximum size.
+   * Retrieves a header from the cache or fetches and caches a header range if not in the cache.
    * 
-   * @param startHeight is the starting height to compute total block size from
-   * @param chainHeight is the current chain height to not be exceeded
-   * @param headers are headers to inform block retrieval size
-   * @param maxSize is the maximum size of all blocks between the start and end blocks
-   * @return the height of the block where the total size of all blocks between the
-   *         start and end is up to but no more than the given maximum size
+   * @param height is the height of the header to retrieve from the cache
    */
-  async _getEndHeight(startHeight, chainHeight, maxSize, headers) {
-    let totalSize = 0;
-    for (let headerIdx = startHeight; headerIdx < headers.length; headerIdx++) {
-      let header = headers[headerIdx];
-      if (header.getBlockSize() > maxSize) throw new Error("Block is too big to process: " + header.getBlockSize());
-      if (headerIdx < headers.length - 1 && totalSize + headers[headerIdx + 1].getBlockSize() > maxSize) return header.getHeight();
-      totalSize += header.getBlockSize();
+  async _getHeaderCached(height) {
+    
+    // get header from cache
+    let cachedHeader = this.cache.headers[height];
+    if (cachedHeader) return cachedHeader;
+    
+    // fetch and cache headers if not in cache
+    const NUM_HEADERS_PER_REQUEST = 500;
+    let headers = await this.config.daemon.getBlockHeadersByRange(height, height + NUM_HEADERS_PER_REQUEST - 1);
+    for (let header of headers) {
+      this.cache.headers[header.getHeight()] = {
+          blockSize: header.getBlockSize(),
+          numTxs: header.getNumTxs()
+      }
     }
-    return headers[headers.length - 1].getHeight();
+    
+    // return the cached header
+    return this.cache.headers[height];
   }
+  
+//  static async _fetchHeadersByTotalBlockSize(daemon, startHeight, maxHeight, totalBlockSize, headerCache) {
+//    throw new Error("Not implemented");
+//  };
+// 
+//  static async _buildHeadersCache(daemon, startHeight, endHeight, headersCache) {
+//    
+//    const NUM_HEADERS_PER_REQUEST = 1000;
+//    const MAX_REQUESTS_PER_SECOND = 1;
+//    
+//    let maxRecursionLevel = MAX_REQUESTS_PER_SECOND < 1 ? 1 : Math.floor(MAX_REQUESTS_PER_SECOND);
+//    let minMsPerRequest = 1 / MAX_REQUESTS_PER_SECOND * 1000;
+//    let minMsRecursion = maxRecursionLevel * minMsPerRequest;
+//    
+////    console.log("max recursion level: " + maxRecursionLevel);
+////    console.log("min ms per request: " + minMsPerRequest);
+////    console.log("min ms recursion: " + minMsRecursion);
+//    
+//    let curHeight = startHeight;
+//    while (curHeight < endHeight) {
+//      let startTime = +new Date();
+//      let endRecursionHeight = await _buildHeaderCacheRecursively(daemon, curHeight, endHeight, NUM_HEADERS_PER_REQUEST, maxRecursionLevel, headersCache);
+//      let recurseTime = +new Date() - startTime;
+//      if (recurseTime < minMsRecursion) {
+//        console.log("Slowing this puppy down...");
+//        await timeout(minMsRecursion - recurseTime);  // throttle requests    
+//      }
+//      curHeight = endRecursionHeight + 1;
+//    }
+//    
+//    function timeout(ms) {
+//      return new Promise(resolve => setTimeout(resolve, ms));
+//    }
+//    
+//    async function _buildHeaderCacheRecursively(daemon, startHeight, maxHeight, numHeadersPerRequest, numMaxRecursion, headersCache) {
+//      
+//      // compute end height
+//      let endHeight = Math.min(maxHeight, startHeight + numHeadersPerRequest - 1);
+//
+//      // fetch headers
+//      let headers = await daemon.getBlockHeadersByRange(startHeight, endHeight);
+//      
+//      // recurse to start fetching next headers
+//      let recursePromise = null;
+//      if (endHeight + 1 < maxHeight && numMaxRecursion > 1) {
+//        recursePromise = _buildHeaderCacheRecursively(daemon, endHeight + 1, maxHeight, numHeadersPerRequest, numMaxRecursion - 1, headersCache);
+//      }
+//      
+//      // cache headers
+//      for (let header of headers) {
+//        headersCache[header.getHeight()] = "Hi!";
+//      }
+//      
+//      // return result from recursion or max height if base case
+//      if (recursePromise) return await recursePromise;
+//      else return headers[headers.length - 1].getHeight();
+//    }
+//  }
+//  
+//  
+//  
+//  /**
+//   * Gets the height of the block where the total size of blocks between it and
+//   * the given start block is up to but no more than the given maximum size.
+//   * 
+//   * @param startHeight is the starting height to compute total block size from
+//   * @param chainHeight is the current chain height to not be exceeded
+//   * @param headers are headers to inform block retrieval size
+//   * @param maxSize is the maximum size of all blocks between the start and end blocks
+//   * @return the height of the block where the total size of all blocks between the
+//   *         start and end is up to but no more than the given maximum size
+//   */
+//  async _getEndHeight(startHeight, chainHeight, maxSize, headers) {
+//    let totalSize = 0;
+//    for (let headerIdx = startHeight; headerIdx < headers.length; headerIdx++) {
+//      let header = headers[headerIdx];
+//      if (header.getBlockSize() > maxSize) throw new Error("Block is too big to process: " + header.getBlockSize());
+//      if (headerIdx < headers.length - 1 && totalSize + headers[headerIdx + 1].getBlockSize() > maxSize) return header.getHeight();
+//      totalSize += header.getBlockSize();
+//    }
+//    return headers[headers.length - 1].getHeight();
+//  }
   
   /**
    * Processes a single block.
