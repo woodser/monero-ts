@@ -108,7 +108,7 @@ class MoneroDaemon {
    * 
    * @param startHeight is the start height lower bound inclusive (optional)
    * @param endHeight is the end height upper bound inclusive (optional)
-   * @returns List<MoneroBlock> are blocks in the given height range
+   * @returns MoneroBlock[] are blocks in the given height range
    */
   async getBlocksByRange(startHeight, endHeight) {
     throw new Error("Subclass must implement");
@@ -120,7 +120,7 @@ class MoneroDaemon {
    * @param txHashes specifies the transaction hashes to get
    * @param decodeAsJson decodes the returned transactions as JSON rather than binary if true
    * @param prune (documentation missing) // TODO: documentation missing
-   * @returns List<MoneroTx> are the transactions with the given hashes
+   * @returns MoneroTx[] are the transactions with the given hashes
    */
   async getTxs(txHashes, decodeAsJson, prune) {
     throw new Error("Subclass must implement");
