@@ -1,7 +1,8 @@
-const MoneroRpcError = require("./MoneroRpcError");
+const Http = require('http');
+const Request = require("request-promise");
+const PromiseThrottle = require("promise-throttle");
 const MoneroUtils = require("../utils/MoneroUtils.js");
-const request = require("request-promise");
-const http = require('http');
+const MoneroRpcError = require("./MoneroRpcError");
 
 /**
  * Default RPC configuration.
@@ -36,6 +37,12 @@ class MoneroRpc {
     } else {
       this.config.uri = this.config.protocol + "://" + this.config.host + ":" + this.config.port;
     }
+    
+    // initialize promise throttler
+    this.promiseThrottle = new PromiseThrottle({
+      requestsPerSecond: 50, // TODO: make configurable
+      promiseImplementation: Promise
+    })
   }
   
   /**
@@ -57,7 +64,7 @@ class MoneroRpc {
           method: method,
           params: params
         },
-        agent: new http.Agent({ // TODO: recycle agent?
+        agent: new Http.Agent({ // TODO: recycle agent?
           keepAlive: true,
           maxSockets: 1
         })
@@ -72,7 +79,7 @@ class MoneroRpc {
     }
     
     // send request and await response
-    let resp = await request(opts);
+    let resp = await this._throttledRequest(opts);
     if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
     return resp.result;
   }
@@ -88,7 +95,7 @@ class MoneroRpc {
     let opts = {
         method: "POST",
         uri: this.config.uri + "/" + path,
-        agent: new http.Agent({ // TODO: recycle agent?
+        agent: new Http.Agent({ // TODO: recycle agent?
           keepAlive: true,
           maxSockets: 1
         }),
@@ -104,7 +111,7 @@ class MoneroRpc {
     }
     
     // send request and await response
-    let resp = await request(opts);
+    let resp = await this._throttledRequest(opts);
     if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
     return resp;
   }
@@ -128,7 +135,7 @@ class MoneroRpc {
     let opts = {
         method: "POST",
         uri: this.config.uri + "/" + path,
-        agent: new http.Agent({ // TODO: recycle agent?
+        agent: new Http.Agent({ // TODO: recycle agent?
           keepAlive: true,
           maxSockets: 1
         }),
@@ -145,9 +152,16 @@ class MoneroRpc {
     }
     
     // send request and store binary response as Uint8Array
-    let resp = await request(opts);
+    let resp = await this._throttledRequest(opts);
     if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
     return new Uint8Array(resp, 0, resp.length);
+  }
+  
+  /**
+   * Makes a throttled request.
+   */
+  _throttledRequest(opts) {
+    return this.promiseThrottle.add(function(opts) { return Request(opts); }.bind(this, opts));
   }
 }
 
