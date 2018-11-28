@@ -11,7 +11,7 @@ class MoneroWalletLocal extends MoneroWallet {
   /**
    * Constructs the wallet.
    * 
-   * TODO: needs to take in language, change config to {...}
+   * TODO: needs to take in language, store
    * 
    * @param daemon is the daemon to support the wallet
    * @param coreUtils provides utils from Monero Core to build a wallet
@@ -37,7 +37,7 @@ class MoneroWalletLocal extends MoneroWallet {
       keys = this.config.coreUtils.newly_created_wallet("en", network);  // randomly generate keys
     }
     
-    // initialize wallet keys
+    // initialize wallet keys // TODO: these are part of store
     this.seed = keys.sec_seed_string;
     this.mnemonic = keys.mnemonic_string;
     this.mnemonicLang = keys.mnemonic_language;
@@ -46,6 +46,9 @@ class MoneroWalletLocal extends MoneroWallet {
     this.pubSpendKey = keys.pub_spendKey_string;
     this.prvSpendKey = keys.sec_spendKey_string;
     this.primaryAddress = keys.address_string;
+    
+    this.store = {};  // exportable wallet state
+    this.cache = {};  // temporary working memory
   }
   
   getDaemon() {
@@ -206,11 +209,14 @@ class MoneroWalletLocal extends MoneroWallet {
     let minMsPerReq = 1 / MAX_REQ_PER_SECOND * 1000;
     let minMsPerChunks = maxConsecutiveReqs * minMsPerReq;
     
+    // cache header info while working
+    this.cache.headers = {};
+    
     // process blocks in chunks
     let curHeight = startHeight;
     while (curHeight < endHeight) {
       let startTime = +new Date();
-      let endChunksHeight = await _processBlockChunks(curHeight, endHeight, MAX_REQ_SIZE, maxConsecutiveReqs);
+      let endChunksHeight = await this._processBlockChunks(curHeight, endHeight, MAX_REQ_SIZE, maxConsecutiveReqs);
       let msChunks = +new Date() - startTime;
       if (msChunks < minMsPerChunks) {
         console.log("Slowing this puppy down...");
@@ -218,35 +224,51 @@ class MoneroWalletLocal extends MoneroWallet {
       }
       curHeight = endChunksHeight + 1;
     }
-    
-    async function _processBlockChunks(startHeight, maxHeight, maxReqSize, maxConsecutiveReqs) {
-      
-      
-      
-      // compute end height
-      let endHeight = Math.min(maxHeight, startHeight + numHeadersPerRequest - 1);
-
-      // fetch headers
-      let headers = await daemon.getBlockHeadersByRange(startHeight, endHeight);
-      
-      // recurse to start fetching next headers
-      let recursePromise = null;
-      if (endHeight + 1 < maxHeight && numMaxRecursion > 1) {
-        recursePromise = _buildHeaderCacheRecursively(daemon, endHeight + 1, maxHeight, numHeadersPerRequest, numMaxRecursion - 1, headersCache);
-      }
-      
-      // cache headers
-      for (let header of headers) {
-        headersCache[header.getHeight()] = "Hi!";
-      }
-      
-      // return result from recursion or max height if base case
-      if (recursePromise) return await recursePromise;
-      else return headers[headers.length - 1].getHeight();
-      throw new Error("Not implemented");
-    }
-  }  
+  }
   
+  async _processBlockChunks(startHeight, maxHeight, maxReqSize, maxConsecutiveReqs) {
+    
+    // determine request end height by totaling the request size
+    let reqSize = 0;
+    let endHeight = startHeight;
+    while (endHeight < maxHeight) {
+      
+      // get cached header
+      let cachedHeader = this.cache.headers[endHeight];
+      if (!cachedHeader) {  // CACHE THE HEADER
+        
+        //MoneroWalletLocal._buildheadersCache(this.config.daemon, endHeight, maxHeight, 
+        
+        
+        throw new Error("Header is not in cache!!!!");
+      }
+      
+      // block cannot be bigger than max request size
+      if (cachedHeader.blockSize > maxSize) throw new Error("Block " + endHeight + " is too big to process: " + cachedHeader.blockSize);
+      
+      // this is end height if next block exceeds max height or size limit
+      if (endHeight < maxHeight - 1 && reqSize + cachedHeader.blockSize > maxReqSize) break;
+      
+      // otherwise the search continues
+      reqSize += cachedHeader.blockSize;
+    }
+    
+    // fetch blocks
+    let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
+    
+    // recurse to start fetching next blocks without waiting
+    let recursePromise = null;
+    if (endHeight + 1 < maxHeight && maxConsecutiveReqs > 1) {
+      recursePromise = _processBlockChunks(endHeight + 1, maxHeight, maxReqSize, maxConsecutiveReqs - 1);
+    }
+    
+    // process blocks
+    blocks.map(block => this._processBlock(block));
+    
+    // await recursion to return
+    if (recursePromise) await recursePromise;
+  }
+ 
   static async _buildHeadersCache(daemon, startHeight, endHeight, headersCache) {
     
     const NUM_HEADERS_PER_REQUEST = 1000;
