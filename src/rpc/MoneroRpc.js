@@ -13,7 +13,8 @@ const MoneroRpcConfigDefault = {
     port: 18081,
     user: null,
     pass: null,
-    uri: null
+    uri: null,
+    requestsPerSecond: 2
 }
 
 /**
@@ -40,7 +41,7 @@ class MoneroRpc {
     
     // initialize promise throttler
     this.promiseThrottle = new PromiseThrottle({
-      requestsPerSecond: 50, // TODO: make configurable
+      requestsPerSecond: this.config.requestsPerSecond,
       promiseImplementation: Promise
     })
   }

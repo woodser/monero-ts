@@ -81,6 +81,7 @@ TestUtils.DAEMON_RPC_CONFIG = {
   port: 38081,
   user: "superuser",
   pass: "abctesting123",
+  requestsPerSecond: 100
 };
 
 //TestUtils.DAEMON_RPC_CONFIG = { 
@@ -89,6 +90,7 @@ TestUtils.DAEMON_RPC_CONFIG = {
 //  port: 38081,
 //  //user: "superuser",
 //  //pass: "abctesting123",
+//  requestsPerSecond: 1
 //};
 
 module.exports = TestUtils;
