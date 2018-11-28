@@ -235,12 +235,14 @@ class MoneroWalletLocal extends MoneroWallet {
       
       // get cached header
       let cachedHeader = this.cache.headers[endHeight];
-      if (!cachedHeader) {  // CACHE THE HEADER
+      if (!cachedHeader) {
         
-        //MoneroWalletLocal._buildheadersCache(this.config.daemon, endHeight, maxHeight, 
+        // fetch and cache headers in chunks until req size reached
+        await MoneroWalletLocal._fetchHeadersByTotalBlockSize(this.config.daemon, endHeight, maxHeight, reqSize, this.cache.headers);
         
-        
-        throw new Error("Header is not in cache!!!!");
+        // get cached header
+        cachedHeader = this.cache.headers[endHeight];
+        assert(cachedHeader);
       }
       
       // block cannot be bigger than max request size
@@ -268,6 +270,10 @@ class MoneroWalletLocal extends MoneroWallet {
     // await recursion to return
     if (recursePromise) await recursePromise;
   }
+  
+  static async _fetchHeadersByTotalBlockSize(daemon, startHeight, maxHeight, totalBlockSize, headerCache) {
+    throw new Error("Not implemented");
+  };
  
   static async _buildHeadersCache(daemon, startHeight, endHeight, headersCache) {
     
