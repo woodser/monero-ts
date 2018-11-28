@@ -155,21 +155,49 @@ function testWallet(wallet) {
       let subaddresses = await wallet.getSubaddresses(account.getIndex());
       assert(subaddresses.length > 0);
       for (let subaddress of subaddresses) {
-        assert.deeqEqual(subaddress, await wallet.getSubaddresss(account.getIndex(), subaddress.getSubaddrIndex()));
+        assert.deeqEqual(subaddress, await wallet.getSubaddress(account.getIndex(), subaddress.getSubaddrIndex()));
+        assert.deeqEqual(subaddress, await wallet.getSubaddresses(account.getIndex(), subaddress.getSubaddrIndex())); // test plural call with single subaddr number
       }
     }
   });
   
-  it("Can create a subaddress", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can create a subaddress with a label", async function() {
-    throw new Error("Not implemented");
+  it("Can create a subaddress with and without a label", async function() {
+    
+    // create subaddresses across accounts
+    let accounts = await wallet.getAccounts();
+    if (accounts.length < 2) await wallet.createAccount();
+    accounts = await wallet.getAccounts();
+    assert(accounts.length > 1);
+    for (let accountIdx = 0; accountIdx < 2; accountIdx++) {
+      
+      // create subaddress with no label
+      let subaddresses = await wallet.getSubaddresses(accountIdx);
+      let subaddress = await wallet.createSubaddress(accountIdx);
+      assert.equal("", subaddress.getLabel());
+      testSubaddress(subaddress);
+      let subaddressesNew = await wallet.getSubaddresses(accountIdx);
+      assert.equal(subaddresses.length, subaddressesNew.length - 1);
+      assert.deepEqual(subaddress, subaddressesNew.get(subaddressesNew.size() - 1));
+      
+      // create subaddress with label
+      subaddresses = await wallet.getSubaddresses(accountIdx);
+      let uuid = GenUtils.uuidv4();
+      subaddress = await wallet.createSubaddress(accountIdx, uuid);
+      assert.equal(subaddress.getLabel(), uuid);
+      testSubaddress(subaddress);
+      subaddressesNew = await wallet.getSubaddresses(accountIdx);
+      assert.equal(subaddresses.length, subaddressesNew.length - 1);
+      assert.equals(subaddress, subaddressesNew.get(subaddressesNew.length - 1));
+    }
   });
   
   it("Can get the address of a subaddress at a specified account and subaddress index", async function() {
-    throw new Error("Not implemented");
+    assert.equal(await wallet.getPrimaryAddress(), (await wallet.getSubaddress(0, 0)).getAddress());
+    for (let account of await wallet.getAccounts(true)) {
+      for (let subaddress of await wallet.getSubaddresses(account.getIndex())) {
+        assert.equal(subaddress.getAddress(), await wallet.getAddress(account.getIndex(), subaddress.getSubaddrIndex()));
+      }
+    }
   });
   
   it("Can get the balance across all accounts", async function() {
