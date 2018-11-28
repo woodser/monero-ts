@@ -136,7 +136,7 @@ function testWallet(wallet) {
       
       // get subaddress indices
       let subaddressIndices = subaddresses.map(subaddress => subaddress.getSubaddrIndex());
-      console.log("JUST CHECKING\n");
+      console.log("JUST CHECKING");
       console.log(subaddressIndices);
       assert(subaddressIndices.length > 0);
       
@@ -149,7 +149,15 @@ function testWallet(wallet) {
   });
   
   it("Can get a subaddress at a specified account and subaddress index", async function() {
-    throw new Error("Not implemented");
+    let accounts = await wallet.getAccounts();
+    assert(accounts.length > 0);
+    for (let account of accounts) {
+      let subaddresses = await wallet.getSubaddresses(account.getIndex());
+      assert(subaddresses.length > 0);
+      for (let subaddress of subaddresses) {
+        assert.deeqEqual(subaddress, await wallet.getSubaddresss(account.getIndex(), subaddress.getSubaddrIndex()));
+      }
+    }
   });
   
   it("Can create a subaddress", async function() {
