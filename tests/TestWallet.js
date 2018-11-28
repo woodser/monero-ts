@@ -2,6 +2,11 @@ const assert = require("assert");
 const GenUtils = require("../src/utils/GenUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 
+/**
+ * Tests the given wallet with common tests that all wallets should implement.
+ * 
+ * @param wallet is the wallet to test
+ */
 function testWallet(wallet) {
   
   it("Can get the current height that the wallet is synchronized to", async function() {
