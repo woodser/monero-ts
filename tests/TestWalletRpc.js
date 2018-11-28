@@ -56,7 +56,7 @@ TestUtils.getWalletRpc().catch(function(err) {
       throw new Error("Not implemented");
     });
     
-    it("Has account tags to apply to and query accounts", async function() {
+    it("Can tag accounts and query accounts by tag", async function() {
       throw new Error("Not implemented");
     });
     

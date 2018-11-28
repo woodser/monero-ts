@@ -1,4 +1,5 @@
 const assert = require("assert");
+const GenUtils = require("../src/utils/GenUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 
 function testWallet(wallet) {
@@ -38,27 +39,69 @@ function testWallet(wallet) {
   });
   
   it("Can get an integrated address given a payment id", async function() {
-    throw new Error("Not implemented");
+    let integratedAddress = await wallet.getIntegratedAddress("03284e41c342f036");
+    let decodedAddress = await wallet.decodeIntegratedAddress(integratedAddress.toString());
+    assert.deeqpEquals(integratedAddress, decodedAddress);
   });
   
-  it("Can get all accounts in the wallet", async function() {
-    throw new Error("Not implemented"); //  TODO: test retrieving with subaddresses
+  it("Can get all accounts in the wallet without subaddresses", async function() {
+    let accounts = await wallet.getAccounts();
+    assert(accounts.length > 0);
+    accounts.map(account => {
+      testAccount(account)
+      assert(account.getSubaddresses() === undefined);
+    });
   });
   
-  it("Can get accounts filtered by a tag", async function() {
-    throw new Error("Not implemented");
+  it("Can get all accounts in the wallet with subaddresses", async function() {
+    let accounts = await wallet.getAccounts(true);
+    assert(accounts.length > 0);
+    accounts.map(account => {
+      testAccount(account);
+      assert(account.getSubaddresses().length > 0);
+      account.getSubaddresses().map(subaddress => testSubaddress(subaddress));
+    });
   });
   
   it("Can get an account at a specified index", async function() {
-    throw new Error("Not implemented");
+    let accounts = await wallet.getAccounts();
+    assert(accounts.length > 0);
+    for (let account of accounts) {
+      testAccount(retrieved);
+      
+      // test without subaddresses
+      let retrieved = await wallet.getAccount(account.getIndex());
+      assert(retrieved.getSubaddresses() === undefined);
+      
+      // test with subaddresses
+      retrieved = await wallet.getAccount(account.getIndex(), true);
+      assert(retrieved.getSubaddresses().length > 0);
+    }
   });
   
-  it("Can create a new account", async function() {
-    throw new Error("Not implemented");
+  it("Can create a new account without a label", async function() {
+    let accountsBefore = await wallet.getAccounts();
+    let createdAccount = await wallet.createAccount();
+    testAccount(createdAccount);
+    assert(createdAccount.getLabel() === undefined);
+    assert(accountsBefore.length === (await wallet.getAccounts().size()) - 1);
   });
   
   it("Can create a new account with a label", async function() {
-    throw new Error("Not implemented");
+    
+    // create account with label
+    let accountsBefore = await wallet.getAccounts();
+    let label = GenUtils.uuidv4();
+    let createdAccount = await wallet.createAccount(label);
+    testAccount(createdAccount);
+    assert(createdAccount.getLabel() === label);
+    assert(accountsBefore.length === (await wallet.getAccounts().size()) - 1);
+
+    // create account with same label
+    createdAccount = await wallet.createAccount(label);
+    testAccount(createdAccount);
+    assert(createdAccount.getLabel() === label);
+    assert(accountsBefore.length === (await wallet.getAccounts().size()) - 2);
   });
   
   it("Can get subaddresses at a specified account index", async function() {
