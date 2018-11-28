@@ -97,22 +97,22 @@ class MoneroWalletLocal extends MoneroWallet {
     // TODO: only process blocks that contain transactions
     // TODO: make next network request while processing blocks
     
-    throw new Error("Not implemented");
-    
-    let maxSize = 3000000;
     let startHeight = 0;
     //let startHeight = 125982;  // TODO: auto figure out // TODO: doesn't work with how headers are passed in and processed currently
     
     // get total height
     let chainHeight = await this.config.daemon.getHeight();
     
-    // get all headers
-    console.log("Fetching headers cache...");
-    let headersCache = {};
-    await MoneroWalletLocal._buildHeadersCache(this.config.daemon, startHeight, chainHeight - 1, headersCache);
-    //let headers = await this.config.daemon.getBlockHeadersByRange(startHeight, chainHeight - 1); // TODO: fetch in chunks if needed
-    console.log("Done.");
-    console.log(headersCache);
+    // process blocks
+    await this._processBlocks(startHeight, chainHeight);    
+    
+//    // get all headers
+//    console.log("Fetching headers cache...");
+//    let headersCache = {};
+//    await MoneroWalletLocal._buildHeadersCache(this.config.daemon, startHeight, chainHeight - 1, headersCache);
+//    //let headers = await this.config.daemon.getBlockHeadersByRange(startHeight, chainHeight - 1); // TODO: fetch in chunks if needed
+//    console.log("Done.");
+//    console.log(headersCache);
     
 //    let totalSize = 0;
 //    let totalTxs = 0;
@@ -194,6 +194,58 @@ class MoneroWalletLocal extends MoneroWallet {
   }
   
   // -------------------------------- PRIVATE ---------------------------------
+  
+  async _processBlocks(startHeight, endHeight) {
+    
+    // configuration
+    const MAX_REQ_SIZE = 3000000;
+    const MAX_REQ_PER_SECOND = 1;
+    
+    // compute maximum consecutive requests, minimum time per request, and minimum time for consecutive requests
+    let maxConsecutiveReqs = MAX_REQ_PER_SECOND < 1 ? 1 : Math.floor(MAX_REQ_PER_SECOND);
+    let minMsPerReq = 1 / MAX_REQ_PER_SECOND * 1000;
+    let minMsPerChunks = maxConsecutiveReqs * minMsPerReq;
+    
+    // process blocks in chunks
+    let curHeight = startHeight;
+    while (curHeight < endHeight) {
+      let startTime = +new Date();
+      let endChunksHeight = await _processBlockChunks(curHeight, endHeight, MAX_REQ_SIZE, maxConsecutiveReqs);
+      let msChunks = +new Date() - startTime;
+      if (msChunks < minMsPerChunks) {
+        console.log("Slowing this puppy down...");
+        await timeout(minMsPerChunks - msChunks);  // throttle requests    
+      }
+      curHeight = endChunksHeight + 1;
+    }
+    
+    async function _processBlockChunks(startHeight, maxHeight, maxReqSize, maxConsecutiveReqs) {
+      
+      
+      
+      // compute end height
+      let endHeight = Math.min(maxHeight, startHeight + numHeadersPerRequest - 1);
+
+      // fetch headers
+      let headers = await daemon.getBlockHeadersByRange(startHeight, endHeight);
+      
+      // recurse to start fetching next headers
+      let recursePromise = null;
+      if (endHeight + 1 < maxHeight && numMaxRecursion > 1) {
+        recursePromise = _buildHeaderCacheRecursively(daemon, endHeight + 1, maxHeight, numHeadersPerRequest, numMaxRecursion - 1, headersCache);
+      }
+      
+      // cache headers
+      for (let header of headers) {
+        headersCache[header.getHeight()] = "Hi!";
+      }
+      
+      // return result from recursion or max height if base case
+      if (recursePromise) return await recursePromise;
+      else return headers[headers.length - 1].getHeight();
+      throw new Error("Not implemented");
+    }
+  }  
   
   static async _buildHeadersCache(daemon, startHeight, endHeight, headersCache) {
     
