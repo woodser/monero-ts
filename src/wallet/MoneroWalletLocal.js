@@ -100,14 +100,14 @@ class MoneroWalletLocal extends MoneroWallet {
     // TODO: only process blocks that contain transactions
     // TODO: make next network request while processing blocks
     
-    let startHeight = 0;
+    let startHeight = 209000;
     //let startHeight = 125982;  // TODO: auto figure out // TODO: doesn't work with how headers are passed in and processed currently
     
     // get total height
     let chainHeight = await this.config.daemon.getHeight();
     
     // process blocks
-    await this._processBlocks(startHeight, chainHeight);    
+    await this._processBlocks(startHeight, chainHeight - 1);    
     
 //    // get all headers
 //    console.log("Fetching headers cache...");
@@ -201,7 +201,7 @@ class MoneroWalletLocal extends MoneroWallet {
   async _processBlocks(startHeight, endHeight) {
     
     // configuration
-    const MAX_REQ_SIZE = 3000000;
+    const MAX_REQ_SIZE = 5000000;
     const MAX_RECURSION = 1000;
     
     // initialize header cache
@@ -224,7 +224,7 @@ class MoneroWalletLocal extends MoneroWallet {
     while (endHeight < maxHeight) {
       
       // get cached header to know block size
-      let cachedHeader = await this._getHeaderCached(endHeight);
+      let cachedHeader = await this._getHeaderCached(endHeight, maxHeight);
       
       // block cannot be bigger than max request size
       if (cachedHeader.blockSize > maxReqSize) throw new Error("Block " + endHeight + " is too big to process: " + cachedHeader.blockSize);
@@ -233,7 +233,7 @@ class MoneroWalletLocal extends MoneroWallet {
       reqSize += cachedHeader.blockSize;
       
       // this is end height if next block exceeds max height or size limit
-      if (endHeight < maxHeight - 1 && reqSize + (await this._getHeaderCached(endHeight + 1)).blockSize > maxReqSize) break;
+      if (endHeight < maxHeight - 1 && reqSize + (await this._getHeaderCached(endHeight + 1, maxHeight)).blockSize > maxReqSize) break;
       
       // otherwise the search continues
       endHeight++;
@@ -250,7 +250,6 @@ class MoneroWalletLocal extends MoneroWallet {
     
     // process blocks
     blocks.map(block => this._processBlock(block));
-    
     console.log("Done processing blocks [" + startHeight + ", " + endHeight + "]");
     
     // await recursion to return
@@ -262,16 +261,18 @@ class MoneroWalletLocal extends MoneroWallet {
    * Retrieves a header from the cache or fetches and caches a header range if not in the cache.
    * 
    * @param height is the height of the header to retrieve from the cache
+   * @param maxHeight is the maximum header height to fetch
    */
-  async _getHeaderCached(height) {
+  async _getHeaderCached(height, maxHeight) {
     
     // get header from cache
     let cachedHeader = this.cache.headers[height];
     if (cachedHeader) return cachedHeader;
     
     // fetch and cache headers if not in cache
-    const NUM_HEADERS_PER_REQUEST = 500;
-    let headers = await this.config.daemon.getBlockHeadersByRange(height, height + NUM_HEADERS_PER_REQUEST - 1);
+    const NUM_HEADERS_PER_REQUEST = 1000;
+    let endHeight = Math.min(maxHeight, height + NUM_HEADERS_PER_REQUEST - 1);
+    let headers = await this.config.daemon.getBlockHeadersByRange(height, endHeight);
     for (let header of headers) {
       this.cache.headers[header.getHeight()] = {
           blockSize: header.getBlockSize(),
