@@ -112,7 +112,7 @@ class MoneroWallet {
    * Get subaddresses.
    * 
    * @param accountIdx specifies the account to get subaddresses of
-   * @param subaddressIndices specifies subaddresses within the account (optional)
+   * @param subaddressIndices is a number or numbers which specify subaddresses within the account (optional)
    * @returns MoneroSubaddress[] are the retrieved subaddresses
    */
   async getSubaddresses(accountIdx, subaddressIndices) {

@@ -110,11 +110,42 @@ function testWallet(wallet) {
   });
   
   it("Can get subaddresses at a specified account index", async function() {
-    throw new Error("Not implemented");
+    let accounts = await wallet.getAccounts();
+    assert(accounts.length > 0);
+    for (let account of accounts) {
+      let subaddresses = await wallet.getSubaddresses(account.getIndex());
+      assert(subaddresses.length > 0);
+      subaddresses.map(subaddress => {
+        testSubaddress(subaddress);
+        assert(account.getIndex() === subaddress.getAccountIndex());
+      });
+    }
   });
   
   it("Can get subaddresses at specified account and subaddress indices", async function() {
-    throw new Error("Not implemented");
+    let accounts = await wallet.getAccounts();
+    assert(accounts.length > 0);
+    for (let account of accounts) {
+      
+      // get subaddresses
+      let subaddresses = await wallet.getSubaddresses(account.getIndex());
+      assert(subaddresses.length > 0);
+      
+      // remove a subaddress for query if possible
+      if (subaddresses.length > 1) subaddresses.splice(0, 1);
+      
+      // get subaddress indices
+      let subaddressIndices = subaddresses.map(subaddress => subaddress.getSubaddrIndex());
+      console.log("JUST CHECKING\n");
+      console.log(subaddressIndices);
+      assert(subaddressIndices.length > 0);
+      
+      // fetch subaddresses by indices
+      let fetchedSubaddresses = await wallet.getSubaddresses(account.getIndex(), subaddressIndices);
+      
+      // original subaddresses (minus one removed if applicable) is equal to fetched subaddresses
+      assert.deeqEqual(subaddresses, fetchedSubaddresses);
+    }
   });
   
   it("Can get a subaddress at a specified account and subaddress index", async function() {
