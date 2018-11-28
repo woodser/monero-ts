@@ -1,5 +1,5 @@
 const TestUtils = require("./TestUtils");
-const TestWallet = require("./TestWallet");
+const TestWalletCommon = require("./TestWalletCommon");
 
 // get rpc wallet which may fail
 TestUtils.getWalletRpc().catch(function(err) {
@@ -11,7 +11,7 @@ TestUtils.getWalletRpc().catch(function(err) {
   describe("Monero Wallet RPC", function() {
     
     // run common tests
-    TestWallet.testWallet(wallet);
+    TestWalletCommon.testWallet(wallet);
     
     it("Can indicate if multisig import is needed for correct balance information", async function() {
       throw new Error("Not implemented");

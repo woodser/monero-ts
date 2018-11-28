@@ -1,7 +1,7 @@
 const assert = require("assert");
 const TestUtils = require("./TestUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
-const TestWallet = require("./TestWallet");
+const TestWalletCommon = require("./TestWalletCommon");
 
 // get core utils
 MoneroUtils.getCoreUtils().then(function(coreUtils) {
@@ -12,7 +12,7 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
   describe("Monero Wallet Local", function() {
     
     // run common tests
-    TestWallet.testWallet(wallet);
+    TestWalletCommon.testWallet(wallet);
     
     it("Can refresh which reports progress", async function() {
       throw new Error("Not implemented");
