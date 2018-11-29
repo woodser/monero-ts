@@ -34,8 +34,8 @@ class MoneroWalletLocal extends MoneroWallet {
     // merge given config with default
     this.config = Object.assign({}, MoneroWalletLocal.DEFAULT_CONFIG, config);
     
-    // start one-time initialization but do not wait, save singleton promise
-    this.initPromise = this._initOneTime();
+    // start one time initialization but do not wait
+    this._initOneTime();
   }
   
   getDaemon() {
@@ -98,7 +98,7 @@ class MoneroWalletLocal extends MoneroWallet {
     // TODO: make next network request while processing blocks
     
     // configuration TODO
-    const START_HEIGHT = 100000;
+    const START_HEIGHT = 210000;
     const MAX_REQ_SIZE = 5000000;
     const MAX_RECURSION = 1000;
     
@@ -216,34 +216,22 @@ class MoneroWalletLocal extends MoneroWallet {
     // configuration TODO
     const SKIP_MINER_TX = true;  // optimizes block processing to skip miner txs or blocks containing no non-miner txs
     
-    console.log("HELLO A");
-    
     // determine block indices to fetch up to max request size
     let reqSize = 0;
     let blockIndices = [];
     let height = startHeight;
     while (height <= maxHeight) {
       if (SKIP_MINER_TX) {
-        console.log("Before...");
         height = await this._getFirstTxHeight(height, maxHeight);
-        console.log("After!...");
         if (height === null) break;
       }
-      console.log("HELLO A.5");
       let cachedHeader = await this._getCachedHeader(height, maxHeight);
-      console.log("HELLO B");
       assert(cachedHeader.blockSize <= maxReqSize, "Block " + height + " is too big to process: " + cachedHeader.blockSize);
-      console.log("HELLO M");
       if (reqSize + cachedHeader.blockSize > maxReqSize) break;
-      console.log("HELLO N");
       blockIndices.push(height);
-      console.log("HELLO O");
       reqSize += cachedHeader.blockSize;
-      console.log("HELLO P");
       height++;
     }
-    
-    console.log("HELLO C");
     
     // done if no blocks to fetch
     if (blockIndices.length === 0) return maxHeight;
@@ -251,16 +239,12 @@ class MoneroWalletLocal extends MoneroWallet {
     // fetch blocks
     let blocks = await this.config.daemon.getBlocksByHeight(blockIndices);
     
-    console.log("HELLO D");
-    
     // recurse to start fetching next blocks without waiting
     let recursePromise = null;
     let endHeight = blockIndices[blockIndices.length - 1];
     if (endHeight + 1 < maxHeight && maxRecursion > 1) {
       recursePromise = this._processBlockChunks(endHeight + 1, maxHeight, maxReqSize, maxRecursion - 1);
     }
-    
-    console.log("HELLO E");
     
     // process blocks
     blocks.map(block => this._processBlock(block));
@@ -301,19 +285,12 @@ class MoneroWalletLocal extends MoneroWallet {
     // fetch and cache headers if not in cache
     const NUM_HEADERS_PER_REQUEST = 1000;
     let endHeight = Math.min(maxHeight, height + NUM_HEADERS_PER_REQUEST - 1);
-    console.log("7 1");
-    console.log(height);
-    console.log(endHeight);
-    console.log(this.config.daemon);
     let headers = await this.config.daemon.getBlockHeadersByRange(height, endHeight);
-    console.log("7 2");
     for (let header of headers) {
-      console.log("7 3");
       this.cache.headers[header.getHeight()] = {
           blockSize: header.getBlockSize(),
           numTxs: header.getNumTxs()
       }
-      console.log("7 4");
     }
     
     // return the cached header
@@ -441,11 +418,11 @@ class MoneroWalletLocal extends MoneroWallet {
       for (let outIdx = 0; outIdx < tx.getVout().length; outIdx++) {
         //console.log("Last pub key: " + lastPubKey);
         //console.log("Private view key: " + this.prvViewKey);
-        let derivation = this.config.coreUtils.generate_key_derivation(lastPubKey, this.prvViewKey);
+        let derivation = this.cache.coreUtils.generate_key_derivation(lastPubKey, this.cache.prvViewKey);
         //console.log("Derivation: " + derivation);
         //console.log("Out index: " + outIdx);
         //console.log("Public spend key: " + this.pubSpendKey);
-        let pubKeyDerived = this.config.coreUtils.derive_public_key(derivation, outIdx, this.pubSpendKey);
+        let pubKeyDerived = this.cache.coreUtils.derive_public_key(derivation, outIdx, this.cache.pubSpendKey);
         //console.log("Pub key derived: " + pubKeyDerived);
         //console.log("Output key: " + tx.getVout()[outIdx].target.key + "\n\n");
         
@@ -465,14 +442,14 @@ class MoneroWalletLocal extends MoneroWallet {
   }
   
   /**
-   * Performs one-time initialization prior to executing wallet methods.
+   * Performs one time initialization prior to executing wallet methods.
    * 
    * @returns Promise is a singleton promise that resolves after initializing
    */
   async _initOneTime() {
     
-    // return singleton instance of init promise if initialized
-    if (this.initPromise) return this.initPromise;
+    // already initialized if cache initialized
+    if (this.cache) return;
 
     // initialize working cache
     this.cache = {};
