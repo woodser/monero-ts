@@ -100,14 +100,30 @@ class MoneroWalletLocal extends MoneroWallet {
     // TODO: only process blocks that contain transactions
     // TODO: make next network request while processing blocks
     
-    let startHeight = 100000;
-    //let startHeight = 125982;  // TODO: auto figure out // TODO: doesn't work with how headers are passed in and processed currently
+    // configuration TODO
+    const START_HEIGHT = 100000;
+    const MAX_REQ_SIZE = 5000000;
+    const MAX_RECURSION = 1000;
     
-    // get total height
-    let chainHeight = await this.config.daemon.getHeight();
+    // initialize header cache
+    delete this.cache.headers;
+    this.cache.headers = {};
     
-    // process blocks
-    await this._processBlocks(startHeight, chainHeight - 1);    
+    // get daemon info
+    let info = await this.config.daemon.getInfo();
+    let chainHeight = info.getHeight();
+    
+//    // process blocks
+//    await this._processBlocks(START_HEIGHT, info.getHeight() - 1, info.getTxCount());   
+    
+    console.log("PROCESSING BLOCKS [" + START_HEIGHT + ", " + (chainHeight - 1) + "] WITH " + info.getTxCount() + " NON-MINER TXS");
+    
+    // process blocks in chunks
+    let curHeight = START_HEIGHT;
+    while (curHeight < chainHeight - 1) {
+      let endChunksHeight = await this._processBlockChunks(curHeight, chainHeight - 1, MAX_REQ_SIZE, MAX_RECURSION);
+      curHeight = endChunksHeight + 1;
+    }
     
 //    // get all headers
 //    console.log("Fetching headers cache...");
@@ -198,27 +214,10 @@ class MoneroWalletLocal extends MoneroWallet {
   
   // -------------------------------- PRIVATE ---------------------------------
   
-  async _processBlocks(startHeight, endHeight) {
-    
-    // configuration
-    const MAX_REQ_SIZE = 5000000;
-    const MAX_RECURSION = 1000;
-    
-    // initialize header cache
-    delete this.cache.headers;
-    this.cache.headers = {};
-    
-    // process blocks in chunks
-    let curHeight = startHeight;
-    while (curHeight < endHeight) {
-      let endChunksHeight = await this._processBlockChunks(curHeight, endHeight, MAX_REQ_SIZE, MAX_RECURSION);
-      curHeight = endChunksHeight + 1;
-    }
-  }
-  
   async _processBlockChunks(startHeight, maxHeight, maxReqSize, maxRecursion) {
     
-    const SKIP_MINER_TX = false;  // TODO: configuration
+    // configuration TODO
+    const SKIP_MINER_TX = true;  // optimizes block processing to skip miner txs or blocks containing no non-miner txs
     
     // determine block indices to fetch up to max request size
     let reqSize = 0;
