@@ -13,6 +13,29 @@ class MoneroDaemon {
   }
   
   /**
+   * Get general information about the state of the node and the network.
+   * 
+   * @returns MoneroDaemonInfo is general information about the node and network
+   */
+  async getInfo() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get synchronization information.
+   */
+  async getSyncInfo() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get information about incoming and outgoing connections to the node.
+   */
+  async getConnections() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Get a block's hash by its height.
    * 
    * @param height is the height of the block hash to get
@@ -125,6 +148,28 @@ class MoneroDaemon {
   async getTxs(txHashes, decodeAsJson, prune) {
     throw new Error("Subclass must implement");
   }
+  
+  /**
+   * Parses a network string to an enumerated type.
+   * 
+   * @param network is the network string to parse
+   * @returns MoneroDaemon.NetworkType is the enumerated network type
+   */
+  static parseNetworkType(network) {
+    if (network === "mainnet") return MoneroDaemon.MAINNET;
+    if (network === "testnet") return MoneroDaemon.TESTNET;
+    if (network === "stagenet") return MoneroDaemon.STAGENET;
+    throw new Error("Invalid network type to parse: " + network);
+  }
+}
+
+/**
+ * Enumerate network types.
+ */
+MoneroDaemon.NetworkType = {
+    MAINNET: 0,
+    TESTNET: 1,
+    STAGENET: 2
 }
 
 module.exports = MoneroDaemon;

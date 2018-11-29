@@ -4,8 +4,6 @@ const TestUtils = require("./TestUtils");
 const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
 const GenUtils = require("../src/utils/GenUtils");
 
-// TODO: refactor describe and it
-
 // get core utils
 MoneroUtils.getCoreUtils().then(function(coreUtils) {
   
@@ -217,8 +215,8 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       
       // get valid height range
       let height = await daemon.getHeight();
-      let numBlocks = 10;
-      let numBlocksAgo = 75;
+      let numBlocks = 100;
+      let numBlocksAgo = 100;
       assert(numBlocks > 0);
       assert(numBlocksAgo >= numBlocks);
       assert(height - numBlocksAgo + numBlocks - 1 < height);
@@ -238,21 +236,25 @@ MoneroUtils.getCoreUtils().then(function(coreUtils) {
       let txs = await daemon.getTxs(txHashes, decodeAsJson, prune);
       for (let tx of txs) {
         testDaemonResponseInfo(tx, true, true); // TODO: duplicating response info is going to be too expensive so must be common reference
-        testDaemonTx(tx, { hasHex: true, hasJson: decodeAsJson, isPruned: prune, isFull: true });
+        testTx(tx, { hasHex: true, hasJson: decodeAsJson, isPruned: prune, isFull: true });
       }
       
       // TODO: test binary vs json encoding
     });
     
-    it("Has connections to peers", async function() {
-      throw new Error("Not implemented");
-    });
-    
     it("Has general information", async function() {
-      throw new Error("Not implemented");
+      let info = await daemon.getInfo();
+      testDaemonResponseInfo(info, true, true);
+      testInfo(info);
     });
     
     it("Has sync information", async function() {
+      let syncInfo = await daemon.getSyncInfo();
+      testDaemonResponseInfo(info, true, true);
+      testSyncInfo(info);
+    });
+    
+    it("Has connections to peers", async function() {
       throw new Error("Not implemented");
     });
     
@@ -391,7 +393,7 @@ function testBlock(block, config) {
   assert(block);
   assert(Array.isArray(block.getTxHashes())); // TODO: tx hashes probably part of tx
   assert(block.getTxHashes().length >= 0);
-  testMinerTx(block.getMinerTx());            // TODO: miner tx doesn't have as much stuff, can't call testDaemonTx?
+  testMinerTx(block.getMinerTx());            // TODO: miner tx doesn't have as much stuff, can't call testTx?
   testBlockHeader(block.getHeader(), config.headerIsFull);
   
   if (config.hasHex) {
@@ -404,7 +406,7 @@ function testBlock(block, config) {
   if (config.hasTxs) {
     assert(typeof config.txConfig === "object");
     assert(block.getTxs() instanceof Array);
-    for (let tx of block.getTxs()) testDaemonTx(tx, config.txConfig);
+    for (let tx of block.getTxs()) testTx(tx, config.txConfig);
   } else {
     assert(config.txConfig === undefined);
     assert(block.getTxs() === undefined);
@@ -419,7 +421,7 @@ function testMinerTx(minerTx) {
   assert(minerTx.getUnlockTime() >= 0);
 }
 
-function testDaemonTx(tx, config) {
+function testTx(tx, config) {
   
   // check inputs
   assert(tx);
@@ -473,4 +475,41 @@ function testBlockTemplate(template) {
   assert(template.getHeight());
   assert(template.getPrevHash());
   assert(template.getReservedOffset());
+}
+
+function testInfo(info) {
+  assert(info.getAltBlocksCount() >= 0);
+  assert(info.getBlockSizeLimit());
+  assert(info.getBlockSizeMedian());
+  assert(typeof info.getBootstrapDaemonAddress() === "string");
+  assert(info.getCumulativeDifficulty());
+  assert(info.getFreeSpace());
+  assert(info.getGreyPeerlistSize());
+  assert(info.getWhitePeerlistSize());
+  assert(info.getHeight());
+  assert(info.getHeightWithoutBootstrap());
+  assert(info.getIncomingConnectionsCount());
+  assert(info.getNetworkType());
+  assert(typeof info.getIsOffline() === "boolean");
+  assert(info.getOutgoingConnectionsCount() >= 0);
+  assert(info.getRpcConnectionsCount() >= 0);
+  assert(info.getStartTime());
+  assert(info.getTarget());
+  assert(info.getTargetHeight());
+  assert(info.getTopBlockHash());
+  assert(info.getTxCount() > 0);
+  assert(info.getTxPoolSize() >= 0);
+  assert(typeof info.getWasBootstrapEverUsed() === "boolean");
+  assert(info.getBlockWeightLimit());
+  assert(info.getBlockWeightMedian());
+  assert(info.getDatabaseSize());
+  assert(typeof info.getUpdateAvailable() === "boolean");
+}
+
+function testSyncInfo(syncInfo) {
+  throw new Error("Not implemented");
+}
+
+function testConnectionInfo(connectionInfo) {
+  throw new Error("Not implemented");
 }
