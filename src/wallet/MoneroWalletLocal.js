@@ -1,94 +1,90 @@
 const assert = require("assert");
 const MoneroWallet = require("./MoneroWallet");
 const MoneroUtils = require("../utils/MoneroUtils");
-const nettype = require("../submodules/mymonero-core-js/cryptonote_utils/nettype");
+const MoneroDaemon = require("../daemon/MoneroDaemon");
 
 /**
- * Implements a Monero wallet using client-side crypto and a daemon.
+ * Implements a Monero wallet using client-side crypto and a given daemon.
  */
 class MoneroWalletLocal extends MoneroWallet {
   
   /**
    * Constructs the wallet.
    * 
-   * TODO: needs to take in language, store
-   * 
-   * @param daemon is the daemon to support the wallet
-   * @param coreUtils provides utils from Monero Core to build a wallet
-   * @param mnemonic is a pre-existing seed to import (optional)
+   * @param config.daemon is the daemon to support the wallet (required)
+   * @param config.mnemonic is a mnemonic phrase to import or generates new one if not given (optional)
+   * @param config.mnemonicLanguage specifies the mnemonic phrase language (defaults to "en" for english)
+   * @param config.store is an existing wallet store to import (optional)
+   * @param config.startHeight is the start height to scan the wallet from (defaults to 0)
+   * @param config.requestsPerSecond throttles rate of daemon requests (defaults to 50 RPS)
+   * @param config.numHeadersPerRequest specifies the number of headers to fetch when populating the header cache (defaults to 750)
+   * @param config.maxBytesPerBlocksRequest specifies maximum total block size per blocks request (defaults to 4000000)
+   * @param config.maxBlocksRequestRecursion specifies maximum recursion per blocks request; maximum memory required = this * maxBytesPerBlocksRequest (defaults to 5)
+   * @param config.skipMinerTxs skips processing miner txs to speed up scan time (defaults to false)
    */
   constructor(config) {
     super();
     
-    // assign config
-    this.config = Object.assign({}, config);
-    assert(this.config.daemon, "Daemon is not defined in initialization config");
-    assert(this.config.coreUtils, "Core utils is not defined in initialization config");
-    //assert(this.config.network, "Network type not defined in initialization config");
-    let network = nettype.network_type.STAGENET;  // TODO: determined from daemon
+    // verify given config
+    assert(config && config.daemon, "Must specify config.daemon");
+    assert(config.daemon instanceof MoneroDaemon, "config.daemon be an instance of MoneroDaemon");
+    assert(config.mnemonic === undefined || config.store === undefined, "May specify config.mnemonic or config.store but not both");
+    if (config.mnemonic) assert(config.mnemonicLanguage === undefined || config.mnemonicLanguage === "en", "Mnemonic language must be english if phrase specified");  // TODO: avoid this?
     
-    // initialize keys
-    let keys;
-    if (this.config.mnemonic !== undefined) {
-      keys = this.config.coreUtils.seed_and_keys_from_mnemonic(this.config.mnemonic, network); // initialize keys from mnemonic
-      keys.mnemonic_string = this.config.mnemonic;
-      keys.mnemonic_language = "en";  // TODO: passed in
-    } else {
-      keys = this.config.coreUtils.newly_created_wallet("en", network);  // randomly generate keys
-    }
+    // merge given config with default
+    this.config = Object.assign({}, MoneroWalletLocal.DEFAULT_CONFIG, config);
     
-    // initialize wallet keys // TODO: these are part of store
-    this.seed = keys.sec_seed_string;
-    this.mnemonic = keys.mnemonic_string;
-    this.mnemonicLang = keys.mnemonic_language;
-    this.pubViewKey = keys.pub_viewKey_string;
-    this.prvViewKey = keys.sec_viewKey_string;
-    this.pubSpendKey = keys.pub_spendKey_string;
-    this.prvSpendKey = keys.sec_spendKey_string;
-    this.primaryAddress = keys.address_string;
-    
-    this.store = {};  // exportable wallet state
-    this.cache = {};  // temporary working memory
+    // start one-time initialization but do not wait, save singleton promise
+    this.initPromise = this._initOneTime();
   }
   
   getDaemon() {
     return this.config.daemon;
   }
   
-  getCoreUtils() {
-    return this.config.coreUtils;
+  async getCoreUtils() {
+    await this._initOneTime();
+    return this.cache.coreUtils;
   }
   
   async getSeed() {
-    return this.seed;
+    await this._initOneTime();
+    return this.store.seed;
   }
   
   async getMnemonic() {
-    return this.mnemonic;
+    await this._initOneTime();
+    return this.cache.mnemonic;
   }
   
   async getMnemonicLanguage() {
-    return this.mnemonicLang;
+    await this._initOneTime();
+    return this.cache.mnemonicLanguage;
   }
   
   async getPublicViewKey() {
-    return this.pubViewKey;
+    await this._initOneTime();
+    return this.cache.pubViewKey;
   }
   
   async getPrivateViewKey() {
-    return this.prvViewKey;
+    await this._initOneTime();
+    return this.cache.prvViewKey;
   }
   
   async getPublicSpendKey() {
-    return this.pubSpendKey;
+    await this._initOneTime();
+    return this.cache.pubSpendKey;
   }
   
   async getPrivateSpendKey() {
+    await this._initOneTime();
     return this.prvSpendKey;
   }
   
   async getPrimaryAddress() {
-    return this.primaryAddress;
+    await this._initOneTime();
+    return this.cache.primaryAddress;
   }
   
   async getHeight() {
@@ -96,6 +92,7 @@ class MoneroWalletLocal extends MoneroWallet {
   }
   
   async refresh() {
+    await this._initOneTime();
     
     // TODO: only process blocks that contain transactions
     // TODO: make next network request while processing blocks
@@ -219,22 +216,34 @@ class MoneroWalletLocal extends MoneroWallet {
     // configuration TODO
     const SKIP_MINER_TX = true;  // optimizes block processing to skip miner txs or blocks containing no non-miner txs
     
+    console.log("HELLO A");
+    
     // determine block indices to fetch up to max request size
     let reqSize = 0;
     let blockIndices = [];
     let height = startHeight;
     while (height <= maxHeight) {
       if (SKIP_MINER_TX) {
+        console.log("Before...");
         height = await this._getFirstTxHeight(height, maxHeight);
+        console.log("After!...");
         if (height === null) break;
       }
+      console.log("HELLO A.5");
       let cachedHeader = await this._getCachedHeader(height, maxHeight);
+      console.log("HELLO B");
       assert(cachedHeader.blockSize <= maxReqSize, "Block " + height + " is too big to process: " + cachedHeader.blockSize);
+      console.log("HELLO M");
       if (reqSize + cachedHeader.blockSize > maxReqSize) break;
+      console.log("HELLO N");
       blockIndices.push(height);
+      console.log("HELLO O");
       reqSize += cachedHeader.blockSize;
+      console.log("HELLO P");
       height++;
     }
+    
+    console.log("HELLO C");
     
     // done if no blocks to fetch
     if (blockIndices.length === 0) return maxHeight;
@@ -242,12 +251,16 @@ class MoneroWalletLocal extends MoneroWallet {
     // fetch blocks
     let blocks = await this.config.daemon.getBlocksByHeight(blockIndices);
     
+    console.log("HELLO D");
+    
     // recurse to start fetching next blocks without waiting
     let recursePromise = null;
     let endHeight = blockIndices[blockIndices.length - 1];
     if (endHeight + 1 < maxHeight && maxRecursion > 1) {
       recursePromise = this._processBlockChunks(endHeight + 1, maxHeight, maxReqSize, maxRecursion - 1);
     }
+    
+    console.log("HELLO E");
     
     // process blocks
     blocks.map(block => this._processBlock(block));
@@ -288,12 +301,19 @@ class MoneroWalletLocal extends MoneroWallet {
     // fetch and cache headers if not in cache
     const NUM_HEADERS_PER_REQUEST = 1000;
     let endHeight = Math.min(maxHeight, height + NUM_HEADERS_PER_REQUEST - 1);
+    console.log("7 1");
+    console.log(height);
+    console.log(endHeight);
+    console.log(this.config.daemon);
     let headers = await this.config.daemon.getBlockHeadersByRange(height, endHeight);
+    console.log("7 2");
     for (let header of headers) {
+      console.log("7 3");
       this.cache.headers[header.getHeight()] = {
           blockSize: header.getBlockSize(),
           numTxs: header.getNumTxs()
       }
+      console.log("7 4");
     }
     
     // return the cached header
@@ -443,6 +463,63 @@ class MoneroWalletLocal extends MoneroWallet {
     
     //console.log("Done processing, " + numOwned + " owned outputs found, " + numUnowned + " unowned");
   }
+  
+  /**
+   * Performs one-time initialization prior to executing wallet methods.
+   * 
+   * @returns Promise is a singleton promise that resolves after initializing
+   */
+  async _initOneTime() {
+    
+    // return singleton instance of init promise if initialized
+    if (this.initPromise) return this.initPromise;
+
+    // initialize working cache
+    this.cache = {};
+    this.cache.coreUtils = await MoneroUtils.getCoreUtils();
+    this.cache.network = (await this.config.daemon.getInfo()).getNetworkType();
+    
+    // initialize new store
+    if (this.store === undefined) {
+      this.store = {};
+      this.store.version = "0.0.1";
+      
+      // initialize keys from core utils
+      let keys;
+      if (this.config.mnemonic === undefined) {
+        keys = this.config.coreUtils.newly_created_wallet(this.config.mnemonicLanguage, this.cache.network);  // randomly generate keys
+      } else {
+        keys = this.cache.coreUtils.seed_and_keys_from_mnemonic(this.config.mnemonic, this.cache.network); // initialize keys from mnemonic
+        keys.mnemonic_string = this.config.mnemonic;
+        keys.mnemonic_language = this.config.mnemonicLanguage
+      }
+      
+      // initialize wallet keys
+      this.store.seed = keys.sec_seed_string; // only seed goes in the store
+      this.cache.mnemonic = keys.mnemonic_string;
+      this.cache.mnemonicLanguage = keys.mnemonic_language;
+      this.cache.pubViewKey = keys.pub_viewKey_string;
+      this.cache.prvViewKey = keys.sec_viewKey_string;
+      this.cache.pubSpendKey = keys.pub_spendKey_string;
+      this.cache.prvSpendKey = keys.sec_spendKey_string;
+      this.cache.primaryAddress = keys.address_string;
+    }
+    
+    // otherwise import existing store
+    else {
+      throw new Error("Importing wallet store not supported");
+    }
+  }
+}
+
+MoneroWalletLocal.DEFAULT_CONFIG = {
+    startHeight: 0,                     // start height to process the wallet from
+    mnemonicLanguage: "en",             // default mnemonic phrase language
+    requestsPerSecond: 50,              // maximum requests per second to the daemon
+    numHeadersPerRequest: 750,          // number of headers per headers fetch request 
+    maxBytesPerBlocksRequest: 4000000,  // maximum total block size per blocks request
+    maxBlocksRequestRecursion: 5,       // maximum recursion per blocks request; maximum memory required = this * maxBytesPerBlocksRequest
+    skipMinerTxs: false,                // instructs the wallet to skip processing miner txs
 }
 
 module.exports = MoneroWalletLocal;
