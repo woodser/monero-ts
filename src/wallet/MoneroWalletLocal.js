@@ -100,7 +100,7 @@ class MoneroWalletLocal extends MoneroWallet {
     // TODO: only process blocks that contain transactions
     // TODO: make next network request while processing blocks
     
-    let startHeight = 210000;
+    let startHeight = 100000;
     //let startHeight = 125982;  // TODO: auto figure out // TODO: doesn't work with how headers are passed in and processed currently
     
     // get total height
@@ -218,13 +218,17 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async _processBlockChunks(startHeight, maxHeight, maxReqSize, maxRecursion) {
     
+    const SKIP_MINER_TX = false;  // TODO: configuration
+    
     // determine block indices to fetch up to max request size
     let reqSize = 0;
     let blockIndices = [];
     let height = startHeight;
     while (height <= maxHeight) {
-      height = await this._getFirstTxHeight(height, maxHeight);
-      if (height === null) break;
+      if (SKIP_MINER_TX) {
+        height = await this._getFirstTxHeight(height, maxHeight);
+        if (height === null) break;
+      }
       let cachedHeader = await this._getCachedHeader(height, maxHeight);
       assert(cachedHeader.blockSize <= maxReqSize, "Block " + height + " is too big to process: " + cachedHeader.blockSize);
       if (reqSize + cachedHeader.blockSize > maxReqSize) break;
