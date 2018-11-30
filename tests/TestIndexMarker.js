@@ -132,7 +132,7 @@ describe("Test Index Marker", function() {
     // test that nothing is marked
     indices.map(idx => assert(!marker.isMarked(idx)));  // check individually
     assert(!marker.isMarked(indices));                  // check as array
-    assert(!marker.isMarked(0, MAX_IDX));               // check as range 
+    assert(!marker.isMarked(0, MAX_INDEX));               // check as range 
   });
   
   it("Can unmark an array of indices", function() {
@@ -147,7 +147,7 @@ describe("Test Index Marker", function() {
     // test that nothing is marked
     indices.map(idx => assert(!marker.isMarked(idx)));  // check individually
     assert(!marker.isMarked(indices));                  // check as array
-    assert(!marker.isMarked(0, MAX_IDX));               // check as range 
+    assert(!marker.isMarked(0, MAX_INDEX));               // check as range 
   });
   
   it("Can unmark a range of indices", function() {
