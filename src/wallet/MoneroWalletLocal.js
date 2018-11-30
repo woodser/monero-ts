@@ -2,6 +2,7 @@ const assert = require("assert");
 const MoneroWallet = require("./MoneroWallet");
 const MoneroUtils = require("../utils/MoneroUtils");
 const MoneroDaemon = require("../daemon/MoneroDaemon");
+const GenUtils = require("../utils/GenUtils");  // TODO: only necessary because of bit operations
 
 /**
  * Implements a Monero wallet using client-side crypto and a given daemon.
@@ -16,10 +17,10 @@ class MoneroWalletLocal extends MoneroWallet {
    * @param config.mnemonicLanguage specifies the mnemonic phrase language (defaults to "en" for english)
    * @param config.store is an existing wallet store to import (optional)
    * @param config.startHeight is the start height to scan the wallet from (defaults to 0)
-   * @param config.requestsPerSecond throttles rate of daemon requests (defaults to 50 RPS)
+   * @param config.requestsPerSecond throttles maximum rate of daemon requests (defaults to 50 rps)
    * @param config.numHeadersPerRequest specifies the number of headers to fetch when populating the header cache (defaults to 750)
-   * @param config.maxBytesPerBlocksRequest specifies maximum total block size per blocks request (defaults to 4000000)
-   * @param config.maxBlocksRequestRecursion specifies maximum recursion per blocks request; maximum memory required = this * maxBytesPerBlocksRequest (defaults to 5)
+   * @param config.blocksReqSize specifies maximum total block size per blocks request (defaults to 4000000)
+   * @param config.blocksReqConcurrency specifies maximum concurrency for block requests; maximum memory = this * blocksReqSize (defaults to 5)
    * @param config.skipMinerTxs skips processing miner txs to speed up scan time (defaults to false)
    */
   constructor(config) {
@@ -79,7 +80,7 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async getPrivateSpendKey() {
     await this._initOneTime();
-    return this.prvSpendKey;
+    return this.cache.prvSpendKey;
   }
   
   async getPrimaryAddress() {
@@ -95,122 +96,148 @@ class MoneroWalletLocal extends MoneroWallet {
   async refresh() {
     await this._initOneTime();
     
-    // TODO: only process blocks that contain transactions
-    // TODO: make next network request while processing blocks
-    
-    // configuration TODO
-    const START_HEIGHT = 210000;
-    const MAX_REQ_SIZE = 5000000;
-    const MAX_RECURSION = 1000;
-    
     // initialize header cache
     delete this.cache.headers;
     this.cache.headers = {};
     
     // get daemon info
     let info = await this.config.daemon.getInfo();
-    let chainHeight = info.getHeight();
+    this.cache.height = info.getHeight();
+    this.cache.numTxs = info.getTxCount();
     
-//    // process blocks
-//    await this._processBlocks(START_HEIGHT, info.getHeight() - 1, info.getTxCount());   
+    console.log("PROCESSING BLOCKS [" + this.store.startHeight + ", " + (this.cache.height - 1) + "] WITH " + this.cache.numTxs + " NON-MINER TXS");
     
-    console.log("PROCESSING BLOCKS [" + START_HEIGHT + ", " + (chainHeight - 1) + "] WITH " + info.getTxCount() + " NON-MINER TXS");
-    
-    // process blocks in chunks
-    let curHeight = START_HEIGHT;
-    while (curHeight < chainHeight - 1) {
-      let endChunksHeight = await this._processBlockChunks(curHeight, chainHeight - 1, MAX_REQ_SIZE, MAX_RECURSION);
-      curHeight = endChunksHeight + 1;
+    // loop while there are unprocessed blocks
+    while (this._hasUnprocessedBlocks()) {
+      await this._processBlocksChunk(this.config.daemon, this.config.blocksReqSize);
     }
     
-//    // get all headers
-//    console.log("Fetching headers cache...");
-//    let headersCache = {};
-//    await MoneroWalletLocal._buildHeadersCache(this.config.daemon, startHeight, chainHeight - 1, headersCache);
-//    //let headers = await this.config.daemon.getBlockHeadersByRange(startHeight, chainHeight - 1); // TODO: fetch in chunks if needed
-//    console.log("Done.");
-//    console.log(headersCache);
-    
-//    let totalSize = 0;
-//    let totalTxs = 0;
-//    for (let header of headers) {
-//      totalSize += header.getBlockSize();
-//      totalTxs += header.getNumTxs();
-//    }
-//    console.log("Total size: " + totalSize);
-//    console.log("Total txs: " + totalTxs);
-//    
-//    // get blocks in fixed size chunks
-//    let curHeight = startHeight;
-//    let endHeight = null;
-//    let processedSize = 0;
-//    let numProcessedBlocks = 0;
-//    let numProcessedTxs = 0;
-//    while (curHeight < chainHeight) {
-//      endHeight = await this._getEndHeight(curHeight, chainHeight, maxSize, headers);
-////      if (curHeight === endHeight) {
-////        console.log("curHeight === endHeight === " + curHeight);
-////        break;
-////      }
-//      //console.log("Fetching blocks [" + curHeight + ", " + endHeight + "]")
-//      let blocks = await this.config.daemon.getBlocksByRange(curHeight, endHeight);
-//      let numTxs = 0;
-//      for (let block of blocks) {
-//        numTxs += block.getTxs().length;
-//        this._processBlock(block);
-//        processedSize += headers[numProcessedBlocks].getBlockSize();
-//        numProcessedTxs += headers[numProcessedBlocks].getNumTxs();
-//        numProcessedBlocks++;
-//      }
-//      console.log(endHeight + " (" + (endHeight / chainHeight * 100) + "%) OR (" + (processedSize / totalSize) + "%) OR (" + (numProcessedTxs / totalTxs) + "%) " + numTxs + " transactions");
-//      curHeight = endHeight + 1;
-//    }
-    
-//    // iterate to fetch blocks in chunks
-//    let startHeight = 190000;
-//    let numBlocksPerRequest = 1000;
-//    for (let curHeight = startHeight; curHeight < height; curHeight += numBlocksPerRequest) {
-//      let blocks = await this.daemon.getBlocksByRange(curHeight, curHeight + numBlocksPerRequest);
-//      let numTxs = 0;
-//      for (let block of blocks) {
-//        numTxs += block.getTxs().length;
-//        this._processBlock(block);
-//      }
-//      console.log(curHeight + " (" + ((curHeight + numBlocksPerRequest) / height * 100) + "%) " + numTxs + " transactions");
-//    }
-    
-//    // determine heights to fetch
-//    let numBlocks = 100;
-//    let numBlocksAgo = 400;
-//    assert(numBlocks > 0);
-//    assert(numBlocksAgo >= numBlocks);
-//    assert(height - numBlocksAgo + numBlocks - 1 < height);
-//    let startHeight = height - numBlocksAgo;
-//    let endHeight = height - numBlocksAgo + numBlocks - 1;
-    
-    // override for known incoming transactions
-//    startHeight = 197085;
-//    endHeight = startHeight + numBlocks - 1;
-//    startHeight = 196148;
-//    endHeight = 198148
-    
-    // fetch blocks
-//    console.log("Getting blocks from range: [" + startHeight + ", " + endHeight + "]");
-//    let blocks = await this.daemon.getBlocksByRange(startHeight, endHeight);
-    
-//    for (let block of blocks) {
-//      if (block.getTxs().length) {
-//        console.log(block);
-//      }
-//    }
-    
-//    // process each block
-//    for (let block of blocks) {
-//      this._processBlock(block);
-//    }
+    throw new Error("Done processing!");
   }
   
   // -------------------------------- PRIVATE ---------------------------------
+  
+  /**
+   * Performs one time initialization prior to executing wallet methods.
+   * 
+   * @returns Promise is a singleton promise that resolves after initializing
+   */
+  async _initOneTime() {
+    
+    // return singleton promise if already initialized
+    if (this.initPromise) return this.initPromise;
+    
+    // initialize working cache
+    this.cache = {};
+    this.cache.coreUtils = await MoneroUtils.getCoreUtils();
+    this.cache.network = (await this.config.daemon.getInfo()).getNetworkType();
+    this.cache.processing = {};
+    
+    // initialize new store
+    if (this.store === undefined) {
+      this.store = {};
+      this.store.version = "0.0.1";
+      this.store.processed = {};  // track processed blocks in store
+      
+      // initialize keys from core utils
+      let keys;
+      if (this.config.mnemonic === undefined) {
+        keys = this.config.coreUtils.newly_created_wallet(this.config.mnemonicLanguage, this.cache.network);  // randomly generate keys
+      } else {
+        keys = this.cache.coreUtils.seed_and_keys_from_mnemonic(this.config.mnemonic, this.cache.network);    // initialize keys from mnemonic
+        keys.mnemonic_string = this.config.mnemonic;
+        keys.mnemonic_language = this.config.mnemonicLanguage
+      }
+      
+      // save keys
+      this.store.seed = keys.sec_seed_string; // only the seed goes in the store to be persisted
+      this.cache.mnemonic = keys.mnemonic_string;
+      this.cache.mnemonicLanguage = keys.mnemonic_language;
+      this.cache.pubViewKey = keys.pub_viewKey_string;
+      this.cache.prvViewKey = keys.sec_viewKey_string;
+      this.cache.pubSpendKey = keys.pub_spendKey_string;
+      this.cache.prvSpendKey = keys.sec_spendKey_string;
+      this.cache.primaryAddress = keys.address_string;
+    }
+    
+    // otherwise import existing store
+    else {
+      throw new Error("Importing wallet store not supported");
+    }
+  }
+  
+  /**
+   * Retrieves a header from the cache or fetches and caches a header range if not in the cache.
+   * 
+   * @param height is the height of the header to retrieve from the cache
+   * @param maxHeight is the maximum header height to fetch
+   */
+  async _getCachedHeader(height, maxHeight) {
+    
+    // get header from cache
+    let cachedHeader = this.cache.headers[height];
+    if (cachedHeader) return cachedHeader;
+    
+    // fetch and cache headers if not in cache
+    const NUM_HEADERS_PER_REQUEST = 1000;
+    let endHeight = Math.min(maxHeight, height + NUM_HEADERS_PER_REQUEST - 1);
+    let headers = await this.config.daemon.getBlockHeadersByRange(height, endHeight);
+    for (let header of headers) {
+      this.cache.headers[header.getHeight()] = {
+          blockSize: header.getBlockSize(),
+          numTxs: header.getNumTxs()
+      }
+    }
+    
+    // return the cached header
+    return this.cache.headers[height];
+  }
+  
+  _hasUnprocessedBlocks() {
+    return this._getNextUnprocessedHeader() !== undefined;
+  }
+  
+  _getNextUnprocessedHeader() {
+    
+    
+    for (let i = 0; i < this.cache.height; i++) {
+      let idx = GenUtils.getFirstBit(this.store.processed, 0, this.cache.height, false);
+    }
+    
+    
+    let GenUtils.getFirstBit(this.store.processed, 0, this.cache.height, false);
+    
+    
+    
+    throw new Error("Not implemented");
+  }
+  
+  /**
+   * Processes a chunk of unprocessed blocks.
+   * 
+   * @param daemon is the daemon to query
+   * @param maxReqSize is the maximum request size for processing block spans
+   */
+  async _processBlocksChunk(daemon, maxReqSize) {
+    
+    // collect block indices to fetch
+    let reqSize = 0;
+    let blockIndices = 0;
+    let unprocessedHeader = null;
+    while (reqSize < maxReqSize && (unprocessedHeader = this._getNextUnprocessedHeader())) {
+      console.log("Ok we we have an unprocessed header");
+      consolelog(unprocessedHeader);
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    throw new Error("Not implemented");
+  }
   
   async _processBlockChunks(startHeight, maxHeight, maxReqSize, maxRecursion) {
     
@@ -255,130 +282,6 @@ class MoneroWalletLocal extends MoneroWallet {
     if (recursePromise) return await recursePromise;
     else return endHeight;
   }
-  
-  /**
-   * Gets the first block height within the range that has txs.
-   * 
-   * @param startHeight is the start height to search from
-   * @param maxHeight is the maximum block height
-   * @returns the first height within the range with txs, null if none found
-   */
-  async _getFirstTxHeight(startHeight, maxHeight) {
-    for (let i = startHeight; i <= maxHeight; i++) {
-      let cachedHeader = await this._getCachedHeader(i, maxHeight);
-      if (cachedHeader.numTxs > 0) return i;
-    }
-    return null;
-  }
-  
-  /**
-   * Retrieves a header from the cache or fetches and caches a header range if not in the cache.
-   * 
-   * @param height is the height of the header to retrieve from the cache
-   * @param maxHeight is the maximum header height to fetch
-   */
-  async _getCachedHeader(height, maxHeight) {
-    
-    // get header from cache
-    let cachedHeader = this.cache.headers[height];
-    if (cachedHeader) return cachedHeader;
-    
-    // fetch and cache headers if not in cache
-    const NUM_HEADERS_PER_REQUEST = 1000;
-    let endHeight = Math.min(maxHeight, height + NUM_HEADERS_PER_REQUEST - 1);
-    let headers = await this.config.daemon.getBlockHeadersByRange(height, endHeight);
-    for (let header of headers) {
-      this.cache.headers[header.getHeight()] = {
-          blockSize: header.getBlockSize(),
-          numTxs: header.getNumTxs()
-      }
-    }
-    
-    // return the cached header
-    return this.cache.headers[height];
-  }
-  
-//  static async _fetchHeadersByTotalBlockSize(daemon, startHeight, maxHeight, totalBlockSize, headerCache) {
-//    throw new Error("Not implemented");
-//  };
-// 
-//  static async _buildHeadersCache(daemon, startHeight, endHeight, headersCache) {
-//    
-//    const NUM_HEADERS_PER_REQUEST = 1000;
-//    const MAX_REQUESTS_PER_SECOND = 1;
-//    
-//    let maxRecursionLevel = MAX_REQUESTS_PER_SECOND < 1 ? 1 : Math.floor(MAX_REQUESTS_PER_SECOND);
-//    let minMsPerRequest = 1 / MAX_REQUESTS_PER_SECOND * 1000;
-//    let minMsRecursion = maxRecursionLevel * minMsPerRequest;
-//    
-////    console.log("max recursion level: " + maxRecursionLevel);
-////    console.log("min ms per request: " + minMsPerRequest);
-////    console.log("min ms recursion: " + minMsRecursion);
-//    
-//    let curHeight = startHeight;
-//    while (curHeight < endHeight) {
-//      let startTime = +new Date();
-//      let endRecursionHeight = await _buildHeaderCacheRecursively(daemon, curHeight, endHeight, NUM_HEADERS_PER_REQUEST, maxRecursionLevel, headersCache);
-//      let recurseTime = +new Date() - startTime;
-//      if (recurseTime < minMsRecursion) {
-//        console.log("Slowing this puppy down...");
-//        await timeout(minMsRecursion - recurseTime);  // throttle requests    
-//      }
-//      curHeight = endRecursionHeight + 1;
-//    }
-//    
-//    function timeout(ms) {
-//      return new Promise(resolve => setTimeout(resolve, ms));
-//    }
-//    
-//    async function _buildHeaderCacheRecursively(daemon, startHeight, maxHeight, numHeadersPerRequest, numMaxRecursion, headersCache) {
-//      
-//      // compute end height
-//      let endHeight = Math.min(maxHeight, startHeight + numHeadersPerRequest - 1);
-//
-//      // fetch headers
-//      let headers = await daemon.getBlockHeadersByRange(startHeight, endHeight);
-//      
-//      // recurse to start fetching next headers
-//      let recursePromise = null;
-//      if (endHeight + 1 < maxHeight && numMaxRecursion > 1) {
-//        recursePromise = _buildHeaderCacheRecursively(daemon, endHeight + 1, maxHeight, numHeadersPerRequest, numMaxRecursion - 1, headersCache);
-//      }
-//      
-//      // cache headers
-//      for (let header of headers) {
-//        headersCache[header.getHeight()] = "Hi!";
-//      }
-//      
-//      // return result from recursion or max height if base case
-//      if (recursePromise) return await recursePromise;
-//      else return headers[headers.length - 1].getHeight();
-//    }
-//  }
-//  
-//  
-//  
-//  /**
-//   * Gets the height of the block where the total size of blocks between it and
-//   * the given start block is up to but no more than the given maximum size.
-//   * 
-//   * @param startHeight is the starting height to compute total block size from
-//   * @param chainHeight is the current chain height to not be exceeded
-//   * @param headers are headers to inform block retrieval size
-//   * @param maxSize is the maximum size of all blocks between the start and end blocks
-//   * @return the height of the block where the total size of all blocks between the
-//   *         start and end is up to but no more than the given maximum size
-//   */
-//  async _getEndHeight(startHeight, chainHeight, maxSize, headers) {
-//    let totalSize = 0;
-//    for (let headerIdx = startHeight; headerIdx < headers.length; headerIdx++) {
-//      let header = headers[headerIdx];
-//      if (header.getBlockSize() > maxSize) throw new Error("Block is too big to process: " + header.getBlockSize());
-//      if (headerIdx < headers.length - 1 && totalSize + headers[headerIdx + 1].getBlockSize() > maxSize) return header.getHeight();
-//      totalSize += header.getBlockSize();
-//    }
-//    return headers[headers.length - 1].getHeight();
-//  }
   
   /**
    * Processes a single block.
@@ -441,62 +344,18 @@ class MoneroWalletLocal extends MoneroWallet {
     
     //console.log("Done processing, " + numOwned + " owned outputs found, " + numUnowned + " unowned");
   }
-  
-  /**
-   * Performs one time initialization prior to executing wallet methods.
-   * 
-   * @returns Promise is a singleton promise that resolves after initializing
-   */
-  async _initOneTime() {
-    
-    // return singleton promise if already initialized
-    if (this.initPromise) return this.initPromise;
-    
-    // initialize working cache
-    this.cache = {};
-    this.cache.coreUtils = await MoneroUtils.getCoreUtils();
-    this.cache.network = (await this.config.daemon.getInfo()).getNetworkType();
-    
-    // initialize new store
-    if (this.store === undefined) {
-      this.store = {};
-      this.store.version = "0.0.1";
-      
-      // initialize keys from core utils
-      let keys;
-      if (this.config.mnemonic === undefined) {
-        keys = this.config.coreUtils.newly_created_wallet(this.config.mnemonicLanguage, this.cache.network);  // randomly generate keys
-      } else {
-        keys = this.cache.coreUtils.seed_and_keys_from_mnemonic(this.config.mnemonic, this.cache.network); // initialize keys from mnemonic
-        keys.mnemonic_string = this.config.mnemonic;
-        keys.mnemonic_language = this.config.mnemonicLanguage
-      }
-      
-      // initialize wallet keys
-      this.store.seed = keys.sec_seed_string; // only seed goes in the store
-      this.cache.mnemonic = keys.mnemonic_string;
-      this.cache.mnemonicLanguage = keys.mnemonic_language;
-      this.cache.pubViewKey = keys.pub_viewKey_string;
-      this.cache.prvViewKey = keys.sec_viewKey_string;
-      this.cache.pubSpendKey = keys.pub_spendKey_string;
-      this.cache.prvSpendKey = keys.sec_spendKey_string;
-      this.cache.primaryAddress = keys.address_string;
-    }
-    
-    // otherwise import existing store
-    else {
-      throw new Error("Importing wallet store not supported");
-    }
-  }
 }
 
+/**
+ * Local wallet default config.
+ */
 MoneroWalletLocal.DEFAULT_CONFIG = {
     startHeight: 0,                     // start height to process the wallet from
     mnemonicLanguage: "en",             // default mnemonic phrase language
     requestsPerSecond: 50,              // maximum requests per second to the daemon
     numHeadersPerRequest: 750,          // number of headers per headers fetch request 
-    maxBytesPerBlocksRequest: 4000000,  // maximum total block size per blocks request
-    maxBlocksRequestRecursion: 5,       // maximum recursion per blocks request; maximum memory required = this * maxBytesPerBlocksRequest
+    blocksReqSize: 4000000,             // maximum total block size per blocks request
+    blocksReqConcurrency: 5,            // maximum concurrency for block requests; maximum memory = this * blocksReqSize (defaults to 5)
     skipMinerTxs: false,                // instructs the wallet to skip processing miner txs
 }
 
