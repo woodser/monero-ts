@@ -5,6 +5,14 @@
  */
 class IndexMarker {
   
+  getState() {
+    throw new Error("Not implemented");
+  }
+  
+  setState() {
+    throw new Error("Not implemented");
+  }
+  
   reset() {
     throw new Error("Not implemented");
   }
@@ -21,7 +29,7 @@ class IndexMarker {
     throw new Error("Not implemented");
   }
   
-  getState() {
+  invert() {
     throw new Error("Not implemented");
   }
 }

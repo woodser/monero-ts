@@ -12,7 +12,7 @@ const NUM_MARKINGS = 1; // number of times to apply markings across indices
 let marker = new IndexMarker();
 describe("Test Index Marker", function() {
   
-  // TODO: 
+  // TODO: reset state before each test
   
   it("Starts with nothing marked", function() {
     assert(!marker.isMarked(0, MAX_INDEX));
@@ -176,18 +176,18 @@ describe("Test Index Marker", function() {
     }
   });
   
-  it("Wraps a publicly available internal state object", function() {
+  it("Exposes and can be built from an internal state object", function() {
     
     // mark random indices
     let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
     marker.mark(indices);
     
     // get state
-    let state = marker.getInternalState();
+    let state = marker.getState();
     
     // build a new marker from the state
     let marker2 = new IndexMarker(state);
-    assert(state === marker2.getInternalState());  // these have the same state
+    assert(state === marker2.getState());  // these have the same state
     
     // the states are linked unless explicitly deep copied
     let idx = MAX_INDEX + 5;
@@ -197,8 +197,47 @@ describe("Test Index Marker", function() {
     assert(!marker2.isMarked(idx));
   });
   
+  it("Can set an internal state object", function() {
+    
+    // mark random indices
+    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
+    marker.mark(indices);
+    
+    // create new marker with different markings
+    let marker2 = new IndexMarker();
+    marker2.mark(GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS));
+    
+    // overwrite the internal state
+    marker2.setState(marker.getState());
+    
+    // ensure states are equal
+    assert(marker.getState() === marker2.getState());
+    assert(marker2.isMarked(indices));
+  });
+  
   it("Can invert marked indices", function() {
-    throw new Error("Not implemented");
+    
+    // invert so all indices are theoretically marked
+    marker.invert();
+    assert(marker.isMarked(0, MAX_INDEX * 2));  // TODO: MAX_INDEX ^ MAX_INDEX when range compression implemented to prove performance
+    
+    // invert to reset
+    marker.invert();
+    assert(!marker.isMarked(0, MAX_INDEX * 2));
+    
+    // mark random indices
+    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
+    marker.mark(indices);
+    
+    // invert markings
+    marker.invert();
+    
+    // check markings
+    assert(!marker.isMarked(indices));      // check indices
+    for (let idx = 0; i < MAX_INDEX; i++) { // check individually
+      assert(indices.includes(idx) ? !marker.isMarked(idx) : marker.isMarked(idx));
+    }
+    assert(marker.isMarked(0, MAX_INDEX) === undefined);  // range contains marked and unmarked indices
   });
   
   it("Can get the first marked index", function() {
