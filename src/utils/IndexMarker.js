@@ -5,15 +5,23 @@
  */
 class IndexMarker {
   
-  mark(startIdx, endIdx) {
+  reset() {
     throw new Error("Not implemented");
   }
   
-  unmark(startIdx, endIdx) {
+  mark(start, end) {
     throw new Error("Not implemented");
   }
   
-  isMarked(startIdx, endIdx) {
+  unmark(start, end) {
+    throw new Error("Not implemented");
+  }
+  
+  isMarked(start, end) {
+    throw new Error("Not implemented");
+  }
+  
+  getState() {
     throw new Error("Not implemented");
   }
 }
