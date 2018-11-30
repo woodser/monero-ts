@@ -20,7 +20,7 @@ class TestUtils {
   }
   
   static getDaemonRpc() {
-    if (this.daemonRpc === undefined) this.daemonRpc = new MoneroDaemonRpc(Object.assign(TestUtils.DAEMON_RPC_CONFIG));
+    if (this.daemonRpc === undefined) this.daemonRpc = new MoneroDaemonRpc(TestUtils.DAEMON_RPC_CONFIG);
     return this.daemonRpc;
   }
   
