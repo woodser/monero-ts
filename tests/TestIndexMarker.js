@@ -2,8 +2,9 @@ const assert = require("assert");
 const GenUtils = require("../src/utils/GenUtils");
 const IndexMarker = require("../src/utils/IndexMarker");
 
-const MAX_INDEX = 10000;
-const NUM_INDICES_TO_TEST = 10000;
+const MAX_INDEX = 0;    // maximum index to mark
+const NUM_MARKINGS = 1; // number of times to apply markings across indices
+//assert(NUM_MARKINGS <= MAX_INDEX);  // most tests assume some indices in the range will remain unmarked // TODO
 
 /**
  * Tests the index marker.
@@ -12,17 +13,27 @@ let marker = new IndexMarker();
 describe("Test Index Marker", function() {
   
   it("Starts with nothing marked", function() {
-    throw new Error("Not implemented");
+    assert(!marker.isMarked(0, MAX_INDEX));
   });
   
   it("Can be reset so nothing is marked", function() {
-    throw new Error("Not implemented");
+    
+    // mark random indices
+    let indices = marker.mark(GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS));
+    assert(marker.isMarked(indices));
+    assert(marker.isMarked(0, MAX_INDEX) === undefined);  // some will not be marked
+    
+    // reset markings
+    marker.reset();
+    
+    // nothing is marked
+    assert(!marker.isMarked(0, MAX_INDEX));
   });
   
   it("Can mark single indices", function() {
     
     // fetch random indicies
-    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_INDICES_TO_TEST);
+    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
     
     // mark each index individually
     indices.map(idx =>  marker.mark(idx));
@@ -33,7 +44,7 @@ describe("Test Index Marker", function() {
     
     // check not marked indices
     let notMarkedIndices = [];
-    let indices2 = GenUtils.getRandomInts(0, MAX_INDEX, NUM_INDICES_TO_TEST);
+    let indices2 = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
     for (let idx of indices2) {
       if (indices.includes(idx)) assert(marker.isMarked(idx));
       else notMarkedIndices.push(idx);
@@ -49,7 +60,7 @@ describe("Test Index Marker", function() {
   it("Can mark an array of indices", function() {
     
     // fetch random indicies
-    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_INDICES_TO_TEST);
+    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
     
     // mark indices as array
     marker.mark(indices);
@@ -60,7 +71,7 @@ describe("Test Index Marker", function() {
     
     // check not marked indices
     let notMarkedIndices = [];
-    let indices2 = GenUtils.getRandomInts(0, MAX_INDEX, NUM_INDICES_TO_TEST);
+    let indices2 = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
     for (let idx of indices2) {
       if (indices.includes(idx)) assert(marker.isMarked(idx));
       else notMarkedIndices.push(idx);
@@ -103,7 +114,7 @@ describe("Test Index Marker", function() {
   it("Can unmark single indices", function() {
     
     // mark random indices 
-    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_INDICES_TO_TEST);
+    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
     marker.mark(indices);
     
     // unmark each index
@@ -118,7 +129,7 @@ describe("Test Index Marker", function() {
   it("Can unmark an array of indices", function() {
     
     // mark random indices 
-    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_INDICES_TO_TEST);
+    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
     marker.mark(indices);
     
     // unmark indices as array
