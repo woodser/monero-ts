@@ -7,11 +7,9 @@ const MoneroTx = require("../daemon/model/MoneroTx");
 class MoneroUtils {
   
   /**
-   * Get Monero Core utils for client-side wallet crypto and making binary requests.
+   * Get Monero Core utils for client-side crypto and binary requests.
    */
   static async getCoreUtils() {
-    
-    // cache and return core utils
     if (MoneroUtils.coreUtils === undefined) MoneroUtils.coreUtils = await require('../submodules/mymonero-core-js/monero_utils/monero_utils')();
     return MoneroUtils.coreUtils;
   }

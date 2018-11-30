@@ -11,10 +11,16 @@ const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
  */
 class TestUtils {
   
-  static getDaemonRpc(coreUtils) {
-    if (this.daemonRpc === undefined) {
-      this.daemonRpc = new MoneroDaemonRpc(Object.assign(TestUtils.DAEMON_RPC_CONFIG, { coreUtils: coreUtils }));
+  static getWalletLocal() {
+    if (this.walletLocal === undefined) {
+      let mnemonic = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
+      this.walletLocal = new MoneroWalletLocal({ daemon: this.getDaemonRpc(), mnemonic: mnemonic });
     }
+    return this.walletLocal;
+  }
+  
+  static getDaemonRpc() {
+    if (this.daemonRpc === undefined) this.daemonRpc = new MoneroDaemonRpc(Object.assign(TestUtils.DAEMON_RPC_CONFIG));
     return this.daemonRpc;
   }
   
@@ -48,14 +54,6 @@ class TestUtils {
     // returned cached wallet
     return this.walletRpc;
   }
-  
-  static getWalletLocal(coreUtils) {
-    if (this.walletLocal === undefined) {
-      let mnemonic = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
-      this.walletLocal = new MoneroWalletLocal({ daemon: this.getDaemonRpc(), coreUtils: coreUtils, mnemonic: mnemonic });
-    }
-    return this.walletLocal;
-  }
 }
 
 // ---------------------------- STATIC TEST CONFIG ----------------------------
@@ -72,7 +70,7 @@ TestUtils.WALLET_RPC_CONFIG = {
   host: "localhost",
   port: 38083,
   user: "rpc_user",
-  pass: "abc123"
+  pass: "abc123",
 };
 
 TestUtils.DAEMON_RPC_CONFIG = { 
@@ -81,7 +79,6 @@ TestUtils.DAEMON_RPC_CONFIG = {
   port: 38081,
   user: "superuser",
   pass: "abctesting123",
-  requestsPerSecond: 50
 };
 
 //TestUtils.DAEMON_RPC_CONFIG = { 

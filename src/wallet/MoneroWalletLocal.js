@@ -35,7 +35,7 @@ class MoneroWalletLocal extends MoneroWallet {
     this.config = Object.assign({}, MoneroWalletLocal.DEFAULT_CONFIG, config);
     
     // start one time initialization but do not wait
-    this._initOneTime();
+    this.initPromise = this._initOneTime();
   }
   
   getDaemon() {
@@ -88,6 +88,7 @@ class MoneroWalletLocal extends MoneroWallet {
   }
   
   async getHeight() {
+    await this._initOneTime();
     throw new Error("getHeight() not implemented");
   }
   
@@ -448,9 +449,9 @@ class MoneroWalletLocal extends MoneroWallet {
    */
   async _initOneTime() {
     
-    // already initialized if cache initialized
-    if (this.cache) return;
-
+    // return singleton promise if already initialized
+    if (this.initPromise) return this.initPromise;
+    
     // initialize working cache
     this.cache = {};
     this.cache.coreUtils = await MoneroUtils.getCoreUtils();
