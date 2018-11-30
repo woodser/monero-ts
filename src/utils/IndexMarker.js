@@ -5,6 +5,17 @@
  */
 class IndexMarker {
   
+  mark(startIdx, endIdx) {
+    throw new Error("Not implemented");
+  }
+  
+  unmark(startIdx, endIdx) {
+    throw new Error("Not implemented");
+  }
+  
+  isMarked(startIdx, endIdx) {
+    throw new Error("Not implemented");
+  }
 }
 
 module.exports = IndexMarker;
