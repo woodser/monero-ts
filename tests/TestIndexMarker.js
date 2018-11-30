@@ -12,6 +12,8 @@ const NUM_MARKINGS = 1; // number of times to apply markings across indices
 let marker = new IndexMarker();
 describe("Test Index Marker", function() {
   
+  // TODO: 
+  
   it("Starts with nothing marked", function() {
     assert(!marker.isMarked(0, MAX_INDEX));
   });
@@ -39,8 +41,8 @@ describe("Test Index Marker", function() {
     indices.map(idx =>  marker.mark(idx));
     
     // check marked indices
-    assert(marker.isMarked(indices));                     // check as array
-    indices.map(idx => assert(marker.isMarked(idx)));     // check individually
+    assert(marker.isMarked(indices));                 // check as array
+    indices.map(idx => assert(marker.isMarked(idx))); // check individually
     
     // check not marked indices
     let notMarkedIndices = [];
@@ -58,6 +60,7 @@ describe("Test Index Marker", function() {
   });
   
   it("Can mark an array of indices", function() {
+    assert(!marker.isMarked(0, MAX_INDEX)); // ensure starting with reset state
     
     // fetch random indicies
     let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
@@ -66,8 +69,8 @@ describe("Test Index Marker", function() {
     marker.mark(indices);
     
     // check marked indices
-    assert(marker.isMarked(indices));                     // check as array
-    indices.map(idx => assert(marker.isMarked(idx)));     // check individually
+    assert(marker.isMarked(indices));                 // check as array
+    indices.map(idx => assert(marker.isMarked(idx))); // check individually
     
     // check not marked indices
     let notMarkedIndices = [];
@@ -173,19 +176,36 @@ describe("Test Index Marker", function() {
     }
   });
   
-  it("Can save and re-load its state", function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get the index of the first marked index", function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get the index of the first unmarked index", function() {
-    throw new Error("Not implemented");
+  it("Wraps a publicly available internal state object", function() {
+    
+    // mark random indices
+    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
+    marker.mark(indices);
+    
+    // get state
+    let state = marker.getInternalState();
+    
+    // build a new marker from the state
+    let marker2 = new IndexMarker(state);
+    assert(state === marker2.getInternalState());  // these have the same state
+    
+    // the states are linked unless explicitly deep copied
+    let idx = MAX_INDEX + 5;
+    marker.mark(idx);
+    assert(marker2.isMarked(idx));
+    marker.unmark(idx);
+    assert(!marker2.isMarked(idx));
   });
   
   it("Can invert marked indices", function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get the first marked index", function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get the first unmarked index", function() {
     throw new Error("Not implemented");
   });
 });
