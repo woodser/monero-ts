@@ -4,9 +4,11 @@ const TestUtils = require("./TestUtils");
 const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
 const GenUtils = require("../src/utils/GenUtils");
 
-// get and test daemon
+/**
+ * Tests the Monero Daemon RPC client and server.
+ */
 let daemon = TestUtils.getDaemonRpc();
-describe("Monero Daemon RPC", function() {
+describe("Test Monero Daemon RPC", function() {
 
   it("Can get the blockchain height", async function() {
     let height = await daemon.getHeight();

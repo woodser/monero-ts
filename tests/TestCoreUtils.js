@@ -8,7 +8,7 @@ const TestUtils = require("./TestUtils");
  */
 MoneroUtils.getCoreUtils().then(function(coreUtils) {
   
-  describe("Monero Core Utils", function() {
+  describe("Test Monero Core Utils", function() {
     
     describe("Binary Serialization", function() {
       

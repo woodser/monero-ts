@@ -3,9 +3,9 @@ const GenUtils = require("../src/utils/GenUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 
 /**
- * Tests the given wallet with common tests that all wallets should implement.
+ * Runs common tests that any Monero wallet should implement.
  * 
- * @param wallet is the wallet to test
+ * @param wallet is the Monero wallet to test
  */
 function testWallet(wallet) {
   

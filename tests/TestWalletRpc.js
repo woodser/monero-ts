@@ -1,14 +1,16 @@
 const TestUtils = require("./TestUtils");
 const TestWalletCommon = require("./TestWalletCommon");
 
-// get rpc wallet which may fail
+/**
+ * Tests the Monero Wallet RPC client and server.
+ */
 TestUtils.getWalletRpc().catch(function(err) {
   console.error("Error initializing Monero Wallet RPC:");
   console.error(err);
 }).then(function(wallet) {
   
   // test wallet
-  describe("Monero Wallet RPC", function() {
+  describe("Test Monero Wallet RPC", function() {
     
     // run common tests
     TestWalletCommon.testWallet(wallet);

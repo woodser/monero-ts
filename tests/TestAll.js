@@ -1,3 +1,4 @@
+require("./TestBitMarker");
 require("./TestDaemonRpc");
 require("./TestWalletRpc");
 require("./TestWalletLocal");

@@ -1210,6 +1210,31 @@ class GenUtils {
       array[j] = temp;
     }
   }
+  
+  // TODO: re-implement with range compression
+
+  static setBit(data, idx, bool) {
+    assert(idx >= 0);
+    assert(typeof bool === "boolean");
+    data[idx] = bool;
+  }
+  
+
+  static getBit(data, idx) {
+    let val = data[idx];
+    return val ? val : false;
+  }
+  
+  static getFirstBit(data, startIdx, endIdx, bool) {
+    for (let i = startIdx; i < endIdx; i++) {
+      if (bool === GenUtils.getBit(data, i)) return i;
+    }
+    return undefined;
+  }
+  
+  static hasBit(data, startIdx, endIdx, bool) {
+    return GenUtils.getFirstBit(data, startIdx, endIdx, bool) !== undefined;
+  }
 }
 
 module.exports = GenUtils;

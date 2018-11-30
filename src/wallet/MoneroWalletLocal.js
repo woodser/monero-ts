@@ -199,14 +199,14 @@ class MoneroWalletLocal extends MoneroWallet {
   
   _getNextUnprocessedHeader() {
     
-    
-    for (let i = 0; i < this.cache.height; i++) {
-      let idx = GenUtils.getFirstBit(this.store.processed, 0, this.cache.height, false);
-    }
-    
-    
-    let GenUtils.getFirstBit(this.store.processed, 0, this.cache.height, false);
-    
+//    
+//    for (let i = 0; i < this.cache.height; i++) {
+//      let idx = GenUtils.getFirstBit(this.store.processed, 0, this.cache.height, false);
+//    }
+//    
+//    
+//    let GenUtils.getFirstBit(this.store.processed, 0, this.cache.height, false);
+//    
     
     
     throw new Error("Not implemented");

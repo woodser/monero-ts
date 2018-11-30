@@ -3,7 +3,9 @@ const TestUtils = require("./TestUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const TestWalletCommon = require("./TestWalletCommon");
 
-// get and test wallet
+/**
+ * Tests the fully client-side Monero Wallet which uses a Monero Daemon.
+ */
 let wallet = TestUtils.getWalletLocal();
 describe("Monero Wallet Local", function() {
   
