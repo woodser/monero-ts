@@ -2,8 +2,8 @@ const assert = require("assert");
 const GenUtils = require("../src/utils/GenUtils");
 const IndexMarker = require("../src/utils/IndexMarker");
 
-const MAX_INDEX = 1;    // maximum index to mark
-const NUM_MARKINGS = 1; // number of times to apply markings across indices
+const MAX_INDEX = 10000;            // maximum index to mark
+const NUM_MARKINGS = 5000;          // number of times to apply markings across indices
 assert(MAX_INDEX >= NUM_MARKINGS);  // most tests assume some indices in the range will remain unmarked
 
 /**
@@ -132,7 +132,7 @@ describe("Test Index Marker", function() {
     // test that nothing is marked
     indices.map(idx => assert(!marker.isMarked(idx)));  // check individually
     assert(!marker.isMarked(indices));                  // check as array
-    assert(!marker.isMarked(0, MAX_INDEX));               // check as range 
+    assert(!marker.isMarked(0, MAX_INDEX));             // check as range 
   });
   
   it("Can unmark an array of indices", function() {
@@ -147,7 +147,7 @@ describe("Test Index Marker", function() {
     // test that nothing is marked
     indices.map(idx => assert(!marker.isMarked(idx)));  // check individually
     assert(!marker.isMarked(indices));                  // check as array
-    assert(!marker.isMarked(0, MAX_INDEX));               // check as range 
+    assert(!marker.isMarked(0, MAX_INDEX));             // check as range 
   });
   
   it("Can unmark a range of indices", function() {
@@ -240,17 +240,22 @@ describe("Test Index Marker", function() {
     
     // check markings
     assert(!marker.isMarked(indices));      // check indices
-    for (let idx = 0; i < MAX_INDEX; i++) { // check individually
-      assert(indices.includes(idx) ? !marker.isMarked(idx) : marker.isMarked(idx));
+    for (let i = 0; i < MAX_INDEX; i++) { // check individually
+      assert(indices.includes(i) ? !marker.isMarked(i) : marker.isMarked(i));
     }
     assert(marker.isMarked(0, MAX_INDEX) === undefined);  // range contains marked and unmarked indices
+    
+    // mark some more indices
+    indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
+    marker.mark(indices);
+    for (let idx of indices) assert(marker.isMarked(idx));
   });
   
-  it("Can get the first marked index", function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get the first unmarked index", function() {
-    throw new Error("Not implemented");
-  });
+//  it("Can get the first marked index", function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can get the first unmarked index", function() {
+//    throw new Error("Not implemented");
+//  });
 });

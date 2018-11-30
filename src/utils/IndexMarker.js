@@ -91,7 +91,9 @@ class IndexMarker {
       
       // check single index
       else {
-        return this.state[inputs.start] === true;
+        let marked = this.state[inputs.start] === true;
+        if (this.state.inverted) marked = !marked;
+        return marked;
       }
     }
     
@@ -108,7 +110,7 @@ class IndexMarker {
   }
   
   invert() {
-    throw new Error("Not implemented");
+    this.state.inverted = !this.state.inverted;
   }
   
   // --------------------------------- PRIVATE --------------------------------
@@ -144,8 +146,13 @@ class IndexMarker {
   }
   
   _setSingle(index, mark) {
-    if (mark) this.state[index] = true;
-    else delete this.state[index];
+    if (!this.state.inverted) {
+      if (mark) this.state[index] = true;
+      else delete this.state[index];
+    } else {
+      if (mark) delete this.state[index];
+      else this.state[index] = true;
+    }
   }
   
   static _validateState(state) {
