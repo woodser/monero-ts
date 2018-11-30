@@ -75,10 +75,11 @@ describe("Test Index Marker", function() {
   
   it("Can mark a range of indicies", function() {
     
+    const REPEAT = 1000;
     const MAX_IDX = 99;    
     
-    // repeat this experiment many times
-    for (let i = 0; i < 10000; i++) {
+    // repeat this test
+    for (let i = 0; i < REPEAT; i++) {
       marker.reset();
       
       // get random start and end indices
@@ -101,17 +102,64 @@ describe("Test Index Marker", function() {
   
   it("Can unmark single indices", function() {
     
-    // mark random indices
-    let indices = GenUtils.getRandomInts(0, 100, 40);
+    // mark random indices 
+    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_INDICES_TO_TEST);
     marker.mark(indices);
+    
+    // unmark each index
+    indices.map(idx => marker.unmark(idx));
+    
+    // test that nothing is marked
+    indices.map(idx => assert(!marker.isMarked(idx)));  // check individually
+    assert(!marker.isMarked(indices));                  // check as array
+    assert(!marker.isMarked(0, MAX_IDX));               // check as range 
   });
   
   it("Can unmark an array of indices", function() {
-    throw new Error("Not implemented");
+    
+    // mark random indices 
+    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_INDICES_TO_TEST);
+    marker.mark(indices);
+    
+    // unmark indices as array
+    marker.unmark(indices);
+    
+    // test that nothing is marked
+    indices.map(idx => assert(!marker.isMarked(idx)));  // check individually
+    assert(!marker.isMarked(indices));                  // check as array
+    assert(!marker.isMarked(0, MAX_IDX));               // check as range 
   });
   
   it("Can unmark a range of indices", function() {
-    throw new Error("Not implemented");
+    const REPEAT = 1000;
+    const MAX_IDX = 99;    
+    
+    // repeat this test
+    for (let i = 0; i < REPEAT; i++) {
+      marker.reset();
+      
+      // get random start and end indices
+      let rands = GenUtils.getRandomInts(0, MAX_IDX, 2);
+      let start = Math.min(rands[0], rands[1]);
+      let end = Math.max(rands[0], rands[1]);
+      
+      // mark the range
+      marker.mark(start, end);
+      assert(marker.isMarked(start, end));
+      
+      // unmark the range
+      marker.unmark(start, end);
+      
+      // turn range into indices for unmark test
+      let indices = [];
+      for (let idx = start; idx < end; idx++) indices.push(idx);
+      
+      // test no markings
+      for (let idx = start; idx < end; idx++) assert(!marker.isMarked(idx));  // check individually
+      assert(!marker.isMarked(indices));                                      // check indices
+      assert(!marker.isMarked(start, end));                                   // check range
+      assert(!marker.isMarked(0, MAX_IDX));                                   // check max range
+    }
   });
   
   it("Can save and re-load its state", function() {
