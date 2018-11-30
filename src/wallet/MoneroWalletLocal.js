@@ -100,7 +100,7 @@ class MoneroWalletLocal extends MoneroWallet {
     delete this.cache.headers;
     this.cache.headers = {};
     
-    // get daemon info
+    // cache latest info to track progress
     let info = await this.config.daemon.getInfo();
     this.cache.height = info.getHeight();
     this.cache.numTxs = info.getTxCount();
