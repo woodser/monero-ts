@@ -5,6 +5,10 @@ const GenUtils = require("../utils/GenUtils");
  * Allows indices in an infinite range to be arbitrarily marked or not marked.
  * 
  * TODO: compress into ranges to be more efficient
+ * TODO: public set(param1, param2, param3) with example usage in documentation and tests
+ *  set(0, true);
+ *  set(0, 4, true);
+ *  set([0, 1, 2, 3, 4], true);
  */
 class IndexMarker {
   
