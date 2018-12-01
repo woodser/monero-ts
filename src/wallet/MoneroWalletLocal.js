@@ -19,8 +19,8 @@ class MoneroWalletLocal extends MoneroWallet {
    * @param config.startHeight is the start height to scan the wallet from (defaults to 0)
    * @param config.requestsPerSecond throttles maximum rate of daemon requests (defaults to 50 rps)
    * @param config.numHeadersPerRequest specifies the number of headers to fetch when populating the header cache (defaults to 750)
-   * @param config.blocksReqSize specifies maximum total block size per blocks request (defaults to 4000000)
-   * @param config.blocksReqConcurrency specifies maximum concurrency for block requests; maximum memory = this * blocksReqSize (defaults to 5)
+   * @param config.maxReqSize specifies maximum total block size per blocks request (defaults to 4000000)
+   * @param config.maxConcurrency specifies maximum concurrency for block requests; maximum memory = this * maxReqSize (defaults to 5)
    * @param config.skipMinerTxs skips processing miner txs to speed up scan time (defaults to false)
    */
   constructor(config) {
@@ -90,6 +90,7 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async getHeight() {
     await this._initOneTime();
+    //return this.cache.processedMarker.getFirst
     throw new Error("getHeight() not implemented");
   }
   
@@ -103,10 +104,10 @@ class MoneroWalletLocal extends MoneroWallet {
     
     // cache latest info to track progress
     let info = await this.config.daemon.getInfo();
-    this.cache.height = info.getHeight();
+    this.cache.chainHeight = info.getHeight();
     this.cache.numTxs = info.getTxCount();
     
-    //console.log("PROCESSING BLOCKS [" + this.store.startHeight + ", " + (this.cache.height - 1) + "] WITH " + this.cache.numTxs + " NON-MINER TXS");
+    //console.log("PROCESSING BLOCKS [" + this.store.startHeight + ", " + (this.cache.chainHeight - 1) + "] WITH " + this.cache.numTxs + " NON-MINER TXS");
     
     // copy and invert processed blocks to track unprocessed blocks
     this.cache.unprocessedMarker = this.cache.processedMarker.copy().invert();
@@ -201,23 +202,23 @@ class MoneroWalletLocal extends MoneroWallet {
   }
   
   _hasUnprocessedBlocks() {
-    return this._getNextUnprocessedHeader() !== undefined;
+    return this.cache.unprocessedMarker.isMarked(0, this.cache.chainHeight - 1) !== false; // has unprocessed if any true
   }
   
-  _getNextUnprocessedHeader() {
-    
+//  _getNextUnprocessedHeader() {
 //    
-//    for (let i = 0; i < this.cache.height; i++) {
-//      let idx = GenUtils.getFirstBit(this.store.processed, 0, this.cache.height, false);
-//    }
+////    
+////    for (let i = 0; i < this.cache.chainHeight; i++) {
+////      let idx = GenUtils.getFirstBit(this.store.processed, 0, this.cache.chainHeight, false);
+////    }
+////    
+////    
+////    let GenUtils.getFirstBit(this.store.processed, 0, this.cache.chainHeight, false);
+////    
 //    
 //    
-//    let GenUtils.getFirstBit(this.store.processed, 0, this.cache.height, false);
-//    
-    
-    
-    throw new Error("Not implemented");
-  }
+//    throw new Error("Not implemented");
+//  }
   
   /**
    * Processes a chunk of unprocessed blocks.
@@ -226,16 +227,21 @@ class MoneroWalletLocal extends MoneroWallet {
    */
   async _processBlocksChunk(daemon) {
     
+    console.log("Processing chunk");
+    
     // collect block indices to fetch
     let reqSize = 0;
     let blockIndices = 0;
     let unprocessedHeader = null;
-    while (reqSize < this.config.maxReqSize && (unprocessedHeader = this._getNextUnprocessedHeader())) {
+    console.log(this.config);
+    while (reqSize < this.config.maxReqSize && (unprocessedHeader = this._getNextUnprocessedHeader()) ) {
+      console.log("loop");
+
       console.log("Ok we we have an unprocessed header");
       consolelog(unprocessedHeader);
     }
     
-    
+    console.log("dne");
     
     
     
@@ -360,8 +366,8 @@ MoneroWalletLocal.DEFAULT_CONFIG = {
     mnemonicLanguage: "en",             // default mnemonic phrase language
     requestsPerSecond: 50,              // maximum requests per second to the daemon
     numHeadersPerRequest: 750,          // number of headers per headers fetch request 
-    blocksReqSize: 4000000,             // maximum total block size per blocks request
-    blocksReqConcurrency: 5,            // maximum concurrency for block requests; maximum memory = this * blocksReqSize (defaults to 5)
+    maxReqSize: 4000000,                // maximum size of any request to make
+    maxConcurrency: 5,                  // maximum concurrency when processing; maximum memory = this * maxReqSize (defaults to 5)
     skipMinerTxs: false,                // instructs the wallet to skip processing miner txs
 }
 
