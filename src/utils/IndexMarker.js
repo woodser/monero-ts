@@ -1,4 +1,5 @@
 const assert = require("assert");
+const GenUtils = require("../utils/GenUtils");
 
 /**
  * Allows indices in an infinite range to be arbitrarily marked or not marked.
@@ -10,10 +11,11 @@ class IndexMarker {
   /**
    * Constructs the marker.
    * 
-   * @param state is an initial state (optional)
+   * @param stateOrMarker is an initial state or marker to copy (optional)
    */
-  constructor(state) {
-    if (state) this.setState(state);
+  constructor(stateOrMarker) {
+    if (stateOrMarker instanceof IndexMarker) this.setState(GenUtils.copyProperties(stateOrMarker.getState()));
+    else if (stateOrMarker) this.setState(stateOrMarker);
     else this.reset();
   }
   
@@ -41,6 +43,7 @@ class IndexMarker {
   reset() {
     delete this.state;
     this.state = {};
+    return this;
   }
   
   /**
@@ -51,6 +54,7 @@ class IndexMarker {
    */
   mark(start, end) {
     this._set(start, end, true);
+    return this;
   }
 
   /**
@@ -61,6 +65,7 @@ class IndexMarker {
    */
   unmark(start, end) {
     this._set(start, end, false);
+    return this;
   }
   
   /**
@@ -111,6 +116,11 @@ class IndexMarker {
   
   invert() {
     this.state.inverted = !this.state.inverted;
+    return this;
+  }
+  
+  copy() {
+    return new IndexMarker(this);
   }
   
   // --------------------------------- PRIVATE --------------------------------

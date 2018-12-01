@@ -251,6 +251,23 @@ describe("Test Index Marker", function() {
     for (let idx of indices) assert(marker.isMarked(idx));
   });
   
+  it("Can be copied", function() {
+    
+    // mark random indices
+    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
+    marker.mark(indices);
+    
+    // copy
+    let marker2 = marker.copy();
+    
+    // assert states are equal
+    assert.deepEqual(marker.getState(), marker2.getState())
+    
+    // modify and test to ensure deep copy
+    marker2.mark(MAX_INDEX + 5);
+    assert.notDeepEqual(marker.getState(), marker2.getState())
+  })
+  
 //  it("Can get the first marked index", function() {
 //    throw new Error("Not implemented");
 //  });
