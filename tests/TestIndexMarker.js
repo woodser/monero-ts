@@ -24,8 +24,11 @@ describe("Test Index Marker", function() {
     
     // mark random indices
     let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
+    indices = [ 3, 1, 6, 10, 2 ];
     assert(!marker.isMarked(1));
     marker.mark(indices);
+    console.log(indices);
+    console.log(marker.getState());
     assert(marker.isMarked(indices));
     assert(marker.isMarked(0, MAX_INDEX) === undefined);  // some will not be marked
     
@@ -259,6 +262,7 @@ describe("Test Index Marker", function() {
     
     // mark random indices
     let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
+    indices = [5, 6, 7, 8]; // TODO: remove;
     marker.mark(indices);
     
     // invert markings
@@ -266,13 +270,14 @@ describe("Test Index Marker", function() {
     
     // check markings
     assert(!marker.isMarked(indices));      // check indices
-    for (let i = 0; i < MAX_INDEX; i++) { // check individually
+    for (let i = 0; i < MAX_INDEX; i++) {   // check individually
       assert(indices.includes(i) ? !marker.isMarked(i) : marker.isMarked(i));
     }
     assert(marker.isMarked(0, MAX_INDEX) === undefined);  // range contains marked and unmarked indices
     
     // mark some more indices
     indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
+    indices = [ 7, 4, 1, 8, 8 ];
     marker.mark(indices);
     for (let idx of indices) assert(marker.isMarked(idx));
   });
@@ -287,7 +292,6 @@ describe("Test Index Marker", function() {
     // sort and remove duplicate indices
     indices = GenUtils.toUniqueArray(indices);
     indices = indices.sort((a, b) => a === b ? 0 : a > b ? 1 : -1);
-    console.log(indices);
     
     // can get first marked
     assert.equal(indices[0], marker.getFirst(true));

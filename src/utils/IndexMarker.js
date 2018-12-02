@@ -146,15 +146,14 @@ class IndexMarker {
       if (inputs.end !== undefined) {
         
         // find encompassing range
-        let rangeEncompasses;
+        let rangeEncompasses = false;
         let rangeOverlaps = false;
         for (let range of this.state.ranges) {
           if (range.start <= inputs.start && range.end >= inputs.end) {
-            rangeEncompasses = range;
+            rangeEncompasses = true;
             break;
           }
-          if (range.start <= inputs.start && range.end >= inputs.start) rangeOverlaps = true;
-          if (range.start <= inputs.end && range.end >= inputs.end) rangeOverlaps = true;
+          if (this._overlaps(range.start, range.end, inputs.start, inputs.end)) rangeOverlaps = true;
         }
         
         // interpret range overlap
@@ -234,10 +233,13 @@ class IndexMarker {
     if (curRangeIdx !== undefined) {
       let range = this.state.ranges[curRangeIdx];
       if (range.start === index) {
-        if (range.end === index) this.state.ranges.splice(curRangeIdx, 1); // remove range
-        else range.start++; // increment start
+        if (range.end === index) this.state.ranges.splice(curRangeIdx, 1);                // remove range
+        else range.start++;                                                               // increment start
       } else if (range.end === index) {
-        range.end--;        // decrement end
+        range.end--;                                                                      // decrement end
+      } else {
+        this.state.ranges.splice(curRangeIdx + 1, 0, {start: index + 1, end: range.end}); // add range
+        range.end = index - 1;
       }
     }
     
@@ -271,12 +273,15 @@ class IndexMarker {
         let nextRange = this.state.ranges[nextRangeIdx];
         if (prevRange.end === nextRange.start) {
           prevRange.end = nextRange.end;
-          this.state.ranges.splice(nextRangeIdx);
+          this.state.ranges.splice(nextRangeIdx, 1);
         }
       }
       
       // start new range if not incorporated
-      if (!incorporated) this.state.ranges.push({start: index, end: index});
+      if (!incorporated) {
+        let rangeIdx = prevRangeIdx === undefined ? 0 : prevRangeIdx + 1;
+        this.state.ranges.splice(rangeIdx, 0, {start: index, end: index});
+      }
     }
   }
   
@@ -293,6 +298,12 @@ class IndexMarker {
     
     // apply inversion if applicable
     return inRange ? !this.state.inverted : this.state.inverted;
+  }
+  
+  _overlaps(start1, end1, start2, end2) {
+    if (end1 < start2) return false;
+    if (end2 < start1) return false;
+    return true;
   }
   
   static _validateState(state) {
