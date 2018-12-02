@@ -61,7 +61,7 @@ describe("Test Index Marker", function() {
     
     // unmark everything
     marker.unmark();
-    assert(marker.hasMarked());
+    assert(!marker.hasMarked());
     for (let i = 0; i < MAX_INDEX; i++) assert(!marker.isMarked(i));
     assert.equal(0, marker.getFirst(false));
     assert(!marker.allMarked());
@@ -89,7 +89,7 @@ describe("Test Index Marker", function() {
       else notMarkedIndices.push(idx);
     }
     assert(notMarkedIndices.length > 0);
-    assert(marker.allUnmarked(notMarkedIndices));                 // check as array
+    assert(marker.allUnmarked(notMarkedIndices));               // check as array
     notMarkedIndices.map(idx => assert(!marker.isMarked(idx))); // check individually
     
     // check mixture of marked and unmarked indices across a range
@@ -179,8 +179,8 @@ describe("Test Index Marker", function() {
     
     // test that nothing is marked
     indices.map(idx => assert(!marker.isMarked(idx)));  // check individually
-    assert(!marker.hasMarked(indices));                  // check as array
-    assert(!marker.hasMarked(0, MAX_INDEX));             // check as range 
+    assert(!marker.hasMarked(indices));                 // check as array
+    assert(!marker.hasMarked(0, MAX_INDEX));            // check as range 
   });
   
   it("Can unmark a range of indices", function() {
@@ -220,17 +220,18 @@ describe("Test Index Marker", function() {
     // mark everything
     marker.set(true);
     for (let i = 0; i < MAX_INDEX; i++) assert(marker.isMarked(i));
-    assert.equal(null, marker.getFirst(false));
+    assert(marker.allMarked());
     
     // unmark everything
     marker.set(false);
     for (let i = 0; i < MAX_INDEX; i++) assert(!marker.isMarked(i));
-    assert.equal(0, marker.getFirst(false));
+    assert(marker.allUnmarked());
     
     // mark individuals
     let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
     indices = [ 1, 3, 5, 10, 10 ];  // TODO: remove
     indices = indices.sort((a, b) => a === b ? 0 : a > b ? 1 : -1);
+    indices = GenUtils.toUniqueArray(indices);
     console.log(indices);
     console.log(marker.getState());
     for (let idx of indices) {
@@ -245,25 +246,26 @@ describe("Test Index Marker", function() {
     
     // unmark individuals
     for (let i = 0; i < indices.length; i++) {
-      marker.set(false, i);
-      assert(!marker.isMarked(i));
+      marker.set(false, indices[i]);
+      assert(!marker.isMarked(indices[i]));
       if (i < indices.length - 1) assert(marker.getFirst(true) !== null);
     }
     console.log("AFTER_UNMARKING");
+    console.log(marker.getState());
     assert(!marker.hasMarked());
     
     console.log(indices);
     console.log(MAX_INDEX);
     console.log(marker.getState());
 
-    assert.equal(null, marker.getFirst(true, 0, MAX_INDEX));              // test bounded
-    assert.equal(indices[indices.length - 1] + 1, marker.getFirst(true)); // test unbounded
+    assert.equal(null, marker.getFirst(true, 0, MAX_INDEX));  // test bounded
+    assert.equal(null, marker.getFirst(true));                // test unbounded
     assert.equal(0, marker.getFirst(false));
     
     // mark range
     marker.set(true, 0, MAX_INDEX);
     for (let i = 0; i < MAX_INDEX; i++) assert(marker.isMarked(i));
-    assert.equal(MAX_INDEX, marker.getFirst(false));
+    assert.equal(MAX_INDEX + 1, marker.getFirst(false));
     
     // unmark range
     marker.set(false, 0, MAX_INDEX);
@@ -305,7 +307,7 @@ describe("Test Index Marker", function() {
     for (let i = 0; i < MAX_INDEX; i++) { // check individually
       assert(indices.includes(i) ? !marker.isMarked(i) : marker.isMarked(i));
     }
-    assert(marker.isMarked(0, MAX_INDEX) === undefined);  // range contains marked and unmarked indices
+    assert(marker.hasMarked(0, MAX_INDEX) && marker.hasUnmarked(0, MAX_INDEX)); // mixture of marked and unmarked
     
     // mark some more indices
     indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
@@ -316,14 +318,14 @@ describe("Test Index Marker", function() {
   
   it("Can get the first index with a given marked state", function() {
     
-    // mark random indices
+    // get random sorted indices
     let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
-    indices = [ 0, 1, 2, 3 ]; // TODO: remove after test
-    marker.mark(indices);
-    
-    // sort and remove duplicate indices
     indices = GenUtils.toUniqueArray(indices);
     indices = indices.sort((a, b) => a === b ? 0 : a > b ? 1 : -1);
+    indices = [ 0, 1, 2, 3 ]; // TODO: remove after test
+    
+    // mark indices
+    marker.mark(indices);
     
     // can get first marked
     assert.equal(indices[0], marker.getFirst(true));

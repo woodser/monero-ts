@@ -259,8 +259,6 @@ class IndexMarker {
   /**
    * Get the first index with the given marked state.
    * 
-   * TODO: support array input if use case
-   * 
    * @param isMarked specifies if the index to find should be marked or unmarked
    * @param start is the start index to search from (optional)
    * @param end is the end index to search to (optional)
@@ -268,8 +266,21 @@ class IndexMarker {
    */
   getFirst(isMarked, start = 0, end) {
     
+//    console.log("getFirst(...");
+//    console.log(isMarked);
+//    console.log(start);
+//    console.log(end);
+    
     // sanitize inputs
     let inputs = IndexMarker._sanitizeInputs(isMarked, start, end);
+    
+    // iterate over array of indices if given
+    if (inputs.indices) {
+      for (let index of inputs.indices) {
+        if (this.isMarked(index) === isMarked) return index;
+      }
+      return null;
+    }
 
     // get first range that touches search bounds
     let firstRange;
@@ -288,29 +299,24 @@ class IndexMarker {
         firstRange = range;
         break;
       }
-//      
-//      // check if single index is within range
-//      else if (inputs.start >= range.start && inputs.start <= range.end) {
-//
-//      }
     }
     
 //    console.log("First qualifying range: ");
 //    console.log(firstRange);
     
-    console.log(inputs);
-    console.log(this.getState());
-    console.log("First range:");
-    console.log(firstRange);
+//    console.log(inputs);
+//    console.log(this.getState());
+//    console.log("First range:");
+//    console.log(firstRange);
     
-    // if everything is the same, return inputs.start if they match or null otherwise
-    if (firstRange === undefined) return this.isMarked(0) === inputs.marked ? inputs.start : null;
+    // if a suitable range is not found, everything in the given range is the same
+    if (firstRange === undefined) return this.isMarked(inputs.start) === inputs.marked ? inputs.start : null;
     
     // if they match, return first index in bounds
     if (this.isMarked(firstRange.start) === inputs.marked) return Math.max(inputs.start, firstRange.start);
     
-    // otherwise return first index after range
-    return firstRange.end + 1;
+    // otherwise return first index after range unless it's out of bounds
+    return firstRange.end + 1 > end ? null : firstRange.end + 1;
   }
   
   // --------------------------------- PRIVATE --------------------------------
@@ -407,6 +413,8 @@ class IndexMarker {
   }
   
   static _sanitizeInputs(marked, start, end) {
+    if (start === null) start = undefined;
+    if (end === null) end = undefined;
     
     // validate and sanitize inputs
     if (marked !== undefined && marked !== null) assert(typeof marked === "boolean", "marked is not boolean");
