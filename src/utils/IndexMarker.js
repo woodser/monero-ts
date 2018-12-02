@@ -18,7 +18,7 @@ class IndexMarker {
    * @param stateOrMarker is an initial state or marker to copy (optional)
    */
   constructor(stateOrMarker) {
-    if (stateOrMarker instanceof IndexMarker) this.setState(new Map(stateOrMarker.getState()));
+    if (stateOrMarker instanceof IndexMarker) this.setState(GenUtils.copyProperties(stateOrMarker.getState()));
     else if (stateOrMarker) this.setState(stateOrMarker);
     else this.reset();
   }
@@ -34,20 +34,70 @@ class IndexMarker {
    * Set the internal state of the marker.
    * 
    * @param state is the state to set
+   * @returns this instance for convenience
    */
   setState(state) {
     IndexMarker._validateState(state);
     delete this.state;
     this.state = state;
+    return this;
   }
   
   /**
    * Resets everything to unmarked.
+   * 
+   * @returns this instance for convenience
    */
   reset() {
     delete this.state;
-    this.state = new Map();
+    this.state = {};
     return this;
+  }
+  
+  /**
+   * Sets the mark status at one or more indices.
+   * 
+   * @param mark specifies if the given indices should be marked or not
+   * @param start is a number specifying an index or a start or a range or an array of indices to set
+   * @param end is a number specifying the end of the range to set (optional)
+   * @returns this instance for convenience
+   */
+  set(mark, start, end) {
+    
+    // sanitize inputs
+    let inputs = IndexMarker._sanitizeInputs(mark, start, end);
+    
+    // set single or range
+    if (inputs.start !== undefined) {
+      
+      // set range
+      if (inputs.end !== undefined) {
+        for (let index = inputs.start; index <= inputs.end; index++) {
+          this._setSingle(index, mark);
+        }
+      }
+      
+      // set single
+      else {
+        this._setSingle(mark, inputs.start);
+      }
+    }
+    
+    // set all or array of indices
+    else {
+      
+      // set indices 
+      if (inputs.indices !== undefined) {
+        for (let index of inputs.indices) {
+          this._setSingle(index, mark);
+        }
+      }
+      
+      // set all
+      else {
+        throw new Error("Not implemented");
+      }
+    }
   }
   
   /**
@@ -55,10 +105,10 @@ class IndexMarker {
    * 
    * @param start is a number specifying an index or a start of a range or an array of indices to mark
    * @param end is a number specifying the end of the range to mark (optional)
+   * @returns this instance for convenience
    */
   mark(start, end) {
-    this._set(start, end, true);
-    return this;
+    return this.set(true, start, end);
   }
 
   /**
@@ -66,10 +116,10 @@ class IndexMarker {
    * 
    * @param start is a number specifying an index or a start of a range or an array of indices to unmark
    * @param end is a number specifying the end of the range to unmark (optional)
+   * @returns this instance for convenience
    */
   unmark(start, end) {
-    this._set(start, end, false);
-    return this;
+    return this.set(false, start, end);
   }
   
   /**
@@ -83,43 +133,46 @@ class IndexMarker {
   isMarked(start, end) {
     
     // sanitize inputs
-    let inputs = IndexMarker._sanitizeInputs(start, end);
+    let inputs = IndexMarker._sanitizeInputs(null, start, end);
     
-    // check single or range
-    if (inputs.start !== undefined) {
-      
-      // check a range
-      if (inputs.end !== undefined) {
-        let marked;
-        for (let index = inputs.start; index <= inputs.end; index++) {
-          if (marked === undefined) marked = this.isMarked(index)
-          else if (marked !== this.isMarked(index)) return undefined;
-        }
-        return marked;
-      }
-      
-      // check single index
-      else {
-        let marked = this.state.get(inputs.start) === true;
-        if (this.state.get("inverted")) marked = !marked;
-        return marked;
-      }
-    }
+    throw new Error("Not implemented");
     
-    // check indices provided by an array
-    else {
-      assert(inputs.indices);
-      let marked;
-      for (let index of inputs.indices) {
-        if (marked === undefined) marked = this.isMarked(index)
-        else if (marked !== this.isMarked(index)) return undefined;
-      }
-      return marked;
-    }
+//    // check single or range
+//    if (inputs.start !== undefined) {
+//      
+//      // check range
+//      if (inputs.end !== undefined) {
+//        let marked;
+//        for (let index = inputs.start; index <= inputs.end; index++) {
+//          if (marked === undefined) marked = this.isMarked(index)
+//          else if (marked !== this.isMarked(index)) return undefined;
+//        }
+//        return marked;
+//      }
+//      
+//      // check single index
+//      else {
+//        let marked = this.state.get(inputs.start) === true;
+//        if (this.state.inverted) marked = !marked;
+//        return marked;
+//      }
+//    }
+//    
+//    // check indices provided by an array
+//    else {
+//      assert(inputs.indices);
+//      let marked;
+//      for (let index of inputs.indices) {
+//        if (marked === undefined) marked = this.isMarked(index)
+//        else if (marked !== this.isMarked(index)) return undefined;
+//      }
+//      return marked;
+//    }
   }
   
   invert() {
-    this.state.set("inverted", !this.state.get("inverted"));
+    this.state.inverted = !this.state.inverted;
+    this.state.set("inverted", !this.state.inverted);
     return this;
   }
   
@@ -135,6 +188,8 @@ class IndexMarker {
    * @param end is the end index to search from (optional)
    */
   getFirst(isMarked, start = 0, end) {
+    
+    throw new Error("Not implemented");
     
     // validate inputs
     assert(typeof isMarked === "boolean");
@@ -167,38 +222,8 @@ class IndexMarker {
   
   // --------------------------------- PRIVATE --------------------------------
   
-  _set(start, end, mark) {
-    
-    // sanitize inputs
-    let inputs = IndexMarker._sanitizeInputs(start, end);
-    
-    // mark single or range
-    if (inputs.start !== undefined) {
-      
-      // mark a range
-      if (inputs.end !== undefined) {
-        for (let index = inputs.start; index <= inputs.end; index++) {
-          this._setSingle(index, mark);
-        }
-      }
-      
-      // mark single index
-      else {
-        this._setSingle(inputs.start, mark);
-      }
-    }
-    
-    // mark indices provided by an array
-    else {
-      assert(inputs.indices);
-      for (let index of inputs.indices) {
-        this._setSingle(index, mark);
-      }
-    }
-  }
-  
   _setSingle(index, mark) {
-    if (!this.state.get("inverted")) {
+    if (!this.state.inverted) {
       if (mark) this.state.set(index, true);
       else this.state.delete(index)
     } else {
@@ -209,30 +234,43 @@ class IndexMarker {
   
   static _validateState(state) {
     assert(state);
-    assert(state instanceof Map)
-    assert(state.get("inverted") === undefined || typeof state.get("inverted") === "boolean");
+    assert(state instanceof Object)
+    assert(state.inverted === undefined || typeof state.inverted === "boolean");
+    assert(state.ranges !== undefined);
+    assert(Array.isArray(state.ranges));
+    for (let range of state.ranges) {
+      assert(range.start >= 0);
+      assert(range.end >= 0);
+    }
   }
   
-  static _sanitizeInputs(start, end) {
+  static _sanitizeInputs(mark, start, end) {
+    
+    // validate and sanitize inputs
+    if (mark !== undefined && mark !== null) assert(typeof mark === "boolean", "Mark is not boolean");
     let indices;
-    assert(start !== undefined, "Must specify first parameter");
-    if (end) {
-      assert(typeof start === "number");
-      assert(start >= 0);
-      assert(typeof end === "number");
-      assert(end >= start);
+    if (start === undefined) {
+      assert(end === undefined);
     } else {
-      if (Array.isArray(start)) {
-        indices = start;
-        start = undefined;
-      } else {
+      if (end !== undefined) {
         assert(typeof start === "number");
         assert(start >= 0);
+        assert(typeof end === "number");
+        assert(end >= start);
+      } else {
+        if (Array.isArray(start)) {
+          indices = start;
+          start = undefined;
+        } else {
+          assert(typeof start === "number");
+          assert(start >= 0);
+        }
       }
     }
     
-    // sanitize inputs
+    // assign sanitized inputs
     let sanitized = {};
+    sanitized.mark = mark;
     sanitized.start = start;
     sanitized.end = end;
     sanitized.indices = indices;
