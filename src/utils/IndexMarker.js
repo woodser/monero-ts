@@ -204,10 +204,10 @@ class IndexMarker {
    * @returns the first index with the given marked state, null if none found
    */
   getFirst(isMarked, start = 0, end) {
-    if (start === null || start === undefined) start = 0;
     
     // sanitize inputs
     let inputs = IndexMarker._sanitizeInputs(isMarked, start, end);
+    if (!inputs.start) inputs.start = 0;
     
     // iterate over array of indices if given
     if (inputs.indices) {
@@ -242,7 +242,8 @@ class IndexMarker {
     // if they match, return first index in bounds
     if (this.isMarked(firstRange.start) === inputs.marked) return Math.max(inputs.start, firstRange.start);
     
-    // otherwise return first index after range unless it's out of bounds
+    // otherwise return first index outside of range
+    if (start < firstRange.start) return start;
     return firstRange.end + 1 > end ? null : firstRange.end + 1;
   }
   

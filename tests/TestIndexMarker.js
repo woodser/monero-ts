@@ -2,8 +2,8 @@ const assert = require("assert");
 const GenUtils = require("../src/utils/GenUtils");
 const IndexMarker = require("../src/utils/IndexMarker");
 
-const MAX_INDEX = 10;               // maximum index to mark
-const NUM_MARKINGS = 5;             // number of times to apply markings across indices
+const MAX_INDEX = 10000;               // maximum index to mark
+const NUM_MARKINGS = 5000;             // number of times to apply markings across indices
 assert(MAX_INDEX >= NUM_MARKINGS);  // most tests assume some indices in the range will remain unmarked
 
 /**
@@ -229,7 +229,6 @@ describe("Test Index Marker", function() {
     
     // mark individuals
     let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
-    indices = [ 1, 3, 5, 10, 10 ];  // TODO: remove
     indices = indices.sort((a, b) => a === b ? 0 : a > b ? 1 : -1);
     indices = GenUtils.toUniqueArray(indices);
     for (let idx of indices) {
@@ -276,7 +275,7 @@ describe("Test Index Marker", function() {
     
     // invert so all indices are theoretically marked
     marker.invert();
-    assert(marker.allMarked(0, MAX_INDEX * 2));  // TODO: MAX_INDEX ^ MAX_INDEX when range compression implemented to prove performance
+    assert(marker.allMarked(0, MAX_INDEX * MAX_INDEX));
     
     // invert to reset
     marker.invert();
@@ -284,7 +283,6 @@ describe("Test Index Marker", function() {
     
     // mark random indices
     let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
-    indices = [5, 6, 7, 8]; // TODO: remove;
     marker.mark(indices);
     
     // invert markings
@@ -310,7 +308,6 @@ describe("Test Index Marker", function() {
     let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
     indices = GenUtils.toUniqueArray(indices);
     indices = indices.sort((a, b) => a === b ? 0 : a > b ? 1 : -1);
-    indices = [ 0, 1, 2, 3 ]; // TODO: remove after test
     
     // mark indices
     marker.mark(indices);
