@@ -189,11 +189,21 @@ class IndexMarker {
     }
   }
   
+  /**
+   * Inverts every marked state.
+   * 
+   * @returns this instance for convenience
+   */
   invert() {
     this.state.inverted = !this.state.inverted;
     return this;
   }
   
+  /**
+   * Deep copies this instance to a new instance.
+   * 
+   * @returns IndexMarker is the deep copied instance
+   */
   copy() {
     return new IndexMarker(this);
   }
