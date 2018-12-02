@@ -3,12 +3,6 @@ const GenUtils = require("../utils/GenUtils");
 
 /**
  * Allows indices in an infinite range to be arbitrarily marked or not marked.
- * 
- * TODO: compress into ranges to be more efficient
- * TODO: public set(isMarked, start, end) with example usage in documentation and tests
- *  set(true, 0);
- *  set(true, 0, 4);
- *  set(true, [0, 1, 2, 3, 4]);
  */
 class IndexMarker {
   
@@ -209,14 +203,13 @@ class IndexMarker {
   }
   
   /**
-   * Gets the first index with the given marked state.
+   * Get the first index with the given marked state.
    * 
    * @param isMarked specifies if the index to find should be marked or unmarked
    * @param start is the start index to search from (optional)
-   * @param end is the end index to search from (optional)
+   * @param end is the end index to search to (optional)
    */
   getFirst(isMarked, start = 0, end) {
-    
     throw new Error("Not implemented");
   }
   
