@@ -20,7 +20,10 @@ class IndexMarker {
   constructor(stateOrMarker) {
     if (stateOrMarker instanceof IndexMarker) this.setState(GenUtils.copyProperties(stateOrMarker.getState()));
     else if (stateOrMarker) this.setState(stateOrMarker);
-    else this.reset();
+    else {
+      this.state = { invert: false, ranges: [] };
+      this.reset();
+    }
   }
   
   /**
@@ -49,8 +52,8 @@ class IndexMarker {
    * @returns this instance for convenience
    */
   reset() {
-    delete this.state;
-    this.state = { inverted: false, ranges: [] };
+    this.state.inverted = false;
+    this.state.ranges.length = 0;
     return this;
   }
   
@@ -95,7 +98,8 @@ class IndexMarker {
       
       // set all
       else {
-        throw new Error("Not implemented");
+        this.reset();
+        if (mark) this.invert();
       }
     }
   }
@@ -180,7 +184,8 @@ class IndexMarker {
       
       // check all
       else {
-        throw new Error("Not implemented");
+        if (this.state.ranges.length) return undefined; // some marked some not
+        return !this.state.inverted;  // all are marked iff not inverted
       }
     }
   }
