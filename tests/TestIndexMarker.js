@@ -24,7 +24,6 @@ describe("Test Index Marker", function() {
     
     // mark random indices
     let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
-    indices = [0];
     assert(!marker.isMarked(1));
     marker.mark(indices);
     assert(marker.isMarked(indices));
@@ -35,6 +34,19 @@ describe("Test Index Marker", function() {
     
     // nothing is marked
     assert(!marker.isMarked(0, MAX_INDEX));
+  });
+  
+  it("Can mark or or unmark all indices by not specifying indices", function() {
+    
+    // mark everything
+    marker.mark();
+    for (let i = 0; i < MAX_INDEX; i++) assert(marker.isMarked(i));
+    assert.null(marker.getFirst(false));
+    
+    // unmark everything
+    marker.unmark();
+    for (let i = 0; i < MAX_INDEX; i++) assert(marker.isMarked(i));
+    assert.equal(0, marker.getFirst(false));
   });
   
   it("Can mark single indices", function() {
@@ -182,43 +194,55 @@ describe("Test Index Marker", function() {
     }
   });
   
-  it("Exposes and can be built from an internal state object", function() {
+  it("Can set marks on indices", function() {
     
-    // mark random indices
+    // mark everything
+    marker.set(true);
+    for (let i = 0; i < MAX_INDEX; i++) assert(marker.isMarked(i));
+    assert.null(marker.getFirst(false));
+    
+    // unmark everything
+    marker.set(false);
+    for (let i = 0; i < MAX_INDEX; i++) assert(!marker.isMarked(i));
+    assert.equal(0, marker.getFirst(false));
+    
+    // mark specific indices
     let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
-    marker.mark(indices);
+    for (let idx of indices) {
+      marker.set(true, idx);
+      assert(marker.isMarked(idx));
+    }
+    assert.equals(indices[0], marker.getFirst(true));
     
-    // get state
-    let state = marker.getState();
+    // unmark individual instances
+    for (let i = 0; i < indices.length; i++) {
+      marker.set(false, idx);
+      assert(!marker.isMarked(idx));
+      if (i < indices.lengh - 1) assert(marker.getFirst(true) !== null);
+    }
+    assert.null(marker.getFirst(true));
+    assert.equal(0, marker.getFirst(false));
     
-    // build a new marker from the state
-    let marker2 = new IndexMarker(state);
-    assert(state === marker2.getState());  // these have the same state
+    // mark range
+    marker.set(true, 0, MAX_INDEX);
+    for (let i = 0; i < MAX_INDEX; i++) assert(marker.isMarked(i));
+    assert.equal(MAX_INDEX, marker.getFirst(false));
     
-    // the states are linked unless explicitly deep copied
-    let idx = MAX_INDEX + 5;
-    marker.mark(idx);
-    assert(marker2.isMarked(idx));
-    marker.unmark(idx);
-    assert(!marker2.isMarked(idx));
-  });
-  
-  it("Can set an internal state object", function() {
+    // unmark range
+    marker.set(false, 0, MAX_INDEX);
+    for (let i = 0; i < MAX_INDEX; i++) assert(!marker.isMarked(i));
+    assert.equal(0, marker.getFirst(false));
+    assert.null(marker.getFirst(true));
     
-    // mark random indices
-    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
-    marker.mark(indices);
+    // mark indices
+    marker.set(true, indices);
+    for (let idx of indices) assert(marker.isMarked(idx));
+    assert(marker.getFirst(true) !== null);
     
-    // create new marker with different markings
-    let marker2 = new IndexMarker();
-    marker2.mark(GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS));
-    
-    // overwrite the internal state
-    marker2.setState(marker.getState());
-    
-    // ensure states are equal
-    assert(marker.getState() === marker2.getState());
-    assert(marker2.isMarked(indices));
+    // unmark indices
+    marker.set(false, indices);
+    for (let idx of indices) assert(!marker.isMarked(idx));
+    assert(null == marker.getFirst(true));
   });
   
   it("Can invert marked indices", function() {
@@ -250,23 +274,6 @@ describe("Test Index Marker", function() {
     marker.mark(indices);
     for (let idx of indices) assert(marker.isMarked(idx));
   });
-  
-  it("Can be copied", function() {
-    
-    // mark random indices
-    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
-    marker.mark(indices);
-    
-    // copy
-    let marker2 = marker.copy();
-    
-    // assert states are equal
-    assert.deepEqual(marker.getState(), marker2.getState())
-    
-    // modify and test to ensure deep copy
-    marker2.mark(MAX_INDEX + 5);
-    assert.notDeepEqual(marker.getState(), marker2.getState())
-  })
   
   it("Can get the first index with a given marked state", function() {
     
@@ -326,5 +333,61 @@ describe("Test Index Marker", function() {
     assert.equal(4, marker.getFirst(false, 3, 5));
     assert.equal(6, marker.getFirst(false, 5, 10));
     assert.equal(null, marker.getFirst(false, 7));
+  });
+  
+  it("Can be copied", function() {
+    
+    // mark random indices
+    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
+    marker.mark(indices);
+    
+    // copy
+    let marker2 = marker.copy();
+    
+    // assert states are equal
+    assert.deepEqual(marker.getState(), marker2.getState())
+    
+    // modify and test to ensure deep copy
+    marker2.mark(MAX_INDEX + 5);
+    assert.notDeepEqual(marker.getState(), marker2.getState())
+  });
+  
+  it("Exposes and can be built from an internal state object", function() {
+    
+    // mark random indices
+    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
+    marker.mark(indices);
+    
+    // get state
+    let state = marker.getState();
+    
+    // build a new marker from the state
+    let marker2 = new IndexMarker(state);
+    assert(state === marker2.getState());  // these have the same state
+    
+    // the states are linked unless explicitly deep copied
+    let idx = MAX_INDEX + 5;
+    marker.mark(idx);
+    assert(marker2.isMarked(idx));
+    marker.unmark(idx);
+    assert(!marker2.isMarked(idx));
+  });
+  
+  it("Can set an internal state object", function() {
+    
+    // mark random indices
+    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
+    marker.mark(indices);
+    
+    // create new marker with different markings
+    let marker2 = new IndexMarker();
+    marker2.mark(GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS));
+    
+    // overwrite the internal state
+    marker2.setState(marker.getState());
+    
+    // ensure states are equal
+    assert(marker.getState() === marker2.getState());
+    assert(marker2.isMarked(indices));
   });
 });
