@@ -50,7 +50,7 @@ class IndexMarker {
    */
   reset() {
     delete this.state;
-    this.state = {};
+    this.state = { inverted: false, ranges: [] };
     return this;
   }
   
@@ -135,44 +135,62 @@ class IndexMarker {
     // sanitize inputs
     let inputs = IndexMarker._sanitizeInputs(null, start, end);
     
-    throw new Error("Not implemented");
+    // check single or range
+    if (inputs.start !== undefined) {
+      
+      // check range
+      if (inputs.end !== undefined) {
+        
+        // find encompassing range
+        let encompassingRange;
+        let rangeTouched = false;
+        for (let range of this.state.ranges) {
+          if (range.start <= inputs.start && range.end >= inputs.end) {
+            encompassingRange = range;
+            break;
+          }
+          if (range.start <= inputs.start && range.end >= inputs.start) rangeTouched = true;
+          if (range.start <= inputs.end && range.end >= inputs.end) rangeTouched = true;
+        }
+        
+        // interpret range overlap
+        if (encompassingRange) return !this.state.inverted; // encompassing range
+        else if (rangeTouched) return undefined;            // touches but not encompassed
+        else return this.state.inverted;                    // no overlap
+      }
+      
+      // check single index
+      else {
+        return this._isMarkedSingle(inputs.start);
+      }
+    }
     
-//    // check single or range
-//    if (inputs.start !== undefined) {
-//      
-//      // check range
-//      if (inputs.end !== undefined) {
-//        let marked;
-//        for (let index = inputs.start; index <= inputs.end; index++) {
-//          if (marked === undefined) marked = this.isMarked(index)
-//          else if (marked !== this.isMarked(index)) return undefined;
-//        }
-//        return marked;
-//      }
-//      
-//      // check single index
-//      else {
-//        let marked = this.state.get(inputs.start) === true;
-//        if (this.state.inverted) marked = !marked;
-//        return marked;
-//      }
-//    }
-//    
-//    // check indices provided by an array
-//    else {
-//      assert(inputs.indices);
-//      let marked;
-//      for (let index of inputs.indices) {
-//        if (marked === undefined) marked = this.isMarked(index)
-//        else if (marked !== this.isMarked(index)) return undefined;
-//      }
-//      return marked;
-//    }
+    // check all or array of indices
+    else {
+      
+      // check indices 
+      if (inputs.indices !== undefined) {
+
+        throw new Error("Not implemented");
+        
+        assert(inputs.indices);
+        let marked;
+        for (let index of inputs.indices) {
+          if (marked === undefined) marked = this.isMarked(index)
+          else if (marked !== this.isMarked(index)) return undefined;
+        }
+        return marked;
+      }
+      
+      // check all
+      else {
+        throw new Error("Not implemented");
+      }
+    }
   }
   
   invert() {
     this.state.inverted = !this.state.inverted;
-    this.state.set("inverted", !this.state.inverted);
     return this;
   }
   
@@ -223,6 +241,9 @@ class IndexMarker {
   // --------------------------------- PRIVATE --------------------------------
   
   _setSingle(index, mark) {
+    throw new Error("Not implemented");
+    
+    
     if (!this.state.inverted) {
       if (mark) this.state.set(index, true);
       else this.state.delete(index)
@@ -232,10 +253,25 @@ class IndexMarker {
     }
   }
   
+  _isMarkedSingle(index) {
+    
+    // determine if index is in range
+    let inRange = false;
+    for (let range of this.state.ranges) {
+      if (range.start <= index && range.end >= index) {
+        inRange = true;
+        break;
+      }
+    }
+    
+    // apply inversion if applicable
+    return inRange ? !this.state.inverted : this.state.inverted;
+  }
+  
   static _validateState(state) {
     assert(state);
     assert(state instanceof Object)
-    assert(state.inverted === undefined || typeof state.inverted === "boolean");
+    assert(typeof state.inverted === "boolean");
     assert(state.ranges !== undefined);
     assert(Array.isArray(state.ranges));
     for (let range of state.ranges) {

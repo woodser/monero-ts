@@ -40,11 +40,13 @@ describe("Test Index Marker", function() {
     
     // mark everything
     marker.mark();
+    assert(marker.isMarked() === true);
     for (let i = 0; i < MAX_INDEX; i++) assert(marker.isMarked(i));
     assert.null(marker.getFirst(false));
     
     // unmark everything
     marker.unmark();
+    assert(marker.isMarked() === false);
     for (let i = 0; i < MAX_INDEX; i++) assert(marker.isMarked(i));
     assert.equal(0, marker.getFirst(false));
   });
