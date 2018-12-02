@@ -21,7 +21,7 @@ class IndexMarker {
     if (stateOrMarker instanceof IndexMarker) this.setState(GenUtils.copyProperties(stateOrMarker.getState()));
     else if (stateOrMarker) this.setState(stateOrMarker);
     else {
-      this.state = { invert: false, ranges: [] };
+      this.state = { inverted: false, ranges: [] };
       this.reset();
     }
   }
@@ -185,7 +185,7 @@ class IndexMarker {
       // check all
       else {
         if (this.state.ranges.length) return undefined; // some marked some not
-        return !this.state.inverted;  // all are marked iff not inverted
+        return this.state.inverted;  // all are marked iff inverted
       }
     }
   }
