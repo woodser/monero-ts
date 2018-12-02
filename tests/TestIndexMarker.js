@@ -27,8 +27,6 @@ describe("Test Index Marker", function() {
     indices = [ 3, 1, 6, 10, 2 ];
     assert(!marker.isMarked(1));
     marker.mark(indices);
-    console.log(indices);
-    console.log(marker.getState());
     assert(marker.isMarked(indices));
     assert(marker.isMarked(0, MAX_INDEX) === undefined);  // some will not be marked
     
