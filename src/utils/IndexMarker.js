@@ -73,7 +73,7 @@ class IndexMarker {
       // set range
       if (inputs.end !== undefined) {
         for (let index = inputs.start; index <= inputs.end; index++) {
-          this._setSingle(index, mark);
+          this._setSingle(index, mark); // TODO: can be more efficient than setting individual indices
         }
       }
       
@@ -159,7 +159,7 @@ class IndexMarker {
         else return this.state.inverted;                    // no overlap
       }
       
-      // check single index
+      // check single
       else {
         return this._isMarkedSingle(inputs.start);
       }
@@ -208,34 +208,6 @@ class IndexMarker {
   getFirst(isMarked, start = 0, end) {
     
     throw new Error("Not implemented");
-    
-    // validate inputs
-    assert(typeof isMarked === "boolean");
-    assert(start === undefined || start >= 0);
-    if (end !== undefined) {
-      assert(start !== undefined);
-      assert(end >= start);
-    }
-    
-    // get sorted keys TODO: expensive
-    let keys = [...this.state.keys()];
-    keys.splice(keys.indexOf("inverted"), 1);
-    let sortedIndices = keys.sort((a, b) => a === b ? 0 : a > b ? 1 : -1);
-    
-    // find first index within range
-    let firstIdx = start;
-    for (let idx of sortedIndices) {
-      if (idx < start) continue;
-      if (end !== undefined && idx > end) continue;
-      if (this.isMarked(idx) === isMarked) return idx;
-      else if (idx !== firstIdx) break;
-      else firstIdx = idx + 1;
-    }
-    
-    // return first index within range
-    if (end !== undefined && firstIdx > end) return null;
-    if (this.isMarked(firstIdx) !== isMarked) return null;
-    return firstIdx;
   }
   
   // --------------------------------- PRIVATE --------------------------------
