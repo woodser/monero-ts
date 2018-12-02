@@ -1,6 +1,6 @@
 //require("./TestDaemonRpc");
 //require("./TestWalletRpc");
-require("./TestWalletLocal");
+//require("./TestWalletLocal");
 require("./TestIndexMarker");
 //require("./TestCoreUtils");
 

@@ -2,8 +2,8 @@ const assert = require("assert");
 const GenUtils = require("../src/utils/GenUtils");
 const IndexMarker = require("../src/utils/IndexMarker");
 
-const MAX_INDEX = 10000;            // maximum index to mark
-const NUM_MARKINGS = 5000;          // number of times to apply markings across indices
+const MAX_INDEX = 10;            // maximum index to mark
+const NUM_MARKINGS = 5;          // number of times to apply markings across indices
 assert(MAX_INDEX >= NUM_MARKINGS);  // most tests assume some indices in the range will remain unmarked
 
 /**
@@ -268,11 +268,63 @@ describe("Test Index Marker", function() {
     assert.notDeepEqual(marker.getState(), marker2.getState())
   })
   
-//  it("Can get the first marked index", function() {
-//    throw new Error("Not implemented");
-//  });
-//  
-//  it("Can get the first unmarked index", function() {
-//    throw new Error("Not implemented");
-//  });
+  it("Can get the first index with a given marked state", function() {
+    
+    // mark random indices
+    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
+    indices = [ 0, 1, 2, 3 ]; // TODO: remove after test
+    marker.mark(indices);
+    
+    // sort and remove duplicate indices
+    indices = GenUtils.toUniqueArray(indices);
+    indices = indices.sort((a, b) => a === b ? 0 : a > b ? 1 : -1);
+    console.log(indices);
+    
+    // can get first marked
+    assert.equal(indices[0], marker.getFirst(true));
+    
+    // can get first unmarked
+    for (let i = 0; i < MAX_INDEX; i++) {
+      if (indices.includes(i)) continue;
+      assert.equal(i, marker.getFirst(false));
+      break;
+    }
+    
+    // can get first marked given a start index
+    for (let i = 0; i < indices.length; i++) {
+      console.log(i === 0 ? null : indices[i - 1] + 1);
+      assert.equal(indices[i], marker.getFirst(true, i === 0 ? null : indices[i - 1] + 1));
+    }
+    
+    // get can first unmarked given a start index
+    for (let i = 0; i < MAX_INDEX; i++) {
+      if (indices.includes(i)) {
+        console.log("Starting search: " + i)
+        console.log(marker.isMarked(i));
+        assert.notEqual(i, marker.getFirst(false, i));
+      }
+      else assert.equal(i, marker.getFirst(false, i));
+    }
+    
+    // can get first marked index by a range
+    for (let i = 0; i < indices.length - 1; i++) {
+      assert.equal(indices[i], marker.getFirst(true, indices[i], indices[i + 1]));
+      if (indices[i + 1] - indices[i] > 1) {  // test cut off by range
+        console.log("marker.getFirst(" + (indices[i] + 1) + ", " + (indices[i + 1] - 1)+ ")");
+        assert.equal(null, marker.getFirst(true, indices[i] + 1, indices[i + 1] - 1));
+      }
+    }
+    
+    // can get first unmarked index by range
+    marker.reset()
+    marker.invert();
+    marker.unmark(6);
+    marker.unmark(4);
+    marker.unmark(2);
+    assert(null, marker.getFirst(false, 0, 1));
+    assert.equal(2, marker.getFirst(false, 0, 10));
+    assert.equal(4, marker.getFirst(false, 3, 5));
+    assert.equal(6, marker.getFirst(false, 5, 10));
+    assert.equal(null, marker.getFirst(false, 7));
+  });
 });

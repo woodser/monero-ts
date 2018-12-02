@@ -5,10 +5,10 @@ const GenUtils = require("../utils/GenUtils");
  * Allows indices in an infinite range to be arbitrarily marked or not marked.
  * 
  * TODO: compress into ranges to be more efficient
- * TODO: public set(param1, param2, param3) with example usage in documentation and tests
- *  set(0, true);
- *  set(0, 4, true);
- *  set([0, 1, 2, 3, 4], true);
+ * TODO: public set(isMarked, start, end) with example usage in documentation and tests
+ *  set(true, 0);
+ *  set(true, 0, 4);
+ *  set(true, [0, 1, 2, 3, 4]);
  */
 class IndexMarker {
   
@@ -18,7 +18,7 @@ class IndexMarker {
    * @param stateOrMarker is an initial state or marker to copy (optional)
    */
   constructor(stateOrMarker) {
-    if (stateOrMarker instanceof IndexMarker) this.setState(GenUtils.copyProperties(stateOrMarker.getState()));
+    if (stateOrMarker instanceof IndexMarker) this.setState(new Map(stateOrMarker.getState()));
     else if (stateOrMarker) this.setState(stateOrMarker);
     else this.reset();
   }
@@ -46,7 +46,7 @@ class IndexMarker {
    */
   reset() {
     delete this.state;
-    this.state = {};
+    this.state = new Map();
     return this;
   }
   
@@ -100,8 +100,8 @@ class IndexMarker {
       
       // check single index
       else {
-        let marked = this.state[inputs.start] === true;
-        if (this.state.inverted) marked = !marked;
+        let marked = this.state.get(inputs.start) === true;
+        if (this.state.get("inverted")) marked = !marked;
         return marked;
       }
     }
@@ -119,12 +119,50 @@ class IndexMarker {
   }
   
   invert() {
-    this.state.inverted = !this.state.inverted;
+    this.state.set("inverted", !this.state.get("inverted"));
     return this;
   }
   
   copy() {
     return new IndexMarker(this);
+  }
+  
+  /**
+   * Gets the first index with the given marked state.
+   * 
+   * @param isMarked specifies if the index to find should be marked or unmarked
+   * @param start is the start index to search from (optional)
+   * @param end is the end index to search from (optional)
+   */
+  getFirst(isMarked, start = 0, end) {
+    
+    // validate inputs
+    assert(typeof isMarked === "boolean");
+    assert(start === undefined || start >= 0);
+    if (end !== undefined) {
+      assert(start !== undefined);
+      assert(end >= start);
+    }
+    
+    // get sorted keys TODO: expensive
+    let keys = [...this.state.keys()];
+    keys.splice(keys.indexOf("inverted"), 1);
+    let sortedIndices = keys.sort((a, b) => a === b ? 0 : a > b ? 1 : -1);
+    
+    // find first index within range
+    let firstIdx = start;
+    for (let idx of sortedIndices) {
+      if (idx < start) continue;
+      if (end !== undefined && idx > end) continue;
+      if (this.isMarked(idx) === isMarked) return idx;
+      else if (idx !== firstIdx) break;
+      else firstIdx = idx + 1;
+    }
+    
+    // return first index within range
+    if (end !== undefined && firstIdx > end) return null;
+    if (this.isMarked(firstIdx) !== isMarked) return null;
+    return firstIdx;
   }
   
   // --------------------------------- PRIVATE --------------------------------
@@ -160,19 +198,19 @@ class IndexMarker {
   }
   
   _setSingle(index, mark) {
-    if (!this.state.inverted) {
-      if (mark) this.state[index] = true;
-      else delete this.state[index];
+    if (!this.state.get("inverted")) {
+      if (mark) this.state.set(index, true);
+      else this.state.delete(index)
     } else {
-      if (mark) delete this.state[index];
-      else this.state[index] = true;
+      if (mark) this.state.delete(index);
+      else this.state.set(index, true);
     }
   }
   
   static _validateState(state) {
     assert(state);
-    assert(typeof state === "object")
-    assert(state.inverted === undefined || typeof state.inverted === "boolean");
+    assert(state instanceof Map)
+    assert(state.get("inverted") === undefined || typeof state.get("inverted") === "boolean");
   }
   
   static _sanitizeInputs(start, end) {
