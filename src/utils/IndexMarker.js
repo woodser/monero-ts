@@ -4,7 +4,7 @@ const GenUtils = require("../utils/GenUtils");
 /**
  * Allows indices in an infinite range to be arbitrarily marked or not marked.
  * 
- * TODO: ranges should be array[2]
+ * TODO: ranges should be array[2], don't set inverted by default
  */
 class IndexMarker {
   
