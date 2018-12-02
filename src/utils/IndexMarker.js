@@ -3,6 +3,8 @@ const GenUtils = require("../utils/GenUtils");
 
 /**
  * Allows indices in an infinite range to be arbitrarily marked or not marked.
+ * 
+ * TODO: ranges should be array[2]
  */
 class IndexMarker {
   
@@ -52,17 +54,17 @@ class IndexMarker {
   }
   
   /**
-   * Sets the mark status at one or more indices.
+   * Sets the marked status at one or more indices.
    * 
-   * @param mark specifies if the given indices should be marked or not
+   * @param isMarked specifies if the given indices should be marked or not
    * @param start is a number specifying an index or a start or a range or an array of indices to set
    * @param end is a number specifying the end of the range to set (optional)
    * @returns this instance for convenience
    */
-  set(mark, start, end) {
+  set(isMarked, start, end) {
     
     // sanitize inputs
-    let inputs = IndexMarker._sanitizeInputs(mark, start, end);
+    let inputs = IndexMarker._sanitizeInputs(isMarked, start, end);
     
     // set single or range
     if (inputs.start !== undefined) {
@@ -70,13 +72,13 @@ class IndexMarker {
       // set range
       if (inputs.end !== undefined) {
         for (let index = inputs.start; index <= inputs.end; index++) {
-          this._setSingle(mark, index); // TODO: can be more efficient than setting individual indices
+          this._setSingle(inputs.marked, index); // TODO: can be more efficient than setting individual indices
         }
       }
       
       // set single
       else {
-        this._setSingle(mark, inputs.start);
+        this._setSingle(inputs.marked, inputs.start);
       }
     }
     
@@ -86,14 +88,14 @@ class IndexMarker {
       // set indices 
       if (inputs.indices !== undefined) {
         for (let index of inputs.indices) {
-          this._setSingle(mark, index);
+          this._setSingle(inputs.marked, index);
         }
       }
       
       // set all
       else {
         this.reset();
-        if (mark) this.invert();
+        if (inputs.marked) this.invert();
       }
     }
   }
@@ -101,7 +103,7 @@ class IndexMarker {
   /**
    * Marks one or more indices.
    * 
-   * @param start is a number specifying an index or a start of a range or an array of indices to mark
+   * @param start is a number specifying an index or a start of a range or an array of indices to mark.
    * @param end is a number specifying the end of the range to mark (optional)
    * @returns this instance for convenience
    */
@@ -205,20 +207,65 @@ class IndexMarker {
   /**
    * Get the first index with the given marked state.
    * 
+   * TODO: support array input if use case
+   * 
    * @param isMarked specifies if the index to find should be marked or unmarked
    * @param start is the start index to search from (optional)
    * @param end is the end index to search to (optional)
    */
   getFirst(isMarked, start = 0, end) {
-    throw new Error("Not implemented");
+    
+    // sanitize inputs
+    let inputs = IndexMarker._sanitizeInputs(isMarked, start, end);
+
+    // get first range that touches search bounds
+    let firstRange;
+    for (let range of this.state.ranges) {
+      
+      // handle bounded range
+      if (end !== undefined) {
+        if (this._overlaps(range.start, range.end, inputs.start, inputs.end)) {
+          firstRange = range;
+          break;
+        }
+      }
+      
+      // handle unbounded range
+      else if (range.end >= inputs.start) {
+        firstRange = range;
+        break;
+      }
+//      
+//      // check if single index is within range
+//      else if (inputs.start >= range.start && inputs.start <= range.end) {
+//
+//      }
+    }
+    
+//    console.log("First qualifying range: ");
+//    console.log(firstRange);
+    
+    console.log(inputs);
+    console.log(this.getState());
+    console.log("First range:");
+    console.log(firstRange);
+    
+    // if everything is the same, return inputs.start if they match or null otherwise
+    if (firstRange === undefined) return this.isMarked(0) === inputs.marked ? inputs.start : null;
+    
+    // if they match, return first index in bounds
+    if (this.isMarked(firstRange.start) === inputs.marked) return Math.max(inputs.start, firstRange.start);
+    
+    // otherwise return first index after range
+    return firstRange.end + 1;
   }
   
   // --------------------------------- PRIVATE --------------------------------
   
-  _setSingle(mark, index) {
+  _setSingle(isMarked, index) {
     
     // no change if index already has given marked state
-    if (mark === this._isMarkedSingle(index)) return;
+    if (isMarked === this._isMarkedSingle(index)) return;
     
     // find indices of previous, current, and next ranges relative to index
     let prevRangeIdx, curRangeIdx, nextRangeIdx;
@@ -321,10 +368,10 @@ class IndexMarker {
     }
   }
   
-  static _sanitizeInputs(mark, start, end) {
+  static _sanitizeInputs(marked, start, end) {
     
     // validate and sanitize inputs
-    if (mark !== undefined && mark !== null) assert(typeof mark === "boolean", "Mark is not boolean");
+    if (marked !== undefined && marked !== null) assert(typeof marked === "boolean", "marked is not boolean");
     let indices;
     if (start === undefined) {
       assert(end === undefined);
@@ -347,7 +394,7 @@ class IndexMarker {
     
     // assign sanitized inputs
     let sanitized = {};
-    sanitized.mark = mark;
+    sanitized.marked = marked;
     sanitized.start = start;
     sanitized.end = end;
     sanitized.indices = indices;
