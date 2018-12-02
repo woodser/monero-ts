@@ -232,15 +232,10 @@ describe("Test Index Marker", function() {
     indices = [ 1, 3, 5, 10, 10 ];  // TODO: remove
     indices = indices.sort((a, b) => a === b ? 0 : a > b ? 1 : -1);
     indices = GenUtils.toUniqueArray(indices);
-    console.log(indices);
-    console.log(marker.getState());
     for (let idx of indices) {
       marker.set(true, idx);
       assert(marker.isMarked(idx));
     }
-    
-    console.log("BEFORE UNMARKING");
-    console.log(marker.getState());
     assert.equal(indices[0], marker.getFirst(true));
     assert(marker.hasMarked(0, MAX_INDEX) && marker.hasUnmarked(0, MAX_INDEX)); // mixture of marked and unmarked
     
@@ -250,14 +245,7 @@ describe("Test Index Marker", function() {
       assert(!marker.isMarked(indices[i]));
       if (i < indices.length - 1) assert(marker.getFirst(true) !== null);
     }
-    console.log("AFTER_UNMARKING");
-    console.log(marker.getState());
     assert(!marker.hasMarked());
-    
-    console.log(indices);
-    console.log(MAX_INDEX);
-    console.log(marker.getState());
-
     assert.equal(null, marker.getFirst(true, 0, MAX_INDEX));  // test bounded
     assert.equal(null, marker.getFirst(true));                // test unbounded
     assert.equal(0, marker.getFirst(false));
@@ -339,17 +327,12 @@ describe("Test Index Marker", function() {
     
     // can get first marked given a start index
     for (let i = 0; i < indices.length; i++) {
-      console.log(i === 0 ? null : indices[i - 1] + 1);
       assert.equal(indices[i], marker.getFirst(true, i === 0 ? null : indices[i - 1] + 1));
     }
     
     // get can first unmarked given a start index
     for (let i = 0; i < MAX_INDEX; i++) {
-      if (indices.includes(i)) {
-        console.log("Starting search: " + i)
-        console.log(marker.isMarked(i));
-        assert.notEqual(i, marker.getFirst(false, i));
-      }
+      if (indices.includes(i)) assert.notEqual(i, marker.getFirst(false, i));
       else assert.equal(i, marker.getFirst(false, i));
     }
     
@@ -357,7 +340,6 @@ describe("Test Index Marker", function() {
     for (let i = 0; i < indices.length - 1; i++) {
       assert.equal(indices[i], marker.getFirst(true, indices[i], indices[i + 1]));
       if (indices[i + 1] - indices[i] > 1) {  // test cut off by range
-        console.log("marker.getFirst(" + (indices[i] + 1) + ", " + (indices[i + 1] - 1)+ ")");
         assert.equal(null, marker.getFirst(true, indices[i] + 1, indices[i + 1] - 1));
       }
     }
@@ -368,7 +350,7 @@ describe("Test Index Marker", function() {
     marker.unmark(6);
     marker.unmark(4);
     marker.unmark(2);
-    assert(null, marker.getFirst(false, 0, 1));
+    assert.equal(null, marker.getFirst(false, 0, 1));
     assert.equal(2, marker.getFirst(false, 0, 10));
     assert.equal(4, marker.getFirst(false, 3, 5));
     assert.equal(6, marker.getFirst(false, 5, 10));

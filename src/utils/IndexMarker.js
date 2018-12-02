@@ -122,69 +122,6 @@ class IndexMarker {
     return this.set(false, start, end);
   }
   
-//  /**
-//   * Indicates if all specified indices are marked (true), unmarked (false),
-//   * or some are marked and some are not marked (undefined).
-//   * 
-//   * @param start is a number specifying an index or a start of a range or an array of indices to check
-//   * @param end is a number specifying the end of the range to check (optional)
-//   * @returns true iff all indices are marked, false iff all indices are not marked, undefined otherwise
-//   */
-//  isMarked(start, end) {
-//    
-//    // sanitize inputs
-//    let inputs = IndexMarker._sanitizeInputs(null, start, end);
-//    
-//    // check single or range
-//    if (inputs.start !== undefined) {
-//      
-//      // check range
-//      if (inputs.end !== undefined) {
-//        
-//        // find encompassing range
-//        let rangeEncompasses = false;
-//        let rangeOverlaps = false;
-//        for (let range of this.state.ranges) {
-//          if (range.start <= inputs.start && range.end >= inputs.end) {
-//            rangeEncompasses = true;
-//            break;
-//          }
-//          if (this._overlaps(range.start, range.end, inputs.start, inputs.end)) rangeOverlaps = true;
-//        }
-//        
-//        // interpret range overlap
-//        if (rangeEncompasses) return !this.state.inverted; // encompassing range
-//        else if (rangeOverlaps) return undefined;          // mixture of marked and unmarked
-//        else return this.state.inverted;                   // no overlap
-//      }
-//      
-//      // check single
-//      else {
-//        return this.isMarked(inputs.start);
-//      }
-//    }
-//    
-//    // check all or array of indices
-//    else {
-//      
-//      // check indices 
-//      if (inputs.indices !== undefined) {
-//        let marked;
-//        for (let index of inputs.indices) {
-//          if (marked === undefined) marked = this.isMarked(index)
-//          else if (marked !== this.isMarked(index)) return undefined;
-//        }
-//        return marked;
-//      }
-//      
-//      // check all
-//      else {
-//        if (this.state.ranges.length) return undefined; // some marked some not
-//        return this.state.inverted;  // all are marked iff inverted
-//      }
-//    }
-//  }
-  
   /**
    * Indicates if the given index is marked.
    * 
@@ -192,6 +129,8 @@ class IndexMarker {
    * @returns true if the index is marked, false otherwise
    */
   isMarked(index, param2) {
+    assert(typeof index === "number");
+    assert(index >= 0);
     assert(param2 === undefined, "Can only call isMarked() with one parameter");
     
     // determine if index is in range
@@ -265,11 +204,7 @@ class IndexMarker {
    * @returns the first index with the given marked state, null if none found
    */
   getFirst(isMarked, start = 0, end) {
-    
-//    console.log("getFirst(...");
-//    console.log(isMarked);
-//    console.log(start);
-//    console.log(end);
+    if (start === null || start === undefined) start = 0;
     
     // sanitize inputs
     let inputs = IndexMarker._sanitizeInputs(isMarked, start, end);
@@ -300,14 +235,6 @@ class IndexMarker {
         break;
       }
     }
-    
-//    console.log("First qualifying range: ");
-//    console.log(firstRange);
-    
-//    console.log(inputs);
-//    console.log(this.getState());
-//    console.log("First range:");
-//    console.log(firstRange);
     
     // if a suitable range is not found, everything in the given range is the same
     if (firstRange === undefined) return this.isMarked(inputs.start) === inputs.marked ? inputs.start : null;
@@ -413,12 +340,15 @@ class IndexMarker {
   }
   
   static _sanitizeInputs(marked, start, end) {
+    
+    // normalize nulls
+    if (marked === null) marked = undefined;
     if (start === null) start = undefined;
     if (end === null) end = undefined;
     
     // validate and sanitize inputs
-    if (marked !== undefined && marked !== null) assert(typeof marked === "boolean", "marked is not boolean");
     let indices;
+    if (marked !== undefined) assert(typeof marked === "boolean", "marked is not boolean");
     if (start === undefined) {
       assert(end === undefined);
     } else {
