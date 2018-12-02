@@ -73,7 +73,7 @@ class IndexMarker {
       // set range
       if (inputs.end !== undefined) {
         for (let index = inputs.start; index <= inputs.end; index++) {
-          this._setSingle(index, mark); // TODO: can be more efficient than setting individual indices
+          this._setSingle(mark, index); // TODO: can be more efficient than setting individual indices
         }
       }
       
@@ -89,7 +89,7 @@ class IndexMarker {
       // set indices 
       if (inputs.indices !== undefined) {
         for (let index of inputs.indices) {
-          this._setSingle(index, mark);
+          this._setSingle(mark, index);
         }
       }
       
@@ -212,16 +212,70 @@ class IndexMarker {
   
   // --------------------------------- PRIVATE --------------------------------
   
-  _setSingle(index, mark) {
-    throw new Error("Not implemented");
+  _setSingle(mark, index) {
     
+    // no change if index already has given marked state
+    if (mark === this._isMarkedSingle(index)) return;
     
-    if (!this.state.inverted) {
-      if (mark) this.state.set(index, true);
-      else this.state.delete(index)
-    } else {
-      if (mark) this.state.delete(index);
-      else this.state.set(index, true);
+    // find indices of previous, current, and next ranges relative to index
+    let prevRangeIdx, curRangeIdx, nextRangeIdx;
+    for (let rangeIdx = 0; rangeIdx < this.state.ranges.length; rangeIdx++) {
+      let range = this.state.ranges[rangeIdx];
+      if (range.end < index) prevRangeIdx = rangeIdx;
+      else if (range.start <= index && range.end >= index) curRangeIdx = rangeIdx;
+      else if (nextRangeIdx === undefined && range.start > index) {
+        nextRangeIdx = rangeIdx;
+        break;
+      }
+    }
+    
+    // handle change in a range
+    if (curRangeIdx !== undefined) {
+      let range = this.state.ranges[curRangeIdx];
+      if (range.start === index) {
+        if (range.end === index) this.state.ranges.splice(curRangeIdx, 1); // remove range
+        else range.start++; // increment start
+      } else if (range.end === index) {
+        range.end--;        // decrement end
+      }
+    }
+    
+    // handle change not in a range
+    else {
+      
+      // track whether or not index is incorporated into existing range
+      let incorporated = false;
+      
+      // incorporate index into previous range if applicable
+      if (prevRangeIdx !== undefined) {
+        let prevRange = this.state.ranges[prevRangeIdx];
+        if (prevRange.end === index - 1) {
+          prevRange.end++;
+          incorporated = true;
+        }
+      }
+      
+      // incorporate index into next range if applicable
+      if (nextRangeIdx !== undefined) {
+        let nextRange = this.state.ranges[nextRangeIdx];
+        if (nextRange.start === index + 1) {
+          nextRange.start--;
+          incorporated = true;
+        }
+      }
+      
+      // merge previous and next ranges if applicable
+      if (incorporated && prevRangeIdx !== undefined && nextRangeIdx !== undefined) {
+        let prevRange = this.state.ranges[prevRangeIdx];
+        let nextRange = this.state.ranges[nextRangeIdx];
+        if (prevRange.end === nextRange.start) {
+          prevRange.end = nextRange.end;
+          this.state.ranges.splice(nextRangeIdx);
+        }
+      }
+      
+      // start new range if not incorporated
+      if (!incorporated) this.state.ranges.push({start: index, end: index});
     }
   }
   
