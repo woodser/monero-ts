@@ -2,8 +2,8 @@ const assert = require("assert");
 const GenUtils = require("../src/utils/GenUtils");
 const IndexMarker = require("../src/utils/IndexMarker");
 
-const MAX_INDEX = 10;            // maximum index to mark
-const NUM_MARKINGS = 5;          // number of times to apply markings across indices
+const MAX_INDEX = 10;               // maximum index to mark
+const NUM_MARKINGS = 5;             // number of times to apply markings across indices
 assert(MAX_INDEX >= NUM_MARKINGS);  // most tests assume some indices in the range will remain unmarked
 
 /**
@@ -17,7 +17,18 @@ describe("Test Index Marker", function() {
   });
   
   it("Starts with nothing marked", function() {
-    assert(!marker.isMarked(0, MAX_INDEX));
+    assert(marker.allUnmarked());
+    assert(marker.allUnmarked(0, MAX_INDEX));
+    assert(marker.allUnmarked([0, 5, 10]));
+    assert(marker.hasUnmarked());
+    assert(marker.hasUnmarked(0, MAX_INDEX));
+    assert(marker.hasUnmarked([0, 10, 25]));
+    assert(!marker.allMarked());
+    assert(!marker.allMarked(0, MAX_INDEX));
+    assert(!marker.allMarked([0, 5, 1000]));
+    assert(!marker.hasMarked());
+    assert(!marker.hasMarked(0, MAX_INDEX));
+    assert(!marker.hasMarked([0, 5, 100]));
   });
   
   it("Can be reset so nothing is marked", function() {
@@ -27,29 +38,36 @@ describe("Test Index Marker", function() {
     indices = [ 3, 1, 6, 10, 2 ];
     assert(!marker.isMarked(1));
     marker.mark(indices);
-    assert(marker.isMarked(indices));
-    assert(marker.isMarked(0, MAX_INDEX) === undefined);  // some will not be marked
+    assert(marker.allMarked(indices));
+    assert(marker.hasMarked(0, MAX_INDEX) && marker.hasUnmarked(0, MAX_INDEX)); // mixture of marked and unmarked
     
     // reset markings
     marker.reset();
     
     // nothing is marked
-    assert(!marker.isMarked(0, MAX_INDEX));
+    assert(!marker.hasMarked(0, MAX_INDEX));
   });
   
   it("Can mark or or unmark all indices by not specifying indices", function() {
     
     // mark everything
     marker.mark();
-    assert(marker.isMarked() === true);
+    assert(marker.allMarked());
     for (let i = 0; i < MAX_INDEX; i++) assert(marker.isMarked(i));
+    assert(marker.allMarked());
+    assert(marker.hasMarked());
     assert.equal(null, marker.getFirst(false));
+    assert.equal(0, marker.getFirst(true));
     
     // unmark everything
     marker.unmark();
-    assert(marker.isMarked() === false);
+    assert(marker.hasMarked());
     for (let i = 0; i < MAX_INDEX; i++) assert(!marker.isMarked(i));
     assert.equal(0, marker.getFirst(false));
+    assert(!marker.allMarked());
+    assert(!marker.hasMarked());
+    assert.equal(0, marker.getFirst(false));
+    assert.equal(null, marker.getFirst(true));
   });
   
   it("Can mark single indices", function() {
@@ -61,7 +79,7 @@ describe("Test Index Marker", function() {
     indices.map(idx => marker.mark(idx));
     
     // check marked indices
-    assert(marker.isMarked(indices));                 // check as array
+    assert(marker.allMarked(indices));                // check as array
     indices.map(idx => assert(marker.isMarked(idx))); // check individually
     
     // check not marked indices
@@ -71,15 +89,15 @@ describe("Test Index Marker", function() {
       else notMarkedIndices.push(idx);
     }
     assert(notMarkedIndices.length > 0);
-    assert(!marker.isMarked(notMarkedIndices));                 // check as array
+    assert(marker.allUnmarked(notMarkedIndices));                 // check as array
     notMarkedIndices.map(idx => assert(!marker.isMarked(idx))); // check individually
     
     // check mixture of marked and unmarked indices across a range
-    assert(marker.isMarked(0, MAX_INDEX) === undefined);
+    assert(marker.hasMarked(0, MAX_INDEX) && marker.hasUnmarked(0, MAX_INDEX));
   });
   
   it("Can mark an array of indices", function() {
-    assert(marker.isMarked(0, MAX_INDEX) === false); // ensure starting with reset state
+    assert(!marker.hasMarked(0, MAX_INDEX)); // ensure starting with reset state
     
     // fetch random indicies
     let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
@@ -88,7 +106,7 @@ describe("Test Index Marker", function() {
     marker.mark(indices);
     
     // check marked indices
-    assert(marker.isMarked(indices));                 // check as array
+    assert(marker.allMarked(indices));                // check as array
     indices.map(idx => assert(marker.isMarked(idx))); // check individually
     
     // check not marked indices
@@ -101,11 +119,11 @@ describe("Test Index Marker", function() {
       }
     }
     assert(notMarkedIndices.length > 0);
-    assert(!marker.isMarked(notMarkedIndices));                 // check as array
+    assert(marker.allUnmarked(notMarkedIndices));               // check as array
     notMarkedIndices.map(idx => assert(!marker.isMarked(idx))); // check individually
     
     // check mixture of marked and unmarked indices across a range
-    assert(marker.isMarked(0, MAX_INDEX) === undefined);
+    assert(marker.hasMarked(0, MAX_INDEX) && marker.hasUnmarked(0, MAX_INDEX));
   });
   
   it("Can mark a range of indicies", function() {
@@ -126,12 +144,12 @@ describe("Test Index Marker", function() {
       marker.mark(start, end);
       
       // test markings
-      assert(marker.isMarked(start, end));                                  // check as range
+      assert(marker.allMarked(start, end));                                 // check as range
       for (let idx = start; idx < end; idx++) assert(marker.isMarked(idx)); // check individually
       
       // test other markings
-      if (start > 1) assert(!marker.isMarked(0, start - 1));
-      if (end < MAX_IDX) assert(!marker.isMarked(end + 1, MAX_IDX));
+      if (start > 1) assert(!marker.hasMarked(0, start - 1));
+      if (end < MAX_IDX) assert(!marker.hasMarked(end + 1, MAX_IDX));
     }
   });
   
@@ -146,8 +164,8 @@ describe("Test Index Marker", function() {
     
     // test that nothing is marked
     indices.map(idx => assert(!marker.isMarked(idx)));  // check individually
-    assert(!marker.isMarked(indices));                  // check as array
-    assert(!marker.isMarked(0, MAX_INDEX));             // check as range 
+    assert(!marker.hasMarked(indices));                 // check as array
+    assert(!marker.hasMarked(0, MAX_INDEX));            // check as range 
   });
   
   it("Can unmark an array of indices", function() {
@@ -161,8 +179,8 @@ describe("Test Index Marker", function() {
     
     // test that nothing is marked
     indices.map(idx => assert(!marker.isMarked(idx)));  // check individually
-    assert(!marker.isMarked(indices));                  // check as array
-    assert(!marker.isMarked(0, MAX_INDEX));             // check as range 
+    assert(!marker.hasMarked(indices));                  // check as array
+    assert(!marker.hasMarked(0, MAX_INDEX));             // check as range 
   });
   
   it("Can unmark a range of indices", function() {
@@ -180,7 +198,7 @@ describe("Test Index Marker", function() {
       
       // mark the range
       marker.mark(start, end);
-      assert(marker.isMarked(start, end));
+      assert(marker.allMarked(start, end));
       
       // unmark the range
       marker.unmark(start, end);
@@ -191,9 +209,9 @@ describe("Test Index Marker", function() {
       
       // test no markings
       for (let idx = start; idx < end; idx++) assert(!marker.isMarked(idx));  // check individually
-      assert(!marker.isMarked(indices));                                      // check indices
-      assert(!marker.isMarked(start, end));                                   // check range
-      assert(!marker.isMarked(0, MAX_IDX));                                   // check max range
+      assert(!marker.hasMarked(indices));                                     // check indices
+      assert(!marker.hasMarked(start, end));                                  // check range
+      assert(!marker.hasMarked(0, MAX_IDX));                                  // check max range
     }
   });
   
@@ -223,7 +241,7 @@ describe("Test Index Marker", function() {
     console.log("BEFORE UNMARKING");
     console.log(marker.getState());
     assert.equal(indices[0], marker.getFirst(true));
-    assert(marker.isMarked() === undefined);
+    assert(marker.hasMarked(0, MAX_INDEX) && marker.hasUnmarked(0, MAX_INDEX)); // mixture of marked and unmarked
     
     // unmark individuals
     for (let i = 0; i < indices.length; i++) {
@@ -232,7 +250,7 @@ describe("Test Index Marker", function() {
       if (i < indices.length - 1) assert(marker.getFirst(true) !== null);
     }
     console.log("AFTER_UNMARKING");
-    assert(marker.isMarked() === false);
+    assert(!marker.hasMarked());
     
     console.log(indices);
     console.log(MAX_INDEX);
@@ -268,11 +286,11 @@ describe("Test Index Marker", function() {
     
     // invert so all indices are theoretically marked
     marker.invert();
-    assert(marker.isMarked(0, MAX_INDEX * 2));  // TODO: MAX_INDEX ^ MAX_INDEX when range compression implemented to prove performance
+    assert(marker.allMarked(0, MAX_INDEX * 2));  // TODO: MAX_INDEX ^ MAX_INDEX when range compression implemented to prove performance
     
     // invert to reset
     marker.invert();
-    assert(!marker.isMarked(0, MAX_INDEX * 2));
+    assert(marker.allUnmarked(0, MAX_INDEX * 2));
     
     // mark random indices
     let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
@@ -283,8 +301,8 @@ describe("Test Index Marker", function() {
     marker.invert();
     
     // check markings
-    assert(!marker.isMarked(indices));      // check indices
-    for (let i = 0; i < MAX_INDEX; i++) {   // check individually
+    assert(!marker.hasMarked(indices));   // check indices
+    for (let i = 0; i < MAX_INDEX; i++) { // check individually
       assert(indices.includes(i) ? !marker.isMarked(i) : marker.isMarked(i));
     }
     assert(marker.isMarked(0, MAX_INDEX) === undefined);  // range contains marked and unmarked indices
@@ -408,6 +426,6 @@ describe("Test Index Marker", function() {
     
     // ensure states are equal
     assert(marker.getState() === marker2.getState());
-    assert(marker2.isMarked(indices));
+    assert(marker2.allMarked(indices));
   });
 });

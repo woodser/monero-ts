@@ -122,67 +122,119 @@ class IndexMarker {
     return this.set(false, start, end);
   }
   
+//  /**
+//   * Indicates if all specified indices are marked (true), unmarked (false),
+//   * or some are marked and some are not marked (undefined).
+//   * 
+//   * @param start is a number specifying an index or a start of a range or an array of indices to check
+//   * @param end is a number specifying the end of the range to check (optional)
+//   * @returns true iff all indices are marked, false iff all indices are not marked, undefined otherwise
+//   */
+//  isMarked(start, end) {
+//    
+//    // sanitize inputs
+//    let inputs = IndexMarker._sanitizeInputs(null, start, end);
+//    
+//    // check single or range
+//    if (inputs.start !== undefined) {
+//      
+//      // check range
+//      if (inputs.end !== undefined) {
+//        
+//        // find encompassing range
+//        let rangeEncompasses = false;
+//        let rangeOverlaps = false;
+//        for (let range of this.state.ranges) {
+//          if (range.start <= inputs.start && range.end >= inputs.end) {
+//            rangeEncompasses = true;
+//            break;
+//          }
+//          if (this._overlaps(range.start, range.end, inputs.start, inputs.end)) rangeOverlaps = true;
+//        }
+//        
+//        // interpret range overlap
+//        if (rangeEncompasses) return !this.state.inverted; // encompassing range
+//        else if (rangeOverlaps) return undefined;          // mixture of marked and unmarked
+//        else return this.state.inverted;                   // no overlap
+//      }
+//      
+//      // check single
+//      else {
+//        return this.isMarked(inputs.start);
+//      }
+//    }
+//    
+//    // check all or array of indices
+//    else {
+//      
+//      // check indices 
+//      if (inputs.indices !== undefined) {
+//        let marked;
+//        for (let index of inputs.indices) {
+//          if (marked === undefined) marked = this.isMarked(index)
+//          else if (marked !== this.isMarked(index)) return undefined;
+//        }
+//        return marked;
+//      }
+//      
+//      // check all
+//      else {
+//        if (this.state.ranges.length) return undefined; // some marked some not
+//        return this.state.inverted;  // all are marked iff inverted
+//      }
+//    }
+//  }
+  
   /**
-   * Indicates if all specified indices are marked (true), unmarked (false),
-   * or some are marked and some are not marked (undefined).
+   * Indicates if the given index is marked.
    * 
-   * @param start is a number specifying an index or a start of a range or an array of indices to check
-   * @param end is a number specifying the end of the range to check (optional)
-   * @returns true iff all indices are marked, false iff all indices are not marked, undefined otherwise
+   * @param index is the index of to check
+   * @returns true if the index is marked, false otherwise
    */
-  isMarked(start, end) {
+  isMarked(index, param2) {
+    assert(param2 === undefined, "Can only call isMarked() with one parameter");
     
-    // sanitize inputs
-    let inputs = IndexMarker._sanitizeInputs(null, start, end);
-    
-    // check single or range
-    if (inputs.start !== undefined) {
-      
-      // check range
-      if (inputs.end !== undefined) {
-        
-        // find encompassing range
-        let rangeEncompasses = false;
-        let rangeOverlaps = false;
-        for (let range of this.state.ranges) {
-          if (range.start <= inputs.start && range.end >= inputs.end) {
-            rangeEncompasses = true;
-            break;
-          }
-          if (this._overlaps(range.start, range.end, inputs.start, inputs.end)) rangeOverlaps = true;
-        }
-        
-        // interpret range overlap
-        if (rangeEncompasses) return !this.state.inverted; // encompassing range
-        else if (rangeOverlaps) return undefined;          // mixture of marked and unmarked
-        else return this.state.inverted;                   // no overlap
-      }
-      
-      // check single
-      else {
-        return this._isMarkedSingle(inputs.start);
+    // determine if index is in range
+    let inRange = false;
+    for (let range of this.state.ranges) {
+      if (range.start <= index && range.end >= index) {
+        inRange = true;
+        break;
       }
     }
     
-    // check all or array of indices
-    else {
-      
-      // check indices 
-      if (inputs.indices !== undefined) {
-        let marked;
-        for (let index of inputs.indices) {
-          if (marked === undefined) marked = this.isMarked(index)
-          else if (marked !== this.isMarked(index)) return undefined;
-        }
-        return marked;
-      }
-      
-      // check all
-      else {
-        if (this.state.ranges.length) return undefined; // some marked some not
-        return this.state.inverted;  // all are marked iff inverted
-      }
-    }
+    // apply inversion if applicable
+    return inRange ? !this.state.inverted : this.state.inverted;
+  }
+  
+  /**
+   * Indicates if any indices in the given range are marked.
+   * 
+   * @param start is the start index of a range or an array of indices (defaults to 0)
+   * @param end is the end of the range (optional)
+   * @returns true if any indices in the given range are marked, false otherwise
+   */
+  hasMarked(start = 0, end) {
+    return this.getFirst(true, start, end) !== null;
+  }
+  
+  hasUnmarked(start = 0, end) {
+    return this.getFirst(false, start, end) !== null;
+  }
+  
+  /**
+   * Indicates if all indices in the given range are marked.
+   * 
+   * @param start is the start index of a range or an array of indices (defaults to 0)
+   * @param end is the end of the range (optional)
+   * @returns true if all indices in the given range are marked, false otherwise
+   */
+  allMarked(start = 0, end) {
+    return this.getFirst(false, start, end) === null;
+  }
+  
+  allUnmarked(start = 0, end) {
+    return this.getFirst(true, start, end) === null;
   }
   
   /**
@@ -212,6 +264,7 @@ class IndexMarker {
    * @param isMarked specifies if the index to find should be marked or unmarked
    * @param start is the start index to search from (optional)
    * @param end is the end index to search to (optional)
+   * @returns the first index with the given marked state, null if none found
    */
   getFirst(isMarked, start = 0, end) {
     
@@ -265,7 +318,7 @@ class IndexMarker {
   _setSingle(isMarked, index) {
     
     // no change if index already has given marked state
-    if (isMarked === this._isMarkedSingle(index)) return;
+    if (isMarked === this.isMarked(index)) return;
     
     // find indices of previous, current, and next ranges relative to index
     let prevRangeIdx, curRangeIdx, nextRangeIdx;
@@ -333,21 +386,6 @@ class IndexMarker {
         this.state.ranges.splice(rangeIdx, 0, {start: index, end: index});
       }
     }
-  }
-  
-  _isMarkedSingle(index) {
-    
-    // determine if index is in range
-    let inRange = false;
-    for (let range of this.state.ranges) {
-      if (range.start <= index && range.end >= index) {
-        inRange = true;
-        break;
-      }
-    }
-    
-    // apply inversion if applicable
-    return inRange ? !this.state.inverted : this.state.inverted;
   }
   
   _overlaps(start1, end1, start2, end2) {
