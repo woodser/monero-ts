@@ -142,21 +142,21 @@ class IndexMarker {
       if (inputs.end !== undefined) {
         
         // find encompassing range
-        let encompassingRange;
-        let rangeTouched = false;
+        let rangeEncompasses;
+        let rangeOverlaps = false;
         for (let range of this.state.ranges) {
           if (range.start <= inputs.start && range.end >= inputs.end) {
-            encompassingRange = range;
+            rangeEncompasses = range;
             break;
           }
-          if (range.start <= inputs.start && range.end >= inputs.start) rangeTouched = true;
-          if (range.start <= inputs.end && range.end >= inputs.end) rangeTouched = true;
+          if (range.start <= inputs.start && range.end >= inputs.start) rangeOverlaps = true;
+          if (range.start <= inputs.end && range.end >= inputs.end) rangeOverlaps = true;
         }
         
         // interpret range overlap
-        if (encompassingRange) return !this.state.inverted; // encompassing range
-        else if (rangeTouched) return undefined;            // touches but not encompassed
-        else return this.state.inverted;                    // no overlap
+        if (rangeEncompasses) return !this.state.inverted; // encompassing range
+        else if (rangeOverlaps) return undefined;          // mixture of marked and unmarked
+        else return this.state.inverted;                   // no overlap
       }
       
       // check single
@@ -170,10 +170,6 @@ class IndexMarker {
       
       // check indices 
       if (inputs.indices !== undefined) {
-
-        throw new Error("Not implemented");
-        
-        assert(inputs.indices);
         let marked;
         for (let index of inputs.indices) {
           if (marked === undefined) marked = this.isMarked(index)
