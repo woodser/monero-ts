@@ -6,6 +6,9 @@ const IndexMarker = require("../utils/IndexMarker");
 
 /**
  * Implements a Monero wallet using client-side crypto and a given daemon.
+ * 
+ * TODO: optimize block requests
+ * TODO: process from startHeight
  */
 class MoneroWalletLocal extends MoneroWallet {
   
