@@ -81,7 +81,11 @@ class MoneroRpc {
     
     // send request and await response
     let resp = await this._throttledRequest(opts);
-    if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
+    if (resp.error) {
+      console.error("Request failed:");
+      console.error(opts);
+      throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
+    }
     return resp.result;
   }
   
