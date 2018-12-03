@@ -48,7 +48,7 @@ describe("Test Index Marker", function() {
     assert(!marker.hasMarked(0, MAX_INDEX));
   });
   
-  it("Can mark or or unmark all indices by not specifying indices", function() {
+  it("Can mark or  unmark all indices by not specifying indices", function() {
     
     // mark everything
     marker.mark();
