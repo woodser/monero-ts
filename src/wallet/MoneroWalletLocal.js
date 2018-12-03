@@ -93,8 +93,7 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async getHeight() {
     await this._initOneTime();
-    //return this.cache.processedMarker.getFirst
-    throw new Error("getHeight() not implemented");
+    return this.cache.processedMarker.getFirst(false, this.store.startHeight, this.cache.chainHeight - 1);
   }
   
   // TODO: only allow one refresh at a time
@@ -110,14 +109,15 @@ class MoneroWalletLocal extends MoneroWallet {
     this.cache.chainHeight = info.getHeight();
     this.cache.numTxs = info.getTxCount();
     
-    //console.log("PROCESSING BLOCKS [" + this.store.startHeight + ", " + (this.cache.chainHeight - 1) + "] WITH " + this.cache.numTxs + " NON-MINER TXS");
-    
     // copy and invert processed blocks to track unprocessed blocks
     this.cache.unprocessedMarker = this.cache.processedMarker.copy().invert();
     
     // loop while there are unprocessed blocks
-    while (this._hasUnprocessedBlocks()) {
-      await this._processBlocksChunk();
+    // TODO: concurrent processing with X threads and await after network requests
+    let startHeight = this.store.startHeight;
+    let endHeight = this.cache.chainHeight - 1;
+    while (this._hasUnprocessedBlocks(startHeight, endHeight)) {
+      await this._processBlocksChunk(this.config.daemon, startHeight, endHeight);
     }
     
     throw new Error("Done processing!");
@@ -145,6 +145,7 @@ class MoneroWalletLocal extends MoneroWallet {
     if (this.store === undefined) {
       this.store = {};
       this.store.version = "0.0.1";
+      this.store.startHeight = this.config.startHeight;
       
       // initialize keys from core utils
       let keys;
@@ -178,40 +179,13 @@ class MoneroWalletLocal extends MoneroWallet {
   }
   
   /**
-   * Retrieves a header from the cache or fetches and caches a header range if not in the cache.
-   * 
-   * @param height is the height of the header to retrieve from the cache
-   */
-  async _getCachedHeader(height) {
-    
-    // get header from cache
-    let cachedHeader = this.cache.headers[height];
-    if (cachedHeader) return cachedHeader;
-    
-    // fetch and cache headers if not in cache
-    let endHeight = Math.min(this.cache.chainHeight - 1, height + this.config.numHeadersPerRequest - 1);
-    let headers = await this.config.daemon.getBlockHeadersByRange(height, endHeight);
-    for (let header of headers) {
-      this.cache.headers[header.getHeight()] = {
-          blockSize: header.getBlockSize(),
-          numTxs: header.getNumTxs()
-      }
-    }
-    
-    // return the cached header
-    return this.cache.headers[height];
-  }
-  
-  _hasUnprocessedBlocks() {
-    return this.cache.unprocessedMarker.hasMarked(0, this.cache.chainHeight - 1);
-  }
-  
-  /**
    * Processes a chunk of unprocessed blocks.
    * 
    * @param daemon is the daemon to query blocks as binary requests
+   * @param startHeight specifies the start height to process unprocessed blocks within
+   * @param endHeight specifies the end height to process unprocessed blocks within
    */
-  async _processBlocksChunk(daemon) {
+  async _processBlocksChunk(daemon, startHeight, endHeight) {
     
     console.log("Processing chunk");
     
@@ -219,7 +193,7 @@ class MoneroWalletLocal extends MoneroWallet {
     let reqSize = 0;
     let blockIndices = [];
     let unprocessedIdx;
-    while (reqSize < this.config.maxReqSize && (unprocessedIdx = this.cache.unprocessedMarker.getFirst(true, 0, this.cache.chainHeight - 1)) !== null) {
+    while (reqSize < this.config.maxReqSize && (unprocessedIdx = this.cache.unprocessedMarker.getFirst(true, startHeight, endHeight)) !== null) {
       
       // get header of unprocessed block
       let cachedHeader = await this._getCachedHeader(unprocessedIdx);
@@ -243,10 +217,51 @@ class MoneroWalletLocal extends MoneroWallet {
     let blocks = await this.config.daemon.getBlocksByHeight(blockIndices);
     
     // process blocks
-    blocks.map(block => this._processBlock(block));
+    for (let block of blocks) {
+      this._processBlock(block);
+      this.cache.processedMarker.mark(block.getHeader().getHeight()); // mark block as processed in persisted wallet
+    }
+
     console.log("Done processing blocks [" + blockIndices[0] + ", " + blockIndices[blockIndices.length - 1] + "]");
+    console.log(this.store.processed.ranges);
   }
   
+  /**
+   * Indicates if blocks are unprocessed within the given range.
+   * 
+   * @param startHeight specifies the start height to check for unprocessed blocks (defaults to 0)
+   * @param endHeight specifies the end height to check for unprocessed blocks (defaults to chain height - 1)
+   */
+  _hasUnprocessedBlocks(startHeight = 0, endHeight) {
+    if (endHeight === undefined) endHeight = this.cache.chainHeight - 1;
+    return this.cache.unprocessedMarker.hasMarked(startHeight, endHeight);
+  }
+  
+  /**
+   * Retrieves a header from the cache or fetches and caches a header range if not in the cache.
+   * 
+   * @param height is the height of the header to retrieve from the cache
+   */
+  async _getCachedHeader(height) {
+    
+    // get header from cache
+    let cachedHeader = this.cache.headers[height];
+    if (cachedHeader) return cachedHeader;
+    
+    // fetch and cache headers if not in cache
+    let endHeight = Math.min(this.cache.chainHeight - 1, height + this.config.numHeadersPerRequest - 1);
+    let headers = await this.config.daemon.getBlockHeadersByRange(height, endHeight);
+    for (let header of headers) {
+      this.cache.headers[header.getHeight()] = {
+          blockSize: header.getBlockSize(),
+          numTxs: header.getNumTxs()
+      }
+    }
+    
+    // return the cached header
+    return this.cache.headers[height];
+  }
+    
 //  async _processBlockChunks(startHeight, maxHeight, maxReqSize, maxRecursion) {
 //    
 //    // configuration TODO
@@ -327,7 +342,7 @@ class MoneroWalletLocal extends MoneroWallet {
  * Local wallet default config.
  */
 MoneroWalletLocal.DEFAULT_CONFIG = {
-    startHeight: 0,                     // start height to process the wallet from
+    startHeight: 100000,                     // start height to process the wallet from
     mnemonicLanguage: "en",             // default mnemonic phrase language
     requestsPerSecond: 500,             // maximum requests per second to the daemon
     numHeadersPerRequest: 750,          // number of headers per headers fetch request 
