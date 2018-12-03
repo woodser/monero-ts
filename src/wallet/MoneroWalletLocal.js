@@ -222,8 +222,7 @@ class MoneroWalletLocal extends MoneroWallet {
       this.cache.processedMarker.mark(block.getHeader().getHeight()); // mark block as processed in persisted wallet
     }
 
-    console.log("Done processing blocks [" + blockIndices[0] + ", " + blockIndices[blockIndices.length - 1] + "]");
-    console.log(this.store.processed.ranges);
+    //console.log("Done processing blocks [" + blockIndices[0] + ", " + blockIndices[blockIndices.length - 1] + "]");
   }
   
   /**
@@ -342,13 +341,13 @@ class MoneroWalletLocal extends MoneroWallet {
  * Local wallet default config.
  */
 MoneroWalletLocal.DEFAULT_CONFIG = {
-    startHeight: 100000,                     // start height to process the wallet from
-    mnemonicLanguage: "en",             // default mnemonic phrase language
-    requestsPerSecond: 500,             // maximum requests per second to the daemon
-    numHeadersPerRequest: 750,          // number of headers per headers fetch request 
-    maxReqSize: 4000000,                // maximum size of any request to make
-    maxConcurrency: 5,                  // maximum concurrency when processing; maximum memory = this * maxReqSize
-    skipMinerTxs: false,                // instructs the wallet to skip processing miner txs
+    startHeight: 100000,        // start height to process the wallet from
+    mnemonicLanguage: "en",     // default mnemonic phrase language
+    requestsPerSecond: 500,      // maximum requests per second to the daemon
+    numHeadersPerRequest: 750,  // number of headers per headers fetch request 
+    maxReqSize: 4000000,        // maximum size of any request to make
+    maxConcurrency: 5,          // maximum concurrency when processing; maximum memory = this * maxReqSize
+    skipMinerTxs: false,        // instructs the wallet to skip processing miner txs
 }
 
 module.exports = MoneroWalletLocal;
