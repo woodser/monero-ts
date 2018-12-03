@@ -2,8 +2,8 @@ const assert = require("assert");
 const GenUtils = require("../src/utils/GenUtils");
 const IndexMarker = require("../src/utils/IndexMarker");
 
-const MAX_INDEX = 10000;               // maximum index to mark
-const NUM_MARKINGS = 5000;             // number of times to apply markings across indices
+const MAX_INDEX = 10000;            // maximum index to mark
+const NUM_MARKINGS = 5000;          // number of times to apply markings across indices
 assert(MAX_INDEX >= NUM_MARKINGS);  // most tests assume some indices in the range will remain unmarked
 
 /**

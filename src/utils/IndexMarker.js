@@ -2,9 +2,16 @@ const assert = require("assert");
 const GenUtils = require("../utils/GenUtils");
 
 /**
- * Allows indices in an infinite range to be arbitrarily marked or not marked.
+ * Allows indices in an infinite range to be arbitrarily marked or not marked
+ * with focus on performance by using ranges to compress marked information.
  * 
- * TODO: ranges should be array[2], don't set inverted by default
+ * For example, infinity can be marked yes so that querying any index will return yes
+ * using ranges to compress consecutive marked states.
+ * 
+ * Might be further optimizable using e.g. bit operations on integers.
+ * 
+ * TODO: optimize ranges using arrays and single numbers
+ * TODO: don't set inverted by default
  */
 class IndexMarker {
   
