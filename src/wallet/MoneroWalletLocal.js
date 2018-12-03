@@ -296,22 +296,6 @@ class MoneroWalletLocal extends MoneroWallet {
    */
   _processBlock(block) {
     //console.log("Processing block...");
-    //console.log(block);
-    ///console.log("Block contains " + block.getTxs().length + " transactions");
-    
-    //if (block.getTxs().length) console.log("Block contains " + block.getTxs().length + " txs");
-    
-    // fetch transactions by hash
-    //let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; }); // works
-    //let txs = await this.daemon.getTxs(txHashes, true, false);
-    
-    // process transactions
-    let numOwned = 0;
-    let numUnowned = 0;
-    
-    //console.log("View key prv: " + this.prvViewKey);
-    //console.log("Spend key pub: " + this.pubSpendKey);
-    
     for (let txIdx = 0; txIdx < block.getTxs().length; txIdx++) {
       let tx = block.getTxs()[txIdx];
       //if (tx.getId() !== "cb8258a925b63a43f4447fd3c838b0d5b9389d1df1cd4c6e18b0476d2c221c9f") continue;
@@ -319,8 +303,7 @@ class MoneroWalletLocal extends MoneroWallet {
       // get tx pub key
       let lastPubKey;
       try {
-        lastPubKey = MoneroUtils.getLastTxPubKey(tx.getExtra());
-        //console.log("Last pub key: " + lastPubKey);
+        lastPubKey = MoneroUtils.getLastTxPubKey(tx.getExtra());  // TODO: parse tx extra
       } catch (err) {
         //console.log("Could not process nonstandard extra: " + tx.getExtra());
         continue;
@@ -328,29 +311,15 @@ class MoneroWalletLocal extends MoneroWallet {
       
       // process outputs
       for (let outIdx = 0; outIdx < tx.getVout().length; outIdx++) {
-        //console.log("Last pub key: " + lastPubKey);
-        //console.log("Private view key: " + this.prvViewKey);
         let derivation = this.cache.coreUtils.generate_key_derivation(lastPubKey, this.cache.prvViewKey);
-        //console.log("Derivation: " + derivation);
-        //console.log("Out index: " + outIdx);
-        //console.log("Public spend key: " + this.pubSpendKey);
         let pubKeyDerived = this.cache.coreUtils.derive_public_key(derivation, outIdx, this.cache.pubSpendKey);
-        //console.log("Pub key derived: " + pubKeyDerived);
-        //console.log("Output key: " + tx.getVout()[outIdx].target.key + "\n\n");
         
         // check if wallet owns output
         if (tx.getVout()[outIdx].target.key === pubKeyDerived) {
           console.log("THIS MY OUTPUT!!!");
-          numOwned++;
-          
-          // TODO: determine amount and test
-        } else {
-          numUnowned++;
         }
       }
     }
-    
-    //console.log("Done processing, " + numOwned + " owned outputs found, " + numUnowned + " unowned");
   }
 }
 
@@ -360,10 +329,10 @@ class MoneroWalletLocal extends MoneroWallet {
 MoneroWalletLocal.DEFAULT_CONFIG = {
     startHeight: 0,                     // start height to process the wallet from
     mnemonicLanguage: "en",             // default mnemonic phrase language
-    requestsPerSecond: 500,              // maximum requests per second to the daemon
+    requestsPerSecond: 500,             // maximum requests per second to the daemon
     numHeadersPerRequest: 750,          // number of headers per headers fetch request 
     maxReqSize: 4000000,                // maximum size of any request to make
-    maxConcurrency: 5,                  // maximum concurrency when processing; maximum memory = this * maxReqSize (defaults to 5)
+    maxConcurrency: 5,                  // maximum concurrency when processing; maximum memory = this * maxReqSize
     skipMinerTxs: false,                // instructs the wallet to skip processing miner txs
 }
 
