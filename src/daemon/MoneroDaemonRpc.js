@@ -125,11 +125,11 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let blocks = [];
     for (let blockIdx = 0; blockIdx < rpcBlocks.blocks.length; blockIdx++) {
       let block = MoneroDaemonRpc._buildBlock(rpcBlocks.blocks[blockIdx]);                  // create block
-      block.getHeader().setHeight(heights[blockIdx]);                                             // set header height
+      block.getHeader().setHeight(heights[blockIdx]);                                       // set header height
       block.setTxs(rpcBlocks.txs[blockIdx].map(rpcTx => MoneroDaemonRpc._buildTx(rpcTx)));  // create transactions
       for (let txIdx = 0; txIdx < block.getTxs().length; txIdx++) {
-        block.getTxs()[txIdx].setId(rpcBlocks.blocks[blockIdx].tx_hashes[txIdx]);                 // set tx id
-        block.getTxs()[txIdx].setHeight(block.getHeader().getHeight());                           // set tx height
+        block.getTxs()[txIdx].setId(rpcBlocks.blocks[blockIdx].tx_hashes[txIdx]);           // set tx id
+        block.getTxs()[txIdx].setHeight(block.getHeader().getHeight());                     // set tx height
       }
       MoneroDaemonRpc._setResponseInfo(rpcBlocks, block);
       blocks.push(block);
