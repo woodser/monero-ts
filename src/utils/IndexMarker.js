@@ -364,7 +364,7 @@ class IndexMarker {
         assert(typeof start === "number");
         assert(start >= 0);
         assert(typeof end === "number");
-        assert(end >= start);
+        assert(end >= start, "End must be greater than start: " + end + " >= " + start);
       } else {
         if (Array.isArray(start)) {
           indices = start;
