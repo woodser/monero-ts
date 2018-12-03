@@ -19,7 +19,7 @@ class MoneroWalletLocal extends MoneroWallet {
    * @param config.mnemonic is a mnemonic phrase to import or generates new one if not given (optional)
    * @param config.mnemonicLanguage specifies the mnemonic phrase language (defaults to "en" for english)
    * @param config.store is an existing wallet store to import (optional)
-   * @param config.startHeight is the start height to scan the wallet from (defaults to 0)
+   * @param config.startHeight is the start height to scan the wallet from (requires existing keys, defaults to 0)
    * @param config.requestsPerSecond throttles maximum rate of daemon requests (defaults to 50 rps)
    * @param config.numHeadersPerRequest specifies the number of headers to fetch when populating the header cache (defaults to 750)
    * @param config.maxReqSize specifies maximum total block size per blocks request (defaults to 4000000)
@@ -34,6 +34,7 @@ class MoneroWalletLocal extends MoneroWallet {
     assert(config.daemon instanceof MoneroDaemon, "config.daemon be an instance of MoneroDaemon");
     assert(config.mnemonic === undefined || config.store === undefined, "May specify config.mnemonic or config.store but not both");
     if (config.mnemonic) assert(config.mnemonicLanguage === undefined || config.mnemonicLanguage === "en", "Mnemonic language must be english if phrase specified");  // TODO: avoid this?
+    if (config.startHeight !== undefined) assert(config.mnemonic || config.store, "Can only specify start height if existing keys imported");
     
     // merge given config with default
     this.config = Object.assign({}, MoneroWalletLocal.DEFAULT_CONFIG, config);
@@ -93,21 +94,19 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async getHeight() {
     await this._initOneTime();
-    return this.cache.processedMarker.getFirst(false, this.store.startHeight, this.cache.chainHeight - 1);  // TODO: wrong, switch to initHeight
+    return this.cache.processedMarker.getFirst(false, this.store.startHeight, this.cache.chainHeight - 1);  // TODO: wrong, find last processed block
+  }
+  
+  async getChainHeight() {
+    await this._initOneTime();
+    return this.cache.chainHeight;
   }
   
   // TODO: only allow one refresh at a time
   async sync(startHeight, endHeight, onProgress) {
-    
     await this._initOneTime();
     
-    throw new Error("Not implemented");
-    
-    // initialize header cache
-    delete this.cache.headers;
-    this.cache.headers = {};
-    
-    // cache latest info to track progress
+    // fetch and cache latest daemon info
     let info = await this.config.daemon.getInfo();
     this.cache.chainHeight = info.getHeight();
     this.cache.numTxs = info.getTxCount();
@@ -115,73 +114,20 @@ class MoneroWalletLocal extends MoneroWallet {
     // copy and invert processed blocks to track unprocessed blocks
     this.cache.unprocessedMarker = this.cache.processedMarker.copy().invert();
     
-    // loop while there are unprocessed blocks
+    // formalize range to process
+    if (startHeight === undefined || startHeight === null) startHeight = await this.getHeight();
+    else assert(startHeight >= 0, "Given start height must be greater than 0 but was " + startHeight);
+    if (endHeight === undefined || endHeight === null) endHeight = this.cache.chainHeight - 1;
+    else assert(endHeight >= 0 && endHeight >= startHeight, "End height " + endHeight + " must be greater than start height " + startHeight);
+    
+    // processed all blocks in the range
     // TODO: concurrent processing with X threads and await after network requests
-    startHeight = this.store.startHeight;
-    endHeight = this.cache.chainHeight - 1;
     while (this._hasUnprocessedBlocks(startHeight, endHeight)) {
       await this._processBlocksChunk(this.config.daemon, startHeight, endHeight);
     }
-    
-    throw new Error("Done processing!");
   }
   
   // -------------------------------- PRIVATE ---------------------------------
-  
-  /**
-   * Performs one time initialization prior to executing wallet methods.
-   * 
-   * @returns Promise is a singleton promise that resolves after initializing
-   */
-  async _initOneTime() {
-    
-    // return singleton promise if already initialized
-    if (this.initPromise) return this.initPromise;
-    
-    // initialize working cache
-    this.cache = {};
-    this.cache.coreUtils = await MoneroUtils.getCoreUtils();
-    let info = await this.config.daemon.getInfo();
-    this.cache.network = info.getNetworkType();
-    this.cache.chainHeight = info.getHeight();
-    this.cache.processing = {};
-    
-    // initialize new store
-    if (this.store === undefined) {
-      this.store = {};
-      this.store.version = "0.0.1";
-      this.store.startHeight = this.config.startHeight;
-      
-      // initialize keys from core utils
-      let keys;
-      if (this.config.mnemonic === undefined) {
-        keys = this.config.coreUtils.newly_created_wallet(this.config.mnemonicLanguage, this.cache.network);  // randomly generate keys
-      } else {
-        keys = this.cache.coreUtils.seed_and_keys_from_mnemonic(this.config.mnemonic, this.cache.network);    // initialize keys from mnemonic
-        keys.mnemonic_string = this.config.mnemonic;
-        keys.mnemonic_language = this.config.mnemonicLanguage
-      }
-      
-      // save keys
-      this.store.seed = keys.sec_seed_string; // only the seed goes in the store to be persisted
-      this.cache.mnemonic = keys.mnemonic_string;
-      this.cache.mnemonicLanguage = keys.mnemonic_language;
-      this.cache.pubViewKey = keys.pub_viewKey_string;
-      this.cache.prvViewKey = keys.sec_viewKey_string;
-      this.cache.pubSpendKey = keys.pub_spendKey_string;
-      this.cache.prvSpendKey = keys.sec_spendKey_string;
-      this.cache.primaryAddress = keys.address_string;
-      
-      // track processed blocks using index marker whose state is stored
-      this.cache.processedMarker = new IndexMarker();
-      this.store.processed = this.cache.processedMarker.getState();
-    }
-    
-    // otherwise import existing store
-    else {
-      throw new Error("Importing wallet store not supported");
-    }
-  }
   
   /**
    * Processes a chunk of unprocessed blocks.
@@ -338,6 +284,63 @@ class MoneroWalletLocal extends MoneroWallet {
           console.log("THIS MY OUTPUT!!!");
         }
       }
+    }
+  }
+  
+  /**
+   * Performs one time initialization prior to executing wallet methods.
+   * 
+   * @returns Promise is a singleton promise that resolves after initializing
+   */
+  async _initOneTime() {
+    
+    // return singleton promise if already initialized
+    if (this.initPromise) return this.initPromise;
+    
+    // initialize working cache
+    let info = await this.config.daemon.getInfo();
+    this.cache = {};
+    this.cache.coreUtils = await MoneroUtils.getCoreUtils();
+    this.cache.network = info.getNetworkType();
+    this.cache.chainHeight = info.getHeight();
+    this.cache.processing = {};
+    this.cache.headers = {};
+    
+    // initialize new store
+    if (this.store === undefined) {
+      this.store = {};
+      this.store.version = "0.0.1";
+      
+      // initialize keys from core utils
+      let keys;
+      if (this.config.mnemonic === undefined) {
+        keys = this.config.coreUtils.newly_created_wallet(this.config.mnemonicLanguage, this.cache.network);  // randomly generate keys
+        this.store.startHeight = this.cache.chainHeight;
+      } else {
+        keys = this.cache.coreUtils.seed_and_keys_from_mnemonic(this.config.mnemonic, this.cache.network);    // initialize keys from mnemonic
+        keys.mnemonic_string = this.config.mnemonic;
+        keys.mnemonic_language = this.config.mnemonicLanguage
+        this.store.startHeight = this.config.startHeight;
+      }
+      
+      // save keys
+      this.store.seed = keys.sec_seed_string; // only the seed goes in the store to be persisted
+      this.cache.mnemonic = keys.mnemonic_string;
+      this.cache.mnemonicLanguage = keys.mnemonic_language;
+      this.cache.pubViewKey = keys.pub_viewKey_string;
+      this.cache.prvViewKey = keys.sec_viewKey_string;
+      this.cache.pubSpendKey = keys.pub_spendKey_string;
+      this.cache.prvSpendKey = keys.sec_spendKey_string;
+      this.cache.primaryAddress = keys.address_string;
+      
+      // track processed blocks using index marker whose state is stored
+      this.cache.processedMarker = new IndexMarker();
+      this.store.processed = this.cache.processedMarker.getState();
+    }
+    
+    // otherwise import existing store
+    else {
+      throw new Error("Importing wallet store not supported");
     }
   }
 }
