@@ -3,7 +3,6 @@
  */
 class MoneroWallet {
   
-  
   /**
    * Get the wallet's seed.
    * 
@@ -41,11 +40,20 @@ class MoneroWallet {
   }
   
   /**
-   * Get the wallet's height.
+   * Get the wallet's synchronization height.
    * 
-   * @returns string is the wallet's height
+   * @returns number is the wallet's height
    */
   async getHeight() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get the block chain's height.
+   * 
+   * @returns number is the block chain's height
+   */
+  async getChainHeight() {
     throw new Error("Subclass must implement");
   }
   
@@ -70,9 +78,13 @@ class MoneroWallet {
   }
   
   /**
-   * TODO.
+   * Synchronizes the wallet with the block chain.
+   * 
+   * @param startHeight is the start height to sync from, syncs from the last synced block by default
+   * @param endHeight is the end height to sync to, syncs to the current chain height by default
+   * @param onProgress({percent: ..., message: "...", totalBlocks: ..., doneBlocks: ...}) is invoked as progress is made
    */
-  async refresh(onProgress) {
+  async sync(startHeight, endHeight, onProgress) {
     throw new Error("Subclass must implement");
   }
   

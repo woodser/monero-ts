@@ -37,7 +37,10 @@ class MoneroWalletRpc extends MoneroWallet {
     return resp.key;
   }
   
-  async refresh() {
+  // TODO: test and support start_height parameter
+  async sync(startHeight, endHeight, onProgress) {
+    assert(endHeight === undefined, "Monero Wallet RPC does not support syncing to an end height");
+    assert(onProgress === undefined, "Monero Wallet RPC does not support reporting sync progress");
     return await this.config.rpc.sendJsonRpcRequest("refresh");
   }
   

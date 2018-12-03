@@ -93,12 +93,15 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async getHeight() {
     await this._initOneTime();
-    return this.cache.processedMarker.getFirst(false, this.store.startHeight, this.cache.chainHeight - 1);
+    return this.cache.processedMarker.getFirst(false, this.store.startHeight, this.cache.chainHeight - 1);  // TODO: wrong, switch to initHeight
   }
   
   // TODO: only allow one refresh at a time
-  async refresh() {
+  async sync(startHeight, endHeight, onProgress) {
+    
     await this._initOneTime();
+    
+    throw new Error("Not implemented");
     
     // initialize header cache
     delete this.cache.headers;
@@ -114,8 +117,8 @@ class MoneroWalletLocal extends MoneroWallet {
     
     // loop while there are unprocessed blocks
     // TODO: concurrent processing with X threads and await after network requests
-    let startHeight = this.store.startHeight;
-    let endHeight = this.cache.chainHeight - 1;
+    startHeight = this.store.startHeight;
+    endHeight = this.cache.chainHeight - 1;
     while (this._hasUnprocessedBlocks(startHeight, endHeight)) {
       await this._processBlocksChunk(this.config.daemon, startHeight, endHeight);
     }
@@ -138,7 +141,9 @@ class MoneroWalletLocal extends MoneroWallet {
     // initialize working cache
     this.cache = {};
     this.cache.coreUtils = await MoneroUtils.getCoreUtils();
-    this.cache.network = (await this.config.daemon.getInfo()).getNetworkType();
+    let info = await this.config.daemon.getInfo();
+    this.cache.network = info.getNetworkType();
+    this.cache.chainHeight = info.getHeight();
     this.cache.processing = {};
     
     // initialize new store
