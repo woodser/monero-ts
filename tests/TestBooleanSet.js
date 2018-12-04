@@ -93,7 +93,39 @@ describe("Test BooleanSet", function() {
   });
   
   it("Can set all", function() {
-    throw new Error("Not implemented");
+    
+    // set random trues
+    setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
+    
+    // set all to true
+    bs.set(true);
+    assert(bs.allSet(true));
+    for (let i = 0; i < MAX_INDEX; i++) assert(bs.get(i));
+    assert(bs.allSet(true));
+    assert(bs.anySet(true));
+    assert.equal(null, bs.getFirst(false));
+    assert.equal(0, bs.getFirst(true));
+    assert.equal(null, bs.getLast(false));
+    assert.equal(undefined, bs.getLast(true));
+    
+    // set random falses
+    setRandom(bs, false, 0, MAX_INDEX, NUM_SETS);
+    assert(!bs.allSet(true));
+    assert(!bs.allSet(false));
+    assert(bs.anySet(true));
+    assert(bs.anySet(false));
+    
+    // set all to false
+    bs.set(false);
+    assert(bs.allSet(false));
+    assert(bs.anySet(false));
+    assert(!bs.allSet(true));
+    assert(!bs.anySet(true));
+    for (let i = 0; i < MAX_INDEX; i++) assert(!bs.get(i));
+    assert.equal(0, bs.getFirst(false));
+    assert.equal(null, bs.getFirst(true));
+    assert.equal(undefined, bs.getLast(false));
+    assert.equal(null, bs.getLast(true));
   });
   
   it("Can set a range", function() {
