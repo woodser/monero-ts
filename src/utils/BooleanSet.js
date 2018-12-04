@@ -11,10 +11,22 @@ class BooleanSet {
    * Constructs a BooleanSet.
    * 
    * @param stateOrObj is a state to initialize by reference, an existing
-   *        BooleanSet to deep copy, or null/undefined to create anew
+   *        BooleanSet to deep copy, or defaults to a cleared state
    */
   constructor(stateOrObj) {
-    throw new Error("Not implemented");
+    
+    // deep copy state object if BooleanSet given
+    if (stateOrObj instanceof BooleanSet) {
+      this._setState(GenUtils.copyProperties(stateOrObj.getState()));
+    }
+    
+    // set state directly by reference if internal state object given
+    else if (stateOrObj) {
+      this._setState(state);
+    }
+    
+    // otherwise start with cleared instance
+    else this.clear();
   }
   
   /**
@@ -24,17 +36,6 @@ class BooleanSet {
    */
   getState() {
     return this.state;
-  }
-  
-  /**
-   * Sets the internal state of this set.
-   * 
-   * @param {Object} is the internal state object to set
-   * @returns {BooleanSet} is this instance
-   */
-  setState(state) {
-    this.state = state;
-    return this;
   }
   
   /**
@@ -52,7 +53,7 @@ class BooleanSet {
    * @returns {BooleanSet} is this instance
    */
   clear() {
-    throw new Error("Not implemented");
+    return this._setState({});
   }
   
   /**
@@ -129,7 +130,7 @@ class BooleanSet {
    * @param {number} end is the end of the range (defaults to infinity)
    * @returns {boolean} is true if any booleans in the range are the given value, false otherwise
    */
-  anySet(bool, start, end) {
+  anySet(bool, start = 0, end) {
     throw new Error("Not implemented");
   }
   
@@ -150,7 +151,7 @@ class BooleanSet {
    * @param end is the end of the range (defaults to infinity)
    * @returns {number} is the first index in the range with the value, null if none found
    */
-  getFirst(bool, start, end) {
+  getFirst(bool, start = 0, end) {
     throw new Error("Not implemented");
   }
   
@@ -160,11 +161,25 @@ class BooleanSet {
    * @param {boolean} bool is the value to get the last index of
    * @param start is the start of the range (defauls to 0)
    * @param end is the end of the range (defaults to infinity)
-   * @returns {number} is the last index in the range with the value, null if none found
+   * @returns {number} is the last index in the range with the value, null if none found, undefined if infinity
    */
   getLast(bool, start, end) {
     throw new Error("Not implemented");
   }
+  
+  // ---------------------------------- PRIVATE -------------------------------
+  
+  /**
+   * Sets the internal state of this set.
+   * 
+   * @param {Object} is the internal state object to set
+   * @returns {BooleanSet} is this instance
+   */
+  _setState(state) {
+    delete this.state;
+    this.state = state;
+    return this;
+  }
 }
 
-modules.export = BooleanSet;
+module.exports = BooleanSet;

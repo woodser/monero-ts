@@ -1202,12 +1202,31 @@ class GenUtils {
    * 
    * @param min is the minimum range of the ints to generate, inclusive
    * @param max is the maximum range of the ints to generate, inclusive
+   * @param count is the number of random ints to get
    */
   static getRandomInts(min, max, count) {
     GenUtils.assertTrue(typeof count === "number");
-    let nums = [];
-    for (let i = 0; i < count; i++) nums.push(GenUtils.getRandomInt(min, max));
-    return nums;
+    let ints = [];
+    for (let i = 0; i < count; i++) ints.push(GenUtils.getRandomInt(min, max));
+    return ints;
+  }
+  
+  /**
+   * Gets a given number of unique random ints within a range.
+   * 
+   * @param min is the minimum range of the ints to generate, inclusive
+   * @param max is the maximum range of the ints to generate, inclusive
+   * @param count is the number of unique random ints to get
+   */
+  static getUniqueRandomInts(min, max, count) {
+    let ints = [];
+    GenUtils.assertTrue(count >= 0);
+    GenUtils.assertTrue(max - min + 1 >= count);
+    while (ints.length < count) {
+      let randomInt = GenUtils.getRandomInt(min, max);
+      if (!ints.includes(randomInts)) ints.push(randomInt);
+    }
+    return ints;
   }
   
   /**
@@ -1236,6 +1255,15 @@ class GenUtils {
       array[i] = array[j];
       array[j] = temp;
     }
+  }
+  
+  /**
+   * Sorts an array by natural ordering.
+   * 
+   * @param {[]} is the array to sort
+   */
+  static sort(array) {
+    array.sort((a, b) => a === b ? 0 : a > b ? 1 : -1);
   }
 }
 
