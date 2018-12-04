@@ -161,6 +161,17 @@ class BooleanSet {
     throw new Error("Not implemented");
   }
   
+  /**
+   * Converts the given range to an array.
+   * 
+   * @param start is the start index of the range
+   * @param end is the end index of the range (defaults to start)
+   * @returns {boolean[]} is an array representation of the given range
+   */
+  toArray(start = 0, end = start) {
+    throw new Error("Not implemented");
+  }
+  
   // ---------------------------------- PRIVATE -------------------------------
   
   /**

@@ -246,7 +246,50 @@ describe("Test BooleanSet", function() {
     for (let idx of indices) assert(bs.get(idx));
   });
   
-  it("Can flip ranges", function() {
+  it("Can flip bounded ranges", function() {
+    
+    // set random trues
+    let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
+    
+    // remember the before
+    let allBeforeArr = bs.toArray();
+    let allBeforeState = GenUtils.copyProperties(bs.getState());
+    
+    // flip and unflip random ranges
+    const REPEAT = 1000;
+    for (let i = 0; i < REPEAT; i++) {
+      
+      // get random start and end indices
+      let rands = GenUtils.getRandomInts(0, MAX_IDX, 2);
+      let start = Math.min(rands[0], rands[1]);
+      let end = Math.max(rands[0], rands[1]);
+      
+      // remember state of range before flip  // TODO: could remember it as BooleanSet and do bitwise operations
+      let rangeBeforeArr = bs.toArray(start, end);
+      
+      // flip the range
+      bs.flip(start, end);
+      
+      // confirm they're all different
+      for (let i = start; i <= end; i++) {
+        assert(rangeBeforeArr[i] !== bs.get(i));
+      }
+      
+      // flip back
+      bs.flip(start);
+      
+      // confirm they're the same
+      for (let i = start; i <= end; i++) {
+        assert(rangeBeforeArr[i] === bs.get(i));
+      }
+    }
+    
+    // confirm before is the same as after
+    assert.deepEqual(allBeforeArr, bs.toArray());
+    assert.deepEqual(allBeforeState, bs.getState());
+  });
+  
+  it("Can flip unbounded ranges", function() {
     throw new Error("Not implemented");
   });
   
