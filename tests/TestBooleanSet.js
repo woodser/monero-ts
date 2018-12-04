@@ -191,7 +191,7 @@ describe("Test BooleanSet", function() {
     throw new Error("Not implemented");
   });
   
-  it("Can the first value in a range", function() {
+  it("Can get the first value in a range", function() {
     throw new Error("Not implemented");
   });
   
@@ -204,7 +204,7 @@ describe("Test BooleanSet", function() {
   });
   
   it("Can determine if any value in a range is a given value", function() {
-    throw new Error("Not implemented");z
+    throw new Error("Not implemented");
   });
 });
 
