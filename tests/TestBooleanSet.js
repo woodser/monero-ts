@@ -2,9 +2,9 @@ const assert = require("assert");
 const GenUtils = require("../src/utils/GenUtils");
 const BooleanSet = require("../src/utils/BooleanSet");
 
-const MAX_INDEX = 10000;        // maximum index to mark
-const NUM_SETS = 5000;          // number of times to apply markings across indices
-assert(MAX_INDEX >= NUM_SETS);  // most tests assume some indices in the range will remain unmarked
+const MAX_INDEX = 10000;       // maximum index to set
+const NUM_SETS = 5000;         // number of sets within the maximum index
+assert(NUM_SETS < MAX_INDEX);  // most tests assume some indices in the range will remain unmarked
 
 /**
  * Tests the BooeleanSet class.
@@ -22,7 +22,14 @@ describe("Test BooleanSet", function() {
   });
   
   it("Can set and get booleans at random indices", function() {
-    throw new Error("Not implemented");
+    
+    // get random indices to set
+    let indices = getRandomSortedIndices(0, MAX_INDEX, NUM_SETS);
+    
+    // set indices to true
+    for (let index of indices) bs.set(true, index);
+    
+    // TODO: not implemented
   });
   
   it("Gets cleared before each test (assumes prior test sets at least one to true)", function() {

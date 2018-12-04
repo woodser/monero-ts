@@ -1224,7 +1224,7 @@ class GenUtils {
     GenUtils.assertTrue(max - min + 1 >= count);
     while (ints.length < count) {
       let randomInt = GenUtils.getRandomInt(min, max);
-      if (!ints.includes(randomInts)) ints.push(randomInt);
+      if (!ints.includes(randomInt)) ints.push(randomInt);
     }
     return ints;
   }
