@@ -164,12 +164,23 @@ class BooleanSet {
   /**
    * Converts the given range to an array.
    * 
-   * @param start is the start index of the range
-   * @param end is the end index of the range (defaults to start)
+   * @param {number} start is the start index of the range
+   * @param {number} is the end index of the range (defaults to length())
    * @returns {boolean[]} is an array representation of the given range
    */
-  toArray(start = 0, end = start) {
+  toArray(start = 0, end = this.length()) {
+    //if (end === undefined || end === null) end = this.length();
     throw new Error("Not implemented");
+  }
+  
+  /**
+   * Returns the index of the last boolean before all remaining booleans are infinitely false
+   * or true (depending on if flip() was called which flips infinity).
+   * 
+   * @returns {number} is the last set boolean before the remaining are infinitely true or false
+   */
+  length() {
+    return this.flipped ? getLast(false) : getLast(true);
   }
   
   // ---------------------------------- PRIVATE -------------------------------

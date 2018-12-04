@@ -344,6 +344,28 @@ describe("Test BooleanSet", function() {
   it("Can get the last index with a given value in a range", function() {
     throw new Error("Not implemented");
   });
+  
+  it("Has a length", function() {
+    
+    // set the first few
+    for (let i = 0; i < 5; i++) {
+      bs.set(true, i);
+      assert.equal(i + 1, bs.length());
+    }
+    
+    // set random trues
+    let lastTrue = Math.max(5, indices[indices.length - 1]);
+    let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
+    assert.equal(lastTrue, bs.length());
+    
+    // flip
+    bs.flip();
+    assert.equal(bs.getLast(false), bs.length());
+    
+    // flip back
+    bs.flip();
+    assert.equal(lastTrue, indices[indices.length - 1], bs.length());
+  });
 });
 
 function setRandom(bs, bool, start, end, count) {
