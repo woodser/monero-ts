@@ -39,21 +39,21 @@ class BooleanSet {
   }
   
   /**
-   * Copies this BooleanSet to a new one.
-   * 
-   * @returns {BooleanSet} is a copy of this instance
-   */
-  copy() {
-    return new BooleanSet(this);
-  }
-  
-  /**
    * Sets all booleans to false.
    * 
    * @returns {BooleanSet} is this instance
    */
   clear() {
     return this._setState({});
+  }
+  
+  /**
+   * Copies this BooleanSet to a new one.
+   * 
+   * @returns {BooleanSet} is a copy of this instance
+   */
+  copy() {
+    return new BooleanSet(this);
   }
   
   /**

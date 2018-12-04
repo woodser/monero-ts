@@ -7,7 +7,7 @@ const NUM_SETS = 5000;         // number of sets within the maximum index
 assert(NUM_SETS < MAX_INDEX);  // most tests assume some indices in the range will remain unmarked
 
 /**
- * Tests the BooeleanSet class.
+ * Tests the BooleanSet class.
  */
 let bs = new BooleanSet();
 describe("Test BooleanSet", function() {
@@ -21,20 +21,67 @@ describe("Test BooleanSet", function() {
     testClearedState(bs);
   });
   
-  it("Can set and get booleans at random indices", function() {
+  it("Can get and set individual indices randomly", function() {
     
     // get random indices to set
     let indices = getRandomSortedIndices(0, MAX_INDEX, NUM_SETS);
     
     // set indices to true
-    for (let index of indices) bs.set(true, index);
+    for (let index of indices) {
+      assert(!bs.get(index));
+      bs.set(true, index);
+      assert(bs.get(index));
+    }
     
-    // TODO: not implemented
+    // test all indices
+    for (let i = 0; i < MAX_INDEX; i++) {
+      if (indices.includes(i)) assert(bs.get(index));
+      else assert(!bs.get(index));
+    }
   });
   
   it("Gets cleared before each test (assumes prior test sets at least one to true)", function() {
+    assert(bs.anySet(true));
     testClearedState(bs);
   });
+  
+  it("Can be cleared", function() {
+    
+    // set random trues
+    setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
+    
+    // clear it
+    bs.clear();
+    
+    // test cleared state
+    testClearedState(bs);
+  });
+  
+  it("Can be copied", function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can be recreated from its internal state", function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can set all", function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can set a range", function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can flip all", function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can flip ranges", function() {
+    throw new Error("Not implemented");
+  });
+  
+
   
 //  it("Can be reset so nothing is marked", function() {
 //    
@@ -53,6 +100,13 @@ describe("Test BooleanSet", function() {
 //    assert(!marker.hasMarked(0, MAX_INDEX));
 //  });
 });
+  
+
+function setRandom(bs, bool, start, end, count) {
+  let indices = getRandomSortedIndices(start, end, count);
+  for (let index of indices) bs.set(bool, index);
+  return indices;
+}
 
 function getRandomSortedIndices(start, end, count) {
   let indices = GenUtils.getUniqueRandomInts(start, end, count);
