@@ -145,11 +145,12 @@ describe("Test BooleanSet", function() {
       // set the range to true
       bs.set(true, start, end);
       
-      // test
+      // test range
       assert(bs.allSet(true, start, end));                          // check as range
       for (let idx = start; idx < end; idx++) assert(bs.get(idx));  // check individually
       
       // test others
+      assert(!bs.allSet(true));
       if (start > 1) assert(!bs.anySet(true, 0, start - 1));
       if (end < MAX_IDX) assert(!bs.anySet(true, end + 1, MAX_IDX));
     }
@@ -178,32 +179,96 @@ describe("Test BooleanSet", function() {
       
       // test all are false
       for (let idx = start; idx < end; idx++) assert(!bs.get(idx)); // check individually
+      assert(bs.allSet(false));
+      assert(bs.allSet(false, start, end));
+      assert(bs.allSet(false, 0, MAX_INDEX));
+      assert(bs.anySet(false, start, end));
       assert(!bs.anySet(true, start, end));                         // check range
       assert(!bs.anySet(true, 0, MAX_IDX));                         // check max range
     }
   });
   
   it("Can flip all", function() {
-    throw new Error("Not implemented");
+    
+    // flip so all indices are true
+    bs.flip();
+    assert(bs.allSet(true, 0, MAX_INDEX * MAX_INDEX));
+    
+    // flip to clear
+    bs.flip();
+    assert(bs.allSet(false, 0, MAX_INDEX * MAX_INDEX));
+    
+    // set random trues
+    let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
+    
+    // flip
+    bs.flip();
+    
+    // check
+    assert(!bs.anySet(true, indices));    // check indices
+    for (let i = 0; i < MAX_INDEX; i++) { // check individually
+      assert(bs.get(i) === !indices.includes(i));
+    }
+    assert(bs.anySet(true, 0, MAX_INDEX) && bs.anySet(false, 0, MAX_INDEX)); // mixture of true and false
+    
+    // set more indices
+    indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
+    bs.set(true, indices);
+    for (let idx of indices) assert(bs.get(idx));
   });
   
   it("Can flip ranges", function() {
     throw new Error("Not implemented");
   });
   
-  it("Can get the index of the first value in a range", function() {
-    throw new Error("Not implemented");
+  it("Can get the first index with a given value in a range", function() {
+    
+    // set random trues
+    let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
+    
+    // can get the first true
+    assert.equal(indices[0], bs.getFirst(true));
+    
+    // can get first false
+    for (let i = 0; i < MAX_INDEX; i++) {
+      if (indices.includes(i)) continue;
+      assert.equal(i, bs.getFirst(false));
+      break;
+    }
+    
+    // can get first true given a start index
+    for (let i = 0; i < indices.length; i++) {
+      assert.equal(indices[i], bs.getFirst(true, i === 0 ? null : indices[i - 1] + 1));
+    }
+    
+    // get can first false given a start index
+    for (let i = 0; i < MAX_INDEX; i++) {
+      if (indices.includes(i)) assert.notEqual(i, bs.getFirst(false, i));
+      else assert.equal(i, bs.getFirst(false, i));
+    }
+    
+    // can get first true in a range
+    for (let i = 0; i < indices.length - 1; i++) {
+      assert.equal(indices[i], bs.getFirst(true, indices[i], indices[i + 1]));
+      if (indices[i + 1] - indices[i] > 1) {  // test cut off by range
+        assert.equal(null, bs.getFirst(true, indices[i] + 1, indices[i + 1] - 1));
+      }
+    }
+    
+    // can get first false by range
+    bs.clear()
+    bs.flip();
+    bs.set(false, 6);
+    bs.set(false, 4);
+    bs.set(false, 2);
+    assert.equal(null, bs.getFirst(false, 0, 1));
+    assert.equal(2, bs.getFirst(false, 0, 10));
+    assert.equal(4, bs.getFirst(false, 3, 5));
+    assert.equal(6, bs.getFirst(false, 5, 10));
+    assert.equal(null, bs.getFirst(false, 7));
   });
   
-  it("Can get the index of the last value in a range", function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can determine if all values in a range are a given value", function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can determine if any value in a range is a given value", function() {
+  it("Can get the last index with a given value in a range", function() {
     throw new Error("Not implemented");
   });
 });
