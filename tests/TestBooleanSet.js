@@ -191,11 +191,11 @@ describe("Test BooleanSet", function() {
     throw new Error("Not implemented");
   });
   
-  it("Can get the first value in a range", function() {
+  it("Can get the index of the first value in a range", function() {
     throw new Error("Not implemented");
   });
   
-  it("Can get the last value in a range", function() {
+  it("Can get the index of the last value in a range", function() {
     throw new Error("Not implemented");
   });
   
