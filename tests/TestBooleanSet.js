@@ -128,8 +128,59 @@ describe("Test BooleanSet", function() {
     assert.equal(null, bs.getLast(true));
   });
   
-  it("Can set a range", function() {
-    throw new Error("Not implemented");
+  it("Can set ranges to true", function() {
+    
+    const REPEAT = 1000;
+    const MAX_IDX = 99;    
+    
+    // repeat this test
+    for (let i = 0; i < REPEAT; i++) {
+      bs.clear();
+      
+      // get random start and end indices
+      let rands = GenUtils.getRandomInts(0, MAX_IDX, 2);
+      let start = Math.min(rands[0], rands[1]);
+      let end = Math.max(rands[0], rands[1]);
+      
+      // set the range to true
+      bs.set(true, start, end);
+      
+      // test
+      assert(bs.allSet(true, start, end));                          // check as range
+      for (let idx = start; idx < end; idx++) assert(bs.get(idx));  // check individually
+      
+      // test others
+      if (start > 1) assert(!bs.anySet(true, 0, start - 1));
+      if (end < MAX_IDX) assert(!bs.anySet(true, end + 1, MAX_IDX));
+    }
+  });
+  
+  it("Can set ranges to false", function() {
+    
+    const REPEAT = 1000;
+    const MAX_IDX = 99;
+    
+    // repeat this test
+    for (let i = 0; i < REPEAT; i++) {
+      bs.clear();
+      
+      // get random start and end indices
+      let rands = GenUtils.getRandomInts(0, MAX_IDX, 2);
+      let start = Math.min(rands[0], rands[1]);
+      let end = Math.max(rands[0], rands[1]);
+      
+      // set the range to true
+      bs.set(true, start, end);
+      assert(bs.allSet(true, start, end));
+      
+      // set the range to false
+      bs.set(false, start, end);
+      
+      // test all are false
+      for (let idx = start; idx < end; idx++) assert(!bs.get(idx)); // check individually
+      assert(!bs.anySet(true, start, end));                         // check range
+      assert(!bs.anySet(true, 0, MAX_IDX));                         // check max range
+    }
   });
   
   it("Can flip all", function() {
