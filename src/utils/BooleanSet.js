@@ -4,6 +4,9 @@ const GenUtils = require("../utils/GenUtils");
 /**
  * Allows an infinite array of booleans to be set to true or false using ranges
  * to efficiently compress consecutive values.
+ * 
+ * TODO: optimize ranges using arrays and single numbers
+ * TODO: don't set inverted by default
  */
 class BooleanSet {
 
@@ -111,39 +114,6 @@ class BooleanSet {
   }
   
   /**
-   * Indicates if all booleans in a range are set to a given value.
-   * 
-   * @param {boolean} bool is the value to test in the range
-   * @param {number} start is the start of the range (defaults to 0)
-   * @param {number} end is the end of the range (defaults to infinity)
-   * @returns {boolean} is true if all booleans in the range are the given value, false otherwise
-   */
-  allSet(bool, start, end) {
-    throw new Error("Not implemented");
-  }
-  
-  /**
-   * Indicates if any booleans in a range are set to a given value.
-   * 
-   * @param {boolean} bool is the value to test in the range
-   * @param {number} start is the start of the range (defaults to 0)
-   * @param {number} end is the end of the range (defaults to infinity)
-   * @returns {boolean} is true if any booleans in the range are the given value, false otherwise
-   */
-  anySet(bool, start = 0, end) {
-    throw new Error("Not implemented");
-  }
-  
-  /**
-   * Gets the first index with the given marked state.
-   * 
-   * @param isMarked specifies if the index to find should be marked or unmarked
-   * @param start is the start index to search from (optional)
-   * @param end is the end index to search to (optional)
-   * @returns the first index with the given marked state, null if none found
-   */
-  
-  /**
    * Gets the first index in a range with the given value.
    * 
    * @param {boolean} bool is the value to get the first index of
@@ -167,6 +137,30 @@ class BooleanSet {
     throw new Error("Not implemented");
   }
   
+  /**
+   * Indicates if all booleans in a range are set to a given value.
+   * 
+   * @param {boolean} bool is the value to test in the range
+   * @param {number} start is the start of the range (defaults to 0)
+   * @param {number} end is the end of the range (defaults to infinity)
+   * @returns {boolean} is true if all booleans in the range are the given value, false otherwise
+   */
+  allSet(bool, start, end) {
+    throw new Error("Not implemented");
+  }
+  
+  /**
+   * Indicates if any booleans in a range are set to a given value.
+   * 
+   * @param {boolean} bool is the value to test in the range
+   * @param {number} start is the start of the range (defaults to 0)
+   * @param {number} end is the end of the range (defaults to infinity)
+   * @returns {boolean} is true if any booleans in the range are the given value, false otherwise
+   */
+  anySet(bool, start = 0, end) {
+    throw new Error("Not implemented");
+  }
+  
   // ---------------------------------- PRIVATE -------------------------------
   
   /**
@@ -176,9 +170,22 @@ class BooleanSet {
    * @returns {BooleanSet} is this instance
    */
   _setState(state) {
+    BooleanSet._validateState(state);
     delete this.state;
     this.state = state;
     return this;
+  }
+  
+  static _validateState(state) {
+    assert(state);
+    assert(state instanceof Object)
+    assert(typeof state.inverted === "boolean");  // TODO: state.inverted === undefined || 
+    assert(state.ranges !== undefined);
+    assert(Array.isArray(state.ranges));
+    for (let range of state.ranges) {
+      assert(range.start >= 0);
+      assert(range.end >= 0);
+    }
   }
 }
 

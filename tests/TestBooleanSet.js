@@ -81,26 +81,22 @@ describe("Test BooleanSet", function() {
     throw new Error("Not implemented");
   });
   
-
+  it("Can the first value in a range", function() {
+    throw new Error("Not implemented");
+  });
   
-//  it("Can be reset so nothing is marked", function() {
-//    
-//    // mark random indices
-//    let indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_SETS);
-//    indices = [ 3, 1, 6, 10, 2 ];
-//    assert(!marker.isMarked(1));
-//    marker.mark(indices);
-//    assert(marker.allMarked(indices));
-//    assert(marker.hasMarked(0, MAX_INDEX) && marker.hasUnmarked(0, MAX_INDEX)); // mixture of marked and unmarked
-//    
-//    // reset markings
-//    marker.reset();
-//    
-//    // nothing is marked
-//    assert(!marker.hasMarked(0, MAX_INDEX));
-//  });
+  it("Can get the last value in a range", function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can determine if all values in a range are a given value", function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can determine if any value in a range is a given value", function() {
+    throw new Error("Not implemented");z
+  });
 });
-  
 
 function setRandom(bs, bool, start, end, count) {
   let indices = getRandomSortedIndices(start, end, count);
