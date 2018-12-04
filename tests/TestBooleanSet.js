@@ -255,8 +255,8 @@ describe("Test BooleanSet", function() {
     let allBeforeArr = bs.toArray();
     let allBeforeState = GenUtils.copyProperties(bs.getState());
     
-    // flip and unflip random ranges
-    const REPEAT = 1000;
+    // flip and unflip random ranges repeatedly
+    const REPEAT = 100;
     for (let i = 0; i < REPEAT; i++) {
       
       // get random start and end indices
@@ -270,13 +270,14 @@ describe("Test BooleanSet", function() {
       // flip the range
       bs.flip(start, end);
       
-      // confirm they're all different
-      for (let i = start; i <= end; i++) {
-        assert(rangeBeforeArr[i] !== bs.get(i));
+      // confirm the range is flipped but outside the range is not
+      for (let i = 0; i <= MAX_INDEX; i++) {
+        if (i >= start && i <= end) assert(rangeBeforeArr[i] !== bs.get(i));
+        else assert(rangeBeforeArr[i] === bs.get(i));
       }
       
       // flip back
-      bs.flip(start);
+      bs.flip(start, );
       
       // confirm they're the same
       for (let i = start; i <= end; i++) {
@@ -284,7 +285,7 @@ describe("Test BooleanSet", function() {
       }
     }
     
-    // confirm before is the same as after
+    // confirm before and after are same
     assert.deepEqual(allBeforeArr, bs.toArray());
     assert.deepEqual(allBeforeState, bs.getState());
   });
