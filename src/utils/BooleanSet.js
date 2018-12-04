@@ -47,7 +47,7 @@ class BooleanSet {
    * @returns {BooleanSet} is this instance
    */
   clear() {
-    return this._setState({});
+    return this._setState({ inverted: false, ranges: []});
   }
   
   /**

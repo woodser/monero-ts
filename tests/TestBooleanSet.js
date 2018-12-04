@@ -58,11 +58,38 @@ describe("Test BooleanSet", function() {
   });
   
   it("Can be copied", function() {
-    throw new Error("Not implemented");
+    
+    // set random trues
+    let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
+    
+    // copy
+    let copy = bs.copy();
+    
+    // test states are deep copied
+    assert.deepEqual(bs.getState(), copy.getState())
+    copy.set(true, MAX_INDEX + 5);
+    assert(!bs.get(MAX_INDEX + 5));
+    assert.notDeepEqual(bs.getState(), copy.getState());
   });
   
   it("Can be recreated from its internal state", function() {
-    throw new Error("Not implemented");
+
+    // set random trues
+    let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
+    
+    // get state
+    let state = bs.getState();
+    
+    // recreate from state
+    let bs2 = new BooleanSet(state);
+    assert(state === marker2.getState());  // these have the same state
+    
+    // the states are linked unless explicitly deep copied
+    let idx = MAX_INDEX + 5;
+    bs.set(true, idx);
+    assert(bs2.get(idx));
+    bs.set(true, idx);
+    assert(!bs2.get(idx));
   });
   
   it("Can set all", function() {
