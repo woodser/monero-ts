@@ -1198,6 +1198,20 @@ class GenUtils {
   }
   
   /**
+   * Gets a non-cryptographically secure random number within a given range.
+   * 
+   * @param min is the minimum range of the int to generate, inclusive
+   * @param max is the maximum range of the int to generate, inclusive
+   * 
+   * Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+   */
+  static getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  
+  /**
    * Gets random ints.
    * 
    * @param min is the minimum range of the ints to generate, inclusive
@@ -1227,20 +1241,6 @@ class GenUtils {
       if (!ints.includes(randomInt)) ints.push(randomInt);
     }
     return ints;
-  }
-  
-  /**
-   * Gets a non-cryptographically secure random number within a given range.
-   * 
-   * @param min is the minimum range of the int to generate, inclusive
-   * @param max is the maximum range of the int to generate, inclusive
-   * 
-   * Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
-   */
-  static getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
   
   /**

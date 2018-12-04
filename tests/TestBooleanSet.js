@@ -268,7 +268,7 @@ describe("Test BooleanSet", function() {
       let rangeBeforeArr = bs.toArray(start, end);
       
       // flip the range
-      bs.flip(start, end);
+      bs.flipRange(start, end);
       
       // confirm the range is flipped but outside the range is not
       for (let i = 0; i <= MAX_INDEX; i++) {
@@ -277,7 +277,7 @@ describe("Test BooleanSet", function() {
       }
       
       // flip back
-      bs.flip(start, );
+      bs.flipRange(start, end);
       
       // confirm they're the same
       for (let i = start; i <= end; i++) {
@@ -291,7 +291,25 @@ describe("Test BooleanSet", function() {
   });
   
   it("Can flip unbounded ranges", function() {
-    throw new Error("Not implemented");
+    
+    // repeat test
+    const repeat = 100;
+    for (let i = 0; i < repeat; i++) {
+      
+      // set random trues
+      setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
+      
+      // flip starting at random point
+      let beforeArr = bs.toArray();
+      let start = GenUtils.getRandomInt(0, MAX_INDEX);
+      bs.flipRange(start);
+      
+      // check that everything is flipped after that point
+      for (let idx = 0; idx < MAX_INDEX; idx++) {
+        if (idx < start) assert(beforeArr[idx] === bs.get(idx))
+        else assert(beforeArr[idx] !== bs.get(idx));
+      }
+    }
   });
   
   it("Can get the first index with a given value in a range", function() {
