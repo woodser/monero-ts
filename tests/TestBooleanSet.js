@@ -128,7 +128,7 @@ describe("Test BooleanSet", function() {
     assert.equal(null, bs.getLast(true));
   });
   
-  it("Can set ranges to true", function() {
+  it("Can set bounded ranges to true", function() {
     
     const REPEAT = 1000;
     const MAX_IDX = 99;    
@@ -156,7 +156,7 @@ describe("Test BooleanSet", function() {
     }
   });
   
-  it("Can set ranges to false", function() {
+  it("Can set bounded ranges to false", function() {
     
     const REPEAT = 1000;
     const MAX_IDX = 99;
@@ -185,6 +185,35 @@ describe("Test BooleanSet", function() {
       assert(bs.anySet(false, start, end));
       assert(!bs.anySet(true, start, end));                         // check range
       assert(!bs.anySet(true, 0, MAX_IDX));                         // check max range
+    }
+  });
+  
+  it("Can set unbounded ranges", function() {
+    
+    // set random trues
+    let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
+    
+    // set from second half to infinity to false
+    let indicesCutoff = Math.floor(indices.length / 2);
+    let cutoff = indices[indicesCutoff];
+    bs.setRange(false, cutoff);
+    
+    // test
+    assert(bs.allSet(false, cutoff));
+    assert(!bs.allSet(false));
+    
+    // flip
+    bs.flip();
+    assert(bs.allSet(true, cutoff));
+    assert(!bs.allSet(false));
+    
+    // set from end indices to infinity while flipping
+    let flipped = false;
+    for (let i = indicesCutoff; i >= 0; i--) {
+      bs.setRange(flipped, indices[i]);
+      assert(bs.allSet(flipped, indices[i]));
+      if (i > 0 && indices[i] < cutoff) assert(flipped ? !bs.get(indices[i - 1]) : bs.get(indices[i - 1]));
+      flipped = !flipped;
     }
   });
   
