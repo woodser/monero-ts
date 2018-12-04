@@ -16,7 +16,7 @@ describe("Monero Wallet Local", function() {
   it("Can sync (with progress)", async function() {
     let numBlocks = 25;
     let chainHeight = await wallet.getChainHeight();
-    let resp = await wallet.sync(175000, 200000, function(progress) {
+    let resp = await wallet.sync(185000, 200000, function(progress) {
       console.log("RECEIVED PROGRESS")  // TODO: throw error if this isn't received
     });
     assert(resp.blocks_fetched >= 0);
