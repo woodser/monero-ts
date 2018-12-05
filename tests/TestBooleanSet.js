@@ -386,10 +386,16 @@ describe("Test BooleanSet", function() {
     // can get last true
     assert.equal(indices[indices.length - 1], bs.getLast(true));
     
-    // can get last false
+    // last unbounded false is infinity
+    assert.equal(undefined, bs.getLast(false));
+    
+    // can get last bounded false
     for (let i = MAX_INDEX; i > 0; i--) {
-      if (indices.includes(i)) continue;
-      assert.equal(i, bs.getLast(false));
+      let lastFalseIdx = i;
+      while (indices.includes(lastFalseIdx) && lastFalseIdx >= 0) {
+        lastFalseIdx--;
+      }
+      assert.equal(lastFalseIdx, bs.getLast(false, 0, i));
       break;
     }
     
@@ -419,9 +425,10 @@ describe("Test BooleanSet", function() {
     bs.set(false, 4);
     bs.set(false, 2);
     assert.equal(null, bs.getLast(false, 0, 1));
-    assert.equal(2, bs.getLast(false, 0, 10));
+    assert.equal(2, bs.getLast(false, 0, 2));
     assert.equal(4, bs.getLast(false, 3, 5));
     assert.equal(6, bs.getLast(false, 5, 10));
+    assert.equal(6, bs.getLast(false, 0, 10));
     assert.equal(null, bs.getLast(false, 7));
   });
   

@@ -257,7 +257,7 @@ class BooleanSet {
   getFirst(val, start, end) {
     
     // validate and sanitize inputs
-    assert(typeof val === "boolean", "Value to set must be a boolean");
+    assert(typeof val === "boolean", "Value to get must be a boolean");
     if (start === undefined || start === null) start = 0;
     if (end === null) end = undefined;
     assert(GenUtils.isInt(start) && start >= 0, "Start must be an integer >= 0 but was " + start);
@@ -285,7 +285,7 @@ class BooleanSet {
     // if a suitable range is not found, everything in the given range is the same
     if (firstRange === undefined) return this.get(start) === val ? start : null;
     
-    // if they match, return first index in bounds
+    // if found, return first index in bounds
     if (this.get(firstRange.start) === val) return Math.max(start, firstRange.start);
     
     // otherwise return first index outside of range
@@ -302,7 +302,43 @@ class BooleanSet {
    * @returns {number} is the last index in the range with the value, null if none found, undefined if infinity
    */
   getLast(val, start, end) {
-    throw new Error("Not implemented");
+    
+    // validate and sanitize inputs
+    assert(typeof val === "boolean", "Value to get must be a boolean");
+    if (start === undefined || start === null) start = 0;
+    if (end === null) end = undefined;
+    assert(GenUtils.isInt(start) && start >= 0, "Start must be an integer >= 0 but was " + start);
+    if (end !== undefined) assert(GenUtils.isInt(end) && end >= start, "End must be an integer >= start (" + start + ") but was " + end);
+
+    // get last range that touches search bounds
+    let lastRange;
+    for (let rangeIdx = this.state.ranges.length - 1; rangeIdx >= 0; rangeIdx--) {
+      let range = this.state.ranges[rangeIdx];
+      
+      // handle bounded range
+      if (end !== undefined) {
+        if (this._overlaps(range.start, range.end, start, end)) {
+          lastRange = range;
+          break;
+        }
+      }
+      
+      // handle unbounded range (only need to check one)
+      else {
+        if (range.end >= start) lastRange = range;
+        break;
+      }
+    }
+    
+    // if a suitable range is not found, everything in the given range is the same
+    if (lastRange === undefined) return this.get(start) === val ? end : null;
+    
+    // if found, return last index in bounds
+    if (this.get(lastRange.start) === val) return end === undefined ? lastRange.end : Math.min(end, lastRange.end);
+    
+    // otherwise return last index outside of range
+    if (end === undefined || end > lastRange.end) return end;
+    return lastRange.start - 1 < 0 ? null : lastRange.start - 1;
   }
   
   /**
