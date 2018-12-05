@@ -132,14 +132,14 @@ describe("Test BooleanSet", function() {
   it("Can set bounded ranges to true", function() {
     
     const REPEAT = 1000;
-    const MAX_IDX = 99;    
+    const MAX_INDEX = 99;    
     
     // repeat this test
     for (let i = 0; i < REPEAT; i++) {
       bs.clear();
       
       // get random start and end indices
-      let rands = GenUtils.getRandomInts(0, MAX_IDX, 2);
+      let rands = GenUtils.getRandomInts(0, MAX_INDEX, 2);
       let start = Math.min(rands[0], rands[1]);
       let end = Math.max(rands[0], rands[1]);
       
@@ -153,21 +153,21 @@ describe("Test BooleanSet", function() {
       // test others
       assert(!bs.allSet(true));
       if (start > 1) assert(!bs.anySet(true, 0, start - 1));
-      if (end < MAX_IDX) assert(!bs.anySet(true, end + 1, MAX_IDX));
+      if (end < MAX_INDEX) assert(!bs.anySet(true, end + 1, MAX_INDEX));
     }
   });
   
   it("Can set bounded ranges to false", function() {
     
     const REPEAT = 1000;
-    const MAX_IDX = 99;
+    const MAX_INDEX = 99;
     
     // repeat this test
     for (let i = 0; i < REPEAT; i++) {
       bs.clear();
       
       // get random start and end indices
-      let rands = GenUtils.getRandomInts(0, MAX_IDX, 2);
+      let rands = GenUtils.getRandomInts(0, MAX_INDEX, 2);
       let start = Math.min(rands[0], rands[1]);
       let end = Math.max(rands[0], rands[1]);
       
@@ -185,7 +185,7 @@ describe("Test BooleanSet", function() {
       assert(bs.allSet(false, 0, MAX_INDEX));
       assert(bs.anySet(false, start, end));
       assert(!bs.anySet(true, start, end));                         // check range
-      assert(!bs.anySet(true, 0, MAX_IDX));                         // check max range
+      assert(!bs.anySet(true, 0, MAX_INDEX));                         // check max range
     }
   });
   
@@ -279,7 +279,7 @@ describe("Test BooleanSet", function() {
     for (let i = 0; i < REPEAT; i++) {
       
       // get random start and end indices
-      let rands = GenUtils.getRandomInts(0, MAX_IDX, 2);
+      let rands = GenUtils.getRandomInts(0, MAX_INDEX, 2);
       let start = Math.min(rands[0], rands[1]);
       let end = Math.max(rands[0], rands[1]);
       

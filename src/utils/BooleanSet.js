@@ -374,9 +374,12 @@ class BooleanSet {
    * @param {number} is the end index of the range (defaults to length())
    * @returns {boolean[]} is an array representation of the given range
    */
-  toArray(start, end = this.length()) {
-    //if (end === undefined || end === null) end = this.length();
-    throw new Error("Not implemented");
+  toArray(start, end) {
+    if (start === undefined || start === null) start = 0;
+    if (end === undefined || end === null) end = this.length();
+    let arr = [];
+    for (let i = start; i < end; i++) arr.push(this.get(i));
+    return arr;
   }
   
   /**
