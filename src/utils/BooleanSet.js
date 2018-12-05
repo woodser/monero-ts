@@ -424,7 +424,7 @@ class BooleanSet {
     if (start === undefined || start === null) start = 0;
     if (end === undefined || end === null) end = this.length();
     let arr = [];
-    for (let i = start; i <= end; i++) arr.push(this.get(i));
+    for (let i = start; i < end; i++) arr.push(this.get(i));
     return arr;
   }
   

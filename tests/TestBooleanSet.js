@@ -81,7 +81,19 @@ describe("Test BooleanSet", function() {
   });
   
   it("Can be converted to an array", function() {
-    throw new Error("Not implemented");
+    
+    // set random trues
+    let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
+    assert.equal(indices[indices.length - 1] + 1, bs.length());
+    
+    // convert to an array
+    let arr = bs.toArray();
+    
+    // test array
+    assert.equal(bs.length(), arr.length);
+    for (let i = 0; i < arr.length; i++) {
+      assert(indices.includes(i) ? arr[i] : !arr[i]);
+    }
   })
   
   it("Can be copied", function() {
