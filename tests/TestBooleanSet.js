@@ -313,15 +313,28 @@ describe("Test BooleanSet", function() {
   
   it("Can flip bounded ranges", function() {
     
-    // set random trues
-    let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
-
-    // remember before modifying
-    let before = new BooleanSet(bs);
-    
     // flip and unflip random ranges repeatedly
     const repeat = 5;
     for (let i = 0; i < repeat; i++) {
+      
+      // set random trues
+      bs.clear();
+      let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
+      
+      // remember before modifying
+      let before = new BooleanSet(bs);
+      
+      // flip first few
+      bs.flipRange(0, 5);
+      for (let i = 0; i < 5; i++) assert.notEqual(before.get(i), bs.get(i));
+      bs.flipRange(0, 5);
+      for (let i = 0; i < 5; i++) assert.equal(before.get(i), bs.get(i));
+      
+      // flip last few
+      bs.flipRange(MAX_INDEX - 5, MAX_INDEX);
+      for (let i = MAX_INDEX - 5; i < MAX_INDEX; i++) assert.notEqual(before.get(i), bs.get(i));
+      bs.flipRange(MAX_INDEX - 5, MAX_INDEX);
+      for (let i = MAX_INDEX - 5; i < MAX_INDEX; i++) assert.equal(before.get(i), bs.get(i));
       
       // get random start and end indices
       let rands = GenUtils.getRandomInts(0, MAX_INDEX, 2);
@@ -348,10 +361,11 @@ describe("Test BooleanSet", function() {
   it("Can flip unbounded ranges", function() {
     
     // repeat test
-    const repeat = 100;
+    const repeat = 5;
     for (let i = 0; i < repeat; i++) {
       
       // set random trues
+      bs.clear();
       setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
       
       // flip starting at random point
@@ -359,7 +373,7 @@ describe("Test BooleanSet", function() {
       let start = GenUtils.getRandomInt(0, MAX_INDEX);
       bs.flipRange(start);
       
-      // check that everything is flipped after that point
+      // check that only start and after is flipped
       for (let idx = 0; idx <= MAX_INDEX; idx++) {
         if (idx < start) assert(before.get(idx) === bs.get(idx))
         else assert(before.get(idx) !== bs.get(idx));

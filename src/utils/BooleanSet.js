@@ -216,6 +216,8 @@ class BooleanSet {
         this.state.ranges = ranges;
       }
     }
+    
+    return this;
   }
   
   /**
@@ -236,6 +238,7 @@ class BooleanSet {
       this.state.flipped = !this.state.flipped;
     }
     
+    // return instance
     return this;
   }
   
@@ -264,8 +267,16 @@ class BooleanSet {
     
     // flip unbounded range
     else {
-      throw new Error("Not implemented");
+      
+      // flip infinity
+      this.state.flipped = !this.state.flipped;
+      
+      // flip before unbouned range starts
+      if (start > 0) this.flipRange(0, start - 1);
     }
+    
+    // return instance
+    return this;
   }
   
   /**
