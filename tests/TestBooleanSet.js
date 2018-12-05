@@ -35,8 +35,8 @@ describe("Test BooleanSet", function() {
     
     // test all indices
     for (let i = 0; i <= MAX_INDEX; i++) {
-      if (indices.includes(i)) assert(bs.get(index));
-      else assert(!bs.get(index));
+      if (indices.includes(i)) assert(bs.get(i));
+      else assert(!bs.get(i));
     }
   });
   
@@ -82,13 +82,13 @@ describe("Test BooleanSet", function() {
     
     // recreate from state
     let bs2 = new BooleanSet(state);
-    assert(state === marker2.getState());  // these have the same state
+    assert(state === bs2.getState());  // these have the same state
     
     // the states are linked unless explicitly deep copied
     let idx = MAX_INDEX + 5;
     bs.set(true, idx);
     assert(bs2.get(idx));
-    bs.set(true, idx);
+    bs.set(false, idx);
     assert(!bs2.get(idx));
   });
   

@@ -25,7 +25,7 @@ class BooleanSet {
     
     // set state directly by reference if internal state object given
     else if (stateOrObj) {
-      this._setState(state);
+      this._setState(stateOrObj);
     }
     
     // otherwise start new
@@ -80,9 +80,78 @@ class BooleanSet {
       return;
     }
     
-    // set single index
+    // validate index
     assert(GenUtils.isInt(idx) && idx >= 0, "Index must be an integer >= 0 but was " + idx);
-    throw new Error("Not implemented");
+    
+    // done if no change
+    if (val === this.get(idx)) return;
+    
+    // find indices of previous, current, and next ranges relative to idx
+    let prevRangeIdx, curRangeIdx, nextRangeIdx;
+    for (let rangeIdx = 0; rangeIdx < this.state.ranges.length; rangeIdx++) {
+      let range = this.state.ranges[rangeIdx];
+      if (range.end < idx) prevRangeIdx = rangeIdx;
+      else if (range.start <= idx && range.end >= idx) curRangeIdx = rangeIdx;
+      else if (nextRangeIdx === undefined && range.start > idx) {
+        nextRangeIdx = rangeIdx;
+        break;
+      }
+    }
+    
+    // handle change in a range
+    if (curRangeIdx !== undefined) {
+      let range = this.state.ranges[curRangeIdx];
+      if (range.start === idx) {
+        if (range.end === idx) this.state.ranges.splice(curRangeIdx, 1);                // remove range
+        else range.start++;                                                             // increment start
+      } else if (range.end === idx) {
+        range.end--;                                                                    // decrement end
+      } else {
+        this.state.ranges.splice(curRangeIdx + 1, 0, {start: idx + 1, end: range.end}); // add range
+        range.end = idx - 1;
+      }
+    }
+    
+    // handle change not in a range
+    else {
+      
+      // track whether or not idx is incorporated into existing range
+      let incorporated = false;
+      
+      // incorporate idx into previous range if applicable
+      if (prevRangeIdx !== undefined) {
+        let prevRange = this.state.ranges[prevRangeIdx];
+        if (prevRange.end === idx - 1) {
+          prevRange.end++;
+          incorporated = true;
+        }
+      }
+      
+      // incorporate idx into next range if applicable
+      if (nextRangeIdx !== undefined) {
+        let nextRange = this.state.ranges[nextRangeIdx];
+        if (nextRange.start === idx + 1) {
+          nextRange.start--;
+          incorporated = true;
+        }
+      }
+      
+      // merge previous and next ranges if applicable
+      if (incorporated && prevRangeIdx !== undefined && nextRangeIdx !== undefined) {
+        let prevRange = this.state.ranges[prevRangeIdx];
+        let nextRange = this.state.ranges[nextRangeIdx];
+        if (prevRange.end === nextRange.start) {
+          prevRange.end = nextRange.end;
+          this.state.ranges.splice(nextRangeIdx, 1);
+        }
+      }
+      
+      // start new range if not incorporated
+      if (!incorporated) {
+        let rangeIdx = prevRangeIdx === undefined ? 0 : prevRangeIdx + 1;
+        this.state.ranges.splice(rangeIdx, 0, {start: idx, end: idx});
+      }
+    }
   }
   
   /**
@@ -129,17 +198,17 @@ class BooleanSet {
     // validate input
     assert(GenUtils.isInt(idx) && idx >= 0, "Index must be an integer >= 0 but was " + idx);
     
-    // determine if index is in range
+    // determine if idx is in range
     let inRange = false;
     for (let range of this.state.ranges) {
-      if (range.start <= index && range.end >= index) {
+      if (range.start <= idx && range.end >= idx) {
         inRange = true;
         break;
       }
     }
     
     // apply inversion if applicable
-    return inRange ? !this.state.inverted : this.state.inverted;
+    return inRange ? !this.state.inverted : !!this.state.inverted;
   }
   
   /**
@@ -211,7 +280,7 @@ class BooleanSet {
    * @returns {number} is the last set boolean before the remaining are infinitely true or false
    */
   length() {
-    return this.flipped ? getLast(false) : getLast(true);
+    return this.flipped ? this.getLast(false) : this.getLast(true);
   }
   
   // ---------------------------------- PRIVATE -------------------------------
@@ -232,7 +301,7 @@ class BooleanSet {
   static _validateState(state) {
     assert(state);
     assert(state instanceof Object)
-    assert(typeof state.inverted === "boolean");  // TODO: state.inverted === undefined || 
+    assert (state.inverted === undefined || typeof state.inverted === "boolean");
     assert(state.ranges !== undefined);
     assert(Array.isArray(state.ranges));
     for (let range of state.ranges) {
