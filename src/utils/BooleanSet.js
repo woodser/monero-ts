@@ -200,7 +200,7 @@ class BooleanSet {
     
     // flip index
     if (idx !== null && idx !== undefined) {
-      
+      this.set(!this.get(idx), idx);
     }
     
     // flip all

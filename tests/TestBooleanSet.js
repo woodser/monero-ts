@@ -218,6 +218,25 @@ describe("Test BooleanSet", function() {
     }
   });
   
+  it("Can flip indices individually", function() {
+    
+    // set random trues
+    let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
+    
+    // flip each
+    for (let index of indices) {
+      bs.flip(index);
+      assert(!bs.get(index));
+      bs.flip(index);
+      assert(bs.get(index));
+      bs.flip(index);
+      assert(!bs.get(index));
+    }
+    
+    // everything was flipped back
+    assert(!bs.anySet(true));
+  });
+  
   it("Can flip all", function() {
     
     // flip so all indices are true
