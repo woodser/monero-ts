@@ -31,6 +31,7 @@ class BooleanSet {
     // otherwise start new
     else {
       this.state = {};
+      this.state.flipped = false;
       this.state.ranges = [];
     }
   }
@@ -77,9 +78,8 @@ class BooleanSet {
     
     // set all
     if (idx === undefined || idx === null) {
-      delete this.state.flipped;
+      this.state.flipped = val;
       this.state.ranges.length = 0;
-      if (val) this.state.flipped = true;
       return this;
     }
     
@@ -186,7 +186,17 @@ class BooleanSet {
     
     // handle unbounded range
     else {
-      throw new Error("Not implemented");
+      
+      // remove from ranges that which touches the unbounded range
+      throw new Error("Not implemented");      
+      
+      // flip infinity if necessary
+      if (val !== this.state.flipped) {
+        this.state.flipped = !this.state.flipped;
+        
+        // invert individual ranges
+        throw new Error("Not implemented");
+      }
     }
   }
   
@@ -404,7 +414,7 @@ class BooleanSet {
   static _validateState(state) {
     assert(state);
     assert(state instanceof Object)
-    assert (state.flipped === undefined || typeof state.flipped === "boolean");
+    assert (typeof state.flipped === "boolean");
     assert(state.ranges !== undefined);
     assert(Array.isArray(state.ranges));
     for (let range of state.ranges) {
