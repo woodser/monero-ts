@@ -313,56 +313,36 @@ describe("Test BooleanSet", function() {
   
   it("Can flip bounded ranges", function() {
     
-    let MAX_INDEX = 8;
-    let NUM_SETS = 4;
-    
     // set random trues
     let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
-    
-    // remember the before
-    let allBeforeArr = bs.toArray();
-    let allBeforeState = GenUtils.copyProperties(bs.getState());
+
+    // remember before modifying
+    let before = new BooleanSet(bs);
     
     // flip and unflip random ranges repeatedly
-    const REPEAT = 1;
-    for (let i = 0; i < REPEAT; i++) {
+    const repeat = 5;
+    for (let i = 0; i < repeat; i++) {
       
       // get random start and end indices
       let rands = GenUtils.getRandomInts(0, MAX_INDEX, 2);
       let start = Math.min(rands[0], rands[1]);
       let end = Math.max(rands[0], rands[1]);
       
-      console.log(start);
-      console.log(end);
-            
-      // remember state of range before flip  // TODO: could remember it as BooleanSet and do bitwise operations
-      let rangeBeforeArr = bs.toArray(start, end);
-      
-      console.log(rangeBeforeArr);
-      
       // flip the range
-      bs.flipRange(start, end);
-      
-      console.log(bs.toArray());
-      
-      // confirm the range is flipped but outside the range is not
+      bs.flipRange(start, end);    
+
+      // confirm only the range is flipped
       for (let i = 0; i <= MAX_INDEX; i++) {
-        if (i >= start && i <= end) assert(rangeBeforeArr[i] !== bs.get(i));
-        else assert(rangeBeforeArr[i] === bs.get(i));
+        if (i >= start && i <= end) assert.notEqual(bs.get(i), before.get(i));
+        else assert.equal(bs.get(i), before.get(i));
       }
       
       // flip back
       bs.flipRange(start, end);
-      
-      // confirm they're the same
-      for (let i = start; i <= end; i++) {
-        assert(rangeBeforeArr[i] === bs.get(i));
-      }
+
+      // confirm before and after are same
+      assert.deepEqual(before.getState(), bs.getState());
     }
-    
-    // confirm before and after are same
-    assert.deepEqual(allBeforeArr, bs.toArray());
-    assert.deepEqual(allBeforeState, bs.getState());
   });
   
   it("Can flip unbounded ranges", function() {
@@ -375,14 +355,14 @@ describe("Test BooleanSet", function() {
       setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
       
       // flip starting at random point
-      let beforeArr = bs.toArray();
+      let before = new BooleanSet(bs);
       let start = GenUtils.getRandomInt(0, MAX_INDEX);
       bs.flipRange(start);
       
       // check that everything is flipped after that point
       for (let idx = 0; idx <= MAX_INDEX; idx++) {
-        if (idx < start) assert(beforeArr[idx] === bs.get(idx))
-        else assert(beforeArr[idx] !== bs.get(idx));
+        if (idx < start) assert(before.get(idx) === bs.get(idx))
+        else assert(before.get(idx) !== bs.get(idx));
       }
     }
   });
