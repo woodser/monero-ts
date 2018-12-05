@@ -184,8 +184,8 @@ describe("Test BooleanSet", function() {
       assert(bs.allSet(false, start, end));
       assert(bs.allSet(false, 0, MAX_INDEX));
       assert(bs.anySet(false, start, end));
-      assert(!bs.anySet(true, start, end));                         // check range
-      assert(!bs.anySet(true, 0, MAX_INDEX));                         // check max range
+      assert(!bs.anySet(true, start, end));   // check range
+      assert(!bs.anySet(true, 0, MAX_INDEX)); // check max range
     }
   });
   
