@@ -5,7 +5,7 @@ const GenUtils = require("../utils/GenUtils");
  * Allows an infinite array of booleans to be set to true or false using ranges
  * to efficiently compress consecutive values.
  * 
- * TODO: maximize compatibility with existing apis
+ * TODO: maximize compatibility with existing apis, might want end indices to be exclusive
  * TODO: optimize ranges using arrays and single numbers
  * TODO: don't set flipped by default
  */
