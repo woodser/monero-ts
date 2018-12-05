@@ -125,7 +125,21 @@ class BooleanSet {
    * @returns {boolean} the value at the index
    */
   get(idx) {
-    throw new Error("Not implemented");
+    
+    // validate input
+    assert(GenUtils.isInt(idx) && idx >= 0, "Index must be an integer >= 0 but was " + idx);
+    
+    // determine if index is in range
+    let inRange = false;
+    for (let range of this.state.ranges) {
+      if (range.start <= index && range.end >= index) {
+        inRange = true;
+        break;
+      }
+    }
+    
+    // apply inversion if applicable
+    return inRange ? !this.state.inverted : this.state.inverted;
   }
   
   /**
