@@ -198,7 +198,7 @@ describe("Test BooleanSet", function() {
     let indicesCutoff = Math.floor(indices.length / 2);
     let cutoff = indices[indicesCutoff];
     bs.setRange(false, cutoff);
-    
+        
     // test
     assert(bs.allSet(false, cutoff));
     assert(!bs.allSet(false));
@@ -206,14 +206,14 @@ describe("Test BooleanSet", function() {
     // flip
     bs.flip();
     assert(bs.allSet(true, cutoff));
-    assert(!bs.allSet(false));
+    assert(!bs.allSet(true));
     
     // set from end indices to infinity while flipping
     let flipped = false;
     for (let i = indicesCutoff; i >= 0; i--) {
       bs.setRange(flipped, indices[i]);
       assert(bs.allSet(flipped, indices[i]));
-      if (i > 0 && indices[i] < cutoff) assert(flipped ? !bs.get(indices[i - 1]) : bs.get(indices[i - 1]));
+      if (i > 0 && indices[i] < cutoff) assert(!bs.get(indices[i - 1]));  // before cutoff unchanged
       flipped = !flipped;
     }
   });

@@ -198,7 +198,7 @@ class BooleanSet {
         }
         break;  // delete remaining ranges
       }
-      if (rangeIdx !== undefined) this.state.ranges.splice(rangeIdx);    
+      if (this.state.ranges.length) this.state.ranges.splice(rangeIdx);
       
       // flip infinity if necessary
       if (val !== this.state.flipped) {
@@ -208,9 +208,10 @@ class BooleanSet {
         let ranges = [];
         let lastEndIdx = 0;
         for (let range of this.state.ranges) {
-          if (range.start !== 0) ranges.push(lastEndIdx, range.start - 1);
+          if (range.start !== 0) ranges.push({start: lastEndIdx, end: range.start - 1});
           lastEndIdx = range.end + 1;
         }
+        if (lastEndIdx < start) ranges.push({start: lastEndIdx, end: start - 1});
         this.state.ranges = ranges;
       }
     }
