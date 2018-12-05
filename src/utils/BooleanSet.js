@@ -69,14 +69,17 @@ class BooleanSet {
    * @param {number} idx is the index of the value to set, sets all if not provided
    * @returns {BooleanSet} is this instance
    */
-  set(val, idx) {
+  set(val, idx, param) {
+    
+    // validate val and no extra param
     assert(typeof val === "boolean", "Value to set must be a boolean");
+    assert(param === undefined, "3rd parameter must be undefined but was " + param);
     
     // set all
     if (idx === undefined || idx === null) {
       delete this.state.inverted;
       this.state.ranges.length = 0;
-      if (val) this.inverted = true;
+      if (val) this.state.inverted = true;
       return;
     }
     
@@ -219,8 +222,43 @@ class BooleanSet {
    * @param end is the end of the range (defaults to infinity)
    * @returns {number} is the first index in the range with the value, null if none found
    */
-  getFirst(val, start = 0, end) {
-    throw new Error("Not implemented");
+  getFirst(val, start, end) {
+    
+    // validate and sanitize inputs
+    assert(typeof val === "boolean", "Value to set must be a boolean");
+    if (start === undefined || start === null) start = 0;
+    if (end === null) end = undefined;
+    assert(GenUtils.isInt(start) && start >= 0, "Start must be an integer >= 0 but was " + start);
+    if (end !== undefined) assert(GenUtils.isInt(end) && end >= start, "End must be an integer >= start (" + start + ") but was " + end);
+
+    // get first range that touches search bounds
+    let firstRange;
+    for (let range of this.state.ranges) {
+      
+      // handle bounded range
+      if (end !== undefined) {
+        if (this._overlaps(range.start, range.end, start, end)) {
+          firstRange = range;
+          break;
+        }
+      }
+      
+      // handle unbounded range
+      else if (range.end >= start) {
+        firstRange = range;
+        break;
+      }
+    }
+    
+    // if a suitable range is not found, everything in the given range is the same
+    if (firstRange === undefined) return this.get(start) === val ? start : null;
+    
+    // if they match, return first index in bounds
+    if (this.get(firstRange.start) === val) return Math.max(start, firstRange.start);
+    
+    // otherwise return first index outside of range
+    if (start < firstRange.start) return start;
+    return firstRange.end + 1 > end ? null : firstRange.end + 1;
   }
   
   /**
@@ -256,7 +294,7 @@ class BooleanSet {
    * @param {number} end is the end of the range (defaults to infinity)
    * @returns {boolean} is true if any booleans in the range are the given value, false otherwise
    */
-  anySet(val, start = 0, end) {
+  anySet(val, start, end) {
     assert(typeof val === "boolean", "Value to check must be a boolean");
     return this.getFirst(val, start, end) !== null;
   }
@@ -268,7 +306,7 @@ class BooleanSet {
    * @param {number} is the end index of the range (defaults to length())
    * @returns {boolean[]} is an array representation of the given range
    */
-  toArray(start = 0, end = this.length()) {
+  toArray(start, end = this.length()) {
     //if (end === undefined || end === null) end = this.length();
     throw new Error("Not implemented");
   }
@@ -285,12 +323,6 @@ class BooleanSet {
   
   // ---------------------------------- PRIVATE -------------------------------
   
-  /**
-   * Sets the internal state of this set.
-   * 
-   * @param {Object} is the internal state object to set
-   * @returns {BooleanSet} is this instance
-   */
   _setState(state) {
     BooleanSet._validateState(state);
     delete this.state;
@@ -308,6 +340,12 @@ class BooleanSet {
       assert(range.start >= 0);
       assert(range.end >= 0);
     }
+  }
+  
+  _overlaps(start1, end1, start2, end2) {
+    if (end1 < start2) return false;
+    if (end2 < start1) return false;
+    return true;
   }
 }
 

@@ -41,7 +41,7 @@ describe("Test BooleanSet", function() {
   });
   
   it("Gets cleared before each test (assumes prior test sets at least one to true)", function() {
-    assert(bs.anySet(true));
+    assert(bs.allSet(false));
     testClearedState(bs);
   });
   
@@ -143,7 +143,7 @@ describe("Test BooleanSet", function() {
       let end = Math.max(rands[0], rands[1]);
       
       // set the range to true
-      bs.set(true, start, end);
+      bs.setRange(true, start, end);
       
       // test range
       assert(bs.allSet(true, start, end));                          // check as range
@@ -171,7 +171,10 @@ describe("Test BooleanSet", function() {
       let end = Math.max(rands[0], rands[1]);
       
       // set the range to true
-      bs.set(true, start, end);
+      bs.setRange(true, start, end);
+      console.log(start);
+      console.log(end);
+      console.log(bs.getState());
       assert(bs.allSet(true, start, end));
       
       // set the range to false
@@ -454,7 +457,8 @@ function testClearedState(bs) {
   for (let i = 0; i <= MAX_INDEX; i++) assert(!bs.get(i));
   assert.equal(0, bs.getFirst(false));
   assert.equal(0, bs.getFirst(false, 0));
-  assert.equal(0, bs.getFirst(false, MAX_INDEX));
+  assert.equal(0, bs.getFirst(false, 0, MAX_INDEX));
+  assert.equal(MAX_INDEX, bs.getFirst(false, MAX_INDEX));
   assert.equal(null, bs.getFirst(true));
   assert.equal(undefined, bs.getLast(false)); // infinite falses
   assert.equal(null, bs.getLast(true));
