@@ -166,7 +166,26 @@ class BooleanSet {
    * @returns {BooleanSet} is this instance
    */
   setRange(val, start, end) {
-    throw new Error("Not implemented");
+    
+    // validate and sanitize inputs
+    assert(typeof val === "boolean", "Value to set must be a boolean");
+    if (start === undefined || start === null) start = 0;
+    if (end === null) end = undefined;
+    assert(GenUtils.isInt(start) && start >= 0, "Start must be an integer >= 0 but was " + start);
+    if (end !== undefined) assert(GenUtils.isInt(end) && end >= start, "End must be an integer >= start (" + start + ") but was " + end);
+    
+    // handle bounded range
+    // TODO: can be more efficient than setting each index
+    if (end !== undefined) {
+      for (let i = start; i <= end; i++) {
+        this.set(val, i);
+      }
+    }
+    
+    // handle unbounded range
+    else {
+      throw new Error("Not implemented");
+    }
   }
   
   /**

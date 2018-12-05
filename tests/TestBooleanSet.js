@@ -172,13 +172,10 @@ describe("Test BooleanSet", function() {
       
       // set the range to true
       bs.setRange(true, start, end);
-      console.log(start);
-      console.log(end);
-      console.log(bs.getState());
       assert(bs.allSet(true, start, end));
       
       // set the range to false
-      bs.set(false, start, end);
+      bs.setRange(false, start, end);
       
       // test all are false
       for (let idx = start; idx < end; idx++) assert(!bs.get(idx)); // check individually
