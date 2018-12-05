@@ -34,7 +34,7 @@ describe("Test BooleanSet", function() {
     }
     
     // test all indices
-    for (let i = 0; i < MAX_INDEX; i++) {
+    for (let i = 0; i <= MAX_INDEX; i++) {
       if (indices.includes(i)) assert(bs.get(index));
       else assert(!bs.get(index));
     }
@@ -100,7 +100,7 @@ describe("Test BooleanSet", function() {
     // set all to true
     bs.set(true);
     assert(bs.allSet(true));
-    for (let i = 0; i < MAX_INDEX; i++) assert(bs.get(i));
+    for (let i = 0; i <= MAX_INDEX; i++) assert(bs.get(i));
     assert(bs.allSet(true));
     assert(bs.anySet(true));
     assert.equal(null, bs.getFirst(false));
@@ -121,7 +121,7 @@ describe("Test BooleanSet", function() {
     assert(bs.anySet(false));
     assert(!bs.allSet(true));
     assert(!bs.anySet(true));
-    for (let i = 0; i < MAX_INDEX; i++) assert(!bs.get(i));
+    for (let i = 0; i <= MAX_INDEX; i++) assert(!bs.get(i));
     assert.equal(0, bs.getFirst(false));
     assert.equal(null, bs.getFirst(true));
     assert.equal(undefined, bs.getLast(false));
@@ -235,7 +235,7 @@ describe("Test BooleanSet", function() {
     
     // check
     assert(!bs.anySet(true, indices));    // check indices
-    for (let i = 0; i < MAX_INDEX; i++) { // check individually
+    for (let i = 0; i <= MAX_INDEX; i++) { // check individually
       assert(bs.get(i) === !indices.includes(i));
     }
     assert(bs.anySet(true, 0, MAX_INDEX) && bs.anySet(false, 0, MAX_INDEX)); // mixture of true and false
@@ -305,7 +305,7 @@ describe("Test BooleanSet", function() {
       bs.flipRange(start);
       
       // check that everything is flipped after that point
-      for (let idx = 0; idx < MAX_INDEX; idx++) {
+      for (let idx = 0; idx <= MAX_INDEX; idx++) {
         if (idx < start) assert(beforeArr[idx] === bs.get(idx))
         else assert(beforeArr[idx] !== bs.get(idx));
       }
@@ -317,11 +317,11 @@ describe("Test BooleanSet", function() {
     // set random trues
     let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
     
-    // can get the first true
+    // can get first true
     assert.equal(indices[0], bs.getFirst(true));
     
     // can get first false
-    for (let i = 0; i < MAX_INDEX; i++) {
+    for (let i = 0; i <= MAX_INDEX; i++) {
       if (indices.includes(i)) continue;
       assert.equal(i, bs.getFirst(false));
       break;
@@ -333,7 +333,7 @@ describe("Test BooleanSet", function() {
     }
     
     // get can first false given a start index
-    for (let i = 0; i < MAX_INDEX; i++) {
+    for (let i = 0; i <= MAX_INDEX; i++) {
       if (indices.includes(i)) assert.notEqual(i, bs.getFirst(false, i));
       else assert.equal(i, bs.getFirst(false, i));
     }
@@ -346,7 +346,7 @@ describe("Test BooleanSet", function() {
       }
     }
     
-    // can get first false by range
+    // can get first false in a range
     bs.clear()
     bs.flip();
     bs.set(false, 6);
@@ -360,7 +360,50 @@ describe("Test BooleanSet", function() {
   });
   
   it("Can get the last index with a given value in a range", function() {
-    throw new Error("Not implemented");
+    
+    // set random trues
+    let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
+    
+    // can get last true
+    assert.equal(indices[indices.length - 1], bs.getLast(true));
+    
+    // can get last false
+    for (let i = MAX_INDEX; i > 0; i--) {
+      if (indices.includes(i)) continue;
+      assert.equal(i, bs.getLast(false));
+      break;
+    }
+    
+    // can get last true given an end index
+    for (let i = 0; i < indices.length; i++) {
+      assert.equal(indices[i], bs.getLast(true, 0, i === indices.length - 1 ? null : indices[i + 1] - 1));
+    }
+    
+    // get can last false given an end index
+    for (let i = MAX_INDEX; i > 0; i--) {
+      if (indices.includes(i)) assert.notEqual(i, bs.getLast(false, 0, i));
+      else assert.equal(i, bs.getLast(false, 0, i));
+    }
+    
+    // can get last true in a range
+    for (let i = indices.length - 1; i >= 0; i--) {
+      assert.equal(indices[i], bs.getLast(true, indices[i - 1], indices[i]));
+      if (indices[i] - indices[i - 1] > 1) {  // test cut off by range
+        assert.equal(null, bs.getLast(true, indices[i - 1] + 1, indices[i] - 1]);
+      }
+    }
+    
+    // can get last false in a range
+    bs.clear()
+    bs.flip();
+    bs.set(false, 6);
+    bs.set(false, 4);
+    bs.set(false, 2);
+    assert.equal(null, bs.getLast(false, 0, 1));
+    assert.equal(2, bs.getLast(false, 0, 10));
+    assert.equal(4, bs.getLast(false, 3, 5));
+    assert.equal(6, bs.getLast(false, 5, 10));
+    assert.equal(null, bs.getLast(false, 7));
   });
   
   it("Has a length", function() {
@@ -408,7 +451,7 @@ function testClearedState(bs) {
   assert(!bs.anySet(true));
   assert(!bs.anySet(true, 0));
   assert(!bs.allSet(true, 0, MAX_INDEX));
-  for (let i = 0; i < MAX_INDEX; i++) assert(!bs.get(i));
+  for (let i = 0; i <= MAX_INDEX; i++) assert(!bs.get(i));
   assert.equal(0, bs.getFirst(false));
   assert.equal(0, bs.getFirst(false, 0));
   assert.equal(0, bs.getFirst(false, MAX_INDEX));
