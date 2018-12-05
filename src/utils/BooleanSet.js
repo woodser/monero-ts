@@ -296,8 +296,8 @@ class BooleanSet {
    * Gets the first index in a range with the given value.
    * 
    * @param {boolean} val is the value to get the first index of
-   * @param start is the start of the range (defauls to 0)
-   * @param end is the end of the range (defaults to infinity)
+   * @param start is the start of the range, inclusive (defaults to 0)
+   * @param end is the end of the range, inclusive (defaults to infinity)
    * @returns {number} is the first index in the range with the value, null if none found
    */
   getFirst(val, start, end) {
@@ -343,8 +343,8 @@ class BooleanSet {
    * Gets the last index in a range with the given value.
    * 
    * @param {boolean} val is the value to get the last index of
-   * @param start is the start of the range (defauls to 0)
-   * @param end is the end of the range (defaults to infinity)
+   * @param start is the start of the range, inclusive (defaults to 0)
+   * @param end is the end of the range, inclusive (defaults to infinity)
    * @returns {number} is the last index in the range with the value, null if none found, undefined if infinity
    */
   getLast(val, start, end) {
@@ -391,8 +391,8 @@ class BooleanSet {
    * Indicates if all booleans in a range are set to a given value.
    * 
    * @param {boolean} val is the value to test in the range
-   * @param {number} start is the start of the range (defaults to 0)
-   * @param {number} end is the end of the range (defaults to infinity)
+   * @param {number} start is the start of the range, inclusive (defaults to 0)
+   * @param {number} end is the end of the range, inclusive (defaults to infinity)
    * @returns {boolean} is true if all booleans in the range are the given value, false otherwise
    */
   allSet(val, start, end) {
@@ -404,8 +404,8 @@ class BooleanSet {
    * Indicates if any booleans in a range are set to a given value.
    * 
    * @param {boolean} val is the value to test in the range
-   * @param {number} start is the start of the range (defaults to 0)
-   * @param {number} end is the end of the range (defaults to infinity)
+   * @param {number} start is the start of the range, inclusive (defaults to 0)
+   * @param {number} end is the end of the range, inclusive (defaults to infinity)
    * @returns {boolean} is true if any booleans in the range are the given value, false otherwise
    */
   anySet(val, start, end) {
@@ -416,8 +416,8 @@ class BooleanSet {
   /**
    * Converts the given range to an array.
    * 
-   * @param {number} start is the start index of the range
-   * @param {number} is the end index of the range (defaults to length())
+   * @param {number} start is the start index of the range, inclusive (defaults to 0)
+   * @param {number} is the end index of the range, exclusive (defaults to length())
    * @returns {boolean[]} is an array representation of the given range
    */
   toArray(start, end) {

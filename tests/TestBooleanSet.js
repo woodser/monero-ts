@@ -94,6 +94,14 @@ describe("Test BooleanSet", function() {
     for (let i = 0; i < arr.length; i++) {
       assert(indices.includes(i) ? arr[i] : !arr[i]);
     }
+    
+    // convert range to an array
+    let third = Math.floor(10 / 3);
+    arr = bs.toArray(third, third * 2);
+    assert.equal(third * 2 - third, arr.length);
+    for (let i = third; i < third * 2; i++) {
+      assert.equal(bs.get(i), arr[i - third]);
+    }
   })
   
   it("Can be copied", function() {
@@ -305,6 +313,9 @@ describe("Test BooleanSet", function() {
   
   it("Can flip bounded ranges", function() {
     
+    let MAX_INDEX = 8;
+    let NUM_SETS = 4;
+    
     // set random trues
     let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
     
@@ -313,7 +324,7 @@ describe("Test BooleanSet", function() {
     let allBeforeState = GenUtils.copyProperties(bs.getState());
     
     // flip and unflip random ranges repeatedly
-    const REPEAT = 100;
+    const REPEAT = 1;
     for (let i = 0; i < REPEAT; i++) {
       
       // get random start and end indices
@@ -321,11 +332,18 @@ describe("Test BooleanSet", function() {
       let start = Math.min(rands[0], rands[1]);
       let end = Math.max(rands[0], rands[1]);
       
+      console.log(start);
+      console.log(end);
+            
       // remember state of range before flip  // TODO: could remember it as BooleanSet and do bitwise operations
       let rangeBeforeArr = bs.toArray(start, end);
       
+      console.log(rangeBeforeArr);
+      
       // flip the range
       bs.flipRange(start, end);
+      
+      console.log(bs.toArray());
       
       // confirm the range is flipped but outside the range is not
       for (let i = 0; i <= MAX_INDEX; i++) {
