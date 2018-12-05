@@ -204,7 +204,7 @@ class BooleanSet {
       if (val !== this.state.flipped) {
         this.state.flipped = !this.state.flipped;
         
-        // invert individual ranges
+        // replace ranges with ranges between current ranges
         let ranges = [];
         let lastEndIdx = 0;
         for (let range of this.state.ranges) {
