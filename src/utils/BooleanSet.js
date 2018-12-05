@@ -205,7 +205,13 @@ class BooleanSet {
         this.state.flipped = !this.state.flipped;
         
         // invert individual ranges
-        throw new Error("Not implemented");
+        let ranges = [];
+        let lastEndIdx = 0;
+        for (let range of this.state.ranges) {
+          if (range.start !== 0) ranges.push(lastEndIdx, range.start - 1);
+          lastEndIdx = range.end + 1;
+        }
+        this.state.ranges = ranges;
       }
     }
   }
