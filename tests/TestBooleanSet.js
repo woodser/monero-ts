@@ -389,7 +389,7 @@ describe("Test BooleanSet", function() {
     for (let i = indices.length - 1; i >= 0; i--) {
       assert.equal(indices[i], bs.getLast(true, indices[i - 1], indices[i]));
       if (indices[i] - indices[i - 1] > 1) {  // test cut off by range
-        assert.equal(null, bs.getLast(true, indices[i - 1] + 1, indices[i] - 1]);
+        assert.equal(null, bs.getLast(true, indices[i - 1] + 1, indices[i] - 1));
       }
     }
     
