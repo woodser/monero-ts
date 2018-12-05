@@ -24,6 +24,8 @@
 
 /**
  * Collection of general purpose utilities.
+ * 
+ * TODO: could pull in assert and remove these asserts
  */
 class GenUtils {
   
