@@ -29,7 +29,8 @@ describe("Test BooleanSet", function() {
     // set indices to true
     for (let index of indices) {
       assert(!bs.get(index));
-      bs.set(true, index);
+      let bs2 = bs.set(true, index);
+      assert(bs2 === bs);
       assert(bs.get(index));
     }
     
@@ -234,15 +235,14 @@ describe("Test BooleanSet", function() {
     bs.flip();
     
     // check
-    assert(!bs.anySet(true, indices));    // check indices
     for (let i = 0; i <= MAX_INDEX; i++) { // check individually
       assert(bs.get(i) === !indices.includes(i));
     }
     assert(bs.anySet(true, 0, MAX_INDEX) && bs.anySet(false, 0, MAX_INDEX)); // mixture of true and false
     
     // set more indices
-    indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_MARKINGS);
-    bs.set(true, indices);
+    indices = GenUtils.getRandomInts(0, MAX_INDEX, NUM_SETS);
+    for (let index of indices) bs.set(true, index);
     for (let idx of indices) assert(bs.get(idx));
   });
   

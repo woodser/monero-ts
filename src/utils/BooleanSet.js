@@ -80,7 +80,7 @@ class BooleanSet {
       delete this.state.inverted;
       this.state.ranges.length = 0;
       if (val) this.state.inverted = true;
-      return;
+      return this;
     }
     
     // validate index
@@ -155,6 +155,8 @@ class BooleanSet {
         this.state.ranges.splice(rangeIdx, 0, {start: idx, end: idx});
       }
     }
+    
+    return this;
   }
   
   /**
@@ -195,7 +197,18 @@ class BooleanSet {
    * @returns {BooleanSet} is this instance
    */
   flip(idx) {
-    throw new Error("Not implemented");
+    
+    // flip index
+    if (idx !== null && idx !== undefined) {
+      
+    }
+    
+    // flip all
+    else {
+      this.state.inverted = !this.state.inverted;
+    }
+    
+    return this;
   }
   
   /**
