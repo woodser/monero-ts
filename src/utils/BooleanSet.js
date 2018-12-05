@@ -188,7 +188,17 @@ class BooleanSet {
     else {
       
       // remove from ranges that which touches the unbounded range
-      throw new Error("Not implemented");      
+      let rangeIdx;
+      for (rangeIdx = 0; rangeIdx < this.state.ranges.length; rangeIdx++) {
+        let range = this.state.ranges[rangeIdx];
+        if (range.end < start) continue;  // range is before given range
+        if (range.start < start) {        // range is cut by given range
+          range.end = start - 1;
+          rangeIdx++;
+        }
+        break;  // delete remaining ranges
+      }
+      if (rangeIdx !== undefined) this.state.ranges.splice(rangeIdx);    
       
       // flip infinity if necessary
       if (val !== this.state.flipped) {
