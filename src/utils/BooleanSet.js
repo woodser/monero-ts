@@ -6,7 +6,7 @@ const GenUtils = require("../utils/GenUtils");
  * to efficiently compress consecutive values.
  * 
  * TODO: optimize ranges using arrays and single numbers
- * TODO: don't set inverted by default
+ * TODO: don't set flipped by default
  */
 class BooleanSet {
 
@@ -77,9 +77,9 @@ class BooleanSet {
     
     // set all
     if (idx === undefined || idx === null) {
-      delete this.state.inverted;
+      delete this.state.flipped;
       this.state.ranges.length = 0;
-      if (val) this.state.inverted = true;
+      if (val) this.state.flipped = true;
       return this;
     }
     
@@ -205,7 +205,7 @@ class BooleanSet {
     
     // flip all
     else {
-      this.state.inverted = !this.state.inverted;
+      this.state.flipped = !this.state.flipped;
     }
     
     return this;
@@ -243,7 +243,7 @@ class BooleanSet {
     }
     
     // apply inversion if applicable
-    return inRange ? !this.state.inverted : !!this.state.inverted;
+    return inRange ? !this.state.flipped : !!this.state.flipped;
   }
   
   /**
@@ -386,7 +386,7 @@ class BooleanSet {
    * @returns {number} is the last set boolean before the remaining are infinitely true or false
    */
   length() {
-    return this.flipped ? this.getLast(false) : this.getLast(true);
+    return 1 + (this.state.flipped ? this.getLast(false) : this.getLast(true));
   }
   
   // ---------------------------------- PRIVATE -------------------------------
@@ -401,7 +401,7 @@ class BooleanSet {
   static _validateState(state) {
     assert(state);
     assert(state instanceof Object)
-    assert (state.inverted === undefined || typeof state.inverted === "boolean");
+    assert (state.flipped === undefined || typeof state.flipped === "boolean");
     assert(state.ranges !== undefined);
     assert(Array.isArray(state.ranges));
     for (let range of state.ranges) {

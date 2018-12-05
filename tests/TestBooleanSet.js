@@ -441,17 +441,17 @@ describe("Test BooleanSet", function() {
     }
     
     // set random trues
-    let lastTrue = Math.max(5, indices[indices.length - 1]);
     let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
-    assert.equal(lastTrue, bs.length());
+    let trueLength = Math.max(4, indices[indices.length - 1]) + 1;
+    assert.equal(trueLength, bs.length());
     
     // flip
     bs.flip();
-    assert.equal(bs.getLast(false), bs.length());
+    assert.equal(bs.getLast(false) + 1, bs.length());
     
     // flip back
     bs.flip();
-    assert.equal(lastTrue, indices[indices.length - 1], bs.length());
+    assert.equal(trueLength, bs.length());
   });
 });
 
