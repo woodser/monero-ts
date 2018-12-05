@@ -1,4 +1,5 @@
 TODO
+BooleanSet -> UnboundedBooleanArray
 standardize getTxCount() vs getNumTxs() and other name standardizing
 in wallet implementation: "prepend the last 3 blocks, should be enough to guard against a block or two's reorg" pull_and_parse_next_blocks
 binary_blocks_to_json property_tree conversion throws memory exception if too big

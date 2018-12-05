@@ -58,6 +58,32 @@ describe("Test BooleanSet", function() {
     testClearedState(bs);
   });
   
+  it("Has a length", function() {
+    
+    // set the first few
+    for (let i = 0; i < 5; i++) {
+      bs.set(true, i);
+      assert.equal(i + 1, bs.length());
+    }
+    
+    // set random trues
+    let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
+    let trueLength = Math.max(4, indices[indices.length - 1]) + 1;
+    assert.equal(trueLength, bs.length());
+    
+    // flip
+    bs.flip();
+    assert.equal(bs.getLast(false) + 1, bs.length());
+    
+    // flip back
+    bs.flip();
+    assert.equal(trueLength, bs.length());
+  });
+  
+  it("Can be converted to an array", function() {
+    throw new Error("Not implemented");
+  })
+  
   it("Can be copied", function() {
     
     // set random trues
@@ -430,28 +456,6 @@ describe("Test BooleanSet", function() {
     assert.equal(6, bs.getLast(false, 5, 10));
     assert.equal(6, bs.getLast(false, 0, 10));
     assert.equal(null, bs.getLast(false, 7));
-  });
-  
-  it("Has a length", function() {
-    
-    // set the first few
-    for (let i = 0; i < 5; i++) {
-      bs.set(true, i);
-      assert.equal(i + 1, bs.length());
-    }
-    
-    // set random trues
-    let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
-    let trueLength = Math.max(4, indices[indices.length - 1]) + 1;
-    assert.equal(trueLength, bs.length());
-    
-    // flip
-    bs.flip();
-    assert.equal(bs.getLast(false) + 1, bs.length());
-    
-    // flip back
-    bs.flip();
-    assert.equal(trueLength, bs.length());
   });
 });
 

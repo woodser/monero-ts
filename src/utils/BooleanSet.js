@@ -176,7 +176,7 @@ class BooleanSet {
     assert(GenUtils.isInt(start) && start >= 0, "Start must be an integer >= 0 but was " + start);
     if (end !== undefined) assert(GenUtils.isInt(end) && end >= start, "End must be an integer >= start (" + start + ") but was " + end);
     
-    // handle bounded range
+    // set bounded range
     // TODO: can be more efficient than setting each index
     if (end !== undefined) {
       for (let i = start; i <= end; i++) {
@@ -184,7 +184,7 @@ class BooleanSet {
       }
     }
     
-    // handle unbounded range
+    // set unbounded range
     else {
       
       // remove from ranges that which touches the unbounded range
@@ -246,7 +246,25 @@ class BooleanSet {
    * @returns {BooleanSet} is this instance
    */
   flipRange(start, end) {
-    throw new Error("Not implemented");
+    
+    // validate and sanitize inputs
+    if (start === undefined || start === null) start = 0;
+    if (end === null) end = undefined;
+    assert(GenUtils.isInt(start) && start >= 0, "Start must be an integer >= 0 but was " + start);
+    if (end !== undefined) assert(GenUtils.isInt(end) && end >= start, "End must be an integer >= start (" + start + ") but was " + end);
+    
+    // flip bounded range
+    // TODO: can be more efficient than setting each index
+    if (end !== undefined) {
+      for (let i = start; i <= end; i++) {
+        this.set(!this.get(i), i);
+      }
+    }
+    
+    // flip unbounded range
+    else {
+      throw new Error("Not implemented");
+    }
   }
   
   /**
@@ -405,11 +423,13 @@ class BooleanSet {
     if (start === undefined || start === null) start = 0;
     if (end === undefined || end === null) end = this.length();
     let arr = [];
-    for (let i = start; i < end; i++) arr.push(this.get(i));
+    for (let i = start; i <= end; i++) arr.push(this.get(i));
     return arr;
   }
   
   /**
+   * Returns the index of the first boolean that is the same as infinity.
+   * 
    * Returns the index of the last boolean before all remaining booleans are infinitely false
    * or true (depending on if flip() was called which flips infinity).
    * 
