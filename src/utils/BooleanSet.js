@@ -28,8 +28,11 @@ class BooleanSet {
       this._setState(state);
     }
     
-    // otherwise start with cleared instance
-    else this.clear();
+    // otherwise start new
+    else {
+      this.state = {};
+      this.state.ranges = [];
+    }
   }
   
   /**
@@ -62,23 +65,35 @@ class BooleanSet {
   /**
    * Sets one or all booleans.
    * 
-   * @param {boolean} bool is the boolean value to set
+   * @param {boolean} val is the boolean value to set
    * @param {number} idx is the index of the value to set, sets all if not provided
    * @returns {BooleanSet} is this instance
    */
-  set(bool, idx) {
+  set(val, idx) {
+    assert(typeof val === "boolean", "Value to set must be a boolean");
+    
+    // set all
+    if (idx === undefined || idx === null) {
+      delete this.state.inverted;
+      this.state.ranges.length = 0;
+      if (val) this.inverted = true;
+      return;
+    }
+    
+    // set single index
+    assert(GenUtils.isInt(idx) && idx >= 0, "Index must be an integer >= 0 but was " + idx);
     throw new Error("Not implemented");
   }
   
   /**
    * Sets booleans in a range.
    * 
-   * @param {boolean} bool is the boolean value to set in the range
+   * @param {boolean} val is the boolean value to set in the range
    * @param {number} start is the start of the range (defaults to 0)
    * @param {number} end is the end of the range (defaults to infinity)
    * @returns {BooleanSet} is this instance
    */
-  setRange(bool, start, end) {
+  setRange(val, start, end) {
     throw new Error("Not implemented");
   }
   
@@ -116,49 +131,51 @@ class BooleanSet {
   /**
    * Gets the first index in a range with the given value.
    * 
-   * @param {boolean} bool is the value to get the first index of
+   * @param {boolean} val is the value to get the first index of
    * @param start is the start of the range (defauls to 0)
    * @param end is the end of the range (defaults to infinity)
    * @returns {number} is the first index in the range with the value, null if none found
    */
-  getFirst(bool, start = 0, end) {
+  getFirst(val, start = 0, end) {
     throw new Error("Not implemented");
   }
   
   /**
    * Gets the last index in a range with the given value.
    * 
-   * @param {boolean} bool is the value to get the last index of
+   * @param {boolean} val is the value to get the last index of
    * @param start is the start of the range (defauls to 0)
    * @param end is the end of the range (defaults to infinity)
    * @returns {number} is the last index in the range with the value, null if none found, undefined if infinity
    */
-  getLast(bool, start, end) {
+  getLast(val, start, end) {
     throw new Error("Not implemented");
   }
   
   /**
    * Indicates if all booleans in a range are set to a given value.
    * 
-   * @param {boolean} bool is the value to test in the range
+   * @param {boolean} val is the value to test in the range
    * @param {number} start is the start of the range (defaults to 0)
    * @param {number} end is the end of the range (defaults to infinity)
    * @returns {boolean} is true if all booleans in the range are the given value, false otherwise
    */
-  allSet(bool, start, end) {
-    throw new Error("Not implemented");
+  allSet(val, start, end) {
+    assert(typeof val === "boolean", "Value to check must be a boolean");
+    return this.getFirst(!val, start, end) === null;
   }
   
   /**
    * Indicates if any booleans in a range are set to a given value.
    * 
-   * @param {boolean} bool is the value to test in the range
+   * @param {boolean} val is the value to test in the range
    * @param {number} start is the start of the range (defaults to 0)
    * @param {number} end is the end of the range (defaults to infinity)
    * @returns {boolean} is true if any booleans in the range are the given value, false otherwise
    */
-  anySet(bool, start = 0, end) {
-    throw new Error("Not implemented");
+  anySet(val, start = 0, end) {
+    assert(typeof val === "boolean", "Value to check must be a boolean");
+    return this.getFirst(val, start, end) !== null;
   }
   
   /**
