@@ -9,6 +9,8 @@ const BooleanSet = require("../utils/BooleanSet");
  * 
  * TODO: optimize block requests
  * TODO: process from startHeight
+ * TODO: ability to incorporate new blocks into current sync
+ * TODO: concurrent processing with X threads and await after network requests
  */
 class MoneroWalletLocal extends MoneroWallet {
   
@@ -133,7 +135,6 @@ class MoneroWalletLocal extends MoneroWallet {
     if (startHeight >= this.cache.chainHeight) return;
     
     // process all blocks in the range
-    // TODO: concurrent processing with X threads and await after network requests
     while (this._hasUnprocessedBlocks(startHeight, endHeight)) {
       await this._processBlocksChunk(this.config.daemon, startHeight, endHeight);
     }

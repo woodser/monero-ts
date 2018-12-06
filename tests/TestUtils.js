@@ -11,19 +11,25 @@ const MoneroRpcError = require("../src/rpc/MoneroRpcError");
  */
 class TestUtils {
   
+  /**
+   * Get a local wallet singleton instance shared among tests.
+   */
   static getWalletLocal() {
-    if (this.walletLocal === undefined) {
-      let mnemonic = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
-      this.walletLocal = new MoneroWalletLocal({ daemon: this.getDaemonRpc(), mnemonic: mnemonic });
-    }
+    if (this.walletLocal === undefined) this.walletLocal = new MoneroWalletLocal({ daemon: this.getDaemonRpc(), mnemonic: TestUtils.TEST_MNEMONIC });
     return this.walletLocal;
   }
   
+  /**
+   * Get a daemon RPC singletoninstance shared among tests.
+   */
   static getDaemonRpc() {
     if (this.daemonRpc === undefined) this.daemonRpc = new MoneroDaemonRpc(TestUtils.DAEMON_RPC_CONFIG);
     return this.daemonRpc;
   }
   
+  /**
+   * Get a wallet RPC singleton instance shared among tests.
+   */
   static getWalletRpc() {
     if (this.walletRpc === undefined) this.walletRpc = new MoneroWalletRpc(TestUtils.WALLET_RPC_CONFIG);
     return this.walletRpc;
@@ -57,12 +63,15 @@ class TestUtils {
 
 // ---------------------------- STATIC TEST CONFIG ----------------------------
 
+// default wallets to test
+TestUtils.TEST_MNEMONIC = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
+TestUtils.TEST_ADDRESS = "55AepZuUKYV7Wrf9BMiczAELg2gcZuWQsYmg4kXHGAiW8uhVC1VVhqA5HzFcePKhuNgS2d9ag5imvC1jxsJbbnHm5kF753Z";
 TestUtils.WALLET_1_NAME = "test_wallet_1";
 TestUtils.WALLET_1_PW = "supersecretpassword123"
 TestUtils.WALLET_2_NAME = "test_wallet_2";
 TestUtils.WALLET_2_PW = "supersecretpassword123"
-TestUtils.TEST_ADDRESS = "55AepZuUKYV7Wrf9BMiczAELg2gcZuWQsYmg4kXHGAiW8uhVC1VVhqA5HzFcePKhuNgS2d9ag5imvC1jxsJbbnHm5kF753Z";
 
+  // default wallet RPC configuration
 // TODO: support URL
 TestUtils.WALLET_RPC_CONFIG = {
   protocol: "http",
@@ -72,6 +81,7 @@ TestUtils.WALLET_RPC_CONFIG = {
   pass: "abc123",
 };
 
+// default daemon RPC configuration
 TestUtils.DAEMON_RPC_CONFIG = { 
   protocol: "http",
   host: "localhost",
