@@ -137,7 +137,7 @@ describe("Test Monero Daemon RPC", function() {
   it("Can get blocks by height which is a binary request and includes transactions", async function() {
     
     // set number of blocks to test
-    const numBlocks = 25;
+    const numBlocks = 100;
     
     // select random heights  // TODO: this is horribly inefficient way of computing last 100 blocks if not shuffling
     let currentHeight = await daemon.getHeight();
