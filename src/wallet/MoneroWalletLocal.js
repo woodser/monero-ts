@@ -94,7 +94,7 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async getHeight() {
     await this._initOneTime();
-    return this.cache.processed.getFirst(false, this.store.startHeight, this.cache.chainHeight - 1);  // TODO: wrong, find last processed block
+    return this.cache.processed.getLast(true);
   }
   
   async getChainHeight() {
