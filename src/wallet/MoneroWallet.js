@@ -42,7 +42,7 @@ class MoneroWallet {
   }
   
   /**
-   * Get the height of the last block processed by the wallet.
+   * Get the height of the last block processed by the wallet (its index + 1).
    * 
    * @returns {number} is the height of the last block processed by the wallet
    */
