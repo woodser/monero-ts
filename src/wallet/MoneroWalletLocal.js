@@ -145,13 +145,6 @@ class MoneroWalletLocal extends MoneroWallet {
     if (startHeight === undefined || startHeight === null) startHeight = await this.getHeight();
     else assert(startHeight >= 0 && startHeight < this.cache.chainHeight, "Start height must be >= 0 and < chain height " + this.cache.chainHeight + " but was " + startHeight);
     
-//    let height = await this.getHeight();
-//    console.log("Height: " + height);
-//    if (startHeight === undefined || startHeight === null) startHeight = height === 0 ? this.store.startHeight : height;  // can be chain height
-//    else assert(startHeight >= 0 && startHeight < this.cache.chainHeight, "Start height must be >= 0 and < chain height " + this.cache.chainHeight + " but was " + startHeight);
-//    if (endHeight === undefined || endHeight === null) endHeight = this.cache.chainHeight - 1;
-//    else assert((startHeight === this.cache.chainHeight || endHeight >= startHeight) && endHeight < this.cache.chainHeight, "End height must be >= start height " + startHeight + " and < chain height " + this.cache.chainHeight + " but was " + endHeight);
-    
     // done if start is greater than available blocks
     if (startHeight > endHeight) return;
     

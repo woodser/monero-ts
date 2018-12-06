@@ -59,8 +59,8 @@ describe("Monero Wallet Local", function() {
     // sync the wallet 
     let progressTester = new SyncProgressTester(wallet, await wallet.getHeight(), await wallet.getChainHeight() - 1, true);
     await wallet.sync(null, null, progressTester.onProgress);
-    assert.equal(await wallet.getHeight(), await daemon.getHeight());
     progressTester.testDone();
+    assert.equal(await wallet.getHeight(), await daemon.getHeight());
     
     // sync the wallet with default params
     await wallet.sync();
@@ -122,10 +122,13 @@ describe("Monero Wallet Local", function() {
   });
   
   it("Reports progress while it's syncing", async function() {
-    let numBlocks = 25;
-    let resp = await wallet.sync(192000, 200000, function(progress) {
-      console.log("RECEIVED PROGRESS")  // TODO: throw error if this isn't received
-    });
+    wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: TestUtils.TEST_MNEMONIC});
+    let numBlocks = 1000;
+    let startHeight = (await daemon.getHeight()) - numBlocks
+    let endHeight = await wallet.getChainHeight() - 1;
+    let progressTester = new SyncProgressTester(wallet, 0, endHeight);
+    let resp = await wallet.sync(startHeight, null, progressTester.onProgress);
+    progressTester.testDone();
     assert(resp.blocks_fetched >= 0);
     assert(typeof resp.received_money === "boolean");
   });
@@ -139,27 +142,27 @@ describe("Monero Wallet Local", function() {
     
     // scan a few ranges
     let progressTester = new SyncProgressTester(wallet, 0, 0);
+    progressTester.testDone();
     await wallet.sync(0, 0, progressTester);
     assert.equal(1, await wallet.getHeight());
-    progressTester.testDone();
     progressTester = new SyncProgressTester(wallet, 101000, 102000);
     await wallet.sync(101000, 102000, progressTester);
-    assert.equal(102001, await wallet.getHeight());
     progressTester.testDone();
+    assert.equal(102001, await wallet.getHeight());
     progressTester = new SyncProgressTester(wallet, 103000, 104000);
     await wallet.sync(103000, 104000, progressTester);
-    assert.equal(104001, await wallet.getHeight());
     progressTester.testDone();
+    assert.equal(104001, await wallet.getHeight());
     progressTester = new SyncProgressTester(wallet, 105000, 106000);
     await wallet.sync(105000, 106000, progressTester);
-    assert.equal(106001, await wallet.getHeight());
     progressTester.testDone();
+    assert.equal(106001, await wallet.getHeight());
     
-    // scan a previous range
+    // scan a previously processed range
     progressTester = new SyncProgressTester(wallet, 101000, 102000, true);
     await wallet.sync(101000, 102000, progressTester.onProgress);
-    assert.equal(106001, await wallet.getHeight());
     progressTester.testDone();
+    assert.equal(106001, await wallet.getHeight());
   });
   
   // run common tests
@@ -171,19 +174,20 @@ describe("Monero Wallet Local", function() {
  */
 class SyncProgressTester {
   
-  constructor(wallet, startHeight, endHeight, doneImmediately) {
+  constructor(wallet, startHeight, endHeight, noProgress) {
     assert(wallet);
     assert(startHeight >= 0);
     assert(endHeight >= 0);
     this.wallet = wallet;
     this.startHeight = startHeight;
     this.endHeight = endHeight;
-    this.doneImmediately = doneImmediately;
+    this.noProgress = noProgress;
     this.firstProgress = undefined;
     this.lastProgress = undefined;
   }
   
   onProgress(progress) {
+    assert(!this.noProgress, "Should not call progress");
     assert.equals(endHeight - startHeight + 1, progress.totalBlocks);
     assert(progress.doneBlocks >= 0 && progress.doneBlocks <= progress.totalBlocks);
     assert.equal(progress.doneBlocks / progress.totalBlocks, progress.percent);
@@ -199,8 +203,10 @@ class SyncProgressTester {
   }
   
   testDone() {
-    assert(this.lastProgress, "Progress was never updated");
-    assert.equal(1, this.lastProgress.percent);
-    if (this.doneImmediately) assert.deepEqual(this.firstProgress, this.lastProgress);
+    if (!this.noProgress) {
+      assert(this.lastProgress, "Progress was never updated");
+      assert.equal(1, this.lastProgress.percent);
+      if (this.doneImmediately) assert.deepEqual(this.firstProgress, this.lastProgress);
+    }
   }
 }
