@@ -15,6 +15,8 @@ class MoneroWalletLocal extends MoneroWallet {
   /**
    * Constructs the wallet.
    * 
+   * TODO: change config to param and support creating wallet from store
+   * 
    * @param config.daemon is the daemon to support the wallet (required)
    * @param config.mnemonic is a mnemonic phrase to import or generates new one if not given (optional)
    * @param config.mnemonicLanguage specifies the mnemonic phrase language (defaults to "en" for english)
@@ -45,6 +47,11 @@ class MoneroWalletLocal extends MoneroWallet {
   
   getDaemon() {
     return this.config.daemon;
+  }
+  
+  async getStore() {
+    await this._initOneTime();
+    return this.store;
   }
   
   async getCoreUtils() {
@@ -95,7 +102,7 @@ class MoneroWalletLocal extends MoneroWallet {
   async getHeight() {
     await this._initOneTime();
     let lastIdx = this.cache.processed.getLast(true);
-    return lastIdx === null ? 0 : lastIdx + 1;
+    return lastIdx === null ? this.store.startHeight : lastIdx + 1;
   }
   
   async getChainHeight() {
@@ -116,12 +123,16 @@ class MoneroWalletLocal extends MoneroWallet {
     this.cache.unprocessed = this.cache.processed.copy().flip();
     
     // formalize range to process
-    if (startHeight === undefined || startHeight === null) startHeight = await this.getHeight();
-    else assert(startHeight >= 0, "Given start height must be greater than 0 but was " + startHeight);
+    let height = await this.getHeight();
+    if (startHeight === undefined || startHeight === null) startHeight = height === 0 ? this.store.startHeight : height;
+    else assert(startHeight >= 0 && startHeight < this.cache.chainHeight, "Start height must be >= 0 and < chain height " + this.cache.chainHeight + " but was " + startHeight);
     if (endHeight === undefined || endHeight === null) endHeight = this.cache.chainHeight - 1;
-    else assert(endHeight >= 0 && endHeight >= startHeight, "End height " + endHeight + " must be greater than start height " + startHeight);
+    else assert((startHeight === this.cache.chainHeight || endHeight >= startHeight) && endHeight < this.cache.chainHeight, "End height must be >= start height " + startHeight + " and < chain height " + this.cache.chainHeight + " but was " + endHeight);
     
-    // processed all blocks in the range
+    // done if start is greater than available blocks
+    if (startHeight >= this.cache.chainHeight) return;
+    
+    // process all blocks in the range
     // TODO: concurrent processing with X threads and await after network requests
     while (this._hasUnprocessedBlocks(startHeight, endHeight)) {
       await this._processBlocksChunk(this.config.daemon, startHeight, endHeight);
@@ -180,11 +191,13 @@ class MoneroWalletLocal extends MoneroWallet {
   /**
    * Indicates if blocks are unprocessed within the given range.
    * 
-   * @param startHeight specifies the start height to check for unprocessed blocks (defaults to 0)
-   * @param endHeight specifies the end height to check for unprocessed blocks (defaults to chain height - 1)
+   * @param startHeight specifies the start height to check for unprocessed blocks
+   * @param endHeight specifies the end height to check for unprocessed blocks
    */
-  _hasUnprocessedBlocks(startHeight = 0, endHeight) {
-    if (endHeight === undefined) endHeight = this.cache.chainHeight - 1;
+  _hasUnprocessedBlocks(startHeight, endHeight) {
+    assert(startHeight >= 0);
+    assert(endHeight >= startHeight);
+    assert(endHeight < this.cache.chainHeight);
     return this.cache.unprocessed.anySet(true, startHeight, endHeight);
   }
   
