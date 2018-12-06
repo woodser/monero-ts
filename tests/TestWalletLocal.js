@@ -57,17 +57,17 @@ describe("Monero Wallet Local", function() {
     assert.equal(await daemon.getHeight(), await wallet.getHeight());
     
     // sync the wallet 
-    let progressTester = new SyncProgressTester();
+    let progressTester = new SyncProgressTester(wallet, await wallet.getHeight(), await wallet.getChainHeight() - 1, true);
     await wallet.sync(null, null, progressTester.onProgress);
     assert.equal(await wallet.getHeight(), await daemon.getHeight());
-    progressTester.testAndReset();
+    progressTester.testDone();
     
     // sync the wallet with default params
     await wallet.sync();
     assert.equal(await daemon.getHeight(), await wallet.getHeight());
   });
   
-  it("Can be saved to and re-initialized from a JSON object", async function() {
+  it("Can be exported/imported to/from a JSON object", async function() {
     
     // create a new wallet initialized from a seed
     wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: TestUtils.TEST_MNEMONIC});
@@ -87,9 +87,9 @@ describe("Monero Wallet Local", function() {
     assert.equal(await wallet.getHeight(), await wallet2.getHeight());
     
     // sync the same blocks and assert progress is immediately done
-    let progressTester = new SyncProgressTester();
+    let progressTester = new SyncProgressTester(wallet, 0, endHeight, true);
     await wallet.sync(0, endHeight, progressTester.onProgress);
-    progressTester.testAndReset(true);
+    progressTester.testDone();
   });
   
   it("Validates the sync range that is given to it", async function() {
@@ -138,24 +138,28 @@ describe("Monero Wallet Local", function() {
     assert.equal(chainHeight, await wallet.getHeight());
     
     // scan a few ranges
-    let progressTester = new SyncProgressTester();
+    let progressTester = new SyncProgressTester(wallet, 0, 0);
     await wallet.sync(0, 0, progressTester);
     assert.equal(1, await wallet.getHeight());
-    progressTester.testAndReset();
+    progressTester.testDone();
+    progressTester = new SyncProgressTester(wallet, 101000, 102000);
     await wallet.sync(101000, 102000, progressTester);
     assert.equal(102001, await wallet.getHeight());
-    progressTester.testAndReset();
+    progressTester.testDone();
+    progressTester = new SyncProgressTester(wallet, 103000, 104000);
     await wallet.sync(103000, 104000, progressTester);
     assert.equal(104001, await wallet.getHeight());
-    progressTester.testAndReset();
+    progressTester.testDone();
+    progressTester = new SyncProgressTester(wallet, 105000, 106000);
     await wallet.sync(105000, 106000, progressTester);
     assert.equal(106001, await wallet.getHeight());
-    progressTester.testAndReset();
+    progressTester.testDone();
     
     // scan a previous range
+    progressTester = new SyncProgressTester(wallet, 101000, 102000, true);
     await wallet.sync(101000, 102000, progressTester.onProgress);
     assert.equal(106001, await wallet.getHeight());
-    progressTester.testAndReset(true);
+    progressTester.testDone();
   });
   
   // run common tests
@@ -167,24 +171,36 @@ describe("Monero Wallet Local", function() {
  */
 class SyncProgressTester {
   
-  constructor() {
-    this.numUpdates = 0;
+  constructor(wallet, startHeight, endHeight, doneImmediately) {
+    assert(wallet);
+    assert(startHeight >= 0);
+    assert(endHeight >= 0);
+    this.wallet = wallet;
+    this.startHeight = startHeight;
+    this.endHeight = endHeight;
+    this.doneImmediately = doneImmediately;
+    this.firstProgress = undefined;
     this.lastProgress = undefined;
   }
   
   onProgress(progress) {
-    testProgress(progress);
-    if (this.lastProgress) assert(progress.percent > this.lastProgress.percent);
-    else assert(progress.percent === 0 || progress.percent === 1);
-    this.numUpdates++;
+    assert.equals(endHeight - startHeight + 1, progress.totalBlocks);
+    assert(progress.doneBlocks >= 0 && progress.doneBlocks <= progress.totalBlocks);
+    assert.equal(progress.doneBlocks / progress.totalBlocks, progress.percent);
+    if (this.doneImmediately) throw new Error("what does that mean");
+    if (this.firstProgress === undefined) {
+      assert(progress.percent === 0 || progress.percent === 1);
+      this.firstProgress = progress;
+    } else {
+      assert(progress.percent > this.lastProgress.percent);
+      assert(progress.doneBlocks >= this.lastProgress.doneBlocks);
+    }
+    this.lastProgress = progress;
   }
   
-  testAndReset(doneImmediately) {
-    if (doneImmediately) assert(this.numUpdates === 1);
-    assert(this.lastProgress.percent === 1);
-  }
-  
-  testProgress(progress) {
-    throw new Error("Not implemented");
+  testDone() {
+    assert(this.lastProgress);
+    assert.equal(1, this.lastProgress.percent);
+    if (this.doneImmediately) assert.deepEqual(this.firstProgress, this.lastProgress);
   }
 }
