@@ -119,12 +119,12 @@ class MoneroWalletLocal extends MoneroWallet {
     this.cache.chainHeight = info.getHeight();
     this.cache.numTxs = info.getTxCount();
     
-    // copy and invert processed blocks to track unprocessed blocks
+    // track unprocessed blocks
     this.cache.unprocessed = this.cache.processed.copy().flip();
     
     // formalize range to process
     let height = await this.getHeight();
-    if (startHeight === undefined || startHeight === null) startHeight = height === 0 ? this.store.startHeight : height;
+    if (startHeight === undefined || startHeight === null) startHeight = height === 0 ? this.store.startHeight : height;  // can be chain height
     else assert(startHeight >= 0 && startHeight < this.cache.chainHeight, "Start height must be >= 0 and < chain height " + this.cache.chainHeight + " but was " + startHeight);
     if (endHeight === undefined || endHeight === null) endHeight = this.cache.chainHeight - 1;
     else assert((startHeight === this.cache.chainHeight || endHeight >= startHeight) && endHeight < this.cache.chainHeight, "End height must be >= start height " + startHeight + " and < chain height " + this.cache.chainHeight + " but was " + endHeight);
