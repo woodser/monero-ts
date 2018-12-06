@@ -318,7 +318,7 @@ class BooleanSet {
     if (start === undefined || start === null) start = 0;
     if (end === null) end = undefined;
     assert(GenUtils.isInt(start) && start >= 0, "Start must be an integer >= 0 but was " + start);
-    if (end !== undefined) assert(GenUtils.isInt(end) && end >= start, "End must be an integer >= start (" + start + ") but was " + end);
+    if (end !== undefined) assert(GenUtils.isInt(end) && end >= start, "End must be an integer >= start " + start + " but was " + end);
 
     // get first range that touches search bounds
     let firstRange;
