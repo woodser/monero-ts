@@ -1,4 +1,5 @@
 const assert = require("assert");
+const TestUtils = require("./TestUtils");
 const GenUtils = require("../src/utils/GenUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 
@@ -18,6 +19,7 @@ function testWallet(wallet, daemon) {
   it("Can get the mnemonic phrase derived from the seed", async function() {
     let mnemonic = await wallet.getMnemonic();
     MoneroUtils.validateMnemonic(mnemonic);
+    assert.equal(TestUtils.TEST_MNEMONIC, mnemonic);
   });
   
   it("Can sync (without progress)", async function() {

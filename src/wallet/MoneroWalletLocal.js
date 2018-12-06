@@ -12,16 +12,14 @@ const BooleanSet = require("../utils/BooleanSet");
  * TODO: ability to incorporate new blocks into current sync
  * TODO: concurrent processing with X threads and await after network requests
  * TODO: support creation from seed
- * toJson() instead of getStore()?
+ * TODO: toJson() instead of getStore()?
  */
 class MoneroWalletLocal extends MoneroWallet {
-  
+
   /**
-   * Constructs the wallet.
+   * Constructs client-side Monero wallet.
    * 
-   * TODO: change config to param and support creating wallet from store
-   * TODO: config.daemon could be optional if daemon is created from default config specified somewhere
-   * 
+   * @param config is a daemon instance or a config object as follows:
    * @param config.daemon is the daemon to support the wallet (required)
    * @param config.mnemonic is a mnemonic phrase to import or generates new one if not given (optional)
    * @param config.mnemonicLanguage specifies the mnemonic phrase language (defaults to "en" for english)
@@ -35,27 +33,30 @@ class MoneroWalletLocal extends MoneroWallet {
    */
   constructor(config) {
     super();
+    assert(config, "Must provide daemon or configuration to create wallet");
     
-    // verify given config
-    assert(config && config.daemon, "Must specify config.daemon");
-    assert(config.daemon instanceof MoneroDaemon, "config.daemon must be an instance of MoneroDaemon");
-    assert(config.mnemonic === undefined || config.store === undefined, "May specify config.mnemonic or config.store but not both");
-    if (config.mnemonic) assert(config.mnemonicLanguage === undefined || config.mnemonicLanguage === "en", "Mnemonic language must be english if phrase specified");  // TODO: avoid this?
-    if (config.startHeight !== undefined) assert(config.mnemonic, "Can only specify start height with seed or mnemonic");
+    // initialize with daemon
+    if (config instanceof MoneroDaemon) {
+      this.config = Object.assign({}, MoneroWalletLocal.DEFAULT_CONFIG);
+      this.config.daemon = config;
+    }
     
-    // merge given config with default
-    this.config = Object.assign({}, MoneroWalletLocal.DEFAULT_CONFIG, config);
+    // initialize from config object
+    else {
+      
+      // validate config
+      assert(config.daemon, "Must specify config.daemon");
+      assert(config.daemon instanceof MoneroDaemon, "config.daemon must be an instance of MoneroDaemon");
+      assert(config.mnemonic === undefined || config.store === undefined, "May specify config.mnemonic or config.store but not both");
+      if (config.mnemonic) assert(config.mnemonicLanguage === undefined || config.mnemonicLanguage === "en", "Mnemonic language must be english if phrase specified");  // TODO: avoid this?
+      if (config.startHeight !== undefined) assert(config.mnemonic, "Can only specify start height with seed or mnemonic");
+      
+      // merge given and default configs
+      this.config = Object.assign({}, MoneroWalletLocal.DEFAULT_CONFIG, config);
+    }
     
     // start one time initialization but do not wait
     this.initPromise = this._initOneTime();
-  }
-  
-  /**
-   * Constructs client-side Monero wallet.
-   * 
-   */
-  constructor(param) {
-    
   }
   
   getDaemon() {
@@ -134,16 +135,25 @@ class MoneroWalletLocal extends MoneroWallet {
     
     // track unprocessed blocks
     this.cache.unprocessed = this.cache.processed.copy().flip();
-    
-    // formalize range to process
-    let height = await this.getHeight();
-    if (startHeight === undefined || startHeight === null) startHeight = height === 0 ? this.store.startHeight : height;  // can be chain height
-    else assert(startHeight >= 0 && startHeight < this.cache.chainHeight, "Start height must be >= 0 and < chain height " + this.cache.chainHeight + " but was " + startHeight);
+
+    // sanitize and validate range to process
     if (endHeight === undefined || endHeight === null) endHeight = this.cache.chainHeight - 1;
-    else assert((startHeight === this.cache.chainHeight || endHeight >= startHeight) && endHeight < this.cache.chainHeight, "End height must be >= start height " + startHeight + " and < chain height " + this.cache.chainHeight + " but was " + endHeight);
+    else {
+      assert(startHeight !== undefined && startHeight !== null, "Start height must be defined if end height is defined");
+      assert(endHeight >= startHeight && endHeight < this.cache.chainHeight);
+    }
+    if (startHeight === undefined || startHeight === null) startHeight = await this.getHeight();
+    else assert(startHeight >= 0 && startHeight < this.cache.chainHeight, "Start height must be >= 0 and < chain height " + this.cache.chainHeight + " but was " + startHeight);
+    
+//    let height = await this.getHeight();
+//    console.log("Height: " + height);
+//    if (startHeight === undefined || startHeight === null) startHeight = height === 0 ? this.store.startHeight : height;  // can be chain height
+//    else assert(startHeight >= 0 && startHeight < this.cache.chainHeight, "Start height must be >= 0 and < chain height " + this.cache.chainHeight + " but was " + startHeight);
+//    if (endHeight === undefined || endHeight === null) endHeight = this.cache.chainHeight - 1;
+//    else assert((startHeight === this.cache.chainHeight || endHeight >= startHeight) && endHeight < this.cache.chainHeight, "End height must be >= start height " + startHeight + " and < chain height " + this.cache.chainHeight + " but was " + endHeight);
     
     // done if start is greater than available blocks
-    if (startHeight >= this.cache.chainHeight) return;
+    if (startHeight > endHeight) return;
     
     // process all blocks in the range
     while (this._hasUnprocessedBlocks(startHeight, endHeight)) {
@@ -329,21 +339,21 @@ class MoneroWalletLocal extends MoneroWallet {
     this.cache.coreUtils = await MoneroUtils.getCoreUtils();
     this.cache.network = info.getNetworkType();
     this.cache.chainHeight = info.getHeight();
-    this.cache.processing = {};
     this.cache.headers = {};
     
     // initialize new store
     if (this.config.store === undefined) {
       this.store = {};
       this.store.version = "0.0.1";
+      this.store.network = info.getNetworkType();
       
       // initialize keys from core utils
       let keys;
       if (this.config.mnemonic === undefined) {
-        keys = this.cache.coreUtils.newly_created_wallet(this.config.mnemonicLanguage, this.cache.network); // randomly generate keys
+        keys = this.cache.coreUtils.newly_created_wallet(this.config.mnemonicLanguage, this.store.network); // randomly generate keys
         this.store.startHeight = this.cache.chainHeight;
       } else {
-        keys = this.cache.coreUtils.seed_and_keys_from_mnemonic(this.config.mnemonic, this.cache.network);  // initialize keys from mnemonic
+        keys = this.cache.coreUtils.seed_and_keys_from_mnemonic(this.config.mnemonic, this.store.network);  // initialize keys from mnemonic
         keys.mnemonic_string = this.config.mnemonic;
         keys.mnemonic_language = this.config.mnemonicLanguage
         this.store.startHeight = this.config.startHeight;
@@ -366,8 +376,27 @@ class MoneroWalletLocal extends MoneroWallet {
     
     // otherwise import existing store
     else {
-      throw new Error("Importing wallet store not supported");
+      
+      // validate and update store
+      this.store = MoneroWalletLocal._validateAndUpdateStore(this.config.store);
+      
+      // initialize boolean array to manage processed state
+      this.cache.processed = new BooleanSet(this.store.processedState);
+      
+      // create keys from seed
+      let keys = this.cache.coreUtils.address_and_keys_from_seed(this.store.seed, this.store.network);
+      this.cache.mnemonic = keys.mnemonic_string;
+      this.cache.mnemonicLanguage = keys.mnemonic_language;
+      this.cache.pubViewKey = keys.pub_viewKey_string;
+      this.cache.prvViewKey = keys.sec_viewKey_string;
+      this.cache.pubSpendKey = keys.pub_spendKey_string;
+      this.cache.prvSpendKey = keys.sec_spendKey_string;
+      this.cache.primaryAddress = keys.address_string;
     }
+  }
+  
+  static _validateAndUpdateStore(store) {
+    return store; // TODO: update and validate
   }
 }
 
