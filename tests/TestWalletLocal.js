@@ -167,11 +167,24 @@ describe("Monero Wallet Local", function() {
  */
 class SyncProgressTester {
   
+  constructor() {
+    this.numUpdates = 0;
+    this.lastProgress = undefined;
+  }
+  
   onProgress(progress) {
-    //throw new Error("Not implemented");
+    testProgress(progress);
+    if (this.lastProgress) assert(progress.percent > this.lastProgress.percent);
+    else assert(progress.percent === 0 || progress.percent === 1);
+    this.numUpdates++;
   }
   
   testAndReset(doneImmediately) {
-    //throw new Error("Not implemented");
+    if (doneImmediately) assert(this.numUpdates === 1);
+    assert(this.lastProgress.percent === 1);
+  }
+  
+  testProgress(progress) {
+    throw new Error("Not implemented");
   }
 }
