@@ -2,7 +2,7 @@ const assert = require("assert");
 const MoneroWallet = require("./MoneroWallet");
 const MoneroUtils = require("../utils/MoneroUtils");
 const MoneroDaemon = require("../daemon/MoneroDaemon");
-const IndexMarker = require("../utils/IndexMarker");
+const BooleanSet = require("../utils/BooleanSet");
 
 /**
  * Implements a Monero wallet using client-side crypto and a given daemon.
@@ -94,7 +94,7 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async getHeight() {
     await this._initOneTime();
-    return this.cache.processedMarker.getFirst(false, this.store.startHeight, this.cache.chainHeight - 1);  // TODO: wrong, find last processed block
+    return this.cache.processed.getFirst(false, this.store.startHeight, this.cache.chainHeight - 1);  // TODO: wrong, find last processed block
   }
   
   async getChainHeight() {
@@ -112,7 +112,7 @@ class MoneroWalletLocal extends MoneroWallet {
     this.cache.numTxs = info.getTxCount();
     
     // copy and invert processed blocks to track unprocessed blocks
-    this.cache.unprocessedMarker = this.cache.processedMarker.copy().invert();
+    this.cache.unprocessed = this.cache.processed.copy().flip();
     
     // formalize range to process
     if (startHeight === undefined || startHeight === null) startHeight = await this.getHeight();
@@ -144,7 +144,7 @@ class MoneroWalletLocal extends MoneroWallet {
     let reqSize = 0;
     let blockIndices = [];
     let unprocessedIdx;
-    while (reqSize < this.config.maxReqSize && (unprocessedIdx = this.cache.unprocessedMarker.getFirst(true, startHeight, endHeight)) !== null) {
+    while (reqSize < this.config.maxReqSize && (unprocessedIdx = this.cache.unprocessed.getFirst(true, startHeight, endHeight)) !== null) {
       
       // get header of unprocessed block
       let cachedHeader = await this._getCachedHeader(unprocessedIdx);
@@ -157,7 +157,7 @@ class MoneroWalletLocal extends MoneroWallet {
       
       // otherwise going to download and process block
       reqSize += cachedHeader.blockSize;
-      this.cache.unprocessedMarker.unmark(unprocessedIdx);  // register index as processing
+      this.cache.unprocessed.set(false, unprocessedIdx);  // register index as processing
       blockIndices.push(unprocessedIdx);
     }
     
@@ -170,7 +170,7 @@ class MoneroWalletLocal extends MoneroWallet {
     // process blocks
     for (let block of blocks) {
       this._processBlock(block);
-      this.cache.processedMarker.mark(block.getHeader().getHeight()); // mark block as processed in persisted wallet
+      this.cache.processed.set(true, block.getHeader().getHeight()); // mark block as processed in persisted wallet
     }
 
     //console.log("Done processing blocks [" + blockIndices[0] + ", " + blockIndices[blockIndices.length - 1] + "]");
@@ -184,7 +184,7 @@ class MoneroWalletLocal extends MoneroWallet {
    */
   _hasUnprocessedBlocks(startHeight = 0, endHeight) {
     if (endHeight === undefined) endHeight = this.cache.chainHeight - 1;
-    return this.cache.unprocessedMarker.hasMarked(startHeight, endHeight);
+    return this.cache.unprocessed.anySet(true, startHeight, endHeight);
   }
   
   /**
@@ -333,9 +333,9 @@ class MoneroWalletLocal extends MoneroWallet {
       this.cache.prvSpendKey = keys.sec_spendKey_string;
       this.cache.primaryAddress = keys.address_string;
       
-      // track processed blocks using index marker whose state is stored
-      this.cache.processedMarker = new IndexMarker();
-      this.store.processed = this.cache.processedMarker.getState();
+      // track processed blocks using boolean array whose state is stored
+      this.cache.processed = new BooleanSet();
+      this.store.processedState = this.cache.processed.getState();
     }
     
     // otherwise import existing store

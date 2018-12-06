@@ -17,7 +17,7 @@ class MoneroRpcError extends Error {
     this.requestOpts = requestOpts;
   }
   
-  getCode() {
+  getRpcCode() {
     return this.rpcCode;
   }
   

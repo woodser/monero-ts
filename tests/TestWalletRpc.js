@@ -1,6 +1,7 @@
 const assert = require("assert");
 const TestUtils = require("./TestUtils");
 const TestWalletCommon = require("./TestWalletCommon");
+const MoneroRpcError = require("../src/rpc/MoneroRpcError");
 
 /**
  * Tests the Monero Wallet RPC client and server.
@@ -35,7 +36,7 @@ describe("Test Monero Wallet RPC", function() {
     await wallet.openWallet(TestUtils.WALLET_2_NAME, TestUtils.WALLET_2_PW);
     
     // assert wallet is empty
-    let txs = wallet.getTxs();
+    let txs = await wallet.getTxs();
     assert(txs.isEmpty());
     
     // open test wallet 1

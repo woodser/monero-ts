@@ -1,8 +1,8 @@
 const assert = require("assert");
-const MoneroRpcError = require("../src/rpc/MoneroRpcError");
 const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
 const MoneroWalletRpc = require("../src/wallet/MoneroWalletRpc");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
+const MoneroRpcError = require("../src/rpc/MoneroRpcError");
 
 /**
  * Collection of test utilities and configurations.
@@ -39,7 +39,7 @@ class TestUtils {
       await this.walletRpc.createWallet(TestUtils.WALLET_1_NAME, TestUtils.WALLET_1_PW, "English");
     } catch (e) {
       assert(e instanceof MoneroRpcError);
-      assert.equal(-21, e.getCode()); // exception is ok if wallet already created
+      assert.equal(-21, e.getRpcCode()); // exception is ok if wallet already created
     }
     
     // open rpc wallet file
@@ -47,7 +47,7 @@ class TestUtils {
       await this.walletRpc.openWallet(TestUtils.WALLET_1_NAME, TestUtils.WALLET_1_PW);
     } catch (e) {
       assert(e instanceof MoneroRpcError);
-      assert.equal(-1, e.getCode()); // TODO (monero-wallet-rpc): -1: Failed to open wallet if wallet is already open; better code and message
+      assert.equal(-1, e.getRpcCode()); // TODO (monero-wallet-rpc): -1: Failed to open wallet if wallet is already open; better code and message
     }
     
     // refresh wallet
