@@ -94,7 +94,8 @@ class MoneroWalletLocal extends MoneroWallet {
   
   async getHeight() {
     await this._initOneTime();
-    return this.cache.processed.getLast(true);
+    let lastIdx = this.cache.processed.getLast(true);
+    return lastIdx === null ? 0 : lastIdx + 1;
   }
   
   async getChainHeight() {
@@ -314,10 +315,10 @@ class MoneroWalletLocal extends MoneroWallet {
       // initialize keys from core utils
       let keys;
       if (this.config.mnemonic === undefined) {
-        keys = this.config.coreUtils.newly_created_wallet(this.config.mnemonicLanguage, this.cache.network);  // randomly generate keys
+        keys = this.cache.coreUtils.newly_created_wallet(this.config.mnemonicLanguage, this.cache.network); // randomly generate keys
         this.store.startHeight = this.cache.chainHeight;
       } else {
-        keys = this.cache.coreUtils.seed_and_keys_from_mnemonic(this.config.mnemonic, this.cache.network);    // initialize keys from mnemonic
+        keys = this.cache.coreUtils.seed_and_keys_from_mnemonic(this.config.mnemonic, this.cache.network);  // initialize keys from mnemonic
         keys.mnemonic_string = this.config.mnemonic;
         keys.mnemonic_language = this.config.mnemonicLanguage
         this.store.startHeight = this.config.startHeight;

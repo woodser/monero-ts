@@ -1,5 +1,7 @@
 /**
  * Monero wallet interface and default implementations.
+ *
+ * TODO: add {type} brackets to params
  */
 class MoneroWallet {
   
@@ -40,16 +42,16 @@ class MoneroWallet {
   }
   
   /**
-   * Get the wallet's synchronization height.
+   * Get the height of the last block processed by the wallet.
    * 
-   * @returns number is the wallet's height
+   * @returns {number} is the height of the last block processed by the wallet
    */
   async getHeight() {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * Get the block chain's height.
+   * Get the blockchain's height.
    * 
    * @returns number is the block chain's height
    */
@@ -82,7 +84,7 @@ class MoneroWallet {
    * 
    * @param startHeight is the start height to sync from, syncs from the last synced block by default
    * @param endHeight is the end height to sync to, syncs to the current chain height by default
-   * @param onProgress({percent: ..., message: "...", totalBlocks: ..., doneBlocks: ...}) is invoked as progress is made
+   * @param onProgress({percent: _, message: _, totalBlocks: _, doneBlocks: _}) is invoked as progress is made
    */
   async sync(startHeight, endHeight, onProgress) {
     throw new Error("Subclass must implement");
