@@ -199,7 +199,7 @@ class SyncProgressTester {
   }
   
   testDone() {
-    assert(this.lastProgress);
+    assert(this.lastProgress, "Progress was never updated");
     assert.equal(1, this.lastProgress.percent);
     if (this.doneImmediately) assert.deepEqual(this.firstProgress, this.lastProgress);
   }
