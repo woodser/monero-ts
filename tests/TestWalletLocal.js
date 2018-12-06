@@ -43,6 +43,13 @@ describe("Monero Wallet Local", function() {
     assert.equal(await daemon.getHeight(), await wallet.getChainHeight());
   });
   
+  it("Does not allow a start height to be specified if a new seed is being created", async function() {
+    try {
+      wallet = new MoneroWalletLocal({daemon: daemon, startHeight: 0});
+      fail("Should have failed");
+    } catch (e) { }
+  });
+  
   it("Can be created and synced without a seed", async function() {
     
     // wallet starts at the daemon's height by default
@@ -59,8 +66,27 @@ describe("Monero Wallet Local", function() {
     assert.equal(await daemon.getHeight(), await wallet.getHeight());
   });
   
-  it("Can be saved to and re-initialized from a JSON object", function() {
-    throw new Error("Not implemented");
+  it("Can be saved to and re-initialized from a JSON object", async function() {
+    
+    // create a new wallet initialized from a seed
+    wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: TestUtils.TEST_MNEMONIC});
+    
+    // sync some blocks
+    let endHeight = Math.min(10000, await daemon.getHeight());
+    await wallet.sync(null, endHeight);
+    
+    // save the wallet
+    let store = wallet.getStore();
+    
+    // recreate the wallet
+    let wallet2 = new MoneroWalletLocal({daemon: daemon, store: store});
+    assert.deepEqual(wallet.getStore(), wallet2.getStore());
+    assert.equal(await wallet.getHeight(), await wallet2.getHeight());
+    
+    // sync the same blocks and assert progress is immediately done
+    await wallet.sync(null, endHeight, function(progress) {
+      assert.equal(1, progress.percent);
+    });
   });
   
   it("Validates the sync range that is given to it", async function() {

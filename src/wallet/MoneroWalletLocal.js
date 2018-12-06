@@ -11,6 +11,8 @@ const BooleanSet = require("../utils/BooleanSet");
  * TODO: process from startHeight
  * TODO: ability to incorporate new blocks into current sync
  * TODO: concurrent processing with X threads and await after network requests
+ * TODO: support creation from seed
+ * toJson() instead of getStore()?
  */
 class MoneroWalletLocal extends MoneroWallet {
   
@@ -18,6 +20,7 @@ class MoneroWalletLocal extends MoneroWallet {
    * Constructs the wallet.
    * 
    * TODO: change config to param and support creating wallet from store
+   * TODO: config.daemon could be optional if daemon is created from default config specified somewhere
    * 
    * @param config.daemon is the daemon to support the wallet (required)
    * @param config.mnemonic is a mnemonic phrase to import or generates new one if not given (optional)
@@ -35,16 +38,24 @@ class MoneroWalletLocal extends MoneroWallet {
     
     // verify given config
     assert(config && config.daemon, "Must specify config.daemon");
-    assert(config.daemon instanceof MoneroDaemon, "config.daemon be an instance of MoneroDaemon");
+    assert(config.daemon instanceof MoneroDaemon, "config.daemon must be an instance of MoneroDaemon");
     assert(config.mnemonic === undefined || config.store === undefined, "May specify config.mnemonic or config.store but not both");
     if (config.mnemonic) assert(config.mnemonicLanguage === undefined || config.mnemonicLanguage === "en", "Mnemonic language must be english if phrase specified");  // TODO: avoid this?
-    if (config.startHeight !== undefined) assert(config.mnemonic || config.store, "Can only specify start height if existing keys imported");
+    if (config.startHeight !== undefined) assert(config.mnemonic, "Can only specify start height with seed or mnemonic");
     
     // merge given config with default
     this.config = Object.assign({}, MoneroWalletLocal.DEFAULT_CONFIG, config);
     
     // start one time initialization but do not wait
     this.initPromise = this._initOneTime();
+  }
+  
+  /**
+   * Constructs client-side Monero wallet.
+   * 
+   */
+  constructor(param) {
+    
   }
   
   getDaemon() {
@@ -322,7 +333,7 @@ class MoneroWalletLocal extends MoneroWallet {
     this.cache.headers = {};
     
     // initialize new store
-    if (this.store === undefined) {
+    if (this.config.store === undefined) {
       this.store = {};
       this.store.version = "0.0.1";
       
@@ -364,9 +375,9 @@ class MoneroWalletLocal extends MoneroWallet {
  * Local wallet default config.
  */
 MoneroWalletLocal.DEFAULT_CONFIG = {
-    startHeight: 100000,        // start height to process the wallet from
+    startHeight: 0,             // start height to process the wallet from
     mnemonicLanguage: "en",     // default mnemonic phrase language
-    requestsPerSecond: 500,      // maximum requests per second to the daemon
+    requestsPerSecond: 500,     // maximum requests per second to the daemon
     numHeadersPerRequest: 750,  // number of headers per headers fetch request 
     maxReqSize: 4000000,        // maximum size of any request to make
     maxConcurrency: 5,          // maximum concurrency when processing; maximum memory = this * maxReqSize
