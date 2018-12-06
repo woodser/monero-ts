@@ -140,24 +140,22 @@ describe("Monero Wallet Local", function() {
     // scan a few ranges
     let progressTester = new SyncProgressTester();
     await wallet.sync(0, 0, progressTester);
-    progressTester.testAndReset();
     assert.equal(1, await wallet.getHeight());
+    progressTester.testAndReset();
     await wallet.sync(101000, 102000, progressTester);
-    progressTester.testAndReset();
     assert.equal(102001, await wallet.getHeight());
+    progressTester.testAndReset();
     await wallet.sync(103000, 104000, progressTester);
-    progressTester.testAndReset();
     assert.equal(104001, await wallet.getHeight());
-    await wallet.sync(105000, 106000, progressTester);
     progressTester.testAndReset();
+    await wallet.sync(105000, 106000, progressTester);
     assert.equal(106001, await wallet.getHeight());
+    progressTester.testAndReset();
     
     // scan a previous range
-    await wallet.sync(101000, 102000, function(progress) {
-      // TODO: ensure progress is only 0% and 100%
-      throw new Error("Not implemented");
-    });
+    await wallet.sync(101000, 102000, progressTester.onProgress);
     assert.equal(106001, await wallet.getHeight());
+    progressTester.testAndReset(true);
   });
   
   // run common tests
