@@ -42,7 +42,7 @@ class TestUtils {
     
     // create rpc wallet file if necessary
     try {
-      await this.walletRpc.createWallet(TestUtils.WALLET_1_NAME, TestUtils.WALLET_1_PW, "English");
+      await this.walletRpc.createWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1, "English");
     } catch (e) {
       assert(e instanceof MoneroRpcError);
       assert.equal(-21, e.getRpcCode()); // exception is ok if wallet already created
@@ -50,7 +50,7 @@ class TestUtils {
     
     // open rpc wallet file
     try {
-      await this.walletRpc.openWallet(TestUtils.WALLET_1_NAME, TestUtils.WALLET_1_PW);
+      await this.walletRpc.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
     } catch (e) {
       assert(e instanceof MoneroRpcError);
       assert.equal(-1, e.getRpcCode()); // TODO (monero-wallet-rpc): -1: Failed to open wallet if wallet is already open; better code and message
@@ -63,13 +63,9 @@ class TestUtils {
 
 // ---------------------------- STATIC TEST CONFIG ----------------------------
 
-// default wallets to test
+// default keypair to test
 TestUtils.TEST_MNEMONIC = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
 TestUtils.TEST_ADDRESS = "55AepZuUKYV7Wrf9BMiczAELg2gcZuWQsYmg4kXHGAiW8uhVC1VVhqA5HzFcePKhuNgS2d9ag5imvC1jxsJbbnHm5kF753Z";
-TestUtils.WALLET_1_NAME = "test_wallet_1";
-TestUtils.WALLET_1_PW = "supersecretpassword123"
-TestUtils.WALLET_2_NAME = "test_wallet_2";
-TestUtils.WALLET_2_PW = "supersecretpassword123"
 
   // default wallet RPC configuration
 // TODO: support URL
@@ -80,6 +76,12 @@ TestUtils.WALLET_RPC_CONFIG = {
   user: "rpc_user",
   pass: "abc123",
 };
+
+// wallet rpc wallet filenames and passwords
+TestUtils.WALLET_RPC_NAME_1 = "test_wallet_1";
+TestUtils.WALLET_RPC_NAME_2 = "test_wallet_2";
+TestUtils.WALLET_RPC_PW_1 = "supersecretpassword123"
+TestUtils.WALLET_RPC_PW_2 = "supersecretpassword123"
 
 // default daemon RPC configuration
 TestUtils.DAEMON_RPC_CONFIG = { 

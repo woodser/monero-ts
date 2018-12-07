@@ -26,21 +26,21 @@ describe("Test Monero Wallet RPC", function() {
     
     // create test wallet 2 which throws rpc code -21 if it already exists
     try {
-      await wallet.createWallet(TestUtils.WALLET_2_NAME, TestUtils.WALLET_2_PW, "English");
+      await wallet.createWallet(TestUtils.WALLET_RPC_NAME_2, TestUtils.WALLET_RPC_PW_2, "English");
     } catch (e) {
       assert(e instanceof MoneroRpcError); 
       assert.equal(-21, e.getRpcCode());
     }
     
     // open test wallet 2
-    await wallet.openWallet(TestUtils.WALLET_2_NAME, TestUtils.WALLET_2_PW);
+    await wallet.openWallet(TestUtils.WALLET_RPC_NAME_2, TestUtils.WALLET_RPC_PW_2);
     
     // assert wallet is empty
     let txs = await wallet.getTxs();
     assert(txs.isEmpty());
     
     // open test wallet 1
-    await wallet.openWallet(TestUtils.WALLET_1_NAME, TestUtils.WALLET_1_PW);
+    await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
     txs = wallet.getTxs();
     assert(!txs.isEmpty());  // wallet is used
   });
