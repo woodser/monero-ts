@@ -43,13 +43,6 @@ describe("Monero Wallet Local", function() {
     assert.equal(await daemon.getHeight(), await wallet.getChainHeight());
   });
   
-  it("Does not allow a start height to be specified if a new seed is being created", async function() {
-    try {
-      wallet = new MoneroWalletLocal({daemon: daemon, startHeight: 0});
-      fail("Should have failed");
-    } catch (e) { }
-  });
-  
   it("Can be created and synced without a seed", async function() {
     
     // wallet starts at the daemon's height by default
@@ -67,6 +60,26 @@ describe("Monero Wallet Local", function() {
     assert.equal(await daemon.getHeight(), await wallet.getHeight());
   });
   
+  it("Can be created and synced with a seed and start height", async function() {
+    
+    // create wallet with a start height 50 blocks ago
+    let numBlocks = 200;
+    wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: TestUtils.TEST_MNEMONIC, startHeight: await daemon.getHeight() - numBlocks});
+    
+    // sync the wallet 
+    let progressTester = new SyncProgressTester(wallet, await wallet.getChainHeight() - numBlocks, await wallet.getChainHeight() - 1, null);
+    await wallet.sync(null, null, function(progress) { progressTester.onProgress(progress) });
+    progressTester.testDone();
+    assert.equal(await wallet.getHeight(), await daemon.getHeight());
+  });
+  
+  it("Does not allow a start height to be specified if a new seed is being created", async function() {
+    try {
+      wallet = new MoneroWalletLocal({daemon: daemon, startHeight: 0});
+      fail("Should have failed");
+    } catch (e) { }
+  });
+  
   it("Can be exported/imported to/from a JSON object", async function() {
     
     // create a new wallet initialized from a seed
@@ -74,7 +87,7 @@ describe("Monero Wallet Local", function() {
     assert.equal(0, await wallet.getHeight());
     
     // sync some blocks
-    let endHeight = Math.min(10000, await daemon.getHeight());
+    let endHeight = Math.min(1000, await daemon.getHeight());
     await wallet.sync(0, endHeight);
     assert.equal(endHeight + 1, await wallet.getHeight());
     
