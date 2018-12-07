@@ -260,7 +260,7 @@ class MoneroWalletLocal extends MoneroWallet {
     if (cachedHeader) return cachedHeader;
     
     // fetch and cache headers if not in cache
-    let endHeight = Math.min(this.cache.chainHeight - 1, height + this.config.numHeadersPerRequest - 1);
+    let endHeight = Math.min(this.cache.chainHeight - 1, height + this.config.numHeadersPerRequest - 1);  // TODO: could specify end height to cache to optimize small requests (would like to have time profiling in place though)
     let headers = await this.config.daemon.getBlockHeadersByRange(height, endHeight);
     for (let header of headers) {
       this.cache.headers[header.getHeight()] = {
