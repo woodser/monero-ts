@@ -25,7 +25,6 @@ class MoneroWalletLocal extends MoneroWallet {
    * @param config.mnemonicLanguage specifies the mnemonic phrase language (defaults to "en" for english)
    * @param config.store is an existing wallet store to import (optional)
    * @param config.startHeight is the start height to scan the wallet from (requires existing keys, defaults to 0)
-   * @param config.requestsPerSecond throttles maximum rate of daemon requests (defaults to 50 rps)
    * @param config.numHeadersPerRequest specifies the number of headers to fetch when populating the header cache (defaults to 750)
    * @param config.maxReqSize specifies maximum total block size per blocks request (defaults to 4000000)
    * @param config.maxConcurrency specifies maximum concurrency for block requests; maximum memory = this * maxReqSize (defaults to 5)
@@ -432,9 +431,8 @@ class MoneroWalletLocal extends MoneroWallet {
 MoneroWalletLocal.DEFAULT_CONFIG = {
     startHeight: 0,             // start height to process the wallet from
     mnemonicLanguage: "en",     // default mnemonic phrase language
-    requestsPerSecond: 500,     // maximum requests per second to the daemon
-    numHeadersPerRequest: 750,  // number of headers per headers fetch request 
-    maxReqSize: 4000000,        // maximum size of any request to make
+    numHeadersPerRequest: 500,  // number of headers per headers fetch request 
+    maxReqSize: 2000000,        // maximum size of any request to make
     maxConcurrency: 5,          // maximum concurrency when processing; maximum memory = this * maxReqSize
     skipMinerTxs: false,        // instructs the wallet to skip processing miner txs
 }

@@ -18,7 +18,7 @@ describe("Monero Wallet Local", function() {
     wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: TestUtils.TEST_MNEMONIC});
     
 //    // sync entire wallet and print progress
-//    await wallet.sync(0, null, function(progress) {
+//    await wallet.sync(await daemon.getHeight() - 720, null, function(progress) {
 //      console.log("Progress: " + progress.percent + ", done blocks: " + progress.doneBlocks + ", total blocks: " + progress.totalBlocks + ", message: " + progress.message);
 //    });
   });
