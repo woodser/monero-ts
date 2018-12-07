@@ -124,12 +124,12 @@ describe("Monero Wallet Local", function() {
   it("Reports progress while it's syncing", async function() {
     wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: TestUtils.TEST_MNEMONIC});
     let numBlocks = 1000;
-    let startHeight = (await daemon.getHeight()) - numBlocks
+    let startHeight = await wallet.getChainHeight() - numBlocks
     let endHeight = await wallet.getChainHeight() - 1;
     let progressTester = new SyncProgressTester(wallet, startHeight, endHeight);
     let resp = await wallet.sync(startHeight, null, function(progress) { progressTester.onProgress(progress) });
     progressTester.testDone();
-    assert(resp.blocks_fetched >= 0);
+    assert.equal(numBlocks, resp.blocks_fetched);
     assert(typeof resp.received_money === "boolean");
   });
   
@@ -142,8 +142,8 @@ describe("Monero Wallet Local", function() {
     
     // scan a few ranges
     let progressTester = new SyncProgressTester(wallet, 0, 0);
-    progressTester.testDone();
     await wallet.sync(0, 0, function(progress) { progressTester.onProgress(progress) });
+    progressTester.testDone();
     assert.equal(1, await wallet.getHeight());
     progressTester = new SyncProgressTester(wallet, 101000, 102000);
     await wallet.sync(101000, 102000, function(progress) { progressTester.onProgress(progress) });

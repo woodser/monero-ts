@@ -159,8 +159,20 @@ class MoneroWalletLocal extends MoneroWallet {
     }
     
     // process all blocks in the range
+    let newBlocksProcessed = false;
     while (this._hasUnprocessedBlocks(startHeight, endHeight)) {
-      await this._processBlocksChunk(this.config.daemon, startHeight, endHeight);
+      await this._processBlocksChunk(this.config.daemon, startHeight, endHeight, onProgress);
+      newBlocksProcessed = true;
+    }
+    
+    // update progress manually if no blocks processed
+    if (!newBlocksProcessed && onProgress) {
+      onProgress({
+        percent: 1,
+        message: "Synchronizing",
+        doneBlocks: endHeight - startHeight + 1,
+        totalBlocks: endHeight - startHeight + 1
+      });
     }
   }
   
@@ -172,10 +184,9 @@ class MoneroWalletLocal extends MoneroWallet {
    * @param daemon is the daemon to query blocks as binary requests
    * @param startHeight specifies the start height to process unprocessed blocks within
    * @param endHeight specifies the end height to process unprocessed blocks within
+   * @param onProgress() is called as progress is made
    */
-  async _processBlocksChunk(daemon, startHeight, endHeight) {
-    
-    console.log("Processing chunk");
+  async _processBlocksChunk(daemon, startHeight, endHeight, onProgress) {
     
     // collect block indices to fetch and process
     let reqSize = 0;
@@ -187,7 +198,7 @@ class MoneroWalletLocal extends MoneroWallet {
       let cachedHeader = await this._getCachedHeader(unprocessedIdx);
       
       // block cannot be bigger than max request size
-      assert(cachedHeader.blockSize <= this.config.maxReqSize);
+      assert(cachedHeader.blockSize <= this.config.maxReqSize, "Block exceeds maximum request size: " + cachedHeader.blockSize);
       
       // done iterating if processing block would exceed max request size
       if (reqSize + cachedHeader.blockSize > this.config.maxReqSize) break;
@@ -197,20 +208,32 @@ class MoneroWalletLocal extends MoneroWallet {
       this.cache.unprocessed.set(false, unprocessedIdx);  // register index as processing
       blockIndices.push(unprocessedIdx);
     }
-    
-    // done if no blocks to fetch
-    if (blockIndices.length === 0) return;
+    assert(blockIndices.length > 0, "Should have identified blocks to process");
     
     // fetch blocks
     let blocks = await this.config.daemon.getBlocksByHeight(blockIndices);
     
     // process blocks
     for (let block of blocks) {
+      
+      // process the block
       this._processBlock(block);
+      
+      // mark block as persisted in persisted wallet
       this.cache.processed.set(true, block.getHeader().getHeight()); // mark block as processed in persisted wallet
+      
+      
+      // report progress
+      if (onProgress) {
+        let doneBlocks = block.getHeader().getHeight() - startHeight + 1;
+        let totalBlocks = endHeight - startHeight + 1;
+        onProgress({
+          percent: doneBlocks / totalBlocks,
+          doneBlocks: doneBlocks,
+          totalBlocks: totalBlocks
+        })
+      }
     }
-
-    //console.log("Done processing blocks [" + blockIndices[0] + ", " + blockIndices[blockIndices.length - 1] + "]");
   }
   
   /**
