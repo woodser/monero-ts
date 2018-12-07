@@ -14,8 +14,14 @@ let daemon = TestUtils.getDaemonRpc();
 describe("Monero Wallet Local", function() {
   
   // start each test with new wallet
-  beforeEach(function() {
+  beforeEach(async function() {
     wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: TestUtils.TEST_MNEMONIC});
+    
+//    // sync entire wallet and print progress
+//    await wallet.sync(0, null, function(progress) {
+//      console.log(progress);
+//      console.log("Progress: " + progress.percent + ", done blocks: " + progress.doneBlocks + ", total blocks: " + progress.totalBlocks + ", message: " + progress.message);
+//    });
   });
   
   it("Can get the seed", async function() {
@@ -207,6 +213,7 @@ class SyncProgressTester {
     assert(progress.doneBlocks >= 0 && progress.doneBlocks <= progress.totalBlocks);
     if (this.noMidway) assert(progress.percent === 0 || progress.percent === 1);
     if (progress.percent > 0 && progress.percent < 1) this.midwayFound = true;
+    assert(progress.message);
     if (this.firstProgress == undefined) {
       this.firstProgress = progress;
       assert(progress.percent === 0);

@@ -165,11 +165,11 @@ class MoneroWalletLocal extends MoneroWallet {
       newBlocksProcessed = true;
     }
     
-    // update progress manually if no blocks processed
+    // update progress manually if no new blocks processed
     if (!newBlocksProcessed && onProgress) {
       onProgress({
         percent: 1,
-        message: "Synchronizing",
+        message: "Wallet synchronized.",
         doneBlocks: endHeight - startHeight + 1,
         totalBlocks: endHeight - startHeight + 1
       });
@@ -229,7 +229,8 @@ class MoneroWalletLocal extends MoneroWallet {
         onProgress({
           percent: doneBlocks / totalBlocks,
           doneBlocks: doneBlocks,
-          totalBlocks: totalBlocks
+          totalBlocks: totalBlocks,
+          message: doneBlocks === totalBlocks ? "Wallet synchronized." : "Synchronizing"
         })
       }
     }

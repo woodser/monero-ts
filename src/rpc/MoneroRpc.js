@@ -14,7 +14,7 @@ const MoneroRpcConfigDefault = {
     user: null,
     pass: null,
     uri: null,
-    requestsPerSecond: 1000
+    requestsPerSecond: 1
 }
 
 /**
