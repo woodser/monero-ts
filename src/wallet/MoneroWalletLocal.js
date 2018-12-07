@@ -8,7 +8,6 @@ const BooleanSet = require("../utils/BooleanSet");
  * Implements a Monero wallet using client-side crypto and a given daemon.
  * 
  * TODO: optimize block requests
- * TODO: process from startHeight
  * TODO: ability to incorporate new blocks into current sync
  * TODO: concurrent processing with X threads and await after network requests
  * TODO: support creation from seed
