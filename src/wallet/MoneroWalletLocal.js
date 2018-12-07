@@ -431,8 +431,8 @@ class MoneroWalletLocal extends MoneroWallet {
 MoneroWalletLocal.DEFAULT_CONFIG = {
     startHeight: 0,             // start height to process the wallet from
     mnemonicLanguage: "en",     // default mnemonic phrase language
-    numHeadersPerRequest: 500,  // number of headers per headers fetch request 
-    maxReqSize: 2000000,        // maximum size of any request to make
+    numHeadersPerRequest: 750,  // number of headers per headers fetch request 
+    maxReqSize: 3000000,        // maximum size of any request to make
     maxConcurrency: 5,          // maximum concurrency when processing; maximum memory = this * maxReqSize
     skipMinerTxs: false,        // instructs the wallet to skip processing miner txs
 }
