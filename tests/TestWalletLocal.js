@@ -57,7 +57,7 @@ describe("Monero Wallet Local", function() {
     assert.equal(await daemon.getHeight(), await wallet.getHeight());
     
     // sync the wallet 
-    let progressTester = new SyncProgressTester(wallet, await wallet.getHeight(), await wallet.getChainHeight() - 1, true);
+    let progressTester = new SyncProgressTester(wallet, await wallet.getHeight(), await wallet.getChainHeight() - 1, null, true);
     await wallet.sync(null, null, progressTester.onProgress);
     progressTester.testDone();
     assert.equal(await wallet.getHeight(), await daemon.getHeight());
@@ -174,7 +174,7 @@ describe("Monero Wallet Local", function() {
  */
 class SyncProgressTester {
   
-  constructor(wallet, startHeight, endHeight, noMidway) {
+  constructor(wallet, startHeight, endHeight, noMidway, noProgress) {
     assert(wallet);
     assert(startHeight >= 0);
     assert(endHeight >= 0);
@@ -182,11 +182,13 @@ class SyncProgressTester {
     this.startHeight = startHeight;
     this.endHeight = endHeight;
     this.noMidway = noMidway;
+    this.noProgress = noProgress;
     this.firstProgress = undefined;
     this.lastProgress = undefined;
   }
   
   onProgress(progress) {
+    assert(!this.noProgress, "Should not call progress");
     assert.equals(this.endHeight - this.startHeight + 1, progress.totalBlocks);
     assert(progress.doneBlocks >= 0 && progress.doneBlocks <= progress.totalBlocks);
     if (noMidway) assert(progress.percent === 0 || progress.percent === 1);
@@ -201,6 +203,9 @@ class SyncProgressTester {
   }
   
   testDone() {
+    
+    // nothing to test if no progress called
+    if (this.noProgress) return;
     
     // test first progress
     assert(this.firstProgress, "Progress was never updated");
