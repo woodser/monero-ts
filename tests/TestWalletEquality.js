@@ -16,4 +16,32 @@ describe("Test Wallets Equal", function() {
     assert.equal(await wallet1.getPrimaryAddress(), await wallet2.getPrimaryAddress());
     assert.equal(await wallet1.getPrivateViewKey(), await wallet2.getPrivateViewKey());
   });
+  
+  it("Provide the same integrated address given a payment id", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Have the same accounts", function() {
+    assert.deepEqual(await wallet1.getAccounts(), await wallet2.getAccounts());
+  });
+  
+  it("Have the same accounts and subaddresses", function() {
+    assert.deepEqual(await wallet1.getAccounts(true), await wallet2.getAccounts(true));
+  });
+  
+  it("Have the same outputs", async function() {
+    assert.deepEqual(await wallet1.getOutputs(), await wallet2.getOutputs());
+  });
+  
+  it("Have the same wallet transactions", async function() {
+    assert.deepEqual(await wallet1.getTxs(), await wallet2.getTxs());
+  });
+  
+  it("Have the same account transactions", async function() {
+    throw new Error("Not implemented");
+  })
+  
+  it("Have the same subaddress transactions", async function() {
+    throw new Error("Not implemented");
+  });
 });

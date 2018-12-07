@@ -214,11 +214,11 @@ function testWallet(wallet, daemon) {
     throw new Error("Not implemented");
   });
   
-  it("Can get txs pertaining to the wallet", async function() {
+  it("Can get transactions pertaining to the wallet", async function() {
     throw new Error("Not implemented");
   });
   
-  it("Can get txs pertaining to an account", async function() {
+  it("Can get transactions pertaining to an account", async function() {
     throw new Error("Not implemented");
   });
   
