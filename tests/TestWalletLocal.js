@@ -15,11 +15,7 @@ describe("Monero Wallet Local", function() {
   
   // start each test with new wallet
   beforeEach(async function() {
-    wallet = new MoneroWalletLocal({daemon: daemon, // TODO: move to default config in TestUtils
-      mnemonic: TestUtils.TEST_MNEMONIC,
-//      numHeadersPerRequest: 500,
-//      maxReqSize: 4000000
-    });
+    wallet = new MoneroWalletLocal(TestUtils.WALLET_LOCAL_CONFIG);
   });
   
   // NOTE: this test will only be good until the next time stagenet is reset (today's date: 2018/12/07)
@@ -52,174 +48,174 @@ describe("Monero Wallet Local", function() {
     }
   });
   
-//  it("Can get the seed", async function() {
-//    let seed = await wallet.getSeed();
-//    MoneroUtils.validateSeed(seed);
-//    
-////    // sync entire wallet and print progress
-////    await wallet.sync(await daemon.getHeight() - 720, null, function(progress) {
-////      console.log("Progress: " + progress.percent + ", done blocks: " + progress.doneBlocks + ", total blocks: " + progress.totalBlocks + ", message: " + progress.message);
-////    });
-//  });
-//  
-//  it("Can get the language of the mnemonic phrase", async function() {
-//    throw new Error("Not implemented");
-//  });
-//  
-//  it("Can get the public view key", async function() {
-//    throw new Error("Not implemented");
-//  });
-//  
-//  it("Can get the public spend key", async function() {
-//    throw new Error("Not implemented");
-//  });
-//  
-//  it("Can get the private spend key", async function() {
-//    throw new Error("Not implemented");
-//  });
-//  
-//  it("Can get the blockchain height", async function() {
-//    assert.equal(await daemon.getHeight(), await wallet.getChainHeight());
-//  });
-//  
-//  it("Can be created and synced without a seed", async function() {
-//    
-//    // wallet starts at the daemon's height by default
-//    wallet = new MoneroWalletLocal(daemon);
-//    assert.equal(await daemon.getHeight(), await wallet.getHeight());
-//    
-//    // sync the wallet 
-//    let progressTester = new SyncProgressTester(wallet, await wallet.getHeight(), await wallet.getChainHeight() - 1, null, true);
-//    await wallet.sync(null, null, function(progress) { progressTester.onProgress(progress) });
-//    progressTester.testDone();
-//    assert.equal(await wallet.getHeight(), await daemon.getHeight());
-//    
-//    // sync the wallet with default params
-//    await wallet.sync();
-//    assert.equal(await daemon.getHeight(), await wallet.getHeight());
-//  });
-//  
-//  it("Can be created and synced with a seed and start height", async function() {
-//    
-//    // create wallet with a start height 50 blocks ago
-//    let numBlocks = 200;
-//    wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: TestUtils.TEST_MNEMONIC, startHeight: await daemon.getHeight() - numBlocks});
-//    
-//    // sync the wallet 
-//    let progressTester = new SyncProgressTester(wallet, await wallet.getChainHeight() - numBlocks, await wallet.getChainHeight() - 1, null);
-//    await wallet.sync(null, null, function(progress) { progressTester.onProgress(progress) });
-//    progressTester.testDone();
-//    assert.equal(await wallet.getHeight(), await daemon.getHeight()); // TODO: can fail because blockchain grows, need to sync up to this point
-//  });
-//  
-//  it("Does not allow a start height to be specified if a new seed is being created", async function() {
-//    try {
-//      wallet = new MoneroWalletLocal({daemon: daemon, startHeight: 0});
-//      fail("Should have failed");
-//    } catch (e) { }
-//  });
-//  
-//  it("Can be exported/imported to/from a JSON object", async function() {
-//    
-//    // create a new wallet initialized from a seed
-//    wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: TestUtils.TEST_MNEMONIC});
-//    assert.equal(0, await wallet.getHeight());
-//    
-//    // sync some blocks
-//    let endHeight = Math.min(1000, await daemon.getHeight());
-//    await wallet.sync(0, endHeight);
-//    assert.equal(endHeight + 1, await wallet.getHeight());
-//    
-//    // save the wallet
-//    let store = await wallet.getStore();
-//    
-//    // recreate the wallet
-//    let wallet2 = new MoneroWalletLocal({daemon: daemon, store: store});
-//    assert.deepEqual(wallet.getStore(), wallet2.getStore());
-//    assert.equal(await wallet.getHeight(), await wallet2.getHeight());
-//    
-//    // sync the same blocks and assert progress is immediately done
-//    let progressTester = new SyncProgressTester(wallet, 0, endHeight, true);
-//    await wallet.sync(0, endHeight, function(progress) { progressTester.onProgress(progress) });
-//    progressTester.testDone();
-//  });
-//  
-//  it("Validates the sync range that is given to it", async function() {
-//    
-//    // create a new wallet
-//    let chainHeight = await daemon.getHeight();
-//    let wallet = new MoneroWalletLocal(daemon);
-//    assert.equal(chainHeight, await wallet.getHeight());
-//    
-//    // heights must be less than chain height
-//    try {
-//      await wallet.sync(await wallet.getHeight(), chainHeight);
-//      fail("Should have failed");
-//    } catch (e) { }
-//    
-//    // end height must be greater than start height
-//    try {
-//      await wallet.sync(200, 199);
-//      fail("Should have failed");
-//    } catch (e) { }
-//    
-//    // end height must be less than chain height
-//    try {
-//      await wallet.sync(0, chainHeight);
-//      fail("Should have failed");
-//    } catch (e) { }
-//    
-//    // sync last few
-//    await wallet.sync(chainHeight - 20, chainHeight - 1);
-//  });
-//  
-//  it("Reports progress while it's syncing", async function() {
-//    wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: TestUtils.TEST_MNEMONIC});
-//    let numBlocks = 100;
-//    let startHeight = await wallet.getChainHeight() - numBlocks
-//    let endHeight = await wallet.getChainHeight() - 1;
-//    let progressTester = new SyncProgressTester(wallet, startHeight, endHeight);
-//    let resp = await wallet.sync(startHeight, null, function(progress) { progressTester.onProgress(progress) });
-//    progressTester.testDone();
-//    assert.equal(numBlocks, resp.blocks_fetched);
-//    assert(typeof resp.received_money === "boolean");
-//  });
-//  
-//  it("Can sync specific ranges", async function() {
-//    
-//    // create a new wallet
-//    let chainHeight = await daemon.getHeight();
-//    let wallet = new MoneroWalletLocal(daemon);
-//    assert.equal(chainHeight, await wallet.getHeight());
-//    
-//    // scan a few ranges
-//    // TODO: randomly sample ranges of varying but capped heights
-//    let progressTester = new SyncProgressTester(wallet, 0, 0);
-//    await wallet.sync(0, 0, function(progress) { progressTester.onProgress(progress) });
-//    progressTester.testDone();
-//    assert.equal(1, await wallet.getHeight());
-//    progressTester = new SyncProgressTester(wallet, 101000, 102000);
-//    await wallet.sync(101000, 102000, function(progress) { progressTester.onProgress(progress) });
-//    progressTester.testDone();
-//    assert.equal(102001, await wallet.getHeight());
-//    progressTester = new SyncProgressTester(wallet, 103000, 104000);
-//    await wallet.sync(103000, 104000, function(progress) { progressTester.onProgress(progress) });
-//    progressTester.testDone();
-//    assert.equal(104001, await wallet.getHeight());
-//    progressTester = new SyncProgressTester(wallet, 105000, 106000);
-//    await wallet.sync(105000, 106000, function(progress) { progressTester.onProgress(progress) });
-//    progressTester.testDone();
-//    assert.equal(106001, await wallet.getHeight());
-//    
-//    // scan a previously processed range
-//    progressTester = new SyncProgressTester(wallet, 101000, 102000, true);
-//    await wallet.sync(101000, 102000, function(progress) { progressTester.onProgress(progress) });
-//    progressTester.testDone();
-//    assert.equal(106001, await wallet.getHeight());
-//  });
-//  
-//  // run common tests
-//  TestWalletCommon.testWallet(TestUtils.getWalletLocal(), TestUtils.getDaemonRpc());
+  it("Can get the seed", async function() {
+    let seed = await wallet.getSeed();
+    MoneroUtils.validateSeed(seed);
+    
+//    // sync entire wallet and print progress
+//    await wallet.sync(await daemon.getHeight() - 720, null, function(progress) {
+//      console.log("Progress: " + progress.percent + ", done blocks: " + progress.doneBlocks + ", total blocks: " + progress.totalBlocks + ", message: " + progress.message);
+//    });
+  });
+  
+  it("Can get the language of the mnemonic phrase", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get the public view key", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get the public spend key", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get the private spend key", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get the blockchain height", async function() {
+    assert.equal(await daemon.getHeight(), await wallet.getChainHeight());
+  });
+  
+  it("Can be created and synced without a seed", async function() {
+    
+    // wallet starts at the daemon's height by default
+    wallet = new MoneroWalletLocal(daemon);
+    assert.equal(await daemon.getHeight(), await wallet.getHeight());
+    
+    // sync the wallet 
+    let progressTester = new SyncProgressTester(wallet, await wallet.getHeight(), await wallet.getChainHeight() - 1, null, true);
+    await wallet.sync(null, null, function(progress) { progressTester.onProgress(progress) });
+    progressTester.testDone();
+    assert.equal(await wallet.getHeight(), await daemon.getHeight());
+    
+    // sync the wallet with default params
+    await wallet.sync();
+    assert.equal(await daemon.getHeight(), await wallet.getHeight());
+  });
+  
+  it("Can be created and synced with a seed and start height", async function() {
+    
+    // create wallet with a start height 50 blocks ago
+    let numBlocks = 200;
+    wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: TestUtils.TEST_MNEMONIC, startHeight: await daemon.getHeight() - numBlocks});
+    
+    // sync the wallet 
+    let progressTester = new SyncProgressTester(wallet, await wallet.getChainHeight() - numBlocks, await wallet.getChainHeight() - 1, null);
+    await wallet.sync(null, null, function(progress) { progressTester.onProgress(progress) });
+    progressTester.testDone();
+    assert.equal(await wallet.getHeight(), await daemon.getHeight()); // TODO: can fail because blockchain grows, need to sync up to this point
+  });
+  
+  it("Does not allow a start height to be specified if a new seed is being created", async function() {
+    try {
+      wallet = new MoneroWalletLocal({daemon: daemon, startHeight: 0});
+      fail("Should have failed");
+    } catch (e) { }
+  });
+  
+  it("Can be exported/imported to/from a JSON object", async function() {
+    
+    // create a new wallet initialized from a seed
+    wallet = new MoneroWalletLocal(TestUtils.WALLET_LOCAL_CONFIG);
+    assert.equal(0, await wallet.getHeight());
+    
+    // sync some blocks
+    let endHeight = Math.min(1000, await daemon.getHeight());
+    await wallet.sync(0, endHeight);
+    assert.equal(endHeight + 1, await wallet.getHeight());
+    
+    // save the wallet
+    let store = await wallet.getStore();
+    
+    // recreate the wallet
+    let wallet2 = new MoneroWalletLocal({daemon: daemon, store: store});
+    assert.deepEqual(wallet.getStore(), wallet2.getStore());
+    assert.equal(await wallet.getHeight(), await wallet2.getHeight());
+    
+    // sync the same blocks and assert progress is immediately done
+    let progressTester = new SyncProgressTester(wallet, 0, endHeight, true);
+    await wallet.sync(0, endHeight, function(progress) { progressTester.onProgress(progress) });
+    progressTester.testDone();
+  });
+  
+  it("Validates the sync range that is given to it", async function() {
+    
+    // create a new wallet
+    let chainHeight = await daemon.getHeight();
+    let wallet = new MoneroWalletLocal(daemon);
+    assert.equal(chainHeight, await wallet.getHeight());
+    
+    // heights must be less than chain height
+    try {
+      await wallet.sync(await wallet.getHeight(), chainHeight);
+      fail("Should have failed");
+    } catch (e) { }
+    
+    // end height must be greater than start height
+    try {
+      await wallet.sync(200, 199);
+      fail("Should have failed");
+    } catch (e) { }
+    
+    // end height must be less than chain height
+    try {
+      await wallet.sync(0, chainHeight);
+      fail("Should have failed");
+    } catch (e) { }
+    
+    // sync last few
+    await wallet.sync(chainHeight - 20, chainHeight - 1);
+  });
+  
+  it("Reports progress while it's syncing", async function() {
+    wallet = new MoneroWalletLocal(TestUtils.WALLET_LOCAL_CONFIG);
+    let numBlocks = 100;
+    let startHeight = await wallet.getChainHeight() - numBlocks
+    let endHeight = await wallet.getChainHeight() - 1;
+    let progressTester = new SyncProgressTester(wallet, startHeight, endHeight);
+    let resp = await wallet.sync(startHeight, null, function(progress) { progressTester.onProgress(progress) });
+    progressTester.testDone();
+    assert.equal(numBlocks, resp.blocks_fetched);
+    assert(typeof resp.received_money === "boolean");
+  });
+  
+  it("Can sync specific ranges", async function() {
+    
+    // create a new wallet
+    let chainHeight = await daemon.getHeight();
+    let wallet = new MoneroWalletLocal(daemon);
+    assert.equal(chainHeight, await wallet.getHeight());
+    
+    // scan a few ranges
+    // TODO: randomly sample ranges of varying but capped heights
+    let progressTester = new SyncProgressTester(wallet, 0, 0);
+    await wallet.sync(0, 0, function(progress) { progressTester.onProgress(progress) });
+    progressTester.testDone();
+    assert.equal(1, await wallet.getHeight());
+    progressTester = new SyncProgressTester(wallet, 101000, 102000);
+    await wallet.sync(101000, 102000, function(progress) { progressTester.onProgress(progress) });
+    progressTester.testDone();
+    assert.equal(102001, await wallet.getHeight());
+    progressTester = new SyncProgressTester(wallet, 103000, 104000);
+    await wallet.sync(103000, 104000, function(progress) { progressTester.onProgress(progress) });
+    progressTester.testDone();
+    assert.equal(104001, await wallet.getHeight());
+    progressTester = new SyncProgressTester(wallet, 105000, 106000);
+    await wallet.sync(105000, 106000, function(progress) { progressTester.onProgress(progress) });
+    progressTester.testDone();
+    assert.equal(106001, await wallet.getHeight());
+    
+    // scan a previously processed range
+    progressTester = new SyncProgressTester(wallet, 101000, 102000, true);
+    await wallet.sync(101000, 102000, function(progress) { progressTester.onProgress(progress) });
+    progressTester.testDone();
+    assert.equal(106001, await wallet.getHeight());
+  });
+  
+  // run common tests
+  TestWalletCommon.testWallet(TestUtils.getWalletLocal(), TestUtils.getDaemonRpc());
 });
 
 /**

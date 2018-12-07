@@ -15,7 +15,7 @@ class TestUtils {
    * Get a local wallet singleton instance shared among tests.
    */
   static getWalletLocal() {
-    if (this.walletLocal === undefined) this.walletLocal = new MoneroWalletLocal({ daemon: this.getDaemonRpc(), mnemonic: TestUtils.TEST_MNEMONIC });
+    if (this.walletLocal === undefined) this.walletLocal = new MoneroWalletLocal(TestUtils.WALLET_LOCAL_CONFIG);
     return this.walletLocal;
   }
   
@@ -70,7 +70,7 @@ class TestUtils {
 TestUtils.TEST_MNEMONIC = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
 TestUtils.TEST_ADDRESS = "55AepZuUKYV7Wrf9BMiczAELg2gcZuWQsYmg4kXHGAiW8uhVC1VVhqA5HzFcePKhuNgS2d9ag5imvC1jxsJbbnHm5kF753Z";
 
-  // default wallet RPC configuration
+// default wallet RPC configuration
 // TODO: support URL
 TestUtils.WALLET_RPC_CONFIG = {
   protocol: "http",
@@ -96,6 +96,12 @@ TestUtils.DAEMON_RPC_CONFIG = {
   pass: "abctesting123",
   requestsPerSecond: 100
 };
+
+//local wallet config
+TestUtils.WALLET_LOCAL_CONFIG = {
+  daemon: TestUtils.getDaemonRpc(),
+  mnemonic: TestUtils.TEST_MNEMONIC
+}
 
 //TestUtils.DAEMON_RPC_CONFIG = { 
 //  protocol: "http",
