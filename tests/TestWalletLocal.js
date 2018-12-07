@@ -70,7 +70,7 @@ describe("Monero Wallet Local", function() {
     let progressTester = new SyncProgressTester(wallet, await wallet.getChainHeight() - numBlocks, await wallet.getChainHeight() - 1, null);
     await wallet.sync(null, null, function(progress) { progressTester.onProgress(progress) });
     progressTester.testDone();
-    assert.equal(await wallet.getHeight(), await daemon.getHeight());
+    assert.equal(await wallet.getHeight(), await daemon.getHeight()); // TODO: can fail because blockchain grows, need to sync up to this point
   });
   
   it("Does not allow a start height to be specified if a new seed is being created", async function() {
@@ -136,7 +136,7 @@ describe("Monero Wallet Local", function() {
   
   it("Reports progress while it's syncing", async function() {
     wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: TestUtils.TEST_MNEMONIC});
-    let numBlocks = 1000;
+    let numBlocks = 100;
     let startHeight = await wallet.getChainHeight() - numBlocks
     let endHeight = await wallet.getChainHeight() - 1;
     let progressTester = new SyncProgressTester(wallet, startHeight, endHeight);
@@ -158,7 +158,7 @@ describe("Monero Wallet Local", function() {
     await wallet.sync(0, 0, function(progress) { progressTester.onProgress(progress) });
     progressTester.testDone();
     assert.equal(1, await wallet.getHeight());
-    progressTester = new SyncProgressTester(wallet, 101000, 102000);
+    progressTester = new SyncProgressTester(wallet, 101000, 102000);  // TODO: randomly sample ranges of varying but capped heights
     await wallet.sync(101000, 102000, function(progress) { progressTester.onProgress(progress) });
     progressTester.testDone();
     assert.equal(102001, await wallet.getHeight());
