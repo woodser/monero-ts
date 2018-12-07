@@ -58,7 +58,7 @@ describe("Monero Wallet Local", function() {
     
     // sync the wallet 
     let progressTester = new SyncProgressTester(wallet, await wallet.getHeight(), await wallet.getChainHeight() - 1, null, true);
-    await wallet.sync(null, null, progressTester.onProgress);
+    await wallet.sync(null, null, function(progress) { progressTester.onProgress(progress) });
     progressTester.testDone();
     assert.equal(await wallet.getHeight(), await daemon.getHeight());
     
@@ -88,7 +88,7 @@ describe("Monero Wallet Local", function() {
     
     // sync the same blocks and assert progress is immediately done
     let progressTester = new SyncProgressTester(wallet, 0, endHeight, true);
-    await wallet.sync(0, endHeight, progressTester.onProgress);
+    await wallet.sync(0, endHeight, function(progress) { progressTester.onProgress(progress) });
     progressTester.testDone();
   });
   
@@ -126,8 +126,8 @@ describe("Monero Wallet Local", function() {
     let numBlocks = 1000;
     let startHeight = (await daemon.getHeight()) - numBlocks
     let endHeight = await wallet.getChainHeight() - 1;
-    let progressTester = new SyncProgressTester(wallet, 0, endHeight);
-    let resp = await wallet.sync(startHeight, null, progressTester.onProgress);
+    let progressTester = new SyncProgressTester(wallet, startHeight, endHeight);
+    let resp = await wallet.sync(startHeight, null, function(progress) { progressTester.onProgress(progress) });
     progressTester.testDone();
     assert(resp.blocks_fetched >= 0);
     assert(typeof resp.received_money === "boolean");
@@ -143,24 +143,24 @@ describe("Monero Wallet Local", function() {
     // scan a few ranges
     let progressTester = new SyncProgressTester(wallet, 0, 0);
     progressTester.testDone();
-    await wallet.sync(0, 0, progressTester);
+    await wallet.sync(0, 0, function(progress) { progressTester.onProgress(progress) });
     assert.equal(1, await wallet.getHeight());
     progressTester = new SyncProgressTester(wallet, 101000, 102000);
-    await wallet.sync(101000, 102000, progressTester);
+    await wallet.sync(101000, 102000, function(progress) { progressTester.onProgress(progress) });
     progressTester.testDone();
     assert.equal(102001, await wallet.getHeight());
     progressTester = new SyncProgressTester(wallet, 103000, 104000);
-    await wallet.sync(103000, 104000, progressTester);
+    await wallet.sync(103000, 104000, function(progress) { progressTester.onProgress(progress) });
     progressTester.testDone();
     assert.equal(104001, await wallet.getHeight());
     progressTester = new SyncProgressTester(wallet, 105000, 106000);
-    await wallet.sync(105000, 106000, progressTester);
+    await wallet.sync(105000, 106000, function(progress) { progressTester.onProgress(progress) });
     progressTester.testDone();
     assert.equal(106001, await wallet.getHeight());
     
     // scan a previously processed range
     progressTester = new SyncProgressTester(wallet, 101000, 102000, true);
-    await wallet.sync(101000, 102000, progressTester.onProgress);
+    await wallet.sync(101000, 102000, function(progress) { progressTester.onProgress(progress) });
     progressTester.testDone();
     assert.equal(106001, await wallet.getHeight());
   });
@@ -189,10 +189,11 @@ class SyncProgressTester {
   
   onProgress(progress) {
     assert(!this.noProgress, "Should not call progress");
-    assert.equals(this.endHeight - this.startHeight + 1, progress.totalBlocks);
+    assert.equal(this.endHeight - this.startHeight + 1, progress.totalBlocks);
     assert(progress.doneBlocks >= 0 && progress.doneBlocks <= progress.totalBlocks);
-    if (noMidway) assert(progress.percent === 0 || progress.percent === 1);
+    if (this.noMidway) assert(progress.percent === 0 || progress.percent === 1);
     if (this.firstProgress == undefined) {
+      this.firstProgress = progress;
       assert(progress.percent === 0);
       assert(progress.doneBlocks === 0);
     } else {

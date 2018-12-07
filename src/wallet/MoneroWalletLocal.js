@@ -148,6 +148,16 @@ class MoneroWalletLocal extends MoneroWallet {
     // done if start is greater than available blocks
     if (startHeight > endHeight) return;
     
+    // report 0% progress
+    if (onProgress) {
+      onProgress({
+        percent: 0,
+        message: "Synchronizing",
+        doneBlocks: 0,
+        totalBlocks: endHeight - startHeight + 1
+      });
+    }
+    
     // process all blocks in the range
     while (this._hasUnprocessedBlocks(startHeight, endHeight)) {
       await this._processBlocksChunk(this.config.daemon, startHeight, endHeight);
