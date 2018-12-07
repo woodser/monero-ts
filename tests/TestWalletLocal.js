@@ -174,39 +174,42 @@ describe("Monero Wallet Local", function() {
  */
 class SyncProgressTester {
   
-  constructor(wallet, startHeight, endHeight, noProgress) {
+  constructor(wallet, startHeight, endHeight, noMidway) {
     assert(wallet);
     assert(startHeight >= 0);
     assert(endHeight >= 0);
     this.wallet = wallet;
     this.startHeight = startHeight;
     this.endHeight = endHeight;
-    this.noProgress = noProgress;
+    this.noMidway = noMidway;
     this.firstProgress = undefined;
     this.lastProgress = undefined;
   }
   
   onProgress(progress) {
-    assert(!this.noProgress, "Should not call progress");
-    assert.equals(endHeight - startHeight + 1, progress.totalBlocks);
+    assert.equals(this.endHeight - this.startHeight + 1, progress.totalBlocks);
     assert(progress.doneBlocks >= 0 && progress.doneBlocks <= progress.totalBlocks);
-    assert.equal(progress.doneBlocks / progress.totalBlocks, progress.percent);
-    if (this.doneImmediately) throw new Error("what does that mean");
-    if (this.firstProgress === undefined) {
-      assert(progress.percent === 0 || progress.percent === 1);
-      this.firstProgress = progress;
+    if (noMidway) assert(progress.percent === 0 || progress.percent === 1);
+    if (this.firstProgress == undefined) {
+      assert(progress.percent === 0);
+      assert(progress.doneBlocks === 0);
     } else {
       assert(progress.percent > this.lastProgress.percent);
-      assert(progress.doneBlocks >= this.lastProgress.doneBlocks);
+      assert(progress.doneBlocks >= this.lastProgress.doneBlocks && progress.doneBlocks <= progress.totalBlocks);
     }
     this.lastProgress = progress;
   }
   
   testDone() {
-    if (!this.noProgress) {
-      assert(this.lastProgress, "Progress was never updated");
-      assert.equal(1, this.lastProgress.percent);
-      if (this.doneImmediately) assert.deepEqual(this.firstProgress, this.lastProgress);
-    }
+    
+    // test first progress
+    assert(this.firstProgress, "Progress was never updated");
+    assert.equal(0, this.firstProgress.percent);
+    assert.equal(0, this.firstProgress.doneBlocks);
+    
+    // test last progress
+    assert.equal(1, this.lastProgress.percent);
+    assert.equal(this.endHeight - this.startHeight + 1, this.lastProgress.doneBlocks);
+    assert.equal(this.lastProgress.doneBlocks, this.lastProgress.totalBlocks);
   }
 }
