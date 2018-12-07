@@ -222,7 +222,6 @@ class MoneroWalletLocal extends MoneroWallet {
       // mark block as persisted in persisted wallet
       this.cache.processed.set(true, block.getHeader().getHeight()); // mark block as processed in persisted wallet
       
-      
       // report progress
       if (onProgress) {
         let doneBlocks = block.getHeader().getHeight() - startHeight + 1;
