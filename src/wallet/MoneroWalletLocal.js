@@ -20,7 +20,7 @@ class MoneroWalletLocal extends MoneroWallet {
    * Constructs client-side Monero wallet.
    * 
    * @param config is a daemon instance or a config object as follows:
-   * @param config.daemon is the daemon to support the wallet (required)
+   * @param config.daemon is the daemon to support the wallet (required unless procol, host, port, etc provided)  // TODO: test with rpc config instead of daemon
    * @param config.mnemonic is a mnemonic phrase to import or generates new one if not given (optional)
    * @param config.mnemonicLanguage specifies the mnemonic phrase language (defaults to "en" for english)
    * @param config.store is an existing wallet store to import (optional)
@@ -343,7 +343,7 @@ class MoneroWalletLocal extends MoneroWallet {
         
         // check if wallet owns output
         if (tx.getVout()[outIdx].target.key === pubKeyDerived) {
-          console.log("THIS MY OUTPUT!!!");
+          console.log("THIS MY OUTPUT AT HEIGHT " + block.getHeader().getHeight() + "!!!");
         }
       }
     }

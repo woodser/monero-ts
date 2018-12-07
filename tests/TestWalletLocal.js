@@ -15,11 +15,40 @@ describe("Monero Wallet Local", function() {
   
   // start each test with new wallet
   beforeEach(async function() {
-    wallet = new MoneroWalletLocal({daemon: daemon,
+    wallet = new MoneroWalletLocal({daemon: daemon, // TODO: move to default config in TestUtils
       mnemonic: TestUtils.TEST_MNEMONIC,
 //      numHeadersPerRequest: 500,
 //      maxReqSize: 4000000
     });
+  });
+  
+  it("Can run precise tests on a known wallet", async function() {
+    
+    // test configuration
+    let config = {
+        mnemonic: TestUtils.TEST_MNEMONIC,
+        blockHeights: [197148, 199930, 209120, 209121], // known block heights (optional)
+        startHeight: 192000,                            // start of range to scan (ignored if block heights given)
+        endHeight: 200000,                              // end of range to scan (ignored if block heights given)
+    }
+    
+    // create the wallet
+    wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: config.mnemonic});
+    
+    // scan specific blocks
+    if (config.blockHeights && config.blockHeights.length > 0) {
+      for (let height of config.blockHeights) await wallet.sync(height, height, onProgress);
+    }
+    
+    // otherwise scan range
+    else {
+      await wallet.sync(config.startHeight, config.endHeight, onProgress);
+    }
+    
+    // print updates as they happen
+    function onProgress(progress) {
+      console.log("Progress: " + progress.percent + ", done blocks: " + progress.doneBlocks + ", total blocks: " + progress.totalBlocks + ", message: " + progress.message);
+    }
   });
   
   it("Can get the seed", async function() {
@@ -232,7 +261,10 @@ class SyncProgressTester {
   testDone() {
     
     // nothing to test if no progress called
-    if (this.noProgress) return;
+    if (this.noProgress) {
+      assert(!this.firstProgress);
+      return;
+    }
     
     // test first progress
     assert(this.firstProgress, "Progress was never updated");
