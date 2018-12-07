@@ -12,6 +12,7 @@ const BooleanSet = require("../utils/BooleanSet");
  * TODO: concurrent processing with X threads and await after network requests
  * TODO: support creation from seed
  * TODO: toJson() instead of getStore()?
+ * TODO: progress based on transaction count if starting from 0
  */
 class MoneroWalletLocal extends MoneroWallet {
 
