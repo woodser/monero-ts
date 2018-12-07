@@ -321,7 +321,8 @@ class MoneroWalletLocal extends MoneroWallet {
    * Processes a single block.
    */
   _processBlock(block) {
-    //console.log("Processing block...");
+
+    // process each transaction
     for (let txIdx = 0; txIdx < block.getTxs().length; txIdx++) {
       let tx = block.getTxs()[txIdx];
       //if (tx.getId() !== "cb8258a925b63a43f4447fd3c838b0d5b9389d1df1cd4c6e18b0476d2c221c9f") continue;

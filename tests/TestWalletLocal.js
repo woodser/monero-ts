@@ -163,11 +163,12 @@ describe("Monero Wallet Local", function() {
     assert.equal(chainHeight, await wallet.getHeight());
     
     // scan a few ranges
+    // TODO: randomly sample ranges of varying but capped heights
     let progressTester = new SyncProgressTester(wallet, 0, 0);
     await wallet.sync(0, 0, function(progress) { progressTester.onProgress(progress) });
     progressTester.testDone();
     assert.equal(1, await wallet.getHeight());
-    progressTester = new SyncProgressTester(wallet, 101000, 102000);  // TODO: randomly sample ranges of varying but capped heights
+    progressTester = new SyncProgressTester(wallet, 101000, 102000);
     await wallet.sync(101000, 102000, function(progress) { progressTester.onProgress(progress) });
     progressTester.testDone();
     assert.equal(102001, await wallet.getHeight());
