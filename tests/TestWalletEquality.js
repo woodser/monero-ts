@@ -21,11 +21,11 @@ describe("Test Wallets Equal", function() {
     throw new Error("Not implemented");
   });
   
-  it("Have the same accounts", function() {
+  it("Have the same accounts", async function() {
     assert.deepEqual(await wallet1.getAccounts(), await wallet2.getAccounts());
   });
   
-  it("Have the same accounts and subaddresses", function() {
+  it("Have the same accounts and subaddresses", async function() {
     assert.deepEqual(await wallet1.getAccounts(true), await wallet2.getAccounts(true));
   });
   
