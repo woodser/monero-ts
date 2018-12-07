@@ -185,6 +185,7 @@ class SyncProgressTester {
     this.noProgress = noProgress;
     this.firstProgress = undefined;
     this.lastProgress = undefined;
+    this.midwayFound = false;
   }
   
   onProgress(progress) {
@@ -192,6 +193,7 @@ class SyncProgressTester {
     assert.equal(this.endHeight - this.startHeight + 1, progress.totalBlocks);
     assert(progress.doneBlocks >= 0 && progress.doneBlocks <= progress.totalBlocks);
     if (this.noMidway) assert(progress.percent === 0 || progress.percent === 1);
+    if (progress.percent > 0 && progress.percent < 1) this.midwayFound = true;
     if (this.firstProgress == undefined) {
       this.firstProgress = progress;
       assert(progress.percent === 0);
@@ -212,6 +214,10 @@ class SyncProgressTester {
     assert(this.firstProgress, "Progress was never updated");
     assert.equal(0, this.firstProgress.percent);
     assert.equal(0, this.firstProgress.doneBlocks);
+    
+    // test midway progress
+    if (this.endHeight > this.startHeight && !this.noMidway) assert(this.midwayFound, "No midway progress reported but it should have been");
+    else assert(!this.midwayFound, "No midway progress should have been reported but it was");
     
     // test last progress
     assert.equal(1, this.lastProgress.percent);
