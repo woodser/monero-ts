@@ -91,6 +91,33 @@ class MoneroWallet {
   }
   
   /**
+   * Get the balance across all accounts.
+   * 
+   * @returns number is the balance across all accounts
+   */
+  async getBalance() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get the unlocked balance across all accounts.
+   * 
+   * @returns number is the unlocked balance across all accounts
+   */
+  async getUnlockedBalance() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Indicates if importing multisig data is needed for returning a correct balance.
+   * 
+   * @returns true if importing multisig data is needed for returning a correct balance, false otherwise
+   */
+  async isMultisigImportNeeded() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Get accounts.
    * 
    * @param includeSubaddresses specifies if subaddresses should be included (optional)
@@ -163,33 +190,6 @@ class MoneroWallet {
    * @returns string is the receive address of the specified subaddress
    */
   async getAddress(accountIdx, subaddressIdx) {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
-   * Get the balance across all accounts.
-   * 
-   * @returns number is the balance across all accounts
-   */
-  async getBalance() {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
-   * Get the unlocked balance across all accounts.
-   * 
-   * @returns number is the unlocked balance across all accounts
-   */
-  async getUnlockedBalance() {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
-   * Indicates if importing multisig data is needed for returning a correct balance.
-   * 
-   * @returns true if importing multisig data is needed for returning a correct balance, false otherwise
-   */
-  async isMultisigImportNeeded() {
     throw new Error("Subclass must implement");
   }
   

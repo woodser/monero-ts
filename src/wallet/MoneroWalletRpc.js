@@ -3,6 +3,7 @@ const MoneroRpc = require("../rpc/MoneroRpc");
 const MoneroWallet = require("./MoneroWallet");
 const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
 const MoneroSubaddress = require("./model/MoneroSubaddress");
+const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
  * Implements a Monero wallet using monero-wallet-rpc.
@@ -38,13 +39,6 @@ class MoneroWalletRpc extends MoneroWallet {
     return resp.key;
   }
   
-  // TODO: test and support start_height parameter
-  async sync(startHeight, endHeight, onProgress) {
-    assert(endHeight === undefined, "Monero Wallet RPC does not support syncing to an end height");
-    assert(onProgress === undefined, "Monero Wallet RPC does not support reporting sync progress");
-    return await this.config.rpc.sendJsonRpcRequest("refresh");
-  }
-  
   async getLanguages() {
     return (await this.config.rpc.sendJsonRpcRequest("get_languages")).languages;
   }
@@ -61,6 +55,29 @@ class MoneroWalletRpc extends MoneroWallet {
   async decodeIntegratedAddress(integratedAddress) {
     let resp = await this.config.rpc.sendJsonRpcRequest("split_integrated_address", {integrated_address: integratedAddress});
     return new MoneroIntegratedAddress(resp.standard_address, resp.payment_id, integratedAddress);
+  }
+  
+  // TODO: test and support start_height parameter
+  async sync(startHeight, endHeight, onProgress) {
+    assert(endHeight === undefined, "Monero Wallet RPC does not support syncing to an end height");
+    assert(onProgress === undefined, "Monero Wallet RPC does not support reporting sync progress");
+    return await this.config.rpc.sendJsonRpcRequest("refresh");
+  }
+  
+  async getBalance() {
+    let balance = new BigInteger(0);
+    for (let account of await this.getAccounts()) {
+      balance = balance.add(account.getBalance());
+    }
+    return balance;
+  }
+  
+  async getUnlockedBalance() {
+    let unlockedBalance = new BigInteger(0);
+    for (let account of await this.getAccounts()) {
+      unlockedBalance = unlockedBalance.add(account.getUnlockedBalance());
+    }
+    return balance;
   }
   
   async getAccounts(includeSubaddresses, tag) {
@@ -141,14 +158,6 @@ class MoneroWalletRpc extends MoneroWallet {
   }
 
   async getAddress(accountIdx, subaddressIdx) {
-    throw new Error("Not implemented");
-  }
-
-  async getBalance() {
-    throw new Error("Not implemented");
-  }
-  
-  async getUnlockedBalance() {
     throw new Error("Not implemented");
   }
   

@@ -22,15 +22,6 @@ function testWallet(wallet, daemon) {
     assert.equal(TestUtils.TEST_MNEMONIC, mnemonic);
   });
   
-  it("Can sync (without progress)", async function() {
-    let numBlocks = 100;
-    let chainHeight = await daemon.getHeight();
-    assert(chainHeight >= numBlocks);
-    let resp = await wallet.sync(chainHeight - numBlocks);  // sync end of chain
-    assert(resp.blocks_fetched >= 0);
-    assert(typeof resp.received_money === "boolean");
-  });
-  
   it("Can get a list of supported languages for the mnemonic phrase", async function() {
     let languages = await wallet.getLanguages();
     assert(Array.isArray(languages));
@@ -80,6 +71,21 @@ function testWallet(wallet, daemon) {
     let integratedAddress = await wallet.getIntegratedAddress("03284e41c342f036");
     let decodedAddress = await wallet.decodeIntegratedAddress(integratedAddress.toString());
     assert.deepEqual(integratedAddress, decodedAddress);
+  });
+  
+  it("Can sync (without progress)", async function() {
+    let numBlocks = 100;
+    let chainHeight = await daemon.getHeight();
+    assert(chainHeight >= numBlocks);
+    let resp = await wallet.sync(chainHeight - numBlocks);  // sync end of chain
+    assert(resp.blocks_fetched >= 0);
+    assert(typeof resp.received_money === "boolean");
+  });
+  
+  it("Can get the the balance and unlocked balance", async function() {
+    let balance = await wallet.getBalance();
+    testBigInteger(balance);
+    throw new Error("Not implemented");
   });
   
   it("Can get all accounts in the wallet without subaddresses", async function() {

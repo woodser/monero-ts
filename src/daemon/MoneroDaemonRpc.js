@@ -1,6 +1,5 @@
 const assert = require("assert");
 const MoneroUtils = require("../utils/MoneroUtils");
-const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroRpc = require("../rpc/MoneroRpc")
 const MoneroDaemon = require("./MoneroDaemon");
 const MoneroDaemonResponseInfo = require("./model/MoneroDaemonResponseInfo"); 
@@ -10,6 +9,7 @@ const MoneroBlock = require("./model/MoneroBlock");
 const MoneroTx = require("./model/MoneroTx");
 const MoneroBlockTemplate = require("./model/MoneroBlockTemplate");
 const MoneroDaemonInfo = require("./model/MoneroDaemonInfo");
+const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
  * Implements a Monero daemon using monero-daemon-rpc.
