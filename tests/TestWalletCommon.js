@@ -276,27 +276,27 @@ function testWallet(wallet, daemon) {
     throw new Error("Not implemented");
   });
   
-  it("Can get txs pertaining to a subaddress", async function() {
+  it("Can get transactions pertaining to a subaddress", async function() {
     throw new Error("Not implemented");
   });
   
-  it("Can get txs filtered by having payments or not", async function() {
+  it("Can get transactions filtered by having payments or not", async function() {
     throw new Error("Not implemented");
   });
   
-  it("Can get wallet txs by id", async function() {
+  it("Can get wallet transactions by id", async function() {
     throw new Error("Not implemented");
   });
   
-  it("Can get wallet txs with a filter", async function() {
+  it("Can get wallet transactions with a filter", async function() {
     throw new Error("Not implemented");
   });
   
-  it("Can get and set a tx note", async function() {
+  it("Can get and set a transactions note", async function() {
     throw new Error("Not implemented");
   });
   
-  it("Can get and set multiple tx notes", async function() {
+  it("Can get and set multiple transactions notes", async function() {
     throw new Error("Not implemented");
   });
   

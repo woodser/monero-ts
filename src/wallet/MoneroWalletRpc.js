@@ -10,7 +10,7 @@ const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/bigi
 /**
  * Implements a Monero wallet using monero-wallet-rpc.
  * 
- * TODO: remember to clear the address the cache on stop wallet
+ * TODO: remember to clear the address cache on stop wallet
  */
 class MoneroWalletRpc extends MoneroWallet {
   
