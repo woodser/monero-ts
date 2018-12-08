@@ -7,6 +7,8 @@ const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/
 /**
  * Runs common tests that any Monero wallet should implement.
  * 
+ * TODO: test filtering with not relayed
+ * 
  * @param wallet is the Monero wallet to test
  * @param daemon informs some tests
  */
@@ -243,32 +245,32 @@ function testWallet(wallet, daemon) {
 //      }
 //    }
 //  });
-  
-  it("Has proper accounting across all accounts and subaddresses", async function() {
-    
-    // get wallet balances
-    let walletBalance = await wallet.getBalance();
-    let walletUnlockedBalance = await wallet.getUnlockedBalance();
-    testUnsignedBigInteger(walletBalance);
-    testUnsignedBigInteger(walletUnlockedBalance);
-    assert(walletBalance >= walletUnlockedBalance);
-    
-    // get wallet accounts and subaddresses
-    let accounts = await wallet.getAccounts(true);
-    
-    // add account balances
-    let accountsBalance = new BigInteger(0);
-    let accountsUnlockedBalance = new BigInteger(0);
-    for (let account of accounts) {
-      testAccount(account); // tests that subaddress balances add to account balance
-      accountsBalance = accountsBalance.add(account.getBalance());
-      accountsUnlockedBalance = accountsUnlockedBalance.add(account.getUnlockedBalance());
-    }
-    
-    // test that wallet balances equal sum of account balances
-    assert.equal(walletBalance.toJSValue(), accountsBalance.toJSValue());
-    assert.equal(walletUnlockedBalance.toJSValue(), accountsUnlockedBalance.toJSValue());
-  });
+//  
+//  it("Has proper accounting across all accounts and subaddresses", async function() {
+//    
+//    // get wallet balances
+//    let walletBalance = await wallet.getBalance();
+//    let walletUnlockedBalance = await wallet.getUnlockedBalance();
+//    testUnsignedBigInteger(walletBalance);
+//    testUnsignedBigInteger(walletUnlockedBalance);
+//    assert(walletBalance >= walletUnlockedBalance);
+//    
+//    // get wallet accounts and subaddresses
+//    let accounts = await wallet.getAccounts(true);
+//    
+//    // add account balances
+//    let accountsBalance = new BigInteger(0);
+//    let accountsUnlockedBalance = new BigInteger(0);
+//    for (let account of accounts) {
+//      testAccount(account); // tests that subaddress balances add to account balance
+//      accountsBalance = accountsBalance.add(account.getBalance());
+//      accountsUnlockedBalance = accountsUnlockedBalance.add(account.getUnlockedBalance());
+//    }
+//    
+//    // test that wallet balances equal sum of account balances
+//    assert.equal(walletBalance.toJSValue(), accountsBalance.toJSValue());
+//    assert.equal(walletUnlockedBalance.toJSValue(), accountsUnlockedBalance.toJSValue());
+//  });
   
   it("Has a balance that is the sum of all unspent incoming transactions", async function() {
     throw new Error("Not implemented");
@@ -312,7 +314,25 @@ function testWallet(wallet, daemon) {
   });
   
   it("Can get transactions pertaining to a subaddress", async function() {
-    throw new Error("Not implemented");
+    let nonDefaultIncoming = false;
+    let accounts = await wallet.getAccounts(true);
+    for (let accountIdx = 0; accountIdx < Math.min(accounts.length, 3); accountIdx++) {
+      for (let subaddressIdx = 0; subaddressIdx < Math.min(accounts[accountIdx].getSubaddresses().length, 5); subaddressIdx++) {
+        for (let tx of await wallet.getTxs(accountIdx, subaddressIdx)) {
+          testGetTx(tx, null, wallet);
+          if (MoneroUtils.isOutgoing(tx.getType()))  {
+            assert.equal(accountIdx, tx.getSrcAccountIndex());
+          } else {
+            for (let payment of tx.getPayments()) {
+              assert.equal(accountIdx, payment.getAccountIndex());
+              assert.equal(subaddressIdx, payment.getSubaddrIndex());
+              if (payment.getAccountIndex() !== 0 && payment.getSubaddrIndex() !== 0) nonDefaultIncoming = true;
+            }
+          }
+        }
+      }
+    }
+    assertTrue(nonDefaultIncoming, "No incoming transactions found in non-default account and subaddress; run testSendToMultiple() first");
   });
   
   it("Can get transactions filtered by having payments or not", async function() {

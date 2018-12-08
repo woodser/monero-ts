@@ -5,52 +5,68 @@ const MoneroTx = require("../../daemon/model/MoneroTx");
  */
 class MoneroWalletTx extends MoneroTx {
   
+  getType() {
+    return this.json.type;
+  }
+  
+  setType(type) {
+    this.json.type = type;
+  }
+  
+  getState() {
+    return this.json.state;
+  }
+  
+  setState(state) {
+    this.json.state = state;
+  }
+  
   getTotalAmount() {
-    return this.totalAmount;
+    return this.json.totalAmount;
   }
   
   setTotalAmount(totalAmount) {
-    this.totalAmount = totalAmount;
+    this.json.totalAmount = totalAmount;
   }
 
   getSrcAddress() {
-    return this.srcAddress;
+    return this.json.srcAddress;
   }
   
   setSrcAddress(srcAddress) {
-    this.srcAddress = srcAddress;
+    this.json.srcAddress = srcAddress;
   }
   
   getSrcAccountIndex() {
-    return this.srcAccountIndex;
+    return this.json.srcAccountIndex;
   }
   
   setSrcAccountIndex(srcAccountIndex) {
-    this.srcAccountIndex = srcAccountIndex;
+    this.json.srcAccountIndex = srcAccountIndex;
   }
   
   getSrcSubaddrIndex() {
-    return this.srcSubaddrIndex;
+    return this.json.srcSubaddrIndex;
   }
   
   setSrcSubaddrIndex(srcSubaddrIndex) {
-    this.srcSubaddrIndex = srcSubaddrIndex;
+    this.json.srcSubaddrIndex = srcSubaddrIndex;
   }
   
   getPayments() {
-    return this.payments;
+    return this.json.payments;
   }
   
   setPayments(payments) {
-    this.payments = payments;
+    this.json.payments = payments;
   }
   
   getNote() {
-    return this.note;
+    return this.json.note;
   }
   
   setNote(note) {
-    this.note = note;
+    this.json.note = note;
   }
 }
 

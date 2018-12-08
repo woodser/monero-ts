@@ -53,14 +53,6 @@ class MoneroTx extends MoneroDaemonModel {
     this.size = size;
   }
   
-  getType() {
-    return this.type;
-  }
-  
-  setType(type) {
-    this.type = type;
-  }
-  
   getHeight() {
     return this.height;
   }

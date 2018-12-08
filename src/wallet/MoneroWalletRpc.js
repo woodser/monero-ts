@@ -219,6 +219,116 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getTxs(filterOrAccountIdx, subaddressIdx) {
+    
+    // validate and standardize inputs to filter
+    let filter;
+    if (filterOrAccountIdx instanceof MoneroTxFilter) {
+      assert(subaddressIdx === undefined, "Cannot specify subaddress index if first parameter is MoneroTxFilter");
+      filter = filterOrAccountIdx;
+    } else if (filterOrAccountIdx >= 0 || filterOrAccountIdx === undefined) {
+      filter = new MoneroTxFilter();
+      filter.setAccountIndex(filterOrAccountIdx);
+      if (subaddressIdx !== undefined) assert(subaddressIdx >= 0, "Subaddress must be >= 0 but was " + subaddressIdx);
+      filter.setSubaddrIndex(subaddressIdx);
+    } else throw new Error("First parameter must be MoneroTxFilter or account index >= 0 but was " + filterOrAccountIdx);
+    
+    
+    
+    
+//    // stores merged txs across calls
+//    List<MoneroTx> txs = new ArrayList<MoneroTx>();    
+//    
+//    // determine account and subaddress indices to be queried
+//    Map<Integer, List<Integer>> indices = new HashMap<Integer, List<Integer>>();
+//    if (filter.getAccountIndex() != null) {
+//      indices.put(filter.getAccountIndex(), filter.getSubaddressIndices() == null || filter.getSubaddressIndices().isEmpty() ? getSubaddressIndices(filter.getAccountIndex()) : new ArrayList<Integer>(filter.getSubaddressIndices()));
+//    } else {
+//      if (filter.getSubaddressIndices() != null) throw new RuntimeException("Filter specifies subaddress indices but not an account index");
+//      indices = getAllAccountAndSubaddressIndices();
+//    }
+//    
+//    // build common params for get_transfers
+//    Map<String, Object> params = new HashMap<String, Object>();
+//    params.put("in", filter.isIncoming());
+//    params.put("out", filter.isOutgoing());
+//    params.put("pending", filter.isPending());
+//    params.put("failed", filter.isFailed());
+//    params.put("pool", filter.isMempool());
+//    params.put("filter_by_height", filter.getMinHeight() != null || filter.getMaxHeight() != null);
+//    if (filter.getMinHeight() != null) params.put("min_height", filter.getMinHeight());
+//    if (filter.getMaxHeight() != null) params.put("max_height", filter.getMaxHeight());
+//    
+//    // get transactions using get_transfers
+//    for (Integer accountIdx : indices.keySet()) {
+//      params.put("account_index", accountIdx);
+//      params.put("subaddr_indices", indices.get(accountIdx));
+//      Map<String, Object> respMap = rpc.sendRpcRequest("get_transfers", params);
+//      Map<String, Object> result = (Map<String, Object>) respMap.get("result");
+//      for (String key : result.keySet()) {
+//        for (Map<String, Object> txMap : (List<Map<String, Object>>) result.get(key)) {
+//          MoneroTx tx = txMapToTx(txMap, this);
+//          if (MoneroUtils.isIncoming(tx.getType()) && MoneroUtils.isConfirmed(tx.getType())) {  // prevent duplicates when populated by incoming_transfers  // TODO (monero-wallet-rpc): merge payments when incoming txs work (https://github.com/monero-project/monero/issues/4500)
+//            tx.setTotalAmount(BigInteger.valueOf(0));
+//            tx.setPayments(null);
+//          }
+//          addTx(txs, tx, false);
+//        }
+//      }
+//    }
+//    
+//    // get incoming transactions
+//    if (filter.isIncoming()) {
+//      
+//      // get transactions using incoming_transfers
+//      params.clear();
+//      params.put("transfer_type", "all"); // TODO: suppport all | available | unavailable 'types' which is different from MoneroTxType
+//      for (Integer accountIdx : indices.keySet()) {
+//        params.put("account_index", accountIdx);
+//        params.put("subaddr_indices", filter.getSubaddressIndices()); // null subaddr_indices will fetch all incoming_transfers
+//        Map<String, Object> respMap = rpc.sendRpcRequest("incoming_transfers", params);
+//        Map<String, Object> result = (Map<String, Object>) respMap.get("result");
+//
+//        // interpret incoming_transfers response
+//        List<Map<String, Object>> txMaps = (List<Map<String, Object>>) result.get("transfers");
+//        if (txMaps != null) {
+//          for (Map<String, Object> txMap : txMaps) {
+//            
+//            // convert map to tx and assign address
+//            MoneroTx tx = txMapToTx(txMap, MoneroTxType.INCOMING, this);
+//            String address = getAddress(accountIdx, tx.getPayments().get(0).getSubaddrIndex());
+//            tx.getPayments().get(0).setAddress(address);
+//            
+//            // assign block type if applicable, which 'incoming_transfers' does not provide
+//            for (MoneroTx allTx : txs) {
+//              if (allTx.getType() == MoneroTxType.BLOCK && allTx.getId().equals(tx.getId())) {
+//                tx.setType(allTx.getType());
+//              }
+//            }
+//            
+//            // add tx to existing txs
+//            addTx(txs, tx, false);
+//          }
+//        }
+//      }
+//    }
+//
+//    // filter final result
+//    Collection<MoneroTx> toRemoves = new HashSet<MoneroTx>();
+//    for (MoneroTx tx : txs) {
+//      if (filter.getPaymentIds() != null && !filter.getPaymentIds().contains(tx.getPaymentId())) toRemoves.add(tx);
+//      else if (filter.getTxIds() != null && !filter.getTxIds().contains(tx.getId())) toRemoves.add(tx);
+//      else if (filter.getMinHeight() != null && (tx.getHeight() == null || tx.getHeight() < filter.getMinHeight())) toRemoves.add(tx);
+//      else if (filter.getMaxHeight() != null && (tx.getHeight() == null || tx.getHeight() > filter.getMaxHeight())) toRemoves.add(tx);
+//      else if (Boolean.TRUE.equals(filter.getHasPayments()) && (tx.getPayments() == null || tx.getPayments().isEmpty())) toRemoves.add(tx);
+//      else if (Boolean.FALSE.equals(filter.getHasPayments()) && tx.getPayments() != null && !tx.getPayments().isEmpty()) toRemoves.add(tx);
+//    }
+//    txs.removeAll(toRemoves);
+//    return txs;
+    
+    
+    
+    
+    
     throw new Error("Not implemented");
   }
   
