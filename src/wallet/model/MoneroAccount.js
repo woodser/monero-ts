@@ -1,3 +1,5 @@
+const assert = require("assert");
+
 /**
  * Monero account model.
  */
@@ -58,6 +60,7 @@ class MoneroAccount {
   }
   
   setSubaddresses(subaddresses) {
+    assert(subaddresses === undefined || Array.isArray(subaddresses), "Given subaddresses must be undefined or an array of subaddresses");
     this.json.subaddresses = subaddresses;
     if (subaddresses != null) {
       for (let subaddress of subaddresses) {

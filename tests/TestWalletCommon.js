@@ -105,7 +105,6 @@ function testWallet(wallet, daemon) {
     accounts.map(account => {
       testAccount(account);
       assert(account.getSubaddresses().length > 0);
-      account.getSubaddresses().map(subaddress => testSubaddress(subaddress));
     });
   });
   
@@ -355,11 +354,38 @@ function testUnsignedBigInteger(num) {
 }
 
 function testAccount(account) {
-  throw new Error("Not implemented");
+  
+  // test account
+  assert(account);
+  assert(account.getIndex() >= 0);
+  assert(account.getPrimaryAddress());
+  testUnsignedBigInteger(account.getBalance());
+  testUnsignedBigInteger(account.getUnlockedBalance());
+  
+  // if given, test subaddresses and that their balances add up to account balances
+  if (account.getSubaddresses()) {
+    let balance = BigInteger.valueOf(0);
+    let unlockedBalance = BigInteger.valueOf(0);
+    for (let i = 0; i < account.getSubaddresses().length; i++) {
+      testSubaddress(account.getSubaddresses()[i]);
+      assert.equal(account.getIndex(), account.getSubaddresses()[i].getAccountIndex());
+      assert.equal(i, account.getSubaddresses()[i].getSubaddrIndex());
+      balance = balance.add(account.getSubaddresses()[i].getBalance());
+      unlockedBalance = unlockedBalance.add(account.getSubaddresses()[i].getUnlockedBalance());
+    }
+    assert(account.getBalance().compare(balance) === 0, "Subaddress balances " + balance + " does not equal account balance " + account.getBalance());
+    assert(account.getUnlockedBalance().compare(unlockedBalance) === 0, "Subaddress unlocked balances " + unlockedBalance + " does not equal account unlocked balance " + account.getUnlockedBalance());
+  }
 }
 
 function testSubaddress(subaddress) {
-  throw new Error("Not implemented");
+  assert(subaddress.getAccountIndex() >= 0);
+  assert(subaddress.getSubaddrIndex() >= 0);
+  assert(subaddress.getAddress());
+  testUnsignedBigInteger(subaddress.getBalance());
+  testUnsignedBigInteger(subaddress.getUnlockedBalance());
+  assert(subaddress.getNumUnspentOutputs() >= 0);
+  if (subaddress.getBalance().toJSValue() > 0) assert(subaddress.getIsUsed());
 }
 
 module.exports.testWallet = testWallet;

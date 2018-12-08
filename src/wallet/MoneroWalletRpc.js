@@ -95,7 +95,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let unlockedBalance = new BigInteger(respAccount.unlocked_balance);
       let primaryAddress = respAccount.base_address;
       let label = respAccount.label;
-      let account = new MoneroAccount(accountIdx, primaryAddress, label, balance, unlockedBalance, null);
+      let account = new MoneroAccount(accountIdx, primaryAddress, label, balance, unlockedBalance);
       if (includeSubaddresses) account.setSubaddresses(await this.getSubaddresses(accountIdx));
       accounts.push(account);
     }
@@ -132,13 +132,13 @@ class MoneroWalletRpc extends MoneroWallet {
       subaddress.setIsUsed(respAddress.used);
       
       // set defaults
-      subaddress.setBalance(0);
-      subaddress.setUnlockedBalance(0);
+      subaddress.setBalance(new BigInteger(0));
+      subaddress.setUnlockedBalance(new BigInteger(0));
       subaddress.setNumUnspentOutputs(0);
     }
     
     // fetch and initialize subaddress balances
-    resp = this.config.rpc.sendJsonRpcRequest("get_balance", params);
+    resp = await this.config.rpc.sendJsonRpcRequest("get_balance", params);
     let respSubaddresses = resp.per_subaddress;
     if (respSubaddresses) {
       for (let respSubaddress of respSubaddresses) {
@@ -146,8 +146,8 @@ class MoneroWalletRpc extends MoneroWallet {
         for (let subaddress of subaddresses) {
           if (subaddressIdx !== subaddress.getSubaddrIndex()) continue; // find matching subaddress
           assert.equal(subaddress.getAddress(), respSubaddress.address);
-          if (respSubaddress.balance !== undefined) subaddress.setBalance(respSubaddress.balance);
-          if (respSubaddress.unlocked_balance !== undefined) subaddress.setUnlockedBalance(respSubaddress.unlocked_balance);
+          if (respSubaddress.balance !== undefined) subaddress.setBalance(new BigInteger(respSubaddress.balance));
+          if (respSubaddress.unlocked_balance !== undefined) subaddress.setUnlockedBalance(new BigInteger(respSubaddress.unlocked_balance));
           subaddress.setNumUnspentOutputs(respSubaddress.num_unspent_outputs);
         }
       }
