@@ -233,12 +233,25 @@ function testWallet(wallet, daemon) {
     }
   });
   
-  it("Can get the balance across all accounts", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get the unlocked balance across all accounts", async function() {
-    throw new Error("Not implemented");
+  it("Has proper accounting across all accounts and subaddresses", async function() {
+    
+    // get wallet balances
+    let balance = await wallet.getBalance();
+    testBigInteger(balance);
+    let unlockedBalance = await wallet.getUnlockedBalance();
+    testBigInteger(unlockedBalance);
+    assert(balance >= unlockedBalance);
+    
+    // get wallet accounts and subaddresses
+    let accounts = await wallet.getAccounts(true);
+    
+    // test that subaddress balances add up to each account balances
+    for (let account of accounts) {
+      throw new Error("Not implemented");
+    }
+    
+    // test that account balances add up to wallet balances
+    throw new Error("Now implemented");
   });
   
   it("Can get transactions pertaining to the wallet", async function() {
@@ -328,6 +341,13 @@ function testWallet(wallet, daemon) {
   it("Can parse a payment URI using the official URI spec", async function() {
     throw new Error("Not implemented");
   });
+}
+
+function testBigInteger(amt) {
+  assert(amt);
+  assert(amt instanceof BigInteger);
+  assert(amt.toInt() > 0);
+  throw new Error("Not implelmented");
 }
 
 module.exports.testWallet = testWallet;

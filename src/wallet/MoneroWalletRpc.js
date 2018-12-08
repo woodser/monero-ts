@@ -64,7 +64,7 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getAccounts(includeSubaddresses, tag) {
-    throw new Error("Subclass must implement");
+    throw new Error("Not implemented");
   }
   
   async getAccount(accountIdx, includeSubaddresses) {
