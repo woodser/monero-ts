@@ -49,11 +49,34 @@ function testWallet(wallet, daemon) {
     assert.equal((await wallet.getSubaddress(0, 0)).getAddress(), primaryAddress);
   });
   
-  it("Can get an integrated address", async function() {
-    throw new Error("Not implemented");
+  it("Can get an integrated address given a payment id", async function() {
+    
+    // save address for later comparison
+    let address = (await wallet.getSubaddress(0, 0)).getAddress();
+    
+    // test valid payment id
+    let paymentId = "03284e41c342f036";
+    let integratedAddress = await wallet.getIntegratedAddress(paymentId);
+    assert.equal(address, integratedAddress.getStandardAddress());
+    assert.equal(paymentId, integratedAddress.getPaymentId());
+    
+    // test invalid payment id
+    try {
+      let invalidPaymentId = "invalid_payment_id_123456";
+      integratedAddress = await wallet.getIntegratedAddress(invalidPaymentId);
+      fail("Getting integrated address with invalid payment id " + invalidPaymentId + " should have thrown a RPC exception");
+    } catch (e) {
+      assert.equal(-5, e.getRpcCode());
+      assert.equal("Invalid payment ID", e.getRpcMessage());
+    }
+    
+    // test null payment id which generates a new one
+    integratedAddress = await wallet.getIntegratedAddress(null);
+    assert.equal(address, integratedAddress.getStandardAddress());
+    assert(integratedAddress.getPaymentId().length);
   });
   
-  it("Can decode an integrated address given a payment id", async function() {
+  it("Can decode an integrated address", async function() {
     let integratedAddress = await wallet.getIntegratedAddress("03284e41c342f036");
     let decodedAddress = await wallet.decodeIntegratedAddress(integratedAddress.toString());
     assert.deepEqual(integratedAddress, decodedAddress);

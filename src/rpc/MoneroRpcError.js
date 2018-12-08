@@ -21,7 +21,7 @@ class MoneroRpcError extends Error {
     return this.rpcCode;
   }
   
-  getMessage() {
+  getRpcMessage() {
     return this.rpcMessage;
   }
   
