@@ -1,6 +1,7 @@
 const assert = require("assert");
 const MoneroRpc = require("../rpc/MoneroRpc");
 const MoneroWallet = require("./MoneroWallet");
+const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
 const MoneroSubaddress = require("./model/MoneroSubaddress");
 
 /**
@@ -53,8 +54,15 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getIntegratedAddress(paymentId) {
-    throw new Error("Not implemented");
+    let integratedAddressStr = (await this.config.rpc.sendJsonRpcRequest("make_integrated_address", {payment_id: paymentId})).integrated_address;
+    return await this.decodeIntegratedAddress(integratedAddressStr);
   }
+  
+  async decodeIntegratedAddress(integratedAddress) {
+    let resp = await this.config.rpc.sendJsonRpcRequest("split_integrated_address", {integrated_address: integratedAddress});
+    return new MoneroIntegratedAddress(resp.standard_address, resp.payment_id, integratedAddress);
+  }
+  
   async getAccounts(includeSubaddresses, tag) {
     throw new Error("Subclass must implement");
   }

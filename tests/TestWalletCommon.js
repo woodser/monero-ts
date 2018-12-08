@@ -49,10 +49,14 @@ function testWallet(wallet, daemon) {
     assert.equal((await wallet.getSubaddress(0, 0)).getAddress(), primaryAddress);
   });
   
-  it("Can get an integrated address given a payment id", async function() {
+  it("Can get an integrated address", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can decode an integrated address given a payment id", async function() {
     let integratedAddress = await wallet.getIntegratedAddress("03284e41c342f036");
     let decodedAddress = await wallet.decodeIntegratedAddress(integratedAddress.toString());
-    assert.deeqpEquals(integratedAddress, decodedAddress);
+    assert.deepEqual(integratedAddress, decodedAddress);
   });
   
   it("Can get all accounts in the wallet without subaddresses", async function() {
