@@ -60,7 +60,7 @@ class MoneroAccount {
   setSubaddresses(subaddresses) {
     this.json.subaddresses = subaddresses;
     if (subaddresses != null) {
-      for (subaddress of subaddresses) {
+      for (let subaddress of subaddresses) {
         subaddress.setAccountIndex(this.json.index);
       }
     }

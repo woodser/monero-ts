@@ -1,4 +1,5 @@
 const assert = require("assert");
+const GenUtils = require("../utils/GenUtils");
 const MoneroRpc = require("../rpc/MoneroRpc");
 const MoneroWallet = require("./MoneroWallet");
 const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
@@ -78,7 +79,7 @@ class MoneroWalletRpc extends MoneroWallet {
     for (let account of await this.getAccounts()) {
       unlockedBalance = unlockedBalance.add(account.getUnlockedBalance());
     }
-    return balance;
+    return unlockedBalance;
   }
   
   async getAccounts(includeSubaddresses, tag) {

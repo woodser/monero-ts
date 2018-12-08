@@ -93,6 +93,8 @@ class GenUtils {
   /**
    * Indicates if the given argument is an array.
    * 
+   * TODO: remove this entirely since just a direct wrapper?
+   * 
    * @param arg is the argument to test as being an array
    * @returns true if the argument is an array, false otherwise
    */
@@ -401,7 +403,7 @@ class GenUtils {
    * @param msg is the message to throw if the argument is not an array
    */
   static assertArray(arg, msg) {
-    if (!isArray(arg)) throw new Error(msg ? msg : "Argument asserted as an array but is not an array");
+    if (!GenUtils.isArray(arg)) throw new Error(msg ? msg : "Argument asserted as an array but is not an array");
   }
 
   /**
@@ -566,7 +568,7 @@ class GenUtils {
    * @returns an array which is the given arg if it's an array or an array with the given arg as an element
    */
   static listify(arrOrElem) {
-    return isArray(arrOrElem) ? arrOrElem : [arrOrElem];
+    return GenUtils.isArray(arrOrElem) ? arrOrElem : [arrOrElem];
   }
 
   /**
@@ -577,7 +579,7 @@ class GenUtils {
    * @returns true if the array contains the object, false otherwise
    */
   static arrayContains(arr, obj) {
-    assertTrue(isArray(arr));
+    assertTrue(GenUtils.isArray(arr));
     for (let i = 0; i < arr.length; i++) {
       if (equals(arr[i], obj)) return true;
     }
@@ -608,8 +610,8 @@ class GenUtils {
     if (arr1 == null || arr2 == null) return false;
     if (typeof arr1 === 'undefined' && typeof arr2 === 'undefined') return true;
     if (typeof arr1 === 'undefined' || typeof arr2 === 'undefined') return false;
-    if (!isArray(arr1)) throw new Error("First argument is not an array");
-    if (!isArray(arr2)) throw new Error("Second argument is not an array");
+    if (!GenUtils.isArray(arr1)) throw new Error("First argument is not an array");
+    if (!GenUtils.isArray(arr2)) throw new Error("Second argument is not an array");
     if (arr1.length != arr2.length) return false;
     for (let i = 0; i < arr1.length; ++i) {
       if (!equals(arr1[i], arr2[i])) return false;
@@ -625,7 +627,7 @@ class GenUtils {
    * @returns true if the arguments are deep equals, false otherwise
    */
   static equals(arg1, arg2) {
-    if (isArray(arg1) && isArray(arg2)) return arraysEqual(arg1, arg2);
+    if (GenUtils.isArray(arg1) && GenUtils.isArray(arg2)) return arraysEqual(arg1, arg2);
     if (isObject(arg1) && isObject(arg2)) return objectsEqual(arg1, arg2);
     return arg1 === arg2;
   }
@@ -1032,7 +1034,7 @@ class GenUtils {
   static getImages(paths, onDone) {
     
     // listify paths
-    if (!isArray(paths)) {
+    if (!GenUtils.isArray(paths)) {
       assertTrue(isString(paths));
       paths = [paths];
     }

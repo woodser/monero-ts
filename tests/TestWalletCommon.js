@@ -83,10 +83,11 @@ function testWallet(wallet, daemon) {
     assert(typeof resp.received_money === "boolean");
   });
   
-  it("Can get the the balance and unlocked balance", async function() {
+  it("Can get the balance and unlocked balance", async function() {
     let balance = await wallet.getBalance();
-    testBigInteger(balance);
-    throw new Error("Not implemented");
+    testUnsignedBigInteger(balance);
+    let unlockedBalance = await wallet.getUnlockedBalance();
+    testUnsignedBigInteger(unlockedBalance);
   });
   
   it("Can get all accounts in the wallet without subaddresses", async function() {
@@ -112,7 +113,7 @@ function testWallet(wallet, daemon) {
     let accounts = await wallet.getAccounts();
     assert(accounts.length > 0);
     for (let account of accounts) {
-      testAccount(retrieved);
+      testAccount(account);
       
       // test without subaddresses
       let retrieved = await wallet.getAccount(account.getIndex());
@@ -182,7 +183,7 @@ function testWallet(wallet, daemon) {
       let fetchedSubaddresses = await wallet.getSubaddresses(account.getIndex(), subaddressIndices);
       
       // original subaddresses (minus one removed if applicable) is equal to fetched subaddresses
-      assert.deeqEqual(subaddresses, fetchedSubaddresses);
+      assert.deepEqual(subaddresses, fetchedSubaddresses);
     }
   });
   
@@ -193,8 +194,8 @@ function testWallet(wallet, daemon) {
       let subaddresses = await wallet.getSubaddresses(account.getIndex());
       assert(subaddresses.length > 0);
       for (let subaddress of subaddresses) {
-        assert.deeqEqual(subaddress, await wallet.getSubaddress(account.getIndex(), subaddress.getSubaddrIndex()));
-        assert.deeqEqual(subaddress, await wallet.getSubaddresses(account.getIndex(), subaddress.getSubaddrIndex())); // test plural call with single subaddr number
+        assert.deepEqual(subaddress, await wallet.getSubaddress(account.getIndex(), subaddress.getSubaddrIndex()));
+        assert.deepEqual(subaddress, (await wallet.getSubaddresses(account.getIndex(), subaddress.getSubaddrIndex()))[0]); // test plural call with single subaddr number
       }
     }
   });
@@ -242,9 +243,9 @@ function testWallet(wallet, daemon) {
     
     // get wallet balances
     let balance = await wallet.getBalance();
-    testBigInteger(balance);
+    testUnsignedBigInteger(balance);
     let unlockedBalance = await wallet.getUnlockedBalance();
-    testBigInteger(unlockedBalance);
+    testUnsignedBigInteger(unlockedBalance);
     assert(balance >= unlockedBalance);
     
     // get wallet accounts and subaddresses
@@ -348,14 +349,16 @@ function testWallet(wallet, daemon) {
   });
 }
 
-function testBigInteger(amt) {
-  assert(amt);
-  assert(amt instanceof BigInteger);
-  assert(amt.toInt() > 0);
-  throw new Error("Not implelmented");
+function testUnsignedBigInteger(num) {
+  assert(num instanceof BigInteger);
+  assert(num.toJSValue() >= 0);
 }
 
 function testAccount(account) {
+  throw new Error("Not implemented");
+}
+
+function testSubaddress(subaddress) {
   throw new Error("Not implemented");
 }
 
