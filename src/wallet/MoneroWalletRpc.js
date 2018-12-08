@@ -5,6 +5,7 @@ const MoneroWallet = require("./MoneroWallet");
 const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
 const MoneroAccount = require("./model/MoneroAccount");
 const MoneroSubaddress = require("./model/MoneroSubaddress");
+const MoneroTxFilter = require("./model/MoneroTxFilter");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
@@ -229,7 +230,7 @@ class MoneroWalletRpc extends MoneroWallet {
       filter = new MoneroTxFilter();
       filter.setAccountIndex(filterOrAccountIdx);
       if (subaddressIdx !== undefined) assert(subaddressIdx >= 0, "Subaddress must be >= 0 but was " + subaddressIdx);
-      filter.setSubaddrIndex(subaddressIdx);
+      filter.setSubaddressIndices([subaddressIdx]);
     } else throw new Error("First parameter must be MoneroTxFilter or account index >= 0 but was " + filterOrAccountIdx);
     
     

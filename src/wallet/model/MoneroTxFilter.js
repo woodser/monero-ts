@@ -5,7 +5,13 @@ class MoneroTxFilter {
   
   // constructs with defaults
   constructor() {
-    throw new Error("Not implemented");
+    this.json = {};
+    this.json.incoming = true;
+    this.json.outgoing = true;
+    this.json.confirmed = true;
+    this.json.pending = true;
+    this.json.relayed = true;
+    this.json.failed = true;
   }
   
   getIncoming() {
@@ -113,4 +119,4 @@ class MoneroTxFilter {
   }
 }
 
-modules.export = MoneroTxFilter;
+module.exports = MoneroTxFilter;

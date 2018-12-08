@@ -1,7 +1,7 @@
 const MoneroTx = require("../../daemon/model/MoneroTx");
 
 /**
- * Models a Monero transaction with additional fields known to wallet.
+ * Models a Monero transaction with additional fields in the context of a wallet.
  */
 class MoneroWalletTx extends MoneroTx {
   
