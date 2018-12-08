@@ -218,6 +218,10 @@ class MoneroWalletRpc extends MoneroWallet {
     return address;
   }
   
+  async getTxs(filterOrAccountIdx, subaddressIdx) {
+    throw new Error("Not implemented");
+  }
+  
   // -------------------------- SPECIFIC TO RPC WALLET ------------------------
   
   async createWallet(filename, password, language) {
