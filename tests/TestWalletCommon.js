@@ -2,6 +2,7 @@ const assert = require("assert");
 const TestUtils = require("./TestUtils");
 const GenUtils = require("../src/utils/GenUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
+const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
  * Runs common tests that any Monero wallet should implement.
@@ -175,8 +176,6 @@ function testWallet(wallet, daemon) {
       
       // get subaddress indices
       let subaddressIndices = subaddresses.map(subaddress => subaddress.getSubaddrIndex());
-      console.log("JUST CHECKING");
-      console.log(subaddressIndices);
       assert(subaddressIndices.length > 0);
       
       // fetch subaddresses by indices
@@ -354,6 +353,10 @@ function testBigInteger(amt) {
   assert(amt instanceof BigInteger);
   assert(amt.toInt() > 0);
   throw new Error("Not implelmented");
+}
+
+function testAccount(account) {
+  throw new Error("Not implemented");
 }
 
 module.exports.testWallet = testWallet;

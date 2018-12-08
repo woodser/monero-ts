@@ -2,6 +2,7 @@ const assert = require("assert");
 const MoneroRpc = require("../rpc/MoneroRpc");
 const MoneroWallet = require("./MoneroWallet");
 const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
+const MoneroAccount = require("./model/MoneroAccount");
 const MoneroSubaddress = require("./model/MoneroSubaddress");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
@@ -81,7 +82,25 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getAccounts(includeSubaddresses, tag) {
-    throw new Error("Not implemented");
+    
+    // fetch accounts
+    let resp = await this.config.rpc.sendJsonRpcRequest("get_accounts", {tag: tag});
+    
+    // build account objects
+    let accounts = [];
+    for (let respAccount of resp.subaddress_accounts) {
+      let accountIdx = respAccount.account_index;
+      let balance = new BigInteger(respAccount.balance);
+      let unlockedBalance = new BigInteger(respAccount.unlocked_balance);
+      let primaryAddress = respAccount.base_address;
+      let label = respAccount.label;
+      let account = new MoneroAccount(accountIdx, primaryAddress, label, balance, unlockedBalance, null);
+      if (includeSubaddresses) account.setSubaddresses(await this.getSubaddresses(accountIdx));
+      accounts.push(account);
+    }
+    
+    // return accounts
+    return accounts;
   }
   
   async getAccount(accountIdx, includeSubaddresses) {

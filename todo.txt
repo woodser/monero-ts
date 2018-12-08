@@ -21,6 +21,7 @@ license headers
 tx hex returned from rpc api even if not needed
 remove text-encoding dependency
 package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
+JS now has native BigInt class which could be used instead of current BigInteger
 
 RPC SUGGESTED IMPOVEMENTS
 /get_transactions returns duplicate data per transaction
