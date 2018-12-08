@@ -292,11 +292,11 @@ function testWallet(wallet, daemon) {
     throw new Error("Not implemented");
   });
   
-  it("Can get and set a transactions note", async function() {
+  it("Can get and set a transaction note", async function() {
     throw new Error("Not implemented");
   });
   
-  it("Can get and set multiple transactions notes", async function() {
+  it("Can get and set multiple transaction notes", async function() {
     throw new Error("Not implemented");
   });
   
