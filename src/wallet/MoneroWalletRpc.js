@@ -9,6 +9,8 @@ const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/bigi
 
 /**
  * Implements a Monero wallet using monero-wallet-rpc.
+ * 
+ * TODO: remember to clear the address the cache on stop wallet
  */
 class MoneroWalletRpc extends MoneroWallet {
   
@@ -25,6 +27,9 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // initialize rpc if not given
     if (!this.config.rpc) this.config.rpc = new MoneroRpc(config);
+    
+    // initialize address cache to avoid unecessary requests for addresses
+    this.addressCache = {};
   }
   
   async getHeight() {
@@ -161,15 +166,15 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
     
-    // cache addresses TODO
-//    Map<Integer, String> subaddressMap = addressCache.get(accountIdx);
-//    if (subaddressMap == null) {
-//      subaddressMap = new HashMap<Integer, String>();
-//      addressCache.put(accountIdx, subaddressMap);
-//    }
-//    for (MoneroSubaddress subaddress : subaddresses) {
-//      subaddressMap.put(subaddress.getSubaddrIndex(), subaddress.getAddress());
-//    }
+    // cache addresses
+    let subaddressMap = this.addressCache[accountIdx];
+    if (!subaddressMap) {
+      subaddressMap = {};
+      this.addressCache[accountIdx] = subaddressMap;
+    }
+    for (let subaddress of subaddresses) {
+      subaddressMap[subaddress.getSubaddrIndex()] = subaddress.getAddress();
+    }
     
     // return results
     return subaddresses;
@@ -200,7 +205,17 @@ class MoneroWalletRpc extends MoneroWallet {
   }
 
   async getAddress(accountIdx, subaddressIdx) {
-    throw new Error("Not implemented");
+    let subaddressMap = this.addressCache[accountIdx];
+    if (!subaddressMap) {
+      await this.getSubaddresses(accountIdx);             // cache's all addresses at this account
+      return this.getAddress(accountIdx, subaddressIdx);  // uses cache
+    }
+    let address = subaddressMap[subaddressIdx];
+    if (!address) {
+      await this.getSubaddresses(accountIdx);             // cache's all addresses at this account
+      return this.getAddress(accountIdx, subaddressIdx);  // uses cache
+    }
+    return address;
   }
   
   // -------------------------- SPECIFIC TO RPC WALLET ------------------------
@@ -218,7 +233,8 @@ class MoneroWalletRpc extends MoneroWallet {
     if (!password) throw new Error("Password is not initialized");
     let params = { filename: filename, password: password };
     await this.config.rpc.sendJsonRpcRequest("open_wallet", params);
-    //adressCache.clear();  // TODO: for when you're at the point of caching addresses
+    delete this.addressCache;
+    this.addressCache = {};
   }
   
   async rescanSpent() {
