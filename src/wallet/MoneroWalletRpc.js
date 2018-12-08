@@ -105,7 +105,14 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getAccount(accountIdx, includeSubaddresses) {
-    throw new Error("Not implemented");
+    assert(accountIdx >= 0);
+    for (let account of await this.getAccounts()) {
+      if (account.getIndex() === accountIdx) {
+        if (includeSubaddresses) account.setSubaddresses(await this.getSubaddresses(accountIdx));
+        return account;
+      }
+    }
+    throw new Exception("Account with index " + accountIdx + " does not exist");
   }
 
   async createAccount(label) {
