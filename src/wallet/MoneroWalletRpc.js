@@ -116,7 +116,8 @@ class MoneroWalletRpc extends MoneroWallet {
   }
 
   async createAccount(label) {
-    throw new Error("Not implemented");
+    let resp = await this.config.rpc.sendJsonRpcRequest("create_account", {label: label});
+    return new MoneroAccount(resp.account_index, resp.address, label, new BigInteger(0), new BigInteger(0));
   }
 
   async getSubaddresses(accountIdx, subaddressIndices) {
@@ -181,7 +182,21 @@ class MoneroWalletRpc extends MoneroWallet {
   }
 
   async createSubaddress(accountIdx, label) {
-    throw new Error("Not implemented");
+    
+    // send request
+    let resp = await this.config.rpc.sendJsonRpcRequest("create_address", {account_index: accountIdx, label: label});
+    
+    // build subaddress object
+    let subaddress = new MoneroSubaddress();
+    subaddress.setAccountIndex(accountIdx);
+    subaddress.setSubaddrIndex(resp.address_index);
+    subaddress.setAddress(resp.address);
+    subaddress.setLabel(label ? label : "");
+    subaddress.setBalance(new BigInteger(0));
+    subaddress.setUnlockedBalance(new BigInteger(0));
+    subaddress.setNumUnspentOutputs(0);
+    subaddress.setIsUsed(false);
+    return subaddress;
   }
 
   async getAddress(accountIdx, subaddressIdx) {

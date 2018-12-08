@@ -129,7 +129,7 @@ function testWallet(wallet, daemon) {
     let createdAccount = await wallet.createAccount();
     testAccount(createdAccount);
     assert(createdAccount.getLabel() === undefined);
-    assert(accountsBefore.length === (await wallet.getAccounts().size()) - 1);
+    assert(accountsBefore.length === (await wallet.getAccounts()).length - 1);
   });
   
   it("Can create a new account with a label", async function() {
@@ -140,13 +140,13 @@ function testWallet(wallet, daemon) {
     let createdAccount = await wallet.createAccount(label);
     testAccount(createdAccount);
     assert(createdAccount.getLabel() === label);
-    assert(accountsBefore.length === (await wallet.getAccounts().size()) - 1);
+    assert(accountsBefore.length === (await wallet.getAccounts()).length - 1);
 
     // create account with same label
     createdAccount = await wallet.createAccount(label);
     testAccount(createdAccount);
     assert(createdAccount.getLabel() === label);
-    assert(accountsBefore.length === (await wallet.getAccounts().size()) - 2);
+    assert(accountsBefore.length === (await wallet.getAccounts()).length - 2);
   });
   
   it("Can get subaddresses at a specified account index", async function() {
@@ -215,7 +215,7 @@ function testWallet(wallet, daemon) {
       testSubaddress(subaddress);
       let subaddressesNew = await wallet.getSubaddresses(accountIdx);
       assert.equal(subaddresses.length, subaddressesNew.length - 1);
-      assert.deepEqual(subaddress, subaddressesNew.get(subaddressesNew.size() - 1));
+      assert.deepEqual(subaddress, subaddressesNew[subaddressesNew.length - 1]);
       
       // create subaddress with label
       subaddresses = await wallet.getSubaddresses(accountIdx);
@@ -225,7 +225,7 @@ function testWallet(wallet, daemon) {
       testSubaddress(subaddress);
       subaddressesNew = await wallet.getSubaddresses(accountIdx);
       assert.equal(subaddresses.length, subaddressesNew.length - 1);
-      assert.equals(subaddress, subaddressesNew.get(subaddressesNew.length - 1));
+      assert.deepEqual(subaddress, subaddressesNew[subaddressesNew.length - 1]);
     }
   });
   

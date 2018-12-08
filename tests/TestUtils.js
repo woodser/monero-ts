@@ -78,7 +78,7 @@ TestUtils.WALLET_RPC_CONFIG = {
   port: 38083,
   user: "rpc_user",
   pass: "abc123",
-  requestsPerSecond: 100
+  requestsPerSecond: 30
 };
 
 // wallet rpc wallet filenames and passwords
