@@ -271,10 +271,10 @@ function testWallet(wallet, daemon) {
 //    assert.equal(walletBalance.toJSValue(), accountsBalance.toJSValue());
 //    assert.equal(walletUnlockedBalance.toJSValue(), accountsUnlockedBalance.toJSValue());
 //  });
-  
-  it("Has a balance that is the sum of all unspent incoming transactions", async function() {
-    throw new Error("Not implemented");
-  });
+//  
+//  it("Has a balance that is the sum of all unspent incoming transactions", async function() {
+//    throw new Error("Not implemented");
+//  });
   
   it("Can get transactions pertaining to the wallet", async function() {
     let nonDefaultIncoming = false;

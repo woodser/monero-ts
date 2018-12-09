@@ -254,6 +254,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.pool = filter.getIncoming() && filter.getMempool();
     params.pending = filter.getOutgoing() && filter.getMempool();
     params.failed = filter.getOutgoing() && filter.getFailed();
+    params.filter_by_height = filter.getMinHeight() !== undefined || filter.getMaxHeight() !== undefined;
     if (filter.getMinHeight() !== undefined) params.min_height = filter.getMinHeight();
     if (filter.getMaxHeight() !== undefined) params.max_height = filter.getMaxHeight();
     
@@ -262,7 +263,14 @@ class MoneroWalletRpc extends MoneroWallet {
       params.account_index = accountIdx;
       params.subaddr_indices = indices.get(accountIdx);
       let resp = await this.config.rpc.sendJsonRpcRequest("get_transfers", params);
-      console.log(resp);
+      //console.log(resp);
+      for (let key of Object.keys(resp)) {
+//        let tx = MoneroWalletRpc._rpcTxToMoneroTx(resp[key]);
+//        if (tx.isIncoming()) {  // TODO: switch to MoneroIncomingTx, MoneroOutgoingTx
+//          
+//        }
+        //console.log(key + ": " + JSON.stringify(resp[key]));
+      }
     }
     
     

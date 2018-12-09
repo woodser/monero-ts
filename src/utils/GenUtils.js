@@ -729,7 +729,7 @@ class GenUtils {
    */
   static deleteProperties(obj) {
     let props = [];
-    for (let prop in obj) props.push(prop);
+    for (let prop in obj) props.push(prop); // TODO: if (obj.hasOwnProperty(prop)) { ...
     for (i = 0; i < props.length; i++) delete obj[props[i].toString()];
   }
 
