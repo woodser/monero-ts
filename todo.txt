@@ -1,6 +1,5 @@
 TODO
 sending too many rpc requests to compose object model... need to make sacrafices until rpc api improved
-move mymonero submodule to different local to enable searching across your src code
 time profiling
 BooleanSet -> UnboundedBooleanArray?
 standardize getTxCount() vs getNumTxs() and other name standardizing
