@@ -5,117 +5,116 @@ class MoneroTxFilter {
   
   // constructs with defaults
   constructor() {
-    this.json = {};
-    this.json.incoming = true;
-    this.json.outgoing = true;
-    this.json.confirmed = true;
-    this.json.pending = true;
-    this.json.relayed = true;
-    this.json.failed = true;
+    this.incoming = true;
+    this.outgoing = true;
+    this.confirmed = true;
+    this.mempool = true;
+    this.relayed = true;
+    this.failed = true;
   }
   
   getIncoming() {
-    return this.json.incoming;
+    return this.incoming;
   }
   
   setIncoming(incoming) {
-    this.json.incoming = incoming;
+    this.incoming = incoming;
   }
   
   getOutgoing() {
-    return this.json.outgoing;
+    return this.outgoing;
   }
   
   setOutgoing(outgoing) {
-    this.json.outgoing = outgoing;
+    this.outgoing = outgoing;
   }
   
   getConfirmed() {
-    return this.json.confirmed;
+    return this.confirmed;
   }
   
   setConfirmed(confirmed) {
-    this.json.confirmed = confirmed;
+    this.confirmed = confirmed;
   }
   
   getPending() {
-    return this.json.pending;
+    return this.pending;
   }
   
   setPending(pending) {
-    this.json.pending = pending;
+    this.pending = pending;
   }
   
   getRelayed() {
-    return this.json.relayed;
+    return this.relayed;
   }
   
   setRelayed(relayed) {
-    this.json.relayed = relayed;
+    this.relayed = relayed;
   }
   
   getFailed() {
-    return this.json.failed;
+    return this.failed;
   }
   
   setFailed(failed) {
-    return this.json.failed = failed;
+    return this.failed = failed;
   }
 
   getMinHeight() {
-    return this.json.minHeight;
+    return this.minHeight;
   }
 
   setMinHeight(minHeight) {
-    this.json.minHeight = minHeight;
+    this.minHeight = minHeight;
   }
 
   getMaxHeight() {
-    return this.json.maxHeight;
+    return this.maxHeight;
   }
 
   setMaxHeight(maxHeight) {
-    this.json.maxHeight = maxHeight;
+    this.maxHeight = maxHeight;
   }
 
   getAccountIndex() {
-    return this.json.accountIndex;
+    return this.accountIndex;
   }
 
   setAccountIndex(accountIndex) {
-    this.json.accountIndex = accountIndex;
+    this.accountIndex = accountIndex;
   }
 
   getSubaddressIndices() {
-    return this.json.subaddressIndices;
+    return this.subaddressIndices;
   }
 
   setSubaddressIndices(subaddressIndices) {
-    this.json.subaddressIndices = subaddressIndices;
+    this.subaddressIndices = subaddressIndices;
   }
 
   getTxIds() {
-    return this.json.txIds;
+    return this.txIds;
   }
 
   setTxIds(txIds) {
-    this.json.txIds = txIds;
+    this.txIds = txIds;
   }
 
   getPaymentIds() {
-    return this.json.paymentIds;
+    return this.paymentIds;
   }
 
   setPaymentIds(CpaymentIds) {
-    this.json.paymentIds = paymentIds;
+    this.paymentIds = paymentIds;
   }
 
   getHasPayments() {
-    return this.json.hasPayments;
+    return this.hasPayments;
   }
 
   setHasPayments(hasPayments) {
-    this.json.hasPayments = hasPayments;
+    this.hasPayments = hasPayments;
   }
 }
 

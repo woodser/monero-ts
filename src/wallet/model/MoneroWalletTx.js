@@ -70,4 +70,18 @@ class MoneroWalletTx extends MoneroTx {
   }
 }
 
+//incoming or outgoing tx relative to the wallet
+MoneroWalletTx.Type = {
+    INCOMING: 0,
+    OUTGOING: 1
+}
+
+// state of the transaction
+MoneroWalletTx.State = {
+    CONFIRMED: 0
+    MEMPOOL: 1,
+    NOT_RELAYED: 2,
+    FAILED: 3
+}
+
 module.exports = MoneroWalletTx;

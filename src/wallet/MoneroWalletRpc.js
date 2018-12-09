@@ -229,11 +229,38 @@ class MoneroWalletRpc extends MoneroWallet {
     } else if (filterOrAccountIdx >= 0 || filterOrAccountIdx === undefined) {
       filter = new MoneroTxFilter();
       filter.setAccountIndex(filterOrAccountIdx);
-      if (subaddressIdx !== undefined) assert(subaddressIdx >= 0, "Subaddress must be >= 0 but was " + subaddressIdx);
-      filter.setSubaddressIndices([subaddressIdx]);
+      if (subaddressIdx !== undefined) {
+        assert(subaddressIdx >= 0, "Subaddress must be >= 0 but was " + subaddressIdx);
+        filter.setSubaddressIndices([subaddressIdx]);
+      }
     } else throw new Error("First parameter must be MoneroTxFilter or account index >= 0 but was " + filterOrAccountIdx);
     
+    // stores merged txs across calls
+    let txs = [];
     
+    // determine account and subaddress indices to be queried
+    let indices = new Map();
+    if (filter.getAccountIndex() !== undefined) {
+      indices.put(filter.getAccountIndex(), filter.getSubaddressIndices() ? await this.getSubaddressIndices(filter.getAccountIndex()) : GenUtils.copyArray(filter.getSubaddressIndices()));
+    } else {
+      if (filter.getSubaddressIndices() !== undefined) throw new Error("Filter specifies subaddress indices but not an account index");
+      indicies = await this._getAllAccountAndSubaddressIndices();
+    }
+    
+    // build common params for get_transfers
+    let params = {};
+    params.in = filter.getIncoming() && filter.getConfirmed();
+    params.out = filter.getOutgoing() && filter.getConfirmed();
+    params.pool = filter.getIncoming() && filter.getMempool();
+    params.pending = filter.getOutgoing() && filter.getMempool();
+    params.failed = filter.getOutgoing() && filter.getFailed();
+    if (filter.getMinHeight() !== undefined) params.min_height = filter.getMinHeight();
+    if (filter.getMaxHeight() !== undefined) params.max_height = filter.getMaxHeight();
+    
+    // get transactions using get_transfers
+    for (let accountIdx of indices.keys()) {
+      console.log("Account index: " + accountIdx);
+    }
     
     
 //    // stores merged txs across calls
@@ -354,6 +381,23 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async rescanSpent() {
     await this.config.rpc.sendJsonRpcRequest("rescan_spent", null);
+  }
+  
+  // --------------------------------  PRIVATE --------------------------------
+  
+  async _getAllAccountAndSubaddressIndices() {
+    let indices = new Map();
+    for (let account of await this.getAccounts()) {
+      indicies.put(account.getIndex(), await this._getSubaddressIndices(account.getIndex()));
+    }
+    return indices;
+  }
+  
+  async _getSubaddressIndices(accountIdx) {
+    let subaddressIndices = [];
+    let resp = await this.config.rpc.sendJsonRpcRequest("get_address", {account_index: accountIdx});
+    for (let address of resp.address) subaddressIndices.add(address.address_index);
+    return subaddressIndices;
   }
 }
 
