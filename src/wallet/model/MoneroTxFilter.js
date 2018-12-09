@@ -5,12 +5,12 @@ class MoneroTxFilter {
   
   // constructs with defaults
   constructor() {
-    this.incoming = true;
-    this.outgoing = true;
-    this.confirmed = true;
-    this.mempool = true;
-    this.relayed = true;
-    this.failed = true;
+    this.incoming = true;   // tx is incoming to the wallet
+    this.outgoing = true;   // tx is outgoing from the wallet
+    this.confirmed = true;  // tx is confirmed
+    this.mempool = true;    // tx is in mempool
+    this.relayed = true;    // tx is relayed  // TODO: test fetching transactions with this value, throw exception?
+    this.failed = true;     // tx has failed
   }
   
   getIncoming() {
@@ -37,12 +37,12 @@ class MoneroTxFilter {
     this.confirmed = confirmed;
   }
   
-  getPending() {
-    return this.pending;
+  getMempool() {
+    return this.mempool;
   }
   
-  setPending(pending) {
-    this.pending = pending;
+  setMempool(mempool) {
+    this.mempool = mempool;
   }
   
   getRelayed() {

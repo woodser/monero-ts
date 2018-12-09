@@ -26,6 +26,7 @@
  * Collection of general purpose utilities.
  * 
  * TODO: could pull in assert and remove these asserts
+ * TODO: needs cleanup as ES6+ utility class
  */
 class GenUtils {
   
@@ -299,7 +300,7 @@ class GenUtils {
    * @param msg is the message to throw if arg is undefined (optional)
    */
   static assertDefined(arg, msg) {
-    if (isUndefined(arg)) throw new Error(msg ? msg : "Argument asserted as defined but was undefined");
+    if (GenUtils.isUndefined(arg)) throw new Error(msg ? msg : "Argument asserted as defined but was undefined");
   }
 
   /**
@@ -309,7 +310,7 @@ class GenUtils {
    * @param msg is the message to throw if arg is defined (optional)
    */
   static assertUndefined(arg, msg) {
-    if (isDefined(arg)) throw new Error(msg ? msg : "Argument asserted as undefined but was defined: " + arg);
+    if (GenUtils.isDefined(arg)) throw new Error(msg ? msg : "Argument asserted as undefined but was defined: " + arg);
   }
 
   /**
@@ -319,7 +320,7 @@ class GenUtils {
    * @param msg is the message to throw if arg is not initialized (optional)
    */
   static assertInitialized(arg, msg) {
-    if (this.isUninitialized(arg)) {
+    if (GenUtils.isUninitialized(arg)) {
       throw new Error(msg ? msg : "Argument asserted as initialized but was " + arg);
     }
   }
@@ -331,7 +332,7 @@ class GenUtils {
    * @param msg is the message to throw if arg is initialized (optional)
    */
   static assertUninitialized(arg, msg) {
-    if (isInitialized(arg)) throw new Error(msg ? msg : "Argument asserted as uninitialized but was initialized");
+    if (GenUtils.isInitialized(arg)) throw new Error(msg ? msg : "Argument asserted as uninitialized but was initialized");
   }
 
   /**
@@ -342,7 +343,7 @@ class GenUtils {
    * @param msg is the message to throw if the arguments are not equal
    */
   static assertEquals(arg1, arg2, msg) {
-    assertTrue(equals(arg1, arg2), msg ? msg : "Arguments asserted as equal but are not equal: " + arg1 + " vs " + arg2);
+    GenUtils.assertTrue(equals(arg1, arg2), msg ? msg : "Arguments asserted as equal but are not equal: " + arg1 + " vs " + arg2);
   }
 
   /**
@@ -363,7 +364,7 @@ class GenUtils {
    * @param msg is the message to throw if the argument is not an integer
    */
   static assertInt(arg, msg) {
-    if (!isInt(arg)) throw new Error(msg ? msg : "Argument asserted as an integer but is not an integer");
+    if (!GenUtils.isInt(arg)) throw new Error(msg ? msg : "Argument asserted as an integer but is not an integer");
   }
 
   /**
@@ -373,7 +374,7 @@ class GenUtils {
    * @param msg is the message to throw if the argument is not a number
    */
   static assertNumber(arg, msg) {
-    if (!isNumber(arg)) throw new Error(msg ? msg : "Argument asserted as a number but is not a number");
+    if (!GenUtils.isNumber(arg)) throw new Error(msg ? msg : "Argument asserted as a number but is not a number");
   }
 
   /**
@@ -383,7 +384,7 @@ class GenUtils {
    * @param msg is the message to throw if the argument is not a boolean
    */
   static assertBoolean(arg, msg) {
-    if (!isBoolean(arg)) throw new Error(msg ? msg : "Argument asserted as a boolean but is not a boolean");
+    if (!GenUtils.isBoolean(arg)) throw new Error(msg ? msg : "Argument asserted as a boolean but is not a boolean");
   }
 
   /**
@@ -393,7 +394,7 @@ class GenUtils {
    * @param msg is the message to throw if the argument is not a string
    */
   static assertString(arg, msg) {
-    if (!isString(arg)) throw new Error(msg ? msg : "Argument asserted as a string but is not a string: " + arg);
+    if (!GenUtils.isString(arg)) throw new Error(msg ? msg : "Argument asserted as a string but is not a string: " + arg);
   }
 
   /**
@@ -413,7 +414,7 @@ class GenUtils {
    * @param msg is the message to throw if the argument is not a static
    */
   static assertFunction(arg, msg) {
-    if (!isFunction(arg)) throw new Error(msg ? msg : "Argument asserted as a static but is not a static");
+    if (!GenUtils.isFunction(arg)) throw new Error(msg ? msg : "Argument asserted as a static but is not a static");
   }
 
   /**
@@ -424,7 +425,7 @@ class GenUtils {
    * @param msg is the message to throw if the argument is not the specified object
    */
   static assertObject(arg, obj, msg) {
-    assertInitialized(arg, msg);
+    GenUtils.assertInitialized(arg, msg);
     if (obj) {
       if (!isObject(arg, obj)) throw new Error(msg ? msg : "Argument asserted as object '" + obj.name + "' but was not");
     } else {
@@ -541,7 +542,7 @@ class GenUtils {
    * @returns a copy of the given array
    */
   static copyArray(arr) {
-    assertArray(arr);
+    GenUtils.assertArray(arr);
     let copy = [];
     for (let i = 0; i < arr.length; i++) copy.push(arr[i]);
     return copy;

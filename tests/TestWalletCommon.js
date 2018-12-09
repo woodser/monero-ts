@@ -294,118 +294,118 @@ function testWallet(wallet, daemon) {
     assert(nonDefaultIncoming, "No incoming transactions found in non-default account and subaddress; run testSendToMultiple() first");
   });
   
-  it("Can get transactions pertaining to an account", async function() {
-    let nonDefaultIncoming = false;
-    for (let account of await wallet.getAccounts()) {
-      let = await wallet.getTxs(account.getIndex());
-      for (let tx of txs) {
-        testGetTx(tx, null, wallet);
-        if (MoneroUtils.isOutgoing(tx.getType())) {
-          assert.equal(account.getIndex(), tx.getSrcAccountIndex());
-        } else {
-          for (let payment of tx.getPayments()) {
-            assert.equal(account.getIndex(), payment.getAccountIndex());
-            if (payment.getAccountIndex() !== 0 && payment.getSubaddrIndex() !== 0) nonDefaultIncoming = true;
-          }
-        }
-      }
-    }
-    assertTrue(nonDefaultIncoming, "No incoming transactions found in non-default account and subaddress; run testSendToMultiple() first");
-  });
-  
-  it("Can get transactions pertaining to a subaddress", async function() {
-    let nonDefaultIncoming = false;
-    let accounts = await wallet.getAccounts(true);
-    for (let accountIdx = 0; accountIdx < Math.min(accounts.length, 3); accountIdx++) {
-      for (let subaddressIdx = 0; subaddressIdx < Math.min(accounts[accountIdx].getSubaddresses().length, 5); subaddressIdx++) {
-        for (let tx of await wallet.getTxs(accountIdx, subaddressIdx)) {
-          testGetTx(tx, null, wallet);
-          if (MoneroUtils.isOutgoing(tx.getType()))  {
-            assert.equal(accountIdx, tx.getSrcAccountIndex());
-          } else {
-            for (let payment of tx.getPayments()) {
-              assert.equal(accountIdx, payment.getAccountIndex());
-              assert.equal(subaddressIdx, payment.getSubaddrIndex());
-              if (payment.getAccountIndex() !== 0 && payment.getSubaddrIndex() !== 0) nonDefaultIncoming = true;
-            }
-          }
-        }
-      }
-    }
-    assertTrue(nonDefaultIncoming, "No incoming transactions found in non-default account and subaddress; run testSendToMultiple() first");
-  });
-  
-  it("Can get transactions filtered by having payments or not", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get wallet transactions by id", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get wallet transactions with a filter", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get and set a transaction note", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get and set multiple transaction notes", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can check a transaction using secret key", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can prove a transaction by checking its signature", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can prove a spend using a generated signature and no destination public address", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can prove reserves in the wallet", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can prove reserves in an account", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get outputs in hex format", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can import outputs in hex format", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get key images", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can import key images", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can sign and verify messages", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get and set arbitrary key/value attributes", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can create a payment URI using the official URI spec", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can parse a payment URI using the official URI spec", async function() {
-    throw new Error("Not implemented");
-  });
+//  it("Can get transactions pertaining to an account", async function() {
+//    let nonDefaultIncoming = false;
+//    for (let account of await wallet.getAccounts()) {
+//      let = await wallet.getTxs(account.getIndex());
+//      for (let tx of txs) {
+//        testGetTx(tx, null, wallet);
+//        if (MoneroUtils.isOutgoing(tx.getType())) {
+//          assert.equal(account.getIndex(), tx.getSrcAccountIndex());
+//        } else {
+//          for (let payment of tx.getPayments()) {
+//            assert.equal(account.getIndex(), payment.getAccountIndex());
+//            if (payment.getAccountIndex() !== 0 && payment.getSubaddrIndex() !== 0) nonDefaultIncoming = true;
+//          }
+//        }
+//      }
+//    }
+//    assertTrue(nonDefaultIncoming, "No incoming transactions found in non-default account and subaddress; run testSendToMultiple() first");
+//  });
+//  
+//  it("Can get transactions pertaining to a subaddress", async function() {
+//    let nonDefaultIncoming = false;
+//    let accounts = await wallet.getAccounts(true);
+//    for (let accountIdx = 0; accountIdx < Math.min(accounts.length, 3); accountIdx++) {
+//      for (let subaddressIdx = 0; subaddressIdx < Math.min(accounts[accountIdx].getSubaddresses().length, 5); subaddressIdx++) {
+//        for (let tx of await wallet.getTxs(accountIdx, subaddressIdx)) {
+//          testGetTx(tx, null, wallet);
+//          if (MoneroUtils.isOutgoing(tx.getType()))  {
+//            assert.equal(accountIdx, tx.getSrcAccountIndex());
+//          } else {
+//            for (let payment of tx.getPayments()) {
+//              assert.equal(accountIdx, payment.getAccountIndex());
+//              assert.equal(subaddressIdx, payment.getSubaddrIndex());
+//              if (payment.getAccountIndex() !== 0 && payment.getSubaddrIndex() !== 0) nonDefaultIncoming = true;
+//            }
+//          }
+//        }
+//      }
+//    }
+//    assertTrue(nonDefaultIncoming, "No incoming transactions found in non-default account and subaddress; run testSendToMultiple() first");
+//  });
+//  
+//  it("Can get transactions filtered by having payments or not", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can get wallet transactions by id", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can get wallet transactions with a filter", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can get and set a transaction note", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can get and set multiple transaction notes", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can check a transaction using secret key", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can prove a transaction by checking its signature", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can prove a spend using a generated signature and no destination public address", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can prove reserves in the wallet", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can prove reserves in an account", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can get outputs in hex format", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can import outputs in hex format", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can get key images", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can import key images", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can sign and verify messages", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can get and set arbitrary key/value attributes", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can create a payment URI using the official URI spec", async function() {
+//    throw new Error("Not implemented");
+//  });
+//  
+//  it("Can parse a payment URI using the official URI spec", async function() {
+//    throw new Error("Not implemented");
+//  });
 }
 
 function testUnsignedBigInteger(num) {
