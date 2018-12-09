@@ -3,7 +3,7 @@
  */
 class MoneroDaemonModel {
   
-  constructor(respInfo) {
+  constructor(respInfo) { // TODO: this should probably be changed to json and support removed for respInfo constructor
     this.respInfo = respInfo;
   }
   

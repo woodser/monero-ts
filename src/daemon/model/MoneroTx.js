@@ -5,172 +5,192 @@ const MoneroDaemonModel = require("./MoneroDaemonModel");
  */
 class MoneroTx extends MoneroDaemonModel {
   
+  /**
+   * Constructs the model.
+   */
+  constructor(json) {
+    super();
+    this.json = Object.assign({}, json);
+  }
+  
   getId() {
-    return this.id;
+    return this.json.id;
   }
   
   setId(id) {
-    this.id = id;
+    this.json.id = id;
   }
   
   getVersion() {
-    return this.version;
+    return this.json.version;
   }
   
   setVersion(version) {
-    this.version = version;
+    this.json.version = version;
   }
   
   getPaymentId() {
-    return this.getPaymentId;
+    return this.json.getPaymentId;
   }
   
   setPaymentId(paymentId) {
-    this.paymentId = paymentId;
+    this.json.paymentId = paymentId;
   }
   
   getFee() {
-    return this.fee;
+    return this.json.fee;
   }
   
   setFee(fee) {
-    this.fee = fee;
+    this.json.fee = fee;
   }
   
   getMixin() {
-    return this.mixin;
+    return this.json.mixin;
   }
   
   setMixin(mixin) {
-    this.mixin = mixin;
+    this.json.mixin = mixin;
   }
   
   getSize() {
-    return this.size;
+    return this.json.size;
   }
   
   setSize(size) {
-    this.size = size;
+    this.json.size = size;
   }
   
   getHeight() {
-    return this.height;
+    return this.json.height;
   }
   
   setHeight(height) {
-    this.height = height;
+    this.json.height = height;
   }
   
   getTimestamp() {
-    return this.timestamp;
+    return this.json.timestamp;
   }
   
   setTimestamp(timestamp) {
-    this.timestamp = timestamp;
+    this.json.timestamp = timestamp;
   }
   
   getUnlockTime() {
-    return this.unlockTime;
+    return this.json.unlockTime;
   }
   
   setUnlockTime(unlockTime) {
-    this.unlockTime = unlockTime;
+    this.json.unlockTime = unlockTime;
   }
   
   getIsDoubleSpend() {
-    return this.isDoubleSpend;
+    return this.json.isDoubleSpend;
   }
   
   setIsDoubleSpend(isDoubleSpend) {
-    this.isDoubleSpend = isDoubleSpend;
+    this.json.isDoubleSpend = isDoubleSpend;
   }
   
   getKey() {
-    return this.key;
+    return this.json.key;
   }
   
   setKey(key) {
-    this.key = key;
+    this.json.key = key;
   }
   
   getHex() {
-    return this.hex;
+    return this.json.hex;
   }
   
   setHex(hex) {
-    this.hex = hex;
+    this.json.hex = hex;
   }
   
   getMetadata() {
-    return this.metadata;
+    return this.json.metadata;
   }
   
   setMetadata(metadata) {
-    this.metadata = metadata;
+    this.json.metadata = metadata;
   }
   
   getIsConfirmed() {
-    return this.isConfirmed;
+    return this.json.isConfirmed;
   }
   
   setIsConfirmed(isConfirmed) {
-    this.isConfirmed = isConfirmed;
+    this.json.isConfirmed = isConfirmed;
+  }
+  
+  getNumConfirmations() {
+    return this.json.numConfirmations;
+  }
+  
+  setNumConfirmations(numConfirmations) {
+    this.json.numConfirmations = numConfirmations;
   }
   
   getNumEstimatedBocksUntilConfirmed() {
-    return this.numEstimatedBlocksUntilConfirmed;
+    return this.json.numEstimatedBlocksUntilConfirmed;
   }
   
   setNumEstimatedBlocksUntilConfirmed(numEstimatedBlocksUntilConfirmed) {
-    this.numEstimatedBlocksUntilConfirmed = numEstimatedBlocksUntilConfirmed;
+    this.json.numEstimatedBlocksUntilConfirmed = numEstimatedBlocksUntilConfirmed;
   }
   
   getCommonTxSets() {
-    return this.commonTxSets;
+    return this.json.commonTxSets;
   }
   
   setCommonTxSets(commonTxSets) {
-    this.commonTxSets = commonTxSets;
+    this.json.commonTxSets = commonTxSets;
   }
   
   getExtra() {
-    return this.extra;
+    return this.json.extra;
   }
   
   setExtra(extra) {
-    this.extra = extra;
+    this.json.extra = extra;
   }
   
   getVin() {
-    return this.vin;
+    return this.json.vin;
   }
   
   setVin(vin) {
-    this.vin = vin;
+    this.json.vin = vin;
   }
   
   getVout() {
-    return this.vout;
+    return this.json.vout;
   }
   
   setVout(vout) {
-    this.vout = vout;
+    this.json.vout = vout;
   }
   
   getRctSignatures() {
-    return this.rctSignatures;
+    return this.json.rctSignatures;
   }
   
   setRctSignatures(rctSignatures) {
-    this.rctSignatures = rctSignatures;
+    this.json.rctSignatures = rctSignatures;
   }
   
   getRctSigPrunable() {
-    return this.rctSigPrunable;
+    return this.json.rctSigPrunable;
   }
   
   setRctSigPrunable(rctSigPrunable) {
-    this.rctSigPrunable = rctSigPrunable;
+    this.json.rctSigPrunable = rctSigPrunable;
+  }
+  
+  toJson() {
+    throw new Error("Not implemented");
   }
 }
 

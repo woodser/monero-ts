@@ -6,6 +6,8 @@ const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
 const MoneroAccount = require("./model/MoneroAccount");
 const MoneroSubaddress = require("./model/MoneroSubaddress");
 const MoneroTxFilter = require("./model/MoneroTxFilter");
+const MoneroTxWallet = require("./model/MoneroTxWallet");
+const MoneroPayment = require("./model/MoneroPayment");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
@@ -263,14 +265,18 @@ class MoneroWalletRpc extends MoneroWallet {
       params.account_index = accountIdx;
       params.subaddr_indices = indices.get(accountIdx);
       let resp = await this.config.rpc.sendJsonRpcRequest("get_transfers", params);
-      //console.log(resp);
       for (let key of Object.keys(resp)) {
-        let tx = MoneroWalletRpc._rpcTxToMoneroTxWallet(resp[key]);
-        //console.log(key + ": " + JSON.stringify(resp[key]));
+        for (let rpcTx of resp[key]) {
+          let tx = MoneroWalletRpc._rpcTxToMoneroTxWallet(rpcTx);
+          if (tx.getType() === MoneroTxWallet.Type.INCOMING && tx.getState() === MoneroTxWallet.State.CONFIRMED) {  // TODO: tx.getIsIncoming(), tx.getIsConfirmed(), tx.getIsOutgoing(), etc?
+            tx.setTotalAmount(new BigInteger(0));
+            tx.setPayments(undefined);
+          }
+          MoneroWalletRpc._addTx(txs, tx, false);
+        }
       }
     }
-    
-    
+
 //    // stores merged txs across calls
 //    List<MoneroTx> txs = new ArrayList<MoneroTx>();    
 //    
@@ -406,6 +412,205 @@ class MoneroWalletRpc extends MoneroWallet {
     let resp = await this.config.rpc.sendJsonRpcRequest("get_address", {account_index: accountIdx});
     for (let address of resp.addresses) subaddressIndices.push(address.address_index);
     return subaddressIndices;
+  }
+  
+  static _rpcTxToMoneroTxWallet(rpcTx, type, state, isCoinbase) {
+    
+    // initialize tx to return
+    let tx = new MoneroTxWallet();
+    
+    // initialize type, state, and isCoinbase if applicable
+    if (rpcTx.type !== undefined) {
+      let decoded = MoneroWalletRpc._decodeRpcType(rpcTx.type);
+      tx.setType(decoded.type);
+      tx.setState(decoded.state);
+      tx.setIsCoinbase(decoded.isCoinbase);
+      if (type !== undefined) {
+        assert.equal(tx.getType(), type);
+        assert.equal(tx.getState(), state);
+      }
+    } else {
+      assert(type !== undefined, "Type is unknown");
+      assert(state !== undefined, "State is unknown");
+      assert(state !== undefined, "Coinbase is unknown");
+      tx.setType(type);
+      tx.setState(state);
+      tx.setIsCoinbase(isCoinbase);
+    }
+    
+    // initialize remaining fields
+    let payment;
+    let accountIdx;
+    let subaddressIdx;
+    for (let key of Object.keys(rpcTx)) {
+      let val = rpcTx[key];
+      if (key === "fee") tx.setFee(new BigInteger(val));
+      else if (key === "block_height") tx.setHeight(val);
+      else if (key === "note") { if (val) tx.setNote(val); }
+      else if (key === "timestamp") tx.setTimestamp(val);
+      else if (key === "txid") tx.setId(val);
+      else if (key === "tx_hash") tx.setId(val);
+      else if (key === "tx_key") tx.setKey(val);
+      else if (key === "type") { } // type already handled
+      else if (key === "tx_size") tx.setSize(val);
+      else if (key === "unlock_time") tx.setUnlockTime(val);
+      else if (key === "global_index") { } // ignore
+      else if (key === "tx_blob") tx.setBlob(val);
+      else if (key === "tx_metadata") tx.setMetadata(val);
+      else if (key === "double_spend_seen") tx.setIsDoubleSpend(val);
+      else if (key === "confirmations") {
+        if (tx.getState() !== MoneroTxWallet.State.CONFIRMED) tx.setNumConfirmations(0);
+        else tx.setNumConfirmations(val);
+      }
+      else if (key === "suggested_confirmations_threshold") {
+        if (tx.getState() === MoneroTxWallet.State.MEMPOOL) tx.setNumEstimatedBlocksUntilConfirmed(val);
+        else tx.setNumEstimatedBlocksUntilConfirmed(undefined)
+      }
+      else if (key === "height") {
+        tx.setHeight(val === 0 ? undefined : val); // TODO: right?  converted from Java: tx.setHeight(height == 0 ? null : height);
+      }
+      else if (key === "amount") {
+        tx.setTotalAmount(new BigInteger(val));
+        if (tx.getType() === MoneroTxWallet.Type.INCOMING) {
+          if (payment === undefined) payment = new MoneroPayment();
+          payment.setAmount(new BigInteger(val));
+        }
+      }
+      else if (key === "address") {
+        if (tx.getType() === MoneroTxWallet.Type.OUTGOING) tx.setSrcAddress(val);
+        else {
+          if (payment === undefined) payment = new MoneroPayment();
+          payment.setAddress(val);
+        }
+      }
+      else if (key === "key_image") {
+        assert.equal(MoneroTxWallet.Type.INCOMING, tx.getType());
+        if (payment === undefined) payment = new MoneroPayment();
+        payment.setKeyImage(val);
+      }
+      else if (key === "spent") {
+        assert.equal(MoneroTxWallet.Type.INCOMING, tx.getType());
+        if (payment === undefined) payment = new MoneroPayment();
+        payment.setIsSpent(val);
+      }
+      else if (key === "payment_id") {
+        if (MoneroTxWallet.DEFAULT_PAYMENT_ID !== val) tx.setPaymentId(val);  // default is undefined
+      }
+      else if (key === "subaddr_index") {
+        if (typeof val === "number") {
+          subaddressIdx = val;
+        } else {
+          accountIdx = val.major;
+          subaddressIdx = val.minor;
+        }
+      }
+      else if (key === "destinations") {
+        assert.equal(MoneroTxWallet.Type.OUTGOING, tx.getType());
+        let payments = [];
+        for (let rpcPayment of val) {
+          let aPayment = new MoneroPayment();
+          payments.push(aPayment);
+          for (let paymentKey of Object.keys(rpcPayment)) {
+            if (paymentKey === "address") aPayment.setAddress(rpcPayment[paymentKey]);
+            else if (paymentKey === "amount") aPayment.setAmount(new BigInteger(rpcPayment[paymentKey]));
+            else throw new Error("Unrecognized transaction destination field: " + paymentKey);
+          }
+        }
+        tx.setPayments(payments);
+      }
+      else LOGGER.warn("Ignoring unexpected transaction field: '" + key + "': " + val);
+    }
+    
+    // initialize final fields
+    if (tx.getPayments() !== undefined) assert(payment === undefined);
+    else if (payment !== undefined) tx.setPayments([payment]);
+    if (tx.getType() === MoneroTxWallet.Type.OUTGOING) {
+      tx.setSrcAccountIndex(accountIdx);
+      tx.setSrcSubaddrIndex(subaddressIdx);
+    } else {
+      assert(payment);
+      assert.equal(1, tx.getPayments().length);
+      payment.setAccountIndex(accountIdx);
+      payment.setSubaddrIndex(subaddressIdx);
+    }
+    if (tx.getPayments() !== undefined && tx.getType() == MoneroTxWallet.Type.INCOMING && tx.getState() === MoneroTxWallet.State.MEMPOOL) {
+      for (let aPayment of tx.getPayments()) aPayment.setIsSpent(false);  // incoming mempool payments are not spent
+    }
+    
+    // return initialized transaction
+    return tx;
+  }
+  
+//  /**
+//   * Initializes the tx type, state, and coinbase if applicable from a rpc type.
+//   * 
+//   * @param rpcType is the type as reported from monero-wallet-rpc
+//   * @param tx is the transaction to initialize from the type
+//   */
+//  static _initTxFromRpcType(rpcType, tx) {
+//    if (rpcType === "in") {
+//      tx.setType(MoneroTxWallet.Type.INCOMING);
+//      tx.setState(MoneroTxWallet.State.CONFIRMED);
+//    } else if (rpcType === "out") {
+//      tx.setType(MoneroTxWallet.Type.OUTGOING);
+//      tx.setState(MoneroTxWallet.State.CONFIRMED);
+//    } else if (rpcType === "pending") {
+//      tx.setType(MoneroTxWallet.Type.OUTGOING);
+//      tx.setState(MoneroTxWallet.State.MEMPOOL);
+//    } else if (rpcType === "pool") {
+//      tx.setType(MoneroTxWallet.Type.INCOMING);
+//      tx.setState(MoneroTxWallet.State.MEMPOOL);
+//    } else if (rpcType === "block") {
+//      tx.setType(MoneroTxWallet.Type.INCOMING);
+//      tx.setState(MoneroTxWallet.State.CONFIRMED);
+//      tx.setIsCoinbase(true);
+//    } else if (rpcType === "failed") {
+//      tx.setType(MoneroTxWallet.Type.OUTGOING);
+//      tx.setState(MoneroTxWallet.State.MEMPOOL);
+//    }
+//    
+//  }
+  
+  /**
+   * Decodes a "type" from monero-wallet-rpc.
+   * 
+   * @param rpcType is the type to decode
+   * @returns {type: _, state: _, isCoinbase: _}
+   */
+  static _decodeRpcType(rpcType) {
+    let decoded = { isCoinbase: false };
+    if (rpcType === "in") {
+      decoded.type = MoneroTxWallet.Type.INCOMING;
+      decoded.state = MoneroTxWallet.State.CONFIRMED;
+    } else if (rpcType === "out") {
+      decoded.type = MoneroTxWallet.Type.OUTGOING;
+      decoded.state = MoneroTxWallet.State.CONFIRMED;
+    } else if (rpcType === "pool") {
+      decoded.type = MoneroTxWallet.Type.INCOMING;
+      decoded.state = MoneroTxWallet.State.CONFIRMED;
+    } else if (rpcType === "pending") {
+      decoded.type = MoneroTxWallet.Type.OUTGOING;
+      decoded.state = MoneroTxWallet.State.CONFIRMED;
+    } else if (rpcType === "block") {
+      decoded.type = MoneroTxWallet.Type.INCOMING;
+      decoded.state = MoneroTxWallet.State.CONFIRMED;
+      decoded.isCoinbase = true;
+    } else if (rpcType === "failed") {
+      decoded.type = MoneroTxWallet.Type.OUTGOING;
+      decoded.state = MoneroTxWallet.State.FAILED;
+    }
+    return decoded;
+  }
+  
+  /**
+   * Merges a transaction into a unique set of transactions.
+   * 
+   * @param txs are the collection of transactions to merge into
+   * @param tx is the transaction to merge into the collection
+   * @param mergePayments specifies if payments should be merged with xor appended to existing payments
+   */
+  static _addTx(txs, tx, mergePayments) {
+    throw new Error("Not implemented");
   }
 }
 
