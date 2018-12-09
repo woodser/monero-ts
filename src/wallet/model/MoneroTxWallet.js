@@ -5,14 +5,6 @@ const MoneroTx = require("../../daemon/model/MoneroTx");
  */
 class MoneroWalletTx extends MoneroTx {
   
-  getType() {
-    return this.json.type;
-  }
-  
-  setType(type) {
-    this.json.type = type;
-  }
-  
   getState() {
     return this.json.state;
   }
@@ -27,30 +19,6 @@ class MoneroWalletTx extends MoneroTx {
   
   setTotalAmount(totalAmount) {
     this.json.totalAmount = totalAmount;
-  }
-
-  getSrcAddress() {
-    return this.json.srcAddress;
-  }
-  
-  setSrcAddress(srcAddress) {
-    this.json.srcAddress = srcAddress;
-  }
-  
-  getSrcAccountIndex() {
-    return this.json.srcAccountIndex;
-  }
-  
-  setSrcAccountIndex(srcAccountIndex) {
-    this.json.srcAccountIndex = srcAccountIndex;
-  }
-  
-  getSrcSubaddrIndex() {
-    return this.json.srcSubaddrIndex;
-  }
-  
-  setSrcSubaddrIndex(srcSubaddrIndex) {
-    this.json.srcSubaddrIndex = srcSubaddrIndex;
   }
   
   getPayments() {
