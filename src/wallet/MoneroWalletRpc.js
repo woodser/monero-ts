@@ -265,10 +265,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let resp = await this.config.rpc.sendJsonRpcRequest("get_transfers", params);
       //console.log(resp);
       for (let key of Object.keys(resp)) {
-//        let tx = MoneroWalletRpc._rpcTxToMoneroTx(resp[key]);
-//        if (tx.isIncoming()) {  // TODO: switch to MoneroIncomingTx, MoneroOutgoingTx
-//          
-//        }
+        let tx = MoneroWalletRpc._rpcTxToMoneroTxWallet(resp[key]);
         //console.log(key + ": " + JSON.stringify(resp[key]));
       }
     }

@@ -38,14 +38,8 @@ class MoneroWalletTx extends MoneroTx {
   }
 }
 
-//incoming or outgoing tx relative to the wallet
-MoneroWalletTx.Type = {
-    INCOMING: 0,
-    OUTGOING: 1
-}
-
 // state of the transaction
-MoneroWalletTx.State = {
+MoneroTxWallet.State = {
     CONFIRMED: 0
     MEMPOOL: 1,
     NOT_RELAYED: 2,
