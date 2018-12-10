@@ -99,7 +99,7 @@ class MoneroTx extends MoneroDaemonModel {
     this.json.numConfirmations = numConfirmations;
   }
   
-  getNumEstimatedBocksUntilConfirmed() {
+  getNumEstimatedBlocksUntilConfirmed() {
     return this.json.numEstimatedBlocksUntilConfirmed;
   }
   
@@ -219,8 +219,6 @@ class MoneroTx extends MoneroDaemonModel {
     MoneroUtils.safeSet(this, this.getNote, this.setNote, tx.getNote());
     MoneroUtils.safeSet(this, this.getUnlockTime, this.setUnlockTime, tx.getUnlockTime());
     MoneroUtils.safeSet(this, this.getIsDoubleSpend, this.setIsDoubleSpend, tx.getIsDoubleSpend());
-    MoneroUtils.safeSet(this, this.getBlob, this.setBlob, tx.getBlob());
-    MoneroUtils.safeSet(this, this.getMetadata, this.setMetadata, tx.getMetadata());
     MoneroUtils.safeSet(this, this.getCommonTxSets, this.setCommonTxsSets, tx.getCommonTxSets());
     MoneroUtils.safeSet(this, this.getHex, this.setHex, tx.getHex());
     MoneroUtils.safeSet(this, this.getExtra, this.setExtra, tx.getExtra());
@@ -253,5 +251,8 @@ class MoneroTx extends MoneroDaemonModel {
     throw new Error("Need to merge isConfirmed");
   }
 }
+
+//default payment id
+MoneroTx.DEFAULT_PAYMENT_ID = "0000000000000000";
 
 module.exports = MoneroTx;

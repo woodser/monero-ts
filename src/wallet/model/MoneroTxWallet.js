@@ -102,6 +102,22 @@ class MoneroTxWallet extends MoneroTx {
     this.json.coinbase = coinbase;
   }
   
+  getBlob() {
+    return this.json.blob;
+  }
+  
+  setBlob(blob) {
+    this.json.blob = blob;
+  }
+  
+  getMetadata() {
+    return this.json.metadata;
+  }
+  
+  setMetadata(metadata) {
+    this.json.metadata = metadata;
+  }
+  
   toJson() {
     throw new Error("Not implemented");
   }
@@ -115,6 +131,8 @@ class MoneroTxWallet extends MoneroTx {
     MoneroUtils.safeSet(this, this.getSrcSubaddressIndex, this.setSrcSubaddressIndex, tx.getSrcSubaddressIndex());
     MoneroUtils.safeSet(this, this.getSrcAddress, this.setSrcAddress, tx.getSrcAddress());
     MoneroUtils.safeSet(this, this.getIsCoinbase, this.setIsCoinbase, tx.getIsCoinbase());
+    MoneroUtils.safeSet(this, this.getBlob, this.setBlob, tx.getBlob());
+    MoneroUtils.safeSet(this, this.getMetadata, this.setMetadata, tx.getMetadata());
     
     // needs interpretation
     if (this.json.totalAmount === undefined) this.json.totalAmount = tx.getTotalAmount();
@@ -138,8 +156,5 @@ class MoneroTxWallet extends MoneroTx {
     }
   }
 }
-
-// default payment id
-MoneroTxWallet.DEFAULT_PAYMENT_ID = "0000000000000000";
 
 module.exports = MoneroTxWallet;

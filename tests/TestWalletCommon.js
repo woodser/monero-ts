@@ -4,6 +4,7 @@ const GenUtils = require("../src/utils/GenUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroWallet = require("../src/wallet/MoneroWallet");
+const MoneroTx = require("../src/daemon/model/MoneroTx");
 const MoneroTxWallet = require("../src/wallet/model/MoneroTxWallet");
 
 /**
@@ -490,6 +491,62 @@ async function testTxWalletGet(tx, wallet, hasOutgoingPayments) {
 }
 
 async function testTxWalletGetIncoming(tx, wallet) {
+  
+  // test common incoming
+  assert(tx.getIsIncoming());
+  assert(tx.getId());
+  assert.equal(undefined, tx.getSrcAddress());
+  assert.equal(undefined, tx.getSrcAccountIndex());
+  assert.equal(undefined, tx.getSrcSubaddressIndex());
+  assert(isUnsignedBigInteger(tx.getTotalAmount()));
+  assert.notEqual(MoneroTx.DEFAULT_PAYMENT_ID, tx.getPaymentId());
+  assert.equal(undefined, tx.getMixin());
+  assert.equal(undefined, tx.getSize());
+  assert.equal(undefined, tx.getNote());
+  if (tx.getFee() === undefined) console.log("WARNING: incoming transaction is missing fee: " + tx.getId());  // TODO (monero-wallet-rpc): incoming txs are occluded by outgoing counterparts from same account (https://github.com/monero-project/monero/issues/4500) and then incoming_transfers need address, fee, timestamp, unlock_time, is_double_spend, height, tx_size
+  if (tx.getTimestamp() === undefined) console.log("WARNING: incoming transaction is missing timestamp: " + tx.getId());
+  if (tx.getUnlockTime() === undefined) console.log("WARNING: incoming transaction is missing unlock_time: " + tx.getId());
+  if (tx.getIsDoubleSpend() === undefined) console.log("WARNING: incoming transaction is missing is_double_spend: " + tx.getId());
+  else assert(!tx.getIsDoubleSpend());
+  assert.equal(undefined, tx.getBlob());
+  assert.equal(undefined, tx.getMetadata());
+  
+  // test confirmed
+  if (tx.getIsConfirmed()) {
+    assert.equal(undefined, tx.getKey());
+    if (tx.getHeight() === undefined) console.log("WARNING: incoming transaction is missing height: " + tx.getId());
+    if (tx.getNumConfirmations() === undefined) console.log("WARNING: incoming transaction is missing confirmations: " + tx.getId());
+    else assert(tx.getNumConfirmations() > 0);
+    assert.equal(undefined, tx.getNumEstimatedBlocksUntilConfirmed());
+  }
+  
+  // test unconfirmed
+  else {
+    assert.equal(undefined, tx.getKey());
+    assert.equal(undefined, tx.getHeight());
+    assert.equal(0, tx.getNumConfirmations());
+    assert(tx.getNumEstimatedBlocksUntilConfirmed() > 0);
+  }
+  
+  // test payments
+  assert(tx.getPayments());
+  assert(tx.getPayments().length > 0);
+  let totalAmount = new BigInteger(0);
+  for (let payment of tx.getPayments()) {
+    assert(tx === payment.getTx());
+    totalAmount = totalAmount.add(payment.getAmount());
+    assert(payment.getAddress());
+    assert(payment.getAccountIndex() >= 0);
+    assert(payment.getSubaddressIndex() >= 0);
+    assert.equal(await wallet.getAddress(payment.getAccountIndex(), payment.getSubaddressIndex()), payment.getAddress());
+    assert(isUnsignedBigInteger(payment.getAmount()));
+    assert(payment.getAmount().getJSValue() > 0);
+    assert(typeof payment.getIsSpent() === "boolean");
+    if (tx.getIsConfirmed()) assert(payment.getKeyImage());
+    else assert.equal(undefined, payment.getKeyImage());   // TODO (monero-wallet-rpc): mempool transactions do not have key_images
+  }
+  assert(totalAmount.compareTo(tx.getTotalAmount()) === 0);
+  
   throw new Error("Not implemented");
 }
 
