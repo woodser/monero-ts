@@ -1,4 +1,5 @@
 TODO
+replace getType() with xor getIsIncoming()
 rather than block type, incoming and confirmed, but need to mark isMinerTx() in txs
 sending too many rpc requests to compose object model... need to make sacrafices until rpc api improved
 time profiling

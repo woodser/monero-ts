@@ -3,6 +3,8 @@ const TestUtils = require("./TestUtils");
 const GenUtils = require("../src/utils/GenUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const MoneroWallet = require("../src/wallet/MoneroWallet");
+const MoneroTxWallet = require("../src/wallet/model/MoneroTxWallet");
 
 /**
  * Runs common tests that any Monero wallet should implement.
@@ -282,8 +284,8 @@ function testWallet(wallet, daemon) {
     let txs2 = await wallet.getTxs();
     assert.equal(txs1.length, txs2.length);
     for (let i = 0; i < txs1.length; i++) {
-      testTxWallet(txs1[i], null, wallet);
-      testTxWallet(txs2[i], null, wallet);
+      testTxWalletGet(txs1[i], wallet);
+      testTxWalletGet(txs2[i], wallet);
       assert.deepEqual(txs1[i], txs2[i]);
       if (!MoneroUtils.isOutgoing(txs1[i].getType())) { // TODO: better way than this...
         for (let payment of txs1[i].getPayments()) {
@@ -299,7 +301,7 @@ function testWallet(wallet, daemon) {
 //    for (let account of await wallet.getAccounts()) {
 //      let = await wallet.getTxs(account.getIndex());
 //      for (let tx of txs) {
-//        testTxWallet(tx, null, wallet);
+//        testTxWalletGet(tx, wallet);
 //        if (MoneroUtils.isOutgoing(tx.getType())) {
 //          assert.equal(account.getIndex(), tx.getSrcAccountIndex());
 //        } else {
@@ -319,7 +321,7 @@ function testWallet(wallet, daemon) {
 //    for (let accountIdx = 0; accountIdx < Math.min(accounts.length, 3); accountIdx++) {
 //      for (let subaddressIdx = 0; subaddressIdx < Math.min(accounts[accountIdx].getSubaddresses().length, 5); subaddressIdx++) {
 //        for (let tx of await wallet.getTxs(accountIdx, subaddressIdx)) {
-//          testTxWallet(tx, null, wallet);
+//          testTxWalletGet(tx, wallet);
 //          if (MoneroUtils.isOutgoing(tx.getType()))  {
 //            assert.equal(accountIdx, tx.getSrcAccountIndex());
 //          } else {
@@ -448,7 +450,36 @@ function testSubaddress(subaddress) {
   if (subaddress.getBalance().toJSValue() > 0) assert(subaddress.getIsUsed());
 }
 
-function testTxWallet() {
+// common tests
+function testTxWalletCommon(tx) {
+  throw new Error("not implemented");
+}
+
+/**
+ * Test a single transaction from a getTxs() request.
+ * 
+ * @param tx is the transaction to test
+ * @param wallet is the tx's wallet to cross-reference
+ * @param hasOutgoingPayments specifies if the tx has outgoing payents, undefined if doesn't matter
+ */
+function testTxWalletGet(tx, wallet, hasOutgoingPayments) {
+  
+  // validate inputs
+  assert(tx instanceof MoneroTxWallet);
+  assert(hasOutgoingPayments === undefined || typeof hasOutgoingPayments === "boolean");
+  assert(wallet instanceof MoneroWallet);
+  
+  // run tests
+  testTxWalletCommon(tx);
+  if (tx.getType() === MoneroTxWallet.Type.INCOMING) testTxWalletGetIncoming(tx, wallet);
+  else testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments);
+}
+
+function testTxWalletGetIncoming(tx, wallet) {
+  throw new Error("Not implemented");
+}
+
+function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments) {
   throw new Error("Not implemented");
 }
 
