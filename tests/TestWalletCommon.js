@@ -284,8 +284,8 @@ function testWallet(wallet, daemon) {
     let txs2 = await wallet.getTxs();
     assert.equal(txs1.length, txs2.length);
     for (let i = 0; i < txs1.length; i++) {
-      testTxWalletGet(txs1[i], wallet);
-      testTxWalletGet(txs2[i], wallet);
+      await testTxWalletGet(txs1[i], wallet);
+      await testTxWalletGet(txs2[i], wallet);
       assert.deepEqual(txs1[i], txs2[i]);
       throw new Error("K do below now");
       if (!MoneroUtils.isOutgoing(txs1[i].getType())) { // TODO: better way than this...
@@ -302,7 +302,7 @@ function testWallet(wallet, daemon) {
 //    for (let account of await wallet.getAccounts()) {
 //      let = await wallet.getTxs(account.getIndex());
 //      for (let tx of txs) {
-//        testTxWalletGet(tx, wallet);
+//        await testTxWalletGet(tx, wallet);
 //        if (MoneroUtils.isOutgoing(tx.getType())) {
 //          assert.equal(account.getIndex(), tx.getSrcAccountIndex());
 //        } else {
@@ -322,7 +322,7 @@ function testWallet(wallet, daemon) {
 //    for (let accountIdx = 0; accountIdx < Math.min(accounts.length, 3); accountIdx++) {
 //      for (let subaddressIdx = 0; subaddressIdx < Math.min(accounts[accountIdx].getSubaddresses().length, 5); subaddressIdx++) {
 //        for (let tx of await wallet.getTxs(accountIdx, subaddressIdx)) {
-//          testTxWalletGet(tx, wallet);
+//          await testTxWalletGet(tx, wallet);
 //          if (MoneroUtils.isOutgoing(tx.getType()))  {
 //            assert.equal(accountIdx, tx.getSrcAccountIndex());
 //          } else {
@@ -411,6 +411,11 @@ function testWallet(wallet, daemon) {
 //  });
 }
 
+function isUnsignedBigInteger(param) {
+  if (param instanceof BigInteger && param.toJSValue() >= 0) return true;
+  return false;
+}
+
 function testUnsignedBigInteger(num) {
   assert(num instanceof BigInteger);
   assert(num.toJSValue() >= 0);
@@ -471,7 +476,7 @@ function testTxWalletCommon(tx) {
  * @param wallet is the tx's wallet to cross-reference
  * @param hasOutgoingPayments specifies if the tx has outgoing payents, undefined if doesn't matter
  */
-function testTxWalletGet(tx, wallet, hasOutgoingPayments) {
+async function testTxWalletGet(tx, wallet, hasOutgoingPayments) {
   
   // validate inputs
   assert(tx instanceof MoneroTxWallet);
@@ -480,15 +485,118 @@ function testTxWalletGet(tx, wallet, hasOutgoingPayments) {
   
   // run tests
   testTxWalletCommon(tx);
-  tx.getIsIncoming() ? testTxWalletGetIncoming(tx, wallet) : testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments);
+  if (tx.getIsIncoming()) await testTxWalletGetIncoming(tx, wallet);
+  else await testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments);
 }
 
-function testTxWalletGetIncoming(tx, wallet) {
+async function testTxWalletGetIncoming(tx, wallet) {
   throw new Error("Not implemented");
 }
 
-function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments) {
+async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments) {
+  
+  // test common outgoing
+  assert(tx.getIsOutgoing());
+  assert(tx.getId());
+  assert(tx.getSrcAccountIndex());
+  assert(tx.getSrcSubaddressIndex() !== undefined);
+  assert(tx.getSrcAddress());
+  assert.equal(await wallet.getAddress(tx.getSrcAccountIndex(), tx.getSrcSubaddressIndex()), tx.getSrcAddress());
+  assert(isUnsignedBigInteger(tx.getTotalAmount()));
+  assert.notEqual(MoneroTx.DEFAULT_PAYMENT_ID, tx.getPaymentId());
+  assert(isUnsignedBigInteger(tx.getFee()));
+  assert.equal(undefined, tx.getMixin());
+  assert.equal(undefined, tx.getSize()); // TODO (monero-wallet-rpc): add tx_size to get_transfers and get_transfer_by_txid
+  assert(tx.getNote() === undefined || tx.getNote().length > 0);
+  assert(tx.getTimestamp() >= 0);
+  assert.equal(0, tx.getUnlockTime());
+  assert(typeof tx.getIsDoubleSpend() === "boolean");
+  assert.equal(undefined, tx.getKey());
+  assert.equal(undefined, tx.getBlob());
+  assert.equal(undefined, tx.getMetadata());
+  
+  // test confirmed
+  if (tx.getIsConfirmed()) {
+    assert(tx.getHeight() >= 0);
+    assert(tx.getNumConfirmations() > 0);
+    assert.equal(undefined, tx.getNumEstimatedBlocksUntilConfirmed());
+  }
+  
+  // test mempool
+  else if (tx.getIsMempool()) {
+    assert.equal(undefined, tx.getHeight());
+    assert.equal(0, tx.getNumConfirmations());
+    assert(tx.getNumEstimatedBlocksUntilConfirmed() > 0);
+  }
+  
+  // test payments
+  if (hasOutgoingPayments === true) assert(tx.getPayments());
+  else if (hasOutgoingPayments === false) assert.equal(undefined, tx.getPayments());
+  if (tx.getPayments()) {
+    assert(tx.getPayments().length > 0);
+    let totalAmount = new BigInteger(0);
+    for (let payment of tx.getPayments()) {
+      assert(tx === payment.getTx());
+      assert(payment.getAddress());
+      assert(isUnsignedBigInteger(payment.getAmount()));
+      assert(payment.getAmount().toJSValue() > 0);
+      assert.equal(undefined, payment.getAccountIndex());
+      assert.equal(undefined, payment.getSubaddressIndex());
+      assert.equal(undefined, payment.getIsSpent());
+      assert.equal(undefined, payment.getKeyImage());
+      totalAmount = totalAmount.add(payment.getAmount());
+    }
+    
+    // assert total amount is sum of payments
+    // TODO: incoming_transfers d59fe775249465621d7736b53c0cb488e03e4da8dae647a13492ea51d7685c62 totalAmount is 0?
+    if (totalAmount.compareTo(tx.getTotalAmount()) !== 0 && tx.getTotalAmount().compareTo(new BigInteger(0)) === 0) {
+      console.log("WARNING: Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId());
+    } else {
+      assert(totalAmount.compareTo(tx.getTotalAmount()) == 0, "Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId());
+    }
+  }
+  
   throw new Error("Not implemented");
+  
+//  assertEquals(tx.getId(), (Integer) 0, tx.getUnlockTime());
+//  assertNotNull(tx.getId(), tx.getIsDoubleSpend());
+//  assertFalse(tx.getId(), tx.getIsDoubleSpend());
+//  assertNull(tx.getId(), tx.getKey());   // TODO (monero-wallet-rpc): cannot get tx keys after sending
+//  assertNull(tx.getId(), tx.getBlob());
+//  assertNull(tx.getId(), tx.getMetadata());
+//  if (tx.getType() == MoneroTxType.OUTGOING) {
+//    assertNotNull(tx.getId(), tx.getHeight());
+//    assertNotNull(tx.getId(), tx.getNumConfirmations());
+//    assertTrue(tx.getId(), tx.getNumConfirmations() > 0);
+//    assertNull(tx.getId(), tx.getNumEstimatedBlocksUntilConfirmed());
+//  } else if (tx.getType() == MoneroTxType.PENDING) {
+//    assertNull(tx.getId(), tx.getHeight());
+//    assertEquals(tx.getId(), 0, (int) tx.getNumConfirmations());
+//    assertTrue(tx.getId(), tx.getNumEstimatedBlocksUntilConfirmed() > 0);
+//  }
+//  if (Boolean.TRUE.equals(hasOutgoingPayments)) assertNotNull(tx.getId(), tx.getPayments());
+//  else if (Boolean.FALSE.equals(hasOutgoingPayments)) assertNull(tx.getId(), tx.getPayments()); // TODO (monero-wallet-rpc): outgoing destinations only known after first confirmation
+//  if (tx.getPayments() != null) {
+//    assertFalse(tx.getId(), tx.getPayments().isEmpty());
+//    BigInteger totalAmount = BigInteger.valueOf(0);
+//    for (MoneroPayment payment : tx.getPayments()) {
+//      assertTrue(tx == payment.getTx());
+//      totalAmount = totalAmount.add(payment.getAmount());
+//      assertNotNull(tx.getId(), payment.getAddress());
+//      assertNotNull(tx.getId(), payment.getAmount());
+//      assertTrue(tx.getId(), payment.getAmount().longValue() > 0);
+//      assertNull(tx.getId(), payment.getAccountIndex());
+//      assertNull(tx.getId(), payment.getSubaddressIndex());
+//      assertNull(tx.getId(), payment.getIsSpent());
+//      assertNull(tx.getId(), payment.getKeyImage());
+//    }
+//    // TODO: incoming_transfers d59fe775249465621d7736b53c0cb488e03e4da8dae647a13492ea51d7685c62 totalAmount is 0?
+//    if (totalAmount.compareTo(tx.getTotalAmount()) != 0 && tx.getTotalAmount().compareTo(BigInteger.valueOf(0)) == 0) {
+//      LOGGER.warn("Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId());
+//    } else {
+//      assertTrue("Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId(), totalAmount.compareTo(tx.getTotalAmount()) == 0);
+//    }
+//  }
 }
 
 module.exports.testWallet = testWallet;
