@@ -248,7 +248,7 @@ class MoneroTx extends MoneroDaemonModel {
         this.json.numEstimatedBlocksUntilConfirmed = Math.min(this.json.numEstimatedBlocksUntilConfirmed, tx.getNumEstimatedBlocksUntilConfirmed());
       }
     }
-    throw new Error("Need to merge isConfirmed");
+    throw new Error("Need to merge isConfirmed"); // TODO: why not throwing?
   }
 }
 
