@@ -488,66 +488,6 @@ class MoneroWalletRpc extends MoneroWallet {
     return tx;
   }
   
-//  /**
-//   * Initializes the tx type, state, and coinbase if applicable from a rpc type.
-//   *
-//   * @param rpcType is the type as reported from monero-wallet-rpc
-//   * @param tx is the transaction to initialize from the type
-//   */
-//  static _initTxFromRpcType(rpcType, tx) {
-//    if (rpcType === "in") {
-//      tx.setType(MoneroTxWallet.Type.INCOMING);
-//      tx.setState(MoneroTxWallet.State.CONFIRMED);
-//    } else if (rpcType === "out") {
-//      tx.setType(MoneroTxWallet.Type.OUTGOING);
-//      tx.setState(MoneroTxWallet.State.CONFIRMED);
-//    } else if (rpcType === "pending") {
-//      tx.setType(MoneroTxWallet.Type.OUTGOING);
-//      tx.setState(MoneroTxWallet.State.MEMPOOL);
-//    } else if (rpcType === "pool") {
-//      tx.setType(MoneroTxWallet.Type.INCOMING);
-//      tx.setState(MoneroTxWallet.State.MEMPOOL);
-//    } else if (rpcType === "block") {
-//      tx.setType(MoneroTxWallet.Type.INCOMING);
-//      tx.setState(MoneroTxWallet.State.CONFIRMED);
-//      tx.setIsCoinbase(true);
-//    } else if (rpcType === "failed") {
-//      tx.setType(MoneroTxWallet.Type.OUTGOING);
-//      tx.setState(MoneroTxWallet.State.MEMPOOL);
-//    }
-//    
-//  }
-///**
-//* Decodes a "type" from monero-wallet-rpc.
-//* 
-//* @param rpcType is the type to decode
-//* @returns {type: _, state: _, isCoinbase: _}
-//*/
-//static _decodeRpcType(rpcType) {
-// let decoded = { isCoinbase: false };
-// if (rpcType === "in") {
-//   decoded.type = MoneroTxWallet.Type.INCOMING;
-//   decoded.state = MoneroTxWallet.State.CONFIRMED;
-// } else if (rpcType === "out") {
-//   decoded.type = MoneroTxWallet.Type.OUTGOING;
-//   decoded.state = MoneroTxWallet.State.CONFIRMED;
-// } else if (rpcType === "pool") {
-//   decoded.type = MoneroTxWallet.Type.INCOMING;
-//   decoded.state = MoneroTxWallet.State.CONFIRMED;
-// } else if (rpcType === "pending") {
-//   decoded.type = MoneroTxWallet.Type.OUTGOING;
-//   decoded.state = MoneroTxWallet.State.CONFIRMED;
-// } else if (rpcType === "block") {
-//   decoded.type = MoneroTxWallet.Type.INCOMING;
-//   decoded.state = MoneroTxWallet.State.CONFIRMED;
-//   decoded.isCoinbase = true;
-// } else if (rpcType === "failed") {
-//   decoded.type = MoneroTxWallet.Type.OUTGOING;
-//   decoded.state = MoneroTxWallet.State.FAILED;
-// }
-// return decoded;
-//}
-  
   /**
    * Decodes a "type" from monero-wallet-rpc to initialize type and state
    * fields in the given transaction.
