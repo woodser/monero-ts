@@ -300,7 +300,7 @@ function testWallet(wallet, daemon) {
   it("Can get transactions pertaining to an account", async function() {
     let nonDefaultIncoming = false;
     for (let account of await wallet.getAccounts()) {
-      let = await wallet.getTxs(account.getIndex());
+      let txs = await wallet.getTxs(account.getIndex());
       for (let tx of txs) {
         await testTxWalletGet(tx, wallet);
         if (tx.getIsOutgoing()) {
@@ -313,7 +313,7 @@ function testWallet(wallet, daemon) {
         }
       }
     }
-    assertTrue(nonDefaultIncoming, "No incoming transactions found in non-default account and subaddress; run testSendToMultiple() first");
+    assert(nonDefaultIncoming, "No incoming transactions found in non-default account and subaddress; run testSendToMultiple() first");
   });
   
   it("Can get transactions pertaining to a subaddress", async function() {
@@ -335,7 +335,7 @@ function testWallet(wallet, daemon) {
         }
       }
     }
-    assertTrue(nonDefaultIncoming, "No incoming transactions found in non-default account and subaddress; run testSendToMultiple() first");
+    assert(nonDefaultIncoming, "No incoming transactions found in non-default account and subaddress; run testSendToMultiple() first");
   });
   
   it("Can get transactions filtered by having payments or not", async function() {

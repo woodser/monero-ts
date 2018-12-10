@@ -243,7 +243,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // determine account and subaddress indices to be queried
     let indices = new Map();
     if (filter.getAccountIndex() !== undefined) {
-      indices.set(filter.getAccountIndex(), filter.getSubaddressIndices() ? GenUtils.copyArray(filter.getSubaddressIndices()) : await this.getSubaddressIndices(filter.getAccountIndex()));
+      indices.set(filter.getAccountIndex(), filter.getSubaddressIndices() ? GenUtils.copyArray(filter.getSubaddressIndices()) : await this._getSubaddressIndices(filter.getAccountIndex()));
     } else {
       if (filter.getSubaddressIndices() !== undefined) throw new Error("Filter specifies subaddress indices but not an account index");
       indices = await this._getAllAccountAndSubaddressIndices();
