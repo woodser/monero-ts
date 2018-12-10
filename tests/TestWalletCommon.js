@@ -452,7 +452,14 @@ function testSubaddress(subaddress) {
 
 // common tests
 function testTxWalletCommon(tx) {
-  throw new Error("not implemented");
+  assert(tx.getId());
+  assert(tx.getIsIncoming() !== undefined);
+  assert(tx.getIsOutgoing() !== undefined);
+  assert(tx.getIsConfirmed() !== undefined);
+  assert(tx.getIsMempool() !== undefined);
+  assert(tx.getIsFailed() !== undefined);
+  assert(tx.getIsRelayed() !== undefined);
+  assert(tx.getIsCoinbase() !== undefined);
 }
 
 /**
@@ -471,8 +478,7 @@ function testTxWalletGet(tx, wallet, hasOutgoingPayments) {
   
   // run tests
   testTxWalletCommon(tx);
-  if (tx.getType() === MoneroTxWallet.Type.INCOMING) testTxWalletGetIncoming(tx, wallet);
-  else testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments);
+  tx.getIsIncoming() ? testTxWalletGetIncoming(tx, wallet) : testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments);
 }
 
 function testTxWalletGetIncoming(tx, wallet) {

@@ -10,20 +10,40 @@ class MoneroTxWallet extends MoneroTx {
     super(json);
   }
   
-  getType() {
-    return this.json.type;
+  getIsIncoming() {
+    return this.json.isIncoming;
   }
   
-  setType(type) {
-    this.json.type = type;
+  setIsIncoming(isIncoming) {
+    this.json.isIncoming = isIncoming;
   }
   
-  getState() {
-    return this.json.state;
+  getIsOutgoing() {
+    if (this.json.isIncoming === undefined) return undefined;
+    return !this.json.isIncoming;
   }
   
-  setState(state) {
-    this.json.state = state;
+  getIsMempool() {
+    let confirmed = this.getIsConfirmed();
+    let failed = this.getIsFailed();
+    if (confirmed === undefined || failed === undefined) return undefined;
+    return !confirmed && !failed;
+  }
+  
+  getIsRelayed() {
+    return this.json.isRelayed;
+  }
+  
+  setIsRelayed(isRelayed) {
+    this.json.isRelayed = isRelayed;
+  }
+  
+  getIsFailed() {
+    return this.json.isFailed;
+  }
+  
+  setIsFailed(isFailed) {
+    this.json.isFailed = isFailed;
   }
   
   getTotalAmount() {
@@ -82,10 +102,14 @@ class MoneroTxWallet extends MoneroTx {
     this.json.coinbase = coinbase;
   }
   
+  toJson() {
+    throw new Error("Not implemented");
+  }
+  
   merge(tx, mergePayments) {
     
     // no special handling needed
-    MoneroUtils.safeSet(this, this.getType, this.setType, tx.getType());
+    MoneroUtils.safeSet(this, this.getIsIncoming, this.setIsIncoming, tx.getIsIncoming());
     MoneroUtils.safeSet(this, this.getNote, this.setNote, tx.getNote());
     MoneroUtils.safeSet(this, this.getSrcAccountIndex, this.setSrcAccountIndex, tx.getSrcAccountIndex());
     MoneroUtils.safeSet(this, this.getSrcSubaddressIndex, this.setSrcSubaddressIndex, tx.getSrcSubaddressIndex());
@@ -113,12 +137,6 @@ class MoneroTxWallet extends MoneroTx {
       }
     }
   }
-}
-
-// possible transaction types
-MoneroTxWallet.Type = {
-    INCOMING: 0,
-    OUTGOING: 1
 }
 
 // default payment id

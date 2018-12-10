@@ -78,16 +78,17 @@ class MoneroTx extends MoneroDaemonModel {
     this.json.timestamp = timestamp;
   }
   
-  getState() {
-    return this.json.state;
-  }
-  
-  setState(state) {
-    this.json.state = state;
-  }
-  
   getIsConfirmed() {
-    return this.json.state === MoneroTx.State.CONFIRMED;
+    return this.json.isConfirmed;
+  }
+  
+  setIsConfirmed(isConfirmed) {
+    this.json.isConfirmed = isConfirmed;
+  }
+  
+  getIsMempool() {
+    if (this.json.isConfirmed === undefined) return undefined;
+    return !this.json.isConfirmed;
   }
   
   getNumConfirmations() {
@@ -194,6 +195,10 @@ class MoneroTx extends MoneroDaemonModel {
     this.json.rctSigPrunable = rctSigPrunable;
   }
   
+  toJson() {
+    throw new Error("Not implemented");
+  }
+  
   /**
    * Merges the given transaction into this transaction.
    * 
@@ -245,19 +250,8 @@ class MoneroTx extends MoneroDaemonModel {
         this.json.numEstimatedBlocksUntilConfirmed = Math.min(this.json.numEstimatedBlocksUntilConfirmed, tx.getNumEstimatedBlocksUntilConfirmed());
       }
     }
+    throw new Error("Need to merge isConfirmed");
   }
-  
-  toJson() {
-    throw new Error("Not implemented");
-  }
-}
-
-// possible transaction states
-MoneroTx.State = {
-    CONFIRMED: 0,
-    MEMPOOL: 1,
-    NOT_RELAYED: 2,
-    FAILED: 3
 }
 
 module.exports = MoneroTx;
