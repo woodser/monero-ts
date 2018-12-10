@@ -83,7 +83,7 @@ TestUtils.WALLET_RPC_CONFIG = {
   port: 38083,
   user: "rpc_user",
   pass: "abc123",
-  requestsPerSecond: 30
+  requestsPerSecond: 500
 };
 
 // wallet rpc wallet filenames and passwords
@@ -99,7 +99,7 @@ TestUtils.DAEMON_RPC_CONFIG = {
   port: 38081,
   user: "superuser",
   pass: "abctesting123",
-  requestsPerSecond: 100
+  requestsPerSecond: 500
 };
 
 //local wallet config

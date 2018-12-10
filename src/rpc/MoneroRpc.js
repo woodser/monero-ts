@@ -43,7 +43,10 @@ class MoneroRpc {
     this.promiseThrottle = new PromiseThrottle({
       requestsPerSecond: this.config.requestsPerSecond,
       promiseImplementation: Promise
-    })
+    });
+    
+    // initialize http agent
+    this.agent = new Http.Agent({keepAlive: true, maxSockets: 1});
   }
   
   /**
@@ -57,18 +60,15 @@ class MoneroRpc {
     
     // build request
     let opts = {
-        method: "POST",
-        uri: this.config.uri + "/json_rpc",
-        json: {
-          id: "0",
-          jsonrpc: "2.0",
-          method: method,
-          params: params
-        },
-        agent: new Http.Agent({ // TODO: recycle agent?
-          keepAlive: true,
-          maxSockets: 1
-        })
+      method: "POST",
+      uri: this.config.uri + "/json_rpc",
+      json: {
+        id: "0",
+        jsonrpc: "2.0",
+        method: method,
+        params: params
+      },
+      agent: this.agent
     };
     if (this.config.user) {
       opts.forever = true;
@@ -98,13 +98,10 @@ class MoneroRpc {
     
     // build request
     let opts = {
-        method: "POST",
-        uri: this.config.uri + "/" + path,
-        agent: new Http.Agent({ // TODO: recycle agent?
-          keepAlive: true,
-          maxSockets: 1
-        }),
-        json: params
+      method: "POST",
+      uri: this.config.uri + "/" + path,
+      agent: this.agent,
+      json: params
     };
     if (this.config.user) {
       opts.forever = true;
@@ -138,14 +135,11 @@ class MoneroRpc {
     
     // build request
     let opts = {
-        method: "POST",
-        uri: this.config.uri + "/" + path,
-        agent: new Http.Agent({ // TODO: recycle agent?
-          keepAlive: true,
-          maxSockets: 1
-        }),
-        encoding: null,
-        body: paramsBin
+      method: "POST",
+      uri: this.config.uri + "/" + path,
+      agent: this.agent,
+      encoding: null,
+      body: paramsBin
     };
     if (this.config.user) {
       opts.forever = true;
