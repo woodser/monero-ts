@@ -102,7 +102,7 @@ TestUtils.DAEMON_RPC_CONFIG = {
   requestsPerSecond: 500
 };
 
-//local wallet config
+// local wallet config
 TestUtils.WALLET_LOCAL_CONFIG = {
   daemon: TestUtils.getDaemonRpc(),
   mnemonic: TestUtils.TEST_MNEMONIC
