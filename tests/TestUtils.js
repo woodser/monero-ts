@@ -38,7 +38,7 @@ class TestUtils {
   static async initWalletRpc() {
     
     // initialize cached wallet
-    await TestUtils.getWalletRpc();
+    TestUtils.getWalletRpc();
     
     // create rpc wallet file if necessary
     try {

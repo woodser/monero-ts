@@ -34,7 +34,9 @@ describe("Test Wallets Equal", function() {
   });
   
   it("Have the same wallet transactions", async function() {
-    assert.deepEqual(await wallet1.getTxs(), await wallet2.getTxs());
+    let txs1 = await wallet1.getTxs();
+    let txs2 = await wallet2.getTxs();
+    assert.deepEqual(txs1, txs2);
   });
   
   it("Have the same account transactions", async function() {
