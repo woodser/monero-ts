@@ -458,8 +458,8 @@ function testTx(tx, config) {
   
   // fields that only come with /get_transactions
   assert(!config.isFull ? undefined === tx.getTimestamp() : tx.getTimestamp() >= 0);
-  assert(!config.isFull ? undefined === tx.getIsConfirmed() : tx.getIsConfirmed() >= 0);
-  assert(!config.isFull ? undefined === tx.getIsDoubleSpend() : tx.getIsDoubleSpend() >= 0);
+  assert(!config.isFull ? undefined === tx.getIsConfirmed() : tx.getIsConfirmed());
+  assert(!config.isFull ? undefined === tx.getIsDoubleSpend() : tx.getIsDoubleSpend());
 }
 
 function testBlockTemplate(template) {

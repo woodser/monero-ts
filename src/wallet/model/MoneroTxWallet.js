@@ -1,3 +1,4 @@
+const MoneroUtils = require("../../utils/MoneroUtils");
 const MoneroTx = require("../../daemon/model/MoneroTx");
 
 /**
@@ -57,11 +58,11 @@ class MoneroTxWallet extends MoneroTx {
     this.json.srcAccountIndex = srcAccountIndex;
   }
   
-  getSrcSubaddrIndex() {
+  getSrcSubaddressIndex() {
     return this.json.srcSubaddrIndex;
   }
   
-  setSrcSubaddrIndex(srcSubaddrIndex) {
+  setSrcSubaddressIndex(srcSubaddrIndex) {
     this.json.srcSubaddrIndex = srcSubaddrIndex;
   }
   
@@ -81,12 +82,36 @@ class MoneroTxWallet extends MoneroTx {
     this.json.coinbase = coinbase;
   }
   
-  merge(tx) {
+  merge(tx, mergePayments) {
+    
+    // no special handling needed
     MoneroUtils.safeSet(this, this.getType, this.setType, tx.getType());
-    MoneroUtils.safeSet(this, this.getState, this.setState, tx.getState());
+    MoneroUtils.safeSet(this, this.getNote, this.setNote, tx.getNote());
     MoneroUtils.safeSet(this, this.getSrcAccountIndex, this.setSrcAccountIndex, tx.getSrcAccountIndex());
     MoneroUtils.safeSet(this, this.getSrcSubaddressIndex, this.setSrcSubaddressIndex, tx.getSrcSubaddressIndex());
     MoneroUtils.safeSet(this, this.getSrcAddress, this.setSrcAddress, tx.getSrcAddress());
+    MoneroUtils.safeSet(this, this.getIsCoinbase, this.setIsCoinbase, tx.getIsCoinbase());
+    
+    // needs interpretation
+    if (this.json.totalAmount === undefined) this.json.totalAmount = tx.getTotalAmount();
+    else {
+      if (mergePayments) assert(totalAmount.toJSValue() === 0);
+      else this.json.totalAmount = this.json.totalAmount.add(tx.getTotalAmount());
+    }
+    if (this.json.payments === undefined) this.setPayments(tx.getPayments());
+    else if (tx.getPayments() !== undefined) {
+      if (mergePayments) {
+        assert(tx.getPayments().length >= 0, "Tx " + tx.getId() + " cannot be merged because payments are different sizes");
+        for (let i = 0; i < this.json.payments.length; i++) {
+          this.json.payments[i].merge(tx.getPayments()[i]);
+        }
+      } else {
+        for (let payment of tx.getPayments()) {
+          payment.setTx(this);
+          this.json.payments.push(payment);
+        }
+      }
+    }
   }
 }
 
@@ -94,14 +119,6 @@ class MoneroTxWallet extends MoneroTx {
 MoneroTxWallet.Type = {
     INCOMING: 0,
     OUTGOING: 1
-}
-
-// possible transaction states
-MoneroTxWallet.State = {
-    CONFIRMED: 0,
-    MEMPOOL: 1,
-    NOT_RELAYED: 2,
-    FAILED: 3
 }
 
 // default payment id

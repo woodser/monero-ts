@@ -78,6 +78,34 @@ class MoneroTx extends MoneroDaemonModel {
     this.json.timestamp = timestamp;
   }
   
+  getState() {
+    return this.json.state;
+  }
+  
+  setState(state) {
+    this.json.state = state;
+  }
+  
+  getIsConfirmed() {
+    return this.json.state === MoneroTx.State.CONFIRMED;
+  }
+  
+  getNumConfirmations() {
+    return this.json.numConfirmations;
+  }
+  
+  setNumConfirmations(numConfirmations) {
+    this.json.numConfirmations = numConfirmations;
+  }
+  
+  getNumEstimatedBocksUntilConfirmed() {
+    return this.json.numEstimatedBlocksUntilConfirmed;
+  }
+  
+  setNumEstimatedBlocksUntilConfirmed(numEstimatedBlocksUntilConfirmed) {
+    this.json.numEstimatedBlocksUntilConfirmed = numEstimatedBlocksUntilConfirmed;
+  }
+  
   getUnlockTime() {
     return this.json.unlockTime;
   }
@@ -116,30 +144,6 @@ class MoneroTx extends MoneroDaemonModel {
   
   setMetadata(metadata) {
     this.json.metadata = metadata;
-  }
-  
-  getIsConfirmed() {
-    return this.json.isConfirmed;
-  }
-  
-  setIsConfirmed(isConfirmed) {
-    this.json.isConfirmed = isConfirmed;
-  }
-  
-  getNumConfirmations() {
-    return this.json.numConfirmations;
-  }
-  
-  setNumConfirmations(numConfirmations) {
-    this.json.numConfirmations = numConfirmations;
-  }
-  
-  getNumEstimatedBocksUntilConfirmed() {
-    return this.json.numEstimatedBlocksUntilConfirmed;
-  }
-  
-  setNumEstimatedBlocksUntilConfirmed(numEstimatedBlocksUntilConfirmed) {
-    this.json.numEstimatedBlocksUntilConfirmed = numEstimatedBlocksUntilConfirmed;
   }
   
   getCommonTxSets() {
@@ -194,9 +198,8 @@ class MoneroTx extends MoneroDaemonModel {
    * Merges the given transaction into this transaction.
    * 
    * @param tx is the transaction to merge into this one
-   * @param mergePayments specifies if payments should be merged with xor appended to existing payments
    */
-  merge(tx, mergePayments) { 
+  merge(tx) { 
     
     // no special handling needed
     MoneroUtils.safeSet(this, this.getId, this.setId, tx.getId());
@@ -207,6 +210,7 @@ class MoneroTx extends MoneroDaemonModel {
     MoneroUtils.safeSet(this, this.getSize, this.setSize, tx.getSize());
     MoneroUtils.safeSet(this, this.getVersion, this.setVersion, tx.getVersion());
     MoneroUtils.safeSet(this, this.getHeight, this.setHeight, tx.getHeight());
+    MoneroUtils.safeSet(this, this.getState, this.setState, tx.getState());
     MoneroUtils.safeSet(this, this.getNote, this.setNote, tx.getNote());
     MoneroUtils.safeSet(this, this.getUnlockTime, this.setUnlockTime, tx.getUnlockTime());
     MoneroUtils.safeSet(this, this.getIsDoubleSpend, this.setIsDoubleSpend, tx.getIsDoubleSpend());
@@ -214,23 +218,46 @@ class MoneroTx extends MoneroDaemonModel {
     MoneroUtils.safeSet(this, this.getMetadata, this.setMetadata, tx.getMetadata());
     MoneroUtils.safeSet(this, this.getCommonTxSets, this.setCommonTxsSets, tx.getCommonTxSets());
     MoneroUtils.safeSet(this, this.getHex, this.setHex, tx.getHex());
-    MoneroUtils.safeSet(this, this.getIsConfirmed, this.setIsConfirmed, tx.getIsConfirmed());
     MoneroUtils.safeSet(this, this.getExtra, this.setExtra, tx.getExtra());
     MoneroUtils.safeSet(this, this.getVin, this.setVin, tx.getVin());
     MoneroUtils.safeSet(this, this.getVout, this.setVout, tx.getVout());
     MoneroUtils.safeSet(this, this.getRctSignatures, this.setRctSignatures, tx.getRctSignatures());
     MoneroUtils.safeSet(this, this.getRctSigPrunable, this.setRctSigPrunable, tx.getRctSigPrunable());
     
-    // need some interpretation // TODO
-    MoneroUtils.safeSet(this, this.getTimestamp, this.setTimestamp, tx.getTimestamp());
-    MoneroUtils.safeSet(this, this.getNumConfirmations, this.setNumConfirmations, tx.getNumConfirmations());
-    MoneroUtils.safeSet(this, this.getNumEstimatedBlocksUntilConfirmed, this.setNumEstimatedBlocksUntilConfirmed, tx.getNumEstimatedBlocksUntilConfirmed());
-    throw new Error("Not implemented");
+    // needs interpretations
+    if (this.json.timestamp === undefined) this.json.timestamp = tx.getTimestamp();
+    else if (tx.getTimestamp() !== undefined) {
+      if (!this.isConfirmed()) {
+        this.json.timestamp = Math.min(this.json.timestamp, tx.getTimestamp()); // mempool timestamps can vary so use first timestamp
+      } else {
+        assert.equal(this.json.timestamp, tx.getTimestamp(), "Transaction " + tx.getId() + " timestamps should be equal but are not: " + this.json.timestamp + " vs " + tx.getTimestamp());
+      }
+    }
+    if (this.json.numConfirmations === undefined) this.json.numConfirmations = tx.getNumConfirmations();
+    else if (tx.getNumConfirmations() !== undefined) {
+      assert(Math.abs(this.json.numConfirmations - tx.getNumConfirmations()) <= 1); // num confirmations can change, take the latest (max)
+      this.json.numConfirmations = Math.max(this.json.numConfirmations, tx.getNumConfirmations());
+    }
+    if (this.json.numEstimatedBlocksUntilConfirmed !== undefined) {
+      if (tx.getNumEstimatedBlocksUntilConfirmed() === undefined) delete this.json.numEstimatedBlocksUntilConfirmed;  // uninitialize when confirmed
+      else {
+        assert(Math.abs(this.json.numEstimatedBlocksUntilConfirmed - tx.getNumEstimatedBlocksUntilConfirmed()) <= 1); // num estimated blocks can change, take the latest (min)
+        this.json.numEstimatedBlocksUntilConfirmed = Math.min(this.json.numEstimatedBlocksUntilConfirmed, tx.getNumEstimatedBlocksUntilConfirmed());
+      }
+    }
   }
   
   toJson() {
     throw new Error("Not implemented");
   }
+}
+
+// possible transaction states
+MoneroTx.State = {
+    CONFIRMED: 0,
+    MEMPOOL: 1,
+    NOT_RELAYED: 2,
+    FAILED: 3
 }
 
 module.exports = MoneroTx;

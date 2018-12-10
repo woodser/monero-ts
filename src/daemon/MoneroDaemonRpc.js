@@ -247,8 +247,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
     MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, rpcTx.as_hex);
     MoneroUtils.safeSet(tx, tx.getHeight, tx.setHeight, rpcTx.block_height);
     MoneroUtils.safeSet(tx, tx.getTimestamp, tx.setTimestamp, rpcTx.block_timestamp);
+    MoneroUtils.safeSet(tx, tx.getState, tx.setState, rpcTx.in_pool === undefined ? undefined : rpcTx.in_pool ? MoneroTx.State.MEMPOOL : MoneroTx.State.CONFIRMED); 
     MoneroUtils.safeSet(tx, tx.getIsDoubleSpend, tx.setIsDoubleSpend, rpcTx.double_spend_seen);
-    MoneroUtils.safeSet(tx, tx.getIsConfirmed, tx.setIsConfirmed, rpcTx.in_pool === undefined ? undefined : !rpcTx.in_pool);
     MoneroUtils.safeSet(tx, tx.getId, tx.setId, rpcTx.tx_hash);
     MoneroUtils.safeSet(tx, tx.getVersion, tx.setVersion, rpcTx.version);
     MoneroUtils.safeSet(tx, tx.getExtra, tx.setExtra, rpcTx.extra);

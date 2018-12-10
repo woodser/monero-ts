@@ -526,7 +526,7 @@ class MoneroWalletRpc extends MoneroWallet {
     else if (payment !== undefined) tx.setPayments([payment]);
     if (tx.getType() === MoneroTxWallet.Type.OUTGOING) {
       tx.setSrcAccountIndex(accountIdx);
-      tx.setSrcSubaddrIndex(subaddressIdx);
+      tx.setSrcSubaddressIndex(subaddressIdx);
     } else {
       assert(payment);
       assert.equal(1, tx.getPayments().length);
