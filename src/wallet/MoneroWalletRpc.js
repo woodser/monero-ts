@@ -348,7 +348,7 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async rescanSpent() {
-    await this.config.rpc.sendJsonRpcRequest("rescan_spent", null);
+    await this.config.rpc.sendJsonRpcRequest("rescan_spent");
   }
   
   // --------------------------------  PRIVATE --------------------------------
