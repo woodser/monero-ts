@@ -80,6 +80,14 @@ class MoneroTxWallet extends MoneroTx {
   setIsCoinbase(coinbase) {
     this.json.coinbase = coinbase;
   }
+  
+  merge(tx) {
+    MoneroUtils.safeSet(this, this.getType, this.setType, tx.getType());
+    MoneroUtils.safeSet(this, this.getState, this.setState, tx.getState());
+    MoneroUtils.safeSet(this, this.getSrcAccountIndex, this.setSrcAccountIndex, tx.getSrcAccountIndex());
+    MoneroUtils.safeSet(this, this.getSrcSubaddressIndex, this.setSrcSubaddressIndex, tx.getSrcSubaddressIndex());
+    MoneroUtils.safeSet(this, this.getSrcAddress, this.setSrcAddress, tx.getSrcAddress());
+  }
 }
 
 // possible transaction types

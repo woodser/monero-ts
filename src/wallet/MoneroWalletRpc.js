@@ -211,12 +211,12 @@ class MoneroWalletRpc extends MoneroWallet {
     let subaddressMap = this.addressCache[accountIdx];
     if (!subaddressMap) {
       await this.getSubaddresses(accountIdx);             // cache's all addresses at this account
-      return this.getAddress(accountIdx, subaddressIdx);  // uses cache
+      return this.getAddress(accountIdx, subaddressIdx);  // recursive call uses cache
     }
     let address = subaddressMap[subaddressIdx];
     if (!address) {
       await this.getSubaddresses(accountIdx);             // cache's all addresses at this account
-      return this.getAddress(accountIdx, subaddressIdx);  // uses cache
+      return this.getAddress(accountIdx, subaddressIdx);  // recursive call uses cache
     }
     return address;
   }
@@ -267,7 +267,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let resp = await this.config.rpc.sendJsonRpcRequest("get_transfers", params);
       for (let key of Object.keys(resp)) {
         for (let rpcTx of resp[key]) {
-          let tx = MoneroWalletRpc._rpcTxToMoneroTxWallet(rpcTx);
+          let tx = MoneroWalletRpc._buildMoneroTxWallet(rpcTx);
           if (tx.getType() === MoneroTxWallet.Type.INCOMING && tx.getState() === MoneroTxWallet.State.CONFIRMED) {  // TODO: tx.getIsIncoming(), tx.getIsConfirmed(), tx.getIsOutgoing(), etc?
             tx.setTotalAmount(new BigInteger(0));
             tx.setPayments(undefined);
@@ -414,7 +414,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddressIndices;
   }
   
-  static _rpcTxToMoneroTxWallet(rpcTx, type, state, isCoinbase) {
+  static _buildMoneroTxWallet(rpcTx, type, state, isCoinbase) {
     
     // initialize tx to return
     let tx = new MoneroTxWallet();
@@ -605,12 +605,21 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Merges a transaction into a unique set of transactions.
    * 
-   * @param txs are the collection of transactions to merge into
-   * @param tx is the transaction to merge into the collection
+   * @param txs are existing transactions to merge into
+   * @param tx is the transaction to merge into the existing txs
    * @param mergePayments specifies if payments should be merged with xor appended to existing payments
    */
   static _addTx(txs, tx, mergePayments) {
-    throw new Error("Not implemented");
+    assert(tx.getId() !== undefined);
+    assert(tx.getType() !== undefined);
+    let mergedTx;
+    for (let aTx of txs) {
+      if (aTx.getId() === tx.getId() && aTx.getType() === tx.getType()) {
+        aTx.merge(tx, mergePayments);
+        mergedTx = aTx;
+      }
+    }
+    if (mergedTx === undefined) txs.push(tx);  // add tx if it wasn't merged
   }
 }
 

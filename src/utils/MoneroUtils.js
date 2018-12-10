@@ -1,5 +1,4 @@
 const assert = require("assert");
-const MoneroTx = require("../daemon/model/MoneroTx");
 
 /**
  * Collection of Monero utilitlies.
