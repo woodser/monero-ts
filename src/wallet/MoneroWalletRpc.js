@@ -505,7 +505,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsConfirmed(true);
       tx.setIsRelayed(true);
       tx.setIsFailed(false);
-    } else if (rpcType === "pool") {
+    } else if (rpcType === "pool") {  // TODO: need to say tx.setIsMempool(true), model does no validation/interpretation, pojo
       tx.setIsIncoming(true);
       tx.setIsConfirmed(false);
       tx.setIsCoinbase(false);  // TODO: but could it be?

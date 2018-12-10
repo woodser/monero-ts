@@ -23,7 +23,7 @@ class MoneroTxWallet extends MoneroTx {
     return !this.json.isIncoming;
   }
   
-  getIsMempool() {
+  getIsMempool() {  // TODO: can't this be read/set directly? means retaining redundant data
     let confirmed = this.getIsConfirmed();
     if (confirmed === undefined) return undefined;
     if (confirmed) return false;
