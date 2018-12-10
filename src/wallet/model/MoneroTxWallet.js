@@ -25,9 +25,10 @@ class MoneroTxWallet extends MoneroTx {
   
   getIsMempool() {
     let confirmed = this.getIsConfirmed();
-    let failed = this.getIsFailed();
-    if (confirmed === undefined || failed === undefined) return undefined;
-    return !confirmed && !failed;
+    if (confirmed === undefined) return undefined;
+    if (confirmed) return false;
+    if (this.getRelayed() === false) return false;
+    return !this.getIsFailed();
   }
   
   getIsRelayed() {
@@ -149,7 +150,6 @@ class MoneroTxWallet extends MoneroTx {
         }
       } else {
         for (let payment of tx.getPayments()) {
-          payment.setTx(this);
           this.json.payments.push(payment);
         }
       }

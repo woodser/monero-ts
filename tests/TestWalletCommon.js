@@ -288,8 +288,7 @@ function testWallet(wallet, daemon) {
       await testTxWalletGet(txs1[i], wallet);
       await testTxWalletGet(txs2[i], wallet);
       assert.deepEqual(txs1[i], txs2[i]);
-      throw new Error("K do below now");
-      if (!MoneroUtils.isOutgoing(txs1[i].getType())) { // TODO: better way than this...
+      if (txs1[i].getIsIncoming()) {
         for (let payment of txs1[i].getPayments()) {
           if (payment.getAccountIndex() !== 0 && payment.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
         }
@@ -460,14 +459,10 @@ function testSubaddress(subaddress) {
 // common tests
 function testTxWalletCommon(tx) {
   assert(tx.getId());
-  assert(tx.getIsIncoming() !== undefined);
-  assert(tx.getIsOutgoing() !== undefined);
-  assert(tx.getIsConfirmed() !== undefined);
-  assert(tx.getIsMempool() !== undefined);
-  assert(tx.getIsFailed() !== undefined);
-  assert(tx.getIsRelayed() !== undefined);
-  assert(tx.getIsCoinbase() !== undefined);
-  // TODO: validate that these are self consistent
+  assert(typeof tx.getIsIncoming() === "boolean");
+  assert(typeof tx.getIsOutgoing() === "boolean");
+  assert(typeof tx.getIsConfirmed() === "boolean");
+  assert(typeof tx.getIsMempool() === "boolean");
 }
 
 /**
@@ -492,8 +487,15 @@ async function testTxWalletGet(tx, wallet, hasOutgoingPayments) {
 
 async function testTxWalletGetIncoming(tx, wallet) {
   
-  // test common incoming
+  // test state
   assert(tx.getIsIncoming());
+  assert(!tx.getIsOutgoing());
+  assert.equal(undefined, tx.getIsFailed());  // TODO: these really should be part of a separate class, MoneroTxWalletIncoming, MoneroTxWalletOutgoing
+  assert.equal(undefined, tx.getIsRelayed());
+  assert(typeof tx.getIsCoinbase() === "boolean");
+  // TODO: validate state is self consistent
+  
+  // test common incoming
   assert(tx.getId());
   assert.equal(undefined, tx.getSrcAddress());
   assert.equal(undefined, tx.getSrcAccountIndex());
@@ -533,30 +535,34 @@ async function testTxWalletGetIncoming(tx, wallet) {
   assert(tx.getPayments().length > 0);
   let totalAmount = new BigInteger(0);
   for (let payment of tx.getPayments()) {
-    assert(tx === payment.getTx());
     totalAmount = totalAmount.add(payment.getAmount());
     assert(payment.getAddress());
     assert(payment.getAccountIndex() >= 0);
     assert(payment.getSubaddressIndex() >= 0);
     assert.equal(await wallet.getAddress(payment.getAccountIndex(), payment.getSubaddressIndex()), payment.getAddress());
     assert(isUnsignedBigInteger(payment.getAmount()));
-    assert(payment.getAmount().getJSValue() > 0);
+    assert(payment.getAmount().toJSValue() > 0);
     assert(typeof payment.getIsSpent() === "boolean");
     if (tx.getIsConfirmed()) assert(payment.getKeyImage());
     else assert.equal(undefined, payment.getKeyImage());   // TODO (monero-wallet-rpc): mempool transactions do not have key_images
   }
-  assert(totalAmount.compareTo(tx.getTotalAmount()) === 0);
-  
-  throw new Error("Not implemented");
+  assert(totalAmount.compare(tx.getTotalAmount()) === 0);
 }
 
 async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments) {
   
-  // test common outgoing
+  // test state
+  assert(tx.getIsIncoming() === false);
   assert(tx.getIsOutgoing());
+  assert(typeof tx.getIsFailed() === "boolean");
+  assert(typeof tx.getIsRelayed() === "boolean");
+  assert.equal(undefined, tx.getIsCoinbase());
+  // TODO: validate state is self consistent
+  
+  // test common outgoing
   assert(tx.getId());
-  assert(tx.getSrcAccountIndex());
-  assert(tx.getSrcSubaddressIndex() !== undefined);
+  assert(tx.getSrcAccountIndex() >= 0);
+  assert(tx.getSrcSubaddressIndex() >= 0);
   assert(tx.getSrcAddress());
   assert.equal(await wallet.getAddress(tx.getSrcAccountIndex(), tx.getSrcSubaddressIndex()), tx.getSrcAddress());
   assert(isUnsignedBigInteger(tx.getTotalAmount()));
@@ -593,7 +599,6 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments) {
     assert(tx.getPayments().length > 0);
     let totalAmount = new BigInteger(0);
     for (let payment of tx.getPayments()) {
-      assert(tx === payment.getTx());
       assert(payment.getAddress());
       assert(isUnsignedBigInteger(payment.getAmount()));
       assert(payment.getAmount().toJSValue() > 0);
@@ -606,14 +611,13 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments) {
     
     // assert total amount is sum of payments
     // TODO: incoming_transfers d59fe775249465621d7736b53c0cb488e03e4da8dae647a13492ea51d7685c62 totalAmount is 0?
-    if (totalAmount.compareTo(tx.getTotalAmount()) !== 0 && tx.getTotalAmount().compareTo(new BigInteger(0)) === 0) {
+    if (totalAmount.compare(tx.getTotalAmount()) !== 0 && tx.getTotalAmount().compare(new BigInteger(0)) === 0) {
       console.log("WARNING: Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId());
     } else {
-      assert(totalAmount.compareTo(tx.getTotalAmount()) == 0, "Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId());
+      assert(totalAmount.compare(tx.getTotalAmount()) == 0, "Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId());
     }
   }
   
-  throw new Error("Not implemented");
   
 //  assertEquals(tx.getId(), (Integer) 0, tx.getUnlockTime());
 //  assertNotNull(tx.getId(), tx.getIsDoubleSpend());

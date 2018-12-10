@@ -13,14 +13,6 @@ class MoneroPayment {
   constructor(json) {
     this.json = Object.assign({}, json);
   }
-
-  getTx() {
-    return this.json.tx;
-  }
-
-  setTx(tx) {
-    this.json.tx = tx;
-  }
   
   getAddress() {
     return this.json.address;

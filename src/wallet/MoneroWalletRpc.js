@@ -268,7 +268,7 @@ class MoneroWalletRpc extends MoneroWallet {
       for (let key of Object.keys(resp)) {
         for (let rpcTx of resp[key]) {
           let tx = MoneroWalletRpc._buildTxWallet(rpcTx);
-          if (tx.getIsIncoming() && tx.getIsConfirmed()) {
+          if (tx.getIsIncoming() && tx.getIsConfirmed()) {  // prevent duplicates when populated by incoming_transfers  // TODO (monero-wallet-rpc): merge payments when incoming txs work (https://github.com/monero-project/monero/issues/4500)
             tx.setTotalAmount(new BigInteger(0));
             tx.setPayments(undefined);
           }
@@ -283,33 +283,30 @@ class MoneroWalletRpc extends MoneroWallet {
       // get transactions using `incoming_transfers`
       params = {};
       params.transfer_type = "all"; // TODO: suppport all | available | unavailable 'types' which is different from MoneroTxType
-      for (let accountIdx of Object.keys(indices)) {
+      for (let accountIdx of indices.keys()) {
         params.account_index = accountIdx;
         params.subaddr_indices = filter.getSubaddressIndices(); // null subaddr_indices will fetch all incoming_transfers
         let resp = await this.config.rpc.sendJsonRpcRequest("incoming_transfers", params);
         
         // interpret incoming_transfers response
         if (resp.transfers === undefined) continue;
-        for (let rpcTxs of resp.transfers) {
-          for (let rpcTx of rpcTxs) {
+        for (let rpcTx of resp.transfers) {
             
-            // convert rpc to tx and assign address
-            let tx = MoneroWalletRpc._buildTxWallet(rpcTx, true);
-            let address = this.getAddress(accountIdx, tx.getPayments()[0].getSubaddressIndex());
-            tx.getPayments()[0].setAddress(address);
-            
-            // mark coinbase transactions if applicable which `incoming_transfers` does not provide
-            for (let allTx of txs) {
-              if (allTx.getIsCoinbase() && allTx.getId() === tx.getId()) tx.setIsCoinbase(true);
-            }
-            
-            // add tx to existing txs
-            this._addTx(txs, tx, false);
+          // convert rpc to tx and assign address
+          let tx = MoneroWalletRpc._buildTxWallet(rpcTx, true);
+          let address = await this.getAddress(accountIdx, tx.getPayments()[0].getSubaddressIndex());
+          tx.getPayments()[0].setAddress(address);
+          
+          // mark coinbase transactions if applicable which `incoming_transfers` does not provide
+          for (let allTx of txs) {
+            if (allTx.getIsCoinbase() && allTx.getId() === tx.getId()) tx.setIsCoinbase(true);
           }
+          
+          // add tx to existing txs
+          MoneroWalletRpc._addTx(txs, tx, false);
         }
       }
     }
-    
     
     // filter final result
     let toRemoves = [];
@@ -368,22 +365,24 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddressIndices;
   }
   
-  static _buildTxWallet(rpcTx, isIncomingConfirmed) {
-    
+  static _buildTxWallet(rpcTx, isIncomingConfirmedNonCoinbase) {  // TODO: could pass in tx to initialize from rpcTx, then no need for 2nd param
+        
     // initialize tx to return
     let tx = new MoneroTxWallet();
     
     // initialize transaction type and state from rpc type
     if (rpcTx.type !== undefined) {
       MoneroWalletRpc._decodeRpcType(rpcTx.type, tx);
-      if (isIncomingConfirmed) {
+      if (isIncomingConfirmedNonCoinbase) {
         assert(tx.getIsIncoming());
         assert(tx.getIsConfirmed());
+        assert(!tx.getIsCoinbase());
       }
     } else {
-      assert(isIncomingConfirmed, "Tx state is unknown");
+      assert(isIncomingConfirmedNonCoinbase, "Tx state is unknown");
       tx.setIsIncoming(true);
       tx.setIsConfirmed(true);
+      tx.setIsCoinbase(false);
     }
     
     // initialize remaining fields
@@ -557,21 +556,24 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param tx is the transaction decode known fields to
    */
   static _decodeRpcType(rpcType, tx) {
-    tx.setIsRelayed(true);
-    tx.setIsCoinbase(false);
-    tx.setIsFailed(false);
     if (rpcType === "in") {
       tx.setIsIncoming(true);
       tx.setIsConfirmed(true);
+      tx.setIsCoinbase(false);
     } else if (rpcType === "out") {
       tx.setIsIncoming(false);
       tx.setIsConfirmed(true);
+      tx.setIsRelayed(true);
+      tx.setIsFailed(false);
     } else if (rpcType === "pool") {
       tx.setIsIncoming(true);
       tx.setIsConfirmed(false);
+      tx.setIsCoinbase(false);  // TODO: but could it be?
     } else if (rpcType === "pending") {
       tx.setIsIncoming(false);
       tx.setIsConfirmed(false);
+      tx.setIsRelayed(true);
+      tx.setIsFailed(false);
     } else if (rpcType === "block") {
       tx.setIsIncoming(true);
       tx.setIsConfirmed(true);
@@ -579,6 +581,7 @@ class MoneroWalletRpc extends MoneroWallet {
     } else if (rpcType === "failed") {
       tx.setIsIncoming(false);
       tx.setIsConfirmed(false);
+      tx.setIsRelayed(true);
       tx.setIsFailed(true);
     }
   }
