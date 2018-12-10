@@ -9,7 +9,7 @@ class MoneroTxFilter {
     this.outgoing = true;   // tx is outgoing from the wallet
     this.confirmed = true;  // tx is confirmed
     this.mempool = true;    // tx is in mempool
-    this.relayed = true;    // tx is relayed  // TODO: test fetching transactions with this value, throw exception?
+    this.relayed = true;    // tx is relayed  // TODO: test fetching transactions with this value, throw exception? // TODO: should be notRelayed
     this.failed = true;     // tx has failed
   }
   
