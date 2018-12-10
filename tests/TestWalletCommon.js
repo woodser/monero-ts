@@ -183,7 +183,7 @@ function testWallet(wallet, daemon) {
 //      if (subaddresses.length > 1) subaddresses.splice(0, 1);
 //      
 //      // get subaddress indices
-//      let subaddressIndices = subaddresses.map(subaddress => subaddress.getSubaddrIndex());
+//      let subaddressIndices = subaddresses.map(subaddress => subaddress.getSubaddressIndex());
 //      assert(subaddressIndices.length > 0);
 //      
 //      // fetch subaddresses by indices
@@ -201,8 +201,8 @@ function testWallet(wallet, daemon) {
 //      let subaddresses = await wallet.getSubaddresses(account.getIndex());
 //      assert(subaddresses.length > 0);
 //      for (let subaddress of subaddresses) {
-//        assert.deepEqual(subaddress, await wallet.getSubaddress(account.getIndex(), subaddress.getSubaddrIndex()));
-//        assert.deepEqual(subaddress, (await wallet.getSubaddresses(account.getIndex(), subaddress.getSubaddrIndex()))[0]); // test plural call with single subaddr number
+//        assert.deepEqual(subaddress, await wallet.getSubaddress(account.getIndex(), subaddress.getSubaddressIndex()));
+//        assert.deepEqual(subaddress, (await wallet.getSubaddresses(account.getIndex(), subaddress.getSubaddressIndex()))[0]); // test plural call with single subaddr number
 //      }
 //    }
 //  });
@@ -241,7 +241,7 @@ function testWallet(wallet, daemon) {
 //    assert.equal(await wallet.getPrimaryAddress(), (await wallet.getSubaddress(0, 0)).getAddress());
 //    for (let account of await wallet.getAccounts(true)) {
 //      for (let subaddress of await wallet.getSubaddresses(account.getIndex())) {
-//        assert.equal(subaddress.getAddress(), await wallet.getAddress(account.getIndex(), subaddress.getSubaddrIndex()));
+//        assert.equal(subaddress.getAddress(), await wallet.getAddress(account.getIndex(), subaddress.getSubaddressIndex()));
 //      }
 //    }
 //  });
@@ -282,12 +282,12 @@ function testWallet(wallet, daemon) {
     let txs2 = await wallet.getTxs();
     assert.equal(txs1.length, txs2.length);
     for (let i = 0; i < txs1.length; i++) {
-      testGetTx(txs1[i], null, wallet);
-      testGetTx(txs2[i], null, wallet);
+      testTxWallet(txs1[i], null, wallet);
+      testTxWallet(txs2[i], null, wallet);
       assert.deepEqual(txs1[i], txs2[i]);
       if (!MoneroUtils.isOutgoing(txs1[i].getType())) { // TODO: better way than this...
         for (let payment of txs1[i].getPayments()) {
-          if (payment.getAccountIndex() !== 0 && payment.getSubaddrIndex() !== 0) nonDefaultIncoming = true;
+          if (payment.getAccountIndex() !== 0 && payment.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
         }
       }
     }
@@ -299,13 +299,13 @@ function testWallet(wallet, daemon) {
 //    for (let account of await wallet.getAccounts()) {
 //      let = await wallet.getTxs(account.getIndex());
 //      for (let tx of txs) {
-//        testGetTx(tx, null, wallet);
+//        testTxWallet(tx, null, wallet);
 //        if (MoneroUtils.isOutgoing(tx.getType())) {
 //          assert.equal(account.getIndex(), tx.getSrcAccountIndex());
 //        } else {
 //          for (let payment of tx.getPayments()) {
 //            assert.equal(account.getIndex(), payment.getAccountIndex());
-//            if (payment.getAccountIndex() !== 0 && payment.getSubaddrIndex() !== 0) nonDefaultIncoming = true;
+//            if (payment.getAccountIndex() !== 0 && payment.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
 //          }
 //        }
 //      }
@@ -319,14 +319,14 @@ function testWallet(wallet, daemon) {
 //    for (let accountIdx = 0; accountIdx < Math.min(accounts.length, 3); accountIdx++) {
 //      for (let subaddressIdx = 0; subaddressIdx < Math.min(accounts[accountIdx].getSubaddresses().length, 5); subaddressIdx++) {
 //        for (let tx of await wallet.getTxs(accountIdx, subaddressIdx)) {
-//          testGetTx(tx, null, wallet);
+//          testTxWallet(tx, null, wallet);
 //          if (MoneroUtils.isOutgoing(tx.getType()))  {
 //            assert.equal(accountIdx, tx.getSrcAccountIndex());
 //          } else {
 //            for (let payment of tx.getPayments()) {
 //              assert.equal(accountIdx, payment.getAccountIndex());
-//              assert.equal(subaddressIdx, payment.getSubaddrIndex());
-//              if (payment.getAccountIndex() !== 0 && payment.getSubaddrIndex() !== 0) nonDefaultIncoming = true;
+//              assert.equal(subaddressIdx, payment.getSubaddressIndex());
+//              if (payment.getAccountIndex() !== 0 && payment.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
 //            }
 //          }
 //        }
@@ -429,7 +429,7 @@ function testAccount(account) {
     for (let i = 0; i < account.getSubaddresses().length; i++) {
       testSubaddress(account.getSubaddresses()[i]);
       assert.equal(account.getIndex(), account.getSubaddresses()[i].getAccountIndex());
-      assert.equal(i, account.getSubaddresses()[i].getSubaddrIndex());
+      assert.equal(i, account.getSubaddresses()[i].getSubaddressIndex());
       balance = balance.add(account.getSubaddresses()[i].getBalance());
       unlockedBalance = unlockedBalance.add(account.getSubaddresses()[i].getUnlockedBalance());
     }
@@ -440,12 +440,16 @@ function testAccount(account) {
 
 function testSubaddress(subaddress) {
   assert(subaddress.getAccountIndex() >= 0);
-  assert(subaddress.getSubaddrIndex() >= 0);
+  assert(subaddress.getSubaddressIndex() >= 0);
   assert(subaddress.getAddress());
   testUnsignedBigInteger(subaddress.getBalance());
   testUnsignedBigInteger(subaddress.getUnlockedBalance());
   assert(subaddress.getNumUnspentOutputs() >= 0);
   if (subaddress.getBalance().toJSValue() > 0) assert(subaddress.getIsUsed());
+}
+
+function testTxWallet() {
+  throw new Error("Not implemented");
 }
 
 module.exports.testWallet = testWallet;

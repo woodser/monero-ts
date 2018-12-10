@@ -16,12 +16,12 @@ class MoneroSubaddress {
     this.accountIndex = accountIndex;
   }
 
-  getSubaddrIndex() {
-    return this.subaddrIndex;
+  getSubaddressIndex() {
+    return this.subaddressIndex;
   }
 
-  setSubaddrIndex(subaddrIndex) {
-    this.subaddrIndex = subaddrIndex;
+  setSubaddressIndex(subaddressIndex) {
+    this.subaddressIndex = subaddressIndex;
   }
 
   getLabel() {
@@ -80,7 +80,7 @@ class MoneroSubaddress {
     throw new Error("Not implemented");
 //    StringBuilder sb = new StringBuilder();
 //    sb.append(StringUtils.getTabs(offset) + "address: " + address + "\n");
-//    sb.append(StringUtils.getTabs(offset) + "index: [" + accountIndex + ", " + subaddrIndex + "]\n");
+//    sb.append(StringUtils.getTabs(offset) + "index: [" + accountIndex + ", " + subaddressIndex + "]\n");
 //    sb.append(StringUtils.getTabs(offset) + "label: " + label + "\n");
 //    sb.append(StringUtils.getTabs(offset) + "balance: " + balance + "\n");
 //    sb.append(StringUtils.getTabs(offset) + "unlockedBalance: " + unlockedBalance + "\n");

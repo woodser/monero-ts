@@ -142,7 +142,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let subaddress = new MoneroSubaddress();
       subaddresses.push(subaddress);
       subaddress.setAccountIndex(accountIdx);
-      subaddress.setSubaddrIndex(respAddress.address_index);
+      subaddress.setSubaddressIndex(respAddress.address_index);
       subaddress.setLabel(respAddress.label);
       subaddress.setAddress(respAddress.address);
       subaddress.setIsUsed(respAddress.used);
@@ -160,7 +160,7 @@ class MoneroWalletRpc extends MoneroWallet {
       for (let respSubaddress of respSubaddresses) {
         let subaddressIdx = respSubaddress.address_index;
         for (let subaddress of subaddresses) {
-          if (subaddressIdx !== subaddress.getSubaddrIndex()) continue; // find matching subaddress
+          if (subaddressIdx !== subaddress.getSubaddressIndex()) continue; // find matching subaddress
           assert.equal(subaddress.getAddress(), respSubaddress.address);
           if (respSubaddress.balance !== undefined) subaddress.setBalance(new BigInteger(respSubaddress.balance));
           if (respSubaddress.unlocked_balance !== undefined) subaddress.setUnlockedBalance(new BigInteger(respSubaddress.unlocked_balance));
@@ -176,7 +176,7 @@ class MoneroWalletRpc extends MoneroWallet {
       this.addressCache[accountIdx] = subaddressMap;
     }
     for (let subaddress of subaddresses) {
-      subaddressMap[subaddress.getSubaddrIndex()] = subaddress.getAddress();
+      subaddressMap[subaddress.getSubaddressIndex()] = subaddress.getAddress();
     }
     
     // return results
@@ -197,7 +197,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // build subaddress object
     let subaddress = new MoneroSubaddress();
     subaddress.setAccountIndex(accountIdx);
-    subaddress.setSubaddrIndex(resp.address_index);
+    subaddress.setSubaddressIndex(resp.address_index);
     subaddress.setAddress(resp.address);
     subaddress.setLabel(label ? label : "");
     subaddress.setBalance(new BigInteger(0));
@@ -267,7 +267,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let resp = await this.config.rpc.sendJsonRpcRequest("get_transfers", params);
       for (let key of Object.keys(resp)) {
         for (let rpcTx of resp[key]) {
-          let tx = MoneroWalletRpc._buildMoneroTxWallet(rpcTx);
+          let tx = MoneroWalletRpc._buildTxWallet(rpcTx);
           if (tx.getType() === MoneroTxWallet.Type.INCOMING && tx.getState() === MoneroTxWallet.State.CONFIRMED) {  // TODO: tx.getIsIncoming(), tx.getIsConfirmed(), tx.getIsOutgoing(), etc?
             tx.setTotalAmount(new BigInteger(0));
             tx.setPayments(undefined);
@@ -277,101 +277,55 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
 
-//    // stores merged txs across calls
-//    List<MoneroTx> txs = new ArrayList<MoneroTx>();    
-//    
-//    // determine account and subaddress indices to be queried
-//    Map<Integer, List<Integer>> indices = new HashMap<Integer, List<Integer>>();
-//    if (filter.getAccountIndex() != null) {
-//      indices.put(filter.getAccountIndex(), filter.getSubaddressIndices() == null || filter.getSubaddressIndices().isEmpty() ? getSubaddressIndices(filter.getAccountIndex()) : new ArrayList<Integer>(filter.getSubaddressIndices()));
-//    } else {
-//      if (filter.getSubaddressIndices() != null) throw new RuntimeException("Filter specifies subaddress indices but not an account index");
-//      indices = getAllAccountAndSubaddressIndices();
-//    }
-//    
-//    // build common params for get_transfers
-//    Map<String, Object> params = new HashMap<String, Object>();
-//    params.put("in", filter.isIncoming());
-//    params.put("out", filter.isOutgoing());
-//    params.put("pending", filter.isPending());
-//    params.put("failed", filter.isFailed());
-//    params.put("pool", filter.isMempool());
-//    params.put("filter_by_height", filter.getMinHeight() != null || filter.getMaxHeight() != null);
-//    if (filter.getMinHeight() != null) params.put("min_height", filter.getMinHeight());
-//    if (filter.getMaxHeight() != null) params.put("max_height", filter.getMaxHeight());
-//    
-//    // get transactions using get_transfers
-//    for (Integer accountIdx : indices.keySet()) {
-//      params.put("account_index", accountIdx);
-//      params.put("subaddr_indices", indices.get(accountIdx));
-//      Map<String, Object> respMap = rpc.sendRpcRequest("get_transfers", params);
-//      Map<String, Object> result = (Map<String, Object>) respMap.get("result");
-//      for (String key : result.keySet()) {
-//        for (Map<String, Object> txMap : (List<Map<String, Object>>) result.get(key)) {
-//          MoneroTx tx = txMapToTx(txMap, this);
-//          if (MoneroUtils.isIncoming(tx.getType()) && MoneroUtils.isConfirmed(tx.getType())) {  // prevent duplicates when populated by incoming_transfers  // TODO (monero-wallet-rpc): merge payments when incoming txs work (https://github.com/monero-project/monero/issues/4500)
-//            tx.setTotalAmount(BigInteger.valueOf(0));
-//            tx.setPayments(null);
-//          }
-//          addTx(txs, tx, false);
-//        }
-//      }
-//    }
-//    
-//    // get incoming transactions
-//    if (filter.isIncoming()) {
-//      
-//      // get transactions using incoming_transfers
-//      params.clear();
-//      params.put("transfer_type", "all"); // TODO: suppport all | available | unavailable 'types' which is different from MoneroTxType
-//      for (Integer accountIdx : indices.keySet()) {
-//        params.put("account_index", accountIdx);
-//        params.put("subaddr_indices", filter.getSubaddressIndices()); // null subaddr_indices will fetch all incoming_transfers
-//        Map<String, Object> respMap = rpc.sendRpcRequest("incoming_transfers", params);
-//        Map<String, Object> result = (Map<String, Object>) respMap.get("result");
-//
-//        // interpret incoming_transfers response
-//        List<Map<String, Object>> txMaps = (List<Map<String, Object>>) result.get("transfers");
-//        if (txMaps != null) {
-//          for (Map<String, Object> txMap : txMaps) {
-//            
-//            // convert map to tx and assign address
-//            MoneroTx tx = txMapToTx(txMap, MoneroTxType.INCOMING, this);
-//            String address = getAddress(accountIdx, tx.getPayments().get(0).getSubaddrIndex());
-//            tx.getPayments().get(0).setAddress(address);
-//            
-//            // assign block type if applicable, which 'incoming_transfers' does not provide
-//            for (MoneroTx allTx : txs) {
-//              if (allTx.getType() == MoneroTxType.BLOCK && allTx.getId().equals(tx.getId())) {
-//                tx.setType(allTx.getType());
-//              }
-//            }
-//            
-//            // add tx to existing txs
-//            addTx(txs, tx, false);
-//          }
-//        }
-//      }
-//    }
-//
-//    // filter final result
-//    Collection<MoneroTx> toRemoves = new HashSet<MoneroTx>();
-//    for (MoneroTx tx : txs) {
-//      if (filter.getPaymentIds() != null && !filter.getPaymentIds().contains(tx.getPaymentId())) toRemoves.add(tx);
-//      else if (filter.getTxIds() != null && !filter.getTxIds().contains(tx.getId())) toRemoves.add(tx);
-//      else if (filter.getMinHeight() != null && (tx.getHeight() == null || tx.getHeight() < filter.getMinHeight())) toRemoves.add(tx);
-//      else if (filter.getMaxHeight() != null && (tx.getHeight() == null || tx.getHeight() > filter.getMaxHeight())) toRemoves.add(tx);
-//      else if (Boolean.TRUE.equals(filter.getHasPayments()) && (tx.getPayments() == null || tx.getPayments().isEmpty())) toRemoves.add(tx);
-//      else if (Boolean.FALSE.equals(filter.getHasPayments()) && tx.getPayments() != null && !tx.getPayments().isEmpty()) toRemoves.add(tx);
-//    }
-//    txs.removeAll(toRemoves);
-//    return txs;
+    // get incoming transactions
+    if (filter.getIncoming()) {
+
+      // get transactions using `incoming_transfers`
+      params = {};
+      params.transfer_type = "all"; // TODO: suppport all | available | unavailable 'types' which is different from MoneroTxType
+      for (let accountIdx of Object.keys(indices)) {
+        params.account_index = accountIdx;
+        params.subaddr_indices = filter.getSubaddressIndices(); // null subaddr_indices will fetch all incoming_transfers
+        let resp = await this.config.rpc.sendJsonRpcRequest("incoming_transfers", params);
+        
+        // interpret incoming_transfers response
+        if (resp.transfers === undefined) continue;
+        for (let rpcTxs of resp.transfers) {
+          for (let rpcTx of rpcTxs) {
+            
+            // convert rpc to tx and assign address
+            let tx = MoneroWalletRpc._buildTxWallet(rpcTx, MoneroTxWallet.Type.INCOMING, MoneroTx.State.CONFIRMED);
+            let address = this.getAddress(accountIdx, tx.getPayments()[0].getSubaddressIndex());
+            tx.getPayments()[0].setAddress(address);
+            
+            // mark coinbase transactions if applicable which `incoming_transfers` does not provide
+            for (let allTx of txs) {
+              if (allTx.getIsCoinbase() && allTx.getId() === tx.getId()) tx.setIsCoinbase(true);
+            }
+            
+            // add tx to existing txs
+            this._addTx(txs, tx, false);
+          }
+        }
+      }
+    }
     
     
-    
-    
-    
-    throw new Error("Not implemented");
+    // filter final result
+    let toRemoves = [];
+    for (let tx of txs) {
+      if (filter.getPaymentIds() !== undefined && !filter.getPaymentIds().contains(tx.getPaymentId())) toRemoves.push(tx);
+      else if (filter.getTxIds() !== undefined && !filter.getTxIds().contains(tx.getId())) toRemoves.push(tx);
+      else if (filter.getMinHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() < filter.getMinHeight())) toRemoves.push(tx);
+      else if (filter.getMaxHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() > filter.getMaxHeight())) toRemoves.push(tx);
+      else if (filter.getHasPayments() && (tx.getPayments() === undefined || tx.getPayments().length === 0)) toRemoves.push(tx);
+      else if (!filter.getHasPayments() && tx.getPayments() !== undefined && !tx.getPayments().length === 0) toRemoves.push(tx);
+    }
+    let lengthBefore;
+    if (toRemoves.length > 0) lengthBefore = txs.length; 
+    txs.filter(tx => !toRemoves.includes(tx));  // remove elements
+    if (lengthBefore !== undefined) assert(txs.length < lengthBefore);  // TODO: remove this check
+    return txs;
   }
   
   // -------------------------- SPECIFIC TO RPC WALLET ------------------------
@@ -414,7 +368,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddressIndices;
   }
   
-  static _buildMoneroTxWallet(rpcTx, type, state, isCoinbase) {
+  static _buildTxWallet(rpcTx, type, state, isCoinbase) {
     
     // initialize tx to return
     let tx = new MoneroTxWallet();
@@ -531,7 +485,7 @@ class MoneroWalletRpc extends MoneroWallet {
       assert(payment);
       assert.equal(1, tx.getPayments().length);
       payment.setAccountIndex(accountIdx);
-      payment.setSubaddrIndex(subaddressIdx);
+      payment.setSubaddressIndex(subaddressIdx);
     }
     if (tx.getPayments() !== undefined && tx.getType() == MoneroTxWallet.Type.INCOMING && tx.getState() === MoneroTxWallet.State.MEMPOOL) {
       for (let aPayment of tx.getPayments()) aPayment.setIsSpent(false);  // incoming mempool payments are not spent
@@ -543,7 +497,7 @@ class MoneroWalletRpc extends MoneroWallet {
   
 //  /**
 //   * Initializes the tx type, state, and coinbase if applicable from a rpc type.
-//   * 
+//   *
 //   * @param rpcType is the type as reported from monero-wallet-rpc
 //   * @param tx is the transaction to initialize from the type
 //   */

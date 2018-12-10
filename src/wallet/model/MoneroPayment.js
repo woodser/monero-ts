@@ -38,12 +38,12 @@ class MoneroPayment {
     this.json.accountIndex = accountIndex;
   }
 
-  getSubaddrIndex() {
-    return this.json.subaddrIndex;
+  getSubaddressIndex() {
+    return this.json.subaddressIndex;
   }
 
-  setSubaddrIndex(subaddrIndex) {
-    this.json.subaddrIndex = subaddrIndex;
+  setSubaddressIndex(subaddressIndex) {
+    this.json.subaddressIndex = subaddressIndex;
   }
 
   getAmount() {
@@ -85,8 +85,8 @@ class MoneroPayment {
 //    else if (payment.getAddress() != null) assertEquals(address, payment.getAddress());
 //    if (accountIndex == null) accountIndex = payment.getAccountIndex();
 //    else if (payment.getAccountIndex() != null) assertEquals(accountIndex, payment.getAccountIndex());
-//    if (subaddrIndex == null) subaddrIndex = payment.getSubaddrIndex();
-//    else if (payment.getSubaddrIndex() != null) assertEquals(subaddrIndex, payment.getSubaddrIndex());
+//    if (subaddressIndex == null) subaddressIndex = payment.getSubaddressIndex();
+//    else if (payment.getSubaddressIndex() != null) assertEquals(subaddressIndex, payment.getSubaddressIndex());
 //    if (amount == null) amount = payment.getAmount();
 //    else if (payment.getAmount() != null) assertTrue("Amounts", amount.compareTo(payment.getAmount()) == 0);
 //    if (isSpent == null) isSpent = payment.getIsSpent();
@@ -104,7 +104,7 @@ class MoneroPayment {
 //    StringBuilder sb = new StringBuilder();
 //    sb.append(StringUtils.getTabs(offset) + "Address: " + getAddress() + "\n");
 //    sb.append(StringUtils.getTabs(offset) + "Account idx: " + getAccountIndex() + "\n");
-//    sb.append(StringUtils.getTabs(offset) + "Subaddr idx: " + getSubaddrIndex() + "\n");
+//    sb.append(StringUtils.getTabs(offset) + "Subaddr idx: " + getSubaddressIndex() + "\n");
 //    sb.append(StringUtils.getTabs(offset) + "Amount: " + getAmount() + "\n");
 //    sb.append(StringUtils.getTabs(offset) + "Is spent: " + getIsSpent() + "\n");
 //    sb.append(StringUtils.getTabs(offset) + "Key image: " + getKeyImage());
