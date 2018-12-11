@@ -311,18 +311,14 @@ class MoneroWalletRpc extends MoneroWallet {
     // filter final result
     let toRemoves = [];
     for (let tx of txs) {
-      if (filter.getPaymentIds() !== undefined && !filter.getPaymentIds().contains(tx.getPaymentId())) toRemoves.push(tx);
-      else if (filter.getTxIds() !== undefined && !filter.getTxIds().contains(tx.getId())) toRemoves.push(tx);
+      if (filter.getPaymentIds() !== undefined && !filter.getPaymentIds().includes(tx.getPaymentId())) toRemoves.push(tx);
+      else if (filter.getTxIds() !== undefined && !filter.getTxIds().includes(tx.getId())) toRemoves.push(tx);
       else if (filter.getMinHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() < filter.getMinHeight())) toRemoves.push(tx);
       else if (filter.getMaxHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() > filter.getMaxHeight())) toRemoves.push(tx);
       else if (filter.getHasPayments() && (tx.getPayments() === undefined || tx.getPayments().length === 0)) toRemoves.push(tx);
       else if (!filter.getHasPayments() && tx.getPayments() !== undefined && !tx.getPayments().length === 0) toRemoves.push(tx);
     }
-    let lengthBefore;
-    if (toRemoves.length > 0) lengthBefore = txs.length; 
-    txs.filter(tx => !toRemoves.includes(tx));  // remove elements
-    if (lengthBefore !== undefined) assert(txs.length < lengthBefore);  // TODO: remove this check
-    return txs;
+    return txs.filter(tx => !toRemoves.includes(tx));
   }
   
   // -------------------------- SPECIFIC TO RPC WALLET ------------------------

@@ -276,10 +276,6 @@ function testWallet(wallet, daemon) {
     assert.equal(walletUnlockedBalance.toJSValue(), accountsUnlockedBalance.toJSValue());
   });
   
-  it("Has a balance that is the sum of all unspent incoming transactions", async function() {
-    throw new Error("Not implemented");
-  });
-  
   it("Can get transactions pertaining to the wallet", async function() {
     let nonDefaultIncoming = false;
     let txs1 = await getCachedTxs();
@@ -340,7 +336,36 @@ function testWallet(wallet, daemon) {
   });
   
   it("Can get wallet transactions by id", async function() {
-    throw new Error("Not implemented");
+    
+    // get random transactions
+    let txs = await getRandomTransactions(wallet, undefined, 1, 5);
+    
+    // fetch transactions by id
+    let txIds = [];
+    for (let tx of txs) {
+      txIds.push(tx.getId());
+      let filter = new MoneroTxFilter();
+      filter.setTxIds([tx.getId()]);
+      let filteredTxs = await wallet.getTxs(filter);
+      assert(filteredTxs.length > 0);
+      for (let filteredTx of filteredTxs) {
+        assert.equal(tx.getId(), filteredTx.getId());
+      }
+    }
+    
+    // fetch transactions by ids
+    let filter = new MoneroTxFilter();
+    filter.setTxIds(txIds);
+    let filteredTxs = await wallet.getTxs(filter);
+    assert(filteredTxs.length > 0);
+    for (let filteredTx of filteredTxs) {
+      assert(txIds.includes(filteredTx.getId()));
+    }
+    for (let txId of txIds) {
+      let found = false;
+      for (let filteredTx of filteredTxs) if (filteredTx.getId() === txId) found = true;
+      assert(found, "No transaction with id " + txId + " fetched");
+    }
   });
   
   it("Can get transactions filtered by having payments or not", async function() {
@@ -348,6 +373,10 @@ function testWallet(wallet, daemon) {
   });
   
   it("Can get wallet transactions with a filter", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Has a balance that is the sum of all unspent incoming transactions", async function() {
     throw new Error("Not implemented");
   });
   
@@ -623,6 +652,23 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments) {
       assert(totalAmount.compare(tx.getTotalAmount()) == 0, "Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId());
     }
   }
+}
+
+/**
+ * Gets random transactions.
+ * 
+ * @param wallet is the wallet to query for transactions
+ * @param filter specifies a filter for the transactions.
+ * @param minTxs specifies the minimum number of transactions (undefined for no minimum)
+ * @param maxTxs specifies the maximum number of transactions (undefined for all filtered transactions)
+ * @return {MoneroTx[]} are the random transactions
+ */
+async function getRandomTransactions(wallet, filter, minTxs, maxTxs) {
+  let txs = await wallet.getTxs(filter);
+  if (minTxs !== undefined) assert(txs.length >= minTxs);
+  GenUtils.shuffle(txs);
+  if (maxTxs === undefined) return txs;
+  else return txs.slice(0, Math.min(maxTxs, txs.length));
 }
 
 module.exports.testWallet = testWallet;
