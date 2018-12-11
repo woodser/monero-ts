@@ -117,7 +117,7 @@ class MoneroTxFilter {
     return this.paymentIds;
   }
 
-  setPaymentIds(CpaymentIds) {
+  setPaymentIds(paymentIds) {
     this.paymentIds = paymentIds;
   }
 }
