@@ -844,6 +844,8 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments) {
       assert(totalAmount.compare(tx.getTotalAmount()) == 0, "Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId());
     }
   }
+  
+  // TODO: test failed
 }
 
 /**
