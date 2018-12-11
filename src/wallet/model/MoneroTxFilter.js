@@ -120,6 +120,32 @@ class MoneroTxFilter {
   setPaymentIds(paymentIds) {
     this.paymentIds = paymentIds;
   }
+  
+  /**
+   * Indicates if the given transaction meets the criteria of this filter and
+   * will therefore not be filtered.
+   * 
+   * @param {MoneroTxWallet} is the transaction to check
+   * @returns {boolean} true if the filter criteria are met, false otherwise
+   */
+  meetsCriteria(tx) {
+    // TODO: does not check account index or subaddress indices
+    if (this.getTxIds() !== undefined && !this.getTxIds().includes(tx.getId())) return false;
+    if (this.getIsIncoming() !== undefined && this.getIsIncoming() !== tx.getIsIncoming()) return false;
+    if (this.getIsOutgoing() !== undefined && this.getIsOutgoing() !== tx.getIsOutgoing()) return false;
+    if (this.getIsConfirmed() !== undefined && this.getIsConfirmed() !== tx.getIsConfirmed()) return false;
+    if (this.getInMempool() !== undefined && this.getInMempool() !== tx.getInMempool()) return false;
+    if (this.getIsRelayed() !== undefined && this.getIsRelayed() !== tx.getIsRelayed()) return false;
+    if (this.getIsFailed() !== undefined && this.getIsFailed() !== tx.getIsFailed()) return false;
+    if (this.getMinHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() < this.getMinHeight())) return false;
+    if (this.getMaxHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() > this.getMaxHeight())) return false;
+    if (this.getPaymentIds() !== undefined && !this.getPaymentIds().includes(tx.getPaymentId())) return false;
+    if (this.getHasPayments() !== undefined) {
+      if (this.getHasPayments() && (tx.getPayments() === undefined || tx.getPayments().length === 0)) return false;
+      if (!this.getHasPayments() && tx.getPayments() !== undefined && tx.getPayments().length > 0) return false;
+    }
+    return true;
+  }
 }
 
 module.exports = MoneroTxFilter;

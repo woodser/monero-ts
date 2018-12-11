@@ -310,14 +310,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // filter final result
     let toRemoves = [];
-    for (let tx of txs) {
-      if (filter.getPaymentIds() !== undefined && !filter.getPaymentIds().includes(tx.getPaymentId())) toRemoves.push(tx);
-      else if (filter.getTxIds() !== undefined && !filter.getTxIds().includes(tx.getId())) toRemoves.push(tx);
-      else if (filter.getMinHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() < filter.getMinHeight())) toRemoves.push(tx);
-      else if (filter.getMaxHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() > filter.getMaxHeight())) toRemoves.push(tx);
-      else if (filter.getHasPayments() && (tx.getPayments() === undefined || tx.getPayments().length === 0)) toRemoves.push(tx);
-      else if (!filter.getHasPayments() && tx.getPayments() !== undefined && !tx.getPayments().length === 0) toRemoves.push(tx);
-    }
+    for (let tx of txs) if (!filter.meetsCriteria(tx)) toRemoves.push(tx);
     return txs.filter(tx => !toRemoves.includes(tx));
   }
   

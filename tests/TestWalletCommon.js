@@ -514,7 +514,8 @@ function testWallet(wallet, daemon) {
           }
         }
       }
-      assert.equal((await wallet.getSubaddress(subaddress.getAccountIndex(), subaddress.getSubaddressIndex())).getBalance(), balance);  // TODO: (monero-wallet-rpc): fails after send tests
+      let actualBalance = (await wallet.getSubaddress(subaddress.getAccountIndex(), subaddress.getSubaddressIndex())).getBalance();
+      assert(actualBalance.compare(balance) === 0); // TODO: (monero-wallet-rpc): fails after send tests
     }
     
     // assert that ummet filter criteria has no results
