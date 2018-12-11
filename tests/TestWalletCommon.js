@@ -6,6 +6,7 @@ const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/
 const MoneroWallet = require("../src/wallet/MoneroWallet");
 const MoneroTx = require("../src/daemon/model/MoneroTx");
 const MoneroTxWallet = require("../src/wallet/model/MoneroTxWallet");
+const MoneroTxFilter = require("../src/wallet/model/MoneroTxFilter");
 
 /**
  * Runs common tests that any Monero wallet should implement.
@@ -338,11 +339,11 @@ function testWallet(wallet, daemon) {
     assert(nonDefaultIncoming, "No incoming transactions found in non-default account and subaddress; run testSendToMultiple() first");
   });
   
-  it("Can get transactions filtered by having payments or not", async function() {
+  it("Can get wallet transactions by id", async function() {
     throw new Error("Not implemented");
   });
   
-  it("Can get wallet transactions by id", async function() {
+  it("Can get transactions filtered by having payments or not", async function() {
     throw new Error("Not implemented");
   });
   

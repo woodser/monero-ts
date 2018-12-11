@@ -251,11 +251,11 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // build common params for get_transfers
     let params = {};
-    params.in = filter.getIncoming() && filter.getConfirmed();
-    params.out = filter.getOutgoing() && filter.getConfirmed();
-    params.pool = filter.getIncoming() && filter.getMempool();
-    params.pending = filter.getOutgoing() && filter.getMempool();
-    params.failed = filter.getOutgoing() && filter.getFailed();
+    params.in = filter.getIsIncoming() !== false && filter.getIsConfirmed() !== false;
+    params.out = filter.getIsOutgoing() !== false && filter.getIsConfirmed() !== false;
+    params.pool = filter.getIsIncoming() !== false && filter.getInMempool() !== false;
+    params.pending = filter.getIsOutgoing() !== false && filter.getInMempool() !== false;
+    params.failed = filter.getIsOutgoing() !== false && filter.getIsFailed() !== false;
     params.filter_by_height = filter.getMinHeight() !== undefined || filter.getMaxHeight() !== undefined;
     if (filter.getMinHeight() !== undefined) params.min_height = filter.getMinHeight();
     if (filter.getMaxHeight() !== undefined) params.max_height = filter.getMaxHeight();
@@ -278,7 +278,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
 
     // get incoming transactions
-    if (filter.getIncoming()) {
+    if (filter.getIsIncoming() !== false) {
 
       // get transactions using `incoming_transfers`
       params = {};

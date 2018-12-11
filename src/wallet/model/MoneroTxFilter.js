@@ -1,5 +1,16 @@
 /**
- * Specifies filter options when querying transactions.
+ * Allows specific transactions to be queried by specifying filter options.
+ * 
+ * For each filter option:
+ * 
+ * If the filter option is undefined, the transaction will not be filtered by
+ * that option.  All filter options are undefined by default.
+ * 
+ * If the filter option is defined and not false, the transaction must match it
+ * or it will be filtered.
+ * 
+ * If the filter option is false, the transaction must not match it or it will be
+ * filtered.
  * 
  * incoming, outgoing, confirmed, mempool, relayed, failed, coinbase, hasPayments,
  * min height, max height, account idx, subaddress indices, tx ids, payment ids
