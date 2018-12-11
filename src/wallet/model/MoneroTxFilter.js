@@ -6,80 +6,6 @@
  */
 class MoneroTxFilter {
   
-  // constructs with defaults
-  constructor() {
-    this.incoming = true;   // tx is incoming to the wallet
-    this.outgoing = true;   // tx is outgoing from the wallet
-    this.confirmed = true;  // tx is confirmed
-    this.mempool = true;    // tx is in mempool
-    this.relayed = true;    // tx is relayed  // TODO: test fetching transactions with this value, throw exception? // TODO: should be notRelayed
-    this.failed = true;     // tx has failed
-  }
-  
-  getIncoming() {
-    return this.incoming;
-  }
-  
-  setIncoming(incoming) {
-    this.incoming = incoming;
-  }
-  
-  getOutgoing() {
-    return this.outgoing;
-  }
-  
-  setOutgoing(outgoing) {
-    this.outgoing = outgoing;
-  }
-  
-  getConfirmed() {
-    return this.confirmed;
-  }
-  
-  setConfirmed(confirmed) {
-    this.confirmed = confirmed;
-  }
-  
-  getMempool() {
-    return this.mempool;
-  }
-  
-  setMempool(mempool) {
-    this.mempool = mempool;
-  }
-  
-  getRelayed() {
-    return this.relayed;
-  }
-  
-  setRelayed(relayed) {
-    this.relayed = relayed;
-  }
-  
-  getFailed() {
-    return this.failed;
-  }
-  
-  setFailed(failed) {
-    return this.failed = failed;
-  }
-
-  getMinHeight() {
-    return this.minHeight;
-  }
-
-  setMinHeight(minHeight) {
-    this.minHeight = minHeight;
-  }
-
-  getMaxHeight() {
-    return this.maxHeight;
-  }
-
-  setMaxHeight(maxHeight) {
-    this.maxHeight = maxHeight;
-  }
-
   getAccountIndex() {
     return this.accountIndex;
   }
@@ -103,21 +29,85 @@ class MoneroTxFilter {
   setTxIds(txIds) {
     this.txIds = txIds;
   }
-
-  getPaymentIds() {
-    return this.paymentIds;
+  
+  getIsIncoming() {
+    return this.isIncoming;
+  }
+  
+  setIsIncoming(isIncoming) {
+    this.isIncoming = isIncoming;
+  }
+  
+  getIsOutgoing() {
+    return this.isOutgoing;
+  }
+  
+  setIsOutgoing(isOutgoing) {
+    this.isOutgoing = isOutgoing;
+  }
+  
+  getIsConfirmed() {
+    return this.isConfirmed;
+  }
+  
+  setIsConfirmed(isConfirmed) {
+    this.isConfirmed = isConfirmed;
+  }
+  
+  getInMempool() {
+    return this.inMempool;
+  }
+  
+  setInMempool(inMempool) {
+    this.inMempool = inMempool;
+  }
+  
+  getIsRelayed() {
+    return this.isRelayed;
+  }
+  
+  setIsRelayed(isRelayed) {
+    this.isRelayed = isRelayed;
+  }
+  
+  getIsFailed() {
+    return this.isFailed;
+  }
+  
+  setIsFailed(isFailed) {
+    return this.isFailed = isFailed;
   }
 
-  setPaymentIds(CpaymentIds) {
-    this.paymentIds = paymentIds;
+  getMinHeight() {
+    return this.minHeight;
   }
 
+  setMinHeight(minHeight) {
+    this.minHeight = minHeight;
+  }
+
+  getMaxHeight() {
+    return this.maxHeight;
+  }
+
+  setMaxHeight(maxHeight) {
+    this.maxHeight = maxHeight;
+  }
+  
   getHasPayments() {
     return this.hasPayments;
   }
 
   setHasPayments(hasPayments) {
     this.hasPayments = hasPayments;
+  }
+  
+  getPaymentIds() {
+    return this.paymentIds;
+  }
+
+  setPaymentIds(CpaymentIds) {
+    this.paymentIds = paymentIds;
   }
 }
 
