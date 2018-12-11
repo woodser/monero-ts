@@ -1,5 +1,8 @@
 /**
  * Specifies filter options when querying transactions.
+ * 
+ * incoming, outgoing, confirmed, mempool, relayed, failed, coinbase, hasPayments,
+ * min height, max height, account idx, subaddress indices, tx ids, payment ids
  */
 class MoneroTxFilter {
   
