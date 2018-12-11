@@ -1,5 +1,5 @@
 TODO
-standardize on isConibase, isIncoming, etc
+standardize on isCoinbase, isIncoming, etc
 getIsCoinbase() should be in MoneroTx and tested
 replace getType() with xor getIsIncoming()
 rather than block type, incoming and confirmed, but need to mark isMinerTx() in txs
