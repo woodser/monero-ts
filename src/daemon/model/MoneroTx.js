@@ -1,3 +1,4 @@
+const assert = require("assert");
 const MoneroDaemonModel = require("./MoneroDaemonModel");
 const MoneroUtils = require("../../utils/MoneroUtils");
 
@@ -62,22 +63,6 @@ class MoneroTx extends MoneroDaemonModel {
     this.json.size = size;
   }
   
-  getHeight() {
-    return this.json.height;
-  }
-  
-  setHeight(height) {
-    this.json.height = height;
-  }
-  
-  getTimestamp() {
-    return this.json.timestamp;
-  }
-  
-  setTimestamp(timestamp) {
-    this.json.timestamp = timestamp;
-  }
-  
   getIsConfirmed() {
     return this.json.isConfirmed;
   }
@@ -86,9 +71,21 @@ class MoneroTx extends MoneroDaemonModel {
     this.json.isConfirmed = isConfirmed;
   }
   
-  getIsMempool() {
-    if (this.json.isConfirmed === undefined) return undefined;
-    return !this.json.isConfirmed;
+  // transaction is in the mempool xor confirmed
+  getInMempool() {
+    return this.json.isConfirmed === undefined ? undefined : !this.json.isConfirmed;
+  }
+  
+  setInMempool(inMempool) {
+    this.setIsConfirmed(inMempool === undefined ? undefined : !inMempool);
+  }
+  
+  getHeight() {
+    return this.json.height;
+  }
+  
+  setHeight(height) {
+    this.json.height = height;
   }
   
   getNumConfirmations() {
@@ -97,6 +94,14 @@ class MoneroTx extends MoneroDaemonModel {
   
   setNumConfirmations(numConfirmations) {
     this.json.numConfirmations = numConfirmations;
+  }
+  
+  getTimestamp() {
+    return this.json.timestamp;
+  }
+  
+  setTimestamp(timestamp) {
+    this.json.timestamp = timestamp;
   }
   
   getNumEstimatedBlocksUntilConfirmed() {
@@ -214,8 +219,8 @@ class MoneroTx extends MoneroDaemonModel {
     MoneroUtils.safeSet(this, this.getKey, this.setKey, tx.getKey());
     MoneroUtils.safeSet(this, this.getSize, this.setSize, tx.getSize());
     MoneroUtils.safeSet(this, this.getVersion, this.setVersion, tx.getVersion());
+    MoneroUtils.safeSet(this, this.getIsConfirmed, this.setIsConfirmed, tx.getIsConfirmed());
     MoneroUtils.safeSet(this, this.getHeight, this.setHeight, tx.getHeight());
-    MoneroUtils.safeSet(this, this.getState, this.setState, tx.getState());
     MoneroUtils.safeSet(this, this.getNote, this.setNote, tx.getNote());
     MoneroUtils.safeSet(this, this.getUnlockTime, this.setUnlockTime, tx.getUnlockTime());
     MoneroUtils.safeSet(this, this.getIsDoubleSpend, this.setIsDoubleSpend, tx.getIsDoubleSpend());
@@ -227,10 +232,10 @@ class MoneroTx extends MoneroDaemonModel {
     MoneroUtils.safeSet(this, this.getRctSignatures, this.setRctSignatures, tx.getRctSignatures());
     MoneroUtils.safeSet(this, this.getRctSigPrunable, this.setRctSigPrunable, tx.getRctSigPrunable());
     
-    // needs interpretations
+    // needs interpretation
     if (this.json.timestamp === undefined) this.json.timestamp = tx.getTimestamp();
     else if (tx.getTimestamp() !== undefined) {
-      if (!this.isConfirmed()) {
+      if (!this.getIsConfirmed()) {
         this.json.timestamp = Math.min(this.json.timestamp, tx.getTimestamp()); // mempool timestamps can vary so use first timestamp
       } else {
         assert.equal(this.json.timestamp, tx.getTimestamp(), "Transaction " + tx.getId() + " timestamps should be equal but are not: " + this.json.timestamp + " vs " + tx.getTimestamp());
@@ -238,8 +243,7 @@ class MoneroTx extends MoneroDaemonModel {
     }
     if (this.json.numConfirmations === undefined) this.json.numConfirmations = tx.getNumConfirmations();
     else if (tx.getNumConfirmations() !== undefined) {
-      assert(Math.abs(this.json.numConfirmations - tx.getNumConfirmations()) <= 1); // num confirmations can change, take the latest (max)
-      this.json.numConfirmations = Math.max(this.json.numConfirmations, tx.getNumConfirmations());
+      this.json.numConfirmations = Math.max(this.json.numConfirmations, tx.getNumConfirmations());  // num confirmations can change, take the latest (max)
     }
     if (this.json.numEstimatedBlocksUntilConfirmed !== undefined) {
       if (tx.getNumEstimatedBlocksUntilConfirmed() === undefined) delete this.json.numEstimatedBlocksUntilConfirmed;  // uninitialize when confirmed
@@ -248,7 +252,6 @@ class MoneroTx extends MoneroDaemonModel {
         this.json.numEstimatedBlocksUntilConfirmed = Math.min(this.json.numEstimatedBlocksUntilConfirmed, tx.getNumEstimatedBlocksUntilConfirmed());
       }
     }
-    throw new Error("Need to merge isConfirmed"); // TODO: why not throwing?
   }
 }
 

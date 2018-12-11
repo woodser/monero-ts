@@ -376,12 +376,14 @@ class MoneroWalletRpc extends MoneroWallet {
       if (isIncomingConfirmedNonCoinbase) {
         assert(tx.getIsIncoming());
         assert(tx.getIsConfirmed());
+        assert(!tx.getInMempool());
         assert(!tx.getIsCoinbase());
       }
     } else {
       assert(isIncomingConfirmedNonCoinbase, "Tx state is unknown");
       tx.setIsIncoming(true);
       tx.setIsConfirmed(true);
+      tx.setInMempool(false);
       tx.setIsCoinbase(false);
     }
     
@@ -410,7 +412,7 @@ class MoneroWalletRpc extends MoneroWallet {
         else tx.setNumConfirmations(val);
       }
       else if (key === "suggested_confirmations_threshold") {
-        if (tx.getIsMempool()) tx.setNumEstimatedBlocksUntilConfirmed(val);
+        if (tx.getInMempool()) tx.setNumEstimatedBlocksUntilConfirmed(val);
         else tx.setNumEstimatedBlocksUntilConfirmed(undefined)
       }
       else if (key === "height") {
@@ -480,7 +482,7 @@ class MoneroWalletRpc extends MoneroWallet {
       payment.setAccountIndex(accountIdx);
       payment.setSubaddressIndex(subaddressIdx);
     }
-    if (tx.getPayments() !== undefined && tx.getIsIncoming() && tx.getIsMempool()) {
+    if (tx.getPayments() !== undefined && tx.getIsIncoming() && tx.getInMempool()) {
       for (let aPayment of tx.getPayments()) aPayment.setIsSpent(false);  // incoming mempool payments are not spent
     }
     
@@ -499,24 +501,29 @@ class MoneroWalletRpc extends MoneroWallet {
     if (rpcType === "in") {
       tx.setIsIncoming(true);
       tx.setIsConfirmed(true);
+      tx.setInMempool(false);
       tx.setIsCoinbase(false);
     } else if (rpcType === "out") {
       tx.setIsIncoming(false);
       tx.setIsConfirmed(true);
+      tx.setInMempool(false);
       tx.setIsRelayed(true);
       tx.setIsFailed(false);
-    } else if (rpcType === "pool") {  // TODO: need to say tx.setIsMempool(true), model does no validation/interpretation, pojo
+    } else if (rpcType === "pool") {  // TODO: need to say tx.setInMempool(true), model does no validation/interpretation, pojo
       tx.setIsIncoming(true);
       tx.setIsConfirmed(false);
+      tx.setInMempool(true);
       tx.setIsCoinbase(false);  // TODO: but could it be?
     } else if (rpcType === "pending") {
       tx.setIsIncoming(false);
       tx.setIsConfirmed(false);
+      tx.setInMempool(true);
       tx.setIsRelayed(true);
       tx.setIsFailed(false);
     } else if (rpcType === "block") {
       tx.setIsIncoming(true);
       tx.setIsConfirmed(true);
+      tx.setInMempool(false);
       tx.setIsCoinbase(true);
     } else if (rpcType === "failed") {
       tx.setIsIncoming(false);

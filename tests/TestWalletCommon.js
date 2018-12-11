@@ -462,7 +462,7 @@ function testTxWalletCommon(tx) {
   assert(typeof tx.getIsIncoming() === "boolean");
   assert(typeof tx.getIsOutgoing() === "boolean");
   assert(typeof tx.getIsConfirmed() === "boolean");
-  assert(typeof tx.getIsMempool() === "boolean");
+  assert(typeof tx.getInMempool() === "boolean");
 }
 
 /**
@@ -505,10 +505,14 @@ async function testTxWalletGetIncoming(tx, wallet) {
   assert.equal(undefined, tx.getMixin());
   assert.equal(undefined, tx.getSize());
   assert.equal(undefined, tx.getNote());
-  if (tx.getFee() === undefined) console.log("WARNING: incoming transaction is missing fee: " + tx.getId());  // TODO (monero-wallet-rpc): incoming txs are occluded by outgoing counterparts from same account (https://github.com/monero-project/monero/issues/4500) and then incoming_transfers need address, fee, timestamp, unlock_time, is_double_spend, height, tx_size
-  if (tx.getTimestamp() === undefined) console.log("WARNING: incoming transaction is missing timestamp: " + tx.getId());
-  if (tx.getUnlockTime() === undefined) console.log("WARNING: incoming transaction is missing unlock_time: " + tx.getId());
-  if (tx.getIsDoubleSpend() === undefined) console.log("WARNING: incoming transaction is missing is_double_spend: " + tx.getId());
+  
+  // TODO (monero-wallet-rpc): incoming txs are occluded by outgoing counterparts from same account (https://github.com/monero-project/monero/issues/4500) and then incoming_transfers need address, fee, timestamp, unlock_time, is_double_spend, height, tx_size
+//  if (tx.getFee() === undefined) console.log("WARNING: incoming transaction is occluded by outgoing counterpart (#4500): " + tx.getId());
+//  if (tx.getFee() === undefined) console.log("WARNING: incoming transaction is missing fee: " + tx.getId());
+//  if (tx.getTimestamp() === undefined) console.log("WARNING: incoming transaction is missing timestamp: " + tx.getId());
+//  if (tx.getUnlockTime() === undefined) console.log("WARNING: incoming transaction is missing unlock_time: " + tx.getId());
+//  if (tx.getIsDoubleSpend() === undefined) console.log("WARNING: incoming transaction is missing is_double_spend: " + tx.getId());
+  if (tx.getFee() === undefined) {} // TODO: remove once #4500 fixed
   else assert(!tx.getIsDoubleSpend());
   assert.equal(undefined, tx.getBlob());
   assert.equal(undefined, tx.getMetadata());
@@ -516,8 +520,9 @@ async function testTxWalletGetIncoming(tx, wallet) {
   // test confirmed
   if (tx.getIsConfirmed()) {
     assert.equal(undefined, tx.getKey());
-    if (tx.getHeight() === undefined) console.log("WARNING: incoming transaction is missing height: " + tx.getId());
-    if (tx.getNumConfirmations() === undefined) console.log("WARNING: incoming transaction is missing confirmations: " + tx.getId());
+//    if (tx.getHeight() === undefined) console.log("WARNING: incoming transaction is missing height: " + tx.getId());
+//    if (tx.getNumConfirmations() === undefined) console.log("WARNING: incoming transaction is missing confirmations: " + tx.getId());
+    if (tx.getNumConfirmations() === undefined) {} // TODO: remove once #4500 fixed
     else assert(tx.getNumConfirmations() > 0);
     assert.equal(undefined, tx.getNumEstimatedBlocksUntilConfirmed());
   }
@@ -586,7 +591,7 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments) {
   }
   
   // test mempool
-  else if (tx.getIsMempool()) {
+  else if (tx.getInMempool()) {
     assert.equal(undefined, tx.getHeight());
     assert.equal(0, tx.getNumConfirmations());
     assert(tx.getNumEstimatedBlocksUntilConfirmed() > 0);

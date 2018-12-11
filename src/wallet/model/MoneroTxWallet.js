@@ -23,12 +23,17 @@ class MoneroTxWallet extends MoneroTx {
     return !this.json.isIncoming;
   }
   
-  getIsMempool() {  // TODO: can't this be read/set directly? means retaining redundant data
-    let confirmed = this.getIsConfirmed();
-    if (confirmed === undefined) return undefined;
-    if (confirmed) return false;
-    if (this.getRelayed() === false) return false;
-    return !this.getIsFailed();
+  setIsOutgoing(isOutgoing) {
+    this.setIsIncoming(isOutgoing === undefined ? undefined : !isOutgoing);
+  }
+  
+  // wallet transactions are not in the mempool xor confirmed since both can be false, so we use another field
+  getInMempool() {
+    return this.json.inMempool;
+  }
+  
+  setInMempool(inMempool) {
+    this.json.inMempool = inMempool;
   }
   
   getIsRelayed() {
@@ -125,7 +130,10 @@ class MoneroTxWallet extends MoneroTx {
   
   merge(tx, mergePayments) {
     
-    // no special handling needed
+    // merge base transaction
+    super.merge(tx);
+    
+    // merge extensions which need no special handling
     MoneroUtils.safeSet(this, this.getIsIncoming, this.setIsIncoming, tx.getIsIncoming());
     MoneroUtils.safeSet(this, this.getNote, this.setNote, tx.getNote());
     MoneroUtils.safeSet(this, this.getSrcAccountIndex, this.setSrcAccountIndex, tx.getSrcAccountIndex());
@@ -135,7 +143,7 @@ class MoneroTxWallet extends MoneroTx {
     MoneroUtils.safeSet(this, this.getBlob, this.setBlob, tx.getBlob());
     MoneroUtils.safeSet(this, this.getMetadata, this.setMetadata, tx.getMetadata());
     
-    // needs interpretation
+    // merge extensions which need special handling
     if (this.json.totalAmount === undefined) this.json.totalAmount = tx.getTotalAmount();
     else {
       if (mergePayments) assert(totalAmount.toJSValue() === 0);

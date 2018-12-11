@@ -1,4 +1,5 @@
 const assert = require("assert");
+const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
  * Collection of Monero utilitlies.
@@ -25,7 +26,10 @@ class MoneroUtils {
     if (val === undefined) return;
     let curVal = getFn.call(obj);
     if (curVal === undefined) setFn.call(obj, val);
-    else if (curVal !== val) throw new Error("Cannot overwrite existing value " + curVal + " with new value " + val);
+    else {
+      if (curVal instanceof BigInteger && val instanceof BigInteger && curVal.compare(val) === 0) { } // check for equality of BigIntegers
+      else if (curVal !== val) throw new Error("Cannot overwrite existing value " + curVal + " with new value " + val);
+    }
   }
   
   // TODO: beef this up
