@@ -9,6 +9,7 @@ const MoneroBlock = require("./model/MoneroBlock");
 const MoneroTx = require("./model/MoneroTx");
 const MoneroBlockTemplate = require("./model/MoneroBlockTemplate");
 const MoneroDaemonInfo = require("./model/MoneroDaemonInfo");
+const MoneroDaemonSyncInfo = require("./model/MoneroDaemonSyncInfo");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
@@ -173,7 +174,26 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getSyncInfo() {
     await this._initOneTime();
-    throw new Error("Not implemented");
+    
+    // fetch sync info
+    let resp = await this.config.rpc.sendJsonRpcRequest("sync_info");
+    
+    // build sync response
+    let syncInfo = MoneroDaemonRpc._buildSyncInfo(resp);
+    MoneroDaemonRpc._setResponseInfo(resp, syncInfo);
+    if (syncInfo.getPeers() !== undefined) {
+      for (let peer of syncInfo.getPeers()) {
+        peer.setResponseInfo(syncInfo.getResponseInfo());
+      }
+    }
+    if (syncInfo.getSpans() !== undefined) {
+      for (let span of syncInfo.getSpans()) {
+        span.setResponseInfo(syncInfo.getResponseInfo());
+      }
+    }
+    
+    // return response;
+    return syncInfo;
   }
   
   async getConnections() {
@@ -321,6 +341,37 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else console.log("WARNING: Ignoring unexpected info field: " + key + ": " + val);
     }
     return info;
+  }
+  
+  /**
+   * Initializes sync info from RPC sync info.
+   * 
+   * @param rpcSyncInfo is the rpc map to initialize the sync info from
+   * @return {MoneroDaemonSyncInfo} is sync info initialized from the map
+   */
+  static _buildSyncInfo(rpcSyncInfo) {
+    let syncInfo = new MoneroDaemonSyncInfo();
+    console.log(rpcSyncInfo);
+    for (let key of Object.keys(rpcSyncInfo)) {
+      let val = rpcSyncInfo[key];
+      if (key === "height") syncInfo.setHeight(new BigInteger(val));
+      else if (key === "peers") {
+        syncInfo.setPeers([]);
+        let rpcPeers = val;
+        for (let rpcPeer of rpcPeerMaps) {
+          syncInfo.getPeers().push(MoneroDaemonRpc._initializeConnection(peerMap.info));
+        }
+      } else if (key === "spans") {
+        syncInfo.setSpans([]);
+        let rpcSpans = val;
+        for (let rpcSpan of rpcSpans) {
+          syncInfo.getSpans().push(MoneroDaemonRpc._initializeConnetionSpan(rpcSpan));
+        }
+      } else if (key === "status") {}   // set elsewhere
+      else if (key === "target_height") syncInfo.setTargetHeight(new BigInteger(val));
+      else console.log("WARNIN: ignoring unexpected field in sync info: '" + key + "'");
+    }
+    return syncInfo;
   }
 }
 

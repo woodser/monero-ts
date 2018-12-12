@@ -10,234 +10,234 @@ const GenUtils = require("../src/utils/GenUtils");
 let daemon = TestUtils.getDaemonRpc();
 describe("Test Monero Daemon RPC", function() {
 
-  it("Can get the blockchain height", async function() {
-    let height = await daemon.getHeight();
-    assert(height, "Height must be initialized");
-    assert(height > 0, "Height must be greater than 0");
-  });
-
-  it("Can get a block hash by height", async function() {
-    let lastHeader = await daemon.getLastBlockHeader();
-    let hash = await daemon.getBlockHash(lastHeader.getHeight());
-    assert(hash);
-    assert.equal(64, hash.length);
-  });
-  
-  it("Can get a block template", async function() {
-    let template = await daemon.getBlockTemplate(TestUtils.TEST_ADDRESS, 2);
-    testDaemonResponseInfo(template, true, true);
-    testBlockTemplate(template);
-  });
-
-  it("Can get the last block's header", async function() {
-    let lastHeader = await daemon.getLastBlockHeader();
-    testDaemonResponseInfo(lastHeader, true, true);
-    testBlockHeader(lastHeader, true);
-  });
-  
-  it("Can get a block header by hash", async function() {
-    
-    // retrieve by hash of last block
-    let lastHeader = await daemon.getLastBlockHeader();
-    let hash = await daemon.getBlockHash(lastHeader.getHeight());
-    let header = await daemon.getBlockHeaderByHash(hash);
-    testDaemonResponseInfo(header, true, true);
-    testBlockHeader(header, true);
-    assert.deepEqual(lastHeader, header);
-    
-    // retrieve by hash of previous to last block
-    hash = await daemon.getBlockHash(lastHeader.getHeight() - 1);
-    header = await daemon.getBlockHeaderByHash(hash);
-    testDaemonResponseInfo(header, true, true);
-    testBlockHeader(header, true);
-    assert.equal(lastHeader.getHeight() - 1, header.getHeight());
-  });
-  
-  it("Can get a block header by height", async function() {
-    
-    // retrieve by height of last block
-    let lastHeader = await daemon.getLastBlockHeader();
-    let header = await daemon.getBlockHeaderByHeight(lastHeader.getHeight());
-    testDaemonResponseInfo(header, true, true);
-    testBlockHeader(header, true);
-    assert.deepEqual(lastHeader, header);
-    
-    // retrieve by height of previous to last block
-    header = await daemon.getBlockHeaderByHeight(lastHeader.getHeight() - 1);
-    testDaemonResponseInfo(header, true, true);
-    testBlockHeader(header, true);
-    assert.equal(lastHeader.getHeight() - 1, header.getHeight());
-  });
-  
-  // TODO: test start with no end, vice versa, inclusivity
-  it("Can get block headers by range", async function() {
-    
-    // determine start and end height based on number of blocks and how many blocks ago
-    let numBlocks = 100;
-    let numBlocksAgo = 100;
-    let currentHeight = await daemon.getHeight();
-    let startHeight = currentHeight - numBlocksAgo;
-    let endHeight = currentHeight - (numBlocksAgo - numBlocks) - 1;
-    
-    // fetch headers
-    let headers = await daemon.getBlockHeadersByRange(startHeight, endHeight);
-    
-    // test headers
-    assert.equal(numBlocks, headers.length);
-    for (let i = 0; i < numBlocks; i++) {
-      let header = headers[i];
-      assert.equal(startHeight + i, header.getHeight());
-      testDaemonResponseInfo(header, true, true);
-      testBlockHeader(header, true);
-    }
-  });
-  
-  it("Can get a block by hash", async function() {
-    
-    // config for testing blocks
-    let testBlockConfig = { hasHex: true, headerIsFull: true, hasTxs: false };
-    
-    // retrieve by hash of last block
-    let lastHeader = await daemon.getLastBlockHeader();
-    let hash = await daemon.getBlockHash(lastHeader.getHeight());
-    let block = await daemon.getBlockByHash(hash);
-    testDaemonResponseInfo(block, true, true);
-    testBlock(block, testBlockConfig);
-    assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
-    assert(block.getTxs() === undefined);
-    
-    // retrieve by hash of previous to last block
-    hash = await daemon.getBlockHash(lastHeader.getHeight() - 1);
-    block = await daemon.getBlockByHash(hash);
-    testDaemonResponseInfo(block, true, true);
-    testBlock(block, testBlockConfig);
-    assert.deepEqual(await daemon.getBlockByHeight(lastHeader.getHeight() - 1), block);
-    assert(block.getTxs() === undefined);
-  });
-  
-  it("Can get a block by height", async function() {
-    
-    // config for testing blocks
-    let testBlockConfig = { hasHex: true, headerIsFull: true, hasTxs: false };
-    
-    // retrieve by height of last block
-    let lastHeader = await daemon.getLastBlockHeader();
-    let block = await daemon.getBlockByHeight(lastHeader.getHeight());
-    testDaemonResponseInfo(block, true, true);
-    testBlock(block, testBlockConfig);
-    assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
-    
-    // retrieve by height of previous to last block
-    block = await daemon.getBlockByHeight(lastHeader.getHeight() - 1);
-    testDaemonResponseInfo(block, true, true);
-    testBlock(block, testBlockConfig);
-    assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
-  });
-  
-  it("Can get blocks by height which is a binary request and includes transactions", async function() {
-    
-    // set number of blocks to test
-    const numBlocks = 100;
-    
-    // select random heights  // TODO: this is horribly inefficient way of computing last 100 blocks if not shuffling
-    let currentHeight = await daemon.getHeight();
-    let allHeights = [];
-    for (let i = 0; i < currentHeight - 1; i++) allHeights.push(i);
-    //GenUtils.shuffle(allHeights);
-    let heights = [];
-    for (let i = allHeights.length - numBlocks; i < allHeights.length; i++) heights.push(allHeights[i]);
-    
-    // TODO: don't override heights
-    //heights = [111, 222, 333];
-    
-    // fetch blocks
-    let blocks = await daemon.getBlocksByHeight(heights);
-    
-    // config for testing blocks
-    let testBlockConfig = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { hasHex: false, hasJson: true, isPruned: true, isFull: false } };
-    
-    // test blocks
-    let txFound = false;
-    assert.equal(numBlocks, blocks.length);
-    for (let i = 0; i < heights.length; i++) {
-      let block = blocks[i];
-      if (block.getTxs().length) txFound = true;
-      testDaemonResponseInfo(block, true, true);
-      testBlock(block, testBlockConfig);
-      assert.equal(heights[i], block.getHeader().getHeight());      
-    }
-    assert(txFound, "No transactions found to test");
-  });
-  
-  it("Can get blocks by range", async function() {
-    
-    // get current height
-    let height = await daemon.getHeight();
-    
-    // get valid height range
-    let numBlocks = 1; // TODO: RequestError: Error: read ECONNRESET or  RequestError: Error: socket hang up if > 64 or (or > 1 if test getBlocksByHeight() runs first)
-    let numBlocksAgo = 190;
-    assert(numBlocks > 0);
-    assert(numBlocksAgo >= numBlocks);
-    assert(height - numBlocksAgo + numBlocks - 1 < height);
-    let startHeight = height - numBlocksAgo;
-    let endHeight = height - numBlocksAgo + numBlocks - 1;
-    
-    // test known start and end heights
-    //console.log("Height: " + height);
-    //console.log("Fecthing " + (endHeight - startHeight + 1) + " blocks [" + startHeight + ", " + endHeight + "]");
-    await testRange(startHeight, endHeight);
-    
-    // test unspecified start
-    await testRange(null, numBlocks - 1);
-    
-    // test unspecified end
-    await testRange(height - numBlocks - 1, null);
-    
-    // test unspecified start and end 
-    //await testRange(null, null);  // TODO: RequestError: Error: socket hang up
-    
-    async function testRange(startHeight, endHeight) {
-      let realStartHeight = startHeight === null ? 0 : startHeight;
-      let realEndHeight = endHeight === null ? height - 1 : endHeight;
-      let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
-      assert.equal(realEndHeight - realStartHeight + 1, blocks.length);
-      for (let i = 0; i < blocks.length; i++) {
-        assert.equal(realStartHeight + i, blocks[i].getHeader().getHeight());
-      }
-    }
-  });
-  
-  it("Can get transactions", async function() {
-    
-    // get valid height range
-    let height = await daemon.getHeight();
-    let numBlocks = 100;
-    let numBlocksAgo = 100;
-    assert(numBlocks > 0);
-    assert(numBlocksAgo >= numBlocks);
-    assert(height - numBlocksAgo + numBlocks - 1 < height);
-    let startHeight = height - numBlocksAgo;
-    let endHeight = height - numBlocksAgo + numBlocks - 1;
-    
-    // get blocks
-    let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
-    
-    // collect tx hashes
-    let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; });
-    assert(txHashes.length > 0, "No transactions found in the range [" + startHeight + ", " + endHeight + "]");
-    
-    // fetch txs by hash
-    let decodeAsJson = true;
-    let prune = false;
-    let txs = await daemon.getTxs(txHashes, decodeAsJson, prune);
-    for (let tx of txs) {
-      testDaemonResponseInfo(tx, true, true); // TODO: duplicating response info is going to be too expensive so must be common reference
-      testTx(tx, { hasHex: true, hasJson: decodeAsJson, isPruned: prune, isFull: true });
-    }
-    
-    // TODO: test binary vs json encoding
-  });
+//  it("Can get the blockchain height", async function() {
+//    let height = await daemon.getHeight();
+//    assert(height, "Height must be initialized");
+//    assert(height > 0, "Height must be greater than 0");
+//  });
+//
+//  it("Can get a block hash by height", async function() {
+//    let lastHeader = await daemon.getLastBlockHeader();
+//    let hash = await daemon.getBlockHash(lastHeader.getHeight());
+//    assert(hash);
+//    assert.equal(64, hash.length);
+//  });
+//  
+//  it("Can get a block template", async function() {
+//    let template = await daemon.getBlockTemplate(TestUtils.TEST_ADDRESS, 2);
+//    testDaemonResponseInfo(template, true, true);
+//    testBlockTemplate(template);
+//  });
+//
+//  it("Can get the last block's header", async function() {
+//    let lastHeader = await daemon.getLastBlockHeader();
+//    testDaemonResponseInfo(lastHeader, true, true);
+//    testBlockHeader(lastHeader, true);
+//  });
+//  
+//  it("Can get a block header by hash", async function() {
+//    
+//    // retrieve by hash of last block
+//    let lastHeader = await daemon.getLastBlockHeader();
+//    let hash = await daemon.getBlockHash(lastHeader.getHeight());
+//    let header = await daemon.getBlockHeaderByHash(hash);
+//    testDaemonResponseInfo(header, true, true);
+//    testBlockHeader(header, true);
+//    assert.deepEqual(lastHeader, header);
+//    
+//    // retrieve by hash of previous to last block
+//    hash = await daemon.getBlockHash(lastHeader.getHeight() - 1);
+//    header = await daemon.getBlockHeaderByHash(hash);
+//    testDaemonResponseInfo(header, true, true);
+//    testBlockHeader(header, true);
+//    assert.equal(lastHeader.getHeight() - 1, header.getHeight());
+//  });
+//  
+//  it("Can get a block header by height", async function() {
+//    
+//    // retrieve by height of last block
+//    let lastHeader = await daemon.getLastBlockHeader();
+//    let header = await daemon.getBlockHeaderByHeight(lastHeader.getHeight());
+//    testDaemonResponseInfo(header, true, true);
+//    testBlockHeader(header, true);
+//    assert.deepEqual(lastHeader, header);
+//    
+//    // retrieve by height of previous to last block
+//    header = await daemon.getBlockHeaderByHeight(lastHeader.getHeight() - 1);
+//    testDaemonResponseInfo(header, true, true);
+//    testBlockHeader(header, true);
+//    assert.equal(lastHeader.getHeight() - 1, header.getHeight());
+//  });
+//  
+//  // TODO: test start with no end, vice versa, inclusivity
+//  it("Can get block headers by range", async function() {
+//    
+//    // determine start and end height based on number of blocks and how many blocks ago
+//    let numBlocks = 100;
+//    let numBlocksAgo = 100;
+//    let currentHeight = await daemon.getHeight();
+//    let startHeight = currentHeight - numBlocksAgo;
+//    let endHeight = currentHeight - (numBlocksAgo - numBlocks) - 1;
+//    
+//    // fetch headers
+//    let headers = await daemon.getBlockHeadersByRange(startHeight, endHeight);
+//    
+//    // test headers
+//    assert.equal(numBlocks, headers.length);
+//    for (let i = 0; i < numBlocks; i++) {
+//      let header = headers[i];
+//      assert.equal(startHeight + i, header.getHeight());
+//      testDaemonResponseInfo(header, true, true);
+//      testBlockHeader(header, true);
+//    }
+//  });
+//  
+//  it("Can get a block by hash", async function() {
+//    
+//    // config for testing blocks
+//    let testBlockConfig = { hasHex: true, headerIsFull: true, hasTxs: false };
+//    
+//    // retrieve by hash of last block
+//    let lastHeader = await daemon.getLastBlockHeader();
+//    let hash = await daemon.getBlockHash(lastHeader.getHeight());
+//    let block = await daemon.getBlockByHash(hash);
+//    testDaemonResponseInfo(block, true, true);
+//    testBlock(block, testBlockConfig);
+//    assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
+//    assert(block.getTxs() === undefined);
+//    
+//    // retrieve by hash of previous to last block
+//    hash = await daemon.getBlockHash(lastHeader.getHeight() - 1);
+//    block = await daemon.getBlockByHash(hash);
+//    testDaemonResponseInfo(block, true, true);
+//    testBlock(block, testBlockConfig);
+//    assert.deepEqual(await daemon.getBlockByHeight(lastHeader.getHeight() - 1), block);
+//    assert(block.getTxs() === undefined);
+//  });
+//  
+//  it("Can get a block by height", async function() {
+//    
+//    // config for testing blocks
+//    let testBlockConfig = { hasHex: true, headerIsFull: true, hasTxs: false };
+//    
+//    // retrieve by height of last block
+//    let lastHeader = await daemon.getLastBlockHeader();
+//    let block = await daemon.getBlockByHeight(lastHeader.getHeight());
+//    testDaemonResponseInfo(block, true, true);
+//    testBlock(block, testBlockConfig);
+//    assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
+//    
+//    // retrieve by height of previous to last block
+//    block = await daemon.getBlockByHeight(lastHeader.getHeight() - 1);
+//    testDaemonResponseInfo(block, true, true);
+//    testBlock(block, testBlockConfig);
+//    assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
+//  });
+//  
+//  it("Can get blocks by height which is a binary request and includes transactions", async function() {
+//    
+//    // set number of blocks to test
+//    const numBlocks = 100;
+//    
+//    // select random heights  // TODO: this is horribly inefficient way of computing last 100 blocks if not shuffling
+//    let currentHeight = await daemon.getHeight();
+//    let allHeights = [];
+//    for (let i = 0; i < currentHeight - 1; i++) allHeights.push(i);
+//    //GenUtils.shuffle(allHeights);
+//    let heights = [];
+//    for (let i = allHeights.length - numBlocks; i < allHeights.length; i++) heights.push(allHeights[i]);
+//    
+//    // TODO: don't override heights
+//    //heights = [111, 222, 333];
+//    
+//    // fetch blocks
+//    let blocks = await daemon.getBlocksByHeight(heights);
+//    
+//    // config for testing blocks
+//    let testBlockConfig = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { hasHex: false, hasJson: true, isPruned: true, isFull: false } };
+//    
+//    // test blocks
+//    let txFound = false;
+//    assert.equal(numBlocks, blocks.length);
+//    for (let i = 0; i < heights.length; i++) {
+//      let block = blocks[i];
+//      if (block.getTxs().length) txFound = true;
+//      testDaemonResponseInfo(block, true, true);
+//      testBlock(block, testBlockConfig);
+//      assert.equal(heights[i], block.getHeader().getHeight());      
+//    }
+//    assert(txFound, "No transactions found to test");
+//  });
+//  
+//  it("Can get blocks by range", async function() {
+//    
+//    // get current height
+//    let height = await daemon.getHeight();
+//    
+//    // get valid height range
+//    let numBlocks = 1; // TODO: RequestError: Error: read ECONNRESET or  RequestError: Error: socket hang up if > 64 or (or > 1 if test getBlocksByHeight() runs first)
+//    let numBlocksAgo = 190;
+//    assert(numBlocks > 0);
+//    assert(numBlocksAgo >= numBlocks);
+//    assert(height - numBlocksAgo + numBlocks - 1 < height);
+//    let startHeight = height - numBlocksAgo;
+//    let endHeight = height - numBlocksAgo + numBlocks - 1;
+//    
+//    // test known start and end heights
+//    //console.log("Height: " + height);
+//    //console.log("Fecthing " + (endHeight - startHeight + 1) + " blocks [" + startHeight + ", " + endHeight + "]");
+//    await testRange(startHeight, endHeight);
+//    
+//    // test unspecified start
+//    await testRange(null, numBlocks - 1);
+//    
+//    // test unspecified end
+//    await testRange(height - numBlocks - 1, null);
+//    
+//    // test unspecified start and end 
+//    //await testRange(null, null);  // TODO: RequestError: Error: socket hang up
+//    
+//    async function testRange(startHeight, endHeight) {
+//      let realStartHeight = startHeight === null ? 0 : startHeight;
+//      let realEndHeight = endHeight === null ? height - 1 : endHeight;
+//      let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
+//      assert.equal(realEndHeight - realStartHeight + 1, blocks.length);
+//      for (let i = 0; i < blocks.length; i++) {
+//        assert.equal(realStartHeight + i, blocks[i].getHeader().getHeight());
+//      }
+//    }
+//  });
+//  
+//  it("Can get transactions", async function() {
+//    
+//    // get valid height range
+//    let height = await daemon.getHeight();
+//    let numBlocks = 100;
+//    let numBlocksAgo = 100;
+//    assert(numBlocks > 0);
+//    assert(numBlocksAgo >= numBlocks);
+//    assert(height - numBlocksAgo + numBlocks - 1 < height);
+//    let startHeight = height - numBlocksAgo;
+//    let endHeight = height - numBlocksAgo + numBlocks - 1;
+//    
+//    // get blocks
+//    let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
+//    
+//    // collect tx hashes
+//    let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; });
+//    assert(txHashes.length > 0, "No transactions found in the range [" + startHeight + ", " + endHeight + "]");
+//    
+//    // fetch txs by hash
+//    let decodeAsJson = true;
+//    let prune = false;
+//    let txs = await daemon.getTxs(txHashes, decodeAsJson, prune);
+//    for (let tx of txs) {
+//      testDaemonResponseInfo(tx, true, true); // TODO: duplicating response info is going to be too expensive so must be common reference
+//      testTx(tx, { hasHex: true, hasJson: decodeAsJson, isPruned: prune, isFull: true });
+//    }
+//    
+//    // TODO: test binary vs json encoding
+//  });
   
   it("Has general information", async function() {
     let info = await daemon.getInfo();
@@ -247,8 +247,8 @@ describe("Test Monero Daemon RPC", function() {
   
   it("Has sync information", async function() {
     let syncInfo = await daemon.getSyncInfo();
-    testDaemonResponseInfo(info, true, true);
-    testSyncInfo(info);
+    testDaemonResponseInfo(syncInfo, true, true);
+    testSyncInfo(syncInfo);
   });
   
   it("Has connections to peers", async function() {
@@ -480,20 +480,20 @@ function testInfo(info) {
   assert(typeof info.getBootstrapDaemonAddress() === "string");
   assert(info.getCumulativeDifficulty());
   assert(info.getFreeSpace());
-  assert(info.getGreyPeerlistSize());
-  assert(info.getWhitePeerlistSize());
-  assert(info.getHeight());
+  assert(info.getGreyPeerlistSize() >= 0);
+  assert(info.getWhitePeerlistSize() >= 0);
+  assert(info.getHeight() >= 0);
   assert(info.getHeightWithoutBootstrap());
-  assert(info.getIncomingConnectionsCount());
+  assert(info.getIncomingConnectionsCount() >= 0);
   assert(info.getNetworkType());
   assert(typeof info.getIsOffline() === "boolean");
   assert(info.getOutgoingConnectionsCount() >= 0);
   assert(info.getRpcConnectionsCount() >= 0);
   assert(info.getStartTime());
   assert(info.getTarget());
-  assert(info.getTargetHeight());
+  assert(info.getTargetHeight() >= 0);
   assert(info.getTopBlockHash());
-  assert(info.getTxCount() > 0);
+  assert(info.getTxCount() >= 0);
   assert(info.getTxPoolSize() >= 0);
   assert(typeof info.getWasBootstrapEverUsed() === "boolean");
   assert(info.getBlockWeightLimit());
@@ -502,10 +502,25 @@ function testInfo(info) {
   assert(typeof info.getUpdateAvailable() === "boolean");
 }
 
-function testSyncInfo(syncInfo) {
-  throw new Error("Not implemented");
+function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
+  assert(syncInfo.getHeight() >= 0);
+  if (syncInfo.getPeers() !== undefined) {
+    assert(syncInfo.getPeers().length > 0);
+    for (let peer of syncInfo.getPeers()) {
+      testDaemonResponseInfo(peer, true, false);
+      testDaemonConnection(peer);
+    }
+  }
+
+  if (syncInfo.getSpans() !== undefined) {
+    assert(syncInfo.getSpans().length > 0);
+    for (let span of syncInfo.getSpans()) {
+      testDaemonResponseInfo(span, true, false);
+      testDaemonConnectionSpan(span);
+    }
+  }
 }
 
-function testConnectionInfo(connectionInfo) {
+function testDaemonConnection(connection) {
   throw new Error("Not implemented");
 }
