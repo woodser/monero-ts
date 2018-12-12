@@ -253,6 +253,16 @@ describe("Test Monero Daemon RPC", function() {
   });
   
   it("Has connections to peers", async function() {
+    
+    
+//    List<MoneroDaemonConnection> connections = daemon.getConnections();
+//    assertNotNull(connections);
+//    assertFalse(connections.isEmpty());
+//    for (MoneroDaemonConnection connection : connections) {
+//      testDaemonResponseInfo(connection, true, false);
+//      testDaemonConnection(connection);
+//    }
+    
     throw new Error("Not implemented");
   });
   
