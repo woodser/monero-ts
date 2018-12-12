@@ -117,7 +117,7 @@ class MoneroDaemon {
   /**
    * Get transactions with the given hashes.
    * 
-   * @param txHashes specifies the transaction hashes to get
+   * @param txHashes specifies the transaction hashes to get  // TODO: standardize on hashs vs ids
    * @param decodeAsJson decodes the returned transactions as JSON rather than binary if true
    * @param prune (documentation missing) // TODO: documentation missing
    * @returns MoneroTx[] are the transactions with the given hashes
@@ -174,6 +174,16 @@ class MoneroDaemon {
    * TODO.
    */
   async getBans() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Flush transactions from the memory pool.
+   * 
+   * @param {string or string[]} ids are specific transactions to flush (defaults to all)
+   * @returns {MoneroDaemonModel} contains response information
+   */
+  async flushTxPool(ids) {
     throw new Error("Subclass must implement");
   }
   

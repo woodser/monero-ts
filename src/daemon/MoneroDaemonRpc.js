@@ -248,6 +248,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return bans;
   }
   
+  async flushTxPool(ids) {
+    if (ids) ids = GenUtils.listify(ids);
+    let resp = await this.config.rpc.sendJsonRpcRequest("flush_txpool", {txids: ids});
+    let model = new MoneroDaemonModel();
+    MoneroDaemonRpc._setResponseInfo(resp, model);
+    return model;
+  }
+  
   // ------------------------------- PRIVATE STATIC ---------------------------
   
   async _initOneTime() {

@@ -314,12 +314,12 @@ describe("Test Monero Daemon RPC", function() {
     assert(found2);
   });
   
-  it("Can flush a transaction from the pool by id", async function() {
+  it("Can flush all transactions from the pool", async function() {
     let model = await daemon.flushTxPool();
     testDaemonResponseInfo(model, true, false);
   });
   
-  it("Can flush multiple transactions from the pool by id", async function() {
+  it("Can flush one or more transactions from the pool by id", async function() {
     throw new Error("Not implemented");
   });
   
