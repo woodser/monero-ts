@@ -10,6 +10,7 @@ const MoneroTx = require("./model/MoneroTx");
 const MoneroBlockTemplate = require("./model/MoneroBlockTemplate");
 const MoneroDaemonInfo = require("./model/MoneroDaemonInfo");
 const MoneroDaemonSyncInfo = require("./model/MoneroDaemonSyncInfo");
+const MoneroHardForkInfo = require("./model/MoneroHardForkInfo");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
@@ -201,6 +202,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
     throw new Error("Not implemented");
   }
   
+  async getHardForkInfo() {
+    let resp = await this.config.rpc.sendJsonRpcRequest("hard_fork_info");
+    let hardForkInfo = MoneroDaemonRpc._buildHardForkInfo(resp);
+    MoneroDaemonRpc._setResponseInfo(resp, hardForkInfo);
+    return hardForkInfo;
+  }
+  
   // ------------------------------- PRIVATE STATIC ---------------------------
   
   async _initOneTime() {
@@ -351,7 +359,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
    */
   static _buildSyncInfo(rpcSyncInfo) {
     let syncInfo = new MoneroDaemonSyncInfo();
-    console.log(rpcSyncInfo);
     for (let key of Object.keys(rpcSyncInfo)) {
       let val = rpcSyncInfo[key];
       if (key === "height") syncInfo.setHeight(new BigInteger(val));
@@ -372,6 +379,24 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else console.log("WARNIN: ignoring unexpected field in sync info: '" + key + "'");
     }
     return syncInfo;
+  }
+  
+  static _buildHardForkInfo(rpcHardForkInfo) {
+    let info = new MoneroHardForkInfo();
+    for (let key of Object.keys(rpcHardForkInfo)) {
+      let val = rpcHardForkInfo[key];
+      if (key === "earliest_height") info.setEarliestHeight(val);
+      else if (key === "enabled") info.setIsEnabled(val);
+      else if (key === "state") info.setState(val);
+      else if (key === "status") {} // set elsewhere
+      else if (key === "threshold") info.setThreshold(val);
+      else if (key === "version") info.setVersion(val);
+      else if (key === "votes") info.setVotes(val);
+      else if (key === "voting") info.setVoting(val);
+      else if (key === "window") info.setWindow(val);
+      else console.log("WARNING: ignoring unexpected field in hard fork info: '" + key + "'");
+    }
+    return info;
   }
 }
 

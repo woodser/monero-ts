@@ -36,6 +36,13 @@ class MoneroDaemon {
   }
   
   /**
+   * TODO.
+   */
+  async getHardForkInfo() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Get a block's hash by its height.
    * 
    * @param height is the height of the block hash to get

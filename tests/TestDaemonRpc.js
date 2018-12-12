@@ -256,7 +256,9 @@ describe("Test Monero Daemon RPC", function() {
   });
   
   it("Has hard fork information", async function() {
-    throw new Error("Not implemented");
+    let hardForkInfo = await daemon.getHardForkInfo();
+    testDaemonResponseInfo(hardForkInfo, true, true);
+    testHardForkInfo(hardForkInfo);
   });
   
   it("Can ban a peer", async function() {
@@ -523,4 +525,15 @@ function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
 
 function testDaemonConnection(connection) {
   throw new Error("Not implemented");
+}
+
+function testHardForkInfo(hardForkInfo) {
+  assert(hardForkInfo.getEarliestHeight() !== undefined);
+  assert(hardForkInfo.getIsEnabled() !== undefined);
+  assert(hardForkInfo.getState() !== undefined);
+  assert(hardForkInfo.getThreshold() !== undefined);
+  assert(hardForkInfo.getVersion() !== undefined);
+  assert(hardForkInfo.getVotes() !== undefined);
+  assert(hardForkInfo.getVoting() !== undefined);
+  assert(hardForkInfo.getWindow() !== undefined);
 }
