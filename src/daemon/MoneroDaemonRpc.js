@@ -388,7 +388,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
       if (key === "earliest_height") info.setEarliestHeight(val);
       else if (key === "enabled") info.setIsEnabled(val);
       else if (key === "state") info.setState(val);
-      else if (key === "status") {} // set elsewhere
+      else if (key === "status") {}     // set elsewhere
+      else if (key === "untrusted") {}  // set elsewhere
       else if (key === "threshold") info.setThreshold(val);
       else if (key === "version") info.setVersion(val);
       else if (key === "votes") info.setVotes(val);
