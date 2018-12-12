@@ -559,8 +559,7 @@ function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
       testDaemonConnection(peer);
     }
   }
-
-  if (syncInfo.getSpans() !== undefined) {
+  if (syncInfo.getSpans() !== undefined) {  // TODO: test that this is being hit, so far not used
     assert(syncInfo.getSpans().length > 0);
     for (let span of syncInfo.getSpans()) {
       testDaemonResponseInfo(span, true, false);
