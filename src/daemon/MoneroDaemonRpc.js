@@ -13,6 +13,7 @@ const MoneroDaemonInfo = require("./model/MoneroDaemonInfo");
 const MoneroDaemonSyncInfo = require("./model/MoneroDaemonSyncInfo");
 const MoneroHardForkInfo = require("./model/MoneroHardForkInfo");
 const MoneroBan = require("./model/MoneroBan");
+const MoneroDaemonConnection = require("./model/MoneroDaemonConnection");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
@@ -412,14 +413,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "peers") {
         syncInfo.setPeers([]);
         let rpcPeers = val;
-        for (let rpcPeer of rpcPeerMaps) {
-          syncInfo.getPeers().push(MoneroDaemonRpc._initializeConnection(peerMap.info));
+        for (let rpcPeer of rpcPeers) {
+          syncInfo.getPeers().push(MoneroDaemonRpc._buildConnection(rpcPeer.info));
         }
       } else if (key === "spans") {
         syncInfo.setSpans([]);
         let rpcSpans = val;
         for (let rpcSpan of rpcSpans) {
-          syncInfo.getSpans().push(MoneroDaemonRpc._initializeConnetionSpan(rpcSpan));
+          syncInfo.getSpans().push(MoneroDaemonRpc._buildConnetionSpan(rpcSpan));
         }
       } else if (key === "status") {}   // set elsewhere
       else if (key === "target_height") syncInfo.setTargetHeight(new BigInteger(val));
@@ -445,6 +446,40 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else console.log("WARNING: ignoring unexpected field in hard fork info: '" + key + "'");
     }
     return info;
+  }
+  
+  static _buildConnection(rpcConnection) {
+    let connection = new MoneroDaemonConnection();
+    for (let key of Object.keys(rpcConnection)) {
+      let val = rpcConnection[key];
+      if (key === "address") connection.setAddress(val);
+      else if (key === "avg_download") connection.setAvgDownload(val);
+      else if (key === "avg_upload") connection.setAvgUpload(val);
+      else if (key === "connection_id") connection.setId(val);
+      else if (key === "current_download") connection.setCurrentDownload(val);
+      else if (key === "current_upload") connection.setCurrentUpload(val);
+      else if (key === "height") connection.setHeight(val);
+      else if (key === "host") connection.setHost(val);
+      else if (key === "incoming") connection.setIsIncoming(val);
+      else if (key === "ip") connection.setIp(val);
+      else if (key === "live_time") connection.setLiveTime(val);
+      else if (key === "local_ip") connection.setIsLocalIp(val);
+      else if (key === "localhost") connection.setIsLocalHost(val);
+      else if (key === "peer_id") connection.setPeerId(val);
+      else if (key === "port") connection.setPort(val);
+      else if (key === "recv_count") connection.setReceiveCount(val);
+      else if (key === "recv_idle_time") connection.setReceiveIdleTime(val);
+      else if (key === "send_count") connection.setSendCount(val);
+      else if (key === "send_idle_time") connection.setSendIdleTime(val);
+      else if (key === "state") connection.setState(val);
+      else if (key === "support_flags") connection.setNumSupportFlags(val);
+      else console.log("WARNING: ignoring unexpected field in connection: '" + key + "'");
+    }
+    return connection;
+  }
+  
+  static _buildConnectionSpan(rpcConnectionSpan) {
+    throw new Error("Not implemented");
   }
 }
 
