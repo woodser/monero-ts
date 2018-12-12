@@ -3,6 +3,7 @@ const MoneroUtils = require("../src/utils/MoneroUtils");
 const TestUtils = require("./TestUtils");
 const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
 const GenUtils = require("../src/utils/GenUtils");
+const MoneroBan = require("../src/daemon/model/MoneroBan");
 
 /**
  * Tests the Monero Daemon RPC client and server.
@@ -262,15 +263,60 @@ describe("Test Monero Daemon RPC", function() {
   });
   
   it("Can ban a peer", async function() {
-    throw new Error("Not implemented");
+    
+    // set ban
+    let ban = new MoneroBan();
+    ban.setHost("192.168.1.51");
+    ban.setIsBanned(true);
+    ban.setSeconds(60);
+    let model = await daemon.setBan(ban);
+    testDaemonResponseInfo(model, true, false);
+    
+    // test ban
+    let bans = await daemon.getBans();
+    let found = false;
+    for (let aBan of bans) {
+      testDaemonResponseInfo(aBan, true, false);
+      testMoneroBan(aBan);
+      if (aBan.getHost() === "192.168.1.51") found = true;
+    }
+    assert(found);
   });
   
   it("Can ban multiple peers", async function() {
-    throw new Error("Not implemented");
+    
+    // set bans
+    let ban1 = new MoneroBan();
+    ban1.setHost("192.168.1.52");
+    ban1.setIsBanned(true);
+    ban1.setSeconds(60);
+    let ban2 = new MoneroBan();
+    ban2.setHost("192.168.1.53");
+    ban2.setIsBanned(true);
+    ban2.setSeconds(60);
+    let bans = [];
+    bans.push(ban1);
+    bans.push(ban2);
+    let model = await daemon.setBans(bans);
+    testDaemonResponseInfo(model, true, false);
+    
+    // test bans
+    bans = await daemon.getBans();
+    let found1 = false;
+    let found2 = false;
+    for (let aBan of bans) {
+      testDaemonResponseInfo(aBan, true, false);
+      testMoneroBan(aBan);
+      if (aBan.getHost() === "192.168.1.52") found1 = true;
+      if (aBan.getHost() === "192.168.1.53") found2 = true;
+    }
+    assert(found1);
+    assert(found2);
   });
   
   it("Can flush a transaction from the pool by id", async function() {
-    throw new Error("Not implemented");
+    let model = await daemon.flushTxPool();
+    testDaemonResponseInfo(model, true, false);
   });
   
   it("Can flush multiple transactions from the pool by id", async function() {
@@ -536,4 +582,10 @@ function testHardForkInfo(hardForkInfo) {
   assert(hardForkInfo.getVotes() !== undefined);
   assert(hardForkInfo.getVoting() !== undefined);
   assert(hardForkInfo.getWindow() !== undefined);
+}
+
+function testMoneroBan(ban) {
+  assert(ban.getHost() !== undefined);
+  assert(ban.getIp() !== undefined);
+  assert(ban.getSeconds() !== undefined);
 }

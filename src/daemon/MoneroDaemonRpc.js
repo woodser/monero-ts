@@ -2,6 +2,7 @@ const assert = require("assert");
 const MoneroUtils = require("../utils/MoneroUtils");
 const MoneroRpc = require("../rpc/MoneroRpc")
 const MoneroDaemon = require("./MoneroDaemon");
+const MoneroDaemonModel = require("./model/MoneroDaemonModel");
 const MoneroDaemonResponseInfo = require("./model/MoneroDaemonResponseInfo"); 
 const MoneroHeight = require("./model/MoneroHeight");
 const MoneroBlockHeader = require("./model/MoneroBlockHeader");
@@ -11,6 +12,7 @@ const MoneroBlockTemplate = require("./model/MoneroBlockTemplate");
 const MoneroDaemonInfo = require("./model/MoneroDaemonInfo");
 const MoneroDaemonSyncInfo = require("./model/MoneroDaemonSyncInfo");
 const MoneroHardForkInfo = require("./model/MoneroHardForkInfo");
+const MoneroBan = require("./model/MoneroBan");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
@@ -207,6 +209,43 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let hardForkInfo = MoneroDaemonRpc._buildHardForkInfo(resp);
     MoneroDaemonRpc._setResponseInfo(resp, hardForkInfo);
     return hardForkInfo;
+  }
+  
+  async setBan(ban) {
+    return await this.setBans([ban]);
+  }
+  
+  async setBans(bans) {
+    let rpcBans = [];
+    for (let ban of bans) rpcBans.push(banToRpc(ban));
+    let resp = await this.config.rpc.sendJsonRpcRequest("set_bans", {bans: rpcBans});
+    let model = new MoneroDaemonModel();
+    MoneroDaemonRpc._setResponseInfo(resp, model);
+    return model;
+    
+    // converts a ban to a rpc parameter
+    function banToRpc(ban) {
+      let rpcBan = {};
+      rpcBan.host = ban.getHost();
+      rpcBan.ip = ban.getIp();
+      rpcBan.ban = ban.getIsBanned();
+      rpcBan.seconds = ban.getSeconds();
+      return rpcBan;
+    }
+  }
+  
+  async getBans() {
+    let resp = await this.config.rpc.sendJsonRpcRequest("get_bans");
+    let bans = [];
+    for (let rpcBan of resp.bans) {
+      let ban = new MoneroBan();
+      ban.setHost(rpcBan.host);
+      ban.setIp(rpcBan.ip);
+      ban.setSeconds(rpcBan.seconds);
+      MoneroDaemonRpc._setResponseInfo(resp, ban);
+      bans.push(ban);
+    }
+    return bans;
   }
   
   // ------------------------------- PRIVATE STATIC ---------------------------

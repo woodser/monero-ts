@@ -13,36 +13,6 @@ class MoneroDaemon {
   }
   
   /**
-   * Get general information about the state of the node and the network.
-   * 
-   * @returns MoneroDaemonInfo is general information about the node and network
-   */
-  async getInfo() {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
-   * Get synchronization information.
-   */
-  async getSyncInfo() {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
-   * Get information about incoming and outgoing connections to the node.
-   */
-  async getConnections() {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
-   * TODO.
-   */
-  async getHardForkInfo() {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
    * Get a block's hash by its height.
    * 
    * @param height is the height of the block hash to get
@@ -153,6 +123,57 @@ class MoneroDaemon {
    * @returns MoneroTx[] are the transactions with the given hashes
    */
   async getTxs(txHashes, decodeAsJson, prune) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get general information about the state of the node and the network.
+   * 
+   * @returns MoneroDaemonInfo is general information about the node and network
+   */
+  async getInfo() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get synchronization information.
+   */
+  async getSyncInfo() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get information about incoming and outgoing connections to the node.
+   */
+  async getConnections() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * TODO.
+   */
+  async getHardForkInfo() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * TODO.
+   */
+  async setBan(ban) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * TODO.
+   */
+  async setBans(bans) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * TODO.
+   */
+  async getBans() {
     throw new Error("Subclass must implement");
   }
   
