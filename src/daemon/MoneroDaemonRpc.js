@@ -204,6 +204,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRpcRequest("get_connections");
     let connections = [];
+    if (!resp.connections) return connections;
     for (let rpcConnection of resp.connections) {
       let connection = MoneroDaemonRpc._buildConnection(rpcConnection);
       MoneroDaemonRpc._setResponseInfo(resp, connection);
