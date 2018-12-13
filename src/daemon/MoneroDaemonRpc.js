@@ -296,7 +296,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async stopMining() {
     let resp = await this.config.rpc.sendPathRpcRequest("stop_mining");
-    resp = JSON.parse(resp);  // TODO: (monero-daemon-rpc) returning string instead of object
+    resp = JSON.parse(resp);  // TODO: this is being returned as string instead of an object for some reason???
     return MoneroDaemonRpc._setResponseInfo(resp, new MoneroDaemonModel());
   }
   
