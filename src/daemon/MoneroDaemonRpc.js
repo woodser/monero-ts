@@ -280,6 +280,27 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return bans;
   }
   
+  async startMining(address, numThreads, backgroundMining, ignoreBattery) {
+    assert(address);
+    assert(numThreads > 0);
+    assert(typeof backgroundMining === "boolean");
+    assert(typeof ignoreBattery === "boolean");
+    let resp = await this.config.rpc.sendPathRpcRequest("start_mining", {
+      miner_address: address,
+      threads_count: numThreads,
+      do_background_mining: backgroundMining,
+      ignore_battery: ignoreBattery,
+    })
+    let model = new MoneroDaemonModel();
+    MoneroDaemonRpc._setResponseInfo(resp, model);
+    return model;
+  }
+  
+  async stopMining() {
+    let resp = await this.config.rpc.sendPathRpcRequest("stop_mining");
+    return MoneroDaemonRpc._setResponseInfo(resp, new MoneroDaemonModel());
+  }
+  
   async flushTxPool(ids) {
     if (ids) ids = GenUtils.listify(ids);
     let resp = await this.config.rpc.sendJsonRpcRequest("flush_txpool", {txids: ids});
@@ -302,6 +323,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   static _setResponseInfo(resp, model) {
     let responseInfo = new MoneroDaemonResponseInfo(resp.status, resp.untrusted ? !resp.untrusted : resp.untrusted);  // invert api's isUntrusted to isTrusted  // TODO: uninvert
     model.setResponseInfo(responseInfo);
+    return model;
   }
   
   static _buildBlockHeader(rpcHeader) {

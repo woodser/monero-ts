@@ -4,6 +4,7 @@ const TestUtils = require("./TestUtils");
 const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
 const GenUtils = require("../src/utils/GenUtils");
 const MoneroBan = require("../src/daemon/model/MoneroBan");
+const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
 
 /**
  * Tests the Monero Daemon RPC client and server.
@@ -419,12 +420,19 @@ describe("Test Monero Daemon RPC", function() {
     assert(found2);
   });
   
-  it("Can start mining", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can stop mining", async function() {
-    throw new Error("Not implemented");
+  it("Can start and stop mining", async function() {
+    
+    // generate an address to mine to
+    let wallet = new MoneroWalletLocal(daemon);
+    let address = await wallet.getPrimaryAddress();
+    
+    // start mining
+    let daemonModel = await daemon.startMining(address, 2, false, true);
+    testDaemonResponseInfo(daemonModel, true, false);
+    
+    // stop mining
+    daemonModel = await daemon.stopMining();
+    testDaemonResponseInfo(daemonModel, true, false);
   });
   
   it("Can get mining status", async function() {
