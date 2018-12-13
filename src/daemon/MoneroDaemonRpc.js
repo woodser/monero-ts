@@ -291,13 +291,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
       do_background_mining: backgroundMining,
       ignore_battery: ignoreBattery,
     })
-    let model = new MoneroDaemonModel();
-    MoneroDaemonRpc._setResponseInfo(resp, model);
-    return model;
+    return MoneroDaemonRpc._setResponseInfo(resp, new MoneroDaemonModel());
   }
   
   async stopMining() {
     let resp = await this.config.rpc.sendPathRpcRequest("stop_mining");
+    resp = JSON.parse(resp);  // TODO: (monero-daemon-rpc) returning string instead of object
     return MoneroDaemonRpc._setResponseInfo(resp, new MoneroDaemonModel());
   }
   
@@ -404,7 +403,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "reserved_offset") template.setReservedOffset(val);
       else if (key === "status") {}  // set elsewhere
       else if (key === "untrusted") {}  // set elsewhere
-      else console.log("Ignoring unexpected field in block template: '" + key + "'");
+      else console.log("WARNING: ignoring unexpected field in block template: '" + key + "'");
     }
     return template;
   }
