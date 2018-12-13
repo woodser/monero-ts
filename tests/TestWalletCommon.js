@@ -97,9 +97,9 @@ function testWallet(wallet, daemon) {
   
   it("Can get the balance and unlocked balance", async function() {
     let balance = await wallet.getBalance();
-    testUnsignedBigInteger(balance);
+    TestUtils.testUnsignedBigInteger(balance);
     let unlockedBalance = await wallet.getUnlockedBalance();
-    testUnsignedBigInteger(unlockedBalance);
+    TestUtils.testUnsignedBigInteger(unlockedBalance);
   });
   
   it("Can get all accounts in the wallet without subaddresses", async function() {
@@ -255,8 +255,8 @@ function testWallet(wallet, daemon) {
     // get wallet balances
     let walletBalance = await wallet.getBalance();
     let walletUnlockedBalance = await wallet.getUnlockedBalance();
-    testUnsignedBigInteger(walletBalance);
-    testUnsignedBigInteger(walletUnlockedBalance);
+    TestUtils.testUnsignedBigInteger(walletBalance);
+    TestUtils.testUnsignedBigInteger(walletUnlockedBalance);
     assert(walletBalance >= walletUnlockedBalance);
     
     // get wallet accounts and subaddresses
@@ -638,19 +638,14 @@ function isUnsignedBigInteger(param) {
   return false;
 }
 
-function testUnsignedBigInteger(num) {
-  assert(num instanceof BigInteger);
-  assert(num.toJSValue() >= 0);
-}
-
 function testAccount(account) {
   
   // test account
   assert(account);
   assert(account.getIndex() >= 0);
   assert(account.getPrimaryAddress());
-  testUnsignedBigInteger(account.getBalance());
-  testUnsignedBigInteger(account.getUnlockedBalance());
+  TestUtils.testUnsignedBigInteger(account.getBalance());
+  TestUtils.testUnsignedBigInteger(account.getUnlockedBalance());
   
   // if given, test subaddresses and that their balances add up to account balances
   if (account.getSubaddresses()) {
@@ -672,8 +667,8 @@ function testSubaddress(subaddress) {
   assert(subaddress.getAccountIndex() >= 0);
   assert(subaddress.getSubaddressIndex() >= 0);
   assert(subaddress.getAddress());
-  testUnsignedBigInteger(subaddress.getBalance());
-  testUnsignedBigInteger(subaddress.getUnlockedBalance());
+  TestUtils.testUnsignedBigInteger(subaddress.getBalance());
+  TestUtils.testUnsignedBigInteger(subaddress.getUnlockedBalance());
   assert(subaddress.getNumUnspentOutputs() >= 0);
   if (subaddress.getBalance().toJSValue() > 0) assert(subaddress.getIsUsed());
 }

@@ -3,6 +3,7 @@ const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
 const MoneroWalletRpc = require("../src/wallet/MoneroWalletRpc");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
 const MoneroRpcError = require("../src/rpc/MoneroRpcError");
+const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
  * Collection of test utilities and configurations.
@@ -63,6 +64,11 @@ class TestUtils {
       assert.equal(-38, e.getRpcCode());  // TODO: (monero-wallet-rpc) sometimes getting -38: no connection to daemon on rescan call (after above calls) which causes mocha "before all" hook problem
       console.log("WARNING: received -38: no connection to daemon on rescan call after create/open, ignoring...");
     }
+  }
+  
+  static testUnsignedBigInteger(num) {
+    assert(num instanceof BigInteger);
+    assert(num.toJSValue() >= 0);
   }
 }
 

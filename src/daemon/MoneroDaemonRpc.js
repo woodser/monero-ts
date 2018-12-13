@@ -14,6 +14,7 @@ const MoneroDaemonSyncInfo = require("./model/MoneroDaemonSyncInfo");
 const MoneroHardForkInfo = require("./model/MoneroHardForkInfo");
 const MoneroBan = require("./model/MoneroBan");
 const MoneroDaemonConnection = require("./model/MoneroDaemonConnection");
+const MoneroCoinbaseTxSum = require("./model/MoneroCoinbaseTxSum");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
@@ -166,6 +167,23 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let txs = resp.txs ? resp.txs.map(tx => MoneroDaemonRpc._buildTx(tx)) : [];
     txs.map(tx => MoneroDaemonRpc._setResponseInfo(resp, tx));
     return txs;
+  }
+  
+  async getCoinbaseTxSum(height, count) {
+    if (height === undefined) height = 0;
+    else assert(height >= 0, "Height must be an integer >= 0");
+    if (count === undefined) count = await this.getHeight();
+    else assert(count >= 0, "Count must be an integer >= 0");
+    let resp = await this.config.rpc.sendJsonRpcRequest("get_coinbase_tx_sum", {height: height, count: count});
+    let txSum = new MoneroCoinbaseTxSum();
+    txSum.setTotalEmission(new BigInteger(resp.emission_amount));
+    txSum.setTotalFees(new BigInteger(resp.fee_amount));
+    MoneroDaemonRpc._setResponseInfo(resp, txSum);
+    return txSum;
+  }
+  
+  async getFeeEstimate(graceBlocks) {
+    throw new Error("Not implemented");
   }
   
   async getInfo() {

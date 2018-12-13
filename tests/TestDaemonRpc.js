@@ -246,11 +246,15 @@ describe("Test Monero Daemon RPC", function() {
   });
   
   it("Can get the coinbase transaction sum", async function() {
-    throw new Error("Not implemented");
+    let sum = await daemon.getCoinbaseTxSum(0, 50000);
+    testDaemonResponseInfo(sum, true, false);
+    testCoinbaseTxSum(sum);
   });
   
   it("Can get a fee estimate", async function() {
-    throw new Error("Not implemented");
+    let estimate = await daemon.getFeeEstimate();
+    testDaemonResponseInfo(estimate, true, true);
+    TestUtils.testUnsignedBigInteger(estimate.getFeeEstimate());
   });
   
   it("Can relay a transaction", async function() {
@@ -651,4 +655,11 @@ function testMoneroBan(ban) {
   assert(ban.getHost() !== undefined);
   assert(ban.getIp() !== undefined);
   assert(ban.getSeconds() !== undefined);
+}
+
+function testCoinbaseTxSum(txSum) {
+  TestUtils.testUnsignedBigInteger(txSum.getTotalEmission());
+  assert(txSum.getTotalEmission().toJSValue() > 0);
+  TestUtils.testUnsignedBigInteger(txSum.getTotalFees());
+  assert(txSum.getTotalFees().toJSValue() > 0);
 }
