@@ -1,5 +1,7 @@
 TODO
 standardize on isCoinbase, isIncoming, etc
+standardize on tx ids vs hashes
+standardize on mempool vs tx pool
 getIsCoinbase() should be in MoneroTx and tested
 replace getType() with xor getIsIncoming()
 rather than block type, incoming and confirmed, but need to mark isMinerTx() in txs
@@ -26,6 +28,7 @@ tx hex returned from rpc api even if not needed
 remove text-encoding dependency
 package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 JS now has native BigInt class which could be used instead of current BigInteger
+support setting daemon log level
 
 RPC SUGGESTED IMPOVEMENTS
 /get_transactions returns duplicate data per transaction

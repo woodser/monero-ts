@@ -240,6 +240,11 @@ describe("Test Monero Daemon RPC", function() {
     // TODO: test binary vs json encoding
   });
   
+  it("Can get transaction ids as a binary request", async function() {
+    //get_hashes.bin
+    throw new Error("Not implemented");
+  });
+  
   it("Has general information", async function() {
     let info = await daemon.getInfo();
     testDaemonResponseInfo(info, true, true);
@@ -255,7 +260,7 @@ describe("Test Monero Daemon RPC", function() {
   it("Has connections to peers", async function() {
     let connections = await daemon.getConnections();
     assert(connections);
-    assert(connections.length > 0);
+    assert(connections.length > 0, "Daemon has no peer connections to test");
     for (let connection of connections) {
       testDaemonResponseInfo(connection, true, false);
       testDaemonConnection(connection);
@@ -357,15 +362,31 @@ describe("Test Monero Daemon RPC", function() {
     throw new Error("Not implemented");
   });
   
-  it("Can get the transaction pool backlog", async function() {
+  it("Can get transactions and spent key images in the transaction pool", async function() {
+    // TODO: get_transaction_pool_hashes.bin
     throw new Error("Not implemented");
   });
   
-  it("Can get the known blocks hashes which are not on the main chain", async function() {
+  it("Can get ids of transactions in the transaction pool", async function() {
+    // TODO: get_transaction_pool_hashes.bin
     throw new Error("Not implemented");
   });
+  
+  it("Can get the transaction pool backlog", async function() {
+    // TODO: get_txpool_backlog
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get transaction pool statistics", async function() {
+    // TODO get_transaction_pool_stats
+    throw new Error("Not implemented");
+  })
   
   it("Can determine if key images can be spent", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can be stopped", async function() {
     throw new Error("Not implemented");
   });
   
@@ -381,11 +402,7 @@ describe("Test Monero Daemon RPC", function() {
     throw new Error("Not implemented");
   });
   
-  it("Can set bandwidth limit", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get bandwidth limit", async function() {
+  it("Can get and set a bandwidth limit", async function() {
     throw new Error("Not implemented");
   });
   
@@ -398,6 +415,18 @@ describe("Test Monero Daemon RPC", function() {
   });
   
   it("Can submit a block to the network", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get outputs given a list of output amounts and indices", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get global outputs given a list of transaction ids", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can be updated", async function() {
     throw new Error("Not implemented");
   });
 });
