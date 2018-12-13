@@ -15,6 +15,7 @@ const MoneroHardForkInfo = require("./model/MoneroHardForkInfo");
 const MoneroBan = require("./model/MoneroBan");
 const MoneroDaemonConnection = require("./model/MoneroDaemonConnection");
 const MoneroCoinbaseTxSum = require("./model/MoneroCoinbaseTxSum");
+const MoneroFeeEstimate = require("./model/MoneroFeeEstimate");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
@@ -183,7 +184,11 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getFeeEstimate(graceBlocks) {
-    throw new Error("Not implemented");
+    let resp = await this.config.rpc.sendJsonRpcRequest("get_fee_estimate", {grace_blocks: graceBlocks});
+    let feeEstimate = new MoneroFeeEstimate();
+    feeEstimate.setFeeEstimate(new BigInteger(resp.fee));
+    MoneroDaemonRpc._setResponseInfo(resp, feeEstimate);
+    return feeEstimate;
   }
   
   async getInfo() {
