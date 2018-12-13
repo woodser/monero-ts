@@ -202,7 +202,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getConnections() {
     await this._initOneTime();
-    throw new Error("Not implemented");
+    let resp = await this.config.rpc.sendJsonRpcRequest("get_connections");
+    let connections = [];
+    for (let rpcConnection of resp.connections) {
+      let connection = MoneroDaemonRpc._buildConnection(rpcConnection);
+      MoneroDaemonRpc._setResponseInfo(resp, connection);
+      connections.push(connection);
+    }
+    return connections;
   }
   
   async getHardForkInfo() {

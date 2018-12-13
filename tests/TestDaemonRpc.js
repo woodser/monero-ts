@@ -253,17 +253,13 @@ describe("Test Monero Daemon RPC", function() {
   });
   
   it("Has connections to peers", async function() {
-    
-    
-//    List<MoneroDaemonConnection> connections = daemon.getConnections();
-//    assertNotNull(connections);
-//    assertFalse(connections.isEmpty());
-//    for (MoneroDaemonConnection connection : connections) {
-//      testDaemonResponseInfo(connection, true, false);
-//      testDaemonConnection(connection);
-//    }
-    
-    throw new Error("Not implemented");
+    let connections = await daemon.getConnections();
+    assert(connections);
+    assert(connections.length > 0);
+    for (let connection of connections) {
+      testDaemonResponseInfo(connection, true, false);
+      testDaemonConnection(connection);
+    }
   });
   
   it("Has hard fork information", async function() {
@@ -599,7 +595,7 @@ function testDaemonConnection(connection) {
   assert(connection.getSendCount() >= 0);
   assert(connection.getSendIdleTime() >= 0);
   assert(connection.getState());
-  assert(connection.getSupportFlags()); 
+  assert(connection.getSupportFlags() >= 0); 
 }
 
 function testHardForkInfo(hardForkInfo) {
