@@ -209,6 +209,11 @@ describe("Test Monero Daemon RPC", function() {
     }
   });
   
+  it("Can get block ids as a binary request", async function() {
+    //get_hashes.bin
+    throw new Error("Not implemented");
+  });
+  
   it("Can get transactions", async function() {
     
     // get valid height range
@@ -240,8 +245,69 @@ describe("Test Monero Daemon RPC", function() {
     // TODO: test binary vs json encoding
   });
   
-  it("Can get transaction ids as a binary request", async function() {
-    //get_hashes.bin
+  it("Can get the coinbase transaction sum", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get a fee estimate", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can relay a transaction", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can relay multiple transactions", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get transactions and spent key images in the transaction pool", async function() {
+    // TODO: get_transaction_pool_hashes.bin
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get ids of transactions in the transaction pool", async function() {
+    // TODO: get_transaction_pool_hashes.bin
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get the transaction pool backlog", async function() {
+    // TODO: get_txpool_backlog
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get transaction pool statistics", async function() {
+    // TODO get_transaction_pool_stats
+    throw new Error("Not implemented");
+  });
+  
+  it("Can flush all transactions from the pool", async function() {
+    let model = await daemon.flushTxPool();
+    testDaemonResponseInfo(model, true, false);
+  });
+  
+  it("Can flush one or more transactions from the pool by id", async function() {
+    throw new Error("Not implemented"); // TODO: need to fetch pool transactions hashes
+  });
+  
+  it("Can determine if key images can be spent", async function() {
+    // is_key_image_spent
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get global outputs given a list of transaction ids", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get outputs given a list of output amounts and indices", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get an output histogram", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get an output distribution", async function() {
     throw new Error("Not implemented");
   });
   
@@ -257,7 +323,25 @@ describe("Test Monero Daemon RPC", function() {
     testSyncInfo(syncInfo);
   });
   
-  it("Has connections to peers", async function() {
+  it("Has hard fork information", async function() {
+    let hardForkInfo = await daemon.getHardForkInfo();
+    testDaemonResponseInfo(hardForkInfo, true, true);
+    testHardForkInfo(hardForkInfo);
+  });
+  
+  it("Can get alternative chains", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get alternative block ids", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can limit incoming and outgoing bandwidth", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can get information about incoming and outgoing connections", async function() {
     let connections = await daemon.getConnections();
     assert(connections);
     assert(connections.length > 0, "Daemon has no peer connections to test");
@@ -267,10 +351,16 @@ describe("Test Monero Daemon RPC", function() {
     }
   });
   
-  it("Has hard fork information", async function() {
-    let hardForkInfo = await daemon.getHardForkInfo();
-    testDaemonResponseInfo(hardForkInfo, true, true);
-    testHardForkInfo(hardForkInfo);
+  it("Can get a list of peers", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can limit the number of outgoing peers", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can limit the number of incoming peers", async function() {
+    throw new Error("Not implemented");
   });
   
   it("Can ban a peer", async function() {
@@ -280,11 +370,11 @@ describe("Test Monero Daemon RPC", function() {
     ban.setHost("192.168.1.51");
     ban.setIsBanned(true);
     ban.setSeconds(60);
-    let model = await daemon.setBan(ban);
+    let model = await daemon.setPeerBan(ban);
     testDaemonResponseInfo(model, true, false);
     
     // test ban
-    let bans = await daemon.getBans();
+    let bans = await daemon.getPeerBans();
     let found = false;
     for (let aBan of bans) {
       testDaemonResponseInfo(aBan, true, false);
@@ -308,11 +398,11 @@ describe("Test Monero Daemon RPC", function() {
     let bans = [];
     bans.push(ban1);
     bans.push(ban2);
-    let model = await daemon.setBans(bans);
+    let model = await daemon.setPeerBans(bans);
     testDaemonResponseInfo(model, true, false);
     
     // test bans
-    bans = await daemon.getBans();
+    bans = await daemon.getPeerBans();
     let found1 = false;
     let found2 = false;
     for (let aBan of bans) {
@@ -323,71 +413,6 @@ describe("Test Monero Daemon RPC", function() {
     }
     assert(found1);
     assert(found2);
-  });
-  
-  it("Can flush all transactions from the pool", async function() {
-    let model = await daemon.flushTxPool();
-    testDaemonResponseInfo(model, true, false);
-  });
-  
-  it("Can flush one or more transactions from the pool by id", async function() {
-    throw new Error("Not implemented"); // TODO: need to fetch pool transactions hashes
-  });
-  
-  it("Can get an output histogram", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get an output distribution", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get the coinbase transaction sum", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get a fee estimate", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get alternative chains", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get relay a transaction", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get relay multiple transactions", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get transactions and spent key images in the transaction pool", async function() {
-    // TODO: get_transaction_pool_hashes.bin
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get ids of transactions in the transaction pool", async function() {
-    // TODO: get_transaction_pool_hashes.bin
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get the transaction pool backlog", async function() {
-    // TODO: get_txpool_backlog
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get transaction pool statistics", async function() {
-    // TODO get_transaction_pool_stats
-    throw new Error("Not implemented");
-  })
-  
-  it("Can determine if key images can be spent", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can be stopped", async function() {
-    throw new Error("Not implemented");
   });
   
   it("Can start mining", async function() {
@@ -402,31 +427,15 @@ describe("Test Monero Daemon RPC", function() {
     throw new Error("Not implemented");
   });
   
-  it("Can get and set a bandwidth limit", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can limit the number of outgoing peers", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can limit the number of incoming peers", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can submit a block to the network", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get outputs given a list of output amounts and indices", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can get global outputs given a list of transaction ids", async function() {
+  it("Can submit a mined block to the network", async function() {
     throw new Error("Not implemented");
   });
   
   it("Can be updated", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  it("Can be stopped", async function() {
     throw new Error("Not implemented");
   });
 });

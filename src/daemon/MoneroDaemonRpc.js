@@ -200,6 +200,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return syncInfo;
   }
   
+  async getHardForkInfo() {
+    let resp = await this.config.rpc.sendJsonRpcRequest("hard_fork_info");
+    let hardForkInfo = MoneroDaemonRpc._buildHardForkInfo(resp);
+    MoneroDaemonRpc._setResponseInfo(resp, hardForkInfo);
+    return hardForkInfo;
+  }
+  
   async getConnections() {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRpcRequest("get_connections");
@@ -213,18 +220,11 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return connections;
   }
   
-  async getHardForkInfo() {
-    let resp = await this.config.rpc.sendJsonRpcRequest("hard_fork_info");
-    let hardForkInfo = MoneroDaemonRpc._buildHardForkInfo(resp);
-    MoneroDaemonRpc._setResponseInfo(resp, hardForkInfo);
-    return hardForkInfo;
+  async setPeerBan(ban) {
+    return await this.setPeerBans([ban]);
   }
   
-  async setBan(ban) {
-    return await this.setBans([ban]);
-  }
-  
-  async setBans(bans) {
+  async setPeerBans(bans) {
     let rpcBans = [];
     for (let ban of bans) rpcBans.push(banToRpc(ban));
     let resp = await this.config.rpc.sendJsonRpcRequest("set_bans", {bans: rpcBans});
@@ -243,7 +243,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     }
   }
   
-  async getBans() {
+  async getPeerBans() {
     let resp = await this.config.rpc.sendJsonRpcRequest("get_bans");
     let bans = [];
     for (let rpcBan of resp.bans) {
