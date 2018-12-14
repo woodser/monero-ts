@@ -168,6 +168,10 @@ class MoneroDaemon {
   
   /**
    * TODO.
+   * 
+   * TODO: split this into two calls?
+   * 
+   * @returns {MoneroTxPool} contains tx pool transactions and spent key images
    */
   async getTxPoolTxsAndSpentKeyImages() {
     throw new Error("Subclass must implement");

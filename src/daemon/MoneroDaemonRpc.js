@@ -17,6 +17,7 @@ const MoneroDaemonConnection = require("./model/MoneroDaemonConnection");
 const MoneroCoinbaseTxSum = require("./model/MoneroCoinbaseTxSum");
 const MoneroFeeEstimate = require("./model/MoneroFeeEstimate");
 const MoneroOutputHistogramEntry = require("./model/MoneroOutputHistogramEntry");
+const MoneroTxPool = require("./model/MoneroTxPool");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
@@ -190,6 +191,29 @@ class MoneroDaemonRpc extends MoneroDaemon {
     feeEstimate.setFeeEstimate(new BigInteger(resp.fee));
     MoneroDaemonRpc._setResponseInfo(resp, feeEstimate);
     return feeEstimate;
+  }
+  
+  async getTxPoolTxsAndSpentKeyImages() {
+    
+    // send rpc request
+    let resp = await this.config.rpc.sendPathRpcRequest("get_transaction_pool");
+    
+    // build container for txs and spent key images
+    let txPool = new MoneroTxPool();
+    MoneroDaemonRpc._setResponseInfo(resp, txPool);
+    
+    // built txs
+    let txs = [];
+    txPool.setTxs(txs);
+    if (resp.transactions) {
+      for (let rpcTx of resp.transactions) {
+        let tx = MoneroDaemonRpc._buildTx(rpcTx); // TODO: needs to handle additional daemon mempool tx fields
+        txs.push(tx);
+      }
+    }
+    
+    // build key images
+    throw new Error("Not implemented");
   }
   
   async getInfo() {

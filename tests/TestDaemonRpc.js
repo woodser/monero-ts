@@ -268,8 +268,26 @@ describe("Test Monero Daemon RPC", function() {
   });
   
   it("Can get transactions and spent key images in the transaction pool", async function() {
-    // TODO: get_transaction_pool_hashes.bin
-    throw new Error("Not implemented");
+    
+    // fetch tx pool txs and spent key images
+    let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
+    testDaemonResponseInfo(txPool, true, false);
+    
+    // test txs
+    assert(Array.isArray(txPool.getTxs()));
+    assert(txPool.getTxs().length >= 0);
+    for (let tx of txPool.getTxs()) {
+      testTx(tx, { hasHex: false, hasJson: true, isPruned: false, isFull: true });
+    }
+    
+    // test key images
+    assert(Array.isArray(txPoool.getSpentKeyImages()));
+    assert(txPool.getSpentKeyImages().length > 0);
+    for (let image of txPool.getSpentKeyImages()) {
+      assert(Array.isArray(image.getTxIds()));
+      assert(image.getTxIds().length >= 0);
+      assert(image.getId());
+    }
   });
   
   it("Can get ids of transactions in the transaction pool", async function() {
