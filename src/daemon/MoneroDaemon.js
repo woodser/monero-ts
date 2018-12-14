@@ -239,14 +239,14 @@ class MoneroDaemon {
   /**
    * TODO.
    */
-  async getOutputHistogram() {
+  async getOutputHistogram(mounts, minCount, maxCount, isUnlocked, recentCutoff) {
     throw new Error("Subclass must implement");
   }
   
   /**
    * TODO.
    */
-  async getOutputDistribution() {
+  async getOutputDistribution(amounts, cumulative, startHeight, endHeight) {
     throw new Error("Subclass must implement");
   }
   

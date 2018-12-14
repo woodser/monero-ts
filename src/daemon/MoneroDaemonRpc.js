@@ -16,6 +16,7 @@ const MoneroBan = require("./model/MoneroBan");
 const MoneroDaemonConnection = require("./model/MoneroDaemonConnection");
 const MoneroCoinbaseTxSum = require("./model/MoneroCoinbaseTxSum");
 const MoneroFeeEstimate = require("./model/MoneroFeeEstimate");
+const MoneroOutputHistogramEntry = require("./model/MoneroOutputHistogramEntry");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
@@ -308,6 +309,63 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return model;
   }
   
+  async getOutputHistogram(amounts, minCount, maxCount, isUnlocked, recentCutoff) {
+    
+    // send rpc request
+    let resp = await this.config.rpc.sendJsonRpcRequest("get_output_histogram", {
+      amounts: amounts,
+      min_count: minCount,
+      max_count: maxCount,
+      unlocked: isUnlocked,
+      recent_cutoff: isUnlocked
+    });
+    
+    // build histogram entries from response
+    let entries = [];
+    if (!resp.histogram) return entries;
+    for (let rpcEntry of resp.histogram) {
+      let entry = MoneroDaemonRpc._buildOutputHistogramEntry(rpcEntry);
+      entries.push(entry);
+      MoneroDaemonRpc._setResponseInfo(resp, entry);
+    }
+    return entries;
+  }
+  
+  async getOutputDistribution(amounts, cumulative, startHeight, endHeight) {
+    throw new Error("Response is being returned as string for some reason");  // TODO
+    
+//    // TODO: need to send BigIntegers to RPC API
+//    let amountStrs = [];
+//    for (let amount of amounts) amountStrs.push(amount.toJSValue());
+//    console.log(amountStrs);
+//    console.log(cumulative);
+//    console.log(startHeight);
+//    console.log(endHeight);
+//    
+//    // send rpc request
+//    console.log("*********** SENDING REQUEST *************");
+//    if (startHeight === undefined) startHeight = 0;
+//    let resp = await this.config.rpc.sendJsonRpcRequest("get_output_distribution", {
+//      amounts: amountStrs,
+//      cumulative: cumulative,
+//      from_height: startHeight,
+//      to_height: endHeight
+//    });
+//    
+//    console.log("RESPONSE");
+//    console.log(resp);
+//    
+//    // build distribution entries from response
+//    let entries = [];
+//    if (!resp.distributions) return entries; 
+//    for (let rpcEntry of resp.distributions) {
+//      let entry = MoneroDaemonRpc._buildOutputDistributionEntry(rpcEntry);
+//      entries.push(entry);
+//      MoneroDaemonRpc._setResponseInfo(resp, entry);  // TODO: set same response info for every entry, else this gets prohibitively large?
+//    }
+//    return entries;
+  }
+  
   // ------------------------------- PRIVATE STATIC ---------------------------
   
   async _initOneTime() {
@@ -532,6 +590,19 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   static _buildConnectionSpan(rpcConnectionSpan) {
     throw new Error("Not implemented");
+  }
+  
+  static _buildOutputHistogramEntry(rpcEntry) {
+    let entry = new MoneroOutputHistogramEntry();
+    for (let key of Object.keys(rpcEntry)) {
+      let val = rpcEntry[key];
+      if (key === "amount") entry.setAmount(new BigInteger(val));
+      else if (key === "total_instances") entry.setTotalInstances(val);
+      else if (key === "unlocked_instances") entry.setUnlockedInstances(val);
+      else if (key === "recent_instances") entry.setRecentInstances(val);
+      else console.log("WARNING: ignoring unexpected field in output histogram: '" + key + "'");
+    }
+    return entry;
   }
 }
 

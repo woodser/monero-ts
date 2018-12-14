@@ -5,6 +5,7 @@ const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
 const GenUtils = require("../src/utils/GenUtils");
 const MoneroBan = require("../src/daemon/model/MoneroBan");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
+const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
  * Tests the Monero Daemon RPC client and server.
@@ -309,11 +310,30 @@ describe("Test Monero Daemon RPC", function() {
   });
   
   it("Can get an output histogram", async function() {
-    throw new Error("Not implemented");
+    let entries = await daemon.getOutputHistogram();
+    assert(Array.isArray(entries));
+    assert(entries.length > 0);
+    for (let entry of entries) {
+      testDaemonResponseInfo(entry, true, true);
+      testOutputHistogramEntry(entry);
+    }
   });
   
   it("Can get an output distribution", async function() {
-    throw new Error("Not implemented");
+    let amounts = [];
+    amounts.push(new BigInteger(0));
+    amounts.push(new BigInteger(1));
+    amounts.push(new BigInteger(10));
+    amounts.push(new BigInteger(100));
+    amounts.push(new BigInteger(1000));
+    amounts.push(new BigInteger(10000));
+    amounts.push(new BigInteger(100000));
+    amounts.push(new BigInteger(1000000));
+    let entries = await daemon.getOutputDistribution(amounts);
+    for (let entry of entries) {
+      testDaemonResponseInfo(entry, true, false);
+      testOutputDistributionEntry(entry);
+    }
   });
   
   it("Has general information", async function() {
@@ -670,4 +690,18 @@ function testCoinbaseTxSum(txSum) {
   assert(txSum.getTotalEmission().toJSValue() > 0);
   TestUtils.testUnsignedBigInteger(txSum.getTotalFees());
   assert(txSum.getTotalFees().toJSValue() > 0);
+}
+
+function testOutputHistogramEntry(entry) {
+  TestUtils.testUnsignedBigInteger(entry.getAmount());
+  assert(entry.getTotalInstances() >= 0);
+  assert(entry.getUnlockedInstances() >= 0);
+  assert(entry.getRecentInstances() >= 0);
+}
+
+function testOutputDistributionEntry(entry) {
+  TestUtils.testUnsignedBigInteger(entry.getAmount());
+  assert(entry.getBase() >= 0);
+  assert(Array.isArray(entry.getDistribution()) && entry.getDistribution().length > 0);
+  assert(entry.getStartHeight() >= 0);
 }

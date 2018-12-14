@@ -1,4 +1,5 @@
 TODO
+way to throttle rpc requests with agent instead of throttle-request to preserve stacktrace?
 standardize on isCoinbase, isIncoming, etc
 standardize on tx ids vs hashes
 standardize on mempool vs tx pool
