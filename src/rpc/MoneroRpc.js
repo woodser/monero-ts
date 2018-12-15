@@ -56,7 +56,7 @@ class MoneroRpc {
    * @param params are request parameters
    * @return a Promise invoked with the response
    */
-  async sendJsonRpcRequest(method, params) {
+  async sendJsonRequest(method, params) {
     
     // build request
     let opts = {
@@ -94,7 +94,7 @@ class MoneroRpc {
    * 
    * E.g. "/get_transactions" with params
    */
-  async sendPathRpcRequest(path, params) {
+  async sendPathRequest(path, params) {
     
     // build request
     let opts = {
@@ -125,7 +125,7 @@ class MoneroRpc {
    * @params are the request parameters
    * @returns a Uint8Array with the binary response
    */
-  async sendBinRpcRequest(path, params) {
+  async sendBinaryRequest(path, params) {
     
     // get core utils to serialize and deserialize binary requests
     let coreUtils = await MoneroUtils.getCoreUtils();
