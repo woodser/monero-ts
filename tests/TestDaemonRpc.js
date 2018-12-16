@@ -241,7 +241,7 @@ describe("Test Monero Daemon RPC", function() {
 //    let txs = await daemon.getTxs(txHashes, decodeAsJson, prune);
 //    for (let tx of txs) {
 //      testDaemonResponseInfo(tx, true, true); // TODO: duplicating response info is going to be too expensive so must be common reference
-//      testTx(tx, { hasHex: true, hasJson: decodeAsJson, isPruned: prune, isFull: true });
+//      testTx(tx, { hasHex: true, hasJson: decodeAsJson, isPruned: prune, isFull: true, isConfirmed: true });
 //    }
 //    
 //    // TODO: test binary vs json encoding
@@ -271,18 +271,18 @@ describe("Test Monero Daemon RPC", function() {
     
     // fetch tx pool txs and spent key images
     let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
-    testDaemonResponseInfo(txPool, true, false);
+    testDaemonResponseInfo(txPool, true, true);
     
     // test txs
     assert(Array.isArray(txPool.getTxs()));
-    assert(txPool.getTxs().length >= 0);
+    assert(txPool.getTxs().length > 0, "Test requires an unconfirmed tx in the tx pool");
     for (let tx of txPool.getTxs()) {
-      testTx(tx, { hasHex: false, hasJson: true, isPruned: false, isFull: true });
+      testTx(tx, { hasHex: true, hasJson: true, isPruned: false, isFull: true, isConfirmed: false });
     }
     
     // test key images
-    assert(Array.isArray(txPoool.getSpentKeyImages()));
-    assert(txPool.getSpentKeyImages().length > 0);
+    assert(Array.isArray(txPool.getSpentKeyImages()));
+    assert(txPool.getSpentKeyImages().length > 0, "Test requires unspent key images in the tx pool");
     for (let image of txPool.getSpentKeyImages()) {
       assert(Array.isArray(image.getTxIds()));
       assert(image.getTxIds().length >= 0);
@@ -568,10 +568,20 @@ function testTx(tx, config) {
   assert(typeof config.hasJson === "boolean");
   assert(typeof config.isPruned === "boolean");
   assert(typeof config.isFull === "boolean");
+  assert(typeof config.isConfirmed === "boolean");
   
   // required fields
   assert(tx.getId().length === 64);
-  assert(tx.getHeight() >= 0);
+  
+  // tx may or may not be confirmed
+  assert(typeof tx.getIsConfirmed() === "boolean");
+  if (config.isConfirmed) {
+    assert(tx.getHeight() >= 0);
+    assert(tx.getIsConfirmed());
+  } else {
+    assert(tx.getHeight() === undefined);
+    assert(!tx.getIsConfirmed());
+  }
   
   // fields that come with decoded json
   if (config.hasJson) {
@@ -595,12 +605,11 @@ function testTx(tx, config) {
   // prunable
   assert(config.isPruned ? undefined === tx.getRctSigPrunable() : typeof tx.getRctSigPrunable().nbp === "number");
   
-  // hex only comes from /get_transactions
+  // hex comes from /get_transactions, get_transaction_pool
   assert(!config.hasHex ? undefined === tx.getHex() : tx.getHex().length > 0);
   
   // fields that only come with /get_transactions
   assert(!config.isFull ? undefined === tx.getTimestamp() : tx.getTimestamp() >= 0);
-  assert(!config.isFull ? undefined === tx.getIsConfirmed() : tx.getIsConfirmed());
   assert(!config.isFull ? undefined === tx.getIsDoubleSpend() : !tx.getIsDoubleSpend());
   
   // fields that only come with /get_transaction_pool

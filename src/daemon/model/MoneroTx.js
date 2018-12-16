@@ -255,7 +255,7 @@ class MoneroTx extends MoneroDaemonModel {
   }
 }
 
-//default payment id
+// default payment id
 MoneroTx.DEFAULT_PAYMENT_ID = "0000000000000000";
 
 module.exports = MoneroTx;

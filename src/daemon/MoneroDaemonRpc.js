@@ -198,15 +198,11 @@ class MoneroDaemonRpc extends MoneroDaemon {
     // send rpc request
     let resp = await this.config.rpc.sendPathRequest("get_transaction_pool");
     
-    console.log("RESPONSE");
-    console.log(resp);
-    console.log(typeof resp);
-    
     // build container for txs and spent key images
     let txPool = new MoneroTxPool();
     MoneroDaemonRpc._setResponseInfo(resp, txPool);
     
-    // built txs
+    // build txs
     let txs = [];
     txPool.setTxs(txs);
     if (resp.transactions) {
@@ -215,6 +211,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
         txs.push(tx);
       }
     }
+    
+    // build key images
+    let keyImages = [];
+    txPool.setSpentKeyImages(keyImages);
     
     // build key images
     // TODO: this
@@ -327,7 +327,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async stopMining() {
     let resp = await this.config.rpc.sendPathRequest("stop_mining");
-    resp = JSON.parse(resp);  // TODO: this is being returned as string instead of an object for some reason???
     return MoneroDaemonRpc._setResponseInfo(resp, new MoneroDaemonModel());
   }
   
@@ -416,8 +415,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   static _buildBlockHeader(rpcHeader) {
     if (!rpcHeader) return undefined;
     let header = new MoneroBlockHeader();
-    for (var prop in rpcHeader) {
-      let key = prop.toString();
+    for (let key of Object.keys(rpcHeader)) {
       let val = rpcHeader[key];
       if (key === "block_size") header.setBlockSize(val);
       else if (key === "depth") header.setDepth(val);
@@ -458,29 +456,39 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * @returns tx is the same tx that was passed in or a new one if none given
    */
   static _buildTx(rpcTx, tx) {
-    if (!tx) tx = new MoneroTx();
-    if (rpcTx === undefined) return tx;
-    MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, rpcTx.as_hex);
-    MoneroUtils.safeSet(tx, tx.getHeight, tx.setHeight, rpcTx.block_height);
-    MoneroUtils.safeSet(tx, tx.getTimestamp, tx.setTimestamp, rpcTx.block_timestamp);
-    MoneroUtils.safeSet(tx, tx.getIsConfirmed, tx.setIsConfirmed, rpcTx.in_pool === undefined ? undefined : !rpcTx.in_pool);
-    MoneroUtils.safeSet(tx, tx.getIsDoubleSpend, tx.setIsDoubleSpend, rpcTx.double_spend_seen);
-    MoneroUtils.safeSet(tx, tx.getId, tx.setId, rpcTx.tx_hash);
-    MoneroUtils.safeSet(tx, tx.getVersion, tx.setVersion, rpcTx.version);
-    MoneroUtils.safeSet(tx, tx.getExtra, tx.setExtra, rpcTx.extra);
-    MoneroUtils.safeSet(tx, tx.getVin, tx.setVin, rpcTx.vin);
-    MoneroUtils.safeSet(tx, tx.getVout, tx.setVout, rpcTx.vout);
-    MoneroUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, rpcTx.rct_signatures);
-    MoneroUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, rpcTx.rctsig_prunable);
-    MoneroUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, rpcTx.unlock_time);
-    if (rpcTx.as_json) MoneroDaemonRpc._buildTx(JSON.parse(rpcTx.as_json), tx);  // may need to read tx from json str
+    if (rpcTx === undefined) return undefined;
+    if (tx === undefined) tx = new MoneroTx();
+    tx.setIsConfirmed(false); // tx is unconfirmed by default
+    for (let key of Object.keys(rpcTx)) {
+      let val = rpcTx[key];
+      if (key === "as_hex") MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, val);
+      else if (key === "block_timestamp" || key == "last_relayed_time" || key === "receive_time") MoneroUtils.safeSet(tx, tx.getTimestamp, tx.setTimestamp, val);
+      else if (key === "in_pool") MoneroUtils.safeSet(tx, tx.getIsConfirmed, tx.setIsConfirmed, !val);
+      else if (key === "double_spend_seen") MoneroUtils.safeSet(tx, tx.getIsDoubleSpend, tx.setIsDoubleSpend, val);
+      else if (key === "tx_hash" || key === "id_hash") MoneroUtils.safeSet(tx, tx.getId, tx.setId, val);
+      else if (key === "version") MoneroUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);
+      else if (key === "extra") MoneroUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
+      else if (key === "vin") MoneroUtils.safeSet(tx, tx.getVin, tx.setVin, val);
+      else if (key === "vout") MoneroUtils.safeSet(tx, tx.getVout, tx.setVout, val);
+      else if (key === "rct_signatures") MoneroUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, val);
+      else if (key === "rctsig_prunable") MoneroUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
+      else if (key === "unlock_time") MoneroUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, val);
+      else if (key === "as_json" || key === "tx_json") MoneroDaemonRpc._buildTx(JSON.parse(val), tx);  // may need to read tx from json str
+      else if (key === "tx_blob") MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, val);
+      else if (key === "fee") MoneroUtils.safeSet(tx, tx.getFee, tx.setFee, new BigInteger(val));
+      //else if (key === "relayed") MoneroUtils.safeSet(tx, tx.getIsRelayed, tx.setIsRelayed, new BigInteger(val)); // TODO: move isRelayed up to MoneroTx
+      else if (key === "block_height") {
+        MoneroUtils.safeSet(tx, tx.getHeight, tx.setHeight, val);
+        if (val >= 0) MoneroUtils.safeSet(tx, tx.getIsConfirmed, tx.setIsConfirmed, true);
+      }
+      else console.log("WARNING: ignoring unexpected field in rpc tx: " + key + ": " + val);
+    }
     return tx;
   }
   
   static _buildBlockTemplate(rpcTemplate) {
     let template = new MoneroBlockTemplate();
-    for (let key in rpcTemplate) {
-      if (!rpcTemplate.hasOwnProperty(key)) continue;
+    for (let key of Object.keys(rpcTemplate)) {
       let val = rpcTemplate[key];
       if (key === "blockhashing_blob") template.setTemplateBlob(val);
       else if (key === "blocktemplate_blob") template.setHashBlob(val);
@@ -491,7 +499,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "reserved_offset") template.setReservedOffset(val);
       else if (key === "status") {}  // set elsewhere
       else if (key === "untrusted") {}  // set elsewhere
-      else console.log("WARNING: ignoring unexpected field in block template: '" + key + "'");
+      else console.log("WARNING: ignoring unexpected field in block template: " + key + ": " + val);
     }
     return template;
   }
@@ -499,8 +507,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   static _buildInfo(rpcInfo) {
     if (!rpcInfo) return undefined;
     let info = new MoneroDaemonInfo();
-    for (var prop in rpcInfo) {
-      let key = prop.toString();
+    for (let key of Object.keys(rpcInfo)) {
       let val = rpcInfo[key];
       if (key === "alt_blocks_count") info.setAltBlocksCount(val);
       else if (key === "block_size_limit") info.setBlockSizeLimit(val);
@@ -564,7 +571,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         }
       } else if (key === "status") {}   // set elsewhere
       else if (key === "target_height") syncInfo.setTargetHeight(new BigInteger(val));
-      else console.log("WARNIN: ignoring unexpected field in sync info: '" + key + "'");
+      else console.log("WARNING: ignoring unexpected field in sync info: '" + key + "'");
     }
     return syncInfo;
   }
