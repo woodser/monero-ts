@@ -137,8 +137,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
       block.getHeader().setHeight(heights[blockIdx]);                                       // set header height
       block.setTxs(rpcBlocks.txs[blockIdx].map(rpcTx => MoneroDaemonRpc._buildTx(rpcTx)));  // create transactions
       for (let txIdx = 0; txIdx < block.getTxs().length; txIdx++) {
-        block.getTxs()[txIdx].setId(rpcBlocks.blocks[blockIdx].tx_hashes[txIdx]);           // set tx id
-        block.getTxs()[txIdx].setHeight(block.getHeader().getHeight());                     // set tx height
+        let tx = block.getTxs()[txIdx];
+        tx.setId(rpcBlocks.blocks[blockIdx].tx_hashes[txIdx]);
+        tx.setHeight(block.getHeader().getHeight());
+        tx.setIsConfirmed(true);
       }
       MoneroDaemonRpc._setResponseInfo(rpcBlocks, block);
       blocks.push(block);
@@ -458,7 +460,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
   static _buildTx(rpcTx, tx) {
     if (rpcTx === undefined) return undefined;
     if (tx === undefined) tx = new MoneroTx();
-    tx.setIsConfirmed(false); // tx is unconfirmed by default
     for (let key of Object.keys(rpcTx)) {
       let val = rpcTx[key];
       if (key === "as_hex") MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, val);
