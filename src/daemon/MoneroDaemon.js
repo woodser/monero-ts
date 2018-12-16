@@ -358,35 +358,43 @@ class MoneroDaemon {
   }
   
   /**
-   * TODO.
+   * Limit number of outgoing peers.
+   * 
+   * @param numPeers is the maximum number of peers outgoing peers
    */
   async setOutgoingPeerLimit(numPeers) {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * TODO.
+   * Limit number of incoming peers.
+   * 
+   * @param numPeers is the maximum number of peers incoming peers
    */
   async setIncomingPeerLimit(numPeers) {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * TODO.
+   * TODO
    */
   async getPeerBans() {
     throw new Error("Subclass must implement");
   }
 
   /**
-   * TODO.
+   * Bans another node by IP.
+   * 
+   * @param {MoneroBan} ban contains information about a node to ban
    */
   async setPeerBan(ban) {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * TODO.
+   * Bans nodes by IP.
+   * 
+   * @param {MoneroBan[]} contain information about nodes to ban
    */
   async setPeerBans(bans) {
     throw new Error("Subclass must implement");
