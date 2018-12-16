@@ -168,6 +168,14 @@ class MoneroTx extends MoneroDaemonModel {
     this.json.extra = extra;
   }
   
+  getOutputIndices() {
+    return this.json.outputIndices;
+  }
+  
+  setOutputIndices(outputIndices) {
+    this.json.outputIndices = outputIndices;
+  }
+  
   getVin() {
     return this.json.vin;
   }

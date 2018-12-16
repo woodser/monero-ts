@@ -559,6 +559,7 @@ function testMinerTx(minerTx) {
   assert(minerTx.getUnlockTime() >= 0);
 }
 
+// TODO: how to test output indices? comes back with /get_transactions, maybe others
 function testTx(tx, config) {
   
   // check inputs

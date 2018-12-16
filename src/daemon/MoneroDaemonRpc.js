@@ -478,6 +478,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "tx_blob") MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, val);
       else if (key === "fee") MoneroUtils.safeSet(tx, tx.getFee, tx.setFee, new BigInteger(val));
       //else if (key === "relayed") MoneroUtils.safeSet(tx, tx.getIsRelayed, tx.setIsRelayed, new BigInteger(val)); // TODO: move isRelayed up to MoneroTx
+      else if (key === "output_indices") MoneroUtils.safeSet(tx, tx.getOutputIndices, tx.setOutputIndices, val);
       else if (key === "block_height") {
         MoneroUtils.safeSet(tx, tx.getHeight, tx.setHeight, val);
         if (val >= 0) MoneroUtils.safeSet(tx, tx.getIsConfirmed, tx.setIsConfirmed, true);
