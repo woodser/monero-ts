@@ -139,35 +139,48 @@ class MoneroDaemon {
   }
   
   /**
-   * TODO.
+   * Gets the total emissions and fees from the genesis block to the current height.
+   * 
+   * @param height is the height to start computing the coinbase sum
+   * @param count are the number of blocks to include in the sum
+   * @return {MoneroCoinbaseTxSum} encapsulates the total emissions and fees since the genesis block
    */
   async getCoinbaseTxSum(height, count) {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * TODO.
+   * Get an estimation on the fees per kB.
+   * 
+   * @param graceBlocks TODO
    */
   async getFeeEstimate(graceBlocks) {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * TODO.
+   * Relays a transaction by id.
+   * 
+   * @param {string} txId identifies the transaction to relay
+   * @returns {MoneroDaemonModel} contains response status
    */
   async relayTx(txId) {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * TODO.
+   * Relays transactions by id.
+   * 
+   * @param {string[]} txIds identify the transactions to relay
+   * @returns {MoneroDaemonResponse} contains response status
    */
   async relayTxs(txIds) {
     throw new Error("Subclass must implement");
   }  
   
   /**
-   * TODO.
+   * Get valid transactions seen by the node but not yet mined into a block, as well
+   * as spent key image information for the tx pool.
    * 
    * TODO: split this into two calls?
    * 
@@ -178,7 +191,9 @@ class MoneroDaemon {
   }
   
   /**
-   * TODO.
+   * Get ids of transactions in the transaction pool.
+   * 
+   * @returns {string[]} are ids of transactions in the transaction pool
    */
   async getTxPoolTxIds() {
     throw new Error("Subclass must implement");
@@ -192,7 +207,9 @@ class MoneroDaemon {
   }
   
   /**
-   * TODO.
+   * Get transaction pool statistics.
+   * 
+   * @returns {MoneroTxPoolStats} contains statistics about the transaction pool
    */
   async getTxPoolStats() {
     throw new Error("Subclass must implement");
@@ -234,16 +251,26 @@ class MoneroDaemon {
    * TODO: does this also return global outputs?
    * 
    * @param {{amount:_, index:_}[]} identify the outputs to get
-   * @returns {MoneroDaemonOutput[]} are outputs with amount, height, key, max, tx id, and unlocked status (TODO) 
+   * @returns {MoneroDaemonOutput[]} are outputs with amount, height, key, max,
+   *          tx id, and unlocked status (TODO) 
    */
   async getOutputs(outputs) {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * TODO.
+   * Get a histogram of output amounts. For all amounts (possibly filtered by
+   * parameters), gives the number of outputs on the chain for that amount.
+   * RingCT outputs counts as 0 amount.
+   * 
+   * @param amounts TODO
+   * @param minCount TODO
+   * @param maxCount TODO
+   * @param isUnlocked TODO
+   * @param recentCutoff TODO
+   * @returns {MoneroOutputHistogramEntry[]} are entries meeting the parameters
    */
-  async getOutputHistogram(mounts, minCount, maxCount, isUnlocked, recentCutoff) {
+  async getOutputHistogram(amounts, minCount, maxCount, isUnlocked, recentCutoff) {
     throw new Error("Subclass must implement");
   }
   
@@ -271,14 +298,16 @@ class MoneroDaemon {
   }
   
   /**
-   * TODO.
+   * Look up information regarding hard fork voting and readiness.
+   * 
+   * @returns {MoneroHardForkInfo} contains hard fork information
    */
   async getHardForkInfo() {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * TODO.
+   * 
    */
   async getAlternativeChains() {
     throw new Error("Subclass must implement");
@@ -292,14 +321,19 @@ class MoneroDaemon {
   }
   
   /**
-   * TODO.
+   * Get the daemon bandwidth limits.
+   * 
+   * @returns {MoneroDaemonBandwidth} contains bandwidth limit information
    */
   async getBandwidthLimits() {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * TODO.
+   * Set the daemon bandwidth limits.
+   * 
+   * @param inLimit is the upload limit in kBytes per second (-1 reset to default, 0 don't change the current limit)
+   * @param outLimit is the download limit in kBytes per second (-1 reset to default, 0 don't change the current limit)
    */
   async setBandwidthLimits(inLimit, outLimit) {
     throw new Error("Subclass must implement");
