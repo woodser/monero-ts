@@ -676,10 +676,10 @@ function testSubaddress(subaddress) {
 // common tests
 function testTxWalletCommon(tx) {
   assert(tx.getId());
-  assert(typeof tx.getIsIncoming() === "boolean");
-  assert(typeof tx.getIsOutgoing() === "boolean");
-  assert(typeof tx.getIsConfirmed() === "boolean");
-  assert(typeof tx.getInMempool() === "boolean");
+  assert.equal("boolean", typeof tx.getIsIncoming());
+  assert.equal("boolean", typeof tx.getIsOutgoing());
+  assert.equal("boolean", typeof tx.getIsConfirmed());
+  assert.equal("boolean", typeof tx.getInMempool());
 }
 
 /**
@@ -720,7 +720,7 @@ async function testTxWalletGetIncoming(tx, wallet) {
   assert(isUnsignedBigInteger(tx.getTotalAmount()));
   assert.notEqual(MoneroTx.DEFAULT_PAYMENT_ID, tx.getPaymentId());
   assert.equal(undefined, tx.getMixin());
-  assert.equal(undefined, tx.getSize());
+  assert.equal(undefined, tx.getWeight());
   assert.equal(undefined, tx.getNote());
   
   // TODO (monero-wallet-rpc): incoming txs are occluded by outgoing counterparts from same account (https://github.com/monero-project/monero/issues/4500) and then incoming_transfers need address, fee, timestamp, unlock_time, is_double_spend, height, tx_size
@@ -731,7 +731,7 @@ async function testTxWalletGetIncoming(tx, wallet) {
 //  if (tx.getIsDoubleSpend() === undefined) console.log("WARNING: incoming transaction is missing is_double_spend: " + tx.getId());
   if (tx.getFee() === undefined) {} // TODO: remove once #4500 fixed
   else assert(!tx.getIsDoubleSpend());
-  assert.equal(undefined, tx.getBlob());
+  assert.equal(undefined, tx.getHex());
   assert.equal(undefined, tx.getMetadata());
   
   // test confirmed
@@ -791,13 +791,13 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments) {
   assert.notEqual(MoneroTx.DEFAULT_PAYMENT_ID, tx.getPaymentId());
   assert(isUnsignedBigInteger(tx.getFee()));
   assert.equal(undefined, tx.getMixin());
-  assert.equal(undefined, tx.getSize()); // TODO (monero-wallet-rpc): add tx_size to get_transfers and get_transfer_by_txid
+  assert.equal(undefined, tx.getWeight()); // TODO (monero-wallet-rpc): add tx_size to get_transfers and get_transfer_by_txid
   assert(tx.getNote() === undefined || tx.getNote().length > 0);
   assert(tx.getTimestamp() >= 0);
   assert.equal(0, tx.getUnlockTime());
   assert(typeof tx.getIsDoubleSpend() === "boolean");
   assert.equal(undefined, tx.getKey());
-  assert.equal(undefined, tx.getBlob());
+  assert.equal(undefined, tx.getHex());
   assert.equal(undefined, tx.getMetadata());
   
   // test confirmed

@@ -4,6 +4,10 @@ const MoneroUtils = require("../../utils/MoneroUtils");
 
 /**
  * Represents a transaction on the Monero network.
+ * 
+ * ADD: do not relay, relayed
+ * NOT SURE: kept by block, last failed height, last failed id hash, max used block height, max used block id
+ * TODO: ensure all fields are tested
  */
 class MoneroTx extends MoneroDaemonModel {
   
@@ -55,12 +59,20 @@ class MoneroTx extends MoneroDaemonModel {
     this.json.mixin = mixin;
   }
   
-  getSize() {
-    return this.json.size;
+  getDoNotRelay() {
+    return this.json.doNotRelay;
   }
   
-  setSize(size) {
-    this.json.size = size;
+  setDoNotRelay(doNotRelay) {
+    this.json.doNotRelay = doNotRelay;
+  }
+  
+  getIsRelayed() {
+    return this.json.isRelayed;
+  }
+  
+  setIsRelayed(isRelayed) {
+    this.json.isRelayed = isRelayed;
   }
   
   getIsConfirmed() {
@@ -71,13 +83,12 @@ class MoneroTx extends MoneroDaemonModel {
     this.json.isConfirmed = isConfirmed;
   }
   
-  // transaction is in the mempool xor confirmed
   getInMempool() {
-    return this.json.isConfirmed === undefined ? undefined : !this.json.isConfirmed;
+    return this.json.inMempool;
   }
   
   setInMempool(inMempool) {
-    this.setIsConfirmed(inMempool === undefined ? undefined : !inMempool);
+    this.json.inMempool = inMempool;
   }
   
   getHeight() {
@@ -144,12 +155,28 @@ class MoneroTx extends MoneroDaemonModel {
     this.json.hex = hex;
   }
   
+  getWeight() {
+    return this.json.weight;
+  }
+  
+  setWeight(weight) {
+    this.json.weight = weight;
+  }
+  
   getMetadata() {
     return this.json.metadata;
   }
   
   setMetadata(metadata) {
     this.json.metadata = metadata;
+  }
+  
+  getOutputIndices() {
+    return this.json.outputIndices;
+  }
+  
+  setOutputIndices(outputIndices) {
+    this.json.outputIndices = outputIndices;
   }
   
   getCommonTxSets() {
@@ -166,14 +193,6 @@ class MoneroTx extends MoneroDaemonModel {
   
   setExtra(extra) {
     this.json.extra = extra;
-  }
-  
-  getOutputIndices() {
-    return this.json.outputIndices;
-  }
-  
-  setOutputIndices(outputIndices) {
-    this.json.outputIndices = outputIndices;
   }
   
   getVin() {
@@ -208,8 +227,65 @@ class MoneroTx extends MoneroDaemonModel {
     this.json.rctSigPrunable = rctSigPrunable;
   }
   
+  getKeptByBlock() {
+    return  this.json.keptByBlock;
+  }
+  
+  setKeptByBlock(keptByBlock) {
+    this.json.keptByBlock = keptByBlock;
+  }
+  
+  getIsFailed() {
+    return this.json.isFailed;
+  }
+  
+  setIsFailed(isFailed) {
+    this.json.isFailed = isFailed;
+  }
+  
+  getLastFailedHeight() {
+    return this.json.lastFailedHeight;
+  }
+  
+  setLastFailedHeight(lastFailedHeight) {
+    this.json.lastFailedHeight = lastFailedHeight;
+  }
+  
+  getLastFailedId() {
+    return this.json.lastFailedId;
+  }
+  
+  setLastFailedId(lastFailedId) {
+    this.json.lastFailedId = lastFailedId;
+  }
+  
+  getMaxUsedBlockHeight() {
+    return this.json.maxUsedBlockHeight;
+  }
+  
+  setMaxUsedBlockHeight(maxUsedBlockHeight) {
+    this.json.maxUsedBlockHeight = maxUsedBlockHeight;
+  }
+  
+  getMaxUsedBlockId() {
+    return this.json.maxUsedBlockId;
+  }
+  
+  setMaxUsedBlockId(maxUsedBlockId) {
+    this.json.maxUsedBlockId = maxUsedBlockId;
+  }
+  
+  getSignatures() {
+    return this.json.signatures;
+  }
+  
+  setSignatures(signatures) {
+    this.json.signatures = signatures;
+  }
+  
   toJson() {
-    throw new Error("Not implemented");
+    return this.json; // TODO: need to correctly serialize types
+    //throw new Error("Not implemented");
   }
   
   /**
@@ -217,28 +293,40 @@ class MoneroTx extends MoneroDaemonModel {
    * 
    * @param tx is the transaction to merge into this one
    */
-  merge(tx) { 
+  merge(tx) {
     
     // no special handling needed
+    // TODO: GenUtils.safeSet instead
     MoneroUtils.safeSet(this, this.getId, this.setId, tx.getId());
+    MoneroUtils.safeSet(this, this.getVersion, this.setVersion, tx.getVersion());
     MoneroUtils.safeSet(this, this.getPaymentId, this.setPaymentId, tx.getPaymentId());
     MoneroUtils.safeSet(this, this.getFee, this.setFee, tx.getFee());
     MoneroUtils.safeSet(this, this.getMixin, this.setMixin, tx.getMixin());
-    MoneroUtils.safeSet(this, this.getKey, this.setKey, tx.getKey());
-    MoneroUtils.safeSet(this, this.getSize, this.setSize, tx.getSize());
-    MoneroUtils.safeSet(this, this.getVersion, this.setVersion, tx.getVersion());
-    MoneroUtils.safeSet(this, this.getIsConfirmed, this.setIsConfirmed, tx.getIsConfirmed());
+    MoneroUtils.safeSet(this, this.getDoNotRelay, this.setDoNotRelay, tx.getDoNotRelay());
+    MoneroUtils.safeSet(this, this.getIsRelayed, this.getIsConfirmed, tx.getIsRelayed());
+    MoneroUtils.safeSet(this, this.getIsConfirmed, this.setIsConfirmed, tx.getIsConfirmed()); // TODO: this could change and become confirmed
+    MoneroUtils.safeSet(this, this.getInMempool, this.setInMempool, tx.getInMempool());       // TODO: this could change and move out of mempool
     MoneroUtils.safeSet(this, this.getHeight, this.setHeight, tx.getHeight());
-    MoneroUtils.safeSet(this, this.getNote, this.setNote, tx.getNote());
     MoneroUtils.safeSet(this, this.getUnlockTime, this.setUnlockTime, tx.getUnlockTime());
     MoneroUtils.safeSet(this, this.getIsDoubleSpend, this.setIsDoubleSpend, tx.getIsDoubleSpend());
-    MoneroUtils.safeSet(this, this.getCommonTxSets, this.setCommonTxsSets, tx.getCommonTxSets());
+    MoneroUtils.safeSet(this, this.getKey, this.setKey, tx.getKey());
     MoneroUtils.safeSet(this, this.getHex, this.setHex, tx.getHex());
+    MoneroUtils.safeSet(this, this.getWeight, this.setWeight, tx.getWeight());
+    MoneroUtils.safeSet(this, this.getMetadata, this.setMetadata, tx.getMetadata());
+    MoneroUtils.safeSet(this, this.getOutputIndices, this.setOutputIndices, tx.getOutputIndices());
+    MoneroUtils.safeSet(this, this.getCommonTxSets, this.setCommonTxsSets, tx.getCommonTxSets());
     MoneroUtils.safeSet(this, this.getExtra, this.setExtra, tx.getExtra());
     MoneroUtils.safeSet(this, this.getVin, this.setVin, tx.getVin());
     MoneroUtils.safeSet(this, this.getVout, this.setVout, tx.getVout());
     MoneroUtils.safeSet(this, this.getRctSignatures, this.setRctSignatures, tx.getRctSignatures());
     MoneroUtils.safeSet(this, this.getRctSigPrunable, this.setRctSigPrunable, tx.getRctSigPrunable());
+    MoneroUtils.safeSet(this, this.getKeptByBlock, this.setKeptByBlock, tx.getKeptByBlock());
+    MoneroUtils.safeSet(this, this.getIsFailed, this.setIsFailed, tx.getIsFailed());
+    MoneroUtils.safeSet(this, this.getLastFailedHeight, this.setLastFailedHeight, tx.getLastFailedHeight());
+    MoneroUtils.safeSet(this, this.getLastFailedId, this.setLastFailedId, tx.getLastFailedId());
+    MoneroUtils.safeSet(this, this.getMaxUsedBlockHeight, this.setMaxUsedBlockHeight, tx.getMaxUsedBlockHeight());
+    MoneroUtils.safeSet(this, this.getMaxUsedBlockId, this.setMaxUsedBlockId, tx.getMaxUsedBlockId());
+    MoneroUtils.safeSet(this, this.getSignatures, this.setSignatures, tx.getSignatures());    
     
     // needs interpretation
     if (this.json.timestamp === undefined) this.json.timestamp = tx.getTimestamp();

@@ -27,31 +27,6 @@ class MoneroTxWallet extends MoneroTx {
     this.setIsIncoming(isOutgoing === undefined ? undefined : !isOutgoing);
   }
   
-  // wallet transactions are not in the mempool xor confirmed since both can be false, so we use another field
-  getInMempool() {
-    return this.json.inMempool;
-  }
-  
-  setInMempool(inMempool) {
-    this.json.inMempool = inMempool;
-  }
-  
-  getIsRelayed() {
-    return this.json.isRelayed;
-  }
-  
-  setIsRelayed(isRelayed) {
-    this.json.isRelayed = isRelayed;
-  }
-  
-  getIsFailed() {
-    return this.json.isFailed;
-  }
-  
-  setIsFailed(isFailed) {
-    this.json.isFailed = isFailed;
-  }
-  
   getTotalAmount() {
     return this.json.totalAmount;
   }
@@ -108,14 +83,6 @@ class MoneroTxWallet extends MoneroTx {
     this.json.coinbase = coinbase;
   }
   
-  getBlob() {
-    return this.json.blob;
-  }
-  
-  setBlob(blob) {
-    this.json.blob = blob;
-  }
-  
   getMetadata() {
     return this.json.metadata;
   }
@@ -140,7 +107,6 @@ class MoneroTxWallet extends MoneroTx {
     MoneroUtils.safeSet(this, this.getSrcSubaddressIndex, this.setSrcSubaddressIndex, tx.getSrcSubaddressIndex());
     MoneroUtils.safeSet(this, this.getSrcAddress, this.setSrcAddress, tx.getSrcAddress());
     MoneroUtils.safeSet(this, this.getIsCoinbase, this.setIsCoinbase, tx.getIsCoinbase());
-    MoneroUtils.safeSet(this, this.getBlob, this.setBlob, tx.getBlob());
     MoneroUtils.safeSet(this, this.getMetadata, this.setMetadata, tx.getMetadata());
     
     // merge extensions which need special handling

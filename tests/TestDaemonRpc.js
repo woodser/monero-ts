@@ -157,7 +157,7 @@ describe("Test Monero Daemon RPC", function() {
     let blocks = await daemon.getBlocksByHeight(heights);
     
     // config for testing blocks
-    let testBlockConfig = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { hasHex: false, hasJson: true, isPruned: true, isFull: false, isConfirmed: true } };
+    let testBlockConfig = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { hasJson: true, isPruned: true, isFull: false, isConfirmed: true, fromPool: false } };
     
     // test blocks
     let txFound = false;
@@ -241,7 +241,7 @@ describe("Test Monero Daemon RPC", function() {
     let txs = await daemon.getTxs(txHashes, decodeAsJson, prune);
     for (let tx of txs) {
       testDaemonResponseInfo(tx, true, true); // TODO: duplicating response info is going to be too expensive so must be common reference
-      testTx(tx, { hasHex: true, hasJson: decodeAsJson, isPruned: prune, isFull: true, isConfirmed: true });
+      testTx(tx, { hasJson: decodeAsJson, isPruned: prune, isFull: true, isConfirmed: true, fromPool: false });
     }
     
     // TODO: test binary vs json encoding
@@ -269,6 +269,8 @@ describe("Test Monero Daemon RPC", function() {
   
   it("Can get transactions and spent key images in the transaction pool", async function() {
     
+    // TODO: send transaction so this test always has tx in the pool
+    
     // fetch tx pool txs and spent key images
     let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
     testDaemonResponseInfo(txPool, true, true);
@@ -277,16 +279,16 @@ describe("Test Monero Daemon RPC", function() {
     assert(Array.isArray(txPool.getTxs()));
     assert(txPool.getTxs().length > 0, "Test requires an unconfirmed tx in the tx pool");
     for (let tx of txPool.getTxs()) {
-      testTx(tx, { hasHex: true, hasJson: true, isPruned: false, isFull: true, isConfirmed: false });
+      testTx(tx, { hasJson: true, isPruned: false, isFull: true, isConfirmed: false, fromPool: true });
     }
     
     // test key images
     assert(Array.isArray(txPool.getSpentKeyImages()));
-    assert(txPool.getSpentKeyImages().length > 0, "Test requires unspent key images in the tx pool");
+    assert(txPool.getSpentKeyImages().length > 0, "Test requires spent key images in the tx pool");
     for (let image of txPool.getSpentKeyImages()) {
-      assert(Array.isArray(image.getTxIds()));
-      assert(image.getTxIds().length >= 0);
-      assert(image.getId());
+      assert(image.getKeyImage());
+      assert(Array.isArray(image.getSpendingTxIds()));
+      assert(image.getSpendingTxIds().length > 0);  // TODO: test that spending tx id is included in tx pool tx ids 
     }
   });
   
@@ -564,24 +566,31 @@ function testTx(tx, config) {
   
   // check inputs
   assert(tx);
-  assert(typeof config === "object");
-  assert(typeof config.hasHex === "boolean");
-  assert(typeof config.hasJson === "boolean");
-  assert(typeof config.isPruned === "boolean");
-  assert(typeof config.isFull === "boolean");
-  assert(typeof config.isConfirmed === "boolean");
+  assert.equal("object", typeof config);
+  assert.equal("boolean", typeof config.hasJson);
+  assert.equal("boolean", typeof config.isPruned);
+  assert.equal("boolean", typeof config.isFull);
+  assert.equal("boolean", typeof config.isConfirmed);
+  assert.equal("boolean", typeof config.fromPool);
   
-  // required fields
+  // standard across all txs
   assert(tx.getId().length === 64);
+  assert.equal("boolean", typeof tx.getIsRelayed());
+  assert.equal(undefined, tx.getSignatures());  // TODO: way to test?
   
   // tx may or may not be confirmed
-  assert(typeof tx.getIsConfirmed() === "boolean");
+  assert.equal("boolean", typeof tx.getIsConfirmed());
+  assert.equal("boolean", typeof tx.getInMempool());
   if (config.isConfirmed) {
     assert(tx.getHeight() >= 0);
     assert(tx.getIsConfirmed());
+    assert(!tx.getInMempool());
+    assert(tx.getIsRelayed());
   } else {
-    assert(tx.getHeight() === undefined);
+    assert.equal(undefined, tx.getHeight());
     assert(!tx.getIsConfirmed());
+    assert(tx.getInMempool());  // TODO: does not consider failed tx
+    assert.equal("boolean", typeof tx.getIsRelayed());
   }
   
   // fields that come with decoded json
@@ -595,25 +604,48 @@ function testTx(tx, config) {
     assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
     assert(typeof tx.getRctSignatures().type === "number");
   } else {
-    assert(tx.getVersion() === undefined);
-    assert(tx.getUnlockTime() === undefined);
-    assert(tx.getVin() === undefined);
-    assert(tx.getVout() === undefined);
-    assert(tx.getExtra() === undefined);
-    assert(tx.getRctSignatures() === undefined);    
+    assert.equal(undefined, tx.getVersion());
+    assert.equal(undefined, tx.getUnlockTime());
+    assert.equal(undefined, tx.getVin());
+    assert.equal(undefined, tx.getVout());
+    assert.equal(undefined, tx.getExtra());
+    assert.equal(undefined, tx.getRctSignatures());    
   }
   
   // prunable
   assert(config.isPruned ? undefined === tx.getRctSigPrunable() : typeof tx.getRctSigPrunable().nbp === "number");
   
-  // hex comes from /get_transactions, get_transaction_pool
-  assert(!config.hasHex ? undefined === tx.getHex() : tx.getHex().length > 0);
+  // full fields come with /get_transactions, get_transaction_pool
+  if (config.isFull) {
+    assert(tx.getHex().length > 0);
+    assert(tx.getTimestamp() >= 0);
+    assert(!tx.getIsDoubleSpend());
+  } else {
+    assert.equal(undefined, tx.getHex());
+    assert.equal(undefined, tx.getTimestamp());
+    assert.equal(undefined, tx.getIsDoubleSpend());
+  }
   
-  // fields that only come with /get_transactions
-  assert(!config.isFull ? undefined === tx.getTimestamp() : tx.getTimestamp() >= 0);
-  assert(!config.isFull ? undefined === tx.getIsDoubleSpend() : !tx.getIsDoubleSpend());
-  
-  // fields that only come with /get_transaction_pool
+  // test fields from tx pool
+  if (config.fromPool) {
+    assert(tx.getWeight() > 0);
+    assert.equal(false, tx.getDoNotRelay());
+    assert.equal("boolean", typeof tx.getKeptByBlock());
+    assert.equal(false, tx.getIsFailed());
+    assert.equal(undefined, tx.getLastFailedHeight());  // TODO: test failed daemon txs
+    assert.equal(undefined, tx.getLastFailedId());
+    assert(tx.getMaxUsedBlockHeight() >= 0);
+    assert(tx.getMaxUsedBlockId());
+  } else {
+    assert.equal(undefined, tx.getWeight());
+    assert.equal(undefined, tx.getDoNotRelay());
+    assert.equal(undefined, tx.getKeptByBlock());
+    assert.equal(undefined, tx.getIsFailed());
+    assert.equal(undefined, tx.getLastFailedHeight());
+    assert.equal(undefined, tx.getLastFailedId());
+    assert.equal(undefined, tx.getMaxUsedBlockHeight());
+    assert.equal(undefined, tx.getMaxUsedBlockId());
+  }
 }
 
 function testBlockTemplate(template) {

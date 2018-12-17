@@ -363,10 +363,10 @@ class MoneroWalletRpc extends MoneroWallet {
     if (rpcTx.type !== undefined) {
       MoneroWalletRpc._decodeRpcType(rpcTx.type, tx);
       if (isIncomingConfirmedNonCoinbase) {
-        assert(tx.getIsIncoming());
-        assert(tx.getIsConfirmed());
-        assert(!tx.getInMempool());
-        assert(!tx.getIsCoinbase());
+        assert(tx.getIsIncoming() === true);
+        assert(tx.getIsConfirmed() === true);
+        assert(tx.getInMempool() === false);
+        assert(tx.getIsCoinbase() === false);
       }
     } else {
       assert(isIncomingConfirmedNonCoinbase, "Tx state is unknown");
@@ -376,7 +376,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsCoinbase(false);
     }
     
-    // initialize remaining fields
+    // initialize remaining fields  TODO: seems this should be part of common function with DaemonRpc._buildTx
     let payment;
     let accountIdx;
     let subaddressIdx;
@@ -390,10 +390,10 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "tx_hash") tx.setId(val);
       else if (key === "tx_key") tx.setKey(val);
       else if (key === "type") { } // type already handled
-      else if (key === "tx_size") tx.setSize(val);
+      else if (key === "tx_size") tx.setWeight(val);
       else if (key === "unlock_time") tx.setUnlockTime(val);
       else if (key === "global_index") { } // ignore
-      else if (key === "tx_blob") tx.setBlob(val);
+      else if (key === "tx_blob") tx.setHex(val);
       else if (key === "tx_metadata") tx.setMetadata(val);
       else if (key === "double_spend_seen") tx.setIsDoubleSpend(val);
       else if (key === "confirmations") {
@@ -498,7 +498,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setInMempool(false);
       tx.setIsRelayed(true);
       tx.setIsFailed(false);
-    } else if (rpcType === "pool") {  // TODO: need to say tx.setInMempool(true), model does no validation/interpretation, pojo
+    } else if (rpcType === "pool") {
       tx.setIsIncoming(true);
       tx.setIsConfirmed(false);
       tx.setInMempool(true);
@@ -517,6 +517,7 @@ class MoneroWalletRpc extends MoneroWallet {
     } else if (rpcType === "failed") {
       tx.setIsIncoming(false);
       tx.setIsConfirmed(false);
+      tx.setInMempool(false);
       tx.setIsRelayed(true);
       tx.setIsFailed(true);
     }

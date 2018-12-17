@@ -45,7 +45,7 @@ class TestUtils {
     try {
       await this.walletRpc.createWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1, "English");
     } catch (e) {
-      assert(e instanceof MoneroRpcError);
+      if (!(e instanceof MoneroRpcError)) throw e;
       assert.equal(-21, e.getRpcCode()); // exception is ok if wallet already created
     }
     
@@ -53,7 +53,7 @@ class TestUtils {
     try {
       await this.walletRpc.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
     } catch (e) {
-      assert(e instanceof MoneroRpcError);
+      if (!(e instanceof MoneroRpcError)) throw e;
       assert.equal(-1, e.getRpcCode()); // TODO (monero-wallet-rpc): -1: Failed to open wallet if wallet is already open; better code and message
     }
     
