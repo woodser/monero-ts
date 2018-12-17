@@ -386,7 +386,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getOutputDistribution(amounts, cumulative, startHeight, endHeight) {
-    throw new Error("Response is being returned as string for some reason");  // TODO
+    throw new Error("Not implemented (response 'distribution' field is binary");
     
 //    // TODO: need to send BigIntegers to RPC API
 //    let amountStrs = [];

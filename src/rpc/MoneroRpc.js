@@ -114,7 +114,7 @@ class MoneroRpc {
     
     // send request and await response
     let resp = await this._throttledRequest(opts);
-    if (typeof resp === "string") resp = JSON.parse(resp);  // some responses returned as strings
+    if (typeof resp === "string") resp = JSON.parse(resp);  // TODO: some responses returned as strings?
     if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
     return resp;
   }
