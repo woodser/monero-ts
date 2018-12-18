@@ -5,6 +5,14 @@ const MoneroDaemonModel = require("./MoneroDaemonModel");
  */
 class MoneroDaemonInfo extends MoneroDaemonModel {
   
+  getVersion() {
+    return this.version;
+  }
+  
+  setVersion(version) {
+    this.version = version;
+  }
+  
   getAltBlocksCount() {
     return this.altBlocksCount;
   }
@@ -203,14 +211,6 @@ class MoneroDaemonInfo extends MoneroDaemonModel {
   
   setWasBootstrapEverUsed(wasBootstrapEverUsed) {
     this.wasBootstrapEverUsed = wasBootstrapEverUsed;
-  }
-  
-  getVersion() {
-    return this.version;
-  }
-  
-  setVersion(version) {
-    this.version = version;
   }
   
   getDatabaseSize() {

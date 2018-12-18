@@ -660,6 +660,7 @@ function testBlockTemplate(template) {
 }
 
 function testInfo(info) {
+  assert(info.getVersion());
   assert(info.getAltBlocksCount() >= 0);
   assert(info.getBlockSizeLimit());
   assert(info.getBlockSizeMedian());
