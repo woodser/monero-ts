@@ -299,7 +299,7 @@ class MoneroWalletRpc extends MoneroWallet {
           tx.setIsConfirmed(true);
           tx.setInMempool(false);
           tx.setIsCoinbase(false);
-          let tx = MoneroWalletRpc._buildTxWallet(rpcTx, tx);
+          MoneroWalletRpc._buildTxWallet(rpcTx, tx);
           let address = await this.getAddress(accountIdx, tx.getPayments()[0].getSubaddressIndex());
           tx.getPayments()[0].setAddress(address);
           
