@@ -19,6 +19,7 @@ const MoneroTxFilter = require("../src/wallet/model/MoneroTxFilter");
 let txCache;  // caches transactions to optimize tests
 function testWallet(wallet, daemon) {
   
+  // TODO: don't want common cache between wallet tests, so this isn't set up quite right
   async function getCachedTxs() {
     if (!txCache) txCache = await wallet.getTxs();
     return txCache;
@@ -609,11 +610,23 @@ function testWallet(wallet, daemon) {
   });
   
   it("Can get key images", async function() {
-    throw new Error("Not implemented");
+    let images = await wallet.getKeyImages();
+    assert(Array.isArray(images));
+    assert(images.length > 0, "No signed key images in wallet");  // TODO (monero-wallet-rpc): https://github.com/monero-project/monero/issues/4992
+    for (let image of images) {
+      assert(image.getKeyImage());
+      assert(image.getSignature());
+    }
   });
   
   it("Can import key images", async function() {
-    throw new Error("Not implemented");
+    let images = await wallet.getKeyImages();
+    assert(Array.isArray(images));
+    assert(images.length > 0);
+    let result = await wallet.importKeyImages(images);
+    assert(result.getHeight() > 0);
+    TestUtils.testUnsignedBigInteger(result.getSpent(), true);  // tests assume wallet has spend history and balance
+    TestUtils.testUnsignedBigInteger(result.getUnspent(), true);
   });
   
   it("Can sign and verify messages", async function() {

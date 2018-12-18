@@ -204,6 +204,20 @@ class MoneroWallet {
   async getTxs(filterOrAccountIdx, subaddressIdx) {
     throw new Error("Subclass must implement");
   }
+  
+  /**
+   * TODO.
+   */
+  async getKeyImages() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * TODO.
+   */
+  async importKeyImages() {
+    throw new Error("Subclass must implement");
+  }
 }
 
 module.exports = MoneroWallet;

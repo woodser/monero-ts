@@ -314,6 +314,28 @@ class MoneroWalletRpc extends MoneroWallet {
     return txs.filter(tx => !toRemoves.includes(tx));
   }
   
+  async getKeyImages() {
+    
+    // send rpc request
+   let resp = await this.config.rpc.sendJsonRequest("export_key_images");
+   
+   // build key images from response
+   let keyImages = [];
+   if (resp.signed_key_images) {
+     for (let rpcKeyImage of resp.signed_key_images) {
+       let keyImage = new MoneroKeyImage();
+       keyImages.push(keyImage);
+       keyImage.setId(rpcKeyImage.key_image);
+       keyImage.setSignature(rpcKeyImage.signature);
+     }
+   }
+   return keyImages;
+  }
+  
+  async importKeyImages() {
+    throw new Error("Not implemented"); 
+  }
+  
   // -------------------------- SPECIFIC TO RPC WALLET ------------------------
   
   async createWallet(filename, password, language) {

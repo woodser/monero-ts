@@ -66,9 +66,10 @@ class TestUtils {
     }
   }
   
-  static testUnsignedBigInteger(num) {
+  static testUnsignedBigInteger(num, nonZero) {
     assert(num instanceof BigInteger);
     assert(num.toJSValue() >= 0);
+    if (nonZero) assert(num.toJSValue() > 0);
   }
 }
 
@@ -79,7 +80,7 @@ class TestUtils {
 
 // default keypair to test
 TestUtils.TEST_MNEMONIC = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
-TestUtils.TEST_ADDRESS = "55AepZuUKYV7Wrf9BMiczAELg2gcZuWQsYmg4kXHGAiW8uhVC1VVhqA5HzFcePKhuNgS2d9ag5imvC1jxsJbbnHm5kF753Z";
+TestUtils.TEST_ADDRESS = "59aZULsUF3YNSKGiHz4JPMfjGYkm1S4TB3sPsTr3j85HhXb9crZqGa7jJ8cA87U48kT5wzi2VzGZnN2PKojEwoyaHqtpeZh";
 
 // default wallet RPC configuration
 // TODO: support URL
