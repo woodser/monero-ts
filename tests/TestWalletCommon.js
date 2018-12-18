@@ -37,6 +37,9 @@ class TestWalletCommon {
     let wallet = this.wallet;
     let daemon = this.daemon;
     
+    // track ids of txs whose total amount !== sum of payments so one warning per tx is printed
+    let unbalancedTxIds = []; // TODO: remove this when issue is fixed
+    
     // local tx cache for tests
     let txCache;
     async function getCachedTxs() {
@@ -302,8 +305,8 @@ class TestWalletCommon {
       let txs2 = await wallet.getTxs();
       assert.equal(txs1.length, txs2.length);
       for (let i = 0; i < txs1.length; i++) {
-        await testTxWalletGet(txs1[i], wallet);
-        await testTxWalletGet(txs2[i], wallet);
+        await testTxWalletGet(txs1[i], wallet, unbalancedTxIds);
+        await testTxWalletGet(txs2[i], wallet, unbalancedTxIds);
         assert.deepEqual(txs1[i], txs2[i]);
         if (txs1[i].getIsIncoming()) {
           for (let payment of txs1[i].getPayments()) {
@@ -319,7 +322,7 @@ class TestWalletCommon {
       for (let account of await wallet.getAccounts()) {
         let txs = await wallet.getTxs(account.getIndex());
         for (let tx of txs) {
-          await testTxWalletGet(tx, wallet);
+          await testTxWalletGet(tx, wallet, unbalancedTxIds);
           if (tx.getIsOutgoing()) {
             assert.equal(account.getIndex(), tx.getSrcAccountIndex());
           } else {
@@ -339,7 +342,7 @@ class TestWalletCommon {
       for (let accountIdx = 0; accountIdx < Math.min(accounts.length, 3); accountIdx++) {
         for (let subaddressIdx = 0; subaddressIdx < Math.min(accounts[accountIdx].getSubaddresses().length, 5); subaddressIdx++) {
           for (let tx of await wallet.getTxs(accountIdx, subaddressIdx)) {
-            await testTxWalletGet(tx, wallet);
+            await testTxWalletGet(tx, wallet, unbalancedTxIds);
             if (tx.getIsOutgoing())  {
               assert.equal(accountIdx, tx.getSrcAccountIndex());
             } else {
@@ -428,7 +431,7 @@ class TestWalletCommon {
       let allTxs = await getCachedTxs();
       assert(allTxs.length > 0);
       for (let tx of allTxs) {
-        await testTxWalletGet(tx, wallet);
+        await testTxWalletGet(tx, wallet, unbalancedTxIds);
       }
       
       // test getting transactions by payment ids
@@ -442,7 +445,7 @@ class TestWalletCommon {
         let txs = await wallet.getTxs(filter);
         assert(txs.length > 0);
         for (let tx of txs) {
-          await testTxWalletGet(tx, wallet);
+          await testTxWalletGet(tx, wallet, unbalancedTxIds);
           assert(filter.getPaymentIds().includes(tx.getPaymentId()));
         }
       }
@@ -720,9 +723,10 @@ function testTxWalletCommon(tx) {
  * 
  * @param tx is the transaction to test
  * @param wallet is the tx's wallet to cross-reference
+ * @param unbalancedTxIds is a cache of previously seen unbalanced txs so as not to spam the console with warnings
  * @param hasOutgoingPayments specifies if the tx has outgoing payents, undefined if doesn't matter
  */
-async function testTxWalletGet(tx, wallet, hasOutgoingPayments) {
+async function testTxWalletGet(tx, wallet, unbalancedTxIds, hasOutgoingPayments) {
   
   // validate inputs
   assert(tx instanceof MoneroTxWallet);
@@ -732,7 +736,7 @@ async function testTxWalletGet(tx, wallet, hasOutgoingPayments) {
   // run tests
   testTxWalletCommon(tx);
   if (tx.getIsIncoming()) await testTxWalletGetIncoming(tx, wallet);
-  else await testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments);
+  else await testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments, unbalancedTxIds);
 }
 
 async function testTxWalletGetIncoming(tx, wallet) {
@@ -804,9 +808,11 @@ async function testTxWalletGetIncoming(tx, wallet) {
   assert(totalAmount.compare(tx.getTotalAmount()) === 0);
 }
 
-async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments) {
+async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments, unbalancedTxIds) {
+  assert(Array.isArray(unbalancedTxIds));
   
   // test state
+  assert(tx);
   assert(tx.getIsIncoming() === false);
   assert(tx.getIsOutgoing());
   assert(typeof tx.getIsFailed() === "boolean");
@@ -866,8 +872,11 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments) {
     
     // assert total amount is sum of payments
     // TODO: incoming_transfers d59fe775249465621d7736b53c0cb488e03e4da8dae647a13492ea51d7685c62 totalAmount is 0?
-    if (totalAmount.compare(tx.getTotalAmount()) !== 0 && tx.getTotalAmount().compare(new BigInteger(0)) === 0) {
-      console.log("WARNING: Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId());
+    if (totalAmount.compare(tx.getTotalAmount()) !== 0 && tx.getTotalAmount().compare(new BigInteger(0)) === 0) { // TODO: fix this.
+      if (!unbalancedTxIds.includes(tx.getId())) {
+        unbalancedTxIds.push(tx.getId());
+        console.log("WARNING: Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId());
+      }
     } else {
       assert(totalAmount.compare(tx.getTotalAmount()) == 0, "Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId());
     }
