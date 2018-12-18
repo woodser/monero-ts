@@ -19,7 +19,7 @@ class TestWalletCommon {
   /**
    * Constructs the tester.
    * 
-   * @param wallet is the Monero wallet to test
+   * @param wallet is the wallet to test
    * @param daemon informs some tests
    */
   constructor(daemon, wallet) {
@@ -33,7 +33,12 @@ class TestWalletCommon {
    * Runs the tests.
    */
   runTests() {
-    
+    let liteMode = true;  // skips some heavy tests if true
+    this._runNonSendTests(liteMode);
+    this._runSendTests();
+  }
+  
+  _runNonSendTests(liteMode) {
     let wallet = this.wallet;
     let daemon = this.daemon;
     
@@ -426,6 +431,7 @@ class TestWalletCommon {
     });
     
     it("Can get wallet transactions with a filter", async function() {
+      if (liteMode) return; // skips test if lite
       
       // get all transactions for reference
       let allTxs = await getCachedTxs();
@@ -664,6 +670,16 @@ class TestWalletCommon {
     });
     
     it("Can parse a payment URI using the official URI spec", async function() {
+      throw new Error("Not implemented");
+    });
+  }
+  
+  _runSendTests() {
+    
+    let wallet = this.wallet;
+    let daemon = this.daemon;
+    
+    it("NEEDS TO BE DEFINED", async function() {
       throw new Error("Not implemented");
     });
   }
