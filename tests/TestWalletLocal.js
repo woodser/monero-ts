@@ -11,7 +11,7 @@ const TestWalletCommon = require("./TestWalletCommon");
  */
 let wallet; // initialized before each test
 let daemon = TestUtils.getDaemonRpc();
-describe("Monero Wallet Local", function() {
+describe("Test Monero Wallet Local", function() {
   
   // start each test with new wallet
   beforeEach(async function() {

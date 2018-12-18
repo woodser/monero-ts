@@ -39,10 +39,19 @@ class TestWalletCommon {
    * Runs the tests.
    */
   runTests() {
+    let that = this;
     let liteMode = true;
-    //this._runNonSendTests(liteMode);
-    this._runSendTests();
-    this._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
+    describe("Common Wallet Tests", function() {
+      describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
+        that._runNonSendTests(liteMode);
+      });
+      describe("Send Tests", function() {
+        that._runSendTests();
+      });
+      describe("Reset Tests", function() {
+        that._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
+      });
+    })
   }
   
   /**
@@ -442,130 +451,132 @@ class TestWalletCommon {
       assert(foundNoPayments);
     });
     
-    it("Can get wallet transactions with a filter", async function() {
-      if (liteMode) return; // skips test if lite
-      
-      // get all transactions for reference
-      let allTxs = await getCachedTxs();
-      assert(allTxs.length > 0);
-      for (let tx of allTxs) {
-        await testTxWalletGet(tx, wallet, unbalancedTxIds);
-      }
-      
-      // test getting transactions by payment ids
-      // TODO: this test is very slow, optimize
-      let paymentIds = [];
-      for (let tx of allTxs) paymentIds.push(tx.getPaymentId());
-      assert(paymentIds.length > 0);
-      for (let paymentId of paymentIds) {
+    if (!liteMode) {
+      it("Can get wallet transactions with a filter", async function() {
+        if (liteMode) return; // skips test if lite
+        
+        // get all transactions for reference
+        let allTxs = await getCachedTxs();
+        assert(allTxs.length > 0);
+        for (let tx of allTxs) {
+          await testTxWalletGet(tx, wallet, unbalancedTxIds);
+        }
+        
+        // test getting transactions by payment ids
+        // TODO: this test is very slow, optimize
+        let paymentIds = [];
+        for (let tx of allTxs) paymentIds.push(tx.getPaymentId());
+        assert(paymentIds.length > 0);
+        for (let paymentId of paymentIds) {
+          let filter = new MoneroTxFilter();
+          filter.setPaymentIds([paymentId]);
+          let txs = await wallet.getTxs(filter);
+          assert(txs.length > 0);
+          for (let tx of txs) {
+            await testTxWalletGet(tx, wallet, unbalancedTxIds);
+            assert(filter.getPaymentIds().includes(tx.getPaymentId()));
+          }
+        }
+        
+        // test getting incoming transactions
         let filter = new MoneroTxFilter();
-        filter.setPaymentIds([paymentId]);
+        filter.setIsIncoming(true);
+        filter.setIsConfirmed(true);
         let txs = await wallet.getTxs(filter);
         assert(txs.length > 0);
         for (let tx of txs) {
-          await testTxWalletGet(tx, wallet, unbalancedTxIds);
-          assert(filter.getPaymentIds().includes(tx.getPaymentId()));
-        }
-      }
-      
-      // test getting incoming transactions
-      let filter = new MoneroTxFilter();
-      filter.setIsIncoming(true);
-      filter.setIsConfirmed(true);
-      let txs = await wallet.getTxs(filter);
-      assert(txs.length > 0);
-      for (let tx of txs) {
-        assert(tx.getIsIncoming());
-        assert(tx.getIsConfirmed());
-      }
-      
-      // test getting outgoing transactions
-      filter = new MoneroTxFilter();
-      filter.setIsOutgoing(true);
-      filter.setIsConfirmed(true);
-      txs = await wallet.getTxs(filter);
-      assert(txs.length > 0);
-      for (let tx of txs) {
-        assert(tx.getIsOutgoing());
-        assert(tx.getIsConfirmed());
-      }
-      
-      // test block height filtering
-      {
-        txs = await wallet.getTxs(0);
-        assert(txs.length > 0, "No transactions; run send to multiple test");
-          
-        // get and sort block heights in ascending order
-        let heights = [];
-        for (let tx of txs) {
-          if (tx.getHeight() !== undefined) heights.push(tx.getHeight());
-        }
-        GenUtils.sort(heights);
-        
-        // pick minimum and maximum heights for filtering
-        let minHeight = -1;
-        let maxHeight = -1;
-        if (heights.length == 1) {
-          minHeight = 0;
-          maxHeight = heights[0] - 1;
-        } else {
-          minHeight = heights[0] + 1;
-          maxHeight = heights[heights.length - 1] - 1;
+          assert(tx.getIsIncoming());
+          assert(tx.getIsConfirmed());
         }
         
-        // assert some transactions filtered
-        let unfilteredCount = txs.length;
+        // test getting outgoing transactions
         filter = new MoneroTxFilter();
-        filter.setAccountIndex(0);
-        filter.setMinHeight(minHeight);
-        filter.setMaxHeight(maxHeight);
+        filter.setIsOutgoing(true);
+        filter.setIsConfirmed(true);
         txs = await wallet.getTxs(filter);
         assert(txs.length > 0);
-        assert(txs.length < unfilteredCount);
         for (let tx of txs) {
-          assert(tx.getHeight() >= minHeight && tx.getHeight() <= maxHeight);
+          assert(tx.getIsOutgoing());
+          assert(tx.getIsConfirmed());
         }
-      }
-      
-      // get all subaddresses with balances
-      let subaddresses = [];
-      for (let account of await wallet.getAccounts(true)) {
-        for (let subaddress of account.getSubaddresses()) {
-          if (subaddress.getBalance().compare(new BigInteger(0)) > 0 || subaddress.getUnlockedBalance().compare(new BigInteger(0)) > 0) {
-            subaddresses.push(subaddress);
+        
+        // test block height filtering
+        {
+          txs = await wallet.getTxs(0);
+          assert(txs.length > 0, "No transactions; run send to multiple test");
+            
+          // get and sort block heights in ascending order
+          let heights = [];
+          for (let tx of txs) {
+            if (tx.getHeight() !== undefined) heights.push(tx.getHeight());
+          }
+          GenUtils.sort(heights);
+          
+          // pick minimum and maximum heights for filtering
+          let minHeight = -1;
+          let maxHeight = -1;
+          if (heights.length == 1) {
+            minHeight = 0;
+            maxHeight = heights[0] - 1;
+          } else {
+            minHeight = heights[0] + 1;
+            maxHeight = heights[heights.length - 1] - 1;
+          }
+          
+          // assert some transactions filtered
+          let unfilteredCount = txs.length;
+          filter = new MoneroTxFilter();
+          filter.setAccountIndex(0);
+          filter.setMinHeight(minHeight);
+          filter.setMaxHeight(maxHeight);
+          txs = await wallet.getTxs(filter);
+          assert(txs.length > 0);
+          assert(txs.length < unfilteredCount);
+          for (let tx of txs) {
+            assert(tx.getHeight() >= minHeight && tx.getHeight() <= maxHeight);
           }
         }
-      }
-      
-      // test that unspent tx payments add up to balance
-      for (let subaddress of subaddresses) {
-        filter = new MoneroTxFilter();
-        filter.setAccountIndex(subaddress.getAccountIndex());
-        filter.setSubaddressIndices([subaddress.getSubaddressIndex()]);
-        txs = await wallet.getTxs(filter);
         
-        // test that unspent tx payments add up to subaddress balance
-        let balance = new BigInteger(0);
-        for (let tx of txs) {
-          if (tx.getIsIncoming() && tx.getIsConfirmed()) {
-            for (let payment of tx.getPayments()) {
-              if (!payment.getIsSpent()) {  // TODO: test that typeof === "boolean" in testPayment() test
-                balance = balance.add(payment.getAmount());
-              }
+        // get all subaddresses with balances
+        let subaddresses = [];
+        for (let account of await wallet.getAccounts(true)) {
+          for (let subaddress of account.getSubaddresses()) {
+            if (subaddress.getBalance().compare(new BigInteger(0)) > 0 || subaddress.getUnlockedBalance().compare(new BigInteger(0)) > 0) {
+              subaddresses.push(subaddress);
             }
           }
         }
-        let actualBalance = (await wallet.getSubaddress(subaddress.getAccountIndex(), subaddress.getSubaddressIndex())).getBalance();
-        assert(actualBalance.compare(balance) === 0); // TODO: (monero-wallet-rpc): fails after send tests
-      }
-      
-      // assert that ummet filter criteria has no results
-      filter = new MoneroTxFilter();
-      filter.setAccountIndex(0);
-      filter.setSubaddressIndices([1234907]);
-      txs = await wallet.getTxs(filter);
-      assert(txs.length === 0);
-    });
+        
+        // test that unspent tx payments add up to balance
+        for (let subaddress of subaddresses) {
+          filter = new MoneroTxFilter();
+          filter.setAccountIndex(subaddress.getAccountIndex());
+          filter.setSubaddressIndices([subaddress.getSubaddressIndex()]);
+          txs = await wallet.getTxs(filter);
+          
+          // test that unspent tx payments add up to subaddress balance
+          let balance = new BigInteger(0);
+          for (let tx of txs) {
+            if (tx.getIsIncoming() && tx.getIsConfirmed()) {
+              for (let payment of tx.getPayments()) {
+                if (!payment.getIsSpent()) {  // TODO: test that typeof === "boolean" in testPayment() test
+                  balance = balance.add(payment.getAmount());
+                }
+              }
+            }
+          }
+          let actualBalance = (await wallet.getSubaddress(subaddress.getAccountIndex(), subaddress.getSubaddressIndex())).getBalance();
+          assert(actualBalance.compare(balance) === 0); // TODO: (monero-wallet-rpc): fails after send tests
+        }
+        
+        // assert that ummet filter criteria has no results
+        filter = new MoneroTxFilter();
+        filter.setAccountIndex(0);
+        filter.setSubaddressIndices([1234907]);
+        txs = await wallet.getTxs(filter);
+        assert(txs.length === 0);
+      });
+    }
     
     it("Has a balance that is the sum of all unspent incoming transactions", async function() {
 
