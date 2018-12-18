@@ -36,6 +36,7 @@ class TestWalletCommon {
     let liteMode = true;  // skips some heavy tests if true
     this._runNonSendTests(liteMode);
     this._runSendTests();
+    this._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
   }
   
   _runNonSendTests(liteMode) {
@@ -675,11 +676,68 @@ class TestWalletCommon {
   }
   
   _runSendTests() {
-    
     let wallet = this.wallet;
     let daemon = this.daemon;
     
-    it("NEEDS TO BE DEFINED", async function() {
+    it("Can send to an address in a single transaction", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can send to an address in a single transaction with a payment id", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can create a transaction to send to a single address without relaying", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can send to an address with split transactions", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can create split transactions to send to a single address without relaying", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can send to multiple addresses in a single transaction", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can send to multiple addresses in split transactions", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can send from multiple subaddresses in a single transaction", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can send from multiple subaddresses in split transactions", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can sweep dust", async function() {
+      throw new Error("Not implemented");
+    });
+  }
+  
+  _runResetTests() {
+    let wallet = this.wallet;
+    let daemon = this.daemon;
+    
+    // TODO: specific to monero-wallet-rpc?
+    it("Can rescan the blockchain", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can sweep subaddresses", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can sweep accounts", async function() {
+      throw new Error("Not implemented");
+    });
+    
+    it("Can sweep the whole wallet", async function() {
       throw new Error("Not implemented");
     });
   }
