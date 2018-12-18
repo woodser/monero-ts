@@ -33,12 +33,17 @@ class TestWalletCommon {
    * Runs the tests.
    */
   runTests() {
-    let liteMode = true;  // skips some heavy tests if true
+    let liteMode = true;
     this._runNonSendTests(liteMode);
     this._runSendTests();
     this._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
   }
   
+  /**
+   * Runs all tests that do not initiate transactions on the blockchain or destroy wallet state.
+   * 
+   * @param liteMode specifies if some heavy tests should be skipped (convenience for dev)
+   */
   _runNonSendTests(liteMode) {
     let wallet = this.wallet;
     let daemon = this.daemon;
@@ -675,6 +680,11 @@ class TestWalletCommon {
     });
   }
   
+  /**
+   * Tests sending funds from a Monero wallet.
+   * 
+   * These tests rely on a balance and initiate transactions on the blockchain.
+   */
   _runSendTests() {
     let wallet = this.wallet;
     let daemon = this.daemon;
@@ -720,6 +730,13 @@ class TestWalletCommon {
     });
   }
   
+  /**
+   * Runs tests that reset the wallet state including sweeping all funds to the primary account and
+   * rescanning the blockchain which resets the local wallet cache (e.g. send destinations).
+   * 
+   * These tests are separated because they use all unlocked funds which invalidates other tests until
+   * a send-to-multiple test is run.
+   */
   _runResetTests() {
     let wallet = this.wallet;
     let daemon = this.daemon;
