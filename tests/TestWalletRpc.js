@@ -1,6 +1,6 @@
 const assert = require("assert");
 const TestUtils = require("./TestUtils");
-const TestWalletCommon = require("./TestWalletCommon");
+const TestWalletCommon2 = require("./TestWalletCommon2");
 const MoneroRpcError = require("../src/rpc/MoneroRpcError");
 
 /**
@@ -16,7 +16,7 @@ describe("Test Monero Wallet RPC", function() {
   });
   
   // run common wallet tests
-  TestWalletCommon.testWallet(wallet, daemon);
+  new TestWalletCommon2(daemon, wallet).runTests();
   
   it("Can indicate if multisig import is needed for correct balance information", async function() {
     throw new Error("Not implemented");

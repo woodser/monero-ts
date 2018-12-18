@@ -2,7 +2,7 @@ const assert = require("assert");
 const TestUtils = require("./TestUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
-const TestWalletCommon = require("./TestWalletCommon");
+const TestWalletCommon2 = require("./TestWalletCommon2");
 
 /**
  * Tests the fully client-side Monero Wallet which uses a Monero Daemon.
@@ -214,8 +214,8 @@ describe("Monero Wallet Local", function() {
     assert.equal(106001, await wallet.getHeight());
   });
   
-  // run common tests
-  TestWalletCommon.testWallet(TestUtils.getWalletLocal(), TestUtils.getDaemonRpc());
+  // run common wallet tests
+  new TestWalletCommon2(TestUtils.getDaemonRpc(), TestUtils.getWalletLocal()).runTests();
 });
 
 /**
