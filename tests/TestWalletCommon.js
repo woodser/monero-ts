@@ -38,7 +38,7 @@ class TestWalletCommon {
     let daemon = this.daemon;
     
     // track ids of txs whose total amount !== sum of payments so one warning per tx is printed
-    let unbalancedTxIds = []; // TODO: remove this when issue is fixed
+    let unbalancedTxIds = []; // TODO: report issue, remove this when issue is fixed
     
     // local tx cache for tests
     let txCache;
