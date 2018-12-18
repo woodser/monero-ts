@@ -1,4 +1,5 @@
 const assert = require("assert");
+const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const GenUtils = require("../utils/GenUtils");
 const MoneroRpc = require("../rpc/MoneroRpc");
 const MoneroWallet = require("./MoneroWallet");
@@ -8,7 +9,7 @@ const MoneroSubaddress = require("./model/MoneroSubaddress");
 const MoneroTxFilter = require("./model/MoneroTxFilter");
 const MoneroTxWallet = require("./model/MoneroTxWallet");
 const MoneroPayment = require("./model/MoneroPayment");
-const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const MoneroSendConfig = require("./model/MoneroSendConfig");
 
 /**
  * Implements a Monero wallet using monero-wallet-rpc.
@@ -292,8 +293,13 @@ class MoneroWalletRpc extends MoneroWallet {
         if (resp.transfers === undefined) continue;
         for (let rpcTx of resp.transfers) {
             
-          // convert rpc to tx and assign address
-          let tx = MoneroWalletRpc._buildTxWallet(rpcTx, true);
+          // convert rpc to tx
+          let tx = new MoneroTxWallet();
+          tx.setIsIncoming(true);
+          tx.setIsConfirmed(true);
+          tx.setInMempool(false);
+          tx.setIsCoinbase(false);
+          let tx = MoneroWalletRpc._buildTxWallet(rpcTx, tx);
           let address = await this.getAddress(accountIdx, tx.getPayments()[0].getSubaddressIndex());
           tx.getPayments()[0].setAddress(address);
           
@@ -312,6 +318,69 @@ class MoneroWalletRpc extends MoneroWallet {
     let toRemoves = [];
     for (let tx of txs) if (!filter.meetsCriteria(tx)) toRemoves.push(tx);
     return txs.filter(tx => !toRemoves.includes(tx));
+  }
+  
+  async send(configOrAddress, amount, paymentId, priority, mixin, fee) {
+    
+    // normalize send config
+    let config;
+    if (configOrAddress instanceof MoneroSendConfig) config = configOrAddress;
+    else config = new MoneroSendConfig(configOrAddress, amount, paymentId, priority, mixin, fee);
+    assert.equal(undefined, config.getSweepEachSubaddress());
+    assert.equal(undefined, config.getBelowAmount());
+    
+    // determine account and subaddresses to send from
+    let accountIdx = config.getAccountIndex();
+    if (accountIdx === undefined) throw new Error("Must specify account index to send from");
+    let subaddressIndices = config.getSubaddressIndices();
+    if (subaddressIndices === undefined) subaddressIndices = await this._getSubaddressIndices(accountIdx);   
+    
+    // build request parameters
+    let params = {};
+    params.destinations = [];
+    for (let payment of config.getPayments()) {
+      params.destinations.push({ address: payment.getAddress(), amount: payment.getAmount().toString() });
+    }
+    params.account_index = accountIdx;
+    params.subaddr_indices = subaddressIndices;
+    params.payment_id = config.getPaymentId();
+    params.mixin = config.getMixin();
+    params.unlock_time = config.getUnlockTime();
+    params.do_not_relay = config.getDoNotRelay();
+    params.get_tx_key = true;
+    params.get_tx_hex = true;
+    params.get_tx_metadata = true;
+  
+    // send request
+    let rpcTx = await this.config.rpc.sendJsonRequest("transfer", params);
+    
+    // build tx response
+    let tx = new MoneroTxWallet();
+    tx.setIsOutgoing(true);
+    tx.setIsConfirmed(false);
+    tx.setInMempool(true);
+    tx.setIsCoinbase(false);
+    tx.setDoNotRelay(config.getDoNotRelay() ? true : false)
+    tx.setIsRelayed(!tx.getDoNotRelay());
+    MoneroWalletRpc._buildTxWallet(rpcTx, tx);
+    
+    // set final fields
+    tx.setMixin(config.getMixin());
+    tx.setPayments(config.getPayments());
+    tx.setPaymentId(config.getPaymentId());
+    tx.setSrcAddress(await this.getAddress(accountIdx, 0));
+    tx.setSrcAccountIndex(accountIdx);
+    tx.setSrcSubaddressIndex(0); // TODO (monero-wallet-rpc): outgoing subaddress idx is always 0
+    if (!tx.getDoNotRelay()) {
+      if (tx.getTimestamp() === undefined) tx.setTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
+      if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
+      if (tx.getIsDoubleSpend() === undefined) tx.setIsDoubleSpend(false);
+    }
+    return tx;
+  }
+
+  async sendSplit(configOrAddress, amount, paymentId, priority, mixin) {
+    throw new Error("Not implemented");
   }
   
   async getKeyImages() {
@@ -376,26 +445,19 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddressIndices;
   }
   
-  static _buildTxWallet(rpcTx, isIncomingConfirmedNonCoinbase) {  // TODO: could pass in tx to initialize from rpcTx, then no need for 2nd param
+  static _buildTxWallet(rpcTx, tx) {
         
     // initialize tx to return
-    let tx = new MoneroTxWallet();
+    if (!tx) tx = new MoneroTxWallet();
     
     // initialize transaction type and state from rpc type
-    if (rpcTx.type !== undefined) {
-      MoneroWalletRpc._decodeRpcType(rpcTx.type, tx);
-      if (isIncomingConfirmedNonCoinbase) {
-        assert(tx.getIsIncoming() === true);
-        assert(tx.getIsConfirmed() === true);
-        assert(tx.getInMempool() === false);
-        assert(tx.getIsCoinbase() === false);
-      }
-    } else {
-      assert(isIncomingConfirmedNonCoinbase, "Tx state is unknown");
-      tx.setIsIncoming(true);
-      tx.setIsConfirmed(true);
-      tx.setInMempool(false);
-      tx.setIsCoinbase(false);
+    if (rpcTx.type !== undefined) MoneroWalletRpc._decodeRpcType(rpcTx.type, tx);
+    else {
+      assert.equal("boolean", typeof tx.getIsOutgoing());
+      assert.equal("boolean", typeof tx.getIsIncoming());
+      assert.equal("boolean", typeof tx.getIsConfirmed());
+      assert.equal("boolean", typeof tx.getInMempool());
+      assert.equal("boolean", typeof tx.getIsCoinbase());
     }
     
     // initialize remaining fields  TODO: seems this should be part of common function with DaemonRpc._buildTx
@@ -478,7 +540,7 @@ class MoneroWalletRpc extends MoneroWallet {
         }
         tx.setPayments(payments);
       }
-      else LOGGER.warn("Ignoring unexpected transaction field: '" + key + "': " + val);
+      else console.log("WARNING: ignoring unexpected transaction field: '" + key + "': " + val);
     }
     
     // initialize final fields

@@ -8,6 +8,12 @@ const MoneroDaemon = require("../src/daemon/MoneroDaemon");
 const MoneroTx = require("../src/daemon/model/MoneroTx");
 const MoneroTxWallet = require("../src/wallet/model/MoneroTxWallet");
 const MoneroTxFilter = require("../src/wallet/model/MoneroTxFilter");
+const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
+
+// test constants
+const MIXIN = 11;
+const SEND_DIVISOR = 2;
+const SEND_MAX_DIFF = 60;
 
 /**
  * Runs common tests that every Monero wallet implementation should support.
@@ -34,7 +40,7 @@ class TestWalletCommon {
    */
   runTests() {
     let liteMode = true;
-    this._runNonSendTests(liteMode);
+    //this._runNonSendTests(liteMode);
     this._runSendTests();
     this._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
   }
@@ -690,24 +696,108 @@ class TestWalletCommon {
     let daemon = this.daemon;
     
     it("Can send to an address in a single transaction", async function() {
-      throw new Error("Not implemented");
+      await testSendToSingle(false, null, false);
     });
     
-    it("Can send to an address in a single transaction with a payment id", async function() {
-      throw new Error("Not implemented");
-    });
+//    it("Can send to an address in a single transaction with a payment id", async function() {
+//      let integratedAddress = await wallet.getIntegratedAddress();
+//      await testSendToSingle(false, integratedAddress.getPaymentId(), false);
+//    });
+//    
+//    it("Can create a transaction to send to a single address without relaying", async function() {
+//      await testSendToSingle(false, null, true);
+//    });
+//    
+//    it("Can send to an address with split transactions", async function() {
+//      await testSendToSingle(true, null, false);
+//    });
+//    
+//    it("Can create split transactions to send to a single address without relaying", async function() {
+//      await testSendToSingle(true, null, true);
+//    });
     
-    it("Can create a transaction to send to a single address without relaying", async function() {
-      throw new Error("Not implemented");
-    });
-    
-    it("Can send to an address with split transactions", async function() {
-      throw new Error("Not implemented");
-    });
-    
-    it("Can create split transactions to send to a single address without relaying", async function() {
-      throw new Error("Not implemented");
-    });
+    async function testSendToSingle(canSplit, paymentId, doNotRelay) {
+      
+      // find a non-primary subaddress to send from
+      let sufficientBalance = false;
+      let fromAccount = null;
+      let fromSubaddress = null;
+      let accounts = await wallet.getAccounts(true);
+      for (let account of accounts) {
+        let subaddresses = account.getSubaddresses();
+        for (let i = 1; i < subaddresses.length; i++) {
+          if (subaddresses[i].getBalance().compare(TestUtils.MAX_FEE) > 0) sufficientBalance = true;
+          if (subaddresses[i].getUnlockedBalance().compare(TestUtils.MAX_FEE) > 0) {
+            fromAccount = account;
+            fromSubaddress = subaddresses[i];
+            break;
+          }
+        }
+        if (fromAccount != null) break;
+      }
+      assert(sufficientBalance, "No non-primary subaddress found with sufficient balance");
+      assert(fromSubaddress !== null, "Wallet is waiting on unlocked funds");
+      
+      // get balance before send
+      let balanceBefore = fromSubaddress.getBalance();
+      let unlockedBalanceBefore  = fromSubaddress.getUnlockedBalance();
+      
+      // send to self
+      let sendAmount = unlockedBalanceBefore.subtract(TestUtils.MAX_FEE).divide(new BigInteger(SEND_DIVISOR));
+      let address = await wallet.getPrimaryAddress();
+      let txs = []
+      let config = new MoneroSendConfig(address, sendAmount, paymentId, undefined, TestUtils.MIXIN);
+      config.setAccountIndex(fromAccount.getIndex());
+      config.setSubaddressIndices([fromSubaddress.getSubaddressIndex()]);
+      config.setDoNotRelay(doNotRelay);
+      if (canSplit) {
+        let sendTxs = await wallet.send(config);
+        for (let tx of sendTxs) txs.push(tx);
+      } else {
+        txs.push(await wallet.send(config));
+      }
+      
+      // handle non-relayed transaction
+      if (doNotRelay) {
+        
+        // test transactions
+        testCommonTxSets(txs, false, false, false);
+        for (let tx of txs) {
+          testSendTxDoNotRelay(tx, config, !canSplit, !canSplit, wallet);
+        }
+        
+        // relay transactions
+        txs = await wallet.relayTxs(txs);
+      }
+      
+      // test that balance and unlocked balance decreased
+      // TODO: test that other balances did not decrease
+      let subaddress = await wallet.getSubaddress(fromAccount.getIndex(), fromSubaddress.getSubaddressIndex());
+      assert(subaddress.getBalance().compare(balanceBefore) < 0);
+      assert(subaddress.getUnlockedBalance().compare(unlockedBalanceBefore) < 0);
+      
+      // test transactions
+      assert(txs.length > 0);
+      testCommonTxSets(txs, false, false, false);
+      for (let tx of txs) {
+        await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
+        assert.equal(fromAccount.getIndex(), tx.getSrcAccountIndex());
+        assert.equal(0, tx.getSrcSubaddressIndex()); // TODO (monero-wallet-rpc): outgoing transactions do not indicate originating subaddresses
+        assert(sendAmount.compare(tx.getTotalAmount()) === 0);
+        
+        // test tx payments
+        if (tx.getPayments() !== undefined) {
+          assert.equal(1, tx.getPayments().length);
+          for (let payment of tx.getPayments()) {
+            assert.equal(address, payment.getAddress());
+            assert.equal(undefined, payment.getAccountIndex());
+            assert.equal(undefined, payment.getSubaddressIndex());
+            assert(sendAmount.compare(payment.getAmount()) === 0);
+            assert.equal(undefined, payment.getIsSpent());
+          }
+        }
+      }
+    }
     
     it("Can send to multiple addresses in a single transaction", async function() {
       throw new Error("Not implemented");
@@ -798,6 +888,23 @@ function testSubaddress(subaddress) {
   TestUtils.testUnsignedBigInteger(subaddress.getUnlockedBalance());
   assert(subaddress.getNumUnspentOutputs() >= 0);
   if (subaddress.getBalance().toJSValue() > 0) assert(subaddress.getIsUsed());
+}
+
+/**
+ * Gets random transactions.
+ * 
+ * @param wallet is the wallet to query for transactions
+ * @param filter specifies a filter for the transactions.
+ * @param minTxs specifies the minimum number of transactions (undefined for no minimum)
+ * @param maxTxs specifies the maximum number of transactions (undefined for all filtered transactions)
+ * @return {MoneroTx[]} are the random transactions
+ */
+async function getRandomTransactions(wallet, filter, minTxs, maxTxs) {
+  let txs = await wallet.getTxs(filter);
+  if (minTxs !== undefined) assert(txs.length >= minTxs);
+  GenUtils.shuffle(txs);
+  if (maxTxs === undefined) return txs;
+  else return txs.slice(0, Math.min(maxTxs, txs.length));
 }
 
 // common tests
@@ -976,21 +1083,85 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments, unbalanc
   // TODO: test failed
 }
 
-/**
- * Gets random transactions.
- * 
- * @param wallet is the wallet to query for transactions
- * @param filter specifies a filter for the transactions.
- * @param minTxs specifies the minimum number of transactions (undefined for no minimum)
- * @param maxTxs specifies the maximum number of transactions (undefined for all filtered transactions)
- * @return {MoneroTx[]} are the random transactions
- */
-async function getRandomTransactions(wallet, filter, minTxs, maxTxs) {
-  let txs = await wallet.getTxs(filter);
-  if (minTxs !== undefined) assert(txs.length >= minTxs);
-  GenUtils.shuffle(txs);
-  if (maxTxs === undefined) return txs;
-  else return txs.slice(0, Math.min(maxTxs, txs.length));
+// TODO: update with latest fields
+async function testTxWalletSend(tx, config, hasKey, hasPayments, wallet) {
+  testTxWalletCommon(tx);
+  assert(tx.getId());
+  assert.equal(true, tx.getIsOutgoing());
+  assert.equal(false, tx.getIsIncoming());
+  assert.equal(false, tx.getIsConfirmed());
+  assert.equal(true, tx.getInMempool());
+  assert.equal(false, tx.getDoNotRelay());
+  assert.equal(true, tx.getIsRelayed());
+  assert(tx.getSrcAddress());
+  assert(tx.getSrcAccountIndex() >= 0);
+  assert(tx.getSrcSubaddressIndex() >= 0);
+  assert.equal(await wallet.getAddress(tx.getSrcAccountIndex(), tx.getSrcSubaddressIndex()), tx.getSrcAddress());
+  assert.equal(0, tx.getSrcSubaddressIndex());
+  TestUtils.testUnsignedBigInteger(tx.getTotalAmount());
+  if (MoneroTx.DEFAULT_PAYMENT_ID === config.getPaymentId()) assert.equal(undefined, tx.getPaymentId());
+  else assert.equal(config.getPaymentId(), tx.getPaymentId());
+  TestUtils.testUnsignedBigInteger(tx.getFee(), true);
+  assert.equal(config.getMixin(), tx.getMixin());
+  assert.equal(undefined, tx.getWeight());
+  assert(tx.getNote() === undefined || tx.getNote().length > 0);
+  assert(tx.getTimestamp() >= 0);
+  assert.equal(0, tx.getUnlockTime());  // TODO: test with non-zero unlock time
+  assert.equal(false, tx.getIsDoubleSpend());
+  if (hasKey) assert(tx.getKey().length > 0);
+  else assert.equal(undefined, tx.getKey());
+  if (hasPayments) {
+    assert(Array.isArray(tx.getPayments()));
+    assert(tx.getPayments().length > 0);
+    assert.deepEqual(config.getPayments(), tx.getPayments());
+  }
+  assert.equal("string", typeof tx.getHex());
+  assert(tx.getHex().length > 0);
+  assert(tx.getMetadata());
+  assert.equal(undefined, tx.getHeight());
+  if (tx.getPayments()) {
+    let totalAmount = new BigInteger(0);
+    for (let payment of tx.getPayments()) {
+      assert(payment.getAddress());
+      MoneroUtils.validateAddress(payment.getAddress());
+      assert.equal(undefined, payment.getAccountIndex());
+      assert.equal(undefined, payment.getSubaddressIndex());
+      TestUtils.testUnsignedBigInteger(payment.getAmount(), true);
+      assert.equal(undefined, payment.getIsSpent());
+      assert.equal(undefined, payment.getKeyImage());
+      totalAmount = totalAmount.add(payment.getAmount());
+    }
+    assert(totalAmount.compare(tx.getTotalAmount()) == 0, "Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId());
+  }
+}
+
+function testCommonTxSets(txs, hasSigned, hasUnsigned, hasMultisig) {
+  assert(txs.length > 0);
+  
+  // assert that all sets are same reference
+  let sets;
+  for (let i = 0; i < txs.length; i++) {
+    if (i === 0) sets = txs[i].getCommonTxSets();
+    else assert(txs[i].getCommonTxSets() === sets);
+  }
+  
+  // test expected set
+  if (!hasSigned && !hasUnsigned && !hasMultisig) assert.equal(undefined, sets);
+  else {
+    assert(sets);
+    if (hasSigned) {
+      assert(sets.getSignedTxSet());
+      assert(sets.getSignedTxSet().length > 0);
+    }
+    if (hasUnsigned) {
+      assert(sets.getUnsignedTxSet());
+      assert(sets.getUnsignedTxSet().length > 0);
+    }
+    if (hasMultisig) {
+      assert(sets.getMultisigTxSet());
+      assert(sets.getMultisigTxSet().length > 0);
+    }
+  }
 }
 
 module.exports = TestWalletCommon

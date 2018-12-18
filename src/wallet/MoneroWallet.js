@@ -218,6 +218,20 @@ class MoneroWallet {
   async importKeyImages() {
     throw new Error("Subclass must implement");
   }
+  
+  /**
+   * TODO.
+   */
+  async send(configOrAddress, sendAmount, paymentId, priority, mixin) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * TODO.
+   */
+  async sendSplit(configOrAddress, sendAmount, paymentId, priority, mixin) {
+    throw new Error("Subclass must implement");
+  }
 }
 
 module.exports = MoneroWallet;
