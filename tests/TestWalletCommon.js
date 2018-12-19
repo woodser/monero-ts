@@ -42,15 +42,15 @@ class TestWalletCommon {
     let that = this;
     let liteMode = true;
     describe("Common Wallet Tests", function() {
-      describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
-        that._runNonSendTests(liteMode);
-      });
+//      describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
+//        that._runNonSendTests(liteMode);
+//      });
       describe("Send Tests", function() {
         that._runSendTests();
       });
-      describe("Reset Tests", function() {
-        that._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
-      });
+//      describe("Reset Tests", function() {
+//        that._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
+//      });
     })
   }
   
@@ -620,7 +620,7 @@ class TestWalletCommon {
 //        System.out.println("Pending   : " + pendingBalance);
 //        System.out.println("Mempool   : " + mempoolBalance);
 //        System.out.println("Expected  : " + expectedBalance);
-        assert(walletBalance.compare(expectedBalance) === 0, "Account " + account.getIndex() + " balance does not add up");
+        assert(walletBalance.compare(expectedBalance) === 0, "Account " + account.getIndex() + " balance does not add up: " + expectedBalance.toString() + " vs " + walletBalance.toString());
       }
     });
     
@@ -706,18 +706,18 @@ class TestWalletCommon {
     let wallet = this.wallet;
     let daemon = this.daemon;
     
-    it("Can send to an address in a single transaction", async function() {
-      await testSendToSingle(false, undefined, false);
-    });
-    
-    it("Can send to an address in a single transaction with a payment id", async function() {
-      let integratedAddress = await wallet.getIntegratedAddress();
-      await testSendToSingle(false, integratedAddress.getPaymentId(), false);
-    });
-    
-    it("Can create a transaction to send to a single address then relay the transaction", async function() {
-      await testSendToSingle(false, undefined, true);
-    });
+//    it("Can send to an address in a single transaction", async function() {
+//      await testSendToSingle(false, undefined, false);
+//    });
+//    
+//    it("Can send to an address in a single transaction with a payment id", async function() {
+//      let integratedAddress = await wallet.getIntegratedAddress();
+//      await testSendToSingle(false, integratedAddress.getPaymentId(), false);
+//    });
+//    
+//    it("Can create a transaction to send to a single address then relay the transaction", async function() {
+//      await testSendToSingle(false, undefined, true);
+//    });
     
     it("Can send to an address with split transactions", async function() {
       await testSendToSingle(true, undefined, false);
