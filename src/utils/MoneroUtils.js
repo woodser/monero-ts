@@ -55,6 +55,22 @@ class MoneroUtils {
   static validateAddress(address) {
     
   }
+  
+  static isValidPaymentId(paymentId) {
+    try {
+      MoneroUtils.validatePaymentId(paymentId);
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+  
+  // TODO: beef this up
+  static validatePaymentId(paymentId) {
+    assert.equal("string", typeof paymentId);
+    assert(paymentId.length === 16);
+  }
     
   /**
    * Decodes tx extra according to https://cryptonote.org/cns/cns005.txt and

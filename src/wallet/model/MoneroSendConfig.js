@@ -1,3 +1,5 @@
+const assert = require("assert");
+const MoneroUtils = require("../../utils/MoneroUtils");
 const MoneroPayment = require("./MoneroPayment");
 
 /**
@@ -18,6 +20,9 @@ class MoneroSendConfig {
       this.setMixin(mixin);
       this.setFee(fee);
     }
+    
+    // verify types
+    assert(this.paymentId === undefined || MoneroUtils.isValidPaymentId(this.paymentId));
   }
   
   getPayments() {

@@ -36,7 +36,7 @@ class MoneroTx extends MoneroDaemonModel {
   }
   
   getPaymentId() {
-    return this.json.getPaymentId;
+    return this.json.paymentId;
   }
   
   setPaymentId(paymentId) {

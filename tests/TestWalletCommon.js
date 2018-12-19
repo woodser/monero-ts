@@ -42,15 +42,15 @@ class TestWalletCommon {
     let that = this;
     let liteMode = true;
     describe("Common Wallet Tests", function() {
-      describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
-        that._runNonSendTests(liteMode);
-      });
+//      describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
+//        that._runNonSendTests(liteMode);
+//      });
       describe("Send Tests", function() {
         that._runSendTests();
       });
-      describe("Reset Tests", function() {
-        that._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
-      });
+//      describe("Reset Tests", function() {
+//        that._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
+//      });
     })
   }
   
@@ -707,25 +707,25 @@ class TestWalletCommon {
     let daemon = this.daemon;
     
     it("Can send to an address in a single transaction", async function() {
-      await testSendToSingle(false, null, false);
+      await testSendToSingle(false, undefined, false);
     });
     
-//    it("Can send to an address in a single transaction with a payment id", async function() {
-//      let integratedAddress = await wallet.getIntegratedAddress();
-//      await testSendToSingle(false, integratedAddress.getPaymentId(), false);
-//    });
-//    
-//    it("Can create a transaction to send to a single address without relaying", async function() {
-//      await testSendToSingle(false, null, true);
-//    });
-//    
-//    it("Can send to an address with split transactions", async function() {
-//      await testSendToSingle(true, null, false);
-//    });
-//    
-//    it("Can create split transactions to send to a single address without relaying", async function() {
-//      await testSendToSingle(true, null, true);
-//    });
+    it("Can send to an address in a single transaction with a payment id", async function() {
+      let integratedAddress = await wallet.getIntegratedAddress();
+      await testSendToSingle(false, integratedAddress.getPaymentId(), false);
+    });
+    
+    it("Can create a transaction to send to a single address without relaying", async function() {
+      await testSendToSingle(false, undefined, true);
+    });
+    
+    it("Can send to an address with split transactions", async function() {
+      await testSendToSingle(true, undefined, false);
+    });
+    
+    it("Can create split transactions to send to a single address without relaying", async function() {
+      await testSendToSingle(true, undefined, true);
+    });
     
     async function testSendToSingle(canSplit, paymentId, doNotRelay) {
       
@@ -762,7 +762,7 @@ class TestWalletCommon {
       config.setSubaddressIndices([fromSubaddress.getSubaddressIndex()]);
       config.setDoNotRelay(doNotRelay);
       if (canSplit) {
-        let sendTxs = await wallet.send(config);
+        let sendTxs = await wallet.sendSplit(config);
         for (let tx of sendTxs) txs.push(tx);
       } else {
         txs.push(await wallet.send(config));
@@ -774,7 +774,7 @@ class TestWalletCommon {
         // test transactions
         testCommonTxSets(txs, false, false, false);
         for (let tx of txs) {
-          testSendTxDoNotRelay(tx, config, !canSplit, !canSplit, wallet);
+          await testTxWalletSendDoNotRelay(tx, config, !canSplit, !canSplit, wallet);
         }
         
         // relay transactions
@@ -1144,6 +1144,61 @@ async function testTxWalletSend(tx, config, hasKey, hasPayments, wallet) {
     }
     assert(totalAmount.compare(tx.getTotalAmount()) == 0, "Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId());
   }
+}
+
+async function testTxWalletSendDoNotRelay(tx, config, hasKey, hasPayments, wallet) {
+  testTxWalletCommon(tx);
+  assert(tx.getId());
+  assert.equal(true, tx.getIsOutgoing());
+  assert.equal(false, tx.getIsIncoming());
+  assert.equal(false, tx.getIsConfirmed());
+  assert.equal(false, tx.getInMempool());
+  assert.equal(true, tx.getDoNotRelay());
+  assert.equal(false, tx.getIsRelayed());
+  throw new Error("Not implemented");
+  
+  // TODO: continue here
+//  assertNotNull(tx.getId(), tx.getSrcAddress());
+//  assertNotNull(tx.getId(), tx.getSrcAccountIndex());
+//  assertNotNull(tx.getId(), tx.getSrcSubaddrIndex());
+//  assertEquals(tx.getId(), wallet.getAddress(tx.getSrcAccountIndex(), tx.getSrcSubaddrIndex()), tx.getSrcAddress());
+//  assertEquals(tx.getId(), 0, (int) tx.getSrcSubaddrIndex());
+//  assertEquals(tx.getId(), config.getAccountIndex(), tx.getSrcAccountIndex());
+//  assertNotNull(tx.getId(), tx.getTotalAmount());
+//  if (MoneroTx.DEFAULT_PAYMENT_ID.equals(config.getPaymentId())) assertNull(tx.getId(), tx.getPaymentId());
+//  else assertEquals(tx.getId(), config.getPaymentId(), tx.getPaymentId());
+//  assertNotNull(tx.getId(), tx.getFee());
+//  assertEquals(tx.getId(), config.getMixin(), tx.getMixin());
+//  assertNull(tx.getId(), tx.getSize());
+//  assertNull(tx.getId(), tx.getNote());
+//  assertNull(tx.getId(), tx.getTimestamp());
+//  assertNull(tx.getId(), tx.getUnlockTime());
+//  assertNull(tx.getId(), tx.getIsDoubleSpend());
+//  if (hasKey) assertNotNull(tx.getKey());
+//  else assertNull(tx.getKey());
+//  if (hasPayments) {
+//    assertNotNull(tx.getPayments());
+//    assertFalse(tx.getPayments().isEmpty());
+//    assertEquals(tx.getId(), config.getPayments(), tx.getPayments());
+//  }
+//  assertNotNull(tx.getId(), tx.getBlob());
+//  assertNotNull(tx.getId(), tx.getMetadata());
+//  assertNull(tx.getId(), tx.getHeight());
+//  if (tx.getPayments() != null) {
+//    BigInteger totalAmount = BigInteger.valueOf(0);
+//    for (MoneroPayment payment : tx.getPayments()) {
+//      assertTrue(tx.getId(), tx == payment.getTx());
+//      totalAmount = totalAmount.add(payment.getAmount());
+//      assertNotNull(tx.getId(), payment.getAddress());
+//      assertNull(tx.getId(), payment.getAccountIndex());
+//      assertNull(tx.getId(), payment.getSubaddrIndex());
+//      assertNotNull(tx.getId(), payment.getAmount());
+//      assertTrue(tx.getId(), payment.getAmount().longValue() > 0);
+//      assertNull(tx.getId(), payment.getIsSpent());
+//      assertNull(tx.getId(), payment.getKeyImage());
+//    }
+//    assertTrue("Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId(), totalAmount.compareTo(tx.getTotalAmount()) == 0);
+//  }
 }
 
 function testCommonTxSets(txs, hasSigned, hasUnsigned, hasMultisig) {
