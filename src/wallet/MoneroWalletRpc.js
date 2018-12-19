@@ -358,7 +358,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let tx = new MoneroTxWallet();
     tx.setIsOutgoing(true);
     tx.setIsConfirmed(false);
-    tx.setInMempool(true);
+    tx.setInMempool(config.getDoNotRelay() ? false : true);
     tx.setIsCoinbase(false);
     tx.setDoNotRelay(config.getDoNotRelay() ? true : false)
     tx.setIsRelayed(!tx.getDoNotRelay());
@@ -381,6 +381,36 @@ class MoneroWalletRpc extends MoneroWallet {
 
   async sendSplit(configOrAddress, amount, paymentId, priority, mixin) {
     throw new Error("Not implemented");
+  }
+  
+  async relayTxs(txs) {
+    
+    // relay transactions and collect resulting ids
+    let txIds = [];
+    for (let tx of txs)  {
+      let resp = await this.config.rpc.sendJsonRequest("relay_tx", { hex: tx.getMetadata() });
+      txIds.push(resp.tx_hash);
+    }
+    
+    // fetch transactions by id
+    let filter = new MoneroTxFilter();
+    filter.setIsIncoming(false);
+    filter.setTxIds(txIds);
+    let relayedTxs = await this.getTxs(filter);
+    
+    // transfer tx data
+    assert.equal(txs.length, relayedTxs.length);
+    for (let i = 0; i < txs.length; i++) {
+      assert.equal(txs[i].getId(), relayedTxs[i].getId());
+      relayedTxs[i].setDoNotRelay(false);
+      relayedTxs[i].setIsRelayed(true);
+      relayedTxs[i].setMixin(txs[i].getMixin());
+      relayedTxs[i].setKey(txs[i].getKey());
+      relayedTxs[i].setPayments(txs[i].getPayments());
+      relayedTxs[i].setHex(txs[i].getHex());
+      relayedTxs[i].setMetadata(txs[i].getMetadata());
+    }
+    return relayedTxs;
   }
   
   async getKeyImages() {

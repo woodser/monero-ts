@@ -232,6 +232,16 @@ class MoneroWallet {
   async sendSplit(configOrAddress, sendAmount, paymentId, priority, mixin) {
     throw new Error("Subclass must implement");
   }
+  
+  /**
+   * Relays tranactions previously created without relaying.
+   * 
+   * @param txs are the transactions to relay
+   * @return {MoneroTx[]} are the relayed txs
+   */
+  async relayTxs(txs) {
+    throw new Error("Subclass must implement");
+  }
 }
 
 module.exports = MoneroWallet;

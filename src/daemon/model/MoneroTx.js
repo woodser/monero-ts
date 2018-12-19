@@ -304,8 +304,8 @@ class MoneroTx extends MoneroDaemonModel {
     MoneroUtils.safeSet(this, this.getMixin, this.setMixin, tx.getMixin());
     MoneroUtils.safeSet(this, this.getDoNotRelay, this.setDoNotRelay, tx.getDoNotRelay());
     MoneroUtils.safeSet(this, this.getIsRelayed, this.getIsConfirmed, tx.getIsRelayed());
-    MoneroUtils.safeSet(this, this.getIsConfirmed, this.setIsConfirmed, tx.getIsConfirmed()); // TODO: this could change and become confirmed
-    MoneroUtils.safeSet(this, this.getInMempool, this.setInMempool, tx.getInMempool());       // TODO: this could change and move out of mempool
+    MoneroUtils.safeSet(this, this.getIsConfirmed, this.setIsConfirmed, tx.getIsConfirmed()); // TODO: this can change and become confirmed
+    MoneroUtils.safeSet(this, this.getInMempool, this.setInMempool, tx.getInMempool());       // TODO: this can change and move out of mempool
     MoneroUtils.safeSet(this, this.getHeight, this.setHeight, tx.getHeight());
     MoneroUtils.safeSet(this, this.getUnlockTime, this.setUnlockTime, tx.getUnlockTime());
     MoneroUtils.safeSet(this, this.getIsDoubleSpend, this.setIsDoubleSpend, tx.getIsDoubleSpend());
