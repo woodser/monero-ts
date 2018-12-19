@@ -574,8 +574,8 @@ class MoneroWalletRpc extends MoneroWallet {
       if (keys) tx.setKey(keys[i]);
       tx.setHex(blobs[i]);
       tx.setMetadata(metadatas[i]);
-      tx.setFee(fees[i]);
-      tx.setTotalAmount(amounts[i]);
+      tx.setFee(new BigInteger(fees[i]));
+      tx.setTotalAmount(new BigInteger(amounts[i]));
     }
     return txs;
   }
@@ -664,6 +664,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * Common method to create a send transaction.
    */
   async _send(split, configOrAddress, amount, paymentId, priority, mixin, fee) {
+    
     
     // normalize send config
     let config;

@@ -706,18 +706,18 @@ class TestWalletCommon {
     let wallet = this.wallet;
     let daemon = this.daemon;
     
-//    it("Can send to an address in a single transaction", async function() {
-//      await testSendToSingle(false, undefined, false);
-//    });
-//    
-//    it("Can send to an address in a single transaction with a payment id", async function() {
-//      let integratedAddress = await wallet.getIntegratedAddress();
-//      await testSendToSingle(false, integratedAddress.getPaymentId(), false);
-//    });
-//    
-//    it("Can create a transaction to send to a single address then relay the transaction", async function() {
-//      await testSendToSingle(false, undefined, true);
-//    });
+    it("Can send to an address in a single transaction", async function() {
+      await testSendToSingle(false, undefined, false);
+    });
+    
+    it("Can send to an address in a single transaction with a payment id", async function() {
+      let integratedAddress = await wallet.getIntegratedAddress();
+      await testSendToSingle(false, integratedAddress.getPaymentId(), false);
+    });
+    
+    it("Can create a transaction to send to a single address then relay the transaction", async function() {
+      await testSendToSingle(false, undefined, true);
+    });
     
     it("Can send to an address with split transactions", async function() {
       await testSendToSingle(true, undefined, false);
