@@ -8,6 +8,7 @@ const GenUtils = require("../utils/GenUtils");
  * TODO: maximize compatibility with existing apis, might want end indices to be exclusive
  * TODO: optimize ranges using arrays and single numbers
  * TODO: don't set flipped by default
+ * TODO: split this off as its own project, submodule?
  */
 class BooleanSet {
 
