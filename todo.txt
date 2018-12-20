@@ -1,4 +1,5 @@
 TODO
+a transaction does not have a timestamp, it has a block which has a timestamp, a last relayed time, and a received time
 way to throttle rpc requests with agent instead of throttle-request to preserve stacktrace?
 verify that all tx fields are being tested
 standardize on isCoinbase, isIncoming, etc
