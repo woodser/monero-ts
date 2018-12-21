@@ -436,6 +436,7 @@ class MoneroWalletRpc extends MoneroWallet {
       assert.equal("boolean", typeof tx.getIsCoinbase());
     }
     
+    // TODO: safe set
     // initialize remaining fields  TODO: seems this should be part of common function with DaemonRpc._buildTx
     let payment;
     let accountIdx;
@@ -445,12 +446,16 @@ class MoneroWalletRpc extends MoneroWallet {
       if (key === "fee") tx.setFee(new BigInteger(val));
       else if (key === "block_height") tx.setHeight(val);
       else if (key === "note") { if (val) tx.setNote(val); }
-      else if (key === "timestamp") tx.setTimestamp(val);
+      else if (key === "timestamp") {
+        if (tx.getIsConfirmed()) tx.setBlockTimestamp(val);
+        else if (tx.getIsOutgoing()) tx.setLastRelayedTime(val);
+        else tx.setReceivedTime(val);
+      }
       else if (key === "txid") tx.setId(val);
       else if (key === "tx_hash") tx.setId(val);
       else if (key === "tx_key") tx.setKey(val);
       else if (key === "type") { } // type already handled
-      else if (key === "tx_size") tx.setWeight(val);
+      else if (key === "tx_size") tx.setSize(val);
       else if (key === "unlock_time") tx.setUnlockTime(val);
       else if (key === "global_index") { } // ignore
       else if (key === "tx_blob") tx.setHex(val);
@@ -720,7 +725,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setSrcAccountIndex(accountIdx);
       tx.setSrcSubaddressIndex(0); // TODO (monero-wallet-rpc): outgoing subaddress idx is always 0
       if (!tx.getDoNotRelay()) {
-        if (tx.getTimestamp() === undefined) tx.setTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
+        if (tx.getLastRelayedTime() === undefined) tx.setLastRelayedTime(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
         if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
         if (tx.getIsDoubleSpend() === undefined) tx.setIsDoubleSpend(false);
       }

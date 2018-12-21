@@ -71,6 +71,19 @@ class TestUtils {
     assert(num.toJSValue() >= 0);
     if (nonZero) assert(num.toJSValue() > 0);
   }
+  
+  /**
+   * Asserts that two txs are compatible / mergeable.  In other words, ensures
+   * they are the same transaction, perhaps just different in time / state.
+   * 
+   * @param {MoneroTx} tx1 is a tx to test as compatible
+   * @param {MoneroTx} tx2 is a tx to test as compatible
+   */
+  static assertTxsMergeable(tx1, tx2) {
+    tx1 = tx1.copy()
+    tx2 = tx2.copy();
+    tx1.merge(tx2);
+  }
 }
 
 // ---------------------------- STATIC TEST CONFIG ----------------------------

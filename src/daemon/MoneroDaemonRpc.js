@@ -494,11 +494,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
     // initialize from rpc map
     for (let key of Object.keys(rpcTx)) {
       let val = rpcTx[key];
-      if (key === "as_hex") MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, val);
-      else if (key === "block_timestamp" || key == "last_relayed_time" || key === "receive_time") MoneroUtils.safeSet(tx, tx.getTimestamp, tx.setTimestamp, val);
+      if (key === "tx_hash" || key === "id_hash") MoneroUtils.safeSet(tx, tx.getId, tx.setId, val);
+      else if (key === "block_timestamp") MoneroUtils.safeSet(tx, tx.getBlockTimestamp, tx.setBlockTimestamp, val);
+      else if (key === "last_relayed_time") MoneroUtils.safeSet(tx, tx.getLastRelayedTime, tx.setLastRelayedTime, val);
+      else if (key === "receive_time") MoneroUtils.safeSet(tx, tx.getReceivedTime, tx.setReceivedTime, val);
       else if (key === "in_pool") MoneroUtils.safeSet(tx, tx.getIsConfirmed, tx.setIsConfirmed, !val);
       else if (key === "double_spend_seen") MoneroUtils.safeSet(tx, tx.getIsDoubleSpend, tx.setIsDoubleSpend, val);
-      else if (key === "tx_hash" || key === "id_hash") MoneroUtils.safeSet(tx, tx.getId, tx.setId, val);
       else if (key === "version") MoneroUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);
       else if (key === "extra") MoneroUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
       else if (key === "vin") MoneroUtils.safeSet(tx, tx.getVin, tx.setVin, val);
@@ -507,8 +508,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "rctsig_prunable") MoneroUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
       else if (key === "unlock_time") MoneroUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, val);
       else if (key === "as_json" || key === "tx_json") MoneroDaemonRpc._buildTx(JSON.parse(val), tx);  // may need to read tx from json str
-      else if (key === "tx_blob") MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, val);
-      else if (key === "blob_size" || key === "weight") MoneroUtils.safeSet(tx, tx.getWeight, tx.setWeight, val);
+      else if (key === "as_hex" || key === "tx_blob") MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, val);
+      else if (key === "blob_size") MoneroUtils.safeSet(tx, tx.getSize, tx.setSize, val);
+      else if (key === "weight") MoneroUtils.safeSet(tx, tx.getWeight, tx.setWeight, val);
       else if (key === "fee") MoneroUtils.safeSet(tx, tx.getFee, tx.setFee, new BigInteger(val));
       else if (key === "relayed") MoneroUtils.safeSet(tx, tx.getIsRelayed, tx.setIsRelayed, val);
       else if (key === "output_indices") MoneroUtils.safeSet(tx, tx.getOutputIndices, tx.setOutputIndices, val);

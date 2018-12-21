@@ -333,7 +333,7 @@ class TestWalletCommon {
       for (let i = 0; i < txs1.length; i++) {
         await testTxWalletGet(txs1[i], wallet, unbalancedTxIds);
         await testTxWalletGet(txs2[i], wallet, unbalancedTxIds);
-        assert.deepEqual(txs1[i], txs2[i]);
+        TestUtils.assertTxsMergeable(txs1[i], txs2[i]);
         if (txs1[i].getIsIncoming()) {
           for (let payment of txs1[i].getPayments()) {
             if (payment.getAccountIndex() !== 0 && payment.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
@@ -970,32 +970,38 @@ async function testTxWalletGetIncoming(tx, wallet) {
   assert.equal(undefined, tx.getNote());
   
   // TODO (monero-wallet-rpc): incoming txs are occluded by outgoing counterparts from same account (https://github.com/monero-project/monero/issues/4500) and then incoming_transfers need address, fee, timestamp, unlock_time, is_double_spend, height, tx_size
-//  if (tx.getFee() === undefined) console.log("WARNING: incoming transaction is occluded by outgoing counterpart (#4500): " + tx.getId());
+  //if (tx.getFee() === undefined) console.log("WARNING: incoming transaction is occluded by outgoing counterpart (#4500): " + tx.getId());
 //  if (tx.getFee() === undefined) console.log("WARNING: incoming transaction is missing fee: " + tx.getId());
-//  if (tx.getTimestamp() === undefined) console.log("WARNING: incoming transaction is missing timestamp: " + tx.getId());
 //  if (tx.getUnlockTime() === undefined) console.log("WARNING: incoming transaction is missing unlock_time: " + tx.getId());
 //  if (tx.getIsDoubleSpend() === undefined) console.log("WARNING: incoming transaction is missing is_double_spend: " + tx.getId());
   if (tx.getFee() === undefined) {} // TODO: remove once #4500 fixed
-  else assert(!tx.getIsDoubleSpend());
+  else assert.equal(false, tx.getIsDoubleSpend());
   assert.equal(undefined, tx.getHex());
+//  if (tx.getSize() === undefined) console.log("WARNING: incoming transaction is missing size: " + tx.getId());
   assert.equal(undefined, tx.getMetadata());
   
   // test confirmed
   if (tx.getIsConfirmed()) {
     assert.equal(undefined, tx.getKey());
 //    if (tx.getHeight() === undefined) console.log("WARNING: incoming transaction is missing height: " + tx.getId());
+//    if (tx.getBlockTimestamp() === undefined) console.log("WARNING: incoming transaction is missing block timestamps: " + tx.getId());
 //    if (tx.getNumConfirmations() === undefined) console.log("WARNING: incoming transaction is missing confirmations: " + tx.getId());
     if (tx.getNumConfirmations() === undefined) {} // TODO: remove once #4500 fixed
     else assert(tx.getNumConfirmations() > 0);
     assert.equal(undefined, tx.getNumEstimatedBlocksUntilConfirmed());
+    assert.equal(undefined, tx.getLastRelayedTime());
+    assert.equal(undefined, tx.getReceivedTime());
   }
   
   // test unconfirmed
   else {
     assert.equal(undefined, tx.getKey());
     assert.equal(undefined, tx.getHeight());
+    assert.equal(undefined, tx.getBlockTimestamp());
     assert.equal(0, tx.getNumConfirmations());
     assert(tx.getNumEstimatedBlocksUntilConfirmed() > 0);
+    assert.equal(undefined, tx.getLastRelayedTime());
+    assert(tx.getReceivedTime() > 0); // TODO: might need to log warning given #4500
   }
   
   // test payments
@@ -1039,9 +1045,9 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments, unbalanc
   assert.notEqual(MoneroTx.DEFAULT_PAYMENT_ID, tx.getPaymentId());
   assert(isUnsignedBigInteger(tx.getFee()));
   assert.equal(undefined, tx.getMixin());
-  assert.equal(undefined, tx.getWeight()); // TODO (monero-wallet-rpc): add tx_size to get_transfers and get_transfer_by_txid
+  assert.equal(undefined, tx.getSize());   // TODO (monero-wallet-rpc): add tx_size to get_transfers and get_transfer_by_txid
+  assert.equal(undefined, tx.getWeight());
   assert(tx.getNote() === undefined || tx.getNote().length > 0);
-  assert(tx.getTimestamp() >= 0);
   assert.equal(0, tx.getUnlockTime());
   assert(typeof tx.getIsDoubleSpend() === "boolean");
   assert.equal(undefined, tx.getKey());
@@ -1051,15 +1057,22 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments, unbalanc
   // test confirmed
   if (tx.getIsConfirmed()) {
     assert(tx.getHeight() >= 0);
+    assert(tx.getBlockTimestamp() > 0);
     assert(tx.getNumConfirmations() > 0);
     assert.equal(undefined, tx.getNumEstimatedBlocksUntilConfirmed());
+    assert.equal(undefined, tx.getLastRelayedTime());
+    assert.equal(undefined, tx.getReceivedTime());
   }
   
   // test mempool
   else if (tx.getInMempool()) {
     assert.equal(undefined, tx.getHeight());
+    assert.equal(undefined, tx.getBlockTimestamp());
     assert.equal(0, tx.getNumConfirmations());
     assert(tx.getNumEstimatedBlocksUntilConfirmed() > 0);
+    if (tx.getIsRelayed()) assert(tx.getLastRelayedTime() > 0);
+    else assert.equal(undefined, tx.getLastRelayedTime());
+    assert.equal(undefined, tx.getReceivedTime());
   }
   
   // test payments
@@ -1114,9 +1127,10 @@ async function testTxWalletSend(tx, config, hasKey, hasPayments, wallet) {
   else assert.equal(config.getPaymentId(), tx.getPaymentId());
   TestUtils.testUnsignedBigInteger(tx.getFee(), true);
   assert.equal(config.getMixin(), tx.getMixin());
-  assert.equal(undefined, tx.getWeight());
   assert(tx.getNote() === undefined || tx.getNote().length > 0);
-  assert(tx.getTimestamp() >= 0);
+  assert.equal(undefined, tx.getBlockTimestamp());
+  assert(tx.getLastRelayedTime() > 0);
+  assert.equal(undefined, tx.getReceivedTime());
   assert.equal(0, tx.getUnlockTime());  // TODO: test with non-zero unlock time
   assert.equal(false, tx.getIsDoubleSpend());
   if (hasKey) assert(tx.getKey().length > 0);
@@ -1128,6 +1142,8 @@ async function testTxWalletSend(tx, config, hasKey, hasPayments, wallet) {
   }
   assert.equal("string", typeof tx.getHex());
   assert(tx.getHex().length > 0);
+  assert.equal(undefined, tx.getSize());
+  assert.equal(undefined, tx.getWeight());
   assert(tx.getMetadata());
   assert.equal(undefined, tx.getHeight());
   if (tx.getPayments()) {
@@ -1166,9 +1182,10 @@ async function testTxWalletSendDoNotRelay(tx, config, hasKey, hasPayments, walle
   else assert.equal(config.getPaymentId(), tx.getPaymentId());
   TestUtils.testUnsignedBigInteger(tx.getFee());
   assert.equal(config.getMixin(), tx.getMixin());
-  assert.equal(undefined, tx.getWeight());
   assert.equal(undefined, tx.getNote());
-  assert.equal(undefined, tx.getTimestamp());
+  assert.equal(undefined, tx.getBlockTimestamp());
+  assert.equal(undefined, tx.getLastRelayedTime());
+  assert.equal(undefined, tx.getReceivedTime());
   assert.equal(undefined, tx.getUnlockTime());
   assert.equal(undefined, tx.getIsDoubleSpend());
   if (hasKey) assert(tx.getKey());
@@ -1180,6 +1197,8 @@ async function testTxWalletSendDoNotRelay(tx, config, hasKey, hasPayments, walle
   }
   assert.equal("string", typeof tx.getHex());
   assert(tx.getHex().length > 0);
+  assert.equal(undefined, tx.getSize());
+  assert.equal(undefined, tx.getWeight());
   assert(tx.getMetadata());
   assert.equal(undefined, tx.getHeight());
   if (tx.getPayments()) {

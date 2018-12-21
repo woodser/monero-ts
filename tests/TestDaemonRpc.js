@@ -618,16 +618,29 @@ function testTx(tx, config) {
   // full fields come with /get_transactions, get_transaction_pool
   if (config.isFull) {
     assert(tx.getHex().length > 0);
-    assert(tx.getTimestamp() >= 0);
-    assert(!tx.getIsDoubleSpend());
+    assert.equal(false, tx.getIsDoubleSpend());
+    if (tx.getIsConfirmed()) {
+      assert(tx.getBlockTimestamp() > 0);
+      assert.equal(undefined, tx.getLastRelayedTime());
+      assert.equal(undefined, tx.getReceivedTime());
+    } else {
+      assert.equal(undefined, tx.getBlockTimestamp());
+      if (tx.getIsRelayed()) assert(tx.getLastRelayedTime() > 0);
+      else assert.equal(undefined, tx.getLastRelayedTime());
+      assert(tx.getReceivedTime() > 0);
+    }
   } else {
     assert.equal(undefined, tx.getHex());
-    assert.equal(undefined, tx.getTimestamp());
+    assert.equal(undefined, tx.getSize());
     assert.equal(undefined, tx.getIsDoubleSpend());
+    assert.equal(undefined, tx.getBlockTimestamp());
+    assert.equal(undefined, tx.getLastRelayedTime());
+    assert.equal(undefined, tx.getReceivedTime());
   }
   
   // test fields from tx pool
   if (config.fromPool) {
+    assert(tx.getSize() > 0);
     assert(tx.getWeight() > 0);
     assert.equal(false, tx.getDoNotRelay());
     assert.equal("boolean", typeof tx.getKeptByBlock());
@@ -718,7 +731,7 @@ function testDaemonConnection(connection) {
   assert(connection.getHeight() >= 0);
   assert(connection.getHost());
   assert(connection.getIp());
-  assert(connection.getLiveTime());
+  assert(connection.getLiveTime() >= 0);
   assert(typeof connection.getIsLocalIp() === "boolean");
   assert(typeof connection.getIsLocalHost() === "boolean");
   assert(connection.getPeerId());

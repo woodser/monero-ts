@@ -33,6 +33,7 @@ package asm for browser build under different directory (MyMoneroCoreBridge.js:7
 JS now has native BigInt class which could be used instead of current BigInteger
 support setting daemon log level
 
-RPC SUGGESTED IMPOVEMENTS
+RPC QUESTIONS / SUGGESTIONS
 /get_transactions returns duplicate data per transaction
 non-standardized ("portable binary storage") serialization/deserialization for binary requests adds complexity to clients
+tx.getHex().length !== tx_size?
