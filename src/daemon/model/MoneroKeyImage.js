@@ -14,7 +14,7 @@ class MoneroKeyImage extends MoneroDaemonModel {
     return this.json.keyImage;
   }
 
-  setKeyImage(keyImage) {
+  setKeyImage(keyImage) { // TODO: replace with setId(), getId()?
     this.json.keyImage = keyImage;
   }
 
