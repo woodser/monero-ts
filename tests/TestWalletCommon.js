@@ -9,6 +9,7 @@ const MoneroTx = require("../src/daemon/model/MoneroTx");
 const MoneroTxWallet = require("../src/wallet/model/MoneroTxWallet");
 const MoneroTxFilter = require("../src/wallet/model/MoneroTxFilter");
 const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
+const MoneroPayment = require("../src/wallet/model/MoneroPayment");
 
 // test constants
 const MIXIN = 11;
@@ -811,12 +812,108 @@ class TestWalletCommon {
     }
     
     it("Can send to multiple addresses in a single transaction", async function() {
-      throw new Error("Not implemented");
+      await testSendToMultiple(5, 3, false);
     });
     
     it("Can send to multiple addresses in split transactions", async function() {
-      throw new Error("Not implemented");
+      await testSendToMultiple(5, 3, true);
     });
+    
+    /**
+     * Sends funds from the first unlocked account to multiple accounts and subaddresses.
+     * 
+     * @param numAccounts is the number of accounts to receive funds
+     * @param numSubaddressesPerAccount is the number of subaddresses per account to receive funds
+     * @param canSplit specifies if the operation can be split into multiple transactions
+     */
+    async function testSendToMultiple(numAccounts, numSubaddressesPerAccount, canSplit) {
+      
+      // test constants
+      let totalSubaddresses = numAccounts * numSubaddressesPerAccount;
+      let minAccountAmount = TestUtils.MAX_FEE.multiply(new BigInteger(totalSubaddresses)).multiply(new BigInteger(SEND_DIVISOR)).add(TestUtils.MAX_FEE); // account balance must be more than divisor * fee * numAddresses + fee so each destination amount is at least a fee's worth 
+      
+      // send funds from first account with sufficient unlocked funds
+      let srcAccount;
+      let hasBalance = true;
+      for (let account of await wallet.getAccounts()) {
+        if (account.getBalance().compare(minAccountAmount) > 0) hasBalance = true;
+        if (account.getUnlockedBalance().compare(minAccountAmount) > 0) {
+          srcAccount = account;
+          break;
+        }
+      }
+      assert(hasBalance, "Wallet does not have enough balance; load '" + TestUtils.WALLET_NAME_1 + "' with XMR in order to test sending");
+      assert(srcAccount, "Wallet is waiting on unlocked funds");
+      
+      // get amount to send per address
+      let balance = srcAccount.getBalance();
+      let unlockedBalance = srcAccount.getUnlockedBalance();
+      let sendAmount = unlockedBalance.subtract(TestUtils.MAX_FEE).divide(new BigInteger(SEND_DIVISOR));
+      let sendAmountPerSubaddress = sendAmount.divide(new BigInteger(totalSubaddresses));
+      
+      // create minimum number of accounts
+      let accounts = await wallet.getAccounts();
+      for (let i = 0; i < numAccounts - accounts.length; i++) {
+        await wallet.createAccount();
+      }
+      
+      // create minimum number of subaddresses per account and collect destination addresses
+      let destinationAddresses = [];
+      for (let i = 0; i < numAccounts; i++) {
+        let subaddresses = await wallet.getSubaddresses(i);
+        for (let j = 0; j < numSubaddressesPerAccount - subaddresses.length; j++) await wallet.createSubaddress(i);
+        subaddresses = await wallet.getSubaddresses(i);
+        assert(subaddresses.length >= numSubaddressesPerAccount);
+        for (let j = 0; j < numSubaddressesPerAccount; j++) destinationAddresses.push(subaddresses[j].getAddress());
+      }
+          
+      // send to subaddresses
+      let payments = [];
+      for (let i = 0; i < destinationAddresses.length; i++) {
+        let payment = new MoneroPayment();
+        payments.push(payment);
+        payment.setAddress(destinationAddresses[i]);
+        payment.setAmount(sendAmountPerSubaddress);
+      }
+      let config = new MoneroSendConfig();
+      config.setMixin(TestUtils.MIXIN);
+      config.setAccountIndex(srcAccount.getIndex());
+      config.setPayments(payments);
+      
+      let txs = [];
+      if (canSplit) {
+        let sendTxs = await wallet.sendSplit(config);
+        for (let tx of sendTxs) txs.push(tx);
+      } else {
+        txs.push(await wallet.send(config));
+      }
+      
+      // test that wallet balance decreased
+      let account = await wallet.getAccount(srcAccount.getIndex());
+      assert(account.getBalance().compare(balance) < 0);
+      assert(account.getUnlockedBalance().compare(unlockedBalance) < 0);
+      
+      // test each transaction
+      assert(txs.length > 0);
+      let txSum = new BigInteger(0);
+      for (let tx of txs) {
+        await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
+        txSum = txSum.add(tx.getTotalAmount());
+        if (tx.getPayments() !== undefined) {
+          let paymentSum = new BigInteger(0);
+          for (let payment of tx.getPayments()) {
+            assert(destinationAddresses.includes(payment.getAddress()));
+            paymentSum = paymentSum.add(payment.getAmount());
+          }
+          assert(tx.getTotalAmount().compare(paymentSum) === 0);  // assert that payments sum up to tx amount
+        }
+      }
+      
+      // assert that tx amounts sum up the amount sent within a small margin
+      if (Math.abs(sendAmount.subtract(txSum).toJSValue()) > SEND_MAX_DIFF) { // send amounts may be slightly different
+        throw new Error("Tx amounts are too different: " + sendAmount + " - " + txSum + " = " + sendAmount.subtract(txSum));
+      }
+    }
     
     it("Can send from multiple subaddresses in a single transaction", async function() {
       throw new Error("Not implemented");
