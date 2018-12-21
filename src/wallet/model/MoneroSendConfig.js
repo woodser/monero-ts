@@ -97,7 +97,9 @@ class MoneroSendConfig {
     this.doNotRelay = doNotRelay;
   }
   
-  getBelowAmount() {
+  // TODO: could extend this class to make MoneroSweepConfig with these params
+  
+  getBelowAmount() {  // TODO: specific to sweep?
     return this.belowAmount;
   }
   
