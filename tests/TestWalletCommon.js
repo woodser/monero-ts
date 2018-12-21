@@ -43,9 +43,9 @@ class TestWalletCommon {
     let that = this;
     let liteMode = true;
     describe("Common Wallet Tests", function() {
-      describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
-        that._runNonSendTests(liteMode);
-      });
+//      describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
+//        that._runNonSendTests(liteMode);
+//      });
       describe("Send Tests", function() {
         that._runSendTests();
       });
@@ -707,26 +707,26 @@ class TestWalletCommon {
     let wallet = this.wallet;
     let daemon = this.daemon;
     
-    it("Can send to an address in a single transaction", async function() {
-      await testSendToSingle(false, undefined, false);
-    });
-    
-    it("Can send to an address in a single transaction with a payment id", async function() {
-      let integratedAddress = await wallet.getIntegratedAddress();
-      await testSendToSingle(false, integratedAddress.getPaymentId(), false);
-    });
-    
-    it("Can create a transaction to send to a single address then relay the transaction", async function() {
-      await testSendToSingle(false, undefined, true);
-    });
-    
-    it("Can send to an address with split transactions", async function() {
-      await testSendToSingle(true, undefined, false);
-    });
-    
-    it("Can create split transactions to send to a single address then relay the transactions", async function() {
-      await testSendToSingle(true, undefined, true);
-    });
+//    it("Can send to an address in a single transaction", async function() {
+//      await testSendToSingle(false, undefined, false);
+//    });
+//    
+//    it("Can send to an address in a single transaction with a payment id", async function() {
+//      let integratedAddress = await wallet.getIntegratedAddress();
+//      await testSendToSingle(false, integratedAddress.getPaymentId(), false);
+//    });
+//    
+//    it("Can create a transaction to send to a single address then relay the transaction", async function() {
+//      await testSendToSingle(false, undefined, true);
+//    });
+//    
+//    it("Can send to an address with split transactions", async function() {
+//      await testSendToSingle(true, undefined, false);
+//    });
+//    
+//    it("Can create split transactions to send to a single address then relay the transactions", async function() {
+//      await testSendToSingle(true, undefined, true);
+//    });
     
     async function testSendToSingle(canSplit, paymentId, doNotRelay) {
       
@@ -811,13 +811,13 @@ class TestWalletCommon {
       }
     }
     
-    it("Can send to multiple addresses in a single transaction", async function() {
-      await testSendToMultiple(5, 3, false);
-    });
-    
-    it("Can send to multiple addresses in split transactions", async function() {
-      await testSendToMultiple(5, 3, true);
-    });
+//    it("Can send to multiple addresses in a single transaction", async function() {
+//      await testSendToMultiple(5, 3, false);
+//    });
+//    
+//    it("Can send to multiple addresses in split transactions", async function() {
+//      await testSendToMultiple(5, 3, true);
+//    });
     
     /**
      * Sends funds from the first unlocked account to multiple accounts and subaddresses.
@@ -916,12 +916,111 @@ class TestWalletCommon {
     }
     
     it("Can send from multiple subaddresses in a single transaction", async function() {
-      throw new Error("Not implemented");
+      await testSendFromMultiple(false);
     });
     
     it("Can send from multiple subaddresses in split transactions", async function() {
-      throw new Error("Not implemented");
+      await testSendFromMultiple(true);
     });
+    
+    async function testSendFromMultiple(canSplit) {
+      
+      let NUM_SUBADDRESSES = 2; // number of subaddresses to send from
+      
+      // get first account with (NUM_SUBADDRESSES + 1) subaddresses with unlocked balances
+      let accounts = await wallet.getAccounts(true);
+      assert(accounts.length >= 2, "This test requires at least 2 accounts.  Run testSendToMultiple() first");
+      let srcAccount;
+      let unlockedSubaddresses = [];
+      let hasBalance = false;
+      for (let account of accounts) {
+        unlockedSubaddresses.length = 0;
+        let numSubaddressBalances = 0;
+        for (let subaddress of await account.getSubaddresses()) {
+          if (subaddress.getBalance().compare(TestUtils.MAX_FEE) > 0) numSubaddressBalances++;
+          if (subaddress.getUnlockedBalance().compare(TestUtils.MAX_FEE) > 0) unlockedSubaddresses.push(subaddress);
+        }
+        if (numSubaddressBalances >= NUM_SUBADDRESSES + 1) hasBalance = true;
+        if (unlockedSubaddresses.length >= NUM_SUBADDRESSES + 1) {
+          srcAccount = account;
+          break;
+        }
+      }
+      assert(hasBalance, "Wallet does not have account with " + (NUM_SUBADDRESSES + 1) + " subaddresses with balances.  Run testSendToMultiple() first");
+      assert(unlockedSubaddresses.length >= NUM_SUBADDRESSES + 1, "Wallet is waiting on unlocked funds");
+      
+      // determine the indices of the first two subaddresses with unlocked balances
+      let fromSubaddressIndices = [];
+      for (let i = 0; i < NUM_SUBADDRESSES; i++) {
+        fromSubaddressIndices.push(unlockedSubaddresses[i].getSubaddressIndex());
+      }
+      
+      // determine the amount to send (slightly less than the sum to send from)
+      let sendAmount = new BigInteger(0);
+      for (let fromSubaddressIdx of fromSubaddressIndices) {
+        sendAmount = sendAmount.add(srcAccount.getSubaddresses()[fromSubaddressIdx].getUnlockedBalance()).subtract(TestUtils.MAX_FEE);
+      }
+      
+      let fromBalance = new BigInteger(0);
+      let fromUnlockedBalance = new BigInteger(0);
+      for (let subaddressIdx of fromSubaddressIndices) {
+        let subaddress = await wallet.getSubaddress(srcAccount.getIndex(), subaddressIdx);
+        fromBalance = fromBalance.add(subaddress.getBalance());
+        fromUnlockedBalance = fromUnlockedBalance.add(subaddress.getUnlockedBalance());
+      }
+      
+      // send from the first subaddresses with unlocked balances
+      let address = await wallet.getPrimaryAddress();
+      let config = new MoneroSendConfig(address, sendAmount);
+      config.setAccountIndex(srcAccount.getIndex());
+      config.setSubaddressIndices(fromSubaddressIndices);
+      config.setMixin(TestUtils.MIXIN);
+      let txs = [];
+      if (canSplit) {
+        let sendTxs = await wallet.sendSplit(config);
+        for (let tx of sendTxs) txs.push(tx);
+      } else {
+        txs.push(await wallet.send(config));
+      }
+      
+      // test that balances of intended subaddresses decreased
+      let accountsAfter = await wallet.getAccounts(true);
+      assert.equal(accounts.length, accountsAfter.length);
+      for (let i = 0; i < accounts.length; i++) {
+        assert.equal(accounts[i].getSubaddresses().length, accountsAfter[i].getSubaddresses().length);
+        for (let j = 0; j < accounts[i].getSubaddresses().length; j++) {
+          let subaddressBefore = accounts[i].getSubaddresses()[j];
+          let subaddressAfter = accountsAfter[i].getSubaddresses()[j];
+          if (i === srcAccount.getIndex() && fromSubaddressIndices.includes(j)) {
+            assert(subaddressAfter.getUnlockedBalance().compare(subaddressBefore.getUnlockedBalance()) < 0, "Subaddress [" + i + "," + j + "] unlocked balance should have decreased"); // TODO: Subaddress [0,1] unlocked balance should have decreased          
+          } else {
+            assert(subaddressAfter.getUnlockedBalance().compare(subaddressBefore.getUnlockedBalance()) === 0, "Subaddress [" + i + "," + j + "] unlocked balance should not have changed");          
+          }
+        }
+      }
+      
+      // test each transaction
+      assert(txs.length > 0);
+      let txSum = new BigInteger(0);
+      for (let tx of txs) {
+        await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
+        txSum = txSum.add(tx.getTotalAmount());
+        if (tx.getPayments() !== undefined) {
+          assert.equal(1, tx.getPayments().length);
+          let paymentSum = new BigInteger(0);
+          for (let payment of tx.getPayments()) {
+            assert.equal(address, payment.getAddress());
+            paymentSum = paymentSum.add(payment.getAmount());
+          }
+          assert(tx.getTotalAmount().compare(paymentSum) === 0);  // assert that payment amounts sum up to tx amount
+        }
+      }
+      
+      // assert that tx amounts sum up the amount sent within a small margin
+      if (Math.abs(sendAmount.subtract(txSum).toJSValue()) > SEND_MAX_DIFF) { // send amounts may be slightly different
+        throw new Error("Tx amounts are too different: " + sendAmount + " - " + txSum + " = " + sendAmount.subtract(txSum));
+      }
+    }
     
     it("Can sweep dust", async function() {
       throw new Error("Not implemented");
