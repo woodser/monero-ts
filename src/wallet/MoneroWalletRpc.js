@@ -572,6 +572,8 @@ class MoneroWalletRpc extends MoneroWallet {
         }
         tx.setPayments(payments);
       }
+      else if (key === "multisig_txset" && !val) {} // TODO: handle this with value
+      else if (key === "unsigned_txset" && !val) {} // TODO: handle this with value
       else console.log("WARNING: ignoring unexpected transaction field: '" + key + "': " + val);
     }
     
