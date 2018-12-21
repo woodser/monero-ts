@@ -234,6 +234,16 @@ class MoneroWallet {
   }
   
   /**
+   * Sweep all unmixable dust outputs back to the wallet to make them easier to spend and mix.
+   * 
+   * @param doNotRelay specifies if the resulting transaction should not be relayed (defaults to false i.e. relayed)
+   * @return {MoneroTxWallet[]} are the resulting transactions from sweeping dust
+   */
+  async sweepDust(doNotRelay) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Relays tranactions previously created without relaying.
    * 
    * @param txs are the transactions to relay

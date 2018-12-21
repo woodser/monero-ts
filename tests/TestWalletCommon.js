@@ -453,7 +453,7 @@ class TestWalletCommon {
     });
     
     if (!liteMode) {
-      it("Can get wallet transactions with a filter", async function() {
+      it("Can get wallet transactions with a filter", async function() {  // TODO: Timeout of 1000000ms exceeded. For async tests and hooks, ensure "done()" is called
         if (liteMode) return; // skips test if lite
         
         // get all transactions for reference
@@ -775,7 +775,7 @@ class TestWalletCommon {
         // test transactions
         testCommonTxSets(txs, false, false, false);
         for (let tx of txs) {
-          await testTxWalletSendDoNotRelay(tx, config, !canSplit, !canSplit, wallet);
+          await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
         }
         
         // relay transactions
@@ -791,6 +791,7 @@ class TestWalletCommon {
       // test transactions
       assert(txs.length > 0);
       testCommonTxSets(txs, false, false, false);
+      config.setDoNotRelay(false);  // in order to test that txs have been relayed
       for (let tx of txs) {
         await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
         assert.equal(fromAccount.getIndex(), tx.getSrcAccountIndex());
@@ -1021,6 +1022,24 @@ class TestWalletCommon {
         throw new Error("Tx amounts are too different: " + sendAmount + " - " + txSum + " = " + sendAmount.subtract(txSum));
       }
     }
+    
+    it("Can sweep dust without relaying", async function() {
+      
+      // sweep dust
+      let txs = await wallet.sweepDust(true);
+      assert(Array.isArray(txs));
+      assert(txs.length > 0, "No dust to sweep");
+      
+      // test txs
+      for (let tx of txs) {
+        let config = new MoneroSendConfig();
+        config.setDoNotRelay(true);
+        await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
+      }
+      
+      // relay txs
+      throw new Error("Not implemented");
+    });
     
     it("Can sweep dust", async function() {
       let txs = await wallet.sweepDust();
@@ -1316,13 +1335,24 @@ async function testTxWalletSend(tx, config, hasKey, hasPayments, wallet) {
   assert.equal(true, tx.getIsOutgoing());
   assert.equal(false, tx.getIsIncoming());
   assert.equal(false, tx.getIsConfirmed());
-  assert.equal(true, tx.getInMempool());
-  assert.equal(false, tx.getDoNotRelay());
-  assert.equal(true, tx.getIsRelayed());
+  if (config.getDoNotRelay()) {
+    assert.equal(false, tx.getInMempool());
+    assert.equal(true, tx.getDoNotRelay());
+    assert.equal(false, tx.getIsRelayed());
+    assert.equal(undefined, tx.getLastRelayedTime());
+    assert.equal(undefined, tx.getUnlockTime());
+    assert.equal(undefined, tx.getIsDoubleSpend());
+  } else {
+    assert.equal(true, tx.getInMempool());
+    assert.equal(false, tx.getDoNotRelay());
+    assert.equal(true, tx.getIsRelayed());
+    assert(tx.getLastRelayedTime() > 0);
+    assert.equal(0, tx.getUnlockTime());  // TODO: test with non-zero unlock time
+    assert.equal(false, tx.getIsDoubleSpend());
+  }
   assert(tx.getSrcAddress());
-  assert(tx.getSrcAccountIndex() >= 0);
-  assert(tx.getSrcSubaddressIndex() >= 0);
   assert.equal(await wallet.getAddress(tx.getSrcAccountIndex(), tx.getSrcSubaddressIndex()), tx.getSrcAddress());
+  assert(tx.getSrcAccountIndex() >= 0);
   assert.equal(0, tx.getSrcSubaddressIndex());
   TestUtils.testUnsignedBigInteger(tx.getTotalAmount());
   if (MoneroTx.DEFAULT_PAYMENT_ID === config.getPaymentId()) assert.equal(undefined, tx.getPaymentId());
@@ -1331,66 +1361,8 @@ async function testTxWalletSend(tx, config, hasKey, hasPayments, wallet) {
   assert.equal(config.getMixin(), tx.getMixin());
   assert(tx.getNote() === undefined || tx.getNote().length > 0);
   assert.equal(undefined, tx.getBlockTimestamp());
-  assert(tx.getLastRelayedTime() > 0);
   assert.equal(undefined, tx.getReceivedTime());
-  assert.equal(0, tx.getUnlockTime());  // TODO: test with non-zero unlock time
-  assert.equal(false, tx.getIsDoubleSpend());
   if (hasKey) assert(tx.getKey().length > 0);
-  else assert.equal(undefined, tx.getKey());
-  if (hasPayments) {
-    assert(Array.isArray(tx.getPayments()));
-    assert(tx.getPayments().length > 0);
-    assert.deepEqual(config.getPayments(), tx.getPayments());
-  }
-  assert.equal("string", typeof tx.getHex());
-  assert(tx.getHex().length > 0);
-  assert.equal(undefined, tx.getSize());
-  assert.equal(undefined, tx.getWeight());
-  assert(tx.getMetadata());
-  assert.equal(undefined, tx.getHeight());
-  if (tx.getPayments()) {
-    let totalAmount = new BigInteger(0);
-    for (let payment of tx.getPayments()) {
-      assert(payment.getAddress());
-      MoneroUtils.validateAddress(payment.getAddress());
-      assert.equal(undefined, payment.getAccountIndex());
-      assert.equal(undefined, payment.getSubaddressIndex());
-      TestUtils.testUnsignedBigInteger(payment.getAmount(), true);
-      assert.equal(undefined, payment.getIsSpent());
-      assert.equal(undefined, payment.getKeyImage());
-      totalAmount = totalAmount.add(payment.getAmount());
-    }
-    assert(totalAmount.compare(tx.getTotalAmount()) === 0, "Total amount is not sum of payments: " + tx.getTotalAmount() + " vs " + totalAmount + " for TX " + tx.getId());
-  }
-}
-
-async function testTxWalletSendDoNotRelay(tx, config, hasKey, hasPayments, wallet) {
-  testTxWalletCommon(tx);
-  assert(tx.getId());
-  assert.equal(true, tx.getIsOutgoing());
-  assert.equal(false, tx.getIsIncoming());
-  assert.equal(false, tx.getIsConfirmed());
-  assert.equal(false, tx.getInMempool());
-  assert.equal(true, tx.getDoNotRelay());
-  assert.equal(false, tx.getIsRelayed());
-  assert(tx.getSrcAddress());
-  assert(tx.getSrcAccountIndex() >= 0);
-  assert(tx.getSrcSubaddressIndex() >= 0);
-  assert.equal(await wallet.getAddress(tx.getSrcAccountIndex(), tx.getSrcSubaddressIndex()), tx.getSrcAddress());
-  assert.equal(0, tx.getSrcSubaddressIndex());
-  assert.equal(config.getAccountIndex(), tx.getSrcAccountIndex());
-  TestUtils.testUnsignedBigInteger(tx.getTotalAmount());
-  if (MoneroTx.DEFAULT_PAYMENT_ID === config.getPaymentId()) assert.equal(undefined, tx.getPaymentId());
-  else assert.equal(config.getPaymentId(), tx.getPaymentId());
-  TestUtils.testUnsignedBigInteger(tx.getFee());
-  assert.equal(config.getMixin(), tx.getMixin());
-  assert.equal(undefined, tx.getNote());
-  assert.equal(undefined, tx.getBlockTimestamp());
-  assert.equal(undefined, tx.getLastRelayedTime());
-  assert.equal(undefined, tx.getReceivedTime());
-  assert.equal(undefined, tx.getUnlockTime());
-  assert.equal(undefined, tx.getIsDoubleSpend());
-  if (hasKey) assert(tx.getKey());
   else assert.equal(undefined, tx.getKey());
   if (hasPayments) {
     assert(Array.isArray(tx.getPayments()));
