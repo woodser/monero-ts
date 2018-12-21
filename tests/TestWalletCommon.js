@@ -1025,20 +1025,24 @@ class TestWalletCommon {
     
     it("Can sweep dust without relaying", async function() {
       
-      // sweep dust
+      // generate non-relayed transactions to sweep dust
       let txs = await wallet.sweepDust(true);
       assert(Array.isArray(txs));
       assert(txs.length > 0, "No dust to sweep");
       
       // test txs
+      let config = new MoneroSendConfig();
+      config.setDoNotRelay(true);
       for (let tx of txs) {
-        let config = new MoneroSendConfig();
-        config.setDoNotRelay(true);
         await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
       }
       
-      // relay txs
-      throw new Error("Not implemented");
+      // relay and test txs
+      txs = await wallet.relayTxs(txs);
+      config.setDoNotRelay(false);
+      for (let tx of txs) {
+        await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
+      }
     });
     
     it("Can sweep dust", async function() {
