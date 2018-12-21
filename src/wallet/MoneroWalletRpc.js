@@ -545,7 +545,7 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   /**
-   * Initializes MoneroTxWallets from a list of rpc txs.
+   * Initializes a MoneroTxWallet[] from a list of rpc txs.
    * 
    * @param rpcTxs are the rpc txs to initialize the MoneroTxWallets from
    * @param txs are existing txs to initialize (optional)
