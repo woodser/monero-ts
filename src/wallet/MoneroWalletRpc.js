@@ -76,6 +76,11 @@ class MoneroWalletRpc extends MoneroWallet {
     return await this.config.rpc.sendJsonRequest("refresh");
   }
   
+  async isMultisigImportNeeded() {
+    let resp = await this.config.rpc.sendJsonRequest("get_balance");
+    return resp.multisig_import_needed === true;
+  }
+  
   async getBalance() {
     let balance = new BigInteger(0);
     for (let account of await this.getAccounts()) {

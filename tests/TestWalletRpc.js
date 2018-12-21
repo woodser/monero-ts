@@ -19,7 +19,7 @@ describe("Test Monero Wallet RPC", function() {
   new TestWalletCommon(daemon, wallet).runTests();
   
   it("Can indicate if multisig import is needed for correct balance information", async function() {
-    throw new Error("Not implemented");
+    assert.equal(false, await wallet.isMultisigImportNeeded()); // TODO: test with multisig wallet
   });
   
   it("Can create and open a wallet", async function() {
