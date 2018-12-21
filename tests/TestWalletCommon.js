@@ -43,9 +43,9 @@ class TestWalletCommon {
     let that = this;
     let liteMode = true;
     describe("Common Wallet Tests", function() {
-//      describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
-//        that._runNonSendTests(liteMode);
-//      });
+      describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
+        that._runNonSendTests(liteMode);
+      });
       describe("Send Tests", function() {
         that._runSendTests();
       });
@@ -707,26 +707,26 @@ class TestWalletCommon {
     let wallet = this.wallet;
     let daemon = this.daemon;
     
-//    it("Can send to an address in a single transaction", async function() {
-//      await testSendToSingle(false, undefined, false);
-//    });
-//    
-//    it("Can send to an address in a single transaction with a payment id", async function() {
-//      let integratedAddress = await wallet.getIntegratedAddress();
-//      await testSendToSingle(false, integratedAddress.getPaymentId(), false);
-//    });
-//    
-//    it("Can create a transaction to send to a single address then relay the transaction", async function() {
-//      await testSendToSingle(false, undefined, true);
-//    });
-//    
-//    it("Can send to an address with split transactions", async function() {
-//      await testSendToSingle(true, undefined, false);
-//    });
-//    
-//    it("Can create split transactions to send to a single address then relay the transactions", async function() {
-//      await testSendToSingle(true, undefined, true);
-//    });
+    it("Can send to an address in a single transaction", async function() {
+      await testSendToSingle(false, undefined, false);
+    });
+    
+    it("Can send to an address in a single transaction with a payment id", async function() {
+      let integratedAddress = await wallet.getIntegratedAddress();
+      await testSendToSingle(false, integratedAddress.getPaymentId(), false);
+    });
+    
+    it("Can create a transaction to send to a single address then relay the transaction", async function() {
+      await testSendToSingle(false, undefined, true);
+    });
+    
+    it("Can send to an address with split transactions", async function() {
+      await testSendToSingle(true, undefined, false);
+    });
+    
+    it("Can create split transactions to send to a single address then relay the transactions", async function() {
+      await testSendToSingle(true, undefined, true);
+    });
     
     async function testSendToSingle(canSplit, paymentId, doNotRelay) {
       
@@ -811,13 +811,13 @@ class TestWalletCommon {
       }
     }
     
-//    it("Can send to multiple addresses in a single transaction", async function() {
-//      await testSendToMultiple(5, 3, false);
-//    });
-//    
-//    it("Can send to multiple addresses in split transactions", async function() {
-//      await testSendToMultiple(5, 3, true);
-//    });
+    it("Can send to multiple addresses in a single transaction", async function() {
+      await testSendToMultiple(5, 3, false);
+    });
+    
+    it("Can send to multiple addresses in split transactions", async function() {
+      await testSendToMultiple(5, 3, true);
+    });
     
     /**
      * Sends funds from the first unlocked account to multiple accounts and subaddresses.
@@ -1023,7 +1023,12 @@ class TestWalletCommon {
     }
     
     it("Can sweep dust", async function() {
-      throw new Error("Not implemented");
+      let txs = await wallet.sweepDust();
+      assert(Array.isArray(txs));
+      assert(txs.length > 0, "No dust to sweep");
+      for (let tx of txs) {
+        await testTxWalletSend(tx, undefined, !canSplit, !canSplit, wallet);
+      }
     });
   }
   
@@ -1305,6 +1310,7 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments, unbalanc
 
 // TODO: update with latest fields
 async function testTxWalletSend(tx, config, hasKey, hasPayments, wallet) {
+  if (config === undefined) config = new MoneroSendConfig();
   testTxWalletCommon(tx);
   assert(tx.getId());
   assert.equal(true, tx.getIsOutgoing());
