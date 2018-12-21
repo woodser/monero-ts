@@ -252,6 +252,24 @@ class MoneroWallet {
   async relayTxs(txs) {
     throw new Error("Subclass must implement");
   }
+  
+  /**
+   * Start mining.
+   * 
+   * @param numThreads is the number of threads created for mining
+   * @param backgroundMining specifies if mining should occur in the background
+   * @param ignoreBattery specifies if the battery should be ignored for mining
+   */
+  async startMining(numThreads, backgroundMining, ignoreBattery) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Stop mining.
+   */
+  async stopMining() {
+    throw new Error("Subclass must implement");
+  }
 }
 
 module.exports = MoneroWallet;

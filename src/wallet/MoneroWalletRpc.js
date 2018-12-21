@@ -383,6 +383,9 @@ class MoneroWalletRpc extends MoneroWallet {
   
   // -------------------------- SPECIFIC TO RPC WALLET ------------------------
   
+  /**
+   * TODO
+   */
   async createWallet(filename, password, language) {
     if (!filename) throw new Error("Filename is not initialized");
     if (!password) throw new Error("Password is not initialized");
@@ -391,6 +394,9 @@ class MoneroWalletRpc extends MoneroWallet {
     await this.config.rpc.sendJsonRequest("create_wallet", params);
   }
   
+  /**
+   * TODO
+   */
   async openWallet(filename, password) {
     if (!filename) throw new Error("Filename is not initialized");
     if (!password) throw new Error("Password is not initialized");
@@ -400,8 +406,48 @@ class MoneroWalletRpc extends MoneroWallet {
     this.addressCache = {};
   }
   
+  /**
+   * TODO
+   */
   async rescanSpent() {
     await this.config.rpc.sendJsonRequest("rescan_spent");
+  }
+  
+  /**
+   * TODO
+   */
+  async saveBlockchain() {
+    await this.config.rpc.sendJsonRequest("store");
+  }
+  
+  /**
+   * TODO
+   * 
+   * WARNING: discards local wallet data like destination addresses
+   */
+  async rescanBlockchain() {
+    await this.config.rpc.sendJsonRequest("rescan_blockchain");
+  }
+  
+  async startMining(numThreads, backgroundMining, ignoreBattery) {
+    await this.config.rpc.sendJsonRequest("start_mining", {
+      threads_count: numThreads,
+      do_background_mining: backgroundMining,
+      ignore_battery: ignoreBattery
+    });
+  }
+  
+  async stopMining() {
+    await this.config.rpc.sendJsonRequest("stop_mining");
+  }
+  
+  /**
+   * Stop the wallet.
+   */
+  async stopWallet() {
+    await this.config.rpc.sendJsonRequest("stop_wallet");
+    delete this.addressCache;
+    this.addressCache = {};
   }
   
   // --------------------------------  PRIVATE --------------------------------

@@ -46,19 +46,11 @@ describe("Test Monero Wallet RPC", function() {
   });
 
   it("Can rescan spent", async function() {
-    throw new Error("Not implemented");
+    await wallet.rescanSpent();
   });
   
   it("Can save the blockchain", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can be stopped", async function() {
-    throw new Error("Not implemented");
-  });
-  
-  it("Can mine", async function() {
-    throw new Error("Not implemented");
+    await wallet.saveBlockchain();
   });
   
   it("Can tag accounts and query accounts by tag", async function() {
@@ -68,4 +60,9 @@ describe("Test Monero Wallet RPC", function() {
   it("Has an address book", async function() {
     throw new Error("Not implemented");
   });
+  
+  // disabled so wallet is not actually stopped
+//  it("Can be stopped", async function() {
+//    await wallet.stopWallet();
+//  });
 });
