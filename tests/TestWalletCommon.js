@@ -15,6 +15,7 @@ const MoneroPayment = require("../src/wallet/model/MoneroPayment");
 const MIXIN = 11;
 const SEND_DIVISOR = 2;
 const SEND_MAX_DIFF = 60;
+const MAX_TX_PROOFS = 25;   // maximum number of transactions to check for each proof, undefined to check all
 
 /**
  * Runs common tests that every Monero wallet implementation should support.
@@ -118,7 +119,7 @@ class TestWalletCommon {
       try {
         let invalidPaymentId = "invalid_payment_id_123456";
         integratedAddress = await wallet.getIntegratedAddress(invalidPaymentId);
-        fail("Getting integrated address with invalid payment id " + invalidPaymentId + " should have thrown a RPC exception");
+        throw new Error("Getting integrated address with invalid payment id " + invalidPaymentId + " should have thrown a RPC exception");
       } catch (e) {
         assert.equal(-5, e.getRpcCode());
         assert.equal("Invalid payment ID", e.getRpcMessage());
@@ -626,31 +627,351 @@ class TestWalletCommon {
     });
     
     it("Can get and set a transaction note", async function() {
-      throw new Error("Not implemented");
+      let txs = await getRandomTransactions(wallet, undefined, 1, 5);
+      
+      // set notes
+      let uuid = GenUtils.uuidv4();
+      for (let i = 0; i < txs.length; i++) {
+        await wallet.setTxNote(txs[i].getId(), uuid + i);
+      }
+      
+      // get notes
+      for (let i = 0; i < txs.length; i++) {
+        assert.equal(uuid + i, await wallet.getTxNote(txs[i].getId()));
+      }
     });
     
+    // TODO: why does getting cached txs take 2 seconds when should already be cached?
     it("Can get and set multiple transaction notes", async function() {
-      throw new Error("Not implemented");
+      
+      // set tx notes
+      let uuid = GenUtils.uuidv4();
+      let txs = await getCachedTxs();
+      assert(txs.length >= 3);
+      let txIds = [];
+      let txNotes = [];
+      for (let i = 0; i < txIds.length; i++) {
+        txIds.push(txs[i].getId());
+        txNotes.push(uuid + i);
+      }
+      await wallet.setTxNotes(txIds, txNotes);
+      
+      // get tx notes
+      txNotes = await wallet.getTxNotes(txIds);
+      for (let i = 0; i < txIds.length; i++) {
+        assert.equal(txNotes[i], uuid + i);
+      }
+      
+      // TODO: test that get transaction has note
     });
     
-    it("Can check a transaction using secret key", async function() {
-      throw new Error("Not implemented");
+    it("Can check a transaction using its secret key", async function() {
+      
+      // get random txs with outgoing payments
+      let filter = new MoneroTxFilter();
+      filter.setIsIncoming(false);
+      filter.setInMempool(false);
+      filter.setIsFailed(false);
+      filter.setHasPayments(true);  // requires outgoing payments which rescan_bc will destroy
+      let txs = await getRandomTransactions(wallet, filter, 1, MAX_TX_PROOFS);
+      
+      // test good checks
+      for (let tx of txs) {
+        let key = await wallet.getTxKey(tx.getId());
+        for (let payment of tx.getPayments()) {
+          let check = await wallet.checkTxKey(tx.getId(), key, payment.getAddress());
+          assert(check.getIsGood());
+          if (payment.getAmount().compare(new BigInteger()) > 0) {
+//          assert(check.getAmountReceived().compare(new BigInteger(0)) > 0); // TODO (monero-wallet-rpc): indicates amount received amount is 0 despite transaction with payment to this address
+            if (check.getAmountReceived().compare(new BigInteger(0)) === 0) {
+              console.log("WARNING: key proof indicates no funds received despite payment (txid=" + tx.getId() + ", key=" + key + ", address=" + payment.getAddress() + ", amount=" + payment.getAmount() + ")");
+            }
+          }
+          else assert(check.getAmountReceived().compare(new BigInteger(0)) === 0);
+          testCheckTx(tx, check);
+        }
+      }
+      
+      // test get tx key with invalid id
+      try {
+        await wallet.getTxKey("invalid_tx_id");
+        throw new Error("Should throw exception for invalid key");
+      } catch (e) {
+        assert.equal(-8, e.getRpcCode());
+      }
+      
+      // test check with invalid tx id
+      let tx = txs[0];
+      let key = await wallet.getTxKey(tx.getId());
+      try {
+        await wallet.checkTxKey("invalid_tx_id", key, tx.getPayments()[0].getAddress());
+        throw new Error("Should have thrown exception");
+      } catch (e) {
+        assert.equal(-8, e.getRpcCode());
+      }
+      
+      // test check with invalid key
+      try {
+        await wallet.checkTxKey(tx.getId(), "invalid_tx_key", tx.getPayments()[0].getAddress());
+        throw new Error("Should have thrown exception");
+      } catch (e) {
+        assert.equal(-25, e.getRpcCode());
+      }
+      
+      // test check with invalid address
+      try {
+        await wallet.checkTxKey(tx.getId(), key, "invalid_tx_address");
+        throw new Error("Should have thrown exception");
+      } catch (e) {
+        assert.equal(-2, e.getRpcCode());
+      }
+      
+      // test check with different address
+      let differentAddress;
+      for (let aTx of await getCachedTxs()) {
+        if (aTx.getPayments() === undefined) continue;
+        for (let aPayment of aTx.getPayments()) {
+          if (aPayment.getAddress() !== tx.getPayments()[0].getAddress()) {
+            differentAddress = aPayment.getAddress();
+            break;
+          }
+        }
+      }
+      assert(differentAddress, "Could not get a different address to test");
+      let check = await wallet.checkTxKey(tx.getId(), key, differentAddress);
+      assert(check.getIsGood());
+      assert(check.getAmountReceived().compare(new BigInteger(0)) >= 0);
+      testCheckTx(tx, check);
     });
     
-    it("Can prove a transaction by checking its signature", async function() {
-      throw new Error("Not implemented");
+    it("Can prove a transaction by getting its signature", async function() {
+      
+      // get random txs with outgoing payments
+      let filter = new MoneroTxFilter();
+      filter.setIsIncoming(false);
+      filter.setInMempool(false);
+      filter.setIsFailed(false);
+      filter.setHasPayments(true);
+      let txs = await getRandomTransactions(wallet, filter, 2, MAX_TX_PROOFS);
+      
+      // test good checks with messages
+      for (let tx of txs) {
+        for (let payment of tx.getPayments()) {
+          let signature = await wallet.getTxProof(tx.getId(), payment.getAddress(), "This transaction definitely happened.");
+          let check = await wallet.checkTxProof(tx.getId(), payment.getAddress(), "This transaction definitely happened.", signature);
+          testCheckTx(tx, check);
+        }
+      }
+      
+      // test good check without message
+      let tx = txs[0];
+      let signature = await wallet.getTxProof(tx.getId(), tx.getPayments()[0].getAddress());
+      let check = await wallet.checkTxProof(tx.getId(), tx.getPayments()[0].getAddress(), undefined, signature);
+      testCheckTx(tx, check);
+      
+      // test get proof with invalid id
+      try {
+        await wallet.getTxProof("invalid_tx_id", tx.getPayments()[0].getAddress());
+        throw new Error("Should throw exception for invalid key");
+      } catch (e) {
+        assert.equal(-8, e.getRpcCode());
+      }
+      
+      // test check with invalid tx id
+      try {
+        await wallet.checkTxProof("invalid_tx_id", tx.getPayments()[0].getAddress(), undefined, signature);
+        throw new Error("Should have thrown exception");
+      } catch (e) {
+        assert.equal(-8, e.getRpcCode());
+      }
+      
+      // test check with invalid address
+      try {
+        await wallet.checkTxProof(tx.getId(), "invalid_tx_address", undefined, signature);
+        throw new Error("Should have thrown exception");
+      } catch (e) {
+        assert.equal(-2, e.getRpcCode());
+      }
+      
+      // test check with wrong message
+      signature = await wallet.getTxProof(tx.getId(), tx.getPayments()[0].getAddress(), "This is the right message");
+      check = await wallet.checkTxProof(tx.getId(), tx.getPayments()[0].getAddress(), "This is the wrong message", signature);
+      assert.equal(false, check.getIsGood());
+      testCheckTx(tx, check);
+      
+      // test check with wrong signature
+      let wrongSignature = await wallet.getTxProof(txs[1].getId(), txs[1].getPayments()[0].getAddress(), "This is the right message");
+      try {
+        check = await wallet.checkTxProof(tx.getId(), tx.getPayments()[0].getAddress(), "This is the right message", wrongSignature);  
+        assert.equal(false, check.getIsGood());
+      } catch (e) {
+        assert.equal(-1, e.getRpcCode()); // TODO: sometimes comes back bad, sometimes throws exception.  ensure txs come from different addresses?
+      }
     });
     
     it("Can prove a spend using a generated signature and no destination public address", async function() {
-      throw new Error("Not implemented");
+      
+      // get random outgoing txs
+      let filter = new MoneroTxFilter();
+      filter.setIsIncoming(false);
+      filter.setInMempool(false);
+      filter.setIsFailed(false);
+      let txs = await getRandomTransactions(wallet, filter, 2, MAX_TX_PROOFS);
+      
+      // test good checks with messages
+      for (let tx of txs) {
+        let signature = await wallet.getSpendProof(tx.getId(), "I am a message.");
+        assert(await wallet.checkSpendProof(tx.getId(), "I am a message.", signature));
+      }
+      
+      // test good check without message
+      let tx = txs[0];
+      let signature = await wallet.getSpendProof(tx.getId());
+      assert(await wallet.checkSpendProof(tx.getId(), undefined, signature));
+      
+      // test get proof with invalid id
+      try {
+        await wallet.getSpendProof("invalid_tx_id");
+        throw new Error("Should throw exception for invalid key");
+      } catch (e) {
+        assert.equal(-8, e.getRpcCode());
+      }
+      
+      // test check with invalid tx id
+      try {
+        await wallet.checkSpendProof("invalid_tx_id", undefined, signature);
+        throw new Error("Should have thrown exception");
+      } catch (e) {
+        assert.equal(-8, e.getRpcCode());
+      }
+      
+      // test check with invalid message
+      signature = await wallet.getSpendProof(tx.getId(), "This is the right message");
+      assert.equal(false, await wallet.checkSpendProof(tx.getId(), "This is the wrong message", signature));
+      
+      // test check with wrong signature
+      signature = await wallet.getSpendProof(txs[1].getId(), "This is the right message");
+      assert.equal(false, await wallet.checkSpendProof(tx.getId(), "This is the right message", signature));
     });
     
     it("Can prove reserves in the wallet", async function() {
-      throw new Error("Not implemented");
+      
+      // get proof of entire wallet
+      let signature = await wallet.getWalletReserveProof("Test message");
+      
+      // check proof of entire wallet
+      let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Test message", signature);
+      assert(check.getIsGood());
+      testCheckReserve(check);
+      assert((await wallet.getBalance()).compare(check.getAmountTotal()) === 0);  // TODO: fails after send tests
+      
+      // test different wallet address
+      // TODO: openWallet is not common so this won't work for other wallet impls
+      await wallet.openWallet(TestUtils.WALLET_RPC_NAME_2, TestUtils.WALLET_RPC_PW_2);
+      let differentAddress = await wallet.getPrimaryAddress();
+      await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
+      try {
+        await wallet.checkReserveProof(differentAddress, "Test message", signature);
+        throw new Error("Should have thrown exception");
+      } catch (e) {
+        assert.equal(-1, e.getRpcCode());
+      }
+      
+      // test subaddress
+      try {
+        await wallet.checkReserveProof((await wallet.getSubaddress(0, 1)).getAddress(), "Test message", signature);
+        throw new Error("Should have thrown exception");
+      } catch (e) {
+        assert.equal(-1, e.getRpcCode());
+      }
+      
+      // test wrong message
+      check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Wrong message", signature);
+      assert.equal(false, check.getIsGood());  // TODO: specifically test reserve checks, probably separate objects
+      testCheckReserve(check);
+      
+      // test wrong signature
+      try {
+        await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Test message", "wrong signature");
+        throw new Error("Should have thrown exception");
+      } catch (e) {
+        assert.equal(-1, e.getRpcCode());
+      }
     });
     
     it("Can prove reserves in an account", async function() {
-      throw new Error("Not implemented");
+      
+      // test proofs of accounts
+      let numNonZeroTests = 0;
+      let msg = "Test message";
+      let accounts = await wallet.getAccounts();
+      let signature;
+      for (let account of accounts) {
+        if (account.getBalance().compare(new BigInteger(0)) > 0) {
+          let checkAmount = (await account.getBalance()).divide(new BigInteger(2));
+          signature = await wallet.getAccountReserveProof(account.getIndex(), checkAmount, msg);
+          let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), msg, signature);
+          assert(check.getIsGood());
+          testCheckReserve(check);
+          assert(check.getAmountTotal().compare(checkAmount) >= 0);
+          numNonZeroTests++;
+        } else {
+          try {
+            await wallet.getAccountReserveProof(account.getIndex(), account.getBalance(), msg);
+            throw new Error("Should have thrown exception");
+          } catch (e) {
+            assert.equal(-1, e.getRpcCode());
+            try {
+              await wallet.getAccountReserveProof(account.getIndex(), TestUtils.MAX_FEE, msg);
+              throw new Error("Should have thrown exception");
+            } catch (e2) {
+              assert.equal(-1, e2.getRpcCode());
+            }
+          }
+        }
+      }
+      assert(numNonZeroTests > 1, "Must have more than one account with non-zero balance; run testSendToMultiple() first");
+      
+      // test error when not enough balance for requested minimum reserve amount
+      try {
+        await wallet.getAccountReserveProof(0, accounts[0].getBalance().add(TestUtils.MAX_FEE), "Test message");
+        throw new Error("Should have thrown exception");
+      } catch (e) {
+        assert.equal(-1, e.getRpcCode());
+      }
+      
+      // test different wallet address
+      // TODO: openWallet is not common so this won't work for other wallet impls
+      await wallet.openWallet(TestUtils.WALLET_RPC_NAME_2, TestUtils.WALLET_RPC_PW_2);
+      let differentAddress = await wallet.getPrimaryAddress();
+      await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
+      try {
+        await wallet.checkReserveProof(differentAddress, "Test message", signature);
+        throw new Error("Should have thrown exception");
+      } catch (e) {
+        assert.equal(-1, e.getRpcCode());
+      }
+      
+      // test subaddress
+      try {
+        await wallet.checkReserveProof((await wallet.getSubaddress(0, 1)).getAddress(), "Test message", signature);
+        throw new Error("Should have thrown exception");
+      } catch (e) {
+        assert.equal(-1, e.getRpcCode());
+      }
+      
+      // test wrong message
+      let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Wrong message", signature);
+      assert.equal(false, check.getIsGood()); // TODO: specifically test reserve checks, probably separate objects
+      testCheckReserve(check);
+      
+      // test wrong signature
+      try {
+        await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Test message", "wrong signature");
+        throw new Error("Should have thrown exception");
+      } catch (e) {
+        assert.equal(-1, e.getRpcCode());
+      }
     });
     
     it("Can get outputs in hex format", async function() {
@@ -848,7 +1169,7 @@ class TestWalletCommon {
           break;
         }
       }
-      assert(hasBalance, "Wallet does not have enough balance; load '" + TestUtils.WALLET_NAME_1 + "' with XMR in order to test sending");
+      assert(hasBalance, "Wallet does not have enough balance; load '" + TestUtils.WALLET_RPC_NAME_1 + "' with XMR in order to test sending");
       assert(srcAccount, "Wallet is waiting on unlocked funds");
       
       // get amount to send per address
@@ -1196,7 +1517,7 @@ async function testTxWalletGetIncoming(tx, wallet) {
   assert.notEqual(MoneroTx.DEFAULT_PAYMENT_ID, tx.getPaymentId());
   assert.equal(undefined, tx.getMixin());
   assert.equal(undefined, tx.getWeight());
-  assert.equal(undefined, tx.getNote());
+  assert(tx.getNote() === undefined || tx.getNote().length > 0);
   
   // TODO (monero-wallet-rpc): incoming txs are occluded by outgoing counterparts from same account (https://github.com/monero-project/monero/issues/4500) and then incoming_transfers need address, fee, timestamp, unlock_time, is_double_spend, height, tx_size
   //if (tx.getFee() === undefined) console.log("WARNING: incoming transaction is occluded by outgoing counterpart (#4500): " + tx.getId());
@@ -1425,6 +1746,34 @@ function testCommonTxSets(txs, hasSigned, hasUnsigned, hasMultisig) {
       assert(sets.getMultisigTxSet());
       assert(sets.getMultisigTxSet().length > 0);
     }
+  }
+}
+
+function testCheckTx(tx, check) {
+  assert.equal("boolean", typeof check.getIsGood());
+  if (check.getIsGood()) {
+    assert(check.getNumConfirmations() >= 0);
+    assert.equal("boolean", typeof check.getInPool());
+    TestUtils.testUnsignedBigInteger(check.getAmountReceived());
+    if (check.getInPool()) assert.equal(0, check.getNumConfirmations());
+    else assert(check.getNumConfirmations() > 0); // TODO (monero-wall-rpc) this fails (confirmations is 0) for (at least one) transaction that has 1 confirmation on testCheckTxKey()
+  } else {
+    assert.equal(undefined, check.getNumConfirmations());
+    assert.equal(undefined, check.getInPool());
+    assert.equal(undefined, check.getAmountReceived());
+  }
+}
+
+function testCheckReserve(check) {
+  assert.equal("boolean", typeof check.getIsGood());
+  if (check.getIsGood()) {
+    TestUtils.testUnsignedBigInteger(check.getAmountSpent());
+    assert.equal(0, check.getAmountSpent().compare(new BigInteger(0))); // TODO (monero-wallet-rpc): ever return non-zero spent?
+    TestUtils.testUnsignedBigInteger(check.getAmountTotal());
+    assert(check.getAmountTotal().compare(new BigInteger(0)) >= 0);
+  } else {
+    assert.equal(undefined, check.getAmountSpent());
+    assert.equal(undefined, check.getAmountTotal());
   }
 }
 

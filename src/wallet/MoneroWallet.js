@@ -270,6 +270,150 @@ class MoneroWallet {
   async stopMining() {
     throw new Error("Subclass must implement");
   }
+  
+  /**
+   * Get a transaction note.
+   * 
+   * @param txId specifies the transaction to get the note of
+   * @returns {string} is the tx note
+   */
+  async getTxNote(txId) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Set a note for a specific transaction.
+   * 
+   * @param txId specifies the transaction
+   * @param note specifies the note
+   */
+  async setTxNote(txId, note) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get notes for multiple transactions.
+   * 
+   * @param txIds identify the transactions to get notes for
+   * @preturns {string[]} are notes for the transactions
+   */
+  async getTxNotes(txIds) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Set notes for multiple transactions.
+   * 
+   * @param txIds specify the transactions to set notes for
+   * @param notes are the notes to set for the transactions
+   */
+  async setTxNotes(txIds, notes) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get a transaction's secret key from its id.
+   * 
+   * @param txId is the transaction's id
+   * @returns {string} is the transaction's secret key
+   */
+  async getTxKey(txId) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Check a transaction in the blockchain with its secret key.
+   * 
+   * @param txId specifies the transaction to check
+   * @param txKey is the transaction's secret key
+   * @param address is the destination public address of the transaction
+   * @returns {MoneroCheckTx} is the result of the check
+   */
+  async checkTxKey(txId, txKey, address) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get a transaction signature to prove it.
+   * 
+   * @param txId specifies the transaction to prove
+   * @param address is the destination public address of the transaction
+   * @param message is a message to include with the signature to further authenticate the proof (optional)
+   * @returns {string} is the transaction signature
+   */
+  async getTxProof(txId, address, message) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Prove a transaction by checking its signature.
+   * 
+   * @param txId specifies the transaction to prove
+   * @param address is the destination public address of the transaction
+   * @param message is a message included with the signature to further authenticate the proof (optional)
+   * @param signature is the transaction signature to confirm
+   * @returns {MoneroCheckTx} is the result of the check
+   */
+  async checkTxProof(txId, address, message, signature) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Generate a signature to prove a spend. Unlike proving a transaction, it does not require the destination public address.
+   * 
+   * @param txId specifies the transaction to prove
+   * @param message is a message to include with the signature to further authenticate the proof (optional)
+   * @returns {string} is the transaction signature
+   */
+  async getSpendProof(txId, message) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Prove a spend using a signature. Unlike proving a transaction, it does not require the destination public address.
+   * 
+   * @param txId specifies the transaction to prove
+   * @param message is a message included with the signature to further authenticate the proof (optional)
+   * @param signature is the transaction signature to confirm
+   * @returns {boolean} true if the signature is good, false otherwise
+   */
+  async checkSpendProof(txId, message, signature) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Generate a signature to prove the entire balance of the wallet.
+   * 
+   * @param message is a message included with the signature to further authenticate the proof (optional)
+   * @returns {string} is the reserve proof signature
+   */
+  async getWalletReserveProof(message) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Generate a signature to prove an available amount in an account.
+   * 
+   * @param accountIdx specifies the account to prove contains an available amount
+   * @param amount is the minimum amount to prove as available in the account
+   * @param message is a message to include with the signature to further authenticate the proof (optional)
+   * @returns {string} is the reserve proof signature
+   */
+  async getAccountReserveProof(accountIdx, amount, message) {
+    throw new Error("Subclass must implement");
+  }
+
+  /**
+   * Proves a wallet has a disposable reserve using a signature.
+   * 
+   * @param address is the public wallet address
+   * @param message is a message included with the signature to further authenticate the proof (optional)
+   * @param signature is the reserve proof signature to check
+   * @returns {MoneroCheckReserve} is the result of checking the signature proof
+   */
+  async checkReserveProof(address, message, signature) {
+    throw new Error("Subclass must implement");
+  }
 }
 
 module.exports = MoneroWallet;

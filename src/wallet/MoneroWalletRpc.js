@@ -11,6 +11,8 @@ const MoneroTxFilter = require("./model/MoneroTxFilter");
 const MoneroTxWallet = require("./model/MoneroTxWallet");
 const MoneroPayment = require("./model/MoneroPayment");
 const MoneroSendConfig = require("./model/MoneroSendConfig");
+const MoneroCheckTx = require("./model/MoneroCheckTx");
+const MoneroCheckReserve = require("./model/MoneroCheckReserve");
 
 /**
  * Implements a Monero wallet using monero-wallet-rpc.
@@ -214,6 +216,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddress;
   }
 
+  // TODO: confirm this is using cache as expected
   async getAddress(accountIdx, subaddressIdx) {
     let subaddressMap = this.addressCache[accountIdx];
     if (!subaddressMap) {
@@ -386,6 +389,119 @@ class MoneroWalletRpc extends MoneroWallet {
     throw new Error("Not implemented"); 
   }
   
+  async getTxNote(txId) {
+    return (await this.getTxNotes([txId]))[0];
+  }
+
+  async setTxNote(txId, note) {
+    await this.setTxNotes([txId], [note]);
+  }
+  
+  async getTxNotes(txIds) {
+    return (await this.config.rpc.sendJsonRequest("get_tx_notes", {txids: txIds})).notes;
+  }
+  
+  async setTxNotes(txIds, notes) {
+    await this.config.rpc.sendJsonRequest("set_tx_notes", {txids: txIds, notes: notes});
+  }
+  
+  async getTxKey(txId) {
+    return (await this.config.rpc.sendJsonRequest("get_tx_key", {txid: txId})).tx_key;
+  }
+  
+  async checkTxKey(txId, txKey, address) {
+    
+    // send request
+    let resp = await this.config.rpc.sendJsonRequest("check_tx_key", {txid: txId, tx_key: txKey, address: address});
+    
+    // interpret result
+    let check = new MoneroCheckTx();
+    check.setIsGood(true);
+    check.setNumConfirmations(resp.confirmations);
+    check.setInPool(resp.in_pool);
+    check.setAmountReceived(new BigInteger(resp.received));
+    return check;
+  }
+  
+  async getTxProof(txId, address, message) {
+    let resp = await this.config.rpc.sendJsonRequest("get_tx_proof", {txid: txId, address: address, message: message});
+    return resp.signature;
+  }
+  
+  async checkTxProof(txId, address, message, signature) {
+    
+    // send request
+    let resp = await this.config.rpc.sendJsonRequest("check_tx_proof", {
+      txid: txId,
+      address: address,
+      message: message,
+      signature: signature
+    });
+    
+    // interpret response
+    let isGood = resp.good;
+    let check = new MoneroCheckTx();
+    check.setIsGood(isGood);
+    if (isGood) {
+      check.setNumConfirmations(resp.confirmations);
+      check.setInPool(resp.in_pool);
+      check.setAmountReceived(new BigInteger(resp.received));
+    }
+    return check;
+  }
+  
+  async getSpendProof(txId, message) {
+    let resp = await this.config.rpc.sendJsonRequest("get_spend_proof", {txid: txId, message: message});
+    return resp.signature;
+  }
+  
+  async checkSpendProof(txId, message, signature) {
+    let resp = await this.config.rpc.sendJsonRequest("check_spend_proof", {
+      txid: txId,
+      message: message,
+      signature: signature
+    });
+    return resp.good;
+  }
+  
+  async getWalletReserveProof(message) {
+    let resp = await this.config.rpc.sendJsonRequest("get_reserve_proof", {
+      all: true,
+      message: message
+    });
+    return resp.signature;
+  }
+  
+  // TODO: probably getReserveProofAccount(), getReserveProofWallet()
+  async getAccountReserveProof(accountIdx, amount, message) {
+    let resp = await this.config.rpc.sendJsonRequest("get_reserve_proof", {
+      account_index: accountIdx,
+      amount: amount.toString(),
+      message: message
+    });
+    return resp.signature;
+  }
+
+  async checkReserveProof(address, message, signature) {
+    
+    // send request
+    let resp = await this.config.rpc.sendJsonRequest("check_reserve_proof", {
+      address: address,
+      message: message,
+      signature: signature
+    });
+    
+    // interpret results
+    let isGood = resp.good;
+    let check = new MoneroCheckReserve();
+    check.setIsGood(isGood);
+    if (isGood) {
+      check.setAmountSpent(new BigInteger(resp.spent));
+      check.setAmountTotal(new BigInteger(resp.total));
+    }
+    return check;
+  }
+  
   // -------------------------- SPECIFIC TO RPC WALLET ------------------------
   
   /**
@@ -405,8 +521,7 @@ class MoneroWalletRpc extends MoneroWallet {
   async openWallet(filename, password) {
     if (!filename) throw new Error("Filename is not initialized");
     if (!password) throw new Error("Password is not initialized");
-    let params = { filename: filename, password: password };
-    await this.config.rpc.sendJsonRequest("open_wallet", params);
+    await this.config.rpc.sendJsonRequest("open_wallet", {filename: filename, password: password});
     delete this.addressCache;
     this.addressCache = {};
   }

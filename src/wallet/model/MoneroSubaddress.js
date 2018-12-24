@@ -1,4 +1,3 @@
-
 /**
  * Monero subaddress model.
  */
