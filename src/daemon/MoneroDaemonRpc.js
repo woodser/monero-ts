@@ -151,6 +151,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.setId(rpcBlocks.blocks[blockIdx].tx_hashes[txIdx]);
         tx.setHeight(block.getHeader().getHeight());
         tx.setIsConfirmed(true);
+        tx.setIsCoinbase(false);
         tx.setIsRelayed(true);
         MoneroDaemonRpc._buildTx(rpcBlocks.txs[blockIdx][txIdx], tx);
       }
@@ -184,6 +185,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       for (let txIdx = 0; txIdx < resp.txs.length; txIdx++) {
         let tx = new MoneroTx();
         tx.setIsConfirmed(true);
+        tx.setIsCoinbase(false);
         MoneroDaemonRpc._buildTx(resp.txs[txIdx], tx);
         MoneroDaemonRpc._setResponseInfo(resp, tx);
         txs.push(tx);
@@ -229,6 +231,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       for (let rpcTx of resp.transactions) {
         let tx = new MoneroTx();
         tx.setIsConfirmed(false);
+        tx.setIsCoinbase(false);
         MoneroDaemonRpc._buildTx(rpcTx, tx);
         txs.push(tx);
       }
@@ -465,18 +468,19 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   static _buildBlock(rpcBlock) {
     
-    // build miner tx from rpc
-    let rpcMinerTx = rpcBlock.json ? JSON.parse(rpcBlock.json).miner_tx : rpcBlock.miner_tx;  // may need to be parsed from json
-    let tx = new MoneroTx();
-    tx.setIsConfirmed(true);
-    MoneroDaemonRpc._buildTx(rpcMinerTx, tx);
+    // build coinbase tx from rpc
+    let rpcCoinbaseTx = rpcBlock.json ? JSON.parse(rpcBlock.json).miner_tx : rpcBlock.miner_tx;  // may need to be parsed from json
+    let coinbaseTx = new MoneroTx();
+    coinbaseTx.setIsConfirmed(true);
+    coinbaseTx.setIsCoinbase(true);
+    MoneroDaemonRpc._buildTx(rpcCoinbaseTx, coinbaseTx);
     
     // build block
     let block = new MoneroBlock();
     block.setHex(rpcBlock.blob);
     block.setHeader(MoneroDaemonRpc._buildBlockHeader(rpcBlock.block_header ? rpcBlock.block_header : rpcBlock));
     block.setTxHashes(rpcBlock.tx_hashes === undefined ? [] : rpcBlock.tx_hashes);
-    block.setMinerTx(tx);
+    block.setCoinbaseTx(coinbaseTx);
     return block;
   }
   

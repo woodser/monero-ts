@@ -2,8 +2,9 @@ const assert = require("assert");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const TestUtils = require("./TestUtils");
 const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
-const GenUtils = require("../src/utils/GenUtils");
 const MoneroBan = require("../src/daemon/model/MoneroBan");
+const MoneroTx = require("../src/daemon/model/MoneroTx");
+const GenUtils = require("../src/utils/GenUtils");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
 const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
@@ -533,7 +534,7 @@ function testBlock(block, config) {
   assert(block);
   assert(Array.isArray(block.getTxHashes())); // TODO: tx hashes probably part of tx
   assert(block.getTxHashes().length >= 0);
-  testMinerTx(block.getMinerTx());            // TODO: miner tx doesn't have as much stuff, can't call testTx?
+  testCoinbaseTx(block.getCoinbaseTx());            // TODO: coinbase tx doesn't have as much stuff, can't call testTx?
   testBlockHeader(block.getHeader(), config.headerIsFull);
   
   if (config.hasHex) {
@@ -553,12 +554,26 @@ function testBlock(block, config) {
   }
 }
 
-function testMinerTx(minerTx) {
-  assert(minerTx);
-  assert(minerTx.getVersion() >= 0)
-  assert(Array.isArray(minerTx.getExtra()));
-  assert(minerTx.getExtra().length > 0);
-  assert(minerTx.getUnlockTime() >= 0);
+function testCoinbaseTx(coinbaseTx) {
+  assert(coinbaseTx);
+  assert(coinbaseTx instanceof MoneroTx);
+  assert.equal("boolean", typeof coinbaseTx.getIsCoinbase());
+  assert(coinbaseTx.getIsCoinbase());
+  
+  assert(coinbaseTx.getVersion() >= 0)
+  assert(Array.isArray(coinbaseTx.getExtra()));
+  assert(coinbaseTx.getExtra().length > 0);
+  assert(coinbaseTx.getUnlockTime() >= 0);
+
+  // TODO: coinbase tx does not have ids in binary requests so this will fail, need to derive using prunable data
+//  testTx(coinbaseTx, {
+//    hasJson: false,
+//    isPruned: true,
+//    isFull: false,
+//    isConfirmed: true,
+//    isCoinbase: true,
+//    fromPool: false,
+//  })
 }
 
 // TODO: how to test output indices? comes back with /get_transactions, maybe others
@@ -577,10 +592,11 @@ function testTx(tx, config) {
   assert(tx.getId().length === 64);
   assert.equal("boolean", typeof tx.getIsRelayed());
   assert.equal(undefined, tx.getSignatures());  // TODO: way to test?
-  
-  // tx may or may not be confirmed
   assert.equal("boolean", typeof tx.getIsConfirmed());
   assert.equal("boolean", typeof tx.getInMempool());
+  assert.equal("boolean", typeof tx.getIsCoinbase());
+  
+  // test confirmed vs unconfirmed
   if (config.isConfirmed) {
     assert(tx.getHeight() >= 0);
     assert(tx.getIsConfirmed());

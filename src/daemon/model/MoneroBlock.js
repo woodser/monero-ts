@@ -21,12 +21,12 @@ class MoneroBlock extends MoneroDaemonModel {
     this.header = header;
   }
   
-  getMinerTx() {
-    return this.minerTx;
+  getCoinbaseTx() {
+    return this.coinbaseTx;
   }
   
-  setMinerTx(minerTx) {
-    this.minerTx = minerTx;
+  setCoinbaseTx(coinbaseTx) {
+    this.coinbaseTx = coinbaseTx;
   }
   
   getTxHashes() { // TODO: collapse with getTxs() so no redundant information?

@@ -1,9 +1,9 @@
 TODO
-a transaction does not have a timestamp, it has a block which has a timestamp, a last relayed time, and a received time
-way to throttle rpc requests with agent instead of throttle-request to preserve stacktrace?
-verify that all tx fields are being tested
-standardize on isCoinbase, isIncoming, etc
+test daemon / wallet getTxs() with unfound txs (throw error?)
+test getting coinbase txs by id
 standardize on tx ids vs hashes
+standardize on isCoinbase, isIncoming, etc
+verify that all tx fields are being tested
 standardize on mempool vs tx pool
 getIsCoinbase() should be in MoneroTx and tested
 replace getType() with xor getIsIncoming()
@@ -32,6 +32,9 @@ remove text-encoding dependency
 package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 JS now has native BigInt class which could be used instead of current BigInteger
 support setting daemon log level
+
+LOW PRIORITY
+way to throttle rpc requests with agent instead of throttle-request to preserve stacktrace?
 
 RPC QUESTIONS / SUGGESTIONS
 /get_transactions returns duplicate data per transaction

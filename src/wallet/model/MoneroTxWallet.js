@@ -75,14 +75,6 @@ class MoneroTxWallet extends MoneroTx {
     this.json.srcAddress = srcAddress;
   }
   
-  getIsCoinbase() {
-    return this.json.coinbase;
-  }
-  
-  setIsCoinbase(coinbase) {
-    this.json.coinbase = coinbase;
-  }
-  
   getMetadata() {
     return this.json.metadata;
   }
