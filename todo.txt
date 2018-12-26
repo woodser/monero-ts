@@ -1,6 +1,7 @@
 TODO
 test daemon / wallet getTxs() with unfound txs (throw error?)
 test getting coinbase txs by id
+test wallet txs getIsCoinbase()
 standardize on tx ids vs hashes
 standardize on isCoinbase, isIncoming, etc
 verify that all tx fields are being tested
