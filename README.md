@@ -16,7 +16,7 @@ Currently, the service interfaces rely on running instances of [Monero Wallet RP
 
 [Monero wallet data model](src/wallet/model)
 
-[Monero daemon data model](src/daemon/model]
+[Monero daemon data model](src/daemon/model)
 
 ## JavaScript Setup
 
