@@ -31,8 +31,8 @@ sendConfig.setAccountIndex(0);
 sendConfig.setSubaddressIndex(1);
 let sentTx2 = await wallet.send(sendConfig);
 
-// print wallet transactions
-for (let tx of await wallet.getTxs()) {  // also supports filtering on criteria
+// print all wallet transactions (also supports detailed filtering)
+for (let tx of await wallet.getTxs()) {
 	console.log(tx.getId());             // e.g. f8b2f0baa80bf6b686ce32f99ff7bb15a0f198baf7aed478e933ee9a73c69f80
 	console.log(tx.getFee());            // e.g. 752343011023
 	console.log(tx.getIsConfirmed());    // e.g. false
