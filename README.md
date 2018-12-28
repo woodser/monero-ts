@@ -12,12 +12,19 @@ The API currently relies on running instances of [Monero Wallet RPC](https://get
 // create a wallet that uses a monero-wallet-rpc endpoint
 let wallet = new MoneroWalletRpc({uri: 'https://localhost:38083', user: 'rpc_user', pass: 'abc123'});
 
-// basic wallet info
+// get wallet info
 let balance = await wallet.getBalance();               // e.g. 533648366742
 let primaryAddress = await wallet.getPrimaryAddress(); // e.g. 59aZULsUF3YNSKGiHz4JPMfjGYkm1S4TB3sPsTr3j85HhXb9crZqGa7jJ8cA87U48kT5wzi2VzGZnN2PKojEwoyaHqtpeZh
 
 // send a payment
 let sentTx1 = await wallet.send("59aZULsUF3YNSKGiHz4JPMfjGYkm1S4TB3sPsTr3j85HhXb9crZqGa7jJ8cA87U48kT5wzi2VzGZnN2PKojEwoyaHqtpeZh", new BigInteger(50000000));
+
+// print all wallet transactions (also supports detailed filtering)
+for (let tx of await wallet.getTxs()) {
+	console.log(tx.getId());             // e.g. f8b2f0baa80bf6b686ce32f99ff7bb15a0f198baf7aed478e933ee9a73c69f80
+	console.log(tx.getFee());            // e.g. 752343011023
+	console.log(tx.getIsConfirmed());    // e.g. false
+}
 
 // send payments from subaddress 0, 1 to multiple destinations in a single transaction
 let payments = [];
@@ -35,11 +42,16 @@ for (let tx of await wallet.getTxs()) {
 	console.log(tx.getFee());            // e.g. 752343011023
 	console.log(tx.getIsConfirmed());    // e.g. false
 }
+
+// create a daemon that uses a monero-daemon-rpc endpoint
+// TODO
 ```
+
+See tests in [src/tests](src/tests) for the most thorough documentation of using this library.
 
 ## Running Tests
 
-1. Setup running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon RPC](https://getmonero.org/resources/developer-guides/daemon-rpc.html).  See [Monero RPC Setup](#monero-rpc-setup).
+1. Set up running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon RPC](https://getmonero.org/resources/developer-guides/daemon-rpc.html).  See [Monero RPC Setup](#monero-rpc-setup).
 2. `git clone --recurse-submodules https://github.com/woodser/monero-javascript.git`
 3. `npm install`
 4. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/tests/TestUtils.js).
