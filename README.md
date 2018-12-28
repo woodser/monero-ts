@@ -70,7 +70,7 @@ Note: some tests are failing as not all functionality is implemented.
 	
 	e.g. For wallet name `test_wallet_1`, user `rpc_user`, password `abc123`, stagenet: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir /Applications/monero-v0.13.0.2`
 
-## Main Interfaces and Data Models
+## Interfaces and Data Models
 
 - [Monero daemon interface (MoneroDaemon.js)](src/daemon/MoneroDaemon.js)
 - [Monero daemon rpc implementation (MoneroDaemonRpc.js)](src/daemon/MoneroDaemonRpc.js)
