@@ -1,4 +1,7 @@
 TODO
+tx.getIsUnlocked()
+readme code needs to be tested somewhere
+support url config option
 readme
 add MoneroOutput and test
 test daemon / wallet getTxs() with unfound txs (throw error?)

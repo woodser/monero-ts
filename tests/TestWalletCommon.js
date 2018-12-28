@@ -1197,7 +1197,7 @@ class TestWalletCommon {
       // send to subaddresses
       let payments = [];
       for (let i = 0; i < destinationAddresses.length; i++) {
-        let payment = new MoneroPayment();
+        let payment = new MoneroPayment();  // TODO: assign address and amount here
         payments.push(payment);
         payment.setAddress(destinationAddresses[i]);
         payment.setAmount(sendAmountPerSubaddress);

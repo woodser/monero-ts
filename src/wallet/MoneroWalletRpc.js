@@ -16,8 +16,6 @@ const MoneroCheckReserve = require("./model/MoneroCheckReserve");
 
 /**
  * Implements a Monero wallet using monero-wallet-rpc.
- * 
- * TODO: remember to clear the address cache on stop wallet
  */
 class MoneroWalletRpc extends MoneroWallet {
   
