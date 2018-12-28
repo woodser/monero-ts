@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This project provides a modern (ES2017+) JavaScript API for a Monero wallet and daemon.
+This project provides a modern JavaScript API for a Monero wallet and daemon.
 
 The API currently relies on running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon RPC](https://getmonero.org/resources/developer-guides/daemon-rpc.html).
 
