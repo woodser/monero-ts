@@ -233,13 +233,13 @@ describe("Test Monero Daemon RPC", function() {
     let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
     
     // collect tx hashes
-    let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; });
-    assert(txHashes.length > 0, "No transactions found in the range [" + startHeight + ", " + endHeight + "]");
+    let txIds = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; });
+    assert(txIds.length > 0, "No transactions found in the range [" + startHeight + ", " + endHeight + "]");
     
-    // fetch txs by hash
+    // fetch txs by id
     let decodeAsJson = true;
     let prune = false;
-    let txs = await daemon.getTxs(txHashes, decodeAsJson, prune);
+    let txs = await daemon.getTxs(txIds, decodeAsJson, prune);
     for (let tx of txs) {
       testDaemonResponseInfo(tx, true, true); // TODO: duplicating response info is going to be too expensive so must be common reference
       testTx(tx, { hasJson: decodeAsJson, isPruned: prune, isFull: true, isConfirmed: true, fromPool: false });

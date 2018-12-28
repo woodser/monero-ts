@@ -1,48 +1,36 @@
-TODO
-tx.getIsUnlocked()
-readme code needs to be tested somewhere
-support url config option
-readme
-add MoneroOutput and test
-test daemon / wallet getTxs() with unfound txs (throw error?)
-test getting coinbase txs by id
-test wallet txs getIsCoinbase()
-standardize on tx ids vs hashes
-standardize on isCoinbase, isIncoming, etc
-verify that all tx fields are being tested
+HIGH
+standardize on tx ids
+standardize on block ids
+daemon.getBlocksById(), default implementations
 standardize on mempool vs tx pool
-getIsCoinbase() should be in MoneroTx and tested
-replace getType() with xor getIsIncoming()
-rather than block type, incoming and confirmed, but need to mark isMinerTx() in txs
-sending too many rpc requests to compose object model... need to make sacrafices until rpc api improved
+standardize getTxCount(), getConfirmationCount()
+license headers
+
+test getting coinbase txs by id
+test daemon/wallet txs getIsCoinbase()
+test daemon / wallet getTxs() with unfound txs (throw error?)
+verify that all tx fields are being tested
+
+MEDIUM
 time profiling
-BooleanSet -> UnboundedBooleanArray?
-standardize getTxCount() vs getNumTxs() and other name standardizing
 in wallet implementation: "prepend the last 3 blocks, should be enough to guard against a block or two's reorg" pull_and_parse_next_blocks
 binary_blocks_to_json property_tree conversion throws memory exception if too big
-wallet local tests doesn't download blocks if daemon tests not run first
-wallet rpc tests don't run unless daemon tests run
-processing block 5 / 1001 means 1001 blocks being processed, not 1000 in monero_binary_utils.cpp
-build process to not read mymonero-core-js build and contrib to browser build
-preconnect when wallet created to verify connection?
-coreUtils can be retrieved async on construction since all methods are async
-move submodule out of src directory so search is easy
-is mymonero memory freed from bridge?
-source formatting
-getHeight() -> getBlockCount()?
-getBlocksByHash(), getBlocksByHeight(), getBlocksByRange() where first two can take single elem or array and return type is based on that
-update on save B-)
-license headers
 tx hex returned from rpc api even if not needed
 remove text-encoding dependency
 package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 JS now has native BigInt class which could be used instead of current BigInteger
 support setting daemon log level
-
-LOW PRIORITY
+split BooleanSet into new project
+add MoneroOutput and test
+tx.getIsUnlocked()?
 way to throttle rpc requests with agent instead of throttle-request to preserve stacktrace?
 
+BUILD
+build process to not read mymonero-core-js build and contrib to browser build
+update on save B-)
+
 RPC QUESTIONS / SUGGESTIONS
+identify one call per acount/subaddress and support "all" flag
 /get_transactions returns duplicate data per transaction
 non-standardized ("portable binary storage") serialization/deserialization for binary requests adds complexity to clients
 tx.getHex().length !== tx_size?
