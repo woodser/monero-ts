@@ -8,6 +8,8 @@ The API currently relies on running instances of [Monero Wallet RPC](https://get
 
 ## Code Samples
 
+See tests in [src/tests](src/tests) for the most thorough documentation of using this library.
+
 ### Wallet Sample
 
 ```js
@@ -36,7 +38,7 @@ sendConfig.setAccountIndex(0);
 sendConfig.setSubaddressIndices([1]);
 let sentTxs = await wallet.sendSplit(sendConfig);
 
-// get wallet transactions (also supports detailed filtering)
+// get wallet transactions without filtering
 for (let tx of await wallet.getTxs()) {
   let txId = tx.getId();                 // e.g. f8b2f0baa80bf6b686ce32f99ff7bb15a0f198baf7aed478e933ee9a73c69f80
   let txFee = tx.getFee();               // e.g. 752343011023 (BigInteger)
@@ -65,8 +67,6 @@ for (let block of blocks) {
   let numTxs = block.getTxs().length;
 }
 ```
-
-See tests in [src/tests](src/tests) for the most thorough documentation of using this library.
 
 ## Running Tests
 
