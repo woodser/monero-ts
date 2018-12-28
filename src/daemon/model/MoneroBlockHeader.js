@@ -5,12 +5,12 @@ const MoneroDaemonModel = require("./MoneroDaemonModel");
  */
 class MoneroBlockHeader extends MoneroDaemonModel {
   
-  getBlockSize() {  // TODO: refactor to size
-    return this.blockSize;
+  getSize() {
+    return this.size;
   }
   
-  setBlockSize(size) {
-    this.blockSize = size;
+  setSize(size) {
+    this.size = size;
   }
   
   getDepth() {

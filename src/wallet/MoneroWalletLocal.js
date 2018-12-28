@@ -264,7 +264,7 @@ class MoneroWalletLocal extends MoneroWallet {
     let headers = await this.config.daemon.getBlockHeadersByRange(height, endHeight);
     for (let header of headers) {
       this.cache.headers[header.getHeight()] = {
-          blockSize: header.getBlockSize(),
+          blockSize: header.getSize(),
           numTxs: header.getNumTxs()
       }
     }

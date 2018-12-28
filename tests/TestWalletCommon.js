@@ -632,7 +632,7 @@ class TestWalletCommon {
       // set notes
       let uuid = GenUtils.uuidv4();
       for (let i = 0; i < txs.length; i++) {
-        await wallet.setTxNote(txs[i].getId(), uuid + i);
+        await wallet.setTxNote(txs[i].getId(), uuid + i); // TODO: can we not iterate over awaits?
       }
       
       // get notes

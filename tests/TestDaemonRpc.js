@@ -512,7 +512,8 @@ function testBlockHeader(header, isFull) {
   assert(header.getPrevHash());
   assert(header.getNonce());
   assert(header.getPowHash() === undefined);  // never seen defined
-  assert(!isFull ? undefined === header.getBlockSize() : header.getBlockSize());
+  console.log("SIZE: " + header.getSize());
+  assert(!isFull ? undefined === header.getSize() : header.getSize());  // TODO: setSize() is never called, is this test being executed?
   assert(!isFull ? undefined === header.getDepth() : header.getDepth() >= 0);
   assert(!isFull ? undefined === header.getDifficulty() : header.getDifficulty());
   assert(!isFull ? undefined === header.getCumulativeDifficulty() : header.getCumulativeDifficulty());
