@@ -15,8 +15,8 @@ Primary goals of this project are to implement a fully client-side JavaScript wa
 let wallet = new MoneroWalletRpc({uri: 'https://localhost:38083', user: 'rpc_user', pass: 'abc123'});
 
 // basic wallet info
-let balance = await wallet.getBalance();					// e.g. 533648366742
-let primaryAddress = await wallet.getPrimaryAddress();	// e.g. 59aZULsUF3YNSKGiHz4JPMfjGYkm1S4TB3sPsTr3j85HhXb9crZqGa7jJ8cA87U48kT5wzi2VzGZnN2PKojEwoyaHqtpeZh
+let balance = await wallet.getBalance();               // e.g. 533648366742
+let primaryAddress = await wallet.getPrimaryAddress(); // e.g. 59aZULsUF3YNSKGiHz4JPMfjGYkm1S4TB3sPsTr3j85HhXb9crZqGa7jJ8cA87U48kT5wzi2VzGZnN2PKojEwoyaHqtpeZh
 
 // send a payment
 let sentTx1 = await wallet.send("59aZULsUF3YNSKGiHz4JPMfjGYkm1S4TB3sPsTr3j85HhXb9crZqGa7jJ8cA87U48kT5wzi2VzGZnN2PKojEwoyaHqtpeZh", new BigInteger(50000000));
@@ -32,10 +32,10 @@ sendConfig.setSubaddressIndex(1);
 let sentTx2 = await wallet.send(sendConfig);
 
 // print wallet transactions
-for (let tx of await wallet.getTxs()) {	// also supports filtering on criteria
-	console.log(tx.getId());				// e.g. f8b2f0baa80bf6b686ce32f99ff7bb15a0f198baf7aed478e933ee9a73c69f80
-	console.log(tx.getFee());			// e.g. 752343011023
-	console.log(tx.getIsConfirmed());	// e.g. false
+for (let tx of await wallet.getTxs()) {  // also supports filtering on criteria
+	console.log(tx.getId());             // e.g. f8b2f0baa80bf6b686ce32f99ff7bb15a0f198baf7aed478e933ee9a73c69f80
+	console.log(tx.getFee());            // e.g. 752343011023
+	console.log(tx.getIsConfirmed());    // e.g. false
 }
 ```
 
