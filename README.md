@@ -8,7 +8,7 @@ The API currently relies on running instances of [Monero Wallet RPC](https://get
 
 ## Code Samples
 
-See [tests](tests) for the most complete examples of using this library.
+See the [tests](tests) for the most complete examples of using this library.
 
 ### Wallet Sample
 
