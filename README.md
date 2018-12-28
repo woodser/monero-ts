@@ -14,12 +14,12 @@ Currently, the service interfaces rely on running instances of [Monero Wallet RP
 
 ## JavaScript API
 
-- [Monero daemon interface](src/daemon/MoneroDaemon.js)
-- [Monero daemon rpc implementation](src/daemon/MoneroDaemonRpc.js)
-- [Monero daemon data model](src/daemon/model)
-- [Monero wallet interface](src/daemon/MoneroWallet.js)
-- [Monero wallet rpc implementation](src/daemon/MoneroWalletRpc.js)
-- [Monero wallet data model](src/wallet/model)
+- [Monero daemon interface (MoneroDaemon.js)](src/daemon/MoneroDaemon.js)
+- [Monero daemon rpc implementation (MoneroDaemonRpc.js)](src/daemon/MoneroDaemonRpc.js)
+- [Monero daemon data model (src/daemon/model)](src/daemon/model)
+- [Monero wallet interface (src/wallet/MoneroWallet.js](src/wallet/MoneroWallet.js)
+- [Monero wallet rpc implementation (src/wallet/MoneroWalletRpc.js)](src/wallet/MoneroWalletRpc.js)
+- [Monero wallet data model (src/wallet/model)](src/wallet/model)
 
 ## Running Tests
 
