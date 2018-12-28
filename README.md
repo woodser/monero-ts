@@ -6,8 +6,6 @@ This project provides a modern (ES2017+) JavaScript API for a Monero wallet and 
 
 The API currently relies on running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon RPC](https://getmonero.org/resources/developer-guides/daemon-rpc.html).
 
-Primary goals of this project are to implement a fully client-side JavaScript wallet and a "light wallet" which shares the view key with a 3rd party (e.g. MyMonero) to scan the blockchain.
-
 ## Code Samples
 
 ```js
@@ -39,7 +37,8 @@ for (let tx of await wallet.getTxs()) {
 }
 ```
 
-## JavaScript Setup
+## Running Tests
+
 
 ## Monero RPC Setup
 
@@ -52,16 +51,9 @@ for (let tx of await wallet.getTxs()) {
 - [Monero wallet rpc implementation (src/wallet/MoneroWalletRpc.js)](src/wallet/MoneroWalletRpc.js)
 - [Monero wallet data model (src/wallet/model)](src/wallet/model)
 
-## Running Tests
-
-TODO
-
 ## Future Goals
 
-Primary goals of this project are to implement:
-
-- A wallet that scans the blockchain locally and does not share the view key (requires a node running monero-daemon-rpc)
-- A wallet that shares the view key with a MyMonero-compatible server to remotely scan the blockchain (future consideration)
+Primary goals of this project are to implement a fully client-side JavaScript wallet (requires a node running monero-daemon-rpc) and a "light wallet" which shares the view key with a 3rd party (e.g. MyMonero) to scan the blockchain.
 
 ## License
 
