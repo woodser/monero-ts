@@ -62,9 +62,9 @@ let blocks = await daemon.getBlocksByRange(0, 100);
 // get block info
 for (let block of blocks) {
   let blockHeight = block.getHeader().getHeight();
-  let blockHash = block.getHeader().getHash();
-  let blockSize = block.getHeader().getBlockSize();
-  let numTxs = block.getTxs().length;
+  let blockId = block.getHeader().getId();
+  let blockSize = block.getHeader().getSize();
+  let txCount = block.getTxs().length;
 }
 ```
 

@@ -20,11 +20,11 @@ describe("Test Monero Daemon RPC", function() {
     assert(height > 0, "Height must be greater than 0");
   });
 
-  it("Can get a block hash by height", async function() {
+  it("Can get a block id by height", async function() {
     let lastHeader = await daemon.getLastBlockHeader();
-    let hash = await daemon.getBlockHash(lastHeader.getHeight());
-    assert(hash);
-    assert.equal(64, hash.length);
+    let id = await daemon.getBlockId(lastHeader.getHeight());
+    assert(id);
+    assert.equal(64, id.length);
   });
   
   it("Can get a block template", async function() {
@@ -39,19 +39,19 @@ describe("Test Monero Daemon RPC", function() {
     testBlockHeader(lastHeader, true);
   });
   
-  it("Can get a block header by hash", async function() {
+  it("Can get a block header by id", async function() {
     
-    // retrieve by hash of last block
+    // retrieve by id of last block
     let lastHeader = await daemon.getLastBlockHeader();
-    let hash = await daemon.getBlockHash(lastHeader.getHeight());
-    let header = await daemon.getBlockHeaderByHash(hash);
+    let id = await daemon.getBlockId(lastHeader.getHeight());
+    let header = await daemon.getBlockHeaderById(id);
     testDaemonResponseInfo(header, true, true);
     testBlockHeader(header, true);
     assert.deepEqual(lastHeader, header);
     
-    // retrieve by hash of previous to last block
-    hash = await daemon.getBlockHash(lastHeader.getHeight() - 1);
-    header = await daemon.getBlockHeaderByHash(hash);
+    // retrieve by id of previous to last block
+    id = await daemon.getBlockId(lastHeader.getHeight() - 1);
+    header = await daemon.getBlockHeaderById(id);
     testDaemonResponseInfo(header, true, true);
     testBlockHeader(header, true);
     assert.equal(lastHeader.getHeight() - 1, header.getHeight());
@@ -96,23 +96,23 @@ describe("Test Monero Daemon RPC", function() {
     }
   });
   
-  it("Can get a block by hash", async function() {
+  it("Can get a block by id", async function() {
     
     // config for testing blocks
     let testBlockConfig = { hasHex: true, headerIsFull: true, hasTxs: false };
     
-    // retrieve by hash of last block
+    // retrieve by id of last block
     let lastHeader = await daemon.getLastBlockHeader();
-    let hash = await daemon.getBlockHash(lastHeader.getHeight());
-    let block = await daemon.getBlockByHash(hash);
+    let id = await daemon.getBlockId(lastHeader.getHeight());
+    let block = await daemon.getBlockById(id);
     testDaemonResponseInfo(block, true, true);
     testBlock(block, testBlockConfig);
     assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
     assert(block.getTxs() === undefined);
     
-    // retrieve by hash of previous to last block
-    hash = await daemon.getBlockHash(lastHeader.getHeight() - 1);
-    block = await daemon.getBlockByHash(hash);
+    // retrieve by id of previous to last block
+    id = await daemon.getBlockId(lastHeader.getHeight() - 1);
+    block = await daemon.getBlockById(id);
     testDaemonResponseInfo(block, true, true);
     testBlock(block, testBlockConfig);
     assert.deepEqual(await daemon.getBlockByHeight(lastHeader.getHeight() - 1), block);
@@ -232,7 +232,7 @@ describe("Test Monero Daemon RPC", function() {
     // get blocks
     let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
     
-    // collect tx hashes
+    // collect tx ids
     let txIds = blocks.map(block => block.getTxIds()).reduce((a, b) => { a.push.apply(a, b); return a; });
     assert(txIds.length > 0, "No transactions found in the range [" + startHeight + ", " + endHeight + "]");
     
@@ -315,7 +315,7 @@ describe("Test Monero Daemon RPC", function() {
   });
   
   it("Can flush one or more transactions from the pool by id", async function() {
-    throw new Error("Not implemented"); // TODO: need to fetch pool transactions hashes
+    throw new Error("Not implemented"); // TODO: need to fetch pool transactions ids
   });
   
   it("Can determine if key images can be spent", async function() {
@@ -509,15 +509,14 @@ function testBlockHeader(header, isFull) {
   assert(header.getMajorVersion() >= 0);
   assert(header.getMinorVersion() >= 0);
   assert(header.getTimestamp() >= 0);
-  assert(header.getPrevHash());
+  assert(header.getPrevId());
   assert(header.getNonce());
   assert(header.getPowHash() === undefined);  // never seen defined
-  console.log("SIZE: " + header.getSize());
-  assert(!isFull ? undefined === header.getSize() : header.getSize());  // TODO: setSize() is never called, is this test being executed?
+  assert(!isFull ? undefined === header.getSize() : header.getSize());
   assert(!isFull ? undefined === header.getDepth() : header.getDepth() >= 0);
   assert(!isFull ? undefined === header.getDifficulty() : header.getDifficulty());
   assert(!isFull ? undefined === header.getCumulativeDifficulty() : header.getCumulativeDifficulty());
-  assert(!isFull ? undefined === header.getHash() : header.getHash());
+  assert(!isFull ? undefined === header.getId() : header.getId());
   assert(!isFull ? undefined === header.getNumTxs() : header.getNumTxs() >= 0);
   assert(!isFull ? undefined === header.getOrphanStatus() : typeof header.getOrphanStatus() === "boolean");
   assert(!isFull ? undefined === header.getReward() : header.getReward());
@@ -686,7 +685,7 @@ function testBlockTemplate(template) {
   assert(template.getDifficulty());
   assert(template.getExpectedReward());
   assert(template.getHeight());
-  assert(template.getPrevHash());
+  assert(template.getPrevId());
   assert(template.getReservedOffset());
 }
 
@@ -710,7 +709,7 @@ function testInfo(info) {
   assert(info.getStartTime());
   assert(info.getTarget());
   assert(info.getTargetHeight() >= 0);
-  assert(info.getTopBlockHash());
+  assert(info.getTopBlockId());
   assert(info.getTxCount() >= 0);
   assert(info.getTxPoolSize() >= 0);
   assert(typeof info.getWasBootstrapEverUsed() === "boolean");

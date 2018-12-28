@@ -49,12 +49,12 @@ class MoneroBlockTemplate extends MoneroDaemonModel {
     this.height = height;
   }
   
-  getPrevHash() {
-    return this.prevHash;
+  getPrevId() {
+    return this.prevId;
   }
   
-  setPrevHash(prevHash) {
-    this.prevHash = prevHash;
+  setPrevId(prevId) {
+    this.prevId = prevId;
   }
   
   getReservedOffset() {

@@ -1,8 +1,8 @@
 require("./TestDaemonRpc");
 require("./TestWalletRpc");
-//require("./TestWalletLocal");
-//require("./TestWalletEquality");
-//require("./TestBooleanSet");
+require("./TestWalletLocal");
+require("./TestWalletEquality");
+require("./TestBooleanSet");
 require("./TestCoreUtils");
 require("./TestSampleCode");
 

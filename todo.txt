@@ -1,7 +1,6 @@
 HIGH
 reset tests and rpc implementation
 don't wrap single return fields with MoneroDaemonModel?
-standardize on block ids
 daemon.getBlocksById(), default implementations
 standardize on mempool vs tx pool
 standardize getTxCount(), getConfirmationCount()
@@ -9,6 +8,7 @@ license headers
 merge txs as state changes e.g. becomes confirmed
 MoneroTx constructor vs copy
 todos throughout code
+tests are unecessarily creating new accounts which degrades test performance
 
 test getting coinbase txs by id
 test daemon/wallet txs getIsCoinbase()
@@ -16,6 +16,7 @@ test daemon / wallet getTxs() with unfound txs (throw error?)
 verify that all tx fields are being tested
 
 MEDIUM
+switch to jest?
 time profiling
 in wallet implementation: "prepend the last 3 blocks, should be enough to guard against a block or two's reorg" pull_and_parse_next_blocks
 binary_blocks_to_json property_tree conversion throws memory exception if too big

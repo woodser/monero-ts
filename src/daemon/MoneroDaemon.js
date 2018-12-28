@@ -13,12 +13,12 @@ class MoneroDaemon {
   }
   
   /**
-   * Get a block's hash by its height.
+   * Get a block's id by its height.
    * 
-   * @param height is the height of the block hash to get
-   * @returns the block's hash at the given height
+   * @param height is the height of the block id to get
+   * @returns the block's id at the given height
    */
-  async getBlockHash(height) {
+  async getBlockId(height) {
     throw new Error("Subclass must implement");
   }
   
@@ -43,12 +43,12 @@ class MoneroDaemon {
   }
   
   /**
-   * Get a block header by its hash.
+   * Get a block header by its id.
    * 
-   * @param hash is the hash of the block to get the header of
+   * @param blockId is the id of the block to get the header of
    * @return MoneroBlockHeader is the block's header
    */
-  async getBlockHeaderByHash(hash) {
+  async getBlockHeaderById(blockId) {
     throw new Error("Subclass must implement");
   }
   
@@ -74,12 +74,12 @@ class MoneroDaemon {
   }
   
   /**
-   * Get a block by hash.
+   * Get a block by id.
    * 
-   * @param hash is the hash of the block to get
-   * @returns MoneroBlock with the given hash
+   * @param blockId is the id of the block to get
+   * @returns MoneroBlock with the given id
    */
-  async getBlockByHash(hash) {
+  async getBlockById(blockId) {
     throw new Error("Subclass must implement");
   }
   
@@ -127,12 +127,12 @@ class MoneroDaemon {
   }
   
   /**
-   * Get transactions with the given hashes.
+   * Get transactions with the given ids.
    * 
-   * @param txIds specifies the transaction hashes to get  // TODO: standardize on hashs vs ids
+   * @param txIds specifies the transaction ids to get
    * @param decodeAsJson decodes the returned transactions as JSON rather than binary if true
    * @param prune (documentation missing) // TODO: documentation missing
-   * @returns MoneroTx[] are the transactions with the given hashes
+   * @returns MoneroTx[] are the transactions with the given ids
    */
   async getTxs(txIds, decodeAsJson, prune) {
     throw new Error("Subclass must implement");

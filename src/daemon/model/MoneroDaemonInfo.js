@@ -181,12 +181,12 @@ class MoneroDaemonInfo extends MoneroDaemonModel {
     this.targetHeight = targetHeight;
   }
   
-  getTopBlockHash() {
-    return this.topBlockHash;
+  getTopBlockId() {
+    return this.topBlockId;
   }
   
-  setTopBlockHash(topBlockHash) {
-    this.topBlockHash = topBlockHash;
+  setTopBlockId(topBlockId) {
+    this.topBlockId = topBlockId;
   }
   
   getTxCount() {

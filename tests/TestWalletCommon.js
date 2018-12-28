@@ -1317,7 +1317,7 @@ class TestWalletCommon {
           let subaddressBefore = accounts[i].getSubaddresses()[j];
           let subaddressAfter = accountsAfter[i].getSubaddresses()[j];
           if (i === srcAccount.getIndex() && fromSubaddressIndices.includes(j)) {
-            assert(subaddressAfter.getUnlockedBalance().compare(subaddressBefore.getUnlockedBalance()) < 0, "Subaddress [" + i + "," + j + "] unlocked balance should have decreased"); // TODO: Subaddress [0,1] unlocked balance should have decreased          
+            assert(subaddressAfter.getUnlockedBalance().compare(subaddressBefore.getUnlockedBalance()) < 0, "Subaddress [" + i + "," + j + "] unlocked balance should have decreased but changed from " + subaddressBefore.getUnlockedBalance().toString() + " to " + subaddressAfter.getUnlockedBalance().toString()); // TODO: Subaddress [0,1] unlocked balance should have decreased          
           } else {
             assert(subaddressAfter.getUnlockedBalance().compare(subaddressBefore.getUnlockedBalance()) === 0, "Subaddress [" + i + "," + j + "] unlocked balance should not have changed");          
           }

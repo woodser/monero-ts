@@ -37,12 +37,12 @@ class MoneroBlockHeader extends MoneroDaemonModel {
     this.cumulativeDifficulty = cumulativeDifficulty;
   }
   
-  getHash() {
-    return this.hash;
+  getId() {
+    return this.id;
   }
   
-  setHash(hash) {
-    this.hash = hash;
+  setId(id) {
+    this.id = id;
   }
   
   getHeight() {
@@ -93,12 +93,12 @@ class MoneroBlockHeader extends MoneroDaemonModel {
     this.orphanStatus = orphanStatus;
   }
   
-  getPrevHash() {
-    return this.prevHash;
+  getPrevId() {
+    return this.prevId;
   }
   
-  setPrevHash(prevHash) {
-    this.prevHash = prevHash;
+  setPrevId(prevId) {
+    this.prevId = prevId;
   }
   
   getReward() {

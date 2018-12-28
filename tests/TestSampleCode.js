@@ -62,9 +62,9 @@ describe("Test sample code for README.md", function() {
       // get block info
       for (let block of blocks) {
         let blockHeight = block.getHeader().getHeight();
-        let blockHash = block.getHeader().getHash();
+        let blockId = block.getHeader().getId();
         let blockSize = block.getHeader().getSize();
-        let numTxs = block.getTxs().length;
+        let txCount = block.getTxs().length;
       }
     });
 });

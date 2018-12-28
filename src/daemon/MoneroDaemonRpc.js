@@ -49,7 +49,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return (await this.config.rpc.sendJsonRequest("get_block_count")).count;
   }
   
-  async getBlockHash(height) {
+  async getBlockId(height) {
     await this._initOneTime();
     return await this.config.rpc.sendJsonRequest("on_get_block_hash", [height]);
   }
@@ -70,9 +70,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return header;
   }
   
-  async getBlockHeaderByHash(hash) {
+  async getBlockHeaderById(blockId) {
     await this._initOneTime();
-    let resp = await this.config.rpc.sendJsonRequest("get_block_header_by_hash", { hash: hash } );
+    let resp = await this.config.rpc.sendJsonRequest("get_block_header_by_hash", { hash: blockId } );
     let header = MoneroDaemonRpc._buildBlockHeader(resp.block_header);
     MoneroDaemonRpc._setResponseInfo(resp, header);
     return header;
@@ -105,9 +105,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return headers;
   }
   
-  async getBlockByHash(hash) {
+  async getBlockById(blockId) {
     await this._initOneTime();
-    let resp = await this.config.rpc.sendJsonRequest("get_block", { hash: hash });
+    let resp = await this.config.rpc.sendJsonRequest("get_block", { hash: blockId });
     let block = MoneroDaemonRpc._buildBlock(resp);
     MoneroDaemonRpc._setResponseInfo(resp, block);
     return block;
@@ -445,18 +445,18 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let header = new MoneroBlockHeader();
     for (let key of Object.keys(rpcHeader)) {
       let val = rpcHeader[key];
-      if (key === "block_size") header.setBlockSize(val);
+      if (key === "block_size") header.setSize(val);
       else if (key === "depth") header.setDepth(val);
       else if (key === "difficulty") header.setDifficulty(new BigInteger(val));
       else if (key === "cumulative_difficulty") header.setCumulativeDifficulty(new BigInteger(val));
-      else if (key === "hash") header.setHash(val);
+      else if (key === "hash") header.setId(val);
       else if (key === "height") header.setHeight(val);
       else if (key === "major_version") header.setMajorVersion(val);
       else if (key === "minor_version") header.setMinorVersion(val);
       else if (key === "nonce") header.setNonce(val);
       else if (key === "num_txes") header.setNumTxs(val);
       else if (key === "orphan_status") header.setOrphanStatus(val);
-      else if (key === "prev_hash" || key === "prev_id") header.setPrevHash(val);
+      else if (key === "prev_hash" || key === "prev_id") header.setPrevId(val);
       else if (key === "reward") header.setReward(new BigInteger(val));
       else if (key === "timestamp") header.setTimestamp(val);
       else if (key === "block_weight") header.setBlockWeight(val);
@@ -566,7 +566,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "difficulty") template.setDifficulty(val);
       else if (key === "expected_reward") template.setExpectedReward(val);
       else if (key === "height") template.setHeight(val);
-      else if (key === "prev_hash") template.setPrevHash(val);
+      else if (key === "prev_hash") template.setPrevId(val);
       else if (key === "reserved_offset") template.setReservedOffset(val);
       else if (key === "status") {}  // set elsewhere
       else if (key === "untrusted") {}  // set elsewhere
@@ -602,7 +602,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "status") {}  // set elsewhere
       else if (key === "target") info.setTarget(val);
       else if (key === "target_height") info.setTargetHeight(val);
-      else if (key === "top_block_hash") info.setTopBlockHash(val);
+      else if (key === "top_block_hash") info.setTopBlockId(val);
       else if (key === "tx_count") info.setTxCount(val);
       else if (key === "tx_pool_size") info.setTxPoolSize(val);
       else if (key === "untrusted") {} // set elsewhere
