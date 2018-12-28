@@ -1,4 +1,6 @@
 TODO
+readme
+add MoneroOutput and test
 test daemon / wallet getTxs() with unfound txs (throw error?)
 test getting coinbase txs by id
 test wallet txs getIsCoinbase()
