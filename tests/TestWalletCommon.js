@@ -44,15 +44,15 @@ class TestWalletCommon {
     let that = this;
     let liteMode = true;
     describe("Common Wallet Tests", function() {
-      describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
-        that._runNonSendTests(liteMode);
-      });
+//      describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
+//        that._runNonSendTests(liteMode);
+//      });
       describe("Send Tests", function() {
         that._runSendTests();
       });
-      describe("Reset Tests", function() {
-        that._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
-      });
+//      describe("Reset Tests", function() {
+//        that._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
+//      });
     })
   }
   
@@ -1197,10 +1197,8 @@ class TestWalletCommon {
       // send to subaddresses
       let payments = [];
       for (let i = 0; i < destinationAddresses.length; i++) {
-        let payment = new MoneroPayment();  // TODO: assign address and amount here
+        let payment = new MoneroPayment(destinationAddresses[i], sendAmountPerSubaddress);
         payments.push(payment);
-        payment.setAddress(destinationAddresses[i]);
-        payment.setAmount(sendAmountPerSubaddress);
       }
       let config = new MoneroSendConfig();
       config.setMixin(TestUtils.MIXIN);

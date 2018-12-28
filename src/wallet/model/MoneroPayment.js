@@ -10,8 +10,14 @@ class MoneroPayment {
    * 
    * @param json is existing JSON to construct the model from (optional)
    */
-  constructor(json) {
-    this.json = Object.assign({}, json);
+  constructor(jsonOrAddress, amount) {
+    if (typeof jsonOrAddress === "string") {
+      this.json = {};
+      this.setAddress(jsonOrAddress);
+      this.setAmount(amount);
+    } else {
+      this.json = Object.assign({}, jsonOrAddress);
+    }
   }
   
   getAddress() {

@@ -836,7 +836,6 @@ class MoneroWalletRpc extends MoneroWallet {
    */
   async _send(split, configOrAddress, amount, paymentId, priority, mixin, fee) {
     
-    
     // normalize send config
     let config;
     if (configOrAddress instanceof MoneroSendConfig) config = configOrAddress;
@@ -854,6 +853,8 @@ class MoneroWalletRpc extends MoneroWallet {
     let params = {};
     params.destinations = [];
     for (let payment of config.getPayments()) {
+      assert(payment.getAddress(), "Payment address is not defined");
+      assert(payment.getAmount(), "Payment amount is not defined");
       params.destinations.push({ address: payment.getAddress(), amount: payment.getAmount().toString() });
     }
     params.account_index = accountIdx;

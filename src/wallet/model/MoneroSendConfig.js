@@ -19,6 +19,7 @@ class MoneroSendConfig {
       this.setPriority(priority);
       this.setMixin(mixin);
       this.setFee(fee);
+      this.setAccountIndex(0);  // default to account index 0 unless overriden
     }
     
     // verify types
