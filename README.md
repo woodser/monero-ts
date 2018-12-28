@@ -6,11 +6,9 @@ This project provides a modern JavaScript API for a Monero wallet and daemon.
 
 The API currently relies on running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon RPC](https://getmonero.org/resources/developer-guides/daemon-rpc.html).
 
-## Code Samples
+## Wallet Sample
 
 See the [tests](tests) for the most complete examples of using this library.
-
-### Wallet Sample
 
 ```js
 // create a wallet that uses a monero-wallet-rpc endpoint
@@ -28,7 +26,7 @@ let subaddressAddress = subaddress.getAddress();
 // send a payment
 let sentTx = await wallet.send("74oAtjgE2dfD1bJBo4DWW3E6qXCAwUDMgNqUurnX9b2xUvDTwMwExiXDkZskg7Vct37tRGjzHRqL4gH4H3oag3YyMYJzrNp", new BigInteger(50000));
 
-// send 1/10th the balance to multiple destinations from subaddress 0, 1 which can be split into multiple transactions
+// send payments to multiple destinations from subaddress 0, 1 which can be split into multiple transactions
 let payments = [];
 payments.push(new MoneroPayment("7BV7iyk9T6kfs7cPfmn7vPZPyWRid7WEwecBkkVr8fpw9MmUgXTPtvMKXuuzqKyr2BegWMhEcGGEt5vNkmJEtgnRFUAvf29", new BigInteger(50000)));
 payments.push(new MoneroPayment("78NWrWGgyZeYgckJhuxmtDMqo8Kzq5r9j1kV8BQXGq5CDnECz2KjQeBDc3KKvdMQmR6TWtfbRaedgbSGmmwr1g8N1rBMdvW", new BigInteger(50000)));
@@ -46,7 +44,7 @@ for (let tx of await wallet.getTxs()) {
 }
 ```
 
-### Daemon Sample
+## Daemon Sample
 
 ```js
 // create a daemon that uses a monero-daemon-rpc endpoint
