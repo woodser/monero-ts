@@ -2,11 +2,21 @@
 
 ## Introduction
 
-This project provides a JavaScript API (data models and service interfaces) for a Monero wallet and daemon.
+This project provides a JavaScript API for a Monero wallet and daemon.
 
-Currently, the service interfaces rely on running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon](https://getmonero.org/resources/developer-guides/daemon-rpc.html).
+Currently, the service interfaces rely on running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon RPC](https://getmonero.org/resources/developer-guides/daemon-rpc.html).
 
 ## Code Samples
+
+## JavaScript API
+
+[MoneroDaemon.js](src/daemon/MoneroDaemon.js) implemented by [MoneroDaemonRpc.js](src/daemon/MoneroDaemonRpc.js)
+
+[MoneroWallet.js](src/wallet/MoneroWallet.js) implemented by [MoneroWalletRpc.js](src/wallet/MoneroWalletRpc.js)
+
+[Monero wallet data model](src/wallet/model)
+
+[Monero daemon data model](src/daemon/model]
 
 ## JavaScript Setup
 
@@ -20,13 +30,6 @@ Currently, the service interfaces rely on running instances of [Monero Wallet RP
 ## Running Tests
 
 TODO
-
-## JavaScript API
-
-[MoneroDaemon.js](src/daemon/MoneroDaemon.js) implemented by [MoneroDaemonRpc.js](src/daemon/MoneroDaemonRpc.js)
-[MoneroWallet.js](src/wallet/MoneroWallet.js) implemented by [MoneroWalletRpc.js](src/wallet/MoneroWalletRpc.js)
-[Monero wallet data model](src/wallet/model)
-[Monero daemon data model](src/daemon/model]
 
 ## License
 
