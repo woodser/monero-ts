@@ -39,6 +39,13 @@ for (let tx of await wallet.getTxs()) {
 
 ## Running Tests
 
+1. Setup running instances of monero-wallet-rpc and monero-daemon-rpc.  See Monero RPC Setup.
+2. `git clone --recurse-submodules https://github.com/woodser/monero-javascript.git`
+3. `npm install`
+4. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/TestUtils.js).
+5. `npm test`
+
+Note: some tests are failing as not all functionliaty is implemented.
 
 ## Monero RPC Setup
 
