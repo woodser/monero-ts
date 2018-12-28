@@ -23,8 +23,8 @@ describe("Test sample code for README.md", function() {
     let subaddressBalance = subaddress.getBalance();
     let subaddressAddress = subaddress.getAddress();
 
-//    // send a payment
-//    let sentTx = await wallet.send("74oAtjgE2dfD1bJBo4DWW3E6qXCAwUDMgNqUurnX9b2xUvDTwMwExiXDkZskg7Vct37tRGjzHRqL4gH4H3oag3YyMYJzrNp", new BigInteger(50000));
+    // send a payment
+    let sentTx = await wallet.send("74oAtjgE2dfD1bJBo4DWW3E6qXCAwUDMgNqUurnX9b2xUvDTwMwExiXDkZskg7Vct37tRGjzHRqL4gH4H3oag3YyMYJzrNp", new BigInteger(50000));
 
     // send 1/10th the balance to multiple destinations from subaddress 0, 1 which can be split into multiple transactions
     let payments = [];
