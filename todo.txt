@@ -1,10 +1,14 @@
 HIGH
+don't wrap single return fields with MoneroDaemonModel
 standardize on tx ids
 standardize on block ids
 daemon.getBlocksById(), default implementations
 standardize on mempool vs tx pool
 standardize getTxCount(), getConfirmationCount()
 license headers
+merge txs as state changes e.g. becomes confirmed
+MoneroTx constructor vs copy
+todos throughout code
 
 test getting coinbase txs by id
 test daemon/wallet txs getIsCoinbase()
@@ -24,6 +28,7 @@ split BooleanSet into new project
 add MoneroOutput and test
 tx.getIsUnlocked()?
 way to throttle rpc requests with agent instead of throttle-request to preserve stacktrace?
+document model fields
 
 BUILD
 build process to not read mymonero-core-js build and contrib to browser build

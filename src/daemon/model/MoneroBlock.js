@@ -29,7 +29,7 @@ class MoneroBlock extends MoneroDaemonModel {
     this.coinbaseTx = coinbaseTx;
   }
   
-  getTxHashes() { // TODO: collapse with getTxs() so no redundant information?
+  getTxHashes() {
     return this.txHashes;
   }
   

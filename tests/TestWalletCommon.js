@@ -1536,7 +1536,7 @@ async function testTxWalletGetIncoming(tx, wallet) {
 //    if (tx.getNumConfirmations() === undefined) console.log("WARNING: incoming transaction is missing confirmations: " + tx.getId());
     if (tx.getNumConfirmations() === undefined) {} // TODO: remove once #4500 fixed
     else assert(tx.getNumConfirmations() > 0);
-    assert.equal(undefined, tx.getNumEstimatedBlocksUntilConfirmed());
+    assert.equal(undefined, tx.getNumEstimatedBlocksUntilConfirmed());  // TODO: rename to getEstimatedBlockCountUntilConfirmed()
     assert.equal(undefined, tx.getLastRelayedTime());
     assert.equal(undefined, tx.getReceivedTime());
   }

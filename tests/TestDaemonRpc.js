@@ -288,6 +288,7 @@ describe("Test Monero Daemon RPC", function() {
     assert(txPool.getSpentKeyImages().length > 0, "Test requires spent key images in the tx pool");
     for (let image of txPool.getSpentKeyImages()) {
       assert(image.getKeyImage());
+      assert(image.getSpentStatus() === true);
       assert(Array.isArray(image.getSpendingTxIds()));
       assert(image.getSpendingTxIds().length > 0);  // TODO: test that spending tx id is included in tx pool tx ids 
     }

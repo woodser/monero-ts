@@ -189,7 +189,7 @@ class MoneroDaemonInfo extends MoneroDaemonModel {
     this.topBlockHash = topBlockHash;
   }
   
-  getTxCount() {  // TODO: getNonCoinbaseTxCount()? probably.
+  getTxCount() {
     return this.txCount;
   }
   
