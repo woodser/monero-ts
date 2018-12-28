@@ -8,7 +8,7 @@ The API currently relies on running instances of [Monero Wallet RPC](https://get
 
 ## Code Samples
 
-See tests in [src/tests](src/tests) for the most thorough documentation of using this library.
+See [tests](tests) for the most complete examples of using this library.
 
 ### Wallet Sample
 
@@ -73,7 +73,7 @@ for (let block of blocks) {
 1. Set up running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon RPC](https://getmonero.org/resources/developer-guides/daemon-rpc.html).  See [Monero RPC Setup](#monero-rpc-setup).
 2. `git clone --recurse-submodules https://github.com/woodser/monero-javascript.git`
 3. `npm install`
-4. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/tests/TestUtils.js).
+4. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](tests/TestUtils.js).
 5. `npm test`
 
 Note: some tests are failing as not all functionality is implemented.
