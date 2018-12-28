@@ -169,12 +169,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return await this.getBlocksByHeight(heights);
   }
   
-  async getTxs(txHashes, decodeAsJson, prune) {
+  async getTxs(txIds, decodeAsJson, prune) {
     await this._initOneTime();
     
     // fetch transactions
     let resp = await this.config.rpc.sendPathRequest("get_transactions", {
-      txs_hashes: txHashes,
+      txs_hashes: txIds,
       decode_as_json: decodeAsJson,
       prune: prune
     });
@@ -479,7 +479,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let block = new MoneroBlock();
     block.setHex(rpcBlock.blob);
     block.setHeader(MoneroDaemonRpc._buildBlockHeader(rpcBlock.block_header ? rpcBlock.block_header : rpcBlock));
-    block.setTxHashes(rpcBlock.tx_hashes === undefined ? [] : rpcBlock.tx_hashes);
+    block.setTxIds(rpcBlock.tx_hashes === undefined ? [] : rpcBlock.tx_hashes);
     block.setCoinbaseTx(coinbaseTx);
     return block;
   }

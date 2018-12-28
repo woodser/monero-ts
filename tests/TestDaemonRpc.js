@@ -233,7 +233,7 @@ describe("Test Monero Daemon RPC", function() {
     let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
     
     // collect tx hashes
-    let txIds = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; });
+    let txIds = blocks.map(block => block.getTxIds()).reduce((a, b) => { a.push.apply(a, b); return a; });
     assert(txIds.length > 0, "No transactions found in the range [" + startHeight + ", " + endHeight + "]");
     
     // fetch txs by id
@@ -533,8 +533,8 @@ function testBlock(block, config) {
   
   // test required fields
   assert(block);
-  assert(Array.isArray(block.getTxHashes())); // TODO: tx hashes probably part of tx
-  assert(block.getTxHashes().length >= 0);
+  assert(Array.isArray(block.getTxIds())); // TODO: tx hashes probably part of tx
+  assert(block.getTxIds().length >= 0);
   testCoinbaseTx(block.getCoinbaseTx());            // TODO: coinbase tx doesn't have as much stuff, can't call testTx?
   testBlockHeader(block.getHeader(), config.headerIsFull);
   

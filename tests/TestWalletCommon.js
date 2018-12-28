@@ -44,15 +44,15 @@ class TestWalletCommon {
     let that = this;
     let liteMode = true;
     describe("Common Wallet Tests", function() {
-//      describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
-//        that._runNonSendTests(liteMode);
-//      });
+      describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
+        that._runNonSendTests(liteMode);
+      });
       describe("Send Tests", function() {
         that._runSendTests();
       });
-//      describe("Reset Tests", function() {
-//        that._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
-//      });
+      describe("Reset Tests", function() {
+        that._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
+      });
     })
   }
   

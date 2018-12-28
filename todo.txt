@@ -1,6 +1,6 @@
 HIGH
-don't wrap single return fields with MoneroDaemonModel
-standardize on tx ids
+reset tests and rpc implementation
+don't wrap single return fields with MoneroDaemonModel?
 standardize on block ids
 daemon.getBlocksById(), default implementations
 standardize on mempool vs tx pool

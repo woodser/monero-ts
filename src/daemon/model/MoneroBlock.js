@@ -29,12 +29,12 @@ class MoneroBlock extends MoneroDaemonModel {
     this.coinbaseTx = coinbaseTx;
   }
   
-  getTxHashes() {
-    return this.txHashes;
+  getTxIds() {
+    return this.txIds;
   }
   
-  setTxHashes(txHashes) {
-    this.txHashes = txHashes;
+  setTxIds(txIds) {
+    this.txIds = txIds;
   }
   
   getTxs() {
