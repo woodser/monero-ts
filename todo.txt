@@ -11,13 +11,12 @@ todos throughout code
 tests are unecessarily creating new accounts which degrades test performance
 support sweep_single (output)
 block comments with params and formatting
-
-test getting coinbase txs by id
 test daemon/wallet txs getIsCoinbase()
 test daemon / wallet getTxs() with unfound txs (throw error?)
+test getting coinbase txs by id
 verify that all tx fields are being tested
 
-MEDIUM
+LOW
 switch to jest?
 time profiling
 in wallet implementation: "prepend the last 3 blocks, should be enough to guard against a block or two's reorg" pull_and_parse_next_blocks
@@ -32,6 +31,7 @@ add MoneroOutput and test
 tx.getIsUnlocked()?
 way to throttle rpc requests with agent instead of throttle-request to preserve stacktrace?
 document model fields
+add config options to tests, maybe use test objects per
 
 BUILD
 build process to not read mymonero-core-js build and contrib to browser build
