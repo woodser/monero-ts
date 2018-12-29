@@ -387,7 +387,7 @@ class MoneroTx extends MoneroDaemonModel {
     }
     
     // merge confirmation count
-    if (this.getConfirmationCount() === undefined) this.getConfirmationCount() = tx.getConfirmationCount();
+    if (this.getConfirmationCount() === undefined) this.setConfirmationCount(tx.getConfirmationCount());
     else if (tx.getConfirmationCount() !== undefined) {
       this.setConfirmationCount(Math.max(this.getConfirmationCount(), tx.getConfirmationCount()));  // confirmation count can change, take the latest (max)
     }
