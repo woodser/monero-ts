@@ -1,6 +1,5 @@
 HIGH
 don't wrap single return fields with MoneroDaemonModel?
-standardize getTxCount(), getConfirmationCount()
 license headers
 merge txs as state changes e.g. becomes confirmed
 MoneroTx constructor vs copy

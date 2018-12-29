@@ -521,7 +521,7 @@ function testBlockHeader(header, isFull) {
   assert(!isFull ? undefined === header.getDifficulty() : header.getDifficulty());
   assert(!isFull ? undefined === header.getCumulativeDifficulty() : header.getCumulativeDifficulty());
   assert(!isFull ? undefined === header.getId() : header.getId());
-  assert(!isFull ? undefined === header.getNumTxs() : header.getNumTxs() >= 0);
+  assert(!isFull ? undefined === header.getTxCount() : header.getTxCount() >= 0);
   assert(!isFull ? undefined === header.getOrphanStatus() : typeof header.getOrphanStatus() === "boolean");
   assert(!isFull ? undefined === header.getReward() : header.getReward());
   assert(!isFull ? undefined === header.getBlockWeight() : header.getBlockWeight());

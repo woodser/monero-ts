@@ -55,12 +55,12 @@ class MoneroSubaddress {
     this.unlockedBalance = unlockedBalance;
   }
 
-  getNumUnspentOutputs() {
-    return this.numUnspentOutputs;
+  getUnspentOutputCount() {
+    return this.unspentOutputCount;
   }
 
-  setNumUnspentOutputs(numUnspentOutputs) {
-    this.numUnspentOutputs = numUnspentOutputs;
+  setUnspentOutputCount(unspentOutputCount) {
+    this.unspentOutputCount = unspentOutputCount;
   }
 
   getIsUsed() {
@@ -83,7 +83,7 @@ class MoneroSubaddress {
 //    sb.append(StringUtils.getTabs(offset) + "label: " + label + "\n");
 //    sb.append(StringUtils.getTabs(offset) + "balance: " + balance + "\n");
 //    sb.append(StringUtils.getTabs(offset) + "unlockedBalance: " + unlockedBalance + "\n");
-//    sb.append(StringUtils.getTabs(offset) + "numUnspentOutputs: " + numUnspentOutputs);
+//    sb.append(StringUtils.getTabs(offset) + "unspentOutputCount: " + unspentOutputCount);
 //    return sb.toString();
   }
 }

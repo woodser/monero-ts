@@ -77,12 +77,12 @@ class MoneroBlockHeader extends MoneroDaemonModel {
     this.nonce = nonce;
   }
   
-  getNumTxs() {
-    return this.numTxs;
+  getTxCount() {
+    return this.txCount;
   }
   
-  setNumTxs(numTxs) {
-    this.numTxs = numTxs;
+  setTxCount(txCount) {
+    this.txCount = txCount;
   }
   
   getOrphanStatus() {

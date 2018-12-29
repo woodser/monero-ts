@@ -1527,7 +1527,7 @@ function testSubaddress(subaddress) {
   assert(subaddress.getAddress());
   TestUtils.testUnsignedBigInteger(subaddress.getBalance());
   TestUtils.testUnsignedBigInteger(subaddress.getUnlockedBalance());
-  assert(subaddress.getNumUnspentOutputs() >= 0);
+  assert(subaddress.getUnspentOutputCount() >= 0);
   if (subaddress.getBalance().toJSValue() > 0) assert(subaddress.getIsUsed());
 }
 
@@ -1615,10 +1615,10 @@ async function testTxWalletGetIncoming(tx, wallet) {
     assert.equal(undefined, tx.getKey());
 //    if (tx.getHeight() === undefined) console.log("WARNING: incoming transaction is missing height: " + tx.getId());
 //    if (tx.getBlockTimestamp() === undefined) console.log("WARNING: incoming transaction is missing block timestamps: " + tx.getId());
-//    if (tx.getNumConfirmations() === undefined) console.log("WARNING: incoming transaction is missing confirmations: " + tx.getId());
-    if (tx.getNumConfirmations() === undefined) {} // TODO: remove once #4500 fixed
-    else assert(tx.getNumConfirmations() > 0);
-    assert.equal(undefined, tx.getNumEstimatedBlocksUntilConfirmed());  // TODO: rename to getEstimatedBlockCountUntilConfirmed()
+//    if (tx.getConfirmationCount() === undefined) console.log("WARNING: incoming transaction is missing confirmations: " + tx.getId());
+    if (tx.getConfirmationCount() === undefined) {} // TODO: remove once #4500 fixed
+    else assert(tx.getConfirmationCount() > 0);
+    assert.equal(undefined, tx.getEstimatedBlockCountUntilConfirmed());  // TODO: rename to getEstimatedBlockCountUntilConfirmed()
     assert.equal(undefined, tx.getLastRelayedTime());
     assert.equal(undefined, tx.getReceivedTime());
   }
@@ -1628,8 +1628,8 @@ async function testTxWalletGetIncoming(tx, wallet) {
     assert.equal(undefined, tx.getKey());
     assert.equal(undefined, tx.getHeight());
     assert.equal(undefined, tx.getBlockTimestamp());
-    assert.equal(0, tx.getNumConfirmations());
-    assert(tx.getNumEstimatedBlocksUntilConfirmed() > 0);
+    assert.equal(0, tx.getConfirmationCount());
+    assert(tx.getEstimatedBlockCountUntilConfirmed() > 0);
     assert.equal(undefined, tx.getLastRelayedTime());
     assert(tx.getReceivedTime() > 0); // TODO: might need to log warning given #4500
   }
@@ -1688,8 +1688,8 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments, unbalanc
   if (tx.getIsConfirmed()) {
     assert(tx.getHeight() >= 0);
     assert(tx.getBlockTimestamp() > 0);
-    assert(tx.getNumConfirmations() > 0);
-    assert.equal(undefined, tx.getNumEstimatedBlocksUntilConfirmed());
+    assert(tx.getConfirmationCount() > 0);
+    assert.equal(undefined, tx.getEstimatedBlockCountUntilConfirmed());
     assert.equal(undefined, tx.getLastRelayedTime());
     assert.equal(undefined, tx.getReceivedTime());
   }
@@ -1698,8 +1698,8 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments, unbalanc
   else if (tx.getInTxPool()) {
     assert.equal(undefined, tx.getHeight());
     assert.equal(undefined, tx.getBlockTimestamp());
-    assert.equal(0, tx.getNumConfirmations());
-    assert(tx.getNumEstimatedBlocksUntilConfirmed() > 0);
+    assert.equal(0, tx.getConfirmationCount());
+    assert(tx.getEstimatedBlockCountUntilConfirmed() > 0);
     if (tx.getIsRelayed()) assert(tx.getLastRelayedTime() > 0);
     else assert.equal(undefined, tx.getLastRelayedTime());
     assert.equal(undefined, tx.getReceivedTime());
@@ -1832,13 +1832,13 @@ function testCommonTxSets(txs, hasSigned, hasUnsigned, hasMultisig) {
 function testCheckTx(tx, check) {
   assert.equal("boolean", typeof check.getIsGood());
   if (check.getIsGood()) {
-    assert(check.getNumConfirmations() >= 0);
+    assert(check.getConfirmationCount() >= 0);
     assert.equal("boolean", typeof check.getInTxPool());
     TestUtils.testUnsignedBigInteger(check.getAmountReceived());
-    if (check.getInTxPool()) assert.equal(0, check.getNumConfirmations());
-    else assert(check.getNumConfirmations() > 0); // TODO (monero-wall-rpc) this fails (confirmations is 0) for (at least one) transaction that has 1 confirmation on testCheckTxKey()
+    if (check.getInTxPool()) assert.equal(0, check.getConfirmationCount());
+    else assert(check.getConfirmationCount() > 0); // TODO (monero-wall-rpc) this fails (confirmations is 0) for (at least one) transaction that has 1 confirmation on testCheckTxKey()
   } else {
-    assert.equal(undefined, check.getNumConfirmations());
+    assert.equal(undefined, check.getConfirmationCount());
     assert.equal(undefined, check.getInTxPool());
     assert.equal(undefined, check.getAmountReceived());
   }

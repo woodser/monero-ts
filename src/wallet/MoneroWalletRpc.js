@@ -157,7 +157,7 @@ class MoneroWalletRpc extends MoneroWallet {
       // set defaults
       subaddress.setBalance(new BigInteger(0));
       subaddress.setUnlockedBalance(new BigInteger(0));
-      subaddress.setNumUnspentOutputs(0);
+      subaddress.setUnspentOutputCount(0);
     }
     
     // fetch and initialize subaddress balances
@@ -171,7 +171,7 @@ class MoneroWalletRpc extends MoneroWallet {
           assert.equal(subaddress.getAddress(), respSubaddress.address);
           if (respSubaddress.balance !== undefined) subaddress.setBalance(new BigInteger(respSubaddress.balance));
           if (respSubaddress.unlocked_balance !== undefined) subaddress.setUnlockedBalance(new BigInteger(respSubaddress.unlocked_balance));
-          subaddress.setNumUnspentOutputs(respSubaddress.num_unspent_outputs);
+          subaddress.setUnspentOutputCount(respSubaddress.num_unspent_outputs);
         }
       }
     }
@@ -209,7 +209,7 @@ class MoneroWalletRpc extends MoneroWallet {
     subaddress.setLabel(label ? label : "");
     subaddress.setBalance(new BigInteger(0));
     subaddress.setUnlockedBalance(new BigInteger(0));
-    subaddress.setNumUnspentOutputs(0);
+    subaddress.setUnspentOutputCount(0);
     subaddress.setIsUsed(false);
     return subaddress;
   }
@@ -536,7 +536,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // interpret result
     let check = new MoneroCheckTx();
     check.setIsGood(true);
-    check.setNumConfirmations(resp.confirmations);
+    check.setConfirmationCount(resp.confirmations);
     check.setInTxPool(resp.in_pool);
     check.setAmountReceived(new BigInteger(resp.received));
     return check;
@@ -562,7 +562,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let check = new MoneroCheckTx();
     check.setIsGood(isGood);
     if (isGood) {
-      check.setNumConfirmations(resp.confirmations);
+      check.setConfirmationCount(resp.confirmations);
       check.setInTxPool(resp.in_pool);
       check.setAmountReceived(new BigInteger(resp.received));
     }
@@ -747,12 +747,12 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "tx_metadata") tx.setMetadata(val);
       else if (key === "double_spend_seen") tx.setIsDoubleSpend(val);
       else if (key === "confirmations") {
-        if (!tx.getIsConfirmed()) tx.setNumConfirmations(0);
-        else tx.setNumConfirmations(val);
+        if (!tx.getIsConfirmed()) tx.setConfirmationCount(0);
+        else tx.setConfirmationCount(val);
       }
       else if (key === "suggested_confirmations_threshold") {
-        if (tx.getInTxPool()) tx.setNumEstimatedBlocksUntilConfirmed(val);
-        else tx.setNumEstimatedBlocksUntilConfirmed(undefined)
+        if (tx.getInTxPool()) tx.setEstimatedBlockCountUntilConfirmed(val);
+        else tx.setEstimatedBlockCountUntilConfirmed(undefined)
       }
       else if (key === "height") {
         tx.setHeight(val === 0 ? undefined : val); // TODO: right?  converted from Java: tx.setHeight(height == 0 ? null : height);

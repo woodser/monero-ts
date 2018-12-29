@@ -13,12 +13,12 @@ class MoneroCheckTx extends MoneroCheck {
     this.inTxPool = inTxPool;
   }
   
-  getNumConfirmations() {
-    return this.numConfirmations;
+  getConfirmationCount() {
+    return this.confirmationCount;
   }
   
-  setNumConfirmations(numConfirmations) {
-    this.numConfirmations = numConfirmations;
+  setConfirmationCount(confirmationCount) {
+    this.confirmationCount = confirmationCount;
   }
   
   getAmountReceived() {

@@ -454,7 +454,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "major_version") header.setMajorVersion(val);
       else if (key === "minor_version") header.setMinorVersion(val);
       else if (key === "nonce") header.setNonce(val);
-      else if (key === "num_txes") header.setNumTxs(val);
+      else if (key === "num_txes") header.setTxCount(val);
       else if (key === "orphan_status") header.setOrphanStatus(val);
       else if (key === "prev_hash" || key === "prev_id") header.setPrevId(val);
       else if (key === "reward") header.setReward(new BigInteger(val));
