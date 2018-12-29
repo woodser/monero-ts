@@ -14,7 +14,7 @@ class MoneroTx extends MoneroDaemonModel {
    */
   constructor(json) {
     super();
-    this.json = Object.assign({}, json);  // TODO: should use given json if given, copy function should handle duplication
+    this.json = json ? json : {};
   }
   
   getId() {
@@ -314,7 +314,7 @@ class MoneroTx extends MoneroDaemonModel {
   }
   
   copy() {
-    return new MoneroTx(this.json);
+    return new MoneroTx(Object.assign({}, this.json));  // create tx with copied json
   }
   
   toJson() {
