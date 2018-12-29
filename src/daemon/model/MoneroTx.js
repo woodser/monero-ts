@@ -106,11 +106,11 @@ class MoneroTx extends MoneroDaemonModel {
   }
   
   getConfirmationCount() {
-    return this.json.numConfirmations;
+    return this.json.confirmationCount;
   }
   
-  setConfirmationCount(numConfirmations) {
-    this.json.numConfirmations = numConfirmations;
+  setConfirmationCount(confirmationCount) {
+    this.json.confirmationCount = confirmationCount;
   }
   
   getBlockTimestamp() {
@@ -379,14 +379,14 @@ class MoneroTx extends MoneroDaemonModel {
       if (!this.getIsConfirmed()) this.json.receivedTime = Math.min(this.json.receivedTime, tx.getReceivedTime()); // txpool timestamps can vary so use first timestamp
       else assert.equal(this.json.receivedTime, tx.getReceivedTime(), "Transaction " + tx.getId() + " received timestamps should be equal but are not: " + this.json.receivedTime + " vs " + tx.getReceivedTime());
     }
-    if (this.json.numConfirmations === undefined) this.json.numConfirmations = tx.getConfirmationCount();
+    if (this.json.confirmationCount === undefined) this.json.confirmationCount = tx.getConfirmationCount();
     else if (tx.getConfirmationCount() !== undefined) {
-      this.json.numConfirmations = Math.max(this.json.numConfirmations, tx.getConfirmationCount());  // num confirmations can change, take the latest (max)
+      this.json.confirmationCount = Math.max(this.json.confirmationCount, tx.getConfirmationCount());  // confirmation count can change, take the latest (max)
     }
     if (this.json.estimatedBlockCountUntilConfirmed !== undefined) {
       if (tx.getEstimatedBlockCountUntilConfirmed() === undefined) delete this.json.estimatedBlockCountUntilConfirmed;  // uninitialize when confirmed
       else {
-        assert(Math.abs(this.json.estimatedBlockCountUntilConfirmed - tx.getEstimatedBlockCountUntilConfirmed()) <= 1); // num estimated blocks can change, take the latest (min)
+        assert(Math.abs(this.json.estimatedBlockCountUntilConfirmed - tx.getEstimatedBlockCountUntilConfirmed()) <= 1); // estimated block count can change, take the latest (min)
         this.json.estimatedBlockCountUntilConfirmed = Math.min(this.json.estimatedBlockCountUntilConfirmed, tx.getEstimatedBlockCountUntilConfirmed());
       }
     }
