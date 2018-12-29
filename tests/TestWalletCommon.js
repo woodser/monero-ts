@@ -35,6 +35,7 @@ class TestWalletCommon {
     assert(wallet instanceof MoneroWallet);
     this.wallet = wallet;
     this.daemon = daemon;
+    this.unbalancedTxIds = []; // track ids of txs whose total amount !== sum of payments so one warning per tx is printed // TODO: report issue, remove this when issue is fixed
   }
   
   /**
@@ -42,17 +43,17 @@ class TestWalletCommon {
    */
   runTests() {
     let that = this;
-    let liteMode = true;
+    let liteMode = true;    
     describe("Common Wallet Tests", function() {
-//      describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
-//        that._runNonSendTests(liteMode);
-//      });
-//      describe("Send Tests", function() {
-//        that._runSendTests();
-//      });
-      describe("Reset Tests", function() {
-        that._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
+      describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
+        that._runNonSendTests(liteMode);
       });
+      describe("Send Tests", function() {
+        that._runSendTests();
+      });
+//      describe("Reset Tests", function() {
+//        that._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
+//      });
     })
   }
   
@@ -64,9 +65,7 @@ class TestWalletCommon {
   _runNonSendTests(liteMode) {
     let wallet = this.wallet;
     let daemon = this.daemon;
-    
-    // track ids of txs whose total amount !== sum of payments so one warning per tx is printed
-    let unbalancedTxIds = []; // TODO: report issue, remove this when issue is fixed
+    let that = this;
     
     // local tx cache for tests
     let txCache;
@@ -333,8 +332,8 @@ class TestWalletCommon {
       let txs2 = await wallet.getTxs();
       assert.equal(txs1.length, txs2.length);
       for (let i = 0; i < txs1.length; i++) {
-        await testTxWalletGet(txs1[i], wallet, unbalancedTxIds);
-        await testTxWalletGet(txs2[i], wallet, unbalancedTxIds);
+        await testTxWalletGet(txs1[i], wallet, that.unbalancedTxIds);
+        await testTxWalletGet(txs2[i], wallet, that.unbalancedTxIds);
         TestUtils.assertTxsMergeable(txs1[i], txs2[i]);
         if (txs1[i].getIsIncoming()) {
           for (let payment of txs1[i].getPayments()) {
@@ -350,7 +349,7 @@ class TestWalletCommon {
       for (let account of await wallet.getAccounts()) {
         let txs = await wallet.getTxs(account.getIndex());
         for (let tx of txs) {
-          await testTxWalletGet(tx, wallet, unbalancedTxIds);
+          await testTxWalletGet(tx, wallet, that.unbalancedTxIds);
           if (tx.getIsOutgoing()) {
             assert.equal(account.getIndex(), tx.getSrcAccountIndex());
           } else {
@@ -370,7 +369,7 @@ class TestWalletCommon {
       for (let accountIdx = 0; accountIdx < Math.min(accounts.length, 3); accountIdx++) {
         for (let subaddressIdx = 0; subaddressIdx < Math.min(accounts[accountIdx].getSubaddresses().length, 5); subaddressIdx++) {
           for (let tx of await wallet.getTxs(accountIdx, subaddressIdx)) {
-            await testTxWalletGet(tx, wallet, unbalancedTxIds);
+            await testTxWalletGet(tx, wallet, that.unbalancedTxIds);
             if (tx.getIsOutgoing())  {
               assert.equal(accountIdx, tx.getSrcAccountIndex());
             } else {
@@ -461,7 +460,7 @@ class TestWalletCommon {
         let allTxs = await getCachedTxs();
         assert(allTxs.length > 0);
         for (let tx of allTxs) {
-          await testTxWalletGet(tx, wallet, unbalancedTxIds);
+          await testTxWalletGet(tx, wallet, that.unbalancedTxIds);
         }
         
         // test getting transactions by payment ids
@@ -475,7 +474,7 @@ class TestWalletCommon {
           let txs = await wallet.getTxs(filter);
           assert(txs.length > 0);
           for (let tx of txs) {
-            await testTxWalletGet(tx, wallet, unbalancedTxIds);
+            await testTxWalletGet(tx, wallet, that.unbalancedTxIds);
             assert(filter.getPaymentIds().includes(tx.getPaymentId()));
           }
         }
@@ -1042,7 +1041,7 @@ class TestWalletCommon {
       await testSendToSingle(false, integratedAddress.getPaymentId(), false);
     });
     
-    it("Can create a transaction to send to a single address then relay the transaction", async function() {
+    it("Can create then relay a transaction to send to a single address", async function() {
       await testSendToSingle(false, undefined, true);
     });
     
@@ -1050,7 +1049,7 @@ class TestWalletCommon {
       await testSendToSingle(true, undefined, false);
     });
     
-    it("Can create split transactions to send to a single address then relay the transactions", async function() {
+    it("Can create then relay split transactions to send to a single address", async function() {
       await testSendToSingle(true, undefined, true);
     });
     
@@ -1389,13 +1388,14 @@ class TestWalletCommon {
   _runResetTests() {
     let wallet = this.wallet;
     let daemon = this.daemon;
+    let that = this;
     
-//    // TODO: specific to monero-wallet-rpc?
-//    // disabled so tests don't delete local cache
+    // TODO: specific to monero-wallet-rpc?
+    // disabled so tests don't delete local cache
 //    it("Can rescan the blockchain", async function() {
 //      await wallet.rescanBlockchain();
 //      for (let tx of await wallet.getTxs()) {
-//        testTxWalletGet(tx, wallet, unbalancedTxIds);
+//        testTxWalletGet(tx, wallet, that.unbalancedTxIds);
 //      }
 //    });
     
@@ -1417,7 +1417,7 @@ class TestWalletCommon {
       
       // test requires at least one more account than the number being swept to verify it does not change
       assert(balanceAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Test requires balance in at least " + (NUM_ACCOUNTS_TO_SWEEP + 1) + " accounts; run testSendToMultiple() first");
-      assert(unlockedAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Test is waiting on unlocked funds");
+      assert(unlockedAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Wallet is waiting on unlocked funds");
       
       // sweep from first unlocked accounts
       for (let i = 0; i < NUM_ACCOUNTS_TO_SWEEP; i++) {
@@ -1470,9 +1470,10 @@ class TestWalletCommon {
       let destination = await wallet.getPrimaryAddress();
       
       // verify 2 accounts with unlocked balance
-      let balances = await getBalances();
-      assert(balances[0].length >= 2, "Test requires multiple accounts with a balance; run send to multiple first");
-      assert(balances[1].length >= 2, "Wallet is waiting on unlocked funds");
+      let subaddressesBalance = await getSubaddressesWithBalance(wallet);
+      let subaddressesUnlockedBalance = await getSubaddressesWithUnlockedBalance(wallet);
+      assert(subaddressesBalance.length >= 2, "Test requires multiple accounts with a balance; run send to multiple first");
+      assert(subaddressesUnlockedBalance.length >= 2, "Wallet is waiting on unlocked funds");
       
       // sweep
       let txs = await wallet.sweepWallet(destination);
@@ -1484,8 +1485,8 @@ class TestWalletCommon {
       }
       
       // assert no unlocked funds across subaddresses
-      balances = await getBalances();
-      assert(balances[1].length === 0, "Wallet should have no unlocked funds after sweeping all");
+      subaddressesUnlockedBalance = await getSubaddressesWithUnlockedBalance(wallet);
+      assert(subaddressesUnlockedBalance.length === 0, "Wallet should have no unlocked funds after sweeping all");
     });
   }
 }
@@ -1856,38 +1857,25 @@ function testCheckReserve(check) {
   }
 }
 
-///**
-// * Collect indices of subaddresses with a non-zero balance / unlocked balance.
-// * 
-// * @return e.g. {balances: {0: [0, 2], 2: [0, 1], ...}, unlockedBalances: {0: [0, 2], 2: [0, 1], ...}}
-// *         are indices of subaddresses with a non-zero balance / unlocked balance
-// *         
-// * TODO: change this to return subaddress objects instead
-// */
-//private Pair<Map<Integer, List<Integer>>, Map<Integer, List<Integer>>> getBalances() {
-//  Map<Integer, List<Integer>> balances = new HashMap<Integer, List<Integer>>();
-//  Map<Integer, List<Integer>> unlockedBalances = new HashMap<Integer, List<Integer>>();
-//  for (MoneroAccount account : wallet.getAccounts()) {
-//    for (MoneroSubaddress subaddress : wallet.getSubaddresses(account.getIndex())) {
-//      if (subaddress.getBalance().longValue() > 0) {
-//        List<Integer> subaddressIndices = balances.get(account.getIndex());
-//        if (subaddressIndices == null) {
-//          subaddressIndices = new ArrayList<Integer>();
-//          balances.put(account.getIndex(), subaddressIndices);
-//        }
-//        subaddressIndices.add(subaddress.getSubaddrIndex());
-//      }
-//      if (subaddress.getUnlockedBalance().longValue() > 0) {
-//        List<Integer> subaddressIndices = unlockedBalances.get(account.getIndex());
-//        if (subaddressIndices == null) {
-//          subaddressIndices = new ArrayList<Integer>();
-//          unlockedBalances.put(account.getIndex(), subaddressIndices);
-//        }
-//        subaddressIndices.add(subaddress.getSubaddrIndex());
-//      }
-//    }
-//  }
-//  return new Pair<Map<Integer, List<Integer>>, Map<Integer, List<Integer>>>(balances, unlockedBalances);
-//}
+async function getSubaddressesWithBalance(wallet) {
+  let subaddresses = [];
+  for (let account of await wallet.getAccounts(true)) {
+    for (let subaddress of account.getSubaddresses()) {
+      if (subaddress.getBalance().toJSValue() > 0) subaddresses.push(subaddress);
+    }
+  }
+  return subaddresses;
+}
+
+async function getSubaddressesWithUnlockedBalance(wallet) {
+  let subaddresses = [];
+  for (let account of await wallet.getAccounts(true)) {
+    for (let subaddress of account.getSubaddresses()) {
+      if (subaddress.getUnlockedBalance().toJSValue() > 0) subaddresses.push(subaddress);
+    }
+  }
+  return subaddresses;
+}
 
 module.exports = TestWalletCommon
+

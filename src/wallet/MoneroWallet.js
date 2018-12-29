@@ -1,3 +1,5 @@
+const MoneroSendConfig = require('./model/MoneroSendConfig');
+
 /**
  * Monero wallet interface and default implementations.
  *
@@ -152,9 +154,9 @@ class MoneroWallet {
   /**
    * Get subaddresses.
    * 
-   * @param accountIdx specifies the account to get subaddresses of
+   * @param accountIdx specifies the account to get subaddresses within
    * @param subaddressIndices is a number or numbers which specify subaddresses within the account (optional)
-   * @returns MoneroSubaddress[] are the retrieved subaddresses
+   * @returns {MoneroSubaddress[]} are the retrieved subaddresses
    */
   async getSubaddresses(accountIdx, subaddressIndices) {
     throw new Error("Subclass must implement");
@@ -240,7 +242,7 @@ class MoneroWallet {
    * @return {MoneroTxWallet[]} are the resulting transactions
    */
   async sweepWallet(address) {
-    throw new Error("Subclass must implement");
+    return await this.sweep(new MoneroSendConfig(address));
   }
 
   /**
@@ -251,7 +253,9 @@ class MoneroWallet {
    * @return {MoneroTxWallet[]} are the resulting transactions
    */
   async sweepAccount(accountIdx, address) {
-    throw new Error("Subclass must implement");
+    let config = new MoneroSendConfig(address);
+    config.setAccountIndex(accountIdx);
+    return await this.sweep(config);
   }
 
   /**
@@ -263,7 +267,10 @@ class MoneroWallet {
    * @return {MoneroTxWallet[]} are the resulting transactions
    */
   async sweepSubaddress(accountIdx, subaddressIdx, address) {
-    throw new Error("Subclass must implement");
+    let config = new MoneroSendConfig(address);
+    config.setAccountIndex(accountIdx);
+    config.setSubaddressIndices([subaddressIdx]);
+    return await this.sweep(config);
   }
 
   /**
@@ -272,7 +279,7 @@ class MoneroWallet {
    * @param config specifies the sweep configuration
    * @param {MoneroTxWallet[]} are the resulting transactions
    */
-  async sweepAll(config) {
+  async sweep(config) {
     throw new Error("Subclass must implement");
   }
   

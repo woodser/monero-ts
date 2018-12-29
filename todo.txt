@@ -10,6 +10,7 @@ MoneroTx constructor vs copy
 todos throughout code
 tests are unecessarily creating new accounts which degrades test performance
 support sweep_single (output)
+block comments with params and formatting
 
 test getting coinbase txs by id
 test daemon/wallet txs getIsCoinbase()
