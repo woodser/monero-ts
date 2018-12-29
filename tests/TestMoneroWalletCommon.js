@@ -609,7 +609,7 @@ class TestWalletCommon {
           
           // handle outgoing
           else {
-            if (tx.getInMempool()) outPoolBalance = outPoolBalance.add(tx.getTotalAmount()); // TODO: test pending balance
+            if (tx.getInTxPool()) outPoolBalance = outPoolBalance.add(tx.getTotalAmount()); // TODO: test pending balance
           }
         }
         
@@ -619,7 +619,7 @@ class TestWalletCommon {
 //        System.out.println("Wallet    : " + walletBalance);
 //        System.out.println("Incoming  : " + incomingBalance);
 //        System.out.println("Pending   : " + pendingBalance);
-//        System.out.println("Mempool   : " + mempoolBalance);
+//        System.out.println("Tx pool   : " + txPoolBalance);
 //        System.out.println("Expected  : " + expectedBalance);
         assert(walletBalance.compare(expectedBalance) === 0, "Account " + account.getIndex() + " balance does not add up: " + expectedBalance.toString() + " vs " + walletBalance.toString());
       }
@@ -669,7 +669,7 @@ class TestWalletCommon {
       // get random txs with outgoing payments
       let filter = new MoneroTxFilter();
       filter.setIsIncoming(false);
-      filter.setInMempool(false);
+      filter.setInTxPool(false);
       filter.setIsFailed(false);
       filter.setHasPayments(true);  // requires outgoing payments which rescan_bc will destroy
       let txs = await getRandomTransactions(wallet, filter, 1, MAX_TX_PROOFS);
@@ -748,7 +748,7 @@ class TestWalletCommon {
       // get random txs with outgoing payments
       let filter = new MoneroTxFilter();
       filter.setIsIncoming(false);
-      filter.setInMempool(false);
+      filter.setInTxPool(false);
       filter.setIsFailed(false);
       filter.setHasPayments(true);
       let txs = await getRandomTransactions(wallet, filter, 2, MAX_TX_PROOFS);
@@ -813,7 +813,7 @@ class TestWalletCommon {
       // get random outgoing txs
       let filter = new MoneroTxFilter();
       filter.setIsIncoming(false);
-      filter.setInMempool(false);
+      filter.setInTxPool(false);
       filter.setIsFailed(false);
       let txs = await getRandomTransactions(wallet, filter, 2, MAX_TX_PROOFS);
       
@@ -1554,7 +1554,7 @@ function testTxWalletCommon(tx) {
   assert.equal("boolean", typeof tx.getIsIncoming());
   assert.equal("boolean", typeof tx.getIsOutgoing());
   assert.equal("boolean", typeof tx.getIsConfirmed());
-  assert.equal("boolean", typeof tx.getInMempool());
+  assert.equal("boolean", typeof tx.getInTxPool());
 }
 
 /**
@@ -1648,7 +1648,7 @@ async function testTxWalletGetIncoming(tx, wallet) {
     assert(payment.getAmount().toJSValue() > 0);
     assert(typeof payment.getIsSpent() === "boolean");
     if (tx.getIsConfirmed()) assert(payment.getKeyImage());
-    else assert.equal(undefined, payment.getKeyImage());   // TODO (monero-wallet-rpc): mempool transactions do not have key_images
+    else assert.equal(undefined, payment.getKeyImage());   // TODO (monero-wallet-rpc): txpool transactions do not have key_images
   }
   assert(totalAmount.compare(tx.getTotalAmount()) === 0);
 }
@@ -1694,8 +1694,8 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments, unbalanc
     assert.equal(undefined, tx.getReceivedTime());
   }
   
-  // test mempool
-  else if (tx.getInMempool()) {
+  // test tx pool
+  else if (tx.getInTxPool()) {
     assert.equal(undefined, tx.getHeight());
     assert.equal(undefined, tx.getBlockTimestamp());
     assert.equal(0, tx.getNumConfirmations());
@@ -1745,14 +1745,14 @@ async function testTxWalletSend(tx, config, hasKey, hasPayments, wallet) {
   assert.equal(false, tx.getIsIncoming());
   assert.equal(false, tx.getIsConfirmed());
   if (config.getDoNotRelay()) {
-    assert.equal(false, tx.getInMempool());
+    assert.equal(false, tx.getInTxPool());
     assert.equal(true, tx.getDoNotRelay());
     assert.equal(false, tx.getIsRelayed());
     assert.equal(undefined, tx.getLastRelayedTime());
     assert.equal(undefined, tx.getUnlockTime());
     assert.equal(undefined, tx.getIsDoubleSpend());
   } else {
-    assert.equal(true, tx.getInMempool());
+    assert.equal(true, tx.getInTxPool());
     assert.equal(false, tx.getDoNotRelay());
     assert.equal(true, tx.getIsRelayed());
     assert(tx.getLastRelayedTime() > 0);

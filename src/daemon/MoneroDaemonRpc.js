@@ -548,9 +548,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
     assert.equal("boolean", typeof tx.getIsConfirmed())
     if (tx.getIsConfirmed()) {
       tx.setIsRelayed(true);
-      tx.setInMempool(false);
+      tx.setInTxPool(false);
     } else if (!tx.getLastFailedId()) {
-      tx.setInMempool(true);  // tx in mempool unless failed
+      tx.setInTxPool(true);  // tx in pool unless failed
     }
     
     // return built transaction

@@ -598,19 +598,19 @@ function testTx(tx, config) {
   assert.equal("boolean", typeof tx.getIsRelayed());
   assert.equal(undefined, tx.getSignatures());  // TODO: way to test?
   assert.equal("boolean", typeof tx.getIsConfirmed());
-  assert.equal("boolean", typeof tx.getInMempool());
+  assert.equal("boolean", typeof tx.getInTxPool());
   assert.equal("boolean", typeof tx.getIsCoinbase());
   
   // test confirmed vs unconfirmed
   if (config.isConfirmed) {
     assert(tx.getHeight() >= 0);
     assert(tx.getIsConfirmed());
-    assert(!tx.getInMempool());
+    assert(!tx.getInTxPool());
     assert(tx.getIsRelayed());
   } else {
     assert.equal(undefined, tx.getHeight());
     assert(!tx.getIsConfirmed());
-    assert(tx.getInMempool());  // TODO: does not consider failed tx
+    assert(tx.getInTxPool());  // TODO: does not consider failed tx
     assert.equal("boolean", typeof tx.getIsRelayed());
   }
   

@@ -89,12 +89,12 @@ class MoneroTx extends MoneroDaemonModel {
     this.json.isConfirmed = isConfirmed;
   }
   
-  getInMempool() {
-    return this.json.inMempool;
+  getInTxPool() {
+    return this.json.inTxPool;
   }
   
-  setInMempool(inMempool) {
-    this.json.inMempool = inMempool;
+  setInTxPool(inTxPool) {
+    this.json.inTxPool = inTxPool;
   }
   
   getHeight() {
@@ -339,7 +339,7 @@ class MoneroTx extends MoneroDaemonModel {
     MoneroUtils.safeSet(this, this.getDoNotRelay, this.setDoNotRelay, tx.getDoNotRelay());
     MoneroUtils.safeSet(this, this.getIsRelayed, this.getIsConfirmed, tx.getIsRelayed());
     MoneroUtils.safeSet(this, this.getIsConfirmed, this.setIsConfirmed, tx.getIsConfirmed()); // TODO: changes when confirmed
-    MoneroUtils.safeSet(this, this.getInMempool, this.setInMempool, tx.getInMempool());       // TODO: changes when confirmed
+    MoneroUtils.safeSet(this, this.getInTxPool, this.setInTxPool, tx.getInTxPool());       // TODO: changes when confirmed
     MoneroUtils.safeSet(this, this.getHeight, this.setHeight, tx.getHeight()); // TODO: changes when confirmed
     MoneroUtils.safeSet(this, this.getBlockTimestamp, this.setBlockTimestamp, tx.getBlockTimestamp());  // TODO: changes when confirmed
     MoneroUtils.safeSet(this, this.getUnlockTime, this.setUnlockTime, tx.getUnlockTime());  // TODO: shrinks as chain grows
@@ -369,7 +369,7 @@ class MoneroTx extends MoneroDaemonModel {
 //    if (this.json.timestamp === undefined) this.json.timestamp = tx.getTimestamp();
 //    else if (tx.getTimestamp() !== undefined) {
 //      if (!this.getIsConfirmed()) {
-//        this.json.timestamp = Math.min(this.json.timestamp, tx.getTimestamp()); // mempool timestamps can vary so use first timestamp
+//        this.json.timestamp = Math.min(this.json.timestamp, tx.getTimestamp()); // txpool timestamps can vary so use first timestamp
 //      } else {
 //        assert.equal(this.json.timestamp, tx.getTimestamp(), "Transaction " + tx.getId() + " timestamps should be equal but are not: " + this.json.timestamp + " vs " + tx.getTimestamp());
 //      }
@@ -377,7 +377,7 @@ class MoneroTx extends MoneroDaemonModel {
     
     if (this.json.receivedTime) this.json.receivedTime = tx.getReceivedTime();
     else if (tx.getReceivedTime() !== undefined) {
-      if (!this.getIsConfirmed()) this.json.receivedTime = Math.min(this.json.receivedTime, tx.getReceivedTime()); // mempool timestamps can vary so use first timestamp
+      if (!this.getIsConfirmed()) this.json.receivedTime = Math.min(this.json.receivedTime, tx.getReceivedTime()); // txpool timestamps can vary so use first timestamp
       else assert.equal(this.json.receivedTime, tx.getReceivedTime(), "Transaction " + tx.getId() + " received timestamps should be equal but are not: " + this.json.receivedTime + " vs " + tx.getReceivedTime());
     }
     if (this.json.numConfirmations === undefined) this.json.numConfirmations = tx.getNumConfirmations();

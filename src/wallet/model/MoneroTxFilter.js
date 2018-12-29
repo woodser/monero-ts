@@ -12,7 +12,7 @@
  * If the filter option is false, the transaction must not match it or it will be
  * filtered.
  * 
- * incoming, outgoing, confirmed, mempool, relayed, failed, coinbase, hasPayments,
+ * incoming, outgoing, confirmed, txpool, relayed, failed, coinbase, hasPayments,
  * min height, max height, account idx, subaddress indices, tx ids, payment ids
  */
 class MoneroTxFilter {
@@ -65,12 +65,12 @@ class MoneroTxFilter {
     this.isConfirmed = isConfirmed;
   }
   
-  getInMempool() {
-    return this.inMempool;
+  getInTxPool() {
+    return this.inTxPool;
   }
   
-  setInMempool(inMempool) {
-    this.inMempool = inMempool;
+  setInTxPool(inTxPool) {
+    this.inTxPool = inTxPool;
   }
   
   getIsRelayed() {
@@ -134,7 +134,7 @@ class MoneroTxFilter {
     if (this.getIsIncoming() !== undefined && this.getIsIncoming() !== tx.getIsIncoming()) return false;
     if (this.getIsOutgoing() !== undefined && this.getIsOutgoing() !== tx.getIsOutgoing()) return false;
     if (this.getIsConfirmed() !== undefined && this.getIsConfirmed() !== tx.getIsConfirmed()) return false;
-    if (this.getInMempool() !== undefined && this.getInMempool() !== tx.getInMempool()) return false;
+    if (this.getInTxPool() !== undefined && this.getInTxPool() !== tx.getInTxPool()) return false;
     if (this.getIsRelayed() !== undefined && this.getIsRelayed() !== tx.getIsRelayed()) return false;
     if (this.getIsFailed() !== undefined && this.getIsFailed() !== tx.getIsFailed()) return false;
     if (this.getMinHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() < this.getMinHeight())) return false;
