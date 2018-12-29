@@ -6,9 +6,9 @@ This project provides a modern JavaScript API for a Monero wallet and daemon.
 
 The API currently relies on running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon RPC](https://getmonero.org/resources/developer-guides/daemon-rpc.html).
 
-## Wallet Sample
-
 See the [tests](tests) for the most complete examples of using this library.
+
+## Wallet Code Sample
 
 ```js
 // create a wallet that uses a monero-wallet-rpc endpoint
@@ -44,7 +44,7 @@ for (let tx of await wallet.getTxs()) {
 }
 ```
 
-## Daemon Sample
+## Daemon Code Sample
 
 ```js
 // create a daemon that uses a monero-daemon-rpc endpoint
