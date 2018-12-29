@@ -277,7 +277,7 @@ class MoneroWallet {
    * Sweep unlocked funds.
    * 
    * @param config specifies the sweep configuration
-   * returns {MoneroTxWallet[]} are the resulting transactions
+   * @returns {MoneroTxWallet[]} are the resulting transactions
    */
   async sweep(config) {
     throw new Error("Subclass must implement");
