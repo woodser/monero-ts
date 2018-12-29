@@ -92,7 +92,7 @@ Note: some tests are failing as not all functionality is implemented.
 - [Monero daemon interface (MoneroDaemon.js)](src/daemon/MoneroDaemon.js)
 - [Monero daemon rpc implementation (MoneroDaemonRpc.js)](src/daemon/MoneroDaemonRpc.js)
 - [Monero daemon data model (src/daemon/model)](src/daemon/model)
-- [Monero wallet interface (src/wallet/MoneroWallet.js](src/wallet/MoneroWallet.js)
+- [Monero wallet interface (src/wallet/MoneroWallet.js)](src/wallet/MoneroWallet.js)
 - [Monero wallet rpc implementation (src/wallet/MoneroWalletRpc.js)](src/wallet/MoneroWalletRpc.js)
 - [Monero wallet data model (src/wallet/model)](src/wallet/model)
 
