@@ -1,6 +1,5 @@
 HIGH
 don't wrap single return fields with MoneroDaemonModel?
-daemon.getBlocksById(), default implementations
 standardize on mempool vs tx pool
 standardize getTxCount(), getConfirmationCount()
 license headers
@@ -31,6 +30,7 @@ tx.getIsUnlocked()?
 way to throttle rpc requests with agent instead of throttle-request to preserve stacktrace?
 document model fields
 add config options to tests, maybe use test objects per
+daemon.getBlocksById(), default implementations
 
 BUILD
 build process to not read mymonero-core-js build and contrib to browser build

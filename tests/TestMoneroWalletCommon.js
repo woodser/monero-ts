@@ -48,9 +48,9 @@ class TestWalletCommon {
       describe("Non-Send Tests" + (liteMode ? " (lite mode)" : ""), function() {
         that._runNonSendTests(liteMode);
       });
-      describe("Send Tests", function() {
-        that._runSendTests();
-      });
+//      describe("Send Tests", function() {
+//        that._runSendTests();
+//      });
 //      describe("Reset Tests", function() {
 //        that._runResetTests();  // CAUTION: this will destroy local wallet information like destination addresses
 //      });

@@ -1,8 +1,8 @@
 const assert = require("assert");
 const TestUtils = require("./TestUtils");
+const TestWalletCommon = require("./TestMoneroWalletCommon");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
-const TestWalletCommon = require("./TestWalletCommon");
 
 /**
  * Tests the fully client-side Monero Wallet which uses a Monero Daemon.

@@ -1,6 +1,6 @@
 const assert = require("assert");
 const TestUtils = require("./TestUtils");
-const TestWalletCommon = require("./TestWalletCommon");
+const TestWalletCommon = require("./TestMoneroWalletCommon");
 const MoneroRpcError = require("../src/rpc/MoneroRpcError");
 
 /**
