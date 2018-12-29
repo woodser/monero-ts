@@ -1833,13 +1833,13 @@ function testCheckTx(tx, check) {
   assert.equal("boolean", typeof check.getIsGood());
   if (check.getIsGood()) {
     assert(check.getNumConfirmations() >= 0);
-    assert.equal("boolean", typeof check.getInPool());
+    assert.equal("boolean", typeof check.getInTxPool());
     TestUtils.testUnsignedBigInteger(check.getAmountReceived());
-    if (check.getInPool()) assert.equal(0, check.getNumConfirmations());
+    if (check.getInTxPool()) assert.equal(0, check.getNumConfirmations());
     else assert(check.getNumConfirmations() > 0); // TODO (monero-wall-rpc) this fails (confirmations is 0) for (at least one) transaction that has 1 confirmation on testCheckTxKey()
   } else {
     assert.equal(undefined, check.getNumConfirmations());
-    assert.equal(undefined, check.getInPool());
+    assert.equal(undefined, check.getInTxPool());
     assert.equal(undefined, check.getAmountReceived());
   }
 }

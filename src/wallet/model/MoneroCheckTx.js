@@ -5,12 +5,12 @@ const MoneroCheck = require("./MoneroCheck");
  */
 class MoneroCheckTx extends MoneroCheck {
 
-  getInPool() {
-    return this.inPool;
+  getInTxPool() {
+    return this.inTxPool;
   }
   
-  setInPool(inPool) {
-    this.inPool = inPool;
+  setInTxPool(inTxPool) {
+    this.inTxPool = inTxPool;
   }
   
   getNumConfirmations() {

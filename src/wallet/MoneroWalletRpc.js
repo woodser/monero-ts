@@ -429,7 +429,7 @@ class MoneroWalletRpc extends MoneroWallet {
         tx.setIsOutgoing(true);
         tx.setIsIncoming(false);
         tx.setIsConfirmed(false);
-        tx.setInPool(true);
+        tx.setInTxPool(true);
         tx.setMixin(config.getMixin());
         MoneroWalletRpc._addTx(txs, tx, true);
       }
@@ -537,7 +537,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let check = new MoneroCheckTx();
     check.setIsGood(true);
     check.setNumConfirmations(resp.confirmations);
-    check.setInPool(resp.in_pool);
+    check.setInTxPool(resp.in_pool);
     check.setAmountReceived(new BigInteger(resp.received));
     return check;
   }
@@ -563,7 +563,7 @@ class MoneroWalletRpc extends MoneroWallet {
     check.setIsGood(isGood);
     if (isGood) {
       check.setNumConfirmations(resp.confirmations);
-      check.setInPool(resp.in_pool);
+      check.setInTxPool(resp.in_pool);
       check.setAmountReceived(new BigInteger(resp.received));
     }
     return check;
