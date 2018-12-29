@@ -1,5 +1,4 @@
 HIGH
-reset tests and rpc implementation
 don't wrap single return fields with MoneroDaemonModel?
 daemon.getBlocksById(), default implementations
 standardize on mempool vs tx pool

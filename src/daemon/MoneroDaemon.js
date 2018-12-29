@@ -84,6 +84,20 @@ class MoneroDaemon {
   }
   
   /**
+   * Get blocks by id.
+   * 
+   * @param blockIds are array of hashes; first 10 blocks id goes sequential,
+   *        next goes in pow(2,n) offset, like 2, 4, 8, 16, 32, 64 and so on,
+   *        and the last one is always genesis block
+   * @param startHeight is the start height to get blocks by id
+   * @param prune specifies if returned blocks should be pruned
+   * @returns {MoneroBlock[]} are the retrieved blocks
+   */
+  async getBlocksById(blockIds, startHeight, prune) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Get a block by height.
    * 
    * @param height is the height of the block to get
