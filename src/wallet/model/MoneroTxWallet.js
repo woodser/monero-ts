@@ -101,12 +101,14 @@ class MoneroTxWallet extends MoneroTx {
     MoneroUtils.safeInit(this, this.getIsCoinbase, this.setIsCoinbase, tx.getIsCoinbase());
     MoneroUtils.safeInit(this, this.getMetadata, this.setMetadata, tx.getMetadata());
     
-    // merge extensions which need special handling
+    // merge total amount
     if (this.json.totalAmount === undefined) this.json.totalAmount = tx.getTotalAmount();
     else {
       if (mergePayments) assert(totalAmount.toJSValue() === 0);
       else this.json.totalAmount = this.json.totalAmount.add(tx.getTotalAmount());
     }
+    
+    // merge payments
     if (this.json.payments === undefined) this.setPayments(tx.getPayments());
     else if (tx.getPayments() !== undefined) {
       if (mergePayments) {

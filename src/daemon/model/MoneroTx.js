@@ -336,13 +336,7 @@ class MoneroTx extends MoneroDaemonModel {
     MoneroUtils.safeInit(this, this.getFee, this.setFee, tx.getFee());
     MoneroUtils.safeInit(this, this.getMixin, this.setMixin, tx.getMixin());
     MoneroUtils.safeInit(this, this.getDoNotRelay, this.setDoNotRelay, tx.getDoNotRelay());
-    MoneroUtils.safeInit(this, this.getIsRelayed, this.getIsConfirmed, tx.getIsRelayed());
-    MoneroUtils.safeInit(this, this.getIsConfirmed, this.setIsConfirmed, tx.getIsConfirmed()); // TODO: changes when confirmed
-    MoneroUtils.safeInit(this, this.getInTxPool, this.setInTxPool, tx.getInTxPool());       // TODO: changes when confirmed
-    MoneroUtils.safeInit(this, this.getHeight, this.setHeight, tx.getHeight()); // TODO: changes when confirmed
-    MoneroUtils.safeInit(this, this.getBlockTimestamp, this.setBlockTimestamp, tx.getBlockTimestamp());  // TODO: changes when confirmed
-    MoneroUtils.safeInit(this, this.getUnlockTime, this.setUnlockTime, tx.getUnlockTime());  // TODO: shrinks as chain grows
-    MoneroUtils.safeInit(this, this.getLastRelayedTime, this.setLastRelayedTime, tx.getLastRelayedTime()); // TODO: becomes undefined when confirmed?
+    MoneroUtils.safeInit(this, this.getIsRelayed, this.getIsRelayed, tx.getIsRelayed());
     MoneroUtils.safeInit(this, this.getIsDoubleSpend, this.setIsDoubleSpend, tx.getIsDoubleSpend());
     MoneroUtils.safeInit(this, this.getKey, this.setKey, tx.getKey());
     MoneroUtils.safeInit(this, this.getHex, this.setHex, tx.getHex());
@@ -362,7 +356,18 @@ class MoneroTx extends MoneroDaemonModel {
     MoneroUtils.safeInit(this, this.getLastFailedId, this.setLastFailedId, tx.getLastFailedId());
     MoneroUtils.safeInit(this, this.getMaxUsedBlockHeight, this.setMaxUsedBlockHeight, tx.getMaxUsedBlockHeight());
     MoneroUtils.safeInit(this, this.getMaxUsedBlockId, this.setMaxUsedBlockId, tx.getMaxUsedBlockId());
-    MoneroUtils.safeInit(this, this.getSignatures, this.setSignatures, tx.getSignatures());    
+    MoneroUtils.safeInit(this, this.getSignatures, this.setSignatures, tx.getSignatures());
+    
+    //if (this.getIsConfirmed === undefined) this.json.
+    
+    
+    
+    MoneroUtils.safeInit(this, this.getIsConfirmed, this.setIsConfirmed, tx.getIsConfirmed()); // TODO: changes when confirmed
+    MoneroUtils.safeInit(this, this.getInTxPool, this.setInTxPool, tx.getInTxPool());       // TODO: changes when confirmed
+    MoneroUtils.safeInit(this, this.getHeight, this.setHeight, tx.getHeight()); // TODO: changes when confirmed
+    MoneroUtils.safeInit(this, this.getBlockTimestamp, this.setBlockTimestamp, tx.getBlockTimestamp());  // TODO: changes when confirmed
+    MoneroUtils.safeInit(this, this.getUnlockTime, this.setUnlockTime, tx.getUnlockTime());  // TODO: shrinks as chain grows
+    MoneroUtils.safeInit(this, this.getLastRelayedTime, this.setLastRelayedTime, tx.getLastRelayedTime()); // TODO: becomes undefined when confirmed?
     
     // needs interpretation
 //    if (this.json.timestamp === undefined) this.json.timestamp = tx.getTimestamp();
@@ -374,20 +379,25 @@ class MoneroTx extends MoneroDaemonModel {
 //      }
 //    }
     
-    if (this.json.receivedTime) this.json.receivedTime = tx.getReceivedTime();
+    // merge received time
+    if (this.getReceivedTime()) this.setReceivedTime(tx.getReceivedTime());
     else if (tx.getReceivedTime() !== undefined) {
-      if (!this.getIsConfirmed()) this.json.receivedTime = Math.min(this.json.receivedTime, tx.getReceivedTime()); // txpool timestamps can vary so use first timestamp
-      else assert.equal(this.json.receivedTime, tx.getReceivedTime(), "Transaction " + tx.getId() + " received timestamps should be equal but are not: " + this.json.receivedTime + " vs " + tx.getReceivedTime());
+      if (!this.getIsConfirmed()) this.setReceivedTime(Math.min(this.getReceivedTime(), tx.getReceivedTime())); // txpool timestamps can vary so use first timestamp
+      else assert.equal(this.getReceivedTime(), tx.getReceivedTime(), "Transaction " + tx.getId() + " received timestamps should be equal but are not: " + this.getReceivedTime() + " vs " + tx.getReceivedTime());
     }
-    if (this.json.confirmationCount === undefined) this.json.confirmationCount = tx.getConfirmationCount();
+    
+    // merge confirmation count
+    if (this.getConfirmationCount() === undefined) this.getConfirmationCount() = tx.getConfirmationCount();
     else if (tx.getConfirmationCount() !== undefined) {
-      this.json.confirmationCount = Math.max(this.json.confirmationCount, tx.getConfirmationCount());  // confirmation count can change, take the latest (max)
+      this.setConfirmationCount(Math.max(this.getConfirmationCount(), tx.getConfirmationCount()));  // confirmation count can change, take the latest (max)
     }
-    if (this.json.estimatedBlockCountUntilConfirmed !== undefined) {
-      if (tx.getEstimatedBlockCountUntilConfirmed() === undefined) delete this.json.estimatedBlockCountUntilConfirmed;  // uninitialize when confirmed
+    
+    // merge estimated blocks until confirmed count
+    if (this.getEstimatedBlockCountUntilConfirmed() !== undefined) {
+      if (tx.getEstimatedBlockCountUntilConfirmed() === undefined) this.setEstimatedBlockCountUntilConfirmed(undefined);  // uninitialize when confirmed
       else {
-        assert(Math.abs(this.json.estimatedBlockCountUntilConfirmed - tx.getEstimatedBlockCountUntilConfirmed()) <= 1); // estimated block count can change, take the latest (min)
-        this.json.estimatedBlockCountUntilConfirmed = Math.min(this.json.estimatedBlockCountUntilConfirmed, tx.getEstimatedBlockCountUntilConfirmed());
+        assert(Math.abs(this.getEstimatedBlockCountUntilConfirmed() - tx.getEstimatedBlockCountUntilConfirmed()) <= 1);   // estimated block count can change, take the latest (min)
+        this.setEstimatedBlockCountUntilConfirmed(Math.min(this.getEstimatedBlockCountUntilConfirmed(), tx.getEstimatedBlockCountUntilConfirmed()));
       }
     }
   }
