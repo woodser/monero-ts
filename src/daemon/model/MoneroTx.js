@@ -325,6 +325,8 @@ class MoneroTx extends MoneroDaemonModel {
   /**
    * Merges the given transaction into this transaction.
    * 
+   * The transaction being merged is assumed to be the most up-to-date.
+   * 
    * @param tx is the transaction to merge into this one
    */
   merge(tx) {
@@ -358,10 +360,7 @@ class MoneroTx extends MoneroDaemonModel {
     MoneroUtils.safeInit(this, this.getMaxUsedBlockId, this.setMaxUsedBlockId, tx.getMaxUsedBlockId());
     MoneroUtils.safeInit(this, this.getSignatures, this.setSignatures, tx.getSignatures());
     
-    //if (this.getIsConfirmed === undefined) this.json.
-    
-    
-    
+    // TODO: test/handle when these change as txs become confirmed
     MoneroUtils.safeInit(this, this.getIsConfirmed, this.setIsConfirmed, tx.getIsConfirmed()); // TODO: changes when confirmed
     MoneroUtils.safeInit(this, this.getInTxPool, this.setInTxPool, tx.getInTxPool());       // TODO: changes when confirmed
     MoneroUtils.safeInit(this, this.getHeight, this.setHeight, tx.getHeight()); // TODO: changes when confirmed
