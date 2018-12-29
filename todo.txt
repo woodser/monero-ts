@@ -36,5 +36,3 @@ update on save B-)
 RPC QUESTIONS / SUGGESTIONS
 identify one call per acount/subaddress and support "all" flag
 /get_transactions returns duplicate data per transaction
-non-standardized ("portable binary storage") serialization/deserialization for binary requests adds complexity to clients
-tx.getHex().length !== tx_size?
