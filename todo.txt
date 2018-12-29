@@ -1,7 +1,7 @@
 HIGH
+merge txs as state changes e.g. becomes confirmed
 don't wrap single return fields with MoneroDaemonModel?
 license headers
-merge txs as state changes e.g. becomes confirmed
 todos throughout code
 tests are unecessarily creating new accounts which degrades test performance
 support sweep_single (output)

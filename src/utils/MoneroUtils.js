@@ -15,14 +15,14 @@ class MoneroUtils {
   }
   
   /**
-   * Sets the given value ensuring a previous value is not overwritten.
+   * Initializes the given value ensuring a previous value is not overwritten.
    * 
    * @param obj is the object to invoke the getter and setter on
    * @param getFn gets the current value
    * @param setFn sets the current value
    * @param val is the value to set iff it does not overwrite a previous value
    */
-  static safeSet(obj, getFn, setFn, val) {
+  static safeInit(obj, getFn, setFn, val) {
     if (val === undefined) return;
     let curVal = getFn.call(obj);
     if (curVal === undefined) setFn.call(obj, val);

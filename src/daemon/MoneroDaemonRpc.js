@@ -498,48 +498,48 @@ class MoneroDaemonRpc extends MoneroDaemon {
     // initialize from rpc map
     for (let key of Object.keys(rpcTx)) {
       let val = rpcTx[key];
-      if (key === "tx_hash" || key === "id_hash") MoneroUtils.safeSet(tx, tx.getId, tx.setId, val);
-      else if (key === "block_timestamp") MoneroUtils.safeSet(tx, tx.getBlockTimestamp, tx.setBlockTimestamp, val);
-      else if (key === "last_relayed_time") MoneroUtils.safeSet(tx, tx.getLastRelayedTime, tx.setLastRelayedTime, val);
-      else if (key === "receive_time") MoneroUtils.safeSet(tx, tx.getReceivedTime, tx.setReceivedTime, val);
-      else if (key === "in_pool") MoneroUtils.safeSet(tx, tx.getIsConfirmed, tx.setIsConfirmed, !val);
-      else if (key === "double_spend_seen") MoneroUtils.safeSet(tx, tx.getIsDoubleSpend, tx.setIsDoubleSpend, val);
-      else if (key === "version") MoneroUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);
-      else if (key === "extra") MoneroUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
-      else if (key === "vin") MoneroUtils.safeSet(tx, tx.getVin, tx.setVin, val);
-      else if (key === "vout") MoneroUtils.safeSet(tx, tx.getVout, tx.setVout, val);
-      else if (key === "rct_signatures") MoneroUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, val);
-      else if (key === "rctsig_prunable") MoneroUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
-      else if (key === "unlock_time") MoneroUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, val);
+      if (key === "tx_hash" || key === "id_hash") MoneroUtils.safeInit(tx, tx.getId, tx.setId, val);
+      else if (key === "block_timestamp") MoneroUtils.safeInit(tx, tx.getBlockTimestamp, tx.setBlockTimestamp, val);
+      else if (key === "last_relayed_time") MoneroUtils.safeInit(tx, tx.getLastRelayedTime, tx.setLastRelayedTime, val);
+      else if (key === "receive_time") MoneroUtils.safeInit(tx, tx.getReceivedTime, tx.setReceivedTime, val);
+      else if (key === "in_pool") MoneroUtils.safeInit(tx, tx.getIsConfirmed, tx.setIsConfirmed, !val);
+      else if (key === "double_spend_seen") MoneroUtils.safeInit(tx, tx.getIsDoubleSpend, tx.setIsDoubleSpend, val);
+      else if (key === "version") MoneroUtils.safeInit(tx, tx.getVersion, tx.setVersion, val);
+      else if (key === "extra") MoneroUtils.safeInit(tx, tx.getExtra, tx.setExtra, val);
+      else if (key === "vin") MoneroUtils.safeInit(tx, tx.getVin, tx.setVin, val);
+      else if (key === "vout") MoneroUtils.safeInit(tx, tx.getVout, tx.setVout, val);
+      else if (key === "rct_signatures") MoneroUtils.safeInit(tx, tx.getRctSignatures, tx.setRctSignatures, val);
+      else if (key === "rctsig_prunable") MoneroUtils.safeInit(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
+      else if (key === "unlock_time") MoneroUtils.safeInit(tx, tx.getUnlockTime, tx.setUnlockTime, val);
       else if (key === "as_json" || key === "tx_json") MoneroDaemonRpc._buildTx(JSON.parse(val), tx);  // may need to read tx from json str
-      else if (key === "as_hex" || key === "tx_blob") MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, val);
-      else if (key === "blob_size") MoneroUtils.safeSet(tx, tx.getSize, tx.setSize, val);
-      else if (key === "weight") MoneroUtils.safeSet(tx, tx.getWeight, tx.setWeight, val);
-      else if (key === "fee") MoneroUtils.safeSet(tx, tx.getFee, tx.setFee, new BigInteger(val));
-      else if (key === "relayed") MoneroUtils.safeSet(tx, tx.getIsRelayed, tx.setIsRelayed, val);
-      else if (key === "output_indices") MoneroUtils.safeSet(tx, tx.getOutputIndices, tx.setOutputIndices, val);
-      else if (key === "do_not_relay") MoneroUtils.safeSet(tx, tx.getDoNotRelay, tx.setDoNotRelay, val);
-      else if (key === "kept_by_block") MoneroUtils.safeSet(tx, tx.getKeptByBlock, tx.setKeptByBlock, val);
-      else if (key === "signatures") MoneroUtils.safeSet(tx, tx.getSignatures, tx.setSignatures, val);
+      else if (key === "as_hex" || key === "tx_blob") MoneroUtils.safeInit(tx, tx.getHex, tx.setHex, val);
+      else if (key === "blob_size") MoneroUtils.safeInit(tx, tx.getSize, tx.setSize, val);
+      else if (key === "weight") MoneroUtils.safeInit(tx, tx.getWeight, tx.setWeight, val);
+      else if (key === "fee") MoneroUtils.safeInit(tx, tx.getFee, tx.setFee, new BigInteger(val));
+      else if (key === "relayed") MoneroUtils.safeInit(tx, tx.getIsRelayed, tx.setIsRelayed, val);
+      else if (key === "output_indices") MoneroUtils.safeInit(tx, tx.getOutputIndices, tx.setOutputIndices, val);
+      else if (key === "do_not_relay") MoneroUtils.safeInit(tx, tx.getDoNotRelay, tx.setDoNotRelay, val);
+      else if (key === "kept_by_block") MoneroUtils.safeInit(tx, tx.getKeptByBlock, tx.setKeptByBlock, val);
+      else if (key === "signatures") MoneroUtils.safeInit(tx, tx.getSignatures, tx.setSignatures, val);
       else if (key === "last_failed_height") {
-        if (val === 0) MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed, false);
+        if (val === 0) MoneroUtils.safeInit(tx, tx.getIsFailed, tx.setIsFailed, false);
         else {
-          MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed, true);
-          MoneroUtils.safeSet(tx, tx.getLastFailedHeight, tx.setLastFailedHeight, val);
+          MoneroUtils.safeInit(tx, tx.getIsFailed, tx.setIsFailed, true);
+          MoneroUtils.safeInit(tx, tx.getLastFailedHeight, tx.setLastFailedHeight, val);
         }
       }
       else if (key === "last_failed_id_hash") {
-        if (val === MoneroDaemonRpc.DEFAULT_ID) MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed, false);
+        if (val === MoneroDaemonRpc.DEFAULT_ID) MoneroUtils.safeInit(tx, tx.getIsFailed, tx.setIsFailed, false);
         else {
-          MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed, true);
-          MoneroUtils.safeSet(tx, tx.getLastFailedId, tx.setLastFailedId, val);
+          MoneroUtils.safeInit(tx, tx.getIsFailed, tx.setIsFailed, true);
+          MoneroUtils.safeInit(tx, tx.getLastFailedId, tx.setLastFailedId, val);
         }
       }
-      else if (key === "max_used_block_height") MoneroUtils.safeSet(tx, tx.getMaxUsedBlockHeight, tx.setMaxUsedBlockHeight, val);
-      else if (key === "max_used_block_id_hash") MoneroUtils.safeSet(tx, tx.getMaxUsedBlockId, tx.setMaxUsedBlockId, val);
+      else if (key === "max_used_block_height") MoneroUtils.safeInit(tx, tx.getMaxUsedBlockHeight, tx.setMaxUsedBlockHeight, val);
+      else if (key === "max_used_block_id_hash") MoneroUtils.safeInit(tx, tx.getMaxUsedBlockId, tx.setMaxUsedBlockId, val);
       else if (key === "block_height") {
-        MoneroUtils.safeSet(tx, tx.getHeight, tx.setHeight, val);
-        if (val >= 0) MoneroUtils.safeSet(tx, tx.getIsConfirmed, tx.setIsConfirmed, true);
+        MoneroUtils.safeInit(tx, tx.getHeight, tx.setHeight, val);
+        if (val >= 0) MoneroUtils.safeInit(tx, tx.getIsConfirmed, tx.setIsConfirmed, true);
       }
       else console.log("WARNING: ignoring unexpected field in rpc tx: " + key + ": " + val);
     }
@@ -609,10 +609,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "was_bootstrap_ever_used") info.setWasBootstrapEverUsed(val);
       else if (key === "white_peerlist_size") info.setWhitePeerlistSize(val);
       else if (key === "update_available") info.setUpdateAvailable(val);
-      else if (key === "nettype") MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroDaemon.parseNetworkType(val));
-      else if (key === "mainnet") { if (val) MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroDaemon.NetworkType.MAINNET); }
-      else if (key === "testnet") { if (val) MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroDaemon.NetworkType.TESTNET); }
-      else if (key === "stagenet") { if (val) MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroDaemon.NetworkType.STAGENET); }
+      else if (key === "nettype") MoneroUtils.safeInit(info, info.getNetworkType, info.setNetworkType, MoneroDaemon.parseNetworkType(val));
+      else if (key === "mainnet") { if (val) MoneroUtils.safeInit(info, info.getNetworkType, info.setNetworkType, MoneroDaemon.NetworkType.MAINNET); }
+      else if (key === "testnet") { if (val) MoneroUtils.safeInit(info, info.getNetworkType, info.setNetworkType, MoneroDaemon.NetworkType.TESTNET); }
+      else if (key === "stagenet") { if (val) MoneroUtils.safeInit(info, info.getNetworkType, info.setNetworkType, MoneroDaemon.NetworkType.STAGENET); }
       else console.log("WARNING: Ignoring unexpected info field: " + key + ": " + val);
     }
     return info;
