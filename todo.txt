@@ -1,4 +1,5 @@
 HIGH
+no test timeout
 merge txs as state changes e.g. becomes confirmed (handle notifications?)
 don't wrap single return fields with MoneroDaemonModel?
 license headers

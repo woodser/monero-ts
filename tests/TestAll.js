@@ -1,5 +1,5 @@
 require("./TestMoneroDaemonRpc");
-require("./TestMoneroWalletRpc");
+//require("./TestMoneroWalletRpc");
 //require("./TestMoneroWalletLocal");
 //require("./TestMoneroWalletEquality");
 //require("./TestMoneroCoreUtils");

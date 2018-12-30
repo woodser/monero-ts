@@ -496,6 +496,18 @@ describe("Test Monero Daemon RPC", function() {
   it("Can be stopped", async function() {
     throw new Error("Not implemented");
   });
+  
+  it("Can notify listeners when a new block is added to the chain", async function() {
+    let nextHeader = await awaitNewBlock();
+    testBlockHeader(nextHeader, true);
+    async function awaitNewBlock() {
+      return new Promise(function(resolve, reject) {
+        daemon.addBlockListener(function(header) {
+          resolve(header);
+        });
+      });
+    }
+  });
 });
 
 function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted) {
@@ -531,9 +543,9 @@ function testBlock(block, config) {
   
   // check inputs
   assert(config);
-  assert(typeof config.hasHex === "boolean");
-  assert(typeof config.headerIsFull === "boolean");
-  assert(typeof config.hasTxs === "boolean");
+  assert.equal("boolean", typeof config.hasHex);
+  assert.equal("boolean", typeof config.headerIsFull);
+  assert.equal("boolean", typeof config.hasTxs);
   
   // test required fields
   assert(block);

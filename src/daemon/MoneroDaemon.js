@@ -472,6 +472,15 @@ class MoneroDaemon {
     throw new Error("Subclass must implement");
   }
   
+  /**
+   * Registers a listener who is invoked with new block headers as detected.
+   * 
+   * @param listener(header) is invoked when new block headers are detected
+   */
+  async addBlockListener(listener) {
+    throw new Error("Subclass must implement");
+  }
+  
   // ----------------------------- STATIC UTILITIES ---------------------------
   
   /**

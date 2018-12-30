@@ -41,6 +41,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (!this.config.rpc) this.config.rpc = new MoneroRpc(config);
     
     // one time initialization
+    this.listeners = [];  // block listeners
     this.initPromise = this._initOneTime();
   }
   
@@ -421,6 +422,29 @@ class MoneroDaemonRpc extends MoneroDaemon {
 //      MoneroDaemonRpc._setResponseInfo(resp, entry);  // TODO: set same response info for every entry, else this gets prohibitively large?
 //    }
 //    return entries;
+  }
+  
+  async addBlockListener(listener) {
+
+    // register listener
+    this.listeners.push(listener);
+    
+    // start polling daemon for new blocks
+    if (!this.isListening) {
+      let that = this;
+      const POLL_INTERVAL = 5000; // TODO: move to config
+      this.isListening = true;
+      let lastHeader = await this.getLastBlockHeader();
+      async function pollLastHeader() {
+        let header = await that.getLastBlockHeader();
+        if (header.getId() !== lastHeader.getId()) {
+          lastHeader = header;
+          for (let listener of that.listeners) listener(header);
+        }
+        setTimeout(pollLastHeader, POLL_INTERVAL);
+      }
+      setTimeout(pollLastHeader, POLL_INTERVAL);
+    }
   }
   
   // ------------------------------- PRIVATE STATIC ---------------------------
