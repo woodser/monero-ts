@@ -5,6 +5,8 @@ const TestUtils = require("./TestUtils");
 
 /**
  * Test core utils ported from c++ at application layer.
+ * 
+ * TODO: change this so core utils loaded asynchronously before class
  */
 MoneroUtils.getCoreUtils().then(function(coreUtils) {
   
