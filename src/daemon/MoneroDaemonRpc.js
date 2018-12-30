@@ -439,7 +439,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
         let header = await that.getLastBlockHeader();
         if (header.getId() !== lastHeader.getId()) {
           lastHeader = header;
-          for (let listener of that.listeners) listener(header);
+          for (let listener of that.listeners) {
+          	listener(header);	// invoke listener with header
+          }
         }
         setTimeout(pollLastHeader, POLL_INTERVAL);
       }
