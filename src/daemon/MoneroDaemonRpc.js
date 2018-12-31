@@ -424,32 +424,36 @@ class MoneroDaemonRpc extends MoneroDaemon {
 //    return entries;
   }
   
-  async addBlockListener(listener) {
+  addBlockListener(listener) {
 
     // register listener
     this.listeners.push(listener);
     
-    // start polling daemon for new blocks
-    if (!this.isListening) {
-      let that = this;
-      const POLL_INTERVAL = 5000; // TODO: move to config
-      this.isListening = true;
-      let lastHeader = await this.getLastBlockHeader();
-      async function pollLastHeader() {
-        let header = await that.getLastBlockHeader();
-        if (header.getId() !== lastHeader.getId()) {
-          lastHeader = header;
-          for (let listener of that.listeners) {
-          	listener(header);	// invoke listener with header
-          }
-        }
-        setTimeout(pollLastHeader, POLL_INTERVAL);
-      }
-      setTimeout(pollLastHeader, POLL_INTERVAL);
+    // start polling for new blocks
+    if (!this.isPollingBlocks) {
+      this.isPollingBlocks = true;
+      this._startPollingBlocks();
     }
   }
   
-  // ------------------------------- PRIVATE STATIC ---------------------------
+  // ------------------------------- PRIVATE / STATIC ---------------------------
+  
+  async _startPollingBlocks() {
+    let that = this;
+    const POLL_INTERVAL = 5000; // TODO: move to config
+    let lastHeader = await this.getLastBlockHeader();
+    async function pollLastHeader() {
+      let header = await that.getLastBlockHeader();
+      if (header.getId() !== lastHeader.getId()) {
+        lastHeader = header;
+        for (let listener of that.listeners) {
+          listener(header); // invoke listener with header
+        }
+      }
+      setTimeout(pollLastHeader, POLL_INTERVAL);
+    }
+    setTimeout(pollLastHeader, POLL_INTERVAL);
+  }
   
   async _initOneTime() {
     

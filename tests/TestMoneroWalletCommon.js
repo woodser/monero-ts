@@ -41,7 +41,7 @@ class TestMoneroWalletCommon {
   runCommonTests(config) {
     let that = this;
     describe("Common Wallet Tests", function() {
-      if (config.testNonSends) that._testNonSends(config.testNonSendsLite);
+      if (config.testNonSends) that._testNonSends(config.liteMode);
       if (config.testSends) that._testSends();
       if (config.testResets) that._testNonSends();
       if (config.testNotifications) that._testNotifications();
@@ -1479,13 +1479,58 @@ class TestMoneroWalletCommon {
   }
   
   _testNotifications() {
+    let wallet = this.wallet;
+    let daemon = this.daemon;
+    
     describe("Test Notifications", function() {
       
+      it("Can send a transaction and update it as blocks received", async function() {
+        try {
+          
+          // send a transaction // TODO: good opportunity to test lock time
+          throw new Error("Not implemented");
+          //let tx = await wallet.send(await wallet.getPrimaryAddress(), )
+          
+          // start mining if possible to help push along the network
+          try { await wallet.startMining(2, false, true); }
+          catch (e) { }
+          
+          // wait for block
+          let nextHeader = await awaitNewBlock();
+          testBlockHeader(nextHeader, true);
+          
+          // test transaction is confirmed but still locked
+          
+          // wait for block
+          nextHeader = await awaitNewBlock();
+          testBlockHeader(nextHeader, true);
+          
+          // test transaction is confirmed and unlocked
+          
+          // helper function to wait for next block
+          async function awaitNewBlock() {
+            return new Promise(function(resolve, reject) {
+              try {
+                daemon.addBlockListener(function(header) {
+                  resolve(header);
+                });
+              } catch (e) {
+                reject(e);
+              }
+            });
+          }
+        } catch (e) {
+          throw e;
+        } finally {
+          
+          // stop mining
+          try { await wallet.stopMining(); }
+          catch (e) { }
+        }
+      });
     });
   }
 }
-
-module.exports = TestMoneroWalletCommon;
 
 // TODO: replace with TestUtils.testUnsignedBigInteger
 function isUnsignedBigInteger(param) {
@@ -1873,3 +1918,5 @@ async function getSubaddressesWithUnlockedBalance(wallet) {
   }
   return subaddresses;
 }
+
+module.exports = TestMoneroWalletCommon;

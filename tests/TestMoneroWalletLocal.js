@@ -235,8 +235,6 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
   }
 }
 
-module.exports = TestMoneroWalletLocal
-
 /**
  * Internal class to test progress updates.
  */
@@ -297,3 +295,5 @@ class SyncProgressTester {
     assert.equal(this.lastProgress.doneBlocks, this.lastProgress.totalBlocks);
   }
 }
+
+module.exports = TestMoneroWalletLocal

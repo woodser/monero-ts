@@ -507,23 +507,48 @@ class TestMoneroDaemonRpc {
       
       // test notifications
       if (config.testNotifications) {
-        it("Can notify listeners when a new block is added to the chain", async function() {
-          let nextHeader = await awaitNewBlock();
-          testBlockHeader(nextHeader, true);
-          async function awaitNewBlock() {
-            return new Promise(function(resolve, reject) {
-              daemon.addBlockListener(function(header) {
-                resolve(header);
-              });
-            });
-          }
+        
+        describe("Test Notifications", function() {
+          
+          it("Can notify listeners when a new block is added to the chain", async function() {
+            try {
+              
+              // start mining if possible to help push along the network
+              let wallet = new MoneroWalletLocal(daemon);
+              let address = await wallet.getPrimaryAddress();
+              try { await daemon.startMining(address, 2, false, true); }
+              catch (e) { }
+              
+              // wait for block header notification
+              let nextHeader = await awaitNewBlock();
+              testBlockHeader(nextHeader, true);
+              
+              // helper function to wait for next block
+              async function awaitNewBlock() {
+                return new Promise(function(resolve, reject) {
+                  try {
+                    daemon.addBlockListener(function(header) {
+                      resolve(header);
+                    });
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              }
+            } catch (e) {
+              throw e;
+            } finally {
+              
+              // stop mining
+              try { await daemon.stopMining(); }
+              catch (e) { }
+            }
+          });
         });
       }
     });
   }
 }
-
-module.exports = TestMoneroDaemonRpc;
 
 function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted) {
   assert(model.getResponseInfo());
@@ -829,3 +854,5 @@ function testOutputDistributionEntry(entry) {
   assert(Array.isArray(entry.getDistribution()) && entry.getDistribution().length > 0);
   assert(entry.getStartHeight() >= 0);
 }
+
+module.exports = TestMoneroDaemonRpc;
