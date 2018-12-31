@@ -1,7 +1,7 @@
 /**
  * Test the sample code in README.md.
  */
-describe("Test sample code for README.md", function() {
+describe("TEST SAMPLE CODE", function() {
   
   it("Can demonstrate the wallet with sample code", async function() {
     

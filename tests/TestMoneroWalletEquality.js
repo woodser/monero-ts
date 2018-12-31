@@ -2,9 +2,12 @@ const assert = require("assert");
 const TestUtils = require("./TestUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 
-let wallet1 = TestUtils.getWalletRpc();
-let wallet2 = TestUtils.getWalletLocal();
-describe("Test Wallets Equal", function() {
+/**
+ * Compares two wallets for equality.
+ */
+describe("TEST WALLETS EQUALITY", function() {
+  let wallet1 = TestUtils.getWalletRpc();
+  let wallet2 = TestUtils.getWalletLocal();
   
   // setup before tests run
   before(async function() {
