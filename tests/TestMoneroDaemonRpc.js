@@ -11,7 +11,7 @@ const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/
 /**
  * Tests a Monero daemon.
  */
-class MoneroDaemonRpcTester {
+class TestMoneroDaemonRpc {
   
   constructor(daemon) {
     this.daemon = daemon;
@@ -523,7 +523,7 @@ class MoneroDaemonRpcTester {
   }
 }
 
-module.exports = MoneroDaemonRpcTester;
+module.exports = TestMoneroDaemonRpc;
 
 function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted) {
   assert(model.getResponseInfo());

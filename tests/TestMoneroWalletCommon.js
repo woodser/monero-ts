@@ -22,7 +22,7 @@ const MAX_TX_PROOFS = 25;   // maximum number of transactions to check for each 
  * 
  * TODO: test filtering with not relayed
  */
-class MoneroWalletCommonTester {
+class TestMoneroWalletCommon {
   
   /**
    * Constructs the tester.
@@ -1485,7 +1485,7 @@ class MoneroWalletCommonTester {
   }
 }
 
-module.exports = MoneroWalletCommonTester;
+module.exports = TestMoneroWalletCommon;
 
 // TODO: replace with TestUtils.testUnsignedBigInteger
 function isUnsignedBigInteger(param) {

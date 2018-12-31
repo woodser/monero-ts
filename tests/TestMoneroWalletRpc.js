@@ -1,12 +1,12 @@
 const assert = require("assert");
 const TestUtils = require("./TestUtils");
 const MoneroRpcError = require("../src/rpc/MoneroRpcError");
-const MoneroWalletCommonTester = require("./MoneroWalletCommonTester");
+const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
 
 /**
  * Tests the Monero Wallet RPC client and server.
  */
-class MoneroWalletRpcTester extends MoneroWalletCommonTester {
+class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   
   constructor() {
     super(TestUtils.getWalletRpc(), TestUtils.getDaemonRpc());
@@ -86,4 +86,4 @@ class MoneroWalletRpcTester extends MoneroWalletCommonTester {
   }
 }
 
-module.exports = MoneroWalletRpcTester;
+module.exports = TestMoneroWalletRpc;

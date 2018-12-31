@@ -2,12 +2,12 @@ const assert = require("assert");
 const TestUtils = require("./TestUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
-const MoneroWalletCommonTester = require("./MoneroWalletCommonTester");
+const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
 
 /**
  * Tests the fully client-side Monero wallet.
  */
-class MoneroWalletLocalTester extends MoneroWalletCommonTester {
+class TestMoneroWalletLocal extends TestMoneroWalletCommon {
   
   constructor() {
     super(TestUtils.getWalletLocal(), TestUtils.getDaemonRpc());
@@ -235,7 +235,7 @@ class MoneroWalletLocalTester extends MoneroWalletCommonTester {
   }
 }
 
-module.exports = MoneroWalletLocalTester
+module.exports = TestMoneroWalletLocal
 
 /**
  * Internal class to test progress updates.
