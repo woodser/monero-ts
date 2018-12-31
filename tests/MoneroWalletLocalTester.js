@@ -4,6 +4,9 @@ const MoneroUtils = require("../src/utils/MoneroUtils");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
 const MoneroWalletCommonTester = require("./MoneroWalletCommonTester");
 
+/**
+ * Tests the fully client-side Monero wallet.
+ */
 class MoneroWalletLocalTester extends MoneroWalletCommonTester {
   
   constructor() {
@@ -14,7 +17,7 @@ class MoneroWalletLocalTester extends MoneroWalletCommonTester {
     let that = this;
     describe("TEST MONERO WALLET LOCAL", function() {
       
-      // run tests specific to wallet local
+      // run tests specific to local wallet
       that._testWalletLocal(config);
       
       // run common tests
