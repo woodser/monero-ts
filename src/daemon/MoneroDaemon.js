@@ -465,6 +465,15 @@ class MoneroDaemon {
   }
   
   /**
+   * Unregisters a listener to invoke when new blocks are detected.
+   * 
+   * @param listener is the listener to no longer invoke when new blocks are detected
+   */
+  removeBlockListener(listener) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Updates the daemon.
    * 
    * @param command is the update command to download: `check` or `download`

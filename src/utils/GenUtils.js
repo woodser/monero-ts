@@ -547,6 +547,25 @@ class GenUtils {
     for (let i = 0; i < arr.length; i++) copy.push(arr[i]);
     return copy;
   }
+  
+  /**
+   * Removes every instance of the given value from the given array.
+   * 
+   * @param arr is the array to remove the value from
+   * @param val is the value to remove from the array
+   * @returns true if the value is found and removed, false otherwise
+   */
+  static remove(arr, val) {
+    let found = false;
+    for (let i = arr.length - 1; i >= 0; i--) {
+      if (arr[i] === val) {
+        arr.splice(i, 1);
+        found = true;
+        i--;
+      }
+    }
+    return found;
+  }
 
   /**
    * Returns a copy of the given array where each element is lowercase.

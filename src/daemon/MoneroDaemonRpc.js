@@ -1,4 +1,5 @@
 const assert = require("assert");
+const GenUtils = require("../utils/GenUtils");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroUtils = require("../utils/MoneroUtils");
 const MoneroRpc = require("../rpc/MoneroRpc")
@@ -430,29 +431,41 @@ class MoneroDaemonRpc extends MoneroDaemon {
     this.listeners.push(listener);
     
     // start polling for new blocks
-    if (!this.isPollingBlocks) {
-      this.isPollingBlocks = true;
-      this._startPollingBlocks();
-    }
+    const POLL_INTERVAL = 5000; // TODO: move to config
+    if (!this.isPollingHeaders) this._startPollingHeaders(POLL_INTERVAL);
+  }
+  
+  removeBlockListener(listener) {
+    let found = GenUtils.remove(this.listeners, listener);
+    assert(found, "Listener is not registered");
+    if (this.listeners.length === 0) this._stopPollingHeaders();
   }
   
   // ------------------------------- PRIVATE / STATIC ---------------------------
   
-  async _startPollingBlocks() {
-    let that = this;
-    const POLL_INTERVAL = 5000; // TODO: move to config
+  async _startPollingHeaders(interval) {
+    assert(!this.isPollingHeaders, "Daemon is already polling block headers");
+    
+    // get header to detect changes while polling
     let lastHeader = await this.getLastBlockHeader();
-    async function pollLastHeader() {
-      let header = await that.getLastBlockHeader();
+    
+    // poll until stopped
+    let that = this;
+    this.isPollingHeaders = true;
+    while (this.isPollingHeaders) {
+      await new Promise(function(resolve) { setTimeout(resolve, interval); });
+      let header = await this.getLastBlockHeader();
       if (header.getId() !== lastHeader.getId()) {
         lastHeader = header;
-        for (let listener of that.listeners) {
-          listener(header); // invoke listener with header
+        for (let listener of this.listeners) {
+          listener(header); // notify listener
         }
       }
-      setTimeout(pollLastHeader, POLL_INTERVAL);
     }
-    setTimeout(pollLastHeader, POLL_INTERVAL);
+  }
+  
+  _stopPollingHeaders() {
+    this.isPollingHeaders = false; // causes polling loop to exit
   }
   
   async _initOneTime() {

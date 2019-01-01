@@ -36,5 +36,5 @@ new TestMoneroDaemonRpc().runTests({
 //// test sample code for readme
 //require("./TestSampleCode");
 //
-//// test scratchpad
+////// test scratchpad
 //require("./TestScratchpad");

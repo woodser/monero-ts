@@ -520,36 +520,27 @@ class TestMoneroDaemonRpc {
               catch (e) { }
               
               // wait for block header notification
-              let height = await daemon.getHeight();
               let nextHeader = await awaitNewBlock();
-              console.log("Checking equality");
-              assert.equal(1, 2); // TODO: hangs if this is after await new block           
+              testBlockHeader(nextHeader, true);
             } catch (e) {
-              console.log("We have an error...");
-              console.log(e);
               throw e;
             } finally {
               
               // stop mining
-              console.log("FINALLY");
               try { await daemon.stopMining(); }
               catch (e) { }
             }
             
-            console.log("But we're finishing here!!!");
-            
             // helper function to wait for next block
             function awaitNewBlock() {
               return new Promise(function(resolve, reject) {
-                daemon.addBlockListener(function(header) {
+                let onHeader = function(header) {
                   resolve(header);
-                });
+                  daemon.removeBlockListener(onHeader);
+                }
+                daemon.addBlockListener(onHeader);
               });
             }
-          });
-          
-          it("Has a test after REMOVE ME", async function() {
-            console.log("Yeah...");
           });
         });
       }
