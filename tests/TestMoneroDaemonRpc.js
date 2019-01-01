@@ -513,36 +513,43 @@ class TestMoneroDaemonRpc {
           it("Can notify listeners when a new block is added to the chain", async function() {
             try {
               
-              // start mining if possible to help push along the network
+              // start mining if possible to help push the network along
               let wallet = new MoneroWalletLocal(daemon);
               let address = await wallet.getPrimaryAddress();
-              try { await daemon.startMining(address, 2, false, true); }
+              try { await daemon.startMining(address, 8, false, true); }
               catch (e) { }
               
               // wait for block header notification
+              let height = await daemon.getHeight();
               let nextHeader = await awaitNewBlock();
-              testBlockHeader(nextHeader, true);
-              
-              // helper function to wait for next block
-              async function awaitNewBlock() {
-                return new Promise(function(resolve, reject) {
-                  try {
-                    daemon.addBlockListener(function(header) {
-                      resolve(header);
-                    });
-                  } catch (e) {
-                    reject(e);
-                  }
-                });
-              }
+              console.log("Checking equality");
+              assert.equal(1, 2); // TODO: hangs if this is after await new block           
             } catch (e) {
+              console.log("We have an error...");
+              console.log(e);
               throw e;
             } finally {
               
               // stop mining
+              console.log("FINALLY");
               try { await daemon.stopMining(); }
               catch (e) { }
             }
+            
+            console.log("But we're finishing here!!!");
+            
+            // helper function to wait for next block
+            function awaitNewBlock() {
+              return new Promise(function(resolve, reject) {
+                daemon.addBlockListener(function(header) {
+                  resolve(header);
+                });
+              });
+            }
+          });
+          
+          it("Has a test after REMOVE ME", async function() {
+            console.log("Yeah...");
           });
         });
       }

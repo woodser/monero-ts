@@ -1481,42 +1481,58 @@ class TestMoneroWalletCommon {
   _testNotifications() {
     let wallet = this.wallet;
     let daemon = this.daemon;
+    let that = this;
     
     describe("Test Notifications", function() {
       
-      it("Can send a transaction and update it as blocks received", async function() {
+      it("Can send a transaction with an unlock time and update it as blocks received", async function() {
         try {
           
-          // send a transaction // TODO: good opportunity to test lock time
-          throw new Error("Not implemented");
-          //let tx = await wallet.send(await wallet.getPrimaryAddress(), )
+          // send a transaction that becomes spendable in 2 blocks
+          let height = await wallet.getHeight();
+          let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
+          sendConfig.setUnlockTime(2);
+          let tx0 = await wallet.send(sendConfig);
+          await testTxWalletSend(tx0, sendConfig, true, true, wallet);
+          assert.equal(false, tx0.getIsConfirmed());
+          assert.equal(true, tx0.getInTxPool());
           
-          // start mining if possible to help push along the network
-          try { await wallet.startMining(2, false, true); }
+          // start mining if possible to help push the network along
+          try { await wallet.startMining(8, false, true); }
           catch (e) { }
           
           // wait for block
           let nextHeader = await awaitNewBlock();
-          testBlockHeader(nextHeader, true);
+          //assert.equal(2, 1);
           
-          // test transaction is confirmed but still locked
-          
-          // wait for block
-          nextHeader = await awaitNewBlock();
-          testBlockHeader(nextHeader, true);
+//          // test transaction is confirmed but still locked
+//          let filter = new MoneroTxFilter();
+//          filter.setTxIds([tx0.getId()]);  // TODO: convenience methods wallet.getTxById(), getTxsById()?
+//          let txs1 = await wallet.getTxs(filter);
+//          assert.equal(2, txs1.length); // one outgoing, one incoming
+//          for (let tx1 of txs1) {
+//            await testTxWalletGet(tx1, wallet, that.unbalancedTxIds);
+//            assert.equal(true, tx1.getIsConfirmed());
+//            assert.equal(false, tx1.getInTxPool());
+//            assert.equal(height + 2, tx1.getUnlockTime());
+//            if (tx1.getIsOutgoing()) {
+//              throw new Error("Time to merge outgoing txs");
+//            } else {
+//              throw new Error("Time to merge incoming txs");
+//            }
+//          }
+//          
+//          // wait for block
+//          nextHeader = await awaitNewBlock();
           
           // test transaction is confirmed and unlocked
           
           // helper function to wait for next block
-          async function awaitNewBlock() {
+          function awaitNewBlock() {
             return new Promise(function(resolve, reject) {
-              try {
-                daemon.addBlockListener(function(header) {
-                  resolve(header);
-                });
-              } catch (e) {
-                reject(e);
-              }
+              daemon.addBlockListener(function(header) {
+                resolve(header);
+              });
             });
           }
         } catch (e) {
@@ -1720,7 +1736,7 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments, unbalanc
   assert.equal(undefined, tx.getSize());   // TODO (monero-wallet-rpc): add tx_size to get_transfers and get_transfer_by_txid
   assert.equal(undefined, tx.getWeight());
   assert(tx.getNote() === undefined || tx.getNote().length > 0);
-  assert.equal(0, tx.getUnlockTime());
+  assert.equal(tx.getUnlockTime() >= 0);
   assert(typeof tx.getIsDoubleSpend() === "boolean");
   assert.equal(undefined, tx.getKey());
   assert.equal(undefined, tx.getHex());
@@ -1798,9 +1814,9 @@ async function testTxWalletSend(tx, config, hasKey, hasPayments, wallet) {
     assert.equal(false, tx.getDoNotRelay());
     assert.equal(true, tx.getIsRelayed());
     assert(tx.getLastRelayedTime() > 0);
-    assert.equal(0, tx.getUnlockTime());  // TODO: test with non-zero unlock time
     assert.equal(false, tx.getIsDoubleSpend());
   }
+  assert.equal(config.getUnlockTime() ? config.getUnlockTime() : 0, tx.getUnlockTime());
   assert(tx.getSrcAddress());
   assert.equal(await wallet.getAddress(tx.getSrcAccountIndex(), tx.getSrcSubaddressIndex()), tx.getSrcAddress());
   assert(tx.getSrcAccountIndex() >= 0);
