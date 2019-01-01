@@ -14,9 +14,13 @@ See the [tests](tests) for the most complete examples of using this library.
 // create a wallet that uses a monero-wallet-rpc endpoint
 let wallet = new MoneroWalletRpc({uri: "http://localhost:38083", user: "rpc_user", pass: "abc123"});
 
-// get primary address and balance of wallet
-let balance = await wallet.getBalance();               // e.g. 533648366742 (BigInteger)
-let primaryAddress = await wallet.getPrimaryAddress(); // e.g. 59aZULsUF3YNSKGiHz4JPMfjGYkm1S4TB3sPsTr3j85HhXb9crZqGa7jJ8cA87U48kT5wzi2VzGZnN2PKojEwoyaHqtpeZh
+// get wallet balance as BigInteger
+// e.g. 533648366742
+let balance = await wallet.getBalance();
+
+// get wallet primary address
+// e.g. 59aZULsUF3YNSKGiHz4JPMfjGYkm1S4TB3sPsTr3j85HhXb9crZqGa7jJ8cA87U48kT5wzi2VzGZnN2PKojEwoyaHqtpeZh
+let primaryAddress = await wallet.getPrimaryAddress();
 
 // get address and balance of subaddress [1, 0]
 let subaddress = await wallet.getSubaddress(1, 0);
