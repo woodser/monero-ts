@@ -1834,7 +1834,6 @@ async function testTxWalletSend(tx, config, hasKey, hasPayments, wallet) {
     assert.equal(true, tx.getDoNotRelay());
     assert.equal(false, tx.getIsRelayed());
     assert.equal(undefined, tx.getLastRelayedTime());
-    assert.equal(undefined, tx.getUnlockTime());
     assert.equal(undefined, tx.getIsDoubleSpend());
   } else {
     assert.equal(true, tx.getInTxPool());

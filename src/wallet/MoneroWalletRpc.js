@@ -1012,14 +1012,14 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setSrcAddress(await this.getAddress(accountIdx, 0));
       tx.setSrcAccountIndex(accountIdx);
       tx.setSrcSubaddressIndex(0); // TODO (monero-wallet-rpc): outgoing subaddress idx is always 0
+      if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
       if (!tx.getDoNotRelay()) {
         if (tx.getLastRelayedTime() === undefined) tx.setLastRelayedTime(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
-        if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
         if (tx.getIsDoubleSpend() === undefined) tx.setIsDoubleSpend(false);
       }
     }
     
-    // initialize tx from rpc response
+    // initialize txs from rpc response
     if (split) MoneroWalletRpc._buildTxsWallet(rpcResp, txs);
     else MoneroWalletRpc._buildTxWallet(rpcResp, txs[0]);
     
