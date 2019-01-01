@@ -456,11 +456,20 @@ class MoneroDaemon {
   }
   
   /**
+   * Returns the next block's header when detected.
+   * 
+   * @returns {MoneroBlockHeader} is the next block's header when detected
+   */
+  async nextBlockHeader() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Registers a listener who is invoked with new block headers when detected.
    * 
    * @param listener(header) is invoked with new block headers when detected
    */
-  addBlockListener(listener) {
+  addBlockHeaderListener(listener) {
     throw new Error("Subclass must implement");
   }
   
@@ -469,7 +478,7 @@ class MoneroDaemon {
    * 
    * @param listener is the listener to no longer invoke when new blocks are detected
    */
-  removeBlockListener(listener) {
+  removeBlockHeaderListener(listener) {
     throw new Error("Subclass must implement");
   }
   

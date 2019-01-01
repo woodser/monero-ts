@@ -519,9 +519,20 @@ class TestMoneroDaemonRpc {
               try { await daemon.startMining(address, 8, false, true); }
               catch (e) { }
               
-              // wait for block header notification
-              let nextHeader = await awaitNewBlock();
-              testBlockHeader(nextHeader, true);
+              // register a listener
+              let listenerHeader;
+              let listener = function(header) {
+                listenerHeader = header;
+                daemon.removeBlockHeaderListener(listener); // otherwise daemon will keep polling
+              }
+              daemon.addBlockHeaderListener(listener);
+              
+              // wait for next block notification
+              let header = await daemon.nextBlockHeader();
+              testBlockHeader(header, true);
+              
+              // test that listener was called with same header
+              assert(header === listenerHeader);
             } catch (e) {
               throw e;
             } finally {

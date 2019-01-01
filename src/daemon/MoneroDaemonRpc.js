@@ -425,7 +425,18 @@ class MoneroDaemonRpc extends MoneroDaemon {
 //    return entries;
   }
   
-  addBlockListener(listener) {
+  async nextBlockHeader() {
+    let that = this;
+    return new Promise(function(resolve, reject) {
+      let listener = function(header) {
+        resolve(header);
+        that.removeBlockHeaderListener(listener);
+      }
+      that.addBlockHeaderListener(listener);
+    });
+  }
+  
+  addBlockHeaderListener(listener) {
 
     // register listener
     this.listeners.push(listener);
@@ -435,7 +446,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (!this.isPollingHeaders) this._startPollingHeaders(POLL_INTERVAL);
   }
   
-  removeBlockListener(listener) {
+  removeBlockHeaderListener(listener) {
     let found = GenUtils.remove(this.listeners, listener);
     assert(found, "Listener is not registered");
     if (this.listeners.length === 0) this._stopPollingHeaders();
