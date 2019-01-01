@@ -2,19 +2,19 @@ const TestMoneroDaemonRpc = require("./TestMoneroDaemonRpc");
 const TestMoneroWalletRpc = require("./TestMoneroWalletRpc")
 const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 
-// test daemon rpc
-new TestMoneroDaemonRpc().runTests({
+//// test daemon rpc
+//new TestMoneroDaemonRpc().runTests({
+//  testNotifications: false
+//});
+
+// test wallet rpc
+new TestMoneroWalletRpc().runTests({
+  testNonSends: false,
+  liteMode: true, // skips some lengthy tests // TODO: lengthy tests still need to be runnable but getting test timeout
+  testSends: false,
+  testResets: false,
   testNotifications: true
 });
-
-//// test wallet rpc
-//new TestMoneroWalletRpc().runTests({
-//  testNonSends: false,
-//  liteMode: true, // skips some lengthy tests // TODO: lengthy tests still need to be runnable but getting test timeout
-//  testSends: false,
-//  testResets: false,
-//  testNotifications: true
-//});
 
 //// test wallet local
 //new TestMoneroWalletLocal().runTests({

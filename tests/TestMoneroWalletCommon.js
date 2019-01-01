@@ -1501,40 +1501,30 @@ class TestMoneroWalletCommon {
           try { await wallet.startMining(8, false, true); }
           catch (e) { }
           
-          // wait for block
+          // wait for next block
           let nextHeader = await awaitNewBlock();
-          //assert.equal(2, 1);
           
-//          // test transaction is confirmed but still locked
-//          let filter = new MoneroTxFilter();
-//          filter.setTxIds([tx0.getId()]);  // TODO: convenience methods wallet.getTxById(), getTxsById()?
-//          let txs1 = await wallet.getTxs(filter);
-//          assert.equal(2, txs1.length); // one outgoing, one incoming
-//          for (let tx1 of txs1) {
-//            await testTxWalletGet(tx1, wallet, that.unbalancedTxIds);
-//            assert.equal(true, tx1.getIsConfirmed());
-//            assert.equal(false, tx1.getInTxPool());
-//            assert.equal(height + 2, tx1.getUnlockTime());
-//            if (tx1.getIsOutgoing()) {
-//              throw new Error("Time to merge outgoing txs");
-//            } else {
-//              throw new Error("Time to merge incoming txs");
-//            }
-//          }
-//          
-//          // wait for block
-//          nextHeader = await awaitNewBlock();
+          // test transaction is confirmed but still locked
+          let filter = new MoneroTxFilter();
+          filter.setTxIds([tx0.getId()]);  // TODO: convenience methods wallet.getTxById(), getTxsById()?
+          let txs1 = await wallet.getTxs(filter);
+          assert.equal(2, txs1.length); // one outgoing, one incoming
+          for (let tx1 of txs1) {
+            await testTxWalletGet(tx1, wallet, that.unbalancedTxIds);
+            assert.equal(true, tx1.getIsConfirmed());
+            assert.equal(false, tx1.getInTxPool());
+            assert.equal(height + 2, tx1.getUnlockTime());
+            if (tx1.getIsOutgoing()) {
+              throw new Error("Time to merge outgoing txs");
+            } else {
+              throw new Error("Time to merge incoming txs");
+            }
+          }
+          
+          // wait for next block
+          nextHeader = await awaitNewBlock();
           
           // test transaction is confirmed and unlocked
-          
-          // helper function to wait for next block
-          function awaitNewBlock() {
-            return new Promise(function(resolve, reject) {
-              daemon.addBlockListener(function(header) {
-                resolve(header);
-              });
-            });
-          }
         } catch (e) {
           throw e;
         } finally {
@@ -1542,6 +1532,17 @@ class TestMoneroWalletCommon {
           // stop mining
           try { await wallet.stopMining(); }
           catch (e) { }
+        }
+        
+        // helper function to wait for next block
+        function awaitNewBlock() {
+          return new Promise(function(resolve, reject) {
+            let onHeader = function(header) {
+              resolve(header);
+              daemon.removeBlockListener(onHeader);
+            }
+            daemon.addBlockListener(onHeader);
+          });
         }
       });
     });
@@ -1736,7 +1737,7 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments, unbalanc
   assert.equal(undefined, tx.getSize());   // TODO (monero-wallet-rpc): add tx_size to get_transfers and get_transfer_by_txid
   assert.equal(undefined, tx.getWeight());
   assert(tx.getNote() === undefined || tx.getNote().length > 0);
-  assert.equal(tx.getUnlockTime() >= 0);
+  assert(tx.getUnlockTime() >= 0);
   assert(typeof tx.getIsDoubleSpend() === "boolean");
   assert.equal(undefined, tx.getKey());
   assert.equal(undefined, tx.getHex());
