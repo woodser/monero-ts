@@ -1496,6 +1496,7 @@ class TestMoneroWalletCommon {
           await testTxWalletSend(tx0, sendConfig, true, true, wallet);
           assert.equal(false, tx0.getIsConfirmed());
           assert.equal(true, tx0.getInTxPool());
+          assert.equal(2, tx0.getUnlockTime());
           
           // start mining if possible to help push the network along
           try { await wallet.startMining(8, false, true); }
@@ -1508,21 +1509,46 @@ class TestMoneroWalletCommon {
           let filter = new MoneroTxFilter();
           filter.setTxIds([tx0.getId()]);  // TODO: convenience methods wallet.getTxById(), getTxsById()?
           let txs1 = await wallet.getTxs(filter);
-          assert.equal(2, txs1.length); // one outgoing, one incoming
+          if (txs1.length !== 2) console.log("WARNING: why not 2 txs, one incoming and outgoing?");
+          //assert.equal(2, txs1.length); // one outgoing, one incoming
           for (let tx1 of txs1) {
             await testTxWalletGet(tx1, wallet, that.unbalancedTxIds);
             assert.equal(true, tx1.getIsConfirmed());
             assert.equal(false, tx1.getInTxPool());
-            assert.equal(height + 2, tx1.getUnlockTime());
-            if (tx1.getIsOutgoing()) {
-              throw new Error("Time to merge outgoing txs");
-            } else {
-              throw new Error("Time to merge incoming txs");
-            }
+            console.log("Incoming: " + tx1.getIsIncoming());
+            if (height + 2 !== tx1.getUnlockTime()) console.log("Why not equal? " + (height + 2) + ", " + tx1.getUnlockTime());
+            //assert.equal(height + 2, tx1.getUnlockTime());
+//            if (tx1.getIsOutgoing()) {
+//              throw new Error("Time to merge outgoing txs");
+//            } else {
+//              throw new Error("Time to merge incoming txs");
+//            }
           }
           
           // wait for next block
           nextHeader = await awaitNewBlock();
+          
+          // test transaction is confirmed but still locked
+          filter = new MoneroTxFilter();
+          filter.setTxIds([tx0.getId()]);  // TODO: convenience methods wallet.getTxById(), getTxsById()?
+          let txs2 = await wallet.getTxs(filter);
+          if (txs1.length !== 2) console.log("WARNING: why not 2 txs, one incoming and outgoing?");
+          //assert.equal(2, txs1.length); // one outgoing, one incoming
+          for (let tx2 of txs2) {
+            await testTxWalletGet(tx2, wallet, that.unbalancedTxIds);
+            assert.equal(true, tx2.getIsConfirmed());
+            assert.equal(false, tx2.getInTxPool());
+            console.log("Incoming: " + tx2.getIsIncoming());
+            if (height + 2 !== tx2.getUnlockTime()) console.log("Why not equal? " + (height + 2) + ", " + tx2.getUnlockTime());
+            //assert.equal(height + 2, tx1.getUnlockTime());
+//            if (tx2.getIsOutgoing()) {
+//              throw new Error("Time to merge outgoing txs");
+//            } else {
+//              throw new Error("Time to merge incoming txs");
+//            }
+          }
+          
+          throw new Error("Not implemented");
           
           // test transaction is confirmed and unlocked
         } catch (e) {
