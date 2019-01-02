@@ -8,7 +8,7 @@ The API currently relies on running instances of [Monero Wallet RPC](https://get
 
 See the [tests](tests) for the most complete examples of using this library.
 
-## Wallet Code Sample
+## Wallet Sample Code
 
 ```js
 // create a wallet that uses a monero-wallet-rpc endpoint
@@ -48,7 +48,7 @@ for (let tx of await wallet.getTxs()) {
 }
 ```
 
-## Daemon Code Sample
+## Daemon Sample Code
 
 ```js
 // create a daemon that uses a monero-daemon-rpc endpoint
