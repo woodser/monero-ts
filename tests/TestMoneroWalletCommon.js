@@ -1490,6 +1490,7 @@ class TestMoneroWalletCommon {
           
           // unlock time to test
           const unlockTime = 3;
+          const srcAccountIdx = 1;  // source account index to send from
           
           // send a transaction that becomes spendable in unlockTime blocks
           let height = await wallet.getHeight();
@@ -1506,6 +1507,9 @@ class TestMoneroWalletCommon {
           try { await wallet.startMining(8, false, true); }
           catch (e) { }
           
+          console.log("****** GETTING TRANSACTIONS *****");
+          console.log(tx0.getId());
+          
           // loop until test satisfied
           while (true) {
             
@@ -1515,8 +1519,6 @@ class TestMoneroWalletCommon {
             // get incoming/outgoing versions of tx with sent id
             let filter = new MoneroTxFilter();
             filter.setTxIds([tx0.getId()]);  // TODO: convenience methods wallet.getTxById(), getTxsById()?
-            console.log("****** GETTING TRANSACTIONS *****");
-            console.log(tx0.getId());
             let txs = await wallet.getTxs(filter);
             assert(txs.length > 0);
             console.log("Txs length: " + txs.length);
@@ -1526,18 +1528,24 @@ class TestMoneroWalletCommon {
               for (let tx of txs) {
                 await testTxWalletGet(tx, wallet, that.unbalancedTxIds);
                 assert.equal(false, tx.getInTxPool());
-                console.log("Incoming: " + tx.getIsIncoming());
-                if (height + unlockTime !== tx.getUnlockTime()) console.log("Why not equal? " + (height + unlockTime) + ", " + tx.getUnlockTime()); // TODO: must be equal except occlusion bug #4500
-                //assert.equal(height + unlockTime, tx1.getUnlockTime());
+                if (srcAccountIdx === 0 && tx.getIsIncoming()) {
+                  assert.equal(undefined, tx.getUnlockTime());
+                  console.log("WARNING: Tx is missing unlock time because account 0 incoming txs occluded by outgoing counterparts (issue #4500)"); // TODO (monero-wallet-rpc): account 0 incoming txs occluded by outgoing counterparts (#4500) 
+                } else assert.equal(unlockTime, tx.getUnlockTime());
 //                if (tx1.getIsOutgoing()) {
 //                  throw new Error("Time to merge outgoing txs");
 //                } else {
 //                  throw new Error("Time to merge incoming txs");
 //                }
+                if (tx.getIsOutgoing()) {
+                  
+                } else {
+                  
+                }
+                break;
               }
             } else {
-              console.log("Not yet confirmed");
-              assert.equal(1, txs.length);
+              //assert.equal(2, txs.length);  // TODO (monero-wallet-rpc): sometimes find one or both while unconfirmed
               assert.equal(true, txs[0].getInTxPool());
             }
           }
