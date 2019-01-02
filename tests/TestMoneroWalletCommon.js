@@ -1527,7 +1527,7 @@ class TestMoneroWalletCommon {
                 await testTxWalletGet(tx, wallet, that.unbalancedTxIds);
                 assert.equal(false, tx.getInTxPool());
                 console.log("Incoming: " + tx.getIsIncoming());
-                if (height + unlockTime !== tx.getUnlockTime()) console.log("Why not equal? " + (height + unlockTime) + ", " + tx.getUnlockTime());
+                if (height + unlockTime !== tx.getUnlockTime()) console.log("Why not equal? " + (height + unlockTime) + ", " + tx.getUnlockTime()); // TODO: must be equal except occlusion bug #4500
                 //assert.equal(height + unlockTime, tx1.getUnlockTime());
 //                if (tx1.getIsOutgoing()) {
 //                  throw new Error("Time to merge outgoing txs");
