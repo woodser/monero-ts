@@ -35,6 +35,6 @@ new TestMoneroWalletRpc().runTests({
 //
 //// test sample code for readme
 //require("./TestSampleCode");
-
+//
 //// test scratchpad
 //require("./TestScratchpad");

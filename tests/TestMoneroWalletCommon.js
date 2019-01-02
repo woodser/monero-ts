@@ -1511,6 +1511,8 @@ class TestMoneroWalletCommon {
             // get incoming/outgoing versions of tx with sent id
             let filter = new MoneroTxFilter();
             filter.setTxIds([tx0.getId()]);  // TODO: convenience methods wallet.getTxById(), getTxsById()?
+            console.log("****** GETTING TRANSACTIONS *****");
+            console.log(tx0.getId());
             let txs = await wallet.getTxs(filter);
             assert(txs.length > 0);
             if (txs[0].getIsConfirmed()) {
