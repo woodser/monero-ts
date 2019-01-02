@@ -1531,6 +1531,9 @@ class TestMoneroWalletCommon {
             let txs = await wallet.getTxs(filter, undefined, tx0.getId());
             assert.equal(2, txs.length);
             
+            console.log("Retrieved txs");
+            for (let tx of txs) console.log(tx.toString());
+            
 //            // if only one tx found, test it but wait for next block to see if both are present
 //            if (txs.length !== 2) {
 //              console.log("WARNING: Incoming tx not found so waiting for next block");  // TODO monero-wallet-rpc
@@ -1543,7 +1546,7 @@ class TestMoneroWalletCommon {
 //            }
             
             // merge with previous txs
-            console.log("MERGING OUTGOING!!!!!");
+            console.log("MERGING!!!!!");
             let outTx = txs[0].getIsOutgoing() ? txs[0] : txs[1];
             let inTx = txs[0].getIsOutgoing() ? txs[1] : txs[0];
             tx0.merge(outTx); // TODO: it's mergeable but tests don't account for extra info from send (e.g. hex) so not tested; could specify in test config
@@ -1551,6 +1554,9 @@ class TestMoneroWalletCommon {
             else outgoingTx.merge(outTx);
             if (incomingTx === undefined) incomingTx = inTx;
             else incomingTx.merge(inTx);  // TODO: GC error if inTx === incomingTx, test specifically
+            
+            console.log(outgoingTx.toString());
+            console.log(incomingTx.toString());
             
             // test txs
             console.log("Is confirmed: " + outgoingTx.getIsConfirmed());
