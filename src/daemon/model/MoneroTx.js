@@ -324,7 +324,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   toString(indent = 0) {
     let str = "";
-    str += MoneroUtils.kvLine("Tx ID", this.getId(), indent);
+    str += MoneroUtils.kvLine("*** Tx ID", this.getId(), indent);
     str += MoneroUtils.kvLine("Version", this.getVersion(), indent);
     str += MoneroUtils.kvLine("Is coinbase", this.getIsCoinbase(), indent);
     str += MoneroUtils.kvLine("Payment ID", this.getPaymentId(), indent);

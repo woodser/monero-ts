@@ -19,7 +19,7 @@ describe("Test Scratchpad", function() {
     filter.setTxIds(["e70ce7bb5432a065048c0410f78266265dbccf6b581660ea3ce00f22ee361284"]);
     let txs = await wallet.getTxs(filter);
     for (let tx of txs) {
-      console.log(tx.toString() + "\n");
+      console.log(tx.toString());
     }
     
 //    
