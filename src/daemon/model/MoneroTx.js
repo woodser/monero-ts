@@ -34,11 +34,11 @@ class MoneroTx extends MoneroDaemonModel {
   }
   
   getIsCoinbase() {
-    return this.json.coinbase;
+    return this.json.isCoinbase;
   }
   
   setIsCoinbase(coinbase) {
-    this.json.coinbase = coinbase;
+    this.json.isCoinbase = coinbase;
   }
   
   getPaymentId() {
