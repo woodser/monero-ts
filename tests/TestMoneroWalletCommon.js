@@ -1491,10 +1491,11 @@ class TestMoneroWalletCommon {
           // unlock time to test
           const unlockTime = 3;
           const srcAccountIdx = 1;  // source account index to send from
+          const destAddress = (await wallet.getSubaddress(srcAccountIdx, 0)).getAddress();
           
           // send a transaction that becomes spendable in unlockTime blocks
           let height = await wallet.getHeight();
-          let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
+          let sendConfig = new MoneroSendConfig(destAddress, TestUtils.MAX_FEE);
           sendConfig.setAccountIndex(1);  // to avoid occlusion bug (#4500)
           sendConfig.setUnlockTime(unlockTime);
           let tx0 = await wallet.send(sendConfig);
@@ -1502,6 +1503,10 @@ class TestMoneroWalletCommon {
           assert.equal(false, tx0.getIsConfirmed());
           assert.equal(true, tx0.getInTxPool());
           assert.equal(unlockTime, tx0.getUnlockTime());
+          
+          // track resulting outgoing/incoming transaction as confirmed
+          let outgoingTx = tx0.copy();
+          let incomingTx;
           
           // start mining if possible to help push the network along
           try { await wallet.startMining(8, false, true); }
@@ -1518,11 +1523,23 @@ class TestMoneroWalletCommon {
             
             // get incoming/outgoing versions of tx with sent id
             let filter = new MoneroTxFilter();
+            filter.setAccountIndex(srcAccountIdx);
             filter.setTxIds([tx0.getId()]);  // TODO: convenience methods wallet.getTxById(), getTxsById()?
             let txs = await wallet.getTxs(filter);
             assert(txs.length > 0);
-            console.log("Txs length: " + txs.length);
-            if (txs[0].getIsConfirmed()) {
+            
+            // merge updated txs
+            assert.equal(true, txs[0].getIsOutgoing());
+            outgoingTx.merge(txs[0]);
+            if (txs.length > 1) {
+              assert.equal(2, txs.length);
+              assert.equal(true, txs[1].getIsIncoming());
+              if (incomingTx === undefined) incomingTx = txs[1];
+              else incomingTx.merge(txs[1]);
+            }
+            
+            // test updated txs
+            if (outgoingTx.getIsConfirmed()) {
               console.log("Confirmed");
               assert.equal(2, txs.length);  // one incoming and one outgoing
               for (let tx of txs) {
@@ -1532,19 +1549,9 @@ class TestMoneroWalletCommon {
                   assert.equal(undefined, tx.getUnlockTime());
                   console.log("WARNING: Tx is missing unlock time because account 0 incoming txs occluded by outgoing counterparts (issue #4500)"); // TODO (monero-wallet-rpc): account 0 incoming txs occluded by outgoing counterparts (#4500) 
                 } else assert.equal(unlockTime, tx.getUnlockTime());
-//                if (tx1.getIsOutgoing()) {
-//                  throw new Error("Time to merge outgoing txs");
-//                } else {
-//                  throw new Error("Time to merge incoming txs");
-//                }
-                if (tx.getIsOutgoing()) {
-                  
-                } else {
-                  
-                }
-                break;
               }
             } else {
+              console.log("Unconfirmed");
               //assert.equal(2, txs.length);  // TODO (monero-wallet-rpc): sometimes find one or both while unconfirmed
               assert.equal(true, txs[0].getInTxPool());
             }
