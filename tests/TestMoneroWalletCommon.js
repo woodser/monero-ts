@@ -43,7 +43,7 @@ class TestMoneroWalletCommon {
     describe("Common Wallet Tests", function() {
       if (config.testNonSends) that._testNonSends(config.liteMode);
       if (config.testSends) that._testSends();
-      if (config.testResets) that._testNonSends();
+      if (config.testResets) that._testResets();
       if (config.testNotifications) that._testNotifications();
     });
   }
@@ -1491,6 +1491,7 @@ class TestMoneroWalletCommon {
           // send a transaction that becomes spendable in 2 blocks
           let height = await wallet.getHeight();
           let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
+          sendConfig.setAccountIndex(1);  // to avoid occlusion bug (#4500)
           sendConfig.setUnlockTime(2);
           let tx0 = await wallet.send(sendConfig);
           await testTxWalletSend(tx0, sendConfig, true, true, wallet);
@@ -1508,6 +1509,8 @@ class TestMoneroWalletCommon {
             // wait for next block
             await daemon.nextBlockHeader();
             
+            let unlockTime = 3;
+            
             // get incoming/outgoing versions of tx with sent id
             let filter = new MoneroTxFilter();
             filter.setTxIds([tx0.getId()]);  // TODO: convenience methods wallet.getTxById(), getTxsById()?
@@ -1515,14 +1518,16 @@ class TestMoneroWalletCommon {
             console.log(tx0.getId());
             let txs = await wallet.getTxs(filter);
             assert(txs.length > 0);
+            console.log("Txs length: " + txs.length);
             if (txs[0].getIsConfirmed()) {
+              console.log("Confirmed");
               assert.equal(2, txs.length);  // one incoming and one outgoing
               for (let tx of txs) {
                 await testTxWalletGet(tx, wallet, that.unbalancedTxIds);
                 assert.equal(false, tx.getInTxPool());
                 console.log("Incoming: " + tx.getIsIncoming());
-                if (height + 2 !== tx.getUnlockTime()) console.log("Why not equal? " + (height + 2) + ", " + tx.getUnlockTime());
-                //assert.equal(height + 2, tx1.getUnlockTime());
+                if (height + unlockTime !== tx.getUnlockTime()) console.log("Why not equal? " + (height + unlockTime) + ", " + tx.getUnlockTime());
+                //assert.equal(height + unlockTime, tx1.getUnlockTime());
 //                if (tx1.getIsOutgoing()) {
 //                  throw new Error("Time to merge outgoing txs");
 //                } else {
