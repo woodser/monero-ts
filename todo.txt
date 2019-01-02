@@ -1,4 +1,5 @@
 HIGH
+how to handle 'confirmations' block height to add the tx to the chain if unconfirmed? corallary of unlock time?
 test response info of wallet.getTxs()
 investigate performance of get single tx by id, way too many requests
 no test timeout
