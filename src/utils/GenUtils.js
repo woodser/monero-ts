@@ -1079,6 +1079,18 @@ class GenUtils {
     }
   }
   
+  /**
+   * Returns a string indentation of the given length;
+   * 
+   * @param length is the length of the indentation
+   * @returns {string} is an indentation string of the given length
+   */
+  static getIndent(length) {
+    let str = "";
+    for (let i = 0; i < length; i++) str += '  '; // two spaces
+    return str;
+  }
+  
   static initPolyfills() {
     
     // Polyfill Object.assign()

@@ -1,3 +1,5 @@
+const MoneroUtils = require("../../utils/MoneroUtils");
+
 /**
  * Represents a payment on the Monero network to an address.
  * 
@@ -93,21 +95,16 @@ class MoneroPayment {
 //    else if (payment.getKeyImage() != null) assertEquals("Key images", keyImage, payment.getKeyImage());
   }
   
-  toString(offset) {
-    throw new Error("Not implemented");
-    //return toString(0);
+  toString(indent = 0) {
+    let str = "";
+    str += MoneroUtils.kvLine("Address", this.getAddress(), indent);
+    str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
+    str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
+    str += MoneroUtils.kvLine("Amount", this.getAmount().toString(), indent);
+    str += MoneroUtils.kvLine("Is spent", this.getIsSpent(), indent);
+    str += MoneroUtils.kvLine("Key image", this.getKeyImage(), indent);
+    return str.slice(0, str.length - 1);  // strip last newline
   }
-  
-//  public String toString(int offset) {
-//    StringBuilder sb = new StringBuilder();
-//    sb.append(StringUtils.getTabs(offset) + "Address: " + getAddress() + "\n");
-//    sb.append(StringUtils.getTabs(offset) + "Account idx: " + getAccountIndex() + "\n");
-//    sb.append(StringUtils.getTabs(offset) + "Subaddr idx: " + getSubaddressIndex() + "\n");
-//    sb.append(StringUtils.getTabs(offset) + "Amount: " + getAmount() + "\n");
-//    sb.append(StringUtils.getTabs(offset) + "Is spent: " + getIsSpent() + "\n");
-//    sb.append(StringUtils.getTabs(offset) + "Key image: " + getKeyImage());
-//    return sb.toString();
-//  }
 }
 
 module.exports = MoneroPayment;

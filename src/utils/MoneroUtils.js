@@ -1,4 +1,5 @@
 const assert = require("assert");
+const GenUtils = require("./GenUtils");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
@@ -154,6 +155,21 @@ class MoneroUtils {
       } else throw new Error("Invalid sub-field tag: " + tag);
     }
     return Buffer.from(new Uint8Array(txExtra.slice(lastPubKeyIdx, lastPubKeyIdx + 32))).toString("hex");
+  }
+  
+  /**
+   * Returns a human-friendly key value line.
+   * 
+   * @param key is the key
+   * @param value is the value
+   * @param indent indents the line
+   * @param newline specifies if the string should be terminated with a newline or not
+   * @param ignoreUndefined specifies if undefined values should return an empty string
+   * @returns {string} is the human-friendly key value line
+   */
+  static kvLine(key, value, indent = 0, newline = true, ignoreUndefined = true) {
+    if (value === undefined && ignoreUndefined) return "";
+    return GenUtils.getIndent(indent) + key + ": " + value + (newline ? '\n' : "");
   }
 }
 

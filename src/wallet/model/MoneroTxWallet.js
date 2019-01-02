@@ -43,14 +43,6 @@ class MoneroTxWallet extends MoneroTx {
     this.json.payments = payments;
   }
   
-  getNote() {
-    return this.json.note;
-  }
-  
-  setNote(note) {
-    this.json.note = note;
-  }
-  
   getSrcAccountIndex() {
     return this.json.srcAccountIndex;
   }
@@ -75,6 +67,14 @@ class MoneroTxWallet extends MoneroTx {
     this.json.srcAddress = srcAddress;
   }
   
+  getNote() {
+    return this.json.note;
+  }
+  
+  setNote(note) {
+    this.json.note = note;
+  }
+  
   getMetadata() {
     return this.json.metadata;
   }
@@ -90,6 +90,29 @@ class MoneroTxWallet extends MoneroTx {
   toJson() {
     return this.json; // TODO: correctly serialize complex types
     //throw new Error("Not implemented");
+  }
+  
+  toString(offset = 0) {
+    let str = super.toString(offset) + '\n'
+    str += MoneroUtils.kvLine("Is incoming", this.getIsIncoming(), offset);
+    str += MoneroUtils.kvLine("Is outgoing", this.getIsOutgoing(), offset);
+    str += MoneroUtils.kvLine("Total amount", this.getTotalAmount().toString(), offset);
+    str += MoneroUtils.kvLine("Source account index", this.getSrcAccountIndex(), offset);
+    str += MoneroUtils.kvLine("Source subaddress index", this.getSrcSubaddressIndex(), offset);
+    str += MoneroUtils.kvLine("Source address", this.getSrcAddress(), offset);
+    str += MoneroUtils.kvLine("Note: ", this.getNote(), offset);
+    str += MoneroUtils.kvLine("Metadata: ", this.getMetadata(), offset);
+    if (this.getPayments()) {
+      str += MoneroUtils.kvLine("Payments", "", offset);
+      for (let i = 0; i < this.getPayments().length; i++) {
+        str += MoneroUtils.kvLine(i + 1, "", offset + 1);
+        str += this.getPayments()[i].toString(offset + 2);
+        if (i < this.getPayments().length - 1) str += '\n'
+      }
+    } else {
+      str += MoneroUtils.kvLine("Payments", null, offset);
+    }
+    return str;
   }
   
   merge(tx, mergePayments) {
