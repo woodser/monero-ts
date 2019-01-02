@@ -16,8 +16,8 @@ describe("Test Scratchpad", function() {
     // fetch txs
     let filter = new MoneroTxFilter();
     //filter.setAccountIndex(1);
-    filter.setTxIds(["6f4507e32adc73a60b2a2956830bcc9140e10e74f72094e51a97e4c387838cc5"]);
-    let txs = await wallet.getTxs(filter, undefined, "6f4507e32adc73a60b2a2956830bcc9140e10e74f72094e51a97e4c387838cc5");
+    filter.setTxIds(["e70ce7bb5432a065048c0410f78266265dbccf6b581660ea3ce00f22ee361284"]);
+    let txs = await wallet.getTxs(filter, undefined, "e70ce7bb5432a065048c0410f78266265dbccf6b581660ea3ce00f22ee361284");
     for (let tx of txs) {
       console.log(JSON.stringify(tx.toJson()));
     }

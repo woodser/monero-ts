@@ -378,7 +378,7 @@ class TestMoneroWalletCommon {
         assert(nonDefaultIncoming, "No incoming transactions found in non-default account and subaddress; run testSendToMultiple() first");
       });
       
-      it("Can get wallet transactions by id", async function() {
+      it("Can get wallet transactions by id and ids", async function() {
         
         // get random transactions
         let txs = await getRandomTransactions(wallet, undefined, 1, 5);
@@ -1528,7 +1528,7 @@ class TestMoneroWalletCommon {
             // get incoming/outgoing versions of tx with sent id
             let filter = new MoneroTxFilter();
             filter.setTxIds([tx0.getId()]);  // TODO: convenience methods wallet.getTxById(), getTxsById()?
-            let txs = await wallet.getTxs(filter);
+            let txs = await wallet.getTxs(filter, undefined, tx0.getId());
             assert.equal(2, txs.length);
             
 //            // if only one tx found, test it but wait for next block to see if both are present
