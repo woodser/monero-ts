@@ -93,13 +93,13 @@ class MoneroTxWallet extends MoneroTx {
     super.merge(tx);
     
     // merge extensions which need no special handling
-    MoneroUtils.safeInit(this, this.getIsIncoming, this.setIsIncoming, tx.getIsIncoming());
-    MoneroUtils.safeInit(this, this.getNote, this.setNote, tx.getNote());
-    MoneroUtils.safeInit(this, this.getSrcAccountIndex, this.setSrcAccountIndex, tx.getSrcAccountIndex());
-    MoneroUtils.safeInit(this, this.getSrcSubaddressIndex, this.setSrcSubaddressIndex, tx.getSrcSubaddressIndex());
-    MoneroUtils.safeInit(this, this.getSrcAddress, this.setSrcAddress, tx.getSrcAddress());
-    MoneroUtils.safeInit(this, this.getIsCoinbase, this.setIsCoinbase, tx.getIsCoinbase());
-    MoneroUtils.safeInit(this, this.getMetadata, this.setMetadata, tx.getMetadata());
+    MoneroUtils.safeSet(this, this.getIsIncoming, this.setIsIncoming, tx.getIsIncoming());
+    MoneroUtils.safeSet(this, this.getNote, this.setNote, tx.getNote());
+    MoneroUtils.safeSet(this, this.getSrcAccountIndex, this.setSrcAccountIndex, tx.getSrcAccountIndex());
+    MoneroUtils.safeSet(this, this.getSrcSubaddressIndex, this.setSrcSubaddressIndex, tx.getSrcSubaddressIndex());
+    MoneroUtils.safeSet(this, this.getSrcAddress, this.setSrcAddress, tx.getSrcAddress());
+    MoneroUtils.safeSet(this, this.getIsCoinbase, this.setIsCoinbase, tx.getIsCoinbase());
+    MoneroUtils.safeSet(this, this.getMetadata, this.setMetadata, tx.getMetadata());
     
     // merge total amount
     if (this.json.totalAmount === undefined) this.json.totalAmount = tx.getTotalAmount();

@@ -815,8 +815,8 @@ class MoneroWalletRpc extends MoneroWallet {
     if (tx.getPayments() !== undefined) assert(payment === undefined);
     else if (payment !== undefined) tx.setPayments([payment]);
     if (tx.getIsOutgoing()) {
-      MoneroUtils.safeInit(tx, tx.getSrcAccountIndex, tx.setSrcAccountIndex, accountIdx);
-      MoneroUtils.safeInit(tx, tx.getSrcSubaddressIndex, tx.setSrcSubaddressIndex, subaddressIdx);
+      MoneroUtils.safeSet(tx, tx.getSrcAccountIndex, tx.setSrcAccountIndex, accountIdx);
+      MoneroUtils.safeSet(tx, tx.getSrcSubaddressIndex, tx.setSrcSubaddressIndex, subaddressIdx);
     } else {
       assert(payment);
       assert.equal(1, tx.getPayments().length);

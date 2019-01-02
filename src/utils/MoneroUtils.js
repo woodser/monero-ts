@@ -15,20 +15,26 @@ class MoneroUtils {
   }
   
   /**
-   * Initializes the given value ensuring a previous value is not overwritten.
+   * Sets the given value ensuring a previous value is not overwritten.
    * 
    * @param obj is the object to invoke the getter and setter on
    * @param getFn gets the current value
    * @param setFn sets the current value
    * @param val is the value to set iff it does not overwrite a previous value
+   * @param undefinedIsDominant specifies if undefined overwrites existing values (true) or is overwritten (false/default)
    */
-  static safeInit(obj, getFn, setFn, val) {
-    if (val === undefined) return;
-    let curVal = getFn.call(obj);
-    if (curVal === undefined) setFn.call(obj, val);
-    else {
-      if (curVal instanceof BigInteger && val instanceof BigInteger && curVal.compare(val) === 0) { } // check for equality of BigIntegers
-      else if (curVal !== val) throw new Error("Cannot overwrite existing value " + curVal + " with new value " + val);
+  static safeSet(obj, getFn, setFn, val, undefinedIsDominant) {
+    if (val === undefined) {
+      if (undefinedIsDominant) {
+        setFn.call(obj, undefined);
+      }
+    } else {
+      let curVal = getFn.call(obj);
+      if (curVal === undefined) setFn.call(obj, val);
+      else {
+        if (curVal instanceof BigInteger && val instanceof BigInteger && curVal.compare(val) === 0) { } // check for equality of BigIntegers
+        else if (curVal !== val) throw new Error("Cannot overwrite existing value " + curVal + " with new value " + val);
+      }
     }
   }
   

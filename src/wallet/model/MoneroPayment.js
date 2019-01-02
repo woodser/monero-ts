@@ -76,7 +76,7 @@ class MoneroPayment {
    * @param payment is the payment to merge into this one
    */
   merge(payment) {
-    throw new Error("Not implemented"); // TODO: can probably use MoneroUtils.safeInit()
+    throw new Error("Not implemented"); // TODO: can probably use MoneroUtils.safeSet()
 //    if (tx == null) tx = payment.getTx();
 //    else if (payment.getTx() != null) tx.merge(payment.getTx());
 //    if (address == null) address = payment.getAddress();
