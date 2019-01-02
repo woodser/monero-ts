@@ -1488,16 +1488,19 @@ class TestMoneroWalletCommon {
       it("Can send a transaction with an unlock time and update it as blocks received", async function() {
         try {
           
-          // send a transaction that becomes spendable in 2 blocks
+          // unlock time to test
+          const unlockTime = 3;
+          
+          // send a transaction that becomes spendable in unlockTime blocks
           let height = await wallet.getHeight();
           let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
           sendConfig.setAccountIndex(1);  // to avoid occlusion bug (#4500)
-          sendConfig.setUnlockTime(2);
+          sendConfig.setUnlockTime(unlockTime);
           let tx0 = await wallet.send(sendConfig);
           await testTxWalletSend(tx0, sendConfig, true, true, wallet);
           assert.equal(false, tx0.getIsConfirmed());
           assert.equal(true, tx0.getInTxPool());
-          assert.equal(2, tx0.getUnlockTime());
+          assert.equal(unlockTime, tx0.getUnlockTime());
           
           // start mining if possible to help push the network along
           try { await wallet.startMining(8, false, true); }
@@ -1508,8 +1511,6 @@ class TestMoneroWalletCommon {
             
             // wait for next block
             await daemon.nextBlockHeader();
-            
-            let unlockTime = 3;
             
             // get incoming/outgoing versions of tx with sent id
             let filter = new MoneroTxFilter();

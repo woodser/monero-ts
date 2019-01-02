@@ -12,7 +12,6 @@ describe("Test Scratchpad", function() {
     let wallet = TestUtils.getWalletRpc();
 
 //    await daemon.stopMining();
-//    await wallet.rescanBlockchain();
     
     // fetch txs
     let filter = new MoneroTxFilter();
