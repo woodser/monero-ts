@@ -1488,15 +1488,15 @@ class TestMoneroWalletCommon {
       it("Can send a transaction with an unlock time and update it as blocks received", async function() {
         try {
           
-          // unlock time to test
-          const unlockTime = 3;
-          const srcAccountIdx = 1;  // source account index to send from
-          const destAddress = (await wallet.getSubaddress(srcAccountIdx, 0)).getAddress();
+          // test constants
+          const unlockTime = 3;     // unlock time to test
+          const srcAccountIdx = 1;  // source account to send from (different from destination account to avoid occluion bug #4500) // TODO (monero-wallet-rpc): occlusion bug #4500
+          const destAddress = await wallet.getPrimaryAddress();
           
           // send a transaction that becomes spendable in unlockTime blocks
           let height = await wallet.getHeight();
           let sendConfig = new MoneroSendConfig(destAddress, TestUtils.MAX_FEE);
-          sendConfig.setAccountIndex(1);  // to avoid occlusion bug (#4500)
+          sendConfig.setAccountIndex(srcAccountIdx);
           sendConfig.setUnlockTime(unlockTime);
           let tx0 = await wallet.send(sendConfig);
           await testTxWalletSend(tx0, sendConfig, true, true, wallet);
@@ -1504,7 +1504,7 @@ class TestMoneroWalletCommon {
           assert.equal(true, tx0.getInTxPool());
           assert.equal(unlockTime, tx0.getUnlockTime());
           
-          // track resulting outgoing/incoming transaction as confirmed
+          // track resulting outgoing/incoming transaction as blocks added to the chain
           let outgoingTx = tx0.copy();
           let incomingTx;
           
@@ -1521,11 +1521,13 @@ class TestMoneroWalletCommon {
             // wait for next block
             await daemon.nextBlockHeader();
             
+//            // give wallet a few seconds to catch up, otherwise incoming version doesn't have initialized unlock time (TODO monero-wallet-rpc)
+//            await new Promise(function(resolve) { setTimeout(resolve, 5000); });
+            
             // get incoming/outgoing versions of tx with sent id
             let filter = new MoneroTxFilter();
-            filter.setAccountIndex(srcAccountIdx);
             filter.setTxIds([tx0.getId()]);  // TODO: convenience methods wallet.getTxById(), getTxsById()?
-            let txs = await wallet.getTxs(filter);
+            let txs = await wallet.getTxs(filter, undefined, tx0.getId());
             assert(txs.length > 0);
             
             // merge updated txs
@@ -1548,11 +1550,22 @@ class TestMoneroWalletCommon {
                 if (srcAccountIdx === 0 && tx.getIsIncoming()) {
                   assert.equal(undefined, tx.getUnlockTime());
                   console.log("WARNING: Tx is missing unlock time because account 0 incoming txs occluded by outgoing counterparts (issue #4500)"); // TODO (monero-wallet-rpc): account 0 incoming txs occluded by outgoing counterparts (#4500) 
-                } else assert.equal(unlockTime, tx.getUnlockTime());
+                } else {
+//                  if (unlockTime !== tx.getUnlockTime()) {
+//                    console.log("STILL NOT EQUAL SO LETS WAIT A LITTLE LONGER!!!");
+//                    await new Promise(function(resolve) { setTimeout(resolve, 10000); });
+//                    let txs2 = await wallet.getTxs(filter, undefined, tx0.getId());
+//                    for (let tx2 of txs2) {
+//                      console.log(tx2);
+//                    }
+//                  }
+                  
+                  assert.equal(unlockTime, tx.getUnlockTime());
+                }
               }
             } else {
               console.log("Unconfirmed");
-              //assert.equal(2, txs.length);  // TODO (monero-wallet-rpc): sometimes find one or both while unconfirmed
+              assert.equal(2, txs.length);  // TODO (monero-wallet-rpc): sometimes find one or both while unconfirmed, caching issue?
               assert.equal(true, txs[0].getInTxPool());
             }
           }

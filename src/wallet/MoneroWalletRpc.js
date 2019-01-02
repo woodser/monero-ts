@@ -229,7 +229,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return address;
   }
   
-  async getTxs(filterOrAccountIdx, subaddressIdx) {
+  async getTxs(filterOrAccountIdx, subaddressIdx, debugTxId) {
     
     // validate and standardize inputs to filter
     let filter;
@@ -275,6 +275,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let resp = await this.config.rpc.sendJsonRequest("get_transfers", params);
       for (let key of Object.keys(resp)) {
         for (let rpcTx of resp[key]) {
+          if (rpcTx.txid === debugTxId) console.log(rpcTx);
           let tx = MoneroWalletRpc._buildTxWallet(rpcTx);
           if (tx.getIsIncoming() && tx.getIsConfirmed()) {  // prevent duplicates when populated by incoming_transfers  // TODO (monero-wallet-rpc): merge payments when incoming txs work (https://github.com/monero-project/monero/issues/4500)
             tx.setTotalAmount(new BigInteger(0));
@@ -284,7 +285,7 @@ class MoneroWalletRpc extends MoneroWallet {
         }
       }
     }
-
+    
     // get incoming transactions
     if (filter.getIsIncoming() !== false) {
 
@@ -293,13 +294,14 @@ class MoneroWalletRpc extends MoneroWallet {
       params.transfer_type = "all"; // TODO: suppport all | available | unavailable 'types' which is different from MoneroTxType
       for (let accountIdx of indices.keys()) {
         params.account_index = accountIdx;
-        params.subaddr_indices = filter.getSubaddressIndices(); // null subaddr_indices will fetch all incoming_transfers
+        params.subaddr_indices = filter.getSubaddressIndices(); // undefined subaddr_indices will fetch all incoming_transfers
         let resp = await this.config.rpc.sendJsonRequest("incoming_transfers", params);
         
         // interpret incoming_transfers response
         if (resp.transfers === undefined) continue;
         for (let rpcTx of resp.transfers) {
-            
+          if (rpcTx.tx_hash === debugTxId) console.log(rpcTx);
+          
           // convert rpc to tx
           let tx = new MoneroTxWallet();
           tx.setIsIncoming(true);

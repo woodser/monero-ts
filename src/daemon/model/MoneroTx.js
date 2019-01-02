@@ -331,66 +331,63 @@ class MoneroTx extends MoneroDaemonModel {
    */
   merge(tx) {
     
-    // no special handling needed
-    MoneroUtils.safeSet(this, this.getId, this.setId, tx.getId());
-    MoneroUtils.safeSet(this, this.getVersion, this.setVersion, tx.getVersion());
-    MoneroUtils.safeSet(this, this.getPaymentId, this.setPaymentId, tx.getPaymentId());
-    MoneroUtils.safeSet(this, this.getFee, this.setFee, tx.getFee());
-    MoneroUtils.safeSet(this, this.getMixin, this.setMixin, tx.getMixin());
-    MoneroUtils.safeSet(this, this.getDoNotRelay, this.setDoNotRelay, tx.getDoNotRelay());
-    MoneroUtils.safeSet(this, this.getIsRelayed, this.getIsRelayed, tx.getIsRelayed());
-    MoneroUtils.safeSet(this, this.getIsDoubleSpend, this.setIsDoubleSpend, tx.getIsDoubleSpend());
-    MoneroUtils.safeSet(this, this.getKey, this.setKey, tx.getKey());
-    MoneroUtils.safeSet(this, this.getHex, this.setHex, tx.getHex());
-    MoneroUtils.safeSet(this, this.getSize, this.setSize, tx.getSize());
-    MoneroUtils.safeSet(this, this.getWeight, this.setWeight, tx.getWeight());
-    MoneroUtils.safeSet(this, this.getMetadata, this.setMetadata, tx.getMetadata());
-    MoneroUtils.safeSet(this, this.getOutputIndices, this.setOutputIndices, tx.getOutputIndices());
-    MoneroUtils.safeSet(this, this.getCommonTxSets, this.setCommonTxsSets, tx.getCommonTxSets());
-    MoneroUtils.safeSet(this, this.getExtra, this.setExtra, tx.getExtra());
-    MoneroUtils.safeSet(this, this.getVin, this.setVin, tx.getVin());
-    MoneroUtils.safeSet(this, this.getVout, this.setVout, tx.getVout());
-    MoneroUtils.safeSet(this, this.getRctSignatures, this.setRctSignatures, tx.getRctSignatures());
-    MoneroUtils.safeSet(this, this.getRctSigPrunable, this.setRctSigPrunable, tx.getRctSigPrunable());
-    MoneroUtils.safeSet(this, this.getKeptByBlock, this.setKeptByBlock, tx.getKeptByBlock());
-    MoneroUtils.safeSet(this, this.getIsFailed, this.setIsFailed, tx.getIsFailed());
-    MoneroUtils.safeSet(this, this.getLastFailedHeight, this.setLastFailedHeight, tx.getLastFailedHeight());
-    MoneroUtils.safeSet(this, this.getLastFailedId, this.setLastFailedId, tx.getLastFailedId());
-    MoneroUtils.safeSet(this, this.getMaxUsedBlockHeight, this.setMaxUsedBlockHeight, tx.getMaxUsedBlockHeight());
-    MoneroUtils.safeSet(this, this.getMaxUsedBlockId, this.setMaxUsedBlockId, tx.getMaxUsedBlockId());
-    MoneroUtils.safeSet(this, this.getSignatures, this.setSignatures, tx.getSignatures());
-    MoneroUtils.safeSet(this, this.getUnlockTime, this.setUnlockTime, tx.getUnlockTime());
+    this.setId(MoneroUtils.reconcile(this.getId(), tx.getId()));
+    this.setVersion(MoneroUtils.reconcile(this.getVersion(), tx.getVersion()));
+    this.setPaymentId(MoneroUtils.reconcile(this.getPaymentId(), tx.getPaymentId()));
+    this.setFee(MoneroUtils.reconcile(this.getFee(), tx.getFee()));
+    this.setMixin(MoneroUtils.reconcile(this.getMixin(), tx.getMixin()));
+    this.setDoNotRelay(MoneroUtils.reconcile(this.getDoNotRelay(), tx.getDoNotRelay()));
+    this.setIsRelayed(MoneroUtils.reconcile(this.getIsRelayed(), tx.getIsRelayed()));
+    this.setIsDoubleSpend(MoneroUtils.reconcile(this.getIsDoubleSpend(), tx.getIsDoubleSpend()));
+    this.setKey(MoneroUtils.reconcile(this.getKey(), tx.getKey()));
+    this.setHex(MoneroUtils.reconcile(this.getHex(), tx.getHex()));
+    this.setSize(MoneroUtils.reconcile(this.getSize(), tx.getSize()));
+    this.setWeight(MoneroUtils.reconcile(this.getWeight(), tx.getWeight()));
+    this.setMetadata(MoneroUtils.reconcile(this.getMetadata(), tx.getMetadata()));
+    this.setOutputIndices(MoneroUtils.reconcile(this.getOutputIndices(), tx.getOutputIndices()));
+    this.setCommonTxSets(MoneroUtils.reconcile(this.getCommonTxSets(), tx.getCommonTxSets()));
+    this.setExtra(MoneroUtils.reconcile(this.getExtra(), tx.getExtra()));
+    this.setVin(MoneroUtils.reconcile(this.getVin(), tx.getVin()));
+    this.setVout(MoneroUtils.reconcile(this.getVout(), tx.getVout()));
+    this.setRctSignatures(MoneroUtils.reconcile(this.getRctSignatures(), tx.getRctSignatures()));
+    this.setRctSigPrunable(MoneroUtils.reconcile(this.getRctSigPrunable(), tx.getRctSigPrunable()));
+    this.setKeptByBlock(MoneroUtils.reconcile(this.getKeptByBlock(), tx.getKeptByBlock()));
+    this.setIsFailed(MoneroUtils.reconcile(this.getIsFailed(), tx.getIsFailed()));
+    this.setLastFailedHeight(MoneroUtils.reconcile(this.getLastFailedHeight(), tx.getLastFailedHeight()));
+    this.setLastFailedId(MoneroUtils.reconcile(this.getLastFailedId(), tx.getLastFailedId()));
+    this.setMaxUsedBlockHeight(MoneroUtils.reconcile(this.getMaxUsedBlockHeight(), tx.getMaxUsedBlockHeight()));
+    this.setMaxUsedBlockId(MoneroUtils.reconcile(this.getMaxUsedBlockId(), tx.getMaxUsedBlockId()));
+    this.setSignatures(MoneroUtils.reconcile(this.getSignatures(), tx.getSignatures()));
+    this.setUnlockTime(MoneroUtils.reconcile(this.getUnlockTime(), tx.getUnlockTime()));
+    this.setIsConfirmed(MoneroUtils.reconcile(this.getIsConfirmed(), tx.getIsConfirmed(), {resolveTrue: true}));
+    this.setInTxPool(MoneroUtils.reconcile(this.getInTxPool(), tx.getInTxPool(), {resolveTrue: false}));
+    this.setLastRelayedTime(MoneroUtils.reconcile(this.getLastRelayedTime(), tx.getLastRelayedTime(), {resolveDefined: false, resolveMax: true}));  // becomes undefined, else take max
+    this.setHeight(MoneroUtils.reconcile(this.getHeight(), tx.getHeight(), {resolveMax: true}));  // height can increase
+    this.setBlockTimestamp(MoneroUtils.reconcile(this.getBlockTimestamp(), tx.getBlockTimestamp(), {resolveMax: true}));  // block timestamp can increase
+    this.setConfirmationCount(MoneroUtils.reconcile(this.getConfirmationCount(), tx.getConfirmationCount(), {resolveMax: true})); // confirmation count can increase
     
-    // handle changes when tx becomes confirmed
-    this.setIsConfirmed(this.getIsConfirmed() || tx.getIsConfirmed());
-    this.setInTxPool(this.getInTxPool() && tx.getInTxPool());
-    MoneroUtils.safeSet(this, this.getLastRelayedTime, this.setLastRelayedTime, tx.getLastRelayedTime(), true);
     
-    // merge height
-    if (this.getHeight() >= 0 || tx.getHeight() >= 0) {
-      let height1 = this.getHeight() >= 0 ? this.getHeight() : 0;
-      let height2 = tx.getHeight() >= 0 ? tx.getHeight() : 0;
-      this.setHeight(Math.max(height1, height2));
-    }
     
-    // merge block timestamp
-    if (this.getBlockTimestamp() >= 0 || tx.getBlockTimestamp() >= 0) {
-      let blockTimestamp1 = this.getBlockTimestamp() >= 0 ? this.getBlockTimestamp() : 0;
-      let blockTimestamp2 = tx.getBlockTimestamp() >= 0 ? tx.getBlockTimestamp() : 0;
-      this.setBlockTimestamp(Math.max(blockTimestamp1, blockTimestamp2));
-    }
+    
+//    // merge height
+//    if (this.getHeight() >= 0 || tx.getHeight() >= 0) {
+//      let height1 = this.getHeight() >= 0 ? this.getHeight() : 0;
+//      let height2 = tx.getHeight() >= 0 ? tx.getHeight() : 0;
+//      this.setHeight(Math.max(height1, height2));
+//    }
+//    
+//    // merge block timestamp
+//    if (this.getBlockTimestamp() >= 0 || tx.getBlockTimestamp() >= 0) {
+//      let blockTimestamp1 = this.getBlockTimestamp() >= 0 ? this.getBlockTimestamp() : 0;
+//      let blockTimestamp2 = tx.getBlockTimestamp() >= 0 ? tx.getBlockTimestamp() : 0;
+//      this.setBlockTimestamp(Math.max(blockTimestamp1, blockTimestamp2));
+//    }
     
     // merge received time
     if (this.getReceivedTime() === undefined) this.setReceivedTime(tx.getReceivedTime());
     else if (tx.getReceivedTime() !== undefined) {
       if (!this.getIsConfirmed()) this.setReceivedTime(Math.min(this.getReceivedTime(), tx.getReceivedTime())); // txpool timestamps can vary so use first timestamp
       else assert.equal(this.getReceivedTime(), tx.getReceivedTime(), "Transaction " + tx.getId() + " received timestamps should be equal but are not: " + this.getReceivedTime() + " vs " + tx.getReceivedTime());
-    }
-    
-    // merge confirmation count
-    if (this.getConfirmationCount() === undefined) this.setConfirmationCount(tx.getConfirmationCount());
-    else if (tx.getConfirmationCount() !== undefined) {
-      this.setConfirmationCount(Math.max(this.getConfirmationCount(), tx.getConfirmationCount()));  // confirmation count can change, take the latest (max)
     }
     
     // merge estimated blocks until confirmed count

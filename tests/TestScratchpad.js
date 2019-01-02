@@ -11,15 +11,16 @@ describe("Test Scratchpad", function() {
     let daemon = TestUtils.getDaemonRpc();
     let wallet = TestUtils.getWalletRpc();
 
-    await daemon.stopMining();
+//    await daemon.stopMining();
     
-//    // fetch txs
-//    let filter = new MoneroTxFilter();
-//    filter.setTxIds(["5d6218a24a81de3c7eb4474b3452ef6b81aea84dda930a129f807f80feac34f2"]);
-//    let txs = await wallet.getTxs(filter);
-//    for (let tx of txs) {
-//      console.log(tx);
-//    }
+    // fetch txs
+    let filter = new MoneroTxFilter();
+    //filter.setAccountIndex(1);
+    filter.setTxIds(["6f4507e32adc73a60b2a2956830bcc9140e10e74f72094e51a97e4c387838cc5"]);
+    let txs = await wallet.getTxs(filter, undefined, "6f4507e32adc73a60b2a2956830bcc9140e10e74f72094e51a97e4c387838cc5");
+    for (let tx of txs) {
+      console.log(JSON.stringify(tx.toJson()));
+    }
 //    
 //    // use direct rpc interface to
 //    let rpc = new MoneroRpc({

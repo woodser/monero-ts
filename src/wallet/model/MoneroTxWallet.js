@@ -84,7 +84,8 @@ class MoneroTxWallet extends MoneroTx {
   }
   
   toJson() {
-    throw new Error("Not implemented");
+    return this.json; // TODO: correctly serialize complex types
+    //throw new Error("Not implemented");
   }
   
   merge(tx, mergePayments) {

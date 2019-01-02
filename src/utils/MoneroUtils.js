@@ -38,6 +38,61 @@ class MoneroUtils {
     }
   }
   
+  /**
+   * Reconciles two values.
+   * 
+   * @param val1 is a value to reconcile
+   * @param val2 is a value to reconcile
+   * @param config specifies reconciliation configuration
+   *        config.resolveDefined uses defined value if true or undefined, undefined if false
+   *        config.resolveTrue uses true over false if true, false over true if false, must be equal if undefined
+   *        config.resolveMax uses max over min if true, min over max if false, must be equal if undefined
+   * @returns the reconciled value if reconcilable
+   * @throws {Error} if the values cannot be reconciled
+   */
+  static reconcile(val1, val2, config) {
+    
+    // check for direct equality
+    if (val1 === val2) return val1;
+    
+    // check for BigInteger equality
+    let comparison; // save comparison for later if applicable
+    if (val1 instanceof BigInteger && val2 instanceof BigInteger) {
+      comparison = val1.compare(val2);  
+      if (comparison === 0) return val1;
+    }
+    
+    // resolve one value undefined
+    if (val1 === undefined || val2 === undefined) {
+      if (config && config.resolveDefined === false) return undefined;  // use undefined
+      else return val1 === undefined ? val2 : val1;  // use defined value
+    }
+    
+    // resolve different booleans
+    if (config && config.resolveTrue !== undefined && typeof val1 === "boolean" && typeof val2 === "boolean") {
+      assert.equal("boolean", typeof config.resolveTrue);
+      return config.resolveTrue;
+    }
+    
+    // resolve different numbers
+    if (config && config.resolveMax !== undefined) {
+      assert.equal("boolean", typeof config.resolveMax);
+      
+      // resolve js numbers
+      if (typeof val1 === "number" && typeof val2 === "number") {
+        return config.resolveMax ? Math.max(val1, val2) : Math.min(val1, val2);
+      }
+      
+      // resolve BigIntegers
+      if (val1 instanceof BigInteger && val2 instanceof BigInteger) {
+        return config.resolveMax ? (comparison < 0 ? val2 : val1) : (comparison < 0 ? val1 : val2);
+      }
+    }
+    
+    // otherwise cannot reconcile
+    throw new Error("Cannot reconcile values " + val1 + " and " + val2 + " with config " + JSON.stringify(config));
+  }
+  
   // TODO: beef this up
   static validateSeed(seed) {
     assert(typeof seed === "string");
