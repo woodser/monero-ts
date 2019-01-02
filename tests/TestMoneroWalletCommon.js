@@ -1490,8 +1490,8 @@ class TestMoneroWalletCommon {
           
           // test constants
           const unlockTime = 3;     // unlock time to test
-          const srcAccountIdx = 1;  // source account to send from (different from destination account to avoid occluion bug #4500) // TODO (monero-wallet-rpc): occlusion bug #4500
-          const destAddress = await wallet.getPrimaryAddress();
+          const srcAccountIdx = 0;  // source account to send from  // TODO (monero-wallet-rpc) must be different from destination account to avoid occluion bug #4500
+          const destAddress = (await wallet.getSubaddress(1, 0)).getAddress();
           
           // send a transaction that becomes spendable in unlockTime blocks
           let height = await wallet.getHeight();
@@ -1504,15 +1504,15 @@ class TestMoneroWalletCommon {
           assert.equal(true, tx0.getInTxPool());
           assert.equal(unlockTime, tx0.getUnlockTime());
           
-          // track resulting outgoing/incoming transaction as blocks added to the chain
-          let outgoingTx = tx0.copy();
-          let incomingTx;
-          
           // start mining if possible to help push the network along
           try { await wallet.startMining(8, false, true); }
           catch (e) { }
           
-          console.log("****** GETTING TRANSACTIONS *****");
+          // track resulting [outgoing, incoming] transaction as blocks added to the chain
+          let outgoingTx = undefined;
+          let incomingTx = undefined;
+          
+          console.log("****** UNLOCK TEST *****");
           console.log(tx0.getId());
           
           // loop until test satisfied
@@ -1520,54 +1520,90 @@ class TestMoneroWalletCommon {
             
             // wait for next block
             await daemon.nextBlockHeader();
+            console.log("Block received!");
             
-//            // give wallet a few seconds to catch up, otherwise incoming version doesn't have initialized unlock time (TODO monero-wallet-rpc)
-//            await new Promise(function(resolve) { setTimeout(resolve, 5000); });
+            // give wallet a few seconds to catch up, otherwise incoming tx doesn't appear (TODO monero-wallet-rpc)
+            await new Promise(function(resolve) { setTimeout(resolve, 5000); });
             
             // get incoming/outgoing versions of tx with sent id
             let filter = new MoneroTxFilter();
             filter.setTxIds([tx0.getId()]);  // TODO: convenience methods wallet.getTxById(), getTxsById()?
-            let txs = await wallet.getTxs(filter, undefined, tx0.getId());
-            assert(txs.length > 0);
+            let txs = await wallet.getTxs(filter);
+            assert.equal(2, txs.length);
             
-            // merge updated txs
-            assert.equal(true, txs[0].getIsOutgoing());
-            outgoingTx.merge(txs[0]);
-            if (txs.length > 1) {
-              assert.equal(2, txs.length);
-              assert.equal(true, txs[1].getIsIncoming());
-              if (incomingTx === undefined) incomingTx = txs[1];
-              else incomingTx.merge(txs[1]);
+//            // if only one tx found, test it but wait for next block to see if both are present
+//            if (txs.length !== 2) {
+//              console.log("WARNING: Incoming tx not found so waiting for next block");  // TODO monero-wallet-rpc
+//              assert.equal(true, txs[0].getIsOutgoing());
+//              assert.equal(false, txs[0].getIsConfirmed());
+//              await testUnlockTimeTx(txs[0], unlockTime);
+//              outgoingTx.merge(txs[0]);
+//              await testUnlockTimeTx(outgoingTx, unlockTime);
+//              continue;
+//            }
+            
+            // merge with previous txs
+            console.log("MERGING OUTGOING!!!!!");
+            let outTx = txs[0].getIsOutgoing() ? txs[0] : txs[1];
+            let inTx = txs[0].getIsOutgoing() ? txs[1] : txs[0];
+            tx0.merge(outTx); // TODO: it's mergeable but tests don't account for extra info from send (e.g. hex) so not tested; could specify in test config
+            if (outgoingTx === undefined) outgoingTx = outTx;
+            else outgoingTx.merge(outTx);
+            if (incomingTx === undefined) incomingTx = inTx;
+            else incomingTx.merge(inTx);  // TODO: GC error if inTx === incomingTx, test specifically
+            
+            // test txs
+            console.log("Is confirmed: " + outgoingTx.getIsConfirmed());
+            await testUnlockTimeTx(outgoingTx, unlockTime);
+            await testUnlockTimeTx(incomingTx, unlockTime);
+            
+            // helper function to test unlock time tx
+            async function testUnlockTimeTx(tx, unlockTime) {
+              await testTxWalletGet(tx, wallet, that.unbalancedTxIds);
+              assert.equal(unlockTime, tx.getUnlockTime());
             }
             
-            // test updated txs
-            if (outgoingTx.getIsConfirmed()) {
-              console.log("Confirmed");
-              assert.equal(2, txs.length);  // one incoming and one outgoing
-              for (let tx of txs) {
-                await testTxWalletGet(tx, wallet, that.unbalancedTxIds);
-                assert.equal(false, tx.getInTxPool());
-                if (srcAccountIdx === 0 && tx.getIsIncoming()) {
-                  assert.equal(undefined, tx.getUnlockTime());
-                  console.log("WARNING: Tx is missing unlock time because account 0 incoming txs occluded by outgoing counterparts (issue #4500)"); // TODO (monero-wallet-rpc): account 0 incoming txs occluded by outgoing counterparts (#4500) 
-                } else {
-//                  if (unlockTime !== tx.getUnlockTime()) {
-//                    console.log("STILL NOT EQUAL SO LETS WAIT A LITTLE LONGER!!!");
-//                    await new Promise(function(resolve) { setTimeout(resolve, 10000); });
-//                    let txs2 = await wallet.getTxs(filter, undefined, tx0.getId());
-//                    for (let tx2 of txs2) {
-//                      console.log(tx2);
-//                    }
-//                  }
-                  
-                  assert.equal(unlockTime, tx.getUnlockTime());
-                }
-              }
-            } else {
-              console.log("Unconfirmed");
-              assert.equal(2, txs.length);  // TODO (monero-wallet-rpc): sometimes find one or both while unconfirmed, caching issue?
-              assert.equal(true, txs[0].getInTxPool());
-            }
+//            // merge updated txs
+//            assert.equal(true, txs[0].getIsOutgoing());
+//            outgoingTx.merge(txs[0]);
+//            if (txs.length > 1) {
+//              assert.equal(2, txs.length);
+//              assert.equal(true, txs[1].getIsIncoming());
+//              if (incomingTx === undefined) incomingTx = txs[1];
+//              else incomingTx.merge(txs[1]);
+//            }
+            
+//            // test updated txs
+//            if (outgoingTx.getIsConfirmed()) {
+//              console.log("Confirmed");
+//              for (let tx of txs) {
+//                await testTxWalletGet(tx, wallet, that.unbalancedTxIds);
+//                assert.equal(false, tx.getInTxPool());
+//                assert.equal(unlockTime, tx.getUnlockTime());
+//                
+////                if (srcAccountIdx === 0 && tx.getIsIncoming()) {
+////                  if ()
+////                  
+////                  assert.equal(undefined, tx.getUnlockTime());
+////                  console.log("WARNING: Tx is missing unlock time because account 0 incoming txs occluded by outgoing counterparts (issue #4500)"); // TODO (monero-wallet-rpc): account 0 incoming txs occluded by outgoing counterparts (#4500) 
+////                } else {
+//////                  if (unlockTime !== tx.getUnlockTime()) {
+//////                    console.log("STILL NOT EQUAL SO LETS WAIT A LITTLE LONGER!!!");
+//////                    await new Promise(function(resolve) { setTimeout(resolve, 10000); });
+//////                    let txs2 = await wallet.getTxs(filter, undefined, tx0.getId());
+//////                    for (let tx2 of txs2) {
+//////                      console.log(tx2);
+//////                    }
+//////                  }
+////                  
+////                  
+//                }
+//              }
+//            } else {
+//              console.log("Unconfirmed");
+//              assert.equal(2, txs.length);  // TODO (monero-wallet-rpc): sometimes find one or both while unconfirmed, caching issue?
+//              assert.equal(true, txs[0].getInTxPool());
+//            }
           }
           
           throw new Error("Not implemented");
@@ -1651,6 +1687,11 @@ function testTxWalletCommon(tx) {
   assert.equal("boolean", typeof tx.getIsOutgoing());
   assert.equal("boolean", typeof tx.getIsConfirmed());
   assert.equal("boolean", typeof tx.getInTxPool());
+  
+  // test copy
+  let copy = tx.copy();
+  assert(copy instanceof MoneroTxWallet);
+  assert.deepEqual(tx, copy);
 }
 
 /**
@@ -1677,11 +1718,11 @@ async function testTxWalletGet(tx, wallet, unbalancedTxIds, hasOutgoingPayments)
 async function testTxWalletGetIncoming(tx, wallet) {
   
   // test state
-  assert(tx.getIsIncoming());
-  assert(!tx.getIsOutgoing());
+  assert.equal(true, tx.getIsIncoming());
+  assert.equal(false, tx.getIsOutgoing());
   assert.equal(undefined, tx.getIsFailed());  // TODO: these really should be part of a separate class, MoneroTxWalletIncoming, MoneroTxWalletOutgoing
   assert.equal(undefined, tx.getIsRelayed());
-  assert(typeof tx.getIsCoinbase() === "boolean");
+  assert.equal("boolean", typeof tx.getIsCoinbase());
   // TODO: validate state is self consistent
   
   // test common incoming
@@ -1754,11 +1795,11 @@ async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments, unbalanc
   
   // test state
   assert(tx);
-  assert(tx.getIsIncoming() === false);
-  assert(tx.getIsOutgoing());
-  assert(typeof tx.getIsFailed() === "boolean");
-  assert(typeof tx.getIsRelayed() === "boolean");
-  assert.equal(undefined, tx.getIsCoinbase());
+  assert.equal(false, tx.getIsIncoming());
+  assert.equal(true, tx.getIsOutgoing());
+  assert.equal("boolean", typeof tx.getIsFailed());
+  assert.equal("boolean", typeof tx.getIsRelayed());
+  assert.equal(false, tx.getIsCoinbase());
   // TODO: validate state is self consistent
   
   // test common outgoing

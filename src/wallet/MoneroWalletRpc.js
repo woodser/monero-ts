@@ -909,6 +909,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setInTxPool(false);
       tx.setIsRelayed(true);
       tx.setIsFailed(false);
+      tx.setIsCoinbase(false);
     } else if (rpcType === "pool") {
       tx.setIsIncoming(true);
       tx.setIsConfirmed(false);
@@ -920,6 +921,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setInTxPool(true);
       tx.setIsRelayed(true);
       tx.setIsFailed(false);
+      tx.setIsCoinbase(false);
     } else if (rpcType === "block") {
       tx.setIsIncoming(true);
       tx.setIsConfirmed(true);
@@ -931,6 +933,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setInTxPool(false);
       tx.setIsRelayed(true);
       tx.setIsFailed(true);
+      tx.setIsCoinbase(false);
     }
   }
   

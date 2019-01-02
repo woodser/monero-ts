@@ -83,6 +83,10 @@ class MoneroTxWallet extends MoneroTx {
     this.json.metadata = metadata;
   }
   
+  copy() {
+    return new MoneroTxWallet(Object.assign({}, this.json));  // create tx with copied json
+  }
+  
   toJson() {
     return this.json; // TODO: correctly serialize complex types
     //throw new Error("Not implemented");
