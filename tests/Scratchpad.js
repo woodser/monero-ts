@@ -13,6 +13,9 @@ describe("Scratchpad", function() {
 
     //await daemon.stopMining();
     
+//    await wallet.rescanBlockchain();
+//    await wallet.rescanSpent();
+    
     // fetch txs
     let txId = "9d7aaeedbba9715c799ba6c0ba8640ab7f7df994b0713bfd167f99bf6aeeb7bb";
     let filter = new MoneroTxFilter();
