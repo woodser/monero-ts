@@ -1606,7 +1606,7 @@ class TestMoneroWalletCommon {
                 if (fetchedTx.getId() !== updatedTx.getId()) continue;
                 if (fetchedTx.getIsOutgoing() !== updatedTx.getIsOutgoing()) continue;
                 updatedTx.merge(fetchedTx);
-                await testTx(updatedTx, sendConfig);
+                await testTx(updatedTx, sendConfig);  // TODO: needs to test expected payments and outputs
               }
             }
             

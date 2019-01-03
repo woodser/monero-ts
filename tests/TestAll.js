@@ -37,4 +37,4 @@ new TestMoneroWalletRpc().runTests({
 //require("./TestSampleCode");
 //
 //// test scratchpad
-require("./Scratchpad");
+//require("./Scratchpad");
