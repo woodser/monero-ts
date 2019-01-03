@@ -57,7 +57,7 @@ class MoneroRpc {
    * @return a Promise invoked with the response
    */
   async sendJsonRequest(method, params) {
-//    console.log("sendJsonRequest(" + method + ", " + JSON.stringify(params) + ")");
+    //console.log("sendJsonRequest(" + method + ", " + JSON.stringify(params) + ")");
     
     // build request
     let opts = {

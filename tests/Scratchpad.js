@@ -8,8 +8,11 @@ const MoneroTxFilter = require("../src/wallet/model/MoneroTxFilter");
 describe("Scratchpad", function() {
   
   it("Can be scripted easily", async function() {
+    
+    // initialize daemon and wallet
     let daemon = TestUtils.getDaemonRpc();
     let wallet = TestUtils.getWalletRpc();
+    await TestUtils.initWalletRpc();
 
     //await daemon.stopMining();
     
@@ -17,7 +20,8 @@ describe("Scratchpad", function() {
 //    await wallet.rescanSpent();
     
     // fetch txs
-    let txId = "9d7aaeedbba9715c799ba6c0ba8640ab7f7df994b0713bfd167f99bf6aeeb7bb";
+    let txId = "48d04611dc4bee3a93bee6d6abcd7000884bb86d1d5928a1e4aa9e2ec5d238e3";
+//    let txId = "86b45bbe2f80617bc4c1926997d66698d4fbde009d281c01d01cb2798508b4e7"
     let filter = new MoneroTxFilter();
     //filter.setAccountIndex(0);
     filter.setTxIds([txId]);
