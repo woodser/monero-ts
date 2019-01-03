@@ -1545,6 +1545,9 @@ class TestMoneroWalletCommon {
 //              continue;
 //            }
             
+            // TODO: test total amount is correct
+            // TODO: resulting incoming tx has 3 payments, one may be redundant and is missing key image
+            
             // merge with previous txs
             console.log("MERGING!!!!!");
             let outTx = txs[0].getIsOutgoing() ? txs[0] : txs[1];
