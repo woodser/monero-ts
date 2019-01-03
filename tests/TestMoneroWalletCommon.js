@@ -1549,11 +1549,11 @@ class TestMoneroWalletCommon {
             console.log("MERGING!!!!!");
             let outTx = txs[0].getIsOutgoing() ? txs[0] : txs[1];
             let inTx = txs[0].getIsOutgoing() ? txs[1] : txs[0];
-            tx0.merge(outTx); // TODO: it's mergeable but tests don't account for extra info from send (e.g. hex) so not tested; could specify in test config
+            tx0.merge(outTx, true); // TODO: it's mergeable but tests don't account for extra info from send (e.g. hex) so not tested; could specify in test config
             if (outgoingTx === undefined) outgoingTx = outTx;
-            else outgoingTx.merge(outTx);
+            else outgoingTx.merge(outTx, true);
             if (incomingTx === undefined) incomingTx = inTx;
-            else incomingTx.merge(inTx);  // TODO: GC error if inTx === incomingTx, test specifically
+            else incomingTx.merge(inTx, true);  // TODO: GC error if inTx === incomingTx, test specifically
             
             console.log(outgoingTx.toString());
             console.log(incomingTx.toString());
