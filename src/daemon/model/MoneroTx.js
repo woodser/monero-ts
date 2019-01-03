@@ -424,6 +424,8 @@ class MoneroTx extends MoneroDaemonModel {
 //      this.setBlockTimestamp(Math.max(blockTimestamp1, blockTimestamp2));
 //    }
     
+    // TODO: these need looked at and specifically tested
+    
     // merge received time
     if (this.getReceivedTime() === undefined) this.setReceivedTime(tx.getReceivedTime());
     else if (tx.getReceivedTime() !== undefined) {

@@ -76,14 +76,6 @@ class MoneroTxWallet extends MoneroTx {
     this.json.note = note;
   }
   
-  getMetadata() {
-    return this.json.metadata;
-  }
-  
-  setMetadata(metadata) {
-    this.json.metadata = metadata;
-  }
-  
   copy() {
     return new MoneroTxWallet(Object.assign({}, this.json));  // create tx with copied json
   }
@@ -102,7 +94,6 @@ class MoneroTxWallet extends MoneroTx {
     str += MoneroUtils.kvLine("Source subaddress index", this.getSrcSubaddressIndex(), offset);
     str += MoneroUtils.kvLine("Source address", this.getSrcAddress(), offset);
     str += MoneroUtils.kvLine("Note: ", this.getNote(), offset);
-    str += MoneroUtils.kvLine("Metadata: ", this.getMetadata(), offset);
     if (this.getPayments()) {
       str += MoneroUtils.kvLine("Payments", "", offset);
       for (let i = 0; i < this.getPayments().length; i++) {
@@ -111,7 +102,7 @@ class MoneroTxWallet extends MoneroTx {
         if (i < this.getPayments().length - 1) str += '\n'
       }
     } else {
-      str += MoneroUtils.kvLine("Payments", null, offset);
+      str += MoneroUtils.kvLine("Payments", this.getPayments(), offset);
     }
     return str;
   }
@@ -121,33 +112,31 @@ class MoneroTxWallet extends MoneroTx {
     // merge base transaction
     super.merge(tx);
     
-    // merge extensions which need no special handling
-    MoneroUtils.safeSet(this, this.getIsIncoming, this.setIsIncoming, tx.getIsIncoming());
-    MoneroUtils.safeSet(this, this.getNote, this.setNote, tx.getNote());
-    MoneroUtils.safeSet(this, this.getSrcAccountIndex, this.setSrcAccountIndex, tx.getSrcAccountIndex());
-    MoneroUtils.safeSet(this, this.getSrcSubaddressIndex, this.setSrcSubaddressIndex, tx.getSrcSubaddressIndex());
-    MoneroUtils.safeSet(this, this.getSrcAddress, this.setSrcAddress, tx.getSrcAddress());
-    MoneroUtils.safeSet(this, this.getIsCoinbase, this.setIsCoinbase, tx.getIsCoinbase());
-    MoneroUtils.safeSet(this, this.getMetadata, this.setMetadata, tx.getMetadata());
+    // merge wallet extensions
+    this.setIsIncoming(MoneroUtils.reconcile(this.getIsIncoming(), tx.getIsIncoming()));
+    this.setSrcAccountIndex(MoneroUtils.reconcile(this.getSrcAccountIndex(), tx.getSrcAccountIndex()));
+    this.setSrcSubaddressIndex(MoneroUtils.reconcile(this.getSrcSubaddressIndex(), tx.getSrcSubaddressIndex()));
+    this.setSrcAddress(MoneroUtils.reconcile(this.getSrcAddress(), tx.getSrcAddress()));
+    this.setNote(MoneroUtils.reconcile(this.getNote(), tx.getNote()));
     
     // merge total amount
-    if (this.json.totalAmount === undefined) this.json.totalAmount = tx.getTotalAmount();
+    if (this.getTotalAmount() === undefined) this.setTotalAmount(tx.getTotalAmount());
     else {
-      if (mergePayments) assert(totalAmount.toJSValue() === 0);
-      else this.json.totalAmount = this.json.totalAmount.add(tx.getTotalAmount());
+      if (mergePayments) assert.equal(0, this.getTotalAmount().compare(tx.getTotalAmount()));
+      else this.setTotalAmount(this.getTotalAmount().add(tx.getTotalAmount()));
     }
     
     // merge payments
-    if (this.json.payments === undefined) this.setPayments(tx.getPayments());
+    if (this.getPayments() === undefined) this.setPayments(tx.getPayments());
     else if (tx.getPayments() !== undefined) {
       if (mergePayments) {
         assert(tx.getPayments().length >= 0, "Tx " + tx.getId() + " cannot be merged because payments are different sizes");
         for (let i = 0; i < this.json.payments.length; i++) {
-          this.json.payments[i].merge(tx.getPayments()[i]);
+          this.getPayments()[i].merge(tx.getPayments()[i]);
         }
       } else {
         for (let payment of tx.getPayments()) {
-          this.json.payments.push(payment);
+          this.getPayments().push(payment);
         }
       }
     }

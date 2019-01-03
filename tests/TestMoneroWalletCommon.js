@@ -1532,7 +1532,10 @@ class TestMoneroWalletCommon {
             assert.equal(2, txs.length);
             
             console.log("Retrieved txs");
-            for (let tx of txs) console.log(tx.toString());
+            for (let tx of txs) {
+              console.log(tx.toString());
+              await testUnlockTimeTx(tx, unlockTime);
+            }
             
 //            // if only one tx found, test it but wait for next block to see if both are present
 //            if (txs.length !== 2) {
@@ -1568,7 +1571,8 @@ class TestMoneroWalletCommon {
             
             // helper function to test unlock time tx
             async function testUnlockTimeTx(tx, unlockTime) {
-              await testTxWalletGet(tx, wallet, that.unbalancedTxIds);
+              let hasPayments = tx.getIsIncoming() || tx.getIsConfirmed();  // TODO (monero-wallet-rpc): outgoing destinations missing before tx confirmed
+              await testTxWalletGet(tx, wallet, that.unbalancedTxIds, hasPayments);
               assert.equal(unlockTime, tx.getUnlockTime());
             }
             
@@ -1721,7 +1725,7 @@ async function testTxWalletGet(tx, wallet, unbalancedTxIds, hasOutgoingPayments)
   // run tests
   testTxWalletCommon(tx);
   if (tx.getIsIncoming()) await testTxWalletGetIncoming(tx, wallet);
-  else await testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments, unbalancedTxIds);
+  else await testTxWalletGetOutgoing(tx, wallet, unbalancedTxIds, hasOutgoingPayments);
 }
 
 async function testTxWalletGetIncoming(tx, wallet) {
@@ -1799,7 +1803,7 @@ async function testTxWalletGetIncoming(tx, wallet) {
   assert(totalAmount.compare(tx.getTotalAmount()) === 0);
 }
 
-async function testTxWalletGetOutgoing(tx, wallet, hasOutgoingPayments, unbalancedTxIds) {
+async function testTxWalletGetOutgoing(tx, wallet, unbalancedTxIds, hasOutgoingPayments) {
   assert(Array.isArray(unbalancedTxIds));
   
   // test state

@@ -78,21 +78,12 @@ class MoneroPayment {
    * @param payment is the payment to merge into this one
    */
   merge(payment) {
-    throw new Error("Not implemented"); // TODO: can probably use MoneroUtils.safeSet()
-//    if (tx == null) tx = payment.getTx();
-//    else if (payment.getTx() != null) tx.merge(payment.getTx());
-//    if (address == null) address = payment.getAddress();
-//    else if (payment.getAddress() != null) assertEquals(address, payment.getAddress());
-//    if (accountIndex == null) accountIndex = payment.getAccountIndex();
-//    else if (payment.getAccountIndex() != null) assertEquals(accountIndex, payment.getAccountIndex());
-//    if (subaddressIndex == null) subaddressIndex = payment.getSubaddressIndex();
-//    else if (payment.getSubaddressIndex() != null) assertEquals(subaddressIndex, payment.getSubaddressIndex());
-//    if (amount == null) amount = payment.getAmount();
-//    else if (payment.getAmount() != null) assertTrue("Amounts", amount.compareTo(payment.getAmount()) == 0);
-//    if (isSpent == null) isSpent = payment.getIsSpent();
-//    else if (payment.getIsSpent() != null) assertEquals("Is spents", isSpent, payment.getIsSpent());
-//    if (keyImage == null) keyImage = payment.getKeyImage();
-//    else if (payment.getKeyImage() != null) assertEquals("Key images", keyImage, payment.getKeyImage());
+    this.setAddress(MoneroUtils.reconcile(this.getAddress(), payment.getAddress()));
+    this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), payment.getAccountIndex()));
+    this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), payment.getSubaddressIndex()));
+    this.setAmount(MoneroUtils.reconcile(this.getAmount(), payment.getAmount()));
+    this.setIsSpent(MoneroUtils.reconcile(this.getIsSpent(), payment.getIsSpent(), {resolveTrue: true})); // payment can become spent
+    this.setKeyImage(MoneroUtils.reconcile(this.getKeyImage(), payment.getKeyImage()));
   }
   
   toString(indent = 0) {

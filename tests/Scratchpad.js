@@ -5,19 +5,20 @@ const TestUtils = require("./TestUtils");
 const MoneroRpc = require("../src/rpc/MoneroRpc");
 const MoneroTxFilter = require("../src/wallet/model/MoneroTxFilter");
 
-describe("Test Scratchpad", function() {
+describe("Scratchpad", function() {
   
   it("Can be scripted easily", async function() {
     let daemon = TestUtils.getDaemonRpc();
     let wallet = TestUtils.getWalletRpc();
 
-    await daemon.stopMining();
+    //await daemon.stopMining();
     
     // fetch txs
+    let txId = "9d7aaeedbba9715c799ba6c0ba8640ab7f7df994b0713bfd167f99bf6aeeb7bb";
     let filter = new MoneroTxFilter();
-    filter.setAccountIndex(0);
-    filter.setTxIds(["e70ce7bb5432a065048c0410f78266265dbccf6b581660ea3ce00f22ee361284"]);
-    let txs = await wallet.getTxs(filter);
+    //filter.setAccountIndex(0);
+    filter.setTxIds([txId]);
+    let txs = await wallet.getTxs(filter, undefined, txId);
     for (let tx of txs) {
       console.log(tx.toString());
     }
