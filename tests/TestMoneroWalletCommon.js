@@ -1594,6 +1594,10 @@ class TestMoneroWalletCommon {
           if (!canSplit) assert.equal(2, fetchedTxs.length);  // one incoming and one outgoing
           else assert.equal(2, fetchedTxs.length % 2);        // one incoming and one outgoing per sent tx
           
+          // TODO: test incoming/outgoing equality
+          // TODO: testTxWalletGet tests payments and outputs
+          // TODO: implement model updates
+          
           // merge fetched txs into updated txs and original sent txs
           for (let fetchedTx of fetchedTxs) {
             await testTx(fetchedTx, sendConfig);
