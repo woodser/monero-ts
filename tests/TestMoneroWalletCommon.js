@@ -1203,22 +1203,22 @@ class TestMoneroWalletCommon {
           txs.push(await wallet.send(config));
         }
         
-        for (let tx of txs) {
-          
-          console.log("SEND TX");
-          tx.setHex(undefined);
-          tx.setMetadata(undefined);
-          console.log(tx.toString());
-          
-          // fetch txs with sent id
-          console.log("Fetching Tx...");
-          let filter = new MoneroTxFilter();
-          filter.setTxIds([tx.getId()]);
-          let fetchedTxs = await wallet.getTxs(filter, undefined, tx.getId());
-          
-          console.log("FETCHED");
-          for (let fetchedTx of fetchedTxs) console.log(fetchedTx.toString());
-        }
+//        for (let tx of txs) {
+//          
+//          console.log("SEND TX");
+//          tx.setHex(undefined);
+//          tx.setMetadata(undefined);
+//          console.log(tx.toString());
+//          
+//          // fetch txs with sent id
+//          console.log("Fetching Tx...");
+//          let filter = new MoneroTxFilter();
+//          filter.setTxIds([tx.getId()]);
+//          let fetchedTxs = await wallet.getTxs(filter, undefined, tx.getId());
+//          
+//          console.log("FETCHED");
+//          for (let fetchedTx of fetchedTxs) console.log(fetchedTx.toString());
+//        }
         
         // test that wallet balance decreased
         let account = await wallet.getAccount(srcAccount.getIndex());
@@ -1502,33 +1502,53 @@ class TestMoneroWalletCommon {
     
     describe("Test Notifications", function() {
       
+      // start mining if possible to help push the network along
       before(async function() {
-        
-        // start mining if possible to help push the network along
         try { await wallet.startMining(8, false, true); }
         catch (e) { }
       });
       
+      // stop mining
       after(async function() {
-        
-        // stop mining
         try { await wallet.stopMining(); }
         catch (e) { }
       });
       
+      // TODO: test sending to multiple accounts
+      
       it("Can update a locked tx sent to/from the same account as blocks are added to the chain", async function() {
-        await testLockedTxUpdates(true);
+        let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
+        sendConfig.setAccountIndex(0);
+        sendConfig.setUnlockTime(3);
+        await testSendAndUpdateTxs(sendConfig, false);
+      });
+      
+      it("Can update split locked txs sent to/from the same account as blocks are added to the chain", async function() {
+        let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
+        sendConfig.setAccountIndex(0);
+        sendConfig.setUnlockTime(3);
+        await testSendAndUpdateTxs(sendConfig, true);
       });
       
 //      it("Can update a locked tx sent to/from different accounts as blocks are added to the chain", async function() {
-//        await testLockedTxUpdates(false);
+//        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
+//        sendConfig.setAccountIndex(0);
+//        sendConfig.setUnlockTime(3);
+//        await testSendAndUpdateTxs(sendConfig, false);
+//      });
+//      
+//      it("Can update a locked tx sent to/from different accounts as blocks are added to the chain", async function() {
+//        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0).getAddress(), TestUtils.MAX_FEE);
+//        sendConfig.setAccountIndex(0);
+//        sendConfig.setUnlockTime(3);
+//        await testSendAndUpdateTxs(sendConfig, true);
 //      });
       
       /**
        * Tests sending a tx with an unlockTime then tracking and updating it as
        * blocks are added to the chain.
        * 
-       * TODO: test sending to multiple subaddresses / splitting
+       * TODO: test wallet accounting throughout this; dedicated method? probably.
        * 
        * Allows sending to and from the same account which is an edge case where
        * incoming txs are occluded by their outgoing counterpart (issue #4500)
@@ -1537,32 +1557,26 @@ class TestMoneroWalletCommon {
        * 
        * @param sameAccount sends the tx to/from the same account iff true
        */
-      async function testLockedTxUpdates(sameAccount) {
+      async function testSendAndUpdateTxs(sendConfig, canSplit) {
         
-        // configuration
-        const unlockTime = 3;                                       // unlock time to test
-        const srcAccountIdx = 0;                                    // source account to send from
-        const destAccountIdx = srcAccountIdx + sameAccount ? 0 : 1; // destination account to send to
+        // send transactions
+        let sentTxs;
+        if (canSplit) sentTxs = await wallet.sendSplit(sendConfig);
+        else sentTxs = [await wallet.send(sendConfig)];
         
-        // send a transaction that becomes spendable in the configured number of blocks (unlockTime)
-        const destAddress = (await wallet.getSubaddress(destAccountIdx, 0)).getAddress();
-        let height = await wallet.getHeight();
-        let sendConfig = new MoneroSendConfig(destAddress, TestUtils.MAX_FEE);
-        sendConfig.setAccountIndex(srcAccountIdx);
-        sendConfig.setUnlockTime(unlockTime);
-        let tx0 = await wallet.send(sendConfig);
-        await testTxWalletSend(tx0, sendConfig, true, true, wallet);
-        assert.equal(false, tx0.getIsConfirmed());
-        assert.equal(true, tx0.getInTxPool());
-        assert.equal(unlockTime, tx0.getUnlockTime());
+        // test sent transactions
+        for (let tx of sentTxs) {
+          await testTxWalletSend(tx, sendConfig, !canSplit, !canSplit, wallet);
+          assert.equal(false, tx.getIsConfirmed());
+          assert.equal(true, tx.getInTxPool());
+        }
         
-        // track resulting outgoing and incoming transaction as blocks added to the chain
-        let outgoingTx = undefined;
-        let incomingTx = undefined;
+        // track resulting outoging and incoming txs as blocks are added to the chain
+        let updatedTxs;
         
-        // loop to test updating tx through confirmations
+        // loop to update txs through confirmations
         let numConfirmations = 0;
-        let numConfirmationsTotal = 3; // number of confirmations to test
+        const numConfirmationsTotal = 3; // number of confirmations to test
         while (numConfirmations < numConfirmationsTotal) {
           
           // wait for a block
@@ -1572,149 +1586,49 @@ class TestMoneroWalletCommon {
           // give wallet time to catch up, otherwise incoming tx may not appear
           await new Promise(function(resolve) { setTimeout(resolve, 5000); });
           
-          // get incoming/outgoing versions of tx with sent id
+          // get incoming/outgoing txs with sent ids
           let filter = new MoneroTxFilter();
-          filter.setTxIds([tx0.getId()]);  // TODO: convenience methods wallet.getTxById(), getTxsById()?
-          let txs = await wallet.getTxs(filter, undefined, tx0.getId());
-          //assert.equal(2, txs.length);  // one incoming and out outgoing
+          filter.setTxIds(sentTxs.map(sentTx => sentTx.getId())); // TODO: convenience methods wallet.getTxById(), getTxsById()?
+          let fetchedTxs = await wallet.getTxs(filter);
+          assert(fetchedTxs.length > 0);
+          if (!canSplit) assert.equal(2, fetchedTxs.length);  // one incoming and one outgoing
+          else assert.equal(2, fetchedTxs.length % 2);        // one incoming and one outgoing per sent tx
           
-          
-          
-          console.log("Retrieved txs");
-          for (let tx of txs) {
-            console.log(tx.toString());
-            await testUnlockTimeTx(tx, unlockTime);
+          // merge fetched txs into updated txs and original sent txs
+          for (let fetchedTx of fetchedTxs) {
+            await testTx(fetchedTx, sendConfig);
+            
+            // merge with updated txs
+            if (updatedTxs === undefined) updatedTxs = fetchedTxs;
+            else {
+              console.log("MERGING!!!!!");
+              for (let updatedTx of updatedTxs) {
+                if (fetchedTx.getId() !== updatedTx.getId()) continue;
+                if (fetchedTx.getIsOutgoing() !== updatedTx.getIsOutgoing()) continue;
+                updatedTx.merge(fetchedTx);
+                await testTx(updatedTx, sendConfig);
+              }
+            }
+            
+            // merge with original sent txs
+            for (let sentTx of sentTxs) {
+              if (fetchedTx.getId() !== sentTx.getId()) continue;
+              if (fetchedTx.getIsOutgoing() !== sentTx.getIsOutgoing()) continue;
+              sentTx.merge(fetchedTx);  // TODO: it's mergeable but tests don't account for extra info from send (e.g. hex) so not tested; could specify in test config
+            }
           }
           
-          // TODO: confirmed incoming tx gains incoming_transfers which includes change (?) which changes total amount
-          // TODO: resulting incoming tx has 3 payments, one may be redundant and is missing key image, why getting appended?
-          // TODO monero-wallet-rpc: incoming_transfers needs to show unconfirmed funds or unbalanced outgoing tx for to/from same account (test edge case)
-          
-          // merge with previous txs
-          console.log("MERGING!!!!!");
-          let outTx = txs[0].getIsOutgoing() ? txs[0] : txs[1];
-          let inTx = txs[0].getIsOutgoing() ? txs[1] : txs[0];
-          tx0.merge(outTx, true); // TODO: it's mergeable but tests don't account for extra info from send (e.g. hex) so not tested; could specify in test config
-          if (outgoingTx === undefined) outgoingTx = outTx;
-          else outgoingTx.merge(outTx, true);
-          if (incomingTx === undefined) incomingTx = inTx;
-          else incomingTx.merge(inTx, true);  // TODO: GC error if inTx === incomingTx, test specifically
-          
-          if (outgoingTx) console.log(outgoingTx.toString());
-          if (incomingTx) console.log(incomingTx.toString());
-          
-          // test txs
-          await testUnlockTimeTx(outgoingTx, unlockTime);
-          await testUnlockTimeTx(incomingTx, unlockTime);
-          
           // increment count
-          if (outgoingTx.getIsConfirmed()) numConfirmations++;
+          if (fetchedTxs[0].getIsConfirmed()) numConfirmations++;
         }
         
         // helper function to test unlock time tx
-        async function testUnlockTimeTx(tx, unlockTime) {
-          let hasPayments = tx.getIsIncoming() || tx.getIsConfirmed();  // TODO (monero-wallet-rpc): outgoing destinations missing before tx confirmed
-          await testTxWalletGet(tx, wallet, that.unbalancedTxIds, hasPayments);
-          assert.equal(unlockTime, tx.getUnlockTime());
+        async function testTx(tx, sendConfig) {
+          let hasOutgoingPayments = tx.getIsOutgoing() ? true : undefined;  // payments in local wallet cache
+          await testTxWalletGet(tx, wallet, that.unbalancedTxIds, hasOutgoingPayments);
+          assert.equal(sendConfig.getUnlockTime(), tx.getUnlockTime());
         }
       }
-      
-      
-      
-//      it("Can send a transaction with an unlock time and update it as blocks received", async function() {
-//        try {
-//          
-//          // test constants
-//          const unlockTime = 3;     // unlock time to test
-//          const srcAccountIdx = 0;  // source account to send from  // TODO (monero-wallet-rpc) must be different from destination account to avoid occluion bug #4500
-//          const destAddress = (await wallet.getSubaddress(1, 0)).getAddress();
-//          
-//          // send a transaction that becomes spendable in unlockTime blocks
-//          let height = await wallet.getHeight();
-//          let sendConfig = new MoneroSendConfig(destAddress, TestUtils.MAX_FEE);
-//          sendConfig.setAccountIndex(srcAccountIdx);
-//          sendConfig.setUnlockTime(unlockTime);
-//          let tx0 = await wallet.send(sendConfig);
-//          await testTxWalletSend(tx0, sendConfig, true, true, wallet);
-//          assert.equal(false, tx0.getIsConfirmed());
-//          assert.equal(true, tx0.getInTxPool());
-//          assert.equal(unlockTime, tx0.getUnlockTime());
-//          
-//          // start mining if possible to help push the network along
-//          try { await wallet.startMining(8, false, true); }
-//          catch (e) { }
-//          
-//          // track resulting [outgoing, incoming] transaction as blocks added to the chain
-//          let outgoingTx = undefined;
-//          let incomingTx = undefined;
-//          
-//          console.log("****** UNLOCK TEST *****");
-//          console.log(tx0.getId());
-//          
-//          // loop until test satisfied
-//          while (true) {
-//            
-//            // wait for next block
-//            await daemon.nextBlockHeader();
-//            console.log("Block received!");
-//            
-//            // give wallet a few seconds to catch up, otherwise incoming tx doesn't appear (TODO monero-wallet-rpc)
-//            await new Promise(function(resolve) { setTimeout(resolve, 5000); });
-//            
-//            // get incoming/outgoing versions of tx with sent id
-//            let filter = new MoneroTxFilter();
-//            filter.setTxIds([tx0.getId()]);  // TODO: convenience methods wallet.getTxById(), getTxsById()?
-//            let txs = await wallet.getTxs(filter, undefined, tx0.getId());
-//            assert.equal(2, txs.length);
-//            
-//            console.log("Retrieved txs");
-//            for (let tx of txs) {
-//              console.log(tx.toString());
-//              await testUnlockTimeTx(tx, unlockTime);
-//            }
-//            
-//            // TODO: confirmed incoming tx gains incoming_transfers which includes change (?) which changes total amount
-//            // TODO: resulting incoming tx has 3 payments, one may be redundant and is missing key image, why getting appended?
-//            // TODO monero-wallet-rpc: incoming_transfers needs to show unconfirmed funds or unbalanced outgoing tx for to/from same account (test edge case)
-//            
-//            // merge with previous txs
-//            console.log("MERGING!!!!!");
-//            let outTx = txs[0].getIsOutgoing() ? txs[0] : txs[1];
-//            let inTx = txs[0].getIsOutgoing() ? txs[1] : txs[0];
-//            tx0.merge(outTx, true); // TODO: it's mergeable but tests don't account for extra info from send (e.g. hex) so not tested; could specify in test config
-//            if (outgoingTx === undefined) outgoingTx = outTx;
-//            else outgoingTx.merge(outTx, true);
-//            if (incomingTx === undefined) incomingTx = inTx;
-//            else incomingTx.merge(inTx, true);  // TODO: GC error if inTx === incomingTx, test specifically
-//            
-//            console.log(outgoingTx.toString());
-//            console.log(incomingTx.toString());
-//            
-//            // test txs
-//            console.log("Is confirmed: " + outgoingTx.getIsConfirmed());
-//            await testUnlockTimeTx(outgoingTx, unlockTime);
-//            await testUnlockTimeTx(incomingTx, unlockTime);
-//            
-//            // helper function to test unlock time tx
-//            async function testUnlockTimeTx(tx, unlockTime) {
-//              let hasPayments = tx.getIsIncoming() || tx.getIsConfirmed();  // TODO (monero-wallet-rpc): outgoing destinations missing before tx confirmed
-//              await testTxWalletGet(tx, wallet, that.unbalancedTxIds, hasPayments);
-//              assert.equal(unlockTime, tx.getUnlockTime());
-//            }
-//          }
-//          
-//          throw new Error("Not implemented");
-//          
-//          // test transaction is confirmed and unlocked
-//        } catch (e) {
-//          throw e;
-//        } finally {
-//          
-//          // stop mining
-//          try { await wallet.stopMining(); }
-//          catch (e) { }
-//        }
-//      });
     });
   }
 }
