@@ -1548,8 +1548,8 @@ class TestMoneroWalletCommon {
 //              continue;
 //            }
             
-            // TODO: test total amount is correct
-            // TODO: resulting incoming tx has 3 payments, one may be redundant and is missing key image
+            // TODO: confirmed incoming tx gains incoming_transfers which includes change (?) which changes total amount
+            // TODO: resulting incoming tx has 3 payments, one may be redundant and is missing key image, why getting appended?
             
             // merge with previous txs
             console.log("MERGING!!!!!");
