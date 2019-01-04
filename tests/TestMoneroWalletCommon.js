@@ -1589,14 +1589,14 @@ class TestMoneroWalletCommon {
           // get incoming/outgoing txs with sent ids
           let filter = new MoneroTxFilter();
           filter.setTxIds(sentTxs.map(sentTx => sentTx.getId())); // TODO: convenience methods wallet.getTxById(), getTxsById()?
-          let fetchedTxs = await wallet.getTxs(filter);
+          let fetchedTxs = await wallet.getTxs(filter, undefined, sentTxs[0].getId());
           assert(fetchedTxs.length > 0);
           if (!canSplit) assert.equal(2, fetchedTxs.length);  // one incoming and one outgoing
           else assert.equal(2, fetchedTxs.length % 2);        // one incoming and one outgoing per sent tx
           
           // test fetched txs
           await testOutInPairs(fetchedTxs);
-                    
+
           // merge fetched txs into updated txs and original sent txs
           for (let fetchedTx of fetchedTxs) {
             
@@ -1640,7 +1640,7 @@ class TestMoneroWalletCommon {
       }
       
       async function testOutInPair(txOut, txIn, sendConfig) {
-        assert.equal(0, txOut.getAmount().compare(txIn.getAmount()));
+        assert.equal(0, txOut.getTotalAmount().compare(txIn.getTotalAmount()));
         await testTxWalletGet(wallet, txOut, that.unbalancedTxIds, true);
         await testTxWalletGet(wallet, txIn, that.unbalancedTxIds);
         assert.equal(sendConfig.getUnlockTime(), txOut.getUnlockTime());
