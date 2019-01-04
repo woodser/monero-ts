@@ -1,3 +1,5 @@
+const MoneroUtils = require("../../utils/MoneroUtils");
+
 /**
  * Monero subaddress model.
  */
@@ -5,6 +7,14 @@ class MoneroSubaddress {
   
   constructor(address) {
     this.setAddress(address);
+  }
+  
+  getAddress() {
+    return this.address;
+  }
+
+  setAddress(address) {
+    this.address = address;
   }
   
   getAccountIndex() {
@@ -29,14 +39,6 @@ class MoneroSubaddress {
 
   setLabel(label) {
     this.label = label;
-  }
-
-  getAddress() {
-    return this.address;
-  }
-
-  setAddress(address) {
-    this.address = address;
   }
 
   getBalance() {
@@ -75,16 +77,17 @@ class MoneroSubaddress {
     return this.toString(0);
   }
   
-  toString(offset) {
-    throw new Error("Not implemented");
-//    StringBuilder sb = new StringBuilder();
-//    sb.append(StringUtils.getTabs(offset) + "address: " + address + "\n");
-//    sb.append(StringUtils.getTabs(offset) + "index: [" + accountIndex + ", " + subaddressIndex + "]\n");
-//    sb.append(StringUtils.getTabs(offset) + "label: " + label + "\n");
-//    sb.append(StringUtils.getTabs(offset) + "balance: " + balance + "\n");
-//    sb.append(StringUtils.getTabs(offset) + "unlockedBalance: " + unlockedBalance + "\n");
-//    sb.append(StringUtils.getTabs(offset) + "unspentOutputCount: " + unspentOutputCount);
-//    return sb.toString();
+  toString(indent) {
+    let str = "";
+    str += MoneroUtils.kvLine("Address", this.getAddress(), indent);
+    str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
+    str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
+    str += MoneroUtils.kvLine("Label", this.getLabel(), indent);
+    str += MoneroUtils.kvLine("Balance", this.getBalance(), indent);
+    str += MoneroUtils.kvLine("Unlocked balance", this.getUnlockedBalance(), indent);
+    str += MoneroUtils.kvLine("Unspent output count", this.getUnspentOutputCount(), indent);
+    str += MoneroUtils.kvLine("Is used", this.getIsUsed(), indent);
+    return str.slice(0, str.length - 1);  // strip last newline
   }
 }
 
