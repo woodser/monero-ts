@@ -282,7 +282,7 @@ class MoneroWalletRpc extends MoneroWallet {
           
           // special case: outgoing tx is occluding incoming counterpart so fabricate
           // TODO monero-wallet-rpc https://github.com/monero-project/monero/issues/4500
-          if (tx.getIsOutgoing() && && !tx.getIsFailed() && tx.getTotalAmount().compare(new BigInteger(0)) == 0) {
+          if (tx.getIsOutgoing() && !tx.getIsFailed() && tx.getTotalAmount().compare(new BigInteger(0)) == 0) {
             tx = tx.copy();
             tx.setIsIncoming(true);
 //            tx.setAddress(undefined); // TODO
