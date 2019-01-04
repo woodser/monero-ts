@@ -261,9 +261,9 @@ class MoneroWalletRpc extends MoneroWallet {
     // build common params for get_transfers
     let params = {};
     params.in = filter.getIsIncoming() !== false && filter.getIsConfirmed() !== false;
-    params.out = filter.getIsOutgoing() !== false && filter.getIsConfirmed() !== false; // TODO: need to accomodate fabricating 0 amt incoming tx because of #4500
+    params.out = params.in || filter.getIsOutgoing() !== false && filter.getIsConfirmed() !== false;  // TODO monero-wallet-rpc: must fetch out if in because incoming txs are occluded by outgoing counterparts (https://github.com/monero-project/monero/issues/4500)
     params.pool = filter.getIsIncoming() !== false && filter.getInTxPool() !== false;
-    params.pending = filter.getIsOutgoing() !== false && filter.getInTxPool() !== false;
+    params.pending = pool.pool || filter.getIsOutgoing() !== false && filter.getInTxPool() !== false; // TODO monero-wallet-rpc: must fetch out if in because incoming txs are occluded by outgoing counterparts (https://github.com/monero-project/monero/issues/4500)
     params.failed = filter.getIsOutgoing() !== false && filter.getIsFailed() !== false;
     params.filter_by_height = filter.getMinHeight() !== undefined || filter.getMaxHeight() !== undefined;
     if (filter.getMinHeight() !== undefined) params.min_height = filter.getMinHeight();
@@ -279,6 +279,19 @@ class MoneroWalletRpc extends MoneroWallet {
           if (rpcTx.txid === debugTxId) console.log(rpcTx);
           let tx = MoneroWalletRpc._buildTxWallet(rpcTx);
           MoneroWalletRpc._mergeTx(txs, tx);
+          
+          // special case: outgoing tx is occluding incoming counterpart so fabricate
+          // TODO monero-wallet-rpc https://github.com/monero-project/monero/issues/4500
+          if (tx.getIsOutgoing() && && !tx.getIsFailed() && tx.getTotalAmount().compare(new BigInteger(0)) == 0) {
+            tx = tx.copy();
+            tx.setIsIncoming(true);
+//            tx.setAddress(undefined); // TODO
+//            tx.setSrcAccountIndex(undefined);
+//            tx.setSrcSubaddressIndex(undefined);
+            console.log("FABRICATED");
+            console.log(tx.toString());
+            MoneroWalletRpc._mergeTx(txs, tx);
+          }
         }
       }
     }
