@@ -1916,7 +1916,6 @@ async function testTxWalletSend(tx, config, hasKey, hasPayments, wallet) {
 }
 
 async function testTxPayments(wallet, tx) {
-  assert.equal("boolean", typeof hasOutputs, "Must specify whether or not tx has outputs");
   assert(tx.getPayments());
   assert(tx.getPayments().length > 0);
   
@@ -1924,9 +1923,11 @@ async function testTxPayments(wallet, tx) {
   let paymentTotal = new BigInteger();
   for (let payment of tx.getPayments()) {
     assert(payment.getAddress());
-    assert(payment.getAccountIndex() >= 0);
-    assert(payment.getSubaddressIndex() >= 0);
-    assert.equal(await wallet.getAddress(payment.getAccountIndex(), payment.getSubaddressIndex()), payment.getAddress());
+    if (tx.getIsIncoming()) {
+      assert(payment.getAccountIndex() >= 0);
+      assert(payment.getSubaddressIndex() >= 0);
+      assert.equal(await wallet.getAddress(payment.getAccountIndex(), payment.getSubaddressIndex()), payment.getAddress());
+    }
     TestUtils.testUnsignedBigInteger(payment.getAmount());
     paymentTotal = paymentTotal.add(payment.getAmount());
     
