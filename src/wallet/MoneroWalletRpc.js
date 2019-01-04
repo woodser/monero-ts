@@ -10,6 +10,7 @@ const MoneroSubaddress = require("./model/MoneroSubaddress");
 const MoneroTxFilter = require("./model/MoneroTxFilter");
 const MoneroTxWallet = require("./model/MoneroTxWallet");
 const MoneroPayment = require("./model/MoneroPayment");
+const MoneroOutput = require("./model/MoneroOutput");
 const MoneroSendConfig = require("./model/MoneroSendConfig");
 const MoneroCheckTx = require("./model/MoneroCheckTx");
 const MoneroCheckReserve = require("./model/MoneroCheckReserve");
@@ -286,41 +287,33 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
     
-    // get incoming transactions
+    // get incoming outputs using `incoming_transfers`
     if (filter.getIsIncoming() !== false) {
-
-      // get transactions using `incoming_transfers`
       params = {};
-      params.transfer_type = "all"; // TODO: suppport all | available | unavailable 'types' which is different from MoneroTxType
+      params.transfer_type = "all"; // TODO: suppport all | available | unavailable 'types'
+//      let outputs = [];
       for (let accountIdx of indices.keys()) {
+        
+        // semd request
         params.account_index = accountIdx;
         params.subaddr_indices = filter.getSubaddressIndices(); // undefined subaddr_indices will fetch all incoming_transfers
         let resp = await this.config.rpc.sendJsonRequest("incoming_transfers", params);
         
-        // interpret incoming_transfers response
+        // convert response to outputs
         if (resp.transfers === undefined) continue;
-        for (let rpcTx of resp.transfers) {
-          if (rpcTx.tx_hash === debugTxId) console.log(rpcTx);
-          
-          // convert rpc to tx
-          let tx = new MoneroTxWallet();
-          tx.setIsIncoming(true);
-          tx.setIsConfirmed(true);
-          tx.setInTxPool(false);
-          tx.setIsCoinbase(false);
-          MoneroWalletRpc._buildTxWallet(rpcTx, tx);  // TODO: make this _buildOutput() then integrate!!!
-          let address = await this.getAddress(accountIdx, tx.getPayments()[0].getSubaddressIndex());
-          tx.getPayments()[0].setAddress(address);
-          
-          // mark coinbase transactions if applicable which `incoming_transfers` does not provide
-          for (let allTx of txs) {
-            if (allTx.getIsCoinbase() && allTx.getId() === tx.getId()) tx.setIsCoinbase(true);
-          }
-          
-          // add tx to existing txs
-          MoneroWalletRpc._addTx(txs, tx, false);
+        for (let rpcOutput of resp.transfers) {
+          if (rpcOutput.tx_hash === debugTxId) console.log(rpcOutput);
+          let tx = MoneroWalletRpc._buildTxWalletOutput(rpcOutput);
+          console.log(tx);  // TODO: READY TO MERGE WITH EVERYTHING
         }
       }
+      
+      // add outputs to payments
+      // TODO: need to correlate output with payment, currently dropping  ** HERE **
+//      for (let output of outputs) {
+//        //console.log(output.toString());
+//      }
+      //throw new Error("Not implemented"); // TODO
     }
     
     // filter final result
@@ -732,22 +725,22 @@ class MoneroWalletRpc extends MoneroWallet {
       let val = rpcTx[key];
       if (key === "fee") tx.setFee(new BigInteger(val));
       else if (key === "block_height") tx.setHeight(val);
+      else if (key === "height") tx.setHeight(val === 0 ? undefined : val); // TODO: collapse into above, what about genesis block / txs?
       else if (key === "note") { if (val) tx.setNote(val); }
-      else if (key === "timestamp") {
-        if (tx.getIsConfirmed()) tx.setBlockTimestamp(val);
-        else if (tx.getIsOutgoing()) tx.setLastRelayedTime(val);
-        else tx.setReceivedTime(val);
-      }
       else if (key === "txid") tx.setId(val);
       else if (key === "tx_hash") tx.setId(val);
       else if (key === "tx_key") tx.setKey(val);
       else if (key === "type") { } // type already handled
       else if (key === "tx_size") tx.setSize(val);
       else if (key === "unlock_time") tx.setUnlockTime(val);
-      else if (key === "global_index") { } // ignore
       else if (key === "tx_blob") tx.setHex(val);
       else if (key === "tx_metadata") tx.setMetadata(val);
       else if (key === "double_spend_seen") tx.setIsDoubleSpend(val);
+      else if (key === "timestamp") {
+        if (tx.getIsConfirmed()) tx.setBlockTimestamp(val);
+        else if (tx.getIsOutgoing()) tx.setLastRelayedTime(val);
+        else tx.setReceivedTime(val);
+      }
       else if (key === "confirmations") {
         if (!tx.getIsConfirmed()) tx.setConfirmationCount(0);
         else tx.setConfirmationCount(val);
@@ -755,9 +748,6 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "suggested_confirmations_threshold") {
         if (tx.getInTxPool()) tx.setEstimatedBlockCountUntilConfirmed(val);
         else tx.setEstimatedBlockCountUntilConfirmed(undefined)
-      }
-      else if (key === "height") {
-        tx.setHeight(val === 0 ? undefined : val); // TODO: right?  converted from Java: tx.setHeight(height == 0 ? null : height);
       }
       else if (key === "amount") {
         tx.setTotalAmount(new BigInteger(val));
@@ -772,16 +762,6 @@ class MoneroWalletRpc extends MoneroWallet {
           if (payment === undefined) payment = new MoneroPayment();
           payment.setAddress(val);
         }
-      }
-      else if (key === "key_image") {
-        assert(tx.getIsIncoming());
-        if (payment === undefined) payment = new MoneroPayment();
-        payment.setKeyImage(val);
-      }
-      else if (key === "spent") {
-        assert(tx.getIsIncoming());
-        if (payment === undefined) payment = new MoneroPayment();
-        payment.setIsSpent(val);
       }
       else if (key === "payment_id") {
         if (MoneroTxWallet.DEFAULT_PAYMENT_ID !== val) tx.setPaymentId(val);  // default is undefined
@@ -810,7 +790,7 @@ class MoneroWalletRpc extends MoneroWallet {
       }
       else if (key === "multisig_txset" && !val) {} // TODO: handle this with value
       else if (key === "unsigned_txset" && !val) {} // TODO: handle this with value
-      else console.log("WARNING: ignoring unexpected transaction field: '" + key + "': " + val);
+      else console.log("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
     }
     
     // initialize final fields
@@ -830,6 +810,34 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // return initialized transaction
+    return tx;
+  }
+  
+  static _buildTxWalletOutput(rpcOutput) {
+    let tx = new MoneroTxWallet();
+    let output = new MoneroOutput();
+    let accountIdx;
+    let subaddressIdx;
+    for (let key of Object.keys(rpcOutput)) {
+      let val = rpcOutput[key];
+      if (key === "amount") output.setAmount(new BigInteger(val));
+      else if (key === "spent") output.setIsSpent(val);
+      else if (key === "key_image") output.setKeyImage(val);
+      else if (key === "global_index") output.setIndex(val);
+      else if (key === "tx_hash") tx.setId(val);
+      else if (key === "subaddr_index") {
+        assert(val.major !== undefined);
+        assert(val.minor !== undefined);
+        accountIdx = val.major;
+        subaddressIdx = val.minor;
+      }
+      else console.log("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
+    }
+    let payment = new MoneroPayment();
+    payment.setAccountIndex(accountIdx);
+    payment.setSubaddressIndex(subaddressIdx);
+    payment.setOutputs([output]);
+    tx.setPayments([payment]);
     return tx;
   }
   
