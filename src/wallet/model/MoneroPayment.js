@@ -53,21 +53,13 @@ class MoneroPayment {
   setAmount(amount) {
     this.json.amount = amount;
   }
-
-  getIsSpent() {
-    return this.json.isSpent;
+  
+  getOutputs() {
+    return this.json.outputs;
   }
-
-  setIsSpent(isSpent) {
-    this.json.isSpent = isSpent;
-  }
-
-  getKeyImage() {
-    return this.json.keyImage;
-  }
-
-  setKeyImage(keyImage) {
-    this.json.keyImage = keyImage;
+  
+  setOutputs(outputs) {
+    this.json.outputs = outputs;
   }
 
   /**
@@ -82,8 +74,15 @@ class MoneroPayment {
     this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), payment.getAccountIndex()));
     this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), payment.getSubaddressIndex()));
     this.setAmount(MoneroUtils.reconcile(this.getAmount(), payment.getAmount()));
-    this.setIsSpent(MoneroUtils.reconcile(this.getIsSpent(), payment.getIsSpent(), {resolveTrue: true})); // payment can become spent
-    this.setKeyImage(MoneroUtils.reconcile(this.getKeyImage(), payment.getKeyImage()));
+    
+    // merge outputs
+    if (this.getOutputs() === undefined) this.setOutputs(payment.getOutputs());
+    else if (payment.getOutputs() !== undefined) {
+      assert.equal(this.getOutputs().length, payment.getOutputs().length);
+      for (let i = 0; i < this.getOutputs().length; i++) {
+        this.getOutputs()[i].merge(payment.getOutputs()[i]);
+      }
+    }
   }
   
   toString(indent = 0) {
@@ -92,8 +91,16 @@ class MoneroPayment {
     str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
     str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
     str += MoneroUtils.kvLine("Amount", this.getAmount().toString(), indent);
-    str += MoneroUtils.kvLine("Is spent", this.getIsSpent(), indent);
-    str += MoneroUtils.kvLine("Key image", this.getKeyImage(), indent);
+    if (this.getOutputs()) {
+      str += MoneroUtils.kvLine("Outputs", "", indent);
+      for (let i = 0; i < this.getOutputs().length; i++) {
+        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
+        str += this.getOutputs()[i].toString(indent + 2);
+        str += '\n'
+      }
+    } else {
+      str += MoneroUtils.kvLine("Outputs", this.getOutputs(), indent);
+    }
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }

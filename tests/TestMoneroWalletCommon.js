@@ -1932,13 +1932,13 @@ async function testTxPayments(wallet, tx) {
     paymentTotal = paymentTotal.add(payment.getAmount());
     
     // test payment outputs
-    if (tx.getIsOutgoing()) assert.equal(undefined, tx.getOutputs()); // outgoing txs do not have outputs
-    else if (tx.getIsConfirmed()) assert(tx.getOutputs().length > 0);    // confirmed incoming txs always have outputs
-    if (tx.getOutputs()) testPaymentOutputs(payment);                  // unconfirmed txs may or may not have outputs  // TODO monero-wallet-rpc: why does incoming_transfers sometimes report unconfirmed incoming outputs? can it always?
+    if (tx.getIsOutgoing()) assert.equal(undefined, payment.getOutputs());  // outgoing txs do not have outputs
+    else if (tx.getIsConfirmed()) assert(payment.getOutputs().length > 0);  // confirmed incoming txs always have outputs
+    if (payment.getOutputs()) testPaymentOutputs(payment);                  // unconfirmed txs may or may not have outputs  // TODO monero-wallet-rpc: why does incoming_transfers sometimes report unconfirmed incoming outputs? can it always?
   }
   
   // test that payment amounts add up to tx amount
-  assert.equal(0, totalAmount.compare(tx.getTotalAmount()));
+  assert.equal(0, paymentTotal.compare(tx.getTotalAmount()));
 }
 
 function testPaymentOutputs(payment) {

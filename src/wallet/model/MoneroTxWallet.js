@@ -85,24 +85,24 @@ class MoneroTxWallet extends MoneroTx {
     //throw new Error("Not implemented");
   }
   
-  toString(offset = 0) {
-    let str = super.toString(offset) + '\n'
-    str += MoneroUtils.kvLine("Is incoming", this.getIsIncoming(), offset);
-    str += MoneroUtils.kvLine("Is outgoing", this.getIsOutgoing(), offset);
-    str += MoneroUtils.kvLine("Total amount", this.getTotalAmount().toString(), offset);
-    str += MoneroUtils.kvLine("Source account index", this.getSrcAccountIndex(), offset);
-    str += MoneroUtils.kvLine("Source subaddress index", this.getSrcSubaddressIndex(), offset);
-    str += MoneroUtils.kvLine("Source address", this.getSrcAddress(), offset);
-    str += MoneroUtils.kvLine("Note: ", this.getNote(), offset);
+  toString(indent = 0) {
+    let str = super.toString(indent) + '\n'
+    str += MoneroUtils.kvLine("Is incoming", this.getIsIncoming(), indent);
+    str += MoneroUtils.kvLine("Is outgoing", this.getIsOutgoing(), indent);
+    str += MoneroUtils.kvLine("Total amount", this.getTotalAmount().toString(), indent);
+    str += MoneroUtils.kvLine("Source account index", this.getSrcAccountIndex(), indent);
+    str += MoneroUtils.kvLine("Source subaddress index", this.getSrcSubaddressIndex(), indent);
+    str += MoneroUtils.kvLine("Source address", this.getSrcAddress(), indent);
+    str += MoneroUtils.kvLine("Note: ", this.getNote(), indent);
     if (this.getPayments()) {
-      str += MoneroUtils.kvLine("Payments", "", offset);
+      str += MoneroUtils.kvLine("Payments", "", indent);
       for (let i = 0; i < this.getPayments().length; i++) {
-        str += MoneroUtils.kvLine(i + 1, "", offset + 1);
-        str += this.getPayments()[i].toString(offset + 2);
+        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
+        str += this.getPayments()[i].toString(indent + 2);
         if (i < this.getPayments().length - 1) str += '\n'
       }
     } else {
-      str += MoneroUtils.kvLine("Payments", this.getPayments(), offset);
+      str += MoneroUtils.kvLine("Payments", this.getPayments(), indent);
     }
     return str;
   }
