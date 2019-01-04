@@ -19,16 +19,16 @@ describe("Scratchpad", function() {
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
     
-    // fetch txs
-    let txId = "48d04611dc4bee3a93bee6d6abcd7000884bb86d1d5928a1e4aa9e2ec5d238e3";
-//    let txId = "86b45bbe2f80617bc4c1926997d66698d4fbde009d281c01d01cb2798508b4e7"
-    let filter = new MoneroTxFilter();
-    //filter.setAccountIndex(0);
-    filter.setTxIds([txId]);
-    let txs = await wallet.getTxs(filter, undefined, txId);
-    for (let tx of txs) {
-      console.log(tx.toString());
-    }
+//    // fetch txs
+//    let txId = "48d04611dc4bee3a93bee6d6abcd7000884bb86d1d5928a1e4aa9e2ec5d238e3";
+////    let txId = "86b45bbe2f80617bc4c1926997d66698d4fbde009d281c01d01cb2798508b4e7"
+//    let filter = new MoneroTxFilter();
+//    //filter.setAccountIndex(0);
+//    filter.setTxIds([txId]);
+//    let txs = await wallet.getTxs(filter, undefined, txId);
+//    for (let tx of txs) {
+//      console.log(tx.toString());
+//    }
     
 //    
 //    // use direct rpc interface to

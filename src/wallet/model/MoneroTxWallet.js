@@ -1,4 +1,5 @@
 const assert = require("assert");
+const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroUtils = require("../../utils/MoneroUtils");
 const MoneroTx = require("../../daemon/model/MoneroTx");
 
@@ -89,7 +90,7 @@ class MoneroTxWallet extends MoneroTx {
     let str = super.toString(indent) + '\n'
     str += MoneroUtils.kvLine("Is incoming", this.getIsIncoming(), indent);
     str += MoneroUtils.kvLine("Is outgoing", this.getIsOutgoing(), indent);
-    str += MoneroUtils.kvLine("Total amount", this.getTotalAmount().toString(), indent);
+    str += MoneroUtils.kvLine("Total amount", this.getTotalAmount() ? this.getTotalAmount().toString() : undefined, indent);
     str += MoneroUtils.kvLine("Source account index", this.getSrcAccountIndex(), indent);
     str += MoneroUtils.kvLine("Source subaddress index", this.getSrcSubaddressIndex(), indent);
     str += MoneroUtils.kvLine("Source address", this.getSrcAddress(), indent);
@@ -107,7 +108,7 @@ class MoneroTxWallet extends MoneroTx {
     return str;
   }
   
-  merge(tx, mergePayments) {
+  merge(tx) {
     
     // merge base transaction
     super.merge(tx);
@@ -119,28 +120,26 @@ class MoneroTxWallet extends MoneroTx {
     this.setSrcAddress(MoneroUtils.reconcile(this.getSrcAddress(), tx.getSrcAddress()));
     this.setNote(MoneroUtils.reconcile(this.getNote(), tx.getNote()));
     
-    // merge total amount
-    if (this.getTotalAmount() === undefined) this.setTotalAmount(tx.getTotalAmount());
-    else {
-      if (mergePayments) assert.equal(0, this.getTotalAmount().compare(tx.getTotalAmount()));
-      else this.setTotalAmount(this.getTotalAmount().add(tx.getTotalAmount()));
-    }
-    
     // merge payments
     if (this.getPayments() === undefined) this.setPayments(tx.getPayments());
-    else if (tx.getPayments() !== undefined) {
-      if (mergePayments) {
-        assert(tx.getPayments().length >= 0);
-        assert.equal(this.getPayments().length, tx.getPayments().length, "Merging payments must be same size"); // TODO: not so!  because of occlusion issue and no incoming_transfers, should get additional payment when change tx becomes known
-        for (let i = 0; i < this.json.payments.length; i++) {
-          this.getPayments()[i].merge(tx.getPayments()[i]);
+    else if (tx.getPayments()) {
+      for (let newPayment of tx.getPayments()) {
+        let merged = false;
+        for (let oldPayment of this.getPayments()) {
+          if (oldPayment.getAccountIndex() === newPayment.getAccountIndex() && oldPayment.getSubaddressIndex() === newPayment.getSubaddressIndex()) {
+            oldPayment.merge(newPayment);
+            merged = true;
+            break;
+          }
         }
-      } else {
-        for (let payment of tx.getPayments()) {
-          this.getPayments().push(payment);
-        }
+        if (!merged) this.getPayments().push(newPayment);
       }
     }
+    
+    // total amount is sum of payments
+    let paymentTotal = new BigInteger(0);
+    for (let payment of tx.getPayments()) paymentTotal = paymentTotal.add(payment.getAmount());
+    tx.setTotalAmount(paymentTotal);
   }
 }
 

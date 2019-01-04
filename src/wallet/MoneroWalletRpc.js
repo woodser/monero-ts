@@ -232,6 +232,9 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTxs(filterOrAccountIdx, subaddressIdx, debugTxId) {
     
+    // stores merged txs across calls
+    let txs = [];
+    
     // validate and standardize inputs to filter
     let filter;
     if (filterOrAccountIdx instanceof MoneroTxFilter) {
@@ -246,9 +249,6 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     } else throw new Error("First parameter must be MoneroTxFilter or account index >= 0 but was " + filterOrAccountIdx);
     
-    // stores merged txs across calls
-    let txs = [];
-    
     // determine account and subaddress indices to be queried
     let indices = new Map();
     if (filter.getAccountIndex() !== undefined) {
@@ -261,7 +261,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // build common params for get_transfers
     let params = {};
     params.in = filter.getIsIncoming() !== false && filter.getIsConfirmed() !== false;
-    params.out = filter.getIsOutgoing() !== false && filter.getIsConfirmed() !== false;
+    params.out = filter.getIsOutgoing() !== false && filter.getIsConfirmed() !== false; // TODO: need to accomodate fabricating 0 amt incoming tx because of #4500
     params.pool = filter.getIsIncoming() !== false && filter.getInTxPool() !== false;
     params.pending = filter.getIsOutgoing() !== false && filter.getInTxPool() !== false;
     params.failed = filter.getIsOutgoing() !== false && filter.getIsFailed() !== false;
@@ -269,7 +269,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (filter.getMinHeight() !== undefined) params.min_height = filter.getMinHeight();
     if (filter.getMaxHeight() !== undefined) params.max_height = filter.getMaxHeight();
     
-    // get transactions using get_transfers
+    // get transactions using `get_transfers`
     for (let accountIdx of indices.keys()) {
       params.account_index = accountIdx;
       params.subaddr_indices = indices.get(accountIdx);
@@ -278,20 +278,15 @@ class MoneroWalletRpc extends MoneroWallet {
         for (let rpcTx of resp[key]) {
           if (rpcTx.txid === debugTxId) console.log(rpcTx);
           let tx = MoneroWalletRpc._buildTxWallet(rpcTx);
-          if (tx.getIsIncoming() && tx.getIsConfirmed()) {  // prevent duplicates when populated by incoming_transfers  // TODO (monero-wallet-rpc): merge payments when incoming txs work (https://github.com/monero-project/monero/issues/4500)
-            tx.setTotalAmount(new BigInteger(0));
-            tx.setPayments(undefined);
-          }
-          MoneroWalletRpc._addTx(txs, tx, false);
+          MoneroWalletRpc._mergeTx(txs, tx);
         }
       }
     }
     
-    // get incoming outputs using `incoming_transfers`
+    // get txs with incoming outputs using `incoming_transfers`
     if (filter.getIsIncoming() !== false) {
       params = {};
-      params.transfer_type = "all"; // TODO: suppport all | available | unavailable 'types'
-//      let outputs = [];
+      params.transfer_type = "all"; // TODO: suppport all | available | unavailable
       for (let accountIdx of indices.keys()) {
         
         // semd request
@@ -299,21 +294,15 @@ class MoneroWalletRpc extends MoneroWallet {
         params.subaddr_indices = filter.getSubaddressIndices(); // undefined subaddr_indices will fetch all incoming_transfers
         let resp = await this.config.rpc.sendJsonRequest("incoming_transfers", params);
         
-        // convert response to outputs
+        // convert response to txs with payments with output
         if (resp.transfers === undefined) continue;
-        for (let rpcOutput of resp.transfers) {
-          if (rpcOutput.tx_hash === debugTxId) console.log(rpcOutput);
-          let tx = MoneroWalletRpc._buildTxWalletOutput(rpcOutput);
-          console.log(tx);  // TODO: READY TO MERGE WITH EVERYTHING
+        for (let rpcTx of resp.transfers) {
+          if (rpcTx.tx_hash === debugTxId) console.log(rpcTx);
+          let tx = MoneroWalletRpc._buildTxWalletOutput(rpcTx);
+          tx.setIsIncoming(true);
+          MoneroWalletRpc._mergeTx(txs, tx);
         }
       }
-      
-      // add outputs to payments
-      // TODO: need to correlate output with payment, currently dropping  ** HERE **
-//      for (let output of outputs) {
-//        //console.log(output.toString());
-//      }
-      //throw new Error("Not implemented"); // TODO
     }
     
     // filter final result
@@ -426,7 +415,7 @@ class MoneroWalletRpc extends MoneroWallet {
         tx.setIsConfirmed(false);
         tx.setInTxPool(true);
         tx.setMixin(config.getMixin());
-        MoneroWalletRpc._addTx(txs, tx, true);
+        MoneroWalletRpc._mergeTx(txs, tx);
       }
       
       // fetch transactions by id and merge complete data
@@ -439,7 +428,7 @@ class MoneroWalletRpc extends MoneroWallet {
         filter.setAccountIndex(accountIdx);
         filter.setTxIds(ids);
         filter.setIncoming(false);
-        for (let tx of getTxs(filter)) MoneroWalletRpc._addTx(txs, tx, true);
+        for (let tx of getTxs(filter)) MoneroWalletRpc._mergeTx(txs, tx);
       }
     }
     
@@ -950,19 +939,19 @@ class MoneroWalletRpc extends MoneroWallet {
    * 
    * @param txs are existing transactions to merge into
    * @param tx is the transaction to merge into the existing txs
-   * @param mergePayments specifies if payments should be merged with xor appended to existing payments
    */
-  static _addTx(txs, tx, mergePayments) {
+  static _mergeTx(txs, tx) {
     assert(tx.getId() !== undefined);
     assert(tx.getIsIncoming() !== undefined);
-    let mergedTx;
+    let merged = false;
     for (let aTx of txs) {
       if (aTx.getId() === tx.getId() && aTx.getIsIncoming() === tx.getIsIncoming()) {
-        aTx.merge(tx, mergePayments);
-        mergedTx = aTx;
+        aTx.merge(tx);
+        merged = true;
+        break;
       }
     }
-    if (mergedTx === undefined) txs.push(tx);  // add tx if it wasn't merged
+    if (!merged) txs.push(tx);  // add tx if it wasn't merged
   }
   
   /**

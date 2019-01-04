@@ -91,7 +91,7 @@ class MoneroUtils {
     }
     
     // otherwise cannot reconcile
-    throw new Error("Cannot reconcile values " + val1 + " and " + val2 + " with config " + JSON.stringify(config));
+    throw new Error("Cannot reconcile values " + val1 + " and " + val2 + " with config: " + JSON.stringify(config));
   }
   
   // TODO: beef this up

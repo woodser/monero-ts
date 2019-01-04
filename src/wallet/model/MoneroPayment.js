@@ -1,3 +1,4 @@
+const assert = require("assert");
 const MoneroUtils = require("../../utils/MoneroUtils");
 
 /**
@@ -77,10 +78,17 @@ class MoneroPayment {
     
     // merge outputs
     if (this.getOutputs() === undefined) this.setOutputs(payment.getOutputs());
-    else if (payment.getOutputs() !== undefined) {
-      assert.equal(this.getOutputs().length, payment.getOutputs().length);
-      for (let i = 0; i < this.getOutputs().length; i++) {
-        this.getOutputs()[i].merge(payment.getOutputs()[i]);
+    else if (payment.getOutputs()) {
+      for (let newOutput of payment.getOutputs()) {
+        let merged = false;
+        for (let oldOutput of this.getOutputs()) {
+          if (oldOutput.getKeyImage() === newOutput.getKeyImage()) {
+            oldOutput.merge(newOutput);
+            merged = true;
+            break;
+          }
+        }
+        if (!merged) this.getOutputs().push(merged);
       }
     }
   }
@@ -90,7 +98,7 @@ class MoneroPayment {
     str += MoneroUtils.kvLine("Address", this.getAddress(), indent);
     str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
     str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
-    str += MoneroUtils.kvLine("Amount", this.getAmount().toString(), indent);
+    str += MoneroUtils.kvLine("Amount", this.getAmount() ? this.getAmount().toString() : undefined, indent);
     if (this.getOutputs()) {
       str += MoneroUtils.kvLine("Outputs", "", indent);
       for (let i = 0; i < this.getOutputs().length; i++) {

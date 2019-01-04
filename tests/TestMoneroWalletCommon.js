@@ -1595,7 +1595,7 @@ class TestMoneroWalletCommon {
           else assert.equal(2, fetchedTxs.length % 2);        // one incoming and one outgoing per sent tx
           
           // test fetched txs
-          testOutInPairs(fetchedTxs);
+          await testOutInPairs(fetchedTxs);
                     
           // merge fetched txs into updated txs and original sent txs
           for (let fetchedTx of fetchedTxs) {
@@ -1631,7 +1631,7 @@ class TestMoneroWalletCommon {
         for (let tx1 of txs) {
           for (let tx2 of txs) {
             if (tx1 === tx2) continue;
-            if (tx1.getId() === txs2.getId()) {
+            if (tx1.getId() === tx2.getId()) {
               if (tx1.getIsOutgoing()) await testOutInPair(tx1, tx2, sendConfig);
               else await testOutInPair(tx2, tx1, sendConfig);
             }
