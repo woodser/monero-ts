@@ -130,7 +130,8 @@ class MoneroTxWallet extends MoneroTx {
     if (this.getPayments() === undefined) this.setPayments(tx.getPayments());
     else if (tx.getPayments() !== undefined) {
       if (mergePayments) {
-        assert(tx.getPayments().length >= 0, "Tx " + tx.getId() + " cannot be merged because payments are different sizes");
+        assert(tx.getPayments().length >= 0);
+        assert.equal(this.getPayments().length, tx.getPayments().length, "Merging payments must be same size"); // TODO: not so!  because of occlusion issue and no incoming_transfers, should get additional payment when change tx becomes known
         for (let i = 0; i < this.json.payments.length; i++) {
           this.getPayments()[i].merge(tx.getPayments()[i]);
         }

@@ -39,6 +39,7 @@ build process to not read mymonero-core-js build and contrib to browser build
 update on save B-)
 
 RPC QUESTIONS / SUGGESTIONS
-introduce way to identify change output from blockchain? that solves occlusion issue
+show_transfers returns unconfirmed outputs
+introduce way to identify change output from blockchain? that solves unknown sent amt issue
 identify one call per acount/subaddress and support "all" flag
 /get_transactions returns duplicate data per transaction
