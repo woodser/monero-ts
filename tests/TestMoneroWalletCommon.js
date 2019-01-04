@@ -1932,7 +1932,7 @@ async function testTxPayments(wallet, tx) {
     
     // test payment outputs
     if (tx.getIsOutgoing()) assert.equal(undefined, tx.getOutputs()); // outgoing txs do not have outputs
-    else (tx.getIsConfirmed()) assert(tx.getOutputs().length > 0);    // confirmed incoming txs always have outputs
+    else if (tx.getIsConfirmed()) assert(tx.getOutputs().length > 0);    // confirmed incoming txs always have outputs
     if (tx.getOutputs()) testPaymentOutputs(payment);                  // unconfirmed txs may or may not have outputs  // TODO monero-wallet-rpc: why does incoming_transfers sometimes report unconfirmed incoming outputs? can it always?
   }
   
