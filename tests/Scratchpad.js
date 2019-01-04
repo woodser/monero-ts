@@ -14,7 +14,7 @@ describe("Scratchpad", function() {
     let wallet = TestUtils.getWalletRpc();
     await TestUtils.initWalletRpc();
 
-    //await daemon.stopMining();
+    await daemon.stopMining();
     
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();

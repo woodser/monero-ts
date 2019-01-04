@@ -7,7 +7,7 @@ const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 //  testNotifications: true
 //});
 
-//// test wallet rpc
+// test wallet rpc
 new TestMoneroWalletRpc().runTests({
   testNonSends: false,
   liteMode: true, // skips some lengthy tests // TODO: lengthy tests still need to be runnable but getting test timeout
