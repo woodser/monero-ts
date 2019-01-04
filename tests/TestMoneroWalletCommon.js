@@ -1743,6 +1743,7 @@ async function testTxWalletGet(wallet, tx, unbalancedTxIds, hasOutgoingPayments)
   else await testTxWalletGetOutgoing(wallet, tx, unbalancedTxIds, hasOutgoingPayments);
 }
 
+// TODO: test all fields
 async function testTxWalletGetIncoming(wallet, tx) {
   
   // test state
