@@ -541,6 +541,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
   /**
    * Transfers RPC tx fields to a given MoneroTx without overwriting previous values.
    * 
+   * TODO: switch from safe set
+   * 
    * @param rpcTx is the RPC map containing transaction fields
    * @param tx is the MoneroTx to populate with values (optional)
    * @returns tx is the same tx that was passed in or a new one if none given
