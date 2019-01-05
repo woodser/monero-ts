@@ -1976,7 +1976,7 @@ async function testTxPayments(wallet, tx) {
       assert(tx.getOutputs());
       let subaddrOutputs = [];
       let outputSum = new BigInteger(0);
-      for (let output of tx.getOutputs().length) {
+      for (let output of tx.getOutputs()) {
         if (output.getAccountIndex() === payment.getAccountIndex() && output.getSubaddressIndex() === payment.getSubaddressIndex()) {
           subaddrOutputs.push(output);
           outputSum = outputSum.add(output.getAmount());

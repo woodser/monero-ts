@@ -97,8 +97,7 @@ class MoneroTxWallet extends MoneroTx {
   }
   
   toJson() {
-    let json = super.toJson();
-    Object.assign(json, this.state);
+    let json = Object.assign({}, this.state, super.toJson()); // merge json onto native state
     if (this.getTotalAmount()) json.totalAmount = this.getTotalAmount().toString();
     if (this.getPayments()) {
       json.payments = [];
