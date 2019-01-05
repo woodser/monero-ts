@@ -279,11 +279,6 @@ class MoneroWalletRpc extends MoneroWallet {
           if (rpcTx.txid === debugTxId) console.log(rpcTx);
           let tx = MoneroWalletRpc._buildTxWallet(rpcTx);
           MoneroWalletRpc._mergeTx(txs, tx);
-          if (tx.getId() === debugTxId) {
-            console.log("RESUTING TX");
-            console.log(tx.toString());
-            
-          }
           
           // special case: tx sent from/to same account can have amount 0 
           if (tx.getIsOutgoing() && tx.getIsRelayed() && !tx.getIsFailed() && tx.getTotalAmount().compare(new BigInteger(0)) === 0) {
@@ -329,7 +324,6 @@ class MoneroWalletRpc extends MoneroWallet {
         for (let rpcTx of resp.transfers) {
           if (rpcTx.tx_hash === debugTxId) console.log(rpcTx);
           let tx = MoneroWalletRpc._buildTxWalletOutput(rpcTx);
-          tx.setIsIncoming(true);
           MoneroWalletRpc._mergeTx(txs, tx);
         }
       }
@@ -833,7 +827,14 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   static _buildTxWalletOutput(rpcOutput) {
+    
+    // initialize tx
     let tx = new MoneroTxWallet();
+    tx.setIsIncoming(true);
+    tx.setIsFailed(false);
+    tx.setIsRelayed(true);
+    
+    // initialize output
     let output = new MoneroOutput();
     let accountIdx;
     let subaddressIdx;
@@ -852,6 +853,8 @@ class MoneroWalletRpc extends MoneroWallet {
       }
       else console.log("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
     }
+    
+    // initialize payment with output
     let payment = new MoneroPayment();
     payment.setAccountIndex(accountIdx);
     payment.setSubaddressIndex(subaddressIdx);
@@ -929,6 +932,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsIncoming(true);
       tx.setIsConfirmed(true);
       tx.setInTxPool(false);
+      tx.setIsFailed(false);
       tx.setIsCoinbase(false);
     } else if (rpcType === "out") {
       tx.setIsIncoming(false);
@@ -941,6 +945,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsIncoming(true);
       tx.setIsConfirmed(false);
       tx.setInTxPool(true);
+      tx.setIsFailed(false);
       tx.setIsCoinbase(false);  // TODO: but could it be?
     } else if (rpcType === "pending") {
       tx.setIsIncoming(false);

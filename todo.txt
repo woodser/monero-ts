@@ -40,6 +40,7 @@ build process to not read mymonero-core-js build and contrib to browser build
 update on save B-)
 
 RPC QUESTIONS / SUGGESTIONS
+can outputs be associated with outgoing tx without wallet data?
 send from/to same account, after first confirmation outgoing tx amount is 0 but has payments with amts, so discrepency
 show_transfers returns unconfirmed outputs
 introduce way to identify change output from blockchain? that solves unknown sent amt issue
