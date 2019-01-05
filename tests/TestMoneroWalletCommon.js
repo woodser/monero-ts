@@ -1832,6 +1832,9 @@ async function testTxWalletGetIncoming(wallet, tx) {
   
   // test payments
   await testTxPayments(wallet, tx);
+  
+  // test outputs
+  testTxOutputs(tx);
 }
 
 async function testTxWalletGetOutgoing(wallet, tx, unbalancedTxIds, hasOutgoingPayments) {
@@ -1890,6 +1893,9 @@ async function testTxWalletGetOutgoing(wallet, tx, unbalancedTxIds, hasOutgoingP
   if (hasOutgoingPayments === false) assert.equal(undefined, tx.getPayments());
   else if (hasOutgoingPayments === true || tx.getPayments()) await testTxPayments(wallet, tx);
   
+  // test outputs
+  testTxOutputs(tx);
+  
   // TODO: test failed
 }
 
@@ -1944,6 +1950,9 @@ async function testTxWalletSend(tx, config, hasKey, hasPayments, wallet) {
     assert.deepEqual(config.getPayments(), tx.getPayments());
   }
   if (tx.getPayments()) await testTxPayments(wallet, tx);
+  
+  // test outputs
+  testTxOutputs(tx);
 }
 
 async function testTxPayments(wallet, tx) {
@@ -1953,50 +1962,61 @@ async function testTxPayments(wallet, tx) {
   // test individual payments
   let paymentTotal = new BigInteger();
   for (let payment of tx.getPayments()) {
-    if (!payment.getAddress()) {
-      console.log(tx.toString());
-    }
-    
     assert(payment.getAddress());
+    TestUtils.testUnsignedBigInteger(payment.getAmount());
+    paymentTotal = paymentTotal.add(payment.getAmount());
+    
+    // test incoming payment
     if (tx.getIsIncoming()) {
       assert(payment.getAccountIndex() >= 0);
       assert(payment.getSubaddressIndex() >= 0);
       assert.equal(await wallet.getAddress(payment.getAccountIndex(), payment.getSubaddressIndex()), payment.getAddress());
+      
+      // outputs add up to payments unless payment 0 where one send output and one change output is expected but impossible to differentiate
+      assert(tx.getOutputs());
+      let subaddrOutputs = [];
+      let outputSum = new BigInteger(0);
+      for (let output of tx.getOutputs().length) {
+        if (output.getAccountIndex() === payment.getAccountIndex() && output.getSubaddressIndex() === payment.getSubaddressIndex()) {
+          subaddrOutputs.push(output);
+          outputSum = outputSum.add(output.getAmount());
+        }
+      }
+      if (payment.getAmount().compare(new BigInteger(0)) === 0) assert(subaddrOutputs.length > 1);
+      else assert.equal(0, outputSum.compare(payment.getAmount()), "Outputs do not add up to payment amount");
     }
-    TestUtils.testUnsignedBigInteger(payment.getAmount());
-    paymentTotal = paymentTotal.add(payment.getAmount());
     
-    // test payment outputs
-    if (tx.getIsOutgoing()) assert.equal(undefined, payment.getOutputs());  // outgoing txs do not have outputs
-    else if (tx.getIsConfirmed()) assert(payment.getOutputs().length > 0);  // confirmed incoming txs always have outputs
-    if (payment.getOutputs()) testPaymentOutputs(payment);                  // unconfirmed txs may or may not have outputs  // TODO monero-wallet-rpc: why does incoming_transfers sometimes report unconfirmed incoming outputs? can it always?
+    // test outgoing payment
+    else {
+      assert.equal(undefined, payment.getAccountIndex());
+      assert.equal(undefined, payment.getSubaddressIndex());
+    }
   }
   
   // test that payment amounts add up to tx amount
   assert.equal(0, paymentTotal.compare(tx.getTotalAmount()), "Payment amounts do not add up to tx amount");
 }
 
-function testPaymentOutputs(payment) {
-  assert(payment.getOutputs());
-  assert(payment.getOutputs().length > 0);
+function testTxOutputs(tx) {
+  
+  // test output existence
+  if (!tx.getIsConfirmed()) assert.equal(undefined, tx.getOutputs());     // unconfirmed txs do not have outputs
+  else if (tx.getIsOutgoing()) assert.equal(undefined, tx.getOutputs());  // outgoing txs do not have outputs
+  else {
+    assert(tx.getIsIncoming());
+    assert(tx.getIsConfirmed());
+    assert(tx.getOutputs());
+    assert(tx.getOutputs().length > 0);
+  }
   
   // test each output
-  let outputTotal = new BigInteger(0);
-  for (let output of payment.getOutputs()) {
-    TestUtils.testUnsignedBigInteger(output.getAmount(), true);
-    assert.equal("boolean", typeof output.getIsSpent());
+  for (let output of tx.getOutputs()) {
     assert(output.getKeyImage());
-    outputTotal = outputTotal.add(output.getAmount());
-  }
-  
-  // edge case: impossible to determine amount sent from/to same account, so tx amount is 0
-  if (payment.getAmount().compare(new BigInteger(0)) === 0) {
-    assert(payment.getOutputs().length > 1);  // includes change output
-  }
-  
-  // otherwise outputs add up to payment except extra change output
-  else {
-    assert.equal(0, outputTotal.compare(payment.getAmount()));  // TODO: will fail because we still get change tx which won't add up to payment amt
+    TestUtils.testUnsignedBigInteger(output.getAmount(), true);
+    assert(output.getAccountIndex() >= 0);
+    assert(output.getSubaddressIndex() >= 0);
+    assert(output.getIndex() >= 0);
+    assert.equal("boolean", typeof output.getIsSpent());
   }
 }
 
