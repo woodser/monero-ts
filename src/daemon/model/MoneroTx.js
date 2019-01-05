@@ -249,6 +249,10 @@ class MoneroTx extends MoneroDaemonModel {
     return this.state.vout;
   }
   
+  setVout(vout) {
+    this.state.vout = vout;
+  }
+  
   getOutputs() {
     return this.state.outputs;
   }
@@ -256,11 +260,7 @@ class MoneroTx extends MoneroDaemonModel {
   setOutputs(outputs) {
     this.state.outputs = outputs;
   }
-  
-  setVout(vout) {
-    this.state.vout = vout;
-  }
-  
+
   getRctSignatures() {
     return this.state.rctSignatures;
   }
