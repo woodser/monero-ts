@@ -319,7 +319,7 @@ class MoneroWalletRpc extends MoneroWallet {
         params.subaddr_indices = filter.getSubaddressIndices(); // undefined subaddr_indices will fetch all incoming_transfers
         let resp = await this.config.rpc.sendJsonRequest("incoming_transfers", params);
         
-        // convert response to txs with payments with output
+        // convert response to txs with outputs and merge
         if (resp.transfers === undefined) continue;
         for (let rpcTx of resp.transfers) {
           if (rpcTx.tx_hash === debugTxId) console.log(rpcTx);
@@ -836,8 +836,6 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // initialize output
     let output = new MoneroOutput();
-    let accountIdx;
-    let subaddressIdx;
     for (let key of Object.keys(rpcOutput)) {
       let val = rpcOutput[key];
       if (key === "amount") output.setAmount(new BigInteger(val));
@@ -846,20 +844,14 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "global_index") output.setIndex(val);
       else if (key === "tx_hash") tx.setId(val);
       else if (key === "subaddr_index") {
-        assert(val.major !== undefined);
-        assert(val.minor !== undefined);
-        accountIdx = val.major;
-        subaddressIdx = val.minor;
+        output.setAccountIndex(val.major);
+        output.setSubaddressIndex(val.minor);
       }
       else console.log("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
     }
     
-    // initialize payment with output
-    let payment = new MoneroPayment();
-    payment.setAccountIndex(accountIdx);
-    payment.setSubaddressIndex(subaddressIdx);
-    payment.setOutputs([output]);
-    tx.setPayments([payment]);
+    // initialize tx with output
+    tx.setOutputs([output]);
     return tx;
   }
   

@@ -20,6 +20,11 @@ class MoneroTx extends MoneroDaemonModel {
     // deserialize json
     if (!json) return;
     if (json.fee) this.setFee(BigInteger.parse(json.fee));
+    if (json.outputs) {
+      let outputs = [];
+      for (let jsonOutput of json.outputs) outputs.push(new MoneroOutput(jsonOutput));
+      this.setOutputs(outputs);
+    }
   }
   
   getId() {
@@ -238,8 +243,17 @@ class MoneroTx extends MoneroDaemonModel {
     this.state.vin = vin;
   }
   
+  // TODO: replace with getOutputs()
   getVout() {
     return this.state.vout;
+  }
+  
+  getOutputs() {
+    return this.state.outputs;
+  }
+  
+  setOutputs(outputs) {
+    this.state.outputs = outputs;
   }
   
   setVout(vout) {
@@ -326,6 +340,10 @@ class MoneroTx extends MoneroDaemonModel {
   toJson() {
     let json = Object.assign({}, this.state);
     if (this.getFee()) json.fee = this.getFee().toString();
+    if (this.getOutputs()) {
+      json.outputs = [];
+      for (let output of this.getOutputs()) json.outputs.push(output.toJson());
+    }
     return json;
   }
   
@@ -367,6 +385,16 @@ class MoneroTx extends MoneroDaemonModel {
     str += MoneroUtils.kvLine("Max used block height", this.getMaxUsedBlockHeight(), indent);
     str += MoneroUtils.kvLine("Max used block id", this.getMaxUsedBlockId(), indent);
     str += MoneroUtils.kvLine("Signatures", this.getSignatures(), indent);
+    if (this.getOutputs()) {
+      str += MoneroUtils.kvLine("Outputs", "", indent);
+      for (let i = 0; i < this.getOutputs().length; i++) {
+        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
+        str += this.getOutputs()[i].toString(indent + 2);
+        str += '\n'
+      }
+    } else {
+      str += MoneroUtils.kvLine("Outputs", this.getOutputs(), indent);
+    }
     return str.slice(0, str.length - 1);  // strip last newline
   }
   
@@ -378,7 +406,6 @@ class MoneroTx extends MoneroDaemonModel {
    * @param tx is the transaction to merge into this one
    */
   merge(tx) {
-    
     this.setId(MoneroUtils.reconcile(this.getId(), tx.getId()));
     this.setVersion(MoneroUtils.reconcile(this.getVersion(), tx.getVersion()));
     this.setPaymentId(MoneroUtils.reconcile(this.getPaymentId(), tx.getPaymentId()));
@@ -414,8 +441,21 @@ class MoneroTx extends MoneroDaemonModel {
     this.setBlockTimestamp(MoneroUtils.reconcile(this.getBlockTimestamp(), tx.getBlockTimestamp(), {resolveMax: true}));  // block timestamp can increase
     this.setConfirmationCount(MoneroUtils.reconcile(this.getConfirmationCount(), tx.getConfirmationCount(), {resolveMax: true})); // confirmation count can increase
     
-    
-    
+    // merge outputs
+    if (this.getOutputs() === undefined) this.setOutputs(tx.getOutputs());
+    else if (tx.getOutputs()) {
+      for (let merger of tx.getOutputs()) {
+        let merged = false;
+        for (let mergee of this.getOutputs()) {
+          if (mergee.getKeyImage() === merger.getKeyImage()) {
+            mergee.merge(merger);
+            merged = true;
+            break;
+          }
+        }
+        if (!merged) this.getOutputs().push(merger);
+      }
+    }
     
 //    // merge height
 //    if (this.getHeight() >= 0 || tx.getHeight() >= 0) {

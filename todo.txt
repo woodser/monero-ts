@@ -1,4 +1,7 @@
 HIGH
+common tx tests need cleanup
+one place to test wallet accounting with txs (unspent outputs = wallet balance, incoming amts = outgoing amts, etc)
+set subaddress getUnspentOutputCount() with outputs assigned
 tx serialization and deserialization tests
 GC error if tx.merge input === tx, test specifically
 how to handle 'confirmations' block height to add the tx to the chain if unconfirmed? corallary of unlock time?
