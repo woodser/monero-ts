@@ -1,44 +1,58 @@
 const MoneroUtils = require("../../utils/MoneroUtils");
+const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
  * Represents a transaction output.
+ * 
+ * TODO: this goes in daemon model when modeling daemon outputs
  */
 class MoneroOutput {
   
   constructor(json) {
-    this.json = Object.assign({}, json);
+    this.state = Object.assign({}, json);
+    if (json && json.amount) this.setAmount(BigInteger.parse(json.amount));
   }
   
   getKeyImage() {
-    return this.json.keyImage;
+    return this.state.keyImage;
   }
 
   setKeyImage(keyImage) {
-    this.json.keyImage = keyImage;
+    this.state.keyImage = keyImage;
   }
   
   getAmount() {
-    return this.json.amount;
+    return this.state.amount;
   }
 
   setAmount(amount) {
-    this.json.amount = amount;
+    this.state.amount = amount;
   }
   
   getIndex() {
-    return this.json.index;
+    return this.state.index;
   }
   
   setIndex(index) {
-    this.json.index = index;
+    this.state.index = index;
   }
   
   getIsSpent() {
-    return this.json.isSpent;
+    return this.state.isSpent;
   }
 
   setIsSpent(isSpent) {
-    this.json.isSpent = isSpent;
+    this.state.isSpent = isSpent;
+  }
+  
+  copy() {
+    return new MoneroOutput(this.toJson());
+  }
+  
+  toJson() {
+    let json = Object.assign({}, this.state);
+    if (this.getAmount()) json.amount = this.getAmount().toString();
+    return json;
   }
   
   merge(output) {

@@ -1,5 +1,7 @@
 const assert = require("assert");
+const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroUtils = require("../../utils/MoneroUtils");
+const MoneroOutput = require("./MoneroOutput");
 
 /**
  * Represents a payment on the Monero network to an address.
@@ -11,56 +13,86 @@ class MoneroPayment {
   /**
    * Constructs the model.
    * 
-   * @param json is existing JSON to construct the model from (optional)
+   * @param jsonOrAddress is JSON to construct the model or an address (optional)
    */
   constructor(jsonOrAddress, amount) {
-    if (typeof jsonOrAddress === "string") {
-      this.json = {};
+    if (jsonOrAddress === undefined || typeof jsonOrAddress === "string") {
+      this.state = {};
       this.setAddress(jsonOrAddress);
       this.setAmount(amount);
     } else {
-      this.json = Object.assign({}, jsonOrAddress);
+      
+      // deserialize json
+      let json = jsonOrAddress;
+      this.state = Object.assign({}, json);
+      if (json.amount) this.setAmount(BigInteger.parse(json.amount));
+      if (json.outputs) {
+        let outputs = [];
+        for (let jsonOutput of json.outputs) outputs.push(new MoneroOutput(jsonOutput));
+        this.setOutputs(outputs);
+      }
     }
   }
   
   getAddress() {
-    return this.json.address;
+    return this.state.address;
   }
 
   setAddress(address) {
-    this.json.address = address;
+    this.state.address = address;
   }
 
   getAccountIndex() {
-    return this.json.accountIndex;
+    return this.state.accountIndex;
   }
 
   setAccountIndex(accountIndex) {
-    this.json.accountIndex = accountIndex;
+    this.state.accountIndex = accountIndex;
   }
 
   getSubaddressIndex() {
-    return this.json.subaddressIndex;
+    return this.state.subaddressIndex;
   }
 
   setSubaddressIndex(subaddressIndex) {
-    this.json.subaddressIndex = subaddressIndex;
+    this.state.subaddressIndex = subaddressIndex;
   }
 
   getAmount() {
-    return this.json.amount;
+    return this.state.amount;
   }
 
   setAmount(amount) {
-    this.json.amount = amount;
+    this.state.amount = amount;
   }
   
   getOutputs() {
-    return this.json.outputs;
+    return this.state.outputs;
   }
   
   setOutputs(outputs) {
-    this.json.outputs = outputs;
+    if (outputs) {
+      assert(Array.isArray(outputs));
+      for (let output of outputs) {
+        assert(output instanceof MoneroOutput);
+      }
+    }
+    
+    this.state.outputs = outputs;
+  }
+  
+  copy() {
+    return new MoneroPayment(this.toJson());
+  }
+  
+  toJson() {
+    let json = Object.assign({}, this.state);
+    if (this.getAmount()) json.amount = this.getAmount().toString()
+    if (this.getOutputs()) {
+      json.outputs = [];
+      for (let output of this.getOutputs()) json.outputs.push(output.toJson());
+    }
+    return json;
   }
 
   /**
@@ -79,16 +111,16 @@ class MoneroPayment {
     // merge outputs
     if (this.getOutputs() === undefined) this.setOutputs(payment.getOutputs());
     else if (payment.getOutputs()) {
-      for (let newOutput of payment.getOutputs()) {
+      for (let merger of payment.getOutputs()) {
         let merged = false;
-        for (let oldOutput of this.getOutputs()) {
-          if (oldOutput.getKeyImage() === newOutput.getKeyImage()) {
-            oldOutput.merge(newOutput);
+        for (let mergee of this.getOutputs()) {
+          if (mergee.getKeyImage() === merger.getKeyImage()) {
+            mergee.merge(merger);
             merged = true;
             break;
           }
         }
-        if (!merged) this.getOutputs().push(merged);
+        if (!merged) this.getOutputs().push(merger);
       }
     }
   }

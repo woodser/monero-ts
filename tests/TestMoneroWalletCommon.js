@@ -1584,18 +1584,16 @@ class TestMoneroWalletCommon {
           console.log("*** Block added to chain ***");
           
           // give wallet time to catch up, otherwise incoming tx may not appear
-          await new Promise(function(resolve) { setTimeout(resolve, 5000); });
+          await new Promise(function(resolve) { setTimeout(resolve, 5000); });  // TODO: this lets new block slip, okay?
           
           // get incoming/outgoing txs with sent ids
           let filter = new MoneroTxFilter();
           filter.setTxIds(sentTxs.map(sentTx => sentTx.getId())); // TODO: convenience methods wallet.getTxById(), getTxsById()?
           let fetchedTxs = await wallet.getTxs(filter, undefined, sentTxs[0].getId());
           assert(fetchedTxs.length > 0);
-          if (!canSplit) assert.equal(2, fetchedTxs.length);  // one incoming and one outgoing
-          else assert.equal(2, fetchedTxs.length % 2);        // one incoming and one outgoing per sent tx
           
           // test fetched txs
-          await testOutInPairs(fetchedTxs);
+          await testOutInPairs(wallet, fetchedTxs, sendConfig, that.unbalancedTxIds);
 
           // merge fetched txs into updated txs and original sent txs
           for (let fetchedTx of fetchedTxs) {
@@ -1611,9 +1609,6 @@ class TestMoneroWalletCommon {
               }
             }
             
-            // test updated txs
-            await testOutInPairs(updatedTxs);
-            
             // merge with original sent txs
             for (let sentTx of sentTxs) {
               if (fetchedTx.getId() !== sentTx.getId()) continue;
@@ -1622,29 +1617,62 @@ class TestMoneroWalletCommon {
             }
           }
           
-          // increment count
-          if (fetchedTxs[0].getIsConfirmed()) numConfirmations++;
+          // test updated txs
+          await testOutInPairs(wallet, updatedTxs, sendConfig, that.unbalancedTxIds);
+          
+          // update confirmations to exit loop
+          numConfirmations = fetchedTxs[0].getConfirmationCount();
         }
       }
       
-      async function testOutInPairs(txs, sendConfig) {
-        for (let tx1 of txs) {
+      async function testOutInPairs(wallet, txs, sendConfig, unbalancedTxIds) {
+        
+        // for each out tx
+        let txOut;
+        for (let tx of txs) {
+          await testUnlockTx(wallet, tx, sendConfig, unbalancedTxIds);
+          if (!tx.getIsOutgoing()) continue;
+          let txOut = tx;
+          
+          // find incoming counterpart
+          let txIn;
           for (let tx2 of txs) {
-            if (tx1 === tx2) continue;
-            if (tx1.getId() === tx2.getId()) {
-              if (tx1.getIsOutgoing()) await testOutInPair(tx1, tx2, sendConfig);
-              else await testOutInPair(tx2, tx1, sendConfig);
+            if (tx2.getIsIncoming() && tx.getId() == tx2.getId()) {
+              txIn = tx2;
+              break;
             }
+          }
+          
+          // test out / in pair
+          // TODO monero-wallet-rpc: incoming txs occluded by their outgoing counterpart #4500
+          if (!txIn) {
+            assert.equal(true, txOut.getInTxPool());
+            if (txOut.getTotalAmount().toJSValue() === 0) {
+              console.log(txOut.toString());
+            }
+            assert(txOut.getTotalAmount().toJSValue() > 0); // counterpart only fabricated for 0 amt txs
+            console.log("WARNING: unconfirmed outgoing tx " + txOut.getId() + " missing incoming counterpart (issue #4500)");
+          } else {
+            await testOutInPair(txOut, txIn);
           }
         }
       }
       
-      async function testOutInPair(txOut, txIn, sendConfig) {
+      async function testOutInPair(txOut, txIn) {
+        assert.equal(txOut.getIsConfirmed(), txIn.getIsConfirmed());
         assert.equal(0, txOut.getTotalAmount().compare(txIn.getTotalAmount()));
-        await testTxWalletGet(wallet, txOut, that.unbalancedTxIds, true);
-        await testTxWalletGet(wallet, txIn, that.unbalancedTxIds);
-        assert.equal(sendConfig.getUnlockTime(), txOut.getUnlockTime());
-        assert.equal(sendConfig.getUnlockTime(), txIn.getUnlockTime());
+      }
+      
+      async function testUnlockTx(wallet, tx, sendConfig, unbalancedTxIds) {
+        
+        try {
+          await testTxWalletGet(wallet, tx, unbalancedTxIds);
+        } catch (e) {
+          console.log("This tx failed");
+          console.log(tx.toString());
+          throw e;
+        }
+        assert.equal(sendConfig.getUnlockTime(), tx.getUnlockTime()); // TODO: send config as part of test, then this fn not necessary
       }
     });
   }
@@ -1717,6 +1745,8 @@ function testTxWalletCommon(tx) {
   assert.equal("boolean", typeof tx.getInTxPool());
   
   // test copy
+  // TODO: test modifying to ensure deep copy, break into its own test
+  if (tx.getFee() !== undefined) assert(tx.getFee() instanceof BigInteger);
   let copy = tx.copy();
   assert(copy instanceof MoneroTxWallet);
   assert.deepEqual(tx, copy);
@@ -1858,7 +1888,7 @@ async function testTxWalletGetOutgoing(wallet, tx, unbalancedTxIds, hasOutgoingP
   
   // test payments
   if (hasOutgoingPayments === false) assert.equal(undefined, tx.getPayments());
-  else if (hasOutgoingPayments === true || tx.getPayments()) await testTxPayments(tx.getPayments());
+  else if (hasOutgoingPayments === true || tx.getPayments()) await testTxPayments(wallet, tx);
   
   // TODO: test failed
 }
@@ -1939,7 +1969,7 @@ async function testTxPayments(wallet, tx) {
   }
   
   // test that payment amounts add up to tx amount
-  assert.equal(0, paymentTotal.compare(tx.getTotalAmount()));
+  assert.equal(0, paymentTotal.compare(tx.getTotalAmount()), "Payment amounts do not add up to tx amount");
 }
 
 function testPaymentOutputs(payment) {

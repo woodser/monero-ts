@@ -2,27 +2,42 @@ const assert = require("assert");
 const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroUtils = require("../../utils/MoneroUtils");
 const MoneroTx = require("../../daemon/model/MoneroTx");
+const MoneroPayment = require("../../wallet/model/MoneroPayment");
 
 /**
  * Models a Monero transaction with additional fields in the context of a wallet.
  */
 class MoneroTxWallet extends MoneroTx {
   
+  /**
+   * Constructs the model.
+   * 
+   * @param json is JSON to construct the model (optional)
+   */
   constructor(json) {
     super(json);
+    
+    // deserialize json
+    if (!json) return;
+    if (json.totalAmount) this.setTotalAmount(BigInteger.parse(json.totalAmount));
+    if (json.payments) {
+      let payments = [];
+      for (let jsonPayment of json.payments) payments.push(new MoneroPayment(jsonPayment));
+      this.setPayments(payments);
+    }
   }
   
   getIsIncoming() {
-    return this.json.isIncoming;
+    return this.state.isIncoming;
   }
   
   setIsIncoming(isIncoming) {
-    this.json.isIncoming = isIncoming;
+    this.state.isIncoming = isIncoming;
   }
   
   getIsOutgoing() {
-    if (this.json.isIncoming === undefined) return undefined;
-    return !this.json.isIncoming;
+    if (this.state.isIncoming === undefined) return undefined;
+    return !this.state.isIncoming;
   }
   
   setIsOutgoing(isOutgoing) {
@@ -30,60 +45,66 @@ class MoneroTxWallet extends MoneroTx {
   }
   
   getTotalAmount() {
-    return this.json.totalAmount;
+    return this.state.totalAmount;
   }
   
   setTotalAmount(totalAmount) {
-    this.json.totalAmount = totalAmount;
+    this.state.totalAmount = totalAmount;
   }
   
   getPayments() {
-    return this.json.payments;
+    return this.state.payments;
   }
   
   setPayments(payments) {
-    this.json.payments = payments;
+    this.state.payments = payments;
   }
   
   getSrcAccountIndex() {
-    return this.json.srcAccountIndex;
+    return this.state.srcAccountIndex;
   }
   
   setSrcAccountIndex(srcAccountIndex) {
-    this.json.srcAccountIndex = srcAccountIndex;
+    this.state.srcAccountIndex = srcAccountIndex;
   }
   
   getSrcSubaddressIndex() {
-    return this.json.srcSubaddrIndex;
+    return this.state.srcSubaddrIndex;
   }
   
   setSrcSubaddressIndex(srcSubaddrIndex) {
-    this.json.srcSubaddrIndex = srcSubaddrIndex;
+    this.state.srcSubaddrIndex = srcSubaddrIndex;
   }
   
   getSrcAddress() {
-    return this.json.srcAddress;
+    return this.state.srcAddress;
   }
   
   setSrcAddress(srcAddress) {
-    this.json.srcAddress = srcAddress;
+    this.state.srcAddress = srcAddress;
   }
   
   getNote() {
-    return this.json.note;
+    return this.state.note;
   }
   
   setNote(note) {
-    this.json.note = note;
+    this.state.note = note;
   }
   
   copy() {
-    return new MoneroTxWallet(Object.assign({}, this.json));  // create tx with copied json
+    return new MoneroTxWallet(this.toJson());
   }
   
   toJson() {
-    return this.json; // TODO: correctly serialize complex types
-    //throw new Error("Not implemented");
+    let json = super.toJson();
+    Object.assign(json, this.state);
+    if (this.getTotalAmount()) json.totalAmount = this.getTotalAmount().toString();
+    if (this.getPayments()) {
+      json.payments = [];
+      for (let payment of this.getPayments()) json.payments.push(payment.toJson());
+    }
+    return json;
   }
   
   toString(indent = 0) {
@@ -123,23 +144,25 @@ class MoneroTxWallet extends MoneroTx {
     // merge payments
     if (this.getPayments() === undefined) this.setPayments(tx.getPayments());
     else if (tx.getPayments()) {
-      for (let newPayment of tx.getPayments()) {
+      for (let merger of tx.getPayments()) {
         let merged = false;
-        for (let oldPayment of this.getPayments()) {
-          if (oldPayment.getAccountIndex() === newPayment.getAccountIndex() && oldPayment.getSubaddressIndex() === newPayment.getSubaddressIndex()) {
-            oldPayment.merge(newPayment);
+        for (let mergee of this.getPayments()) {
+          if (mergee.getAccountIndex() === merger.getAccountIndex() && mergee.getSubaddressIndex() === merger.getSubaddressIndex()) {
+            mergee.merge(merger);
             merged = true;
             break;
           }
         }
-        if (!merged) this.getPayments().push(newPayment);
+        if (!merged) this.getPayments().push(merger);
       }
     }
     
-    // total amount is sum of payments
-    let paymentTotal = new BigInteger(0);
-    for (let payment of tx.getPayments()) paymentTotal = paymentTotal.add(payment.getAmount());
-    tx.setTotalAmount(paymentTotal);
+    // total amount is sum of payments if they exist
+    if (tx.getPayments()) {
+      let paymentTotal = new BigInteger(0);
+      for (let payment of tx.getPayments()) paymentTotal = paymentTotal.add(payment.getAmount());
+      tx.setTotalAmount(paymentTotal);
+    }
   }
 }
 

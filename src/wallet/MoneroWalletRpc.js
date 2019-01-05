@@ -232,8 +232,6 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTxs(filterOrAccountIdx, subaddressIdx, debugTxId) {
     
-    console.log("DEBUGGING WITH TXID: " + debugTxId);
-    
     // stores merged txs across calls
     let txs = [];
     
@@ -281,20 +279,35 @@ class MoneroWalletRpc extends MoneroWallet {
           if (rpcTx.txid === debugTxId) console.log(rpcTx);
           let tx = MoneroWalletRpc._buildTxWallet(rpcTx);
           MoneroWalletRpc._mergeTx(txs, tx);
+          if (tx.getId() === debugTxId) {
+            console.log("RESUTING TX");
+            console.log(tx.toString());
+            
+          }
           
-          // special case: outgoing tx is occluding incoming counterpart so fabricate
-          // TODO monero-wallet-rpc https://github.com/monero-project/monero/issues/4500
-          if (tx.getIsOutgoing() && !tx.getIsFailed() && tx.getTotalAmount().compare(new BigInteger(0)) === 0) {
-            tx = tx.copy();
-            tx.setIsIncoming(true);
-//            tx.setAddress(undefined); // TODO
-//            tx.setSrcAccountIndex(undefined);
-//            tx.setSrcSubaddressIndex(undefined);
+          // special case: tx sent from/to same account can have amount 0 
+          if (tx.getIsOutgoing() && tx.getIsRelayed() && !tx.getIsFailed() && tx.getTotalAmount().compare(new BigInteger(0)) === 0) {
+            
+            // replace tx amount with payment sum if available and different
+            // TODO monero-wallet-rpc: tx from/to same account has amount 0 but cached payments after first confirmation, still missing destinations
+            if (tx.getPayments()) {
+              let paymentTotal = new BigInteger();
+              for (let payment of tx.getPayments()) paymentTotal = paymentTotal.add(payment.getAmount());
+              if (tx.getTotalAmount().compare(paymentTotal) !== 0) tx.setTotalAmount(paymentTotal);
+            }
+            
+            // outgoing txs occlude incoming txs so fabricate
+            // TODO monero-wallet-rpc : ttps://github.com/monero-project/monero/issues/4500
+            let copy = tx.copy();
+            copy.setIsIncoming(true);
+            copy.setSrcAddress(undefined);
+            copy.setSrcAccountIndex(undefined);
+            copy.setSrcSubaddressIndex(undefined);
             if (rpcTx.txid === debugTxId) {
               console.log("FABRICATED");
-              console.log(tx.toString());
+              console.log(copy.toString());
             }
-            MoneroWalletRpc._mergeTx(txs, tx);
+            MoneroWalletRpc._mergeTx(txs, copy);
           }
         }
       }

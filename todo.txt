@@ -1,4 +1,5 @@
 HIGH
+tx serialization and deserialization tests
 GC error if tx.merge input === tx, test specifically
 how to handle 'confirmations' block height to add the tx to the chain if unconfirmed? corallary of unlock time?
 test response info of wallet.getTxs()
@@ -39,6 +40,7 @@ build process to not read mymonero-core-js build and contrib to browser build
 update on save B-)
 
 RPC QUESTIONS / SUGGESTIONS
+send from/to same account, after first confirmation outgoing tx amount is 0 but has payments with amts, so discrepency
 show_transfers returns unconfirmed outputs
 introduce way to identify change output from blockchain? that solves unknown sent amt issue
 identify one call per acount/subaddress and support "all" flag

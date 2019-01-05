@@ -1,4 +1,5 @@
 const assert = require("assert");
+const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroDaemonModel = require("./MoneroDaemonModel");
 const MoneroUtils = require("../../utils/MoneroUtils");
 
@@ -14,312 +15,318 @@ class MoneroTx extends MoneroDaemonModel {
    */
   constructor(json) {
     super();
-    this.json = json ? json : {};
+    this.state = Object.assign({}, json);
+    
+    // deserialize json
+    if (!json) return;
+    if (json.fee) this.setFee(BigInteger.parse(json.fee));
   }
   
   getId() {
-    return this.json.id;
+    return this.state.id;
   }
   
   setId(id) {
-    this.json.id = id;
+    this.state.id = id;
   }
   
   getVersion() {
-    return this.json.version;
+    return this.state.version;
   }
   
   setVersion(version) {
-    this.json.version = version;
+    this.state.version = version;
   }
   
   getIsCoinbase() {
-    return this.json.isCoinbase;
+    return this.state.isCoinbase;
   }
   
   setIsCoinbase(coinbase) {
-    this.json.isCoinbase = coinbase;
+    this.state.isCoinbase = coinbase;
   }
   
   getPaymentId() {
-    return this.json.paymentId;
+    return this.state.paymentId;
   }
   
   setPaymentId(paymentId) {
-    this.json.paymentId = paymentId;
+    this.state.paymentId = paymentId;
   }
   
   getFee() {
-    return this.json.fee;
+    return this.state.fee;
   }
   
   setFee(fee) {
-    this.json.fee = fee;
+    this.state.fee = fee;
   }
   
   getMixin() {
-    return this.json.mixin;
+    return this.state.mixin;
   }
   
   setMixin(mixin) {
-    this.json.mixin = mixin;
+    this.state.mixin = mixin;
   }
   
   getDoNotRelay() {
-    return this.json.doNotRelay;
+    return this.state.doNotRelay;
   }
   
   setDoNotRelay(doNotRelay) {
-    this.json.doNotRelay = doNotRelay;
+    this.state.doNotRelay = doNotRelay;
   }
   
   getIsRelayed() {
-    return this.json.isRelayed;
+    return this.state.isRelayed;
   }
   
   setIsRelayed(isRelayed) {
-    this.json.isRelayed = isRelayed;
+    this.state.isRelayed = isRelayed;
   }
   
   getIsConfirmed() {
-    return this.json.isConfirmed;
+    return this.state.isConfirmed;
   }
   
   setIsConfirmed(isConfirmed) {
-    this.json.isConfirmed = isConfirmed;
+    this.state.isConfirmed = isConfirmed;
   }
   
   getInTxPool() {
-    return this.json.inTxPool;
+    return this.state.inTxPool;
   }
   
   setInTxPool(inTxPool) {
-    this.json.inTxPool = inTxPool;
+    this.state.inTxPool = inTxPool;
   }
   
   getHeight() {
-    return this.json.height;
+    return this.state.height;
   }
   
   setHeight(height) {
-    this.json.height = height;
+    this.state.height = height;
   }
   
   getConfirmationCount() {
-    return this.json.confirmationCount;
+    return this.state.confirmationCount;
   }
   
   setConfirmationCount(confirmationCount) {
-    this.json.confirmationCount = confirmationCount;
+    this.state.confirmationCount = confirmationCount;
   }
   
   getBlockTimestamp() {
-    return this.json.blockTimestamp;
+    return this.state.blockTimestamp;
   }
   
   setBlockTimestamp(blockTimestamp) {
-    this.json.blockTimestamp = blockTimestamp;
+    this.state.blockTimestamp = blockTimestamp;
   }
   
   getEstimatedBlockCountUntilConfirmed() {
-    return this.json.estimatedBlockCountUntilConfirmed;
+    return this.state.estimatedBlockCountUntilConfirmed;
   }
   
   setEstimatedBlockCountUntilConfirmed(estimatedBlockCountUntilConfirmed) {
-    this.json.estimatedBlockCountUntilConfirmed = estimatedBlockCountUntilConfirmed;
+    this.state.estimatedBlockCountUntilConfirmed = estimatedBlockCountUntilConfirmed;
   }
   
   getUnlockTime() {
-    return this.json.unlockTime;
+    return this.state.unlockTime;
   }
   
   setUnlockTime(unlockTime) {
-    this.json.unlockTime = unlockTime;
+    this.state.unlockTime = unlockTime;
   }
   
   getLastRelayedTime() {
-    return this.json.lastRelayedTime;
+    return this.state.lastRelayedTime;
   }
   
   setLastRelayedTime(lastRelayedTime) {
-    this.json.lastRelayedTime = lastRelayedTime;
+    this.state.lastRelayedTime = lastRelayedTime;
   }
   
   getReceivedTime() {
-    return this.json.receivedTime;
+    return this.state.receivedTime;
   }
   
   setReceivedTime(receivedTime) {
-    this.json.receivedTime = receivedTime;
+    this.state.receivedTime = receivedTime;
   }
   
   getIsDoubleSpend() {
-    return this.json.isDoubleSpend;
+    return this.state.isDoubleSpend;
   }
   
   setIsDoubleSpend(isDoubleSpend) {
-    this.json.isDoubleSpend = isDoubleSpend;
+    this.state.isDoubleSpend = isDoubleSpend;
   }
   
   getKey() {
-    return this.json.key;
+    return this.state.key;
   }
   
   setKey(key) {
-    this.json.key = key;
+    this.state.key = key;
   }
   
   getHex() {
-    return this.json.hex;
+    return this.state.hex;
   }
   
   setHex(hex) {
-    this.json.hex = hex;
+    this.state.hex = hex;
   }
   
   getSize() {
-    return this.json.size;
+    return this.state.size;
   }
   
   setSize(size) {
-    this.json.size = size;
+    this.state.size = size;
   }
   
   getWeight() {
-    return this.json.weight;
+    return this.state.weight;
   }
   
   setWeight(weight) {
-    this.json.weight = weight;
+    this.state.weight = weight;
   }
   
   getMetadata() {
-    return this.json.metadata;
+    return this.state.metadata;
   }
   
   setMetadata(metadata) {
-    this.json.metadata = metadata;
+    this.state.metadata = metadata;
   }
   
   getOutputIndices() {
-    return this.json.outputIndices;
+    return this.state.outputIndices;
   }
   
   setOutputIndices(outputIndices) {
-    this.json.outputIndices = outputIndices;
+    this.state.outputIndices = outputIndices;
   }
   
   getCommonTxSets() {
-    return this.json.commonTxSets;
+    return this.state.commonTxSets;
   }
   
   setCommonTxSets(commonTxSets) {
-    this.json.commonTxSets = commonTxSets;
+    this.state.commonTxSets = commonTxSets;
   }
   
   getExtra() {
-    return this.json.extra;
+    return this.state.extra;
   }
   
   setExtra(extra) {
-    this.json.extra = extra;
+    this.state.extra = extra;
   }
   
   getVin() {
-    return this.json.vin;
+    return this.state.vin;
   }
   
   setVin(vin) {
-    this.json.vin = vin;
+    this.state.vin = vin;
   }
   
   getVout() {
-    return this.json.vout;
+    return this.state.vout;
   }
   
   setVout(vout) {
-    this.json.vout = vout;
+    this.state.vout = vout;
   }
   
   getRctSignatures() {
-    return this.json.rctSignatures;
+    return this.state.rctSignatures;
   }
   
   setRctSignatures(rctSignatures) {
-    this.json.rctSignatures = rctSignatures;
+    this.state.rctSignatures = rctSignatures;
   }
   
   getRctSigPrunable() {
-    return this.json.rctSigPrunable;
+    return this.state.rctSigPrunable;
   }
   
   setRctSigPrunable(rctSigPrunable) {
-    this.json.rctSigPrunable = rctSigPrunable;
+    this.state.rctSigPrunable = rctSigPrunable;
   }
   
   getKeptByBlock() {
-    return  this.json.keptByBlock;
+    return  this.state.keptByBlock;
   }
   
   setKeptByBlock(keptByBlock) {
-    this.json.keptByBlock = keptByBlock;
+    this.state.keptByBlock = keptByBlock;
   }
   
   getIsFailed() {
-    return this.json.isFailed;
+    return this.state.isFailed;
   }
   
   setIsFailed(isFailed) {
-    this.json.isFailed = isFailed;
+    this.state.isFailed = isFailed;
   }
   
   getLastFailedHeight() {
-    return this.json.lastFailedHeight;
+    return this.state.lastFailedHeight;
   }
   
   setLastFailedHeight(lastFailedHeight) {
-    this.json.lastFailedHeight = lastFailedHeight;
+    this.state.lastFailedHeight = lastFailedHeight;
   }
   
   getLastFailedId() {
-    return this.json.lastFailedId;
+    return this.state.lastFailedId;
   }
   
   setLastFailedId(lastFailedId) {
-    this.json.lastFailedId = lastFailedId;
+    this.state.lastFailedId = lastFailedId;
   }
   
   getMaxUsedBlockHeight() {
-    return this.json.maxUsedBlockHeight;
+    return this.state.maxUsedBlockHeight;
   }
   
   setMaxUsedBlockHeight(maxUsedBlockHeight) {
-    this.json.maxUsedBlockHeight = maxUsedBlockHeight;
+    this.state.maxUsedBlockHeight = maxUsedBlockHeight;
   }
   
   getMaxUsedBlockId() {
-    return this.json.maxUsedBlockId;
+    return this.state.maxUsedBlockId;
   }
   
   setMaxUsedBlockId(maxUsedBlockId) {
-    this.json.maxUsedBlockId = maxUsedBlockId;
+    this.state.maxUsedBlockId = maxUsedBlockId;
   }
   
   getSignatures() {
-    return this.json.signatures;
+    return this.state.signatures;
   }
   
   setSignatures(signatures) {
-    this.json.signatures = signatures;
+    this.state.signatures = signatures;
   }
   
   copy() {
-    return new MoneroTx(Object.assign({}, this.json));  // create tx with copied json
+    return new MoneroTx(this.toJson());
   }
   
+  // TODO: may need to deep copy getOutputIndices(), getCommonTxSets(), getRctSignatures(), etc depending on their final type
   toJson() {
-    return this.json; // TODO: need to correctly serialize types
-    //throw new Error("Not implemented");
+    let json = Object.assign({}, this.state);
+    if (this.getFee()) json.fee = this.getFee().toString();
+    return json;
   }
   
   toString(indent = 0) {
