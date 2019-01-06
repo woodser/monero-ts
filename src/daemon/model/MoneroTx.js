@@ -373,7 +373,7 @@ class MoneroTx extends MoneroDaemonModel {
     str += MoneroUtils.kvLine("Size", this.getSize(), indent);
     str += MoneroUtils.kvLine("Weight", this.getWeight(), indent);
     str += MoneroUtils.kvLine("Metadata", this.getMetadata(), indent);
-    str += MoneroUtils.kvLine("common tx sets", this.getCommonTxSets(), indent);
+    str += MoneroUtils.kvLine("Common tx sets", this.getCommonTxSets(), indent);
     str += MoneroUtils.kvLine("Extra", this.getExtra(), indent);
     str += MoneroUtils.kvLine("Vin", this.getVin(), indent);
     str += MoneroUtils.kvLine("Vout", this.getVout(), indent);

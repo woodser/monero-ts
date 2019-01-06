@@ -45,6 +45,7 @@ class MoneroOutput {
     this.state.subaddressIndex = subaddressIndex;
   }
   
+  // TODO: rename to getGlobalIndex()
   getIndex() {
     return this.state.index;
   }
