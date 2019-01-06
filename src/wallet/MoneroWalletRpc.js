@@ -277,46 +277,46 @@ class MoneroWalletRpc extends MoneroWallet {
       for (let key of Object.keys(resp)) {
         for (let rpcTx of resp[key]) {
           if (rpcTx.txid === debugTxId) console.log(rpcTx);
-          let tx = MoneroWalletRpc._buildTxWallet(rpcTx);
+          let tx = MoneroWalletRpc._buildWalletTx(rpcTx);
           MoneroWalletRpc._mergeTx(txs, tx);
           
-          // special case: tx sent from/to same account can have amount 0 
-          if (tx.getIsOutgoing() && tx.getIsRelayed() && !tx.getIsFailed() && tx.getTotalAmount().compare(new BigInteger(0)) === 0) {
-            
-            // replace tx amount with payment sum if available and different
-            // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached payments, could have cached amount
-            // TODO monero-wallet-rpc: unconfirmed tx missing destinations even though known
-            if (tx.getPayments()) {
-              let paymentTotal = new BigInteger();
-              for (let payment of tx.getPayments()) paymentTotal = paymentTotal.add(payment.getAmount());
-              if (tx.getTotalAmount().compare(paymentTotal) !== 0) tx.setTotalAmount(paymentTotal);
-            }
-            
-            // incoming counterpart not returned for outgoing tx, so fabricate it
-            // TODO monero-wallet-rpc: https://github.com/monero-project/monero/issues/4500
-            let txIn = tx.copy();
-            txIn.setIsIncoming(true);
-            if (txIn.getPayments()) {
-              assert.equal(1, txIn.getPayments().length);
-              assert(txIn.getPayments()[0].getAddress());
-              assert(txIn.getPayments()[0].getAmount());
-            } else {
-              let payment = new MoneroPayment();
-              payment.setAddress(await this.getAddress(txIn.getSrcAccountIndex(), txIn.getSrcSubaddressIndex()));
-              payment.setAmount(new BigInteger(0));
-              txIn.setPayments([payment])
-            }
-            txIn.getPayments()[0].setAccountIndex(txIn.getSrcAccountIndex());
-            txIn.getPayments()[0].setSubaddressIndex(txIn.getSrcSubaddressIndex());
-            txIn.setSrcAddress(undefined);
-            txIn.setSrcAccountIndex(undefined);
-            txIn.setSrcSubaddressIndex(undefined);
-            if (rpcTx.txid === debugTxId) {
-              console.log("FABRICATED");
-              console.log(txIn.toString());
-            }
-            MoneroWalletRpc._mergeTx(txs, txIn);
-          }
+//          // special case: tx sent from/to same account can have amount 0 
+//          if (tx.getIsOutgoing() && tx.getIsRelayed() && !tx.getIsFailed() && tx.getTotalAmount().compare(new BigInteger(0)) === 0) {
+//            
+//            // replace tx amount with payment sum if available and different
+//            // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached payments, could have cached amount
+//            // TODO monero-wallet-rpc: unconfirmed tx missing destinations even though known
+//            if (tx.getPayments()) {
+//              let paymentTotal = new BigInteger();
+//              for (let payment of tx.getPayments()) paymentTotal = paymentTotal.add(payment.getAmount());
+//              if (tx.getTotalAmount().compare(paymentTotal) !== 0) tx.setTotalAmount(paymentTotal);
+//            }
+//            
+//            // incoming counterpart not returned for outgoing tx, so fabricate it
+//            // TODO monero-wallet-rpc: https://github.com/monero-project/monero/issues/4500
+//            let txIn = tx.copy();
+//            txIn.setIsIncoming(true);
+//            if (txIn.getPayments()) {
+//              assert.equal(1, txIn.getPayments().length);
+//              assert(txIn.getPayments()[0].getAddress());
+//              assert(txIn.getPayments()[0].getAmount());
+//            } else {
+//              let payment = new MoneroPayment();
+//              payment.setAddress(await this.getAddress(txIn.getSrcAccountIndex(), txIn.getSrcSubaddressIndex()));
+//              payment.setAmount(new BigInteger(0));
+//              txIn.setPayments([payment])
+//            }
+//            txIn.getPayments()[0].setAccountIndex(txIn.getSrcAccountIndex());
+//            txIn.getPayments()[0].setSubaddressIndex(txIn.getSrcSubaddressIndex());
+//            txIn.setSrcAddress(undefined);
+//            txIn.setSrcAccountIndex(undefined);
+//            txIn.setSrcSubaddressIndex(undefined);
+//            if (rpcTx.txid === debugTxId) {
+//              console.log("FABRICATED");
+//              console.log(txIn.toString());
+//            }
+//            MoneroWalletRpc._mergeTx(txs, txIn);
+//          }
         }
       }
     }
@@ -336,7 +336,7 @@ class MoneroWalletRpc extends MoneroWallet {
         if (resp.transfers === undefined) continue;
         for (let rpcTx of resp.transfers) {
           if (rpcTx.tx_hash === debugTxId) console.log(rpcTx);
-          let tx = MoneroWalletRpc._buildTxWalletOutput(rpcTx);
+          let tx = MoneroWalletRpc._buildWalletTxOutput(rpcTx);
           MoneroWalletRpc._mergeTx(txs, tx);
         }
       }
@@ -421,7 +421,7 @@ class MoneroWalletRpc extends MoneroWallet {
           }
           
           // initialize fields from response
-          MoneroWalletRpc._buildTxsWallet(resp, respTxs);
+          MoneroWalletRpc._buildWalletTxs(resp, respTxs);
           for (let tx of respTxs) accountTxs.push(tx);
         }
       }
@@ -440,7 +440,7 @@ class MoneroWalletRpc extends MoneroWallet {
         }
         
         // initialize fields from response
-        MoneroWalletRpc._buildTxsWallet(resp, respTxs);
+        MoneroWalletRpc._buildWalletTxs(resp, respTxs);
         for (let tx of respTxs) accountTxs.push(tx);
       }
       
@@ -727,26 +727,28 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddressIndices;
   }
   
-  static _buildTxWallet(rpcTx, tx) {  // TODO: change everything to safe set
+  static _buildWalletTx(rpcTx, tx) {  // TODO: change everything to safe set
         
     // initialize tx to return
     if (!tx) tx = new MoneroWalletTx();
     
-    // initialize transaction type and state from rpc type
-    if (rpcTx.type !== undefined) MoneroWalletRpc._decodeRpcType(rpcTx.type, tx);
+    // initialize tx state from rpc type
+    let isOutgoing;
+    if (rpcTx.type !== undefined) isOutgoing = MoneroWalletRpc._decodeRpcType(rpcTx.type, tx);
     else {
       assert.equal("boolean", typeof tx.getIsOutgoing());
       assert.equal("boolean", typeof tx.getIsIncoming());
       assert.equal("boolean", typeof tx.getIsConfirmed());
       assert.equal("boolean", typeof tx.getInTxPool());
       assert.equal("boolean", typeof tx.getIsCoinbase());
+      isOutgoing = tx.getIsOutgoing();
     }
     
     // TODO: safe set
     // initialize remaining fields  TODO: seems this should be part of common function with DaemonRpc._buildTx
-    let payment;
     let accountIdx;
     let subaddressIdx;
+    let incomingPayment;
     for (let key of Object.keys(rpcTx)) {
       let val = rpcTx[key];
       if (key === "fee") tx.setFee(new BigInteger(val));
@@ -776,17 +778,18 @@ class MoneroWalletRpc extends MoneroWallet {
         else tx.setEstimatedBlockCountUntilConfirmed(undefined)
       }
       else if (key === "amount") {
-        tx.setTotalAmount(new BigInteger(val));
-        if (tx.getIsIncoming()) {
-          if (payment === undefined) payment = new MoneroPayment();
-          payment.setAmount(new BigInteger(val));
+        if (isOutgoing) tx.setOutgoingAmount(new BigInteger(val));
+        else {
+          tx.setIncomingAmount(new BigInteger(val));
+          if (incomingPayment === undefined) incomingPayment = new MoneroPayment();
+          incomingPayment.setAmount(new BigInteger(val));
         }
       }
       else if (key === "address") {
         if (tx.getIsOutgoing()) tx.setSrcAddress(val);
         else {
-          if (payment === undefined) payment = new MoneroPayment();
-          payment.setAddress(val);
+          if (incomingPayment === undefined) incomingPayment = new MoneroPayment();
+          incomingPayment.setAddress(val);
         }
       }
       else if (key === "payment_id") {
@@ -801,18 +804,16 @@ class MoneroWalletRpc extends MoneroWallet {
         }
       }
       else if (key === "destinations") {
-        assert(tx.getIsOutgoing());
-        let payments = [];
+        assert(isOutgoing);
         for (let rpcPayment of val) {
-          let aPayment = new MoneroPayment();
-          payments.push(aPayment);
+          let payment = new MoneroPayment();
+          tx.getOutgoingPayments().push(payment);
           for (let paymentKey of Object.keys(rpcPayment)) {
-            if (paymentKey === "address") aPayment.setAddress(rpcPayment[paymentKey]);
-            else if (paymentKey === "amount") aPayment.setAmount(new BigInteger(rpcPayment[paymentKey]));
+            if (paymentKey === "address") payment.setAddress(rpcPayment[paymentKey]);
+            else if (paymentKey === "amount") payment.setAmount(new BigInteger(rpcPayment[paymentKey]));
             else throw new Error("Unrecognized transaction destination field: " + paymentKey);
           }
         }
-        tx.setPayments(payments);
       }
       else if (key === "multisig_txset" && !val) {} // TODO: handle this with value
       else if (key === "unsigned_txset" && !val) {} // TODO: handle this with value
@@ -820,32 +821,28 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // initialize final fields
-    if (tx.getPayments() !== undefined) assert(payment === undefined);
-    else if (payment !== undefined) tx.setPayments([payment]);
-    if (tx.getIsOutgoing()) {
+    if (isOutgoing) {
       MoneroUtils.safeSet(tx, tx.getSrcAccountIndex, tx.setSrcAccountIndex, accountIdx);
-      MoneroUtils.safeSet(tx, tx.getSrcSubaddressIndex, tx.setSrcSubaddressIndex, subaddressIdx);
+      MoneroUtils.safeSet(tx, tx.getSrcSubaddressIndex, tx.setSrcSubaddressIndex, subaddressIdx); // TODO: standardize safeset, reconcile, straight set
+      assert.equal(undefined, incomingPayment);
     } else {
-      assert(payment);
-      assert.equal(1, tx.getPayments().length);
-      payment.setAccountIndex(accountIdx);
-      payment.setSubaddressIndex(subaddressIdx);
-    }
-    if (tx.getPayments() !== undefined && tx.getIsIncoming() && tx.getInTxPool()) {
-      for (let aPayment of tx.getPayments()) aPayment.setIsSpent(false);  // incoming txpool payments are not spent
+      assert(incomingPayment);
+      incomingPayment.setAccountIndex(accountIdx);
+      incomingPayment.setSubaddressIndex(subaddressIdx);
+      tx.getIncomingPayments().push(incomingPayment);
     }
     
     // return initialized transaction
     return tx;
   }
   
-  static _buildTxWalletOutput(rpcOutput) {
+  static _buildWalletTxOutput(rpcOutput) {
     
     // initialize tx
     let tx = new MoneroWalletTx();
-    tx.setIsIncoming(true);
-    tx.setIsFailed(false);
+    tx.setIsConfirmed(true);
     tx.setIsRelayed(true);
+    tx.setIsFailed(false);
     
     // initialize output
     let output = new MoneroOutput();
@@ -874,7 +871,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param rpcTxs are the rpc txs to initialize the MoneroTxWallets from
    * @param txs are existing txs to initialize (optional)
    */
-  static _buildTxsWallet(rpcTxs, txs) {
+  static _buildWalletTxs(rpcTxs, txs) {
     
     // get lists
     let ids = rpcTxs.tx_hash_list;
@@ -933,45 +930,47 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param tx is the transaction decode known fields to
    */
   static _decodeRpcType(rpcType, tx) {
+    let isOutgoing;
     if (rpcType === "in") {
-      tx.setIsIncoming(true);
+      isOutgoing = false;
       tx.setIsConfirmed(true);
       tx.setInTxPool(false);
       tx.setIsFailed(false);
       tx.setIsCoinbase(false);
     } else if (rpcType === "out") {
-      tx.setIsIncoming(false);
+    	isOutgoing = true;
       tx.setIsConfirmed(true);
       tx.setInTxPool(false);
       tx.setIsRelayed(true);
       tx.setIsFailed(false);
       tx.setIsCoinbase(false);
     } else if (rpcType === "pool") {
-      tx.setIsIncoming(true);
+    	isOutgoing = false;
       tx.setIsConfirmed(false);
       tx.setInTxPool(true);
       tx.setIsFailed(false);
       tx.setIsCoinbase(false);  // TODO: but could it be?
     } else if (rpcType === "pending") {
-      tx.setIsIncoming(false);
+    	isOutgoing = true;
       tx.setIsConfirmed(false);
       tx.setInTxPool(true);
       tx.setIsRelayed(true);
       tx.setIsFailed(false);
       tx.setIsCoinbase(false);
     } else if (rpcType === "block") {
-      tx.setIsIncoming(true);
+    	isOutgoing = true;
       tx.setIsConfirmed(true);
       tx.setInTxPool(false);
       tx.setIsCoinbase(true);
     } else if (rpcType === "failed") {
-      tx.setIsIncoming(false);
+    	isOutgoing = false;
       tx.setIsConfirmed(false);
       tx.setInTxPool(false);
       tx.setIsRelayed(true);
       tx.setIsFailed(true);
       tx.setIsCoinbase(false);
     }
+    return isOutgoing;
   }
   
   /**
@@ -1062,8 +1061,8 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // initialize txs from rpc response
-    if (split) MoneroWalletRpc._buildTxsWallet(rpcResp, txs);
-    else MoneroWalletRpc._buildTxWallet(rpcResp, txs[0]);
+    if (split) MoneroWalletRpc._buildWalletTxs(rpcResp, txs);
+    else MoneroWalletRpc._buildWalletTx(rpcResp, txs[0]);
     
     // return array or element depending on split
     return split ? txs : txs[0];

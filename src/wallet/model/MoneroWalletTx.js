@@ -156,14 +156,13 @@ class MoneroWalletTx extends MoneroTx {
   }
   
   merge(tx) {
-    
+  
     throw new Error("Not implemented");
     
     // merge base transaction
     super.merge(tx);
     
     // merge wallet extensions
-    this.setIsIncoming(MoneroUtils.reconcile(this.getIsIncoming(), tx.getIsIncoming()));
     this.setSrcAccountIndex(MoneroUtils.reconcile(this.getSrcAccountIndex(), tx.getSrcAccountIndex()));
     this.setSrcSubaddressIndex(MoneroUtils.reconcile(this.getSrcSubaddressIndex(), tx.getSrcSubaddressIndex()));
     this.setSrcAddress(MoneroUtils.reconcile(this.getSrcAddress(), tx.getSrcAddress()));
