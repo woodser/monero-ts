@@ -2010,6 +2010,7 @@ function testTxOutputs(tx) {
   }
   
   // test each output
+  if (!tx.getOutputs()) return;
   for (let output of tx.getOutputs()) {
     assert(output.getKeyImage());
     TestUtils.testUnsignedBigInteger(output.getAmount(), true);
