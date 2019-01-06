@@ -322,63 +322,66 @@ class TestMoneroWalletCommon {
       it("Can get transactions pertaining to the wallet", async function() {
         let nonDefaultIncoming = false;
         let txs1 = await getCachedTxs();
-        console.log("got first request");
         let txs2 = await wallet.getTxs();
-        console.log("got second request");
         assert.equal(txs1.length, txs2.length);
+        testTxsBalance(txs1, await wallet.getBalance());
         for (let i = 0; i < txs1.length; i++) {
           await testTxWalletGet(wallet, txs1[i], that.unbalancedTxIds);
           await testTxWalletGet(wallet, txs2[i], that.unbalancedTxIds);
           TestUtils.assertTxsMergeable(txs1[i], txs2[i]);
-          if (txs1[i].getIsIncoming()) {
-            for (let payment of txs1[i].getPayments()) {
+          if (txs1[i].getIncomingPayments()) {
+            for (let payment of txs1[i].getIncomingPayments()) {
               if (payment.getAccountIndex() !== 0 && payment.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
             }
           }
         }
-        assert(nonDefaultIncoming, "No incoming transactions found in non-default account and subaddress; run testSendToMultiple() first");
+        assert(nonDefaultIncoming, "No incoming payments found to non-default account and subaddress; run send-to-multiple tests first");
       });
       
-//      it("Can get transactions pertaining to an account", async function() {
-//        let nonDefaultIncoming = false;
-//        for (let account of await wallet.getAccounts()) {
-//          let txs = await wallet.getTxs(account.getIndex());
-//          for (let tx of txs) {
-//            await testTxWalletGet(wallet, tx, that.unbalancedTxIds);
-//            if (tx.getIsOutgoing()) {
-//              assert.equal(account.getIndex(), tx.getSrcAccountIndex());
-//            } else {
-//              for (let payment of tx.getPayments()) {
-//                assert.equal(account.getIndex(), payment.getAccountIndex());
-//                if (payment.getAccountIndex() !== 0 && payment.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
-//              }
-//            }
-//          }
-//        }
-//        assert(nonDefaultIncoming, "No incoming transactions found in non-default account and subaddress; run testSendToMultiple() first");
-//      });
-//      
-//      it("Can get transactions pertaining to a subaddress", async function() {
-//        let nonDefaultIncoming = false;
-//        let accounts = await wallet.getAccounts(true);
-//        for (let accountIdx = 0; accountIdx < Math.min(accounts.length, 3); accountIdx++) {
-//          for (let subaddressIdx = 0; subaddressIdx < Math.min(accounts[accountIdx].getSubaddresses().length, 5); subaddressIdx++) {
-//            for (let tx of await wallet.getTxs(accountIdx, subaddressIdx)) {
-//              await testTxWalletGet(wallet, tx, that.unbalancedTxIds);
-//              if (tx.getIsOutgoing())  {
-//                assert.equal(accountIdx, tx.getSrcAccountIndex());
-//              } else {
-//                for (let payment of tx.getPayments()) {
-//                  assert.equal(accountIdx, payment.getAccountIndex());
-//                  assert.equal(subaddressIdx, payment.getSubaddressIndex());
-//                  if (payment.getAccountIndex() !== 0 && payment.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
-//                }
-//              }
-//            }
-//          }
-//        }
-//        assert(nonDefaultIncoming, "No incoming transactions found in non-default account and subaddress; run testSendToMultiple() first");
-//      });
+      it("Can get transactions pertaining to an account", async function() {
+        let nonDefaultIncoming = false;
+        for (let account of await wallet.getAccounts()) {
+          let txs = await wallet.getTxs(account.getIndex());
+          testTxsBalance(txs, account.getBalance());
+          for (let tx of txs) {
+            await testTxWalletGet(wallet, tx, that.unbalancedTxIds);
+            if (account.getIndex() !== tx.getSrcAccountIndex()) {
+              let accountPayment = false;
+              assert(tx.getIncomingPayments());
+              for (let payment of tx.getIncomingPayments()) {
+                if (payment.getAccountIndex() === account.getIndex()) accountPayment = true;
+                if (payment.getAccountIndex() !== 0 && payment.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
+              }
+              assert(accountPayment, "Tx has no payments from/to account " + account.getIndex());
+            }
+          }
+        }
+        assert(nonDefaultIncoming, "No incoming payments found to non-default account and subaddress; run send-to-multiple tests first");
+      });
+      
+      it("Can get transactions pertaining to a subaddress", async function() {
+        let nonDefaultIncoming = false;
+        let accounts = await wallet.getAccounts(true);
+        for (let accountIdx = 0; accountIdx < Math.min(accounts.length, 3); accountIdx++) {
+          for (let subaddressIdx = 0; subaddressIdx < Math.min(accounts[accountIdx].getSubaddresses().length, 5); subaddressIdx++) {
+            let subaddress = await wallet.getSubaddress(accountIdx, subaddressIdx);
+            let txs = await wallet.getTxs(accountIdx, subaddressIdx);
+            testTxsBalance(txs, subaddress.getBalance());
+            for (let tx of txs) {
+              await testTxWalletGet(wallet, tx, that.unbalancedTxIds);
+              let fromSubaddress = tx.getSrcAccountIndex() === accountIdx && tx.getSrcSubaddressIndex() === subaddressIdx;
+              let toSubaddress = false;
+              if (tx.getIncomingPayments()) {
+                for (let payment of tx.getIncomingPayments()) {
+                  if (payment.getAccountIndex() === accountIdx && payment.getSubaddressIndex()) toSubaddress = true;
+                }
+              }
+              assert(fromSubaddress || toSubaddress, "Tx has no payments to/from account"
+            }
+          }
+        }
+        assert(nonDefaultIncoming, "No incoming payments found to non-default account and subaddress; run send-to-multiple tests first");
+      });
 //      
 //      it("Can get wallet transactions by id and ids", async function() {
 //        
@@ -1117,14 +1120,13 @@ class TestMoneroWalletCommon {
           assert(sendAmount.compare(tx.getTotalAmount()) === 0);
           
           // test tx payments
-          if (tx.getPayments() !== undefined) {
-            assert.equal(1, tx.getPayments().length);
-            for (let payment of tx.getPayments()) {
+          if (tx.getOutgoingPayments() !== undefined) {
+            assert.equal(1, tx.getOutgoingPayments().length);
+            for (let payment of tx.getOutgoingPayments()) {
               assert.equal(address, payment.getAddress());
               assert.equal(undefined, payment.getAccountIndex());
               assert.equal(undefined, payment.getSubaddressIndex());
               assert(sendAmount.compare(payment.getAmount()) === 0);
-              assert.equal(undefined, payment.getIsSpent());
             }
           }
         }

@@ -1,4 +1,5 @@
 HIGH
+simple tests for getting incoming/outgoing txs
 common tx tests need cleanup
 one place to test wallet accounting with txs (unspent outputs = wallet balance, incoming amts = outgoing amts, etc)
 set subaddress getUnspentOutputCount() with outputs assigned
