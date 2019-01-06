@@ -157,10 +157,10 @@ class MoneroTxWallet extends MoneroTx {
     }
     
     // total amount is sum of payments if they exist
-    if (tx.getPayments()) {
+    if (this.getPayments()) {
       let paymentTotal = new BigInteger(0);
-      for (let payment of tx.getPayments()) paymentTotal = paymentTotal.add(payment.getAmount());
-      tx.setTotalAmount(paymentTotal);
+      for (let payment of this.getPayments()) paymentTotal = paymentTotal.add(payment.getAmount());
+      this.setTotalAmount(paymentTotal);
     }
   }
 }
