@@ -67,6 +67,7 @@ class TestUtils {
   }
   
   static testUnsignedBigInteger(num, nonZero) {
+    assert(num);
     assert(num instanceof BigInteger);
     assert(num.toJSValue() >= 0);
     if (nonZero) assert(num.toJSValue() > 0);

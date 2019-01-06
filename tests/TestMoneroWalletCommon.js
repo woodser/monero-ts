@@ -1945,8 +1945,8 @@ function testWalletTxTypes(tx) {
   assert.equal("boolean", typeof tx.getIsFailed());
   assert.equal("boolean", typeof tx.getIsRelayed());
   assert.equal("boolean", typeof tx.getInTxPool());
-  TestUtils.testBigInteger(tx.getOutgoingAmount());
-  TestUtils.testBigInteger(tx.getIncomingAmount());
+  TestUtils.testUnsignedBigInteger(tx.getOutgoingAmount());
+  TestUtils.testUnsignedBigInteger(tx.getIncomingAmount());
   assert(Array.isArray(tx.getOutgoingPayments()));
   assert(Array.isArray(tx.getIncomingPayments()));
   assert(Array.isArray(tx.getIncomingOutputs()));

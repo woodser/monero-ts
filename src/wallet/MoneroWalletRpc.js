@@ -778,8 +778,12 @@ class MoneroWalletRpc extends MoneroWallet {
         else tx.setEstimatedBlockCountUntilConfirmed(undefined)
       }
       else if (key === "amount") {
-        if (isOutgoing) tx.setOutgoingAmount(new BigInteger(val));
+        if (isOutgoing) {
+          tx.setOutgoingAmount(new BigInteger(val));
+          tx.setIncomingAmount(new BigInteger(0));
+        }
         else {
+          tx.setOutgoingAmount(new BigInteger(0));
           tx.setIncomingAmount(new BigInteger(val));
           if (incomingPayment === undefined) incomingPayment = new MoneroPayment();
           incomingPayment.setAmount(new BigInteger(val));
