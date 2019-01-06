@@ -298,9 +298,16 @@ class MoneroWalletRpc extends MoneroWallet {
             txIn.setIsIncoming(true);
             if (txIn.getPayments()) {
               assert.equal(1, txIn.getPayments().length);
-              txIn.getPayments()[0].setAccountIndex(txIn.getSrcAccountIndex());
-              txIn.getPayments()[0].setSubaddressIndex(txIn.getSrcSubaddressIndex());
+              assert(txIn.getPayments()[0].getAddress());
+              assert(txIn.getPayments()[0].getAmount());
+            } else {
+              let payment = new MoneroPayment();
+              payment.setAddress(await this.getAddress(txIn.getSrcAccountIndex(), txIn.getSrcSubaddressIndex()));
+              payment.setAmount(new BigInteger(0));
+              txIn.setPayments([payment])
             }
+            txIn.getPayments()[0].setAccountIndex(txIn.getSrcAccountIndex());
+            txIn.getPayments()[0].setSubaddressIndex(txIn.getSrcSubaddressIndex());
             txIn.setSrcAddress(undefined);
             txIn.setSrcAccountIndex(undefined);
             txIn.setSrcSubaddressIndex(undefined);

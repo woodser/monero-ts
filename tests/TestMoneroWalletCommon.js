@@ -1982,8 +1982,25 @@ async function testTxPayments(wallet, tx) {
           outputSum = outputSum.add(output.getAmount());
         }
       }
-      if (payment.getAmount().compare(new BigInteger(0)) === 0) assert(subaddrOutputs.length > 1);
-      else assert.equal(0, outputSum.compare(payment.getAmount()), "Outputs do not add up to payment amount");
+      
+      // payment amount may be different from outputs iff sent from/to same account
+      if (outputSum.compare(payment.getAmount()) !== 0) {
+        
+        // tx has sent and change outputs which are impossible to differentiate without wallet data
+        assert(subaddrOutputs.length > 1);
+        
+        // fetch outgoing counterpart
+        let filter = new MoneroTxFilter();
+        filter.setIsOutgoing(true);
+        filter.setTxIds([tx.getId()]);
+        let txsOut = await wallet.getTxs(filter);
+        assert.equal(1, txsOut.length);
+        let txOut = txsOut[0];
+        assert.equal(0, tx.getTotalAmount().compare(tx.getTotalAmount()));
+        
+        // outgoing counterpart sent from same account
+        assert.equal(txOut.getSrcAccountIndex(), payment.getAccountIndex());
+      }
     }
     
     // test outgoing payment
