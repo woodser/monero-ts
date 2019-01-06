@@ -324,7 +324,7 @@ class TestMoneroWalletCommon {
         let txs1 = await getCachedTxs();
         let txs2 = await wallet.getTxs();
         assert.equal(txs1.length, txs2.length);
-        testTxsBalance(txs1, await wallet.getBalance());
+        //testTxsBalance(txs1, await wallet.getBalance());  // TODO: implement balance checking, here and/or elsewhere
         for (let i = 0; i < txs1.length; i++) {
           await testTxWalletGet(wallet, txs1[i], that.unbalancedTxIds);
           await testTxWalletGet(wallet, txs2[i], that.unbalancedTxIds);
@@ -342,7 +342,7 @@ class TestMoneroWalletCommon {
         let nonDefaultIncoming = false;
         for (let account of await wallet.getAccounts()) {
           let txs = await wallet.getTxs(account.getIndex());
-          testTxsBalance(txs, account.getBalance());
+          //testTxsBalance(txs1, await wallet.getBalance());  // TODO: implement balance checking, here and/or elsewhere
           for (let tx of txs) {
             await testTxWalletGet(wallet, tx, that.unbalancedTxIds);
             if (account.getIndex() !== tx.getSrcAccountIndex()) {
@@ -366,7 +366,7 @@ class TestMoneroWalletCommon {
           for (let subaddressIdx = 0; subaddressIdx < Math.min(accounts[accountIdx].getSubaddresses().length, 5); subaddressIdx++) {
             let subaddress = await wallet.getSubaddress(accountIdx, subaddressIdx);
             let txs = await wallet.getTxs(accountIdx, subaddressIdx);
-            testTxsBalance(txs, subaddress.getBalance());
+            //testTxsBalance(txs1, await wallet.getBalance());  // TODO: implement balance checking, here and/or elsewhere
             for (let tx of txs) {
               await testTxWalletGet(wallet, tx, that.unbalancedTxIds);
               let fromSubaddress = tx.getSrcAccountIndex() === accountIdx && tx.getSrcSubaddressIndex() === subaddressIdx;
