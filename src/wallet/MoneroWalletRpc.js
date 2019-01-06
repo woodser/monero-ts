@@ -935,6 +935,7 @@ class MoneroWalletRpc extends MoneroWallet {
       isOutgoing = false;
       tx.setIsConfirmed(true);
       tx.setInTxPool(false);
+      tx.setIsRelayed(true);
       tx.setIsFailed(false);
       tx.setIsCoinbase(false);
     } else if (rpcType === "out") {
@@ -948,6 +949,7 @@ class MoneroWalletRpc extends MoneroWallet {
     	isOutgoing = false;
       tx.setIsConfirmed(false);
       tx.setInTxPool(true);
+      tx.setIsRelayed(true);
       tx.setIsFailed(false);
       tx.setIsCoinbase(false);  // TODO: but could it be?
     } else if (rpcType === "pending") {
@@ -961,6 +963,8 @@ class MoneroWalletRpc extends MoneroWallet {
     	isOutgoing = true;
       tx.setIsConfirmed(true);
       tx.setInTxPool(false);
+      tx.setIsRelayed(true);
+      tx.setIsFailed(false);
       tx.setIsCoinbase(true);
     } else if (rpcType === "failed") {
     	isOutgoing = false;
