@@ -1974,6 +1974,7 @@ async function testTxPayments(wallet, tx) {
       
       // outputs add up to payments unless payment 0 where one send output and one change output is expected but impossible to differentiate
       assert(tx.getOutputs());
+      assert(tx.getOutputs().length > 0);
       let subaddrOutputs = [];
       let outputSum = new BigInteger(0);
       for (let output of tx.getOutputs()) {
@@ -1983,11 +1984,8 @@ async function testTxPayments(wallet, tx) {
         }
       }
       
-      // payment amount may be different from outputs iff sent from/to same account
+      // payment amount may be different from output sum iff sent from/to same account
       if (outputSum.compare(payment.getAmount()) !== 0) {
-        
-        // tx has sent and change outputs which are impossible to differentiate without wallet data
-        assert(subaddrOutputs.length > 1);
         
         // fetch outgoing counterpart
         let filter = new MoneroTxFilter();
