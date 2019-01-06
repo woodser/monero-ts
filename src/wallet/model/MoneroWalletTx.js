@@ -167,21 +167,16 @@ class MoneroWalletTx extends MoneroTx {
     this.setSrcAddress(MoneroUtils.reconcile(this.getSrcAddress(), tx.getSrcAddress()));
     this.setNote(MoneroUtils.reconcile(this.getNote(), tx.getNote()));
     
-    // merge outgoing payments
-    for (let outgoingPayment of tx.getOutgoingPayments()) {
-      mergePayment(this.getOutgoingPayments(), outgoingPayment);
-    }
-    
-    // merge incoming payments
-    for (let incomingPayment of tx.getIncomingPayments()) {
-      mergePayment(this.getIncomingPayments(), outgoingPayment);
-    }
+    // merge outgoing and incoming payments
+    for (let payment of tx.getOutgoingPayments()) mergePayment(this.getOutgoingPayments(), payment);
+    for (let payment of tx.getIncomingPayments()) mergePayment(this.getIncomingPayments(), payment);
     
     // incoming amount is sum of incoming payments
     let incomingAmt = new BigInteger(0);
     for (let payment of this.getIncomingPayments()) incomingAmt = incomingAmt.add(payment.getAmount());
     this.setIncomingAmount(incomingAmt);
     
+    // helper function to merge payments
     function mergePayment(payments, payment) {
       for (let aPayment of payments) {
         if (aPayment.getAccountIndex() === payment.getAccountIndex() && aPayment.getSubaddressIndex() === payment.getSubaddressIndex()) {
