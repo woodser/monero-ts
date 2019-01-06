@@ -562,8 +562,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "double_spend_seen") MoneroUtils.safeSet(tx, tx.getIsDoubleSpend, tx.setIsDoubleSpend, val);
       else if (key === "version") MoneroUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);
       else if (key === "extra") MoneroUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
-      else if (key === "vin") MoneroUtils.safeSet(tx, tx.getVin, tx.setVin, val);
-      else if (key === "vout") MoneroUtils.safeSet(tx, tx.getVout, tx.setVout, val);
+      else if (key === "vin") MoneroUtils.safeSet(tx, tx.getVins, tx.setVins, val);
+      else if (key === "vout") MoneroUtils.safeSet(tx, tx.getVouts, tx.setVouts, val);
       else if (key === "rct_signatures") MoneroUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, val);
       else if (key === "rctsig_prunable") MoneroUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
       else if (key === "unlock_time") MoneroUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, val);

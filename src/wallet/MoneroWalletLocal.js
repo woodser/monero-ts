@@ -337,12 +337,12 @@ class MoneroWalletLocal extends MoneroWallet {
       }
       
       // process outputs
-      for (let outIdx = 0; outIdx < tx.getVout().length; outIdx++) {
+      for (let outIdx = 0; outIdx < tx.getVouts().length; outIdx++) {
         let derivation = this.cache.coreUtils.generate_key_derivation(lastPubKey, this.cache.prvViewKey);
         let pubKeyDerived = this.cache.coreUtils.derive_public_key(derivation, outIdx, this.cache.pubSpendKey);
         
         // check if wallet owns output
-        if (tx.getVout()[outIdx].target.key === pubKeyDerived) {
+        if (tx.getVouts()[outIdx].target.key === pubKeyDerived) {
           console.log("THIS MY OUTPUT AT HEIGHT " + block.getHeader().getHeight() + "!!!");
         }
       }

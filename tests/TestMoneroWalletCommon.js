@@ -1949,7 +1949,8 @@ function testWalletTxTypes(tx) {
   TestUtils.testUnsignedBigInteger(tx.getIncomingAmount());
   assert(Array.isArray(tx.getOutgoingPayments()));
   assert(Array.isArray(tx.getIncomingPayments()));
-  assert(Array.isArray(tx.getIncomingOutputs()));
+  assert(Array.isArray(tx.getVouts()));
+  assert.equal(undefined, tx.getVins());  // TODO no way to expose vins?
   if (tx.getPaymentId()) assert.notEqual(MoneroTx.DEFAULT_PAYMENT_ID, tx.getPaymentId()); // default payment id converted to undefined
   if (tx.getNote()) assert(tx.getNote().length > 0);  // empty notes converted to undefined
   assert(tx.getUnlockTime() >= 0);
@@ -1982,11 +1983,11 @@ async function testTxPayments(wallet, tx) {
       assert.equal(await wallet.getAddress(payment.getAccountIndex(), payment.getSubaddressIndex()), payment.getAddress());
       
       // outputs add up to payments unless payment 0 where one send output and one change output is expected but impossible to differentiate
-      assert(tx.getOutputs());
-      assert(tx.getOutputs().length > 0);
+      assert(tx.getVouts());
+      assert(tx.getVouts().length > 0);
       let subaddrOutputs = [];
       let outputSum = new BigInteger(0);
-      for (let output of tx.getOutputs()) {
+      for (let output of tx.getVouts()) {
         if (output.getAccountIndex() === payment.getAccountIndex() && output.getSubaddressIndex() === payment.getSubaddressIndex()) {
           subaddrOutputs.push(output);
           outputSum = outputSum.add(output.getAmount());
@@ -2025,18 +2026,18 @@ async function testTxPayments(wallet, tx) {
 function testTxOutputs(tx) {
   
   // test output existence
-  if (!tx.getIsConfirmed()) assert.equal(undefined, tx.getOutputs());     // unconfirmed txs do not have outputs
-  else if (tx.getIsOutgoing()) assert.equal(undefined, tx.getOutputs());  // outgoing txs do not have outputs
+  if (!tx.getIsConfirmed()) assert.equal(undefined, tx.getVouts());     // unconfirmed txs do not have outputs
+  else if (tx.getIsOutgoing()) assert.equal(undefined, tx.getVouts());  // outgoing txs do not have outputs
   else {
     assert(tx.getIsIncoming());
     assert(tx.getIsConfirmed());
-    assert(tx.getOutputs());
-    assert(tx.getOutputs().length > 0);
+    assert(tx.getVouts());
+    assert(tx.getVouts().length > 0);
   }
   
   // test each output
-  if (!tx.getOutputs()) return;
-  for (let output of tx.getOutputs()) {
+  if (!tx.getVouts()) return;
+  for (let output of tx.getVouts()) {
     assert(output.getKeyImage());
     TestUtils.testUnsignedBigInteger(output.getAmount(), true);
     assert(output.getAccountIndex() >= 0);

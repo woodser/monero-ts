@@ -865,7 +865,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // initialize tx with output
-    tx.setOutputs([output]);
+    tx.setVouts([output]);
     return tx;
   }
   

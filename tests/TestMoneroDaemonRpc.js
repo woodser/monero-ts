@@ -679,17 +679,17 @@ function testTx(tx, config) {
   if (config.hasJson) {
     assert(tx.getVersion() >= 0);
     assert(tx.getUnlockTime() >= 0);
-    assert(tx.getVin() && Array.isArray(tx.getVin()) && tx.getVin().length >= 0);
-    assert(tx.getVin()[0].key.k_image.length === 64);
-    assert(tx.getVout() && Array.isArray(tx.getVout()) && tx.getVout().length >= 0);
-    tx.getVout().map(vout => { if (vout.target) assert(vout.target.key.length === 64); });
+    assert(tx.getVins() && Array.isArray(tx.getVins()) && tx.getVins().length >= 0);
+    assert(tx.getVins()[0].key.k_image.length === 64);
+    assert(tx.getVouts() && Array.isArray(tx.getVouts()) && tx.getVouts().length >= 0);
+    tx.getVouts().map(vout => { if (vout.target) assert(vout.target.key.length === 64); });
     assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
     assert(typeof tx.getRctSignatures().type === "number");
   } else {
     assert.equal(undefined, tx.getVersion());
     assert.equal(undefined, tx.getUnlockTime());
-    assert.equal(undefined, tx.getVin());
-    assert.equal(undefined, tx.getVout());
+    assert.equal(undefined, tx.getVins());
+    assert.equal(undefined, tx.getVouts());
     assert.equal(undefined, tx.getExtra());
     assert.equal(undefined, tx.getRctSignatures());    
   }

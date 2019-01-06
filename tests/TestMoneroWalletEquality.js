@@ -33,7 +33,7 @@ describe("TEST WALLETS EQUALITY", function() {
   });
   
   it("Have the same outputs", async function() {
-    assert.deepEqual(await wallet1.getOutputs(), await wallet2.getOutputs());
+    assert.deepEqual(await wallet1.getVouts(), await wallet2.getVouts());
   });
   
   it("Have the same wallet transactions", async function() {

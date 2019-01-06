@@ -19,12 +19,20 @@ class MoneroTx extends MoneroDaemonModel {
     this.state = Object.assign({}, json);
     
     // deserialize json
-    if (!json) return;
-    if (json.fee) this.setFee(BigInteger.parse(json.fee));
-    if (json.outputs) {
-      let outputs = [];
-      for (let jsonOutput of json.outputs) outputs.push(new MoneroOutput(jsonOutput));
-      this.setOutputs(outputs);
+    if (json) {
+      if (json.fee) this.setFee(BigInteger.parse(json.fee));
+      if (json.vouts) {
+        let vouts = [];
+        for (let jsonVout of json.vouts) vouts.push(new MoneroOutput(jsonVout));
+        this.setVouts(vouts);
+      } else {
+        this.setVouts([]);
+      }
+    }
+    
+    // construct anew
+    else {
+      this.setVouts([])
     }
   }
   
@@ -204,20 +212,37 @@ class MoneroTx extends MoneroDaemonModel {
     this.state.weight = weight;
   }
   
-  getMetadata() {
-    return this.state.metadata;
+  getVins() {
+    return this.state.vins;
   }
   
-  setMetadata(metadata) {
-    this.state.metadata = metadata;
+  setVins(vins) {
+    this.state.vins = vins;
   }
   
+  getVouts() {
+    return this.state.vouts;
+  }
+  
+  setVouts(vouts) {
+    this.state.vouts = vouts;
+  }
+  
+  // TODO: integrate with vin/vout
   getOutputIndices() {
     return this.state.outputIndices;
   }
   
   setOutputIndices(outputIndices) {
     this.state.outputIndices = outputIndices;
+  }
+  
+  getMetadata() {
+    return this.state.metadata;
+  }
+  
+  setMetadata(metadata) {
+    this.state.metadata = metadata;
   }
   
   getCommonTxSets() {
@@ -234,31 +259,6 @@ class MoneroTx extends MoneroDaemonModel {
   
   setExtra(extra) {
     this.state.extra = extra;
-  }
-  
-  getVin() {
-    return this.state.vin;
-  }
-  
-  setVin(vin) {
-    this.state.vin = vin;
-  }
-  
-  // TODO: replace with getOutputs()
-  getVout() {
-    return this.state.vout;
-  }
-  
-  setVout(vout) {
-    this.state.vout = vout;
-  }
-  
-  getOutputs() {
-    return this.state.outputs;
-  }
-  
-  setOutputs(outputs) {
-    this.state.outputs = outputs;
   }
 
   getRctSignatures() {
@@ -341,9 +341,9 @@ class MoneroTx extends MoneroDaemonModel {
   toJson() {
     let json = Object.assign({}, this.state);
     if (this.getFee()) json.fee = this.getFee().toString();
-    if (this.getOutputs()) {
-      json.outputs = [];
-      for (let output of this.getOutputs()) json.outputs.push(output.toJson());
+    if (this.getVouts()) {  // TODO: test/support vins
+      json.vouts = [];
+      for (let vout of this.getVouts()) json.vouts.push(vout.toJson());
     }
     return json;
   }
@@ -372,11 +372,10 @@ class MoneroTx extends MoneroDaemonModel {
     str += MoneroUtils.kvLine("Hex", this.getHex(), indent);
     str += MoneroUtils.kvLine("Size", this.getSize(), indent);
     str += MoneroUtils.kvLine("Weight", this.getWeight(), indent);
+    str += MoneroUtils.kvLine("Vins", this.getVins(), indent);  // TODO: test/support like vouts
     str += MoneroUtils.kvLine("Metadata", this.getMetadata(), indent);
     str += MoneroUtils.kvLine("Common tx sets", this.getCommonTxSets(), indent);
     str += MoneroUtils.kvLine("Extra", this.getExtra(), indent);
-    str += MoneroUtils.kvLine("Vin", this.getVin(), indent);
-    str += MoneroUtils.kvLine("Vout", this.getVout(), indent);
     str += MoneroUtils.kvLine("RCT signatures", this.getRctSignatures(), indent);
     str += MoneroUtils.kvLine("RCT sig prunable", this.getRctSigPrunable(), indent);
     str += MoneroUtils.kvLine("Kept by block", this.getKeptByBlock(), indent);
@@ -386,15 +385,15 @@ class MoneroTx extends MoneroDaemonModel {
     str += MoneroUtils.kvLine("Max used block height", this.getMaxUsedBlockHeight(), indent);
     str += MoneroUtils.kvLine("Max used block id", this.getMaxUsedBlockId(), indent);
     str += MoneroUtils.kvLine("Signatures", this.getSignatures(), indent);
-    if (this.getOutputs()) {
-      str += MoneroUtils.kvLine("Outputs", "", indent);
-      for (let i = 0; i < this.getOutputs().length; i++) {
+    if (this.getVouts().length > 0) {
+      str += MoneroUtils.kvLine("Vouts", "", indent);
+      for (let i = 0; i < this.getVouts().length; i++) {
         str += MoneroUtils.kvLine(i + 1, "", indent + 1);
-        str += this.getOutputs()[i].toString(indent + 2);
+        str += this.getVouts()[i].toString(indent + 2);
         str += '\n'
       }
     } else {
-      str += MoneroUtils.kvLine("Outputs", this.getOutputs(), indent);
+      str += MoneroUtils.kvLine("Vouts", this.getVouts(), indent);
     }
     return str.slice(0, str.length - 1);  // strip last newline
   }
@@ -419,12 +418,11 @@ class MoneroTx extends MoneroDaemonModel {
     this.setHex(MoneroUtils.reconcile(this.getHex(), tx.getHex()));
     this.setSize(MoneroUtils.reconcile(this.getSize(), tx.getSize()));
     this.setWeight(MoneroUtils.reconcile(this.getWeight(), tx.getWeight()));
+    this.setVins(MoneroUtils.reconcile(this.getVins(), tx.getVins()));  // TODO: support like vouts
     this.setMetadata(MoneroUtils.reconcile(this.getMetadata(), tx.getMetadata()));
     this.setOutputIndices(MoneroUtils.reconcile(this.getOutputIndices(), tx.getOutputIndices()));
     this.setCommonTxSets(MoneroUtils.reconcile(this.getCommonTxSets(), tx.getCommonTxSets()));
     this.setExtra(MoneroUtils.reconcile(this.getExtra(), tx.getExtra()));
-    this.setVin(MoneroUtils.reconcile(this.getVin(), tx.getVin()));
-    this.setVout(MoneroUtils.reconcile(this.getVout(), tx.getVout()));
     this.setRctSignatures(MoneroUtils.reconcile(this.getRctSignatures(), tx.getRctSignatures()));
     this.setRctSigPrunable(MoneroUtils.reconcile(this.getRctSigPrunable(), tx.getRctSigPrunable()));
     this.setKeptByBlock(MoneroUtils.reconcile(this.getKeptByBlock(), tx.getKeptByBlock()));
@@ -442,20 +440,17 @@ class MoneroTx extends MoneroDaemonModel {
     this.setBlockTimestamp(MoneroUtils.reconcile(this.getBlockTimestamp(), tx.getBlockTimestamp(), {resolveMax: true}));  // block timestamp can increase
     this.setConfirmationCount(MoneroUtils.reconcile(this.getConfirmationCount(), tx.getConfirmationCount(), {resolveMax: true})); // confirmation count can increase
     
-    // merge outputs
-    if (this.getOutputs() === undefined) this.setOutputs(tx.getOutputs());
-    else if (tx.getOutputs()) {
-      for (let merger of tx.getOutputs()) {
-        let merged = false;
-        for (let mergee of this.getOutputs()) {
-          if (mergee.getKeyImage() === merger.getKeyImage()) {
-            mergee.merge(merger);
-            merged = true;
-            break;
-          }
+    // merge vouts
+    for (let merger of tx.getVouts()) {
+      let merged = false;
+      for (let mergee of this.getVouts()) {
+        if (mergee.getKeyImage() === merger.getKeyImage()) {
+          mergee.merge(merger);
+          merged = true;
+          break;
         }
-        if (!merged) this.getOutputs().push(merger);
       }
+      if (!merged) this.getVouts().push(merger);
     }
     
 //    // merge height
