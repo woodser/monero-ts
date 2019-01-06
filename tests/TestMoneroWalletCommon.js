@@ -326,8 +326,8 @@ class TestMoneroWalletCommon {
         assert.equal(txs1.length, txs2.length);
         //testTxsBalance(txs1, await wallet.getBalance());  // TODO: implement balance checking, here and/or elsewhere
         for (let i = 0; i < txs1.length; i++) {
-          await testTxWalletGet(wallet, txs1[i], that.unbalancedTxIds);
-          await testTxWalletGet(wallet, txs2[i], that.unbalancedTxIds);
+          await testWalletTx(txs1[i], {wallet: wallet});
+          await testWalletTx(txs2[i], {wallet: wallet});
           TestUtils.assertTxsMergeable(txs1[i], txs2[i]);
           if (txs1[i].getIncomingPayments()) {
             for (let payment of txs1[i].getIncomingPayments()) {
@@ -344,7 +344,7 @@ class TestMoneroWalletCommon {
           let txs = await wallet.getTxs(account.getIndex());
           //testTxsBalance(txs1, await wallet.getBalance());  // TODO: implement balance checking, here and/or elsewhere
           for (let tx of txs) {
-            await testTxWalletGet(wallet, tx, that.unbalancedTxIds);
+            await testWalletTx(tx, {wallet: wallet});
             if (account.getIndex() !== tx.getSrcAccountIndex()) {
               let accountPayment = false;
               assert(tx.getIncomingPayments());
@@ -368,7 +368,7 @@ class TestMoneroWalletCommon {
             let txs = await wallet.getTxs(accountIdx, subaddressIdx);
             //testTxsBalance(txs1, await wallet.getBalance());  // TODO: implement balance checking, here and/or elsewhere
             for (let tx of txs) {
-              await testTxWalletGet(wallet, tx, that.unbalancedTxIds);
+              await testWalletTx(tx, {wallet: wallet});
               let fromSubaddress = tx.getSrcAccountIndex() === accountIdx && tx.getSrcSubaddressIndex() === subaddressIdx;
               let toSubaddress = false;
               if (tx.getIncomingPayments()) {
@@ -1937,7 +1937,7 @@ async function testWalletTx(tx, testConfig) {
  * @param tx is the tx to test
  */
 function testWalletTxTypes(tx) {
-  assert.equal("string", tx.getId());
+  assert.equal("string", typeof tx.getId());
   assert.equal("boolean", typeof tx.getIsIncoming());
   assert.equal("boolean", typeof tx.getIsOutgoing());
   assert.equal("boolean", typeof tx.getIsConfirmed());
