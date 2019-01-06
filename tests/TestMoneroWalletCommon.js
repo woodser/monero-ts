@@ -1762,7 +1762,6 @@ async function testWalletTx(tx, testConfig) {
   // test confirmed
   if (tx.getIsConfirmed()) {
     assert.equal(true, tx.getIsRelayed());
-    assert.equal(undefined, tx.getDoNotRelay());
     assert.equal(false, tx.getIsFailed());
     assert.equal(false, tx.getInTxPool());
     assert.notEqual(tx.getHeight() >= 0);
@@ -1862,6 +1861,7 @@ async function testWalletTx(tx, testConfig) {
       assert.equal(false, tx.getIsDoubleSpend());
     }
   } else {
+    assert.equal(undefined, tx.getDoNotRelay());
     assert.equal(undefined, tx.getMixin());
     assert.equal(undefined, tx.getKey());
     assert.equal(undefined, tx.getHex());
