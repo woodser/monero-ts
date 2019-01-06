@@ -145,15 +145,15 @@ class TestMoneroWalletCommon {
         TestUtils.testUnsignedBigInteger(unlockedBalance);
       });
       
-      it("Can get all accounts in the wallet without subaddresses", async function() {
-        let accounts = await wallet.getAccounts();
-        assert(accounts.length > 0);
-        accounts.map(account => {
-          testAccount(account)
-          assert(account.getSubaddresses() === undefined);
-        });
-      });
-      
+//      it("Can get all accounts in the wallet without subaddresses", async function() {
+//        let accounts = await wallet.getAccounts();
+//        assert(accounts.length > 0);
+//        accounts.map(account => {
+//          testAccount(account)
+//          assert(account.getSubaddresses() === undefined);
+//        });
+//      });
+//      
 //      it("Can get all accounts in the wallet with subaddresses", async function() {
 //        let accounts = await wallet.getAccounts(true);
 //        assert(accounts.length > 0);
@@ -322,7 +322,9 @@ class TestMoneroWalletCommon {
       it("Can get transactions pertaining to the wallet", async function() {
         let nonDefaultIncoming = false;
         let txs1 = await getCachedTxs();
+        console.log("got first request");
         let txs2 = await wallet.getTxs();
+        console.log("got second request");
         assert.equal(txs1.length, txs2.length);
         for (let i = 0; i < txs1.length; i++) {
           await testTxWalletGet(wallet, txs1[i], that.unbalancedTxIds);
@@ -1601,7 +1603,6 @@ class TestMoneroWalletCommon {
             // merge with updated txs
             if (updatedTxs === undefined) updatedTxs = fetchedTxs;
             else {
-              console.log("MERGING!!!!!");
               for (let updatedTx of updatedTxs) {
                 if (fetchedTx.getId() !== updatedTx.getId()) continue;
                 if (fetchedTx.getIsOutgoing() !== updatedTx.getIsOutgoing()) continue;
@@ -1741,7 +1742,7 @@ function testTxWalletCommon(tx) {
   assert(tx.getId());
   assert.equal("boolean", typeof tx.getIsIncoming());
   assert.equal("boolean", typeof tx.getIsOutgoing());
-  assert.equal("boolean", typeof tx.getIsConfirmed());
+	assert.equal("boolean", typeof tx.getIsConfirmed());
   assert.equal("boolean", typeof tx.getInTxPool());
   
   // test copy
@@ -1984,21 +1985,22 @@ async function testTxPayments(wallet, tx) {
         }
       }
       
-      // payment amount may be different from output sum iff sent from/to same account
-      if (outputSum.compare(payment.getAmount()) !== 0) {
-        
-        // fetch outgoing counterpart
-        let filter = new MoneroTxFilter();
-        filter.setIsOutgoing(true);
-        filter.setTxIds([tx.getId()]);
-        let txsOut = await wallet.getTxs(filter);
-        assert.equal(1, txsOut.length);
-        let txOut = txsOut[0];
-        assert.equal(0, tx.getTotalAmount().compare(tx.getTotalAmount()));
-        
-        // outgoing counterpart sent from same account
-        assert.equal(txOut.getSrcAccountIndex(), payment.getAccountIndex());
-      }
+      // disabled because it adds a *lot* of time to the tests for high tx test wallet
+//      // payment amount may be different from output sum iff sent from/to same account
+//      if (outputSum.compare(payment.getAmount()) !== 0) {
+//        
+//        // fetch outgoing counterpart
+//        let filter = new MoneroTxFilter();
+//        filter.setIsOutgoing(true);
+//        filter.setTxIds([tx.getId()]);
+//        let txsOut = await wallet.getTxs(filter);
+//        assert.equal(1, txsOut.length);
+//        let txOut = txsOut[0];
+//        assert.equal(0, tx.getTotalAmount().compare(tx.getTotalAmount()));
+//        
+//        // outgoing counterpart sent from same account
+//        assert.equal(txOut.getSrcAccountIndex(), payment.getAccountIndex());
+//      }
     }
     
     // test outgoing payment
