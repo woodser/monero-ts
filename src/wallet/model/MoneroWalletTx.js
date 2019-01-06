@@ -18,47 +18,64 @@ class MoneroWalletTx extends MoneroTx {
     super(json);
     
     // deserialize json
-    if (!json) return;
-    if (json.totalAmount) this.setTotalAmount(BigInteger.parse(json.totalAmount));
-    if (json.payments) {
-      let payments = [];
-      for (let jsonPayment of json.payments) payments.push(new MoneroPayment(jsonPayment));
-      this.setPayments(payments);
+    if (json) {
+      this.setOutgoingAmount(BigInteger.parse(json.outgoingAmount));
+      let outgoingPayments = [];
+      for (let outgoingPaymentJson of json.outgoingPayments) payments.push(new MoneroPayment(outgoingPaymentJson));
+      this.setOutgoingPayments(outgoingPayments);
+      this.setIncomingAmount(BigInteger.parse(json.incomingAmount));
+      let incomingPayments = [];
+      for (let incomingPaymentJson of json.incomingPayments) payments.push(new MoneroPayment(incomingPaymentJson));
+      this.setIncomingPayments(incomingPayments);
+    }
+    
+    // construct anew
+    else {
+      this.state.outgoingAmount = new BigInteger(0);
+      this.state.outgoingPayments = [];
+      this.state.incomingAmount = new BigInteger(0);
+      this.state.incomingPayments = [];
     }
   }
   
-  getIsIncoming() {
-    return this.state.isIncoming;
-  }
-  
-  setIsIncoming(isIncoming) {
-    this.state.isIncoming = isIncoming;
-  }
-  
   getIsOutgoing() {
-    if (this.state.isIncoming === undefined) return undefined;
-    return !this.state.isIncoming;
+    return this.getSrcAccountIndex() !== undefined;
   }
   
-  setIsOutgoing(isOutgoing) {
-    this.setIsIncoming(isOutgoing === undefined ? undefined : !isOutgoing);
+  getIsIncoming() {
+    return this.getIncomingPayments().length > 0;
   }
   
-  // TODO: rename to getAmount()
-  getTotalAmount() {
-    return this.state.totalAmount;
+  getOutgoingAmount() {
+    return this.outgoingAmount;
   }
   
-  setTotalAmount(totalAmount) {
-    this.state.totalAmount = totalAmount;
+  setOutgoingAmount(outgoingAmount) {
+    this.outgoingAmount = outgoingAmount;
   }
   
-  getPayments() {
-    return this.state.payments;
+  getIncomingAmount() {
+    return this.incomingAmount;
   }
   
-  setPayments(payments) {
-    this.state.payments = payments;
+  setIncomingAmount(incomingAmount) {
+    this.incomingAmount = incomingAmount;
+  }
+  
+  getOutgoingPayments() {
+    return this.state.outgoingPayments;
+  }
+  
+  setOutgoingPayments(outgoingPayments) {
+    this.state.outgoingPayments = outgoingPayments;
+  }
+  
+  getIncomingPayments() {
+    return this.state.incomingPayments;
+  }
+  
+  setIncomingPayments(incomingPayments) {
+    this.state.incomingPayments = incomingPayments;
   }
   
   getSrcAccountIndex() {
@@ -99,37 +116,48 @@ class MoneroWalletTx extends MoneroTx {
   
   toJson() {
     let json = Object.assign({}, this.state, super.toJson()); // merge json onto native state
-    if (this.getTotalAmount()) json.totalAmount = this.getTotalAmount().toString();
-    if (this.getPayments()) {
-      json.payments = [];
-      for (let payment of this.getPayments()) json.payments.push(payment.toJson());
-    }
+    if (this.outgoingAmount) json.outgoingAmount = this.getOutgoingAmount().toString();
+    if (this.incomingAmount) json.incomingAmount = this.getIncomingAmount().toString();
+    json.outgoingPayments = [];
+    for (let outgoingPayment of this.getOutgoingPayments()) json.outgoingPayments.push(outgoingPayment.toJson());
+    json.incomingPayments = [];
+    for (let incomingPayment of this.getIncomingPayments()) json.incomingPayments.push(incomingPayment.toJson());
     return json;
   }
   
   toString(indent = 0) {
-    let str = super.toString(indent) + '\n'
+    let str = "";
     str += MoneroUtils.kvLine("Is incoming", this.getIsIncoming(), indent);
     str += MoneroUtils.kvLine("Is outgoing", this.getIsOutgoing(), indent);
-    str += MoneroUtils.kvLine("Total amount", this.getTotalAmount() ? this.getTotalAmount().toString() : undefined, indent);
+    str += MoneroUtils.kvLine("Incoming amount", this.getIncomingAmount(), indent);
+    str += MoneroUtils.kvLine("Outgoing amount", this.getOutgoingAmount(), indent);
     str += MoneroUtils.kvLine("Source account index", this.getSrcAccountIndex(), indent);
     str += MoneroUtils.kvLine("Source subaddress index", this.getSrcSubaddressIndex(), indent);
     str += MoneroUtils.kvLine("Source address", this.getSrcAddress(), indent);
     str += MoneroUtils.kvLine("Note: ", this.getNote(), indent);
-    if (this.getPayments()) {
-      str += MoneroUtils.kvLine("Payments", "", indent);
-      for (let i = 0; i < this.getPayments().length; i++) {
+    if (this.getOutgoingPayments().length > 0) {
+      str += MoneroUtils.kvLine("Outgoing payments", "", indent);
+      for (let i = 0; i < this.getOutgoingPayments().length; i++) {
         str += MoneroUtils.kvLine(i + 1, "", indent + 1);
-        str += this.getPayments()[i].toString(indent + 2);
-        if (i < this.getPayments().length - 1) str += '\n'
+        str += this.getOutgoingPayments()[i].toString(indent + 2);
+        if (i < this.getOutgoingPayments().length - 1) str += '\n'
       }
-    } else {
-      str += MoneroUtils.kvLine("Payments", this.getPayments(), indent);
     }
+    if (this.getIncomingPayments().length > 0) {
+      str += MoneroUtils.kvLine("Incoming payments", "", indent);
+      for (let i = 0; i < this.getIncomingPayments().length; i++) {
+        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
+        str += this.getIncomingPayments()[i].toString(indent + 2);
+        if (i < this.getIncomingPayments().length - 1) str += '\n'
+      }
+    }
+    str += super.toString(indent);
     return str;
   }
   
   merge(tx) {
+    
+    throw new Error("Not implemented");
     
     // merge base transaction
     super.merge(tx);
