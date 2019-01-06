@@ -3,9 +3,9 @@ const TestMoneroWalletRpc = require("./TestMoneroWalletRpc")
 const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 
 // test daemon rpc
-//new TestMoneroDaemonRpc().runTests({
-//  testNotifications: true
-//});
+new TestMoneroDaemonRpc().runTests({
+  testNotifications: true
+});
 
 // test wallet rpc
 //new TestMoneroWalletRpc().runTests({
@@ -37,4 +37,4 @@ const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 //require("./TestSampleCode");
 //
 //// test scratchpad
-require("./Scratchpad");
+//require("./Scratchpad");

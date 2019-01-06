@@ -1739,223 +1739,229 @@ async function getRandomTransactions(wallet, filter, minTxs, maxTxs) {
   else return txs.slice(0, Math.min(maxTxs, txs.length));
 }
 
-// common tests
-function testTxWalletCommon(tx) {
-  assert(tx.getId());
-  assert.equal("boolean", typeof tx.getIsIncoming());
-  assert.equal("boolean", typeof tx.getIsOutgoing());
-	assert.equal("boolean", typeof tx.getIsConfirmed());
-  assert.equal("boolean", typeof tx.getInTxPool());
-  
-  // test copy
-  // TODO: test modifying to ensure deep copy, break into its own test
-  if (tx.getFee() !== undefined) assert(tx.getFee() instanceof BigInteger);
-  let copy = tx.copy();
-  assert(copy instanceof MoneroWalletTx);
-  assert.deepEqual(tx, copy);
-}
-
 /**
- * Test a single transaction from a getTxs() request.
+ * Tests a wallet transaction with a test configuration.
  * 
- * @param tx is the transaction to test
- * @param wallet is the tx's wallet to cross-reference
- * @param unbalancedTxIds is a cache of previously seen unbalanced txs so as not to spam the console with warnings
- * @param hasOutgoingPayments specifies if the tx has outgoing payents, undefined if doesn't matter
+ * @param tx is the wallet transaction to test
+ * @param testConfig specifies test configuration
+ *        testConfig.wallet is used to cross reference tx info if available
+ *        testConfig.sendConfig specifies config of a tx generated with send()
+ *        testConfig.hasOutgoingPayments specifies if the tx has outgoing payments, undefined if doesn't matter
  */
-async function testTxWalletGet(wallet, tx, unbalancedTxIds, hasOutgoingPayments) {
+async function testWalletTx(tx, testConfig) {
   
-  // validate inputs
+  // validate / sanitize inputs
   assert(tx instanceof MoneroWalletTx);
-  assert(hasOutgoingPayments === undefined || typeof hasOutgoingPayments === "boolean");
-  assert(wallet instanceof MoneroWallet);
+  testConfig = Object.assign({}, testConfig);
+  if (testConfig.wallet) assert (testConfig.wallet instanceof MoneroWallet);
+  assert(testConfig.hasOutgoingPayments == undefined || typeof config.hasOutgoingPayments === "boolean");
   
-  // run tests
-  testTxWalletCommon(tx);
-  if (tx.getIsIncoming()) await testTxWalletGetIncoming(wallet, tx);
-  else await testTxWalletGetOutgoing(wallet, tx, unbalancedTxIds, hasOutgoingPayments);
-}
-
-// TODO: test all fields
-async function testTxWalletGetIncoming(wallet, tx) {
-  
-  // test state
-  assert.equal(true, tx.getIsIncoming());
-  assert.equal(false, tx.getIsOutgoing());
-  assert.equal(false, tx.getIsFailed());  // TODO: these really should be part of a separate class, MoneroTxWalletIncoming, MoneroTxWalletOutgoing
-  assert.equal(true, tx.getIsRelayed());
-  assert.equal("boolean", typeof tx.getIsCoinbase()); // TODO: test incoming coinbase?
-  // TODO: validate state is self consistent
-  
-  // test common incoming
-  assert(tx.getId());
-  assert.equal(undefined, tx.getSrcAddress());
-  assert.equal(undefined, tx.getSrcAccountIndex());
-  assert.equal(undefined, tx.getSrcSubaddressIndex());
-  assert(isUnsignedBigInteger(tx.getTotalAmount()));
-  assert.notEqual(MoneroTx.DEFAULT_PAYMENT_ID, tx.getPaymentId());
-  assert.equal(undefined, tx.getMixin());
-  assert.equal(undefined, tx.getWeight());
-  assert(tx.getNote() === undefined || tx.getNote().length > 0);
-  
-  // TODO (monero-wallet-rpc): incoming txs are occluded by outgoing counterparts from same account (https://github.com/monero-project/monero/issues/4500) and then incoming_transfers need address, fee, timestamp, unlock_time, is_double_spend, height, tx_size
-  //if (tx.getFee() === undefined) console.log("WARNING: incoming transaction is occluded by outgoing counterpart (#4500): " + tx.getId());
-//  if (tx.getFee() === undefined) console.log("WARNING: incoming transaction is missing fee: " + tx.getId());
-//  if (tx.getUnlockTime() === undefined) console.log("WARNING: incoming transaction is missing unlock_time: " + tx.getId());
-//  if (tx.getIsDoubleSpend() === undefined) console.log("WARNING: incoming transaction is missing is_double_spend: " + tx.getId());
-  if (tx.getFee() === undefined) {} // TODO: remove once #4500 fixed
-  else assert.equal(false, tx.getIsDoubleSpend());
-  assert.equal(undefined, tx.getHex());
-//  if (tx.getSize() === undefined) console.log("WARNING: incoming transaction is missing size: " + tx.getId());
-  assert.equal(undefined, tx.getMetadata());
+  // test common field types
+  testWalletTxTypes(tx);
   
   // test confirmed
   if (tx.getIsConfirmed()) {
-    assert.equal(undefined, tx.getKey());
-//    if (tx.getHeight() === undefined) console.log("WARNING: incoming transaction is missing height: " + tx.getId());
-//    if (tx.getBlockTimestamp() === undefined) console.log("WARNING: incoming transaction is missing block timestamps: " + tx.getId());
-//    if (tx.getConfirmationCount() === undefined) console.log("WARNING: incoming transaction is missing confirmations: " + tx.getId());
-    if (tx.getConfirmationCount() === undefined) {} // TODO: remove once #4500 fixed
-    else assert(tx.getConfirmationCount() > 0);
-    assert.equal(undefined, tx.getEstimatedBlockCountUntilConfirmed());  // TODO: rename to getEstimatedBlockCountUntilConfirmed()
-    assert.equal(undefined, tx.getLastRelayedTime());
-    assert.equal(undefined, tx.getReceivedTime());
-  }
-  
-  // test unconfirmed
-  else {
-    assert.equal(undefined, tx.getKey());
-    assert.equal(undefined, tx.getHeight());
-    assert.equal(undefined, tx.getBlockTimestamp());
-    assert.equal(0, tx.getConfirmationCount());
-    assert(tx.getEstimatedBlockCountUntilConfirmed() > 0);
-    assert.equal(undefined, tx.getLastRelayedTime());
-    assert(tx.getReceivedTime() > 0); // TODO: might need to log warning given #4500
-  }
-  
-  // test payments
-  await testTxPayments(wallet, tx);
-  
-  // test outputs
-  testTxOutputs(tx);
-}
-
-async function testTxWalletGetOutgoing(wallet, tx, unbalancedTxIds, hasOutgoingPayments) {
-  assert(Array.isArray(unbalancedTxIds));
-  
-  // test state
-  assert(tx);
-  assert.equal(false, tx.getIsIncoming());
-  assert.equal(true, tx.getIsOutgoing());
-  assert.equal("boolean", typeof tx.getIsFailed());
-  assert.equal("boolean", typeof tx.getIsRelayed());
-  assert.equal(false, tx.getIsCoinbase());
-  // TODO: validate state is self consistent
-  
-  // test common outgoing
-  assert(tx.getId());
-  assert(tx.getSrcAccountIndex() >= 0);
-  assert(tx.getSrcSubaddressIndex() >= 0);
-  assert(tx.getSrcAddress());
-  assert.equal(await wallet.getAddress(tx.getSrcAccountIndex(), tx.getSrcSubaddressIndex()), tx.getSrcAddress());
-  assert(isUnsignedBigInteger(tx.getTotalAmount()));
-  assert.notEqual(MoneroTx.DEFAULT_PAYMENT_ID, tx.getPaymentId());
-  assert(isUnsignedBigInteger(tx.getFee()));
-  assert.equal(undefined, tx.getMixin());
-  assert.equal(undefined, tx.getSize());   // TODO (monero-wallet-rpc): add tx_size to get_transfers and get_transfer_by_txid
-  assert.equal(undefined, tx.getWeight());
-  assert(tx.getNote() === undefined || tx.getNote().length > 0);
-  assert(tx.getUnlockTime() >= 0);
-  assert(typeof tx.getIsDoubleSpend() === "boolean");
-  assert.equal(undefined, tx.getKey());
-  assert.equal(undefined, tx.getHex());
-  assert.equal(undefined, tx.getMetadata());
-  
-  // test confirmed
-  if (tx.getIsConfirmed()) {
-    assert(tx.getHeight() >= 0);
-    assert(tx.getBlockTimestamp() > 0);
+    assert.equal(true, tx.getIsRelayed());
+    assert.equal(false, tx.getDoNotRelay());
+    assert.equal(false, tx.getIsFailed());
+    assert.equal(false, tx.getInTxPool());
+    assert.notEqual(tx.getHeight() >= 0);
     assert(tx.getConfirmationCount() > 0);
+    assert(tx.getBlockTimestamp() > 0);
+    assert.equal(false, tx.getIsDoubleSpend());
+  } else {
+    assert.equal(undefined, tx.getHeight());
+    assert.equal(0, tx.getConfirmationCount());
+    assert.equal(undefined, tx.getBlockTimestamp());
+  }
+  
+  // test in tx pool
+  if (tx.getInTxPool()) {
+    assert.equal(false, tx.getIsConfirmed());
+    assert.equal(false, tx.getDoNotRelay());
+    assert.equal(true, tx.getIsRelayed());
+    assert(tx.getEstimatedBlockCountUntilConfirmed() > 0);
+    assert(tx.getLastRelayedTime() > 0);
+    assert(tx.getReceivedTime() > 0);
+    assert.equal(false, tx.getIsDoubleSpend()); // TODO: test double spend attempt
+    assert.equal(undefined, tx.getLastFailedHeight());
+    assert.equal(undefined, tx.getLastFailedId());
+  } else {
     assert.equal(undefined, tx.getEstimatedBlockCountUntilConfirmed());
     assert.equal(undefined, tx.getLastRelayedTime());
     assert.equal(undefined, tx.getReceivedTime());
   }
   
-  // test tx pool
-  else if (tx.getInTxPool()) {
-    assert.equal(undefined, tx.getHeight());
-    assert.equal(undefined, tx.getBlockTimestamp());
-    assert.equal(0, tx.getConfirmationCount());
-    assert(tx.getEstimatedBlockCountUntilConfirmed() > 0);
-    if (tx.getIsRelayed()) assert(tx.getLastRelayedTime() > 0);
-    else assert.equal(undefined, tx.getLastRelayedTime());
-    assert.equal(undefined, tx.getReceivedTime());
+  // test outgoing
+  if (tx.getIsOutgoing()) {
+    TestUtils.testUnsignedBigInteger(tx.getFee());
+    assert(tx.getSrcAccountIndex() >= 0);
+    assert.equal(tx.getSrcSubaddressIndex(), 0);  // TODO: possible to know actual src subaddress index?
+    assert(tx.getSrcAddress());
+    if (testConfig.wallet) assert.equal(await wallet.getAddress(tx.getSrcAccountIndex(), tx.getSrcSubaddressIndex()), tx.getSrcAddress());
+    assert.equal(false, tx.getIsCoinbase());
+  } else {
+    assert.equal(undefined, tx.getFee());
+    assert.equal(undefined, tx.getSrcAccountIndex());
+    assert.equal(undefined, tx.getSrcSubaddressIndex());
+    assert.equal(undefined, tx.getSrcAddress());
+    assert.equal(undefined, tx.getMixin());
+    assert.equal(undefined, tx.getHex());
+    assert.equal(undefined, tx.getMetadata());
+    assert.equal(undefined, tx.getKey());
+    assert.equal(tx.getOutgoingPayments().length === 0);
+    assert.equal(0, tx.getOutgoingAmount().compare(new BigInteger(0)));
   }
   
-  // test payments
-  if (hasOutgoingPayments === false) assert.equal(undefined, tx.getPayments());
-  else if (hasOutgoingPayments === true || tx.getPayments()) await testTxPayments(wallet, tx);
+  // test incoming
+  if (tx.getIsIncoming()) {
+    assert.equal(false, tx.getIsFailed());
+  } else {
+    assert.equal(tx.getIncomingPayments().length === 0);
+    assert.equal(0, tx.getIncomingAmount().compare(new BigInteger(0)));
+  }
   
-  // test outputs
-  testTxOutputs(tx);
+  // test failed  // TODO: what else to test associated with failed
+  if (tx.getIsFailed()) {
+    assert(tx.getLastFailedHeight() >= 0);  // TODO: maybe not?
+    assert(tx.getLastFailedId());
+  } else {
+    assert.equal(false, tx.getIsDoubleSpend());
+    assert.equal(undefined, tx.getLastFailedHeight());
+    assert.equal(undefined, tx.getLastFailedId());
+  }
   
-  // TODO: test failed
+  // test tx result from send() or sendSplit()
+  if (testConfig.sendConfig) {
+    let sendConfig = testConfig.sendConfig;
+    assert.equal(true, tx.getIsOutgoing());
+    assert.equal(false, tx.getIsConfirmed());
+    assert(tx.getMixin() >= 0);
+    assert.equal(config.getUnlockTime() ? config.getUnlockTime() : 0, tx.getUnlockTime());
+    assert.equal(undefined, tx.getBlockTimestamp());
+    assert.equal(undefined, tx.getReceivedTime());
+    if (testConfig.hasKey) assert(tx.getKey().length > 0);
+    else assert.equal(undefined, tx.getKey());
+    assert.equal("string", typeof tx.getHex());
+    assert(tx.getHex().length > 0);
+    assert(tx.getMetadata());
+    if (hasPayments) assert.deepEqual(config.getPayments(), tx.getPayments());
+    
+    // test sent tx relay
+    if (sendConfig.getDoNotRelay()) {
+      assert.equal(false, tx.getInTxPool());
+      assert.equal(true, tx.getDoNotRelay());
+      assert.equal(false, tx.getIsRelayed());
+      assert.equal(undefined, tx.getLastRelayedTime());
+      assert.equal(undefined, tx.getIsDoubleSpend());
+    } else {
+      assert.equal(true, tx.getInTxPool());
+      assert.equal(false, tx.getDoNotRelay());
+      assert.equal(true, tx.getIsRelayed());
+      assert(tx.getLastRelayedTime() > 0);
+      assert.equal(false, tx.getIsDoubleSpend());
+    }
+  } else {
+    assert.equal(undefined, tx.getMixin());
+    assert.equal(undefined, tx.getKey());
+    assert.equal(undefined, tx.getHex());
+    assert.equal(undefined, tx.getMetadata());
+  }
+  
+  // test incoming payments
+  if (tx.getIncomingPayments().length > 0) {
+    assert.equal(true, tx.getIsIncoming());
+    
+    // test each payment and collect payment sum
+    let paymentSum = new BigInteger(0);
+    for (let payment of tx.getIncomingPayments()) {
+      assert(payment instanceof MoneroPayment);
+      assert(payment.getAddress());
+      TestUtils.testUnsignedBigInteger(payment.getAmount());
+      paymentSum = paymentSum.add(payment.getAmount());
+      assert(payment.getAccountIndex() >= 0);
+      assert(payment.getSubaddressIndex() >= 0);
+      if (testConfig.wallet) assert.equal(await wallet.getAddress(payment.getAccountIndex(), payment.getSubaddressIndex()), payment.Address());
+      
+      // TODO special case: payment amount of 0
+    }
+    
+    // incoming payments add up to incoming tx amount
+    assert.equal(0, paymentSum.compare(tx.getIncomingAmount()));
+  } else {
+    assert.equal(false, tx.getIsIncoming());
+  }
+  
+  // test outgoing payments per configuration
+  if (testConfig.hasOutgoingPayments === true) assert(tx.getOutgoingPayments().length > 0);
+  else if (testConfig.hasOutgoingPayments === false) assert(tx.getOutgoingPayments().length === 0);
+  if (tx.getOutgoingPayments().length > 0) {
+    
+    // test each payment and collect payment sum
+    let paymentSum = new BigInteger(0);
+    for (let payment of tx.getOutgoingPayments()) {
+      assert(payment instanceof MoneroPayment);
+      assert(payment.getAddress());
+      TestUtils.testUnsignedBigInteger(payment.getAmount());
+      paymentSum = paymentSum.add(payment.getAmount());
+      assert.equal(undefined, payment.getAccountIndex());
+      assert.equal(undefined, payment.getSubaddressIndex());
+      
+      // TODO special case: payment amount of 0
+    }
+    
+    // outgoing payments add up to outgoing tx amount
+    assert.equal(0, paymentSum.compare(tx.getOutgoingAmount()));
+  }
+  
+  // test incoming outputs
+  if (tx.getIsIncoming() && tx.getIsConfirmed()) {
+    assert(tx.getIncomingOutputs().length > 0);
+    for (let output of tx.getIncomingOutputs()) {
+      assert(output instanceof MoneroWalletOutput);
+      assert(output.getKeyImage());
+      TestUtils.testUnsignedBigInteger(output.getAmount(), true);
+      assert(output.getIndex() >= 0);
+      assert(output.getAccountIndex() >= 0);
+      assert(output.getSubaddressIndex() >= 0);
+      assert.equal("boolean", typeof output.getIsSpent());
+    }
+  } else {
+    assert.equal(undefined, tx.getIncomingOutputs());
+  }
 }
 
-// TODO: update with latest fields
-async function testTxWalletSend(tx, config, hasKey, hasPayments, wallet) {
-  if (config === undefined) config = new MoneroSendConfig();
-  testTxWalletCommon(tx);
-  assert(tx.getId());
-  assert.equal(true, tx.getIsOutgoing());
-  assert.equal(false, tx.getIsIncoming());
-  assert.equal(false, tx.getIsConfirmed()); // TODO: don't assume unconfirmed then send tx can be updated and tested with common method?
-  //assert.equal(0, tx.getConfirmationCount()); // TODO: re-enablet his and update test with all new tx fields
-  if (config.getDoNotRelay()) {
-    assert.equal(false, tx.getInTxPool());
-    assert.equal(true, tx.getDoNotRelay());
-    assert.equal(false, tx.getIsRelayed());
-    assert.equal(undefined, tx.getLastRelayedTime());
-    assert.equal(undefined, tx.getIsDoubleSpend());
-  } else {
-    assert.equal(true, tx.getInTxPool());
-    assert.equal(false, tx.getDoNotRelay());
-    assert.equal(true, tx.getIsRelayed());
-    assert(tx.getLastRelayedTime() > 0);
-    assert.equal(false, tx.getIsDoubleSpend());
-  }
-  assert.equal(config.getUnlockTime() ? config.getUnlockTime() : 0, tx.getUnlockTime());
-  assert(tx.getSrcAddress());
-  assert.equal(await wallet.getAddress(tx.getSrcAccountIndex(), tx.getSrcSubaddressIndex()), tx.getSrcAddress());
-  assert(tx.getSrcAccountIndex() >= 0);
-  assert.equal(0, tx.getSrcSubaddressIndex());
-  TestUtils.testUnsignedBigInteger(tx.getTotalAmount());
-  if (MoneroTx.DEFAULT_PAYMENT_ID === config.getPaymentId()) assert.equal(undefined, tx.getPaymentId());
-  else assert.equal(config.getPaymentId(), tx.getPaymentId());
-  TestUtils.testUnsignedBigInteger(tx.getFee(), true);
-  assert.equal(config.getMixin(), tx.getMixin());
-  assert(tx.getNote() === undefined || tx.getNote().length > 0);
-  assert.equal(undefined, tx.getBlockTimestamp());
-  assert.equal(undefined, tx.getReceivedTime());
-  if (hasKey) assert(tx.getKey().length > 0);
-  else assert.equal(undefined, tx.getKey());
-  assert.equal("string", typeof tx.getHex());
-  assert(tx.getHex().length > 0);
-  assert.equal(undefined, tx.getSize());
+/**
+ * Tests that common tx field types are valid regardless of tx state.
+ * 
+ * @param tx is the tx to test
+ */
+function testWalletTxTypes(tx) {
+  assert.equal("string", tx.getId());
+  assert.equal("boolean", typeof tx.getIsIncoming());
+  assert.equal("boolean", typeof tx.getIsOutgoing());
+  assert.equal("boolean", typeof tx.getIsConfirmed());
+  assert.equal("boolean", typeof tx.getIsCoinbase());
+  assert.equal("boolean", typeof tx.getIsFailed());
+  assert.equal("boolean", typeof tx.getIsRelayed());
+  assert.equal("boolean", typeof tx.getInTxPool());
+  TestUtils.testBigInteger(tx.getOutgoingAmount());
+  TestUtils.testBigInteger(tx.getIncomingAmount());
+  assert(Array.isArray(tx.getOutgoingPayments()));
+  assert(Array.isArray(tx.getIncomingPayments()));
+  assert(Array.isArray(tx.getIncomingOutputs()));
+  if (tx.getPaymentId()) assert.notEqual(MoneroTx.DEFAULT_PAYMENT_ID, tx.getPaymentId()); // default payment id converted to undefined
+  if (tx.getNote()) assert(tx.getNote().length > 0);  // empty notes converted to undefined
+  assert(tx.getUnlockTime() >= 0);
+  assert.equal(undefined, tx.getSize());   // TODO (monero-wallet-rpc): add tx_size to get_transfers and get_transfer_by_txid
   assert.equal(undefined, tx.getWeight());
-  assert(tx.getMetadata());
-  assert.equal(undefined, tx.getHeight());
-  
-  // test payments
-  if (hasPayments) {
-    assert(Array.isArray(tx.getPayments()));
-    assert(tx.getPayments().length > 0);
-    assert.deepEqual(config.getPayments(), tx.getPayments());
-  }
-  if (tx.getPayments()) await testTxPayments(wallet, tx);
-  
-  // test outputs
-  testTxOutputs(tx);
+}
+
+// TODO: test uncommon references
+function testWalletTxCopy(tx) {
+  let copy = tx.copy();
+  assert(copy instanceof MoneroWalletTx);
+  assert.deepEqual(tx, copy);
 }
 
 async function testTxPayments(wallet, tx) {
