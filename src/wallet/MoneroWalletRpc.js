@@ -786,7 +786,7 @@ class MoneroWalletRpc extends MoneroWallet {
         }
       }
       else if (key === "address") {
-        if (tx.getIsOutgoing()) tx.setSrcAddress(val);
+        if (isOutgoing) tx.setSrcAddress(val);
         else {
           if (incomingPayment === undefined) incomingPayment = new MoneroPayment();
           incomingPayment.setAddress(val);
