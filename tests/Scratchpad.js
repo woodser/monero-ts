@@ -14,13 +14,13 @@ describe("Scratchpad", function() {
     let wallet = TestUtils.getWalletRpc();
     await TestUtils.initWalletRpc();
 
-    await daemon.stopMining();
+//    await daemon.stopMining();
     
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
     
     // fetch txs
-    let txId = "85081bb4fb0c664da9804c0e7c5d354afbd96407a4f86f3e469ebf061d71c49e";
+    let txId = "5653a49ffcee37235cf98aecb0412c8230e2d83ee8b9acd19a3232b77895ae4d";
 //    let txId = "86b45bbe2f80617bc4c1926997d66698d4fbde009d281c01d01cb2798508b4e7"
     let filter = new MoneroTxFilter();
     //filter.setAccountIndex(0);

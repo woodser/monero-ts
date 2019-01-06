@@ -44,6 +44,7 @@ class MoneroTxWallet extends MoneroTx {
     this.setIsIncoming(isOutgoing === undefined ? undefined : !isOutgoing);
   }
   
+  // TODO: rename to getAmount()
   getTotalAmount() {
     return this.state.totalAmount;
   }

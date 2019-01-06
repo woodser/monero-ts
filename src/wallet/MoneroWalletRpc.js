@@ -284,25 +284,31 @@ class MoneroWalletRpc extends MoneroWallet {
           if (tx.getIsOutgoing() && tx.getIsRelayed() && !tx.getIsFailed() && tx.getTotalAmount().compare(new BigInteger(0)) === 0) {
             
             // replace tx amount with payment sum if available and different
-            // TODO monero-wallet-rpc: tx from/to same account has amount 0 but cached payments after first confirmation, still missing destinations
+            // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached payments, could have cached amount
+            // TODO monero-wallet-rpc: unconfirmed tx missing destinations even though known
             if (tx.getPayments()) {
               let paymentTotal = new BigInteger();
               for (let payment of tx.getPayments()) paymentTotal = paymentTotal.add(payment.getAmount());
               if (tx.getTotalAmount().compare(paymentTotal) !== 0) tx.setTotalAmount(paymentTotal);
             }
             
-            // outgoing txs occlude incoming txs so fabricate
-            // TODO monero-wallet-rpc : ttps://github.com/monero-project/monero/issues/4500
-            let copy = tx.copy();
-            copy.setIsIncoming(true);
-            copy.setSrcAddress(undefined);
-            copy.setSrcAccountIndex(undefined);
-            copy.setSrcSubaddressIndex(undefined);
+            // incoming counterpart not returned for outgoing tx, so fabricate it
+            // TODO monero-wallet-rpc: https://github.com/monero-project/monero/issues/4500
+            let txIn = tx.copy();
+            txIn.setIsIncoming(true);
+            if (txIn.getPayments()) {
+              assert.equal(1, txIn.getPayments().length);
+              txIn.getPayments()[0].setAccountIndex(txIn.getSrcAccountIndex());
+              txIn.getPayments()[0].setSubaddressIndex(txIn.getSrcSubaddressIndex());
+            }
+            txIn.setSrcAddress(undefined);
+            txIn.setSrcAccountIndex(undefined);
+            txIn.setSrcSubaddressIndex(undefined);
             if (rpcTx.txid === debugTxId) {
               console.log("FABRICATED");
-              console.log(copy.toString());
+              console.log(txIn.toString());
             }
-            MoneroWalletRpc._mergeTx(txs, copy);
+            MoneroWalletRpc._mergeTx(txs, txIn);
           }
         }
       }
