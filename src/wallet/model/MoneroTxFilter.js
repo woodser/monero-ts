@@ -125,7 +125,7 @@ class MoneroTxFilter {
    * Indicates if the given transaction meets the criteria of this filter and
    * will therefore not be filtered.
    * 
-   * @param {MoneroTxWallet} is the transaction to check
+   * @param {MoneroWalletTx} is the transaction to check
    * @returns {boolean} true if the filter criteria are met, false otherwise
    */
   meetsCriteria(tx) {

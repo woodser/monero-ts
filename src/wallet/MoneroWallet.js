@@ -239,7 +239,7 @@ class MoneroWallet {
    * Sweep the wallet's unlocked funds to an address.
    * 
    * @param address is the address to sweep the wallet's funds to
-   * @returns {MoneroTxWallet[]} are the resulting transactions
+   * @returns {MoneroWalletTx[]} are the resulting transactions
    */
   async sweepWallet(address) {
     return await this.sweep(new MoneroSendConfig(address));
@@ -250,7 +250,7 @@ class MoneroWallet {
    * 
    * @param accountIdx is the index of the account
    * @param address is the address to sweep the account's funds to
-   * @returns {MoneroTxWallet[]} are the resulting transactions
+   * @returns {MoneroWalletTx[]} are the resulting transactions
    */
   async sweepAccount(accountIdx, address) {
     let config = new MoneroSendConfig(address);
@@ -264,7 +264,7 @@ class MoneroWallet {
    * @param accountIdx is the index of the account
    * @param subaddressIdx is the index of the subaddress
    * @param address is the address to sweep the subaddress's funds to
-   * @returns {MoneroTxWallet[]} are the resulting transactions
+   * @returns {MoneroWalletTx[]} are the resulting transactions
    */
   async sweepSubaddress(accountIdx, subaddressIdx, address) {
     let config = new MoneroSendConfig(address);
@@ -277,7 +277,7 @@ class MoneroWallet {
    * Sweep unlocked funds.
    * 
    * @param config specifies the sweep configuration
-   * @returns {MoneroTxWallet[]} are the resulting transactions
+   * @returns {MoneroWalletTx[]} are the resulting transactions
    */
   async sweep(config) {
     throw new Error("Subclass must implement");
@@ -287,7 +287,7 @@ class MoneroWallet {
    * Sweep all unmixable dust outputs back to the wallet to make them easier to spend and mix.
    * 
    * @param doNotRelay specifies if the resulting transaction should not be relayed (defaults to false i.e. relayed)
-   * @returns {MoneroTxWallet[]} are the resulting transactions from sweeping dust
+   * @returns {MoneroWalletTx[]} are the resulting transactions from sweeping dust
    */
   async sweepDust(doNotRelay) {
     throw new Error("Subclass must implement");

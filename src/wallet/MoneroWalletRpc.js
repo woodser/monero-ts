@@ -9,7 +9,7 @@ const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
 const MoneroAccount = require("./model/MoneroAccount");
 const MoneroSubaddress = require("./model/MoneroSubaddress");
 const MoneroTxFilter = require("./model/MoneroTxFilter");
-const MoneroTxWallet = require("./model/MoneroTxWallet");
+const MoneroWalletTx = require("./model/MoneroWalletTx");
 const MoneroPayment = require("./model/MoneroPayment");
 const MoneroSendConfig = require("./model/MoneroSendConfig");
 const MoneroCheckTx = require("./model/MoneroCheckTx");
@@ -415,7 +415,7 @@ class MoneroWalletRpc extends MoneroWallet {
           // initialize tx per subaddress
           let respTxs = [];
           for (let i = 0; i < resp.tx_hash_list.length; i++) {
-            let tx = new MoneroTxWallet();
+            let tx = new MoneroWalletTx();
             tx.setSrcSubaddressIndex(subaddressIdx);
             respTxs.push(tx);
           }
@@ -434,7 +434,7 @@ class MoneroWalletRpc extends MoneroWallet {
         // initialize tx per subaddress
         let respTxs = [];
         for (let i = 0; i < resp.tx_hash_list.length; i++) {
-          let tx = new MoneroTxWallet();
+          let tx = new MoneroWalletTx();
           tx.setSrcSubaddressIndex(subaddressIdx);
           respTxs.push(tx);
         }
@@ -730,7 +730,7 @@ class MoneroWalletRpc extends MoneroWallet {
   static _buildTxWallet(rpcTx, tx) {  // TODO: change everything to safe set
         
     // initialize tx to return
-    if (!tx) tx = new MoneroTxWallet();
+    if (!tx) tx = new MoneroWalletTx();
     
     // initialize transaction type and state from rpc type
     if (rpcTx.type !== undefined) MoneroWalletRpc._decodeRpcType(rpcTx.type, tx);
@@ -790,7 +790,7 @@ class MoneroWalletRpc extends MoneroWallet {
         }
       }
       else if (key === "payment_id") {
-        if (MoneroTxWallet.DEFAULT_PAYMENT_ID !== val) tx.setPaymentId(val);  // default is undefined
+        if (MoneroWalletTx.DEFAULT_PAYMENT_ID !== val) tx.setPaymentId(val);  // default is undefined
       }
       else if (key === "subaddr_index") {
         if (typeof val === "number") {
@@ -842,7 +842,7 @@ class MoneroWalletRpc extends MoneroWallet {
   static _buildTxWalletOutput(rpcOutput) {
     
     // initialize tx
-    let tx = new MoneroTxWallet();
+    let tx = new MoneroWalletTx();
     tx.setIsIncoming(true);
     tx.setIsFailed(false);
     tx.setIsRelayed(true);
@@ -869,7 +869,7 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   /**
-   * Initializes a MoneroTxWallet[] from a list of rpc txs.
+   * Initializes a MoneroWalletTx[] from a list of rpc txs.
    * 
    * @param rpcTxs are the rpc txs to initialize the MoneroTxWallets from
    * @param txs are existing txs to initialize (optional)
@@ -893,7 +893,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // initialize txs if necessary
     if (!txs) {
       txs = [];
-      for (let i = 0; i < ids.length; i++) txs.push(new MoneroTxWallet());
+      for (let i = 0; i < ids.length; i++) txs.push(new MoneroWalletTx());
     }
     
     // build transactions
@@ -1037,8 +1037,8 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // initialize tx list
     let txs = [];
-    if (split) for (let i = 0; i < rpcResp.tx_hash_list.length; i++) txs.push(new MoneroTxWallet());
-    else txs.push(new MoneroTxWallet());
+    if (split) for (let i = 0; i < rpcResp.tx_hash_list.length; i++) txs.push(new MoneroWalletTx());
+    else txs.push(new MoneroWalletTx());
     
     // initialize known fields of tx
     for (let tx of txs) {

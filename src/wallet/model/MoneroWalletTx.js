@@ -7,7 +7,7 @@ const MoneroPayment = require("../../wallet/model/MoneroPayment");
 /**
  * Models a Monero transaction with additional fields in the context of a wallet.
  */
-class MoneroTxWallet extends MoneroTx {
+class MoneroWalletTx extends MoneroTx {
   
   /**
    * Constructs the model.
@@ -94,7 +94,7 @@ class MoneroTxWallet extends MoneroTx {
   }
   
   copy() {
-    return new MoneroTxWallet(this.toJson());
+    return new MoneroWalletTx(this.toJson());
   }
   
   toJson() {
@@ -166,4 +166,4 @@ class MoneroTxWallet extends MoneroTx {
   }
 }
 
-module.exports = MoneroTxWallet;
+module.exports = MoneroWalletTx;

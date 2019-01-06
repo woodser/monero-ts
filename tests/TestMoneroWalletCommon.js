@@ -6,7 +6,7 @@ const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/
 const MoneroWallet = require("../src/wallet/MoneroWallet");
 const MoneroDaemon = require("../src/daemon/MoneroDaemon");
 const MoneroTx = require("../src/daemon/model/MoneroTx");
-const MoneroTxWallet = require("../src/wallet/model/MoneroTxWallet");
+const MoneroWalletTx = require("../src/wallet/model/MoneroWalletTx");
 const MoneroTxFilter = require("../src/wallet/model/MoneroTxFilter");
 const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
 const MoneroPayment = require("../src/wallet/model/MoneroPayment");
@@ -376,7 +376,7 @@ class TestMoneroWalletCommon {
                   if (payment.getAccountIndex() === accountIdx && payment.getSubaddressIndex()) toSubaddress = true;
                 }
               }
-              assert(fromSubaddress || toSubaddress, "Tx has no payments to/from account"
+              assert(fromSubaddress || toSubaddress, "Tx has no payments to/from account");
             }
           }
         }
@@ -1751,7 +1751,7 @@ function testTxWalletCommon(tx) {
   // TODO: test modifying to ensure deep copy, break into its own test
   if (tx.getFee() !== undefined) assert(tx.getFee() instanceof BigInteger);
   let copy = tx.copy();
-  assert(copy instanceof MoneroTxWallet);
+  assert(copy instanceof MoneroWalletTx);
   assert.deepEqual(tx, copy);
 }
 
@@ -1766,7 +1766,7 @@ function testTxWalletCommon(tx) {
 async function testTxWalletGet(wallet, tx, unbalancedTxIds, hasOutgoingPayments) {
   
   // validate inputs
-  assert(tx instanceof MoneroTxWallet);
+  assert(tx instanceof MoneroWalletTx);
   assert(hasOutgoingPayments === undefined || typeof hasOutgoingPayments === "boolean");
   assert(wallet instanceof MoneroWallet);
   
