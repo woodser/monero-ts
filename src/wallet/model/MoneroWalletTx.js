@@ -156,39 +156,40 @@ class MoneroWalletTx extends MoneroTx {
   }
   
   merge(tx) {
-  
-    throw new Error("Not implemented");
     
     // merge base transaction
     super.merge(tx);
     
     // merge wallet extensions
+    this.setOutgoingAmount(MoneroUtils.reconcile(this.getOutgoingAmount()));
     this.setSrcAccountIndex(MoneroUtils.reconcile(this.getSrcAccountIndex(), tx.getSrcAccountIndex()));
     this.setSrcSubaddressIndex(MoneroUtils.reconcile(this.getSrcSubaddressIndex(), tx.getSrcSubaddressIndex()));
     this.setSrcAddress(MoneroUtils.reconcile(this.getSrcAddress(), tx.getSrcAddress()));
     this.setNote(MoneroUtils.reconcile(this.getNote(), tx.getNote()));
     
-    // merge payments
-    if (this.getPayments() === undefined) this.setPayments(tx.getPayments());
-    else if (tx.getPayments()) {
-      for (let merger of tx.getPayments()) {
-        let merged = false;
-        for (let mergee of this.getPayments()) {
-          if (mergee.getAccountIndex() === merger.getAccountIndex() && mergee.getSubaddressIndex() === merger.getSubaddressIndex()) {
-            mergee.merge(merger);
-            merged = true;
-            break;
-          }
-        }
-        if (!merged) this.getPayments().push(merger);
-      }
+    // merge outgoing payments
+    for (let outgoingPayment of tx.getOutgoingPayments()) {
+      mergePayment(this.getOutgoingPayments(), outgoingPayment);
     }
     
-    // total amount is sum of payments if they exist
-    if (this.getPayments()) {
-      let paymentTotal = new BigInteger(0);
-      for (let payment of this.getPayments()) paymentTotal = paymentTotal.add(payment.getAmount());
-      this.setTotalAmount(paymentTotal);
+    // merge incoming payments
+    for (let incomingPayment of tx.getIncomingPayments()) {
+      mergePayment(this.getIncomingPayments(), outgoingPayment);
+    }
+    
+    // incoming amount is sum of incoming payments
+    let incomingAmt = new BigInteger(0);
+    for (let payment of this.getIncomingPayments()) incomingAmt = incomingAmt.add(payment.getAmount());
+    this.setIncomingAmount(incomingAmt);
+    
+    function mergePayment(payments, payment) {
+      for (let aPayment of payments) {
+        if (aPayment.getAccountIndex() === payment.getAccountIndex() && aPayment.getSubaddressIndex() === payment.getSubaddressIndex()) {
+          aPayment.merge(payments);
+          return;
+        }
+      }
+      payments.push(payment);
     }
   }
 }
