@@ -1762,7 +1762,7 @@ async function testWalletTx(tx, testConfig) {
   // test confirmed
   if (tx.getIsConfirmed()) {
     assert.equal(true, tx.getIsRelayed());
-    assert.equal(false, tx.getDoNotRelay());
+    assert.equal(undefined, tx.getDoNotRelay());
     assert.equal(false, tx.getIsFailed());
     assert.equal(false, tx.getInTxPool());
     assert.notEqual(tx.getHeight() >= 0);
