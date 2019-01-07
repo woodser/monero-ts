@@ -1799,14 +1799,15 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(tx.getSrcSubaddressIndex(), 0);  // TODO: possible to know actual src subaddress index?
     assert(tx.getSrcAddress());
     if (testConfig.wallet) assert.equal(await testConfig.wallet.getAddress(tx.getSrcAccountIndex(), tx.getSrcSubaddressIndex()), tx.getSrcAddress());
-    assert.equal(false, tx.getIsCoinbase());
-  } else {
+    
     try {
-      assert.equal(undefined, tx.getFee());
+      assert.equal(false, tx.getIsCoinbase());
     } catch (e) {
       console.log(tx.toString());
       throw e;
     }
+  } else {
+    assert.equal(undefined, tx.getFee());
     assert.equal(undefined, tx.getSrcAccountIndex());
     assert.equal(undefined, tx.getSrcSubaddressIndex());
     assert.equal(undefined, tx.getSrcAddress());

@@ -34,7 +34,7 @@ class MoneroWalletOutput extends MoneroOutput {
   
   toString(indent) {
     let str = super.toString(indent) + "\n"
-    str += MoneroUtils.kvLine("Account index", this.getAccountIndex());
+    str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
     str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
