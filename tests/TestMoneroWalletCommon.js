@@ -1907,6 +1907,8 @@ async function testWalletTx(tx, testConfig) {
   if (testConfig.hasOutgoingPayments === true) assert(tx.getOutgoingPayments().length > 0);
   else if (testConfig.hasOutgoingPayments === false) assert.equal(undefined, tx.getOutgoingPayments());
   if (tx.getOutgoingPayments()) {
+    assert.equal(true, tx.getIsOutgoing());
+    assert(tx.getOutgoingPayments().length > 0);
     
     // test each payment and collect payment sum
     let paymentSum = new BigInteger(0);
@@ -1925,8 +1927,8 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(0, paymentSum.compare(tx.getOutgoingAmount()));
   }
   
-  // test incoming outputs
-  if (tx.getIsIncoming() && tx.getIsConfirmed()) {
+  // test vouts
+  if (tx.getIsConfirmed()) {
     assert(tx.getVouts().length > 0);
     for (let vout of tx.getVouts()) {
       assert(vout instanceof MoneroWalletOutput);

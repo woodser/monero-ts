@@ -280,18 +280,18 @@ class MoneroWalletRpc extends MoneroWallet {
           let tx = MoneroWalletRpc._buildWalletTx(rpcTx);
           MoneroWalletRpc._mergeTx(txs, tx);
           
-//          // special case: tx sent from/to same account can have amount 0 
-//          if (tx.getIsOutgoing() && tx.getIsRelayed() && !tx.getIsFailed() && tx.getTotalAmount().compare(new BigInteger(0)) === 0) {
-//            
-//            // replace tx amount with payment sum if available and different
-//            // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached payments, could have cached amount
-//            // TODO monero-wallet-rpc: unconfirmed tx missing destinations even though known
-//            if (tx.getPayments()) {
-//              let paymentTotal = new BigInteger();
-//              for (let payment of tx.getPayments()) paymentTotal = paymentTotal.add(payment.getAmount());
-//              if (tx.getTotalAmount().compare(paymentTotal) !== 0) tx.setTotalAmount(paymentTotal);
-//            }
-//            
+          // special case: tx sent from/to same account can have amount 0 
+          if (tx.getIsOutgoing() && tx.getIsRelayed() && !tx.getIsFailed() && tx.getOutgoingAmount().compare(new BigInteger(0)) === 0) {
+            
+            // replace tx amount with payment sum if available and different
+            // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached payments, could have cached amount
+            // TODO monero-wallet-rpc: unconfirmed tx missing destinations even though known
+            if (tx.getOutgoingPayments()) {
+              let paymentTotal = new BigInteger();
+              for (let payment of tx.getOutgoingPayments()) paymentTotal = paymentTotal.add(payment.getAmount());
+              if (tx.getOutgoingAmount().compare(paymentTotal) !== 0) tx.setOutgoingAmount(paymentTotal);
+            }
+            
 //            // incoming counterpart not returned for outgoing tx, so fabricate it
 //            // TODO monero-wallet-rpc: https://github.com/monero-project/monero/issues/4500
 //            let txIn = tx.copy();
@@ -316,7 +316,7 @@ class MoneroWalletRpc extends MoneroWallet {
 //              console.log(txIn.toString());
 //            }
 //            MoneroWalletRpc._mergeTx(txs, txIn);
-//          }
+          }
         }
       }
     }
@@ -808,6 +808,7 @@ class MoneroWalletRpc extends MoneroWallet {
         let payments = [];
         for (let rpcPayment of val) {
           let payment = new MoneroPayment();
+          payments.push(payment);
           for (let paymentKey of Object.keys(rpcPayment)) {
             if (paymentKey === "address") payment.setAddress(rpcPayment[paymentKey]);
             else if (paymentKey === "amount") payment.setAmount(new BigInteger(rpcPayment[paymentKey]));
