@@ -375,15 +375,10 @@ class TestMoneroWalletCommon {
               if (tx.getIncomingPayments()) {
                 for (let payment of tx.getIncomingPayments()) {
                   if (payment.getAccountIndex() === accountIdx && payment.getSubaddressIndex() === subaddressIdx) toSubaddress = true;
+                  if (payment.getAccountIndex() !== 0 && payment.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
                 }
               }
-              try {
-                assert(fromSubaddress || toSubaddress, "Tx has no payments from/to account");
-              } catch (e) {
-                console.log(accountIdx + ", " + subaddressIdx);
-                console.log(tx.toString());
-                throw e;
-              }
+              assert(fromSubaddress || toSubaddress, "Tx has no payments from/to account");
             }
           }
         }

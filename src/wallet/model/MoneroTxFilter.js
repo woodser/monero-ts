@@ -32,13 +32,13 @@ class MoneroTxFilter {
   setSubaddressIndices(subaddressIndices) {
     this.subaddressIndices = subaddressIndices;
   }
-
-  getTxIds() {
-    return this.txIds;
+  
+  getIsOutgoing() {
+    return this.isOutgoing;
   }
-
-  setTxIds(txIds) {
-    this.txIds = txIds;
+  
+  setIsOutgoing(isOutgoing) {
+    this.isOutgoing = isOutgoing;
   }
   
   getIsIncoming() {
@@ -49,12 +49,12 @@ class MoneroTxFilter {
     this.isIncoming = isIncoming;
   }
   
-  getIsOutgoing() {
-    return this.isOutgoing;
+  getTxIds() {
+    return this.txIds;
   }
-  
-  setIsOutgoing(isOutgoing) {
-    this.isOutgoing = isOutgoing;
+
+  setTxIds(txIds) {
+    this.txIds = txIds;
   }
   
   getIsConfirmed() {
@@ -64,7 +64,7 @@ class MoneroTxFilter {
   setIsConfirmed(isConfirmed) {
     this.isConfirmed = isConfirmed;
   }
-  
+
   getInTxPool() {
     return this.inTxPool;
   }
@@ -105,12 +105,20 @@ class MoneroTxFilter {
     this.maxHeight = maxHeight;
   }
   
-  getHasPayments() {
-    return this.hasPayments;
+  getHasOutgoingPayments() {
+    return this.hasOutgoingPayments;
   }
 
-  setHasPayments(hasPayments) {
-    this.hasPayments = hasPayments;
+  setHasOutgoingPayments(hasOutgoingPayments) {
+    this.hasOutgoingPayments = hasOutgoingPayments;
+  }
+  
+  getHasIncomingPayments() {
+    return this.hasIncomingPayments;
+  }
+
+  setHasIncomingPayments(hasIncomingPayments) {
+    this.hasIncomingPayments = hasIncomingPayments;
   }
   
   getPaymentIds() {
@@ -121,6 +129,8 @@ class MoneroTxFilter {
     this.paymentIds = paymentIds;
   }
   
+  // TODO: this more an instruction than a filter, remove altogether and force client to get their own vouts? prolly.
+  // just test specifically that vout txs can be merged with zisting txs lulz
   getFetchVouts() {
     return this.fetchVouts;
   }
@@ -137,7 +147,54 @@ class MoneroTxFilter {
    * @returns {boolean} true if the filter criteria are met, false otherwise
    */
   meetsCriteria(tx) {
-    // TODO: does not check account index or subaddress indices
+    
+    // filter on account idx by checking tx src account index and payment account indices
+    if (this.getAccountIndex() !== undefined) {
+      if (tx.getSrcAccountIndex() !== this.getAccountIndex()) {
+        let matchingPayment = false;
+        if (tx.getIncomingPayments()) {
+          for (let payment of tx.getIncomingPayments()) {
+            if (payment.getAccountIndex() === this.getAccountIndex()) {
+              matchingPayment = true;
+              break;
+            }
+          }
+        }
+        if (!matchingPayment) return false;
+      }
+    }
+    
+    // filter on subaddress idx by checking tx src subaddress index and payment subaddress indices
+    if (this.getSubaddressIndices() !== undefined) {
+      for (let subaddressIdx of this.getSubaddressIndices()) {
+        if (tx.getSrcSubaddressIndex() !== subaddressIdx) {
+          let matchingPayment = false;
+          if (tx.getIncomingPayments()) {
+            for (let payment of tx.getIncomingPayments()) {
+              if (payment.getSubaddressIndex() === subaddressIdx) {
+                matchingPayment = true;
+                break;
+              }
+            }
+          }
+          if (!matchingPayment) return false;
+        }
+      }
+    }
+    
+    // filter on outgoing payments
+    if (this.getHasOutgoingPayments() !== undefined) {
+      if (this.getHasOutgoingPayments() && (tx.getOutgoingPayments() === undefined || tx.getOutgoingPayments().length === 0)) return false;
+      if (!this.getHasOutgoingPayments() && tx.getOutgoingPayments() !== undefined && tx.getOutgoingPayments().length > 0) return false;
+    }
+    
+    // filter on incoming payments
+    if (this.getHasIncomingPayments() !== undefined) {
+      if (this.getHasIncomingPayments() && (tx.getIncomingPayments() === undefined || tx.getIncomingPayments().length === 0)) return false;
+      if (!this.getHasIncomingPayments() && tx.getIncomingPayments() !== undefined && tx.getIncomingPayments().length > 0) return false;
+    }
+    
+    // filter on remaining fields
     if (this.getTxIds() !== undefined && !this.getTxIds().includes(tx.getId())) return false;
     if (this.getIsIncoming() !== undefined && this.getIsIncoming() !== tx.getIsIncoming()) return false;
     if (this.getIsOutgoing() !== undefined && this.getIsOutgoing() !== tx.getIsOutgoing()) return false;
@@ -148,10 +205,8 @@ class MoneroTxFilter {
     if (this.getMinHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() < this.getMinHeight())) return false;
     if (this.getMaxHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() > this.getMaxHeight())) return false;
     if (this.getPaymentIds() !== undefined && !this.getPaymentIds().includes(tx.getPaymentId())) return false;
-    if (this.getHasPayments() !== undefined) {
-      if (this.getHasPayments() && (tx.getPayments() === undefined || tx.getPayments().length === 0)) return false;
-      if (!this.getHasPayments() && tx.getPayments() !== undefined && tx.getPayments().length > 0) return false;
-    }
+    
+    // tx is not filtered out
     return true;
   }
 }
