@@ -1,4 +1,5 @@
 HIGH
+not testing sweep
 differentiate filters, filter by account index or indices
 getTxs(filter) returns complete txs
 getPayments(filterOrAccountIdx, subaddressIdx, payment.getTxs(), can be optimized to only what's desired, unlike building complete txs, which may fetch incoming unecessarily
