@@ -25,14 +25,7 @@ class MoneroTx extends MoneroDaemonModel {
         let vouts = [];
         for (let jsonVout of json.vouts) vouts.push(new MoneroOutput(jsonVout));
         this.setVouts(vouts);
-      } else {
-        this.setVouts([]);
       }
-    }
-    
-    // construct anew
-    else {
-      this.setVouts([])
     }
   }
   
@@ -385,7 +378,7 @@ class MoneroTx extends MoneroDaemonModel {
     str += MoneroUtils.kvLine("Max used block height", this.getMaxUsedBlockHeight(), indent);
     str += MoneroUtils.kvLine("Max used block id", this.getMaxUsedBlockId(), indent);
     str += MoneroUtils.kvLine("Signatures", this.getSignatures(), indent);
-    if (this.getVouts().length > 0) {
+    if (this.getVouts()) {
       str += MoneroUtils.kvLine("Vouts", "", indent);
       for (let i = 0; i < this.getVouts().length; i++) {
         str += MoneroUtils.kvLine(i + 1, "", indent + 1);
@@ -441,17 +434,21 @@ class MoneroTx extends MoneroDaemonModel {
     this.setConfirmationCount(MoneroUtils.reconcile(this.getConfirmationCount(), tx.getConfirmationCount(), {resolveMax: true})); // confirmation count can increase
     
     // merge vouts
-    for (let merger of tx.getVouts()) {
-      let merged = false;
-      for (let mergee of this.getVouts()) {
-        if (mergee.getKeyImage() === merger.getKeyImage()) {
-          mergee.merge(merger);
-          merged = true;
-          break;
+    if (tx.getVouts()) {
+      for (let merger of tx.getVouts()) {
+        let merged = false;
+        if (!this.getVouts()) this.setVouts([]);
+        for (let mergee of this.getVouts()) {
+          if (mergee.getKeyImage() === merger.getKeyImage()) {
+            mergee.merge(merger);
+            merged = true;
+            break;
+          }
         }
+        if (!merged) this.getVouts().push(merger);
       }
-      if (!merged) this.getVouts().push(merger);
     }
+    
     
 //    // merge height
 //    if (this.getHeight() >= 0 || tx.getHeight() >= 0) {

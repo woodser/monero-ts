@@ -778,11 +778,8 @@ class MoneroWalletRpc extends MoneroWallet {
         else tx.setEstimatedBlockCountUntilConfirmed(undefined)
       }
       else if (key === "amount") {
-        if (isOutgoing) {
-          tx.setOutgoingAmount(new BigInteger(val));
-          tx.setIncomingAmount(new BigInteger(0));
-        } else {
-          tx.setOutgoingAmount(new BigInteger(0));
+        if (isOutgoing) tx.setOutgoingAmount(new BigInteger(val));
+        else {
           tx.setIncomingAmount(new BigInteger(val));
           if (incomingPayment === undefined) incomingPayment = new MoneroPayment();
           incomingPayment.setAmount(new BigInteger(val));
@@ -808,15 +805,16 @@ class MoneroWalletRpc extends MoneroWallet {
       }
       else if (key === "destinations") {
         assert(isOutgoing);
+        let payments = [];
         for (let rpcPayment of val) {
           let payment = new MoneroPayment();
-          tx.getOutgoingPayments().push(payment);
           for (let paymentKey of Object.keys(rpcPayment)) {
             if (paymentKey === "address") payment.setAddress(rpcPayment[paymentKey]);
             else if (paymentKey === "amount") payment.setAmount(new BigInteger(rpcPayment[paymentKey]));
             else throw new Error("Unrecognized transaction destination field: " + paymentKey);
           }
         }
+        tx.setOutgoingPayments(payments);
       }
       else if (key === "multisig_txset" && !val) {} // TODO: handle this with value
       else if (key === "unsigned_txset" && !val) {} // TODO: handle this with value
@@ -832,7 +830,7 @@ class MoneroWalletRpc extends MoneroWallet {
       assert(incomingPayment);
       incomingPayment.setAccountIndex(accountIdx);
       incomingPayment.setSubaddressIndex(subaddressIdx);
-      tx.getIncomingPayments().push(incomingPayment);
+      tx.setIncomingPayments([incomingPayment]);
     }
     
     // return initialized transaction
