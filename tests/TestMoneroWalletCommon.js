@@ -327,8 +327,14 @@ class TestMoneroWalletCommon {
         assert.equal(txs1.length, txs2.length);
         //testTxsBalance(txs1, await wallet.getBalance());  // TODO: implement balance checking, here and/or elsewhere
         for (let i = 0; i < txs1.length; i++) {
-          await testWalletTx(txs1[i], {wallet: wallet});
-          await testWalletTx(txs2[i], {wallet: wallet});
+          try {
+            await testWalletTx(txs1[i], {wallet: wallet});
+            await testWalletTx(txs2[i], {wallet: wallet});
+          } catch (e) {
+            console.log(txs1[i].toString());
+            throw e;
+          }
+
           TestUtils.assertTxsMergeable(txs1[i], txs2[i]);
           if (txs1[i].getIncomingPayments()) {
             for (let payment of txs1[i].getIncomingPayments()) {

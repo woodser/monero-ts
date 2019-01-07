@@ -22,8 +22,9 @@ describe("Scratchpad", function() {
     // fetch txs
     let txId = "07e50b08d46fa4075ac11ec05d8b5fe133026afc63d473db21a25b1f844a5bdd";
     let filter = new MoneroTxFilter();
-    filter.setAccountIndex(0);
-    filter.setSubaddressIndices([0]);
+    //filter.setAccountIndex(0);
+    //filter.setSubaddressIndices([0]);
+    //filter.setFetchVouts(true);
     filter.setTxIds([txId]);
     let txs = await wallet.getTxs(filter, undefined, txId);
     for (let tx of txs) {

@@ -230,19 +230,9 @@ class MoneroWalletRpc extends MoneroWallet {
     return address;
   }
   
-  async getTxs(filterOrAccountIdx, subaddressIdx, debugTxId) {
-  
+async getTxs(filterOrAccountIdx, subaddressIdx, debugTxId) {
+    
     // txs to return
-    let txs = [];
-    
-    // validate and standardize inputs to filter
-    
-  }
-  
-  
-  async getTxs(filterOrAccountIdx, subaddressIdx, debugTxId) {
-    
-    // stores merged txs across calls
     let txs = [];
     
     // validate and standardize inputs to filter
@@ -268,26 +258,19 @@ class MoneroWalletRpc extends MoneroWallet {
       indices = await this._getAllAccountAndSubaddressIndices();
     }
     
-    // params for `get_transfers` rpc call
-    // must get all payment types to know if tx is excluded
+    // build params for `get_transfers` rpc call
+    // must get everything in order to know what is excluded by filter
     let params = {};
-    params.in = true; // must get incoming payments to know if tx is excluded
+    params.in = true;
     params.out = true;
     params.pool = true;
     params.pending = true;
-    
-    // build common params for get_transfers
-    let params = {};
-    params.in = filter.getIsIncoming() !== false && filter.getIsConfirmed() !== false;
-    params.out = params.in || filter.getIsOutgoing() !== false && filter.getIsConfirmed() !== false;    // TODO monero-wallet-rpc: must fetch out if in because incoming txs are occluded by outgoing counterparts (https://github.com/monero-project/monero/issues/4500)
-    params.pool = filter.getIsIncoming() !== false && filter.getInTxPool() !== false;
-    params.pending = params.pool || filter.getIsOutgoing() !== false && filter.getInTxPool() !== false; // TODO monero-wallet-rpc: must fetch out if in because incoming txs are occluded by outgoing counterparts (https://github.com/monero-project/monero/issues/4500)
     params.failed = filter.getIsOutgoing() !== false && filter.getIsFailed() !== false;
     params.filter_by_height = filter.getMinHeight() !== undefined || filter.getMaxHeight() !== undefined;
     if (filter.getMinHeight() !== undefined) params.min_height = filter.getMinHeight();
     if (filter.getMaxHeight() !== undefined) params.max_height = filter.getMaxHeight();
     
-    // get transactions using `get_transfers`
+    // build txs using `get_transfers` for each target account
     for (let accountIdx of indices.keys()) {
       params.account_index = accountIdx;
       params.subaddr_indices = indices.get(accountIdx);
@@ -309,12 +292,18 @@ class MoneroWalletRpc extends MoneroWallet {
               if (tx.getOutgoingAmount().compare(paymentTotal) !== 0) tx.setOutgoingAmount(paymentTotal);
             }
             
-            // TODO: sweep from [0,1] to [0,0] generates vout but no get_transfers out unless subaddr_indices = [1]
-            // TODO: fabricate incoming from outgoing payment 0?
-            // TODO: fabricate outgoing payment 0
+//            // fabricate outgoing payment 0 if it doesn't exist
+//            if (tx.getOutgoingPayments()) {
+//              assert.equal(1, tx.getOutgoingPayments().length);
+//              assert.equal(0, new BigInteger(0).compare(tx.getOutgoingPayments()[0]));
+//              let payment = new MoneroPayment();
+//              payment.setAddress(tx.getSrcAddress());
+//              payment.setAmount(new BigInteger(0));
+//              tx.setOutgoingPayments([payment]);
+//            }
             
-            // fabricate incoming payment counterpart
-            // TODO monero-wallet-rpc: return known 'in' payment counterpart so client doesn't need to fabricate
+            // fabricate incoming payment 0
+            // TODO monero-wallet-rpc: return known 'in' payment counterpart so client doesn't need to fabricate #4500
             assert(tx.getIncomingPayments() === undefined);
             let incomingPayment = new MoneroPayment();
             incomingPayment.setAccountIndex(tx.getSrcAccountIndex());
@@ -327,24 +316,23 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
     
-    // TODO: probably split vout retrieval into separate call
-    // get txs with incoming outputs using `incoming_transfers`
-    if (filter.getIsIncoming() !== false) {
+    // if requested, build and merge txs with vouts using `incoming_transfers`
+    if (filter.getFetchVouts() === true) { // TODO: add to tx filter, document default behavior, must be set true to get vouts
       params = {};
       params.transfer_type = "all"; // TODO: suppport all | available | unavailable
       for (let accountIdx of indices.keys()) {
         
-        // semd request
+        // send request
         params.account_index = accountIdx;
         params.subaddr_indices = filter.getSubaddressIndices(); // undefined subaddr_indices will fetch all incoming_transfers
         let resp = await this.config.rpc.sendJsonRequest("incoming_transfers", params);
         
-        // convert response to txs with outputs and merge
+        // convert response to txs with vouts and merge
         if (resp.transfers === undefined) continue;
         for (let rpcVout of resp.transfers) {
           if (rpcVout.tx_hash === debugTxId) console.log(rpcVout);
           let tx = MoneroWalletRpc._buildWalletTxVout(rpcVout);
-          MoneroWalletRpc._mergeTx(txs, tx);
+          MoneroWalletRpc._mergeTx(txs, tx, true);  // TODO: skip merging tx if absent because of monero-wallet-rpc #4500
         }
       }
     }
@@ -989,10 +977,16 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Merges a transaction into a unique set of transactions.
    * 
+   * TODO monero-wallet-rpc: skipIfAbsent only necessary because incoming payments not returned
+   * when sent from/to same account
+   * 
    * @param txs are existing transactions to merge into
    * @param tx is the transaction to merge into the existing txs
+   * @param skipIfAbsent specifies if the tx should not be added
+   *        if it doesn't already exist.  Only necessasry to handle
+   *        missing incoming payments from #4500. // TODO
    */
-  static _mergeTx(txs, tx) {
+  static _mergeTx(txs, tx, skipIfAbsent) {
     assert(tx.getId());
     for (let aTx of txs) {
       if (aTx.getId() === tx.getId()) {
@@ -1000,7 +994,10 @@ class MoneroWalletRpc extends MoneroWallet {
         return;
       }
     }
-    txs.push(tx);  // tx was not merged so add
+    
+    // add tx if it doesn't already exist unless skipped
+    if (!skipIfAbsent) txs.push(tx);
+    else console.log("WARNING: tx does not already exist"); 
   }
   
   /**

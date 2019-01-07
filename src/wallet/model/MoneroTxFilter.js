@@ -121,6 +121,14 @@ class MoneroTxFilter {
     this.paymentIds = paymentIds;
   }
   
+  getFetchVouts() {
+    return this.fetchVouts;
+  }
+  
+  setFetchVouts(fetchVouts) {
+    this.fetchVouts = fetchVouts;
+  }
+  
   /**
    * Indicates if the given transaction meets the criteria of this filter and
    * will therefore not be filtered.
