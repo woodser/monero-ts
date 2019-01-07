@@ -1929,7 +1929,12 @@ async function testWalletTx(tx, testConfig) {
   
   // test vouts
   if (tx.getIsConfirmed()) {
-    assert(tx.getVouts().length > 0);
+    try {
+      assert(tx.getVouts().length > 0);
+    } catch (e) {
+      console.log(tx.toString());
+      throw e;
+    }
     for (let vout of tx.getVouts()) {
       assert(vout instanceof MoneroWalletOutput);
       assert(vout.getKeyImage());

@@ -295,6 +295,7 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
     
+    // TODO: probably split vout retrieval into separate call
     // get txs with incoming outputs using `incoming_transfers`
     if (filter.getIsIncoming() !== false) {
       params = {};
