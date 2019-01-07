@@ -327,14 +327,8 @@ class TestMoneroWalletCommon {
         assert.equal(txs1.length, txs2.length);
         //testTxsBalance(txs1, await wallet.getBalance());  // TODO: implement balance checking, here and/or elsewhere
         for (let i = 0; i < txs1.length; i++) {
-          try {
-            await testWalletTx(txs1[i], {wallet: wallet});
-            await testWalletTx(txs2[i], {wallet: wallet});
-          } catch (e) {
-            console.log(txs1[i].toString());
-            throw e;
-          }
-
+          await testWalletTx(txs1[i], {wallet: wallet});
+          await testWalletTx(txs2[i], {wallet: wallet});
           TestUtils.assertTxsMergeable(txs1[i], txs2[i]);
           if (txs1[i].getIncomingPayments()) {
             for (let payment of txs1[i].getIncomingPayments()) {
@@ -383,7 +377,13 @@ class TestMoneroWalletCommon {
                   if (payment.getAccountIndex() === accountIdx && payment.getSubaddressIndex() === subaddressIdx) toSubaddress = true;
                 }
               }
-              assert(fromSubaddress || toSubaddress, "Tx has no payments from/to account");
+              try {
+                assert(fromSubaddress || toSubaddress, "Tx has no payments from/to account");
+              } catch (e) {
+                console.log(accountIdx + ", " + subaddressIdx);
+                console.log(tx.toString());
+                throw e;
+              }
             }
           }
         }
@@ -1767,6 +1767,7 @@ async function getRandomTransactions(wallet, filter, minTxs, maxTxs) {
  *        testConfig.wallet is used to cross reference tx info if available
  *        testConfig.sendConfig specifies config of a tx generated with send()
  *        testConfig.hasOutgoingPayments specifies if the tx has outgoing payments, undefined if doesn't matter
+ *        testConfig.voutsFetched specifies if vouts were fetched and should therefore be expected
  */
 async function testWalletTx(tx, testConfig) {
   
@@ -1833,14 +1834,68 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(undefined, tx.getOutgoingAmount());
   }
   
+  // test outgoing payments per configuration
+  if (testConfig.hasOutgoingPayments === true) assert(tx.getOutgoingPayments().length > 0);
+  else if (testConfig.hasOutgoingPayments === false) assert.equal(undefined, tx.getOutgoingPayments());
+  if (tx.getOutgoingPayments()) {
+    assert.equal(true, tx.getIsOutgoing());
+    assert(tx.getOutgoingPayments().length > 0);
+    
+    // test each payment and collect payment sum
+    let paymentSum = new BigInteger(0);
+    for (let payment of tx.getOutgoingPayments()) {
+      assert(payment instanceof MoneroPayment);
+      assert(payment.getAddress());
+      TestUtils.testUnsignedBigInteger(payment.getAmount());
+      paymentSum = paymentSum.add(payment.getAmount());
+      assert.equal(undefined, payment.getAccountIndex());
+      assert.equal(undefined, payment.getSubaddressIndex());
+      
+      // TODO special case: payment amount of 0
+    }
+    
+    // outgoing payments add up to outgoing tx amount
+    assert.equal(0, paymentSum.compare(tx.getOutgoingAmount()));
+  }
+  
   // test incoming
   if (tx.getIsIncoming()) {
     TestUtils.testUnsignedBigInteger(tx.getIncomingAmount());
-    assert(tx.getIncomingPayments().length > 0);
     assert.equal(false, tx.getIsFailed());
   } else {
     assert.equal(undefined, tx.getIncomingAmount());
     assert.equal(undefined, tx.getIncomingPayments());
+  }
+  
+  // test incoming payments
+  if (tx.getIncomingPayments()) {
+    assert.equal(true, tx.getIsIncoming());
+    assert(tx.getIncomingPayments().length > 0);
+    
+    // test each payment and collect payment sum
+    let paymentSum = new BigInteger(0);
+    for (let payment of tx.getIncomingPayments()) {
+      assert(payment instanceof MoneroPayment);
+      assert(payment.getAddress());
+      TestUtils.testUnsignedBigInteger(payment.getAmount());
+      paymentSum = paymentSum.add(payment.getAmount());
+      assert(payment.getAccountIndex() >= 0);
+      assert(payment.getSubaddressIndex() >= 0);
+      if (testConfig.wallet) assert.equal(await testConfig.wallet.getAddress(payment.getAccountIndex(), payment.getSubaddressIndex()), payment.getAddress());
+      
+      // TODO special case: payment amount of 0
+    }
+    
+    // incoming payments add up to incoming tx amount
+    assert.equal(0, paymentSum.compare(tx.getIncomingAmount()));
+  } else {
+    
+    // payments can can be undefined if sent from/to same account
+    if (tx.getIsIncoming()) {
+      assert.equal(undefined, tx.getOutgoingPayments());
+      assert.equal(0, new BigInteger(0).compare(tx.getOutgoingAmount()));
+      assert.equal(0, new BigInteger(0).compare(tx.getIncomingAmount()));
+    }
   }
   
   // test coinbase tx
@@ -1897,58 +1952,9 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(undefined, tx.getMetadata());
   }
   
-  // test incoming payments
-  if (tx.getIncomingPayments()) {
-    assert.equal(true, tx.getIsIncoming());
-    assert(tx.getIncomingPayments().length > 0);
-    
-    // test each payment and collect payment sum
-    let paymentSum = new BigInteger(0);
-    for (let payment of tx.getIncomingPayments()) {
-      assert(payment instanceof MoneroPayment);
-      assert(payment.getAddress());
-      TestUtils.testUnsignedBigInteger(payment.getAmount());
-      paymentSum = paymentSum.add(payment.getAmount());
-      assert(payment.getAccountIndex() >= 0);
-      assert(payment.getSubaddressIndex() >= 0);
-      if (testConfig.wallet) assert.equal(await testConfig.wallet.getAddress(payment.getAccountIndex(), payment.getSubaddressIndex()), payment.getAddress());
-      
-      // TODO special case: payment amount of 0
-    }
-    
-    // incoming payments add up to incoming tx amount
-    assert.equal(0, paymentSum.compare(tx.getIncomingAmount()));
-  } else {
-    assert.equal(false, tx.getIsIncoming());
-  }
-  
-  // test outgoing payments per configuration
-  if (testConfig.hasOutgoingPayments === true) assert(tx.getOutgoingPayments().length > 0);
-  else if (testConfig.hasOutgoingPayments === false) assert.equal(undefined, tx.getOutgoingPayments());
-  if (tx.getOutgoingPayments()) {
-    assert.equal(true, tx.getIsOutgoing());
-    assert(tx.getOutgoingPayments().length > 0);
-    
-    // test each payment and collect payment sum
-    let paymentSum = new BigInteger(0);
-    for (let payment of tx.getOutgoingPayments()) {
-      assert(payment instanceof MoneroPayment);
-      assert(payment.getAddress());
-      TestUtils.testUnsignedBigInteger(payment.getAmount());
-      paymentSum = paymentSum.add(payment.getAmount());
-      assert.equal(undefined, payment.getAccountIndex());
-      assert.equal(undefined, payment.getSubaddressIndex());
-      
-      // TODO special case: payment amount of 0
-    }
-    
-    // outgoing payments add up to outgoing tx amount
-    assert.equal(0, paymentSum.compare(tx.getOutgoingAmount()));
-  }
-  
   // test vouts
   // TODO: ensure test of some vouts
-  if (tx.getIncomingPayments() || tx.getVouts()) {
+  if (testConfig.voutsFetched && (tx.getIncomingPayments() || tx.getVouts())) {
     assert(tx.getVouts().length > 0);
     for (let vout of tx.getVouts()) {
       assert(vout instanceof MoneroWalletOutput);

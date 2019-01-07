@@ -196,6 +196,18 @@ class MoneroWallet {
   }
   
   /**
+   * Get the account and subaddress index of the given address.
+   * 
+   * TODO: test and with unfound address
+   * 
+   * @param address is the address to get the account and subaddress index from
+   * @returns {MoneroSubaddress} contains the indices or undefined if not found
+   */
+  async getAddressIndex(address) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Get wallet transactions.
    * 
    * @param {MoneroTxFilter} or {number} returns transactions that meet the
