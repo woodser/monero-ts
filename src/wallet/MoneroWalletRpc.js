@@ -964,7 +964,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsFailed(false);
       tx.setIsCoinbase(false);
     } else if (rpcType === "block") {
-    	isOutgoing = true;
+    	isOutgoing = false;
       tx.setIsConfirmed(true);
       tx.setInTxPool(false);
       tx.setIsRelayed(true);
