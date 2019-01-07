@@ -988,17 +988,14 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param tx is the transaction to merge into the existing txs
    */
   static _mergeTx(txs, tx) {
-    assert(tx.getId() !== undefined);
-    assert(tx.getIsIncoming() !== undefined);
-    let merged = false;
+    assert(tx.getId());
     for (let aTx of txs) {
-      if (aTx.getId() === tx.getId() && aTx.getIsIncoming() === tx.getIsIncoming()) {
+      if (aTx.getId() === tx.getId()) {
         aTx.merge(tx);
-        merged = true;
-        break;
+        return;
       }
     }
-    if (!merged) txs.push(tx);  // add tx if it wasn't merged
+    txs.push(tx);  // tx was not merged so add
   }
   
   /**
