@@ -285,37 +285,11 @@ class MoneroWalletRpc extends MoneroWallet {
             
             // replace tx amount with payment sum if available and different
             // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached payments, could have cached amount
-            // TODO monero-wallet-rpc: unconfirmed tx missing destinations even though known
             if (tx.getOutgoingPayments()) {
               let paymentTotal = new BigInteger();
               for (let payment of tx.getOutgoingPayments()) paymentTotal = paymentTotal.add(payment.getAmount());
               if (tx.getOutgoingAmount().compare(paymentTotal) !== 0) tx.setOutgoingAmount(paymentTotal);
             }
-            
-//            // incoming counterpart not returned for outgoing tx, so fabricate it
-//            // TODO monero-wallet-rpc: https://github.com/monero-project/monero/issues/4500
-//            let txIn = tx.copy();
-//            txIn.setIsIncoming(true);
-//            if (txIn.getPayments()) {
-//              assert.equal(1, txIn.getPayments().length);
-//              assert(txIn.getPayments()[0].getAddress());
-//              assert(txIn.getPayments()[0].getAmount());
-//            } else {
-//              let payment = new MoneroPayment();
-//              payment.setAddress(await this.getAddress(txIn.getSrcAccountIndex(), txIn.getSrcSubaddressIndex()));
-//              payment.setAmount(new BigInteger(0));
-//              txIn.setPayments([payment])
-//            }
-//            txIn.getPayments()[0].setAccountIndex(txIn.getSrcAccountIndex());
-//            txIn.getPayments()[0].setSubaddressIndex(txIn.getSrcSubaddressIndex());
-//            txIn.setSrcAddress(undefined);
-//            txIn.setSrcAccountIndex(undefined);
-//            txIn.setSrcSubaddressIndex(undefined);
-//            if (rpcTx.txid === debugTxId) {
-//              console.log("FABRICATED");
-//              console.log(txIn.toString());
-//            }
-//            MoneroWalletRpc._mergeTx(txs, txIn);
           }
         }
       }
