@@ -1,5 +1,4 @@
 HIGH
-
 differentiate filters, filter by account index or indices
 getTxs(filter) returns complete txs
 getPayments(filterOrAccountIdx, subaddressIdx, payment.getTxs(), can be optimized to only what's desired, unlike building complete txs, which may fetch incoming unecessarily
@@ -7,12 +6,11 @@ getIncomingPayments(filterOrAccountIdx, subaddressIdx)
 getOutgoingPayments(filterOrAccountIdx, subaddressIdx)
 getVouts(filterOrAccoutnIdx, subaddressIdx);
 differentiate filters
-
-
 test tx filter hasOutgoingPayments, hasIncomingPayments
 simple tests for getting incoming/outgoing txs
-common tx tests need cleanup
 one place to test wallet accounting with txs (unspent outputs = wallet balance, incoming amts = outgoing amts, etc)
+
+common tx tests need cleanup
 set subaddress getUnspentOutputCount() with outputs assigned
 tx serialization and deserialization tests
 GC error if tx.merge input === tx, test specifically

@@ -577,6 +577,19 @@ class TestMoneroWalletCommon {
 //          assert(txs.length === 0);
 //        });
 //      }
+      
+      it("Can get payments associated with a wallet", async function() {
+        throw new Error("Not implemented");
+      })
+      
+      it("Can get payments associated with an account", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can get payments associated with a subaddress", async function() {
+        throw new Error("Not implemented");
+      });
+      
 //      
 //      it("Has a balance that is the sum of all unspent incoming transactions", async function() {
 //
