@@ -374,10 +374,10 @@ class TestMoneroWalletCommon {
               let toSubaddress = false;
               if (tx.getIncomingPayments()) {
                 for (let payment of tx.getIncomingPayments()) {
-                  if (payment.getAccountIndex() === accountIdx && payment.getSubaddressIndex()) toSubaddress = true;
+                  if (payment.getAccountIndex() === accountIdx && payment.getSubaddressIndex() === subaddressIdx) toSubaddress = true;
                 }
               }
-              assert(fromSubaddress || toSubaddress, "Tx has no payments to/from account");
+              assert(fromSubaddress || toSubaddress, "Tx has no payments from/to account");
             }
           }
         }
@@ -1928,13 +1928,9 @@ async function testWalletTx(tx, testConfig) {
   }
   
   // test vouts
-  if (tx.getIsConfirmed()) {
-    try {
-      assert(tx.getVouts().length > 0);
-    } catch (e) {
-      console.log(tx.toString());
-      throw e;
-    }
+  // TODO: ensure test of some vouts
+  if (tx.getIncomingPayments() || tx.getVouts()) {
+    assert(tx.getVouts().length > 0);
     for (let vout of tx.getVouts()) {
       assert(vout instanceof MoneroWalletOutput);
       assert(vout.getKeyImage());
@@ -1959,7 +1955,14 @@ function testWalletTxTypes(tx) {
   assert.equal("boolean", typeof tx.getIsIncoming());
   assert.equal("boolean", typeof tx.getIsOutgoing());
   assert.equal("boolean", typeof tx.getIsConfirmed());
-  assert.equal("boolean", typeof tx.getIsCoinbase());
+  try {
+    assert.equal("boolean", typeof tx.getIsCoinbase());
+
+    
+  } catch (e) {
+    console.log(tx.toString());
+    throw e;
+  }
   assert.equal("boolean", typeof tx.getIsFailed());
   assert.equal("boolean", typeof tx.getIsRelayed());
   assert.equal("boolean", typeof tx.getInTxPool());
