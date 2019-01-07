@@ -1795,7 +1795,6 @@ async function testWalletTx(tx, testConfig) {
   // test outgoing
   if (tx.getIsOutgoing()) {
     TestUtils.testUnsignedBigInteger(tx.getOutgoingAmount());
-    TestUtils.testUnsignedBigInteger(tx.getFee());
     assert(tx.getSrcAccountIndex() >= 0);
     assert.equal(tx.getSrcSubaddressIndex(), 0);  // TODO: possible to know actual src subaddress index?
     assert(tx.getSrcAddress());
@@ -1804,12 +1803,6 @@ async function testWalletTx(tx, testConfig) {
   } else {
     assert.equal(undefined, tx.getOutgoingAmount());
     assert.equal(undefined, tx.getOutgoingPayments());
-    try {
-      if (!tx.getIsCoinbase()) assert.equal(undefined, tx.getFee());
-    } catch (e) {
-      console.log(tx.toString());
-      throw e;
-    }
     assert.equal(undefined, tx.getSrcAccountIndex());
     assert.equal(undefined, tx.getSrcSubaddressIndex());
     assert.equal(undefined, tx.getSrcAddress());
@@ -1817,8 +1810,8 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(undefined, tx.getHex());
     assert.equal(undefined, tx.getMetadata());
     assert.equal(undefined, tx.getKey());
-    assert.equal(0, tx.getOutgoingPayments().length);
-    assert.equal(0, tx.getOutgoingAmount().compare(new BigInteger(0)));
+    assert.equal(undefined, tx.getOutgoingPayments());
+    assert.equal(undefined, tx.getOutgoingAmount());
   }
   
   // test incoming
@@ -1888,7 +1881,7 @@ async function testWalletTx(tx, testConfig) {
   // test incoming payments
   if (tx.getIncomingPayments()) {
     assert.equal(true, tx.getIsIncoming());
-    assert(tx.getIncomingPayments().length > 1);
+    assert(tx.getIncomingPayments().length > 0);
     
     // test each payment and collect payment sum
     let paymentSum = new BigInteger(0);
@@ -1913,7 +1906,7 @@ async function testWalletTx(tx, testConfig) {
   // test outgoing payments per configuration
   if (testConfig.hasOutgoingPayments === true) assert(tx.getOutgoingPayments().length > 0);
   else if (testConfig.hasOutgoingPayments === false) assert.equal(undefined, tx.getOutgoingPayments());
-  if (tx.getOutgoingPayments().length > 0) {
+  if (tx.getOutgoingPayments()) {
     
     // test each payment and collect payment sum
     let paymentSum = new BigInteger(0);
@@ -1963,6 +1956,7 @@ function testWalletTxTypes(tx) {
   assert.equal("boolean", typeof tx.getIsFailed());
   assert.equal("boolean", typeof tx.getIsRelayed());
   assert.equal("boolean", typeof tx.getInTxPool());
+  TestUtils.testUnsignedBigInteger(tx.getFee());
   assert.equal(undefined, tx.getVins());  // TODO no way to expose vins?
   if (tx.getPaymentId()) assert.notEqual(MoneroTx.DEFAULT_PAYMENT_ID, tx.getPaymentId()); // default payment id converted to undefined
   if (tx.getNote()) assert(tx.getNote().length > 0);  // empty notes converted to undefined
