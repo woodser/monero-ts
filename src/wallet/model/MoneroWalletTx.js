@@ -159,7 +159,7 @@ class MoneroWalletTx extends MoneroTx {
     super.merge(tx);
     
     // merge wallet extensions
-    this.setOutgoingAmount(MoneroUtils.reconcile(this.getOutgoingAmount()));
+    this.setOutgoingAmount(MoneroUtils.reconcile(this.getOutgoingAmount(), tx.getOutgoingAmount()));
     this.setSrcAccountIndex(MoneroUtils.reconcile(this.getSrcAccountIndex(), tx.getSrcAccountIndex()));
     this.setSrcSubaddressIndex(MoneroUtils.reconcile(this.getSrcSubaddressIndex(), tx.getSrcSubaddressIndex()));
     this.setSrcAddress(MoneroUtils.reconcile(this.getSrcAddress(), tx.getSrcAddress()));
