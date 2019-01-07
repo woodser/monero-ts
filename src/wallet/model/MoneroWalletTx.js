@@ -126,9 +126,9 @@ class MoneroWalletTx extends MoneroTx {
   }
   
   toString(indent = 0) {
-    let str = "";
-    str += MoneroUtils.kvLine("Is incoming", this.getIsIncoming(), indent);
+    let str = super.toString(indent);
     str += MoneroUtils.kvLine("Is outgoing", this.getIsOutgoing(), indent);
+    str += MoneroUtils.kvLine("Is incoming", this.getIsIncoming(), indent);
     str += MoneroUtils.kvLine("Incoming amount", this.getIncomingAmount(), indent);
     str += MoneroUtils.kvLine("Outgoing amount", this.getOutgoingAmount(), indent);
     str += MoneroUtils.kvLine("Source account index", this.getSrcAccountIndex(), indent);
@@ -139,7 +139,7 @@ class MoneroWalletTx extends MoneroTx {
       str += MoneroUtils.kvLine("Outgoing payments", "", indent);
       for (let i = 0; i < this.getOutgoingPayments().length; i++) {
         str += MoneroUtils.kvLine(i + 1, "", indent + 1);
-        str += this.getOutgoingPayments()[i].toString(indent + 2);
+        str += this.getOutgoingPayments()[i].toString(indent + 2) + "\n";
         if (i < this.getOutgoingPayments().length - 1) str += '\n'
       }
     }
@@ -147,12 +147,10 @@ class MoneroWalletTx extends MoneroTx {
       str += MoneroUtils.kvLine("Incoming payments", "", indent);
       for (let i = 0; i < this.getIncomingPayments().length; i++) {
         str += MoneroUtils.kvLine(i + 1, "", indent + 1);
-        str += this.getIncomingPayments()[i].toString(indent + 2);
-        if (i < this.getIncomingPayments().length - 1) str += '\n'
+        str += this.getIncomingPayments()[i].toString(indent + 2) + "\n";
       }
     }
-    str += super.toString(indent);
-    return str;
+    return str.slice(0, str.length - 1);  // strip last newline
   }
   
   merge(tx) {

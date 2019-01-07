@@ -1800,7 +1800,12 @@ async function testWalletTx(tx, testConfig) {
     if (testConfig.wallet) assert.equal(await wallet.getAddress(tx.getSrcAccountIndex(), tx.getSrcSubaddressIndex()), tx.getSrcAddress());
     assert.equal(false, tx.getIsCoinbase());
   } else {
-    assert.equal(undefined, tx.getFee());
+    try {
+      assert.equal(undefined, tx.getFee());
+    } catch (e) {
+      console.log(tx.toString());
+      throw e;
+    }
     assert.equal(undefined, tx.getSrcAccountIndex());
     assert.equal(undefined, tx.getSrcSubaddressIndex());
     assert.equal(undefined, tx.getSrcAddress());
