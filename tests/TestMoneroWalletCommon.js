@@ -1801,20 +1801,20 @@ async function testWalletTx(tx, testConfig) {
     if (testConfig.wallet) assert.equal(await testConfig.wallet.getAddress(tx.getSrcAccountIndex(), tx.getSrcSubaddressIndex()), tx.getSrcAddress());
     assert.equal(false, tx.getIsCoinbase());
   } else {
-    if (!tx.getIsCoinbase()) assert.equal(undefined, tx.getFee());
+    try {
+      if (!tx.getIsCoinbase()) assert.equal(undefined, tx.getFee());
+    } catch (e) {
+      console.log(tx.toString());
+      throw e;
+    }
     assert.equal(undefined, tx.getSrcAccountIndex());
     assert.equal(undefined, tx.getSrcSubaddressIndex());
     assert.equal(undefined, tx.getSrcAddress());
     assert.equal(undefined, tx.getMixin());
     assert.equal(undefined, tx.getHex());
-    try { 
-      assert.equal(undefined, tx.getMetadata());
-    } catch (e) {
-      console.log(tx.toString());
-      throw e;
-    }
+    assert.equal(undefined, tx.getMetadata());
     assert.equal(undefined, tx.getKey());
-    assert.equal(tx.getOutgoingPayments().length === 0);
+    assert.equal(0, tx.getOutgoingPayments().length);
     assert.equal(0, tx.getOutgoingAmount().compare(new BigInteger(0)));
   }
   
