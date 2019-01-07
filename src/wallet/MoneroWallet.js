@@ -199,7 +199,7 @@ class MoneroWallet {
    * Get wallet transactions.
    * 
    * @param {MoneroTxFilter} or {number} returns transactions that meet the
-   *        filter or transactions to/from the account index (defaults to all)
+   *        filter or transactions from/to the account index (defaults to all)
    * @param {number} returns transactions to/from this subaddress within the 
    *        given account (defaults to all)
    */
