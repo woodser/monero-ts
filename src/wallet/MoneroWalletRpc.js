@@ -292,6 +292,7 @@ async getTxs(filterOrAccountIdx, subaddressIdx, debugTxId) {
               if (tx.getOutgoingAmount().compare(paymentTotal) !== 0) tx.setOutgoingAmount(paymentTotal);
             }
             
+            // TODO: test and enable this?
 //            // fabricate outgoing payment 0 if it doesn't exist
 //            if (tx.getOutgoingPayments()) {
 //              assert.equal(1, tx.getOutgoingPayments().length);
