@@ -3,7 +3,6 @@ const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/bigi
 const GenUtils = require("../utils/GenUtils");
 const MoneroUtils = require("../utils/MoneroUtils");
 const MoneroRpc = require("../rpc/MoneroRpc");
-const MoneroOutput = require("../daemon/model/MoneroOutput");
 const MoneroWallet = require("./MoneroWallet");
 const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
 const MoneroAccount = require("./model/MoneroAccount");
@@ -11,6 +10,7 @@ const MoneroSubaddress = require("./model/MoneroSubaddress");
 const MoneroTxFilter = require("./model/MoneroTxFilter");
 const MoneroWalletTx = require("./model/MoneroWalletTx");
 const MoneroPayment = require("./model/MoneroPayment");
+const MoneroWalletOutput = require("./model/MoneroWalletOutput");
 const MoneroSendConfig = require("./model/MoneroSendConfig");
 const MoneroCheckTx = require("./model/MoneroCheckTx");
 const MoneroCheckReserve = require("./model/MoneroCheckReserve");
@@ -849,7 +849,7 @@ class MoneroWalletRpc extends MoneroWallet {
     tx.setIsFailed(false);
     
     // initialize output
-    let output = new MoneroOutput();
+    let output = new MoneroWalletOutput();
     for (let key of Object.keys(rpcOutput)) {
       let val = rpcOutput[key];
       if (key === "amount") output.setAmount(new BigInteger(val));

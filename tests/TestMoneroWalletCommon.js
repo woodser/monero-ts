@@ -10,6 +10,7 @@ const MoneroWalletTx = require("../src/wallet/model/MoneroWalletTx");
 const MoneroTxFilter = require("../src/wallet/model/MoneroTxFilter");
 const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
 const MoneroPayment = require("../src/wallet/model/MoneroPayment");
+const MoneroWalletOutput = require("../src/wallet/model/MoneroWalletOutput");
 
 // test constants
 const MIXIN = 11;
@@ -1797,7 +1798,7 @@ async function testWalletTx(tx, testConfig) {
     assert(tx.getSrcAccountIndex() >= 0);
     assert.equal(tx.getSrcSubaddressIndex(), 0);  // TODO: possible to know actual src subaddress index?
     assert(tx.getSrcAddress());
-    if (testConfig.wallet) assert.equal(await wallet.getAddress(tx.getSrcAccountIndex(), tx.getSrcSubaddressIndex()), tx.getSrcAddress());
+    if (testConfig.wallet) assert.equal(await testConfig.wallet.getAddress(tx.getSrcAccountIndex(), tx.getSrcSubaddressIndex()), tx.getSrcAddress());
     assert.equal(false, tx.getIsCoinbase());
   } else {
     try {
@@ -1886,7 +1887,7 @@ async function testWalletTx(tx, testConfig) {
       paymentSum = paymentSum.add(payment.getAmount());
       assert(payment.getAccountIndex() >= 0);
       assert(payment.getSubaddressIndex() >= 0);
-      if (testConfig.wallet) assert.equal(await wallet.getAddress(payment.getAccountIndex(), payment.getSubaddressIndex()), payment.Address());
+      if (testConfig.wallet) assert.equal(await testConfig.wallet.getAddress(payment.getAccountIndex(), payment.getSubaddressIndex()), payment.getAddress());
       
       // TODO special case: payment amount of 0
     }
@@ -1921,18 +1922,18 @@ async function testWalletTx(tx, testConfig) {
   
   // test incoming outputs
   if (tx.getIsIncoming() && tx.getIsConfirmed()) {
-    assert(tx.getIncomingOutputs().length > 0);
-    for (let output of tx.getIncomingOutputs()) {
-      assert(output instanceof MoneroWalletOutput);
-      assert(output.getKeyImage());
-      TestUtils.testUnsignedBigInteger(output.getAmount(), true);
-      assert(output.getIndex() >= 0);
-      assert(output.getAccountIndex() >= 0);
-      assert(output.getSubaddressIndex() >= 0);
-      assert.equal("boolean", typeof output.getIsSpent());
+    assert(tx.getVouts().length > 0);
+    for (let vout of tx.getVouts()) {
+      assert(vout instanceof MoneroWalletOutput);
+      assert(vout.getKeyImage());
+      TestUtils.testUnsignedBigInteger(vout.getAmount(), true);
+      assert(vout.getIndex() >= 0);
+      assert(vout.getAccountIndex() >= 0);
+      assert(vout.getSubaddressIndex() >= 0);
+      assert.equal("boolean", typeof vout.getIsSpent());
     }
   } else {
-    assert.equal(undefined, tx.getIncomingOutputs());
+    assert.equal(undefined, tx.getVouts());
   }
 }
 

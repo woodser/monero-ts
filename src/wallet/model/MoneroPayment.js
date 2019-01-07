@@ -78,6 +78,7 @@ class MoneroPayment {
    * @param payment is the payment to merge into this one
    */
   merge(payment) {
+    assert(payment instanceof MoneroPayment);
     this.setAddress(MoneroUtils.reconcile(this.getAddress(), payment.getAddress()));
     this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), payment.getAccountIndex()));
     this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), payment.getSubaddressIndex()));

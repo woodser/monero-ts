@@ -21,11 +21,11 @@ class MoneroWalletTx extends MoneroTx {
     if (json) {
       this.setOutgoingAmount(BigInteger.parse(json.outgoingAmount));
       let outgoingPayments = [];
-      for (let outgoingPaymentJson of json.outgoingPayments) payments.push(new MoneroPayment(outgoingPaymentJson));
+      for (let outgoingPaymentJson of json.outgoingPayments) outgoingPayments.push(new MoneroPayment(outgoingPaymentJson));
       this.setOutgoingPayments(outgoingPayments);
       this.setIncomingAmount(BigInteger.parse(json.incomingAmount));
       let incomingPayments = [];
-      for (let incomingPaymentJson of json.incomingPayments) payments.push(new MoneroPayment(incomingPaymentJson));
+      for (let incomingPaymentJson of json.incomingPayments) incomingPayments.push(new MoneroPayment(incomingPaymentJson));
       this.setIncomingPayments(incomingPayments);
     }
     
@@ -178,7 +178,7 @@ class MoneroWalletTx extends MoneroTx {
     function mergePayment(payments, payment) {
       for (let aPayment of payments) {
         if (aPayment.getAccountIndex() === payment.getAccountIndex() && aPayment.getSubaddressIndex() === payment.getSubaddressIndex()) {
-          aPayment.merge(payments);
+          aPayment.merge(payment);
           return;
         }
       }
