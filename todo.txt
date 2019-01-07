@@ -1,4 +1,15 @@
 HIGH
+
+differentiate filters, filter by account index or indices
+getTxs(filter) returns complete txs
+getPayments(filterOrAccountIdx, subaddressIdx, payment.getTxs(), can be optimized to only what's desired, unlike building complete txs, which may fetch incoming unecessarily
+getIncomingPayments(filterOrAccountIdx, subaddressIdx)
+getOutgoingPayments(filterOrAccountIdx, subaddressIdx)
+getVouts(filterOrAccoutnIdx, subaddressIdx);
+differentiate filters
+
+
+test tx filter hasOutgoingPayments, hasIncomingPayments
 simple tests for getting incoming/outgoing txs
 common tx tests need cleanup
 one place to test wallet accounting with txs (unspent outputs = wallet balance, incoming amts = outgoing amts, etc)
@@ -22,6 +33,7 @@ test getting coinbase txs by id
 verify that all tx fields are being tested
 
 LOW
+get_transfers filters by subaddress idx even though minor 0 always returned
 switch to jest?
 time profiling
 in wallet implementation: "prepend the last 3 blocks, should be enough to guard against a block or two's reorg" pull_and_parse_next_blocks

@@ -231,6 +231,16 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getTxs(filterOrAccountIdx, subaddressIdx, debugTxId) {
+  
+    // txs to return
+    let txs = [];
+    
+    // validate and standardize inputs to filter
+    
+  }
+  
+  
+  async getTxs(filterOrAccountIdx, subaddressIdx, debugTxId) {
     
     // stores merged txs across calls
     let txs = [];
@@ -257,6 +267,14 @@ class MoneroWalletRpc extends MoneroWallet {
       if (filter.getSubaddressIndices() !== undefined) throw new Error("Filter specifies subaddress indices but not an account index");
       indices = await this._getAllAccountAndSubaddressIndices();
     }
+    
+    // params for `get_transfers` rpc call
+    // must get all payment types to know if tx is excluded
+    let params = {};
+    params.in = true; // must get incoming payments to know if tx is excluded
+    params.out = true;
+    params.pool = true;
+    params.pending = true;
     
     // build common params for get_transfers
     let params = {};
