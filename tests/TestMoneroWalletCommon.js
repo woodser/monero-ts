@@ -1621,7 +1621,7 @@ class TestMoneroWalletCommon {
           assert(fetchedTxs.length > 0);
           
           // test fetched txs
-          assert.equal(undefined, that.unbalancedTxIds);  // TODO: remove this entirely?
+          assert.deepEqual([], that.unbalancedTxIds);  // TODO: remove this entirely?
           await testOutInPairs(wallet, fetchedTxs, sendConfig, that.unbalancedTxIds);
 
           // merge fetched txs into updated txs and original sent txs
@@ -1675,10 +1675,7 @@ class TestMoneroWalletCommon {
           // TODO monero-wallet-rpc: incoming txs occluded by their outgoing counterpart #4500
           if (!txIn) {
             assert.equal(true, txOut.getInTxPool());
-            if (txOut.getTotalAmount().toJSValue() === 0) {
-              console.log(txOut.toString());
-            }
-            assert(txOut.getTotalAmount().toJSValue() > 0); // counterpart only fabricated for 0 amt txs
+            assert(txOut.getOutgoingAmount().toJSValue() > 0); // counterpart only fabricated for 0 amt txs
             console.log("WARNING: unconfirmed outgoing tx " + txOut.getId() + " missing incoming counterpart (issue #4500)");
           } else {
             await testOutInPair(txOut, txIn);
@@ -1688,13 +1685,12 @@ class TestMoneroWalletCommon {
       
       async function testOutInPair(txOut, txIn) {
         assert.equal(txOut.getIsConfirmed(), txIn.getIsConfirmed());
-        assert.equal(0, txOut.getTotalAmount().compare(txIn.getTotalAmount()));
+        assert.equal(0, txOut.getOutgoingAmount().compare(txIn.getIncomingAmount()));
       }
       
       async function testUnlockTx(wallet, tx, sendConfig, unbalancedTxIds) {
-        
         try {
-          await testTxWalletGet(wallet, tx, unbalancedTxIds);
+          await testWalletTx(tx, {wallet: wallet});
         } catch (e) {
           console.log("This tx failed");
           console.log(tx.toString());
@@ -2012,88 +2008,6 @@ function testWalletTxCopy(tx) {
   let copy = tx.copy();
   assert(copy instanceof MoneroWalletTx);
   assert.deepEqual(tx, copy);
-}
-
-async function testTxPayments(wallet, tx) {
-  assert(tx.getPayments());
-  assert(tx.getPayments().length > 0);
-  
-  // test individual payments
-  let paymentTotal = new BigInteger();
-  for (let payment of tx.getPayments()) {
-    assert(payment.getAddress());
-    TestUtils.testUnsignedBigInteger(payment.getAmount());
-    paymentTotal = paymentTotal.add(payment.getAmount());
-    
-    // test incoming payment
-    if (tx.getIsIncoming()) {
-      assert(payment.getAccountIndex() >= 0);
-      assert(payment.getSubaddressIndex() >= 0);
-      assert.equal(await wallet.getAddress(payment.getAccountIndex(), payment.getSubaddressIndex()), payment.getAddress());
-      
-      // outputs add up to payments unless payment 0 where one send output and one change output is expected but impossible to differentiate
-      assert(tx.getVouts());
-      assert(tx.getVouts().length > 0);
-      let subaddrOutputs = [];
-      let outputSum = new BigInteger(0);
-      for (let output of tx.getVouts()) {
-        if (output.getAccountIndex() === payment.getAccountIndex() && output.getSubaddressIndex() === payment.getSubaddressIndex()) {
-          subaddrOutputs.push(output);
-          outputSum = outputSum.add(output.getAmount());
-        }
-      }
-      
-      // disabled because it adds a *lot* of time to the tests for high tx test wallet
-//      // payment amount may be different from output sum iff sent from/to same account
-//      if (outputSum.compare(payment.getAmount()) !== 0) {
-//        
-//        // fetch outgoing counterpart
-//        let filter = new MoneroTxFilter();
-//        filter.setIsOutgoing(true);
-//        filter.setTxIds([tx.getId()]);
-//        let txsOut = await wallet.getTxs(filter);
-//        assert.equal(1, txsOut.length);
-//        let txOut = txsOut[0];
-//        assert.equal(0, tx.getTotalAmount().compare(tx.getTotalAmount()));
-//        
-//        // outgoing counterpart sent from same account
-//        assert.equal(txOut.getSrcAccountIndex(), payment.getAccountIndex());
-//      }
-    }
-    
-    // test outgoing payment
-    else {
-      assert.equal(undefined, payment.getAccountIndex());
-      assert.equal(undefined, payment.getSubaddressIndex());
-    }
-  }
-  
-  // test that payment amounts add up to tx amount
-  assert.equal(0, paymentTotal.compare(tx.getTotalAmount()), "Payment amounts do not add up to tx amount");
-}
-
-function testTxOutputs(tx) {
-  
-  // test output existence
-  if (!tx.getIsConfirmed()) assert.equal(undefined, tx.getVouts());     // unconfirmed txs do not have outputs
-  else if (tx.getIsOutgoing()) assert.equal(undefined, tx.getVouts());  // outgoing txs do not have outputs
-  else {
-    assert(tx.getIsIncoming());
-    assert(tx.getIsConfirmed());
-    assert(tx.getVouts());
-    assert(tx.getVouts().length > 0);
-  }
-  
-  // test each output
-  if (!tx.getVouts()) return;
-  for (let output of tx.getVouts()) {
-    assert(output.getKeyImage());
-    TestUtils.testUnsignedBigInteger(output.getAmount(), true);
-    assert(output.getAccountIndex() >= 0);
-    assert(output.getSubaddressIndex() >= 0);
-    assert(output.getIndex() >= 0);
-    assert.equal("boolean", typeof output.getIsSpent());
-  }
 }
 
 function testCommonTxSets(txs, hasSigned, hasUnsigned, hasMultisig) {
