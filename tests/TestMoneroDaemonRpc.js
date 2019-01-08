@@ -146,10 +146,6 @@ class TestMoneroDaemonRpc {
         assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
       });
       
-      it("Can get blocks by id which is a binary request and includes transactions", async function() {
-        throw new Error("Not implemented");
-      })
-      
       it("Can get blocks by height which is a binary request and includes transactions", async function() {
         
         // set number of blocks to test
@@ -184,6 +180,10 @@ class TestMoneroDaemonRpc {
         }
         assert(txFound, "No transactions found to test");
       });
+      
+      it("Can get blocks by id which is a binary request and includes transactions", async function() {
+        throw new Error("Not implemented");
+      })
       
       it("Can get blocks by range", async function() {
         
