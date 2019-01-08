@@ -419,35 +419,69 @@ class TestMoneroWalletCommon {
         }
       });
       
-      it("Can get transactions filtered by having payments or not", async function() {
+      it("Can get transactions filtered by having outgoing payments or not", async function() {
         
-        // filter on having payments
+        // filter on having outgoing payments
         let filter = new MoneroTxFilter();
         filter.setAccountIndex(0);
-        filter.setHasPayments(true);
+        filter.setHasOutgoingPayments(true);
         let txs = await wallet.getTxs(filter);
         assert(txs.length > 0);
         for (let tx of await wallet.getTxs(filter)) {
-          assert(tx.getPayments());
-          assert(tx.getPayments().length > 0);
+          assert(tx.getOutgoingPayments());
+          assert(tx.getOutgoingPayments().length > 0);
         }
         
-        // filter on not having payments
-        filter.setHasPayments(false);
+        // filter on not having outgoing payments
+        filter.setHasOutgoingPayments(false);
         txs = await wallet.getTxs(filter);
         assert(txs.length > 0);  // requires running rescan blockchain so tx payments get wiped
         for (let tx of await wallet.getTxs(filter)) {
-          assert.equal(undefined, tx.getPayments());
+          assert.equal(undefined, tx.getOutgoingPayments());
         }
         
         // filter on no preference
-        filter.setHasPayments(undefined);
+        filter.setHasOutgoingPayments(undefined);
         txs = await wallet.getTxs(filter);
         let foundPayments = false;
         let foundNoPayments = false;
         for (let tx of await wallet.getTxs(filter)) {
-          if (tx.getPayments() !== undefined && tx.getPayments().length > 0) foundPayments = true;
-          if (tx.getPayments() === undefined) foundNoPayments = true;
+          if (tx.getOutgoingPayments() !== undefined && tx.getOutgoingPayments().length > 0) foundPayments = true;
+          if (tx.getOutgoingPayments() === undefined) foundNoPayments = true;
+        }
+        assert(foundPayments);
+        assert(foundNoPayments);
+      });
+      
+      it("Can get transactions filtered by having incoming payments or not", async function() {
+        
+        // filter on having incoming payments
+        let filter = new MoneroTxFilter();
+        filter.setAccountIndex(0);
+        filter.setHasIncomingPayments(true);
+        let txs = await wallet.getTxs(filter);
+        assert(txs.length > 0);
+        for (let tx of await wallet.getTxs(filter)) {
+          assert(tx.getIncomingPayments());
+          assert(tx.getIncomingPayments().length > 0);
+        }
+        
+        // filter on not having incoming payments
+        filter.setHasIncomingPayments(false);
+        txs = await wallet.getTxs(filter);
+        assert(txs.length > 0);  // requires running rescan blockchain so tx payments get wiped
+        for (let tx of await wallet.getTxs(filter)) {
+          assert.equal(undefined, tx.getIncomingPayments());
+        }
+        
+        // filter on no preference
+        filter.setHasIncomingPayments(undefined);
+        txs = await wallet.getTxs(filter);
+        let foundPayments = false;
+        let foundNoPayments = false;
+        for (let tx of await wallet.getTxs(filter)) {
+          if (tx.getIncomingPayments() !== undefined && tx.getIncomingPayments().length > 0) foundPayments = true;
+          if (tx.getIncomingPayments() === undefined) foundNoPayments = true;
         }
         assert(foundPayments);
         assert(foundNoPayments);
@@ -685,13 +719,13 @@ class TestMoneroWalletCommon {
         filter.setIsIncoming(false);
         filter.setInTxPool(false);
         filter.setIsFailed(false);
-        filter.setHasPayments(true);  // requires outgoing payments which rescan_bc will destroy
+        filter.setHasOutgoingPayments(true);  // requires outgoing payments which rescan_bc will destroy
         let txs = await getRandomTransactions(wallet, filter, 1, MAX_TX_PROOFS);
         
         // test good checks
         for (let tx of txs) {
           let key = await wallet.getTxKey(tx.getId());
-          for (let payment of tx.getPayments()) {
+          for (let payment of tx.getOutgoingPayments()) {
             let check = await wallet.checkTxKey(tx.getId(), key, payment.getAddress());
             assert(check.getIsGood());
             if (payment.getAmount().compare(new BigInteger()) > 0) {
@@ -717,7 +751,7 @@ class TestMoneroWalletCommon {
         let tx = txs[0];
         let key = await wallet.getTxKey(tx.getId());
         try {
-          await wallet.checkTxKey("invalid_tx_id", key, tx.getPayments()[0].getAddress());
+          await wallet.checkTxKey("invalid_tx_id", key, tx.getOutgoingPayments()[0].getAddress());
           throw new Error("Should have thrown exception");
         } catch (e) {
           assert.equal(-8, e.getRpcCode());
@@ -725,7 +759,7 @@ class TestMoneroWalletCommon {
         
         // test check with invalid key
         try {
-          await wallet.checkTxKey(tx.getId(), "invalid_tx_key", tx.getPayments()[0].getAddress());
+          await wallet.checkTxKey(tx.getId(), "invalid_tx_key", tx.getOutgoingPayments()[0].getAddress());
           throw new Error("Should have thrown exception");
         } catch (e) {
           assert.equal(-25, e.getRpcCode());
@@ -742,9 +776,9 @@ class TestMoneroWalletCommon {
         // test check with different address
         let differentAddress;
         for (let aTx of await getCachedTxs()) {
-          if (aTx.getPayments() === undefined) continue;
-          for (let aPayment of aTx.getPayments()) {
-            if (aPayment.getAddress() !== tx.getPayments()[0].getAddress()) {
+          if (aTx.getOutgoingPayments() === undefined) continue;
+          for (let aPayment of aTx.getOutgoingPayments()) {
+            if (aPayment.getAddress() !== tx.getOutgoingPayments()[0].getAddress()) {
               differentAddress = aPayment.getAddress();
               break;
             }
@@ -764,12 +798,12 @@ class TestMoneroWalletCommon {
         filter.setIsIncoming(false);
         filter.setInTxPool(false);
         filter.setIsFailed(false);
-        filter.setHasPayments(true);
+        filter.setHasOutgoingPayments(true);
         let txs = await getRandomTransactions(wallet, filter, 2, MAX_TX_PROOFS);
         
         // test good checks with messages
         for (let tx of txs) {
-          for (let payment of tx.getPayments()) {
+          for (let payment of tx.getOutgoingPayments()) {
             let signature = await wallet.getTxProof(tx.getId(), payment.getAddress(), "This transaction definitely happened.");
             let check = await wallet.checkTxProof(tx.getId(), payment.getAddress(), "This transaction definitely happened.", signature);
             testCheckTx(tx, check);
@@ -778,13 +812,13 @@ class TestMoneroWalletCommon {
         
         // test good check without message
         let tx = txs[0];
-        let signature = await wallet.getTxProof(tx.getId(), tx.getPayments()[0].getAddress());
-        let check = await wallet.checkTxProof(tx.getId(), tx.getPayments()[0].getAddress(), undefined, signature);
+        let signature = await wallet.getTxProof(tx.getId(), tx.getOutgoingPayments()[0].getAddress());
+        let check = await wallet.checkTxProof(tx.getId(), tx.getOutgoingPayments()[0].getAddress(), undefined, signature);
         testCheckTx(tx, check);
         
         // test get proof with invalid id
         try {
-          await wallet.getTxProof("invalid_tx_id", tx.getPayments()[0].getAddress());
+          await wallet.getTxProof("invalid_tx_id", tx.getOutgoingPayments()[0].getAddress());
           throw new Error("Should throw exception for invalid key");
         } catch (e) {
           assert.equal(-8, e.getRpcCode());
@@ -792,7 +826,7 @@ class TestMoneroWalletCommon {
         
         // test check with invalid tx id
         try {
-          await wallet.checkTxProof("invalid_tx_id", tx.getPayments()[0].getAddress(), undefined, signature);
+          await wallet.checkTxProof("invalid_tx_id", tx.getOutgoingPayments()[0].getAddress(), undefined, signature);
           throw new Error("Should have thrown exception");
         } catch (e) {
           assert.equal(-8, e.getRpcCode());
@@ -807,15 +841,15 @@ class TestMoneroWalletCommon {
         }
         
         // test check with wrong message
-        signature = await wallet.getTxProof(tx.getId(), tx.getPayments()[0].getAddress(), "This is the right message");
-        check = await wallet.checkTxProof(tx.getId(), tx.getPayments()[0].getAddress(), "This is the wrong message", signature);
+        signature = await wallet.getTxProof(tx.getId(), tx.getOutgoingPayments()[0].getAddress(), "This is the right message");
+        check = await wallet.checkTxProof(tx.getId(), tx.getOutgoingPayments()[0].getAddress(), "This is the wrong message", signature);
         assert.equal(false, check.getIsGood());
         testCheckTx(tx, check);
         
         // test check with wrong signature
-        let wrongSignature = await wallet.getTxProof(txs[1].getId(), txs[1].getPayments()[0].getAddress(), "This is the right message");
+        let wrongSignature = await wallet.getTxProof(txs[1].getId(), txs[1].getOutgoingPayments()[0].getAddress(), "This is the right message");
         try {
-          check = await wallet.checkTxProof(tx.getId(), tx.getPayments()[0].getAddress(), "This is the right message", wrongSignature);  
+          check = await wallet.checkTxProof(tx.getId(), tx.getOutgoingPayments()[0].getAddress(), "This is the right message", wrongSignature);  
           assert.equal(false, check.getIsGood());
         } catch (e) {
           assert.equal(-1, e.getRpcCode()); // TODO: sometimes comes back bad, sometimes throws exception.  ensure txs come from different addresses?
