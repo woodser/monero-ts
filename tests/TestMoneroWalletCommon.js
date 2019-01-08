@@ -1600,7 +1600,7 @@ class TestMoneroWalletCommon {
         
         // loop to update txs through confirmations
         let numConfirmations = 0;
-        const numConfirmationsTotal = 3; // number of confirmations to test
+        const numConfirmationsTotal = 2; // number of confirmations to test
         while (numConfirmations < numConfirmationsTotal) {
           
           // wait for a block
