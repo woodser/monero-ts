@@ -13,8 +13,11 @@ describe("Scratchpad", function() {
     let daemon = TestUtils.getDaemonRpc();
     let wallet = TestUtils.getWalletRpc();
     await TestUtils.initWalletRpc();
+    
+    try { await wallet.startMining(8, false, true); }
+    catch (e) { }
 
-    await daemon.stopMining();
+//    await daemon.stopMining();
     
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
