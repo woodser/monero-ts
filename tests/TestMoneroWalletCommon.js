@@ -1127,9 +1127,8 @@ class TestMoneroWalletCommon {
         
         // test transactions
         assert(txs.length > 0);
-        config.setDoNotRelay(false);  // in order to test that txs have been relayed
         for (let tx of txs) {
-          await testWalletTx(tx, {wallet: wallet, sendConfig: config});
+          await testWalletTx(tx, {wallet: wallet, sendConfig: config, isRelayResponse: doNotRelay});
           assert.equal(fromAccount.getIndex(), tx.getSrcAccountIndex());
           assert.equal(0, tx.getSrcSubaddressIndex()); // TODO (monero-wallet-rpc): outgoing transactions do not indicate originating subaddresses
           assert(sendAmount.compare(tx.getOutgoingAmount()) === 0);
@@ -1392,7 +1391,7 @@ class TestMoneroWalletCommon {
         
         // relay and test txs
         txs = await wallet.relayTxs(txs);
-        config.setDoNotRelay(false);
+        config.setDoNotRelay(false);  // TODO: remoe this and update testTxWalletSend with isRelayResponse
         for (let tx of txs) {
           await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
         }
@@ -1764,7 +1763,8 @@ async function getRandomTransactions(wallet, filter, minTxs, maxTxs) {
  *        testConfig.wallet is used to cross reference tx info if available
  *        testConfig.sendConfig specifies config of a tx generated with send()
  *        testConfig.hasOutgoingPayments specifies if the tx has outgoing payments, undefined if doesn't matter
- *        testConfig.voutsFetched specifies if vouts were fetched and should therefore be expected
+ *        testConfig.voutsFetched specifies if vouts were fetched and should therefore be expected  // TODO: keep?
+ *        testConfig.isRelayResponse specifies if tx is a fresh relay response which is missing some fields (e.g. key)
  */
 async function testWalletTx(tx, testConfig) {
   
@@ -1927,8 +1927,10 @@ async function testWalletTx(tx, testConfig) {
   if (tx.getIsRelayed()) assert.equal(false, tx.getDoNotRelay());
   if (tx.getDoNotRelay()) assert(!tx.getIsRelayed());
   
-  // test tx result from send() or sendSplit()
+  // test tx result from send(), sendSplit(), or relayTxs()
   if (testConfig.sendConfig) {
+    
+    // test common attributes
     let sendConfig = testConfig.sendConfig;
     assert.equal(true, tx.getIsOutgoing());
     assert.equal(false, tx.getIsConfirmed());
@@ -1936,27 +1938,30 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(sendConfig.getUnlockTime() ? sendConfig.getUnlockTime() : 0, tx.getUnlockTime());
     assert.equal(undefined, tx.getBlockTimestamp());
     if (testConfig.sendConfig.getCanSplit()) assert.equal(undefined, tx.getKey());
-    else assert(tx.getKey().length > 0);
+    else if (!testConfig.isRelayResponse) assert(tx.getKey().length > 0);
     assert.equal("string", typeof tx.getHex()); // TODO: hex affected same as key regarding split, no?
     assert(tx.getHex().length > 0);
     assert(tx.getMetadata());
     assert.deepEqual(sendConfig.getPayments(), tx.getOutgoingPayments());
     assert.equal(undefined, tx.getReceivedTime());
-
-    // test sent tx relay
-    if (sendConfig.getDoNotRelay()) {
-      assert.equal(false, tx.getInTxPool());
-      assert.equal(true, tx.getDoNotRelay());
-      assert.equal(false, tx.getIsRelayed());
-      assert.equal(undefined, tx.getLastRelayedTime());
-      assert.equal(undefined, tx.getIsDoubleSpend());
-      assert.equal(undefined, tx.getReceivedTime());
-    } else {
+    if (testConfig.isRelayResponse) assert.equal(true, sendConfig.getDoNotRelay());
+    
+    // test relayed txs
+    if (testConfig.isRelayResponse || !sendConfig.getDoNotRelay()) {
       assert.equal(true, tx.getInTxPool());
       assert.equal(false, tx.getDoNotRelay());
       assert.equal(true, tx.getIsRelayed());
       assert(tx.getLastRelayedTime() > 0);
       assert.equal(false, tx.getIsDoubleSpend());
+    }
+    
+    // test non-relayed txs
+    else {
+      assert.equal(false, tx.getInTxPool());
+      assert.equal(true, tx.getDoNotRelay());
+      assert.equal(false, tx.getIsRelayed());
+      assert.equal(undefined, tx.getLastRelayedTime());
+      assert.equal(undefined, tx.getIsDoubleSpend());
     }
   } else {
     assert.equal(undefined, tx.getMixin());
