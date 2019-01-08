@@ -11,9 +11,6 @@
  * 
  * If the filter option is false, the transaction must not match it or it will be
  * filtered.
- * 
- * incoming, outgoing, confirmed, txpool, relayed, failed, coinbase, hasPayments,
- * min height, max height, account idx, subaddress indices, tx ids, payment ids
  */
 class MoneroTxFilter {
   
