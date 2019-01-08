@@ -1599,7 +1599,7 @@ class TestMoneroWalletCommon {
           // get incoming/outgoing txs with sent ids
           let filter = new MoneroTxFilter();
           filter.setTxIds(sentTxs.map(sentTx => sentTx.getId())); // TODO: convenience methods wallet.getTxById(), getTxsById()?
-          let fetchedTxs = await wallet.getTxs(filter, undefined, sentTxs[0].getId());
+          let fetchedTxs = await wallet.getTxs(filter);
           assert(fetchedTxs.length > 0);
           
           // test fetched txs
