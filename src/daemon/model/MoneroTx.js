@@ -404,8 +404,9 @@ class MoneroTx extends MoneroDaemonModel {
     this.setPaymentId(MoneroUtils.reconcile(this.getPaymentId(), tx.getPaymentId()));
     this.setFee(MoneroUtils.reconcile(this.getFee(), tx.getFee()));
     this.setMixin(MoneroUtils.reconcile(this.getMixin(), tx.getMixin()));
-    this.setDoNotRelay(MoneroUtils.reconcile(this.getDoNotRelay(), tx.getDoNotRelay()));
-    this.setIsRelayed(MoneroUtils.reconcile(this.getIsRelayed(), tx.getIsRelayed()));
+    this.setIsConfirmed(MoneroUtils.reconcile(this.getIsConfirmed(), tx.getIsConfirmed(), {resolveTrue: true}));
+    this.setDoNotRelay(MoneroUtils.reconcile(this.getDoNotRelay(), tx.getDoNotRelay(), {resolveTrue: false}));  // tx can become relayed
+    this.setIsRelayed(MoneroUtils.reconcile(this.getIsRelayed(), tx.getIsRelayed(), {resolveTrue: true}));      // tx can become relayed
     this.setIsDoubleSpend(MoneroUtils.reconcile(this.getIsDoubleSpend(), tx.getIsDoubleSpend()));
     this.setKey(MoneroUtils.reconcile(this.getKey(), tx.getKey()));
     this.setHex(MoneroUtils.reconcile(this.getHex(), tx.getHex()));
@@ -426,9 +427,6 @@ class MoneroTx extends MoneroDaemonModel {
     this.setMaxUsedBlockId(MoneroUtils.reconcile(this.getMaxUsedBlockId(), tx.getMaxUsedBlockId()));
     this.setSignatures(MoneroUtils.reconcile(this.getSignatures(), tx.getSignatures()));
     this.setUnlockTime(MoneroUtils.reconcile(this.getUnlockTime(), tx.getUnlockTime()));
-    this.setIsConfirmed(MoneroUtils.reconcile(this.getIsConfirmed(), tx.getIsConfirmed(), {resolveTrue: true}));
-    this.setInTxPool(MoneroUtils.reconcile(this.getInTxPool(), tx.getInTxPool(), {resolveTrue: false}));
-    this.setLastRelayedTime(MoneroUtils.reconcile(this.getLastRelayedTime(), tx.getLastRelayedTime(), {resolveDefined: false, resolveMax: true}));  // becomes undefined, else take max
     this.setHeight(MoneroUtils.reconcile(this.getHeight(), tx.getHeight(), {resolveMax: true}));  // height can increase
     this.setBlockTimestamp(MoneroUtils.reconcile(this.getBlockTimestamp(), tx.getBlockTimestamp(), {resolveMax: true}));  // block timestamp can increase
     this.setConfirmationCount(MoneroUtils.reconcile(this.getConfirmationCount(), tx.getConfirmationCount(), {resolveMax: true})); // confirmation count can increase
@@ -449,13 +447,18 @@ class MoneroTx extends MoneroDaemonModel {
       }
     }
     
-    // merge received time which becomes undefined when confirmed
-    if (this.getIsConfirmed()) this.setReceivedTime(undefined);
-    else this.setReceivedTime(MoneroUtils.reconcile(this.getReceivedTime(), tx.getReceivedTime(), {resolveMax: false}));
-    
-    // merge estimated block count by taking the latest (min)
-    if (this.getIsConfirmed()) this.setEstimatedBlockCountUntilConfirmed(undefined);
-    else this.setEstimatedBlockCountUntilConfirmed(MoneroUtils.reconcile(this.getEstimatedBlockCountUntilConfirmed(), tx.getEstimatedBlockCountUntilConfirmed()), {resolveMax: false});
+    // handle unrelayed -> relayed -> confirmed
+    if (this.getIsConfirmed()) {
+      this.setInTxPool(false);
+      this.setReceivedTime(undefined);
+      this.setLastRelayedTime(undefined);
+      this.setEstimatedBlockCountUntilConfirmed(undefined);
+    } else {
+      this.setInTxPool(MoneroUtils.reconcile(this.getInTxPool(), tx.getInTxPool(), {resolveTrue: true})); // unrelayed -> tx pool
+      this.setReceivedTime(MoneroUtils.reconcile(this.getReceivedTime(), tx.getReceivedTime(), {resolveMax: false})); // take earliest receive time
+      this.setLastRelayedTime(MoneroUtils.reconcile(this.getLastRelayedTime(), tx.getLastRelayedTime(), {resolveMax: true}));  // take latest relay time
+      this.setEstimatedBlockCountUntilConfirmed(MoneroUtils.reconcile(this.getEstimatedBlockCountUntilConfirmed(), tx.getEstimatedBlockCountUntilConfirmed(), {resolveMax: false})); // take min
+    }
   }
 }
 

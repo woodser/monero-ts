@@ -506,30 +506,26 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async relayTxs(txs) {
     
-    // relay transactions and collect resulting ids
+    // relay transactions and collect resulting ids and timestamps
     let txIds = [];
+    let txLastRelayedTimes = []
     for (let tx of txs)  {
       let resp = await this.config.rpc.sendJsonRequest("relay_tx", { hex: tx.getMetadata() });
       txIds.push(resp.tx_hash);
+      txLastRelayedTimes.push(+new Date().getTime()); // TODO (monero-wallet-rpc): provide timestamp on response
     }
     
     // fetch transactions by id
     let filter = new MoneroTxFilter();
-    filter.setIsIncoming(false);
+    filter.setIsOutgoing(true);
     filter.setTxIds(txIds);
     let relayedTxs = await this.getTxs(filter);
     
-    // transfer tx data
+    // initialize relayed data
     assert.equal(txs.length, relayedTxs.length);
     for (let i = 0; i < txs.length; i++) {
-      assert.equal(txs[i].getId(), relayedTxs[i].getId());
-      relayedTxs[i].setDoNotRelay(false);
-      relayedTxs[i].setIsRelayed(true);
-      relayedTxs[i].setMixin(txs[i].getMixin());
-      relayedTxs[i].setKey(txs[i].getKey());
-      relayedTxs[i].setPayments(txs[i].getPayments());
-      relayedTxs[i].setHex(txs[i].getHex());
-      relayedTxs[i].setMetadata(txs[i].getMetadata());
+      relayedTxs[i].merge(txs[i]);
+      relayedTxs[i].setLastRelayedTime(txLastRelayedTimes[i]);
     }
     return relayedTxs;
   }
