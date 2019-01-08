@@ -451,7 +451,7 @@ class MoneroTx extends MoneroDaemonModel {
     
     // merge received time which becomes undefined when confirmed
     if (this.getIsConfirmed()) this.setReceivedTime(undefined);
-    else this.setReceivedTime(MoneroUtils.reconcile(this.getReceivedTime(), tx.getReceivedTime(), {resolveMin: true}));
+    else this.setReceivedTime(MoneroUtils.reconcile(this.getReceivedTime(), tx.getReceivedTime(), {resolveMax: false}));
     
     // TODO: this needs looked at and tested
     // merge estimated blocks until confirmed count
