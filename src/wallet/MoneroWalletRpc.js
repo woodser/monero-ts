@@ -448,7 +448,7 @@ class MoneroWalletRpc extends MoneroWallet {
           }
           
           // initialize fields from response
-          MoneroWalletRpc._buildWalletTxs(resp, respTxs);
+          MoneroWalletRpc._buildSentWalletTxs(resp, respTxs);
           for (let tx of respTxs) accountTxs.push(tx);
         }
       }
@@ -467,7 +467,7 @@ class MoneroWalletRpc extends MoneroWallet {
         }
         
         // initialize fields from response
-        MoneroWalletRpc._buildWalletTxs(resp, respTxs);
+        MoneroWalletRpc._buildSentWalletTxs(resp, respTxs);
         for (let tx of respTxs) accountTxs.push(tx);
       }
       
@@ -901,12 +901,12 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   /**
-   * Initializes a MoneroWalletTx[] from a list of rpc txs.
+   * Initializes sent MoneroWalletTx[] from a list of rpc txs.
    * 
-   * @param rpcTxs are the rpc txs to initialize the MoneroTxWallets from
+   * @param rpcTxs are sent rpc txs to initialize the MoneroTxWallets from
    * @param txs are existing txs to initialize (optional)
    */
-  static _buildWalletTxs(rpcTxs, txs) {
+  static _buildSentWalletTxs(rpcTxs, txs) {
     
     // get lists
     let ids = rpcTxs.tx_hash_list;
@@ -936,7 +936,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setHex(blobs[i]);
       tx.setMetadata(metadatas[i]);
       tx.setFee(new BigInteger(fees[i]));
-      tx.setTotalAmount(new BigInteger(amounts[i]));
+      tx.setOutgoingAmount(new BigInteger(amounts[i]));
     }
     return txs;
   }
@@ -1119,7 +1119,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // initialize txs from rpc response
-    if (split) MoneroWalletRpc._buildWalletTxs(rpcResp, txs);
+    if (split) MoneroWalletRpc._buildSentWalletTxs(rpcResp, txs);
     else MoneroWalletRpc._buildWalletTx(rpcResp, txs[0], true);
     
     // return array or element depending on split

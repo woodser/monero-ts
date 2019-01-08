@@ -449,21 +449,6 @@ class MoneroTx extends MoneroDaemonModel {
       }
     }
     
-    
-//    // merge height
-//    if (this.getHeight() >= 0 || tx.getHeight() >= 0) {
-//      let height1 = this.getHeight() >= 0 ? this.getHeight() : 0;
-//      let height2 = tx.getHeight() >= 0 ? tx.getHeight() : 0;
-//      this.setHeight(Math.max(height1, height2));
-//    }
-//    
-//    // merge block timestamp
-//    if (this.getBlockTimestamp() >= 0 || tx.getBlockTimestamp() >= 0) {
-//      let blockTimestamp1 = this.getBlockTimestamp() >= 0 ? this.getBlockTimestamp() : 0;
-//      let blockTimestamp2 = tx.getBlockTimestamp() >= 0 ? tx.getBlockTimestamp() : 0;
-//      this.setBlockTimestamp(Math.max(blockTimestamp1, blockTimestamp2));
-//    }
-    
     // TODO: these need looked at and specifically tested
     
     // merge received time

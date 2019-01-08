@@ -1248,7 +1248,7 @@ class TestMoneroWalletCommon {
         assert(txs.length > 0);
         let txSum = new BigInteger(0);
         for (let tx of txs) {
-          await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
+          await testWalletTx(tx, {wallet: wallet, sendConfig: config});
           txSum = txSum.add(tx.getTotalAmount());
           if (tx.getPayments() !== undefined) {
             let paymentSum = new BigInteger(0);
@@ -1683,7 +1683,12 @@ class TestMoneroWalletCommon {
       }
       
       async function testUnlockTx(wallet, tx, sendConfig) {
-        await testWalletTx(tx, {wallet: wallet});
+        try {
+          await testWalletTx(tx, {wallet: wallet});
+        } catch (e) {
+          console.log(tx.toString());
+          throw e;
+        }
         assert.equal(sendConfig.getUnlockTime(), tx.getUnlockTime()); // TODO: send config as part of test, then this fn not necessary
       }
     });
