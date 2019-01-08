@@ -754,21 +754,26 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddressIndices;
   }
   
-  static _buildWalletTx(rpcTx, tx) {  // TODO: change everything to safe set
+  /**
+   * Builds a MoneroWalletTx from a RPC tx.
+   * 
+   * @param rpcTx is the rpc tx to build from
+   * @param tx is an existing tx to continue initializing (optional)
+   * @param isOutgoing specifies if the tx is outgoing if true, incoming if false, or decodes from type if undefined
+   * @returns {MoneroWalletTx} is the initialized tx
+   */
+  static _buildWalletTx(rpcTx, tx, isOutgoing) {  // TODO: change everything to safe set
         
     // initialize tx to return
     if (!tx) tx = new MoneroWalletTx();
     
     // initialize tx state from rpc type
-    let isOutgoing;
     if (rpcTx.type !== undefined) isOutgoing = MoneroWalletRpc._decodeRpcType(rpcTx.type, tx);
     else {
-      assert.equal("boolean", typeof tx.getIsOutgoing());
-      assert.equal("boolean", typeof tx.getIsIncoming());
+      assert.equal("boolean", typeof isOutgoing, "Must indicate if tx is outgoing (true) xor incoming (false) since unknown");
       assert.equal("boolean", typeof tx.getIsConfirmed());
       assert.equal("boolean", typeof tx.getInTxPool());
       assert.equal("boolean", typeof tx.getIsCoinbase());
-      isOutgoing = tx.getIsOutgoing();
     }
     
     // TODO: safe set
@@ -955,8 +960,11 @@ class MoneroWalletRpc extends MoneroWallet {
    * Decodes a "type" from monero-wallet-rpc to initialize type and state
    * fields in the given transaction.
    * 
+   * TODO: these should be safe set
+   * 
    * @param rpcType is the type to decode
    * @param tx is the transaction decode known fields to
+   * @return {boolean} true if the rpc type is outgoing xor false if incoming
    */
   static _decodeRpcType(rpcType, tx) {
     let isOutgoing;
@@ -996,12 +1004,14 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsFailed(false);
       tx.setIsCoinbase(true);
     } else if (rpcType === "failed") {
-    	isOutgoing = false;
+    	isOutgoing = true;
       tx.setIsConfirmed(false);
       tx.setInTxPool(false);
       tx.setIsRelayed(true);
       tx.setIsFailed(true);
       tx.setIsCoinbase(false);
+    } else {
+      throw new Error("Unrecognized transfer type: " + rpcType);
     }
     return isOutgoing;
   }
@@ -1054,8 +1064,8 @@ class MoneroWalletRpc extends MoneroWallet {
     let params = {};
     params.destinations = [];
     for (let payment of config.getPayments()) {
-      assert(payment.getAddress(), "Payment address is not defined");
-      assert(payment.getAmount(), "Payment amount is not defined");
+      assert(payment.getAddress(), "Destination address is not defined");
+      assert(payment.getAmount(), "Destination amount is not defined");
       params.destinations.push({ address: payment.getAddress(), amount: payment.getAmount().toString() });
     }
     params.account_index = accountIdx;
@@ -1080,14 +1090,13 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // initialize known fields of tx
     for (let tx of txs) {
-      tx.setIsOutgoing(true);
       tx.setIsConfirmed(false);
       tx.setInTxPool(config.getDoNotRelay() ? false : true);
       tx.setIsCoinbase(false);
       tx.setDoNotRelay(config.getDoNotRelay() ? true : false)
       tx.setIsRelayed(!tx.getDoNotRelay());
       tx.setMixin(config.getMixin());
-      tx.setPayments(config.getPayments());
+      tx.setOutgoingPayments(config.getPayments());
       tx.setPaymentId(config.getPaymentId());
       tx.setSrcAddress(await this.getAddress(accountIdx, 0));
       tx.setSrcAccountIndex(accountIdx);
@@ -1101,7 +1110,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // initialize txs from rpc response
     if (split) MoneroWalletRpc._buildWalletTxs(rpcResp, txs);
-    else MoneroWalletRpc._buildWalletTx(rpcResp, txs[0]);
+    else MoneroWalletRpc._buildWalletTx(rpcResp, txs[0], true);
     
     // return array or element depending on split
     return split ? txs : txs[0];

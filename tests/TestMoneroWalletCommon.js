@@ -1901,6 +1901,7 @@ async function testWalletTx(tx, testConfig) {
   
   // test failed  // TODO: what else to test associated with failed
   if (tx.getIsFailed()) {
+    assert(tx.getIsOutgoing());
     assert(tx.getLastFailedHeight() >= 0);  // TODO: maybe not?
     assert(tx.getLastFailedId());
   } else {
