@@ -1099,6 +1099,7 @@ class TestMoneroWalletCommon {
         config.setAccountIndex(fromAccount.getIndex());
         config.setSubaddressIndices([fromSubaddress.getSubaddressIndex()]);
         config.setDoNotRelay(doNotRelay);
+        config.setCanSplit(canSplit); // so test knows txs could be split (kinda janky)
         if (canSplit) {
           let sendTxs = await wallet.sendSplit(config);
           for (let tx of sendTxs) txs.push(tx);
@@ -1127,7 +1128,6 @@ class TestMoneroWalletCommon {
         
         // test transactions
         assert(txs.length > 0);
-        config.setCanSplit(canSplit); // so test knows txs could be split (kinda janky)
         for (let tx of txs) {
           await testWalletTx(tx, {wallet: wallet, sendConfig: config, isRelayResponse: doNotRelay});
           assert.equal(fromAccount.getIndex(), tx.getSrcAccountIndex());
@@ -1225,23 +1225,6 @@ class TestMoneroWalletCommon {
           txs.push(await wallet.send(config));
         }
         
-//        for (let tx of txs) {
-//          
-//          console.log("SEND TX");
-//          tx.setHex(undefined);
-//          tx.setMetadata(undefined);
-//          console.log(tx.toString());
-//          
-//          // fetch txs with sent id
-//          console.log("Fetching Tx...");
-//          let filter = new MoneroTxFilter();
-//          filter.setTxIds([tx.getId()]);
-//          let fetchedTxs = await wallet.getTxs(filter, undefined, tx.getId());
-//          
-//          console.log("FETCHED");
-//          for (let fetchedTx of fetchedTxs) console.log(fetchedTx.toString());
-//        }
-        
         // test that wallet balance decreased
         let account = await wallet.getAccount(srcAccount.getIndex());
         assert(account.getBalance().compare(balance) < 0);
@@ -1269,13 +1252,13 @@ class TestMoneroWalletCommon {
         }
       }
       
-//      it("Can send from multiple subaddresses in a single transaction", async function() {
-//        await testSendFromMultiple(false);
-//      });
-//      
-//      it("Can send from multiple subaddresses in split transactions", async function() {
-//        await testSendFromMultiple(true);
-//      });
+      it("Can send from multiple subaddresses in a single transaction", async function() {
+        await testSendFromMultiple(false);
+      });
+      
+      it("Can send from multiple subaddresses in split transactions", async function() {
+        await testSendFromMultiple(true);
+      });
       
       async function testSendFromMultiple(canSplit) {
         
@@ -1938,9 +1921,9 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(sendConfig.getMixin(), tx.getMixin());
     assert.equal(sendConfig.getUnlockTime() ? sendConfig.getUnlockTime() : 0, tx.getUnlockTime());
     assert.equal(undefined, tx.getBlockTimestamp());
-    if (testConfig.sendConfig.getCanSplit()) assert.equal(undefined, tx.getKey());
-    else if (!testConfig.isRelayResponse && !sendConfig.getDoNotRelay()) assert(tx.getKey().length > 0);
-    assert.equal("string", typeof tx.getHex()); // TODO: hex affected same as key regarding split, no?
+    if (sendConfig.getCanSplit()) assert.equal(undefined, tx.getKey()); // TODO monero-wallet-rpc: key only known on `transfer` response
+    else assert(tx.getKey().length > 0);
+    assert.equal("string", typeof tx.getHex());
     assert(tx.getHex().length > 0);
     assert(tx.getMetadata());
     assert.deepEqual(sendConfig.getPayments(), tx.getOutgoingPayments());
