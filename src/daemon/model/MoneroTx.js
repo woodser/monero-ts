@@ -392,11 +392,11 @@ class MoneroTx extends MoneroDaemonModel {
   }
   
   /**
-   * Merges the given transaction into this transaction.
+   * Updates this transaction by merging the latest information from the given
+   * transaction.
    * 
-   * The transaction being merged is assumed to be the most up-to-date.
-   * 
-   * @param tx is the transaction to merge into this one
+   * @param tx is the transaction to update this transaction with
+   * @returns {this} for method chaining
    */
   merge(tx) {
     this.setId(MoneroUtils.reconcile(this.getId(), tx.getId()));
@@ -459,6 +459,8 @@ class MoneroTx extends MoneroDaemonModel {
       this.setLastRelayedTime(MoneroUtils.reconcile(this.getLastRelayedTime(), tx.getLastRelayedTime(), {resolveMax: true}));  // take latest relay time
       this.setEstimatedBlockCountUntilConfirmed(MoneroUtils.reconcile(this.getEstimatedBlockCountUntilConfirmed(), tx.getEstimatedBlockCountUntilConfirmed(), {resolveMax: false})); // take min
     }
+    
+    return this;  // for chaining
   }
 }
 

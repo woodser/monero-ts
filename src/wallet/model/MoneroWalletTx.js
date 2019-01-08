@@ -157,6 +157,13 @@ class MoneroWalletTx extends MoneroTx {
     return str.slice(0, str.length - 1);  // strip last newline
   }
   
+  /**
+   * Updates this transaction by merging the latest information from the given
+   * transaction.
+   * 
+   * @param tx is the transaction to update this transaction with
+   * @returns {this} for method chaining
+   */
   merge(tx) {
     
     // merge base transaction
