@@ -1127,6 +1127,7 @@ class TestMoneroWalletCommon {
         
         // test transactions
         assert(txs.length > 0);
+        config.setCanSplit(canSplit); // so test knows txs could be split (kinda janky)
         for (let tx of txs) {
           await testWalletTx(tx, {wallet: wallet, sendConfig: config, isRelayResponse: doNotRelay});
           assert.equal(fromAccount.getIndex(), tx.getSrcAccountIndex());
@@ -1938,7 +1939,7 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(sendConfig.getUnlockTime() ? sendConfig.getUnlockTime() : 0, tx.getUnlockTime());
     assert.equal(undefined, tx.getBlockTimestamp());
     if (testConfig.sendConfig.getCanSplit()) assert.equal(undefined, tx.getKey());
-    else if (!testConfig.isRelayResponse) assert(tx.getKey().length > 0);
+    else if (!testConfig.isRelayResponse && !sendConfig.getDoNotRelay()) assert(tx.getKey().length > 0);
     assert.equal("string", typeof tx.getHex()); // TODO: hex affected same as key regarding split, no?
     assert(tx.getHex().length > 0);
     assert(tx.getMetadata());
