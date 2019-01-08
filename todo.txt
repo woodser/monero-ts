@@ -32,6 +32,7 @@ test getting coinbase txs by id
 verify that all tx fields are being tested
 
 LOW
+don't get tx hex unless requested
 get_transfers filters by subaddress idx even though minor 0 always returned
 switch to jest?
 time profiling
