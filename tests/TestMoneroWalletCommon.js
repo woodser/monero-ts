@@ -1585,7 +1585,7 @@ class TestMoneroWalletCommon {
         
         // test sent transactions
         for (let tx of sentTxs) {
-          await testTxWalletSend(tx, sendConfig, !canSplit, !canSplit, wallet);
+          await testWalletTx(tx, {wallet: wallet, sendConfig: sendConfig})
           assert.equal(false, tx.getIsConfirmed());
           assert.equal(true, tx.getInTxPool());
         }
@@ -1612,6 +1612,7 @@ class TestMoneroWalletCommon {
           assert(fetchedTxs.length > 0);
           
           // test fetched txs
+          assert.equal(undefined, that.unbalancedTxIds);  // TODO: remove this entirely?
           await testOutInPairs(wallet, fetchedTxs, sendConfig, that.unbalancedTxIds);
 
           // merge fetched txs into updated txs and original sent txs
@@ -1780,6 +1781,7 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(true, tx.getIsRelayed());
     assert.equal(false, tx.getIsFailed());
     assert.equal(false, tx.getInTxPool());
+    assert.equal(false, tx.getDoNotRelay());
     assert.notEqual(tx.getHeight() >= 0);
     assert(tx.getConfirmationCount() > 0);
     assert(tx.getBlockTimestamp() > 0);
@@ -1796,8 +1798,7 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(false, tx.getDoNotRelay());
     assert.equal(true, tx.getIsRelayed());
     assert(tx.getEstimatedBlockCountUntilConfirmed() > 0);
-    assert(tx.getLastRelayedTime() > 0);
-    assert(tx.getReceivedTime() > 0);
+    if (!testConfig.sendConfig) assert(tx.getReceivedTime() > 0);
     assert.equal(false, tx.getIsDoubleSpend()); // TODO: test double spend attempt
     assert.equal(undefined, tx.getLastFailedHeight());
     assert.equal(undefined, tx.getLastFailedId());
@@ -1910,6 +1911,10 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(undefined, tx.getLastFailedId());
   }
   
+  // test relayed tx
+  if (tx.getIsRelayed()) assert.equal(false, tx.getDoNotRelay());
+  if (tx.getDoNotRelay()) assert(!tx.getIsRelayed());
+  
   // test tx result from send() or sendSplit()
   if (testConfig.sendConfig) {
     let sendConfig = testConfig.sendConfig;
@@ -1941,7 +1946,6 @@ async function testWalletTx(tx, testConfig) {
       assert.equal(false, tx.getIsDoubleSpend());
     }
   } else {
-    assert.equal(undefined, tx.getDoNotRelay());
     assert.equal(undefined, tx.getMixin());
     assert.equal(undefined, tx.getKey());
     assert.equal(undefined, tx.getHex());
@@ -1976,14 +1980,7 @@ function testWalletTxTypes(tx) {
   assert.equal("boolean", typeof tx.getIsIncoming());
   assert.equal("boolean", typeof tx.getIsOutgoing());
   assert.equal("boolean", typeof tx.getIsConfirmed());
-  try {
-    assert.equal("boolean", typeof tx.getIsCoinbase());
-
-    
-  } catch (e) {
-    console.log(tx.toString());
-    throw e;
-  }
+  assert.equal("boolean", typeof tx.getIsCoinbase());
   assert.equal("boolean", typeof tx.getIsFailed());
   assert.equal("boolean", typeof tx.getIsRelayed());
   assert.equal("boolean", typeof tx.getInTxPool());
@@ -1994,6 +1991,7 @@ function testWalletTxTypes(tx) {
   assert(tx.getUnlockTime() >= 0);
   assert.equal(undefined, tx.getSize());   // TODO (monero-wallet-rpc): add tx_size to get_transfers and get_transfer_by_txid
   assert.equal(undefined, tx.getWeight());
+  assert.equal(undefined, tx.getLastRelayedTime());
 }
 
 // TODO: test uncommon references

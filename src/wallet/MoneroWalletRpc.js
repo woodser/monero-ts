@@ -774,6 +774,8 @@ class MoneroWalletRpc extends MoneroWallet {
       assert.equal("boolean", typeof tx.getIsConfirmed());
       assert.equal("boolean", typeof tx.getInTxPool());
       assert.equal("boolean", typeof tx.getIsCoinbase());
+      assert.equal("boolean", typeof tx.getIsFailed());
+      assert.equal("boolean", typeof tx.getDoNotRelay());
     }
     
     // TODO: safe set
@@ -798,7 +800,6 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "double_spend_seen") tx.setIsDoubleSpend(val);
       else if (key === "timestamp") {
         if (tx.getIsConfirmed()) tx.setBlockTimestamp(val);
-        else if (tx.getIsOutgoing()) tx.setLastRelayedTime(val);
         else tx.setReceivedTime(val);
       }
       else if (key === "confirmations") {
@@ -973,6 +974,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsConfirmed(true);
       tx.setInTxPool(false);
       tx.setIsRelayed(true);
+      tx.setDoNotRelay(false);
       tx.setIsFailed(false);
       tx.setIsCoinbase(false);
     } else if (rpcType === "out") {
@@ -980,6 +982,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsConfirmed(true);
       tx.setInTxPool(false);
       tx.setIsRelayed(true);
+      tx.setDoNotRelay(false);
       tx.setIsFailed(false);
       tx.setIsCoinbase(false);
     } else if (rpcType === "pool") {
@@ -987,6 +990,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsConfirmed(false);
       tx.setInTxPool(true);
       tx.setIsRelayed(true);
+      tx.setDoNotRelay(false);
       tx.setIsFailed(false);
       tx.setIsCoinbase(false);  // TODO: but could it be?
     } else if (rpcType === "pending") {
@@ -994,6 +998,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsConfirmed(false);
       tx.setInTxPool(true);
       tx.setIsRelayed(true);
+      tx.setDoNotRelay(false);
       tx.setIsFailed(false);
       tx.setIsCoinbase(false);
     } else if (rpcType === "block") {
@@ -1001,6 +1006,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsConfirmed(true);
       tx.setInTxPool(false);
       tx.setIsRelayed(true);
+      tx.setDoNotRelay(false);
       tx.setIsFailed(false);
       tx.setIsCoinbase(true);
     } else if (rpcType === "failed") {
@@ -1008,6 +1014,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsConfirmed(false);
       tx.setInTxPool(false);
       tx.setIsRelayed(true);
+      tx.setDoNotRelay(false);
       tx.setIsFailed(true);
       tx.setIsCoinbase(false);
     } else {
@@ -1091,10 +1098,12 @@ class MoneroWalletRpc extends MoneroWallet {
     // initialize known fields of tx
     for (let tx of txs) {
       tx.setIsConfirmed(false);
+      tx.setConfirmationCount(0);
       tx.setInTxPool(config.getDoNotRelay() ? false : true);
-      tx.setIsCoinbase(false);
       tx.setDoNotRelay(config.getDoNotRelay() ? true : false)
       tx.setIsRelayed(!tx.getDoNotRelay());
+      tx.setIsCoinbase(false);
+      tx.setIsFailed(false);
       tx.setMixin(config.getMixin());
       tx.setOutgoingPayments(config.getPayments());
       tx.setPaymentId(config.getPaymentId());
