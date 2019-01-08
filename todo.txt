@@ -11,6 +11,7 @@ test tx filter hasOutgoingPayments, hasIncomingPayments
 simple tests for getting incoming/outgoing txs
 one place to test wallet accounting with txs (unspent outputs = wallet balance, incoming amts = outgoing amts, etc)
 
+test send tx with multiple payments with duplicate receive address, specifically check outgoing merging
 common tx tests need cleanup
 set subaddress getUnspentOutputCount() with outputs assigned
 tx serialization and deserialization tests

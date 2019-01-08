@@ -169,13 +169,13 @@ class MoneroWalletTx extends MoneroTx {
     this.setSrcAddress(MoneroUtils.reconcile(this.getSrcAddress(), tx.getSrcAddress()));
     this.setNote(MoneroUtils.reconcile(this.getNote(), tx.getNote()));
     
-    // merge payments
-    if (tx.getOutgoingPayments()) {
-      if (this.getOutgoingPayments() === undefined) this.setOutgoingPayments([]);
-      for (let payment of tx.getOutgoingPayments()) {
-        mergePayment(this.getOutgoingPayments(), payment);
-      }
+    // merge outgoing payments
+    if (this.getOutgoingPayments() === undefined) this.setOutgoingPayments(tx.getOutgoingPayments());
+    else if (tx.getOutgoingPayments()) {
+      assert.deepEqual(this.getOutgoingPayments(), tx.getOutgoingPayments(), "Outgoing payments are different so tx cannot be merged");
     }
+    
+    // merge incoming payments
     if (tx.getIncomingPayments()) {
       if (this.getIncomingPayments() === undefined) this.setIncomingPayments([]);
       for (let payment of tx.getIncomingPayments()) {
@@ -200,6 +200,8 @@ class MoneroWalletTx extends MoneroTx {
       }
       payments.push(payment);
     }
+    
+    return this;  // for chaining
   }
 }
 

@@ -329,7 +329,8 @@ class TestMoneroWalletCommon {
         for (let i = 0; i < txs1.length; i++) {
           await testWalletTx(txs1[i], {wallet: wallet});
           await testWalletTx(txs2[i], {wallet: wallet});
-          TestUtils.assertTxsMergeable(txs1[i], txs2[i]);
+          let merged = txs1[i].copy().merge(txs2[i].copy());
+          await testWalletTx(merged, {wallet: wallet});
           if (txs1[i].getIncomingPayments()) {
             for (let payment of txs1[i].getIncomingPayments()) {
               if (payment.getAccountIndex() !== 0 && payment.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
