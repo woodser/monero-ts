@@ -1112,7 +1112,7 @@ class TestMoneroWalletCommon {
           // test transactions
           testCommonTxSets(txs, false, false, false);
           for (let tx of txs) {
-            await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
+            await testWalletTx(tx, {wallet: wallet, sendConfig: config});
           }
           
           // relay transactions
@@ -1130,10 +1130,10 @@ class TestMoneroWalletCommon {
         testCommonTxSets(txs, false, false, false);
         config.setDoNotRelay(false);  // in order to test that txs have been relayed
         for (let tx of txs) {
-          await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
+          await testWalletTx(tx, {wallet: wallet, sendConfig: config});
           assert.equal(fromAccount.getIndex(), tx.getSrcAccountIndex());
           assert.equal(0, tx.getSrcSubaddressIndex()); // TODO (monero-wallet-rpc): outgoing transactions do not indicate originating subaddresses
-          assert(sendAmount.compare(tx.getTotalAmount()) === 0);
+          assert(sendAmount.compare(tx.getOutgoingAmount()) === 0);
           
           // test tx payments
           if (tx.getOutgoingPayments() !== undefined) {
@@ -1269,13 +1269,13 @@ class TestMoneroWalletCommon {
         }
       }
       
-//      it("Can send from multiple subaddresses in a single transaction", async function() {
-//        await testSendFromMultiple(false);
-//      });
-//      
-//      it("Can send from multiple subaddresses in split transactions", async function() {
-//        await testSendFromMultiple(true);
-//      });
+      it("Can send from multiple subaddresses in a single transaction", async function() {
+        await testSendFromMultiple(false);
+      });
+      
+      it("Can send from multiple subaddresses in split transactions", async function() {
+        await testSendFromMultiple(true);
+      });
       
       async function testSendFromMultiple(canSplit) {
         
@@ -1357,16 +1357,16 @@ class TestMoneroWalletCommon {
         assert(txs.length > 0);
         let txSum = new BigInteger(0);
         for (let tx of txs) {
-          await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
-          txSum = txSum.add(tx.getTotalAmount());
-          if (tx.getPayments() !== undefined) {
-            assert.equal(1, tx.getPayments().length);
+          await testWalletTx(tx, {wallet: wallet, sendConfig: config});
+          txSum = txSum.add(tx.getOutgoingAmount());
+          if (tx.getOutgoingPayments() !== undefined) {
+            assert.equal(1, tx.getOutgoingPayments().length);
             let paymentSum = new BigInteger(0);
-            for (let payment of tx.getPayments()) {
+            for (let payment of tx.getOutgoingPayments()) {
               assert.equal(address, payment.getAddress());
               paymentSum = paymentSum.add(payment.getAmount());
             }
-            assert(tx.getTotalAmount().compare(paymentSum) === 0);  // assert that payment amounts sum up to tx amount
+            assert(tx.getOutgoingAmount().compare(paymentSum) === 0);  // assert that payment amounts sum up to tx amount
           }
         }
         

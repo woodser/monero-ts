@@ -453,19 +453,9 @@ class MoneroTx extends MoneroDaemonModel {
     if (this.getIsConfirmed()) this.setReceivedTime(undefined);
     else this.setReceivedTime(MoneroUtils.reconcile(this.getReceivedTime(), tx.getReceivedTime(), {resolveMax: false}));
     
-    // TODO: this needs looked at and tested
-    // merge estimated blocks until confirmed count
-    if (this.getEstimatedBlockCountUntilConfirmed() !== undefined) {
-      if (tx.getEstimatedBlockCountUntilConfirmed() === undefined) this.setEstimatedBlockCountUntilConfirmed(undefined);  // uninitialize when confirmed
-      else {
-        
-        // TODO: remove this when you know it doesn't get hit
-        assert(Math.abs(this.getEstimatedBlockCountUntilConfirmed() - tx.getEstimatedBlockCountUntilConfirmed()) <= 3);
-        
-        // estimated block count can change, take the latest (min)
-        this.setEstimatedBlockCountUntilConfirmed(Math.min(this.getEstimatedBlockCountUntilConfirmed(), tx.getEstimatedBlockCountUntilConfirmed()));
-      }
-    }
+    // merge estimated block count by taking the latest (min)
+    if (this.getIsConfirmed()) this.setEstimatedBlockCountUntilConfirmed(undefined);
+    else this.setEstimatedBlockCountUntilConfirmed(MoneroUtils.reconcile(this.getEstimatedBlockCountUntilConfirmed(), tx.getEstimatedBlockCountUntilConfirmed()), {resolveMax: false});
   }
 }
 
