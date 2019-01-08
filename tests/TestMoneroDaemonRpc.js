@@ -531,8 +531,8 @@ class TestMoneroDaemonRpc {
               let header = await daemon.nextBlockHeader();
               testBlockHeader(header, true);
               
-              // test that listener was called with same header
-              assert(header === listenerHeader);
+              // test that listener was called with equivalent header
+              assert.deepEqual(header, listenerHeader);
             } catch (e) {
               throw e;
             } finally {
