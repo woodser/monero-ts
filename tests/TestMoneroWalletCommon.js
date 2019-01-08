@@ -1589,12 +1589,7 @@ class TestMoneroWalletCommon {
         
         // test sent transactions
         for (let tx of sentTxs) {
-          try {
-            await testWalletTx(tx, {wallet: wallet, sendConfig: sendConfig})
-          } catch (e) {
-            console.log(tx.toString());
-            throw e;
-          }
+          await testWalletTx(tx, {wallet: wallet, sendConfig: sendConfig})
           assert.equal(false, tx.getIsConfirmed());
           assert.equal(true, tx.getInTxPool());
         }
@@ -1608,8 +1603,8 @@ class TestMoneroWalletCommon {
         while (numConfirmations < numConfirmationsTotal) {
           
           // wait for a block
-          await daemon.nextBlockHeader();
-          console.log("*** Block added to chain ***");
+          let header = await daemon.nextBlockHeader();
+          console.log("*** Block " + header.getHeight() + " added to chain ***");
           
           // give wallet time to catch up, otherwise incoming tx may not appear
           await new Promise(function(resolve) { setTimeout(resolve, 5000); });  // TODO: this lets new block slip, okay?
@@ -1621,8 +1616,7 @@ class TestMoneroWalletCommon {
           assert(fetchedTxs.length > 0);
           
           // test fetched txs
-          assert.deepEqual([], that.unbalancedTxIds);  // TODO: remove this entirely?
-          await testOutInPairs(wallet, fetchedTxs, sendConfig, that.unbalancedTxIds);
+          await testOutInPairs(wallet, fetchedTxs, sendConfig);
 
           // merge fetched txs into updated txs and original sent txs
           for (let fetchedTx of fetchedTxs) {
@@ -1646,19 +1640,19 @@ class TestMoneroWalletCommon {
           }
           
           // test updated txs
-          await testOutInPairs(wallet, updatedTxs, sendConfig, that.unbalancedTxIds);
+          await testOutInPairs(wallet, updatedTxs, sendConfig);
           
           // update confirmations to exit loop
           numConfirmations = fetchedTxs[0].getConfirmationCount();
         }
       }
       
-      async function testOutInPairs(wallet, txs, sendConfig, unbalancedTxIds) {
+      async function testOutInPairs(wallet, txs, sendConfig) {
         
         // for each out tx
         let txOut;
         for (let tx of txs) {
-          await testUnlockTx(wallet, tx, sendConfig, unbalancedTxIds);
+          await testUnlockTx(wallet, tx, sendConfig);
           if (!tx.getIsOutgoing()) continue;
           let txOut = tx;
           
@@ -1688,14 +1682,8 @@ class TestMoneroWalletCommon {
         assert.equal(0, txOut.getOutgoingAmount().compare(txIn.getIncomingAmount()));
       }
       
-      async function testUnlockTx(wallet, tx, sendConfig, unbalancedTxIds) {
-        try {
-          await testWalletTx(tx, {wallet: wallet});
-        } catch (e) {
-          console.log("This tx failed");
-          console.log(tx.toString());
-          throw e;
-        }
+      async function testUnlockTx(wallet, tx, sendConfig) {
+        await testWalletTx(tx, {wallet: wallet});
         assert.equal(sendConfig.getUnlockTime(), tx.getUnlockTime()); // TODO: send config as part of test, then this fn not necessary
       }
     });

@@ -477,7 +477,11 @@ class MoneroTx extends MoneroDaemonModel {
     if (this.getEstimatedBlockCountUntilConfirmed() !== undefined) {
       if (tx.getEstimatedBlockCountUntilConfirmed() === undefined) this.setEstimatedBlockCountUntilConfirmed(undefined);  // uninitialize when confirmed
       else {
-        assert(Math.abs(this.getEstimatedBlockCountUntilConfirmed() - tx.getEstimatedBlockCountUntilConfirmed()) <= 1);   // estimated block count can change, take the latest (min)
+        
+        // TODO: remove this when you know it doesn't get hit
+        assert(Math.abs(this.getEstimatedBlockCountUntilConfirmed() - tx.getEstimatedBlockCountUntilConfirmed()) <= 3);
+        
+        // estimated block count can change, take the latest (min)
         this.setEstimatedBlockCountUntilConfirmed(Math.min(this.getEstimatedBlockCountUntilConfirmed(), tx.getEstimatedBlockCountUntilConfirmed()));
       }
     }
