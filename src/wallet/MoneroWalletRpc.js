@@ -506,26 +506,25 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async relayTxs(txs) {
     
-    // relay transactions and collect resulting ids and timestamps
-    let txIds = [];
+    // relay transactions and collect submission timestamps
     let txLastRelayedTimes = []
     for (let tx of txs)  {
       let resp = await this.config.rpc.sendJsonRequest("relay_tx", { hex: tx.getMetadata() });
-      txIds.push(resp.tx_hash);
       txLastRelayedTimes.push(+new Date().getTime()); // TODO (monero-wallet-rpc): provide timestamp on response
     }
     
-    // fetch transactions by id
-    let filter = new MoneroTxFilter();
-    filter.setIsOutgoing(true);
-    filter.setTxIds(txIds);
-    let relayedTxs = await this.getTxs(filter);
-    
-    // initialize relayed data
-    assert.equal(txs.length, relayedTxs.length);
+    // build relayed txs from given txs 
+    let relayedTxs = [];
     for (let i = 0; i < txs.length; i++) {
-      relayedTxs[i].merge(txs[i]);
-      relayedTxs[i].setLastRelayedTime(txLastRelayedTimes[i]);
+      let relayedTx = txs[i].copy();
+      relayedTxs.push(relayedTx);
+      relayedTx.setInTxPool(true);
+      relayedTx.setDoNotRelay(false);
+      relayedTx.setIsRelayed(true);
+      relayedTx.setIsCoinbase(false);
+      relayedTx.setIsFailed(false);
+      relayedTx.setIsDoubleSpend(false);
+      relayedTx.setLastRelayedTime(txLastRelayedTimes[i]);
     }
     return relayedTxs;
   }
@@ -1097,7 +1096,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsConfirmed(false);
       tx.setConfirmationCount(0);
       tx.setInTxPool(config.getDoNotRelay() ? false : true);
-      tx.setDoNotRelay(config.getDoNotRelay() ? true : false)
+      tx.setDoNotRelay(config.getDoNotRelay() ? true : false);
       tx.setIsRelayed(!tx.getDoNotRelay());
       tx.setIsCoinbase(false);
       tx.setIsFailed(false);

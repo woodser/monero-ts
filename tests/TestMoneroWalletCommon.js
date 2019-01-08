@@ -1127,7 +1127,6 @@ class TestMoneroWalletCommon {
         
         // test transactions
         assert(txs.length > 0);
-        testCommonTxSets(txs, false, false, false);
         config.setDoNotRelay(false);  // in order to test that txs have been relayed
         for (let tx of txs) {
           await testWalletTx(tx, {wallet: wallet, sendConfig: config});
@@ -1146,6 +1145,7 @@ class TestMoneroWalletCommon {
             }
           }
         }
+        testCommonTxSets(txs, false, false, false);
       }
       
       it("Can send to multiple addresses in a single transaction", async function() {
@@ -1770,6 +1770,7 @@ async function testWalletTx(tx, testConfig) {
   
   // validate / sanitize inputs
   delete testConfig.wallet; // TODO: re-enable
+  if (!(tx instanceof MoneroWalletTx)) console.log(tx);
   assert(tx instanceof MoneroWalletTx);
   testConfig = Object.assign({}, testConfig);
   if (testConfig.wallet) assert (testConfig.wallet instanceof MoneroWallet);
@@ -1941,7 +1942,7 @@ async function testWalletTx(tx, testConfig) {
     assert(tx.getMetadata());
     assert.deepEqual(sendConfig.getPayments(), tx.getOutgoingPayments());
     assert.equal(undefined, tx.getReceivedTime());
-    
+
     // test sent tx relay
     if (sendConfig.getDoNotRelay()) {
       assert.equal(false, tx.getInTxPool());
@@ -2019,6 +2020,7 @@ function testCommonTxSets(txs, hasSigned, hasUnsigned, hasMultisig) {
   // assert that all sets are same reference
   let sets;
   for (let i = 0; i < txs.length; i++) {
+    assert(txs[i] instanceof MoneroTx);
     if (i === 0) sets = txs[i].getCommonTxSets();
     else assert(txs[i].getCommonTxSets() === sets);
   }
