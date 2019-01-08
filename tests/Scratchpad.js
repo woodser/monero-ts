@@ -16,7 +16,7 @@ describe("Scratchpad", function() {
     
 //    try { await wallet.startMining(8, false, true); }
 //    catch (e) { }
-//    await daemon.stopMining();
+    await daemon.stopMining();
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
     

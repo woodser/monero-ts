@@ -1044,26 +1044,26 @@ class TestMoneroWalletCommon {
     
     describe("Test Sends", function() {
       
-//      it("Can send to an address in a single transaction", async function() {
-//        await testSendToSingle(false, undefined, false);
-//      });
-//      
-//      it("Can send to an address in a single transaction with a payment id", async function() {
-//        let integratedAddress = await wallet.getIntegratedAddress();
-//        await testSendToSingle(false, integratedAddress.getPaymentId(), false);
-//      });
-//      
-//      it("Can create then relay a transaction to send to a single address", async function() {
-//        await testSendToSingle(false, undefined, true);
-//      });
-//      
-//      it("Can send to an address with split transactions", async function() {
-//        await testSendToSingle(true, undefined, false);
-//      });
-//      
-//      it("Can create then relay split transactions to send to a single address", async function() {
-//        await testSendToSingle(true, undefined, true);
-//      });
+      it("Can send to an address in a single transaction", async function() {
+        await testSendToSingle(false, undefined, false);
+      });
+      
+      it("Can send to an address in a single transaction with a payment id", async function() {
+        let integratedAddress = await wallet.getIntegratedAddress();
+        await testSendToSingle(false, integratedAddress.getPaymentId(), false);
+      });
+      
+      it("Can create then relay a transaction to send to a single address", async function() {
+        await testSendToSingle(false, undefined, true);
+      });
+      
+      it("Can send to an address with split transactions", async function() {
+        await testSendToSingle(true, undefined, false);
+      });
+      
+      it("Can create then relay split transactions to send to a single address", async function() {
+        await testSendToSingle(true, undefined, true);
+      });
       
       async function testSendToSingle(canSplit, paymentId, doNotRelay) {
         
@@ -1148,9 +1148,9 @@ class TestMoneroWalletCommon {
         }
       }
       
-//      it("Can send to multiple addresses in a single transaction", async function() {
-//        await testSendToMultiple(5, 3, false);
-//      });
+      it("Can send to multiple addresses in a single transaction", async function() {
+        await testSendToMultiple(5, 3, false);
+      });
       
       it("Can send to multiple addresses in split transactions", async function() {
         await testSendToMultiple(5, 3, true);
@@ -1204,17 +1204,19 @@ class TestMoneroWalletCommon {
           for (let j = 0; j < numSubaddressesPerAccount; j++) destinationAddresses.push(subaddresses[j].getAddress());
         }
             
-        // send to subaddresses
+        // config to send
         let payments = [];
         for (let i = 0; i < destinationAddresses.length; i++) {
           let payment = new MoneroPayment(destinationAddresses[i], sendAmountPerSubaddress);
           payments.push(payment);
         }
         let config = new MoneroSendConfig();
+        config.setCanSplit(canSplit);
         config.setMixin(TestUtils.MIXIN);
         config.setAccountIndex(srcAccount.getIndex());
         config.setPayments(payments);
         
+        // send tx(s) with config
         let txs = [];
         if (canSplit) {
           let sendTxs = await wallet.sendSplit(config);
@@ -1250,14 +1252,14 @@ class TestMoneroWalletCommon {
         let txSum = new BigInteger(0);
         for (let tx of txs) {
           await testWalletTx(tx, {wallet: wallet, sendConfig: config});
-          txSum = txSum.add(tx.getTotalAmount());
-          if (tx.getPayments() !== undefined) {
+          txSum = txSum.add(tx.getOutgoingAmount());
+          if (tx.getOutgoingPayments() !== undefined) {
             let paymentSum = new BigInteger(0);
-            for (let payment of tx.getPayments()) {
+            for (let payment of tx.getOutgoingPayments()) {
               assert(destinationAddresses.includes(payment.getAddress()));
               paymentSum = paymentSum.add(payment.getAmount());
             }
-            assert(tx.getTotalAmount().compare(paymentSum) === 0);  // assert that payments sum up to tx amount
+            assert(tx.getOutgoingAmount().compare(paymentSum) === 0);  // assert that payments sum up to tx amount
           }
         }
         
