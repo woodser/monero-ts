@@ -449,15 +449,11 @@ class MoneroTx extends MoneroDaemonModel {
       }
     }
     
-    // TODO: these need looked at and specifically tested
+    // merge received time which becomes undefined when confirmed
+    if (this.getIsConfirmed()) this.setReceivedTime(undefined);
+    else this.setReceivedTime(MoneroUtils.reconcile(this.getReceivedTime(), tx.getReceivedTime(), {resolveMin: true}));
     
-    // merge received time
-    if (this.getReceivedTime() === undefined) this.setReceivedTime(tx.getReceivedTime());
-    else if (tx.getReceivedTime() !== undefined) {
-      if (!this.getIsConfirmed()) this.setReceivedTime(Math.min(this.getReceivedTime(), tx.getReceivedTime())); // txpool timestamps can vary so use first timestamp
-      else assert.equal(this.getReceivedTime(), tx.getReceivedTime(), "Transaction " + tx.getId() + " received timestamps should be equal but are not: " + this.getReceivedTime() + " vs " + tx.getReceivedTime());
-    }
-    
+    // TODO: this needs looked at and tested
     // merge estimated blocks until confirmed count
     if (this.getEstimatedBlockCountUntilConfirmed() !== undefined) {
       if (tx.getEstimatedBlockCountUntilConfirmed() === undefined) this.setEstimatedBlockCountUntilConfirmed(undefined);  // uninitialize when confirmed
