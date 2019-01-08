@@ -343,7 +343,8 @@ class MoneroWalletLocal extends MoneroWallet {
         
         // check if wallet owns output
         if (tx.getVouts()[outIdx].target.key === pubKeyDerived) {
-          console.log("THIS MY OUTPUT AT HEIGHT " + block.getHeader().getHeight() + "!!!");
+          // TODO: now what?
+          //console.log("THIS MY OUTPUT AT HEIGHT " + block.getHeader().getHeight() + "!!!");
         }
       }
     }
