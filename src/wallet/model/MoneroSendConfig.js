@@ -98,6 +98,14 @@ class MoneroSendConfig {
     this.doNotRelay = doNotRelay;
   }
   
+  getCanSplit() {
+    return this.canSplit;
+  }
+  
+  setCanSplit(canSplit) {
+    this.canSplit = canSplit;
+  }
+  
   // TODO: could extend this class to make MoneroSweepConfig with these params
   
   getBelowAmount() {  // TODO: specific to sweep?

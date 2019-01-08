@@ -1060,6 +1060,7 @@ class MoneroWalletRpc extends MoneroWallet {
     else config = new MoneroSendConfig(configOrAddress, amount, paymentId, priority, mixin, fee);
     assert.equal(undefined, config.getSweepEachSubaddress());
     assert.equal(undefined, config.getBelowAmount());
+    if (config.getCanSplit() !== undefined) assert.equal(split, config.getCanSplit());
     
     // determine account and subaddresses to send from
     let accountIdx = config.getAccountIndex();

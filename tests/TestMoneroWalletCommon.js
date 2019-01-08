@@ -1539,28 +1539,32 @@ class TestMoneroWalletCommon {
         let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
         sendConfig.setAccountIndex(0);
         sendConfig.setUnlockTime(3);
-        await testSendAndUpdateTxs(sendConfig, false);
+        sendConfig.setCanSplit(false);
+        await testSendAndUpdateTxs(sendConfig);
       });
       
 //      it("Can update split locked txs sent to/from the same account as blocks are added to the chain", async function() {
 //        let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
 //        sendConfig.setAccountIndex(0);
 //        sendConfig.setUnlockTime(3);
-//        await testSendAndUpdateTxs(sendConfig, true);
+//        sendConfig.setCanSplit(true);
+//        await testSendAndUpdateTxs(sendConfig);
 //      });
       
 //      it("Can update a locked tx sent to/from different accounts as blocks are added to the chain", async function() {
 //        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
 //        sendConfig.setAccountIndex(0);
 //        sendConfig.setUnlockTime(3);
-//        await testSendAndUpdateTxs(sendConfig, false);
+//        sendConfig.setCanSplit(false);
+//        await testSendAndUpdateTxs(sendConfig);
 //      });
 //      
 //      it("Can update a locked tx sent to/from different accounts as blocks are added to the chain", async function() {
 //        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0).getAddress(), TestUtils.MAX_FEE);
 //        sendConfig.setAccountIndex(0);
 //        sendConfig.setUnlockTime(3);
-//        await testSendAndUpdateTxs(sendConfig, true);
+//        sendConfig.setCanSplit(true);
+//        await testSendAndUpdateTxs(sendConfig);
 //      });
       
       /**
@@ -1574,13 +1578,13 @@ class TestMoneroWalletCommon {
        * and also where it is impossible to discern which incoming output is
        * the tx amount and which is the change amount without wallet metadata.
        * 
-       * @param sameAccount sends the tx to/from the same account iff true
+       * @param sendConfig is the send configuration to send and test
        */
-      async function testSendAndUpdateTxs(sendConfig, canSplit) {
+      async function testSendAndUpdateTxs(sendConfig) {
         
         // send transactions
         let sentTxs;
-        if (canSplit) sentTxs = await wallet.sendSplit(sendConfig);
+        if (sendConfig.getCanSplit()) sentTxs = await wallet.sendSplit(sendConfig);
         else sentTxs = [await wallet.send(sendConfig)];
         
         // test sent transactions
@@ -1933,12 +1937,12 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(sendConfig.getUnlockTime() ? sendConfig.getUnlockTime() : 0, tx.getUnlockTime());
     assert.equal(undefined, tx.getBlockTimestamp());
     assert.equal(undefined, tx.getReceivedTime());
-    if (testConfig.hasKey) assert(tx.getKey().length > 0);
-    else assert.equal(undefined, tx.getKey());
-    assert.equal("string", typeof tx.getHex());
+    if (testConfig.sendConfig.getCanSplit()) assert.equal(undefined, tx.getKey());
+    else assert(tx.getKey().length > 0);
+    assert.equal("string", typeof tx.getHex()); // TODO: hex affected same as key regarding split, no?
     assert(tx.getHex().length > 0);
     assert(tx.getMetadata());
-    if (hasPayments) assert.deepEqual(config.getPayments(), tx.getPayments());
+    assert.deepEqual(sendConfig.getPayments(), tx.getOutgoingPayments());
     
     // test sent tx relay
     if (sendConfig.getDoNotRelay()) {
