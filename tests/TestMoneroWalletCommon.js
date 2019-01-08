@@ -1099,7 +1099,7 @@ class TestMoneroWalletCommon {
         config.setAccountIndex(fromAccount.getIndex());
         config.setSubaddressIndices([fromSubaddress.getSubaddressIndex()]);
         config.setDoNotRelay(doNotRelay);
-        config.setCanSplit(canSplit); // so test knows txs could be split (kinda janky)
+        config.setCanSplit(canSplit); // so test knows txs could be split
         if (canSplit) {
           let sendTxs = await wallet.sendSplit(config);
           for (let tx of sendTxs) txs.push(tx);
@@ -1312,6 +1312,7 @@ class TestMoneroWalletCommon {
         config.setAccountIndex(srcAccount.getIndex());
         config.setSubaddressIndices(fromSubaddressIndices);
         config.setMixin(TestUtils.MIXIN);
+        config.setCanSplit(canSplit); // so test knows txs could be split
         let txs = [];
         if (canSplit) {
           let sendTxs = await wallet.sendSplit(config);
