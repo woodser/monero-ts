@@ -1,9 +1,12 @@
+const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const TestMoneroDaemonRpc = require("./TestMoneroDaemonRpc");
 const TestMoneroWalletRpc = require("./TestMoneroWalletRpc")
 const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 const TestUtils = require("./TestUtils");
 const MoneroRpc = require("../src/rpc/MoneroRpc");
+const MoneroPayment = require("../src/wallet/model/MoneroPayment");
 const MoneroTxFilter = require("../src/wallet/model/MoneroTxFilter");
+const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
 
 describe("Scratchpad", function() {
   
@@ -14,24 +17,37 @@ describe("Scratchpad", function() {
     let wallet = TestUtils.getWalletRpc();
     await TestUtils.initWalletRpc();
     
+    
+
+    
 //    try { await wallet.startMining(8, false, true); }
 //    catch (e) { }
-    await wallet.stopMining();
-    await daemon.stopMining();
+//    await wallet.stopMining();
+//    await daemon.stopMining();
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
     
-//    // fetch txs
-//    let txId = "67c0172a2ada9b5c72a2bbe0b3272073d5a099075a2779cedeee4546556a60b6";
-//    let filter = new MoneroTxFilter();
-//    //filter.setAccountIndex(0);
-//    //filter.setSubaddressIndices([0]);
-//    //filter.setFetchVouts(true);
-//    filter.setTxIds([txId]);
-//    let txs = await wallet.getTxs(filter, undefined, txId);
-//    for (let tx of txs) {
-//      console.log(tx.toString());
-//    }
+    // fetch txs
+    let txId = "2d51c3a3f371df6351965fbe8c635e95cd752d57cbdec4e727c2d70b63997c3e";
+    let filter = new MoneroTxFilter();
+    //filter.setAccountIndex(0);
+    //filter.setSubaddressIndices([0]);
+    //filter.setFetchVouts(true);
+    filter.setTxIds([txId]);
+    let txs = await wallet.getTxs(filter, undefined, txId);
+    for (let tx of txs) {
+      console.log(tx.toString());
+    }
+    
+    // send tx
+//  let address1 = (await wallet.getSubaddress(1, 0)).getAddress();
+//  let payment1 = new MoneroPayment(address1, new BigInteger(2).multiply(TestUtils.MAX_FEE));
+//  let payment2 = new MoneroPayment(address1, new BigInteger(3).multiply(TestUtils.MAX_FEE));
+//  let sendConfig = new MoneroSendConfig();
+//  sendConfig.setPayments([payment1, payment2]);
+//  sendConfig.setAccountIndex(0);
+//  let tx = await wallet.send(sendConfig);
+//  console.log(tx.toString());
     
 //    
 //    // use direct rpc interface to
