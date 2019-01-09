@@ -336,6 +336,7 @@ class TestMoneroWalletCommon {
           let filter = new MoneroTxFilter();
           filter.setAccountIndex(account.getIndex());
           for (let tx of txs.filter(tx => filter.meetsCriteria(tx))) { // normally we'd call wallet.getTxs(filter) but we're using pre-fetched txs
+            //console.log((tx.getOutgoingAmount() ? tx.getOutgoingAmount().toString() : "") + ", " + (tx.getIncomingAmount() ? tx.getIncomingAmount().toString() : ""));
             if (tx.getOutgoingAmount()) outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
             if (tx.getIncomingAmount()) incomingSum = incomingSum.add(tx.getIncomingAmount());
           }
