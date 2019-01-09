@@ -24,7 +24,7 @@ class MoneroWalletTx extends MoneroTx {
       if (json.outgoingAmount) this.setOutgoingAmount(BigInteger.parse(json.outgoingAmount));
       if (json.outgoingPayments) {
         let outgoingPayments = [];
-        for (let outgoingPaymentJson of json.outgoingPayments) outgoingPayments.push(new MoneroPayment(outgoingPaymentJson));
+        for (let jsonOutgoingPayment of json.outgoingPayments) outgoingPayments.push(new MoneroPayment(jsonOutgoingPayment));
         this.setOutgoingPayments(outgoingPayments);
       }
       
@@ -32,7 +32,7 @@ class MoneroWalletTx extends MoneroTx {
       if (json.incomingAmount) this.setIncomingAmount(BigInteger.parse(json.incomingAmount));
       if (json.incomingPayments) {
         let incomingPayments = [];
-        for (let incomingPaymentJson of json.incomingPayments) incomingPayments.push(new MoneroPayment(incomingPaymentJson));
+        for (let jsonIncomingPayment of json.incomingPayments) incomingPayments.push(new MoneroPayment(jsonIncomingPayment));
         this.setIncomingPayments(incomingPayments);
       }
     }
