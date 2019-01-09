@@ -302,6 +302,18 @@ class TestMoneroWalletCommon {
         let accounts = await wallet.getAccounts(true);  // includes subaddresses
         let txs = await wallet.getTxs();
         
+        // sort txs
+        txs.sort((a, b) => {
+          let timestampA = a.getBlockTimestamp() ? a.getBlockTimestamp() : a.getReceivedTime();
+          let timestampB = b.getBlockTimestamp() ? b.getBlockTimestamp() : b.getReceivedTime();
+          if (timestampA < timestampB) return -1;
+          if (timestampA > timestampB) return 1;
+          return 0;
+        })
+//        for (let tx of txs) {
+//          console.log(tx.toString(0, true));
+//        }
+        
         // test wallet balance
         TestUtils.testUnsignedBigInteger(walletBalance);
         TestUtils.testUnsignedBigInteger(walletUnlockedBalance);
@@ -331,11 +343,14 @@ class TestMoneroWalletCommon {
         
         // test that each account's balance equals net of account's incoming and outgoing tx amounts
         for (let account of accounts) {
+          if (account.getIndex() !== 1) continue; // find 1
           outgoingSum = new BigInteger(0);
           incomingSum = new BigInteger(0);
           let filter = new MoneroTxFilter();
           filter.setAccountIndex(account.getIndex());
           for (let tx of txs.filter(tx => filter.meetsCriteria(tx))) { // normally we'd call wallet.getTxs(filter) but we're using pre-fetched txs
+            if (tx.getId() === "8d3919d98dd5a734da8c52eddc558db3fbf059ad55d432f0052ecd59ef122ecb") console.log(tx.toString(0));
+            
             //console.log((tx.getOutgoingAmount() ? tx.getOutgoingAmount().toString() : "") + ", " + (tx.getIncomingAmount() ? tx.getIncomingAmount().toString() : ""));
             if (tx.getOutgoingAmount()) outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
             if (tx.getIncomingAmount()) incomingSum = incomingSum.add(tx.getIncomingAmount());
@@ -411,6 +426,38 @@ class TestMoneroWalletCommon {
           }
         }
         assert(nonDefaultIncoming, "No incoming payments found to non-default account and subaddress; run send-to-multiple tests first");
+      });
+      
+      it("Returns all known fields of txs regardless of query filtering", async function() {
+        
+        // test every wallet tx
+        let txs = await wallet.getTxs();
+        for (let tx of txs) {
+          
+          // find tx sent to same wallet with incoming payment in different account than src account
+          if (!tx.getOutgoingAmount() || !tx.getIncomingAmount()) continue;
+          if (tx.getOutgoingAmount().compare(tx.getIncomingAmount()) !== 0) continue;
+          if (!tx.getIncomingPayments()) continue;
+          for (let payment of tx.getIncomingPayments()) {
+            if (payment.getAccountIndex() === tx.getSrcAccountIndex()) continue;
+            
+            // fetch tx with filtering for this account
+            let filter = new MoneroTxFilter();
+            filter.setAccountIndex(payment.getAccountIndex());
+            filter.setTxIds([tx.getId()]);
+            let filteredTx = (await wallet.getTxs(filter))[0];
+            
+            // txs should be the same
+            assert.equal(tx.getId(), filteredTx.getId());
+            try {
+              assert.equal(tx.toString(), filteredTx.toString()); // TODO: better deep comparator?
+            } catch (e) {
+              console.log(tx.toString());
+              console.log(filteredTx.toString());
+              throw e;
+            }
+          }
+        }
       });
       
       it("Can get transactions pertaining to an account", async function() {

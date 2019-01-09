@@ -129,8 +129,22 @@ class MoneroWalletTx extends MoneroTx {
     return json;
   }
   
-  toString(indent = 0) {
-    let str = super.toString(indent) + "\n";
+  toString(indent = 0, oneLine) {
+    let str = "";
+    
+    // represent tx with one line string
+    // TODO: proper csv export
+    if (oneLine) {
+      str += this.getId() + ", ";
+      str += (this.getIsConfirmed() ? this.getBlockTimestamp() : this.getReceivedTime()) + ", ";
+      str += this.getIsConfirmed() + ", ";
+      str += (this.getOutgoingAmount() ? this.getOutgoingAmount().toString() : "") + ", "
+      str += this.getIncomingAmount() ? this.getIncomingAmount().toString() : "";
+      return str;
+    }
+    
+    // otherwise stringify all fields
+    str += super.toString(indent) + "\n";
     str += MoneroUtils.kvLine("Is outgoing", this.getIsOutgoing(), indent);
     str += MoneroUtils.kvLine("Outgoing amount", this.getOutgoingAmount(), indent);
     str += MoneroUtils.kvLine("Source account index", this.getSrcAccountIndex(), indent);
