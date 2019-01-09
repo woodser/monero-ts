@@ -102,20 +102,20 @@ class MoneroTxFilter {
     this.maxHeight = maxHeight;
   }
   
-  getHasOutgoingPayments() {
-    return this.hasOutgoingPayments;
+  getHasOutgoingTransfers() {
+    return this.hasOutgoingTransfers;
   }
 
-  setHasOutgoingPayments(hasOutgoingPayments) {
-    this.hasOutgoingPayments = hasOutgoingPayments;
+  setHasOutgoingTransfers(hasOutgoingTransfers) {
+    this.hasOutgoingTransfers = hasOutgoingTransfers;
   }
   
-  getHasIncomingPayments() {
-    return this.hasIncomingPayments;
+  getHasIncomingTransfers() {
+    return this.hasIncomingTransfers;
   }
 
-  setHasIncomingPayments(hasIncomingPayments) {
-    this.hasIncomingPayments = hasIncomingPayments;
+  setHasIncomingTransfers(hasIncomingTransfers) {
+    this.hasIncomingTransfers = hasIncomingTransfers;
   }
   
   getPaymentIds() {
@@ -145,50 +145,50 @@ class MoneroTxFilter {
    */
   meetsCriteria(tx) {
     
-    // filter on account idx by checking tx src account index and payment account indices
+    // filter on account idx by checking tx src account index and transfer account indices
     if (this.getAccountIndex() !== undefined) {
       if (tx.getSrcAccountIndex() !== this.getAccountIndex()) {
-        let matchingPayment = false;
-        if (tx.getIncomingPayments()) {
-          for (let payment of tx.getIncomingPayments()) {
-            if (payment.getAccountIndex() === this.getAccountIndex()) {
-              matchingPayment = true;
+        let matchingTransfer = false;
+        if (tx.getIncomingTransfers()) {
+          for (let transfer of tx.getIncomingTransfers()) {
+            if (transfer.getAccountIndex() === this.getAccountIndex()) {
+              matchingTransfer = true;
               break;
             }
           }
         }
-        if (!matchingPayment) return false;
+        if (!matchingTransfer) return false;
       }
     }
     
-    // filter on subaddress idx by checking tx src subaddress index and payment subaddress indices
+    // filter on subaddress idx by checking tx src subaddress index and transfer subaddress indices
     if (this.getSubaddressIndices() !== undefined) {
       for (let subaddressIdx of this.getSubaddressIndices()) {
         if (tx.getSrcSubaddressIndex() !== subaddressIdx) {
-          let matchingPayment = false;
-          if (tx.getIncomingPayments()) {
-            for (let payment of tx.getIncomingPayments()) {
-              if (payment.getSubaddressIndex() === subaddressIdx) {
-                matchingPayment = true;
+          let matchingTransfer = false;
+          if (tx.getIncomingTransfers()) {
+            for (let transfer of tx.getIncomingTransfers()) {
+              if (transfer.getSubaddressIndex() === subaddressIdx) {
+                matchingTransfer = true;
                 break;
               }
             }
           }
-          if (!matchingPayment) return false;
+          if (!matchingTransfer) return false;
         }
       }
     }
     
-    // filter on outgoing payments
-    if (this.getHasOutgoingPayments() !== undefined) {
-      if (this.getHasOutgoingPayments() && (tx.getOutgoingPayments() === undefined || tx.getOutgoingPayments().length === 0)) return false;
-      if (!this.getHasOutgoingPayments() && tx.getOutgoingPayments() !== undefined && tx.getOutgoingPayments().length > 0) return false;
+    // filter on outgoing transfers
+    if (this.getHasOutgoingTransfers() !== undefined) {
+      if (this.getHasOutgoingTransfers() && (tx.getOutgoingTransfers() === undefined || tx.getOutgoingTransfers().length === 0)) return false;
+      if (!this.getHasOutgoingTransfers() && tx.getOutgoingTransfers() !== undefined && tx.getOutgoingTransfers().length > 0) return false;
     }
     
-    // filter on incoming payments
-    if (this.getHasIncomingPayments() !== undefined) {
-      if (this.getHasIncomingPayments() && (tx.getIncomingPayments() === undefined || tx.getIncomingPayments().length === 0)) return false;
-      if (!this.getHasIncomingPayments() && tx.getIncomingPayments() !== undefined && tx.getIncomingPayments().length > 0) return false;
+    // filter on incoming transfers
+    if (this.getHasIncomingTransfers() !== undefined) {
+      if (this.getHasIncomingTransfers() && (tx.getIncomingTransfers() === undefined || tx.getIncomingTransfers().length === 0)) return false;
+      if (!this.getHasIncomingTransfers() && tx.getIncomingTransfers() !== undefined && tx.getIncomingTransfers().length > 0) return false;
     }
     
     // filter on remaining fields

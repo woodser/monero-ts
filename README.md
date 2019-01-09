@@ -27,15 +27,15 @@ let subaddress = await wallet.getSubaddress(1, 0);
 let subaddressBalance = subaddress.getBalance();
 let subaddressAddress = subaddress.getAddress();
 
-// send a payment
+// send a transfer
 let sentTx = await wallet.send("74oAtjgE2dfD1bJBo4DWW3E6qXCAwUDMgNqUurnX9b2xUvDTwMwExiXDkZskg7Vct37tRGjzHRqL4gH4H3oag3YyMYJzrNp", new BigInteger(50000));
 
-// send payments to multiple destinations from subaddress 0, 1 which can be split into multiple transactions
-let payments = [];
-payments.push(new MoneroPayment("7BV7iyk9T6kfs7cPfmn7vPZPyWRid7WEwecBkkVr8fpw9MmUgXTPtvMKXuuzqKyr2BegWMhEcGGEt5vNkmJEtgnRFUAvf29", new BigInteger(50000)));
-payments.push(new MoneroPayment("78NWrWGgyZeYgckJhuxmtDMqo8Kzq5r9j1kV8BQXGq5CDnECz2KjQeBDc3KKvdMQmR6TWtfbRaedgbSGmmwr1g8N1rBMdvW", new BigInteger(50000)));
+// send to multiple destinations from subaddress 0, 1 which can be split into multiple transactions
+let transfers = [];
+transfers.push(new MoneroTransfer("7BV7iyk9T6kfs7cPfmn7vPZPyWRid7WEwecBkkVr8fpw9MmUgXTPtvMKXuuzqKyr2BegWMhEcGGEt5vNkmJEtgnRFUAvf29", new BigInteger(50000)));
+transfers.push(new MoneroTransfer("78NWrWGgyZeYgckJhuxmtDMqo8Kzq5r9j1kV8BQXGq5CDnECz2KjQeBDc3KKvdMQmR6TWtfbRaedgbSGmmwr1g8N1rBMdvW", new BigInteger(50000)));
 let sendConfig = new MoneroSendConfig();
-sendConfig.setPayments(payments);
+sendConfig.setTransfers(transfers);
 sendConfig.setAccountIndex(0);
 sendConfig.setSubaddressIndices([1]);
 let sentTxs = await wallet.sendSplit(sendConfig);

@@ -5,7 +5,7 @@ const MoneroUtils = require("../../utils/MoneroUtils");
 /**
  * Represents a directional transfer of funds from or to a wallet.
  */
-class MoneroPayment {
+class MoneroTransfer {
   
   /**
    * Constructs the model.
@@ -59,7 +59,7 @@ class MoneroPayment {
   }
   
   copy() {
-    return new MoneroPayment(this.toJson());
+    return new MoneroTransfer(this.toJson());
   }
   
   toJson() {
@@ -69,18 +69,18 @@ class MoneroPayment {
   }
 
   /**
-   * Merges the given payment into this payment.
+   * Merges the given transfer into this transfer.
    * 
    * Sets uninitialized fields to the given payent. Validates initialized fields are equal.
    * 
-   * @param payment is the payment to merge into this one
+   * @param transfer is the transfer to merge into this one
    */
-  merge(payment) {
-    assert(payment instanceof MoneroPayment);
-    this.setAddress(MoneroUtils.reconcile(this.getAddress(), payment.getAddress()));
-    this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), payment.getAccountIndex()));
-    this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), payment.getSubaddressIndex()));
-    this.setAmount(MoneroUtils.reconcile(this.getAmount(), payment.getAmount()));
+  merge(transfer) {
+    assert(transfer instanceof MoneroTransfer);
+    this.setAddress(MoneroUtils.reconcile(this.getAddress(), transfer.getAddress()));
+    this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), transfer.getAccountIndex()));
+    this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), transfer.getSubaddressIndex()));
+    this.setAmount(MoneroUtils.reconcile(this.getAmount(), transfer.getAmount()));
   }
   
   toString(indent = 0) {
@@ -93,4 +93,4 @@ class MoneroPayment {
   }
 }
 
-module.exports = MoneroPayment;
+module.exports = MoneroTransfer;

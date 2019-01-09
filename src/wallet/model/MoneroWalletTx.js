@@ -2,7 +2,7 @@ const assert = require("assert");
 const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroUtils = require("../../utils/MoneroUtils");
 const MoneroTx = require("../../daemon/model/MoneroTx");
-const MoneroPayment = require("../../wallet/model/MoneroPayment");
+const MoneroTransfer = require("../../wallet/model/MoneroTransfer");
 
 /**
  * Models a Monero transaction with additional fields in the context of a wallet.
@@ -20,20 +20,20 @@ class MoneroWalletTx extends MoneroTx {
     // deserialize json
     if (json) {
       
-      // deserialize outgoing amount and payments
+      // deserialize outgoing amount and transfers
       if (json.outgoingAmount) this.setOutgoingAmount(BigInteger.parse(json.outgoingAmount));
-      if (json.outgoingPayments) {
-        let outgoingPayments = [];
-        for (let jsonOutgoingPayment of json.outgoingPayments) outgoingPayments.push(new MoneroPayment(jsonOutgoingPayment));
-        this.setOutgoingPayments(outgoingPayments);
+      if (json.OutgoingTransfers) {
+        let OutgoingTransfers = [];
+        for (let jsonOutgoingTransfer of json.OutgoingTransfers) OutgoingTransfers.push(new MoneroTransfer(jsonOutgoingTransfer));
+        this.setOutgoingTransfers(OutgoingTransfers);
       }
       
-      // deserialize incoming amound payments
+      // deserialize incoming amound transfers
       if (json.incomingAmount) this.setIncomingAmount(BigInteger.parse(json.incomingAmount));
-      if (json.incomingPayments) {
-        let incomingPayments = [];
-        for (let jsonIncomingPayment of json.incomingPayments) incomingPayments.push(new MoneroPayment(jsonIncomingPayment));
-        this.setIncomingPayments(incomingPayments);
+      if (json.incomingTransfers) {
+        let incomingTransfers = [];
+        for (let jsonIncomingTransfer of json.incomingTransfers) incomingTransfers.push(new MoneroTransfer(jsonIncomingTransfer));
+        this.setIncomingTransfers(incomingTransfers);
       }
     }
   }
@@ -62,20 +62,20 @@ class MoneroWalletTx extends MoneroTx {
     this.incomingAmount = incomingAmount;
   }
   
-  getOutgoingPayments() {
-    return this.state.outgoingPayments;
+  getOutgoingTransfers() {
+    return this.state.OutgoingTransfers;
   }
   
-  setOutgoingPayments(outgoingPayments) {
-    this.state.outgoingPayments = outgoingPayments;
+  setOutgoingTransfers(OutgoingTransfers) {
+    this.state.OutgoingTransfers = OutgoingTransfers;
   }
   
-  getIncomingPayments() {
-    return this.state.incomingPayments;
+  getIncomingTransfers() {
+    return this.state.incomingTransfers;
   }
   
-  setIncomingPayments(incomingPayments) {
-    this.state.incomingPayments = incomingPayments;
+  setIncomingTransfers(incomingTransfers) {
+    this.state.incomingTransfers = incomingTransfers;
   }
   
   getSrcAccountIndex() {
@@ -118,13 +118,13 @@ class MoneroWalletTx extends MoneroTx {
     let json = Object.assign({}, this.state, super.toJson()); // merge json onto native state
     if (this.getOutgoingAmount()) json.outgoingAmount = this.getOutgoingAmount().toString();
     if (this.getIncomingAmount()) json.incomingAmount = this.getIncomingAmount().toString();
-    if (this.getOutgoingPayments()) {
-      json.outgoingPayments = [];
-      for (let outgoingPayment of this.getOutgoingPayments()) json.outgoingPayments.push(outgoingPayment.toJson());
+    if (this.getOutgoingTransfers()) {
+      json.OutgoingTransfers = [];
+      for (let outgoingTransfer of this.getOutgoingTransfers()) json.OutgoingTransfers.push(outgoingTransfer.toJson());
     }
-    if (this.getIncomingPayments()) {
-      json.incomingPayments = [];
-      for (let incomingPayment of this.getIncomingPayments()) json.incomingPayments.push(incomingPayment.toJson());
+    if (this.getIncomingTransfers()) {
+      json.incomingTransfers = [];
+      for (let incomingTransfer of this.getIncomingTransfers()) json.incomingTransfers.push(incomingTransfer.toJson());
     }
     return json;
   }
@@ -150,21 +150,21 @@ class MoneroWalletTx extends MoneroTx {
     str += MoneroUtils.kvLine("Source account index", this.getSrcAccountIndex(), indent);
     str += MoneroUtils.kvLine("Source subaddress index", this.getSrcSubaddressIndex(), indent);
     str += MoneroUtils.kvLine("Source address", this.getSrcAddress(), indent);
-    if (this.getOutgoingPayments()) {
-      str += MoneroUtils.kvLine("Outgoing payments", "", indent);
-      for (let i = 0; i < this.getOutgoingPayments().length; i++) {
+    if (this.getOutgoingTransfers()) {
+      str += MoneroUtils.kvLine("Outgoing transfers", "", indent);
+      for (let i = 0; i < this.getOutgoingTransfers().length; i++) {
         str += MoneroUtils.kvLine(i + 1, "", indent + 1);
-        str += this.getOutgoingPayments()[i].toString(indent + 2) + "\n";
-        if (i < this.getOutgoingPayments().length - 1) str += '\n'
+        str += this.getOutgoingTransfers()[i].toString(indent + 2) + "\n";
+        if (i < this.getOutgoingTransfers().length - 1) str += '\n'
       }
     }
     str += MoneroUtils.kvLine("Is incoming", this.getIsIncoming(), indent);
     str += MoneroUtils.kvLine("Incoming amount", this.getIncomingAmount(), indent);
-    if (this.getIncomingPayments()) {
-      str += MoneroUtils.kvLine("Incoming payments", "", indent);
-      for (let i = 0; i < this.getIncomingPayments().length; i++) {
+    if (this.getIncomingTransfers()) {
+      str += MoneroUtils.kvLine("Incoming transfers", "", indent);
+      for (let i = 0; i < this.getIncomingTransfers().length; i++) {
         str += MoneroUtils.kvLine(i + 1, "", indent + 1);
-        str += this.getIncomingPayments()[i].toString(indent + 2) + "\n";
+        str += this.getIncomingTransfers()[i].toString(indent + 2) + "\n";
       }
     }
     str += MoneroUtils.kvLine("Note: ", this.getNote(), indent);
@@ -190,36 +190,36 @@ class MoneroWalletTx extends MoneroTx {
     this.setSrcAddress(MoneroUtils.reconcile(this.getSrcAddress(), tx.getSrcAddress()));
     this.setNote(MoneroUtils.reconcile(this.getNote(), tx.getNote()));
     
-    // merge outgoing payments
-    if (this.getOutgoingPayments() === undefined) this.setOutgoingPayments(tx.getOutgoingPayments());
-    else if (tx.getOutgoingPayments()) {
-      assert.deepEqual(this.getOutgoingPayments(), tx.getOutgoingPayments(), "Outgoing payments are different so tx cannot be merged");
+    // merge outgoing transfers
+    if (this.getOutgoingTransfers() === undefined) this.setOutgoingTransfers(tx.getOutgoingTransfers());
+    else if (tx.getOutgoingTransfers()) {
+      assert.deepEqual(this.getOutgoingTransfers(), tx.getOutgoingTransfers(), "Outgoing transfers are different so tx cannot be merged");
     }
     
-    // merge incoming payments
-    if (tx.getIncomingPayments()) {
-      if (this.getIncomingPayments() === undefined) this.setIncomingPayments([]);
-      for (let payment of tx.getIncomingPayments()) {
-        mergePayment(this.getIncomingPayments(), payment);
+    // merge incoming transfers
+    if (tx.getIncomingTransfers()) {
+      if (this.getIncomingTransfers() === undefined) this.setIncomingTransfers([]);
+      for (let transfer of tx.getIncomingTransfers()) {
+        mergeTransfer(this.getIncomingTransfers(), transfer);
       }
     }
     
-    // incoming amount is sum of incoming payments
-    if (this.getIncomingPayments()) {
+    // incoming amount is sum of incoming transfers
+    if (this.getIncomingTransfers()) {
       let incomingAmt = new BigInteger(0);
-      for (let payment of this.getIncomingPayments()) incomingAmt = incomingAmt.add(payment.getAmount());
+      for (let transfer of this.getIncomingTransfers()) incomingAmt = incomingAmt.add(transfer.getAmount());
       this.setIncomingAmount(incomingAmt);
     }
     
-    // helper function to merge payments
-    function mergePayment(payments, payment) {
-      for (let aPayment of payments) {
-        if (aPayment.getAccountIndex() === payment.getAccountIndex() && aPayment.getSubaddressIndex() === payment.getSubaddressIndex()) {
-          aPayment.merge(payment);
+    // helper function to merge transfers
+    function mergeTransfer(transfers, transfer) {
+      for (let aTransfer of transfers) {
+        if (aTransfer.getAccountIndex() === transfer.getAccountIndex() && aTransfer.getSubaddressIndex() === transfer.getSubaddressIndex()) {
+          aTransfer.merge(transfer);
           return;
         }
       }
-      payments.push(payment);
+      transfers.push(transfer);
     }
     
     return this;  // for chaining

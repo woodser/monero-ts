@@ -4,7 +4,7 @@ const TestMoneroWalletRpc = require("./TestMoneroWalletRpc")
 const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 const TestUtils = require("./TestUtils");
 const MoneroRpc = require("../src/rpc/MoneroRpc");
-const MoneroPayment = require("../src/wallet/model/MoneroPayment");
+const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
 const MoneroTxFilter = require("../src/wallet/model/MoneroTxFilter");
 const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
 
@@ -23,7 +23,7 @@ describe("Scratchpad", function() {
 //    try { await wallet.startMining(8, false, true); }
 //    catch (e) { }
 //    await wallet.stopMining();
-//    await daemon.stopMining();
+    await daemon.stopMining();
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
     
@@ -41,10 +41,10 @@ describe("Scratchpad", function() {
     
     // send tx
 //  let address1 = (await wallet.getSubaddress(1, 0)).getAddress();
-//  let payment1 = new MoneroPayment(address1, new BigInteger(2).multiply(TestUtils.MAX_FEE));
-//  let payment2 = new MoneroPayment(address1, new BigInteger(3).multiply(TestUtils.MAX_FEE));
+//  let transfer1 = new MoneroTransfer(address1, new BigInteger(2).multiply(TestUtils.MAX_FEE));
+//  let transfer2 = new MoneroTransfer(address1, new BigInteger(3).multiply(TestUtils.MAX_FEE));
 //  let sendConfig = new MoneroSendConfig();
-//  sendConfig.setPayments([payment1, payment2]);
+//  sendConfig.setTransfers([transfer1, transfer2]);
 //  sendConfig.setAccountIndex(0);
 //  let tx = await wallet.send(sendConfig);
 //  console.log(tx.toString());
