@@ -370,9 +370,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // filter final result
-    let toRemoves = [];
-    for (let tx of txs) if (!filter.meetsCriteria(tx)) toRemoves.push(tx);
-    return txs.filter(tx => !toRemoves.includes(tx));
+    return txs.filter(tx => filter.meetsCriteria(tx));
   }
   
   async send(configOrAddress, amount, paymentId, priority, mixin, fee) {
