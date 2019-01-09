@@ -3,9 +3,7 @@ const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/b
 const MoneroUtils = require("../../utils/MoneroUtils");
 
 /**
- * Represents a payment on the Monero network to an address.
- * 
- * A transaction may have one or more payments.
+ * Represents a directional transfer of funds from or to a wallet.
  */
 class MoneroPayment {
   
