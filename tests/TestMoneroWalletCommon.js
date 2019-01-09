@@ -294,30 +294,102 @@ class TestMoneroWalletCommon {
         }
       });
       
-      it("Has proper accounting across all accounts and subaddresses", async function() {
+      it("Has correct accounting across accounts, subaddresses, and txs", async function() {
         
-        // get wallet balances
+        // pre-fetch wallet balances, accounts, subaddresses, and txs
         let walletBalance = await wallet.getBalance();
         let walletUnlockedBalance = await wallet.getUnlockedBalance();
+        let accounts = await wallet.getAccounts(true);  // includes subaddresses
+        let txs = await wallet.getTxs();
+        
+        // test wallet balance
         TestUtils.testUnsignedBigInteger(walletBalance);
         TestUtils.testUnsignedBigInteger(walletUnlockedBalance);
         assert(walletBalance >= walletUnlockedBalance);
         
-        // get wallet accounts and subaddresses
-        let accounts = await wallet.getAccounts(true);
-        
-        // add account balances
+        // test that wallet balance equals sum of account balances
         let accountsBalance = new BigInteger(0);
         let accountsUnlockedBalance = new BigInteger(0);
         for (let account of accounts) {
-          testAccount(account); // tests that subaddress balances add to account balance
+          testAccount(account); // test that account balance equals sum of subaddress balances
           accountsBalance = accountsBalance.add(account.getBalance());
           accountsUnlockedBalance = accountsUnlockedBalance.add(account.getUnlockedBalance());
         }
+        assert.equal(0, walletBalance.compare(accountsBalance));
+        assert.equal(0, walletUnlockedBalance.compare(accountsUnlockedBalance));
         
-        // test that wallet balances equal sum of account balances
-        assert.equal(walletBalance.toJSValue(), accountsBalance.toJSValue());
-        assert.equal(walletUnlockedBalance.toJSValue(), accountsUnlockedBalance.toJSValue());
+        // test that wallet balance equals net of wallet's incoming and outgoing tx amounts
+        // TODO: test unlocked balance based on txs, requires e.g. tx.isLocked()
+        // TODO: test/handle unconfirmed discrepencies
+        let outgoingSum = new BigInteger(0);
+        let incomingSum = new BigInteger(0);
+//        for (let tx of txs) {
+//          if (tx.getOutgoingAmount()) outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
+//          if (tx.getIncomingAmount()) incomingSum = incomingSum.add(tx.getIncomingAmount());
+//        }
+//        assert.equal(walletBalance.toString(), incomingSum.subtract(outgoingSum).toString());
+        
+        // test that each account's balance equals net of account's incoming and outgoing tx amounts
+        for (let account of accounts) {
+          outgoingSum = new BigInteger(0);
+          incomingSum = new BigInteger(0);
+          let filter = new MoneroTxFilter();
+          filter.setAccountIndex(account.getIndex());
+          for (let tx of txs.filter(tx => filter.meetsCriteria(tx))) { // normally we'd call wallet.getTxs(filter) but we're using pre-fetched txs
+            if (tx.getOutgoingAmount()) outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
+            if (tx.getIncomingAmount()) incomingSum = incomingSum.add(tx.getIncomingAmount());
+          }
+          assert.equal(account.getBalance().toString(), incomingSum.subtract(outgoingSum).toString());
+        }
+        
+        // TODO: test vouts
+      });
+      
+      // TODO: absorb this into accounting test
+      it("Has a balance that is the sum of all unspent incoming transactions", async function() {
+
+        // test each account balance
+        for (let account of await wallet.getAccounts()) {
+          
+          // get transactions
+          let filter = new MoneroTxFilter();
+          filter.setAccountIndex(account.getIndex());
+          let txs = await wallet.getTxs(filter);
+          if (account.getIndex() === 0) assert(txs.length > 0);
+          
+          // sum balances of incoming payments and pending deductions
+          let inBalance = new BigInteger(0);
+          let inPoolBalance = new BigInteger(0);
+          let outPoolBalance = new BigInteger(0);
+          for (let tx of txs) {
+            
+            // handle incoming
+            if (tx.getIsIncoming()) {
+              assert(tx.getPayments().length > 0);
+              for (let payment of tx.getPayments()) {
+                if (!payment.getIsSpent()) {  // TODO: this should be tested as boolean in testPayment()
+                  if (tx.getIsConfirmed()) inBalance = inBalance.add(payment.getAmount());
+                  else inPoolBalance = inPoolBalance.add(payment.getAmount());
+                }
+              }
+            }
+            
+            // handle outgoing
+            else {
+              if (tx.getInTxPool()) outPoolBalance = outPoolBalance.add(tx.getTotalAmount()); // TODO: test pending balance
+            }
+          }
+          
+          // wallet balance must equal sum of unspent incoming txs
+          let walletBalance = (await wallet.getAccount(account.getIndex())).getBalance();
+          let expectedBalance = inBalance;  // TODO (monero-wallet-rpc): unconfirmed balance may not add up because of https://github.com/monero-project/monero/issues/4500
+//          System.out.println("Wallet    : " + walletBalance);
+//          System.out.println("Incoming  : " + incomingBalance);
+//          System.out.println("Pending   : " + pendingBalance);
+//          System.out.println("Tx pool   : " + txPoolBalance);
+//          System.out.println("Expected  : " + expectedBalance);
+          assert(walletBalance.compare(expectedBalance) === 0, "Account " + account.getIndex() + " balance does not add up: " + expectedBalance.toString() + " vs " + walletBalance.toString());
+        }
       });
       
       it("Can get transactions pertaining to the wallet", async function() {
@@ -624,53 +696,6 @@ class TestMoneroWalletCommon {
       
       it("Can get payments associated with a subaddress", async function() {
         throw new Error("Not implemented");
-      });
-      
-      
-      it("Has a balance that is the sum of all unspent incoming transactions", async function() {
-
-        // test each account balance
-        for (let account of await wallet.getAccounts()) {
-          
-          // get transactions
-          let filter = new MoneroTxFilter();
-          filter.setAccountIndex(account.getIndex());
-          let txs = await wallet.getTxs(filter);
-          if (account.getIndex() === 0) assert(txs.length > 0);
-          
-          // sum balances of incoming payments and pending deductions
-          let inBalance = new BigInteger(0);
-          let inPoolBalance = new BigInteger(0);
-          let outPoolBalance = new BigInteger(0);
-          for (let tx of txs) {
-            
-            // handle incoming
-            if (tx.getIsIncoming()) {
-              assert(tx.getPayments().length > 0);
-              for (let payment of tx.getPayments()) {
-                if (!payment.getIsSpent()) {  // TODO: this should be tested as boolean in testPayment()
-                  if (tx.getIsConfirmed()) inBalance = inBalance.add(payment.getAmount());
-                  else inPoolBalance = inPoolBalance.add(payment.getAmount());
-                }
-              }
-            }
-            
-            // handle outgoing
-            else {
-              if (tx.getInTxPool()) outPoolBalance = outPoolBalance.add(tx.getTotalAmount()); // TODO: test pending balance
-            }
-          }
-          
-          // wallet balance must equal sum of unspent incoming txs
-          let walletBalance = (await wallet.getAccount(account.getIndex())).getBalance();
-          let expectedBalance = inBalance;  // TODO (monero-wallet-rpc): unconfirmed balance may not add up because of https://github.com/monero-project/monero/issues/4500
-//          System.out.println("Wallet    : " + walletBalance);
-//          System.out.println("Incoming  : " + incomingBalance);
-//          System.out.println("Pending   : " + pendingBalance);
-//          System.out.println("Tx pool   : " + txPoolBalance);
-//          System.out.println("Expected  : " + expectedBalance);
-          assert(walletBalance.compare(expectedBalance) === 0, "Account " + account.getIndex() + " balance does not add up: " + expectedBalance.toString() + " vs " + walletBalance.toString());
-        }
       });
       
       it("Can get and set a transaction note", async function() {
