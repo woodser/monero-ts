@@ -23,12 +23,12 @@ describe("Scratchpad", function() {
 //    try { await wallet.startMining(8, false, true); }
 //    catch (e) { }
 //    await wallet.stopMining();
-    await daemon.stopMining();
+//    await daemon.stopMining();
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
     
     // fetch txs
-    let txId = "2d51c3a3f371df6351965fbe8c635e95cd752d57cbdec4e727c2d70b63997c3e";
+    let txId = "8d3919d98dd5a734da8c52eddc558db3fbf059ad55d432f0052ecd59ef122ecb";
     let filter = new MoneroTxFilter();
     //filter.setAccountIndex(0);
     //filter.setSubaddressIndices([0]);
