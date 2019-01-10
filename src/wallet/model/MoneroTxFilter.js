@@ -102,12 +102,12 @@ class MoneroTxFilter {
     this.maxHeight = maxHeight;
   }
   
-  getHasOutgoingTransfers() {
-    return this.hasOutgoingTransfers;
+  getHasOutgoingTransfer() {
+    return this.hasOutgoingTransfer;
   }
 
-  setHasOutgoingTransfers(hasOutgoingTransfers) {
-    this.hasOutgoingTransfers = hasOutgoingTransfers;
+  setHasOutgoingTransfer(hasOutgoingTransfer) {
+    this.hasOutgoingTransfer = hasOutgoingTransfer;
   }
   
   getHasIncomingTransfers() {
@@ -180,9 +180,9 @@ class MoneroTxFilter {
     }
     
     // filter on outgoing transfers
-    if (this.getHasOutgoingTransfers() !== undefined) {
-      if (this.getHasOutgoingTransfers() && (tx.getOutgoingTransfers() === undefined || tx.getOutgoingTransfers().length === 0)) return false;
-      if (!this.getHasOutgoingTransfers() && tx.getOutgoingTransfers() !== undefined && tx.getOutgoingTransfers().length > 0) return false;
+    if (this.getHasOutgoingTransfer() !== undefined) {
+      if (this.getHasOutgoingTransfer() && (tx.getOutgoingTransfer() === undefined)) return false;
+      if (!this.getHasOutgoingTransfer() && tx.getOutgoingTransfer() !== undefined) return false;
     }
     
     // filter on incoming transfers
