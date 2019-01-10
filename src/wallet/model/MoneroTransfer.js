@@ -63,6 +63,14 @@ class MoneroTransfer {
     this.state.amount = amount;
   }
   
+  getDestinations() {
+    return this.state.destinations;
+  }
+  
+  setDestinations(destinations) {
+    this.state.destinations = destinations;
+  }
+  
   copy() {
     return new MoneroTransfer(this.toJson());
   }

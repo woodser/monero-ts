@@ -20,16 +20,8 @@ class MoneroWalletTx extends MoneroTx {
     // deserialize json
     if (json) {
       
-      // deserialize outgoing amount and transfers
-      if (json.outgoingAmount) this.setOutgoingAmount(BigInteger.parse(json.outgoingAmount));
-      if (json.OutgoingTransfers) {
-        let OutgoingTransfers = [];
-        for (let jsonOutgoingTransfer of json.OutgoingTransfers) OutgoingTransfers.push(new MoneroTransfer(jsonOutgoingTransfer));
-        this.setOutgoingTransfers(OutgoingTransfers);
-      }
-      
-      // deserialize incoming amound transfers
-      if (json.incomingAmount) this.setIncomingAmount(BigInteger.parse(json.incomingAmount));
+      // deserialize transfers
+      if (json.outgoingTransfer) this.setOutgoingTransfer(new MoneroTransfer(jsonOutgoingTransfer));
       if (json.incomingTransfers) {
         let incomingTransfers = [];
         for (let jsonIncomingTransfer of json.incomingTransfers) incomingTransfers.push(new MoneroTransfer(jsonIncomingTransfer));
@@ -39,35 +31,30 @@ class MoneroWalletTx extends MoneroTx {
   }
   
   getIsOutgoing() {
-    return this.getOutgoingAmount() !== undefined;
+    return this.getOutgoingTransfer() !== undefined;
   }
   
   getIsIncoming() {
-    return this.getIncomingAmount() !== undefined;
+    return this.getIncomingTransfers() !== undefined;
   }
   
   getOutgoingAmount() {
-    return this.outgoingAmount;
-  }
-  
-  setOutgoingAmount(outgoingAmount) {
-    this.outgoingAmount = outgoingAmount;
+    return this.getOutgoingTransfer() === undefined ? undefined : this.getOutgoingTransfer().getAmount();
   }
   
   getIncomingAmount() {
-    return this.incomingAmount;
+    if (this.getIncomingTransfers() === undefined) return undefined;
+    let incomingAmt = new BigInteger(0);
+    for (let transfer of this.getIncomingTransfers()) incomingAmt = incomingAmt.add(transfer.getAmount());
+    return incomingAmt;
   }
   
-  setIncomingAmount(incomingAmount) {
-    this.incomingAmount = incomingAmount;
+  getOutgoingTransfer() {
+    return this.state.outgoingTransfer;
   }
   
-  getOutgoingTransfers() {
-    return this.state.OutgoingTransfers;
-  }
-  
-  setOutgoingTransfers(OutgoingTransfers) {
-    this.state.OutgoingTransfers = OutgoingTransfers;
+  setOutgoingTransfers(outgoingTransfer) {
+    this.state.outgoingTransfer = outgoingTransfer;
   }
   
   getIncomingTransfers() {
@@ -76,30 +63,6 @@ class MoneroWalletTx extends MoneroTx {
   
   setIncomingTransfers(incomingTransfers) {
     this.state.incomingTransfers = incomingTransfers;
-  }
-  
-  getSrcAccountIndex() {
-    return this.state.srcAccountIndex;
-  }
-  
-  setSrcAccountIndex(srcAccountIndex) {
-    this.state.srcAccountIndex = srcAccountIndex;
-  }
-  
-  getSrcSubaddressIndex() {
-    return this.state.srcSubaddrIndex;
-  }
-  
-  setSrcSubaddressIndex(srcSubaddrIndex) {
-    this.state.srcSubaddrIndex = srcSubaddrIndex;
-  }
-  
-  getSrcAddress() {
-    return this.state.srcAddress;
-  }
-  
-  setSrcAddress(srcAddress) {
-    this.state.srcAddress = srcAddress;
   }
   
   getNote() {
@@ -116,12 +79,7 @@ class MoneroWalletTx extends MoneroTx {
   
   toJson() {
     let json = Object.assign({}, this.state, super.toJson()); // merge json onto native state
-    if (this.getOutgoingAmount()) json.outgoingAmount = this.getOutgoingAmount().toString();
-    if (this.getIncomingAmount()) json.incomingAmount = this.getIncomingAmount().toString();
-    if (this.getOutgoingTransfers()) {
-      json.OutgoingTransfers = [];
-      for (let outgoingTransfer of this.getOutgoingTransfers()) json.OutgoingTransfers.push(outgoingTransfer.toJson());
-    }
+    if (this.getOutgoingTransfer()) json.outgoingTransfer = this.getOutgoingTransfer().toJson();
     if (this.getIncomingTransfers()) {
       json.incomingTransfers = [];
       for (let incomingTransfer of this.getIncomingTransfers()) json.incomingTransfers.push(incomingTransfer.toJson());
@@ -147,16 +105,9 @@ class MoneroWalletTx extends MoneroTx {
     str += super.toString(indent) + "\n";
     str += MoneroUtils.kvLine("Is outgoing", this.getIsOutgoing(), indent);
     str += MoneroUtils.kvLine("Outgoing amount", this.getOutgoingAmount(), indent);
-    str += MoneroUtils.kvLine("Source account index", this.getSrcAccountIndex(), indent);
-    str += MoneroUtils.kvLine("Source subaddress index", this.getSrcSubaddressIndex(), indent);
-    str += MoneroUtils.kvLine("Source address", this.getSrcAddress(), indent);
-    if (this.getOutgoingTransfers()) {
-      str += MoneroUtils.kvLine("Outgoing transfers", "", indent);
-      for (let i = 0; i < this.getOutgoingTransfers().length; i++) {
-        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
-        str += this.getOutgoingTransfers()[i].toString(indent + 2) + "\n";
-        if (i < this.getOutgoingTransfers().length - 1) str += '\n'
-      }
+    if (this.getOutgoingTransfer()) {
+      str += MoneroUtils.kvLine("Outgoing transfer", "", indent);
+      str += this.getOutgoingTransfer().toString(indent + 1) + "\n";
     }
     str += MoneroUtils.kvLine("Is incoming", this.getIsIncoming(), indent);
     str += MoneroUtils.kvLine("Incoming amount", this.getIncomingAmount(), indent);
@@ -184,16 +135,12 @@ class MoneroWalletTx extends MoneroTx {
     super.merge(tx);
     
     // merge wallet extensions
-    this.setOutgoingAmount(MoneroUtils.reconcile(this.getOutgoingAmount(), tx.getOutgoingAmount()));
-    this.setSrcAccountIndex(MoneroUtils.reconcile(this.getSrcAccountIndex(), tx.getSrcAccountIndex()));
-    this.setSrcSubaddressIndex(MoneroUtils.reconcile(this.getSrcSubaddressIndex(), tx.getSrcSubaddressIndex()));
-    this.setSrcAddress(MoneroUtils.reconcile(this.getSrcAddress(), tx.getSrcAddress()));
     this.setNote(MoneroUtils.reconcile(this.getNote(), tx.getNote()));
     
-    // merge outgoing transfers
-    if (this.getOutgoingTransfers() === undefined) this.setOutgoingTransfers(tx.getOutgoingTransfers());
-    else if (tx.getOutgoingTransfers()) {
-      assert.deepEqual(this.getOutgoingTransfers(), tx.getOutgoingTransfers(), "Outgoing transfers are different so tx cannot be merged");
+    // merge outgoing transfer
+    if (this.getOutgoingTransfer() === undefined) this.setOutgoingTransfer(tx.getOutgoingTransfer());
+    else if (tx.getOutgoingTransfer()) {
+      assert.deepEqual(this.getOutgoingTransfer(), tx.getOutgoingTransfer(), "Outgoing transfers are different so tx cannot be merged");
     }
     
     // merge incoming transfers
@@ -202,13 +149,6 @@ class MoneroWalletTx extends MoneroTx {
       for (let transfer of tx.getIncomingTransfers()) {
         mergeTransfer(this.getIncomingTransfers(), transfer);
       }
-    }
-    
-    // incoming amount is sum of incoming transfers
-    if (this.getIncomingTransfers()) {
-      let incomingAmt = new BigInteger(0);
-      for (let transfer of this.getIncomingTransfers()) incomingAmt = incomingAmt.add(transfer.getAmount());
-      this.setIncomingAmount(incomingAmt);
     }
     
     // helper function to merge transfers
