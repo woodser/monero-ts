@@ -294,118 +294,7 @@ class TestMoneroWalletCommon {
         }
       });
       
-      it("Has correct accounting across accounts, subaddresses, and txs", async function() {
-        
-        // pre-fetch wallet balances, accounts, subaddresses, and txs
-        let walletBalance = await wallet.getBalance();
-        let walletUnlockedBalance = await wallet.getUnlockedBalance();
-        let accounts = await wallet.getAccounts(true);  // includes subaddresses
-        let txs = await wallet.getTxs();
-        
-        // sort txs
-        txs.sort((a, b) => {
-          let timestampA = a.getBlockTimestamp() ? a.getBlockTimestamp() : a.getReceivedTime();
-          let timestampB = b.getBlockTimestamp() ? b.getBlockTimestamp() : b.getReceivedTime();
-          if (timestampA < timestampB) return -1;
-          if (timestampA > timestampB) return 1;
-          return 0;
-        })
-        
-        // test wallet balance
-        TestUtils.testUnsignedBigInteger(walletBalance);
-        TestUtils.testUnsignedBigInteger(walletUnlockedBalance);
-        assert(walletBalance >= walletUnlockedBalance);
-        
-        // test that wallet balance equals sum of account balances
-        let accountsBalance = new BigInteger(0);
-        let accountsUnlockedBalance = new BigInteger(0);
-        for (let account of accounts) {
-          testAccount(account); // test that account balance equals sum of subaddress balances
-          accountsBalance = accountsBalance.add(account.getBalance());
-          accountsUnlockedBalance = accountsUnlockedBalance.add(account.getUnlockedBalance());
-        }
-        assert.equal(0, walletBalance.compare(accountsBalance));
-        assert.equal(0, walletUnlockedBalance.compare(accountsUnlockedBalance));
-        
-//        // test that wallet balance equals net of wallet's incoming and outgoing tx amounts
-//        // TODO monero-wallet-rpc: these tests are disabled because incoming transfers are not returned when sent from the same account, so doesn't balance #4500
-//        // TODO: test unlocked balance based on txs, requires e.g. tx.isLocked()
-//        let outgoingSum = new BigInteger(0);
-//        let incomingSum = new BigInteger(0);
-//        for (let tx of txs) {
-//          if (tx.getOutgoingAmount()) outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
-//          if (tx.getIncomingAmount()) incomingSum = incomingSum.add(tx.getIncomingAmount());
-//        }
-//        assert.equal(walletBalance.toString(), incomingSum.subtract(outgoingSum).toString());
-//        
-//        // test that each account's balance equals net of account's incoming and outgoing tx amounts
-//        for (let account of accounts) {
-//          if (account.getIndex() !== 1) continue; // find 1
-//          outgoingSum = new BigInteger(0);
-//          incomingSum = new BigInteger(0);
-//          let filter = new MoneroTxFilter();
-//          filter.setAccountIndex(account.getIndex());
-//          for (let tx of txs.filter(tx => filter.meetsCriteria(tx))) { // normally we'd call wallet.getTxs(filter) but we're using pre-fetched txs
-//            if (tx.getId() === "8d3919d98dd5a734da8c52eddc558db3fbf059ad55d432f0052ecd59ef122ecb") console.log(tx.toString(0));
-//            
-//            //console.log((tx.getOutgoingAmount() ? tx.getOutgoingAmount().toString() : "") + ", " + (tx.getIncomingAmount() ? tx.getIncomingAmount().toString() : ""));
-//            if (tx.getOutgoingAmount()) outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
-//            if (tx.getIncomingAmount()) incomingSum = incomingSum.add(tx.getIncomingAmount());
-//          }
-//          assert.equal(account.getBalance().toString(), incomingSum.subtract(outgoingSum).toString());
-//        }
-        
-        // TODO: test vouts
-      });
-      
-      // TODO: absorb this into accounting test
-      it("Has a balance that is the sum of all unspent incoming transactions", async function() {
-
-        // test each account balance
-        for (let account of await wallet.getAccounts()) {
-          
-          // get transactions
-          let filter = new MoneroTxFilter();
-          filter.setAccountIndex(account.getIndex());
-          let txs = await wallet.getTxs(filter);
-          if (account.getIndex() === 0) assert(txs.length > 0);
-          
-          // sum balances of incoming transferss and pending deductions
-          let inBalance = new BigInteger(0);
-          let inPoolBalance = new BigInteger(0);
-          let outPoolBalance = new BigInteger(0);
-          for (let tx of txs) {
-            
-            // handle incoming
-            if (tx.getIsIncoming()) {
-              assert(tx.getTransfers().length > 0);
-              for (let transfers of tx.getTransfers()) {
-                if (!transfers.getIsSpent()) {  // TODO: outdated
-                  if (tx.getIsConfirmed()) inBalance = inBalance.add(transfers.getAmount());
-                  else inPoolBalance = inPoolBalance.add(transfers.getAmount());
-                }
-              }
-            }
-            
-            // handle outgoing
-            else {
-              if (tx.getInTxPool()) outPoolBalance = outPoolBalance.add(tx.getTotalAmount()); // TODO: test pending balance
-            }
-          }
-          
-          // wallet balance must equal sum of unspent incoming txs
-          let walletBalance = (await wallet.getAccount(account.getIndex())).getBalance();
-          let expectedBalance = inBalance;  // TODO (monero-wallet-rpc): unconfirmed balance may not add up because of https://github.com/monero-project/monero/issues/4500
-//          System.out.println("Wallet    : " + walletBalance);
-//          System.out.println("Incoming  : " + incomingBalance);
-//          System.out.println("Pending   : " + pendingBalance);
-//          System.out.println("Tx pool   : " + txPoolBalance);
-//          System.out.println("Expected  : " + expectedBalance);
-          assert(walletBalance.compare(expectedBalance) === 0, "Account " + account.getIndex() + " balance does not add up: " + expectedBalance.toString() + " vs " + walletBalance.toString());
-        }
-      });
-      
-      it("Can get transactions pertaining to the wallet", async function() {
+      it("Can get transactions associated with the wallet", async function() {
         let nonDefaultIncoming = false;
         let txs1 = await getCachedTxs();
         let txs2 = await wallet.getTxs();
@@ -425,39 +314,7 @@ class TestMoneroWalletCommon {
         assert(nonDefaultIncoming, "No incoming transfers found to non-default account and subaddress; run send-to-multiple tests first");
       });
       
-      it("Returns all known fields of txs regardless of query filtering", async function() {
-        
-        // test every wallet tx
-        let txs = await wallet.getTxs();
-        for (let tx of txs) {
-          
-          // find tx sent to same wallet with incoming transfer in different account than src account
-          if (!tx.getOutgoingAmount() || !tx.getIncomingAmount()) continue;
-          if (tx.getOutgoingAmount().compare(tx.getIncomingAmount()) !== 0) continue;
-          if (!tx.getIncomingTransfers()) continue;
-          for (let transfer of tx.getIncomingTransfers()) {
-            if (transfer.getAccountIndex() === tx.getSrcAccountIndex()) continue;
-            
-            // fetch tx with filtering for this account
-            let filter = new MoneroTxFilter();
-            filter.setAccountIndex(transfer.getAccountIndex());
-            filter.setTxIds([tx.getId()]);
-            let filteredTx = (await wallet.getTxs(filter))[0];
-            
-            // txs should be the same
-            assert.equal(tx.getId(), filteredTx.getId());
-            try {
-              assert.equal(tx.toString(), filteredTx.toString()); // TODO: better deep comparator?
-            } catch (e) {
-              console.log(tx.toString());
-              console.log(filteredTx.toString());
-              throw e;
-            }
-          }
-        }
-      });
-      
-      it("Can get transactions pertaining to an account", async function() {
+      it("Can get transactions associated with an account", async function() {
         let nonDefaultIncoming = false;
         for (let account of await wallet.getAccounts()) {
           let txs = await wallet.getTxs(account.getIndex());
@@ -478,7 +335,7 @@ class TestMoneroWalletCommon {
         assert(nonDefaultIncoming, "No incoming transfers found to non-default account and subaddress; run send-to-multiple tests first");
       });
       
-      it("Can get transactions pertaining to a subaddress", async function() {
+      it("Can get transactions associated with a subaddress", async function() {
         let nonDefaultIncoming = false;
         let accounts = await wallet.getAccounts(true);
         for (let accountIdx = 0; accountIdx < Math.min(accounts.length, 3); accountIdx++) {
@@ -503,7 +360,7 @@ class TestMoneroWalletCommon {
         assert(nonDefaultIncoming, "No incoming transfers found to non-default account and subaddress; run send-to-multiple tests first");
       });
       
-      it("Can get wallet transactions by id and ids", async function() {
+      it("Can get transactions by id and ids", async function() {
         
         // get random transactions
         let txs = await getRandomTransactions(wallet, undefined, 1, 5);
@@ -605,7 +462,7 @@ class TestMoneroWalletCommon {
       });
       
       if (!liteMode) {
-        it("Can get wallet transactions with a filter", async function() {  // TODO: Timeout of 1000000ms exceeded. For async tests and hooks, ensure "done()" is called
+        it("Can get transactions with a filter", async function() {  // TODO: Timeout of 1000000ms exceeded. For async tests and hooks, ensure "done()" is called
           if (liteMode) return; // skips test if lite
           
           // get all transactions for reference
@@ -731,16 +588,166 @@ class TestMoneroWalletCommon {
         });
       }
       
-      it("Can get transfers associated with a wallet", async function() {
+      it("Returns all known fields of txs regardless of query filtering", async function() {
+        
+        // test every wallet tx
+        let txs = await wallet.getTxs();
+        for (let tx of txs) {
+          
+          // find tx sent to same wallet with incoming transfer in different account than src account
+          if (!tx.getOutgoingAmount() || !tx.getIncomingAmount()) continue;
+          if (tx.getOutgoingAmount().compare(tx.getIncomingAmount()) !== 0) continue;
+          if (!tx.getIncomingTransfers()) continue;
+          for (let transfer of tx.getIncomingTransfers()) {
+            if (transfer.getAccountIndex() === tx.getSrcAccountIndex()) continue;
+            
+            // fetch tx with filtering for this account
+            let filter = new MoneroTxFilter();
+            filter.setAccountIndex(transfer.getAccountIndex());
+            filter.setTxIds([tx.getId()]);
+            let filteredTx = (await wallet.getTxs(filter))[0];
+            
+            // txs should be the same
+            assert.equal(tx.getId(), filteredTx.getId());
+            try {
+              assert.equal(tx.toString(), filteredTx.toString()); // TODO: better deep comparator?
+            } catch (e) {
+              console.log(tx.toString());
+              console.log(filteredTx.toString());
+              throw e;
+            }
+          }
+        }
+      });
+      
+      it("Can get transfers", async function() {
         throw new Error("Not implemented");
       })
       
-      it("Can get transfers associated with an account", async function() {
+      it("Can get vouts", async function() {
         throw new Error("Not implemented");
       });
       
-      it("Can get transfers associated with a subaddress", async function() {
-        throw new Error("Not implemented");
+      it("Has correct accounting across accounts, subaddresses, txs, and vouts", async function() {
+        
+        // pre-fetch wallet balances, accounts, subaddresses, and txs
+        let walletBalance = await wallet.getBalance();
+        let walletUnlockedBalance = await wallet.getUnlockedBalance();
+        let accounts = await wallet.getAccounts(true);  // includes subaddresses
+        let txs = await wallet.getTxs();
+        
+        // sort txs
+        txs.sort((a, b) => {
+          let timestampA = a.getBlockTimestamp() ? a.getBlockTimestamp() : a.getReceivedTime();
+          let timestampB = b.getBlockTimestamp() ? b.getBlockTimestamp() : b.getReceivedTime();
+          if (timestampA < timestampB) return -1;
+          if (timestampA > timestampB) return 1;
+          return 0;
+        })
+        
+        // test wallet balance
+        TestUtils.testUnsignedBigInteger(walletBalance);
+        TestUtils.testUnsignedBigInteger(walletUnlockedBalance);
+        assert(walletBalance >= walletUnlockedBalance);
+        
+        // test that wallet balance equals sum of account balances
+        let accountsBalance = new BigInteger(0);
+        let accountsUnlockedBalance = new BigInteger(0);
+        for (let account of accounts) {
+          testAccount(account); // test that account balance equals sum of subaddress balances
+          accountsBalance = accountsBalance.add(account.getBalance());
+          accountsUnlockedBalance = accountsUnlockedBalance.add(account.getUnlockedBalance());
+        }
+        assert.equal(0, walletBalance.compare(accountsBalance));
+        assert.equal(0, walletUnlockedBalance.compare(accountsUnlockedBalance));
+        
+//        // test that wallet balance equals net of wallet's incoming and outgoing tx amounts
+//        // TODO monero-wallet-rpc: these tests are disabled because incoming transfers are not returned when sent from the same account, so doesn't balance #4500
+//        // TODO: test unlocked balance based on txs, requires e.g. tx.isLocked()
+//        let outgoingSum = new BigInteger(0);
+//        let incomingSum = new BigInteger(0);
+//        for (let tx of txs) {
+//          if (tx.getOutgoingAmount()) outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
+//          if (tx.getIncomingAmount()) incomingSum = incomingSum.add(tx.getIncomingAmount());
+//        }
+//        assert.equal(walletBalance.toString(), incomingSum.subtract(outgoingSum).toString());
+//        
+//        // test that each account's balance equals net of account's incoming and outgoing tx amounts
+//        for (let account of accounts) {
+//          if (account.getIndex() !== 1) continue; // find 1
+//          outgoingSum = new BigInteger(0);
+//          incomingSum = new BigInteger(0);
+//          let filter = new MoneroTxFilter();
+//          filter.setAccountIndex(account.getIndex());
+//          for (let tx of txs.filter(tx => filter.meetsCriteria(tx))) { // normally we'd call wallet.getTxs(filter) but we're using pre-fetched txs
+//            if (tx.getId() === "8d3919d98dd5a734da8c52eddc558db3fbf059ad55d432f0052ecd59ef122ecb") console.log(tx.toString(0));
+//            
+//            //console.log((tx.getOutgoingAmount() ? tx.getOutgoingAmount().toString() : "") + ", " + (tx.getIncomingAmount() ? tx.getIncomingAmount().toString() : ""));
+//            if (tx.getOutgoingAmount()) outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
+//            if (tx.getIncomingAmount()) incomingSum = incomingSum.add(tx.getIncomingAmount());
+//          }
+//          assert.equal(account.getBalance().toString(), incomingSum.subtract(outgoingSum).toString());
+//        }
+        
+        // test that balances equal sum of unspent vouts
+        let vouts = await wallet.getVouts();
+        for (let vout of vouts) if (!vout.getIsSpent())
+        assert.equal(balance.getBalance(), )
+        
+        for (let account of accounts) {
+          let vouts = await wallet.getVouts()
+          
+          
+        }
+        
+        // TODO: test vouts
+      });
+      
+      // TODO: absorb this into accounting test
+      it("Has a balance that is the sum of all unspent incoming transactions", async function() {
+
+        // test each account balance
+        for (let account of await wallet.getAccounts()) {
+          
+          // get transactions
+          let filter = new MoneroTxFilter();
+          filter.setAccountIndex(account.getIndex());
+          let txs = await wallet.getTxs(filter);
+          if (account.getIndex() === 0) assert(txs.length > 0);
+          
+          // sum balances of incoming transferss and pending deductions
+          let inBalance = new BigInteger(0);
+          let inPoolBalance = new BigInteger(0);
+          let outPoolBalance = new BigInteger(0);
+          for (let tx of txs) {
+            
+            // handle incoming
+            if (tx.getIsIncoming()) {
+              assert(tx.getTransfers().length > 0);
+              for (let transfers of tx.getTransfers()) {
+                if (!transfers.getIsSpent()) {  // TODO: outdated
+                  if (tx.getIsConfirmed()) inBalance = inBalance.add(transfers.getAmount());
+                  else inPoolBalance = inPoolBalance.add(transfers.getAmount());
+                }
+              }
+            }
+            
+            // handle outgoing
+            else {
+              if (tx.getInTxPool()) outPoolBalance = outPoolBalance.add(tx.getTotalAmount()); // TODO: test pending balance
+            }
+          }
+          
+          // wallet balance must equal sum of unspent incoming txs
+          let walletBalance = (await wallet.getAccount(account.getIndex())).getBalance();
+          let expectedBalance = inBalance;  // TODO (monero-wallet-rpc): unconfirmed balance may not add up because of https://github.com/monero-project/monero/issues/4500
+//          System.out.println("Wallet    : " + walletBalance);
+//          System.out.println("Incoming  : " + incomingBalance);
+//          System.out.println("Pending   : " + pendingBalance);
+//          System.out.println("Tx pool   : " + txPoolBalance);
+//          System.out.println("Expected  : " + expectedBalance);
+          assert(walletBalance.compare(expectedBalance) === 0, "Account " + account.getIndex() + " balance does not add up: " + expectedBalance.toString() + " vs " + walletBalance.toString());
+        }
       });
       
       it("Can get and set a transaction note", async function() {
