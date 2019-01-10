@@ -210,10 +210,10 @@ class MoneroWallet {
   /**
    * Get wallet transactions.
    * 
-   * @param {MoneroTxFilter} txFilter may be used to filter returned results (optional)
+   * @param {MoneroTxFilter} filter may be used to filter returned results (optional)
    * @returns {MoneroWalletTx[]} are the retrieved transactions
    */
-  async getTxs(txFilter) {
+  async getTxs(filter) {
     throw new Error("Subclass must implement");
   }
   
