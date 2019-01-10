@@ -38,14 +38,6 @@ class MoneroOutput {
     this.state.index = index;
   }
   
-  getIsSpent() {
-    return this.state.isSpent;
-  }
-
-  setIsSpent(isSpent) {
-    this.state.isSpent = isSpent;
-  }
-  
   copy() {
     return new MoneroOutput(this.toJson());
   }
@@ -60,7 +52,6 @@ class MoneroOutput {
     this.setKeyImage(MoneroUtils.reconcile(this.getKeyImage(), output.getKeyImage()));
     this.setAmount(MoneroUtils.reconcile(this.getAmount(), output.getAmount()));
     this.setIndex(MoneroUtils.reconcile(this.getIndex(), output.getIndex()));
-    this.setIsSpent(MoneroUtils.reconcile(this.getIsSpent(), output.getIsSpent(), {resolveTrue: true})); // output can become spent
   }
   
   toString(indent = 0) {
@@ -68,7 +59,6 @@ class MoneroOutput {
     str += MoneroUtils.kvLine("Key image", this.getKeyImage(), indent);
     str += MoneroUtils.kvLine("Amount", this.getAmount(), indent);
     str += MoneroUtils.kvLine("Index", this.getIndex(), indent);
-    str += MoneroUtils.kvLine("Is spent", this.getIsSpent(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }
