@@ -371,6 +371,22 @@ class MoneroWalletRpc extends MoneroWallet {
     return txs.filter(tx => filter.meetsCriteria(tx));
   }
   
+  async getTransfers(filterOrAccountIdx, subaddrIdx) {
+    throw new Error("Not implemented");
+  }
+  
+  async getOutgoingTransfers(filterOrAccountIdx, subaddrIdx) {
+    throw new Error("Not implemented");
+  }
+  
+  async getIncomingTransfers(filterOrAccountIdx, subaddrIdx) {
+    throw new Error("Not implemented");
+  }
+  
+  async getVouts(filterOrAccountIdx, subaddrIdx) {
+    throw new Error("Not implemented");
+  }
+  
   async send(configOrAddress, amount, paymentId, priority, mixin, fee) {
     return await this._send(false, configOrAddress, amount, paymentId, priority, mixin, fee);
   }
