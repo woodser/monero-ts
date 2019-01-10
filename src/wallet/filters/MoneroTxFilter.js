@@ -124,7 +124,7 @@ class MoneroTxFilter extends Filter {
   
   meetsCriteria(tx) {
     
-    // any transfer must meet transfer filter if defined
+    // at least one transfer must meet transfer filter if defined
     if (this.getTransferFilter()) {
       let matchFound = false;
       if (tx.getOutputTransfer() && this.getTransferFilter().meetsCriteria(this.getOutputTransfer())) matchFound = true;
