@@ -145,38 +145,38 @@ class MoneroTxFilter {
    */
   meetsCriteria(tx) {
     
-    // filter on account idx by checking tx src account index and transfer account indices
+    // filter on account idx by checking outgoing and incoming account indices
     if (this.getAccountIndex() !== undefined) {
-      if (tx.getSrcAccountIndex() !== this.getAccountIndex()) {
-        let matchingTransfer = false;
-        if (tx.getIncomingTransfers()) {
+      let matchingTransfer = false;
+      if (tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getAccountIndex() === this.getAccountIndex()) {
+        matchingTransfer = true;
+      } else if (tx.getIncomingTransfers()) {
+        for (let transfer of tx.getIncomingTransfers()) {
+          if (transfer.getAccountIndex() === this.getAccountIndex()) {
+            matchingTransfer = true;
+            break;
+          }
+        }
+      }
+      if (!matchingTransfer) return false;
+    }
+    
+    // filter on subaddress idx by checking outgoing and incoming subaddress indices
+    if (this.getSubaddressIndices() !== undefined) {
+      let matchingTransfer = false;
+      for (let subaddressIdx of this.getSubaddressIndices()) {
+        if (tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getSubaddressIndex() === subaddressIdx) {  // TODO: outgoing subaddress always 0, remove entirely?
+          matchingTransfer = true;
+        } else if (tx.getIncomingTransfers()) {
           for (let transfer of tx.getIncomingTransfers()) {
-            if (transfer.getAccountIndex() === this.getAccountIndex()) {
+            if (transfer.getSubaddressIndex() === subaddressIdx) {
               matchingTransfer = true;
               break;
             }
           }
         }
-        if (!matchingTransfer) return false;
       }
-    }
-    
-    // filter on subaddress idx by checking tx src subaddress index and transfer subaddress indices
-    if (this.getSubaddressIndices() !== undefined) {
-      for (let subaddressIdx of this.getSubaddressIndices()) {
-        if (tx.getSrcSubaddressIndex() !== subaddressIdx) {
-          let matchingTransfer = false;
-          if (tx.getIncomingTransfers()) {
-            for (let transfer of tx.getIncomingTransfers()) {
-              if (transfer.getSubaddressIndex() === subaddressIdx) {
-                matchingTransfer = true;
-                break;
-              }
-            }
-          }
-          if (!matchingTransfer) return false;
-        }
-      }
+      if (!matchingTransfer) return false;
     }
     
     // filter on outgoing transfers
@@ -203,7 +203,7 @@ class MoneroTxFilter {
     if (this.getMaxHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() > this.getMaxHeight())) return false;
     if (this.getPaymentIds() !== undefined && !this.getPaymentIds().includes(tx.getPaymentId())) return false;
     
-    // tx is not filtered out
+    // tx meets this filter's criteria
     return true;
   }
 }

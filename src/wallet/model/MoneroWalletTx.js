@@ -21,7 +21,7 @@ class MoneroWalletTx extends MoneroTx {
     if (json) {
       
       // deserialize transfers
-      if (json.outgoingTransfer) this.setOutgoingTransfer(new MoneroTransfer(jsonOutgoingTransfer));
+      if (json.outgoingTransfer) this.setOutgoingTransfer(new MoneroTransfer(json.outgoingTransfer));
       if (json.incomingTransfers) {
         let incomingTransfers = [];
         for (let jsonIncomingTransfer of json.incomingTransfers) incomingTransfers.push(new MoneroTransfer(jsonIncomingTransfer));
@@ -53,7 +53,7 @@ class MoneroWalletTx extends MoneroTx {
     return this.state.outgoingTransfer;
   }
   
-  setOutgoingTransfers(outgoingTransfer) {
+  setOutgoingTransfer(outgoingTransfer) {
     this.state.outgoingTransfer = outgoingTransfer;
   }
   

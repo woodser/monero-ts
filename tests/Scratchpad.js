@@ -28,7 +28,7 @@ describe("Scratchpad", function() {
 //    await wallet.rescanSpent();
     
     // fetch txs
-    let txId = "8d3919d98dd5a734da8c52eddc558db3fbf059ad55d432f0052ecd59ef122ecb";
+    let txId = "55bb7be840a89227da7c072f4f04cb616586691a7a49affafc62e83f8e1757fb";
     let filter = new MoneroTxFilter();
     //filter.setAccountIndex(0);
     //filter.setSubaddressIndices([0]);
