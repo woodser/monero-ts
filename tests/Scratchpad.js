@@ -5,7 +5,7 @@ const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 const TestUtils = require("./TestUtils");
 const MoneroRpc = require("../src/rpc/MoneroRpc");
 const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
-const MoneroTxFilter = require("../src/wallet/model/MoneroTxFilter");
+const MoneroTxFilter = require("../src/wallet/filters/MoneroTxFilter");
 const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
 
 describe("Scratchpad", function() {
