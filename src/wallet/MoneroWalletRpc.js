@@ -333,10 +333,10 @@ class MoneroWalletRpc extends MoneroWallet {
           }
         }
       }
-      
-      // filter and return ransactions
-      return filter.apply(txs);
     }
+    
+    // return filtered transactions
+    return filter.apply(txs);
   }
   
   async getTxs2(filterOrAccountIdx, subaddressIdx, debugTxId) {

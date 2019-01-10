@@ -1,4 +1,5 @@
-const MoneroSendConfig = require('./model/MoneroSendConfig');
+const MoneroTxFilter = require("./filters/MoneroTxFilter");
+const MoneroSendConfig = require("./model/MoneroSendConfig");
 
 /**
  * Monero wallet interface and default implementations.
