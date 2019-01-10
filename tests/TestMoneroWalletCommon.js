@@ -8,6 +8,7 @@ const MoneroDaemon = require("../src/daemon/MoneroDaemon");
 const MoneroTx = require("../src/daemon/model/MoneroTx");
 const MoneroWalletTx = require("../src/wallet/model/MoneroWalletTx");
 const MoneroTxFilter = require("../src/wallet/filters/MoneroTxFilter");
+const MoneroTransferFilter = require("../src/wallet/filters/MoneroTransferFilter");
 const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
 const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
 const MoneroWalletOutput = require("../src/wallet/model/MoneroWalletOutput");
@@ -294,13 +295,34 @@ class TestMoneroWalletCommon {
         }
       });
       
+      
       it("Can get all transactions", async function() {
+        assert(new MoneroTransferFilter().setAccountIndex(1).setIsIncoming(true));
+        let txs = await wallet.getTxs(new MoneroTxFilter().setTransferFilter(new MoneroTransferFilter().setAccountIndex(1).setIsIncoming(true)));
+        assert(txs.length > 0);
+        for (let tx of txs) {
+          let found = false;
+          assert(tx.getIncomingTransfers());
+          for (let inTransfer of tx.getIncomingTransfers()) {
+            if (inTransfer.getAccountIndex() == 1) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            console.log(tx.toString());
+            throw new Error("Not found!");
+          }
+        }
+        
         let nonDefaultIncoming = false;
         let txs1 = await getCachedTxs();
         let txs2 = await wallet.getTxs();
         assert.equal(txs1.length, txs2.length);
+        assert(txs1.length > 0, "No transactions found to test");
         //testTxsBalance(txs1, await wallet.getBalance());  // TODO: implement balance checking, here and/or elsewhere
         for (let i = 0; i < txs1.length; i++) {
+          //console.log(txs1[i].toString());
           await testWalletTx(txs1[i], {wallet: wallet});
           await testWalletTx(txs2[i], {wallet: wallet});
           let merged = txs1[i].copy().merge(txs2[i].copy());
@@ -1840,7 +1862,10 @@ async function testWalletTx(tx, testConfig) {
   
   // validate / sanitize inputs
   delete testConfig.wallet; // TODO: re-enable
-  if (!(tx instanceof MoneroWalletTx)) console.log(tx);
+  if (!(tx instanceof MoneroWalletTx)) {
+    console.log("TX is not a MoneroWalletTx!");
+    console.log(tx);
+  }
   assert(tx instanceof MoneroWalletTx);
   testConfig = Object.assign({}, testConfig);
   if (testConfig.wallet) assert (testConfig.wallet instanceof MoneroWallet);
@@ -1882,7 +1907,6 @@ async function testWalletTx(tx, testConfig) {
   } else {
     assert.equal(undefined, tx.getEstimatedBlockCountUntilConfirmed());
     assert.equal(undefined, tx.getLastRelayedTime());
-    assert.equal(undefined, tx.getReceivedTime());
   }
   
   // test outgoing
@@ -1980,8 +2004,7 @@ async function testWalletTx(tx, testConfig) {
   // test failed  // TODO: what else to test associated with failed
   if (tx.getIsFailed()) {
     assert(tx.getIsOutgoing());
-    assert(tx.getLastFailedHeight() >= 0);  // TODO: maybe not?
-    assert(tx.getLastFailedId());
+    assert(tx.getReceivedTime() > 0)
   } else {
     if (tx.getIsRelayed()) assert.equal(false, tx.getIsDoubleSpend());
     else {
@@ -1989,8 +2012,13 @@ async function testWalletTx(tx, testConfig) {
       assert.equal(true, tx.getDoNotRelay());
       assert.equal(undefined, tx.getIsDoubleSpend());
     }
-    assert.equal(undefined, tx.getLastFailedHeight());
-    assert.equal(undefined, tx.getLastFailedId());
+  }
+  assert.equal(undefined, tx.getLastFailedHeight());
+  assert.equal(undefined, tx.getLastFailedId());
+  
+  // received time only for tx pool or failed txs
+  if (tx.getReceivedTime() !== undefined) {
+    assert(tx.getInTxPool() || tx.getIsFailed());
   }
   
   // test relayed tx
