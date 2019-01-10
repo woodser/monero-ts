@@ -375,11 +375,11 @@ class MoneroWalletRpc extends MoneroWallet {
     throw new Error("Not implemented");
   }
   
-  async getOutgoingTransfers(filterOrAccountIdx, subaddrIdx) {
+  async getOutgoingTransfers(filterOrAccountIdx, subaddressIdx) {
     throw new Error("Not implemented");
   }
   
-  async getIncomingTransfers(filterOrAccountIdx, subaddrIdx) {
+  async getIncomingTransfers(filterOrAccountIdx, subaddressIdx) {
     throw new Error("Not implemented");
   }
   
