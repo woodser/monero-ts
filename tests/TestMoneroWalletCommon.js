@@ -1241,18 +1241,18 @@ class TestMoneroWalletCommon {
         assert(txs.length > 0);
         for (let tx of txs) {
           await testWalletTx(tx, {wallet: wallet, sendConfig: config, isRelayResponse: doNotRelay});
-          assert.equal(fromAccount.getIndex(), tx.getSrcAccountIndex());
-          assert.equal(0, tx.getSrcSubaddressIndex()); // TODO (monero-wallet-rpc): outgoing transactions do not indicate originating subaddresses
+          assert.equal(fromAccount.getIndex(), tx.getOutgoingTransfer().getAccountIndex());
+          assert.equal(0, tx.getOutgoingTransfer().getSubaddressIndex()); // TODO (monero-wallet-rpc): outgoing transactions do not indicate originating subaddresses
           assert(sendAmount.compare(tx.getOutgoingAmount()) === 0);
           
-          // test tx transfers
-          if (tx.getOutgoingTransfers() !== undefined) {
-            assert.equal(1, tx.getOutgoingTransfers().length);
-            for (let transfer of tx.getOutgoingTransfers()) {
-              assert.equal(address, transfer.getAddress());
-              assert.equal(undefined, transfer.getAccountIndex());
-              assert.equal(undefined, transfer.getSubaddressIndex());
-              assert(sendAmount.compare(transfer.getAmount()) === 0);
+          // test outgoing destinations
+          if (tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getDestinations()) {
+            assert.equal(1, tx.getOutgoingTransfer().getDestinations().length);
+            for (let destination of tx.getOutgoingTransfer().getDestinations()) {
+              assert.equal(address, destination.getAddress());
+              assert.equal(undefined, destination.getAccountIndex());
+              assert.equal(undefined, destination.getSubaddressIndex());
+              assert(sendAmount.compare(destination.getAmount()) === 0);
             }
           }
         }
@@ -1943,15 +1943,7 @@ async function testWalletTx(tx, testConfig) {
     let sum = new BigInteger(0);
     for (let destination of tx.getOutgoingTransfer().getDestinations()) {
       assert(destination instanceof MoneroTransfer);
-      try {
-        assert(destination.getAddress());
-      } catch (e) {
-        let filter = new MoneroTxFilter();
-        filter.setTxIds([tx.getId()]);
-        await TestUtils.getWalletRpc().getTxs(filter, undefined, tx.getId());
-        console.log(tx.toString());
-        throw e;
-      }
+      assert(destination.getAddress());
       TestUtils.testUnsignedBigInteger(destination.getAmount());
       sum = sum.add(destination.getAmount());
       assert.equal(undefined, destination.getAccountIndex());
@@ -2046,7 +2038,7 @@ async function testWalletTx(tx, testConfig) {
     assert.equal("string", typeof tx.getHex());
     assert(tx.getHex().length > 0);
     assert(tx.getMetadata());
-    assert.deepEqual(sendConfig.getTransfers(), tx.getOutgoingTransfers());
+    assert.deepEqual(sendConfig.getDestinations(), tx.getOutgoingTransfer().getDestinations());
     assert.equal(undefined, tx.getReceivedTime());
     if (testConfig.isRelayResponse) assert.equal(true, sendConfig.getDoNotRelay());
     

@@ -844,11 +844,12 @@ class MoneroWalletRpc extends MoneroWallet {
     if (transfer) {
       transfer.setAccountIndex(accountIdx);
       transfer.setSubaddressIndex(subaddressIdx);
-    }
-    if (isOutgoing) tx.setOutgoingTransfer(transfer);
-    else {
-      assert(transfer);
-      tx.setIncomingTransfers([transfer]);
+      if (isOutgoing) {
+        if (tx.getOutgoingTransfer()) tx.getOutgoingTransfer().merge(transfer);
+        else tx.setOutgoingTransfer(transfer);
+      } else {
+        tx.setIncomingTransfers([transfer]);
+      }
     }
     
     // return initialized transaction
@@ -1055,10 +1056,10 @@ class MoneroWalletRpc extends MoneroWallet {
     // build request parameters
     let params = {};
     params.destinations = [];
-    for (let transfer of config.getTransfers()) {
-      assert(transfer.getAddress(), "Destination address is not defined");
-      assert(transfer.getAmount(), "Destination amount is not defined");
-      params.destinations.push({ address: transfer.getAddress(), amount: transfer.getAmount().toString() });
+    for (let destination of config.getDestinations()) {
+      assert(destination.getAddress(), "Destination address is not defined");
+      assert(destination.getAmount(), "Destination amount is not defined");
+      params.destinations.push({ address: destination.getAddress(), amount: destination.getAmount().toString() });
     }
     params.account_index = accountIdx;
     params.subaddr_indices = subaddressIndices;
@@ -1090,11 +1091,13 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsCoinbase(false);
       tx.setIsFailed(false);
       tx.setMixin(config.getMixin());
-      tx.setOutgoingTransfers(config.getTransfers());
+      let transfer = new MoneroTransfer();
+      transfer.setAddress(await this.getAddress(accountIdx, 0));
+      transfer.setAccountIndex(accountIdx);
+      transfer.setSubaddressIndex(0); // TODO (monero-wallet-rpc): outgoing subaddress idx is always 0
+      transfer.setDestinations(config.getDestinations());
+      tx.setOutgoingTransfer(transfer);
       tx.setPaymentId(config.getPaymentId());
-      tx.setSrcAddress(await this.getAddress(accountIdx, 0));
-      tx.setSrcAccountIndex(accountIdx);
-      tx.setSrcSubaddressIndex(0); // TODO (monero-wallet-rpc): outgoing subaddress idx is always 0
       if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
       if (!tx.getDoNotRelay()) {
         if (tx.getLastRelayedTime() === undefined) tx.setLastRelayedTime(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
@@ -1105,6 +1108,11 @@ class MoneroWalletRpc extends MoneroWallet {
     // initialize txs from rpc response
     if (split) MoneroWalletRpc._buildSentWalletTxs(rpcResp, txs);
     else MoneroWalletRpc._buildWalletTx(rpcResp, txs[0], true);
+    
+    for (let tx of txs) {
+      assert(tx.getOutgoingTransfer());
+      assert(tx.getOutgoingTransfer().getAccountIndex() >= 0);
+    }
     
     // return array or element depending on split
     return split ? txs : txs[0];

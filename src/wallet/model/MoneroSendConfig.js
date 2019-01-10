@@ -11,10 +11,10 @@ class MoneroSendConfig {
     if (configOrAddress instanceof Object) {
       throw new Error("Need to map object to fields");
     } else if (typeof configOrAddress === "string") {
-      let transfer = new MoneroTransfer();
-      transfer.setAddress(configOrAddress);
-      transfer.setAmount(amount);
-      this.setTransfers([transfer]);
+      let destination = new MoneroTransfer();
+      destination.setAddress(configOrAddress);
+      destination.setAmount(amount);
+      this.setDestinations([destination]);
       this.setPaymentId(paymentId);
       this.setPriority(priority);
       this.setMixin(mixin);
@@ -26,12 +26,12 @@ class MoneroSendConfig {
     assert(this.paymentId === undefined || MoneroUtils.isValidPaymentId(this.paymentId));
   }
   
-  getTransfers() {
-    return this.transfers;
+  getDestinations() {
+    return this.destinations;
   }
   
-  setTransfers(transfers) {
-    this.transfers = transfers;
+  setDestinations(destinations) {
+    this.destinations = destinations;
   }
   
   getPaymentId() {
