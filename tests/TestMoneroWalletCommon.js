@@ -987,7 +987,7 @@ class TestMoneroWalletCommon {
         let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Test message", signature);
         assert(check.getIsGood());
         testCheckReserve(check);
-        assert((await wallet.getBalance()).compare(check.getAmountTotal()) === 0);  // TODO: fails after send tests
+        assert((await wallet.getBalance()).compare(check.getAmountTotal()) === 0);  // TODO monero-wallet-rpc: fails after send tests
         
         // test different wallet address
         // TODO: openWallet is not common so this won't work for other wallet impls
