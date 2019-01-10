@@ -2141,7 +2141,14 @@ function testTransfer(transfer) {
 }
 
 function testVout(vout) {
-  throw new Error("Not implemented");
+  assert(vout);
+  assert(vout instanceof MoneroWalletOutput);
+  assert(vout.getAccountIndex() >= 0);
+  assert(vout.getSubaddressIndex() >= 0);
+  assert.equal("boolean", typeof vout.getIsSpent());
+  assert(vout.getKeyImage());
+  TestUtils.testUnsignedBigInteger(vout.getAmount(), true);
+  assert(vout.getIndex() >= 0);
 }
 
 function testCommonTxSets(txs, hasSigned, hasUnsigned, hasMultisig) {
