@@ -625,10 +625,33 @@ class TestMoneroWalletCommon {
       })
       
       it("Can get vouts", async function() {
-        throw new Error("Not implemented");
+        
+        // test all vouts
+        let vouts = await wallet.getVouts();
+        for (let vout of vouts) testVout(vout);
+        
+        // test vouts per account
+        let accounts = await wallet.getAccounts(true);
+        for (let account of accounts) {
+          vouts = await wallet.getVouts(account.getIndex());
+          for (let vout of vouts) {
+            testVout(vout);
+            assert.equal(account.getIndex(), vout.getAccountIndex());
+          }
+          
+          // test vouts per subaddress
+          for (let subaddress of account.getSubaddresses()) {
+            vouts = await wallet.getVouts(account.getIndex(), subaddress.getIndex());
+            for (let vout of vouts) {
+              testVout(vout);
+              assert.equal(account.getIndex(), vout.getAccountIndex());
+              assert.equal(subaddress.getIndex(), vout.getSubaddressIndex());
+            }
+          }
+        }
       });
       
-      it("Has correct accounting across accounts, subaddresses, txs, and vouts", async function() {
+      it("Has correct accounting across accounts, subaddresses, txs, transfers, and vouts", async function() {
         
         // pre-fetch wallet balances, accounts, subaddresses, and txs
         let walletBalance = await wallet.getBalance();
@@ -2111,6 +2134,14 @@ function testWalletTxCopy(tx) {
   let copy = tx.copy();
   assert(copy instanceof MoneroWalletTx);
   assert.deepEqual(tx, copy);
+}
+
+function testTransfer(transfer) {
+  throw new Error("Not implemented");
+}
+
+function testVout(vout) {
+  throw new Error("Not implemented");
 }
 
 function testCommonTxSets(txs, hasSigned, hasUnsigned, hasMultisig) {
