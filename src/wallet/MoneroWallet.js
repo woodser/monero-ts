@@ -223,11 +223,11 @@ class MoneroWallet {
     throw new Error("Subclass must implement");
   }
   
-  async getOutgoingTransfers(filterOrAccountIdx, subaddrIdx) {
+  async getOutgoingTransfers(filterOrAccountIdx, subaddressIdx) {
     throw new Error("Subclass must implement");
   }
   
-  async getIncomingTransfers(filterOrAccountIdx, subaddrIdx) {
+  async getIncomingTransfers(filterOrAccountIdx, subaddressIdx) {
     throw new Error("Subclass must implement");
   }
   
