@@ -260,11 +260,13 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // determine account and subaddress indices to be queried
     let indices = new Map();
-    if (filter.getAccountIndex() !== undefined) {
-      indices.set(filter.getAccountIndex(), filter.getSubaddressIndices() ? GenUtils.copyArray(filter.getSubaddressIndices()) : await this._getSubaddressIndices(filter.getAccountIndex()));
-    } else {
-      if (filter.getSubaddressIndices() !== undefined) throw new Error("Filter specifies subaddress indices but not an account index");
+    let transferFilter = filter.getTransferFilter();
+    if (!filter.getTransferFilter() || filter.getTransferFilter().getAccountIndex() === undefined) {
+      if (transferFilter && transferFilter.getSubaddressIndices() !== undefined) throw new Error("Transfer filter specifies subaddress indices but not an account index");
       indices = await this._getAllAccountAndSubaddressIndices();
+    } else {
+      let subaddressIndices = transferFilter.getSubaddressIndices() ? GenUtils.copyArray(transferFilter.getSubaddressIndices()) : await this._getSubaddressIndices(transferFilter.getAccountIndex());
+      indices.set(transferFilter.getAccountIndex(), subaddressIndices);
     }
     
     // build params for `get_transfers` rpc call
@@ -346,26 +348,27 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
     
-    // if requested, build and merge txs with vouts using `incoming_transfers`
-    if (filter.getFetchVouts() === true) { // TODO: add to tx filter, document default behavior, must be set true to get vouts
-      params = {};
-      params.transfer_type = "all"; // TODO: suppport all | available | unavailable
-      for (let accountIdx of indices.keys()) {
-        
-        // send request
-        params.account_index = accountIdx;
-        params.subaddr_indices = filter.getSubaddressIndices(); // undefined subaddr_indices will fetch all incoming_transfers
-        let resp = await this.config.rpc.sendJsonRequest("incoming_transfers", params);
-        
-        // convert response to txs with vouts and merge
-        if (resp.transfers === undefined) continue;
-        for (let rpcVout of resp.transfers) {
-          if (rpcVout.tx_hash === debugTxId) console.log(rpcVout);
-          let tx = MoneroWalletRpc._buildWalletTxVout(rpcVout);
-          MoneroWalletRpc._mergeTx(txs, tx, true);  // TODO: skip merging tx if absent because of monero-wallet-rpc #4500
-        }
-      }
-    }
+    // TODO: update to use supported method
+//    // if requested, build and merge txs with vouts using `incoming_transfers`
+//    if (filter.getFetchVouts() === true) { // TODO: add to tx filter, document default behavior, must be set true to get vouts
+//      params = {};
+//      params.transfer_type = "all"; // TODO: suppport all | available | unavailable
+//      for (let accountIdx of indices.keys()) {
+//        
+//        // send request
+//        params.account_index = accountIdx;
+//        params.subaddr_indices = filter.getSubaddressIndices(); // undefined subaddr_indices will fetch all incoming_transfers
+//        let resp = await this.config.rpc.sendJsonRequest("incoming_transfers", params);
+//        
+//        // convert response to txs with vouts and merge
+//        if (resp.transfers === undefined) continue;
+//        for (let rpcVout of resp.transfers) {
+//          if (rpcVout.tx_hash === debugTxId) console.log(rpcVout);
+//          let tx = MoneroWalletRpc._buildWalletTxVout(rpcVout);
+//          MoneroWalletRpc._mergeTx(txs, tx, true);  // TODO: skip merging tx if absent because of monero-wallet-rpc #4500
+//        }
+//      }
+//    }
     
     // filter final result
     return txs.filter(tx => filter.meetsCriteria(tx));

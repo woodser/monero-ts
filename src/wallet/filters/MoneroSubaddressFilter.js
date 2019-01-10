@@ -22,7 +22,24 @@ class MoneroSubaddressFilter extends Filter {
   }
   
   meetsCriteria(param) {
-    throw new Error("Not implemented");
+    
+    // match account
+    if (this.getAccountIndex() !== undefined && this.getAccountIndex() !== param.getAccountIndex()) return false;
+    
+    // match any subaddress index
+    if (this.getSubaddressIndices() !== undefined) {
+      let matchFound = false;
+      for (let subaddressIdx of this.getSubaddressIndices()) {
+        if (subaddressIdx !== param.getSubaddressIndex()) {
+          matchFound = true;
+          break;
+        }
+      }
+      if (!matchFound) return false;
+    }
+    
+    // meets filter's criteria
+    return true;
   }
 }
 
