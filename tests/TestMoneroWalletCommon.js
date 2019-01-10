@@ -1316,16 +1316,15 @@ class TestMoneroWalletCommon {
         }
             
         // config to send
-        let transfers = [];
+        let destinations = [];
         for (let i = 0; i < destinationAddresses.length; i++) {
-          let transfer = new MoneroTransfer(destinationAddresses[i], sendAmountPerSubaddress);
-          transfers.push(transfer);
+          destinations.push(new MoneroTransfer(destinationAddresses[i], sendAmountPerSubaddress));
         }
         let config = new MoneroSendConfig();
         config.setCanSplit(canSplit);
         config.setMixin(TestUtils.MIXIN);
         config.setAccountIndex(srcAccount.getIndex());
-        config.setTransfers(transfers);
+        config.setDestinations(destinations);
         
         // send tx(s) with config
         let txs = [];
@@ -1343,23 +1342,23 @@ class TestMoneroWalletCommon {
         
         // test each transaction
         assert(txs.length > 0);
-        let txSum = new BigInteger(0);
+        let outgoingSum = new BigInteger(0);
         for (let tx of txs) {
           await testWalletTx(tx, {wallet: wallet, sendConfig: config});
-          txSum = txSum.add(tx.getOutgoingAmount());
-          if (tx.getOutgoingTransfers() !== undefined) {
-            let transferSum = new BigInteger(0);
-            for (let transfer of tx.getOutgoingTransfers()) {
-              assert(destinationAddresses.includes(transfer.getAddress()));
-              transferSum = transferSum.add(transfer.getAmount());
+          outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
+          if (tx.getOutgoingTransfer() !== undefined && tx.getOutgoingTransfer().getDestinations()) {
+            let destinationSum = new BigInteger(0);
+            for (let destination of tx.getOutgoingTransfer().getDestinations()) {
+              assert(destinationAddresses.includes(destination.getAddress()));
+              destinationSum = destinationSum.add(destination.getAmount());
             }
-            assert(tx.getOutgoingAmount().compare(transferSum) === 0);  // assert that transfers sum up to tx amount
+            assert(tx.getOutgoingAmount().compare(destinationSum) === 0);  // assert that transfers sum up to tx amount
           }
         }
         
-        // assert that tx amounts sum up the amount sent within a small margin
-        if (Math.abs(sendAmount.subtract(txSum).toJSValue()) > SEND_MAX_DIFF) { // send amounts may be slightly different
-          throw new Error("Tx amounts are too different: " + sendAmount + " - " + txSum + " = " + sendAmount.subtract(txSum));
+        // assert that outgoing amounts sum up to the amount sent within a small margin
+        if (Math.abs(sendAmount.subtract(outgoingSum).toJSValue()) > SEND_MAX_DIFF) { // send amounts may be slightly different
+          throw new Error("Actual send amount is too different from requested send amount: " + sendAmount + " - " + txSum + " = " + sendAmount.subtract(txSum));
         }
       }
       

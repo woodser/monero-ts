@@ -921,7 +921,8 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setHex(blobs[i]);
       tx.setMetadata(metadatas[i]);
       tx.setFee(new BigInteger(fees[i]));
-      tx.setOutgoingAmount(new BigInteger(amounts[i]));
+      if (tx.getOutgoingTransfer()) tx.getOutgoingTransfer().setAmount(new BigInteger(amounts[i]));
+      else tx.setOutgoingTransfer(new MoneroTransfer(undefined, new BigInteger(amounts[i])))
     }
     return txs;
   }
