@@ -139,9 +139,7 @@ class MoneroWalletTx extends MoneroTx {
     
     // merge outgoing transfer
     if (this.getOutgoingTransfer() === undefined) this.setOutgoingTransfer(tx.getOutgoingTransfer());
-    else if (tx.getOutgoingTransfer()) {
-      assert.deepEqual(this.getOutgoingTransfer(), tx.getOutgoingTransfer(), "Outgoing transfers are different so tx cannot be merged");
-    }
+    else if (tx.getOutgoingTransfer()) this.getOutgoingTransfer().merge(tx.getOutgoingTransfer());
     
     // merge incoming transfers
     if (tx.getIncomingTransfers()) {

@@ -1631,7 +1631,7 @@ class TestMoneroWalletCommon {
       
       // TODO: test sending to multiple accounts
       
-      it("Can update a locked tx sent to/from the same account as blocks are added to the chain", async function() {
+      it("Can update a locked tx sent from/to the same account as blocks are added to the chain", async function() {
         let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
         sendConfig.setAccountIndex(0);
         sendConfig.setUnlockTime(3);
@@ -1639,7 +1639,7 @@ class TestMoneroWalletCommon {
         await testSendAndUpdateTxs(sendConfig);
       });
       
-      it("Can update split locked txs sent to/from the same account as blocks are added to the chain", async function() {
+      it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
         let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
         sendConfig.setAccountIndex(0);
         sendConfig.setUnlockTime(3);
@@ -1647,7 +1647,7 @@ class TestMoneroWalletCommon {
         await testSendAndUpdateTxs(sendConfig);
       });
       
-      it("Can update a locked tx sent to/from different accounts as blocks are added to the chain", async function() {
+      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
         let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
         sendConfig.setAccountIndex(0);
         sendConfig.setUnlockTime(3);
@@ -1655,7 +1655,7 @@ class TestMoneroWalletCommon {
         await testSendAndUpdateTxs(sendConfig);
       });
       
-      it("Can update a locked tx sent to/from different accounts as blocks are added to the chain", async function() {
+      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
         let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
         sendConfig.setAccountIndex(0);
         sendConfig.setUnlockTime(3);
