@@ -231,7 +231,7 @@ class MoneroWallet {
     throw new Error("Subclass must implement");
   }
   
-  async getVouts(filterOrAccountIdx, subaddrIdx) {
+  async getVouts(filterOrAccountIdx, subaddressIdx, isSpent) {
     throw new Error("Subclass must implement");
   }
   
