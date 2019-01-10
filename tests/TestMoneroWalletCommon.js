@@ -612,8 +612,8 @@ class TestMoneroWalletCommon {
             try {
               assert.equal(tx.toString(), filteredTx.toString()); // TODO: better deep comparator?
             } catch (e) {
-              console.log(tx.toString());
-              console.log(filteredTx.toString());
+              //console.log(tx.toString());
+              //console.log(filteredTx.toString());
               throw e;
             }
           }
