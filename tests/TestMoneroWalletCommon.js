@@ -11,6 +11,7 @@ const MoneroTxFilter = require("../src/wallet/filters/MoneroTxFilter");
 const MoneroTransferFilter = require("../src/wallet/filters/MoneroTransferFilter");
 const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
 const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
+const MoneroDestination = require("../src/wallet/model/MoneroDestination");
 const MoneroWalletOutput = require("../src/wallet/model/MoneroWalletOutput");
 
 // test constants
@@ -1940,13 +1941,10 @@ async function testWalletTx(tx, testConfig) {
     // test each destination and collect sum
     let sum = new BigInteger(0);
     for (let destination of tx.getOutgoingTransfer().getDestinations()) {
-      assert(destination instanceof MoneroTransfer);
+      assert(destination instanceof MoneroDestination);
       assert(destination.getAddress());
       TestUtils.testUnsignedBigInteger(destination.getAmount());
       sum = sum.add(destination.getAmount());
-      assert.equal(undefined, destination.getAccountIndex());
-      assert.equal(undefined, destination.getSubaddressIndex());
-      assert.equal(undefined, destination.getDestinations());
       
       // TODO special case: transfer amount of 0
     }

@@ -2,7 +2,7 @@ const assert = require("assert");
 const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroUtils = require("../../utils/MoneroUtils");
 const MoneroTx = require("../../daemon/model/MoneroTx");
-const MoneroTransfer = require("../../wallet/model/MoneroTransfer");
+const MoneroTransfer = require("./MoneroTransfer");
 
 /**
  * Models a Monero transaction with additional fields in the context of a wallet.
@@ -21,10 +21,10 @@ class MoneroWalletTx extends MoneroTx {
     if (json) {
       
       // deserialize transfers
-      if (json.outgoingTransfer) this.setOutgoingTransfer(new MoneroTransfer(json.outgoingTransfer));
+      if (json.outgoingTransfer) this.setOutgoingTransfer(new MoneroTransfer(this, json.outgoingTransfer));
       if (json.incomingTransfers) {
         let incomingTransfers = [];
-        for (let jsonIncomingTransfer of json.incomingTransfers) incomingTransfers.push(new MoneroTransfer(jsonIncomingTransfer));
+        for (let jsonIncomingTransfer of json.incomingTransfers) incomingTransfers.push(new MoneroTransfer(this, jsonIncomingTransfer));
         this.setIncomingTransfers(incomingTransfers);
       }
     }

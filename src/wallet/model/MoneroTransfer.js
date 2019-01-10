@@ -1,9 +1,10 @@
 const assert = require("assert");
 const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroUtils = require("../../utils/MoneroUtils");
+const MoneroDestination = require("./MoneroDestination");
 
 /**
- * Represents a directional transfer of funds from or to a wallet.
+ * Models a directional transfer of funds from or to a wallet.
  */
 class MoneroTransfer {
   
@@ -12,23 +13,44 @@ class MoneroTransfer {
    * 
    * @param jsonOrAddress is JSON to construct the model or an address (optional)
    */
-  constructor(jsonOrAddress, amount) {
+  constructor(tx, jsonOrAddress, amount) {
+    
+    // initialize transaction which is not part of state
+    assert(tx);
+    assert(tx.getNote, "First parameter must be a MoneroWalletTx"); // TODO: better way to assert(tx instanceof MoneroWalletTx) without circular require?
+    this.tx = tx;
+    
+    // initialize without json
     if (jsonOrAddress === undefined || typeof jsonOrAddress === "string") {
       this.state = {};
       this.setAddress(jsonOrAddress);
       this.setAmount(amount);
-    } else {
-      
-      // deserialize json
+    }
+    
+    // otherwise deserialize json
+    else {
       let json = jsonOrAddress;
       this.state = Object.assign({}, json);
       if (json.amount) this.setAmount(BigInteger.parse(json.amount));
       if (json.destinations) {
         let destinations = [];
-        for (let jsonDestination of json.destinations) destinations.push(new MoneroTransfer(jsonDestination));
+        for (let jsonDestination of json.destinations) destinations.push(new MoneroDestination(jsonDestination));
         this.setDestinations(destinations);
       }
     }
+  }
+  
+  getTx() {
+    return this.tx;
+  }
+  
+  getIsOutgoing() {
+    return this === this.tx.getOutgoingTransfer();
+  }
+  
+  getIsIncoming() {
+    if (!this.tx.getIncomingTransfers()) return false;
+    return this.tx.getIncomingTransfers().includes(this);
   }
   
   getAddress() {
@@ -108,6 +130,7 @@ class MoneroTransfer {
   
   toString(indent = 0) {
     let str = "";
+    str += MoneroUtils.kvLine("Is outgoing", this.getIsOutgoing(), indent);
     str += MoneroUtils.kvLine("Address", this.getAddress(), indent);
     str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
     str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
@@ -117,7 +140,6 @@ class MoneroTransfer {
       for (let i = 0; i < this.getDestinations().length; i++) {
         str += MoneroUtils.kvLine(i + 1, "", indent + 1);
         str += this.getDestinations()[i].toString(indent + 2) + "\n";
-        //if (i < this.getDestinations().length - 1) str += '\n'  // TODO: why would this be necessary?
       }
     }
     return str.slice(0, str.length - 1);  // strip last newline

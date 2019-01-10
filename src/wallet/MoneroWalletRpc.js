@@ -10,6 +10,7 @@ const MoneroSubaddress = require("./model/MoneroSubaddress");
 const MoneroTxFilter = require("./filters/MoneroTxFilter");
 const MoneroWalletTx = require("./model/MoneroWalletTx");
 const MoneroTransfer = require("./model/MoneroTransfer");
+const MoneroDestination = require("./model/MoneroDestination");
 const MoneroWalletOutput = require("./model/MoneroWalletOutput");
 const MoneroSendConfig = require("./model/MoneroSendConfig");
 const MoneroCheckTx = require("./model/MoneroCheckTx");
@@ -296,7 +297,7 @@ class MoneroWalletRpc extends MoneroWallet {
               // reconstruct incoming transfers from outgoing destinations
               let incomingTransfers = [];
               for (let destination of outgoingTransfer.getDestinations()) {
-                let incomingTransfer = new MoneroTransfer();
+                let incomingTransfer = new MoneroTransfer(tx);
                 incomingTransfers.push(incomingTransfer);
                 incomingTransfer.setAmount(destination.getAmount());
                 incomingTransfer.setAddress(destination.getAddress());
@@ -409,7 +410,7 @@ class MoneroWalletRpc extends MoneroWallet {
               // reconstruct incoming transfers from outgoing destinations
               let incomingTransfers = [];
               for (let destination of outgoingTransfer.getDestinations()) {
-                let incomingTransfer = new MoneroTransfer();
+                let incomingTransfer = new MoneroTransfer(tx);
                 incomingTransfers.push(incomingTransfer);
                 incomingTransfer.setAmount(destination.getAmount());
                 incomingTransfer.setAddress(destination.getAddress());
@@ -921,11 +922,11 @@ class MoneroWalletRpc extends MoneroWallet {
         else tx.setEstimatedBlockCountUntilConfirmed(undefined)
       }
       else if (key === "amount") {
-        if (transfer === undefined) transfer = new MoneroTransfer();
+        if (transfer === undefined) transfer = new MoneroTransfer(tx);
         transfer.setAmount(new BigInteger(val));
       }
       else if (key === "address") {
-        if (transfer === undefined) transfer = new MoneroTransfer();
+        if (transfer === undefined) transfer = new MoneroTransfer(tx);
         transfer.setAddress(val);
       }
       else if (key === "payment_id") {
@@ -943,7 +944,7 @@ class MoneroWalletRpc extends MoneroWallet {
         assert(isOutgoing);
         let destinations = [];
         for (let rpcDestination of val) {
-          let destination = new MoneroTransfer();
+          let destination = new MoneroDestination(tx);
           destinations.push(destination);
           for (let destinationKey of Object.keys(rpcDestination)) {
             if (destinationKey === "address") destination.setAddress(rpcDestination[destinationKey]);
@@ -951,7 +952,7 @@ class MoneroWalletRpc extends MoneroWallet {
             else throw new Error("Unrecognized transaction destination field: " + destinationKey);
           }
         }
-        if (transfer === undefined) transfer = new MoneroTransfer();
+        if (transfer === undefined) transfer = new MoneroTransfer(tx);
         transfer.setDestinations(destinations);
       }
       else if (key === "multisig_txset" && !val) {} // TODO: handle this with value
@@ -1041,7 +1042,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setMetadata(metadatas[i]);
       tx.setFee(new BigInteger(fees[i]));
       if (tx.getOutgoingTransfer()) tx.getOutgoingTransfer().setAmount(new BigInteger(amounts[i]));
-      else tx.setOutgoingTransfer(new MoneroTransfer(undefined, new BigInteger(amounts[i])))
+      else tx.setOutgoingTransfer(new MoneroTransfer(tx, undefined, new BigInteger(amounts[i])))
     }
     return txs;
   }
@@ -1211,7 +1212,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsCoinbase(false);
       tx.setIsFailed(false);
       tx.setMixin(config.getMixin());
-      let transfer = new MoneroTransfer();
+      let transfer = new MoneroTransfer(tx);
       transfer.setAddress(await this.getAddress(accountIdx, 0));
       transfer.setAccountIndex(accountIdx);
       transfer.setSubaddressIndex(0); // TODO (monero-wallet-rpc): outgoing subaddress idx is always 0
