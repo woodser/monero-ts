@@ -23,6 +23,11 @@ class MoneroTransfer {
       let json = jsonOrAddress;
       this.state = Object.assign({}, json);
       if (json.amount) this.setAmount(BigInteger.parse(json.amount));
+      if (json.destinations) {
+        let destinations = [];
+        for (let jsonDestination of json.destinations) destinations.push(new MoneroTransfer(jsonDestination));
+        this.setDestinations(destinations);
+      }
     }
   }
   
@@ -81,6 +86,12 @@ class MoneroTransfer {
     this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), transfer.getAccountIndex()));
     this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), transfer.getSubaddressIndex()));
     this.setAmount(MoneroUtils.reconcile(this.getAmount(), transfer.getAmount()));
+    
+    // merge destinations
+    if (this.getDestinations() === undefined) this.setDestinations(transfer.getDestinations());
+    else if (transfer.getDestinations()) {
+      assert.deepEqual(this.getDestinations(), transfer.getDestinations(), "Cannot merge transfer because destinations are different");
+    }
   }
   
   toString(indent = 0) {
@@ -89,6 +100,14 @@ class MoneroTransfer {
     str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
     str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
     str += MoneroUtils.kvLine("Amount", this.getAmount() ? this.getAmount().toString() : undefined, indent);
+    if (this.getDestinations()) {
+      str += MoneroUtils.kvLine("Destinations", "", indent);
+      for (let i = 0; i < this.getDestinations().length; i++) {
+        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
+        str += this.getDestinations()[i].toString(indent + 2) + "\n";
+        //if (i < this.getDestinations().length - 1) str += '\n'  // TODO: why would this be necessary?
+      }
+    }
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }
