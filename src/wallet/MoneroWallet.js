@@ -210,13 +210,33 @@ class MoneroWallet {
   /**
    * Get wallet transactions.
    * 
-   * @param {MoneroTxFilter} or {number} returns transactions that meet the
-   *        filter or transactions from/to the account index (defaults to all)
-   * @param {number} returns transactions to/from this subaddress within the 
-   *        given account (defaults to all)
+   * @param {MoneroTxFilter} txFilter may be used to filter returned results (optional)
+   * @returns {MoneroWalletTx[]} are the retrieved transactions
    */
-  async getTxs(filterOrAccountIdx, subaddressIdx) {
+  async getTxs(txFilter) {
     throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get a wallet transaction by id.
+   * 
+   * @param {string} id identifies the transaction to get
+   * @return {MoneroWalletTx} is the identified transaction
+   * @throws {Error} if the transaction is not associated with the wallet
+   */
+  async getTxById(id) {
+    return await this.getTxs(new MoneroTxFilter().setTxIds([id]));
+  }
+  
+  /**
+   * Get wallet transactions by id.
+   * 
+   * @param {string[]} ids identify the transactions to get
+   * @return {MoneroWalletTx[]} are the identified transactions
+   * @throws {Error} if any transactions are not associated with the wallet
+   */
+  async getTxsById(ids) {
+    return await this.getTxs(new MoneroTxFilter().setTxIds(ids));
   }
   
   async getTransfers(filterOrAccountIdx, subaddrIdx) {

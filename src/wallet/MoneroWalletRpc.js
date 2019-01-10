@@ -239,7 +239,19 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddress;
   }
   
-  async getTxs(filterOrAccountIdx, subaddressIdx, debugTxId) {
+  /**
+   * Implements getTxs() with additional, non-standard parameters.
+   * 
+   * @param {MoneroTxFilter} txFilter may be used to filter returned results (optional)
+   * @param includeVouts specifies to include vouts in returned transactions
+   * @param debugTxId prints debug info associated with this transaction
+   * @returns {MoneroWalletTx[]} are the retrieved transactions
+   */
+  async getTxs(txFilter, includeVouts, debugTxId) {
+    throw new Error("not implemented");
+  }
+  
+  async getTxs2(filterOrAccountIdx, subaddressIdx, debugTxId) {
     
     // txs to return
     let txs = [];
