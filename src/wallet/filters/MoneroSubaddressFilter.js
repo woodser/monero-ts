@@ -11,6 +11,7 @@ class MoneroSubaddressFilter extends Filter {
 
   setAccountIndex(accountIndex) {
     this.accountIndex = accountIndex;
+    return this;
   }
 
   getSubaddressIndices() {
@@ -19,6 +20,7 @@ class MoneroSubaddressFilter extends Filter {
 
   setSubaddressIndices(subaddressIndices) {
     this.subaddressIndices = subaddressIndices;
+    return this;
   }
   
   meetsCriteria(param) {

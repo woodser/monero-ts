@@ -4,21 +4,18 @@
 class Filter {
   
   /**
-   * Applies this filter to the given array by removing elements in place that
-   * do not meet this filter's criteria.
+   * Returns a new array comprised of elements from the given array that meet
+   * this filter's criteria.
    * 
-   * @param array is the array to filter in place
-   * @returns {[]} is a reference to the filtered array for convenience
+   * @param array is the array to apply this filter to
+   * @returns {[]} is the new array of filtered elements
    */
   apply(array) {
-    throw new Error("Not implemented");
+    return array.filter(elem => this.meetsCriteria(elem));
   }
   
   /**
    * Indicates if the given parameter meets the criteria of this filter.
-   * 
-   * Elements that do not meet this filter's criteria are removed when this
-   * filter is applied to an array.
    * 
    * @param param is the parameter to test
    * @returns true if the param meets the criteria of this filter, false otherwise

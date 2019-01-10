@@ -14,6 +14,7 @@ class MoneroTxFilter extends Filter {
   
   setIsOutgoing(isOutgoing) {
     this.isOutgoing = isOutgoing;
+    return this;
   }
   
   getIsIncoming() {
@@ -22,6 +23,7 @@ class MoneroTxFilter extends Filter {
   
   setIsIncoming(isIncoming) {
     this.isIncoming = isIncoming;
+    return this;
   }
 
   getTxIds() {
@@ -30,6 +32,7 @@ class MoneroTxFilter extends Filter {
 
   setTxIds(txIds) {
     this.txIds = txIds;
+    return this;
   }
   
   getIsConfirmed() {
@@ -38,6 +41,7 @@ class MoneroTxFilter extends Filter {
   
   setIsConfirmed(isConfirmed) {
     this.isConfirmed = isConfirmed;
+    return this;
   }
   
   getInTxPool() {
@@ -46,6 +50,7 @@ class MoneroTxFilter extends Filter {
   
   setInTxPool(inTxPool) {
     this.inTxPool = inTxPool;
+    return this;
   }
   
   getIsRelayed() {
@@ -54,6 +59,7 @@ class MoneroTxFilter extends Filter {
   
   setIsRelayed(isRelayed) {
     this.isRelayed = isRelayed;
+    return this;
   }
   
   getIsFailed() {
@@ -62,6 +68,7 @@ class MoneroTxFilter extends Filter {
   
   setIsFailed(isFailed) {
     return this.isFailed = isFailed;
+    return this;
   }
   
   getMinHeight() {
@@ -70,6 +77,7 @@ class MoneroTxFilter extends Filter {
 
   setMinHeight(minHeight) {
     this.minHeight = minHeight;
+    return this;
   }
 
   getMaxHeight() {
@@ -78,6 +86,7 @@ class MoneroTxFilter extends Filter {
 
   setMaxHeight(maxHeight) {
     this.maxHeight = maxHeight;
+    return this;
   }
   
   getHasOutgoingTransfer() {
@@ -86,6 +95,7 @@ class MoneroTxFilter extends Filter {
 
   setHasOutgoingTransfer(hasOutgoingTransfer) {
     this.hasOutgoingTransfer = hasOutgoingTransfer;
+    return this;
   }
   
   getHasIncomingTransfers() {
@@ -94,14 +104,16 @@ class MoneroTxFilter extends Filter {
 
   setHasIncomingTransfers(hasIncomingTransfers) {
     this.hasIncomingTransfers = hasIncomingTransfers;
-  }
-  
-  setTransferFilter(transferFilter) {
-    this.transferFilter = transferFilter;
+    return this;
   }
   
   getTransferFilter() {
     return this.transferFilter;
+  }
+  
+  setTransferFilter(transferFilter) {
+    this.transferFilter = transferFilter;
+    return this;
   }
   
   getPaymentIds() {
@@ -110,6 +122,7 @@ class MoneroTxFilter extends Filter {
 
   setPaymentIds(paymentIds) {
     this.paymentIds = paymentIds;
+    return this;
   }
   
   // TODO: this more an instruction than a filter, remove altogether and force client to get their own vouts? prolly.
@@ -120,6 +133,7 @@ class MoneroTxFilter extends Filter {
   
   setFetchVouts(fetchVouts) {
     this.fetchVouts = fetchVouts;
+    return this;
   }
   
   meetsCriteria(tx) {
@@ -127,10 +141,10 @@ class MoneroTxFilter extends Filter {
     // at least one transfer must meet transfer filter if defined
     if (this.getTransferFilter()) {
       let matchFound = false;
-      if (tx.getOutputTransfer() && this.getTransferFilter().meetsCriteria(this.getOutputTransfer())) matchFound = true;
-      else if (tx.getInputTransfers()) {
-        for (let inputTransfer of tx.getInputTransfers()) {
-          if (this.getTransferFilter().meetsCriteria(inputTransfer)) {
+      if (tx.getOutgoingTransfer() && this.getTransferFilter().meetsCriteria(tx.getOutgoingTransfer())) matchFound = true;
+      else if (tx.getIncomingTransfers()) {
+        for (let incomingTransfer of tx.getIncomingTransfers()) {
+          if (this.getTransferFilter().meetsCriteria(incomingTransfer)) {
             matchFound = true;
             break;
           }
