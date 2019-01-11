@@ -635,7 +635,7 @@ class TestMoneroWalletCommon {
           }
         }
         
-        // test filter
+        // test fetching with filter
         await testVoutFilter(0, undefined, undefined);
         await testVoutFilter(1, undefined, true);
         await testVoutFilter(2, undefined, false);
@@ -653,6 +653,30 @@ class TestMoneroWalletCommon {
             if (subaddressIdx) assert.equal(subaddressIdx, vout.getSubaddressIndex());
             if (isSpent) assert.equal(isSpent, vout.getIsSpent());
           }
+        }
+        
+        // test with isSpend mismatch (provided as param for convenience)
+        try {
+          await testVoutFilter(new MoneroVoutFilter().setIsSpend(true), undefined, false);
+          throw new Error("Should have failed");
+        } catch (e) {
+          assert.equal("isSpend parameters do not match", e.message);
+        }
+        
+        // test with account mismatch
+        try {
+          await testVoutFilter(new MoneroVoutFilter().setAccountIndex(2), 1, false); 
+          throw new Error("Should have failed");
+        } catch (e) {
+          assert.notEqual("Subaddress index parameters do not match", e.message);
+        }
+        
+        // test with subaddress mismatch
+        try {
+          await testVoutFilter(new MoneroVoutFilter().setSubaddressIndex(2), 1, false); 
+          throw new Error("Should have failed");
+        } catch (e) {
+          assert.notEqual("Subaddress index parameters do not match", e.message);
         }
       });
       
@@ -717,18 +741,26 @@ class TestMoneroWalletCommon {
 //          assert.equal(account.getBalance().toString(), incomingSum.subtract(outgoingSum).toString());
 //        }
         
-        // test that balances equal sum of unspent vouts
-        let vouts = await wallet.getVouts();
-        for (let vout of vouts) if (!vout.getIsSpent())
-        assert.equal(balance.getBalance(), )
+        // wallet balance is sum of all unspent vouts
+        let walletSum = new BigInteger(0);
+        for (let vout of await wallet.getVouts(undefined, undefined, false)) walletSum = unspentSum.add(vout.getAmount());
+        assert.equal(walletBalance.toString(), walletSum.toString());
         
+        // account balances are sum of their unspent vouts
         for (let account of accounts) {
-          let vouts = await wallet.getVouts()
+          let accountSum = new BigInteger(0);
+          let accountVouts = await wallet.getVouts(account.getIndex(), undefined, false);
+          for (let vout of accountVouts) accountSum = accountSum.add(vout.getAmount());
+          assert.equal(account.getBalance().toString(), accountSum.toString());
           
-          
+          // subaddress balances are sum of their unspent vouts
+          for (let subaddress of account.getSubaddresses()) {
+            let subaddressSum = new BigInteger(0);
+            let subaddressVouts = await wallet.getVouts(account.getIndex(), subaddress.getIndex(), false);
+            for (let vout of subaddressVouts) subaddressSum = subaddressSum.add(vout.getAmount());
+            assert.equal(subaddress.getBalance().toString(), subaddressSum.toString());
+          }
         }
-        
-        // TODO: test vouts
       });
       
       // TODO: absorb this into accounting test
