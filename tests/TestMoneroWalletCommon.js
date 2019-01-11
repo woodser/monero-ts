@@ -909,32 +909,32 @@ class TestMoneroWalletCommon {
       
       it("Can prove a transaction by getting its signature", async function() {
         
-        // get random txs with outgoing transfers
+        // get random txs that are confirmed and have outgoing destinations
         let filter = new MoneroTxFilter();
-        filter.setIsIncoming(false);
-        filter.setInTxPool(false);
-        filter.setIsFailed(false);
-        filter.setHasOutgoingTransfers(true);
+        filter.setIsConfirmed(true);
+        filter.setHasOutgoingTransfer(true);
+        filter.setTransferFilter(new MoneroTransferFilter().setHasDestinations(true));
         let txs = await getRandomTransactions(wallet, filter, 2, MAX_TX_PROOFS);
         
         // test good checks with messages
         for (let tx of txs) {
-          for (let transfer of tx.getOutgoingTransfers()) {
-            let signature = await wallet.getTxProof(tx.getId(), transfer.getAddress(), "This transaction definitely happened.");
-            let check = await wallet.checkTxProof(tx.getId(), transfer.getAddress(), "This transaction definitely happened.", signature);
+          for (let destination of tx.getOutgoingTransfer().getDestinations()) {
+            let signature = await wallet.getTxProof(tx.getId(), destination.getAddress(), "This transaction definitely happened.");
+            let check = await wallet.checkTxProof(tx.getId(), destination.getAddress(), "This transaction definitely happened.", signature);
             testCheckTx(tx, check);
           }
         }
         
         // test good check without message
         let tx = txs[0];
-        let signature = await wallet.getTxProof(tx.getId(), tx.getOutgoingTransfers()[0].getAddress());
-        let check = await wallet.checkTxProof(tx.getId(), tx.getOutgoingTransfers()[0].getAddress(), undefined, signature);
+        let destination = tx.getOutgoingTransfer().getDestinations()[0];
+        let signature = await wallet.getTxProof(tx.getId(), destination.getAddress());
+        let check = await wallet.checkTxProof(tx.getId(), destination.getAddress(), undefined, signature);
         testCheckTx(tx, check);
         
         // test get proof with invalid id
         try {
-          await wallet.getTxProof("invalid_tx_id", tx.getOutgoingTransfers()[0].getAddress());
+          await wallet.getTxProof("invalid_tx_id", destination.getAddress());
           throw new Error("Should throw exception for invalid key");
         } catch (e) {
           assert.equal(-8, e.getRpcCode());
@@ -942,7 +942,7 @@ class TestMoneroWalletCommon {
         
         // test check with invalid tx id
         try {
-          await wallet.checkTxProof("invalid_tx_id", tx.getOutgoingTransfers()[0].getAddress(), undefined, signature);
+          await wallet.checkTxProof("invalid_tx_id", destination.getAddress(), undefined, signature);
           throw new Error("Should have thrown exception");
         } catch (e) {
           assert.equal(-8, e.getRpcCode());
@@ -957,15 +957,15 @@ class TestMoneroWalletCommon {
         }
         
         // test check with wrong message
-        signature = await wallet.getTxProof(tx.getId(), tx.getOutgoingTransfers()[0].getAddress(), "This is the right message");
-        check = await wallet.checkTxProof(tx.getId(), tx.getOutgoingTransfers()[0].getAddress(), "This is the wrong message", signature);
+        signature = await wallet.getTxProof(tx.getId(), destination.getAddress(), "This is the right message");
+        check = await wallet.checkTxProof(tx.getId(), destination.getAddress(), "This is the wrong message", signature);
         assert.equal(false, check.getIsGood());
         testCheckTx(tx, check);
         
         // test check with wrong signature
-        let wrongSignature = await wallet.getTxProof(txs[1].getId(), txs[1].getOutgoingTransfers()[0].getAddress(), "This is the right message");
+        let wrongSignature = await wallet.getTxProof(txs[1].getId(), txs[1].getOutgoingTransfer().getDestinations()[0].getAddress(), "This is the right message");
         try {
-          check = await wallet.checkTxProof(tx.getId(), tx.getOutgoingTransfers()[0].getAddress(), "This is the right message", wrongSignature);  
+          check = await wallet.checkTxProof(tx.getId(), destination.getAddress(), "This is the right message", wrongSignature);  
           assert.equal(false, check.getIsGood());
         } catch (e) {
           assert.equal(-1, e.getRpcCode()); // TODO: sometimes comes back bad, sometimes throws exception.  ensure txs come from different addresses?
