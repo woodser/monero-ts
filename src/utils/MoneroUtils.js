@@ -48,10 +48,11 @@ class MoneroUtils {
    *        config.resolveDefined uses defined value if true or undefined, undefined if false
    *        config.resolveTrue uses true over false if true, false over true if false, must be equal if undefined
    *        config.resolveMax uses max over min if true, min over max if false, must be equal if undefined
+   * @param errMsg is the error message to throw if the values cannot be reconciled (optional)
    * @returns the reconciled value if reconcilable
    * @throws {Error} if the values cannot be reconciled
    */
-  static reconcile(val1, val2, config) {
+  static reconcile(val1, val2, config, errMsg) {
     
     // check for direct equality
     if (val1 === val2) return val1;
@@ -90,8 +91,9 @@ class MoneroUtils {
       }
     }
     
-    // otherwise cannot reconcile
-    throw new Error("Cannot reconcile values " + val1 + " and " + val2 + " with config: " + JSON.stringify(config));
+    // assert deep equality
+    assert.deepEqual(val1, val2, errMsg ? errMsg : "Cannot reconcile values " + val1 + " and " + val2 + " with config: " + JSON.stringify(config));
+    return val1;
   }
   
   // TODO: beef this up
