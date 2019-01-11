@@ -574,36 +574,36 @@ class TestMoneroWalletCommon {
         });
       }
       
-      it("Returns all known fields of txs regardless of query filtering", async function() {
+      it("Returns all known fields of txs regardless of filtering", async function() {
         
-        // test every wallet tx
+        // fetch wallet txs
         let txs = await wallet.getTxs();
         for (let tx of txs) {
           
           // find tx sent to same wallet with incoming transfer in different account than src account
-          if (!tx.getOutgoingAmount() || !tx.getIncomingAmount()) continue;
+          if (!tx.getIsOutgoing() || !tx.getIsIncoming()) continue;
           if (tx.getOutgoingAmount().compare(tx.getIncomingAmount()) !== 0) continue;
           if (!tx.getIncomingTransfers()) continue;
           for (let transfer of tx.getIncomingTransfers()) {
-            if (transfer.getAccountIndex() === tx.getSrcAccountIndex()) continue;
+            if (transfer.getAccountIndex() === tx.getOutgoingTransfer().getAccountIndex()) continue;
             
-            // fetch tx with filtering for this account
+            // fetch tx with filtering
             let filter = new MoneroTxFilter();
-            filter.setAccountIndex(transfer.getAccountIndex());
-            filter.setTxIds([tx.getId()]);
-            let filteredTx = (await wallet.getTxs(filter))[0];
+            filter.setTransferFilter(new MoneroTransferFilter().setIsIncoming(true).setAccountIndex(transfer.getAccountIndex()));
+            let filteredTxs = await wallet.getTxs(filter);
+            let filteredTx = new MoneroTxFilter().setTxIds([tx.getId()]).apply(filteredTxs)[0];
             
             // txs should be the same
             assert.equal(tx.getId(), filteredTx.getId());
-            try {
-              assert.equal(tx.toString(), filteredTx.toString()); // TODO: better deep comparator?
-            } catch (e) {
-              //console.log(tx.toString());
-              //console.log(filteredTx.toString());
-              throw e;
-            }
+            assert.equal(tx.toString(), filteredTx.toString()); // TODO: better deep comparator?
+            
+            // test is done
+            return;
           }
         }
+        
+        // test did not fully execute
+        throw new Error("Test requires tx sent from/to different accounts of same wallet but none found; run send tests");
       });
       
       it("Can get transfers", async function() {
