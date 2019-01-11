@@ -18,26 +18,24 @@ describe("Scratchpad", function() {
     await TestUtils.initWalletRpc();
     
     
-
-    
-//    try { await wallet.startMining(8, false, true); }
-//    catch (e) { }
+    try { await wallet.startMining(8, false, true); }
+    catch (e) { }
 //    await wallet.stopMining();
 //    await daemon.stopMining();
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
     
-    // fetch txs
-    let txId = "31564d4ccc63a7c9c118cac8ddf95f418392a57f6d7c41c461d874dc7571add9";
-    let filter = new MoneroTxFilter();
-    //filter.setAccountIndex(0);
-    //filter.setSubaddressIndices([0]);
-    //filter.setFetchVouts(true);
-    filter.setTxIds([txId]);
-    let txs = await wallet.getTxs(filter, undefined, txId);
-    for (let tx of txs) {
-      console.log(tx.toString());
-    }
+//    // fetch txs
+//    let txId = "31564d4ccc63a7c9c118cac8ddf95f418392a57f6d7c41c461d874dc7571add9";
+//    let filter = new MoneroTxFilter();
+//    //filter.setAccountIndex(0);
+//    //filter.setSubaddressIndices([0]);
+//    //filter.setFetchVouts(true);
+//    filter.setTxIds([txId]);
+//    let txs = await wallet.getTxs(filter, undefined, txId);
+//    for (let tx of txs) {
+//      console.log(tx.toString());
+//    }
 //    
     // send tx
 //  let address1 = (await wallet.getSubaddress(1, 0)).getAddress();
