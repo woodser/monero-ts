@@ -1,15 +1,16 @@
 /**
  * Test the sample code in README.md.
  */
-describe("TEST SAMPLE CODE", function() {
+describe("Test Sample Code", function() {
   
   it("Can demonstrate the wallet with sample code", async function() {
     
     // imports
+    const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
     const MoneroWalletRpc = require("../src/wallet/MoneroWalletRpc");
     const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
     const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
-    const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+    const MoneroDestination = require("../src/wallet/model/MoneroDestination");
     
     // create a wallet that uses a monero-wallet-rpc endpoint
     let wallet = new MoneroWalletRpc({
@@ -37,8 +38,8 @@ describe("TEST SAMPLE CODE", function() {
     // send to multiple addresses from subaddress 0, 1 which can be split into multiple transactions
     let sendConfig = new MoneroSendConfig();
     sendConfig.setDestinations([
-      new MoneroTransfer("7BV7iyk9T6kfs7cPfmn7vPZPyWRid7WEwecBkkVr8fpw9MmUgXTPtvMKXuuzqKyr2BegWMhEcGGEt5vNkmJEtgnRFUAvf29", new BigInteger(50000)),
-      new MoneroTransfer("78NWrWGgyZeYgckJhuxmtDMqo8Kzq5r9j1kV8BQXGq5CDnECz2KjQeBDc3KKvdMQmR6TWtfbRaedgbSGmmwr1g8N1rBMdvW", new BigInteger(50000))
+      new MoneroDestination("7BV7iyk9T6kfs7cPfmn7vPZPyWRid7WEwecBkkVr8fpw9MmUgXTPtvMKXuuzqKyr2BegWMhEcGGEt5vNkmJEtgnRFUAvf29", new BigInteger(50000)),
+      new MoneroDestination("78NWrWGgyZeYgckJhuxmtDMqo8Kzq5r9j1kV8BQXGq5CDnECz2KjQeBDc3KKvdMQmR6TWtfbRaedgbSGmmwr1g8N1rBMdvW", new BigInteger(50000))
     ]);
     sendConfig.setAccountIndex(0);
     sendConfig.setSubaddressIndices([1]);

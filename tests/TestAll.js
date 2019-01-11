@@ -33,8 +33,8 @@ new TestMoneroWalletRpc().runTests({
 //// test boolean set (data structure used by wallet to track progress)
 //require("./TestBooleanSet");
 //
-//// test sample code for readme
-//require("./TestSampleCode");
+// test sample code for readme
+require("./TestSampleCode");
 
 //// test scratchpad
 //require("./Scratchpad");
