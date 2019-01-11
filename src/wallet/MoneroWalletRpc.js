@@ -381,7 +381,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let transferFilter = filter.getTransferFilter();
     if (!filter.getTransferFilter() || filter.getTransferFilter().getAccountIndex() === undefined) {
       if (transferFilter && transferFilter.getSubaddressIndices() !== undefined) throw new Error("Transfer filter specifies subaddress indices but not an account index");
-      indices = await this._getAllAccountAndSubaddressIndices();
+      indices = await this._getAccountIndices(true);
     } else {
       let subaddressIndices = transferFilter.getSubaddressIndices() ? GenUtils.copyArray(transferFilter.getSubaddressIndices()) : await this._getSubaddressIndices(transferFilter.getAccountIndex());
       indices.set(transferFilter.getAccountIndex(), subaddressIndices);
@@ -527,15 +527,14 @@ class MoneroWalletRpc extends MoneroWallet {
       assert.equal("boolean", typeof isSpent, "Third parameter must be a boolean or undefined");
       filter.setIsSpent(MoneroUtils.reconcile(filter.getIsSpent(), isSpent, undefined, "Parameters for isSpent do not match"));
     }
-
+    
     // determine account and subaddress indices to be queried
-    // TODO: do not fetch subaddress indices because undefined is ALL
     let indices = new Map();
-    if (filter.getAccountIndex() !== undefined) {
-      indices.set(filter.getAccountIndex(), filter.getSubaddressIndices() ? GenUtils.copyArray(filter.getSubaddressIndices()) : await this._getSubaddressIndices(filter.getAccountIndex()));
+    if (filter.getAccountIndex() === undefined) {
+      assert.equal(undefined, filter.getSubaddressIndices(), "Filter specifies subaddress indices but not an account index");
+      indices = await this._getAccountIndices();
     } else {
-      if (filter.getSubaddressIndices() !== undefined) throw new Error("Filter specifies subaddress indices but not an account index");
-      indices = await this._getAllAccountAndSubaddressIndices();
+      indices.set(filter.getAccountIndex(), filter.getSubaddressIndices());
     }
     
     // fetch vouts for each account using `incoming_transfers` rpc call
@@ -928,10 +927,10 @@ class MoneroWalletRpc extends MoneroWallet {
   
   // --------------------------------  PRIVATE --------------------------------
   
-  async _getAllAccountAndSubaddressIndices() {
+  async _getAccountIndices(getSubaddressIndices) {
     let indices = new Map();
-    for (let account of await this.getAccounts()) {
-      indices.set(account.getIndex(), await this._getSubaddressIndices(account.getIndex()));
+    for (let account of await this.getAccounts()) { // TODO: fetches unecessary address information when not necessary, expose raw getAccountIndices(), getSubaddressIndices() so cliens can be more efficient?
+      indices.set(account.getIndex(), getSubaddressIndices ? await this._getSubaddressIndices(account.getIndex()) : undefined);
     }
     return indices;
   }

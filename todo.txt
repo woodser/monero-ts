@@ -1,4 +1,6 @@
 HIGH
+getAccounts() fetches balance even if only thing needed are account indices
+optimize rpc calls
 not testing sweep
 differentiate filters, filter by account index or indices
 getTxs(filter) returns complete txs
