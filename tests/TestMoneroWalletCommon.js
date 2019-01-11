@@ -640,6 +640,9 @@ class TestMoneroWalletCommon {
           }
         }
         
+        // TODO: test unconfirmed txs
+        //assert(walletBalance.compare(expectedBalance) === 0, "Account " + account.getIndex() + " balance does not add up: " + expectedBalance.toString() + " vs " + walletBalance.toString());
+        
         // test fetching with filter
         await testVoutFilter(0, undefined, undefined);
         await testVoutFilter(1, undefined, true);
@@ -781,53 +784,6 @@ class TestMoneroWalletCommon {
             for (let vout of subaddressVouts) subaddressSum = subaddressSum.add(vout.getAmount());
             assert.equal(subaddress.getBalance().toString(), subaddressSum.toString());
           }
-        }
-      });
-      
-      // TODO: absorb this into accounting test
-      it("Has a balance that is the sum of all unspent incoming transactions", async function() {
-
-        // test each account balance
-        for (let account of await wallet.getAccounts()) {
-          
-          // get transactions
-          let filter = new MoneroTxFilter();
-          filter.setAccountIndex(account.getIndex());
-          let txs = await wallet.getTxs(filter);
-          if (account.getIndex() === 0) assert(txs.length > 0);
-          
-          // sum balances of incoming transferss and pending deductions
-          let inBalance = new BigInteger(0);
-          let inPoolBalance = new BigInteger(0);
-          let outPoolBalance = new BigInteger(0);
-          for (let tx of txs) {
-            
-            // handle incoming
-            if (tx.getIsIncoming()) {
-              assert(tx.getTransfers().length > 0);
-              for (let transfers of tx.getTransfers()) {
-                if (!transfers.getIsSpent()) {  // TODO: outdated
-                  if (tx.getIsConfirmed()) inBalance = inBalance.add(transfers.getAmount());
-                  else inPoolBalance = inPoolBalance.add(transfers.getAmount());
-                }
-              }
-            }
-            
-            // handle outgoing
-            else {
-              if (tx.getInTxPool()) outPoolBalance = outPoolBalance.add(tx.getTotalAmount()); // TODO: test pending balance
-            }
-          }
-          
-          // wallet balance must equal sum of unspent incoming txs
-          let walletBalance = (await wallet.getAccount(account.getIndex())).getBalance();
-          let expectedBalance = inBalance;  // TODO (monero-wallet-rpc): unconfirmed balance may not add up because of https://github.com/monero-project/monero/issues/4500
-//          System.out.println("Wallet    : " + walletBalance);
-//          System.out.println("Incoming  : " + incomingBalance);
-//          System.out.println("Pending   : " + pendingBalance);
-//          System.out.println("Tx pool   : " + txPoolBalance);
-//          System.out.println("Expected  : " + expectedBalance);
-          assert(walletBalance.compare(expectedBalance) === 0, "Account " + account.getIndex() + " balance does not add up: " + expectedBalance.toString() + " vs " + walletBalance.toString());
         }
       });
       
