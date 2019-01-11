@@ -764,7 +764,7 @@ class TestMoneroWalletCommon {
         
         // wallet balance is sum of all unspent vouts
         let walletSum = new BigInteger(0);
-        for (let vout of await wallet.getVouts(undefined, undefined, false)) walletSum = unspentSum.add(vout.getAmount());
+        for (let vout of await wallet.getVouts(undefined, undefined, false)) walletSum = walletSum.add(vout.getAmount());
         assert.equal(walletBalance.toString(), walletSum.toString());
         
         // account balances are sum of their unspent vouts
@@ -777,7 +777,7 @@ class TestMoneroWalletCommon {
           // subaddress balances are sum of their unspent vouts
           for (let subaddress of account.getSubaddresses()) {
             let subaddressSum = new BigInteger(0);
-            let subaddressVouts = await wallet.getVouts(account.getIndex(), subaddress.getIndex(), false);
+            let subaddressVouts = await wallet.getVouts(account.getIndex(), subaddress.getSubaddressIndex(), false);
             for (let vout of subaddressVouts) subaddressSum = subaddressSum.add(vout.getAmount());
             assert.equal(subaddress.getBalance().toString(), subaddressSum.toString());
           }
