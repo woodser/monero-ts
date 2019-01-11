@@ -512,7 +512,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // validate and standardize inputs to filter
     let filter;
     if (filterOrAccountIdx instanceof MoneroVoutFilter) {
-      assert(subaddressIdx === undefined, "Cannot specify subaddress index if first parameter is MoneroTxFilter");
+      assert(subaddressIdx === undefined, "Cannot specify subaddress index if first parameter is MoneroVoutFilter");
       filter = filterOrAccountIdx;
     } else if (filterOrAccountIdx >= 0 || filterOrAccountIdx === undefined) {
       filter = new MoneroVoutFilter();
