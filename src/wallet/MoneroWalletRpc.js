@@ -960,7 +960,7 @@ class MoneroWalletRpc extends MoneroWallet {
         assert(isOutgoing);
         let destinations = [];
         for (let rpcDestination of val) {
-          let destination = new MoneroDestination(tx);
+          let destination = new MoneroDestination();
           destinations.push(destination);
           for (let destinationKey of Object.keys(rpcDestination)) {
             if (destinationKey === "address") destination.setAddress(rpcDestination[destinationKey]);
