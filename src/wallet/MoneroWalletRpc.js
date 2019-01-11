@@ -336,8 +336,24 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
     
-    // return filtered transactions
-    return filter.apply(txs);
+    // filter transactions
+    txs = filter.apply(txs);
+    
+    // given ids must be found
+    if (filter.getTxIds()) {
+      for (let txId of filter.getTxIds()) {
+        let found = false;
+        for (let tx of txs) {
+          if (tx.getId() === txId) {
+            found = true;
+            break;
+          }
+        }
+        assert(found, "No wallet transaction found with id '" + txId + "'");
+      }
+    }
+    
+    return txs;
   }
   
   async getTxs2(filterOrAccountIdx, subaddressIdx, debugTxId) {

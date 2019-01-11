@@ -226,7 +226,7 @@ class MoneroWallet {
    * @throws {Error} if the transaction is not associated with the wallet
    */
   async getTxById(id) {
-    return await this.getTxs(new MoneroTxFilter().setTxIds([id]));
+    return (await this.getTxs(new MoneroTxFilter().setTxIds([id])))[0];
   }
   
   /**

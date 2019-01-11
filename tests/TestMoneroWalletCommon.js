@@ -296,26 +296,7 @@ class TestMoneroWalletCommon {
         }
       });
       
-      
       it("Can get all transactions", async function() {
-        assert(new MoneroTransferFilter().setAccountIndex(1).setIsIncoming(true));
-        let txs = await wallet.getTxs(new MoneroTxFilter().setTransferFilter(new MoneroTransferFilter().setAccountIndex(1).setIsIncoming(true)));
-        assert(txs.length > 0);
-        for (let tx of txs) {
-          let found = false;
-          assert(tx.getIncomingTransfers());
-          for (let inTransfer of tx.getIncomingTransfers()) {
-            if (inTransfer.getAccountIndex() == 1) {
-              found = true;
-              break;
-            }
-          }
-          if (!found) {
-            console.log(tx.toString());
-            throw new Error("Not found!");
-          }
-        }
-        
         let nonDefaultIncoming = false;
         let txs1 = await getCachedTxs();
         let txs2 = await wallet.getTxs();
@@ -335,8 +316,28 @@ class TestMoneroWalletCommon {
           }
         }
         assert(nonDefaultIncoming, "No incoming transfers found to non-default account and subaddress; run send-to-multiple tests first");
-        
       });
+      
+      // TODO: test?
+//      it("Can get transactions associated with each account", async function() {
+//        assert(new MoneroTransferFilter().setAccountIndex(1).setIsIncoming(true));
+//        let txs = await wallet.getTxs(new MoneroTxFilter().setTransferFilter(new MoneroTransferFilter().setAccountIndex(1).setIsIncoming(true)));
+//        assert(txs.length > 0);
+//        for (let tx of txs) {
+//          let found = false;
+//          assert(tx.getIncomingTransfers());
+//          for (let inTransfer of tx.getIncomingTransfers()) {
+//            if (inTransfer.getAccountIndex() == 1) {
+//              found = true;
+//              break;
+//            }
+//          }
+//          if (!found) {
+//            console.log(tx.toString());
+//            throw new Error("Not found!");
+//          }
+//        }
+//      });
       
       it("Can get transactions by id and ids", async function() {
         
@@ -365,11 +366,20 @@ class TestMoneroWalletCommon {
         }
         
         // test with invalid id
+        let expectedError = "No wallet transaction found with id 'invalid_id'";
         try {
           await wallet.getTxById("invalid_id");
+          throw new Error("Should have thrown error");
         } catch (e) {
-          console.log(e);
-          throw new Error("TODO: test error");
+          assert.equal(expectedError, e.message);
+        }
+        
+        // test with invalid ids
+        try {
+          await wallet.getTxsById([txIds[0], "invalid_id"]);
+          throw new Error("Should have thrown error");
+        } catch (e) {
+          assert.equal(expectedError, e.message);
         }
       });
       

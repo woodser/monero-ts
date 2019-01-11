@@ -3,10 +3,10 @@ const TestMoneroWalletRpc = require("./TestMoneroWalletRpc")
 const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 
 //// test daemon rpc
-//new TestMoneroDaemonRpc().runTests({
-//  testNotifications: false
-//});
-//
+new TestMoneroDaemonRpc().runTests({
+  testNotifications: false
+});
+
 // test wallet rpc
 new TestMoneroWalletRpc().runTests({
   testNonSends: true,
@@ -37,4 +37,4 @@ new TestMoneroWalletRpc().runTests({
 //require("./TestSampleCode");
 
 //// test scratchpad
-require("./Scratchpad");
+//require("./Scratchpad");
