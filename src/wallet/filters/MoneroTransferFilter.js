@@ -27,11 +27,24 @@ class MoneroTransferFilter extends MoneroSubaddressFilter {
     return this.setIsOutgoing(isIncoming === undefined ? undefined : !isIncoming);
   }
   
+  getHasDestinations() {
+    return this.hasDestinations;
+  }
+  
+  setHasDestinations(hasDestinations) {
+    this.hasDestinations = hasDestinations;
+    return this;
+  }
+  
   meetsCriteria(transfer) {
     assert(transfer instanceof MoneroTransfer);
     if (!super.meetsCriteria(transfer)) return false;
     if (this.getIsIncoming() !== undefined && this.getIsIncoming() !== transfer.getIsIncoming()) return false;
     if (this.getIsOutgoing() !== undefined && this.getIsOutgoing() !== transfer.getIsOutgoing()) return false;
+    if (this.getHasDestinations() !== undefined) {
+      if (this.getHasDestinations() && transfer.getDestinations() === undefined) return false;
+      if (!this.getHasDestinations() && transfer.getDestinations() !== undefined) return false;
+    }
     return true;
   }
 }

@@ -826,26 +826,27 @@ class TestMoneroWalletCommon {
         // TODO: test that get transaction has note
       });
       
-      it("Can check a transaction using its secret key", async function() {
+      it("Can check a transfer using the transaction's secret key and the destination", async function() {
         
-        // get random txs with outgoing transfers
+        // get random txs that are confirmed and have outgoing destinations
         let filter = new MoneroTxFilter();
-        filter.setIsIncoming(false);
-        filter.setInTxPool(false);
-        filter.setIsFailed(false);
-        filter.setHasOutgoingTransfers(true);  // requires outgoing transfers which rescan_bc will destroy
+        filter.setIsConfirmed(true);
+        filter.setHasOutgoingTransfer(true);
+        filter.setTransferFilter(new MoneroTransferFilter().setHasDestinations(true));
         let txs = await getRandomTransactions(wallet, filter, 1, MAX_TX_PROOFS);
         
         // test good checks
+        assert(txs.length > 0, "No transactions found with outgoing destinations");
         for (let tx of txs) {
           let key = await wallet.getTxKey(tx.getId());
-          for (let transfer of tx.getOutgoingTransfers()) {
-            let check = await wallet.checkTxKey(tx.getId(), key, transfer.getAddress());
-            assert(check.getIsGood());
-            if (transfer.getAmount().compare(new BigInteger()) > 0) {
-//            assert(check.getAmountReceived().compare(new BigInteger(0)) > 0); // TODO (monero-wallet-rpc): indicates amount received amount is 0 despite transaction with transfer to this address
+          for (let destination of tx.getOutgoingTransfer().getDestinations()) {
+            let check = await wallet.checkTxKey(tx.getId(), key, destination.getAddress());
+            if (destination.getAmount().compare(new BigInteger()) > 0) {
+              // TODO monero-wallet-rpc: indicates amount received amount is 0 despite transaction with transfer to this address
+              // TODO monero-wallet-rpc: sometimes returns 0, 2, or 4 errors
+//            assert(check.getAmountReceived().compare(new BigInteger(0)) > 0);
               if (check.getAmountReceived().compare(new BigInteger(0)) === 0) {
-                console.log("WARNING: key proof indicates no funds received despite transfer (txid=" + tx.getId() + ", key=" + key + ", address=" + transfer.getAddress() + ", amount=" + transfer.getAmount() + ")");
+                console.log("WARNING: key proof indicates no funds received despite transfer (txid=" + tx.getId() + ", key=" + key + ", address=" + destination.getAddress() + ", amount=" + destination.getAmount() + ")");
               }
             }
             else assert(check.getAmountReceived().compare(new BigInteger(0)) === 0);
@@ -864,8 +865,9 @@ class TestMoneroWalletCommon {
         // test check with invalid tx id
         let tx = txs[0];
         let key = await wallet.getTxKey(tx.getId());
+        let destination = tx.getOutgoingTransfer().getDestinations()[0];
         try {
-          await wallet.checkTxKey("invalid_tx_id", key, tx.getOutgoingTransfers()[0].getAddress());
+          await wallet.checkTxKey("invalid_tx_id", key, destination.getAddress());
           throw new Error("Should have thrown exception");
         } catch (e) {
           assert.equal(-8, e.getRpcCode());
@@ -873,7 +875,7 @@ class TestMoneroWalletCommon {
         
         // test check with invalid key
         try {
-          await wallet.checkTxKey(tx.getId(), "invalid_tx_key", tx.getOutgoingTransfers()[0].getAddress());
+          await wallet.checkTxKey(tx.getId(), "invalid_tx_key", destination.getAddress());
           throw new Error("Should have thrown exception");
         } catch (e) {
           assert.equal(-25, e.getRpcCode());
@@ -890,10 +892,10 @@ class TestMoneroWalletCommon {
         // test check with different address
         let differentAddress;
         for (let aTx of await getCachedTxs()) {
-          if (aTx.getOutgoingTransfers() === undefined) continue;
-          for (let aTransfer of aTx.getOutgoingTransfers()) {
-            if (aTransfer.getAddress() !== tx.getOutgoingTransfers()[0].getAddress()) {
-              differentAddress = aTransfer.getAddress();
+          if (!aTx.getOutgoingTransfer() || !aTx.getOutgoingTransfer().getDestinations()) continue;
+          for (let aDestination of aTx.getOutgoingTransfer().getDestinations()) {
+            if (aDestination.getAddress() !== destination.getAddress()) {
+              differentAddress = aDestination.getAddress();
               break;
             }
           }

@@ -155,7 +155,7 @@ class MoneroTxFilter extends Filter {
     
     // filter on outgoing transfers
     if (this.getHasOutgoingTransfer() !== undefined) {
-      if (this.getHasOutgoingTransfer() && (tx.getOutgoingTransfer() === undefined)) return false;
+      if (this.getHasOutgoingTransfer() && tx.getOutgoingTransfer() === undefined) return false;
       if (!this.getHasOutgoingTransfer() && tx.getOutgoingTransfer() !== undefined) return false;
     }
     
