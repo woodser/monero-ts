@@ -634,6 +634,26 @@ class TestMoneroWalletCommon {
             }
           }
         }
+        
+        // test filter
+        await testVoutFilter(0, undefined, undefined);
+        await testVoutFilter(1, undefined, true);
+        await testVoutFilter(2, undefined, false);
+        await testVoutFilter(1, 1, true);
+        async function testVoutFilter(accountIdx, subaddressIdx, isSpent) {
+          let filter = new MoneroVoutFilter();
+          filter.setAccountIndex(accountIdx);
+          filter.setSubaddressIndex(subaddressIdx);
+          filter.getIsSpent(isSpent);
+          let vouts = await wallet.getVouts(filter);
+          assert(vouts.length > 0, "No vouts matching filter found; run send test");
+          for (let vout of vouts) {
+            testVout(vout);
+            if (accountIdx) assert.equal(accountIdx, vout.getAccountIndex());
+            if (subaddressIdx) assert.equal(subaddressIdx, vout.getSubaddressIndex());
+            if (isSpent) assert.equal(isSpent, vout.getIsSpent());
+          }
+        }
       });
       
       it("Has correct accounting across accounts, subaddresses, txs, transfers, and vouts", async function() {
