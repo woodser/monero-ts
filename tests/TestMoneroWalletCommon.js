@@ -318,26 +318,25 @@ class TestMoneroWalletCommon {
         assert(nonDefaultIncoming, "No incoming transfers found to non-default account and subaddress; run send-to-multiple tests first");
       });
       
-      // TODO: test?
-//      it("Can get transactions associated with each account", async function() {
-//        assert(new MoneroTransferFilter().setAccountIndex(1).setIsIncoming(true));
-//        let txs = await wallet.getTxs(new MoneroTxFilter().setTransferFilter(new MoneroTransferFilter().setAccountIndex(1).setIsIncoming(true)));
-//        assert(txs.length > 0);
-//        for (let tx of txs) {
-//          let found = false;
-//          assert(tx.getIncomingTransfers());
-//          for (let inTransfer of tx.getIncomingTransfers()) {
-//            if (inTransfer.getAccountIndex() == 1) {
-//              found = true;
-//              break;
-//            }
-//          }
-//          if (!found) {
-//            console.log(tx.toString());
-//            throw new Error("Not found!");
-//          }
-//        }
-//      });
+      it("Can get transactions associated with an account", async function() {
+        let accountIdx = 1;
+        let filter = new MoneroTxFilter().setTransferFilter(new MoneroTransferFilter().setAccountIndex(accountIdx));
+        let txs = await wallet.getTxs(filter);
+        assert(txs.length > 0, "No transactions associated with account " + accountIdx);
+        for (let tx of txs) {
+          let found = false;
+          if (tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getAccountIndex() === accountIdx) found = true;
+          else if (tx.getIncomingTransfers()) {
+            for (let inTransfer of tx.getIncomingTransfers()) {
+              if (inTransfer.getAccountIndex() === accountIdx) {
+                found = true;
+                break;
+              }
+            }
+          }
+          assert(found, ("Transaction is not associated with account:\n" + tx.toString()));
+        }
+      });
       
       it("Can get transactions by id and ids", async function() {
         
