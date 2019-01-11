@@ -1259,8 +1259,6 @@ class TestMoneroWalletCommon {
             assert.equal(1, tx.getOutgoingTransfer().getDestinations().length);
             for (let destination of tx.getOutgoingTransfer().getDestinations()) {
               assert.equal(address, destination.getAddress());
-              assert.equal(undefined, destination.getAccountIndex());
-              assert.equal(undefined, destination.getSubaddressIndex());
               assert(sendAmount.compare(destination.getAmount()) === 0);
             }
           }
@@ -1327,7 +1325,7 @@ class TestMoneroWalletCommon {
         // config to send
         let destinations = [];
         for (let i = 0; i < destinationAddresses.length; i++) {
-          destinations.push(new MoneroTransfer(destinationAddresses[i], sendAmountPerSubaddress));
+          destinations.push(new MoneroDestination(destinationAddresses[i], sendAmountPerSubaddress));
         }
         let config = new MoneroSendConfig();
         config.setCanSplit(canSplit);
@@ -1648,29 +1646,29 @@ class TestMoneroWalletCommon {
         await testSendAndUpdateTxs(sendConfig);
       });
       
-      it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
-        let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
-        sendConfig.setAccountIndex(0);
-        sendConfig.setUnlockTime(3);
-        sendConfig.setCanSplit(true);
-        await testSendAndUpdateTxs(sendConfig);
-      });
-      
-      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
-        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
-        sendConfig.setAccountIndex(0);
-        sendConfig.setUnlockTime(3);
-        sendConfig.setCanSplit(false);
-        await testSendAndUpdateTxs(sendConfig);
-      });
-      
-      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
-        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
-        sendConfig.setAccountIndex(0);
-        sendConfig.setUnlockTime(3);
-        sendConfig.setCanSplit(true);
-        await testSendAndUpdateTxs(sendConfig);
-      });
+//      it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
+//        let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
+//        sendConfig.setAccountIndex(0);
+//        sendConfig.setUnlockTime(3);
+//        sendConfig.setCanSplit(true);
+//        await testSendAndUpdateTxs(sendConfig);
+//      });
+//      
+//      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
+//        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
+//        sendConfig.setAccountIndex(0);
+//        sendConfig.setUnlockTime(3);
+//        sendConfig.setCanSplit(false);
+//        await testSendAndUpdateTxs(sendConfig);
+//      });
+//      
+//      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
+//        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
+//        sendConfig.setAccountIndex(0);
+//        sendConfig.setUnlockTime(3);
+//        sendConfig.setCanSplit(true);
+//        await testSendAndUpdateTxs(sendConfig);
+//      });
       
       /**
        * Tests sending a tx with an unlockTime then tracking and updating it as

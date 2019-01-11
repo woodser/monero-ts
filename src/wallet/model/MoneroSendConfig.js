@@ -1,6 +1,7 @@
 const assert = require("assert");
 const MoneroUtils = require("../../utils/MoneroUtils");
 const MoneroTransfer = require("./MoneroTransfer");
+const MoneroDestination = require("./MoneroDestination");
 
 /**
  * Configuration for sending transactions.
@@ -11,9 +12,7 @@ class MoneroSendConfig {
     if (configOrAddress instanceof Object) {
       throw new Error("Need to map object to fields");
     } else if (typeof configOrAddress === "string") {
-      let destination = new MoneroTransfer();
-      destination.setAddress(configOrAddress);
-      destination.setAmount(amount);
+      let destination = new MoneroDestination(configOrAddress, amount);
       this.setDestinations([destination]);
       this.setPaymentId(paymentId);
       this.setPriority(priority);
