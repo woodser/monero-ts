@@ -607,13 +607,69 @@ class TestMoneroWalletCommon {
       });
       
       it("Can get transfers", async function() {
-        throw new Error("Not implemented");
+        
+        // test all transfers
+        await testGetTransfers(undefined, undefined, true);
+        
+        // test transfers per account
+        let accounts = await wallet.getAccounts(true);
+        for (let account of accounts) {
+          await testGetTransfers(account.getIndex());
+          
+          // test transfers per subaddress
+          for (let subaddress of account.getSubaddresses()) {
+            await testGetTransfers(account.getIndex(), subaddress.getSubaddressIndex());
+          }
+        }
+        
+        // TODO: test unconfirmed txs
+        //assert(walletBalance.compare(expectedBalance) === 0, "Account " + account.getIndex() + " balance does not add up: " + expectedBalance.toString() + " vs " + walletBalance.toString());
+        
+        // test fetching with filter
+        await testGetTransfers(1, undefined, true);
+        await testGetTransfers(2, undefined, true);
+        await testGetTransfers(1, 2, true);
+        await testGetTransfers(1, 2, true);
+        await testGetTransfers(1, [1, 2], true);
+        await testGetTransfers(1, [1, 3], true);
+        
+        // test with invalid account index
+        try {
+          await testGetTransfers([1], [2]); 
+          throw new Error("Should have failed");
+        } catch (e) {
+          assert.equal("First parameter must be a MoneroTransferFilter, unsigned integer, or undefined", e.message);
+        }
+        
+        // test with invalid subaddress indices
+        try {
+          await testGetTransfers(new MoneroTransferFilter().setSubaddressIndices([1]), [-1, 2]); 
+          throw new Error("Should have failed");
+        } catch (e) {
+          assert.equal("Second parameter must be an unsigned integer, array of unsigned integers, or undefined", e.message);
+        }
+        
+        // test with subaddress mismatch (provided as param for convenience)
+        try {
+          await testGetTransfers(new MoneroTransferFilter().setSubaddressIndices([1]), [2]); 
+          throw new Error("Should have failed");
+        } catch (e) {
+          assert.equal("Parameters for subaddress indices do not match", e.message);
+        }
+        
+        // helper function to fetch and test transfers
+        async function testGetTransfers(accountIdx, subaddressIndices, mustFind) {
+          let transfers = await wallet.getTransfers(accountIdx, subaddressIndices);
+          if (subaddressIndices !== undefined) subaddressIndices = GenUtils.listify(subaddressIndices);
+          if (mustFind) assert(transfers.length > 0, "No transfers matching filter found; run send tests");
+          for (let transfer of transfers) {
+            testTransfer(transfer);
+            if (accountIdx !== undefined) assert.equal(accountIdx, transfer.getAccountIndex());
+            if (subaddressIndices !== undefined) assert(subaddressIndices.includes(transfer.getSubaddressIndex()));
+          }
+        }
       })
       
-      // TODO: test vout tx
-      // TODO: getVouts() doesn't use subaddress indices
-      // TODO: test vout balances
-      // TODO: implement transfers with lessons learned
       it("Can get vouts", async function() {
         
         // test all vouts
