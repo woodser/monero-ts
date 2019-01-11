@@ -6,9 +6,18 @@ const MoneroOutput = require("../../daemon/model/MoneroOutput");
  */
 class MoneroWalletOutput extends MoneroOutput {
   
-  constructor(json) {
+  constructor(tx, json) {
     super(json);
+    
+    // initialize transaction which is not part of state
+    assert(tx);
+    assert(tx.getNote, "First parameter must be a MoneroWalletTx"); // TODO: better way to assert(tx instanceof MoneroWalletTx) without circular require?
+    this.tx = tx;
   }
+  
+  getTx() {
+    return this.tx;
+  }  
   
   getAccountIndex() {
     return this.state.accountIndex;

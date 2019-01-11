@@ -2201,10 +2201,6 @@ function testTransfer(transfer) {
 
 function testVout(vout) {
   assert(vout);
-  if (!(vout instanceof MoneroWalletOutput)) {
-    console.log("Vout is not wallet output!");
-    console.log(vout.toString());
-  }
   assert(vout instanceof MoneroWalletOutput);
   assert(vout.getAccountIndex() >= 0);
   assert(vout.getSubaddressIndex() >= 0);
@@ -2212,6 +2208,16 @@ function testVout(vout) {
   assert(vout.getKeyImage());
   TestUtils.testUnsignedBigInteger(vout.getAmount(), true);
   assert(vout.getIndex() >= 0);
+  
+  // vout has circular reference to its transaction which has some initialized fields
+  let tx = vout.getTx();
+  assert(tx);
+  assert(tx instanceof MoneroWalletTx);
+  assert(tx.getVouts().includes(vout));
+  assert(tx.getId());
+  assert.equal(true, tx.getIsConfirmed());  // TODO monero-wallet-rpc: possible to get unconfirmed vouts?
+  assert.equal(true, tx.getIsRelayed());
+  assert.equal(false, tx.getIsFailed());
 }
 
 function testCommonTxSets(txs, hasSigned, hasUnsigned, hasMultisig) {

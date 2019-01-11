@@ -1063,7 +1063,7 @@ class MoneroWalletRpc extends MoneroWallet {
     tx.setIsFailed(false);
     
     // initialize vout
-    let vout = new MoneroWalletOutput();
+    let vout = new MoneroWalletOutput(tx);
     for (let key of Object.keys(rpcVout)) {
       let val = rpcVout[key];
       if (key === "amount") vout.setAmount(new BigInteger(val));

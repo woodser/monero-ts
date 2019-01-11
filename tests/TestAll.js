@@ -37,4 +37,4 @@ require("./TestSampleCode");
 //require("./TestBooleanSet");
 
 //// test scratchpad
-//require("./Scratchpad");
+require("./Scratchpad");

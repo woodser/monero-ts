@@ -18,8 +18,8 @@ describe("Scratchpad", function() {
     await TestUtils.initWalletRpc();
     
     
-    try { await wallet.startMining(8, false, true); }
-    catch (e) { }
+//    try { await wallet.startMining(8, false, true); }
+//    catch (e) { }
 //    await wallet.stopMining();
 //    await daemon.stopMining();
 //    await wallet.rescanBlockchain();
@@ -36,7 +36,12 @@ describe("Scratchpad", function() {
 //    for (let tx of txs) {
 //      console.log(tx.toString());
 //    }
-//    
+    
+    // fetch vouts
+    let vouts = await wallet.getVouts();
+    console.log(vouts[0].toString());
+    console.log(vouts[0].getTx().toString());
+    
     // send tx
 //  let address1 = (await wallet.getSubaddress(1, 0)).getAddress();
 //  let transfer1 = new MoneroTransfer(address1, new BigInteger(2).multiply(TestUtils.MAX_FEE));

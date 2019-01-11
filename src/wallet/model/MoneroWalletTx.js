@@ -27,6 +27,13 @@ class MoneroWalletTx extends MoneroTx {
         for (let jsonIncomingTransfer of json.incomingTransfers) incomingTransfers.push(new MoneroTransfer(this, jsonIncomingTransfer));
         this.setIncomingTransfers(incomingTransfers);
       }
+      
+      // deserialize vouts
+      if (json.vouts) {
+        let vouts = [];
+        for (let jsonVout of json.vouts) vouts.push(new MoneroWalletOutput(this, jsonVout));
+        this.setVouts(vouts);
+      }
     }
   }
   
@@ -127,11 +134,11 @@ class MoneroWalletTx extends MoneroTx {
    * transaction.
    * 
    * @param tx is the transaction to update this transaction with
-   * @returns {this} for method chaining
+   * @returns {MoneroWalletTx} this for method chaining
    */
   merge(tx) {
     
-    // merge base transaction
+    // merge base
     super.merge(tx);
     
     // merge wallet extensions
