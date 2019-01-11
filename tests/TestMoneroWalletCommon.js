@@ -843,7 +843,7 @@ class TestMoneroWalletCommon {
             let check = await wallet.checkTxKey(tx.getId(), key, destination.getAddress());
             if (destination.getAmount().compare(new BigInteger()) > 0) {
               // TODO monero-wallet-rpc: indicates amount received amount is 0 despite transaction with transfer to this address
-              // TODO monero-wallet-rpc: sometimes returns 0, 2, or 4 errors
+              // TODO monero-wallet-rpc: returns 0-4 errors, not consistent
 //            assert(check.getAmountReceived().compare(new BigInteger(0)) > 0);
               if (check.getAmountReceived().compare(new BigInteger(0)) === 0) {
                 console.log("WARNING: key proof indicates no funds received despite transfer (txid=" + tx.getId() + ", key=" + key + ", address=" + destination.getAddress() + ", amount=" + destination.getAmount() + ")");
