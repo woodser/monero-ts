@@ -496,36 +496,40 @@ class MoneroWalletRpc extends MoneroWallet {
     throw new Error("Not implemented");
   }
   
-  async getOutgoingTransfers(filterOrAccountIdx, subaddressIdx) {
+  async getOutgoingTransfers(filterOrAccountIdx, subaddressIndices) {
     throw new Error("Not implemented");
   }
   
-  async getIncomingTransfers(filterOrAccountIdx, subaddressIdx) {
+  async getIncomingTransfers(filterOrAccountIdx, subaddressIndices) {
     throw new Error("Not implemented");
   }
   
-  async getVouts(filterOrAccountIdx, subaddressIdx, isSpent) {
+  async getVouts(filterOrAccountIdx, subaddressIndices, isSpent) {
     
     // collect vouts within txs
     let txs = [];
     
-    // validate and standardize inputs to filter
+    // validate and standardize vout filter
     let filter;
-    if (filterOrAccountIdx instanceof MoneroVoutFilter) {
-      assert(subaddressIdx === undefined, "Cannot specify subaddress index if first parameter is MoneroVoutFilter");  // TODO: reconcile these for client
-      assert(isSpent === undefined, "Cannot specify isSpent if first parameter is MoneroVoutFilter");
-      filter = filterOrAccountIdx;
-    } else if (filterOrAccountIdx >= 0 || filterOrAccountIdx === undefined) {
+    if (filterOrAccountIdx === undefined) filter = new MoneroVoutFilter();
+    else if (filterOrAccountIdx instanceof MoneroVoutFilter) filter = filterOrAccountIdx;
+    else {
+      assert(typeof filterOrAccountIdx === "number" && filterOrAccountIdx >= 0, "First parameter must be a MoneroVoutFilter, unsigned integer, or undefined");
       filter = new MoneroVoutFilter();
       filter.setAccountIndex(filterOrAccountIdx);
-      if (subaddressIdx !== undefined) {
-        assert(subaddressIdx >= 0, "Subaddress must be >= 0 but was " + subaddressIdx);
-        filter.setSubaddressIndices([subaddressIdx]);
-      }
-      filter.setIsSpent(isSpent);
-    } else throw new Error("First parameter must be undefined, MoneroVoutFilter, or account index >= 0 but was " + filterOrAccountIdx);
-    
+    }    
+    if (subaddressIndices !== undefined) {
+      subaddressIndices = GenUtils.listify(subaddressIndices);
+      for (let subaddressIdx of subaddressIndices) assert(subaddressIdx >= 0, "Second parameter must be an unsigned integer, array of unsigned integers, or undefined");
+      filter.setSubaddressIndices(MoneroUtils.reconcile(filter.getSubaddressIndices(), subaddressIndices, undefined, "Parameters for subaddress indices do not match"));
+    }
+    if (isSpent !== undefined) {
+      assert.equal("boolean", typeof isSpent, "Third parameter must be a boolean or undefined");
+      filter.setIsSpent(MoneroUtils.reconcile(filter.getIsSpent(), isSpent, undefined, "Parameters for isSpent do not match"));
+    }
+
     // determine account and subaddress indices to be queried
+    // TODO: do not fetch subaddress indices because undefined is ALL
     let indices = new Map();
     if (filter.getAccountIndex() !== undefined) {
       indices.set(filter.getAccountIndex(), filter.getSubaddressIndices() ? GenUtils.copyArray(filter.getSubaddressIndices()) : await this._getSubaddressIndices(filter.getAccountIndex()));
@@ -535,7 +539,6 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // fetch vouts for each account using `incoming_transfers` rpc call
-    // TODO monero-wallet-rpc: fetch incoming_transfers from all accounts in one call
     let params = {};
     params.transfer_type = filter.getIsSpent() === undefined ? "all" : filter.getIsSpent() ? "unavailable" : "available";
     params.verbose = true;

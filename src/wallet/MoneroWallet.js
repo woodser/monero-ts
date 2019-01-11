@@ -240,19 +240,19 @@ class MoneroWallet {
     return await this.getTxs(new MoneroTxFilter().setTxIds(ids));
   }
   
-  async getTransfers(filterOrAccountIdx, subaddrIdx) {
+  async getTransfers(filterOrAccountIdx, subaddressIndices) {
     throw new Error("Subclass must implement");
   }
   
-  async getOutgoingTransfers(filterOrAccountIdx, subaddressIdx) {
+  async getOutgoingTransfers(filterOrAccountIdx, subaddressIndices) {
     throw new Error("Subclass must implement");
   }
   
-  async getIncomingTransfers(filterOrAccountIdx, subaddressIdx) {
+  async getIncomingTransfers(filterOrAccountIdx, subaddressIndices) {
     throw new Error("Subclass must implement");
   }
   
-  async getVouts(filterOrAccountIdx, subaddressIdx, isSpent) {
+  async getVouts(filterOrAccountIdx, subaddressIndices, isSpent) {
     throw new Error("Subclass must implement");
   }
   
