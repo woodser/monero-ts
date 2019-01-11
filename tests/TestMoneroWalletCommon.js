@@ -8,6 +8,7 @@ const MoneroDaemon = require("../src/daemon/MoneroDaemon");
 const MoneroTx = require("../src/daemon/model/MoneroTx");
 const MoneroWalletTx = require("../src/wallet/model/MoneroWalletTx");
 const MoneroTxFilter = require("../src/wallet/filters/MoneroTxFilter");
+const MoneroVoutFilter = require("../src/wallet/filters/MoneroVoutFilter");
 const MoneroTransferFilter = require("../src/wallet/filters/MoneroTransferFilter");
 const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
 const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
@@ -626,11 +627,11 @@ class TestMoneroWalletCommon {
           
           // test vouts per subaddress
           for (let subaddress of account.getSubaddresses()) {
-            vouts = await wallet.getVouts(account.getIndex(), subaddress.getIndex());
+            vouts = await wallet.getVouts(account.getIndex(), subaddress.getSubaddressIndex());
             for (let vout of vouts) {
               testVout(vout);
               assert.equal(account.getIndex(), vout.getAccountIndex());
-              assert.equal(subaddress.getIndex(), vout.getSubaddressIndex());
+              assert.equal(subaddress.getSubaddressIndex(), vout.getSubaddressIndex());
             }
           }
         }
@@ -639,25 +640,26 @@ class TestMoneroWalletCommon {
         await testVoutFilter(0, undefined, undefined);
         await testVoutFilter(1, undefined, true);
         await testVoutFilter(2, undefined, false);
-        await testVoutFilter(1, 1, true);
-        async function testVoutFilter(accountIdx, subaddressIdx, isSpent) {
+        await testVoutFilter(1, [1, 2], false);
+        await testVoutFilter(1, [1, 3], true);
+        async function testVoutFilter(accountIdx, subaddressIndices, isSpent) {
           let filter = new MoneroVoutFilter();
           filter.setAccountIndex(accountIdx);
-          filter.setSubaddressIndex(subaddressIdx);
-          filter.getIsSpent(isSpent);
+          filter.setSubaddressIndices(subaddressIndices);
+          filter.setIsSpent(isSpent);
           let vouts = await wallet.getVouts(filter);
-          assert(vouts.length > 0, "No vouts matching filter found; run send test");
+          assert(vouts.length > 0, "No vouts matching filter found; run send tests");
           for (let vout of vouts) {
             testVout(vout);
-            if (accountIdx) assert.equal(accountIdx, vout.getAccountIndex());
-            if (subaddressIdx) assert.equal(subaddressIdx, vout.getSubaddressIndex());
-            if (isSpent) assert.equal(isSpent, vout.getIsSpent());
+            if (accountIdx !== undefined) assert.equal(accountIdx, vout.getAccountIndex());
+            if (subaddressIndices !== undefined) assert(subaddressIndices.includes(vout.getSubaddressIndex()));
+            if (isSpent !== undefined) assert.equal(isSpent, vout.getIsSpent());
           }
         }
         
         // test with isSpend mismatch (provided as param for convenience)
         try {
-          await testVoutFilter(new MoneroVoutFilter().setIsSpend(true), undefined, false);
+          await testVoutFilter(new MoneroVoutFilter().setIsSpent(true), undefined, false);
           throw new Error("Should have failed");
         } catch (e) {
           assert.equal("isSpend parameters do not match", e.message);
@@ -673,7 +675,7 @@ class TestMoneroWalletCommon {
         
         // test with subaddress mismatch
         try {
-          await testVoutFilter(new MoneroVoutFilter().setSubaddressIndex(2), 1, false); 
+          await testVoutFilter(new MoneroVoutFilter().setSubaddressIndices([1]), [2], false); 
           throw new Error("Should have failed");
         } catch (e) {
           assert.notEqual("Subaddress index parameters do not match", e.message);
@@ -2180,6 +2182,10 @@ function testTransfer(transfer) {
 
 function testVout(vout) {
   assert(vout);
+  if (!(vout instanceof MoneroWalletOutput)) {
+    console.log("Vout is not wallet output!");
+    console.log(vout.toString());
+  }
   assert(vout instanceof MoneroWalletOutput);
   assert(vout.getAccountIndex() >= 0);
   assert(vout.getSubaddressIndex() >= 0);

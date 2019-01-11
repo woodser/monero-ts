@@ -30,14 +30,14 @@ class MoneroSubaddressFilter extends Filter {
     
     // match any subaddress index
     if (this.getSubaddressIndices() !== undefined) {
-      let matchFound = false;
+      let found = false;
       for (let subaddressIdx of this.getSubaddressIndices()) {
-        if (subaddressIdx !== param.getSubaddressIndex()) {
-          matchFound = true;
+        if (subaddressIdx === param.getSubaddressIndex()) {
+          found = true;
           break;
         }
       }
-      if (!matchFound) return false;
+      if (!found) return false;
     }
     
     // meets filter's criteria

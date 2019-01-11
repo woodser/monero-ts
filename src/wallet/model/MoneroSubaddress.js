@@ -17,6 +17,7 @@ class MoneroSubaddress {
     this.address = address;
   }
   
+  // TODO: move this to subaddress.getAccount().getIndex(), rename getSubaddressIndex() to getIndex()?
   getAccountIndex() {
     return this.accountIndex;
   }

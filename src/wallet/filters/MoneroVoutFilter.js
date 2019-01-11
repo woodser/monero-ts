@@ -1,4 +1,5 @@
-MoneroSubaddressFilter = require("./MoneroSubaddressFilter");
+const MoneroWalletOutput = require("../model/MoneroWalletOutput");
+const MoneroSubaddressFilter = require("./MoneroSubaddressFilter");
 
 /**
  * Filters vouts by their attributes.
@@ -9,11 +10,19 @@ MoneroSubaddressFilter = require("./MoneroSubaddressFilter");
 class MoneroVoutFilter extends MoneroSubaddressFilter {
   
   getIsSpent() {
-    return this.state.isSpent;
+    return this.isSpent;
   }
 
   setIsSpent(isSpent) {
-    this.state.isSpent = isSpent;
+    this.isSpent = isSpent;
+    return this;
+  }
+  
+  meetsCriteria(vout) {
+    assert(vout instanceof MoneroWalletOutput);
+    if (!super.meetsCriteria(vout)) return false;
+    if (this.getIsSpent() !== undefined && this.getIsSpent() !== vout.getIsSpent()) return false;
+    return true;
   }
 }
 
