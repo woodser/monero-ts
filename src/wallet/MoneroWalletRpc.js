@@ -7,7 +7,6 @@ const MoneroWallet = require("./MoneroWallet");
 const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
 const MoneroAccount = require("./model/MoneroAccount");
 const MoneroSubaddress = require("./model/MoneroSubaddress");
-const MoneroTxFilter = require("./filters/MoneroTxFilter");
 const MoneroWalletTx = require("./model/MoneroWalletTx");
 const MoneroTransfer = require("./model/MoneroTransfer");
 const MoneroDestination = require("./model/MoneroDestination");
@@ -15,6 +14,8 @@ const MoneroWalletOutput = require("./model/MoneroWalletOutput");
 const MoneroSendConfig = require("./model/MoneroSendConfig");
 const MoneroCheckTx = require("./model/MoneroCheckTx");
 const MoneroCheckReserve = require("./model/MoneroCheckReserve");
+const MoneroTxFilter = require("./filters/MoneroTxFilter");
+const MoneroVoutFilter = require("./filters/MoneroVoutFilter");
 
 /**
  * Implements a Monero wallet using monero-wallet-rpc.
@@ -504,7 +505,65 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getVouts(filterOrAccountIdx, subaddressIdx, isSpent) {
-    throw new Error("Not implemented");
+    
+    // collect vouts within txs
+    let txs = [];
+    
+    // validate and standardize inputs to filter
+    let filter;
+    if (filterOrAccountIdx instanceof MoneroVoutFilter) {
+      assert(subaddressIdx === undefined, "Cannot specify subaddress index if first parameter is MoneroTxFilter");
+      filter = filterOrAccountIdx;
+    } else if (filterOrAccountIdx >= 0 || filterOrAccountIdx === undefined) {
+      filter = new MoneroVoutFilter();
+      filter.setAccountIndex(filterOrAccountIdx);
+      if (subaddressIdx !== undefined) {
+        assert(subaddressIdx >= 0, "Subaddress must be >= 0 but was " + subaddressIdx);
+        filter.setSubaddressIndices([subaddressIdx]);
+      }
+    } else throw new Error("First parameter must be MoneroVoutFilter or account index >= 0 but was " + filterOrAccountIdx);
+    
+    // determine account and subaddress indices to be queried
+    let indices = new Map();
+    let transferFilter = filter.getTransferFilter();
+    if (!filter.getTransferFilter() || filter.getTransferFilter().getAccountIndex() === undefined) {
+      if (transferFilter && transferFilter.getSubaddressIndices() !== undefined) throw new Error("Transfer filter specifies subaddress indices but not an account index");
+      indices = await this._getAllAccountAndSubaddressIndices();
+    } else {
+      let subaddressIndices = transferFilter.getSubaddressIndices() ? GenUtils.copyArray(transferFilter.getSubaddressIndices()) : await this._getSubaddressIndices(transferFilter.getAccountIndex());
+      indices.set(transferFilter.getAccountIndex(), subaddressIndices);
+    }
+    
+    // fetch vouts for each account using `incoming_transfers` rpc call
+    // TODO monero-wallet-rpc: fetch incoming_transfers from all accounts in one call
+    let params = {};
+    params.transfer_type = filter.getIsSpent() === undefined ? "all" : filter.getIsSpent() ? "unavailable" : "available";
+    params.verbose = true;
+    for (let accountIdx of indices.keys()) {
+    
+      // send request
+      params.account_index = accountIdx;
+      params.subaddr_indices = filter.getSubaddressIndices(); // undefined subaddr_indices will fetch all incoming_transfers
+      let resp = await this.config.rpc.sendJsonRequest("incoming_transfers", params);
+      
+      // convert response to txs with vouts and merge
+      if (resp.transfers === undefined) continue;
+      for (let rpcVout of resp.transfers) {
+        let tx = MoneroWalletRpc._buildWalletTxVout(rpcVout);
+        MoneroWalletRpc._mergeTx(txs, tx, true);
+      }
+    }
+    
+    // collect vouts
+    let vouts = [];
+    for (let tx of txs) {
+      assert(tx.getVouts());
+      assert(tx.getVouts().length > 0);
+      for (let vout of tx.getVouts()) vouts.push(vouts);
+    }
+    
+    // filter final result
+    return filter.apply(vouts);
   }
   
   async send(configOrAddress, amount, paymentId, priority, mixin, fee) {
