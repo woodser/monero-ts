@@ -633,6 +633,7 @@ class TestMoneroWalletCommon {
         await testGetTransfers(1, [1, 2], true);
         await testGetTransfers(1, [1, 3], true);
         await testGetTransfers(new MoneroTransferFilter().setAccountIndex(1).setSubaddressIndices([1, 3]).setIsSpent(true), undefined, true);
+        await testGetTransfers({accountIndex: 1, subaddressIndices: [1, 3], isSpent: true, mustFind: true});
         
         // test expected errors
         await testGetTransfersError([1], [2], "First parameter must be a MoneroTransferFilter, unsigned integer, or undefined");

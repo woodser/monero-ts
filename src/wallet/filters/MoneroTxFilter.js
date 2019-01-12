@@ -3,6 +3,8 @@ const Filter = require("../../utils/Filter");
 /**
  * Filters transactions by their attributes.
  * 
+ * TODO: getIsOutgoing() and hasOutgoingTransfer() redundant (same for incoming)
+ * 
  * Transactions are only filtered if they don't match any fields that are set
  * in the filter.
  */

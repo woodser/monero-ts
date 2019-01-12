@@ -211,48 +211,65 @@ class MoneroWallet {
   /**
    * Get wallet transactions.
    * 
-   * @param {MoneroTxFilter} filter may be used to filter returned results (optional)
+   * @param config configures transactions to get
+   *        config.isConfirmed
+   *        config.inTxPool
+   *        config.isRelayed
+   *        config.isFailed
+   *        config.txId
+   *        config.txIds
+   *        config.paymentIds
+   *        config.hasOutgoingTransfer
+   *        config.hasIncomingTransfer
+   *        config.hasDestinations
+   *        config.minHeight
+   *        config.maxHeight
+   *        config.transferFilter
+   *        config.getVouts specifies that vouts should be returned with the transactions
    * @returns {MoneroWalletTx[]} are the retrieved transactions
    */
-  async getTxs(filter) {
+  async getTxs(config) {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * Get a wallet transaction by id.
+   * Get wallet incoming and/or outgoing wallet transfers.
    * 
-   * @param {string} id identifies the transaction to get
-   * @return {MoneroWalletTx} is the identified transaction
-   * @throws {Error} if the transaction is not associated with the wallet
+   * @param config configures transfers to get
+   *        config.accountIndex
+   *        config.subaddressIndices
+   *        config.isOutgoing
+   *        config.isIncoming
+   *        config.isConfirmed
+   *        config.inTxPool
+   *        config.isRelayed
+   *        config.isFailed
+   *        config.txId
+   *        config.txIds
+   *        config.paymentIds
+   *        config.hasOutgoingTransfer
+   *        config.hasIncomingTransfer
+   *        config.hasDestinations
+   *        config.minHeight
+   *        config.maxHeight
+   * @returns {MoneroWalletTransfer[]} are the retrieved transfers
    */
-  async getTxById(id) {
-    return (await this.getTxs(new MoneroTxFilter().setTxIds([id])))[0];
+  async getTransfers(config) {
+    throw new Error("Subclass must implement");
   }
   
   /**
-   * Get wallet transactions by id.
+   * Get wallet vouts which are outputs from previous transactions that belong
+   * to the wallet.
    * 
-   * @param {string[]} ids identify the transactions to get
-   * @return {MoneroWalletTx[]} are the identified transactions
-   * @throws {Error} if any transactions are not associated with the wallet
+   * @param config configures vouts to get
+   *        config.accountIndex
+   *        config.subaddressIndices
+   *        config.minHeight
+   *        config.maxHeight
+   * @returns {MoneroWalletOutput[]} are the retrieved vouts
    */
-  async getTxsById(ids) {
-    return await this.getTxs(new MoneroTxFilter().setTxIds(ids));
-  }
-  
-  async getTransfers(filterOrAccountIdx, subaddressIndices) {
-    throw new Error("Subclass must implement");
-  }
-  
-  async getOutgoingTransfers(filterOrAccountIdx, subaddressIndices) {
-    throw new Error("Subclass must implement");
-  }
-  
-  async getIncomingTransfers(filterOrAccountIdx, subaddressIndices) {
-    throw new Error("Subclass must implement");
-  }
-  
-  async getVouts(filterOrAccountIdx, subaddressIndices, isSpent) {
+  async getVouts(config) {
     throw new Error("Subclass must implement");
   }
   
