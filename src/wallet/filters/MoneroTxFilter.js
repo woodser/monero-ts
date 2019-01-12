@@ -1,76 +1,102 @@
+const Filter = require("../../utils/Filter");
 const MoneroWalletTx = require("../model/MoneroWalletTx");
 
 /**
- * Filters transactions by their attributes.
- * 
- * Only filters items that don't match a criteria in the filter.
+ * Filters transactions that don't match initialized filter criteria.
  */
-class MoneroTxFilter extends MoneroWalletTx {
+class MoneroTxFilter extends Filter {
+  
+  /**
+   * Constructs the filter.
+   * 
+   * @param state is a model or json to initialize from (optional)
+   */
+  constructor(state) {
+    super();
+    this.state = Object.assign({}, state);
+  }
 
   getTxIds() {
-    return this.txIds;
+    return this.state.txIds;
   }
 
   setTxIds(txIds) {
-    this.txIds = txIds;
+    this.state.txIds = txIds;
     return this;
   }
   
   getPaymentIds() {
-    return this.paymentIds;
+    return this.state.paymentIds;
   }
 
   setPaymentIds(paymentIds) {
-    this.paymentIds = paymentIds;
+    this.state.paymentIds = paymentIds;
     return this;
   }
   
   getMinHeight() {
-    return this.minHeight;
+    return this.state.minHeight;
   }
 
   setMinHeight(minHeight) {
-    this.minHeight = minHeight;
+    this.state.minHeight = minHeight;
     return this;
   }
 
   getMaxHeight() {
-    return this.maxHeight;
+    return this.state.maxHeight;
   }
 
   setMaxHeight(maxHeight) {
-    this.maxHeight = maxHeight;
+    this.state.maxHeight = maxHeight;
     return this;
   }
   
   getHasOutgoingTransfer() {
-    return this.hasOutgoingTransfer;
+    return this.state.hasOutgoingTransfer;
   }
 
   setHasOutgoingTransfer(hasOutgoingTransfer) {
-    this.hasOutgoingTransfer = hasOutgoingTransfer;
+    this.state.hasOutgoingTransfer = hasOutgoingTransfer;
     return this;
   }
   
   getHasIncomingTransfers() {
-    return this.hasIncomingTransfers;
+    return this.state.hasIncomingTransfers;
   }
 
   setHasIncomingTransfers(hasIncomingTransfers) {
-    this.hasIncomingTransfers = hasIncomingTransfers;
+    this.state.hasIncomingTransfers = hasIncomingTransfers;
     return this;
   }
   
   getTransferFilter() {
-    return this.transferFilter;
+    return this.state.transferFilter;
   }
   
   setTransferFilter(transferFilter) {
-    this.transferFilter = transferFilter;
+    this.state.transferFilter = transferFilter;
     return this;
   }
   
+  getTx() {
+    return this.state.tx;
+  }
+  
+  setTx(tx) {
+    this.state.tx = tx;
+  }
+  
   meetsCriteria(tx) {
+    assert(tx instanceof MoneroWalletTx);
+    
+    // filter on tx
+    if (this.getTx()) {
+      if (this.getTx().getIsConfirmed() !== undefined && this.getTx().getIsConfirmed() !== tx.getIsConfirmed()) return false;
+      if (this.getTx().getInTxPool() !== undefined && this.getTx().getInTxPool() !== tx.getInTxPool()) return false;
+      if (this.getTx().getIsRelayed() !== undefined && this.getTx().getIsRelayed() !== tx.getIsRelayed()) return false;
+      if (this.getTx().getIsFailed() !== undefined && this.getTx().getIsFailed() !== tx.getIsFailed()) return false;
+    }
     
     // at least one transfer must meet transfer filter if defined
     if (this.getTransferFilter()) {
@@ -101,17 +127,11 @@ class MoneroTxFilter extends MoneroWalletTx {
     
     // filter on remaining fields
     if (this.getTxIds() !== undefined && !this.getTxIds().includes(tx.getId())) return false;
-    if (this.getIsIncoming() !== undefined && this.getIsIncoming() !== tx.getIsIncoming()) return false;
-    if (this.getIsOutgoing() !== undefined && this.getIsOutgoing() !== tx.getIsOutgoing()) return false;
-    if (this.getIsConfirmed() !== undefined && this.getIsConfirmed() !== tx.getIsConfirmed()) return false;
-    if (this.getInTxPool() !== undefined && this.getInTxPool() !== tx.getInTxPool()) return false;
-    if (this.getIsRelayed() !== undefined && this.getIsRelayed() !== tx.getIsRelayed()) return false;
-    if (this.getIsFailed() !== undefined && this.getIsFailed() !== tx.getIsFailed()) return false;
     if (this.getMinHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() < this.getMinHeight())) return false;
     if (this.getMaxHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() > this.getMaxHeight())) return false;
     if (this.getPaymentIds() !== undefined && !this.getPaymentIds().includes(tx.getPaymentId())) return false;
     
-    // meets filter's criteria
+    // transaction meets filter criteria
     return true;
   }
 }

@@ -79,7 +79,7 @@ class MoneroTransfer {
   }
   
   getIsOutgoing() {
-    return this === this.tx.getOutgoingTransfer();
+    return this === this.getTx().getOutgoingTransfer();
   }
   
   getIsIncoming() {

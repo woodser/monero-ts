@@ -299,7 +299,7 @@ class MoneroWalletRpc extends MoneroWallet {
               // reconstruct incoming transfers from outgoing destinations
               let incomingTransfers = [];
               for (let destination of outgoingTransfer.getDestinations()) {
-                let incomingTransfer = new MoneroTransfer(tx);
+                let incomingTransfer = new MoneroTransfer({tx: tx});
                 incomingTransfers.push(incomingTransfer);
                 incomingTransfer.setAmount(destination.getAmount());
                 incomingTransfer.setAddress(destination.getAddress());
@@ -428,7 +428,7 @@ class MoneroWalletRpc extends MoneroWallet {
               // reconstruct incoming transfers from outgoing destinations
               let incomingTransfers = [];
               for (let destination of outgoingTransfer.getDestinations()) {
-                let incomingTransfer = new MoneroTransfer(tx);
+                let incomingTransfer = new MoneroTransfer({tx: tx});
                 incomingTransfers.push(incomingTransfer);
                 incomingTransfer.setAmount(destination.getAmount());
                 incomingTransfer.setAddress(destination.getAddress());
@@ -495,21 +495,22 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTransfers(config) {
     
-    // normalize config
+    // create normalized filters
     config = Object.assign({}, config);
     let filter = new MoneroTransferFilter(config);
+    filter.setTransfer(new MoneroTransfer(config));
     let txFilter = new MoneroTxFilter(config);
+    txFilter.setTx(new MoneroWalletTx(config));
     
     // determine account and subaddress indices to be queried
     let indices = new Map();
-    if (filter.getAccountIndex() !== undefined) {
+    if (filter.getTransfer().getAccountIndex() !== undefined) {
       let subaddressIndices = new Set();
-      if (filter.getSubaddressIndex() !== undefined) subaddressIndices.add(filter.getSubaddressIndex());
+      if (filter.getTransfer().getSubaddressIndex() !== undefined) subaddressIndices.add(filter.getTransfer().getSubaddressIndex());
       if (filter.getSubaddressIndices() !== undefined) filter.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
-      indices.set(filter.getAccountIndex(), subaddressIndices.size ? subaddressIndices.values() : await this._getSubaddressIndices(filter.getAccountIndex()));
+      indices.set(filter.getAccountIndex(), subaddressIndices.size ? subaddressIndices.values() : await this._getSubaddressIndices(filter.getAccountIndex()));  // TODO monero-wallet-rpc: support `get_tranfsers` getting all transfers in account so clients don't need to pre-fetch subaddress indices
     } else {
-      filter.setSubaddressIndices(undefined); // TODO: temps, to test assertion
-      assert.equal(undefined, filter.getSubaddressIndex(), "Filter specifies a subaddress index but not an account index")
+      assert.equal(undefined, filter.getTransfer().getSubaddressIndex(), "Filter specifies a subaddress index but not an account index")
       assert(filter.getSubaddressIndices() === undefined || filter.getSubaddressIndices().length === 0, "Filter specifies subaddress indices but not an account index");
       indices = await this._getAccountIndices(true);  // fetch all account and subaddress indices
     }
@@ -522,7 +523,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.out = true;
     params.pool = true;
     params.pending = true;
-    params.failed = txFilter.getIsFailed() !== false;
+    params.failed = txFilter.getTx().getIsFailed() !== false;
     if (txFilter.getMinHeight() !== undefined) params.min_height = txFilter.getMinHeight(); 
     if (txFilter.getMaxHeight() !== undefined) params.max_height = txFilter.getMaxHeight();
     params.filter_by_height = txFilter.getMinHeight() !== undefined || txFilter.getMaxHeight() !== undefined;
@@ -543,17 +544,14 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // collect transfers that meet filter criteria
-    let transfers = [];
+    txs = txFilter.apply(txs);
+    let transfers = []
     for (let tx of txs) {
-      if (!txFilter.meetsCriteria(tx)) continue;
-      if (filter.meetsCriteria())
-      
-      
       if (filter.meetsCriteria(tx.getOutgoingTransfer())) transfers.push(tx.getOutgoingTransfer());
-      for (let transfer of filter.apply(tx.getIncomingTransfers())) transfers.push(incomingTransfer);
+      if (tx.getIncomingTransfers()) filter.apply(tx.getIncomingTransfers()).map(transfer => transfers.push(transfer));
     }
     
-    // return filtered results
+    // return filtered transfers
     return transfers;
   }
   
@@ -1050,11 +1048,11 @@ class MoneroWalletRpc extends MoneroWallet {
         else tx.setEstimatedBlockCountUntilConfirmed(undefined)
       }
       else if (key === "amount") {
-        if (transfer === undefined) transfer = new MoneroTransfer(tx);
+        if (transfer === undefined) transfer = new MoneroTransfer({tx: tx});
         transfer.setAmount(new BigInteger(val));
       }
       else if (key === "address") {
-        if (transfer === undefined) transfer = new MoneroTransfer(tx);
+        if (transfer === undefined) transfer = new MoneroTransfer({tx: tx});
         transfer.setAddress(val);
       }
       else if (key === "payment_id") {
@@ -1080,7 +1078,7 @@ class MoneroWalletRpc extends MoneroWallet {
             else throw new Error("Unrecognized transaction destination field: " + destinationKey);
           }
         }
-        if (transfer === undefined) transfer = new MoneroTransfer(tx);
+        if (transfer === undefined) transfer = new MoneroTransfer({tx: tx});
         transfer.setDestinations(destinations);
       }
       else if (key === "multisig_txset" && !val) {} // TODO: handle this with value
@@ -1170,7 +1168,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setMetadata(metadatas[i]);
       tx.setFee(new BigInteger(fees[i]));
       if (tx.getOutgoingTransfer()) tx.getOutgoingTransfer().setAmount(new BigInteger(amounts[i]));
-      else tx.setOutgoingTransfer(new MoneroTransfer(tx, undefined, new BigInteger(amounts[i])))
+      else tx.setOutgoingTransfer(new MoneroTransfer({tx: tx, amount: new BigInteger(amounts[i])}));
     }
     return txs;
   }
@@ -1340,7 +1338,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsCoinbase(false);
       tx.setIsFailed(false);
       tx.setMixin(config.getMixin());
-      let transfer = new MoneroTransfer(tx);
+      let transfer = new MoneroTransfer({tx: tx});
       transfer.setAddress(await this.getAddress(accountIdx, 0));
       transfer.setAccountIndex(accountIdx);
       transfer.setSubaddressIndex(0); // TODO (monero-wallet-rpc): outgoing subaddress idx is always 0

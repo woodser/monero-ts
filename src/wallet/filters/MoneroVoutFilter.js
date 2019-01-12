@@ -1,3 +1,4 @@
+const Filter = require("../../utils/Filter");
 const MoneroWalletOutput = require("../model/MoneroWalletOutput");
 
 /**
@@ -5,7 +6,7 @@ const MoneroWalletOutput = require("../model/MoneroWalletOutput");
  * 
  * Only filters items that don't match a criteria in the filter.
  */
-class MoneroVoutFilter extends MoneroWalletOutput {
+class MoneroVoutFilter extends Filter {
   
   meetsCriteria(vout) {
     assert(vout instanceof MoneroWalletOutput);
