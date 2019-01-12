@@ -607,67 +607,7 @@ class TestMoneroWalletCommon {
       });
       
       it("Can get transfers", async function() {
-        
-        // test all transfers
-        await testGetTransfers(undefined, undefined, true);
-        
-        // test transfers per account
-        let accounts = await wallet.getAccounts(true);
-        for (let account of accounts) {
-          await testGetTransfers(account.getIndex());
-          
-          // test transfers per subaddress
-          for (let subaddress of account.getSubaddresses()) {
-            await testGetTransfers(account.getIndex(), subaddress.getSubaddressIndex());
-          }
-        }
-        
-        // TODO: test unconfirmed txs
-        //assert(walletBalance.compare(expectedBalance) === 0, "Account " + account.getIndex() + " balance does not add up: " + expectedBalance.toString() + " vs " + walletBalance.toString());
-        
-        // test fetching with filter
-        await testGetTransfers(1, undefined, true);
-        await testGetTransfers(2, undefined, true);
-        await testGetTransfers(1, 2, true);
-        await testGetTransfers(1, 2, true);
-        await testGetTransfers(1, [1, 2], true);
-        await testGetTransfers(1, [1, 3], true);
-        
-        // test with invalid account index
-        try {
-          await testGetTransfers([1], [2]); 
-          throw new Error("Should have failed");
-        } catch (e) {
-          assert.equal("First parameter must be a MoneroTransferFilter, unsigned integer, or undefined", e.message);
-        }
-        
-        // test with invalid subaddress indices
-        try {
-          await testGetTransfers(new MoneroTransferFilter().setSubaddressIndices([1]), [-1, 2]); 
-          throw new Error("Should have failed");
-        } catch (e) {
-          assert.equal("Second parameter must be an unsigned integer, array of unsigned integers, or undefined", e.message);
-        }
-        
-        // test with subaddress mismatch (provided as param for convenience)
-        try {
-          await testGetTransfers(new MoneroTransferFilter().setSubaddressIndices([1]), [2]); 
-          throw new Error("Should have failed");
-        } catch (e) {
-          assert.equal("Parameters for subaddress indices do not match", e.message);
-        }
-        
-        // helper function to fetch and test transfers
-        async function testGetTransfers(accountIdx, subaddressIndices, mustFind) {
-          let transfers = await wallet.getTransfers(accountIdx, subaddressIndices);
-          if (subaddressIndices !== undefined) subaddressIndices = GenUtils.listify(subaddressIndices);
-          if (mustFind) assert(transfers.length > 0, "No transfers matching filter found; run send tests");
-          for (let transfer of transfers) {
-            testTransfer(transfer);
-            if (accountIdx !== undefined) assert.equal(accountIdx, transfer.getAccountIndex());
-            if (subaddressIndices !== undefined) assert(subaddressIndices.includes(transfer.getSubaddressIndex()));
-          }
-        }
+        throw new Error("Not implemented");
       })
       
       it("Can get vouts", async function() {
@@ -696,57 +636,55 @@ class TestMoneroWalletCommon {
         await testGetVouts(1, 2, true, true);
         await testGetVouts(1, [1, 2], false, true);
         await testGetVouts(1, [1, 3], true, true);
+        await testGetVouts(new MoneroVoutFilter().setAccountIndex(1).setSubaddressIndices([1, 3]).setIsSpent(true), undefined, undefined, true);
         
-        // test with invalid account index
-        try {
-          await testGetVouts([1], [2], false); 
-          throw new Error("Should have failed");
-        } catch (e) {
-          assert.equal("First parameter must be a MoneroVoutFilter, unsigned integer, or undefined", e.message);
-        }
-        
-        // test with invalid subaddress indices
-        try {
-          await testGetVouts(new MoneroVoutFilter().setSubaddressIndices([1]), [-1, 2], false); 
-          throw new Error("Should have failed");
-        } catch (e) {
-          assert.equal("Second parameter must be an unsigned integer, array of unsigned integers, or undefined", e.message);
-        }
-        
-        // test with invalid isSpent
-        try {
-          await testGetVouts(new MoneroVoutFilter().setSubaddressIndices([2]), [2], "hello"); 
-          throw new Error("Should have failed");
-        } catch (e) {
-          assert.equal("Third parameter must be a boolean or undefined", e.message);
-        }
-        
-        // test with subaddress mismatch (provided as param for convenience)
-        try {
-          await testGetVouts(new MoneroVoutFilter().setSubaddressIndices([1]), [2], false); 
-          throw new Error("Should have failed");
-        } catch (e) {
-          assert.equal("Parameters for subaddress indices do not match", e.message);
-        }
-        
-        // test with isSpent mismatch
-        try {
-          await testGetVouts(new MoneroVoutFilter().setIsSpent(true), undefined, false);
-          throw new Error("Should have failed");
-        } catch (e) {
-          assert.equal("Parameters for isSpent do not match", e.message);
-        }
-        
+        // test expected errors
+        await testGetVoutsError([1], [2], false, "First parameter must be a MoneroVoutFilter, unsigned integer, or undefined");
+        await testGetVoutsError(new MoneroVoutFilter().setSubaddressIndices([1]), [-1, 2], false, "Second parameter must be an unsigned integer, array of unsigned integers, or undefined");
+        await testGetVoutsError(new MoneroVoutFilter().setSubaddressIndices([2]), [2], "hello", "Third parameter must be a boolean or undefined");
+        await testGetVoutsError(new MoneroVoutFilter().setSubaddressIndices([1]), [2], false, "Parameters for subaddress indices do not match");
+        await testGetVoutsError(new MoneroVoutFilter().setIsSpent(true), undefined, false, "Parameters for isSpent do not match");
+
         // helper function to fetch and test vouts
-        async function testGetVouts(accountIdx, subaddressIndices, isSpent, mustFind) {
-          let vouts = await wallet.getVouts(accountIdx, subaddressIndices, isSpent);
-          if (subaddressIndices !== undefined) subaddressIndices = GenUtils.listify(subaddressIndices);
+        async function testGetVouts(filterOrAccountIdx, subaddressIndices, isSpent, mustFind) {
+          
+          // get vouts
+          let vouts = await wallet.getVouts(filterOrAccountIdx, subaddressIndices, isSpent);
           if (mustFind) assert(vouts.length > 0, "No vouts matching filter found; run send tests");
+          
+          // standardize inputs as filter
+          let filter;
+          if (filterOrAccountIdx instanceof MoneroVoutFilter) filter = filterOrAccountIdx;
+          else {
+            assert(filterOrAccountIdx === undefined || typeof filterOrAccountIdx === "number" && filterOrAccountIdx >= 0, "First parameter must be a MoneroVoutFilter, unsigned integer, or undefined");
+            filter = new MoneroVoutFilter().setAccountIndex(filterOrAccountIdx);
+          }
+          if (subaddressIndices !== undefined) {
+            subaddressIndices = GenUtils.listify(subaddressIndices);
+            for (let subaddressIdx of subaddressIndices) assert(subaddressIdx >= 0, "Second parameter must be an unsigned integer, array of unsigned integers, or undefined");
+            filter.setSubaddressIndices(MoneroUtils.reconcile(filter.getSubaddressIndices(), subaddressIndices, undefined, "Parameters for subaddress indices do not match"));
+          }
+          if (isSpent !== undefined) {
+            assert.equal("boolean", typeof isSpent, "Third parameter must be a boolean or undefined");
+            filter.setIsSpent(MoneroUtils.reconcile(filter.getIsSpent(), isSpent, undefined, "Parameters for isSpent do not match"));
+          }
+          
+          // test each vout
           for (let vout of vouts) {
             testVout(vout);
-            if (accountIdx !== undefined) assert.equal(accountIdx, vout.getAccountIndex());
-            if (subaddressIndices !== undefined) assert(subaddressIndices.includes(vout.getSubaddressIndex()));
+            if (filter.getAccountIndex() !== undefined) assert.equal(filter.getAccountIndex(), vout.getAccountIndex());
+            if (filter.getSubaddressIndices() !== undefined) assert(filter.getSubaddressIndices().includes(vout.getSubaddressIndex()));
             if (isSpent !== undefined) assert.equal(isSpent, vout.getIsSpent());
+          }
+        }
+        
+        // helper function to test expected errors
+        async function testGetVoutsError(filterOrAccountIdx, subaddressIndices, isSpent, errMsg) {
+          try {
+            await testGetVouts(filterOrAccountIdx, subaddressIndices, isSpent);
+            throw new Error("Should have failed");
+          } catch (e) {
+            assert.equal(errMsg, e.message);
           }
         }
       });

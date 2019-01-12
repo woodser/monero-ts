@@ -509,15 +509,14 @@ class MoneroWalletRpc extends MoneroWallet {
     // collect vouts within txs
     let txs = [];
     
-    // validate and standardize vout filter
+    
+    // standardize inputs as filter
     let filter;
-    if (filterOrAccountIdx === undefined) filter = new MoneroVoutFilter();
-    else if (filterOrAccountIdx instanceof MoneroVoutFilter) filter = filterOrAccountIdx;
+    if (filterOrAccountIdx instanceof MoneroVoutFilter) filter = filterOrAccountIdx;
     else {
-      assert(typeof filterOrAccountIdx === "number" && filterOrAccountIdx >= 0, "First parameter must be a MoneroVoutFilter, unsigned integer, or undefined");
-      filter = new MoneroVoutFilter();
-      filter.setAccountIndex(filterOrAccountIdx);
-    }    
+      assert(filterOrAccountIdx === undefined || typeof filterOrAccountIdx === "number" && filterOrAccountIdx >= 0, "First parameter must be a MoneroVoutFilter, unsigned integer, or undefined");
+      filter = new MoneroVoutFilter().setAccountIndex(filterOrAccountIdx);
+    }
     if (subaddressIndices !== undefined) {
       subaddressIndices = GenUtils.listify(subaddressIndices);
       for (let subaddressIdx of subaddressIndices) assert(subaddressIdx >= 0, "Second parameter must be an unsigned integer, array of unsigned integers, or undefined");
