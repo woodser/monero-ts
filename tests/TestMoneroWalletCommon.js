@@ -1853,19 +1853,24 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(undefined, tx.getLastRelayedTime());
   }
   
-  throw new Error("Move the rest to testTransfer()");
+  // test outgoing transfer per configuration
+  if (testConfig.hasOutgoingTransfer === false) assert(tx.getOutgoingTransfer() === undefined);
+  if (testConfig.hasDestinations) assert(tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getDestionations().length > 0);
   
-  // test outgoing
-  if (tx.getIsOutgoing()) {
-    TestUtils.testUnsignedBigInteger(tx.getOutgoingAmount());
-    let outgoingTransfer = tx.getOutgoingTransfer();
-    assert(outgoingTransfer);
-    assert(outgoingTransfer.getAccountIndex() >= 0);
-    assert.equal(outgoingTransfer.getSubaddressIndex(), 0);  // TODO: possible to know actual src subaddress index?
-    assert(outgoingTransfer.getAddress());
-    if (testConfig.wallet) assert.equal(await testConfig.wallet.getAddress(outgoingTransfer.getAccountIndex(), outgoingTransfer.getSubaddressIndex()), outgoingTransfer.getAddress());
-    assert.equal(false, tx.getIsCoinbase());
+  // test outgoing transfer
+  if (tx.getOutgoingTransfer()) {
+    testTransfer(tx.getOutgoingTransfer());
+    
+    // destinations add up to outgoing amount
+    if (tx.getOutgoingTransfer().getDestinations()) {
+      let sum = new BigInteger(0);
+      for (let destination of tx.getOutgoingTransfer().getDestinations()) sum = sum.add(destination.getAmount());
+      assert.equal(0, sum.compare(tx.getOutgoingTransfer().getAmount()));
+    }
+    
+    // TODO: handle special cases
   } else {
+    assert(tx.getIncomingTransfers().length > 0);
     assert.equal(undefined, tx.getOutgoingAmount());
     assert.equal(undefined, tx.getOutgoingTransfer());
     assert.equal(undefined, tx.getMixin());
@@ -1874,53 +1879,20 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(undefined, tx.getKey());
   }
   
-  // test outgoing destinations per configuration
-  if (testConfig.hasDestinations) {
-    assert(tx.getOutgoingTransfer());
-    assert(tx.getOutgoingTransfer().getDestinations());
-  } else if (testConfig.hasOutgoingTransfer === false) {
-    assert(tx.getOutgoingTransfer() === undefined || tx.getOutgoingTransfer().getDestinations() === undefined);
-  }
-  if (tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getDestinations()) {
-    
-    // test each destination and collect sum
-    let sum = new BigInteger(0);
-    for (let destination of tx.getOutgoingTransfer().getDestinations()) {
-      assert(destination instanceof MoneroDestination);
-      assert(destination.getAddress());
-      TestUtils.testUnsignedBigInteger(destination.getAmount());
-      sum = sum.add(destination.getAmount());
-      
-      // TODO special case: transfer amount of 0
-    }
-    
-    // destinations add up to outgoing amount
-    assert.equal(0, sum.compare(tx.getOutgoingTransfer().getAmount()));
-  }
-  
-  // test incoming
-  if (tx.getIsIncoming()) {
-    TestUtils.testUnsignedBigInteger(tx.getIncomingAmount());
-    assert.equal(false, tx.getIsFailed());
-  } else {
-    assert.equal(undefined, tx.getIncomingAmount());
-    assert.equal(undefined, tx.getIncomingTransfers());
-  }
-  
   // test incoming transfers
   if (tx.getIncomingTransfers()) {
-    assert.equal(true, tx.getIsIncoming());
     assert(tx.getIncomingTransfers().length > 0);
+    TestUtils.testUnsignedBigInteger(tx.getIncomingAmount());      
+    assert.equal(false, tx.getIsFailed());
     
     // test each transfer and collect transfer sum
     let transferSum = new BigInteger(0);
     for (let transfer of tx.getIncomingTransfers()) {
-      assert(transfer instanceof MoneroTransfer);
+      testTransfer(transfer);
       assert(transfer.getAddress());
-      TestUtils.testUnsignedBigInteger(transfer.getAmount());
-      transferSum = transferSum.add(transfer.getAmount());
       assert(transfer.getAccountIndex() >= 0);
       assert(transfer.getSubaddressIndex() >= 0);
+      transferSum = transferSum.add(transfer.getAmount());
       if (testConfig.wallet) assert.equal(await testConfig.wallet.getAddress(transfer.getAccountIndex(), transfer.getSubaddressIndex()), transfer.getAddress());
       
       // TODO special case: transfer amount of 0
@@ -1929,24 +1901,20 @@ async function testWalletTx(tx, testConfig) {
     // incoming transfers add up to incoming tx amount
     assert.equal(0, transferSum.compare(tx.getIncomingAmount()));
   } else {
-    
-    // transfers can can be undefined if sent from/to same account
-    if (tx.getIsIncoming()) {
-      assert.equal(undefined, tx.getOutgoingTransfers());
-      assert.equal(0, new BigInteger(0).compare(tx.getOutgoingAmount()));
-      assert.equal(0, new BigInteger(0).compare(tx.getIncomingAmount()));
-    }
+    assert(tx.getOutgoingTransfer());
+    assert.equal(undefined, tx.getIncomingAmount());
+    assert.equal(undefined, tx.getIncomingTransfers());
   }
   
   // test coinbase tx
   if (tx.getIsCoinbase()) {
     assert.equal(0, tx.getFee().compare(new BigInteger(0)));
-    assert.equal(true, tx.getIsIncoming());
+    assert(tx.getIncomingTransfers().length > 0);
   }
   
   // test failed  // TODO: what else to test associated with failed
   if (tx.getIsFailed()) {
-    assert(tx.getIsOutgoing());
+    assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
     assert(tx.getReceivedTime() > 0)
   } else {
     if (tx.getIsRelayed()) assert.equal(false, tx.getIsDoubleSpend());
@@ -2062,7 +2030,9 @@ function testWalletTxCopy(tx) {
 }
 
 function testTransfer(transfer) {
-  throw new Error("Not implemented");
+  assert(transfer instanceof MoneroTransfer);
+  TestUtils.testUnsignedBigInteger(transfer.getAmount());
+  assert((transfer.getIsOutgoing() === true && transfer.getIsIncoming() === false) || (transfer.getIsOutgoing() === false && transfer.getIsIncoming() === true));
 }
 
 function testVout(vout) {

@@ -83,8 +83,8 @@ class MoneroTransfer {
   }
   
   getIsIncoming() {
-    if (!this.tx.getIncomingTransfers()) return false;
-    return this.tx.getIncomingTransfers().includes(this);
+    if (!this.getTx().getIncomingTransfers()) return false;
+    return this.getTx().getIncomingTransfers().includes(this);
   }
   
   copy() {
