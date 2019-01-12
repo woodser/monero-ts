@@ -9,9 +9,9 @@ const MoneroDestination = require("./MoneroDestination");
 class MoneroTransfer {
   
   /**
-   * Construct the model.
+   * Constructs the model.
    * 
-   * @param state is the initialized model state or serialized json (optional)
+   * @param state is a model or json to initialize from (optional)
    */
   constructor(state) {
     state = Object.assign({}, state);
