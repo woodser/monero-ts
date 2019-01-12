@@ -1,5 +1,4 @@
 assert = require("assert");
-const MoneroSubaddressFilter = require("./MoneroSubaddressFilter");
 const MoneroTransfer = require("../model/MoneroTransfer");
 
 /**
@@ -7,7 +6,7 @@ const MoneroTransfer = require("../model/MoneroTransfer");
  * 
  * Only filters items that don't match a criteria in the filter.
  */
-class MoneroTransferFilter extends MoneroSubaddressFilter {
+class MoneroTransferFilter extends MoneroTransfer {
   
   getIsOutgoing() {
     return this.isOutgoing;

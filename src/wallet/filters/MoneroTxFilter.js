@@ -1,11 +1,11 @@
-const Filter = require("../../utils/Filter");
+const MoneroWalletTx = require("../model/MoneroWalletTx");
 
 /**
  * Filters transactions by their attributes.
  * 
  * Only filters items that don't match a criteria in the filter.
  */
-class MoneroTxFilter extends Filter {
+class MoneroTxFilter extends MoneroWalletTx {
 
   getTxIds() {
     return this.txIds;
@@ -16,39 +16,12 @@ class MoneroTxFilter extends Filter {
     return this;
   }
   
-  getIsConfirmed() {
-    return this.isConfirmed;
+  getPaymentIds() {
+    return this.paymentIds;
   }
-  
-  setIsConfirmed(isConfirmed) {
-    this.isConfirmed = isConfirmed;
-    return this;
-  }
-  
-  getInTxPool() {
-    return this.inTxPool;
-  }
-  
-  setInTxPool(inTxPool) {
-    this.inTxPool = inTxPool;
-    return this;
-  }
-  
-  getIsRelayed() {
-    return this.isRelayed;
-  }
-  
-  setIsRelayed(isRelayed) {
-    this.isRelayed = isRelayed;
-    return this;
-  }
-  
-  getIsFailed() {
-    return this.isFailed;
-  }
-  
-  setIsFailed(isFailed) {
-    return this.isFailed = isFailed;
+
+  setPaymentIds(paymentIds) {
+    this.paymentIds = paymentIds;
     return this;
   }
   
@@ -67,15 +40,6 @@ class MoneroTxFilter extends Filter {
 
   setMaxHeight(maxHeight) {
     this.maxHeight = maxHeight;
-    return this;
-  }
-  
-  getPaymentIds() {
-    return this.paymentIds;
-  }
-
-  setPaymentIds(paymentIds) {
-    this.paymentIds = paymentIds;
     return this;
   }
   

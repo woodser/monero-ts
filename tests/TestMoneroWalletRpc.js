@@ -51,15 +51,23 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         
         // open test wallet 2
         await wallet.openWallet(TestUtils.WALLET_RPC_NAME_2, TestUtils.WALLET_RPC_PW_2);
-        
-        // assert wallet is empty
-        let txs = await wallet.getTxs();
-        assert(txs.length === 0);
-        
-        // open test wallet 1
-        await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
-        txs = await wallet.getTxs();
-        assert(txs.length !== 0);  // wallet is used
+        try {
+          
+          // assert wallet 2 is empty
+          let txs = await wallet.getTxs();
+          assert(txs.length === 0);
+          
+          // open test wallet 1
+          await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
+          txs = await wallet.getTxs();
+          assert(txs.length !== 0);  // wallet is used
+        } catch(e) {
+          throw e;
+        } finally {
+          
+          // open test wallet 1 to enable other tests
+          await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
+        }
       });
 
       it("Can rescan spent", async function() {
