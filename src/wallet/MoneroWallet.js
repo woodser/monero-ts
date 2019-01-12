@@ -233,7 +233,7 @@ class MoneroWallet {
   }
   
   /**
-   * Get wallet incoming and/or outgoing wallet transfers.
+   * Get incoming and/or outgoing transfers from wallet transactions.
    * 
    * @param config configures transfers to get
    *        config.accountIndex
@@ -259,8 +259,8 @@ class MoneroWallet {
   }
   
   /**
-   * Get wallet vouts which are outputs from previous transactions that belong
-   * to the wallet.
+   * Get vouts which are outputs that belong to the wallet created from
+   * previous transactions.
    * 
    * @param config configures vouts to get
    *        config.accountIndex

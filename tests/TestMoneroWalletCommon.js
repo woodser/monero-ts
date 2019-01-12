@@ -300,16 +300,12 @@ class TestMoneroWalletCommon {
       it("Can get all transactions", async function() {
         let nonDefaultIncoming = false;
         let txs1 = await getCachedTxs();
-        let txs2 = await wallet.getTxs();
+        let txs2 = await testGetTxs(wallet, undefined, true);
         assert.equal(txs1.length, txs2.length);
-        assert(txs1.length > 0, "No transactions found to test");
-        //testTxsBalance(txs1, await wallet.getBalance());  // TODO: implement balance checking, here and/or elsewhere
         for (let i = 0; i < txs1.length; i++) {
-          //console.log(txs1[i].toString());
-          await testWalletTx(txs1[i], {wallet: wallet});
-          await testWalletTx(txs2[i], {wallet: wallet});
+          await testWalletTx(txs1[i], {wallet: wallet});  // test cached tx
           let merged = txs1[i].copy().merge(txs2[i].copy());
-          await testWalletTx(merged, {wallet: wallet});
+          await testWalletTx(merged, {wallet: wallet});   // test merging equivalent txs
           if (txs1[i].getIncomingTransfers()) {
             for (let transfer of txs1[i].getIncomingTransfers()) {
               if (transfer.getAccountIndex() !== 0 && transfer.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
@@ -319,450 +315,269 @@ class TestMoneroWalletCommon {
         assert(nonDefaultIncoming, "No incoming transfers found to non-default account and subaddress; run send-to-multiple tests first");
       });
       
-      it("Can get transactions associated with an account", async function() {
-        let accountIdx = 1;
-        let filter = new MoneroTxFilter().setTransferFilter(new MoneroTransferFilter().setAccountIndex(accountIdx));
-        let txs = await wallet.getTxs(filter);
-        assert(txs.length > 0, "No transactions associated with account " + accountIdx);
-        for (let tx of txs) {
-          let found = false;
-          if (tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getAccountIndex() === accountIdx) found = true;
-          else if (tx.getIncomingTransfers()) {
-            for (let inTransfer of tx.getIncomingTransfers()) {
-              if (inTransfer.getAccountIndex() === accountIdx) {
-                found = true;
-                break;
-              }
-            }
-          }
-          assert(found, ("Transaction is not associated with account:\n" + tx.toString()));
+      it("Can get transactions with additional configuration", async function() {
+        
+        // get random transactions for testing
+        let randomTxs = await getRandomTransactions(wallet, undefined, 3, 5);
+        
+        // get transactions by id
+        let txIds = [];
+        for (let randomTx of randomTxs) {
+          txIds.push(txs[0].getId());
+          let txs = await testGetTxs(wallet, {txId: randomTx.getId}, true);
+          assert.equal(1, txs.length);
+          assert.equal(randomTx.toJson(), txs[0].toJson());
         }
+        
+        // get transactions by ids
+        let txs = await testGetTxs(wallet, {txIds: txIds});
+        assert.equal(randomTxs.length, txs.length);
+        for (let tx of txs) assert(txIds.includes(tx.getId());
+        
+        // get transactions with an outgoing transfer
+        txs = await testGetTxs(wallet, {hasOutgoingTransfer: true}, true);
+        for (let tx of txs) assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
+        
+        // get transactions without an outgoing transfer
+        txs = await testGetTxs(wallet, {hasOutgoingTransfer: false}, true);
+        for (let tx of txs) assert.equal(undefined tx.getOutgoingTransfer());
+        
+        // get transactions with incoming transfers
+        txs = await testGetTxs(wallet, {hasIncomingTransfers: true}, true);
+        for (let tx of txs) {
+          assert(tx.getIncomingTransfers().length > 0);
+          for (let transfer of tx.getIncomingTransers()) assert(transfer instanceof MoneroTransfer);
+        }
+        
+        // get transactions without incoming transfers
+        txs = await testGetTxs(wallet, {hasIncomingTransfers: false}, true);
+        for (let tx of txs) assert.equal(undefined, tx.getIncomingTransfers());
+        
+        // include vouts with transactions
+        txs = await testGetTxs(wallet, {includeVouts: true}, true);
+        for (let tx of txs) assert(tx.getVouts().length > 0);
+        
+        // get transactions associated with an account
+//      let accountIdx = 1;
+//      let filter = new MoneroTxFilter().setTransferFilter(new MoneroTransferFilter().setAccountIndex(accountIdx));
+//      let txs = await wallet.getTxs(filter);
+//      assert(txs.length > 0, "No transactions associated with account " + accountIdx);
+//      for (let tx of txs) {
+//        let found = false;
+//        if (tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getAccountIndex() === accountIdx) found = true;
+//        else if (tx.getIncomingTransfers()) {
+//          for (let inTransfer of tx.getIncomingTransfers()) {
+//            if (inTransfer.getAccountIndex() === accountIdx) {
+//              found = true;
+//              break;
+//            }
+//          }
+//        }
+//        assert(found, ("Transaction is not associated with account:\n" + tx.toString()));
+//      }
+        
+        throw new Error("Not implemented");
       });
       
-      it("Can get transactions by id and ids", async function() {
+      it("Validates inputs to get transactions", async function() {
+        
+//        // test with invalid id
+//        let expectedError = "No wallet transaction found with id 'invalid_id'";
+//        try {
+//          await wallet.getTxById("invalid_id");
+//          throw new Error("Should have thrown error");
+//        } catch (e) {
+//          assert.equal(expectedError, e.message);
+//        }
+//        
+//        // test with invalid ids
+//        try {
+//          await wallet.getTxsById([txIds[0], "invalid_id"]);
+//          throw new Error("Should have thrown error");
+//        } catch (e) {
+//          assert.equal(expectedError, e.message);
+//        }
+        
+        throw new Error("Not implemented");
+      });
+
+      it("Can get transfers in the wallet, accounts, and subaddresses", async function() {
+        
+        // get all transfers
+        await testGetTransfers(wallet, undefined, true);
+        
+        // get transfers by account index
+        let nonDefaultIncoming = false;
+        let accounts = await wallet.getAccounts(true);
+        for (let account of accounts) {
+          let accountTransfers = await testGetTransfers(wallet, {accountIndex: account.getIndex}, true);
+          for (let transfer of accountTransfers) assert.equal(account.getIndex(), transfer.getAccountIndex());
+          
+          // get transfers by subaddress index
+          let subaddressTransfers = [];
+          for (let subaddress of account.getSubaddresses()) {
+            subaddressIndices.push(subaddress.getSubaddressIndex());
+            let transfers = await testGetTransfers(wallet, {accountIndex: subaddress.getAccountIndex(), subaddressIndex: subaddress.getSubaddressIndex()}, true);
+            for (let transfer of transfers) {
+              assert.equal(subaddress.getAccountIndex(), transfer.getAccountIndex());
+              assert.equal(subaddress.getSubaddressIndex(), transfer.getSubaddressIndex);
+              if (transfer.getAccountIndex() !== 0 && transfer.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
+              subaddressTransfers.push(transfer);
+            }
+          }
+          assert.equal(accountTransfers.length, subaddressTransfers.length);
+          
+          // get transfers by subaddress indices
+          let subaddressIndices = subaddressTransfers.map(transfer => transfer.getSubaddressIndex());
+          transfers = await testGetTransfers(wallet, {accountIndex: account.getIndex(), subaddressIndices: subaddressIndices}, true);
+          assert.equal(subaddressTransfers.length, transfers.length);
+          for (let transfer of transfers) {
+            assert.equal(account.getIndex(), transfer.getAccountIndex());
+            assert(subaddressIndices.includes(transfer.getSubaddressIndex()));
+          }
+        }
+        
+        // ensure transfer found with non-zero account and subaddress indices
+        assert(nonDefaultIncoming, "No transfers found in non-default account and subaddress; run send-to-multiple tests");
+      });
+      
+      it("Can get transfers with additional configuration", async function() {
+        
+        // get incoming transfers
+        let transfers = await testGetTransfers({isIncoming: true}, true);
+        for (let transfer of transfers) assert(transfer.getIsIncoming());
+        
+        // get outgoing transfers
+        transfers = await testGetTransfers({isOutgoing: true}, true);
+        for (let transfer of transfers) assert(transfer.getIsIncoming());
+        
+        // get confirmed transfers to account 0
+        transfers = await testGetTransfers({accountIndex: 0, isConfirmed: true}, true);
+        for (let transfer of transfers) {
+          assert.equal(0, transfer.getAccountIndex());
+          assert(transfer.getTx().getIsConfirmed());
+        }
+        
+        // get transfers in the tx pool
+        transfers = await testGetTransfers({inTxPool: true});
+        for (let transfer of transfers) {
+          assert.equal(true, transfer.getTx().getInTxPool());
+        }
         
         // get random transactions
-        let txs = await getRandomTransactions(wallet, undefined, 1, 5);
+        let txs = await getRandomTransactions(wallet, undefined, 3, 5);
         
-        // get each transaction by id
+        // get transfers with a tx id
         let txIds = [];
         for (let tx of txs) {
           txIds.push(tx.getId());
-          let retrievedTx = await wallet.getTxById(tx.getId());
-          await testWalletTx(retrievedTx, {wallet: wallet});
-          assert.equal(tx.getId(), retrievedTx.getId());
+          transfers = await testGetTransfers(wallet, {txId: tx.getId()}, true);
+          assert.equal(1, transfers.length);
+          assert.equal(tx.getId(), transfers[0].getTx().getId());
         }
         
-        // get multiple transactions by id
-        let retrievedTxs = await wallet.getTxsById(txIds);
-        assert(retrievedTxs.length > 0);
-        for (let retrievedTx of retrievedTxs) {
-          assert(txIds.includes(retrievedTx.getId()));
-        }
-        for (let txId of txIds) {
-          let found = false;
-          for (let retrievedTx of retrievedTxs) if (retrievedTx.getId() === txId) found = true;
-          assert(found, "No transaction with id " + txId + " retrieved");
-        }
-        
-        // test with invalid id
-        let expectedError = "No wallet transaction found with id 'invalid_id'";
-        try {
-          await wallet.getTxById("invalid_id");
-          throw new Error("Should have thrown error");
-        } catch (e) {
-          assert.equal(expectedError, e.message);
-        }
-        
-        // test with invalid ids
-        try {
-          await wallet.getTxsById([txIds[0], "invalid_id"]);
-          throw new Error("Should have thrown error");
-        } catch (e) {
-          assert.equal(expectedError, e.message);
-        }
+        // get transfers with tx ids
+        transfers = await testGetTransfers(wallet, {txIds: txIds}, true);
+        for (let transfer of transfers) assert(txIds.includes(transfer.getId()));
       });
       
-      it("Can get transactions filtered by having outgoing transfers or not", async function() {
+      it("Validates inputs when getting transfers", async function() {
         
-        // filter on having outgoing transfers
-        let filter = new MoneroTxFilter();
-        filter.setHasOutgoingTransfer(true);
-        let txs = await wallet.getTxs(filter);
-        assert(txs.length > 0);
-        for (let tx of txs) {
-          assert(tx.getOutgoingTransfer());
-        }
+//        // test with invalid id
+//        let expectedError = "No wallet transaction found with id 'invalid_id'";
+//        try {
+//          await wallet.getTxById("invalid_id");
+//          throw new Error("Should have thrown error");
+//        } catch (e) {
+//          assert.equal(expectedError, e.message);
+//        }
+//        
+//        // test with invalid ids
+//        try {
+//          await wallet.getTxsById([txIds[0], "invalid_id"]);
+//          throw new Error("Should have thrown error");
+//        } catch (e) {
+//          assert.equal(expectedError, e.message);
+//        }
         
-        // filter on not having outgoing transfer
-        filter.setHasOutgoingTransfer(false);
-        txs = await wallet.getTxs(filter);
-        assert(txs.length > 0);  // requires running rescan blockchain so tx transfers get wiped
-        for (let tx of txs) {
-          assert.equal(undefined, tx.getOutgoingTransfer());
-        }
-        
-        // filter on no preference
-        filter.setHasOutgoingTransfer(undefined);
-        let foundTransfer = false;
-        let foundNoTransfer = false;
-        for (let tx of await wallet.getTxs(filter)) {
-          if (tx.getOutgoingTransfer() !== undefined && tx.getOutgoingTransfer()) foundTransfer = true;
-          if (tx.getOutgoingTransfer() === undefined) foundNoTransfer = true;
-        }
-        assert(foundTransfer);
-        assert(foundNoTransfer);
+        throw new Error("Not implemented");
       });
-      
-      it("Can get transactions filtered by having incoming transfers or not", async function() {
-        
-        // filter on having incoming transfers
-        let filter = new MoneroTxFilter();
-        filter.setHasIncomingTransfers(true);
-        let txs = await wallet.getTxs(filter);
-        assert(txs.length > 0);
-        for (let tx of txs) {
-          assert(tx.getIncomingTransfers());
-          assert(tx.getIncomingTransfers().length > 0);
-        }
-        
-        // filter on not having incoming transfers
-        filter.setHasIncomingTransfers(false);
-        txs = await wallet.getTxs(filter);
-        assert(txs.length > 0);  // requires running rescan blockchain so tx transfers get wiped
-        for (let tx of txs) {
-          assert.equal(undefined, tx.getIncomingTransfers());
-        }
-        
-        // filter on no preference
-        filter.setHasIncomingTransfers(undefined);
-        txs = await wallet.getTxs(filter);
-        let foundTransfers = false;
-        let foundNoTransfers = false;
-        for (let tx of txs) {
-          if (tx.getIncomingTransfers() !== undefined && tx.getIncomingTransfers().length > 0) foundTransfers = true;
-          if (tx.getIncomingTransfers() === undefined) foundNoTransfers = true;
-        }
-        assert(foundTransfers);
-        assert(foundNoTransfers);
-      });
-      
-      if (!liteMode) {
-        it("Can get transactions with a filter", async function() {  // TODO: Timeout of 1000000ms exceeded. For async tests and hooks, ensure "done()" is called
-          if (liteMode) return; // skips test if lite
-          
-          // get all transactions for reference
-          let allTxs = await getCachedTxs();
-          assert(allTxs.length > 0);
-          for (let tx of allTxs) {
-            await testTxWalletGet(wallet, tx, that.unbalancedTxIds);
-          }
-          
-          // test getting transactions by payment ids
-          // TODO: this test is very slow, optimize
-          let paymentIds = [];
-          for (let tx of allTxs) paymentIds.push(tx.getPaymentId());
-          assert(paymentIds.length > 0);
-          for (let paymentId of paymentIds) {
-            let filter = new MoneroTxFilter();
-            filter.setPaymentIds([paymentId]);
-            let txs = await wallet.getTxs(filter);
-            assert(txs.length > 0);
-            for (let tx of txs) {
-              await testTxWalletGet(wallet, tx, that.unbalancedTxIds);
-              assert(filter.getPaymentIds().includes(tx.getPaymentId()));
-            }
-          }
-          
-          // test getting incoming transactions
-          let filter = new MoneroTxFilter();
-          filter.setIsIncoming(true);
-          filter.setIsConfirmed(true);
-          let txs = await wallet.getTxs(filter);
-          assert(txs.length > 0);
-          for (let tx of txs) {
-            assert(tx.getIsIncoming());
-            assert(tx.getIsConfirmed());
-          }
-          
-          // test getting outgoing transactions
-          filter = new MoneroTxFilter();
-          filter.setIsOutgoing(true);
-          filter.setIsConfirmed(true);
-          txs = await wallet.getTxs(filter);
-          assert(txs.length > 0);
-          for (let tx of txs) {
-            assert(tx.getIsOutgoing());
-            assert(tx.getIsConfirmed());
-          }
-          
-          // test block height filtering
-          {
-            txs = await wallet.getTxs(0);
-            assert(txs.length > 0, "No transactions; run send to multiple test");
-              
-            // get and sort block heights in ascending order
-            let heights = [];
-            for (let tx of txs) {
-              if (tx.getHeight() !== undefined) heights.push(tx.getHeight());
-            }
-            GenUtils.sort(heights);
-            
-            // pick minimum and maximum heights for filtering
-            let minHeight = -1;
-            let maxHeight = -1;
-            if (heights.length == 1) {
-              minHeight = 0;
-              maxHeight = heights[0] - 1;
-            } else {
-              minHeight = heights[0] + 1;
-              maxHeight = heights[heights.length - 1] - 1;
-            }
-            
-            // assert some transactions filtered
-            let unfilteredCount = txs.length;
-            filter = new MoneroTxFilter();
-            filter.setAccountIndex(0);
-            filter.setMinHeight(minHeight);
-            filter.setMaxHeight(maxHeight);
-            txs = await wallet.getTxs(filter);
-            assert(txs.length > 0);
-            assert(txs.length < unfilteredCount);
-            for (let tx of txs) {
-              assert(tx.getHeight() >= minHeight && tx.getHeight() <= maxHeight);
-            }
-          }
-          
-          // get all subaddresses with balances
-          let subaddresses = [];
-          for (let account of await wallet.getAccounts(true)) {
-            for (let subaddress of account.getSubaddresses()) {
-              if (subaddress.getBalance().compare(new BigInteger(0)) > 0 || subaddress.getUnlockedBalance().compare(new BigInteger(0)) > 0) {
-                subaddresses.push(subaddress);
-              }
-            }
-          }
-          
-          // test that unspent tx transfers add up to balance
-          for (let subaddress of subaddresses) {
-            filter = new MoneroTxFilter();
-            filter.setAccountIndex(subaddress.getAccountIndex());
-            filter.setSubaddressIndices([subaddress.getSubaddressIndex()]);
-            txs = await wallet.getTxs(filter);
-            
-            // test that unspent tx transfers add up to subaddress balance
-            let balance = new BigInteger(0);
-            for (let tx of txs) {
-              if (tx.getIsIncoming() && tx.getIsConfirmed()) {
-                for (let transfer of tx.getTransfers()) {
-                  if (!transfer.getIsSpent()) {  // TODO: test that typeof === "boolean" in testTransfer() test
-                    balance = balance.add(transfer.getAmount());
-                  }
-                }
-              }
-            }
-            let actualBalance = (await wallet.getSubaddress(subaddress.getAccountIndex(), subaddress.getSubaddressIndex())).getBalance();
-            assert(actualBalance.compare(balance) === 0); // TODO: (monero-wallet-rpc): fails after send tests
-          }
-          
-          // assert that ummet filter criteria has no results
-          filter = new MoneroTxFilter();
-          filter.setAccountIndex(0);
-          filter.setSubaddressIndices([1234907]);
-          txs = await wallet.getTxs(filter);
-          assert(txs.length === 0);
-        });
-      }
-      
-      it("Returns all known fields of txs regardless of filtering", async function() {
-        
-        // fetch wallet txs
-        let txs = await wallet.getTxs();
-        for (let tx of txs) {
-          
-          // find tx sent to same wallet with incoming transfer in different account than src account
-          if (!tx.getIsOutgoing() || !tx.getIsIncoming()) continue;
-          if (tx.getOutgoingAmount().compare(tx.getIncomingAmount()) !== 0) continue;
-          if (!tx.getIncomingTransfers()) continue;
-          for (let transfer of tx.getIncomingTransfers()) {
-            if (transfer.getAccountIndex() === tx.getOutgoingTransfer().getAccountIndex()) continue;
-            
-            // fetch tx with filtering
-            let filter = new MoneroTxFilter();
-            filter.setTransferFilter(new MoneroTransferFilter().setIsIncoming(true).setAccountIndex(transfer.getAccountIndex()));
-            let filteredTxs = await wallet.getTxs(filter);
-            let filteredTx = new MoneroTxFilter().setTxIds([tx.getId()]).apply(filteredTxs)[0];
-            
-            // txs should be the same
-            assert.equal(tx.getId(), filteredTx.getId());
-            assert.equal(tx.toString(), filteredTx.toString()); // TODO: better deep comparator?
-            
-            // test is done
-            return;
-          }
-        }
-        
-        // test did not fully execute
-        throw new Error("Test requires tx sent from/to different accounts of same wallet but none found; run send tests");
-      });
-      
-      it("Can get transfers", async function() {
-        
-        // test all transfers
-        await testGetTransfers(undefined, undefined, true);
-        
-        // test transfers per account
-        let accounts = await wallet.getAccounts(true);
-        for (let account of accounts) {
-          await testGetTransfers(account.getIndex());
-          
-          // test transfers per subaddress
-          for (let subaddress of account.getSubaddresses()) {
-            await testGetTransfers(account.getIndex(), subaddress.getSubaddressIndex());
-          }
-        }
-        
-        // TODO: test unconfirmed txs
-        //assert(walletBalance.compare(expectedBalance) === 0, "Account " + account.getIndex() + " balance does not add up: " + expectedBalance.toString() + " vs " + walletBalance.toString());
-        
-        // test fetching with filter
-        await testGetTransfers(1, undefined, true);
-        await testGetTransfers(2, undefined, true);
-        await testGetTransfers(1, 2, true);
-        await testGetTransfers(1, 2, true);
-        await testGetTransfers(1, [1, 2], true);
-        await testGetTransfers(1, [1, 3], true);
-        await testGetTransfers(new MoneroTransferFilter().setAccountIndex(1).setSubaddressIndices([1, 3]).setIsSpent(true), undefined, true);
-        await testGetTransfers({accountIndex: 1, subaddressIndices: [1, 3], isSpent: true, mustFind: true});
-        
-        // test expected errors
-        await testGetTransfersError([1], [2], "First parameter must be a MoneroTransferFilter, unsigned integer, or undefined");
-        await testGetTransfersError(new MoneroTransferFilter().setSubaddressIndices([1]), [-1, 2], "Second parameter must be an unsigned integer, array of unsigned integers, or undefined");
-        await testGetTransfersError(new MoneroTransferFilter().setSubaddressIndices([2]), [2], "Third parameter must be a boolean or undefined");
-        await testGetTransfersError(new MoneroTransferFilter().setSubaddressIndices([1]), [2], "Parameters for subaddress indices do not match");
-        await testGetTransfersError(new MoneroTransferFilter().setIsSpent(true), undefined, "Parameters for isSpent do not match");
-
-        // helper function to fetch and test transfers
-        async function testGetTransfers(filterOrAccountIdx, subaddressIndices, mustFind) {
-          
-          // get transfers
-          let transfers = await wallet.getTransfers(filterOrAccountIdx, subaddressIndices);
-          if (mustFind) assert(transfers && transfers.length > 0, "No transfers matching filter found; run send tests");
-          
-          // standardize inputs as filter
-          let filter;
-          if (filterOrAccountIdx instanceof MoneroTransferFilter) filter = filterOrAccountIdx;
-          else {
-            assert(filterOrAccountIdx === undefined || typeof filterOrAccountIdx === "number" && filterOrAccountIdx >= 0, "First parameter must be a MoneroTransferFilter, unsigned integer, or undefined");
-            filter = new MoneroTransferFilter().setAccountIndex(filterOrAccountIdx);
-          }
-          if (subaddressIndices !== undefined) {
-            subaddressIndices = GenUtils.listify(subaddressIndices);
-            for (let subaddressIdx of subaddressIndices) assert(subaddressIdx >= 0, "Second parameter must be an unsigned integer, array of unsigned integers, or undefined");
-            filter.setSubaddressIndices(MoneroUtils.reconcile(filter.getSubaddressIndices(), subaddressIndices, undefined, "Parameters for subaddress indices do not match"));
-          }
-          if (isSpent !== undefined) {
-            assert.equal("boolean", typeof isSpent, "Third parameter must be a boolean or undefined");
-            filter.setIsSpent(MoneroUtils.reconcile(filter.getIsSpent(), isSpent, undefined, "Parameters for isSpent do not match"));
-          }
-          
-          // test each transfer
-          for (let transfer of transfers) {
-            testTransfer(transfer);
-            if (filter.getAccountIndex() !== undefined) assert.equal(filter.getAccountIndex(), transfer.getAccountIndex());
-            if (filter.getSubaddressIndices() !== undefined) assert(filter.getSubaddressIndices().includes(transfer.getSubaddressIndex()));
-            if (isSpent !== undefined) assert.equal(isSpent, transfer.getIsSpent());
-          }
-        }
-        
-        // helper function to test expected errors
-        async function testGetVoutsError(filterOrAccountIdx, subaddressIndices, errMsg) {
-          try {
-            await testGetVouts(filterOrAccountIdx, subaddressIndices);
-            throw new Error("Should have failed");
-          } catch (e) {
-            assert.equal(errMsg, e.message);
-          }
-        }
-      })
       
       it("Can get vouts", async function() {
         
-        // test all vouts
-        await testGetVouts(undefined, undefined, undefined, true);
+        // get all vouts
+        await testGetVouts(wallet, undefined, true);
         
-        // test vouts per account
+        // get vouts by account index
+        let nonDefaultIncoming = false;
         let accounts = await wallet.getAccounts(true);
         for (let account of accounts) {
-          await testGetVouts(account.getIndex());
+          let accountVouts = await testGetVouts(wallet, {accountIndex: account.getIndex}, true);
+          for (let vout of accountVouts) assert.equal(account.getIndex(), vout.getAccountIndex());
           
-          // test vouts per subaddress
+          // get vouts by subaddress index
+          let subaddressVouts = [];
           for (let subaddress of account.getSubaddresses()) {
-            await testGetVouts(account.getIndex(), subaddress.getSubaddressIndex());
+            subaddressIndices.push(subaddress.getSubaddressIndex());
+            let vouts = await testGetVouts(wallet, {accountIndex: subaddress.getAccountIndex(), subaddressIndex: subaddress.getSubaddressIndex()}, true);
+            for (let vout of vouts) {
+              assert.equal(subaddress.getAccountIndex(), vout.getAccountIndex());
+              assert.equal(subaddress.getSubaddressIndex(), vout.getSubaddressIndex);
+              if (vout.getAccountIndex() !== 0 && vout.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
+              subaddressVouts.push(vout);
+            }
           }
-        }
-        
-        // TODO: test unconfirmed txs
-        //assert(walletBalance.compare(expectedBalance) === 0, "Account " + account.getIndex() + " balance does not add up: " + expectedBalance.toString() + " vs " + walletBalance.toString());
-        
-        // test fetching with filter
-        await testGetVouts(1, undefined, true, true);
-        await testGetVouts(2, undefined, false, true);
-        await testGetVouts(1, 2, false, true);
-        await testGetVouts(1, 2, true, true);
-        await testGetVouts(1, [1, 2], false, true);
-        await testGetVouts(1, [1, 3], true, true);
-        await testGetVouts(new MoneroVoutFilter().setAccountIndex(1).setSubaddressIndices([1, 3]).setIsSpent(true), undefined, undefined, true);
-        
-        // test expected errors
-        await testGetVoutsError([1], [2], false, "First parameter must be a MoneroVoutFilter, unsigned integer, or undefined");
-        await testGetVoutsError(new MoneroVoutFilter().setSubaddressIndices([1]), [-1, 2], false, "Second parameter must be an unsigned integer, array of unsigned integers, or undefined");
-        await testGetVoutsError(new MoneroVoutFilter().setSubaddressIndices([2]), [2], "hello", "Third parameter must be a boolean or undefined");
-        await testGetVoutsError(new MoneroVoutFilter().setSubaddressIndices([1]), [2], false, "Parameters for subaddress indices do not match");
-        await testGetVoutsError(new MoneroVoutFilter().setIsSpent(true), undefined, false, "Parameters for isSpent do not match");
-
-        // helper function to fetch and test vouts
-        async function testGetVouts(filterOrAccountIdx, subaddressIndices, isSpent, mustFind) {
+          assert.equal(accountVouts.length, subaddressVouts.length);
           
-          // get vouts
-          let vouts = await wallet.getVouts(filterOrAccountIdx, subaddressIndices, isSpent);
-          if (mustFind) assert(vouts.length > 0, "No vouts matching filter found; run send tests");
-          
-          // standardize inputs as filter
-          let filter;
-          if (filterOrAccountIdx instanceof MoneroVoutFilter) filter = filterOrAccountIdx;
-          else {
-            assert(filterOrAccountIdx === undefined || typeof filterOrAccountIdx === "number" && filterOrAccountIdx >= 0, "First parameter must be a MoneroVoutFilter, unsigned integer, or undefined");
-            filter = new MoneroVoutFilter().setAccountIndex(filterOrAccountIdx);
-          }
-          if (subaddressIndices !== undefined) {
-            subaddressIndices = GenUtils.listify(subaddressIndices);
-            for (let subaddressIdx of subaddressIndices) assert(subaddressIdx >= 0, "Second parameter must be an unsigned integer, array of unsigned integers, or undefined");
-            filter.setSubaddressIndices(MoneroUtils.reconcile(filter.getSubaddressIndices(), subaddressIndices, undefined, "Parameters for subaddress indices do not match"));
-          }
-          if (isSpent !== undefined) {
-            assert.equal("boolean", typeof isSpent, "Third parameter must be a boolean or undefined");
-            filter.setIsSpent(MoneroUtils.reconcile(filter.getIsSpent(), isSpent, undefined, "Parameters for isSpent do not match"));
-          }
-          
-          // test each vout
+          // get vouts by subaddress indices
+          let subaddressIndices = subaddressVouts.map(vout => vout.getSubaddressIndex());
+          vouts = await testGetVouts(wallet, {accountIndex: account.getIndex(), subaddressIndices: subaddressIndices}, true);
+          assert.equal(subaddressVouts.length, vouts.length);
           for (let vout of vouts) {
-            testVout(vout);
-            if (filter.getAccountIndex() !== undefined) assert.equal(filter.getAccountIndex(), vout.getAccountIndex());
-            if (filter.getSubaddressIndices() !== undefined) assert(filter.getSubaddressIndices().includes(vout.getSubaddressIndex()));
-            if (isSpent !== undefined) assert.equal(isSpent, vout.getIsSpent());
+            assert.equal(account.getIndex(), vout.getAccountIndex());
+            assert(subaddressIndices.includes(vout.getSubaddressIndex()));
           }
         }
         
-        // helper function to test expected errors
-        async function testGetVoutsError(filterOrAccountIdx, subaddressIndices, isSpent, errMsg) {
-          try {
-            await testGetVouts(filterOrAccountIdx, subaddressIndices, isSpent);
-            throw new Error("Should have failed");
-          } catch (e) {
-            assert.equal(errMsg, e.message);
-          }
+        // ensure vout found with non-zero account and subaddress indices
+        assert(nonDefaultIncoming, "No vouts found in non-default account and subaddress; run send-to-multiple tests");
+      });
+      
+      it("Can get vouts with additional configuration", async function() {
+        
+        // get unspent vouts to account 0
+        let vouts = await testGetVouts(wallet, {accountIndex: 0, isSpent: false});
+        for (let vout of vouts) {
+          assert.equal(0, vout.getAccountIndex());
+          assert.equal(false, vout.getIsSpent());
         }
+        
+        // get spent vouts to account 1
+        let vouts = await testGetVouts(wallet, {accountIndex: 1, isSpent: true}, true);
+        for (let vout of vouts) {
+          assert.equal(1, vout.getAccountIndex());
+          assert.equal(true, vout.getIsSpent());
+        }
+        
+        // get random transactions
+        let txs = await getRandomTransactions(wallet, undefined, 3, 5);
+        
+        // get vouts with a tx id
+        let txIds = [];
+        for (let tx of txs) {
+          txIds.push(tx.getId());
+          vouts = await testGetVouts(wallet, {txId: tx.getId()}, true);
+          assert.equal(1, vouts.length);
+          assert.equal(tx.getId(), vouts[0].getTx().getId());
+        }
+        
+        // get vouts with tx ids
+        vouts = await testGetVouts(wallet, {txIds: txIds}, true);
+        for (let vout of vouts) assert(txIds.includes(vout.getId()));
+      });
+      
+      it("Validates inputs when getting vouts", async function() {
+        throw new Error("Not implemented");
       });
       
       it("Has correct accounting across accounts, subaddresses, txs, transfers, and vouts", async function() {
@@ -1889,12 +1704,6 @@ class TestMoneroWalletCommon {
   }
 }
 
-// TODO: replace with TestUtils.testUnsignedBigInteger
-function isUnsignedBigInteger(param) {
-  if (param instanceof BigInteger && param.toJSValue() >= 0) return true;
-  return false;
-}
-
 function testAccount(account) {
   
   // test account
@@ -1931,16 +1740,88 @@ function testSubaddress(subaddress) {
 }
 
 /**
+ * Fetchs and tests transactions according to the given config.
+ * 
+ * TODO: convert config to filter and ensure each tx passes filter, same with testGetTransfer and testGetVouts
+ */
+async function testGetTxs(wallet, config, mustFind) {
+  let txs = await wallet.getTxs(config);
+  assert(Array.isArray(txs));
+  if (mustFind) assert(txs.length > 0);
+  for (let tx of txs) await testWalletTx(tx, {wallet: wallet});
+  return txs;
+}
+
+/**
+ * Fetchs and tests transfers according to the given config.
+ */
+async function testGetTransfers(wallet, config, mustFind) {
+  throw new Error("Not implemented");
+}
+
+/**
+ * Fetchs and tests vouts according to the given config.
+ */
+async function testGetVouts(wallet, config, mustFind) {
+  throw new Error("Not implemented");
+}
+
+////helper function to fetch and test vouts
+//async function testGetVouts(filterOrAccountIdx, subaddressIndices, isSpent, mustFind) {
+//  
+//  // get vouts
+//  let vouts = await wallet.getVouts(filterOrAccountIdx, subaddressIndices, isSpent);
+//  if (mustFind) assert(vouts.length > 0, "No vouts matching filter found; run send tests");
+//  
+//  // standardize inputs as filter
+//  let filter;
+//  if (filterOrAccountIdx instanceof MoneroVoutFilter) filter = filterOrAccountIdx;
+//  else {
+//    assert(filterOrAccountIdx === undefined || typeof filterOrAccountIdx === "number" && filterOrAccountIdx >= 0, "First parameter must be a MoneroVoutFilter, unsigned integer, or undefined");
+//    filter = new MoneroVoutFilter().setAccountIndex(filterOrAccountIdx);
+//  }
+//  if (subaddressIndices !== undefined) {
+//    subaddressIndices = GenUtils.listify(subaddressIndices);
+//    for (let subaddressIdx of subaddressIndices) assert(subaddressIdx >= 0, "Second parameter must be an unsigned integer, array of unsigned integers, or undefined");
+//    filter.setSubaddressIndices(MoneroUtils.reconcile(filter.getSubaddressIndices(), subaddressIndices, undefined, "Parameters for subaddress indices do not match"));
+//  }
+//  if (isSpent !== undefined) {
+//    assert.equal("boolean", typeof isSpent, "Third parameter must be a boolean or undefined");
+//    filter.setIsSpent(MoneroUtils.reconcile(filter.getIsSpent(), isSpent, undefined, "Parameters for isSpent do not match"));
+//  }
+//  
+//  // test each vout
+//  for (let vout of vouts) {
+//    testVout(vout);
+//    if (filter.getAccountIndex() !== undefined) assert.equal(filter.getAccountIndex(), vout.getAccountIndex());
+//    if (filter.getSubaddressIndices() !== undefined) assert(filter.getSubaddressIndices().includes(vout.getSubaddressIndex()));
+//    if (isSpent !== undefined) assert.equal(isSpent, vout.getIsSpent());
+//  }
+//}
+//
+//// helper function to test expected errors
+//async function testGetVoutsError(filterOrAccountIdx, subaddressIndices, isSpent, errMsg) {
+//  try {
+//    await testGetVouts(filterOrAccountIdx, subaddressIndices, isSpent);
+//    throw new Error("Should have failed");
+//  } catch (e) {
+//    assert.equal(errMsg, e.message);
+//  }
+//}
+
+
+
+/**
  * Gets random transactions.
  * 
  * @param wallet is the wallet to query for transactions
- * @param filter specifies a filter for the transactions.
+ * @param config configures the transactions to retrieve
  * @param minTxs specifies the minimum number of transactions (undefined for no minimum)
  * @param maxTxs specifies the maximum number of transactions (undefined for all filtered transactions)
  * @return {MoneroTx[]} are the random transactions
  */
-async function getRandomTransactions(wallet, filter, minTxs, maxTxs) {
-  let txs = await wallet.getTxs(filter);
+async function getRandomTransactions(wallet, config, minTxs, maxTxs) {
+  let txs = await wallet.getTxs(config);
   if (minTxs !== undefined) assert(txs.length >= minTxs);
   GenUtils.shuffle(txs);
   if (maxTxs === undefined) return txs;
@@ -2168,6 +2049,7 @@ async function testWalletTx(tx, testConfig) {
   
   // test vouts
   // TODO: ensure test of some vouts
+  // TODO: replace with testVout()
   if (testConfig.voutsFetched && (tx.getIncomingTransfers() || tx.getVouts())) {
     assert(tx.getVouts().length > 0);
     for (let vout of tx.getVouts()) {
