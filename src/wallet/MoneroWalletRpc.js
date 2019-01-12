@@ -495,32 +495,34 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTransfers(filterOrAccountIdx, subaddressIndices) {
     
-    // collect transfers within txs
-    let txs = [];
+    throw new Error("Not implemented");
     
-    // standardize inputs as filter
-    let filter;
-    if (filterOrAccountIdx instanceof MoneroTransferFilter) filter = filterOrAccountIdx;
-    else {
-      assert(filterOrAccountIdx === undefined || typeof filterOrAccountIdx === "number" && filterOrAccountIdx >= 0, "First parameter must be a MoneroTransferFilter, unsigned integer, or undefined");
-      filter = new MoneroTransferFilter().setAccountIndex(filterOrAccountIdx);
-    }
-    if (subaddressIndices !== undefined) {
-      subaddressIndices = GenUtils.listify(subaddressIndices);
-      for (let subaddressIdx of subaddressIndices) assert(subaddressIdx >= 0, "Second parameter must be an unsigned integer, array of unsigned integers, or undefined");
-      filter.setSubaddressIndices(MoneroUtils.reconcile(filter.getSubaddressIndices(), subaddressIndices, undefined, "Parameters for subaddress indices do not match"));
-    }
-    
-    // determine account and subaddress indices to be queried
-    let indices = new Map();
-    if (filter.getAccountIndex() !== undefined) {
-      // TODO: need to copy?
-      indices.set(filter.getAccountIndex(), filter.getSubaddressIndices() ? filter.getSubaddressIndices() : await this._getSubaddressIndices(filter.getAccountIndex()));
-    } else {
-      filter.setSubaddressIndices(undefined); // TODO: temps, to test assertion
-      assert.equal(undefined, filter.getSubaddressIndices(), "Filter specifies subaddress indices but not an account index");
-      indices = await this._getAccountIndices(true);  // fetch all account and subaddress indices
-    }
+//    // collect transfers within txs
+//    let txs = [];
+//    
+//    // standardize inputs as filter
+//    let filter;
+//    if (filterOrAccountIdx instanceof MoneroTransferFilter) filter = filterOrAccountIdx;
+//    else {
+//      assert(filterOrAccountIdx === undefined || typeof filterOrAccountIdx === "number" && filterOrAccountIdx >= 0, "First parameter must be a MoneroTransferFilter, unsigned integer, or undefined");
+//      filter = new MoneroTransferFilter().setAccountIndex(filterOrAccountIdx);
+//    }
+//    if (subaddressIndices !== undefined) {
+//      subaddressIndices = GenUtils.listify(subaddressIndices);
+//      for (let subaddressIdx of subaddressIndices) assert(subaddressIdx >= 0, "Second parameter must be an unsigned integer, array of unsigned integers, or undefined");
+//      filter.setSubaddressIndices(MoneroUtils.reconcile(filter.getSubaddressIndices(), subaddressIndices, undefined, "Parameters for subaddress indices do not match"));
+//    }
+//    
+//    // determine account and subaddress indices to be queried
+//    let indices = new Map();
+//    if (filter.getAccountIndex() !== undefined) {
+//      // TODO: need to copy?
+//      indices.set(filter.getAccountIndex(), filter.getSubaddressIndices() ? filter.getSubaddressIndices() : await this._getSubaddressIndices(filter.getAccountIndex()));
+//    } else {
+//      filter.setSubaddressIndices(undefined); // TODO: temps, to test assertion
+//      assert.equal(undefined, filter.getSubaddressIndices(), "Filter specifies subaddress indices but not an account index");
+//      indices = await this._getAccountIndices(true);  // fetch all account and subaddress indices
+//    }
     
 //    // determine account and subaddress indices to be queried
 //    // TODO: do not fetch subaddress indices because undefined is ALL
