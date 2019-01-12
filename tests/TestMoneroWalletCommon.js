@@ -408,33 +408,31 @@ class TestMoneroWalletCommon {
         
         // get transfers by account index
         let nonDefaultIncoming = false;
-        let accounts = await wallet.getAccounts(true);
-        for (let account of accounts) {
-          let accountTransfers = await testGetTransfers(wallet, {accountIndex: account.getIndex}, true);
+        for (let account of await wallet.getAccounts(true)) {
+          let accountTransfers = await testGetTransfers(wallet, {accountIndex: account.getIndex()});
           for (let transfer of accountTransfers) assert.equal(account.getIndex(), transfer.getAccountIndex());
           
           // get transfers by subaddress index
           let subaddressTransfers = [];
           for (let subaddress of account.getSubaddresses()) {
-            subaddressIndices.push(subaddress.getSubaddressIndex());
-            let transfers = await testGetTransfers(wallet, {accountIndex: subaddress.getAccountIndex(), subaddressIndex: subaddress.getSubaddressIndex()}, true);
+            let transfers = await testGetTransfers(wallet, {accountIndex: subaddress.getAccountIndex(), subaddressIndex: subaddress.getSubaddressIndex()});
             for (let transfer of transfers) {
               assert.equal(subaddress.getAccountIndex(), transfer.getAccountIndex());
-              assert.equal(subaddress.getSubaddressIndex(), transfer.getSubaddressIndex);
+              assert.equal(transfer.getIsOutgoing() ? 0 : subaddress.getSubaddressIndex(), transfer.getSubaddressIndex());
               if (transfer.getAccountIndex() !== 0 && transfer.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
               subaddressTransfers.push(transfer);
             }
           }
           assert.equal(accountTransfers.length, subaddressTransfers.length);
           
-          // get transfers by subaddress indices
-          let subaddressIndices = subaddressTransfers.map(transfer => transfer.getSubaddressIndex());
-          transfers = await testGetTransfers(wallet, {accountIndex: account.getIndex(), subaddressIndices: subaddressIndices}, true);
-          assert.equal(subaddressTransfers.length, transfers.length);
-          for (let transfer of transfers) {
-            assert.equal(account.getIndex(), transfer.getAccountIndex());
-            assert(subaddressIndices.includes(transfer.getSubaddressIndex()));
-          }
+//          // get transfers by subaddress indices
+//          let subaddressIndices = subaddressTransfers.map(transfer => transfer.getSubaddressIndex());
+//          let transfers = await testGetTransfers(wallet, {accountIndex: account.getIndex(), subaddressIndices: subaddressIndices});
+//          assert.equal(subaddressTransfers.length, transfers.length);
+//          for (let transfer of transfers) {
+//            assert.equal(account.getIndex(), transfer.getAccountIndex());
+//            assert(subaddressIndices.includes(transfer.getSubaddressIndex()));
+//          }
         }
         
         // ensure transfer found with non-zero account and subaddress indices
@@ -444,22 +442,31 @@ class TestMoneroWalletCommon {
       it("Can get transfers with additional configuration", async function() {
         
         // get incoming transfers
-        let transfers = await testGetTransfers({isIncoming: true}, true);
+        let transfers = await testGetTransfers(wallet, {isIncoming: true}, true);
         for (let transfer of transfers) assert(transfer.getIsIncoming());
         
         // get outgoing transfers
-        transfers = await testGetTransfers({isOutgoing: true}, true);
-        for (let transfer of transfers) assert(transfer.getIsIncoming());
+        transfers = await testGetTransfers(wallet, {isOutgoing: true}, true);
+        for (let transfer of transfers) assert(transfer.getIsOutgoing());
         
         // get confirmed transfers to account 0
-        transfers = await testGetTransfers({accountIndex: 0, isConfirmed: true}, true);
+        transfers = await testGetTransfers(wallet, {accountIndex: 0, isConfirmed: true}, true);
         for (let transfer of transfers) {
           assert.equal(0, transfer.getAccountIndex());
           assert(transfer.getTx().getIsConfirmed());
         }
         
+        // get confirmed transfers to [1, 2]
+        transfers = await testGetTransfers(wallet, {accountIndex: 1, subaddressIndex: 2, isConfirmed: true}, true);
+        for (let transfer of transfers) {
+          console.log(transfer.toString());
+          assert.equal(1, transfer.getAccountIndex());
+          assert.equal(2, transfer.getSubaddressIndex());
+          assert(transfer.getTx().getIsConfirmed());
+        }
+        
         // get transfers in the tx pool
-        transfers = await testGetTransfers({inTxPool: true});
+        transfers = await testGetTransfers(wallet, {inTxPool: true});
         for (let transfer of transfers) {
           assert.equal(true, transfer.getTx().getInTxPool());
         }
@@ -1888,7 +1895,12 @@ async function testWalletTx(tx, testConfig) {
     // test each transfer and collect transfer sum
     let transferSum = new BigInteger(0);
     for (let transfer of tx.getIncomingTransfers()) {
-      testTransfer(transfer);
+      try {
+        testTransfer(transfer);
+      } catch (e) {
+        console.log(tx.toString());
+        throw e;
+      }
       assert(transfer.getAddress());
       assert(transfer.getAccountIndex() >= 0);
       assert(transfer.getSubaddressIndex() >= 0);
@@ -2031,6 +2043,7 @@ function testWalletTxCopy(tx) {
 
 function testTransfer(transfer) {
   assert(transfer instanceof MoneroTransfer);
+  assert(transfer.getTx() instanceof MoneroWalletTx);
   TestUtils.testUnsignedBigInteger(transfer.getAmount());
   assert((transfer.getIsOutgoing() === true && transfer.getIsIncoming() === false) || (transfer.getIsOutgoing() === false && transfer.getIsIncoming() === true));
 }

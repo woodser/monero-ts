@@ -25,22 +25,26 @@ describe("Scratchpad", function() {
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
     
-//    // fetch txs
-//    let txId = "31564d4ccc63a7c9c118cac8ddf95f418392a57f6d7c41c461d874dc7571add9";
-//    let filter = new MoneroTxFilter();
-//    //filter.setAccountIndex(0);
-//    //filter.setSubaddressIndices([0]);
-//    //filter.setFetchVouts(true);
-//    filter.setTxIds([txId]);
-//    let txs = await wallet.getTxs(filter, undefined, txId);
-//    for (let tx of txs) {
-//      console.log(tx.toString());
-//    }
+    // fetch txs
+    let txId = "a8429a20b173b119ffde6d3a0b3ebf666977f669cec1c5d23e879b69b553a37e";
+    //filter.setAccountIndex(0);
+    //filter.setSubaddressIndices([0]);
+    //filter.setFetchVouts(true);
+    let txs = new Set();
+    let transfers = await wallet.getTransfers({accountIndex: 0, subaddressIndex: 2, debugTxId: txId});
+    for (let transfer of transfers) {
+      txs.add(transfer.getTx());
+    }
+    
+    txs = Array.from(txs);
+    for (let tx of txs) {
+      if (tx.getId() === txId) console.log(tx.toString());
+    }
     
     // fetch vouts
-    let vouts = await wallet.getVouts();
-    console.log(vouts[0].toString());
-    console.log(vouts[0].getTx().toString());
+//    let vouts = await wallet.getVouts();
+//    console.log(vouts[0].toString());
+//    console.log(vouts[0].getTx().toString());
     
     // send tx
 //  let address1 = (await wallet.getSubaddress(1, 0)).getAddress();
