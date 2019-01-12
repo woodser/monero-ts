@@ -646,7 +646,7 @@ class TestMoneroWalletCommon {
           
           // get transfers
           let transfers = await wallet.getTransfers(filterOrAccountIdx, subaddressIndices);
-          if (mustFind) assert(transfers.length > 0, "No transfers matching filter found; run send tests");
+          if (mustFind) assert(transfers && transfers.length > 0, "No transfers matching filter found; run send tests");
           
           // standardize inputs as filter
           let filter;
