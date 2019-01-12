@@ -5,8 +5,7 @@ const MoneroTransfer = require("../model/MoneroTransfer");
 /**
  * Filters transfers by their attributes.
  * 
- * Transfers are only filtered if they don't match any fields that are set in
- * the filter.
+ * Only filters items that don't match a criteria in the filter.
  */
 class MoneroTransferFilter extends MoneroSubaddressFilter {
   

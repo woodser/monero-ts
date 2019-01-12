@@ -30,6 +30,18 @@ class MoneroFilter {
     this.subaddressIndices = subaddressIndices;
   }
   
+  
+  // TODO: this more an instruction than a filter, remove altogether and force client to get their own vouts? prolly.
+  // just test specifically that vout txs can be merged with zisting txs lulz
+  getFetchVouts() {
+    return this.fetchVouts;
+  }
+  
+  setFetchVouts(fetchVouts) {
+    this.fetchVouts = fetchVouts;
+    return this;
+  }
+  
 
   // -------- tx filter
   

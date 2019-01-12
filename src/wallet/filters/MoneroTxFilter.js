@@ -3,30 +3,9 @@ const Filter = require("../../utils/Filter");
 /**
  * Filters transactions by their attributes.
  * 
- * TODO: getIsOutgoing() and hasOutgoingTransfer() redundant (same for incoming)
- * 
- * Transactions are only filtered if they don't match any fields that are set
- * in the filter.
+ * Only filters items that don't match a criteria in the filter.
  */
 class MoneroTxFilter extends Filter {
-  
-  getIsOutgoing() {
-    return this.isOutgoing;
-  }
-  
-  setIsOutgoing(isOutgoing) {
-    this.isOutgoing = isOutgoing;
-    return this;
-  }
-  
-  getIsIncoming() {
-    return this.isIncoming;
-  }
-  
-  setIsIncoming(isIncoming) {
-    this.isIncoming = isIncoming;
-    return this;
-  }
 
   getTxIds() {
     return this.txIds;
@@ -91,6 +70,15 @@ class MoneroTxFilter extends Filter {
     return this;
   }
   
+  getPaymentIds() {
+    return this.paymentIds;
+  }
+
+  setPaymentIds(paymentIds) {
+    this.paymentIds = paymentIds;
+    return this;
+  }
+  
   getHasOutgoingTransfer() {
     return this.hasOutgoingTransfer;
   }
@@ -115,26 +103,6 @@ class MoneroTxFilter extends Filter {
   
   setTransferFilter(transferFilter) {
     this.transferFilter = transferFilter;
-    return this;
-  }
-  
-  getPaymentIds() {
-    return this.paymentIds;
-  }
-
-  setPaymentIds(paymentIds) {
-    this.paymentIds = paymentIds;
-    return this;
-  }
-  
-  // TODO: this more an instruction than a filter, remove altogether and force client to get their own vouts? prolly.
-  // just test specifically that vout txs can be merged with zisting txs lulz
-  getFetchVouts() {
-    return this.fetchVouts;
-  }
-  
-  setFetchVouts(fetchVouts) {
-    this.fetchVouts = fetchVouts;
     return this;
   }
   

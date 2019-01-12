@@ -1,9 +1,11 @@
 const Filter = require("../../utils/Filter");
 
 /**
- * Filters based on account and subaddress indices.
+ * Filters subaddresses by their attributes.
+ * 
+ * Only filters items that don't match a criteria in the filter.
  */
-class MoneroSubaddressFilter extends Filter {
+class MoneroSubaddressFilter extends MoneroFilter {
   
   getAccountIndex() {
     return this.accountIndex;

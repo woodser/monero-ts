@@ -15,12 +15,12 @@ class Filter {
   }
   
   /**
-   * Indicates if the given parameter meets the criteria of this filter.
+   * Indicates if the given value meets the criteria of this filter.
    * 
-   * @param param is the parameter to test
-   * @returns true if the param meets the criteria of this filter, false otherwise
+   * @param val is the value to test
+   * @returns true if the value meets the criteria of this filter, false otherwise
    */
-  meetsCriteria(param) {
+  meetsCriteria(val) {
     throw new Error("Subclass must implement");
   }
 }
