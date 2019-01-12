@@ -9,39 +9,73 @@ const MoneroDestination = require("./MoneroDestination");
 class MoneroTransfer {
   
   /**
-   * Constructs the model.
+   * Construct the model.
    * 
-   * @param jsonOrAddress is JSON to construct the model or an address (optional)
+   * @param state is the initialized model state or serialized json (optional)
    */
-  constructor(tx, jsonOrAddress, amount) {
-    
-    // initialize transaction which is not part of state
-    assert(tx);
-    assert(tx.getNote, "First parameter must be a MoneroWalletTx"); // TODO: better way to assert(tx instanceof MoneroWalletTx) without circular require?
-    this.tx = tx;
-    
-    // initialize without json
-    if (jsonOrAddress === undefined || typeof jsonOrAddress === "string") {
-      this.state = {};
-      this.setAddress(jsonOrAddress);
-      this.setAmount(amount);
-    }
-    
-    // otherwise deserialize json
-    else {
-      let json = jsonOrAddress;
-      this.state = Object.assign({}, json);
-      if (json.amount) this.setAmount(BigInteger.parse(json.amount));
-      if (json.destinations) {
-        let destinations = [];
-        for (let jsonDestination of json.destinations) destinations.push(new MoneroDestination(jsonDestination));
-        this.setDestinations(destinations);
+  constructor(state) {
+    state = Object.assign({}, state);
+    this.state = state;
+    if (state.amount && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(json.amount);
+    if (state.destinations) {
+      for (let i = 0; i < state.destinations.length; i++) {
+        if (!(state.destionation[i] instanceof MoneorDestionation)) state.destinations[i] = new MoneroDestionation(state.destinations[i]);
       }
     }
   }
   
+  getAddress() {
+    return this.state.address;
+  }
+
+  setAddress(address) {
+    this.state.address = address;
+    return this;
+  }
+
+  getAccountIndex() {
+    return this.state.accountIndex;
+  }
+
+  setAccountIndex(accountIndex) {
+    this.state.accountIndex = accountIndex;
+    return this;
+  }
+
+  getSubaddressIndex() {
+    return this.state.subaddressIndex;
+  }
+
+  setSubaddressIndex(subaddressIndex) {
+    this.state.subaddressIndex = subaddressIndex;
+    return this;
+  }
+
+  getAmount() {
+    return this.state.amount;
+  }
+
+  setAmount(amount) {
+    this.state.amount = amount;
+    return this;
+  }
+  
+  getDestinations() {
+    return this.state.destinations;
+  }
+  
+  setDestinations(destinations) {
+    this.state.destinations = destinations;
+    return this;
+  }
+  
   getTx() {
-    return this.tx;
+    return this.state.tx;
+  }
+  
+  setTx(tx) {
+    this.state.tx = tx;
+    return this;
   }
   
   getIsOutgoing() {
@@ -51,46 +85,6 @@ class MoneroTransfer {
   getIsIncoming() {
     if (!this.tx.getIncomingTransfers()) return false;
     return this.tx.getIncomingTransfers().includes(this);
-  }
-  
-  getAddress() {
-    return this.state.address;
-  }
-
-  setAddress(address) {
-    this.state.address = address;
-  }
-
-  getAccountIndex() {
-    return this.state.accountIndex;
-  }
-
-  setAccountIndex(accountIndex) {
-    this.state.accountIndex = accountIndex;
-  }
-
-  getSubaddressIndex() {
-    return this.state.subaddressIndex;
-  }
-
-  setSubaddressIndex(subaddressIndex) {
-    this.state.subaddressIndex = subaddressIndex;
-  }
-
-  getAmount() {
-    return this.state.amount;
-  }
-
-  setAmount(amount) {
-    this.state.amount = amount;
-  }
-  
-  getDestinations() {
-    return this.state.destinations;
-  }
-  
-  setDestinations(destinations) {
-    this.state.destinations = destinations;
   }
   
   copy() {
@@ -104,6 +98,7 @@ class MoneroTransfer {
       json.destinations = [];
       for (let destination of this.getDestinations()) json.destinations.push(destination.toJson());
     }
+    delete json.tx; // parent tx is not serialized
     return json;
   }
 
