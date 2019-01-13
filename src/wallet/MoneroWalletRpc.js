@@ -245,12 +245,11 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Implements getTxs() with additional, non-standard parameters.
    * 
-   * @param {MoneroTxFilter} filter may be used to filter returned results (optional)
-   * @param includeVouts specifies to include vouts in returned transactions
-   * @param debugTxId prints debug info associated with this transaction
+   * @param config configures the request with base options and rpc extentions:
+   *        config.debugTxId prints request info with this tx id 
    * @returns {MoneroWalletTx[]} are the retrieved transactions
    */
-  async getTxs(filter, includeVouts, debugTxId) {
+  async getTxs(config, includeVouts, debugTxId) {
     
     // txs to return
     let txs = [];
