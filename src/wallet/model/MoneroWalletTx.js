@@ -37,14 +37,6 @@ class MoneroWalletTx extends MoneroTx {
     }
   }
   
-  getIsOutgoing() {
-    return this.getOutgoingTransfer() !== undefined;
-  }
-  
-  getIsIncoming() {
-    return this.getIncomingTransfers() !== undefined;
-  }
-  
   getOutgoingAmount() {
     return this.getOutgoingTransfer() === undefined ? undefined : this.getOutgoingTransfer().getAmount();
   }

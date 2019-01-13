@@ -249,7 +249,7 @@ class MoneroWalletRpc extends MoneroWallet {
    *        config.debugTxId prints request info with this tx id 
    * @returns {MoneroWalletTx[]} are the retrieved transactions
    */
-  async getTxs(config, includeVouts, debugTxId) {
+  async getTxs1(config, includeVouts, debugTxId) {
     
     // txs to return
     let txs = [];
@@ -357,175 +357,55 @@ class MoneroWalletRpc extends MoneroWallet {
     return txs;
   }
   
-  async getTxs2(filterOrAccountIdx, subaddressIdx, debugTxId) {
-    
-    // txs to return
-    let txs = [];
-    
-    // validate and standardize inputs to filter
-    let filter;
-    if (filterOrAccountIdx instanceof MoneroTxFilter) {
-      assert(subaddressIdx === undefined, "Cannot specify subaddress index if first parameter is MoneroTxFilter");
-      filter = filterOrAccountIdx;
-    } else if (filterOrAccountIdx >= 0 || filterOrAccountIdx === undefined) {
-      filter = new MoneroTxFilter();
-      filter.setAccountIndex(filterOrAccountIdx);
-      if (subaddressIdx !== undefined) {
-        assert(subaddressIdx >= 0, "Subaddress must be >= 0 but was " + subaddressIdx);
-        filter.setSubaddressIndices([subaddressIdx]);
-      }
-    } else throw new Error("First parameter must be MoneroTxFilter or account index >= 0 but was " + filterOrAccountIdx);
-    
-    // determine account and subaddress indices to be queried
-    let indices = new Map();
-    let transferFilter = filter.getTransferFilter();
-    if (!filter.getTransferFilter() || filter.getTransferFilter().getAccountIndex() === undefined) {
-      if (transferFilter && transferFilter.getSubaddressIndices() !== undefined) throw new Error("Transfer filter specifies subaddress indices but not an account index");
-      indices = await this._getAccountIndices(true);
-    } else {
-      let subaddressIndices = transferFilter.getSubaddressIndices() ? GenUtils.copyArray(transferFilter.getSubaddressIndices()) : await this._getSubaddressIndices(transferFilter.getAccountIndex());
-      indices.set(transferFilter.getAccountIndex(), subaddressIndices);
-    }
-    
-    // build params for `get_transfers` rpc call
-    // must get everything in order to know what is excluded by filter
-    let params = {};
-    params.in = true;
-    params.out = true;
-    params.pool = true;
-    params.pending = true;
-    params.failed = filter.getIsOutgoing() !== false && filter.getIsFailed() !== false;
-    params.filter_by_height = filter.getMinHeight() !== undefined || filter.getMaxHeight() !== undefined;
-    if (filter.getMinHeight() !== undefined) params.min_height = filter.getMinHeight();
-    if (filter.getMaxHeight() !== undefined) params.max_height = filter.getMaxHeight();
-    
-    // build txs using `get_transfers` for each indicated account
-    for (let accountIdx of indices.keys()) {
-      params.account_index = accountIdx;
-      params.subaddr_indices = indices.get(accountIdx);
-      let resp = await this.config.rpc.sendJsonRequest("get_transfers", params);
-      for (let key of Object.keys(resp)) {
-        for (let rpcTx of resp[key]) {
-          if (rpcTx.txid === debugTxId) console.log(rpcTx);
-          let tx = MoneroWalletRpc._buildWalletTx(rpcTx);
-          MoneroWalletRpc._mergeTx(txs, tx);
-          
-          // special case: tx sent from/to same account can have amount 0
-          // TODO monero-wallet-rpc: missing incoming transfers for txs sent from/to same account #4500
-          // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached transfers
-          if (tx.getIsOutgoing() && tx.getIsRelayed() && !tx.getIsFailed() && tx.getOutgoingAmount().compare(new BigInteger(0)) === 0) {
-            let outgoingTransfer = tx.getOutgoingTransfer();
-            
-            // use information from cached destinations if available
-            if (outgoingTransfer.getDestinations()) {
-              
-              // replace transfer amount with destination sum
-              let transferTotal = new BigInteger(0);
-              for (let destination of outgoingTransfer.getDestinations()) transferTotal = transferTotal.add(destination.getAmount());
-              tx.getOutgoingTransfer().setAmount(transferTotal);
-              
-              // reconstruct incoming transfers from outgoing destinations
-              let incomingTransfers = [];
-              for (let destination of outgoingTransfer.getDestinations()) {
-                let incomingTransfer = new MoneroTransfer({tx: tx});
-                incomingTransfers.push(incomingTransfer);
-                incomingTransfer.setAmount(destination.getAmount());
-                incomingTransfer.setAddress(destination.getAddress());
-                incomingTransfer.setAccountIndex(outgoingTransfer.getAccountIndex());
-                
-                // set subaddress index which may be same as outgoing src address or need looked up
-                if (incomingTransfer.getAddress() === outgoingTransfer.getAddress()) incomingTransfer.setSubaddressIndex(outgoingTransfer.getSubaddressIndex());
-                else incomingTransfer.setSubaddressIndex((await this.getAddressIndex(incomingTransfer.getAddress())).getSubaddressIndex());
-              }
-              tx.setIncomingTransfers(incomingTransfers);
-            }
-            
-//            // TODO: test and enable this?
-//            // fabricate outgoing transfer 0 if it doesn't exist
-//            if (tx.getOutgoingTransfers()) {
-//              assert.equal(1, tx.getOutgoingTransfers().length);
-//              assert.equal(0, new BigInteger(0).compare(tx.getOutgoingTransfers()[0]));
-//              let transfer = new MoneroTransfer();
-//              transfer.setAddress(tx.getSrcAddress());
-//              transfer.setAmount(new BigInteger(0));
-//              tx.setOutgoingTransfers([transfer]);
-//            }
-//            
-//            // fabricate incoming transfer 0
-//            // TODO monero-wallet-rpc: return known 'in' transfer counterpart so client doesn't need to fabricate #4500
-//            assert(tx.getIncomingTransfers() === undefined);
-//            let incomingTransfer = new MoneroTransfer();
-//            incomingTransfer.setAccountIndex(tx.getSrcAccountIndex());
-//            incomingTransfer.setSubaddressIndex(tx.getSrcSubaddressIndex());
-//            incomingTransfer.setAddress(tx.getSrcAddress());
-//            incomingTransfer.setAmount(new BigInteger(tx.getOutgoingAmount()));
-//            tx.setIncomingAmount(new BigInteger(tx.getOutgoingAmount))
-//            tx.setIncomingTransfers([incomingTransfer]);
-          }
-        }
-      }
-    }
-    
-    // TODO: update to use supported method
-//    // if requested, build and merge txs with vouts using `incoming_transfers`
-//    if (filter.getFetchVouts() === true) { // TODO: add to tx filter, document default behavior, must be set true to get vouts
-//      params = {};
-//      params.transfer_type = "all"; // TODO: suppport all | available | unavailable
-//      for (let accountIdx of indices.keys()) {
-//        
-//        // send request
-//        params.account_index = accountIdx;
-//        params.subaddr_indices = filter.getSubaddressIndices(); // undefined subaddr_indices will fetch all incoming_transfers
-//        let resp = await this.config.rpc.sendJsonRequest("incoming_transfers", params);
-//        
-//        // convert response to txs with vouts and merge
-//        if (resp.transfers === undefined) continue;
-//        for (let rpcVout of resp.transfers) {
-//          if (rpcVout.tx_hash === debugTxId) console.log(rpcVout);
-//          let tx = MoneroWalletRpc._buildWalletTxVout(rpcVout);
-//          MoneroWalletRpc._mergeTx(txs, tx, true);  // TODO: skip merging tx if absent because of monero-wallet-rpc #4500
-//        }
-//      }
-//    }
-    
-    // filter final result
-    return txs.filter(tx => filter.meetsCriteria(tx));
+  /**
+   * Implements getTxs() with additional, non-standard parameters.
+   * 
+   * @param config configures the request with base options and rpc extentions:
+   *        config.debugTxId prints request info with this tx id 
+   * @returns {MoneroWalletTx[]} are the retrieved transactions
+   */
+  async getTxs(config) {
+    console.log(config);
+    throw new Error("Not implemented");
   }
   
   async getTransfers(config) {
     
-    // create normalized filters
+    // create normalized transfer filter from input
+    if (config instanceof MoneroTransferFilter) throw new Error("getTransfers() by transfer filter not implemented");
     config = Object.assign({}, config);
-    let filter = new MoneroTransferFilter(config);
-    filter.setTransfer(new MoneroTransfer(config));
     let txFilter = new MoneroTxFilter(config);
-    txFilter.setTx(new MoneroWalletTx(config));
-    filter.setTxFilter(txFilter);
+    let tx = new MoneroWalletTx(config);
+    let transferFilter = new MoneroTransferFilter(config);
+    let transfer = new MoneroTransfer(config);
+    transferFilter.setTransfer(transfer);
+    transferFilter.setTxFilter(txFilter);
+    txFilter.setTx(tx);
     
     // determine account and subaddress indices to be queried
     let indices = new Map();
-    let filterTransfer = filter.getTransfer();
-    if (filterTransfer.getAccountIndex() !== undefined) {
+    if (transfer.getAccountIndex() !== undefined) {
       let subaddressIndices = new Set();
-      if (filterTransfer.getSubaddressIndex() !== undefined) subaddressIndices.add(filterTransfer.getSubaddressIndex());
-      if (filter.getSubaddressIndices() !== undefined) filter.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
-      indices.set(filterTransfer.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : await this._getSubaddressIndices(filterTransfer.getAccountIndex()));  // TODO monero-wallet-rpc: support `get_tranfsers` getting all transfers in account so clients don't need to pre-fetch subaddress indices
+      if (transfer.getSubaddressIndex() !== undefined) subaddressIndices.add(transfer.getSubaddressIndex());
+      if (transferFilter.getSubaddressIndices() !== undefined) transferFilter.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
+      indices.set(transfer.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : await this._getSubaddressIndices(transfer.getAccountIndex()));  // TODO monero-wallet-rpc: support `get_tranfsers` getting all transfers in account so clients don't need to pre-fetch subaddress indices
     } else {
-      assert.equal(undefined, filterTransfer.getSubaddressIndex(), "Filter specifies a subaddress index but not an account index")
-      assert(filter.getSubaddressIndices() === undefined || filter.getSubaddressIndices().length === 0, "Filter specifies subaddress indices but not an account index");
+      assert.equal(undefined, transfer.getSubaddressIndex(), "Filter specifies a subaddress index but not an account index")
+      assert(transferFilter.getSubaddressIndices() === undefined || filter.getSubaddressIndices().length === 0, "Filter specifies subaddress indices but not an account index");
       indices = await this._getAccountIndices(true);  // fetch all account and subaddress indices
     }
     
-    // build params for `get_transfers` rpc call
-    // TODO: doesn't account for height
-    // TODO: doesn't account for incoming, outgoing
-    // TODO: use filtering to determine each field
+    // determine params to fetch for `get_transfers` rpc call
+    let canBeConfirmed = tx.getIsConfirmed() !== false && tx.getInTxPool() !== true && tx.getIsFailed() !== true && tx.getIsRelayed() !== false;
+    let canBeInTxPool = tx.getIsConfirmed() !== true && tx.getInTxPool() !== false && tx.getIsFailed() !== true & tx.getIsRelayed() !== false && tx.getHeight() === undefined && txFilter.getMinHeight() === undefined;
+    let canBeIncoming = transferFilter.getIsIncoming() !== false && transferFilter.getIsOutgoing() !== true && transferFilter.getHasDestinations() !== true;
+    let canBeOutgoing = transferFilter.getIsOutgoing() !== false && transferFilter.getIsIncoming() !== true && !(transfer.getAccountIndex() > 0 || transfer.getSubaddressIndex() > 0);
     let params = {};
-    params.in = true;
-    params.out = true;
-    params.pool = true;
-    params.pending = true;
-    params.failed = true;
+    params.in = canBeIncoming && canBeConfirmed;
+    params.out = canBeOutgoing && canBeConfirmed;
+    params.pool = canBeIncoming && canBeInTxPool;
+    params.pending = canBeOutgoing && canBeInTxPool;
+    params.failed = tx.getIsFailed() !== false && tx.getIsConfirmed() !== true && tx.getInTxPool() != true;
     if (txFilter.getMinHeight() !== undefined) params.min_height = txFilter.getMinHeight(); 
     if (txFilter.getMaxHeight() !== undefined) params.max_height = txFilter.getMaxHeight();
     params.filter_by_height = txFilter.getMinHeight() !== undefined || txFilter.getMaxHeight() !== undefined;
@@ -545,7 +425,7 @@ class MoneroWalletRpc extends MoneroWallet {
           // special case: tx sent from/to same account can have amount 0
           // TODO monero-wallet-rpc: missing incoming transfers for txs sent from/to same account #4500
           // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached transfers
-          if (tx.getIsOutgoing() && tx.getIsRelayed() && !tx.getIsFailed() && tx.getOutgoingAmount().compare(new BigInteger(0)) === 0) {
+          if (tx.getOutgoingTransfer() !== undefined && tx.getIsRelayed() && !tx.getIsFailed() && tx.getOutgoingAmount().compare(new BigInteger(0)) === 0) {
             let outgoingTransfer = tx.getOutgoingTransfer();
             
             // use information from cached destinations if available
@@ -577,12 +457,11 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
     
-    // collect transfers that meet filter criteria    
-    txs = txFilter.apply(txs);
-    let transfers = []
-    for (let tx of txs) {
-      if (filter.meetsCriteria(tx.getOutgoingTransfer())) transfers.push(tx.getOutgoingTransfer());
-      if (tx.getIncomingTransfers()) filter.apply(tx.getIncomingTransfers()).map(transfer => transfers.push(transfer));
+    // collect transfers that meet filter criteria
+    let transfers = [];
+    for (tx of txs) {
+      if (transferFilter.meetsCriteria(tx.getOutgoingTransfer())) transfers.push(tx.getOutgoingTransfer());
+      if (tx.getIncomingTransfers()) transferFilter.apply(tx.getIncomingTransfers()).map(transfer => transfers.push(transfer));
     }
     
     // return filtered transfers

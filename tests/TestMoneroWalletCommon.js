@@ -358,6 +358,11 @@ class TestMoneroWalletCommon {
         for (let tx of txs) assert(tx.getVouts().length > 0);
         
         // get transactions associated with an account
+        let accountIdx = 1;
+        await wallet.getTxs({transferFilter: {isIncoming: true, accountIndex: 1}});
+        // TODO: finish this
+        
+        // get transactions associated with an account
 //      let accountIdx = 1;
 //      let filter = new MoneroTxFilter().setTransferFilter(new MoneroTransferFilter().setAccountIndex(accountIdx));
 //      let txs = await wallet.getTxs(filter);
@@ -2034,8 +2039,6 @@ async function testWalletTx(tx, testConfig) {
  */
 function testWalletTxTypes(tx) {
   assert.equal("string", typeof tx.getId());
-  assert.equal("boolean", typeof tx.getIsIncoming());
-  assert.equal("boolean", typeof tx.getIsOutgoing());
   assert.equal("boolean", typeof tx.getIsConfirmed());
   assert.equal("boolean", typeof tx.getIsCoinbase());
   assert.equal("boolean", typeof tx.getIsFailed());
