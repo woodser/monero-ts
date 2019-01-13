@@ -423,7 +423,22 @@ class TestMoneroWalletCommon {
               subaddressTransfers.push(transfer);
             }
           }
+          
+//          // TODO: here!! why are they different?
+//          for (let subaddressTransfer of subaddressTransfers) {
+//            let found = false;
+//            for (let accountTransfer of accountTransfers) {
+//              if (subaddressTransfer.getTx().toString() === accountTransfer.getTx().toString()) {
+//                found = true;
+//                break;
+//              }
+//            }
+//            if (!found) console.log(subaddressTransfer.getTx().toString());
+//            assert(found);
+//          }
+          
           assert.equal(accountTransfers.length, subaddressTransfers.length);
+
           
 //          // get transfers by subaddress indices
 //          let subaddressIndices = subaddressTransfers.map(transfer => transfer.getSubaddressIndex());
@@ -459,9 +474,8 @@ class TestMoneroWalletCommon {
         // get confirmed transfers to [1, 2]
         transfers = await testGetTransfers(wallet, {accountIndex: 1, subaddressIndex: 2, isConfirmed: true}, true);
         for (let transfer of transfers) {
-          console.log(transfer.toString());
           assert.equal(1, transfer.getAccountIndex());
-          assert.equal(2, transfer.getSubaddressIndex());
+          assert.equal(transfer.getIsOutgoing() ? 0 : 2, transfer.getSubaddressIndex());
           assert(transfer.getTx().getIsConfirmed());
         }
         
@@ -486,6 +500,8 @@ class TestMoneroWalletCommon {
         // get transfers with tx ids
         transfers = await testGetTransfers(wallet, {txIds: txIds}, true);
         for (let transfer of transfers) assert(txIds.includes(transfer.getId()));
+        
+        // TODO: test that transfers with the same txId have the same tx reference
       });
       
       it("Validates inputs when getting transfers", async function() {

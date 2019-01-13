@@ -501,6 +501,7 @@ class MoneroWalletRpc extends MoneroWallet {
     filter.setTransfer(new MoneroTransfer(config));
     let txFilter = new MoneroTxFilter(config);
     txFilter.setTx(new MoneroWalletTx(config));
+    filter.setTxFilter(txFilter);
     
     // determine account and subaddress indices to be queried
     let indices = new Map();
@@ -519,12 +520,13 @@ class MoneroWalletRpc extends MoneroWallet {
     // build params for `get_transfers` rpc call
     // TODO: doesn't account for height
     // TODO: doesn't account for incoming, outgoing
+    // TODO: use filtering to determine each field
     let params = {};
     params.in = true;
     params.out = true;
     params.pool = true;
     params.pending = true;
-    params.failed = txFilter.getTx().getIsFailed() !== false;
+    params.failed = true;
     if (txFilter.getMinHeight() !== undefined) params.min_height = txFilter.getMinHeight(); 
     if (txFilter.getMaxHeight() !== undefined) params.max_height = txFilter.getMaxHeight();
     params.filter_by_height = txFilter.getMinHeight() !== undefined || txFilter.getMaxHeight() !== undefined;

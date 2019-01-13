@@ -25,21 +25,28 @@ describe("Scratchpad", function() {
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
     
-    // fetch txs
-    let txId = "a8429a20b173b119ffde6d3a0b3ebf666977f669cec1c5d23e879b69b553a37e";
-    //filter.setAccountIndex(0);
-    //filter.setSubaddressIndices([0]);
-    //filter.setFetchVouts(true);
-    let txs = new Set();
-    let transfers = await wallet.getTransfers({accountIndex: 0, subaddressIndex: 2, debugTxId: txId});
+    
+    // fetch transfers
+    let txId = "acbb642acbe51963b881aa97f7d99e25c4425cc5cb1a6c23130fc37250467afc";
+    let transfers = await wallet.getTransfers({accountIndex: 0, isIncoming: true, txId: txId});
     for (let transfer of transfers) {
-      txs.add(transfer.getTx());
+      assert.equal(txId, transfer.getTx().getId());
+      console.log(transfer.getTx().toString());
     }
     
-    txs = Array.from(txs);
-    for (let tx of txs) {
-      if (tx.getId() === txId) console.log(tx.toString());
-    }
+//    // fetch txs
+//    //filter.setAccountIndex(0);
+//    //filter.setSubaddressIndices([0]);
+//    //filter.setFetchVouts(true);
+//    let txs = new Set();
+//    let transfers = await wallet.getTransfers({accountIndex: 0, subaddressIndex: 2, debugTxId: txId});
+//    for (let transfer of transfers) {
+//      txs.add(transfer.getTx());
+//    }
+//    txs = Array.from(txs);
+//    for (let tx of txs) {
+//      if (tx.getId() === txId) console.log(tx.toString());
+//    }
     
     // fetch vouts
 //    let vouts = await wallet.getVouts();
