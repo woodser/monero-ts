@@ -11,11 +11,15 @@ class MoneroTransfer {
   /**
    * Constructs the model.
    * 
-   * @param state is a model or json to initialize from (optional)
+   * TODO: deseserialize transaction filter (need test)
+   * 
+   * @param state is model state or json to initialize from (optional)
    */
   constructor(state) {
     state = Object.assign({}, state);
     this.state = state;
+    
+    // deserialize fields if necessary
     if (state.amount && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(state.amount);
     if (state.destinations) {
       for (let i = 0; i < state.destinations.length; i++) {

@@ -1,5 +1,6 @@
 const Filter = require("../../utils/Filter");
 const MoneroWalletTx = require("../model/MoneroWalletTx");
+const MoneroTransferFilter = require("./MoneroTransferFilter"); // TODO: combine filters file so these can import each other?
 
 /**
  * Filters transactions that don't match initialized filter criteria.
@@ -9,11 +10,15 @@ class MoneroTxFilter extends Filter {
   /**
    * Constructs the filter.
    * 
-   * @param state is a model or json to initialize from (optional)
+   * @param state is model state or json to initialize from (optional)
    */
   constructor(state) {
     super();
-    this.state = Object.assign({}, state);
+    state = Object.assign({}, state);
+    this.state = state;
+    
+    // deserialize fields if necessary
+    if (state.transferFilter && !(state.transferFilter instanceof MoneroTransferFilter)) state.transferFilter = new MoneroTransferFilter(state.transferFilter);
   }
 
   getTxIds() {

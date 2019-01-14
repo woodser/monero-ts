@@ -320,63 +320,69 @@ class TestMoneroWalletCommon {
         // get random transactions for testing
         let randomTxs = await getRandomTransactions(wallet, undefined, 3, 5);
         
-        // get transactions by id
-        let txIds = [];
-        for (let randomTx of randomTxs) {
-          txIds.push(randomTx.getId());
-          let txs = await testGetTxs(wallet, {txId: randomTx.getId()}, true);
-          assert.equal(1, txs.length);
-          assert.deepEqual(randomTx, txs[0]);
-        }
-        
-        // get transactions by ids
-        let txs = await testGetTxs(wallet, {txIds: txIds});
-        assert.equal(randomTxs.length, txs.length);
-        for (let tx of txs) assert(txIds.includes(tx.getId()));
-        
-        // get transactions with an outgoing transfer
-        txs = await testGetTxs(wallet, {hasOutgoingTransfer: true}, true);
-        for (let tx of txs) assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
-        
-        // get transactions without an outgoing transfer
-        txs = await testGetTxs(wallet, {hasOutgoingTransfer: false}, true);
-        for (let tx of txs) assert.equal(undefined, tx.getOutgoingTransfer());
-        
-        // get transactions with incoming transfers
-        txs = await testGetTxs(wallet, {hasIncomingTransfers: true}, true);
-        for (let tx of txs) {
-          assert(tx.getIncomingTransfers().length > 0);
-          for (let transfer of tx.getIncomingTransfers()) assert(transfer instanceof MoneroTransfer);
-        }
-        
-        // get transactions without incoming transfers
-        txs = await testGetTxs(wallet, {hasIncomingTransfers: false}, true);
-        for (let tx of txs) assert.equal(undefined, tx.getIncomingTransfers());
-        
-        // get transactions associated with incoming transfers to an account
-        let accountIdx = 1;
-        txs = await wallet.getTxs({transferFilter: {isIncoming: true, accountIndex: 1}});
-        throw new Error("Not implemented");         // TODO: finish this
-
+//        // get transactions by id
+//        let txIds = [];
+//        for (let randomTx of randomTxs) {
+//          txIds.push(randomTx.getId());
+//          let txs = await testGetTxs(wallet, {txId: randomTx.getId()}, true);
+//          assert.equal(1, txs.length);
+//          assert.deepEqual(randomTx, txs[0]);
+//        }
+//        
+//        // get transactions by ids
+//        let txs = await testGetTxs(wallet, {txIds: txIds});
+//        assert.equal(randomTxs.length, txs.length);
+//        for (let tx of txs) assert(txIds.includes(tx.getId()));
+//        
+//        // get transactions with an outgoing transfer
+//        txs = await testGetTxs(wallet, {hasOutgoingTransfer: true}, true);
+//        for (let tx of txs) assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
+//        
+//        // get transactions without an outgoing transfer
+//        txs = await testGetTxs(wallet, {hasOutgoingTransfer: false}, true);
+//        for (let tx of txs) assert.equal(undefined, tx.getOutgoingTransfer());
+//        
+//        // get transactions with incoming transfers
+//        txs = await testGetTxs(wallet, {hasIncomingTransfers: true}, true);
+//        for (let tx of txs) {
+//          assert(tx.getIncomingTransfers().length > 0);
+//          for (let transfer of tx.getIncomingTransfers()) assert(transfer instanceof MoneroTransfer);
+//        }
+//        
+//        // get transactions without incoming transfers
+//        txs = await testGetTxs(wallet, {hasIncomingTransfers: false}, true);
+//        for (let tx of txs) assert.equal(undefined, tx.getIncomingTransfers());
         
         // get transactions associated with an account
-//      let accountIdx = 1;
-//      let filter = new MoneroTxFilter().setTransferFilter(new MoneroTransferFilter().setAccountIndex(accountIdx));
-//      let txs = await wallet.getTxs(filter);
-//      assert(txs.length > 0, "No transactions associated with account " + accountIdx);
-//      for (let tx of txs) {
-//        let found = false;
-//        if (tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getAccountIndex() === accountIdx) found = true;
-//        else if (tx.getIncomingTransfers()) {
-//          for (let inTransfer of tx.getIncomingTransfers()) {
-//            if (inTransfer.getAccountIndex() === accountIdx) {
-//              found = true;
-//              break;
-//            }
-//          }
-//        }
-//        assert(found, ("Transaction is not associated with account:\n" + tx.toString()));
-//      }
+        let accountIdx = 1;
+        let txs = await wallet.getTxs({transferFilter: {accountIndex: accountIdx}});
+        for (let tx of txs) {
+          let found = false;
+          if (tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getAccountIndex() === accountIdx) found = true;
+          else if (tx.getIncomingTransfers()) {
+            for (let transfer of tx.getIncomingTransfers()) {
+              if (transfer.getAccountIndex() === accountIdx) {
+                found = true;
+                break;
+              }
+            }
+          }
+          assert(found, ("Transaction is not associated with account " + accountIdx + ":\n" + tx.toString()));
+        }
+        
+        // get transactions with incoming transfers to an account
+        txs = await wallet.getTxs({transferFilter: {isIncoming: true, accountIndex: accountIdx}});
+        for (let tx of txs) {
+          assert(tx.getIncomingTransfers().length > 0);
+          let found = false;
+          for (let transfer of tx.getIncomingTransfers()) {
+            if (transfer.getAccountIndex() === accountIdx) {
+              found = true;
+              break;
+            }
+          }
+          assert(found, "No incoming transfers to account " + accountIdx + " found:\n" + tx.toString());
+        }
         
         // include vouts with transactions
         txs = await testGetTxs(wallet, {includeVouts: true}, true);

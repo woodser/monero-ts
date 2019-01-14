@@ -244,20 +244,36 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTxs(config) {
     
+    console.log("*** Configuration");
+    console.log(config);
+    
     // create tx filter from config
     config = Object.assign({}, config);
     if (!config.id) config.id = config.txId;  // support txId TODO: move into MoneroTransaction?
     let txFilter = new MoneroTxFilter(config);
-    let tx = new MoneroWalletTx(config);
+    let tx = new MoneroWalletTx(config);  // TODO: think tx filter creates tx automatically
     txFilter.setTx(tx);
+    txFilter.getTransfer
     
-    // fetch transfers that meet tx filter
-    let transfers = await this.getTransfers(new MoneroTransferFilter().setTxFilter(txFilter));
+    // temporarily disable transfer filter
+    let transferFilter = txFilter.getTransferFilter();
+    txFilter.setTransferFilter(undefined);
+    
+    // fetch all transfers that meet tx filter
+    let transfers = await this.getTransfers(new MoneroTransferFilter().setTxFilter(txFilter));  // TODO: {txFilter: txFilter} instead
     
     // collect unique txs from transfers
     let txs = Array.from(new Set(transfers.map(transfer => transfer.getTx())).values());
     
-    // filter and return results
+    // filter and return txs that meet transfer filter
+    if (transferFilter !== undefined) transferFilter.setTransfer(new MoneroTransfer(transferFilter.state)); // TODO: think transfer filter creates transfer automatically
+    txFilter.setTransferFilter(transferFilter);
+    
+    console.log("FILTER");
+    console.log(txFilter);
+    console.log(txFilter.getTransferFilter());
+    if (txFilter.getTransferFilter()) console.log(txFilter.getTransferFilter().getTransfer());
+    
     return txFilter.apply(txs);
   }
   

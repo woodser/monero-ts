@@ -12,6 +12,8 @@ class MoneroWalletTx extends MoneroTx {
   /**
    * Constructs the model.
    * 
+   * TODO: update to be state or json
+   * 
    * @param json is JSON to construct the model (optional)
    */
   constructor(json) {
