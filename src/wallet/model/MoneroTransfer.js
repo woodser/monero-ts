@@ -16,10 +16,10 @@ class MoneroTransfer {
   constructor(state) {
     state = Object.assign({}, state);
     this.state = state;
-    if (state.amount && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(json.amount);
+    if (state.amount && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(state.amount);
     if (state.destinations) {
       for (let i = 0; i < state.destinations.length; i++) {
-        if (!(state.destionation[i] instanceof MoneorDestionation)) state.destinations[i] = new MoneroDestionation(state.destinations[i]);  // TODO: typo, tests must catch
+        if (!(state.destinations[i] instanceof MoneroDestination)) state.destinations[i] = new MoneroDestination(state.destinations[i]);  // TODO: typo, tests must catch
       }
     }
   }
@@ -111,15 +111,23 @@ class MoneroTransfer {
    */
   merge(transfer) {
     assert(transfer instanceof MoneroTransfer);
-    this.setAddress(MoneroUtils.reconcile(this.getAddress(), transfer.getAddress()));
-    this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), transfer.getAccountIndex()));
-    this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), transfer.getSubaddressIndex()));
-    this.setAmount(MoneroUtils.reconcile(this.getAmount(), transfer.getAmount()));
+    if (this === transfer) return;
     
-    // merge destinations
-    if (this.getDestinations() === undefined) this.setDestinations(transfer.getDestinations());
-    else if (transfer.getDestinations()) {
-      assert.deepEqual(this.getDestinations(), transfer.getDestinations(), "Cannot merge transfer because destinations are different");
+    // merge transactions if they're different which comes back to merging transfers
+    if (this.getTx() !== transfer.getTx()) this.getTx().merge(transfer.getTx());
+    
+    // otherwise merge transfer fields
+    else {
+      this.setAddress(MoneroUtils.reconcile(this.getAddress(), transfer.getAddress()));
+      this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), transfer.getAccountIndex()));
+      this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), transfer.getSubaddressIndex()));
+      this.setAmount(MoneroUtils.reconcile(this.getAmount(), transfer.getAmount()));
+      
+      // merge destinations TODO: rewrite and test
+      if (this.getDestinations() === undefined) this.setDestinations(transfer.getDestinations());
+      else if (transfer.getDestinations()) {
+        assert.deepEqual(this.getDestinations(), transfer.getDestinations(), "Cannot merge transfer because destinations are different");
+      }
     }
   }
   

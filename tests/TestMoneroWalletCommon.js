@@ -1970,8 +1970,8 @@ async function testWalletTx(tx, testConfig) {
     
     // test common attributes
     let sendConfig = testConfig.sendConfig;
-    assert.equal(true, tx.getIsOutgoing());
     assert.equal(false, tx.getIsConfirmed());
+    testTransfer(tx.getOutgoingTransfer());
     assert.equal(sendConfig.getMixin(), tx.getMixin());
     assert.equal(sendConfig.getUnlockTime() ? sendConfig.getUnlockTime() : 0, tx.getUnlockTime());
     assert.equal(undefined, tx.getBlockTimestamp());
@@ -2026,6 +2026,9 @@ async function testWalletTx(tx, testConfig) {
   } else {
     assert.equal(undefined, tx.getVouts());
   }
+  
+  // test deep copy
+  if (!testConfig.doNotTestCopy) await testWalletTxCopy(tx, testConfig);
 }
 
 /**
@@ -2050,10 +2053,43 @@ function testWalletTxTypes(tx) {
 }
 
 // TODO: test uncommon references
-function testWalletTxCopy(tx) {
+async function testWalletTxCopy(tx, testConfig) {
+  
+  // copy tx and assert deep equality
   let copy = tx.copy();
   assert(copy instanceof MoneroWalletTx);
+  console.log(tx.toString());
+  console.log(copy.toString());
   assert.deepEqual(tx, copy);
+  
+  // test different references
+  if (tx.getOutgoingTransfer()) {
+    assert(tx.getOutgoingTransfer() !== copy.getOutgoingTransfer());
+    assert(tx.getOutgoingTransfer().getTx() !== copy.getOutgoingTransfer().getTx());
+    assert(tx.getOutgoingTransfer().getAmount() !== copy.getOutgoingTransfer().getAmount());
+    if (tx.getOutgoingTransfer().getDestinations()) {
+      assert(tx.getOutgoingTransfer().getDestinations() !== copy.getOutgoingTransfer().getDestinations());
+      for (let i = 0; i < tx.getOutgoingTransfer().getDestinations().length; i++) {
+        assert.deepEqual(tx.getOutgoingTransfer().getDestinations()[i], copy.getOutgoingTransfer().getDestinations()[i]);
+        assert(tx.getOutgoingTransfer().getDestinations()[i] !== copy.getOutgoingTransfer().getDestinations()[i]);
+      }
+    }
+  }
+  if (tx.getIncomingTransfers()) {
+    for (let i = 0; i < tx.getIncomingTransfers().length; i++) {
+      assert.deepEqual(tx.getIncomingTransfers()[i], copy.getIncomingTransfers()[i]);
+      assert(tx.getIncomingTransfers()[i] !== copy.getIncomingTransfers()[i]);
+    }
+  }
+  
+  // test copy tx indepently
+  testConfig = Object.assign({}, testConfig);
+  testConfig.doNotTestCopy = true;
+  await testWalletTx(copy, testConfig);
+  
+  // test merging with copy
+  let merged = copy.merge(copy.copy());
+  assert.deepEqual(tx, merged);
 }
 
 // TODO: test that tx and transfer reference each other

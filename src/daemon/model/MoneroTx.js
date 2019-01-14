@@ -399,6 +399,8 @@ class MoneroTx extends MoneroDaemonModel {
    * @returns {this} for method chaining
    */
   merge(tx) {
+    assert(tx instanceof MoneroTx);
+    if (this === tx) return;
     this.setId(MoneroUtils.reconcile(this.getId(), tx.getId()));
     this.setVersion(MoneroUtils.reconcile(this.getVersion(), tx.getVersion()));
     this.setPaymentId(MoneroUtils.reconcile(this.getPaymentId(), tx.getPaymentId()));

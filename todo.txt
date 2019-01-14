@@ -1,4 +1,5 @@
 HIGH
+merge asserts type or accepts undefined as matter of policy
 all model set functions return this
 getAccounts() fetches balance even if only thing needed are account indices
 optimize rpc calls

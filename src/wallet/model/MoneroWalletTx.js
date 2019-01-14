@@ -21,17 +21,17 @@ class MoneroWalletTx extends MoneroTx {
     if (json) {
       
       // deserialize transfers
-      if (json.outgoingTransfer) this.setOutgoingTransfer(new MoneroTransfer(this, json.outgoingTransfer));
+      if (json.outgoingTransfer) this.setOutgoingTransfer(new MoneroTransfer(Object.assign({tx: this}, json.outgoingTransfer)));
       if (json.incomingTransfers) {
         let incomingTransfers = [];
-        for (let jsonIncomingTransfer of json.incomingTransfers) incomingTransfers.push(new MoneroTransfer(this, jsonIncomingTransfer));
+        for (let jsonTransfer of json.incomingTransfers) incomingTransfers.push(new MoneroTransfer(Object.assign({tx: this}, jsonTransfer)));
         this.setIncomingTransfers(incomingTransfers);
       }
       
       // deserialize vouts
       if (json.vouts) {
         let vouts = [];
-        for (let jsonVout of json.vouts) vouts.push(new MoneroWalletOutput(this, jsonVout));
+        for (let jsonVout of json.vouts) vouts.push(new MoneroWalletOutput(Object.assign({tx: this}, jsonVout)));
         this.setVouts(vouts);
       }
     }
@@ -127,21 +127,29 @@ class MoneroWalletTx extends MoneroTx {
    * @returns {MoneroWalletTx} this for method chaining
    */
   merge(tx) {
-    
-    // merge base
+    assert(tx instanceof MoneroWalletTx);
+    if (this === tx) return;
     super.merge(tx);
     
     // merge wallet extensions
     this.setNote(MoneroUtils.reconcile(this.getNote(), tx.getNote()));
     
+    if (this.getOutgoingTransfer()) {
+      assert(this === this.getOutgoingTransfer().getTx());
+    }
+    
     // merge outgoing transfer
-    if (this.getOutgoingTransfer() === undefined) this.setOutgoingTransfer(tx.getOutgoingTransfer());
-    else if (tx.getOutgoingTransfer()) this.getOutgoingTransfer().merge(tx.getOutgoingTransfer());
+    if (tx.getOutgoingTransfer()) {
+      tx.getOutgoingTransfer().setTx(this);
+      if (this.getOutgoingTransfer() === undefined) this.setOutgoingTransfer(tx.getOutgoingTransfer());
+      else this.getOutgoingTransfer().merge(tx.getOutgoingTransfer());
+    }
     
     // merge incoming transfers
     if (tx.getIncomingTransfers()) {
       if (this.getIncomingTransfers() === undefined) this.setIncomingTransfers([]);
       for (let transfer of tx.getIncomingTransfers()) {
+        transfer.setTx(this);
         mergeTransfer(this.getIncomingTransfers(), transfer);
       }
     }
