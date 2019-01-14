@@ -359,15 +359,17 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTxs(config) {
     
-    // create normalized tx filter from input
+    // create tx filter from config
+    config = Object.assign({}, config);
+    if (!config.id) config.id = config.txId;  // support txId TODO: move into MoneroTransaction?
     let txFilter = new MoneroTxFilter(config);
     let tx = new MoneroWalletTx(config);
     txFilter.setTx(tx);
     
-    // fetch transfers that meet transaction filter
+    // fetch transfers that meet tx filter
     let transfers = await this.getTransfers(new MoneroTransferFilter().setTxFilter(txFilter));
     
-    // collect unique transactions from transfers
+    // collect unique txs from transfers
     let txs = Array.from(new Set(transfers.map(transfer => transfer.getTx())).values());
     
     // filter and return results
@@ -376,7 +378,7 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTransfers(config) {
     
-    // normalize inputs as filters
+    // create filters from config
     config = Object.assign({}, config);
     if (!config.id) config.id = config.txId;  // support txId TODO: move into MoneroTransaction?
     let transferFilter;

@@ -326,7 +326,7 @@ class TestMoneroWalletCommon {
           txIds.push(randomTx.getId());
           let txs = await testGetTxs(wallet, {txId: randomTx.getId()}, true);
           assert.equal(1, txs.length);
-          assert.equal(randomTx.toJson(), txs[0].toJson());
+          assert.deepEqual(randomTx, txs[0]);
         }
         
         // get transactions by ids
