@@ -19,7 +19,7 @@ class MoneroTransfer {
     if (state.amount && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(json.amount);
     if (state.destinations) {
       for (let i = 0; i < state.destinations.length; i++) {
-        if (!(state.destionation[i] instanceof MoneorDestionation)) state.destinations[i] = new MoneroDestionation(state.destinations[i]);
+        if (!(state.destionation[i] instanceof MoneorDestionation)) state.destinations[i] = new MoneroDestionation(state.destinations[i]);  // TODO: typo, tests must catch
       }
     }
   }
