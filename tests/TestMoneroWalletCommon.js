@@ -297,7 +297,7 @@ class TestMoneroWalletCommon {
         }
       });
       
-      it("Can get all transactions", async function() {
+      it("Can get transactions in the wallet", async function() {
         let nonDefaultIncoming = false;
         let txs1 = await getCachedTxs();
         let txs2 = await testGetTxs(wallet, undefined, true);
@@ -438,7 +438,6 @@ class TestMoneroWalletCommon {
             }
           }
           assert.equal(accountTransfers.length, subaddressTransfers.length);
-
           
           // get transfers by subaddress indices
           let subaddressIndices = subaddressTransfers.map(transfer => transfer.getSubaddressIndex());
@@ -2057,6 +2056,7 @@ function testWalletTxCopy(tx) {
   assert.deepEqual(tx, copy);
 }
 
+// TODO: test that tx and transfer reference each other
 function testTransfer(transfer) {
   assert(transfer instanceof MoneroTransfer);
   assert(transfer.getTx() instanceof MoneroWalletTx);
