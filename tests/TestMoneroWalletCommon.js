@@ -353,14 +353,11 @@ class TestMoneroWalletCommon {
         txs = await testGetTxs(wallet, {hasIncomingTransfers: false}, true);
         for (let tx of txs) assert.equal(undefined, tx.getIncomingTransfers());
         
-        // include vouts with transactions
-        txs = await testGetTxs(wallet, {includeVouts: true}, true);
-        for (let tx of txs) assert(tx.getVouts().length > 0);
-        
-        // get transactions associated with an account
+        // get transactions associated with incoming transfers to an account
         let accountIdx = 1;
-        await wallet.getTxs({transferFilter: {isIncoming: true, accountIndex: 1}});
-        // TODO: finish this
+        txs = await wallet.getTxs({transferFilter: {isIncoming: true, accountIndex: 1}});
+        throw new Error("Not implemented");         // TODO: finish this
+
         
         // get transactions associated with an account
 //      let accountIdx = 1;
@@ -381,7 +378,9 @@ class TestMoneroWalletCommon {
 //        assert(found, ("Transaction is not associated with account:\n" + tx.toString()));
 //      }
         
-        throw new Error("Not implemented");
+        // include vouts with transactions
+        txs = await testGetTxs(wallet, {includeVouts: true}, true);
+        for (let tx of txs) assert(tx.getVouts().length > 0);
       });
       
       it("Validates inputs to get transactions", async function() {
@@ -527,8 +526,8 @@ class TestMoneroWalletCommon {
         throw new Error("Not implemented");
       });
       
-      it("Can get vouts", async function() {
-        
+      it("Can get vouts in the wallet, accounts, and subaddressess", async function() {
+
         // get all vouts
         await testGetVouts(wallet, undefined, true);
         
