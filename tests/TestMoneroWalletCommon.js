@@ -346,7 +346,7 @@ class TestMoneroWalletCommon {
         txs = await testGetTxs(wallet, {hasIncomingTransfers: true}, true);
         for (let tx of txs) {
           assert(tx.getIncomingTransfers().length > 0);
-          for (let transfer of tx.getIncomingTransers()) assert(transfer instanceof MoneroTransfer);
+          for (let transfer of tx.getIncomingTransfers()) assert(transfer instanceof MoneroTransfer);
         }
         
         // get transactions without incoming transfers
