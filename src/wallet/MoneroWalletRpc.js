@@ -259,12 +259,12 @@ class MoneroWalletRpc extends MoneroWallet {
     // collect unique txs from transfers
     let txs = Array.from(new Set(transfers.map(transfer => transfer.getTx())).values());
     
-    // get vouts if configured
+    // fetch and merge vouts if configured
     if (config.getVouts) {
-      throw new Error("Getting vouts not implemented");
-      
-      
-      
+      let vouts = await this.getVouts(new MoneroVoutFilter(config).setTxFilter(txFilter));
+      let voutTxs = new Set();
+      vouts.map(vout => voutTxs.add(vout.getTx()));
+      for (let tx of voutTxs) MoneroWalletRpc._mergeTx(txs, tx);
     }
     
     // filter and return txs that meet transfer filter

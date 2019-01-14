@@ -3,6 +3,7 @@ const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/b
 const MoneroUtils = require("../../utils/MoneroUtils");
 const MoneroTx = require("../../daemon/model/MoneroTx");
 const MoneroTransfer = require("./MoneroTransfer");
+const MoneroWalletOutput = require("./MoneroWalletOutput");
 
 /**
  * Models a Monero transaction with additional fields in the context of a wallet.
@@ -136,10 +137,6 @@ class MoneroWalletTx extends MoneroTx {
     // merge wallet extensions
     this.setNote(MoneroUtils.reconcile(this.getNote(), tx.getNote()));
     
-    if (this.getOutgoingTransfer()) {
-      assert(this === this.getOutgoingTransfer().getTx());
-    }
-    
     // merge outgoing transfer
     if (tx.getOutgoingTransfer()) {
       tx.getOutgoingTransfer().setTx(this);
@@ -153,6 +150,17 @@ class MoneroWalletTx extends MoneroTx {
       for (let transfer of tx.getIncomingTransfers()) {
         transfer.setTx(this);
         mergeTransfer(this.getIncomingTransfers(), transfer);
+      }
+    }
+    
+    // merge vouts
+    // TODO: merge according to config
+    if (tx.getVouts()) {
+      if (this.getVouts() === undefined) {
+        for (let vout of tx.getVouts()) vout.setTx(this);
+        this.setVouts(tx.getVouts());
+      } else {
+        assert.equal(this.getVouts().length, tx.getVouts().length);
       }
     }
     

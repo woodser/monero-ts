@@ -675,7 +675,7 @@ class TestMoneroWalletCommon {
         
         // wallet balance is sum of all unspent vouts
         let walletSum = new BigInteger(0);
-        for (let vout of await wallet.getVouts(undefined, undefined, false)) walletSum = walletSum.add(vout.getAmount());
+        for (let vout of await wallet.getVouts()) walletSum = walletSum.add(vout.getAmount());
         assert.equal(walletBalance.toString(), walletSum.toString());
         
         // account balances are sum of their unspent vouts
@@ -1781,7 +1781,7 @@ async function testGetTxs(wallet, config, isExpected) {
   assert(Array.isArray(txs));
   if (isExpected === false) assert.equal(0, txs.length);
   if (isExpected === true) assert(txs.length > 0);
-  for (let tx of txs) await testWalletTx(tx, {wallet: wallet});
+  for (let tx of txs) await testWalletTx(tx, Object.assign({wallet: wallet}, config));
   return txs;
 }
 
@@ -1793,7 +1793,7 @@ async function testGetTransfers(wallet, config, isExpected) {
   assert(Array.isArray(transfers));
   if (isExpected === false) assert.equal(0, transfers.length);
   if (isExpected === true) assert(transfers.length > 0);
-  for (let transfer of transfers) await testWalletTx(transfer.getTx(), {wallet: wallet});
+  for (let transfer of transfers) await testWalletTx(transfer.getTx(), Object.assign({wallet: wallet}, config));
   return transfers;
 }
 
@@ -1805,7 +1805,7 @@ async function testGetVouts(wallet, config, isExpected) {
   assert(Array.isArray(vouts));
   if (isExpected === false) assert.equal(0, vouts.length);
   if (isExpected === true) assert(vouts.length > 0);
-  for (let vout of vouts) await testVout(vout, {wallet: wallet});
+  for (let vout of vouts) await testVout(vout, Object.assign({wallet: wallet}, config));
   return vouts;
 }
 
@@ -1834,7 +1834,7 @@ async function getRandomTransactions(wallet, config, minTxs, maxTxs) {
  *        testConfig.wallet is used to cross reference tx info if available
  *        testConfig.sendConfig specifies config of a tx generated with send()
  *        testConfig.hasDestinations specifies if the tx has an outgoing transfer with destinations, undefined if doesn't matter
- *        testConfig.voutsFetched specifies if vouts were fetched and should therefore be expected  // TODO: keep?
+ *        testConfig.getVouts specifies if vouts were fetched and should therefore be expected with incoming transfers
  *        testConfig.isRelayResponse specifies if tx is a fresh relay response which is missing some fields (e.g. key)
  */
 async function testWalletTx(tx, testConfig) {
@@ -2021,21 +2021,10 @@ async function testWalletTx(tx, testConfig) {
   }
   
   // test vouts
-  // TODO: ensure test of some vouts
-  // TODO: replace with testVout()
-  if (testConfig.voutsFetched && (tx.getIncomingTransfers() || tx.getVouts())) {
+  if (!testConfig.getVouts || tx.getIncomingTransfers() === undefined) assert.equal(undefined, tx.getVouts());
+  else {
     assert(tx.getVouts().length > 0);
-    for (let vout of tx.getVouts()) {
-      assert(vout instanceof MoneroWalletOutput);
-      assert(vout.getKeyImage());
-      TestUtils.testUnsignedBigInteger(vout.getAmount(), true);
-      assert(vout.getIndex() >= 0);
-      assert(vout.getAccountIndex() >= 0);
-      assert(vout.getSubaddressIndex() >= 0);
-      assert.equal("boolean", typeof vout.getIsSpent());
-    }
-  } else {
-    assert.equal(undefined, tx.getVouts());
+    for (let vout of tx.getVouts()) testVout(vout);
   }
   
   // test deep copy
@@ -2127,10 +2116,10 @@ function testVout(vout) {
   assert(vout instanceof MoneroWalletOutput);
   assert(vout.getAccountIndex() >= 0);
   assert(vout.getSubaddressIndex() >= 0);
+  assert(vout.getIndex() >= 0);
   assert.equal("boolean", typeof vout.getIsSpent());
   assert(vout.getKeyImage());
   TestUtils.testUnsignedBigInteger(vout.getAmount(), true);
-  assert(vout.getIndex() >= 0);
   
   // vout has circular reference to its transaction which has some initialized fields
   let tx = vout.getTx();

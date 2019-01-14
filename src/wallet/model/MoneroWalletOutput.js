@@ -1,3 +1,4 @@
+const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroUtils = require("../../utils/MoneroUtils");
 const MoneroOutput = require("../../daemon/model/MoneroOutput");
 
@@ -21,11 +22,6 @@ class MoneroWalletOutput extends MoneroOutput {
     
     // deserialize fields if necessary
     if (state.amount && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(state.amount);
-    if (state.destinations) {
-      for (let i = 0; i < state.destinations.length; i++) {
-        if (!(state.destinations[i] instanceof MoneroDestination)) state.destinations[i] = new MoneroDestination(state.destinations[i]);  // TODO: typo, tests must catch
-      }
-    }
   }
   
   getTx() {
@@ -62,10 +58,19 @@ class MoneroWalletOutput extends MoneroOutput {
   }
   
   merge(output) {
+    assert(output instanceof MoneroWalletOutput);
+    if (this === output) return;
     super.merge(output);
-    this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), output.getAccountIndex()));
-    this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), output.getSubaddressIndex()));
-    this.setIsSpent(MoneroUtils.reconcile(this.getIsSpent(), output.getIsSpent(), {resolveTrue: true})); // output can become spent
+    
+    // merge transactions if they're different which comes back to merging outputs
+    if (this.getTx() !== output.getTx()) this.getTx().merge(output.getTx());
+    
+    // otherwise merge output fields
+    else {
+      this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), output.getAccountIndex()));
+      this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), output.getSubaddressIndex()));
+      this.setIsSpent(MoneroUtils.reconcile(this.getIsSpent(), output.getIsSpent(), {resolveTrue: true})); // output can become spent
+    }
   }
   
   toString(indent) {
