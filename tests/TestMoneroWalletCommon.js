@@ -323,8 +323,8 @@ class TestMoneroWalletCommon {
         // get transactions by id
         let txIds = [];
         for (let randomTx of randomTxs) {
-          txIds.push(txs[0].getId());
-          let txs = await testGetTxs(wallet, {txId: randomTx.getId}, true);
+          txIds.push(randomTx.getId());
+          let txs = await testGetTxs(wallet, {txId: randomTx.getId()}, true);
           assert.equal(1, txs.length);
           assert.equal(randomTx.toJson(), txs[0].toJson());
         }
@@ -2059,11 +2059,11 @@ function testWalletTxCopy(tx) {
 // TODO: test that tx and transfer reference each other
 function testTransfer(transfer) {
   assert(transfer instanceof MoneroTransfer);
-  assert(transfer.getTx() instanceof MoneroWalletTx);
   TestUtils.testUnsignedBigInteger(transfer.getAmount());
   assert((transfer.getIsOutgoing() === true && transfer.getIsIncoming() === false) || (transfer.getIsOutgoing() === false && transfer.getIsIncoming() === true));
   
   // test that transfer references tx references transfer
+  assert(transfer.getTx() instanceof MoneroWalletTx);
   if (transfer.getTx().getOutgoingTransfer() !== transfer) {
     let found = false;
     for (let inTransfer of transfer.getTx().getIncomingTransfers()) {
