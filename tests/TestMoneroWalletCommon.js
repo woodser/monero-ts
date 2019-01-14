@@ -498,13 +498,13 @@ class TestMoneroWalletCommon {
         for (let tx of txs) {
           txIds.push(tx.getId());
           transfers = await testGetTransfers(wallet, {txId: tx.getId()}, true);
-          assert.equal(1, transfers.length);
+          for (let transfer of transfers) assert.equal(tx.getId(), transfer.getTx().getId());
           assert.equal(tx.getId(), transfers[0].getTx().getId());
         }
         
         // get transfers with tx ids
         transfers = await testGetTransfers(wallet, {txIds: txIds}, true);
-        for (let transfer of transfers) assert(txIds.includes(transfer.getId()));
+        for (let transfer of transfers) assert(txIds.includes(transfer.getTx().getId()));
         
         // TODO: test that transfers with the same txId have the same tx reference
       });
