@@ -279,17 +279,6 @@ class MoneroWalletRpc extends MoneroWallet {
     let txFilter = transferFilter.getTxFilter();
     let tx = txFilter.getTx();
     
-//    // create normalized filters from input
-//    if (config instanceof MoneroTransferFilter) throw new Error("getTransfers() by transfer filter not implemented");
-//    config = Object.assign({}, config);
-//    let txFilter = new MoneroTxFilter(config);
-//    let tx = new MoneroWalletTx(config);
-//    let transferFilter = new MoneroTransferFilter(config);
-//    let transfer = new MoneroTransfer(config);
-//    transferFilter.setTransfer(transfer);
-//    transferFilter.setTxFilter(txFilter);
-//    txFilter.setTx(tx);
-    
     // determine account and subaddress indices to be queried
     let indices = new Map();
     if (transfer.getAccountIndex() !== undefined) {
