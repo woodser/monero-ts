@@ -378,7 +378,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // normalize inputs as filters
     config = Object.assign({}, config);
-    if (!config.id) config.id = config.txId;
+    if (!config.id) config.id = config.txId;  // support txId TODO: move into MoneroTransaction?
     let transferFilter;
     if (config instanceof MoneroTransferFilter) transferFilter = config;
     else {

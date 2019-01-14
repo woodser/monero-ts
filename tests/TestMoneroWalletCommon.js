@@ -507,6 +507,8 @@ class TestMoneroWalletCommon {
         for (let transfer of transfers) assert(txIds.includes(transfer.getTx().getId()));
         
         // TODO: test that transfers with the same txId have the same tx reference
+        
+        // TODO: test transfers destinations
       });
       
       it("Validates inputs when getting transfers", async function() {
