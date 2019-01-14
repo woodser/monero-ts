@@ -82,10 +82,6 @@ class MoneroTransferFilter extends Filter {
       if (tr.getAmount() !== undefined && tr.getAmount().compare(transfer.getAmount()) !== 0) return false;
     }
     
-    // custom handling TODO
-//    if (this.getDestionations() !== undefined && this.getDestionations() !== transfer.getDestionations()) return false;
-//    if (this.getTx() !== undefined && this.getTx() !== transfer.getTx()) return false;
-    
     // filter extensions
     if (this.getIsIncoming() !== undefined && this.getIsIncoming() !== transfer.getIsIncoming()) return false;
     if (this.getIsOutgoing() !== undefined && this.getIsOutgoing() !== transfer.getIsOutgoing()) return false;
@@ -95,7 +91,11 @@ class MoneroTransferFilter extends Filter {
       if (!this.getHasDestinations() && transfer.getDestinations() !== undefined) return false;
     }
     
-    // TODO: tx filter
+    // filter with transaction filter
+    if (this.getTxFilter() && !this.getTxFilter().meetsCriteria(transfer.getTx())) return false;
+    
+    // filter on destinations TODO
+//  if (this.getDestionations() !== undefined && this.getDestionations() !== transfer.getDestionations()) return false;
     
     // transfer meets filter criteria
     return true;

@@ -92,10 +92,15 @@ class MoneroTxFilter extends Filter {
     
     // filter on tx
     if (this.getTx()) {
+      if (this.getTx().getId() !== undefined && this.getTx().getId() !== tx.getId()) return false;
+      if (this.getTx().getPaymentId() !== undefined && this.getTx().getPaymentId() !== tx.getPaymentId()) return false;
       if (this.getTx().getIsConfirmed() !== undefined && this.getTx().getIsConfirmed() !== tx.getIsConfirmed()) return false;
       if (this.getTx().getInTxPool() !== undefined && this.getTx().getInTxPool() !== tx.getInTxPool()) return false;
+      if (this.getTx().getDoNotRelay() !== undefined && this.getTx().getDoNotRelay() !== tx.getDoNotRelay()) return false;
       if (this.getTx().getIsRelayed() !== undefined && this.getTx().getIsRelayed() !== tx.getIsRelayed()) return false;
       if (this.getTx().getIsFailed() !== undefined && this.getTx().getIsFailed() !== tx.getIsFailed()) return false;
+      if (this.getTx().getIsCoinbase() !== undefined && this.getTx().getIsCoinbase() !== tx.getIsCoinbase()) return false;
+      if (this.getTx().getHeight() !== undefined && this.getTx().getHeight() !== tx.getHeight()) return false;
     }
     
     // at least one transfer must meet transfer filter if defined
@@ -127,9 +132,9 @@ class MoneroTxFilter extends Filter {
     
     // filter on remaining fields
     if (this.getTxIds() !== undefined && !this.getTxIds().includes(tx.getId())) return false;
+    if (this.getPaymentIds() !== undefined && !this.getPaymentIds().includes(tx.getPaymentId())) return false;
     if (this.getMinHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() < this.getMinHeight())) return false;
     if (this.getMaxHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() > this.getMaxHeight())) return false;
-    if (this.getPaymentIds() !== undefined && !this.getPaymentIds().includes(tx.getPaymentId())) return false;
     
     // transaction meets filter criteria
     return true;
