@@ -35,6 +35,7 @@ test daemon/wallet txs getIsCoinbase()
 test daemon / wallet getTxs() with unfound txs (throw error?)
 test getting coinbase txs by id
 verify that all tx fields are being tested
+handle excess undefineds and enable deepEqual() in testWalletTxCopy()
 
 LOW
 duplicate outgoing transfers returned for different subaddress indices, way to include subaddress indices?

@@ -18,6 +18,8 @@ class MoneroUtils {
   /**
    * Sets the given value ensuring a previous value is not overwritten.
    * 
+   * TODO: this should use reconcile, refactor to (obj, setFn, curVal, newVal, config, errMsg)
+   * 
    * @param obj is the object to invoke the getter and setter on
    * @param getFn gets the current value
    * @param setFn sets the current value
