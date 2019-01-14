@@ -10,11 +10,17 @@ class MoneroTransferFilter extends Filter {
   /**
    * Constructs the filter.
    * 
-   * @param state is a model or json to initialize from (optional)
+   * @param state is model state or json to initialize from (optional)
    */
   constructor(state) {
     super();
-    this.state = Object.assign({}, state);
+    state = Object.assign({}, state);
+    this.state = state;
+    if (!state.transfer) state.transfer = new MoneroTransfer(state);
+    
+    // deserialize fields if necessary
+    if (state.txFilter && !(state.txFilter instanceof MoneroTxFilter)) state.txFilter = new MoneroTxFilter(state.transferFilter);
+    if (!(state.transfer instanceof MoneroTransfer)) state.transfer = new MoneroTransfer(state.transfer);
   }
   
   getIsOutgoing() {

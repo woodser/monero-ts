@@ -16,9 +16,11 @@ class MoneroTxFilter extends Filter {
     super();
     state = Object.assign({}, state);
     this.state = state;
+    if (!state.tx) state.tx = new MoneroWalletTx(state);
     
     // deserialize fields if necessary
     if (state.transferFilter && !(state.transferFilter instanceof MoneroTransferFilter)) state.transferFilter = new MoneroTransferFilter(state.transferFilter);
+    if (!(state.tx instanceof MoneroWalletTx)) state.tx = new MoneroWalletTx(state.tx);
   }
 
   getTxIds() {
