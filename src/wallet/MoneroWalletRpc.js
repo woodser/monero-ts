@@ -357,30 +357,49 @@ class MoneroWalletRpc extends MoneroWallet {
     return txs;
   }
   
-  /**
-   * Implements getTxs() with additional, non-standard parameters.
-   * 
-   * @param config configures the request with base options and rpc extentions:
-   *        config.debugTxId prints request info with this tx id 
-   * @returns {MoneroWalletTx[]} are the retrieved transactions
-   */
   async getTxs(config) {
-    console.log(config);
-    throw new Error("Not implemented");
+    
+    // create normalized tx filter from input
+    let txFilter = new MoneroTxFilter(config);
+    let tx = new MoneroWalletTx(config);
+    txFilter.setTx(tx);
+    
+    // fetch transfers that meet the transaction filter
+    let transfers = await this.getTransfers(new MoneroTransferFilter().setTxFilter(txFilter));
+    
+    // collect unique transactions
+    let txs = Array.from(new Set(transfers.map(transfer => transfer.getTx())).values());
+    
+    // filter and return results
+    return txFilter.apply(txs);
   }
   
   async getTransfers(config) {
     
-    // create normalized transfer filter from input
-    if (config instanceof MoneroTransferFilter) throw new Error("getTransfers() by transfer filter not implemented");
+    // normalize inputs as filters
     config = Object.assign({}, config);
-    let txFilter = new MoneroTxFilter(config);
-    let tx = new MoneroWalletTx(config);
-    let transferFilter = new MoneroTransferFilter(config);
-    let transfer = new MoneroTransfer(config);
-    transferFilter.setTransfer(transfer);
-    transferFilter.setTxFilter(txFilter);
-    txFilter.setTx(tx);
+    let transferFilter;
+    if (config instanceof MoneroTransferFilter) transferFilter = config;
+    else {
+      transferFilter = new MoneroTransferFilter(config);
+      transferFilter.setTransfer(new MoneroTransfer(config));
+      transferFilter.setTxFilter(new MoneroTxFilter(config));
+      transferFilter.getTxFilter().setTx(new MoneroWalletTx(config));
+    }
+    let transfer = transferFilter.getTransfer();
+    let txFilter = transferFilter.getTxFilter();
+    let tx = txFilter.getTx();
+    
+//    // create normalized filters from input
+//    if (config instanceof MoneroTransferFilter) throw new Error("getTransfers() by transfer filter not implemented");
+//    config = Object.assign({}, config);
+//    let txFilter = new MoneroTxFilter(config);
+//    let tx = new MoneroWalletTx(config);
+//    let transferFilter = new MoneroTransferFilter(config);
+//    let transfer = new MoneroTransfer(config);
+//    transferFilter.setTransfer(transfer);
+//    transferFilter.setTxFilter(txFilter);
+//    txFilter.setTx(tx);
     
     // determine account and subaddress indices to be queried
     let indices = new Map();
@@ -395,7 +414,7 @@ class MoneroWalletRpc extends MoneroWallet {
       indices = await this._getAccountIndices(true);  // fetch all account and subaddress indices
     }
     
-    // determine params to fetch for `get_transfers` rpc call
+    // build params for `get_transfers` rpc call
     let canBeConfirmed = tx.getIsConfirmed() !== false && tx.getInTxPool() !== true && tx.getIsFailed() !== true && tx.getIsRelayed() !== false;
     let canBeInTxPool = tx.getIsConfirmed() !== true && tx.getInTxPool() !== false && tx.getIsFailed() !== true & tx.getIsRelayed() !== false && tx.getHeight() === undefined && txFilter.getMinHeight() === undefined;
     let canBeIncoming = transferFilter.getIsIncoming() !== false && transferFilter.getIsOutgoing() !== true && transferFilter.getHasDestinations() !== true;
