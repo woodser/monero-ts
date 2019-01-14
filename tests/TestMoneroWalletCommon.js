@@ -425,41 +425,29 @@ class TestMoneroWalletCommon {
               assert.equal(subaddress.getAccountIndex(), transfer.getAccountIndex());
               assert.equal(transfer.getIsOutgoing() ? 0 : subaddress.getSubaddressIndex(), transfer.getSubaddressIndex());
               if (transfer.getAccountIndex() !== 0 && transfer.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
-              subaddressTransfers.push(transfer);
-            }
-          }
-          
-          // TODO: here!! why are they different?
-          for (let accountTransfer of accountTransfers) {
-            let found = false;
-            for (let subaddressTransfer of subaddressTransfers) {
-              if (subaddressTransfer.toString() === accountTransfer.toString() && subaddressTransfer.getTx().getId() === accountTransfer.getTx().getId()) {
-                found = true;
-                break;
+              
+              // don't add duplicates TODO monero-wallet-rpc: duplicate outgoing transfers returned for different subaddress indices
+              let found = false;
+              for (let subaddressTransfer of subaddressTransfers) {
+                if (transfer.toString() === subaddressTransfer.toString() && transfer.getTx().getId() === subaddressTransfer.getTx().getId()) {
+                  found = true;
+                  break;
+                }
               }
+              if (!found) subaddressTransfers.push(transfer);
             }
-            if (!found) {
-              console.log(accountTransfer.getTx().getId() + "\n" + accountTransfer.toString());
-//              for (let subaddressTransfer of subaddressTransfers) {
-//                if (subaddressTransfer.getTx().getId() === accountTransfer.getTx().getId()) {
-//                  console.log(subaddressTransfer.getTx().toString());
-//                }
-//              }
-            }
-            assert(found);
           }
-          
           assert.equal(accountTransfers.length, subaddressTransfers.length);
 
           
-//          // get transfers by subaddress indices
-//          let subaddressIndices = subaddressTransfers.map(transfer => transfer.getSubaddressIndex());
-//          let transfers = await testGetTransfers(wallet, {accountIndex: account.getIndex(), subaddressIndices: subaddressIndices});
-//          assert.equal(subaddressTransfers.length, transfers.length);
-//          for (let transfer of transfers) {
-//            assert.equal(account.getIndex(), transfer.getAccountIndex());
-//            assert(subaddressIndices.includes(transfer.getSubaddressIndex()));
-//          }
+          // get transfers by subaddress indices
+          let subaddressIndices = subaddressTransfers.map(transfer => transfer.getSubaddressIndex());
+          let transfers = await testGetTransfers(wallet, {accountIndex: account.getIndex(), subaddressIndices: subaddressIndices});
+          assert.equal(subaddressTransfers.length, transfers.length);
+          for (let transfer of transfers) {
+            assert.equal(account.getIndex(), transfer.getAccountIndex());
+            assert(subaddressIndices.includes(transfer.getSubaddressIndex()));
+          }
         }
         
         // ensure transfer found with non-zero account and subaddress indices

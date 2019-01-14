@@ -36,6 +36,7 @@ test getting coinbase txs by id
 verify that all tx fields are being tested
 
 LOW
+duplicate outgoing transfers returned for different subaddress indices, way to include subaddress indices?
 safeguard all apis by heavily validating input parameters
 send to multiple, suggested_confirmation_threshold outgoing payment 6 but incoming payments 1; large discrepency
 don't get tx hex unless requested

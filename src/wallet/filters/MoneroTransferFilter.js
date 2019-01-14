@@ -73,10 +73,7 @@ class MoneroTransferFilter extends Filter {
   
   meetsCriteria(transfer) {
     if (!(transfer instanceof MoneroTransfer)) return false;
-    
-    let debug = transfer.getTx().getId() === "219c7917bb9d2288f468256539250fd56c5d15cb3c22f9850e98490e67efa860";
-    if (debug) console.log(transfer.toString());
-    
+
     // filter on transfer
     if (this.getTransfer()) {
       let tr = this.getTransfer();
@@ -100,8 +97,6 @@ class MoneroTransferFilter extends Filter {
     
     // filter on destinations TODO
 //  if (this.getDestionations() !== undefined && this.getDestionations() !== transfer.getDestionations()) return false;
-    
-    if (debug) console.log("RETURNING TRUE! " + transfer.getTx().getId());
     
     // transfer meets filter criteria
     return true;

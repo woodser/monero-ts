@@ -27,14 +27,25 @@ describe("Scratchpad", function() {
     
     
     // fetch transfers
-    let txId = "219c7917bb9d2288f468256539250fd56c5d15cb3c22f9850e98490e67efa860";
-    for (let subaddress of await wallet.getSubaddresses(0)) {
-      let transfers = await wallet.getTransfers({accountIndex: 0, subaddressIndex: subaddress.getSubaddressIndex(), txId: txId, debugTxId: txId});
-      for (let transfer of transfers) {
-        assert.equal(txId, transfer.getTx().getId());
-        console.log(transfer.getTx().toString());
-      }
+    let txId = "af88ea62c1f0d439641f90f634d5bf5a6441170b35a36e53d52f4a4598df5682";
+    console.log("FIRST");
+    let transfers = await wallet.getTransfers({accountIndex: 0, subaddressIndex: 0, txId: txId});
+    for (let transfer of transfers) {
+      console.log(transfer.getTx().toString());
     }
+    console.log("SECOND");
+    transfers = await wallet.getTransfers({accountIndex: 0, subaddressIndex: 1, txId: txId});
+    for (let transfer of transfers) {
+      console.log(transfer.getTx().toString());
+    }
+    
+//    for (let subaddress of await wallet.getSubaddresses(0)) {
+//      let transfers = 
+//      for (let transfer of transfers) {
+//        assert.equal(txId, transfer.getTx().getId());
+//        console.log(transfer.getTx().toString());
+//      }
+//    }
     
 
     
