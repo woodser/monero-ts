@@ -25,18 +25,17 @@ describe("Scratchpad", function() {
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
     
+//    let vouts = await wallet.getVouts({accountIndex: 0, subaddressIndex: 2});
+//    for (let vout of vouts) {
+//      console.log(vout.toString());
+//    }
+    
     
     // fetch transfers
-    let txId = "af88ea62c1f0d439641f90f634d5bf5a6441170b35a36e53d52f4a4598df5682";
-    console.log("FIRST");
-    let transfers = await wallet.getTransfers({accountIndex: 0, subaddressIndex: 0, txId: txId});
-    for (let transfer of transfers) {
-      console.log(transfer.getTx().toString());
-    }
-    console.log("SECOND");
-    transfers = await wallet.getTransfers({accountIndex: 0, subaddressIndex: 1, txId: txId});
-    for (let transfer of transfers) {
-      console.log(transfer.getTx().toString());
+//    let txId = "af88ea62c1f0d439641f90f634d5bf5a6441170b35a36e53d52f4a4598df5682";
+    let txs = await wallet.getTxs({transferFilter: {accountIndex: 0, subaddressIndex: 2, isIncoming: true}});
+    for (let tx of txs) {
+      console.log(tx.toString());
     }
     
 //    for (let subaddress of await wallet.getSubaddresses(0)) {

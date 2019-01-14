@@ -28,6 +28,24 @@ class MoneroTransfer {
     }
   }
   
+  getTx() {
+    return this.state.tx;
+  }
+  
+  setTx(tx) {
+    this.state.tx = tx;
+    return this;
+  }
+  
+  getIsOutgoing() {
+    return this === this.getTx().getOutgoingTransfer();
+  }
+  
+  getIsIncoming() {
+    if (!this.getTx().getIncomingTransfers()) return false;
+    return this.getTx().getIncomingTransfers().includes(this);
+  }
+  
   getAddress() {
     return this.state.address;
   }
@@ -71,24 +89,6 @@ class MoneroTransfer {
   setDestinations(destinations) {
     this.state.destinations = destinations;
     return this;
-  }
-  
-  getTx() {
-    return this.state.tx;
-  }
-  
-  setTx(tx) {
-    this.state.tx = tx;
-    return this;
-  }
-  
-  getIsOutgoing() {
-    return this === this.getTx().getOutgoingTransfer();
-  }
-  
-  getIsIncoming() {
-    if (!this.getTx().getIncomingTransfers()) return false;
-    return this.getTx().getIncomingTransfers().includes(this);
   }
   
   copy() {

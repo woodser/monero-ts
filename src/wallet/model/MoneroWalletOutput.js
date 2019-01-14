@@ -3,21 +3,39 @@ const MoneroOutput = require("../../daemon/model/MoneroOutput");
 
 /**
  * Models a Monero output with wallet extensions.
+ * 
+ * TODO: update this to state model
  */
 class MoneroWalletOutput extends MoneroOutput {
   
-  constructor(tx, json) {
-    super(json);
+  /**
+   * Constructs the model.
+   * 
+   * TODO: deseserialize vout filter (need test)
+   * 
+   * @param state is model state or json to initialize from (optional)
+   */
+  constructor(state) {
+    super(state);
+    state = this.state;
     
-    // initialize transaction which is not part of state
-    assert(tx);
-    assert(tx.getNote, "First parameter must be a MoneroWalletTx"); // TODO: better way to assert(tx instanceof MoneroWalletTx) without circular require?
-    this.tx = tx;
+    // deserialize fields if necessary
+    if (state.amount && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(state.amount);
+    if (state.destinations) {
+      for (let i = 0; i < state.destinations.length; i++) {
+        if (!(state.destinations[i] instanceof MoneroDestination)) state.destinations[i] = new MoneroDestination(state.destinations[i]);  // TODO: typo, tests must catch
+      }
+    }
   }
   
   getTx() {
-    return this.tx;
-  }  
+    return this.state.tx;
+  }
+  
+  setTx(tx) {
+    this.state.tx = tx;
+    return this;
+  }
   
   getAccountIndex() {
     return this.state.accountIndex;

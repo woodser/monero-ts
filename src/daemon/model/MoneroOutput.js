@@ -8,9 +8,17 @@ const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/b
  */
 class MoneroOutput {
   
-  constructor(json) {
-    this.state = Object.assign({}, json);
-    if (json && json.amount) this.setAmount(BigInteger.parse(json.amount));
+  /**
+   * Constructs the model.
+   * 
+   * @param state is model state or json to initialize from (optional)
+   */
+  constructor(state) {
+    state = Object.assign({}, state);
+    this.state = state;
+    
+    // deserialize fields if necessary
+    if (state.amount && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(state.amount);
   }
   
   getKeyImage() {

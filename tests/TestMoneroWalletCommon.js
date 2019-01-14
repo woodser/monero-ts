@@ -498,7 +498,6 @@ class TestMoneroWalletCommon {
           txIds.push(tx.getId());
           transfers = await testGetTransfers(wallet, {txId: tx.getId()}, true);
           for (let transfer of transfers) assert.equal(tx.getId(), transfer.getTx().getId());
-          assert.equal(tx.getId(), transfers[0].getTx().getId());
         }
         
         // get transfers with tx ids
@@ -537,21 +536,26 @@ class TestMoneroWalletCommon {
         // get all vouts
         await testGetVouts(wallet, undefined, true);
         
-        // get vouts by account index
+        // get vouts for each account
         let nonDefaultIncoming = false;
         let accounts = await wallet.getAccounts(true);
         for (let account of accounts) {
-          let accountVouts = await testGetVouts(wallet, {accountIndex: account.getIndex}, true);
+          
+          // determine if account is used
+          let isUsed = false;
+          for (let subaddress of account.getSubaddresses()) if (subaddress.getIsUsed()) isUsed = true;
+          
+          // get vouts by account index
+          let accountVouts = await testGetVouts(wallet, {accountIndex: account.getIndex()}, isUsed);
           for (let vout of accountVouts) assert.equal(account.getIndex(), vout.getAccountIndex());
           
           // get vouts by subaddress index
           let subaddressVouts = [];
           for (let subaddress of account.getSubaddresses()) {
-            subaddressIndices.push(subaddress.getSubaddressIndex());
-            let vouts = await testGetVouts(wallet, {accountIndex: subaddress.getAccountIndex(), subaddressIndex: subaddress.getSubaddressIndex()}, true);
+            let vouts = await testGetVouts(wallet, {accountIndex: account.getIndex(), subaddressIndex: subaddress.getSubaddressIndex()}, subaddress.getIsUsed());
             for (let vout of vouts) {
               assert.equal(subaddress.getAccountIndex(), vout.getAccountIndex());
-              assert.equal(subaddress.getSubaddressIndex(), vout.getSubaddressIndex);
+              assert.equal(subaddress.getSubaddressIndex(), vout.getSubaddressIndex());
               if (vout.getAccountIndex() !== 0 && vout.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
               subaddressVouts.push(vout);
             }
@@ -559,8 +563,8 @@ class TestMoneroWalletCommon {
           assert.equal(accountVouts.length, subaddressVouts.length);
           
           // get vouts by subaddress indices
-          let subaddressIndices = subaddressVouts.map(vout => vout.getSubaddressIndex());
-          vouts = await testGetVouts(wallet, {accountIndex: account.getIndex(), subaddressIndices: subaddressIndices}, true);
+          let subaddressIndices = Array.from(new Set(subaddressVouts.map(vout => vout.getSubaddressIndex())));
+          let vouts = await testGetVouts(wallet, {accountIndex: account.getIndex(), subaddressIndices: subaddressIndices}, isUsed);
           assert.equal(subaddressVouts.length, vouts.length);
           for (let vout of vouts) {
             assert.equal(account.getIndex(), vout.getAccountIndex());
@@ -596,13 +600,12 @@ class TestMoneroWalletCommon {
         for (let tx of txs) {
           txIds.push(tx.getId());
           vouts = await testGetVouts(wallet, {txId: tx.getId()}, true);
-          assert.equal(1, vouts.length);
-          assert.equal(tx.getId(), vouts[0].getTx().getId());
+          for (let vout of vouts) assert.equal(tx.getId(), vout.getTx().getId());
         }
         
         // get vouts with tx ids
         vouts = await testGetVouts(wallet, {txIds: txIds}, true);
-        for (let vout of vouts) assert(txIds.includes(vout.getId()));
+        for (let vout of vouts) assert(txIds.includes(vout.getTx().getId()));
       });
       
       it("Validates inputs when getting vouts", async function() {
@@ -1773,10 +1776,11 @@ function testSubaddress(subaddress) {
  * 
  * TODO: convert config to filter and ensure each tx passes filter, same with testGetTransfer and testGetVouts
  */
-async function testGetTxs(wallet, config, mustFind) {
+async function testGetTxs(wallet, config, isExpected) {
   let txs = await wallet.getTxs(config);
   assert(Array.isArray(txs));
-  if (mustFind) assert(txs.length > 0);
+  if (isExpected === false) assert.equal(0, txs.length);
+  if (isExpected === true) assert(txs.length > 0);
   for (let tx of txs) await testWalletTx(tx, {wallet: wallet});
   return txs;
 }
@@ -1784,10 +1788,11 @@ async function testGetTxs(wallet, config, mustFind) {
 /**
  * Fetchs and tests transfers according to the given config.
  */
-async function testGetTransfers(wallet, config, mustFind) {
+async function testGetTransfers(wallet, config, isExpected) {
   let transfers = await wallet.getTransfers(config);
   assert(Array.isArray(transfers));
-  if (mustFind) assert(transfers.length > 0);
+  if (isExpected === false) assert.equal(0, transfers.length);
+  if (isExpected === true) assert(transfers.length > 0);
   for (let transfer of transfers) await testWalletTx(transfer.getTx(), {wallet: wallet});
   return transfers;
 }
@@ -1795,10 +1800,11 @@ async function testGetTransfers(wallet, config, mustFind) {
 /**
  * Fetchs and tests vouts according to the given config.
  */
-async function testGetVouts(wallet, config, mustFind) {
+async function testGetVouts(wallet, config, isExpected) {
   let vouts = await wallet.getVouts(config);
   assert(Array.isArray(vouts));
-  if (mustFind) assert(vouts.length > 0);
+  if (isExpected === false) assert.equal(0, vouts.length);
+  if (isExpected === true) assert(vouts.length > 0);
   for (let vout of vouts) await testVout(vout, {wallet: wallet});
   return vouts;
 }
