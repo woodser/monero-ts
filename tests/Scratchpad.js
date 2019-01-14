@@ -27,12 +27,16 @@ describe("Scratchpad", function() {
     
     
     // fetch transfers
-    let txId = "acbb642acbe51963b881aa97f7d99e25c4425cc5cb1a6c23130fc37250467afc";
-    let transfers = await wallet.getTransfers({accountIndex: 0, isIncoming: true, txId: txId});
-    for (let transfer of transfers) {
-      assert.equal(txId, transfer.getTx().getId());
-      console.log(transfer.getTx().toString());
+    let txId = "219c7917bb9d2288f468256539250fd56c5d15cb3c22f9850e98490e67efa860";
+    for (let subaddress of await wallet.getSubaddresses(0)) {
+      let transfers = await wallet.getTransfers({accountIndex: 0, subaddressIndex: subaddress.getSubaddressIndex(), txId: txId, debugTxId: txId});
+      for (let transfer of transfers) {
+        assert.equal(txId, transfer.getTx().getId());
+        console.log(transfer.getTx().toString());
+      }
     }
+    
+
     
 //    // fetch txs
 //    //filter.setAccountIndex(0);

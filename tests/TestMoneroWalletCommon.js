@@ -429,18 +429,25 @@ class TestMoneroWalletCommon {
             }
           }
           
-//          // TODO: here!! why are they different?
-//          for (let subaddressTransfer of subaddressTransfers) {
-//            let found = false;
-//            for (let accountTransfer of accountTransfers) {
-//              if (subaddressTransfer.getTx().toString() === accountTransfer.getTx().toString()) {
-//                found = true;
-//                break;
+          // TODO: here!! why are they different?
+          for (let accountTransfer of accountTransfers) {
+            let found = false;
+            for (let subaddressTransfer of subaddressTransfers) {
+              if (subaddressTransfer.toString() === accountTransfer.toString() && subaddressTransfer.getTx().getId() === accountTransfer.getTx().getId()) {
+                found = true;
+                break;
+              }
+            }
+            if (!found) {
+              console.log(accountTransfer.getTx().getId() + "\n" + accountTransfer.toString());
+//              for (let subaddressTransfer of subaddressTransfers) {
+//                if (subaddressTransfer.getTx().getId() === accountTransfer.getTx().getId()) {
+//                  console.log(subaddressTransfer.getTx().toString());
+//                }
 //              }
-//            }
-//            if (!found) console.log(subaddressTransfer.getTx().toString());
-//            assert(found);
-//          }
+            }
+            assert(found);
+          }
           
           assert.equal(accountTransfers.length, subaddressTransfers.length);
 

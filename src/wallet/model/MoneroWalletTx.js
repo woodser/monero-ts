@@ -102,13 +102,11 @@ class MoneroWalletTx extends MoneroTx {
     
     // otherwise stringify all fields
     str += super.toString(indent) + "\n";
-    str += MoneroUtils.kvLine("Is outgoing", this.getIsOutgoing(), indent);
     str += MoneroUtils.kvLine("Outgoing amount", this.getOutgoingAmount(), indent);
     if (this.getOutgoingTransfer()) {
       str += MoneroUtils.kvLine("Outgoing transfer", "", indent);
       str += this.getOutgoingTransfer().toString(indent + 1) + "\n";
     }
-    str += MoneroUtils.kvLine("Is incoming", this.getIsIncoming(), indent);
     str += MoneroUtils.kvLine("Incoming amount", this.getIncomingAmount(), indent);
     if (this.getIncomingTransfers()) {
       str += MoneroUtils.kvLine("Incoming transfers", "", indent);
