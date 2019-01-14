@@ -2062,6 +2062,18 @@ function testTransfer(transfer) {
   assert(transfer.getTx() instanceof MoneroWalletTx);
   TestUtils.testUnsignedBigInteger(transfer.getAmount());
   assert((transfer.getIsOutgoing() === true && transfer.getIsIncoming() === false) || (transfer.getIsOutgoing() === false && transfer.getIsIncoming() === true));
+  
+  // test that transfer references tx references transfer
+  if (transfer.getTx().getOutgoingTransfer() !== transfer) {
+    let found = false;
+    for (let inTransfer of transfer.getTx().getIncomingTransfers()) {
+      if (inTransfer === transfer) {
+        found = true;
+        break;
+      }
+    }
+    assert(found, "Transaction does not reference given transfer");
+  }
 }
 
 function testVout(vout) {
