@@ -400,24 +400,22 @@ class TestMoneroWalletCommon {
       
       it("Validates inputs to get transactions", async function() {
         
-//        // test with invalid id
-//        let expectedError = "No wallet transaction found with id 'invalid_id'";
-//        try {
-//          await wallet.getTxById("invalid_id");
-//          throw new Error("Should have thrown error");
-//        } catch (e) {
-//          assert.equal(expectedError, e.message);
-//        }
-//        
-//        // test with invalid ids
-//        try {
-//          await wallet.getTxsById([txIds[0], "invalid_id"]);
-//          throw new Error("Should have thrown error");
-//        } catch (e) {
-//          assert.equal(expectedError, e.message);
-//        }
+        // test with invalid id
+        let expectedError = "Wallet transaction id not found: 'invalid_id'";
+        try {
+          await wallet.getTxs({txId: "invalid_id"});
+          throw new Error("Should have thrown error");
+        } catch (e) {
+          assert.equal(expectedError, e.message);
+        }
         
-        throw new Error("Not implemented");
+        // test with invalid ids
+        try {
+          await wallet.getTxs({txIds: [txIds[0], "invalid_id"]});
+          throw new Error("Should have thrown error");
+        } catch (e) {
+          assert.equal(expectedError, e.message);
+        }
       });
 
       it("Can get transfers in the wallet, accounts, and subaddresses", async function() {
@@ -520,24 +518,22 @@ class TestMoneroWalletCommon {
       
       it("Validates inputs when getting transfers", async function() {
         
-//        // test with invalid id
-//        let expectedError = "No wallet transaction found with id 'invalid_id'";
-//        try {
-//          await wallet.getTxById("invalid_id");
-//          throw new Error("Should have thrown error");
-//        } catch (e) {
-//          assert.equal(expectedError, e.message);
-//        }
-//        
-//        // test with invalid ids
-//        try {
-//          await wallet.getTxsById([txIds[0], "invalid_id"]);
-//          throw new Error("Should have thrown error");
-//        } catch (e) {
-//          assert.equal(expectedError, e.message);
-//        }
+        // test with invalid id
+        let expectedError = "Wallet transaction id not found: 'invalid_id'";
+        try {
+          await wallet.getTransfers({txId: "invalid_id"});
+          throw new Error("Should have thrown error");
+        } catch (e) {
+          assert.equal(expectedError, e.message);
+        }
         
-        throw new Error("Not implemented");
+        // test with invalid ids
+        try {
+          await wallet.getTransfers({txIds: [txIds[0], "invalid_id"]});
+          throw new Error("Should have thrown error");
+        } catch (e) {
+          assert.equal(expectedError, e.message);
+        }
       });
       
       it("Can get vouts in the wallet, accounts, and subaddressess", async function() {

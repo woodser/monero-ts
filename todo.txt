@@ -6,6 +6,7 @@ optimize rpc requests
 review todos
 release alpha
 
+reverse assert actual and expected params
 models return getState() since state accepted in constructor?
 merge asserts type or accepts undefined as matter of policy
 all model set functions return this
