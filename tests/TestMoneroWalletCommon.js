@@ -1585,7 +1585,7 @@ class TestMoneroWalletCommon {
         let config = new MoneroSendConfig();
         config.setDoNotRelay(true);
         for (let tx of txs) {
-          await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
+          await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet); // TODO: this code is outdated
         }
         
         // relay and test txs
@@ -1655,7 +1655,7 @@ class TestMoneroWalletCommon {
           for (let tx of txs) {
             let config = new MoneroSendConfig(wallet.getPrimaryAddress());
             config.setAccountIndex(unlockedAccount.getIndex());
-            testTxWalletSend(tx, config, true, false, wallet);
+            await testWalletTx(tx, {wallet: wallet, sendConfig: config})
           }
           
           // assert no unlocked funds in account

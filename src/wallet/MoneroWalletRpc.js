@@ -428,11 +428,10 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async sweep(config) {
     
-    throw new Error("Not implemented");
-    
     // common request params
     let params = {};
-    params.address = config.getTransfers()[0].getAddress();
+    assert.equal(1, config.getDestinations().length, "Must specify exactly one destination with an address");
+    params.address = config.getDestinations()[0].getAddress();
     params.priority = config.getPriority();
     params.mixin = config.getMixin();
     params.unlock_time = config.getUnlockTime();
@@ -482,6 +481,10 @@ class MoneroWalletRpc extends MoneroWallet {
       if (config.getSweepEachSubaddress() === undefined || config.getSweepEachSubaddress()) {
         for (let subaddressIdx of subaddressIndices) {
           params.subaddr_indices = [subaddressIdx];
+          
+          console.log(params);
+          throw new Error("OK going to sweep each individually");
+
           let resp = await this.config.rpc.sendJsonRequest("sweep_all", params);
           
           // initialize tx per subaddress
@@ -501,6 +504,10 @@ class MoneroWalletRpc extends MoneroWallet {
       // sweep all subaddresses together
       else {
         params.subaddr_indices = [subaddressIndices];
+        
+        console.log(params);
+        throw new Error("OK going to sweep subaddresses together");
+        
         let resp = this.config.rpc.sendJsonRequest("sweep_all", params);
         
         // initialize tx per subaddress
