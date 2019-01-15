@@ -3,6 +3,7 @@ additional tx filtering (height, paymentIds, impossible filter)
 test txs return all known fields regardless of filtering
 fabricate unconfirmeds or update unlock test warning message
 sweep tests
+update sample code
 
 optimize rpc requests
 review todos

@@ -29,7 +29,16 @@ class MoneroTxFilter extends Filter {
 
   setTxIds(txIds) {
     this.state.txIds = txIds;
-    return this;
+    return
+    this;
+  }
+  
+  getHasPaymentId() {
+    return this.state.hasPaymentId;
+  }
+  
+  setHasPaymentId() {
+    this.state.hasPaymentId = hasPaymentId;
   }
   
   getPaymentIds() {
@@ -125,13 +134,19 @@ class MoneroTxFilter extends Filter {
       if (!matchFound) return false;
     }
     
-    // filter on outgoing transfers
+    // filter on having a payment id
+    if (this.getHasPaymentId() !== undefined) {
+      if (this.getHasPaymentId() && tx.getPaymentId() === undefined) return false;
+      if (!this.getHasPaymentId() && tx.getPaymentId() !== undefined) return false;
+    }
+    
+    // filter on having an outgoing transfer
     if (this.getHasOutgoingTransfer() !== undefined) {
       if (this.getHasOutgoingTransfer() && tx.getOutgoingTransfer() === undefined) return false;
       if (!this.getHasOutgoingTransfer() && tx.getOutgoingTransfer() !== undefined) return false;
     }
     
-    // filter on incoming transfers
+    // filter on having incoming transfers
     if (this.getHasIncomingTransfers() !== undefined) {
       if (this.getHasIncomingTransfers() && (tx.getIncomingTransfers() === undefined || tx.getIncomingTransfers().length === 0)) return false;
       if (!this.getHasIncomingTransfers() && tx.getIncomingTransfers() !== undefined && tx.getIncomingTransfers().length > 0) return false;

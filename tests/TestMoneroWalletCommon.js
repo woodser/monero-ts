@@ -317,8 +317,11 @@ class TestMoneroWalletCommon {
       
       it("Can get transactions with additional configuration", async function() {
         
-        // get random transactions for testing
-        let randomTxs = await getRandomTransactions(wallet, undefined, 3, 5);
+        // get random transactions with payment ids for testing
+        let randomTxs = await getRandomTransactions(wallet, {hasPaymentId: true}, 3, 5);
+        for (let randomTx of randomTxs) {
+          assert(randomTx.getPaymentId());
+        }
         
         // get transactions by id
         let txIds = [];
@@ -409,21 +412,23 @@ class TestMoneroWalletCommon {
           assert(tx.getOutgoingTransfer().getDestinations().length > 0);
         }
         
-//        // test getting transactions by payment ids
-//        // TODO: this test is very slow, optimize
-//        let paymentIds = [];
-//        for (let tx of allTxs) paymentIds.push(tx.getPaymentId());
-//        assert(paymentIds.length > 0);
-//        for (let paymentId of paymentIds) {
-//          let filter = new MoneroTxFilter();
-//          filter.setPaymentIds([paymentId]);
-//          let txs = await wallet.getTxs(filter);
-//          assert(txs.length > 0);
-//          for (let tx of txs) {
-//            await testTxWalletGet(wallet, tx, that.unbalancedTxIds);
-//            assert(filter.getPaymentIds().includes(tx.getPaymentId()));
-//          }
-//        }
+        //let txs;  // TEMPORARY
+        
+        // get transactions by payment id
+        let paymentIds = randomTxs.map(tx => tx.getPaymentId());
+        assert(paymentIds.length > 1);
+        for (let paymentId of paymentIds) {
+          txs = await testGetTxs(wallet, {paymentId: paymentId});
+          assert.equal(1, txs.length);
+          assert(txs[0].getPaymentId());
+          MoneroUtils.validatePaymentId(txs[0].getPaymentId());
+        }
+        
+        // get transactions by payment ids
+        txs = await testGetTxs(wallet, {paymentIds: paymentIds});
+        for (let tx of txs) {
+          assert(paymentIds.includes(tx.getPaymentId()));
+        }
 //        
 //        // test block height filtering
 //        {
