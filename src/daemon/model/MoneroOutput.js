@@ -27,6 +27,7 @@ class MoneroOutput {
 
   setKeyImage(keyImage) {
     this.state.keyImage = keyImage;
+    return this;
   }
   
   getAmount() {
@@ -35,6 +36,7 @@ class MoneroOutput {
 
   setAmount(amount) {
     this.state.amount = amount;
+    return this;
   }
   
   // TODO: rename to getGlobalIndex()
@@ -44,6 +46,7 @@ class MoneroOutput {
   
   setIndex(index) {
     this.state.index = index;
+    return this;
   }
   
   copy() {

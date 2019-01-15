@@ -396,6 +396,18 @@ class TestMoneroWalletCommon {
           }
         }
         assert(found, "No vouts found in txs");
+        
+        // get txs with pre-built filter that are confirmed and have outgoing destinations
+        let txFilter = new MoneroTxFilter();
+        txFilter.setTx(new MoneroTx().setIsConfirmed(true));
+        txFilter.setHasOutgoingTransfer(true);
+        txFilter.setTransferFilter(new MoneroTransferFilter().setHasDestinations(true));
+        txs = await testGetTxs(wallet, txFilter, true);
+        for (let tx of txs) {
+          assert.equal(true, tx.getIsConfirmed());
+          assert(tx.getOutgoingTransfer());
+          assert(tx.getOutgoingTransfer().getDestinations().length > 0);
+        }
       });
       
       it("Validates inputs when getting transactions", async function() {
@@ -509,6 +521,18 @@ class TestMoneroWalletCommon {
         // TODO: test that transfers with the same txId have the same tx reference
         
         // TODO: test transfers destinations
+        
+        // get transfers with pre-built filter that are confirmed and have outgoing destinations
+        let transferFilter = new MoneroTransferFilter();
+        transferFilter.setIsOutgoing(true);
+        transferFilter.setHasDestinations(true);
+        transferFilter.setTxFilter(new MoneroTxFilter().setTx(new MoneroTx().setIsConfirmed(true)));
+        transfers = await testGetTransfers(wallet, transferFilter, true);
+        for (let transfer of transfers) {
+          assert.equal(true, transfer.getIsOutgoing());
+          assert(transfer.getDestinations().length > 0);
+          assert.equal(true, transfer.getTx().getIsConfirmed());
+        }
       });
       
       it("Validates inputs when getting transfers", async function() {
@@ -600,6 +624,19 @@ class TestMoneroWalletCommon {
         // get vouts with tx ids
         vouts = await testGetVouts(wallet, {txIds: txIds}, true);
         for (let vout of vouts) assert(txIds.includes(vout.getTx().getId()));
+        
+        // get confirmed vouts to specific subaddress with pre-built filter
+        let accountIdx = 0;
+        let subaddressIdx = 1;
+        let voutFilter = new MoneroVoutFilter();
+        voutFilter.setVout(new MoneroWalletOutput().setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx));
+        voutFilter.setTxFilter(new MoneroTxFilter().setTx(new MoneroTx().setIsConfirmed(true)));
+        vouts = await testGetVouts(wallet, voutFilter, true);
+        for (let vout of vouts) {
+          assert.equal(accountIdx, vout.getAccountIndex());
+          assert.equal(subaddressIdx, vout.getSubaddressIndex());
+          assert.equal(true, vout.getTx().getIsConfirmed());
+        }
       });
       
       it("Validates inputs when getting vouts", async function() {

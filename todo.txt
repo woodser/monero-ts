@@ -1,6 +1,5 @@
 HIGH
-all tests
-test filtering by height
+all tests: filter param, height
 optimize rpc requests
 review todos
 release alpha

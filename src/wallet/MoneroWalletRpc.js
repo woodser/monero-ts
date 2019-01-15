@@ -244,13 +244,18 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTxs(config) {
     
-    // create tx filter from config
-    config = Object.assign({}, config);
-    if (!config.id) config.id = config.txId;  // support txId TODO: move into MoneroTransaction?
-    let txFilter = new MoneroTxFilter(config);
+    // initialize tx filter from config
+    let txFilter;
+    if (config instanceof MoneroTxFilter) txFilter = config;
+    else {
+      config = Object.assign({}, config);
+      if (!config.id) config.id = config.txId;  // support txId TODO: move into MoneroTransaction?
+      txFilter = new MoneroTxFilter(config);
+    }
+    if (!txFilter.getTransferFilter()) txFilter.setTransferFilter(new MoneroTransferFilter());
+    let transferFilter = txFilter.getTransferFilter();
     
     // temporarily disable transfer filter
-    let transferFilter = txFilter.getTransferFilter();
     txFilter.setTransferFilter(undefined);
     
     // fetch all transfers that meet tx filter
@@ -274,15 +279,18 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTransfers(config) {
     
-    // create filters from config
-    config = Object.assign({}, config);
-    if (!config.id) config.id = config.txId;  // support txId TODO: move into MoneroTransaction?
+    // initialize filters from config
     let transferFilter;
     if (config instanceof MoneroTransferFilter) transferFilter = config;
     else {
+      config = Object.assign({}, config);
+      if (!config.id) config.id = config.txId;  // support txId TODO: move into MoneroTransaction?
       transferFilter = new MoneroTransferFilter(config);
       transferFilter.setTxFilter(new MoneroTxFilter(config));
     }
+    if (!transferFilter.getTransfer()) transferFilter.setTransfer(new MoneroTransfer());
+    if (!transferFilter.getTxFilter()) transferFilter.setTxFilter(new MoneroTxFilter());
+    if (!transferFilter.getTxFilter().getTx()) transferFilter.getTxFilter().setTx(new MoneroWalletTx());
     let transfer = transferFilter.getTransfer();
     let txFilter = transferFilter.getTxFilter();
     let tx = txFilter.getTx();
@@ -373,15 +381,18 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getVouts(config) {
     
-    // create filters from config
-    config = Object.assign({}, config);
-    if (!config.id) config.id = config.txId;  // support txId TODO: move into MoneroTransaction?
+    // initialize filters from config
     let voutFilter;
     if (config instanceof MoneroVoutFilter) voutFilter = config;
     else {
+      config = Object.assign({}, config);
+      if (!config.id) config.id = config.txId;  // support txId TODO: move into MoneroTransaction?
       voutFilter = new MoneroVoutFilter(config);
       voutFilter.setTxFilter(new MoneroTxFilter(config));
     }
+    if (!voutFilter.getVout()) voutFilter.setVout(new MoneroVout());
+    if (!voutFilter.getTxFilter()) voutFilter.setTxFilter(new MoneroTxFilter());
+    if (!voutFilter.getTxFilter().getTx()) voutFilter.getTxFilter().setTx(new MoneroWalletTx());
     let vout = voutFilter.getVout();
     let txFilter = voutFilter.getTxFilter();
     let tx = txFilter.getTx();

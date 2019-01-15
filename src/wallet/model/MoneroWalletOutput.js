@@ -37,6 +37,7 @@ class MoneroWalletOutput extends MoneroOutput {
 
   setAccountIndex(accountIndex) {
     this.state.accountIndex = accountIndex;
+    return this;
   }
 
   getSubaddressIndex() {
@@ -45,6 +46,7 @@ class MoneroWalletOutput extends MoneroOutput {
 
   setSubaddressIndex(subaddressIndex) {
     this.state.subaddressIndex = subaddressIndex;
+    return this;
   }
   
   getIsSpent() {
@@ -53,6 +55,7 @@ class MoneroWalletOutput extends MoneroOutput {
 
   setIsSpent(isSpent) {
     this.state.isSpent = isSpent;
+    return this;
   }
   
   merge(output) {
