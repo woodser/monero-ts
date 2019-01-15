@@ -11,9 +11,9 @@ new TestMoneroDaemonRpc().runTests({
 new TestMoneroWalletRpc().runTests({
   testNonSends: true,
   liteMode: true, // skips some lengthy tests // TODO: lengthy tests still need to be runnable but getting test timeout
-  testSends: true,
+  testSends: false,
   testResets: false,
-  testNotifications: true
+  testNotifications: false
 });
 
 // test core utils

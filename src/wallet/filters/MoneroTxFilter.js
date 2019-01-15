@@ -29,8 +29,7 @@ class MoneroTxFilter extends Filter {
 
   setTxIds(txIds) {
     this.state.txIds = txIds;
-    return
-    this;
+    return this;
   }
   
   getHasPaymentId() {

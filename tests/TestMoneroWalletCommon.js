@@ -388,18 +388,6 @@ class TestMoneroWalletCommon {
           assert(found, "No incoming transfers to account " + accountIdx + " found:\n" + tx.toString());
         }
         
-        // include vouts with transactions
-        txs = await testGetTxs(wallet, {getVouts: true}, true);
-        let found = false;
-        for (let tx of txs) {
-          if (tx.getVouts()) {
-            assert(tx.getVouts().length > 0);
-            found = true;
-            break;
-          }
-        }
-        assert(found, "No vouts found in txs");
-        
         // get txs with pre-built filter that are confirmed and have outgoing destinations
         let txFilter = new MoneroTxFilter();
         txFilter.setTx(new MoneroTx().setIsConfirmed(true));
@@ -429,50 +417,79 @@ class TestMoneroWalletCommon {
         for (let tx of txs) {
           assert(paymentIds.includes(tx.getPaymentId()));
         }
-//        
-//        // test block height filtering
-//        {
-//          txs = await wallet.getTxs(0);
-//          assert(txs.length > 0, "No transactions; run send to multiple test");
-//            
-//          // get and sort block heights in ascending order
-//          let heights = [];
-//          for (let tx of txs) {
-//            if (tx.getHeight() !== undefined) heights.push(tx.getHeight());
-//          }
-//          GenUtils.sort(heights);
-//          
-//          // pick minimum and maximum heights for filtering
-//          let minHeight = -1;
-//          let maxHeight = -1;
-//          if (heights.length == 1) {
-//            minHeight = 0;
-//            maxHeight = heights[0] - 1;
-//          } else {
-//            minHeight = heights[0] + 1;
-//            maxHeight = heights[heights.length - 1] - 1;
-//          }
-//          
-//          // assert some transactions filtered
-//          let unfilteredCount = txs.length;
-//          filter = new MoneroTxFilter();
-//          filter.setAccountIndex(0);
-//          filter.setMinHeight(minHeight);
-//          filter.setMaxHeight(maxHeight);
-//          txs = await wallet.getTxs(filter);
-//          assert(txs.length > 0);
-//          assert(txs.length < unfilteredCount);
-//          for (let tx of txs) {
-//            assert(tx.getHeight() >= minHeight && tx.getHeight() <= maxHeight);
-//          }
-//        }
-//        
-//        // assert that ummet filter criteria has no results
-//        filter = new MoneroTxFilter();
-//        filter.setAccountIndex(0);
-//        filter.setSubaddressIndices([1234907]);
-//        txs = await wallet.getTxs(filter);
-//        assert(txs.length === 0);
+        
+        // test block height filtering
+        {
+          txs = await wallet.getTxs({accountIndex: 0});
+          assert(txs.length > 0, "No transactions; run send to multiple test");
+            
+          // get and sort block heights in ascending order
+          let heights = [];
+          for (let tx of txs) {
+            if (tx.getHeight() !== undefined) heights.push(tx.getHeight());
+          }
+          GenUtils.sort(heights);
+          
+          // pick minimum and maximum heights for filtering
+          let minHeight = -1;
+          let maxHeight = -1;
+          if (heights.length == 1) {
+            minHeight = 0;
+            maxHeight = heights[0] - 1;
+          } else {
+            minHeight = heights[0] + 1;
+            maxHeight = heights[heights.length - 1] - 1;
+          }
+          
+          // assert some transactions filtered
+          let unfilteredCount = txs.length;
+          txs = await testGetTxs(wallet, {accountIndex: 0, minHeight: minHeight, maxHeight: maxHeight}, true);
+          assert(txs.length < unfilteredCount);
+          for (let tx of txs) {
+            assert(tx.getHeight() >= minHeight && tx.getHeight() <= maxHeight);
+          }
+        }
+        
+        // include vouts with transactions
+        txs = await testGetTxs(wallet, {getVouts: true}, true);
+        let found = false;
+        for (let tx of txs) {
+          if (tx.getVouts()) {
+            assert(tx.getVouts().length > 0);
+            found = true;
+            break;
+          }
+        }
+        assert(found, "No vouts found in txs");
+      });
+      
+      it("Returns all known fields of txs regardless of filtering", async function() {
+        
+        // fetch wallet txs
+        let txs = await wallet.getTxs();
+        for (let tx of txs) {
+          
+          // find tx sent to same wallet with incoming transfer in different account than src account
+          if (!tx.getOutgoingTransfer() || !tx.getIncomingTransfers()) continue;
+          if (tx.getOutgoingAmount().compare(tx.getIncomingAmount()) !== 0) continue;
+          for (let transfer of tx.getIncomingTransfers()) {
+            if (transfer.getAccountIndex() === tx.getOutgoingTransfer().getAccountIndex()) continue;
+            
+            // fetch tx with filtering
+            let filteredTxs = await wallet.getTxs({transferFilter: {isIncoming: true, accountIndex: transfer.getAccountIndex()}});
+            let filteredTx = new MoneroTxFilter().setTxIds([tx.getId()]).apply(filteredTxs)[0];
+            
+            // txs should be the same (mergeable)
+            assert.equal(tx.getId(), filteredTx.getId());
+            tx.merge(filteredTx);
+            
+            // test is done
+            return;
+          }
+        }
+        
+        // test did not fully execute
+        throw new Error("Test requires tx sent from/to different accounts of same wallet but none found; run send tests");
       });
       
       it("Validates inputs when getting transactions", async function() {
@@ -612,6 +629,18 @@ class TestMoneroWalletCommon {
         assert(transfers.length > 0);
         let tx = transfers[0].getTx();
         for (let transfer of transfers) assert(tx === transfer.getTx());
+        
+        // test unused subaddress indices
+        transfers = await wallet.getTransfers({accountIndex: 0, subaddressIndices: [1234907]});
+        assert(transfers.length === 0);
+        
+        // test invalid subaddress index
+        try {
+          transfers = await wallet.getTransfers({accountIndex: 0, subaddressIndex: -10});
+          throw new Error("Should have failed");
+        } catch (e) {
+          assert.notEqual("Should have failed", e.message);
+        }
       });
       
       it("Can get vouts in the wallet, accounts, and subaddressess", async function() {
