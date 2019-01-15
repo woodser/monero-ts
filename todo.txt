@@ -1,6 +1,5 @@
 HIGH
 wallet test
-prove a spend using a generated signature test
 fabricate unconfirmeds or update unlock test warning message
 sweep tests
 filter by height
