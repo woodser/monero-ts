@@ -778,11 +778,7 @@ class TestMoneroWalletCommon {
       it("Can check a transfer using the transaction's secret key and the destination", async function() {
         
         // get random txs that are confirmed and have outgoing destinations
-        let filter = new MoneroTxFilter();
-        filter.setIsConfirmed(true);
-        filter.setHasOutgoingTransfer(true);
-        filter.setTransferFilter(new MoneroTransferFilter().setHasDestinations(true));
-        let txs = await getRandomTransactions(wallet, filter, 1, MAX_TX_PROOFS);
+        let txs = await getRandomTransactions(wallet, {isConfirmed: true, hasOutgoingTransfer: true, transferFilter: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
         
         // test good checks
         assert(txs.length > 0, "No transactions found with outgoing destinations");
@@ -859,11 +855,7 @@ class TestMoneroWalletCommon {
       it("Can prove a transaction by getting its signature", async function() {
         
         // get random txs that are confirmed and have outgoing destinations
-        let filter = new MoneroTxFilter();
-        filter.setIsConfirmed(true);
-        filter.setHasOutgoingTransfer(true);
-        filter.setTransferFilter(new MoneroTransferFilter().setHasDestinations(true));
-        let txs = await getRandomTransactions(wallet, filter, 2, MAX_TX_PROOFS);
+        let txs = await getRandomTransactions(wallet, {isConfirmed: true, hasOutgoingTransfer: true, transferFilter: {hasDestinations: true}}, 2, MAX_TX_PROOFS);
         
         // test good checks with messages
         for (let tx of txs) {
