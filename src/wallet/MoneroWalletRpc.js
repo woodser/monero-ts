@@ -336,8 +336,6 @@ class MoneroWalletRpc extends MoneroWallet {
           MoneroWalletRpc._mergeTx(txs, tx);
           
           // special case: tx sent from/to same account can have amount 0
-          // TODO monero-wallet-rpc: missing incoming transfers for txs sent from/to same account #4500
-          // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached transfers
           if (tx.getOutgoingTransfer() !== undefined && tx.getIsRelayed() && !tx.getIsFailed() && tx.getOutgoingAmount().compare(new BigInteger(0)) === 0) {
             let outgoingTransfer = tx.getOutgoingTransfer();
             
@@ -345,25 +343,27 @@ class MoneroWalletRpc extends MoneroWallet {
             if (outgoingTransfer.getDestinations()) {
               
               // replace transfer amount with destination sum
+              // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached transfers
               let transferTotal = new BigInteger(0);
               for (let destination of outgoingTransfer.getDestinations()) transferTotal = transferTotal.add(destination.getAmount());
               tx.getOutgoingTransfer().setAmount(transferTotal);
               
-//              // reconstruct incoming transfers from outgoing destinations
-//              // TODO: keep this or wait for bug fix?
-//              let incomingTransfers = [];
-//              for (let destination of outgoingTransfer.getDestinations()) {
-//                let incomingTransfer = new MoneroTransfer({tx: tx});
-//                incomingTransfers.push(incomingTransfer);
-//                incomingTransfer.setAmount(destination.getAmount());
-//                incomingTransfer.setAddress(destination.getAddress());
-//                incomingTransfer.setAccountIndex(outgoingTransfer.getAccountIndex());
-//                
-//                // set subaddress index which may be same as outgoing src address or may need to be looked up
-//                if (incomingTransfer.getAddress() === outgoingTransfer.getAddress()) incomingTransfer.setSubaddressIndex(outgoingTransfer.getSubaddressIndex());
-//                else incomingTransfer.setSubaddressIndex((await this.getAddressIndex(incomingTransfer.getAddress())).getSubaddressIndex());
-//              }
-//              tx.setIncomingTransfers(incomingTransfers);
+              // reconstruct incoming transfers from outgoing destinations
+              // TODO monero-wallet-rpc: missing incoming transfers for txs sent from/to same account #4500
+              let incomingTransfers = [];
+              for (let destination of outgoingTransfer.getDestinations()) {
+                let incomingTransfer = new MoneroTransfer({tx: tx});
+                incomingTransfers.push(incomingTransfer);
+                incomingTransfer.setAmount(destination.getAmount());
+                incomingTransfer.setAddress(destination.getAddress());
+                incomingTransfer.setAccountIndex(outgoingTransfer.getAccountIndex());
+                incomingTransfer.setTx(tx);
+                
+                // set subaddress index which may be same as outgoing src address or may need to be looked up
+                if (incomingTransfer.getAddress() === outgoingTransfer.getAddress()) incomingTransfer.setSubaddressIndex(outgoingTransfer.getSubaddressIndex());
+                else incomingTransfer.setSubaddressIndex((await this.getAddressIndex(incomingTransfer.getAddress())).getSubaddressIndex());
+              }
+              tx.setIncomingTransfers(incomingTransfers);
             }
           }
         }
