@@ -48,10 +48,10 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           assert(e instanceof MoneroRpcError); 
           assert.equal(-21, e.getRpcCode());
         }
-        
-        // open test wallet 2
-        await wallet.openWallet(TestUtils.WALLET_RPC_NAME_2, TestUtils.WALLET_RPC_PW_2);
         try {
+          
+          // open test wallet 2
+          await wallet.openWallet(TestUtils.WALLET_RPC_NAME_2, TestUtils.WALLET_RPC_PW_2);
           
           // assert wallet 2 is empty
           let txs = await wallet.getTxs();
@@ -65,8 +65,13 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           throw e;
         } finally {
           
-          // open test wallet 1 to enable other tests
-          await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
+          // open test wallet 1 no matter what for other tests
+          try {
+            await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
+          } catch (e) {
+            assert(e instanceof MoneroRpcError);
+            assert.equal(-1, e.getRpcCode()); // ok if wallet is already open
+          }
         }
       });
 
