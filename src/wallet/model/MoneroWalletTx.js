@@ -129,8 +129,10 @@ class MoneroWalletTx extends MoneroTx {
    * Updates this transaction by merging the latest information from the given
    * transaction.
    * 
-   * @param tx is the transaction to update this transaction with
-   * @returns {MoneroWalletTx} this for method chaining
+   * Merging can modify or build references to the transaction given so it
+   * should not be re-used or it should be copied before calling this method.
+   * 
+   * @parm tx is the transaction to merge into this transaction
    */
   merge(tx) {
     assert(tx instanceof MoneroWalletTx);

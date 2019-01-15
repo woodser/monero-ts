@@ -105,9 +105,11 @@ class MoneroTransfer {
   }
 
   /**
-   * Merges the given transfer into this transfer.
+   * Updates this transaction by merging the latest information from the given
+   * transaction.
    * 
-   * Sets uninitialized fields to the given payent. Validates initialized fields are equal.
+   * Merging can modify or build references to the transfer given so it
+   * should not be re-used or it should be copied before calling this method.
    * 
    * @param transfer is the transfer to merge into this one
    */

@@ -2,7 +2,7 @@ const TestMoneroDaemonRpc = require("./TestMoneroDaemonRpc");
 const TestMoneroWalletRpc = require("./TestMoneroWalletRpc")
 const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 
-//// test daemon rpc
+// test daemon rpc
 new TestMoneroDaemonRpc().runTests({
   testNotifications: true
 });
@@ -22,13 +22,13 @@ require("./TestMoneroCoreUtils");
 //test sample code for readme
 require("./TestSampleCode");
 
-//// test wallet local
-//new TestMoneroWalletLocal().runTests({
-//  testNonSends: true,
-//  testSends: false,
-//  testResets: false,
-//  testNotifications: false
-//});
+// test wallet local
+new TestMoneroWalletLocal().runTests({
+  testNonSends: true,
+  testSends: false,
+  testResets: false,
+  testNotifications: false
+});
 
 // test wallet equality
 require("./TestMoneroWalletEquality");
@@ -37,4 +37,4 @@ require("./TestMoneroWalletEquality");
 require("./TestBooleanSet");
 
 //// test scratchpad
-require("./Scratchpad");
+//require("./Scratchpad");

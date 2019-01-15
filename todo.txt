@@ -1,9 +1,16 @@
 HIGH
-all tests: filter param, height
+wallet test
+prove a spend using a generated signature test
+fabricate unconfirmeds or update unlock test warning message
+sweep tests
+filter by height
+
 optimize rpc requests
 review todos
 release alpha
 
+test unlock time unlocks
+state model in MoneroDaemonModel, maybe common MoneroModel?
 reverse assert actual and expected params
 models return getState() since state accepted in constructor?
 merge asserts type or accepts undefined as matter of policy
