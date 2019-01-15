@@ -915,12 +915,14 @@ class TestMoneroWalletCommon {
       
       it("Can prove a spend using a generated signature and no destination public address", async function() {
         
-        // get random outgoing txs
+        // get random confirmed outgoing txs
         let filter = new MoneroTxFilter();
-        filter.setIsIncoming(false);
-        filter.setInTxPool(false);
-        filter.setIsFailed(false);
-        let txs = await getRandomTransactions(wallet, filter, 2, MAX_TX_PROOFS);
+        let txs = await getRandomTransactions(wallet, {hasIncomingTransfers: false, inTxPool: false, isFailed: false}, 2, MAX_TX_PROOFS);
+        for (let tx of txs) {
+          assert.equal(true, tx.getIsConfirmed());
+          assert.equal(undefined, tx.getIncomingTransfers());
+          assert(tx.getOutgoingTransfer());
+        }
         
         // test good checks with messages
         for (let tx of txs) {
