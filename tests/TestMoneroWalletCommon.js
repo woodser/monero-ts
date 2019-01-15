@@ -408,6 +408,66 @@ class TestMoneroWalletCommon {
           assert(tx.getOutgoingTransfer());
           assert(tx.getOutgoingTransfer().getDestinations().length > 0);
         }
+        
+//        // test getting transactions by payment ids
+//        // TODO: this test is very slow, optimize
+//        let paymentIds = [];
+//        for (let tx of allTxs) paymentIds.push(tx.getPaymentId());
+//        assert(paymentIds.length > 0);
+//        for (let paymentId of paymentIds) {
+//          let filter = new MoneroTxFilter();
+//          filter.setPaymentIds([paymentId]);
+//          let txs = await wallet.getTxs(filter);
+//          assert(txs.length > 0);
+//          for (let tx of txs) {
+//            await testTxWalletGet(wallet, tx, that.unbalancedTxIds);
+//            assert(filter.getPaymentIds().includes(tx.getPaymentId()));
+//          }
+//        }
+//        
+//        // test block height filtering
+//        {
+//          txs = await wallet.getTxs(0);
+//          assert(txs.length > 0, "No transactions; run send to multiple test");
+//            
+//          // get and sort block heights in ascending order
+//          let heights = [];
+//          for (let tx of txs) {
+//            if (tx.getHeight() !== undefined) heights.push(tx.getHeight());
+//          }
+//          GenUtils.sort(heights);
+//          
+//          // pick minimum and maximum heights for filtering
+//          let minHeight = -1;
+//          let maxHeight = -1;
+//          if (heights.length == 1) {
+//            minHeight = 0;
+//            maxHeight = heights[0] - 1;
+//          } else {
+//            minHeight = heights[0] + 1;
+//            maxHeight = heights[heights.length - 1] - 1;
+//          }
+//          
+//          // assert some transactions filtered
+//          let unfilteredCount = txs.length;
+//          filter = new MoneroTxFilter();
+//          filter.setAccountIndex(0);
+//          filter.setMinHeight(minHeight);
+//          filter.setMaxHeight(maxHeight);
+//          txs = await wallet.getTxs(filter);
+//          assert(txs.length > 0);
+//          assert(txs.length < unfilteredCount);
+//          for (let tx of txs) {
+//            assert(tx.getHeight() >= minHeight && tx.getHeight() <= maxHeight);
+//          }
+//        }
+//        
+//        // assert that ummet filter criteria has no results
+//        filter = new MoneroTxFilter();
+//        filter.setAccountIndex(0);
+//        filter.setSubaddressIndices([1234907]);
+//        txs = await wallet.getTxs(filter);
+//        assert(txs.length === 0);
       });
       
       it("Validates inputs when getting transactions", async function() {

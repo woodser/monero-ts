@@ -1,7 +1,8 @@
 HIGH
+additional tx filtering (height, paymentIds, impossible filter)
+test txs return all known fields regardless of filtering
 fabricate unconfirmeds or update unlock test warning message
 sweep tests
-filter by height
 
 optimize rpc requests
 review todos
