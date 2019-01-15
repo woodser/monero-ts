@@ -333,39 +333,19 @@ class MoneroWalletRpc extends MoneroWallet {
         for (let rpcTx of resp[key]) {
           if (rpcTx.txid === config.debugTxId) console.log(rpcTx);
           let tx = MoneroWalletRpc._buildWalletTx(rpcTx);
-          MoneroWalletRpc._mergeTx(txs, tx);
           
-          // special case: tx sent from/to same account can have amount 0
-          if (tx.getOutgoingTransfer() !== undefined && tx.getIsRelayed() && !tx.getIsFailed() && tx.getOutgoingAmount().compare(new BigInteger(0)) === 0) {
+          // replace transfer amount with destination sum
+          // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached transfers
+          if (tx.getOutgoingTransfer() !== undefined && tx.getIsRelayed() && !tx.getIsFailed() &&
+              tx.getOutgoingTransfer().getDestinations() && tx.getOutgoingAmount().compare(new BigInteger(0)) === 0) {
             let outgoingTransfer = tx.getOutgoingTransfer();
-            
-            // use information from cached destinations if available
-            if (outgoingTransfer.getDestinations()) {
-              
-              // replace transfer amount with destination sum
-              // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached transfers
-              let transferTotal = new BigInteger(0);
-              for (let destination of outgoingTransfer.getDestinations()) transferTotal = transferTotal.add(destination.getAmount());
-              tx.getOutgoingTransfer().setAmount(transferTotal);
-              
-              // reconstruct incoming transfers from outgoing destinations
-              // TODO monero-wallet-rpc: missing incoming transfers for txs sent from/to same account #4500
-              let incomingTransfers = [];
-              for (let destination of outgoingTransfer.getDestinations()) {
-                let incomingTransfer = new MoneroTransfer({tx: tx});
-                incomingTransfers.push(incomingTransfer);
-                incomingTransfer.setAmount(destination.getAmount());
-                incomingTransfer.setAddress(destination.getAddress());
-                incomingTransfer.setAccountIndex(outgoingTransfer.getAccountIndex());
-                incomingTransfer.setTx(tx);
-                
-                // set subaddress index which may be same as outgoing src address or may need to be looked up
-                if (incomingTransfer.getAddress() === outgoingTransfer.getAddress()) incomingTransfer.setSubaddressIndex(outgoingTransfer.getSubaddressIndex());
-                else incomingTransfer.setSubaddressIndex((await this.getAddressIndex(incomingTransfer.getAddress())).getSubaddressIndex());
-              }
-              tx.setIncomingTransfers(incomingTransfers);
-            }
+            let transferTotal = new BigInteger(0);
+            for (let destination of outgoingTransfer.getDestinations()) transferTotal = transferTotal.add(destination.getAmount());
+            tx.getOutgoingTransfer().setAmount(transferTotal);
           }
+          
+          // merge tx
+          MoneroWalletRpc._mergeTx(txs, tx);
         }
       }
     }
@@ -1071,19 +1051,24 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param skipIfAbsent specifies if the tx should not be added
    *        if it doesn't already exist.  Only necessasry to handle
    *        missing incoming payments from #4500. // TODO
+   * @returns the merged tx
    */
   static _mergeTx(txs, tx, skipIfAbsent) {
     assert(tx.getId());
     for (let aTx of txs) {
       if (aTx.getId() === tx.getId()) {
         aTx.merge(tx);
-        return;
+        return aTx;
       }
     }
     
     // add tx if it doesn't already exist unless skipped
-    if (!skipIfAbsent) txs.push(tx);
-    else console.log("WARNING: tx does not already exist"); 
+    if (!skipIfAbsent) {
+      txs.push(tx);
+      return tx;
+    } else {
+      console.log("WARNING: tx does not already exist"); 
+    }
   }
   
   /**
