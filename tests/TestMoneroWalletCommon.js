@@ -1616,77 +1616,78 @@ class TestMoneroWalletCommon {
       
       // TODO: specific to monero-wallet-rpc?
       // disabled so tests don't delete local cache
-      it("Can rescan the blockchain", async function() {
-        await wallet.rescanBlockchain();
-        for (let tx of await wallet.getTxs()) {
-          testWalletTx(tx);
-        }
-      });
+//      it("Can rescan the blockchain", async function() {
+//        await wallet.rescanBlockchain();
+//        for (let tx of await wallet.getTxs()) {
+//          testWalletTx(tx);
+//        }
+//      });
       
       it("Can sweep subaddresses", async function() {
         throw new Error("Not implemented");
       });
       
-//      it("Can sweep accounts", async function() {
-//        const NUM_ACCOUNTS_TO_SWEEP = 1;
-//        
-//        // collect accounts with balance and unlocked balance
-//        let accounts = await wallet.getAccounts(true);
-//        let balanceAccounts = [];
-//        let unlockedAccounts = [];
-//        for (let account of accounts) {
-//          if (account.getBalance().toJSValue() > 0) balanceAccounts.push(account);
-//          if (account.getUnlockedBalance().toJSValue() > 0) unlockedAccounts.push(account);
-//        }
-//        
-//        // test requires at least one more account than the number being swept to verify it does not change
-//        assert(balanceAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Test requires balance in at least " + (NUM_ACCOUNTS_TO_SWEEP + 1) + " accounts; run testSendToMultiple() first");
-//        assert(unlockedAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Wallet is waiting on unlocked funds");
-//        
-//        // sweep from first unlocked accounts
-//        for (let i = 0; i < NUM_ACCOUNTS_TO_SWEEP; i++) {
-//          
-//          // sweep unlocked account
-//          let unlockedAccount = unlockedAccounts[i];
-//          let txs = await wallet.sweepAccount(unlockedAccount.getIndex(), await wallet.getPrimaryAddress());
-//          
-//          // test transactions
-//          assert(txs.length > 0);
-//          for (let tx of txs) {
-//            let config = new MoneroSendConfig(wallet.getPrimaryAddress());
-//            config.setAccountIndex(unlockedAccount.getIndex());
-//            testTxWalletSend(tx, config, true, false, wallet);
-//          }
-//          
-//          // assert no unlocked funds in account
-//          let account = await wallet.getAccount(unlockedAccount.getIndex());
-//          assert.equal(0, account.getUnlockedBalance().toJSValue());
-//        }
-//        
-//        // test accounts after sweeping
-//        let accountsAfter = await wallet.getAccounts(true);
-//        assert.equal(accounts.length, accountsAfter.length);
-//        for (let i = 0; i < accounts.length; i++) {
-//          let accountBefore = accounts[i];
-//          let accountAfter = accountsAfter[i];
-//          
-//          // determine if account was swept
-//          let swept = false;
-//          for (let j = 0; j < NUM_ACCOUNTS_TO_SWEEP; j++) {
-//            if (unlockedAccounts[j].getIndex() === accountBefore.getIndex()) {
-//              swept = true;
-//              break;
-//            }
-//          }
-//          
-//          // test that unlocked balance is 0 if swept, unchanged otherwise
-//          if (swept) {
-//            assert.equal(0, accountAfter.getUnlockedBalance().toJSValue());
-//          } else {
-//            assert.equal(0, accountBefore.compare(accountAfter));
-//          }
-//        }
-//      });
+      it("Can sweep accounts", async function() {
+        const NUM_ACCOUNTS_TO_SWEEP = 1;
+        
+        // collect accounts with balance and unlocked balance
+        let accounts = await wallet.getAccounts(true);
+        let balanceAccounts = [];
+        let unlockedAccounts = [];
+        for (let account of accounts) {
+          if (account.getBalance().toJSValue() > 0) balanceAccounts.push(account);
+          if (account.getUnlockedBalance().toJSValue() > 0) unlockedAccounts.push(account);
+        }
+        
+        // test requires at least one more account than the number being swept to verify it does not change
+        assert(balanceAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Test requires balance in at least " + (NUM_ACCOUNTS_TO_SWEEP + 1) + " accounts; run testSendToMultiple() first");
+        assert(unlockedAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Wallet is waiting on unlocked funds");
+        
+        // sweep from first unlocked accounts
+        for (let i = 0; i < NUM_ACCOUNTS_TO_SWEEP; i++) {
+          
+          // sweep unlocked account
+          let unlockedAccount = unlockedAccounts[i];
+          let txs = await wallet.sweepAccount(unlockedAccount.getIndex(), await wallet.getPrimaryAddress());
+          
+          // test transactions
+          assert(txs.length > 0);
+          for (let tx of txs) {
+            let config = new MoneroSendConfig(wallet.getPrimaryAddress());
+            config.setAccountIndex(unlockedAccount.getIndex());
+            testTxWalletSend(tx, config, true, false, wallet);
+          }
+          
+          // assert no unlocked funds in account
+          let account = await wallet.getAccount(unlockedAccount.getIndex());
+          assert.equal(0, account.getUnlockedBalance().toJSValue());
+        }
+        
+        // test accounts after sweeping
+        let accountsAfter = await wallet.getAccounts(true);
+        assert.equal(accounts.length, accountsAfter.length);
+        for (let i = 0; i < accounts.length; i++) {
+          let accountBefore = accounts[i];
+          let accountAfter = accountsAfter[i];
+          
+          // determine if account was swept
+          let swept = false;
+          for (let j = 0; j < NUM_ACCOUNTS_TO_SWEEP; j++) {
+            if (unlockedAccounts[j].getIndex() === accountBefore.getIndex()) {
+              swept = true;
+              break;
+            }
+          }
+          
+          // test that unlocked balance is 0 if swept, unchanged otherwise
+          if (swept) {
+            assert.equal(0, accountAfter.getUnlockedBalance().toJSValue());
+          } else {
+            assert.equal(0, accountBefore.compare(accountAfter));
+          }
+        }
+      });
+      
 //      
 //      it("Can sweep the whole wallet", async function() {
 //        

@@ -428,6 +428,8 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async sweep(config) {
     
+    throw new Error("Not implemented");
+    
     // common request params
     let params = {};
     params.address = config.getTransfers()[0].getAddress();
