@@ -1653,7 +1653,7 @@ class TestMoneroWalletCommon {
           // test transactions
           assert(txs.length > 0);
           for (let tx of txs) {
-            let config = new MoneroSendConfig(wallet.getPrimaryAddress());
+            let config = new MoneroSendConfig(await wallet.getPrimaryAddress());
             config.setAccountIndex(unlockedAccount.getIndex());
             await testWalletTx(tx, {wallet: wallet, sendConfig: config})
           }
