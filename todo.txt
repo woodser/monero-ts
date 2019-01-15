@@ -1,5 +1,4 @@
 HIGH
-wallet test
 fabricate unconfirmeds or update unlock test warning message
 sweep tests
 filter by height
