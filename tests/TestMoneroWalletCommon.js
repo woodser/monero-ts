@@ -552,6 +552,7 @@ class TestMoneroWalletCommon {
           // get vouts by subaddress index
           let subaddressVouts = [];
           for (let subaddress of account.getSubaddresses()) {
+            console.log("*** SUBADDRESS ***");
             let vouts = await testGetVouts(wallet, {accountIndex: account.getIndex(), subaddressIndex: subaddress.getSubaddressIndex()}, subaddress.getIsUsed());
             for (let vout of vouts) {
               assert.equal(subaddress.getAccountIndex(), vout.getAccountIndex());
@@ -674,21 +675,22 @@ class TestMoneroWalletCommon {
 //        }
         
         // wallet balance is sum of all unspent vouts
+        console.log("*** TESTING ***");
         let walletSum = new BigInteger(0);
-        for (let vout of await wallet.getVouts()) walletSum = walletSum.add(vout.getAmount());
+        for (let vout of await wallet.getVouts({isSpent: false})) walletSum = walletSum.add(vout.getAmount());
         assert.equal(walletBalance.toString(), walletSum.toString());
         
         // account balances are sum of their unspent vouts
         for (let account of accounts) {
           let accountSum = new BigInteger(0);
-          let accountVouts = await wallet.getVouts(account.getIndex(), undefined, false);
+          let accountVouts = await wallet.getVouts({accountIndex: account.getIndex(), isSpent: false});
           for (let vout of accountVouts) accountSum = accountSum.add(vout.getAmount());
           assert.equal(account.getBalance().toString(), accountSum.toString());
           
           // subaddress balances are sum of their unspent vouts
           for (let subaddress of account.getSubaddresses()) {
             let subaddressSum = new BigInteger(0);
-            let subaddressVouts = await wallet.getVouts(account.getIndex(), subaddress.getSubaddressIndex(), false);
+            let subaddressVouts = await wallet.getVouts({accountIndex: account.getIndex(), subaddressIndex: subaddress.getSubaddressIndex(), isSpent: false});
             for (let vout of subaddressVouts) subaddressSum = subaddressSum.add(vout.getAmount());
             assert.equal(subaddress.getBalance().toString(), subaddressSum.toString());
           }

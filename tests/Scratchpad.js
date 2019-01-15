@@ -33,10 +33,10 @@ describe("Scratchpad", function() {
     
     // fetch transfers
 //    let txId = "af88ea62c1f0d439641f90f634d5bf5a6441170b35a36e53d52f4a4598df5682";
-    let txs = await wallet.getTxs({transferFilter: {accountIndex: 0, subaddressIndex: 2, isIncoming: true}});
-    for (let tx of txs) {
-      console.log(tx.toString());
-    }
+//    let txs = await wallet.getTxs({transferFilter: {accountIndex: 0, subaddressIndex: 2, isIncoming: true}});
+//    for (let tx of txs) {
+//      console.log(tx.toString());
+//    }
     
 //    for (let subaddress of await wallet.getSubaddresses(0)) {
 //      let transfers = 
@@ -63,9 +63,14 @@ describe("Scratchpad", function() {
 //    }
     
     // fetch vouts
-//    let vouts = await wallet.getVouts();
-//    console.log(vouts[0].toString());
-//    console.log(vouts[0].getTx().toString());
+    let vouts = await wallet.getVouts({isSpent: false});
+    console.log(vouts.length);
+    let sum = new BigInteger(0);
+    for (let vout of vouts) {
+      assert.equal(false, vout.getIsSpent());
+      sum = sum.add(vout.getAmount());
+    }
+    console.log(sum.toString());
     
     // send tx
 //  let address1 = (await wallet.getSubaddress(1, 0)).getAddress();
