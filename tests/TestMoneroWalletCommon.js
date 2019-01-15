@@ -389,14 +389,20 @@ class TestMoneroWalletCommon {
           assert(found, "No incoming transfers to account " + accountIdx + " found:\n" + tx.toString());
         }
         
-        // get txs with pre-built filter that are confirmed and have outgoing destinations
+        // get txs with manually built filter that are confirmed have an outgoing transfer from account 0
         let txFilter = new MoneroTxFilter();
         txFilter.setTx(new MoneroTx().setIsConfirmed(true));
-        txFilter.setHasOutgoingTransfer(true);
-        txFilter.setTransferFilter(new MoneroTransferFilter().setHasDestinations(true));
+        txFilter.setTransferFilter(new MoneroTransferFilter().setTransfer(new MoneroTransfer().setAccountIndex(0)).setIsOutgoing(true));
         txs = await testGetTxs(wallet, txFilter, true);
         for (let tx of txs) {
           assert.equal(true, tx.getIsConfirmed());
+          assert(tx.getOutgoingTransfer());
+          assert.equal(0, tx.getOutgoingTransfer().getAccountIndex());
+        }
+        
+        // get txs with outgoing transfers that have destinations to account 1
+        txs = await testGetTxs(wallet, {transferFilter: {hasDestinations: true, accountIndex: 0}});
+        for (let tx of txs) {
           assert(tx.getOutgoingTransfer());
           assert(tx.getOutgoingTransfer().getDestinations().length > 0);
         }
@@ -882,7 +888,12 @@ class TestMoneroWalletCommon {
       it("Can check a transfer using the transaction's secret key and the destination", async function() {
         
         // get random txs that are confirmed and have outgoing destinations
-        let txs = await getRandomTransactions(wallet, {isConfirmed: true, hasOutgoingTransfer: true, transferFilter: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
+        let txs;
+        try {
+          txs = await getRandomTransactions(wallet, {isConfirmed: true, hasOutgoingTransfer: true, transferFilter: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
+        } catch (e) {
+          throw new Error("No txs with outgoing destinations found; run send tests")
+        }
         
         // test good checks
         assert(txs.length > 0, "No transactions found with outgoing destinations");
@@ -959,7 +970,12 @@ class TestMoneroWalletCommon {
       it("Can prove a transaction by getting its signature", async function() {
         
         // get random txs that are confirmed and have outgoing destinations
-        let txs = await getRandomTransactions(wallet, {isConfirmed: true, hasOutgoingTransfer: true, transferFilter: {hasDestinations: true}}, 2, MAX_TX_PROOFS);
+        let txs;
+        try {
+          txs = await getRandomTransactions(wallet, {isConfirmed: true, hasOutgoingTransfer: true, transferFilter: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
+        } catch (e) {
+          throw new Error("No txs with outgoing destinations found; run send tests")
+        }
         
         // test good checks with messages
         for (let tx of txs) {
@@ -1210,7 +1226,7 @@ class TestMoneroWalletCommon {
       it("Can import key images", async function() {
         let images = await wallet.getKeyImages();
         assert(Array.isArray(images));
-        assert(images.length > 0);
+        assert(images.length > 0, "Wallet does not have any key images; run send tests");
         let result = await wallet.importKeyImages(images);
         assert(result.getHeight() > 0);
         TestUtils.testUnsignedBigInteger(result.getSpent(), true);  // tests assume wallet has spend history and balance
@@ -2158,7 +2174,7 @@ async function testWalletTx(tx, testConfig) {
   }
   
   // test vouts
-  if (tx.getIncomingTransfers() && testConfig.getVouts) assert(tx.getVouts().length > 0);
+  if (tx.getIncomingTransfers() && tx.getIsConfirmed() && testConfig.getVouts) assert(tx.getVouts().length > 0);
   if (tx.getVouts()) tx.getVouts().map(vout => testVout(vout));
   
   // test deep copy

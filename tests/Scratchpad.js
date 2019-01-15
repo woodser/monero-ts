@@ -6,7 +6,11 @@ const TestUtils = require("./TestUtils");
 const MoneroRpc = require("../src/rpc/MoneroRpc");
 const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
 const MoneroTxFilter = require("../src/wallet/filters/MoneroTxFilter");
+const MoneroWalletTx = require("../src/wallet/model/MoneroWalletTx");
 const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
+const MoneroTransferFilter = require("../src/wallet/filters/MoneroTransferFilter");
+const MoneroDestination = require("../src/wallet/model/MoneroDestination");
+const MoneroWalletOutput = require("../src/wallet/model/MoneroWalletOutput");
 
 describe("Scratchpad", function() {
   
@@ -24,9 +28,6 @@ describe("Scratchpad", function() {
 //    await daemon.stopMining();
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
-    
-    let accounts = await wallet.getAccounts();
-    console.log("Accounts length: " + accounts.length);
     
     let txId = "af88ea62c1f0d439641f90f634d5bf5a6441170b35a36e53d52f4a4598df5682";
     
