@@ -11,8 +11,6 @@ class MoneroTransfer {
   /**
    * Constructs the model.
    * 
-   * TODO: deseserialize transaction filter (need test)
-   * 
    * @param state is model state or json to initialize from (optional)
    */
   constructor(state) {

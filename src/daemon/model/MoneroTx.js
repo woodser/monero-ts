@@ -13,18 +13,23 @@ class MoneroTx extends MoneroDaemonModel {
   
   /**
    * Constructs the model.
+   * 
+   * @param state is model state or json to initialize from (optional)
    */
-  constructor(json) {
+  constructor(state) {
     super();
-    this.state = Object.assign({}, json);
+    state = Object.assign({}, state);
+    this.state = state;
     
-    // deserialize json
-    if (json) {
-      if (json.fee) this.setFee(BigInteger.parse(json.fee));
-      if (json.vouts) {
-        let vouts = [];
-        for (let jsonVout of json.vouts) vouts.push(new MoneroOutput(jsonVout));
-        this.setVouts(vouts);
+    // deserialize fee
+    if (state.fee && !(state.fee instanceof BigInteger)) state.fee = BigInteger.parse(state.fee);
+    
+    // deserialize vouts
+    if (state.vouts) {
+      for (let i = 0; i < state.vouts.length; i++) {
+        if (!(state.vouts[i] instanceof MoneroOutput)) {
+          state.vouts[i] = new MoneroOutput(state.vouts[i]);
+        }
       }
     }
   }

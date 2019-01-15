@@ -1779,6 +1779,13 @@ function testSubaddress(subaddress) {
  */
 async function testGetTxs(wallet, config, isExpected) {
   let txs = await wallet.getTxs(config);
+  for (let tx of txs) {
+    if (tx.getVouts()) {
+      for (let vout of tx.getVouts()) {
+        assert(vout.getTx() === tx);
+      }
+    }
+  }
   assert(Array.isArray(txs));
   if (isExpected === false) assert.equal(0, txs.length);
   if (isExpected === true) assert(txs.length > 0);

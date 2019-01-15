@@ -12,8 +12,6 @@ class MoneroWalletOutput extends MoneroOutput {
   /**
    * Constructs the model.
    * 
-   * TODO: deseserialize vout filter (need test)
-   * 
    * @param state is model state or json to initialize from (optional)
    */
   constructor(state) {

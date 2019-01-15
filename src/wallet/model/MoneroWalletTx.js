@@ -13,29 +13,32 @@ class MoneroWalletTx extends MoneroTx {
   /**
    * Constructs the model.
    * 
-   * TODO: update to be state or json
-   * 
-   * @param json is JSON to construct the model (optional)
+   * @param state is model state or json to initialize from (optional)
    */
-  constructor(json) {
-    super(json);
+  constructor(state) {
+    super(state);
+    state = this.state;
     
-    // deserialize json
-    if (json) {
-      
-      // deserialize transfers
-      if (json.outgoingTransfer) this.setOutgoingTransfer(new MoneroTransfer(Object.assign({tx: this}, json.outgoingTransfer)));
-      if (json.incomingTransfers) {
-        let incomingTransfers = [];
-        for (let jsonTransfer of json.incomingTransfers) incomingTransfers.push(new MoneroTransfer(Object.assign({tx: this}, jsonTransfer)));
-        this.setIncomingTransfers(incomingTransfers);
+    // deserialize outgoing transfer
+    if (state.outgoingTransfer && !(state.outgoingTransfer instanceof MoneroTransfer)) {
+      this.setOutgoingTransfer(new MoneroTransfer(Object.assign(state.outgoingTransfer, {tx: this})));
+    }
+    
+    // deserialize incoming transfers
+    if (state.incomingTransfers) {
+      for (let i = 0; i < state.incomingTransfers.length; i++) {
+        if (!(state.incomingTransfers[i] instanceof MoneroTransfer)) {
+          state.incomingTransfers[i] = new MoneroTransfer(Object.assign(state.incomingTransfers[i], {tx: this}));
+        }
       }
-      
-      // deserialize vouts
-      if (json.vouts) {
-        let vouts = [];
-        for (let jsonVout of json.vouts) vouts.push(new MoneroWalletOutput(Object.assign({tx: this}, jsonVout)));
-        this.setVouts(vouts);
+    }
+    
+    // deserialize vouts
+    if (state.vouts) {
+      for (let i = 0; i < state.vouts.length; i++) {
+        if (!(state.vouts[i] instanceof MoneroWalletOutput)) {
+          state.vouts[i] = new MoneroWalletOutput(Object.assign(state.vouts[i].state, {tx: this})); // TODO: accessing internal state object of parent
+        }
       }
     }
   }
@@ -81,6 +84,7 @@ class MoneroWalletTx extends MoneroTx {
   
   toJson() {
     let json = Object.assign({}, this.state, super.toJson()); // merge json onto native state
+    console.log(json);
     if (this.getOutgoingTransfer()) json.outgoingTransfer = this.getOutgoingTransfer().toJson();
     if (this.getIncomingTransfers()) {
       json.incomingTransfers = [];
