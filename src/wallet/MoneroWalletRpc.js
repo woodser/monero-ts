@@ -983,22 +983,6 @@ class MoneroWalletRpc extends MoneroWallet {
     return txs;
   }
   
-//  /**
-//   * Initializes the source information of the given transaction.
-//   * 
-//   * @param tx is the transaction to initialize the source information of
-//   * @param accountIdx specifies the tx's source account index
-//   * @param subaddressIdx specifies the tx's source subaddress index
-//   * @param wallet is used to determine the address of the given account and subaddress
-//   */
-//  static async _initializeTxWalletSrc(tx, accountIdx, subaddressIdx, wallet) {
-//    assert(accountIdx >= 0);
-//    assert(subaddressIdx >= 0);
-//    tx.setAccountIndex(accountIdx);
-//    tx.setSubaddressIndex(subaddressIdx);
-//    tx.setAddress(await wallet.getAddress(accountIdx, subaddressIdx));
-//  }
-  
   /**
    * Decodes a "type" from monero-wallet-rpc to initialize type and state
    * fields in the given transaction.
