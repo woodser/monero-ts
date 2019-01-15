@@ -264,7 +264,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let vouts = await this.getVouts(new MoneroVoutFilter(config).setTxFilter(txFilter));
       let voutTxs = new Set();
       vouts.map(vout => voutTxs.add(vout.getTx()));
-      for (let tx of voutTxs) MoneroWalletRpc._mergeTx(txs, tx);
+      for (let tx of voutTxs) MoneroWalletRpc._mergeTx(txs, tx, true);
     }
     
     // filter and return txs that meet transfer filter
@@ -415,7 +415,7 @@ class MoneroWalletRpc extends MoneroWallet {
       if (resp.transfers === undefined) continue;
       for (let rpcVout of resp.transfers) {
         let tx = MoneroWalletRpc._buildWalletTxVout(rpcVout);
-        MoneroWalletRpc._mergeTx(txs, tx, undefined, true);
+        MoneroWalletRpc._mergeTx(txs, tx);
       }
     }
     
@@ -1077,11 +1077,11 @@ class MoneroWalletRpc extends MoneroWallet {
    *        if it doesn't already exist.  Only necessasry to handle
    *        missing incoming payments from #4500. // TODO
    */
-  static _mergeTx(txs, tx, skipIfAbsent, appendVouts) {
+  static _mergeTx(txs, tx, skipIfAbsent) {
     assert(tx.getId());
     for (let aTx of txs) {
       if (aTx.getId() === tx.getId()) {
-        aTx.merge(tx, appendVouts);
+        aTx.merge(tx);
         return;
       }
     }

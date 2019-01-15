@@ -127,10 +127,9 @@ class MoneroWalletTx extends MoneroTx {
    * transaction.
    * 
    * @param tx is the transaction to update this transaction with
-   * @param appendVouts indicates vouts should be added to one set
    * @returns {MoneroWalletTx} this for method chaining
    */
-  merge(tx, appendVouts) {
+  merge(tx) {
     assert(tx instanceof MoneroWalletTx);
     if (this === tx) return;
     super.merge(tx);
@@ -151,24 +150,6 @@ class MoneroWalletTx extends MoneroTx {
       for (let transfer of tx.getIncomingTransfers()) {
         transfer.setTx(this);
         mergeTransfer(this.getIncomingTransfers(), transfer);
-      }
-    }
-    
-    // merge vouts
-    if (tx.getVouts()) {
-      
-      // vouts must be the same if already initialized and not being appended
-      if (this.getVouts() !== undefined && !appendVouts) {
-        assert.equal(this.getVouts().length, tx.getVouts().length);
-      }
-      
-      // otherwise combine vouts
-      else {
-        if (this.getVouts() === undefined) this.setVouts([]);
-        for (let vout of tx.getVouts()) {
-          vout.setTx(this);
-          this.getVouts().push(vout);
-        }
       }
     }
     

@@ -552,7 +552,6 @@ class TestMoneroWalletCommon {
           // get vouts by subaddress index
           let subaddressVouts = [];
           for (let subaddress of account.getSubaddresses()) {
-            console.log("*** SUBADDRESS ***");
             let vouts = await testGetVouts(wallet, {accountIndex: account.getIndex(), subaddressIndex: subaddress.getSubaddressIndex()}, subaddress.getIsUsed());
             for (let vout of vouts) {
               assert.equal(subaddress.getAccountIndex(), vout.getAccountIndex());

@@ -63,11 +63,16 @@ describe("Scratchpad", function() {
 //    }
     
     // fetch vouts
-    let vouts = await wallet.getVouts({isSpent: false});
+    
+    //3cd10eeb2d444e0fdb4e45312d841b2cbf153274e5acceb399043848c76f6d80
+    //31564d4ccc63a7c9c118cac8ddf95f418392a57f6d7c41c461d874dc7571add9
+    //755335
+    let vouts = await wallet.getVouts({txId: "31564d4ccc63a7c9c118cac8ddf95f418392a57f6d7c41c461d874dc7571add9", accountIndex: 0});
     console.log(vouts.length);
     let sum = new BigInteger(0);
     for (let vout of vouts) {
-      assert.equal(false, vout.getIsSpent());
+      //if (vout.getKeyImage() === "3cd10eeb2d444e0fdb4e45312d841b2cbf153274e5acceb399043848c76f6d80") console.log(vout.getTx().toString());
+      console.log(vout.toString());
       sum = sum.add(vout.getAmount());
     }
     console.log(sum.toString());
