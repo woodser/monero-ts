@@ -401,21 +401,16 @@ class TestMoneroWalletCommon {
       it("Validates inputs to get transactions", async function() {
         
         // test with invalid id
-        let expectedError = "Wallet transaction id not found: 'invalid_id'";
-        try {
-          await wallet.getTxs({txId: "invalid_id"});
-          throw new Error("Should have thrown error");
-        } catch (e) {
-          assert.equal(expectedError, e.message);
-        }
+        let txs = await wallet.getTxs({txId: "invalid_id"});
+        assert.equal(0, txs.length);
         
-        // test with invalid ids
-        try {
-          await wallet.getTxs({txIds: [txIds[0], "invalid_id"]});
-          throw new Error("Should have thrown error");
-        } catch (e) {
-          assert.equal(expectedError, e.message);
-        }
+        // test invalid id in collection
+        let randomTxs = await getRandomTransactions(wallet, undefined, 3, 5);
+        txs = await wallet.getTxs({txIds: [randomTxs[0].getId(), "invalid_id"]});
+        assert.equal(1, txs.length);
+        assert.equal(randomTxs[0].getId(), txs[0].getId());
+        
+        // TODO: test other input validation here
       });
 
       it("Can get transfers in the wallet, accounts, and subaddresses", async function() {
@@ -519,21 +514,15 @@ class TestMoneroWalletCommon {
       it("Validates inputs when getting transfers", async function() {
         
         // test with invalid id
-        let expectedError = "Wallet transaction id not found: 'invalid_id'";
-        try {
-          await wallet.getTransfers({txId: "invalid_id"});
-          throw new Error("Should have thrown error");
-        } catch (e) {
-          assert.equal(expectedError, e.message);
-        }
+        let transfers = await wallet.getTransfers({txId: "invalid_id"});
+        assert.equal(0, transfers.length);
         
-        // test with invalid ids
-        try {
-          await wallet.getTransfers({txIds: [txIds[0], "invalid_id"]});
-          throw new Error("Should have thrown error");
-        } catch (e) {
-          assert.equal(expectedError, e.message);
-        }
+        // test invalid id in collection
+        let randomTxs = await getRandomTransactions(wallet, undefined, 3, 5);
+        transfers = await wallet.getTransfers({txIds: [randomTxs[0].getId(), "invalid_id"]});
+        assert(transfers.length > 0);
+        let tx = transfers[0].getTx();
+        for (let transfer of transfers) assert(tx === transfer.getTx());
       });
       
       it("Can get vouts in the wallet, accounts, and subaddressess", async function() {
@@ -614,7 +603,17 @@ class TestMoneroWalletCommon {
       });
       
       it("Validates inputs when getting vouts", async function() {
-        throw new Error("Not implemented");
+        
+        // test with invalid id
+        let vouts = await wallet.getVouts({txId: "invalid_id"});
+        assert.equal(0, vouts.length);
+        
+        // test invalid id in collection
+        let randomTxs = await getRandomTransactions(wallet, undefined, 3, 5);
+        vouts = await wallet.getVouts({txIds: [randomTxs[0].getId(), "invalid_id"]});
+        assert(vouts.length > 0);
+        let tx = vouts[0].getTx();
+        for (let vout of vouts) assert(tx === vout.getTx());
       });
       
       it("Has correct accounting across accounts, subaddresses, txs, transfers, and vouts", async function() {
