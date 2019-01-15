@@ -25,18 +25,31 @@ describe("Scratchpad", function() {
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
     
+    // fetch vouts
 //    let vouts = await wallet.getVouts({accountIndex: 0, subaddressIndex: 2});
 //    for (let vout of vouts) {
 //      console.log(vout.toString());
 //    }
     
+    // fetch transactions
+    let txId = "af88ea62c1f0d439641f90f634d5bf5a6441170b35a36e53d52f4a4598df5682";
+    let txs = await wallet.getTxs({txId: "a8429a20b173b119ffde6d3a0b3ebf666977f669cec1c5d23e879b69b553a37e", getVouts: true});
+    for (let tx of txs) {
+      if (tx.getVouts() === undefined) {
+        console.log(tx.toString());
+        return;
+      }
+      
+      console.log(tx.getVouts() ? tx.getVouts().length : "N/A");
+      
+//      if (tx.getId() === txId) {
+//        console.log(tx.toString());
+//      }
+    }
+    
     
     // fetch transfers
-//    let txId = "af88ea62c1f0d439641f90f634d5bf5a6441170b35a36e53d52f4a4598df5682";
-//    let txs = await wallet.getTxs({transferFilter: {accountIndex: 0, subaddressIndex: 2, isIncoming: true}});
-//    for (let tx of txs) {
-//      console.log(tx.toString());
-//    }
+
     
 //    for (let subaddress of await wallet.getSubaddresses(0)) {
 //      let transfers = 
@@ -46,36 +59,18 @@ describe("Scratchpad", function() {
 //      }
 //    }
     
-
-    
-//    // fetch txs
-//    //filter.setAccountIndex(0);
-//    //filter.setSubaddressIndices([0]);
-//    //filter.setFetchVouts(true);
-//    let txs = new Set();
-//    let transfers = await wallet.getTransfers({accountIndex: 0, subaddressIndex: 2, debugTxId: txId});
-//    for (let transfer of transfers) {
-//      txs.add(transfer.getTx());
-//    }
-//    txs = Array.from(txs);
-//    for (let tx of txs) {
-//      if (tx.getId() === txId) console.log(tx.toString());
-//    }
     
     // fetch vouts
     
-    //3cd10eeb2d444e0fdb4e45312d841b2cbf153274e5acceb399043848c76f6d80
-    //31564d4ccc63a7c9c118cac8ddf95f418392a57f6d7c41c461d874dc7571add9
-    //755335
-    let vouts = await wallet.getVouts({txId: "31564d4ccc63a7c9c118cac8ddf95f418392a57f6d7c41c461d874dc7571add9", accountIndex: 0});
-    console.log(vouts.length);
-    let sum = new BigInteger(0);
-    for (let vout of vouts) {
-      //if (vout.getKeyImage() === "3cd10eeb2d444e0fdb4e45312d841b2cbf153274e5acceb399043848c76f6d80") console.log(vout.getTx().toString());
-      console.log(vout.toString());
-      sum = sum.add(vout.getAmount());
-    }
-    console.log(sum.toString());
+//    let vouts = await wallet.getVouts({txId: "31564d4ccc63a7c9c118cac8ddf95f418392a57f6d7c41c461d874dc7571add9", accountIndex: 0});
+//    console.log(vouts.length);
+//    let sum = new BigInteger(0);
+//    for (let vout of vouts) {
+//      //if (vout.getKeyImage() === "3cd10eeb2d444e0fdb4e45312d841b2cbf153274e5acceb399043848c76f6d80") console.log(vout.getTx().toString());
+//      console.log(vout.toString());
+//      sum = sum.add(vout.getAmount());
+//    }
+//    console.log(sum.toString());
     
     // send tx
 //  let address1 = (await wallet.getSubaddress(1, 0)).getAddress();

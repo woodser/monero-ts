@@ -1,4 +1,5 @@
 HIGH
+assert mergeability instead of deep equality tx tests, etc
 all tests
 optimize rpc requests
 review todos
