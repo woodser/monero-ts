@@ -1,5 +1,4 @@
 HIGH
-run tests after sends
 sweep tests
 update sample code
 

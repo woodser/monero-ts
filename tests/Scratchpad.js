@@ -25,6 +25,9 @@ describe("Scratchpad", function() {
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
     
+    let accounts = await wallet.getAccounts();
+    console.log("Accounts length: " + accounts.length);
+    
     let txId = "af88ea62c1f0d439641f90f634d5bf5a6441170b35a36e53d52f4a4598df5682";
     
     // fetch transactions
@@ -33,19 +36,19 @@ describe("Scratchpad", function() {
 //      console.log(tx.toString());
 //    }
     
-    // fetch transfers
-    let transfers = await wallet.getTransfers({accountIndex: 0, debugTxId: "a8429a20b173b119ffde6d3a0b3ebf666977f669cec1c5d23e879b69b553a37e"});
-    let str = "";
-    for (let transfer of transfers) {
-      str += transfer.getIsIncoming() ? "IN | " : "OUT | ";
-      str += transfer.getAmount().toString() + " | ";
-      str += transfer.getTx().getInTxPool() ? "POOL | " : transfer.getTx().getIsConfirmed() ? "CONFIRMED | " : transfer.getTx().getIsFailed() ? "FAILED | " : "?";
-      str += "\n";
-      if (transfer.getTx().getIsFailed()) {
-        console.log(transfer.getTx().toString());
-      }
-    }
-    console.log(str);
+//    // fetch transfers
+//    let transfers = await wallet.getTransfers({accountIndex: 0, debugTxId: "a8429a20b173b119ffde6d3a0b3ebf666977f669cec1c5d23e879b69b553a37e"});
+//    let str = "";
+//    for (let transfer of transfers) {
+//      str += transfer.getIsIncoming() ? "IN | " : "OUT | ";
+//      str += transfer.getAmount().toString() + " | ";
+//      str += transfer.getTx().getInTxPool() ? "POOL | " : transfer.getTx().getIsConfirmed() ? "CONFIRMED | " : transfer.getTx().getIsFailed() ? "FAILED | " : "?";
+//      str += "\n";
+//      if (transfer.getTx().getIsFailed()) {
+//        console.log(transfer.getTx().toString());
+//      }
+//    }
+//    console.log(str);
 
     
 //    // fetch vouts

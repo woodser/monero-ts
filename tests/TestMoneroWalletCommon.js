@@ -71,231 +71,231 @@ class TestMoneroWalletCommon {
         return txCache;
       }
       
-      it("Can get the current height that the wallet is synchronized to", async function() {
-        let height = await wallet.getHeight();
-        assert(height >= 0);
-      });
-      
-      it("Can get the mnemonic phrase derived from the seed", async function() {
-        let mnemonic = await wallet.getMnemonic();
-        MoneroUtils.validateMnemonic(mnemonic);
-        assert.equal(TestUtils.TEST_MNEMONIC, mnemonic);
-      });
-      
-      it("Can get a list of supported languages for the mnemonic phrase", async function() {
-        let languages = await wallet.getLanguages();
-        assert(Array.isArray(languages));
-        assert(languages.length);
-        for (let language of languages) assert(language);
-      });
-      
-      it("Can get the private view key", async function() {
-        let privateViewKey = await wallet.getPrivateViewKey()
-        MoneroUtils.validatePrivateViewKey(privateViewKey);
-      });
-      
-      it("Can get the primary address", async function() {
-        let primaryAddress = await wallet.getPrimaryAddress();
-        MoneroUtils.validateAddress(primaryAddress);
-        assert.equal((await wallet.getSubaddress(0, 0)).getAddress(), primaryAddress);
-      });
-      
-      it("Can get an integrated address given a payment id", async function() {
-        
-        // save address for later comparison
-        let address = (await wallet.getSubaddress(0, 0)).getAddress();
-        
-        // test valid payment id
-        let paymentId = "03284e41c342f036";
-        let integratedAddress = await wallet.getIntegratedAddress(paymentId);
-        assert.equal(address, integratedAddress.getStandardAddress());
-        assert.equal(paymentId, integratedAddress.getPaymentId());
-        
-        // test invalid payment id
-        try {
-          let invalidPaymentId = "invalid_payment_id_123456";
-          integratedAddress = await wallet.getIntegratedAddress(invalidPaymentId);
-          throw new Error("Getting integrated address with invalid payment id " + invalidPaymentId + " should have thrown a RPC exception");
-        } catch (e) {
-          assert.equal(-5, e.getRpcCode());
-          assert.equal("Invalid payment ID", e.getRpcMessage());
-        }
-        
-        // test null payment id which generates a new one
-        integratedAddress = await wallet.getIntegratedAddress(null);
-        assert.equal(address, integratedAddress.getStandardAddress());
-        assert(integratedAddress.getPaymentId().length);
-      });
-      
-      it("Can decode an integrated address", async function() {
-        let integratedAddress = await wallet.getIntegratedAddress("03284e41c342f036");
-        let decodedAddress = await wallet.decodeIntegratedAddress(integratedAddress.toString());
-        assert.deepEqual(integratedAddress, decodedAddress);
-      });
-      
-      it("Can sync (without progress)", async function() {
-        let numBlocks = 100;
-        let chainHeight = await daemon.getHeight();
-        assert(chainHeight >= numBlocks);
-        let resp = await wallet.sync(chainHeight - numBlocks);  // sync end of chain
-        assert(resp.blocks_fetched >= 0);
-        assert(typeof resp.received_money === "boolean");
-      });
-      
-      it("Can get the balance and unlocked balance", async function() {
-        let balance = await wallet.getBalance();
-        TestUtils.testUnsignedBigInteger(balance);
-        let unlockedBalance = await wallet.getUnlockedBalance();
-        TestUtils.testUnsignedBigInteger(unlockedBalance);
-      });
-      
-      it("Can get all accounts in the wallet without subaddresses", async function() {
-        let accounts = await wallet.getAccounts();
-        assert(accounts.length > 0);
-        accounts.map(account => {
-          testAccount(account)
-          assert(account.getSubaddresses() === undefined);
-        });
-      });
-      
-      it("Can get all accounts in the wallet with subaddresses", async function() {
-        let accounts = await wallet.getAccounts(true);
-        assert(accounts.length > 0);
-        accounts.map(account => {
-          testAccount(account);
-          assert(account.getSubaddresses().length > 0);
-        });
-      });
-      
-      it("Can get an account at a specified index", async function() {
-        let accounts = await wallet.getAccounts();
-        assert(accounts.length > 0);
-        for (let account of accounts) {
-          testAccount(account);
-          
-          // test without subaddresses
-          let retrieved = await wallet.getAccount(account.getIndex());
-          assert(retrieved.getSubaddresses() === undefined);
-          
-          // test with subaddresses
-          retrieved = await wallet.getAccount(account.getIndex(), true);
-          assert(retrieved.getSubaddresses().length > 0);
-        }
-      });
-      
-      it("Can create a new account without a label", async function() {
-        let accountsBefore = await wallet.getAccounts();
-        let createdAccount = await wallet.createAccount();
-        testAccount(createdAccount);
-        assert(createdAccount.getLabel() === undefined);
-        assert(accountsBefore.length === (await wallet.getAccounts()).length - 1);
-      });
-      
-      it("Can create a new account with a label", async function() {
-        
-        // create account with label
-        let accountsBefore = await wallet.getAccounts();
-        let label = GenUtils.uuidv4();
-        let createdAccount = await wallet.createAccount(label);
-        testAccount(createdAccount);
-        assert(createdAccount.getLabel() === label);
-        assert(accountsBefore.length === (await wallet.getAccounts()).length - 1);
-
-        // create account with same label
-        createdAccount = await wallet.createAccount(label);
-        testAccount(createdAccount);
-        assert(createdAccount.getLabel() === label);
-        assert(accountsBefore.length === (await wallet.getAccounts()).length - 2);
-      });
-      
-      it("Can get subaddresses at a specified account index", async function() {
-        let accounts = await wallet.getAccounts();
-        assert(accounts.length > 0);
-        for (let account of accounts) {
-          let subaddresses = await wallet.getSubaddresses(account.getIndex());
-          assert(subaddresses.length > 0);
-          subaddresses.map(subaddress => {
-            testSubaddress(subaddress);
-            assert(account.getIndex() === subaddress.getAccountIndex());
-          });
-        }
-      });
-      
-      it("Can get subaddresses at specified account and subaddress indices", async function() {
-        let accounts = await wallet.getAccounts();
-        assert(accounts.length > 0);
-        for (let account of accounts) {
-          
-          // get subaddresses
-          let subaddresses = await wallet.getSubaddresses(account.getIndex());
-          assert(subaddresses.length > 0);
-          
-          // remove a subaddress for query if possible
-          if (subaddresses.length > 1) subaddresses.splice(0, 1);
-          
-          // get subaddress indices
-          let subaddressIndices = subaddresses.map(subaddress => subaddress.getSubaddressIndex());
-          assert(subaddressIndices.length > 0);
-          
-          // fetch subaddresses by indices
-          let fetchedSubaddresses = await wallet.getSubaddresses(account.getIndex(), subaddressIndices);
-          
-          // original subaddresses (minus one removed if applicable) is equal to fetched subaddresses
-          assert.deepEqual(subaddresses, fetchedSubaddresses);
-        }
-      });
-      
-      it("Can get a subaddress at a specified account and subaddress index", async function() {
-        let accounts = await wallet.getAccounts();
-        assert(accounts.length > 0);
-        for (let account of accounts) {
-          let subaddresses = await wallet.getSubaddresses(account.getIndex());
-          assert(subaddresses.length > 0);
-          for (let subaddress of subaddresses) {
-            assert.deepEqual(subaddress, await wallet.getSubaddress(account.getIndex(), subaddress.getSubaddressIndex()));
-            assert.deepEqual(subaddress, (await wallet.getSubaddresses(account.getIndex(), subaddress.getSubaddressIndex()))[0]); // test plural call with single subaddr number
-          }
-        }
-      });
-      
-      it("Can create a subaddress with and without a label", async function() {
-        
-        // create subaddresses across accounts
-        let accounts = await wallet.getAccounts();
-        if (accounts.length < 2) await wallet.createAccount();
-        accounts = await wallet.getAccounts();
-        assert(accounts.length > 1);
-        for (let accountIdx = 0; accountIdx < 2; accountIdx++) {
-          
-          // create subaddress with no label
-          let subaddresses = await wallet.getSubaddresses(accountIdx);
-          let subaddress = await wallet.createSubaddress(accountIdx);
-          assert.equal("", subaddress.getLabel());
-          testSubaddress(subaddress);
-          let subaddressesNew = await wallet.getSubaddresses(accountIdx);
-          assert.equal(subaddresses.length, subaddressesNew.length - 1);
-          assert.deepEqual(subaddress, subaddressesNew[subaddressesNew.length - 1]);
-          
-          // create subaddress with label
-          subaddresses = await wallet.getSubaddresses(accountIdx);
-          let uuid = GenUtils.uuidv4();
-          subaddress = await wallet.createSubaddress(accountIdx, uuid);
-          assert.equal(subaddress.getLabel(), uuid);
-          testSubaddress(subaddress);
-          subaddressesNew = await wallet.getSubaddresses(accountIdx);
-          assert.equal(subaddresses.length, subaddressesNew.length - 1);
-          assert.deepEqual(subaddress, subaddressesNew[subaddressesNew.length - 1]);
-        }
-      });
-      
-      it("Can get the address of a subaddress at a specified account and subaddress index", async function() {
-        assert.equal(await wallet.getPrimaryAddress(), (await wallet.getSubaddress(0, 0)).getAddress());
-        for (let account of await wallet.getAccounts(true)) {
-          for (let subaddress of await wallet.getSubaddresses(account.getIndex())) {
-            assert.equal(subaddress.getAddress(), await wallet.getAddress(account.getIndex(), subaddress.getSubaddressIndex()));
-          }
-        }
-      });
+//      it("Can get the current height that the wallet is synchronized to", async function() {
+//        let height = await wallet.getHeight();
+//        assert(height >= 0);
+//      });
+//      
+//      it("Can get the mnemonic phrase derived from the seed", async function() {
+//        let mnemonic = await wallet.getMnemonic();
+//        MoneroUtils.validateMnemonic(mnemonic);
+//        assert.equal(TestUtils.TEST_MNEMONIC, mnemonic);
+//      });
+//      
+//      it("Can get a list of supported languages for the mnemonic phrase", async function() {
+//        let languages = await wallet.getLanguages();
+//        assert(Array.isArray(languages));
+//        assert(languages.length);
+//        for (let language of languages) assert(language);
+//      });
+//      
+//      it("Can get the private view key", async function() {
+//        let privateViewKey = await wallet.getPrivateViewKey()
+//        MoneroUtils.validatePrivateViewKey(privateViewKey);
+//      });
+//      
+//      it("Can get the primary address", async function() {
+//        let primaryAddress = await wallet.getPrimaryAddress();
+//        MoneroUtils.validateAddress(primaryAddress);
+//        assert.equal((await wallet.getSubaddress(0, 0)).getAddress(), primaryAddress);
+//      });
+//      
+//      it("Can get an integrated address given a payment id", async function() {
+//        
+//        // save address for later comparison
+//        let address = (await wallet.getSubaddress(0, 0)).getAddress();
+//        
+//        // test valid payment id
+//        let paymentId = "03284e41c342f036";
+//        let integratedAddress = await wallet.getIntegratedAddress(paymentId);
+//        assert.equal(address, integratedAddress.getStandardAddress());
+//        assert.equal(paymentId, integratedAddress.getPaymentId());
+//        
+//        // test invalid payment id
+//        try {
+//          let invalidPaymentId = "invalid_payment_id_123456";
+//          integratedAddress = await wallet.getIntegratedAddress(invalidPaymentId);
+//          throw new Error("Getting integrated address with invalid payment id " + invalidPaymentId + " should have thrown a RPC exception");
+//        } catch (e) {
+//          assert.equal(-5, e.getRpcCode());
+//          assert.equal("Invalid payment ID", e.getRpcMessage());
+//        }
+//        
+//        // test null payment id which generates a new one
+//        integratedAddress = await wallet.getIntegratedAddress(null);
+//        assert.equal(address, integratedAddress.getStandardAddress());
+//        assert(integratedAddress.getPaymentId().length);
+//      });
+//      
+//      it("Can decode an integrated address", async function() {
+//        let integratedAddress = await wallet.getIntegratedAddress("03284e41c342f036");
+//        let decodedAddress = await wallet.decodeIntegratedAddress(integratedAddress.toString());
+//        assert.deepEqual(integratedAddress, decodedAddress);
+//      });
+//      
+//      it("Can sync (without progress)", async function() {
+//        let numBlocks = 100;
+//        let chainHeight = await daemon.getHeight();
+//        assert(chainHeight >= numBlocks);
+//        let resp = await wallet.sync(chainHeight - numBlocks);  // sync end of chain
+//        assert(resp.blocks_fetched >= 0);
+//        assert(typeof resp.received_money === "boolean");
+//      });
+//      
+//      it("Can get the balance and unlocked balance", async function() {
+//        let balance = await wallet.getBalance();
+//        TestUtils.testUnsignedBigInteger(balance);
+//        let unlockedBalance = await wallet.getUnlockedBalance();
+//        TestUtils.testUnsignedBigInteger(unlockedBalance);
+//      });
+//      
+//      it("Can get all accounts in the wallet without subaddresses", async function() {
+//        let accounts = await wallet.getAccounts();
+//        assert(accounts.length > 0);
+//        accounts.map(account => {
+//          testAccount(account)
+//          assert(account.getSubaddresses() === undefined);
+//        });
+//      });
+//      
+//      it("Can get all accounts in the wallet with subaddresses", async function() {
+//        let accounts = await wallet.getAccounts(true);
+//        assert(accounts.length > 0);
+//        accounts.map(account => {
+//          testAccount(account);
+//          assert(account.getSubaddresses().length > 0);
+//        });
+//      });
+//      
+//      it("Can get an account at a specified index", async function() {
+//        let accounts = await wallet.getAccounts();
+//        assert(accounts.length > 0);
+//        for (let account of accounts) {
+//          testAccount(account);
+//          
+//          // test without subaddresses
+//          let retrieved = await wallet.getAccount(account.getIndex());
+//          assert(retrieved.getSubaddresses() === undefined);
+//          
+//          // test with subaddresses
+//          retrieved = await wallet.getAccount(account.getIndex(), true);
+//          assert(retrieved.getSubaddresses().length > 0);
+//        }
+//      });
+//      
+//      it("Can create a new account without a label", async function() {
+//        let accountsBefore = await wallet.getAccounts();
+//        let createdAccount = await wallet.createAccount();
+//        testAccount(createdAccount);
+//        assert(createdAccount.getLabel() === undefined);
+//        assert(accountsBefore.length === (await wallet.getAccounts()).length - 1);
+//      });
+//      
+//      it("Can create a new account with a label", async function() {
+//        
+//        // create account with label
+//        let accountsBefore = await wallet.getAccounts();
+//        let label = GenUtils.uuidv4();
+//        let createdAccount = await wallet.createAccount(label);
+//        testAccount(createdAccount);
+//        assert(createdAccount.getLabel() === label);
+//        assert(accountsBefore.length === (await wallet.getAccounts()).length - 1);
+//
+//        // create account with same label
+//        createdAccount = await wallet.createAccount(label);
+//        testAccount(createdAccount);
+//        assert(createdAccount.getLabel() === label);
+//        assert(accountsBefore.length === (await wallet.getAccounts()).length - 2);
+//      });
+//      
+//      it("Can get subaddresses at a specified account index", async function() {
+//        let accounts = await wallet.getAccounts();
+//        assert(accounts.length > 0);
+//        for (let account of accounts) {
+//          let subaddresses = await wallet.getSubaddresses(account.getIndex());
+//          assert(subaddresses.length > 0);
+//          subaddresses.map(subaddress => {
+//            testSubaddress(subaddress);
+//            assert(account.getIndex() === subaddress.getAccountIndex());
+//          });
+//        }
+//      });
+//      
+//      it("Can get subaddresses at specified account and subaddress indices", async function() {
+//        let accounts = await wallet.getAccounts();
+//        assert(accounts.length > 0);
+//        for (let account of accounts) {
+//          
+//          // get subaddresses
+//          let subaddresses = await wallet.getSubaddresses(account.getIndex());
+//          assert(subaddresses.length > 0);
+//          
+//          // remove a subaddress for query if possible
+//          if (subaddresses.length > 1) subaddresses.splice(0, 1);
+//          
+//          // get subaddress indices
+//          let subaddressIndices = subaddresses.map(subaddress => subaddress.getSubaddressIndex());
+//          assert(subaddressIndices.length > 0);
+//          
+//          // fetch subaddresses by indices
+//          let fetchedSubaddresses = await wallet.getSubaddresses(account.getIndex(), subaddressIndices);
+//          
+//          // original subaddresses (minus one removed if applicable) is equal to fetched subaddresses
+//          assert.deepEqual(subaddresses, fetchedSubaddresses);
+//        }
+//      });
+//      
+//      it("Can get a subaddress at a specified account and subaddress index", async function() {
+//        let accounts = await wallet.getAccounts();
+//        assert(accounts.length > 0);
+//        for (let account of accounts) {
+//          let subaddresses = await wallet.getSubaddresses(account.getIndex());
+//          assert(subaddresses.length > 0);
+//          for (let subaddress of subaddresses) {
+//            assert.deepEqual(subaddress, await wallet.getSubaddress(account.getIndex(), subaddress.getSubaddressIndex()));
+//            assert.deepEqual(subaddress, (await wallet.getSubaddresses(account.getIndex(), subaddress.getSubaddressIndex()))[0]); // test plural call with single subaddr number
+//          }
+//        }
+//      });
+//      
+//      it("Can create a subaddress with and without a label", async function() {
+//        
+//        // create subaddresses across accounts
+//        let accounts = await wallet.getAccounts();
+//        if (accounts.length < 2) await wallet.createAccount();
+//        accounts = await wallet.getAccounts();
+//        assert(accounts.length > 1);
+//        for (let accountIdx = 0; accountIdx < 2; accountIdx++) {
+//          
+//          // create subaddress with no label
+//          let subaddresses = await wallet.getSubaddresses(accountIdx);
+//          let subaddress = await wallet.createSubaddress(accountIdx);
+//          assert.equal("", subaddress.getLabel());
+//          testSubaddress(subaddress);
+//          let subaddressesNew = await wallet.getSubaddresses(accountIdx);
+//          assert.equal(subaddresses.length, subaddressesNew.length - 1);
+//          assert.deepEqual(subaddress, subaddressesNew[subaddressesNew.length - 1]);
+//          
+//          // create subaddress with label
+//          subaddresses = await wallet.getSubaddresses(accountIdx);
+//          let uuid = GenUtils.uuidv4();
+//          subaddress = await wallet.createSubaddress(accountIdx, uuid);
+//          assert.equal(subaddress.getLabel(), uuid);
+//          testSubaddress(subaddress);
+//          subaddressesNew = await wallet.getSubaddresses(accountIdx);
+//          assert.equal(subaddresses.length, subaddressesNew.length - 1);
+//          assert.deepEqual(subaddress, subaddressesNew[subaddressesNew.length - 1]);
+//        }
+//      });
+//      
+//      it("Can get the address of a subaddress at a specified account and subaddress index", async function() {
+//        assert.equal(await wallet.getPrimaryAddress(), (await wallet.getSubaddress(0, 0)).getAddress());
+//        for (let account of await wallet.getAccounts(true)) {
+//          for (let subaddress of await wallet.getSubaddresses(account.getIndex())) {
+//            assert.equal(subaddress.getAddress(), await wallet.getAddress(account.getIndex(), subaddress.getSubaddressIndex()));
+//          }
+//        }
+//      });
       
       it("Can get transactions in the wallet", async function() {
         let nonDefaultIncoming = false;
@@ -610,7 +610,7 @@ class TestMoneroWalletCommon {
         transferFilter.setIsOutgoing(true);
         transferFilter.setHasDestinations(true);
         transferFilter.setTxFilter(new MoneroTxFilter().setTx(new MoneroTx().setIsConfirmed(true)));
-        transfers = await testGetTransfers(wallet, transferFilter, true);
+        transfers = await testGetTransfers(wallet, transferFilter);
         for (let transfer of transfers) {
           assert.equal(true, transfer.getIsOutgoing());
           assert(transfer.getDestinations().length > 0);
@@ -645,7 +645,7 @@ class TestMoneroWalletCommon {
         }
       });
       
-      it("Can get vouts in the wallet, accounts, and subaddressess", async function() {
+      it("Can get vouts in the wallet, accounts, and subaddresses", async function() {
 
         // get all vouts
         await testGetVouts(wallet, undefined, true);
@@ -816,6 +816,7 @@ class TestMoneroWalletCommon {
         // TODO monero-wallet-rpc: reason not to return unspent vouts on unconfirmed txs? then this isn't necessary
         let hasUnconfirmedTx = false;
         for (let tx of txs) if (tx.getInTxPool()) hasUnconfirmedTx = true;
+        assert(hasUnconfirmedTx, "Still need unconfirmed tx...");
         
         // wallet balance is sum of all unspent vouts
         let walletSum = new BigInteger(0);
@@ -1091,7 +1092,8 @@ class TestMoneroWalletCommon {
         }
         
         // test subaddress
-        try {
+        try {1076
+          
           await wallet.checkReserveProof((await wallet.getSubaddress(0, 1)).getAddress(), "Test message", signature);
           throw new Error("Should have thrown exception");
         } catch (e) {
@@ -1598,102 +1600,102 @@ class TestMoneroWalletCommon {
       
       // TODO: specific to monero-wallet-rpc?
       // disabled so tests don't delete local cache
-//      it("Can rescan the blockchain", async function() {
-//        await wallet.rescanBlockchain();
-//        for (let tx of await wallet.getTxs()) {
-//          testTxWalletGet(wallet, tx, hat.unbalancedTxIds);
-//        }
-//      });
+      it("Can rescan the blockchain", async function() {
+        await wallet.rescanBlockchain();
+        for (let tx of await wallet.getTxs()) {
+          testWalletTx(tx);
+        }
+      });
       
       it("Can sweep subaddresses", async function() {
         throw new Error("Not implemented");
       });
       
-      it("Can sweep accounts", async function() {
-        const NUM_ACCOUNTS_TO_SWEEP = 1;
-        
-        // collect accounts with balance and unlocked balance
-        let accounts = await wallet.getAccounts(true);
-        let balanceAccounts = [];
-        let unlockedAccounts = [];
-        for (let account of accounts) {
-          if (account.getBalance().toJSValue() > 0) balanceAccounts.push(account);
-          if (account.getUnlockedBalance().toJSValue() > 0) unlockedAccounts.push(account);
-        }
-        
-        // test requires at least one more account than the number being swept to verify it does not change
-        assert(balanceAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Test requires balance in at least " + (NUM_ACCOUNTS_TO_SWEEP + 1) + " accounts; run testSendToMultiple() first");
-        assert(unlockedAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Wallet is waiting on unlocked funds");
-        
-        // sweep from first unlocked accounts
-        for (let i = 0; i < NUM_ACCOUNTS_TO_SWEEP; i++) {
-          
-          // sweep unlocked account
-          let unlockedAccount = unlockedAccounts[i];
-          let txs = await wallet.sweepAccount(unlockedAccount.getIndex(), await wallet.getPrimaryAddress());
-          
-          // test transactions
-          assert(txs.length > 0);
-          for (let tx of txs) {
-            let config = new MoneroSendConfig(wallet.getPrimaryAddress());
-            config.setAccountIndex(unlockedAccount.getIndex());
-            testTxWalletSend(tx, config, true, false, wallet);
-          }
-          
-          // assert no unlocked funds in account
-          let account = await wallet.getAccount(unlockedAccount.getIndex());
-          assert.equal(0, account.getUnlockedBalance().toJSValue());
-        }
-        
-        // test accounts after sweeping
-        let accountsAfter = await wallet.getAccounts(true);
-        assert.equal(accounts.length, accountsAfter.length);
-        for (let i = 0; i < accounts.length; i++) {
-          let accountBefore = accounts[i];
-          let accountAfter = accountsAfter[i];
-          
-          // determine if account was swept
-          let swept = false;
-          for (let j = 0; j < NUM_ACCOUNTS_TO_SWEEP; j++) {
-            if (unlockedAccounts[j].getIndex() === accountBefore.getIndex()) {
-              swept = true;
-              break;
-            }
-          }
-          
-          // test that unlocked balance is 0 if swept, unchanged otherwise
-          if (swept) {
-            assert.equal(0, accountAfter.getUnlockedBalance().toJSValue());
-          } else {
-            assert.equal(0, accountBefore.compare(accountAfter));
-          }
-        }
-      });
-      
-      it("Can sweep the whole wallet", async function() {
-        
-        // sweep destination
-        let destination = await wallet.getPrimaryAddress();
-        
-        // verify 2 accounts with unlocked balance
-        let subaddressesBalance = await getSubaddressesWithBalance(wallet);
-        let subaddressesUnlockedBalance = await getSubaddressesWithUnlockedBalance(wallet);
-        assert(subaddressesBalance.length >= 2, "Test requires multiple accounts with a balance; run send to multiple first");
-        assert(subaddressesUnlockedBalance.length >= 2, "Wallet is waiting on unlocked funds");
-        
-        // sweep
-        let txs = await wallet.sweepWallet(destination);
-        assert(txs.length > 0);
-        for (let tx of txs) {
-          let config = new MoneroSendConfig(destination);
-          config.setAccountIndex(tx.getSrcAccountIndex());  // TODO: this is to game testTxWalletSend(); should not assert account equivalency there?
-          testTxWalletSend(tx, config, true, false, wallet);
-        }
-        
-        // assert no unlocked funds across subaddresses
-        subaddressesUnlockedBalance = await getSubaddressesWithUnlockedBalance(wallet);
-        assert(subaddressesUnlockedBalance.length === 0, "Wallet should have no unlocked funds after sweeping all");
-      });
+//      it("Can sweep accounts", async function() {
+//        const NUM_ACCOUNTS_TO_SWEEP = 1;
+//        
+//        // collect accounts with balance and unlocked balance
+//        let accounts = await wallet.getAccounts(true);
+//        let balanceAccounts = [];
+//        let unlockedAccounts = [];
+//        for (let account of accounts) {
+//          if (account.getBalance().toJSValue() > 0) balanceAccounts.push(account);
+//          if (account.getUnlockedBalance().toJSValue() > 0) unlockedAccounts.push(account);
+//        }
+//        
+//        // test requires at least one more account than the number being swept to verify it does not change
+//        assert(balanceAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Test requires balance in at least " + (NUM_ACCOUNTS_TO_SWEEP + 1) + " accounts; run testSendToMultiple() first");
+//        assert(unlockedAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Wallet is waiting on unlocked funds");
+//        
+//        // sweep from first unlocked accounts
+//        for (let i = 0; i < NUM_ACCOUNTS_TO_SWEEP; i++) {
+//          
+//          // sweep unlocked account
+//          let unlockedAccount = unlockedAccounts[i];
+//          let txs = await wallet.sweepAccount(unlockedAccount.getIndex(), await wallet.getPrimaryAddress());
+//          
+//          // test transactions
+//          assert(txs.length > 0);
+//          for (let tx of txs) {
+//            let config = new MoneroSendConfig(wallet.getPrimaryAddress());
+//            config.setAccountIndex(unlockedAccount.getIndex());
+//            testTxWalletSend(tx, config, true, false, wallet);
+//          }
+//          
+//          // assert no unlocked funds in account
+//          let account = await wallet.getAccount(unlockedAccount.getIndex());
+//          assert.equal(0, account.getUnlockedBalance().toJSValue());
+//        }
+//        
+//        // test accounts after sweeping
+//        let accountsAfter = await wallet.getAccounts(true);
+//        assert.equal(accounts.length, accountsAfter.length);
+//        for (let i = 0; i < accounts.length; i++) {
+//          let accountBefore = accounts[i];
+//          let accountAfter = accountsAfter[i];
+//          
+//          // determine if account was swept
+//          let swept = false;
+//          for (let j = 0; j < NUM_ACCOUNTS_TO_SWEEP; j++) {
+//            if (unlockedAccounts[j].getIndex() === accountBefore.getIndex()) {
+//              swept = true;
+//              break;
+//            }
+//          }
+//          
+//          // test that unlocked balance is 0 if swept, unchanged otherwise
+//          if (swept) {
+//            assert.equal(0, accountAfter.getUnlockedBalance().toJSValue());
+//          } else {
+//            assert.equal(0, accountBefore.compare(accountAfter));
+//          }
+//        }
+//      });
+//      
+//      it("Can sweep the whole wallet", async function() {
+//        
+//        // sweep destination
+//        let destination = await wallet.getPrimaryAddress();
+//        
+//        // verify 2 accounts with unlocked balance
+//        let subaddressesBalance = await getSubaddressesWithBalance(wallet);
+//        let subaddressesUnlockedBalance = await getSubaddressesWithUnlockedBalance(wallet);
+//        assert(subaddressesBalance.length >= 2, "Test requires multiple accounts with a balance; run send to multiple first");
+//        assert(subaddressesUnlockedBalance.length >= 2, "Wallet is waiting on unlocked funds");
+//        
+//        // sweep
+//        let txs = await wallet.sweepWallet(destination);
+//        assert(txs.length > 0);
+//        for (let tx of txs) {
+//          let config = new MoneroSendConfig(destination);
+//          config.setAccountIndex(tx.getSrcAccountIndex());  // TODO: this is to game testTxWalletSend(); should not assert account equivalency there?
+//          testTxWalletSend(tx, config, true, false, wallet);
+//        }
+//        
+//        // assert no unlocked funds across subaddresses
+//        subaddressesUnlockedBalance = await getSubaddressesWithUnlockedBalance(wallet);
+//        assert(subaddressesUnlockedBalance.length === 0, "Wallet should have no unlocked funds after sweeping all");
+//      });
     });
   }
   

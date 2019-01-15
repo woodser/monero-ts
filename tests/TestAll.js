@@ -3,17 +3,17 @@ const TestMoneroWalletRpc = require("./TestMoneroWalletRpc")
 const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 
 // test daemon rpc
-new TestMoneroDaemonRpc().runTests({
-  testNotifications: true
-});
+//new TestMoneroDaemonRpc().runTests({
+//  testNotifications: false
+//});
 
 // test wallet rpc
 new TestMoneroWalletRpc().runTests({
   testNonSends: true,
-  liteMode: true, // skips some lengthy tests // TODO: lengthy tests still need to be runnable but getting test timeout
-  testSends: true,
+  liteMode: false, // skips some lengthy tests
+  testSends: false,
   testResets: false,
-  testNotifications: true
+  testNotifications: false
 });
 
 // test core utils
@@ -37,4 +37,4 @@ require("./TestMoneroWalletEquality");
 require("./TestBooleanSet");
 
 //// test scratchpad
-//require("./Scratchpad");
+require("./Scratchpad");
