@@ -457,8 +457,6 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
     
-    console.log("Sweeping from accounts: " + accountIndices);
-    
     // sweep from each account and collect unique transactions
     let txs = [];
     for (let accountIdx of accountIndices) {
@@ -481,7 +479,6 @@ class MoneroWalletRpc extends MoneroWallet {
         }
       }
       if (subaddressIndices.length === 0) throw new Error("No subaddresses to sweep from");
-      console.log(subaddressIndices);
       
       // sweep each subaddress individually
       if (config.getSweepEachSubaddress() === undefined || config.getSweepEachSubaddress()) {
