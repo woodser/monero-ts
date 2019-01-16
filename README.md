@@ -4,14 +4,15 @@
 
 This project provides a modern JavaScript API for a Monero wallet and daemon.
 
+The API currently relies on running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon RPC](https://getmonero.org/resources/developer-guides/daemon-rpc.html).  Primary goals of this project are to support a local wallet with client-side crypto and a MyMonero wallet which shares the view key with a 3rd party to scan the blockchain.
+
 Main Features
 
+- General-purpose library with focus on ease-of-use
 - Clear object-oriented models to formalize Monero types and their relationship to each other
 - Powerful API to query transactions, transfers, and vouts by their attributes
 - Extensive test suite (110+ passing tests)
-- Fetch and process binary data from the daemon in native JavaScript using client-side crypto
-
-The API currently relies on running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon RPC](https://getmonero.org/resources/developer-guides/daemon-rpc.html).
+- Fetch and process binary data from the daemon in JavaScript using client-side crypto
 
 ## Wallet Sample Code
 

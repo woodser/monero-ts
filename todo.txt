@@ -1,8 +1,4 @@
-HIGH
-optimize rpc requests
-review todos
-release alpha
-
+review/optimize rpc requests
 notification tests hardwired to account 0 which gets emptied by reset tests
 test unlock time unlocks
 state model in MoneroDaemonModel, maybe common MoneroModel?
