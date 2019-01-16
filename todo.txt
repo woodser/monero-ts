@@ -3,6 +3,7 @@ optimize rpc requests
 review todos
 release alpha
 
+notification tests hardwired to account 0 which gets emptied by reset tests
 test unlock time unlocks
 state model in MoneroDaemonModel, maybe common MoneroModel?
 reverse assert actual and expected params
