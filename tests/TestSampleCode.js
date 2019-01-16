@@ -48,7 +48,7 @@ describe("Test Sample Code", function() {
     // get confirmed transactions
     for (let tx of await wallet.getTxs({isConfirmed: true})) {
       let txId = tx.getId();                 // e.g. f8b2f0baa80bf6b686ce32f99ff7bb15a0f198baf7aed478e933ee9a73c69f80
-      let txFee = tx.getFee();               // e.g. 752343011023
+      let txFee = tx.getFee();               // e.g. 750000
       let isConfirmed = tx.getIsConfirmed(); // e.g. false
     }
     
@@ -68,7 +68,7 @@ describe("Test Sample Code", function() {
       
       // get daemon info
       let height = await daemon.getHeight();           // e.g. 1523651
-      let feeEstimate = await daemon.getFeeEstimate(); // e.g. 75000 (BigInteger)
+      let feeEstimate = await daemon.getFeeEstimate(); // e.g. 750000
       
       // get first 100 blocks as a binary request
       let blocks = await daemon.getBlocksByRange(0, 100);
