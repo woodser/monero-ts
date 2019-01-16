@@ -29,9 +29,23 @@ describe("Scratchpad", function() {
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
     
-    let txId = "af88ea62c1f0d439641f90f634d5bf5a6441170b35a36e53d52f4a4598df5682";
+    let txId = "d92f894485fce8a49d284e246157b0ac88316796563e16a171edd741823e308b";
     
-    // fetch transactions
+    let accounts = await wallet.getAccounts(true);
+    for (let account of accounts) {
+      if (account.getUnlockedBalance().toJSValue() > 0) {
+        console.log("** Account");
+        console.log(account.toString());
+      }
+//      for (let subaddress of account.getSubaddresses()) {
+//        if (subaddress.getUnlockedBalance().toJSValue() > 0) {
+//          console.log("** SUBaddress");
+//          console.log(subaddress.toString());
+//        }
+//      }
+    }
+    
+//    // fetch transactions
 //    let txs = await wallet.getTxs({txId: txId, getVouts: true});
 //    for (let tx of txs) {
 //      console.log(tx.toString());

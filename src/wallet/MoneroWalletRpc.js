@@ -428,9 +428,13 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async sweep(config) {
     
+    // validate destination
+    assert(config.getDestinations() && config.getDestinations().length === 1, "Must specify exactly one destination address to sweep to");
+    assert(config.getDestinations()[0].getAddress());
+    assert.equal(undefined, config.getDestinations()[0].getAmount());
+    
     // common request params
     let params = {};
-    assert.equal(1, config.getDestinations().length, "Must specify exactly one destination with an address");
     params.address = config.getDestinations()[0].getAddress();
     params.priority = config.getPriority();
     params.mixin = config.getMixin();
@@ -444,15 +448,16 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // determine accounts to sweep from; default to all with unlocked balance if not specified
     let accountIndices = [];
-    if (config.getAccountIndex() !== undefined) {
-      accountIndices.push(config.getAccountIndex());
-    } else {
-      for (let account of getAccounts()) {
-        if (account.getUnlockedBalance().compare(BigInteger.valueOf(0)) > 0) {
+    if (config.getAccountIndex() !== undefined) accountIndices.push(config.getAccountIndex());
+    else {
+      for (let account of await this.getAccounts()) {
+        if (account.getUnlockedBalance().compare(new BigInteger(0)) > 0) {
           accountIndices.push(account.getIndex());
         }
       }
     }
+    
+    console.log("Sweeping from accounts: " + accountIndices);
     
     // sweep from each account and collect unique transactions
     let txs = [];
@@ -469,21 +474,19 @@ class MoneroWalletRpc extends MoneroWallet {
           subaddressIndices.push(subaddressIdx);
         }
       } else {
-        for (let subaddress of await this.getSubaddresses(accountIdx)) {
+        for (let subaddress of await this.getSubaddresses(accountIdx)) {  // TODO: this fetches balance info unecessarily, optimize
           if (subaddress.getUnlockedBalance().compare(new BigInteger(0)) > 0) {
             subaddressIndices.push(subaddress.getSubaddressIndex());
           }
         }
       }
       if (subaddressIndices.length === 0) throw new Error("No subaddresses to sweep from");
+      console.log(subaddressIndices);
       
       // sweep each subaddress individually
       if (config.getSweepEachSubaddress() === undefined || config.getSweepEachSubaddress()) {
         for (let subaddressIdx of subaddressIndices) {
           params.subaddr_indices = [subaddressIdx];
-          
-          console.log(params);
-
           let resp = await this.config.rpc.sendJsonRequest("sweep_all", params);
           
           // initialize tx per subaddress
@@ -502,11 +505,7 @@ class MoneroWalletRpc extends MoneroWallet {
       // sweep all subaddresses together
       else {
         params.subaddr_indices = [subaddressIndices];
-        
-        console.log(params);
-        throw new Error("OK going to sweep subaddresses together"); // TODO: test this
-        
-        let resp = this.config.rpc.sendJsonRequest("sweep_all", params);
+        let resp = await this.config.rpc.sendJsonRequest("sweep_all", params);  // TODO: test this
         
         // initialize tx per subaddress
         let respTxs = [];
@@ -534,7 +533,8 @@ class MoneroWalletRpc extends MoneroWallet {
         transfer.setAddress(await this.getAddress(accountIdx, 0));
         transfer.setAccountIndex(accountIdx);
         transfer.setSubaddressIndex(0); // TODO (monero-wallet-rpc): outgoing subaddress idx is always 0
-        transfer.setDestinations(config.getDestinations());
+        let destination = new MoneroDestination(config.getDestinations()[0].getAddress(), new BigInteger(transfer.getAmount()));
+        transfer.setDestinations([destination]);
         tx.setOutgoingTransfer(transfer);
         tx.setPaymentId(config.getPaymentId());
         if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
@@ -1093,7 +1093,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // determine account and subaddresses to send from
     let accountIdx = config.getAccountIndex();
-    if (accountIdx === undefined) throw new Error("Must specify account index to send from");
+    if (accountIdx === undefined) accountIdx = 0; // default to account 0
     let subaddressIndices = config.getSubaddressIndices();
     if (subaddressIndices === undefined) subaddressIndices = await this._getSubaddressIndices(accountIdx);   
     

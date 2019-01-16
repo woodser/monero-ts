@@ -6,20 +6,19 @@ const MoneroUtils = require("../../utils/MoneroUtils");
  */
 class MoneroDestination {
   
-  constructor(jsonOrAddress, amount) {
+  constructor(stateOrAddress, amount) {
     
-    // initialize without json
-    if (jsonOrAddress === undefined || typeof jsonOrAddress === "string") {
+    // initialize without state
+    if (stateOrAddress === undefined || typeof stateOrAddress === "string") {
       this.state = {};
-      this.setAddress(jsonOrAddress);
+      this.setAddress(stateOrAddress);
       this.setAmount(amount);
     }
     
-    // otherwise deserialize json
+    // initialize from state
     else {
-      let json = jsonOrAddress;
-      this.state = Object.assign({}, json);
-      if (json.amount) this.setAmount(BigInteger.parse(json.amount));
+      this.state = Object.assign({}, stateOrAddress);
+      if (this.state.amount && !(this.state.amount instanceof BigInteger)) this.state.amount = BigInteger.parse(this.state.amount);
     }
   }
   

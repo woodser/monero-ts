@@ -1,7 +1,6 @@
 HIGH
 sweep tests
 update sample code
-
 optimize rpc requests
 review todos
 release alpha

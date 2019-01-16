@@ -1365,11 +1365,11 @@ class TestMoneroWalletCommon {
       }
       
       it("Can send to multiple addresses in a single transaction", async function() {
-        await testSendToMultiple(5, 3, false);
+        await testSendToMultiple(7, 2, false);
       });
       
       it("Can send to multiple addresses in split transactions", async function() {
-        await testSendToMultiple(5, 3, true);
+        await testSendToMultiple(7, 2, true);
       });
       
       /**
@@ -1655,7 +1655,7 @@ class TestMoneroWalletCommon {
           for (let tx of txs) {
             let config = new MoneroSendConfig(await wallet.getPrimaryAddress());
             config.setAccountIndex(unlockedAccount.getIndex());
-            await testWalletTx(tx, {wallet: wallet, sendConfig: config})
+            await testWalletTx(tx, {wallet: wallet, sendConfig: config, isSweep: true});
           }
           
           // assert no unlocked funds in account
@@ -1683,36 +1683,36 @@ class TestMoneroWalletCommon {
           if (swept) {
             assert.equal(0, accountAfter.getUnlockedBalance().toJSValue());
           } else {
-            assert.equal(0, accountBefore.compare(accountAfter));
+            assert.equal(0, accountBefore.getUnlockedBalance().compare(accountAfter.getUnlockedBalance()));
           }
         }
       });
       
-//      
-//      it("Can sweep the whole wallet", async function() {
-//        
-//        // sweep destination
-//        let destination = await wallet.getPrimaryAddress();
-//        
-//        // verify 2 accounts with unlocked balance
-//        let subaddressesBalance = await getSubaddressesWithBalance(wallet);
-//        let subaddressesUnlockedBalance = await getSubaddressesWithUnlockedBalance(wallet);
-//        assert(subaddressesBalance.length >= 2, "Test requires multiple accounts with a balance; run send to multiple first");
-//        assert(subaddressesUnlockedBalance.length >= 2, "Wallet is waiting on unlocked funds");
-//        
-//        // sweep
-//        let txs = await wallet.sweepWallet(destination);
-//        assert(txs.length > 0);
-//        for (let tx of txs) {
-//          let config = new MoneroSendConfig(destination);
-//          config.setAccountIndex(tx.getSrcAccountIndex());  // TODO: this is to game testTxWalletSend(); should not assert account equivalency there?
-//          testTxWalletSend(tx, config, true, false, wallet);
-//        }
-//        
-//        // assert no unlocked funds across subaddresses
-//        subaddressesUnlockedBalance = await getSubaddressesWithUnlockedBalance(wallet);
-//        assert(subaddressesUnlockedBalance.length === 0, "Wallet should have no unlocked funds after sweeping all");
-//      });
+      it("Can sweep the whole wallet", async function() {
+        
+        // sweep destination
+        let destination = await wallet.getPrimaryAddress();
+        
+        // verify 2 accounts with unlocked balance
+        let subaddressesBalance = await getSubaddressesWithBalance(wallet);
+        let subaddressesUnlockedBalance = await getSubaddressesWithUnlockedBalance(wallet);
+        assert(subaddressesBalance.length >= 2, "Test requires multiple accounts with a balance; run send to multiple first");
+        assert(subaddressesUnlockedBalance.length >= 2, "Wallet is waiting on unlocked funds");
+        
+        // sweep
+        let txs = await wallet.sweepWallet(destination);
+        assert(txs.length > 0);
+        for (let tx of txs) {
+          let config = new MoneroSendConfig(destination);
+          config.setAccountIndex(tx.getOutgoingTransfer().getAccountIndex());
+          await testWalletTx(tx, {wallet: wallet, sendConfig: config, isSweep: true});
+        }
+        
+        // assert no unlocked funds across subaddresses
+        subaddressesUnlockedBalance = await getSubaddressesWithUnlockedBalance(wallet);
+        console.log(subaddressesUnlockedBalance);
+        assert(subaddressesUnlockedBalance.length === 0, "Wallet should have no unlocked funds after sweeping all");
+      });
     });
   }
   
@@ -2054,13 +2054,7 @@ async function testWalletTx(tx, testConfig) {
   // test outgoing transfer
   if (tx.getOutgoingTransfer()) {
     testTransfer(tx.getOutgoingTransfer());
-    
-    // destinations add up to outgoing amount
-    if (tx.getOutgoingTransfer().getDestinations()) {
-      let sum = new BigInteger(0);
-      for (let destination of tx.getOutgoingTransfer().getDestinations()) sum = sum.add(destination.getAmount());
-      assert.equal(0, sum.compare(tx.getOutgoingTransfer().getAmount()));
-    }
+    if (testConfig.isSweep) assert.equal(1, tx.getOutgoingTransfer().getDestinations().length);
     
     // TODO: handle special cases
   } else {
@@ -2145,9 +2139,21 @@ async function testWalletTx(tx, testConfig) {
     assert.equal("string", typeof tx.getHex());
     assert(tx.getHex().length > 0);
     assert(tx.getMetadata());
-    assert.deepEqual(sendConfig.getDestinations(), tx.getOutgoingTransfer().getDestinations());
     assert.equal(undefined, tx.getReceivedTime());
     if (testConfig.isRelayResponse) assert.equal(true, sendConfig.getDoNotRelay());
+    
+    // test destinations of sent tx
+    assert.equal(sendConfig.getDestinations().length, tx.getOutgoingTransfer().getDestinations().length);
+    for (let i = 0; i < sendConfig.getDestinations().length; i++) {
+      assert.equal(sendConfig.getDestinations()[i].getAddress(), tx.getOutgoingTransfer().getDestinations()[i].getAddress());
+      if (testConfig.isSweep) {
+        assert.equal(1, sendConfig.getDestinations().length);
+        assert.equal(undefined, sendConfig.getDestinations()[i].getAmount());
+        assert.equal(tx.getOutgoingTransfer().getAmount().toString(), tx.getOutgoingTransfer().getDestinations()[i].getAmount().toString());
+      } else {
+        assert.equal(sendConfig.getDestinations()[i].getAmount().toString(), tx.getOutgoingTransfer().getDestinations()[i].getAmount().toString());
+      }
+    }
     
     // test relayed txs
     if (testConfig.isRelayResponse || !sendConfig.getDoNotRelay()) {
@@ -2260,6 +2266,24 @@ function testTransfer(transfer) {
     assert(found, "Transaction does not reference given transfer");
   }
   
+  // test destinations sum to outgoing amount
+  if (transfer.getDestinations()) {
+    assert(transfer.getDestinations().length > 0);
+    assert.equal(true, transfer.getIsOutgoing());
+    let sum = new BigInteger(0);
+    for (let destination of transfer.getDestinations()) {
+      assert(destination.getAddress());
+      TestUtils.testUnsignedBigInteger(destination.getAmount(), true);
+      sum = sum.add(destination.getAmount());
+    }
+    try {
+      assert.equal(transfer.getAmount().toString(), sum.toString());
+    } catch (e) {
+      console.log(transfer.getTx().toString());
+      throw e;
+    }
+  }
+  
   // transfer is outgoing xor incoming
   assert((transfer.getIsOutgoing() === true && transfer.getIsIncoming() === false) || (transfer.getIsOutgoing() === false && transfer.getIsIncoming() === true));
 }
@@ -2334,7 +2358,7 @@ function testCheckReserve(check) {
   assert.equal("boolean", typeof check.getIsGood());
   if (check.getIsGood()) {
     TestUtils.testUnsignedBigInteger(check.getAmountSpent());
-    assert.equal(0, check.getAmountSpent().compare(new BigInteger(0))); // TODO (monero-wallet-rpc): ever return non-zero spent?
+    assert.equal("0", check.getAmountSpent().toString());  // TODO sometimes see non-zero, seg fault after sweep and send tests
     TestUtils.testUnsignedBigInteger(check.getAmountTotal());
     assert(check.getAmountTotal().compare(new BigInteger(0)) >= 0);
   } else {

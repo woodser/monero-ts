@@ -9,9 +9,9 @@ const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 
 // test wallet rpc
 new TestMoneroWalletRpc().runTests({
-  testNonSends: false,
+  testNonSends: true,
   liteMode: true, // skips some lengthy tests
-  testSends: false,
+  testSends: true,
   testResets: true,
   testNotifications: false
 });
@@ -37,4 +37,4 @@ new TestMoneroWalletRpc().runTests({
 //require("./TestBooleanSet");
 
 //// test scratchpad
-//require("./Scratchpad");
+require("./Scratchpad");
