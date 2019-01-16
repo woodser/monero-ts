@@ -127,7 +127,7 @@ Note: some tests are failing as not all functionality is implemented.
 
 This project is licensed under MIT.
 
-## Donations
+## Donate
 
 <img src="donate.png" width="200" height="200"/>
 
