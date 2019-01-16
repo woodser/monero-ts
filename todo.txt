@@ -7,24 +7,10 @@ models return getState() since state accepted in constructor?
 merge asserts type or accepts undefined as matter of policy
 all model set functions return this
 getAccounts() fetches balance even if only thing needed are account indices
-optimize rpc calls
-not testing sweep
-differentiate filters, filter by account index or indices
-getTxs(filter) returns complete txs
-getPayments(filterOrAccountIdx, subaddressIdx, payment.getTxs(), can be optimized to only what's desired, unlike building complete txs, which may fetch incoming unecessarily
-getIncomingPayments(filterOrAccountIdx, subaddressIdx)
-getOutgoingPayments(filterOrAccountIdx, subaddressIdx)
-getVouts(filterOrAccoutnIdx, subaddressIdx);
-differentiate filters
-test tx filter hasOutgoingPayments, hasIncomingPayments
-simple tests for getting incoming/outgoing txs
-one place to test wallet accounting with txs (unspent outputs = wallet balance, incoming amts = outgoing amts, etc)
 support send priority
-test send tx with multiple payments with duplicate receive address, specifically check outgoing merging
 common tx tests need cleanup
 set subaddress getUnspentOutputCount() with outputs assigned
 tx serialization and deserialization tests
-GC error if tx.merge input === tx, test specifically
 how to handle 'confirmations' block height to add the tx to the chain if unconfirmed? corallary of unlock time?
 test response info of wallet.getTxs()
 investigate performance of get single tx by id, way too many requests
