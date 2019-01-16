@@ -44,12 +44,17 @@ describe("Test Sample Code", function() {
     sendConfig.setAccountIndex(0);
     sendConfig.setSubaddressIndices([1]);
     let sentTxs = await wallet.sendSplit(sendConfig);
-
-    // get wallet transactions (also supports filtering)
-    for (let tx of await wallet.getTxs()) {
+    
+    // get confirmed transactions
+    for (let tx of await wallet.getTxs({isConfirmed: true})) {
       let txId = tx.getId();                 // e.g. f8b2f0baa80bf6b686ce32f99ff7bb15a0f198baf7aed478e933ee9a73c69f80
-      let txFee = tx.getFee();               // e.g. 752343011023 (BigInteger)
+      let txFee = tx.getFee();               // e.g. 752343011023
       let isConfirmed = tx.getIsConfirmed(); // e.g. false
+    }
+    
+    // get incoming transfers to account 0
+    for (let transfer of await wallet.getTransfers({isIncoming: true, accountIndex: 0})) {
+      let amount = transfer.getAmount();     // e.g. 752343011023
     }
   });
 
