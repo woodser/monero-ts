@@ -9,7 +9,7 @@ The API currently relies on running instances of [Monero Wallet RPC](https://get
 Main Features
 
 - General-purpose library with focus on ease-of-use
-- Clear object-oriented models to formalize Monero types and their relationship to each other
+- Clear object-oriented models to formalize Monero types and their relationships to each other
 - Powerful API to query transactions, transfers, and vouts by their attributes
 - Extensive test suite (110+ passing tests)
 - Fetch and process binary data from the daemon in JavaScript using client-side crypto
@@ -117,11 +117,11 @@ Note: some tests are failing as not all functionality is implemented.
 - [Monero wallet rpc implementation (src/wallet/MoneroWalletRpc.js)](src/wallet/MoneroWalletRpc.js)
 - [Monero wallet model (src/wallet/model)](src/wallet/model)
 
-## Roadmap
+## Project Goals
 
-- Build a wallet dapter for a local wallet which uses client-side crypto and a daemon
+- Offer consistent terminology and APIs for Monero's developer ecosystem
+- Build a wallet adapter for a local wallet which uses client-side crypto and a daemon
 - Build a wallet adapter for a MyMonero wallet which shares the view key with a 3rd party to scan the blockchain
-- Update monero-java-rpc to be current with this library
 
 ## License
 
