@@ -1160,7 +1160,7 @@ class TestMoneroWalletCommon {
             }
           }
         }
-        assert(numNonZeroTests > 1, "Must have more than one account with non-zero balance; run testSendToMultiple() first");
+        assert(numNonZeroTests > 1, "Must have more than one account with non-zero balance; run send-to-multiple tests");
         
         // test error when not enough balance for requested minimum reserve amount
         try {
@@ -1480,7 +1480,7 @@ class TestMoneroWalletCommon {
         
         // get first account with (NUM_SUBADDRESSES + 1) subaddresses with unlocked balances
         let accounts = await wallet.getAccounts(true);
-        assert(accounts.length >= 2, "This test requires at least 2 accounts.  Run testSendToMultiple() first");
+        assert(accounts.length >= 2, "This test requires at least 2 accounts; run send-to-multiple tests");
         let srcAccount;
         let unlockedSubaddresses = [];
         let hasBalance = false;
@@ -1497,7 +1497,7 @@ class TestMoneroWalletCommon {
             break;
           }
         }
-        assert(hasBalance, "Wallet does not have account with " + (NUM_SUBADDRESSES + 1) + " subaddresses with balances.  Run testSendToMultiple() first");
+        assert(hasBalance, "Wallet does not have account with " + (NUM_SUBADDRESSES + 1) + " subaddresses with balances; run send-to-multiple tests");
         assert(unlockedSubaddresses.length >= NUM_SUBADDRESSES + 1, "Wallet is waiting on unlocked funds");
         
         // determine the indices of the first two subaddresses with unlocked balances
@@ -1639,7 +1639,7 @@ class TestMoneroWalletCommon {
         }
         
         // test requires at least one more account than the number being swept to verify it does not change
-        assert(balanceAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Test requires balance in at least " + (NUM_ACCOUNTS_TO_SWEEP + 1) + " accounts; run testSendToMultiple() first");
+        assert(balanceAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Test requires balance in at least " + (NUM_ACCOUNTS_TO_SWEEP + 1) + " accounts; run send-to-multiple tests");
         assert(unlockedAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Wallet is waiting on unlocked funds");
         
         // sweep from first unlocked accounts
