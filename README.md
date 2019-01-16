@@ -4,11 +4,18 @@
 
 This project provides a modern JavaScript API for a Monero wallet and daemon.
 
+Main Features
+
+- Clear object-oriented models to formalize Monero types and their relationship to each other
+- Powerful API to query transactions, transfers, and vouts by their attributes
+- Extensive test suite (110+ passing tests)
+- Fetch and process binary data from the daemon in native JavaScript using client-side crypto
+
 The API currently relies on running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon RPC](https://getmonero.org/resources/developer-guides/daemon-rpc.html).
 
-See the [tests](tests) for the most complete examples of using this library.
-
 ## Wallet Sample Code
+
+See the [tests](tests) for the most complete examples of using this library.
 
 ```js
 // create a wallet that uses a monero-wallet-rpc endpoint
@@ -100,18 +107,20 @@ Note: some tests are failing as not all functionality is implemented.
 	
 	e.g. For wallet name `test_wallet_1`, user `rpc_user`, password `abc123`, stagenet: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir /Applications/monero-v0.13.0.2`
 
-## Interfaces and Data Models
+## Interfaces and Types
 
-- [Monero daemon interface (MoneroDaemon.js)](src/daemon/MoneroDaemon.js)
+- [Monero daemon (MoneroDaemon.js)](src/daemon/MoneroDaemon.js)
 - [Monero daemon rpc implementation (MoneroDaemonRpc.js)](src/daemon/MoneroDaemonRpc.js)
-- [Monero daemon data model (src/daemon/model)](src/daemon/model)
-- [Monero wallet interface (src/wallet/MoneroWallet.js)](src/wallet/MoneroWallet.js)
+- [Monero daemon model (src/daemon/model)](src/daemon/model)
+- [Monero wallet (src/wallet/MoneroWallet.js)](src/wallet/MoneroWallet.js)
 - [Monero wallet rpc implementation (src/wallet/MoneroWalletRpc.js)](src/wallet/MoneroWalletRpc.js)
-- [Monero wallet data model (src/wallet/model)](src/wallet/model)
+- [Monero wallet model (src/wallet/model)](src/wallet/model)
 
-## Future Goals
+## Roadmap
 
-Primary goals of this project are to implement a fully client-side JavaScript wallet (requires a node running monero-daemon-rpc) and a "light wallet" which shares the view key with a 3rd party (e.g. MyMonero) to scan the blockchain.
+- Build a wallet dapter for a local wallet which uses client-side crypto and a daemon
+- Build a wallet adapter for a MyMonero wallet which shares the view key with a 3rd party to scan the blockchain
+- Update monero-java-rpc to be current with this library
 
 ## License
 
