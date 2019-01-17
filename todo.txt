@@ -1,4 +1,5 @@
 BIG PICTURE
+transfer project?
 make javascript feature complete, including multisig
 report rpc issues
 fix transfers bug #4500 in wallet rpc
