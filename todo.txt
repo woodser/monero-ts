@@ -1,9 +1,20 @@
+BIG PICTURE
+make javascript feature complete, including multisig
+data model outline
+report rpc issues
+mymonero javascript wallet
+local wallet / refactor wallet2.h
+port javascript to java
+implement java jni adapter
+integrate with bisq
+port javascript to go & implement jni binding to integrate with openbazaar
+
+v0.0.3
 todos throughout code
 outline data model for review
 license headers
 block comments with params and formatting
 report rpc issues
-
 model daemon vouts
 multisig
 common tx tests need cleanup
@@ -31,7 +42,7 @@ switch to jest?
 remove text-encoding dependency
 support setting daemon log level
 csv export of types
-daemin vins like vouts?
+daemon vins like vouts?
 
 test reverse assert actual and expected params
 test daemon getIsCoinbase()
