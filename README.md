@@ -129,7 +129,7 @@ This project is licensed under MIT.
 
 ## Donate
 
-<img src="donate.png" width="200" height="200"/>
+<img src="donate.png" align="center" width="180" height="180"/>
 
 `46FR1GKVqFNQnDiFkH7AuzbUBrGQwz2VdaXTDD4jcjRE8YkkoTYTmZ2Vohsz9gLSqkj5EM6ai9Q7sBoX4FPPYJdGKQQXPVz`
 
