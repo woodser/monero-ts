@@ -166,7 +166,7 @@ class MoneroDaemon {
   /**
    * Get an estimation on the fees per kB.
    * 
-   * @param graceBlocks TODO
+   * @param graceBlocks
    */
   async getFeeEstimate(graceBlocks) {
     throw new Error("Subclass must implement");
@@ -195,8 +195,6 @@ class MoneroDaemon {
   /**
    * Get valid transactions seen by the node but not yet mined into a block, as well
    * as spent key image information for the tx pool.
-   * 
-   * TODO: split this into two calls?
    * 
    * @returns {MoneroTxPool} contains tx pool transactions and spent key images
    */
@@ -262,7 +260,7 @@ class MoneroDaemon {
   /**
    * Get outputs given a list of output amounts and indices using a binary request.
    * 
-   * TODO: does this also return global outputs?
+   * TODO: does this also return global outputs?  re-visit this.
    * 
    * @param {{amount:_, index:_}[]} identify the outputs to get
    * @returns {MoneroDaemonOutput[]} are outputs with amount, height, key, max,

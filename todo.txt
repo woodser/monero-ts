@@ -1,65 +1,63 @@
-outline data model for review
-review/optimize rpc requests
-notification tests hardwired to account 0 which gets emptied by reset tests
-test unlock time unlocks
-state model in MoneroDaemonModel, maybe common MoneroModel?
-reverse assert actual and expected params
-models return getState() since state accepted in constructor?
-merge asserts type or accepts undefined as matter of policy
-all model set functions return this
-getAccounts() fetches balance even if only thing needed are account indices
-support send priority
-common tx tests need cleanup
-set subaddress getUnspentOutputCount() with outputs assigned
-tx serialization and deserialization tests
-how to handle 'confirmations' block height to add the tx to the chain if unconfirmed? corallary of unlock time?
-test response info of wallet.getTxs()
-investigate performance of get single tx by id, way too many requests
-no test timeout
-merge txs as state changes e.g. becomes confirmed (handle notifications?)
-don't wrap single return fields with MoneroDaemonModel?
-license headers
 todos throughout code
-tests are unecessarily creating new accounts which degrades test performance
-support sweep_single (output)
+outline data model for review
+license headers
 block comments with params and formatting
-test daemon/wallet txs getIsCoinbase()
-test daemon / wallet getTxs() with unfound txs (throw error?)
-test getting coinbase txs by id
-verify that all tx fields are being tested
-handle excess undefineds and enable deepEqual() in testWalletTxCopy()
+report rpc issues
 
-LOW
-duplicate outgoing transfers returned for different subaddress indices, way to include subaddress indices?
-safeguard all apis by heavily validating input parameters
-send to multiple, suggested_confirmation_threshold outgoing payment 6 but incoming payments 1; large discrepency
-don't get tx hex unless requested
-get_transfers filters by subaddress idx even though minor 0 always returned
-switch to jest?
-time profiling
-in wallet implementation: "prepend the last 3 blocks, should be enough to guard against a block or two's reorg" pull_and_parse_next_blocks
-binary_blocks_to_json property_tree conversion throws memory exception if too big
-tx hex returned from rpc api even if not needed
-remove text-encoding dependency
-package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
-JS now has native BigInt class which could be used instead of current BigInteger
-support setting daemon log level
-split BooleanSet into new project
-add MoneroOutput and test
-tx.getIsUnlocked()?
-way to throttle rpc requests with agent instead of throttle-request to preserve stacktrace?
-document model fields
-add config options to tests, maybe use test objects per
+model daemon vouts
+multisig
+common tx tests need cleanup
 daemon.getBlocksById(), default implementations
+time profiling
+review/optimize rpc requests
+getAccounts() fetches balance even if only thing needed are account indices
+investigate performance of get single tx by id, way too many requests
+support and test unlock time unlocks
+common MoneroModel which can be initialized from and export state
+merge asserts type
+all model set functions return this
+support send priority
+set subaddress getUnspentOutputCount() with outputs assigned
+how to handle 'confirmations' block height to add the tx to the chain if unconfirmed? corallary of unlock time?
+don't wrap single return fields with MoneroDaemonModel? e.g. fee
+support sweep_single (output)
+handle excess undefineds and enable deepEqual() in testWalletTxCopy()
+safeguard all apis by heavily validating input parameters
+don't get tx hex unless requested
+JS now has native BigInt class which could be used instead of current BigInteger
+way to throttle rpc requests with agent instead of throttle-request to preserve stacktrace?
+send to multiple, suggested_confirmation_threshold outgoing payment 6 but incoming payments 1; large discrepency
+switch to jest?
+remove text-encoding dependency
+support setting daemon log level
+csv export of types
+daemin vins like vouts?
 
-BUILD
+test reverse assert actual and expected params
+test daemon getIsCoinbase()
+test getting coinbase txs by id
+test response info of wallet.getTxs()
+tests are unecessarily creating new accounts which degrades test performance
+test notifications hardwired to account 0 which gets emptied by reset tests
+test all tx fields in daemon, update tests to be like wallet
+test json serialization / deserialization specifically, stringifying in between so cannot be any live objects
+
+LOCAL WALLET / BROWSER
 build process to not read mymonero-core-js build and contrib to browser build
 update on save B-)
+in wallet implementation: "prepend the last 3 blocks, should be enough to guard against a block or two's reorg" pull_and_parse_next_blocks
+binary_blocks_to_json property_tree conversion throws memory exception if too big
+split BooleanSet into new project
+package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 
-RPC QUESTIONS / SUGGESTIONS
+RPC
+update #4500 with latest notes
+fix #4500 subaddresses occluded by outgoing counterparts when sent from/to same account
 unconfirmed tx missing destinations even though known by wallet
 send from/to same account, after first confirmation outgoing tx amount is 0 but has payments with amts, so discrepency
 show_transfers returns unconfirmed outputs
+duplicate outgoing transfers returned for different subaddress indices, way to include subaddress indices?
 introduce way to identify change output from blockchain? that solves unknown sent amt issue
 identify one call per acount/subaddress and support "all" flag
 /get_transactions returns duplicate data per transaction
+daemon get_txs prune documentation missing

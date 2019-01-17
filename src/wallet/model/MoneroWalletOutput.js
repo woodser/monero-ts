@@ -4,8 +4,6 @@ const MoneroOutput = require("../../daemon/model/MoneroOutput");
 
 /**
  * Models a Monero output with wallet extensions.
- * 
- * TODO: update this to state model
  */
 class MoneroWalletOutput extends MoneroOutput {
   

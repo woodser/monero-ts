@@ -6,8 +6,6 @@ const MoneroOutput = require("./MoneroOutput");
 
 /**
  * Represents a transaction on the Monero network.
-
- * TODO: ensure all fields are tested
  */
 class MoneroTx extends MoneroDaemonModel {
   
@@ -226,7 +224,6 @@ class MoneroTx extends MoneroDaemonModel {
     this.state.vouts = vouts;
   }
   
-  // TODO: integrate with vin/vout
   getOutputIndices() {
     return this.state.outputIndices;
   }
@@ -335,11 +332,10 @@ class MoneroTx extends MoneroDaemonModel {
     return new MoneroTx(this.toJson());
   }
   
-  // TODO: may need to deep copy getOutputIndices(), getCommonTxSets(), getRctSignatures(), etc depending on their final type
   toJson() {
     let json = Object.assign({}, this.state);
     if (this.getFee()) json.fee = this.getFee().toString();
-    if (this.getVouts()) {  // TODO: test/support vins
+    if (this.getVouts()) {
       json.vouts = [];
       for (let vout of this.getVouts()) json.vouts.push(vout.toJson());
     }

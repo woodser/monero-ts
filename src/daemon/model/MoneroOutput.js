@@ -3,8 +3,6 @@ const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/b
 
 /**
  * Represents a transaction output.
- * 
- * TODO: this goes in daemon model when modeling daemon outputs
  */
 class MoneroOutput {
   
@@ -39,7 +37,6 @@ class MoneroOutput {
     return this;
   }
   
-  // TODO: rename to getGlobalIndex()
   getIndex() {
     return this.state.index;
   }

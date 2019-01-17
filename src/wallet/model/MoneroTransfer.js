@@ -21,7 +21,7 @@ class MoneroTransfer {
     if (state.amount && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(state.amount);
     if (state.destinations) {
       for (let i = 0; i < state.destinations.length; i++) {
-        if (!(state.destinations[i] instanceof MoneroDestination)) state.destinations[i] = new MoneroDestination(state.destinations[i]);  // TODO: typo, tests must catch
+        if (!(state.destinations[i] instanceof MoneroDestination)) state.destinations[i] = new MoneroDestination(state.destinations[i]);
       }
     }
   }
@@ -127,7 +127,7 @@ class MoneroTransfer {
       this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), transfer.getSubaddressIndex()));
       this.setAmount(MoneroUtils.reconcile(this.getAmount(), transfer.getAmount()));
       
-      // merge destinations TODO: rewrite and test
+      // merge destinations
       if (this.getDestinations() === undefined) this.setDestinations(transfer.getDestinations());
       else if (transfer.getDestinations()) {
         assert.deepEqual(this.getDestinations(), transfer.getDestinations(), "Cannot merge transfer because destinations are different");
