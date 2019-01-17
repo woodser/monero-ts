@@ -135,4 +135,4 @@ This project is licensed under MIT.
 
 `46FR1GKVqFNQnDiFkH7AuzbUBrGQwz2VdaXTDD4jcjRE8YkkoTYTmZ2Vohsz9gLSqkj5EM6ai9Q7sBoX4FPPYJdGKQQXPVz`
 
-Thank you for your support.
+Thank you supporting this project.
