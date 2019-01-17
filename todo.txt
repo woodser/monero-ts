@@ -1,7 +1,8 @@
 BIG PICTURE
 make javascript feature complete, including multisig
-data model outline
 report rpc issues
+fix transfers bug #4500 in wallet rpc
+data model outline
 mymonero javascript wallet
 local wallet / refactor wallet2.h
 port javascript to java
