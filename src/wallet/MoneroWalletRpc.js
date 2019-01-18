@@ -17,6 +17,7 @@ const MoneroCheckReserve = require("./model/MoneroCheckReserve");
 const MoneroTxFilter = require("./filters/MoneroTxFilter");
 const MoneroTransferFilter = require("./filters/MoneroTransferFilter");
 const MoneroVoutFilter = require("./filters/MoneroVoutFilter");
+const MoneroAccountTag = require("./model/MoneroAccountTag");
 
 /**
  * Implements a Monero wallet using monero-wallet-rpc.
@@ -712,6 +713,51 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   // -------------------------- SPECIFIC TO RPC WALLET ------------------------
+  
+  /**
+   * Tags accounts.
+   * 
+   * @param tag is the tag to apply to the specified accounts
+   * @param accountIndices are the indices of the accounts to tag
+   */
+  async tagAccounts(tag, accountIndices) {
+    await this.config.rpc.sendJsonRequest("tag_accounts", {tag: tag, accounts: accountIndices});
+  }
+
+  /**
+   * Untags acconts.
+   * 
+   * @param accountIndices are the indices of the accounts to untag
+   */
+  async untagAccounts(accountIndices) {
+    await this.config.rpc.sendJsonRequest("untag_accounts", {accounts: accountIndices});
+  }
+
+  /**
+   * Returns all account tags.
+   * 
+   * @return {MoneroAccountTag[]} are the wallet's account tags
+   */
+  async getAccountTags() {
+    let tags = [];
+    let resp = await this.config.rpc.sendJsonRequest("get_account_tags");
+    if (resp.account_tags) {
+      for (let rpcAccountTag of resp.account_tags) {
+        tags.push(new MoneroAccountTag(rpcAccountTag.tag, rpcAccountTag.label, rpcAccountTag.accounts));
+      }
+    }
+    return tags;
+  }
+
+  /**
+   * Sets a human-readable description for a tag.
+   * 
+   * @param tag is the tag to set a description for
+   * @param label is the label to set for the tag
+   */
+  async setAccountTagLabel(tag, label) {
+    await this.config.rpc.sendJsonRequest("set_account_tag_description", {tag: tag, description: label});
+  }
   
   /**
    * TODO

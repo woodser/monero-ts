@@ -124,10 +124,9 @@ class MoneroWallet {
    * Get accounts.
    * 
    * @param includeSubaddresses specifies if subaddresses should be included (optional)
-   * @param tag specifies a filtering tag (optional)
    * @returns MoneroAccount[] are the retrieved accounts
    */
-  async getAccounts(includeSubaddresses, tag) {
+  async getAccounts(includeSubaddresses) {
     throw new Error("Subclass must implement");
   }
   

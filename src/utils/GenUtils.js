@@ -597,9 +597,9 @@ class GenUtils {
    * @returns true if the array contains the object, false otherwise
    */
   static arrayContains(arr, obj) {
-    assertTrue(GenUtils.isArray(arr));
+    GenUtils.assertTrue(GenUtils.isArray(arr));
     for (let i = 0; i < arr.length; i++) {
-      if (equals(arr[i], obj)) return true;
+      if (GenUtils.equals(arr[i], obj)) return true;
     }
     return false;
   }
@@ -632,7 +632,7 @@ class GenUtils {
     if (!GenUtils.isArray(arr2)) throw new Error("Second argument is not an array");
     if (arr1.length != arr2.length) return false;
     for (let i = 0; i < arr1.length; ++i) {
-      if (!equals(arr1[i], arr2[i])) return false;
+      if (!GenUtils.equals(arr1[i], arr2[i])) return false;
     }
     return true;
   }
@@ -645,8 +645,8 @@ class GenUtils {
    * @returns true if the arguments are deep equals, false otherwise
    */
   static equals(arg1, arg2) {
-    if (GenUtils.isArray(arg1) && GenUtils.isArray(arg2)) return arraysEqual(arg1, arg2);
-    if (isObject(arg1) && isObject(arg2)) return objectsEqual(arg1, arg2);
+    if (GenUtils.isArray(arg1) && GenUtils.isArray(arg2)) return GenUtils.arraysEqual(arg1, arg2);
+    if (GenUtils.isObject(arg1) && GenUtils.isObject(arg2)) return GenUtils.objectsEqual(arg1, arg2);
     return arg1 === arg2;
   }
 
@@ -662,7 +662,7 @@ class GenUtils {
     if (keys1.length !== Object.keys(map2).length) return false;
     for (let i = 0; i < keys1.length; i++) {
       let key = Object.keys(map1)[i];
-      if (!equals(map1[key], map2[key])) return false;
+      if (!GenUtils.equals(map1[key], map2[key])) return false;
     }
     return true;
   }

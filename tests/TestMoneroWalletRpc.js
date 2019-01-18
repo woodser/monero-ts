@@ -1,6 +1,8 @@
 const assert = require("assert");
+const GenUtils = require("../src/utils/GenUtils");
 const TestUtils = require("./TestUtils");
 const MoneroRpcError = require("../src/rpc/MoneroRpcError");
+const MoneroAccountTag = require("../src/wallet/model/MoneroAccountTag");
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
 
 /**
@@ -84,7 +86,43 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
       });
       
       it("Can tag accounts and query accounts by tag", async function() {
-        throw new Error("Not implemented");
+        
+        // test that non-existing tag returns no accounts
+        try {
+          await wallet.getAccounts(undefined, "non_existing_tag");
+          fail("Should have thrown exception with unregistered tag");
+        } catch (e) {
+          assert.equal(-1, e.getRpcCode());
+        }
+        
+        // create expected tag for test
+        let expectedTag = new MoneroAccountTag("my_tag_" + GenUtils.uuidv4(), "my tag label", [0, 1]);
+        
+        // tag and query accounts
+        let accounts1 = await wallet.getAccounts();
+        assert(accounts1.length >= 3);
+        await wallet.tagAccounts(expectedTag.getTag(), [0, 1]);
+        let accounts2 = await wallet.getAccounts(undefined, expectedTag.getTag());
+        assert.equal(2, accounts2.length);
+        assert.deepEqual(accounts1[0], accounts2[0]);
+        assert.deepEqual(accounts1[1], accounts2[1]);
+        
+        // set tag label
+        await wallet.setAccountTagLabel(expectedTag.getTag(), expectedTag.getLabel());
+        
+        // retrieve and find new tag
+        let tags = await wallet.getAccountTags();
+        GenUtils.arrayContains(tags, expectedTag);
+        
+        // untag and query accounts
+        await wallet.untagAccounts([0, 1]);
+        assert.equal(false, (await wallet.getAccountTags()).includes(expectedTag));
+        try {
+          await wallet.getAccounts(undefined, expectedTag.getTag());
+          fail("Should have thrown exception with unregistered tag");
+        } catch (e) {
+          assert.equal(-1, e.getRpcCode());
+        }
       });
       
       it("Has an address book", async function() {
