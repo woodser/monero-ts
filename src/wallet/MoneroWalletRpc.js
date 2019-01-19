@@ -18,6 +18,7 @@ const MoneroTxFilter = require("./filters/MoneroTxFilter");
 const MoneroTransferFilter = require("./filters/MoneroTransferFilter");
 const MoneroVoutFilter = require("./filters/MoneroVoutFilter");
 const MoneroAccountTag = require("./model/MoneroAccountTag");
+const MoneroAddressBookEntry = require("./model/MoneroAddressBookEntry");
 
 /**
  * Implements a Monero wallet using monero-wallet-rpc.
@@ -712,7 +713,24 @@ class MoneroWalletRpc extends MoneroWallet {
     return check;
   }
   
-  // -------------------------- SPECIFIC TO RPC WALLET ------------------------
+  async getAddressBookEntries(entryIndices) {
+    let resp = await this.config.rpc.sendJsonRequest("get_address_book", {entries: entryIndices});
+    if (!resp.entries) return [];
+    let entries = [];
+    for (let rpcEntry of resp.entries) {
+      entries.push(new MoneroAddressBookEntry(rpcEntry.index, rpcEntry.address, rpcEntry.payment_id, rpcEntry.description));
+    }
+    return entries;
+  }
+  
+  async addAddressBookEntry(address, paymentId, description) {
+    let resp = await this.config.rpc.sendJsonRequest("add_address_book", {address: address, payment_id: paymentId, description: description});
+    return resp.index;
+  }
+  
+  async deleteAddressBookEntry(entryIdx) {
+    await this.config.rpc.sendJsonRequest("delete_address_book", {index: entryIdx});
+  }
   
   /**
    * Tags accounts.
@@ -758,6 +776,8 @@ class MoneroWalletRpc extends MoneroWallet {
   async setAccountTagLabel(tag, label) {
     await this.config.rpc.sendJsonRequest("set_account_tag_description", {tag: tag, description: label});
   }
+  
+  // -------------------------- SPECIFIC TO RPC WALLET ------------------------
   
   /**
    * TODO

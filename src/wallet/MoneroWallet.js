@@ -529,6 +529,56 @@ class MoneroWallet {
   async checkReserveProof(address, message, signature) {
     throw new Error("Subclass must implement");
   }
+  
+  async getAddressBookEntries(entryIndices) {
+    throw new Error("Subclass must implement");
+  }
+  
+  async addAddressBookEntry(address, paymentId, description) {
+    throw new Error("Subclass must implement");
+  }
+  
+  async deleteAddressBookEntry(entryIdx) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Tags accounts.
+   * 
+   * @param tag is the tag to apply to the specified accounts
+   * @param accountIndices are the indices of the accounts to tag
+   */
+  async tagAccounts(tag, accountIndices) {
+    throw new Error("Subclass must implement");
+  }
+
+  /**
+   * Untags acconts.
+   * 
+   * @param accountIndices are the indices of the accounts to untag
+   */
+  async untagAccounts(accountIndices) {
+    throw new Error("Subclass must implement");
+  }
+
+  /**
+   * Returns all account tags.
+   * 
+   * @return {MoneroAccountTag[]} are the wallet's account tags
+   */
+  async getAccountTags() {
+    throw new Error("Subclass must implement");
+  }
+
+  /**
+   * Sets a human-readable description for a tag.
+   * 
+   * @param tag is the tag to set a description for
+   * @param label is the label to set for the tag
+   */
+  async setAccountTagLabel(tag, label) {
+    throw new Error("Subclass must implement");
+  }
 }
 
 module.exports = MoneroWallet;

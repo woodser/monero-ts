@@ -175,6 +175,25 @@ class MoneroUtils {
     if (value === undefined && ignoreUndefined) return "";
     return GenUtils.getIndent(indent) + key + ": " + value + (newline ? '\n' : "");
   }
+  
+  /**
+   * Determines if two payment ids are functionally equal.
+   * 
+   * For example, 03284e41c342f032 and 03284e41c342f032000000000000000000000000000000000000000000000000 are considered equal.
+   * 
+   * @param paymentId1 is a payment id to compare
+   * @param paymentId2 is a payment id to compare
+   * @return true if the payment ids are equal, false otherwise
+   */
+  static paymentIdsEqual(paymentId1, paymentId2) {
+    let maxLength = Math.max(paymentId1.length, paymentId2.length);
+    for (let i = 0; i < maxLength; i++) {
+      if (i < paymentId1.length && i < paymentId2.length && paymentId1[i] !== paymentId2[i]) return false;
+      if (i >= paymentId1.length && paymentId2[i] !== '0') return false;
+      if (i >= paymentId2.length && paymentId1[i] !== '0') return false;
+    }
+    return true;
+  }
 }
 
 MoneroUtils.NUM_MNEMONIC_WORDS = 25;

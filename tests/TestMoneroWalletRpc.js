@@ -1,6 +1,7 @@
 const assert = require("assert");
 const GenUtils = require("../src/utils/GenUtils");
 const TestUtils = require("./TestUtils");
+const MoneroUtils = require("../src/utils/MoneroUtils");
 const MoneroRpcError = require("../src/rpc/MoneroRpcError");
 const MoneroAccountTag = require("../src/wallet/model/MoneroAccountTag");
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
@@ -126,7 +127,80 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
       });
       
       it("Has an address book", async function() {
-        throw new Error("Not implemented");
+        
+        // initial state
+        let entries = await wallet.getAddressBookEntries();
+        let numEntriesStart = entries.length
+        for (let entry of entries) testAddressBookEntry(entry);
+        
+        // test adding standard addresses
+        const NUM_ENTRIES = 5;
+        let address = (await wallet.getSubaddress(0, 0)).getAddress();
+        let indices = [];
+        for (let i = 0; i < NUM_ENTRIES; i++) {
+          indices.push(await wallet.addAddressBookEntry(address, undefined, "hi there!"));
+        }
+        entries = await wallet.getAddressBookEntries();
+        assert.equal(numEntriesStart + NUM_ENTRIES, entries.length);
+        for (let idx of indices) {
+          let found = false;
+          for (let entry of entries) {
+            if (idx === entry.getIndex()) {
+              testAddressBookEntry(entry);
+              assert.equal(address, entry.getAddress());
+              assert.equal("hi there!", entry.getDescription());
+              found = true;
+              break;
+            }
+          }
+          assert(found, "Index " + idx + " not found in address book indices");
+        }
+        
+        // delete entries at starting index
+        let deleteIdx = indices[0];
+        for (let i = 0; i < indices.length; i++) {
+          await wallet.deleteAddressBookEntry(deleteIdx);
+        }
+        entries = await wallet.getAddressBookEntries();
+        assert.equal(numEntriesStart, entries.length);
+        
+        // test adding integrated addresses
+        indices = [];
+        let paymentId = "03284e41c342f03"; // payment id less one character
+        let integratedAddresses = {};
+        let integratedDescriptions = {};
+        for (let i = 0; i < NUM_ENTRIES; i++) {
+          let integratedAddress = await wallet.getIntegratedAddress(paymentId + i); // create unique integrated address
+          let uuid = GenUtils.uuidv4();
+          let idx = await wallet.addAddressBookEntry(integratedAddress.toString(), undefined, uuid);
+          indices.push(idx);
+          integratedAddresses[idx] = integratedAddress;
+          integratedDescriptions[idx] = uuid;
+        }
+        entries = await wallet.getAddressBookEntries();
+        assert.equal(numEntriesStart + NUM_ENTRIES, entries.length);
+        for (let idx of indices) {
+          let found = false;
+          for (let entry of entries) {
+            if (idx === entry.getIndex()) {
+              testAddressBookEntry(entry);
+              assert.equal(integratedDescriptions[idx], entry.getDescription());
+              assert.equal(integratedAddresses[idx].getStandardAddress(), entry.getAddress());
+              assert(MoneroUtils.paymentIdsEqual(integratedAddresses[idx].getPaymentId(), entry.getPaymentId()));
+              found = true;
+              break;
+            }
+          }
+          assert(found, "Index " + idx + " not found in address book indices");
+        }
+        
+        // delete entries at starting index
+        deleteIdx = indices[0];
+        for (let i = 0; i < indices.length; i++) {
+          await wallet.deleteAddressBookEntry(deleteIdx);
+        }
+        entries = await wallet.getAddressBookEntries();
+        assert.equal(numEntriesStart, entries.length);
       });
       
       // disabled so wallet is not actually stopped
@@ -138,3 +212,9 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
 }
 
 module.exports = TestMoneroWalletRpc;
+
+function testAddressBookEntry(entry) {
+  assert(entry.getIndex() >= 0);
+  assert(entry.getAddress());
+  assert(entry.getDescription());
+}
