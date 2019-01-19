@@ -130,7 +130,7 @@ class MoneroTransfer {
       // merge destinations
       if (this.getDestinations() === undefined) this.setDestinations(transfer.getDestinations());
       else if (transfer.getDestinations()) {
-        assert.deepEqual(this.getDestinations(), transfer.getDestinations(), "Cannot merge transfer because destinations are different");
+        assert.deepEqual(transfer.getDestinations(), this.getDestinations(), "Cannot merge transfer because destinations are different");
       }
     }
   }

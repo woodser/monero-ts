@@ -174,7 +174,7 @@ class MoneroWalletRpc extends MoneroWallet {
         let subaddressIdx = respSubaddress.address_index;
         for (let subaddress of subaddresses) {
           if (subaddressIdx !== subaddress.getSubaddressIndex()) continue; // find matching subaddress
-          assert.equal(subaddress.getAddress(), respSubaddress.address);
+          assert.equal(respSubaddress.address, subaddress.getAddress());
           if (respSubaddress.balance !== undefined) subaddress.setBalance(new BigInteger(respSubaddress.balance));
           if (respSubaddress.unlocked_balance !== undefined) subaddress.setUnlockedBalance(new BigInteger(respSubaddress.unlocked_balance));
           subaddress.setUnspentOutputCount(respSubaddress.num_unspent_outputs);
@@ -305,7 +305,7 @@ class MoneroWalletRpc extends MoneroWallet {
       if (transferFilter.getSubaddressIndices() !== undefined) transferFilter.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
       indices.set(transfer.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : await this._getSubaddressIndices(transfer.getAccountIndex()));  // TODO monero-wallet-rpc: support `get_tranfsers` getting all transfers in account so clients don't need to pre-fetch subaddress indices
     } else {
-      assert.equal(undefined, transfer.getSubaddressIndex(), "Filter specifies a subaddress index but not an account index")
+      assert.equal(transfer.getSubaddressIndex(), undefined, "Filter specifies a subaddress index but not an account index");
       assert(transferFilter.getSubaddressIndices() === undefined || transferFilter.getSubaddressIndices().length === 0, "Filter specifies subaddress indices but not an account index");
       indices = await this._getAccountIndices(true);  // fetch all account and subaddress indices
     }
@@ -387,7 +387,7 @@ class MoneroWalletRpc extends MoneroWallet {
       if (voutFilter.getSubaddressIndices() !== undefined) voutFilter.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
       indices.set(vout.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : undefined);  // undefined will fetch from all subaddresses
     } else {
-      assert.equal(undefined, vout.getSubaddressIndex(), "Filter specifies a subaddress index but not an account index")
+      assert.equal(vout.getSubaddressIndex(), undefined, "Filter specifies a subaddress index but not an account index")
       assert(voutFilter.getSubaddressIndices() === undefined || voutFilter.getSubaddressIndices().length === 0, "Filter specifies subaddress indices but not an account index");
       indices = await this._getAccountIndices();  // fetch all account indices without subaddresses
     }
@@ -433,7 +433,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // validate destination
     assert(config.getDestinations() && config.getDestinations().length === 1, "Must specify exactly one destination address to sweep to");
     assert(config.getDestinations()[0].getAddress());
-    assert.equal(undefined, config.getDestinations()[0].getAmount());
+    assert.equal(config.getDestinations()[0].getAmount(), undefined);
     
     // common request params
     let params = {};
@@ -881,12 +881,12 @@ class MoneroWalletRpc extends MoneroWallet {
     // initialize tx state from rpc type
     if (rpcTx.type !== undefined) isOutgoing = MoneroWalletRpc._decodeRpcType(rpcTx.type, tx);
     else {
-      assert.equal("boolean", typeof isOutgoing, "Must indicate if tx is outgoing (true) xor incoming (false) since unknown");
-      assert.equal("boolean", typeof tx.getIsConfirmed());
-      assert.equal("boolean", typeof tx.getInTxPool());
-      assert.equal("boolean", typeof tx.getIsCoinbase());
-      assert.equal("boolean", typeof tx.getIsFailed());
-      assert.equal("boolean", typeof tx.getDoNotRelay());
+      assert.equal(typeof isOutgoing, "boolean", "Must indicate if tx is outgoing (true) xor incoming (false) since unknown");
+      assert.equal(typeof tx.getIsConfirmed(), "boolean");
+      assert.equal(typeof tx.getInTxPool(), "boolean");
+      assert.equal(typeof tx.getIsCoinbase(), "boolean");
+      assert.equal(typeof tx.getIsFailed(), "boolean");
+      assert.equal(typeof tx.getDoNotRelay(), "boolean");
     }
     
     // TODO: safe set
@@ -1025,7 +1025,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let sizes = new Set();
     sizes.add(ids.length).add(blobs.length).add(metadatas.length).add(fees.length).add(amounts.length);
     if (keys) sizes.add(keys.length);
-    assert.equal(1, sizes.size, "RPC lists are different sizes");
+    assert.equal(sizes.size, 1, "RPC lists are different sizes");
     
     // initialize txs if necessary
     if (!txs) {
@@ -1153,9 +1153,9 @@ class MoneroWalletRpc extends MoneroWallet {
     let config;
     if (configOrAddress instanceof MoneroSendConfig) config = configOrAddress;
     else config = new MoneroSendConfig(configOrAddress, amount, paymentId, priority, mixin, fee);
-    assert.equal(undefined, config.getSweepEachSubaddress());
-    assert.equal(undefined, config.getBelowAmount());
-    if (config.getCanSplit() !== undefined) assert.equal(split, config.getCanSplit());
+    assert.equal(config.getSweepEachSubaddress(), undefined);
+    assert.equal(config.getBelowAmount(), undefined);
+    if (config.getCanSplit() !== undefined) assert.equal(config.getCanSplit(), split);
     
     // determine account and subaddresses to send from
     let accountIdx = config.getAccountIndex();

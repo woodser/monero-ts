@@ -1,10 +1,6 @@
-send config replaces MoneroUri, add recipient name and note
-standardize tx note over description
-implement wallet.createPaymentUri(sendConfig)
-let sendConfig = wallet.parsePaymentUri(uri)
-MoneroSendConfig --> MoneroPayment? which specifies configuration for a potential payment sent from the wallet
 
 v0.0.3
+standardize tx note over description
 test that note is set if specified in send config
 todos throughout code
 outline data model for review
@@ -40,7 +36,6 @@ support setting daemon log level
 csv export of types
 daemon vins like vouts?
 
-test reverse assert actual and expected params
 test daemon getIsCoinbase()
 test getting coinbase txs by id
 test response info of wallet.getTxs()

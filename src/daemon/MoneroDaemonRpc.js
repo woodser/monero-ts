@@ -134,7 +134,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     //console.log(JSON.stringify(rpcBlocks));
     
     // build blocks with transactions
-    assert.equal(rpcBlocks.blocks.length, rpcBlocks.txs.length);    
+    assert.equal(rpcBlocks.txs.length, rpcBlocks.blocks.length);    
     let blocks = [];
     for (let blockIdx = 0; blockIdx < rpcBlocks.blocks.length; blockIdx++) {
       
@@ -600,7 +600,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     }
     
     // initialize final fields
-    assert.equal("boolean", typeof tx.getIsConfirmed())
+    assert.equal(typeof tx.getIsConfirmed(), "boolean")
     if (tx.getIsConfirmed()) {
       tx.setIsRelayed(true);
       tx.setInTxPool(false);

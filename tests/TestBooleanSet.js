@@ -63,34 +63,34 @@ describe("Test BooleanSet", function() {
     // set the first few
     for (let i = 0; i < 5; i++) {
       bs.set(true, i);
-      assert.equal(i + 1, bs.length());
+      assert.equal(bs.length(), i + 1);
     }
     
     // set random trues
     let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
     let trueLength = Math.max(4, indices[indices.length - 1]) + 1;
-    assert.equal(trueLength, bs.length());
+    assert.equal(bs.length(), trueLength);
     
     // flip
     bs.flip();
-    assert.equal(bs.getLast(false) + 1, bs.length());
+    assert.equal(bs.length(), bs.getLast(false) + 1);
     
     // flip back
     bs.flip();
-    assert.equal(trueLength, bs.length());
+    assert.equal(bs.length(), trueLength);
   });
   
   it("Can be converted to an array", function() {
     
     // set random trues
     let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
-    assert.equal(indices[indices.length - 1] + 1, bs.length());
+    assert.equal(bs.length(), indices[indices.length - 1] + 1);
     
     // convert to an array
     let arr = bs.toArray();
     
     // test array
-    assert.equal(bs.length(), arr.length);
+    assert.equal(arr.length, bs.length());
     for (let i = 0; i < arr.length; i++) {
       assert(indices.includes(i) ? arr[i] : !arr[i]);
     }
@@ -98,9 +98,9 @@ describe("Test BooleanSet", function() {
     // convert range to an array
     let third = Math.floor(10 / 3);
     arr = bs.toArray(third, third * 2);
-    assert.equal(third * 2 - third, arr.length);
+    assert.equal(arr.length, third * 2 - third);
     for (let i = third; i < third * 2; i++) {
-      assert.equal(bs.get(i), arr[i - third]);
+      assert.equal(arr[i - third], bs.get(i));
     }
   })
   
@@ -113,7 +113,7 @@ describe("Test BooleanSet", function() {
     let copy = bs.copy();
     
     // test states are deep copied
-    assert.deepEqual(bs.getState(), copy.getState())
+    assert.deepEqual(copy.getState(), bs.getState())
     copy.set(true, MAX_INDEX + 5);
     assert(!bs.get(MAX_INDEX + 5));
     assert.notDeepEqual(bs.getState(), copy.getState());
@@ -150,10 +150,10 @@ describe("Test BooleanSet", function() {
     for (let i = 0; i <= MAX_INDEX; i++) assert(bs.get(i));
     assert(bs.allSet(true));
     assert(bs.anySet(true));
-    assert.equal(null, bs.getFirst(false));
-    assert.equal(0, bs.getFirst(true));
-    assert.equal(null, bs.getLast(false));
-    assert.equal(undefined, bs.getLast(true));
+    assert.equal(bs.getFirst(false), null);
+    assert.equal(bs.getFirst(true), 0);
+    assert.equal(bs.getLast(false), null);
+    assert.equal(bs.getLast(true), undefined);
     
     // set random falses
     setRandom(bs, false, 0, MAX_INDEX, NUM_SETS);
@@ -169,16 +169,16 @@ describe("Test BooleanSet", function() {
     assert(!bs.allSet(true));
     assert(!bs.anySet(true));
     for (let i = 0; i <= MAX_INDEX; i++) assert(!bs.get(i));
-    assert.equal(0, bs.getFirst(false));
-    assert.equal(null, bs.getFirst(true));
-    assert.equal(undefined, bs.getLast(false));
-    assert.equal(null, bs.getLast(true));
+    assert.equal(bs.getFirst(false), 0);
+    assert.equal(bs.getFirst(true), null);
+    assert.equal(bs.getLast(false), undefined);
+    assert.equal(bs.getLast(true), null);
   });
   
   it("Can set bounded ranges to true", function() {
     
     const REPEAT = 1000;
-    const MAX_INDEX = 99;    
+    const MAX_INDEX = 99;
     
     // repeat this test
     for (let i = 0; i < REPEAT; i++) {
@@ -326,15 +326,15 @@ describe("Test BooleanSet", function() {
       
       // flip first few
       bs.flipRange(0, 5);
-      for (let i = 0; i < 5; i++) assert.notEqual(before.get(i), bs.get(i));
+      for (let i = 0; i < 5; i++) assert.notEqual(bs.get(i), before.get(i));
       bs.flipRange(0, 5);
-      for (let i = 0; i < 5; i++) assert.equal(before.get(i), bs.get(i));
+      for (let i = 0; i < 5; i++) assert.equal(bs.get(i), before.get(i));
       
       // flip last few
       bs.flipRange(MAX_INDEX - 5, MAX_INDEX);
-      for (let i = MAX_INDEX - 5; i < MAX_INDEX; i++) assert.notEqual(before.get(i), bs.get(i));
+      for (let i = MAX_INDEX - 5; i < MAX_INDEX; i++) assert.notEqual(bs.get(i), before.get(i));
       bs.flipRange(MAX_INDEX - 5, MAX_INDEX);
-      for (let i = MAX_INDEX - 5; i < MAX_INDEX; i++) assert.equal(before.get(i), bs.get(i));
+      for (let i = MAX_INDEX - 5; i < MAX_INDEX; i++) assert.equal(bs.get(i), before.get(i));
       
       // get random start and end indices
       let rands = GenUtils.getRandomInts(0, MAX_INDEX, 2);
@@ -346,15 +346,15 @@ describe("Test BooleanSet", function() {
 
       // confirm only the range is flipped
       for (let i = 0; i <= MAX_INDEX; i++) {
-        if (i >= start && i <= end) assert.notEqual(bs.get(i), before.get(i));
-        else assert.equal(bs.get(i), before.get(i));
+        if (i >= start && i <= end) assert.notEqual(before.get(i), bs.get(i));
+        else assert.equal(before.get(i), bs.get(i));
       }
       
       // flip back
       bs.flipRange(start, end);
 
       // confirm before and after are same
-      assert.deepEqual(before.getState(), bs.getState());
+      assert.deepEqual(bs.getState(), before.getState());
     }
   });
   
@@ -387,31 +387,31 @@ describe("Test BooleanSet", function() {
     let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
     
     // can get first true
-    assert.equal(indices[0], bs.getFirst(true));
+    assert.equal(bs.getFirst(true), indices[0]);
     
     // can get first false
     for (let i = 0; i <= MAX_INDEX; i++) {
       if (indices.includes(i)) continue;
-      assert.equal(i, bs.getFirst(false));
+      assert.equal(bs.getFirst(false), i);
       break;
     }
     
     // can get first true given a start index
     for (let i = 0; i < indices.length; i++) {
-      assert.equal(indices[i], bs.getFirst(true, i === 0 ? null : indices[i - 1] + 1));
+      assert.equal(bs.getFirst(true, i === 0 ? null : indices[i - 1] + 1), indices[i]);
     }
     
     // get can first false given a start index
     for (let i = 0; i <= MAX_INDEX; i++) {
-      if (indices.includes(i)) assert.notEqual(i, bs.getFirst(false, i));
-      else assert.equal(i, bs.getFirst(false, i));
+      if (indices.includes(i)) assert.notEqual(bs.getFirst(false, i), i);
+      else assert.equal(bs.getFirst(false, i), i);
     }
     
     // can get first true in a range
     for (let i = 0; i < indices.length - 1; i++) {
-      assert.equal(indices[i], bs.getFirst(true, indices[i], indices[i + 1]));
+      assert.equal(bs.getFirst(true, indices[i], indices[i + 1]), indices[i]);
       if (indices[i + 1] - indices[i] > 1) {  // test cut off by range
-        assert.equal(null, bs.getFirst(true, indices[i] + 1, indices[i + 1] - 1));
+        assert.equal(bs.getFirst(true, indices[i] + 1, indices[i + 1] - 1), null);
       }
     }
     
@@ -421,11 +421,11 @@ describe("Test BooleanSet", function() {
     bs.set(false, 6);
     bs.set(false, 4);
     bs.set(false, 2);
-    assert.equal(null, bs.getFirst(false, 0, 1));
-    assert.equal(2, bs.getFirst(false, 0, 10));
-    assert.equal(4, bs.getFirst(false, 3, 5));
-    assert.equal(6, bs.getFirst(false, 5, 10));
-    assert.equal(null, bs.getFirst(false, 7));
+    assert.equal(bs.getFirst(false, 0, 1), null);
+    assert.equal(bs.getFirst(false, 0, 10), 2);
+    assert.equal(bs.getFirst(false, 3, 5), 4);
+    assert.equal(bs.getFirst(false, 5, 10), 6);
+    assert.equal(bs.getFirst(false, 7), null);
   });
   
   it("Can get the last index with a given value in a range", function() {
@@ -434,10 +434,10 @@ describe("Test BooleanSet", function() {
     let indices = setRandom(bs, true, 0, MAX_INDEX, NUM_SETS);
     
     // can get last true
-    assert.equal(indices[indices.length - 1], bs.getLast(true));
+    assert.equal(bs.getLast(true), indices[indices.length - 1]);
     
     // last unbounded false is infinity
-    assert.equal(undefined, bs.getLast(false));
+    assert.equal(bs.getLast(false), undefined);
     
     // can get last bounded false
     for (let i = MAX_INDEX; i > 0; i--) {
@@ -445,26 +445,26 @@ describe("Test BooleanSet", function() {
       while (indices.includes(lastFalseIdx) && lastFalseIdx >= 0) {
         lastFalseIdx--;
       }
-      assert.equal(lastFalseIdx, bs.getLast(false, 0, i));
+      assert.equal(bs.getLast(false, 0, i), lastFalseIdx);
       break;
     }
     
     // can get last true given an end index
     for (let i = 0; i < indices.length; i++) {
-      assert.equal(indices[i], bs.getLast(true, 0, i === indices.length - 1 ? null : indices[i + 1] - 1));
+      assert.equal(bs.getLast(true, 0, i === indices.length - 1 ? null : indices[i + 1] - 1), indices[i]);
     }
     
     // get can last false given an end index
     for (let i = MAX_INDEX; i > 0; i--) {
-      if (indices.includes(i)) assert.notEqual(i, bs.getLast(false, 0, i));
-      else assert.equal(i, bs.getLast(false, 0, i));
+      if (indices.includes(i)) assert.notEqual(bs.getLast(false, 0, i), i);
+      else assert.equal(bs.getLast(false, 0, i), i);
     }
     
     // can get last true in a range
     for (let i = indices.length - 1; i >= 0; i--) {
-      assert.equal(indices[i], bs.getLast(true, indices[i - 1], indices[i]));
+      assert.equal(bs.getLast(true, indices[i - 1], indices[i]), indices[i]);
       if (indices[i] - indices[i - 1] > 1) {  // test cut off by range
-        assert.equal(null, bs.getLast(true, indices[i - 1] + 1, indices[i] - 1));
+        assert.equal(bs.getLast(true, indices[i - 1] + 1, indices[i] - 1), null);
       }
     }
     
@@ -474,12 +474,12 @@ describe("Test BooleanSet", function() {
     bs.set(false, 6);
     bs.set(false, 4);
     bs.set(false, 2);
-    assert.equal(null, bs.getLast(false, 0, 1));
-    assert.equal(2, bs.getLast(false, 0, 2));
-    assert.equal(4, bs.getLast(false, 3, 5));
-    assert.equal(6, bs.getLast(false, 5, 10));
-    assert.equal(6, bs.getLast(false, 0, 10));
-    assert.equal(null, bs.getLast(false, 7));
+    assert.equal(bs.getLast(false, 0, 1), null);
+    assert.equal(bs.getLast(false, 0, 2), 2);
+    assert.equal(bs.getLast(false, 3, 5), 4);
+    assert.equal(bs.getLast(false, 5, 10), 6);
+    assert.equal(bs.getLast(false, 0, 10), 6);
+    assert.equal(bs.getLast(false, 7), null);
   });
 });
 
@@ -506,13 +506,13 @@ function testClearedState(bs) {
   assert(!bs.anySet(true, 0));
   assert(!bs.allSet(true, 0, MAX_INDEX));
   for (let i = 0; i <= MAX_INDEX; i++) assert(!bs.get(i));
-  assert.equal(0, bs.getFirst(false));
-  assert.equal(0, bs.getFirst(false, 0));
-  assert.equal(0, bs.getFirst(false, 0, MAX_INDEX));
-  assert.equal(MAX_INDEX, bs.getFirst(false, MAX_INDEX));
-  assert.equal(null, bs.getFirst(true));
-  assert.equal(undefined, bs.getLast(false)); // infinite falses
-  assert.equal(null, bs.getLast(true));
-  assert.equal(null, bs.getLast(true, 0));
-  assert.equal(null, bs.getLast(true, MAX_INDEX));
+  assert.equal(bs.getFirst(false), 0);
+  assert.equal(bs.getFirst(false, 0), 0);
+  assert.equal(bs.getFirst(false, 0, MAX_INDEX), 0);
+  assert.equal(bs.getFirst(false, MAX_INDEX), MAX_INDEX);
+  assert.equal(bs.getFirst(true), null);
+  assert.equal(bs.getLast(false), undefined); // infinite falses
+  assert.equal(bs.getLast(true), null);
+  assert.equal(bs.getLast(true, 0), null);
+  assert.equal(bs.getLast(true, MAX_INDEX), null);
 }

@@ -15,9 +15,9 @@ describe("TEST WALLETS EQUALITY", function() {
   });
   
   it("Have the same keys", async function() {
-    assert.equal(await wallet1.getMnemonic(), await wallet2.getMnemonic());
-    assert.equal(await wallet1.getPrimaryAddress(), await wallet2.getPrimaryAddress());
-    assert.equal(await wallet1.getPrivateViewKey(), await wallet2.getPrivateViewKey());
+    assert.equal(await wallet2.getMnemonic(), await wallet1.getMnemonic());
+    assert.equal(await wallet2.getPrimaryAddress(), await wallet1.getPrimaryAddress());
+    assert.equal(await wallet2.getPrivateViewKey(), await wallet1.getPrivateViewKey());
   });
   
   it("Provide the same integrated address given a payment id", async function() {
@@ -25,21 +25,21 @@ describe("TEST WALLETS EQUALITY", function() {
   });
   
   it("Have the same accounts", async function() {
-    assert.deepEqual(await wallet1.getAccounts(), await wallet2.getAccounts());
+    assert.deepEqual(await wallet2.getAccounts(), await wallet1.getAccounts());
   });
   
   it("Have the same accounts and subaddresses", async function() {
-    assert.deepEqual(await wallet1.getAccounts(true), await wallet2.getAccounts(true));
+    assert.deepEqual(await wallet2.getAccounts(true), await wallet1.getAccounts(true));
   });
   
   it("Have the same outputs", async function() {
-    assert.deepEqual(await wallet1.getVouts(), await wallet2.getVouts());
+    assert.deepEqual(await wallet2.getVouts(), await wallet1.getVouts());
   });
   
   it("Have the same wallet transactions", async function() {
     let txs1 = await wallet1.getTxs();
     let txs2 = await wallet2.getTxs();
-    assert.deepEqual(txs1, txs2);
+    assert.deepEqual(txs2, txs1);
   });
   
   it("Have the same account transactions", async function() {

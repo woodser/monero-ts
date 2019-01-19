@@ -32,7 +32,7 @@ class TestMoneroDaemonRpc {
         let lastHeader = await daemon.getLastBlockHeader();
         let id = await daemon.getBlockId(lastHeader.getHeight());
         assert(id);
-        assert.equal(64, id.length);
+        assert.equal(id.length, 64);
       });
       
       it("Can get a block template", async function() {
@@ -55,14 +55,14 @@ class TestMoneroDaemonRpc {
         let header = await daemon.getBlockHeaderById(id);
         testDaemonResponseInfo(header, true, true);
         testBlockHeader(header, true);
-        assert.deepEqual(lastHeader, header);
+        assert.deepEqual(header, lastHeader);
         
         // retrieve by id of previous to last block
         id = await daemon.getBlockId(lastHeader.getHeight() - 1);
         header = await daemon.getBlockHeaderById(id);
         testDaemonResponseInfo(header, true, true);
         testBlockHeader(header, true);
-        assert.equal(lastHeader.getHeight() - 1, header.getHeight());
+        assert.equal(header.getHeight(), lastHeader.getHeight() - 1);
       });
       
       it("Can get a block header by height", async function() {
@@ -72,13 +72,13 @@ class TestMoneroDaemonRpc {
         let header = await daemon.getBlockHeaderByHeight(lastHeader.getHeight());
         testDaemonResponseInfo(header, true, true);
         testBlockHeader(header, true);
-        assert.deepEqual(lastHeader, header);
+        assert.deepEqual(header, lastHeader);
         
         // retrieve by height of previous to last block
         header = await daemon.getBlockHeaderByHeight(lastHeader.getHeight() - 1);
         testDaemonResponseInfo(header, true, true);
         testBlockHeader(header, true);
-        assert.equal(lastHeader.getHeight() - 1, header.getHeight());
+        assert.equal(header.getHeight(), lastHeader.getHeight() - 1);
       });
       
       // TODO: test start with no end, vice versa, inclusivity
@@ -95,10 +95,10 @@ class TestMoneroDaemonRpc {
         let headers = await daemon.getBlockHeadersByRange(startHeight, endHeight);
         
         // test headers
-        assert.equal(numBlocks, headers.length);
+        assert.equal(headers.length, numBlocks);
         for (let i = 0; i < numBlocks; i++) {
           let header = headers[i];
-          assert.equal(startHeight + i, header.getHeight());
+          assert.equal(header.getHeight(), startHeight + i);
           testDaemonResponseInfo(header, true, true);
           testBlockHeader(header, true);
         }
@@ -115,7 +115,7 @@ class TestMoneroDaemonRpc {
         let block = await daemon.getBlockById(id);
         testDaemonResponseInfo(block, true, true);
         testBlock(block, testBlockConfig);
-        assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
+        assert.deepEqual(block, await daemon.getBlockByHeight(block.getHeader().getHeight()));
         assert(block.getTxs() === undefined);
         
         // retrieve by id of previous to last block
@@ -123,7 +123,7 @@ class TestMoneroDaemonRpc {
         block = await daemon.getBlockById(id);
         testDaemonResponseInfo(block, true, true);
         testBlock(block, testBlockConfig);
-        assert.deepEqual(await daemon.getBlockByHeight(lastHeader.getHeight() - 1), block);
+        assert.deepEqual(block, await daemon.getBlockByHeight(lastHeader.getHeight() - 1));
         assert(block.getTxs() === undefined);
       });
       
@@ -137,13 +137,13 @@ class TestMoneroDaemonRpc {
         let block = await daemon.getBlockByHeight(lastHeader.getHeight());
         testDaemonResponseInfo(block, true, true);
         testBlock(block, testBlockConfig);
-        assert.deepEqual(await daemon.getBlockByHeight(block.getHeader().getHeight()), block);
+        assert.deepEqual(block, await daemon.getBlockByHeight(block.getHeader().getHeight()));
         
         // retrieve by height of previous to last block
         block = await daemon.getBlockByHeight(lastHeader.getHeight() - 1);
         testDaemonResponseInfo(block, true, true);
         testBlock(block, testBlockConfig);
-        assert.deepEqual(lastHeader.getHeight() - 1, block.getHeader().getHeight());
+        assert.deepEqual(block.getHeader().getHeight(), lastHeader.getHeight() - 1);
       });
       
       it("Can get blocks by height which is a binary request and includes transactions", async function() {
@@ -170,13 +170,13 @@ class TestMoneroDaemonRpc {
         
         // test blocks
         let txFound = false;
-        assert.equal(numBlocks, blocks.length);
+        assert.equal(blocks.length, numBlocks);
         for (let i = 0; i < heights.length; i++) {
           let block = blocks[i];
           if (block.getTxs().length) txFound = true;
           testDaemonResponseInfo(block, true, true);
           testBlock(block, testBlockConfig);
-          assert.equal(heights[i], block.getHeader().getHeight());      
+          assert.equal(block.getHeader().getHeight(), heights[i]);      
         }
         assert(txFound, "No transactions found to test");
       });
@@ -217,9 +217,9 @@ class TestMoneroDaemonRpc {
           let realStartHeight = startHeight === null ? 0 : startHeight;
           let realEndHeight = endHeight === null ? height - 1 : endHeight;
           let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
-          assert.equal(realEndHeight - realStartHeight + 1, blocks.length);
+          assert.equal(blocks.length, realEndHeight - realStartHeight + 1);
           for (let i = 0; i < blocks.length; i++) {
-            assert.equal(realStartHeight + i, blocks[i].getHeader().getHeight());
+            assert.equal(blocks[i].getHeader().getHeight(), realStartHeight + i);
           }
         }
       });
@@ -300,7 +300,7 @@ class TestMoneroDaemonRpc {
         assert(txPool.getSpentKeyImages().length > 0, "Test requires spent key images in the tx pool");
         for (let image of txPool.getSpentKeyImages()) {
           assert(image.getKeyImage());
-          assert.equal(true, image.getSpentStatus());
+          assert.equal(image.getSpentStatus(), true);
           assert(Array.isArray(image.getSpendingTxIds()));
           assert(image.getSpendingTxIds().length > 0);  // TODO: test that spending tx id is included in tx pool tx ids 
         }
@@ -532,7 +532,7 @@ class TestMoneroDaemonRpc {
               testBlockHeader(header, true);
               
               // test that listener was called with equivalent header
-              assert.deepEqual(header, listenerHeader);
+              assert.deepEqual(listenerHeader, header);
             } catch (e) {
               throw e;
             } finally {
@@ -561,7 +561,7 @@ class TestMoneroDaemonRpc {
 
 function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted) {
   assert(model.getResponseInfo());
-  if (initializedStatus) assert.equal("OK", model.getResponseInfo().getStatus());
+  if (initializedStatus) assert.equal(model.getResponseInfo().getStatus(), "OK");
   else assert(model.getResponseInfo().getStatus() === undefined);
   if (initializedIsUntrusted) assert(model.getResponseInfo());
   else assert(model.getResponseInfo().getIsTrusted() === undefined);
@@ -592,9 +592,9 @@ function testBlock(block, config) {
   
   // check inputs
   assert(config);
-  assert.equal("boolean", typeof config.hasHex);
-  assert.equal("boolean", typeof config.headerIsFull);
-  assert.equal("boolean", typeof config.hasTxs);
+  assert.equal(typeof config.hasHex, "boolean");
+  assert.equal(typeof config.headerIsFull, "boolean");
+  assert.equal(typeof config.hasTxs, "boolean");
   
   // test required fields
   assert(block);
@@ -623,7 +623,7 @@ function testBlock(block, config) {
 function testCoinbaseTx(coinbaseTx) {
   assert(coinbaseTx);
   assert(coinbaseTx instanceof MoneroTx);
-  assert.equal("boolean", typeof coinbaseTx.getIsCoinbase());
+  assert.equal(typeof coinbaseTx.getIsCoinbase(), "boolean");
   assert(coinbaseTx.getIsCoinbase());
   
   assert(coinbaseTx.getVersion() >= 0);
@@ -647,20 +647,20 @@ function testTx(tx, config) {
   
   // check inputs
   assert(tx);
-  assert.equal("object", typeof config);
-  assert.equal("boolean", typeof config.hasJson);
-  assert.equal("boolean", typeof config.isPruned);
-  assert.equal("boolean", typeof config.isFull);
-  assert.equal("boolean", typeof config.isConfirmed);
-  assert.equal("boolean", typeof config.fromPool);
+  assert.equal(typeof config, "object");
+  assert.equal(typeof config.hasJson, "boolean");
+  assert.equal(typeof config.isPruned, "boolean");
+  assert.equal(typeof config.isFull, "boolean");
+  assert.equal(typeof config.isConfirmed, "boolean");
+  assert.equal(typeof config.fromPool, "boolean");
   
   // standard across all txs
   assert(tx.getId().length === 64);
-  assert.equal("boolean", typeof tx.getIsRelayed());
-  assert.equal(undefined, tx.getSignatures());  // TODO: way to test?
-  assert.equal("boolean", typeof tx.getIsConfirmed());
-  assert.equal("boolean", typeof tx.getInTxPool());
-  assert.equal("boolean", typeof tx.getIsCoinbase());
+  assert.equal(typeof tx.getIsRelayed(), "boolean");
+  assert.equal(tx.getSignatures(), undefined);  // TODO: way to test?
+  assert.equal(typeof tx.getIsConfirmed(), "boolean");
+  assert.equal(typeof tx.getInTxPool(), "boolean");
+  assert.equal(typeof tx.getIsCoinbase(), "boolean");
   
   // test confirmed vs unconfirmed
   if (config.isConfirmed) {
@@ -669,10 +669,10 @@ function testTx(tx, config) {
     assert(!tx.getInTxPool());
     assert(tx.getIsRelayed());
   } else {
-    assert.equal(undefined, tx.getHeight());
+    assert.equal(tx.getHeight(), undefined);
     assert(!tx.getIsConfirmed());
     assert(tx.getInTxPool());  // TODO: does not consider failed tx
-    assert.equal("boolean", typeof tx.getIsRelayed());
+    assert.equal(typeof tx.getIsRelayed(), "boolean");
   }
   
   // fields that come with decoded json
@@ -686,12 +686,12 @@ function testTx(tx, config) {
     assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
     assert(typeof tx.getRctSignatures().type === "number");
   } else {
-    assert.equal(undefined, tx.getVersion());
-    assert.equal(undefined, tx.getUnlockTime());
-    assert.equal(undefined, tx.getVins());
-    assert.equal(undefined, tx.getVouts());
-    assert.equal(undefined, tx.getExtra());
-    assert.equal(undefined, tx.getRctSignatures());    
+    assert.equal(tx.getVersion(), undefined);
+    assert.equal(tx.getUnlockTime(), undefined);
+    assert.equal(tx.getVins(), undefined);
+    assert.equal(tx.getVouts(), undefined);
+    assert.equal(tx.getExtra(), undefined);
+    assert.equal(tx.getRctSignatures(), undefined);
   }
   
   // prunable
@@ -700,46 +700,46 @@ function testTx(tx, config) {
   // full fields come with /get_transactions, get_transaction_pool
   if (config.isFull) {
     assert(tx.getHex().length > 0);
-    assert.equal(false, tx.getIsDoubleSpend());
+    assert.equal(tx.getIsDoubleSpend(), false);
     if (tx.getIsConfirmed()) {
       assert(tx.getBlockTimestamp() > 0);
-      assert.equal(undefined, tx.getLastRelayedTime());
-      assert.equal(undefined, tx.getReceivedTime());
+      assert.equal(tx.getLastRelayedTime(), undefined);
+      assert.equal(tx.getReceivedTime(), undefined);
     } else {
-      assert.equal(undefined, tx.getBlockTimestamp());
+      assert.equal(tx.getBlockTimestamp(), undefined);
       if (tx.getIsRelayed()) assert(tx.getLastRelayedTime() > 0);
-      else assert.equal(undefined, tx.getLastRelayedTime());
+      else assert.equal(tx.getLastRelayedTime(), undefined);
       assert(tx.getReceivedTime() > 0);
     }
   } else {
-    assert.equal(undefined, tx.getHex());
-    assert.equal(undefined, tx.getSize());
-    assert.equal(undefined, tx.getIsDoubleSpend());
-    assert.equal(undefined, tx.getBlockTimestamp());
-    assert.equal(undefined, tx.getLastRelayedTime());
-    assert.equal(undefined, tx.getReceivedTime());
+    assert.equal(tx.getHex(), undefined);
+    assert.equal(tx.getSize(), undefined);
+    assert.equal(tx.getIsDoubleSpend(), undefined);
+    assert.equal(tx.getBlockTimestamp(), undefined);
+    assert.equal(tx.getLastRelayedTime(), undefined);
+    assert.equal(tx.getReceivedTime(), undefined);
   }
   
   // test fields from tx pool
   if (config.fromPool) {
     assert(tx.getSize() > 0);
     assert(tx.getWeight() > 0);
-    assert.equal(false, tx.getDoNotRelay());
-    assert.equal("boolean", typeof tx.getKeptByBlock());
-    assert.equal(false, tx.getIsFailed());
-    assert.equal(undefined, tx.getLastFailedHeight());  // TODO: test failed daemon txs
-    assert.equal(undefined, tx.getLastFailedId());
+    assert.equal(tx.getDoNotRelay(), false);
+    assert.equal(typeof tx.getKeptByBlock(), "boolean");
+    assert.equal(tx.getIsFailed(), false);
+    assert.equal(tx.getLastFailedHeight(), undefined);  // TODO: test failed daemon txs
+    assert.equal(tx.getLastFailedId(), undefined);
     assert(tx.getMaxUsedBlockHeight() >= 0);
     assert(tx.getMaxUsedBlockId());
   } else {
-    assert.equal(undefined, tx.getWeight());
-    assert.equal(undefined, tx.getDoNotRelay());
-    assert.equal(undefined, tx.getKeptByBlock());
-    assert.equal(undefined, tx.getIsFailed());
-    assert.equal(undefined, tx.getLastFailedHeight());
-    assert.equal(undefined, tx.getLastFailedId());
-    assert.equal(undefined, tx.getMaxUsedBlockHeight());
-    assert.equal(undefined, tx.getMaxUsedBlockId());
+    assert.equal(tx.getWeight(), undefined);
+    assert.equal(tx.getDoNotRelay(), undefined);
+    assert.equal(tx.getKeptByBlock(), undefined);
+    assert.equal(tx.getIsFailed(), undefined);
+    assert.equal(tx.getLastFailedHeight(), undefined);
+    assert.equal(tx.getLastFailedId(), undefined);
+    assert.equal(tx.getMaxUsedBlockHeight(), undefined);
+    assert.equal(tx.getMaxUsedBlockId(), undefined);
   }
 }
 
@@ -827,20 +827,20 @@ function testDaemonConnection(connection) {
 }
 
 function testHardForkInfo(hardForkInfo) {
-  assert.notEqual(undefined, hardForkInfo.getEarliestHeight());
-  assert.notEqual(undefined, hardForkInfo.getIsEnabled());
-  assert.notEqual(undefined, hardForkInfo.getState());
-  assert.notEqual(undefined, hardForkInfo.getThreshold());
-  assert.notEqual(undefined, hardForkInfo.getVersion());
-  assert.notEqual(undefined, hardForkInfo.getVotes());
-  assert.notEqual(undefined, hardForkInfo.getVoting());
-  assert.notEqual(undefined, hardForkInfo.getWindow());
+  assert.notEqual(hardForkInfo.getEarliestHeight(), undefined);
+  assert.notEqual(hardForkInfo.getIsEnabled(), undefined);
+  assert.notEqual(hardForkInfo.getState(), undefined);
+  assert.notEqual(hardForkInfo.getThreshold(), undefined);
+  assert.notEqual(hardForkInfo.getVersion(), undefined);
+  assert.notEqual(hardForkInfo.getVotes(), undefined);
+  assert.notEqual(hardForkInfo.getVoting(), undefined);
+  assert.notEqual(hardForkInfo.getWindow(), undefined);
 }
 
 function testMoneroBan(ban) {
-  assert.notEqual(undefined, ban.getHost());
-  assert.notEqual(undefined, ban.getIp());
-  assert.notEqual(undefined, ban.getSeconds());
+  assert.notEqual(ban.getHost(), undefined);
+  assert.notEqual(ban.getIp(), undefined);
+  assert.notEqual(ban.getSeconds(), undefined);
 }
 
 function testCoinbaseTxSum(txSum) {

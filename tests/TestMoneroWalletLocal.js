@@ -93,24 +93,24 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
       });
       
       it("Can get the blockchain height", async function() {
-        assert.equal(await daemon.getHeight(), await wallet.getChainHeight());
+        assert.equal(await wallet.getChainHeight(), await daemon.getHeight());
       });
       
       it("Can be created and synced without a seed", async function() {
         
         // wallet starts at the daemon's height by default
         wallet = new MoneroWalletLocal(daemon);
-        assert.equal(await daemon.getHeight(), await wallet.getHeight());
+        assert.equal(await wallet.getHeight(), await daemon.getHeight());
         
         // sync the wallet 
         let progressTester = new SyncProgressTester(wallet, await wallet.getHeight(), await wallet.getChainHeight() - 1, null, true);
         await wallet.sync(null, null, function(progress) { progressTester.onProgress(progress) });
         progressTester.testDone();
-        assert.equal(await wallet.getHeight(), await daemon.getHeight());
+        assert.equal(await daemon.getHeight(), await wallet.getHeight());
         
         // sync the wallet with default params
         await wallet.sync();
-        assert.equal(await daemon.getHeight(), await wallet.getHeight());
+        assert.equal(await wallet.getHeight(), await daemon.getHeight());
       });
       
       it("Can be created and synced with a seed and start height", async function() {
@@ -123,7 +123,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         let progressTester = new SyncProgressTester(wallet, await wallet.getChainHeight() - numBlocks, await wallet.getChainHeight() - 1, null);
         await wallet.sync(null, null, function(progress) { progressTester.onProgress(progress) });
         progressTester.testDone();
-        assert.equal(await wallet.getHeight(), await daemon.getHeight()); // TODO: can fail because blockchain grows, need to sync up to this point
+        assert.equal(await daemon.getHeight(), await wallet.getHeight()); // TODO: can fail because blockchain grows, need to sync up to this point
       });
       
       it("Does not allow a start height to be specified if a new seed is being created", async function() {
@@ -137,20 +137,20 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         
         // create a new wallet initialized from a seed
         wallet = new MoneroWalletLocal(TestUtils.WALLET_LOCAL_CONFIG);
-        assert.equal(0, await wallet.getHeight());
+        assert.equal(await wallet.getHeight(), 0);
         
         // sync some blocks
         let endHeight = Math.min(1000, await daemon.getHeight());
         await wallet.sync(0, endHeight);
-        assert.equal(endHeight + 1, await wallet.getHeight());
+        assert.equal(await wallet.getHeight(), endHeight + 1);
         
         // save the wallet
         let store = await wallet.getStore();
         
         // recreate the wallet
         let wallet2 = new MoneroWalletLocal({daemon: daemon, store: store});
-        assert.deepEqual(wallet.getStore(), wallet2.getStore());
-        assert.equal(await wallet.getHeight(), await wallet2.getHeight());
+        assert.deepEqual(wallet2.getStore(), wallet.getStore());
+        assert.equal(await wallet2.getHeight(), await wallet.getHeight());
         
         // sync the same blocks and assert progress is immediately done
         let progressTester = new SyncProgressTester(wallet, 0, endHeight, true);
@@ -163,7 +163,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         // create a new wallet
         let chainHeight = await daemon.getHeight();
         let wallet = new MoneroWalletLocal(daemon);
-        assert.equal(chainHeight, await wallet.getHeight());
+        assert.equal(await wallet.getHeight(), chainHeight);
         
         // heights must be less than chain height
         try {
@@ -195,7 +195,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         let progressTester = new SyncProgressTester(wallet, startHeight, endHeight);
         let resp = await wallet.sync(startHeight, null, function(progress) { progressTester.onProgress(progress) });
         progressTester.testDone();
-        assert.equal(numBlocks, resp.blocks_fetched);
+        assert.equal(resp.blocks_fetched, numBlocks);
         assert(typeof resp.received_money === "boolean");
       });
       
@@ -204,32 +204,32 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         // create a new wallet
         let chainHeight = await daemon.getHeight();
         let wallet = new MoneroWalletLocal(daemon);
-        assert.equal(chainHeight, await wallet.getHeight());
+        assert.equal(await wallet.getHeight(), chainHeight);
         
         // scan a few ranges
         // TODO: randomly sample ranges of varying but capped heights
         let progressTester = new SyncProgressTester(wallet, 0, 0);
         await wallet.sync(0, 0, function(progress) { progressTester.onProgress(progress) });
         progressTester.testDone();
-        assert.equal(1, await wallet.getHeight());
+        assert.equal(await wallet.getHeight(), 1);
         progressTester = new SyncProgressTester(wallet, 101000, 102000);
         await wallet.sync(101000, 102000, function(progress) { progressTester.onProgress(progress) });
         progressTester.testDone();
-        assert.equal(102001, await wallet.getHeight());
+        assert.equal(await wallet.getHeight(), 102001);
         progressTester = new SyncProgressTester(wallet, 103000, 104000);
         await wallet.sync(103000, 104000, function(progress) { progressTester.onProgress(progress) });
         progressTester.testDone();
-        assert.equal(104001, await wallet.getHeight());
+        assert.equal(await wallet.getHeight(), 104001);
         progressTester = new SyncProgressTester(wallet, 105000, 106000);
         await wallet.sync(105000, 106000, function(progress) { progressTester.onProgress(progress) });
         progressTester.testDone();
-        assert.equal(106001, await wallet.getHeight());
+        assert.equal(await wallet.getHeight(), 106001);
         
         // scan a previously processed range
         progressTester = new SyncProgressTester(wallet, 101000, 102000, true);
         await wallet.sync(101000, 102000, function(progress) { progressTester.onProgress(progress) });
         progressTester.testDone();
-        assert.equal(106001, await wallet.getHeight());
+        assert.equal(await wallet.getHeight(), 106001);
       });
     });
   }
@@ -256,7 +256,7 @@ class SyncProgressTester {
   
   onProgress(progress) {
     assert(!this.noProgress, "Should not call progress");
-    assert.equal(this.endHeight - this.startHeight + 1, progress.totalBlocks);
+    assert.equal(progress.totalBlocks, this.endHeight - this.startHeight + 1);
     assert(progress.doneBlocks >= 0 && progress.doneBlocks <= progress.totalBlocks);
     if (this.noMidway) assert(progress.percent === 0 || progress.percent === 1);
     if (progress.percent > 0 && progress.percent < 1) this.midwayFound = true;
@@ -282,17 +282,17 @@ class SyncProgressTester {
     
     // test first progress
     assert(this.firstProgress, "Progress was never updated");
-    assert.equal(0, this.firstProgress.percent);
-    assert.equal(0, this.firstProgress.doneBlocks);
+    assert.equal(this.firstProgress.percent, 0);
+    assert.equal(this.firstProgress.doneBlocks, 0);
     
     // test midway progress
     if (this.endHeight > this.startHeight && !this.noMidway) assert(this.midwayFound, "No midway progress reported but it should have been");
     else assert(!this.midwayFound, "No midway progress should have been reported but it was");
     
     // test last progress
-    assert.equal(1, this.lastProgress.percent);
-    assert.equal(this.endHeight - this.startHeight + 1, this.lastProgress.doneBlocks);
-    assert.equal(this.lastProgress.doneBlocks, this.lastProgress.totalBlocks);
+    assert.equal(this.lastProgress.percent, 1);
+    assert.equal(this.lastProgress.doneBlocks, this.endHeight - this.startHeight + 1);
+    assert.equal(this.lastProgress.totalBlocks, this.lastProgress.doneBlocks);
   }
 }
 

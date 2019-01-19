@@ -21,7 +21,7 @@ describe("TEST MONERO CORE UTILS", function() {
       let binary = coreUtils.json_to_binary(json);
       assert(binary);
       let json2 = coreUtils.binary_to_json(binary);
-      assert.deepEqual(json, json2);
+      assert.deepEqual(json2, json);
     });
     
     it("Can serialize heights with big numbers", function() {
@@ -29,7 +29,7 @@ describe("TEST MONERO CORE UTILS", function() {
       let binary = coreUtils.json_to_binary(json);
       assert(binary);
       let json2 = coreUtils.binary_to_json(binary);
-      assert.deepEqual(json, json2);
+      assert.deepEqual(json2, json);
     });
     
     it("Can serialize json with text", function() {
@@ -37,7 +37,7 @@ describe("TEST MONERO CORE UTILS", function() {
       let binary = coreUtils.json_to_binary(json);
       assert(binary);
       let json2 = coreUtils.binary_to_json(binary);
-      assert.deepEqual(json, json2);
+      assert.deepEqual(json2, json);
     });
     
     it("Can serialize json with long text", function() {
@@ -58,7 +58,7 @@ describe("TEST MONERO CORE UTILS", function() {
       let binary = coreUtils.json_to_binary(json);
       assert(binary);
       let json2 = coreUtils.binary_to_json(binary);
-      assert.deepEqual(json, json2);
+      assert.deepEqual(json2, json);
     });
   });
 });

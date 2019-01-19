@@ -39,7 +39,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     describe("Tests specific to RPC wallet", function() {
       
       it("Can indicate if multisig import is needed for correct balance information", async function() {
-        assert.equal(false, await wallet.isMultisigImportNeeded()); // TODO: test with multisig wallet
+        assert.equal(await wallet.isMultisigImportNeeded(), false); // TODO: test with multisig wallet
       });
       
       it("Can create and open a wallet", async function() {
@@ -49,7 +49,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           await wallet.createWallet(TestUtils.WALLET_RPC_NAME_2, TestUtils.WALLET_RPC_PW_2, "English");
         } catch (e) {
           assert(e instanceof MoneroRpcError); 
-          assert.equal(-21, e.getRpcCode());
+          assert.equal(e.getRpcCode(), -21);
         }
         try {
           
@@ -73,7 +73,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
             await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
           } catch (e) {
             assert(e instanceof MoneroRpcError);
-            assert.equal(-1, e.getRpcCode()); // ok if wallet is already open
+            assert.equal(e.getRpcCode(), -1); // ok if wallet is already open
           }
         }
       });
@@ -93,7 +93,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           await wallet.getAccounts(undefined, "non_existing_tag");
           fail("Should have thrown exception with unregistered tag");
         } catch (e) {
-          assert.equal(-1, e.getRpcCode());
+          assert.equal(e.getRpcCode(), -1);
         }
         
         // create expected tag for test
@@ -104,9 +104,9 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         assert(accounts1.length >= 3);
         await wallet.tagAccounts(expectedTag.getTag(), [0, 1]);
         let accounts2 = await wallet.getAccounts(undefined, expectedTag.getTag());
-        assert.equal(2, accounts2.length);
-        assert.deepEqual(accounts1[0], accounts2[0]);
-        assert.deepEqual(accounts1[1], accounts2[1]);
+        assert.equal(accounts2.length, 2);
+        assert.deepEqual(accounts2[0], accounts1[0]);
+        assert.deepEqual(accounts2[1], accounts1[1]);
         
         // set tag label
         await wallet.setAccountTagLabel(expectedTag.getTag(), expectedTag.getLabel());
@@ -117,12 +117,12 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         
         // untag and query accounts
         await wallet.untagAccounts([0, 1]);
-        assert.equal(false, (await wallet.getAccountTags()).includes(expectedTag));
+        assert.equal((await wallet.getAccountTags()).includes(expectedTag), false);
         try {
           await wallet.getAccounts(undefined, expectedTag.getTag());
           fail("Should have thrown exception with unregistered tag");
         } catch (e) {
-          assert.equal(-1, e.getRpcCode());
+          assert.equal(e.getRpcCode(), -1);
         }
       });
       
@@ -141,14 +141,14 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           indices.push(await wallet.addAddressBookEntry(address, undefined, "hi there!"));
         }
         entries = await wallet.getAddressBookEntries();
-        assert.equal(numEntriesStart + NUM_ENTRIES, entries.length);
+        assert.equal(entries.length, numEntriesStart + NUM_ENTRIES);
         for (let idx of indices) {
           let found = false;
           for (let entry of entries) {
             if (idx === entry.getIndex()) {
               testAddressBookEntry(entry);
-              assert.equal(address, entry.getAddress());
-              assert.equal("hi there!", entry.getDescription());
+              assert.equal(entry.getAddress(), address);
+              assert.equal(entry.getDescription(), "hi there!");
               found = true;
               break;
             }
@@ -162,7 +162,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           await wallet.deleteAddressBookEntry(deleteIdx);
         }
         entries = await wallet.getAddressBookEntries();
-        assert.equal(numEntriesStart, entries.length);
+        assert.equal(entries.length, numEntriesStart);
         
         // test adding integrated addresses
         indices = [];
@@ -178,14 +178,14 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           integratedDescriptions[idx] = uuid;
         }
         entries = await wallet.getAddressBookEntries();
-        assert.equal(numEntriesStart + NUM_ENTRIES, entries.length);
+        assert.equal(entries.length, numEntriesStart + NUM_ENTRIES);
         for (let idx of indices) {
           let found = false;
           for (let entry of entries) {
             if (idx === entry.getIndex()) {
               testAddressBookEntry(entry);
-              assert.equal(integratedDescriptions[idx], entry.getDescription());
-              assert.equal(integratedAddresses[idx].getStandardAddress(), entry.getAddress());
+              assert.equal(entry.getDescription(), integratedDescriptions[idx]);
+              assert.equal(entry.getAddress(), integratedAddresses[idx].getStandardAddress());
               assert(MoneroUtils.paymentIdsEqual(integratedAddresses[idx].getPaymentId(), entry.getPaymentId()));
               found = true;
               break;
@@ -200,7 +200,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           await wallet.deleteAddressBookEntry(deleteIdx);
         }
         entries = await wallet.getAddressBookEntries();
-        assert.equal(numEntriesStart, entries.length);
+        assert.equal(entries.length, numEntriesStart);
       });
       
       // disabled so wallet is not actually stopped

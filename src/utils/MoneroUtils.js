@@ -74,13 +74,13 @@ class MoneroUtils {
     
     // resolve different booleans
     if (config && config.resolveTrue !== undefined && typeof val1 === "boolean" && typeof val2 === "boolean") {
-      assert.equal("boolean", typeof config.resolveTrue);
+      assert.equal(typeof config.resolveTrue, "boolean");
       return config.resolveTrue;
     }
     
     // resolve different numbers
     if (config && config.resolveMax !== undefined) {
-      assert.equal("boolean", typeof config.resolveMax);
+      assert.equal(typeof config.resolveMax, "boolean");
       
       // resolve js numbers
       if (typeof val1 === "number" && typeof val2 === "number") {
@@ -134,7 +134,7 @@ class MoneroUtils {
   
   // TODO: beef this up
   static validatePaymentId(paymentId) {
-    assert.equal("string", typeof paymentId);
+    assert.equal(typeof paymentId, "string");
     assert(paymentId.length === 16);
   }
     
