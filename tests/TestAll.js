@@ -7,20 +7,20 @@ new TestMoneroDaemonRpc().runTests({
   testNotifications: false
 });
 
-// test wallet rpc
-new TestMoneroWalletRpc().runTests({
-  testNonSends: true,
-  liteMode: true, // skips some lengthy tests
-  testSends: false,
-  testResets: false,
-  testNotifications: false
-});
-
-// test core utils
-require("./TestMoneroCoreUtils");
-
-//test sample code for readme
-require("./TestSampleCode");
+//// test wallet rpc
+//new TestMoneroWalletRpc().runTests({
+//  testNonSends: true,
+//  liteMode: true, // skips some lengthy tests
+//  testSends: false,
+//  testResets: false,
+//  testNotifications: false
+//});
+//
+//// test core utils
+//require("./TestMoneroCoreUtils");
+//
+////test sample code for readme
+//require("./TestSampleCode");
 
 //// test wallet local
 //new TestMoneroWalletLocal().runTests({

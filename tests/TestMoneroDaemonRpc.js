@@ -300,7 +300,7 @@ class TestMoneroDaemonRpc {
         assert(txPool.getSpentKeyImages().length > 0, "Test requires spent key images in the tx pool");
         for (let image of txPool.getSpentKeyImages()) {
           assert(image.getKeyImage());
-          assert(image.getSpentStatus() === true);
+          assert.equal(true, image.getSpentStatus());
           assert(Array.isArray(image.getSpendingTxIds()));
           assert(image.getSpendingTxIds().length > 0);  // TODO: test that spending tx id is included in tx pool tx ids 
         }
@@ -600,7 +600,7 @@ function testBlock(block, config) {
   assert(block);
   assert(Array.isArray(block.getTxIds())); // TODO: tx hashes probably part of tx
   assert(block.getTxIds().length >= 0);
-  testCoinbaseTx(block.getCoinbaseTx());            // TODO: coinbase tx doesn't have as much stuff, can't call testTx?
+  testCoinbaseTx(block.getCoinbaseTx());   // TODO: coinbase tx doesn't have as much stuff, can't call testTx?
   testBlockHeader(block.getHeader(), config.headerIsFull);
   
   if (config.hasHex) {
@@ -626,7 +626,7 @@ function testCoinbaseTx(coinbaseTx) {
   assert.equal("boolean", typeof coinbaseTx.getIsCoinbase());
   assert(coinbaseTx.getIsCoinbase());
   
-  assert(coinbaseTx.getVersion() >= 0)
+  assert(coinbaseTx.getVersion() >= 0);
   assert(Array.isArray(coinbaseTx.getExtra()));
   assert(coinbaseTx.getExtra().length > 0);
   assert(coinbaseTx.getUnlockTime() >= 0);
@@ -827,20 +827,20 @@ function testDaemonConnection(connection) {
 }
 
 function testHardForkInfo(hardForkInfo) {
-  assert(hardForkInfo.getEarliestHeight() !== undefined);
-  assert(hardForkInfo.getIsEnabled() !== undefined);
-  assert(hardForkInfo.getState() !== undefined);
-  assert(hardForkInfo.getThreshold() !== undefined);
-  assert(hardForkInfo.getVersion() !== undefined);
-  assert(hardForkInfo.getVotes() !== undefined);
-  assert(hardForkInfo.getVoting() !== undefined);
-  assert(hardForkInfo.getWindow() !== undefined);
+  assert.notEqual(undefined, hardForkInfo.getEarliestHeight());
+  assert.notEqual(undefined, hardForkInfo.getIsEnabled());
+  assert.notEqual(undefined, hardForkInfo.getState());
+  assert.notEqual(undefined, hardForkInfo.getThreshold());
+  assert.notEqual(undefined, hardForkInfo.getVersion());
+  assert.notEqual(undefined, hardForkInfo.getVotes());
+  assert.notEqual(undefined, hardForkInfo.getVoting());
+  assert.notEqual(undefined, hardForkInfo.getWindow());
 }
 
 function testMoneroBan(ban) {
-  assert(ban.getHost() !== undefined);
-  assert(ban.getIp() !== undefined);
-  assert(ban.getSeconds() !== undefined);
+  assert.notEqual(undefined, ban.getHost());
+  assert.notEqual(undefined, ban.getIp());
+  assert.notEqual(undefined, ban.getSeconds());
 }
 
 function testCoinbaseTxSum(txSum) {
