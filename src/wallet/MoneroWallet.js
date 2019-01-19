@@ -579,6 +579,26 @@ class MoneroWallet {
   async setAccountTagLabel(tag, label) {
     throw new Error("Subclass must implement");
   }
+  
+  /**
+   * Creates a payment URI from a send configuration.
+   * 
+   * @param {MoneroSendConfig} sendConfig specifies configuration for a potential tx
+   * @returns {string} is the payment uri
+   */
+  async createPaymentUri(sendConfig) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Parses a payment URI to a send configuration.
+   * 
+   * @param {string} uri is the payment uri to parse
+   * @returns {MoneroSendConfig} is the send configuration parsed from the uri
+   */
+  async parsePaymentUri(uri) {
+    throw new Error("Subclass must implement");
+  }
 }
 
 module.exports = MoneroWallet;

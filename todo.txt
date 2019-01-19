@@ -1,17 +1,11 @@
-BIG PICTURE
-transfer project?
-make javascript feature complete, including multisig
-report rpc issues
-fix transfers bug #4500 in wallet rpc
-data model outline
-mymonero javascript wallet
-local wallet / refactor wallet2.h
-port javascript to java
-implement java jni adapter
-integrate with bisq
-port javascript to go & implement jni binding to integrate with openbazaar
+send config replaces MoneroUri, add recipient name and note
+standardize tx note over description
+implement wallet.createPaymentUri(sendConfig)
+let sendConfig = wallet.parsePaymentUri(uri)
+MoneroSendConfig --> MoneroPayment? which specifies configuration for a potential payment sent from the wallet
 
 v0.0.3
+test that note is set if specified in send config
 todos throughout code
 outline data model for review
 license headers
@@ -54,6 +48,19 @@ tests are unecessarily creating new accounts which degrades test performance
 test notifications hardwired to account 0 which gets emptied by reset tests
 test all tx fields in daemon, update tests to be like wallet
 test json serialization / deserialization specifically, stringifying in between so cannot be any live objects
+
+BIG PICTURE
+transfer project?
+make javascript feature complete, including multisig
+report rpc issues
+fix transfers bug #4500 in wallet rpc
+data model outline
+mymonero javascript wallet
+local wallet / refactor wallet2.h
+port javascript to java
+implement java jni adapter
+integrate with bisq
+port javascript to go & implement jni binding to integrate with openbazaar
 
 LOCAL WALLET / BROWSER
 build process to not read mymonero-core-js build and contrib to browser build

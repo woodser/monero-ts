@@ -666,6 +666,17 @@ class GenUtils {
     }
     return true;
   }
+  
+  /**
+   * Deletes properties from the object that undefined.
+   * 
+   * @param obj is the object to delete undefined keys from
+   */
+  static deleteUndefinedKeys(obj) {
+    for (let key of Object.keys(obj)) {
+      if (obj[key] === undefined) delete obj[key];
+    }
+  }
 
   /**
    * Returns combinations of the given array of the given size.

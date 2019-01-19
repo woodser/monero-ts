@@ -5,6 +5,8 @@ const MoneroDestination = require("./MoneroDestination");
 
 /**
  * Configuration for sending transactions.
+ * 
+ * TODO: this should use state object so it can be initialized with {}
  */
 class MoneroSendConfig {
   
@@ -19,9 +21,6 @@ class MoneroSendConfig {
       this.setMixin(mixin);
       this.setFee(fee);
     }
-    
-    // verify types
-    assert(this.paymentId === undefined || MoneroUtils.isValidPaymentId(this.paymentId));
   }
   
   getDestinations() {
@@ -102,6 +101,22 @@ class MoneroSendConfig {
   
   setCanSplit(canSplit) {
     this.canSplit = canSplit;
+  }
+  
+  getNote() {
+    return this.note;
+  }
+  
+  setNote(note) {
+    this.note = note;
+  }
+  
+  getRecipientName() {
+    return this.recipientName;
+  }
+  
+  setRecipientName(recipientName) {
+    this.recipientName = recipientName;
   }
   
   // TODO: could extend this class to make MoneroSweepConfig with these params

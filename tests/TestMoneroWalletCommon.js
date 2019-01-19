@@ -1240,12 +1240,48 @@ class TestMoneroWalletCommon {
         throw new Error("Not implemented");
       });
       
-      it("Can create a payment URI using the official URI spec", async function() {
-        throw new Error("Not implemented");
-      });
-      
-      it("Can parse a payment URI using the official URI spec", async function() {
-        throw new Error("Not implemented");
+      it("Can convert between a tx send config and payment URI", async function() {
+        
+        // test with address and amount
+        let config1 = new MoneroSendConfig(await wallet.getAddress(0, 0), new BigInteger(0));
+        let uri = await wallet.createPaymentUri(config1);
+        let config2 = await wallet.parsePaymentUri(uri);
+        GenUtils.deleteUndefinedKeys(config1);
+        GenUtils.deleteUndefinedKeys(config2);
+        assert.deepEqual(config1, config2);
+        
+        // test with all fields3
+        config1.getDestinations()[0].setAmount(new BigInteger("425000000000"));
+        config1.setPaymentId("03284e41c342f036");
+        config1.setRecipientName("John Doe");
+        config1.setNote("OMZG XMR FTW");
+        uri = await wallet.createPaymentUri(config1);
+        config2 = await wallet.parsePaymentUri(uri);
+        GenUtils.deleteUndefinedKeys(config1);
+        GenUtils.deleteUndefinedKeys(config2);
+        assert.deepEqual(config1, config2);
+        
+        // test with undefined address
+        let address = config1.getDestinations()[0].getAddress();
+        config1.getDestinations()[0].setAddress(undefined);
+        try {
+          await wallet.createPaymentUri(config1);
+          fail("Should have thrown RPC exception with invalid parameters");
+        } catch (e) {
+          assert.equal(-11, e.getRpcCode());
+          assert(e.getRpcMessage().indexOf("Cannot make URI from supplied parameters") >= 0);
+        }
+        config1.getDestinations()[0].setAddress(address);
+        
+        // test with invalid payment id
+        config1.setPaymentId("bizzup");
+        try {
+          await wallet.createPaymentUri(config1);
+          fail("Should have thrown RPC exception with invalid parameters");
+        } catch (e) {
+          assert.equal(-11, e.getRpcCode());
+          assert(e.getRpcMessage().indexOf("Cannot make URI from supplied parameters") >= 0);
+        }
       });
       
       it("Can start and stop mining", async function() {

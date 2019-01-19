@@ -755,6 +755,31 @@ class MoneroWalletRpc extends MoneroWallet {
     await this.config.rpc.sendJsonRequest("set_account_tag_description", {tag: tag, description: label});
   }
   
+  async createPaymentUri(sendConfig) {
+    assert(sendConfig, "Must provide send configuration to create a payment URI");
+    let resp = await this.config.rpc.sendJsonRequest("make_uri", {
+      address: sendConfig.getDestinations()[0].getAddress(),
+      amount: sendConfig.getDestinations()[0].getAmount() ? sendConfig.getDestinations()[0].getAmount().toString() : undefined,
+      payment_id: sendConfig.getPaymentId(),
+      recipient_name: sendConfig.getRecipientName(),
+      tx_description: sendConfig.getNote()
+    });
+    return resp.uri;
+  }
+  
+  async parsePaymentUri(uri) {
+    assert(uri, "Must provide URI to parse");
+    let resp = await this.config.rpc.sendJsonRequest("parse_uri", {uri: uri});
+    let sendConfig = new MoneroSendConfig(resp.uri.address, new BigInteger(resp.uri.amount), resp.uri.payment_id);
+    sendConfig.setRecipientName(resp.uri.recipient_name);
+    sendConfig.setNote(resp.uri.tx_description);
+    if ("" === sendConfig.getDestinations()[0].getAddress()) sendConfig.getDestinations()[0].setAddress(undefined);
+    if ("" === sendConfig.getPaymentId()) sendConfig.setPaymentId(undefined);
+    if ("" === sendConfig.getRecipientName()) sendConfig.setRecipientName(undefined);
+    if ("" === sendConfig.getNote()) sendConfig.setNote(undefined);
+    return sendConfig;
+  }
+  
   // -------------------------- SPECIFIC TO RPC WALLET ------------------------
   
   /**
