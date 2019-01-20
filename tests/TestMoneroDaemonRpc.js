@@ -345,18 +345,24 @@ class TestMoneroDaemonRpc {
       
       it("Can get transaction pool statistics", async function() {
         
-        // flush txs from pool
+        // flush txs from pool and test
         await daemon.flushTxPool();
         let stats = await daemon.getTxPoolStats();
         testDaemonResponseInfo(stats, true, true);
-        assert.equal(stats.getTxCount(), 0);
+        assert.equal(stats.getCount(), 0);
         testTxPoolStats(stats);
         
-        // submit tx to pool
-        throw new Error("Not implemented");
+        // submit txs to pool but don't relay
+        // multiple txs are in the pool to ensure a histogram is returned
+        let tx1 = await getUnrelayedTx(wallet, 0);
+        await daemon.submitTxHex(tx1.getHex(), true);
+        let tx2 = await getUnrelayedTx(wallet, 1);
+        await daemon.submitTxHex(tx2.getHex(), true);
+        
+        // get and test stats
         stats = await daemon.getTxPoolStats();
         testDaemonResponseInfo(stats, true, true);
-        assert(stats.getTxCount() > 0);
+        assert(stats.getCount() > 0);
         testTxPoolStats(stats);
       });
       
@@ -1054,32 +1060,36 @@ function testSubmitTxResultCommon(result) {
 
 function testTxPoolStats(stats) {
   assert(stats);
-  assert(stats.getTxCount() >= 0);
-  if (stats.getTxCount() > 0) {
+  assert(stats.getCount() >= 0);
+  if (stats.getCount() > 0) {
+    if (stats.getCount() === 1) assert.equal(stats.getHisto(), undefined);
+    else {
+      assert(stats.getHisto());
+      console.log(stats.getHisto());
+      throw new Error("Ready to test histogram");
+    }
     assert(stats.getBytesMax() > 0);
     assert(stats.getBytesMed() > 0);
     assert(stats.getBytesMin() > 0);
     assert(stats.getBytesTotal() > 0);
-    assert(stats.getHisto());
-    throw new Error("Need to test structure of histo"); // TODO: whats the structure of this?
-    assert(stats.getHisto98pc() > 0);
-    assert(stats.getTxCount10m() > 0);
+    assert(stats.getTime98pc() === undefined || stats.getTime98pc() > 0);
+    assert(stats.getTimeOldest() > 0);
+    assert(stats.getCount10m() >= 0);
     assert(stats.getDoubleSpendCount() >= 0);
-    assert(stats.getFailingCount() >= 0);
+    assert(stats.getFailedCount() >= 0);
     assert(stats.getNotRelayedCount() >= 0);
-    assert(stats.getOldestTxTimestamp() > 0);
   } else {
     assert.equal(stats.getBytesMax(), undefined);
     assert.equal(stats.getBytesMed(), undefined);
     assert.equal(stats.getBytesMin(), undefined);
     assert.equal(stats.getBytesTotal(), 0);
-    assert.equal(stats.getHisto(), undefined);
-    assert.equal(stats.getHisto98pc(), undefined);
-    assert.equal(stats.getTxCount10m(), 0);
+    assert.equal(stats.getTime98pc(), undefined);
+    assert.equal(stats.getTimeOldest(), undefined);
+    assert.equal(stats.getCount10m(), 0);
     assert.equal(stats.getDoubleSpendCount(), 0);
     assert.equal(stats.getFailedCount(), 0);
     assert.equal(stats.getNotRelayedCount(), 0);
-    assert.equal(stats.getOldestTxTimestamp(), undefined);
+    assert.equal(stats.getHisto(), undefined);
   }
 }
 

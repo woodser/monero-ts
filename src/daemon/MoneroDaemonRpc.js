@@ -22,6 +22,7 @@ const MoneroOutputHistogramEntry = require("./model/MoneroOutputHistogramEntry")
 const MoneroTxPool = require("./model/MoneroTxPool");
 const MoneroKeyImage = require("./model/MoneroKeyImage");
 const MoneroSubmitTxResult = require("./model/MoneroSubmitTxResult");
+const MoneroTxPoolStats = require("./model/MoneroTxPoolStats");
 
 /**
  * Implements a Monero daemon using monero-daemon-rpc.
@@ -284,10 +285,21 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
 
   async getTxPoolStats() {
+    throw new Error("Response contains field 'histo' which is binary'");
     let resp = await this.config.rpc.sendPathRequest("get_transaction_pool_stats");
-    //console.log(resp);
+    let stats = MoneroDaemonRpc._setResponseInfo(resp, MoneroDaemonRpc._buildTxPoolStats(resp.pool_stats));
     
-    throw new Error("Not implemented");
+    // uninitialize some stats if not applicable
+    if (stats.getTime98pc() === 0) stats.setTime98pc(undefined);
+    if (stats.getCount() === 0) {
+      stats.setBytesMin(undefined);
+      stats.setBytesMed(undefined);
+      stats.setBytesMax(undefined);
+      stats.setTime98pc(undefined);
+      stats.setTimeOldest(undefined);
+    }
+    
+    return stats;
   }
   
   async getSyncInfo() {
@@ -834,6 +846,29 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else console.log("WARNING: ignoring unexpected field in submit tx hex result: " + key + ": " + val);
     }
     return result;
+  }
+  
+  static _buildTxPoolStats(rpcStats) {
+    assert(rpcStats);
+    let stats = new MoneroTxPoolStats();
+    for (let key of Object.keys(rpcStats)) {
+      let val = rpcStats[key];
+      if (key === "bytes_max") stats.setBytesMax(val);
+      else if (key === "bytes_med") stats.setBytesMed(val);
+      else if (key === "bytes_min") stats.setBytesMin(val);
+      else if (key === "bytes_total") stats.setBytesTotal(val);
+      else if (key === "histo_98pc") stats.setTime98pc(val);
+      else if (key === "num_10m") stats.setCount10m(val);
+      else if (key === "num_double_spends") stats.setDoubleSpendCount(val);
+      else if (key === "num_failing") stats.setFailedCount(val);
+      else if (key === "num_not_relayed") stats.setNotRelayedCount(val);
+      else if (key === "oldest") stats.setTimeOldest(val);
+      else if (key === "txs_total") stats.setCount(val);
+      else if (key === "fee_total") stats.setFeeTotal(new BigInteger(val));
+      else if (key === "histo") throw new Error("Not implemented");
+      else console.log("WARNING: ignoring unexpected field in tx pool stats: " + key + ": " + val);
+    }
+    return stats;
   }
 }
 

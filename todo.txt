@@ -19,6 +19,7 @@ investigate performance of get single tx by id, way too many requests
 support and test unlock time unlocks
 common MoneroModel which can be initialized from and export state
 merge asserts type
+rpc impls _build.. -> _decode..
 all model set functions return this
 support send priority
 set subaddress getUnspentOutputCount() with outputs assigned
