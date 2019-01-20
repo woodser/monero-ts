@@ -333,17 +333,17 @@ class TestMoneroDaemonRpc {
         await daemon.flushTxPool(tx.getId());
       });
       
-      it("Can get ids of transactions in the transaction pool", async function() {
+      it("Can get ids of transactions in the transaction pool (includes binary)", async function() {
         // TODO: get_transaction_pool_hashes.bin
         throw new Error("Not implemented");
       });
       
-      it("Can get the transaction pool backlog", async function() {
+      it("Can get the transaction pool backlog (includes binary)", async function() {
         // TODO: get_txpool_backlog
         throw new Error("Not implemented");
       });
       
-      it("Can get transaction pool statistics", async function() {
+      it("Can get transaction pool statistics (includes binary)", async function() {
         
         // flush txs from pool and test
         await daemon.flushTxPool();
@@ -398,7 +398,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      it("Can get an output distribution", async function() {
+      it("Can get an output distribution (includes binary)", async function() {
         let amounts = [];
         amounts.push(new BigInteger(0));
         amounts.push(new BigInteger(1));
