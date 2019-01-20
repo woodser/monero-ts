@@ -173,13 +173,24 @@ class MoneroDaemon {
   }
   
   /**
+   * Submits a transaction to the daemon's pool.
+   * 
+   * @param txHex is the raw transaction hex to submit
+   * @param doNotRelay specifies if the tx should be relayed (optional)
+   */
+  async submitTxHex(txHex, doNotRelay) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Relays a transaction by id.
    * 
    * @param {string} txId identifies the transaction to relay
    * @returns {MoneroDaemonModel} contains response status
    */
-  async relayTx(txId) {
-    throw new Error("Subclass must implement");
+  async relayTxById(txId) {
+    assert.equal(typeof txId, "string", "Must provide a transaction id");
+    return await this.relayTxsById([txId]);
   }
   
   /**
@@ -188,7 +199,7 @@ class MoneroDaemon {
    * @param {string[]} txIds identify the transactions to relay
    * @returns {MoneroDaemonResponse} contains response status
    */
-  async relayTxs(txIds) {
+  async relayTxsById(txIds) {
     throw new Error("Subclass must implement");
   }  
   

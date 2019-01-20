@@ -7,21 +7,50 @@ const MoneroTx = require("../src/daemon/model/MoneroTx");
 const GenUtils = require("../src/utils/GenUtils");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
 const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
 
 /**
  * Tests a Monero daemon.
  */
 class TestMoneroDaemonRpc {
   
-  constructor(daemon) {
-    this.daemon = daemon;
+  constructor() {
+    this.daemon = TestUtils.getDaemonRpc();
+    this.wallet = TestUtils.getWalletRpc();
   }
   
+  /**
+   * Run all tests.
+   */
   runTests(config) {
-    let daemon = TestUtils.getDaemonRpc();
-    
+    let that = this;
     describe("TEST MONERO DAEMON RPC", function() {
-
+      
+      // initialize wallet before all tests
+      before(async function() {
+        await TestUtils.initWalletRpc();
+      });
+      
+      if (config.testNonRelays) that._testNonRelays(config.liteMode);
+      if (config.testRelays) that._testRelays(config.liteMode);
+      if (config.testNotifications) that._testNotifications(config.liteMode);
+    });
+  }
+  
+  /**
+   * Run tests which do not relay outgoing txs.
+   */
+  _testNonRelays(liteMode) {
+    let daemon = this.daemon;
+    let wallet = this.wallet;
+    
+    describe("Test Non-Relays", function() {
+      
+      // flush tx pool before each test
+      beforeEach(async function() {
+        await daemon.flushTxPool();
+      });
+      
       it("Can get the blockchain height", async function() {
         let height = await daemon.getHeight();
         assert(height, "Height must be initialized");
@@ -272,17 +301,11 @@ class TestMoneroDaemonRpc {
         TestUtils.testUnsignedBigInteger(estimate.getFeeEstimate());
       });
       
-      it("Can relay a transaction", async function() {
-        throw new Error("Not implemented");
-      });
-      
-      it("Can relay multiple transactions", async function() {
-        throw new Error("Not implemented");
-      });
-      
       it("Can get transactions and spent key images in the transaction pool", async function() {
         
-        // TODO: send transaction so this test always has tx in the pool
+        // submit tx to pool but don't relay
+        let tx = await getUnrelayedTx(wallet);
+        await daemon.submitTxHex(tx.getHex(), true);
         
         // fetch tx pool txs and spent key images
         let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
@@ -302,8 +325,12 @@ class TestMoneroDaemonRpc {
           assert(image.getKeyImage());
           assert.equal(image.getSpentStatus(), true);
           assert(Array.isArray(image.getSpendingTxIds()));
-          assert(image.getSpendingTxIds().length > 0);  // TODO: test that spending tx id is included in tx pool tx ids 
+          assert(image.getSpendingTxIds().length > 0);
+          assert(image.getSpendingTxIds().includes(tx.getId()));
         }
+        
+        // flush the tx from the pool, gg
+        await daemon.flushTxPool(tx.getId());
       });
       
       it("Can get ids of transactions in the transaction pool", async function() {
@@ -317,8 +344,20 @@ class TestMoneroDaemonRpc {
       });
       
       it("Can get transaction pool statistics", async function() {
-        // TODO get_transaction_pool_stats
+        
+        // flush txs from pool
+        await daemon.flushTxPool();
+        let stats = await daemon.getTxPoolStats();
+        testDaemonResponseInfo(stats, true, true);
+        assert.equal(stats.getTxCount(), 0);
+        testTxPoolStats(stats);
+        
+        // submit tx to pool
         throw new Error("Not implemented");
+        stats = await daemon.getTxPoolStats();
+        testDaemonResponseInfo(stats, true, true);
+        assert(stats.getTxCount() > 0);
+        testTxPoolStats(stats);
       });
       
       it("Can flush all transactions from the pool", async function() {
@@ -504,57 +543,163 @@ class TestMoneroDaemonRpc {
       it("Can be stopped", async function() {
         throw new Error("Not implemented");
       });
+    });
+  }
+  
+  /**
+   * Tests that relay outgoing txs.
+   */
+  _testRelays() {
+    let daemon = this.daemon;
+    let wallet = this.wallet;
+    
+    describe("Test Relays", function() {
       
-      // test notifications
-      if (config.testNotifications) {
+      it("Can submit a tx in hex format to the pool and relay in one call", async function() {
         
-        describe("Test Notifications", function() {
+        // create 2 txs, the second will double spend outputs of first
+        let tx1 = await getUnrelayedTx(wallet, 0);
+        let tx2 = await getUnrelayedTx(wallet, 0);
+        
+        // submit and relay tx1
+        let result = await daemon.submitTxHex(tx1.getHex());
+        assert.equal(result.getIsRelayed(), true);
+        testSubmitTxResultGood(result);
+        
+        // tx1 is in the pool
+        let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
+        let found = false;
+        for (let aTx of txPool.getTxs()) {
+          if (aTx.getId() === tx1.getId()) {
+            assert.equal(aTx.getIsRelayed(), true);
+            found = true;
+            break;
+          }
+        }
+        assert(found, "Tx1 was not found after being submitted to the daemon's tx pool");
+        
+        // submit and relay tx2 hex which double spends tx1
+        result = await daemon.submitTxHex(tx2.getHex());
+        assert.equal(result.getIsRelayed(), true);
+        testSubmitTxResultDoubleSpend(result);
+        
+        // tx2 is in not the pool
+        txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
+        found = false;
+        for (let aTx of txPool.getTxs()) {
+          if (aTx.getId() === tx2.getId()) {
+            found = true;
+            break;
+          }
+        }
+        assert(!found, "Tx2 should not be in the pool because it double spends tx1 which is in the pool");
+      });
+      
+      it("Can submit a tx in hex format to the pool then relay", async function() {
+        let tx = await getUnrelayedTx(wallet, 1);
+        await testSubmitThenRelay([tx]);
+      });
+      
+      it("Can submit txs in hex format to the pool then relay", async function() {
+        let txs = [];
+        txs.push(await getUnrelayedTx(wallet, 2));
+        txs.push(await getUnrelayedTx(wallet, 3));  // TODO: accounts cannot be re-used across send tests else isRelayed is true; wallet needs to update?
+        await testSubmitThenRelay(txs);
+      });
+      
+      async function testSubmitThenRelay(txs) {
+        
+        // submit txs hex but don't relay
+        let txIds = [];
+        for (let tx of txs) {
+          txIds.push(tx.getId());
+          let result = await daemon.submitTxHex(tx.getHex(), true);
+          assert.equal(result.getIsRelayed(), false);
+          testSubmitTxResultGood(result);
           
-          it("Can notify listeners when a new block is added to the chain", async function() {
-            try {
-              
-              // start mining if possible to help push the network along
-              let wallet = new MoneroWalletLocal(daemon);
-              let address = await wallet.getPrimaryAddress();
-              try { await daemon.startMining(address, 8, false, true); }
-              catch (e) { }
-              
-              // register a listener
-              let listenerHeader;
-              let listener = function(header) {
-                listenerHeader = header;
-                daemon.removeBlockHeaderListener(listener); // otherwise daemon will keep polling
-              }
-              daemon.addBlockHeaderListener(listener);
-              
-              // wait for next block notification
-              let header = await daemon.nextBlockHeader();
-              testBlockHeader(header, true);
-              
-              // test that listener was called with equivalent header
-              assert.deepEqual(listenerHeader, header);
-            } catch (e) {
-              throw e;
-            } finally {
-              
-              // stop mining
-              try { await daemon.stopMining(); }
-              catch (e) { }
+          // ensure tx is in pool
+          let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
+          let found = false;
+          for (let aTx of txPool.getTxs()) {
+            if (aTx.getId() === tx.getId()) {
+              assert.equal(aTx.getIsRelayed(), false);
+              found = true;
+              break;
             }
-            
-            // helper function to wait for next block
-            function awaitNewBlock() {
-              return new Promise(function(resolve, reject) {
-                let onHeader = function(header) {
-                  resolve(header);
-                  daemon.removeBlockListener(onHeader);
-                }
-                daemon.addBlockListener(onHeader);
-              });
+          }
+          assert(found, "Tx was not found after being submitted to the daemon's tx pool");
+        }
+        
+        // relay the txs
+        let resp = txIds.length === 1 ? await daemon.relayTxById(txIds[0]) : await daemon.relayTxsById(txIds);
+        testDaemonResponseInfo(resp, true, false);
+        
+        // ensure txs are relayed
+        for (let tx of txs) {
+          let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
+          let found = false;
+          for (let aTx of txPool.getTxs()) {
+            if (aTx.getId() === tx.getId()) {
+              assert.equal(aTx.getIsRelayed(), true);
+              found = true;
+              break;
             }
-          });
-        });
+          }
+          assert(found, "Tx was not found after being submitted to the daemon's tx pool");
+        }
       }
+    });
+  }
+  
+  _testNotifications() {
+    let daemon = this.daemon;
+    let wallet = this.wallet;
+    
+    describe("Test Notifications", function() {
+      
+      it("Can notify listeners when a new block is added to the chain", async function() {
+        try {
+          
+          // start mining if possible to help push the network along
+          let wallet = new MoneroWalletLocal(daemon);
+          let address = await wallet.getPrimaryAddress();
+          try { await daemon.startMining(address, 8, false, true); }
+          catch (e) { }
+          
+          // register a listener
+          let listenerHeader;
+          let listener = function(header) {
+            listenerHeader = header;
+            daemon.removeBlockHeaderListener(listener); // otherwise daemon will keep polling
+          }
+          daemon.addBlockHeaderListener(listener);
+          
+          // wait for next block notification
+          let header = await daemon.nextBlockHeader();
+          testBlockHeader(header, true);
+          
+          // test that listener was called with equivalent header
+          assert.deepEqual(listenerHeader, header);
+        } catch (e) {
+          throw e;
+        } finally {
+          
+          // stop mining
+          try { await daemon.stopMining(); }
+          catch (e) { }
+        }
+        
+        // helper function to wait for next block
+        function awaitNewBlock() {
+          return new Promise(function(resolve, reject) {
+            let onHeader = function(header) {
+              resolve(header);
+              daemon.removeBlockListener(onHeader);
+            }
+            daemon.addBlockListener(onHeader);
+          });
+        }
+      });
     });
   }
 }
@@ -708,7 +853,7 @@ function testTx(tx, config) {
     } else {
       assert.equal(tx.getBlockTimestamp(), undefined);
       if (tx.getIsRelayed()) assert(tx.getLastRelayedTime() > 0);
-      else assert.equal(tx.getLastRelayedTime(), undefined);
+      else if (!tx.getLastRelayedTime() !== undefined) console.log("WARNING: tx has last relayed time but is not relayed");  // TODO monero-wallet-rpc
       assert(tx.getReceivedTime() > 0);
     }
   } else {
@@ -724,10 +869,8 @@ function testTx(tx, config) {
   if (config.fromPool) {
     assert(tx.getSize() > 0);
     assert(tx.getWeight() > 0);
-    assert.equal(tx.getDoNotRelay(), false);
     assert.equal(typeof tx.getKeptByBlock(), "boolean");
-    assert.equal(tx.getIsFailed(), false);
-    assert.equal(tx.getLastFailedHeight(), undefined);  // TODO: test failed daemon txs
+    assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedId(), undefined);
     assert(tx.getMaxUsedBlockHeight() >= 0);
     assert(tx.getMaxUsedBlockId());
@@ -740,6 +883,10 @@ function testTx(tx, config) {
     assert.equal(tx.getLastFailedId(), undefined);
     assert.equal(tx.getMaxUsedBlockHeight(), undefined);
     assert.equal(tx.getMaxUsedBlockId(), undefined);
+  }
+  
+  if (tx.getIsFailed()) {
+    // TODO: implement this
   }
 }
 
@@ -862,6 +1009,88 @@ function testOutputDistributionEntry(entry) {
   assert(entry.getBase() >= 0);
   assert(Array.isArray(entry.getDistribution()) && entry.getDistribution().length > 0);
   assert(entry.getStartHeight() >= 0);
+}
+
+function testSubmitTxResultGood(result) {
+  testSubmitTxResultCommon(result);
+  assert.equal(result.getIsDoubleSpend(), false);
+  assert.equal(result.getIsFeeTooLow(), false);
+  assert.equal(result.getIsMixinTooLow(), false);
+  assert.equal(result.getHasInvalidInput(), false);
+  assert.equal(result.getHasInvalidOutput(), false);
+  assert.equal(result.getIsRct(), true);
+  assert.equal(result.getIsOverspend(), false);
+  assert.equal(result.getIsTooBig(), false);
+  assert.equal(result.getResponseInfo().getStatus(), "OK");
+}
+
+function testSubmitTxResultDoubleSpend(result) {
+  testSubmitTxResultCommon(result);
+  assert.equal(result.getIsDoubleSpend(), true);
+  assert.equal(result.getIsFeeTooLow(), false);
+  assert.equal(result.getIsMixinTooLow(), false);
+  assert.equal(result.getHasInvalidInput(), false);
+  assert.equal(result.getHasInvalidOutput(), false);
+  assert.equal(result.getIsRct(), true);
+  assert.equal(result.getIsOverspend(), false);
+  assert.equal(result.getIsTooBig(), false);
+  assert.equal(result.getResponseInfo().getStatus(), "Failed");
+}
+
+function testSubmitTxResultCommon(result) {
+  assert.equal(typeof result.getIsRelayed(), "boolean");
+  assert.equal(typeof result.getIsDoubleSpend(), "boolean");
+  assert.equal(typeof result.getIsFeeTooLow(), "boolean");
+  assert.equal(typeof result.getIsMixinTooLow(), "boolean");
+  assert.equal(typeof result.getHasInvalidInput(), "boolean");
+  assert.equal(typeof result.getHasInvalidOutput(), "boolean");
+  assert.equal(typeof result.getIsRct(), "boolean");
+  assert.equal(typeof result.getIsOverspend(), "boolean");
+  assert.equal(typeof result.getIsTooBig(), "boolean");
+  assert(result.getResponseInfo());
+  assert.equal(typeof result.getResponseInfo().getStatus(), "string");
+  assert.equal(typeof result.getResponseInfo().getIsTrusted(), "boolean");
+}
+
+function testTxPoolStats(stats) {
+  assert(stats);
+  assert(stats.getTxCount() >= 0);
+  if (stats.getTxCount() > 0) {
+    assert(stats.getBytesMax() > 0);
+    assert(stats.getBytesMed() > 0);
+    assert(stats.getBytesMin() > 0);
+    assert(stats.getBytesTotal() > 0);
+    assert(stats.getHisto());
+    throw new Error("Need to test structure of histo"); // TODO: whats the structure of this?
+    assert(stats.getHisto98pc() > 0);
+    assert(stats.getTxCount10m() > 0);
+    assert(stats.getDoubleSpendCount() >= 0);
+    assert(stats.getFailingCount() >= 0);
+    assert(stats.getNotRelayedCount() >= 0);
+    assert(stats.getOldestTxTimestamp() > 0);
+  } else {
+    assert.equal(stats.getBytesMax(), undefined);
+    assert.equal(stats.getBytesMed(), undefined);
+    assert.equal(stats.getBytesMin(), undefined);
+    assert.equal(stats.getBytesTotal(), 0);
+    assert.equal(stats.getHisto(), undefined);
+    assert.equal(stats.getHisto98pc(), undefined);
+    assert.equal(stats.getTxCount10m(), 0);
+    assert.equal(stats.getDoubleSpendCount(), 0);
+    assert.equal(stats.getFailedCount(), 0);
+    assert.equal(stats.getNotRelayedCount(), 0);
+    assert.equal(stats.getOldestTxTimestamp(), undefined);
+  }
+}
+
+async function getUnrelayedTx(wallet, accountIdx) {
+  let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE); 
+  sendConfig.setDoNotRelay(true);
+  sendConfig.setAccountIndex(accountIdx);
+  let tx = await wallet.send(sendConfig);
+  assert(tx.getHex());
+  assert.equal(tx.getDoNotRelay(), true);
+  return tx;
 }
 
 module.exports = TestMoneroDaemonRpc;

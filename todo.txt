@@ -1,5 +1,6 @@
-
 v0.0.3
+test response info for transctions, transfers, and vouts
+send(configOrAddress, amount) which supports {} and MoneroSendConfig
 standardize tx note over description
 test that note is set if specified in send config
 todos throughout code
@@ -35,6 +36,7 @@ remove text-encoding dependency
 support setting daemon log level
 csv export of types
 daemon vins like vouts?
+response getIsTrusted() -> getIsUntrusted()? semantic difference?
 
 test daemon getIsCoinbase()
 test getting coinbase txs by id

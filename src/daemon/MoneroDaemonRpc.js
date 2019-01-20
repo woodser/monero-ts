@@ -21,6 +21,7 @@ const MoneroFeeEstimate = require("./model/MoneroFeeEstimate");
 const MoneroOutputHistogramEntry = require("./model/MoneroOutputHistogramEntry");
 const MoneroTxPool = require("./model/MoneroTxPool");
 const MoneroKeyImage = require("./model/MoneroKeyImage");
+const MoneroSubmitTxResult = require("./model/MoneroSubmitTxResult");
 
 /**
  * Implements a Monero daemon using monero-daemon-rpc.
@@ -217,6 +218,18 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return feeEstimate;
   }
   
+  async submitTxHex(txHex, doNotRelay) {
+    let resp = await this.config.rpc.sendPathRequest("send_raw_transaction", {tx_as_hex: txHex, do_not_relay: doNotRelay});
+    let result = MoneroDaemonRpc._buildSubmitTxResult(resp);
+    MoneroDaemonRpc._setResponseInfo(resp, result);
+    return result;
+  }
+  
+  async relayTxsById(txIds) {
+    let resp = await this.config.rpc.sendJsonRequest("relay_tx", {txids: txIds});
+    return MoneroDaemonRpc._setResponseInfo(resp, new MoneroDaemonModel());
+  }
+  
   async getTxPoolTxsAndSpentKeyImages() {
     
     // send rpc request
@@ -234,6 +247,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         let tx = new MoneroTx();
         tx.setIsConfirmed(false);
         tx.setIsCoinbase(false);
+        tx.setInTxPool(true);
         MoneroDaemonRpc._buildTx(rpcTx, tx);
         txs.push(tx);
       }
@@ -245,6 +259,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (resp.spent_key_images) {
       for (let rpcKeyImage of resp.spent_key_images) {
         let keyImage = MoneroDaemonRpc._buildSpentKeyImage(rpcKeyImage);
+        keyImage.setSpentStatus(true);
         keyImages.push(keyImage);
       }
     }
@@ -258,6 +273,21 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let info = MoneroDaemonRpc._buildInfo(resp);
     MoneroDaemonRpc._setResponseInfo(resp, info);
     return info;
+  }
+  
+  async getTxPoolTxIds() {
+    throw new Error("Not implemented");
+  }
+  
+  async getTxPoolBacklog() {
+    throw new Error("Not implemented");
+  }
+
+  async getTxPoolStats() {
+    let resp = await this.config.rpc.sendPathRequest("get_transaction_pool_stats");
+    //console.log(resp);
+    
+    throw new Error("Not implemented");
   }
   
   async getSyncInfo() {
@@ -783,6 +813,27 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else console.log("WARNING: ignoring unexpected field in spent key image: " + key + ": " + val);
     }
     return keyImage;
+  }
+  
+  static _buildSubmitTxResult(rpcResult) {
+    assert(rpcResult);
+    let result = new MoneroSubmitTxResult();
+    for (let key of Object.keys(rpcResult)) {
+      let val = rpcResult[key];
+      if (key === "double_spend") result.setIsDoubleSpend(val);
+      else if (key === "fee_too_low") result.setIsFeeTooLow(val);
+      else if (key === "invalid_input") result.setHasInvalidInput(val);
+      else if (key === "invalid_output") result.setHasInvalidOutput(val);
+      else if (key === "low_mixin") result.setIsMixinTooLow(val);
+      else if (key === "not_rct") result.setIsRct(!val);
+      else if (key === "not_relayed") result.setIsRelayed(!val);
+      else if (key === "overspend") result.setIsOverspend(val);
+      else if (key === "reason") result.setReason(val);
+      else if (key === "too_big") result.setIsTooBig(val);
+      else if (key === "status" || key === "untrusted") {}  // handled elsewhere
+      else console.log("WARNING: ignoring unexpected field in submit tx hex result: " + key + ": " + val);
+    }
+    return result;
   }
 }
 
