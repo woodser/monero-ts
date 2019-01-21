@@ -616,6 +616,16 @@ class MoneroWalletRpc extends MoneroWallet {
     await this.config.rpc.sendJsonRequest("set_tx_notes", {txids: txIds, notes: notes});
   }
   
+  async sign(msg) {
+    let resp = await this.config.rpc.sendJsonRequest("sign", {data: msg});
+    return resp.signature;
+  }
+  
+  async verify(msg, address, signature) {
+    let resp = await this.config.rpc.sendJsonRequest("verify", {data: msg, address: address, signature: signature});
+    return resp.good;
+  }
+  
   async getTxKey(txId) {
     return (await this.config.rpc.sendJsonRequest("get_tx_key", {txid: txId})).tx_key;
   }
@@ -778,6 +788,14 @@ class MoneroWalletRpc extends MoneroWallet {
     if ("" === sendConfig.getRecipientName()) sendConfig.setRecipientName(undefined);
     if ("" === sendConfig.getNote()) sendConfig.setNote(undefined);
     return sendConfig;
+  }
+  
+  async setAttribute(key, val) {
+    throw new Error("Not implemented");
+  }
+  
+  async getAttribute(key) {
+    throw new Error("Not implemented");
   }
   
   // -------------------------- SPECIFIC TO RPC WALLET ------------------------
