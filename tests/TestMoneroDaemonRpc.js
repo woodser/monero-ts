@@ -175,7 +175,7 @@ class TestMoneroDaemonRpc {
         assert.deepEqual(block.getHeader().getHeight(), lastHeader.getHeight() - 1);
       });
       
-      it("Can get blocks by height which is a binary request and includes transactions", async function() {
+      it("Can get blocks by height which includes transactions (binary)", async function() {
         
         // set number of blocks to test
         const numBlocks = 100;
@@ -210,7 +210,7 @@ class TestMoneroDaemonRpc {
         assert(txFound, "No transactions found to test");
       });
       
-      it("Can get blocks by id which is a binary request and includes transactions", async function() {
+      it("Can get blocks by id which includes transactions (binary)", async function() {
         throw new Error("Not implemented");
       })
       
@@ -253,7 +253,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      it("Can get block ids as a binary request", async function() {
+      it("Can get block ids (binary)", async function() {
         //get_hashes.bin
         throw new Error("Not implemented");
       });
@@ -333,46 +333,96 @@ class TestMoneroDaemonRpc {
         await daemon.flushTxPool(tx.getId());
       });
       
-      it("Can get ids of transactions in the transaction pool (includes binary)", async function() {
+      it("Can get ids of transactions in the transaction pool (binary)", async function() {
         // TODO: get_transaction_pool_hashes.bin
         throw new Error("Not implemented");
       });
       
-      it("Can get the transaction pool backlog (includes binary)", async function() {
+      it("Can get the transaction pool backlog (binary)", async function() {
         // TODO: get_txpool_backlog
         throw new Error("Not implemented");
       });
       
-      it("Can get transaction pool statistics (includes binary)", async function() {
+      it("Can get transaction pool statistics (binary)", async function() {
         
-        // flush txs from pool and test
-        await daemon.flushTxPool();
-        let stats = await daemon.getTxPoolStats();
-        testDaemonResponseInfo(stats, true, true);
-        assert.equal(stats.getCount(), 0);
-        testTxPoolStats(stats);
-        
-        // submit txs to pool but don't relay
-        // multiple txs are in the pool to ensure a histogram is returned
-        let tx1 = await getUnrelayedTx(wallet, 0);
-        await daemon.submitTxHex(tx1.getHex(), true);
-        let tx2 = await getUnrelayedTx(wallet, 1);
-        await daemon.submitTxHex(tx2.getHex(), true);
-        
-        // get and test stats
-        stats = await daemon.getTxPoolStats();
-        testDaemonResponseInfo(stats, true, true);
-        assert(stats.getCount() > 0);
-        testTxPoolStats(stats);
+        // submit txs to the pool but don't relay (multiple txs result in binary `histo` field)
+        for (let i = 0; i < 2; i++) {
+          
+          // submit tx hex
+          let tx = await getUnrelayedTx(wallet, i);
+          await daemon.submitTxHex(tx.getHex(), true);
+          
+          // test stats
+          stats = await daemon.getTxPoolStats();
+          testDaemonResponseInfo(stats, true, true);
+          assert(stats.getCount() > i);
+          testTxPoolStats(stats);
+        }
       });
       
       it("Can flush all transactions from the pool", async function() {
-        let model = await daemon.flushTxPool();
-        testDaemonResponseInfo(model, true, false);
+        
+        // pool starts flushed for each test
+        let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
+        assert.equal(txPool.getTxs().length, 0);
+        
+        // submit txs to the pool but don't relay
+        for (let i = 0; i < 2; i++) {
+          let tx = await getUnrelayedTx(wallet, i);
+          await daemon.submitTxHex(tx.getHex(), true);
+        }
+        
+        // txs are in pool
+        txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
+        assert(txPool.getTxs().length >= 2);
+        
+        // flush tx pool
+        let resp = await daemon.flushTxPool();
+        testDaemonResponseInfo(resp, true, false);
+        txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
+        assert(txPool.getTxs().length === 0);
       });
       
-      it("Can flush one or more transactions from the pool by id", async function() {
-        throw new Error("Not implemented"); // TODO: need to fetch pool transactions ids
+      it("Can flush a transaction from the pool by id", async function() {
+        
+        // submit txs to the pool but don't relay
+        let txs = [];
+        for (let i = 0; i < 3; i++) {
+          let tx = await getUnrelayedTx(wallet, i);
+          await daemon.submitTxHex(tx.getHex(), true);
+          txs.push(tx);
+        }
+        
+        // remove each tx from the pool by id and test
+        for (let i = 0; i < txs.length; i++) {
+          
+          // flush tx from pool
+          let resp = await daemon.flushTxPool(txs[i].getId());
+          testDaemonResponseInfo(resp, true, false);
+          
+          // test tx pool
+          let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
+          assert.equal(txPool.getTxs().length, txs.length - i - 1);
+        }
+      });
+      
+      it("Can flush transactions from the pool by ids", async function() {
+        
+        // submit txs to the pool but don't relay
+        let txIds = [];
+        for (let i = 0; i < 3; i++) {
+          let tx = await getUnrelayedTx(wallet, i);
+          await daemon.submitTxHex(tx.getHex(), true);
+          txIds.push(tx.getId());
+        }
+        
+        // remove all txs by ids
+        let resp = await daemon.flushTxPool(txIds);
+        testDaemonResponseInfo(resp, true, false);
+        
+        // test tx pool
+        let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
+        assert.equal(txPool.getTxs().length, 0);
       });
       
       it("Can determine if key images can be spent", async function() {
@@ -398,7 +448,7 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      it("Can get an output distribution (includes binary)", async function() {
+      it("Can get an output distribution (binary)", async function() {
         let amounts = [];
         amounts.push(new BigInteger(0));
         amounts.push(new BigInteger(1));
