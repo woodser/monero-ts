@@ -1419,11 +1419,11 @@ class TestMoneroWalletCommon {
       }
       
       it("Can send to multiple addresses in a single transaction", async function() {
-        await testSendToMultiple(7, 2, false);
+        await testSendToMultiple(5, 3, false);
       });
       
       it("Can send to multiple addresses in split transactions", async function() {
-        await testSendToMultiple(7, 2, true);
+        await testSendToMultiple(5, 3, true);
       });
       
       /**
