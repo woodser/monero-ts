@@ -38,6 +38,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setId(id) {
     this.state.id = id;
+    return this;
   }
   
   getVersion() {
@@ -46,6 +47,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setVersion(version) {
     this.state.version = version;
+    return this;
   }
   
   getIsCoinbase() {
@@ -54,6 +56,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setIsCoinbase(coinbase) {
     this.state.isCoinbase = coinbase;
+    return this;
   }
   
   getPaymentId() {
@@ -62,6 +65,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setPaymentId(paymentId) {
     this.state.paymentId = paymentId;
+    return this;
   }
   
   getFee() {
@@ -70,6 +74,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setFee(fee) {
     this.state.fee = fee;
+    return this;
   }
   
   getMixin() {
@@ -78,6 +83,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setMixin(mixin) {
     this.state.mixin = mixin;
+    return this;
   }
   
   getDoNotRelay() {
@@ -86,6 +92,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setDoNotRelay(doNotRelay) {
     this.state.doNotRelay = doNotRelay;
+    return this;
   }
   
   getIsRelayed() {
@@ -94,6 +101,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setIsRelayed(isRelayed) {
     this.state.isRelayed = isRelayed;
+    return this;
   }
   
   getIsConfirmed() {
@@ -102,6 +110,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setIsConfirmed(isConfirmed) {
     this.state.isConfirmed = isConfirmed;
+    return this;
   }
   
   getInTxPool() {
@@ -110,6 +119,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setInTxPool(inTxPool) {
     this.state.inTxPool = inTxPool;
+    return this;
   }
   
   getHeight() {
@@ -118,6 +128,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setHeight(height) {
     this.state.height = height;
+    return this;
   }
   
   getConfirmationCount() {
@@ -126,6 +137,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setConfirmationCount(confirmationCount) {
     this.state.confirmationCount = confirmationCount;
+    return this;
   }
   
   getBlockTimestamp() {
@@ -134,6 +146,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setBlockTimestamp(blockTimestamp) {
     this.state.blockTimestamp = blockTimestamp;
+    return this;    
   }
   
   getEstimatedBlockCountUntilConfirmed() {
@@ -142,6 +155,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setEstimatedBlockCountUntilConfirmed(estimatedBlockCountUntilConfirmed) {
     this.state.estimatedBlockCountUntilConfirmed = estimatedBlockCountUntilConfirmed;
+    return this;
   }
   
   getUnlockTime() {
@@ -150,6 +164,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setUnlockTime(unlockTime) {
     this.state.unlockTime = unlockTime;
+    return this;
   }
   
   getLastRelayedTime() {
@@ -158,6 +173,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setLastRelayedTime(lastRelayedTime) {
     this.state.lastRelayedTime = lastRelayedTime;
+    return this;
   }
   
   getReceivedTime() {
@@ -166,6 +182,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setReceivedTime(receivedTime) {
     this.state.receivedTime = receivedTime;
+    return this;
   }
   
   getIsDoubleSpend() {
@@ -174,6 +191,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setIsDoubleSpend(isDoubleSpend) {
     this.state.isDoubleSpend = isDoubleSpend;
+    return this;
   }
   
   getKey() {
@@ -182,6 +200,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setKey(key) {
     this.state.key = key;
+    return this;
   }
   
   getHex() {
@@ -190,6 +209,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setHex(hex) {
     this.state.hex = hex;
+    return this;
   }
   
   getSize() {
@@ -198,6 +218,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setSize(size) {
     this.state.size = size;
+    return this;
   }
   
   getWeight() {
@@ -206,6 +227,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setWeight(weight) {
     this.state.weight = weight;
+    return this;
   }
   
   getVins() {
@@ -214,6 +236,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setVins(vins) {
     this.state.vins = vins;
+    return this;
   }
   
   getVouts() {
@@ -222,6 +245,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setVouts(vouts) {
     this.state.vouts = vouts;
+    return this;
   }
   
   getOutputIndices() {
@@ -230,6 +254,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setOutputIndices(outputIndices) {
     this.state.outputIndices = outputIndices;
+    return this;
   }
   
   getMetadata() {
@@ -238,6 +263,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setMetadata(metadata) {
     this.state.metadata = metadata;
+    return this;
   }
   
   getCommonTxSets() {
@@ -246,6 +272,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setCommonTxSets(commonTxSets) {
     this.state.commonTxSets = commonTxSets;
+    return this;
   }
   
   getExtra() {
@@ -254,6 +281,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setExtra(extra) {
     this.state.extra = extra;
+    return this;
   }
 
   getRctSignatures() {
@@ -262,6 +290,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setRctSignatures(rctSignatures) {
     this.state.rctSignatures = rctSignatures;
+    return this;
   }
   
   getRctSigPrunable() {
@@ -270,6 +299,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setRctSigPrunable(rctSigPrunable) {
     this.state.rctSigPrunable = rctSigPrunable;
+    return this;
   }
   
   getKeptByBlock() {
@@ -278,6 +308,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setKeptByBlock(keptByBlock) {
     this.state.keptByBlock = keptByBlock;
+    return this;
   }
   
   getIsFailed() {
@@ -286,6 +317,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setIsFailed(isFailed) {
     this.state.isFailed = isFailed;
+    return this;
   }
   
   getLastFailedHeight() {
@@ -294,6 +326,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setLastFailedHeight(lastFailedHeight) {
     this.state.lastFailedHeight = lastFailedHeight;
+    return this;
   }
   
   getLastFailedId() {
@@ -302,6 +335,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setLastFailedId(lastFailedId) {
     this.state.lastFailedId = lastFailedId;
+    return this;
   }
   
   getMaxUsedBlockHeight() {
@@ -310,6 +344,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setMaxUsedBlockHeight(maxUsedBlockHeight) {
     this.state.maxUsedBlockHeight = maxUsedBlockHeight;
+    return this;
   }
   
   getMaxUsedBlockId() {
@@ -318,6 +353,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setMaxUsedBlockId(maxUsedBlockId) {
     this.state.maxUsedBlockId = maxUsedBlockId;
+    return this;
   }
   
   getSignatures() {
@@ -326,6 +362,7 @@ class MoneroTx extends MoneroDaemonModel {
   
   setSignatures(signatures) {
     this.state.signatures = signatures;
+    return this;
   }
   
   copy() {

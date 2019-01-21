@@ -395,6 +395,7 @@ class TestMoneroWalletCommon {
         txFilter.setTransferFilter(new MoneroTransferFilter().setTransfer(new MoneroTransfer().setAccountIndex(0)).setIsOutgoing(true));
         txs = await testGetTxs(wallet, txFilter, true);
         for (let tx of txs) {
+          if (!tx.getIsConfirmed()) console.log(tx.toString());
           assert.equal(tx.getIsConfirmed(), true);
           assert(tx.getOutgoingTransfer());
           assert.equal(tx.getOutgoingTransfer().getAccountIndex(), 0);
