@@ -791,11 +791,12 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async setAttribute(key, val) {
-    throw new Error("Not implemented");
+    await this.config.rpc.sendJsonRequest("set_attribute", {key: key, value: val});
   }
   
   async getAttribute(key) {
-    throw new Error("Not implemented");
+    let resp = await this.config.rpc.sendJsonRequest("get_attribute", {key: key});
+    return resp.value;
   }
   
   // -------------------------- SPECIFIC TO RPC WALLET ------------------------
