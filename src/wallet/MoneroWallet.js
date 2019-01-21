@@ -642,11 +642,18 @@ class MoneroWallet {
   }
   
   /**
-   * Export a signed set of key images.
+   * Get all signed key images.
    * 
-   * @return {TODO[]} are the key images
+   * @return {TODO[]} are the signed key images
    */
   async getKeyImages() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get new key images from the last imported outputs (and key images? TODO).
+   */
+  async getNewKeyImagesFromLastImport() {
     throw new Error("Subclass must implement");
   }
   

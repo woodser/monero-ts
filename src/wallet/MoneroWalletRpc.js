@@ -800,11 +800,15 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getKeyImages() {
-    throw new Error("Not implemented");
+    return await this._getKeyImages(true);
+  }
+
+  async getNewKeyImagesFromLastImport() {
+    return await this._getKeyImages(false);
   }
   
   async importKeyImages(keyImages) {
-    throw new Error("Not implemented");
+    throw new Error("Subclass must implement");
   }
   
   async setAttribute(key, val) {
@@ -1262,6 +1266,18 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // return array or element depending on split
     return split ? txs : txs[0];
+  }
+  
+  /**
+   * Common method to get key images.
+   * 
+   * @param all specifies to get all xor only new images from last import
+   * @return {TODO[]} are the key images
+   */
+  async _getKeyImages(all) {
+    let resp = await this.config.rpc.sendJsonRequest("export_key_images", {all: all});
+    if (!resp.signed_key_images) return [];
+    return resp.signed_key_images.map(rpcImage => new MoneroKeyImage(rpcImage.key_image, rpcImage.signature));
   }
 }
 

@@ -1223,10 +1223,32 @@ class TestMoneroWalletCommon {
         }
       });
       
-      it("Can get key images", async function() {
+      it("Can get signed key images", async function() {
         let images = await wallet.getKeyImages();
         assert(Array.isArray(images));
-        assert(images.length > 0, "No signed key images in wallet");  // TODO (monero-wallet-rpc): https://github.com/monero-project/monero/issues/4992
+        assert(images.length > 0, "No signed key images in wallet");
+        for (let image of images) {
+          assert(image.getKeyImage());
+          assert(image.getSignature());
+        }
+      });
+      
+      it("Can get new key images from the last import", async function() {
+        
+        // get outputs hex
+        // TODO: these are already known to the wallet, so no new key images will be imported
+        let outputsHex = await wallet.getOutputsHex();
+        
+        // import outputs hex
+        if (outputsHex !== undefined) {
+          let numImported = await wallet.importOutputsHex(outputsHex);
+          assert(numImported > 0);
+        }
+        
+        // get and test new key images from last import
+        let images = await wallet.getNewKeyImagesFromLastImport();
+        assert(Array.isArray(images));
+        assert(images.length > 0, "No new key images in last import");
         for (let image of images) {
           assert(image.getKeyImage());
           assert(image.getSignature());
