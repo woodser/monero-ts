@@ -623,6 +623,44 @@ class MoneroWallet {
   }
   
   /**
+   * Export all outputs in hex format.
+   * 
+   * @return {string} are all outputs in hex format, undefined if no outputs
+   */
+  async getOutputsHex() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Import outputs in hex format.
+   * 
+   * @param {string} outputsHex are outputs in hex format
+   * @return {number} is the number of outputs imported
+   */
+  async importOutputsHex(outputsHex) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Export a signed set of key images.
+   * 
+   * @return {TODO[]} are the key images
+   */
+  async getKeyImages() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Import signed key images and verify their spent status.
+   * 
+   * @param {TODO[]} keyImages are the key images to import and verify
+   * @return {TODO} includes height and amount spent/unspent from the images
+   */
+  async importKeyImages(keyImages) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Set an arbitrary attribute.
    * 
    * @param key is the attribute key

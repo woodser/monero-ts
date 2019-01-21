@@ -790,6 +790,23 @@ class MoneroWalletRpc extends MoneroWallet {
     return sendConfig;
   }
   
+  async getOutputsHex() {
+    return (await this.config.rpc.sendJsonRequest("export_outputs")).outputs_data_hex;
+  }
+  
+  async importOutputsHex(outputsHex) {
+    let resp = await this.config.rpc.sendJsonRequest("import_outputs", {outputs_data_hex: outputsHex});
+    return resp.num_imported;
+  }
+  
+  async getKeyImages() {
+    throw new Error("Not implemented");
+  }
+  
+  async importKeyImages(keyImages) {
+    throw new Error("Not implemented");
+  }
+  
   async setAttribute(key, val) {
     await this.config.rpc.sendJsonRequest("set_attribute", {key: key, value: val});
   }
