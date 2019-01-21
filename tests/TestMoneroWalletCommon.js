@@ -1234,11 +1234,29 @@ class TestMoneroWalletCommon {
       });
       
       it("Can sign and verify messages", async function() {
-        throw new Error("Not implemented");
+        let msg = "This is a super important message which needs to be signed and verified.";
+        let signature = await wallet.sign(msg);
+        let verified = await wallet.verify(msg, await wallet.getAddress(0, 0), signature);
+        assert.equal(verified, true);
+        verified = await wallet.verify(msg, TestMoneroWalletCommon.SAMPLE_ADDRESS, signature);
+        assert.equal(verified, false);
       });
       
       it("Can get and set arbitrary key/value attributes", async function() {
-        throw new Error("Not implemented");
+        
+        // set attributes
+        let attrs = {};
+        for (let i = 0; i < 5; i++) {
+          let key = "attr" + i;
+          let val = GenUtils.uuidv4();
+          attrs[key] = val;
+          await wallet.setAttribute(key, val);
+        }
+        
+        // test attributes
+        for (let key of Object.keys(attrs)) {
+          assert.equal(attrs[key], await wallet.getAttribute(key));
+        }
       });
       
       it("Can convert between a tx send config and payment URI", async function() {
@@ -1932,6 +1950,10 @@ class TestMoneroWalletCommon {
     });
   }
 }
+
+// sample address to be used in tests
+// TODO: this is hardcoded to stagenet so some tests will fail if tested against non-stagenet
+TestMoneroWalletCommon.SAMPLE_ADDRESS = "58bf9MfrBNDXSqCzK6snxSXaJHehLTnvx3BdS6qMkYAsW8P5kvRVq8ePbGQ7mfAeYfC7QELPhpQBe2C9bqCrqeesUsifaWw";
 
 function testAccount(account) {
   
