@@ -430,11 +430,11 @@ class TestMoneroDaemonRpc {
         throw new Error("Not implemented");
       });
       
-      it("Can get global outputs given a list of transaction ids", async function() {
+      it("Can get global outputs given a list of transaction ids (binary)", async function() {
         throw new Error("Not implemented");
       });
       
-      it("Can get outputs given a list of output amounts and indices", async function() {
+      it("Can get outputs given a list of output amounts and indices (binary)", async function() {
         throw new Error("Not implemented");
       });
       
