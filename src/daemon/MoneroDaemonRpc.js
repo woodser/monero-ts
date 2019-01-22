@@ -10,6 +10,7 @@ const MoneroHeight = require("./model/MoneroHeight");
 const MoneroBlockHeader = require("./model/MoneroBlockHeader");
 const MoneroBlock = require("./model/MoneroBlock");
 const MoneroTx = require("./model/MoneroTx");
+const MoneroOutput = require("./model/MoneroOutput");
 const MoneroBlockTemplate = require("./model/MoneroBlockTemplate");
 const MoneroDaemonInfo = require("./model/MoneroDaemonInfo");
 const MoneroDaemonSyncInfo = require("./model/MoneroDaemonSyncInfo");
@@ -603,8 +604,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "double_spend_seen") MoneroUtils.safeSet(tx, tx.getIsDoubleSpend, tx.setIsDoubleSpend, val);
       else if (key === "version") MoneroUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);
       else if (key === "extra") MoneroUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
-      else if (key === "vin") MoneroUtils.safeSet(tx, tx.getVins, tx.setVins, val);
-      else if (key === "vout") MoneroUtils.safeSet(tx, tx.getVouts, tx.setVouts, val);
+      else if (key === "vin") {
+        if (val.length !== 1 || !val[0].gen) {  // ignore coinbase vin
+          tx.setVins(val.map(rpcVin => MoneroDaemonRpc._buildOutput(rpcVin, tx)));
+        }
+      }
+      else if (key === "vout") tx.setVouts(val.map(rpcVout => MoneroDaemonRpc._buildOutput(rpcVout, tx)));
       else if (key === "rct_signatures") MoneroUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, val);
       else if (key === "rctsig_prunable") MoneroUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
       else if (key === "unlock_time") MoneroUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, val);
@@ -652,6 +657,24 @@ class MoneroDaemonRpc extends MoneroDaemon {
     
     // return built transaction
     return tx;
+  }
+  
+  static _buildOutput(rpcOutput, tx) {
+    let output = new MoneroOutput();
+    output.setTx(tx);
+    for (let key of Object.keys(rpcOutput)) {
+      let val = rpcOutput[key];
+      if (key === "gen") throw new Error("Output with 'gen' from daemon rpc is coinbase tx which we ignore (i.e. each coinbase vin is undefined)");
+      else if (key === "key") {
+        MoneroUtils.safeSet(output, output.getAmount, output.setAmount, new BigInteger(val.amount));
+        MoneroUtils.safeSet(output, output.getKeyImage, output.setKeyImage, new MoneroKeyImage(val.k_image));
+        MoneroUtils.safeSet(output, output.getRingOutputIndices, output.setRingOutputIndices, val.key_offsets);
+      }
+      else if (key === "amount") MoneroUtils.safeSet(output, output.getAmount, output.setAmount, new BigInteger(val));
+      else if (key === "target") MoneroUtils.safeSet(output, output.getKeyImage, output.setKeyImage, new MoneroKeyImage(val.key));
+      else console.log("WARNING: ignoring unexpected field output: " + key + ": " + val);
+    }
+    return output;
   }
   
   static _buildBlockTemplate(rpcTemplate) {

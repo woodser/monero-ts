@@ -264,7 +264,7 @@ class MoneroDaemon {
    * @param txIds identify the transactions to get global outputs within
    * @returns {string[]} are global output indices within the given transactions
    */
-  async getGlobalOutputs() {
+  async getGlobalOutputs() {  // TODO: name outdated
     throw new Error("Subclass must implement");
   }
   
