@@ -8,6 +8,7 @@ license headers
 block comments with params and formatting
 report rpc issues
 model daemon vouts
+daemon.getTxsByHeight(), daemon.getTxsByRange()
 multisig
 common tx tests need cleanup
 daemon.getBlocksById(), default implementations
