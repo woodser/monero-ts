@@ -269,13 +269,11 @@ class MoneroDaemon {
   }
   
   /**
-   * Get outputs given a list of output amounts and indices using a binary request.
+   * Get outputs identified by a list of output amounts and indices using a
+   * binary request.
    * 
-   * TODO: does this also return global outputs?  re-visit this.
-   * 
-   * @param {{amount:_, index:_}[]} identify the outputs to get
-   * @returns {MoneroDaemonOutput[]} are outputs with amount, height, key, max,
-   *          tx id, and unlocked status (TODO) 
+   * @param {[MoneroOutput]} identify each output by amount and index
+   * @returns {[MoneroOutput]} are the identified outputs
    */
   async getOutputs(outputs) {
     throw new Error("Subclass must implement");

@@ -21,7 +21,6 @@ describe("Scratchpad", function() {
     let wallet = TestUtils.getWalletRpc();
     await TestUtils.initWalletRpc();
     
-    
 //    try { await wallet.startMining(8, false, true); }
 //    catch (e) { }
 //    await wallet.stopMining();
@@ -29,8 +28,20 @@ describe("Scratchpad", function() {
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
     
+    // print first tx
+    console.log("FIRST BLOCKS");
+    for (let block of await daemon.getBlocksByRange(20000, 40000)) {
+      if (!block.getTxs()) continue;
+      for (let tx of block.getTxs()) {
+        console.log(tx.toString());
+        console.log(tx.getVins());
+        console.log(tx.getVouts()[0]);
+        return;
+      }
+    }
     
     // get last 200 blocks
+    console.log("LAST 200 BLOCKS");
     let blocks = await daemon.getBlocksByRange(await daemon.getHeight() - 200);
     for (let block of blocks) {
       if (!block.getTxs()) continue;
@@ -41,7 +52,6 @@ describe("Scratchpad", function() {
         return;
       }
     }
-    
     
 //    let txId = "d92f894485fce8a49d284e246157b0ac88316796563e16a171edd741823e308b";
 //    

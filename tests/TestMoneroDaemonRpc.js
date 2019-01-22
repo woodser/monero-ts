@@ -428,16 +428,15 @@ class TestMoneroDaemonRpc {
       });
       
       it("Can determine if key images can be spent", async function() {
-        // is_key_image_spent
-        throw new Error("Not implemented");
+        throw new Error("Not implemented");	 // is_key_image_spent
       });
       
-      it("Can get global outputs given a list of transaction ids (binary)", async function() {
-        throw new Error("Not implemented");
+      it("Can get output indices given a list of transaction ids (binary)", async function() {
+        throw new Error("Not implemented"); // get_o_indexes.bin
       });
       
       it("Can get outputs given a list of output amounts and indices (binary)", async function() {
-        throw new Error("Not implemented");
+        throw new Error("Not implemented"); // get_outs.bin
       });
       
       it("Can get an output histogram", async function() {
