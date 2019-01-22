@@ -1,5 +1,4 @@
 v0.0.3
-test structure of daemon tx vins and vouts
 daemon can determine if key images can be spent
 remaining daemon tests
 
