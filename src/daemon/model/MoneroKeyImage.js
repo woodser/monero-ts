@@ -87,4 +87,13 @@ class MoneroKeyImage extends MoneroDaemonModel {
   }
 }
 
+/**
+ * Enumerates key image spend statuses.
+ */
+MoneroKeyImage.SpentStatus = {
+    UNSPENT: 0,
+    TXPOOL: 1,
+    CONFIRMED: 2
+}
+
 module.exports = MoneroKeyImage;

@@ -325,7 +325,7 @@ class TestMoneroDaemonRpc {
         for (let image of txPool.getSpentKeyImages()) {
           assert(image instanceof MoneroKeyImage);
           assert(image.getHex());
-          assert.equal(image.getSpentStatus(), 1);
+          assert.equal(image.getSpentStatus(), MoneroKeyImage.SpentStatus.TXPOOL);
           assert(Array.isArray(image.getSpendingTxIds()));
           assert(image.getSpendingTxIds().length > 0);
           assert(image.getSpendingTxIds().includes(tx.getId()));
