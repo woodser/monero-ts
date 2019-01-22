@@ -1228,7 +1228,7 @@ class TestMoneroWalletCommon {
         assert(Array.isArray(images));
         assert(images.length > 0, "No signed key images in wallet");
         for (let image of images) {
-          assert(image.getKeyImage());
+          assert(image.getHex());
           assert(image.getSignature());
         }
       });
@@ -1250,7 +1250,7 @@ class TestMoneroWalletCommon {
         assert(Array.isArray(images));
         assert(images.length > 0, "No new key images in last import");
         for (let image of images) {
-          assert(image.getKeyImage());
+          assert(image.getHex());
           assert(image.getSignature());
         }
       });

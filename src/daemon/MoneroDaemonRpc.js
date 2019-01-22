@@ -816,7 +816,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let keyImage = new MoneroKeyImage();
     for (let key of Object.keys(rpcKeyImage)) {
       let val = rpcKeyImage[key];
-      if (key === "id_hash") keyImage.setKeyImage(val);
+      if (key === "id_hash") keyImage.setHex(val);
       else if (key === "txs_hashes") {
         let ids = [];
         for (let id of val) ids.push(id);

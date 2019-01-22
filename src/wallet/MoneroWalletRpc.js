@@ -19,6 +19,7 @@ const MoneroTransferFilter = require("./filters/MoneroTransferFilter");
 const MoneroVoutFilter = require("./filters/MoneroVoutFilter");
 const MoneroAccountTag = require("./model/MoneroAccountTag");
 const MoneroAddressBookEntry = require("./model/MoneroAddressBookEntry");
+const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
 
 /**
  * Implements a Monero wallet using monero-wallet-rpc.
@@ -578,28 +579,6 @@ class MoneroWalletRpc extends MoneroWallet {
     return relayedTxs;
   }
   
-  async getKeyImages() {
-    
-    // send rpc request
-   let resp = await this.config.rpc.sendJsonRequest("export_key_images");
-   
-   // build key images from response
-   let keyImages = [];
-   if (resp.signed_key_images) {
-     for (let rpcKeyImage of resp.signed_key_images) {
-       let keyImage = new MoneroKeyImage();
-       keyImages.push(keyImage);
-       keyImage.setId(rpcKeyImage.key_image);
-       keyImage.setSignature(rpcKeyImage.signature);
-     }
-   }
-   return keyImages;
-  }
-  
-  async importKeyImages() {
-    throw new Error("Not implemented"); 
-  }
-  
   async getTxNote(txId) {
     return (await this.getTxNotes([txId]))[0];
   }
@@ -808,7 +787,7 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async importKeyImages(keyImages) {
-    throw new Error("Subclass must implement");
+    throw new Error("Not implemented");
   }
   
   async setAttribute(key, val) {
@@ -1030,7 +1009,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let val = rpcVout[key];
       if (key === "amount") vout.setAmount(new BigInteger(val));
       else if (key === "spent") vout.setIsSpent(val);
-      else if (key === "key_image") vout.setKeyImage(val);
+      else if (key === "key_image") vout.setKeyImage(new MoneroKeyImage(val));
       else if (key === "global_index") vout.setIndex(val);
       else if (key === "tx_hash") tx.setId(val);
       else if (key === "subaddr_index") {

@@ -1,49 +1,83 @@
 const MoneroDaemonModel = require("./MoneroDaemonModel");
 
 /**
- * Represents a Monero key image.
+ * Models a Monero key image.
  */
 class MoneroKeyImage extends MoneroDaemonModel {
   
-  constructor(json) {
+  /**
+   * Constructs the model.
+   * 
+   * @param stateOrHex is model state or json to initialize from, or a key image hex string (optional)
+   * @param signature is the key image's signature
+   */
+  constructor(stateOrHex, signature) {
     super();
-    this.json = Object.assign({}, json);
+    
+    // initialize without state
+    if (stateOrHex === undefined || typeof stateOrHex === "string") {
+      this.state = {};
+      this.setHex(stateOrHex);
+      this.setSignature(signature);
+    }
+    
+    // initialize from state
+    else {
+      this.state = Object.assign({}, stateOrHex);
+    }
   }
 
-  getKeyImage() {
-    return this.json.keyImage;
+  getHex() {
+    return this.state.hex;
   }
 
-  setKeyImage(keyImage) { // TODO: replace with setId(), getId()?
-    this.json.keyImage = keyImage;
+  setHex(hex) {
+    this.state.hex = hex;
   }
 
   getSignature() {
-    return this.json.signature;
+    return this.state.signature;
   }
 
   setSignature(signature) {
-    this.json.signature = signature;
+    this.state.signature = signature;
   }
 
   getSpentStatus() {
-    return this.json.spentStatus;
+    return this.state.spentStatus;
   }
 
   setSpentStatus(spentStatus) {
-    this.json.spentStatus = spentStatus;
+    this.state.spentStatus = spentStatus;
   }
   
   getSpendingTxIds() {
-    return this.json.spendingTxIds;
+    return this.state.spendingTxIds;
   }
   
   setSpendingTxIds(spendingTxIds) {
-    this.json.spendingTxIds = spendingTxIds;
+    this.state.spendingTxIds = spendingTxIds;
+  }
+  
+  copy() {
+    return new MoneroKeyImage(this.toJson());
   }
   
   toJson() {
-    return this.json;
+    return Object.assign({}, this.state);
+  }
+  
+  toString(indent = 0) {
+    let str = "";
+    str += MoneroUtils.kvLine("Hex", this.getHex(), indent);
+    str += MoneroUtils.kvLine("Signature", this.getSignature(), indent);
+    str += MoneroUtils.kvLine("Spent status", this.getSpentStatus(), indent);
+    str += MoneroUtils.kvLine("Spending tx ids", this.getSpendingTxIds(), indent);
+    return str.slice(0, str.length - 1);  // strip last newline
+  }
+  
+  merge(keyImage) {
+    throw new Error("Not implemented");
   }
 }
 

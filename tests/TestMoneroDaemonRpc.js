@@ -322,8 +322,8 @@ class TestMoneroDaemonRpc {
         assert(Array.isArray(txPool.getSpentKeyImages()));
         assert(txPool.getSpentKeyImages().length > 0, "Test requires spent key images in the tx pool");
         for (let image of txPool.getSpentKeyImages()) {
-          assert(image.getKeyImage());
-          assert.equal(image.getSpentStatus(), true);
+          assert(image.getHex());
+          assert.equal(image.getSpentStatus(), 1);
           assert(Array.isArray(image.getSpendingTxIds()));
           assert(image.getSpendingTxIds().length > 0);
           assert(image.getSpendingTxIds().includes(tx.getId()));

@@ -3,6 +3,8 @@ const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/b
 
 /**
  * Represents a transaction output.
+ * 
+ * TODO: instantiate from daemon block vouts
  */
 class MoneroOutput {
   
@@ -17,6 +19,7 @@ class MoneroOutput {
     
     // deserialize fields if necessary
     if (state.amount && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(state.amount);
+    if (state.keyImage && !(state.keyImage instanceof MoneroKeyImage)) state.keyImage = new MoneroKeyImage(state.keyImage);
   }
   
   getKeyImage() {
@@ -53,21 +56,26 @@ class MoneroOutput {
   toJson() {
     let json = Object.assign({}, this.state);
     if (this.getAmount()) json.amount = this.getAmount().toString();
+    if (this.getKeyImage()) json.keyImage = this.keyImage().toJson();
     return json;
-  }
-  
-  merge(output) {
-    this.setKeyImage(MoneroUtils.reconcile(this.getKeyImage(), output.getKeyImage()));
-    this.setAmount(MoneroUtils.reconcile(this.getAmount(), output.getAmount()));
-    this.setIndex(MoneroUtils.reconcile(this.getIndex(), output.getIndex()));
   }
   
   toString(indent = 0) {
     let str = "";
-    str += MoneroUtils.kvLine("Key image", this.getKeyImage(), indent);
+    if (this.getKeyImage()) {
+      str += MoneroUtils.kvLine("Key image", "", indent);
+      str += this.getKeyImage().toString() + "\n";
+    }
     str += MoneroUtils.kvLine("Amount", this.getAmount(), indent);
     str += MoneroUtils.kvLine("Index", this.getIndex(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
+  }
+  
+  merge(output) {
+    if (this.getKeyImage() === undefined) this.setKeyImage(output.getKeyImage());
+    else if (output.getKeyImage() !== undefined) this.getKeyImage().merege(output.getKeyImage());
+    this.setAmount(MoneroUtils.reconcile(this.getAmount(), output.getAmount()));
+    this.setIndex(MoneroUtils.reconcile(this.getIndex(), output.getIndex()));
   }
 }
 
