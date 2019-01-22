@@ -59,6 +59,15 @@ class MoneroOutput {
     return this;
   }
   
+  getRingOutputIndices() {
+    return this.state.ringOutputIndices;
+  }
+  
+  setRingOutputIndices(ringOutputIndices) {
+    this.state.ringOutputIndices = ringOutputIndices;
+    return this;
+  }
+  
   copy() {
     return new MoneroOutput(this.toJson());
   }

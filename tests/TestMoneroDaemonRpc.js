@@ -6,6 +6,7 @@ const TestUtils = require("./TestUtils");
 const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
 const MoneroBan = require("../src/daemon/model/MoneroBan");
 const MoneroTx = require("../src/daemon/model/MoneroTx");
+const MoneroOutput = require("../src/daemon/model/MoneroOutput");
 const MoneroKeyImage = require("../src/daemon/model/MoneroKeyImage")
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
 const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
@@ -259,7 +260,7 @@ class TestMoneroDaemonRpc {
         throw new Error("Not implemented");
       });
       
-      it("Can get transactions", async function() {
+      it("Can get transactions by id", async function() {
         
         // get valid height range
         let height = await daemon.getHeight();
@@ -882,9 +883,15 @@ function testTx(tx, config) {
     assert(tx.getVersion() >= 0);
     assert(tx.getUnlockTime() >= 0);
     assert(tx.getVins() && Array.isArray(tx.getVins()) && tx.getVins().length >= 0);
-    assert(tx.getVins()[0].key.k_image.length === 64);  // TODO: update vins and vouts with real model
+    for (let vin of tx.getVins()) {
+      testVin(vin);
+      assert(tx === vin.getTx());
+    }
     assert(tx.getVouts() && Array.isArray(tx.getVouts()) && tx.getVouts().length >= 0);
-    tx.getVouts().map(vout => { if (vout.target) assert(vout.target.key.length === 64); });
+    for (let vout of tx.getVouts()) {
+      testVout(vout);
+      assert(tx === vout.getTx());
+    }
     assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
     assert(typeof tx.getRctSignatures().type === "number");
   } else {
@@ -1152,6 +1159,26 @@ async function getUnrelayedTx(wallet, accountIdx) {
   assert(tx.getHex());
   assert.equal(tx.getDoNotRelay(), true);
   return tx;
+}
+
+function testVin(vin) {
+  testOutput(vin);
+  assert(vin.getRingOutputIndices() && Array.isArray(vin.getRingOutputIndices()) && vin.getRingOutputIndices().length > 0);
+  for (let index of vin.getRingOutputIndices()) {
+    assert.equal(typeof index, "number")
+    assert(index >= 0);
+  }
+}
+
+function testVout(vout) {
+  testOutput(vout);
+}
+
+function testOutput(output) { 
+  assert(output instanceof MoneroOutput);
+  TestUtils.testUnsignedBigInteger(output.getAmount());
+  assert(output.getKeyImage());
+  assert(output.getKeyImage().getHex().length === 64);
 }
 
 module.exports = TestMoneroDaemonRpc;
