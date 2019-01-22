@@ -2,6 +2,7 @@ v0.0.3
 daemon can determine if key images can be spent
 remaining daemon tests
 
+daemon notification test needs to test tx merging
 send(configOrAddress, amount) which supports {} and MoneroSendConfig
 standardize tx note over description
 test that note is set if specified in send config
