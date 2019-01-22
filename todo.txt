@@ -38,9 +38,8 @@ csv export of types
 daemon vins like vouts?
 response getIsTrusted() -> getIsUntrusted()? semantic difference?
 refactor copying to not be downward of a tree rooted at tx but instead correct per each part of a graph
+use enum instead of spent status 0, 1, 2
 
-test key image merging
-test copy in get vouts tests
 test response info for transactions, transfers, and vouts
 test daemon getIsCoinbase()
 test getting coinbase txs by id
