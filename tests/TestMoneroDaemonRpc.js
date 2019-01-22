@@ -428,7 +428,7 @@ class TestMoneroDaemonRpc {
         assert.equal(txPool.getTxs().length, 0);
       });
       
-      it("Can determine if key images can be spent", async function() {
+      it("Can the spent status of a key image", async function() {
         throw new Error("Not implemented");	 // is_key_image_spent
       });
       
