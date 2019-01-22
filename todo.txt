@@ -1,5 +1,4 @@
 v0.0.3
-test response info for transctions, transfers, and vouts
 send(configOrAddress, amount) which supports {} and MoneroSendConfig
 standardize tx note over description
 test that note is set if specified in send config
@@ -38,7 +37,11 @@ support setting daemon log level
 csv export of types
 daemon vins like vouts?
 response getIsTrusted() -> getIsUntrusted()? semantic difference?
+refactor copying to not be downward of a tree rooted at tx but instead correct per each part of a graph
 
+test key image merging
+test copy in get vouts tests
+test response info for transactions, transfers, and vouts
 test daemon getIsCoinbase()
 test getting coinbase txs by id
 test response info of wallet.getTxs()

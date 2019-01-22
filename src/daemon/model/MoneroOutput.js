@@ -1,5 +1,6 @@
 const MoneroUtils = require("../../utils/MoneroUtils");
 const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const MoneroKeyImage = require("./MoneroKeyImage");
 
 /**
  * Represents a transaction output.
@@ -20,6 +21,15 @@ class MoneroOutput {
     // deserialize fields if necessary
     if (state.amount && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(state.amount);
     if (state.keyImage && !(state.keyImage instanceof MoneroKeyImage)) state.keyImage = new MoneroKeyImage(state.keyImage);
+  }
+  
+  getTx() {
+    return this.state.tx;
+  }
+  
+  setTx(tx) {
+    this.state.tx = tx;
+    return this;
   }
   
   getKeyImage() {
@@ -55,8 +65,9 @@ class MoneroOutput {
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (this.getAmount()) json.amount = this.getAmount().toString();
-    if (this.getKeyImage()) json.keyImage = this.keyImage().toJson();
+    if (this.getAmount()) json.amount = this.getAmount() ? this.getAmount().toString() : undefined;
+    if (this.getKeyImage()) json.keyImage = this.getKeyImage() ? this.getKeyImage().toJson() : undefined;
+    delete json.tx;
     return json;
   }
   
@@ -64,7 +75,7 @@ class MoneroOutput {
     let str = "";
     if (this.getKeyImage()) {
       str += MoneroUtils.kvLine("Key image", "", indent);
-      str += this.getKeyImage().toString() + "\n";
+      str += this.getKeyImage().toString(indent + 1) + "\n";
     }
     str += MoneroUtils.kvLine("Amount", this.getAmount(), indent);
     str += MoneroUtils.kvLine("Index", this.getIndex(), indent);
@@ -72,8 +83,10 @@ class MoneroOutput {
   }
   
   merge(output) {
+    assert(output instanceof MoneroOutput);
+    if (this === output) return;
     if (this.getKeyImage() === undefined) this.setKeyImage(output.getKeyImage());
-    else if (output.getKeyImage() !== undefined) this.getKeyImage().merege(output.getKeyImage());
+    else if (output.getKeyImage() !== undefined) this.getKeyImage().merge(output.getKeyImage());
     this.setAmount(MoneroUtils.reconcile(this.getAmount(), output.getAmount()));
     this.setIndex(MoneroUtils.reconcile(this.getIndex(), output.getIndex()));
   }

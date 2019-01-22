@@ -14,19 +14,6 @@ class MoneroWalletOutput extends MoneroOutput {
    */
   constructor(state) {
     super(state);
-    state = this.state;
-    
-    // deserialize fields if necessary
-    if (state.amount && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(state.amount);
-  }
-  
-  getTx() {
-    return this.state.tx;
-  }
-  
-  setTx(tx) {
-    this.state.tx = tx;
-    return this;
   }
   
   getAccountIndex() {
@@ -56,6 +43,24 @@ class MoneroWalletOutput extends MoneroOutput {
     return this;
   }
   
+  copy() {
+    return new MoneroWalletOutput(this.toJson());
+  }
+  
+  toJson() {
+    let json = Object.assign({}, this.state, super.toJson());
+    delete json.tx;
+    return json;
+  }
+  
+  toString(indent) {
+    let str = super.toString(indent) + "\n"
+    str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
+    str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
+    str += MoneroUtils.kvLine("Is spent", this.getIsSpent(), indent);
+    return str.slice(0, str.length - 1);  // strip last newline
+  }
+  
   /**
    * Updates this output by merging the latest information from the given
    * output.
@@ -79,14 +84,6 @@ class MoneroWalletOutput extends MoneroOutput {
       this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), output.getSubaddressIndex()));
       this.setIsSpent(MoneroUtils.reconcile(this.getIsSpent(), output.getIsSpent(), {resolveTrue: true})); // output can become spent
     }
-  }
-  
-  toString(indent) {
-    let str = super.toString(indent) + "\n"
-    str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
-    str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
-    str += MoneroUtils.kvLine("Is spent", this.getIsSpent(), indent);
-    return str.slice(0, str.length - 1);  // strip last newline
   }
 }
 

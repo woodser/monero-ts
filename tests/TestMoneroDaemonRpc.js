@@ -1,12 +1,13 @@
 const assert = require("assert");
+const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const GenUtils = require("../src/utils/GenUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const TestUtils = require("./TestUtils");
 const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
 const MoneroBan = require("../src/daemon/model/MoneroBan");
 const MoneroTx = require("../src/daemon/model/MoneroTx");
-const GenUtils = require("../src/utils/GenUtils");
+const MoneroKeyImage = require("../src/daemon/model/MoneroKeyImage")
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
-const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
 
 /**

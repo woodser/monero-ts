@@ -1,3 +1,4 @@
+const MoneroUtils = require("../../utils/MoneroUtils");
 const MoneroDaemonModel = require("./MoneroDaemonModel");
 
 /**
@@ -77,7 +78,12 @@ class MoneroKeyImage extends MoneroDaemonModel {
   }
   
   merge(keyImage) {
-    throw new Error("Not implemented");
+    assert(keyImage instanceof MoneroKeyImage);
+    if (keyImage === this) return;
+    this.setHex(MoneroUtils.reconcile(this.getHex(), keyImage.getHex()));
+    this.setSignature(MoneroUtils.reconcile(this.getSignature(), keyImage.getSignature()));
+    this.setSpentStatus(MoneroUtils.reconcile(this.getSpentStatus(), keyImage.getSpentStatus()));
+    this.setSpendingTxIds(MoneroUtils.reconcile(this.getSpendingTxIds(), keyImage.getSpendingTxIds()));
   }
 }
 

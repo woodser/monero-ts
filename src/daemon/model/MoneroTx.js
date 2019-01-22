@@ -478,7 +478,7 @@ class MoneroTx extends MoneroDaemonModel {
         merger.setTx(this);
         if (!this.getVouts()) this.setVouts([]);
         for (let mergee of this.getVouts()) {
-          if (mergee.getKeyImage() === merger.getKeyImage()) {
+          if (mergee.getKeyImage().getHex() === merger.getKeyImage().getHex()) {
             mergee.merge(merger);
             merged = true;
             break;
