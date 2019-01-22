@@ -342,7 +342,7 @@ class MoneroWalletLocal extends MoneroWallet {
         let pubKeyDerived = this.cache.coreUtils.derive_public_key(derivation, outIdx, this.cache.pubSpendKey);
         
         // check if wallet owns output
-        if (tx.getVouts()[outIdx].target.key === pubKeyDerived) {
+        if (tx.getVouts()[outIdx].getKeyImage().getHex() === pubKeyDerived) {
           // TODO: now what?
           //console.log("THIS MY OUTPUT AT HEIGHT " + block.getHeader().getHeight() + "!!!");
         }
