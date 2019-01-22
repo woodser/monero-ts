@@ -322,6 +322,7 @@ class TestMoneroDaemonRpc {
         assert(Array.isArray(txPool.getSpentKeyImages()));
         assert(txPool.getSpentKeyImages().length > 0, "Test requires spent key images in the tx pool");
         for (let image of txPool.getSpentKeyImages()) {
+          assert(image instanceof MoneroKeyImage);
           assert(image.getHex());
           assert.equal(image.getSpentStatus(), 1);
           assert(Array.isArray(image.getSpendingTxIds()));
@@ -881,7 +882,7 @@ function testTx(tx, config) {
     assert(tx.getVersion() >= 0);
     assert(tx.getUnlockTime() >= 0);
     assert(tx.getVins() && Array.isArray(tx.getVins()) && tx.getVins().length >= 0);
-    assert(tx.getVins()[0].key.k_image.length === 64);
+    assert(tx.getVins()[0].key.k_image.length === 64);  // TODO: update vins and vouts with real model
     assert(tx.getVouts() && Array.isArray(tx.getVouts()) && tx.getVouts().length >= 0);
     tx.getVouts().map(vout => { if (vout.target) assert(vout.target.key.length === 64); });
     assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);

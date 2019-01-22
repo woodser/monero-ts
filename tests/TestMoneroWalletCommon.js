@@ -1236,7 +1236,6 @@ class TestMoneroWalletCommon {
       it("Can get new key images from the last import", async function() {
         
         // get outputs hex
-        // TODO: these are already known to the wallet, so no new key images will be imported
         let outputsHex = await wallet.getOutputsHex();
         
         // import outputs hex
@@ -1248,7 +1247,7 @@ class TestMoneroWalletCommon {
         // get and test new key images from last import
         let images = await wallet.getNewKeyImagesFromLastImport();
         assert(Array.isArray(images));
-        assert(images.length > 0, "No new key images in last import");
+        assert(images.length > 0, "No new key images in last import");  // TODO: these are already known to the wallet, so no new key images will be imported
         for (let image of images) {
           assert(image.getHex());
           assert(image.getSignature());
@@ -1261,8 +1260,8 @@ class TestMoneroWalletCommon {
         assert(images.length > 0, "Wallet does not have any key images; run send tests");
         let result = await wallet.importKeyImages(images);
         assert(result.getHeight() > 0);
-        TestUtils.testUnsignedBigInteger(result.getSpent(), true);  // tests assume wallet has spend history and balance
-        TestUtils.testUnsignedBigInteger(result.getUnspent(), true);
+        TestUtils.testUnsignedBigInteger(result.getAmountSpent(), true);  // tests assume wallet has spend history and balance
+        TestUtils.testUnsignedBigInteger(result.getAmountUnspent(), true);
       });
       
       it("Can sign and verify messages", async function() {

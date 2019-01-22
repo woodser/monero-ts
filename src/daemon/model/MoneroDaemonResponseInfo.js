@@ -1,4 +1,3 @@
-
 /**
  * Model for common daemon response attributes.
  */

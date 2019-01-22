@@ -20,6 +20,7 @@ const MoneroVoutFilter = require("./filters/MoneroVoutFilter");
 const MoneroAccountTag = require("./model/MoneroAccountTag");
 const MoneroAddressBookEntry = require("./model/MoneroAddressBookEntry");
 const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
+const MoneroKeyImageImportResult = require("./model/MoneroKeyImageImportResult");
 
 /**
  * Implements a Monero wallet using monero-wallet-rpc.
@@ -787,7 +788,17 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async importKeyImages(keyImages) {
-    throw new Error("Not implemented");
+    
+    // send request
+    let keyImagesParam = keyImages.map(keyImage => ({key_image: keyImage.getHex(), signature: keyImage.getSignature()}));
+    let resp = await this.config.rpc.sendJsonRequest("import_key_images", {signed_key_images: keyImagesParam});
+    
+    // build and return result
+    let result = new MoneroKeyImageImportResult();
+    result.setHeight(resp.height);
+    result.setAmountSpent(new BigInteger(resp.spent));
+    result.setAmountUnspent(new BigInteger(resp.unspent));
+    return result;
   }
   
   async setAttribute(key, val) {
