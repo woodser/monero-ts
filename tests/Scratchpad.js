@@ -29,21 +29,35 @@ describe("Scratchpad", function() {
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
     
-    let txId = "d92f894485fce8a49d284e246157b0ac88316796563e16a171edd741823e308b";
     
-    let accounts = await wallet.getAccounts(true);
-    for (let account of accounts) {
-      if (account.getUnlockedBalance().toJSValue() > 0) {
-        console.log("** Account");
-        console.log(account.toString());
+    // get last 200 blocks
+    let blocks = await daemon.getBlocksByRange(await daemon.getHeight() - 200);
+    for (let block of blocks) {
+      if (!block.getTxs()) continue;
+      for (let tx of block.getTxs()) {
+        console.log(tx.toString());
+        console.log(tx.getVins());
+        console.log(tx.getVouts()[0]);
+        return;
       }
-//      for (let subaddress of account.getSubaddresses()) {
-//        if (subaddress.getUnlockedBalance().toJSValue() > 0) {
-//          console.log("** SUBaddress");
-//          console.log(subaddress.toString());
-//        }
-//      }
     }
+    
+    
+//    let txId = "d92f894485fce8a49d284e246157b0ac88316796563e16a171edd741823e308b";
+//    
+//    let accounts = await wallet.getAccounts(true);
+//    for (let account of accounts) {
+//      if (account.getUnlockedBalance().toJSValue() > 0) {
+//        console.log("** Account");
+//        console.log(account.toString());
+//      }
+////      for (let subaddress of account.getSubaddresses()) {
+////        if (subaddress.getUnlockedBalance().toJSValue() > 0) {
+////          console.log("** SUBaddress");
+////          console.log(subaddress.toString());
+////        }
+////      }
+//    }
     
 //    // fetch transactions
 //    let txs = await wallet.getTxs({txId: txId, getVouts: true});
