@@ -2,6 +2,7 @@ v0.0.3
 daemon can determine if key images can be spent
 remaining daemon tests
 
+vout filter within MoneroTxFilter
 undefined amounts instead of 0 for rct amounts
 daemon.getTxs() with decodeAsJson = false not tested; needed?
 daemon.getTxs() doesn't return vins/vouts unless decoded as json
