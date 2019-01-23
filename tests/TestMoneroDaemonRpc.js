@@ -326,6 +326,7 @@ class TestMoneroDaemonRpc {
         for (let image of txPool.getSpentKeyImages()) {
           assert(image instanceof MoneroKeyImage);
           assert(image.getHex());
+          assert.equal(typeof image.getSpentStatus(), "number");
           assert.equal(image.getSpentStatus(), MoneroKeyImage.SpentStatus.TX_POOL);
           assert(Array.isArray(image.getSpendingTxIds()));
           assert(image.getSpendingTxIds().length > 0);
@@ -438,11 +439,11 @@ class TestMoneroDaemonRpc {
           txs.push(tx);
         }
         
-        // collect key images // TODO: better way to get key images?
+        // collect key images being spent as hex // TODO: better way to get key images?
         let keyImages = [];
         let txIds = txs.map(tx => tx.getId());
         for (let tx of await daemon.getTxs(txIds, true)) {
-          for (let vout of tx.getVouts()) keyImages.push(vout.getKeyImage().getHex());
+          for (let vin of tx.getVins()) keyImages.push(vin.getKeyImage().getHex());
         }
         
         // flush txs
@@ -452,7 +453,7 @@ class TestMoneroDaemonRpc {
         await testSpentStatuses(keyImages, MoneroKeyImage.SpentStatus.NOT_SPENT);
         
         // submit txs to the pool
-        for (let tx of txs) await daemon.submitTxHex(tx.getHex());
+        for (let tx of txs) await daemon.submitTxHex(tx.getHex(), true);
         
         // key images are in the tx pool
         await testSpentStatuses(keyImages, MoneroKeyImage.SpentStatus.TX_POOL);
@@ -463,12 +464,12 @@ class TestMoneroDaemonRpc {
         // helper function to check the spent status of a key image or array of key images
         async function testSpentStatuses(keyImages, expectedStatus) {
           
-          // test one
+          // test image
           for (let keyImage of keyImages) {
             assert.equal(await daemon.getSpentStatus(keyImage), expectedStatus);
           }
           
-          // test list
+          // test array of images
           let statuses = await daemon.getSpentStatuses(keyImages);
           assert(Array.isArray(statuses));
           assert.equal(statuses.length, keyImages.length);

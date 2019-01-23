@@ -96,6 +96,7 @@ class MoneroRpc {
    * E.g. "/get_transactions" with params
    */
   async sendPathRequest(path, params) {
+    //console.log("sendPathRequest(" + path + ", " + JSON.stringify(params) + ")");
     
     // build request
     let opts = {

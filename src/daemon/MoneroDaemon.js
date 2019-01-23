@@ -201,7 +201,7 @@ class MoneroDaemon {
    */
   async relayTxsById(txIds) {
     throw new Error("Subclass must implement");
-  }  
+  }
   
   /**
    * Get valid transactions seen by the node but not yet mined into a block, as well
@@ -249,13 +249,23 @@ class MoneroDaemon {
   }
   
   /**
-   * Checks if outputs have been spent using key images associated with the outputs.
+   * Get the spent status of the given key image.
    * 
-   * @param {string[]} keyImages are key image hex strings to check
-   * @returns {int[]} indicate spent status for each output (0=unspent, 1=spent confirmed, 2=spent tx pool)
+   * @param {string} keyImage is key image hex to get the status of
+   * @returns {MoneroKeyImage.SpentStatus} is the status of the key image
    */
-  async getOutputSpentStatus() {
-    throw new Error("Not implemented");
+  async getSpentStatus(keyImage) {
+    return (await this.getSpentStatuses([keyImage]))[0];
+  }
+  
+  /**
+   * Get the spent status of each given key image.
+   * 
+   * @param {[string]} keyImages are hex key images to get the statuses of
+   * @return {[MoneroKeyImage.SpentStatus]} is the status for each key image
+   */
+  async getSpentStatuses(keyImages) {
+    throw new Error("Subclass must implement");
   }
   
   /**

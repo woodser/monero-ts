@@ -261,7 +261,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (resp.spent_key_images) {
       for (let rpcKeyImage of resp.spent_key_images) {
         let keyImage = MoneroDaemonRpc._buildSpentKeyImage(rpcKeyImage);
-        keyImage.setSpentStatus(true);
+        keyImage.setSpentStatus(MoneroKeyImage.SpentStatus.TX_POOL);
         keyImages.push(keyImage);
       }
     }
@@ -301,6 +301,75 @@ class MoneroDaemonRpc extends MoneroDaemon {
     }
     
     return stats;
+  }
+  
+  async flushTxPool(ids) {
+    if (ids) ids = GenUtils.listify(ids);
+    let resp = await this.config.rpc.sendJsonRequest("flush_txpool", {txids: ids});
+    let model = new MoneroDaemonModel();
+    MoneroDaemonRpc._setResponseInfo(resp, model);
+    return model;
+  }
+  
+  async getSpentStatuses(keyImages) {
+    let resp = await this.config.rpc.sendPathRequest("is_key_image_spent", {key_images: keyImages});
+    return resp.spent_status;
+  }
+  
+  async getOutputHistogram(amounts, minCount, maxCount, isUnlocked, recentCutoff) {
+    
+    // send rpc request
+    let resp = await this.config.rpc.sendJsonRequest("get_output_histogram", {
+      amounts: amounts,
+      min_count: minCount,
+      max_count: maxCount,
+      unlocked: isUnlocked,
+      recent_cutoff: isUnlocked
+    });
+    
+    // build histogram entries from response
+    let entries = [];
+    if (!resp.histogram) return entries;
+    for (let rpcEntry of resp.histogram) {
+      let entry = MoneroDaemonRpc._buildOutputHistogramEntry(rpcEntry);
+      entries.push(entry);
+      MoneroDaemonRpc._setResponseInfo(resp, entry);
+    }
+    return entries;
+  }
+  
+  async getOutputDistribution(amounts, cumulative, startHeight, endHeight) {
+    throw new Error("Not implemented (response 'distribution' field is binary)");
+    
+//    let amountStrs = [];
+//    for (let amount of amounts) amountStrs.push(amount.toJSValue());
+//    console.log(amountStrs);
+//    console.log(cumulative);
+//    console.log(startHeight);
+//    console.log(endHeight);
+//    
+//    // send rpc request
+//    console.log("*********** SENDING REQUEST *************");
+//    if (startHeight === undefined) startHeight = 0;
+//    let resp = await this.config.rpc.sendJsonRequest("get_output_distribution", {
+//      amounts: amountStrs,
+//      cumulative: cumulative,
+//      from_height: startHeight,
+//      to_height: endHeight
+//    });
+//    
+//    console.log("RESPONSE");
+//    console.log(resp);
+//    
+//    // build distribution entries from response
+//    let entries = [];
+//    if (!resp.distributions) return entries; 
+//    for (let rpcEntry of resp.distributions) {
+//      let entry = MoneroDaemonRpc._buildOutputDistributionEntry(rpcEntry);
+//      entries.push(entry);
+//      MoneroDaemonRpc._setResponseInfo(resp, entry);  // TODO: set same response info for every entry, else this gets prohibitively large?
+//    }
+//    return entries;
   }
   
   async getSyncInfo() {
@@ -401,70 +470,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async stopMining() {
     let resp = await this.config.rpc.sendPathRequest("stop_mining");
     return MoneroDaemonRpc._setResponseInfo(resp, new MoneroDaemonModel());
-  }
-  
-  async flushTxPool(ids) {
-    if (ids) ids = GenUtils.listify(ids);
-    let resp = await this.config.rpc.sendJsonRequest("flush_txpool", {txids: ids});
-    let model = new MoneroDaemonModel();
-    MoneroDaemonRpc._setResponseInfo(resp, model);
-    return model;
-  }
-  
-  async getOutputHistogram(amounts, minCount, maxCount, isUnlocked, recentCutoff) {
-    
-    // send rpc request
-    let resp = await this.config.rpc.sendJsonRequest("get_output_histogram", {
-      amounts: amounts,
-      min_count: minCount,
-      max_count: maxCount,
-      unlocked: isUnlocked,
-      recent_cutoff: isUnlocked
-    });
-    
-    // build histogram entries from response
-    let entries = [];
-    if (!resp.histogram) return entries;
-    for (let rpcEntry of resp.histogram) {
-      let entry = MoneroDaemonRpc._buildOutputHistogramEntry(rpcEntry);
-      entries.push(entry);
-      MoneroDaemonRpc._setResponseInfo(resp, entry);
-    }
-    return entries;
-  }
-  
-  async getOutputDistribution(amounts, cumulative, startHeight, endHeight) {
-    throw new Error("Not implemented (response 'distribution' field is binary)");
-    
-//    let amountStrs = [];
-//    for (let amount of amounts) amountStrs.push(amount.toJSValue());
-//    console.log(amountStrs);
-//    console.log(cumulative);
-//    console.log(startHeight);
-//    console.log(endHeight);
-//    
-//    // send rpc request
-//    console.log("*********** SENDING REQUEST *************");
-//    if (startHeight === undefined) startHeight = 0;
-//    let resp = await this.config.rpc.sendJsonRequest("get_output_distribution", {
-//      amounts: amountStrs,
-//      cumulative: cumulative,
-//      from_height: startHeight,
-//      to_height: endHeight
-//    });
-//    
-//    console.log("RESPONSE");
-//    console.log(resp);
-//    
-//    // build distribution entries from response
-//    let entries = [];
-//    if (!resp.distributions) return entries; 
-//    for (let rpcEntry of resp.distributions) {
-//      let entry = MoneroDaemonRpc._buildOutputDistributionEntry(rpcEntry);
-//      entries.push(entry);
-//      MoneroDaemonRpc._setResponseInfo(resp, entry);  // TODO: set same response info for every entry, else this gets prohibitively large?
-//    }
-//    return entries;
   }
   
   async nextBlockHeader() {
