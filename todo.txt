@@ -1,9 +1,7 @@
 v0.0.3
 get_transfers pool does not actually indicate it's relayed; return undefined?
 do vouts have key images or only vins? no - vout.target.key = stealth public key of receiver
-daemon can determine if key images can be spent
 remaining daemon tests
-
 txpool -> mempool?
 vout filter within MoneroTxFilter
 undefined amounts instead of 0 for rct amounts
