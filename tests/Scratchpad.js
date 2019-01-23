@@ -4,6 +4,7 @@ const TestMoneroWalletRpc = require("./TestMoneroWalletRpc")
 const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 const TestUtils = require("./TestUtils");
 const MoneroRpc = require("../src/rpc/MoneroRpc");
+const MoneroKeyImage = require("../src/daemon/model/MoneroKeyImage");
 const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
 const MoneroTxFilter = require("../src/wallet/filters/MoneroTxFilter");
 const MoneroWalletTx = require("../src/wallet/model/MoneroWalletTx");
@@ -21,12 +22,42 @@ describe("Scratchpad", function() {
     let wallet = TestUtils.getWalletRpc();
     await TestUtils.initWalletRpc();
     
+    // common variables
+    let txs;
+    let txId;
+    let vouts;
+    
 //    try { await wallet.startMining(8, false, true); }
 //    catch (e) { }
-    await wallet.stopMining();
+//    await wallet.stopMining();
 //    await daemon.stopMining();
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
+    
+//    await daemon.flushTxPool();
+    
+    
+    //console.log(await daemon.getTxPoolTxsAndSpentKeyImages());
+    
+    txs = await wallet.getTxs({isConfirmed: false, inTxPool: true, getVouts: true});
+    for (let tx of txs) {
+      console.log(tx.toString());
+    }
+    
+    vouts = await wallet.getVouts();
+    for (vout of vouts) {
+      let keyImage = vout.getKeyImage().getHex();
+      let spentStatus = await daemon.getSpentStatus(keyImage);
+      try {
+        assert.equal(vout.getIsSpent() ? MoneroKeyImage.SpentStatus.CONFIRMED : MoneroKeyImage.SpentStatus.NOT_SPENT, spentStatus);
+        console.log("cool");
+      } catch (e) {
+        console.log(vout.getTx().toString());
+        console.log(vout.toString());
+        console.log(await daemon.getSpentStatus(vout.getKeyImage().getHex()));
+        throw e;
+      }
+    }
     
 //    // print first tx
 //    console.log("FIRST BLOCKS");
@@ -53,24 +84,10 @@ describe("Scratchpad", function() {
 //      }
 //    }
     
-//    let txId = "d92f894485fce8a49d284e246157b0ac88316796563e16a171edd741823e308b";
+//    let txId = "648dcb81f4a0479772acbaa26bda2d45a374b837b1591629e2675f1933c2504e";
 //    
-//    let accounts = await wallet.getAccounts(true);
-//    for (let account of accounts) {
-//      if (account.getUnlockedBalance().toJSValue() > 0) {
-//        console.log("** Account");
-//        console.log(account.toString());
-//      }
-////      for (let subaddress of account.getSubaddresses()) {
-////        if (subaddress.getUnlockedBalance().toJSValue() > 0) {
-////          console.log("** SUBaddress");
-////          console.log(subaddress.toString());
-////        }
-////      }
-//    }
-    
 //    // fetch transactions
-//    let txs = await wallet.getTxs({txId: txId, getVouts: true});
+//    txs = await wallet.getTxs({txId: txId, getVouts: true});
 //    for (let tx of txs) {
 //      console.log(tx.toString());
 //    }

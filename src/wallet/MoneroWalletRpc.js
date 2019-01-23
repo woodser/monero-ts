@@ -263,7 +263,7 @@ class MoneroWalletRpc extends MoneroWallet {
     txFilter.setTransferFilter(undefined);
     
     // fetch all transfers that meet tx filter
-    let transfers = await this.getTransfers(new MoneroTransferFilter().setTxFilter(txFilter));  // TODO: {txFilter: txFilter} instead
+    let transfers = await this.getTransfers(new MoneroTransferFilter().setTxFilter(txFilter));  // TODO: {txFilter: txFilter} instead, need to resolve circular filter imports, also pass debugTxId here
     
     // collect unique txs from transfers
     let txs = Array.from(new Set(transfers.map(transfer => transfer.getTx())).values());

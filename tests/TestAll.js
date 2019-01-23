@@ -10,15 +10,15 @@ new TestMoneroDaemonRpc().runTests({
   testNotifications: false
 });
 
-//// test wallet rpc
-//new TestMoneroWalletRpc().runTests({
-//  liteMode: false, // skips some lengthy tests
-//  testNonSends: true,
-//  testSends: true,
-//  testResets: false,
-//  testNotifications: true
-//});
-//
+// test wallet rpc
+new TestMoneroWalletRpc().runTests({
+  liteMode: false, // skips some lengthy tests
+  testNonSends: true,
+  testSends: true,
+  testResets: false,
+  testNotifications: true
+});
+
 ////test sample code for readme
 //require("./TestSampleCode");
 //
@@ -40,4 +40,4 @@ new TestMoneroDaemonRpc().runTests({
 //require("./TestBooleanSet");
 
 // test scratchpad
-//require("./Scratchpad");
+require("./Scratchpad");

@@ -452,14 +452,21 @@ class TestMoneroDaemonRpc {
         // key images are not spent
         await testSpentStatuses(keyImages, MoneroKeyImage.SpentStatus.NOT_SPENT);
         
-        // submit txs to the pool
+        // submit txs to the pool but don't relay
         for (let tx of txs) await daemon.submitTxHex(tx.getHex(), true);
         
         // key images are in the tx pool
         await testSpentStatuses(keyImages, MoneroKeyImage.SpentStatus.TX_POOL);
         
-        // check status of confirmed key images
-        throw new Error("check status of confirmed key image");
+        // collect key images of confirmed txs
+        keyImages = [];
+        txs = await getConfirmedTxs(daemon, 10);
+        for (let tx of txs) {
+          for (let vin of tx.getVins()) keyImages.push(vin.getKeyImage().getHex());
+        }
+        
+        // key images are all spent
+        await testSpentStatuses(keyImages, MoneroKeyImage.SpentStatus.CONFIRMED);
         
         // helper function to check the spent status of a key image or array of key images
         async function testSpentStatuses(keyImages, expectedStatus) {
@@ -1224,6 +1231,22 @@ function testOutput(output) {
   TestUtils.testUnsignedBigInteger(output.getAmount());
   assert(output.getKeyImage());
   assert(output.getKeyImage().getHex().length === 64);
+}
+
+async function getConfirmedTxs(daemon, numTxs) {
+  let txs = [];
+  let numBlocksPerReq = 50;
+  for (let startIdx = await daemon.getHeight() - numBlocksPerReq; startIdx >= 0; startIdx -= numBlocksPerReq) {
+    let blocks = await daemon.getBlocksByRange(startIdx, startIdx + numBlocksPerReq);
+    for (let block of blocks) {
+      if (!block.getTxs()) continue;
+      for (let tx of block.getTxs()) {
+        txs.push(tx);
+        if (txs.length === numTxs) return txs;
+      }
+    }
+  }
+  throw new Error("Could not get " + numTxs + " confirmed txs");
 }
 
 module.exports = TestMoneroDaemonRpc;
