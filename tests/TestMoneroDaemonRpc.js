@@ -457,7 +457,8 @@ class TestMoneroDaemonRpc {
         // key images are in the tx pool
         await testSpentStatuses(keyImages, MoneroKeyImage.SpentStatus.TX_POOL);
         
-        // TODO: check status of confirmed key image
+        // check status of confirmed key images
+        throw new Error("check status of confirmed key image");
         
         // helper function to check the spent status of a key image or array of key images
         async function testSpentStatuses(keyImages, expectedStatus) {
