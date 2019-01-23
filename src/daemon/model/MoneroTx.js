@@ -12,6 +12,8 @@ class MoneroTx extends MoneroDaemonModel {
   /**
    * Constructs the model.
    * 
+   * TODO: treat vins just like vouts for merging, copying, deserialization
+   * 
    * @param state is model state or json to initialize from (optional)
    */
   constructor(state) {
@@ -403,7 +405,6 @@ class MoneroTx extends MoneroDaemonModel {
     str += MoneroUtils.kvLine("Hex", this.getHex(), indent);
     str += MoneroUtils.kvLine("Size", this.getSize(), indent);
     str += MoneroUtils.kvLine("Weight", this.getWeight(), indent);
-    str += MoneroUtils.kvLine("Vins", this.getVins(), indent);  // TODO: test/support like vouts
     str += MoneroUtils.kvLine("Metadata", this.getMetadata(), indent);
     str += MoneroUtils.kvLine("Common tx sets", this.getCommonTxSets(), indent);
     str += MoneroUtils.kvLine("Extra", this.getExtra(), indent);
@@ -416,6 +417,14 @@ class MoneroTx extends MoneroDaemonModel {
     str += MoneroUtils.kvLine("Max used block height", this.getMaxUsedBlockHeight(), indent);
     str += MoneroUtils.kvLine("Max used block id", this.getMaxUsedBlockId(), indent);
     str += MoneroUtils.kvLine("Signatures", this.getSignatures(), indent);
+    if (this.getVins()) {
+      str += MoneroUtils.kvLine("Vins", "", indent);
+      for (let i = 0; i < this.getVins().length; i++) {
+        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
+        str += this.getVins()[i].toString(indent + 2);
+        str += '\n'
+      }
+    }
     if (this.getVouts()) {
       str += MoneroUtils.kvLine("Vouts", "", indent);
       for (let i = 0; i < this.getVouts().length; i++) {
@@ -423,8 +432,6 @@ class MoneroTx extends MoneroDaemonModel {
         str += this.getVouts()[i].toString(indent + 2);
         str += '\n'
       }
-    } else {
-      str += MoneroUtils.kvLine("Vouts", this.getVouts(), indent);
     }
     return str.slice(0, str.length - 1);  // strip last newline
   }

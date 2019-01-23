@@ -156,6 +156,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.setId(rpcBlocks.blocks[blockIdx].tx_hashes[txIdx]);
         tx.setHeight(block.getHeader().getHeight());
         tx.setIsConfirmed(true);
+        tx.setInTxPool(false);
         tx.setIsCoinbase(false);
         tx.setIsRelayed(true);
         MoneroDaemonRpc._buildTx(rpcBlocks.txs[blockIdx][txIdx], tx);
@@ -189,7 +190,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (resp.txs) {
       for (let txIdx = 0; txIdx < resp.txs.length; txIdx++) {
         let tx = new MoneroTx();
-        tx.setIsConfirmed(true);
         tx.setIsCoinbase(false);
         MoneroDaemonRpc._buildTx(resp.txs[txIdx], tx);
         MoneroDaemonRpc._setResponseInfo(resp, tx);
@@ -594,13 +594,17 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (tx === undefined) tx = new MoneroTx();
     
     // initialize from rpc map
+    let blockHeight;
     for (let key of Object.keys(rpcTx)) {
       let val = rpcTx[key];
       if (key === "tx_hash" || key === "id_hash") MoneroUtils.safeSet(tx, tx.getId, tx.setId, val);
       else if (key === "block_timestamp") MoneroUtils.safeSet(tx, tx.getBlockTimestamp, tx.setBlockTimestamp, val);
       else if (key === "last_relayed_time") MoneroUtils.safeSet(tx, tx.getLastRelayedTime, tx.setLastRelayedTime, val);
       else if (key === "receive_time") MoneroUtils.safeSet(tx, tx.getReceivedTime, tx.setReceivedTime, val);
-      else if (key === "in_pool") MoneroUtils.safeSet(tx, tx.getIsConfirmed, tx.setIsConfirmed, !val);
+      else if (key === "in_pool") {
+        MoneroUtils.safeSet(tx, tx.getIsConfirmed, tx.setIsConfirmed, !val);
+        MoneroUtils.safeSet(tx, tx.getInTxPool, tx.setInTxPool, val);
+      }
       else if (key === "double_spend_seen") MoneroUtils.safeSet(tx, tx.getIsDoubleSpend, tx.setIsDoubleSpend, val);
       else if (key === "version") MoneroUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);
       else if (key === "extra") MoneroUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
@@ -613,7 +617,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "rct_signatures") MoneroUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, val);
       else if (key === "rctsig_prunable") MoneroUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
       else if (key === "unlock_time") MoneroUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, val);
-      else if (key === "as_json" || key === "tx_json") MoneroDaemonRpc._buildTx(JSON.parse(val), tx);  // may need to read tx from json str
+      else if (key === "as_json" || key === "tx_json") { if (val) MoneroDaemonRpc._buildTx(JSON.parse(val), tx); }  // may need to read tx from json str
       else if (key === "as_hex" || key === "tx_blob") MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, val);
       else if (key === "blob_size") MoneroUtils.safeSet(tx, tx.getSize, tx.setSize, val);
       else if (key === "weight") MoneroUtils.safeSet(tx, tx.getWeight, tx.setWeight, val);
@@ -639,20 +643,20 @@ class MoneroDaemonRpc extends MoneroDaemon {
       }
       else if (key === "max_used_block_height") MoneroUtils.safeSet(tx, tx.getMaxUsedBlockHeight, tx.setMaxUsedBlockHeight, val);
       else if (key === "max_used_block_id_hash") MoneroUtils.safeSet(tx, tx.getMaxUsedBlockId, tx.setMaxUsedBlockId, val);
-      else if (key === "block_height") {
-        MoneroUtils.safeSet(tx, tx.getHeight, tx.setHeight, val);
-        if (val >= 0) MoneroUtils.safeSet(tx, tx.getIsConfirmed, tx.setIsConfirmed, true);
-      }
+      else if (key === "block_height") blockHeight = val;
       else console.log("WARNING: ignoring unexpected field in rpc tx: " + key + ": " + val);
     }
     
+//    if (typeof tx.getIsConfirmed() !== "boolean") {
+//      console.log(rpcTx);
+//      console.log(tx.toString());
+//    }
+    //assert.equal(typeof tx.getIsConfirmed(), "boolean")
+    
     // initialize final fields
-    assert.equal(typeof tx.getIsConfirmed(), "boolean")
     if (tx.getIsConfirmed()) {
-      tx.setIsRelayed(true);
-      tx.setInTxPool(false);
-    } else if (!tx.getLastFailedId()) {
-      tx.setInTxPool(true);  // tx in pool unless failed
+      MoneroUtils.safeSet(tx, tx.getIsRelayed, tx.setIsRelayed, true);
+      MoneroUtils.safeSet(tx, tx.getHeight, tx.setHeight, blockHeight); // use block height iff confirmed, otherwise rpc returns timestamp
     }
     
     // return built transaction

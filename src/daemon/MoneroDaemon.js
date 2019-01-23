@@ -146,7 +146,7 @@ class MoneroDaemon {
    * @param txIds specifies the transaction ids to get
    * @param decodeAsJson decodes the returned transactions as JSON rather than binary if true
    * @param prune (documentation missing) // TODO: documentation missing
-   * @returns MoneroTx[] are the transactions with the given ids
+   * @returns {[MoneroTx]} are the transactions with the given ids
    */
   async getTxs(txIds, decodeAsJson, prune) {
     throw new Error("Subclass must implement");

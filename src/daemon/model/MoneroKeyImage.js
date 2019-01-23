@@ -91,8 +91,8 @@ class MoneroKeyImage extends MoneroDaemonModel {
  * Enumerates key image spend statuses.
  */
 MoneroKeyImage.SpentStatus = {
-    UNSPENT: 0,
-    TXPOOL: 1,
+    NOT_SPENT: 0,
+    TX_POOL: 1,
     CONFIRMED: 2
 }
 

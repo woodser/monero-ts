@@ -2,6 +2,10 @@ v0.0.3
 daemon can determine if key images can be spent
 remaining daemon tests
 
+undefined amounts instead of 0 for rct amounts
+daemon.getTxs() with decodeAsJson = false not tested; needed?
+daemon.getTxs() doesn't return vins/vouts unless decoded as json
+daemon.getTxs({isConfirmed: true}) style filtering?
 daemon notification test needs to test tx merging
 send(configOrAddress, amount) which supports {} and MoneroSendConfig
 standardize tx note over description

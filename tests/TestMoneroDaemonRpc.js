@@ -326,7 +326,7 @@ class TestMoneroDaemonRpc {
         for (let image of txPool.getSpentKeyImages()) {
           assert(image instanceof MoneroKeyImage);
           assert(image.getHex());
-          assert.equal(image.getSpentStatus(), MoneroKeyImage.SpentStatus.TXPOOL);
+          assert.equal(image.getSpentStatus(), MoneroKeyImage.SpentStatus.TX_POOL);
           assert(Array.isArray(image.getSpendingTxIds()));
           assert(image.getSpendingTxIds().length > 0);
           assert(image.getSpendingTxIds().includes(tx.getId()));
@@ -428,8 +428,51 @@ class TestMoneroDaemonRpc {
         assert.equal(txPool.getTxs().length, 0);
       });
       
-      it("Can the spent status of a key image", async function() {
-        throw new Error("Not implemented");	 // is_key_image_spent
+      it("Can get the spent status of key images", async function() {
+        
+        // submit txs to the pool but don't relay
+        let txs = [];
+        for (let i = 0; i < 3; i++) {
+          let tx = await getUnrelayedTx(wallet, i);
+          await daemon.submitTxHex(tx.getHex(), true);
+          txs.push(tx);
+        }
+        
+        // collect key images // TODO: better way to get key images?
+        let keyImages = [];
+        let txIds = txs.map(tx => tx.getId());
+        for (let tx of await daemon.getTxs(txIds, true)) {
+          for (let vout of tx.getVouts()) keyImages.push(vout.getKeyImage().getHex());
+        }
+        
+        // flush txs
+        await daemon.flushTxPool(txIds);
+        
+        // key images are not spent
+        await testSpentStatuses(keyImages, MoneroKeyImage.SpentStatus.NOT_SPENT);
+        
+        // submit txs to the pool
+        for (let tx of txs) await daemon.submitTxHex(tx.getHex());
+        
+        // key images are in the tx pool
+        await testSpentStatuses(keyImages, MoneroKeyImage.SpentStatus.TX_POOL);
+        
+        // TODO: check status of confirmed key image
+        
+        // helper function to check the spent status of a key image or array of key images
+        async function testSpentStatuses(keyImages, expectedStatus) {
+          
+          // test one
+          for (let keyImage of keyImages) {
+            assert.equal(await daemon.getSpentStatus(keyImage), expectedStatus);
+          }
+          
+          // test list
+          let statuses = await daemon.getSpentStatuses(keyImages);
+          assert(Array.isArray(statuses));
+          assert.equal(statuses.length, keyImages.length);
+          for (let status of statuses) assert.equal(status, expectedStatus);
+        }
       });
       
       it("Can get output indices given a list of transaction ids (binary)", async function() {
