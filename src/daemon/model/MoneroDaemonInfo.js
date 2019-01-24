@@ -85,7 +85,7 @@ class MoneroDaemonInfo extends MoneroDaemonModel {
     this.freeSpace = freeSpace;
   }
   
-  getGreyPeerlistSize() {
+  getGreyPeerlistSize() { // TODO: rename to getOfflinePeerCount()
     return this.greyPeerlistSize;
   }
   
@@ -93,7 +93,7 @@ class MoneroDaemonInfo extends MoneroDaemonModel {
     this.greyPeerlistSize = greyPeerlistSize;
   }
   
-  getWhitePeerlistSize() {
+  getWhitePeerlistSize() {  // TODO: rename to getOnlinePeerCount()
     return this.whitePeerlistSize;
   }
   

@@ -409,6 +409,11 @@ class MoneroDaemon {
     throw new Error("Subclass must implement");
   }
   
+  // getPeers()
+  // getPeerConnections()
+  // setOutgoingPeerLimit()
+  // setIncomingPeerLimit() // TODO
+  
   /**
    * Get information about incoming and outgoing connections to the node.
    * 
@@ -423,8 +428,26 @@ class MoneroDaemon {
    * 
    * @returns {MoneroDaemonPeers}
    */
+  
+  /**
+   * Get online and offline peer connections.
+   */
   async getPeers() {
     throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get online peer connections.
+   */
+  async getOnlinePeers() {
+    
+  }
+  
+  /**
+   * 
+   */
+  async getOfflinePeers() {
+    
   }
   
   /**

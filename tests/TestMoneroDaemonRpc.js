@@ -621,6 +621,7 @@ class TestMoneroDaemonRpc {
         assert.equal(await daemon.getUploadLimit(), initVal);
       });
       
+      // TODO: replace this with incoming / outgoing peer connections test
       it("Can get information about incoming and outgoing connections", async function() {
         let connections = await daemon.getConnections();
         assert(connections);
@@ -631,8 +632,12 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      it("Can get a list of peers", async function() {
-        throw new Error("Not implemented");
+      it("Can get known online and offline peers", async function() {
+        throw new Error("Not implemented"); // daemon.getPeers()
+      });
+      
+      it("Can get incoming and outgoing peer connections", async function() {
+        throw new Error("Not implemented"); // daemon.getPeerConnections()
       });
       
       it("Can limit the number of outgoing peers", async function() {
