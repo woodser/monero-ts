@@ -559,8 +559,64 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      it("Can limit incoming and outgoing bandwidth", async function() {
-        throw new Error("Not implemented");
+      it("Can get, set, and reset a download bandwidth limit", async function() {
+        let initVal = await daemon.getDownloadLimit();
+        let setVal = initVal * 2;
+        await daemon.setDownloadLimit(setVal);
+        assert.equal(await daemon.getDownloadLimit(), setVal);
+        let resetVal = await daemon.resetDownloadLimit();
+        assert.equal(resetVal, initVal);
+        
+        // test invalid limits
+        try {
+          await daemon.setDownloadLimit();
+          fail("Should have thrown error on invalid input");
+        } catch (e) {
+          assert.equal("Download limit must be an integer greater than 0", e.message);
+        }
+        try {
+          await daemon.setDownloadLimit(0);
+          fail("Should have thrown error on invalid input");
+        } catch (e) {
+          assert.equal("Download limit must be an integer greater than 0", e.message);
+        }
+        try {
+          await daemon.setDownloadLimit(1.2);
+          fail("Should have thrown error on invalid input");
+        } catch (e) {
+          assert.equal("Download limit must be an integer greater than 0", e.message);
+        }
+        assert.equal(await daemon.getDownloadLimit(), initVal);
+      });
+      
+      it("Can get, set, and reset an upload bandwidth limit", async function() {
+        let initVal = await daemon.getUploadLimit();
+        let setVal = initVal * 2;
+        await daemon.setUploadLimit(setVal);
+        assert.equal(await daemon.getUploadLimit(), setVal);
+        let resetVal = await daemon.resetUploadLimit();
+        assert.equal(resetVal, initVal);
+        
+        // test invalid limits
+        try {
+          await daemon.setUploadLimit();
+          fail("Should have thrown error on invalid input");
+        } catch (e) {
+          assert.equal("Upload limit must be an integer greater than 0", e.message);
+        }
+        try {
+          await daemon.setUploadLimit(0);
+          fail("Should have thrown error on invalid input");
+        } catch (e) {
+          assert.equal("Upload limit must be an integer greater than 0", e.message);
+        }
+        try {
+          await daemon.setUploadLimit(1.2);
+          fail("Should have thrown error on invalid input");
+        } catch (e) {
+          assert.equal("Upload limit must be an integer greater than 0", e.message);
+        }
+        assert.equal(await daemon.getUploadLimit(), initVal);
       });
       
       it("Can get information about incoming and outgoing connections", async function() {

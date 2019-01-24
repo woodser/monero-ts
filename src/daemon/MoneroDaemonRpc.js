@@ -445,6 +445,32 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return resp.blks_hashes;
   }
   
+  async getDownloadLimit() {
+    return (await this._getBandwidthLimits())[0];
+  }
+  
+  async setDownloadLimit(limit) {
+    assert(GenUtils.isInt(limit) && limit > 0, "Download limit must be an integer greater than 0");
+    await this._setBandwidthLimits(limit);
+  }
+  
+  async resetDownloadLimit() {
+    return (await this._setBandwidthLimits(-1))[0];
+  }
+
+  async getUploadLimit() {
+    return (await this._getBandwidthLimits())[1];
+  }
+  
+  async setUploadLimit(limit) {
+    assert(GenUtils.isInt(limit) && limit > 0, "Upload limit must be an integer greater than 0");
+    await this._setBandwidthLimits(undefined, limit);
+  }
+  
+  async resetUploadLimit() {
+    return (await this._setBandwidthLimits(undefined, -1))[1];
+  }
+  
   async getConnections() {  // TODO: test common response info
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_connections");
@@ -541,7 +567,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (this.listeners.length === 0) this._stopPollingHeaders();
   }
   
-  // ------------------------------- PRIVATE / STATIC ---------------------------
+  // ------------------------------- PRIVATE ----------------------------------
   
   async _startPollingHeaders(interval) {
     assert(!this.isPollingHeaders, "Daemon is already polling block headers");
@@ -576,6 +602,18 @@ class MoneroDaemonRpc extends MoneroDaemon {
     // get core utils
     this.coreUtils = await MoneroUtils.getCoreUtils();
   }
+  
+  async _getBandwidthLimits() {
+    let resp = await this.config.rpc.sendPathRequest("get_limit");
+    return [resp.limit_down, resp.limit_up];
+  }
+  
+  async _setBandwidthLimits(downLimit, upLimit) {
+    let resp = await this.config.rpc.sendPathRequest("set_limit", {limit_down: downLimit, limit_up: upLimit});
+    return [resp.limit_down, resp.limit_up];
+  }
+  
+  // --------------------------------- STATIC ---------------------------------
   
   static _getResponseInfo(resp) {
     return new MoneroDaemonResponseInfo(resp.status, resp.untrusted ? !resp.untrusted : resp.untrusted);  // invert api's isUntrusted to isTrusted  // TODO: uninvert

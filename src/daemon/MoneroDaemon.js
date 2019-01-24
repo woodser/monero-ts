@@ -356,21 +356,56 @@ class MoneroDaemon {
   }
   
   /**
-   * Get the daemon bandwidth limits.
+   * Get the download bandwidth limit.
    * 
-   * @returns {MoneroDaemonBandwidth} contains bandwidth limit information
+   * @return {number} is the download bandwidth limit
    */
-  async getBandwidthLimits() {
+  async getDownloadLimit() {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * Set the daemon bandwidth limits.
+   * Set the download bandwidth limit.
    * 
-   * @param inLimit is the upload limit in kBytes per second (-1 reset to default, 0 don't change the current limit)
-   * @param outLimit is the download limit in kBytes per second (-1 reset to default, 0 don't change the current limit)
+   * @param limit is the download bandwidth limit to set
    */
-  async setBandwidthLimits(inLimit, outLimit) {
+  async setDownloadLimit(limit) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Reset the download bandwidth limit.
+   * 
+   * @return {number} is the download bandwidth limit after resetting
+   */
+  async resetDownloadLimit() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get the upload bandwidth limit.
+   * 
+   * @return {number} is the upload bandwidth limit
+   */
+  async getUploadLimit() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Set the upload bandwidth limit.
+   * 
+   * @param limit is the upload bandwidth limit to set
+   */
+  async setUploadLimit(limit) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Reset the upload bandwidth limit.
+   * 
+   * @return {number} is the upload bandwidth limit after resetting
+   */
+  async resetUploadLimit() {
     throw new Error("Subclass must implement");
   }
   
