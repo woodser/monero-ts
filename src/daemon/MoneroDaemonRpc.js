@@ -25,6 +25,7 @@ const MoneroKeyImage = require("./model/MoneroKeyImage");
 const MoneroSubmitTxResult = require("./model/MoneroSubmitTxResult");
 const MoneroTxPoolStats = require("./model/MoneroTxPoolStats");
 const MoneroAltChain = require("./model/MoneroAltChain");
+const MoneroDaemonPeer = require("./model/MoneroDaemonPeer");
 
 /**
  * Implements a Monero daemon using monero-daemon-rpc.
@@ -485,7 +486,31 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getPeers() {
-    throw new Error("Not implemented");
+    
+    // send request
+    let resp = await this.config.rpc.sendPathRequest("get_peer_list");
+    
+    // build peers
+    let peers = [];
+    if (resp.gray_list) {
+      for (let rpcPeer of resp.gray_list) {
+        let peer = MoneroDaemonRpc._buildPeer(rpcPeer);
+        peer.setIsOnline(false); // gray list means offline last checked
+        peers.push(peer);
+      }
+    }
+    if (resp.white_list) {
+      for (let rpcPeer of resp.white_list) {
+        let peer = MoneroDaemonRpc._buildPeer(rpcPeer);
+        peer.setIsOnline(true); // white list means online last checked
+        peers.push(peer);
+      }
+    }
+    
+    // set response info
+    let respInfo = MoneroDaemonRpc._getResponseInfo(resp);
+    for (let peer of peers) peer.setResponseInfo(respInfo);
+    return peers;
   }
   
   async setOutgoingPeerLimit(numPeers) {
@@ -1011,6 +1036,21 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else console.log("WARNING: ignoring unexpected field in alternative chain: " + key + ": " + val);
     }
     return chain;
+  }
+  
+  static _buildPeer(rpcPeer) {
+    assert(rpcPeer);
+    let peer = new MoneroDaemonPeer();
+    for (let key of Object.keys(rpcPeer)) {
+      let val = rpcPeer[key];
+      if (key === "host") peer.setHost(val);
+      else if (key === "id") peer.setId(new BigInteger(val));
+      else if (key === "ip") peer.setIp(val);
+      else if (key === "last_seen") peer.setLastSeen(val);
+      else if (key === "port") peer.setPort(val);
+      else console.log("WARNING: ignoring unexpected field in rpc peer: " + key + ": " + val);
+    }
+    return peer;
   }
 }
 

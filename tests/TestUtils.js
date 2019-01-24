@@ -61,6 +61,8 @@ class TestUtils {
     try {
       await this.walletRpc.rescanSpent();
     } catch (e) {
+      console.log(e);
+      
       assert.equal(e.getRpcCode(), -38);  // TODO: (monero-wallet-rpc) sometimes getting -38: no connection to daemon on rescan call (after above calls) which causes mocha "before all" hook problem
       console.log("WARNING: received -38: no connection to daemon on rescan call after create/open, ignoring...");
     }

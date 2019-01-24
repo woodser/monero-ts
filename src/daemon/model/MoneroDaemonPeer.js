@@ -1,0 +1,65 @@
+const MoneroDaemonModel = require("./MoneroDaemonModel");
+
+/**
+ * Models a peer to the daemon.
+ */
+class MoneroDaemonPeer extends MoneroDaemonModel {
+  
+  getId() {
+    return this.id;
+  }
+
+  setId(id) {
+    this.id = id;
+  }
+
+  getAddress() {
+    return this.address;
+  }
+
+  setAddress(address) {
+    this.address = address;
+  }
+  
+  getIp() {
+    return this.ip;
+  }
+
+  setIp(ip) {
+    this.ip = ip;
+  }
+
+  getHost() {
+    return this.host;
+  }
+
+  setHost(host) {
+    this.host = host;
+  }
+
+  getPort() {
+    return this.port;
+  }
+
+  setPort(port) {
+    this.port = port;
+  }
+  
+  getIsOnline() {
+    return this.isOnline;
+  }
+  
+  setIsOnline(isOnline) {
+    this.isOnline = isOnline;
+  }
+  
+  getLastSeen() {
+    return this.lastSeen;
+  }
+  
+  setLastSeen(lastSeen) {
+    this.lastSeen = lastSeen;
+  }
+}
+
+module.exports = MoneroDaemonPeer;

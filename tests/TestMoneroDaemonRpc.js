@@ -11,6 +11,9 @@ const MoneroTx = require("../src/daemon/model/MoneroTx");
 const MoneroOutput = require("../src/daemon/model/MoneroOutput");
 const MoneroKeyImage = require("../src/daemon/model/MoneroKeyImage")
 const MoneroAltChain = require("../src/daemon/model/MoneroAltChain");
+const MoneroDaemonSyncInfo = require("../src/daemon/model/MoneroDaemonSyncInfo");
+const MoneroDaemonPeer = require("../src/daemon/model/MoneroDaemonPeer");
+const MoneroDaemonConnection = require("../src/daemon/model/MoneroDaemonConnection");
 
 /**
  * Tests a Monero daemon.
@@ -632,8 +635,13 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      it("Can get known online and offline peers", async function() {
-        throw new Error("Not implemented"); // daemon.getPeers()
+      it("Can get known peers which may be online or offline", async function() {
+        let peers = await daemon.getPeers();
+        assert(peers.length > 0);
+        for (let peer of peers) {
+          testKnownPeer(peer);
+          testDaemonResponseInfo(peer, true, false);
+        }
       });
       
       it("Can get incoming and outgoing peer connections", async function() {
@@ -1126,6 +1134,7 @@ function testInfo(info) {
 }
 
 function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
+  assert(syncInfo instanceof MoneroDaemonSyncInfo);
   assert(syncInfo.getHeight() >= 0);
   if (syncInfo.getPeers() !== undefined) {
     assert(syncInfo.getPeers().length > 0);
@@ -1141,30 +1150,6 @@ function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
       testDaemonConnectionSpan(span);
     }
   }
-}
-
-function testDaemonConnection(connection) {
-  assert(connection);
-  assert(connection.getId());
-  assert(connection.getAddress());
-  assert(connection.getAvgDownload() >= 0);
-  assert(connection.getAvgUpload() >= 0);
-  assert(connection.getCurrentDownload() >= 0);
-  assert(connection.getCurrentUpload() >= 0);
-  assert(connection.getHeight() >= 0);
-  assert(connection.getHost());
-  assert(connection.getIp());
-  assert(connection.getLiveTime() >= 0);
-  assert(typeof connection.getIsLocalIp() === "boolean");
-  assert(typeof connection.getIsLocalHost() === "boolean");
-  assert(connection.getPeerId());
-  assert(connection.getPort());
-  assert(connection.getReceiveCount() >= 0);
-  assert(connection.getReceiveIdleTime() >= 0);
-  assert(connection.getSendCount() >= 0);
-  assert(connection.getSendIdleTime() >= 0);
-  assert(connection.getState());
-  assert(connection.getSupportFlags() >= 0); 
 }
 
 function testHardForkInfo(hardForkInfo) {
@@ -1333,6 +1318,41 @@ function testAltChain(altChain) {
   TestUtils.testUnsignedBigInteger(altChain.getDifficulty(), true);
   assert(altChain.getHeight() > 0);
   assert(altChain.getLength() > 0);
+}
+
+function testDaemonConnection(connection) {
+  assert(connection instanceof MoneroDaemonConnection);
+  assert(connection);
+  assert(connection.getId());
+  assert(connection.getAddress());
+  assert(connection.getAvgDownload() >= 0);
+  assert(connection.getAvgUpload() >= 0);
+  assert(connection.getCurrentDownload() >= 0);
+  assert(connection.getCurrentUpload() >= 0);
+  assert(connection.getHeight() >= 0);
+  assert(connection.getHost());
+  assert(connection.getIp());
+  assert(connection.getLiveTime() >= 0);
+  assert(typeof connection.getIsLocalIp() === "boolean");
+  assert(typeof connection.getIsLocalHost() === "boolean");
+  assert(connection.getPeerId());
+  assert(connection.getPort());
+  assert(connection.getReceiveCount() >= 0);
+  assert(connection.getReceiveIdleTime() >= 0);
+  assert(connection.getSendCount() >= 0);
+  assert(connection.getSendIdleTime() >= 0);
+  assert(connection.getState());
+  assert(connection.getSupportFlags() >= 0); 
+}
+
+function testKnownPeer(peer) {
+  assert(peer instanceof MoneroDaemonPeer);
+  TestUtils.testUnsignedBigInteger(peer.getId(), true);
+  assert(peer.getIp() > 0);
+  assert.equal(typeof peer.getHost(), "string");
+  assert(peer.getPort() > 0);
+  assert.equal(typeof peer.getIsOnline(), "boolean");
+  assert(peer.getLastSeen() > 0);
 }
 
 module.exports = TestMoneroDaemonRpc;
