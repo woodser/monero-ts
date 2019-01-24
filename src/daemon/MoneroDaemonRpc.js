@@ -24,6 +24,7 @@ const MoneroTxPool = require("./model/MoneroTxPool");
 const MoneroKeyImage = require("./model/MoneroKeyImage");
 const MoneroSubmitTxResult = require("./model/MoneroSubmitTxResult");
 const MoneroTxPoolStats = require("./model/MoneroTxPoolStats");
+const MoneroAltChain = require("./model/MoneroAltChain");
 
 /**
  * Implements a Monero daemon using monero-daemon-rpc.
@@ -403,7 +404,38 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return hardForkInfo;
   }
   
-  async getConnections() {
+  async getAltChains() {
+    
+//    // mocked response for test TODO: mock response test framework
+//    let resp = {
+//        status: "OK",
+//        chains: [
+//          {
+//            block_hash: "697cf03c89a9b118f7bdf11b1b3a6a028d7b3617d2d0ed91322c5709acf75625",
+//            difficulty: 14114729638300280,
+//            height: 1562062,
+//            length: 2
+//          }
+//        ]
+//    }
+    
+    let resp = await this.config.rpc.sendJsonRequest("get_alternate_chains");
+    if (!resp.chains) return [];
+    let chains = [];
+    let respInfo = MoneroDaemonRpc._getResponseInfo(resp);
+    for (let rpcChain of resp.chains) {
+      let chain = MoneroDaemonRpc._buildAltChain(rpcChain);
+      chain.setResponseInfo(respInfo);
+      chains.push(chain);
+    }
+    return chains;
+  }
+  
+  async getAltBlockIds() {
+    throw new Error("Not implemented");
+  }
+  
+  async getConnections() {  // TODO: test common response info
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_connections");
     let connections = [];
@@ -535,8 +567,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
     this.coreUtils = await MoneroUtils.getCoreUtils();
   }
   
+  static _getResponseInfo(resp) {
+    return new MoneroDaemonResponseInfo(resp.status, resp.untrusted ? !resp.untrusted : resp.untrusted);  // invert api's isUntrusted to isTrusted  // TODO: uninvert
+  }
+  
   static _setResponseInfo(resp, model) {
-    let responseInfo = new MoneroDaemonResponseInfo(resp.status, resp.untrusted ? !resp.untrusted : resp.untrusted);  // invert api's isUntrusted to isTrusted  // TODO: uninvert
+    let responseInfo = MoneroDaemonRpc._getResponseInfo(resp);
     model.setResponseInfo(responseInfo);
     return model;
   }
@@ -692,7 +728,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       let val = rpcTemplate[key];
       if (key === "blockhashing_blob") template.setTemplateBlob(val);
       else if (key === "blocktemplate_blob") template.setHashBlob(val);
-      else if (key === "difficulty") template.setDifficulty(val);
+      else if (key === "difficulty") template.setDifficulty(new BigInteger(val));
       else if (key === "expected_reward") template.setExpectedReward(val);
       else if (key === "height") template.setHeight(val);
       else if (key === "prev_hash") template.setPrevId(val);
@@ -901,6 +937,20 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else console.log("WARNING: ignoring unexpected field in tx pool stats: " + key + ": " + val);
     }
     return stats;
+  }
+  
+  static _buildAltChain(rpcChain) {
+    assert(rpcChain);
+    let chain = new MoneroAltChain();
+    for (let key of Object.keys(rpcChain)) {
+      let val = rpcChain[key];
+      if (key === "block_hash") chain.setBlockId(val);
+      else if (key === "difficulty") chain.setDifficulty(new BigInteger(val));
+      else if (key === "height") chain.setHeight(val);
+      else if (key === "length") chain.setLength(val);
+      else console.log("WARNING: ignoring unexpected field in alternative chain: " + key + ": " + val);
+    }
+    return chain;
   }
 }
 

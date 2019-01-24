@@ -3,13 +3,14 @@ const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/
 const GenUtils = require("../src/utils/GenUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const TestUtils = require("./TestUtils");
+const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
+const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
 const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
 const MoneroBan = require("../src/daemon/model/MoneroBan");
 const MoneroTx = require("../src/daemon/model/MoneroTx");
 const MoneroOutput = require("../src/daemon/model/MoneroOutput");
 const MoneroKeyImage = require("../src/daemon/model/MoneroKeyImage")
-const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
-const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
+const MoneroAltChain = require("../src/daemon/model/MoneroAltChain");
 
 /**
  * Tests a Monero daemon.
@@ -538,11 +539,24 @@ class TestMoneroDaemonRpc {
       });
       
       it("Can get alternative chains", async function() {
-        throw new Error("Not implemented");
+        let altChains = await daemon.getAltChains();
+        assert(Array.isArray(altChains) && altChains.length >= 0);
+        let respInfo;
+        for (let altChain of altChains) {
+          testAltChain(altChain);
+          testDaemonResponseInfo(altChain, true, false);
+          if (respInfo === undefined) respInfo = altChain.getResponseInfo();
+          else assert(respInfo === altChain.getResponseInfo());
+        }
       });
       
       it("Can get alternative block ids", async function() {
-        throw new Error("Not implemented");
+        let altBlockIds = await daemon.getAltBlockIds();
+        assert(Array.isArray(altBlockIds) && altBlockIds.length >= 0);
+        for (let altBlockId of altBlockIds) {
+          assert.equal(typeof altBlockId, "string");
+          assert.equal(altBlockId.length, 64);  // TODO: common validation
+        }
       });
       
       it("Can limit incoming and outgoing bandwidth", async function() {
@@ -1011,6 +1025,7 @@ function testBlockTemplate(template) {
   assert(template.getTemplateBlob());
   assert(template.getHashBlob());
   assert(template.getDifficulty());
+  assert(template.getDifficulty() instanceof BigInteger);
   assert(template.getExpectedReward());
   assert(template.getHeight());
   assert(template.getPrevId());
@@ -1247,6 +1262,14 @@ async function getConfirmedTxs(daemon, numTxs) {
     }
   }
   throw new Error("Could not get " + numTxs + " confirmed txs");
+}
+
+function testAltChain(altChain) {
+  assert(altChain instanceof MoneroAltChain);
+  assert(altChain.getBlockId());
+  TestUtils.testUnsignedBigInteger(altChain.getDifficulty(), true);
+  assert(altChain.getHeight() > 0);
+  assert(altChain.getLength() > 0);
 }
 
 module.exports = TestMoneroDaemonRpc;

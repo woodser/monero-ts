@@ -338,16 +338,20 @@ class MoneroDaemon {
   }
   
   /**
+   * Get alternative chains seen by the node.
    * 
+   * @return {[MoneroAltChain]} are the alternative chains
    */
-  async getAlternativeChains() {
+  async getAltChains() {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * TODO.
+   * Get known block ids which are not on the main chain.
+   * 
+   * @return {[string]} are the known block ids which are not on the main chain
    */
-  async getAlternativeBlockIds() {
+  async getAltBlockIds() {
     throw new Error("Subclass must implement");
   }
   
