@@ -169,7 +169,7 @@ class MoneroDaemonConnection extends MoneroDaemonModel {
     return this.supportFlags;
   }
 
-  setNumSupportFlags(supportFlags) {
+  setNumSupportFlags(supportFlags) {  // TODO: rename this to setSupportFlagCount for consistency
     this.supportFlags = supportFlags;
   }
 }

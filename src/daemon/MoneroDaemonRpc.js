@@ -484,6 +484,32 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return connections;
   }
   
+  async getPeers() {
+    throw new Error("Not implemented");
+  }
+  
+  async setOutgoingPeerLimit(numPeers) {
+    throw new Error("Not implemented");
+  }
+  
+  async setIncomingPeerLimit(numPeers) {
+    throw new Error("Not implemented");
+  }
+  
+  async getPeerBans() {
+    let resp = await this.config.rpc.sendJsonRequest("get_bans");
+    let bans = [];
+    for (let rpcBan of resp.bans) {
+      let ban = new MoneroBan();
+      ban.setHost(rpcBan.host);
+      ban.setIp(rpcBan.ip);
+      ban.setSeconds(rpcBan.seconds);
+      MoneroDaemonRpc._setResponseInfo(resp, ban);
+      bans.push(ban);
+    }
+    return bans;
+  }
+  
   async setPeerBan(ban) {
     return await this.setPeerBans([ban]);
   }
@@ -505,20 +531,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
       rpcBan.seconds = ban.getSeconds();
       return rpcBan;
     }
-  }
-  
-  async getPeerBans() {
-    let resp = await this.config.rpc.sendJsonRequest("get_bans");
-    let bans = [];
-    for (let rpcBan of resp.bans) {
-      let ban = new MoneroBan();
-      ban.setHost(rpcBan.host);
-      ban.setIp(rpcBan.ip);
-      ban.setSeconds(rpcBan.seconds);
-      MoneroDaemonRpc._setResponseInfo(resp, ban);
-      bans.push(ban);
-    }
-    return bans;
   }
   
   async startMining(address, numThreads, backgroundMining, ignoreBattery) {
