@@ -561,6 +561,7 @@ class TestMoneroDaemonRpc {
       
       it("Can get, set, and reset a download bandwidth limit", async function() {
         let initVal = await daemon.getDownloadLimit();
+        assert(initVal > 0);
         let setVal = initVal * 2;
         await daemon.setDownloadLimit(setVal);
         assert.equal(await daemon.getDownloadLimit(), setVal);
