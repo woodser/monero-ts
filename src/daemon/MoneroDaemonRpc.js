@@ -432,7 +432,17 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getAltBlockIds() {
-    throw new Error("Not implemented");
+    
+//    // mocked response for test TODO: mock response test framework
+//    let resp = {
+//        status: "OK",
+//        untrusted: false,
+//        blks_hashes: ["9c2277c5470234be8b32382cdf8094a103aba4fcd5e875a6fc159dc2ec00e011","637c0e0f0558e284493f38a5fcca3615db59458d90d3a5eff0a18ff59b83f46f","6f3adc174a2e8082819ebb965c96a095e3e8b63929ad9be2d705ad9c086a6b1c","697cf03c89a9b118f7bdf11b1b3a6a028d7b3617d2d0ed91322c5709acf75625"]
+//    }
+    
+    let resp = await this.config.rpc.sendPathRequest("get_alt_blocks_hashes");
+    if (!resp.blks_hashes) return [];
+    return resp.blks_hashes;
   }
   
   async getConnections() {  // TODO: test common response info
