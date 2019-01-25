@@ -20,14 +20,6 @@ class MoneroDaemonPeer extends MoneroDaemonModel {
   setAddress(address) {
     this.address = address;
   }
-  
-  getIp() {
-    return this.ip;
-  }
-
-  setIp(ip) {
-    this.ip = ip;
-  }
 
   getHost() {
     return this.host;

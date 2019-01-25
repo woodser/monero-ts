@@ -383,9 +383,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
     // build sync response
     let syncInfo = MoneroDaemonRpc._buildSyncInfo(resp);
     MoneroDaemonRpc._setResponseInfo(resp, syncInfo);
-    if (syncInfo.getPeers() !== undefined) {
-      for (let peer of syncInfo.getPeers()) {
-        peer.setResponseInfo(syncInfo.getResponseInfo());
+    if (syncInfo.getConnections() !== undefined) {
+      for (let connection of syncInfo.getConnections()) {
+        connection.setResponseInfo(syncInfo.getResponseInfo());
       }
     }
     if (syncInfo.getSpans() !== undefined) {
@@ -880,10 +880,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
       let val = rpcSyncInfo[key];
       if (key === "height") syncInfo.setHeight(new BigInteger(val));
       else if (key === "peers") {
-        syncInfo.setPeers([]);
-        let rpcPeers = val;
-        for (let rpcPeer of rpcPeers) {
-          syncInfo.getPeers().push(MoneroDaemonRpc._buildConnection(rpcPeer.info));
+        syncInfo.setConnections([]);
+        let rpcConnections = val;
+        for (let rpcConnection of rpcConnections) {
+          syncInfo.getConnections().push(MoneroDaemonRpc._buildConnection(rpcConnection.info));
         }
       } else if (key === "spans") {
         syncInfo.setSpans([]);
@@ -915,36 +915,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else console.log("WARNING: ignoring unexpected field in hard fork info: " + key + ": " + val);
     }
     return info;
-  }
-  
-  static _buildConnection(rpcConnection) {
-    let connection = new MoneroDaemonConnection();
-    for (let key of Object.keys(rpcConnection)) {
-      let val = rpcConnection[key];
-      if (key === "address") connection.setAddress(val);
-      else if (key === "avg_download") connection.setAvgDownload(val);
-      else if (key === "avg_upload") connection.setAvgUpload(val);
-      else if (key === "connection_id") connection.setId(val);
-      else if (key === "current_download") connection.setCurrentDownload(val);
-      else if (key === "current_upload") connection.setCurrentUpload(val);
-      else if (key === "height") connection.setHeight(val);
-      else if (key === "host") connection.setHost(val);
-      else if (key === "incoming") connection.setIsIncoming(val);
-      else if (key === "ip") connection.setIp(val);
-      else if (key === "live_time") connection.setLiveTime(val);
-      else if (key === "local_ip") connection.setIsLocalIp(val);
-      else if (key === "localhost") connection.setIsLocalHost(val);
-      else if (key === "peer_id") connection.setPeerId(val);
-      else if (key === "port") connection.setPort(val);
-      else if (key === "recv_count") connection.setReceiveCount(val);
-      else if (key === "recv_idle_time") connection.setReceiveIdleTime(val);
-      else if (key === "send_count") connection.setSendCount(val);
-      else if (key === "send_idle_time") connection.setSendIdleTime(val);
-      else if (key === "state") connection.setState(val);
-      else if (key === "support_flags") connection.setNumSupportFlags(val);
-      else console.log("WARNING: ignoring unexpected field in connection: " + key + ": " + val);
-    }
-    return connection;
   }
   
   static _buildConnectionSpan(rpcConnectionSpan) {
@@ -1044,13 +1014,46 @@ class MoneroDaemonRpc extends MoneroDaemon {
     for (let key of Object.keys(rpcPeer)) {
       let val = rpcPeer[key];
       if (key === "host") peer.setHost(val);
-      else if (key === "id") peer.setId(new BigInteger(val));
-      else if (key === "ip") peer.setIp(val);
+      else if (key === "id") peer.setId("" + val);  // TODO monero-wallet-rpc: peer id is big integer but string in `get_connections`
+      else if (key === "ip") {} // host used instead which is consistently a string
       else if (key === "last_seen") peer.setLastSeen(val);
       else if (key === "port") peer.setPort(val);
       else console.log("WARNING: ignoring unexpected field in rpc peer: " + key + ": " + val);
     }
     return peer;
+  }
+  
+  static _buildConnection(rpcConnection) {
+    let connection = new MoneroDaemonConnection();
+    let peer = new MoneroDaemonPeer();
+    connection.setPeer(peer);
+    peer.setIsOnline(true);
+    for (let key of Object.keys(rpcConnection)) {
+      let val = rpcConnection[key];
+      if (key === "address") peer.setAddress(val);
+      else if (key === "avg_download") connection.setAvgDownload(val);
+      else if (key === "avg_upload") connection.setAvgUpload(val);
+      else if (key === "connection_id") connection.setId(val);
+      else if (key === "current_download") connection.setCurrentDownload(val);
+      else if (key === "current_upload") connection.setCurrentUpload(val);
+      else if (key === "height") connection.setHeight(val);
+      else if (key === "host") peer.setHost(val);
+      else if (key === "ip") {} // host used instead which is consistently a string
+      else if (key === "incoming") connection.setIsIncoming(val);
+      else if (key === "live_time") connection.setLiveTime(val);
+      else if (key === "local_ip") connection.setIsLocalIp(val);
+      else if (key === "localhost") connection.setIsLocalHost(val);
+      else if (key === "peer_id") peer.setId(val);
+      else if (key === "port") peer.setPort(val);
+      else if (key === "recv_count") connection.setReceiveCount(val);
+      else if (key === "recv_idle_time") connection.setReceiveIdleTime(val);
+      else if (key === "send_count") connection.setSendCount(val);
+      else if (key === "send_idle_time") connection.setSendIdleTime(val);
+      else if (key === "state") connection.setState(val);
+      else if (key === "support_flags") connection.setSupportFlagCount(val);
+      else console.log("WARNING: ignoring unexpected field in connection: " + key + ": " + val);
+    }
+    return connection;
   }
 }
 

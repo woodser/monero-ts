@@ -13,12 +13,11 @@ class MoneroDaemonSyncInfo extends MoneroDaemonModel {
     this.height = height;
   }
   
-  // TODO: this should be getConnections() which returns connections each with a peer
-  getPeers() {
+  getConnections() {
     return this.peers;
   }
   
-  setPeers(peers) {
+  setConnections(peers) {
     this.peers = peers;
   }
   

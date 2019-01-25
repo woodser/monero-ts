@@ -5,20 +5,20 @@ const MoneroDaemonModel = require("./MoneroDaemonModel");
  */
 class MoneroDaemonConnection extends MoneroDaemonModel {
   
+  getPeer() {
+    return this.peer;
+  }
+
+  setPeer(peer) {
+    this.peer = peer;
+  }
+  
   getId() {
     return this.id;
   }
 
   setId(id) {
     this.id = id;
-  }
-
-  getAddress() {
-    return this.address;
-  }
-
-  setAddress(address) {
-    this.address = address;
   }
 
   getAvgDownload() {
@@ -61,28 +61,12 @@ class MoneroDaemonConnection extends MoneroDaemonModel {
     this.height = height;
   }
 
-  getHost() {
-    return this.host;
-  }
-
-  setHost(host) {
-    this.host = host;
-  }
-
   getIsIncoming() {
     return this.isIncoming;
   }
 
   setIsIncoming(isIncoming) {
     this.isIncoming = isIncoming;
-  }
-
-  getIp() {
-    return this.ip;
-  }
-
-  setIp(ip) {
-    this.ip = ip;
   }
 
   getLiveTime() {
@@ -107,22 +91,6 @@ class MoneroDaemonConnection extends MoneroDaemonModel {
 
   setIsLocalHost(isLocalHost) {
     this.isLocalHost = isLocalHost;
-  }
-
-  getPeerId() {
-    return this.peerId;
-  }
-
-  setPeerId(peerId) {
-    this.peerId = peerId;
-  }
-
-  getPort() {
-    return this.port;
-  }
-
-  setPort(port) {
-    this.port = port;
   }
 
   getReceiveCount() {
@@ -165,12 +133,12 @@ class MoneroDaemonConnection extends MoneroDaemonModel {
     this.state = state;
   }
 
-  getSupportFlags() {
-    return this.supportFlags;
+  getSupportFlagCount() {
+    return this.supportFlagCount;
   }
 
-  setNumSupportFlags(supportFlags) {  // TODO: rename this to setSupportFlagCount for consistency
-    this.supportFlags = supportFlags;
+  setSupportFlagCount(supportFlagCount) {
+    this.supportFlagCount = supportFlagCount;
   }
 }
 
