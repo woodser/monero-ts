@@ -27,6 +27,7 @@ const MoneroTxPoolStats = require("./model/MoneroTxPoolStats");
 const MoneroAltChain = require("./model/MoneroAltChain");
 const MoneroDaemonPeer = require("./model/MoneroDaemonPeer");
 const MoneroMiningStatus = require("./model/MoneroMiningStatus");
+const MoneroDaemonCheckUpdateResult = require("./model/MoneroDaemonCheckUpdateResult");
 
 /**
  * Implements a Monero daemon using monero-daemon-rpc.
@@ -605,6 +606,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     });
   }
   
+  // TODO: need to add these to MoneroDaemon.js
   addBlockHeaderListener(listener) {
 
     // register listener
@@ -619,6 +621,15 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let found = GenUtils.remove(this.listeners, listener);
     assert(found, "Listener is not registered");
     if (this.listeners.length === 0) this._stopPollingHeaders();
+  }
+  
+  async checkForUpdate() {
+    let resp = await this.config.rpc.sendPathRequest("update", {command: "check", path: path});
+    return MoneroDaemonRpc._setResponseInfo(resp, MoneroDaemonRpc._buildCheckUpdateResult(resp));
+  }
+  
+  async downloadUpdate(path) {
+    throw new Error("Not implemented");
   }
   
   // ------------------------------- PRIVATE ----------------------------------
@@ -1085,6 +1096,26 @@ class MoneroDaemonRpc extends MoneroDaemon {
       status.setIsBackground(rpcStatus.is_background_mining_enabled);
     }
     return status;
+  }
+  
+  static _buildCheckUpdateResult(rpcResult) {
+    assert(rpcResult);
+    let result = new MoneroDaemonCheckUpdateResult();
+    for (let key of Object.keys(rpcResult)) {
+      let val = rpcResult[key];
+      if (key === "auto_uri") result.setAutoUri(val);
+      else if (key === "hash") result.setHash(val);
+      else if (key === "path") result.setPath(val);
+      else if (key === "status") {} // handled elsewhere
+      else if (key === "update") result.setIsUpdateAvailable(val);
+      else if (key === "user_uri") result.setUserUri(val);
+      else if (key === "version") result.setVersion(val);
+      else console.log("WARNING: ignoring unexpected field in rpc check update result: " + key + ": " + val);
+    }
+    
+    // replace empty strings with undefined
+    if (result.getPath() === '') result.setPath(undefined);
+    return result;
   }
 }
 

@@ -14,6 +14,7 @@ const MoneroAltChain = require("../src/daemon/model/MoneroAltChain");
 const MoneroDaemonSyncInfo = require("../src/daemon/model/MoneroDaemonSyncInfo");
 const MoneroDaemonPeer = require("../src/daemon/model/MoneroDaemonPeer");
 const MoneroDaemonConnection = require("../src/daemon/model/MoneroDaemonConnection");
+const MoneroDaemonCheckUpdateResult = require("../src/daemon/model/MoneroDaemonCheckUpdateResult");
 
 /**
  * Tests a Monero daemon.
@@ -787,6 +788,31 @@ class TestMoneroDaemonRpc {
         }
       });
       
+      it("Can check for updates", async function() {
+        
+        // check default path
+        let result = await daemon.checkForUpdate();
+        testCheckUpdateResult(result);
+        testDaemonResponseInfo(result, true, false);
+        
+        // TODO monero-daemon-rpc: path parameter seems to be ignored
+        
+//        // check given path
+//        let path = "https://www.getmonero.org";
+//        result = await daemon.checkForUpdate(path);
+//        testCheckUpdateResult(result, path); 
+//        testDaemonResponseInfo(result, true, false);
+//        
+//        // check invalid path
+//        try {
+//          result = await daemon.checkForUpdate("ohhai");
+//          throw new Error("Should have thrown error");
+//        } catch(e) {
+//          console.log(e);
+//          assert.notEqual("Should have thrown error", e.message);
+//        }
+      });
+      
       it("Can be updated", async function() {
         throw new Error("Not implemented");
       });
@@ -1406,6 +1432,27 @@ function testKnownPeer(peer, fromConnection) {
   assert.equal(typeof peer.getIsOnline(), "boolean");
   if (fromConnection) assert.equal(undefined, peer.getLastSeen());
   else assert(peer.getLastSeen() > 0);
+}
+
+function testCheckUpdateResult(result, path) {
+  assert(result instanceof MoneroDaemonCheckUpdateResult);
+  if (path) {
+    assert.equal(result.getPath(), path);
+    assert.equal(result.getAutoUri(), undefined);
+    assert.equal(result.getUserUri(), undefined);
+  } else {
+    assert.equal(result.getPath(), undefined);
+    assert(result.getAutoUri());
+    assert(result.getUserUri());
+  }
+  assert.equal(typeof result.getIsUpdateAvailable(), "boolean");
+  if (result.getIsUpdateAvailable()) {
+    assert.equal(typeof result.getVersion(), "string");
+    assert.equal(typeof result.getHash(), "string");
+    assert.equal(result.getHash().length, 64);
+  } else {
+    assert.equal(result.getUpdateVersion(), undefined);
+  }
 }
 
 module.exports = TestMoneroDaemonRpc;

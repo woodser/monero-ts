@@ -525,7 +525,7 @@ class MoneroDaemon {
   }
   
   /**
-   * Returns the next block's header when detected.
+   * Return the next block's header when detected.
    * 
    * @returns {MoneroBlockHeader} is the next block's header when detected
    */
@@ -534,7 +534,7 @@ class MoneroDaemon {
   }
   
   /**
-   * Registers a listener who is invoked with new block headers when detected.
+   * Register a listener who is invoked with new block headers when detected.
    * 
    * @param listener(header) is invoked with new block headers when detected
    */
@@ -543,7 +543,7 @@ class MoneroDaemon {
   }
   
   /**
-   * Unregisters a listener to invoke when new blocks are detected.
+   * Unregister a listener to invoke when new blocks are detected.
    * 
    * @param listener is the listener to no longer invoke when new blocks are detected
    */
@@ -552,12 +552,22 @@ class MoneroDaemon {
   }
   
   /**
-   * Updates the daemon.
+   * Check for update.
    * 
-   * @param command is the update command to download: `check` or `download`
-   * @param path is the path to download the update (optional)
+   * @param {string} path is the path to check for an update (optional)
+   * @return {MoneroDaemonCheckUpdateResult} is the result
    */
-  async update(command, path) {
+  async checkForUpdate(path) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Download an update.
+   * 
+   * @param {string} path is the path to download the update (optional)
+   * @return {MoneroDaemonDownloadUpdateResult} is the result
+   */
+  async downloadUpdate(path) {
     throw new Error("Subclass must implement");
   }
   
