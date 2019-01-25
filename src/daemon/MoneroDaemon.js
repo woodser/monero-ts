@@ -409,15 +409,10 @@ class MoneroDaemon {
     throw new Error("Subclass must implement");
   }
   
-  // getPeers()
-  // getPeerConnections()
-  // setOutgoingPeerLimit()
-  // setIncomingPeerLimit() // TODO
-  
   /**
    * Get known peers including their last known online status.
    */
-  async getPeers() {
+  async getKnownPeers() {
     throw new Error("Subclass must implement");
   }
   

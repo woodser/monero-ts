@@ -489,7 +489,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return connections;
   }
   
-  async getPeers() {
+  async getKnownPeers() {
     
     // send request
     let resp = await this.config.rpc.sendPathRequest("get_peer_list");

@@ -85,6 +85,7 @@ split BooleanSet into new project
 package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 
 RPC
+support cors wildcard character
 update #4500 with latest notes
 fix #4500 subaddresses occluded by outgoing counterparts when sent from/to same account
 unconfirmed tx missing destinations even though known by wallet

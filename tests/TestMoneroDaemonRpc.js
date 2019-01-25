@@ -627,7 +627,7 @@ class TestMoneroDaemonRpc {
       });
       
       it("Can get known peers which may be online or offline", async function() {
-        let peers = await daemon.getPeers();
+        let peers = await daemon.getKnownPeers();
         assert(peers.length > 0);
         for (let peer of peers) {
           testKnownPeer(peer);

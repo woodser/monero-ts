@@ -37,6 +37,12 @@ class MoneroDaemonPeer extends MoneroDaemonModel {
     this.port = port;
   }
   
+  /**
+   * Indicates if the peer was online when last checked (aka "white listed" as
+   * opposed to "gray listed").
+   * 
+   * @return {boolean} true if peer was online when last checked, false otherwise
+   */
   getIsOnline() {
     return this.isOnline;
   }
