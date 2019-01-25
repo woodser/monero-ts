@@ -477,12 +477,12 @@ class MoneroDaemon {
    * Start mining.
    * 
    * @param {string} address is the address given miner rewards if the daemon mines a block
-   * @param {integer} numThreads is the number of mining threads to run
-   * @param {boolean} backgroundMining specifies if the miner should run in the background or not
+   * @param {integer} threadCount is the number of mining threads to run
+   * @param {boolean} isBackground specifies if the miner should run in the background or not
    * @param {boolean} ignoreBattery specifies if the battery state (e.g. on laptop) should be ignored or not
    * @returns {MoneroDaemonModel} contains response status
    */
-  async startMining(address, numThreads, backgroundMining, ignoreBattery) {
+  async startMining(address, threadCount, isBackground, ignoreBattery) {
     throw new Error("Subclass must implement");
   }
   
@@ -498,7 +498,7 @@ class MoneroDaemon {
   /**
    * Get the daemon's mining status.
    * 
-   * @return {MoneroDaemonMiningStatus} contains daemon mining status
+   * @return {MoneroMiningStatus} is the daemon's mining status
    */
   async getMiningStatus() {
     throw new Error("Subclass must implement");

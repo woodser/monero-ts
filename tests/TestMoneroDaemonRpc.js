@@ -721,7 +721,7 @@ class TestMoneroDaemonRpc {
       
       it("Can start and stop mining", async function() {
         
-        // generate an address to mine to
+        // generate address to mine to
         let wallet = new MoneroWalletLocal(daemon);
         let address = await wallet.getPrimaryAddress();
         
@@ -735,7 +735,39 @@ class TestMoneroDaemonRpc {
       });
       
       it("Can get mining status", async function() {
-        throw new Error("Not implemented");
+        
+        try {
+          
+          // test status without mining
+          let status = await daemon.getMiningStatus();
+          testDaemonResponseInfo(status, true, false);
+          assert.equal(status.getIsActive(), false);
+          assert.equal(status.getAddress(), undefined);
+          assert.equal(status.getSpeed(), 0);
+          assert.equal(status.getThreadCount(), 0);
+          assert.equal(status.getIsBackground(), undefined);
+          
+          // test status with mining
+          let wallet = new MoneroWalletLocal(daemon);
+          let address = await wallet.getPrimaryAddress();
+          let threadCount = 3;
+          let isBackground = true;
+          await daemon.startMining(address, threadCount, isBackground, true);
+          status = await daemon.getMiningStatus();
+          testDaemonResponseInfo(status, true, false);
+          assert.equal(status.getIsActive(), true);
+          assert.equal(status.getAddress(), address);
+          assert(status.getSpeed() > 0);
+          assert.equal(status.getThreadCount(), threadCount);
+          assert.equal(status.getIsBackground(), isBackground);
+        } catch(e) {
+          throw e;
+        } finally {
+          
+          // stop mining at end of test
+          try { await daemon.stopMining(); }
+          catch(e) { }
+        }
       });
       
       it("Can submit a mined block to the network", async function() {

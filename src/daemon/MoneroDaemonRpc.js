@@ -26,6 +26,7 @@ const MoneroSubmitTxResult = require("./model/MoneroSubmitTxResult");
 const MoneroTxPoolStats = require("./model/MoneroTxPoolStats");
 const MoneroAltChain = require("./model/MoneroAltChain");
 const MoneroDaemonPeer = require("./model/MoneroDaemonPeer");
+const MoneroMiningStatus = require("./model/MoneroMiningStatus");
 
 /**
  * Implements a Monero daemon using monero-daemon-rpc.
@@ -560,15 +561,15 @@ class MoneroDaemonRpc extends MoneroDaemon {
     }
   }
   
-  async startMining(address, numThreads, backgroundMining, ignoreBattery) {
-    assert(address);
-    assert(numThreads > 0);
-    assert(typeof backgroundMining === "boolean");
-    assert(typeof ignoreBattery === "boolean");
+  async startMining(address, threadCount, isBackground, ignoreBattery) {
+    assert(address, "Address must be given to mine to");
+    assert(GenUtils.isInt(threadCount) && threadCount > 0, "Thread count must be an integer greater than 0");
+    assert(isBackground === undefined || typeof isBackground === "boolean");
+    assert(ignoreBattery === undefined || typeof ignoreBattery === "boolean");
     let resp = await this.config.rpc.sendPathRequest("start_mining", {
       miner_address: address,
-      threads_count: numThreads,
-      do_background_mining: backgroundMining,
+      threads_count: threadCount,
+      do_background_mining: isBackground,
       ignore_battery: ignoreBattery,
     })
     return MoneroDaemonRpc._setResponseInfo(resp, new MoneroDaemonModel());
@@ -577,6 +578,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async stopMining() {
     let resp = await this.config.rpc.sendPathRequest("stop_mining");
     return MoneroDaemonRpc._setResponseInfo(resp, new MoneroDaemonModel());
+  }
+  
+  async getMiningStatus() {
+    let resp = await this.config.rpc.sendPathRequest("mining_status");
+    let status = MoneroDaemonRpc._buildMiningStatus(resp);
+    MoneroDaemonRpc._setResponseInfo(resp, status);
+    return status;
   }
   
   async nextBlockHeader() {
@@ -1056,6 +1064,18 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else console.log("WARNING: ignoring unexpected field in connection: " + key + ": " + val);
     }
     return connection;
+  }
+  
+  static _buildMiningStatus(rpcStatus) {
+    let status = new MoneroMiningStatus();
+    status.setIsActive(rpcStatus.active);
+    status.setSpeed(rpcStatus.speed);
+    status.setThreadCount(rpcStatus.threads_count);
+    if (rpcStatus.active) {
+      status.setAddress(rpcStatus.address);
+      status.setIsBackground(rpcStatus.is_background_mining_enabled);
+    }
+    return status;
   }
 }
 
