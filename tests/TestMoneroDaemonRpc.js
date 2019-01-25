@@ -771,7 +771,20 @@ class TestMoneroDaemonRpc {
       });
       
       it("Can submit a mined block to the network", async function() {
-        throw new Error("Not implemented");
+        
+        // get template to mine on
+        let template = await daemon.getBlockTemplate(TestUtils.TEST_ADDRESS);
+        
+        // TODO monero rpc: way to get mining nonce when found in order to submit?
+        
+        // try to submit block hashing blob without nonce
+        try {
+          await daemon.submitBlock(template.getHashBlob());
+          fail("Should have thrown error");
+        } catch (e) {
+          assert.equal(e.getRpcCode(), -7);
+          assert.equal(e.getRpcMessage(), "Block not accepted");
+        }
       });
       
       it("Can be updated", async function() {

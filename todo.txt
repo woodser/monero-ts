@@ -1,4 +1,5 @@
 v0.0.3
+update send api with destinations
 test response infos share common reference
 don't init response info unless needed
 get_transfers pool does not actually indicate it's relayed; return undefined?

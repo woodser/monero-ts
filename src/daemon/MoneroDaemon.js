@@ -511,6 +511,16 @@ class MoneroDaemon {
    * @return MoneroDaemonModel contains response status
    */
   async submitBlock(blockBlob) {
+    return await this.submitBlocks([blockBlob]);
+  }
+  
+  /**
+   * Submit mined blocks to the network.
+   * 
+   * @param blockBlobs are the mined blocks to submit
+   * @return MoneroDaemonModel contains response status
+   */
+  async submitBlocks(blockBlobs) {
     throw new Error("Subclass must implement");
   }
   

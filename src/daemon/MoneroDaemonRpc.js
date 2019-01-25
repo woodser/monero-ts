@@ -63,6 +63,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getBlockTemplate(walletAddress, reserveSize) {
+    assert(walletAddress && typeof walletAddress === "string", "Must specify wallet address to be mined to");
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_block_template", { wallet_address: walletAddress, reserve_size: reserveSize });
     let template = MoneroDaemonRpc._buildBlockTemplate(resp);
@@ -585,6 +586,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let status = MoneroDaemonRpc._buildMiningStatus(resp);
     MoneroDaemonRpc._setResponseInfo(resp, status);
     return status;
+  }
+  
+  async submitBlocks(blockBlobs) {
+    assert(Array.isArray(blockBlobs) && blockBlobs.length > 0, "Must provide an array of mined block blobs to submit");
+    let resp = await this.config.rpc.sendJsonRequest("submit_block", blockBlobs);
+    return MoneroDaemonRpc._getResponseInfo(resp);
   }
   
   async nextBlockHeader() {

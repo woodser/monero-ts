@@ -9,7 +9,7 @@ class MoneroBlockTemplate extends MoneroDaemonModel {
     super();
   }
   
-  getTemplateBlob() {
+  getTemplateBlob() { // TODO: rename getTemplateBlob() -> getBlockTemplateBlob(), getHashBlob() -> getBlockHashBlob() for recognizability
     return this.templateBlob;
   }
   
