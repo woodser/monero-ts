@@ -644,11 +644,27 @@ class TestMoneroDaemonRpc {
       });
       
       it("Can limit the number of outgoing peers", async function() {
-        throw new Error("Not implemented");
+        await daemon.setOutgoingPeerLimit(0);
+        await daemon.setOutgoingPeerLimit(8);
+        await daemon.setOutgoingPeerLimit(10);
+        try {
+          await daemon.setOutgoingPeerLimit("a");
+          throw new Error("Should have failed on invalid input");
+        } catch(e) {
+          assert.notEqual("Should have failed on invalid input", e.message);
+        }
       });
       
       it("Can limit the number of incoming peers", async function() {
-        throw new Error("Not implemented");
+        await daemon.setIncomingPeerLimit(0);
+        await daemon.setIncomingPeerLimit(8);
+        await daemon.setIncomingPeerLimit(10);
+        try {
+          await daemon.setIncomingPeerLimit("a");
+          throw new Error("Should have failed on invalid input");
+        } catch(e) {
+          assert.notEqual("Should have failed on invalid input", e.message);
+        }
       });
       
       it("Can ban a peer", async function() {

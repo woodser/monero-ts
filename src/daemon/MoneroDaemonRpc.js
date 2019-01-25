@@ -513,12 +513,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return peers;
   }
   
-  async setOutgoingPeerLimit(numPeers) {
-    throw new Error("Not implemented");
+  async setOutgoingPeerLimit(limit) {
+    assert(GenUtils.isInt(limit) && limit >= 0, "Outgoing peer limit must be >= 0");
+    await this.config.rpc.sendPathRequest("out_peers", {out_peers: limit});
   }
   
-  async setIncomingPeerLimit(numPeers) {
-    throw new Error("Not implemented");
+  async setIncomingPeerLimit(limit) {
+    assert(GenUtils.isInt(limit) && limit >= 0, "Incoming peer limit must be >= 0");
+    await this.config.rpc.sendPathRequest("in_peers", {in_peers: limit});
   }
   
   async getPeerBans() {

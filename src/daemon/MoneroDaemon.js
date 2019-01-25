@@ -415,56 +415,36 @@ class MoneroDaemon {
   // setIncomingPeerLimit() // TODO
   
   /**
-   * Get information about incoming and outgoing connections to the node.
-   * 
-   * @returns {MoneroDaemonConnection[]} are the daemon's peer connections
-   */
-  async getConnections() {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
-   * Get a list of peers.
-   * 
-   * @returns {MoneroDaemonPeers}
-   */
-  
-  /**
-   * Get online and offline peer connections.
+   * Get known peers including their last known online status.
    */
   async getPeers() {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * Get online peer connections.
-   */
-  async getOnlinePeers() {
-    
-  }
-  
-  /**
+   * Get incoming and outgoing connections to the node.
    * 
+   * @returns {[MoneroDaemonConnection]} are the daemon's peer connections
    */
-  async getOfflinePeers() {
-    
+  async getConnections() {
+    throw new Error("Subclass must implement");
   }
   
   /**
    * Limit number of outgoing peers.
    * 
-   * @param numPeers is the maximum number of peers outgoing peers
+   * @param limit is the maximum number of peers outgoing peers
    */
-  async setOutgoingPeerLimit(numPeers) {
+  async setOutgoingPeerLimit(limit) {
     throw new Error("Subclass must implement");
   }
   
   /**
    * Limit number of incoming peers.
    * 
-   * @param numPeers is the maximum number of peers incoming peers
+   * @param limit is the maximum number of peers incoming peers
    */
-  async setIncomingPeerLimit(numPeers) {
+  async setIncomingPeerLimit(limit) {
     throw new Error("Subclass must implement");
   }
   
