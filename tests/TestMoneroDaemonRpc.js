@@ -15,6 +15,7 @@ const MoneroDaemonSyncInfo = require("../src/daemon/model/MoneroDaemonSyncInfo")
 const MoneroDaemonPeer = require("../src/daemon/model/MoneroDaemonPeer");
 const MoneroDaemonConnection = require("../src/daemon/model/MoneroDaemonConnection");
 const MoneroDaemonUpdateCheckResult = require("../src/daemon/model/MoneroDaemonUpdateCheckResult");
+const MoneroDaemonResponseInfo = require("../src/daemon/model/MoneroDaemonResponseInfo");
 
 /**
  * Tests a Monero daemon.
@@ -752,8 +753,9 @@ class TestMoneroDaemonRpc {
           let wallet = new MoneroWalletLocal(daemon);
           let address = await wallet.getPrimaryAddress();
           let threadCount = 3;
-          let isBackground = true;
+          let isBackground = false;
           await daemon.startMining(address, threadCount, isBackground, true);
+          //await new Promise(function(resolve) { setTimeout(resolve, 1000); });  // wait a moment for mining to start
           status = await daemon.getMiningStatus();
           testDaemonResponseInfo(status, true, false);
           assert.equal(status.getIsActive(), true);
@@ -817,9 +819,29 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      it("Can be stopped", async function() {
-        throw new Error("Not implemented");
-      });
+      // test is disabled to not interfere with other tests
+      // TODO: currently returning empty daemon model with response info in other calls that don't have return data, make consistent
+      // TODO: test response info separate from daemon model in common test
+//      it("Can be stopped", async function() {
+//        
+//        // stop the daemon
+//        let resp = await daemon.stop();
+//        assert(resp instanceof MoneroDaemonResponseInfo);
+//        assert.equal(resp.getStatus(), "OK");
+//        assert.equal(resp.getIsTrusted(), undefined); 
+//        
+//        // give the daemon 10 seconds to shut down
+//        await new Promise(function(resolve) { setTimeout(resolve, 10000); }); 
+//        
+//        // try to interact with the daemon
+//        try {
+//          await daemon.getHeight();
+//          throw new Error("Should have thrown error");
+//        } catch(e) {
+//          console.log(e);
+//          assert.notEqual("Should have thrown error", e.message);
+//        }
+//      });
     });
   }
   
@@ -982,7 +1004,7 @@ class TestMoneroDaemonRpc {
 }
 
 function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted) {
-  assert(model.getResponseInfo());
+  assert(model.getResponseInfo() instanceof MoneroDaemonResponseInfo);
   if (initializedStatus) assert.equal(model.getResponseInfo().getStatus(), "OK");
   else assert(model.getResponseInfo().getStatus() === undefined);
   if (initializedIsUntrusted) assert(model.getResponseInfo());

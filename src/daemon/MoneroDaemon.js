@@ -572,7 +572,7 @@ class MoneroDaemon {
   }
   
   /**
-   * Stops the daemon.
+   * Safely disconnect and shut down the daemon.
    */
   async stop() {
     throw new Error("Subclass must implement");

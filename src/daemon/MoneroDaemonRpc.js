@@ -617,6 +617,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return MoneroDaemonRpc._setResponseInfo(resp, MoneroDaemonRpc._buildUpdateDownloadResult(resp));
   }
   
+  async stop() {
+    return MoneroDaemonRpc._getResponseInfo(await this.config.rpc.sendPathRequest("stop_daemon"));
+  }
+  
   // TODO: need to add these to MoneroDaemon.js
   addBlockHeaderListener(listener) {
 
