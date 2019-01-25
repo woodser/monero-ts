@@ -14,7 +14,7 @@ const MoneroAltChain = require("../src/daemon/model/MoneroAltChain");
 const MoneroDaemonSyncInfo = require("../src/daemon/model/MoneroDaemonSyncInfo");
 const MoneroDaemonPeer = require("../src/daemon/model/MoneroDaemonPeer");
 const MoneroDaemonConnection = require("../src/daemon/model/MoneroDaemonConnection");
-const MoneroDaemonCheckUpdateResult = require("../src/daemon/model/MoneroDaemonCheckUpdateResult");
+const MoneroDaemonUpdateCheckResult = require("../src/daemon/model/MoneroDaemonUpdateCheckResult");
 
 /**
  * Tests a Monero daemon.
@@ -788,33 +788,33 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      it("Can check for updates", async function() {
-        
-        // check default path
+      it("Can check for an update", async function() {
         let result = await daemon.checkForUpdate();
-        testCheckUpdateResult(result);
+        testUpdateCheckResult(result);
         testDaemonResponseInfo(result, true, false);
-        
-        // TODO monero-daemon-rpc: path parameter seems to be ignored
-        
-//        // check given path
-//        let path = "https://www.getmonero.org";
-//        result = await daemon.checkForUpdate(path);
-//        testCheckUpdateResult(result, path); 
-//        testDaemonResponseInfo(result, true, false);
-//        
-//        // check invalid path
-//        try {
-//          result = await daemon.checkForUpdate("ohhai");
-//          throw new Error("Should have thrown error");
-//        } catch(e) {
-//          console.log(e);
-//          assert.notEqual("Should have thrown error", e.message);
-//        }
       });
       
-      it("Can be updated", async function() {
-        throw new Error("Not implemented");
+      it("Can download an update", async function() {
+        
+        // download to default path
+        let result = await daemon.downloadUpdate();
+        testUpdateDownloadResult(result);
+        testDaemonResponseInfo(result, true, false);
+        
+        // download to defined path
+        let path = "test_download_" + +new Date().getTime() + ".tar.bz2";
+        result = await daemon.downloadUpdate(path);
+        testUpdateDownloadResult(result, path);
+        testDaemonResponseInfo(result, true, false);
+        
+        // test invalid path
+        try {
+          result = await daemon.downloadUpdate("./ohhai/there");
+          throw new Error("Should have thrown error");
+        } catch(e) {
+          assert.notEqual("Should have thrown error", e.message);
+          assert.equal(e.statusCode, 500);  // TODO: this causes a 500, in daemon rpc?
+        }
       });
       
       it("Can be stopped", async function() {
@@ -1434,24 +1434,28 @@ function testKnownPeer(peer, fromConnection) {
   else assert(peer.getLastSeen() > 0);
 }
 
-function testCheckUpdateResult(result, path) {
-  assert(result instanceof MoneroDaemonCheckUpdateResult);
-  if (path) {
-    assert.equal(result.getPath(), path);
-    assert.equal(result.getAutoUri(), undefined);
-    assert.equal(result.getUserUri(), undefined);
-  } else {
-    assert.equal(result.getPath(), undefined);
-    assert(result.getAutoUri());
-    assert(result.getUserUri());
-  }
+function testUpdateCheckResult(result) {
+  assert(result instanceof MoneroDaemonUpdateCheckResult);
   assert.equal(typeof result.getIsUpdateAvailable(), "boolean");
   if (result.getIsUpdateAvailable()) {
     assert.equal(typeof result.getVersion(), "string");
     assert.equal(typeof result.getHash(), "string");
     assert.equal(result.getHash().length, 64);
   } else {
-    assert.equal(result.getUpdateVersion(), undefined);
+    assert.equal(result.getVersion(), undefined);
+    assert.equal(result.getHash(), undefined);
+  }
+  assert(result.getAutoUri());
+  assert(result.getUserUri());
+}
+
+function testUpdateDownloadResult(result, path) {
+  testUpdateCheckResult(result);
+  if (result.getIsUpdateAvailable()) {
+    if (path) assert.equal(result.getDownloadPath(), path);
+    else assert(result.getDownloadPath());
+  } else {
+    assert.equal(result.getDownloadPath(), undefined);
   }
 }
 

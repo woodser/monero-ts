@@ -3,7 +3,24 @@ const MoneroDaemonModel = require("./MoneroDaemonModel");
 /**
  * Models the result of checking for a daemon update.
  */
-class MoneroDaemonCheckUpdateResult extends MoneroDaemonModel {
+class MoneroDaemonUpdateCheckResult extends MoneroDaemonModel {
+  
+  /**
+   * Deep copy constructor.
+   * 
+   * @param {MoneroDaemonUpdateCheckResult} is an existing result to deep copy from
+   */
+  constructor(result) {
+    super();
+    if (result !== undefined) {
+      assert(result instanceof MoneroDaemonUpdateCheckResult);
+      this.setIsUpdateAvailable(result.getIsUpdateAvailable());
+      this.setVersion(result.getVersion());
+      this.setHash(result.getHash());
+      this.setAutoUri(result.getAutoUri());
+      this.setUserUri(result.getUserUri());
+    }
+  }
   
   /**
    * Indicates if an update is available.
@@ -69,14 +86,6 @@ class MoneroDaemonCheckUpdateResult extends MoneroDaemonModel {
   setUserUri(userUri) {
     this.userUri = userUri;
   }
-  
-  getPath() {
-    return this.path;
-  }
-  
-  setPath(path) {
-    this.path = path;
-  }
 }
 
-module.exports = MoneroDaemonCheckUpdateResult;
+module.exports = MoneroDaemonUpdateCheckResult;
