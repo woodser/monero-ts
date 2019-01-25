@@ -1,4 +1,3 @@
-standardize tx note over description
 license headers
 block comments with params and formatting
 txpool -> mempool?
