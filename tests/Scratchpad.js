@@ -29,7 +29,7 @@ describe("Scratchpad", function() {
     
 //    try { await wallet.startMining(8, false, true); }
 //    catch (e) { }
-//    await wallet.stopMining();
+    await wallet.stopMining();
 //    await daemon.stopMining();
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
@@ -50,7 +50,6 @@ describe("Scratchpad", function() {
       let spentStatus = await daemon.getSpentStatus(keyImage);
       try {
         assert.equal(vout.getIsSpent() ? MoneroKeyImage.SpentStatus.CONFIRMED : MoneroKeyImage.SpentStatus.NOT_SPENT, spentStatus);
-        console.log("cool");
       } catch (e) {
         console.log(vout.getTx().toString());
         console.log(vout.toString());

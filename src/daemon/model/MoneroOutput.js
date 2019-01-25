@@ -68,6 +68,14 @@ class MoneroOutput {
     return this;
   }
   
+  getStealthPublicKey() {
+    return this.state.stealthPublicKey;
+  }
+  
+  setStealthPublicKey(stealthPublicKey) {
+    this.stealthPublicKey = stealthPublicKey;
+  }
+  
   copy() {
     return new MoneroOutput(this.toJson());
   }

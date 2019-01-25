@@ -835,7 +835,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         MoneroUtils.safeSet(output, output.getRingOutputIndices, output.setRingOutputIndices, val.key_offsets);
       }
       else if (key === "amount") MoneroUtils.safeSet(output, output.getAmount, output.setAmount, new BigInteger(val));
-      else if (key === "target") MoneroUtils.safeSet(output, output.getKeyImage, output.setKeyImage, new MoneroKeyImage(val.key));
+      else if (key === "target") MoneroUtils.safeSet(output, output.getStealthPublicKey, output.setStealthPublicKey, val.key);
       else console.log("WARNING: ignoring unexpected field output: " + key + ": " + val);
     }
     return output;
@@ -1118,6 +1118,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "version") result.setVersion(val);
       else console.log("WARNING: ignoring unexpected field in rpc check update result: " + key + ": " + val);
     }
+    if (result.getVersion() === "") result.setVersion(undefined);
+    if (result.getHash() === "") result.setHash(undefined);
     return result;
   }
   

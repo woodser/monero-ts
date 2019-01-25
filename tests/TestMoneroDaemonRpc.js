@@ -1382,6 +1382,8 @@ async function getUnrelayedTx(wallet, accountIdx) {
 
 function testVin(vin) {
   testOutput(vin);
+  assert(vin.getKeyImage());
+  assert(vin.getKeyImage().getHex().length === 64);
   assert(vin.getRingOutputIndices() && Array.isArray(vin.getRingOutputIndices()) && vin.getRingOutputIndices().length > 0);
   for (let index of vin.getRingOutputIndices()) {
     assert.equal(typeof index, "number")
@@ -1391,13 +1393,12 @@ function testVin(vin) {
 
 function testVout(vout) {
   testOutput(vout);
+  assert(vout.getStealthPublicKey() && vout.getStealthPublicKey().length === 64);
 }
 
 function testOutput(output) { 
   assert(output instanceof MoneroOutput);
   TestUtils.testUnsignedBigInteger(output.getAmount());
-  assert(output.getKeyImage());
-  assert(output.getKeyImage().getHex().length === 64);
 }
 
 async function getConfirmedTxs(daemon, numTxs) {
@@ -1467,7 +1468,7 @@ function testUpdateCheckResult(result) {
     assert.equal(result.getVersion(), undefined);
     assert.equal(result.getHash(), undefined);
   }
-  assert(result.getAutoUri());
+  assert(result.getAutoUri(), "No auto uri; is daemon online?");
   assert(result.getUserUri());
 }
 
