@@ -1,6 +1,7 @@
 license headers
 block comments with params and formatting
 txpool -> mempool?
+rpc impls _build.. -> _decode..
 
 wallet.send() supports priority
 wallet.send() with {destinations: ...}
@@ -9,6 +10,7 @@ daemon.getTxs() with decodeAsJson = false not tested; needed?
 daemon.getTxs() doesn't return vins/vouts unless decoded as json
 daemon.getTxs({isConfirmed: true}) style filtering?
 daemon.getTxsByHeight(), daemon.getTxsByRange()
+daemon.getBlocksById(), default implementations
 response infos txs, transfers,vouts
 response infos share common references
 response info getIsTrusted() -> getIsUntrusted()? semantic difference?
@@ -20,13 +22,11 @@ daemon notification test needs to test tx merging
 test that note is set if specified in send config
 multisig
 common tx tests need cleanup
-daemon.getBlocksById(), default implementations
 review/optimize rpc requests
 getAccounts() fetches balance even if only thing needed are account indices
 investigate performance of get single tx by id, way too many requests
 support and test unlock time unlocks
 merge asserts type
-rpc impls _build.. -> _decode..
 all model set functions return this
 set subaddress getUnspentOutputCount() with outputs assigned
 how to handle 'confirmations' block height to add the tx to the chain if unconfirmed? corallary of unlock time?
