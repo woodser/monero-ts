@@ -1370,10 +1370,11 @@ async function getConfirmedTxs(daemon, numTxs) {
 
 function testAltChain(altChain) {
   assert(altChain instanceof MoneroAltChain);
-  assert(altChain.getBlockId());
+  assert(Array.isArray(altChain.getBlockIds()) && altChain.getBlockIds().length > 0);
   TestUtils.testUnsignedBigInteger(altChain.getDifficulty(), true);
   assert(altChain.getHeight() > 0);
   assert(altChain.getLength() > 0);
+  assert(altChain.getMainChainParentBlockId().length === 64);
 }
 
 function testDaemonConnection(connection) {

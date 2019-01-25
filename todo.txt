@@ -95,3 +95,4 @@ introduce way to identify change output from blockchain? that solves unknown sen
 identify one call per acount/subaddress and support "all" flag
 /get_transactions returns duplicate data per transaction
 daemon get_txs prune documentation missing
+document alt chain `block_hashes` and `main_chain_parent_block`

@@ -5,12 +5,12 @@ const MoneroDaemonModel = require("./MoneroDaemonModel");
  */
 class MoneroAltChain extends MoneroDaemonModel {
   
-  getBlockId() {
-    return this.blockId;
+  getBlockIds(blockIds) {
+    return this.blockIds;
   }
   
-  setBlockId(blockId) {
-    this.blockId = blockId;
+  setBlockIds(blockIds) {
+    this.blockIds = blockIds;
   }
   
   getDifficulty() {
@@ -35,6 +35,14 @@ class MoneroAltChain extends MoneroDaemonModel {
   
   setLength(length) {
     this.length = length;
+  }
+  
+  getMainChainParentBlockId() {
+    return this.mainChainParentBlockId;
+  }
+  
+  setMainChainParentBlockId(mainChainParentBlockId) {
+    this.mainChainParentBlockId = mainChainParentBlockId;
   }
 }
 

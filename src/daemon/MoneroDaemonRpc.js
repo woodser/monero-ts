@@ -1016,10 +1016,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let chain = new MoneroAltChain();
     for (let key of Object.keys(rpcChain)) {
       let val = rpcChain[key];
-      if (key === "block_hash") chain.setBlockId(val);
+      if (key === "block_hash") {}  // using block_hashes instead
       else if (key === "difficulty") chain.setDifficulty(new BigInteger(val));
       else if (key === "height") chain.setHeight(val);
       else if (key === "length") chain.setLength(val);
+      else if (key === "block_hashes") chain.setBlockIds(val);
+      else if (key === "main_chain_parent_block") chain.setMainChainParentBlockId(val);
       else console.log("WARNING: ignoring unexpected field in alternative chain: " + key + ": " + val);
     }
     return chain;
