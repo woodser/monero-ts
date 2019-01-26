@@ -73,7 +73,7 @@ class MoneroOutput {
   }
   
   setStealthPublicKey(stealthPublicKey) {
-    this.stealthPublicKey = stealthPublicKey;
+    this.state.stealthPublicKey = stealthPublicKey;
   }
   
   copy() {
