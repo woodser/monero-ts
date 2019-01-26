@@ -1348,7 +1348,7 @@ function testOutput(output) {
 async function getConfirmedTxs(daemon, numTxs) {
   let txs = [];
   let numBlocksPerReq = 50;
-  for (let startIdx = await daemon.getHeight() - numBlocksPerReq; startIdx >= 0; startIdx -= numBlocksPerReq) {
+  for (let startIdx = await daemon.getHeight() - numBlocksPerReq - 1; startIdx >= 0; startIdx -= numBlocksPerReq) {
     let blocks = await daemon.getBlocksByRange(startIdx, startIdx + numBlocksPerReq);
     for (let block of blocks) {
       if (!block.getTxs()) continue;
