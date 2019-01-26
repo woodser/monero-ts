@@ -4,6 +4,15 @@
 class MoneroDaemon {
   
   /**
+   * Indicates if the daemon is trusted xor untrusted.
+   * 
+   * @return {boolean} true if the daemon is trusted, false otherwise
+   */
+  async isTrusted() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Get the number of blocks in the longest chain known to the node.
    * 
    * @returns the number of blocks
