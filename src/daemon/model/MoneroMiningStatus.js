@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel");
-
 /**
  * Models daemon mining status.
  */
-class MoneroMiningStatus extends MoneroDaemonModel {
+class MoneroMiningStatus {
   
   getIsActive() {
     return this.isActive;

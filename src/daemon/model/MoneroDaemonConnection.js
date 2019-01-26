@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel");
-
 /**
  * Monero daemon connection.
  */
-class MoneroDaemonConnection extends MoneroDaemonModel {
+class MoneroDaemonConnection {
   
   getPeer() {
     return this.peer;

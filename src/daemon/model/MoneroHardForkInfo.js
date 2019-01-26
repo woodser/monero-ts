@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel");
-
 /**
  * Monero hard fork info.
  */
-class MoneroHardForkInfo extends MoneroDaemonModel {
+class MoneroHardForkInfo {
   
   getEarliestHeight() {
     return this.earliestHeight;

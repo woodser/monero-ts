@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel");
-
 /**
  * Monero block.
  */
-class MoneroBlock extends MoneroDaemonModel {
+class MoneroBlock {
   
   getHex() {
     return this.hex;

@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel");
-
 /**
  * Models daemon synchronization information.
  */
-class MoneroDaemonSyncInfo extends MoneroDaemonModel {
+class MoneroDaemonSyncInfo {
   
   getHeight() {
     return this.height;

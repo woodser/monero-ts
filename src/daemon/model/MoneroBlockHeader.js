@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel");
-
 /**
  * Monero block header information.
  */
-class MoneroBlockHeader extends MoneroDaemonModel {
+class MoneroBlockHeader {
   
   getSize() {
     return this.size;

@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel");
-
 /**
  * Entry in a Monero output histogram (see get_output_histogram of Daemon RPC documentation).
  */
-class MoneroOutputHistogramEntry extends MoneroDaemonModel {
+class MoneroOutputHistogramEntry {
   
   getAmount() {
     return this.amount;

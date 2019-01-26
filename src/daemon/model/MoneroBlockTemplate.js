@@ -1,13 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel");
-
 /**
  * Monero block template to mine.
  */
-class MoneroBlockTemplate extends MoneroDaemonModel {
-
-  constructor() {
-    super();
-  }
+class MoneroBlockTemplate {
   
   getTemplateBlob() { // TODO: rename getTemplateBlob() -> getBlockTemplateBlob(), getHashBlob() -> getBlockHashBlob() for recognizability
     return this.templateBlob;

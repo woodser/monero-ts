@@ -38,6 +38,6 @@ new TestMoneroDaemonRpc().runTests({
 //
 //// test boolean set (data structure used by wallet to track progress)
 //require("./TestBooleanSet");
-
-// test scratchpad
+//
+//// test scratchpad
 //require("./Scratchpad");

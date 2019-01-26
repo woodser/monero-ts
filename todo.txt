@@ -3,6 +3,8 @@ block comments with params and formatting
 txpool -> mempool?
 rpc impls _build.. -> _decode..
 
+daemon.isTrusted()
+what does it mean for daemon to be untrusted true or false
 wallet.send() supports priority
 wallet.send() with {destinations: ...}
 wallet.send(configOrAddress, amount) which supports {} and MoneroSendConfig

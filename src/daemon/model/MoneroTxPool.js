@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel");
-
 /**
  * Models transactions and spent key images known to the daemon's transaction pool.
  */
-class MoneroTxPool extends MoneroDaemonModel {
+class MoneroTxPool {
   
   getTxs() {
     return this.txs;

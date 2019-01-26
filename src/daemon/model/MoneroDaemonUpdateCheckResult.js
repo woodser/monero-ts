@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel");
-
 /**
  * Models the result of checking for a daemon update.
  */
-class MoneroDaemonUpdateCheckResult extends MoneroDaemonModel {
+class MoneroDaemonUpdateCheckResult {
   
   /**
    * Deep copy constructor.
@@ -11,7 +9,6 @@ class MoneroDaemonUpdateCheckResult extends MoneroDaemonModel {
    * @param {MoneroDaemonUpdateCheckResult} is an existing result to deep copy from
    */
   constructor(result) {
-    super();
     if (result !== undefined) {
       assert(result instanceof MoneroDaemonUpdateCheckResult);
       this.setIsUpdateAvailable(result.getIsUpdateAvailable());

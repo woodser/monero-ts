@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel")
-
 /**
  * Models transaction pool statistics.
  */
-class MoneroTxPoolStats extends MoneroDaemonModel {
+class MoneroTxPoolStats {
   
   getCount() {
     return this.count;

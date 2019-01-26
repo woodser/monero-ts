@@ -1,10 +1,9 @@
 const MoneroUtils = require("../../utils/MoneroUtils");
-const MoneroDaemonModel = require("./MoneroDaemonModel");
 
 /**
  * Models a Monero key image.
  */
-class MoneroKeyImage extends MoneroDaemonModel {
+class MoneroKeyImage {
   
   /**
    * Constructs the model.
@@ -13,7 +12,6 @@ class MoneroKeyImage extends MoneroDaemonModel {
    * @param signature is the key image's signature
    */
   constructor(stateOrHex, signature) {
-    super();
     
     // initialize without state
     if (stateOrHex === undefined || typeof stateOrHex === "string") {

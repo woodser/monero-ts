@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("../../daemon/model/MoneroDaemonModel");
-
 /**
  * Models results from importing key images.
  */
-class MoneroKeyImageImportResult extends MoneroDaemonModel {
+class MoneroKeyImageImportResult {
   
   getHeight() {
     return this.height;

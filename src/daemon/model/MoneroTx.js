@@ -1,13 +1,12 @@
 const assert = require("assert");
 const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
-const MoneroDaemonModel = require("./MoneroDaemonModel");
 const MoneroUtils = require("../../utils/MoneroUtils");
 const MoneroOutput = require("./MoneroOutput");
 
 /**
  * Represents a transaction on the Monero network.
  */
-class MoneroTx extends MoneroDaemonModel {
+class MoneroTx {
   
   /**
    * Constructs the model.
@@ -17,7 +16,6 @@ class MoneroTx extends MoneroDaemonModel {
    * @param state is model state or json to initialize from (optional)
    */
   constructor(state) {
-    super();
     state = Object.assign({}, state);
     this.state = state;
     

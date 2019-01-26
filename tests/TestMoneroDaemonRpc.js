@@ -15,7 +15,6 @@ const MoneroDaemonSyncInfo = require("../src/daemon/model/MoneroDaemonSyncInfo")
 const MoneroDaemonPeer = require("../src/daemon/model/MoneroDaemonPeer");
 const MoneroDaemonConnection = require("../src/daemon/model/MoneroDaemonConnection");
 const MoneroDaemonUpdateCheckResult = require("../src/daemon/model/MoneroDaemonUpdateCheckResult");
-const MoneroDaemonResponseInfo = require("../src/daemon/model/MoneroDaemonResponseInfo");
 
 /**
  * Tests a Monero daemon.
@@ -59,6 +58,11 @@ class TestMoneroDaemonRpc {
         await daemon.flushTxPool();
       });
       
+      it("Can indicate if its trusted", async function() {
+        let isTrusted = await daemon.isTrusted();
+        assert.equal(typeof isTrusted, "boolean");
+      });
+      
       it("Can get the blockchain height", async function() {
         let height = await daemon.getHeight();
         assert(height, "Height must be initialized");
@@ -74,13 +78,11 @@ class TestMoneroDaemonRpc {
       
       it("Can get a block template", async function() {
         let template = await daemon.getBlockTemplate(TestUtils.TEST_ADDRESS, 2);
-        testDaemonResponseInfo(template, true, true);
         testBlockTemplate(template);
       });
 
       it("Can get the last block's header", async function() {
         let lastHeader = await daemon.getLastBlockHeader();
-        testDaemonResponseInfo(lastHeader, true, true);
         testBlockHeader(lastHeader, true);
       });
       
@@ -90,14 +92,12 @@ class TestMoneroDaemonRpc {
         let lastHeader = await daemon.getLastBlockHeader();
         let id = await daemon.getBlockId(lastHeader.getHeight());
         let header = await daemon.getBlockHeaderById(id);
-        testDaemonResponseInfo(header, true, true);
         testBlockHeader(header, true);
         assert.deepEqual(header, lastHeader);
         
         // retrieve by id of previous to last block
         id = await daemon.getBlockId(lastHeader.getHeight() - 1);
         header = await daemon.getBlockHeaderById(id);
-        testDaemonResponseInfo(header, true, true);
         testBlockHeader(header, true);
         assert.equal(header.getHeight(), lastHeader.getHeight() - 1);
       });
@@ -107,13 +107,11 @@ class TestMoneroDaemonRpc {
         // retrieve by height of last block
         let lastHeader = await daemon.getLastBlockHeader();
         let header = await daemon.getBlockHeaderByHeight(lastHeader.getHeight());
-        testDaemonResponseInfo(header, true, true);
         testBlockHeader(header, true);
         assert.deepEqual(header, lastHeader);
         
         // retrieve by height of previous to last block
         header = await daemon.getBlockHeaderByHeight(lastHeader.getHeight() - 1);
-        testDaemonResponseInfo(header, true, true);
         testBlockHeader(header, true);
         assert.equal(header.getHeight(), lastHeader.getHeight() - 1);
       });
@@ -136,7 +134,6 @@ class TestMoneroDaemonRpc {
         for (let i = 0; i < numBlocks; i++) {
           let header = headers[i];
           assert.equal(header.getHeight(), startHeight + i);
-          testDaemonResponseInfo(header, true, true);
           testBlockHeader(header, true);
         }
       });
@@ -150,7 +147,6 @@ class TestMoneroDaemonRpc {
         let lastHeader = await daemon.getLastBlockHeader();
         let id = await daemon.getBlockId(lastHeader.getHeight());
         let block = await daemon.getBlockById(id);
-        testDaemonResponseInfo(block, true, true);
         testBlock(block, testBlockConfig);
         assert.deepEqual(block, await daemon.getBlockByHeight(block.getHeader().getHeight()));
         assert(block.getTxs() === undefined);
@@ -158,7 +154,6 @@ class TestMoneroDaemonRpc {
         // retrieve by id of previous to last block
         id = await daemon.getBlockId(lastHeader.getHeight() - 1);
         block = await daemon.getBlockById(id);
-        testDaemonResponseInfo(block, true, true);
         testBlock(block, testBlockConfig);
         assert.deepEqual(block, await daemon.getBlockByHeight(lastHeader.getHeight() - 1));
         assert(block.getTxs() === undefined);
@@ -172,13 +167,11 @@ class TestMoneroDaemonRpc {
         // retrieve by height of last block
         let lastHeader = await daemon.getLastBlockHeader();
         let block = await daemon.getBlockByHeight(lastHeader.getHeight());
-        testDaemonResponseInfo(block, true, true);
         testBlock(block, testBlockConfig);
         assert.deepEqual(block, await daemon.getBlockByHeight(block.getHeader().getHeight()));
         
         // retrieve by height of previous to last block
         block = await daemon.getBlockByHeight(lastHeader.getHeight() - 1);
-        testDaemonResponseInfo(block, true, true);
         testBlock(block, testBlockConfig);
         assert.deepEqual(block.getHeader().getHeight(), lastHeader.getHeight() - 1);
       });
@@ -211,7 +204,6 @@ class TestMoneroDaemonRpc {
         for (let i = 0; i < heights.length; i++) {
           let block = blocks[i];
           if (block.getTxs().length) txFound = true;
-          testDaemonResponseInfo(block, true, true);
           testBlock(block, testBlockConfig);
           assert.equal(block.getHeader().getHeight(), heights[i]);      
         }
@@ -290,7 +282,6 @@ class TestMoneroDaemonRpc {
         let prune = false;
         let txs = await daemon.getTxs(txIds, decodeAsJson, prune);
         for (let tx of txs) {
-          testDaemonResponseInfo(tx, true, true); // TODO: duplicating response info is going to be too expensive so must be common reference
           testTx(tx, { hasJson: decodeAsJson, isPruned: prune, isFull: true, isConfirmed: true, fromPool: false });
         }
         
@@ -299,14 +290,12 @@ class TestMoneroDaemonRpc {
       
       it("Can get the coinbase transaction sum", async function() {
         let sum = await daemon.getCoinbaseTxSum(0, 50000);
-        testDaemonResponseInfo(sum, true, false);
         testCoinbaseTxSum(sum);
       });
       
       it("Can get a fee estimate", async function() {
-        let estimate = await daemon.getFeeEstimate();
-        testDaemonResponseInfo(estimate, true, true);
-        TestUtils.testUnsignedBigInteger(estimate.getFeeEstimate());
+        let fee = await daemon.getFeeEstimate();
+        TestUtils.testUnsignedBigInteger(fee, true);
       });
       
       it("Can get transactions and spent key images in the transaction pool", async function() {
@@ -317,7 +306,6 @@ class TestMoneroDaemonRpc {
         
         // fetch tx pool txs and spent key images
         let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
-        testDaemonResponseInfo(txPool, true, true);
         
         // test txs
         assert(Array.isArray(txPool.getTxs()));
@@ -364,7 +352,6 @@ class TestMoneroDaemonRpc {
           
           // test stats
           stats = await daemon.getTxPoolStats();
-          testDaemonResponseInfo(stats, true, true);
           assert(stats.getCount() > i);
           testTxPoolStats(stats);
         }
@@ -388,7 +375,6 @@ class TestMoneroDaemonRpc {
         
         // flush tx pool
         let resp = await daemon.flushTxPool();
-        testDaemonResponseInfo(resp, true, false);
         txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
         assert(txPool.getTxs().length === 0);
       });
@@ -407,8 +393,7 @@ class TestMoneroDaemonRpc {
         for (let i = 0; i < txs.length; i++) {
           
           // flush tx from pool
-          let resp = await daemon.flushTxPool(txs[i].getId());
-          testDaemonResponseInfo(resp, true, false);
+          await daemon.flushTxPool(txs[i].getId());
           
           // test tx pool
           let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
@@ -427,8 +412,7 @@ class TestMoneroDaemonRpc {
         }
         
         // remove all txs by ids
-        let resp = await daemon.flushTxPool(txIds);
-        testDaemonResponseInfo(resp, true, false);
+        await daemon.flushTxPool(txIds);
         
         // test tx pool
         let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
@@ -503,7 +487,6 @@ class TestMoneroDaemonRpc {
         assert(Array.isArray(entries));
         assert(entries.length > 0);
         for (let entry of entries) {
-          testDaemonResponseInfo(entry, true, true);
           testOutputHistogramEntry(entry);
         }
       });
@@ -520,38 +503,30 @@ class TestMoneroDaemonRpc {
         amounts.push(new BigInteger(1000000));
         let entries = await daemon.getOutputDistribution(amounts);
         for (let entry of entries) {
-          testDaemonResponseInfo(entry, true, false);
           testOutputDistributionEntry(entry);
         }
       });
       
       it("Has general information", async function() {
         let info = await daemon.getInfo();
-        testDaemonResponseInfo(info, true, true);
         testInfo(info);
       });
       
       it("Has sync information", async function() {
         let syncInfo = await daemon.getSyncInfo();
-        testDaemonResponseInfo(syncInfo, true, true);
         testSyncInfo(syncInfo);
       });
       
       it("Has hard fork information", async function() {
         let hardForkInfo = await daemon.getHardForkInfo();
-        testDaemonResponseInfo(hardForkInfo, true, true);
         testHardForkInfo(hardForkInfo);
       });
       
       it("Can get alternative chains", async function() {
         let altChains = await daemon.getAltChains();
         assert(Array.isArray(altChains) && altChains.length >= 0);
-        let respInfo;
         for (let altChain of altChains) {
           testAltChain(altChain);
-          testDaemonResponseInfo(altChain, true, false);
-          if (respInfo === undefined) respInfo = altChain.getResponseInfo();
-          else assert(respInfo === altChain.getResponseInfo());
         }
       });
       
@@ -631,7 +606,6 @@ class TestMoneroDaemonRpc {
         assert(peers.length > 0);
         for (let peer of peers) {
           testKnownPeer(peer);
-          testDaemonResponseInfo(peer, true, false);
         }
       });
       
@@ -640,7 +614,6 @@ class TestMoneroDaemonRpc {
         assert(Array.isArray(connections));
         assert(connections.length > 0, "Daemon has no incoming or outgoing connections to test");
         for (let connection of connections) {
-          testDaemonResponseInfo(connection, true, false);
           testDaemonConnection(connection);
         }
       });
@@ -676,14 +649,12 @@ class TestMoneroDaemonRpc {
         ban.setHost("192.168.1.51");
         ban.setIsBanned(true);
         ban.setSeconds(60);
-        let model = await daemon.setPeerBan(ban);
-        testDaemonResponseInfo(model, true, false);
+        await daemon.setPeerBan(ban);
         
         // test ban
         let bans = await daemon.getPeerBans();
         let found = false;
         for (let aBan of bans) {
-          testDaemonResponseInfo(aBan, true, false);
           testMoneroBan(aBan);
           if (aBan.getHost() === "192.168.1.51") found = true;
         }
@@ -704,15 +675,13 @@ class TestMoneroDaemonRpc {
         let bans = [];
         bans.push(ban1);
         bans.push(ban2);
-        let model = await daemon.setPeerBans(bans);
-        testDaemonResponseInfo(model, true, false);
+        await daemon.setPeerBans(bans);
         
         // test bans
         bans = await daemon.getPeerBans();
         let found1 = false;
         let found2 = false;
         for (let aBan of bans) {
-          testDaemonResponseInfo(aBan, true, false);
           testMoneroBan(aBan);
           if (aBan.getHost() === "192.168.1.52") found1 = true;
           if (aBan.getHost() === "192.168.1.53") found2 = true;
@@ -728,12 +697,10 @@ class TestMoneroDaemonRpc {
         let address = await wallet.getPrimaryAddress();
         
         // start mining
-        let daemonModel = await daemon.startMining(address, 2, false, true);
-        testDaemonResponseInfo(daemonModel, true, false);
+        await daemon.startMining(address, 2, false, true);
         
         // stop mining
-        daemonModel = await daemon.stopMining();
-        testDaemonResponseInfo(daemonModel, true, false);
+        await daemon.stopMining();
       });
       
       it("Can get mining status", async function() {
@@ -742,7 +709,6 @@ class TestMoneroDaemonRpc {
           
           // test status without mining
           let status = await daemon.getMiningStatus();
-          testDaemonResponseInfo(status, true, false);
           assert.equal(status.getIsActive(), false);
           assert.equal(status.getAddress(), undefined);
           assert.equal(status.getSpeed(), 0);
@@ -757,7 +723,6 @@ class TestMoneroDaemonRpc {
           await daemon.startMining(address, threadCount, isBackground, true);
           //await new Promise(function(resolve) { setTimeout(resolve, 1000); });  // wait a moment for mining to start
           status = await daemon.getMiningStatus();
-          testDaemonResponseInfo(status, true, false);
           assert.equal(status.getIsActive(), true);
           assert.equal(status.getAddress(), address);
           assert(status.getSpeed() > 0);
@@ -793,7 +758,6 @@ class TestMoneroDaemonRpc {
       it("Can check for an update", async function() {
         let result = await daemon.checkForUpdate();
         testUpdateCheckResult(result);
-        testDaemonResponseInfo(result, true, false);
       });
       
       it("Can download an update", async function() {
@@ -801,13 +765,11 @@ class TestMoneroDaemonRpc {
         // download to default path
         let result = await daemon.downloadUpdate();
         testUpdateDownloadResult(result);
-        testDaemonResponseInfo(result, true, false);
         
         // download to defined path
         let path = "test_download_" + +new Date().getTime() + ".tar.bz2";
         result = await daemon.downloadUpdate(path);
         testUpdateDownloadResult(result, path);
-        testDaemonResponseInfo(result, true, false);
         
         // test invalid path
         try {
@@ -820,15 +782,10 @@ class TestMoneroDaemonRpc {
       });
       
       // test is disabled to not interfere with other tests
-      // TODO: currently returning empty daemon model with response info in other calls that don't have return data, make consistent
-      // TODO: test response info separate from daemon model in common test
 //      it("Can be stopped", async function() {
 //        
 //        // stop the daemon
-//        let resp = await daemon.stop();
-//        assert(resp instanceof MoneroDaemonResponseInfo);
-//        assert.equal(resp.getStatus(), "OK");
-//        assert.equal(resp.getIsTrusted(), undefined); 
+//        await daemon.stop();
 //        
 //        // give the daemon 10 seconds to shut down
 //        await new Promise(function(resolve) { setTimeout(resolve, 10000); }); 
@@ -930,8 +887,7 @@ class TestMoneroDaemonRpc {
         }
         
         // relay the txs
-        let resp = txIds.length === 1 ? await daemon.relayTxById(txIds[0]) : await daemon.relayTxsById(txIds);
-        testDaemonResponseInfo(resp, true, false);
+        txIds.length === 1 ? await daemon.relayTxById(txIds[0]) : await daemon.relayTxsById(txIds);
         
         // ensure txs are relayed
         for (let tx of txs) {
@@ -1001,14 +957,6 @@ class TestMoneroDaemonRpc {
       });
     });
   }
-}
-
-function testDaemonResponseInfo(model, initializedStatus, initializedIsUntrusted) {
-  assert(model.getResponseInfo() instanceof MoneroDaemonResponseInfo);
-  if (initializedStatus) assert.equal(model.getResponseInfo().getStatus(), "OK");
-  else assert(model.getResponseInfo().getStatus() === undefined);
-  if (initializedIsUntrusted) assert(model.getResponseInfo());
-  else assert(model.getResponseInfo().getIsTrusted() === undefined);
 }
 
 function testBlockHeader(header, isFull) {
@@ -1243,14 +1191,12 @@ function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
   if (syncInfo.getConnections() !== undefined) {
     assert(syncInfo.getConnections().length > 0);
     for (let connection of syncInfo.getConnections()) {
-      testDaemonResponseInfo(connection, true, false);
       testDaemonConnection(connection);
     }
   }
   if (syncInfo.getSpans() !== undefined) {  // TODO: test that this is being hit, so far not used
     assert(syncInfo.getSpans().length > 0);
     for (let span of syncInfo.getSpans()) {
-      testDaemonResponseInfo(span, true, false);
       testDaemonConnectionSpan(span);
     }
   }
@@ -1296,6 +1242,7 @@ function testOutputDistributionEntry(entry) {
 
 function testSubmitTxResultGood(result) {
   testSubmitTxResultCommon(result);
+  assert.equal(result.getIsGood(), true);
   assert.equal(result.getIsDoubleSpend(), false);
   assert.equal(result.getIsFeeTooLow(), false);
   assert.equal(result.getIsMixinTooLow(), false);
@@ -1304,11 +1251,11 @@ function testSubmitTxResultGood(result) {
   assert.equal(result.getIsRct(), true);
   assert.equal(result.getIsOverspend(), false);
   assert.equal(result.getIsTooBig(), false);
-  assert.equal(result.getResponseInfo().getStatus(), "OK");
 }
 
 function testSubmitTxResultDoubleSpend(result) {
   testSubmitTxResultCommon(result);
+  assert.equal(result.getIsGood(), false);
   assert.equal(result.getIsDoubleSpend(), true);
   assert.equal(result.getIsFeeTooLow(), false);
   assert.equal(result.getIsMixinTooLow(), false);
@@ -1317,10 +1264,10 @@ function testSubmitTxResultDoubleSpend(result) {
   assert.equal(result.getIsRct(), true);
   assert.equal(result.getIsOverspend(), false);
   assert.equal(result.getIsTooBig(), false);
-  assert.equal(result.getResponseInfo().getStatus(), "Failed");
 }
 
 function testSubmitTxResultCommon(result) {
+  assert.equal(typeof result.getIsGood(), "boolean");
   assert.equal(typeof result.getIsRelayed(), "boolean");
   assert.equal(typeof result.getIsDoubleSpend(), "boolean");
   assert.equal(typeof result.getIsFeeTooLow(), "boolean");
@@ -1330,9 +1277,6 @@ function testSubmitTxResultCommon(result) {
   assert.equal(typeof result.getIsRct(), "boolean");
   assert.equal(typeof result.getIsOverspend(), "boolean");
   assert.equal(typeof result.getIsTooBig(), "boolean");
-  assert(result.getResponseInfo());
-  assert.equal(typeof result.getResponseInfo().getStatus(), "string");
-  assert.equal(typeof result.getResponseInfo().getIsTrusted(), "boolean");
 }
 
 function testTxPoolStats(stats) {
@@ -1393,7 +1337,12 @@ function testVin(vin) {
 
 function testVout(vout) {
   testOutput(vout);
-  assert(vout.getStealthPublicKey() && vout.getStealthPublicKey().length === 64);
+  try {
+    assert(vout.getStealthPublicKey() && vout.getStealthPublicKey().length === 64);
+  } catch (e) {
+    console.log(vout.getTx());
+    throw e;
+  }
 }
 
 function testOutput(output) { 

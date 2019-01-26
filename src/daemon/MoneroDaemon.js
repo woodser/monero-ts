@@ -186,18 +186,16 @@ class MoneroDaemon {
    * Relays a transaction by id.
    * 
    * @param {string} txId identifies the transaction to relay
-   * @returns {MoneroDaemonModel} contains response status
    */
   async relayTxById(txId) {
     assert.equal(typeof txId, "string", "Must provide a transaction id");
-    return await this.relayTxsById([txId]);
+    await this.relayTxsById([txId]);
   }
   
   /**
    * Relays transactions by id.
    * 
    * @param {string[]} txIds identify the transactions to relay
-   * @returns {MoneroDaemonResponse} contains response status
    */
   async relayTxsById(txIds) {
     throw new Error("Subclass must implement");
@@ -242,7 +240,6 @@ class MoneroDaemon {
    * Flush transactions from the memory pool.
    * 
    * @param {string or string[]} ids are specific transactions to flush (defaults to all)
-   * @returns {MoneroDaemonModel} contains response information
    */
   async flushTxPool(ids) {
     throw new Error("Subclass must implement");
@@ -475,7 +472,6 @@ class MoneroDaemon {
    * @param {integer} threadCount is the number of mining threads to run
    * @param {boolean} isBackground specifies if the miner should run in the background or not
    * @param {boolean} ignoreBattery specifies if the battery state (e.g. on laptop) should be ignored or not
-   * @returns {MoneroDaemonModel} contains response status
    */
   async startMining(address, threadCount, isBackground, ignoreBattery) {
     throw new Error("Subclass must implement");
@@ -483,8 +479,6 @@ class MoneroDaemon {
   
   /**
    * Stop mining.
-   * 
-   * @returns {MoneroDaemonModel} contains response status
    */
   async stopMining() {
     throw new Error("Subclass must implement");
@@ -503,17 +497,15 @@ class MoneroDaemon {
    * Submit a mined block to the network.
    * 
    * @param blockBlob is the mined block to submit
-   * @return MoneroDaemonModel contains response status
    */
   async submitBlock(blockBlob) {
-    return await this.submitBlocks([blockBlob]);
+    await this.submitBlocks([blockBlob]);
   }
   
   /**
    * Submit mined blocks to the network.
    * 
    * @param blockBlobs are the mined blocks to submit
-   * @return MoneroDaemonModel contains response status
    */
   async submitBlocks(blockBlobs) {
     throw new Error("Subclass must implement");

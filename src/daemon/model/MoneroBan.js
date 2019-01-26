@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel");
-
 /**
  * Monero banhammer.
  */
-class MoneroBan extends MoneroDaemonModel {
+class MoneroBan {
   
   getHost() {
     return this.host;

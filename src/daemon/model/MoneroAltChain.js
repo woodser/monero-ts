@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel");
-
 /**
  * Models an alternative chain seen by the node.
  */
-class MoneroAltChain extends MoneroDaemonModel {
+class MoneroAltChain {
   
   getBlockIds(blockIds) {
     return this.blockIds;

@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel");
-
 /**
  * Monero daemon info.
  */
-class MoneroDaemonInfo extends MoneroDaemonModel {
+class MoneroDaemonInfo {
   
   getVersion() {
     return this.version;

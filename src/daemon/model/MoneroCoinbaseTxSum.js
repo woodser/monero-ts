@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel");
-
 /**
  * Model for the summation of coinbase emissions and fees.
  */
-class MoneroCoinbaseTxSum extends MoneroDaemonModel {
+class MoneroCoinbaseTxSum {
   
   getTotalEmission() {
     return this.totalEmission;

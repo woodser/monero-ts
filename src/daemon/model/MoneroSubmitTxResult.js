@@ -1,9 +1,7 @@
-const MoneroDaemonModel = require("./MoneroDaemonModel");
-
 /**
  * Models the result from submitting a tx to a daemon.
  */
-class MoneroSubmitTxResult extends MoneroDaemonModel {
+class MoneroSubmitTxResult {
   
   getIsRelayed() {
     return this.isRelayed;
