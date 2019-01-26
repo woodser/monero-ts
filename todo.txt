@@ -3,8 +3,6 @@ block comments with params and formatting
 txpool -> mempool?
 rpc impls _build.. -> _decode..
 
-daemon.isTrusted()
-what does it mean for daemon to be untrusted true or false
 wallet.send() supports priority
 wallet.send() with {destinations: ...}
 wallet.send(configOrAddress, amount) which supports {} and MoneroSendConfig
@@ -13,10 +11,6 @@ daemon.getTxs() doesn't return vins/vouts unless decoded as json
 daemon.getTxs({isConfirmed: true}) style filtering?
 daemon.getTxsByHeight(), daemon.getTxsByRange()
 daemon.getBlocksById(), default implementations
-response infos txs, transfers,vouts
-response infos share common references
-response info getIsTrusted() -> getIsUntrusted()? semantic difference?
-response info don't init unless needed
 common MoneroModel which can be initialized from and export state
 get_transfers pool does not actually indicate it's relayed; return undefined?
 daemon binary tests
