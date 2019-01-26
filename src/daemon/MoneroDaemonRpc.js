@@ -131,7 +131,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
     
     // convert binary blocks to json
     let rpcBlocks = this.coreUtils.binary_blocks_to_json(respBin);
-    console.log(rpcBlocks);
     MoneroDaemonRpc._checkResponseStatus(rpcBlocks);
     //console.log(JSON.stringify(rpcBlocks));
     

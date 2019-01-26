@@ -1337,12 +1337,7 @@ function testVin(vin) {
 
 function testVout(vout) {
   testOutput(vout);
-  try {
-    assert(vout.getStealthPublicKey() && vout.getStealthPublicKey().length === 64);
-  } catch (e) {
-    console.log(vout.getTx());
-    throw e;
-  }
+  assert(vout.getStealthPublicKey() && vout.getStealthPublicKey().length === 64);
 }
 
 function testOutput(output) { 
