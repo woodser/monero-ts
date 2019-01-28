@@ -557,7 +557,7 @@ class MoneroWalletRpc extends MoneroWallet {
     throw new Error("Not implemented");
   }
   
-  async sweepOutput(configOrAddress, keyImage, priority, mixin, fee) {
+  async sweepOutput(configOrAddress, keyImage, priority, mixin) {
     
     // normalize and validate config
     let config;
@@ -565,8 +565,11 @@ class MoneroWalletRpc extends MoneroWallet {
       assert.equal(arguments.length, 1, "sweepOutput() requires a send configuration or parameters but both");
       config = configOrAddress;
     } else {
-      config = new MoneroSendConfig(configOrAddress, undefined, undefined, priority, mixin, fee);
-      config.setKeyImage(keyImage);
+      if (configOrAddress instanceof Object) config = new MoneroSendConfig(configOrAddress);
+      else {
+        config = new MoneroSendConfig(configOrAddress, undefined, undefined, priority, mixin);
+        config.setKeyImage(keyImage);
+      }
     }
     assert.equal(config.getSweepEachSubaddress(), undefined);
     assert.equal(config.getBelowAmount(), undefined);
@@ -589,7 +592,9 @@ class MoneroWalletRpc extends MoneroWallet {
 
     // build and return tx response
     let tx = MoneroWalletRpc._initSentWalletTx(config);
-    return MoneroWalletRpc._buildWalletTx(resp, tx, true);
+    MoneroWalletRpc._buildWalletTx(resp, tx, true);
+    tx.getOutgoingTransfer().getDestinations()[0].setAmount(new BigInteger(tx.getOutgoingTransfer().getAmount()));  // initialize destination amount
+    return tx;
   }
   
   async relayTxs(txs) {

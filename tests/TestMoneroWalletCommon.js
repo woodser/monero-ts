@@ -1679,7 +1679,7 @@ class TestMoneroWalletCommon {
         for (let vout of vouts) {
           let address = await wallet.getAddress(vout.getAccountIndex(), vout.getSubaddressIndex());
           let tx;
-          if (useParams) tx = await wallet.sweepOutput(address, vout.getKeyImage().getHex()); // test params
+          if (useParams) tx = await wallet.sweepOutput(address, vout.getKeyImage().getHex(), undefined, 11); // test params
           else tx = await wallet.sweepOutput({address: address, keyImage: vout.getKeyImage().getHex(), mixin: 11});  // test config
           let sendConfig = new MoneroSendConfig({address: address, keyImage: vout.getKeyImage().getHex(), mixin: 11});
           await testWalletTx(tx, {wallet: wallet, sendConfig: sendConfig, isSweep: true});
