@@ -1,4 +1,6 @@
 sweep config extends from send config
+wallet.sweepOutput(address, keyImage, ringSize, priority, mixin)
+
 support vout filter in tx filter and vice versa
 test latest master
 optimize rpc requests
@@ -78,6 +80,7 @@ split BooleanSet into new project
 package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 
 RPC
+wallet rpc sweep_single documentation not correct; contradicts example
 support cors wildcard character
 update #4500 with latest notes
 fix #4500 subaddresses occluded by outgoing counterparts when sent from/to same account
