@@ -33,7 +33,6 @@ all model set functions return this
 set subaddress getUnspentOutputCount() with outputs assigned
 how to handle 'confirmations' block height to add the tx to the chain if unconfirmed? corallary of unlock time?
 don't wrap single return fields with MoneroDaemonModel? e.g. fee
-support sweep_single (output)
 handle excess undefineds and enable deepEqual() in testWalletTxCopy()
 validate all input parameters to api
 don't get tx hex unless requested

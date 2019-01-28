@@ -1712,6 +1712,10 @@ class TestMoneroWalletCommon {
 //        }
 //      });
       
+      it("Can sweep individual outputs identified by their key images", async function() {
+        throw new Error("Not implemented");
+      });
+      
       it("Can sweep subaddresses", async function() {
         throw new Error("Not implemented");
       });

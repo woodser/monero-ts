@@ -432,10 +432,22 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async sweep(config) {
     
-    // validate destination
+    // normalize and validate sweep config
+    if (!(config instanceof MoneroSendConfig)) config = new MoneroSendConfig(config);
     assert(config.getDestinations() && config.getDestinations().length === 1, "Must specify exactly one destination address to sweep to");
     assert(config.getDestinations()[0].getAddress());
     assert.equal(config.getDestinations()[0].getAmount(), undefined);
+    
+    // determine accounts to sweep from; default to all with unlocked balance if not specified
+    let accountIndices = [];
+    if (config.getAccountIndex() !== undefined) accountIndices.push(config.getAccountIndex());
+    else {
+      for (let account of await this.getAccounts()) {
+        if (account.getUnlockedBalance().compare(new BigInteger(0)) > 0) {
+          accountIndices.push(account.getIndex());
+        }
+      }
+    }
     
     // common request params
     let params = {};
@@ -449,17 +461,6 @@ class MoneroWalletRpc extends MoneroWallet {
     params.get_tx_keys = true;
     params.get_tx_hex = true;
     params.get_tx_metadata = true;
-    
-    // determine accounts to sweep from; default to all with unlocked balance if not specified
-    let accountIndices = [];
-    if (config.getAccountIndex() !== undefined) accountIndices.push(config.getAccountIndex());
-    else {
-      for (let account of await this.getAccounts()) {
-        if (account.getUnlockedBalance().compare(new BigInteger(0)) > 0) {
-          accountIndices.push(account.getIndex());
-        }
-      }
-    }
     
     // sweep from each account and collect unique transactions
     let txs = [];
@@ -503,7 +504,7 @@ class MoneroWalletRpc extends MoneroWallet {
         }
       }
       
-      // sweep all subaddresses together
+      // sweep all subaddresses together  // TODO monero-wallet-rpc: doesn't this reveal outputs belong to same wallet?
       else {
         params.subaddr_indices = [subaddressIndices];
         let resp = await this.config.rpc.sendJsonRequest("sweep_all", params);  // TODO: test this

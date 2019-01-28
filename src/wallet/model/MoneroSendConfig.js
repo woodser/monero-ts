@@ -4,12 +4,12 @@ const MoneroTransfer = require("./MoneroTransfer");
 const MoneroDestination = require("./MoneroDestination");
 
 /**
- * Configuration for sending transfers.
+ * Common configuration for sending and sweeping.
  */
 class MoneroSendConfig {
   
   /**
-   * Construct the send configuration.
+   * Construct the configuration.
    * 
    * @param {object|string} configOrAddress is existing configuration or a destination address (optional)
    * @param {BigInteger} amount is the amount to send (optional)
@@ -144,9 +144,9 @@ class MoneroSendConfig {
     return this;
   }
   
-  // TODO: could extend this class to make MoneroSweepConfig with these params
+  // --------------------------- SPECIFIC TO SWEEP ----------------------------
   
-  getBelowAmount() {  // TODO: specific to sweep?
+  getBelowAmount() {
     return this.state.belowAmount;
   }
   
@@ -161,6 +161,15 @@ class MoneroSendConfig {
   
   setSweepEachSubaddress(sweepEachSubaddress) {
     this.state.sweepEachSubaddress = sweepEachSubaddress;
+    return this;
+  }
+  
+  getKeyImage() {
+    return this.state.keyImage;
+  }
+  
+  setKeyImage(keyImage) {
+    this.state.keyImage = keyImage;
     return this;
   }
 }
