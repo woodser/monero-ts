@@ -1,6 +1,4 @@
 wallet.send() supports priority
-wallet.send() with {destinations: ...}
-wallet.send(configOrAddress, amount) which supports {} and MoneroSendConfig
 support vout filter in tx filter and vice versa
 
 license headers
