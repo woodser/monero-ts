@@ -224,8 +224,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async submitTxHex(txHex, doNotRelay) {
     let resp = await this.config.rpc.sendPathRequest("send_raw_transaction", {tx_as_hex: txHex, do_not_relay: doNotRelay});
-    MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildSubmitTxResult(resp);
+    let result = MoneroDaemonRpc._buildSubmitTxResult(resp);
+    try { // collect response instead of throwing
+      MoneroDaemonRpc._checkResponseStatus(resp); 
+      result.setIsGood(true);
+    } catch(e) {
+      result.setIsGood(false);
+    }
+    return result;
   }
   
   async relayTxsById(txIds) {

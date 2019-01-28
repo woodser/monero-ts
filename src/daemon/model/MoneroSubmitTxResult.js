@@ -3,6 +3,15 @@
  */
 class MoneroSubmitTxResult {
   
+  getIsGood() {
+    return this.isGood;
+  }
+  
+  setIsGood(isGood) {
+    this.isGood = isGood;
+    return this;
+  }
+  
   getIsRelayed() {
     return this.isRelayed;
   }
