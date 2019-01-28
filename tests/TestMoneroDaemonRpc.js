@@ -721,7 +721,7 @@ class TestMoneroDaemonRpc {
           let threadCount = 3;
           let isBackground = false;
           await daemon.startMining(address, threadCount, isBackground, true);
-          //await new Promise(function(resolve) { setTimeout(resolve, 1000); });  // wait a moment for mining to start
+          await new Promise(function(resolve) { setTimeout(resolve, 1000); });  // wait for mining to start, else speed is 0
           status = await daemon.getMiningStatus();
           assert.equal(status.getIsActive(), true);
           assert.equal(status.getAddress(), address);

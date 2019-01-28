@@ -1674,7 +1674,6 @@ class TestMoneroWalletCommon {
         vouts = vouts.slice(0, numVouts);
         
         // sweep each vout by key image
-        // TODO monero-wallet-rpc: getting "-1 No outputs found" for these outputs
         let useParams = true;
         for (let vout of vouts) {
           let address = await wallet.getAddress(vout.getAccountIndex(), vout.getSubaddressIndex());
