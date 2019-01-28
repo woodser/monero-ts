@@ -436,7 +436,7 @@ MoneroWalletLocal.DEFAULT_CONFIG = {
     numHeadersPerRequest: 750,  // number of headers per headers fetch request 
     maxReqSize: 3000000,        // maximum size of any request to make
     maxConcurrency: 5,          // maximum concurrency when processing; maximum memory = this * maxReqSize
-    skipCoinbaseTxs: false,        // instructs the wallet to skip processing miner txs
+    skipCoinbaseTxs: false,     // instructs the wallet to skip processing miner txs
 }
 
 module.exports = MoneroWalletLocal;

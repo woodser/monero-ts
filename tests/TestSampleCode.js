@@ -34,13 +34,14 @@ describe("Test Sample Code", function() {
     let sentTx = await wallet.send("74oAtjgE2dfD1bJBo4DWW3E6qXCAwUDMgNqUurnX9b2xUvDTwMwExiXDkZskg7Vct37tRGjzHRqL4gH4H3oag3YyMYJzrNp", new BigInteger(50000));
 
     // send to multiple destinations from subaddress 1, 0 which can be split into multiple transactions
+    // see [MoneroSendConfig.js](./src/wallet/model/MoneroSendConfig.js) for all config options or to build a config object
     let sentTxs = await wallet.sendSplit({
       destinations: [
-        { address: "7BV7iyk9T6kfs7cPfmn7vPZPyWRid7WEwecBkkVr8fpw9MmUgXTPtvMKXuuzqKyr2BegWMhEcGGEt5vNkmJEtgnRFUAvf29", amount: new BigInteger(50000) },
-        { address: "78NWrWGgyZeYgckJhuxmtDMqo8Kzq5r9j1kV8BQXGq5CDnECz2KjQeBDc3KKvdMQmR6TWtfbRaedgbSGmmwr1g8N1rBMdvW", amount: new BigInteger(50000) }
+        {address: "7BV7iyk9T6kfs7cPfmn7vPZPyWRid7WEwecBkkVr8fpw9MmUgXTPtvMKXuuzqKyr2BegWMhEcGGEt5vNkmJEtgnRFUAvf29", amount: new BigInteger(50000) },
+        {address: "78NWrWGgyZeYgckJhuxmtDMqo8Kzq5r9j1kV8BQXGq5CDnECz2KjQeBDc3KKvdMQmR6TWtfbRaedgbSGmmwr1g8N1rBMdvW", amount: new BigInteger(50000) }
       ],
       accountIndex: 1,
-      subaddressIndices: [0]
+      subaddressIndices: [0],
     });
     
     // get confirmed transactions
