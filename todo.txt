@@ -1,6 +1,4 @@
-sweep config extends from send config
-wallet.sweepOutput(address, keyImage, ringSize, priority, mixin)
-
+sweep tests
 support vout filter in tx filter and vice versa
 test latest master
 optimize rpc requests
