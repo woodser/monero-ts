@@ -11,6 +11,7 @@ const MoneroTxFilter = require("../src/wallet/filters/MoneroTxFilter");
 const MoneroVoutFilter = require("../src/wallet/filters/MoneroVoutFilter");
 const MoneroTransferFilter = require("../src/wallet/filters/MoneroTransferFilter");
 const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
+const MoneroSendPriority = require("../src/wallet/model/MoneroSendPriority");
 const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
 const MoneroDestination = require("../src/wallet/model/MoneroDestination");
 const MoneroWalletOutput = require("../src/wallet/model/MoneroWalletOutput");
@@ -1405,6 +1406,7 @@ class TestMoneroWalletCommon {
         config.setSubaddressIndices([fromSubaddress.getSubaddressIndex()]);
         config.setDoNotRelay(doNotRelay);
         config.setCanSplit(canSplit); // so test knows txs could be split
+        config.setPriority(MoneroSendPriority.ELEVATED);  // this never comes back and it's not part of the tx model
         if (canSplit) {
           let sendTxs = await wallet.sendSplit(config);
           for (let tx of sendTxs) txs.push(tx);

@@ -10,6 +10,7 @@ describe("Test Sample Code", function() {
     const MoneroWalletRpc = require("../src/wallet/MoneroWalletRpc");
     const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
     const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
+    const MoneroSendPriority = require("../src/wallet/model/MoneroSendPriority");
     const MoneroDestination = require("../src/wallet/model/MoneroDestination");
     
     // create a wallet that uses a monero-wallet-rpc endpoint

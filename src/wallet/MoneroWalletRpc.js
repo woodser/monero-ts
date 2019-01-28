@@ -1207,6 +1207,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.mixin = config.getMixin();
     params.unlock_time = config.getUnlockTime();
     params.do_not_relay = config.getDoNotRelay();
+    params.priority = config.getPriority();
     params.get_tx_key = true;
     params.get_tx_hex = true;
     params.get_tx_metadata = true;

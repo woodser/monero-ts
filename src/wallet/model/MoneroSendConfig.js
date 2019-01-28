@@ -14,7 +14,7 @@ class MoneroSendConfig {
    * @param {object|string} configOrAddress is existing configuration or a destination address (optional)
    * @param {BigInteger} amount is the amount to send (optional)
    * @param {string} paymentId is the payment id (optional)
-   * @param {TODO} priority is the transaction priority (optional)
+   * @param {MoneroSendPriority} priority is the transaction priority (optional)
    * @param {int} mixin is the number of outputs from the blockchain to mix with (optional)
    */
   constructor(configOrAddress, amount, paymentId, priority, mixin, fee) {
@@ -165,14 +165,4 @@ class MoneroSendConfig {
   }
 }
 
-/**
- * Enumerate send priorities.
- */
-MoneroSendPriority = {
-    DEFAULT: 0,
-    UNIMPORTANT: 1,
-    NORMAL: 2,
-    ELEVATED: 3
-}
-
-module.exports = [MoneroSendConfig, MoneroSendPriority]
+module.exports = MoneroSendConfig

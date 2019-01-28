@@ -1,5 +1,7 @@
-wallet.send() supports priority
 support vout filter in tx filter and vice versa
+optimize rpc requests
+sweep config extends from send config
+allow key, hex, etc to not be returned
 
 license headers
 block comments with params and formatting
