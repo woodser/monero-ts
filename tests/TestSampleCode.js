@@ -42,6 +42,7 @@ describe("Test Sample Code", function() {
       ],
       accountIndex: 1,
       subaddressIndices: [0],
+      priority: MoneroSendPriority.UNIMPORTANT // no rush
     });
     
     // get confirmed transactions
