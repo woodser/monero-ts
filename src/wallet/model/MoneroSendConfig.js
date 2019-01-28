@@ -4,16 +4,29 @@ const MoneroTransfer = require("./MoneroTransfer");
 const MoneroDestination = require("./MoneroDestination");
 
 /**
- * Configuration for sending transactions.
- * 
- * TODO: this should use state object so it can be initialized with {}
+ * Configuration for sending transfers.
  */
 class MoneroSendConfig {
   
+  /**
+   * Construct the send configuration.
+   * 
+   * @param {object|string} configOrAddress is existing configuration or a destination address (optional)
+   * @param {BigInteger} amount is the amount to send (optional)
+   * @param {string} paymentId is the payment id
+   * @param {TODO} priority is the transaction priority
+   * @param {int} mixin is the number of outputs from the blockchain to mix with
+   */
   constructor(configOrAddress, amount, paymentId, priority, mixin, fee) {
     if (configOrAddress instanceof Object) {
-      throw new Error("Need to map object to fields");
+      this.state = Object.assign({}, configOrAddress);
+      
+      // deserialize if necessary
+      if (this.state.destinations) {
+        this.state.destinations = this.state.destinations.map(destination => destination instanceof MoneroDestination ? destination : new MoneroDestination(destination));
+      }
     } else if (typeof configOrAddress === "string") {
+      this.state = {};
       let destination = new MoneroDestination(configOrAddress, amount);
       this.setDestinations([destination]);
       this.setPaymentId(paymentId);
@@ -24,117 +37,131 @@ class MoneroSendConfig {
   }
   
   getDestinations() {
-    return this.destinations;
+    return this.state.destinations;
   }
   
   setDestinations(destinations) {
-    this.destinations = destinations;
+    this.state.destinations = destinations;
+    return this;
   }
   
   getPaymentId() {
-    return this.paymentId;
+    return this.state.paymentId;
   }
   
   setPaymentId(paymentId) {
-    this.paymentId = paymentId;
+    this.state.paymentId = paymentId;
+    return this;
   }
   
   getPriority() {
-    return this.priority;
+    return this.state.priority;
   }
   
   setPriority(priority) {
-    this.priority = priority;
+    this.state.priority = priority;
+    return this;
   }
   
   getMixin() {
-    return this.mixin;
+    return this.state.mixin;
   }
   
   setMixin(mixin) {
-    this.mixin = mixin;
+    this.state.mixin = mixin;
+    return this;
   }
   
   getFee() {
-    return this.fee;
+    return this.state.fee;
   }
   
   setFee(fee) {
-    this.fee = fee;
+    this.state.fee = fee;
+    return this;
   }
   
   getAccountIndex() {
-    return this.accountIndex;
+    return this.state.accountIndex;
   }
   
   setAccountIndex(accountIndex) {
-    this.accountIndex = accountIndex;
+    this.state.accountIndex = accountIndex;
+    return this;
   }
   
   getSubaddressIndices() {
-    return this.subaddressIndices;
+    return this.state.subaddressIndices;
   }
   
   setSubaddressIndices(subaddressIndices) {
-    this.subaddressIndices = subaddressIndices;
+    this.state.subaddressIndices = subaddressIndices;
+    return this;
   }
   
   getUnlockTime() {
-    return this.unlockTime;
+    return this.state.unlockTime;
   }
   
   setUnlockTime(unlockTime) {
-    this.unlockTime = unlockTime;
+    this.state.unlockTime = unlockTime;
+    return this;
   }
   
   getDoNotRelay() {
-    return this.doNotRelay;
+    return this.state.doNotRelay;
   }
   
   setDoNotRelay(doNotRelay) {
-    this.doNotRelay = doNotRelay;
+    this.state.doNotRelay = doNotRelay;
+    return this;
   }
   
   getCanSplit() {
-    return this.canSplit;
+    return this.state.canSplit;
   }
   
   setCanSplit(canSplit) {
-    this.canSplit = canSplit;
+    this.state.canSplit = canSplit;
+    return this;
   }
   
   getNote() {
-    return this.note;
+    return this.state.note;
   }
   
   setNote(note) {
-    this.note = note;
+    this.state.note = note;
+    return this;
   }
   
   getRecipientName() {
-    return this.recipientName;
+    return this.state.recipientName;
   }
   
   setRecipientName(recipientName) {
-    this.recipientName = recipientName;
+    this.state.recipientName = recipientName;
+    return this;
   }
   
   // TODO: could extend this class to make MoneroSweepConfig with these params
   
   getBelowAmount() {  // TODO: specific to sweep?
-    return this.belowAmount;
+    return this.state.belowAmount;
   }
   
   setBelowAmount(belowAmount) {
-    this.belowAmount = belowAmount;
+    this.state.belowAmount = belowAmount;
+    return this;
   }
   
   getSweepEachSubaddress() {
-    return this.sweepEachSubaddress;
+    return this.state.sweepEachSubaddress;
   }
   
   setSweepEachSubaddress(sweepEachSubaddress) {
-    this.sweepEachSubaddress = sweepEachSubaddress;
+    this.state.sweepEachSubaddress = sweepEachSubaddress;
+    return this;
   }
 }
 

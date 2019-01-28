@@ -18,7 +18,7 @@ class MoneroTransferFilter extends Filter {
     this.state = state;
     if (!state.transfer) state.transfer = new MoneroTransfer(state);
     
-    // deserialize fields if necessary
+    // deserialize if necessary
     if (state.txFilter && !(state.txFilter instanceof MoneroTxFilter)) state.txFilter = new MoneroTxFilter(state.transferFilter);
     if (!(state.transfer instanceof MoneroTransfer)) state.transfer = new MoneroTransfer(state.transfer);
   }

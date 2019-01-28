@@ -17,7 +17,7 @@ class MoneroVoutFilter extends Filter {
     this.state = state;
     if (!state.vout) state.vout = new MoneroWalletOutput(state);
     
-    // deserialize fields if necessary
+    // deserialize if necessary
     if (state.txFilter && !(state.txFilter instanceof MoneroTxFilter)) state.txFilter = new MoneroTxFilter(state.transferFilter);
     if (!(state.vout instanceof MoneroWalletOutput)) state.vout = new MoneroWalletOutput(state.vout);
   }

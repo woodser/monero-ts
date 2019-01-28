@@ -1,11 +1,13 @@
+wallet.send() supports priority
+wallet.send() with {destinations: ...}
+wallet.send(configOrAddress, amount) which supports {} and MoneroSendConfig
+support vout filter in tx filter and vice versa
+
 license headers
 block comments with params and formatting
 txpool -> mempool?
 rpc impls _build.. -> _decode..
 
-wallet.send() supports priority
-wallet.send() with {destinations: ...}
-wallet.send(configOrAddress, amount) which supports {} and MoneroSendConfig
 daemon.getTxs() with decodeAsJson = false not tested; needed?
 daemon.getTxs() doesn't return vins/vouts unless decoded as json
 daemon.getTxs({isConfirmed: true}) style filtering?
@@ -49,6 +51,7 @@ time profiling
 undefined amounts instead of 0 for rct amounts
 mock response test framework
 refactor copying to not be downward of a tree rooted at tx but instead correct per each part of a graph
+add typescript?
 
 BIG PICTURE
 transfer project?
@@ -58,6 +61,7 @@ fix transfers bug #4500 in wallet rpc
 data model outline
 mymonero javascript wallet
 local wallet / refactor wallet2.h
+
 port javascript to java
 implement java jni adapter
 integrate with bisq
