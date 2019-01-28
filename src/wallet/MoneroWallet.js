@@ -361,9 +361,13 @@ class MoneroWallet {
   /**
    * Sweep an output with a given key image.
    * 
-   * @param {MoneroSendConfig|string} is a send configuration or key image hex
+   * @param {MoneroSendConfig|string} is a send configuration or destination address
+   * @param {string} keyImage is the key image hex of the output to sweep
+   * @param {int} priority sets a transaction priority as an integer between 0 and 3 (see {MoneroSendPriority})
+   * @param {int} mixin is the number of outputs from the blockchain to mix with (default 11)
+   * @return {MoneroWalletTx} is the resulting transaction from sweeping an output 
    */
-  async sweepOutput(configOrKeyImage) {
+  async sweepOutput(configOrAddress, keyImage, priority, mixin) {
     throw new Error("Subclass must implement");
   }
   

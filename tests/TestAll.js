@@ -15,7 +15,7 @@ new TestMoneroWalletRpc().runTests({
   liteMode: false, // skips some lengthy tests
   testNonSends: false,
   testSends: true,
-  testResets: true,
+  testResets: false,
   testNotifications: false
 });
 

@@ -173,10 +173,20 @@ class MoneroSendConfig {
     return this;
   }
   
+  /**
+   * Get the key image hex of the output to sweep.
+   * 
+   * return {string} is the key image hex of the output to sweep
+   */
   getKeyImage() {
     return this.state.keyImage;
   }
   
+  /**
+   * Set the key image hex of the output to sweep.
+   * 
+   * @param {string} keyImage is the key image hex of the output to sweep
+   */
   setKeyImage(keyImage) {
     this.state.keyImage = keyImage;
     return this;
