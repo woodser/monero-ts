@@ -2,6 +2,7 @@ sweep config extends from send config
 support vout filter in tx filter and vice versa
 test latest master
 optimize rpc requests
+object model
 allow key, hex, etc to not be returned
 
 license headers
