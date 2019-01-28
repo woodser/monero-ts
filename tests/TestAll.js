@@ -14,8 +14,8 @@ new TestMoneroDaemonRpc().runTests({
 new TestMoneroWalletRpc().runTests({
   liteMode: false, // skips some lengthy tests
   testNonSends: false,
-  testSends: true,
-  testResets: false,
+  testSends: false,
+  testResets: true,
   testNotifications: false
 });
 
@@ -38,6 +38,6 @@ require("./TestMoneroWalletEquality");
 
 // test boolean set (data structure used by wallet to track progress)
 require("./TestBooleanSet");
-//
+
 //// test scratchpad
 //require("./Scratchpad");
