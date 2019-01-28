@@ -1,4 +1,4 @@
-sweep tests
+sweep subaddresses test
 test latest master
 optimize rpc requests
 object model
