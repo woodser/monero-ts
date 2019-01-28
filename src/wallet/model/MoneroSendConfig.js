@@ -24,7 +24,16 @@ class MoneroSendConfig {
       
       // deserialize if necessary
       if (this.state.destinations) {
-        this.state.destinations = this.state.destinations.map(destination => destination instanceof MoneroDestination ? destination : new MoneroDestination(destination));
+        assert(this.state.address === undefined && this.state.amount === undefined, "Send configuration may specify destinations or an address/amount but not both");
+        this.setDestinations(this.state.destinations.map(destination => destination instanceof MoneroDestination ? destination : new MoneroDestination(destination)));
+      }
+      
+      // alias 'address' and 'amount' to single destination to support e.g. send({address: "..."})
+      if (this.state.address || this.state.amount) {
+        assert(!this.state.destinations, "Send configuration may specify destinations or an address/amount but not both");
+        this.setDestinations([new MoneroDestination(this.state.address, this.state.amount)]);
+        delete this.state.address;
+        delete this.state.amount;
       }
     } else {
       this.state = {};

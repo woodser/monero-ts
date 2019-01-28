@@ -1,5 +1,4 @@
 sweep tests
-support vout filter in tx filter and vice versa
 test latest master
 optimize rpc requests
 object model
@@ -44,6 +43,7 @@ tests are unecessarily creating new accounts which degrades test performance
 test notifications hardwired to account 0 which gets emptied by reset tests
 test all tx fields in daemon, update tests to be like wallet
 test json serialization / deserialization specifically, stringifying in between so cannot be any live objects
+support vout filter in tx filter?
 
 JS now has native BigInt class which could be used instead of current BigInteger
 switch to jest?

@@ -1713,7 +1713,32 @@ class TestMoneroWalletCommon {
 //      });
       
       it("Can sweep individual outputs identified by their key images", async function() {
-        throw new Error("Not implemented");
+        
+        // test config
+        let numVouts = 3;
+        
+        // get unspent vouts to sweep
+        let vouts = await wallet.getVouts({isSpent: false});
+        assert(vouts.length >= numVouts);
+        vouts = vouts.slice(0, numVouts);
+        
+        // sweep each vout by key image
+        for (let vout of vouts) {
+          let address = await wallet.getAddress(vout.getAccountIndex(), vout.getSubaddressIndex());
+          await wallet.sweepOutput({address: address, keyImage: vout.getKeyImage().getHex()});
+        }
+        
+        // get vouts after sweeping
+        let afterVouts = await wallet.getVouts();
+        
+        // swept vouts are now spent
+        for (let afterVout of afterVouts) {
+          for (let vout of vouts) {
+            if (vout.getKeyImage().getHex() === afterVout.getKeyImage().getHex()) {
+              assert(afterVout.getIsSpent(), "Output should be spent");
+            }
+          }
+        }
       });
       
       it("Can sweep subaddresses", async function() {

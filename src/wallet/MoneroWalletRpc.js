@@ -430,13 +430,14 @@ class MoneroWalletRpc extends MoneroWallet {
     return await this._send(true, configOrAddress, amount, paymentId, priority, mixin, fee);
   }
   
-  async sweep(config) {
+  async sweepUnlocked(config) {
     
     // normalize and validate sweep config
     if (!(config instanceof MoneroSendConfig)) config = new MoneroSendConfig(config);
     assert(config.getDestinations() && config.getDestinations().length === 1, "Must specify exactly one destination address to sweep to");
     assert(config.getDestinations()[0].getAddress());
     assert.equal(config.getDestinations()[0].getAmount(), undefined);
+    assert.equal(config.getKeyImage(), undefined, "Key image defined; use sweepOutput() to sweep an output by its key image");
     
     // determine accounts to sweep from; default to all with unlocked balance if not specified
     let accountIndices = [];
@@ -553,6 +554,10 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async sweepDust(doNotRelay) {
+    throw new Error("Not implemented");
+  }
+  
+  async sweepOutput(configOrKeyImage) {
     throw new Error("Not implemented");
   }
   

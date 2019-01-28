@@ -307,7 +307,7 @@ class MoneroWallet {
    * @return {MoneroWalletTx[]} are the resulting transactions
    */
   async sweepWallet(address) {
-    return await this.sweep(new MoneroSendConfig(address));
+    return await this.sweepUnlocked(new MoneroSendConfig(address));
   }
 
   /**
@@ -320,7 +320,7 @@ class MoneroWallet {
   async sweepAccount(accountIdx, address) {
     let config = new MoneroSendConfig(address);
     config.setAccountIndex(accountIdx);
-    return await this.sweep(config);
+    return await this.sweepUnlocked(config);
   }
 
   /**
@@ -335,7 +335,7 @@ class MoneroWallet {
     let config = new MoneroSendConfig(address);
     config.setAccountIndex(accountIdx);
     config.setSubaddressIndices([subaddressIdx]);
-    return await this.sweep(config);
+    return await this.sweepUnlocked(config);
   }
 
   /**
@@ -344,7 +344,7 @@ class MoneroWallet {
    * @param config specifies the sweep configuration
    * @return {MoneroWalletTx[]} are the resulting transactions
    */
-  async sweep(config) {
+  async sweepUnlocked(config) {
     throw new Error("Subclass must implement");
   }
   
@@ -355,6 +355,15 @@ class MoneroWallet {
    * @return {MoneroWalletTx[]} are the resulting transactions from sweeping dust
    */
   async sweepDust(doNotRelay) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Sweep an output with a given key image.
+   * 
+   * @param {MoneroSendConfig|string} is a send configuration or key image hex
+   */
+  async sweepOutput(configOrKeyImage) {
     throw new Error("Subclass must implement");
   }
   
