@@ -4,6 +4,7 @@ const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/bigi
 const MoneroUtils = require("../utils/MoneroUtils");
 const MoneroRpc = require("../rpc/MoneroRpc")
 const MoneroDaemon = require("./MoneroDaemon");
+const MoneroNetworkType = require("./model/MoneroNetworkType");
 const MoneroBlockHeader = require("./model/MoneroBlockHeader");
 const MoneroBlock = require("./model/MoneroBlock");
 const MoneroTx = require("./model/MoneroTx");
@@ -849,9 +850,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "white_peerlist_size") info.setWhitePeerlistSize(val);
       else if (key === "update_available") info.setUpdateAvailable(val);
       else if (key === "nettype") MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroDaemon.parseNetworkType(val));
-      else if (key === "mainnet") { if (val) MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroDaemon.NetworkType.MAINNET); }
-      else if (key === "testnet") { if (val) MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroDaemon.NetworkType.TESTNET); }
-      else if (key === "stagenet") { if (val) MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroDaemon.NetworkType.STAGENET); }
+      else if (key === "mainnet") { if (val) MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.MAINNET); }
+      else if (key === "testnet") { if (val) MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.TESTNET); }
+      else if (key === "stagenet") { if (val) MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.STAGENET); }
       else console.log("WARNING: Ignoring unexpected info field: " + key + ": " + val);
     }
     return info;

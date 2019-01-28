@@ -1301,7 +1301,7 @@ class TestMoneroWalletCommon {
         let config2 = await wallet.parsePaymentUri(uri);
         GenUtils.deleteUndefinedKeys(config1);
         GenUtils.deleteUndefinedKeys(config2);
-        assert.deepEqual(config2, config1);
+        assert.deepEqual(JSON.parse(JSON.stringify(config2)), JSON.parse(JSON.stringify(config1)));
         
         // test with all fields3
         config1.getDestinations()[0].setAmount(new BigInteger("425000000000"));

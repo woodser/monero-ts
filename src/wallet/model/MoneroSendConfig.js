@@ -20,15 +20,15 @@ class MoneroSendConfig {
   constructor(configOrAddress, amount, paymentId, priority, mixin, fee) {
     if (configOrAddress instanceof Object) {
       this.state = Object.assign({}, configOrAddress);
+      assert.equal(arguments.length, 1, "Send configuration must be constructed with either an existing configuration or individual arguments but not both");
       
       // deserialize if necessary
       if (this.state.destinations) {
         this.state.destinations = this.state.destinations.map(destination => destination instanceof MoneroDestination ? destination : new MoneroDestination(destination));
       }
-    } else if (typeof configOrAddress === "string") {
+    } else {
       this.state = {};
-      let destination = new MoneroDestination(configOrAddress, amount);
-      this.setDestinations([destination]);
+      if (typeof configOrAddress === "string") this.setDestinations([new MoneroDestination(configOrAddress, amount)]);
       this.setPaymentId(paymentId);
       this.setPriority(priority);
       this.setMixin(mixin);

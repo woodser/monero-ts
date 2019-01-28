@@ -580,23 +580,14 @@ class MoneroDaemon {
    * Parses a network string to an enumerated type.
    * 
    * @param network is the network string to parse
-   * @returns MoneroDaemon.NetworkType is the enumerated network type
+   * @returns {MoneroNetworkType} is the enumerated network type
    */
   static parseNetworkType(network) {
-    if (network === "mainnet") return MoneroDaemon.MAINNET;
+    if (network === "mainnet") return MoneroDaemon.MAINNET; // TODO: these don't exist
     if (network === "testnet") return MoneroDaemon.TESTNET;
     if (network === "stagenet") return MoneroDaemon.STAGENET;
     throw new Error("Invalid network type to parse: " + network);
   }
-}
-
-/**
- * Enumerate network types.
- */
-MoneroDaemon.NetworkType = {
-    MAINNET: 0,
-    TESTNET: 1,
-    STAGENET: 2
 }
 
 module.exports = MoneroDaemon;
