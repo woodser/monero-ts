@@ -415,11 +415,15 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async send(configOrAddress, amount, paymentId, priority, mixin) {
-    return await this._send(false, configOrAddress, amount, paymentId, priority, mixin);
+    let args = [].slice.call(arguments);
+    args.splice(0, 0, false);  // specify splitting
+    return await this._send.apply(this, args);
   }
 
   async sendSplit(configOrAddress, amount, paymentId, priority, mixin) {
-    return await this._send(true, configOrAddress, amount, paymentId, priority, mixin);
+    let args = [].slice.call(arguments);
+    args.splice(0, 0, true);  // specify splitting
+    return await this._send.apply(this, args);
   }
   
   async sweepUnlocked(config) {
@@ -952,7 +956,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // normalize and validate config
     let config;
     if (configOrAddress instanceof MoneroSendConfig) {
-      assert.equal(arguments.length, 1, "Sending requires a send configuration or parameters but both");
+      assert.equal(arguments.length, 2, "Sending requires a send configuration or parameters but both");
       config = configOrAddress;
     } else {
       if (configOrAddress instanceof Object) config = new MoneroSendConfig(configOrAddress);
