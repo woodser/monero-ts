@@ -1,5 +1,4 @@
 failing to commit relayed txs
-merge vins like vouts
 optimize rpc requests
 getAccounts() fetches balance even if only thing needed are account indices
 investigate performance of get single tx by id, way too many requests

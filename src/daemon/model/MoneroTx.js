@@ -487,7 +487,6 @@ class MoneroTx {
     this.setHex(MoneroUtils.reconcile(this.getHex(), tx.getHex()));
     this.setSize(MoneroUtils.reconcile(this.getSize(), tx.getSize()));
     this.setWeight(MoneroUtils.reconcile(this.getWeight(), tx.getWeight()));
-    this.setVins(MoneroUtils.reconcile(this.getVins(), tx.getVins()));  // TODO: support like vouts
     this.setMetadata(MoneroUtils.reconcile(this.getMetadata(), tx.getMetadata()));
     this.setOutputIndices(MoneroUtils.reconcile(this.getOutputIndices(), tx.getOutputIndices()));
     this.setCommonTxSets(MoneroUtils.reconcile(this.getCommonTxSets(), tx.getCommonTxSets()));
@@ -508,6 +507,23 @@ class MoneroTx {
     this.setPrunableHash(MoneroUtils.reconcile(this.getPrunableHash(), tx.getPrunableHash()));
     this.setPrunableHex(MoneroUtils.reconcile(this.getPrunableHex(), tx.getPrunableHex()));
     this.setPrunedHex(MoneroUtils.reconcile(this.getPrunedHex(), tx.getPrunedHex()));
+    
+    // merge vins
+    if (tx.getVins()) {
+      for (let merger of tx.getVins()) {
+        let merged = false;
+        merger.setTx(this);
+        if (!this.getVins()) this.setVins([]);
+        for (let mergee of this.getVins()) {
+          if (mergee.getKeyImage().getHex() === merger.getKeyImage().getHex()) {
+            mergee.merge(merger);
+            merged = true;
+            break;
+          }
+        }
+        if (!merged) this.getVins().push(merger);
+      }
+    }
     
     // merge vouts
     if (tx.getVouts()) {
