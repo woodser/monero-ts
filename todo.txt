@@ -1,9 +1,7 @@
-fix / formalize test from sample code
 merge vins like vouts
 optimize rpc requests / don't create unecessary accounts
 allow key, hex, etc to not be returned
 sweep subaddresses test
-send from multiple accounting
 object model
 
 license headers
@@ -16,6 +14,7 @@ daemon.getTxs() doesn't return vins/vouts unless decoded as json
 daemon.getTxs({isConfirmed: true}) style filtering?
 daemon.getTxsByHeight(), daemon.getTxsByRange()
 daemon.getBlocksById(), default implementations
+not directly testing sweepUnlocked()
 common MoneroModel which can be initialized from and export state
 get_transfers pool does not actually indicate it's relayed; return undefined?
 daemon binary tests

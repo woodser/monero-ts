@@ -1601,14 +1601,19 @@ class TestMoneroWalletCommon {
         await testSendToMultiple(5, 3, true);
       });
       
+      it("Can send to multiple addresses in split transactions using a JavaScript object for configuration", async function() {
+        await testSendToMultiple(7, 2, true, true);
+      });
+      
       /**
        * Sends funds from the first unlocked account to multiple accounts and subaddresses.
        * 
        * @param numAccounts is the number of accounts to receive funds
        * @param numSubaddressesPerAccount is the number of subaddresses per account to receive funds
        * @param canSplit specifies if the operation can be split into multiple transactions
+       * @param useJsConfig specifies if the api should be invoked with a JS object instead of a MoneroSendConfig
        */
-      async function testSendToMultiple(numAccounts, numSubaddressesPerAccount, canSplit) {
+      async function testSendToMultiple(numAccounts, numSubaddressesPerAccount, canSplit, useJsConfig) {
         
         // test constants
         let totalSubaddresses = numAccounts * numSubaddressesPerAccount;
@@ -1648,25 +1653,36 @@ class TestMoneroWalletCommon {
           assert(subaddresses.length >= numSubaddressesPerAccount);
           for (let j = 0; j < numSubaddressesPerAccount; j++) destinationAddresses.push(subaddresses[j].getAddress());
         }
-            
-        // config to send
-        let destinations = [];
-        for (let i = 0; i < destinationAddresses.length; i++) {
-          destinations.push(new MoneroDestination(destinationAddresses[i], sendAmountPerSubaddress));
-        }
+        
+        // build send config using MoneroSendConfig
         let config = new MoneroSendConfig();
         config.setCanSplit(canSplit);
         config.setMixin(TestUtils.MIXIN);
         config.setAccountIndex(srcAccount.getIndex());
-        config.setDestinations(destinations);
+        config.setDestinations([]);
+        for (let i = 0; i < destinationAddresses.length; i++) {
+          config.getDestinations().push(new MoneroDestination(destinationAddresses[i], sendAmountPerSubaddress));
+        }
+        
+        // build send config with JS object
+        let jsConfig;
+        if (useJsConfig) {
+          jsConfig = {};
+          jsConfig.mixin = TestUtils.MIXIN;
+          jsConfig.accountIdx = srcAccount.getIndex();
+          jsConfig.destinations = [];
+          for (let i = 0; i < destinationAddresses.length; i++) {
+            jsConfig.destinations.push({address: destinationAddresses[i], amount: sendAmountPerSubaddress});
+          }
+        }
         
         // send tx(s) with config
         let txs = [];
         if (canSplit) {
-          let sendTxs = await wallet.sendSplit(config);
+          let sendTxs = await wallet.sendSplit(useJsConfig ? jsConfig : config);
           for (let tx of sendTxs) txs.push(tx);
         } else {
-          txs.push(await wallet.send(config));
+          txs.push(await wallet.send(useJsConfig ? jsConfig : config));
         }
         
         // test that wallet balance decreased

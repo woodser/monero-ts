@@ -7,7 +7,7 @@ new TestMoneroDaemonRpc().runTests({
   liteMode: false,
   testNonRelays: true,
   testRelays: true, // creates and relays outgoing txs
-  testNotifications: true
+  testNotifications: false
 });
 
 // test wallet rpc

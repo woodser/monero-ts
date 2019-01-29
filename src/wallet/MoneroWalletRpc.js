@@ -414,12 +414,12 @@ class MoneroWalletRpc extends MoneroWallet {
     return vouts;
   }
   
-  async send(configOrAddress, amount, paymentId, priority, mixin, fee) {
-    return await this._send(false, configOrAddress, amount, paymentId, priority, mixin, fee);
+  async send(configOrAddress, amount, paymentId, priority, mixin) {
+    return await this._send(false, configOrAddress, amount, paymentId, priority, mixin);
   }
 
-  async sendSplit(configOrAddress, amount, paymentId, priority, mixin, fee) { // TODO: good on fee param?
-    return await this._send(true, configOrAddress, amount, paymentId, priority, mixin, fee);
+  async sendSplit(configOrAddress, amount, paymentId, priority, mixin) {
+    return await this._send(true, configOrAddress, amount, paymentId, priority, mixin);
   }
   
   async sweepUnlocked(config) {
@@ -947,15 +947,18 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddressIndices;
   }
   
-  async _send(split, configOrAddress, amount, paymentId, priority, mixin, fee) {
+  async _send(split, configOrAddress, amount, paymentId, priority, mixin) {
     
     // normalize and validate config
     let config;
     if (configOrAddress instanceof MoneroSendConfig) {
-      assert.equal(amount, undefined, "send() requires a send configuration or parameters but not both");
+      assert.equal(arguments.length, 1, "Sending requires a send configuration or parameters but both");
       config = configOrAddress;
     } else {
-      config = new MoneroSendConfig(configOrAddress, amount, paymentId, priority, mixin, fee);
+      if (configOrAddress instanceof Object) config = new MoneroSendConfig(configOrAddress);
+      else {
+        config = new MoneroSendConfig(configOrAddress, amount, paymentId, priority, mixin);
+      }
     }
     assert.equal(config.getSweepEachSubaddress(), undefined);
     assert.equal(config.getBelowAmount(), undefined);
