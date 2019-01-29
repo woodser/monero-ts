@@ -1,19 +1,23 @@
 merge vins like vouts
-optimize rpc requests / don't create unecessary accounts
+optimize rpc requests
+getAccounts() fetches balance even if only thing needed are account indices
+investigate performance of get single tx by id, way too many requests
 allow key, hex, etc to not be returned
+don't create unecessary accounts in tests
 sweep subaddresses test
 object model
-
 license headers
 block comments with params and formatting
 txpool -> mempool?
 rpc impls _build.. -> _decode..
+all model set functions return this
 
 daemon.getTxs() with decodeAsJson = false not tested; needed?
 daemon.getTxs() doesn't return vins/vouts unless decoded as json
 daemon.getTxs({isConfirmed: true}) style filtering?
 daemon.getTxsByHeight(), daemon.getTxsByRange()
 daemon.getBlocksById(), default implementations
+
 not directly testing sweepUnlocked()
 common MoneroModel which can be initialized from and export state
 get_transfers pool does not actually indicate it's relayed; return undefined?
@@ -23,18 +27,13 @@ test that note is set if specified in send config
 multisig
 pruning
 common tx tests need cleanup
-review/optimize rpc requests
-getAccounts() fetches balance even if only thing needed are account indices
-investigate performance of get single tx by id, way too many requests
 support and test unlock time unlocks
 merge asserts type
-all model set functions return this
 set subaddress getUnspentOutputCount() with outputs assigned
 how to handle 'confirmations' block height to add the tx to the chain if unconfirmed? corallary of unlock time?
 don't wrap single return fields with MoneroDaemonModel? e.g. fee
 handle excess undefineds and enable deepEqual() in testWalletTxCopy()
 validate all input parameters to api
-don't get tx hex unless requested
 way to throttle rpc requests with agent instead of throttle-request to preserve stacktrace?
 send to multiple, suggested_confirmation_threshold outgoing payment 6 but incoming payments 1; large discrepency
 remove text-encoding dependency
