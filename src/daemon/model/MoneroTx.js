@@ -365,6 +365,33 @@ class MoneroTx {
     return this;
   }
   
+  getPrunableHash() {
+    return this.state.prunableHash;
+  }
+  
+  setPrunableHash(prunableHash) {
+    this.state.prunableHash = prunableHash;
+    return this;
+  }
+  
+  getPrunableHex() {
+    return this.state.prunableHex;
+  }
+  
+  setPrunableHex(prunableHex) {
+    this.state.prunableHex = prunableHex;
+    return this;
+  }
+  
+  getPrunedHex() {
+    return this.state.prunedHex;
+  }
+  
+  setPrunedHex(prunedHex) {
+    this.state.prunedHex = prunedHex;
+    return this;
+  }
+  
   copy() {
     return new MoneroTx(this.toJson());
   }
@@ -415,6 +442,9 @@ class MoneroTx {
     str += MoneroUtils.kvLine("Max used block height", this.getMaxUsedBlockHeight(), indent);
     str += MoneroUtils.kvLine("Max used block id", this.getMaxUsedBlockId(), indent);
     str += MoneroUtils.kvLine("Signatures", this.getSignatures(), indent);
+    str += MoneroUtils.kvLine("Prunable hash", this.getPrunableHash(), indent);
+    str += MoneroUtils.kvLine("Prunable hex", this.getPrunableHex(), indent);
+    str += MoneroUtils.kvLine("Pruned hex", this.getPrunedHex(), indent);
     if (this.getVins()) {
       str += MoneroUtils.kvLine("Vins", "", indent);
       for (let i = 0; i < this.getVins().length; i++) {
@@ -475,6 +505,9 @@ class MoneroTx {
     this.setHeight(MoneroUtils.reconcile(this.getHeight(), tx.getHeight(), {resolveMax: true}));  // height can increase
     this.setBlockTimestamp(MoneroUtils.reconcile(this.getBlockTimestamp(), tx.getBlockTimestamp(), {resolveMax: true}));  // block timestamp can increase
     this.setConfirmationCount(MoneroUtils.reconcile(this.getConfirmationCount(), tx.getConfirmationCount(), {resolveMax: true})); // confirmation count can increase
+    this.setPrunableHash(MoneroUtils.reconcile(this.getPrunableHash(), tx.getPrunableHash()));
+    this.setPrunableHex(MoneroUtils.reconcile(this.getPrunableHex(), tx.getPrunableHex()));
+    this.setPrunedHex(MoneroUtils.reconcile(this.getPrunedHex(), tx.getPrunedHex()));
     
     // merge vouts
     if (tx.getVouts()) {

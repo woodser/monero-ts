@@ -766,6 +766,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "max_used_block_height") MoneroUtils.safeSet(tx, tx.getMaxUsedBlockHeight, tx.setMaxUsedBlockHeight, val);
       else if (key === "max_used_block_id_hash") MoneroUtils.safeSet(tx, tx.getMaxUsedBlockId, tx.setMaxUsedBlockId, val);
       else if (key === "block_height") blockHeight = val;
+      else if (key === "prunable_hash") MoneroUtils.safeSet(tx, tx.getPrunableHash, tx.setPrunableHash, val ? val : undefined);
+      else if (key === "prunable_as_hex") MoneroUtils.safeSet(tx, tx.getPrunableHex, tx.setPrunableHex, val ? val : undefined);
+      else if (key === "pruned_as_hex") MoneroUtils.safeSet(tx, tx.getPrunedHex, tx.setPrunedHex(), val ? val : undefined);
       else console.log("WARNING: ignoring unexpected field in rpc tx: " + key + ": " + val);
     }
     
@@ -889,6 +892,11 @@ class MoneroDaemonRpc extends MoneroDaemon {
         }
       } else if (key === "status") {}   // set elsewhere
       else if (key === "target_height") syncInfo.setTargetHeight(new BigInteger(val));
+      else if (key === "next_needed_pruning_seed") syncInfo.setNextNeededPruningSeed(val);
+      else if (key === "overview") {
+        let overview = JSON.parse(val); // TODO: not tested with pruning enabled
+        if (overview.length > 0) syncInfo.setOverview(val);
+      }
       else console.log("WARNING: ignoring unexpected field in sync info: " + key + ": " + val);
     }
     return syncInfo;
@@ -1016,6 +1024,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "ip") {} // host used instead which is consistently a string
       else if (key === "last_seen") peer.setLastSeen(val);
       else if (key === "port") peer.setPort(val);
+      else if (key === "pruning_seed") peer.setPruningSeed(val);
       else console.log("WARNING: ignoring unexpected field in rpc peer: " + key + ": " + val);
     }
     return peer;
@@ -1049,6 +1058,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "send_idle_time") connection.setSendIdleTime(val);
       else if (key === "state") connection.setState(val);
       else if (key === "support_flags") connection.setSupportFlagCount(val);
+      else if (key === "pruning_seed") peer.setPruningSeed(val);
       else console.log("WARNING: ignoring unexpected field in connection: " + key + ": " + val);
     }
     return connection;

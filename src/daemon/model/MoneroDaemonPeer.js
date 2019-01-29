@@ -56,6 +56,14 @@ class MoneroDaemonPeer {
   setLastSeen(lastSeen) {
     this.lastSeen = lastSeen;
   }
+  
+  getPruningSeed() {
+    return this.pruningSeed;
+  }
+  
+  setPruningSeed(pruningSeed) {
+    this.pruningSeed = pruningSeed;
+  }
 }
 
 module.exports = MoneroDaemonPeer;

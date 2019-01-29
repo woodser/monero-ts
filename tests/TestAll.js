@@ -16,7 +16,7 @@ new TestMoneroWalletRpc().runTests({
   testNonSends: true,
   testSends: true,
   testResets: false,
-  testNotifications: true
+  testNotifications: false
 });
 
 //test sample code for readme
@@ -40,4 +40,4 @@ require("./TestMoneroWalletEquality");
 require("./TestBooleanSet");
 
 // test scratchpad
-require("./Scratchpad");
+//require("./Scratchpad");

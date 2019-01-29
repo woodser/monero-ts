@@ -721,11 +721,10 @@ class TestMoneroDaemonRpc {
           let threadCount = 3;
           let isBackground = false;
           await daemon.startMining(address, threadCount, isBackground, true);
-          await new Promise(function(resolve) { setTimeout(resolve, 1000); });  // wait for mining to start, else speed is 0
           status = await daemon.getMiningStatus();
           assert.equal(status.getIsActive(), true);
           assert.equal(status.getAddress(), address);
-          assert(status.getSpeed() > 0);
+          assert(status.getSpeed() >= 0);
           assert.equal(status.getThreadCount(), threadCount);
           assert.equal(status.getIsBackground(), isBackground);
         } catch(e) {
@@ -1093,7 +1092,13 @@ function testTx(tx, config) {
   }
   
   // prunable
-  assert(config.isPruned ? undefined === tx.getRctSigPrunable() : typeof tx.getRctSigPrunable().nbp === "number");
+  if (config.isPruned) {
+    assert.equal(tx.getRctSigPrunable(), undefined);
+  } else {
+    assert.equal(typeof tx.getRctSigPrunable().nbp, "number");
+  }
+  assert.equal(tx.getPrunableHex(), undefined);
+  assert.equal(tx.getPrunedHex(undefined));
   
   // full fields come with /get_transactions, get_transaction_pool
   if (config.isFull) {
@@ -1109,6 +1114,8 @@ function testTx(tx, config) {
       else if (!tx.getLastRelayedTime() !== undefined) console.log("WARNING: tx has last relayed time but is not relayed");  // TODO monero-wallet-rpc
       assert(tx.getReceivedTime() > 0);
     }
+//    if (config.isPruned) assert(!tx.getPrunableHash()); // TODO: tx may or may not have prunable hash, need to know when it's expected
+//    else assert(tx.getPrunableHash());
   } else {
     assert.equal(tx.getHex(), undefined);
     assert.equal(tx.getSize(), undefined);
@@ -1116,6 +1123,7 @@ function testTx(tx, config) {
     assert.equal(tx.getBlockTimestamp(), undefined);
     assert.equal(tx.getLastRelayedTime(), undefined);
     assert.equal(tx.getReceivedTime(), undefined);
+    assert.equal(tx.getPrunableHash(), undefined);
   }
   
   // test fields from tx pool
@@ -1200,6 +1208,8 @@ function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
       testDaemonConnectionSpan(span);
     }
   }
+  assert(syncInfo.getNextNeededPruningSeed() >= 0);
+  assert.equal(syncInfo.getOverview(), undefined);
 }
 
 function testHardForkInfo(hardForkInfo) {
@@ -1399,6 +1409,7 @@ function testKnownPeer(peer, fromConnection) {
   assert.equal(typeof peer.getIsOnline(), "boolean");
   if (fromConnection) assert.equal(undefined, peer.getLastSeen());
   else assert(peer.getLastSeen() > 0);
+  assert.equal(peer.getPruningSeed(), 0);
 }
 
 function testUpdateCheckResult(result) {

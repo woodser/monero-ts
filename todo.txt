@@ -1,4 +1,4 @@
-update to latest master
+fix / formalize test from sample code
 merge vins like vouts
 optimize rpc requests / don't create unecessary accounts
 allow key, hex, etc to not be returned
@@ -22,6 +22,7 @@ daemon binary tests
 daemon notification test needs to test tx merging
 test that note is set if specified in send config
 multisig
+pruning
 common tx tests need cleanup
 review/optimize rpc requests
 getAccounts() fetches balance even if only thing needed are account indices

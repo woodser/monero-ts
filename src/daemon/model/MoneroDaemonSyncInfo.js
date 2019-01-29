@@ -34,6 +34,22 @@ class MoneroDaemonSyncInfo {
   setTargetHeight(targetHeight) {
     this.targetHeight = targetHeight;
   }
+  
+  getNextNeededPruningSeed() {
+    return this.nextNeededPruningSeed;
+  }
+  
+  setNextNeededPruningSeed(nextNeededPruningSeed) {
+    this.nextNeededPruningSeed = nextNeededPruningSeed;
+  }
+  
+  getOverview() {
+    return this.overview;
+  }
+  
+  setOverview(overview) {
+    this.overview = overview;
+  }
 }
 
 module.exports = MoneroDaemonSyncInfo;
