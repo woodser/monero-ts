@@ -1383,6 +1383,113 @@ class TestMoneroWalletCommon {
     
     describe("Test Sends", function() {
       
+      it("Can send from multiple subaddresses in a single transaction", async function() {
+        await testSendFromMultiple(false);
+      });
+      
+      it("Can send from multiple subaddresses in split transactions", async function() {
+        await testSendFromMultiple(true);
+      });
+      
+      async function testSendFromMultiple(canSplit) {
+        
+        let NUM_SUBADDRESSES = 2; // number of subaddresses to send from
+        
+        // get first account with (NUM_SUBADDRESSES + 1) subaddresses with unlocked balances
+        let accounts = await wallet.getAccounts(true);
+        assert(accounts.length >= 2, "This test requires at least 2 accounts; run send-to-multiple tests");
+        let srcAccount;
+        let unlockedSubaddresses = [];
+        let hasBalance = false;
+        for (let account of accounts) {
+          unlockedSubaddresses.length = 0;
+          let numSubaddressBalances = 0;
+          for (let subaddress of await account.getSubaddresses()) {
+            if (subaddress.getBalance().compare(TestUtils.MAX_FEE) > 0) numSubaddressBalances++;
+            if (subaddress.getUnlockedBalance().compare(TestUtils.MAX_FEE) > 0) unlockedSubaddresses.push(subaddress);
+          }
+          if (numSubaddressBalances >= NUM_SUBADDRESSES + 1) hasBalance = true;
+          if (unlockedSubaddresses.length >= NUM_SUBADDRESSES + 1) {
+            srcAccount = account;
+            break;
+          }
+        }
+        assert(hasBalance, "Wallet does not have account with " + (NUM_SUBADDRESSES + 1) + " subaddresses with balances; run send-to-multiple tests");
+        assert(unlockedSubaddresses.length >= NUM_SUBADDRESSES + 1, "Wallet is waiting on unlocked funds");
+        
+        // determine the indices of the first two subaddresses with unlocked balances
+        let fromSubaddressIndices = [];
+        for (let i = 0; i < NUM_SUBADDRESSES; i++) {
+          fromSubaddressIndices.push(unlockedSubaddresses[i].getSubaddressIndex());
+        }
+        
+        // determine the amount to send (slightly less than the sum to send from)
+        let sendAmount = new BigInteger(0);
+        for (let fromSubaddressIdx of fromSubaddressIndices) {
+          sendAmount = sendAmount.add(srcAccount.getSubaddresses()[fromSubaddressIdx].getUnlockedBalance()).subtract(TestUtils.MAX_FEE);
+        }
+        
+        let fromBalance = new BigInteger(0);
+        let fromUnlockedBalance = new BigInteger(0);
+        for (let subaddressIdx of fromSubaddressIndices) {
+          let subaddress = await wallet.getSubaddress(srcAccount.getIndex(), subaddressIdx);
+          fromBalance = fromBalance.add(subaddress.getBalance());
+          fromUnlockedBalance = fromUnlockedBalance.add(subaddress.getUnlockedBalance());
+        }
+        
+        // send from the first subaddresses with unlocked balances
+        let address = await wallet.getPrimaryAddress();
+        let config = new MoneroSendConfig(address, sendAmount);
+        config.setAccountIndex(srcAccount.getIndex());
+        config.setSubaddressIndices(fromSubaddressIndices);
+        config.setMixin(TestUtils.MIXIN);
+        config.setCanSplit(canSplit); // so test knows txs could be split
+        let txs = [];
+        if (canSplit) {
+          let sendTxs = await wallet.sendSplit(config);
+          for (let tx of sendTxs) txs.push(tx);
+        } else {
+          txs.push(await wallet.send(config));
+        }
+        
+        // test that balances of intended subaddresses decreased
+        let accountsAfter = await wallet.getAccounts(true);
+        assert.equal(accountsAfter.length, accounts.length);
+        for (let i = 0; i < accounts.length; i++) {
+          assert.equal(accountsAfter[i].getSubaddresses().length, accounts[i].getSubaddresses().length);
+          for (let j = 0; j < accounts[i].getSubaddresses().length; j++) {
+            let subaddressBefore = accounts[i].getSubaddresses()[j];
+            let subaddressAfter = accountsAfter[i].getSubaddresses()[j];
+            if (i === srcAccount.getIndex() && fromSubaddressIndices.includes(j)) {
+              assert(subaddressAfter.getUnlockedBalance().compare(subaddressBefore.getUnlockedBalance()) < 0, "Subaddress [" + i + "," + j + "] unlocked balance should have decreased but changed from " + subaddressBefore.getUnlockedBalance().toString() + " to " + subaddressAfter.getUnlockedBalance().toString()); // TODO: Subaddress [0,1] unlocked balance should have decreased          
+            } else {
+              assert(subaddressAfter.getUnlockedBalance().compare(subaddressBefore.getUnlockedBalance()) === 0, "Subaddress [" + i + "," + j + "] unlocked balance should not have changed");          
+            }
+          }
+        }
+        
+        // test each transaction
+        assert(txs.length > 0);
+        let outgoingSum = new BigInteger(0);
+        for (let tx of txs) {
+          await testWalletTx(tx, {wallet: wallet, sendConfig: config});
+          outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
+          if (tx.getOutgoingTransfer() !== undefined && tx.getOutgoingTransfer().getDestinations()) {
+            let destinationSum = new BigInteger(0);
+            for (let destination of tx.getOutgoingTransfer().getDestinations()) {
+              assert.equal(destination.getAddress(), address);
+              destinationSum = destinationSum.add(destination.getAmount());
+            }
+            assert(tx.getOutgoingAmount().compare(destinationSum) === 0);  // assert that transfers sum up to tx amount
+          }
+        }
+        
+        // assert that tx amounts sum up the amount sent within a small margin
+        if (Math.abs(sendAmount.subtract(outgoingSum).toJSValue()) > SEND_MAX_DIFF) { // send amounts may be slightly different
+          throw new Error("Tx amounts are too different: " + sendAmount + " - " + outgoingSum + " = " + sendAmount.subtract(outgoingSum));
+        }
+      }
+      
       it("Can send to an address in a single transaction", async function() {
         await testSendToSingle(false, undefined, false);
       });
@@ -1586,113 +1693,6 @@ class TestMoneroWalletCommon {
         // assert that outgoing amounts sum up to the amount sent within a small margin
         if (Math.abs(sendAmount.subtract(outgoingSum).toJSValue()) > SEND_MAX_DIFF) { // send amounts may be slightly different
           throw new Error("Actual send amount is too different from requested send amount: " + sendAmount + " - " + outgoingSum + " = " + sendAmount.subtract(outgoingSum));
-        }
-      }
-      
-      it("Can send from multiple subaddresses in a single transaction", async function() {
-        await testSendFromMultiple(false);
-      });
-      
-      it("Can send from multiple subaddresses in split transactions", async function() {
-        await testSendFromMultiple(true);
-      });
-      
-      async function testSendFromMultiple(canSplit) {
-        
-        let NUM_SUBADDRESSES = 2; // number of subaddresses to send from
-        
-        // get first account with (NUM_SUBADDRESSES + 1) subaddresses with unlocked balances
-        let accounts = await wallet.getAccounts(true);
-        assert(accounts.length >= 2, "This test requires at least 2 accounts; run send-to-multiple tests");
-        let srcAccount;
-        let unlockedSubaddresses = [];
-        let hasBalance = false;
-        for (let account of accounts) {
-          unlockedSubaddresses.length = 0;
-          let numSubaddressBalances = 0;
-          for (let subaddress of await account.getSubaddresses()) {
-            if (subaddress.getBalance().compare(TestUtils.MAX_FEE) > 0) numSubaddressBalances++;
-            if (subaddress.getUnlockedBalance().compare(TestUtils.MAX_FEE) > 0) unlockedSubaddresses.push(subaddress);
-          }
-          if (numSubaddressBalances >= NUM_SUBADDRESSES + 1) hasBalance = true;
-          if (unlockedSubaddresses.length >= NUM_SUBADDRESSES + 1) {
-            srcAccount = account;
-            break;
-          }
-        }
-        assert(hasBalance, "Wallet does not have account with " + (NUM_SUBADDRESSES + 1) + " subaddresses with balances; run send-to-multiple tests");
-        assert(unlockedSubaddresses.length >= NUM_SUBADDRESSES + 1, "Wallet is waiting on unlocked funds");
-        
-        // determine the indices of the first two subaddresses with unlocked balances
-        let fromSubaddressIndices = [];
-        for (let i = 0; i < NUM_SUBADDRESSES; i++) {
-          fromSubaddressIndices.push(unlockedSubaddresses[i].getSubaddressIndex());
-        }
-        
-        // determine the amount to send (slightly less than the sum to send from)
-        let sendAmount = new BigInteger(0);
-        for (let fromSubaddressIdx of fromSubaddressIndices) {
-          sendAmount = sendAmount.add(srcAccount.getSubaddresses()[fromSubaddressIdx].getUnlockedBalance()).subtract(TestUtils.MAX_FEE);
-        }
-        
-        let fromBalance = new BigInteger(0);
-        let fromUnlockedBalance = new BigInteger(0);
-        for (let subaddressIdx of fromSubaddressIndices) {
-          let subaddress = await wallet.getSubaddress(srcAccount.getIndex(), subaddressIdx);
-          fromBalance = fromBalance.add(subaddress.getBalance());
-          fromUnlockedBalance = fromUnlockedBalance.add(subaddress.getUnlockedBalance());
-        }
-        
-        // send from the first subaddresses with unlocked balances
-        let address = await wallet.getPrimaryAddress();
-        let config = new MoneroSendConfig(address, sendAmount);
-        config.setAccountIndex(srcAccount.getIndex());
-        config.setSubaddressIndices(fromSubaddressIndices);
-        config.setMixin(TestUtils.MIXIN);
-        config.setCanSplit(canSplit); // so test knows txs could be split
-        let txs = [];
-        if (canSplit) {
-          let sendTxs = await wallet.sendSplit(config);
-          for (let tx of sendTxs) txs.push(tx);
-        } else {
-          txs.push(await wallet.send(config));
-        }
-        
-        // test that balances of intended subaddresses decreased
-        let accountsAfter = await wallet.getAccounts(true);
-        assert.equal(accountsAfter.length, accounts.length);
-        for (let i = 0; i < accounts.length; i++) {
-          assert.equal(accountsAfter[i].getSubaddresses().length, accounts[i].getSubaddresses().length);
-          for (let j = 0; j < accounts[i].getSubaddresses().length; j++) {
-            let subaddressBefore = accounts[i].getSubaddresses()[j];
-            let subaddressAfter = accountsAfter[i].getSubaddresses()[j];
-            if (i === srcAccount.getIndex() && fromSubaddressIndices.includes(j)) {
-              assert(subaddressAfter.getUnlockedBalance().compare(subaddressBefore.getUnlockedBalance()) < 0, "Subaddress [" + i + "," + j + "] unlocked balance should have decreased but changed from " + subaddressBefore.getUnlockedBalance().toString() + " to " + subaddressAfter.getUnlockedBalance().toString()); // TODO: Subaddress [0,1] unlocked balance should have decreased          
-            } else {
-              assert(subaddressAfter.getUnlockedBalance().compare(subaddressBefore.getUnlockedBalance()) === 0, "Subaddress [" + i + "," + j + "] unlocked balance should not have changed");          
-            }
-          }
-        }
-        
-        // test each transaction
-        assert(txs.length > 0);
-        let outgoingSum = new BigInteger(0);
-        for (let tx of txs) {
-          await testWalletTx(tx, {wallet: wallet, sendConfig: config});
-          outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
-          if (tx.getOutgoingTransfer() !== undefined && tx.getOutgoingTransfer().getDestinations()) {
-            let destinationSum = new BigInteger(0);
-            for (let destination of tx.getOutgoingTransfer().getDestinations()) {
-              assert.equal(destination.getAddress(), address);
-              destinationSum = destinationSum.add(destination.getAmount());
-            }
-            assert(tx.getOutgoingAmount().compare(destinationSum) === 0);  // assert that transfers sum up to tx amount
-          }
-        }
-        
-        // assert that tx amounts sum up the amount sent within a small margin
-        if (Math.abs(sendAmount.subtract(outgoingSum).toJSValue()) > SEND_MAX_DIFF) { // send amounts may be slightly different
-          throw new Error("Tx amounts are too different: " + sendAmount + " - " + outgoingSum + " = " + sendAmount.subtract(outgoingSum));
         }
       }
       
