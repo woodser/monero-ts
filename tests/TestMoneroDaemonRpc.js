@@ -692,6 +692,10 @@ class TestMoneroDaemonRpc {
       
       it("Can start and stop mining", async function() {
         
+        // stop mining at beginning of test
+        try { await daemon.stopMining(); }
+        catch(e) { }
+        
         // generate address to mine to
         let wallet = new MoneroWalletLocal(daemon);
         let address = await wallet.getPrimaryAddress();
