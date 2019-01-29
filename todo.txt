@@ -1,8 +1,9 @@
-sweep subaddresses test
 test latest master
-optimize rpc requests
-object model
+optimize rpc requests / don't create unecessary accounts
 allow key, hex, etc to not be returned
+sweep subaddresses test
+send from multiple accounting
+object model
 
 license headers
 block comments with params and formatting

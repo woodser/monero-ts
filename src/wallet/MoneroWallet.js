@@ -103,20 +103,24 @@ class MoneroWallet {
   }
   
   /**
-   * Get the balance across all accounts.
+   * Get the balance of the wallet, an account, or a subaddress.
    * 
-   * @return number is the balance across all accounts
+   * @param {int} accountIdx specifies an account to get the balance of (optional)
+   * @param {int} subaddressIdx specifies a subaddress to get the balance of (optional)
+   * @return {BigInteger} is the balance
    */
-  async getBalance() {
+  async getBalance(accountIdx, subaddressIdx) {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * Get the unlocked balance across all accounts.
+   * Get the unlocked balance of the wallet, an account, or a subaddress.
    * 
-   * @return number is the unlocked balance across all accounts
+   * @param {int} accountIdx specifies an account to get the unlocked balance of (optional)
+   * @param {int} subaddressIdx specifies a subaddress to get the unlocked balance of (optional)
+   * @return {BigInteger} is the unlocked balance
    */
-  async getUnlockedBalance() {
+  async getUnlockedBalance(accountIdx, subaddressIdx) {
     throw new Error("Subclass must implement");
   }
   

@@ -29,7 +29,7 @@ describe("Scratchpad", function() {
     
 //    try { await wallet.startMining(8, false, true); }
 //    catch (e) { }
-    await wallet.stopMining();
+//    await wallet.stopMining();
 //    await daemon.stopMining();
 //    await wallet.rescanBlockchain();
 //    await wallet.rescanSpent();
@@ -39,24 +39,28 @@ describe("Scratchpad", function() {
     
     //console.log(await daemon.getTxPoolTxsAndSpentKeyImages());
     
-    txs = await wallet.getTxs({isConfirmed: false, inTxPool: true, getVouts: true});
-    for (let tx of txs) {
-      console.log(tx.toString());
-    }
+    console.log("BALANCE");
+    let balance = await wallet.getBalance(0, 1);
+    console.log(balance.toString());
     
-    vouts = await wallet.getVouts();
-    for (vout of vouts) {
-      let keyImage = vout.getKeyImage().getHex();
-      let spentStatus = await daemon.getSpentStatus(keyImage);
-      try {
-        assert.equal(vout.getIsSpent() ? MoneroKeyImage.SpentStatus.CONFIRMED : MoneroKeyImage.SpentStatus.NOT_SPENT, spentStatus);
-      } catch (e) {
-        console.log(vout.getTx().toString());
-        console.log(vout.toString());
-        console.log(await daemon.getSpentStatus(vout.getKeyImage().getHex()));
-        throw e;
-      }
-    }
+//    txs = await wallet.getTxs({isConfirmed: false, inTxPool: true, getVouts: true});
+//    for (let tx of txs) {
+//      console.log(tx.toString());
+//    }
+//    
+//    vouts = await wallet.getVouts();
+//    for (vout of vouts) {
+//      let keyImage = vout.getKeyImage().getHex();
+//      let spentStatus = await daemon.getSpentStatus(keyImage);
+//      try {
+//        assert.equal(vout.getIsSpent() ? MoneroKeyImage.SpentStatus.CONFIRMED : MoneroKeyImage.SpentStatus.NOT_SPENT, spentStatus);
+//      } catch (e) {
+//        console.log(vout.getTx().toString());
+//        console.log(vout.toString());
+//        console.log(await daemon.getSpentStatus(vout.getKeyImage().getHex()));
+//        throw e;
+//      }
+//    }
     
 //    // print first tx
 //    console.log("FIRST BLOCKS");

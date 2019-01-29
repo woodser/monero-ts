@@ -25,19 +25,19 @@ require("./TestSampleCode");
 // test core utils
 require("./TestMoneroCoreUtils");
 
-// test wallet local
-new TestMoneroWalletLocal().runTests({
-  testNonSends: true,
-  testSends: false,
-  testResets: false,
-  testNotifications: false
-});
+//// test wallet local
+//new TestMoneroWalletLocal().runTests({
+//  testNonSends: true,
+//  testSends: false,
+//  testResets: false,
+//  testNotifications: false
+//});
+//
+//// test wallet equality
+//require("./TestMoneroWalletEquality");
+//
+//// test boolean set (data structure used by wallet to track progress)
+//require("./TestBooleanSet");
 
-// test wallet equality
-require("./TestMoneroWalletEquality");
-
-// test boolean set (data structure used by wallet to track progress)
-require("./TestBooleanSet");
-
-//// test scratchpad
-//require("./Scratchpad");
+// test scratchpad
+require("./Scratchpad");
