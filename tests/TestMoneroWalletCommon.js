@@ -2158,7 +2158,7 @@ async function testGetVouts(wallet, config, isExpected) {
  */
 async function getRandomTransactions(wallet, config, minTxs, maxTxs) {
   let txs = await wallet.getTxs(config);
-  if (minTxs !== undefined) assert(txs.length >= minTxs);
+  if (minTxs !== undefined) assert(txs.length >= minTxs, txs.length + "/" + minTxs + " transactions found with config: " + JSON.stringify(config));
   GenUtils.shuffle(txs);
   if (maxTxs === undefined) return txs;
   else return txs.slice(0, Math.min(maxTxs, txs.length));
