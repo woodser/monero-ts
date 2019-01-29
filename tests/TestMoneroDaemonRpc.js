@@ -707,6 +707,10 @@ class TestMoneroDaemonRpc {
         
         try {
           
+          // stop mining at beginning of test
+          try { await daemon.stopMining(); }
+          catch(e) { }
+          
           // test status without mining
           let status = await daemon.getMiningStatus();
           assert.equal(status.getIsActive(), false);
