@@ -144,13 +144,6 @@ class TestMoneroWalletCommon {
         assert(typeof resp.received_money === "boolean");
       });
       
-      it("Can get the balance and unlocked balance", async function() {
-        let balance = await wallet.getBalance();
-        TestUtils.testUnsignedBigInteger(balance);
-        let unlockedBalance = await wallet.getUnlockedBalance();
-        TestUtils.testUnsignedBigInteger(unlockedBalance);
-      });
-      
       it("Can get the locked and unlocked balances of the wallet, accounts, and subaddresses", async function() {
         
         // fetch accounts with all info as reference
@@ -826,38 +819,9 @@ class TestMoneroWalletCommon {
         let accountsBalance = new BigInteger(0);
         let accountsUnlockedBalance = new BigInteger(0);
         for (let account of accounts) {
-          testAccount(account); // tests that account balance equals sum of subaddress balances
+          testAccount(account); // test that account balance equals sum of subaddress balances
           accountsBalance = accountsBalance.add(account.getBalance());
           accountsUnlockedBalance = accountsUnlockedBalance.add(account.getUnlockedBalance());
-          
-          // test that account balance equals sum of subaddress balances
-          let subaddressesBalance = new BigInteger(0);
-          let subaddressesUnlockedBalance = new BigInteger(0);
-          console.log("(calling 1)");
-          for (let subaddress of await wallet.getSubaddresses(account.getIndex())) {
-            
-            //let subaddressBalance = await wallet.getBalance(subaddress.getAccountIndex(), subaddress.getSubaddressIndex());
-            //let subaddressUnlockedBalance = await wallet.getUnlockedBalance(subaddress.getAccountIndex(), subaddress.getSubaddressIndex());
-            console.log("(calling 2)");
-            subaddress = await wallet.getSubaddress(subaddress.getAccountIndex(), subaddress.getSubaddressIndex());
-            let subaddressBalance = subaddress.getBalance();
-            let subaddressUnlockedBalance = subaddress.getUnlockedBalance();
-            
-            for (let aSubaddress of account.getSubaddresses()) {
-              if (aSubaddress.getAccountIndex() === subaddress.getAccountIndex() && aSubaddress.getSubaddressIndex() === subaddress.getSubaddressIndex()) {
-                console.log("[" + subaddress.getAccountIndex() + ", " + subaddress.getSubaddressIndex() + "]");
-                assert.equal(subaddress.getBalance().toString(), aSubaddress.getBalance().toString());
-                assert.equal(subaddress.getUnlockedBalance().toString(), aSubaddress.getUnlockedBalance().toString());
-                assert.equal(subaddressBalance.toString(), subaddress.getBalance().toString());
-                assert.equal(subaddressUnlockedBalance.toString(), subaddress.getUnlockedBalance().toString());
-              }
-            }
-            
-            subaddressesBalance = subaddressesBalance.add(subaddressBalance);
-            subaddressesUnlockedBalance = subaddressesUnlockedBalance.add(subaddressUnlockedBalance);
-          }
-          assert.equal(account.getBalance().compare(subaddressesBalance), 0);
-          assert.equal(account.getUnlockedBalance().compare(subaddressesUnlockedBalance), 0);
         }
         assert.equal(walletBalance.compare(accountsBalance), 0);
         assert.equal(walletUnlockedBalance.compare(accountsUnlockedBalance), 0);

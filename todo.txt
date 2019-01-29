@@ -1,4 +1,5 @@
-test latest master
+update to latest master
+merge vins like vouts
 optimize rpc requests / don't create unecessary accounts
 allow key, hex, etc to not be returned
 sweep subaddresses test
