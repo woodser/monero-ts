@@ -1,5 +1,5 @@
 optimize rpc requests
-	getSubaddress(accountIdx, subaddressIndices, getBalances) (often do not need balance)
+	no longer support isUsed()? or getSubaddress(accountIdx, subaddressIndices, getBalances) (often do not need balance)
 	don't create unecessary accounts in tests
 failing to commit relayed txs
 allow key, hex, etc to not be returned
@@ -77,8 +77,8 @@ split BooleanSet into new project
 package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 
 RPC
-get_transfers can return all subaddresses
-get_balance returns used
+get_transfers can return all subaddresses (#5109)
+get_balance returns used (#5109)
 wallet rpc sweep_single documentation not correct; contradicts example
 support cors wildcard character
 update #4500 with latest notes
