@@ -1,9 +1,8 @@
 optimize rpc requests
+	getSubaddress(accountIdx, subaddressIndices, getBalances) (often do not need balance)
+	don't create unecessary accounts in tests
 failing to commit relayed txs
-getAccounts() fetches balance even if only thing needed are account indices
-investigate performance of get single tx by id, way too many requests
 allow key, hex, etc to not be returned
-don't create unecessary accounts in tests
 sweep subaddresses test
 object model
 license headers
@@ -78,6 +77,8 @@ split BooleanSet into new project
 package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 
 RPC
+get_transfers can return all subaddresses
+get_balance returns used
 wallet rpc sweep_single documentation not correct; contradicts example
 support cors wildcard character
 update #4500 with latest notes
