@@ -1,5 +1,5 @@
-failing to commit relayed txs
 optimize rpc requests
+failing to commit relayed txs
 getAccounts() fetches balance even if only thing needed are account indices
 investigate performance of get single tx by id, way too many requests
 allow key, hex, etc to not be returned
@@ -92,3 +92,4 @@ identify one call per acount/subaddress and support "all" flag
 daemon get_txs prune documentation missing
 document alt chain `block_hashes` and `main_chain_parent_block`
 each call to `open_wallet` toggles whether or not pending transfers return (#5106)
+transfer with do_not_relay then relay_tx issue (#5107)
