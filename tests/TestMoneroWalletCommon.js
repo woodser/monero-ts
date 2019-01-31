@@ -41,7 +41,6 @@ class TestMoneroWalletCommon {
     assert(daemon instanceof MoneroDaemon);
     this.wallet = wallet;
     this.daemon = daemon;
-    this.unbalancedTxIds = []; // track ids of txs whose total amount !== sum of transfers so one warning per tx is printed // TODO: report issue, remove this when issue is fixed
   }
   
   runCommonTests(config) {
@@ -289,6 +288,36 @@ class TestMoneroWalletCommon {
           for (let subaddress of await wallet.getSubaddresses(account.getIndex())) {
             assert.equal(await wallet.getAddress(account.getIndex(), subaddress.getSubaddressIndex()), subaddress.getAddress());
           }
+        }
+      });
+      
+      it("Can get the account and subaddress indices of an address", async function() {
+        
+        // get an address to test
+        let accountIdx = 2;
+        let subaddressIdx = 2;
+        let address = await wallet.getAddress(accountIdx, subaddressIdx);
+        
+        // get address index
+        let subaddress = await wallet.getAddressIndex(address);
+        assert.equal(subaddress.getAccountIndex(), accountIdx);
+        assert.equal(subaddress.getSubaddressIndex(), subaddressIdx);
+
+        // test valid but unfound address
+        let nonWalletAddress = await TestUtils.getRandomWalletAddress();
+        try {
+          subaddress = await wallet.getAddressIndex(nonWalletAddress);
+          throw new Error("fail");
+        } catch (e) {
+          assert.equal("Address does not belong to the wallet", e.message);
+        }
+        
+        // test invalid address
+        try {
+          subaddress = await wallet.getAddressIndex("this is definitely not an address");
+          throw new Error("fail");
+        } catch (e) {
+          assert.equal("Address does not belong to the wallet", e.message);
         }
       });
       

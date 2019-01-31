@@ -3,15 +3,13 @@ const MoneroSendConfig = require("./model/MoneroSendConfig");
 
 /**
  * Monero wallet interface and default implementations.
- *
- * TODO: add {type} brackets to params
  */
 class MoneroWallet {
   
   /**
    * Get the wallet's seed.
    * 
-   * @return string is the wallet's seed
+   * @return {string} is the wallet's seed
    */
   async getSeed() {
     throw new Error("Subclass must implement");
@@ -20,7 +18,7 @@ class MoneroWallet {
   /**
    * Get the wallet's mnemonic phrase derived from the seed.
    * 
-   * @return string is the wallet's mnemonic phrase
+   * @return {string} is the wallet's mnemonic phrase
    */
   async getMnemonic() {
     throw new Error("Subclass must implement");
@@ -29,7 +27,7 @@ class MoneroWallet {
   /**
    * Get the wallet's public view key.
    * 
-   * @return string is the wallet's public view key
+   * @return {string} is the wallet's public view key
    */
   async getPublicViewKey() {
     throw new Error("Subclass must implement");
@@ -38,7 +36,7 @@ class MoneroWallet {
   /**
    * Get the wallet's private view key.
    * 
-   * @return string is the wallet's private view key
+   * @return {string} is the wallet's private view key
    */
   async getPrivateViewKey() {
     throw new Error("Subclass must implement");
@@ -47,7 +45,7 @@ class MoneroWallet {
   /**
    * Get the height of the last block processed by the wallet (its index + 1).
    * 
-   * @return {number} is the height of the last block processed by the wallet
+   * @return {int} is the height of the last block processed by the wallet
    */
   async getHeight() {
     throw new Error("Subclass must implement");
@@ -56,7 +54,7 @@ class MoneroWallet {
   /**
    * Get the blockchain's height.
    * 
-   * @return number is the block chain's height
+   * @return {int} is the block chain's height
    */
   async getChainHeight() {
     throw new Error("Subclass must implement");
@@ -65,7 +63,7 @@ class MoneroWallet {
   /**
    * Get the wallet's primary address.
    * 
-   * @return string is the wallet's primary address
+   * @return {string} is the wallet's primary address
    */
   async getPrimaryAddress() {
     throw new Error("Subclass must implement");
@@ -75,8 +73,8 @@ class MoneroWallet {
    * Get an integrated address based on this wallet's primary address and the
    * given payment ID.  Generates a random payment ID if none is given.
    * 
-   * @param paymentId is the payment ID to generate an integrated address from (randomly generated if null)
-   * @return MoneroIntegratedAddress is the integrated address
+   * @param {string} paymentId is the payment ID to generate an integrated address from (randomly generated if null)
+   * @return {MoneroIntegratedAddress} is the integrated address
    */
   async getIntegratedAddress(paymentId) {
     throw new Error("Subclass must implement");
@@ -85,9 +83,9 @@ class MoneroWallet {
   /**
    * Synchronizes the wallet with the block chain.
    * 
-   * @param startHeight is the start height to sync from, syncs from the last synced block by default
-   * @param endHeight is the end height to sync to, syncs to the current chain height by default
-   * @param onProgress({percent: _, message: _, totalBlocks: _, doneBlocks: _}) is invoked as progress is made
+   * @param {int} startHeight is the start height to sync from, syncs from the last synced block by default
+   * @param {int} endHeight is the end height to sync to, syncs to the current chain height by default
+   * @param {function} onProgress({percent: _, message: _, totalBlocks: _, doneBlocks: _}) is invoked as progress is made
    */
   async sync(startHeight, endHeight, onProgress) {
     throw new Error("Subclass must implement");
@@ -96,7 +94,7 @@ class MoneroWallet {
   /**
    * Indicates if importing multisig data is needed for returning a correct balance.
    * 
-   * @return true if importing multisig data is needed for returning a correct balance, false otherwise
+   * @return {boolean} true if importing multisig data is needed for returning a correct balance, false otherwise
    */
   async isMultisigImportNeeded() {
     throw new Error("Subclass must implement");
@@ -105,8 +103,8 @@ class MoneroWallet {
   /**
    * Get accounts.
    * 
-   * @param includeSubaddresses specifies if subaddresses should be included (optional)
-   * @return MoneroAccount[] are the retrieved accounts
+   * @param {boolean} includeSubaddresses specifies if subaddresses should be included (optional)
+   * @return {MoneroAccount[]} are the retrieved accounts
    */
   async getAccounts(includeSubaddresses) {
     throw new Error("Subclass must implement");
@@ -115,9 +113,9 @@ class MoneroWallet {
   /**
    * Get an account.
    * 
-   * @param accountIdx specifies the account
-   * @param includeSubaddresses specifies if subaddresses should be included
-   * @return MoneroAccount is the retrieved account
+   * @param {int} accountIdx specifies the account
+   * @param {boolean} includeSubaddresses specifies if subaddresses should be included
+   * @return {MoneroAccount} is the retrieved account
    */
   async getAccount(accountIdx, includeSubaddresses) {
     throw new Error("Subclass must implement");
@@ -126,8 +124,8 @@ class MoneroWallet {
   /**
    * Create a new account.
    * 
-   * @param label specifies the label for the account (optional)
-   * @return MoneroAccount is the created account
+   * @param {string} label specifies the label for the account (optional)
+   * @return {MoneroAccount} is the created account
    */
   async createAccount(label) {
     throw new Error("Subclass must implement");
@@ -136,8 +134,8 @@ class MoneroWallet {
   /**
    * Get subaddresses.
    * 
-   * @param accountIdx specifies the account to get subaddresses within
-   * @param subaddressIndices is a number or numbers which specify subaddresses within the account (optional)
+   * @param {int} accountIdx specifies the account to get subaddresses within
+   * @param {(int|int[])} subaddressIndices specifies subaddresses within the account (optional)
    * @return {MoneroSubaddress[]} are the retrieved subaddresses
    */
   async getSubaddresses(accountIdx, subaddressIndices) {
@@ -147,9 +145,9 @@ class MoneroWallet {
   /**
    * Get a subaddress.
    * 
-   * @param accountIdx specifies the index of the subaddress's account
-   * @param subaddressIdx specifies index of the subaddress within the account
-   * @return MoneroSubaddress is the retrieved subaddress
+   * @param {int} accountIdx specifies the index of the subaddress's account
+   * @param {int} subaddressIdx specifies index of the subaddress within the account
+   * @return {MoneroSubaddress} is the retrieved subaddress
    */
   async getSubaddress(accountIdx, subaddressIdx) {
     throw new Error("Subclass must implement");
@@ -158,9 +156,9 @@ class MoneroWallet {
   /**
    * Create a subaddress within an account.
    * 
-   * @param accountIdx specifies the index of the account to create the subaddress within
-   * @param label specifies the the label for the subaddress (optional)
-   * @return MoneroSubaddress is the created subaddress
+   * @param {int} accountIdx specifies the index of the account to create the subaddress within
+   * @param {string} label specifies the the label for the subaddress (optional)
+   * @return {MoneroSubaddress} is the created subaddress
    */
   async createSubaddress(accountIdx, label) {
     throw new Error("Subclass must implement");
@@ -169,9 +167,9 @@ class MoneroWallet {
   /**
    * Get the address of a specified subaddress.
    * 
-   * @param accountIdx specifies the account index of the address's subaddress
-   * @param subaddressIdx specifies the subaddress index within the account
-   * @return string is the receive address of the specified subaddress
+   * @param {int} accountIdx specifies the account index of the address's subaddress
+   * @param {int} subaddressIdx specifies the subaddress index within the account
+   * @return {string} is the receive address of the specified subaddress
    */
   async getAddress(accountIdx, subaddressIdx) {
     throw new Error("Subclass must implement");
@@ -180,10 +178,9 @@ class MoneroWallet {
   /**
    * Get the account and subaddress index of the given address.
    * 
-   * TODO: test and with unfound address
-   * 
    * @param address is the address to get the account and subaddress index from
-   * @return {MoneroSubaddress} contains the indices or undefined if not found
+   * @return {MoneroSubaddress} contains the indices or undefined
+   * @throws {Error} if the address is not found
    */
   async getAddressIndex(address) {
     throw new Error("Subclass must implement");
@@ -365,7 +362,7 @@ class MoneroWallet {
   /**
    * Sweep an output with a given key image.
    * 
-   * @param {MoneroSendConfig|string} is a send configuration or destination address
+   * @param {(MoneroSendConfig|string}} is a send configuration or destination address
    * @param {string} keyImage is the key image hex of the output to sweep
    * @param {int} priority sets a transaction priority as an integer between 0 and 3 (see {MoneroSendPriority})
    * @param {int} mixin is the number of outputs from the blockchain to mix with (default 11)

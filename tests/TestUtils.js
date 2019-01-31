@@ -73,6 +73,11 @@ class TestUtils {
     assert(num.toJSValue() >= 0);
     if (nonZero) assert(num.toJSValue() > 0);
   }
+  
+  static async getRandomWalletAddress() {
+    let wallet = new MoneroWalletLocal({daemon: TestUtils.getDaemonRpc()});
+    return await wallet.getPrimaryAddress();
+  }
 }
 
 // ---------------------------- STATIC TEST CONFIG ----------------------------

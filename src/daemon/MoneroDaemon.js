@@ -155,7 +155,7 @@ class MoneroDaemon {
    * @param txIds specifies the transaction ids to get
    * @param decodeAsJson decodes the returned transactions as JSON rather than binary if true
    * @param prune (documentation missing) // TODO: documentation missing
-   * @returns {[MoneroTx]} are the transactions with the given ids
+   * @returns {MoneroTx[]} are the transactions with the given ids
    */
   async getTxs(txIds, decodeAsJson, prune) {
     throw new Error("Subclass must implement");
@@ -268,7 +268,7 @@ class MoneroDaemon {
    * Get the spent status of each given key image.
    * 
    * @param {[string]} keyImages are hex key images to get the statuses of
-   * @return {[MoneroKeyImage.SpentStatus]} is the status for each key image
+   * @return {MoneroKeyImage.SpentStatus[]} is the status for each key image
    */
   async getSpentStatuses(keyImages) {
     throw new Error("Subclass must implement");
@@ -288,8 +288,8 @@ class MoneroDaemon {
    * Get outputs identified by a list of output amounts and indices using a
    * binary request.
    * 
-   * @param {[MoneroOutput]} identify each output by amount and index
-   * @returns {[MoneroOutput]} are the identified outputs
+   * @param {MoneroOutput[]} identify each output by amount and index
+   * @returns {MoneroOutput[]} are the identified outputs
    */
   async getOutputs(outputs) {
     throw new Error("Subclass must implement");
@@ -346,7 +346,7 @@ class MoneroDaemon {
   /**
    * Get alternative chains seen by the node.
    * 
-   * @return {[MoneroAltChain]} are the alternative chains
+   * @return {MoneroAltChain[]} are the alternative chains
    */
   async getAltChains() {
     throw new Error("Subclass must implement");
@@ -355,7 +355,7 @@ class MoneroDaemon {
   /**
    * Get known block ids which are not on the main chain.
    * 
-   * @return {[string]} are the known block ids which are not on the main chain
+   * @return {string[]} are the known block ids which are not on the main chain
    */
   async getAltBlockIds() {
     throw new Error("Subclass must implement");
@@ -425,7 +425,7 @@ class MoneroDaemon {
   /**
    * Get incoming and outgoing connections to the node.
    * 
-   * @returns {[MoneroDaemonConnection]} are the daemon's peer connections
+   * @returns {MoneroDaemonConnection[]} are the daemon's peer connections
    */
   async getConnections() {
     throw new Error("Subclass must implement");

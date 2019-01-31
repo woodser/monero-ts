@@ -230,7 +230,13 @@ class MoneroWalletRpc extends MoneroWallet {
   
   // TODO: use cache
   async getAddressIndex(address) {
-    let resp = this.config.rpc.sendJsonRequest("get_address_index", {address: address});
+    let resp;
+    try {
+      resp = await this.config.rpc.sendJsonRequest("get_address_index", {address: address});
+    } catch (e) {
+      if (e.getRpcCode() === -2) throw new Error("Address does not belong to the wallet");
+      throw e;
+    }
     let subaddress = new MoneroSubaddress(address);
     subaddress.setAccountIndex(resp.index.major);
     subaddress.setSubaddressIndex(resp.index.minor);
@@ -1028,7 +1034,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * Common method to get key images.
    * 
    * @param all specifies to get all xor only new images from last import
-   * @return {[MoneroKeyImage]} are the key images
+   * @return {MoneroKeyImage[]} are the key images
    */
   async _getKeyImages(all) {
     let resp = await this.config.rpc.sendJsonRequest("export_key_images", {all: all});
