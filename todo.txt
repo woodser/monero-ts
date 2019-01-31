@@ -1,4 +1,3 @@
-allow key, hex, etc to not be returned
 todos throughout code
 sweep subaddresses test
 object model
