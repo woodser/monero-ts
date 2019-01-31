@@ -606,12 +606,12 @@ class MoneroWalletRpc extends MoneroWallet {
     return tx;
   }
   
-  async relayTxs(txs) {
+  async relayTxs(txMetadatas) {
     
     // relay transactions and collect submission timestamps
     let txLastRelayedTimes = []
-    for (let tx of txs)  {
-      let resp = await this.config.rpc.sendJsonRequest("relay_tx", { hex: tx.getMetadata() });
+    for (let txMetadata of txMetadatas)  {
+      let resp = await this.config.rpc.sendJsonRequest("relay_tx", { hex: txMetadata });
       txLastRelayedTimes.push(+new Date().getTime()); // TODO (monero-wallet-rpc): provide timestamp on response
     }
     

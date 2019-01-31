@@ -1593,7 +1593,7 @@ class TestMoneroWalletCommon {
           }
           
           // relay transactions
-          txs = await wallet.relayTxs(txs);
+          txs = await wallet.relayTxs(txs.map(tx => tx.getMetadata()));
         }
         
         // test that balance and unlocked balance decreased
@@ -1791,8 +1791,8 @@ class TestMoneroWalletCommon {
         }
         
         // relay and test txs
-        txs = await wallet.relayTxs(txs);
-        config.setDoNotRelay(false);  // TODO: remoe this and update testTxWalletSend with isRelayResponse
+        txs = await wallet.relayTxs(txs.map(tx => tx.getMetadata()));
+        config.setDoNotRelay(false);  // TODO: remove this and update testTxWalletSend with isRelayResponse
         for (let tx of txs) {
           await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
         }

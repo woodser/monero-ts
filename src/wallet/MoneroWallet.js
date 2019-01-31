@@ -373,12 +373,22 @@ class MoneroWallet {
   }
   
   /**
-   * Relays tranactions previously created without relaying.
+   * Relay a transaction previously created without relaying.
    * 
-   * @param txs are the transactions to relay
-   * @return {MoneroTx[]} are the relayed txs
+   * @param {string} txMetadata is transaction metadata previously created without relaying
+   * @return {MoneroWalletTx} is the relayed tx
    */
-  async relayTxs(txs) {
+  async relayTx(txMetadata) {
+    return await relayTxs([txMetadata])[0];
+  }
+  
+  /**
+   * Relay transactions previously created without relaying.
+   * 
+   * @param {string[]} txMetadatas are transaction metadata previously created without relaying
+   * @return {MoneroWalletTx[]} are the relayed txs
+   */
+  async relayTxs(txMetadatas) {
     throw new Error("Subclass must implement");
   }
   
