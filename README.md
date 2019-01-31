@@ -53,7 +53,7 @@ let sentTxs = await wallet.sendSplit({
 
 // get confirmed transactions
 for (let tx of await wallet.getTxs({isConfirmed: true})) {
-  let txId = tx.getId();                 // e.g. f8b2f0baa80bf6b686ce32f99ff7bb15a0f198baf7aed478e933ee9a73c69f80
+  let txId = tx.getId();                 // e.g. f8b2f0baa80bf6b...
   let txFee = tx.getFee();               // e.g. 750000
   let isConfirmed = tx.getIsConfirmed(); // e.g. true
 }
