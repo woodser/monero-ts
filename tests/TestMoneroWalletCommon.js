@@ -265,7 +265,7 @@ class TestMoneroWalletCommon {
           // create subaddress with no label
           let subaddresses = await wallet.getSubaddresses(accountIdx);
           let subaddress = await wallet.createSubaddress(accountIdx);
-          assert.equal(subaddress.getLabel(), "");
+          assert.equal(subaddress.getLabel(), undefined);
           testSubaddress(subaddress);
           let subaddressesNew = await wallet.getSubaddresses(accountIdx);
           assert.equal(subaddressesNew.length - 1, subaddresses.length);
@@ -2082,6 +2082,8 @@ function testAccount(account) {
   assert(account.getPrimaryAddress());
   TestUtils.testUnsignedBigInteger(account.getBalance());
   TestUtils.testUnsignedBigInteger(account.getUnlockedBalance());
+  assert(account.getLabel() === undefined || typeof account.getLabel() === "string");
+  if (typeof account.getLabel() === "string") assert(account.getLabel().length > 0);
   
   // if given, test subaddresses and that their balances add up to account balances
   if (account.getSubaddresses()) {
@@ -2103,6 +2105,8 @@ function testSubaddress(subaddress) {
   assert(subaddress.getAccountIndex() >= 0);
   assert(subaddress.getSubaddressIndex() >= 0);
   assert(subaddress.getAddress());
+  assert(subaddress.getLabel() === undefined || typeof subaddress.getLabel() === "string");
+  if (typeof subaddress.getLabel() === "string") assert(subaddress.getLabel().length > 0);
   TestUtils.testUnsignedBigInteger(subaddress.getBalance());
   TestUtils.testUnsignedBigInteger(subaddress.getUnlockedBalance());
   assert(subaddress.getUnspentOutputCount() >= 0);

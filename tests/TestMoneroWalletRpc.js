@@ -126,6 +126,26 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         }
       });
       
+      it("Can fetch accounts and subaddresses without balance info because this is another RPC call", async function() {
+        let accounts = await wallet.getAccounts(true, undefined, true);
+        assert(accounts.length > 0);
+        for (let account of accounts) {
+          assert(account.getSubaddresses().length > 0);
+          for (let subaddress of account.getSubaddresses()) {
+            assert.equal(typeof subaddress.getAddress(), "string");
+            assert(subaddress.getAddress().length > 0);
+            assert(subaddress.getAccountIndex() >= 0);
+            assert(subaddress.getSubaddressIndex() >= 0);
+            assert(subaddress.getLabel() === undefined || typeof subaddress.getLabel() === "string");
+            if (typeof subaddress.getLabel() === "string") assert(subaddress.getLabel().length > 0);
+            assert.equal(typeof subaddress.getIsUsed(), "boolean");
+            assert.equal(subaddress.getUnspentOutputCount(), undefined);
+            assert.equal(subaddress.getBalance(), undefined);
+            assert.equal(subaddress.getUnlockedBalance(), undefined);
+          }
+        }
+      });
+      
       it("Has an address book", async function() {
         
         // initial state

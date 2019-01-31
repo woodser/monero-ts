@@ -1,6 +1,5 @@
-optimize rpc requests
-	no longer support isUsed()? or getSubaddress(accountIdx, subaddressIndices, getBalances) (often do not need balance)
 allow key, hex, etc to not be returned
+todos throughout code
 sweep subaddresses test
 object model
 license headers
