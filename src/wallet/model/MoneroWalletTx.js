@@ -6,7 +6,7 @@ const MoneroTransfer = require("./MoneroTransfer");
 const MoneroWalletOutput = require("./MoneroWalletOutput");
 
 /**
- * Models a Monero transaction with additional fields in the context of a wallet.
+ * Models a Monero transaction with wallet extensions.
  */
 class MoneroWalletTx extends MoneroTx {
   
