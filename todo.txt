@@ -6,46 +6,45 @@ block comments with params and formatting
 txpool -> mempool?
 rpc impls _build.. -> _decode..
 all model set functions return this
+don't wrap single return fields with MoneroDaemonModel? e.g. fee
+test daemon getIsCoinbase()
+test getting coinbase txs by id
+support setting daemon log level
 
 daemon.getTxs() with decodeAsJson = false not tested; needed?
 daemon.getTxs() doesn't return vins/vouts unless decoded as json
 daemon.getTxs({isConfirmed: true}) style filtering?
 daemon.getTxsByHeight(), daemon.getTxsByRange()
 daemon.getBlocksById(), default implementations
+get_transfers pool does not actually indicate it's relayed; return undefined?
+test that note is set if specified in send config
+set subaddress getUnspentOutputCount() with outputs assigned
+validate all input parameters to api
 
 not directly testing sweepUnlocked()
 common MoneroModel which can be initialized from and export state
-get_transfers pool does not actually indicate it's relayed; return undefined?
 daemon binary tests
 daemon notification test needs to test tx merging
-test that note is set if specified in send config
 multisig
 pruning
 common tx tests need cleanup
 support and test unlock time unlocks
 merge asserts type
-set subaddress getUnspentOutputCount() with outputs assigned
 how to handle 'confirmations' block height to add the tx to the chain if unconfirmed? corallary of unlock time?
-don't wrap single return fields with MoneroDaemonModel? e.g. fee
 handle excess undefineds and enable deepEqual() in testWalletTxCopy()
-validate all input parameters to api
 way to throttle rpc requests with agent instead of throttle-request to preserve stacktrace?
 send to multiple, suggested_confirmation_threshold outgoing payment 6 but incoming payments 1; large discrepency
 remove text-encoding dependency
-support setting daemon log level
-test daemon getIsCoinbase()
-test getting coinbase txs by id
-tests are unecessarily creating new accounts which degrades test performance
 test notifications hardwired to account 0 which gets emptied by reset tests
 test all tx fields in daemon, update tests to be like wallet
 test json serialization / deserialization specifically, stringifying in between so cannot be any live objects
 support vout filter in tx filter?
+undefined amounts instead of 0 for rct amounts
 
 JS now has native BigInt class which could be used instead of current BigInteger
 switch to jest?
 csv export of types
 time profiling
-undefined amounts instead of 0 for rct amounts
 mock response test framework
 refactor copying to not be downward of a tree rooted at tx but instead correct per each part of a graph
 add typescript?
