@@ -89,14 +89,6 @@ class MoneroWalletRpc extends MoneroWallet {
     return resp.multisig_import_needed === true;
   }
   
-  async getBalance(accountIdx, subaddressIdx) {
-    return (await this._getBalances(accountIdx, subaddressIdx))[0];
-  }
-  
-  async getUnlockedBalance(accountIdx, subaddressIdx) {
-    return (await this._getBalances(accountIdx, subaddressIdx))[1];
-  }
-  
   async getAccounts(includeSubaddresses, tag) {
     
     // fetch accounts
@@ -236,6 +228,14 @@ class MoneroWalletRpc extends MoneroWallet {
     subaddress.setAccountIndex(resp.index.major);
     subaddress.setSubaddressIndex(resp.index.minor);
     return subaddress;
+  }
+  
+  async getBalance(accountIdx, subaddressIdx) {
+    return (await this._getBalances(accountIdx, subaddressIdx))[0];
+  }
+  
+  async getUnlockedBalance(accountIdx, subaddressIdx) {
+    return (await this._getBalances(accountIdx, subaddressIdx))[1];
   }
   
   async getTxs(config) {
