@@ -35,7 +35,7 @@ describe("Test Sample Code", function() {
     let sentTx = await wallet.send("74oAtjgE2dfD1bJBo4DWW3E6qXCAwUDMgNqUurnX9b2xUvDTwMwExiXDkZskg7Vct37tRGjzHRqL4gH4H3oag3YyMYJzrNp", new BigInteger(50000));
 
     // send to multiple destinations from subaddress 1, 0 which can be split into multiple transactions
-    // see [MoneroSendConfig.js](./src/wallet/model/MoneroSendConfig.js) for all config options or to build a config object
+    // see MoneroSendConfig.js for all config options or to build a config object
     let sentTxs = await wallet.sendSplit({
       destinations: [
         {address: "7BV7iyk9T6kfs7cPfmn7vPZPyWRid7WEwecBkkVr8fpw9MmUgXTPtvMKXuuzqKyr2BegWMhEcGGEt5vNkmJEtgnRFUAvf29", amount: new BigInteger(50000) },
