@@ -1,6 +1,5 @@
 optimize rpc requests
 	no longer support isUsed()? or getSubaddress(accountIdx, subaddressIndices, getBalances) (often do not need balance)
-	don't create unecessary accounts in tests
 failing to commit relayed txs
 allow key, hex, etc to not be returned
 sweep subaddresses test
