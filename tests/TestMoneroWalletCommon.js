@@ -144,46 +144,6 @@ class TestMoneroWalletCommon {
         assert(typeof resp.received_money === "boolean");
       });
       
-      it("Can get the locked and unlocked balances of the wallet, accounts, and subaddresses", async function() {
-        
-        // fetch accounts with all info as reference
-        let accounts = await wallet.getAccounts(true);
-        
-        // test that balances add up between accounts and wallet
-        let accountsBalance = new BigInteger(0);
-        let accountsUnlockedBalance = new BigInteger(0);
-        for (let account of accounts) {
-          accountsBalance = accountsBalance.add(account.getBalance());
-          accountsUnlockedBalance = accountsUnlockedBalance.add(account.getUnlockedBalance());
-          
-          // test that balances add up between subaddresses and accounts
-          let subaddressesBalance = new BigInteger(0);
-          let subaddressesUnlockedBalance = new BigInteger(0);
-          for (let subaddress of account.getSubaddresses()) {
-            subaddressesBalance = subaddressesBalance.add(subaddress.getBalance());
-            subaddressesUnlockedBalance = subaddressesUnlockedBalance.add(subaddress.getUnlockedBalance());
-            
-            // test that balances are consistent with getAccounts() call
-            assert.equal((await wallet.getBalance(subaddress.getAccountIndex(), subaddress.getSubaddressIndex())).toString(), subaddress.getBalance().toString());
-            assert.equal((await wallet.getUnlockedBalance(subaddress.getAccountIndex(), subaddress.getSubaddressIndex())).toString(), subaddress.getUnlockedBalance().toString());
-          }
-          assert.equal((await wallet.getBalance(account.getIndex())).toString(), subaddressesBalance.toString());
-          assert.equal((await wallet.getUnlockedBalance(account.getIndex())).toString(), subaddressesUnlockedBalance.toString());
-        }
-        TestUtils.testUnsignedBigInteger(accountsBalance);
-        TestUtils.testUnsignedBigInteger(accountsUnlockedBalance);
-        assert.equal((await wallet.getBalance()).toString(), accountsBalance.toString());
-        assert.equal((await wallet.getUnlockedBalance()).toString(), accountsUnlockedBalance.toString());
-        
-        // test invalid input
-        try {
-          await wallet.getBalance(undefined, 0);
-          throw new Error("Should have failed");
-        } catch(e) {
-          assert.notEqual("Should have failed", e.message);
-        }
-      });
-      
       it("Can get all accounts in the wallet without subaddresses", async function() {
         let accounts = await wallet.getAccounts();
         assert(accounts.length > 0);
@@ -329,6 +289,46 @@ class TestMoneroWalletCommon {
           for (let subaddress of await wallet.getSubaddresses(account.getIndex())) {
             assert.equal(await wallet.getAddress(account.getIndex(), subaddress.getSubaddressIndex()), subaddress.getAddress());
           }
+        }
+      });
+      
+      it("Can get the locked and unlocked balances of the wallet, accounts, and subaddresses", async function() {
+        
+        // fetch accounts with all info as reference
+        let accounts = await wallet.getAccounts(true);
+        
+        // test that balances add up between accounts and wallet
+        let accountsBalance = new BigInteger(0);
+        let accountsUnlockedBalance = new BigInteger(0);
+        for (let account of accounts) {
+          accountsBalance = accountsBalance.add(account.getBalance());
+          accountsUnlockedBalance = accountsUnlockedBalance.add(account.getUnlockedBalance());
+          
+          // test that balances add up between subaddresses and accounts
+          let subaddressesBalance = new BigInteger(0);
+          let subaddressesUnlockedBalance = new BigInteger(0);
+          for (let subaddress of account.getSubaddresses()) {
+            subaddressesBalance = subaddressesBalance.add(subaddress.getBalance());
+            subaddressesUnlockedBalance = subaddressesUnlockedBalance.add(subaddress.getUnlockedBalance());
+            
+            // test that balances are consistent with getAccounts() call
+            assert.equal((await wallet.getBalance(subaddress.getAccountIndex(), subaddress.getSubaddressIndex())).toString(), subaddress.getBalance().toString());
+            assert.equal((await wallet.getUnlockedBalance(subaddress.getAccountIndex(), subaddress.getSubaddressIndex())).toString(), subaddress.getUnlockedBalance().toString());
+          }
+          assert.equal((await wallet.getBalance(account.getIndex())).toString(), subaddressesBalance.toString());
+          assert.equal((await wallet.getUnlockedBalance(account.getIndex())).toString(), subaddressesUnlockedBalance.toString());
+        }
+        TestUtils.testUnsignedBigInteger(accountsBalance);
+        TestUtils.testUnsignedBigInteger(accountsUnlockedBalance);
+        assert.equal((await wallet.getBalance()).toString(), accountsBalance.toString());
+        assert.equal((await wallet.getUnlockedBalance()).toString(), accountsUnlockedBalance.toString());
+        
+        // test invalid input
+        try {
+          await wallet.getBalance(undefined, 0);
+          throw new Error("Should have failed");
+        } catch(e) {
+          assert.notEqual("Should have failed", e.message);
         }
       });
       
