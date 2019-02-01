@@ -231,10 +231,10 @@ class MoneroWallet {
    * Get wallet transactions.  Wallet transactions contain one or more
    * transfers that are either incoming or outgoing to the wallet.
    * 
-   * Results can be configured or filtered by passing in a configuration.
+   * Query results can be configured or filtered by passing in a configuration.
    * Transactions must meet every criteria defined in the configuration in
-   * order to be returned.  All configuration is optional meaning no filtering
-   * is applied when not defined.
+   * order to be returned.  All configuration is optional and no filtering is
+   * applied when not defined.
    * 
    * @param {(MoneroTxFilter|object)} config configures the query (optional)
    * @param {boolean} config.isConfirmed gets txs that are confirmed or not (optional)
@@ -261,13 +261,17 @@ class MoneroWallet {
   }
   
   /**
-   * Get incoming and outgoing transfers to/from this wallet.  A transfer
-   * is... TODO
+   * Get incoming and outgoing transfers to and from this wallet.  An outgoing
+   * transfer represents a total amount sent from one or more subaddresses
+   * within an account to individual destination addresses, each with their
+   * own amount.  An incoming transfer represents a total amount received into
+   * a subaddress within an account.  Transfers belong to transactions which
+   * are stored on the blockchain.
    * 
-   * Results can be configured or filtered by passing in a configuration.
+   * Query results can be configured or filtered by passing in a configuration.
    * Transfers must meet every criteria defined in the configuration in order
-   * to be returned.  All configuration is optional meaning no filtering is
-   * applied when not defined.
+   * to be returned.  All configuration is optional and no filtering is applied
+   * when not defined.
    * 
    * @param {(MoneroTransferFilter|object)} config configures the query (optional)
    * @param {boolean} config.isOutgoing gets transfers that are outgoing or not (optional)
@@ -288,12 +292,13 @@ class MoneroWallet {
   
   /**
    * Get wallet vouts.  A wallet vout is an output created from a previous
-   * transaction that the wallet can spend.
+   * transaction that the wallet can spend.  Vouts belong to transactions which
+   * are stored on the blockchain.
    * 
-   * Results can be configured or filtered by passing in a configuration.
+   * Query results can be configured or filtered by passing in a configuration.
    * Vouts must meet every criteria defined in the configuration in order to be
-   * returned.  All configuration is optional meaning no filtering is applied
-   * when not defined.
+   * returned.  All configuration is optional and no filtering is applied when
+   * not defined.
    * 
    * TODO: add additional filtering in MoneroVoutFilter.js meetsCriteria() (easy)
    * 
