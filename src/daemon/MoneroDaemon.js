@@ -295,11 +295,11 @@ class MoneroDaemon {
    * parameters), gives the number of outputs on the chain for that amount.
    * RingCT outputs counts as 0 amount.
    * 
-   * @param amounts TODO
-   * @param minCount TODO
-   * @param maxCount TODO
-   * @param isUnlocked TODO
-   * @param recentCutoff TODO
+   * @param {BigInteger[]} amounts are amounts of outputs to make the histogram with
+   * @param {int} minCount TODO
+   * @param {int} maxCount TODO
+   * @param {boolean} isUnlocked makes a histogram with outputs with the specified lock state
+   * @param {int} recentCutoff TODO
    * @return {MoneroOutputHistogramEntry[]} are entries meeting the parameters
    */
   async getOutputHistogram(amounts, minCount, maxCount, isUnlocked, recentCutoff) {
@@ -307,7 +307,13 @@ class MoneroDaemon {
   }
   
   /**
-   * TODO.
+   * Creates an output distribution.
+   * 
+   * @param {BigInteger[]} amounts are amounts of outputs to make the distribution with
+   * @param {boolean} cumulative specifies if the results should be cumulative (defaults to TODO)
+   * @param {int} startHeight is the start height lower bound inclusive (optional)
+   * @param {int} endHeight is the end height upper bound inclusive (optional)
+   * @return {MoneroOutputDistributionEntry[]} are entries meeting the parameters
    */
   async getOutputDistribution(amounts, cumulative, startHeight, endHeight) {
     throw new Error("Subclass must implement");
