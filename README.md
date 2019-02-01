@@ -11,7 +11,7 @@ Main Features
 - General-purpose library with focus on ease-of-use
 - Clear object-oriented models to formalize Monero types and their relationships to each other
 - Powerful API to query transactions, transfers, and vouts by their attributes
-- Extensive test suite (110+ passing tests)
+- Extensive test suite (130+ passing tests)
 - Fetch and process binary data from the daemon in JavaScript using client-side crypto
 
 ## Wallet Sample Code
