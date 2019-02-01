@@ -345,23 +345,45 @@ class MoneroWallet {
   }
   
   /**
-   * TODO.
+   * Creates a transaction which transfers funds from this wallet to one or more destinations.
+   * 
+   * @param {(MoneroSendConfig|object|string)} configOrAddress defines send configuration (documented next) xor an address to send to
+   * 
+   * Send with single config param:
+   * 
+   * @param {MoneroDestination[]|object[]} config.destinations are destination addresses to send to and their amounts
+   * @param {string} config.paymentId is a random 32-byte/64-character hex string to identify a transaction (optional)
+   * @param {int|MoneroSendPriority} config.priority is the priority to have the tx confirmed; 0-3 for default, unimportant, normal, and elevated (optional)
+   * @param {int} config.mixin is number of outputs from the blockchain to mix with (optional)
+   * @param {int} config.accountIndex identifies the account to transfer from (optional, defaults to 0)
+   * @param {int} config.subaddressIndices identifies one or more subaddresses to transfer from (optional, defaults to any)
+   * @param {int} config.unlockTime is the number of blocks before the monero can be spent (0 or undefined to not add a lock) (optional)
+   * @param {boolean} config.doNotRelay does not relay the created transaction to the Monero network iff true (optional)
+   * 
+   * Send with multiple function params:
+   * 
+   * @param {string} address is a destination address to send to (required iff no config object)
+   * @para {BigInteger} sendAmount is the amount to send (required iff no config object)
+   * @param {int|MoneroSendPriority} priority is the priority to have the tx confirmed; 0-3 for default, unimportant, normal, and elevated (optional)
+   * @param {int} is the number of outputs from the blockchain to mix with (optional)
+   * 
+   * @return {MoneroWalletTx} is the resulting transaction
    */
-  async send(configOrAddress, sendAmount, paymentId, priority, mixin) {
+  async send(configOrAddress, sendAmount, priority, mixin) {
     throw new Error("Subclass must implement");
   }
   
   /**
    * TODO.
    */
-  async sendSplit(configOrAddress, sendAmount, paymentId, priority, mixin) {
+  async sendSplit(configOrAddress, sendAmount, priority, mixin) {
     throw new Error("Subclass must implement");
   }
   
   /**
    * Sweep the wallet's unlocked funds to an address.
    * 
-   * @param address is the address to sweep the wallet's funds to
+   * @param {string} address is the address to sweep the wallet's funds to
    * @return {MoneroWalletTx[]} are the resulting transactions
    */
   async sweepWallet(address) {
@@ -371,8 +393,8 @@ class MoneroWallet {
   /**
    * Sweep an acount's unlocked funds to an address.
    * 
-   * @param accountIdx is the index of the account
-   * @param address is the address to sweep the account's funds to
+   * @param {int} accountIdx is the index of the account
+   * @param {address} address is the address to sweep the account's funds to
    * @return {MoneroWalletTx[]} are the resulting transactions
    */
   async sweepAccount(accountIdx, address) {
@@ -384,9 +406,9 @@ class MoneroWallet {
   /**
    * Sweep a subaddress's unlocked funds to an address.
    * 
-   * @param accountIdx is the index of the account
-   * @param subaddressIdx is the index of the subaddress
-   * @param address is the address to sweep the subaddress's funds to
+   * @param {int} accountIdx is the index of the account
+   * @param {int} subaddressIdx is the index of the subaddress
+   * @param {string} address is the address to sweep the subaddress's funds to
    * @return {MoneroWalletTx[]} are the resulting transactions
    */
   async sweepSubaddress(accountIdx, subaddressIdx, address) {
@@ -399,7 +421,7 @@ class MoneroWallet {
   /**
    * Sweep unlocked funds.
    * 
-   * @param config specifies the sweep configuration
+   * @param {(MoneroSendConfig|object)} is the sweep configuration
    * @return {MoneroWalletTx[]} are the resulting transactions
    */
   async sweepUnlocked(config) {
@@ -409,7 +431,7 @@ class MoneroWallet {
   /**
    * Sweep all unmixable dust outputs back to the wallet to make them easier to spend and mix.
    * 
-   * @param doNotRelay specifies if the resulting transaction should not be relayed (defaults to false i.e. relayed)
+   * @param {boolean} doNotRelay specifies if the resulting transaction should not be relayed (defaults to false i.e. relayed)
    * @return {MoneroWalletTx[]} are the resulting transactions from sweeping dust
    */
   async sweepDust(doNotRelay) {
@@ -629,10 +651,10 @@ class MoneroWallet {
    * Add an address book entry.
    * 
    * @param {string} address is the entry address
-   * @param {string} paymentId is the entry paymet id (optional)
    * @param {string} description is the entry description (optional)
+   * @param {string} paymentId is the entry paymet id (optional)
    */
-  async addAddressBookEntry(address, paymentId, description) {
+  async addAddressBookEntry(address, description, paymentId) {
     throw new Error("Subclass must implement");
   }
   

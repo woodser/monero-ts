@@ -158,7 +158,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         let address = (await wallet.getSubaddress(0, 0)).getAddress();
         let indices = [];
         for (let i = 0; i < NUM_ENTRIES; i++) {
-          indices.push(await wallet.addAddressBookEntry(address, undefined, "hi there!"));
+          indices.push(await wallet.addAddressBookEntry(address, "hi there!"));
         }
         entries = await wallet.getAddressBookEntries();
         assert.equal(entries.length, numEntriesStart + NUM_ENTRIES);
@@ -192,7 +192,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         for (let i = 0; i < NUM_ENTRIES; i++) {
           let integratedAddress = await wallet.getIntegratedAddress(paymentId + i); // create unique integrated address
           let uuid = GenUtils.uuidv4();
-          let idx = await wallet.addAddressBookEntry(integratedAddress.toString(), undefined, uuid);
+          let idx = await wallet.addAddressBookEntry(integratedAddress.toString(), uuid);
           indices.push(idx);
           integratedAddresses[idx] = integratedAddress;
           integratedDescriptions[idx] = uuid;

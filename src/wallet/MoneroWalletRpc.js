@@ -507,13 +507,13 @@ class MoneroWalletRpc extends MoneroWallet {
     return await this._getKeyImages(false);
   }
   
-  async send(configOrAddress, amount, paymentId, priority, mixin) {
+  async send(configOrAddress, amount, priority, mixin) {
     let args = [].slice.call(arguments);
     args.splice(0, 0, false);  // specify splitting
     return await this._send.apply(this, args);
   }
 
-  async sendSplit(configOrAddress, amount, paymentId, priority, mixin) {
+  async sendSplit(configOrAddress, amount, priority, mixin) {
     let args = [].slice.call(arguments);
     args.splice(0, 0, true);  // specify splitting
     return await this._send.apply(this, args);
@@ -844,8 +844,8 @@ class MoneroWalletRpc extends MoneroWallet {
     return entries;
   }
   
-  async addAddressBookEntry(address, paymentId, description) {
-    let resp = await this.config.rpc.sendJsonRequest("add_address_book", {address: address, payment_id: paymentId, description: description});
+  async addAddressBookEntry(address, description, paymentId) {
+    let resp = await this.config.rpc.sendJsonRequest("add_address_book", {address: address, description: description, payment_id: paymentId});
     return resp.index;
   }
   
@@ -966,17 +966,17 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddressIndices;
   }
   
-  async _send(split, configOrAddress, amount, paymentId, priority, mixin) {
+  async _send(split, configOrAddress, amount, priority, mixin) {
     
     // normalize and validate config
     let config;
     if (configOrAddress instanceof MoneroSendConfig) {
-      assert.equal(arguments.length, 2, "Sending requires a send configuration or parameters but both");
+      assert.equal(arguments.length, 2, "Sending requires a send configuration or parameters but not both");
       config = configOrAddress;
     } else {
       if (configOrAddress instanceof Object) config = new MoneroSendConfig(configOrAddress);
       else {
-        config = new MoneroSendConfig(configOrAddress, amount, paymentId, priority, mixin);
+        config = new MoneroSendConfig(configOrAddress, amount, undefined, priority, mixin);
       }
     }
     assert.equal(config.getSweepEachSubaddress(), undefined);
