@@ -43,7 +43,13 @@ class MoneroTransfer {
     if (!this.getTx().getIncomingTransfers()) return false;
     return this.getTx().getIncomingTransfers().includes(this);
   }
-  
+
+  /**
+   * Get the wallet's address that this transfer either originated from (if
+   * outgoing) or is destined for (if incoming).
+   * 
+   * @return {string} is the source/destination address of the transfer if outgoing/incoming, respectively
+   */
   getAddress() {
     return this.state.address;
   }

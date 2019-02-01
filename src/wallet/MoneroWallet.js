@@ -209,73 +209,84 @@ class MoneroWallet {
   }
   
   /**
-   * Get wallet transactions.
+   * Get wallet transactions.  Wallet transactions contain one or more
+   * transfers that are either incoming or outgoing to the wallet.
    * 
-   * Transactions to get may be configured or filtered using a config object.
-   * Transactions must meet every criteria defined in the config in order to
-   * be returned.  If no filtering criteria are defined in the config, all
-   * transactions are returned.
+   * Results can be configured or filtered by passing in a configuration.
+   * Transactions must meet every criteria defined in the configuration in
+   * order to be returned.  All configuration is optional meaning no filtering
+   * is applied when not defined.
    * 
-   * @param {(MoneroTxFilter|object)} config configures transactions to get (optional)
-   * @param {boolean} config.isConfirmed gets txs that are confirmed or not
-   * @param {boolean} config.inTxPool get txs that are in the tx pool or not
-   * @param {boolean} config.isRelayed gets txs that are relayed or not
-   * @param {boolean} config.isFailed gets txs that are failed or not
-   * @param {boolean} config.isCoinbase gets coinbase txs or not
-   * @param {string} config.id gets a tx with the id
-   * @param {string} config.txId gets a tx with the id (alias of id)
-   * @param {string[]} config.txIds gets txs with the ids
-   * @param {string} config.paymentId gets transactions with the payment id
-   * @param {string[]} config.paymentIds gets transactions with the payment ids
-   * @param {boolean} config.hasPaymentId gets transactions with a payment id or not
-   * @param {int} config.minHeight gets txs with height >= the given height
-   * @param {int} config.maxHeight gets txs with height <= the given height
-   * @param {boolean} config.hasOutgoingTransfer gets txs with an outgoing transfer or not
-   * @param {boolean} config.hasIncomingTransfer gets txs with an incoming transfer or not
-   * @param {MoneroTransferFilter} transferFilter gets txs that have a transfer that meets this filter
-   * @param {boolean} config.getVouts specifies that tx vouts should be returned with tx results
-   * @return {MoneroWalletTx[]} are the resulting transactions
+   * @param {(MoneroTxFilter|object)} config configures the query (optional)
+   * @param {boolean} config.isConfirmed gets txs that are confirmed or not (optional)
+   * @param {boolean} config.inTxPool get txs that are in the tx pool or not (optional)
+   * @param {boolean} config.isRelayed gets txs that are relayed or not (optional)
+   * @param {boolean} config.isFailed gets txs that are failed or not (optional)
+   * @param {boolean} config.isCoinbase gets coinbase txs or not (optional)
+   * @param {string} config.id gets a tx with the id (optional)
+   * @param {string} config.txId gets a tx with the id (alias of id) (optional)
+   * @param {string[]} config.txIds gets txs with the ids (optional)
+   * @param {string} config.paymentId gets transactions with the payment id (optional)
+   * @param {string[]} config.paymentIds gets transactions with the payment ids (optional)
+   * @param {boolean} config.hasPaymentId gets transactions with a payment id or not (optional)
+   * @param {int} config.minHeight gets txs with height >= the given height (optional)
+   * @param {int} config.maxHeight gets txs with height <= the given height (optional)
+   * @param {boolean} config.hasOutgoingTransfer gets txs with an outgoing transfer or not (optional)
+   * @param {boolean} config.hasIncomingTransfer gets txs with an incoming transfer or not (optional)
+   * @param {MoneroTransferFilter} transferFilter gets txs that have a transfer that meets this filter (optional)
+   * @param {boolean} config.getVouts specifies that tx vouts should be returned with tx results (optional)
+   * @return {MoneroWalletTx[]} are wallet transactions per the configuration
    */
   async getTxs(config) {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * Get incoming and/or outgoing transfers from wallet transactions.
+   * Get incoming and outgoing transfers to/from this wallet.  A transfer
+   * is... TODO
    * 
-   * @param config configures transfers to get
-   *        config.accountIndex
-   *        config.subaddressIndices
-   *        config.isOutgoing
-   *        config.isIncoming
-   *        config.isConfirmed
-   *        config.inTxPool
-   *        config.isRelayed
-   *        config.isFailed
-   *        config.txId
-   *        config.txIds
-   *        config.paymentIds
-   *        config.hasOutgoingTransfer
-   *        config.hasIncomingTransfer
-   *        config.hasDestinations
-   *        config.minHeight
-   *        config.maxHeight
-   * @return {MoneroWalletTransfer[]} are the retrieved transfers
+   * Results can be configured or filtered by passing in a configuration.
+   * Transfers must meet every criteria defined in the configuration in order
+   * to be returned.  All configuration is optional meaning no filtering is
+   * applied when not defined.
+   * 
+   * @param {(MoneroTransferFilter|object)} config configures the query (optional)
+   * @param {boolean} config.isOutgoing gets transfers that are outgoing or not (optional)
+   * @param {boolean} config.isIncoming gets transfers that are incoming or not (optional)
+   * @param {string} config.address is the wallet's address that a transfer either originated from (if outgoing) or is destined for (if incoming) (optional)
+   * @param {int} config.accountIndex gets transfers that either originated from (if outgoing) or are destined for (if incoming) a specific account index (optional)
+   * @param {int} config.subaddressIndex gets transfers that either originated from (if outgoing) or are destined for (if incoming) a specific subaddress index (optional)
+   * @param {int[]} config.subaddressIndices gets transfers that either originated from (if outgoing) or are destined for (if incoming) specific subaddress indices (optional)
+   * @param {BigInteger} config.amount is the amount being transferred (optional)
+   * @param {MoneroDestination[]} config.destinations are individual destinations of an outgoing transfer, which is local wallet data and NOT recoverable from the blockchain (optional)
+   * @param {boolean} config.hasDestinations gets transfers that have destinations or not (optional)
+   * @param {MoneroTxFilter} config.txFilter gets transfers whose transaction meets this filter (optional)
+   * @return {MoneroTransfer[]} are wallet transfers per the configuration
    */
   async getTransfers(config) {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * Get vouts which are outputs that belong to the wallet created from
-   * previous transactions.
+   * Get wallet vouts.  A wallet vout is an output created from a previous
+   * transaction that the wallet can spend.
    * 
-   * @param config configures vouts to get
-   *        config.accountIndex
-   *        config.subaddressIndices
-   *        config.minHeight
-   *        config.maxHeight
-   * @return {MoneroWalletOutput[]} are the retrieved vouts
+   * Results can be configured or filtered by passing in a configuration.
+   * Vouts must meet every criteria defined in the configuration in order to be
+   * returned.  All configuration is optional meaning no filtering is applied
+   * when not defined.
+   * 
+   * TODO: add additional filtering in MoneroVoutFilter.js meetsCriteria() (easy)
+   * 
+   * @param {(MoneroVoutFilter|object)} config configures the query (optional)
+   * @param {int} config.accountIndex gets vouts associated with a specific account index
+   * @param {int} config.subaddressIndex gets vouts associated with a specific subaddress index
+   * @param {int[]} config.subaddressIndices gets vouts associated with specific subaddress indices
+   * @param {BigInteger} config.amount gets vouts with a specific amount
+   * @param {boolean} config.isSpent gets vouts that are spent or not
+   * @param {MoneroKeyImage} config.keyImage is a key image whose defined fields filter vouts to get
+   * @param {MoneroTxFilter} config.txFilter gets vouts whose transaction meets this filter (optional)
+   * @return {MoneroWalletOutput[]} are wallet vouts per the configuration
    */
   async getVouts(config) {
     throw new Error("Subclass must implement");

@@ -59,7 +59,7 @@ class MoneroVoutFilter extends Filter {
       if (vt.getSubaddressIndex() !== undefined && vt.getSubaddressIndex() !== vout.getSubaddressIndex()) return false;
       if (vt.getAmount() !== undefined && vt.getAmount().compare(vout.getAmount()) !== 0) return false;
       if (vt.getIsSpent() !== undefined && vt.getIsSpent() !== vout.getIsSpent()) return false;
-      if (vt.getKeyImage() !== undefined && vt.getKeyImage() !== vout.getKeyImage()) return false;
+      if (vt.getKeyImage() !== undefined && vt.getKeyImage() !== vout.getKeyImage()) return false;  // TODO: bug: shouldn't compare by refererence, add test to catch 
       // TODO: expand this list
     }
     
