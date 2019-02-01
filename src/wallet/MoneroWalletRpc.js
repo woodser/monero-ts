@@ -45,9 +45,63 @@ class MoneroWalletRpc extends MoneroWallet {
     this.addressCache = {};
   }
   
-  async getHeight() {
-    return (await this.config.rpc.sendJsonRequest("get_height")).height;
+  // --------------------------- RPC WALLET METHODS ---------------------------
+  
+  /**
+   * TODO
+   */
+  async createWallet(filename, password, language) {
+    if (!filename) throw new Error("Filename is not initialized");
+    if (!password) throw new Error("Password is not initialized");
+    if (!language) throw new Error("Language is not initialized");
+    let params = { filename: filename, password: password, language: language };
+    await this.config.rpc.sendJsonRequest("create_wallet", params);
   }
+  
+  /**
+   * TODO
+   */
+  async openWallet(filename, password) {
+    if (!filename) throw new Error("Filename is not initialized");
+    if (!password) throw new Error("Password is not initialized");
+    await this.config.rpc.sendJsonRequest("open_wallet", {filename: filename, password: password});
+    delete this.addressCache;
+    this.addressCache = {};
+  }
+  
+  /**
+   * TODO
+   */
+  async rescanSpent() {
+    await this.config.rpc.sendJsonRequest("rescan_spent");
+  }
+  
+  /**
+   * TODO
+   */
+  async saveBlockchain() {
+    await this.config.rpc.sendJsonRequest("store");
+  }
+  
+  /**
+   * TODO
+   * 
+   * WARNING: discards local wallet data like destination addresses
+   */
+  async rescanBlockchain() {
+    await this.config.rpc.sendJsonRequest("rescan_blockchain");
+  }
+  
+  /**
+   * Stop the wallet.
+   */
+  async stopWallet() {
+    await this.config.rpc.sendJsonRequest("stop_wallet");
+    delete this.addressCache;
+    this.addressCache = {};
+  }
+  
+  // -------------------------- COMMON WALLET METHODS -------------------------
   
   async getMnemonic() {
     let resp = await this.config.rpc.sendJsonRequest("query_key", { key_type: "mnemonic" });
@@ -58,9 +112,13 @@ class MoneroWalletRpc extends MoneroWallet {
     let resp = await this.config.rpc.sendJsonRequest("query_key", { key_type: "view_key" });
     return resp.key;
   }
-  
+
   async getLanguages() {
     return (await this.config.rpc.sendJsonRequest("get_languages")).languages;
+  }
+  
+  async getHeight() {
+    return (await this.config.rpc.sendJsonRequest("get_height")).height;
   }
   
   async getPrimaryAddress() {
@@ -425,6 +483,28 @@ class MoneroWalletRpc extends MoneroWallet {
       voutFilter.apply(tx.getVouts()).map(vout => vouts.push(vout));
     }
     return vouts;
+  }
+  
+  async getKeyImages() {
+    return await this._getKeyImages(true);
+  }
+  
+  async importKeyImages(keyImages) {
+    
+    // send request
+    let keyImagesParam = keyImages.map(keyImage => ({key_image: keyImage.getHex(), signature: keyImage.getSignature()}));
+    let resp = await this.config.rpc.sendJsonRequest("import_key_images", {signed_key_images: keyImagesParam});
+    
+    // build and return result
+    let result = new MoneroKeyImageImportResult();
+    result.setHeight(resp.height);
+    result.setAmountSpent(new BigInteger(resp.spent));
+    result.setAmountUnspent(new BigInteger(resp.unspent));
+    return result;
+  }
+  
+  async getNewKeyImagesFromLastImport() {
+    return await this._getKeyImages(false);
   }
   
   async send(configOrAddress, amount, paymentId, priority, mixin) {
@@ -830,28 +910,6 @@ class MoneroWalletRpc extends MoneroWallet {
     return resp.num_imported;
   }
   
-  async getKeyImages() {
-    return await this._getKeyImages(true);
-  }
-
-  async getNewKeyImagesFromLastImport() {
-    return await this._getKeyImages(false);
-  }
-  
-  async importKeyImages(keyImages) {
-    
-    // send request
-    let keyImagesParam = keyImages.map(keyImage => ({key_image: keyImage.getHex(), signature: keyImage.getSignature()}));
-    let resp = await this.config.rpc.sendJsonRequest("import_key_images", {signed_key_images: keyImagesParam});
-    
-    // build and return result
-    let result = new MoneroKeyImageImportResult();
-    result.setHeight(resp.height);
-    result.setAmountSpent(new BigInteger(resp.spent));
-    result.setAmountUnspent(new BigInteger(resp.unspent));
-    return result;
-  }
-  
   async setAttribute(key, val) {
     await this.config.rpc.sendJsonRequest("set_attribute", {key: key, value: val});
   }
@@ -859,53 +917,6 @@ class MoneroWalletRpc extends MoneroWallet {
   async getAttribute(key) {
     let resp = await this.config.rpc.sendJsonRequest("get_attribute", {key: key});
     return resp.value;
-  }
-  
-  // -------------------------- SPECIFIC TO RPC WALLET ------------------------
-  
-  /**
-   * TODO
-   */
-  async createWallet(filename, password, language) {
-    if (!filename) throw new Error("Filename is not initialized");
-    if (!password) throw new Error("Password is not initialized");
-    if (!language) throw new Error("Language is not initialized");
-    let params = { filename: filename, password: password, language: language };
-    await this.config.rpc.sendJsonRequest("create_wallet", params);
-  }
-  
-  /**
-   * TODO
-   */
-  async openWallet(filename, password) {
-    if (!filename) throw new Error("Filename is not initialized");
-    if (!password) throw new Error("Password is not initialized");
-    await this.config.rpc.sendJsonRequest("open_wallet", {filename: filename, password: password});
-    delete this.addressCache;
-    this.addressCache = {};
-  }
-  
-  /**
-   * TODO
-   */
-  async rescanSpent() {
-    await this.config.rpc.sendJsonRequest("rescan_spent");
-  }
-  
-  /**
-   * TODO
-   */
-  async saveBlockchain() {
-    await this.config.rpc.sendJsonRequest("store");
-  }
-  
-  /**
-   * TODO
-   * 
-   * WARNING: discards local wallet data like destination addresses
-   */
-  async rescanBlockchain() {
-    await this.config.rpc.sendJsonRequest("rescan_blockchain");
   }
   
   async startMining(numThreads, backgroundMining, ignoreBattery) {
@@ -918,15 +929,6 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async stopMining() {
     await this.config.rpc.sendJsonRequest("stop_mining");
-  }
-  
-  /**
-   * Stop the wallet.
-   */
-  async stopWallet() {
-    await this.config.rpc.sendJsonRequest("stop_wallet");
-    delete this.addressCache;
-    this.addressCache = {};
   }
   
   // --------------------------------  PRIVATE --------------------------------
@@ -1042,7 +1044,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return resp.signed_key_images.map(rpcImage => new MoneroKeyImage(rpcImage.key_image, rpcImage.signature));
   }
   
-  // -------------------------------- STATIC ----------------------------------
+  // ---------------------------- PRIVATE STATIC ------------------------------
   
   /**
    * Builds a MoneroWalletTx from a RPC tx.

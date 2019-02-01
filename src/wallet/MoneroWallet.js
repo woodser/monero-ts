@@ -43,6 +43,15 @@ class MoneroWallet {
   }
   
   /**
+   * Get a list of available languages for the wallet's seed.
+   * 
+   * @return {string[]} are the available languages for the wallet's seed
+   */
+  async getLanguages() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Get the height of the last block processed by the wallet (its index + 1).
    * 
    * @return {int} is the height of the last block processed by the wallet
@@ -81,11 +90,21 @@ class MoneroWallet {
   }
   
   /**
+   * Decode an integrated address to get its standard address and payment id.
+   * 
+   * @param {string} integratedAddress is an integrated address to decode
+   * @return {MoneroIntegratedAddress} contains the standard address and payment id
+   */
+  async decodeIntegratedAddress(integratedAddress) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Synchronizes the wallet with the block chain.
    * 
    * @param {int} startHeight is the start height to sync from, syncs from the last synced block by default
    * @param {int} endHeight is the end height to sync to, syncs to the current chain height by default
-   * @param {function} onProgress({percent: _, message: _, totalBlocks: _, doneBlocks: _}) is invoked as progress is made
+   * @param {function} onProgress({percent: , message: , totalBlocks: , doneBlocks: }) is invoked as progress is made
    */
   async sync(startHeight, endHeight, onProgress) {
     throw new Error("Subclass must implement");
@@ -165,7 +184,7 @@ class MoneroWallet {
   }
   
   /**
-   * Get the address of a specified subaddress.
+   * Get the address of a specific subaddress.
    * 
    * @param {int} accountIdx specifies the account index of the address's subaddress
    * @param {int} subaddressIdx specifies the subaddress index within the account
@@ -293,16 +312,30 @@ class MoneroWallet {
   }
   
   /**
-   * TODO.
+   * Get all signed key images.
+   * 
+   * @return {MoneroKeyImage[]} are the wallet's signed key images
    */
   async getKeyImages() {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * TODO.
+   * Import signed key images and verify their spent status.
+   * 
+   * @param {MoneroKeyImage[]} keyImages are key images to import and verify (requires hex and signature)
+   * @return {MoneroKeyImageImportResult} contains results of the import
    */
-  async importKeyImages() {
+  async importKeyImages(keyImages) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get new key images from the last imported outputs.
+   * 
+   * @return {MoneroKeyImage[]} are the key images from the last imported outputs
+   */
+  async getNewKeyImagesFromLastImport() {
     throw new Error("Subclass must implement");
   }
   
@@ -408,24 +441,6 @@ class MoneroWallet {
    * @return {MoneroWalletTx[]} are the relayed txs
    */
   async relayTxs(txMetadatas) {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
-   * Start mining.
-   * 
-   * @param {int} numThreads is the number of threads created for mining
-   * @param {boolean} backgroundMining specifies if mining should occur in the background
-   * @param {boolean} ignoreBattery specifies if the battery should be ignored for mining
-   */
-  async startMining(numThreads, backgroundMining, ignoreBattery) {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
-   * Stop mining.
-   */
-  async stopMining() {
     throw new Error("Subclass must implement");
   }
   
@@ -703,34 +718,6 @@ class MoneroWallet {
   }
   
   /**
-   * Get all signed key images.
-   * 
-   * @return {MoneroKeyImage[]} are the signed key images
-   */
-  async getKeyImages() {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
-   * Get new key images from the last imported outputs.
-   * 
-   * @return {MoneroKeyImage[]} are the key images from the last imported outputs
-   */
-  async getNewKeyImagesFromLastImport() {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
-   * Import signed key images and verify their spent status.
-   * 
-   * @param {MoneroKeyImage[]} keyImages are key images to import and verify (requires hex and signature)
-   * @return {MoneroKeyImageImportResult} contains results of the import
-   */
-  async importKeyImages(keyImages) {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
    * Set an arbitrary attribute.
    * 
    * @param {string} key is the attribute key
@@ -747,6 +734,24 @@ class MoneroWallet {
    * @return {string} is the attribute's value
    */
   async getAttribute(key) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Start mining.
+   * 
+   * @param {int} numThreads is the number of threads created for mining
+   * @param {boolean} backgroundMining specifies if mining should occur in the background
+   * @param {boolean} ignoreBattery specifies if the battery should be ignored for mining
+   */
+  async startMining(numThreads, backgroundMining, ignoreBattery) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Stop mining.
+   */
+  async stopMining() {
     throw new Error("Subclass must implement");
   }
 }
