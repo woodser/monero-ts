@@ -395,9 +395,9 @@ class MoneroWallet {
   /**
    * Start mining.
    * 
-   * @param numThreads is the number of threads created for mining
-   * @param backgroundMining specifies if mining should occur in the background
-   * @param ignoreBattery specifies if the battery should be ignored for mining
+   * @param {int} numThreads is the number of threads created for mining
+   * @param {boolean} backgroundMining specifies if mining should occur in the background
+   * @param {boolean} ignoreBattery specifies if the battery should be ignored for mining
    */
   async startMining(numThreads, backgroundMining, ignoreBattery) {
     throw new Error("Subclass must implement");
@@ -413,7 +413,7 @@ class MoneroWallet {
   /**
    * Get a transaction note.
    * 
-   * @param txId specifies the transaction to get the note of
+   * @param {string} txId specifies the transaction to get the note of
    * @return {string} is the tx note
    */
   async getTxNote(txId) {
@@ -423,8 +423,8 @@ class MoneroWallet {
   /**
    * Set a note for a specific transaction.
    * 
-   * @param txId specifies the transaction
-   * @param note specifies the note
+   * @param {string} txId specifies the transaction
+   * @param {string} note specifies the note
    */
   async setTxNote(txId, note) {
     throw new Error("Subclass must implement");
@@ -433,7 +433,7 @@ class MoneroWallet {
   /**
    * Get notes for multiple transactions.
    * 
-   * @param txIds identify the transactions to get notes for
+   * @param {string[]} txIds identify the transactions to get notes for
    * @preturns {string[]} are notes for the transactions
    */
   async getTxNotes(txIds) {
@@ -443,8 +443,8 @@ class MoneroWallet {
   /**
    * Set notes for multiple transactions.
    * 
-   * @param txIds specify the transactions to set notes for
-   * @param notes are the notes to set for the transactions
+   * @param {string[]} txIds specify the transactions to set notes for
+   * @param {string[]} notes are the notes to set for the transactions
    */
   async setTxNotes(txIds, notes) {
     throw new Error("Subclass must implement");
@@ -475,7 +475,7 @@ class MoneroWallet {
   /**
    * Get a transaction's secret key from its id.
    * 
-   * @param txId is the transaction's id
+   * @param {string} txId is the transaction's id
    * @return {string} is the transaction's secret key
    */
   async getTxKey(txId) {
@@ -485,9 +485,9 @@ class MoneroWallet {
   /**
    * Check a transaction in the blockchain with its secret key.
    * 
-   * @param txId specifies the transaction to check
-   * @param txKey is the transaction's secret key
-   * @param address is the destination public address of the transaction
+   * @param {string} txId specifies the transaction to check
+   * @param {string} txKey is the transaction's secret key
+   * @param {string} address is the destination public address of the transaction
    * @return {MoneroCheckTx} is the result of the check
    */
   async checkTxKey(txId, txKey, address) {
@@ -497,9 +497,9 @@ class MoneroWallet {
   /**
    * Get a transaction signature to prove it.
    * 
-   * @param txId specifies the transaction to prove
-   * @param address is the destination public address of the transaction
-   * @param message is a message to include with the signature to further authenticate the proof (optional)
+   * @param {string} txId specifies the transaction to prove
+   * @param {string} address is the destination public address of the transaction
+   * @param {string} message is a message to include with the signature to further authenticate the proof (optional)
    * @return {string} is the transaction signature
    */
   async getTxProof(txId, address, message) {
@@ -509,10 +509,10 @@ class MoneroWallet {
   /**
    * Prove a transaction by checking its signature.
    * 
-   * @param txId specifies the transaction to prove
-   * @param address is the destination public address of the transaction
-   * @param message is a message included with the signature to further authenticate the proof (optional)
-   * @param signature is the transaction signature to confirm
+   * @param {string} txId specifies the transaction to prove
+   * @param {string} address is the destination public address of the transaction
+   * @param {string} message is a message included with the signature to further authenticate the proof (optional)
+   * @param {string} signature is the transaction signature to confirm
    * @return {MoneroCheckTx} is the result of the check
    */
   async checkTxProof(txId, address, message, signature) {
@@ -522,8 +522,8 @@ class MoneroWallet {
   /**
    * Generate a signature to prove a spend. Unlike proving a transaction, it does not require the destination public address.
    * 
-   * @param txId specifies the transaction to prove
-   * @param message is a message to include with the signature to further authenticate the proof (optional)
+   * @param {string} txId specifies the transaction to prove
+   * @param {string} message is a message to include with the signature to further authenticate the proof (optional)
    * @return {string} is the transaction signature
    */
   async getSpendProof(txId, message) {
@@ -533,9 +533,9 @@ class MoneroWallet {
   /**
    * Prove a spend using a signature. Unlike proving a transaction, it does not require the destination public address.
    * 
-   * @param txId specifies the transaction to prove
-   * @param message is a message included with the signature to further authenticate the proof (optional)
-   * @param signature is the transaction signature to confirm
+   * @param {string} txId specifies the transaction to prove
+   * @param {string} message is a message included with the signature to further authenticate the proof (optional)
+   * @param {string} signature is the transaction signature to confirm
    * @return {boolean} true if the signature is good, false otherwise
    */
   async checkSpendProof(txId, message, signature) {
@@ -545,7 +545,7 @@ class MoneroWallet {
   /**
    * Generate a signature to prove the entire balance of the wallet.
    * 
-   * @param message is a message included with the signature to further authenticate the proof (optional)
+   * @param {string} message is a message included with the signature to further authenticate the proof (optional)
    * @return {string} is the reserve proof signature
    */
   async getWalletReserveProof(message) {
@@ -555,9 +555,9 @@ class MoneroWallet {
   /**
    * Generate a signature to prove an available amount in an account.
    * 
-   * @param accountIdx specifies the account to prove contains an available amount
-   * @param amount is the minimum amount to prove as available in the account
-   * @param message is a message to include with the signature to further authenticate the proof (optional)
+   * @param {int} accountIdx specifies the account to prove contains an available amount
+   * @param {BigInteger} amount is the minimum amount to prove as available in the account
+   * @param {string} message is a message to include with the signature to further authenticate the proof (optional)
    * @return {string} is the reserve proof signature
    */
   async getAccountReserveProof(accountIdx, amount, message) {
@@ -567,48 +567,66 @@ class MoneroWallet {
   /**
    * Proves a wallet has a disposable reserve using a signature.
    * 
-   * @param address is the public wallet address
-   * @param message is a message included with the signature to further authenticate the proof (optional)
-   * @param signature is the reserve proof signature to check
+   * @param {string} address is the public wallet address
+   * @param {string} message is a message included with the signature to further authenticate the proof (optional)
+   * @param {string} signature is the reserve proof signature to check
    * @return {MoneroCheckReserve} is the result of checking the signature proof
    */
   async checkReserveProof(address, message, signature) {
     throw new Error("Subclass must implement");
   }
   
+  /**
+   * Get address book entries.
+   * 
+   * @param {int[]} entryIndices are indices of the entries to get
+   * @return {MoneroAddressBookEntry[]} are the address book entries
+   */
   async getAddressBookEntries(entryIndices) {
     throw new Error("Subclass must implement");
   }
   
+  /**
+   * Add an address book entry.
+   * 
+   * @param {string} address is the entry address
+   * @param {string} paymentId is the entry paymet id (optional)
+   * @param {string} description is the entry description (optional)
+   */
   async addAddressBookEntry(address, paymentId, description) {
     throw new Error("Subclass must implement");
   }
   
+  /**
+   * Delete an address book entry.
+   * 
+   * @param {int} entryIdx is the index of the entry to delete
+   */
   async deleteAddressBookEntry(entryIdx) {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * Tags accounts.
+   * Tag accounts.
    * 
-   * @param tag is the tag to apply to the specified accounts
-   * @param accountIndices are the indices of the accounts to tag
+   * @param {string} tag is the tag to apply to the specified accounts
+   * @param {int[]} accountIndices are the indices of the accounts to tag
    */
   async tagAccounts(tag, accountIndices) {
     throw new Error("Subclass must implement");
   }
 
   /**
-   * Untags acconts.
+   * Untag acconts.
    * 
-   * @param accountIndices are the indices of the accounts to untag
+   * @param {int[]} accountIndices are the indices of the accounts to untag
    */
   async untagAccounts(accountIndices) {
     throw new Error("Subclass must implement");
   }
 
   /**
-   * Returns all account tags.
+   * Return all account tags.
    * 
    * @return {MoneroAccountTag[]} are the wallet's account tags
    */
@@ -619,8 +637,8 @@ class MoneroWallet {
   /**
    * Sets a human-readable description for a tag.
    * 
-   * @param tag is the tag to set a description for
-   * @param label is the label to set for the tag
+   * @param {string} tag is the tag to set a description for
+   * @param {string} label is the label to set for the tag
    */
   async setAccountTagLabel(tag, label) {
     throw new Error("Subclass must implement");
@@ -659,7 +677,7 @@ class MoneroWallet {
    * Import outputs in hex format.
    * 
    * @param {string} outputsHex are outputs in hex format
-   * @return {number} is the number of outputs imported
+   * @return {int} is the number of outputs imported
    */
   async importOutputsHex(outputsHex) {
     throw new Error("Subclass must implement");
@@ -668,14 +686,16 @@ class MoneroWallet {
   /**
    * Get all signed key images.
    * 
-   * @return {TODO[]} are the signed key images
+   * @return {MoneroKeyImage[]} are the signed key images
    */
   async getKeyImages() {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * Get new key images from the last imported outputs (and key images? TODO).
+   * Get new key images from the last imported outputs.
+   * 
+   * @return {MoneroKeyImage[]} are the key images from the last imported outputs
    */
   async getNewKeyImagesFromLastImport() {
     throw new Error("Subclass must implement");
@@ -684,8 +704,8 @@ class MoneroWallet {
   /**
    * Import signed key images and verify their spent status.
    * 
-   * @param {TODO[]} keyImages are the key images to import and verify
-   * @return {TODO} includes height and amount spent/unspent from the images
+   * @param {MoneroKeyImage[]} keyImages are key images to import and verify (requires hex and signature)
+   * @return {MoneroKeyImageImportResult} contains results of the import
    */
   async importKeyImages(keyImages) {
     throw new Error("Subclass must implement");
@@ -694,8 +714,8 @@ class MoneroWallet {
   /**
    * Set an arbitrary attribute.
    * 
-   * @param key is the attribute key
-   * @param val is the attribute value
+   * @param {string} key is the attribute key
+   * @param {string} val is the attribute value
    */
   async setAttribute(key, val) {
     throw new Error("Subclass must implement");
@@ -704,7 +724,7 @@ class MoneroWallet {
   /**
    * Get an attribute.
    * 
-   * @param key is the attribute to get the value of
+   * @param {string} key is the attribute to get the value of
    * @return {string} is the attribute's value
    */
   async getAttribute(key) {
