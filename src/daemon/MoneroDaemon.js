@@ -1,3 +1,5 @@
+const MoneroNetworkType = require("./model/MoneroNetworkType");
+
 /**
  * Monero daemon interface and default implementations.
  */
@@ -590,9 +592,9 @@ class MoneroDaemon {
    * @return {MoneroNetworkType} is the enumerated network type
    */
   static parseNetworkType(network) {
-    if (network === "mainnet") return MoneroDaemon.MAINNET; // TODO: these don't exist
-    if (network === "testnet") return MoneroDaemon.TESTNET;
-    if (network === "stagenet") return MoneroDaemon.STAGENET;
+    if (network === "mainnet") return MoneroNetworkType.MAINNET;
+    if (network === "testnet") return MoneroNetworkType.TESTNET;
+    if (network === "stagenet") return MoneroNetworkType.STAGENET;
     throw new Error("Invalid network type to parse: " + network);
   }
 }
