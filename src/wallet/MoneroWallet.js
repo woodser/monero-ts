@@ -211,22 +211,30 @@ class MoneroWallet {
   /**
    * Get wallet transactions.
    * 
-   * @param config configures transactions to get
-   *        config.isConfirmed
-   *        config.inTxPool
-   *        config.isRelayed
-   *        config.isFailed
-   *        config.txId
-   *        config.txIds
-   *        config.paymentIds
-   *        config.hasOutgoingTransfer
-   *        config.hasIncomingTransfer
-   *        config.hasDestinations
-   *        config.minHeight
-   *        config.maxHeight
-   *        config.transferFilter
-   *        config.getVouts specifies that vouts should be returned with the transactions
-   * @return {MoneroWalletTx[]} are the retrieved transactions
+   * Transactions to get may be configured or filtered using a config object.
+   * Transactions must meet every criteria defined in the config in order to
+   * be returned.  If no filtering criteria are defined in the config, all
+   * transactions are returned.
+   * 
+   * @param {(MoneroTxFilter|object)} config configures transactions to get (optional)
+   * @param {boolean} config.isConfirmed gets txs that are confirmed or not
+   * @param {boolean} config.inTxPool get txs that are in the tx pool or not
+   * @param {boolean} config.isRelayed gets txs that are relayed or not
+   * @param {boolean} config.isFailed gets txs that are failed or not
+   * @param {boolean} config.isCoinbase gets coinbase txs or not
+   * @param {string} config.id gets a tx with the id
+   * @param {string} config.txId gets a tx with the id (alias of id)
+   * @param {string[]} config.txIds gets txs with the ids
+   * @param {string} config.paymentId gets transactions with the payment id
+   * @param {string[]} config.paymentIds gets transactions with the payment ids
+   * @param {boolean} config.hasPaymentId gets transactions with a payment id or not
+   * @param {int} config.minHeight gets txs with height >= the given height
+   * @param {int} config.maxHeight gets txs with height <= the given height
+   * @param {boolean} config.hasOutgoingTransfer gets txs with an outgoing transfer or not
+   * @param {boolean} config.hasIncomingTransfer gets txs with an incoming transfer or not
+   * @param {MoneroTransferFilter} transferFilter gets txs that have a transfer that meets this filter
+   * @param {boolean} config.getVouts specifies that tx vouts should be returned with tx results
+   * @return {MoneroWalletTx[]} are the resulting transactions
    */
   async getTxs(config) {
     throw new Error("Subclass must implement");
