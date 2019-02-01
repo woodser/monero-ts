@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: filters/MoneroTxFilter.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: filters/MoneroTxFilter.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const Filter = require("../../utils/Filter");
+const MoneroWalletTx = require("../model/MoneroWalletTx");
+const MoneroTransferFilter = require("./MoneroTransferFilter"); // TODO: combine filters file so these can import each other?
+
+/**
+ * Filters transactions that don't match initialized filter criteria.
+ */
+class MoneroTxFilter extends Filter {
+  
+  /**
+   * Constructs the filter.
+   * 
+   * @param state is model state or json to initialize from (optional)
+   */
+  constructor(state) {
+    super();
+    state = Object.assign({}, state);
+    this.state = state;
+    if (!state.tx) state.tx = new MoneroWalletTx(state);
+    
+    // deserialize if necessary
+    if (state.transferFilter &amp;&amp; !(state.transferFilter instanceof MoneroTransferFilter)) state.transferFilter = new MoneroTransferFilter(state.transferFilter);
+    if (!(state.tx instanceof MoneroWalletTx)) state.tx = new MoneroWalletTx(state.tx);
+  }
+
+  getTxIds() {
+    return this.state.txIds;
+  }
+
+  setTxIds(txIds) {
+    this.state.txIds = txIds;
+    return this;
+  }
+  
+  getHasPaymentId() {
+    return this.state.hasPaymentId;
+  }
+  
+  setHasPaymentId() {
+    this.state.hasPaymentId = hasPaymentId;
+    return this;
+  }
+  
+  getPaymentIds() {
+    return this.state.paymentIds;
+  }
+
+  setPaymentIds(paymentIds) {
+    this.state.paymentIds = paymentIds;
+    return this;
+  }
+  
+  getMinHeight() {
+    return this.state.minHeight;
+  }
+
+  setMinHeight(minHeight) {
+    this.state.minHeight = minHeight;
+    return this;
+  }
+
+  getMaxHeight() {
+    return this.state.maxHeight;
+  }
+
+  setMaxHeight(maxHeight) {
+    this.state.maxHeight = maxHeight;
+    return this;
+  }
+  
+  getHasOutgoingTransfer() {
+    return this.state.hasOutgoingTransfer;
+  }
+
+  setHasOutgoingTransfer(hasOutgoingTransfer) {
+    this.state.hasOutgoingTransfer = hasOutgoingTransfer;
+    return this;
+  }
+  
+  getHasIncomingTransfers() {
+    return this.state.hasIncomingTransfers;
+  }
+
+  setHasIncomingTransfers(hasIncomingTransfers) {
+    this.state.hasIncomingTransfers = hasIncomingTransfers;
+    return this;
+  }
+  
+  getTransferFilter() {
+    return this.state.transferFilter;
+  }
+  
+  setTransferFilter(transferFilter) {
+    this.state.transferFilter = transferFilter;
+    return this;
+  }
+  
+  getTx() {
+    return this.state.tx;
+  }
+  
+  setTx(tx) {
+    this.state.tx = tx;
+    return this;
+  }
+  
+  meetsCriteria(tx) {
+    assert(tx instanceof MoneroWalletTx);
+    
+    // filter on tx
+    if (this.getTx()) {
+      if (this.getTx().getId() !== undefined &amp;&amp; this.getTx().getId() !== tx.getId()) return false;
+      if (this.getTx().getPaymentId() !== undefined &amp;&amp; this.getTx().getPaymentId() !== tx.getPaymentId()) return false;
+      if (this.getTx().getIsConfirmed() !== undefined &amp;&amp; this.getTx().getIsConfirmed() !== tx.getIsConfirmed()) return false;
+      if (this.getTx().getInTxPool() !== undefined &amp;&amp; this.getTx().getInTxPool() !== tx.getInTxPool()) return false;
+      if (this.getTx().getDoNotRelay() !== undefined &amp;&amp; this.getTx().getDoNotRelay() !== tx.getDoNotRelay()) return false;
+      if (this.getTx().getIsRelayed() !== undefined &amp;&amp; this.getTx().getIsRelayed() !== tx.getIsRelayed()) return false;
+      if (this.getTx().getIsFailed() !== undefined &amp;&amp; this.getTx().getIsFailed() !== tx.getIsFailed()) return false;
+      if (this.getTx().getIsCoinbase() !== undefined &amp;&amp; this.getTx().getIsCoinbase() !== tx.getIsCoinbase()) return false;
+      if (this.getTx().getHeight() !== undefined &amp;&amp; this.getTx().getHeight() !== tx.getHeight()) return false;
+    }
+    
+    // at least one transfer must meet transfer filter if defined
+    if (this.getTransferFilter()) {
+      let matchFound = false;
+      if (tx.getOutgoingTransfer() &amp;&amp; this.getTransferFilter().meetsCriteria(tx.getOutgoingTransfer())) matchFound = true;
+      else if (tx.getIncomingTransfers()) {
+        for (let incomingTransfer of tx.getIncomingTransfers()) {
+          if (this.getTransferFilter().meetsCriteria(incomingTransfer)) {
+            matchFound = true;
+            break;
+          }
+        }
+      }
+      if (!matchFound) return false;
+    }
+    
+    // filter on having a payment id
+    if (this.getHasPaymentId() !== undefined) {
+      if (this.getHasPaymentId() &amp;&amp; tx.getPaymentId() === undefined) return false;
+      if (!this.getHasPaymentId() &amp;&amp; tx.getPaymentId() !== undefined) return false;
+    }
+    
+    // filter on having an outgoing transfer
+    if (this.getHasOutgoingTransfer() !== undefined) {
+      if (this.getHasOutgoingTransfer() &amp;&amp; tx.getOutgoingTransfer() === undefined) return false;
+      if (!this.getHasOutgoingTransfer() &amp;&amp; tx.getOutgoingTransfer() !== undefined) return false;
+    }
+    
+    // filter on having incoming transfers
+    if (this.getHasIncomingTransfers() !== undefined) {
+      if (this.getHasIncomingTransfers() &amp;&amp; (tx.getIncomingTransfers() === undefined || tx.getIncomingTransfers().length === 0)) return false;
+      if (!this.getHasIncomingTransfers() &amp;&amp; tx.getIncomingTransfers() !== undefined &amp;&amp; tx.getIncomingTransfers().length > 0) return false;
+    }
+    
+    // filter on remaining fields
+    if (this.getTxIds() !== undefined &amp;&amp; !this.getTxIds().includes(tx.getId())) return false;
+    if (this.getPaymentIds() !== undefined &amp;&amp; !this.getPaymentIds().includes(tx.getPaymentId())) return false;
+    if (this.getMinHeight() !== undefined &amp;&amp; (tx.getHeight() === undefined || tx.getHeight() &lt; this.getMinHeight())) return false;
+    if (this.getMaxHeight() !== undefined &amp;&amp; (tx.getHeight() === undefined || tx.getHeight() > this.getMaxHeight())) return false;
+    
+    // transaction meets filter criteria
+    return true;
+  }
+}
+
+module.exports = MoneroTxFilter;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroImportKeyImagesResult.html">MoneroImportKeyImagesResult</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroSendConfig.html">MoneroSendConfig</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferFilter.html">MoneroTransferFilter</a></li><li><a href="MoneroTxFilter.html">MoneroTxFilter</a></li><li><a href="MoneroVoutFilter.html">MoneroVoutFilter</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletOutput.html">MoneroWalletOutput</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletTx.html">MoneroWalletTx</a></li></ul><h3>Global</h3><ul><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Feb 01 2019 11:44:47 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

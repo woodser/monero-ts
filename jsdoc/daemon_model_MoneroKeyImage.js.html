@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: daemon/model/MoneroKeyImage.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: daemon/model/MoneroKeyImage.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const MoneroUtils = require("../../utils/MoneroUtils");
+
+/**
+ * Models a Monero key image.
+ */
+class MoneroKeyImage {
+  
+  /**
+   * Constructs the model.
+   * 
+   * @param stateOrHex is model state or json to initialize from, or a key image hex string (optional)
+   * @param signature is the key image's signature
+   */
+  constructor(stateOrHex, signature) {
+    
+    // initialize without state
+    if (stateOrHex === undefined || typeof stateOrHex === "string") {
+      this.state = {};
+      this.setHex(stateOrHex);
+      this.setSignature(signature);
+    }
+    
+    // initialize from state
+    else {
+      this.state = Object.assign({}, stateOrHex);
+    }
+  }
+
+  getHex() {
+    return this.state.hex;
+  }
+
+  setHex(hex) {
+    this.state.hex = hex;
+  }
+
+  getSignature() {
+    return this.state.signature;
+  }
+
+  setSignature(signature) {
+    this.state.signature = signature;
+  }
+
+  getSpentStatus() {
+    return this.state.spentStatus;
+  }
+
+  setSpentStatus(spentStatus) {
+    this.state.spentStatus = spentStatus;
+  }
+  
+  getSpendingTxIds() {
+    return this.state.spendingTxIds;
+  }
+  
+  setSpendingTxIds(spendingTxIds) {
+    this.state.spendingTxIds = spendingTxIds;
+  }
+  
+  copy() {
+    return new MoneroKeyImage(this.toJson());
+  }
+  
+  toJson() {
+    return Object.assign({}, this.state);
+  }
+  
+  toString(indent = 0) {
+    let str = "";
+    str += MoneroUtils.kvLine("Hex", this.getHex(), indent);
+    str += MoneroUtils.kvLine("Signature", this.getSignature(), indent);
+    str += MoneroUtils.kvLine("Spent status", this.getSpentStatus(), indent);
+    str += MoneroUtils.kvLine("Spending tx ids", this.getSpendingTxIds(), indent);
+    return str.slice(0, str.length - 1);  // strip last newline
+  }
+  
+  merge(keyImage) {
+    assert(keyImage instanceof MoneroKeyImage);
+    if (keyImage === this) return;
+    this.setHex(MoneroUtils.reconcile(this.getHex(), keyImage.getHex()));
+    this.setSignature(MoneroUtils.reconcile(this.getSignature(), keyImage.getSignature()));
+    this.setSpentStatus(MoneroUtils.reconcile(this.getSpentStatus(), keyImage.getSpentStatus()));
+    this.setSpendingTxIds(MoneroUtils.reconcile(this.getSpendingTxIds(), keyImage.getSpendingTxIds()));
+  }
+}
+
+/**
+ * Enumerates key image spend statuses.
+ */
+MoneroKeyImage.SpentStatus = {
+    NOT_SPENT: 0,
+    CONFIRMED: 1,
+    TX_POOL: 2
+}
+
+module.exports = MoneroKeyImage;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroCoinbaseTxSum.html">MoneroCoinbaseTxSum</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroImportKeyImagesResult.html">MoneroImportKeyImagesResult</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroSendConfig.html">MoneroSendConfig</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferFilter.html">MoneroTransferFilter</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxFilter.html">MoneroTxFilter</a></li><li><a href="MoneroTxPool.html">MoneroTxPool</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroVoutFilter.html">MoneroVoutFilter</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletOutput.html">MoneroWalletOutput</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletTx.html">MoneroWalletTx</a></li></ul><h3>Global</h3><ul><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Feb 01 2019 11:44:58 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

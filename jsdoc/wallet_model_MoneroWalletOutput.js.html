@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: wallet/model/MoneroWalletOutput.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: wallet/model/MoneroWalletOutput.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const MoneroUtils = require("../../utils/MoneroUtils");
+const MoneroOutput = require("../../daemon/model/MoneroOutput");
+
+/**
+ * Models a Monero output with wallet extensions.
+ */
+class MoneroWalletOutput extends MoneroOutput {
+  
+  /**
+   * Constructs the model.
+   * 
+   * @param state is model state or json to initialize from (optional)
+   */
+  constructor(state) {
+    super(state);
+  }
+  
+  getAccountIndex() {
+    return this.state.accountIndex;
+  }
+
+  setAccountIndex(accountIndex) {
+    this.state.accountIndex = accountIndex;
+    return this;
+  }
+
+  getSubaddressIndex() {
+    return this.state.subaddressIndex;
+  }
+
+  setSubaddressIndex(subaddressIndex) {
+    this.state.subaddressIndex = subaddressIndex;
+    return this;
+  }
+  
+  getIsSpent() {
+    return this.state.isSpent;
+  }
+
+  setIsSpent(isSpent) {
+    this.state.isSpent = isSpent;
+    return this;
+  }
+  
+  copy() {
+    return new MoneroWalletOutput(this.toJson());
+  }
+  
+  toJson() {
+    let json = Object.assign({}, this.state, super.toJson());
+    delete json.tx;
+    return json;
+  }
+  
+  toString(indent) {
+    let str = super.toString(indent) + "\n"
+    str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
+    str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
+    str += MoneroUtils.kvLine("Is spent", this.getIsSpent(), indent);
+    return str.slice(0, str.length - 1);  // strip last newline
+  }
+  
+  /**
+   * Updates this output by merging the latest information from the given
+   * output.
+   * 
+   * Merging can modify or build references to the output given so it
+   * should not be re-used or it should be copied before calling this method.
+   * 
+   * @param output is the output to merge into this one
+   */
+  merge(output) {
+    assert(output instanceof MoneroWalletOutput);
+    if (this === output) return;
+    super.merge(output);
+    
+    // merge transactions if they're different which comes back to merging outputs
+    if (this.getTx() !== output.getTx()) this.getTx().merge(output.getTx());
+    
+    // otherwise merge output fields
+    else {
+      this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), output.getAccountIndex()));
+      this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), output.getSubaddressIndex()));
+      this.setIsSpent(MoneroUtils.reconcile(this.getIsSpent(), output.getIsSpent(), {resolveTrue: true})); // output can become spent
+    }
+  }
+}
+
+module.exports = MoneroWalletOutput;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroCoinbaseTxSum.html">MoneroCoinbaseTxSum</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroImportKeyImagesResult.html">MoneroImportKeyImagesResult</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroSendConfig.html">MoneroSendConfig</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferFilter.html">MoneroTransferFilter</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxFilter.html">MoneroTxFilter</a></li><li><a href="MoneroTxPool.html">MoneroTxPool</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroVoutFilter.html">MoneroVoutFilter</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletOutput.html">MoneroWalletOutput</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletTx.html">MoneroWalletTx</a></li></ul><h3>Global</h3><ul><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Feb 01 2019 11:44:58 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
