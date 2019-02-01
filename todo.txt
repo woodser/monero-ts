@@ -2,7 +2,6 @@ todos throughout code
 sweep subaddresses test
 object model
 license headers
-block comments with params and formatting
 txpool -> mempool?
 rpc impls _build.. -> _decode..
 all model set functions return this
@@ -41,6 +40,7 @@ test json serialization / deserialization specifically, stringifying in between 
 support vout filter in tx filter?
 undefined amounts instead of 0 for rct amounts
 MoneroBan includes redundant info with MoneroPeer
+block comments in models
 
 JS now has native BigInt class which could be used instead of current BigInteger
 switch to jest?
