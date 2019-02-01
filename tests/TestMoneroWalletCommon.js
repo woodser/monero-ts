@@ -1570,12 +1570,12 @@ class TestMoneroWalletCommon {
         let sendAmount = unlockedBalanceBefore.subtract(TestUtils.MAX_FEE).divide(new BigInteger(SEND_DIVISOR));
         let address = await wallet.getPrimaryAddress();
         let txs = []
-        let config = new MoneroSendConfig(address, sendAmount, paymentId, undefined, TestUtils.MIXIN);
+        let config = new MoneroSendConfig(address, sendAmount, MoneroSendPriority.ELEVATED, TestUtils.MIXIN);
+        config.setPaymentId(paymentId)
         config.setAccountIndex(fromAccount.getIndex());
         config.setSubaddressIndices([fromSubaddress.getSubaddressIndex()]);
         config.setDoNotRelay(doNotRelay);
         config.setCanSplit(canSplit); // so test knows txs could be split
-        config.setPriority(MoneroSendPriority.ELEVATED);  // this never comes back and it's not part of the tx model
         if (canSplit) {
           let sendTxs = await wallet.sendSplit(config);
           for (let tx of sendTxs) txs.push(tx);

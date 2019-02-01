@@ -17,7 +17,7 @@ class MoneroSendConfig {
    * @param {MoneroSendPriority} priority is the transaction priority (optional)
    * @param {int} mixin is the number of outputs from the blockchain to mix with (optional)
    */
-  constructor(configOrAddress, amount, paymentId, priority, mixin, fee) {
+  constructor(configOrAddress, amount, priority, mixin, fee) {
     if (configOrAddress instanceof Object) {
       this.state = Object.assign({}, configOrAddress);
       assert.equal(arguments.length, 1, "Send configuration must be constructed with either an existing configuration or individual arguments but not both");
@@ -38,7 +38,6 @@ class MoneroSendConfig {
     } else {
       this.state = {};
       if (typeof configOrAddress === "string") this.setDestinations([new MoneroDestination(configOrAddress, amount)]);
-      this.setPaymentId(paymentId);
       this.setPriority(priority);
       this.setMixin(mixin);
       this.setFee(fee);

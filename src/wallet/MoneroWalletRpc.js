@@ -656,7 +656,7 @@ class MoneroWalletRpc extends MoneroWallet {
     } else {
       if (configOrAddress instanceof Object) config = new MoneroSendConfig(configOrAddress);
       else {
-        config = new MoneroSendConfig(configOrAddress, undefined, undefined, priority, mixin);
+        config = new MoneroSendConfig(configOrAddress, undefined, priority, mixin);
         config.setKeyImage(keyImage);
       }
     }
@@ -891,7 +891,8 @@ class MoneroWalletRpc extends MoneroWallet {
   async parsePaymentUri(uri) {
     assert(uri, "Must provide URI to parse");
     let resp = await this.config.rpc.sendJsonRequest("parse_uri", {uri: uri});
-    let sendConfig = new MoneroSendConfig(resp.uri.address, new BigInteger(resp.uri.amount), resp.uri.payment_id);
+    let sendConfig = new MoneroSendConfig(resp.uri.address, new BigInteger(resp.uri.amount));
+    sendConfig.setPaymentId(resp.uri.payment_id);
     sendConfig.setRecipientName(resp.uri.recipient_name);
     sendConfig.setNote(resp.uri.tx_description);
     if ("" === sendConfig.getDestinations()[0].getAddress()) sendConfig.getDestinations()[0].setAddress(undefined);
@@ -976,7 +977,7 @@ class MoneroWalletRpc extends MoneroWallet {
     } else {
       if (configOrAddress instanceof Object) config = new MoneroSendConfig(configOrAddress);
       else {
-        config = new MoneroSendConfig(configOrAddress, amount, undefined, priority, mixin);
+        config = new MoneroSendConfig(configOrAddress, amount, priority, mixin);
       }
     }
     assert.equal(config.getSweepEachSubaddress(), undefined);
