@@ -252,7 +252,7 @@ class MoneroWallet {
    * @param {int} config.maxHeight gets txs with height <= the given height (optional)
    * @param {boolean} config.hasOutgoingTransfer gets txs with an outgoing transfer or not (optional)
    * @param {boolean} config.hasIncomingTransfer gets txs with an incoming transfer or not (optional)
-   * @param {MoneroTransferFilter} transferFilter gets txs that have a transfer that meets this filter (optional)
+   * @param {MoneroTransferFilter} config.transferFilter gets txs that have a transfer that meets this filter (optional)
    * @param {boolean} config.getVouts specifies that tx vouts should be returned with tx results (optional)
    * @return {MoneroWalletTx[]} are wallet transactions per the configuration
    */
@@ -365,7 +365,7 @@ class MoneroWallet {
    * @param {string} address is a destination address to send to (required iff no config object)
    * @para {BigInteger} sendAmount is the amount to send (required iff no config object)
    * @param {int|MoneroSendPriority} priority is the priority to have the tx confirmed; 0-3 for default, unimportant, normal, and elevated (optional)
-   * @param {int} is the number of outputs from the blockchain to mix with (optional)
+   * @param {int} mixin is the number of outputs from the blockchain to mix with (optional)
    * 
    * @return {MoneroWalletTx} is the resulting transaction
    */
@@ -374,7 +374,29 @@ class MoneroWallet {
   }
   
   /**
-   * TODO.
+   * Creates one or more transactions which transfer funds from this wallet to one or more destinations.
+   * 
+   * @param {(MoneroSendConfig|object|string)} configOrAddress defines send configuration (documented next) xor an address to send to
+   * 
+   * Send with single config param:
+   * 
+   * @param {MoneroDestination[]|object[]} config.destinations are destination addresses to send to and their amounts
+   * @param {string} config.paymentId is a random 32-byte/64-character hex string to identify a transaction (optional)
+   * @param {int|MoneroSendPriority} config.priority is the priority to have the tx confirmed; 0-3 for default, unimportant, normal, and elevated (optional)
+   * @param {int} config.mixin is number of outputs from the blockchain to mix with (optional)
+   * @param {int} config.accountIndex identifies the account to transfer from (optional, defaults to 0)
+   * @param {int} config.subaddressIndices identifies one or more subaddresses to transfer from (optional, defaults to any)
+   * @param {int} config.unlockTime is the number of blocks before the monero can be spent (0 or undefined to not add a lock) (optional)
+   * @param {boolean} config.doNotRelay does not relay the created transaction to the Monero network iff true (optional)
+   * 
+   * Send with multiple function params:
+   * 
+   * @param {string} address is a destination address to send to (required iff no config object)
+   * @para {BigInteger} sendAmount is the amount to send (required iff no config object)
+   * @param {int|MoneroSendPriority} priority is the priority to have the tx confirmed; 0-3 for default, unimportant, normal, and elevated (optional)
+   * @param {int} mixin is the number of outputs from the blockchain to mix with (optional)
+   * 
+   * @return {MoneroWalletTx[]} are the resulting transactions
    */
   async sendSplit(configOrAddress, sendAmount, priority, mixin) {
     throw new Error("Subclass must implement");
@@ -441,7 +463,7 @@ class MoneroWallet {
   /**
    * Sweep an output with a given key image.
    * 
-   * @param {(MoneroSendConfig|string}} is a send configuration or destination address
+   * @param {(MoneroSendConfig|string)} is a send configuration or destination address
    * @param {string} keyImage is the key image hex of the output to sweep
    * @param {int} priority sets a transaction priority as an integer between 0 and 3 (see {MoneroSendPriority})
    * @param {int} mixin is the number of outputs from the blockchain to mix with (default 11)
