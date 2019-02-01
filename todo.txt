@@ -40,6 +40,7 @@ test all tx fields in daemon, update tests to be like wallet
 test json serialization / deserialization specifically, stringifying in between so cannot be any live objects
 support vout filter in tx filter?
 undefined amounts instead of 0 for rct amounts
+MoneroBan includes redundant info with MoneroPeer
 
 JS now has native BigInt class which could be used instead of current BigInteger
 switch to jest?
