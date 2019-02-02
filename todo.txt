@@ -2,7 +2,6 @@ openWallet() toggles available funds for other daemon tests, seems to only affec
 todos throughout code
 sweep subaddresses test
 object model
-don't wrap single return fields with MoneroDaemonModel? e.g. fee
 test daemon getIsCoinbase()
 test getting coinbase txs by id
 support setting daemon log level
