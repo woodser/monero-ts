@@ -1179,8 +1179,8 @@ function testInfo(info) {
   assert(typeof info.getBootstrapDaemonAddress() === "string");
   assert(info.getCumulativeDifficulty());
   assert(info.getFreeSpace());
-  assert(info.getGreyPeerlistSize() >= 0);
-  assert(info.getWhitePeerlistSize() >= 0);
+  assert(info.getOfflinePeerCount() >= 0);
+  assert(info.getOnlinePeerCount() >= 0);
   assert(info.getHeight() >= 0);
   assert(info.getHeightWithoutBootstrap());
   assert(info.getIncomingConnectionsCount() >= 0);

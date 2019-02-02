@@ -840,7 +840,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "difficulty") info.setDifficulty(new BigInteger(val));
       else if (key === "free_space") info.setFreeSpace(new BigInteger(val));
       else if (key === "database_size") info.setDatabaseSize(new BigInteger(val));  // TODO: big integers necessary?  test?
-      else if (key === "grey_peerlist_size") info.setGreyPeerlistSize(val);
+      else if (key === "grey_peerlist_size") info.setOfflinePeerCount(val);
       else if (key === "height") info.setHeight(val);
       else if (key === "height_without_bootstrap") info.setHeightWithoutBootstrap(val);
       else if (key === "incoming_connections_count") info.setIncomingConnectionsCount(val);
@@ -856,7 +856,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "tx_pool_size") info.setTxPoolSize(val);
       else if (key === "untrusted") {} // set elsewhere
       else if (key === "was_bootstrap_ever_used") info.setWasBootstrapEverUsed(val);
-      else if (key === "white_peerlist_size") info.setWhitePeerlistSize(val);
+      else if (key === "white_peerlist_size") info.setOnlinePeerCount(val);
       else if (key === "update_available") info.setUpdateAvailable(val);
       else if (key === "nettype") MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroDaemon.parseNetworkType(val));
       else if (key === "mainnet") { if (val) MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.MAINNET); }

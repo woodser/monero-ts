@@ -93,21 +93,21 @@ class MoneroDaemonInfo {
     return this;
   }
   
-  getGreyPeerlistSize() { // TODO: rename to getOfflinePeerCount()
-    return this.greyPeerlistSize;
+  getOfflinePeerCount() {
+    return this.offlinePeerCount;
   }
   
-  setGreyPeerlistSize(greyPeerlistSize) {
-    this.greyPeerlistSize = greyPeerlistSize;
+  setOfflinePeerCount(offlinePeerCount) {
+    this.offlinePeerCount = offlinePeerCount;
     return this;
   }
   
-  getWhitePeerlistSize() {  // TODO: rename to getOnlinePeerCount()
-    return this.whitePeerlistSize;
+  getOnlinePeerCount() {
+    return this.onlinePeerCount;
   }
   
-  setWhitePeerlistSize(whitePeerlistSize) {
-    this.whitePeerlistSize = whitePeerlistSize;
+  setOnlinePeerCount(onlinePeerCount) {
+    this.onlinePeerCount = onlinePeerCount;
     return this;
   }
   
