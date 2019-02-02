@@ -292,8 +292,8 @@ class MoneroWallet {
   
   /**
    * Get wallet vouts.  A wallet vout is an output created from a previous
-   * transaction that the wallet can spend.  Vouts belong to transactions which
-   * are stored on the blockchain.
+   * transaction that the wallet can spend one time.  Vouts belong to
+   * transactions which are stored on the blockchain.
    * 
    * Query results can be configured or filtered by passing in a configuration.
    * Vouts must meet every criteria defined in the configuration in order to be
