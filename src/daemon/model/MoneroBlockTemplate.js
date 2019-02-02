@@ -3,21 +3,21 @@
  */
 class MoneroBlockTemplate {
   
-  getTemplateBlob() { // TODO: rename getTemplateBlob() -> getBlockTemplateBlob(), getHashBlob() -> getBlockHashBlob() for recognizability
-    return this.templateBlob;
+  getBlockTemplateBlob() {
+    return this.blockTemplateBlob;
   }
   
-  setTemplateBlob(templateBlob) {
-    this.templateBlob = templateBlob;
+  setBlockTemplateBlob(blockTemplateBlob) {
+    this.blockTemplateBlob = blockTemplateBlob;
     return this;
   }
   
-  getHashBlob() {
-    return this.hashBlob;
+  getBlockHashingBlob() {
+    return this.blockHashingBlob;
   }
   
-  setHashBlob(hashBlob) {
-    this.hashBlob = hashBlob;
+  setBlockHashingBlob(blockHashingBlob) {
+    this.blockHashingBlob = blockHashingBlob;
     return this;
   }
   

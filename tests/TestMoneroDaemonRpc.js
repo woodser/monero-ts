@@ -754,7 +754,7 @@ class TestMoneroDaemonRpc {
         
         // try to submit block hashing blob without nonce
         try {
-          await daemon.submitBlock(template.getHashBlob());
+          await daemon.submitBlock(template.getBlockHashingBlob());
           fail("Should have thrown error");
         } catch (e) {
           assert.equal(e.getRpcCode(), -7);
@@ -1161,8 +1161,8 @@ function testTx(tx, config) {
 
 function testBlockTemplate(template) {
   assert(template);
-  assert(template.getTemplateBlob());
-  assert(template.getHashBlob());
+  assert(template.getBlockTemplateBlob());
+  assert(template.getBlockHashingBlob());
   assert(template.getDifficulty());
   assert(template.getDifficulty() instanceof BigInteger);
   assert(template.getExpectedReward());
