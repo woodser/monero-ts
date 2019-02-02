@@ -1,7 +1,6 @@
 todos throughout code
 sweep subaddresses test
 object model
-license headers
 txpool -> mempool?
 rpc impls _build.. -> _decode..
 all model set functions return this
