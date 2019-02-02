@@ -9,6 +9,7 @@ class MoneroDaemonInfo {
   
   setVersion(version) {
     this.version = version;
+    return this;
   }
   
   getAltBlocksCount() {
@@ -17,6 +18,7 @@ class MoneroDaemonInfo {
   
   setAltBlocksCount(altBlocksCount) {
     this.altBlocksCount = altBlocksCount;
+    return this;
   }
   
   getBlockSizeLimit() {
@@ -25,6 +27,7 @@ class MoneroDaemonInfo {
   
   setBlockSizeLimit(blockSizeLimit) {
     this.blockSizeLimit = blockSizeLimit;
+    return this;
   }
   
   getBlockSizeMedian() {
@@ -33,6 +36,7 @@ class MoneroDaemonInfo {
   
   setBlockSizeMedian(blockSizeMedian) {
     this.blockSizeMedian = blockSizeMedian;
+    return this;
   }
   
   getBlockWeightLimit() {
@@ -41,6 +45,7 @@ class MoneroDaemonInfo {
   
   setBlockWeightLimit(blockWeightLimit) {
     this.blockWeightLimit = blockWeightLimit;
+    return this;
   }
   
   getBlockWeightMedian() {
@@ -49,6 +54,7 @@ class MoneroDaemonInfo {
   
   setBlockWeightMedian(blockWeightMedian) {
     this.blockWeightMedian = blockWeightMedian;
+    return this;
   }
   
   getBootstrapDaemonAddress() {
@@ -57,6 +63,7 @@ class MoneroDaemonInfo {
   
   setBootstrapDaemonAddress(bootstrapDaemonAddress) {
     this.bootstrapDaemonAddress = bootstrapDaemonAddress;
+    return this;
   }
   
   getCumulativeDifficulty() {
@@ -65,6 +72,7 @@ class MoneroDaemonInfo {
   
   setCumulativeDifficulty(cumulativeDifficulty) {
     this.cumulativeDifficulty = cumulativeDifficulty;
+    return this;
   }
   
   getDifficulty() {
@@ -73,6 +81,7 @@ class MoneroDaemonInfo {
   
   setDifficulty(difficulty) {
     this.difficulty = difficulty;
+    return this;
   }
   
   getFreeSpace() {
@@ -81,6 +90,7 @@ class MoneroDaemonInfo {
   
   setFreeSpace(freeSpace) {
     this.freeSpace = freeSpace;
+    return this;
   }
   
   getGreyPeerlistSize() { // TODO: rename to getOfflinePeerCount()
@@ -89,6 +99,7 @@ class MoneroDaemonInfo {
   
   setGreyPeerlistSize(greyPeerlistSize) {
     this.greyPeerlistSize = greyPeerlistSize;
+    return this;
   }
   
   getWhitePeerlistSize() {  // TODO: rename to getOnlinePeerCount()
@@ -97,6 +108,7 @@ class MoneroDaemonInfo {
   
   setWhitePeerlistSize(whitePeerlistSize) {
     this.whitePeerlistSize = whitePeerlistSize;
+    return this;
   }
   
   getHeight() {
@@ -105,6 +117,7 @@ class MoneroDaemonInfo {
   
   setHeight(height) {
     this.height = height;
+    return this;
   }
   
   getHeightWithoutBootstrap() {
@@ -113,6 +126,7 @@ class MoneroDaemonInfo {
   
   setHeightWithoutBootstrap(heightWithoutBootstrap) {
     this.heightWithoutBootstrap = heightWithoutBootstrap;
+    return this;
   }
   
   getNetworkType() {
@@ -121,6 +135,7 @@ class MoneroDaemonInfo {
 
   setNetworkType(networkType) {
     this.networkType = networkType;
+    return this;
   }
 
   getIsOffline() {
@@ -129,6 +144,7 @@ class MoneroDaemonInfo {
   
   setIsOffline(isOffline) {
     this.isOffline = isOffline;
+    return this;
   }
   
   getIncomingConnectionsCount() {
@@ -137,6 +153,7 @@ class MoneroDaemonInfo {
   
   setIncomingConnectionsCount(incomingConnectionsCount) {
     this.incomingConnectionsCount = incomingConnectionsCount;
+    return this;
   }
   
   getOutgoingConnectionsCount() {
@@ -145,6 +162,7 @@ class MoneroDaemonInfo {
   
   setOutgoingConnectionsCount(outgoingConnectionsCount) {
     this.outgoingConnectionsCount = outgoingConnectionsCount;
+    return this;
   }
   
   getRpcConnectionsCount() {
@@ -153,6 +171,7 @@ class MoneroDaemonInfo {
   
   setRpcConnectionsCount(rpcConnectionsCount) {
     this.rpcConnectionsCount = rpcConnectionsCount;
+    return this;
   }
   
   getStartTime() {
@@ -161,6 +180,7 @@ class MoneroDaemonInfo {
   
   setStartTime(startTime) {
     this.startTime = startTime;
+    return this;
   }
   
   getTarget() {
@@ -169,6 +189,7 @@ class MoneroDaemonInfo {
   
   setTarget(target) {
     this.target = target;
+    return this;
   }
   
   getTargetHeight() {
@@ -177,6 +198,7 @@ class MoneroDaemonInfo {
   
   setTargetHeight(targetHeight) {
     this.targetHeight = targetHeight;
+    return this;
   }
   
   getTopBlockId() {
@@ -185,6 +207,7 @@ class MoneroDaemonInfo {
   
   setTopBlockId(topBlockId) {
     this.topBlockId = topBlockId;
+    return this;
   }
   
   getTxCount() {
@@ -193,6 +216,7 @@ class MoneroDaemonInfo {
   
   setTxCount(txCount) {
     this.txCount = txCount;
+    return this;
   }
   
   getTxPoolSize() {
@@ -201,6 +225,7 @@ class MoneroDaemonInfo {
   
   setTxPoolSize(txPoolSize) {
     this.txPoolSize = txPoolSize;
+    return this;
   }
   
   getWasBootstrapEverUsed() {
@@ -209,6 +234,7 @@ class MoneroDaemonInfo {
   
   setWasBootstrapEverUsed(wasBootstrapEverUsed) {
     this.wasBootstrapEverUsed = wasBootstrapEverUsed;
+    return this;
   }
   
   getDatabaseSize() {
@@ -217,6 +243,7 @@ class MoneroDaemonInfo {
   
   setDatabaseSize(databaseSize) {
     this.databaseSize = databaseSize;
+    return this;
   }
   
   getUpdateAvailable() {
@@ -225,6 +252,7 @@ class MoneroDaemonInfo {
   
   setUpdateAvailable(updateAvailable) {
     this.updateAvailable = updateAvailable;
+    return this;
   }
 }
 

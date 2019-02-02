@@ -9,6 +9,7 @@ class MoneroDaemonPeer {
 
   setId(id) {
     this.id = id;
+    return this;
   }
 
   getAddress() {
@@ -17,6 +18,7 @@ class MoneroDaemonPeer {
 
   setAddress(address) {
     this.address = address;
+    return this;
   }
 
   getHost() {
@@ -25,6 +27,7 @@ class MoneroDaemonPeer {
 
   setHost(host) {
     this.host = host;
+    return this;
   }
 
   getPort() {
@@ -33,6 +36,7 @@ class MoneroDaemonPeer {
 
   setPort(port) {
     this.port = port;
+    return this;
   }
   
   /**
@@ -47,6 +51,7 @@ class MoneroDaemonPeer {
   
   setIsOnline(isOnline) {
     this.isOnline = isOnline;
+    return this;
   }
   
   getLastSeen() {
@@ -55,6 +60,7 @@ class MoneroDaemonPeer {
   
   setLastSeen(lastSeen) {
     this.lastSeen = lastSeen;
+    return this;
   }
   
   getPruningSeed() {
@@ -63,6 +69,7 @@ class MoneroDaemonPeer {
   
   setPruningSeed(pruningSeed) {
     this.pruningSeed = pruningSeed;
+    return this;
   }
 }
 

@@ -9,6 +9,7 @@ class MoneroBlock {
   
   setHex(hex) {
     this.hex = hex;
+    return this;
   }
   
   getHeader() {
@@ -17,6 +18,7 @@ class MoneroBlock {
   
   setHeader(header) {
     this.header = header;
+    return this;
   }
   
   getCoinbaseTx() {
@@ -25,6 +27,7 @@ class MoneroBlock {
   
   setCoinbaseTx(coinbaseTx) {
     this.coinbaseTx = coinbaseTx;
+    return this;
   }
   
   getTxIds() {
@@ -33,6 +36,7 @@ class MoneroBlock {
   
   setTxIds(txIds) {
     this.txIds = txIds;
+    return this;
   }
   
   getTxs() {
@@ -41,6 +45,7 @@ class MoneroBlock {
   
   setTxs(txs) {
     this.txs = txs;
+    return this;
   }
 }
 

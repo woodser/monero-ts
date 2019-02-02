@@ -9,6 +9,7 @@ class MoneroKeyImageImportResult {
   
   setHeight(height) {
     this.height = height;
+    return this;
   }
   
   getAmountSpent() {
@@ -17,6 +18,7 @@ class MoneroKeyImageImportResult {
   
   setAmountSpent(amountSpent) {
     this.amountSpent = amountSpent;
+    return this;
   }
   
   getAmountUnspent() {
@@ -25,6 +27,7 @@ class MoneroKeyImageImportResult {
   
   setAmountUnspent(amountUnspent) {
     this.amountUnspent = amountUnspent;
+    return this;
   }
 }
 

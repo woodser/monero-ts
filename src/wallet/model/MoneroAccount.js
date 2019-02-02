@@ -21,6 +21,7 @@ class MoneroAccount {
   
   setIndex(index) {
     this.json.index = index;
+    return this;
   }
   
   getPrimaryAddress() {
@@ -29,6 +30,7 @@ class MoneroAccount {
 
   setPrimaryAddress(primaryAddress) {
     this.json.primaryAddress = primaryAddress;
+    return this;
   }
 
   getLabel() {
@@ -37,6 +39,7 @@ class MoneroAccount {
   
   setLabel(label) {
     this.json.label = label;
+    return this;
   }
   
   getBalance() {
@@ -45,6 +48,7 @@ class MoneroAccount {
   
   setBalance(balance) {
     this.json.balance = balance;
+    return this;
   }
   
   getUnlockedBalance() {
@@ -53,6 +57,7 @@ class MoneroAccount {
   
   setUnlockedBalance(unlockedBalance) {
     this.json.unlockedBalance = unlockedBalance;
+    return this;
   }
   
   getSubaddresses() {
@@ -67,6 +72,7 @@ class MoneroAccount {
         subaddress.setAccountIndex(this.json.index);
       }
     }
+    return this;
   }
 }
 

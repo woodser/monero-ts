@@ -25,6 +25,7 @@ class MoneroDaemonUpdateDownloadResult extends MoneroDaemonUpdateCheckResult {
   
   setDownloadPath(downloadPath) {
     this.downloadPath = downloadPath;
+    return this;
   }
 }
 

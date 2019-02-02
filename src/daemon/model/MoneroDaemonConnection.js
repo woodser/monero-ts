@@ -9,6 +9,7 @@ class MoneroDaemonConnection {
 
   setPeer(peer) {
     this.peer = peer;
+    return this;
   }
   
   getId() {
@@ -17,6 +18,7 @@ class MoneroDaemonConnection {
 
   setId(id) {
     this.id = id;
+    return this;
   }
 
   getAvgDownload() {
@@ -25,6 +27,7 @@ class MoneroDaemonConnection {
 
   setAvgDownload(avgDownload) {
     this.avgDownload = avgDownload;
+    return this;
   }
 
   getAvgUpload() {
@@ -33,6 +36,7 @@ class MoneroDaemonConnection {
 
   setAvgUpload(avgUpload) {
     this.avgUpload = avgUpload;
+    return this;
   }
 
   getCurrentDownload() {
@@ -41,6 +45,7 @@ class MoneroDaemonConnection {
 
   setCurrentDownload(currentDownload) {
     this.currentDownload = currentDownload;
+    return this;
   }
 
   getCurrentUpload() {
@@ -49,6 +54,7 @@ class MoneroDaemonConnection {
 
   setCurrentUpload(currentUpload) {
     this.currentUpload = currentUpload;
+    return this;
   }
 
   getHeight() {
@@ -57,6 +63,7 @@ class MoneroDaemonConnection {
 
   setHeight(height) {
     this.height = height;
+    return this;
   }
 
   getIsIncoming() {
@@ -65,6 +72,7 @@ class MoneroDaemonConnection {
 
   setIsIncoming(isIncoming) {
     this.isIncoming = isIncoming;
+    return this;
   }
 
   getLiveTime() {
@@ -73,6 +81,7 @@ class MoneroDaemonConnection {
 
   setLiveTime(liveTime) {
     this.liveTime = liveTime;
+    return this;
   }
 
   getIsLocalIp() {
@@ -81,6 +90,7 @@ class MoneroDaemonConnection {
 
   setIsLocalIp(isLocalIp) {
     this.isLocalIp = isLocalIp;
+    return this;
   }
 
   getIsLocalHost() {
@@ -89,6 +99,7 @@ class MoneroDaemonConnection {
 
   setIsLocalHost(isLocalHost) {
     this.isLocalHost = isLocalHost;
+    return this;
   }
 
   getReceiveCount() {
@@ -97,6 +108,7 @@ class MoneroDaemonConnection {
 
   setReceiveCount(receiveCount) {
     this.receiveCount = receiveCount;
+    return this;
   }
 
   getReceiveIdleTime() {
@@ -105,6 +117,7 @@ class MoneroDaemonConnection {
 
   setReceiveIdleTime(receiveIdleTime) {
     this.receiveIdleTime = receiveIdleTime;
+    return this;
   }
 
   getSendCount() {
@@ -113,6 +126,7 @@ class MoneroDaemonConnection {
 
   setSendCount(sendCount) {
     this.sendCount = sendCount;
+    return this;
   }
 
   getSendIdleTime() {
@@ -121,6 +135,7 @@ class MoneroDaemonConnection {
 
   setSendIdleTime(sendIdleTime) {
     this.sendIdleTime = sendIdleTime;
+    return this;
   }
 
   getState() {
@@ -129,6 +144,7 @@ class MoneroDaemonConnection {
 
   setState(state) {
     this.state = state;
+    return this;
   }
 
   getSupportFlagCount() {
@@ -137,6 +153,7 @@ class MoneroDaemonConnection {
 
   setSupportFlagCount(supportFlagCount) {
     this.supportFlagCount = supportFlagCount;
+    return this;
   }
 }
 

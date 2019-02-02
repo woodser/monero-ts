@@ -18,6 +18,7 @@ class MoneroSubmitTxResult {
   
   setIsRelayed(isRelayed) {
     this.isRelayed = isRelayed;
+    return this;
   }
   
   getIsDoubleSpend() {
@@ -26,6 +27,7 @@ class MoneroSubmitTxResult {
   
   setIsDoubleSpend(isDoubleSpend) {
     this.isDoubleSpend = isDoubleSpend
+    return this;
   }
   
   getIsFeeTooLow() {
@@ -34,6 +36,7 @@ class MoneroSubmitTxResult {
   
   setIsFeeTooLow(isFeeTooLow) {
     this.isFeeTooLow = isFeeTooLow;
+    return this;
   }
   
   getIsMixinTooLow() {
@@ -42,6 +45,7 @@ class MoneroSubmitTxResult {
   
   setIsMixinTooLow(isMixinTooLow) {
     this.isMixinTooLow = isMixinTooLow;
+    return this;
   }
   
   getHasInvalidInput() {
@@ -50,6 +54,7 @@ class MoneroSubmitTxResult {
   
   setHasInvalidInput(hasInvalidInput) {
     this.hasInvalidInput = hasInvalidInput;
+    return this;
   }
   
   getHasInvalidOutput() {
@@ -58,6 +63,7 @@ class MoneroSubmitTxResult {
   
   setHasInvalidOutput(hasInvalidOutput) {
     this.hasInvalidOutput = hasInvalidOutput;
+    return this;
   }
   
   getIsRct() {
@@ -66,6 +72,7 @@ class MoneroSubmitTxResult {
   
   setIsRct(isRct) {
     this.isRct = isRct;
+    return this;
   }
   
   getIsOverspend() {
@@ -74,6 +81,7 @@ class MoneroSubmitTxResult {
   
   setIsOverspend(isOverspend) {
     this.isOverspend = isOverspend;
+    return this;
   }
   
   getReason() {
@@ -82,6 +90,7 @@ class MoneroSubmitTxResult {
   
   setReason(reason) {
     this.reason = reason;
+    return this;
   }
   
   getIsTooBig() {
@@ -90,6 +99,7 @@ class MoneroSubmitTxResult {
   
   setIsTooBig(isTooBig) {
     this.isTooBig = isTooBig;
+    return this;
   }
 }
 

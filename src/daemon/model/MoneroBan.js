@@ -9,6 +9,7 @@ class MoneroBan {
   
   setHost(host) {
     this.host = host;
+    return this;
   }
   
   getIp() {
@@ -17,6 +18,7 @@ class MoneroBan {
   
   setIp(ip) {
     this.ip = ip;
+    return this;
   }
   
   getIsBanned() {
@@ -25,6 +27,7 @@ class MoneroBan {
   
   setIsBanned(isBanned) {
     this.isBanned = isBanned;
+    return this;
   }
   
   getSeconds() {
@@ -33,6 +36,7 @@ class MoneroBan {
   
   setSeconds(seconds) {
     this.seconds = seconds;
+    return this;
   }
 }
 

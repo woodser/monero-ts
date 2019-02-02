@@ -15,6 +15,7 @@ class MoneroSubaddress {
 
   setAddress(address) {
     this.address = address;
+    return this;
   }
   
   // TODO: move this to subaddress.getAccount().getIndex(), rename getSubaddressIndex() to getIndex()?
@@ -24,6 +25,7 @@ class MoneroSubaddress {
 
   setAccountIndex(accountIndex) {
     this.accountIndex = accountIndex;
+    return this;
   }
 
   getSubaddressIndex() {
@@ -32,6 +34,7 @@ class MoneroSubaddress {
 
   setSubaddressIndex(subaddressIndex) {
     this.subaddressIndex = subaddressIndex;
+    return this;
   }
 
   getLabel() {
@@ -40,6 +43,7 @@ class MoneroSubaddress {
 
   setLabel(label) {
     this.label = label;
+    return this;
   }
 
   getBalance() {
@@ -48,6 +52,7 @@ class MoneroSubaddress {
 
   setBalance(balance) {
     this.balance = balance;
+    return this;
   }
 
   getUnlockedBalance() {
@@ -56,6 +61,7 @@ class MoneroSubaddress {
 
   setUnlockedBalance(unlockedBalance) {
     this.unlockedBalance = unlockedBalance;
+    return this;
   }
 
   getUnspentOutputCount() {
@@ -64,6 +70,7 @@ class MoneroSubaddress {
 
   setUnspentOutputCount(unspentOutputCount) {
     this.unspentOutputCount = unspentOutputCount;
+    return this;
   }
 
   getIsUsed() {
@@ -72,6 +79,7 @@ class MoneroSubaddress {
 
   setIsUsed(isUsed) {
     this.isUsed = isUsed;
+    return this;
   }
 
   toString() {

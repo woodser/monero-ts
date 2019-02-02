@@ -9,6 +9,7 @@ class MoneroBlockTemplate {
   
   setTemplateBlob(templateBlob) {
     this.templateBlob = templateBlob;
+    return this;
   }
   
   getHashBlob() {
@@ -17,6 +18,7 @@ class MoneroBlockTemplate {
   
   setHashBlob(hashBlob) {
     this.hashBlob = hashBlob;
+    return this;
   }
   
   getDifficulty() {
@@ -25,6 +27,7 @@ class MoneroBlockTemplate {
   
   setDifficulty(difficulty) {
     this.difficulty = difficulty;
+    return this;
   }
   
   getExpectedReward() {
@@ -33,6 +36,7 @@ class MoneroBlockTemplate {
   
   setExpectedReward(expectedReward) {
     this.expectedReward = expectedReward;
+    return this;
   }
   
   getHeight() {
@@ -41,6 +45,7 @@ class MoneroBlockTemplate {
   
   setHeight(height) {
     this.height = height;
+    return this;
   }
   
   getPrevId() {
@@ -49,6 +54,7 @@ class MoneroBlockTemplate {
   
   setPrevId(prevId) {
     this.prevId = prevId;
+    return this;
   }
   
   getReservedOffset() {
@@ -57,6 +63,7 @@ class MoneroBlockTemplate {
   
   setReservedOffset(reservedOffset) {
     this.reservedOffset = reservedOffset;
+    return this;
   }
 }
 

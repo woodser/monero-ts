@@ -11,6 +11,7 @@ class MoneroCheckTx extends MoneroCheck {
   
   setInTxPool(inTxPool) {
     this.inTxPool = inTxPool;
+    return this;
   }
   
   getConfirmationCount() {
@@ -19,6 +20,7 @@ class MoneroCheckTx extends MoneroCheck {
   
   setConfirmationCount(confirmationCount) {
     this.confirmationCount = confirmationCount;
+    return this;
   }
   
   getAmountReceived() {
@@ -27,6 +29,7 @@ class MoneroCheckTx extends MoneroCheck {
   
   setAmountReceived(amountReceived) {
     this.amountReceived = amountReceived;
+    return this;
   }
 }
 

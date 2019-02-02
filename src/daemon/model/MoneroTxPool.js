@@ -9,6 +9,7 @@ class MoneroTxPool {
   
   setTxs(txs) {
     this.txs = txs;
+    return this;
   }
   
   getSpentKeyImages() {
@@ -17,6 +18,7 @@ class MoneroTxPool {
   
   setSpentKeyImages(spentKeyImages) {
     this.spentKeyImages = spentKeyImages;
+    return this;
   }
 }
 

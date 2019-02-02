@@ -28,6 +28,7 @@ class MoneroDestination {
 
   setAddress(address) {
     this.state.address = address;
+    return this;
   }
   
   getAmount() {
@@ -36,6 +37,7 @@ class MoneroDestination {
 
   setAmount(amount) {
     this.state.amount = amount;
+    return this;
   }
 
   copy() {

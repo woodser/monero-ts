@@ -9,6 +9,7 @@ class MoneroCheck {
 
   setIsGood(isGood) {
     this.isGood = isGood;
+    return this;
   }
 }
 

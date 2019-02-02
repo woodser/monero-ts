@@ -9,6 +9,7 @@ class MoneroOutputHistogramEntry {
   
   setAmount(amount) {
     this.amount = amount;
+    return this;
   }
 
   getTotalInstances() {
@@ -17,6 +18,7 @@ class MoneroOutputHistogramEntry {
 
   setTotalInstances(totalInstances) {
     this.totalInstances = totalInstances;
+    return this;
   }
 
   getUnlockedInstances() {
@@ -25,6 +27,7 @@ class MoneroOutputHistogramEntry {
 
   setUnlockedInstances(unlockedInstances) {
     this.unlockedInstances = unlockedInstances;
+    return this;
   }
 
   getRecentInstances() {
@@ -33,6 +36,7 @@ class MoneroOutputHistogramEntry {
 
   setRecentInstances(recentInstances) {
     this.recentInstances = recentInstances;
+    return this;
   }
 }
 

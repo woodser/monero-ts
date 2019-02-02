@@ -74,6 +74,7 @@ class MoneroOutput {
   
   setStealthPublicKey(stealthPublicKey) {
     this.state.stealthPublicKey = stealthPublicKey;
+    return this;
   }
   
   copy() {
@@ -107,6 +108,7 @@ class MoneroOutput {
     else if (output.getKeyImage() !== undefined) this.getKeyImage().merge(output.getKeyImage());
     this.setAmount(MoneroUtils.reconcile(this.getAmount(), output.getAmount()));
     this.setIndex(MoneroUtils.reconcile(this.getIndex(), output.getIndex()));
+    return this;
   }
 }
 

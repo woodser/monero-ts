@@ -84,6 +84,8 @@ class MoneroWalletOutput extends MoneroOutput {
       this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), output.getSubaddressIndex()));
       this.setIsSpent(MoneroUtils.reconcile(this.getIsSpent(), output.getIsSpent(), {resolveTrue: true})); // output can become spent
     }
+    
+    return this;
   }
 }
 

@@ -9,6 +9,7 @@ class MoneroCoinbaseTxSum {
   
   setTotalEmission(totalEmission) {
     this.totalEmission = totalEmission;
+    return this;
   }
   
   getTotalFees() {
@@ -17,6 +18,7 @@ class MoneroCoinbaseTxSum {
   
   setTotalFees(totalFees) {
     this.totalFees = totalFees;
+    return this;
   }
 }
 

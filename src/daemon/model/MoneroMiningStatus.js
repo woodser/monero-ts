@@ -9,6 +9,7 @@ class MoneroMiningStatus {
   
   setIsActive(isActive) {
     this.isActive = isActive;
+    return this;
   }
   
   getAddress() {
@@ -17,6 +18,7 @@ class MoneroMiningStatus {
   
   setAddress(address) {
     this.address = address;
+    return this;
   }
   
   getSpeed() {
@@ -25,6 +27,7 @@ class MoneroMiningStatus {
   
   setSpeed(speed) {
     this.speed = speed;
+    return this;
   }
   
   getThreadCount() {
@@ -33,6 +36,7 @@ class MoneroMiningStatus {
   
   setThreadCount(threadCount) {
     this.threadCount = threadCount;
+    return this;
   }
   
   getIsBackground() {
@@ -41,6 +45,7 @@ class MoneroMiningStatus {
   
   setIsBackground(isBackground) {
     this.isBackground = isBackground;
+    return this;
   }
 }
 

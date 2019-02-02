@@ -9,6 +9,7 @@ class MoneroAltChain {
   
   setBlockIds(blockIds) {
     this.blockIds = blockIds;
+    return this;
   }
   
   getDifficulty() {
@@ -17,6 +18,7 @@ class MoneroAltChain {
   
   setDifficulty(difficulty) {
     this.difficulty = difficulty;
+    return this;
   }
   
   getHeight() {
@@ -25,6 +27,7 @@ class MoneroAltChain {
   
   setHeight(height) {
     this.height = height;
+    return this;
   }
   
   getLength() {
@@ -33,6 +36,7 @@ class MoneroAltChain {
   
   setLength(length) {
     this.length = length;
+    return this;
   }
   
   getMainChainParentBlockId() {
@@ -41,6 +45,7 @@ class MoneroAltChain {
   
   setMainChainParentBlockId(mainChainParentBlockId) {
     this.mainChainParentBlockId = mainChainParentBlockId;
+    return this;
   }
 }
 

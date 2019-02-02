@@ -30,6 +30,7 @@ class MoneroDaemonUpdateCheckResult {
   
   setIsUpdateAvailable(isUpdateAvailable) {
     this.isUpdateAvailable = isUpdateAvailable;
+    return this;
   }
   
   /**
@@ -43,6 +44,7 @@ class MoneroDaemonUpdateCheckResult {
   
   setVersion(version) {
     this.version = version;
+    return this;
   }
   
   /**
@@ -56,6 +58,7 @@ class MoneroDaemonUpdateCheckResult {
   
   setHash(hash) {
     this.hash = hash;
+    return this;
   }
   
   /**
@@ -69,6 +72,7 @@ class MoneroDaemonUpdateCheckResult {
   
   setAutoUri(autoUri) {
     this.autoUri = autoUri;
+    return this;
   }
   
   /**
@@ -82,6 +86,7 @@ class MoneroDaemonUpdateCheckResult {
   
   setUserUri(userUri) {
     this.userUri = userUri;
+    return this;
   }
 }
 

@@ -9,6 +9,7 @@ class MoneroTxPoolStats {
   
   setCount(count) {
     this.count = count;
+    return this;
   }
   
   getNotRelayedCount() {
@@ -17,6 +18,7 @@ class MoneroTxPoolStats {
   
   setNotRelayedCount(notRelayedCount) {
     this.notRelayedCount = notRelayedCount;
+    return this;
   }
   
   getFailedCount() {
@@ -25,6 +27,7 @@ class MoneroTxPoolStats {
   
   setFailedCount(failedCount) {
     this.failedCount = failedCount;
+    return this;
   }
   
   getDoubleSpendCount() {
@@ -33,6 +36,7 @@ class MoneroTxPoolStats {
   
   setDoubleSpendCount(doubleSpendCount) {
     this.doubleSpendCount = doubleSpendCount;
+    return this;
   }
   
   getFeeTotal() {
@@ -41,6 +45,7 @@ class MoneroTxPoolStats {
   
   setFeeTotal(feeTotal) {
     this.feeTotal = feeTotal;
+    return this;
   }
   
   getBytesMax() {
@@ -49,6 +54,7 @@ class MoneroTxPoolStats {
   
   setBytesMax(bytesMax) {
     this.bytesMax = bytesMax;
+    return this;
   }
   
   getBytesMed() {
@@ -57,6 +63,7 @@ class MoneroTxPoolStats {
   
   setBytesMed(bytesMed) {
     this.bytesMed = bytesMed;
+    return this;
   }
   
   getBytesMin() {
@@ -65,6 +72,7 @@ class MoneroTxPoolStats {
   
   setBytesMin(bytesMin) {
     this.bytesMin = bytesMin;
+    return this;
   }
   
   getBytesTotal() {
@@ -73,6 +81,7 @@ class MoneroTxPoolStats {
   
   setBytesTotal(bytesTotal) {
     this.bytesTotal = bytesTotal;
+    return this;
   }
   
   // TODO: histo... what?
@@ -82,6 +91,7 @@ class MoneroTxPoolStats {
   
   setHisto(histo) {
     this.histo = histo;
+    return this;
   }
   
   getTime98pc() {
@@ -90,6 +100,7 @@ class MoneroTxPoolStats {
   
   setTime98pc(time98pc) {
     this.time98pc = time98pc;
+    return this;
   }
   
   getTimeOldest() {
@@ -98,6 +109,7 @@ class MoneroTxPoolStats {
   
   setTimeOldest(timeOldest) {
     this.timeOldest = timeOldest;
+    return this;
   }
   
   getCount10m() {
@@ -106,6 +118,7 @@ class MoneroTxPoolStats {
   
   setCount10m(count10m) {
     this.count10m = count10m;
+    return this;
   }
 }
 

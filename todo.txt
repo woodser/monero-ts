@@ -1,9 +1,9 @@
+"cold running" tests result in daemon failures first run
 todos throughout code
 sweep subaddresses test
 object model
 txpool -> mempool?
 rpc impls _build.. -> _decode..
-all model set functions return this
 don't wrap single return fields with MoneroDaemonModel? e.g. fee
 test daemon getIsCoinbase()
 test getting coinbase txs by id

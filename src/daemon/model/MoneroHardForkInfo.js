@@ -9,6 +9,7 @@ class MoneroHardForkInfo {
 
   setEarliestHeight(earliestHeight) {
     this.earliestHeight = earliestHeight;
+    return this;
   }
 
   getIsEnabled() {
@@ -17,6 +18,7 @@ class MoneroHardForkInfo {
 
   setIsEnabled(isEnabled) {
     this.isEnabled = isEnabled;
+    return this;
   }
 
   getState() {
@@ -25,6 +27,7 @@ class MoneroHardForkInfo {
 
   setState(state) {
     this.state = state;
+    return this;
   }
 
   getThreshold() {
@@ -33,6 +36,7 @@ class MoneroHardForkInfo {
 
   setThreshold(threshold) {
     this.threshold = threshold;
+    return this;
   }
 
   getVersion() {
@@ -41,6 +45,7 @@ class MoneroHardForkInfo {
 
   setVersion(version) {
     this.version = version;
+    return this;
   }
 
   getVotes() {
@@ -49,6 +54,7 @@ class MoneroHardForkInfo {
 
   setVotes(votes) {
     this.votes = votes;
+    return this;
   }
 
   getVoting() {
@@ -57,6 +63,7 @@ class MoneroHardForkInfo {
 
   setVoting(voting) {
     this.voting = voting;
+    return this;
   }
 
   getWindow() {
@@ -65,6 +72,7 @@ class MoneroHardForkInfo {
 
   setWindow(window) {
     this.window = window;
+    return this;
   }
 }
 

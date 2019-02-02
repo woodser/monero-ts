@@ -16,6 +16,7 @@ class MoneroAddressBookEntry {
   
   setIndex(index) {
     this.index = index;
+    return this;
   }
   
   getAddress() {
@@ -24,6 +25,7 @@ class MoneroAddressBookEntry {
   
   setAddress(address) {
     this.address = address;
+    return this;
   }
   
   getPaymentId() {
@@ -32,6 +34,7 @@ class MoneroAddressBookEntry {
   
   setPaymentId(paymentId) {
     this.paymentId = paymentId;
+    return this;
   }
   
   getDescription() {
@@ -40,6 +43,7 @@ class MoneroAddressBookEntry {
   
   setDescription(description) {
     this.description = description;
+    return this;
   }
   
 }

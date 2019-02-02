@@ -9,6 +9,7 @@ class MoneroDaemonSyncInfo {
   
   setHeight(height) {
     this.height = height;
+    return this;
   }
   
   getConnections() {
@@ -17,6 +18,7 @@ class MoneroDaemonSyncInfo {
   
   setConnections(peers) {
     this.peers = peers;
+    return this;
   }
   
   getSpans() {
@@ -25,6 +27,7 @@ class MoneroDaemonSyncInfo {
   
   setSpans(spans) {
     this.spans = spans;
+    return this;
   }
   
   getTargetHeight() {
@@ -33,6 +36,7 @@ class MoneroDaemonSyncInfo {
   
   setTargetHeight(targetHeight) {
     this.targetHeight = targetHeight;
+    return this;
   }
   
   getNextNeededPruningSeed() {
@@ -41,6 +45,7 @@ class MoneroDaemonSyncInfo {
   
   setNextNeededPruningSeed(nextNeededPruningSeed) {
     this.nextNeededPruningSeed = nextNeededPruningSeed;
+    return this;
   }
   
   getOverview() {
@@ -49,6 +54,7 @@ class MoneroDaemonSyncInfo {
   
   setOverview(overview) {
     this.overview = overview;
+    return this;
   }
 }
 

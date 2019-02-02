@@ -60,6 +60,7 @@ class MoneroWalletTx extends MoneroTx {
   
   setOutgoingTransfer(outgoingTransfer) {
     this.state.outgoingTransfer = outgoingTransfer;
+    return this;
   }
   
   getIncomingTransfers() {
@@ -68,6 +69,7 @@ class MoneroWalletTx extends MoneroTx {
   
   setIncomingTransfers(incomingTransfers) {
     this.state.incomingTransfers = incomingTransfers;
+    return this;
   }
   
   getNote() {
@@ -76,6 +78,7 @@ class MoneroWalletTx extends MoneroTx {
   
   setNote(note) {
     this.state.note = note;
+    return this;
   }
   
   copy() {

@@ -19,25 +19,25 @@ new TestMoneroWalletRpc().runTests({
   testNotifications: false
 });
 
-////test sample code for readme
-//require("./TestSampleCode");
-//
-//// test core utils
-//require("./TestMoneroCoreUtils");
-//
-//// test wallet local
-//new TestMoneroWalletLocal().runTests({
-//  testNonSends: true,
-//  testSends: false,
-//  testResets: false,
-//  testNotifications: false
-//});
-//
-//// test wallet equality
-//require("./TestMoneroWalletEquality");
-//
-//// test boolean set (data structure used by wallet to track progress)
-//require("./TestBooleanSet");
+//test sample code for readme
+require("./TestSampleCode");
+
+// test core utils
+require("./TestMoneroCoreUtils");
+
+// test wallet local
+new TestMoneroWalletLocal().runTests({
+  testNonSends: true,
+  testSends: false,
+  testResets: false,
+  testNotifications: false
+});
+
+// test wallet equality
+require("./TestMoneroWalletEquality");
+
+// test boolean set (data structure used by wallet to track progress)
+require("./TestBooleanSet");
 
 // test scratchpad
 //require("./Scratchpad");

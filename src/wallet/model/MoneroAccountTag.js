@@ -15,6 +15,7 @@ class MoneroAccountTag {
   
   setTag(tag) {
     this.tag = tag;
+    return this;
   }
   
   getLabel() {
@@ -23,6 +24,7 @@ class MoneroAccountTag {
   
   setLabel(label) {
     this.label = label;
+    return this;
   }
   
   getAccountIndices() {
@@ -31,6 +33,7 @@ class MoneroAccountTag {
   
   setAccountIndices(accountIndices) {
     this.accoutIndices = accountIndices;
+    return this;
   }
 }
 

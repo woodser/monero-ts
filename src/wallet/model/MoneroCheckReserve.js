@@ -11,6 +11,7 @@ class MoneroCheckReserve extends MoneroCheck {
 
   setAmountSpent(amountSpent) {
     this.amountSpent = amountSpent;
+    return this;
   }
 
   getAmountTotal() {
@@ -19,6 +20,7 @@ class MoneroCheckReserve extends MoneroCheck {
 
   setAmountTotal(amountTotal) {
     this.amountTotal = amountTotal;
+    return this;
   }
 }
 

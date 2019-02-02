@@ -16,6 +16,7 @@ class MoneroIntegratedAddress {
   
   setStandardAddress(standardAddress) {
     this.json.standardAddress = standardAddress;
+    return this;
   }
   
   getPaymentId() {
@@ -24,6 +25,7 @@ class MoneroIntegratedAddress {
   
   setPaymentId(paymentId) {
     this.json.paymentId = this.json.paymentId;
+    return this;
   }
   
   getIntegratedAddress() {
@@ -32,6 +34,7 @@ class MoneroIntegratedAddress {
   
   setIntegratedAddress(integratedAddress) {
     this.json.integratedAddress = integratedAddress;
+    return this;
   }
   
   toString() {

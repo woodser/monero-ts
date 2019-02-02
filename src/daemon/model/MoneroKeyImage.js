@@ -32,6 +32,7 @@ class MoneroKeyImage {
 
   setHex(hex) {
     this.state.hex = hex;
+    return this;
   }
 
   getSignature() {
@@ -40,6 +41,7 @@ class MoneroKeyImage {
 
   setSignature(signature) {
     this.state.signature = signature;
+    return this;
   }
 
   getSpentStatus() {
@@ -48,6 +50,7 @@ class MoneroKeyImage {
 
   setSpentStatus(spentStatus) {
     this.state.spentStatus = spentStatus;
+    return this;
   }
   
   getSpendingTxIds() {
@@ -56,6 +59,7 @@ class MoneroKeyImage {
   
   setSpendingTxIds(spendingTxIds) {
     this.state.spendingTxIds = spendingTxIds;
+    return this;
   }
   
   copy() {
@@ -82,6 +86,7 @@ class MoneroKeyImage {
     this.setSignature(MoneroUtils.reconcile(this.getSignature(), keyImage.getSignature()));
     this.setSpentStatus(MoneroUtils.reconcile(this.getSpentStatus(), keyImage.getSpentStatus()));
     this.setSpendingTxIds(MoneroUtils.reconcile(this.getSpendingTxIds(), keyImage.getSpendingTxIds()));
+    return this;
   }
 }
 

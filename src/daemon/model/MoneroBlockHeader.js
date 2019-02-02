@@ -9,6 +9,7 @@ class MoneroBlockHeader {
   
   setSize(size) {
     this.size = size;
+    return this;
   }
   
   getDepth() {
@@ -17,6 +18,7 @@ class MoneroBlockHeader {
   
   setDepth(depth) {
     this.depth = depth;
+    return this;
   }
   
   getDifficulty() {
@@ -25,6 +27,7 @@ class MoneroBlockHeader {
   
   setDifficulty(difficulty) {
     this.difficulty = difficulty;
+    return this;
   }
   
   getCumulativeDifficulty() {
@@ -33,6 +36,7 @@ class MoneroBlockHeader {
   
   setCumulativeDifficulty(cumulativeDifficulty) {
     this.cumulativeDifficulty = cumulativeDifficulty;
+    return this;
   }
   
   getId() {
@@ -41,6 +45,7 @@ class MoneroBlockHeader {
   
   setId(id) {
     this.id = id;
+    return this;
   }
   
   getHeight() {
@@ -49,6 +54,7 @@ class MoneroBlockHeader {
   
   setHeight(height) {
     this.height = height;
+    return this;
   }
   
   getMajorVersion() {
@@ -57,6 +63,7 @@ class MoneroBlockHeader {
   
   setMajorVersion(majorVersion) {
     this.majorVersion = majorVersion;
+    return this;
   }
   
   getMinorVersion() {
@@ -65,6 +72,7 @@ class MoneroBlockHeader {
   
   setMinorVersion(minorVersion) {
     this.minorVersion = minorVersion;
+    return this;
   }
   
   getNonce() {
@@ -73,6 +81,7 @@ class MoneroBlockHeader {
   
   setNonce(nonce) {
     this.nonce = nonce;
+    return this;
   }
   
   getTxCount() {
@@ -81,6 +90,7 @@ class MoneroBlockHeader {
   
   setTxCount(txCount) {
     this.txCount = txCount;
+    return this;
   }
   
   getOrphanStatus() {
@@ -89,6 +99,7 @@ class MoneroBlockHeader {
   
   setOrphanStatus(orphanStatus) {
     this.orphanStatus = orphanStatus;
+    return this;
   }
   
   getPrevId() {
@@ -97,6 +108,7 @@ class MoneroBlockHeader {
   
   setPrevId(prevId) {
     this.prevId = prevId;
+    return this;
   }
   
   getReward() {
@@ -105,6 +117,7 @@ class MoneroBlockHeader {
   
   setReward(reward) {
     this.reward = reward;
+    return this;
   }
   
   getTimestamp() {
@@ -113,6 +126,7 @@ class MoneroBlockHeader {
   
   setTimestamp(timestamp) {
     this.timestamp = timestamp;
+    return this;
   }
   
   getBlockWeight() {
@@ -121,6 +135,7 @@ class MoneroBlockHeader {
   
   setBlockWeight(blockWeight) {
     this.blockWeight = blockWeight;
+    return this;
   }
   
   getPowHash() {
@@ -129,6 +144,7 @@ class MoneroBlockHeader {
   
   setPowHash(powHash) {
     this.powHash = powHash;
+    return this;
   }
 }
 
