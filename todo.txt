@@ -1,16 +1,16 @@
 todos throughout code
-sweep subaddresses test
 object model
-test daemon getIsCoinbase()
-test getting coinbase txs by id
-support setting daemon log level
+copy() should call new self() which calls toJson() which is unpacked
 
-daemon.getTxs() with decodeAsJson = false not tested; needed?
-daemon.getTxs() doesn't return vins/vouts unless decoded as json
-daemon.getTxs({isConfirmed: true}) style filtering?
-daemon.getTxsByHeight(), daemon.getTxsByRange()
+daemon.getTxs() decodeAsJson needed? vins/vouts not returned unless true
+daemon.getTxs() prune, test with and without pruning
+daemon.getTxs() test getting tx pool tx by id
 daemon.getBlocksById(), default implementations
+daemon test getting coinbase txs by id
+
+wallet test coinbase txs
 get_transfers pool does not actually indicate it's relayed; return undefined?
+sweep subaddresses test
 test that note is set if specified in send config
 set subaddress getUnspentOutputCount() with outputs assigned
 validate all input parameters to api
@@ -36,7 +36,7 @@ support vout filter in tx filter?
 undefined amounts instead of 0 for rct amounts
 MoneroBan includes redundant info with MoneroPeer
 block comments in models
-copy() should call new self() which calls toJson() which is unpacked
+support setting daemon log level
 
 JS now has native BigInt class which could be used instead of current BigInteger
 switch to jest?
