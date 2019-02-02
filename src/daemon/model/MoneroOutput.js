@@ -4,8 +4,6 @@ const MoneroKeyImage = require("./MoneroKeyImage");
 
 /**
  * Represents a transaction output.
- * 
- * TODO: instantiate from daemon block vouts
  */
 class MoneroOutput {
   

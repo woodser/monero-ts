@@ -11,8 +11,6 @@ class MoneroTx {
   /**
    * Constructs the model.
    * 
-   * TODO: treat vins just like vouts for merging, copying, deserialization
-   * 
    * @param state is model state or json to initialize from (optional)
    */
   constructor(state) {
@@ -21,6 +19,15 @@ class MoneroTx {
     
     // deserialize fee
     if (state.fee && !(state.fee instanceof BigInteger)) state.fee = BigInteger.parse(state.fee);
+    
+    // deserialize vins
+    if (state.vins) {
+      for (let i = 0; i < state.vins.length; i++) {
+        if (!(state.vins[i] instanceof MoneroOutput)) {
+          state.vins[i] = new MoneroOutput(state.vins[i]);
+        }
+      }
+    }
     
     // deserialize vouts
     if (state.vouts) {

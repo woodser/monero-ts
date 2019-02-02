@@ -39,6 +39,7 @@ support vout filter in tx filter?
 undefined amounts instead of 0 for rct amounts
 MoneroBan includes redundant info with MoneroPeer
 block comments in models
+copy() should call new self() which calls toJson() which is unpacked
 
 JS now has native BigInt class which could be used instead of current BigInteger
 switch to jest?
