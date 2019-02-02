@@ -1,4 +1,3 @@
-openWallet() toggles available funds for other daemon tests, seems to only affect availability of locked funds
 todos throughout code
 sweep subaddresses test
 object model
