@@ -1,8 +1,8 @@
+openWallet() toggles available funds for daemon flush tests as well
 "cold running" tests result in daemon failures first run
 todos throughout code
 sweep subaddresses test
 object model
-txpool -> mempool?
 rpc impls _build.. -> _decode..
 don't wrap single return fields with MoneroDaemonModel? e.g. fee
 test daemon getIsCoinbase()
