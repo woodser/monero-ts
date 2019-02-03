@@ -1,9 +1,11 @@
+no outputIndices, just use vouts
+daemon.getTxs() decodeAsJson needed? vins/vouts not returned unless true
+daemon.getTxs() prune, test with and without pruning
+
 todos throughout code
 object model
 copy() should call new self() which calls toJson() which is unpacked
 
-daemon.getTxs() decodeAsJson needed? vins/vouts not returned unless true
-daemon.getTxs() prune, test with and without pruning
 daemon.getTxs() test getting tx pool tx by id
 daemon.getBlocksById(), default implementations
 daemon test getting coinbase txs by id
@@ -15,6 +17,7 @@ test that note is set if specified in send config
 set subaddress getUnspentOutputCount() with outputs assigned
 validate all input parameters to api
 
+test every block of the chain
 not directly testing sweepUnlocked()
 common MoneroModel which can be initialized from and export state
 daemon binary tests

@@ -10,15 +10,15 @@ new TestMoneroDaemonRpc().runTests({
   testNotifications: false
 });
 
-//// test wallet rpc
-//new TestMoneroWalletRpc().runTests({
-//  liteMode: false, // skips some lengthy tests
-//  testNonSends: true,
-//  testSends: true,
-//  testResets: false,
-//  testNotifications: false
-//});
-//
+// test wallet rpc
+new TestMoneroWalletRpc().runTests({
+  liteMode: false, // skips some lengthy tests
+  testNonSends: true,
+  testSends: true,
+  testResets: false,
+  testNotifications: false
+});
+
 ////test sample code for readme
 //require("./TestSampleCode");
 //

@@ -258,34 +258,122 @@ class TestMoneroDaemonRpc {
         throw new Error("Not implemented");
       });
       
-      it("Can get transactions by id", async function() {
+      it("Can get a transaction by id with and without pruning", async function() {
         
-        // get valid height range
-        let height = await daemon.getHeight();
-        let numBlocks = 100;
-        let numBlocksAgo = 100;
-        assert(numBlocks > 0);
-        assert(numBlocksAgo >= numBlocks);
-        assert(height - numBlocksAgo + numBlocks - 1 < height);
-        let startHeight = height - numBlocksAgo;
-        let endHeight = height - numBlocksAgo + numBlocks - 1;
+        // fetch transaction ids to test
+        let txIds = await getTxIds(daemon);
         
-        // get blocks
-        let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
-        
-        // collect tx ids
-        let txIds = blocks.map(block => block.getTxIds()).reduce((a, b) => { a.push.apply(a, b); return a; });
-        assert(txIds.length > 0, "No transactions found in the range [" + startHeight + ", " + endHeight + "]");
-        
-        // fetch txs by id
-        let decodeAsJson = true;
-        let prune = false;
-        let txs = await daemon.getTxs(txIds, decodeAsJson, prune);
-        for (let tx of txs) {
-          testTx(tx, { hasJson: decodeAsJson, isPruned: prune, isFull: true, isConfirmed: true, fromPool: false });
+        // fetch each tx by id without pruning
+        for (let txId of txIds) {
+          let tx = await daemon.getTx(txId);
+          testTx(tx, {isPruned: false, isConfirmed: true, fromPool: false});
         }
         
-        // TODO: test binary vs json encoding
+        // fetch each tx by id with pruning
+        for (let txId of txIds) {
+          let tx = await daemon.getTx(txId, true);
+          testTx(tx, {isPruned: true, isConfirmed: true, fromPool: false});
+        }
+        
+        // fetch invalid id
+        try {
+          await daemon.getTx("invalid tx id");
+          throw new Error("fail")
+        } catch (e) {
+          assert.equal("Invalid transaction id", e.message);
+        }
+      });
+      
+      it ("Can get transactions by ids with and without pruning", async function() {
+        
+        // fetch transaction ids to test
+        let txIds = await getTxIds(daemon);
+        
+        // fetch txs by id without pruning
+        let txs = await daemon.getTxs(txIds);
+        assert.equal(txs.length, txIds.length);
+        for (let tx of txs) {
+          testTx(tx, {isPruned: false, isConfirmed: true, fromPool: false});
+        }
+        
+        // fetch txs by id with pruning
+        txs = await daemon.getTxs(txIds, true);
+        assert.equal(txs.length, txIds.length);
+        for (let tx of txs) {
+          testTx(tx, {isPruned: true, isConfirmed: true, fromPool: false});
+        }
+        
+        // fetch invalid id
+        txIds.push("invalid tx id");
+        try {
+          await daemon.getTxs(txIds);
+          throw new Error("fail")
+        } catch (e) {
+          assert.equal("Invalid transaction id", e.message);
+        }
+      });
+      
+      it("Can get a transaction hex by id with and without pruning", async function() {
+        
+        // fetch transaction ids to test
+        let txIds = await getTxIds(daemon);
+        
+        // fetch each tx hex by id with and without pruning
+        let hexes = []
+        let hexesPruned = [];
+        for (let txId of txIds) {
+          hexes.push(await daemon.getTxHexes(txId));
+          hexesPruned.push(await daemon.getTxHexes(txId, true));
+        }
+        
+        // test results
+        assert.equal(hexes.length, txIds.length);
+        assert.equal(hexesPruned.length, txIds.length);
+        for (let i = 0; i < hexes.length; i++) {
+          assert.equal(typeof hexes[i], "string");
+          assert.equal(typeof hexesPruned[i], "string");
+          assert(hexesPruned[i].length > 0);
+          assert(hexes[i].length > hexesPruned[i]); // pruned hex is shorter
+        }
+        
+        // fetch invalid id
+        try {
+          await daemon.getTxHex("invalid tx id");
+          throw new Error("fail")
+        } catch (e) {
+          assert.notEqual("fail", e.message);
+          throw new Error("Now what?");
+        }
+      });
+      
+      it("Can get transaction hexes by ids with and without pruning", async function() {
+        
+        // fetch transaction ids to test
+        let txIds = await getTxIds(daemon);
+        
+        // fetch tx hexes by id with and without pruning
+        let hexes = await daemon.getTxHexes(txIds);
+        let hexesPruned = await daemon.getTxHexes(txIds, true);
+        
+        // test results
+        assert.equal(hexes.length, txIds.length);
+        assert.equal(hexesPruned.length, txIds.length);
+        for (let i = 0; i < hexes.length; i++) {
+          assert.equal(typeof hexes[i], "string");
+          assert.equal(typeof hexesPruned[i], "string");
+          assert(hexesPruned[i].length > 0);
+          assert(hexes[i].length > hexesPruned[i]); // pruned hex is shorter
+        }
+        
+        // fetch invalid id
+        txIds.push("invalid tx id");
+        try {
+          await daemon.getTxHexes(txIds);
+          throw new Error("fail")
+        } catch (e) {
+          assert.notEqual("fail", e.message);
+          throw new Error("Now what?");
+        }
       });
       
       it("Can get the coinbase transaction sum", async function() {
@@ -1044,12 +1132,14 @@ function testCoinbaseTx(coinbaseTx) {
 // TODO: how to test output indices? comes back with /get_transactions, maybe others
 function testTx(tx, config) {
   
+  // TODO: remove this
+  assert(config.isFull === undefined);
+  assert(config.hasJson === undefined);
+  
   // check inputs
   assert(tx);
   assert.equal(typeof config, "object");
-  assert.equal(typeof config.hasJson, "boolean");
   assert.equal(typeof config.isPruned, "boolean");
-  assert.equal(typeof config.isFull, "boolean");
   assert.equal(typeof config.isConfirmed, "boolean");
   assert.equal(typeof config.fromPool, "boolean");
   
@@ -1060,22 +1150,109 @@ function testTx(tx, config) {
   assert.equal(typeof tx.getIsConfirmed(), "boolean");
   assert.equal(typeof tx.getInTxPool(), "boolean");
   assert.equal(typeof tx.getIsCoinbase(), "boolean");
+  assert.equal(tx.getPrunableHex(), undefined); // TODO: way to test?
+  assert.equal(typeof tx.getIsDoubleSpend(), "boolean");
   
-  // test confirmed vs unconfirmed
-  if (config.isConfirmed) {
+  // test presence of output indices
+  // TODO: change this over to vouts only
+  if (tx.getIsCoinbase()) assert.equal(tx.getOutputIndices(), undefined); // TODO: how to get output indices for coinbase transactions?
+  else assert(tx.getOutputIndices().length > 0);
+  
+  // test confirmed config
+  if (config.isConfirmed === true) assert.equal(tx.getIsConfirmed(), true);
+  if (config.isConfirmed === false) assert.equal(tx.getIsConfirmed(), false);
+  
+  // test confirmed
+  if (tx.getIsConfirmed()) {
+    assert.equal(tx.getIsRelayed(), true);
+    assert.equal(tx.getIsFailed(), false);
+    assert.equal(tx.getInTxPool(), false);
+    assert.equal(tx.getDoNotRelay(), false);
     assert(tx.getHeight() >= 0);
-    assert(tx.getIsConfirmed());
-    assert(!tx.getInTxPool());
-    assert(tx.getIsRelayed());
+    assert.equal(tx.getConfirmationCount(), undefined); // client must compute
+    assert(tx.getBlockTimestamp() > 0);
+    assert.equal(tx.getIsDoubleSpend(), false);
   } else {
     assert.equal(tx.getHeight(), undefined);
-    assert(!tx.getIsConfirmed());
-    assert(tx.getInTxPool());  // TODO: does not consider failed tx
-    assert.equal(typeof tx.getIsRelayed(), "boolean");
+    assert.equal(tx.getConfirmationCount(), 0);
+    assert.equal(tx.getBlockTimestamp(), undefined);
   }
   
-  // fields that come with decoded json
-  if (config.hasJson) {
+  // test in tx pool
+  if (tx.getInTxPool()) {
+    assert.equal(tx.getIsConfirmed(), false);
+    assert.equal(tx.getDoNotRelay(), false);
+    assert.equal(tx.getIsRelayed(), true);
+    assert.equal(tx.getIsDoubleSpend(), false);
+    assert.equal(tx.getLastFailedHeight(), undefined);
+    assert.equal(tx.getLastFailedId(), undefined);
+    assert(tx.getReceivedTime() > 0);
+    tx.getEstimatedBlockCountUntilConfirmed() > 0
+  } else {
+    assert.equal(tx.getEstimatedBlockCountUntilConfirmed(), undefined);
+    assert.equal(tx.getLastRelayedTime(), undefined);
+  }
+  
+  // test coinbase tx
+  if (tx.getIsCoinbase()) {
+    assert.equal(tx.getFee().compare(new BigInteger(0)), 0);
+    assert(tx.getIncomingTransfers().length > 0);
+    assert.equal(tx.getVins(), undefined);
+  }
+  
+  // test failed  // TODO: what else to test associated with failed
+  if (tx.getIsFailed()) {
+    assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
+    assert(tx.getReceivedTime() > 0)
+  } else {
+    if (tx.getIsRelayed()) assert.equal(tx.getIsDoubleSpend(), false);
+    else {
+      assert.equal(tx.getIsRelayed(), false);
+      assert.equal(tx.getDoNotRelay(), true);
+      assert.equal(tx.getIsDoubleSpend(), undefined);
+    }
+  }
+  assert.equal(tx.getLastFailedHeight(), undefined);
+  assert.equal(tx.getLastFailedId(), undefined);
+  
+  // received time only for tx pool or failed txs
+  if (tx.getReceivedTime() !== undefined) {
+    assert(tx.getInTxPool() || tx.getIsFailed());
+  }
+  
+  // test relayed tx
+  if (tx.getIsRelayed()) assert.equal(tx.getDoNotRelay(), false);
+  if (tx.getDoNotRelay()) {
+    assert(!tx.getIsRelayed());
+    assert(!tx.getIsConfirmed());
+    assert(!tx.getInTxPool());
+  }
+  
+  // test vins and vouts
+  if (config.isPruned) {
+    assert.equal(tx.getVins(), undefined);
+    assert.equal(tx.getVouts(), undefined);
+  } else {
+    if (!tx.getIsCoinbase()) assert(tx.getVins().length > 0);
+    assert(tx.getVouts().length > 0);
+  }
+  if (tx.getVins()) for (let vin of tx.getVins()) testVin(vin);
+  if (tx.getVouts()) for (let vout of tx.getVouts()) testVout(vout);
+  
+  // test deep copy
+  if (!config.doNotTestCopy) testTxCopy(tx, config);
+  
+  // test pruned vs not pruned
+  if (config.isPruned) {
+    assert.equal(tx.getVersion(), undefined);
+    assert.equal(tx.getUnlockTime(), undefined);
+    assert.equal(tx.getVins(), undefined);
+    assert.equal(tx.getVouts(), undefined);
+    assert.equal(tx.getExtra(), undefined);
+    assert.equal(tx.getRctSignatures(), undefined);
+    assert.equal(tx.getRctSigPrunable(), undefined);
+    assert(typeof tx.getPrunedHex() === "string" && tx.getPrunedHex().length > 0);
+  } else {
     assert(tx.getVersion() >= 0);
     assert(tx.getUnlockTime() >= 0);
     assert(tx.getVins() && Array.isArray(tx.getVins()) && tx.getVins().length >= 0);
@@ -1090,26 +1267,18 @@ function testTx(tx, config) {
     }
     assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
     assert(typeof tx.getRctSignatures().type === "number");
-  } else {
-    assert.equal(tx.getVersion(), undefined);
-    assert.equal(tx.getUnlockTime(), undefined);
-    assert.equal(tx.getVins(), undefined);
-    assert.equal(tx.getVouts(), undefined);
-    assert.equal(tx.getExtra(), undefined);
-    assert.equal(tx.getRctSignatures(), undefined);
-  }
-  
-  // prunable
-  if (config.isPruned) {
-    assert.equal(tx.getRctSigPrunable(), undefined);
-  } else {
     assert.equal(typeof tx.getRctSigPrunable().nbp, "number");
+    assert.equal(tx.getPrunedHex(), undefined);
   }
-  assert.equal(tx.getPrunableHex(), undefined);
-  assert.equal(tx.getPrunedHex(undefined));
   
-  // full fields come with /get_transactions, get_transaction_pool
-  if (config.isFull) {
+  // TODO: "full fields"?
+  if (config.isPruned) {
+    assert.equal(tx.getHex(), undefined);
+    assert.equal(tx.getSize(), undefined);
+    assert.equal(tx.getLastRelayedTime(), undefined);
+    assert.equal(tx.getReceivedTime(), undefined);
+    assert(tx.getPrunableHash());
+  } else {
     assert(tx.getHex().length > 0);
     assert.equal(tx.getIsDoubleSpend(), false);
     if (tx.getIsConfirmed()) {
@@ -1119,19 +1288,13 @@ function testTx(tx, config) {
     } else {
       assert.equal(tx.getBlockTimestamp(), undefined);
       if (tx.getIsRelayed()) assert(tx.getLastRelayedTime() > 0);
-      else if (!tx.getLastRelayedTime() !== undefined) console.log("WARNING: tx has last relayed time but is not relayed");  // TODO monero-wallet-rpc
+      else if (!tx.getLastRelayedTime() !== undefined) console.log("WARNING: tx has last relayed time but is not relayed");  // TODO monero-daemon-rpc
       assert(tx.getReceivedTime() > 0);
     }
-//    if (config.isPruned) assert(!tx.getPrunableHash()); // TODO: tx may or may not have prunable hash, need to know when it's expected
-//    else assert(tx.getPrunableHash());
-  } else {
-    assert.equal(tx.getHex(), undefined);
-    assert.equal(tx.getSize(), undefined);
-    assert.equal(tx.getIsDoubleSpend(), undefined);
-    assert.equal(tx.getBlockTimestamp(), undefined);
-    assert.equal(tx.getLastRelayedTime(), undefined);
-    assert.equal(tx.getReceivedTime(), undefined);
-    assert.equal(tx.getPrunableHash(), undefined);
+    assert(tx.getPrunableHash());
+    
+//  if (config.isPruned) assert(!tx.getPrunableHash()); // TODO: tx may or may not have prunable hash, need to know when it's expected
+//  else assert(tx.getPrunableHash());
   }
   
   // test fields from tx pool
@@ -1145,9 +1308,8 @@ function testTx(tx, config) {
     assert(tx.getMaxUsedBlockId());
   } else {
     assert.equal(tx.getWeight(), undefined);
-    assert.equal(tx.getDoNotRelay(), undefined);
     assert.equal(tx.getKeptByBlock(), undefined);
-    assert.equal(tx.getIsFailed(), undefined);
+    assert.equal(tx.getIsFailed(), false);
     assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedId(), undefined);
     assert.equal(tx.getMaxUsedBlockHeight(), undefined);
@@ -1355,6 +1517,7 @@ function testVin(vin) {
 
 function testVout(vout) {
   testOutput(vout);
+  assert(vout.getIndex() >= 0);
   assert(vout.getStealthPublicKey() && vout.getStealthPublicKey().length === 64);
 }
 
@@ -1443,6 +1606,62 @@ function testUpdateDownloadResult(result, path) {
   } else {
     assert.equal(result.getDownloadPath(), undefined);
   }
+}
+
+async function getTxIds(daemon) {
+  
+  // get valid height range
+  let height = await daemon.getHeight();
+  let numBlocks = 200;
+  let numBlocksAgo = 200;
+  assert(numBlocks > 0);
+  assert(numBlocksAgo >= numBlocks);
+  assert(height - numBlocksAgo + numBlocks - 1 < height);
+  let startHeight = height - numBlocksAgo;
+  let endHeight = height - numBlocksAgo + numBlocks - 1;
+  
+  // get blocks
+  let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
+  
+  // collect tx ids
+  let txIds = blocks.map(block => block.getTxIds()).reduce((a, b) => { a.push.apply(a, b); return a; });
+  assert(txIds.length > 0, "No transactions found in the range [" + startHeight + ", " + endHeight + "]");  // TODO: this fails if no txs in last 100 blocks
+  return txIds;
+}
+
+function testTxCopy(tx, config) {
+  
+  // copy tx and assert deep equality
+  let copy = tx.copy();
+  assert(copy instanceof MoneroTx);
+  assert.deepEqual(copy, tx);
+  
+  // test different vin references
+  if (copy.getVins() === undefined) assert.equal(tx.getVins(), undefined);
+  else {
+    assert(copy.getVins() !== tx.getVins());
+    for (let i = 0; i < copy.getVins().length; i++) {
+      if (tx.getVins()[i].getAmount() == copy.getVins()[i].getAmount()) assert(tx.getVins()[i].getAmount() === new BigInteger(0));
+    }
+  }
+  
+  // test different vout references
+  if (copy.getVouts() === undefined) assert.equal(tx.getVouts(), undefined);
+  else {
+    assert(copy.getVouts() !== tx.getVouts());
+    for (let i = 0; i < copy.getVouts().length; i++) {
+      if (tx.getVouts()[i].getAmount() == copy.getVouts()[i].getAmount()) assert(tx.getVouts()[i].getAmount() === new BigInteger(0));
+    }
+  }
+  
+  // test copied tx
+  config = Object.assign({}, config);
+  config.doNotTestCopy = true;
+  testTx(copy, config);
+  
+  // test merging with copy
+  let merged = copy.merge(copy.copy());
+  assert.equal(merged.toString(), tx.toString());
 }
 
 module.exports = TestMoneroDaemonRpc;

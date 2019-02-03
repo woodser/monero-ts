@@ -1787,14 +1787,14 @@ class TestMoneroWalletCommon {
         let config = new MoneroSendConfig();
         config.setDoNotRelay(true);
         for (let tx of txs) {
-          await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet); // TODO: this code is outdated
+          await testWalletTxSend(tx, config, !canSplit, !canSplit, wallet); // TODO: this code is outdated
         }
         
         // relay and test txs
         txs = await wallet.relayTxs(txs.map(tx => tx.getMetadata()));
-        config.setDoNotRelay(false);  // TODO: remove this and update testTxWalletSend with isRelayResponse
+        config.setDoNotRelay(false);  // TODO: remove this and update testWalletTxSend with isRelayResponse
         for (let tx of txs) {
-          await testTxWalletSend(tx, config, !canSplit, !canSplit, wallet);
+          await testWalletTxSend(tx, config, !canSplit, !canSplit, wallet);
         }
       });
       
@@ -1803,7 +1803,7 @@ class TestMoneroWalletCommon {
         assert(Array.isArray(txs));
         assert(txs.length > 0, "No dust to sweep");
         for (let tx of txs) {
-          await testTxWalletSend(tx, undefined, !canSplit, !canSplit, wallet);
+          await testWalletTxSend(tx, undefined, !canSplit, !canSplit, wallet);
         }
       });
     });
@@ -2260,6 +2260,36 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(tx.getLastRelayedTime(), undefined);
   }
   
+  // test coinbase tx
+  if (tx.getIsCoinbase()) {
+    assert.equal(tx.getFee().compare(new BigInteger(0)), 0);
+    assert(tx.getIncomingTransfers().length > 0);
+  }
+  
+  // test failed  // TODO: what else to test associated with failed
+  if (tx.getIsFailed()) {
+    assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
+    assert(tx.getReceivedTime() > 0)
+  } else {
+    if (tx.getIsRelayed()) assert.equal(tx.getIsDoubleSpend(), false);
+    else {
+      assert.equal(tx.getIsRelayed(), false);
+      assert.equal(tx.getDoNotRelay(), true);
+      assert.equal(tx.getIsDoubleSpend(), undefined);
+    }
+  }
+  assert.equal(tx.getLastFailedHeight(), undefined);
+  assert.equal(tx.getLastFailedId(), undefined);
+  
+  // received time only for tx pool or failed txs
+  if (tx.getReceivedTime() !== undefined) {
+    assert(tx.getInTxPool() || tx.getIsFailed());
+  }
+  
+  // test relayed tx
+  if (tx.getIsRelayed()) assert.equal(tx.getDoNotRelay(), false);
+  if (tx.getDoNotRelay()) assert(!tx.getIsRelayed());
+  
   // test outgoing transfer per configuration
   if (testConfig.hasOutgoingTransfer === false) assert(tx.getOutgoingTransfer() === undefined);
   if (testConfig.hasDestinations) assert(tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getDestionations().length > 0);
@@ -2306,36 +2336,6 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(tx.getIncomingAmount(), undefined);
     assert.equal(tx.getIncomingTransfers(), undefined);
   }
-  
-  // test coinbase tx
-  if (tx.getIsCoinbase()) {
-    assert.equal(tx.getFee().compare(new BigInteger(0)), 0);
-    assert(tx.getIncomingTransfers().length > 0);
-  }
-  
-  // test failed  // TODO: what else to test associated with failed
-  if (tx.getIsFailed()) {
-    assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
-    assert(tx.getReceivedTime() > 0)
-  } else {
-    if (tx.getIsRelayed()) assert.equal(tx.getIsDoubleSpend(), false);
-    else {
-      assert.equal(tx.getIsRelayed(), false);
-      assert.equal(tx.getDoNotRelay(), true);
-      assert.equal(tx.getIsDoubleSpend(), undefined);
-    }
-  }
-  assert.equal(tx.getLastFailedHeight(), undefined);
-  assert.equal(tx.getLastFailedId(), undefined);
-  
-  // received time only for tx pool or failed txs
-  if (tx.getReceivedTime() !== undefined) {
-    assert(tx.getInTxPool() || tx.getIsFailed());
-  }
-  
-  // test relayed tx
-  if (tx.getIsRelayed()) assert.equal(tx.getDoNotRelay(), false);
-  if (tx.getDoNotRelay()) assert(!tx.getIsRelayed());
   
   // test tx result from send(), sendSplit(), or relayTxs()
   if (testConfig.sendConfig) {
@@ -2422,7 +2422,6 @@ function testWalletTxTypes(tx) {
   assert.equal(tx.getWeight(), undefined);
 }
 
-// TODO: test uncommon references
 async function testWalletTxCopy(tx, testConfig) {
   
   // copy tx and assert deep equality
@@ -2441,6 +2440,7 @@ async function testWalletTxCopy(tx, testConfig) {
       for (let i = 0; i < tx.getOutgoingTransfer().getDestinations().length; i++) {
         assert.deepEqual(copy.getOutgoingTransfer().getDestinations()[i], tx.getOutgoingTransfer().getDestinations()[i]);
         assert(tx.getOutgoingTransfer().getDestinations()[i] !== copy.getOutgoingTransfer().getDestinations()[i]);
+        if (tx.getOutgoingTransfer().getDestinations()[i].getAmount() == copy.getOutgoingTransfer().getDestinations()[i].getAmount()) assert(tx.getOutgoingTransfer().getDestinations()[i].getAmount() === new BigInteger(0));
       }
     }
   }
@@ -2448,12 +2448,14 @@ async function testWalletTxCopy(tx, testConfig) {
     for (let i = 0; i < tx.getIncomingTransfers().length; i++) {
       assert.deepEqual(copy.getIncomingTransfers()[i], tx.getIncomingTransfers()[i]);
       assert(tx.getIncomingTransfers()[i] !== copy.getIncomingTransfers()[i]);
+      if (tx.getIncomingTransfers()[i].getAmount() == copy.getIncomingTransfers()[i].getAmount()) assert(tx.getIncomingTransfers()[i].getAmount() === new BigInteger(0));
     }
   }
   if (tx.getVouts()) {
     for (let i = 0; i < tx.getVouts().length; i++) {
       assert.deepEqual(copy.getVouts()[i], tx.getVouts()[i]);
       assert(tx.getVouts()[i] !== copy.getVouts()[i]);
+      if (tx.getVouts()[i].getAmount() == copy.getVouts()[i].getAmount()) assert(tx.getVouts()[i].getAmount() === new BigInteger(0));
     }
   }
   
@@ -2464,7 +2466,7 @@ async function testWalletTxCopy(tx, testConfig) {
   
   // test merging with copy
   let merged = copy.merge(copy.copy());
-  assert.equal(merged.toString(), tx.toString()); // TODO: not deepEqual() because merges create undefineds; remove pre or post api
+  assert.equal(merged.toString(), tx.toString());
 }
 
 function testTransfer(transfer) {

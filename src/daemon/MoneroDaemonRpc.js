@@ -180,16 +180,21 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return await this.getBlocksByHeight(heights);
   }
   
-  async getTxs(txIds, decodeAsJson, prune) {
+  async getTxs(txIds, prune) {
     await this._initOneTime();
     
     // fetch transactions
     let resp = await this.config.rpc.sendPathRequest("get_transactions", {
       txs_hashes: txIds,
-      decode_as_json: decodeAsJson,
+      decode_as_json: true,
       prune: prune
     });
-    MoneroDaemonRpc._checkResponseStatus(resp);
+    try {
+      MoneroDaemonRpc._checkResponseStatus(resp);
+    } catch (e) {
+      if (e.message.indexOf("Failed to parse hex representation of transaction hash") >= 0) throw new Error("Invalid transaction id");
+      throw e;
+    }
     
     // build transaction models
     let txs = [];
@@ -197,10 +202,17 @@ class MoneroDaemonRpc extends MoneroDaemon {
       for (let txIdx = 0; txIdx < resp.txs.length; txIdx++) {
         let tx = new MoneroTx();
         tx.setIsCoinbase(false);
+        tx.setIsRelayed(true);
+        tx.setIsFailed(false);
+        tx.setDoNotRelay(false);
         txs.push(MoneroDaemonRpc._buildTx(resp.txs[txIdx], tx));
       }
     }
     return txs;
+  }
+  
+  async getTxHexes(txIds, prune) {
+    throw new Error("Not implemented");
   }
   
   async getCoinbaseTxSum(height, count) {
@@ -740,7 +752,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "rctsig_prunable") MoneroUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
       else if (key === "unlock_time") MoneroUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, val);
       else if (key === "as_json" || key === "tx_json") { if (val) MoneroDaemonRpc._buildTx(JSON.parse(val), tx); }  // may need to read tx from json str
-      else if (key === "as_hex" || key === "tx_blob") MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, val);
+      else if (key === "as_hex" || key === "tx_blob") MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, val ? val : undefined);
       else if (key === "blob_size") MoneroUtils.safeSet(tx, tx.getSize, tx.setSize, val);
       else if (key === "weight") MoneroUtils.safeSet(tx, tx.getWeight, tx.setWeight, val);
       else if (key === "fee") MoneroUtils.safeSet(tx, tx.getFee, tx.setFee, new BigInteger(val));
@@ -772,16 +784,16 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else console.log("WARNING: ignoring unexpected field in rpc tx: " + key + ": " + val);
     }
     
-//    if (typeof tx.getIsConfirmed() !== "boolean") {
-//      console.log(rpcTx);
-//      console.log(tx.toString());
-//    }
-    //assert.equal(typeof tx.getIsConfirmed(), "boolean")
-    
-    // initialize final fields
+    // initialize remaining known fields
     if (tx.getIsConfirmed()) {
       MoneroUtils.safeSet(tx, tx.getIsRelayed, tx.setIsRelayed, true);
       MoneroUtils.safeSet(tx, tx.getHeight, tx.setHeight, blockHeight); // use block height iff confirmed, otherwise rpc returns timestamp
+    }
+    if (tx.getOutputIndices() && tx.getVouts())  {
+      assert.equal(tx.getVouts().length, tx.getOutputIndices().length);
+      for (let i = 0; i < tx.getVouts().length; i++) {
+        tx.getVouts()[i].setIndex(tx.getOutputIndices()[i]);  // transfer output indices to vouts
+      }
     }
     
     // return built transaction

@@ -123,7 +123,7 @@ class MoneroDaemon {
    *        next goes in pow(2,n) offset, like 2, 4, 8, 16, 32, 64 and so on,
    *        and the last one is always genesis block
    * @param {int} startHeight is the start height to get blocks by id
-   * @param {boolean} prune specifies if returned blocks should be pruned (defaults to true)  // TODO: test default
+   * @param {boolean} prune specifies if returned blocks should be pruned (defaults to false)  // TODO: test default
    * @return {MoneroBlock[]} are the retrieved blocks
    */
   async getBlocksById(blockIds, startHeight, prune) {
@@ -175,14 +175,46 @@ class MoneroDaemon {
   }
   
   /**
-   * Get transactions with the given ids.
+   * Get a transaction by id.
    * 
-   * @param {string[]} txIds specifies the transaction ids to get
-   * @param {boolean} decodeAsJson decodes the returned transactions as JSON rather than binary if true
-   * @param {boolean} prune specifies if the returned txs should be pruned (defaults to true)
+   * @param {string} txId is the id of the transaction to get
+   * @param {boolean} prune specifies if the returned tx should be pruned (defaults to false)
+   * @return {MoneroTx} is the transaction with the given id
+   */
+  async getTx(txId, prune = false) {
+    return (await this.getTxs([txId], prune))[0];
+  }
+  
+  /**
+   * Get transactions by ids.
+   * 
+   * @param {string[]} txIds are ids of transactions to get
+   * @param {boolean} prune specifies if the returned txs should be pruned (defaults to false)
    * @return {MoneroTx[]} are the transactions with the given ids
    */
-  async getTxs(txIds, decodeAsJson, prune) {
+  async getTxs(txIds, prune = false) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get a transaction hex by id.
+   * 
+   * @param {string} txId is the id of the transaction to get hex from
+   * @param {boolean} prune specifies if the returned tx hex should be pruned (defaults to false)
+   * @return {string} is the tx hex with the given id
+   */
+  async getTxHex(txIds, prune = false) {
+    return (await this.getTxHexes([txId], prune))[0];
+  }
+  
+  /**
+   * Get transaction hexes by ids.
+   * 
+   * @param {string[]} txIds are ids of transactions to get hexes from
+   * @param {boolean} prune specifies if the returned tx hexes should be pruned (defaults to false)
+   * @return {string[]} are the tx hexes
+   */
+  async getTxHexes(txIds, prune = false) {
     throw new Error("Subclass must implement");
   }
   

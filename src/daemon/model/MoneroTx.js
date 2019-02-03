@@ -24,7 +24,7 @@ class MoneroTx {
     if (state.vins) {
       for (let i = 0; i < state.vins.length; i++) {
         if (!(state.vins[i] instanceof MoneroOutput)) {
-          state.vins[i] = new MoneroOutput(state.vins[i]);
+          state.vins[i] = new MoneroOutput(Object.assign(state.vins[i], {tx: this}));
         }
       }
     }
@@ -33,7 +33,7 @@ class MoneroTx {
     if (state.vouts) {
       for (let i = 0; i < state.vouts.length; i++) {
         if (!(state.vouts[i] instanceof MoneroOutput)) {
-          state.vouts[i] = new MoneroOutput(state.vouts[i]);
+          state.vouts[i] = new MoneroOutput(Object.assign(state.vouts[i], {tx: this}));
         }
       }
     }
@@ -406,6 +406,10 @@ class MoneroTx {
   toJson() {
     let json = Object.assign({}, this.state);
     if (this.getFee()) json.fee = this.getFee().toString();
+    if (this.getVins()) {
+      json.vins = [];
+      for (let vin of this.getVins()) json.vins.push(vin.toJson());
+    }
     if (this.getVouts()) {
       json.vouts = [];
       for (let vout of this.getVouts()) json.vouts.push(vout.toJson());
@@ -437,6 +441,7 @@ class MoneroTx {
     str += MoneroUtils.kvLine("Hex", this.getHex(), indent);
     str += MoneroUtils.kvLine("Size", this.getSize(), indent);
     str += MoneroUtils.kvLine("Weight", this.getWeight(), indent);
+    str += MoneroUtils.kvLine("Output indices", this.getOutputIndices(), indent);
     str += MoneroUtils.kvLine("Metadata", this.getMetadata(), indent);
     str += MoneroUtils.kvLine("Common tx sets", this.getCommonTxSets(), indent);
     str += MoneroUtils.kvLine("Extra", this.getExtra(), indent);
@@ -494,8 +499,8 @@ class MoneroTx {
     this.setHex(MoneroUtils.reconcile(this.getHex(), tx.getHex()));
     this.setSize(MoneroUtils.reconcile(this.getSize(), tx.getSize()));
     this.setWeight(MoneroUtils.reconcile(this.getWeight(), tx.getWeight()));
-    this.setMetadata(MoneroUtils.reconcile(this.getMetadata(), tx.getMetadata()));
     this.setOutputIndices(MoneroUtils.reconcile(this.getOutputIndices(), tx.getOutputIndices()));
+    this.setMetadata(MoneroUtils.reconcile(this.getMetadata(), tx.getMetadata()));
     this.setCommonTxSets(MoneroUtils.reconcile(this.getCommonTxSets(), tx.getCommonTxSets()));
     this.setExtra(MoneroUtils.reconcile(this.getExtra(), tx.getExtra()));
     this.setRctSignatures(MoneroUtils.reconcile(this.getRctSignatures(), tx.getRctSignatures()));
@@ -539,7 +544,8 @@ class MoneroTx {
         merger.setTx(this);
         if (!this.getVouts()) this.setVouts([]);
         for (let mergee of this.getVouts()) {
-          if (mergee.getKeyImage().getHex() === merger.getKeyImage().getHex()) {
+          assert(mergee.getIndex() >= 0 && merger.getIndex() >= 0);
+          if (mergee.getIndex() === merger.getIndex()) {
             mergee.merge(merger);
             merged = true;
             break;
