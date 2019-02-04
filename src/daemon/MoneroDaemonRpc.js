@@ -163,6 +163,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.setIsConfirmed(true);
         tx.setInTxPool(false);
         tx.setIsCoinbase(false);
+        tx.setDoNotRelay(false);
         tx.setIsRelayed(true);
         tx.setIsFailed(false);
         tx.setIsDoubleSpend(false);
