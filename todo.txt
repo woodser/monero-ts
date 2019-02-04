@@ -1,4 +1,4 @@
-no outputIndices, just use vouts
+remove extra fields: outputIndices into vouts, block height, timestamp, confirmation count into block instead of tx, block txIds into block's txs, subaddress index into account index only?
 daemon.getTxs() decodeAsJson needed? vins/vouts not returned unless true
 daemon.getTxs() prune, test with and without pruning
 
