@@ -193,7 +193,7 @@ class TestMoneroDaemonRpc {
         let blocks = await daemon.getBlocksByHeight(heights);
         
         // config for testing blocks
-        let testBlockConfig = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { isPruned: true, isConfirmed: true, fromPool: false } };
+        let testBlockConfig = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { isPruned: true, isConfirmed: true, fromPool: false, hasOutputIndices: false} }; // TODO: get_blocks_by_height.bin does not return output indices (#5127)
         
         // test blocks
         let txFound = false;
@@ -1151,7 +1151,7 @@ function testTx(tx, config) {
   // test presence of output indices
   // TODO: change this over to vouts only
   if (tx.getIsCoinbase()) assert.equal(tx.getOutputIndices(), undefined); // TODO: how to get output indices for coinbase transactions?
-  else assert(tx.getOutputIndices().length > 0);
+  else if (config.hasOutputIndices !== false) assert(tx.getOutputIndices().length > 0); // TODO: get_blocks_by_height.bin does not return output indices (#5127)
   
   // test confirmed config
   if (config.isConfirmed === true) assert.equal(tx.getIsConfirmed(), true);
@@ -1163,10 +1163,10 @@ function testTx(tx, config) {
     assert.equal(tx.getIsFailed(), false);
     assert.equal(tx.getInTxPool(), false);
     assert.equal(tx.getDoNotRelay(), false);
+    assert.equal(tx.getIsDoubleSpend(), false);
     assert(tx.getHeight() >= 0);
     assert.equal(tx.getConfirmationCount(), undefined); // client must compute
     assert(tx.getBlockTimestamp() > 0);
-    assert.equal(tx.getIsDoubleSpend(), false);
   } else {
     assert.equal(tx.getHeight(), undefined);
     assert.equal(tx.getConfirmationCount(), 0);

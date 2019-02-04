@@ -3,21 +3,21 @@
  */
 class MoneroBlock {
   
-  getHex() {
-    return this.hex;
-  }
-  
-  setHex(hex) {
-    this.hex = hex;
-    return this;
-  }
-  
   getHeader() {
     return this.header;
   }
   
   setHeader(header) {
     this.header = header;
+    return this;
+  }
+  
+  getHex() {
+    return this.hex;
+  }
+  
+  setHex(hex) {
+    this.hex = hex;
     return this;
   }
   
@@ -30,21 +30,21 @@ class MoneroBlock {
     return this;
   }
   
-  getTxIds() {
-    return this.txIds;
-  }
-  
-  setTxIds(txIds) {
-    this.txIds = txIds;
-    return this;
-  }
-  
   getTxs() {
     return this.txs;
   }
   
   setTxs(txs) {
     this.txs = txs;
+    return this;
+  }
+  
+  getTxIds() {
+    return this.txIds;
+  }
+  
+  setTxIds(txIds) {
+    this.txIds = txIds;
     return this;
   }
 }
