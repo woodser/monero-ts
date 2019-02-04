@@ -167,6 +167,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.setIsRelayed(true);
         tx.setIsFailed(false);
         tx.setIsDoubleSpend(false);
+        tx.setBlockTimestamp(block.getHeader().getTimestamp()); // TODO: this field is redundant with block header's timestamp
         MoneroDaemonRpc._buildTx(rpcBlocks.txs[blockIdx][txIdx], tx);
       }
     }
