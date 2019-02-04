@@ -189,14 +189,11 @@ class TestMoneroDaemonRpc {
         let heights = [];
         for (let i = allHeights.length - numBlocks; i < allHeights.length; i++) heights.push(allHeights[i]);
         
-        // TODO: don't override heights
-        //heights = [111, 222, 333];
-        
         // fetch blocks
         let blocks = await daemon.getBlocksByHeight(heights);
         
         // config for testing blocks
-        let testBlockConfig = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { hasJson: true, isPruned: true, isFull: false, isConfirmed: true, fromPool: false } };
+        let testBlockConfig = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { isPruned: true, isConfirmed: true, fromPool: false } };
         
         // test blocks
         let txFound = false;
@@ -322,8 +319,8 @@ class TestMoneroDaemonRpc {
         let hexes = []
         let hexesPruned = [];
         for (let txId of txIds) {
-          hexes.push(await daemon.getTxHexes(txId));
-          hexesPruned.push(await daemon.getTxHexes(txId, true));
+          hexes.push(await daemon.getTxHex(txId));
+          hexesPruned.push(await daemon.getTxHex(txId, true));
         }
         
         // test results
@@ -333,7 +330,7 @@ class TestMoneroDaemonRpc {
           assert.equal(typeof hexes[i], "string");
           assert.equal(typeof hexesPruned[i], "string");
           assert(hexesPruned[i].length > 0);
-          assert(hexes[i].length > hexesPruned[i]); // pruned hex is shorter
+          assert(hexes[i].length > hexesPruned[i].length); // pruned hex is shorter
         }
         
         // fetch invalid id
@@ -341,8 +338,7 @@ class TestMoneroDaemonRpc {
           await daemon.getTxHex("invalid tx id");
           throw new Error("fail")
         } catch (e) {
-          assert.notEqual("fail", e.message);
-          throw new Error("Now what?");
+          assert.equal("Invalid transaction id", e.message);
         }
       });
       
@@ -362,7 +358,7 @@ class TestMoneroDaemonRpc {
           assert.equal(typeof hexes[i], "string");
           assert.equal(typeof hexesPruned[i], "string");
           assert(hexesPruned[i].length > 0);
-          assert(hexes[i].length > hexesPruned[i]); // pruned hex is shorter
+          assert(hexes[i].length > hexesPruned[i].length); // pruned hex is shorter
         }
         
         // fetch invalid id
@@ -371,8 +367,7 @@ class TestMoneroDaemonRpc {
           await daemon.getTxHexes(txIds);
           throw new Error("fail")
         } catch (e) {
-          assert.notEqual("fail", e.message);
-          throw new Error("Now what?");
+          assert.equal("Invalid transaction id", e.message);
         }
       });
       
@@ -399,7 +394,7 @@ class TestMoneroDaemonRpc {
         assert(Array.isArray(txPool.getTxs()));
         assert(txPool.getTxs().length > 0, "Test requires an unconfirmed tx in the tx pool");
         for (let tx of txPool.getTxs()) {
-          testTx(tx, { hasJson: true, isPruned: false, isFull: true, isConfirmed: false, fromPool: true });
+          testTx(tx, { isPruned: false, isConfirmed: false, fromPool: true });
         }
         
         // test key images

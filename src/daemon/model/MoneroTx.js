@@ -210,12 +210,55 @@ class MoneroTx {
     return this;
   }
   
+  /**
+   * Get full transaction hex.  Full hex = pruned hex + prunable hex.
+   * 
+   * @return {string} is full transaction hex
+   */
   getHex() {
     return this.state.hex;
   }
   
   setHex(hex) {
     this.state.hex = hex;
+    return this;
+  }
+  
+  /**
+   * Get pruned transaction hex.  Full hex = pruned hex + prunable hex.
+   * 
+   * @return {string} is pruned transaction hex
+   */
+  getPrunedHex() {
+    return this.state.prunedHex;
+  }
+  
+  setPrunedHex(prunedHex) {
+    this.state.prunedHex = prunedHex;
+    return this;
+  }
+  
+  /**
+   * Get prunable transaction hex which is hex that is removed from a pruned
+   * transaction. Full hex = pruned hex + prunable hex.
+   * 
+   * @return {string} is the prunable transaction hex
+   */
+  getPrunableHex() {
+    return this.state.prunableHex;
+  }
+  
+  setPrunableHex(prunableHex) {
+    this.state.prunableHex = prunableHex;
+    return this;
+  }
+  
+  getPrunableHash() {
+    return this.state.prunableHash;
+  }
+  
+  setPrunableHash(prunableHash) {
+    this.state.prunableHash = prunableHash;
     return this;
   }
   
@@ -372,33 +415,6 @@ class MoneroTx {
     return this;
   }
   
-  getPrunableHash() {
-    return this.state.prunableHash;
-  }
-  
-  setPrunableHash(prunableHash) {
-    this.state.prunableHash = prunableHash;
-    return this;
-  }
-  
-  getPrunableHex() {
-    return this.state.prunableHex;
-  }
-  
-  setPrunableHex(prunableHex) {
-    this.state.prunableHex = prunableHex;
-    return this;
-  }
-  
-  getPrunedHex() {
-    return this.state.prunedHex;
-  }
-  
-  setPrunedHex(prunedHex) {
-    this.state.prunedHex = prunedHex;
-    return this;
-  }
-  
   copy() {
     return new MoneroTx(this.toJson());
   }
@@ -439,6 +455,9 @@ class MoneroTx {
     str += MoneroUtils.kvLine("Is double spend", this.getIsDoubleSpend(), indent);
     str += MoneroUtils.kvLine("Key", this.getKey(), indent);
     str += MoneroUtils.kvLine("Hex", this.getHex(), indent);
+    str += MoneroUtils.kvLine("Pruned hex", this.getPrunedHex(), indent);
+    str += MoneroUtils.kvLine("Prunable hex", this.getPrunableHex(), indent);
+    str += MoneroUtils.kvLine("Prunable hash", this.getPrunableHash(), indent);
     str += MoneroUtils.kvLine("Size", this.getSize(), indent);
     str += MoneroUtils.kvLine("Weight", this.getWeight(), indent);
     str += MoneroUtils.kvLine("Output indices", this.getOutputIndices(), indent);
@@ -454,9 +473,6 @@ class MoneroTx {
     str += MoneroUtils.kvLine("Max used block height", this.getMaxUsedBlockHeight(), indent);
     str += MoneroUtils.kvLine("Max used block id", this.getMaxUsedBlockId(), indent);
     str += MoneroUtils.kvLine("Signatures", this.getSignatures(), indent);
-    str += MoneroUtils.kvLine("Prunable hash", this.getPrunableHash(), indent);
-    str += MoneroUtils.kvLine("Prunable hex", this.getPrunableHex(), indent);
-    str += MoneroUtils.kvLine("Pruned hex", this.getPrunedHex(), indent);
     if (this.getVins()) {
       str += MoneroUtils.kvLine("Vins", "", indent);
       for (let i = 0; i < this.getVins().length; i++) {
@@ -497,6 +513,9 @@ class MoneroTx {
     this.setIsDoubleSpend(MoneroUtils.reconcile(this.getIsDoubleSpend(), tx.getIsDoubleSpend()));
     this.setKey(MoneroUtils.reconcile(this.getKey(), tx.getKey()));
     this.setHex(MoneroUtils.reconcile(this.getHex(), tx.getHex()));
+    this.setPrunedHex(MoneroUtils.reconcile(this.getPrunedHex(), tx.getPrunedHex()));
+    this.setPrunableHex(MoneroUtils.reconcile(this.getPrunableHex(), tx.getPrunableHex()));
+    this.setPrunableHash(MoneroUtils.reconcile(this.getPrunableHash(), tx.getPrunableHash()));
     this.setSize(MoneroUtils.reconcile(this.getSize(), tx.getSize()));
     this.setWeight(MoneroUtils.reconcile(this.getWeight(), tx.getWeight()));
     this.setOutputIndices(MoneroUtils.reconcile(this.getOutputIndices(), tx.getOutputIndices()));
@@ -516,9 +535,6 @@ class MoneroTx {
     this.setHeight(MoneroUtils.reconcile(this.getHeight(), tx.getHeight(), {resolveMax: true}));  // height can increase
     this.setBlockTimestamp(MoneroUtils.reconcile(this.getBlockTimestamp(), tx.getBlockTimestamp(), {resolveMax: true}));  // block timestamp can increase
     this.setConfirmationCount(MoneroUtils.reconcile(this.getConfirmationCount(), tx.getConfirmationCount(), {resolveMax: true})); // confirmation count can increase
-    this.setPrunableHash(MoneroUtils.reconcile(this.getPrunableHash(), tx.getPrunableHash()));
-    this.setPrunableHex(MoneroUtils.reconcile(this.getPrunableHex(), tx.getPrunableHex()));
-    this.setPrunedHex(MoneroUtils.reconcile(this.getPrunedHex(), tx.getPrunedHex()));
     
     // merge vins
     if (tx.getVins()) {

@@ -203,7 +203,7 @@ class MoneroDaemon {
    * @param {boolean} prune specifies if the returned tx hex should be pruned (defaults to false)
    * @return {string} is the tx hex with the given id
    */
-  async getTxHex(txIds, prune = false) {
+  async getTxHex(txId, prune = false) {
     return (await this.getTxHexes([txId], prune))[0];
   }
   

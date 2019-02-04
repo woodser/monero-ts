@@ -164,6 +164,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.setInTxPool(false);
         tx.setIsCoinbase(false);
         tx.setIsRelayed(true);
+        tx.setIsFailed(false);
+        tx.setIsDoubleSpend(false);
         MoneroDaemonRpc._buildTx(rpcBlocks.txs[blockIdx][txIdx], tx);
       }
     }
@@ -182,6 +184,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getTxs(txIds, prune) {
     await this._initOneTime();
+    
+    // validate input
+    assert(Array.isArray(txIds) && txIds.length > 0, "Must provide an array of transaction ids");
+    assert(prune === undefined || typeof prune === "boolean", "Prune must be a boolean or undefined");
     
     // fetch transactions
     let resp = await this.config.rpc.sendPathRequest("get_transactions", {
@@ -212,7 +218,34 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getTxHexes(txIds, prune) {
-    throw new Error("Not implemented");
+    await this._initOneTime();
+    
+    // validate input
+    assert(Array.isArray(txIds) && txIds.length > 0, "Must provide an array of transaction ids");
+    assert(prune === undefined || typeof prune === "boolean", "Prune must be a boolean or undefined");
+    
+    // fetch transactions
+    let resp = await this.config.rpc.sendPathRequest("get_transactions", {
+      txs_hashes: txIds,
+      decode_as_json: false,
+      prune: prune
+    });
+    try {
+      MoneroDaemonRpc._checkResponseStatus(resp);
+    } catch (e) {
+      if (e.message.indexOf("Failed to parse hex representation of transaction hash") >= 0) throw new Error("Invalid transaction id");
+      throw e;
+    }
+
+    // collect hexes which may be pruned
+    let hexes = [];
+    if (resp.txs) {
+      assert.equal(resp.txs.length, txIds.length);
+      for (let rpcTx of resp.txs) {
+        hexes.push(prune ? rpcTx.pruned_as_hex : rpcTx.as_hex);
+      }
+    }
+    return hexes;
   }
   
   async getCoinbaseTxSum(height, count) {
