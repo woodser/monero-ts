@@ -1,13 +1,11 @@
 is tx pool key images redundant because that info is embedded in tx vins?
+daemon.getTxs() test getting tx pool tx by id
 remove extra fields: outputIndices into vouts, block height, timestamp, confirmation count into block instead of tx, block txIds into block's txs, subaddress index into account index only?
-daemon.getTxs() decodeAsJson needed? vins/vouts not returned unless true
-daemon.getTxs() prune, test with and without pruning
 
 todos throughout code
 object model
 copy() should call new self() which calls toJson() which is unpacked
 
-daemon.getTxs() test getting tx pool tx by id
 daemon.getBlocksById(), default implementations
 daemon test getting coinbase txs by id
 
