@@ -555,6 +555,7 @@ class MoneroTx {
     
     // merge vouts
     if (tx.getVouts()) {
+      for (let vout of tx.getVouts()) vout.setTx(this);
       if (this.getVouts() === undefined) this.setVouts(tx.getVouts());
       else {
         
@@ -564,12 +565,10 @@ class MoneroTx {
         for (let vout of tx.getVouts()) if (vout.getIndex() !== undefined) numOutputIndices++;
         assert(numOutputIndices === 0 || this.getVouts().length + tx.getVouts().length === numOutputIndices, "Some vouts have an index and some do not");
         
-        
         // merge by indices
         if (numOutputIndices > 0) {
           for (let merger of tx.getVouts()) {
             let merged = false;
-            merger.setTx(this);
             if (!this.getVouts()) this.setVouts([]);
             for (let mergee of this.getVouts()) {
               assert(mergee.getIndex() >= 0 && merger.getIndex() >= 0);
