@@ -304,6 +304,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.setIsConfirmed(false);
         tx.setIsCoinbase(false);
         tx.setInTxPool(true);
+        tx.setConfirmationCount(0);
         MoneroDaemonRpc._buildTx(rpcTx, tx);
         txs.push(tx);
       }

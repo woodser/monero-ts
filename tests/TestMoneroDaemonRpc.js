@@ -193,7 +193,7 @@ class TestMoneroDaemonRpc {
         let blocks = await daemon.getBlocksByHeight(heights);
         
         // config for testing blocks
-        let testBlockConfig = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { isPruned: false, isConfirmed: true, fromPool: false, fromGetBlocksByHeight: true} }; // TODO: fromGetBlocksByHeight necessary because get_blocks_by_height.bin does not return output indices (#5127), has inconsistent pruning
+        let testBlockConfig = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { isPruned: false, isConfirmed: true, fromPool: false, hasOutputIndices: false, fromGetBlocksByHeight: true } }; // TODO: getBlocksByHeight() has inconsistent client-side pruning, get_blocks_by_height.bin does not return output indices (#5127)
         
         // test blocks
         let txFound = false;
@@ -515,7 +515,7 @@ class TestMoneroDaemonRpc {
         // collect key images being spent as hex // TODO: better way to get key images?
         let keyImages = [];
         let txIds = txs.map(tx => tx.getId());
-        for (let tx of await daemon.getTxs(txIds, true)) {
+        for (let tx of await daemon.getTxs(txIds)) {
           for (let vin of tx.getVins()) keyImages.push(vin.getKeyImage().getHex());
         }
         
@@ -1151,7 +1151,7 @@ function testTx(tx, config) {
   // test presence of output indices
   // TODO: change this over to vouts only
   if (tx.getIsCoinbase()) assert.equal(tx.getOutputIndices(), undefined); // TODO: how to get output indices for coinbase transactions?
-  if (config.fromGetBlocksByHeight) assert.equal(tx.getOutputIndices(), undefined);  // TODO: no output indices from get_blocks_by_height.bin (#5127)
+  if (config.fromPool || config.hasOutputIndices === false) assert.equal(tx.getOutputIndices(), undefined);
   else assert(tx.getOutputIndices().length > 0);
   
   // test confirmed config
@@ -1177,8 +1177,6 @@ function testTx(tx, config) {
   // test in tx pool
   if (tx.getInTxPool()) {
     assert.equal(tx.getIsConfirmed(), false);
-    assert.equal(tx.getDoNotRelay(), false);
-    assert.equal(tx.getIsRelayed(), true);
     assert.equal(tx.getIsDoubleSpend(), false);
     assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedId(), undefined);
@@ -1205,7 +1203,7 @@ function testTx(tx, config) {
     else {
       assert.equal(tx.getIsRelayed(), false);
       assert.equal(tx.getDoNotRelay(), true);
-      assert.equal(tx.getIsDoubleSpend(), undefined);
+      assert.equal(typeof tx.getIsDoubleSpend(), "boolean");
     }
   }
   assert.equal(tx.getLastFailedHeight(), undefined);
@@ -1221,7 +1219,6 @@ function testTx(tx, config) {
   if (tx.getDoNotRelay()) {
     assert(!tx.getIsRelayed());
     assert(!tx.getIsConfirmed());
-    assert(!tx.getInTxPool());
   }
   
   // test vins and vouts
@@ -1257,7 +1254,7 @@ function testTx(tx, config) {
     for (let vout of tx.getVouts()) assert(tx === vout.getTx());
     assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
     assert(typeof tx.getRctSignatures().type === "number");
-    if (config.fromGetBlocksByHeight) assert.equal(tx.getRctSigPrunable(), undefined);  // TODO: getBlocksByHeight() has inconsistent pruning
+    if (config.fromGetBlocksByHeight) assert.equal(tx.getRctSigPrunable(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
     else assert.equal(typeof tx.getRctSigPrunable().nbp, "number");
     assert.equal(tx.getPrunedHex(), undefined);
   }
@@ -1270,7 +1267,7 @@ function testTx(tx, config) {
     assert.equal(tx.getReceivedTime(), undefined);
     assert(tx.getPrunableHash());
   } else {
-    if (config.fromGetBlocksByHeight) assert.equal(tx.getHex(), undefined);  // TODO: getBlocksByHeight() has inconsistent pruning
+    if (config.fromGetBlocksByHeight) assert.equal(tx.getHex(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
     else assert(tx.getHex().length > 0);
     assert.equal(tx.getIsDoubleSpend(), false);
     if (tx.getIsConfirmed()) {
@@ -1283,7 +1280,7 @@ function testTx(tx, config) {
       else if (!tx.getLastRelayedTime() !== undefined) console.log("WARNING: tx has last relayed time but is not relayed");  // TODO monero-daemon-rpc
       assert(tx.getReceivedTime() > 0);
     }
-    if (config.fromGetBlocksByHeight) assert.equal(tx.getPrunableHash(), undefined);  // TODO: getBlocksByHeight() has inconsistent pruning
+    if (config.fromPool || config.fromGetBlocksByHeight) assert.equal(tx.getPrunableHash(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
     else assert(tx.getPrunableHash());
     
     
@@ -1511,7 +1508,7 @@ function testVin(vin) {
 
 function testVout(vout, config) {
   testOutput(vout);
-  if (config && config.fromGetBlocksByHeight) assert.equal(vout.getIndex(), undefined); // TODO: get_blocks_by_height.bin does not return output indices (#5127)
+  if (config && config.fromPool || config.hasOutputIndices === false) assert.equal(vout.getIndex(), undefined); // TODO: get_blocks_by_height.bin does not return output indices (#5127), get_transaction_pool 
   else assert(vout.getIndex() >= 0);
   assert(vout.getStealthPublicKey() && vout.getStealthPublicKey().length === 64);
 }
@@ -1655,10 +1652,8 @@ function testTxCopy(tx, config) {
   testTx(copy, config);
   
   // test merging with copy
-  if (!config || !config.fromGetBlocksByHeight) { // TODO: cannot merge because vouts have no indices from get_blocks_by_height.bin call (#5127)
-    let merged = copy.merge(copy.copy());
-    assert.equal(merged.toString(), tx.toString());
-  }
+  let merged = copy.merge(copy.copy());
+  assert.equal(merged.toString(), tx.toString());
 }
 
 module.exports = TestMoneroDaemonRpc;
