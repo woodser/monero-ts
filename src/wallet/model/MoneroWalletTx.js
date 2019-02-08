@@ -11,9 +11,9 @@ const MoneroWalletOutput = require("./MoneroWalletOutput");
 class MoneroWalletTx extends MoneroTx {
   
   /**
-   * Constructs the model.
+   * Construct the model.
    * 
-   * @param state is model state or json to initialize from (optional)
+   * @param {MoneroWalletTx|object} state is existing state to initialize from (optional)
    */
   constructor(state) {
     super(state);
@@ -82,7 +82,7 @@ class MoneroWalletTx extends MoneroTx {
   }
   
   copy() {
-    return new MoneroWalletTx(this.toJson());
+    return new MoneroWalletTx(this);
   }
   
   toJson() {

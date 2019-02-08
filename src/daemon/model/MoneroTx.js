@@ -9,12 +9,17 @@ const MoneroOutput = require("./MoneroOutput");
 class MoneroTx {
   
   /**
-   * Constructs the model.
+   * Construct the model.
    * 
-   * @param state is model state or json to initialize from (optional)
+   * @param {MoneroTx|object} state is existing state to initialize from (optional)
    */
   constructor(state) {
-    state = Object.assign({}, state);
+    
+    // initialize internal state
+    if (!state) state = {};
+    else if (state instanceof MoneroTx) state = state.toJson();
+    else if (typeof state === "object") state = Object.assign({}, state);
+    else throw new Error("state must be a MoneroTx or JavaScript object");
     this.state = state;
     
     // deserialize fee
@@ -416,7 +421,7 @@ class MoneroTx {
   }
   
   copy() {
-    return new MoneroTx(this.toJson());
+    return new MoneroTx(this);
   }
   
   toJson() {

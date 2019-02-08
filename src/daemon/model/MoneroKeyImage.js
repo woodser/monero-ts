@@ -6,23 +6,21 @@ const MoneroUtils = require("../../utils/MoneroUtils");
 class MoneroKeyImage {
   
   /**
-   * Constructs the model.
+   * Construct the model.
    * 
-   * @param stateOrHex is model state or json to initialize from, or a key image hex string (optional)
-   * @param signature is the key image's signature
+   * @param {MoneroKeyImage|object|string} stateOrHex is a MoneroKeyImage, JS object, or hex string to initialize from (optional)
+   * @param {string} signature is the key image's signature
    */
   constructor(stateOrHex, signature) {
-    
-    // initialize without state
-    if (stateOrHex === undefined || typeof stateOrHex === "string") {
+    if (!stateOrHex) this.state = {};
+    else if (stateOrHex instanceof MoneroKeyImage) this.state = stateOrHex.toJson();
+    else if (typeof stateOrHex === "object") this.state = Object.assign({}, stateOrHex);
+    else if (typeof stateOrHex === "string") {
       this.state = {};
       this.setHex(stateOrHex);
       this.setSignature(signature);
-    }
-    
-    // initialize from state
-    else {
-      this.state = Object.assign({}, stateOrHex);
+    } else {
+      throw new Error("stateOrHex must be a MoneroKeyImage, JavaScript object, or string");
     }
   }
 
@@ -45,7 +43,7 @@ class MoneroKeyImage {
   }
   
   copy() {
-    return new MoneroKeyImage(this.toJson());
+    return new MoneroKeyImage(this);
   }
   
   toJson() {

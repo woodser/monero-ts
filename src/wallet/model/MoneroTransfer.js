@@ -9,12 +9,17 @@ const MoneroDestination = require("./MoneroDestination");
 class MoneroTransfer {
   
   /**
-   * Constructs the model.
+   * Construct the model.
    * 
-   * @param state is model state or json to initialize from (optional)
+   * @param {MoneroTransfer|object} state is existing state to initialize from (optional)
    */
   constructor(state) {
-    state = Object.assign({}, state);
+    
+    // initialize internal state
+    if (!state) state = {};
+    else if (state instanceof MoneroTransfer) state = state.toJson();
+    else if (typeof state === "object") state = Object.assign({}, state);
+    else throw new Error("state must be a MoneroTransfer or JavaScript object");
     this.state = state;
     
     // deserialize fields if necessary
@@ -96,7 +101,7 @@ class MoneroTransfer {
   }
   
   copy() {
-    return new MoneroTransfer(this.toJson());
+    return new MoneroTransfer(this);
   }
   
   toJson() {

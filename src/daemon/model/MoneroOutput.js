@@ -8,12 +8,17 @@ const MoneroKeyImage = require("./MoneroKeyImage");
 class MoneroOutput {
   
   /**
-   * Constructs the model.
+   * Construct the model.
    * 
-   * @param state is model state or json to initialize from (optional)
+   * @param {MoneroOutput|object} state is existing state to initialize from (optional)
    */
   constructor(state) {
-    state = Object.assign({}, state);
+    
+    // initialize internal state
+    if (!state) state = {};
+    else if (state instanceof MoneroOutput) state = state.toJson();
+    else if (typeof state === "object") state = Object.assign({}, state);
+    else throw new Error("state must be a MoneroOutput or JavaScript object");
     this.state = state;
     
     // deserialize fields if necessary
@@ -76,7 +81,7 @@ class MoneroOutput {
   }
   
   copy() {
-    return new MoneroOutput(this.toJson());
+    return new MoneroOutput(this);
   }
   
   toJson() {

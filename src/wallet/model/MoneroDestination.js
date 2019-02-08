@@ -6,20 +6,27 @@ const MoneroUtils = require("../../utils/MoneroUtils");
  */
 class MoneroDestination {
   
+  /**
+   * Construct the model.
+   * 
+   * @param {MoneroDestination|object|string} stateOrAddress is a MoneroDestination, JS object, or hex string to initialize from (optional)
+   */
   constructor(stateOrAddress, amount) {
     
-    // initialize without state
-    if (stateOrAddress === undefined || typeof stateOrAddress === "string") {
+    // initialize internal state
+    if (!stateOrAddress) this.state = {};
+    else if (stateOrAddress instanceof MoneroDestination) this.state = stateOrAddress.toJson();
+    else if (typeof stateOrAddress === "object") this.state = Object.assign({}, stateOrAddress);
+    else if (typeof stateOrAddress === "string")  {
       this.state = {};
       this.setAddress(stateOrAddress);
       this.setAmount(amount);
+    } else {
+      throw new Error("stateOrAddress must be a MoneroDestination, JavaScript object, or hex string");
     }
-    
-    // initialize from state
-    else {
-      this.state = Object.assign({}, stateOrAddress);
-      if (this.state.amount && !(this.state.amount instanceof BigInteger)) this.state.amount = BigInteger.parse(this.state.amount);
-    }
+      
+    // deserialize amount  
+    if (this.state.amount && !(this.state.amount instanceof BigInteger)) this.state.amount = BigInteger.parse(this.state.amount);
   }
   
   getAddress() {
@@ -41,7 +48,7 @@ class MoneroDestination {
   }
 
   copy() {
-    return new MoneroDestination(this.toJson());
+    return new MoneroDestination(this);
   }
   
   toJson() {

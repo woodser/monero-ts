@@ -1,4 +1,3 @@
-copy() should call new self() which calls toJson() which is unpacked
 daemon.getTxs() test getting tx pool tx by id
 daemon test getting coinbase txs by id
 get_transfers pool does not actually indicate it's relayed; return undefined?

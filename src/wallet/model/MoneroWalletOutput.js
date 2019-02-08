@@ -8,9 +8,9 @@ const MoneroOutput = require("../../daemon/model/MoneroOutput");
 class MoneroWalletOutput extends MoneroOutput {
   
   /**
-   * Constructs the model.
+   * Construct the model.
    * 
-   * @param state is model state or json to initialize from (optional)
+   * @param {MoneroWalletOutput|object} state is existing state to initialize from (optional)
    */
   constructor(state) {
     super(state);

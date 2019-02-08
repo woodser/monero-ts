@@ -536,12 +536,12 @@ class TestMoneroWalletCommon {
       it("Returns all known fields of txs regardless of filtering", async function() {
         
         // fetch wallet txs
-        let txs = await wallet.getTxs();
+        let txs = await wallet.getTxs({isConfirmed: true});
+        
         for (let tx of txs) {
           
           // find tx sent to same wallet with incoming transfer in different account than src account
           if (!tx.getOutgoingTransfer() || !tx.getIncomingTransfers()) continue;
-          if (tx.getOutgoingAmount().compare(tx.getIncomingAmount()) !== 0) continue;
           for (let transfer of tx.getIncomingTransfers()) {
             if (transfer.getAccountIndex() === tx.getOutgoingTransfer().getAccountIndex()) continue;
             
