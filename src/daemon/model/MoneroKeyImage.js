@@ -43,24 +43,6 @@ class MoneroKeyImage {
     this.state.signature = signature;
     return this;
   }
-
-  getSpentStatus() {
-    return this.state.spentStatus;
-  }
-
-  setSpentStatus(spentStatus) {
-    this.state.spentStatus = spentStatus;
-    return this;
-  }
-  
-  getSpendingTxIds() {
-    return this.state.spendingTxIds;
-  }
-  
-  setSpendingTxIds(spendingTxIds) {
-    this.state.spendingTxIds = spendingTxIds;
-    return this;
-  }
   
   copy() {
     return new MoneroKeyImage(this.toJson());
@@ -74,8 +56,6 @@ class MoneroKeyImage {
     let str = "";
     str += MoneroUtils.kvLine("Hex", this.getHex(), indent);
     str += MoneroUtils.kvLine("Signature", this.getSignature(), indent);
-    str += MoneroUtils.kvLine("Spent status", this.getSpentStatus(), indent);
-    str += MoneroUtils.kvLine("Spending tx ids", this.getSpendingTxIds(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
   
@@ -84,14 +64,12 @@ class MoneroKeyImage {
     if (keyImage === this) return;
     this.setHex(MoneroUtils.reconcile(this.getHex(), keyImage.getHex()));
     this.setSignature(MoneroUtils.reconcile(this.getSignature(), keyImage.getSignature()));
-    this.setSpentStatus(MoneroUtils.reconcile(this.getSpentStatus(), keyImage.getSpentStatus()));
-    this.setSpendingTxIds(MoneroUtils.reconcile(this.getSpendingTxIds(), keyImage.getSpendingTxIds()));
     return this;
   }
 }
 
 /**
- * Enumerates key image spend statuses.
+ * Enumerates key image spent statuses.
  */
 MoneroKeyImage.SpentStatus = {
     NOT_SPENT: 0,

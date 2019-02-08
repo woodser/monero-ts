@@ -381,33 +381,20 @@ class TestMoneroDaemonRpc {
         TestUtils.testUnsignedBigInteger(fee, true);
       });
       
-      it("Can get transactions and spent key images in the transaction pool", async function() {
+      it("Can get transactions in the transaction pool", async function() {
         
         // submit tx to pool but don't relay
         let tx = await getUnrelayedTx(wallet);
         await daemon.submitTxHex(tx.getHex(), true);
         
-        // fetch tx pool txs and spent key images
-        let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
+        // fetch txs in pool
+        let txs = await daemon.getTxPool();
         
         // test txs
-        assert(Array.isArray(txPool.getTxs()));
-        assert(txPool.getTxs().length > 0, "Test requires an unconfirmed tx in the tx pool");
-        for (let tx of txPool.getTxs()) {
+        assert(Array.isArray(txs));
+        assert(txs.length > 0, "Test requires an unconfirmed tx in the tx pool");
+        for (let tx of txs) {
           testTx(tx, { isPruned: false, isConfirmed: false, fromPool: true });
-        }
-        
-        // test key images
-        assert(Array.isArray(txPool.getSpentKeyImages()));
-        assert(txPool.getSpentKeyImages().length > 0, "Test requires spent key images in the tx pool");
-        for (let image of txPool.getSpentKeyImages()) {
-          assert(image instanceof MoneroKeyImage);
-          assert(image.getHex());
-          assert.equal(typeof image.getSpentStatus(), "number");
-          assert.equal(image.getSpentStatus(), MoneroKeyImage.SpentStatus.TX_POOL);
-          assert(Array.isArray(image.getSpendingTxIds()));
-          assert(image.getSpendingTxIds().length > 0);
-          assert(image.getSpendingTxIds().includes(tx.getId()));
         }
         
         // flush the tx from the pool, gg
@@ -443,8 +430,8 @@ class TestMoneroDaemonRpc {
       it("Can flush all transactions from the pool", async function() {
         
         // pool starts flushed for each test
-        let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
-        assert.equal(txPool.getTxs().length, 0);
+        let txs = await daemon.getTxPool();
+        assert.equal(txs.length, 0);
         
         // submit txs to the pool but don't relay
         for (let i = 0; i < 2; i++) {
@@ -453,13 +440,14 @@ class TestMoneroDaemonRpc {
         }
         
         // txs are in pool
-        txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
-        assert(txPool.getTxs().length >= 2);
+        txs = await daemon.getTxPool();
+        assert(txs.length >= 2);
         
         // flush tx pool
         let resp = await daemon.flushTxPool();
-        txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
-        assert(txPool.getTxs().length === 0);
+        assert.equal(resp, undefined);
+        txs = await daemon.getTxPool();
+        assert(txs.length === 0);
       });
       
       it("Can flush a transaction from the pool by id", async function() {
@@ -479,8 +467,8 @@ class TestMoneroDaemonRpc {
           await daemon.flushTxPool(txs[i].getId());
           
           // test tx pool
-          let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
-          assert.equal(txPool.getTxs().length, txs.length - i - 1);
+          let poolTxs = await daemon.getTxPool();
+          assert.equal(poolTxs.length, txs.length - i - 1);
         }
       });
       
@@ -498,28 +486,24 @@ class TestMoneroDaemonRpc {
         await daemon.flushTxPool(txIds);
         
         // test tx pool
-        let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
-        assert.equal(txPool.getTxs().length, 0);
+        let txs = await daemon.getTxPool();
+        assert.equal(txs.length, 0);
       });
       
       it("Can get the spent status of key images", async function() {
         
-        // submit txs to the pool but don't relay
+        // submit txs to the pool to collect key images then flush
         let txs = [];
         for (let i = 0; i < 3; i++) {
           let tx = await getUnrelayedTx(wallet, i);
           await daemon.submitTxHex(tx.getHex(), true);
           txs.push(tx);
         }
-        
-        // collect key images being spent as hex // TODO: better way to get key images?
         let keyImages = [];
         let txIds = txs.map(tx => tx.getId());
         for (let tx of await daemon.getTxs(txIds)) {
           for (let vin of tx.getVins()) keyImages.push(vin.getKeyImage().getHex());
         }
-        
-        // flush txs
         await daemon.flushTxPool(txIds);
         
         // key images are not spent
@@ -913,9 +897,9 @@ class TestMoneroDaemonRpc {
         testSubmitTxResultGood(result);
         
         // tx1 is in the pool
-        let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
+        let txs = await daemon.getTxPool();
         let found = false;
-        for (let aTx of txPool.getTxs()) {
+        for (let aTx of txs) {
           if (aTx.getId() === tx1.getId()) {
             assert.equal(aTx.getIsRelayed(), true);
             found = true;
@@ -930,9 +914,9 @@ class TestMoneroDaemonRpc {
         testSubmitTxResultDoubleSpend(result);
         
         // tx2 is in not the pool
-        txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
+        txs = await daemon.getTxPool();
         found = false;
-        for (let aTx of txPool.getTxs()) {
+        for (let aTx of txs) {
           if (aTx.getId() === tx2.getId()) {
             found = true;
             break;
@@ -964,9 +948,9 @@ class TestMoneroDaemonRpc {
           testSubmitTxResultGood(result);
           
           // ensure tx is in pool
-          let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
+          let poolTxs = await daemon.getTxPool();
           let found = false;
-          for (let aTx of txPool.getTxs()) {
+          for (let aTx of poolTxs) {
             if (aTx.getId() === tx.getId()) {
               assert.equal(aTx.getIsRelayed(), false);
               found = true;
@@ -981,9 +965,9 @@ class TestMoneroDaemonRpc {
         
         // ensure txs are relayed
         for (let tx of txs) {
-          let txPool = await daemon.getTxPoolTxsAndSpentKeyImages();
+          let poolTxs = await daemon.getTxPool();
           let found = false;
-          for (let aTx of txPool.getTxs()) {
+          for (let aTx of poolTxs) {
             if (aTx.getId() === tx.getId()) {
               assert.equal(aTx.getIsRelayed(), true);
               found = true;
@@ -1229,7 +1213,7 @@ function testTx(tx, config) {
     if (!tx.getIsCoinbase()) assert(tx.getVins().length > 0);
     assert(tx.getVouts().length > 0);
   }
-  if (tx.getVins()) for (let vin of tx.getVins()) testVin(vin);
+  if (tx.getVins()) for (let vin of tx.getVins()) testVin(vin, config);
   if (tx.getVouts()) for (let vout of tx.getVouts()) testVout(vout, config);
   
   // test deep copy
@@ -1495,14 +1479,22 @@ async function getUnrelayedTx(wallet, accountIdx) {
   return tx;
 }
 
-function testVin(vin) {
+function testVin(vin, config) {
   testOutput(vin);
-  assert(vin.getKeyImage());
-  assert(vin.getKeyImage().getHex().length === 64);
+  testKeyImage(vin.getKeyImage(), config);
   assert(vin.getRingOutputIndices() && Array.isArray(vin.getRingOutputIndices()) && vin.getRingOutputIndices().length > 0);
   for (let index of vin.getRingOutputIndices()) {
     assert.equal(typeof index, "number")
     assert(index >= 0);
+  }
+}
+
+function testKeyImage(image, config) {
+  assert(image instanceof MoneroKeyImage);
+  assert(image.getHex());
+  if (image.getSignature() !== undefined) {
+    assert.equal(typeof image.getSignature(), "string");
+    assert(image.getSignature().length > 0);
   }
 }
 

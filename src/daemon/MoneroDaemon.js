@@ -273,9 +273,9 @@ class MoneroDaemon {
    * Get valid transactions seen by the node but not yet mined into a block, as well
    * as spent key image information for the tx pool.
    * 
-   * @return {MoneroTxPool} contains tx pool transactions and spent key images
+   * @return {MoneroTx[]} are transactions in the transaction pool
    */
-  async getTxPoolTxsAndSpentKeyImages() {
+  async getTxPool() {
     throw new Error("Subclass must implement");
   }
   
@@ -284,7 +284,7 @@ class MoneroDaemon {
    * 
    * @return {string[]} are ids of transactions in the transaction pool
    */
-  async getTxPoolTxIds() {
+  async getTxPoolIds() {
     throw new Error("Subclass must implement");
   }
   
