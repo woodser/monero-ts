@@ -310,6 +310,26 @@ class TestMoneroDaemonRpc {
         }
       });
       
+      it("Can get transactions by ids that are in the transaction pool", async function() {
+        
+        // submit txs to the pool but don't relay
+        let txIds = [];
+        for (let i = 0; i < 3; i++) {
+          let tx = await getUnrelayedTx(wallet, i);
+          await daemon.submitTxHex(tx.getHex(), true);
+          txIds.push(tx.getId());
+        }
+        
+        // fetch txs by id
+        let txs = await daemon.getTxs(txIds);
+        
+        // test fetched txs
+        assert.equal(txs.length, txIds.length);
+        for (let tx of txs) {
+          testTx(tx, {isConfirmed: false, fromGetTxPool: false, isPruned: false});
+        }
+      });
+      
       it("Can get a transaction hex by id with and without pruning", async function() {
         
         // fetch transaction ids to test
@@ -399,26 +419,6 @@ class TestMoneroDaemonRpc {
         
         // flush the tx from the pool, gg
         await daemon.flushTxPool(tx.getId());
-      });
-      
-      it("Can get transactions in the transaction pool by id", async function() {
-        
-        // submit txs to the pool but don't relay
-        let txIds = [];
-        for (let i = 0; i < 3; i++) {
-          let tx = await getUnrelayedTx(wallet, i);
-          await daemon.submitTxHex(tx.getHex(), true);
-          txIds.push(tx.getId());
-        }
-        
-        // fetch txs by id
-        let txs = await daemon.getTxs(txIds);
-        
-        // test fetched txs
-        assert.equal(txs.length, txIds.length);
-        for (let tx of txs) {
-          testTx(tx, {isConfirmed: false, fromGetTxPool: false, isPruned: false});
-        }
       });
       
       it("Can get ids of transactions in the transaction pool (binary)", async function() {
