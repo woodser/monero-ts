@@ -1,5 +1,5 @@
-daemon.getTxs() test getting tx pool tx by id
 daemon test getting coinbase txs by id
+daemon test failed txs more
 get_transfers pool does not actually indicate it's relayed; return undefined?
 remove extra fields: outputIndices into vouts, block height, timestamp, confirmation count into block instead of tx, block txIds into block's txs, subaddress index into account index only?
 todos throughout code
@@ -67,6 +67,7 @@ split BooleanSet into new project
 package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 
 RPC
+add relayed to get_transactions, otherwise must use get_tx_pool
 add output_indices to get_blocks_by_height.bin (#5127)
 get_transfers can return all subaddresses (#5109)
 get_balance should return used or get_address should return balances for RPC optimization

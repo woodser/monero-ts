@@ -7,7 +7,7 @@ new TestMoneroDaemonRpc().runTests({
   liteMode: false,
   testNonRelays: true,
   testRelays: true, // creates and relays outgoing txs
-  testNotifications: false
+  testNotifications: true
 });
 
 // test wallet rpc
@@ -16,15 +16,15 @@ new TestMoneroWalletRpc().runTests({
   testNonSends: true,
   testSends: true,
   testResets: false,
-  testNotifications: false
+  testNotifications: true
 });
 
-////test sample code for readme
-//require("./TestSampleCode");
-//
-//// test core utils
-//require("./TestMoneroCoreUtils");
-//
+//test sample code for readme
+require("./TestSampleCode");
+
+// test core utils
+require("./TestMoneroCoreUtils");
+
 //// test wallet local
 //new TestMoneroWalletLocal().runTests({
 //  testNonSends: true,
@@ -32,7 +32,7 @@ new TestMoneroWalletRpc().runTests({
 //  testResets: false,
 //  testNotifications: false
 //});
-//
+
 //// test wallet equality
 //require("./TestMoneroWalletEquality");
 //

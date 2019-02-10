@@ -193,7 +193,7 @@ class TestMoneroDaemonRpc {
         let blocks = await daemon.getBlocksByHeight(heights);
         
         // config for testing blocks
-        let testBlockConfig = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { isPruned: false, isConfirmed: true, fromPool: false, hasOutputIndices: false, fromGetBlocksByHeight: true } }; // TODO: getBlocksByHeight() has inconsistent client-side pruning, get_blocks_by_height.bin does not return output indices (#5127)
+        let testBlockConfig = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { isPruned: false, isConfirmed: true, fromGetTxPool: false, hasOutputIndices: false, fromGetBlocksByHeight: true } }; // TODO: getBlocksByHeight() has inconsistent client-side pruning, get_blocks_by_height.bin does not return output indices (#5127)
         
         // test blocks
         let txFound = false;
@@ -258,18 +258,18 @@ class TestMoneroDaemonRpc {
       it("Can get a transaction by id with and without pruning", async function() {
         
         // fetch transaction ids to test
-        let txIds = await getTxIds(daemon);
+        let txIds = await getConfirmedTxIds(daemon);
         
         // fetch each tx by id without pruning
         for (let txId of txIds) {
           let tx = await daemon.getTx(txId);
-          testTx(tx, {isPruned: false, isConfirmed: true, fromPool: false});
+          testTx(tx, {isPruned: false, isConfirmed: true, fromGetTxPool: false});
         }
         
         // fetch each tx by id with pruning
         for (let txId of txIds) {
           let tx = await daemon.getTx(txId, true);
-          testTx(tx, {isPruned: true, isConfirmed: true, fromPool: false});
+          testTx(tx, {isPruned: true, isConfirmed: true, fromGetTxPool: false});
         }
         
         // fetch invalid id
@@ -284,20 +284,20 @@ class TestMoneroDaemonRpc {
       it ("Can get transactions by ids with and without pruning", async function() {
         
         // fetch transaction ids to test
-        let txIds = await getTxIds(daemon);
+        let txIds = await getConfirmedTxIds(daemon);
         
         // fetch txs by id without pruning
         let txs = await daemon.getTxs(txIds);
         assert.equal(txs.length, txIds.length);
         for (let tx of txs) {
-          testTx(tx, {isPruned: false, isConfirmed: true, fromPool: false});
+          testTx(tx, {isPruned: false, isConfirmed: true, fromGetTxPool: false});
         }
         
         // fetch txs by id with pruning
         txs = await daemon.getTxs(txIds, true);
         assert.equal(txs.length, txIds.length);
         for (let tx of txs) {
-          testTx(tx, {isPruned: true, isConfirmed: true, fromPool: false});
+          testTx(tx, {isPruned: true, isConfirmed: true, fromGetTxPool: false});
         }
         
         // fetch invalid id
@@ -313,7 +313,7 @@ class TestMoneroDaemonRpc {
       it("Can get a transaction hex by id with and without pruning", async function() {
         
         // fetch transaction ids to test
-        let txIds = await getTxIds(daemon);
+        let txIds = await getConfirmedTxIds(daemon);
         
         // fetch each tx hex by id with and without pruning
         let hexes = []
@@ -345,7 +345,7 @@ class TestMoneroDaemonRpc {
       it("Can get transaction hexes by ids with and without pruning", async function() {
         
         // fetch transaction ids to test
-        let txIds = await getTxIds(daemon);
+        let txIds = await getConfirmedTxIds(daemon);
         
         // fetch tx hexes by id with and without pruning
         let hexes = await daemon.getTxHexes(txIds);
@@ -381,7 +381,7 @@ class TestMoneroDaemonRpc {
         TestUtils.testUnsignedBigInteger(fee, true);
       });
       
-      it("Can get transactions in the transaction pool", async function() {
+      it("Can get all transactions in the transaction pool", async function() {
         
         // submit tx to pool but don't relay
         let tx = await getUnrelayedTx(wallet);
@@ -394,11 +394,31 @@ class TestMoneroDaemonRpc {
         assert(Array.isArray(txs));
         assert(txs.length > 0, "Test requires an unconfirmed tx in the tx pool");
         for (let tx of txs) {
-          testTx(tx, { isPruned: false, isConfirmed: false, fromPool: true });
+          testTx(tx, { isPruned: false, isConfirmed: false, fromGetTxPool: true });
         }
         
         // flush the tx from the pool, gg
         await daemon.flushTxPool(tx.getId());
+      });
+      
+      it("Can get transactions in the transaction pool by id", async function() {
+        
+        // submit txs to the pool but don't relay
+        let txIds = [];
+        for (let i = 0; i < 3; i++) {
+          let tx = await getUnrelayedTx(wallet, i);
+          await daemon.submitTxHex(tx.getHex(), true);
+          txIds.push(tx.getId());
+        }
+        
+        // fetch txs by id
+        let txs = await daemon.getTxs(txIds);
+        
+        // test fetched txs
+        assert.equal(txs.length, txIds.length);
+        for (let tx of txs) {
+          testTx(tx, {isConfirmed: false, fromGetTxPool: false, isPruned: false});
+        }
       });
       
       it("Can get ids of transactions in the transaction pool (binary)", async function() {
@@ -958,6 +978,10 @@ class TestMoneroDaemonRpc {
             }
           }
           assert(found, "Tx was not found after being submitted to the daemon's tx pool");
+          
+          // fetch tx by id and ensure not relayed
+          let fetchedTx = await daemon.getTx(tx.getId());
+          assert.equal(fetchedTx.getIsRelayed(), undefined);  // TODO monero-daemon-rpc: add relayed to get_transactions
         }
         
         // relay the txs
@@ -1104,7 +1128,7 @@ function testCoinbaseTx(coinbaseTx) {
 //    isFull: false,
 //    isConfirmed: true,
 //    isCoinbase: true,
-//    fromPool: false,
+//    fromGetTxPool: false,
 //  })
 }
 
@@ -1120,11 +1144,12 @@ function testTx(tx, config) {
   assert.equal(typeof config, "object");
   assert.equal(typeof config.isPruned, "boolean");
   assert.equal(typeof config.isConfirmed, "boolean");
-  assert.equal(typeof config.fromPool, "boolean");
+  assert.equal(typeof config.fromGetTxPool, "boolean");
   
   // standard across all txs
   assert(tx.getId().length === 64);
-  assert.equal(typeof tx.getIsRelayed(), "boolean");
+  if (tx.getIsRelayed() === undefined) assert(tx.getInTxPool());  // TODO monero-daemon-rpc: add relayed to get_transactions
+  else assert.equal(typeof tx.getIsRelayed(), "boolean");
   assert.equal(tx.getSignatures(), undefined);  // TODO: way to test?
   assert.equal(typeof tx.getIsConfirmed(), "boolean");
   assert.equal(typeof tx.getInTxPool(), "boolean");
@@ -1135,7 +1160,7 @@ function testTx(tx, config) {
   // test presence of output indices
   // TODO: change this over to vouts only
   if (tx.getIsCoinbase()) assert.equal(tx.getOutputIndices(), undefined); // TODO: how to get output indices for coinbase transactions?
-  if (config.fromPool || config.hasOutputIndices === false) assert.equal(tx.getOutputIndices(), undefined);
+  if (tx.getInTxPool() || config.fromGetTxPool || config.hasOutputIndices === false) assert.equal(tx.getOutputIndices(), undefined);
   else assert(tx.getOutputIndices().length > 0);
   
   // test confirmed config
@@ -1183,7 +1208,8 @@ function testTx(tx, config) {
     assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
     assert(tx.getReceivedTime() > 0)
   } else {
-    if (tx.getIsRelayed()) assert.equal(tx.getIsDoubleSpend(), false);
+    if (tx.getIsRelayed() === undefined) assert.equal(tx.getDoNotRelay(), undefined); // TODO monero-daemon-rpc: add relayed to get_transactions
+    else if (tx.getIsRelayed()) assert.equal(tx.getIsDoubleSpend(), false);
     else {
       assert.equal(tx.getIsRelayed(), false);
       assert.equal(tx.getDoNotRelay(), true);
@@ -1216,9 +1242,6 @@ function testTx(tx, config) {
   if (tx.getVins()) for (let vin of tx.getVins()) testVin(vin, config);
   if (tx.getVouts()) for (let vout of tx.getVouts()) testVout(vout, config);
   
-  // test deep copy
-  if (!config.doNotTestCopy) testTxCopy(tx, config);
-  
   // test pruned vs not pruned
   if (config.isPruned) {
     assert.equal(tx.getVersion(), undefined);
@@ -1228,6 +1251,11 @@ function testTx(tx, config) {
     assert.equal(tx.getExtra(), undefined);
     assert.equal(tx.getRctSignatures(), undefined);
     assert.equal(tx.getRctSigPrunable(), undefined);
+    assert.equal(tx.getHex(), undefined);
+    assert.equal(tx.getSize(), undefined);
+    assert.equal(tx.getLastRelayedTime(), undefined);
+    assert.equal(tx.getReceivedTime(), undefined);
+    assert(tx.getPrunableHash());
     assert(typeof tx.getPrunedHex() === "string" && tx.getPrunedHex().length > 0);
   } else {
     assert(tx.getVersion() >= 0);
@@ -1241,16 +1269,6 @@ function testTx(tx, config) {
     if (config.fromGetBlocksByHeight) assert.equal(tx.getRctSigPrunable(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
     else assert.equal(typeof tx.getRctSigPrunable().nbp, "number");
     assert.equal(tx.getPrunedHex(), undefined);
-  }
-  
-  // TODO: "full fields"?
-  if (config.isPruned) {
-    assert.equal(tx.getHex(), undefined);
-    assert.equal(tx.getSize(), undefined);
-    assert.equal(tx.getLastRelayedTime(), undefined);
-    assert.equal(tx.getReceivedTime(), undefined);
-    assert(tx.getPrunableHash());
-  } else {
     if (config.fromGetBlocksByHeight) assert.equal(tx.getHex(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
     else assert(tx.getHex().length > 0);
     assert.equal(tx.getIsDoubleSpend(), false);
@@ -1264,16 +1282,15 @@ function testTx(tx, config) {
       else if (!tx.getLastRelayedTime() !== undefined) console.log("WARNING: tx has last relayed time but is not relayed");  // TODO monero-daemon-rpc
       assert(tx.getReceivedTime() > 0);
     }
-    if (config.fromPool || config.fromGetBlocksByHeight) assert.equal(tx.getPrunableHash(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
+    if (config.fromGetTxPool || config.fromGetBlocksByHeight) assert.equal(tx.getPrunableHash(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
     else assert(tx.getPrunableHash());
-    
     
 //  if (config.isPruned) assert(!tx.getPrunableHash()); // TODO: tx may or may not have prunable hash, need to know when it's expected
 //  else assert(tx.getPrunableHash());
   }
   
   // test fields from tx pool
-  if (config.fromPool) {
+  if (config.fromGetTxPool) {
     assert(tx.getSize() > 0);
     assert(tx.getWeight() > 0);
     assert.equal(typeof tx.getKeptByBlock(), "boolean");
@@ -1294,6 +1311,9 @@ function testTx(tx, config) {
   if (tx.getIsFailed()) {
     // TODO: implement this
   }
+  
+  // test deep copy
+  if (!config.doNotTestCopy) testTxCopy(tx, config);
 }
 
 function testBlockTemplate(template) {
@@ -1500,7 +1520,7 @@ function testKeyImage(image, config) {
 
 function testVout(vout, config) {
   testOutput(vout);
-  if (config && config.fromPool || config.hasOutputIndices === false) assert.equal(vout.getIndex(), undefined); // TODO: get_blocks_by_height.bin does not return output indices (#5127), get_transaction_pool 
+  if (vout.getTx().getInTxPool() || config && config.fromGetTxPool || config.hasOutputIndices === false) assert.equal(vout.getIndex(), undefined); // TODO: get_blocks_by_height.bin (#5127), get_transaction_pool, and tx pool txs do not return output indices 
   else assert(vout.getIndex() >= 0);
   assert(vout.getStealthPublicKey() && vout.getStealthPublicKey().length === 64);
 }
@@ -1592,7 +1612,7 @@ function testUpdateDownloadResult(result, path) {
   }
 }
 
-async function getTxIds(daemon) {
+async function getConfirmedTxIds(daemon) {
   
   // get valid height range
   let height = await daemon.getHeight();

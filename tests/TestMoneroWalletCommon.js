@@ -815,9 +815,9 @@ class TestMoneroWalletCommon {
         assert.equal(vouts.length, 0);
         
         // test invalid id in collection
-        let randomTxs = await getRandomTransactions(wallet, undefined, 3, 5);
+        let randomTxs = await getRandomTransactions(wallet, {getVouts: true}, 3, 5);
         vouts = await wallet.getVouts({txIds: [randomTxs[0].getId(), "invalid_id"]});
-        assert(vouts.length > 0);
+        assert.equal(randomTxs[0].getVouts().length, vouts.length);
         let tx = vouts[0].getTx();
         for (let vout of vouts) assert(tx === vout.getTx());
       });

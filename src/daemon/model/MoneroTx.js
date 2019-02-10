@@ -188,6 +188,7 @@ class MoneroTx {
     return this;
   }
   
+  // TODO: rename this to getReceivedTimestamp() for consistency with getBlockTimestamp()
   getReceivedTime() {
     return this.state.receivedTime;
   }
