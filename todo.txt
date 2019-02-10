@@ -1,4 +1,4 @@
-get_transfers pool does not actually indicate it's relayed; return undefined?
+what is the use case for transfer without relay, get_transfers does not indicate relayed state
 remove extra fields: outputIndices into vouts, block height, timestamp, confirmation count into block instead of tx, block txIds into block's txs, subaddress index into account index only?
 todos throughout code
 object model

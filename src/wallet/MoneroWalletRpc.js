@@ -375,7 +375,7 @@ class MoneroWalletRpc extends MoneroWallet {
       indices = await this._getAccountIndices(true);  // fetch all account and subaddress indices
     }
     
-    // build params for `get_transfers` rpc call
+    // build params for get_transfers rpc call
     let canBeConfirmed = tx.getIsConfirmed() !== false && tx.getInTxPool() !== true && tx.getIsFailed() !== true && tx.getIsRelayed() !== false;
     let canBeInTxPool = tx.getIsConfirmed() !== true && tx.getInTxPool() !== false && tx.getIsFailed() !== true & tx.getIsRelayed() !== false && tx.getHeight() === undefined && txFilter.getMinHeight() === undefined;
     let canBeIncoming = transferFilter.getIsIncoming() !== false && transferFilter.getIsOutgoing() !== true && transferFilter.getHasDestinations() !== true;

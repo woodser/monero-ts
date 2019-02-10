@@ -2250,7 +2250,7 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedId(), undefined);
     
-    // these should be initialized unless freshly sent
+    // these should be initialized unless a response from sending
     if (!testConfig.sendConfig) {
       assert(tx.getReceivedTime() > 0);
       tx.getEstimatedBlockCountUntilConfirmed() > 0
