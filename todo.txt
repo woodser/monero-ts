@@ -13,7 +13,6 @@ validate all input parameters to api
 
 test every block of the chain
 not directly testing sweepUnlocked()
-common MoneroModel which can be initialized from and export state
 daemon binary tests
 daemon notification test needs to test tx merging
 multisig
@@ -31,7 +30,6 @@ test all tx fields in daemon, update tests to be like wallet
 test json serialization / deserialization specifically, stringifying in between so cannot be any live objects
 support vout filter in tx filter?
 undefined amounts instead of 0 for rct amounts
-MoneroBan includes redundant info with MoneroPeer
 block comments in models
 support setting daemon log level
 
