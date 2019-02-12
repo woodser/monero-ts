@@ -366,6 +366,9 @@ class TestMoneroWalletCommon {
         let txs1 = await getCachedTxs();
         let txs2 = await testGetTxs(wallet, undefined, true);
         assert.equal(txs2.length, txs1.length);
+        
+        // test each tranasction
+        let blocksPerHeight = {};
         for (let i = 0; i < txs1.length; i++) {
           await testWalletTx(txs1[i], {wallet: wallet});
           await testWalletTx(txs2[i], {wallet: wallet});
@@ -384,7 +387,16 @@ class TestMoneroWalletCommon {
               if (transfer.getAccountIndex() !== 0 && transfer.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
             }
           }
+          
+          // ensure unique block reference per height
+          if (txs2[i].getIsConfirmed()) {
+            let block = blocksPerHeight[txs2[i].getHeight()];
+            if (block === undefined) blocksPerHeight[txs2[i].getHeight()] = txs2[i].getBlock();
+            else assert(block === txs2[i].getBlock(), "Block references for same height must be same");
+          }
         }
+        
+        // ensure non-default account and subaddress tested
         assert(nonDefaultIncoming, "No incoming transfers found to non-default account and subaddress; run send-to-multiple tests first");
       });
       

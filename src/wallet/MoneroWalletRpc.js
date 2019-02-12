@@ -1355,9 +1355,16 @@ class MoneroWalletRpc extends MoneroWallet {
   static _mergeTx(txs, tx, skipIfAbsent) {
     assert(tx.getId());
     for (let aTx of txs) {
+      
+      // merge tx
       if (aTx.getId() === tx.getId()) {
         aTx.merge(tx);
         return aTx;
+      }
+      
+      // merge block
+      if (tx.getHeight() !== undefined && aTx.getHeight() === tx.getHeight()) {
+        aTx.getBlock().merge(tx.getBlock())
       }
     }
     

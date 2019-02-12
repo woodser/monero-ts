@@ -54,6 +54,10 @@ class MoneroTx {
     return this;
   }
   
+  getHeight() {
+    return this.getBlock() === undefined ? undefined : this.getBlock().getHeader().getHeight();
+  }
+  
   getId() {
     return this.state.id;
   }

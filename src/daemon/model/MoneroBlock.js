@@ -125,8 +125,8 @@ class MoneroBlock {
     if (this.getTxs()) for (let tx of this.getTxs()) tx.setBlock(this);
     
     // merge other fields
-    this.setHex(MoneroUtils.reconcile(this.getHex(), tx.getHex()));
-    this.setTxIds(MoneroUtils.reconcile(this.getTxIds(), tx.getTxIds()));
+    this.setHex(MoneroUtils.reconcile(this.getHex(), block.getHex()));
+    this.setTxIds(MoneroUtils.reconcile(this.getTxIds(), block.getTxIds()));
     return this;
   }
   
