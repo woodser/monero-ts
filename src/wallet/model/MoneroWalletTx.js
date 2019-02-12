@@ -37,7 +37,7 @@ class MoneroWalletTx extends MoneroTx {
     if (state.vouts) {
       for (let i = 0; i < state.vouts.length; i++) {
         if (!(state.vouts[i] instanceof MoneroWalletOutput)) {
-          state.vouts[i] = new MoneroWalletOutput(Object.assign(state.vouts[i].state, {tx: this})); // TODO: accessing internal state object; better way?
+          state.vouts[i] = new MoneroWalletOutput(Object.assign(state.vouts[i].toJson(), {tx: this}));
         }
       }
     }
