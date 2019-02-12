@@ -1,4 +1,4 @@
-remove extra fields: outputIndices into vouts,  block txIds into block's txs, subaddress index into account index only?
+remove extra fields: outputIndices into vouts, block txIds into block's txs, subaddress index into account index only?
 todos throughout code
 object model
 

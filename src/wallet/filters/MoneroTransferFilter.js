@@ -1,4 +1,4 @@
-assert = require("assert");
+const assert = require("assert");
 const Filter = require("../../utils/Filter");
 const MoneroTransfer = require("../model/MoneroTransfer");
 
