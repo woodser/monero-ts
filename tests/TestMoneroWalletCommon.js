@@ -367,9 +367,18 @@ class TestMoneroWalletCommon {
         let txs2 = await testGetTxs(wallet, undefined, true);
         assert.equal(txs2.length, txs1.length);
         for (let i = 0; i < txs1.length; i++) {
-          await testWalletTx(txs1[i], {wallet: wallet});  // test cached tx
-          let merged = txs1[i].copy().merge(txs2[i].copy());
-          await testWalletTx(merged, {wallet: wallet});   // test merging equivalent txs
+          await testWalletTx(txs1[i], {wallet: wallet});
+          await testWalletTx(txs2[i], {wallet: wallet});
+          
+          // test merging equivalent txs
+          let copy1 = txs1[i].copy();
+          let copy2 = txs2[i].copy();
+          if (copy1.getIsConfirmed()) copy1.setBlock(txs1[i].getBlock().copy().setTxs([copy1]));
+          if (copy2.getIsConfirmed()) copy2.setBlock(txs2[i].getBlock().copy().setTxs([copy2]));
+          let merged = copy1.merge(copy2);
+          await testWalletTx(merged, {wallet: wallet});
+          
+          // find non-default incoming
           if (txs1[i].getIncomingTransfers()) {
             for (let transfer of txs1[i].getIncomingTransfers()) {
               if (transfer.getAccountIndex() !== 0 && transfer.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
@@ -490,13 +499,13 @@ class TestMoneroWalletCommon {
         
         // test block height filtering
         {
-          txs = await wallet.getTxs({accountIndex: 0});
+          txs = await wallet.getTxs({accountIndex: 0, isConfirmed: true});
           assert(txs.length > 0, "No transactions; run send to multiple test");
             
           // get and sort block heights in ascending order
           let heights = [];
           for (let tx of txs) {
-            if (tx.getHeight() !== undefined) heights.push(tx.getHeight());
+            heights.push(tx.getBlock().getHeader().getHeight());
           }
           GenUtils.sort(heights);
           
@@ -516,7 +525,8 @@ class TestMoneroWalletCommon {
           txs = await testGetTxs(wallet, {accountIndex: 0, minHeight: minHeight, maxHeight: maxHeight}, true);
           assert(txs.length < unfilteredCount);
           for (let tx of txs) {
-            assert(tx.getHeight() >= minHeight && tx.getHeight() <= maxHeight);
+            let height = tx.getBlock().getHeader().getHeight();
+            assert(height >= minHeight && height <= maxHeight);
           }
         }
         
@@ -832,8 +842,8 @@ class TestMoneroWalletCommon {
         
         // sort txs
         txs.sort((a, b) => {
-          let timestampA = a.getBlockTimestamp() ? a.getBlockTimestamp() : a.getReceivedTimestamp();
-          let timestampB = b.getBlockTimestamp() ? b.getBlockTimestamp() : b.getReceivedTimestamp();
+          let timestampA = a.getIsConfirmed() ? a.getBlock().getHeader().getTimestamp() : a.getReceivedTimestamp();
+          let timestampB = b.getIsConfirmed() ? b.getBlock().getHeader().getTimestamp() : b.getReceivedTimestamp();
           if (timestampA < timestampB) return -1;
           if (timestampA > timestampB) return 1;
           return 0;
@@ -2227,18 +2237,19 @@ async function testWalletTx(tx, testConfig) {
   
   // test confirmed
   if (tx.getIsConfirmed()) {
+    assert(tx.getBlock());
+    assert(tx.getBlock().getTxs().includes(tx));
+    assert(tx.getBlock().getHeader().getHeight() > 0);
+    assert(tx.getBlock().getHeader().getTimestamp() > 0);
     assert.equal(tx.getIsRelayed(), true);
     assert.equal(tx.getIsFailed(), false);
     assert.equal(tx.getInTxPool(), false);
     assert.equal(tx.getDoNotRelay(), false);
-    assert(tx.getHeight() >= 0);
     assert(tx.getConfirmationCount() > 0);
-    assert(tx.getBlockTimestamp() > 0);
     assert.equal(tx.getIsDoubleSpend(), false);
   } else {
-    assert.equal(tx.getHeight(), undefined);
+    assert.equal(tx.getBlock(), undefined);
     assert.equal(tx.getConfirmationCount(), 0);
-    assert.equal(tx.getBlockTimestamp(), undefined);
   }
   
   // test in tx pool
@@ -2346,7 +2357,7 @@ async function testWalletTx(tx, testConfig) {
     testTransfer(tx.getOutgoingTransfer());
     assert.equal(tx.getMixin(), sendConfig.getMixin());
     assert.equal(tx.getUnlockTime(), sendConfig.getUnlockTime() ? sendConfig.getUnlockTime() : 0);
-    assert.equal(tx.getBlockTimestamp(), undefined);
+    assert.equal(tx.getBlock(), undefined);
     if (sendConfig.getCanSplit()) assert.equal(tx.getKey(), undefined); // TODO monero-wallet-rpc: key only known on `transfer` response
     else assert(tx.getKey().length > 0);
     assert.equal(typeof tx.getHex(), "string");
@@ -2462,6 +2473,7 @@ async function testWalletTxCopy(tx, testConfig) {
   // test copied tx
   testConfig = Object.assign({}, testConfig);
   testConfig.doNotTestCopy = true;
+  if (tx.getBlock()) copy.setBlock(tx.getBlock().copy().setTxs([copy])); // copy block for testing
   await testWalletTx(copy, testConfig);
   
   // test merging with copy

@@ -819,7 +819,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     // link block and tx
     if (header) tx.setBlock(new MoneroBlock().setHeader(header).setTxs([tx]));
     
-    // TODO monero-daemon-rpc: unconfirmed txs block height and timestamp is actually received timestamp; overloading variables in the data model is bad juju
+    // TODO monero-daemon-rpc: unconfirmed txs block height and timestamp are actually received timestamp; overloading data model variables is bad juju
     if (tx.getBlock() && tx.getBlock().getHeader().getHeight() !== undefined && tx.getBlock().getHeader().getHeight() === tx.getBlock().getHeader().getTimestamp()) {
       tx.setReceivedTimestamp(tx.getBlock().getHeader().getHeight());
       tx.setBlock(undefined);

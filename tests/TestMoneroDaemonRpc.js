@@ -1175,10 +1175,7 @@ function testTx(tx, config) {
   if (tx.getIsConfirmed()) {
     assert(tx.getBlock());
     assert(tx.getBlock().getTxs().includes(tx));
-    if (!(tx.getBlock().getHeader().getHeight() >= 0)) {
-      console.log(tx.getBlock().toString());
-    }
-    assert(tx.getBlock().getHeader().getHeight() >= 0);
+    assert(tx.getBlock().getHeader().getHeight() > 0);
     assert(tx.getBlock().getHeader().getTimestamp() > 0);
     assert.equal(tx.getIsRelayed(), true);
     assert.equal(tx.getIsFailed(), false);

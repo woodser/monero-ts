@@ -3,6 +3,8 @@ const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/bigi
 const GenUtils = require("../utils/GenUtils");
 const MoneroUtils = require("../utils/MoneroUtils");
 const MoneroRpc = require("../rpc/MoneroRpc");
+const MoneroBlock = require("../daemon/model/MoneroBlock");
+const MoneroBlockHeader = require("../daemon/model/MoneroBlockHeader");
 const MoneroWallet = require("./MoneroWallet");
 const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
 const MoneroAccount = require("./model/MoneroAccount");
@@ -377,7 +379,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // build params for get_transfers rpc call
     let canBeConfirmed = tx.getIsConfirmed() !== false && tx.getInTxPool() !== true && tx.getIsFailed() !== true && tx.getIsRelayed() !== false;
-    let canBeInTxPool = tx.getIsConfirmed() !== true && tx.getInTxPool() !== false && tx.getIsFailed() !== true & tx.getIsRelayed() !== false && tx.getHeight() === undefined && txFilter.getMinHeight() === undefined;
+    let canBeInTxPool = tx.getIsConfirmed() !== true && tx.getInTxPool() !== false && tx.getIsFailed() !== true & tx.getIsRelayed() !== false && txFilter.getHeight() === undefined && txFilter.getMinHeight() === undefined;
     let canBeIncoming = transferFilter.getIsIncoming() !== false && transferFilter.getIsOutgoing() !== true && transferFilter.getHasDestinations() !== true;
     let canBeOutgoing = transferFilter.getIsOutgoing() !== false && transferFilter.getIsIncoming() !== true;
     let params = {};
@@ -1073,17 +1075,16 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // TODO: safe set
     // initialize remaining fields  TODO: seems this should be part of common function with DaemonRpc._buildTx
+    let header;
     let transfer;
     let accountIdx;
     let subaddressIdx;
     for (let key of Object.keys(rpcTx)) {
       let val = rpcTx[key];
-      if (key === "fee") tx.setFee(new BigInteger(val));
-      else if (key === "block_height") tx.setHeight(val);
-      else if (key === "height") tx.setHeight(val === 0 ? undefined : val); // TODO: collapse into above, what about genesis block / txs?
-      else if (key === "note") { if (val) tx.setNote(val); }
-      else if (key === "txid") tx.setId(val);
+      if (key === "txid") tx.setId(val);
       else if (key === "tx_hash") tx.setId(val);
+      else if (key === "fee") tx.setFee(new BigInteger(val));
+      else if (key === "note") { if (val) tx.setNote(val); }
       else if (key === "tx_key") tx.setKey(val);
       else if (key === "type") { } // type already handled
       else if (key === "tx_size") tx.setSize(val);
@@ -1091,9 +1092,19 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "tx_blob") tx.setHex(val);
       else if (key === "tx_metadata") tx.setMetadata(val);
       else if (key === "double_spend_seen") tx.setIsDoubleSpend(val);
+      else if (key === "block_height" || key === "height") {
+        if (tx.getIsConfirmed()) {
+          if (!header) header = new MoneroBlockHeader();
+          header.setHeight(val);
+        }
+      }
       else if (key === "timestamp") {
-        if (tx.getIsConfirmed()) tx.setBlockTimestamp(val);
-        else tx.setReceivedTimestamp(val);
+        if (tx.getIsConfirmed()) {
+          if (!header) header = new MoneroBlockHeader();
+          header.setTimestamp(val);
+        } else {
+          tx.setReceivedTimestamp(val);
+        }
       }
       else if (key === "confirmations") {
         if (!tx.getIsConfirmed()) tx.setConfirmationCount(0);
@@ -1141,6 +1152,9 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "unsigned_txset" && !val) {} // TODO: handle this with value
       else console.log("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
     }
+    
+    // link block and tx
+    if (header) tx.setBlock(new MoneroBlock().setHeader(header).setTxs([tx]));
     
     // initialize final fields
     if (transfer) {

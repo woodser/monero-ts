@@ -16,6 +16,8 @@ class MoneroTxFilter extends Filter {
     super();
     state = Object.assign({}, state);
     this.state = state;
+    
+    // initialize tx if not given
     if (!state.tx) state.tx = new MoneroWalletTx(state);
     
     // deserialize if necessary
@@ -47,6 +49,15 @@ class MoneroTxFilter extends Filter {
 
   setPaymentIds(paymentIds) {
     this.state.paymentIds = paymentIds;
+    return this;
+  }
+  
+  getHeight() {
+    return this.state.height;
+  }
+  
+  setHeight(height) {
+    this.state.height = height;
     return this;
   }
   
@@ -118,7 +129,6 @@ class MoneroTxFilter extends Filter {
       if (this.getTx().getIsRelayed() !== undefined && this.getTx().getIsRelayed() !== tx.getIsRelayed()) return false;
       if (this.getTx().getIsFailed() !== undefined && this.getTx().getIsFailed() !== tx.getIsFailed()) return false;
       if (this.getTx().getIsCoinbase() !== undefined && this.getTx().getIsCoinbase() !== tx.getIsCoinbase()) return false;
-      if (this.getTx().getHeight() !== undefined && this.getTx().getHeight() !== tx.getHeight()) return false;
     }
     
     // at least one transfer must meet transfer filter if defined
@@ -155,10 +165,12 @@ class MoneroTxFilter extends Filter {
     }
     
     // filter on remaining fields
+    let height = tx.getBlock() === undefined || tx.getBlock().getHeader() === undefined ? undefined : tx.getBlock().getHeader().getHeight();
     if (this.getTxIds() !== undefined && !this.getTxIds().includes(tx.getId())) return false;
     if (this.getPaymentIds() !== undefined && !this.getPaymentIds().includes(tx.getPaymentId())) return false;
-    if (this.getMinHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() < this.getMinHeight())) return false;
-    if (this.getMaxHeight() !== undefined && (tx.getHeight() === undefined || tx.getHeight() > this.getMaxHeight())) return false;
+    if (this.getHeight() !== undefined && height !== this.getHeight()) return false;
+    if (this.getMinHeight() !== undefined && (height === undefined || height < this.getMinHeight())) return false;
+    if (this.getMaxHeight() !== undefined && (height === undefined || height > this.getMaxHeight())) return false;
     
     // transaction meets filter criteria
     return true;
