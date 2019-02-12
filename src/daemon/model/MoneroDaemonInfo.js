@@ -174,12 +174,12 @@ class MoneroDaemonInfo {
     return this;
   }
   
-  getStartTime() {
-    return this.startTime;
+  getStartTimestamp() {
+    return this.startTimestamp;
   }
   
-  setStartTime(startTime) {
-    this.startTime = startTime;
+  setStartTimestamp(startTimestamp) {
+    this.startTimestamp = startTimestamp;
     return this;
   }
   

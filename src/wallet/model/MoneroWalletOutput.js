@@ -53,14 +53,6 @@ class MoneroWalletOutput extends MoneroOutput {
     return json;
   }
   
-  toString(indent) {
-    let str = super.toString(indent) + "\n"
-    str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
-    str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
-    str += MoneroUtils.kvLine("Is spent", this.getIsSpent(), indent);
-    return str.slice(0, str.length - 1);  // strip last newline
-  }
-  
   /**
    * Updates this output by merging the latest information from the given
    * output.
@@ -86,6 +78,14 @@ class MoneroWalletOutput extends MoneroOutput {
     }
     
     return this;
+  }
+  
+  toString(indent) {
+    let str = super.toString(indent) + "\n"
+    str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
+    str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
+    str += MoneroUtils.kvLine("Is spent", this.getIsSpent(), indent);
+    return str.slice(0, str.length - 1);  // strip last newline
   }
 }
 

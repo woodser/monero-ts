@@ -50,19 +50,19 @@ class MoneroKeyImage {
     return Object.assign({}, this.state);
   }
   
-  toString(indent = 0) {
-    let str = "";
-    str += MoneroUtils.kvLine("Hex", this.getHex(), indent);
-    str += MoneroUtils.kvLine("Signature", this.getSignature(), indent);
-    return str.slice(0, str.length - 1);  // strip last newline
-  }
-  
   merge(keyImage) {
     assert(keyImage instanceof MoneroKeyImage);
     if (keyImage === this) return;
     this.setHex(MoneroUtils.reconcile(this.getHex(), keyImage.getHex()));
     this.setSignature(MoneroUtils.reconcile(this.getSignature(), keyImage.getSignature()));
     return this;
+  }
+  
+  toString(indent = 0) {
+    let str = "";
+    str += MoneroUtils.kvLine("Hex", this.getHex(), indent);
+    str += MoneroUtils.kvLine("Signature", this.getSignature(), indent);
+    return str.slice(0, str.length - 1);  // strip last newline
   }
 }
 

@@ -153,12 +153,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
       
       // build transactions
       let txs = [];
-      block.setTxs(txs);
       for (let txIdx = 0; txIdx < rpcBlocks.txs[blockIdx].length; txIdx++) {
         let tx = new MoneroTx();
         txs.push(tx);
         tx.setId(rpcBlocks.blocks[blockIdx].tx_hashes[txIdx]);
-        tx.setHeight(block.getHeader().getHeight());
         tx.setIsConfirmed(true);
         tx.setInTxPool(false);
         tx.setIsCoinbase(false);
@@ -166,8 +164,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.setIsRelayed(true);
         tx.setIsFailed(false);
         tx.setIsDoubleSpend(false);
-        tx.setBlockTimestamp(block.getHeader().getTimestamp()); // TODO: this field is redundant with block header's timestamp
         MoneroDaemonRpc._buildTx(rpcBlocks.txs[blockIdx][txIdx], tx);
+      }
+      
+      // merge into one block
+      block.setTxs([]);
+      for (let tx of txs) {
+        if (tx.getBlock()) block.merge(tx.getBlock());
+        else block.getTxs().push(tx.setBlock(block));
       }
     }
     
@@ -727,8 +731,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
     block.setCoinbaseTx(coinbaseTx);
     coinbaseTx.setIsConfirmed(true);
     coinbaseTx.setIsCoinbase(true);
-    coinbaseTx.setHeight(block.getHeader().getHeight());
-    coinbaseTx.setBlockTimestamp(block.getHeader().getTimestamp());
     MoneroDaemonRpc._buildTx(rpcCoinbaseTx, coinbaseTx);
     
     return block;
@@ -752,12 +754,20 @@ class MoneroDaemonRpc extends MoneroDaemon {
 //    console.log(tx.toString());
     
     // initialize from rpc map
+    let header;
     for (let key of Object.keys(rpcTx)) {
       let val = rpcTx[key];
       if (key === "tx_hash" || key === "id_hash") MoneroUtils.safeSet(tx, tx.getId, tx.setId, val);
-      else if (key === "block_timestamp") MoneroUtils.safeSet(tx, tx.getBlockTimestamp, tx.setBlockTimestamp, val);
-      else if (key === "last_relayed_time") MoneroUtils.safeSet(tx, tx.getLastRelayedTime, tx.setLastRelayedTime, val);
-      else if (key === "receive_time") MoneroUtils.safeSet(tx, tx.getReceivedTime, tx.setReceivedTime, val);
+      else if (key === "block_timestamp") {
+        if (!header) header = new MoneroBlockHeader();
+        MoneroUtils.safeSet(header, header.getTimestamp, header.setTimestamp, val);
+      }
+      else if (key === "block_height") {
+        if (!header) header = new MoneroBlockHeader();
+        MoneroUtils.safeSet(header, header.getHeight, header.setHeight, val);
+      }
+      else if (key === "last_relayed_time") MoneroUtils.safeSet(tx, tx.getLastRelayedTimestamp, tx.setLastRelayedTimestamp, val);
+      else if (key === "receive_time") MoneroUtils.safeSet(tx, tx.getReceivedTimestamp, tx.setReceivedTimestamp, val);
       else if (key === "in_pool") {
         MoneroUtils.safeSet(tx, tx.getIsConfirmed, tx.setIsConfirmed, !val);
         MoneroUtils.safeSet(tx, tx.getInTxPool, tx.setInTxPool, val);
@@ -800,18 +810,19 @@ class MoneroDaemonRpc extends MoneroDaemon {
       }
       else if (key === "max_used_block_height") MoneroUtils.safeSet(tx, tx.getMaxUsedBlockHeight, tx.setMaxUsedBlockHeight, val);
       else if (key === "max_used_block_id_hash") MoneroUtils.safeSet(tx, tx.getMaxUsedBlockId, tx.setMaxUsedBlockId, val);
-      else if (key === "block_height") MoneroUtils.safeSet(tx, tx.getHeight, tx.setHeight, val);
       else if (key === "prunable_hash") MoneroUtils.safeSet(tx, tx.getPrunableHash, tx.setPrunableHash, val ? val : undefined);
       else if (key === "prunable_as_hex") MoneroUtils.safeSet(tx, tx.getPrunableHex, tx.setPrunableHex, val ? val : undefined);
       else if (key === "pruned_as_hex") MoneroUtils.safeSet(tx, tx.getPrunedHex, tx.setPrunedHex, val ? val : undefined);
       else console.log("WARNING: ignoring unexpected field in rpc tx: " + key + ": " + val);
     }
     
-    // TODO monero-daemon-rpc: unconfirmed txs block height and timestamp is actually received timestamp; overloading variables is bad juju
-    if (tx.getHeight() !== undefined && tx.getHeight() === tx.getBlockTimestamp()) {
-      tx.setReceivedTime(tx.getHeight());
-      tx.setHeight(undefined);
-      tx.setBlockTimestamp(undefined);
+    // link block and tx
+    if (header) tx.setBlock(new MoneroBlock().setHeader(header).setTxs([tx]));
+    
+    // TODO monero-daemon-rpc: unconfirmed txs block height and timestamp is actually received timestamp; overloading variables in the data model is bad juju
+    if (tx.getBlock() && tx.getBlock().getHeader().getHeight() !== undefined && tx.getBlock().getHeader().getHeight() === tx.getBlock().getHeader().getTimestamp()) {
+      tx.setReceivedTimestamp(tx.getBlock().getHeader().getHeight());
+      tx.setBlock(undefined);
       tx.setIsConfirmed(false);
     }
     
@@ -896,7 +907,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "offline") info.setIsOffline(val);
       else if (key === "outgoing_connections_count") info.setOutgoingConnectionsCount(val);
       else if (key === "rpc_connections_count") info.setRpcConnectionsCount(val);
-      else if (key === "start_time") info.setStartTime(val);
+      else if (key === "start_time") info.setStartTimestamp(val);
       else if (key === "status") {}  // set elsewhere
       else if (key === "target") info.setTarget(val);
       else if (key === "target_height") info.setTargetHeight(val);

@@ -106,6 +106,7 @@ class MoneroTxFilter extends Filter {
   
   meetsCriteria(tx) {
     assert(tx instanceof MoneroWalletTx);
+    if (this === tx) return;
     
     // filter on tx
     if (this.getTx()) {

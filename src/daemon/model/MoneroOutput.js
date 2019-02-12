@@ -92,6 +92,16 @@ class MoneroOutput {
     return json;
   }
   
+  merge(output) {
+    assert(output instanceof MoneroOutput);
+    if (this === output) return;
+    if (this.getKeyImage() === undefined) this.setKeyImage(output.getKeyImage());
+    else if (output.getKeyImage() !== undefined) this.getKeyImage().merge(output.getKeyImage());
+    this.setAmount(MoneroUtils.reconcile(this.getAmount(), output.getAmount()));
+    this.setIndex(MoneroUtils.reconcile(this.getIndex(), output.getIndex()));
+    return this;
+  }
+  
   toString(indent = 0) {
     let str = "";
     if (this.getKeyImage()) {
@@ -102,16 +112,6 @@ class MoneroOutput {
     str += MoneroUtils.kvLine("Index", this.getIndex(), indent);
     str += MoneroUtils.kvLine("Ring output indices", this.getRingOutputIndices(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
-  }
-  
-  merge(output) {
-    assert(output instanceof MoneroOutput);
-    if (this === output) return;
-    if (this.getKeyImage() === undefined) this.setKeyImage(output.getKeyImage());
-    else if (output.getKeyImage() !== undefined) this.getKeyImage().merge(output.getKeyImage());
-    this.setAmount(MoneroUtils.reconcile(this.getAmount(), output.getAmount()));
-    this.setIndex(MoneroUtils.reconcile(this.getIndex(), output.getIndex()));
-    return this;
   }
 }
 

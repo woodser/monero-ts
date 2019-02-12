@@ -95,39 +95,6 @@ class MoneroWalletTx extends MoneroTx {
     return json;
   }
   
-  toString(indent = 0, oneLine) {
-    let str = "";
-    
-    // represent tx with one line string
-    // TODO: proper csv export
-    if (oneLine) {
-      str += this.getId() + ", ";
-      str += (this.getIsConfirmed() ? this.getBlockTimestamp() : this.getReceivedTime()) + ", ";
-      str += this.getIsConfirmed() + ", ";
-      str += (this.getOutgoingAmount() ? this.getOutgoingAmount().toString() : "") + ", "
-      str += this.getIncomingAmount() ? this.getIncomingAmount().toString() : "";
-      return str;
-    }
-    
-    // otherwise stringify all fields
-    str += super.toString(indent) + "\n";
-    str += MoneroUtils.kvLine("Outgoing amount", this.getOutgoingAmount(), indent);
-    if (this.getOutgoingTransfer()) {
-      str += MoneroUtils.kvLine("Outgoing transfer", "", indent);
-      str += this.getOutgoingTransfer().toString(indent + 1) + "\n";
-    }
-    str += MoneroUtils.kvLine("Incoming amount", this.getIncomingAmount(), indent);
-    if (this.getIncomingTransfers()) {
-      str += MoneroUtils.kvLine("Incoming transfers", "", indent);
-      for (let i = 0; i < this.getIncomingTransfers().length; i++) {
-        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
-        str += this.getIncomingTransfers()[i].toString(indent + 2) + "\n";
-      }
-    }
-    str += MoneroUtils.kvLine("Note: ", this.getNote(), indent);
-    return str.slice(0, str.length - 1);  // strip last newline
-  }
-  
   /**
    * Updates this transaction by merging the latest information from the given
    * transaction.
@@ -173,6 +140,39 @@ class MoneroWalletTx extends MoneroTx {
     }
     
     return this;  // for chaining
+  }
+  
+  toString(indent = 0, oneLine) {
+    let str = "";
+    
+    // represent tx with one line string
+    // TODO: proper csv export
+    if (oneLine) {
+      str += this.getId() + ", ";
+      str += (this.getIsConfirmed() ? this.getBlockTimestamp() : this.getReceivedTimestamp()) + ", ";
+      str += this.getIsConfirmed() + ", ";
+      str += (this.getOutgoingAmount() ? this.getOutgoingAmount().toString() : "") + ", "
+      str += this.getIncomingAmount() ? this.getIncomingAmount().toString() : "";
+      return str;
+    }
+    
+    // otherwise stringify all fields
+    str += super.toString(indent) + "\n";
+    str += MoneroUtils.kvLine("Outgoing amount", this.getOutgoingAmount(), indent);
+    if (this.getOutgoingTransfer()) {
+      str += MoneroUtils.kvLine("Outgoing transfer", "", indent);
+      str += this.getOutgoingTransfer().toString(indent + 1) + "\n";
+    }
+    str += MoneroUtils.kvLine("Incoming amount", this.getIncomingAmount(), indent);
+    if (this.getIncomingTransfers()) {
+      str += MoneroUtils.kvLine("Incoming transfers", "", indent);
+      for (let i = 0; i < this.getIncomingTransfers().length; i++) {
+        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
+        str += this.getIncomingTransfers()[i].toString(indent + 2) + "\n";
+      }
+    }
+    str += MoneroUtils.kvLine("Note: ", this.getNote(), indent);
+    return str.slice(0, str.length - 1);  // strip last newline
   }
 }
 

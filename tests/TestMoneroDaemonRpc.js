@@ -1078,6 +1078,7 @@ function testBlockHeader(header, isFull) {
   assert(!isFull ? undefined === header.getBlockWeight() : header.getBlockWeight());
 }
 
+// TODO: test block deep copy
 function testBlock(block, config) {
   
   // check inputs
@@ -1103,7 +1104,10 @@ function testBlock(block, config) {
   if (config.hasTxs) {
     assert(typeof config.txConfig === "object");
     assert(block.getTxs() instanceof Array);
-    for (let tx of block.getTxs()) testTx(tx, config.txConfig);
+    for (let tx of block.getTxs()) {
+      assert(block === tx.getBlock());
+      testTx(tx, config.txConfig);
+    }
   } else {
     assert(config.txConfig === undefined);
     assert(block.getTxs() === undefined);
@@ -1169,18 +1173,22 @@ function testTx(tx, config) {
   
   // test confirmed
   if (tx.getIsConfirmed()) {
+    assert(tx.getBlock());
+    assert(tx.getBlock().getTxs().includes(tx));
+    if (!(tx.getBlock().getHeader().getHeight() >= 0)) {
+      console.log(tx.getBlock().toString());
+    }
+    assert(tx.getBlock().getHeader().getHeight() >= 0);
+    assert(tx.getBlock().getHeader().getTimestamp() > 0);
     assert.equal(tx.getIsRelayed(), true);
     assert.equal(tx.getIsFailed(), false);
     assert.equal(tx.getInTxPool(), false);
     assert.equal(tx.getDoNotRelay(), false);
     assert.equal(tx.getIsDoubleSpend(), false);
-    assert(tx.getHeight() >= 0);
     assert.equal(tx.getConfirmationCount(), undefined); // client must compute
-    assert(tx.getBlockTimestamp() > 0);
   } else {
-    assert.equal(tx.getHeight(), undefined);
+    assert.equal(tx.getBlock(), undefined);
     assert.equal(tx.getConfirmationCount(), 0);
-    assert.equal(tx.getBlockTimestamp(), undefined);
   }
   
   // test in tx pool
@@ -1189,11 +1197,11 @@ function testTx(tx, config) {
     assert.equal(tx.getIsDoubleSpend(), false);
     assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedId(), undefined);
-    assert(tx.getReceivedTime() > 0);
+    assert(tx.getReceivedTimestamp() > 0);
     tx.getEstimatedBlockCountUntilConfirmed() > 0
   } else {
     assert.equal(tx.getEstimatedBlockCountUntilConfirmed(), undefined);
-    assert.equal(tx.getLastRelayedTime(), undefined);
+    assert.equal(tx.getLastRelayedTimestamp(), undefined);
   }
   
   // test coinbase tx
@@ -1206,7 +1214,7 @@ function testTx(tx, config) {
   // test failed  // TODO: what else to test associated with failed
   if (tx.getIsFailed()) {
     assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
-    assert(tx.getReceivedTime() > 0)
+    assert(tx.getReceivedTimestamp() > 0)
   } else {
     if (tx.getIsRelayed() === undefined) assert.equal(tx.getDoNotRelay(), undefined); // TODO monero-daemon-rpc: add relayed to get_transactions
     else if (tx.getIsRelayed()) assert.equal(tx.getIsDoubleSpend(), false);
@@ -1220,7 +1228,7 @@ function testTx(tx, config) {
   assert.equal(tx.getLastFailedId(), undefined);
   
   // received time only for tx pool or failed txs
-  if (tx.getReceivedTime() !== undefined) {
+  if (tx.getReceivedTimestamp() !== undefined) {
     assert(tx.getInTxPool() || tx.getIsFailed());
   }
   
@@ -1253,8 +1261,8 @@ function testTx(tx, config) {
     assert.equal(tx.getRctSigPrunable(), undefined);
     assert.equal(tx.getHex(), undefined);
     assert.equal(tx.getSize(), undefined);
-    assert.equal(tx.getLastRelayedTime(), undefined);
-    assert.equal(tx.getReceivedTime(), undefined);
+    assert.equal(tx.getLastRelayedTimestamp(), undefined);
+    assert.equal(tx.getReceivedTimestamp(), undefined);
     assert(tx.getPrunableHash());
     assert(typeof tx.getPrunedHex() === "string" && tx.getPrunedHex().length > 0);
   } else {
@@ -1273,14 +1281,12 @@ function testTx(tx, config) {
     else assert(tx.getHex().length > 0);
     assert.equal(tx.getIsDoubleSpend(), false);
     if (tx.getIsConfirmed()) {
-      assert(tx.getBlockTimestamp() > 0);
-      assert.equal(tx.getLastRelayedTime(), undefined);
-      assert.equal(tx.getReceivedTime(), undefined);
+      assert.equal(tx.getLastRelayedTimestamp(), undefined);
+      assert.equal(tx.getReceivedTimestamp(), undefined);
     } else {
-      assert.equal(tx.getBlockTimestamp(), undefined);
-      if (tx.getIsRelayed()) assert(tx.getLastRelayedTime() > 0);
-      else if (!tx.getLastRelayedTime() !== undefined) console.log("WARNING: tx has last relayed time but is not relayed");  // TODO monero-daemon-rpc
-      assert(tx.getReceivedTime() > 0);
+      if (tx.getIsRelayed()) assert(tx.getLastRelayedTimestamp() > 0);
+      else if (!tx.getLastRelayedTimestamp() !== undefined) console.log("WARNING: tx has last relayed time but is not relayed");  // TODO monero-daemon-rpc
+      assert(tx.getReceivedTimestamp() > 0);
     }
     if (config.fromGetTxPool || config.fromGetBlocksByHeight) assert.equal(tx.getPrunableHash(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
     else assert(tx.getPrunableHash());
@@ -1335,6 +1341,7 @@ function testInfo(info) {
   assert(info.getBlockSizeMedian());
   assert(typeof info.getBootstrapDaemonAddress() === "string");
   assert(info.getCumulativeDifficulty());
+  assert(info.getCumulativeDifficulty() instanceof BigInteger)
   assert(info.getFreeSpace());
   assert(info.getOfflinePeerCount() >= 0);
   assert(info.getOnlinePeerCount() >= 0);
@@ -1345,7 +1352,7 @@ function testInfo(info) {
   assert(typeof info.getIsOffline() === "boolean");
   assert(info.getOutgoingConnectionsCount() >= 0);
   assert(info.getRpcConnectionsCount() >= 0);
-  assert(info.getStartTime());
+  assert(info.getStartTimestamp());
   assert(info.getTarget());
   assert(info.getTargetHeight() >= 0);
   assert(info.getTopBlockId());
@@ -1661,6 +1668,7 @@ function testTxCopy(tx, config) {
   // test copied tx
   config = Object.assign({}, config);
   config.doNotTestCopy = true;
+  if (tx.getBlock()) copy.setBlock(tx.getBlock().copy().setTxs([copy])); // copy block for testing
   testTx(copy, config);
   
   // test merging with copy

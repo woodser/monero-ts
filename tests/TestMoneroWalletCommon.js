@@ -832,8 +832,8 @@ class TestMoneroWalletCommon {
         
         // sort txs
         txs.sort((a, b) => {
-          let timestampA = a.getBlockTimestamp() ? a.getBlockTimestamp() : a.getReceivedTime();
-          let timestampB = b.getBlockTimestamp() ? b.getBlockTimestamp() : b.getReceivedTime();
+          let timestampA = a.getBlockTimestamp() ? a.getBlockTimestamp() : a.getReceivedTimestamp();
+          let timestampB = b.getBlockTimestamp() ? b.getBlockTimestamp() : b.getReceivedTimestamp();
           if (timestampA < timestampB) return -1;
           if (timestampA > timestampB) return 1;
           return 0;
@@ -2252,12 +2252,12 @@ async function testWalletTx(tx, testConfig) {
     
     // these should be initialized unless a response from sending
     if (!testConfig.sendConfig) {
-      assert(tx.getReceivedTime() > 0);
+      assert(tx.getReceivedTimestamp() > 0);
       tx.getEstimatedBlockCountUntilConfirmed() > 0
     }
   } else {
     assert.equal(tx.getEstimatedBlockCountUntilConfirmed(), undefined);
-    assert.equal(tx.getLastRelayedTime(), undefined);
+    assert.equal(tx.getLastRelayedTimestamp(), undefined);
   }
   
   // test coinbase tx
@@ -2269,7 +2269,7 @@ async function testWalletTx(tx, testConfig) {
   // test failed  // TODO: what else to test associated with failed
   if (tx.getIsFailed()) {
     assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
-    assert(tx.getReceivedTime() > 0)
+    assert(tx.getReceivedTimestamp() > 0)
   } else {
     if (tx.getIsRelayed()) assert.equal(tx.getIsDoubleSpend(), false);
     else {
@@ -2282,7 +2282,7 @@ async function testWalletTx(tx, testConfig) {
   assert.equal(tx.getLastFailedId(), undefined);
   
   // received time only for tx pool or failed txs
-  if (tx.getReceivedTime() !== undefined) {
+  if (tx.getReceivedTimestamp() !== undefined) {
     assert(tx.getInTxPool() || tx.getIsFailed());
   }
   
@@ -2352,7 +2352,7 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(typeof tx.getHex(), "string");
     assert(tx.getHex().length > 0);
     assert(tx.getMetadata());
-    assert.equal(tx.getReceivedTime(), undefined);
+    assert.equal(tx.getReceivedTimestamp(), undefined);
     if (testConfig.isRelayResponse) assert.equal(sendConfig.getDoNotRelay(), true);
     
     // test destinations of sent tx
@@ -2373,7 +2373,7 @@ async function testWalletTx(tx, testConfig) {
       assert.equal(tx.getInTxPool(), true);
       assert.equal(tx.getDoNotRelay(), false);
       assert.equal(tx.getIsRelayed(), true);
-      assert(tx.getLastRelayedTime() > 0);
+      assert(tx.getLastRelayedTimestamp() > 0);
       assert.equal(tx.getIsDoubleSpend(), false);
     }
     
@@ -2382,7 +2382,7 @@ async function testWalletTx(tx, testConfig) {
       assert.equal(tx.getInTxPool(), false);
       assert.equal(tx.getDoNotRelay(), true);
       assert.equal(tx.getIsRelayed(), false);
-      assert.equal(tx.getLastRelayedTime(), undefined);
+      assert.equal(tx.getLastRelayedTimestamp(), undefined);
       assert.equal(tx.getIsDoubleSpend(), undefined);
     }
   } else {
@@ -2390,7 +2390,7 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(tx.getKey(), undefined);
     assert.equal(tx.getHex(), undefined);
     assert.equal(tx.getMetadata(), undefined);
-    assert.equal(tx.getLastRelayedTime(), undefined);
+    assert.equal(tx.getLastRelayedTimestamp(), undefined);
   }
   
   // test vouts

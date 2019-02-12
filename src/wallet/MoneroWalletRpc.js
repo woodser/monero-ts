@@ -631,7 +631,7 @@ class MoneroWalletRpc extends MoneroWallet {
         tx.setPaymentId(config.getPaymentId());
         if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
         if (!tx.getDoNotRelay()) {
-          if (tx.getLastRelayedTime() === undefined) tx.setLastRelayedTime(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
+          if (tx.getLastRelayedTimestamp() === undefined) tx.setLastRelayedTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
           if (tx.getIsDoubleSpend() === undefined) tx.setIsDoubleSpend(false);
         }
         MoneroWalletRpc._mergeTx(txs, tx);
@@ -706,7 +706,7 @@ class MoneroWalletRpc extends MoneroWallet {
       relayedTx.setIsCoinbase(false);
       relayedTx.setIsFailed(false);
       relayedTx.setIsDoubleSpend(false);
-      relayedTx.setLastRelayedTime(txLastRelayedTimes[i]);
+      relayedTx.setLastRelayedTimestamp(txLastRelayedTimes[i]);
     }
     return relayedTxs;
   }
@@ -1093,7 +1093,7 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "double_spend_seen") tx.setIsDoubleSpend(val);
       else if (key === "timestamp") {
         if (tx.getIsConfirmed()) tx.setBlockTimestamp(val);
-        else tx.setReceivedTime(val);
+        else tx.setReceivedTimestamp(val);
       }
       else if (key === "confirmations") {
         if (!tx.getIsConfirmed()) tx.setConfirmationCount(0);
@@ -1211,7 +1211,7 @@ class MoneroWalletRpc extends MoneroWallet {
     tx.setPaymentId(config.getPaymentId());
     if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
     if (!tx.getDoNotRelay()) {
-      if (tx.getLastRelayedTime() === undefined) tx.setLastRelayedTime(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
+      if (tx.getLastRelayedTimestamp() === undefined) tx.setLastRelayedTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
       if (tx.getIsDoubleSpend() === undefined) tx.setIsDoubleSpend(false);
     }
     return tx;

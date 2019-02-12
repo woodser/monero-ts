@@ -115,23 +115,6 @@ class MoneroTransfer {
     return json;
   }
 
-  toString(indent = 0) {
-    let str = "";
-    str += MoneroUtils.kvLine("Is outgoing", this.getIsOutgoing(), indent);
-    str += MoneroUtils.kvLine("Address", this.getAddress(), indent);
-    str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
-    str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
-    str += MoneroUtils.kvLine("Amount", this.getAmount() ? this.getAmount().toString() : undefined, indent);
-    if (this.getDestinations()) {
-      str += MoneroUtils.kvLine("Destinations", "", indent);
-      for (let i = 0; i < this.getDestinations().length; i++) {
-        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
-        str += this.getDestinations()[i].toString(indent + 2) + "\n";
-      }
-    }
-    return str.slice(0, str.length - 1);  // strip last newline
-  }
-  
   /**
    * Updates this transaction by merging the latest information from the given
    * transaction.
@@ -163,6 +146,23 @@ class MoneroTransfer {
     }
     
     return this;
+  }
+  
+  toString(indent = 0) {
+    let str = "";
+    str += MoneroUtils.kvLine("Is outgoing", this.getIsOutgoing(), indent);
+    str += MoneroUtils.kvLine("Address", this.getAddress(), indent);
+    str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
+    str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
+    str += MoneroUtils.kvLine("Amount", this.getAmount() ? this.getAmount().toString() : undefined, indent);
+    if (this.getDestinations()) {
+      str += MoneroUtils.kvLine("Destinations", "", indent);
+      for (let i = 0; i < this.getDestinations().length; i++) {
+        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
+        str += this.getDestinations()[i].toString(indent + 2) + "\n";
+      }
+    }
+    return str.slice(0, str.length - 1);  // strip last newline
   }
 }
 
