@@ -710,7 +710,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "prev_hash" || key === "prev_id") header.setPrevId(val);
       else if (key === "reward") header.setReward(new BigInteger(val));
       else if (key === "timestamp") header.setTimestamp(val);
-      else if (key === "block_weight") header.setBlockWeight(val);
+      else if (key === "block_weight") header.setWeight(val);
       else if (key === "pow_hash") header.setPowHash(val === "" ? undefined : val);
       //else console.log("WARNING: ignoring unexpected block header field: '" + key + "': " + val); // TODO: if ignoring warning, use safe set like below
     }

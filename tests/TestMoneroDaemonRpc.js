@@ -1075,7 +1075,7 @@ function testBlockHeader(header, isFull) {
   assert(!isFull ? undefined === header.getTxCount() : header.getTxCount() >= 0);
   assert(!isFull ? undefined === header.getOrphanStatus() : typeof header.getOrphanStatus() === "boolean");
   assert(!isFull ? undefined === header.getReward() : header.getReward());
-  assert(!isFull ? undefined === header.getBlockWeight() : header.getBlockWeight());
+  assert(!isFull ? undefined === header.getWeight() : header.getWeight());
 }
 
 // TODO: test block deep copy

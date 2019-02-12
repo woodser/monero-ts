@@ -61,13 +61,12 @@ class MoneroBlockHeader {
     return this;
   }
   
-  // TODO: rename this to getWeight()
-  getBlockWeight() {
-    return this.state.blockWeight;
+  getWeight() {
+    return this.state.weight;
   }
   
-  setBlockWeight(blockWeight) {
-    this.state.blockWeight = blockWeight;
+  setWeight(weight) {
+    this.state.weight = weight;
     return this;
   }
   
@@ -189,7 +188,7 @@ class MoneroBlockHeader {
     this.setHeight(MoneroUtils.reconcile(this.getHeight(), header.getHeight(), {resolveMax: true}));  // height can increase
     this.setTimestamp(MoneroUtils.reconcile(this.getTimestamp(), header.getTimestamp(), {resolveMax: true}));  // block timestamp can increase
     this.setSize(MoneroUtils.reconcile(this.getSize(), header.getSize()));
-    this.setBlockWeight(MoneroUtils.reconcile(this.getBlockWeight(), header.getBlockWeight()));
+    this.setWeight(MoneroUtils.reconcile(this.getWeight(), header.getWeight()));
     this.setDepth(MoneroUtils.reconcile(this.getDepth(), header.getDepth()));
     this.setDifficulty(MoneroUtils.reconcile(this.getDifficulty(), header.getDifficulty()));
     this.setCumulativeDifficulty(MoneroUtils.reconcile(this.getCumulativeDifficulty(), header.getCumulativeDifficulty()));
@@ -210,7 +209,7 @@ class MoneroBlockHeader {
     str += MoneroUtils.kvLine("Height", this.getHeight(), indent);
     str += MoneroUtils.kvLine("Timestamp", this.getTxCount(), indent);
     str += MoneroUtils.kvLine("Size", this.getSize(), indent);
-    str += MoneroUtils.kvLine("Weight", this.getBlockWeight(), indent);
+    str += MoneroUtils.kvLine("Weight", this.getWeight(), indent);
     str += MoneroUtils.kvLine("Depth", this.getDepth(), indent);
     str += MoneroUtils.kvLine("Difficulty", this.getDifficulty(), indent);
     str += MoneroUtils.kvLine("Cumulative difficulty", this.getCumulativeDifficulty(), indent);
