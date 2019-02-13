@@ -398,7 +398,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
 //    for (let rpcEntry of resp.distributions) {
 //      let entry = MoneroDaemonRpc._buildOutputDistributionEntry(rpcEntry);
 //      entries.push(entry);
-//      MoneroDaemonRpc._setResponseInfo(resp, entry);  // TODO: set same response info for every entry, else this gets prohibitively large?
 //    }
 //    return entries;
   }
