@@ -1,3 +1,4 @@
+const assert = require("assert");
 const MoneroUtils = require("../../utils/MoneroUtils");
 
 /**

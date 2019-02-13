@@ -2143,7 +2143,7 @@ function testAccount(account) {
     for (let i = 0; i < account.getSubaddresses().length; i++) {
       testSubaddress(account.getSubaddresses()[i]);
       assert.equal(account.getSubaddresses()[i].getAccountIndex(), account.getIndex());
-      assert.equal(account.getSubaddresses()[i].getSubaddressIndex(), i);
+      assert.equal(account.getSubaddresses()[i].getIndex(), i);
       balance = balance.add(account.getSubaddresses()[i].getBalance());
       unlockedBalance = unlockedBalance.add(account.getSubaddresses()[i].getUnlockedBalance());
     }

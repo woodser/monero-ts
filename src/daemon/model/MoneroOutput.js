@@ -1,3 +1,4 @@
+const assert = require("assert");
 const MoneroUtils = require("../../utils/MoneroUtils");
 const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroKeyImage = require("./MoneroKeyImage");
