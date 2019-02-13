@@ -424,7 +424,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getAltChains() {
     
-//    // mocked response for test TODO: mock response test framework
+//    // mocked response for test
 //    let resp = {
 //        status: "OK",
 //        chains: [
@@ -447,7 +447,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getAltBlockIds() {
     
-//    // mocked response for test TODO: mock response test framework
+//    // mocked response for test
 //    let resp = {
 //        status: "OK",
 //        untrusted: false,
