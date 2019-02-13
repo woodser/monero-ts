@@ -9,16 +9,6 @@ class MoneroSubaddress {
     this.setAddress(address);
   }
   
-  getAddress() {
-    return this.address;
-  }
-
-  setAddress(address) {
-    this.address = address;
-    return this;
-  }
-  
-  // TODO: move this to subaddress.getAccount().getIndex(), rename getSubaddressIndex() to getIndex()?
   getAccountIndex() {
     return this.accountIndex;
   }
@@ -28,12 +18,21 @@ class MoneroSubaddress {
     return this;
   }
 
-  getSubaddressIndex() {
-    return this.subaddressIndex;
+  getIndex() {
+    return this.index;
   }
 
-  setSubaddressIndex(subaddressIndex) {
-    this.subaddressIndex = subaddressIndex;
+  setIndex(index) {
+    this.index = index;
+    return this;
+  }
+  
+  getAddress() {
+    return this.address;
+  }
+
+  setAddress(address) {
+    this.address = address;
     return this;
   }
 
@@ -88,9 +87,9 @@ class MoneroSubaddress {
   
   toString(indent) {
     let str = "";
-    str += MoneroUtils.kvLine("Address", this.getAddress(), indent);
     str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
-    str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
+    str += MoneroUtils.kvLine("Subaddress index", this.getIndex(), indent);
+    str += MoneroUtils.kvLine("Address", this.getAddress(), indent);
     str += MoneroUtils.kvLine("Label", this.getLabel(), indent);
     str += MoneroUtils.kvLine("Balance", this.getBalance(), indent);
     str += MoneroUtils.kvLine("Unlocked balance", this.getUnlockedBalance(), indent);

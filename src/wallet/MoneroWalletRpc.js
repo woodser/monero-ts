@@ -202,7 +202,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let subaddress = new MoneroSubaddress();
       subaddresses.push(subaddress);
       subaddress.setAccountIndex(accountIdx);
-      subaddress.setSubaddressIndex(rpcAddress.address_index);
+      subaddress.setIndex(rpcAddress.address_index);
       subaddress.setLabel(rpcAddress.label ? rpcAddress.label : undefined);
       subaddress.setAddress(rpcAddress.address);
       subaddress.setIsUsed(rpcAddress.used);
@@ -225,7 +225,7 @@ class MoneroWalletRpc extends MoneroWallet {
         for (let rpcSubaddress of rpcSubaddresses) {
           let subaddressIdx = rpcSubaddress.address_index;
           for (let subaddress of subaddresses) {
-            if (subaddressIdx !== subaddress.getSubaddressIndex()) continue; // find matching subaddress
+            if (subaddressIdx !== subaddress.getIndex()) continue; // find matching subaddress
             assert.equal(rpcSubaddress.address, subaddress.getAddress());
             if (rpcSubaddress.balance !== undefined) subaddress.setBalance(new BigInteger(rpcSubaddress.balance));
             if (rpcSubaddress.unlocked_balance !== undefined) subaddress.setUnlockedBalance(new BigInteger(rpcSubaddress.unlocked_balance));
@@ -242,7 +242,7 @@ class MoneroWalletRpc extends MoneroWallet {
       this.addressCache[accountIdx] = subaddressMap;
     }
     for (let subaddress of subaddresses) {
-      subaddressMap[subaddress.getSubaddressIndex()] = subaddress.getAddress();
+      subaddressMap[subaddress.getIndex()] = subaddress.getAddress();
     }
     
     // return results
@@ -263,7 +263,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // build subaddress object
     let subaddress = new MoneroSubaddress();
     subaddress.setAccountIndex(accountIdx);
-    subaddress.setSubaddressIndex(resp.address_index);
+    subaddress.setIndex(resp.address_index);
     subaddress.setAddress(resp.address);
     subaddress.setLabel(label ? label : undefined);
     subaddress.setBalance(new BigInteger(0));
@@ -299,7 +299,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     let subaddress = new MoneroSubaddress(address);
     subaddress.setAccountIndex(resp.index.major);
-    subaddress.setSubaddressIndex(resp.index.minor);
+    subaddress.setIndex(resp.index.minor);
     return subaddress;
   }
   
@@ -571,7 +571,7 @@ class MoneroWalletRpc extends MoneroWallet {
       } else {
         for (let subaddress of await this.getSubaddresses(accountIdx, undefined, true)) {
           if (subaddress.getUnlockedBalance().compare(new BigInteger(0)) > 0) {
-            subaddressIndices.push(subaddress.getSubaddressIndex());
+            subaddressIndices.push(subaddress.getIndex());
           }
         }
       }

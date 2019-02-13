@@ -228,7 +228,7 @@ class TestMoneroWalletCommon {
           if (subaddresses.length > 1) subaddresses.splice(0, 1);
           
           // get subaddress indices
-          let subaddressIndices = subaddresses.map(subaddress => subaddress.getSubaddressIndex());
+          let subaddressIndices = subaddresses.map(subaddress => subaddress.getIndex());
           assert(subaddressIndices.length > 0);
           
           // fetch subaddresses by indices
@@ -246,8 +246,8 @@ class TestMoneroWalletCommon {
           let subaddresses = await wallet.getSubaddresses(account.getIndex());
           assert(subaddresses.length > 0);
           for (let subaddress of subaddresses) {
-            assert.deepEqual(await wallet.getSubaddress(account.getIndex(), subaddress.getSubaddressIndex()), subaddress);
-            assert.deepEqual((await wallet.getSubaddresses(account.getIndex(), subaddress.getSubaddressIndex()))[0], subaddress); // test plural call with single subaddr number
+            assert.deepEqual(await wallet.getSubaddress(account.getIndex(), subaddress.getIndex()), subaddress);
+            assert.deepEqual((await wallet.getSubaddresses(account.getIndex(), subaddress.getIndex()))[0], subaddress); // test plural call with single subaddr number
           }
         }
       });
@@ -286,7 +286,7 @@ class TestMoneroWalletCommon {
         assert.equal((await wallet.getSubaddress(0, 0)).getAddress(), await wallet.getPrimaryAddress());
         for (let account of await wallet.getAccounts(true)) {
           for (let subaddress of await wallet.getSubaddresses(account.getIndex())) {
-            assert.equal(await wallet.getAddress(account.getIndex(), subaddress.getSubaddressIndex()), subaddress.getAddress());
+            assert.equal(await wallet.getAddress(account.getIndex(), subaddress.getIndex()), subaddress.getAddress());
           }
         }
       });
@@ -301,7 +301,7 @@ class TestMoneroWalletCommon {
         // get address index
         let subaddress = await wallet.getAddressIndex(address);
         assert.equal(subaddress.getAccountIndex(), accountIdx);
-        assert.equal(subaddress.getSubaddressIndex(), subaddressIdx);
+        assert.equal(subaddress.getIndex(), subaddressIdx);
 
         // test valid but unfound address
         let nonWalletAddress = await TestUtils.getRandomWalletAddress();
@@ -341,8 +341,8 @@ class TestMoneroWalletCommon {
             subaddressesUnlockedBalance = subaddressesUnlockedBalance.add(subaddress.getUnlockedBalance());
             
             // test that balances are consistent with getAccounts() call
-            assert.equal((await wallet.getBalance(subaddress.getAccountIndex(), subaddress.getSubaddressIndex())).toString(), subaddress.getBalance().toString());
-            assert.equal((await wallet.getUnlockedBalance(subaddress.getAccountIndex(), subaddress.getSubaddressIndex())).toString(), subaddress.getUnlockedBalance().toString());
+            assert.equal((await wallet.getBalance(subaddress.getAccountIndex(), subaddress.getIndex())).toString(), subaddress.getBalance().toString());
+            assert.equal((await wallet.getUnlockedBalance(subaddress.getAccountIndex(), subaddress.getIndex())).toString(), subaddress.getUnlockedBalance().toString());
           }
           assert.equal((await wallet.getBalance(account.getIndex())).toString(), subaddressesBalance.toString());
           assert.equal((await wallet.getUnlockedBalance(account.getIndex())).toString(), subaddressesUnlockedBalance.toString());
@@ -614,10 +614,10 @@ class TestMoneroWalletCommon {
           // get transfers by subaddress index
           let subaddressTransfers = [];
           for (let subaddress of account.getSubaddresses()) {
-            let transfers = await testGetTransfers(wallet, {accountIndex: subaddress.getAccountIndex(), subaddressIndex: subaddress.getSubaddressIndex()});
+            let transfers = await testGetTransfers(wallet, {accountIndex: subaddress.getAccountIndex(), subaddressIndex: subaddress.getIndex()});
             for (let transfer of transfers) {
               assert.equal(transfer.getAccountIndex(), subaddress.getAccountIndex());
-              assert.equal(transfer.getSubaddressIndex(), transfer.getIsOutgoing() ? 0 : subaddress.getSubaddressIndex());
+              assert.equal(transfer.getSubaddressIndex(), transfer.getIsOutgoing() ? 0 : subaddress.getIndex());
               if (transfer.getAccountIndex() !== 0 && transfer.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
               
               // don't add duplicates TODO monero-wallet-rpc: duplicate outgoing transfers returned for different subaddress indices, way to return outgoing subaddress indices?
@@ -759,10 +759,10 @@ class TestMoneroWalletCommon {
           // get vouts by subaddress index
           let subaddressVouts = [];
           for (let subaddress of account.getSubaddresses()) {
-            let vouts = await testGetVouts(wallet, {accountIndex: account.getIndex(), subaddressIndex: subaddress.getSubaddressIndex()}, subaddress.getIsUsed());
+            let vouts = await testGetVouts(wallet, {accountIndex: account.getIndex(), subaddressIndex: subaddress.getIndex()}, subaddress.getIsUsed());
             for (let vout of vouts) {
               assert.equal(vout.getAccountIndex(), subaddress.getAccountIndex());
-              assert.equal(vout.getSubaddressIndex(), subaddress.getSubaddressIndex());
+              assert.equal(vout.getSubaddressIndex(), subaddress.getIndex());
               if (vout.getAccountIndex() !== 0 && vout.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
               subaddressVouts.push(vout);
             }
@@ -925,7 +925,7 @@ class TestMoneroWalletCommon {
           // subaddress balances are sum of their unspent vouts
           for (let subaddress of account.getSubaddresses()) {
             let subaddressSum = new BigInteger(0);
-            let subaddressVouts = await wallet.getVouts({accountIndex: account.getIndex(), subaddressIndex: subaddress.getSubaddressIndex(), isSpent: false});
+            let subaddressVouts = await wallet.getVouts({accountIndex: account.getIndex(), subaddressIndex: subaddress.getIndex(), isSpent: false});
             for (let vout of subaddressVouts) subaddressSum = subaddressSum.add(vout.getAmount());
             if (subaddress.getBalance().toString() !== subaddressSum.toString()) assert(hasUnconfirmedTx, "Subaddress balance must equal sum of its unspent vouts if no unconfirmed txs");
           }
@@ -1471,7 +1471,7 @@ class TestMoneroWalletCommon {
         // determine the indices of the first two subaddresses with unlocked balances
         let fromSubaddressIndices = [];
         for (let i = 0; i < NUM_SUBADDRESSES; i++) {
-          fromSubaddressIndices.push(unlockedSubaddresses[i].getSubaddressIndex());
+          fromSubaddressIndices.push(unlockedSubaddresses[i].getIndex());
         }
         
         // determine the amount to send (slightly less than the sum to send from)
@@ -2154,7 +2154,7 @@ function testAccount(account) {
 
 function testSubaddress(subaddress) {
   assert(subaddress.getAccountIndex() >= 0);
-  assert(subaddress.getSubaddressIndex() >= 0);
+  assert(subaddress.getIndex() >= 0);
   assert(subaddress.getAddress());
   assert(subaddress.getLabel() === undefined || typeof subaddress.getLabel() === "string");
   if (typeof subaddress.getLabel() === "string") assert(subaddress.getLabel().length > 0);

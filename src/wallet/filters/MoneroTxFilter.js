@@ -1,3 +1,4 @@
+const assert = require("assert");
 const Filter = require("../../utils/Filter");
 const MoneroWalletTx = require("../model/MoneroWalletTx");
 const MoneroTransferFilter = require("./MoneroTransferFilter"); // TODO: combine filters file so these can import each other?
