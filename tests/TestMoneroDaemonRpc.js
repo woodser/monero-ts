@@ -1023,12 +1023,12 @@ class TestMoneroDaemonRpc {
           let listenerHeader;
           let listener = function(header) {
             listenerHeader = header;
-            daemon.removeBlockHeaderListener(listener); // otherwise daemon will keep polling
+            daemon.removeBlockListener(listener); // otherwise daemon will keep polling
           }
-          daemon.addBlockHeaderListener(listener);
+          daemon.addBlockListener(listener);
           
           // wait for next block notification
-          let header = await daemon.nextBlockHeader();
+          let header = await daemon.getNextBlockHeader();
           testBlockHeader(header, true);
           
           // test that listener was called with equivalent header
@@ -1040,17 +1040,6 @@ class TestMoneroDaemonRpc {
           // stop mining
           try { await daemon.stopMining(); }
           catch (e) { }
-        }
-        
-        // helper function to wait for next block
-        function awaitNewBlock() {
-          return new Promise(function(resolve, reject) {
-            let onHeader = function(header) {
-              resolve(header);
-              daemon.removeBlockListener(onHeader);
-            }
-            daemon.addBlockListener(onHeader);
-          });
         }
       });
     });

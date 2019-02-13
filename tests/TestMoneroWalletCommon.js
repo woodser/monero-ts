@@ -2032,7 +2032,7 @@ class TestMoneroWalletCommon {
         while (numConfirmations < numConfirmationsTotal) {
           
           // wait for a block
-          let header = await daemon.nextBlockHeader();
+          let header = await daemon.getNextBlockHeader();
           console.log("*** Block " + header.getHeight() + " added to chain ***");
           
           // give wallet time to catch up, otherwise incoming tx may not appear

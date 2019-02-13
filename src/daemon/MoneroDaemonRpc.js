@@ -487,7 +487,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return (await this._setBandwidthLimits(undefined, -1))[1];
   }
   
-  async getConnections() {  // TODO: test common response info
+  async getConnections() {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_connections");
     MoneroDaemonRpc._checkResponseStatus(resp);
@@ -592,17 +592,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
     MoneroDaemonRpc._checkResponseStatus(resp);
   }
   
-  async nextBlockHeader() {
-    let that = this;
-    return new Promise(function(resolve, reject) {
-      let listener = function(header) {
-        resolve(header);
-        that.removeBlockHeaderListener(listener);
-      }
-      that.addBlockHeaderListener(listener);
-    });
-  }
-  
   async checkForUpdate() {
     let resp = await this.config.rpc.sendPathRequest("update", {command: "check"});
     MoneroDaemonRpc._checkResponseStatus(resp);
@@ -620,8 +609,18 @@ class MoneroDaemonRpc extends MoneroDaemon {
     MoneroDaemonRpc._checkResponseStatus(resp);
   }
   
-  // TODO: need to add these to MoneroDaemon.js
-  addBlockHeaderListener(listener) {
+  async getNextBlockHeader() {
+    let that = this;
+    return new Promise(function(resolve, reject) {
+      let listener = function(header) {
+        resolve(header);
+        that.removeBlockListener(listener);
+      }
+      that.addBlockListener(listener);
+    });
+  }
+  
+  addBlockListener(listener) {
 
     // register listener
     this.listeners.push(listener);
@@ -631,7 +630,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (!this.isPollingHeaders) this._startPollingHeaders(POLL_INTERVAL);
   }
   
-  removeBlockHeaderListener(listener) {
+  removeBlockListener(listener) {
     let found = GenUtils.remove(this.listeners, listener);
     assert(found, "Listener is not registered");
     if (this.listeners.length === 0) this._stopPollingHeaders();

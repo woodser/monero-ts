@@ -588,7 +588,7 @@ class MoneroDaemon {
    * 
    * @return {MoneroBlockHeader} is the next block's header when detected
    */
-  async nextBlockHeader() {
+  async getNextBlockHeader() {
     throw new Error("Subclass must implement");
   }
   
@@ -597,7 +597,7 @@ class MoneroDaemon {
    * 
    * @param {function} listener is invoked with new block headers when detected
    */
-  addBlockHeaderListener(listener) {
+  addBlockListener(listener) {
     throw new Error("Subclass must implement");
   }
   
@@ -606,7 +606,7 @@ class MoneroDaemon {
    * 
    * @param {function} listener is the listener to no longer invoke when new blocks are detected
    */
-  removeBlockHeaderListener(listener) {
+  removeBlockListener(listener) {
     throw new Error("Subclass must implement");
   }
   
@@ -634,6 +634,33 @@ class MoneroDaemon {
    * Safely disconnect and shut down the daemon.
    */
   async stop() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get the header of the next block added to the chain.
+   * 
+   * @return {MoneroBlockHeader} is the header of the next block added to the chain
+   */
+  async getNextBlockHeader() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Register a listener to be notified when blocks are added to the chain.
+   * 
+   * @param {function} listener({MoneroBlockHeader}) is invoked when blocks are added to the chain
+   */
+  addBlockListener(listener) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Unregister a listener to be notified when blocks are added to the chain.
+   * 
+   * @param {function} listener is a previously registered listener to be unregistered
+   */
+  removeBlockListener(listener) {
     throw new Error("Subclass must implement");
   }
   
