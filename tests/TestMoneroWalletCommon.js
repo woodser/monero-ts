@@ -1595,7 +1595,7 @@ class TestMoneroWalletCommon {
         let config = new MoneroSendConfig(address, sendAmount, MoneroSendPriority.ELEVATED, TestUtils.MIXIN);
         config.setPaymentId(paymentId)
         config.setAccountIndex(fromAccount.getIndex());
-        config.setSubaddressIndices([fromSubaddress.getSubaddressIndex()]);
+        config.setSubaddressIndices([fromSubaddress.getIndex()]);
         config.setDoNotRelay(doNotRelay);
         config.setCanSplit(canSplit); // so test knows txs could be split
         if (canSplit) {
