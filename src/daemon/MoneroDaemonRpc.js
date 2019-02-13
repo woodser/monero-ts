@@ -34,7 +34,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   /**
    * Constructs the daemon.
    * 
-   * @param config is the daemon configuration	// TODO: config default and validation
+   * @param config is the daemon configuration
    */
   constructor(config) {
     super();
