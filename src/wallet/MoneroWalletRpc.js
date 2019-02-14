@@ -32,7 +32,14 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Constructs the wallet rpc instance.
    * 
-   * @param config is the rpc configuration // TODO: config default and validation
+   * @param {object}  config defines the rpc configuration
+   * @param {string}  config.uri is the uri of the rpc endpoint
+   * @param {string}  config.protocol is the protocol of the rpc endpoint
+   * @param {string}  config.host is the host of the rpc endpoint
+   * @param {int}     config.port is the port of the rpc endpoint
+   * @param {string}  config.user is a username to authenticate with the rpc endpoint
+   * @param {string}  config.password is a password to authenticate with the rpc endpoint
+   * @param {string}  config.maxRequestsPerSecond is the maximum requests per second to allow
    */
   constructor(config) {
     super();

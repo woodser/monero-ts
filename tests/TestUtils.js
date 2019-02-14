@@ -41,30 +41,30 @@ class TestUtils {
     // initialize cached wallet
     TestUtils.getWalletRpc();
     
-    // create rpc wallet file if necessary
-    try {
-      await this.walletRpc.createWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1, "English");
-    } catch (e) {
-      if (!(e instanceof MoneroRpcError)) throw e;
-      assert.equal(e.getRpcCode(), -21); // exception is ok if wallet already created
-    }
+//    // create rpc wallet file if necessary
+//    try {
+//      await this.walletRpc.createWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1, "English");
+//    } catch (e) {
+//      if (!(e instanceof MoneroRpcError)) throw e;
+//      assert.equal(e.getRpcCode(), -21); // exception is ok if wallet already created
+//    }
     
-    // open rpc wallet file
-    try {
-      await this.walletRpc.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
-    } catch (e) {
-      if (!(e instanceof MoneroRpcError)) throw e;
-      assert.equal(e.getRpcCode(), -1); // TODO (monero-wallet-rpc): -1: Failed to open wallet if wallet is already open; better code and message
-    }
+//    // open rpc wallet file
+//    try {
+//      await this.walletRpc.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
+//    } catch (e) {
+//      if (!(e instanceof MoneroRpcError)) throw e;
+//      assert.equal(e.getRpcCode(), -1); // TODO (monero-wallet-rpc): -1: Failed to open wallet if wallet is already open; better code and message
+//    }
     
-    // refresh wallet
-    try {
-      await this.walletRpc.rescanSpent();
-    } catch (e) {
-      console.log(e);
-      assert.equal(e.getRpcCode(), -38);  // TODO: (monero-wallet-rpc) sometimes getting -38: no connection to daemon on rescan call (after above calls) which causes mocha "before all" hook problem
-      console.log("WARNING: received -38: no connection to daemon on rescan call after create/open, ignoring...");
-    }
+//    // refresh wallet
+//    try {
+//      await this.walletRpc.rescanSpent();
+//    } catch (e) {
+//      console.log(e);
+//      assert.equal(e.getRpcCode(), -38);  // TODO: (monero-wallet-rpc) sometimes getting -38: no connection to daemon on rescan call (after above calls) which causes mocha "before all" hook problem
+//      console.log("WARNING: received -38: no connection to daemon on rescan call after create/open, ignoring...");
+//    }
   }
   
   static testUnsignedBigInteger(num, nonZero) {
@@ -99,7 +99,7 @@ TestUtils.WALLET_RPC_CONFIG = {
   port: 38083,
   user: "rpc_user",
   pass: "abc123",
-  requestsPerSecond: 500
+  maxRequestsPerSecond: 500
 };
 
 // wallet rpc wallet filenames and passwords
@@ -115,7 +115,7 @@ TestUtils.DAEMON_RPC_CONFIG = {
   port: 38081,
   user: "superuser",
   pass: "abctesting123",
-  requestsPerSecond: 500
+  maxRequestsPerSecond: 500
 };
 
 // local wallet config
@@ -130,7 +130,7 @@ TestUtils.WALLET_LOCAL_CONFIG = {
 //  port: 38081,
 //  //user: "superuser",
 //  //pass: "abctesting123",
-//  requestsPerSecond: 1
+//  maxRequestsPerSecond: 1
 //};
 
 module.exports = TestUtils;

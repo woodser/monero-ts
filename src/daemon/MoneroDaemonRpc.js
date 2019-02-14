@@ -34,13 +34,21 @@ class MoneroDaemonRpc extends MoneroDaemon {
   /**
    * Constructs the daemon.
    * 
-   * @param config is the daemon configuration
+   * @param {object}  config defines the rpc configuration as a map
+   * @param {string}  config.uri is the uri of the rpc endpoint
+   * @param {string}  config.protocol is the protocol of the rpc endpoint
+   * @param {string}  config.host is the host of the rpc endpoint
+   * @param {int}     config.port is the port of the rpc endpoint
+   * @param {string}  config.user is a username to authenticate with the rpc endpoint
+   * @param {string}  config.password is a password to authenticate with the rpc endpoint
+   * @param {string}  config.maxRequestsPerSecond is the maximum requests per second to allow
+   * @param {int}     config.pollInterval is the poll interval to check for updates in ms (default 5000)
    */
   constructor(config) {
     super();
     
-    // assign config
-    this.config = Object.assign({}, config);
+    // assign config with defaults
+    this.config = Object.assign({pollInterval: 5000}, config);
     
     // initialize rpc if not given
     if (!this.config.rpc) this.config.rpc = new MoneroRpc(config);
@@ -625,8 +633,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     this.listeners.push(listener);
     
     // start polling for new blocks
-    const POLL_INTERVAL = 5000; // TODO: move to config
-    if (!this.isPollingHeaders) this._startPollingHeaders(POLL_INTERVAL);
+    if (!this.isPollingHeaders) this._startPollingHeaders(this.config.pollInterval);
   }
   
   removeBlockListener(listener) {

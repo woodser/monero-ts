@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+const assert = require("assert");
 const MoneroNetworkType = require("./model/MoneroNetworkType");
 
 /**
