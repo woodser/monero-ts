@@ -701,23 +701,25 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let header = new MoneroBlockHeader();
     for (let key of Object.keys(rpcHeader)) {
       let val = rpcHeader[key];
-      if (key === "block_size") header.setSize(val);
-      else if (key === "depth") header.setDepth(val);
-      else if (key === "difficulty") header.setDifficulty(new BigInteger(val));
-      else if (key === "cumulative_difficulty") header.setCumulativeDifficulty(new BigInteger(val));
-      else if (key === "hash") header.setId(val);
-      else if (key === "height") header.setHeight(val);
-      else if (key === "major_version") header.setMajorVersion(val);
-      else if (key === "minor_version") header.setMinorVersion(val);
-      else if (key === "nonce") header.setNonce(val);
-      else if (key === "num_txes") header.setTxCount(val);
-      else if (key === "orphan_status") header.setOrphanStatus(val);
-      else if (key === "prev_hash" || key === "prev_id") header.setPrevId(val);
-      else if (key === "reward") header.setReward(new BigInteger(val));
-      else if (key === "timestamp") header.setTimestamp(val);
-      else if (key === "block_weight") header.setWeight(val);
-      else if (key === "pow_hash") header.setPowHash(val === "" ? undefined : val);
-      //else console.log("WARNING: ignoring unexpected block header field: '" + key + "': " + val); // TODO: if ignoring warning, use safe set like below
+      if (key === "block_size") MoneroUtils.safeSet(header, header.getSize, header.setSize, val);
+      else if (key === "depth") MoneroUtils.safeSet(header, header.getDepth, header.setDepth, val);
+      else if (key === "difficulty") MoneroUtils.safeSet(header, header.getDifficulty, header.setDifficulty, new BigInteger(val));
+      else if (key === "cumulative_difficulty") MoneroUtils.safeSet(header, header.getCumulativeDifficulty, header.setCumulativeDifficulty, new BigInteger(val));
+      else if (key === "hash") MoneroUtils.safeSet(header, header.getId, header.setId, val);
+      else if (key === "height") MoneroUtils.safeSet(header, header.getHeight, header.setHeight, val);
+      else if (key === "major_version") MoneroUtils.safeSet(header, header.getMajorVersion, header.setMajorVersion, val);
+      else if (key === "minor_version") MoneroUtils.safeSet(header, header.getMinorVersion, header.setMinorVersion, val);
+      else if (key === "nonce") MoneroUtils.safeSet(header, header.getNonce, header.setNonce, val);
+      else if (key === "num_txes") MoneroUtils.safeSet(header, header.getTxCount, header.setTxCount, val);
+      else if (key === "orphan_status") MoneroUtils.safeSet(header, header.getOrphanStatus, header.setOrphanStatus, val);
+      else if (key === "prev_hash" || key === "prev_id") MoneroUtils.safeSet(header, header.getPrevId, header.setPrevId, val);
+      else if (key === "reward") MoneroUtils.safeSet(header, header.getReward, header.setReward, new BigInteger(val));
+      else if (key === "timestamp") MoneroUtils.safeSet(header, header.getTimestamp, header.setTimestamp, val);
+      else if (key === "block_weight") MoneroUtils.safeSet(header, header.getWeight, header.setWeight, val);
+      else if (key === "pow_hash") MoneroUtils.safeSet(header, header.getPowHash, header.setPowHash, val === "" ? undefined : val);
+      else if (key === "tx_hashes") {}  // used in block model, not header model
+      else if (key === "miner_tx") {}   // used in block model, not header model
+      else console.log("WARNING: ignoring unexpected block header field: '" + key + "': " + val);
     }
     return header;
   }
