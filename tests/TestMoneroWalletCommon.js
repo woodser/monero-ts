@@ -1620,7 +1620,7 @@ class TestMoneroWalletCommon {
         
         // test that balance and unlocked balance decreased
         // TODO: test that other balances did not decrease
-        let subaddress = await wallet.getSubaddress(fromAccount.getIndex(), fromSubaddress.getSubaddressIndex());
+        let subaddress = await wallet.getSubaddress(fromAccount.getIndex(), fromSubaddress.getIndex());
         assert(subaddress.getBalance().compare(balanceBefore) < 0);
         assert(subaddress.getUnlockedBalance().compare(unlockedBalanceBefore) < 0);
         

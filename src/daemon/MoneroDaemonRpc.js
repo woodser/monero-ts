@@ -809,7 +809,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         }
       }
       else if (key === "last_failed_id_hash") {
-        if (val === MoneroDaemonRpc.DEFAULT_ID) MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed, false);
+        if (val === MoneroDaemonRpc.DEFAULT_ID) MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed);
         else {
           MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed, true);
           MoneroUtils.safeSet(tx, tx.getLastFailedId, tx.setLastFailedId, val);

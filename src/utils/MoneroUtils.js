@@ -42,6 +42,25 @@ class MoneroUtils {
   }
   
   /**
+   * Sets the given value ensuring a previous value is not overwritten.
+   * 
+   * @param obj is the object to invoke the getter and setter on
+   * @param getFn gets the current value
+   * @param setFn sets the current value
+   * @param val is the value to set iff it does not overwrite a previous value
+   * @param config specifies reconciliation configuration
+   *        config.resolveDefined uses defined value if true or undefined, undefined if false
+   *        config.resolveTrue uses true over false if true, false over true if false, must be equal if undefined
+   *        config.resolveMax uses max over min if true, min over max if false, must be equal if undefined
+   * @param errMsg is the error message to throw if the values cannot be reconciled (optional)
+   */
+  static safeSet(obj, getFn, setFn, val, config, errMsg) {
+    let curVal = getFn.call(obj);
+    let reconciledVal = MoneroUtils.reconcile(curVal, val, config, errMsg);
+    if (curVal !== reconciledVal) setFn.call(obj, reconciledVal);
+  }
+  
+  /**
    * Reconciles two values.
    * 
    * @param val1 is a value to reconcile
