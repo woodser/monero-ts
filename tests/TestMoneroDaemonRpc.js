@@ -35,9 +35,7 @@ class TestMoneroDaemonRpc {
       
       // initialize wallet before all tests
       before(async function() {
-        console.log("hi!");
         await TestUtils.initWalletRpc();
-        console.log("there");
       });
       
       if (config.testNonRelays) that._testNonRelays(config.liteMode);
