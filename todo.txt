@@ -63,18 +63,21 @@ package asm for browser build under different directory (MyMoneroCoreBridge.js:7
 
 RPC
 outgoing transfers always return subaddress index 0 (#5171)
-add relayed to daemon rpc get_transactions, wallet rpc get_transfers, else must use get_transaction_pool (#5137)
-add output_indices to get_blocks_by_height.bin (#5127)
+duplicate outgoing transfers returned for different subaddress indices, way to include subaddress indices?
+
 get_transfers can return all subaddresses (#5109)
 get_balance should return used or get_address should return balances for RPC optimization
-wallet rpc sweep_single documentation not correct; contradicts example
-support cors wildcard character
-update #4500 with latest notes
+
 subaddresses occluded by outgoing counterparts when sent from/to same account (#4500)
+update #4500 with latest notes
+
+add relayed to daemon rpc get_transactions, wallet rpc get_transfers, else must use get_transaction_pool (#5137)
+add output_indices to get_blocks_by_height.bin (#5127)
+wallet rpc sweep_single documentation not correct; contradicts example
+daemon rpc supports cors wildcard character (#5172)
 unconfirmed tx missing destinations even though known by wallet
 send from/to same account, after first confirmation outgoing tx amount is 0 but has payments with amts, so discrepency
 show_transfers returns unconfirmed outputs
-duplicate outgoing transfers returned for different subaddress indices, way to include subaddress indices?
 introduce way to identify change output from blockchain? that solves unknown sent amt issue
 identify one call per acount/subaddress and support "all" flag
 /get_transactions returns duplicate data per transaction
@@ -82,4 +85,3 @@ daemon get_txs prune documentation missing
 document alt chain `block_hashes` and `main_chain_parent_block`
 each call to `open_wallet` toggles whether or not pending transfers return (#5106)
 transfer with do_not_relay then relay_tx issue (#5107)
-get_balance
