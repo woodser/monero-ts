@@ -1347,7 +1347,7 @@ function testInfo(info) {
   assert(typeof info.getWasBootstrapEverUsed() === "boolean");
   assert(info.getBlockWeightLimit());
   assert(info.getBlockWeightMedian());
-  assert(info.getDatabaseSize());
+  assert(info.getDatabaseSize() > 0);
   assert(typeof info.getUpdateAvailable() === "boolean");
 }
 

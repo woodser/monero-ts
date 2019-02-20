@@ -906,7 +906,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "cumulative_difficulty") info.setCumulativeDifficulty(new BigInteger(val));
       else if (key === "difficulty") info.setDifficulty(new BigInteger(val));
       else if (key === "free_space") info.setFreeSpace(new BigInteger(val));
-      else if (key === "database_size") info.setDatabaseSize(new BigInteger(val));  // TODO: big integers necessary?  test?
+      else if (key === "database_size") info.setDatabaseSize(val);
       else if (key === "grey_peerlist_size") info.setOfflinePeerCount(val);
       else if (key === "height") info.setHeight(val);
       else if (key === "height_without_bootstrap") info.setHeightWithoutBootstrap(val);
