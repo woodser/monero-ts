@@ -134,6 +134,7 @@ class TestMoneroWalletCommon {
         assert.deepEqual(decodedAddress, integratedAddress);
       });
       
+      // TODO: test syncing from start height
       it("Can sync (without progress)", async function() {
         let numBlocks = 100;
         let chainHeight = await daemon.getHeight();
@@ -1170,7 +1171,7 @@ class TestMoneroWalletCommon {
       it("Can prove reserves in the wallet", async function() {
         
         // get proof of entire wallet
-        let signature = await wallet.getWalletReserveProof("Test message");
+        let signature = await wallet.getReserveProofWallet("Test message");
         
         // check proof of entire wallet
         let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Test message", signature);
@@ -1227,7 +1228,7 @@ class TestMoneroWalletCommon {
         for (let account of accounts) {
           if (account.getBalance().compare(new BigInteger(0)) > 0) {
             let checkAmount = (await account.getBalance()).divide(new BigInteger(2));
-            signature = await wallet.getAccountReserveProof(account.getIndex(), checkAmount, msg);
+            signature = await wallet.getReserveProofAccount(account.getIndex(), checkAmount, msg);
             let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), msg, signature);
             assert(check.getIsGood());
             testCheckReserve(check);
@@ -1235,12 +1236,12 @@ class TestMoneroWalletCommon {
             numNonZeroTests++;
           } else {
             try {
-              await wallet.getAccountReserveProof(account.getIndex(), account.getBalance(), msg);
+              await wallet.getReserveProofAccount(account.getIndex(), account.getBalance(), msg);
               throw new Error("Should have thrown exception");
             } catch (e) {
               assert.equal(e.getRpcCode(), -1);
               try {
-                await wallet.getAccountReserveProof(account.getIndex(), TestUtils.MAX_FEE, msg);
+                await wallet.getReserveProofAccount(account.getIndex(), TestUtils.MAX_FEE, msg);
                 throw new Error("Should have thrown exception");
               } catch (e2) {
                 assert.equal(e2.getRpcCode(), -1);
@@ -1252,7 +1253,7 @@ class TestMoneroWalletCommon {
         
         // test error when not enough balance for requested minimum reserve amount
         try {
-          await wallet.getAccountReserveProof(0, accounts[0].getBalance().add(TestUtils.MAX_FEE), "Test message");
+          await wallet.getReserveProofAccount(0, accounts[0].getBalance().add(TestUtils.MAX_FEE), "Test message");
           throw new Error("Should have thrown exception");
         } catch (e) {
           assert.equal(e.getRpcCode(), -1);

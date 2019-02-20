@@ -653,7 +653,7 @@ class MoneroWallet {
    * @param {string} message is a message included with the signature to further authenticate the proof (optional)
    * @return {string} is the reserve proof signature
    */
-  async getWalletReserveProof(message) {
+  async getReserveProofWallet(message) {
     throw new Error("Subclass must implement");
   }
   
@@ -665,7 +665,7 @@ class MoneroWallet {
    * @param {string} message is a message to include with the signature to further authenticate the proof (optional)
    * @return {string} is the reserve proof signature
    */
-  async getAccountReserveProof(accountIdx, amount, message) {
+  async getReserveProofAccount(accountIdx, amount, message) {
     throw new Error("Subclass must implement");
   }
 

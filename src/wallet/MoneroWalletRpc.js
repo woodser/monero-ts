@@ -153,11 +153,10 @@ class MoneroWalletRpc extends MoneroWallet {
     return new MoneroIntegratedAddress(resp.standard_address, resp.payment_id, integratedAddress);
   }
   
-  // TODO: test and support start_height parameter
   async sync(startHeight, endHeight, onProgress) {
     assert(endHeight === undefined, "Monero Wallet RPC does not support syncing to an end height");
     assert(onProgress === undefined, "Monero Wallet RPC does not support reporting sync progress");
-    return await this.config.rpc.sendJsonRequest("refresh");
+    return await this.config.rpc.sendJsonRequest("refresh", {start_height: startHeight});
   }
   
   async isMultisigImportNeeded() {
@@ -814,7 +813,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return resp.good;
   }
   
-  async getWalletReserveProof(message) {
+  async getReserveProofWallet(message) {
     let resp = await this.config.rpc.sendJsonRequest("get_reserve_proof", {
       all: true,
       message: message
@@ -822,8 +821,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return resp.signature;
   }
   
-  // TODO: probably getReserveProofAccount(), getReserveProofWallet()
-  async getAccountReserveProof(accountIdx, amount, message) {
+  async getReserveProofAccount(accountIdx, amount, message) {
     let resp = await this.config.rpc.sendJsonRequest("get_reserve_proof", {
       account_index: accountIdx,
       amount: amount.toString(),
