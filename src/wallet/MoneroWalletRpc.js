@@ -55,9 +55,31 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   // --------------------------- RPC WALLET METHODS ---------------------------
+
+  /**
+   * Rescan the blockchain for spent outputs.
+   */
+  async rescanSpent() {
+    await this.config.rpc.sendJsonRequest("rescan_spent");
+  }
   
   /**
-   * TODO
+   * Rescan the blockchain from scratch, losing any information which can not
+   * be recovered from the blockchain itself.
+   * 
+   * WARNING: This method discards local wallet data like destination
+   * addresses, tx secret keys, tx notes, etc.
+   */
+  async rescanBlockchain() {
+    await this.config.rpc.sendJsonRequest("rescan_blockchain");
+  }
+  
+  /**
+   * Create a new wallet file at the remote endpoint.
+   * 
+   * @param {string} filename is the name of the wallet file to create
+   * @param {string} password is the password to decrypt the wallet file
+   * @param {string} language is the language for the wallet's mnemonic seed
    */
   async createWallet(filename, password, language) {
     if (!filename) throw new Error("Filename is not initialized");
@@ -68,7 +90,10 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   /**
-   * TODO
+   * Open a wallet file at the remote endpoint.
+   * 
+   * @param {string} filename is the name of the wallet file to open
+   * @param {string} password is the password to decrypt the wallet file
    */
   async openWallet(filename, password) {
     if (!filename) throw new Error("Filename is not initialized");
@@ -79,32 +104,16 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   /**
-   * TODO
+   * Save the currently open wallet file at the remote endpoint.
    */
-  async rescanSpent() {
-    await this.config.rpc.sendJsonRequest("rescan_spent");
-  }
-  
-  /**
-   * TODO
-   */
-  async saveBlockchain() {
+  async save() {
     await this.config.rpc.sendJsonRequest("store");
   }
   
   /**
-   * TODO
-   * 
-   * WARNING: discards local wallet data like destination addresses
+   * Close the wallet at the remote endpoint, saving the current state.
    */
-  async rescanBlockchain() {
-    await this.config.rpc.sendJsonRequest("rescan_blockchain");
-  }
-  
-  /**
-   * Stop the wallet.
-   */
-  async stopWallet() {
+  async close() {
     await this.config.rpc.sendJsonRequest("stop_wallet");
     delete this.addressCache;
     this.addressCache = {};

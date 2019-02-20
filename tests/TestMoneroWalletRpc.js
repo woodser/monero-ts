@@ -82,8 +82,8 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         await wallet.rescanSpent();
       });
       
-      it("Can save the blockchain", async function() {
-        await wallet.saveBlockchain();
+      it("Can save the wallet file", async function() {
+        await wallet.save();
       });
       
       it("Can tag accounts and query accounts by tag", async function() {
@@ -225,7 +225,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
       
       // disabled so wallet is not actually stopped
 //      it("Can be stopped", async function() {
-//        await wallet.stopWallet();
+//        await wallet.stop();
 //      });
     })
   }
