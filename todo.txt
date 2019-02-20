@@ -1,5 +1,7 @@
-todos throughout code
-object model
+review code todos for model changes
+public data model specification for review
+multisig
+pruning
 
 daemon.getBlocksById(), default implementations
 
