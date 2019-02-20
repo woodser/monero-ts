@@ -62,6 +62,7 @@ split BooleanSet into new project
 package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 
 RPC
+outgoing transfers always return subaddress index 0 (#5171)
 add relayed to daemon rpc get_transactions, wallet rpc get_transfers, else must use get_transaction_pool (#5137)
 add output_indices to get_blocks_by_height.bin (#5127)
 get_transfers can return all subaddresses (#5109)
@@ -69,7 +70,7 @@ get_balance should return used or get_address should return balances for RPC opt
 wallet rpc sweep_single documentation not correct; contradicts example
 support cors wildcard character
 update #4500 with latest notes
-fix #4500 subaddresses occluded by outgoing counterparts when sent from/to same account
+subaddresses occluded by outgoing counterparts when sent from/to same account (#4500)
 unconfirmed tx missing destinations even though known by wallet
 send from/to same account, after first confirmation outgoing tx amount is 0 but has payments with amts, so discrepency
 show_transfers returns unconfirmed outputs

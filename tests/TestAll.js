@@ -40,4 +40,4 @@ new TestMoneroWalletRpc().runTests({
 //require("./TestBooleanSet");
 
 // test scratchpad
-//require("./Scratchpad");
+require("./Scratchpad");

@@ -377,11 +377,11 @@ class MoneroWalletRpc extends MoneroWallet {
       let subaddressIndices = new Set();
       if (transfer.getSubaddressIndex() !== undefined) subaddressIndices.add(transfer.getSubaddressIndex());
       if (transferFilter.getSubaddressIndices() !== undefined) transferFilter.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
-      indices.set(transfer.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : await this._getSubaddressIndices(transfer.getAccountIndex()));  // TODO monero-wallet-rpc: support `get_tranfsers` getting all transfers in account so clients don't need to pre-fetch subaddress indices
+      indices.set(transfer.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : undefined);
     } else {
       assert.equal(transfer.getSubaddressIndex(), undefined, "Filter specifies a subaddress index but not an account index");
       assert(transferFilter.getSubaddressIndices() === undefined || transferFilter.getSubaddressIndices().length === 0, "Filter specifies subaddress indices but not an account index");
-      indices = await this._getAccountIndices(true);  // fetch all account and subaddress indices
+      indices = await this._getAccountIndices(false);  // fetch all account and subaddress indices
     }
     
     // build params for get_transfers rpc call

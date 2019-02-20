@@ -43,7 +43,7 @@ describe("Scratchpad", function() {
     
     // -------------------------------- SCRATCHPAD ----------------------------
     
-    transfers = await wallet.getTransfers({accountIndex: 0, subaddressIndices: [0, 1, 2], txId: "5d6218a24a81de3c7eb4474b3452ef6b81aea84dda930a129f807f80feac34f2"});
+    transfers = await wallet.getTransfers({isOutgoing: true, accountIndex: 0, subaddressIndices: [0, 1, 2]});
     for (let transfer of transfers) {
       console.log(transfers);
     }
