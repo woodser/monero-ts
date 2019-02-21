@@ -57,14 +57,14 @@ class TestUtils {
       assert.equal(e.getRpcCode(), -1); // TODO (monero-wallet-rpc): -1: Failed to open wallet if wallet is already open; better code and message
     }
     
-    // refresh wallet
-    try {
-      await this.walletRpc.rescanSpent();
-    } catch (e) {
-      console.log(e);
-      assert.equal(e.getRpcCode(), -38);  // TODO: (monero-wallet-rpc) sometimes getting -38: no connection to daemon on rescan call (after above calls) which causes mocha "before all" hook problem
-      console.log("WARNING: received -38: no connection to daemon on rescan call after create/open, ignoring...");
-    }
+//    // refresh wallet
+//    try {
+//      await this.walletRpc.rescanSpent();
+//    } catch (e) {
+//      console.log(e);
+//      assert.equal(e.getRpcCode(), -38);  // TODO: (monero-wallet-rpc) sometimes getting -38: no connection to daemon on rescan call (after above calls) which causes mocha "before all" hook problem
+//      console.log("WARNING: received -38: no connection to daemon on rescan call after create/open, ignoring...");
+//    }
   }
   
   static testUnsignedBigInteger(num, nonZero) {
