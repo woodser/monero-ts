@@ -111,21 +111,21 @@ class MoneroDaemonConnection {
     return this;
   }
 
-  getReceiveIdleTime() {
-    return this.receiveIdleTime;
-  }
-
-  setReceiveIdleTime(receiveIdleTime) {
-    this.receiveIdleTime = receiveIdleTime;
-    return this;
-  }
-
   getSendCount() {
     return this.sendCount;
   }
 
   setSendCount(sendCount) {
     this.sendCount = sendCount;
+    return this;
+  }
+
+  getReceiveIdleTime() {
+    return this.receiveIdleTime;
+  }
+
+  setReceiveIdleTime(receiveIdleTime) {
+    this.receiveIdleTime = receiveIdleTime;
     return this;
   }
 
