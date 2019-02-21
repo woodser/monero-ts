@@ -1576,8 +1576,8 @@ function testKnownPeer(peer, fromConnection) {
   assert.equal(typeof peer.getHost(), "string");
   assert(peer.getPort() > 0);
   assert.equal(typeof peer.getIsOnline(), "boolean");
-  if (fromConnection) assert.equal(undefined, peer.getLastSeen());
-  else assert(peer.getLastSeen() > 0);
+  if (fromConnection) assert.equal(undefined, peer.getLastSeenTimestamp());
+  else assert(peer.getLastSeenTimestamp() > 0);
   assert.equal(peer.getPruningSeed(), 0);
 }
 

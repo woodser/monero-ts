@@ -54,12 +54,12 @@ class MoneroDaemonPeer {
     return this;
   }
   
-  getLastSeen() {
-    return this.lastSeen;
+  getLastSeenTimestamp() {
+    return this.lastSeenTimestamp;
   }
   
-  setLastSeen(lastSeen) {
-    this.lastSeen = lastSeen;
+  setLastSeenTimestamp(lastSeenTimestamp) {
+    this.lastSeenTimestamp = lastSeenTimestamp;
     return this;
   }
   
