@@ -716,10 +716,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "reward") MoneroUtils.safeSet(header, header.getReward, header.setReward, new BigInteger(val));
       else if (key === "timestamp") MoneroUtils.safeSet(header, header.getTimestamp, header.setTimestamp, val);
       else if (key === "block_weight") MoneroUtils.safeSet(header, header.getWeight, header.setWeight, val);
+      else if (key === "long_term_weight") MoneroUtils.safeSet(header, header.getLongTermWeight, header.setLongTermWeight, val);
       else if (key === "pow_hash") MoneroUtils.safeSet(header, header.getPowHash, header.setPowHash, val === "" ? undefined : val);
       else if (key === "tx_hashes") {}  // used in block model, not header model
       else if (key === "miner_tx") {}   // used in block model, not header model
-      else if (key === "long_term_weight") MoneroUtils.safeSet(header, header.getLongTermWeight, header.setLongTermWeight, val);
       else console.log("WARNING: ignoring unexpected block header field: '" + key + "': " + val);
     }
     return header;
