@@ -71,6 +71,15 @@ class MoneroBlockHeader {
     return this;
   }
   
+  getLongTermWeight() {
+    return this.state.longTermWeight;
+  }
+  
+  setLongTermWeight(longTermWeight) {
+    this.state.longTermWeight = longTermWeight;
+    return this;
+  }
+  
   getDepth() {
     return this.state.depth;
   }
