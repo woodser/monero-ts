@@ -66,21 +66,21 @@ class MoneroDaemonInfo {
     return this;
   }
   
-  getCumulativeDifficulty() {
-    return this.cumulativeDifficulty;
-  }
-  
-  setCumulativeDifficulty(cumulativeDifficulty) {
-    this.cumulativeDifficulty = cumulativeDifficulty;
-    return this;
-  }
-  
   getDifficulty() {
     return this.difficulty;
   }
   
   setDifficulty(difficulty) {
     this.difficulty = difficulty;
+    return this;
+  }
+  
+  getCumulativeDifficulty() {
+    return this.cumulativeDifficulty;
+  }
+  
+  setCumulativeDifficulty(cumulativeDifficulty) {
+    this.cumulativeDifficulty = cumulativeDifficulty;
     return this;
   }
   
