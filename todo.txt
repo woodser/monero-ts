@@ -1,9 +1,9 @@
-switch to num instead of count?
 update to 14.0.0 and test
+switch to num instead of count?
 monero daemon connection span model
 rct sig prunable model
-public data model specification for review
 regen api documentation
+publish data model and reference implementation with test suite
 multisig
 pruning
 
