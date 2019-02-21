@@ -288,7 +288,6 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddress;
   }
 
-  // TODO: confirm this is using cache as expected
   async getAddress(accountIdx, subaddressIdx) {
     let subaddressMap = this.addressCache[accountIdx];
     if (!subaddressMap) {
@@ -298,7 +297,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let address = subaddressMap[subaddressIdx];
     if (!address) {
       await this.getSubaddresses(accountIdx, undefined, true);  // cache's all addresses at this account
-      return this.getAddress(accountIdx, subaddressIdx);        // recursive call uses cache
+      return this.addressCache[accountIdx][subaddressIdx];
     }
     return address;
   }

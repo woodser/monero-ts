@@ -290,14 +290,21 @@ class TestMoneroWalletCommon {
             assert.equal(await wallet.getAddress(account.getIndex(), subaddress.getIndex()), subaddress.getAddress());
           }
         }
+        
+        // test out of range indices
+        let address = await wallet.getAddress(accounts.length - 1, accounts.getSubaddresses().length - 1);
+        assert.equal(address, undefined);
       });
       
       it("Can get the account and subaddress indices of an address", async function() {
         
-        // get an address to test
-        let accountIdx = 2;
-        let subaddressIdx = 2;
+        // get last subaddress to test
+        let accounts = await wallet.getAccounts(true);
+        let accountIdx = accounts.length - 1;
+        let subaddressIdx = accounts[accountIdx].getSubaddresses().length - 1;
         let address = await wallet.getAddress(accountIdx, subaddressIdx);
+        assert(address);
+        assert.equal(typeof address, "string");
         
         // get address index
         let subaddress = await wallet.getAddressIndex(address);
