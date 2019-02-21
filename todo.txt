@@ -1,6 +1,6 @@
-review code todos for model changes
-regen api documentation
 public data model specification for review
+update to 14.0.0 and test
+regen api documentation
 multisig
 pruning
 
