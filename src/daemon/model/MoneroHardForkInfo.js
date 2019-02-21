@@ -48,21 +48,12 @@ class MoneroHardForkInfo {
     return this;
   }
 
-  getVotes() {
-    return this.votes;
+  getVoteCount() {
+    return this.voteCount;
   }
 
-  setVotes(votes) {
-    this.votes = votes;
-    return this;
-  }
-
-  getVoting() {
-    return this.voting;
-  }
-
-  setVoting(voting) {
-    this.voting = voting;
+  setVoteCount(voteCount) {
+    this.voteCount = voteCount;
     return this;
   }
 
@@ -72,6 +63,15 @@ class MoneroHardForkInfo {
 
   setWindow(window) {
     this.window = window;
+    return this;
+  }
+
+  getVoting() {
+    return this.voting;
+  }
+
+  setVoting(voting) {
+    this.voting = voting;
     return this;
   }
 }

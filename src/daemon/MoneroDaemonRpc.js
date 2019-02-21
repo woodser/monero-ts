@@ -980,7 +980,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "untrusted") {}  // set elsewhere
       else if (key === "threshold") info.setThreshold(val);
       else if (key === "version") info.setVersion(val);
-      else if (key === "votes") info.setVotes(val);
+      else if (key === "votes") info.setVoteCount(val);
       else if (key === "voting") info.setVoting(val);
       else if (key === "window") info.setWindow(val);
       else console.log("WARNING: ignoring unexpected field in hard fork info: " + key + ": " + val);

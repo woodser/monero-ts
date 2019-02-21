@@ -1377,7 +1377,7 @@ function testHardForkInfo(hardForkInfo) {
   assert.notEqual(hardForkInfo.getState(), undefined);
   assert.notEqual(hardForkInfo.getThreshold(), undefined);
   assert.notEqual(hardForkInfo.getVersion(), undefined);
-  assert.notEqual(hardForkInfo.getVotes(), undefined);
+  assert.notEqual(hardForkInfo.getVoteCount(), undefined);
   assert.notEqual(hardForkInfo.getVoting(), undefined);
   assert.notEqual(hardForkInfo.getWindow(), undefined);
 }
