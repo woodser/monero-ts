@@ -353,12 +353,12 @@ class MoneroTx {
     return this;
   }
   
-  getKeptByBlock() {
-    return  this.state.keptByBlock;
+  getIsKeptByBlock() {
+    return  this.state.isKeptByBlock;
   }
   
-  setKeptByBlock(keptByBlock) {
-    this.state.keptByBlock = keptByBlock;
+  setIsKeptByBlock(isKeptByBlock) {
+    this.state.isKeptByBlock = isKeptByBlock;
     return this;
   }
   
@@ -466,7 +466,7 @@ class MoneroTx {
     this.setExtra(MoneroUtils.reconcile(this.getExtra(), tx.getExtra()));
     this.setRctSignatures(MoneroUtils.reconcile(this.getRctSignatures(), tx.getRctSignatures()));
     this.setRctSigPrunable(MoneroUtils.reconcile(this.getRctSigPrunable(), tx.getRctSigPrunable()));
-    this.setKeptByBlock(MoneroUtils.reconcile(this.getKeptByBlock(), tx.getKeptByBlock()));
+    this.setIsKeptByBlock(MoneroUtils.reconcile(this.getIsKeptByBlock(), tx.getIsKeptByBlock()));
     this.setIsFailed(MoneroUtils.reconcile(this.getIsFailed(), tx.getIsFailed()));
     this.setLastFailedHeight(MoneroUtils.reconcile(this.getLastFailedHeight(), tx.getLastFailedHeight()));
     this.setLastFailedId(MoneroUtils.reconcile(this.getLastFailedId(), tx.getLastFailedId()));
@@ -580,7 +580,7 @@ class MoneroTx {
     str += MoneroUtils.kvLine("Extra", this.getExtra(), indent);
     str += MoneroUtils.kvLine("RCT signatures", this.getRctSignatures(), indent);
     str += MoneroUtils.kvLine("RCT sig prunable", this.getRctSigPrunable(), indent);
-    str += MoneroUtils.kvLine("Kept by block", this.getKeptByBlock(), indent);
+    str += MoneroUtils.kvLine("Kept by block", this.getIsKeptByBlock(), indent);
     str += MoneroUtils.kvLine("Is failed", this.getIsFailed(), indent);
     str += MoneroUtils.kvLine("Last failed height", this.getLastFailedHeight(), indent);
     str += MoneroUtils.kvLine("Last failed id", this.getLastFailedId(), indent);

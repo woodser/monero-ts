@@ -1286,14 +1286,14 @@ function testTx(tx, config) {
   if (config.fromGetTxPool) {
     assert(tx.getSize() > 0);
     assert(tx.getWeight() > 0);
-    assert.equal(typeof tx.getKeptByBlock(), "boolean");
+    assert.equal(typeof tx.getIsKeptByBlock(), "boolean");
     assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedId(), undefined);
     assert(tx.getMaxUsedBlockHeight() >= 0);
     assert(tx.getMaxUsedBlockId());
   } else {
     assert.equal(tx.getWeight(), undefined);
-    assert.equal(tx.getKeptByBlock(), undefined);
+    assert.equal(tx.getIsKeptByBlock(), undefined);
     assert.equal(tx.getIsFailed(), false);
     assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedId(), undefined);
