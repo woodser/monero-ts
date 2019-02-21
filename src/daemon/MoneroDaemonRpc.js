@@ -618,22 +618,22 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getNextBlockHeader() {
     let that = this;
-    return new Promise(function(resolve, reject) {
+    return new Promise(async function(resolve, reject) {
       let listener = function(header) {
         resolve(header);
         that.removeBlockListener(listener);
       }
-      that.addBlockListener(listener);
+      await that.addBlockListener(listener);
     });
   }
   
-  addBlockListener(listener) {
+  async addBlockListener(listener) {
 
     // register listener
     this.listeners.push(listener);
     
     // start polling for new blocks
-    if (!this.isPollingHeaders) this._startPollingHeaders(this.config.pollInterval);
+    if (!this.isPollingHeaders) await this._startPollingHeaders(this.config.pollInterval);
   }
   
   removeBlockListener(listener) {

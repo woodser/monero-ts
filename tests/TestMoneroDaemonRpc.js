@@ -1025,7 +1025,7 @@ class TestMoneroDaemonRpc {
             listenerHeader = header;
             daemon.removeBlockListener(listener); // otherwise daemon will keep polling
           }
-          daemon.addBlockListener(listener);
+          await daemon.addBlockListener(listener);
           
           // wait for next block notification
           let header = await daemon.getNextBlockHeader();
