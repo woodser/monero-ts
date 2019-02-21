@@ -1055,6 +1055,7 @@ function testBlockHeader(header, isFull) {
   assert(header.getTimestamp() >= 0);
   assert(header.getPrevId());
   assert(header.getNonce());
+  assert.equal(typeof header.getNonce(), "number");
   assert(header.getPowHash() === undefined);  // never seen defined
   assert(!isFull ? undefined === header.getSize() : header.getSize());
   assert(!isFull ? undefined === header.getDepth() : header.getDepth() >= 0);
