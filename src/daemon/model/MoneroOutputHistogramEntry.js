@@ -12,30 +12,30 @@ class MoneroOutputHistogramEntry {
     return this;
   }
 
-  getTotalInstances() {
-    return this.totalInstances;
+  getInstancesCount() {
+    return this.instancesCount;
   }
 
-  setTotalInstances(totalInstances) {
-    this.totalInstances = totalInstances;
+  setInstancesCount(instancesCount) {
+    this.instancesCount = instancesCount;
     return this;
   }
 
-  getUnlockedInstances() {
-    return this.unlockedInstances;
+  getUnlockedInstancesCount() {
+    return this.unlockedInstancesCount;
   }
 
-  setUnlockedInstances(unlockedInstances) {
-    this.unlockedInstances = unlockedInstances;
+  setUnlockedInstancesCount(unlockedInstancesCount) {
+    this.unlockedInstancesCount = unlockedInstancesCount;
     return this;
   }
 
-  getRecentInstances() {
-    return this.recentInstances;
+  getRecentInstancesCount() {
+    return this.recentInstancesCount;
   }
 
-  setRecentInstances(recentInstances) {
-    this.recentInstances = recentInstances;
+  setRecentInstancesCount(recentInstancesCount) {
+    this.recentInstancesCount = recentInstancesCount;
     return this;
   }
 }

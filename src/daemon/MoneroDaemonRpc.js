@@ -997,9 +997,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
     for (let key of Object.keys(rpcEntry)) {
       let val = rpcEntry[key];
       if (key === "amount") entry.setAmount(new BigInteger(val));
-      else if (key === "total_instances") entry.setTotalInstances(val);
-      else if (key === "unlocked_instances") entry.setUnlockedInstances(val);
-      else if (key === "recent_instances") entry.setRecentInstances(val);
+      else if (key === "total_instances") entry.setInstancesCount(val);
+      else if (key === "unlocked_instances") entry.setUnlockedInstancesCount(val);
+      else if (key === "recent_instances") entry.setRecentInstancesCount(val);
       else console.log("WARNING: ignoring unexpected field in output histogram: " + key + ": " + val);
     }
     return entry;

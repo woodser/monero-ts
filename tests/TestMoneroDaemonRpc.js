@@ -1397,9 +1397,9 @@ function testCoinbaseTxSum(txSum) {
 
 function testOutputHistogramEntry(entry) {
   TestUtils.testUnsignedBigInteger(entry.getAmount());
-  assert(entry.getTotalInstances() >= 0);
-  assert(entry.getUnlockedInstances() >= 0);
-  assert(entry.getRecentInstances() >= 0);
+  assert(entry.getInstancesCount() >= 0);
+  assert(entry.getUnlockedInstancesCount() >= 0);
+  assert(entry.getRecentInstancesCount() >= 0);
 }
 
 function testOutputDistributionEntry(entry) {
