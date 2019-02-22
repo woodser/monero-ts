@@ -230,7 +230,7 @@ class MoneroWalletRpc extends MoneroWallet {
       for (let subaddress of subaddresses) {
         subaddress.setBalance(new BigInteger(0));
         subaddress.setUnlockedBalance(new BigInteger(0));
-        subaddress.setUnspentOutputCount(0);
+        subaddress.setNumUnspentOutputs(0);
       }
 
       // fetch and initialize balances
@@ -244,7 +244,7 @@ class MoneroWalletRpc extends MoneroWallet {
             assert.equal(rpcSubaddress.address, subaddress.getAddress());
             if (rpcSubaddress.balance !== undefined) subaddress.setBalance(new BigInteger(rpcSubaddress.balance));
             if (rpcSubaddress.unlocked_balance !== undefined) subaddress.setUnlockedBalance(new BigInteger(rpcSubaddress.unlocked_balance));
-            subaddress.setUnspentOutputCount(rpcSubaddress.num_unspent_outputs);
+            subaddress.setNumUnspentOutputs(rpcSubaddress.num_unspent_outputs);
           }
         }
       }
@@ -283,7 +283,7 @@ class MoneroWalletRpc extends MoneroWallet {
     subaddress.setLabel(label ? label : undefined);
     subaddress.setBalance(new BigInteger(0));
     subaddress.setUnlockedBalance(new BigInteger(0));
-    subaddress.setUnspentOutputCount(0);
+    subaddress.setNumUnspentOutputs(0);
     subaddress.setIsUsed(false);
     return subaddress;
   }

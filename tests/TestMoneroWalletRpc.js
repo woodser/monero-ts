@@ -139,7 +139,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
             assert(subaddress.getLabel() === undefined || typeof subaddress.getLabel() === "string");
             if (typeof subaddress.getLabel() === "string") assert(subaddress.getLabel().length > 0);
             assert.equal(typeof subaddress.getIsUsed(), "boolean");
-            assert.equal(subaddress.getUnspentOutputCount(), undefined);
+            assert.equal(subaddress.getNumUnspentOutputs(), undefined);
             assert.equal(subaddress.getBalance(), undefined);
             assert.equal(subaddress.getUnlockedBalance(), undefined);
           }

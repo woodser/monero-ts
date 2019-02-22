@@ -2182,7 +2182,7 @@ function testSubaddress(subaddress) {
   if (typeof subaddress.getLabel() === "string") assert(subaddress.getLabel().length > 0);
   TestUtils.testUnsignedBigInteger(subaddress.getBalance());
   TestUtils.testUnsignedBigInteger(subaddress.getUnlockedBalance());
-  assert(subaddress.getUnspentOutputCount() >= 0);
+  assert(subaddress.getNumUnspentOutputs() >= 0);
   if (subaddress.getBalance().toJSValue() > 0) assert(subaddress.getIsUsed());
 }
 

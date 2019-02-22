@@ -63,12 +63,12 @@ class MoneroSubaddress {
     return this;
   }
 
-  getUnspentOutputCount() {
-    return this.unspentOutputCount;
+  getNumUnspentOutputs() {
+    return this.numUnspentOutputs;
   }
 
-  setUnspentOutputCount(unspentOutputCount) {
-    this.unspentOutputCount = unspentOutputCount;
+  setNumUnspentOutputs(numUnspentOutputs) {
+    this.numUnspentOutputs = numUnspentOutputs;
     return this;
   }
 
@@ -93,7 +93,7 @@ class MoneroSubaddress {
     str += MoneroUtils.kvLine("Label", this.getLabel(), indent);
     str += MoneroUtils.kvLine("Balance", this.getBalance(), indent);
     str += MoneroUtils.kvLine("Unlocked balance", this.getUnlockedBalance(), indent);
-    str += MoneroUtils.kvLine("Unspent output count", this.getUnspentOutputCount(), indent);
+    str += MoneroUtils.kvLine("Num unspent outputs", this.getNumUnspentOutputs(), indent);
     str += MoneroUtils.kvLine("Is used", this.getIsUsed(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
