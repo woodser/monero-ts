@@ -514,8 +514,8 @@ class MoneroWalletRpc extends MoneroWallet {
     // build and return result
     let result = new MoneroKeyImageImportResult();
     result.setHeight(resp.height);
-    result.setAmountSpent(new BigInteger(resp.spent));
-    result.setAmountUnspent(new BigInteger(resp.unspent));
+    result.setSpentAmount(new BigInteger(resp.spent));
+    result.setUnspentAmount(new BigInteger(resp.unspent));
     return result;
   }
   
@@ -828,8 +828,8 @@ class MoneroWalletRpc extends MoneroWallet {
     let check = new MoneroCheckReserve();
     check.setIsGood(isGood);
     if (isGood) {
-      check.setAmountSpent(new BigInteger(resp.spent));
-      check.setAmountTotal(new BigInteger(resp.total));
+      check.setSpentAmount(new BigInteger(resp.spent));
+      check.setTotalAmount(new BigInteger(resp.total));
     }
     return check;
   }

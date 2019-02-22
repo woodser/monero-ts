@@ -1188,7 +1188,7 @@ class TestMoneroWalletCommon {
         assert(check.getIsGood());
         testCheckReserve(check);
         let balance = await wallet.getBalance();
-        if (balance.compare(check.getAmountTotal()) !== 0) {  // TODO monero-wallet-rpc: this check fails with unconfirmed txs
+        if (balance.compare(check.getTotalAmount()) !== 0) {  // TODO monero-wallet-rpc: this check fails with unconfirmed txs
           let unconfirmedTxs = await wallet.getTxs({inTxPool: true});
           assert(unconfirmedTxs.length > 0, "Reserve amount must equal balance unless wallet has unconfirmed txs");
         }
@@ -1242,7 +1242,7 @@ class TestMoneroWalletCommon {
             let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), msg, signature);
             assert(check.getIsGood());
             testCheckReserve(check);
-            assert(check.getAmountTotal().compare(checkAmount) >= 0);
+            assert(check.getTotalAmount().compare(checkAmount) >= 0);
             numNonZeroTests++;
           } else {
             try {
@@ -1359,8 +1359,8 @@ class TestMoneroWalletCommon {
         assert(images.length > 0, "Wallet does not have any key images; run send tests");
         let result = await wallet.importKeyImages(images);
         assert(result.getHeight() > 0);
-        TestUtils.testUnsignedBigInteger(result.getAmountSpent(), true);  // tests assume wallet has spend history and balance
-        TestUtils.testUnsignedBigInteger(result.getAmountUnspent(), true);
+        TestUtils.testUnsignedBigInteger(result.getSpentAmount(), true);  // tests assume wallet has spend history and balance
+        TestUtils.testUnsignedBigInteger(result.getUnspentAmount(), true);
       });
       
       it("Can sign and verify messages", async function() {
@@ -2630,13 +2630,13 @@ function testCheckTx(tx, check) {
 function testCheckReserve(check) {
   assert.equal(typeof check.getIsGood(), "boolean");
   if (check.getIsGood()) {
-    TestUtils.testUnsignedBigInteger(check.getAmountSpent());
-    assert.equal(check.getAmountSpent().toString(), "0");  // TODO sometimes see non-zero, seg fault after sweep and send tests
-    TestUtils.testUnsignedBigInteger(check.getAmountTotal());
-    assert(check.getAmountTotal().compare(new BigInteger(0)) >= 0);
+    TestUtils.testUnsignedBigInteger(check.getSpentAmount());
+    assert.equal(check.getSpentAmount().toString(), "0");  // TODO sometimes see non-zero, seg fault after sweep and send tests
+    TestUtils.testUnsignedBigInteger(check.getTotalAmount());
+    assert(check.getTotalAmount().compare(new BigInteger(0)) >= 0);
   } else {
-    assert.equal(check.getAmountSpent(), undefined);
-    assert.equal(check.getAmountTotal(), undefined);
+    assert.equal(check.getSpentAmount(), undefined);
+    assert.equal(check.getTotalAmount(), undefined);
   }
 }
 

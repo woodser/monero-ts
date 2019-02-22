@@ -12,21 +12,21 @@ class MoneroKeyImageImportResult {
     return this;
   }
   
-  getAmountSpent() {
-    return this.amountSpent;
+  getSpentAmount() {
+    return this.spentAmount;
   }
   
-  setAmountSpent(amountSpent) {
-    this.amountSpent = amountSpent;
+  setSpentAmount(spentAmount) {
+    this.spentAmount = spentAmount;
     return this;
   }
   
-  getAmountUnspent() {
-    return this.amountUnspent;
+  getUnspentAmount() {
+    return this.unspentAmount;
   }
   
-  setAmountUnspent(amountUnspent) {
-    this.amountUnspent = amountUnspent;
+  setUnspentAmount(unspentAmount) {
+    this.unspentAmount = unspentAmount;
     return this;
   }
 }
