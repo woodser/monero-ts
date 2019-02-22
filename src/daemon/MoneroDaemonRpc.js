@@ -850,6 +850,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     }
     if (rpcTx.as_json) MoneroDaemonRpc._buildTx(JSON.parse(rpcTx.as_json), tx);
     if (rpcTx.tx_json) MoneroDaemonRpc._buildTx(JSON.parse(rpcTx.tx_json), tx);
+    if (!tx.getIsRelayed()) tx.setLastRelayedTimestamp(undefined);  // TODO monero-daemon-rpc: returns last_relayed_timestamp despite relayed: false, self inconsistent
     
     // return built transaction
     return tx;

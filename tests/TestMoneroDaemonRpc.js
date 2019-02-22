@@ -1260,7 +1260,7 @@ function testTx(tx, config) {
       assert.equal(tx.getReceivedTimestamp(), undefined);
     } else {
       if (tx.getIsRelayed()) assert(tx.getLastRelayedTimestamp() > 0);
-      else if (!tx.getLastRelayedTimestamp() !== undefined) console.log("WARNING: tx has last relayed time but is not relayed");  // TODO monero-daemon-rpc
+      else assert.equal(tx.getLastRelayedTimestamp(), undefined);
       assert(tx.getReceivedTimestamp() > 0);
     }
     assert.equal(tx.getPrunableHash(), undefined);
@@ -1312,7 +1312,7 @@ function testBlockTemplate(template) {
 }
 
 function testInfo(info) {
-  assert.equal(info.getVersion(), undefined); // TODO: remove entirely?
+  assert.equal(info.getVersion(), undefined);
   assert(info.getAltBlocksCount() >= 0);
   assert(info.getBlockSizeLimit());
   assert(info.getBlockSizeMedian());
