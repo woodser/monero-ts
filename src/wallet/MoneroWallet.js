@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
-const MoneroTxFilter = require("./filters/MoneroTxFilter");
-const MoneroSendConfig = require("./model/MoneroSendConfig");
+const MoneroTxFilter = require("./config/MoneroTxFilter");
+const MoneroSendConfig = require("./config/MoneroSendConfig");
 
 /**
  * Monero wallet interface and default implementations.

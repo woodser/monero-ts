@@ -9,9 +9,9 @@ describe("Test Sample Code", function() {
     const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
     const MoneroWalletRpc = require("../src/wallet/MoneroWalletRpc");
     const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
-    const MoneroSendConfig = require("../src/wallet/model/MoneroSendConfig");
     const MoneroSendPriority = require("../src/wallet/model/MoneroSendPriority");
     const MoneroDestination = require("../src/wallet/model/MoneroDestination");
+    const MoneroSendConfig = require("../src/wallet/config/MoneroSendConfig");
     
     // create a wallet that uses a monero-wallet-rpc endpoint
     let wallet = new MoneroWalletRpc({
