@@ -293,7 +293,9 @@ class TestMoneroWalletCommon {
         
         // test out of range indices
         let accounts = await wallet.getAccounts(true);
-        let address = await wallet.getAddress(accounts.length - 1, accounts.getSubaddresses().length - 1);
+        let accountIdx = accounts.length - 1;
+        let subaddressIdx = accounts[accountIdx].getSubaddresses().length;
+        let address = await wallet.getAddress(accountIdx, subaddressIdx);
         assert.equal(address, undefined);
       });
       
@@ -1624,8 +1626,13 @@ class TestMoneroWalletCommon {
             await testWalletTx(tx, {wallet: wallet, sendConfig: config});
           }
           
-          // relay transactions
-          txs = await wallet.relayTxs(txs.map(tx => tx.getMetadata()));
+          // relay txs
+          let txIds = await wallet.relayTxs(txs.map(tx => tx.getMetadata()));
+          assert.equal(txIds.length, txs.length);
+          for (let txId of txIds) assert(typeof txId === "string" && txId.length === 64);
+          
+          // fetch txs for testing
+          txs = await wallet.getTxs({txIds: txIds});
         }
         
         // test that balance and unlocked balance decreased
@@ -1637,7 +1644,7 @@ class TestMoneroWalletCommon {
         // test transactions
         assert(txs.length > 0);
         for (let tx of txs) {
-          await testWalletTx(tx, {wallet: wallet, sendConfig: config, isRelayResponse: doNotRelay});
+          await testWalletTx(tx, {wallet: wallet, sendConfig: doNotRelay ? undefined : config});
           assert.equal(tx.getOutgoingTransfer().getAccountIndex(), fromAccount.getIndex());
           assert.equal(tx.getOutgoingTransfer().getSubaddressIndex(), 0); // TODO (monero-wallet-rpc): outgoing transactions do not indicate originating subaddresses
           assert(sendAmount.compare(tx.getOutgoingAmount()) === 0);
@@ -1822,9 +1829,14 @@ class TestMoneroWalletCommon {
           await testWalletTxSend(tx, config, !canSplit, !canSplit, wallet); // TODO: this code is outdated
         }
         
-        // relay and test txs
-        txs = await wallet.relayTxs(txs.map(tx => tx.getMetadata()));
-        config.setDoNotRelay(false);  // TODO: remove this and update testWalletTxSend with isRelayResponse
+        // relay txs
+        let txIds = await wallet.relayTxs(txs.map(tx => tx.getMetadata()));
+        assert.equal(txIds.length, txs.length);
+        for (let txId of txIds) assert(typeof txId === "string" && txId.length === 64);
+        
+        // fetch and test txs
+        txs = await wallet.getTxs({txIds: txIds});
+        config.setDoNotRelay(false);
         for (let tx of txs) {
           await testWalletTxSend(tx, config, !canSplit, !canSplit, wallet);
         }
@@ -2238,7 +2250,6 @@ async function getRandomTransactions(wallet, config, minTxs, maxTxs) {
  *        testConfig.sendConfig specifies config of a tx generated with send()
  *        testConfig.hasDestinations specifies if the tx has an outgoing transfer with destinations, undefined if doesn't matter
  *        testConfig.getVouts specifies if vouts were fetched and should therefore be expected with incoming transfers
- *        testConfig.isRelayResponse specifies if tx is a fresh relay response which is missing some fields (e.g. key)
  */
 async function testWalletTx(tx, testConfig) {
   
@@ -2386,7 +2397,6 @@ async function testWalletTx(tx, testConfig) {
     assert(tx.getHex().length > 0);
     assert(tx.getMetadata());
     assert.equal(tx.getReceivedTimestamp(), undefined);
-    if (testConfig.isRelayResponse) assert.equal(sendConfig.getDoNotRelay(), true);
     
     // test destinations of sent tx
     assert.equal(tx.getOutgoingTransfer().getDestinations().length, sendConfig.getDestinations().length);
@@ -2402,7 +2412,7 @@ async function testWalletTx(tx, testConfig) {
     }
     
     // test relayed txs
-    if (testConfig.isRelayResponse || !sendConfig.getDoNotRelay()) {
+    if (!sendConfig.getDoNotRelay()) {
       assert.equal(tx.getInTxPool(), true);
       assert.equal(tx.getDoNotRelay(), false);
       assert.equal(tx.getIsRelayed(), true);

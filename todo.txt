@@ -1,4 +1,5 @@
 update to 14.0.0 and test
+last relayed time but is not relayed
 switch to num instead of count?
 monero daemon connection span model
 rct sig prunable model
@@ -73,6 +74,7 @@ So I observe these changes between the latest on master and v0.14.0.0.  Are they
 1. I'm not running with pruning.  prunable_hash, pruned_hex, and next_needed_pruning_seed are no longer initialized.
 2. Only rctsig_prunable is pruned from `get_transactions` with `prune`: true.  Vin, vout, version, unlock time, rct sigs, extra, and hex are no longer pruned.
 3. daemon rpc `get_info` no longer returns `version`.  Wouldln't we want to indicate the daemon version?
+4. I still cannot sync or mine stagenet.  Isn't it a problem that the new daemon cannot, join, sync, and mine an existing network?
 
 Need to sync.  Cannot sync on stagenet.
 

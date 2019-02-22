@@ -703,28 +703,13 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async relayTxs(txMetadatas) {
-    
-    // relay transactions and collect submission timestamps
-    let txLastRelayedTimes = []
-    for (let txMetadata of txMetadatas)  {
+    assert(Array.isArray(txMetadatas), "Must provide an array of tx metadata to relay");
+    let txIds = [];
+    for (let txMetadata of txMetadatas) {
       let resp = await this.config.rpc.sendJsonRequest("relay_tx", { hex: txMetadata });
-      txLastRelayedTimes.push(+new Date().getTime()); // TODO (monero-wallet-rpc): provide timestamp on response
+      txIds.push(resp.tx_hash);
     }
-    
-    // build relayed txs from given txs 
-    let relayedTxs = [];
-    for (let i = 0; i < txs.length; i++) {
-      let relayedTx = txs[i].copy();
-      relayedTxs.push(relayedTx);
-      relayedTx.setInTxPool(true);
-      relayedTx.setDoNotRelay(false);
-      relayedTx.setIsRelayed(true);
-      relayedTx.setIsCoinbase(false);
-      relayedTx.setIsFailed(false);
-      relayedTx.setIsDoubleSpend(false);
-      relayedTx.setLastRelayedTimestamp(txLastRelayedTimes[i]);
-    }
-    return relayedTxs;
+    return txIds;
   }
   
   async getTxNote(txId) {
