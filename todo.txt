@@ -1,9 +1,3 @@
-move send config to folder config with filters
-txPoolSize renamed to numTxPool()
-txPoolStats lots of renaming
-coinbase tx sum
-probably switch umls to use underscores to be consistent with core
-switch to num instead of count?
 monero daemon connection span model
 rct sig prunable model
 publish data model and reference implementation with test suite
