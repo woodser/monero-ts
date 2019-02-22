@@ -68,11 +68,13 @@ split BooleanSet into new project
 package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 
 v0.14.0.0
-Not running with pruning.  prunable_hash and pruned_hex never defined now but used to be.  Expected.
-Only rctsig_prunable is pruned.  Vin, vout, version, unlock time, rct sigs, extra, and hex are no longer pruned.
-`get_info` no longer returns version - remove version from MoneroDaemonInfo model?
-rescanSpent() wallet not found issue, not sure what is causing it, wait a moment?
-sync info next_needed_pruning_seed undefined, was >= 0 or before
+
+So I observe these changes between the latest on master and v0.14.0.0.  Are they intended / expected?
+1. I'm not running with pruning.  prunable_hash, pruned_hex, and next_needed_pruning_seed are no longer initialized.
+2. Only rctsig_prunable is pruned from `get_transactions` with `prune`: true.  Vin, vout, version, unlock time, rct sigs, extra, and hex are no longer pruned.
+3. daemon rpc `get_info` no longer returns `version`.  Wouldln't we want to indicate the daemon version?
+
+Need to sync.  Cannot sync on stagenet.
 
 RPC
 outgoing transfers always return subaddress index 0 (#5171)
