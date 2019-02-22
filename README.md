@@ -14,6 +14,8 @@ Main Features
 - Extensive test suite (130+ passing tests)
 - Fetch and process binary data from the daemon in JavaScript using client-side crypto
 
+A quick reference of the wallet and daemon data models can be found [here](monero-model.pdf).
+
 ## Wallet Sample Code
 
 See the [tests](tests) for the most complete examples of using this library.
