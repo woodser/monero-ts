@@ -67,6 +67,14 @@ binary_blocks_to_json property_tree conversion throws memory exception if too bi
 split BooleanSet into new project
 package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 
+v0.14.0.0
+Not running with pruning.  prunableHash is always undefined.  Expected?
+Pruned hex is always now undefined
+
+
+I'm not running with pruning.  Prunable hash and pruned hex are always empty now whereas they used to be initialized.  Is this expected?
+vins, vouts, version, unlock time, rct sigs, extra, and hex are no longer pruned with the prune option, so only rctsig_prunable is pruned.
+
 RPC
 outgoing transfers always return subaddress index 0 (#5171)
 duplicate outgoing transfers returned for different subaddress indices, way to include subaddress indices?

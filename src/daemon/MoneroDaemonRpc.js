@@ -252,7 +252,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (resp.txs) {
       assert.equal(resp.txs.length, txIds.length);
       for (let rpcTx of resp.txs) {
-        hexes.push(prune ? rpcTx.pruned_as_hex : rpcTx.as_hex);
+        hexes.push(rpcTx.as_hex);
       }
     }
     return hexes;
@@ -820,7 +820,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "max_used_block_id_hash") MoneroUtils.safeSet(tx, tx.getMaxUsedBlockId, tx.setMaxUsedBlockId, val);
       else if (key === "prunable_hash") MoneroUtils.safeSet(tx, tx.getPrunableHash, tx.setPrunableHash, val ? val : undefined);
       else if (key === "prunable_as_hex") MoneroUtils.safeSet(tx, tx.getPrunableHex, tx.setPrunableHex, val ? val : undefined);
-      else if (key === "pruned_as_hex") MoneroUtils.safeSet(tx, tx.getPrunedHex, tx.setPrunedHex, val ? val : undefined);
       else console.log("WARNING: ignoring unexpected field in rpc tx: " + key + ": " + val);
     }
     

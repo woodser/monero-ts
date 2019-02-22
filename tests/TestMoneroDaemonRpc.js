@@ -1150,6 +1150,16 @@ function testTx(tx, config) {
   assert.equal(typeof tx.getIsCoinbase(), "boolean");
   assert.equal(tx.getPrunableHex(), undefined); // TODO: way to test?
   assert.equal(typeof tx.getIsDoubleSpend(), "boolean");
+  assert(tx.getVersion() >= 0);
+  assert(tx.getUnlockTime() >= 0);
+  assert(tx.getVins() && Array.isArray(tx.getVins()) && tx.getVins().length >= 0);
+  assert(tx.getVouts() && Array.isArray(tx.getVouts()) && tx.getVouts().length >= 0);
+  for (let vin of tx.getVins()) assert(tx === vin.getTx());
+  for (let vout of tx.getVouts()) assert(tx === vout.getTx());
+  assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
+  assert(typeof tx.getRctSignatures().type === "number");
+  if (config.fromGetBlocksByHeight) assert.equal(tx.getHex(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
+  else assert(tx.getHex().length > 0);
   
   // test presence of output indices
   // TODO: change this over to vouts only
@@ -1227,45 +1237,23 @@ function testTx(tx, config) {
   }
   
   // test vins and vouts
-  if (config.isPruned) {
-    assert.equal(tx.getVins(), undefined);
-    assert.equal(tx.getVouts(), undefined);
-  } else {
-    if (!tx.getIsCoinbase()) assert(tx.getVins().length > 0);
-    assert(tx.getVouts().length > 0);
-  }
+  if (!tx.getIsCoinbase()) assert(tx.getVins().length > 0);
+  assert(tx.getVouts().length > 0);
   if (tx.getVins()) for (let vin of tx.getVins()) testVin(vin, config);
   if (tx.getVouts()) for (let vout of tx.getVouts()) testVout(vout, config);
   
   // test pruned vs not pruned
   if (config.isPruned) {
-    assert.equal(tx.getVersion(), undefined);
-    assert.equal(tx.getUnlockTime(), undefined);
-    assert.equal(tx.getVins(), undefined);
-    assert.equal(tx.getVouts(), undefined);
-    assert.equal(tx.getExtra(), undefined);
-    assert.equal(tx.getRctSignatures(), undefined);
     assert.equal(tx.getRctSigPrunable(), undefined);
-    assert.equal(tx.getHex(), undefined);
     assert.equal(tx.getSize(), undefined);
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
     assert.equal(tx.getReceivedTimestamp(), undefined);
-    assert(tx.getPrunableHash());
-    assert(typeof tx.getPrunedHex() === "string" && tx.getPrunedHex().length > 0);
+    assert.equal(tx.getPrunedHex(), undefined);
+    //assert(typeof tx.getPrunedHex() === "string" && tx.getPrunedHex().length > 0);
   } else {
-    assert(tx.getVersion() >= 0);
-    assert(tx.getUnlockTime() >= 0);
-    assert(tx.getVins() && Array.isArray(tx.getVins()) && tx.getVins().length >= 0);
-    for (let vin of tx.getVins()) assert(tx === vin.getTx());
-    assert(tx.getVouts() && Array.isArray(tx.getVouts()) && tx.getVouts().length >= 0);
-    for (let vout of tx.getVouts()) assert(tx === vout.getTx());
-    assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
-    assert(typeof tx.getRctSignatures().type === "number");
     if (config.fromGetBlocksByHeight) assert.equal(tx.getRctSigPrunable(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
     else assert.equal(typeof tx.getRctSigPrunable().nbp, "number");
     assert.equal(tx.getPrunedHex(), undefined);
-    if (config.fromGetBlocksByHeight) assert.equal(tx.getHex(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
-    else assert(tx.getHex().length > 0);
     assert.equal(tx.getIsDoubleSpend(), false);
     if (tx.getIsConfirmed()) {
       assert.equal(tx.getLastRelayedTimestamp(), undefined);
@@ -1275,8 +1263,10 @@ function testTx(tx, config) {
       else if (!tx.getLastRelayedTimestamp() !== undefined) console.log("WARNING: tx has last relayed time but is not relayed");  // TODO monero-daemon-rpc
       assert(tx.getReceivedTimestamp() > 0);
     }
-    if (config.fromGetTxPool || config.fromGetBlocksByHeight) assert.equal(tx.getPrunableHash(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
-    else assert(tx.getPrunableHash());
+    assert.equal(tx.getPrunableHash(), undefined);
+    
+    //if (config.fromGetTxPool || config.fromGetBlocksByHeight) assert.equal(tx.getPrunableHash(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
+    //else assert(tx.getPrunableHash());
     
 //  if (config.isPruned) assert(!tx.getPrunableHash()); // TODO: tx may or may not have prunable hash, need to know when it's expected
 //  else assert(tx.getPrunableHash());
