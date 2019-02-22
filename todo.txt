@@ -1,19 +1,18 @@
 monero daemon connection span model
 rct sig prunable model
-publish data model and reference implementation with test suite
 regen api documentation
+release data model and reference implementation with test suite
+
 multisig
 pruning
 
 daemon.getBlocksById(), default implementations
-
 daemon test failed txs more
 wallet test coinbase txs
 sweep subaddresses test
 test that note is set if specified in send config
 set subaddress getUnspentOutputCount() with outputs assigned
 validate all input parameters to api
-
 test every block of the chain
 not directly testing sweepUnlocked()
 daemon binary tests
