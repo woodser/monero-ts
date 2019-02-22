@@ -1312,6 +1312,7 @@ function testBlockTemplate(template) {
 }
 
 function testInfo(info) {
+  assert.equal(info.getVersion(), undefined); // TODO: remove entirely?
   assert(info.getAltBlocksCount() >= 0);
   assert(info.getBlockSizeLimit());
   assert(info.getBlockSizeMedian());
