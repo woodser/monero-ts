@@ -3,21 +3,21 @@
  */
 class MoneroCoinbaseTxSum {
   
-  getTotalEmission() {
-    return this.totalEmission;
+  getEmissionSum() {
+    return this.emissionSum;
   }
   
-  setTotalEmission(totalEmission) {
-    this.totalEmission = totalEmission;
+  setEmissionSum(emissionSum) {
+    this.emissionSum = emissionSum;
     return this;
   }
   
-  getTotalFees() {
-    return this.totalFees;
+  getFeeSum() {
+    return this.feeSum;
   }
   
-  setTotalFees(totalFees) {
-    this.totalFees = totalFees;
+  setFeeSum(feeSum) {
+    this.feeSum = feeSum;
     return this;
   }
 }

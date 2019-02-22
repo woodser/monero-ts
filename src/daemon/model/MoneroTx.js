@@ -148,21 +148,21 @@ class MoneroTx {
     return this;
   }
   
-  getConfirmationCount() {
-    return this.state.confirmationCount;
+  getNumConfirmations() {
+    return this.state.numConfirmations;
   }
   
-  setConfirmationCount(confirmationCount) {
-    this.state.confirmationCount = confirmationCount;
+  setNumConfirmations(numConfirmations) {
+    this.state.numConfirmations = numConfirmations;
     return this;
   }
   
-  getEstimatedBlockCountUntilConfirmed() {
-    return this.state.estimatedBlockCountUntilConfirmed;
+  getNumEstimatedBlocksUntilConfirmed() {
+    return this.state.numEstimatedBlocksUntilConfirmed;
   }
   
-  setEstimatedBlockCountUntilConfirmed(estimatedBlockCountUntilConfirmed) {
-    this.state.estimatedBlockCountUntilConfirmed = estimatedBlockCountUntilConfirmed;
+  setNumEstimatedBlocksUntilConfirmed(numEstimatedBlocksUntilConfirmed) {
+    this.state.numEstimatedBlocksUntilConfirmed = numEstimatedBlocksUntilConfirmed;
     return this;
   }
   
@@ -474,7 +474,7 @@ class MoneroTx {
     this.setMaxUsedBlockId(MoneroUtils.reconcile(this.getMaxUsedBlockId(), tx.getMaxUsedBlockId()));
     this.setSignatures(MoneroUtils.reconcile(this.getSignatures(), tx.getSignatures()));
     this.setUnlockTime(MoneroUtils.reconcile(this.getUnlockTime(), tx.getUnlockTime()));
-    this.setConfirmationCount(MoneroUtils.reconcile(this.getConfirmationCount(), tx.getConfirmationCount(), {resolveMax: true})); // confirmation count can increase
+    this.setNumConfirmations(MoneroUtils.reconcile(this.getNumConfirmations(), tx.getNumConfirmations(), {resolveMax: true})); // num confirmations can increase
     
     // merge vins
     if (tx.getVins()) {
@@ -537,12 +537,12 @@ class MoneroTx {
       this.setInTxPool(false);
       this.setReceivedTimestamp(undefined);
       this.setLastRelayedTimestamp(undefined);
-      this.setEstimatedBlockCountUntilConfirmed(undefined);
+      this.setNumEstimatedBlocksUntilConfirmed(undefined);
     } else {
       this.setInTxPool(MoneroUtils.reconcile(this.getInTxPool(), tx.getInTxPool(), {resolveTrue: true})); // unrelayed -> tx pool
       this.setReceivedTimestamp(MoneroUtils.reconcile(this.getReceivedTimestamp(), tx.getReceivedTimestamp(), {resolveMax: false})); // take earliest receive time
       this.setLastRelayedTimestamp(MoneroUtils.reconcile(this.getLastRelayedTimestamp(), tx.getLastRelayedTimestamp(), {resolveMax: true}));  // take latest relay time
-      this.setEstimatedBlockCountUntilConfirmed(MoneroUtils.reconcile(this.getEstimatedBlockCountUntilConfirmed(), tx.getEstimatedBlockCountUntilConfirmed(), {resolveMax: false})); // take min
+      this.setNumEstimatedBlocksUntilConfirmed(MoneroUtils.reconcile(this.getNumEstimatedBlocksUntilConfirmed(), tx.getNumEstimatedBlocksUntilConfirmed(), {resolveMax: false})); // take min
     }
     
     return this;  // for chaining
@@ -561,8 +561,8 @@ class MoneroTx {
     str += MoneroUtils.kvLine("Is relayed", this.getIsRelayed(), indent);
     str += MoneroUtils.kvLine("Is confirmed", this.getIsConfirmed(), indent);
     str += MoneroUtils.kvLine("In tx pool", this.getInTxPool(), indent);
-    str += MoneroUtils.kvLine("Confirmation count", this.getConfirmationCount(), indent);
-    str += MoneroUtils.kvLine("Estimated block count until confirmed", this.getEstimatedBlockCountUntilConfirmed(), indent);
+    str += MoneroUtils.kvLine("Num confirmations", this.getNumConfirmations(), indent);
+    str += MoneroUtils.kvLine("Num estimated blocks until confirmed", this.getNumEstimatedBlocksUntilConfirmed(), indent);
     str += MoneroUtils.kvLine("Unlock time", this.getUnlockTime(), indent);
     str += MoneroUtils.kvLine("Last relayed time", this.getLastRelayedTimestamp(), indent);
     str += MoneroUtils.kvLine("Received time", this.getReceivedTimestamp(), indent);

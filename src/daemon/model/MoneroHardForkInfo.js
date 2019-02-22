@@ -48,12 +48,12 @@ class MoneroHardForkInfo {
     return this;
   }
 
-  getVoteCount() {
-    return this.voteCount;
+  getNumVotes() {
+    return this.numVotes;
   }
 
-  setVoteCount(voteCount) {
-    this.voteCount = voteCount;
+  setNumVotes(numVotes) {
+    this.numVotes = numVotes;
     return this;
   }
 

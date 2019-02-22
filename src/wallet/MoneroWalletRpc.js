@@ -630,7 +630,7 @@ class MoneroWalletRpc extends MoneroWallet {
       // initialize known fields of tx and merge transactions from account
       for (let tx of accountTxs) {
         tx.setIsConfirmed(false);
-        tx.setConfirmationCount(0);
+        tx.setNumConfirmations(0);
         tx.setInTxPool(config.getDoNotRelay() ? false : true);
         tx.setDoNotRelay(config.getDoNotRelay() ? true : false);
         tx.setIsRelayed(!tx.getDoNotRelay());
@@ -750,9 +750,9 @@ class MoneroWalletRpc extends MoneroWallet {
     // interpret result
     let check = new MoneroCheckTx();
     check.setIsGood(true);
-    check.setConfirmationCount(resp.confirmations);
+    check.setNumConfirmations(resp.confirmations);
     check.setInTxPool(resp.in_pool);
-    check.setAmountReceived(new BigInteger(resp.received));
+    check.setReceivedAmount(new BigInteger(resp.received));
     return check;
   }
   
@@ -776,9 +776,9 @@ class MoneroWalletRpc extends MoneroWallet {
     let check = new MoneroCheckTx();
     check.setIsGood(isGood);
     if (isGood) {
-      check.setConfirmationCount(resp.confirmations);
+      check.setNumConfirmations(resp.confirmations);
       check.setInTxPool(resp.in_pool);
-      check.setAmountReceived(new BigInteger(resp.received));
+      check.setReceivedAmount(new BigInteger(resp.received));
     }
     return check;
   }
@@ -1105,12 +1105,12 @@ class MoneroWalletRpc extends MoneroWallet {
         }
       }
       else if (key === "confirmations") {
-        if (!tx.getIsConfirmed()) tx.setConfirmationCount(0);
-        else tx.setConfirmationCount(val);
+        if (!tx.getIsConfirmed()) tx.setNumConfirmations(0);
+        else tx.setNumConfirmations(val);
       }
       else if (key === "suggested_confirmations_threshold") {
-        if (tx.getInTxPool()) tx.setEstimatedBlockCountUntilConfirmed(val);
-        else tx.setEstimatedBlockCountUntilConfirmed(undefined)
+        if (tx.getInTxPool()) tx.setNumEstimatedBlocksUntilConfirmed(val);
+        else tx.setNumEstimatedBlocksUntilConfirmed(undefined)
       }
       else if (key === "amount") {
         if (transfer === undefined) transfer = new MoneroTransfer({tx: tx});
@@ -1209,7 +1209,7 @@ class MoneroWalletRpc extends MoneroWallet {
   static _initSentWalletTx(config, tx) {
     if (!tx) tx = new MoneroWalletTx();
     tx.setIsConfirmed(false);
-    tx.setConfirmationCount(0);
+    tx.setNumConfirmations(0);
     tx.setInTxPool(config.getDoNotRelay() ? false : true);
     tx.setDoNotRelay(config.getDoNotRelay() ? true : false);
     tx.setIsRelayed(!tx.getDoNotRelay());

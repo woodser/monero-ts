@@ -442,7 +442,7 @@ class TestMoneroDaemonRpc {
           
           // test stats
           stats = await daemon.getTxPoolStats();
-          assert(stats.getCount() > i);
+          assert(stats.getNumTxs() > i);
           testTxPoolStats(stats);
         }
       });
@@ -807,7 +807,7 @@ class TestMoneroDaemonRpc {
           assert.equal(status.getIsActive(), false);
           assert.equal(status.getAddress(), undefined);
           assert.equal(status.getSpeed(), 0);
-          assert.equal(status.getThreadCount(), 0);
+          assert.equal(status.getNumThreads(), 0);
           assert.equal(status.getIsBackground(), undefined);
           
           // test status with mining
@@ -820,7 +820,7 @@ class TestMoneroDaemonRpc {
           assert.equal(status.getIsActive(), true);
           assert.equal(status.getAddress(), address);
           assert(status.getSpeed() >= 0);
-          assert.equal(status.getThreadCount(), threadCount);
+          assert.equal(status.getNumThreads(), threadCount);
           assert.equal(status.getIsBackground(), isBackground);
         } catch(e) {
           throw e;
@@ -1062,7 +1062,7 @@ function testBlockHeader(header, isFull) {
   assert(!isFull ? undefined === header.getDifficulty() : header.getDifficulty());
   assert(!isFull ? undefined === header.getCumulativeDifficulty() : header.getCumulativeDifficulty());
   assert(!isFull ? undefined === header.getId() : header.getId());
-  assert(!isFull ? undefined === header.getTxCount() : header.getTxCount() >= 0);
+  assert(!isFull ? undefined === header.getNumTxs() : header.getNumTxs() >= 0);
   assert(!isFull ? undefined === header.getOrphanStatus() : typeof header.getOrphanStatus() === "boolean");
   assert(!isFull ? undefined === header.getReward() : header.getReward());
   assert(!isFull ? undefined === header.getWeight() : header.getWeight());
@@ -1182,10 +1182,10 @@ function testTx(tx, config) {
     assert.equal(tx.getInTxPool(), false);
     assert.equal(tx.getDoNotRelay(), false);
     assert.equal(tx.getIsDoubleSpend(), false);
-    assert.equal(tx.getConfirmationCount(), undefined); // client must compute
+    assert.equal(tx.getNumConfirmations(), undefined); // client must compute
   } else {
     assert.equal(tx.getBlock(), undefined);
-    assert.equal(tx.getConfirmationCount(), 0);
+    assert.equal(tx.getNumConfirmations(), 0);
   }
   
   // test in tx pool
@@ -1195,9 +1195,9 @@ function testTx(tx, config) {
     assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedId(), undefined);
     assert(tx.getReceivedTimestamp() > 0);
-    tx.getEstimatedBlockCountUntilConfirmed() > 0
+    tx.getNumEstimatedBlocksUntilConfirmed() > 0
   } else {
-    assert.equal(tx.getEstimatedBlockCountUntilConfirmed(), undefined);
+    assert.equal(tx.getNumEstimatedBlocksUntilConfirmed(), undefined);
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
   }
   
@@ -1313,28 +1313,28 @@ function testBlockTemplate(template) {
 
 function testInfo(info) {
   assert.equal(info.getVersion(), undefined);
-  assert(info.getAltBlocksCount() >= 0);
+  assert(info.getNumAltBlocks() >= 0);
   assert(info.getBlockSizeLimit());
   assert(info.getBlockSizeMedian());
   assert(typeof info.getBootstrapDaemonAddress() === "string");
   assert(info.getCumulativeDifficulty());
   assert(info.getCumulativeDifficulty() instanceof BigInteger)
   assert(info.getFreeSpace());
-  assert(info.getOfflinePeerCount() >= 0);
-  assert(info.getOnlinePeerCount() >= 0);
+  assert(info.getNumOfflinePeers() >= 0);
+  assert(info.getNumOnlinePeers() >= 0);
   assert(info.getHeight() >= 0);
   assert(info.getHeightWithoutBootstrap());
-  assert(info.getIncomingConnectionsCount() >= 0);
+  assert(info.getNumIncomingConnections() >= 0);
   assert(info.getNetworkType());
   assert(typeof info.getIsOffline() === "boolean");
-  assert(info.getOutgoingConnectionsCount() >= 0);
-  assert(info.getRpcConnectionsCount() >= 0);
+  assert(info.getNumOutgoingConnections() >= 0);
+  assert(info.getNumRpcConnections() >= 0);
   assert(info.getStartTimestamp());
   assert(info.getTarget());
   assert(info.getTargetHeight() >= 0);
   assert(info.getTopBlockId());
-  assert(info.getTxCount() >= 0);
-  assert(info.getTxPoolSize() >= 0);
+  assert(info.getNumTxs() >= 0);
+  assert(info.getNumTxsPool() >= 0);
   assert(typeof info.getWasBootstrapEverUsed() === "boolean");
   assert(info.getBlockWeightLimit());
   assert(info.getBlockWeightMedian());
@@ -1367,7 +1367,7 @@ function testHardForkInfo(hardForkInfo) {
   assert.notEqual(hardForkInfo.getState(), undefined);
   assert.notEqual(hardForkInfo.getThreshold(), undefined);
   assert.notEqual(hardForkInfo.getVersion(), undefined);
-  assert.notEqual(hardForkInfo.getVoteCount(), undefined);
+  assert.notEqual(hardForkInfo.getNumVotes(), undefined);
   assert.notEqual(hardForkInfo.getVoting(), undefined);
   assert.notEqual(hardForkInfo.getWindow(), undefined);
 }
@@ -1379,17 +1379,17 @@ function testMoneroBan(ban) {
 }
 
 function testCoinbaseTxSum(txSum) {
-  TestUtils.testUnsignedBigInteger(txSum.getTotalEmission());
-  assert(txSum.getTotalEmission().toJSValue() > 0);
-  TestUtils.testUnsignedBigInteger(txSum.getTotalFees());
-  assert(txSum.getTotalFees().toJSValue() > 0);
+  TestUtils.testUnsignedBigInteger(txSum.getEmissionSum());
+  assert(txSum.getEmissionSum().toJSValue() > 0);
+  TestUtils.testUnsignedBigInteger(txSum.getFeeSum());
+  assert(txSum.getFeeSum().toJSValue() > 0);
 }
 
 function testOutputHistogramEntry(entry) {
   TestUtils.testUnsignedBigInteger(entry.getAmount());
-  assert(entry.getInstancesCount() >= 0);
-  assert(entry.getUnlockedInstancesCount() >= 0);
-  assert(entry.getRecentInstancesCount() >= 0);
+  assert(entry.getNumInstances() >= 0);
+  assert(entry.getNumUnlockedInstances() >= 0);
+  assert(entry.getNumRecentInstances() >= 0);
 }
 
 function testOutputDistributionEntry(entry) {
@@ -1440,9 +1440,9 @@ function testSubmitTxResultCommon(result) {
 
 function testTxPoolStats(stats) {
   assert(stats);
-  assert(stats.getCount() >= 0);
-  if (stats.getCount() > 0) {
-    if (stats.getCount() === 1) assert.equal(stats.getHisto(), undefined);
+  assert(stats.getNumTxs() >= 0);
+  if (stats.getNumTxs() > 0) {
+    if (stats.getNumTxs() === 1) assert.equal(stats.getHisto(), undefined);
     else {
       assert(stats.getHisto());
       console.log(stats.getHisto());
@@ -1452,23 +1452,23 @@ function testTxPoolStats(stats) {
     assert(stats.getBytesMed() > 0);
     assert(stats.getBytesMin() > 0);
     assert(stats.getBytesTotal() > 0);
-    assert(stats.getTime98pc() === undefined || stats.getTime98pc() > 0);
-    assert(stats.getTimeOldest() > 0);
-    assert(stats.getCount10m() >= 0);
-    assert(stats.getDoubleSpendCount() >= 0);
-    assert(stats.getFailedCount() >= 0);
-    assert(stats.getNotRelayedCount() >= 0);
+    assert(stats.getHisto98pc() === undefined || stats.getHisto98pc() > 0);
+    assert(stats.getOldestTimestamp() > 0);
+    assert(stats.getNum10m() >= 0);
+    assert(stats.getNumDoubleSpends() >= 0);
+    assert(stats.getNumFailing() >= 0);
+    assert(stats.getNumNotRelayed() >= 0);
   } else {
     assert.equal(stats.getBytesMax(), undefined);
     assert.equal(stats.getBytesMed(), undefined);
     assert.equal(stats.getBytesMin(), undefined);
     assert.equal(stats.getBytesTotal(), 0);
-    assert.equal(stats.getTime98pc(), undefined);
-    assert.equal(stats.getTimeOldest(), undefined);
-    assert.equal(stats.getCount10m(), 0);
-    assert.equal(stats.getDoubleSpendCount(), 0);
-    assert.equal(stats.getFailedCount(), 0);
-    assert.equal(stats.getNotRelayedCount(), 0);
+    assert.equal(stats.getHisto98pc(), undefined);
+    assert.equal(stats.getOldestTimestamp(), undefined);
+    assert.equal(stats.getNum10m(), 0);
+    assert.equal(stats.getNumDoubleSpends(), 0);
+    assert.equal(stats.getNumFailing(), 0);
+    assert.equal(stats.getNumNotRelayed(), 0);
     assert.equal(stats.getHisto(), undefined);
   }
 }
@@ -1552,12 +1552,12 @@ function testDaemonConnection(connection) {
   assert(connection.getLiveTime() >= 0);
   assert.equal(typeof connection.getIsLocalIp(), "boolean");
   assert.equal(typeof connection.getIsLocalHost(), "boolean");
-  assert(connection.getReceiveCount() >= 0);
+  assert(connection.getNumReceives() >= 0);
   assert(connection.getReceiveIdleTime() >= 0);
-  assert(connection.getSendCount() >= 0);
+  assert(connection.getNumSends() >= 0);
   assert(connection.getSendIdleTime() >= 0);
   assert(connection.getState());
-  assert(connection.getSupportFlagCount() >= 0); 
+  assert(connection.getNumSupportFlags() >= 0); 
 }
 
 function testKnownPeer(peer, fromConnection) {

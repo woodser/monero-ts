@@ -223,10 +223,10 @@ class MoneroDaemon {
    * Gets the total emissions and fees from the genesis block to the current height.
    * 
    * @param {int} height is the height to start computing the coinbase sum
-   * @param {int} count are the number of blocks to include in the sum
+   * @param {int} numBlocks are the number of blocks to include in the sum
    * @return {MoneroCoinbaseTxSum} encapsulates the total emissions and fees since the genesis block
    */
-  async getCoinbaseTxSum(height, count) {
+  async getCoinbaseTxSum(height, numBlocks) {
     throw new Error("Subclass must implement");
   }
   
@@ -542,11 +542,11 @@ class MoneroDaemon {
    * Start mining.
    * 
    * @param {string} address is the address given miner rewards if the daemon mines a block
-   * @param {integer} threadCount is the number of mining threads to run
+   * @param {integer} numThreads is the number of mining threads to run
    * @param {boolean} isBackground specifies if the miner should run in the background or not
    * @param {boolean} ignoreBattery specifies if the battery state (e.g. on laptop) should be ignored or not
    */
-  async startMining(address, threadCount, isBackground, ignoreBattery) {
+  async startMining(address, numThreads, isBackground, ignoreBattery) {
     throw new Error("Subclass must implement");
   }
   

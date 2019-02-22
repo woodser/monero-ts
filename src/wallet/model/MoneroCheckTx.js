@@ -14,21 +14,21 @@ class MoneroCheckTx extends MoneroCheck {
     return this;
   }
   
-  getConfirmationCount() {
-    return this.confirmationCount;
+  getNumConfirmations() {
+    return this.numConfirmations;
   }
   
-  setConfirmationCount(confirmationCount) {
-    this.confirmationCount = confirmationCount;
+  setNumConfirmations(numConfirmations) {
+    this.numConfirmations = numConfirmations;
     return this;
   }
   
-  getAmountReceived() {
-    return this.amountReceived;
+  getReceivedAmount() {
+    return this.receivedAmount;
   }
   
-  setAmountReceived(amountReceived) {
-    this.amountReceived = amountReceived;
+  setReceivedAmount(receivedAmount) {
+    this.receivedAmount = receivedAmount;
     return this;
   }
 }

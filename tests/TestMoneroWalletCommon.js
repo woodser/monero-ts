@@ -1002,12 +1002,12 @@ class TestMoneroWalletCommon {
             if (destination.getAmount().compare(new BigInteger()) > 0) {
               // TODO monero-wallet-rpc: indicates amount received amount is 0 despite transaction with transfer to this address
               // TODO monero-wallet-rpc: returns 0-4 errors, not consistent
-//            assert(check.getAmountReceived().compare(new BigInteger(0)) > 0);
-              if (check.getAmountReceived().compare(new BigInteger(0)) === 0) {
+//            assert(check.getReceivedAmount().compare(new BigInteger(0)) > 0);
+              if (check.getReceivedAmount().compare(new BigInteger(0)) === 0) {
                 console.log("WARNING: key proof indicates no funds received despite transfer (txid=" + tx.getId() + ", key=" + key + ", address=" + destination.getAddress() + ", amount=" + destination.getAmount() + ")");
               }
             }
-            else assert(check.getAmountReceived().compare(new BigInteger(0)) === 0);
+            else assert(check.getReceivedAmount().compare(new BigInteger(0)) === 0);
             testCheckTx(tx, check);
           }
         }
@@ -1061,7 +1061,7 @@ class TestMoneroWalletCommon {
         assert(differentAddress, "Could not get a different address to test");
         let check = await wallet.checkTxKey(tx.getId(), key, differentAddress);
         assert(check.getIsGood());
-        assert(check.getAmountReceived().compare(new BigInteger(0)) >= 0);
+        assert(check.getReceivedAmount().compare(new BigInteger(0)) >= 0);
         testCheckTx(tx, check);
       });
       
@@ -2093,7 +2093,7 @@ class TestMoneroWalletCommon {
           await testOutInPairs(wallet, updatedTxs, sendConfig);
           
           // update confirmations in order to exit loop
-          numConfirmations = fetchedTxs[0].getConfirmationCount();
+          numConfirmations = fetchedTxs[0].getNumConfirmations();
         }
       }
       
@@ -2278,11 +2278,11 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(tx.getIsFailed(), false);
     assert.equal(tx.getInTxPool(), false);
     assert.equal(tx.getDoNotRelay(), false);
-    assert(tx.getConfirmationCount() > 0);
+    assert(tx.getNumConfirmations() > 0);
     assert.equal(tx.getIsDoubleSpend(), false);
   } else {
     assert.equal(tx.getBlock(), undefined);
-    assert.equal(tx.getConfirmationCount(), 0);
+    assert.equal(tx.getNumConfirmations(), 0);
   }
   
   // test in tx pool
@@ -2297,10 +2297,10 @@ async function testWalletTx(tx, testConfig) {
     // these should be initialized unless a response from sending
     if (!testConfig.sendConfig) {
       assert(tx.getReceivedTimestamp() > 0);
-      tx.getEstimatedBlockCountUntilConfirmed() > 0
+      tx.getNumEstimatedBlocksUntilConfirmed() > 0
     }
   } else {
-    assert.equal(tx.getEstimatedBlockCountUntilConfirmed(), undefined);
+    assert.equal(tx.getNumEstimatedBlocksUntilConfirmed(), undefined);
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
   }
   
@@ -2615,15 +2615,15 @@ function testCommonTxSets(txs, hasSigned, hasUnsigned, hasMultisig) {
 function testCheckTx(tx, check) {
   assert.equal(typeof check.getIsGood(), "boolean");
   if (check.getIsGood()) {
-    assert(check.getConfirmationCount() >= 0);
+    assert(check.getNumConfirmations() >= 0);
     assert.equal(typeof check.getInTxPool(), "boolean");
-    TestUtils.testUnsignedBigInteger(check.getAmountReceived());
-    if (check.getInTxPool()) assert.equal(0, check.getConfirmationCount());
-    else assert(check.getConfirmationCount() > 0); // TODO (monero-wall-rpc) this fails (confirmations is 0) for (at least one) transaction that has 1 confirmation on testCheckTxKey()
+    TestUtils.testUnsignedBigInteger(check.getReceivedAmount());
+    if (check.getInTxPool()) assert.equal(0, check.getNumConfirmations());
+    else assert(check.getNumConfirmations() > 0); // TODO (monero-wall-rpc) this fails (confirmations is 0) for (at least one) transaction that has 1 confirmation on testCheckTxKey()
   } else {
-    assert.equal(check.getConfirmationCount(), undefined);
+    assert.equal(check.getNumConfirmations(), undefined);
     assert.equal(check.getInTxPool(), undefined);
-    assert.equal(check.getAmountReceived(), undefined);
+    assert.equal(check.getReceivedAmount(), undefined);
   }
 }
 

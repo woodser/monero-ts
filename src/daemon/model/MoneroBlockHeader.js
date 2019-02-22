@@ -134,12 +134,12 @@ class MoneroBlockHeader {
     return this;
   }
   
-  getTxCount() {
-    return this.state.txCount;
+  getNumTxs() {
+    return this.state.numTxs;
   }
   
-  setTxCount(txCount) {
-    this.state.txCount = txCount;
+  setNumTxs(numTxs) {
+    this.state.numTxs = numTxs;
     return this;
   }
   
@@ -205,7 +205,7 @@ class MoneroBlockHeader {
     this.setMajorVersion(MoneroUtils.reconcile(this.getMajorVersion(), header.getMajorVersion()));
     this.setMinorVersion(MoneroUtils.reconcile(this.getMinorVersion(), header.getMinorVersion()));
     this.setNonce(MoneroUtils.reconcile(this.getNonce(), header.getNonce()));
-    this.setTxCount(MoneroUtils.reconcile(this.getTxCount(), header.getTxCount()));
+    this.setNumTxs(MoneroUtils.reconcile(this.getNumTxs(), header.getNumTxs()));
     this.setOrphanStatus(MoneroUtils.reconcile(this.getOrphanStatus(), header.getOrphanStatus()));
     this.setPrevId(MoneroUtils.reconcile(this.getPrevId(), header.getPrevId()));
     this.setReward(MoneroUtils.reconcile(this.getReward(), header.getReward()));
@@ -217,7 +217,7 @@ class MoneroBlockHeader {
     let str = "";
     str += MoneroUtils.kvLine("Id", this.getId(), indent);
     str += MoneroUtils.kvLine("Height", this.getHeight(), indent);
-    str += MoneroUtils.kvLine("Timestamp", this.getTxCount(), indent);
+    str += MoneroUtils.kvLine("Timestamp", this.getNumTxs(), indent);
     str += MoneroUtils.kvLine("Size", this.getSize(), indent);
     str += MoneroUtils.kvLine("Weight", this.getWeight(), indent);
     str += MoneroUtils.kvLine("Depth", this.getDepth(), indent);
@@ -226,7 +226,7 @@ class MoneroBlockHeader {
     str += MoneroUtils.kvLine("Major version", this.getMajorVersion(), indent);
     str += MoneroUtils.kvLine("Minor version", this.getMinorVersion(), indent);
     str += MoneroUtils.kvLine("Nonce", this.getNonce(), indent);
-    str += MoneroUtils.kvLine("Tx count", this.getTxCount(), indent);
+    str += MoneroUtils.kvLine("Num txs", this.getNumTxs(), indent);
     str += MoneroUtils.kvLine("Orphan status", this.getOrphanStatus(), indent);
     str += MoneroUtils.kvLine("Prev id", this.getPrevId(), indent);
     str += MoneroUtils.kvLine("Reward", this.getReward(), indent);

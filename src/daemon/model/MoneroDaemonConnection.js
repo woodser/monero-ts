@@ -102,21 +102,21 @@ class MoneroDaemonConnection {
     return this;
   }
 
-  getReceiveCount() {
-    return this.receiveCount;
+  getNumReceives() {
+    return this.numReceives;
   }
 
-  setReceiveCount(receiveCount) {
-    this.receiveCount = receiveCount;
+  getNumReceives(numReceives) {
+    this.numReceives = numReceives;
     return this;
   }
 
-  getSendCount() {
-    return this.sendCount;
+  getNumSends() {
+    return this.numSends;
   }
 
-  setSendCount(sendCount) {
-    this.sendCount = sendCount;
+  setNumSends(numSends) {
+    this.numSends = numSends;
     return this;
   }
 
@@ -147,12 +147,12 @@ class MoneroDaemonConnection {
     return this;
   }
 
-  getSupportFlagCount() {
-    return this.supportFlagCount;
+  getNumSupportFlags() {
+    return this.numSupportFlags;
   }
 
-  setSupportFlagCount(supportFlagCount) {
-    this.supportFlagCount = supportFlagCount;
+  setNumSupportFlags(numSupportFlags) {
+    this.numSupportFlags = numSupportFlags;
     return this;
   }
 }

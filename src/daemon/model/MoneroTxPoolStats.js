@@ -3,39 +3,48 @@
  */
 class MoneroTxPoolStats {
   
-  getCount() {
-    return this.count;
+  getNumTxs() {
+    return this.numTxs;
   }
   
-  setCount(count) {
-    this.count = count;
+  setNumTxs(numTxs) {
+    this.numTxs = numTxs;
     return this;
   }
   
-  getNotRelayedCount() {
-    return this.notRelayedCount;
+  getNumNotRelayed() {
+    return this.numNotRelayed;
   }
   
-  setNotRelayedCount(notRelayedCount) {
-    this.notRelayedCount = notRelayedCount;
+  setNumNotRelayed(numNotRelayed) {
+    this.numNotRelayed = numNotRelayed;
     return this;
   }
   
-  getFailedCount() {
-    return this.failedCount;
+  getNumFailing() {
+    return this.numFailing;
   }
   
-  setFailedCount(failedCount) {
-    this.failedCount = failedCount;
+  setNumFailing(numFailing) {
+    this.numFailing = numFailing;
     return this;
   }
   
-  getDoubleSpendCount() {
-    return this.doubleSpendCount;
+  getNumDoubleSpends() {
+    return this.numDoubleSpends;
   }
   
-  setDoubleSpendCount(doubleSpendCount) {
-    this.doubleSpendCount = doubleSpendCount;
+  setNumDoubleSpends(numDoubleSpends) {
+    this.numDoubleSpends = numDoubleSpends;
+    return this;
+  }
+  
+  getNum10m() {
+    return this.num10m;
+  }
+  
+  setNum10m(num10m) {
+    this.num10m = num10m;
     return this;
   }
   
@@ -94,30 +103,21 @@ class MoneroTxPoolStats {
     return this;
   }
   
-  getTime98pc() {
-    return this.time98pc;
+  getHisto98pc() {
+    return this.histo98pc;
   }
   
-  setTime98pc(time98pc) {
-    this.time98pc = time98pc;
+  setHisto98pc(histo98pc) {
+    this.histo98pc = histo98pc;
     return this;
   }
   
-  getTimeOldest() {
-    return this.timeOldest;
+  getOldestTimestamp() {
+    return this.oldestTimestamp;
   }
   
-  setTimeOldest(timeOldest) {
-    this.timeOldest = timeOldest;
-    return this;
-  }
-  
-  getCount10m() {
-    return this.count10m;
-  }
-  
-  setCount10m(count10m) {
-    this.count10m = count10m;
+  setOldestTimestamp(oldestTimestamp) {
+    this.oldestTimestamp = oldestTimestamp;
     return this;
   }
 }

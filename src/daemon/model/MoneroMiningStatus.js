@@ -30,12 +30,12 @@ class MoneroMiningStatus {
     return this;
   }
   
-  getThreadCount() {
-    return this.threadCount;
+  getNumThreads() {
+    return this.numThreads;
   }
   
-  setThreadCount(threadCount) {
-    this.threadCount = threadCount;
+  setNumThreads(numThreads) {
+    this.numThreads = numThreads;
     return this;
   }
   

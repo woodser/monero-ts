@@ -12,12 +12,12 @@ class MoneroDaemonInfo {
     return this;
   }
   
-  getAltBlocksCount() {
-    return this.altBlocksCount;
+  getNumAltBlocks() {
+    return this.numAltBlocks;
   }
   
-  setAltBlocksCount(altBlocksCount) {
-    this.altBlocksCount = altBlocksCount;
+  setNumAltBlocks(numAltBlocks) {
+    this.numAltBlocks = numAltBlocks;
     return this;
   }
   
@@ -93,21 +93,21 @@ class MoneroDaemonInfo {
     return this;
   }
   
-  getOfflinePeerCount() {
-    return this.offlinePeerCount;
+  getNumOfflinePeers() {
+    return this.numOfflinePeers;
   }
   
-  setOfflinePeerCount(offlinePeerCount) {
-    this.offlinePeerCount = offlinePeerCount;
+  setNumOfflinePeers(numOfflinePeers) {
+    this.numOfflinePeers = numOfflinePeers;
     return this;
   }
   
-  getOnlinePeerCount() {
-    return this.onlinePeerCount;
+  getNumOnlinePeers() {
+    return this.numOnlinePeers;
   }
   
-  setOnlinePeerCount(onlinePeerCount) {
-    this.onlinePeerCount = onlinePeerCount;
+  setNumOnlinePeers(numOnlinePeers) {
+    this.numOnlinePeers = numOnlinePeers;
     return this;
   }
   
@@ -147,30 +147,30 @@ class MoneroDaemonInfo {
     return this;
   }
   
-  getIncomingConnectionsCount() {
-    return this.incomingConnectionsCount;
+  getNumIncomingConnections() {
+    return this.numIncomingConnections;
   }
   
-  setIncomingConnectionsCount(incomingConnectionsCount) {
-    this.incomingConnectionsCount = incomingConnectionsCount;
+  setNumIncomingConnections(numIncomingConnections) {
+    this.numIncomingConnections = numIncomingConnections;
     return this;
   }
   
-  getOutgoingConnectionsCount() {
-    return this.outgoingConnectionsCount;
+  getNumOutgoingConnections() {
+    return this.numOutgoingConnections;
   }
   
-  setOutgoingConnectionsCount(outgoingConnectionsCount) {
-    this.outgoingConnectionsCount = outgoingConnectionsCount;
+  setNumOutgoingConnections(numOutgoingConnections) {
+    this.numOutgoingConnections = numOutgoingConnections;
     return this;
   }
   
-  getRpcConnectionsCount() {
-    return this.rpcConnectionsCount;
+  getNumRpcConnections() {
+    return this.numRpcConnections;
   }
   
-  setRpcConnectionsCount(rpcConnectionsCount) {
-    this.rpcConnectionsCount = rpcConnectionsCount;
+  setNumRpcConnections(numRpcConnections) {
+    this.numRpcConnections = numRpcConnections;
     return this;
   }
   
@@ -210,21 +210,21 @@ class MoneroDaemonInfo {
     return this;
   }
   
-  getTxCount() {
-    return this.txCount;
+  getNumTxs() {
+    return this.numTxs;
   }
   
-  setTxCount(txCount) {
-    this.txCount = txCount;
+  setNumTxs(numTxs) {
+    this.numTxs = numTxs;
     return this;
   }
   
-  getTxPoolSize() {
-    return this.txPoolSize;
+  getNumTxsPool() {
+    return this.numTxsPool;
   }
   
-  setTxPoolSize(txPoolSize) {
-    this.txPoolSize = txPoolSize;
+  setNumTxsPool(numTxsPool) {
+    this.numTxsPool = numTxsPool;
     return this;
   }
   

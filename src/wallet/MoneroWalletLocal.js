@@ -130,7 +130,7 @@ class MoneroWalletLocal extends MoneroWallet {
     // fetch and cache latest daemon info
     let info = await this.config.daemon.getInfo();
     this.cache.chainHeight = info.getHeight();
-    this.cache.numTxs = info.getTxCount();
+    this.cache.numTxs = info.getNumTxs();
     
     // track unprocessed blocks
     this.cache.unprocessed = this.cache.processed.copy().flip();
@@ -265,7 +265,7 @@ class MoneroWalletLocal extends MoneroWallet {
     for (let header of headers) {
       this.cache.headers[header.getHeight()] = {
           blockSize: header.getSize(),
-          numTxs: header.getTxCount()
+          numTxs: header.getNumTxs()
       }
     }
     
