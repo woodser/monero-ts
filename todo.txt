@@ -72,14 +72,7 @@ Not running with pruning.  prunable_hash and pruned_hex never defined now but us
 Only rctsig_prunable is pruned.  Vin, vout, version, unlock time, rct sigs, extra, and hex are no longer pruned.
 `get_info` no longer returns version - remove version from MoneroDaemonInfo model?
 rescanSpent() wallet not found issue, not sure what is causing it, wait a moment?
-
-
-Not running with pruning.  prunableHash is always undefined.  Expected?
-Pruned hex is always now undefined
-
-
-I'm not running with pruning.  Prunable hash and pruned hex are always empty now whereas they used to be initialized.  Is this expected?
-, so only rctsig_prunable is pruned.
+sync info next_needed_pruning_seed undefined, was >= 0 or before
 
 RPC
 outgoing transfers always return subaddress index 0 (#5171)

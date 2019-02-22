@@ -1357,7 +1357,7 @@ function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
       testDaemonConnectionSpan(span);
     }
   }
-  assert(syncInfo.getNextNeededPruningSeed() >= 0);
+  assert.equal(syncInfo.getNextNeededPruningSeed(), undefined);
   assert.equal(syncInfo.getOverview(), undefined);
 }
 
