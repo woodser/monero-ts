@@ -292,6 +292,7 @@ class TestMoneroWalletCommon {
         }
         
         // test out of range indices
+        let accounts = await wallet.getAccounts(true);
         let address = await wallet.getAddress(accounts.length - 1, accounts.getSubaddresses().length - 1);
         assert.equal(address, undefined);
       });
