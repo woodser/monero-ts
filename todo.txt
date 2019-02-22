@@ -1,3 +1,4 @@
+move send config to folder config with filters
 txPoolSize renamed to numTxPool()
 txPoolStats lots of renaming
 coinbase tx sum

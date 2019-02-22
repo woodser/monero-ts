@@ -19,11 +19,6 @@ class MoneroWalletTx extends MoneroTx {
     super(state);
     state = this.state;
     
-    // deserialize outgoing transfer
-    if (state.outgoingTransfer && !(state.outgoingTransfer instanceof MoneroTransfer)) {
-      this.setOutgoingTransfer(new MoneroTransfer(Object.assign(state.outgoingTransfer, {tx: this})));
-    }
-    
     // deserialize incoming transfers
     if (state.incomingTransfers) {
       for (let i = 0; i < state.incomingTransfers.length; i++) {
@@ -31,6 +26,11 @@ class MoneroWalletTx extends MoneroTx {
           state.incomingTransfers[i] = new MoneroTransfer(Object.assign(state.incomingTransfers[i], {tx: this}));
         }
       }
+    }
+    
+    // deserialize outgoing transfer
+    if (state.outgoingTransfer && !(state.outgoingTransfer instanceof MoneroTransfer)) {
+      this.setOutgoingTransfer(new MoneroTransfer(Object.assign(state.outgoingTransfer, {tx: this})));
     }
     
     // deserialize vouts
@@ -43,10 +43,6 @@ class MoneroWalletTx extends MoneroTx {
     }
   }
   
-  getOutgoingAmount() {
-    return this.getOutgoingTransfer() ? this.getOutgoingTransfer().getAmount() : undefined;
-  }
-  
   getIncomingAmount() {
     if (this.getIncomingTransfers() === undefined) return undefined;
     let incomingAmt = new BigInteger(0);
@@ -54,13 +50,8 @@ class MoneroWalletTx extends MoneroTx {
     return incomingAmt;
   }
   
-  getOutgoingTransfer() {
-    return this.state.outgoingTransfer;
-  }
-  
-  setOutgoingTransfer(outgoingTransfer) {
-    this.state.outgoingTransfer = outgoingTransfer;
-    return this;
+  getOutgoingAmount() {
+    return this.getOutgoingTransfer() ? this.getOutgoingTransfer().getAmount() : undefined;
   }
   
   getIncomingTransfers() {
@@ -69,6 +60,15 @@ class MoneroWalletTx extends MoneroTx {
   
   setIncomingTransfers(incomingTransfers) {
     this.state.incomingTransfers = incomingTransfers;
+    return this;
+  }
+  
+  getOutgoingTransfer() {
+    return this.state.outgoingTransfer;
+  }
+  
+  setOutgoingTransfer(outgoingTransfer) {
+    this.state.outgoingTransfer = outgoingTransfer;
     return this;
   }
   
@@ -87,11 +87,11 @@ class MoneroWalletTx extends MoneroTx {
   
   toJson() {
     let json = Object.assign({}, this.state, super.toJson()); // merge json onto native state
-    if (this.getOutgoingTransfer()) json.outgoingTransfer = this.getOutgoingTransfer().toJson();
     if (this.getIncomingTransfers()) {
       json.incomingTransfers = [];
       for (let incomingTransfer of this.getIncomingTransfers()) json.incomingTransfers.push(incomingTransfer.toJson());
     }
+    if (this.getOutgoingTransfer()) json.outgoingTransfer = this.getOutgoingTransfer().toJson();
     return json;
   }
   
@@ -112,13 +112,6 @@ class MoneroWalletTx extends MoneroTx {
     // merge wallet extensions
     this.setNote(MoneroUtils.reconcile(this.getNote(), tx.getNote()));
     
-    // merge outgoing transfer
-    if (tx.getOutgoingTransfer()) {
-      tx.getOutgoingTransfer().setTx(this);
-      if (this.getOutgoingTransfer() === undefined) this.setOutgoingTransfer(tx.getOutgoingTransfer());
-      else this.getOutgoingTransfer().merge(tx.getOutgoingTransfer());
-    }
-    
     // merge incoming transfers
     if (tx.getIncomingTransfers()) {
       if (this.getIncomingTransfers() === undefined) this.setIncomingTransfers([]);
@@ -126,6 +119,13 @@ class MoneroWalletTx extends MoneroTx {
         transfer.setTx(this);
         mergeTransfer(this.getIncomingTransfers(), transfer);
       }
+    }
+    
+    // merge outgoing transfer
+    if (tx.getOutgoingTransfer()) {
+      tx.getOutgoingTransfer().setTx(this);
+      if (this.getOutgoingTransfer() === undefined) this.setOutgoingTransfer(tx.getOutgoingTransfer());
+      else this.getOutgoingTransfer().merge(tx.getOutgoingTransfer());
     }
     
     // helper function to merge transfers
@@ -158,11 +158,6 @@ class MoneroWalletTx extends MoneroTx {
     
     // otherwise stringify all fields
     str += super.toString(indent) + "\n";
-    str += MoneroUtils.kvLine("Outgoing amount", this.getOutgoingAmount(), indent);
-    if (this.getOutgoingTransfer()) {
-      str += MoneroUtils.kvLine("Outgoing transfer", "", indent);
-      str += this.getOutgoingTransfer().toString(indent + 1) + "\n";
-    }
     str += MoneroUtils.kvLine("Incoming amount", this.getIncomingAmount(), indent);
     if (this.getIncomingTransfers()) {
       str += MoneroUtils.kvLine("Incoming transfers", "", indent);
@@ -170,6 +165,11 @@ class MoneroWalletTx extends MoneroTx {
         str += MoneroUtils.kvLine(i + 1, "", indent + 1);
         str += this.getIncomingTransfers()[i].toString(indent + 2) + "\n";
       }
+    }
+    str += MoneroUtils.kvLine("Outgoing amount", this.getOutgoingAmount(), indent);
+    if (this.getOutgoingTransfer()) {
+      str += MoneroUtils.kvLine("Outgoing transfer", "", indent);
+      str += this.getOutgoingTransfer().toString(indent + 1) + "\n";
     }
     str += MoneroUtils.kvLine("Note: ", this.getNote(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
