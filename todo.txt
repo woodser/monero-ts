@@ -1,10 +1,8 @@
-update to 14.0.0 and test
-last relayed time but is not relayed
 switch to num instead of count?
 monero daemon connection span model
 rct sig prunable model
-regen api documentation
 publish data model and reference implementation with test suite
+regen api documentation
 multisig
 pruning
 
