@@ -896,8 +896,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let info = new MoneroDaemonInfo();
     for (let key of Object.keys(rpcInfo)) {
       let val = rpcInfo[key];
-      if (key === "version") info.setVersion(val);
-      else if (key === "alt_blocks_count") info.setAltBlocksCount(val);
+      if (key === "alt_blocks_count") info.setAltBlocksCount(val);
       else if (key === "block_size_limit") info.setBlockSizeLimit(val);
       else if (key === "block_size_median") info.setBlockSizeMedian(val);
       else if (key === "block_weight_limit") info.setBlockWeightLimit(val);
