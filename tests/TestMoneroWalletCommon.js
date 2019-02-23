@@ -965,7 +965,7 @@ class TestMoneroWalletCommon {
         // set tx notes
         let uuid = GenUtils.uuidv4();
         let txs = await getCachedTxs();
-        assert(txs.length >= 3);
+        assert(txs.length >= 3, "Test requires 3 or more wallet transactions; run send tests");
         let txIds = [];
         let txNotes = [];
         for (let i = 0; i < txIds.length; i++) {
@@ -1787,7 +1787,7 @@ class TestMoneroWalletCommon {
         
         // get unspent vouts to sweep
         let vouts = await wallet.getVouts({isSpent: false});
-        assert(vouts.length >= numVouts);
+        assert(vouts.length >= numVouts, "Wallet has no unspent vouts; run send tests");
         vouts = vouts.slice(0, numVouts);
         
         // sweep each vout by key image
@@ -2207,7 +2207,7 @@ async function testGetTransfers(wallet, config, isExpected) {
   let transfers = await wallet.getTransfers(config);
   assert(Array.isArray(transfers));
   if (isExpected === false) assert.equal(transfers.length, 0);
-  if (isExpected === true) assert(transfers.length > 0);
+  if (isExpected === true) assert(transfers.length > 0, "Transactions were expected but not found; run send tests?");
   for (let transfer of transfers) await testWalletTx(transfer.getTx(), Object.assign({wallet: wallet}, config));
   return transfers;
 }
@@ -2219,7 +2219,7 @@ async function testGetVouts(wallet, config, isExpected) {
   let vouts = await wallet.getVouts(config);
   assert(Array.isArray(vouts));
   if (isExpected === false) assert.equal(vouts.length, 0);
-  if (isExpected === true) assert(vouts.length > 0);
+  if (isExpected === true) assert(vouts.length > 0, "Vouts were expected but not found; run send tests?");
   for (let vout of vouts) testVout(vout);
   return vouts;
 }

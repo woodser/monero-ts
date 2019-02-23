@@ -101,7 +101,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         
         // tag and query accounts
         let accounts1 = await wallet.getAccounts();
-        assert(accounts1.length >= 3);
+        assert(accounts1.length >= 3, "Not enough accounts to test; run create account test");
         await wallet.tagAccounts(expectedTag.getTag(), [0, 1]);
         let accounts2 = await wallet.getAccounts(undefined, expectedTag.getTag());
         assert.equal(accounts2.length, 2);
