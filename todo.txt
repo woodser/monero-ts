@@ -1,6 +1,5 @@
 test testnet
 monero sync result
-note: int is always unsigned int
 monero daemon connection span model
 rct sig prunable model
 regen api documentation
