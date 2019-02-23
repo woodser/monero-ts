@@ -1,4 +1,5 @@
 test testnet
+model send config
 monero sync result
 monero daemon connection span model
 rct sig prunable model

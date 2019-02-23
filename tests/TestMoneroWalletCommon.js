@@ -4,6 +4,7 @@ const GenUtils = require("../src/utils/GenUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroWallet = require("../src/wallet/MoneroWallet");
+const MoneroSyncResult = require("../src/wallet/model/MoneroSyncResult");
 const MoneroDaemon = require("../src/daemon/MoneroDaemon");
 const MoneroTx = require("../src/daemon/model/MoneroTx");
 const MoneroWalletTx = require("../src/wallet/model/MoneroWalletTx");
@@ -139,9 +140,10 @@ class TestMoneroWalletCommon {
         let numBlocks = 100;
         let chainHeight = await daemon.getHeight();
         assert(chainHeight >= numBlocks);
-        let resp = await wallet.sync(chainHeight - numBlocks);  // sync end of chain
-        assert(resp.blocks_fetched >= 0);
-        assert(typeof resp.received_money === "boolean");
+        let result = await wallet.sync(chainHeight - numBlocks);  // sync end of chain
+        assert(result instanceof MoneroSyncResult);
+        assert(result.getNumBlocksFetched() >= 0);
+        assert.equal(typeof result.getReceivedMoney(), "boolean");
       });
       
       it("Can get all accounts in the wallet without subaddresses", async function() {

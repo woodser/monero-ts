@@ -6,6 +6,7 @@ const MoneroRpc = require("../rpc/MoneroRpc");
 const MoneroBlock = require("../daemon/model/MoneroBlock");
 const MoneroBlockHeader = require("../daemon/model/MoneroBlockHeader");
 const MoneroWallet = require("./MoneroWallet");
+const MoneroSyncResult = require('./model/MoneroSyncResult');
 const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
 const MoneroAccount = require("./model/MoneroAccount");
 const MoneroSubaddress = require("./model/MoneroSubaddress");
@@ -156,7 +157,8 @@ class MoneroWalletRpc extends MoneroWallet {
   async sync(startHeight, endHeight, onProgress) {
     assert(endHeight === undefined, "Monero Wallet RPC does not support syncing to an end height");
     assert(onProgress === undefined, "Monero Wallet RPC does not support reporting sync progress");
-    return await this.config.rpc.sendJsonRequest("refresh", {start_height: startHeight});
+    let resp = await this.config.rpc.sendJsonRequest("refresh", {start_height: startHeight});
+    return new MoneroSyncResult(resp.blocks_fetched, resp.received_money);
   }
   
   async isMultisigImportNeeded() {
