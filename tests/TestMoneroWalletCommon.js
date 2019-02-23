@@ -1361,8 +1361,16 @@ class TestMoneroWalletCommon {
         assert(images.length > 0, "Wallet does not have any key images; run send tests");
         let result = await wallet.importKeyImages(images);
         assert(result.getHeight() > 0);
-        TestUtils.testUnsignedBigInteger(result.getSpentAmount(), true);  // tests assume wallet has spend history and balance
-        TestUtils.testUnsignedBigInteger(result.getUnspentAmount(), true);
+        
+        // determine if non-zero spent and unspent amounts are expected
+        let txs = await wallet.getTxs({isConfirmed: true, transferFilter: {isOutgoing: true}});
+        let balance = await wallet.getBalance();
+        let hasSpent = txs.length > 0;
+        let hasUnspent = balance.toJSValue() > 0;
+        
+        // test amounts
+        TestUtils.testUnsignedBigInteger(result.getSpentAmount(), hasSpent);
+        TestUtils.testUnsignedBigInteger(result.getUnspentAmount(), hasUnspent);
       });
       
       it("Can sign and verify messages", async function() {
