@@ -1,4 +1,3 @@
-remove mixin from send / sweep
 test testnet
 monero sync result
 note: int is always unsigned int
