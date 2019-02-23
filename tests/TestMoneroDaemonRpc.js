@@ -10,6 +10,7 @@ const MoneroBan = require("../src/daemon/model/MoneroBan");
 const MoneroTx = require("../src/daemon/model/MoneroTx");
 const MoneroOutput = require("../src/daemon/model/MoneroOutput");
 const MoneroKeyImage = require("../src/daemon/model/MoneroKeyImage")
+const MoneroKeyImageSpentStatus = require("../src/daemon/model/MoneroKeyImageSpentStatus");
 const MoneroAltChain = require("../src/daemon/model/MoneroAltChain");
 const MoneroDaemonSyncInfo = require("../src/daemon/model/MoneroDaemonSyncInfo");
 const MoneroDaemonPeer = require("../src/daemon/model/MoneroDaemonPeer");
@@ -527,13 +528,13 @@ class TestMoneroDaemonRpc {
         await daemon.flushTxPool(txIds);
         
         // key images are not spent
-        await testSpentStatuses(keyImages, MoneroKeyImage.SpentStatus.NOT_SPENT);
+        await testSpentStatuses(keyImages, MoneroKeyImageSpentStatus.NOT_SPENT);
         
         // submit txs to the pool but don't relay
         for (let tx of txs) await daemon.submitTxHex(tx.getHex(), true);
         
         // key images are in the tx pool
-        await testSpentStatuses(keyImages, MoneroKeyImage.SpentStatus.TX_POOL);
+        await testSpentStatuses(keyImages, MoneroKeyImageSpentStatus.TX_POOL);
         
         // collect key images of confirmed txs
         keyImages = [];
@@ -543,7 +544,7 @@ class TestMoneroDaemonRpc {
         }
         
         // key images are all spent
-        await testSpentStatuses(keyImages, MoneroKeyImage.SpentStatus.CONFIRMED);
+        await testSpentStatuses(keyImages, MoneroKeyImageSpentStatus.CONFIRMED);
         
         // helper function to check the spent status of a key image or array of key images
         async function testSpentStatuses(keyImages, expectedStatus) {

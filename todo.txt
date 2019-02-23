@@ -1,3 +1,6 @@
+remove mixin from send / sweep
+monero sync result
+note: int is always unsigned int
 monero daemon connection span model
 rct sig prunable model
 regen api documentation

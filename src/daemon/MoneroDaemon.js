@@ -320,7 +320,7 @@ class MoneroDaemon {
    * Get the spent status of the given key image.
    * 
    * @param {string} keyImage is key image hex to get the status of
-   * @return {MoneroKeyImage.SpentStatus} is the status of the key image
+   * @return {MoneroKeyImageSpentStatus} is the status of the key image
    */
   async getSpentStatus(keyImage) {
     return (await this.getSpentStatuses([keyImage]))[0];
@@ -330,7 +330,7 @@ class MoneroDaemon {
    * Get the spent status of each given key image.
    * 
    * @param {string[]} keyImages are hex key images to get the statuses of
-   * @return {MoneroKeyImage.SpentStatus[]} is the status for each key image
+   * @return {MoneroKeyImageSpentStatus[]} is the status for each key image
    */
   async getSpentStatuses(keyImages) {
     throw new Error("Subclass must implement");

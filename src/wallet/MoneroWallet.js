@@ -697,6 +697,7 @@ class MoneroWallet {
    * @param {string} address is the entry address
    * @param {string} description is the entry description (optional)
    * @param {string} paymentId is the entry paymet id (optional)
+   * @return {int} is the index of the added entry
    */
   async addAddressBookEntry(address, description, paymentId) {
     throw new Error("Subclass must implement");

@@ -67,13 +67,4 @@ class MoneroKeyImage {
   }
 }
 
-/**
- * Enumerates key image spent statuses.
- */
-MoneroKeyImage.SpentStatus = {
-    NOT_SPENT: 0,
-    CONFIRMED: 1,
-    TX_POOL: 2
-}
-
 module.exports = MoneroKeyImage;
