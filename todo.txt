@@ -1,6 +1,7 @@
 test testnet
 monero daemon connection span model
 rct sig prunable model
+sweepDust()
 regen api documentation
 support getTxs({isIncoming: true, isOutgoing: true})?
 
