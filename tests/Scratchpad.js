@@ -21,11 +21,7 @@ describe("Scratchpad", function() {
     let daemon = TestUtils.getDaemonRpc();
     let wallet = TestUtils.getWalletRpc();
     await TestUtils.initWalletRpc();
-    let rpc = new MoneroRpc({
-      uri: "http://localhost:38083",
-      user: "rpc_user",
-      pass: "abc123",
-    });
+    let rpc = new MoneroRpc(TestUtils.WALLET_RPC_CONFIG);
     
 //  try { await wallet.startMining(8, false, true); }
 //  catch (e) { }
@@ -45,7 +41,7 @@ describe("Scratchpad", function() {
     
     transfers = await wallet.getTransfers({isOutgoing: true, accountIndex: 0, subaddressIndices: [0, 1, 2]});
     for (let transfer of transfers) {
-      console.log(transfers);
+      //console.log(transfers);
     }
   });
 });
