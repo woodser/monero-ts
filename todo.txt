@@ -1,10 +1,11 @@
 test testnet
+regen api documentation
 class diagram query txs, transfers, vouts
+support getTxs({isIncoming: true, isOutgoing: true})?
+announce
 monero daemon connection span model
 rct sig prunable model
 sweepDust()
-regen api documentation
-support getTxs({isIncoming: true, isOutgoing: true})?
 
 multisig
 pruning
