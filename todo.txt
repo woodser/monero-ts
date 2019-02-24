@@ -2,7 +2,6 @@ test testnet
 monero daemon connection span model
 rct sig prunable model
 regen api documentation
-release data model and reference implementation with test suite
 support getTxs({isIncoming: true, isOutgoing: true})?
 
 multisig
