@@ -851,7 +851,7 @@ class TestMoneroWalletCommon {
         assert.equal(vouts.length, 0);
         
         // test invalid id in collection
-        let randomTxs = await getRandomTransactions(wallet, {getVouts: true}, 3, 5);
+        let randomTxs = await getRandomTransactions(wallet, {isConfirmed: true, getVouts: true}, 3, 5);
         vouts = await wallet.getVouts({txIds: [randomTxs[0].getId(), "invalid_id"]});
         assert.equal(randomTxs[0].getVouts().length, vouts.length);
         let tx = vouts[0].getTx();
@@ -1208,7 +1208,7 @@ class TestMoneroWalletCommon {
         }
         
         // test subaddress
-        try {1076
+        try {
           
           await wallet.checkReserveProof((await wallet.getSubaddress(0, 1)).getAddress(), "Test message", signature);
           throw new Error("Should have thrown exception");
