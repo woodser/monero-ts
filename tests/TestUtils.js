@@ -71,7 +71,8 @@ class TestUtils {
     assert(num);
     assert(num instanceof BigInteger);
     assert(num.toJSValue() >= 0);
-    if (nonZero) assert(num.toJSValue() > 0);
+    if (nonZero === true) assert(num.toJSValue() > 0);
+    if (nonZero === false) assert(num.toJSValue() === 0);
   }
   
   static async getRandomWalletAddress() {
