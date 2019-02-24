@@ -1104,7 +1104,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "localhost") connection.setIsLocalHost(val);
       else if (key === "peer_id") peer.setId(val);
       else if (key === "port") peer.setPort(val);
-      else if (key === "recv_count") connection.getNumReceives(val);
+      else if (key === "recv_count") connection.setNumReceives(val);
       else if (key === "recv_idle_time") connection.setReceiveIdleTime(val);
       else if (key === "send_count") connection.setNumSends(val);
       else if (key === "send_idle_time") connection.setSendIdleTime(val);
