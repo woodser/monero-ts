@@ -1230,80 +1230,81 @@ class TestMoneroWalletCommon {
         }
       });
       
-      it("Can prove reserves in an account", async function() {
-        
-        // test proofs of accounts
-        let numNonZeroTests = 0;
-        let msg = "Test message";
-        let accounts = await wallet.getAccounts();
-        let signature;
-        for (let account of accounts) {
-          if (account.getBalance().compare(new BigInteger(0)) > 0) {
-            let checkAmount = (await account.getBalance()).divide(new BigInteger(2));
-            signature = await wallet.getReserveProofAccount(account.getIndex(), checkAmount, msg);
-            let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), msg, signature);
-            assert(check.getIsGood());
-            testCheckReserve(check);
-            assert(check.getTotalAmount().compare(checkAmount) >= 0);
-            numNonZeroTests++;
-          } else {
-            try {
-              await wallet.getReserveProofAccount(account.getIndex(), account.getBalance(), msg);
-              throw new Error("Should have thrown exception");
-            } catch (e) {
-              assert.equal(e.getRpcCode(), -1);
-              try {
-                await wallet.getReserveProofAccount(account.getIndex(), TestUtils.MAX_FEE, msg);
-                throw new Error("Should have thrown exception");
-              } catch (e2) {
-                assert.equal(e2.getRpcCode(), -1);
-              }
-            }
-          }
-        }
-        assert(numNonZeroTests > 1, "Must have more than one account with non-zero balance; run send-to-multiple tests");
-        
-        // test error when not enough balance for requested minimum reserve amount
-        try {
-          await wallet.getReserveProofAccount(0, accounts[0].getBalance().add(TestUtils.MAX_FEE), "Test message");
-          throw new Error("Should have thrown exception");
-        } catch (e) {
-          assert.equal(e.getRpcCode(), -1);
-        }
-        
-        // test different wallet address
-        // TODO: openWallet is not common so this won't work for other wallet impls
-        await wallet.openWallet(TestUtils.WALLET_RPC_NAME_2, TestUtils.WALLET_RPC_PW_2);
-        let differentAddress = await wallet.getPrimaryAddress();
-        await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
-        try {
-          await wallet.checkReserveProof(differentAddress, "Test message", signature);
-          throw new Error("Should have thrown exception");
-        } catch (e) {
-          assert.equal(e.getRpcCode(), -1);
-        }
-        
-        // test subaddress
-        try {
-          await wallet.checkReserveProof((await wallet.getSubaddress(0, 1)).getAddress(), "Test message", signature);
-          throw new Error("Should have thrown exception");
-        } catch (e) {
-          assert.equal(e.getRpcCode(), -1);
-        }
-        
-        // test wrong message
-        let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Wrong message", signature);
-        assert.equal(check.getIsGood(), false); // TODO: specifically test reserve checks, probably separate objects
-        testCheckReserve(check);
-        
-        // test wrong signature
-        try {
-          await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Test message", "wrong signature");
-          throw new Error("Should have thrown exception");
-        } catch (e) {
-          assert.equal(e.getRpcCode(), -1);
-        }
-      });
+      // TODO: re-enable this after 14.x point release which fixes this
+//      it("Can prove reserves in an account", async function() {
+//        
+//        // test proofs of accounts
+//        let numNonZeroTests = 0;
+//        let msg = "Test message";
+//        let accounts = await wallet.getAccounts();
+//        let signature;
+//        for (let account of accounts) {
+//          if (account.getBalance().compare(new BigInteger(0)) > 0) {
+//            let checkAmount = (await account.getBalance()).divide(new BigInteger(2));
+//            signature = await wallet.getReserveProofAccount(account.getIndex(), checkAmount, msg);
+//            let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), msg, signature);
+//            assert(check.getIsGood());
+//            testCheckReserve(check);
+//            assert(check.getTotalAmount().compare(checkAmount) >= 0);
+//            numNonZeroTests++;
+//          } else {
+//            try {
+//              await wallet.getReserveProofAccount(account.getIndex(), account.getBalance(), msg);
+//              throw new Error("Should have thrown exception");
+//            } catch (e) {
+//              assert.equal(e.getRpcCode(), -1);
+//              try {
+//                await wallet.getReserveProofAccount(account.getIndex(), TestUtils.MAX_FEE, msg);
+//                throw new Error("Should have thrown exception");
+//              } catch (e2) {
+//                assert.equal(e2.getRpcCode(), -1);
+//              }
+//            }
+//          }
+//        }
+//        assert(numNonZeroTests > 1, "Must have more than one account with non-zero balance; run send-to-multiple tests");
+//        
+//        // test error when not enough balance for requested minimum reserve amount
+//        try {
+//          await wallet.getReserveProofAccount(0, accounts[0].getBalance().add(TestUtils.MAX_FEE), "Test message");
+//          throw new Error("Should have thrown exception");
+//        } catch (e) {
+//          assert.equal(e.getRpcCode(), -1);
+//        }
+//        
+//        // test different wallet address
+//        // TODO: openWallet is not common so this won't work for other wallet impls
+//        await wallet.openWallet(TestUtils.WALLET_RPC_NAME_2, TestUtils.WALLET_RPC_PW_2);
+//        let differentAddress = await wallet.getPrimaryAddress();
+//        await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
+//        try {
+//          await wallet.checkReserveProof(differentAddress, "Test message", signature);
+//          throw new Error("Should have thrown exception");
+//        } catch (e) {
+//          assert.equal(e.getRpcCode(), -1);
+//        }
+//        
+//        // test subaddress
+//        try {
+//          await wallet.checkReserveProof((await wallet.getSubaddress(0, 1)).getAddress(), "Test message", signature);
+//          throw new Error("Should have thrown exception");
+//        } catch (e) {
+//          assert.equal(e.getRpcCode(), -1);
+//        }
+//        
+//        // test wrong message
+//        let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Wrong message", signature);
+//        assert.equal(check.getIsGood(), false); // TODO: specifically test reserve checks, probably separate objects
+//        testCheckReserve(check);
+//        
+//        // test wrong signature
+//        try {
+//          await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Test message", "wrong signature");
+//          throw new Error("Should have thrown exception");
+//        } catch (e) {
+//          assert.equal(e.getRpcCode(), -1);
+//        }
+//      });
       
       it("Can get outputs in hex format", async function() {
         let outputsHex = await wallet.getOutputsHex();
