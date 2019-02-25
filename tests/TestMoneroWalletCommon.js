@@ -815,7 +815,7 @@ class TestMoneroWalletCommon {
         }
         
         // get random transactions
-        let txs = await getRandomTransactions(wallet, undefined, 3, 5);
+        let txs = await getRandomTransactions(wallet, {isConfirmed: true}, 3, 5);
         
         // get vouts with a tx id
         let txIds = [];
