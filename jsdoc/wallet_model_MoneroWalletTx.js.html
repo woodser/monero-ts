@@ -39,18 +39,13 @@ const MoneroWalletOutput = require("./MoneroWalletOutput");
 class MoneroWalletTx extends MoneroTx {
   
   /**
-   * Constructs the model.
+   * Construct the model.
    * 
-   * @param state is model state or json to initialize from (optional)
+   * @param {MoneroWalletTx|object} state is existing state to initialize from (optional)
    */
   constructor(state) {
     super(state);
     state = this.state;
-    
-    // deserialize outgoing transfer
-    if (state.outgoingTransfer &amp;&amp; !(state.outgoingTransfer instanceof MoneroTransfer)) {
-      this.setOutgoingTransfer(new MoneroTransfer(Object.assign(state.outgoingTransfer, {tx: this})));
-    }
     
     // deserialize incoming transfers
     if (state.incomingTransfers) {
@@ -61,18 +56,19 @@ class MoneroWalletTx extends MoneroTx {
       }
     }
     
+    // deserialize outgoing transfer
+    if (state.outgoingTransfer &amp;&amp; !(state.outgoingTransfer instanceof MoneroTransfer)) {
+      this.setOutgoingTransfer(new MoneroTransfer(Object.assign(state.outgoingTransfer, {tx: this})));
+    }
+    
     // deserialize vouts
     if (state.vouts) {
       for (let i = 0; i &lt; state.vouts.length; i++) {
         if (!(state.vouts[i] instanceof MoneroWalletOutput)) {
-          state.vouts[i] = new MoneroWalletOutput(Object.assign(state.vouts[i].state, {tx: this})); // TODO: accessing internal state object of parent
+          state.vouts[i] = new MoneroWalletOutput(Object.assign(state.vouts[i].toJson(), {tx: this}));
         }
       }
     }
-  }
-  
-  getOutgoingAmount() {
-    return this.getOutgoingTransfer() ? this.getOutgoingTransfer().getAmount() : undefined;
   }
   
   getIncomingAmount() {
@@ -82,12 +78,8 @@ class MoneroWalletTx extends MoneroTx {
     return incomingAmt;
   }
   
-  getOutgoingTransfer() {
-    return this.state.outgoingTransfer;
-  }
-  
-  setOutgoingTransfer(outgoingTransfer) {
-    this.state.outgoingTransfer = outgoingTransfer;
+  getOutgoingAmount() {
+    return this.getOutgoingTransfer() ? this.getOutgoingTransfer().getAmount() : undefined;
   }
   
   getIncomingTransfers() {
@@ -96,6 +88,16 @@ class MoneroWalletTx extends MoneroTx {
   
   setIncomingTransfers(incomingTransfers) {
     this.state.incomingTransfers = incomingTransfers;
+    return this;
+  }
+  
+  getOutgoingTransfer() {
+    return this.state.outgoingTransfer;
+  }
+  
+  setOutgoingTransfer(outgoingTransfer) {
+    this.state.outgoingTransfer = outgoingTransfer;
+    return this;
   }
   
   getNote() {
@@ -104,53 +106,21 @@ class MoneroWalletTx extends MoneroTx {
   
   setNote(note) {
     this.state.note = note;
+    return this;
   }
   
   copy() {
-    return new MoneroWalletTx(this.toJson());
+    return new MoneroWalletTx(this);
   }
   
   toJson() {
     let json = Object.assign({}, this.state, super.toJson()); // merge json onto native state
-    if (this.getOutgoingTransfer()) json.outgoingTransfer = this.getOutgoingTransfer().toJson();
     if (this.getIncomingTransfers()) {
       json.incomingTransfers = [];
       for (let incomingTransfer of this.getIncomingTransfers()) json.incomingTransfers.push(incomingTransfer.toJson());
     }
+    if (this.getOutgoingTransfer()) json.outgoingTransfer = this.getOutgoingTransfer().toJson();
     return json;
-  }
-  
-  toString(indent = 0, oneLine) {
-    let str = "";
-    
-    // represent tx with one line string
-    // TODO: proper csv export
-    if (oneLine) {
-      str += this.getId() + ", ";
-      str += (this.getIsConfirmed() ? this.getBlockTimestamp() : this.getReceivedTime()) + ", ";
-      str += this.getIsConfirmed() + ", ";
-      str += (this.getOutgoingAmount() ? this.getOutgoingAmount().toString() : "") + ", "
-      str += this.getIncomingAmount() ? this.getIncomingAmount().toString() : "";
-      return str;
-    }
-    
-    // otherwise stringify all fields
-    str += super.toString(indent) + "\n";
-    str += MoneroUtils.kvLine("Outgoing amount", this.getOutgoingAmount(), indent);
-    if (this.getOutgoingTransfer()) {
-      str += MoneroUtils.kvLine("Outgoing transfer", "", indent);
-      str += this.getOutgoingTransfer().toString(indent + 1) + "\n";
-    }
-    str += MoneroUtils.kvLine("Incoming amount", this.getIncomingAmount(), indent);
-    if (this.getIncomingTransfers()) {
-      str += MoneroUtils.kvLine("Incoming transfers", "", indent);
-      for (let i = 0; i &lt; this.getIncomingTransfers().length; i++) {
-        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
-        str += this.getIncomingTransfers()[i].toString(indent + 2) + "\n";
-      }
-    }
-    str += MoneroUtils.kvLine("Note: ", this.getNote(), indent);
-    return str.slice(0, str.length - 1);  // strip last newline
   }
   
   /**
@@ -170,13 +140,6 @@ class MoneroWalletTx extends MoneroTx {
     // merge wallet extensions
     this.setNote(MoneroUtils.reconcile(this.getNote(), tx.getNote()));
     
-    // merge outgoing transfer
-    if (tx.getOutgoingTransfer()) {
-      tx.getOutgoingTransfer().setTx(this);
-      if (this.getOutgoingTransfer() === undefined) this.setOutgoingTransfer(tx.getOutgoingTransfer());
-      else this.getOutgoingTransfer().merge(tx.getOutgoingTransfer());
-    }
-    
     // merge incoming transfers
     if (tx.getIncomingTransfers()) {
       if (this.getIncomingTransfers() === undefined) this.setIncomingTransfers([]);
@@ -184,6 +147,13 @@ class MoneroWalletTx extends MoneroTx {
         transfer.setTx(this);
         mergeTransfer(this.getIncomingTransfers(), transfer);
       }
+    }
+    
+    // merge outgoing transfer
+    if (tx.getOutgoingTransfer()) {
+      tx.getOutgoingTransfer().setTx(this);
+      if (this.getOutgoingTransfer() === undefined) this.setOutgoingTransfer(tx.getOutgoingTransfer());
+      else this.getOutgoingTransfer().merge(tx.getOutgoingTransfer());
     }
     
     // helper function to merge transfers
@@ -199,6 +169,39 @@ class MoneroWalletTx extends MoneroTx {
     
     return this;  // for chaining
   }
+  
+  toString(indent = 0, oneLine) {
+    let str = "";
+    
+    // represent tx with one line string
+    // TODO: proper csv export
+    if (oneLine) {
+      str += this.getId() + ", ";
+      str += (this.getIsConfirmed() ? this.getBlock().getHeader().getTimestamp() : this.getReceivedTimestamp()) + ", ";
+      str += this.getIsConfirmed() + ", ";
+      str += (this.getOutgoingAmount() ? this.getOutgoingAmount().toString() : "") + ", "
+      str += this.getIncomingAmount() ? this.getIncomingAmount().toString() : "";
+      return str;
+    }
+    
+    // otherwise stringify all fields
+    str += super.toString(indent) + "\n";
+    str += MoneroUtils.kvLine("Incoming amount", this.getIncomingAmount(), indent);
+    if (this.getIncomingTransfers()) {
+      str += MoneroUtils.kvLine("Incoming transfers", "", indent);
+      for (let i = 0; i &lt; this.getIncomingTransfers().length; i++) {
+        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
+        str += this.getIncomingTransfers()[i].toString(indent + 2) + "\n";
+      }
+    }
+    str += MoneroUtils.kvLine("Outgoing amount", this.getOutgoingAmount(), indent);
+    if (this.getOutgoingTransfer()) {
+      str += MoneroUtils.kvLine("Outgoing transfer", "", indent);
+      str += this.getOutgoingTransfer().toString(indent + 1) + "\n";
+    }
+    str += MoneroUtils.kvLine("Note: ", this.getNote(), indent);
+    return str.slice(0, str.length - 1);  // strip last newline
+  }
 }
 
 module.exports = MoneroWalletTx;</code></pre>
@@ -211,13 +214,13 @@ module.exports = MoneroWalletTx;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroCoinbaseTxSum.html">MoneroCoinbaseTxSum</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroImportKeyImagesResult.html">MoneroImportKeyImagesResult</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroSendConfig.html">MoneroSendConfig</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferFilter.html">MoneroTransferFilter</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxFilter.html">MoneroTxFilter</a></li><li><a href="MoneroTxPool.html">MoneroTxPool</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroVoutFilter.html">MoneroVoutFilter</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletOutput.html">MoneroWalletOutput</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletTx.html">MoneroWalletTx</a></li></ul><h3>Global</h3><ul><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BooleanSet.html">BooleanSet</a></li><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroCoinbaseTxSum.html">MoneroCoinbaseTxSum</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroRpc.html">MoneroRpc</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendConfig.html">MoneroSendConfig</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferFilter.html">MoneroTransferFilter</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="global.html#MoneroTxFilter">MoneroTxFilter</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroVoutFilter.html">MoneroVoutFilter</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletOutput.html">MoneroWalletOutput</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletTx.html">MoneroWalletTx</a></li></ul><h3>Global</h3><ul><li><a href="global.html#assert">assert</a></li><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Feb 01 2019 12:27:31 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Feb 25 2019 14:25:56 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>

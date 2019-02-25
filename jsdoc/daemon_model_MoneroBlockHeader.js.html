@@ -26,137 +26,240 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
+            <pre class="prettyprint source linenums"><code>const assert = require("assert");
+const MoneroUtils = require("../../utils/MoneroUtils");
+
+/**
  * Monero block header information.
  */
 class MoneroBlockHeader {
   
-  getSize() {
-    return this.size;
-  }
-  
-  setSize(size) {
-    this.size = size;
-  }
-  
-  getDepth() {
-    return this.depth;
-  }
-  
-  setDepth(depth) {
-    this.depth = depth;
-  }
-  
-  getDifficulty() {
-    return this.difficulty;
-  }
-  
-  setDifficulty(difficulty) {
-    this.difficulty = difficulty;
-  }
-  
-  getCumulativeDifficulty() {
-    return this.cumulativeDifficulty;
-  }
-  
-  setCumulativeDifficulty(cumulativeDifficulty) {
-    this.cumulativeDifficulty = cumulativeDifficulty;
+  /**
+   * Construct the model.
+   * 
+   * @param {MoneroBlockHeader|object} state is existing state to initialize from (optional)
+   */
+  constructor(state) {
+    
+    // initialize internal state
+    if (!state) state = {};
+    else if (state instanceof MoneroBlockHeader) state = state.toJson();
+    else if (typeof state === "object") state = Object.assign({}, state);
+    else throw new Error("state must be a MoneroBlockHeader or JavaScript object");
+    this.state = state;
+    
+    // deserialize big integers
+    if (state.difficulty &amp;&amp; !(state.difficulty instanceof BigInteger)) state.difficulty = BigInteger.parse(state.difficulty);
+    if (state.cumulativeDifficulty &amp;&amp; !(state.cumulativeDifficulty instanceof BigInteger)) state.cumulativeDifficulty = BigInteger.parse(state.cumulativeDifficulty);
+    if (state.reward &amp;&amp; !(state.reward instanceof BigInteger)) state.reward = BigInteger.parse(state.reward);
   }
   
   getId() {
-    return this.id;
+    return this.state.id;
   }
   
   setId(id) {
-    this.id = id;
+    this.state.id = id;
+    return this;
   }
   
   getHeight() {
-    return this.height;
+    return this.state.height;
   }
   
   setHeight(height) {
-    this.height = height;
-  }
-  
-  getMajorVersion() {
-    return this.majorVersion;
-  }
-  
-  setMajorVersion(majorVersion) {
-    this.majorVersion = majorVersion;
-  }
-  
-  getMinorVersion() {
-    return this.minorVersion;
-  }
-  
-  setMinorVersion(minorVersion) {
-    this.minorVersion = minorVersion;
-  }
-  
-  getNonce() {
-    return this.nonce;
-  }
-  
-  setNonce(nonce) {
-    this.nonce = nonce;
-  }
-  
-  getTxCount() {
-    return this.txCount;
-  }
-  
-  setTxCount(txCount) {
-    this.txCount = txCount;
-  }
-  
-  getOrphanStatus() {
-    return this.orphanStatus;
-  }
-  
-  setOrphanStatus(orphanStatus) {
-    this.orphanStatus = orphanStatus;
-  }
-  
-  getPrevId() {
-    return this.prevId;
-  }
-  
-  setPrevId(prevId) {
-    this.prevId = prevId;
-  }
-  
-  getReward() {
-    return this.reward;
-  }
-  
-  setReward(reward) {
-    this.reward = reward;
+    this.state.height = height;
+    return this;
   }
   
   getTimestamp() {
-    return this.timestamp;
+    return this.state.timestamp;
   }
   
   setTimestamp(timestamp) {
-    this.timestamp = timestamp;
+    this.state.timestamp = timestamp;
+    return this;
   }
   
-  getBlockWeight() {
-    return this.blockWeight;
+  getSize() {
+    return this.state.size;
   }
   
-  setBlockWeight(blockWeight) {
-    this.blockWeight = blockWeight;
+  setSize(size) {
+    this.state.size = size;
+    return this;
+  }
+  
+  getWeight() {
+    return this.state.weight;
+  }
+  
+  setWeight(weight) {
+    this.state.weight = weight;
+    return this;
+  }
+  
+  getLongTermWeight() {
+    return this.state.longTermWeight;
+  }
+  
+  setLongTermWeight(longTermWeight) {
+    this.state.longTermWeight = longTermWeight;
+    return this;
+  }
+  
+  getDepth() {
+    return this.state.depth;
+  }
+  
+  setDepth(depth) {
+    this.state.depth = depth;
+    return this;
+  }
+  
+  getDifficulty() {
+    return this.state.difficulty;
+  }
+  
+  setDifficulty(difficulty) {
+    this.state.difficulty = difficulty;
+    return this;
+  }
+  
+  getCumulativeDifficulty() {
+    return this.state.cumulativeDifficulty;
+  }
+  
+  setCumulativeDifficulty(cumulativeDifficulty) {
+    this.state.cumulativeDifficulty = cumulativeDifficulty;
+    return this;
+  }
+  
+  getMajorVersion() {
+    return this.state.majorVersion;
+  }
+  
+  setMajorVersion(majorVersion) {
+    this.state.majorVersion = majorVersion;
+    return this;
+  }
+  
+  getMinorVersion() {
+    return this.state.minorVersion;
+  }
+  
+  setMinorVersion(minorVersion) {
+    this.state.minorVersion = minorVersion;
+    return this;
+  }
+  
+  getNonce() {
+    return this.state.nonce;
+  }
+  
+  setNonce(nonce) {
+    this.state.nonce = nonce;
+    return this;
+  }
+  
+  getNumTxs() {
+    return this.state.numTxs;
+  }
+  
+  setNumTxs(numTxs) {
+    this.state.numTxs = numTxs;
+    return this;
+  }
+  
+  getOrphanStatus() {
+    return this.state.orphanStatus;
+  }
+  
+  setOrphanStatus(orphanStatus) {
+    this.state.orphanStatus = orphanStatus;
+    return this;
+  }
+  
+  getPrevId() {
+    return this.state.prevId;
+  }
+  
+  setPrevId(prevId) {
+    this.state.prevId = prevId;
+    return this;
+  }
+  
+  getReward() {
+    return this.state.reward;
+  }
+  
+  setReward(reward) {
+    this.state.reward = reward;
+    return this;
   }
   
   getPowHash() {
-    return this.powHash;
+    return this.state.powHash;
   }
   
   setPowHash(powHash) {
-    this.powHash = powHash;
+    this.state.powHash = powHash;
+    return this;
+  }
+  
+  copy() {
+    return new MoneroBlockHeader(this);
+  }
+  
+  toJson() {
+    let json = Object.assign({}, this.state);
+    if (this.getDifficulty()) json.difficulty = this.getDifficulty().toString();
+    if (this.getCumulativeDifficulty()) json.cumulativeDifficulty = this.getCumulativeDifficulty().toString();
+    if (this.getReward()) json.reward = this.getReward().toString();
+    return json;
+  }
+  
+  merge(header) {
+    assert(header instanceof MoneroBlockHeader);
+    if (this === header) return;
+    this.setId(MoneroUtils.reconcile(this.getId(), header.getId()));
+    this.setHeight(MoneroUtils.reconcile(this.getHeight(), header.getHeight(), {resolveMax: true}));  // height can increase
+    this.setTimestamp(MoneroUtils.reconcile(this.getTimestamp(), header.getTimestamp(), {resolveMax: true}));  // block timestamp can increase
+    this.setSize(MoneroUtils.reconcile(this.getSize(), header.getSize()));
+    this.setWeight(MoneroUtils.reconcile(this.getWeight(), header.getWeight()));
+    this.setDepth(MoneroUtils.reconcile(this.getDepth(), header.getDepth()));
+    this.setDifficulty(MoneroUtils.reconcile(this.getDifficulty(), header.getDifficulty()));
+    this.setCumulativeDifficulty(MoneroUtils.reconcile(this.getCumulativeDifficulty(), header.getCumulativeDifficulty()));
+    this.setMajorVersion(MoneroUtils.reconcile(this.getMajorVersion(), header.getMajorVersion()));
+    this.setMinorVersion(MoneroUtils.reconcile(this.getMinorVersion(), header.getMinorVersion()));
+    this.setNonce(MoneroUtils.reconcile(this.getNonce(), header.getNonce()));
+    this.setNumTxs(MoneroUtils.reconcile(this.getNumTxs(), header.getNumTxs()));
+    this.setOrphanStatus(MoneroUtils.reconcile(this.getOrphanStatus(), header.getOrphanStatus()));
+    this.setPrevId(MoneroUtils.reconcile(this.getPrevId(), header.getPrevId()));
+    this.setReward(MoneroUtils.reconcile(this.getReward(), header.getReward()));
+    this.setPowHash(MoneroUtils.reconcile(this.getPowHash(), header.getPowHash()));
+    return this;
+  }
+  
+  toString(indent = 0) {
+    let str = "";
+    str += MoneroUtils.kvLine("Id", this.getId(), indent);
+    str += MoneroUtils.kvLine("Height", this.getHeight(), indent);
+    str += MoneroUtils.kvLine("Timestamp", this.getNumTxs(), indent);
+    str += MoneroUtils.kvLine("Size", this.getSize(), indent);
+    str += MoneroUtils.kvLine("Weight", this.getWeight(), indent);
+    str += MoneroUtils.kvLine("Depth", this.getDepth(), indent);
+    str += MoneroUtils.kvLine("Difficulty", this.getDifficulty(), indent);
+    str += MoneroUtils.kvLine("Cumulative difficulty", this.getCumulativeDifficulty(), indent);
+    str += MoneroUtils.kvLine("Major version", this.getMajorVersion(), indent);
+    str += MoneroUtils.kvLine("Minor version", this.getMinorVersion(), indent);
+    str += MoneroUtils.kvLine("Nonce", this.getNonce(), indent);
+    str += MoneroUtils.kvLine("Num txs", this.getNumTxs(), indent);
+    str += MoneroUtils.kvLine("Orphan status", this.getOrphanStatus(), indent);
+    str += MoneroUtils.kvLine("Prev id", this.getPrevId(), indent);
+    str += MoneroUtils.kvLine("Reward", this.getReward(), indent);
+    str += MoneroUtils.kvLine("Pow hash", this.getPowHash(), indent);
+    return str[str.length - 1] === "\n" ? str.slice(0, str.length - 1) : str  // strip last newline
   }
 }
 
@@ -170,13 +273,13 @@ module.exports = MoneroBlockHeader;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroCoinbaseTxSum.html">MoneroCoinbaseTxSum</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroImportKeyImagesResult.html">MoneroImportKeyImagesResult</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroSendConfig.html">MoneroSendConfig</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferFilter.html">MoneroTransferFilter</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxFilter.html">MoneroTxFilter</a></li><li><a href="MoneroTxPool.html">MoneroTxPool</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroVoutFilter.html">MoneroVoutFilter</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletOutput.html">MoneroWalletOutput</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletTx.html">MoneroWalletTx</a></li></ul><h3>Global</h3><ul><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BooleanSet.html">BooleanSet</a></li><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroCoinbaseTxSum.html">MoneroCoinbaseTxSum</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroRpc.html">MoneroRpc</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendConfig.html">MoneroSendConfig</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferFilter.html">MoneroTransferFilter</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="global.html#MoneroTxFilter">MoneroTxFilter</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroVoutFilter.html">MoneroVoutFilter</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletOutput.html">MoneroWalletOutput</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletTx.html">MoneroWalletTx</a></li></ul><h3>Global</h3><ul><li><a href="global.html#assert">assert</a></li><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Feb 01 2019 12:27:31 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Feb 25 2019 14:25:56 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>
