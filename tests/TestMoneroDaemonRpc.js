@@ -180,7 +180,7 @@ class TestMoneroDaemonRpc {
       it("Can get blocks by height which includes transactions (binary)", async function() {
         
         // set number of blocks to test
-        const numBlocks = 100;
+        const numBlocks = 200;
         
         // select random heights  // TODO: this is horribly inefficient way of computing last 100 blocks if not shuffling
         let currentHeight = await daemon.getHeight();
