@@ -106,7 +106,7 @@ class MoneroDaemonConnection {
     return this.numReceives;
   }
 
-  getNumReceives(numReceives) {
+  setNumReceives(numReceives) {
     this.numReceives = numReceives;
     return this;
   }
