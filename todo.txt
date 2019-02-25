@@ -1,8 +1,5 @@
-test testnet
 hasOutgoingTransfer, hasIncomingTransfers -> isOutgoing, isIncoming
-regen api documentation
 class diagram query txs, transfers, vouts
-announce
 monero daemon connection span model
 rct sig prunable model
 sweepDust()
