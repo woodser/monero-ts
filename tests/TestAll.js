@@ -13,7 +13,7 @@ new TestMoneroDaemonRpc().runTests({
 // test wallet rpc
 new TestMoneroWalletRpc().runTests({
   liteMode: false, // skips some lengthy tests
-  testNonSends: false,
+  testNonSends: true,
   testSends: true,
   testResets: false,
   testNotifications: true
