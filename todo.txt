@@ -1,3 +1,4 @@
+don't differntiate in spec uint vs long, BigInteger?
 hasOutgoingTransfer, hasIncomingTransfers -> isOutgoing, isIncoming
 class diagram query txs, transfers, vouts
 monero daemon connection span model
