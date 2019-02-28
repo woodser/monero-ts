@@ -4,7 +4,7 @@ const MoneroTransfer = require("../model/MoneroTransfer");
 const MoneroDestination = require("../model/MoneroDestination");
 
 /**
- * Common configuration for sending and sweeping.
+ * Common configuration for sending, sweeping, and creation of payment URIs.
  */
 class MoneroSendConfig {
   

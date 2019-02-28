@@ -308,7 +308,7 @@ class MoneroDaemon {
   }
   
   /**
-   * Flush transactions from the memory pool.
+   * Flush transactions from the tx pool.
    * 
    * @param {(string|string[])} ids are specific transactions to flush (defaults to all)
    */
@@ -496,7 +496,7 @@ class MoneroDaemon {
   /**
    * Limit number of outgoing peers.
    * 
-   * @param {int} limit is the maximum number of peers outgoing peers
+   * @param {int} limit is the maximum number of outgoing peers
    */
   async setOutgoingPeerLimit(limit) {
     throw new Error("Subclass must implement");
@@ -505,7 +505,7 @@ class MoneroDaemon {
   /**
    * Limit number of incoming peers.
    * 
-   * @param {int} limit is the maximum number of peers incoming peers
+   * @param {int} limit is the maximum number of incoming peers
    */
   async setIncomingPeerLimit(limit) {
     throw new Error("Subclass must implement");
@@ -598,7 +598,7 @@ class MoneroDaemon {
    * Download an update.
    * 
    * @param {string} path is the path to download the update (optional)
-   * @return {MoneroDaemonDownloadUpdateResult} is the result
+   * @return {MoneroDaemonUpdateDownloadResult} is the result
    */
   async downloadUpdate(path) {
     throw new Error("Subclass must implement");

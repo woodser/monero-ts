@@ -1,3 +1,4 @@
+MoneroSyncResult received_money -> recieved_amount for consistency
 don't differntiate in spec uint vs long, BigInteger?
 hasOutgoingTransfer, hasIncomingTransfers -> isOutgoing, isIncoming
 class diagram query txs, transfers, vouts

@@ -176,7 +176,7 @@ class MoneroWallet {
    * Get subaddresses.
    * 
    * @param {int} accountIdx specifies the account to get subaddresses within
-   * @param {(int|int[])} subaddressIndices specifies subaddresses within the account (optional)
+   * @param {(int|int[])} subaddressIndices are specific subaddresses to get (optional)
    * @return {MoneroSubaddress[]} are the retrieved subaddresses
    */
   async getSubaddresses(accountIdx, subaddressIndices) {
@@ -465,7 +465,7 @@ class MoneroWallet {
   /**
    * Sweep unlocked funds.
    * 
-   * @param {(MoneroSendConfig|object)} is the sweep configuration
+   * @param {(MoneroSendConfig|object)} config is the sweep configuration
    * @return {MoneroWalletTx[]} are the resulting transactions
    */
   async sweepUnlocked(config) {
@@ -485,7 +485,7 @@ class MoneroWallet {
   /**
    * Sweep an output with a given key image.
    * 
-   * @param {(MoneroSendConfig|string)} is a send configuration or destination address
+   * @param {(MoneroSendConfig|string)} configOrAddress is a send configuration or destination address
    * @param {string} keyImage is the key image hex of the output to sweep
    * @param {int} priority sets a transaction priority as an integer between 0 and 3 (see {MoneroSendPriority})
    * @param {int} mixin is the number of outputs from the blockchain to mix with (default 11)

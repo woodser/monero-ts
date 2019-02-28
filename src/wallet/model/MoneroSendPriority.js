@@ -1,5 +1,5 @@
 /**
- * Enumerate send priorities.
+ * Enumerates send priorities.
  */
 MoneroSendPriority = {
     DEFAULT: 0,

@@ -13,15 +13,7 @@ const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/
 class TestUtils {
   
   /**
-   * Get a local wallet singleton instance shared among tests.
-   */
-  static getWalletLocal() {
-    if (this.walletLocal === undefined) this.walletLocal = new MoneroWalletLocal(TestUtils.WALLET_LOCAL_CONFIG);
-    return this.walletLocal;
-  }
-  
-  /**
-   * Get a daemon RPC singletoninstance shared among tests.
+   * Get a daemon RPC singleton instance shared among tests.
    */
   static getDaemonRpc() {
     if (this.daemonRpc === undefined) this.daemonRpc = new MoneroDaemonRpc(TestUtils.DAEMON_RPC_CONFIG);
@@ -65,6 +57,14 @@ class TestUtils {
       assert.equal(e.getRpcCode(), -38);  // TODO: (monero-wallet-rpc) sometimes getting -38: no connection to daemon on rescan call (after above calls) which causes mocha "before all" hook problem
       console.log("WARNING: received -38: no connection to daemon on rescan call after create/open, ignoring...");
     }
+  }
+  
+  /**
+   * Get a local wallet singleton instance shared among tests.
+   */
+  static getWalletLocal() {
+    if (this.walletLocal === undefined) this.walletLocal = new MoneroWalletLocal(TestUtils.WALLET_LOCAL_CONFIG);
+    return this.walletLocal;
   }
   
   static testUnsignedBigInteger(num, nonZero) {
