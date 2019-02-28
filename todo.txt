@@ -1,4 +1,6 @@
-MoneroSyncResult received_money -> recieved_amount for consistency
+daemon.isTrusted() -> daemon.getIsTrusted() for consistency
+wallet.close() is common?
+MoneroSyncResult received_money -> received_amount for consistency
 don't differntiate in spec uint vs long, BigInteger?
 hasOutgoingTransfer, hasIncomingTransfers -> isOutgoing, isIncoming
 class diagram query txs, transfers, vouts
