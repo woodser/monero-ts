@@ -1130,10 +1130,6 @@ function testCoinbaseTx(coinbaseTx) {
 // TODO: how to test output indices? comes back with /get_transactions, maybe others
 function testTx(tx, config) {
   
-  // TODO: remove this
-  assert(config.isFull === undefined);
-  assert(config.hasJson === undefined);
-  
   // check inputs
   assert(tx);
   assert.equal(typeof config, "object");
@@ -1196,7 +1192,7 @@ function testTx(tx, config) {
     assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedId(), undefined);
     assert(tx.getReceivedTimestamp() > 0);
-    tx.getNumEstimatedBlocksUntilConfirmed() > 0
+    assert(tx.getNumEstimatedBlocksUntilConfirmed() > 0);
   } else {
     assert.equal(tx.getNumEstimatedBlocksUntilConfirmed(), undefined);
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
@@ -1205,13 +1201,13 @@ function testTx(tx, config) {
   // test coinbase tx
   if (tx.getIsCoinbase()) {
     assert.equal(tx.getFee().compare(new BigInteger(0)), 0);
-    assert(tx.getIncomingTransfers().length > 0);
+    assert(tx.getIncomingTransfers().length > 0); // TODO: MoneroTx does not have getIncomingTransfers() but this doesn't fail?
     assert.equal(tx.getVins(), undefined);
   }
   
   // test failed  // TODO: what else to test associated with failed
   if (tx.getIsFailed()) {
-    assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
+    assert(tx.getOutgoingTransfer() instanceof MoneroTransfer); // TODO: MoneroTx does not have getOutgoingTransfer() but this doesn't fail?
     assert(tx.getReceivedTimestamp() > 0)
   } else {
     if (tx.getIsRelayed() === undefined) assert.equal(tx.getDoNotRelay(), undefined); // TODO monero-daemon-rpc: add relayed to get_transactions
