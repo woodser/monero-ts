@@ -1,3 +1,4 @@
+send priority has no default, must pick one
 daemon.isTrusted() -> daemon.getIsTrusted() for consistency
 wallet.close() is common?
 MoneroSyncResult received_money -> received_amount for consistency
