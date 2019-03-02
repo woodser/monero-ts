@@ -60,7 +60,7 @@ class MoneroDaemon {
    * Get a block template for mining a new block.
    * 
    * @param {string} walletAddress is the address of the wallet to receive coinbase transactions if block is successfully mined
-   * @param {int} reserveSize is the reserve size
+   * @param {int} reserveSize is the reserve size (optional)
    * @return {MoneroBlockTemplate} is a block template for mining a new block
    */
   async getBlockTemplate(walletAddress, reserveSize) {

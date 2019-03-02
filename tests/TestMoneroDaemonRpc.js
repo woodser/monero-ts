@@ -276,7 +276,7 @@ class TestMoneroDaemonRpc {
         // fetch invalid id
         try {
           await daemon.getTx("invalid tx id");
-          throw new Error("fail")
+          throw new Error("fail");
         } catch (e) {
           assert.equal("Invalid transaction id", e.message);
         }
@@ -305,7 +305,7 @@ class TestMoneroDaemonRpc {
         txIds.push("invalid tx id");
         try {
           await daemon.getTxs(txIds);
-          throw new Error("fail")
+          throw new Error("fail");
         } catch (e) {
           assert.equal("Invalid transaction id", e.message);
         }
@@ -357,7 +357,7 @@ class TestMoneroDaemonRpc {
         // fetch invalid id
         try {
           await daemon.getTxHex("invalid tx id");
-          throw new Error("fail")
+          throw new Error("fail");
         } catch (e) {
           assert.equal("Invalid transaction id", e.message);
         }
@@ -386,7 +386,7 @@ class TestMoneroDaemonRpc {
         txIds.push("invalid tx id");
         try {
           await daemon.getTxHexes(txIds);
-          throw new Error("fail")
+          throw new Error("fail");
         } catch (e) {
           assert.equal("Invalid transaction id", e.message);
         }
@@ -570,7 +570,7 @@ class TestMoneroDaemonRpc {
         throw new Error("Not implemented"); // get_outs.bin
       });
       
-      it("Can get an output histogram", async function() {
+      it("Can get an output histogram (binary)", async function() {
         let entries = await daemon.getOutputHistogram();
         assert(Array.isArray(entries));
         assert(entries.length > 0);
@@ -837,6 +837,7 @@ class TestMoneroDaemonRpc {
         
         // get template to mine on
         let template = await daemon.getBlockTemplate(TestUtils.TEST_ADDRESS);
+        console.log(template);
         
         // TODO monero rpc: way to get mining nonce when found in order to submit?
         
@@ -1060,8 +1061,8 @@ function testBlockHeader(header, isFull) {
   assert(header.getPowHash() === undefined);  // never seen defined
   assert(!isFull ? undefined === header.getSize() : header.getSize());
   assert(!isFull ? undefined === header.getDepth() : header.getDepth() >= 0);
-  assert(!isFull ? undefined === header.getDifficulty() : header.getDifficulty());
-  assert(!isFull ? undefined === header.getCumulativeDifficulty() : header.getCumulativeDifficulty());
+  assert(!isFull ? undefined === header.getDifficulty() : header.getDifficulty().toJSValue() > 0);
+  assert(!isFull ? undefined === header.getCumulativeDifficulty() : header.getCumulativeDifficulty().toJSValue() > 0);
   assert(!isFull ? undefined === header.getId() : header.getId());
   assert(!isFull ? undefined === header.getNumTxs() : header.getNumTxs() >= 0);
   assert(!isFull ? undefined === header.getOrphanStatus() : typeof header.getOrphanStatus() === "boolean");
@@ -1376,10 +1377,8 @@ function testMoneroBan(ban) {
 }
 
 function testCoinbaseTxSum(txSum) {
-  TestUtils.testUnsignedBigInteger(txSum.getEmissionSum());
-  assert(txSum.getEmissionSum().toJSValue() > 0);
-  TestUtils.testUnsignedBigInteger(txSum.getFeeSum());
-  assert(txSum.getFeeSum().toJSValue() > 0);
+  TestUtils.testUnsignedBigInteger(txSum.getEmissionSum(), true);
+  TestUtils.testUnsignedBigInteger(txSum.getFeeSum(), true);
 }
 
 function testOutputHistogramEntry(entry) {
