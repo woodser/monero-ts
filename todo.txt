@@ -1,3 +1,8 @@
+collapse MoneroWalletTx into MoneroTx and move into monero.common
+collapse MoneroWalletOutput into MoneroOutput and move into monero.common
+sendSingle() : MoneroTx, send() : List<MoneroTx> ?
+MoneroTxWallet, MoneroOutputWallet?
+base MoneroException has code and message
 send priority has no default, must pick one
 daemon.isTrusted() -> daemon.getIsTrusted() for consistency
 wallet.close() is common?
@@ -7,6 +12,7 @@ hasOutgoingTransfer, hasIncomingTransfers -> isOutgoing, isIncoming
 class diagram query txs, transfers, vouts
 monero daemon connection span model
 rct sig prunable model
+consider how api should generate subaddresses client side
 sweepDust()
 
 multisig
