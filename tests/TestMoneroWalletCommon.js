@@ -439,7 +439,11 @@ class TestMoneroWalletCommon {
         
         // get transactions with an outgoing transfer
         txs = await testGetTxs(wallet, {hasOutgoingTransfer: true}, true);
-        for (let tx of txs) assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
+        for (let tx of txs) {
+          assert(tx.getIsOutgoing()); // TODO: implement this
+          assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
+          testTransfer(tx.getOutgoingTransfer());
+        }
         
         // get transactions without an outgoing transfer
         txs = await testGetTxs(wallet, {hasOutgoingTransfer: false}, true);
@@ -2242,7 +2246,7 @@ async function testGetVouts(wallet, config, isExpected) {
  * @param config configures the transactions to retrieve
  * @param minTxs specifies the minimum number of transactions (undefined for no minimum)
  * @param maxTxs specifies the maximum number of transactions (undefined for all filtered transactions)
- * @return {MoneroTx[]} are the random transactions
+ * @return {MoneroWalletTx[]} are the random transactions
  */
 async function getRandomTransactions(wallet, config, minTxs, maxTxs) {
   let txs = await wallet.getTxs(config);
@@ -2272,8 +2276,7 @@ async function testWalletTx(tx, testConfig) {
     console.log(tx);
   }
   assert(tx instanceof MoneroWalletTx);
-  testConfig = Object.assign({}, testConfig);
-  if (testConfig.wallet) assert (testConfig.wallet instanceof MoneroWallet);
+  if (testConfig.wallet) assert(testConfig.wallet instanceof MoneroWallet);
   assert(testConfig.hasDestinations == undefined || typeof config.hasDestinations === "boolean");
   
   // test common field types
@@ -2308,7 +2311,7 @@ async function testWalletTx(tx, testConfig) {
     // these should be initialized unless a response from sending
     if (!testConfig.sendConfig) {
       assert(tx.getReceivedTimestamp() > 0);
-      tx.getNumEstimatedBlocksUntilConfirmed() > 0
+      assertTrue(tx.getNumEstimatedBlocksUntilConfirmed() > 0);
     }
   } else {
     assert.equal(tx.getNumEstimatedBlocksUntilConfirmed(), undefined);
@@ -2347,7 +2350,7 @@ async function testWalletTx(tx, testConfig) {
   
   // test outgoing transfer per configuration
   if (testConfig.hasOutgoingTransfer === false) assert(tx.getOutgoingTransfer() === undefined);
-  if (testConfig.hasDestinations) assert(tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getDestionations().length > 0);
+  if (testConfig.hasDestinations) assert(tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getDestinations().length > 0);  // TODO: this was typo with getDestionations so is this actually being tested?
   
   // test outgoing transfer
   if (tx.getOutgoingTransfer()) {
@@ -2379,7 +2382,7 @@ async function testWalletTx(tx, testConfig) {
       assert(transfer.getAccountIndex() >= 0);
       assert(transfer.getSubaddressIndex() >= 0);
       transferSum = transferSum.add(transfer.getAmount());
-      if (testConfig.wallet) assert.equal(transfer.getSubaddressIndex()), transfer.getAddress(), await testConfig.wallet.getAddress(transfer.getAccountIndex());
+      if (testConfig.wallet) assert.equal(transfer.getSubaddressIndex(), transfer.getAddress(), await testConfig.wallet.getAddress(transfer.getAccountIndex()));
       
       // TODO special case: transfer amount of 0
     }
@@ -2488,13 +2491,13 @@ async function testWalletTxCopy(tx, testConfig) {
     assert(tx.getOutgoingTransfer() !== copy.getOutgoingTransfer());
     assert(tx.getOutgoingTransfer().getTx() !== copy.getOutgoingTransfer().getTx());
     //assert(tx.getOutgoingTransfer().getAmount() !== copy.getOutgoingTransfer().getAmount());  // TODO: BI 0 === BI 0?, testing this instead:
-    if (tx.getOutgoingTransfer().getAmount() == copy.getOutgoingTransfer().getAmount()) assert(tx.getOutgoingTransfer().getAmount() === new BigInteger(0));
+    if (tx.getOutgoingTransfer().getAmount() == copy.getOutgoingTransfer().getAmount()) assert(tx.getOutgoingTransfer().getAmount().toJSValue() === 0);
     if (tx.getOutgoingTransfer().getDestinations()) {
       assert(tx.getOutgoingTransfer().getDestinations() !== copy.getOutgoingTransfer().getDestinations());
       for (let i = 0; i < tx.getOutgoingTransfer().getDestinations().length; i++) {
         assert.deepEqual(copy.getOutgoingTransfer().getDestinations()[i], tx.getOutgoingTransfer().getDestinations()[i]);
         assert(tx.getOutgoingTransfer().getDestinations()[i] !== copy.getOutgoingTransfer().getDestinations()[i]);
-        if (tx.getOutgoingTransfer().getDestinations()[i].getAmount() == copy.getOutgoingTransfer().getDestinations()[i].getAmount()) assert(tx.getOutgoingTransfer().getDestinations()[i].getAmount() === new BigInteger(0));
+        if (tx.getOutgoingTransfer().getDestinations()[i].getAmount() == copy.getOutgoingTransfer().getDestinations()[i].getAmount()) assert(tx.getOutgoingTransfer().getDestinations()[i].getAmount().toJSValue() === 0);
       }
     }
   }
@@ -2502,14 +2505,14 @@ async function testWalletTxCopy(tx, testConfig) {
     for (let i = 0; i < tx.getIncomingTransfers().length; i++) {
       assert.deepEqual(copy.getIncomingTransfers()[i], tx.getIncomingTransfers()[i]);
       assert(tx.getIncomingTransfers()[i] !== copy.getIncomingTransfers()[i]);
-      if (tx.getIncomingTransfers()[i].getAmount() == copy.getIncomingTransfers()[i].getAmount()) assert(tx.getIncomingTransfers()[i].getAmount() === new BigInteger(0));
+      if (tx.getIncomingTransfers()[i].getAmount() == copy.getIncomingTransfers()[i].getAmount()) assert(tx.getIncomingTransfers()[i].getAmount().toJSValue() === 0);
     }
   }
   if (tx.getVouts()) {
     for (let i = 0; i < tx.getVouts().length; i++) {
       assert.deepEqual(copy.getVouts()[i], tx.getVouts()[i]);
       assert(tx.getVouts()[i] !== copy.getVouts()[i]);
-      if (tx.getVouts()[i].getAmount() == copy.getVouts()[i].getAmount()) assert(tx.getVouts()[i].getAmount() === new BigInteger(0));
+      if (tx.getVouts()[i].getAmount() == copy.getVouts()[i].getAmount()) assert(tx.getVouts()[i].getAmount().toJSValue() === 0);
     }
   }
   
