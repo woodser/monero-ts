@@ -810,7 +810,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         }
       }
       else if (key === "last_failed_id_hash") {
-        if (val === MoneroDaemonRpc.DEFAULT_ID) MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed);
+        if (val === MoneroDaemonRpc.DEFAULT_ID) MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed, false);
         else {
           MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed, true);
           MoneroUtils.safeSet(tx, tx.getLastFailedId, tx.setLastFailedId, val);
@@ -885,8 +885,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "height") template.setHeight(val);
       else if (key === "prev_hash") template.setPrevId(val);
       else if (key === "reserved_offset") template.setReservedOffset(val);
-      else if (key === "status") {}  // set elsewhere
-      else if (key === "untrusted") {}  // set elsewhere
+      else if (key === "status") {}  // handled elsewhere
+      else if (key === "untrusted") {}  // handled elsewhere
       else console.log("WARNING: ignoring unexpected field in block template: " + key + ": " + val);
     }
     return template;
@@ -916,13 +916,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "outgoing_connections_count") info.setNumOutgoingConnections(val);
       else if (key === "rpc_connections_count") info.setNumRpcConnections(val);
       else if (key === "start_time") info.setStartTimestamp(val);
-      else if (key === "status") {}  // set elsewhere
+      else if (key === "status") {}  // handled elsewhere
       else if (key === "target") info.setTarget(val);
       else if (key === "target_height") info.setTargetHeight(val);
       else if (key === "top_block_hash") info.setTopBlockId(val);
       else if (key === "tx_count") info.setNumTxs(val);
       else if (key === "tx_pool_size") info.setNumTxsPool(val);
-      else if (key === "untrusted") {} // set elsewhere
+      else if (key === "untrusted") {} // handled elsewhere
       else if (key === "was_bootstrap_ever_used") info.setWasBootstrapEverUsed(val);
       else if (key === "white_peerlist_size") info.setNumOnlinePeers(val);
       else if (key === "update_available") info.setUpdateAvailable(val);
@@ -958,7 +958,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         for (let rpcSpan of rpcSpans) {
           syncInfo.getSpans().push(MoneroDaemonRpc._buildConnetionSpan(rpcSpan));
         }
-      } else if (key === "status") {}   // set elsewhere
+      } else if (key === "status") {}   // handled elsewhere
       else if (key === "target_height") syncInfo.setTargetHeight(new BigInteger(val));
       else if (key === "next_needed_pruning_seed") syncInfo.setNextNeededPruningSeed(val);
       else if (key === "overview") {
@@ -977,8 +977,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
       if (key === "earliest_height") info.setEarliestHeight(val);
       else if (key === "enabled") info.setIsEnabled(val);
       else if (key === "state") info.setState(val);
-      else if (key === "status") {}     // set elsewhere
-      else if (key === "untrusted") {}  // set elsewhere
+      else if (key === "status") {}     // handled elsewhere
+      else if (key === "untrusted") {}  // handled elsewhere
       else if (key === "threshold") info.setThreshold(val);
       else if (key === "version") info.setVersion(val);
       else if (key === "votes") info.setNumVotes(val);

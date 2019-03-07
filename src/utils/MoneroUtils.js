@@ -18,6 +18,8 @@ class MoneroUtils {
   /**
    * Sets the given value ensuring a previous value is not overwritten.
    * 
+   * TODO: remove for portability because function passing not supported in other languages, use reconcile only
+   * 
    * @param obj is the object to invoke the getter and setter on
    * @param getFn gets the current value
    * @param setFn sets the current value
@@ -36,6 +38,8 @@ class MoneroUtils {
   
   /**
    * Reconciles two values.
+   * 
+   * TODO: remove custom error message
    * 
    * @param val1 is a value to reconcile
    * @param val2 is a value to reconcile

@@ -1,3 +1,6 @@
+block extends blockheader, cool
+MoneroRpc.js should return whole response to be consistent and in case needed?
+buildBlockHeader(), etc -> convertBlockHeader()
 commonTxSets
 MoneroTxWallet -> MoneroTxConfig -> MoneroTxTestConfig
 MoneroTxConfig setIncludeVouts(), getIncludeVouts()

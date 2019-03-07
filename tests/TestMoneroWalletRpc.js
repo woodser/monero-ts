@@ -78,14 +78,6 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         }
       });
 
-      it("Can rescan spent", async function() {
-        await wallet.rescanSpent();
-      });
-      
-      it("Can save the wallet file", async function() {
-        await wallet.save();
-      });
-      
       it("Can tag accounts and query accounts by tag", async function() {
         
         // test that non-existing tag returns no accounts
@@ -223,9 +215,17 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         assert.equal(entries.length, numEntriesStart);
       });
       
-      // disabled so wallet is not actually stopped
-//      it("Can be stopped", async function() {
-//        await wallet.stop();
+      it("Can rescan spent", async function() {
+        await wallet.rescanSpent();
+      });
+      
+      it("Can save the wallet file", async function() {
+        await wallet.save();
+      });
+      
+//      // disabled so wallet is not actually closed
+//      it("Can close the currently open wallet", async function() {
+//        await wallet.close();
 //      });
     })
   }
