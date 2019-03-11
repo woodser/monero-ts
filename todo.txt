@@ -1,5 +1,6 @@
 block extends blockheader, cool
 MoneroRpc.js should return whole response to be consistent and in case needed?
+model rct_signatures and rct_prunable
 buildBlockHeader(), etc -> convertBlockHeader()
 commonTxSets
 MoneroTxWallet -> MoneroTxConfig -> MoneroTxTestConfig
