@@ -141,6 +141,7 @@ class MoneroBlock {
       str += MoneroUtils.kvLine("Coinbase tx", "", indent);
       str += this.getCoinbaseTx().toString(indent + 1) + "\n";
     }
+    str += MoneroUtils.kvLine("Hex", this.getHex(), indent);
     if (this.getTxs()) {
       str += MoneroUtils.kvLine("Txs", "", indent);
       for (let tx of this.getTxs()) {
