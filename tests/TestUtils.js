@@ -89,8 +89,8 @@ class TestUtils {
 TestUtils.MAX_FEE = new BigInteger(7500000).multiply(new BigInteger(10000));
 
 // default keypair to test
-TestUtils.TEST_MNEMONIC = "cage moon giant fall library framed adrenalin yawning ledge voice tell jingle gusts kangaroo paddles boldly hydrogen ripped dangerous gleeful jeers cell sequence spud giant";
-TestUtils.TEST_ADDRESS = "9ygBCoxDMKBW9Tasxcsk29cLB54QsKkYb2m3Sne9c74ziUwepWQiXfKBoF42K9Xd38VBQWswF5nuf2QcRdJd2Dn69tyiTi2";
+TestUtils.TEST_MNEMONIC = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
+TestUtils.TEST_ADDRESS = "59aZULsUF3YNSKGiHz4JPMfjGYkm1S4TB3sPsTr3j85HhXb9crZqGa7jJ8cA87U48kT5wzi2VzGZnN2PKojEwoyaHqtpeZh";
 
 //wallet rpc test wallet filenames and passwords
 TestUtils.WALLET_RPC_NAME_1 = "test_wallet_1";
@@ -100,7 +100,7 @@ TestUtils.WALLET_RPC_PW_2 = "supersecretpassword123"
 
 // wallet RPC config
 TestUtils.WALLET_RPC_CONFIG = {
-  uri: "http://localhost:28083",
+  uri: "http://localhost:38083",
   user: "rpc_user",
   pass: "abc123",
   maxRequestsPerSecond: 500
@@ -108,7 +108,7 @@ TestUtils.WALLET_RPC_CONFIG = {
 
 // daemon RPC config
 TestUtils.DAEMON_RPC_CONFIG = {
-  uri: "http://localhost:28081",
+  uri: "http://localhost:38081",
   user: "superuser",
   pass: "abctesting123",
   maxRequestsPerSecond: 500
