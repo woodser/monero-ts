@@ -1,3 +1,4 @@
+daemon rpc update command is returning blank fields and console says `net.ssl    contrib/epee/src/net_ssl.cpp:297    handshake failed, connection dropped: no shared cipher`
 block extends blockheader, cool
 MoneroRpc.js should return whole response to be consistent and in case needed?
 buildBlockHeader(), etc -> convertBlockHeader()

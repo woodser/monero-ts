@@ -229,32 +229,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getTxHexes(txIds, prune) {
     await this._initOneTime();
-    
-    // validate input
-    assert(Array.isArray(txIds) && txIds.length > 0, "Must provide an array of transaction ids");
-    assert(prune === undefined || typeof prune === "boolean", "Prune must be a boolean or undefined");
-    
-    // fetch transactions
-    let resp = await this.config.rpc.sendPathRequest("get_transactions", {
-      txs_hashes: txIds,
-      decode_as_json: false,
-      prune: prune
-    });
-    try {
-      MoneroDaemonRpc._checkResponseStatus(resp);
-    } catch (e) {
-      if (e.message.indexOf("Failed to parse hex representation of transaction hash") >= 0) throw new Error("Invalid transaction id");
-      throw e;
-    }
-
-    // collect hexes which may be pruned
     let hexes = [];
-    if (resp.txs) {
-      assert.equal(resp.txs.length, txIds.length);
-      for (let rpcTx of resp.txs) {
-        hexes.push(rpcTx.as_hex);
-      }
-    }
+    for (let tx of await this.getTxs(txIds, prune)) hexes.push(prune ? tx.getPrunedHex() : tx.getFullHex());
     return hexes;
   }
   
@@ -602,6 +578,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async checkForUpdate() {
     let resp = await this.config.rpc.sendPathRequest("update", {command: "check"});
     MoneroDaemonRpc._checkResponseStatus(resp);
+    console.log(resp);
     return MoneroDaemonRpc._buildUpdateCheckResult(resp);
   }
   
@@ -793,7 +770,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "rctsig_prunable") MoneroUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
       else if (key === "unlock_time") MoneroUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, val);
       else if (key === "as_json" || key === "tx_json") { }  // handled last so tx is as initialized as possible
-      else if (key === "as_hex" || key === "tx_blob") MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, val ? val : undefined);
+      else if (key === "as_hex" || key === "tx_blob") MoneroUtils.safeSet(tx, tx.getFullHex, tx.setFullHex, val ? val : undefined);
       else if (key === "blob_size") MoneroUtils.safeSet(tx, tx.getSize, tx.setSize, val);
       else if (key === "weight") MoneroUtils.safeSet(tx, tx.getWeight, tx.setWeight, val);
       else if (key === "fee") MoneroUtils.safeSet(tx, tx.getFee, tx.setFee, new BigInteger(val));
@@ -820,6 +797,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "max_used_block_id_hash") MoneroUtils.safeSet(tx, tx.getMaxUsedBlockId, tx.setMaxUsedBlockId, val);
       else if (key === "prunable_hash") MoneroUtils.safeSet(tx, tx.getPrunableHash, tx.setPrunableHash, val ? val : undefined);
       else if (key === "prunable_as_hex") MoneroUtils.safeSet(tx, tx.getPrunableHex, tx.setPrunableHex, val ? val : undefined);
+      else if (key === "pruned_as_hex") MoneroUtils.safeSet(tx, tx.getPrunedHex, tx.setPrunedHex, val ? val : undefined);
       else console.log("WARNING: ignoring unexpected field in rpc tx: " + key + ": " + val);
     }
     
@@ -1076,6 +1054,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "ip") {} // host used instead which is consistently a string
       else if (key === "last_seen") peer.setLastSeenTimestamp(val);
       else if (key === "port") peer.setPort(val);
+      else if (key === "rpc_port") peer.setRpcPort(val);
       else if (key === "pruning_seed") peer.setPruningSeed(val);
       else console.log("WARNING: ignoring unexpected field in rpc peer: " + key + ": " + val);
     }
@@ -1104,6 +1083,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "localhost") connection.setIsLocalHost(val);
       else if (key === "peer_id") peer.setId(val);
       else if (key === "port") peer.setPort(val);
+      else if (key === "rpc_port") peer.setRpcPort(val);
       else if (key === "recv_count") connection.setNumReceives(val);
       else if (key === "recv_idle_time") connection.setReceiveIdleTime(val);
       else if (key === "send_count") connection.setNumSends(val);

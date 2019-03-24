@@ -2361,7 +2361,7 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(tx.getOutgoingAmount(), undefined);
     assert.equal(tx.getOutgoingTransfer(), undefined);
     assert.equal(tx.getMixin(), undefined);
-    assert.equal(tx.getHex(), undefined);
+    assert.equal(tx.getFullHex(), undefined);
     assert.equal(tx.getMetadata(), undefined);
     assert.equal(tx.getKey(), undefined);
   }
@@ -2405,8 +2405,8 @@ async function testWalletTx(tx, testConfig) {
     assert.equal(tx.getBlock(), undefined);
     if (sendConfig.getCanSplit()) assert.equal(tx.getKey(), undefined); // TODO monero-wallet-rpc: key only known on `transfer` response
     else assert(tx.getKey().length > 0);
-    assert.equal(typeof tx.getHex(), "string");
-    assert(tx.getHex().length > 0);
+    assert.equal(typeof tx.getFullHex(), "string");
+    assert(tx.getFullHex().length > 0);
     assert(tx.getMetadata());
     assert.equal(tx.getReceivedTimestamp(), undefined);
     

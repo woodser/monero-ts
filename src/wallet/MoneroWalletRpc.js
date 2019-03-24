@@ -1089,7 +1089,7 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "type") { } // type already handled
       else if (key === "tx_size") tx.setSize(val);
       else if (key === "unlock_time") tx.setUnlockTime(val);
-      else if (key === "tx_blob") tx.setHex(val);
+      else if (key === "tx_blob") tx.setFullHex(val);
       else if (key === "tx_metadata") tx.setMetadata(val);
       else if (key === "double_spend_seen") tx.setIsDoubleSpend(val);
       else if (key === "block_height" || key === "height") {
@@ -1112,7 +1112,7 @@ class MoneroWalletRpc extends MoneroWallet {
       }
       else if (key === "suggested_confirmations_threshold") {
         if (tx.getInTxPool()) tx.setNumEstimatedBlocksUntilConfirmed(val);
-        else tx.setNumEstimatedBlocksUntilConfirmed(undefined)
+        else tx.setNumEstimatedBlocksUntilConfirmed(undefined);
       }
       else if (key === "amount") {
         if (transfer === undefined) transfer = new MoneroTransfer({tx: tx});

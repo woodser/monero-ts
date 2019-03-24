@@ -216,12 +216,12 @@ class MoneroTx {
    * 
    * @return {string} is full transaction hex
    */
-  getHex() {
-    return this.state.hex;
+  getFullHex() {
+    return this.state.fullHex;
   }
   
-  setHex(hex) {
-    this.state.hex = hex;
+  setFullHex(fullHex) {
+    this.state.fullHex = fullHex;
     return this;
   }
   
@@ -454,7 +454,7 @@ class MoneroTx {
     this.setIsRelayed(MoneroUtils.reconcile(this.getIsRelayed(), tx.getIsRelayed(), {resolveTrue: true}));      // tx can become relayed
     this.setIsDoubleSpend(MoneroUtils.reconcile(this.getIsDoubleSpend(), tx.getIsDoubleSpend()));
     this.setKey(MoneroUtils.reconcile(this.getKey(), tx.getKey()));
-    this.setHex(MoneroUtils.reconcile(this.getHex(), tx.getHex()));
+    this.setFullHex(MoneroUtils.reconcile(this.getFullHex(), tx.getFullHex()));
     this.setPrunedHex(MoneroUtils.reconcile(this.getPrunedHex(), tx.getPrunedHex()));
     this.setPrunableHex(MoneroUtils.reconcile(this.getPrunableHex(), tx.getPrunableHex()));
     this.setPrunableHash(MoneroUtils.reconcile(this.getPrunableHash(), tx.getPrunableHash()));
@@ -568,7 +568,7 @@ class MoneroTx {
     str += MoneroUtils.kvLine("Received time", this.getReceivedTimestamp(), indent);
     str += MoneroUtils.kvLine("Is double spend", this.getIsDoubleSpend(), indent);
     str += MoneroUtils.kvLine("Key", this.getKey(), indent);
-    str += MoneroUtils.kvLine("Hex", this.getHex(), indent);
+    str += MoneroUtils.kvLine("Full ", this.getFullHex(), indent);
     str += MoneroUtils.kvLine("Pruned hex", this.getPrunedHex(), indent);
     str += MoneroUtils.kvLine("Prunable hex", this.getPrunableHex(), indent);
     str += MoneroUtils.kvLine("Prunable hash", this.getPrunableHash(), indent);

@@ -317,7 +317,7 @@ class TestMoneroDaemonRpc {
         let txIds = [];
         for (let i = 0; i < 3; i++) {
           let tx = await getUnrelayedTx(wallet, i);
-          await daemon.submitTxHex(tx.getHex(), true);
+          await daemon.submitTxHex(tx.getFullHex(), true);
           txIds.push(tx.getId());
         }
         
@@ -406,7 +406,7 @@ class TestMoneroDaemonRpc {
         
         // submit tx to pool but don't relay
         let tx = await getUnrelayedTx(wallet);
-        await daemon.submitTxHex(tx.getHex(), true);
+        await daemon.submitTxHex(tx.getFullHex(), true);
         
         // fetch txs in pool
         let txs = await daemon.getTxPool();
@@ -439,7 +439,7 @@ class TestMoneroDaemonRpc {
           
           // submit tx hex
           let tx = await getUnrelayedTx(wallet, i);
-          await daemon.submitTxHex(tx.getHex(), true);
+          await daemon.submitTxHex(tx.getFullHex(), true);
           
           // test stats
           stats = await daemon.getTxPoolStats();
@@ -457,7 +457,7 @@ class TestMoneroDaemonRpc {
         // submit txs to the pool but don't relay
         for (let i = 0; i < 2; i++) {
           let tx = await getUnrelayedTx(wallet, i);
-          await daemon.submitTxHex(tx.getHex(), true);
+          await daemon.submitTxHex(tx.getFullHex(), true);
         }
         
         // txs are in pool
@@ -477,7 +477,7 @@ class TestMoneroDaemonRpc {
         let txs = [];
         for (let i = 0; i < 3; i++) {
           let tx = await getUnrelayedTx(wallet, i);
-          await daemon.submitTxHex(tx.getHex(), true);
+          await daemon.submitTxHex(tx.getFullHex(), true);
           txs.push(tx);
         }
         
@@ -499,7 +499,7 @@ class TestMoneroDaemonRpc {
         let txIds = [];
         for (let i = 0; i < 3; i++) {
           let tx = await getUnrelayedTx(wallet, i);
-          await daemon.submitTxHex(tx.getHex(), true);
+          await daemon.submitTxHex(tx.getFullHex(), true);
           txIds.push(tx.getId());
         }
         
@@ -517,7 +517,7 @@ class TestMoneroDaemonRpc {
         let txs = [];
         for (let i = 0; i < 3; i++) {
           let tx = await getUnrelayedTx(wallet, i);
-          await daemon.submitTxHex(tx.getHex(), true);
+          await daemon.submitTxHex(tx.getFullHex(), true);
           txs.push(tx);
         }
         let keyImages = [];
@@ -531,7 +531,7 @@ class TestMoneroDaemonRpc {
         await testSpentStatuses(keyImages, MoneroKeyImageSpentStatus.NOT_SPENT);
         
         // submit txs to the pool but don't relay
-        for (let tx of txs) await daemon.submitTxHex(tx.getHex(), true);
+        for (let tx of txs) await daemon.submitTxHex(tx.getFullHex(), true);
         
         // key images are in the tx pool
         await testSpentStatuses(keyImages, MoneroKeyImageSpentStatus.TX_POOL);
@@ -837,7 +837,6 @@ class TestMoneroDaemonRpc {
         
         // get template to mine on
         let template = await daemon.getBlockTemplate(TestUtils.TEST_ADDRESS);
-        console.log(template);
         
         // TODO monero rpc: way to get mining nonce when found in order to submit?
         
@@ -914,7 +913,7 @@ class TestMoneroDaemonRpc {
         let tx2 = await getUnrelayedTx(wallet, 0);
         
         // submit and relay tx1
-        let result = await daemon.submitTxHex(tx1.getHex());
+        let result = await daemon.submitTxHex(tx1.getFullHex());
         assert.equal(result.getIsRelayed(), true);
         testSubmitTxResultGood(result);
         
@@ -931,7 +930,7 @@ class TestMoneroDaemonRpc {
         assert(found, "Tx1 was not found after being submitted to the daemon's tx pool");
         
         // submit and relay tx2 hex which double spends tx1
-        result = await daemon.submitTxHex(tx2.getHex());
+        result = await daemon.submitTxHex(tx2.getFullHex());
         assert.equal(result.getIsRelayed(), true);
         testSubmitTxResultDoubleSpend(result);
         
@@ -965,7 +964,7 @@ class TestMoneroDaemonRpc {
         let txIds = [];
         for (let tx of txs) {
           txIds.push(tx.getId());
-          let result = await daemon.submitTxHex(tx.getHex(), true);
+          let result = await daemon.submitTxHex(tx.getFullHex(), true);
           assert.equal(result.getIsRelayed(), false);
           testSubmitTxResultGood(result);
           
@@ -1148,16 +1147,6 @@ function testTx(tx, config) {
   assert.equal(typeof tx.getIsCoinbase(), "boolean");
   assert.equal(tx.getPrunableHex(), undefined); // TODO: way to test?
   assert.equal(typeof tx.getIsDoubleSpend(), "boolean");
-  assert(tx.getVersion() >= 0);
-  assert(tx.getUnlockTime() >= 0);
-  assert(tx.getVins() && Array.isArray(tx.getVins()) && tx.getVins().length >= 0);
-  assert(tx.getVouts() && Array.isArray(tx.getVouts()) && tx.getVouts().length >= 0);
-  for (let vin of tx.getVins()) assert(tx === vin.getTx());
-  for (let vout of tx.getVouts()) assert(tx === vout.getTx());
-  assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
-  assert(typeof tx.getRctSignatures().type === "number");
-  if (config.fromGetBlocksByHeight) assert.equal(tx.getHex(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
-  else assert(tx.getHex().length > 0);
   
   // test presence of output indices
   // TODO: change this over to vouts only
@@ -1193,7 +1182,8 @@ function testTx(tx, config) {
     assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedId(), undefined);
     assert(tx.getReceivedTimestamp() > 0);
-    assert(tx.getNumEstimatedBlocksUntilConfirmed() > 0);
+    if (tx.getIsRelayed()) assert(tx.getNumEstimatedBlocksUntilConfirmed() > 0);
+    else assert.equal(tx.getNumEstimatedBlocksUntilConfirmed(), undefined);
   } else {
     assert.equal(tx.getNumEstimatedBlocksUntilConfirmed(), undefined);
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
@@ -1234,24 +1224,30 @@ function testTx(tx, config) {
     assert(!tx.getIsConfirmed());
   }
   
-  // test vins and vouts
-  if (!tx.getIsCoinbase()) assert(tx.getVins().length > 0);
-  assert(tx.getVouts().length > 0);
-  if (tx.getVins()) for (let vin of tx.getVins()) testVin(vin, config);
-  if (tx.getVouts()) for (let vout of tx.getVouts()) testVout(vout, config);
-  
   // test pruned vs not pruned
+  if (config.fromGetTxPool || config.fromGetBlocksByHeight) assert.equal(tx.getPrunableHash(), undefined);   // TODO monero-daemon-rpc: tx pool txs do not have prunable hash, TODO: getBlocksByHeight() has inconsistent client-side pruning
+  else assert(tx.getPrunableHash());
   if (config.isPruned) {
     assert.equal(tx.getRctSigPrunable(), undefined);
     assert.equal(tx.getSize(), undefined);
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
     assert.equal(tx.getReceivedTimestamp(), undefined);
-    assert.equal(tx.getPrunedHex(), undefined);
-    //assert(typeof tx.getPrunedHex() === "string" && tx.getPrunedHex().length > 0);
+    assert.equal(tx.getVersion(), undefined);
+    assert.equal(tx.getUnlockTime(), undefined);
+    assert.equal(tx.getVins(), undefined);
+    assert.equal(tx.getVouts(), undefined);
+    assert.equal(tx.getExtra(), undefined);
+    assert.equal(tx.getFullHex(), undefined);
+    assert(tx.getPrunedHex());
   } else {
+    assert.equal(tx.getPrunedHex(), undefined);
+    assert(tx.getVersion() >= 0);
+    assert(tx.getUnlockTime() >= 0);
+    assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
+    if (config.fromGetBlocksByHeight) assert.equal(tx.getFullHex(), undefined);         // TODO: getBlocksByHeight() has inconsistent client-side pruning
+    else assert(tx.getFullHex().length > 0);
     if (config.fromGetBlocksByHeight) assert.equal(tx.getRctSigPrunable(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
     else assert.equal(typeof tx.getRctSigPrunable().nbp, "number");
-    assert.equal(tx.getPrunedHex(), undefined);
     assert.equal(tx.getIsDoubleSpend(), false);
     if (tx.getIsConfirmed()) {
       assert.equal(tx.getLastRelayedTimestamp(), undefined);
@@ -1261,13 +1257,20 @@ function testTx(tx, config) {
       else assert.equal(tx.getLastRelayedTimestamp(), undefined);
       assert(tx.getReceivedTimestamp() > 0);
     }
-    assert.equal(tx.getPrunableHash(), undefined);
     
-    //if (config.fromGetTxPool || config.fromGetBlocksByHeight) assert.equal(tx.getPrunableHash(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
-    //else assert(tx.getPrunableHash());
-    
-//  if (config.isPruned) assert(!tx.getPrunableHash()); // TODO: tx may or may not have prunable hash, need to know when it's expected
-//  else assert(tx.getPrunableHash());
+    // test vins and vouts
+    assert(tx.getVins() && Array.isArray(tx.getVins()) && tx.getVins().length >= 0);
+    assert(tx.getVouts() && Array.isArray(tx.getVouts()) && tx.getVouts().length >= 0);
+    if (!tx.getIsCoinbase()) assert(tx.getVins().length > 0);
+    for (let vin of tx.getVins()) {
+      assert(tx === vin.getTx());
+      testVin(vin, config);
+    }
+    assert(tx.getVouts().length > 0);
+    for (let vout of tx.getVouts()) {
+      assert(tx === vout.getTx());
+      testVout(vout, config);
+    }
   }
   
   // test fields from tx pool
@@ -1310,7 +1313,7 @@ function testBlockTemplate(template) {
 }
 
 function testInfo(info) {
-  assert.equal(info.getVersion(), undefined);
+  assert(info.getVersion());
   assert(info.getNumAltBlocks() >= 0);
   assert(info.getBlockSizeLimit());
   assert(info.getBlockSizeMedian());
@@ -1355,7 +1358,7 @@ function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
       testDaemonConnectionSpan(span);
     }
   }
-  assert.equal(syncInfo.getNextNeededPruningSeed(), undefined);
+  assert(syncInfo.getNextNeededPruningSeed() > 0);
   assert.equal(syncInfo.getOverview(), undefined);
 }
 
@@ -1474,7 +1477,7 @@ async function getUnrelayedTx(wallet, accountIdx) {
   sendConfig.setDoNotRelay(true);
   sendConfig.setAccountIndex(accountIdx);
   let tx = await wallet.send(sendConfig);
-  assert(tx.getHex());
+  assert(tx.getFullHex());
   assert.equal(tx.getDoNotRelay(), true);
   return tx;
 }
@@ -1561,10 +1564,11 @@ function testKnownPeer(peer, fromConnection) {
   assert.equal(typeof peer.getId(), "string");
   assert.equal(typeof peer.getHost(), "string");
   assert(peer.getPort() > 0);
+  assert(peer.getRpcPort() >= 0);
   assert.equal(typeof peer.getIsOnline(), "boolean");
   if (fromConnection) assert.equal(undefined, peer.getLastSeenTimestamp());
   else assert(peer.getLastSeenTimestamp() > 0);
-  assert.equal(peer.getPruningSeed(), undefined);
+  assert.equal(peer.getPruningSeed(), 0);
 }
 
 function testUpdateCheckResult(result) {

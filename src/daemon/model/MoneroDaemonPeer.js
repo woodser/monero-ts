@@ -39,6 +39,15 @@ class MoneroDaemonPeer {
     return this;
   }
   
+  getRpcPort() {
+    return this.rpcPort;
+  }
+
+  setRpcPort(rpcPort) {
+    this.rpcPort = rpcPort;
+    return this;
+  }
+  
   /**
    * Indicates if the peer was online when last checked (aka "white listed" as
    * opposed to "gray listed").
