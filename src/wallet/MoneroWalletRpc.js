@@ -1264,7 +1264,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let tx = txs[i];
       tx.setId(ids[i]);
       if (keys) tx.setKey(keys[i]);
-      tx.setHex(blobs[i]);
+      tx.setFullHex(blobs[i]);
       tx.setMetadata(metadatas[i]);
       tx.setFee(new BigInteger(fees[i]));
       if (tx.getOutgoingTransfer()) tx.getOutgoingTransfer().setAmount(new BigInteger(amounts[i]));
