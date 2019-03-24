@@ -578,7 +578,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async checkForUpdate() {
     let resp = await this.config.rpc.sendPathRequest("update", {command: "check"});
     MoneroDaemonRpc._checkResponseStatus(resp);
-    console.log(resp);
     return MoneroDaemonRpc._buildUpdateCheckResult(resp);
   }
   
