@@ -2443,7 +2443,7 @@ async function testWalletTx(tx, testConfig) {
   } else {
     assert.equal(tx.getMixin(), undefined);
     assert.equal(tx.getKey(), undefined);
-    assert.equal(tx.getHex(), undefined);
+    assert.equal(tx.getFullHex(), undefined);
     assert.equal(tx.getMetadata(), undefined);
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
   }
