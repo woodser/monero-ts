@@ -1139,7 +1139,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   static _buildUpdateDownloadResult(rpcResult) {
     let result = new MoneroDaemonUpdateDownloadResult(MoneroDaemonRpc._buildUpdateCheckResult(rpcResult));
-    if (rpcResult["path"] !== "") result.setDownloadPath(rpcResult["path"]);
+    result.setDownloadPath(rpcResult["path"]);
+    if (result.getDownloadPath() === "") result.setDownloadPath(undefined);
     return result;
   }
 }

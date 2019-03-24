@@ -867,12 +867,14 @@ class TestMoneroDaemonRpc {
         testUpdateDownloadResult(result, path);
         
         // test invalid path
-        try {
-          result = await daemon.downloadUpdate("./ohhai/there");
-          throw new Error("Should have thrown error");
-        } catch(e) {
-          assert.notEqual("Should have thrown error", e.message);
-          assert.equal(e.statusCode, 500);  // TODO: this causes a 500, in daemon rpc?
+        if (result.getIsUpdateAvailable()) {
+          try {
+            result = await daemon.downloadUpdate("./ohhai/there");
+            throw new Error("Should have thrown error");
+          } catch(e) {
+            assert.notEqual("Should have thrown error", e.message);
+            assert.equal(e.statusCode, 500);  // TODO monero-daemon-rpc: this causes a 500 in daemon rpc
+          }
         }
       });
       
