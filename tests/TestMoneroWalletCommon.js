@@ -2309,7 +2309,7 @@ async function testWalletTx(tx, testConfig) {
     // these should be initialized unless a response from sending
     if (!testConfig.sendConfig) {
       assert(tx.getReceivedTimestamp() > 0);
-      assertTrue(tx.getNumEstimatedBlocksUntilConfirmed() > 0);
+      assert(tx.getNumEstimatedBlocksUntilConfirmed() > 0);
     }
   } else {
     assert.equal(tx.getNumEstimatedBlocksUntilConfirmed(), undefined);
