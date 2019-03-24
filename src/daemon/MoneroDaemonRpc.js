@@ -1130,6 +1130,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "version") result.setVersion(val);
       else console.log("WARNING: ignoring unexpected field in rpc check update result: " + key + ": " + val);
     }
+    if (result.getAutoUri() === "") result.setAutoUri(undefined);
+    if (result.getUserUri() === "") result.setUserUri(undefined);
     if (result.getVersion() === "") result.setVersion(undefined);
     if (result.getHash() === "") result.setHash(undefined);
     return result;

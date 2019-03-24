@@ -1575,15 +1575,17 @@ function testUpdateCheckResult(result) {
   assert(result instanceof MoneroDaemonUpdateCheckResult);
   assert.equal(typeof result.getIsUpdateAvailable(), "boolean");
   if (result.getIsUpdateAvailable()) {
+    assert(result.getAutoUri(), "No auto uri; is daemon online?");
+    assert(result.getUserUri());
     assert.equal(typeof result.getVersion(), "string");
     assert.equal(typeof result.getHash(), "string");
     assert.equal(result.getHash().length, 64);
   } else {
+    assert.equal(result.getAutoUri(), undefined);
+    assert.equal(result.getUserUri(), undefined);
     assert.equal(result.getVersion(), undefined);
     assert.equal(result.getHash(), undefined);
   }
-  assert(result.getAutoUri(), "No auto uri; is daemon online?");
-  assert(result.getUserUri());
 }
 
 function testUpdateDownloadResult(result, path) {
