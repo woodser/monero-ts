@@ -1583,7 +1583,6 @@ class TestMoneroWalletCommon {
       });
       
       async function testSendToSingle(canSplit, paymentId, doNotRelay) {
-        throw new Error("*** relayTxs returns MoneroWalletTx, why isn't this failing? ***");
         
         // find a non-primary subaddress to send from
         let sufficientBalance = false;
@@ -1614,7 +1613,7 @@ class TestMoneroWalletCommon {
         let address = await wallet.getPrimaryAddress();
         let txs = []
         let config = new MoneroSendConfig(address, sendAmount, MoneroSendPriority.ELEVATED, TestUtils.MIXIN);
-        config.setPaymentId(paymentId)
+        config.setPaymentId(paymentId);
         config.setAccountIndex(fromAccount.getIndex());
         config.setSubaddressIndices([fromSubaddress.getIndex()]);
         config.setDoNotRelay(doNotRelay);
@@ -1636,7 +1635,6 @@ class TestMoneroWalletCommon {
           }
           
           // relay txs
-          // TODO: *** relayTxs returns MoneroWalletTx, why isn't this failing? ***
           let txIds = await wallet.relayTxs(txs.map(tx => tx.getMetadata()));
           assert.equal(txIds.length, txs.length);
           for (let txId of txIds) assert(typeof txId === "string" && txId.length === 64);
