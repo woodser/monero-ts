@@ -890,8 +890,7 @@ class TestMoneroWalletCommon {
         // test wallet balance
         TestUtils.testUnsignedBigInteger(walletBalance);
         TestUtils.testUnsignedBigInteger(walletUnlockedBalance);
-        throw new Error("Why does this next line pass? >= isn't overloaded on big integers");
-        assert(walletBalance >= walletUnlockedBalance);
+        assert(walletBalance.compare(walletUnlockedBalance) >= 0);
         
         // test that wallet balance equals sum of account balances
         let accountsBalance = new BigInteger(0);
