@@ -132,7 +132,7 @@ class MoneroUtils {
   // TODO: beef this up
   static validatePaymentId(paymentId) {
     assert.equal(typeof paymentId, "string");
-    assert(paymentId.length === 16);
+    assert(paymentId.length === 16 || paymentId.length === 64);
   }
     
   /**

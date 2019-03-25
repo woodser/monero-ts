@@ -416,11 +416,9 @@ class TestMoneroWalletCommon {
       if (!liteMode)
       it("Can get transactions with additional configuration", async function() {
         
-        // get random transactions with payment ids for testing
-        let randomTxs = await getRandomTransactions(wallet, {hasPaymentId: true}, 3, 5);
-        for (let randomTx of randomTxs) {
-          assert(randomTx.getPaymentId());
-        }
+        // get random transactions for testing
+        let randomTxs = await getRandomTransactions(wallet, undefined, 3, 5);
+        for (let randomTx of randomTxs) testWalletTx(randomTx);
         
         // get transactions by id
         let txIds = [];
@@ -510,22 +508,6 @@ class TestMoneroWalletCommon {
           assert(tx.getOutgoingTransfer().getDestinations().length > 0);
         }
         
-        // get transactions by payment id
-        let paymentIds = randomTxs.map(tx => tx.getPaymentId());
-        assert(paymentIds.length > 1);
-        for (let paymentId of paymentIds) {
-          txs = await getAndTestTxs(wallet, {paymentId: paymentId});
-          assert.equal(txs.length, 1);
-          assert(txs[0].getPaymentId());
-          MoneroUtils.validatePaymentId(txs[0].getPaymentId());
-        }
-        
-        // get transactions by payment ids
-        txs = await getAndTestTxs(wallet, {paymentIds: paymentIds});
-        for (let tx of txs) {
-          assert(paymentIds.includes(tx.getPaymentId()));
-        }
-        
         // test block height filtering
         {
           txs = await wallet.getTxs({isConfirmed: true});
@@ -570,6 +552,32 @@ class TestMoneroWalletCommon {
           }
         }
         assert(found, "No vouts found in txs");
+      });
+      
+      // NOTE: payment ids are deprecated so this test will require an old wallet to pass
+      it("Can get transactions by payment ids", async function() {
+        
+        // get random transactions with payment ids for testing
+        let randomTxs = await getRandomTransactions(wallet, {hasPaymentId: true}, 3, 5);
+        for (let randomTx of randomTxs) {
+          assert(randomTx.getPaymentId());
+        }
+        
+        // get transactions by payment id
+        let paymentIds = randomTxs.map(tx => tx.getPaymentId());
+        assert(paymentIds.length > 1);
+        for (let paymentId of paymentIds) {
+          let txs = await getAndTestTxs(wallet, {paymentId: paymentId});
+          assert.equal(txs.length, 1);
+          assert(txs[0].getPaymentId());
+          MoneroUtils.validatePaymentId(txs[0].getPaymentId());
+        }
+        
+        // get transactions by payment ids
+        let txs = await getAndTestTxs(wallet, {paymentIds: paymentIds});
+        for (let tx of txs) {
+          assert(paymentIds.includes(tx.getPaymentId()));
+        }
       });
       
       it("Returns all known fields of txs regardless of filtering", async function() {
@@ -1565,9 +1573,11 @@ class TestMoneroWalletCommon {
         await testSendToSingle(false, undefined, false);
       });
       
+      // NOTE: this test will be invalid when payment ids are fully removed
       it("Can send to an address in a single transaction with a payment id", async function() {
         let integratedAddress = await wallet.getIntegratedAddress();
-        await testSendToSingle(false, integratedAddress.getPaymentId(), false);
+        let paymentId = integratedAddress.getPaymentId();
+        await testSendToSingle(false, paymentId + paymentId + paymentId + paymentId, false);  // 64 character payment id
       });
       
       it("Can create then relay a transaction to send to a single address", async function() {
@@ -1656,6 +1666,7 @@ class TestMoneroWalletCommon {
           assert.equal(tx.getOutgoingTransfer().getAccountIndex(), fromAccount.getIndex());
           assert.equal(tx.getOutgoingTransfer().getSubaddressIndex(), 0); // TODO (monero-wallet-rpc): outgoing transactions do not indicate originating subaddresses
           assert(sendAmount.compare(tx.getOutgoingAmount()) === 0);
+          if (paymentId) assert.equal(tx.getPaymentId(), paymentId);
           
           // test outgoing destinations
           if (tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getDestinations()) {
