@@ -1813,7 +1813,7 @@ class TestMoneroWalletCommon {
         for (let vout of vouts) {
           let address = await wallet.getAddress(vout.getAccountIndex(), vout.getSubaddressIndex());
           let tx;
-          if (useParams) tx = await wallet.sweepOutput(address, vout.getKeyImage().getHex(), undefined); // test params
+          if (useParams) tx = await wallet.sweepOutput(address, vout.getKeyImage().getHex(), MoneroSendPriority.ELEVATED); // test params
           else tx = await wallet.sweepOutput({address: address, keyImage: vout.getKeyImage().getHex()});  // test config
           let sendConfig = new MoneroSendConfig({address: address, keyImage: vout.getKeyImage().getHex()});
           await testWalletTx(tx, {wallet: wallet, sendConfig: sendConfig, isSweep: true});
