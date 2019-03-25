@@ -1,7 +1,8 @@
 block extends blockheader, cool
-MoneroRpc.js should return whole response to be consistent and in case needed?
 MoneroRpc.js MoneroRpcError constructed with method and params for consistency
 buildBlockHeader(), etc -> convertBlockHeader()
+MoneroWalletTx -> MoneroTxWallet
+use all_accounts to reduce rpc calls
 MoneroTxConfig setIncludeVouts(), getIncludeVouts()
 MoneroTxConfig isCompatible(MoneroWalletTx)
 model rct_signatures and rct_prunable

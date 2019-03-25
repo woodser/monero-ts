@@ -61,7 +61,7 @@ class MoneroRpc {
    * 
    * @param method is the JSON RPC method to invoke
    * @param params are request parameters
-   * @return a Promise invoked with the response
+   * @return {object} is the response map
    */
   async sendJsonRequest(method, params) {
     //console.log("sendJsonRequest(" + method + ", " + JSON.stringify(params) + ")");
@@ -94,7 +94,7 @@ class MoneroRpc {
       //console.error(opts);
       throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
     }
-    return resp.result;
+    return resp;
   }
   
   /**
