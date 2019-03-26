@@ -49,7 +49,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           await wallet.createWallet(TestUtils.WALLET_RPC_NAME_2, TestUtils.WALLET_RPC_PW_2, "English");
         } catch (e) {
           assert(e instanceof MoneroRpcError); 
-          assert.equal(e.getRpcCode(), -21);
+          assert.equal(e.getCode(), -21);
         }
         try {
           
@@ -73,7 +73,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
             await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
           } catch (e) {
             assert(e instanceof MoneroRpcError);
-            assert.equal(e.getRpcCode(), -1); // ok if wallet is already open
+            assert.equal(e.getCode(), -1); // ok if wallet is already open
           }
         }
       });
@@ -85,7 +85,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           await wallet.getAccounts(undefined, "non_existing_tag");
           fail("Should have thrown exception with unregistered tag");
         } catch (e) {
-          assert.equal(e.getRpcCode(), -1);
+          assert.equal(e.getCode(), -1);
         }
         
         // create expected tag for test
@@ -114,7 +114,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           await wallet.getAccounts(undefined, expectedTag.getTag());
           fail("Should have thrown exception with unregistered tag");
         } catch (e) {
-          assert.equal(e.getRpcCode(), -1);
+          assert.equal(e.getCode(), -1);
         }
       });
       

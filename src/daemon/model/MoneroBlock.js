@@ -19,7 +19,7 @@ class MoneroBlock {
     if (!state) state = {};
     else if (state instanceof MoneroBlock) state = state.toJson();
     else if (typeof state === "object") state = Object.assign({}, state);
-    else throw new Error("state must be a MoneroBlock or JavaScript object");
+    else throw new MoneroError("state must be a MoneroBlock or JavaScript object");
     this.state = state;
     
     // deserialize header

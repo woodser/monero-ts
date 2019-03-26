@@ -92,7 +92,7 @@ class MoneroRpc {
     if (resp.error) {
       //console.error("Request failed: " + resp.error.code + ": " + resp.error.message);
       //console.error(opts);
-      throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
+      throw new MoneroRpcError(resp.error.message, resp.error.code, method, params);
     }
     return resp;
   }
@@ -124,7 +124,7 @@ class MoneroRpc {
     // send request and await response
     let resp = await this._throttledRequest(opts);
     if (typeof resp === "string") resp = JSON.parse(resp);  // TODO: some responses returned as strings?
-    if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
+    if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
     return resp;
   }
   
@@ -162,7 +162,7 @@ class MoneroRpc {
     
     // send request and store binary response as Uint8Array
     let resp = await this._throttledRequest(opts);
-    if (resp.error) throw new MoneroRpcError(resp.error.code, resp.error.message, opts);
+    if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
     return new Uint8Array(resp, 0, resp.length);
   }
   

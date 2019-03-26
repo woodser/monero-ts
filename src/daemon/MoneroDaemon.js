@@ -34,7 +34,7 @@ class MoneroDaemon {
    * @return {boolean} true if the daemon is trusted, false otherwise
    */
   async isTrusted() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -43,7 +43,7 @@ class MoneroDaemon {
    * @return {int} the number of blocks
    */
   async getHeight() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -53,7 +53,7 @@ class MoneroDaemon {
    * @return {string} the block's id at the given height
    */
   async getBlockId(height) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -64,7 +64,7 @@ class MoneroDaemon {
    * @return {MoneroBlockTemplate} is a block template for mining a new block
    */
   async getBlockTemplate(walletAddress, reserveSize) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -73,7 +73,7 @@ class MoneroDaemon {
    * @return {MoneroBlockHeader} is the last block's header
    */
   async getLastBlockHeader() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -83,7 +83,7 @@ class MoneroDaemon {
    * @return {MoneroBlockHeader} is the block's header
    */
   async getBlockHeaderById(blockId) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -93,7 +93,7 @@ class MoneroDaemon {
    * @return {MoneroBlockHeader} is the block's header
    */
   async getBlockHeaderByHeight(height) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -104,7 +104,7 @@ class MoneroDaemon {
    * @return {MoneroBlockHeader[]} for the given range
    */
   async getBlockHeadersByRange(startHeight, endHeight) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -114,7 +114,7 @@ class MoneroDaemon {
    * @return {MoneroBlock} with the given id
    */
   async getBlockById(blockId) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -128,7 +128,7 @@ class MoneroDaemon {
    * @return {MoneroBlock[]} are the retrieved blocks
    */
   async getBlocksById(blockIds, startHeight, prune) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -138,7 +138,7 @@ class MoneroDaemon {
    * @return {MoneroBlock} with the given height
    */
   async getBlockByHeight(height) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -148,7 +148,7 @@ class MoneroDaemon {
    * @return {MoneroBlock[]} are blocks at the given heights
    */
   async getBlocksByHeight(heights) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -159,7 +159,7 @@ class MoneroDaemon {
    * @return {MoneroBlock[]} are blocks in the given height range
    */
   async getBlocksByRange(startHeight, endHeight) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -172,7 +172,7 @@ class MoneroDaemon {
    * @return {string[]} are the requested block ids     
    */
   async getBlockIds(blockIds, startHeight) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -194,7 +194,7 @@ class MoneroDaemon {
    * @return {MoneroTx[]} are the transactions with the given ids
    */
   async getTxs(txIds, prune = false) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -216,7 +216,7 @@ class MoneroDaemon {
    * @return {string[]} are the tx hexes
    */
   async getTxHexes(txIds, prune = false) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -227,7 +227,7 @@ class MoneroDaemon {
    * @return {MoneroCoinbaseTxSum} encapsulates the total emissions and fees since the genesis block
    */
   async getCoinbaseTxSum(height, numBlocks) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -237,7 +237,7 @@ class MoneroDaemon {
    * @return {BigInteger} is the fee estimate per kB.
    */
   async getFeeEstimate(graceBlocks) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -248,7 +248,7 @@ class MoneroDaemon {
    * @return {MoneroSubmitTxResult} contains submission results
    */
   async submitTxHex(txHex, doNotRelay) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -267,7 +267,7 @@ class MoneroDaemon {
    * @param {string[]} txIds identify the transactions to relay
    */
   async relayTxsById(txIds) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -277,7 +277,7 @@ class MoneroDaemon {
    * @return {MoneroTx[]} are transactions in the transaction pool
    */
   async getTxPool() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -286,7 +286,7 @@ class MoneroDaemon {
    * @return {string[]} are ids of transactions in the transaction pool
    */
   async getTxPoolIds() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -295,7 +295,7 @@ class MoneroDaemon {
    * @return {MoneroTxBacklogEntry[]} are the backlog entries 
    */
   async getTxPoolBacklog() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -304,7 +304,7 @@ class MoneroDaemon {
    * @return {MoneroTxPoolStats} contains statistics about the transaction pool
    */
   async getTxPoolStats() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -313,7 +313,7 @@ class MoneroDaemon {
    * @param {(string|string[])} ids are specific transactions to flush (defaults to all)
    */
   async flushTxPool(ids) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -333,7 +333,7 @@ class MoneroDaemon {
    * @return {MoneroKeyImageSpentStatus[]} is the status for each key image
    */
   async getSpentStatuses(keyImages) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -344,7 +344,7 @@ class MoneroDaemon {
    * @return {MoneroOutput[]} are the identified outputs
    */
   async getOutputs(outputs) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -360,7 +360,7 @@ class MoneroDaemon {
    * @return {MoneroOutputHistogramEntry[]} are entries meeting the parameters
    */
   async getOutputHistogram(amounts, minCount, maxCount, isUnlocked, recentCutoff) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -373,7 +373,7 @@ class MoneroDaemon {
    * @return {MoneroOutputDistributionEntry[]} are entries meeting the parameters
    */
   async getOutputDistribution(amounts, cumulative, startHeight, endHeight) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -382,7 +382,7 @@ class MoneroDaemon {
    * @return {MoneroDaemonInfo} is general information about the node and network
    */
   async getInfo() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -391,7 +391,7 @@ class MoneroDaemon {
    * @return {MoneroDaemonSyncInfo} contains sync information
    */
   async getSyncInfo() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -400,7 +400,7 @@ class MoneroDaemon {
    * @return {MoneroHardForkInfo} contains hard fork information
    */
   async getHardForkInfo() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -409,7 +409,7 @@ class MoneroDaemon {
    * @return {MoneroAltChain[]} are the alternative chains
    */
   async getAltChains() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -418,7 +418,7 @@ class MoneroDaemon {
    * @return {string[]} are the known block ids which are not on the main chain
    */
   async getAltBlockIds() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -427,7 +427,7 @@ class MoneroDaemon {
    * @return {int} is the download bandwidth limit
    */
   async getDownloadLimit() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -436,7 +436,7 @@ class MoneroDaemon {
    * @param {int} limit is the download bandwidth limit to set
    */
   async setDownloadLimit(limit) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -445,7 +445,7 @@ class MoneroDaemon {
    * @return {int} is the download bandwidth limit after resetting
    */
   async resetDownloadLimit() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -454,7 +454,7 @@ class MoneroDaemon {
    * @return {int} is the upload bandwidth limit
    */
   async getUploadLimit() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -463,7 +463,7 @@ class MoneroDaemon {
    * @param {int} limit is the upload bandwidth limit to set
    */
   async setUploadLimit(limit) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -472,7 +472,7 @@ class MoneroDaemon {
    * @return {int} is the upload bandwidth limit after resetting
    */
   async resetUploadLimit() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -481,7 +481,7 @@ class MoneroDaemon {
    * @return {MoneroDaemonPeer[]} are known peers
    */
   async getKnownPeers() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -490,7 +490,7 @@ class MoneroDaemon {
    * @return {MoneroDaemonConnection[]} are the daemon's peer connections
    */
   async getConnections() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -499,7 +499,7 @@ class MoneroDaemon {
    * @param {int} limit is the maximum number of outgoing peers
    */
   async setOutgoingPeerLimit(limit) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -508,7 +508,7 @@ class MoneroDaemon {
    * @param {int} limit is the maximum number of incoming peers
    */
   async setIncomingPeerLimit(limit) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -517,7 +517,7 @@ class MoneroDaemon {
    * @return {MoneroBan[]} are entries about banned peers
    */
   async getPeerBans() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
 
   /**
@@ -526,7 +526,7 @@ class MoneroDaemon {
    * @param {MoneroBan} ban contains information about a node to ban
    */
   async setPeerBan(ban) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -535,7 +535,7 @@ class MoneroDaemon {
    * @param {MoneroBan[]} contain information about nodes to ban
    */
   async setPeerBans(bans) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -547,14 +547,14 @@ class MoneroDaemon {
    * @param {boolean} ignoreBattery specifies if the battery state (e.g. on laptop) should be ignored or not
    */
   async startMining(address, numThreads, isBackground, ignoreBattery) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Stop mining.
    */
   async stopMining() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -563,7 +563,7 @@ class MoneroDaemon {
    * @return {MoneroMiningStatus} is the daemon's mining status
    */
   async getMiningStatus() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -581,7 +581,7 @@ class MoneroDaemon {
    * @param {string[]} blockBlobs are the mined blocks to submit
    */
   async submitBlocks(blockBlobs) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -591,7 +591,7 @@ class MoneroDaemon {
    * @return {MoneroDaemonUpdateCheckResult} is the result
    */
   async checkForUpdate(path) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -601,14 +601,14 @@ class MoneroDaemon {
    * @return {MoneroDaemonUpdateDownloadResult} is the result
    */
   async downloadUpdate(path) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Safely disconnect and shut down the daemon.
    */
   async stop() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -617,7 +617,7 @@ class MoneroDaemon {
    * @return {MoneroBlockHeader} is the header of the next block added to the chain
    */
   async getNextBlockHeader() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -626,7 +626,7 @@ class MoneroDaemon {
    * @param {function} listener({MoneroBlockHeader}) is invoked when blocks are added to the chain
    */
   addBlockListener(listener) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -635,7 +635,7 @@ class MoneroDaemon {
    * @param {function} listener is a previously registered listener to be unregistered
    */
   removeBlockListener(listener) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   // ----------------------------- STATIC UTILITIES ---------------------------
@@ -650,7 +650,7 @@ class MoneroDaemon {
     if (network === "mainnet") return MoneroNetworkType.MAINNET;
     if (network === "testnet") return MoneroNetworkType.TESTNET;
     if (network === "stagenet") return MoneroNetworkType.STAGENET;
-    throw new Error("Invalid network type to parse: " + network);
+    throw new MoneroError("Invalid network type to parse: " + network);
   }
 }
 

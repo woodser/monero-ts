@@ -1,5 +1,6 @@
 const assert = require("assert");
 const MoneroUtils = require("../../utils/MoneroUtils");
+const MoneroError = require("../../utils/MoneroError");
 const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroKeyImage = require("./MoneroKeyImage");
 
@@ -19,7 +20,7 @@ class MoneroOutput {
     if (!state) state = {};
     else if (state instanceof MoneroOutput) state = state.toJson();
     else if (typeof state === "object") state = Object.assign({}, state);
-    else throw new Error("state must be a MoneroOutput or JavaScript object");
+    else throw new MoneroError("state must be a MoneroOutput or JavaScript object");
     this.state = state;
     
     // deserialize fields if necessary

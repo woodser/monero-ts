@@ -1,5 +1,4 @@
 block extends blockheader, cool
-MoneroRpc.js MoneroRpcError constructed with method and params for consistency
 buildBlockHeader(), etc -> convertBlockHeader()
 MoneroWalletTx -> MoneroTxWallet
 use all_accounts to reduce rpc calls

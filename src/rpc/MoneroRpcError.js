@@ -1,32 +1,37 @@
+const MoneroError = require("../utils/MoneroError");
+
 /**
  * Error when interacting with Monero RPC.
  */
-class MoneroRpcError extends Error {
-
+class MoneroRpcError extends MoneroError {
+  
   /**
    * Constructs the error.
    * 
-   * @param code is the RPC error code
-   * @param message is the RPC error message
-   * @param requestOpts are request options sent with the request
+   * @param {string} rpcDescription is a description of the error from rpc
+   * @param {int} rpcCode is the error code from rpc
+   * @param {string} rpcMethod is the rpc method invoked
+   * @param {object} rpcParams are parameters sent with the rpc request
    */
-  constructor(code, message, requestOpts) {
-    super(code + ": " + message);
-    this.rpcCode = code;
-    this.rpcMessage = message;
-    this.requestOpts = requestOpts;
+  constructor(rpcDescription, rpcCode, rpcMethod, rpcParams) {
+    super(rpcDescription, rpcCode);
+    this.rpcMethod = rpcMethod;
+    this.rpcParams = rpcParams;
+    this.message = this.toString(); // overwrite error message
   }
   
-  getRpcCode() {
-    return this.rpcCode;
+  getRpcMethod() {
+    return this.rpcMethod;
   }
   
-  getRpcMessage() {
-    return this.rpcMessage;
+  getRpcParams() {
+    return this.rpcParams;
   }
   
-  getRequestOpts() {
-    return this.requestOpts;
+  toString() {
+    let str = super.toString();
+    str += "\nRequest: '" + this.getRpcMethod() + "' " + (typeof this.getRpcParams() === "object" ? JSON.stringify(this.getRpcParams()) : this.getRpcParams());
+    return str;
   }
 }
 

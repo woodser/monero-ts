@@ -1,5 +1,6 @@
 const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroUtils = require("../../utils/MoneroUtils");
+const MoneroError = require("../../utils/MoneroError");
 
 /**
  * Models an outgoing transfer destination.
@@ -22,7 +23,7 @@ class MoneroDestination {
       this.setAddress(stateOrAddress);
       this.setAmount(amount);
     } else {
-      throw new Error("stateOrAddress must be a MoneroDestination, JavaScript object, or hex string");
+      throw new MoneroError("stateOrAddress must be a MoneroDestination, JavaScript object, or hex string");
     }
       
     // deserialize amount  

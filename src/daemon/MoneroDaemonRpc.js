@@ -2,6 +2,7 @@ const assert = require("assert");
 const GenUtils = require("../utils/GenUtils");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroUtils = require("../utils/MoneroUtils");
+const MoneroError = require("../utils/MoneroError");
 const MoneroRpc = require("../rpc/MoneroRpc")
 const MoneroDaemon = require("./MoneroDaemon");
 const MoneroNetworkType = require("./model/MoneroNetworkType");
@@ -211,7 +212,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     try {
       MoneroDaemonRpc._checkResponseStatus(resp);
     } catch (e) {
-      if (e.message.indexOf("Failed to parse hex representation of transaction hash") >= 0) throw new Error("Invalid transaction id");
+      if (e.message.indexOf("Failed to parse hex representation of transaction hash") >= 0) throw new MoneroError("Invalid transaction id");
       throw e;
     }
     
@@ -294,15 +295,15 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getTxPoolIds() {
-    throw new Error("Not implemented");
+    throw new MoneroError("Not implemented");
   }
   
   async getTxPoolBacklog() {
-    throw new Error("Not implemented");
+    throw new MoneroError("Not implemented");
   }
 
   async getTxPoolStats() {
-    throw new Error("Response contains field 'histo' which is binary'");
+    throw new MoneroError("Response contains field 'histo' which is binary'");
     let resp = await this.config.rpc.sendPathRequest("get_transaction_pool_stats");
     MoneroDaemonRpc._checkResponseStatus(resp);
     let stats = MoneroDaemonRpc._buildTxPoolStats(resp.pool_stats);
@@ -354,7 +355,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getOutputDistribution(amounts, cumulative, startHeight, endHeight) {
-    throw new Error("Not implemented (response 'distribution' field is binary)");
+    throw new MoneroError("Not implemented (response 'distribution' field is binary)");
     
 //    let amountStrs = [];
 //    for (let amount of amounts) amountStrs.push(amount.toJSValue());
@@ -669,7 +670,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   // --------------------------------- STATIC ---------------------------------
   
   static _checkResponseStatus(resp) {
-    if (resp.status !== "OK") throw new Error(resp.status);
+    if (resp.status !== "OK") throw new MoneroError(resp.status);
   }
   
   static _buildBlockHeader(rpcHeader) {
@@ -838,7 +839,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     output.setTx(tx);
     for (let key of Object.keys(rpcOutput)) {
       let val = rpcOutput[key];
-      if (key === "gen") throw new Error("Output with 'gen' from daemon rpc is coinbase tx which we ignore (i.e. each coinbase vin is undefined)");
+      if (key === "gen") throw new MoneroError("Output with 'gen' from daemon rpc is coinbase tx which we ignore (i.e. each coinbase vin is undefined)");
       else if (key === "key") {
         MoneroUtils.safeSet(output, output.getAmount, output.setAmount, new BigInteger(val.amount));
         MoneroUtils.safeSet(output, output.getKeyImage, output.setKeyImage, new MoneroKeyImage(val.k_image));
@@ -967,7 +968,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   static _buildConnectionSpan(rpcConnectionSpan) {
-    throw new Error("Not implemented");
+    throw new MoneroError("Not implemented");
   }
   
   static _buildOutputHistogramEntry(rpcEntry) {
@@ -1021,7 +1022,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "oldest") stats.setOldestTimestamp(val);
       else if (key === "txs_total") stats.setNumTxs(val);
       else if (key === "fee_total") stats.setFeeTotal(new BigInteger(val));
-      else if (key === "histo") throw new Error("Not implemented");
+      else if (key === "histo") throw new MoneroError("Not implemented");
       else console.log("WARNING: ignoring unexpected field in tx pool stats: " + key + ": " + val);
     }
     return stats;

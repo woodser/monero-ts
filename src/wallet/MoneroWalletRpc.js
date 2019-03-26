@@ -2,6 +2,7 @@ const assert = require("assert");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const GenUtils = require("../utils/GenUtils");
 const MoneroUtils = require("../utils/MoneroUtils");
+const MoneroError = require("../utils/MoneroError");
 const MoneroRpc = require("../rpc/MoneroRpc");
 const MoneroBlock = require("../daemon/model/MoneroBlock");
 const MoneroBlockHeader = require("../daemon/model/MoneroBlockHeader");
@@ -83,9 +84,9 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {string} language is the language for the wallet's mnemonic seed
    */
   async createWallet(filename, password, language) {
-    if (!filename) throw new Error("Filename is not initialized");
-    if (!password) throw new Error("Password is not initialized");
-    if (!language) throw new Error("Language is not initialized");
+    if (!filename) throw new MoneroError("Filename is not initialized");
+    if (!password) throw new MoneroError("Password is not initialized");
+    if (!language) throw new MoneroError("Language is not initialized");
     let params = { filename: filename, password: password, language: language };
     await this.config.rpc.sendJsonRequest("create_wallet", params);
   }
@@ -97,8 +98,8 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {string} password is the password to decrypt the wallet file
    */
   async openWallet(filename, password) {
-    if (!filename) throw new Error("Filename is not initialized");
-    if (!password) throw new Error("Password is not initialized");
+    if (!filename) throw new MoneroError("Filename is not initialized");
+    if (!password) throw new MoneroError("Password is not initialized");
     await this.config.rpc.sendJsonRequest("open_wallet", {filename: filename, password: password});
     delete this.addressCache;
     this.addressCache = {};
@@ -310,7 +311,7 @@ class MoneroWalletRpc extends MoneroWallet {
     try {
       resp = await this.config.rpc.sendJsonRequest("get_address_index", {address: address});
     } catch (e) {
-      if (e.getRpcCode() === -2) throw new Error("Address does not belong to the wallet");
+      if (e.getCode() === -2) throw new MoneroError("Address does not belong to the wallet");
       throw e;
     }
     let subaddress = new MoneroSubaddress(address);
@@ -591,7 +592,7 @@ class MoneroWalletRpc extends MoneroWallet {
           }
         }
       }
-      if (subaddressIndices.length === 0) throw new Error("No subaddresses to sweep from");
+      if (subaddressIndices.length === 0) throw new MoneroError("No subaddresses to sweep from");
       
       // sweep each subaddress individually
       if (config.getSweepEachSubaddress() === undefined || config.getSweepEachSubaddress()) {
@@ -661,7 +662,7 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async sweepDust(doNotRelay) {
-    throw new Error("Not implemented");
+    throw new MoneroError("Not implemented");
   }
   
   async sweepOutput(configOrAddress, keyImage, priority, mixin) {
@@ -1142,7 +1143,7 @@ class MoneroWalletRpc extends MoneroWallet {
           for (let destinationKey of Object.keys(rpcDestination)) {
             if (destinationKey === "address") destination.setAddress(rpcDestination[destinationKey]);
             else if (destinationKey === "amount") destination.setAmount(new BigInteger(rpcDestination[destinationKey]));
-            else throw new Error("Unrecognized transaction destination field: " + destinationKey);
+            else throw new MoneroError("Unrecognized transaction destination field: " + destinationKey);
           }
         }
         if (transfer === undefined) transfer = new MoneroTransfer({tx: tx});
@@ -1334,7 +1335,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsFailed(true);
       tx.setIsCoinbase(false);
     } else {
-      throw new Error("Unrecognized transfer type: " + rpcType);
+      throw new MoneroError("Unrecognized transfer type: " + rpcType);
     }
     return isOutgoing;
   }

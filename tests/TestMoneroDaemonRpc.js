@@ -2,6 +2,7 @@ const assert = require("assert");
 const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const GenUtils = require("../src/utils/GenUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
+const MoneroError = require("../src/utils/MoneroError");
 const TestUtils = require("./TestUtils");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
 const MoneroSendConfig = require("../src/wallet/config/MoneroSendConfig");
@@ -845,8 +846,8 @@ class TestMoneroDaemonRpc {
           await daemon.submitBlock(template.getBlockHashingBlob());
           fail("Should have thrown error");
         } catch (e) {
-          assert.equal(e.getRpcCode(), -7);
-          assert.equal(e.getRpcMessage(), "Block not accepted");
+          assert.equal(e.getCode(), -7);
+          assert.equal(e.getDescription(), "Block not accepted");
         }
       });
       

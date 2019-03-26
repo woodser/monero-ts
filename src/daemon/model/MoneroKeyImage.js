@@ -1,5 +1,6 @@
 const assert = require("assert");
 const MoneroUtils = require("../../utils/MoneroUtils");
+const MoneroError = require("../../utils/MoneroError");
 
 /**
  * Models a Monero key image.
@@ -21,7 +22,7 @@ class MoneroKeyImage {
       this.setHex(stateOrHex);
       this.setSignature(signature);
     } else {
-      throw new Error("stateOrHex must be a MoneroKeyImage, JavaScript object, or string");
+      throw new MoneroError("stateOrHex must be a MoneroKeyImage, JavaScript object, or string");
     }
   }
 
