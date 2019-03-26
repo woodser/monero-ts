@@ -11,6 +11,8 @@ class MoneroSendConfig {
   /**
    * Construct the configuration.
    * 
+   * TODO: alias subaddressIndex to subaddressIndices
+   * 
    * @param {object|string} configOrAddress is existing configuration or a destination address (optional)
    * @param {BigInteger} amount is the amount to send (optional)
    * @param {string} paymentId is the payment id (optional)

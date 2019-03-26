@@ -686,11 +686,14 @@ class MoneroWalletRpc extends MoneroWallet {
     // build request parameters
     let params = {};
     params.address = config.getDestinations()[0].getAddress();
+    params.account_index = config.getAccountIndex();
+    params.subaddr_indices = config.getSubaddressIndices();
     params.key_image = config.getKeyImage();
     params.mixin = config.getMixin();
     params.unlock_time = config.getUnlockTime();
     params.do_not_relay = config.getDoNotRelay();
     params.priority = config.getPriority();
+    params.payment_id = config.getPaymentId();
     params.get_tx_key = true;
     params.get_tx_hex = true;
     params.get_tx_metadata = true;
