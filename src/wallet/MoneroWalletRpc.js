@@ -418,7 +418,7 @@ class MoneroWalletRpc extends MoneroWallet {
       for (let key of Object.keys(resp.result)) {
         for (let rpcTx of resp.result[key]) {
           if (rpcTx.txid === config.debugTxId) console.log(rpcTx);
-          let tx = MoneroWalletRpc._buildTxWallet(rpcTx);
+          let tx = MoneroWalletRpc._convertRpcTxWallet(rpcTx);
           
           // replace transfer amount with destination sum
           // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached transfers
@@ -491,7 +491,7 @@ class MoneroWalletRpc extends MoneroWallet {
       // convert response to txs with vouts and merge
       if (resp.result.transfers === undefined) continue;
       for (let rpcVout of resp.result.transfers) {
-        let tx = MoneroWalletRpc._buildTxWalletVout(rpcVout);
+        let tx = MoneroWalletRpc._convertRpcTxWalletVout(rpcVout);
         MoneroWalletRpc._mergeTx(txs, tx);
       }
     }
@@ -608,7 +608,7 @@ class MoneroWalletRpc extends MoneroWallet {
           }
           
           // initialize fields from response
-          MoneroWalletRpc._buildSentTxWallets(resp.result, respTxs);
+          MoneroWalletRpc._convertRpcSentTxWallets(resp.result, respTxs);
           for (let tx of respTxs) accountTxs.push(tx);
         }
       }
@@ -626,7 +626,7 @@ class MoneroWalletRpc extends MoneroWallet {
         }
         
         // initialize fields from response
-        MoneroWalletRpc._buildSentTxWallets(resp.result, respTxs);
+        MoneroWalletRpc._convertRpcSentTxWallets(resp.result, respTxs);
         for (let tx of respTxs) accountTxs.push(tx);
       }
       
@@ -700,7 +700,7 @@ class MoneroWalletRpc extends MoneroWallet {
 
     // build and return tx response
     let tx = MoneroWalletRpc._initSentTxWallet(config);
-    MoneroWalletRpc._buildTxWallet(resp.result, tx, true);
+    MoneroWalletRpc._convertRpcTxWallet(resp.result, tx, true);
     tx.getOutgoingTransfer().getDestinations()[0].setAmount(new BigInteger(tx.getOutgoingTransfer().getAmount()));  // initialize destination amount
     return tx;
   }
@@ -1029,8 +1029,8 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // initialize txs from rpc response
-    if (split) MoneroWalletRpc._buildSentTxWallets(resp.result, txs);
-    else MoneroWalletRpc._buildTxWallet(resp.result, txs[0], true);
+    if (split) MoneroWalletRpc._convertRpcSentTxWallets(resp.result, txs);
+    else MoneroWalletRpc._convertRpcTxWallet(resp.result, txs[0], true);
     
     // return array or element depending on split
     return split ? txs : txs[0];
@@ -1058,7 +1058,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param isOutgoing specifies if the tx is outgoing if true, incoming if false, or decodes from type if undefined
    * @returns {MoneroTxWallet} is the initialized tx
    */
-  static _buildTxWallet(rpcTx, tx, isOutgoing) {  // TODO: change everything to safe set
+  static _convertRpcTxWallet(rpcTx, tx, isOutgoing) {  // TODO: change everything to safe set
         
     // initialize tx to return
     if (!tx) tx = new MoneroTxWallet();
@@ -1075,7 +1075,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // TODO: safe set
-    // initialize remaining fields  TODO: seems this should be part of common function with DaemonRpc._buildTx
+    // initialize remaining fields  TODO: seems this should be part of common function with DaemonRpc._convertRpcTx
     let header;
     let transfer;
     let accountIdx;
@@ -1173,7 +1173,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return tx;
   }
   
-  static _buildTxWalletVout(rpcVout) {
+  static _convertRpcTxWalletVout(rpcVout) {
     
     // initialize tx
     let tx = new MoneroTxWallet();
@@ -1238,7 +1238,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param rpcTxs are sent rpc txs to initialize the MoneroTxWallets from
    * @param txs are existing txs to initialize (optional)
    */
-  static _buildSentTxWallets(rpcTxs, txs) {
+  static _convertRpcSentTxWallets(rpcTxs, txs) {
     
     // get lists
     let ids = rpcTxs.tx_hash_list;
