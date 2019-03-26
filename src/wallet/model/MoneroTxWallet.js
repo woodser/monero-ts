@@ -157,7 +157,7 @@ class MoneroTxWallet extends MoneroTx {
     // TODO: proper csv export
     if (oneLine) {
       str += this.getId() + ", ";
-      str += (this.getIsConfirmed() ? this.getBlock().getHeader().getTimestamp() : this.getReceivedTimestamp()) + ", ";
+      str += (this.getIsConfirmed() ? this.getBlock().getTimestamp() : this.getReceivedTimestamp()) + ", ";
       str += this.getIsConfirmed() + ", ";
       str += (this.getOutgoingAmount() ? this.getOutgoingAmount().toString() : "") + ", "
       str += this.getIncomingAmount() ? this.getIncomingAmount().toString() : "";

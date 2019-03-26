@@ -76,9 +76,9 @@ describe("Test Sample Code", function() {
       
       // get block info
       for (let block of blocks) {
-        let blockHeight = block.getHeader().getHeight();
-        let blockId = block.getHeader().getId();
-        let blockSize = block.getHeader().getSize();
+        let blockHeight = block.getHeight();
+        let blockId = block.getId();
+        let blockSize = block.getSize();
         let txCount = block.getTxs().length;
       }
     });

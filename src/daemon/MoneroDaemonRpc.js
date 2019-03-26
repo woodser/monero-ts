@@ -157,7 +157,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       
       // build block
       let block = MoneroDaemonRpc._convertRpcBlock(rpcBlocks.blocks[blockIdx]);
-      block.getHeader().setHeight(heights[blockIdx]);
+      block.setHeight(heights[blockIdx]);
       blocks.push(block);
       
       // build transactions
@@ -705,9 +705,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
   static _convertRpcBlock(rpcBlock) {
     
     // build block
-    let block = new MoneroBlock();
+    let block = new MoneroBlock(MoneroDaemonRpc._convertRpcBlockHeader(rpcBlock.block_header ? rpcBlock.block_header : rpcBlock));
     block.setHex(rpcBlock.blob);
-    block.setHeader(MoneroDaemonRpc._convertRpcBlockHeader(rpcBlock.block_header ? rpcBlock.block_header : rpcBlock));
     block.setTxIds(rpcBlock.tx_hashes === undefined ? [] : rpcBlock.tx_hashes);
     
     // build coinbase tx
@@ -802,11 +801,11 @@ class MoneroDaemonRpc extends MoneroDaemon {
     }
     
     // link block and tx
-    if (header) tx.setBlock(new MoneroBlock().setHeader(header).setTxs([tx]));
+    if (header) tx.setBlock(new MoneroBlock(header).setTxs([tx]));
     
     // TODO monero-daemon-rpc: unconfirmed txs block height and timestamp are actually received timestamp; overloading data model variables is bad juju
-    if (tx.getBlock() && tx.getBlock().getHeader().getHeight() !== undefined && tx.getBlock().getHeader().getHeight() === tx.getBlock().getHeader().getTimestamp()) {
-      tx.setReceivedTimestamp(tx.getBlock().getHeader().getHeight());
+    if (tx.getBlock() && tx.getBlock().getHeight() !== undefined && tx.getBlock().getHeight() === tx.getBlock().getTimestamp()) {
+      tx.setReceivedTimestamp(tx.getBlock().getHeight());
       tx.setBlock(undefined);
       tx.setIsConfirmed(false);
     }

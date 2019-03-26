@@ -166,7 +166,7 @@ class MoneroTxFilter extends Filter {
     }
     
     // filter on remaining fields
-    let height = tx.getBlock() === undefined || tx.getBlock().getHeader() === undefined ? undefined : tx.getBlock().getHeader().getHeight();
+    let height = tx.getBlock() === undefined ? undefined : tx.getBlock().getHeight();
     if (this.getTxIds() !== undefined && !this.getTxIds().includes(tx.getId())) return false;
     if (this.getPaymentIds() !== undefined && !this.getPaymentIds().includes(tx.getPaymentId())) return false;
     if (this.getHeight() !== undefined && height !== this.getHeight()) return false;

@@ -6,24 +6,15 @@ const MoneroBlockHeader = require("./MoneroBlockHeader");
 /**
  * Monero block.
  */
-class MoneroBlock {
+class MoneroBlock extends MoneroBlockHeader {
   
   /**
    * Construct the model.
    * 
-   * @param {MoneroBlock|object} state is existing state to initialize from (optional)
+   * @param {MoneroBlock|MoneroBlockHeader|object} state is existing state to initialize from (optional)
    */
   constructor(state) {
-    
-    // initialize internal state
-    if (!state) state = {};
-    else if (state instanceof MoneroBlock) state = state.toJson();
-    else if (typeof state === "object") state = Object.assign({}, state);
-    else throw new MoneroError("state must be a MoneroBlock or JavaScript object");
-    this.state = state;
-    
-    // deserialize header
-    if (state.header && !(state.header instanceof MoneroBlockHeader)) state.header = new MoneroBlockHeader(state.header);
+    super(state);
     
     // deserialize coinbase tx
     if (state.coinbaseTx && !(state.coinbaseTx instanceof MoneroTx)) state.coinbaseTx = new MoneroTx(state.coinbaseTx).setBlock(this);
@@ -34,15 +25,6 @@ class MoneroBlock {
         if (!(state.txs[i] instanceof MoneroTx)) state.txs[i] = new MoneroTx(state.txs[i]).setBlock(this);
       }
     }
-  }
-  
-  getHeader() {
-    return this.state.header;
-  }
-  
-  setHeader(header) {
-    this.state.header = header;
-    return this;
   }
   
   getHex() {
@@ -86,8 +68,7 @@ class MoneroBlock {
   }
   
   toJson() {
-    let json = Object.assign({}, this.state);
-    if (this.getHeader()) json.header = this.getHeader().toJson();
+    let json = super.toJson();
     if (this.getCoinbaseTx()) json.coinbaseTx = this.getCoinbaseTx().toJson();
     if (this.getTxs()) {
       json.txs = [];
@@ -100,9 +81,8 @@ class MoneroBlock {
     assert(block instanceof MoneroBlock);
     if (this === block) return;
     
-    // merge header
-    if (!this.getHeader()) this.setHeader(block.getHeader());
-    else if (block.getHeader()) this.getHeader().merge(block.getHeader());
+    // merge header fields
+    super.merge(block);
     
     // merge coinbase tx
     if (!this.getCoinbaseTx()) this.setCoinbaseTx(block.getCoinbaseTx());
@@ -132,11 +112,7 @@ class MoneroBlock {
   }
   
   toString(indent = 0) {
-    let str = "";
-    if (this.getHeader()) {
-      str += MoneroUtils.kvLine("Header", "", indent);
-      str += this.getHeader().toString(indent + 1) + "\n";
-    }
+    let str = super.toString(indent);
     if (this.getCoinbaseTx()) {
       str += MoneroUtils.kvLine("Coinbase tx", "", indent);
       str += this.getCoinbaseTx().toString(indent + 1) + "\n";

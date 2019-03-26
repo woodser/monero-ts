@@ -219,11 +219,11 @@ class MoneroWalletLocal extends MoneroWallet {
       this._processBlock(block);
       
       // mark block as persisted in persisted wallet
-      this.cache.processed.set(true, block.getHeader().getHeight()); // mark block as processed in persisted wallet
+      this.cache.processed.set(true, block.getHeight()); // mark block as processed in persisted wallet
       
       // report progress
       if (onProgress) {
-        let doneBlocks = block.getHeader().getHeight() - startHeight + 1;
+        let doneBlocks = block.getHeight() - startHeight + 1;
         let totalBlocks = endHeight - startHeight + 1;
         onProgress({
           percent: doneBlocks / totalBlocks,
@@ -344,7 +344,7 @@ class MoneroWalletLocal extends MoneroWallet {
         // check if wallet owns output
         if (tx.getVouts()[outIdx].getStealthPublicKey() === pubKeyDerived) {
           // TODO: now what?
-          //console.log("THIS MY OUTPUT AT HEIGHT " + block.getHeader().getHeight() + "!!!");
+          //console.log("THIS MY OUTPUT AT HEIGHT " + block.getHeight() + "!!!");
         }
       }
     }

@@ -1155,7 +1155,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // link block and tx
-    if (header) tx.setBlock(new MoneroBlock().setHeader(header).setTxs([tx]));
+    if (header) tx.setBlock(new MoneroBlock(header).setTxs([tx]));
     
     // initialize final fields
     if (transfer) {

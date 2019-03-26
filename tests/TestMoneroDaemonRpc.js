@@ -150,7 +150,7 @@ class TestMoneroDaemonRpc {
         let id = await daemon.getBlockId(lastHeader.getHeight());
         let block = await daemon.getBlockById(id);
         testBlock(block, testBlockConfig);
-        assert.deepEqual(block, await daemon.getBlockByHeight(block.getHeader().getHeight()));
+        assert.deepEqual(block, await daemon.getBlockByHeight(block.getHeight()));
         assert(block.getTxs() === undefined);
         
         // retrieve by id of previous to last block
@@ -170,12 +170,12 @@ class TestMoneroDaemonRpc {
         let lastHeader = await daemon.getLastBlockHeader();
         let block = await daemon.getBlockByHeight(lastHeader.getHeight());
         testBlock(block, testBlockConfig);
-        assert.deepEqual(block, await daemon.getBlockByHeight(block.getHeader().getHeight()));
+        assert.deepEqual(block, await daemon.getBlockByHeight(block.getHeight()));
         
         // retrieve by height of previous to last block
         block = await daemon.getBlockByHeight(lastHeader.getHeight() - 1);
         testBlock(block, testBlockConfig);
-        assert.deepEqual(block.getHeader().getHeight(), lastHeader.getHeight() - 1);
+        assert.deepEqual(block.getHeight(), lastHeader.getHeight() - 1);
       });
       
       it("Can get blocks by height which includes transactions (binary)", async function() {
@@ -204,7 +204,7 @@ class TestMoneroDaemonRpc {
           let block = blocks[i];
           if (block.getTxs().length) txFound = true;
           testBlock(block, testBlockConfig);
-          assert.equal(block.getHeader().getHeight(), heights[i]);      
+          assert.equal(block.getHeight(), heights[i]);      
         }
         assert(txFound, "No transactions found to test");
       });
@@ -247,7 +247,7 @@ class TestMoneroDaemonRpc {
           let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
           assert.equal(blocks.length, realEndHeight - realStartHeight + 1);
           for (let i = 0; i < blocks.length; i++) {
-            assert.equal(blocks[i].getHeader().getHeight(), realStartHeight + i);
+            assert.equal(blocks[i].getHeight(), realStartHeight + i);
           }
         }
       });
@@ -1086,7 +1086,7 @@ function testBlock(block, config) {
   assert(Array.isArray(block.getTxIds())); // TODO: tx hashes probably part of tx
   assert(block.getTxIds().length >= 0);
   testCoinbaseTx(block.getCoinbaseTx());   // TODO: coinbase tx doesn't have as much stuff, can't call testTx?
-  testBlockHeader(block.getHeader(), config.headerIsFull);
+  testBlockHeader(block, config.headerIsFull);
   
   if (config.hasHex) {
     assert(block.getHex());
@@ -1165,8 +1165,8 @@ function testTx(tx, config) {
   if (tx.getIsConfirmed()) {
     assert(tx.getBlock());
     assert(tx.getBlock().getTxs().includes(tx));
-    assert(tx.getBlock().getHeader().getHeight() > 0);
-    assert(tx.getBlock().getHeader().getTimestamp() > 0);
+    assert(tx.getBlock().getHeight() > 0);
+    assert(tx.getBlock().getTimestamp() > 0);
     assert.equal(tx.getIsRelayed(), true);
     assert.equal(tx.getIsFailed(), false);
     assert.equal(tx.getInTxPool(), false);

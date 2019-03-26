@@ -517,7 +517,7 @@ class TestMoneroWalletCommon {
           // get and sort block heights in ascending order
           let heights = [];
           for (let tx of txs) {
-            heights.push(tx.getBlock().getHeader().getHeight());
+            heights.push(tx.getBlock().getHeight());
           }
           GenUtils.sort(heights);
           
@@ -537,7 +537,7 @@ class TestMoneroWalletCommon {
           txs = await getAndTestTxs(wallet, {minHeight: minHeight, maxHeight: maxHeight}, true);
           assert(txs.length < unfilteredCount);
           for (let tx of txs) {
-            let height = tx.getBlock().getHeader().getHeight();
+            let height = tx.getBlock().getHeight();
             assert(height >= minHeight && height <= maxHeight);
           }
         }
@@ -881,8 +881,8 @@ class TestMoneroWalletCommon {
         
         // sort txs
         txs.sort((a, b) => {
-          let timestampA = a.getIsConfirmed() ? a.getBlock().getHeader().getTimestamp() : a.getReceivedTimestamp();
-          let timestampB = b.getIsConfirmed() ? b.getBlock().getHeader().getTimestamp() : b.getReceivedTimestamp();
+          let timestampA = a.getIsConfirmed() ? a.getBlock().getTimestamp() : a.getReceivedTimestamp();
+          let timestampB = b.getIsConfirmed() ? b.getBlock().getTimestamp() : b.getReceivedTimestamp();
           if (timestampA < timestampB) return -1;
           if (timestampA > timestampB) return 1;
           return 0;
@@ -2293,8 +2293,8 @@ async function testTxWallet(tx, testConfig) {
   if (tx.getIsConfirmed()) {
     assert(tx.getBlock());
     assert(tx.getBlock().getTxs().includes(tx));
-    assert(tx.getBlock().getHeader().getHeight() > 0);
-    assert(tx.getBlock().getHeader().getTimestamp() > 0);
+    assert(tx.getBlock().getHeight() > 0);
+    assert(tx.getBlock().getTimestamp() > 0);
     assert.equal(tx.getIsRelayed(), true);
     assert.equal(tx.getIsFailed(), false);
     assert.equal(tx.getInTxPool(), false);
