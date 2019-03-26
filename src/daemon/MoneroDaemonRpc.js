@@ -83,28 +83,28 @@ class MoneroDaemonRpc extends MoneroDaemon {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_block_template", {wallet_address: walletAddress, reserve_size: reserveSize});
     MoneroDaemonRpc._checkResponseStatus(resp.result);
-    return MoneroDaemonRpc._buildBlockTemplate(resp.result);
+    return MoneroDaemonRpc._convertRpcBlockTemplate(resp.result);
   }
   
   async getLastBlockHeader() {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_last_block_header");
     MoneroDaemonRpc._checkResponseStatus(resp.result);
-    return MoneroDaemonRpc._buildBlockHeader(resp.result.block_header);
+    return MoneroDaemonRpc._convertRpcBlockHeader(resp.result.block_header);
   }
   
   async getBlockHeaderById(blockId) {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_block_header_by_hash", {hash: blockId} );
     MoneroDaemonRpc._checkResponseStatus(resp.result);
-    return MoneroDaemonRpc._buildBlockHeader(resp.result.block_header);
+    return MoneroDaemonRpc._convertRpcBlockHeader(resp.result.block_header);
   }
   
   async getBlockHeaderByHeight(height) {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_block_header_by_height", {height: height} );
     MoneroDaemonRpc._checkResponseStatus(resp.result);
-    return MoneroDaemonRpc._buildBlockHeader(resp.result.block_header);
+    return MoneroDaemonRpc._convertRpcBlockHeader(resp.result.block_header);
   }
   
   async getBlockHeadersByRange(startHeight, endHeight) {
@@ -120,7 +120,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     // build headers
     let headers = [];
     for (let rpcHeader of resp.result.headers) {
-      headers.push(MoneroDaemonRpc._buildBlockHeader(rpcHeader));
+      headers.push(MoneroDaemonRpc._convertRpcBlockHeader(rpcHeader));
     }
     return headers;
   }
@@ -129,14 +129,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_block", {hash: blockId});
     MoneroDaemonRpc._checkResponseStatus(resp.result);
-    return MoneroDaemonRpc._buildBlock(resp.result);
+    return MoneroDaemonRpc._convertRpcBlock(resp.result);
   }
   
   async getBlockByHeight(height) {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_block", {height: height});
     MoneroDaemonRpc._checkResponseStatus(resp.result);
-    return MoneroDaemonRpc._buildBlock(resp.result);
+    return MoneroDaemonRpc._convertRpcBlock(resp.result);
   }
   
   async getBlocksByHeight(heights) {
@@ -156,7 +156,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     for (let blockIdx = 0; blockIdx < rpcBlocks.blocks.length; blockIdx++) {
       
       // build block
-      let block = MoneroDaemonRpc._buildBlock(rpcBlocks.blocks[blockIdx]);
+      let block = MoneroDaemonRpc._convertRpcBlock(rpcBlocks.blocks[blockIdx]);
       block.getHeader().setHeight(heights[blockIdx]);
       blocks.push(block);
       
@@ -173,7 +173,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.setIsRelayed(true);
         tx.setIsFailed(false);
         tx.setIsDoubleSpend(false);
-        MoneroDaemonRpc._buildTx(rpcBlocks.txs[blockIdx][txIdx], tx);
+        MoneroDaemonRpc._convertRpcTx(rpcBlocks.txs[blockIdx][txIdx], tx);
       }
       
       // merge into one block
@@ -222,7 +222,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       for (let txIdx = 0; txIdx < resp.txs.length; txIdx++) {
         let tx = new MoneroTx();
         tx.setIsCoinbase(false);
-        txs.push(MoneroDaemonRpc._buildTx(resp.txs[txIdx], tx));
+        txs.push(MoneroDaemonRpc._convertRpcTx(resp.txs[txIdx], tx));
       }
     }
     return txs;
@@ -256,7 +256,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async submitTxHex(txHex, doNotRelay) {
     let resp = await this.config.rpc.sendPathRequest("send_raw_transaction", {tx_as_hex: txHex, do_not_relay: doNotRelay});
-    let result = MoneroDaemonRpc._buildSubmitTxResult(resp);
+    let result = MoneroDaemonRpc._convertRpcSubmitTxResult(resp);
     try { // collect response instead of throwing
       MoneroDaemonRpc._checkResponseStatus(resp); 
       result.setIsGood(true);
@@ -287,7 +287,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.setIsCoinbase(false);
         tx.setInTxPool(true);
         tx.setNumConfirmations(0);
-        MoneroDaemonRpc._buildTx(rpcTx, tx);
+        MoneroDaemonRpc._convertRpcTx(rpcTx, tx);
       }
     }
     
@@ -306,7 +306,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     throw new MoneroError("Response contains field 'histo' which is binary'");
     let resp = await this.config.rpc.sendPathRequest("get_transaction_pool_stats");
     MoneroDaemonRpc._checkResponseStatus(resp);
-    let stats = MoneroDaemonRpc._buildTxPoolStats(resp.pool_stats);
+    let stats = MoneroDaemonRpc._convertRpcTxPoolStats(resp.pool_stats);
     
     // uninitialize some stats if not applicable
     if (stats.getHisto98pc() === 0) stats.setHisto98pc(undefined);
@@ -349,7 +349,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let entries = [];
     if (!resp.result.histogram) return entries;
     for (let rpcEntry of resp.result.histogram) {
-      entries.push(MoneroDaemonRpc._buildOutputHistogramEntry(rpcEntry));
+      entries.push(MoneroDaemonRpc._convertRpcOutputHistogramEntry(rpcEntry));
     }
     return entries;
   }
@@ -381,7 +381,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
 //    let entries = [];
 //    if (!resp.result.distributions) return entries; 
 //    for (let rpcEntry of resp.result.distributions) {
-//      let entry = MoneroDaemonRpc._buildOutputDistributionEntry(rpcEntry);
+//      let entry = MoneroDaemonRpc._convertRpcOutputDistributionEntry(rpcEntry);
 //      entries.push(entry);
 //    }
 //    return entries;
@@ -391,20 +391,20 @@ class MoneroDaemonRpc extends MoneroDaemon {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_info");
     MoneroDaemonRpc._checkResponseStatus(resp.result);
-    return MoneroDaemonRpc._buildInfo(resp.result);
+    return MoneroDaemonRpc._convertRpcInfo(resp.result);
   }
   
   async getSyncInfo() {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("sync_info");
     MoneroDaemonRpc._checkResponseStatus(resp.result);
-    return MoneroDaemonRpc._buildSyncInfo(resp.result);
+    return MoneroDaemonRpc._convertRpcSyncInfo(resp.result);
   }
   
   async getHardForkInfo() {
     let resp = await this.config.rpc.sendJsonRequest("hard_fork_info");
     MoneroDaemonRpc._checkResponseStatus(resp.result);
-    return MoneroDaemonRpc._buildHardForkInfo(resp.result);
+    return MoneroDaemonRpc._convertRpcHardForkInfo(resp.result);
   }
   
   async getAltChains() {
@@ -426,7 +426,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     MoneroDaemonRpc._checkResponseStatus(resp.result);
     if (!resp.result.chains) return [];
     let chains = [];
-    for (let rpcChain of resp.result.chains) chains.push(MoneroDaemonRpc._buildAltChain(rpcChain));
+    for (let rpcChain of resp.result.chains) chains.push(MoneroDaemonRpc._convertRpcAltChain(rpcChain));
     return chains;
   }
   
@@ -478,7 +478,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let connections = [];
     if (!resp.result.connections) return connections;
     for (let rpcConnection of resp.result.connections) {
-      connections.push(MoneroDaemonRpc._buildConnection(rpcConnection));
+      connections.push(MoneroDaemonRpc._convertRpcConnection(rpcConnection));
     }
     return connections;
   }
@@ -493,14 +493,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let peers = [];
     if (resp.gray_list) {
       for (let rpcPeer of resp.gray_list) {
-        let peer = MoneroDaemonRpc._buildPeer(rpcPeer);
+        let peer = MoneroDaemonRpc._convertRpcPeer(rpcPeer);
         peer.setIsOnline(false); // gray list means offline last checked
         peers.push(peer);
       }
     }
     if (resp.white_list) {
       for (let rpcPeer of resp.white_list) {
-        let peer = MoneroDaemonRpc._buildPeer(rpcPeer);
+        let peer = MoneroDaemonRpc._convertRpcPeer(rpcPeer);
         peer.setIsOnline(true); // white list means online last checked
         peers.push(peer);
       }
@@ -540,7 +540,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async setPeerBans(bans) {
     let rpcBans = [];
-    for (let ban of bans) rpcBans.push(MoneroDaemonRpc._buildRpcBan(ban));
+    for (let ban of bans) rpcBans.push(MoneroDaemonRpc._convertRpcBan(ban));
     let resp = await this.config.rpc.sendJsonRequest("set_bans", {bans: rpcBans});
     MoneroDaemonRpc._checkResponseStatus(resp.result);
   }
@@ -567,7 +567,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async getMiningStatus() {
     let resp = await this.config.rpc.sendPathRequest("mining_status");
     MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildMiningStatus(resp);
+    return MoneroDaemonRpc._convertRpcMiningStatus(resp);
   }
   
   async submitBlocks(blockBlobs) {
@@ -579,13 +579,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async checkForUpdate() {
     let resp = await this.config.rpc.sendPathRequest("update", {command: "check"});
     MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildUpdateCheckResult(resp);
+    return MoneroDaemonRpc._convertRpcUpdateCheckResult(resp);
   }
   
   async downloadUpdate(path) {
     let resp = await this.config.rpc.sendPathRequest("update", {command: "download", path: path});
     MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildUpdateDownloadResult(resp);
+    return MoneroDaemonRpc._convertRpcUpdateDownloadResult(resp);
   }
   
   async stop() {
@@ -673,7 +673,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (resp.status !== "OK") throw new MoneroError(resp.status);
   }
   
-  static _buildBlockHeader(rpcHeader) {
+  static _convertRpcBlockHeader(rpcHeader) {
     if (!rpcHeader) return undefined;
     let header = new MoneroBlockHeader();
     for (let key of Object.keys(rpcHeader)) {
@@ -702,12 +702,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return header;
   }
   
-  static _buildBlock(rpcBlock) {
+  static _convertRpcBlock(rpcBlock) {
     
     // build block
     let block = new MoneroBlock();
     block.setHex(rpcBlock.blob);
-    block.setHeader(MoneroDaemonRpc._buildBlockHeader(rpcBlock.block_header ? rpcBlock.block_header : rpcBlock));
+    block.setHeader(MoneroDaemonRpc._convertRpcBlockHeader(rpcBlock.block_header ? rpcBlock.block_header : rpcBlock));
     block.setTxIds(rpcBlock.tx_hashes === undefined ? [] : rpcBlock.tx_hashes);
     
     // build coinbase tx
@@ -716,7 +716,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     block.setCoinbaseTx(coinbaseTx);
     coinbaseTx.setIsConfirmed(true);
     coinbaseTx.setIsCoinbase(true);
-    MoneroDaemonRpc._buildTx(rpcCoinbaseTx, coinbaseTx);
+    MoneroDaemonRpc._convertRpcTx(rpcCoinbaseTx, coinbaseTx);
     
     return block;
   }
@@ -730,7 +730,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * @param tx is the MoneroTx to populate with values (optional)
    * @returns tx is the same tx that was passed in or a new one if none given
    */
-  static _buildTx(rpcTx, tx) {
+  static _convertRpcTx(rpcTx, tx) {
     if (rpcTx === undefined) return undefined;
     if (tx === undefined) tx = new MoneroTx();
     
@@ -762,10 +762,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "extra") MoneroUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
       else if (key === "vin") {
         if (val.length !== 1 || !val[0].gen) {  // ignore coinbase vin TODO: why?
-          tx.setVins(val.map(rpcVin => MoneroDaemonRpc._buildOutput(rpcVin, tx)));
+          tx.setVins(val.map(rpcVin => MoneroDaemonRpc._convertRpcOutput(rpcVin, tx)));
         }
       }
-      else if (key === "vout") tx.setVouts(val.map(rpcVout => MoneroDaemonRpc._buildOutput(rpcVout, tx)));
+      else if (key === "vout") tx.setVouts(val.map(rpcVout => MoneroDaemonRpc._convertRpcOutput(rpcVout, tx)));
       else if (key === "rct_signatures") MoneroUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, val);
       else if (key === "rctsig_prunable") MoneroUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
       else if (key === "unlock_time") MoneroUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, val);
@@ -826,15 +826,15 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.getVouts()[i].setIndex(tx.getOutputIndices()[i]);  // transfer output indices to vouts
       }
     }
-    if (rpcTx.as_json) MoneroDaemonRpc._buildTx(JSON.parse(rpcTx.as_json), tx);
-    if (rpcTx.tx_json) MoneroDaemonRpc._buildTx(JSON.parse(rpcTx.tx_json), tx);
+    if (rpcTx.as_json) MoneroDaemonRpc._convertRpcTx(JSON.parse(rpcTx.as_json), tx);
+    if (rpcTx.tx_json) MoneroDaemonRpc._convertRpcTx(JSON.parse(rpcTx.tx_json), tx);
     if (!tx.getIsRelayed()) tx.setLastRelayedTimestamp(undefined);  // TODO monero-daemon-rpc: returns last_relayed_timestamp despite relayed: false, self inconsistent
     
     // return built transaction
     return tx;
   }
   
-  static _buildOutput(rpcOutput, tx) {
+  static _convertRpcOutput(rpcOutput, tx) {
     let output = new MoneroOutput();
     output.setTx(tx);
     for (let key of Object.keys(rpcOutput)) {
@@ -852,7 +852,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return output;
   }
   
-  static _buildBlockTemplate(rpcTemplate) {
+  static _convertRpcBlockTemplate(rpcTemplate) {
     let template = new MoneroBlockTemplate();
     for (let key of Object.keys(rpcTemplate)) {
       let val = rpcTemplate[key];
@@ -870,7 +870,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return template;
   }
   
-  static _buildInfo(rpcInfo) {
+  static _convertRpcInfo(rpcInfo) {
     if (!rpcInfo) return undefined;
     let info = new MoneroDaemonInfo();
     for (let key of Object.keys(rpcInfo)) {
@@ -919,7 +919,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * @param rpcSyncInfo is the rpc map to initialize the sync info from
    * @return {MoneroDaemonSyncInfo} is sync info initialized from the map
    */
-  static _buildSyncInfo(rpcSyncInfo) {
+  static _convertRpcSyncInfo(rpcSyncInfo) {
     let syncInfo = new MoneroDaemonSyncInfo();
     for (let key of Object.keys(rpcSyncInfo)) {
       let val = rpcSyncInfo[key];
@@ -928,13 +928,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
         syncInfo.setConnections([]);
         let rpcConnections = val;
         for (let rpcConnection of rpcConnections) {
-          syncInfo.getConnections().push(MoneroDaemonRpc._buildConnection(rpcConnection.info));
+          syncInfo.getConnections().push(MoneroDaemonRpc._convertRpcConnection(rpcConnection.info));
         }
       } else if (key === "spans") {
         syncInfo.setSpans([]);
         let rpcSpans = val;
         for (let rpcSpan of rpcSpans) {
-          syncInfo.getSpans().push(MoneroDaemonRpc._buildConnetionSpan(rpcSpan));
+          syncInfo.getSpans().push(MoneroDaemonRpc._convertRpcConnetionSpan(rpcSpan));
         }
       } else if (key === "status") {}   // handled elsewhere
       else if (key === "target_height") syncInfo.setTargetHeight(new BigInteger(val));
@@ -948,7 +948,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return syncInfo;
   }
   
-  static _buildHardForkInfo(rpcHardForkInfo) {
+  static _convertRpcHardForkInfo(rpcHardForkInfo) {
     let info = new MoneroHardForkInfo();
     for (let key of Object.keys(rpcHardForkInfo)) {
       let val = rpcHardForkInfo[key];
@@ -967,11 +967,11 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return info;
   }
   
-  static _buildConnectionSpan(rpcConnectionSpan) {
+  static _convertRpcConnectionSpan(rpcConnectionSpan) {
     throw new MoneroError("Not implemented");
   }
   
-  static _buildOutputHistogramEntry(rpcEntry) {
+  static _convertRpcOutputHistogramEntry(rpcEntry) {
     let entry = new MoneroOutputHistogramEntry();
     for (let key of Object.keys(rpcEntry)) {
       let val = rpcEntry[key];
@@ -984,7 +984,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return entry;
   }
   
-  static _buildSubmitTxResult(rpcResult) {
+  static _convertRpcSubmitTxResult(rpcResult) {
     assert(rpcResult);
     let result = new MoneroSubmitTxResult();
     for (let key of Object.keys(rpcResult)) {
@@ -1005,7 +1005,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return result;
   }
   
-  static _buildTxPoolStats(rpcStats) {
+  static _convertRpcTxPoolStats(rpcStats) {
     assert(rpcStats);
     let stats = new MoneroTxPoolStats();
     for (let key of Object.keys(rpcStats)) {
@@ -1028,7 +1028,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return stats;
   }
   
-  static _buildAltChain(rpcChain) {
+  static _convertRpcAltChain(rpcChain) {
     assert(rpcChain);
     let chain = new MoneroAltChain();
     for (let key of Object.keys(rpcChain)) {
@@ -1044,7 +1044,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return chain;
   }
   
-  static _buildPeer(rpcPeer) {
+  static _convertRpcPeer(rpcPeer) {
     assert(rpcPeer);
     let peer = new MoneroDaemonPeer();
     for (let key of Object.keys(rpcPeer)) {
@@ -1061,7 +1061,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return peer;
   }
   
-  static _buildConnection(rpcConnection) {
+  static _convertRpcConnection(rpcConnection) {
     let connection = new MoneroDaemonConnection();
     let peer = new MoneroDaemonPeer();
     connection.setPeer(peer);
@@ -1096,7 +1096,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return connection;
   }
   
-  static _buildRpcBan(ban) {
+  static _convertRpcBan(ban) {
     let rpcBan = {};
     rpcBan.host = ban.getHost();
     rpcBan.ip = ban.getIp();
@@ -1105,7 +1105,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return rpcBan;
   }
   
-  static _buildMiningStatus(rpcStatus) {
+  static _convertRpcMiningStatus(rpcStatus) {
     let status = new MoneroMiningStatus();
     status.setIsActive(rpcStatus.active);
     status.setSpeed(rpcStatus.speed);
@@ -1117,7 +1117,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return status;
   }
   
-  static _buildUpdateCheckResult(rpcResult) {
+  static _convertRpcUpdateCheckResult(rpcResult) {
     assert(rpcResult);
     let result = new MoneroDaemonUpdateCheckResult();
     for (let key of Object.keys(rpcResult)) {
@@ -1138,8 +1138,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return result;
   }
   
-  static _buildUpdateDownloadResult(rpcResult) {
-    let result = new MoneroDaemonUpdateDownloadResult(MoneroDaemonRpc._buildUpdateCheckResult(rpcResult));
+  static _convertRpcUpdateDownloadResult(rpcResult) {
+    let result = new MoneroDaemonUpdateDownloadResult(MoneroDaemonRpc._convertRpcUpdateCheckResult(rpcResult));
     result.setDownloadPath(rpcResult["path"]);
     if (result.getDownloadPath() === "") result.setDownloadPath(undefined);
     return result;
