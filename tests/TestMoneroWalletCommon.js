@@ -1756,7 +1756,7 @@ class TestMoneroWalletCommon {
         if (useJsConfig) {
           jsConfig = {};
           jsConfig.mixin = TestUtils.MIXIN;
-          jsConfig.accountIdx = srcAccount.getIndex();
+          jsConfig.accountIndex = srcAccount.getIndex();
           jsConfig.destinations = [];
           for (let i = 0; i < destinationAddresses.length; i++) {
             jsConfig.destinations.push({address: destinationAddresses[i], amount: sendAmountPerSubaddress});
