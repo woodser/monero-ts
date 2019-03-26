@@ -1,6 +1,6 @@
 const assert = require("assert");
 const Filter = require("../../utils/Filter");
-const MoneroWalletTx = require("../model/MoneroWalletTx");
+const MoneroTxWallet = require("../model/MoneroTxWallet");
 const MoneroTransferFilter = require("./MoneroTransferFilter"); // TODO: combine filters file so these can import each other?
 
 /**
@@ -19,11 +19,11 @@ class MoneroTxFilter extends Filter {
     this.state = state;
     
     // initialize tx if not given
-    if (!state.tx) state.tx = new MoneroWalletTx(state);
+    if (!state.tx) state.tx = new MoneroTxWallet(state);
     
     // deserialize if necessary
     if (state.transferFilter && !(state.transferFilter instanceof MoneroTransferFilter)) state.transferFilter = new MoneroTransferFilter(state.transferFilter);
-    if (!(state.tx instanceof MoneroWalletTx)) state.tx = new MoneroWalletTx(state.tx);
+    if (!(state.tx instanceof MoneroTxWallet)) state.tx = new MoneroTxWallet(state.tx);
   }
 
   getTxIds() {
@@ -117,7 +117,7 @@ class MoneroTxFilter extends Filter {
   }
   
   meetsCriteria(tx) {
-    assert(tx instanceof MoneroWalletTx);
+    assert(tx instanceof MoneroTxWallet);
     if (this === tx) return;
     
     // filter on tx

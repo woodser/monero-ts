@@ -1,6 +1,5 @@
 block extends blockheader, cool
 buildBlockHeader(), etc -> convertBlockHeader()
-MoneroWalletTx -> MoneroTxWallet
 use all_accounts to reduce rpc calls
 MoneroTxConfig setIncludeVouts(), getIncludeVouts()
 MoneroTxConfig isCompatible(MoneroWalletTx)

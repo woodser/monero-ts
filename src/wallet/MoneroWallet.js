@@ -277,7 +277,7 @@ class MoneroWallet {
    * @param {boolean} config.hasIncomingTransfer gets txs with an incoming transfer or not (optional)
    * @param {MoneroTransferFilter} config.transferFilter gets txs that have a transfer that meets this filter (optional)
    * @param {boolean} config.getVouts specifies that tx vouts should be returned with tx results (optional)
-   * @return {MoneroWalletTx[]} are wallet transactions per the configuration
+   * @return {MoneroTxWallet[]} are wallet transactions per the configuration
    */
   async getTxs(config) {
     throw new MoneroError("Subclass must implement");
@@ -390,7 +390,7 @@ class MoneroWallet {
    * @param {int|MoneroSendPriority} priority is the priority to have the tx confirmed; 0-3 for default, unimportant, normal, and elevated (optional)
    * @param {int} mixin is the number of outputs from the blockchain to mix with (optional)
    * 
-   * @return {MoneroWalletTx} is the resulting transaction
+   * @return {MoneroTxWallet} is the resulting transaction
    */
   async send(configOrAddress, sendAmount, priority, mixin) {
     throw new MoneroError("Subclass must implement");
@@ -419,7 +419,7 @@ class MoneroWallet {
    * @param {int|MoneroSendPriority} priority is the priority to have the tx confirmed; 0-3 for default, unimportant, normal, and elevated (optional)
    * @param {int} mixin is the number of outputs from the blockchain to mix with (optional)
    * 
-   * @return {MoneroWalletTx[]} are the resulting transactions
+   * @return {MoneroTxWallet[]} are the resulting transactions
    */
   async sendSplit(configOrAddress, sendAmount, priority, mixin) {
     throw new MoneroError("Subclass must implement");
@@ -429,7 +429,7 @@ class MoneroWallet {
    * Sweep the wallet's unlocked funds to an address.
    * 
    * @param {string} address is the address to sweep the wallet's funds to
-   * @return {MoneroWalletTx[]} are the resulting transactions
+   * @return {MoneroTxWallet[]} are the resulting transactions
    */
   async sweepWallet(address) {
     return await this.sweepUnlocked(new MoneroSendConfig(address));
@@ -440,7 +440,7 @@ class MoneroWallet {
    * 
    * @param {int} accountIdx is the index of the account
    * @param {address} address is the address to sweep the account's funds to
-   * @return {MoneroWalletTx[]} are the resulting transactions
+   * @return {MoneroTxWallet[]} are the resulting transactions
    */
   async sweepAccount(accountIdx, address) {
     let config = new MoneroSendConfig(address);
@@ -454,7 +454,7 @@ class MoneroWallet {
    * @param {int} accountIdx is the index of the account
    * @param {int} subaddressIdx is the index of the subaddress
    * @param {string} address is the address to sweep the subaddress's funds to
-   * @return {MoneroWalletTx[]} are the resulting transactions
+   * @return {MoneroTxWallet[]} are the resulting transactions
    */
   async sweepSubaddress(accountIdx, subaddressIdx, address) {
     let config = new MoneroSendConfig(address);
@@ -467,7 +467,7 @@ class MoneroWallet {
    * Sweep unlocked funds.
    * 
    * @param {(MoneroSendConfig|object)} config is the sweep configuration
-   * @return {MoneroWalletTx[]} are the resulting transactions
+   * @return {MoneroTxWallet[]} are the resulting transactions
    */
   async sweepUnlocked(config) {
     throw new MoneroError("Subclass must implement");
@@ -477,7 +477,7 @@ class MoneroWallet {
    * Sweep all unmixable dust outputs back to the wallet to make them easier to spend and mix.
    * 
    * @param {boolean} doNotRelay specifies if the resulting transaction should not be relayed (defaults to false i.e. relayed)
-   * @return {MoneroWalletTx[]} are the resulting transactions from sweeping dust
+   * @return {MoneroTxWallet[]} are the resulting transactions from sweeping dust
    */
   async sweepDust(doNotRelay) {
     throw new MoneroError("Subclass must implement");
@@ -490,7 +490,7 @@ class MoneroWallet {
    * @param {string} keyImage is the key image hex of the output to sweep
    * @param {int} priority sets a transaction priority as an integer between 0 and 3 (see {MoneroSendPriority})
    * @param {int} mixin is the number of outputs from the blockchain to mix with (default 11)
-   * @return {MoneroWalletTx} is the resulting transaction from sweeping an output 
+   * @return {MoneroTxWallet} is the resulting transaction from sweeping an output 
    */
   async sweepOutput(configOrAddress, keyImage, priority, mixin) {
     throw new MoneroError("Subclass must implement");
@@ -500,7 +500,7 @@ class MoneroWallet {
    * Relay a transaction previously created without relaying.
    * 
    * @param {string} txMetadata is transaction metadata previously created without relaying
-   * @return {MoneroWalletTx} is the relayed tx
+   * @return {MoneroTxWallet} is the relayed tx
    */
   async relayTx(txMetadata) {
     return await relayTxs([txMetadata])[0];
@@ -510,7 +510,7 @@ class MoneroWallet {
    * Relay transactions previously created without relaying.
    * 
    * @param {string[]} txMetadatas are transaction metadata previously created without relaying
-   * @return {MoneroWalletTx[]} are the relayed txs
+   * @return {MoneroTxWallet[]} are the relayed txs
    */
   async relayTxs(txMetadatas) {
     throw new MoneroError("Subclass must implement");

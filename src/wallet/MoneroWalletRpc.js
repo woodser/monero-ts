@@ -11,7 +11,7 @@ const MoneroSyncResult = require('./model/MoneroSyncResult');
 const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
 const MoneroAccount = require("./model/MoneroAccount");
 const MoneroSubaddress = require("./model/MoneroSubaddress");
-const MoneroWalletTx = require("./model/MoneroWalletTx");
+const MoneroTxWallet = require("./model/MoneroTxWallet");
 const MoneroTransfer = require("./model/MoneroTransfer");
 const MoneroDestination = require("./model/MoneroDestination");
 const MoneroWalletOutput = require("./model/MoneroWalletOutput");
@@ -376,7 +376,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     if (!transferFilter.getTransfer()) transferFilter.setTransfer(new MoneroTransfer());
     if (!transferFilter.getTxFilter()) transferFilter.setTxFilter(new MoneroTxFilter());
-    if (!transferFilter.getTxFilter().getTx()) transferFilter.getTxFilter().setTx(new MoneroWalletTx());
+    if (!transferFilter.getTxFilter().getTx()) transferFilter.getTxFilter().setTx(new MoneroTxWallet());
     let transfer = transferFilter.getTransfer();
     let txFilter = transferFilter.getTxFilter();
     let tx = txFilter.getTx();
@@ -418,7 +418,7 @@ class MoneroWalletRpc extends MoneroWallet {
       for (let key of Object.keys(resp.result)) {
         for (let rpcTx of resp.result[key]) {
           if (rpcTx.txid === config.debugTxId) console.log(rpcTx);
-          let tx = MoneroWalletRpc._buildWalletTx(rpcTx);
+          let tx = MoneroWalletRpc._buildTxWallet(rpcTx);
           
           // replace transfer amount with destination sum
           // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached transfers
@@ -458,7 +458,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     if (!voutFilter.getVout()) voutFilter.setVout(new MoneroVout());
     if (!voutFilter.getTxFilter()) voutFilter.setTxFilter(new MoneroTxFilter());
-    if (!voutFilter.getTxFilter().getTx()) voutFilter.getTxFilter().setTx(new MoneroWalletTx());
+    if (!voutFilter.getTxFilter().getTx()) voutFilter.getTxFilter().setTx(new MoneroTxWallet());
     let vout = voutFilter.getVout();
     let txFilter = voutFilter.getTxFilter();
     let tx = txFilter.getTx();
@@ -491,7 +491,7 @@ class MoneroWalletRpc extends MoneroWallet {
       // convert response to txs with vouts and merge
       if (resp.result.transfers === undefined) continue;
       for (let rpcVout of resp.result.transfers) {
-        let tx = MoneroWalletRpc._buildWalletTxVout(rpcVout);
+        let tx = MoneroWalletRpc._buildTxWalletVout(rpcVout);
         MoneroWalletRpc._mergeTx(txs, tx);
       }
     }
@@ -603,12 +603,12 @@ class MoneroWalletRpc extends MoneroWallet {
           // initialize tx per subaddress
           let respTxs = [];
           for (let i = 0; i < resp.result.tx_hash_list.length; i++) {
-            let tx = new MoneroWalletTx();
+            let tx = new MoneroTxWallet();
             respTxs.push(tx);
           }
           
           // initialize fields from response
-          MoneroWalletRpc._buildSentWalletTxs(resp.result, respTxs);
+          MoneroWalletRpc._buildSentTxWallets(resp.result, respTxs);
           for (let tx of respTxs) accountTxs.push(tx);
         }
       }
@@ -621,12 +621,12 @@ class MoneroWalletRpc extends MoneroWallet {
         // initialize tx per subaddress
         let respTxs = [];
         for (let i = 0; i < resp.result.tx_hash_list.length; i++) {
-          let tx = new MoneroWalletTx();
+          let tx = new MoneroTxWallet();
           respTxs.push(tx);
         }
         
         // initialize fields from response
-        MoneroWalletRpc._buildSentWalletTxs(resp.result, respTxs);
+        MoneroWalletRpc._buildSentTxWallets(resp.result, respTxs);
         for (let tx of respTxs) accountTxs.push(tx);
       }
       
@@ -699,8 +699,8 @@ class MoneroWalletRpc extends MoneroWallet {
     let resp = await this.config.rpc.sendJsonRequest("sweep_single", params);
 
     // build and return tx response
-    let tx = MoneroWalletRpc._initSentWalletTx(config);
-    MoneroWalletRpc._buildWalletTx(resp.result, tx, true);
+    let tx = MoneroWalletRpc._initSentTxWallet(config);
+    MoneroWalletRpc._buildTxWallet(resp.result, tx, true);
     tx.getOutgoingTransfer().getDestinations()[0].setAmount(new BigInteger(tx.getOutgoingTransfer().getAmount()));  // initialize destination amount
     return tx;
   }
@@ -1019,18 +1019,18 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // initialize tx list
     let txs = [];
-    if (split) for (let i = 0; i < resp.result.tx_hash_list.length; i++) txs.push(new MoneroWalletTx());
-    else txs.push(new MoneroWalletTx());
+    if (split) for (let i = 0; i < resp.result.tx_hash_list.length; i++) txs.push(new MoneroTxWallet());
+    else txs.push(new MoneroTxWallet());
     
     // initialize known fields of tx
     for (let tx of txs) {
-      MoneroWalletRpc._initSentWalletTx(config, tx);
+      MoneroWalletRpc._initSentTxWallet(config, tx);
       tx.getOutgoingTransfer().setAccountIndex(accountIdx);
     }
     
     // initialize txs from rpc response
-    if (split) MoneroWalletRpc._buildSentWalletTxs(resp.result, txs);
-    else MoneroWalletRpc._buildWalletTx(resp.result, txs[0], true);
+    if (split) MoneroWalletRpc._buildSentTxWallets(resp.result, txs);
+    else MoneroWalletRpc._buildTxWallet(resp.result, txs[0], true);
     
     // return array or element depending on split
     return split ? txs : txs[0];
@@ -1051,17 +1051,17 @@ class MoneroWalletRpc extends MoneroWallet {
   // ---------------------------- PRIVATE STATIC ------------------------------
   
   /**
-   * Builds a MoneroWalletTx from a RPC tx.
+   * Builds a MoneroTxWallet from a RPC tx.
    * 
    * @param rpcTx is the rpc tx to build from
    * @param tx is an existing tx to continue initializing (optional)
    * @param isOutgoing specifies if the tx is outgoing if true, incoming if false, or decodes from type if undefined
-   * @returns {MoneroWalletTx} is the initialized tx
+   * @returns {MoneroTxWallet} is the initialized tx
    */
-  static _buildWalletTx(rpcTx, tx, isOutgoing) {  // TODO: change everything to safe set
+  static _buildTxWallet(rpcTx, tx, isOutgoing) {  // TODO: change everything to safe set
         
     // initialize tx to return
-    if (!tx) tx = new MoneroWalletTx();
+    if (!tx) tx = new MoneroTxWallet();
     
     // initialize tx state from rpc type
     if (rpcTx.type !== undefined) isOutgoing = MoneroWalletRpc._decodeRpcType(rpcTx.type, tx);
@@ -1124,7 +1124,7 @@ class MoneroWalletRpc extends MoneroWallet {
         transfer.setAddress(val);
       }
       else if (key === "payment_id") {
-        if (MoneroWalletTx.DEFAULT_PAYMENT_ID !== val) tx.setPaymentId(val);  // default is undefined
+        if (MoneroTxWallet.DEFAULT_PAYMENT_ID !== val) tx.setPaymentId(val);  // default is undefined
       }
       else if (key === "subaddr_index") {
         if (typeof val === "number") {
@@ -1173,10 +1173,10 @@ class MoneroWalletRpc extends MoneroWallet {
     return tx;
   }
   
-  static _buildWalletTxVout(rpcVout) {
+  static _buildTxWalletVout(rpcVout) {
     
     // initialize tx
-    let tx = new MoneroWalletTx();
+    let tx = new MoneroTxWallet();
     tx.setIsConfirmed(true);
     tx.setIsRelayed(true);
     tx.setIsFailed(false);
@@ -1206,11 +1206,11 @@ class MoneroWalletRpc extends MoneroWallet {
    * Initializes a sent transaction.
    * 
    * @param {MoneroSendConfig} config is the send configuration
-   * @param {MoneroWalletTx} is an existing transaction to initialize (optional)
-   * @return {MoneroWalletTx} is the initialized send tx
+   * @param {MoneroTxWallet} is an existing transaction to initialize (optional)
+   * @return {MoneroTxWallet} is the initialized send tx
    */
-  static _initSentWalletTx(config, tx) {
-    if (!tx) tx = new MoneroWalletTx();
+  static _initSentTxWallet(config, tx) {
+    if (!tx) tx = new MoneroTxWallet();
     tx.setIsConfirmed(false);
     tx.setNumConfirmations(0);
     tx.setInTxPool(config.getDoNotRelay() ? false : true);
@@ -1233,12 +1233,12 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   /**
-   * Initializes sent MoneroWalletTx[] from a list of rpc txs.
+   * Initializes sent MoneroTxWallet[] from a list of rpc txs.
    * 
    * @param rpcTxs are sent rpc txs to initialize the MoneroTxWallets from
    * @param txs are existing txs to initialize (optional)
    */
-  static _buildSentWalletTxs(rpcTxs, txs) {
+  static _buildSentTxWallets(rpcTxs, txs) {
     
     // get lists
     let ids = rpcTxs.tx_hash_list;
@@ -1257,7 +1257,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // initialize txs if necessary
     if (!txs) {
       txs = [];
-      for (let i = 0; i < ids.length; i++) txs.push(new MoneroWalletTx());
+      for (let i = 0; i < ids.length; i++) txs.push(new MoneroTxWallet());
     }
     
     // build transactions

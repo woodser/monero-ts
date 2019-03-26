@@ -8,12 +8,12 @@ const MoneroWalletOutput = require("./MoneroWalletOutput");
 /**
  * Models a Monero transaction with wallet extensions.
  */
-class MoneroWalletTx extends MoneroTx {
+class MoneroTxWallet extends MoneroTx {
   
   /**
    * Construct the model.
    * 
-   * @param {MoneroWalletTx|object} state is existing state to initialize from (optional)
+   * @param {MoneroTxWallet|object} state is existing state to initialize from (optional)
    */
   constructor(state) {
     super(state);
@@ -90,7 +90,7 @@ class MoneroWalletTx extends MoneroTx {
   }
   
   copy() {
-    return new MoneroWalletTx(this);
+    return new MoneroTxWallet(this);
   }
   
   toJson() {
@@ -113,7 +113,7 @@ class MoneroWalletTx extends MoneroTx {
    * @parm tx is the transaction to merge into this transaction
    */
   merge(tx) {
-    assert(tx instanceof MoneroWalletTx);
+    assert(tx instanceof MoneroTxWallet);
     if (this === tx) return;
     super.merge(tx);
     
@@ -184,4 +184,4 @@ class MoneroWalletTx extends MoneroTx {
   }
 }
 
-module.exports = MoneroWalletTx;
+module.exports = MoneroTxWallet;
