@@ -1,3 +1,4 @@
+wallet.getTxById() for convenience?
 sendConfig has ringSize which needs to be translated to all rpc params
 use all_accounts to reduce rpc calls
 MoneroTxConfig setIncludeVouts(), getIncludeVouts()
