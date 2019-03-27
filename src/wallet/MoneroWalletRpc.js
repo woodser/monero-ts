@@ -1,4 +1,5 @@
 const assert = require("assert");
+const Filter = require("../utils/Filter");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const GenUtils = require("../utils/GenUtils");
 const MoneroUtils = require("../utils/MoneroUtils");
@@ -360,7 +361,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // filter and return txs that meet transfer filter
     txFilter.setTransferFilter(transferFilter);
-    return txFilter.apply(txs);
+    return Filter.apply(txFilter, txs);
   }
   
   async getTransfers(config) {
@@ -374,29 +375,25 @@ class MoneroWalletRpc extends MoneroWallet {
       transferFilter = new MoneroTransferFilter(config);
       transferFilter.setTxFilter(new MoneroTxFilter(config));
     }
-    if (!transferFilter.getTransfer()) transferFilter.setTransfer(new MoneroTransfer());
     if (!transferFilter.getTxFilter()) transferFilter.setTxFilter(new MoneroTxFilter());
-    if (!transferFilter.getTxFilter().getTx()) transferFilter.getTxFilter().setTx(new MoneroTxWallet());
-    let transfer = transferFilter.getTransfer();
     let txFilter = transferFilter.getTxFilter();
-    let tx = txFilter.getTx();
     
     // determine account and subaddress indices to be queried
     let indices = new Map();
-    if (transfer.getAccountIndex() !== undefined) {
+    if (transferFilter.getAccountIndex() !== undefined) {
       let subaddressIndices = new Set();
-      if (transfer.getSubaddressIndex() !== undefined) subaddressIndices.add(transfer.getSubaddressIndex());
+      if (transferFilter.getSubaddressIndex() !== undefined) subaddressIndices.add(transferFilter.getSubaddressIndex());
       if (transferFilter.getSubaddressIndices() !== undefined) transferFilter.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
-      indices.set(transfer.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : undefined);
+      indices.set(transferFilter.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : undefined);
     } else {
-      assert.equal(transfer.getSubaddressIndex(), undefined, "Filter specifies a subaddress index but not an account index");
+      assert.equal(transferFilter.getSubaddressIndex(), undefined, "Filter specifies a subaddress index but not an account index");
       assert(transferFilter.getSubaddressIndices() === undefined || transferFilter.getSubaddressIndices().length === 0, "Filter specifies subaddress indices but not an account index");
       indices = await this._getAccountIndices(false);  // fetch all account and subaddress indices
     }
     
     // build params for get_transfers rpc call
-    let canBeConfirmed = tx.getIsConfirmed() !== false && tx.getInTxPool() !== true && tx.getIsFailed() !== true && tx.getIsRelayed() !== false;
-    let canBeInTxPool = tx.getIsConfirmed() !== true && tx.getInTxPool() !== false && tx.getIsFailed() !== true & tx.getIsRelayed() !== false && txFilter.getHeight() === undefined && txFilter.getMinHeight() === undefined;
+    let canBeConfirmed = txFilter.getIsConfirmed() !== false && txFilter.getInTxPool() !== true && txFilter.getIsFailed() !== true && txFilter.getIsRelayed() !== false;
+    let canBeInTxPool = txFilter.getIsConfirmed() !== true && txFilter.getInTxPool() !== false && txFilter.getIsFailed() !== true & txFilter.getIsRelayed() !== false && txFilter.getHeight() === undefined && txFilter.getMinHeight() === undefined;
     let canBeIncoming = transferFilter.getIsIncoming() !== false && transferFilter.getIsOutgoing() !== true && transferFilter.getHasDestinations() !== true;
     let canBeOutgoing = transferFilter.getIsOutgoing() !== false && transferFilter.getIsIncoming() !== true;
     let params = {};
@@ -404,7 +401,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.out = canBeOutgoing && canBeConfirmed;
     params.pool = canBeIncoming && canBeInTxPool;
     params.pending = canBeOutgoing && canBeInTxPool;
-    params.failed = tx.getIsFailed() !== false && tx.getIsConfirmed() !== true && tx.getInTxPool() != true;
+    params.failed = txFilter.getIsFailed() !== false && txFilter.getIsConfirmed() !== true && txFilter.getInTxPool() != true;
     if (txFilter.getMinHeight() !== undefined) params.min_height = txFilter.getMinHeight(); 
     if (txFilter.getMaxHeight() !== undefined) params.max_height = txFilter.getMaxHeight();
     params.filter_by_height = txFilter.getMinHeight() !== undefined || txFilter.getMaxHeight() !== undefined;
@@ -438,9 +435,9 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // filter and return transfers
     let transfers = [];
-    for (tx of txs) {
+    for (let tx of txs) {
       if (transferFilter.meetsCriteria(tx.getOutgoingTransfer())) transfers.push(tx.getOutgoingTransfer());
-      if (tx.getIncomingTransfers()) transferFilter.apply(tx.getIncomingTransfers()).map(transfer => transfers.push(transfer));
+      if (tx.getIncomingTransfers()) Filter.apply(transferFilter, tx.getIncomingTransfers()).map(transfer => transfers.push(transfer));
     }
     return transfers;
   }
@@ -456,22 +453,17 @@ class MoneroWalletRpc extends MoneroWallet {
       voutFilter = new MoneroVoutFilter(config);
       voutFilter.setTxFilter(new MoneroTxFilter(config));
     }
-    if (!voutFilter.getVout()) voutFilter.setVout(new MoneroVout());
     if (!voutFilter.getTxFilter()) voutFilter.setTxFilter(new MoneroTxFilter());
-    if (!voutFilter.getTxFilter().getTx()) voutFilter.getTxFilter().setTx(new MoneroTxWallet());
-    let vout = voutFilter.getVout();
-    let txFilter = voutFilter.getTxFilter();
-    let tx = txFilter.getTx();
     
     // determine account and subaddress indices to be queried
     let indices = new Map();
-    if (vout.getAccountIndex() !== undefined) {
+    if (voutFilter.getAccountIndex() !== undefined) {
       let subaddressIndices = new Set();
-      if (vout.getSubaddressIndex() !== undefined) subaddressIndices.add(vout.getSubaddressIndex());
+      if (voutFilter.getSubaddressIndex() !== undefined) subaddressIndices.add(voutFilter.getSubaddressIndex());
       if (voutFilter.getSubaddressIndices() !== undefined) voutFilter.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
-      indices.set(vout.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : undefined);  // undefined will fetch from all subaddresses
+      indices.set(voutFilter.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : undefined);  // undefined will fetch from all subaddresses
     } else {
-      assert.equal(vout.getSubaddressIndex(), undefined, "Filter specifies a subaddress index but not an account index")
+      assert.equal(voutFilter.getSubaddressIndex(), undefined, "Filter specifies a subaddress index but not an account index")
       assert(voutFilter.getSubaddressIndices() === undefined || voutFilter.getSubaddressIndices().length === 0, "Filter specifies subaddress indices but not an account index");
       indices = await this._getAccountIndices();  // fetch all account indices without subaddresses
     }
@@ -479,7 +471,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // collect txs with vouts for each indicated account using `incoming_transfers` rpc call
     let txs = [];
     let params = {};
-    params.transfer_type = vout.getIsSpent() === undefined ? "all" : vout.getIsSpent() ? "unavailable" : "available";
+    params.transfer_type = voutFilter.getIsSpent() === undefined ? "all" : voutFilter.getIsSpent() ? "unavailable" : "available";
     params.verbose = true;
     for (let accountIdx of indices.keys()) {
     
@@ -498,8 +490,8 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // filter and return vouts
     let vouts = [];
-    for (tx of txs) {
-      voutFilter.apply(tx.getVouts()).map(vout => vouts.push(vout));
+    for (let tx of txs) {
+      Filter.apply(voutFilter, tx.getVouts()).map(vout => vouts.push(vout));
     }
     return vouts;
   }

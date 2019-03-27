@@ -4,7 +4,7 @@ const MoneroWalletOutput = require("../model/MoneroWalletOutput");
 /**
  * Filters transfers that don't match initialized filter criteria.
  */
-class MoneroVoutFilter extends Filter {
+class MoneroVoutFilter extends MoneroWalletOutput {
   
   /**
    * Constructs the filter.
@@ -12,14 +12,10 @@ class MoneroVoutFilter extends Filter {
    * @param state is model state or json to initialize from (optional)
    */
   constructor(state) {
-    super();
-    state = Object.assign({}, state);
-    this.state = state;
-    if (!state.vout) state.vout = new MoneroWalletOutput(state);
+    super(state);
     
     // deserialize if necessary
-    if (state.txFilter && !(state.txFilter instanceof MoneroTxFilter)) state.txFilter = new MoneroTxFilter(state.transferFilter);
-    if (!(state.vout instanceof MoneroWalletOutput)) state.vout = new MoneroWalletOutput(state.vout);
+    if (this.state.txFilter && !(this.state.txFilter instanceof MoneroTxFilter)) this.state.txFilter = new MoneroTxFilter(this.state.transferFilter);
   }
   
   getSubaddressIndices() {
@@ -40,28 +36,15 @@ class MoneroVoutFilter extends Filter {
     return this;
   }
   
-  getVout() {
-    return this.state.vout;
-  }
-  
-  setVout(vout) {
-    this.state.vout = vout;
-    return this;
-  }
-  
   meetsCriteria(vout) {
     if (!(vout instanceof MoneroWalletOutput)) return false;
-
+    
     // filter on vout
-    if (this.getVout()) {
-      let vt = this.getVout();
-      if (vt.getAccountIndex() !== undefined && vt.getAccountIndex() !== vout.getAccountIndex()) return false;
-      if (vt.getSubaddressIndex() !== undefined && vt.getSubaddressIndex() !== vout.getSubaddressIndex()) return false;
-      if (vt.getAmount() !== undefined && vt.getAmount().compare(vout.getAmount()) !== 0) return false;
-      if (vt.getIsSpent() !== undefined && vt.getIsSpent() !== vout.getIsSpent()) return false;
-      if (vt.getKeyImage() !== undefined && vt.getKeyImage() !== vout.getKeyImage()) return false;  // TODO: bug: shouldn't compare by refererence, add test to catch 
-      // TODO: expand this list
-    }
+    if (this.getAccountIndex() !== undefined && this.getAccountIndex() !== vout.getAccountIndex()) return false;
+    if (this.getSubaddressIndex() !== undefined && this.getSubaddressIndex() !== vout.getSubaddressIndex()) return false;
+    if (this.getAmount() !== undefined && this.getAmount().compare(vout.getAmount()) !== 0) return false;
+    if (this.getIsSpent() !== undefined && this.getIsSpent() !== vout.getIsSpent()) return false;
+    if (this.getKeyImage() !== undefined && this.getKeyImage() !== vout.getKeyImage()) return false;  // TODO: bug: shouldn't compare by refererence, add test to catch 
     
     // filter extensions
     if (this.getSubaddressIndices() !== undefined && !this.getSubaddressIndices().includes(vout.getSubaddressIndex())) return false;

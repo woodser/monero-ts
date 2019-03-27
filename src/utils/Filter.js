@@ -4,17 +4,6 @@
 class Filter {
   
   /**
-   * Returns a new array comprised of elements from the given array that meet
-   * this filter's criteria.
-   * 
-   * @param array is the array to apply this filter to
-   * @return {[]} is the new array of filtered elements
-   */
-  apply(array) {
-    return array.filter(elem => this.meetsCriteria(elem));
-  }
-  
-  /**
    * Indicates if the given value meets the criteria of this filter.
    * 
    * @param val is the value to test
@@ -22,6 +11,18 @@ class Filter {
    */
   meetsCriteria(val) {
     throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Returns a new array comprised of elements from the given array that meet
+   * the filter's criteria.
+   * 
+   * @param filter implements meetsCriteria(elem) to filter the given array
+   * @param array is the array to apply the filter to
+   * @return {[]} is the new array of filtered elements
+   */
+  static apply(filter, array) {
+    return array.filter(elem => filter.meetsCriteria(elem));
   }
 }
 

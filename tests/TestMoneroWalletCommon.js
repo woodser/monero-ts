@@ -1,5 +1,6 @@
 const assert = require("assert");
 const TestUtils = require("./TestUtils");
+const Filter = require("../src/utils/Filter");
 const GenUtils = require("../src/utils/GenUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const MoneroError = require("../src/utils/MoneroError");
@@ -437,26 +438,26 @@ class TestMoneroWalletCommon {
         for (let tx of txs) assert(txIds.includes(tx.getId()));
         
         // get transactions with an outgoing transfer
-        txs = await getAndTestTxs(wallet, {hasOutgoingTransfer: true}, true);
+        txs = await getAndTestTxs(wallet, {isOutgoing: true}, true);
         for (let tx of txs) {
-          assert(tx.getIsOutgoing()); // TODO: implement this
+          assert(tx.getIsOutgoing());
           assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
           testTransfer(tx.getOutgoingTransfer());
         }
         
         // get transactions without an outgoing transfer
-        txs = await getAndTestTxs(wallet, {hasOutgoingTransfer: false}, true);
+        txs = await getAndTestTxs(wallet, {isOutgoing: false}, true);
         for (let tx of txs) assert.equal(tx.getOutgoingTransfer(), undefined);
         
         // get transactions with incoming transfers
-        txs = await getAndTestTxs(wallet, {hasIncomingTransfers: true}, true);
+        txs = await getAndTestTxs(wallet, {isIncoming: true}, true);
         for (let tx of txs) {
           assert(tx.getIncomingTransfers().length > 0);
           for (let transfer of tx.getIncomingTransfers()) assert(transfer instanceof MoneroTransfer);
         }
         
         // get transactions without incoming transfers
-        txs = await getAndTestTxs(wallet, {hasIncomingTransfers: false}, true);
+        txs = await getAndTestTxs(wallet, {isIncoming: false}, true);
         for (let tx of txs) assert.equal(tx.getIncomingTransfers(), undefined);
         
         // get transactions associated with an account
@@ -492,8 +493,8 @@ class TestMoneroWalletCommon {
         
         // get txs with manually built filter that are confirmed have an outgoing transfer from account 0
         let txFilter = new MoneroTxFilter();
-        txFilter.setTx(new MoneroTxWallet().setIsConfirmed(true));
-        txFilter.setTransferFilter(new MoneroTransferFilter().setTransfer(new MoneroTransfer().setAccountIndex(0)).setIsOutgoing(true));
+        txFilter.setIsConfirmed(true);
+        txFilter.setTransferFilter(new MoneroTransferFilter().setAccountIndex(0).setIsOutgoing(true));
         txs = await getAndTestTxs(wallet, txFilter, true);
         for (let tx of txs) {
           if (!tx.getIsConfirmed()) console.log(tx.toString());
@@ -595,7 +596,7 @@ class TestMoneroWalletCommon {
             
             // fetch tx with filtering
             let filteredTxs = await wallet.getTxs({transferFilter: {isIncoming: true, accountIndex: transfer.getAccountIndex()}});
-            let filteredTx = new MoneroTxFilter().setTxIds([tx.getId()]).apply(filteredTxs)[0];
+            let filteredTx = Filter.apply(new MoneroTxFilter().setTxIds([tx.getId()]), filteredTxs)[0];
             
             // txs should be the same (mergeable)
             assert.equal(filteredTx.getId(), tx.getId());
@@ -729,7 +730,7 @@ class TestMoneroWalletCommon {
         let transferFilter = new MoneroTransferFilter();
         transferFilter.setIsOutgoing(true);
         transferFilter.setHasDestinations(true);
-        transferFilter.setTxFilter(new MoneroTxFilter().setTx(new MoneroTxWallet().setIsConfirmed(true)));
+        transferFilter.setTxFilter(new MoneroTxFilter().setIsConfirmed(true));
         transfers = await getAndTestTransfers(wallet, transferFilter);
         for (let transfer of transfers) {
           assert.equal(transfer.getIsOutgoing(), true);
@@ -846,8 +847,8 @@ class TestMoneroWalletCommon {
         let accountIdx = 0;
         let subaddressIdx = 1;
         let voutFilter = new MoneroVoutFilter();
-        voutFilter.setVout(new MoneroWalletOutput().setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx));
-        voutFilter.setTxFilter(new MoneroTxFilter().setTx(new MoneroTxWallet().setIsConfirmed(true)));
+        voutFilter.setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx);
+        voutFilter.setTxFilter(new MoneroTxFilter().setIsConfirmed(true));
         vouts = await getAndTestVouts(wallet, voutFilter, true);
         for (let vout of vouts) {
           assert.equal(vout.getAccountIndex(), accountIdx);
@@ -1003,7 +1004,7 @@ class TestMoneroWalletCommon {
         // get random txs that are confirmed and have outgoing destinations
         let txs;
         try {
-          txs = await getRandomTransactions(wallet, {isConfirmed: true, hasOutgoingTransfer: true, transferFilter: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
+          txs = await getRandomTransactions(wallet, {isConfirmed: true, isOutgoing: true, transferFilter: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
         } catch (e) {
           throw new Error("No txs with outgoing destinations found; run send tests")
         }
@@ -1085,7 +1086,7 @@ class TestMoneroWalletCommon {
         // get random txs that are confirmed and have outgoing destinations
         let txs;
         try {
-          txs = await getRandomTransactions(wallet, {isConfirmed: true, hasOutgoingTransfer: true, transferFilter: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
+          txs = await getRandomTransactions(wallet, {isConfirmed: true, isOutgoing: true, transferFilter: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
         } catch (e) {
           throw new Error("No txs with outgoing destinations found; run send tests")
         }
@@ -1149,7 +1150,7 @@ class TestMoneroWalletCommon {
       it("Can prove a spend using a generated signature and no destination public address", async function() {
         
         // get random confirmed outgoing txs
-        let txs = await getRandomTransactions(wallet, {hasIncomingTransfers: false, inTxPool: false, isFailed: false}, 2, MAX_TX_PROOFS);
+        let txs = await getRandomTransactions(wallet, {isIncoming: false, inTxPool: false, isFailed: false}, 2, MAX_TX_PROOFS);
         for (let tx of txs) {
           assert.equal(tx.getIsConfirmed(), true);
           assert.equal(tx.getIncomingTransfers(), undefined);
@@ -2356,11 +2357,12 @@ async function testTxWallet(tx, testConfig) {
   if (tx.getDoNotRelay()) assert(!tx.getIsRelayed());
   
   // test outgoing transfer per configuration
-  if (testConfig.hasOutgoingTransfer === false) assert(tx.getOutgoingTransfer() === undefined);
+  if (testConfig.isOutgoing === false) assert(tx.getOutgoingTransfer() === undefined);
   if (testConfig.hasDestinations) assert(tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getDestinations().length > 0);  // TODO: this was typo with getDestionations so is this actually being tested?
   
   // test outgoing transfer
   if (tx.getOutgoingTransfer()) {
+    assert(tx.getIsOutgoing());
     testTransfer(tx.getOutgoingTransfer());
     if (testConfig.isSweep) assert.equal(tx.getOutgoingTransfer().getDestinations().length, 1);
     
@@ -2377,6 +2379,7 @@ async function testTxWallet(tx, testConfig) {
   
   // test incoming transfers
   if (tx.getIncomingTransfers()) {
+    assert(tx.getIsIncoming());
     assert(tx.getIncomingTransfers().length > 0);
     TestUtils.testUnsignedBigInteger(tx.getIncomingAmount());      
     assert.equal(tx.getIsFailed(), false);

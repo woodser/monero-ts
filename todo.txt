@@ -1,4 +1,7 @@
+MoneroWalletOutput -> MoneroOutputWallet
+bundle up dependencies into a single monero.js
 MoneroTxWallet isIncoming, isOutgoing
+test filtering on hasDestinations
 MoneroTxTestConfig extends MoneroTxFilter extends MoneroTxWallet
 MoneroTxConfig setIncludeVouts(), getIncludeVouts()
 MoneroTxConfig isCompatible(MoneroWalletTx)

@@ -6,7 +6,7 @@ const MoneroTransferFilter = require("./MoneroTransferFilter"); // TODO: combine
 /**
  * Filters transactions that don't match initialized filter criteria.
  */
-class MoneroTxFilter extends Filter {
+class MoneroTxFilter extends MoneroTxWallet {
   
   /**
    * Constructs the filter.
@@ -14,16 +14,28 @@ class MoneroTxFilter extends Filter {
    * @param state is model state or json to initialize from (optional)
    */
   constructor(state) {
-    super();
-    state = Object.assign({}, state);
-    this.state = state;
-    
-    // initialize tx if not given
-    if (!state.tx) state.tx = new MoneroTxWallet(state);
+    super(state);
     
     // deserialize if necessary
-    if (state.transferFilter && !(state.transferFilter instanceof MoneroTransferFilter)) state.transferFilter = new MoneroTransferFilter(state.transferFilter);
-    if (!(state.tx instanceof MoneroTxWallet)) state.tx = new MoneroTxWallet(state.tx);
+    if (this.state.transferFilter && !(this.state.transferFilter instanceof MoneroTransferFilter)) this.state.transferFilter = new MoneroTransferFilter(this.state.transferFilter);
+  }
+  
+  getIsIncoming() {
+    return this.state.isIncoming;
+  }
+  
+  setIsIncoming(isIncoming) {
+    this.state.isIncoming = isIncoming;
+    return this;
+  }
+  
+  getIsOutgoing() {
+    return this.state.isOutgoing;
+  }
+  
+  setIsOutgoing(isOutgoing) {
+    this.state.isOutgoing = isOutgoing;
+    return this;
   }
 
   getTxIds() {
@@ -53,15 +65,6 @@ class MoneroTxFilter extends Filter {
     return this;
   }
   
-  getHeight() {
-    return this.state.height;
-  }
-  
-  setHeight(height) {
-    this.state.height = height;
-    return this;
-  }
-  
   getMinHeight() {
     return this.state.minHeight;
   }
@@ -80,24 +83,6 @@ class MoneroTxFilter extends Filter {
     return this;
   }
   
-  getHasOutgoingTransfer() {
-    return this.state.hasOutgoingTransfer;
-  }
-
-  setHasOutgoingTransfer(hasOutgoingTransfer) {
-    this.state.hasOutgoingTransfer = hasOutgoingTransfer;
-    return this;
-  }
-  
-  getHasIncomingTransfers() {
-    return this.state.hasIncomingTransfers;
-  }
-
-  setHasIncomingTransfers(hasIncomingTransfers) {
-    this.state.hasIncomingTransfers = hasIncomingTransfers;
-    return this;
-  }
-  
   getTransferFilter() {
     return this.state.transferFilter;
   }
@@ -107,30 +92,20 @@ class MoneroTxFilter extends Filter {
     return this;
   }
   
-  getTx() {
-    return this.state.tx;
-  }
-  
-  setTx(tx) {
-    this.state.tx = tx;
-    return this;
-  }
-  
+  // TODO: this filtering is not complete
   meetsCriteria(tx) {
     assert(tx instanceof MoneroTxWallet);
     if (this === tx) return;
     
     // filter on tx
-    if (this.getTx()) {
-      if (this.getTx().getId() !== undefined && this.getTx().getId() !== tx.getId()) return false;
-      if (this.getTx().getPaymentId() !== undefined && this.getTx().getPaymentId() !== tx.getPaymentId()) return false;
-      if (this.getTx().getIsConfirmed() !== undefined && this.getTx().getIsConfirmed() !== tx.getIsConfirmed()) return false;
-      if (this.getTx().getInTxPool() !== undefined && this.getTx().getInTxPool() !== tx.getInTxPool()) return false;
-      if (this.getTx().getDoNotRelay() !== undefined && this.getTx().getDoNotRelay() !== tx.getDoNotRelay()) return false;
-      if (this.getTx().getIsRelayed() !== undefined && this.getTx().getIsRelayed() !== tx.getIsRelayed()) return false;
-      if (this.getTx().getIsFailed() !== undefined && this.getTx().getIsFailed() !== tx.getIsFailed()) return false;
-      if (this.getTx().getIsCoinbase() !== undefined && this.getTx().getIsCoinbase() !== tx.getIsCoinbase()) return false;
-    }
+    if (this.getId() !== undefined && this.getId() !== tx.getId()) return false;
+    if (this.getPaymentId() !== undefined && this.getPaymentId() !== tx.getPaymentId()) return false;
+    if (this.getIsConfirmed() !== undefined && this.getIsConfirmed() !== tx.getIsConfirmed()) return false;
+    if (this.getInTxPool() !== undefined && this.getInTxPool() !== tx.getInTxPool()) return false;
+    if (this.getDoNotRelay() !== undefined && this.getDoNotRelay() !== tx.getDoNotRelay()) return false;
+    if (this.getIsRelayed() !== undefined && this.getIsRelayed() !== tx.getIsRelayed()) return false;
+    if (this.getIsFailed() !== undefined && this.getIsFailed() !== tx.getIsFailed()) return false;
+    if (this.getIsCoinbase() !== undefined && this.getIsCoinbase() !== tx.getIsCoinbase()) return false;
     
     // at least one transfer must meet transfer filter if defined
     if (this.getTransferFilter()) {
@@ -153,16 +128,16 @@ class MoneroTxFilter extends Filter {
       if (!this.getHasPaymentId() && tx.getPaymentId() !== undefined) return false;
     }
     
-    // filter on having an outgoing transfer
-    if (this.getHasOutgoingTransfer() !== undefined) {
-      if (this.getHasOutgoingTransfer() && tx.getOutgoingTransfer() === undefined) return false;
-      if (!this.getHasOutgoingTransfer() && tx.getOutgoingTransfer() !== undefined) return false;
+    // filter on incoming
+    if (this.getIsIncoming() !== undefined) {
+      if (this.getIsIncoming() && !tx.getIsIncoming()) return false;
+      if (!this.getIsIncoming() && tx.getIsIncoming()) return false;
     }
     
-    // filter on having incoming transfers
-    if (this.getHasIncomingTransfers() !== undefined) {
-      if (this.getHasIncomingTransfers() && (tx.getIncomingTransfers() === undefined || tx.getIncomingTransfers().length === 0)) return false;
-      if (!this.getHasIncomingTransfers() && tx.getIncomingTransfers() !== undefined && tx.getIncomingTransfers().length > 0) return false;
+    // filter on outgoing
+    if (this.getIsOutgoing() !== undefined) {
+      if (this.getIsOutgoing() && !tx.getIsOutgoing()) return false;
+      if (!this.getIsOutgoing() && tx.getIsOutgoing()) return false;
     }
     
     // filter on remaining fields

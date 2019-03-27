@@ -5,7 +5,7 @@ const MoneroTransfer = require("../model/MoneroTransfer");
 /**
  * Filters transfers that don't match initialized filter criteria.
  */
-class MoneroTransferFilter extends Filter {
+class MoneroTransferFilter extends MoneroTransfer {
   
   /**
    * Constructs the filter.
@@ -13,14 +13,10 @@ class MoneroTransferFilter extends Filter {
    * @param state is model state or json to initialize from (optional)
    */
   constructor(state) {
-    super();
-    state = Object.assign({}, state);
-    this.state = state;
-    if (!state.transfer) state.transfer = new MoneroTransfer(state);
+    super(state);
     
     // deserialize if necessary
-    if (state.txFilter && !(state.txFilter instanceof MoneroTxFilter)) state.txFilter = new MoneroTxFilter(state.transferFilter);
-    if (!(state.transfer instanceof MoneroTransfer)) state.transfer = new MoneroTransfer(state.transfer);
+    if (this.state.txFilter && !(this.state.txFilter instanceof MoneroTxFilter)) this.state.txFilter = new MoneroTxFilter(this.state.transferFilter);
   }
   
   getIsOutgoing() {
@@ -68,26 +64,14 @@ class MoneroTransferFilter extends Filter {
     return this;
   }
   
-  getTransfer() {
-    return this.state.transfer;
-  }
-  
-  setTransfer(transfer) {
-    this.state.transfer = transfer;
-    return this;
-  }
-  
   meetsCriteria(transfer) {
     if (!(transfer instanceof MoneroTransfer)) return false;
-
-    // filter on transfer
-    if (this.getTransfer()) {
-      let tr = this.getTransfer();
-      if (tr.getAddress() !== undefined && tr.getAddress() !== transfer.getAddress()) return false;
-      if (tr.getAccountIndex() !== undefined && tr.getAccountIndex() !== transfer.getAccountIndex()) return false;
-      if (tr.getSubaddressIndex() !== undefined && !transfer.getIsOutgoing() && tr.getSubaddressIndex() !== transfer.getSubaddressIndex()) return false; // outgoing subaddresses are always 0 TODO monero-wallet-rpc: possible to return correct subaddress?
-      if (tr.getAmount() !== undefined && tr.getAmount().compare(transfer.getAmount()) !== 0) return false;
-    }
+    
+    // filter on transfer fields
+    if (this.getAddress() !== undefined && this.getAddress() !== transfer.getAddress()) return false;
+    if (this.getAccountIndex() !== undefined && this.getAccountIndex() !== transfer.getAccountIndex()) return false;
+    if (this.getSubaddressIndex() !== undefined && !transfer.getIsOutgoing() && this.getSubaddressIndex() !== transfer.getSubaddressIndex()) return false; // outgoing subaddresses are always 0 TODO monero-wallet-rpc: possible to return correct subaddress?
+    if (this.getAmount() !== undefined && this.getAmount().compare(transfer.getAmount()) !== 0) return false;
     
     // filter extensions
     if (this.getIsIncoming() !== undefined && this.getIsIncoming() !== transfer.getIsIncoming()) return false;
@@ -101,7 +85,7 @@ class MoneroTransferFilter extends Filter {
     // filter with transaction filter
     if (this.getTxFilter() && !this.getTxFilter().meetsCriteria(transfer.getTx())) return false;
     
-    // filter on destinations TODO
+    // filter on destinations TODO: start with test for this
 //  if (this.getDestionations() !== undefined && this.getDestionations() !== transfer.getDestionations()) return false;
     
     // transfer meets filter criteria
