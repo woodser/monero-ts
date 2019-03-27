@@ -1,25 +1,22 @@
 MoneroWalletOutput -> MoneroOutputWallet
+use all_accounts to reduce rpc calls
+sendConfig has ringSize which needs to be translated to all rpc params
+daemon.isTrusted() -> daemon.getIsTrusted() for consistency
+
 bundle up dependencies into a single monero.js
-MoneroTxWallet isIncoming, isOutgoing
 test filtering on hasDestinations
-MoneroTxTestConfig extends MoneroTxFilter extends MoneroTxWallet
+MoneroTxTestConfig extends MoneroTxFilter
 MoneroTxConfig setIncludeVouts(), getIncludeVouts()
 MoneroTxConfig isCompatible(MoneroWalletTx)
 wallet.getTxById() for convenience?
-sendConfig has ringSize which needs to be translated to all rpc params
-use all_accounts to reduce rpc calls
 model rct_signatures and rct_prunable
 commonTxSets
 monero.common package which is where MoneroUtils, MoneroException go
 sendSingle() : MoneroTx, send() : List<MoneroTx> ?
-MoneroTxWallet, MoneroOutputWallet?
-base MoneroException has code and message
 send priority has no default, must pick one
-daemon.isTrusted() -> daemon.getIsTrusted() for consistency
 wallet.close() is common?
 MoneroSyncResult received_money -> received_amount for consistency
 don't differntiate in spec uint vs long, BigInteger?
-hasOutgoingTransfer, hasIncomingTransfers -> isOutgoing, isIncoming
 class diagram query txs, transfers, vouts
 checkTxProof(signature, ...)?
 monero daemon connection span model
