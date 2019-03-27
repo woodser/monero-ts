@@ -2,6 +2,8 @@ MoneroWalletOutput -> MoneroOutputWallet
 use all_accounts to reduce rpc calls
 sendConfig has ringSize which needs to be translated to all rpc params
 daemon.isTrusted() -> daemon.getIsTrusted() for consistency
+model rct_signatures and rct_prunable
+mms
 
 bundle up dependencies into a single monero.js
 test filtering on hasDestinations
@@ -9,7 +11,6 @@ MoneroTxTestConfig extends MoneroTxFilter
 MoneroTxConfig setIncludeVouts(), getIncludeVouts()
 MoneroTxConfig isCompatible(MoneroWalletTx)
 wallet.getTxById() for convenience?
-model rct_signatures and rct_prunable
 commonTxSets
 monero.common package which is where MoneroUtils, MoneroException go
 sendSingle() : MoneroTx, send() : List<MoneroTx> ?
