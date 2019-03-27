@@ -587,10 +587,9 @@ class MoneroDaemon {
   /**
    * Check for update.
    * 
-   * @param {string} path is the path to check for an update (optional)
    * @return {MoneroDaemonUpdateCheckResult} is the result
    */
-  async checkForUpdate(path) {
+  async checkForUpdate() {
     throw new MoneroError("Subclass must implement");
   }
   

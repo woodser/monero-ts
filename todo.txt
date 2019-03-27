@@ -1,10 +1,11 @@
+MoneroTxWallet isIncoming, isOutgoing
+MoneroTxTestConfig extends MoneroTxFilter extends MoneroTxWallet
+MoneroTxConfig setIncludeVouts(), getIncludeVouts()
+MoneroTxConfig isCompatible(MoneroWalletTx)
 wallet.getTxById() for convenience?
 sendConfig has ringSize which needs to be translated to all rpc params
 use all_accounts to reduce rpc calls
-MoneroTxConfig setIncludeVouts(), getIncludeVouts()
-MoneroTxConfig isCompatible(MoneroWalletTx)
 model rct_signatures and rct_prunable
-MoneroTxWallet -> MoneroTxConfig -> MoneroTxTestConfig
 commonTxSets
 monero.common package which is where MoneroUtils, MoneroException go
 sendSingle() : MoneroTx, send() : List<MoneroTx> ?
