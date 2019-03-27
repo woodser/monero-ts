@@ -6,12 +6,12 @@ const MoneroOutput = require("../../daemon/model/MoneroOutput");
 /**
  * Models a Monero output with wallet extensions.
  */
-class MoneroWalletOutput extends MoneroOutput {
+class MoneroOutputWallet extends MoneroOutput {
   
   /**
    * Construct the model.
    * 
-   * @param {MoneroWalletOutput|object} state is existing state to initialize from (optional)
+   * @param {MoneroOutputWallet|object} state is existing state to initialize from (optional)
    */
   constructor(state) {
     super(state);
@@ -45,7 +45,7 @@ class MoneroWalletOutput extends MoneroOutput {
   }
   
   copy() {
-    return new MoneroWalletOutput(this.toJson());
+    return new MoneroOutputWallet(this.toJson());
   }
   
   toJson() {
@@ -64,7 +64,7 @@ class MoneroWalletOutput extends MoneroOutput {
    * @param output is the output to merge into this one
    */
   merge(output) {
-    assert(output instanceof MoneroWalletOutput);
+    assert(output instanceof MoneroOutputWallet);
     if (this === output) return;
     super.merge(output);
     
@@ -90,4 +90,4 @@ class MoneroWalletOutput extends MoneroOutput {
   }
 }
 
-module.exports = MoneroWalletOutput;
+module.exports = MoneroOutputWallet;

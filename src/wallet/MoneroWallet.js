@@ -333,7 +333,7 @@ class MoneroWallet {
    * @param {boolean} config.isSpent gets vouts that are spent or not
    * @param {MoneroKeyImage} config.keyImage is a key image whose defined fields filter vouts to get
    * @param {MoneroTxFilter} config.txFilter gets vouts whose transaction meets this filter (optional)
-   * @return {MoneroWalletOutput[]} are wallet vouts per the configuration
+   * @return {MoneroOutputWallet[]} are wallet vouts per the configuration
    */
   async getVouts(config) {
     throw new MoneroError("Subclass must implement");

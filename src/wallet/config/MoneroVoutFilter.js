@@ -1,10 +1,10 @@
 const Filter = require("../../utils/Filter");
-const MoneroWalletOutput = require("../model/MoneroWalletOutput");
+const MoneroOutputWallet = require("../model/MoneroOutputWallet");
 
 /**
  * Filters transfers that don't match initialized filter criteria.
  */
-class MoneroVoutFilter extends MoneroWalletOutput {
+class MoneroVoutFilter extends MoneroOutputWallet {
   
   /**
    * Constructs the filter.
@@ -37,7 +37,7 @@ class MoneroVoutFilter extends MoneroWalletOutput {
   }
   
   meetsCriteria(vout) {
-    if (!(vout instanceof MoneroWalletOutput)) return false;
+    if (!(vout instanceof MoneroOutputWallet)) return false;
     
     // filter on vout
     if (this.getAccountIndex() !== undefined && this.getAccountIndex() !== vout.getAccountIndex()) return false;

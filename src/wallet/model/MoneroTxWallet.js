@@ -3,7 +3,7 @@ const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/b
 const MoneroUtils = require("../../utils/MoneroUtils");
 const MoneroTx = require("../../daemon/model/MoneroTx");
 const MoneroTransfer = require("./MoneroTransfer");
-const MoneroWalletOutput = require("./MoneroWalletOutput");
+const MoneroOutputWallet = require("./MoneroOutputWallet");
 
 /**
  * Models a Monero transaction with wallet extensions.
@@ -36,8 +36,8 @@ class MoneroTxWallet extends MoneroTx {
     // deserialize vouts
     if (state.vouts) {
       for (let i = 0; i < state.vouts.length; i++) {
-        if (!(state.vouts[i] instanceof MoneroWalletOutput)) {
-          state.vouts[i] = new MoneroWalletOutput(Object.assign(state.vouts[i].toJson(), {tx: this}));
+        if (!(state.vouts[i] instanceof MoneroOutputWallet)) {
+          state.vouts[i] = new MoneroOutputWallet(Object.assign(state.vouts[i].toJson(), {tx: this}));
         }
       }
     }

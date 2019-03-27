@@ -17,7 +17,7 @@ const MoneroSendConfig = require("../src/wallet/config/MoneroSendConfig");
 const MoneroSendPriority = require("../src/wallet/model/MoneroSendPriority");
 const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
 const MoneroDestination = require("../src/wallet/model/MoneroDestination");
-const MoneroWalletOutput = require("../src/wallet/model/MoneroWalletOutput");
+const MoneroOutputWallet = require("../src/wallet/model/MoneroOutputWallet");
 const MoneroKeyImage = require("../src/daemon/model/MoneroKeyImage");
 
 // test constants
@@ -2579,7 +2579,7 @@ function testTransfer(transfer) {
 
 function testVout(vout) {
   assert(vout);
-  assert(vout instanceof MoneroWalletOutput);
+  assert(vout instanceof MoneroOutputWallet);
   assert(vout.getAccountIndex() >= 0);
   assert(vout.getSubaddressIndex() >= 0);
   assert(vout.getIndex() >= 0);

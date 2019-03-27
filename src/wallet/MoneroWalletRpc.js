@@ -15,7 +15,7 @@ const MoneroSubaddress = require("./model/MoneroSubaddress");
 const MoneroTxWallet = require("./model/MoneroTxWallet");
 const MoneroTransfer = require("./model/MoneroTransfer");
 const MoneroDestination = require("./model/MoneroDestination");
-const MoneroWalletOutput = require("./model/MoneroWalletOutput");
+const MoneroOutputWallet = require("./model/MoneroOutputWallet");
 const MoneroSendConfig = require("./config/MoneroSendConfig");
 const MoneroCheckTx = require("./model/MoneroCheckTx");
 const MoneroCheckReserve = require("./model/MoneroCheckReserve");
@@ -1177,7 +1177,7 @@ class MoneroWalletRpc extends MoneroWallet {
     tx.setIsFailed(false);
     
     // initialize vout
-    let vout = new MoneroWalletOutput({tx: tx});
+    let vout = new MoneroOutputWallet({tx: tx});
     for (let key of Object.keys(rpcVout)) {
       let val = rpcVout[key];
       if (key === "amount") vout.setAmount(new BigInteger(val));
