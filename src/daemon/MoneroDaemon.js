@@ -33,7 +33,7 @@ class MoneroDaemon {
    * 
    * @return {boolean} true if the daemon is trusted, false otherwise
    */
-  async isTrusted() {
+  async getIsTrusted() {
     throw new MoneroError("Subclass must implement");
   }
   

@@ -59,7 +59,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     this.initPromise = this._initOneTime();
   }
   
-  async isTrusted() {
+  async getIsTrusted() {
     await this._initOneTime();
     let resp = await this.config.rpc.sendPathRequest("get_height");
     MoneroDaemonRpc._checkResponseStatus(resp);

@@ -61,7 +61,7 @@ class TestMoneroDaemonRpc {
       });
       
       it("Can indicate if it's trusted", async function() {
-        let isTrusted = await daemon.isTrusted();
+        let isTrusted = await daemon.getIsTrusted();
         assert.equal(typeof isTrusted, "boolean");
       });
       
