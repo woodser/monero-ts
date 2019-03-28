@@ -136,6 +136,7 @@ class MoneroRpc {
    * @returns a Uint8Array with the binary response
    */
   async sendBinaryRequest(path, params) {
+    //console.log("sendBinaryRequest(" + path + ", " + JSON.stringify(params) + ")");
     
     // get core utils to serialize and deserialize binary requests
     let coreUtils = await MoneroUtils.getCoreUtils();

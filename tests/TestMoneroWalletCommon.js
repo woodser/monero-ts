@@ -273,7 +273,7 @@ class TestMoneroWalletCommon {
           testSubaddress(subaddress);
           let subaddressesNew = await wallet.getSubaddresses(accountIdx);
           assert.equal(subaddressesNew.length - 1, subaddresses.length);
-          assert.deepEqual(subaddressesNew[subaddressesNew.length - 1], subaddress);
+          assert.deepEqual(subaddressesNew[subaddressesNew.length - 1].toString(), subaddress.toString());
           
           // create subaddress with label
           subaddresses = await wallet.getSubaddresses(accountIdx);
@@ -283,7 +283,7 @@ class TestMoneroWalletCommon {
           testSubaddress(subaddress);
           subaddressesNew = await wallet.getSubaddresses(accountIdx);
           assert.equal(subaddressesNew.length - 1, subaddresses.length);
-          assert.deepEqual(subaddressesNew[subaddressesNew.length - 1], subaddress);
+          assert.deepEqual(subaddressesNew[subaddressesNew.length - 1].toString(), subaddress.toString());
         }
       });
       

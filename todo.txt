@@ -1,6 +1,8 @@
 use all_accounts to reduce rpc calls
-sendConfig has ringSize which needs to be translated to all rpc params
 daemon.isTrusted() -> daemon.getIsTrusted() for consistency
+
+support account tags
+sendConfig has ringSize which needs to be translated to all rpc params
 update java with binary support
 model rct_signatures and rct_prunable
 mms
