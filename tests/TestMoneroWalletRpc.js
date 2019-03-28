@@ -80,38 +80,56 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
 
       it("Can tag accounts and query accounts by tag", async function() {
         
-        // test that non-existing tag returns no accounts
+        // get accounts
+        let accounts = await wallet.getAccounts();
+        assert(accounts.length >= 3, "Not enough accounts to test; run create account test");
+        
+        // tag some of the accounts
+        let tag = new MoneroAccountTag("my_tag_" + GenUtils.uuidv4(), "my tag label", [0, 1]);
+        await wallet.tagAccounts(tag.getTag(), tag.getAccountIndices());
+        
+        // query accounts by tag
+        let taggedAccounts = await wallet.getAccounts(undefined, tag.getTag());
+        assert.equal(taggedAccounts.length, 2);
+        assert.equal(taggedAccounts[0].getIndex(), 0);
+        assert.equal(taggedAccounts[0].getTag(), tag.getTag());
+        assert.equal(taggedAccounts[1].getIndex(), 1);
+        assert.equal(taggedAccounts[1].getTag(), tag.getTag());
+
+        // set tag label
+        await wallet.setAccountTagLabel(tag.getTag(), tag.getLabel());
+        
+        // fetch tags and ensure new tag is contained
+        let tags = await wallet.getAccountTags();
+        assert(GenUtils.arrayContains(tags, tag));
+        
+        // re-tag an account
+        let tag2 = new MoneroAccountTag("my_tag_" + GenUtils.uuidv4(), "my tag label 2", [1]);
+        await wallet.tagAccounts(tag2.getTag(), tag2.getAccountIndices());
+        let taggedAccounts2 = await wallet.getAccounts(undefined, tag2.getTag())
+        assert.equal(taggedAccounts2.length, 1);
+        assert.equal(taggedAccounts2[0].getIndex(), 1);
+        assert.equal(taggedAccounts2[0].getTag(), tag2.getTag());
+        
+        // re-query original tag which only applies to one account now
+        taggedAccounts = await wallet.getAccounts(undefined, tag.getTag());
+        assert.equal(taggedAccounts.length, 1);
+        assert.equal(taggedAccounts[0].getIndex(), 0);
+        assert.equal(taggedAccounts[0].getTag(), tag.getTag());
+        
+        // untag and query accounts
+        await wallet.untagAccounts([0, 1]);
+        assert.equal((await wallet.getAccountTags()).length, 0);
         try {
-          await wallet.getAccounts(undefined, "non_existing_tag");
+          await wallet.getAccounts(undefined, tag.getTag());
           fail("Should have thrown exception with unregistered tag");
         } catch (e) {
           assert.equal(e.getCode(), -1);
         }
         
-        // create expected tag for test
-        let expectedTag = new MoneroAccountTag("my_tag_" + GenUtils.uuidv4(), "my tag label", [0, 1]);
-        
-        // tag and query accounts
-        let accounts1 = await wallet.getAccounts();
-        assert(accounts1.length >= 3, "Not enough accounts to test; run create account test");
-        await wallet.tagAccounts(expectedTag.getTag(), [0, 1]);
-        let accounts2 = await wallet.getAccounts(undefined, expectedTag.getTag());
-        assert.equal(accounts2.length, 2);
-        assert.deepEqual(accounts2[0], accounts1[0]);
-        assert.deepEqual(accounts2[1], accounts1[1]);
-        
-        // set tag label
-        await wallet.setAccountTagLabel(expectedTag.getTag(), expectedTag.getLabel());
-        
-        // retrieve and find new tag
-        let tags = await wallet.getAccountTags();
-        GenUtils.arrayContains(tags, expectedTag);
-        
-        // untag and query accounts
-        await wallet.untagAccounts([0, 1]);
-        assert.equal((await wallet.getAccountTags()).includes(expectedTag), false);
+        // test that non-existing tag returns no accounts
         try {
-          await wallet.getAccounts(undefined, expectedTag.getTag());
+          await wallet.getAccounts(undefined, "non_existing_tag");
           fail("Should have thrown exception with unregistered tag");
         } catch (e) {
           assert.equal(e.getCode(), -1);

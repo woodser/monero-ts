@@ -74,6 +74,15 @@ class MoneroAccount {
     }
     return this;
   }
+  
+  getTag() {
+    return this.json.tag;
+  }
+  
+  setTag(tag) {
+    this.json.tag = tag;
+    return this;
+  }
 }
 
 module.exports = MoneroAccount;

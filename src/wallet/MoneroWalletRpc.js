@@ -1072,8 +1072,7 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "unlocked_balance") account.setUnlockedBalance(new BigInteger(val));
       else if (key === "base_address") account.setPrimaryAddress(val);
       else if (key === "label") { if (val) account.setLabel(val); }
-      //else if (key === "tag") account.setTag(val);  TODO support account tagss
-      else if (key === "tag") { }
+      else if (key === "tag") account.setTag(val);
       else console.log("WARNING: ignoring unexpected account field: " + key + ": " + val);
     }
     return account;

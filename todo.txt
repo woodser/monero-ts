@@ -1,5 +1,4 @@
 all_accounts supported in get_address and incoming_transfers
-support account tags
 sendConfig has ringSize which needs to be translated to all rpc params
 update java with binary support
 model rct_signatures and rct_prunable
