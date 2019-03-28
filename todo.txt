@@ -1,3 +1,4 @@
+all_accounts supported in get_address and incoming_transfers
 daemon.isTrusted() -> daemon.getIsTrusted() for consistency
 support account tags
 sendConfig has ringSize which needs to be translated to all rpc params
