@@ -1,6 +1,4 @@
-use all_accounts to reduce rpc calls
 daemon.isTrusted() -> daemon.getIsTrusted() for consistency
-
 support account tags
 sendConfig has ringSize which needs to be translated to all rpc params
 update java with binary support
