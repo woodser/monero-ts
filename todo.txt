@@ -84,15 +84,11 @@ split BooleanSet into new project
 package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 
 RPC
-not enough money right after opening wallet, all the time
+subaddresses occluded by outgoing counterparts when sent from/to same account (#4500)
+key proof indicates no funds received despite known incoming transfer from/to same account
+not enough money right after opening wallet, pretty much every other run
 outgoing transfers always return subaddress index 0 (#5171)
 duplicate outgoing transfers returned for different subaddress indices, way to include subaddress indices?
-
-get_transfers can return all subaddresses (#5109)
-get_balance should return used or get_address should return balances for RPC optimization
-
-subaddresses occluded by outgoing counterparts when sent from/to same account (#4500)
-update #4500 with latest notes
 
 add relayed to daemon rpc get_transactions, wallet rpc get_transfers, else must use get_transaction_pool (#5137)
 add output_indices to get_blocks_by_height.bin (#5127)
