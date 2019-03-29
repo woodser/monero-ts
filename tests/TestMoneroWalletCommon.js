@@ -1465,14 +1465,15 @@ class TestMoneroWalletCommon {
     describe("Test Sends", function() {
       
       it("Can send from multiple subaddresses in a single transaction", async function() {
-        await testSendFromMultiple(false);
+        await testSendFromMultiple();
       });
       
       it("Can send from multiple subaddresses in split transactions", async function() {
-        await testSendFromMultiple(true);
+        await testSendFromMultiple(new MoneroSendConfig().setCanSplit(true));
       });
       
-      async function testSendFromMultiple(canSplit) {
+      async function testSendFromMultiple(sendConfig) {
+        if (!sendConfig) sendConfig = new MoneroSendConfig();
         
         let NUM_SUBADDRESSES = 2; // number of subaddresses to send from
         
@@ -1483,8 +1484,9 @@ class TestMoneroWalletCommon {
         let unlockedSubaddresses = [];
         let hasBalance = false;
         for (let account of accounts) {
+          unlockedSubaddresses = [];
           let numSubaddressBalances = 0;
-          for (let subaddress of await account.getSubaddresses()) {
+          for (let subaddress of account.getSubaddresses()) {
             if (subaddress.getBalance().compare(TestUtils.MAX_FEE) > 0) numSubaddressBalances++;
             if (subaddress.getUnlockedBalance().compare(TestUtils.MAX_FEE) > 0) unlockedSubaddresses.push(subaddress);
           }
@@ -1509,27 +1511,17 @@ class TestMoneroWalletCommon {
           sendAmount = sendAmount.add(srcAccount.getSubaddresses()[fromSubaddressIdx].getUnlockedBalance()).subtract(TestUtils.MAX_FEE);
         }
         
-        let fromBalance = new BigInteger(0);
-        let fromUnlockedBalance = new BigInteger(0);
-        for (let subaddressIdx of fromSubaddressIndices) {
-          let subaddress = await wallet.getSubaddress(srcAccount.getIndex(), subaddressIdx);
-          fromBalance = fromBalance.add(subaddress.getBalance());
-          fromUnlockedBalance = fromUnlockedBalance.add(subaddress.getUnlockedBalance());
-        }
-        
         // send from the first subaddresses with unlocked balances
         let address = await wallet.getPrimaryAddress();
-        let config = new MoneroSendConfig(address, sendAmount);
-        config.setAccountIndex(srcAccount.getIndex());
-        config.setSubaddressIndices(fromSubaddressIndices);
-        config.setMixin(TestUtils.MIXIN);
-        config.setCanSplit(canSplit); // so test knows txs could be split
+        sendConfig.setDestinations([new MoneroDestination(address, sendAmount)]);
+        sendConfig.setAccountIndex(srcAccount.getIndex());
+        sendConfig.setSubaddressIndices(fromSubaddressIndices);
         let txs = [];
-        if (canSplit) {
-          let sendTxs = await wallet.sendSplit(config);
+        if (sendConfig.getCanSplit()) {
+          let sendTxs = await wallet.sendSplit(sendConfig);
           for (let tx of sendTxs) txs.push(tx);
         } else {
-          txs.push(await wallet.send(config));
+          txs.push(await wallet.send(sendConfig));
         }
         
         // test that balances of intended subaddresses decreased
@@ -1552,7 +1544,7 @@ class TestMoneroWalletCommon {
         assert(txs.length > 0);
         let outgoingSum = new BigInteger(0);
         for (let tx of txs) {
-          await testTxWallet(tx, {wallet: wallet, sendConfig: config});
+          await testTxWallet(tx, {wallet: wallet, sendConfig: sendConfig});
           outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
           if (tx.getOutgoingTransfer() !== undefined && tx.getOutgoingTransfer().getDestinations()) {
             let destinationSum = new BigInteger(0);
@@ -1571,29 +1563,34 @@ class TestMoneroWalletCommon {
       }
       
       it("Can send to an address in a single transaction", async function() {
-        await testSendToSingle(false, undefined, false);
+        await testSendToSingle();
       });
       
       // NOTE: this test will be invalid when payment ids are fully removed
       it("Can send to an address in a single transaction with a payment id", async function() {
         let integratedAddress = await wallet.getIntegratedAddress();
         let paymentId = integratedAddress.getPaymentId();
-        await testSendToSingle(false, paymentId + paymentId + paymentId + paymentId, false);  // 64 character payment id
+        await testSendToSingle(new MoneroSendConfig().setPaymentId(paymentId + paymentId + paymentId + paymentId));  // 64 character payment id
       });
       
-      it("Can create then relay a transaction to send to a single address", async function() {
-        await testSendToSingle(false, undefined, true);
+      it("Can send to an address in a single transaction with a ring size", async function() {
+        await testSendToSingle(new MoneroSendConfig().setRingSize(8)); // TODO monero-wallet-rpc: wallet rpc transfer and sweep calls are not rejecting low ring sizes, like 8.  should they?
       });
       
       it("Can send to an address with split transactions", async function() {
-        await testSendToSingle(true, undefined, false);
+        await testSendToSingle(new MoneroSendConfig().setCanSplit(true));
+      });
+      
+      it("Can create then relay a transaction to send to a single address", async function() {
+        await testSendToSingle(new MoneroSendConfig().setDoNotRelay(true));
       });
       
       it("Can create then relay split transactions to send to a single address", async function() {
-        await testSendToSingle(true, undefined, true);
+        await testSendToSingle(new MoneroSendConfig().setCanSplit(true).setDoNotRelay(true));
       });
       
-      async function testSendToSingle(canSplit, paymentId, doNotRelay) {
+      async function testSendToSingle(sendConfig) {
+        if (!sendConfig) sendConfig = new MoneroSendConfig();
         
         // find a non-primary subaddress to send from
         let sufficientBalance = false;
@@ -1619,30 +1616,29 @@ class TestMoneroWalletCommon {
         let balanceBefore = fromSubaddress.getBalance();
         let unlockedBalanceBefore  = fromSubaddress.getUnlockedBalance();
         
-        // send to self
+        // init send config
         let sendAmount = unlockedBalanceBefore.subtract(TestUtils.MAX_FEE).divide(new BigInteger(SEND_DIVISOR));
         let address = await wallet.getPrimaryAddress();
         let txs = []
-        let config = new MoneroSendConfig(address, sendAmount, MoneroSendPriority.ELEVATED, TestUtils.MIXIN);
-        config.setPaymentId(paymentId);
-        config.setAccountIndex(fromAccount.getIndex());
-        config.setSubaddressIndices([fromSubaddress.getIndex()]);
-        config.setDoNotRelay(doNotRelay);
-        config.setCanSplit(canSplit); // so test knows txs could be split
-        if (canSplit) {
-          let sendTxs = await wallet.sendSplit(config);
+        sendConfig.setDestinations([new MoneroDestination(address, sendAmount)]);
+        sendConfig.setAccountIndex(fromAccount.getIndex());
+        sendConfig.setSubaddressIndices([fromSubaddress.getIndex()]);
+        
+        // send to self
+        if (sendConfig.getCanSplit()) {
+          let sendTxs = await wallet.sendSplit(sendConfig);
           for (let tx of sendTxs) txs.push(tx);
         } else {
-          txs.push(await wallet.send(config));
+          txs.push(await wallet.send(sendConfig));
         }
         
         // handle non-relayed transaction
-        if (doNotRelay) {
+        if (sendConfig.getDoNotRelay()) {
           
           // test transactions
           testCommonTxSets(txs, false, false, false);
           for (let tx of txs) {
-            await testTxWallet(tx, {wallet: wallet, sendConfig: config});
+            await testTxWallet(tx, {wallet: wallet, sendConfig: sendConfig});
           }
           
           // relay txs
@@ -1663,11 +1659,11 @@ class TestMoneroWalletCommon {
         // test transactions
         assert(txs.length > 0);
         for (let tx of txs) {
-          await testTxWallet(tx, {wallet: wallet, sendConfig: doNotRelay ? undefined : config});
+          await testTxWallet(tx, {wallet: wallet, sendConfig: sendConfig.getDoNotRelay() ? undefined : sendConfig});
           assert.equal(tx.getOutgoingTransfer().getAccountIndex(), fromAccount.getIndex());
           assert.equal(tx.getOutgoingTransfer().getSubaddressIndex(), 0); // TODO (monero-wallet-rpc): outgoing transactions do not indicate originating subaddresses
           assert(sendAmount.compare(tx.getOutgoingAmount()) === 0);
-          if (paymentId) assert.equal(tx.getPaymentId(), paymentId);
+          if (sendConfig.getPaymentId()) assert.equal(sendConfig.getPaymentId(), tx.getPaymentId());
           
           // test outgoing destinations
           if (tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getDestinations()) {
@@ -1742,17 +1738,17 @@ class TestMoneroWalletCommon {
           for (let j = 0; j < numSubaddressesPerAccount; j++) destinationAddresses.push(subaddresses[j].getAddress());
         }
         
-        // build send config using MoneroSendConfig
-        let config = new MoneroSendConfig();
-        config.setCanSplit(canSplit);
-        config.setMixin(TestUtils.MIXIN);
-        config.setAccountIndex(srcAccount.getIndex());
-        config.setDestinations([]);
+        // build send sendConfig using MoneroSendConfig
+        let sendConfig = new MoneroSendConfig();
+        sendConfig.setMixin(TestUtils.MIXIN);
+        sendConfig.setAccountIndex(srcAccount.getIndex());
+        sendConfig.setDestinations([]);
+        sendConfig.setCanSplit(canSplit);
         for (let i = 0; i < destinationAddresses.length; i++) {
-          config.getDestinations().push(new MoneroDestination(destinationAddresses[i], sendAmountPerSubaddress));
+          sendConfig.getDestinations().push(new MoneroDestination(destinationAddresses[i], sendAmountPerSubaddress));
         }
         
-        // build send config with JS object
+        // build send sendConfig with JS object
         let jsConfig;
         if (useJsConfig) {
           jsConfig = {};
@@ -1767,10 +1763,10 @@ class TestMoneroWalletCommon {
         // send tx(s) with config
         let txs = [];
         if (canSplit) {
-          let sendTxs = await wallet.sendSplit(useJsConfig ? jsConfig : config);
+          let sendTxs = await wallet.sendSplit(useJsConfig ? jsConfig : sendConfig);
           for (let tx of sendTxs) txs.push(tx);
         } else {
-          txs.push(await wallet.send(useJsConfig ? jsConfig : config));
+          txs.push(await wallet.send(useJsConfig ? jsConfig : sendConfig));
         }
         
         // test that wallet balance decreased
@@ -1782,7 +1778,7 @@ class TestMoneroWalletCommon {
         assert(txs.length > 0);
         let outgoingSum = new BigInteger(0);
         for (let tx of txs) {
-          await testTxWallet(tx, {wallet: wallet, sendConfig: config});
+          await testTxWallet(tx, {wallet: wallet, sendConfig: sendConfig});
           outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
           if (tx.getOutgoingTransfer() !== undefined && tx.getOutgoingTransfer().getDestinations()) {
             let destinationSum = new BigInteger(0);
@@ -2018,32 +2014,30 @@ class TestMoneroWalletCommon {
         await testSendAndUpdateTxs(sendConfig);
       });
       
-//      if (!liteMode)
-//      it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
-//        let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
-//        sendConfig.setAccountIndex(0);
-//        sendConfig.setUnlockTime(3);
-//        sendConfig.setCanSplit(true);
-//        await testSendAndUpdateTxs(sendConfig);
-//      });
-//      
-//      if (!liteMode)
-//      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
-//        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
-//        sendConfig.setAccountIndex(0);
-//        sendConfig.setUnlockTime(3);
-//        sendConfig.setCanSplit(false);
-//        await testSendAndUpdateTxs(sendConfig);
-//      });
-//      
-//      if (!liteMode)
-//      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
-//        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
-//        sendConfig.setAccountIndex(0);
-//        sendConfig.setUnlockTime(3);
-//        sendConfig.setCanSplit(true);
-//        await testSendAndUpdateTxs(sendConfig);
-//      });
+      if (!liteMode)
+      it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
+        let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
+        sendConfig.setAccountIndex(0);
+        sendConfig.setUnlockTime(3);
+        sendConfig.setCanSplit(true);
+        await testSendAndUpdateTxs(sendConfig);
+      });
+      
+      if (!liteMode)
+      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
+        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
+        sendConfig.setAccountIndex(0);
+        sendConfig.setUnlockTime(3);
+        await testSendAndUpdateTxs(sendConfig);
+      });
+      
+      if (!liteMode)
+      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
+        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
+        sendConfig.setAccountIndex(0);
+        sendConfig.setUnlockTime(3);
+        await testSendAndUpdateTxs(sendConfig);
+      });
       
       /**
        * Tests sending a tx with an unlockTime then tracking and updating it as
@@ -2059,6 +2053,7 @@ class TestMoneroWalletCommon {
        * @param sendConfig is the send configuration to send and test
        */
       async function testSendAndUpdateTxs(sendConfig) {
+        if (!sendConfig) sendConfig = new MoneroSendConfig();
         
         // send transactions
         let sentTxs;

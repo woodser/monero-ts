@@ -1,5 +1,3 @@
-all_accounts supported in get_address and incoming_transfers
-sendConfig has ringSize which needs to be translated to all rpc params
 update java with binary support
 model rct_signatures and rct_prunable
 mms
@@ -86,6 +84,7 @@ split BooleanSet into new project
 package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 
 RPC
+not enough money right after opening wallet, all the time
 outgoing transfers always return subaddress index 0 (#5171)
 duplicate outgoing transfers returned for different subaddress indices, way to include subaddress indices?
 

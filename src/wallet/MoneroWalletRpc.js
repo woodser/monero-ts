@@ -573,6 +573,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.address = config.getDestinations()[0].getAddress();
     params.priority = config.getPriority();
     params.mixin = config.getMixin();
+    params.ring_size = config.getRingSize();
     params.unlock_time = config.getUnlockTime();
     params.payment_id = config.getPaymentId();
     params.do_not_relay = config.getDoNotRelay();
@@ -700,6 +701,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.subaddr_indices = config.getSubaddressIndices();
     params.key_image = config.getKeyImage();
     params.mixin = config.getMixin();
+    params.ring_size = config.getRingSize();
     params.unlock_time = config.getUnlockTime();
     params.do_not_relay = config.getDoNotRelay();
     params.priority = config.getPriority();
@@ -1018,6 +1020,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.subaddr_indices = subaddressIndices;
     params.payment_id = config.getPaymentId();
     params.mixin = config.getMixin();
+    params.ring_size = config.getRingSize();
     params.unlock_time = config.getUnlockTime();
     params.do_not_relay = config.getDoNotRelay();
     params.priority = config.getPriority();

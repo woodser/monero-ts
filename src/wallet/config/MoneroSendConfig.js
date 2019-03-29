@@ -82,6 +82,15 @@ class MoneroSendConfig {
     return this;
   }
   
+  getRingSize() {
+    return this.state.ringSize;
+  }
+  
+  setRingSize(ringSize) {
+    this.state.ringSize = ringSize;
+    return this;
+  }
+  
   getFee() {
     return this.state.fee;
   }

@@ -11,7 +11,7 @@ const MoneroTxWallet = require("../src/wallet/model/MoneroTxWallet");
 const MoneroSendConfig = require("../src/wallet/config/MoneroSendConfig");
 const MoneroTransferFilter = require("../src/wallet/config/MoneroTransferFilter");
 const MoneroDestination = require("../src/wallet/model/MoneroDestination");
-const MoneroWalletOutput = require("../src/wallet/model/MoneroWalletOutput");
+const MoneroOutputWallet = require("../src/wallet/model/MoneroOutputWallet");
 
 describe("Scratchpad", function() {
   
@@ -39,9 +39,17 @@ describe("Scratchpad", function() {
     
     // -------------------------------- SCRATCHPAD ----------------------------
     
-    transfers = await wallet.getTransfers({isOutgoing: true, accountIndex: 0, subaddressIndices: [0, 1, 2]});
-    for (let transfer of transfers) {
-      //console.log(transfers);
+    let accounts = await wallet.getAccounts(true);
+    for (let account of accounts) {
+      console.log(account.getUnlockedBalance().toJSValue());
+      for (let subaddress of account.getSubaddresses()) {
+        console.log("\t" + subaddress.getUnlockedBalance().toJSValue());
+      }
     }
+    
+//    transfers = await wallet.getTransfers({isOutgoing: true, accountIndex: 0, subaddressIndices: [0, 1, 2]});
+//    for (let transfer of transfers) {
+//      //console.log(transfers);
+//    }
   });
 });
