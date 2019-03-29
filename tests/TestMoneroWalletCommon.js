@@ -1682,11 +1682,11 @@ class TestMoneroWalletCommon {
       });
       
       it("Can send to multiple addresses in split transactions", async function() {
-        await testSendToMultiple(5, 3, true);
+        await testSendToMultiple(3, 5, true);
       });
       
       it("Can send to multiple addresses in split transactions using a JavaScript object for configuration", async function() {
-        await testSendToMultiple(7, 2, true, true);
+        await testSendToMultiple(1, 15, true, true);
       });
       
       /**
@@ -1705,7 +1705,7 @@ class TestMoneroWalletCommon {
         
         // send funds from first account with sufficient unlocked funds
         let srcAccount;
-        let hasBalance = true;
+        let hasBalance = false;
         for (let account of await wallet.getAccounts()) {
           if (account.getBalance().compare(minAccountAmount) > 0) hasBalance = true;
           if (account.getUnlockedBalance().compare(minAccountAmount) > 0) {
