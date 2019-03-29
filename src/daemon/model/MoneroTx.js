@@ -569,7 +569,7 @@ class MoneroTx {
     str += MoneroUtils.kvLine("Received time", this.getReceivedTimestamp(), indent);
     str += MoneroUtils.kvLine("Is double spend", this.getIsDoubleSpend(), indent);
     str += MoneroUtils.kvLine("Key", this.getKey(), indent);
-    str += MoneroUtils.kvLine("Full ", this.getFullHex(), indent);
+    str += MoneroUtils.kvLine("Full hex", this.getFullHex(), indent);
     str += MoneroUtils.kvLine("Pruned hex", this.getPrunedHex(), indent);
     str += MoneroUtils.kvLine("Prunable hex", this.getPrunableHex(), indent);
     str += MoneroUtils.kvLine("Prunable hash", this.getPrunableHash(), indent);
