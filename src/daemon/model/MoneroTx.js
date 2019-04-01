@@ -444,7 +444,7 @@ class MoneroTx {
    */
   merge(tx) {
     assert(tx instanceof MoneroTx);
-    if (this === tx) return;
+    if (this === tx) return this;
     this.setId(MoneroUtils.reconcile(this.getId(), tx.getId()));
     this.setVersion(MoneroUtils.reconcile(this.getVersion(), tx.getVersion()));
     this.setPaymentId(MoneroUtils.reconcile(this.getPaymentId(), tx.getPaymentId()));
@@ -553,6 +553,7 @@ class MoneroTx {
     let str = "";
     str += GenUtils.getIndent(indent) + "=== TX ===\n";
     str += MoneroUtils.kvLine("Tx ID: ", this.getId(), indent);
+    str += MoneroUtils.kvLine("Height: ", this.getHeight(), indent);
     str += MoneroUtils.kvLine("Version", this.getVersion(), indent);
     str += MoneroUtils.kvLine("Is coinbase", this.getIsCoinbase(), indent);
     str += MoneroUtils.kvLine("Payment ID", this.getPaymentId(), indent);

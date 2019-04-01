@@ -84,6 +84,8 @@ split BooleanSet into new project
 package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
 
 RPC
+-1: Failed to get the right transaction from daemon
+-4: failed to get output distribution on send rests (wallet rpc transfer, transfer_split, sweep, sweep_single, etc)
 subaddresses occluded by outgoing counterparts when sent from/to same account (#4500)
 key proof indicates no funds received despite known incoming transfer from/to same account
 not enough money right after opening wallet, pretty much every other run

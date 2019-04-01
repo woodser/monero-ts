@@ -114,7 +114,7 @@ class MoneroTxWallet extends MoneroTx {
    */
   merge(tx) {
     assert(tx instanceof MoneroTxWallet);
-    if (this === tx) return;
+    if (this === tx) return this;
     super.merge(tx);
     
     // merge wallet extensions

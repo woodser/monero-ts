@@ -2,28 +2,28 @@ const TestMoneroDaemonRpc = require("./TestMoneroDaemonRpc");
 const TestMoneroWalletRpc = require("./TestMoneroWalletRpc")
 const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 
+// test sample code for readme
+require("./TestSampleCode");
+
+//test core utils
+require("./TestMoneroCoreUtils");
+
 // test daemon rpc
 new TestMoneroDaemonRpc().runTests({
-  liteMode: false,
+  liteMode: false,  // skips some lengthy but detailed tests
   testNonRelays: true,
   testRelays: true, // creates and relays outgoing txs
-  testNotifications: false
+  testNotifications: true
 });
 
 // test wallet rpc
 new TestMoneroWalletRpc().runTests({
-  liteMode: false, // skips some lengthy tests
+  liteMode: false, // skips some lengthy but detailed tests
   testNonSends: true,
+  testNotifications: true,
   testSends: true,
-  testResets: false,
-  testNotifications: false
+  testResets: false
 });
-
-//test sample code for readme
-require("./TestSampleCode");
-
-// test core utils
-require("./TestMoneroCoreUtils");
 
 //// test wallet local
 //new TestMoneroWalletLocal().runTests({
@@ -39,5 +39,5 @@ require("./TestMoneroCoreUtils");
 //// test boolean set (data structure used by wallet to track progress)
 //require("./TestBooleanSet");
 
-//// test scratchpad
-//require("./Scratchpad");
+// test scratchpad
+require("./Scratchpad");

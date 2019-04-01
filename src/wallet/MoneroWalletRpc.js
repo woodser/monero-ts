@@ -384,7 +384,15 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // filter and return txs that meet transfer filter
     txFilter.setTransferFilter(transferFilter);
-    return Filter.apply(txFilter, txs);
+    txs = Filter.apply(txFilter, txs);
+    
+    // special case: re-fetch txs if inconsistency caused by needing to make multiple rpc calls
+    for (let tx of txs) {
+      if (tx.getIsConfirmed() && tx.getBlock() === undefined) return await this.getTxs(config);
+    }
+    
+    // otherwise return txs
+    return txs;
   }
   
   async getTransfers(config) {
@@ -1407,11 +1415,19 @@ class MoneroWalletRpc extends MoneroWallet {
       
       // merge tx
       if (aTx.getId() === tx.getId()) {
-        aTx.merge(tx);
+        
+        // merge blocks which only exist when confirmed
+        if (aTx.getBlock() !== undefined || tx.getBlock() !== undefined) {
+          if (aTx.getBlock() === undefined) aTx.setBlock(new MoneroBlock().setTxs([aTx]).setHeight(tx.getHeight()));
+          if (tx.getBlock() === undefined) tx.setBlock(new MoneroBlock().setTxs([tx]).setHeight(aTx.getHeight()));
+          aTx.getBlock().merge(tx.getBlock());
+        } else {
+          aTx.merge(tx);
+        }
         return aTx;
       }
       
-      // merge block
+      // merge common block of different txs
       if (tx.getHeight() !== undefined && aTx.getHeight() === tx.getHeight()) {
         aTx.getBlock().merge(tx.getBlock())
       }

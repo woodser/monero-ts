@@ -15,6 +15,7 @@ class MoneroBlock extends MoneroBlockHeader {
    */
   constructor(state) {
     super(state);
+    state = this.state;
     
     // deserialize coinbase tx
     if (state.coinbaseTx && !(state.coinbaseTx instanceof MoneroTx)) state.coinbaseTx = new MoneroTx(state.coinbaseTx).setBlock(this);
@@ -112,7 +113,7 @@ class MoneroBlock extends MoneroBlockHeader {
   }
   
   toString(indent = 0) {
-    let str = super.toString(indent);
+    let str = super.toString(indent) + "\n";
     if (this.getCoinbaseTx()) {
       str += MoneroUtils.kvLine("Coinbase tx", "", indent);
       str += this.getCoinbaseTx().toString(indent + 1) + "\n";
