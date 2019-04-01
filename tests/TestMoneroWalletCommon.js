@@ -1458,6 +1458,186 @@ class TestMoneroWalletCommon {
     });
   }
   
+  _testNotifications(liteMode) {
+    let wallet = this.wallet;
+    let daemon = this.daemon;
+    let that = this;
+    
+    describe("Test Notifications", function() {
+      
+      // start mining if possible to help push the network along
+      before(async function() {
+        try { await wallet.startMining(8, false, true); }
+        catch (e) { }
+      });
+      
+      // stop mining
+      after(async function() {
+        try { await wallet.stopMining(); }
+        catch (e) { }
+      });
+      
+      // TODO: test sending to multiple accounts
+      
+      it("Can update a locked tx sent from/to the same account as blocks are added to the chain", async function() {
+        let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
+        sendConfig.setAccountIndex(0);
+        sendConfig.setUnlockTime(3);
+        sendConfig.setCanSplit(false);
+        await testSendAndUpdateTxs(sendConfig);
+      });
+      
+      if (!liteMode)
+      it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
+        let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
+        sendConfig.setAccountIndex(0);
+        sendConfig.setUnlockTime(3);
+        sendConfig.setCanSplit(true);
+        await testSendAndUpdateTxs(sendConfig);
+      });
+      
+      if (!liteMode)
+      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
+        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
+        sendConfig.setAccountIndex(0);
+        sendConfig.setUnlockTime(3);
+        await testSendAndUpdateTxs(sendConfig);
+      });
+      
+      if (!liteMode)
+      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
+        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
+        sendConfig.setAccountIndex(0);
+        sendConfig.setUnlockTime(3);
+        await testSendAndUpdateTxs(sendConfig);
+      });
+      
+      /**
+       * Tests sending a tx with an unlockTime then tracking and updating it as
+       * blocks are added to the chain.
+       * 
+       * TODO: test wallet accounting throughout this; dedicated method? probably.
+       * 
+       * Allows sending to and from the same account which is an edge case where
+       * incoming txs are occluded by their outgoing counterpart (issue #4500)
+       * and also where it is impossible to discern which incoming output is
+       * the tx amount and which is the change amount without wallet metadata.
+       * 
+       * @param sendConfig is the send configuration to send and test
+       */
+      async function testSendAndUpdateTxs(sendConfig) {
+        if (!sendConfig) sendConfig = new MoneroSendConfig();
+        
+        // send transactions
+        let sentTxs;
+        if (sendConfig.getCanSplit()) sentTxs = await wallet.sendSplit(sendConfig);
+        else sentTxs = [await wallet.send(sendConfig)];
+        
+        // test sent transactions
+        for (let tx of sentTxs) {
+          await testTxWallet(tx, {wallet: wallet, sendConfig: sendConfig, isSendResponse: true});
+          assert.equal(tx.getIsConfirmed(), false);
+          assert.equal(tx.getInTxPool(), true);
+        }
+        
+        // track resulting outgoing and incoming txs as blocks are added to the chain
+        let updatedTxs;
+        
+        // loop to update txs through confirmations
+        let numConfirmations = 0;
+        const numConfirmationsTotal = 2; // number of confirmations to test
+        while (numConfirmations < numConfirmationsTotal) {
+          
+          // wait for a block
+          let header = await daemon.getNextBlockHeader();
+          console.log("*** Block " + header.getHeight() + " added to chain ***");
+          
+          // give wallet time to catch up, otherwise incoming tx may not appear
+          await new Promise(function(resolve) { setTimeout(resolve, 5000); });  // TODO: this lets new block slip, okay?
+          
+          // get incoming/outgoing txs with sent ids
+          let filter = new MoneroTxFilter();
+          filter.setTxIds(sentTxs.map(sentTx => sentTx.getId())); // TODO: convenience methods wallet.getTxById(), getTxsById()?
+          let fetchedTxs = await getAndTestTxs(wallet, filter, true);
+          assert(fetchedTxs.length > 0);
+          
+          // test fetched txs
+          await testOutInPairs(wallet, fetchedTxs, sendConfig, false);
+
+          // merge fetched txs into updated txs and original sent txs
+          for (let fetchedTx of fetchedTxs) {
+            
+            // merge with updated txs
+            if (updatedTxs === undefined) updatedTxs = fetchedTxs;
+            else {
+              for (let updatedTx of updatedTxs) {
+                if (fetchedTx.getId() !== updatedTx.getId()) continue;
+                if (!!fetchedTx.getOutgoingTransfer() !== !!updatedTx.getOutgoingTransfer()) continue;  // skip if directions are different
+                updatedTx.merge(fetchedTx.copy());
+                if (!updatedTx.getBlock() && fetchedTx.getBlock()) updatedTx.setBlock(fetchedTx.getBlock().copy().setTxs([updatedTx]));  // copy block for testing
+              }
+            }
+            
+            // merge with original sent txs
+            for (let sentTx of sentTxs) {
+              if (fetchedTx.getId() !== sentTx.getId()) continue;
+              if (!!fetchedTx.getOutgoingTransfer() !== !!sentTx.getOutgoingTransfer()) continue; // skip if directions are different
+              sentTx.merge(fetchedTx.copy());  // TODO: it's mergeable but tests don't account for extra info from send (e.g. hex) so not tested; could specify in test config
+            }
+          }
+          
+          // test updated txs
+          await testOutInPairs(wallet, updatedTxs, sendConfig, false);
+          
+          // update confirmations in order to exit loop
+          numConfirmations = fetchedTxs[0].getNumConfirmations();
+        }
+      }
+      
+      async function testOutInPairs(wallet, txs, sendConfig, isSendResponse) {
+        
+        // for each out tx
+        let txOut;
+        for (let tx of txs) {
+          await testUnlockTx(wallet, tx, sendConfig, isSendResponse);
+          if (!tx.getOutgoingTransfer()) continue;
+          let txOut = tx;
+          
+          // find incoming counterpart
+          let txIn;
+          for (let tx2 of txs) {
+            if (tx2.getIncomingTransfers() && tx.getId() === tx2.getId()) {
+              txIn = tx2;
+              break;
+            }
+          }
+          
+          // test out / in pair
+          // TODO monero-wallet-rpc: incoming txs occluded by their outgoing counterpart #4500
+          if (!txIn) {
+            console.log("WARNING: outgoing tx " + txOut.getId() + " missing incoming counterpart (issue #4500)");
+          } else {
+            await testOutInPair(txOut, txIn);
+          }
+        }
+      }
+      
+      async function testOutInPair(txOut, txIn) {
+        assert.equal(txIn.getIsConfirmed(), txOut.getIsConfirmed());
+        assert.equal(txOut.getOutgoingAmount().compare(txIn.getIncomingAmount()), 0);
+      }
+      
+      async function testUnlockTx(wallet, tx, sendConfig, isSendResponse) {
+        try {
+          await testTxWallet(tx, {wallet: wallet, sendConfig: sendConfig, isSendResponse: isSendResponse});
+        } catch (e) {
+          console.log(tx.toString());
+          throw e;
+        }
+      }
+    });
+  }
+  
   _testSends() {
     let wallet = this.wallet;
     let daemon = this.daemon;
@@ -1544,7 +1724,7 @@ class TestMoneroWalletCommon {
         assert(txs.length > 0);
         let outgoingSum = new BigInteger(0);
         for (let tx of txs) {
-          await testTxWallet(tx, {wallet: wallet, sendConfig: sendConfig});
+          await testTxWallet(tx, {wallet: wallet, sendConfig: sendConfig, isSendResponse: true});
           outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
           if (tx.getOutgoingTransfer() !== undefined && tx.getOutgoingTransfer().getDestinations()) {
             let destinationSum = new BigInteger(0);
@@ -1778,7 +1958,7 @@ class TestMoneroWalletCommon {
         assert(txs.length > 0);
         let outgoingSum = new BigInteger(0);
         for (let tx of txs) {
-          await testTxWallet(tx, {wallet: wallet, sendConfig: sendConfig});
+          await testTxWallet(tx, {wallet: wallet, sendConfig: sendConfig, isSendResponse: true});
           outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
           if (tx.getOutgoingTransfer() !== undefined && tx.getOutgoingTransfer().getDestinations()) {
             let destinationSum = new BigInteger(0);
@@ -1984,188 +2164,8 @@ class TestMoneroWalletCommon {
 //      });
     });
   }
-  
-  _testNotifications(liteMode) {
-    let wallet = this.wallet;
-    let daemon = this.daemon;
-    let that = this;
-    
-    describe("Test Notifications", function() {
-      
-      // start mining if possible to help push the network along
-      before(async function() {
-        try { await wallet.startMining(8, false, true); }
-        catch (e) { }
-      });
-      
-      // stop mining
-      after(async function() {
-        try { await wallet.stopMining(); }
-        catch (e) { }
-      });
-      
-      // TODO: test sending to multiple accounts
-      
-      it("Can update a locked tx sent from/to the same account as blocks are added to the chain", async function() {
-        let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
-        sendConfig.setAccountIndex(0);
-        sendConfig.setUnlockTime(3);
-        sendConfig.setCanSplit(false);
-        await testSendAndUpdateTxs(sendConfig);
-      });
-      
-      if (!liteMode)
-      it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
-        let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
-        sendConfig.setAccountIndex(0);
-        sendConfig.setUnlockTime(3);
-        sendConfig.setCanSplit(true);
-        await testSendAndUpdateTxs(sendConfig);
-      });
-      
-      if (!liteMode)
-      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
-        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
-        sendConfig.setAccountIndex(0);
-        sendConfig.setUnlockTime(3);
-        await testSendAndUpdateTxs(sendConfig);
-      });
-      
-      if (!liteMode)
-      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
-        let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
-        sendConfig.setAccountIndex(0);
-        sendConfig.setUnlockTime(3);
-        await testSendAndUpdateTxs(sendConfig);
-      });
-      
-      /**
-       * Tests sending a tx with an unlockTime then tracking and updating it as
-       * blocks are added to the chain.
-       * 
-       * TODO: test wallet accounting throughout this; dedicated method? probably.
-       * 
-       * Allows sending to and from the same account which is an edge case where
-       * incoming txs are occluded by their outgoing counterpart (issue #4500)
-       * and also where it is impossible to discern which incoming output is
-       * the tx amount and which is the change amount without wallet metadata.
-       * 
-       * @param sendConfig is the send configuration to send and test
-       */
-      async function testSendAndUpdateTxs(sendConfig) {
-        if (!sendConfig) sendConfig = new MoneroSendConfig();
-        
-        // send transactions
-        let sentTxs;
-        if (sendConfig.getCanSplit()) sentTxs = await wallet.sendSplit(sendConfig);
-        else sentTxs = [await wallet.send(sendConfig)];
-        
-        // test sent transactions
-        for (let tx of sentTxs) {
-          await testTxWallet(tx, {wallet: wallet, sendConfig: sendConfig, isSendResponse: true});
-          assert.equal(tx.getIsConfirmed(), false);
-          assert.equal(tx.getInTxPool(), true);
-        }
-        
-        // track resulting outgoing and incoming txs as blocks are added to the chain
-        let updatedTxs;
-        
-        // loop to update txs through confirmations
-        let numConfirmations = 0;
-        const numConfirmationsTotal = 2; // number of confirmations to test
-        while (numConfirmations < numConfirmationsTotal) {
-          
-          // wait for a block
-          let header = await daemon.getNextBlockHeader();
-          console.log("*** Block " + header.getHeight() + " added to chain ***");
-          
-          // give wallet time to catch up, otherwise incoming tx may not appear
-          await new Promise(function(resolve) { setTimeout(resolve, 5000); });  // TODO: this lets new block slip, okay?
-          
-          // get incoming/outgoing txs with sent ids
-          let filter = new MoneroTxFilter();
-          filter.setTxIds(sentTxs.map(sentTx => sentTx.getId())); // TODO: convenience methods wallet.getTxById(), getTxsById()?
-          let fetchedTxs = await getAndTestTxs(wallet, filter, true);
-          assert(fetchedTxs.length > 0);
-          
-          // test fetched txs
-          await testOutInPairs(wallet, fetchedTxs, sendConfig, false);
-
-          // merge fetched txs into updated txs and original sent txs
-          for (let fetchedTx of fetchedTxs) {
-            
-            // merge with updated txs
-            if (updatedTxs === undefined) updatedTxs = fetchedTxs;
-            else {
-              for (let updatedTx of updatedTxs) {
-                if (fetchedTx.getId() !== updatedTx.getId()) continue;
-                if (!!fetchedTx.getOutgoingTransfer() !== !!updatedTx.getOutgoingTransfer()) continue;  // skip if directions are different
-                updatedTx.merge(fetchedTx.copy());
-                if (!updatedTx.getBlock() && fetchedTx.getBlock()) updatedTx.setBlock(fetchedTx.getBlock().copy().setTxs([updatedTx]));  // copy block for testing
-              }
-            }
-            
-            // merge with original sent txs
-            for (let sentTx of sentTxs) {
-              if (fetchedTx.getId() !== sentTx.getId()) continue;
-              if (!!fetchedTx.getOutgoingTransfer() !== !!sentTx.getOutgoingTransfer()) continue; // skip if directions are different
-              sentTx.merge(fetchedTx.copy());  // TODO: it's mergeable but tests don't account for extra info from send (e.g. hex) so not tested; could specify in test config
-            }
-          }
-          
-          // test updated txs
-          await testOutInPairs(wallet, updatedTxs, sendConfig, false);
-          
-          // update confirmations in order to exit loop
-          numConfirmations = fetchedTxs[0].getNumConfirmations();
-        }
-      }
-      
-      async function testOutInPairs(wallet, txs, sendConfig, isSendResponse) {
-        
-        // for each out tx
-        let txOut;
-        for (let tx of txs) {
-          await testUnlockTx(wallet, tx, sendConfig, isSendResponse);
-          if (!tx.getOutgoingTransfer()) continue;
-          let txOut = tx;
-          
-          // find incoming counterpart
-          let txIn;
-          for (let tx2 of txs) {
-            if (tx2.getIncomingTransfers() && tx.getId() === tx2.getId()) {
-              txIn = tx2;
-              break;
-            }
-          }
-          
-          // test out / in pair
-          // TODO monero-wallet-rpc: incoming txs occluded by their outgoing counterpart #4500
-          if (!txIn) {
-            console.log("WARNING: outgoing tx " + txOut.getId() + " missing incoming counterpart (issue #4500)");
-          } else {
-            await testOutInPair(txOut, txIn);
-          }
-        }
-      }
-      
-      async function testOutInPair(txOut, txIn) {
-        assert.equal(txIn.getIsConfirmed(), txOut.getIsConfirmed());
-        assert.equal(txOut.getOutgoingAmount().compare(txIn.getIncomingAmount()), 0);
-      }
-      
-      async function testUnlockTx(wallet, tx, sendConfig, isSendResponse) {
-        try {
-          await testTxWallet(tx, {wallet: wallet, sendConfig: sendConfig, isSendResponse: isSendResponse});
-        } catch (e) {
-          console.log(tx.toString());
-          throw e;
-        }
-      }
-    });
-  }
 }
-
+  
 function testAccount(account) {
   
   // test account

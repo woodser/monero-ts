@@ -39,18 +39,17 @@ describe("Scratchpad", function() {
     
     // -------------------------------- SCRATCHPAD ----------------------------
     
-    let tx = (await wallet.getTxs({txId: "fb677bee4ce47a308e366ac3ae9fe06b29c8673cf4ef0bf9d9bf9e621fb62673"}))[0];
-    console.log(tx.toString());
-    //console.log(tx.getBlock().toString());
+//    let tx = (await wallet.getTxs({txId: "fb677bee4ce47a308e366ac3ae9fe06b29c8673cf4ef0bf9d9bf9e621fb62673"}))[0];
+//    console.log(tx.toString());
     
-//    let accounts = await wallet.getAccounts(true);
-//    for (let account of accounts) {
-//      console.log(account.getUnlockedBalance().toJSValue());
-//      for (let subaddress of account.getSubaddresses()) {
-//        console.log("\t" + subaddress.getUnlockedBalance().toJSValue());
-//      }
-//    }
-//    
+    let accounts = await wallet.getAccounts(true);
+    for (let account of accounts) {
+      console.log(account.getUnlockedBalance().toJSValue());
+      for (let subaddress of account.getSubaddresses()) {
+        console.log("\t" + subaddress.getUnlockedBalance().toJSValue());
+      }
+    }
+    
 //    let tx = await wallet.send(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
 //    console.log(tx.toString());
     
