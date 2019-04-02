@@ -132,8 +132,8 @@ class MoneroRpc {
    * Sends a binary RPC request.
    * 
    * @param path is the path of the binary RPC method to invoke
-   * @params are the request parameters
-   * @returns a Uint8Array with the binary response
+   * @paramm params are the request parameters
+   * @return a Uint8Array with the binary response
    */
   async sendBinaryRequest(path, params) {
     //console.log("sendBinaryRequest(" + path + ", " + JSON.stringify(params) + ")");
