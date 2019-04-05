@@ -432,6 +432,8 @@ class MoneroTx {
       json.vouts = [];
       for (let vout of this.getVouts()) json.vouts.push(vout.toJson());
     }
+    if (this.getExtra()) json.extra = this.getExtra().slice();
+    delete json.block;  // do not serialize parent block
     return json;
   }
   
@@ -440,7 +442,7 @@ class MoneroTx {
    * transaction.
    * 
    * @param tx is the transaction to update this transaction with
-   * @returns {this} for method chaining
+   * @return {MoneroTx} this for method chaining
    */
   merge(tx) {
     assert(tx instanceof MoneroTx);

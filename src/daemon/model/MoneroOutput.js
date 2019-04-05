@@ -96,7 +96,7 @@ class MoneroOutput {
   
   merge(output) {
     assert(output instanceof MoneroOutput);
-    if (this === output) return;
+    if (this === output) return this;
     if (this.getKeyImage() === undefined) this.setKeyImage(output.getKeyImage());
     else if (output.getKeyImage() !== undefined) this.getKeyImage().merge(output.getKeyImage());
     this.setAmount(MoneroUtils.reconcile(this.getAmount(), output.getAmount()));

@@ -8,6 +8,7 @@ const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
 const MoneroSendConfig = require("../src/wallet/config/MoneroSendConfig");
 const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
 const MoneroBan = require("../src/daemon/model/MoneroBan");
+const MoneroBlock = require("../src/daemon/model/MoneroBlock");
 const MoneroTx = require("../src/daemon/model/MoneroTx");
 const MoneroOutput = require("../src/daemon/model/MoneroOutput");
 const MoneroKeyImage = require("../src/daemon/model/MoneroKeyImage")
@@ -1624,10 +1625,12 @@ async function getConfirmedTxIds(daemon) {
 
 function testTxCopy(tx, config) {
   
-  // copy tx and assert deep equality
+  // copy tx and test
   let copy = tx.copy();
   assert(copy instanceof MoneroTx);
-  assert.deepEqual(copy, tx);
+  assert.equal(copy.getBlock(), undefined);
+  copy.setBlock(tx.getBlock().copy().setTxs([copy]));
+  assert.equal(copy.toString(), tx.toString());
   
   // test different vin references
   if (copy.getVins() === undefined) assert.equal(tx.getVins(), undefined);

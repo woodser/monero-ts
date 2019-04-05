@@ -53,7 +53,7 @@ class MoneroUtils {
    */
   static reconcile(val1, val2, config, errMsg) {
     
-    // check for direct equality
+    // check for equality
     if (val1 === val2) return val1;
     
     // check for BigInteger equality
@@ -63,7 +63,7 @@ class MoneroUtils {
       if (comparison === 0) return val1;
     }
     
-    // resolve one value undefined
+    // resolve one value defined
     if (val1 === undefined || val2 === undefined) {
       if (config && config.resolveDefined === false) return undefined;  // use undefined
       else return val1 === undefined ? val2 : val1;  // use defined value

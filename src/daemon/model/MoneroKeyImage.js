@@ -54,7 +54,7 @@ class MoneroKeyImage {
   
   merge(keyImage) {
     assert(keyImage instanceof MoneroKeyImage);
-    if (keyImage === this) return;
+    if (keyImage === this) return this;
     this.setHex(MoneroUtils.reconcile(this.getHex(), keyImage.getHex()));
     this.setSignature(MoneroUtils.reconcile(this.getSignature(), keyImage.getSignature()));
     return this;
