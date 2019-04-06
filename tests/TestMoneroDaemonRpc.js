@@ -986,7 +986,7 @@ class TestMoneroDaemonRpc {
           
           // fetch tx by id and ensure not relayed
           let fetchedTx = await daemon.getTx(tx.getId());
-          assert.equal(fetchedTx.getIsRelayed(), undefined);  // TODO monero-daemon-rpc: add relayed to get_transactions
+          assert.equal(fetchedTx.getIsRelayed(), false);
         }
         
         // relay the txs
@@ -1186,6 +1186,13 @@ function testTx(tx, config) {
     assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedId(), undefined);
     assert(tx.getReceivedTimestamp() > 0);
+    assert(tx.getSize() > 0);
+    assert(tx.getWeight() > 0);
+    assert.equal(typeof tx.getIsKeptByBlock(), "boolean");
+    assert.equal(tx.getLastFailedHeight(), undefined);
+    assert.equal(tx.getLastFailedId(), undefined);
+    assert(tx.getMaxUsedBlockHeight() >= 0);
+    assert(tx.getMaxUsedBlockId());
     if (tx.getIsRelayed()) assert(tx.getNumEstimatedBlocksUntilConfirmed() > 0);
     else assert.equal(tx.getNumEstimatedBlocksUntilConfirmed(), undefined);
   } else {
@@ -1275,25 +1282,6 @@ function testTx(tx, config) {
       assert(tx === vout.getTx());
       testVout(vout, config);
     }
-  }
-  
-  // test fields from tx pool
-  if (config.fromGetTxPool) {
-    assert(tx.getSize() > 0);
-    assert(tx.getWeight() > 0);
-    assert.equal(typeof tx.getIsKeptByBlock(), "boolean");
-    assert.equal(tx.getLastFailedHeight(), undefined);
-    assert.equal(tx.getLastFailedId(), undefined);
-    assert(tx.getMaxUsedBlockHeight() >= 0);
-    assert(tx.getMaxUsedBlockId());
-  } else {
-    assert.equal(tx.getWeight(), undefined);
-    assert.equal(tx.getIsKeptByBlock(), undefined);
-    assert.equal(tx.getIsFailed(), false);
-    assert.equal(tx.getLastFailedHeight(), undefined);
-    assert.equal(tx.getLastFailedId(), undefined);
-    assert.equal(tx.getMaxUsedBlockHeight(), undefined);
-    assert.equal(tx.getMaxUsedBlockId(), undefined);
   }
   
   if (tx.getIsFailed()) {
@@ -1629,7 +1617,7 @@ function testTxCopy(tx, config) {
   let copy = tx.copy();
   assert(copy instanceof MoneroTx);
   assert.equal(copy.getBlock(), undefined);
-  copy.setBlock(tx.getBlock().copy().setTxs([copy]));
+  if (tx.getBlock()) copy.setBlock(tx.getBlock().copy().setTxs([copy]));  // copy block for testing equality
   assert.equal(copy.toString(), tx.toString());
   
   // test different vin references

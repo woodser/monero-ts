@@ -225,6 +225,15 @@ class MoneroDaemonRpc extends MoneroDaemon {
         txs.push(MoneroDaemonRpc._convertRpcTx(resp.txs[txIdx], tx));
       }
     }
+    
+    // fetch unconfirmed txs from pool and merge additional fields  // TODO monero-daemon-rpc: merge rpc calls so this isn't necessary?
+    let poolTxs = await this.getTxPool();
+    for (let tx of txs) {
+      for (let poolTx of poolTxs) {
+        if (tx.getId() === poolTx.getId()) tx.merge(poolTx);
+      }
+    }
+    
     return txs;
   }
   
@@ -257,7 +266,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async submitTxHex(txHex, doNotRelay) {
     let resp = await this.config.rpc.sendPathRequest("send_raw_transaction", {tx_as_hex: txHex, do_not_relay: doNotRelay});
     let result = MoneroDaemonRpc._convertRpcSubmitTxResult(resp);
-    try { // collect response instead of throwing
+    
+    // set isGood based on status
+    try {
       MoneroDaemonRpc._checkResponseStatus(resp); 
       result.setIsGood(true);
     } catch(e) {
@@ -803,9 +814,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
     // link block and tx
     if (header) tx.setBlock(new MoneroBlock(header).setTxs([tx]));
     
-    // TODO monero-daemon-rpc: unconfirmed txs block height and timestamp are actually received timestamp; overloading data model variables is bad juju
+    // TODO monero-daemon-rpc: unconfirmed txs misreport block height and timestamp
     if (tx.getBlock() && tx.getBlock().getHeight() !== undefined && tx.getBlock().getHeight() === tx.getBlock().getTimestamp()) {
-      tx.setReceivedTimestamp(tx.getBlock().getHeight());
       tx.setBlock(undefined);
       tx.setIsConfirmed(false);
     }

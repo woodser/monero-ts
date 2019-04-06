@@ -127,7 +127,7 @@ class MoneroTransfer {
    */
   merge(transfer) {
     assert(transfer instanceof MoneroTransfer);
-    if (this === transfer) return;
+    if (this === transfer) return this;
     
     // merge transactions if they're different which comes back to merging transfers
     if (this.getTx() !== transfer.getTx()) this.getTx().merge(transfer.getTx());

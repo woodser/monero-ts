@@ -1037,16 +1037,14 @@ class MoneroWalletRpc extends MoneroWallet {
     params.get_tx_metadata = true;
     
     // send request
-    let resp;
-    if (split) resp = await this.config.rpc.sendJsonRequest("transfer_split", params);
-    else resp = await this.config.rpc.sendJsonRequest("transfer", params);
+    let resp = await this.config.rpc.sendJsonRequest(split ? "transfer_split" : "transfer", params);
     
     // initialize tx list
     let txs = [];
     if (split) for (let i = 0; i < resp.result.tx_hash_list.length; i++) txs.push(new MoneroTxWallet());
     else txs.push(new MoneroTxWallet());
     
-    // initialize known fields of tx
+    // initialize known fields of txs
     for (let tx of txs) {
       MoneroWalletRpc._initSentTxWallet(config, tx);
       tx.getOutgoingTransfer().setAccountIndex(accountIdx);
@@ -1310,7 +1308,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (keys) sizes.add(keys.length);
     assert.equal(sizes.size, 1, "RPC lists are different sizes");
     
-    // initialize txs if necessary
+    // pre-initialize txs if necessary
     if (!txs) {
       txs = [];
       for (let i = 0; i < ids.length; i++) txs.push(new MoneroTxWallet());
@@ -1337,8 +1335,8 @@ class MoneroWalletRpc extends MoneroWallet {
    * TODO: these should be safe set
    * 
    * @param rpcType is the type to decode
-   * @param tx is the transaction decode known fields to
-   * @return {boolean} true if the rpc type is outgoing xor false if incoming
+   * @param tx is the transaction to decode known fields to
+   * @return {boolean} true if the rpc type indicates outgoing xor incoming
    */
   static _decodeRpcType(rpcType, tx) {
     let isOutgoing;
