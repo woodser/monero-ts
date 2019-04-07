@@ -1555,7 +1555,9 @@ function testKnownPeer(peer, fromConnection) {
   assert(peer instanceof MoneroDaemonPeer);
   assert.equal(typeof peer.getId(), "string");
   assert.equal(typeof peer.getHost(), "string");
+  assert(typeof peer.getPort() === "number");
   assert(peer.getPort() > 0);
+  assert(typeof peer.getRpcPort() === "number");
   assert(peer.getRpcPort() >= 0);
   assert.equal(typeof peer.getIsOnline(), "boolean");
   if (fromConnection) assert.equal(undefined, peer.getLastSeenTimestamp());

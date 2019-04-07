@@ -352,7 +352,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       min_count: minCount,
       max_count: maxCount,
       unlocked: isUnlocked,
-      recent_cutoff: isUnlocked
+      recent_cutoff: recentCutoff
     });
     MoneroDaemonRpc._checkResponseStatus(resp.result);
     
@@ -939,7 +939,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
         for (let rpcConnection of rpcConnections) {
           syncInfo.getConnections().push(MoneroDaemonRpc._convertRpcConnection(rpcConnection.info));
         }
-      } else if (key === "spans") {
+      }
+      else if (key === "spans") {
         syncInfo.setSpans([]);
         let rpcSpans = val;
         for (let rpcSpan of rpcSpans) {
@@ -948,9 +949,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
       } else if (key === "status") {}   // handled elsewhere
       else if (key === "target_height") syncInfo.setTargetHeight(new BigInteger(val));
       else if (key === "next_needed_pruning_seed") syncInfo.setNextNeededPruningSeed(val);
-      else if (key === "overview") {
-        let overview = JSON.parse(val); // TODO: not tested with pruning enabled
-        if (overview.length > 0) syncInfo.setOverview(val);
+      else if (key === "overview") {  // this returns [] without pruning
+        try {
+          let overview = JSON.parse(val);
+          if (overview.length > 0) console.log("WARNING: ignoring non-empty 'overview' field (not implemented): " + overview); // TODO
+        } catch (e) {
+          console.log("WARNING: failed to parse 'overview' field: " + overview + ": " + e.message);
+        }
       }
       else console.log("WARNING: ignoring unexpected field in sync info: " + key + ": " + val);
     }
@@ -1091,7 +1096,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "local_ip") connection.setIsLocalIp(val);
       else if (key === "localhost") connection.setIsLocalHost(val);
       else if (key === "peer_id") peer.setId(val);
-      else if (key === "port") peer.setPort(val);
+      else if (key === "port") peer.setPort(parseInt(val));
       else if (key === "rpc_port") peer.setRpcPort(val);
       else if (key === "recv_count") connection.setNumReceives(val);
       else if (key === "recv_idle_time") connection.setReceiveIdleTime(val);
