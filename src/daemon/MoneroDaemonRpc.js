@@ -522,13 +522,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async setOutgoingPeerLimit(limit) {
-    assert(GenUtils.isInt(limit) && limit >= 0, "Outgoing peer limit must be >= 0");
+    if (!(GenUtils.isInt(limit) && limit >= 0)) throw new MoneroError("Outgoing peer limit must be >= 0");
     let resp = await this.config.rpc.sendPathRequest("out_peers", {out_peers: limit});
     MoneroDaemonRpc._checkResponseStatus(resp);
   }
   
   async setIncomingPeerLimit(limit) {
-    assert(GenUtils.isInt(limit) && limit >= 0, "Incoming peer limit must be >= 0");
+    if (!(GenUtils.isInt(limit) && limit >= 0)) throw new MoneroError("Incoming peer limit must be >= 0");
     let resp = await this.config.rpc.sendPathRequest("in_peers", {in_peers: limit});
     MoneroDaemonRpc._checkResponseStatus(resp);
   }
@@ -553,7 +553,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async setPeerBans(bans) {
     let rpcBans = [];
-    for (let ban of bans) rpcBans.push(MoneroDaemonRpc._convertRpcBan(ban));
+    for (let ban of bans) rpcBans.push(MoneroDaemonRpc._convertToRpcBan(ban));
     let resp = await this.config.rpc.sendJsonRequest("set_bans", {bans: rpcBans});
     MoneroDaemonRpc._checkResponseStatus(resp.result);
   }
@@ -1114,7 +1114,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return connection;
   }
   
-  static _convertRpcBan(ban) {
+  static _convertToRpcBan(ban) {
     let rpcBan = {};
     rpcBan.host = ban.getHost();
     rpcBan.ip = ban.getIp();

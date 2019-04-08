@@ -1,8 +1,8 @@
-one call per get/set bandwidth limits
 update java with binary support
 model rct_signatures and rct_prunable
 mms
 
+No message store file found: /Applications/190322-monero-master//test_wallet_1.mms
 bundle up dependencies into a single monero.js
 test filtering on hasDestinations
 MoneroTxTestConfig extends MoneroTxFilter
@@ -26,6 +26,7 @@ sweepDust()
 multisig
 pruning
 
+one call per get/set bandwidth limits?
 daemon.getBlocksById(), default implementations
 daemon test failed txs more
 wallet test coinbase txs

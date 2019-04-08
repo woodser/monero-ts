@@ -736,7 +736,7 @@ class TestMoneroDaemonRpc {
         
         // set ban
         let ban = new MoneroBan();
-        ban.setHost("192.168.1.51");
+        ban.setHost("192.168.1.56");
         ban.setIsBanned(true);
         ban.setSeconds(60);
         await daemon.setPeerBan(ban);
@@ -746,7 +746,7 @@ class TestMoneroDaemonRpc {
         let found = false;
         for (let aBan of bans) {
           testMoneroBan(aBan);
-          if (aBan.getHost() === "192.168.1.51") found = true;
+          if (aBan.getHost() === "192.168.1.56") found = true;
         }
         assert(found);
       });
@@ -1627,7 +1627,7 @@ function testTxCopy(tx, config) {
   else {
     assert(copy.getVins() !== tx.getVins());
     for (let i = 0; i < copy.getVins().length; i++) {
-      if (tx.getVins()[i].getAmount() == copy.getVins()[i].getAmount()) assert(tx.getVins()[i].getAmount() === new BigInteger(0));
+      assert.equal(0, tx.getVins()[i].getAmount().compare(copy.getVins()[i].getAmount()));
     }
   }
   
@@ -1636,7 +1636,7 @@ function testTxCopy(tx, config) {
   else {
     assert(copy.getVouts() !== tx.getVouts());
     for (let i = 0; i < copy.getVouts().length; i++) {
-      if (tx.getVouts()[i].getAmount() == copy.getVouts()[i].getAmount()) assert(tx.getVouts()[i].getAmount() === new BigInteger(0));
+      assert.equal(0, tx.getVouts()[i].getAmount().compare(copy.getVouts()[i].getAmount()));
     }
   }
   
