@@ -433,7 +433,8 @@ class MoneroDaemon {
   /**
    * Set the download bandwidth limit.
    * 
-   * @param {int} limit is the download bandwidth limit to set
+   * @param {int} limit is the download limit to set (-1 to reset to default)
+   * @return {int} is the new download limit after setting
    */
   async setDownloadLimit(limit) {
     throw new MoneroError("Subclass must implement");
@@ -460,7 +461,8 @@ class MoneroDaemon {
   /**
    * Set the upload bandwidth limit.
    * 
-   * @param {int} limit is the upload bandwidth limit to set
+   * @param limit is the upload limit to set (-1 to reset to default)
+   * @return {int} is the new upload limit after setting
    */
   async setUploadLimit(limit) {
     throw new MoneroError("Subclass must implement");

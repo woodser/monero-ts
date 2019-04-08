@@ -461,12 +461,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async setDownloadLimit(limit) {
-    assert(GenUtils.isInt(limit) && limit > 0, "Download limit must be an integer greater than 0");
-    await this._setBandwidthLimits(limit);
+    if (limit == -1) return await this.resetDownloadLimit();
+    if (!(GenUtils.isInt(limit) && limit > 0)) throw new MoneroError("Download limit must be an integer greater than 0");
+    return (await this._setBandwidthLimits(limit, 0))[0];
   }
   
   async resetDownloadLimit() {
-    return (await this._setBandwidthLimits(-1))[0];
+    return (await this._setBandwidthLimits(-1, 0))[0];
   }
 
   async getUploadLimit() {
@@ -474,12 +475,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async setUploadLimit(limit) {
-    assert(GenUtils.isInt(limit) && limit > 0, "Upload limit must be an integer greater than 0");
-    await this._setBandwidthLimits(undefined, limit);
+    if (limit == -1) return await this.resetUploadLimit();
+    if (!(GenUtils.isInt(limit) && limit > 0)) throw new MoneroError("Upload limit must be an integer greater than 0");
+    return (await this._setBandwidthLimits(0, limit))[1];
   }
   
   async resetUploadLimit() {
-    return (await this._setBandwidthLimits(undefined, -1))[1];
+    return (await this._setBandwidthLimits(0, -1))[1];
   }
   
   async getConnections() {
@@ -673,6 +675,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async _setBandwidthLimits(downLimit, upLimit) {
+    if (downLimit === undefined) downLimit = 0;
+    if (upLimit === undefined) upLimit = 0;
     let resp = await this.config.rpc.sendPathRequest("set_limit", {limit_down: downLimit, limit_up: upLimit});
     MoneroDaemonRpc._checkResponseStatus(resp);
     return [resp.limit_down, resp.limit_up];
