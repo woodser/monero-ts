@@ -113,6 +113,7 @@ class MoneroOutput {
     str += MoneroUtils.kvLine("Amount", this.getAmount(), indent);
     str += MoneroUtils.kvLine("Index", this.getIndex(), indent);
     str += MoneroUtils.kvLine("Ring output indices", this.getRingOutputIndices(), indent);
+    str += MoneroUtils.kvLine("Stealth public key", this.getStealthPublicKey(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }
