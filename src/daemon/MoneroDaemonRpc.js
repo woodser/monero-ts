@@ -894,7 +894,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "block_size_median") info.setBlockSizeMedian(val);
       else if (key === "block_weight_limit") info.setBlockWeightLimit(val);
       else if (key === "block_weight_median") info.setBlockWeightMedian(val);
-      else if (key === "bootstrap_daemon_address") info.setBootstrapDaemonAddress(val);
+      else if (key === "bootstrap_daemon_address") { if (val) info.setBootstrapDaemonAddress(val); }
       else if (key === "cumulative_difficulty") info.setCumulativeDifficulty(new BigInteger(val));
       else if (key === "difficulty") info.setDifficulty(new BigInteger(val));
       else if (key === "free_space") info.setFreeSpace(new BigInteger(val));

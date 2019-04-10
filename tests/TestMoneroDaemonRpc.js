@@ -1311,7 +1311,7 @@ function testInfo(info) {
   assert(info.getNumAltBlocks() >= 0);
   assert(info.getBlockSizeLimit());
   assert(info.getBlockSizeMedian());
-  assert(typeof info.getBootstrapDaemonAddress() === "string");
+  assert(info.getBootstrapDaemonAddress() === undefined || (typeof info.getBootstrapDaemonAddress() === "string" && info.getBootstrapDaemonAddress().length > 0));
   assert(info.getCumulativeDifficulty());
   assert(info.getCumulativeDifficulty() instanceof BigInteger)
   assert(info.getFreeSpace());
