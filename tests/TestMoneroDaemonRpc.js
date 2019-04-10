@@ -1017,7 +1017,6 @@ class TestMoneroDaemonRpc {
         try {
           
           // start mining if possible to help push the network along
-          let wallet = new MoneroWalletLocal(daemon);
           let address = await wallet.getPrimaryAddress();
           try { await daemon.startMining(address, 8, false, true); }
           catch (e) { }

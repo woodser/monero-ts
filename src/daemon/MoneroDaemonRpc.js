@@ -435,8 +435,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
     
     let resp = await this.config.rpc.sendJsonRequest("get_alternate_chains");
     MoneroDaemonRpc._checkResponseStatus(resp.result);
-    if (!resp.result.chains) return [];
     let chains = [];
+    if (!resp.result.chains) return chains;
     for (let rpcChain of resp.result.chains) chains.push(MoneroDaemonRpc._convertRpcAltChain(rpcChain));
     return chains;
   }
