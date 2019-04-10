@@ -787,7 +787,6 @@ class TestMoneroDaemonRpc {
         catch(e) { }
         
         // generate address to mine to
-        let wallet = new MoneroWalletLocal(daemon);
         let address = await wallet.getPrimaryAddress();
         
         // start mining
