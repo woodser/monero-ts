@@ -751,7 +751,7 @@ class TestMoneroDaemonRpc {
         assert(found);
       });
       
-      it("Can ban multiple peers", async function() {
+      it("Can ban peers", async function() {
         
         // set bans
         let ban1 = new MoneroBan();
@@ -814,7 +814,6 @@ class TestMoneroDaemonRpc {
           assert.equal(status.getIsBackground(), undefined);
           
           // test status with mining
-          let wallet = new MoneroWalletLocal(daemon);
           let address = await wallet.getPrimaryAddress();
           let threadCount = 3;
           let isBackground = false;

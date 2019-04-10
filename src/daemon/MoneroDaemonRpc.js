@@ -559,7 +559,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async startMining(address, numThreads, isBackground, ignoreBattery) {
-    assert(address, "Address must be given to mine to");
+    assert(address, "Must provide address to mine to");
     assert(GenUtils.isInt(numThreads) && numThreads > 0, "Number of threads must be an integer greater than 0");
     assert(isBackground === undefined || typeof isBackground === "boolean");
     assert(ignoreBattery === undefined || typeof ignoreBattery === "boolean");
