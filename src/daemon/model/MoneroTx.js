@@ -502,11 +502,42 @@ class MoneroTx {
       if (this.getVouts() === undefined) this.setVouts(tx.getVouts());
       else {
         
-        // merge by position
-        assert.equal(tx.getVouts().length, this.getVouts().length);
-        for (let i = 0; i < tx.getVouts().length; i++) {
-          this.getVouts()[i].merge(tx.getVouts()[i]);
+        // determine if output indices present
+        let numOutputIndices = 0;
+        for (let vout of this.getVouts()) if (vout.getIndex() !== undefined) numOutputIndices++;
+        for (let vout of tx.getVouts()) if (vout.getIndex() !== undefined) numOutputIndices++;
+        assert(numOutputIndices === 0 || this.getVouts().length + tx.getVouts().length === numOutputIndices, "Some vouts have an index and some do not");
+        
+        // merge by indices
+        if (numOutputIndices > 0) {
+          for (let merger of tx.getVouts()) {
+            let merged = false;
+            if (!this.getVouts()) this.setVouts([]);
+            for (let mergee of this.getVouts()) {
+              assert(mergee.getIndex() >= 0 && merger.getIndex() >= 0);
+              if (mergee.getIndex() === merger.getIndex()) {
+                mergee.merge(merger);
+                merged = true;
+                break;
+              }
+            }
+            if (!merged) this.getVouts().push(merger);
+          }
         }
+        
+        // merge by position
+        else {
+          assert.equal(tx.getVouts().length, this.getVouts().length);
+          for (let i = 0; i < tx.getVouts().length; i++) {
+            this.getVouts()[i].merge(tx.getVouts()[i]);
+          }
+        }
+        
+//        // merge by position
+//        assert.equal(tx.getVouts().length, this.getVouts().length);
+//        for (let i = 0; i < tx.getVouts().length; i++) {
+//          this.getVouts()[i].merge(tx.getVouts()[i]);
+//        }
       }
     }
     

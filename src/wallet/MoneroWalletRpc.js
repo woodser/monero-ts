@@ -371,12 +371,12 @@ class MoneroWalletRpc extends MoneroWallet {
     // fetch all transfers that meet tx filter
     let transfers = await this.getTransfers(new MoneroTransferFilter().setTxFilter(txFilter));  // TODO: {txFilter: txFilter} instead, need to resolve circular filter imports, also pass debugTxId here
     
-    // collect unique txs from transfers
+    // collect unique txs from transfers as ordered list
     let txs = Array.from(new Set(transfers.map(transfer => transfer.getTx())).values());
     
     // fetch and merge vouts if configured
     if (config.getVouts) {
-      let vouts = await this.getVouts(new MoneroVoutFilter(config).setTxFilter(txFilter));
+      let vouts = await this.getVouts(new MoneroVoutFilter().setTxFilter(txFilter));
       let voutTxs = new Set();
       vouts.map(vout => voutTxs.add(vout.getTx()));
       for (let tx of voutTxs) MoneroWalletRpc._mergeTx(txs, tx, true);
@@ -1427,14 +1427,13 @@ class MoneroWalletRpc extends MoneroWallet {
       
       // merge common block of different txs
       if (tx.getHeight() !== undefined && aTx.getHeight() === tx.getHeight()) {
-        aTx.getBlock().merge(tx.getBlock())
+        aTx.getBlock().merge(tx.getBlock());
       }
     }
     
     // add tx if it doesn't already exist unless skipped
     if (!skipIfAbsent) {
       txs.push(tx);
-      return tx;
     } else {
       console.log("WARNING: tx does not already exist"); 
     }
