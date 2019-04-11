@@ -2509,7 +2509,7 @@ async function testTxWalletCopy(tx, testConfig) {
       for (let i = 0; i < tx.getOutgoingTransfer().getDestinations().length; i++) {
         assert.deepEqual(copy.getOutgoingTransfer().getDestinations()[i], tx.getOutgoingTransfer().getDestinations()[i]);
         assert(tx.getOutgoingTransfer().getDestinations()[i] !== copy.getOutgoingTransfer().getDestinations()[i]);
-        if (tx.getOutgoingTransfer().getDestinations()[i].getAmount() == copy.getOutgoingTransfer().getDestinations()[i].getAmount()) assert(tx.getOutgoingTransfer().getDestinations()[i].getAmount().toJSValue() === 0);
+        if (tx.getOutgoingTransfer().getDestinations()[i].getAmount() === copy.getOutgoingTransfer().getDestinations()[i].getAmount()) assert(tx.getOutgoingTransfer().getDestinations()[i].getAmount().toJSValue() === 0);
       }
     }
   }

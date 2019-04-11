@@ -110,7 +110,7 @@ class MoneroTxWallet extends MoneroTx {
    * Merging can modify or build references to the transaction given so it
    * should not be re-used or it should be copied before calling this method.
    * 
-   * @parm tx is the transaction to merge into this transaction
+   * @param tx is the transaction to merge into this transaction
    */
   merge(tx) {
     assert(tx instanceof MoneroTxWallet);
