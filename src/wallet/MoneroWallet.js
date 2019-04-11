@@ -86,7 +86,7 @@ class MoneroWallet {
   /**
    * Get the blockchain's height.
    * 
-   * @return {int} is the block chain's height
+   * @return {int} is the blockchain's height
    */
   async getChainHeight() {
     throw new MoneroError("Subclass must implement");

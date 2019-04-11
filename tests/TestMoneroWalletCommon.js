@@ -1487,14 +1487,14 @@ class TestMoneroWalletCommon {
         await testSendAndUpdateTxs(sendConfig);
       });
       
-//      if (!liteMode)
-//      it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
-//        let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
-//        sendConfig.setAccountIndex(0);
-//        sendConfig.setUnlockTime(3);
-//        sendConfig.setCanSplit(true);
-//        await testSendAndUpdateTxs(sendConfig);
-//      });
+      if (!liteMode)
+      it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
+        let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
+        sendConfig.setAccountIndex(0);
+        sendConfig.setUnlockTime(3);
+        sendConfig.setCanSplit(true);
+        await testSendAndUpdateTxs(sendConfig);
+      });
 //      
 //      if (!liteMode)
 //      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
@@ -2314,8 +2314,6 @@ async function testTxWallet(tx, testConfig) {
     assert.equal(tx.getDoNotRelay(), false);
     assert.equal(tx.getIsRelayed(), true);
     assert.equal(tx.getIsDoubleSpend(), false); // TODO: test double spend attempt
-    assert.equal(tx.getLastFailedHeight(), undefined);
-    assert.equal(tx.getLastFailedId(), undefined);
     
     // these should be initialized unless a response from sending
     if (!testConfig.isSendResponse) {
@@ -2505,7 +2503,7 @@ async function testTxWalletCopy(tx, testConfig) {
     assert(tx.getOutgoingTransfer() !== copy.getOutgoingTransfer());
     assert(tx.getOutgoingTransfer().getTx() !== copy.getOutgoingTransfer().getTx());
     //assert(tx.getOutgoingTransfer().getAmount() !== copy.getOutgoingTransfer().getAmount());  // TODO: BI 0 === BI 0?, testing this instead:
-    if (tx.getOutgoingTransfer().getAmount() == copy.getOutgoingTransfer().getAmount()) assert(tx.getOutgoingTransfer().getAmount().toJSValue() === 0);
+    if (tx.getOutgoingTransfer().getAmount() === copy.getOutgoingTransfer().getAmount()) assert(tx.getOutgoingTransfer().getAmount().compare(BigInteger(0)) === 0);
     if (tx.getOutgoingTransfer().getDestinations()) {
       assert(tx.getOutgoingTransfer().getDestinations() !== copy.getOutgoingTransfer().getDestinations());
       for (let i = 0; i < tx.getOutgoingTransfer().getDestinations().length; i++) {
