@@ -1422,7 +1422,7 @@ class MoneroWalletRpc extends MoneroWallet {
         } else {
           aTx.merge(tx);
         }
-        return aTx;
+        return;
       }
       
       // merge common block of different txs

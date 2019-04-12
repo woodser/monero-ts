@@ -492,7 +492,7 @@ class TestMoneroWalletCommon {
           assert(found, "No incoming transfers to account " + accountIdx + " found:\n" + tx.toString());
         }
         
-        // get txs with manually built filter that are confirmed have an outgoing transfer from account 0
+        // get txs with manually built filter that are confirmed and have an outgoing transfer from account 0
         let txFilter = new MoneroTxFilter();
         txFilter.setIsConfirmed(true);
         txFilter.setTransferFilter(new MoneroTransferFilter().setAccountIndex(0).setIsOutgoing(true));
