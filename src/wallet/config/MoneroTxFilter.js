@@ -94,8 +94,7 @@ class MoneroTxFilter extends MoneroTxWallet {
   
   // TODO: this filtering is not complete
   meetsCriteria(tx) {
-    assert(tx instanceof MoneroTxWallet);
-    if (this === tx) return;
+    if (!(tx instanceof MoneroTxWallet)) return false;
     
     // filter on tx
     if (this.getId() !== undefined && this.getId() !== tx.getId()) return false;

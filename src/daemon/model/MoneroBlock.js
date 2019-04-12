@@ -80,7 +80,7 @@ class MoneroBlock extends MoneroBlockHeader {
   
   merge(block) {
     assert(block instanceof MoneroBlock);
-    if (this === block) return;
+    if (this === block) return this;
     
     // merge header fields
     super.merge(block);

@@ -159,7 +159,7 @@ class MoneroTxWallet extends MoneroTx {
       str += this.getId() + ", ";
       str += (this.getIsConfirmed() ? this.getBlock().getTimestamp() : this.getReceivedTimestamp()) + ", ";
       str += this.getIsConfirmed() + ", ";
-      str += (this.getOutgoingAmount() ? this.getOutgoingAmount().toString() : "") + ", "
+      str += (this.getOutgoingAmount() ? this.getOutgoingAmount().toString() : "") + ", ";
       str += this.getIncomingAmount() ? this.getIncomingAmount().toString() : "";
       return str;
     }

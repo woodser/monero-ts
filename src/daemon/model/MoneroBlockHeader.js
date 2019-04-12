@@ -194,7 +194,7 @@ class MoneroBlockHeader {
   
   merge(header) {
     assert(header instanceof MoneroBlockHeader);
-    if (this === header) return;
+    if (this === header) return this;
     this.setId(MoneroUtils.reconcile(this.getId(), header.getId()));
     this.setHeight(MoneroUtils.reconcile(this.getHeight(), header.getHeight(), {resolveMax: true}));  // height can increase
     this.setTimestamp(MoneroUtils.reconcile(this.getTimestamp(), header.getTimestamp(), {resolveMax: true}));  // block timestamp can increase

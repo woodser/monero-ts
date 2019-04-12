@@ -1,3 +1,6 @@
+testGetTransactionsWallet() how are txs in same order since internal implementation uses set?
+daemon.getTx(id), wallet needs equivalent convenience function
+
 wallet.getTxs() returns txs in no particular order
 update java with binary support
 model rct_signatures and rct_prunable

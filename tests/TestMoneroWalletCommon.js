@@ -387,6 +387,7 @@ class TestMoneroWalletCommon {
         for (let i = 0; i < txs1.length; i++) {
           await testTxWallet(txs1[i], {wallet: wallet});
           await testTxWallet(txs2[i], {wallet: wallet});
+          assert.equal(txs1[i].toString(), txs2[i].toString());
           
           // test merging equivalent txs
           let copy1 = txs1[i].copy();
@@ -2179,8 +2180,8 @@ function testAccount(account) {
   
   // if given, test subaddresses and that their balances add up to account balances
   if (account.getSubaddresses()) {
-    let balance = BigInteger.valueOf(0);
-    let unlockedBalance = BigInteger.valueOf(0);
+    let balance = new BigInteger(0);
+    let unlockedBalance = new BigInteger(0);
     for (let i = 0; i < account.getSubaddresses().length; i++) {
       testSubaddress(account.getSubaddresses()[i]);
       assert.equal(account.getSubaddresses()[i].getAccountIndex(), account.getIndex());
@@ -2567,12 +2568,8 @@ function testTransfer(transfer) {
       TestUtils.testUnsignedBigInteger(destination.getAmount(), true);
       sum = sum.add(destination.getAmount());
     }
-    try {
-      assert.equal(sum.toString(), transfer.getAmount().toString());
-    } catch (e) {
-      console.log(transfer.getTx().toString());
-      throw e;
-    }
+    if (sum.toString() !== transfer.getAmount().toString()) console.log(transfer.getTx().toString());
+    assert.equal(sum.toString(), transfer.getAmount().toString());
   }
   
   // transfer is outgoing xor incoming
