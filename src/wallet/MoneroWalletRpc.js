@@ -331,6 +331,8 @@ class MoneroWalletRpc extends MoneroWallet {
   
   // TODO: use cache
   async getAddressIndex(address) {
+    
+    // fetch result and normalize error if address does not belong to the wallet
     let resp;
     try {
       resp = await this.config.rpc.sendJsonRequest("get_address_index", {address: address});
@@ -338,6 +340,8 @@ class MoneroWalletRpc extends MoneroWallet {
       if (e.getCode() === -2) throw new MoneroError("Address does not belong to the wallet");
       throw e;
     }
+    
+    // convert rpc response
     let subaddress = new MoneroSubaddress(address);
     subaddress.setAccountIndex(resp.result.index.major);
     subaddress.setIndex(resp.result.index.minor);
@@ -509,7 +513,7 @@ class MoneroWalletRpc extends MoneroWallet {
       // convert response to txs with vouts and merge
       if (resp.result.transfers === undefined) continue;
       for (let rpcVout of resp.result.transfers) {
-        let tx = MoneroWalletRpc._convertRpcTxWalletVout(rpcVout);
+        let tx = MoneroWalletRpc._convertRpcTxWalletWithVout(rpcVout);
         MoneroWalletRpc._mergeTx(txs, tx);
       }
     }
@@ -1227,7 +1231,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return tx;
   }
   
-  static _convertRpcTxWalletVout(rpcVout) {
+  static _convertRpcTxWalletWithVout(rpcVout) {
     
     // initialize tx
     let tx = new MoneroTxWallet();

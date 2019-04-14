@@ -290,7 +290,7 @@ class TestMoneroWalletCommon {
       it("Can get the address of a subaddress at a specified account and subaddress index", async function() {
         assert.equal((await wallet.getSubaddress(0, 0)).getAddress(), await wallet.getPrimaryAddress());
         for (let account of await wallet.getAccounts(true)) {
-          for (let subaddress of await wallet.getSubaddresses(account.getIndex())) {
+          for (let subaddress of account.getSubaddresses()) {
             assert.equal(await wallet.getAddress(account.getIndex(), subaddress.getIndex()), subaddress.getAddress());
           }
         }
@@ -551,7 +551,8 @@ class TestMoneroWalletCommon {
           if (tx.getVouts()) {
             assert(tx.getVouts().length > 0);
             found = true;
-            break;
+          } else {
+            assert(tx.getIsOutgoing() || (tx.getIsIncoming() && !tx.getIsConfirmed())); // TODO: monero-wallet-rpc: return vouts for unconfirmed txs
           }
         }
         assert(found, "No vouts found in txs");
@@ -587,7 +588,6 @@ class TestMoneroWalletCommon {
         
         // fetch wallet txs
         let txs = await wallet.getTxs({isConfirmed: true});
-        
         for (let tx of txs) {
           
           // find tx sent to same wallet with incoming transfer in different account than src account
@@ -868,6 +868,7 @@ class TestMoneroWalletCommon {
         // test invalid id in collection
         let randomTxs = await getRandomTransactions(wallet, {isConfirmed: true, getVouts: true}, 3, 5);
         vouts = await wallet.getVouts({txIds: [randomTxs[0].getId(), "invalid_id"]});
+        assert(vouts.length > 0);
         assert.equal(randomTxs[0].getVouts().length, vouts.length);
         let tx = vouts[0].getTx();
         for (let vout of vouts) assert(tx === vout.getTx());
@@ -2464,7 +2465,15 @@ async function testTxWallet(tx, testConfig) {
   }
   
   // test vouts
-  if (tx.getIncomingTransfers() && tx.getIsConfirmed() && testConfig.getVouts) assert(tx.getVouts().length > 0);
+  if (tx.getIncomingTransfers() && testConfig.getVouts) {
+    if (tx.getIsConfirmed()) {
+      assert(tx.getVouts() !== undefined);
+      assert(tx.getVouts().length > 0);
+    } else {
+      assert(tx.getVouts() === undefined);
+    }
+
+  }
   if (tx.getVouts()) for (let vout of tx.getVouts()) testVout(vout);
   
   // test deep copy
