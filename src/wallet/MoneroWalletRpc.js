@@ -527,25 +527,27 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getKeyImages() {
-    return await this._getKeyImages(true);
+    return await this._rpcExportKeyImages(true);
   }
   
   async importKeyImages(keyImages) {
     
+    // convert key images to rpc parameter
+    let rpcKeyImages = keyImages.map(keyImage => ({key_image: keyImage.getHex(), signature: keyImage.getSignature()}));
+    
     // send request
-    let keyImagesParam = keyImages.map(keyImage => ({key_image: keyImage.getHex(), signature: keyImage.getSignature()}));
-    let resp = await this.config.rpc.sendJsonRequest("import_key_images", {signed_key_images: keyImagesParam});
+    let resp = await this.config.rpc.sendJsonRequest("import_key_images", {signed_key_images: rpcKeyImages});
     
     // build and return result
-    let result = new MoneroKeyImageImportResult();
-    result.setHeight(resp.result.height);
-    result.setSpentAmount(new BigInteger(resp.result.spent));
-    result.setUnspentAmount(new BigInteger(resp.result.unspent));
-    return result;
+    let importResult = new MoneroKeyImageImportResult();
+    importResult.setHeight(resp.result.height);
+    importResult.setSpentAmount(new BigInteger(resp.result.spent));
+    importResult.setUnspentAmount(new BigInteger(resp.result.unspent));
+    return importResult;
   }
   
   async getNewKeyImagesFromLastImport() {
-    return await this._getKeyImages(false);
+    return await this._rpcExportKeyImages(false);
   }
   
   async send(configOrAddress, amount, priority, mixin) {
@@ -1068,7 +1070,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param all specifies to get all xor only new images from last import
    * @return {MoneroKeyImage[]} are the key images
    */
-  async _getKeyImages(all) {
+  async _rpcExportKeyImages(all) {
     let resp = await this.config.rpc.sendJsonRequest("export_key_images", {all: all});
     if (!resp.result.signed_key_images) return [];
     return resp.result.signed_key_images.map(rpcImage => new MoneroKeyImage(rpcImage.key_image, rpcImage.signature));

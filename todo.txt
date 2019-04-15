@@ -1,3 +1,5 @@
+update and re-enable getReserveProofAccount
+getBalances() returns MoneroBalances
 testGetTransactionsWallet() how are txs in same order since internal implementation uses set?
 daemon.getTx(id), wallet needs equivalent convenience function
 
