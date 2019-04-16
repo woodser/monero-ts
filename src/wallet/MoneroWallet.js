@@ -134,6 +134,17 @@ class MoneroWallet {
   }
   
   /**
+   * Rescan the blockchain from scratch, losing any information which can not
+   * be recovered from the blockchain itself.
+   * 
+   * WARNING: This method discards local wallet data like destination
+   * addresses, tx secret keys, tx notes, etc.
+   */
+  async rescanBlockchain() {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
    * Indicates if importing multisig data is needed for returning a correct balance.
    * 
    * @return {boolean} true if importing multisig data is needed for returning a correct balance, false otherwise

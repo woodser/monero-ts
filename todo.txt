@@ -1,6 +1,7 @@
 model rct_signatures and rct_prunable
 mms
 
+what happens if sweep_all is not given account_index.  if it sweeps wallet, replace sweepWallet() impl
 No message store file found: /Applications/190322-monero-master//test_wallet_1.mms
 bundle up dependencies into a single monero.js
 test filtering on hasDestinations
@@ -108,3 +109,4 @@ daemon get_txs prune documentation missing
 document alt chain `block_hashes` and `main_chain_parent_block`
 each call to `open_wallet` toggles whether or not pending transfers return (#5106)
 transfer with do_not_relay then relay_tx issue (#5107)
+ability to create new wallet which randomly generates seed?

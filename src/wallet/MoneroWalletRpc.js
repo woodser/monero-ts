@@ -67,17 +67,6 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   /**
-   * Rescan the blockchain from scratch, losing any information which can not
-   * be recovered from the blockchain itself.
-   * 
-   * WARNING: This method discards local wallet data like destination
-   * addresses, tx secret keys, tx notes, etc.
-   */
-  async rescanBlockchain() {
-    await this.config.rpc.sendJsonRequest("rescan_blockchain");
-  }
-  
-  /**
    * Create a new wallet file at the remote endpoint.
    * 
    * @param {string} filename is the name of the wallet file to create
@@ -161,6 +150,10 @@ class MoneroWalletRpc extends MoneroWallet {
     assert(onProgress === undefined, "Monero Wallet RPC does not support reporting sync progress");
     let resp = await this.config.rpc.sendJsonRequest("refresh", {start_height: startHeight});
     return new MoneroSyncResult(resp.result.blocks_fetched, resp.result.received_money);
+  }
+  
+  async rescanBlockchain() {
+    await this.config.rpc.sendJsonRequest("rescan_blockchain");
   }
   
   async isMultisigImportNeeded() {

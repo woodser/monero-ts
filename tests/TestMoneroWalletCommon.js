@@ -2065,15 +2065,6 @@ class TestMoneroWalletCommon {
     
     describe("Test Resets", function() {
       
-      // TODO: specific to monero-wallet-rpc?
-      // disabled so tests don't delete local cache
-//      it("Can rescan the blockchain", async function() {
-//        await wallet.rescanBlockchain();
-//        for (let tx of await wallet.getTxs()) {
-//          testTxWallet(tx);
-//        }
-//      });
-      
       it("Can sweep subaddresses", async function() {
         throw new Error("Not implemented");
       });
@@ -2139,6 +2130,15 @@ class TestMoneroWalletCommon {
         }
       });
       
+      // disabled so tests don't delete local cache
+//    it("Can rescan the blockchain", async function() {
+//      await wallet.rescanBlockchain();
+//      for (let tx of await wallet.getTxs()) {
+//        testTxWallet(tx);
+//      }
+//    });
+      
+      // disabled so tests don't sweep the whole wallet
 //      it("Can sweep the whole wallet", async function() {
 //        
 //        // sweep destination
