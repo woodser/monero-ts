@@ -597,17 +597,17 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      it("Has general information", async function() {
+      it("Can get general information", async function() {
         let info = await daemon.getInfo();
         testInfo(info);
       });
       
-      it("Has sync information", async function() {
+      it("Can get sync information", async function() {
         let syncInfo = await daemon.getSyncInfo();
         testSyncInfo(syncInfo);
       });
       
-      it("Has hard fork information", async function() {
+      it("Can get hard fork information", async function() {
         let hardForkInfo = await daemon.getHardForkInfo();
         testHardForkInfo(hardForkInfo);
       });
