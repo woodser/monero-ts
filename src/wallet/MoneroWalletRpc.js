@@ -611,7 +611,7 @@ class MoneroWalletRpc extends MoneroWallet {
           subaddressIndices.push(subaddressIdx);
         }
       } else {
-        for (let subaddress of await this.getSubaddresses(accountIdx, undefined, true)) {
+        for (let subaddress of await this.getSubaddresses(accountIdx)) {
           if (subaddress.getUnlockedBalance().compare(new BigInteger(0)) > 0) {
             subaddressIndices.push(subaddress.getIndex());
           }
@@ -628,8 +628,7 @@ class MoneroWalletRpc extends MoneroWallet {
           // initialize tx per subaddress
           let respTxs = [];
           for (let i = 0; i < resp.result.tx_hash_list.length; i++) {
-            let tx = new MoneroTxWallet();
-            respTxs.push(tx);
+            respTxs.push(new MoneroTxWallet());
           }
           
           // initialize fields from response
@@ -640,7 +639,7 @@ class MoneroWalletRpc extends MoneroWallet {
       
       // sweep all subaddresses together  // TODO monero-wallet-rpc: doesn't this reveal outputs belong to same wallet?
       else {
-        params.subaddr_indices = [subaddressIndices];
+        params.subaddr_indices = subaddressIndices;
         let resp = await this.config.rpc.sendJsonRequest("sweep_all", params);  // TODO: test this
         
         // initialize tx per subaddress

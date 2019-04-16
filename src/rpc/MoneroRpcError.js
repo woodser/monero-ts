@@ -30,7 +30,7 @@ class MoneroRpcError extends MoneroError {
   
   toString() {
     let str = super.toString();
-    str += "\nRequest: '" + this.getRpcMethod() + "' " + (typeof this.getRpcParams() === "object" ? JSON.stringify(this.getRpcParams()) : this.getRpcParams());
+    str += "\nRequest: '" + this.getRpcMethod() + "' with params: " + (typeof this.getRpcParams() === "object" ? JSON.stringify(this.getRpcParams()) : this.getRpcParams());
     return str;
   }
 }
