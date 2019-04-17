@@ -89,7 +89,6 @@ RPC
 -1: Failed to get the right transaction from daemon
 -4: failed to get output distribution on send rests (wallet rpc transfer, transfer_split, sweep, sweep_single, etc)
 -4: Change address is not ours on testSweepUnlocked();
-suggested_confirmations_threshold: 0 for unconfirmed txs
 subaddresses occluded by outgoing counterparts when sent from/to same account (#4500)
 key proof indicates no funds received despite known incoming transfer from/to same account
 not enough money right after opening wallet, pretty much every other run

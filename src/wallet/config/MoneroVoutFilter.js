@@ -2,7 +2,7 @@ const Filter = require("../../utils/Filter");
 const MoneroOutputWallet = require("../model/MoneroOutputWallet");
 
 /**
- * Filters transfers that don't match initialized filter criteria.
+ * Filters outputs that don't match initialized filter criteria.
  */
 class MoneroVoutFilter extends MoneroOutputWallet {
   
