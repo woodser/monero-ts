@@ -1454,6 +1454,8 @@ class TestMoneroWalletCommon {
       });
       
       it("Can start and stop mining", async function() {
+        let status = await daemon.getMiningStatus();
+        if (status.getIsActive()) await wallet.stopMining();
         await wallet.startMining(2, false, true);
         await wallet.stopMining();
       });
@@ -1996,7 +1998,7 @@ class TestMoneroWalletCommon {
           if (useParams) tx = await wallet.sweepOutput(address, vout.getKeyImage().getHex(), MoneroSendPriority.ELEVATED); // test params
           else tx = await wallet.sweepOutput({address: address, keyImage: vout.getKeyImage().getHex()});  // test config
           let sendConfig = new MoneroSendConfig({address: address, keyImage: vout.getKeyImage().getHex()});
-          await testTxWallet(tx, {wallet: wallet, sendConfig: sendConfig, isSweep: true});
+          await testTxWallet(tx, {wallet: wallet, sendConfig: sendConfig, isSendResponse: true, isSweep: true});
           useParams = !useParams;
         }
         
