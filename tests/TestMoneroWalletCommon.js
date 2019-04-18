@@ -148,7 +148,7 @@ class TestMoneroWalletCommon {
         assert.equal(typeof result.getReceivedMoney(), "boolean");
       });
       
-      it("Can get all accounts in the wallet without subaddresses", async function() {
+      it("Can get accounts without subaddresses", async function() {
         let accounts = await wallet.getAccounts();
         assert(accounts.length > 0);
         accounts.map(account => {
@@ -157,7 +157,7 @@ class TestMoneroWalletCommon {
         });
       });
       
-      it("Can get all accounts in the wallet with subaddresses", async function() {
+      it("Can get accounts with subaddresses", async function() {
         let accounts = await wallet.getAccounts(true);
         assert(accounts.length > 0);
         accounts.map(account => {
