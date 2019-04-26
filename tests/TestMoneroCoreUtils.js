@@ -4,7 +4,7 @@ const GenUtils = require("../src/utils/GenUtils");
 const TestUtils = require("./TestUtils");
 
 /**
- * Test core utils ported from c++ at application layer.
+ * Test bridged C++ utilities.
  */
 describe("TEST MONERO CORE UTILS", function() {
   

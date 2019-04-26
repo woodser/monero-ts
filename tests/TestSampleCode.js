@@ -13,7 +13,7 @@ describe("Test Sample Code", function() {
     const MoneroDestination = require("../src/wallet/model/MoneroDestination");
     const MoneroSendConfig = require("../src/wallet/config/MoneroSendConfig");
     
-    // create a wallet that uses a monero-wallet-rpc endpoint
+    // create a wallet that uses a monero-wallet-rpc endpoint with authentication
     let wallet = new MoneroWalletRpc({
       uri: "http://localhost:38083",
       user: "rpc_user",
@@ -54,8 +54,10 @@ describe("Test Sample Code", function() {
     }
     
     // get incoming transfers to account 0
-    for (let transfer of await wallet.getTransfers({isIncoming: true, accountIndex: 0})) {
+    let transfers = await wallet.getTransfers({isIncoming: true, accountIndex: 0});
+    for (let transfer of transfers) {
       let amount = transfer.getAmount();     // e.g. 752343011023
+      let height = transfer.getTx().getHeight();
     }
   });
 
@@ -78,7 +80,6 @@ describe("Test Sample Code", function() {
       for (let block of blocks) {
         let blockHeight = block.getHeight();
         let blockId = block.getId();
-        let blockSize = block.getSize();
         let txCount = block.getTxs().length;
       }
     });

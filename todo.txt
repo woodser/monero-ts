@@ -1,3 +1,4 @@
+rename TestMoneroCoreUtils.js -> TestMoneroCppUtils.js
 model rct_signatures and rct_prunable
 mms
 
