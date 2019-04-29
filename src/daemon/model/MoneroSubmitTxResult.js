@@ -101,6 +101,15 @@ class MoneroSubmitTxResult {
     this.isTooBig = isTooBig;
     return this;
   }
+  
+  getSanityCheckFailed() {
+    return this.sanityCheckFailed;
+  }
+  
+  setSanityCheckFailed(sanityCheckFailed) {
+    this.sanityCheckFailed = sanityCheckFailed;
+    return this;
+  }
 }
 
 module.exports = MoneroSubmitTxResult;

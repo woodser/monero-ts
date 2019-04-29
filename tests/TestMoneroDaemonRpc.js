@@ -553,11 +553,11 @@ class TestMoneroDaemonRpc {
           
           // test image
           for (let keyImage of keyImages) {
-            assert.equal(await daemon.getSpentStatus(keyImage), expectedStatus);
+            assert.equal(await daemon.getKeyImageSpentStatus(keyImage), expectedStatus);
           }
           
           // test array of images
-          let statuses = await daemon.getSpentStatuses(keyImages);
+          let statuses = await daemon.getKeyImageSpentStatuses(keyImages);
           assert(Array.isArray(statuses));
           assert.equal(statuses.length, keyImages.length);
           for (let status of statuses) assert.equal(status, expectedStatus);

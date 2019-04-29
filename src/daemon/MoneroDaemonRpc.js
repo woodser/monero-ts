@@ -338,7 +338,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     MoneroDaemonRpc._checkResponseStatus(resp.result);
   }
   
-  async getSpentStatuses(keyImages) {
+  async getKeyImageSpentStatuses(keyImages) {
     let resp = await this.config.rpc.sendPathRequest("is_key_image_spent", {key_images: keyImages});
     MoneroDaemonRpc._checkResponseStatus(resp);
     return resp.spent_status;
@@ -695,8 +695,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
       let val = rpcHeader[key];
       if (key === "block_size") MoneroUtils.safeSet(header, header.getSize, header.setSize, val);
       else if (key === "depth") MoneroUtils.safeSet(header, header.getDepth, header.setDepth, val);
-      else if (key === "difficulty") MoneroUtils.safeSet(header, header.getDifficulty, header.setDifficulty, new BigInteger(val));
-      else if (key === "cumulative_difficulty") MoneroUtils.safeSet(header, header.getCumulativeDifficulty, header.setCumulativeDifficulty, new BigInteger(val));
+      else if (key === "difficulty")) { }  // handled by wide_difficulty
+      else if (key === "cumulative_difficulty")) { } // handled by wide_cumulative_difficulty
+      else if (key === "difficulty_top64")) { }  // handled by wide_difficulty
+      else if (key === "cumulative_difficulty_top64")) { } // handled by wide_cumulative_difficulty
+      else if (key === "wide_difficulty") header.setDifficulty(MoneroUtils.reconcile(header.getDifficulty(), prefixedHexToBI(val)));
+      else if (key === "wide_cumulative_difficulty") header.setCumulativeDifficulty(MoneroUtils.reconcile(header.getCumulativeDifficulty(), prefixedHexToBI(val)));
       else if (key === "hash") MoneroUtils.safeSet(header, header.getId, header.setId, val);
       else if (key === "height") MoneroUtils.safeSet(header, header.getHeight, header.setHeight, val);
       else if (key === "major_version") MoneroUtils.safeSet(header, header.getMajorVersion, header.setMajorVersion, val);
@@ -712,6 +716,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "pow_hash") MoneroUtils.safeSet(header, header.getPowHash, header.setPowHash, val === "" ? undefined : val);
       else if (key === "tx_hashes") {}  // used in block model, not header model
       else if (key === "miner_tx") {}   // used in block model, not header model
+      else if (key === "miner_tx_hash") header.setCoinbaseTxId(val);
       else console.log("WARNING: ignoring unexpected block header field: '" + key + "': " + val);
     }
     return header;
@@ -873,6 +878,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "blocktemplate_blob") template.setBlockHashingBlob(val);
       else if (key === "difficulty") template.setDifficulty(new BigInteger(val));
       else if (key === "expected_reward") template.setExpectedReward(val);
+      else if (key === "difficulty") { }  // handled by wide_difficulty
+      else if (key === "difficulty_top64") { }  // handled by wide_difficulty
+      else if (key === "wide_difficulty") template.setDifficulty(MoneroUtils.reconcile(template.getDifficulty(), prefixedHexToBI(val)));
       else if (key === "height") template.setHeight(val);
       else if (key === "prev_hash") template.setPrevId(val);
       else if (key === "reserved_offset") template.setReservedOffset(val);
@@ -895,8 +903,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "block_weight_limit") info.setBlockWeightLimit(val);
       else if (key === "block_weight_median") info.setBlockWeightMedian(val);
       else if (key === "bootstrap_daemon_address") { if (val) info.setBootstrapDaemonAddress(val); }
-      else if (key === "cumulative_difficulty") info.setCumulativeDifficulty(new BigInteger(val));
-      else if (key === "difficulty") info.setDifficulty(new BigInteger(val));
+      else if (key === "difficulty") { }  // handled by wide_difficulty
+      else if (key === "cumulative_difficulty") { } // handled by wide_cumulative_difficulty
+      else if (key === "difficulty_top64") { }  // handled by wide_difficulty
+      else if (key === "cumulative_difficulty_top64") { } // handled by wide_cumulative_difficulty
+      else if (key === "wide_difficulty") info.setDifficulty(MoneroUtils.reconcile(info.getDifficulty(), prefixedHexToBI(val)));
+      else if (key === "wide_cumulative_difficulty") info.setCumulativeDifficulty(MoneroUtils.reconcile(info.getCumulativeDifficulty(), prefixedHexToBI(val)));
       else if (key === "free_space") info.setFreeSpace(new BigInteger(val));
       else if (key === "database_size") info.setDatabaseSize(val);
       else if (key === "grey_peerlist_size") info.setNumOfflinePeers(val);
@@ -1015,8 +1027,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "not_rct") result.setIsRct(!val);
       else if (key === "not_relayed") result.setIsRelayed(!val);
       else if (key === "overspend") result.setIsOverspend(val);
-      else if (key === "reason") result.setReason(val);
+      else if (key === "reason") result.setReason(val === "" ? undefined : val);
       else if (key === "too_big") result.setIsTooBig(val);
+      else if (key === "sanity_check_failed") result.setSanityCheckFailed(val);
       else if (key === "status" || key === "untrusted") {}  // handled elsewhere
       else console.log("WARNING: ignoring unexpected field in submit tx hex result: " + key + ": " + val);
     }
@@ -1052,7 +1065,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
     for (let key of Object.keys(rpcChain)) {
       let val = rpcChain[key];
       if (key === "block_hash") {}  // using block_hashes instead
-      else if (key === "difficulty") chain.setDifficulty(new BigInteger(val));
+      else if (key === "difficulty") { } // handled by wide_difficulty
+      else if (key === "difficulty_top64") { }  // handled by wide_difficulty
+      else if (key === "wide_difficulty") chain.setDifficulty(MoneroUtils.reconcile(chain.getDifficulty(), prefixedHexToBI(val)));
       else if (key === "height") chain.setHeight(val);
       else if (key === "length") chain.setLength(val);
       else if (key === "block_hashes") chain.setBlockIds(val);
@@ -1161,6 +1176,18 @@ class MoneroDaemonRpc extends MoneroDaemon {
     result.setDownloadPath(rpcResult["path"]);
     if (result.getDownloadPath() === "") result.setDownloadPath(undefined);
     return result;
+  }
+
+  /**
+   * Converts a '0x' prefixed hexidecimal string to a BigInteger.
+   * 
+   * @param hex is the '0x' prefixed hexidecimal string to convert
+   * @return BigInteger is the hexicedimal converted to decimal
+   */
+  static _prefixedHexToBI(hex) {
+    throw new Error("Not implemented: " + hex);
+    //assert(hex.startsWith("0x"));
+    //return new BigInteger(hex.substring(2), 16);
   }
 }
 

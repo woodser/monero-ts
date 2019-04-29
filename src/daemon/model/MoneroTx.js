@@ -158,15 +158,6 @@ class MoneroTx {
     return this;
   }
   
-  getNumEstimatedBlocksUntilConfirmed() {
-    return this.state.numEstimatedBlocksUntilConfirmed;
-  }
-  
-  setNumEstimatedBlocksUntilConfirmed(numEstimatedBlocksUntilConfirmed) {
-    this.state.numEstimatedBlocksUntilConfirmed = numEstimatedBlocksUntilConfirmed;
-    return this;
-  }
-  
   getUnlockTime() {
     return this.state.unlockTime;
   }
@@ -502,20 +493,29 @@ class MoneroTx {
       if (this.getVouts() === undefined) this.setVouts(tx.getVouts());
       else {
         
-        // determine if output indices present
-        let numOutputIndices = 0;
-        for (let vout of this.getVouts()) if (vout.getIndex() !== undefined) numOutputIndices++;
-        for (let vout of tx.getVouts()) if (vout.getIndex() !== undefined) numOutputIndices++;
-        assert(numOutputIndices === 0 || this.getVouts().length + tx.getVouts().length === numOutputIndices, "Some vouts have an index and some do not");
+        // determine if key images present
+        let numKeyImages = 0;
+        for (let vout of this.getVouts()) {
+          if (vout.getKeyImage()) {
+            assert(vout.getKeyImage().getHex());
+            numKeyImages++;
+          }
+        }
+        for (let vout of tx.getVouts()) {
+          if (vout.getKeyImage()) {
+            assert(vout.getKeyImage().getHex());
+            numKeyImages++;
+          }
+        }
+        assert(numKeyImages === 0 || this.getVouts().size() + tx.getVouts().size() === numKeyImages, "Some vouts have a key image and some do not");
         
-        // merge by indices
-        if (numOutputIndices > 0) {
+        // merge by key images
+        if (numKeyImages > 0) {
           for (let merger of tx.getVouts()) {
             let merged = false;
-            if (!this.getVouts()) this.setVouts([]);
+            if (this.getVouts() === undefined) this.setVouts([]);
             for (let mergee of this.getVouts()) {
-              assert(mergee.getIndex() >= 0 && merger.getIndex() >= 0);
-              if (mergee.getIndex() === merger.getIndex()) {
+              if (mergee.getKeyImage().getHex() === merger.getKeyImage().getHex()) {
                 mergee.merge(merger);
                 merged = true;
                 break;
@@ -532,12 +532,6 @@ class MoneroTx {
             this.getVouts()[i].merge(tx.getVouts()[i]);
           }
         }
-        
-//        // merge by position
-//        assert.equal(tx.getVouts().length, this.getVouts().length);
-//        for (let i = 0; i < tx.getVouts().length; i++) {
-//          this.getVouts()[i].merge(tx.getVouts()[i]);
-//        }
       }
     }
     
@@ -546,12 +540,10 @@ class MoneroTx {
       this.setInTxPool(false);
       this.setReceivedTimestamp(undefined);
       this.setLastRelayedTimestamp(undefined);
-      this.setNumEstimatedBlocksUntilConfirmed(undefined);
     } else {
       this.setInTxPool(MoneroUtils.reconcile(this.getInTxPool(), tx.getInTxPool(), {resolveTrue: true})); // unrelayed -> tx pool
       this.setReceivedTimestamp(MoneroUtils.reconcile(this.getReceivedTimestamp(), tx.getReceivedTimestamp(), {resolveMax: false})); // take earliest receive time
       this.setLastRelayedTimestamp(MoneroUtils.reconcile(this.getLastRelayedTimestamp(), tx.getLastRelayedTimestamp(), {resolveMax: true}));  // take latest relay time
-      this.setNumEstimatedBlocksUntilConfirmed(MoneroUtils.reconcile(this.getNumEstimatedBlocksUntilConfirmed(), tx.getNumEstimatedBlocksUntilConfirmed(), {resolveMax: false})); // take min
     }
     
     return this;  // for chaining
@@ -572,7 +564,6 @@ class MoneroTx {
     str += MoneroUtils.kvLine("Is confirmed", this.getIsConfirmed(), indent);
     str += MoneroUtils.kvLine("In tx pool", this.getInTxPool(), indent);
     str += MoneroUtils.kvLine("Num confirmations", this.getNumConfirmations(), indent);
-    str += MoneroUtils.kvLine("Num estimated blocks until confirmed", this.getNumEstimatedBlocksUntilConfirmed(), indent);
     str += MoneroUtils.kvLine("Unlock time", this.getUnlockTime(), indent);
     str += MoneroUtils.kvLine("Last relayed time", this.getLastRelayedTimestamp(), indent);
     str += MoneroUtils.kvLine("Received time", this.getReceivedTimestamp(), indent);
