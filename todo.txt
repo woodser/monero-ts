@@ -1,5 +1,5 @@
 port daemon getBlocksByRange, getAsManyBlocksAsPossible, and associated changes
-
+port getTxs(string[])
 
 
 

@@ -262,6 +262,16 @@ class MoneroWallet {
   }
   
   /**
+   * Get a wallet transaction by id.
+   * 
+   * @param txId is an id of a transaction to get
+   * @return MoneroTxWallet is the identified transactions
+   */
+  async getTx(txId) {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
    * Get wallet transactions.  Wallet transactions contain one or more
    * transfers that are either incoming or outgoing to the wallet.
    * 
