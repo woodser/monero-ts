@@ -85,7 +85,7 @@ class MoneroSubaddress {
     return this.toString(0);
   }
   
-  getNumBlocksToUnlocked() {
+  getNumBlocksToUnlock() {
     return this.numBlocksToUnlock;
   }
 

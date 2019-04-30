@@ -14,6 +14,8 @@ const MoneroAccount = require("./model/MoneroAccount");
 const MoneroSubaddress = require("./model/MoneroSubaddress");
 const MoneroTxWallet = require("./model/MoneroTxWallet");
 const MoneroTransfer = require("./model/MoneroTransfer");
+const MoneroIncomingTransfer = require("./model/MoneroIncomingTransfer");
+const MoneroOutgoingTransfer = require("./model/MoneroOutgoingTransfer");
 const MoneroDestination = require("./model/MoneroDestination");
 const MoneroOutputWallet = require("./model/MoneroOutputWallet");
 const MoneroSendConfig = require("./config/MoneroSendConfig");
@@ -518,7 +520,7 @@ s    }
     // collect txs with vouts for each indicated account using `incoming_transfers` rpc call
     let txs = [];
     let params = {};
-    params.transfer_type = filter.getIsSpent() === true ? "unavailable" : filter.getIsSpent() === false ? "available" : "all";
+    params.transfer_type = voutFilter.getIsSpent() === true ? "unavailable" : voutFilter.getIsSpent() === false ? "available" : "all";
     params.verbose = true;
     for (let accountIdx of indices.keys()) {
     

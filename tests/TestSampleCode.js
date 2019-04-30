@@ -1,3 +1,5 @@
+const TestUtils = require("./TestUtils");
+
 /**
  * Test the sample code in README.md.
  */

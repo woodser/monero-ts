@@ -699,8 +699,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "cumulative_difficulty") { } // handled by wide_cumulative_difficulty
       else if (key === "difficulty_top64") { }  // handled by wide_difficulty
       else if (key === "cumulative_difficulty_top64") { } // handled by wide_cumulative_difficulty
-      else if (key === "wide_difficulty") header.setDifficulty(MoneroUtils.reconcile(header.getDifficulty(), prefixedHexToBI(val)));
-      else if (key === "wide_cumulative_difficulty") header.setCumulativeDifficulty(MoneroUtils.reconcile(header.getCumulativeDifficulty(), prefixedHexToBI(val)));
+      else if (key === "wide_difficulty") header.setDifficulty(MoneroUtils.reconcile(header.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
+      else if (key === "wide_cumulative_difficulty") header.setCumulativeDifficulty(MoneroUtils.reconcile(header.getCumulativeDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
       else if (key === "hash") MoneroUtils.safeSet(header, header.getId, header.setId, val);
       else if (key === "height") MoneroUtils.safeSet(header, header.getHeight, header.setHeight, val);
       else if (key === "major_version") MoneroUtils.safeSet(header, header.getMajorVersion, header.setMajorVersion, val);
@@ -880,7 +880,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "expected_reward") template.setExpectedReward(val);
       else if (key === "difficulty") { }  // handled by wide_difficulty
       else if (key === "difficulty_top64") { }  // handled by wide_difficulty
-      else if (key === "wide_difficulty") template.setDifficulty(MoneroUtils.reconcile(template.getDifficulty(), prefixedHexToBI(val)));
+      else if (key === "wide_difficulty") template.setDifficulty(MoneroUtils.reconcile(template.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
       else if (key === "height") template.setHeight(val);
       else if (key === "prev_hash") template.setPrevId(val);
       else if (key === "reserved_offset") template.setReservedOffset(val);
@@ -907,8 +907,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "cumulative_difficulty") { } // handled by wide_cumulative_difficulty
       else if (key === "difficulty_top64") { }  // handled by wide_difficulty
       else if (key === "cumulative_difficulty_top64") { } // handled by wide_cumulative_difficulty
-      else if (key === "wide_difficulty") info.setDifficulty(MoneroUtils.reconcile(info.getDifficulty(), prefixedHexToBI(val)));
-      else if (key === "wide_cumulative_difficulty") info.setCumulativeDifficulty(MoneroUtils.reconcile(info.getCumulativeDifficulty(), prefixedHexToBI(val)));
+      else if (key === "wide_difficulty") info.setDifficulty(MoneroUtils.reconcile(info.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
+      else if (key === "wide_cumulative_difficulty") info.setCumulativeDifficulty(MoneroUtils.reconcile(info.getCumulativeDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
       else if (key === "free_space") info.setFreeSpace(new BigInteger(val));
       else if (key === "database_size") info.setDatabaseSize(val);
       else if (key === "grey_peerlist_size") info.setNumOfflinePeers(val);
@@ -1067,7 +1067,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       if (key === "block_hash") {}  // using block_hashes instead
       else if (key === "difficulty") { } // handled by wide_difficulty
       else if (key === "difficulty_top64") { }  // handled by wide_difficulty
-      else if (key === "wide_difficulty") chain.setDifficulty(MoneroUtils.reconcile(chain.getDifficulty(), prefixedHexToBI(val)));
+      else if (key === "wide_difficulty") chain.setDifficulty(MoneroUtils.reconcile(chain.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
       else if (key === "height") chain.setHeight(val);
       else if (key === "length") chain.setLength(val);
       else if (key === "block_hashes") chain.setBlockIds(val);
@@ -1185,9 +1185,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * @return BigInteger is the hexicedimal converted to decimal
    */
   static _prefixedHexToBI(hex) {
-    throw new Error("Not implemented: " + hex);
-    //assert(hex.startsWith("0x"));
-    //return new BigInteger(hex.substring(2), 16);
+    assert(hex.substring(0, 2) === "0x");
+    return BigInteger.parse(hex, 16);
   }
 }
 
