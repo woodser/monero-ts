@@ -6,7 +6,7 @@ const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 require("./TestSampleCode");
 
 //test core utils
-require("./TestMoneroCoreUtils");
+require("./TestMoneroCppUtils");
 
 // test daemon rpc
 new TestMoneroDaemonRpc().runTests({
