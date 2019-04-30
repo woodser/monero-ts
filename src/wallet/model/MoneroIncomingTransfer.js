@@ -1,6 +1,6 @@
 const assert = require("assert");
 const MoneroUtils = require("../../utils/MoneroUtils");
-const MoneroTransfer = require("../model/MoneroTransfer");
+const MoneroTransfer = require("./MoneroTransfer");
 
 /**
  * Models an incoming transfer of funds to the wallet.
@@ -75,3 +75,5 @@ class MoneroIncomingTransfer extends MoneroTransfer {
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }
+
+module.exports = MoneroIncomingTransfer;

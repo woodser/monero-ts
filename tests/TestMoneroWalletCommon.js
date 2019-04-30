@@ -2512,7 +2512,7 @@ async function testTxWallet(tx, testConfig) {
   // test outgoing transfer
   if (tx.getOutgoingTransfer()) {
     assert(tx.getIsOutgoing());
-    testTransfer(tx.getOutgoingTransfer(), config);
+    testTransfer(tx.getOutgoingTransfer(), testConfig);
     if (testConfig.isSweepResponse) assert.equal(tx.getOutgoingTransfer().getDestinations().length, 1);
     
     // TODO: handle special cases
@@ -2558,7 +2558,7 @@ async function testTxWallet(tx, testConfig) {
     // test common attributes
     let sendConfig = testConfig.sendConfig;
     assert.equal(tx.getIsConfirmed(), false);
-    testTransfer(tx.getOutgoingTransfer(), config);
+    testTransfer(tx.getOutgoingTransfer(), testConfig);
     assert.equal(tx.getMixin(), sendConfig.getMixin());
     assert.equal(tx.getUnlockTime(), sendConfig.getUnlockTime() ? sendConfig.getUnlockTime() : 0);
     assert.equal(tx.getBlock(), undefined);
@@ -2718,7 +2718,7 @@ function testIncomingTransfer(transfer) {
   assert(transfer.getSubaddressIndex() >= 0);
 }
 
-function testOutgoingTransfer(transfer, config) {
+function testOutgoingTransfer(transfer, ctx) {
   assert(!transfer.getIsIncoming());
   assert(transfer.getIsOutgoing());
   if (!ctx.isSendResponse) assert(transfer.getSubaddressIndices());
@@ -2741,7 +2741,7 @@ function testOutgoingTransfer(transfer, config) {
       sum = sum.add(destination.getAmount());
     }
     if (transfer.getAmount().compare(sum) !== 0) console.log(transfer.getTx().toString());
-    assert.equal(sum, transfer.getAmount());
+    assert.equal(sum.toString(), transfer.getAmount().toString());
   }
 }
 

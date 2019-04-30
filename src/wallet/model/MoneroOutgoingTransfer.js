@@ -1,6 +1,7 @@
 const assert = require("assert");
 const MoneroUtils = require("../../utils/MoneroUtils");
-const MoneroTransfer = require("../model/MoneroTransfer");
+const MoneroTransfer = require("./MoneroTransfer");
+const MoneroDestination = require("./MoneroDestination");
 
 /**
  * Models an outgoing transfer of funds from the wallet.
@@ -67,7 +68,7 @@ class MoneroOutgoingTransfer extends MoneroTransfer {
     let json = Object.assign({}, this.state, super.toJson()); // merge json onto inherited state
     if (this.getDestinations()) {
       json.destinations = [];
-      for (let destination of this.getDestination()) json.destinations.push(destination.toJson());
+      for (let destination of this.getDestinations()) json.destinations.push(destination.toJson());
     }
     return json;
   }
@@ -109,3 +110,5 @@ class MoneroOutgoingTransfer extends MoneroTransfer {
     }
   }
 }
+
+module.exports = MoneroOutgoingTransfer;
