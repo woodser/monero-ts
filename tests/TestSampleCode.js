@@ -30,6 +30,24 @@ describe("Test Sample Code", function() {
     let subaddress = await wallet.getSubaddress(1, 0);
     let subaddressBalance = subaddress.getBalance();
     let subaddressAddress = subaddress.getAddress();
+    
+    // get incoming and outgoing transfers
+    let transfers = await wallet.getTransfers();
+    for (let transfer of transfers) {
+      let isIncoming = transfer.getIsIncoming();
+      let amount = transfer.getAmount();
+      let accountIdx = transfer.getAccountIndex();
+      let height = transfer.getTx().getHeight();  // will be undefined if unconfirmed
+    }
+    
+    // get incoming transfers to account 0
+    transfers = await wallet.getTransfers(new MoneroTransferFilter().setAccountIndex(0).setIsIncoming(true));
+    for (let transfer of transfers) {
+      assert(transfer.getIsIncoming());
+      assert.equal(transfer.getAccountIndex(), 0);
+      let amount = transfer.getAmount();
+      let height = transfer.getTx().getHeight();  // will be undefined if unconfirmed
+    }
 
     // send to an address
     let sentTx = await wallet.send("74oAtjgE2dfD1bJBo4DWW3E6qXCAwUDMgNqUurnX9b2xUvDTwMwExiXDkZskg7Vct37tRGjzHRqL4gH4H3oag3YyMYJzrNp", new BigInteger(50000));
@@ -46,19 +64,18 @@ describe("Test Sample Code", function() {
       priority: MoneroSendPriority.UNIMPORTANT // no rush
     });
     
-    // get confirmed transactions
-    for (let tx of await wallet.getTxs({isConfirmed: true})) {
-      let txId = tx.getId();                 // e.g. f8b2f0baa80bf6b...
-      let txFee = tx.getFee();               // e.g. 750000
-      let isConfirmed = tx.getIsConfirmed(); // e.g. true
+    // get all confirmed wallet transactions
+    for (let tx of await wallet.getTxs(new MoneroTxFilter().setIsConfirmed(true))) {
+      let txId = tx.getId();                  // e.g. f8b2f0baa80bf6b...
+      let txFee = tx.getFee();                // e.g. 750000
+      let isConfirmed = tx.getIsConfirmed();  // e.g. true
     }
     
-    // get incoming transfers to account 0
-    let transfers = await wallet.getTransfers({isIncoming: true, accountIndex: 0});
-    for (let transfer of transfers) {
-      let amount = transfer.getAmount();     // e.g. 752343011023
-      let height = transfer.getTx().getHeight();
-    }
+    // get a wallet transaction by id
+    let tx = await wallet.getTx("c936b213b236a8ff60da84067c39409db6934faf6c0acffce752ac5a0d53f6b6");
+    let txId = tx.getId();                  // e.g. c936b213b236a8ff6...
+    let txFee = tx.getFee();                // e.g. 750000
+    let isConfirmed = tx.getIsConfirmed();  // e.g. true
   });
 
   it("Can demonstrate the daemon with sample code", async function() {
@@ -82,5 +99,20 @@ describe("Test Sample Code", function() {
         let blockId = block.getId();
         let txCount = block.getTxs().length;
       }
+      
+      // start mining to an address with 4 threads, not in the background, and ignoring the battery
+      let address = TestUtils.TEST_ADDRESS;
+      //let address = "59aZULsUF3YNSKGiHz4JPMfjGYk...";
+      let numThreads = 4;
+      let isBackground = false;
+      let ignoreBattery = false;
+      await daemon.startMining(address, numThreads, isBackground, ignoreBattery);
+      
+      // wait for the header of the next block added to the chain
+      let nextBlockHeader = await daemon.getNextBlockHeader();
+      let nextNumTxs = nextBlockHeader.getNumTxs();
+      
+      // stop mining
+      await daemon.stopMining();
     });
 });
