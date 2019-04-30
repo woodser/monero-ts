@@ -416,7 +416,7 @@ class TestMoneroWalletCommon {
         assert(nonDefaultIncoming, "No incoming transfers found to non-default account and subaddress; run send-to-multiple tests first");
       });
       
-      it("Can get transactions by id", function() {
+      it("Can get transactions by id", async function() {
         
         let maxNumTxs = 10;  // max number of txs to test
         
@@ -721,7 +721,7 @@ class TestMoneroWalletCommon {
           assert.equal(transfers.length, subaddressTransfers.length); // TODO monero-wallet-rpc: these may not be equal because outgoing transfers are always from subaddress 0 (#5171) and/or incoming transfers from/to same account are occluded (#4500)
           for (let transfer of transfers) {
             assert.equal(account.getIndex(), transfer.getAccountIndex());
-            if (transfer.getIsIncoming()) assert(subaddressIndices.includes(transfer.getSubaddressIndex());
+            if (transfer.getIsIncoming()) assert(subaddressIndices.includes(transfer.getSubaddressIndex()));
             else {
               let overlaps = false;
               for (let subaddressIdx of subaddressIndices) {
@@ -734,16 +734,6 @@ class TestMoneroWalletCommon {
               }
               assert(overlaps, "Subaddresses must overlap");
             }
-          }
-          
-          // get transfers by subaddress indices
-          let subaddressIndices = Array.from(new Set(subaddressTransfers.map(transfer => transfer.getSubaddressIndex())));
-          let transfers = await getAndTestTransfers(wallet, {accountIndex: account.getIndex(), subaddressIndices: subaddressIndices});
-          if (transfers.length !== subaddressTransfers.length) console.log("WARNING: outgoing transfers always from subaddress 0 (monero-wallet-rpc #5171)");
-          //assert.equal(transfers.length, subaddressTransfers.length); // TODO monero-wallet-rpc: these may not be equal because outgoing transfers are always from subaddress 0 (#5171) and/or incoming transfers from/to same account are occluded (#4500)
-          for (let transfer of transfers) {
-            assert.equal(transfer.getAccountIndex(), account.getIndex());
-            assert(subaddressIndices.includes(transfer.getSubaddressIndex()));
           }
         }
         
@@ -2117,7 +2107,7 @@ class TestMoneroWalletCommon {
         
         // test txs
         let ctx = {sendConfig: new MoneroSendConfig().setDoNotRelay(true), isSendResponse: true, isSweepResponse: true};
-        for (MoneroTxWallet tx : txs) {
+        for (let tx of txs) {
           testTxWallet(tx, ctx);
         }
         
@@ -2131,7 +2121,7 @@ class TestMoneroWalletCommon {
         // fetch and test txs
         txs = wallet.getTxs(new MoneroTxFilter().setTxIds(txIds));
         ctx.sendConfig.setDoNotRelay(false);
-        for (MoneroTxWallet tx : txs) {
+        for (let tx of txs) {
           testTxWallet(tx, ctx);
         }
       });
@@ -2140,7 +2130,7 @@ class TestMoneroWalletCommon {
         let txs = await wallet.sweepDust();
         if (txs.length === 0) return;  // dust does not exist after rct
         let ctx = {wallet: wallet, isSendResponse: true, isSweepResponse: true};
-        for (MoneroTxWallet tx : txs) {
+        for (let tx of txs) {
           testTxWallet(tx, ctx);
         }
       });
@@ -2198,7 +2188,7 @@ class TestMoneroWalletCommon {
         // test subaddresses after sweeping
         let subaddressesAfter = [];
         for (let account of await wallet.getAccounts(true)) {
-          for (let subaddress : account.getSubaddresses()) {
+          for (let subaddress of account.getSubaddresses()) {
             subaddressesAfter.push(subaddress);
           }
         }

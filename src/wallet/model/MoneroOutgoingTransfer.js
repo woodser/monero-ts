@@ -91,11 +91,11 @@ class MoneroOutgoingTransfer extends MoneroTransfer {
     return this;
   }
   
-  public String toString() {
+  toString() {
     return toString(0);
   }
   
-  public String toString(int indent) {
+  toString(indent) {
     let str = super.toString(indent) + "\n";
     str += MoneroUtils.kvLine("Subaddress indices", this.getSubaddressIndices(), indent);
     str += MoneroUtils.kvLine("Addresses", this.getAddresses(), indent);
@@ -103,7 +103,7 @@ class MoneroOutgoingTransfer extends MoneroTransfer {
       str += MoneroUtils.kvLine("Destinations", "", indent);
       for (let i = 0; i < this.getDestinations().length; i++) {
         str += MoneroUtils.kvLine(i + 1, "", indent + 1);
-        str += this.getDestinations()[i].toString(indent + 2) + "\n");
+        str += this.getDestinations()[i].toString(indent + 2) + "\n";
       }
       return str.slice(0, str.length - 1);  // strip last newline
     }
