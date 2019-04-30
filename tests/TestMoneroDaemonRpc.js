@@ -24,6 +24,11 @@ const MoneroDaemonUpdateCheckResult = require("../src/daemon/model/MoneroDaemonU
  */
 class TestMoneroDaemonRpc {
   
+  // config for testing binary blocks
+  // TODO: binary blocks have inconsistent client-side pruning
+  // TODO: get_blocks_by_height.bin does not return output indices (#5127)
+  const BINARY_BLOCK_CTX = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { isPruned: false, isConfirmed: true, fromGetTxPool: false, hasOutputIndices: false, fromGetBlocksByHeight: true } };
+  
   constructor() {
     this.daemon = TestUtils.getDaemonRpc();
     this.wallet = TestUtils.getWalletRpc();
@@ -162,6 +167,10 @@ class TestMoneroDaemonRpc {
         assert(block.getTxs() === undefined);
       });
       
+      it("Can get blocks by id which includes transactions (binary)", async function() {
+        throw new Error("Not implemented");
+      })
+      
       it("Can get a block by height", async function() {
         
         // config for testing blocks
@@ -195,24 +204,17 @@ class TestMoneroDaemonRpc {
         // fetch blocks
         let blocks = await daemon.getBlocksByHeight(heights);
         
-        // config for testing blocks
-        let testBlockConfig = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { isPruned: false, isConfirmed: true, fromGetTxPool: false, hasOutputIndices: false, fromGetBlocksByHeight: true } }; // TODO: getBlocksByHeight() has inconsistent client-side pruning, get_blocks_by_height.bin does not return output indices (#5127)
-        
         // test blocks
         let txFound = false;
         assert.equal(blocks.length, numBlocks);
         for (let i = 0; i < heights.length; i++) {
           let block = blocks[i];
           if (block.getTxs().length) txFound = true;
-          testBlock(block, testBlockConfig);
+          testBlock(block, BINARY_BLOCK_CTX);
           assert.equal(block.getHeight(), heights[i]);      
         }
         assert(txFound, "No transactions found to test");
       });
-      
-      it("Can get blocks by id which includes transactions (binary)", async function() {
-        throw new Error("Not implemented");
-      })
       
       it("Can get blocks by range", async function() {
         
@@ -231,26 +233,35 @@ class TestMoneroDaemonRpc {
         // test known start and end heights
         //console.log("Height: " + height);
         //console.log("Fecthing " + (endHeight - startHeight + 1) + " blocks [" + startHeight + ", " + endHeight + "]");
-        await testRange(startHeight, endHeight);
+        await testGetRange(startHeight, endHeight);
         
         // test unspecified start
-        await testRange(null, numBlocks - 1);
+        await testGetRange(null, numBlocks - 1);
         
         // test unspecified end
-        await testRange(height - numBlocks - 1, null);
+        await testGetRange(height - numBlocks - 1, null);
         
         // test unspecified start and end 
-        //await testRange(null, null);  // TODO: RequestError: Error: socket hang up
+        //await testGetRange(null, null);  // TODO: RequestError: Error: socket hang up
         
-        async function testRange(startHeight, endHeight) {
+        async function testGetRange(startHeight, endHeight) {
+          
+          // fetch blocks by range
           let realStartHeight = startHeight === null ? 0 : startHeight;
           let realEndHeight = endHeight === null ? height - 1 : endHeight;
           let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
           assert.equal(blocks.length, realEndHeight - realStartHeight + 1);
+          
+          // test each block
           for (let i = 0; i < blocks.length; i++) {
             assert.equal(blocks[i].getHeight(), realStartHeight + i);
+            testBlock(blocks[i], BINARY_BLOCK_CTX);
           }
         }
+      });
+      
+      it("Can return every block in a long range using chunked requests", async function() {
+        throw new Error("TODO: port from java")
       });
       
       it("Can get block ids (binary)", async function() {
@@ -967,8 +978,8 @@ class TestMoneroDaemonRpc {
         for (let tx of txs) {
           txIds.push(tx.getId());
           let result = await daemon.submitTxHex(tx.getFullHex(), true);
-          assert.equal(result.getIsRelayed(), false);
           testSubmitTxResultGood(result);
+          assert.equal(result.getIsRelayed(), false);
           
           // ensure tx is in pool
           let poolTxs = await daemon.getTxPool();
@@ -1063,7 +1074,8 @@ function testBlockHeader(header, isFull) {
   assert(!isFull ? undefined === header.getDepth() : header.getDepth() >= 0);
   assert(!isFull ? undefined === header.getDifficulty() : header.getDifficulty().toJSValue() > 0);
   assert(!isFull ? undefined === header.getCumulativeDifficulty() : header.getCumulativeDifficulty().toJSValue() > 0);
-  assert(!isFull ? undefined === header.getId() : header.getId());
+  assert(!isFull ? undefined === header.getId() : header.getId().length === 64);
+  assert(!isFull ? undefined === header.getCoinbaseTxId() : header.getCoinbaseTxId().length === 64);
   assert(!isFull ? undefined === header.getNumTxs() : header.getNumTxs() >= 0);
   assert(!isFull ? undefined === header.getOrphanStatus() : typeof header.getOrphanStatus() === "boolean");
   assert(!isFull ? undefined === header.getReward() : header.getReward());
@@ -1145,14 +1157,19 @@ function testTx(tx, config) {
   assert.equal(typeof tx.getIsConfirmed(), "boolean");
   assert.equal(typeof tx.getInTxPool(), "boolean");
   assert.equal(typeof tx.getIsCoinbase(), "boolean");
-  assert.equal(tx.getPrunableHex(), undefined); // TODO: way to test?
   assert.equal(typeof tx.getIsDoubleSpend(), "boolean");
+  assert(tx.getVersion() >= 0);
+  assert(tx.getUnlockTime() >= 0);
+  assert(tx.getVins());
+  assert(tx.getVouts());
+  assert(tx.getExtra().length > 0);
   
   // test presence of output indices
   // TODO: change this over to vouts only
   if (tx.getIsCoinbase()) assert.equal(tx.getOutputIndices(), undefined); // TODO: how to get output indices for coinbase transactions?
   if (tx.getInTxPool() || config.fromGetTxPool || config.hasOutputIndices === false) assert.equal(tx.getOutputIndices(), undefined);
-  else assert(tx.getOutputIndices().length > 0);
+  else assert(tx.getOutputIndices());
+  if (tx.getOutputIndices()) assert(tx.getOutputIndices().length > 0);
   
   // test confirmed config
   if (config.isConfirmed === true) assert.equal(tx.getIsConfirmed(), true);
@@ -1192,7 +1209,6 @@ function testTx(tx, config) {
     if (tx.getIsRelayed()) assert(tx.getNumEstimatedBlocksUntilConfirmed() > 0);
     else assert.equal(tx.getNumEstimatedBlocksUntilConfirmed(), undefined);
   } else {
-    assert.equal(tx.getNumEstimatedBlocksUntilConfirmed(), undefined);
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
   }
   
@@ -1234,19 +1250,28 @@ function testTx(tx, config) {
     assert(!tx.getIsConfirmed());
   }
   
+  // test vins and vouts
+  assert(tx.getVins() && Array.isArray(tx.getVins()) && tx.getVins().length >= 0);
+  assert(tx.getVouts() && Array.isArray(tx.getVouts()) && tx.getVouts().length >= 0);
+  if (!tx.getIsCoinbase()) assert(tx.getVins().length > 0);
+  for (let vin of tx.getVins()) {
+    assert(tx === vin.getTx());
+    testVin(vin, config);
+  }
+  assert(tx.getVouts().length > 0);
+  for (let vout of tx.getVouts()) {
+    assert(tx === vout.getTx());
+    testVout(vout, config);
+  }
+  
   // test pruned vs not pruned
-  if (config.fromGetTxPool || config.fromGetBlocksByHeight) assert.equal(tx.getPrunableHash(), undefined);   // TODO monero-daemon-rpc: tx pool txs do not have prunable hash, TODO: getBlocksByHeight() has inconsistent client-side pruning
+  if (config.fromGetTxPool || config.fromBinaryBlock) assert.equal(tx.getPrunableHash(), undefined);   // TODO monero-daemon-rpc: tx pool txs do not have prunable hash, TODO: getBlocksByHeight() has inconsistent client-side pruning
   else assert(tx.getPrunableHash());
   if (config.isPruned) {
     assert.equal(tx.getRctSigPrunable(), undefined);
     assert.equal(tx.getSize(), undefined);
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
     assert.equal(tx.getReceivedTimestamp(), undefined);
-    assert.equal(tx.getVersion(), undefined);
-    assert.equal(tx.getUnlockTime(), undefined);
-    assert.equal(tx.getVins(), undefined);
-    assert.equal(tx.getVouts(), undefined);
-    assert.equal(tx.getExtra(), undefined);
     assert.equal(tx.getFullHex(), undefined);
     assert(tx.getPrunedHex());
   } else {
@@ -1254,9 +1279,9 @@ function testTx(tx, config) {
     assert(tx.getVersion() >= 0);
     assert(tx.getUnlockTime() >= 0);
     assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
-    if (config.fromGetBlocksByHeight) assert.equal(tx.getFullHex(), undefined);         // TODO: getBlocksByHeight() has inconsistent client-side pruning
+    if (config.fromBinaryBlock) assert.equal(tx.getFullHex(), undefined);         // TODO: getBlocksByHeight() has inconsistent client-side pruning
     else assert(tx.getFullHex().length > 0);
-    if (config.fromGetBlocksByHeight) assert.equal(tx.getRctSigPrunable(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
+    if (config.fromBinaryBlock) assert.equal(tx.getRctSigPrunable(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
     //else assert.equal(typeof tx.getRctSigPrunable().nbp, "number");
     assert.equal(tx.getIsDoubleSpend(), false);
     if (tx.getIsConfirmed()) {
@@ -1266,20 +1291,6 @@ function testTx(tx, config) {
       if (tx.getIsRelayed()) assert(tx.getLastRelayedTimestamp() > 0);
       else assert.equal(tx.getLastRelayedTimestamp(), undefined);
       assert(tx.getReceivedTimestamp() > 0);
-    }
-    
-    // test vins and vouts
-    assert(tx.getVins() && Array.isArray(tx.getVins()) && tx.getVins().length >= 0);
-    assert(tx.getVouts() && Array.isArray(tx.getVouts()) && tx.getVouts().length >= 0);
-    if (!tx.getIsCoinbase()) assert(tx.getVins().length > 0);
-    for (let vin of tx.getVins()) {
-      assert(tx === vin.getTx());
-      testVin(vin, config);
-    }
-    assert(tx.getVouts().length > 0);
-    for (let vout of tx.getVouts()) {
-      assert(tx === vout.getTx());
-      testVout(vout, config);
     }
   }
   
@@ -1400,6 +1411,7 @@ function testSubmitTxResultGood(result) {
   assert.equal(result.getIsRct(), true);
   assert.equal(result.getIsOverspend(), false);
   assert.equal(result.getIsTooBig(), false);
+  assert.equal(result.getSanityCheckFailed(), false);
 }
 
 function testSubmitTxResultDoubleSpend(result) {
@@ -1426,6 +1438,8 @@ function testSubmitTxResultCommon(result) {
   assert.equal(typeof result.getIsRct(), "boolean");
   assert.equal(typeof result.getIsOverspend(), "boolean");
   assert.equal(typeof result.getIsTooBig(), "boolean");
+  assert.equal(typeof result.getSanityCheckFailed(), "boolean");
+  assert(result.getReason() === undefined || result.getReason().length > 0);
 }
 
 function testTxPoolStats(stats) {
