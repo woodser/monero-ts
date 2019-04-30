@@ -412,8 +412,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let orderedTxs = [];
       for (let txId of filter.getTxIds()) if (txsById[txId]) orderedTxs.push(txsById[txId]);
       txs = orderedTxs;
-      delete txsById;
-    }
+s    }
     return txs;
   }
   
@@ -1313,7 +1312,7 @@ class MoneroWalletRpc extends MoneroWallet {
     tx.setIsCoinbase(false);
     tx.setIsFailed(false);
     tx.setMixin(config.getMixin());
-    MoneroOutgoingTransfer transfer = new MoneroOutgoingTransfer().setTx(tx);
+    let transfer = new MoneroOutgoingTransfer().setTx(tx);
     if (config.getSubaddressIndices() && config.getSubaddressIndices().length === 1) transfer.setSubaddressIndices(config.getSubaddressIndices().slice(0)); // we know src subaddress indices iff config specifies 1
     let destCopies = [];
     for (let dest of config.getDestinations()) destCopies.push(dest.copy());

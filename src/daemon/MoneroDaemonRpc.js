@@ -695,10 +695,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
       let val = rpcHeader[key];
       if (key === "block_size") MoneroUtils.safeSet(header, header.getSize, header.setSize, val);
       else if (key === "depth") MoneroUtils.safeSet(header, header.getDepth, header.setDepth, val);
-      else if (key === "difficulty")) { }  // handled by wide_difficulty
-      else if (key === "cumulative_difficulty")) { } // handled by wide_cumulative_difficulty
-      else if (key === "difficulty_top64")) { }  // handled by wide_difficulty
-      else if (key === "cumulative_difficulty_top64")) { } // handled by wide_cumulative_difficulty
+      else if (key === "difficulty") { }  // handled by wide_difficulty
+      else if (key === "cumulative_difficulty") { } // handled by wide_cumulative_difficulty
+      else if (key === "difficulty_top64") { }  // handled by wide_difficulty
+      else if (key === "cumulative_difficulty_top64") { } // handled by wide_cumulative_difficulty
       else if (key === "wide_difficulty") header.setDifficulty(MoneroUtils.reconcile(header.getDifficulty(), prefixedHexToBI(val)));
       else if (key === "wide_cumulative_difficulty") header.setCumulativeDifficulty(MoneroUtils.reconcile(header.getCumulativeDifficulty(), prefixedHexToBI(val)));
       else if (key === "hash") MoneroUtils.safeSet(header, header.getId, header.setId, val);

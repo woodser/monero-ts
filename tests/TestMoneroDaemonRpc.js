@@ -19,15 +19,15 @@ const MoneroDaemonPeer = require("../src/daemon/model/MoneroDaemonPeer");
 const MoneroDaemonConnection = require("../src/daemon/model/MoneroDaemonConnection");
 const MoneroDaemonUpdateCheckResult = require("../src/daemon/model/MoneroDaemonUpdateCheckResult");
 
+// config for testing binary blocks
+// TODO: binary blocks have inconsistent client-side pruning
+// TODO: get_blocks_by_height.bin does not return output indices (#5127)
+const BINARY_BLOCK_CTX = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { isPruned: false, isConfirmed: true, fromGetTxPool: false, hasOutputIndices: false, fromBinaryBlock: true } };
+
 /**
  * Tests a Monero daemon.
  */
 class TestMoneroDaemonRpc {
-  
-  // config for testing binary blocks
-  // TODO: binary blocks have inconsistent client-side pruning
-  // TODO: get_blocks_by_height.bin does not return output indices (#5127)
-  const BINARY_BLOCK_CTX = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { isPruned: false, isConfirmed: true, fromGetTxPool: false, hasOutputIndices: false, fromGetBlocksByHeight: true } };
   
   constructor() {
     this.daemon = TestUtils.getDaemonRpc();
