@@ -77,6 +77,46 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           }
         }
       });
+      
+      it("Preserves order from rpc", async function() {
+        
+        // fetch transfers directly from rpc for comparison to library
+        let rpc = wallet.getRpc();
+        let params = {};
+        parmams.all_accounts = true;
+        params.in = true;
+        params.out = true;
+        params.pool = true;
+        params.pending = true;
+        params.failed = true;
+        let resp = await rpc.sendJsonRequest("get_transfers", params);
+        let result = resp.result;
+        
+        // compare transfer order to rpc
+        compareTransferOrder(result.in, await wallet.getTransfers(new MoneroTransferFilter().setIsIncoming(true).setTxFilter(new MoneroTxFilter().setIsConfirmed(true))));
+        compareTransferOrder(result.out, await wallet.getTransfers(new MoneroTransferFilter().setIsOutgoing(true).setTxFilter(new MoneroTxFilter().setIsConfirmed(true))));
+        compareTransferOrder(result.pool, await wallet.getTransfers(new MoneroTransferFilter().setIsIncoming(true).setTxFilter(new MoneroTxFilter().setIsConfirmed(false))));
+        compareTransferOrder(result.pending, await wallet.getTransfers(new MoneroTransferFilter().setIsOutgoing(true).setTxFilter(new MoneroTxFilter().setIsConfirmed(false).setIsFailed(false))));
+        compareTransferOrder(result.failed, await wallet.getTransfers(new MoneroTransferFilter().setTxFilter(new MoneroTxFilter().setIsFailed(true))));
+        
+        // fetch vouts directly from rpc for comparison to library
+        params = {};
+        params.transfer_type = all;
+        params.verbose = true;
+        params.account_index = 0;
+        resp = await rpc.sendJsonRequest("incoming_transfers", params);
+        let rpcVouts = resp.result.transfers;
+        
+        // compare vout order to rpc
+        let vouts = await wallet.getVouts(new MoneroVoutFilter().setAccountIndex(0));
+        assert.equal(vouts.length, rpcVouts.length);
+        for (let i = 0; i < vouts.length; i++) {
+          assert.equal(rpcVouts[i].key_image, vouts[i].getKeyImage().getHex());
+          let rpcIndices = rpcVouts[i].subaddr_index;
+          assert.equal(vouts[i].getAccountIndex(), rpcIndices.major);
+          assert.equal(vouts[i].getSubaddressIndex(), rpcIndices.minor);
+        }
+      });
 
       it("Can tag accounts and query accounts by tag", async function() {
         
