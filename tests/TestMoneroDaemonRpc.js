@@ -1575,7 +1575,7 @@ function testKnownPeer(peer, fromConnection) {
   assert.equal(typeof peer.getIsOnline(), "boolean");
   if (fromConnection) assert.equal(undefined, peer.getLastSeenTimestamp());
   else assert(peer.getLastSeenTimestamp() > 0);
-  assert.equal(peer.getPruningSeed(), 0);
+  assert(peer.getPruningSeed() >= 0);
 }
 
 function testUpdateCheckResult(result) {
