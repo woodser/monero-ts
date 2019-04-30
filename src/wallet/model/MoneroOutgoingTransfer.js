@@ -19,9 +19,7 @@ class MoneroOutgoingTransfer extends MoneroTransfer {
     // deserialize destinations
     if (state.destinations) {
       for (let i = 0; i < state.destinations.length; i++) {
-        if (!(state.destinations[i] instanceof MoneroDestination)) {
-          state.destinations[i] = new MoneroDestination(Object.assign(state.destinations[i]));
-        }
+        if (!(state.destinations[i] instanceof MoneroDestination)) state.destinations[i] = new MoneroDestination(state.destinations[i]);
       }
     }
   }

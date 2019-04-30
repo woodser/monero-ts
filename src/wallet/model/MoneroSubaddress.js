@@ -85,6 +85,15 @@ class MoneroSubaddress {
     return this.toString(0);
   }
   
+  getNumBlocksToUnlocked() {
+    return this.numBlocksToUnlock;
+  }
+
+  setNumBlocksToUnlock(numBlocksToUnlock) {
+    this.numBlocksToUnlock = numBlocksToUnlock;
+    return this;
+  }
+  
   toString(indent) {
     let str = "";
     str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
@@ -95,6 +104,7 @@ class MoneroSubaddress {
     str += MoneroUtils.kvLine("Unlocked balance", this.getUnlockedBalance(), indent);
     str += MoneroUtils.kvLine("Num unspent outputs", this.getNumUnspentOutputs(), indent);
     str += MoneroUtils.kvLine("Is used", this.getIsUsed(), indent);
+    str += MoneroUtils.kvLine("Num blocks to unlock", this.getIsUsed(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }

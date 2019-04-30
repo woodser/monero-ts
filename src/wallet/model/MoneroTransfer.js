@@ -5,7 +5,7 @@ const MoneroError = require("../../utils/MoneroError");
 const MoneroDestination = require("./MoneroDestination");
 
 /**
- * Models a directional transfer of funds from or to a wallet.
+ * Base model for a transfer of funds to or from the wallet.
  */
 class MoneroTransfer {
   
@@ -25,11 +25,6 @@ class MoneroTransfer {
     
     // deserialize fields if necessary
     if (state.amount && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(state.amount);
-    if (state.destinations) {
-      for (let i = 0; i < state.destinations.length; i++) {
-        if (!(state.destinations[i] instanceof MoneroDestination)) state.destinations[i] = new MoneroDestination(state.destinations[i]);
-      }
-    }
   }
   
   getTx() {
@@ -42,27 +37,11 @@ class MoneroTransfer {
   }
   
   getIsOutgoing() {
-    return this === this.getTx().getOutgoingTransfer();
+    throw new Error("Subclass must implement");
   }
   
   getIsIncoming() {
-    if (!this.getTx().getIncomingTransfers()) return false;
-    return this.getTx().getIncomingTransfers().includes(this);
-  }
-
-  /**
-   * Get the wallet's address that this transfer either originated from (if
-   * outgoing) or is destined for (if incoming).
-   * 
-   * @return {string} is the source/destination address of the transfer if outgoing/incoming, respectively
-   */
-  getAddress() {
-    return this.state.address;
-  }
-
-  setAddress(address) {
-    this.state.address = address;
-    return this;
+    throw new Error("Subclass must implement");
   }
 
   getAccountIndex() {
@@ -74,30 +53,12 @@ class MoneroTransfer {
     return this;
   }
 
-  getSubaddressIndex() {
-    return this.state.subaddressIndex;
-  }
-
-  setSubaddressIndex(subaddressIndex) {
-    this.state.subaddressIndex = subaddressIndex;
-    return this;
-  }
-
   getAmount() {
     return this.state.amount;
   }
 
   setAmount(amount) {
     this.state.amount = amount;
-    return this;
-  }
-  
-  getDestinations() {
-    return this.state.destinations;
-  }
-  
-  setDestinations(destinations) {
-    this.state.destinations = destinations;
     return this;
   }
   
@@ -134,16 +95,8 @@ class MoneroTransfer {
     
     // otherwise merge transfer fields
     else {
-      this.setAddress(MoneroUtils.reconcile(this.getAddress(), transfer.getAddress()));
       this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), transfer.getAccountIndex()));
-      this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), transfer.getSubaddressIndex()));
       this.setAmount(MoneroUtils.reconcile(this.getAmount(), transfer.getAmount()));
-      
-      // merge destinations
-      if (this.getDestinations() === undefined) this.setDestinations(transfer.getDestinations());
-      else if (transfer.getDestinations()) {
-        assert.deepEqual(transfer.getDestinations(), this.getDestinations(), "Cannot merge transfer because destinations are different");
-      }
     }
     
     return this;
@@ -152,17 +105,8 @@ class MoneroTransfer {
   toString(indent = 0) {
     let str = "";
     str += MoneroUtils.kvLine("Is outgoing", this.getIsOutgoing(), indent);
-    str += MoneroUtils.kvLine("Address", this.getAddress(), indent);
     str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
-    str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
     str += MoneroUtils.kvLine("Amount", this.getAmount() ? this.getAmount().toString() : undefined, indent);
-    if (this.getDestinations()) {
-      str += MoneroUtils.kvLine("Destinations", "", indent);
-      for (let i = 0; i < this.getDestinations().length; i++) {
-        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
-        str += this.getDestinations()[i].toString(indent + 2) + "\n";
-      }
-    }
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }

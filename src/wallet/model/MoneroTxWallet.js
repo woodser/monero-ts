@@ -1,8 +1,10 @@
 const assert = require("assert");
 const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const MoneroError = require("../../utils/MoneroError");
 const MoneroUtils = require("../../utils/MoneroUtils");
 const MoneroTx = require("../../daemon/model/MoneroTx");
-const MoneroTransfer = require("./MoneroTransfer");
+const MoneroIncomingTransfer = require("./MoneroIncomingTransfer");
+const MoneroOutgoingTransfer = require("./MoneroOutgoingTransfer");
 const MoneroOutputWallet = require("./MoneroOutputWallet");
 
 /**
@@ -22,15 +24,15 @@ class MoneroTxWallet extends MoneroTx {
     // deserialize incoming transfers
     if (state.incomingTransfers) {
       for (let i = 0; i < state.incomingTransfers.length; i++) {
-        if (!(state.incomingTransfers[i] instanceof MoneroTransfer)) {
-          state.incomingTransfers[i] = new MoneroTransfer(Object.assign(state.incomingTransfers[i], {tx: this}));
+        if (!(state.incomingTransfers[i] instanceof MoneroIncomingTransfer)) {
+          state.incomingTransfers[i] = new MoneroIncomingTransfer(Object.assign(state.incomingTransfers[i], {tx: this}));
         }
       }
     }
     
     // deserialize outgoing transfer
-    if (state.outgoingTransfer && !(state.outgoingTransfer instanceof MoneroTransfer)) {
-      this.setOutgoingTransfer(new MoneroTransfer(Object.assign(state.outgoingTransfer, {tx: this})));
+    if (state.outgoingTransfer && !(state.outgoingTransfer instanceof MoneroOutgoingTransfer)) {
+      this.setOutgoingTransfer(new MoneroOutgoingTransfer(Object.assign(state.outgoingTransfer, {tx: this})));
     }
     
     // deserialize vouts
@@ -80,6 +82,35 @@ class MoneroTxWallet extends MoneroTx {
     return this;
   }
   
+  setVouts(vouts) {
+    
+    // validate that all vouts are wallet outputs
+    if (vouts) {
+      for (let vout of vouts) {
+        if (!(vout instanceof MoneroOutputWallet)) throw new MoneroError("Wallet transaction vouts must be of type MoneroOutputWallet");
+      }
+    }
+    super.setVouts(vouts);
+    return this;
+  }
+  
+  /**
+   * Return how many confirmations till it's not economically worth re-writing the chain.
+   * That is, the number of confirmations before the transaction is highly unlikely to be
+   * double spent or overwritten and may be considered settled, e.g. for a merchant to trust
+   * as finalized.
+   * 
+   * @return Integer is the number of confirmations before it's not worth rewriting the chain
+   */
+  getNumSuggestedConfirmations() {
+    return this.state.numSuggestedConfirmations;
+  }
+  
+  setNumSuggestedConfirmations(numSuggestedConfirmations) {
+    this.state.numSuggestedConfirmations = numSuggestedConfirmations;
+    return this;
+  }
+  
   getNote() {
     return this.state.note;
   }
@@ -125,7 +156,7 @@ class MoneroTxWallet extends MoneroTx {
       if (this.getIncomingTransfers() === undefined) this.setIncomingTransfers([]);
       for (let transfer of tx.getIncomingTransfers()) {
         transfer.setTx(this);
-        mergeTransfer(this.getIncomingTransfers(), transfer);
+        MoneroTxWallet._mergeIncomingTransfer(this.getIncomingTransfers(), transfer);
       }
     }
     
@@ -136,15 +167,11 @@ class MoneroTxWallet extends MoneroTx {
       else this.getOutgoingTransfer().merge(tx.getOutgoingTransfer());
     }
     
-    // helper function to merge transfers
-    function mergeTransfer(transfers, transfer) {
-      for (let aTransfer of transfers) {
-        if (aTransfer.getAccountIndex() === transfer.getAccountIndex() && aTransfer.getSubaddressIndex() === transfer.getSubaddressIndex()) {
-          aTransfer.merge(transfer);
-          return;
-        }
-      }
-      transfers.push(transfer);
+    // handle unrelayed -> relayed -> confirmed
+    if (this.getIsConfirmed()) {
+      this.setNumSuggestedConfirmations(null);
+    } else {
+      this.setNumSuggestedConfirmations(MoneroUtils.reconcile(this.getNumSuggestedConfirmations(), tx.getNumSuggestedConfirmations(), {resolveMax: false})); // take min
     }
     
     return this;  // for chaining
@@ -181,8 +208,20 @@ class MoneroTxWallet extends MoneroTx {
       str += MoneroUtils.kvLine("Outgoing transfer", "", indent);
       str += this.getOutgoingTransfer().toString(indent + 1) + "\n";
     }
+    str += MoneroUtils.kvLine("Num suggested confirmations", this.getNumSuggestedConfirmations(), indent);
     str += MoneroUtils.kvLine("Note: ", this.getNote(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
+  }
+  
+  // private helper to merge transfers
+  static _mergeIncomingTransfer(transfers, transfer) {
+    for (let aTransfer of transfers) {
+      if (aTransfer.getAccountIndex() === transfer.getAccountIndex() && aTransfer.getSubaddressIndex() === transfer.getSubaddressIndex()) {
+        aTransfer.merge(transfer);
+        return;
+      }
+    }
+    transfers.push(transfer);
   }
 }
 
