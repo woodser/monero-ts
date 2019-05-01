@@ -5,6 +5,10 @@ const MoneroUtils = require("../src/utils/MoneroUtils");
 const MoneroRpcError = require("../src/rpc/MoneroRpcError");
 const MoneroAccountTag = require("../src/wallet/model/MoneroAccountTag");
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
+const MoneroTxFilter = require("../src/wallet/config/MoneroTxFilter");
+const MoneroTransferFilter = require("../src/wallet/config/MoneroTransferFilter");
+const MoneroIncomingTransfer = require("../src/wallet/model/MoneroIncomingTransfer");
+const MoneroOutgoingTransfer = require("../src/wallet/model/MoneroOutgoingTransfer");
 
 /**
  * Tests the Monero Wallet RPC client and server.
@@ -93,29 +97,29 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         let result = resp.result;
         
         // compare transfer order to rpc
-        compareTransferOrder(result.in, await wallet.getTransfers(new MoneroTransferFilter().setIsIncoming(true).setTxFilter(new MoneroTxFilter().setIsConfirmed(true))));
-        compareTransferOrder(result.out, await wallet.getTransfers(new MoneroTransferFilter().setIsOutgoing(true).setTxFilter(new MoneroTxFilter().setIsConfirmed(true))));
-        compareTransferOrder(result.pool, await wallet.getTransfers(new MoneroTransferFilter().setIsIncoming(true).setTxFilter(new MoneroTxFilter().setIsConfirmed(false))));
-        compareTransferOrder(result.pending, await wallet.getTransfers(new MoneroTransferFilter().setIsOutgoing(true).setTxFilter(new MoneroTxFilter().setIsConfirmed(false).setIsFailed(false))));
-        compareTransferOrder(result.failed, await wallet.getTransfers(new MoneroTransferFilter().setTxFilter(new MoneroTxFilter().setIsFailed(true))));
-        
-        // fetch vouts directly from rpc for comparison to library
-        params = {};
-        params.transfer_type = all;
-        params.verbose = true;
-        params.account_index = 0;
-        resp = await rpc.sendJsonRequest("incoming_transfers", params);
-        let rpcVouts = resp.result.transfers;
-        
-        // compare vout order to rpc
-        let vouts = await wallet.getVouts(new MoneroVoutFilter().setAccountIndex(0));
-        assert.equal(vouts.length, rpcVouts.length);
-        for (let i = 0; i < vouts.length; i++) {
-          assert.equal(rpcVouts[i].key_image, vouts[i].getKeyImage().getHex());
-          let rpcIndices = rpcVouts[i].subaddr_index;
-          assert.equal(vouts[i].getAccountIndex(), rpcIndices.major);
-          assert.equal(vouts[i].getSubaddressIndex(), rpcIndices.minor);
-        }
+        TestMoneroWalletRpc._compareTransferOrder(result.in, await wallet.getTransfers(new MoneroTransferFilter().setIsIncoming(true).setTxFilter(new MoneroTxFilter().setIsConfirmed(true))));
+        TestMoneroWalletRpc._compareTransferOrder(result.out, await wallet.getTransfers(new MoneroTransferFilter().setIsOutgoing(true).setTxFilter(new MoneroTxFilter().setIsConfirmed(true))));
+        TestMoneroWalletRpc._compareTransferOrder(result.pool, await wallet.getTransfers(new MoneroTransferFilter().setIsIncoming(true).setTxFilter(new MoneroTxFilter().setIsConfirmed(false))));
+        TestMoneroWalletRpc._compareTransferOrder(result.pending, await wallet.getTransfers(new MoneroTransferFilter().setIsOutgoing(true).setTxFilter(new MoneroTxFilter().setIsConfirmed(false).setIsFailed(false))));
+        TestMoneroWalletRpc._compareTransferOrder(result.failed, await wallet.getTransfers(new MoneroTransferFilter().setTxFilter(new MoneroTxFilter().setIsFailed(true))));
+
+//        // fetch vouts directly from rpc for comparison to library
+//        params = {};
+//        params.transfer_type = all;
+//        params.verbose = true;
+//        params.account_index = 0;
+//        resp = await rpc.sendJsonRequest("incoming_transfers", params);
+//        let rpcVouts = resp.result.transfers;
+//        
+//        // compare vout order to rpc
+//        let vouts = await wallet.getVouts(new MoneroVoutFilter().setAccountIndex(0));
+//        assert.equal(vouts.length, rpcVouts.length);
+//        for (let i = 0; i < vouts.length; i++) {
+//          assert.equal(rpcVouts[i].key_image, vouts[i].getKeyImage().getHex());
+//          let rpcIndices = rpcVouts[i].subaddr_index;
+//          assert.equal(vouts[i].getAccountIndex(), rpcIndices.major);
+//          assert.equal(vouts[i].getSubaddressIndex(), rpcIndices.minor);
+//        }
       });
 
       it("Can tag accounts and query accounts by tag", async function() {
@@ -286,6 +290,40 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
 //        await wallet.close();
 //      });
     })
+  }
+  
+  static _compareTransferOrder(rpcTransfers, transfers) {
+    if (rpcTransfers === undefined) {
+      assert(transfers.length === 0);
+      return;
+    }
+    assert.equal(transfers.length, rpcTransfers.length);
+    for (let i = 0; i < transfers.length; i++) {
+      let transfer = transfers[i];
+      let rpcTransfer = rpcTransfers[i];
+      assert.equal(transfer.getTx().getId(), rpcTransfer.txid);
+      
+      // collect account and subaddress indices from rpc response
+      let rpcSubaddrIndices = rpcTransfer.subaddr_indices;
+      let accountIdx = undefined;
+      let subaddressIndices = [];
+      for (let rpcSubaddrIdx of rpcSubaddrIndices) {
+        if (accountIdx === undefined) accountIdx = rpcSubaddrIdx.major;
+        else assert.equal(accountIdx, rpcSubaddrIdx.major);
+        subaddressIndices.push(rpcSubaddrIdx.minor);
+      }
+      
+      // test transfer
+      assert.equal(transfer.getAccountIndex(), accountIdx);
+      if (transfer instanceof MoneroIncomingTransfer) {
+        assert.equal(rpcSubaddrIndices.length, 1);
+        assert.equal(transfer.getSubaddressIndex(), subaddressIndices[0]);
+      } else if (transfer instanceof MoneroOutgoingTransfer) {
+        assert(GenUtils.arraysEqual(transfer.getSubaddressIndices(), subaddressIndices));
+      } else {
+        throw new Error("Unrecognized transfer instance");
+      }
+    }
   }
 }
 

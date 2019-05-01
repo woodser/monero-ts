@@ -454,7 +454,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // build params for get_transfers rpc call
     let params = {};
     let canBeConfirmed = txFilter.getIsConfirmed() !== false && txFilter.getInTxPool() !== true && txFilter.getIsFailed() !== true && txFilter.getIsRelayed() !== false;
-    let canBeInTxPool = txFilter.getIsConfirmed() !== true && txFilter.getInTxPool() !== false && txFilter.getIsFailed() !== true & txFilter.getIsRelayed() !== false && txFilter.getHeight() === undefined && txFilter.getMinHeight() === undefined;
+    let canBeInTxPool = txFilter.getIsConfirmed() !== true && txFilter.getInTxPool() !== false && txFilter.getIsFailed() !== true && txFilter.getIsRelayed() !== false && txFilter.getHeight() === undefined && txFilter.getMinHeight() === undefined;
     let canBeIncoming = transferFilter.getIsIncoming() !== false && transferFilter.getIsOutgoing() !== true && transferFilter.getHasDestinations() !== true;
     let canBeOutgoing = transferFilter.getIsOutgoing() !== false && transferFilter.getIsIncoming() !== true;
     params.in = canBeIncoming && canBeConfirmed;
