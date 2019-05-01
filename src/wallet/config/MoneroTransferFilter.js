@@ -1,6 +1,8 @@
 const assert = require("assert");
 const Filter = require("../../utils/Filter");
 const MoneroTransfer = require("../model/MoneroTransfer");
+const MoneroIncomingTransfer = require("../model/MoneroIncomingTransfer");
+const MoneroOutgoingTransfer = require("../model/MoneroOutgoingTransfer");
 
 /**
  * Filters transfers that don't match initialized filter criteria.
@@ -19,15 +21,6 @@ class MoneroTransferFilter extends MoneroTransfer {
     if (this.state.txFilter && !(this.state.txFilter instanceof MoneroTxFilter)) this.state.txFilter = new MoneroTxFilter(this.state.transferFilter);
   }
   
-  getIsOutgoing() {
-    return this.state.isOutgoing;
-  }
-  
-  setIsOutgoing(isOutgoing) {
-    this.state.isOutgoing = isOutgoing;
-    return this;
-  }
-  
   getIsIncoming() {
     return this.state.isIncoming;
   }
@@ -37,12 +30,39 @@ class MoneroTransferFilter extends MoneroTransfer {
     return this;
   }
   
-  getHasDestinations() {
-    return this.state.hasDestinations;
+  getIsOutgoing() {
+    return this.state.isIncoming === undefined ? undefined : !this.state.isIncoming;
   }
   
-  setHasDestinations(hasDestinations) {
-    this.state.hasDestinations = hasDestinations;
+  setIsOutgoing(isOutgoing) {
+    this.state.isOutgoing = isOutgoing;
+    return this;
+  }
+  
+  getAddress() {
+    return this.state.address;
+  }
+
+  setAddress(address) {
+    this.state.address = address;
+    return this;
+  }
+  
+  getAddresses() {
+    return this.state.addresses;
+  }
+
+  setAddresses(addresses) {
+    this.state.addresses = addresses;
+    return this;
+  }
+  
+  getSubaddressIndex() {
+    return this.state.subaddressIndex;
+  }
+  
+  setSubaddressIndex(subaddressIndex) {
+    this.state.subaddressIndex = subaddressIndex;
     return this;
   }
   
@@ -52,6 +72,24 @@ class MoneroTransferFilter extends MoneroTransfer {
   
   setSubaddressIndices(subaddressIndices) {
     this.state.subaddressIndices = subaddressIndices;
+    return this;
+  }
+  
+  getDestinations() {
+    return this.state.destinations;
+  }
+  
+  setDestinations(destinations) {
+    this.state.destinations = destinations;
+    return this;
+  }
+  
+  getHasDestinations() {
+    return this.state.hasDestinations;
+  }
+  
+  setHasDestinations(hasDestinations) {
+    this.state.hasDestinations = hasDestinations;
     return this;
   }
   
@@ -65,30 +103,55 @@ class MoneroTransferFilter extends MoneroTransfer {
   }
   
   meetsCriteria(transfer) {
-    if (!(transfer instanceof MoneroTransfer)) return false;
+    if (transfer === undefined) return false;
     
-    // filter on transfer fields
-    if (this.getAddress() !== undefined && this.getAddress() !== transfer.getAddress()) return false;
-    if (this.getAccountIndex() !== undefined && this.getAccountIndex() !== transfer.getAccountIndex()) return false;
-    if (this.getSubaddressIndex() !== undefined && !transfer.getIsOutgoing() && this.getSubaddressIndex() !== transfer.getSubaddressIndex()) return false; // outgoing subaddresses are always 0 TODO monero-wallet-rpc: possible to return correct subaddress?
-    if (this.getAmount() !== undefined && this.getAmount().compare(transfer.getAmount()) !== 0) return false;
-    
-    // filter extensions
+    // filter on common fields
     if (this.getIsIncoming() !== undefined && this.getIsIncoming() !== transfer.getIsIncoming()) return false;
     if (this.getIsOutgoing() !== undefined && this.getIsOutgoing() !== transfer.getIsOutgoing()) return false;
-    if (this.getSubaddressIndices() !== undefined && !this.getSubaddressIndices().includes(transfer.getSubaddressIndex())) return false;
-    if (this.getHasDestinations() !== undefined) {
-      if (this.getHasDestinations() && transfer.getDestinations() === undefined) return false;
-      if (!this.getHasDestinations() && transfer.getDestinations() !== undefined) return false;
+    if (this.getAmount() !== undefined && this.getAmount().compare(transfer.getAmount()) !== 0) return false;
+    if (this.getAccountIndex() !== undefined && this.getAccountIndex() !== transfer.getAccountIndex()) return false;
+    
+    // filter on incoming fields
+    if (transfer instanceof MoneroIncomingTransfer) {
+      if (this.getHasDestinations()) return false;
+      if (this.getAddress() !== undefined && this.getAddress() !== transfer.getAddress()) return false;
+      if (this.getAddresses() !== undefined && !this.getAddresses().includes(transfer.getAddress())) return false;
+      if (this.getSubaddressIndex() !== undefined && this.getSubaddressIndex() !== transfer.getSubaddressIndex()) return false;
+      if (this.getSubaddressIndices() !== undefined && !this.getSubaddressIndices().includes(transfer.getSubaddressIndex())) return false;
+    }
+
+    // filter on outgoing fields
+    else if (transfer instanceof MoneroOutgoingTransfer) {
+      
+      // filter on addresses which must have overlap
+      if (this.getAddress() !== undefined && (transfer.getAddresses() === undefined || !transfer.getAddresses().includes(this.getAddress()))) return false;   // TODO: will filter all transfers that don't contain addresses (outgoing txs might not have this field initialized)
+      if (this.getAddresses() !== undefined) {
+        if (!transfer.getAddresses()) return false;
+        if (!this.getAddresses().some(address => transfer.getAddresses().includes(address))) return false;
+      }
+      
+      // filter on subaddress indices
+      if (this.getSubaddressIndex() !== undefined && (transfer.getSubaddressIndices() === undefined || !transfer.getSubaddressIndices().includes(this.getSubaddressIndex()))) return false;
+      if (this.getSubaddressIndices() !== undefined) {
+        if (!transfer.getSubaddressIndices()) return false;
+        if (!this.getSubaddressIndices().some(subaddressIdx => transfer.getSubaddressIndices().includes(subaddressIdx))) return false;
+      }
+      
+      // filter on having destinations
+      if (this.getHasDestinations() !== undefined) {
+        if (this.getHasDestinations() && transfer.getDestinations() === undefined) return false;
+        if (!this.getHasDestinations() && transfer.getDestinations() !== undefined) return false;
+      }
+      
+      // filter on destinations TODO: start with test for this
+//    if (this.getDestionations() !== undefined && this.getDestionations() !== transfer.getDestionations()) return false;
     }
     
-    // filter with transaction filter
-    if (this.getTxFilter() && !this.getTxFilter().meetsCriteria(transfer.getTx())) return false;
+    // otherwise invalid type
+    else throw new Error("Transfer must be MoneroIncomingTransfer or MoneroOutgoingTransfer");
     
-    // filter on destinations TODO: start with test for this
-//  if (this.getDestionations() !== undefined && this.getDestionations() !== transfer.getDestionations()) return false;
-    
-    // transfer meets filter criteria
+    // filter with tx filter
+    if (this.getTxFilter() !== undefined && !this.getTxFilter().meetsCriteria(transfer.getTx())) return false;    
     return true;
   }
 }

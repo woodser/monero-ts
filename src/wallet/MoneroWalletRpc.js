@@ -60,6 +60,10 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   // --------------------------- RPC WALLET METHODS ---------------------------
+  
+  getRpc() {
+    return this.config.rpc;
+  }
 
   /**
    * Rescan the blockchain for spent outputs.
@@ -1199,7 +1203,7 @@ s    }
       }
       else if (key === "suggested_confirmations_threshold") {
         if (tx.getInTxPool()) tx.setNumSuggestedConfirmations(val);
-        else tx.setNumEstimatedBlocksUntilConfirmed(undefined);
+        else tx.setNumSuggestedConfirmations(undefined);
       }
       else if (key === "amount") {
         if (transfer === undefined) transfer = (isOutgoing ? new MoneroOutgoingTransfer() : new MoneroIncomingTransfer()).setTx(tx);

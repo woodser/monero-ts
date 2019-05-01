@@ -83,7 +83,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         // fetch transfers directly from rpc for comparison to library
         let rpc = wallet.getRpc();
         let params = {};
-        parmams.all_accounts = true;
+        params.all_accounts = true;
         params.in = true;
         params.out = true;
         params.pool = true;

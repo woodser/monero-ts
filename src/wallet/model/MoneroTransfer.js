@@ -69,10 +69,6 @@ class MoneroTransfer {
   toJson() {
     let json = Object.assign({}, this.state);
     if (this.getAmount()) json.amount = this.getAmount().toString()
-    if (this.getDestinations()) {
-      json.destinations = [];
-      for (let destination of this.getDestinations()) json.destinations.push(destination.toJson());
-    }
     delete json.tx; // parent tx is not serialized
     return json;
   }

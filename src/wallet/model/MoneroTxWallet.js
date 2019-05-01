@@ -169,7 +169,7 @@ class MoneroTxWallet extends MoneroTx {
     
     // handle unrelayed -> relayed -> confirmed
     if (this.getIsConfirmed()) {
-      this.setNumSuggestedConfirmations(null);
+      this.setNumSuggestedConfirmations(undefined);
     } else {
       this.setNumSuggestedConfirmations(MoneroUtils.reconcile(this.getNumSuggestedConfirmations(), tx.getNumSuggestedConfirmations(), {resolveMax: false})); // take min
     }

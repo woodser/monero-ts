@@ -43,8 +43,15 @@ class MoneroVoutFilter extends MoneroOutputWallet {
     if (this.getAccountIndex() !== undefined && this.getAccountIndex() !== vout.getAccountIndex()) return false;
     if (this.getSubaddressIndex() !== undefined && this.getSubaddressIndex() !== vout.getSubaddressIndex()) return false;
     if (this.getAmount() !== undefined && this.getAmount().compare(vout.getAmount()) !== 0) return false;
-    if (this.getIsSpent() !== undefined && this.getIsSpent() !== vout.getIsSpent()) return false;
-    if (this.getKeyImage() !== undefined && this.getKeyImage() !== vout.getKeyImage()) return false;  // TODO: bug: shouldn't compare by refererence, add test to catch 
+    if (this.getIsSpent() != undefined && this.getIsSpent() !== vout.getIsSpent()) return false;
+    if (this.getIsUnlocked() !== undefined && this.getIsUnlocked() !== vout.getIsUnlocked()) return false;
+    
+    // filter on vout's key image
+    if (this.getKeyImage() !== undefined) {
+      if (vout.getKeyImage() === undefined) return false;
+      if (this.getKeyImage().getHex() !== undefined && this.getKeyImage().getHex() !== vout.getKeyImage().getHex()) return false;
+      if (this.getKeyImage().getSignature() !== undefined && this.getKeyImage().getSignature() !== vout.getKeyImage().getSignature()) return false;
+    }
     
     // filter extensions
     if (this.getSubaddressIndices() !== undefined && !this.getSubaddressIndices().includes(vout.getSubaddressIndex())) return false;

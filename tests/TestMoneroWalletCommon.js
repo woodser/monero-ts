@@ -681,10 +681,10 @@ class TestMoneroWalletCommon {
               // test account and subaddress indices
               assert.equal(transfer.getAccountIndex(), subaddress.getAccountIndex());
               if (transfer.getIsIncoming()) {
-                assert.equal(inTransfer.getSubaddressIndex(), subaddress.getIndex());
+                assert.equal(transfer.getSubaddressIndex(), subaddress.getIndex());
                 if (transfer.getAccountIndex() !== 0 && transfer.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
               } else {
-                assert(outTransfer.getSubaddressIndices().includes(subaddress.getIndex()));
+                assert(transfer.getSubaddressIndices().includes(subaddress.getIndex()));
                 if (transfer.getAccountIndex() !== 0) {
                   for (let subaddrIdx of transfer.getSubaddressIndices()) {
                     if (subaddrIdx > 0) {
@@ -711,8 +711,8 @@ class TestMoneroWalletCommon {
           // collect unique subaddress indices
           let subaddressIndices = new Set();
           for (let transfer of subaddressTransfers) {
-            if (transfer.getIsIncoming()) subaddressIndices.push(transfer.getSubaddressIndex());
-            else for (let subaddressIdx of transfer.getSubaddressIndices()) subaddressIndices.push(subaddressIdx);
+            if (transfer.getIsIncoming()) subaddressIndices.add(transfer.getSubaddressIndex());
+            else for (let subaddressIdx of transfer.getSubaddressIndices()) subaddressIndices.add(subaddressIdx);
           }
           
           // get and test transfers by subaddress indices
@@ -721,7 +721,7 @@ class TestMoneroWalletCommon {
           assert.equal(transfers.length, subaddressTransfers.length); // TODO monero-wallet-rpc: these may not be equal because outgoing transfers are always from subaddress 0 (#5171) and/or incoming transfers from/to same account are occluded (#4500)
           for (let transfer of transfers) {
             assert.equal(account.getIndex(), transfer.getAccountIndex());
-            if (transfer.getIsIncoming()) assert(subaddressIndices.includes(transfer.getSubaddressIndex()));
+            if (transfer.getIsIncoming()) assert(subaddressIndices.has(transfer.getSubaddressIndex()));
             else {
               let overlaps = false;
               for (let subaddressIdx of subaddressIndices) {
@@ -2536,10 +2536,9 @@ async function testTxWallet(tx, testConfig) {
     // test each transfer and collect transfer sum
     let transferSum = new BigInteger(0);
     for (let transfer of tx.getIncomingTransfers()) {
-      testTransfer(transfer, config);
+      testTransfer(transfer, testConfig);
       transferSum = transferSum.add(transfer.getAmount());
-      if (testConfig.wallet) assert.equal(transfer.getSubaddressIndex(), transfer.getAddress(), await testConfig.wallet.getAddress(transfer.getAccountIndex()));
-      if (config.wallet) assert.equal(transfer.getAddress(), await ctx.wallet.getAddress(transfer.getAccountIndex(), transfer.getSubaddressIndex()));
+      if (testConfig.wallet) assert.equal(transfer.getAddress(), await testConfig.wallet.getAddress(transfer.getAccountIndex(), transfer.getSubaddressIndex()));
       
       // TODO special case: transfer amount of 0
     }
@@ -2723,7 +2722,7 @@ function testOutgoingTransfer(transfer, ctx) {
   assert(transfer.getIsOutgoing());
   if (!ctx.isSendResponse) assert(transfer.getSubaddressIndices());
   if (transfer.getSubaddressIndices()) {
-    assert(transfer.getSubaddressIndices().size() >= 1);
+    assert(transfer.getSubaddressIndices().length >= 1);
     for (let subaddressIdx of transfer.getSubaddressIndices()) assert(subaddressIdx >= 0);
   }
   if (transfer.getAddresses()) {

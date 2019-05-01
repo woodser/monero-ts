@@ -106,8 +106,8 @@ class MoneroOutgoingTransfer extends MoneroTransfer {
         str += MoneroUtils.kvLine(i + 1, "", indent + 1);
         str += this.getDestinations()[i].toString(indent + 2) + "\n";
       }
-      return str.slice(0, str.length - 1);  // strip last newline
     }
+    return str.slice(0, str.length - 1);  // strip last newline
   }
 }
 
