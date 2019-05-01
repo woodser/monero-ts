@@ -442,7 +442,7 @@ class TestMoneroWalletCommon {
         let txIds = [];
         for (let tx of txs) txIds.push(tx.getId());
         fetchedTxs = await wallet.getTxs(txIds);
-        assert.equal(fetchedTxs.size(), txs.size());
+        assert.equal(fetchedTxs.length, txs.length);
         for (let i = 0; i < txs.length; i++) {
           assert.equal(fetchedTxs[i].getId(), txs[i].getId());
           testTxWallet(fetchedTxs[i]);
@@ -979,7 +979,7 @@ class TestMoneroWalletCommon {
         // get vout by key image
         let keyImage = vouts[0].getKeyImage().getHex();
         vouts = await wallet.getVouts(new MoneroVoutFilter().setKeyImage(new MoneroKeyImage(keyImage)));
-        assert.equal(vouts.size(), 1);
+        assert.equal(vouts.length, 1);
         assert.equal(vouts.get(0).getKeyImage().getHex(), keyImage);
       });
       
