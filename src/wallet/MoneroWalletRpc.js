@@ -364,7 +364,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // initialize tx filter from config
     let txFilter;
     if (config instanceof MoneroTxFilter) txFilter = config;
-    else if (Array.isArray(config)) return this.getTxs(new MoneroTxFilter().setTxIds(config));
+    else if (Array.isArray(config)) txFilter = new MoneroTxFilter().setTxIds(config);
     else {
       config = Object.assign({}, config);
       if (!config.id) config.id = config.txId;  // support txId TODO: move into MoneroTransaction?
@@ -507,6 +507,7 @@ class MoneroWalletRpc extends MoneroWallet {
       if (transferFilter.meetsCriteria(tx.getOutgoingTransfer())) transfers.push(tx.getOutgoingTransfer());
       if (tx.getIncomingTransfers()) Filter.apply(transferFilter, tx.getIncomingTransfers()).map(transfer => transfers.push(transfer));
     }
+    
     return transfers;
   }
   

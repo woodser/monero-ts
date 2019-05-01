@@ -29,10 +29,6 @@ class MoneroOutgoingTransfer extends MoneroTransfer {
     return false;
   }
   
-  getIsOutgoing() {
-    return true;
-  }
-  
   getSubaddressIndices() {
     return this.state.subaddressIndices;
   }

@@ -817,7 +817,7 @@ class TestMoneroWalletCommon {
         for (let transfer of transfers) {
           assert.equal(transfer.getAccountIndex(), 1);
           if (transfer.getIsIncoming()) assert.equal(transfer.getSubaddressIndex(), 2);
-          else assert(transfer.getSubaddressIndices().contains(2));
+          else assert(transfer.getSubaddressIndices().includes(2));
           assert(transfer.getTx().getIsConfirmed());
         }
         
@@ -980,7 +980,7 @@ class TestMoneroWalletCommon {
         let keyImage = vouts[0].getKeyImage().getHex();
         vouts = await wallet.getVouts(new MoneroVoutFilter().setKeyImage(new MoneroKeyImage(keyImage)));
         assert.equal(vouts.length, 1);
-        assert.equal(vouts.get(0).getKeyImage().getHex(), keyImage);
+        assert.equal(vouts[0].getKeyImage().getHex(), keyImage);
       });
       
       if (!liteMode)
@@ -2121,7 +2121,7 @@ class TestMoneroWalletCommon {
         
         // sweep each vout by key image
         let useParams = true; // for loop flips in order to alternate test
-        for (let vout of vouts) {
+        for (let vout of voutsToSweep) {
           testVout(vout);
           assert(!vout.getIsSpent());
           assert(vout.getIsUnlocked());
@@ -2751,7 +2751,7 @@ function testTransfer(transfer, config) {
   if (config === undefined) config = {};
   assert(transfer instanceof MoneroTransfer);
   TestUtils.testUnsignedBigInteger(transfer.getAmount());
-  if (config.isSweepOutputResponse) assert(transfer.getAccountIndex() >= 0);
+  if (!config.isSweepOutputResponse) assert(transfer.getAccountIndex() >= 0);
   if (transfer.getIsIncoming()) testIncomingTransfer(transfer);
   else testOutgoingTransfer(transfer, config);
   

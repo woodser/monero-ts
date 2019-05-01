@@ -16,15 +16,19 @@ class MoneroTransferFilter extends MoneroTransfer {
    */
   constructor(state) {
     super(state);
+    state = this.state;
     
     // deserialize if necessary
-    if (this.state.txFilter && !(this.state.txFilter instanceof MoneroTxFilter)) this.state.txFilter = new MoneroTxFilter(this.state.transferFilter);
+    if (state.txFilter && !(state.txFilter instanceof MoneroTxFilter)) state.txFilter = new MoneroTxFilter(state.transferFilter);
+    
+    // alias isOutgoing to isIncoming
+    if (state.isOutgoing !== undefined) state.isIncoming = !state.isOutgoing;
   }
   
   getIsIncoming() {
     return this.state.isIncoming;
   }
-  
+
   setIsIncoming(isIncoming) {
     this.state.isIncoming = isIncoming;
     return this;
@@ -35,7 +39,7 @@ class MoneroTransferFilter extends MoneroTransfer {
   }
   
   setIsOutgoing(isOutgoing) {
-    this.state.isOutgoing = isOutgoing;
+    this.state.isIncoming = isOutgoing === undefined ? undefined : !isOutgoing;
     return this;
   }
   

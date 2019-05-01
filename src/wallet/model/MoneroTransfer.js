@@ -37,7 +37,9 @@ class MoneroTransfer {
   }
   
   getIsOutgoing() {
-    throw new Error("Subclass must implement");
+    let isIncoming = this.getIsIncoming();
+    assert(typeof isIncoming === "boolean");
+    return !isIncoming;
   }
   
   getIsIncoming() {
