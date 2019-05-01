@@ -1,4 +1,7 @@
+const assert = require("assert");
 const TestUtils = require("./TestUtils");
+const MoneroTxFilter = require("../src/wallet/config/MoneroTxFilter");
+const MoneroTransferFilter = require("../src/wallet/config/MoneroTransferFilter");
 
 /**
  * Test the sample code in README.md.

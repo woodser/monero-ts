@@ -268,7 +268,7 @@ class MoneroWallet {
    * @return MoneroTxWallet is the identified transactions
    */
   async getTx(txId) {
-    throw new MoneroError("Subclass must implement");
+    return (await this.getTxs([txId]))[0];
   }
   
   /**
@@ -453,7 +453,7 @@ class MoneroWallet {
    * @return {MoneroTxWallet[]} are the resulting transactions
    */
   async sweepWallet(address) {
-    return await this.sweepUnlocked(new MoneroSendConfig(address));
+    return this.sweepUnlocked(new MoneroSendConfig(address));
   }
 
   /**
@@ -466,7 +466,7 @@ class MoneroWallet {
   async sweepAccount(accountIdx, address) {
     let config = new MoneroSendConfig(address);
     config.setAccountIndex(accountIdx);
-    return await this.sweepUnlocked(config);
+    return this.sweepUnlocked(config);
   }
 
   /**
@@ -481,7 +481,7 @@ class MoneroWallet {
     let config = new MoneroSendConfig(address);
     config.setAccountIndex(accountIdx);
     config.setSubaddressIndices([subaddressIdx]);
-    return await this.sweepUnlocked(config);
+    return this.sweepUnlocked(config);
   }
 
   /**

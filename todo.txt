@@ -1,6 +1,7 @@
 port daemon getBlocksByRange, getAsManyBlocksAsPossible, and associated changes
 port getTxs(string[])
 test wallet/daemon config -> ctx
+test wallet.relayTx() which has bug
 
 
 rename TestMoneroCoreUtils.js -> TestMoneroCppUtils.js

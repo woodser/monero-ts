@@ -395,7 +395,7 @@ class MoneroWalletRpc extends MoneroWallet {
       // merge vout txs one time while retaining order
       let voutTxs = [];
       for (let vout of vouts) {
-        if (!voutTxs.has(vout.getTx())){
+        if (!voutTxs.includes(vout.getTx())){
           MoneroWalletRpc._mergeTx(txs, vout.getTx(), true);
           voutTxs.push(vout.getTx());
         }

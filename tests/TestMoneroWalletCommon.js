@@ -2695,7 +2695,7 @@ async function testTxWalletCopy(tx, testConfig) {
 }
 
 function testTransfer(transfer, config) {
-  if (config === undefined) {};
+  if (config === undefined) config = {};
   assert(transfer instanceof MoneroTransfer);
   TestUtils.testUnsignedBigInteger(transfer.getAmount());
   if (config.isSweepOutputResponse) assert(transfer.getAccountIndex() >= 0);
