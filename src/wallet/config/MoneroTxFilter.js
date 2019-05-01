@@ -47,6 +47,12 @@ class MoneroTxFilter extends MoneroTxWallet {
     return this;
   }
   
+  setTxId(txId) {
+    if (txId === undefined) return this.setTxIds(undefined);
+    assert(typeof txId === "string");
+    return this.setTxIds([txId]);
+  }
+  
   getHasPaymentId() {
     return this.state.hasPaymentId;
   }
@@ -63,6 +69,12 @@ class MoneroTxFilter extends MoneroTxWallet {
   setPaymentIds(paymentIds) {
     this.state.paymentIds = paymentIds;
     return this;
+  }
+  
+  setPaymentId(paymentId) {
+    if (paymentId === undefined) return this.setPaymentIds(undefined);
+    assert(typeof paymentId === "string");
+    return this.setPaymentIds([paymentId]);
   }
   
   getMinHeight() {

@@ -364,6 +364,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // initialize tx filter from config
     let txFilter;
     if (config instanceof MoneroTxFilter) txFilter = config;
+    else if (Array.isArray(config)) return this.getTxs(new MoneroTxFilter().setTxIds(config));
     else {
       config = Object.assign({}, config);
       if (!config.id) config.id = config.txId;  // support txId TODO: move into MoneroTransaction?
@@ -406,9 +407,23 @@ class MoneroWalletRpc extends MoneroWallet {
     txFilter.setTransferFilter(transferFilter);
     txs = Filter.apply(txFilter, txs);
     
+    // verify all specified tx ids found
+    if (txFilter.getTxIds()) {
+      for (let txId of txFilter.getTxIds()) {
+        let found = false;
+        for (let tx of txs) {
+          if (txId === tx.getId()) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) throw new MoneroError("Tx not found in wallet: " + txId);
+      }
+    }
+    
     // special case: re-fetch txs if inconsistency caused by needing to make multiple rpc calls
     for (let tx of txs) {
-      if (tx.getIsConfirmed() && tx.getBlock() === undefined) return await this.getTxs(config);
+      if (tx.getIsConfirmed() && tx.getBlock() === undefined) return this.getTxs(config);
     }
     
     // otherwise order txs if tx ids given then return

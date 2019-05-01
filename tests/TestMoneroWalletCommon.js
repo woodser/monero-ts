@@ -648,17 +648,70 @@ class TestMoneroWalletCommon {
       if (!liteMode)
       it("Validates inputs when getting transactions", async function() {
         
-        // test with invalid id
-        let txs = await wallet.getTxs({txId: "invalid_id"});
-        assert.equal(txs.length, 0);
-        
-        // test invalid id in collection
+        // fetch random txs for testing
         let randomTxs = await getRandomTransactions(wallet, undefined, 3, 5);
-        txs = await wallet.getTxs({txIds: [randomTxs[0].getId(), "invalid_id"]});
-        assert.equal(txs.length, 1);
-        assert.equal(txs[0].getId(), randomTxs[0].getId());
         
-        // TODO: test other input validation here
+        // valid, invalid, and unknown tx ids for tests
+        let txId = randomTxs[0].getId();
+        let invalidId = "invalid_id";
+        let unknownId1 = "6c4982f2499ece80e10b627083c4f9b992a00155e98bcba72a9588ccb91d0a61";
+        let unknownId2 = "ff397104dd875882f5e7c66e4f852ee134f8cf45e21f0c40777c9188bc92e943";
+        
+        // fetch unknown tx id
+        try {
+          await wallet.getTx(unknownId1);
+          throw new Error("Should have thrown error getting tx id unknown to wallet");
+        } catch (e) {
+          assert.equal(e.getDescription(), "Tx not found in wallet: " + unknownId1);
+        }
+        
+        // fetch unknown tx id using filter
+        try {
+          await wallet.getTxs(new MoneroTxFilter().setTxId(unknownId1));
+          throw new Error("Should have thrown error getting tx id unknown to wallet");
+        } catch (e) {
+          assert.equal(e.getDescription(), "Tx not found in wallet: " + unknownId1);
+        }
+        
+        // fetch unknown tx id in collection
+        try {
+          await wallet.getTxs([txId, unknownId1]);
+          throw new Error("Should have thrown error getting tx id unknown to wallet");
+        } catch (e) {
+          assert.equal(e.getDescription(), "Tx not found in wallet: " + unknownId1);
+        }
+        
+        // fetch unknown tx ids in collection
+        try {
+          await wallet.getTxs([txId, unknownId1, unknownId2]);
+          throw new Error("Should have thrown error getting tx id unknown to wallet");
+        } catch (e) {
+          assert.equal(e.getDescription(), "Tx not found in wallet: " + unknownId1); // TODO: list all invalid ids in error description?
+        }
+        
+        // fetch invalid id
+        try {
+          await wallet.getTx(invalidId);
+          throw new Error("Should have thrown error getting tx id unknown to wallet");
+        } catch (e) {
+          assert.equal(e.getDescription(), "Tx not found in wallet: " + invalidId);
+        }
+        
+        // fetch invalid id collection
+        try {
+          await wallet.getTxs([txId, invalidId]);
+          throw new Error("Should have thrown error getting tx id unknown to wallet");
+        } catch (e) {
+          assert.equal(e.getDescription(), "Tx not found in wallet: " + invalidId);
+        }
+        
+        // fetch invalid ids in collection
+        try {
+          await wallet.getTxs([txId, invalidId, "invalid_id_2"]);
+          throw new Error("Should have thrown error getting tx id unknown to wallet");
+        } catch (e) {
+          assert.equal(e.getDescription(), "Tx not found in wallet: " + invalidId);
+        }
       });
 
       it("Can get transfers in the wallet, accounts, and subaddresses", async function() {
@@ -2177,7 +2230,7 @@ class TestMoneroWalletCommon {
             let config = new MoneroSendConfig(await wallet.getPrimaryAddress());
             config.setAccountIndex(unlockedSubaddress.getAccountIndex());
             config.setSubaddressIndices([unlockedSubaddress.getIndex()]);
-            testTxWallet(tx, {wallet: wallet, sendConfig: config, isSweepResponse: true});
+            testTxWallet(tx, {wallet: wallet, sendConfig: config, isSendResponse: true, isSweepResponse: true});
           }
           
           // assert no unlocked funds in subaddress
@@ -2243,7 +2296,7 @@ class TestMoneroWalletCommon {
           for (let tx of txs) {
             let config = new MoneroSendConfig(await wallet.getPrimaryAddress());
             config.setAccountIndex(unlockedAccount.getIndex());
-            await testTxWallet(tx, {wallet: wallet, sendConfig: config, isSweepResponse: true});
+            await testTxWallet(tx, {wallet: wallet, sendConfig: config, isSendResponse: true, isSweepResponse: true});
           }
           
           // assert no unlocked funds in account

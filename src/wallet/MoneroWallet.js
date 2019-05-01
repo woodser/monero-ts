@@ -280,7 +280,10 @@ class MoneroWallet {
    * order to be returned.  All configuration is optional and no filtering is
    * applied when not defined.
    * 
-   * @param {(MoneroTxFilter|object)} config configures the query (optional)
+   * Transactions can be fetched by a MoneroTxFilter, equivalent js object, or
+   * array of tx ids.
+   * 
+   * @param {(MoneroTxFilter|string[]|object)} config configures the query (optional)
    * @param {boolean} config.isConfirmed gets txs that are confirmed or not (optional)
    * @param {boolean} config.inTxPool get txs that are in the tx pool or not (optional)
    * @param {boolean} config.isRelayed gets txs that are relayed or not (optional)
