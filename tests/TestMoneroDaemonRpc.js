@@ -1206,8 +1206,6 @@ function testTx(tx, config) {
     assert.equal(tx.getLastFailedId(), undefined);
     assert(tx.getMaxUsedBlockHeight() >= 0);
     assert(tx.getMaxUsedBlockId());
-    if (tx.getIsRelayed()) assert(tx.getNumEstimatedBlocksUntilConfirmed() > 0);
-    else assert.equal(tx.getNumEstimatedBlocksUntilConfirmed(), undefined);
   } else {
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
   }

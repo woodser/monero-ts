@@ -412,13 +412,13 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // otherwise order txs if tx ids given then return
-    if (filter.getTxIds()) {
+    if (txFilter.getTxIds()) {
       let txsById = {}  // store txs in temporary map for sorting
       for (let tx of txs) txsById[tx.getId()] = tx;
       let orderedTxs = [];
-      for (let txId of filter.getTxIds()) if (txsById[txId]) orderedTxs.push(txsById[txId]);
+      for (let txId of txFilter.getTxIds()) if (txsById[txId]) orderedTxs.push(txsById[txId]);
       txs = orderedTxs;
-s    }
+    }
     return txs;
   }
   
@@ -1292,7 +1292,7 @@ s    }
         vout.setAccountIndex(val.major);
         vout.setSubaddressIndex(val.minor);
       }
-      else if (key === "block_height") tx.setBlock(new MoneroBlock().setHeight(val).setTxs(tx));
+      else if (key === "block_height") tx.setBlock(new MoneroBlock().setHeight(val).setTxs([tx]));
       else console.log("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
     }
     

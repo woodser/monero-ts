@@ -507,7 +507,7 @@ class MoneroTx {
             numKeyImages++;
           }
         }
-        assert(numKeyImages === 0 || this.getVouts().size() + tx.getVouts().size() === numKeyImages, "Some vouts have a key image and some do not");
+        assert(numKeyImages === 0 || this.getVouts().length + tx.getVouts().length === numKeyImages, "Some vouts have a key image and some do not");
         
         // merge by key images
         if (numKeyImages > 0) {
