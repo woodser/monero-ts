@@ -222,7 +222,7 @@ class TestMoneroDaemonRpc {
         let height = await daemon.getHeight();
         
         // get valid height range
-        let numBlocks = 1; // TODO: RequestError: Error: read ECONNRESET or  RequestError: Error: socket hang up if > 64 or (or > 1 if test getBlocksByHeight() runs first)
+        let numBlocks = 100;
         let numBlocksAgo = 190;
         assert(numBlocks > 0);
         assert(numBlocksAgo >= numBlocks);
@@ -236,19 +236,19 @@ class TestMoneroDaemonRpc {
         await testGetRange(startHeight, endHeight);
         
         // test unspecified start
-        await testGetRange(null, numBlocks - 1);
+        await testGetRange(undefined, numBlocks - 1);
         
         // test unspecified end
-        await testGetRange(height - numBlocks - 1, null);
+        await testGetRange(height - numBlocks - 1, undefined);
         
         // test unspecified start and end 
-        //await testGetRange(null, null);  // TODO: RequestError: Error: socket hang up
+        //await testGetRange(undefined, undefined);  // TODO: RequestError: Error: socket hang up
         
         async function testGetRange(startHeight, endHeight) {
           
           // fetch blocks by range
-          let realStartHeight = startHeight === null ? 0 : startHeight;
-          let realEndHeight = endHeight === null ? height - 1 : endHeight;
+          let realStartHeight = startHeight === undefined ? 0 : startHeight;
+          let realEndHeight = endHeight === undefined ? height - 1 : endHeight;
           let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
           assert.equal(blocks.length, realEndHeight - realStartHeight + 1);
           
@@ -261,7 +261,23 @@ class TestMoneroDaemonRpc {
       });
       
       it("Can return every block in a long range using chunked requests", async function() {
-        throw new Error("TODO: port from java")
+        let numBlocks = 2160; // test ~last 3 days of blocks
+        let endHeight = await daemon.getHeight() - 1;
+        let startHeight = Math.max(0, endHeight - numBlocks + 1);
+        //let startHeight = 250000;
+        let lastHeight = startHeight - 1;
+        while (lastHeight < endHeight) {
+          let blocks = await daemon.getAsManyBlocksAsPossible(lastHeight + 1, endHeight);
+          for (let block of blocks) {
+            testBlock(block, BINARY_BLOCK_CTX);
+          }
+          lastHeight = blocks[blocks.length - 1].getHeight();
+          
+          // print out
+          let numTxs = 0;
+          for (let block of blocks) numTxs += block.getTxs().length;
+          console.log(lastHeight + "/" + endHeight + ", fetched " + blocks.length + " blocks with " + numTxs + " txs");
+        }
       });
       
       it("Can get block ids (binary)", async function() {

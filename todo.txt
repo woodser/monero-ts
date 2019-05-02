@@ -1,8 +1,8 @@
-port daemon getBlocksByRange, getAsManyBlocksAsPossible, and associated changes
-port getTxs(string[])
+port getTxs(string[], getTxs(String)
 test wallet/daemon config -> ctx
 test wallet.relayTx() which has bug
 wallet.getTx(), getTxs() support many types (str, str[], req, obj) but they all get turned into req
+expose getBlocksByRangeSingle() to avoid header fetch overhead?
 
 rename TestMoneroCoreUtils.js -> TestMoneroCppUtils.js
 model rct_signatures and rct_prunable

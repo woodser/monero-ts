@@ -16,14 +16,14 @@ new TestMoneroDaemonRpc().runTests({
   testNotifications: false
 });
 
-// test wallet rpc
-new TestMoneroWalletRpc().runTests({
-  liteMode: false, // skips some lengthy but detailed tests
-  testNonSends: true,
-  testNotifications: false,
-  testSends: true,
-  testResets: false
-});
+//// test wallet rpc
+//new TestMoneroWalletRpc().runTests({
+//  liteMode: false, // skips some lengthy but detailed tests
+//  testNonSends: true,
+//  testNotifications: false,
+//  testSends: true,
+//  testResets: false
+//});
 
 //// test wallet local
 //new TestMoneroWalletLocal().runTests({
@@ -39,5 +39,5 @@ new TestMoneroWalletRpc().runTests({
 //// test boolean set (data structure used by wallet to track progress)
 //require("./TestBooleanSet");
 
-// test scratchpad
-require("./Scratchpad");
+//// test scratchpad
+//require("./Scratchpad");

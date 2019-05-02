@@ -56,6 +56,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     
     // one time initialization
     this.listeners = [];  // block listeners
+    this.cachedHeaders = {};  // cached headers for fetching blocks in manageable chunks
     this.initPromise = this._initOneTime();
   }
   
@@ -188,12 +189,52 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getBlocksByRange(startHeight, endHeight) {
-    await this._initOneTime();
-    if (typeof startHeight !== "number") startHeight = 0;
-    if (typeof endHeight !== "number") endHeight = await this.getHeight() - 1;
-    let heights = [];
-    for (let height = startHeight; height <= endHeight; height++) heights.push(height);
-    return await this.getBlocksByHeight(heights);
+    if (startHeight === undefined) startHeight = 0;
+    if (endHeight === undefined) endHeight = await this.getHeight() - 1;
+    let lastHeight = startHeight - 1;
+    let blocks = [];
+    while (lastHeight < endHeight) {
+      for (let block of await this.getAsManyBlocksAsPossible(lastHeight + 1, endHeight)) {
+        blocks.push(block);
+      }
+      lastHeight = blocks[blocks.length - 1].getHeight();
+    }
+    return blocks;
+  }
+  
+  /**
+   * Get a contiguous chunk of blocks starting from a given height up to a maximum
+   * height or amount of block data fetched from the blockchain, whichever comes first.
+   * 
+   * @param {number} startHeight is the start height to retrieve blocks (default 0)
+   * @param {number} maxHeight is the maximum end height to retrieve blocks (default blockchain height)
+   * @param {number} maxReqSize is the maximum amount of block data to fetch from the blockchain in bytes (default 3,000,000 bytes)
+   * @return {MoneroBlock[]} are the resulting chunk of blocks
+   */
+  async getAsManyBlocksAsPossible(startHeight, maxHeight, maxReqSize) {
+    if (startHeight === undefined) startHeight = 0;
+    if (maxHeight === undefined) maxHeight = await this.getHeight() - 1;
+    if (maxReqSize === undefined) maxReqSize = MoneroDaemonRpc.MAX_REQ_SIZE;
+    
+    // determine end height to fetch
+    let reqSize = 0;
+    let endHeight = startHeight - 1;
+    while (reqSize < maxReqSize && endHeight < maxHeight) {
+      
+      // get header of next block
+      let header = await this._getBlockHeaderByHeightCached(endHeight + 1, maxHeight);
+      
+      // block cannot be bigger than max request size
+      assert(header.getSize() <= maxReqSize, "Block exceeds maximum request size: " + header.getSize());
+      
+      // done iterating if fetching block would exceed max request size
+      if (reqSize + header.getSize() > maxReqSize) break;
+      
+      // otherwise block is included
+      reqSize += header.getSize();
+      endHeight++;
+    }
+    return endHeight >= startHeight ? await this._getBlocksByRangeSingle(startHeight, endHeight) : [];
   }
   
   async getTxs(txIds, prune) {
@@ -680,6 +721,38 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let resp = await this.config.rpc.sendPathRequest("set_limit", {limit_down: downLimit, limit_up: upLimit});
     MoneroDaemonRpc._checkResponseStatus(resp);
     return [resp.limit_down, resp.limit_up];
+  }
+  
+  async _getBlocksByRangeSingle(startHeight, endHeight) {
+    if (startHeight === undefined) startHeight = 0;
+    if (endHeight === undefined) endHeight = getHeight() - 1;
+    let heights = [];
+    for (let height = startHeight; height <= endHeight; height++) heights.push(height);
+    return await this.getBlocksByHeight(heights);
+  }
+  
+  /**
+   * Retrieves a header by height from the cache or fetches and caches a header
+   * range if not already in the cache.
+   * 
+   * @param {number} height is the height of the header to retrieve from the cache
+   * @param {number} maxHeight is the maximum height of headers to cache
+   */
+  async _getBlockHeaderByHeightCached(height, maxHeight) {
+    
+    // get header from cache
+    let cachedHeader = this.cachedHeaders[height];
+    if (cachedHeader) return cachedHeader;
+    
+    // fetch and cache headers if not in cache
+    let endHeight = Math.min(maxHeight, height + MoneroDaemonRpc.NUM_HEADERS_PER_REQ - 1);  // TODO: could specify end height to cache to optimize small requests (would like to have time profiling in place though)
+    let headers = await this.getBlockHeadersByRange(height, endHeight);
+    for (let header of headers) {
+      this.cachedHeaders[header.getHeight()] = header;
+    }
+    
+    // return the cached header
+    return this.cachedHeaders[height];
   }
   
   // --------------------------------- STATIC ---------------------------------
@@ -1190,7 +1263,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
 }
 
-// uninitialized tx or block id from daemon rpc
-MoneroDaemonRpc.DEFAULT_ID = "0000000000000000000000000000000000000000000000000000000000000000";
+// static variables
+MoneroDaemonRpc.DEFAULT_ID = "0000000000000000000000000000000000000000000000000000000000000000";  // uninitialized tx or block id from daemon rpc
+MoneroDaemonRpc.MAX_REQ_SIZE = "3000000";  // max request size when fetching blocks from daemon
+MoneroDaemonRpc.NUM_HEADERS_PER_REQ = "750";  // number of headers to fetch and cache per request
 
 module.exports = MoneroDaemonRpc;
