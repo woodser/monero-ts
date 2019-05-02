@@ -1133,7 +1133,8 @@ class TestMoneroWalletCommon {
         try {
           txs = await getRandomTransactions(wallet, {isConfirmed: true, isOutgoing: true, transferFilter: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
         } catch (e) {
-          throw new Error("No txs with outgoing destinations found; run send tests")
+          if (e.message.indexOf("found with")) throw new Error("No txs with outgoing destinations found; run send tests")
+          throw e;
         }
         
         // test good checks
@@ -1215,7 +1216,8 @@ class TestMoneroWalletCommon {
         try {
           txs = await getRandomTransactions(wallet, {isConfirmed: true, isOutgoing: true, transferFilter: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
         } catch (e) {
-          throw new Error("No txs with outgoing destinations found; run send tests")
+          if (e.message.indexOf("found with")) throw new Error("No txs with outgoing destinations found; run send tests")
+          throw e;
         }
         
         // test good checks with messages
