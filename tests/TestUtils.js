@@ -70,9 +70,10 @@ class TestUtils {
   static testUnsignedBigInteger(num, nonZero) {
     assert(num);
     assert(num instanceof BigInteger);
-    assert(num.toJSValue() >= 0);
-    if (nonZero === true) assert(num.toJSValue() > 0);
-    if (nonZero === false) assert(num.toJSValue() === 0);
+    let comparison = num.compare(new BigInteger(0));
+    assert(comparison >= 0);
+    if (nonZero === true) assert(comparison > 0);
+    if (nonZero === false) assert(comparison === 0);
   }
   
   static async getRandomWalletAddress() {
