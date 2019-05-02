@@ -2391,8 +2391,8 @@ function testAccount(account) {
       balance = balance.add(account.getSubaddresses()[i].getBalance());
       unlockedBalance = unlockedBalance.add(account.getSubaddresses()[i].getUnlockedBalance());
     }
-    assert(account.getBalance().compare(balance) === 0, "Subaddress balances " + balance + " does not equal account balance " + account.getBalance());
-    assert(account.getUnlockedBalance().compare(unlockedBalance) === 0, "Subaddress unlocked balances " + unlockedBalance + " does not equal account unlocked balance " + account.getUnlockedBalance());
+    assert(account.getBalance().compare(balance) === 0, "Subaddress balances " + balance + " does not equal account " + account.getIndex() + " balance " + account.getBalance());
+    assert(account.getUnlockedBalance().compare(unlockedBalance) === 0, "Subaddress unlocked balances " + unlockedBalance + " does not equal account " + account.getIndex() + " unlocked balance " + account.getUnlockedBalance());
   }
 }
 
@@ -2406,7 +2406,7 @@ function testSubaddress(subaddress) {
   TestUtils.testUnsignedBigInteger(subaddress.getUnlockedBalance());
   assert(subaddress.getNumUnspentOutputs() >= 0);
   assert(typeof subaddress.getIsUsed() === "boolean");
-  if (subaddress.getBalance().toJSValue() > 0) assert(subaddress.getIsUsed());
+  if (subaddress.getBalance().compare(new BigInteger(0)) > 0) assert(subaddress.getIsUsed());
   assert(subaddress.getNumBlocksToUnlock() >= 0);
 }
 

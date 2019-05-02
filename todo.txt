@@ -2,6 +2,7 @@ update monero
 port getTxs(string[], getTxs(String)
 test wallet/daemon config -> ctx
 test wallet.relayTx() which has bug
+alias subaddressIndex to subaddressIndices: [0] in MoneroSendReq (see sample code)
 wallet.getTx(), getTxs() support many types (str, str[], req, obj) but they all get turned into req
 expose getBlocksByRangeSingle() to avoid header fetch overhead?
 
