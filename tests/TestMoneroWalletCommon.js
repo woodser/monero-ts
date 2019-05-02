@@ -2391,8 +2391,8 @@ function testAccount(account) {
       balance = balance.add(account.getSubaddresses()[i].getBalance());
       unlockedBalance = unlockedBalance.add(account.getSubaddresses()[i].getUnlockedBalance());
     }
-    assert(account.getBalance().compare(balance) === 0, "Subaddress balances " + balance + " does not equal account " + account.getIndex() + " balance " + account.getBalance());
-    assert(account.getUnlockedBalance().compare(unlockedBalance) === 0, "Subaddress unlocked balances " + unlockedBalance + " does not equal account " + account.getIndex() + " unlocked balance " + account.getUnlockedBalance());
+    assert(account.getBalance().compare(balance) === 0, "Subaddress balances " + balance.toString() + " does not equal account " + account.getIndex() + " balance " + account.getBalance().toString());
+    assert(account.getUnlockedBalance().compare(unlockedBalance) === 0, "Subaddress unlocked balances " + unlockedBalance.toString() + " does not equal account " + account.getIndex() + " unlocked balance " + account.getUnlockedBalance().toString());
   }
 }
 
