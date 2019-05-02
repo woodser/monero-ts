@@ -66,17 +66,17 @@ class MoneroRpc {
   async sendJsonRequest(method, params) {
     //console.log("sendJsonRequest(" + method + ", " + JSON.stringify(params) + ")");
     
-    // build request
+    // build request which gets json response as text
     let opts = {
       method: "POST",
       uri: this.config.uri + "/json_rpc",
-      json: {
+      body: JSON.stringify({  // body is stringified so text/plain is returned so BigIntegers are properly parsed because JS numbers are limited to 53 bits which can lose precision
         id: "0",
         jsonrpc: "2.0",
         method: method,
         params: params
-      },
-      agent: this.agent
+      }),
+      agent: this.agent,
     };
     if (this.config.user) {
       opts.forever = true;
@@ -89,6 +89,7 @@ class MoneroRpc {
     
     // send request and await response
     let resp = await this._throttledRequest(opts);
+    resp = JSON.parse(resp.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
     if (resp.error) {
       //console.error("Request failed: " + resp.error.code + ": " + resp.error.message);
       //console.error(opts);
@@ -105,12 +106,12 @@ class MoneroRpc {
   async sendPathRequest(path, params) {
     //console.log("sendPathRequest(" + path + ", " + JSON.stringify(params) + ")");
     
-    // build request
+    // build request which gets json response as text
     let opts = {
       method: "POST",
       uri: this.config.uri + "/" + path,
       agent: this.agent,
-      json: params
+      body: JSON.stringify(params)
     };
     if (this.config.user) {
       opts.forever = true;
@@ -123,6 +124,7 @@ class MoneroRpc {
     
     // send request and await response
     let resp = await this._throttledRequest(opts);
+    resp = JSON.parse(resp.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
     if (typeof resp === "string") resp = JSON.parse(resp);  // TODO: some responses returned as strings?
     if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
     return resp;
