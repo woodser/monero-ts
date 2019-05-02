@@ -1,15 +1,12 @@
-update monero
 port getTxs(string[], getTxs(String)
+wallet.getTx(), getTxs() support many types (str, str[], req, obj) but they all get turned into req
 test wallet/daemon config -> ctx
 test wallet.relayTx() which has bug
 alias subaddressIndex to subaddressIndices: [0] in MoneroSendReq (see sample code)
-wallet.getTx(), getTxs() support many types (str, str[], req, obj) but they all get turned into req
-expose getBlocksByRangeSingle() to avoid header fetch overhead?
-
 rename TestMoneroCoreUtils.js -> TestMoneroCppUtils.js
+
 model rct_signatures and rct_prunable
 mms
-
 what happens if sweep_all is not given account_index.  if it sweeps wallet, replace sweepWallet() impl
 No message store file found: /Applications/190322-monero-master//test_wallet_1.mms
 bundle up dependencies into a single monero.js
