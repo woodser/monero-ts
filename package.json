@@ -29,7 +29,7 @@
     "net": "^1.0.2",
     "promise-throttle": "^1.0.0",
     "request": "2.88.0",
-    "request-promise": "^4.2.2",
+    "request-promise": "^4.2.4",
     "text-encoding": "^0.7.0",
     "tls": "0.0.1",
     "uuid": "3.3.2"
