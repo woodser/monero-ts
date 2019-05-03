@@ -1,5 +1,7 @@
 # Monero JavaScript API
 
+** Compatible with Monero Core version 14.0.3 **
+
 ## Introduction
 
 This project provides a modern JavaScript API for a Monero wallet and daemon.

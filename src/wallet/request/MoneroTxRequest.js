@@ -1,15 +1,15 @@
 const assert = require("assert");
 const Filter = require("../../utils/Filter");
 const MoneroTxWallet = require("../model/MoneroTxWallet");
-const MoneroTransferFilter = require("./MoneroTransferFilter"); // TODO: combine filters file so these can import each other?
+const MoneroTransferRequest = require("./MoneroTransferRequest"); // TODO: combine request file so these can import each other?
 
 /**
  * Filters transactions that don't match initialized filter criteria.
  */
-class MoneroTxFilter extends MoneroTxWallet {
+class MoneroTxRequest extends MoneroTxWallet {
   
   /**
-   * Constructs the filter.
+   * Constructs the request.
    * 
    * @param state is model state or json to initialize from (optional)
    */
@@ -17,7 +17,7 @@ class MoneroTxFilter extends MoneroTxWallet {
     super(state);
     
     // deserialize if necessary
-    if (this.state.transferFilter && !(this.state.transferFilter instanceof MoneroTransferFilter)) this.state.transferFilter = new MoneroTransferFilter(this.state.transferFilter);
+    if (this.state.transferRequest && !(this.state.transferRequest instanceof MoneroTransferRequest)) this.state.transferRequest = new MoneroTransferRequest(this.state.transferRequest);
   }
   
   getIsIncoming() {
@@ -95,21 +95,21 @@ class MoneroTxFilter extends MoneroTxWallet {
     return this;
   }
   
-  getIncludeVouts() {
-    return this.state.includeVouts;
+  getIncludeOutputs() {
+    return this.state.includeOutputs;
   }
 
-  setIncludeVouts(includeVouts) {
-    this.state.includeVouts = includeVouts;
+  setIncludeOutputs(includeOutputs) {
+    this.state.includeOutputs = includeOutputs;
     return this;
   }
   
-  getTransferFilter() {
-    return this.state.transferFilter;
+  getTransferRequest() {
+    return this.state.transferRequest;
   }
   
-  setTransferFilter(transferFilter) {
-    this.state.transferFilter = transferFilter;
+  setTransferRequest(transferRequest) {
+    this.state.transferRequest = transferRequest;
     return this;
   }
   
@@ -128,12 +128,12 @@ class MoneroTxFilter extends MoneroTxWallet {
     if (this.getIsCoinbase() !== undefined && this.getIsCoinbase() !== tx.getIsCoinbase()) return false;
     
     // at least one transfer must meet transfer filter if defined
-    if (this.getTransferFilter()) {
+    if (this.getTransferRequest()) {
       let matchFound = false;
-      if (tx.getOutgoingTransfer() && this.getTransferFilter().meetsCriteria(tx.getOutgoingTransfer())) matchFound = true;
+      if (tx.getOutgoingTransfer() && this.getTransferRequest().meetsCriteria(tx.getOutgoingTransfer())) matchFound = true;
       else if (tx.getIncomingTransfers()) {
         for (let incomingTransfer of tx.getIncomingTransfers()) {
-          if (this.getTransferFilter().meetsCriteria(incomingTransfer)) {
+          if (this.getTransferRequest().meetsCriteria(incomingTransfer)) {
             matchFound = true;
             break;
           }
@@ -173,4 +173,4 @@ class MoneroTxFilter extends MoneroTxWallet {
   }
 }
 
-module.exports = MoneroTxFilter;
+module.exports = MoneroTxRequest;

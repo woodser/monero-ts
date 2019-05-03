@@ -6,10 +6,10 @@ const TestUtils = require("./TestUtils");
 const MoneroRpc = require("../src/rpc/MoneroRpc");
 const MoneroKeyImage = require("../src/daemon/model/MoneroKeyImage");
 const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
-const MoneroTxFilter = require("../src/wallet/config/MoneroTxFilter");
+const MoneroTxRequest = require("../src/wallet/request/MoneroTxRequest");
 const MoneroTxWallet = require("../src/wallet/model/MoneroTxWallet");
-const MoneroSendConfig = require("../src/wallet/config/MoneroSendConfig");
-const MoneroTransferFilter = require("../src/wallet/config/MoneroTransferFilter");
+const MoneroSendRequest = require("../src/wallet/request/MoneroSendRequest");
+const MoneroTransferRequest = require("../src/wallet/request/MoneroTransferRequest");
 const MoneroDestination = require("../src/wallet/model/MoneroDestination");
 const MoneroOutputWallet = require("../src/wallet/model/MoneroOutputWallet");
 
@@ -35,27 +35,8 @@ describe("Scratchpad", function() {
     let txs;
     let transfers;
     let txId;
-    let vouts;
     
     // -------------------------------- SCRATCHPAD ----------------------------
     
-    let tx = (await wallet.getTxs({txId: "6fcb78cf0338c55a8898ada9fea862137572a1a0ad5bd4e8a8feb332f09665cb"}))[0];
-    console.log(tx.toString());
-    
-//    let accounts = await wallet.getAccounts(true);
-//    for (let account of accounts) {
-//      console.log(account.getUnlockedBalance().toJSValue());
-//      for (let subaddress of account.getSubaddresses()) {
-//        console.log("\t" + subaddress.getUnlockedBalance().toJSValue());
-//      }
-//    }
-    
-//    let tx = await wallet.send(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
-//    console.log(tx.toString());
-    
-//    transfers = await wallet.getTransfers({isOutgoing: true, accountIndex: 0, subaddressIndices: [0, 1, 2]});
-//    for (let transfer of transfers) {
-//      //console.log(transfers);
-//    }
   });
 });

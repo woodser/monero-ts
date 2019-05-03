@@ -18,12 +18,12 @@ const MoneroIncomingTransfer = require("./model/MoneroIncomingTransfer");
 const MoneroOutgoingTransfer = require("./model/MoneroOutgoingTransfer");
 const MoneroDestination = require("./model/MoneroDestination");
 const MoneroOutputWallet = require("./model/MoneroOutputWallet");
-const MoneroSendConfig = require("./config/MoneroSendConfig");
+const MoneroSendRequest = require("./request/MoneroSendRequest");
 const MoneroCheckTx = require("./model/MoneroCheckTx");
 const MoneroCheckReserve = require("./model/MoneroCheckReserve");
-const MoneroTxFilter = require("./config/MoneroTxFilter");
-const MoneroTransferFilter = require("./config/MoneroTransferFilter");
-const MoneroVoutFilter = require("./config/MoneroVoutFilter");
+const MoneroTxRequest = require("./request/MoneroTxRequest");
+const MoneroTransferRequest = require("./request/MoneroTransferRequest");
+const MoneroOutputRequest = require("./request/MoneroOutputRequest");
 const MoneroAccountTag = require("./model/MoneroAccountTag");
 const MoneroAddressBookEntry = require("./model/MoneroAddressBookEntry");
 const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
@@ -359,25 +359,24 @@ class MoneroWalletRpc extends MoneroWallet {
     return (await this._getBalances(accountIdx, subaddressIdx))[1];
   }
   
-  async getTxs(config) {
+  async getTxs(request) {
     
-    // initialize tx filter from config
-    let txFilter;
-    if (config instanceof MoneroTxFilter) txFilter = config;
-    else if (Array.isArray(config)) txFilter = new MoneroTxFilter().setTxIds(config);
+    // normalize tx request
+    if (request instanceof MoneroTxRequest) { }
+    else if (Array.isArray(request)) request = new MoneroTxRequest().setTxIds(request);
     else {
-      config = Object.assign({}, config);
-      if (!config.id) config.id = config.txId;  // support txId TODO: move into MoneroTransaction?
-      txFilter = new MoneroTxFilter(config);
+      request = Object.assign({}, request);
+      if (!request.id) request.id = request.txId;  // support txId TODO: move into MoneroTxRequest?
+      request = new MoneroTxRequest(request);
     }
-    if (!txFilter.getTransferFilter()) txFilter.setTransferFilter(new MoneroTransferFilter());
-    let transferFilter = txFilter.getTransferFilter();
+    if (!request.getTransferRequest()) request.setTransferRequest(new MoneroTransferRequest());
+    let transferRequest = request.getTransferRequest();
     
-    // temporarily disable transfer filter
-    txFilter.setTransferFilter(undefined);
+    // temporarily disable transfer request
+    request.setTransferRequest(undefined);
     
-    // fetch all transfers that meet tx filter
-    let transfers = await this.getTransfers(new MoneroTransferFilter().setTxFilter(txFilter));  // TODO: {txFilter: txFilter} instead, need to resolve circular filter imports, also pass debugTxId here
+    // fetch all transfers that meet tx request
+    let transfers = await this.getTransfers(new MoneroTransferRequest().setTxRequest(request));  // TODO: {request: request} instead, need to resolve circular request imports, also pass debugTxId here
     
     // collect unique txs from transfers while retaining order
     let txs = [];
@@ -389,27 +388,27 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
     
-    // fetch and merge vouts if configured
-    if (txFilter.getIncludeVouts()) {
-      let vouts = await this.getVouts(new MoneroVoutFilter().setTxFilter(txFilter));
+    // fetch and merge outputs if requested
+    if (request.getIncludeOutputs()) {
+      let outputs = await this.getOutputs(new MoneroOutputRequest().setTxRequest(request));
       
-      // merge vout txs one time while retaining order
-      let voutTxs = [];
-      for (let vout of vouts) {
-        if (!voutTxs.includes(vout.getTx())){
-          MoneroWalletRpc._mergeTx(txs, vout.getTx(), true);
-          voutTxs.push(vout.getTx());
+      // merge output txs one time while retaining order
+      let outputTxs = [];
+      for (let output of outputs) {
+        if (!outputTxs.includes(output.getTx())){
+          MoneroWalletRpc._mergeTx(txs, output.getTx(), true);
+          outputTxs.push(output.getTx());
         }
       }
     }
     
-    // filter txs that meet transfer filter
-    txFilter.setTransferFilter(transferFilter);
-    txs = Filter.apply(txFilter, txs);
+    // filter txs that don't meet transfer request
+    request.setTransferRequest(transferRequest);
+    txs = Filter.apply(request, txs);
     
     // verify all specified tx ids found
-    if (txFilter.getTxIds()) {
-      for (let txId of txFilter.getTxIds()) {
+    if (request.getTxIds()) {
+      for (let txId of request.getTxIds()) {
         let found = false;
         for (let tx of txs) {
           if (txId === tx.getId()) {
@@ -423,58 +422,56 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // special case: re-fetch txs if inconsistency caused by needing to make multiple rpc calls
     for (let tx of txs) {
-      if (tx.getIsConfirmed() && tx.getBlock() === undefined) return this.getTxs(config);
+      if (tx.getIsConfirmed() && tx.getBlock() === undefined) return this.getTxs(request);
     }
     
     // otherwise order txs if tx ids given then return
-    if (txFilter.getTxIds()) {
+    if (request.getTxIds()) {
       let txsById = {}  // store txs in temporary map for sorting
       for (let tx of txs) txsById[tx.getId()] = tx;
       let orderedTxs = [];
-      for (let txId of txFilter.getTxIds()) if (txsById[txId]) orderedTxs.push(txsById[txId]);
+      for (let txId of request.getTxIds()) if (txsById[txId]) orderedTxs.push(txsById[txId]);
       txs = orderedTxs;
     }
     return txs;
   }
   
-  async getTransfers(config) {
+  async getTransfers(request) {
     
-    // initialize filters from config
-    let transferFilter;
-    if (config instanceof MoneroTransferFilter) transferFilter = config;
+    // normalize transfer request
+    if (request instanceof MoneroTransferRequest) { }
     else {
-      config = Object.assign({}, config);
-      if (!config.id) config.id = config.txId;  // support txId TODO: move into MoneroTransaction?
-      transferFilter = new MoneroTransferFilter(config);
-      transferFilter.setTxFilter(new MoneroTxFilter(config));
+      request = Object.assign({}, request);
+      if (!request.id) request.id = request.txId;  // support txId TODO: move into MoneroTxRequest?
+      request = new MoneroTransferRequest(request).setTxRequest(new MoneroTxRequest(request));
     }
-    if (!transferFilter.getTxFilter()) transferFilter.setTxFilter(new MoneroTxFilter());
-    let txFilter = transferFilter.getTxFilter();
+    if (!request.getTxRequest()) request.setTxRequest(new MoneroTxRequest());
+    let txRequest = request.getTxRequest();
     
     // build params for get_transfers rpc call
     let params = {};
-    let canBeConfirmed = txFilter.getIsConfirmed() !== false && txFilter.getInTxPool() !== true && txFilter.getIsFailed() !== true && txFilter.getIsRelayed() !== false;
-    let canBeInTxPool = txFilter.getIsConfirmed() !== true && txFilter.getInTxPool() !== false && txFilter.getIsFailed() !== true && txFilter.getIsRelayed() !== false && txFilter.getHeight() === undefined && txFilter.getMinHeight() === undefined;
-    let canBeIncoming = transferFilter.getIsIncoming() !== false && transferFilter.getIsOutgoing() !== true && transferFilter.getHasDestinations() !== true;
-    let canBeOutgoing = transferFilter.getIsOutgoing() !== false && transferFilter.getIsIncoming() !== true;
+    let canBeConfirmed = txRequest.getIsConfirmed() !== false && txRequest.getInTxPool() !== true && txRequest.getIsFailed() !== true && txRequest.getIsRelayed() !== false;
+    let canBeInTxPool = txRequest.getIsConfirmed() !== true && txRequest.getInTxPool() !== false && txRequest.getIsFailed() !== true && txRequest.getIsRelayed() !== false && txRequest.getHeight() === undefined && txRequest.getMinHeight() === undefined;
+    let canBeIncoming = request.getIsIncoming() !== false && request.getIsOutgoing() !== true && request.getHasDestinations() !== true;
+    let canBeOutgoing = request.getIsOutgoing() !== false && request.getIsIncoming() !== true;
     params.in = canBeIncoming && canBeConfirmed;
     params.out = canBeOutgoing && canBeConfirmed;
     params.pool = canBeIncoming && canBeInTxPool;
     params.pending = canBeOutgoing && canBeInTxPool;
-    params.failed = txFilter.getIsFailed() !== false && txFilter.getIsConfirmed() !== true && txFilter.getInTxPool() != true;
-    if (txFilter.getMinHeight() !== undefined) params.min_height = txFilter.getMinHeight(); 
-    if (txFilter.getMaxHeight() !== undefined) params.max_height = txFilter.getMaxHeight();
-    params.filter_by_height = txFilter.getMinHeight() !== undefined || txFilter.getMaxHeight() !== undefined;
-    if (transferFilter.getAccountIndex() === undefined) {
-      assert(transferFilter.getSubaddressIndex() === undefined && transferFilter.getSubaddressIndices() === undefined, "Filter specifies a subaddress index but not an account index");
+    params.failed = txRequest.getIsFailed() !== false && txRequest.getIsConfirmed() !== true && txRequest.getInTxPool() != true;
+    if (txRequest.getMinHeight() !== undefined) params.min_height = txRequest.getMinHeight(); 
+    if (txRequest.getMaxHeight() !== undefined) params.max_height = txRequest.getMaxHeight();
+    params.filter_by_height = txRequest.getMinHeight() !== undefined || txRequest.getMaxHeight() !== undefined;
+    if (request.getAccountIndex() === undefined) {
+      assert(request.getSubaddressIndex() === undefined && request.getSubaddressIndices() === undefined, "Filter specifies a subaddress index but not an account index");
       params.all_accounts = true;
     } else {
-      params.account_index = transferFilter.getAccountIndex();
+      params.account_index = request.getAccountIndex();
       
       // set subaddress indices param
       let subaddressIndices = new Set();
-      if (transferFilter.getSubaddressIndex() !== undefined) subaddressIndices.add(transferFilter.getSubaddressIndex());
-      if (transferFilter.getSubaddressIndices() !== undefined) transferFilter.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
+      if (request.getSubaddressIndex() !== undefined) subaddressIndices.add(request.getSubaddressIndex());
+      if (request.getSubaddressIndices() !== undefined) request.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
       if (subaddressIndices.size) params.subaddr_indices = Array.from(subaddressIndices);
     }
     
@@ -483,7 +480,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let resp = await this.config.rpc.sendJsonRequest("get_transfers", params);
     for (let key of Object.keys(resp.result)) {
       for (let rpcTx of resp.result[key]) {
-        if (rpcTx.txid === config.debugTxId) console.log(rpcTx);
+        if (rpcTx.txid === request.debugTxId) console.log(rpcTx);
         let tx = MoneroWalletRpc._convertRpcTxWalletWithTransfer(rpcTx);
         
         // replace transfer amount with destination sum
@@ -504,43 +501,41 @@ class MoneroWalletRpc extends MoneroWallet {
     // filter and return transfers
     let transfers = [];
     for (let tx of txs) {
-      if (transferFilter.meetsCriteria(tx.getOutgoingTransfer())) transfers.push(tx.getOutgoingTransfer());
-      if (tx.getIncomingTransfers()) Filter.apply(transferFilter, tx.getIncomingTransfers()).map(transfer => transfers.push(transfer));
+      if (request.meetsCriteria(tx.getOutgoingTransfer())) transfers.push(tx.getOutgoingTransfer());
+      if (tx.getIncomingTransfers()) Filter.apply(request, tx.getIncomingTransfers()).map(transfer => transfers.push(transfer));
     }
     
     return transfers;
   }
   
-  async getVouts(config) {
+  async getOutputs(request) {
     
-    // initialize filters from config
-    let voutFilter;
-    if (config instanceof MoneroVoutFilter) voutFilter = config;
+    // normalize output request
+    if (request instanceof MoneroOutputRequest) { }
     else {
-      config = Object.assign({}, config);
-      if (!config.id) config.id = config.txId;  // support txId TODO: move into MoneroTransaction?
-      voutFilter = new MoneroVoutFilter(config);
-      voutFilter.setTxFilter(new MoneroTxFilter(config));
+      request = Object.assign({}, request);
+      if (!request.id) request.id = request.txId;  // support txId TODO: move into MoneroTransaction?
+      request = new MoneroOutputRequest(request).setTxRequest(new MoneroTxRequest(request));
     }
-    if (!voutFilter.getTxFilter()) voutFilter.setTxFilter(new MoneroTxFilter());
+    if (!request.getTxRequest()) request.setTxRequest(new MoneroTxRequest());
     
     // determine account and subaddress indices to be queried
     let indices = new Map();
-    if (voutFilter.getAccountIndex() !== undefined) {
+    if (request.getAccountIndex() !== undefined) {
       let subaddressIndices = new Set();
-      if (voutFilter.getSubaddressIndex() !== undefined) subaddressIndices.add(voutFilter.getSubaddressIndex());
-      if (voutFilter.getSubaddressIndices() !== undefined) voutFilter.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
-      indices.set(voutFilter.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : undefined);  // undefined will fetch from all subaddresses
+      if (request.getSubaddressIndex() !== undefined) subaddressIndices.add(request.getSubaddressIndex());
+      if (request.getSubaddressIndices() !== undefined) request.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
+      indices.set(request.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : undefined);  // undefined will fetch from all subaddresses
     } else {
-      assert.equal(voutFilter.getSubaddressIndex(), undefined, "Filter specifies a subaddress index but not an account index")
-      assert(voutFilter.getSubaddressIndices() === undefined || voutFilter.getSubaddressIndices().length === 0, "Filter specifies subaddress indices but not an account index");
+      assert.equal(request.getSubaddressIndex(), undefined, "Filter specifies a subaddress index but not an account index")
+      assert(request.getSubaddressIndices() === undefined || request.getSubaddressIndices().length === 0, "Filter specifies subaddress indices but not an account index");
       indices = await this._getAccountIndices();  // fetch all account indices without subaddresses
     }
     
     // collect txs with vouts for each indicated account using `incoming_transfers` rpc call
     let txs = [];
     let params = {};
-    params.transfer_type = voutFilter.getIsSpent() === true ? "unavailable" : voutFilter.getIsSpent() === false ? "available" : "all";
+    params.transfer_type = request.getIsSpent() === true ? "unavailable" : request.getIsSpent() === false ? "available" : "all";
     params.verbose = true;
     for (let accountIdx of indices.keys()) {
     
@@ -560,7 +555,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // filter and return vouts
     let vouts = [];
     for (let tx of txs) {
-      Filter.apply(voutFilter, tx.getVouts()).map(vout => vouts.push(vout));
+      Filter.apply(request, tx.getVouts()).map(vout => vouts.push(vout));
     }
     return vouts;
   }
@@ -589,30 +584,30 @@ class MoneroWalletRpc extends MoneroWallet {
     return await this._rpcExportKeyImages(false);
   }
   
-  async send(configOrAddress, amount, priority, mixin) {
+  async send(requestOrAddress, amount, priority, mixin) {
     let args = [].slice.call(arguments);
     args.splice(0, 0, false);  // specify splitting
     return await this._send.apply(this, args);
   }
 
-  async sendSplit(configOrAddress, amount, priority, mixin) {
+  async sendSplit(requestOrAddress, amount, priority, mixin) {
     let args = [].slice.call(arguments);
     args.splice(0, 0, true);  // specify splitting
     return await this._send.apply(this, args);
   }
   
-  async sweepUnlocked(config) {
+  async sweepUnlocked(request) {
     
-    // normalize and validate config
-    if (!(config instanceof MoneroSendConfig)) config = new MoneroSendConfig(config);
-    assert(config.getDestinations() && config.getDestinations().length === 1, "Must specify exactly one destination address to sweep to");
-    assert(config.getDestinations()[0].getAddress());
-    assert.equal(config.getDestinations()[0].getAmount(), undefined);
-    assert.equal(config.getKeyImage(), undefined, "Key image defined; use sweepOutput() to sweep an output by its key image");
+    // normalize and validate request
+    if (!(request instanceof MoneroSendRequest)) request = new MoneroSendRequest(request);
+    assert(request.getDestinations() && request.getDestinations().length === 1, "Must specify exactly one destination address to sweep to");
+    assert(request.getDestinations()[0].getAddress());
+    assert.equal(request.getDestinations()[0].getAmount(), undefined);
+    assert.equal(request.getKeyImage(), undefined, "Key image defined; use sweepOutput() to sweep an output by its key image");
     
     // determine accounts to sweep from; default to all with unlocked balance if not specified
     let accountIndices = [];
-    if (config.getAccountIndex() !== undefined) accountIndices.push(config.getAccountIndex());
+    if (request.getAccountIndex() !== undefined) accountIndices.push(request.getAccountIndex());
     else {
       for (let account of await this.getAccounts()) {
         if (account.getUnlockedBalance().compare(new BigInteger(0)) > 0) {
@@ -623,15 +618,15 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // common request params
     let params = {};
-    params.address = config.getDestinations()[0].getAddress();
-    assert(config.getPriority() === undefined || config.getPriority() >= 0 && config.getPriority() <= 3);
-    params.priority = config.getPriority();
-    params.mixin = config.getMixin();
-    params.ring_size = config.getRingSize();
-    params.unlock_time = config.getUnlockTime();
-    params.payment_id = config.getPaymentId();
-    params.do_not_relay = config.getDoNotRelay();
-    params.below_amount = config.getBelowAmount();
+    params.address = request.getDestinations()[0].getAddress();
+    assert(request.getPriority() === undefined || request.getPriority() >= 0 && request.getPriority() <= 3);
+    params.priority = request.getPriority();
+    params.mixin = request.getMixin();
+    params.ring_size = request.getRingSize();
+    params.unlock_time = request.getUnlockTime();
+    params.payment_id = request.getPaymentId();
+    params.do_not_relay = request.getDoNotRelay();
+    params.below_amount = request.getBelowAmount();
     params.get_tx_keys = true;
     params.get_tx_hex = true;
     params.get_tx_metadata = true;
@@ -646,8 +641,8 @@ class MoneroWalletRpc extends MoneroWallet {
       
       // determine subaddresses to sweep from; default to all with unlocked balance if not specified
       let subaddressIndices = [];
-      if (config.getSubaddressIndices() !== undefined) {
-        for (let subaddressIdx of config.getSubaddressIndices()) {
+      if (request.getSubaddressIndices() !== undefined) {
+        for (let subaddressIdx of request.getSubaddressIndices()) {
           subaddressIndices.push(subaddressIdx);
         }
       } else {
@@ -660,10 +655,10 @@ class MoneroWalletRpc extends MoneroWallet {
       if (subaddressIndices.length === 0) throw new MoneroError("No subaddresses to sweep from");
       
       // sweep each subaddress individually
-      if (config.getSweepEachSubaddress() === undefined || config.getSweepEachSubaddress()) {
+      if (request.getSweepEachSubaddress() === undefined || request.getSweepEachSubaddress()) {
         for (let subaddressIdx of subaddressIndices) {
           params.subaddr_indices = [subaddressIdx];
-          let resp = await this.config.rpc.sendJsonRequest("sweep_all", params);
+          let resp = await this.request.rpc.sendJsonRequest("sweep_all", params);
           
           // initialize tx per subaddress
           let respTxs = [];
@@ -680,7 +675,7 @@ class MoneroWalletRpc extends MoneroWallet {
       // sweep all subaddresses together  // TODO monero-wallet-rpc: doesn't this reveal outputs belong to same wallet?
       else {
         params.subaddr_indices = subaddressIndices;
-        let resp = await this.config.rpc.sendJsonRequest("sweep_all", params);  // TODO: test this
+        let resp = await this.request.rpc.sendJsonRequest("sweep_all", params);  // TODO: test this
         
         // initialize tx per subaddress
         let respTxs = [];
@@ -698,20 +693,20 @@ class MoneroWalletRpc extends MoneroWallet {
       for (let tx of accountTxs) {
         tx.setIsConfirmed(false);
         tx.setNumConfirmations(0);
-        tx.setInTxPool(config.getDoNotRelay() ? false : true);
-        tx.setDoNotRelay(config.getDoNotRelay() ? true : false);
+        tx.setInTxPool(request.getDoNotRelay() ? false : true);
+        tx.setDoNotRelay(request.getDoNotRelay() ? true : false);
         tx.setIsRelayed(!tx.getDoNotRelay());
         tx.setIsCoinbase(false);
         tx.setIsFailed(false);
-        tx.setMixin(config.getMixin());
+        tx.setMixin(request.getMixin());
         let transfer = tx.getOutgoingTransfer();
         transfer.setAccountIndex(accountIdx);
         if (subaddressIndices.length === 1) transfer.setSubaddressIndices(subaddressIndices);
-        let destination = new MoneroDestination(config.getDestinations()[0].getAddress(), new BigInteger(transfer.getAmount()));
+        let destination = new MoneroDestination(request.getDestinations()[0].getAddress(), new BigInteger(transfer.getAmount()));
         transfer.setDestinations([destination]);
         tx.setOutgoingTransfer(transfer);
-        tx.setPaymentId(config.getPaymentId());
-        if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
+        tx.setPaymentId(request.getPaymentId());
+        if (tx.getUnlockTime() === undefined) tx.setUnlockTime(request.getUnlockTime() === undefined ? 0 : request.getUnlockTime());
         if (!tx.getDoNotRelay()) {
           if (tx.getLastRelayedTimestamp() === undefined) tx.setLastRelayedTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
           if (tx.getIsDoubleSpend() === undefined) tx.setIsDoubleSpend(false);
@@ -735,37 +730,37 @@ class MoneroWalletRpc extends MoneroWallet {
     return txs;
   }
   
-  async sweepOutput(configOrAddress, keyImage, priority, mixin) {
+  async sweepOutput(requestOrAddress, keyImage, priority, mixin) {
     
-    // normalize and validate config
-    let config;
-    if (configOrAddress instanceof MoneroSendConfig) {
-      assert.equal(arguments.length, 1, "sweepOutput() requires a send configuration or parameters but both");
-      config = configOrAddress;
+    // normalize and validate request
+    let request;
+    if (requestOrAddress instanceof MoneroSendRequest) {
+      assert.equal(arguments.length, 1, "sweepOutput() requires a send request or parameters but both");
+      request = requestOrAddress;
     } else {
-      if (configOrAddress instanceof Object) config = new MoneroSendConfig(configOrAddress);
+      if (requestOrAddress instanceof Object) request = new MoneroSendRequest(requestOrAddress);
       else {
-        config = new MoneroSendConfig(configOrAddress, undefined, priority, mixin);
-        config.setKeyImage(keyImage);
+        request = new MoneroSendRequest(requestOrAddress, undefined, priority, mixin);
+        request.setKeyImage(keyImage);
       }
     }
-    assert.equal(config.getSweepEachSubaddress(), undefined);
-    assert.equal(config.getBelowAmount(), undefined);
-    assert.equal(config.getCanSplit(), undefined, "Splitting is not applicable when sweeping output");
+    assert.equal(request.getSweepEachSubaddress(), undefined);
+    assert.equal(request.getBelowAmount(), undefined);
+    assert.equal(request.getCanSplit(), undefined, "Splitting is not applicable when sweeping output");
     
     // build request parameters
     let params = {};
-    params.address = config.getDestinations()[0].getAddress();
-    params.account_index = config.getAccountIndex();
-    params.subaddr_indices = config.getSubaddressIndices();
-    params.key_image = config.getKeyImage();
-    params.mixin = config.getMixin();
-    params.ring_size = config.getRingSize();
-    params.unlock_time = config.getUnlockTime();
-    params.do_not_relay = config.getDoNotRelay();
-    assert(config.getPriority() === undefined || config.getPriority() >= 0 && config.getPriority() <= 3);
-    params.priority = config.getPriority();
-    params.payment_id = config.getPaymentId();
+    params.address = request.getDestinations()[0].getAddress();
+    params.account_index = request.getAccountIndex();
+    params.subaddr_indices = request.getSubaddressIndices();
+    params.key_image = request.getKeyImage();
+    params.mixin = request.getMixin();
+    params.ring_size = request.getRingSize();
+    params.unlock_time = request.getUnlockTime();
+    params.do_not_relay = request.getDoNotRelay();
+    assert(request.getPriority() === undefined || request.getPriority() >= 0 && request.getPriority() <= 3);
+    params.priority = request.getPriority();
+    params.payment_id = request.getPaymentId();
     params.get_tx_key = true;
     params.get_tx_hex = true;
     params.get_tx_metadata = true;
@@ -774,7 +769,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let resp = await this.config.rpc.sendJsonRequest("sweep_single", params);
 
     // build and return tx response
-    let tx = MoneroWalletRpc._initSentTxWallet(config);
+    let tx = MoneroWalletRpc._initSentTxWallet(request);
     MoneroWalletRpc._convertRpcTxWalletWithTransfer(resp.result, tx, true);
     tx.getOutgoingTransfer().getDestinations()[0].setAmount(new BigInteger(tx.getOutgoingTransfer().getAmount()));  // initialize destination amount
     return tx;
@@ -954,14 +949,14 @@ class MoneroWalletRpc extends MoneroWallet {
     await this.config.rpc.sendJsonRequest("set_account_tag_description", {tag: tag, description: label});
   }
   
-  async createPaymentUri(sendConfig) {
-    assert(sendConfig, "Must provide send configuration to create a payment URI");
+  async createPaymentUri(request) {
+    assert(request, "Must provide send request to create a payment URI");
     let resp = await this.config.rpc.sendJsonRequest("make_uri", {
-      address: sendConfig.getDestinations()[0].getAddress(),
-      amount: sendConfig.getDestinations()[0].getAmount() ? sendConfig.getDestinations()[0].getAmount().toString() : undefined,
-      payment_id: sendConfig.getPaymentId(),
-      recipient_name: sendConfig.getRecipientName(),
-      tx_description: sendConfig.getNote()
+      address: request.getDestinations()[0].getAddress(),
+      amount: request.getDestinations()[0].getAmount() ? request.getDestinations()[0].getAmount().toString() : undefined,
+      payment_id: request.getPaymentId(),
+      recipient_name: request.getRecipientName(),
+      tx_description: request.getNote()
     });
     return resp.result.uri;
   }
@@ -969,15 +964,15 @@ class MoneroWalletRpc extends MoneroWallet {
   async parsePaymentUri(uri) {
     assert(uri, "Must provide URI to parse");
     let resp = await this.config.rpc.sendJsonRequest("parse_uri", {uri: uri});
-    let sendConfig = new MoneroSendConfig(resp.result.uri.address, new BigInteger(resp.result.uri.amount));
-    sendConfig.setPaymentId(resp.result.uri.payment_id);
-    sendConfig.setRecipientName(resp.result.uri.recipient_name);
-    sendConfig.setNote(resp.result.uri.tx_description);
-    if ("" === sendConfig.getDestinations()[0].getAddress()) sendConfig.getDestinations()[0].setAddress(undefined);
-    if ("" === sendConfig.getPaymentId()) sendConfig.setPaymentId(undefined);
-    if ("" === sendConfig.getRecipientName()) sendConfig.setRecipientName(undefined);
-    if ("" === sendConfig.getNote()) sendConfig.setNote(undefined);
-    return sendConfig;
+    let request = new MoneroSendRequest(resp.result.uri.address, new BigInteger(resp.result.uri.amount));
+    request.setPaymentId(resp.result.uri.payment_id);
+    request.setRecipientName(resp.result.uri.recipient_name);
+    request.setNote(resp.result.uri.tx_description);
+    if ("" === request.getDestinations()[0].getAddress()) request.getDestinations()[0].setAddress(undefined);
+    if ("" === request.getPaymentId()) request.setPaymentId(undefined);
+    if ("" === request.getRecipientName()) request.setRecipientName(undefined);
+    if ("" === request.getNote()) request.setNote(undefined);
+    return request;
   }
   
   async getOutputsHex() {
@@ -1045,45 +1040,45 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddressIndices;
   }
   
-  async _send(split, configOrAddress, amount, priority, mixin) {
+  async _send(split, requestOrAddress, amount, priority, mixin) {
     
-    // normalize and validate config
-    let config;
-    if (configOrAddress instanceof MoneroSendConfig) {
-      assert.equal(arguments.length, 2, "Sending requires a send configuration or parameters but not both");
-      config = configOrAddress;
+    // normalize and validate request
+    let request;
+    if (requestOrAddress instanceof MoneroSendRequest) {
+      assert.equal(arguments.length, 2, "Sending requires a send request or parameters but not both");
+      request = requestOrAddress;
     } else {
-      if (configOrAddress instanceof Object) config = new MoneroSendConfig(configOrAddress);
+      if (requestOrAddress instanceof Object) request = new MoneroSendRequest(requestOrAddress);
       else {
-        config = new MoneroSendConfig(configOrAddress, amount, priority, mixin);
+        request = new MoneroSendRequest(requestOrAddress, amount, priority, mixin);
       }
     }
-    assert.equal(config.getSweepEachSubaddress(), undefined);
-    assert.equal(config.getBelowAmount(), undefined);
-    if (config.getCanSplit() !== undefined) assert.equal(config.getCanSplit(), split);
+    assert.equal(request.getSweepEachSubaddress(), undefined);
+    assert.equal(request.getBelowAmount(), undefined);
+    if (request.getCanSplit() !== undefined) assert.equal(request.getCanSplit(), split);
     
     // determine account and subaddresses to send from
-    let accountIdx = config.getAccountIndex();
+    let accountIdx = request.getAccountIndex();
     if (accountIdx === undefined) accountIdx = 0; // default to account 0
-    let subaddressIndices = config.getSubaddressIndices() === undefined ? await this._getSubaddressIndices(accountIdx) : config.getSubaddressIndices().slice(0);  // copy given indices or fetch all
+    let subaddressIndices = request.getSubaddressIndices() === undefined ? await this._getSubaddressIndices(accountIdx) : request.getSubaddressIndices().slice(0);  // copy given indices or fetch all
     
     // build request parameters
     let params = {};
     params.destinations = [];
-    for (let destination of config.getDestinations()) {
+    for (let destination of request.getDestinations()) {
       assert(destination.getAddress(), "Destination address is not defined");
       assert(destination.getAmount(), "Destination amount is not defined");
       params.destinations.push({ address: destination.getAddress(), amount: destination.getAmount().toString() });
     }
     params.account_index = accountIdx;
     params.subaddr_indices = subaddressIndices;
-    params.payment_id = config.getPaymentId();
-    params.mixin = config.getMixin();
-    params.ring_size = config.getRingSize();
-    params.unlock_time = config.getUnlockTime();
-    params.do_not_relay = config.getDoNotRelay();
-    assert(config.getPriority() === undefined || config.getPriority() >= 0 && config.getPriority() <= 3);
-    params.priority = config.getPriority();
+    params.payment_id = request.getPaymentId();
+    params.mixin = request.getMixin();
+    params.ring_size = request.getRingSize();
+    params.unlock_time = request.getUnlockTime();
+    params.do_not_relay = request.getDoNotRelay();
+    assert(request.getPriority() === undefined || request.getPriority() >= 0 && request.getPriority() <= 3);
+    params.priority = request.getPriority();
     params.get_tx_key = true;
     params.get_tx_hex = true;
     params.get_tx_metadata = true;
@@ -1098,7 +1093,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // initialize known fields of txs
     for (let tx of txs) {
-      MoneroWalletRpc._initSentTxWallet(config, tx);
+      MoneroWalletRpc._initSentTxWallet(request, tx);
       tx.getOutgoingTransfer().setAccountIndex(accountIdx);
       if (subaddressIndices.length === 1) tx.getOutgoingTransfer().setSubaddressIndices(subaddressIndices);
     }
@@ -1320,28 +1315,28 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Initializes a sent transaction.
    * 
-   * @param {MoneroSendConfig} config is the send configuration
+   * @param {MoneroSendRequest} request is the send request
    * @param {MoneroTxWallet} is an existing transaction to initialize (optional)
    * @return {MoneroTxWallet} is the initialized send tx
    */
-  static _initSentTxWallet(config, tx) {
+  static _initSentTxWallet(request, tx) {
     if (!tx) tx = new MoneroTxWallet();
     tx.setIsConfirmed(false);
     tx.setNumConfirmations(0);
-    tx.setInTxPool(config.getDoNotRelay() ? false : true);
-    tx.setDoNotRelay(config.getDoNotRelay() ? true : false);
+    tx.setInTxPool(request.getDoNotRelay() ? false : true);
+    tx.setDoNotRelay(request.getDoNotRelay() ? true : false);
     tx.setIsRelayed(!tx.getDoNotRelay());
     tx.setIsCoinbase(false);
     tx.setIsFailed(false);
-    tx.setMixin(config.getMixin());
+    tx.setMixin(request.getMixin());
     let transfer = new MoneroOutgoingTransfer().setTx(tx);
-    if (config.getSubaddressIndices() && config.getSubaddressIndices().length === 1) transfer.setSubaddressIndices(config.getSubaddressIndices().slice(0)); // we know src subaddress indices iff config specifies 1
+    if (request.getSubaddressIndices() && request.getSubaddressIndices().length === 1) transfer.setSubaddressIndices(request.getSubaddressIndices().slice(0)); // we know src subaddress indices iff request specifies 1
     let destCopies = [];
-    for (let dest of config.getDestinations()) destCopies.push(dest.copy());
+    for (let dest of request.getDestinations()) destCopies.push(dest.copy());
     transfer.setDestinations(destCopies);
     tx.setOutgoingTransfer(transfer);
-    tx.setPaymentId(config.getPaymentId());
-    if (tx.getUnlockTime() === undefined) tx.setUnlockTime(config.getUnlockTime() === undefined ? 0 : config.getUnlockTime());
+    tx.setPaymentId(request.getPaymentId());
+    if (tx.getUnlockTime() === undefined) tx.setUnlockTime(request.getUnlockTime() === undefined ? 0 : request.getUnlockTime());
     if (!tx.getDoNotRelay()) {
       if (tx.getLastRelayedTimestamp() === undefined) tx.setLastRelayedTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
       if (tx.getIsDoubleSpend() === undefined) tx.setIsDoubleSpend(false);

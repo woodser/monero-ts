@@ -1,7 +1,7 @@
 const assert = require("assert");
 const TestUtils = require("./TestUtils");
-const MoneroTxFilter = require("../src/wallet/config/MoneroTxFilter");
-const MoneroTransferFilter = require("../src/wallet/config/MoneroTransferFilter");
+const MoneroTxRequest = require("../src/wallet/request/MoneroTxRequest");
+const MoneroTransferRequest = require("../src/wallet/request/MoneroTransferRequest");
 
 /**
  * Test the sample code in README.md.
@@ -16,7 +16,7 @@ describe("Test Sample Code", function() {
     const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
     const MoneroSendPriority = require("../src/wallet/model/MoneroSendPriority");
     const MoneroDestination = require("../src/wallet/model/MoneroDestination");
-    const MoneroSendConfig = require("../src/wallet/config/MoneroSendConfig");
+    const MoneroSendRequest = require("../src/wallet/request/MoneroSendRequest");
     
     // create a wallet that uses a monero-wallet-rpc endpoint with authentication
     let wallet = new MoneroWalletRpc({
@@ -46,7 +46,7 @@ describe("Test Sample Code", function() {
     }
     
     // get incoming transfers to account 0
-    transfers = await wallet.getTransfers(new MoneroTransferFilter().setAccountIndex(0).setIsIncoming(true));
+    transfers = await wallet.getTransfers(new MoneroTransferRequest().setAccountIndex(0).setIsIncoming(true));
     for (let transfer of transfers) {
       assert(transfer.getIsIncoming());
       assert.equal(transfer.getAccountIndex(), 0);
@@ -58,7 +58,7 @@ describe("Test Sample Code", function() {
     let sentTx = await wallet.send("74oAtjgE2dfD1bJBo4DWW3E6qXCAwUDMgNqUurnX9b2xUvDTwMwExiXDkZskg7Vct37tRGjzHRqL4gH4H3oag3YyMYJzrNp", new BigInteger(50000));
 
     // send to multiple destinations from subaddress 1, 0 which can be split into multiple transactions
-    // see MoneroSendConfig.js for all config options or to build a config object
+    // see MoneroSendRequest.js for all config options or to build a config object
     let sentTxs = await wallet.sendSplit({
       destinations: [
         {address: "7BV7iyk9T6kfs7cPfmn7vPZPyWRid7WEwecBkkVr8fpw9MmUgXTPtvMKXuuzqKyr2BegWMhEcGGEt5vNkmJEtgnRFUAvf29", amount: new BigInteger(50000) },
@@ -70,7 +70,7 @@ describe("Test Sample Code", function() {
     });
     
     // get all confirmed wallet transactions
-    for (let tx of await wallet.getTxs(new MoneroTxFilter().setIsConfirmed(true))) {
+    for (let tx of await wallet.getTxs(new MoneroTxRequest().setIsConfirmed(true))) {
       let txId = tx.getId();                  // e.g. f8b2f0baa80bf6b...
       let txFee = tx.getFee();                // e.g. 750000
       let isConfirmed = tx.getIsConfirmed();  // e.g. true

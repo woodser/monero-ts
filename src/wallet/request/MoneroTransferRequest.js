@@ -7,10 +7,10 @@ const MoneroOutgoingTransfer = require("../model/MoneroOutgoingTransfer");
 /**
  * Filters transfers that don't match initialized filter criteria.
  */
-class MoneroTransferFilter extends MoneroTransfer {
+class MoneroTransferRequest extends MoneroTransfer {
   
   /**
-   * Constructs the filter.
+   * Constructs the request.
    * 
    * @param state is model state or json to initialize from (optional)
    */
@@ -19,7 +19,7 @@ class MoneroTransferFilter extends MoneroTransfer {
     state = this.state;
     
     // deserialize if necessary
-    if (state.txFilter && !(state.txFilter instanceof MoneroTxFilter)) state.txFilter = new MoneroTxFilter(state.transferFilter);
+    if (state.txRequest && !(state.txRequest instanceof MoneroTxRequest)) state.txRequest = new MoneroTxRequest(state.transferRequest);
     
     // alias isOutgoing to isIncoming
     if (state.isOutgoing !== undefined) state.isIncoming = !state.isOutgoing;
@@ -97,17 +97,18 @@ class MoneroTransferFilter extends MoneroTransfer {
     return this;
   }
   
-  getTxFilter() {
-    return this.state.txFilter;
+  getTxRequest() {
+    return this.state.txRequest;
   }
   
-  setTxFilter(txFilter) {
-    this.state.txFilter = txFilter;
+  setTxRequest(txRequest) {
+    this.state.txRequest = txRequest;
     return this;
   }
   
   meetsCriteria(transfer) {
     if (transfer === undefined) return false;
+    assert(transfer instanceof MoneroTransfer);
     
     // filter on common fields
     if (this.getIsIncoming() !== undefined && this.getIsIncoming() !== transfer.getIsIncoming()) return false;
@@ -155,9 +156,9 @@ class MoneroTransferFilter extends MoneroTransfer {
     else throw new Error("Transfer must be MoneroIncomingTransfer or MoneroOutgoingTransfer");
     
     // filter with tx filter
-    if (this.getTxFilter() !== undefined && !this.getTxFilter().meetsCriteria(transfer.getTx())) return false;    
+    if (this.getTxRequest() !== undefined && !this.getTxRequest().meetsCriteria(transfer.getTx())) return false;    
     return true;
   }
 }
 
-module.exports = MoneroTransferFilter;
+module.exports = MoneroTransferRequest;

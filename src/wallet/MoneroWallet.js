@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
-const MoneroTxFilter = require("./config/MoneroTxFilter");
-const MoneroSendConfig = require("./config/MoneroSendConfig");
+const MoneroTxRequest = require("./request/MoneroTxRequest");
+const MoneroSendRequest = require("./request/MoneroSendRequest");
 const MoneroError = require("../utils/MoneroError");
 
 /**
@@ -275,15 +275,15 @@ class MoneroWallet {
    * Get wallet transactions.  Wallet transactions contain one or more
    * transfers that are either incoming or outgoing to the wallet.
    * 
-   * Query results can be configured or filtered by passing in a configuration.
-   * Transactions must meet every criteria defined in the configuration in
-   * order to be returned.  All configuration is optional and no filtering is
-   * applied when not defined.
+   * Query results can be filtered by passing in a transaction request.
+   * Transactions must meet every criteria defined in the request in order to
+   * be returned.  All filtering is optional and no filtering is applied when
+   * not defined.
    * 
-   * Transactions can be fetched by a MoneroTxFilter, equivalent js object, or
+   * Transactions can be fetched by a MoneroTxRequest, equivalent js object, or
    * array of tx ids.
    * 
-   * @param {(MoneroTxFilter|string[]|object)} config configures the query (optional)
+   * @param {(MoneroTxRequest|string[]|object)} config configures the query (optional)
    * @param {boolean} config.isConfirmed gets txs that are confirmed or not (optional)
    * @param {boolean} config.inTxPool get txs that are in the tx pool or not (optional)
    * @param {boolean} config.isRelayed gets txs that are relayed or not (optional)
@@ -299,8 +299,8 @@ class MoneroWallet {
    * @param {int} config.maxHeight gets txs with height <= the given height (optional)
    * @param {boolean} config.isOutgoing gets txs with an outgoing transfer or not (optional)
    * @param {boolean} config.isIncoming gets txs with an incoming transfer or not (optional)
-   * @param {MoneroTransferFilter} config.transferFilter gets txs that have a transfer that meets this filter (optional)
-   * @param {boolean} config.includeVouts specifies that tx vouts should be returned with tx results (optional)
+   * @param {MoneroTransferRequest} config.transferRequest gets txs that have a transfer that meets this request (optional)
+   * @param {boolean} config.includeOutputs specifies that tx vouts should be returned with tx results (optional)
    * @return {MoneroTxWallet[]} are wallet transactions per the configuration
    */
   async getTxs(config) {
@@ -320,7 +320,7 @@ class MoneroWallet {
    * to be returned.  All configuration is optional and no filtering is applied
    * when not defined.
    * 
-   * @param {(MoneroTransferFilter|object)} config configures the query (optional)
+   * @param {(MoneroTransferRequest|object)} config configures the query (optional)
    * @param {boolean} config.isOutgoing gets transfers that are outgoing or not (optional)
    * @param {boolean} config.isIncoming gets transfers that are incoming or not (optional)
    * @param {string} config.address is the wallet's address that a transfer either originated from (if outgoing) or is destined for (if incoming) (optional)
@@ -330,7 +330,7 @@ class MoneroWallet {
    * @param {BigInteger} config.amount is the amount being transferred (optional)
    * @param {MoneroDestination[]} config.destinations are individual destinations of an outgoing transfer, which is local wallet data and NOT recoverable from the blockchain (optional)
    * @param {boolean} config.hasDestinations gets transfers that have destinations or not (optional)
-   * @param {MoneroTxFilter} config.txFilter gets transfers whose transaction meets this filter (optional)
+   * @param {MoneroTxRequest} config.txRequest gets transfers whose transaction meets this request (optional)
    * @return {MoneroTransfer[]} are wallet transfers per the configuration
    */
   async getTransfers(config) {
@@ -338,28 +338,27 @@ class MoneroWallet {
   }
   
   /**
-   * Get wallet vouts.  A wallet vout is an output created from a previous
-   * transaction that the wallet can spend one time.  Vouts belong to
-   * transactions which are stored on the blockchain.
+   * Get outputs created from previous transactions that belong to the wallet
+   * (i.e. that the wallet can spend one time).  Outputs are part of
+   * transactions which are stored in blocks on the blockchain.
    * 
-   * Query results can be configured or filtered by passing in a configuration.
-   * Vouts must meet every criteria defined in the configuration in order to be
-   * returned.  All configuration is optional and no filtering is applied when
-   * not defined.
+   * Results can be configured by passing a MoneroOutputRequest.  Outputs must
+   * meet every criteria defined in the request in order to be returned.  All
+   * filtering is optional and no filtering is applied when not defined.
    * 
-   * TODO: add additional filtering in MoneroVoutFilter.js meetsCriteria() (easy)
+   * TODO: add additional filtering in MoneroOutputRequest.js meetsCriteria()
    * 
-   * @param {(MoneroVoutFilter|object)} config configures the query (optional)
-   * @param {int} config.accountIndex gets vouts associated with a specific account index
-   * @param {int} config.subaddressIndex gets vouts associated with a specific subaddress index
-   * @param {int[]} config.subaddressIndices gets vouts associated with specific subaddress indices
-   * @param {BigInteger} config.amount gets vouts with a specific amount
-   * @param {boolean} config.isSpent gets vouts that are spent or not
-   * @param {MoneroKeyImage} config.keyImage is a key image whose defined fields filter vouts to get
-   * @param {MoneroTxFilter} config.txFilter gets vouts whose transaction meets this filter (optional)
-   * @return {MoneroOutputWallet[]} are wallet vouts per the configuration
+   * @param {(MoneroOutputRequest|object)} config configures the query (optional)
+   * @param {int} config.accountIndex gets outputs associated with a specific account index
+   * @param {int} config.subaddressIndex gets outputs associated with a specific subaddress index
+   * @param {int[]} config.subaddressIndices gets outputs associated with specific subaddress indices
+   * @param {BigInteger} config.amount gets outputs with a specific amount
+   * @param {boolean} config.isSpent gets outputs that are spent or not
+   * @param {MoneroKeyImage} config.keyImage is a key image whose defined fields filter outputs to get
+   * @param {MoneroTxRequest} config.txRequest gets outputs whose transaction meets this filter (optional)
+   * @return {MoneroOutputWallet[]} are wallet outputs per the configuration
    */
-  async getVouts(config) {
+  async getOutputs(config) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -394,7 +393,7 @@ class MoneroWallet {
   /**
    * Creates a transaction which transfers funds from this wallet to one or more destinations.
    * 
-   * @param {(MoneroSendConfig|object|string)} configOrAddress defines send configuration (documented next) xor an address to send to
+   * @param {(MoneroSendRequest|object|string)} requestOrAddress defines send configuration (documented next) xor an address to send to
    * 
    * Send with single config param:
    * 
@@ -416,14 +415,14 @@ class MoneroWallet {
    * 
    * @return {MoneroTxWallet} is the resulting transaction
    */
-  async send(configOrAddress, sendAmount, priority, mixin) {
+  async send(requestOrAddress, sendAmount, priority, mixin) {
     throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Creates one or more transactions which transfer funds from this wallet to one or more destinations.
    * 
-   * @param {(MoneroSendConfig|object|string)} configOrAddress defines send configuration (documented next) xor an address to send to
+   * @param {(MoneroSendRequest|object|string)} requestOrAddress defines send configuration (documented next) xor an address to send to
    * 
    * Send with single config param:
    * 
@@ -445,7 +444,7 @@ class MoneroWallet {
    * 
    * @return {MoneroTxWallet[]} are the resulting transactions
    */
-  async sendSplit(configOrAddress, sendAmount, priority, mixin) {
+  async sendSplit(requestOrAddress, sendAmount, priority, mixin) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -456,7 +455,7 @@ class MoneroWallet {
    * @return {MoneroTxWallet[]} are the resulting transactions
    */
   async sweepWallet(address) {
-    return this.sweepUnlocked(new MoneroSendConfig(address));
+    return this.sweepUnlocked(new MoneroSendRequest(address));
   }
 
   /**
@@ -467,9 +466,9 @@ class MoneroWallet {
    * @return {MoneroTxWallet[]} are the resulting transactions
    */
   async sweepAccount(accountIdx, address) {
-    let config = new MoneroSendConfig(address);
-    config.setAccountIndex(accountIdx);
-    return this.sweepUnlocked(config);
+    let request = new MoneroSendRequest(address);
+    request.setAccountIndex(accountIdx);
+    return this.sweepUnlocked(request);
   }
 
   /**
@@ -481,16 +480,16 @@ class MoneroWallet {
    * @return {MoneroTxWallet[]} are the resulting transactions
    */
   async sweepSubaddress(accountIdx, subaddressIdx, address) {
-    let config = new MoneroSendConfig(address);
-    config.setAccountIndex(accountIdx);
-    config.setSubaddressIndices([subaddressIdx]);
-    return this.sweepUnlocked(config);
+    let request = new MoneroSendRequest(address);
+    request.setAccountIndex(accountIdx);
+    request.setSubaddressIndices([subaddressIdx]);
+    return this.sweepUnlocked(request);
   }
 
   /**
    * Sweep unlocked funds.
    * 
-   * @param {(MoneroSendConfig|object)} config is the sweep configuration
+   * @param {(MoneroSendRequest|object)} config is the sweep configuration
    * @return {MoneroTxWallet[]} are the resulting transactions
    */
   async sweepUnlocked(config) {
@@ -510,13 +509,13 @@ class MoneroWallet {
   /**
    * Sweep an output with a given key image.
    * 
-   * @param {(MoneroSendConfig|string)} configOrAddress is a send configuration or destination address
+   * @param {(MoneroSendRequest|string)} requestOrAddress is a send configuration or destination address
    * @param {string} keyImage is the key image hex of the output to sweep
    * @param {int} priority sets a transaction priority as an integer between 0 and 3 (see {MoneroSendPriority})
    * @param {int} mixin is the number of outputs from the blockchain to mix with (default 11)
    * @return {MoneroTxWallet} is the resulting transaction from sweeping an output 
    */
-  async sweepOutput(configOrAddress, keyImage, priority, mixin) {
+  async sweepOutput(requestOrAddress, keyImage, priority, mixin) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -778,10 +777,10 @@ class MoneroWallet {
   /**
    * Creates a payment URI from a send configuration.
    * 
-   * @param {MoneroSendConfig} sendConfig specifies configuration for a potential tx
+   * @param {MoneroSendRequest} request specifies configuration for a potential tx
    * @return {string} is the payment uri
    */
-  async createPaymentUri(sendConfig) {
+  async createPaymentUri(request) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -789,7 +788,7 @@ class MoneroWallet {
    * Parses a payment URI to a send configuration.
    * 
    * @param {string} uri is the payment uri to parse
-   * @return {MoneroSendConfig} is the send configuration parsed from the uri
+   * @return {MoneroSendRequest} is the send configuration parsed from the uri
    */
   async parsePaymentUri(uri) {
     throw new MoneroError("Subclass must implement");

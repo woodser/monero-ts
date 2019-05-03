@@ -5,7 +5,7 @@ const MoneroUtils = require("../src/utils/MoneroUtils");
 const MoneroError = require("../src/utils/MoneroError");
 const TestUtils = require("./TestUtils");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
-const MoneroSendConfig = require("../src/wallet/config/MoneroSendConfig");
+const MoneroSendRequest = require("../src/wallet/request/MoneroSendRequest");
 const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
 const MoneroBan = require("../src/daemon/model/MoneroBan");
 const MoneroBlock = require("../src/daemon/model/MoneroBlock");
@@ -1492,10 +1492,10 @@ function testTxPoolStats(stats) {
 }
 
 async function getUnrelayedTx(wallet, accountIdx) {
-  let sendConfig = new MoneroSendConfig(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE); 
-  sendConfig.setDoNotRelay(true);
-  sendConfig.setAccountIndex(accountIdx);
-  let tx = await wallet.send(sendConfig);
+  let request = new MoneroSendRequest(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE); 
+  request.setDoNotRelay(true);
+  request.setAccountIndex(accountIdx);
+  let tx = await wallet.send(request);
   assert(tx.getFullHex());
   assert.equal(tx.getDoNotRelay(), true);
   return tx;

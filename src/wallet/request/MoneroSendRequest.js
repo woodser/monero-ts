@@ -6,10 +6,10 @@ const MoneroDestination = require("../model/MoneroDestination");
 /**
  * Common configuration for sending, sweeping, and creation of payment URIs.
  */
-class MoneroSendConfig {
+class MoneroSendRequest {
   
   /**
-   * Construct the configuration.
+   * Construct the request.
    * 
    * TODO: alias subaddressIndex to subaddressIndices
    * 
@@ -18,6 +18,7 @@ class MoneroSendConfig {
    * @param {string} paymentId is the payment id (optional)
    * @param {MoneroSendPriority} priority is the transaction priority (optional)
    * @param {int} mixin is the number of outputs from the blockchain to mix with (optional)
+   * @param {BigInteger} fee is the requested tx fee (optional)
    */
   constructor(configOrAddress, amount, priority, mixin, fee) {
     if (configOrAddress instanceof Object) {
@@ -203,4 +204,4 @@ class MoneroSendConfig {
   }
 }
 
-module.exports = MoneroSendConfig
+module.exports = MoneroSendRequest
