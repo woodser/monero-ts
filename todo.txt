@@ -1,4 +1,6 @@
-port getTxs(string[], getTxs(String)
+getTxs(req, str, str[]) | getTx(str)
+getTxs(req), getTxsById(str|strs[]), getTxById(str)
+port getTxs(req, string[], getTxs(String)
 wallet.getTx(), getTxs() support many types (str, str[], req, obj) but they all get turned into req
 test wallet/daemon config -> ctx
 test wallet.relayTx() which has bug
