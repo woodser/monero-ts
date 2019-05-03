@@ -390,7 +390,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // fetch and merge vouts if configured
-    if (config.getVouts) {
+    if (txFilter.getIncludeVouts()) {
       let vouts = await this.getVouts(new MoneroVoutFilter().setTxFilter(txFilter));
       
       // merge vout txs one time while retaining order
@@ -1210,7 +1210,7 @@ class MoneroWalletRpc extends MoneroWallet {
           if (!header) header = new MoneroBlockHeader();
           header.setTimestamp(val);
         } else {
-          tx.setReceivedTimestamp(val);
+          // timestamp of unconfirmed tx is current request time
         }
       }
       else if (key === "confirmations") {

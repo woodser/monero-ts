@@ -90,6 +90,7 @@ class MoneroRpc {
     // send request and await response
     let resp = await this._throttledRequest(opts);
     resp = JSON.parse(resp.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
+    //console.log(JSON.stringify(resp));
     if (resp.error) {
       //console.error("Request failed: " + resp.error.code + ": " + resp.error.message);
       //console.error(opts);

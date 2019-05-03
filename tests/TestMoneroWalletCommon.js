@@ -578,7 +578,7 @@ class TestMoneroWalletCommon {
         }
         
         // include vouts with transactions
-        txs = await getAndTestTxs(wallet, {getVouts: true}, true);
+        txs = await getAndTestTxs(wallet, {includeVouts: true}, true);
         let found = false;
         for (let tx of txs) {
           if (tx.getVouts()) {
@@ -991,7 +991,7 @@ class TestMoneroWalletCommon {
         assert.equal(vouts.length, 0);
         
         // test invalid id in collection
-        let randomTxs = await getRandomTransactions(wallet, {isConfirmed: true, getVouts: true}, 3, 5);
+        let randomTxs = await getRandomTransactions(wallet, {isConfirmed: true, includeVouts: true}, 3, 5);
         vouts = await wallet.getVouts({txIds: [randomTxs[0].getId(), "invalid_id"]});
         assert(vouts.length > 0);
         assert.equal(randomTxs[0].getVouts().length, vouts.length);
@@ -1006,15 +1006,6 @@ class TestMoneroWalletCommon {
         let walletUnlockedBalance = await wallet.getUnlockedBalance();
         let accounts = await wallet.getAccounts(true);  // includes subaddresses
         let txs = await wallet.getTxs();
-        
-        // sort txs
-        txs.sort((a, b) => {
-          let timestampA = a.getIsConfirmed() ? a.getBlock().getTimestamp() : a.getReceivedTimestamp();
-          let timestampB = b.getIsConfirmed() ? b.getBlock().getTimestamp() : b.getReceivedTimestamp();
-          if (timestampA < timestampB) return -1;
-          if (timestampA > timestampB) return 1;
-          return 0;
-        })
         
         // test wallet balance
         TestUtils.testUnsignedBigInteger(walletBalance);
@@ -1636,7 +1627,7 @@ class TestMoneroWalletCommon {
       });
       
       if (!liteMode)
-      it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
+      it("Can update locked, split txs sent from/to different accounts as blocks are added to the chain", async function() {
         let sendConfig = new MoneroSendConfig((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
         sendConfig.setAccountIndex(0);
         sendConfig.setUnlockTime(3);
@@ -2474,7 +2465,7 @@ async function getRandomTransactions(wallet, config, minTxs, maxTxs) {
  *        testConfig.sendConfig specifies the tx's originating send configuration
  *        testConfig.isSendResponse indicates if the tx is built from a send response, which contains additional fields (e.g. key)
  *        testConfig.hasDestinations specifies if the tx has an outgoing transfer with destinations, undefined if doesn't matter
- *        testConfig.getVouts specifies if vouts were fetched and should therefore be expected with incoming transfers
+ *        testConfig.includeVouts specifies if vouts were fetched and should therefore be expected with incoming transfers
  */
 async function testTxWallet(tx, testConfig) {
   
@@ -2522,7 +2513,7 @@ async function testTxWallet(tx, testConfig) {
     
     // these should be initialized unless a response from sending
     if (!testConfig.isSendResponse) {
-      assert(tx.getReceivedTimestamp() > 0);
+      //assert(tx.getReceivedTimestamp() > 0);    // TODO: re-enable when received timestamp returned in wallet rpc
       assert(tx.getNumSuggestedConfirmations() > 0);
     }
   } else {
@@ -2539,7 +2530,7 @@ async function testTxWallet(tx, testConfig) {
   // test failed  // TODO: what else to test associated with failed
   if (tx.getIsFailed()) {
     assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
-    assert(tx.getReceivedTimestamp() > 0)
+    //assert(tx.getReceivedTimestamp() > 0);    // TODO: re-enable when received timestamp returned in wallet rpc
   } else {
     if (tx.getIsRelayed()) assert.equal(tx.getIsDoubleSpend(), false);
     else {
@@ -2665,7 +2656,7 @@ async function testTxWallet(tx, testConfig) {
   }
   
   // test vouts
-  if (tx.getIncomingTransfers() && testConfig.getVouts) {
+  if (tx.getIncomingTransfers() && testConfig.includeVouts) {
     if (tx.getIsConfirmed()) {
       assert(tx.getVouts() !== undefined);
       assert(tx.getVouts().length > 0);
@@ -2697,8 +2688,9 @@ function testTxWalletTypes(tx) {
   if (tx.getPaymentId()) assert.notEqual(tx.getPaymentId(), MoneroTx.DEFAULT_PAYMENT_ID); // default payment id converted to undefined
   if (tx.getNote()) assert(tx.getNote().length > 0);  // empty notes converted to undefined
   assert(tx.getUnlockTime() >= 0);
-  assert.equal(tx.getSize(), undefined);   // TODO (monero-wallet-rpc): add tx_size to get_transfers and get_transfer_by_txid
+  assert.equal(tx.getSize(), undefined);   // TODO monero-wallet-rpc: add tx_size to get_transfers and get_transfer_by_txid
   assert.equal(tx.getWeight(), undefined);
+  assert.equal(tx.getReceivedTimestamp(), undefined);  // TODO monero-wallet-rpc: return received timestamp (asked to file issue if wanted)
 }
 
 async function testTxWalletCopy(tx, testConfig) {

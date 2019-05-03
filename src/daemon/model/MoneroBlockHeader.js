@@ -228,7 +228,7 @@ class MoneroBlockHeader {
     let str = "";
     str += MoneroUtils.kvLine("Id", this.getId(), indent);
     str += MoneroUtils.kvLine("Height", this.getHeight(), indent);
-    str += MoneroUtils.kvLine("Timestamp", this.getNumTxs(), indent);
+    str += MoneroUtils.kvLine("Timestamp", this.getTimestamp(), indent);
     str += MoneroUtils.kvLine("Size", this.getSize(), indent);
     str += MoneroUtils.kvLine("Weight", this.getWeight(), indent);
     str += MoneroUtils.kvLine("Depth", this.getDepth(), indent);

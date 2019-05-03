@@ -300,7 +300,7 @@ class MoneroWallet {
    * @param {boolean} config.isOutgoing gets txs with an outgoing transfer or not (optional)
    * @param {boolean} config.isIncoming gets txs with an incoming transfer or not (optional)
    * @param {MoneroTransferFilter} config.transferFilter gets txs that have a transfer that meets this filter (optional)
-   * @param {boolean} config.getVouts specifies that tx vouts should be returned with tx results (optional)
+   * @param {boolean} config.includeVouts specifies that tx vouts should be returned with tx results (optional)
    * @return {MoneroTxWallet[]} are wallet transactions per the configuration
    */
   async getTxs(config) {

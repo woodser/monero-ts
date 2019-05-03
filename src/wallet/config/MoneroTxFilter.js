@@ -95,6 +95,15 @@ class MoneroTxFilter extends MoneroTxWallet {
     return this;
   }
   
+  getIncludeVouts() {
+    return this.state.includeVouts;
+  }
+
+  setIncludeVouts(includeVouts) {
+    this.state.includeVouts = includeVouts;
+    return this;
+  }
+  
   getTransferFilter() {
     return this.state.transferFilter;
   }
