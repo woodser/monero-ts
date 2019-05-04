@@ -2196,25 +2196,25 @@ class TestMoneroWalletCommon {
         
         // collect subaddresses with balance and unlocked balance
         let subaddresses = [];
-        let balanceSubaddresses = [];
-        let unlockedSubaddresses = [];
+        let subaddressesBalance = [];
+        let subaddressesUnlocked = [];
         for (let account of await wallet.getAccounts(true)) {
           for (let subaddress of account.getSubaddresses()) {
             subaddresses.push(subaddress);
-            if (subaddress.getBalance().compare(new BigInteger(0)) > 0) balanceSubaddresses.push(subaddress);
-            if (subaddress.getUnlockedBalance().compare(new BigInteger(0)) > 0) unlockedSubaddresses.push(subaddress);
+            if (subaddress.getBalance().compare(new BigInteger(0)) > 0) subaddressesBalance.push(subaddress);
+            if (subaddress.getUnlockedBalance().compare(new BigInteger(0)) > 0) subaddressesUnlocked.push(subaddress);
           }
         }
         
         // test requires at least one more subaddresses than the number being swept to verify it does not change
-        assert(balanceSubaddresses.length >= NUM_SUBADDRESSES_TO_SWEEP + 1, "Test requires balance in at least " + (NUM_SUBADDRESSES_TO_SWEEP + 1) + " subaddresses; run send-to-multiple tests");
-        assert(unlockedSubaddresses.length >= NUM_SUBADDRESSES_TO_SWEEP + 1, "Wallet is waiting on unlocked funds");
+        assert(subaddressesBalance.length >= NUM_SUBADDRESSES_TO_SWEEP + 1, "Test requires balance in at least " + (NUM_SUBADDRESSES_TO_SWEEP + 1) + " subaddresses; run send-to-multiple tests");
+        assert(subaddressesUnlocked.length >= NUM_SUBADDRESSES_TO_SWEEP + 1, "Wallet is waiting on unlocked funds");
         
         // sweep from first unlocked subaddresses
         for (let i = 0; i < NUM_SUBADDRESSES_TO_SWEEP; i++) {
           
           // sweep unlocked account
-          let unlockedSubaddress = unlockedSubaddresses[i];
+          let unlockedSubaddress = subaddressesUnlocked[i];
           let txs = await wallet.sweepSubaddress(unlockedSubaddress.getAccountIndex(), unlockedSubaddress.getIndex(), await wallet.getPrimaryAddress());
           
           // test transactions
@@ -2246,7 +2246,7 @@ class TestMoneroWalletCommon {
           // determine if subaddress was swept
           let swept = false;
           for (let j = 0; j < NUM_SUBADDRESSES_TO_SWEEP; j++) {
-            if (unlockedSubaddresses[j].getAccountIndex() === subaddressBefore.getAccountIndex() && unlockedSubaddresses[j].getIndex() === subaddressBefore.getIndex()) {
+            if (subaddressesUnlocked[j].getAccountIndex() === subaddressBefore.getAccountIndex() && subaddressesUnlocked[j].getIndex() === subaddressBefore.getIndex()) {
               swept = true;
               break;
             }
@@ -2266,34 +2266,34 @@ class TestMoneroWalletCommon {
         
         // collect accounts with sufficient balance and unlocked balance to cover the fee
         let accounts = await wallet.getAccounts(true);
-        let balanceAccounts = [];
-        let unlockedAccounts = [];
+        let accountsBalance = [];
+        let accountsUnlocked = [];
         for (let account of accounts) {
-          if (account.getBalance().compare(TestUtils.MAX_FEE) > 0) balanceAccounts.push(account);
-          if (account.getUnlockedBalance().compare(TestUtils.MAX_FEE) > 0) unlockedAccounts.push(account);
+          if (account.getBalance().compare(TestUtils.MAX_FEE) > 0) accountsBalance.push(account);
+          if (account.getUnlockedBalance().compare(TestUtils.MAX_FEE) > 0) accountsUnlocked.push(account);
         }
         
         // test requires at least one more accounts than the number being swept to verify it does not change
-        assert(balanceAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Test requires balance greater than the fee in at least " + (NUM_ACCOUNTS_TO_SWEEP + 1) + " accounts; run send-to-multiple tests");
-        assert(unlockedAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Wallet is waiting on unlocked funds");
+        assert(accountsBalance.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Test requires balance greater than the fee in at least " + (NUM_ACCOUNTS_TO_SWEEP + 1) + " accounts; run send-to-multiple tests");
+        assert(accountsUnlocked.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Wallet is waiting on unlocked funds");
         
         // sweep from first unlocked accounts
         for (let i = 0; i < NUM_ACCOUNTS_TO_SWEEP; i++) {
           
           // sweep unlocked account
-          let unlockedAccount = unlockedAccounts[i];
-          let txs = await wallet.sweepAccount(unlockedAccount.getIndex(), await wallet.getPrimaryAddress());
+          let accountUnlocked = accountsUnlocked[i];
+          let txs = await wallet.sweepAccount(accountUnlocked.getIndex(), await wallet.getPrimaryAddress());
           
           // test transactions
           assert(txs.length > 0);
           for (let tx of txs) {
             let request = new MoneroSendRequest(await wallet.getPrimaryAddress());
-            request.setAccountIndex(unlockedAccount.getIndex());
+            request.setAccountIndex(accountUnlocked.getIndex());
             await testTxWallet(tx, {wallet: wallet, sendRequest: request, isSendResponse: true, isSweepResponse: true});
           }
           
           // assert no unlocked funds in account
-          let account = await wallet.getAccount(unlockedAccount.getIndex());
+          let account = await wallet.getAccount(accountUnlocked.getIndex());
           assert.equal(account.getUnlockedBalance().toJSValue(), 0);
         }
         
@@ -2307,7 +2307,7 @@ class TestMoneroWalletCommon {
           // determine if account was swept
           let swept = false;
           for (let j = 0; j < NUM_ACCOUNTS_TO_SWEEP; j++) {
-            if (unlockedAccounts[j].getIndex() === accountBefore.getIndex()) {
+            if (accountsUnlocked[j].getIndex() === accountBefore.getIndex()) {
               swept = true;
               break;
             }
@@ -2328,11 +2328,17 @@ class TestMoneroWalletCommon {
         // sweep destination
         let destination = await wallet.getPrimaryAddress();
         
-        // verify 2 accounts with unlocked balance
-        let subaddressesBalance = await getSubaddressesWithBalance(wallet);
-        let subaddressesUnlockedBalance = await getSubaddressesWithUnlockedBalance(wallet);
-        assert(subaddressesBalance.length >= 2, "Test requires multiple accounts with a balance; run send to multiple first");
-        assert(subaddressesUnlockedBalance.length >= 2, "Wallet is waiting on unlocked funds");
+        // verify 2 subaddresses with enough unlocked balance to cover the fee
+        let subaddressesBalance = [];
+        let subaddressesUnlocked = [];
+        for (let account of await wallet.getAccounts(true)) {
+          for (let subaddress of account.getSubaddresses()) {
+            if (subaddress.getBalance().compare(TestUtils.MAX_FEE) > 0) subaddressesBalance.push(subaddress);
+            if (subaddress.getUnlockedBalance().compare(TestUtils.MAX_FEE) > 0) subaddressesUnlocked.push(subaddress);
+          }
+        }
+        assert(subaddressesBalance.length >= 2, "Test requires multiple accounts with a balance greater than the fee; run send to multiple first");
+        assert(subaddressesUnlocked.length >= 2, "Wallet is waiting on unlocked funds");
         
         // sweep
         let txs = await wallet.sweepWallet(destination);
@@ -2343,10 +2349,8 @@ class TestMoneroWalletCommon {
           await testTxWallet(tx, {wallet: wallet, sendRequest: request, isSweepResponse: true});
         }
         
-        // assert no unlocked funds across subaddresses
-        subaddressesUnlockedBalance = await getSubaddressesWithUnlockedBalance(wallet);
-        console.log(subaddressesUnlockedBalance);
-        assert(subaddressesUnlockedBalance.length === 0, "Wallet should have no unlocked funds after sweeping all");
+        // assert no unlocked funds
+        assert((await wallet.getUnlockedBalance()).compare(new BigInteger(0)) === 0, "Wallet should have no unlocked funds after sweeping all");
       });
       
       // disabled so tests don't delete local cache
@@ -2357,6 +2361,28 @@ class TestMoneroWalletCommon {
 //      }
 //    });
     });
+  }
+  
+  // -------------------------------- PRIVATE ---------------------------------
+
+  async getSubaddressesWithBalance() {
+    let subaddresses = [];
+    for (let account of await this.wallet.getAccounts(true)) {
+      for (let subaddress of account.getSubaddresses()) {
+        if (subaddress.getBalance().toJSValue() > 0) subaddresses.push(subaddress);
+      }
+    }
+    return subaddresses;
+  }
+
+  async getSubaddressesWithUnlockedBalance() {
+    let subaddresses = [];
+    for (let account of await this.wallet.getAccounts(true)) {
+      for (let subaddress of account.getSubaddresses()) {
+        if (subaddress.getUnlockedBalance().toJSValue() > 0) subaddresses.push(subaddress);
+      }
+    }
+    return subaddresses;
   }
 }
   
@@ -2879,26 +2905,6 @@ function testCheckReserve(check) {
     assert.equal(check.getSpentAmount(), undefined);
     assert.equal(check.getTotalAmount(), undefined);
   }
-}
-
-async function getSubaddressesWithBalance(wallet) {
-  let subaddresses = [];
-  for (let account of await wallet.getAccounts(true)) {
-    for (let subaddress of account.getSubaddresses()) {
-      if (subaddress.getBalance().toJSValue() > 0) subaddresses.push(subaddress);
-    }
-  }
-  return subaddresses;
-}
-
-async function getSubaddressesWithUnlockedBalance(wallet) {
-  let subaddresses = [];
-  for (let account of await wallet.getAccounts(true)) {
-    for (let subaddress of account.getSubaddresses()) {
-      if (subaddress.getUnlockedBalance().toJSValue() > 0) subaddresses.push(subaddress);
-    }
-  }
-  return subaddresses;
 }
 
 module.exports = TestMoneroWalletCommon;
