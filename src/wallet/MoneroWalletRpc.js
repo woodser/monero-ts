@@ -658,7 +658,7 @@ class MoneroWalletRpc extends MoneroWallet {
       if (request.getSweepEachSubaddress() === undefined || request.getSweepEachSubaddress()) {
         for (let subaddressIdx of subaddressIndices) {
           params.subaddr_indices = [subaddressIdx];
-          let resp = await this.request.rpc.sendJsonRequest("sweep_all", params);
+          let resp = await this.config.rpc.sendJsonRequest("sweep_all", params);
           
           // initialize tx per subaddress
           let respTxs = [];

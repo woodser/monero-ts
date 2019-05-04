@@ -2264,17 +2264,17 @@ class TestMoneroWalletCommon {
       it("Can sweep accounts", async function() {
         const NUM_ACCOUNTS_TO_SWEEP = 1;
         
-        // collect accounts with balance and unlocked balance
+        // collect accounts with sufficient balance and unlocked balance to cover the fee
         let accounts = await wallet.getAccounts(true);
         let balanceAccounts = [];
         let unlockedAccounts = [];
         for (let account of accounts) {
-          if (account.getBalance().toJSValue() > 0) balanceAccounts.push(account);
-          if (account.getUnlockedBalance().toJSValue() > 0) unlockedAccounts.push(account);
+          if (account.getBalance().compare(TestUtils.MAX_FEE) > 0) balanceAccounts.push(account);
+          if (account.getUnlockedBalance().compare(TestUtils.MAX_FEE) > 0) unlockedAccounts.push(account);
         }
         
         // test requires at least one more accounts than the number being swept to verify it does not change
-        assert(balanceAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Test requires balance in at least " + (NUM_ACCOUNTS_TO_SWEEP + 1) + " accounts; run send-to-multiple tests");
+        assert(balanceAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Test requires balance greater than the fee in at least " + (NUM_ACCOUNTS_TO_SWEEP + 1) + " accounts; run send-to-multiple tests");
         assert(unlockedAccounts.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Wallet is waiting on unlocked funds");
         
         // sweep from first unlocked accounts
