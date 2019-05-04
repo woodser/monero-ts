@@ -596,7 +596,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return await this._send.apply(this, args);
   }
   
-  async sweepUnlocked(request) {
+  async sweepAllUnlocked(request) {
     
     // normalize and validate request
     if (!(request instanceof MoneroSendRequest)) request = new MoneroSendRequest(request);

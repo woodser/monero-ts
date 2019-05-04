@@ -449,29 +449,6 @@ class MoneroWallet {
   }
   
   /**
-   * Sweep the wallet's unlocked funds to an address.
-   * 
-   * @param {string} address is the address to sweep the wallet's funds to
-   * @return {MoneroTxWallet[]} are the resulting transactions
-   */
-  async sweepWallet(address) {
-    return this.sweepUnlocked(new MoneroSendRequest(address));
-  }
-
-  /**
-   * Sweep an acount's unlocked funds to an address.
-   * 
-   * @param {int} accountIdx is the index of the account
-   * @param {address} address is the address to sweep the account's funds to
-   * @return {MoneroTxWallet[]} are the resulting transactions
-   */
-  async sweepAccount(accountIdx, address) {
-    let request = new MoneroSendRequest(address);
-    request.setAccountIndex(accountIdx);
-    return this.sweepUnlocked(request);
-  }
-
-  /**
    * Sweep a subaddress's unlocked funds to an address.
    * 
    * @param {int} accountIdx is the index of the account
@@ -483,16 +460,39 @@ class MoneroWallet {
     let request = new MoneroSendRequest(address);
     request.setAccountIndex(accountIdx);
     request.setSubaddressIndices([subaddressIdx]);
-    return this.sweepUnlocked(request);
+    return this.sweepAllUnlocked(request);
+  }
+  
+  /**
+   * Sweep an acount's unlocked funds to an address.
+   * 
+   * @param {int} accountIdx is the index of the account
+   * @param {address} address is the address to sweep the account's funds to
+   * @return {MoneroTxWallet[]} are the resulting transactions
+   */
+  async sweepAccount(accountIdx, address) {
+    let request = new MoneroSendRequest(address);
+    request.setAccountIndex(accountIdx);
+    return this.sweepAllUnlocked(request);
+  }
+  
+  /**
+   * Sweep the wallet's unlocked funds to an address.
+   * 
+   * @param {string} address is the address to sweep the wallet's funds to
+   * @return {MoneroTxWallet[]} are the resulting transactions
+   */
+  async sweepWallet(address) {
+    return this.sweepAllUnlocked(new MoneroSendRequest(address));
   }
 
   /**
-   * Sweep unlocked funds.
+   * Sweep all unlocked funds according to the given request.
    * 
    * @param {(MoneroSendRequest|object)} config is the sweep configuration
    * @return {MoneroTxWallet[]} are the resulting transactions
    */
-  async sweepUnlocked(config) {
+  async sweepAllUnlocked(config) {
     throw new MoneroError("Subclass must implement");
   }
   
