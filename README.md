@@ -114,11 +114,11 @@ Note: some tests are failing as not all functionality is implemented.
 ## Interfaces and Types
 
 - [Monero daemon (MoneroDaemon.js)](src/daemon/MoneroDaemon.js)
-- [Monero daemon rpc implementation (MoneroDaemonRpc.js)](src/daemon/MoneroDaemonRpc.js)
-- [Monero daemon model (src/daemon/model)](src/daemon/model)
-- [Monero wallet (src/wallet/MoneroWallet.js)](src/wallet/MoneroWallet.js)
-- [Monero wallet rpc implementation (src/wallet/MoneroWalletRpc.js)](src/wallet/MoneroWalletRpc.js)
-- [Monero wallet model (src/wallet/model)](src/wallet/model)
+- [Monero daemon rpc implementation](src/daemon/MoneroDaemonRpc.js)
+- [Monero daemon models](src/daemon/model)
+- [Monero wallet (MoneroWallet.js)](src/wallet/MoneroWallet.js)
+- [Monero wallet rpc implementation](src/wallet/MoneroWalletRpc.js)
+- [Monero wallet models](src/wallet/model)
 
 ## Project Goals
 
