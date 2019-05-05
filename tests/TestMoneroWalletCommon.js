@@ -2322,11 +2322,17 @@ class TestMoneroWalletCommon {
         }
       });
       
-      // disabled so tests don't sweep the whole wallet
-      it("Can sweep the whole wallet", async function() {
-        
-        // sweep destination
-        let destination = await wallet.getPrimaryAddress();
+      it("Can sweep the whole wallet by accounts", async function() {
+        assert(false, "Are you sure you want to sweep the whole wallet?");
+        await _testSweepWallet();
+      });
+      
+      it("Can sweep the whole wallet by subaddresses", async function() {
+        assert(false, "Are you sure you want to sweep the whole wallet?");
+        await _testSweepWallet(true);
+      });
+      
+      async function _testSweepWallet(sweepEachSubaddress) {
         
         // verify 2 subaddresses with enough unlocked balance to cover the fee
         let subaddressesBalance = [];
@@ -2341,25 +2347,41 @@ class TestMoneroWalletCommon {
         assert(subaddressesUnlocked.length >= 2, "Wallet is waiting on unlocked funds");
         
         // sweep
-        let txs = await wallet.sweepWallet(destination);
+        let destination = await wallet.getPrimaryAddress();
+        let req = new MoneroSendRequest(destination).setSweepEachSubaddress(sweepEachSubaddress);
+        let txs = await wallet.sweepAllUnlocked(req);
         assert(txs.length > 0);
         for (let tx of txs) {
           let request = new MoneroSendRequest(destination);
           request.setAccountIndex(tx.getOutgoingTransfer().getAccountIndex());
-          await testTxWallet(tx, {wallet: wallet, sendRequest: request, isSweepResponse: true});
+          request.setSweepEachSubaddress(sweepEachSubaddress);
+          await testTxWallet(tx, {wallet: wallet, sendRequest: request, isSendResponse: true, isSweepResponse: true});
         }
         
-        // assert no unlocked funds
-        assert((await wallet.getUnlockedBalance()).compare(new BigInteger(0)) === 0, "Wallet should have no unlocked funds after sweeping all");
-      });
+        // all unspent, unlocked outputs must be less than fee
+        let spendableOutputs = await wallet.getOutputs(new MoneroOutputRequest().setIsSpent(false).setIsUnlocked(true));
+        for (let spendableOutput of spendableOutputs) {
+          assert(spendableOutput.getAmount().compare(TestUtils.MAX_FEE) < 0, "Unspent output should have been swept\n" + spendableOutput.toString());
+        }
+        
+        // all subaddress unlocked balances must be less than fee
+        subaddressesBalance = [];
+        subaddressesUnlocked = [];
+        for (let account of await wallet.getAccounts(true)) {
+          for (let subaddress of account.getSubaddresses()) {
+            assert(subaddress.getUnlockedBalance().compare(TestUtils.MAX_FEE) < 0, "No subaddress should have more unlocked than the fee");
+          }
+        }
+      }
       
       // disabled so tests don't delete local cache
-//    it("Can rescan the blockchain", async function() {
-//      await wallet.rescanBlockchain();
-//      for (let tx of await wallet.getTxs()) {
-//        testTxWallet(tx);
-//      }
-//    });
+      it("Can rescan the blockchain", async function() {
+        assert(false, "Are you sure you want to discard local wallet data and rescan the blockchain?");
+        await wallet.rescanBlockchain();
+        for (let tx of await wallet.getTxs()) {
+          await testTxWallet(tx);
+        }
+      });
     });
   }
   
