@@ -4,7 +4,9 @@ const MoneroTxWallet = require("../model/MoneroTxWallet");
 const MoneroTransferRequest = require("./MoneroTransferRequest"); // TODO: combine request file so these can import each other?
 
 /**
- * Filters transactions that don't match initialized filter criteria.
+ * Configures a request to retrieve transactions.
+ * 
+ * All transactions are returned except those that do not meet the criteria defined in this request.
  */
 class MoneroTxRequest extends MoneroTxWallet {
   

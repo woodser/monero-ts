@@ -4,7 +4,9 @@ const MoneroTransfer = require("../model/MoneroTransfer");
 const MoneroDestination = require("../model/MoneroDestination");
 
 /**
- * Common configuration for sending, sweeping, and creation of payment URIs.
+ * Configures a request to send/sweep funds or create a payment URI.
+ * 
+ * TODO: allow setAddress(), setAmount() for default destination?
  */
 class MoneroSendRequest {
   
@@ -13,16 +15,16 @@ class MoneroSendRequest {
    * 
    * TODO: alias subaddressIndex to subaddressIndices
    * 
-   * @param {object|string} configOrAddress is existing configuration or a destination address (optional)
+   * @param {object|string} jsonOrAddress is existing configuration or a destination address (optional)
    * @param {BigInteger} amount is the amount to send (optional)
    * @param {string} paymentId is the payment id (optional)
    * @param {MoneroSendPriority} priority is the transaction priority (optional)
    * @param {int} mixin is the number of outputs from the blockchain to mix with (optional)
    * @param {BigInteger} fee is the requested tx fee (optional)
    */
-  constructor(configOrAddress, amount, priority, mixin, fee) {
-    if (configOrAddress instanceof Object) {
-      this.state = Object.assign({}, configOrAddress);
+  constructor(jsonOrAddress, amount, priority, mixin, fee) {
+    if (jsonOrAddress instanceof Object) {
+      this.state = Object.assign({}, jsonOrAddress);
       assert.equal(arguments.length, 1, "Send configuration must be constructed with either an existing configuration or individual arguments but not both");
       
       // deserialize if necessary
@@ -46,7 +48,7 @@ class MoneroSendRequest {
       }
     } else {
       this.state = {};
-      if (typeof configOrAddress === "string") this.setDestinations([new MoneroDestination(configOrAddress, amount)]);
+      if (typeof jsonOrAddress === "string") this.setDestinations([new MoneroDestination(jsonOrAddress, amount)]);
       this.setPriority(priority);
       this.setMixin(mixin);
       this.setFee(fee);

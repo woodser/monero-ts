@@ -5,7 +5,9 @@ const MoneroIncomingTransfer = require("../model/MoneroIncomingTransfer");
 const MoneroOutgoingTransfer = require("../model/MoneroOutgoingTransfer");
 
 /**
- * Filters transfers that don't match initialized filter criteria.
+ * Configures a request to retrieve transfers.
+ * 
+ * All transfers are returned except those that do not meet the criteria defined in this request.
  */
 class MoneroTransferRequest extends MoneroTransfer {
   
