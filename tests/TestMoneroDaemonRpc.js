@@ -19,10 +19,10 @@ const MoneroDaemonPeer = require("../src/daemon/model/MoneroDaemonPeer");
 const MoneroDaemonConnection = require("../src/daemon/model/MoneroDaemonConnection");
 const MoneroDaemonUpdateCheckResult = require("../src/daemon/model/MoneroDaemonUpdateCheckResult");
 
-// config for testing binary blocks
+// context for testing binary blocks
 // TODO: binary blocks have inconsistent client-side pruning
 // TODO: get_blocks_by_height.bin does not return output indices (#5127)
-const BINARY_BLOCK_CTX = { hasHex: false, headerIsFull: false, hasTxs: true, txConfig: { isPruned: false, isConfirmed: true, fromGetTxPool: false, hasOutputIndices: false, fromBinaryBlock: true } };
+const BINARY_BLOCK_CTX = { hasHex: false, headerIsFull: false, hasTxs: true, ctx: { isPruned: false, isConfirmed: true, fromGetTxPool: false, hasOutputIndices: false, fromBinaryBlock: true } };
 
 /**
  * Tests a Monero daemon.
@@ -148,21 +148,21 @@ class TestMoneroDaemonRpc {
       
       it("Can get a block by id", async function() {
         
-        // config for testing blocks
-        let testBlockConfig = { hasHex: true, headerIsFull: true, hasTxs: false };
+        // context for testing blocks
+        let testBlockCtx = { hasHex: true, headerIsFull: true, hasTxs: false };
         
         // retrieve by id of last block
         let lastHeader = await daemon.getLastBlockHeader();
         let id = await daemon.getBlockId(lastHeader.getHeight());
         let block = await daemon.getBlockById(id);
-        testBlock(block, testBlockConfig);
+        testBlock(block, testBlockCtx);
         assert.deepEqual(block, await daemon.getBlockByHeight(block.getHeight()));
         assert(block.getTxs() === undefined);
         
         // retrieve by id of previous to last block
         id = await daemon.getBlockId(lastHeader.getHeight() - 1);
         block = await daemon.getBlockById(id);
-        testBlock(block, testBlockConfig);
+        testBlock(block, testBlockCtx);
         assert.deepEqual(block, await daemon.getBlockByHeight(lastHeader.getHeight() - 1));
         assert(block.getTxs() === undefined);
       });
@@ -173,18 +173,18 @@ class TestMoneroDaemonRpc {
       
       it("Can get a block by height", async function() {
         
-        // config for testing blocks
-        let testBlockConfig = { hasHex: true, headerIsFull: true, hasTxs: false };
+        // context for testing blocks
+        let testBlockCtx = { hasHex: true, headerIsFull: true, hasTxs: false };
         
         // retrieve by height of last block
         let lastHeader = await daemon.getLastBlockHeader();
         let block = await daemon.getBlockByHeight(lastHeader.getHeight());
-        testBlock(block, testBlockConfig);
+        testBlock(block, testBlockCtx);
         assert.deepEqual(block, await daemon.getBlockByHeight(block.getHeight()));
         
         // retrieve by height of previous to last block
         block = await daemon.getBlockByHeight(lastHeader.getHeight() - 1);
-        testBlock(block, testBlockConfig);
+        testBlock(block, testBlockCtx);
         assert.deepEqual(block.getHeight(), lastHeader.getHeight() - 1);
       });
       
@@ -1099,37 +1099,37 @@ function testBlockHeader(header, isFull) {
 }
 
 // TODO: test block deep copy
-function testBlock(block, config) {
+function testBlock(block, ctx) {
   
   // check inputs
-  assert(config);
-  assert.equal(typeof config.hasHex, "boolean");
-  assert.equal(typeof config.headerIsFull, "boolean");
-  assert.equal(typeof config.hasTxs, "boolean");
+  assert(ctx);
+  assert.equal(typeof ctx.hasHex, "boolean");
+  assert.equal(typeof ctx.headerIsFull, "boolean");
+  assert.equal(typeof ctx.hasTxs, "boolean");
   
   // test required fields
   assert(block);
   assert(Array.isArray(block.getTxIds())); // TODO: tx hashes probably part of tx
   assert(block.getTxIds().length >= 0);
   testCoinbaseTx(block.getCoinbaseTx());   // TODO: coinbase tx doesn't have as much stuff, can't call testTx?
-  testBlockHeader(block, config.headerIsFull);
+  testBlockHeader(block, ctx.headerIsFull);
   
-  if (config.hasHex) {
+  if (ctx.hasHex) {
     assert(block.getHex());
     assert(block.getHex().length > 1);
   } else {
     assert(block.getHex() === undefined)
   }
   
-  if (config.hasTxs) {
-    assert(typeof config.txConfig === "object");
+  if (ctx.hasTxs) {
+    assert(typeof ctx.ctx === "object");
     assert(block.getTxs() instanceof Array);
     for (let tx of block.getTxs()) {
       assert(block === tx.getBlock());
-      testTx(tx, config.txConfig);
+      testTx(tx, ctx.ctx);
     }
   } else {
-    assert(config.txConfig === undefined);
+    assert(ctx.ctx === undefined);
     assert(block.getTxs() === undefined);
   }
 }
@@ -1157,14 +1157,14 @@ function testCoinbaseTx(coinbaseTx) {
 }
 
 // TODO: how to test output indices? comes back with /get_transactions, maybe others
-function testTx(tx, config) {
+function testTx(tx, ctx) {
   
   // check inputs
   assert(tx);
-  assert.equal(typeof config, "object");
-  assert.equal(typeof config.isPruned, "boolean");
-  assert.equal(typeof config.isConfirmed, "boolean");
-  assert.equal(typeof config.fromGetTxPool, "boolean");
+  assert.equal(typeof ctx, "object");
+  assert.equal(typeof ctx.isPruned, "boolean");
+  assert.equal(typeof ctx.isConfirmed, "boolean");
+  assert.equal(typeof ctx.fromGetTxPool, "boolean");
   
   // standard across all txs
   assert(tx.getId().length === 64);
@@ -1183,13 +1183,13 @@ function testTx(tx, config) {
   // test presence of output indices
   // TODO: change this over to vouts only
   if (tx.getIsCoinbase()) assert.equal(tx.getOutputIndices(), undefined); // TODO: how to get output indices for coinbase transactions?
-  if (tx.getInTxPool() || config.fromGetTxPool || config.hasOutputIndices === false) assert.equal(tx.getOutputIndices(), undefined);
+  if (tx.getInTxPool() || ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(tx.getOutputIndices(), undefined);
   else assert(tx.getOutputIndices());
   if (tx.getOutputIndices()) assert(tx.getOutputIndices().length > 0);
   
-  // test confirmed config
-  if (config.isConfirmed === true) assert.equal(tx.getIsConfirmed(), true);
-  if (config.isConfirmed === false) assert.equal(tx.getIsConfirmed(), false);
+  // test confirmed ctx
+  if (ctx.isConfirmed === true) assert.equal(tx.getIsConfirmed(), true);
+  if (ctx.isConfirmed === false) assert.equal(tx.getIsConfirmed(), false);
   
   // test confirmed
   if (tx.getIsConfirmed()) {
@@ -1270,18 +1270,18 @@ function testTx(tx, config) {
   if (!tx.getIsCoinbase()) assert(tx.getVins().length > 0);
   for (let vin of tx.getVins()) {
     assert(tx === vin.getTx());
-    testVin(vin, config);
+    testVin(vin, ctx);
   }
   assert(tx.getVouts().length > 0);
   for (let vout of tx.getVouts()) {
     assert(tx === vout.getTx());
-    testVout(vout, config);
+    testVout(vout, ctx);
   }
   
   // test pruned vs not pruned
-  if (config.fromGetTxPool || config.fromBinaryBlock) assert.equal(tx.getPrunableHash(), undefined);   // TODO monero-daemon-rpc: tx pool txs do not have prunable hash, TODO: getBlocksByHeight() has inconsistent client-side pruning
+  if (ctx.fromGetTxPool || ctx.fromBinaryBlock) assert.equal(tx.getPrunableHash(), undefined);   // TODO monero-daemon-rpc: tx pool txs do not have prunable hash, TODO: getBlocksByHeight() has inconsistent client-side pruning
   else assert(tx.getPrunableHash());
-  if (config.isPruned) {
+  if (ctx.isPruned) {
     assert.equal(tx.getRctSigPrunable(), undefined);
     assert.equal(tx.getSize(), undefined);
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
@@ -1293,9 +1293,9 @@ function testTx(tx, config) {
     assert(tx.getVersion() >= 0);
     assert(tx.getUnlockTime() >= 0);
     assert(Array.isArray(tx.getExtra()) && tx.getExtra().length > 0);
-    if (config.fromBinaryBlock) assert.equal(tx.getFullHex(), undefined);         // TODO: getBlocksByHeight() has inconsistent client-side pruning
+    if (ctx.fromBinaryBlock) assert.equal(tx.getFullHex(), undefined);         // TODO: getBlocksByHeight() has inconsistent client-side pruning
     else assert(tx.getFullHex().length > 0);
-    if (config.fromBinaryBlock) assert.equal(tx.getRctSigPrunable(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
+    if (ctx.fromBinaryBlock) assert.equal(tx.getRctSigPrunable(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
     //else assert.equal(typeof tx.getRctSigPrunable().nbp, "number");
     assert.equal(tx.getIsDoubleSpend(), false);
     if (tx.getIsConfirmed()) {
@@ -1313,7 +1313,7 @@ function testTx(tx, config) {
   }
   
   // test deep copy
-  if (!config.doNotTestCopy) testTxCopy(tx, config);
+  if (!ctx.doNotTestCopy) testTxCopy(tx, ctx);
 }
 
 function testBlockTemplate(template) {
@@ -1501,9 +1501,9 @@ async function getUnrelayedTx(wallet, accountIdx) {
   return tx;
 }
 
-function testVin(vin, config) {
+function testVin(vin, ctx) {
   testOutput(vin);
-  testKeyImage(vin.getKeyImage(), config);
+  testKeyImage(vin.getKeyImage(), ctx);
   assert(vin.getRingOutputIndices() && Array.isArray(vin.getRingOutputIndices()) && vin.getRingOutputIndices().length > 0);
   for (let index of vin.getRingOutputIndices()) {
     assert.equal(typeof index, "number")
@@ -1511,7 +1511,7 @@ function testVin(vin, config) {
   }
 }
 
-function testKeyImage(image, config) {
+function testKeyImage(image, ctx) {
   assert(image instanceof MoneroKeyImage);
   assert(image.getHex());
   if (image.getSignature() !== undefined) {
@@ -1520,9 +1520,9 @@ function testKeyImage(image, config) {
   }
 }
 
-function testVout(vout, config) {
+function testVout(vout, ctx) {
   testOutput(vout);
-  if (vout.getTx().getInTxPool() || config && config.fromGetTxPool || config.hasOutputIndices === false) assert.equal(vout.getIndex(), undefined); // TODO: get_blocks_by_height.bin (#5127), get_transaction_pool, and tx pool txs do not return output indices 
+  if (vout.getTx().getInTxPool() || ctx && ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(vout.getIndex(), undefined); // TODO: get_blocks_by_height.bin (#5127), get_transaction_pool, and tx pool txs do not return output indices 
   else assert(vout.getIndex() >= 0);
   assert(vout.getStealthPublicKey() && vout.getStealthPublicKey().length === 64);
 }
@@ -1640,7 +1640,7 @@ async function getConfirmedTxIds(daemon) {
   return txIds;
 }
 
-function testTxCopy(tx, config) {
+function testTxCopy(tx, ctx) {
   
   // copy tx and test
   let copy = tx.copy();
@@ -1668,10 +1668,10 @@ function testTxCopy(tx, config) {
   }
   
   // test copied tx
-  config = Object.assign({}, config);
-  config.doNotTestCopy = true;
+  ctx = Object.assign({}, ctx);
+  ctx.doNotTestCopy = true;
   if (tx.getBlock()) copy.setBlock(tx.getBlock().copy().setTxs([copy])); // copy block for testing
-  testTx(copy, config);
+  testTx(copy, ctx);
   
   // test merging with copy
   let merged = copy.merge(copy.copy());
