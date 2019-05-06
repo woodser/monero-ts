@@ -1,4 +1,3 @@
-test wallet.relayTx() which has bug
 MoneroSendRequest configOrAddress -> jsonOrAddress
 alias subaddressIndex to subaddressIndices: [0] in MoneroSendReq (see sample code)
 rename TestMoneroCoreUtils.js -> TestMoneroCppUtils.js

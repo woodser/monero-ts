@@ -1944,8 +1944,9 @@ class TestMoneroWalletCommon {
           }
           
           // relay txs
-          let txIds = await wallet.relayTxs(txs.map(tx => tx.getMetadata()));
-          assert.equal(txIds.length, txs.length);
+          let txIds;
+          if (request.getCanSplit() !== true) txIds = [await wallet.relayTx(txs[0].getMetadata())]; // test relayTx() with single transaction
+          else txIds = await wallet.relayTxs(txs.map(tx => tx.getMetadata()));                    // test relayTxs() with potentially multiple transactions
           for (let txId of txIds) assert(typeof txId === "string" && txId.length === 64);
           
           // fetch txs for testing
