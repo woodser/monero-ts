@@ -38,6 +38,12 @@ class MoneroSendRequest {
         delete this.state.address;
         delete this.state.amount;
       }
+      
+      // alias 'subaddressIndex' to subaddress indices
+      if (this.state.subaddressIndex !== undefined) {
+        this.setSubaddressIndices([this.state.subaddressIndex]);
+        delete this.state.subaddressIndex;
+      }
     } else {
       this.state = {};
       if (typeof configOrAddress === "string") this.setDestinations([new MoneroDestination(configOrAddress, amount)]);

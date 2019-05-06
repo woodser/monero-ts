@@ -366,7 +366,6 @@ class MoneroWalletRpc extends MoneroWallet {
     else if (Array.isArray(request)) request = new MoneroTxRequest().setTxIds(request);
     else {
       request = Object.assign({}, request);
-      if (!request.id) request.id = request.txId;  // support txId TODO: move into MoneroTxRequest?
       request = new MoneroTxRequest(request);
     }
     if (!request.getTransferRequest()) request.setTransferRequest(new MoneroTransferRequest());
@@ -442,7 +441,6 @@ class MoneroWalletRpc extends MoneroWallet {
     if (request instanceof MoneroTransferRequest) { }
     else {
       request = Object.assign({}, request);
-      if (!request.id) request.id = request.txId;  // support txId TODO: move into MoneroTxRequest?
       request = new MoneroTransferRequest(request).setTxRequest(new MoneroTxRequest(request));
     }
     if (!request.getTxRequest()) request.setTxRequest(new MoneroTxRequest());
@@ -514,7 +512,6 @@ class MoneroWalletRpc extends MoneroWallet {
     if (request instanceof MoneroOutputRequest) { }
     else {
       request = Object.assign({}, request);
-      if (!request.id) request.id = request.txId;  // support txId TODO: move into MoneroTransaction?
       request = new MoneroOutputRequest(request).setTxRequest(new MoneroTxRequest(request));
     }
     if (!request.getTxRequest()) request.setTxRequest(new MoneroTxRequest());

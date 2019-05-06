@@ -1,5 +1,4 @@
 MoneroSendRequest configOrAddress -> jsonOrAddress
-alias subaddressIndex to subaddressIndices: [0] in MoneroSendReq (see sample code)
 rename TestMoneroCoreUtils.js -> TestMoneroCppUtils.js
 
 model rct_signatures and rct_prunable

@@ -52,7 +52,7 @@ let sentTxs = await wallet.sendSplit({
     { address: "78NWrWGgyZeYgckJhuxm...", amount: new BigInteger(50000) }
   ],
   accountIndex: 1,
-  subaddressIndices: [0]
+  subaddressIndices: [0, 1]
 });
 
 // get confirmed transactions
@@ -71,23 +71,39 @@ for (let transfer of await wallet.getTransfers({isIncoming: true, accountIndex: 
 ## Daemon Sample Code
 
 ```js
-// create a daemon that uses a monero-daemon-rpc endpoint
-let daemon = new MoneroDaemonRpc({uri: "http://localhost:38081"});
-
-// get daemon info
-let height = await daemon.getHeight();           // e.g. 1523651
-let feeEstimate = await daemon.getFeeEstimate(); // e.g. 750000
-
-// get first 100 blocks as a binary request
-let blocks = await daemon.getBlocksByRange(0, 100);
-
-// get block info
-for (let block of blocks) {
-  let blockHeight = block.getHeader().getHeight();
-  let blockId = block.getHeader().getId();
-  let blockSize = block.getHeader().getSize();
-  let txCount = block.getTxs().length;
-}
+  // imports
+  const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
+  
+  // create a daemon that uses a monero-daemon-rpc endpoint
+  let daemon = new MoneroDaemonRpc({uri: "http://localhost:38081"});
+  
+  // get daemon info
+  let height = await daemon.getHeight();           // e.g. 1523651
+  let feeEstimate = await daemon.getFeeEstimate(); // e.g. 750000
+  
+  // get first 100 blocks as a binary request
+  let blocks = await daemon.getBlocksByRange(0, 100);
+  
+  // get block info
+  for (let block of blocks) {
+    let blockHeight = block.getHeight();
+    let blockId = block.getId();
+    let txCount = block.getTxs().length;
+  }
+  
+  // start mining to an address with 4 threads, not in the background, and ignoring the battery
+  let address = "74oAtjgE2dfD1bJBo4DWW3E6qXCAwUDMgNqUurnX9b2xUvDTwMwExiXDkZskg7Vct37tRGjzHRqL4gH4H3oag3YyMYJzrNp";
+  let numThreads = 4;
+  let isBackground = false;
+  let ignoreBattery = false;
+  await daemon.startMining(address, numThreads, isBackground, ignoreBattery);
+  
+  // wait for the header of the next block added to the chain
+  let nextBlockHeader = await daemon.getNextBlockHeader();
+  let nextNumTxs = nextBlockHeader.getNumTxs();
+  
+  // stop mining
+  await daemon.stopMining();
 ```
 
 ## Running Tests

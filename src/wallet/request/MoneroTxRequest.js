@@ -18,6 +18,12 @@ class MoneroTxRequest extends MoneroTxWallet {
     
     // deserialize if necessary
     if (this.state.transferRequest && !(this.state.transferRequest instanceof MoneroTransferRequest)) this.state.transferRequest = new MoneroTransferRequest(this.state.transferRequest);
+    
+    // alias 'txId' to txIds
+    if (this.state.txId) {
+      this.setTxIds([this.state.txId]);
+      delete this.state.txId;
+    }
   }
   
   getIsIncoming() {

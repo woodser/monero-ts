@@ -65,7 +65,7 @@ describe("Test Sample Code", function() {
         {address: "78NWrWGgyZeYgckJhuxmtDMqo8Kzq5r9j1kV8BQXGq5CDnECz2KjQeBDc3KKvdMQmR6TWtfbRaedgbSGmmwr1g8N1rBMdvW", amount: new BigInteger(50000) }
       ],
       accountIndex: 1,
-      subaddressIndices: [0],
+      subaddressIndices: [0, 1],
       priority: MoneroSendPriority.UNIMPORTANT // no rush
     });
     
@@ -107,7 +107,7 @@ describe("Test Sample Code", function() {
       
       // start mining to an address with 4 threads, not in the background, and ignoring the battery
       let address = TestUtils.TEST_ADDRESS;
-      //let address = "59aZULsUF3YNSKGiHz4JPMfjGYk...";
+      //let address = "74oAtjgE2dfD1bJBo4DWW3E6qXCAwUDMgNqUurnX9b2xUvDTwMwExiXDkZskg7Vct37tRGjzHRqL4gH4H3oag3YyMYJzrNp";
       let numThreads = 4;
       let isBackground = false;
       let ignoreBattery = false;
