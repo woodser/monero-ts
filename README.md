@@ -1,6 +1,6 @@
 # Monero JavaScript API
 
-**Compatible with Monero Core version 14.0.3**
+**Compatible with Monero Core version 14.1.0**
 
 ## Introduction
 
