@@ -163,6 +163,19 @@ class MoneroDaemon {
   }
   
   /**
+   * Get blocks in the given height range as chunked requests so that each request is
+   * not too big.
+   * 
+   * @param {int} startHeight is the start height lower bound inclusive (optional)
+   * @param {int} endHeight is the end height upper bound inclusive (optional)
+   * @param {int} maxChunkSize is the maximum chunk size in any one request (default 3,000,000 bytes)
+   * @return {MoneroBlock[]} blocks in the given height range
+   */
+  async getBlocksByRangeChunked(startHeight, endHeight, maxChunkSize) {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
    * Get block ids as a binary request to the daemon.
    * 
    * @param {string[]} blockIds specify block ids to fetch; first 10 blocks id goes

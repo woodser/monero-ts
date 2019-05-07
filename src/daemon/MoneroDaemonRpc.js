@@ -191,50 +191,23 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async getBlocksByRange(startHeight, endHeight) {
     if (startHeight === undefined) startHeight = 0;
     if (endHeight === undefined) endHeight = await this.getHeight() - 1;
+    let heights = [];
+    for (let height = startHeight; height <= endHeight; height++) heights.push(height);
+    return await this.getBlocksByHeight(heights);
+  }
+  
+  async getBlocksByRangeChunked(startHeight, endHeight, maxChunkSize) {
+    if (startHeight === undefined) startHeight = 0;
+    if (endHeight === undefined) endHeight = await this.getHeight() - 1;
     let lastHeight = startHeight - 1;
     let blocks = [];
     while (lastHeight < endHeight) {
-      for (let block of await this.getAsManyBlocksAsPossible(lastHeight + 1, endHeight)) {
+      for (let block of await this._getMaxBlocks(lastHeight + 1, endHeight, maxChunkSize)) {
         blocks.push(block);
       }
       lastHeight = blocks[blocks.length - 1].getHeight();
     }
     return blocks;
-  }
-  
-  /**
-   * Get a contiguous chunk of blocks starting from a given height up to a maximum
-   * height or amount of block data fetched from the blockchain, whichever comes first.
-   * 
-   * @param {number} startHeight is the start height to retrieve blocks (default 0)
-   * @param {number} maxHeight is the maximum end height to retrieve blocks (default blockchain height)
-   * @param {number} maxReqSize is the maximum amount of block data to fetch from the blockchain in bytes (default 3,000,000 bytes)
-   * @return {MoneroBlock[]} are the resulting chunk of blocks
-   */
-  async getAsManyBlocksAsPossible(startHeight, maxHeight, maxReqSize) {
-    if (startHeight === undefined) startHeight = 0;
-    if (maxHeight === undefined) maxHeight = await this.getHeight() - 1;
-    if (maxReqSize === undefined) maxReqSize = MoneroDaemonRpc.MAX_REQ_SIZE;
-    
-    // determine end height to fetch
-    let reqSize = 0;
-    let endHeight = startHeight - 1;
-    while (reqSize < maxReqSize && endHeight < maxHeight) {
-      
-      // get header of next block
-      let header = await this._getBlockHeaderByHeightCached(endHeight + 1, maxHeight);
-      
-      // block cannot be bigger than max request size
-      assert(header.getSize() <= maxReqSize, "Block exceeds maximum request size: " + header.getSize());
-      
-      // done iterating if fetching block would exceed max request size
-      if (reqSize + header.getSize() > maxReqSize) break;
-      
-      // otherwise block is included
-      reqSize += header.getSize();
-      endHeight++;
-    }
-    return endHeight >= startHeight ? await this._getBlocksByRangeSingle(startHeight, endHeight) : [];
   }
   
   async getTxs(txIds, prune) {
@@ -723,12 +696,39 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return [resp.limit_down, resp.limit_up];
   }
   
-  async _getBlocksByRangeSingle(startHeight, endHeight) {
+  /**
+   * Get a contiguous chunk of blocks starting from a given height up to a maximum
+   * height or amount of block data fetched from the blockchain, whichever comes first.
+   * 
+   * @param {number} startHeight is the start height to retrieve blocks (default 0)
+   * @param {number} maxHeight is the maximum end height to retrieve blocks (default blockchain height)
+   * @param {number} maxReqSize is the maximum amount of block data to fetch from the blockchain in bytes (default 3,000,000 bytes)
+   * @return {MoneroBlock[]} are the resulting chunk of blocks
+   */
+  async _getMaxBlocks(startHeight, maxHeight, maxReqSize) {
     if (startHeight === undefined) startHeight = 0;
-    if (endHeight === undefined) endHeight = getHeight() - 1;
-    let heights = [];
-    for (let height = startHeight; height <= endHeight; height++) heights.push(height);
-    return await this.getBlocksByHeight(heights);
+    if (maxHeight === undefined) maxHeight = await this.getHeight() - 1;
+    if (maxReqSize === undefined) maxReqSize = MoneroDaemonRpc.MAX_REQ_SIZE;
+    
+    // determine end height to fetch
+    let reqSize = 0;
+    let endHeight = startHeight - 1;
+    while (reqSize < maxReqSize && endHeight < maxHeight) {
+      
+      // get header of next block
+      let header = await this._getBlockHeaderByHeightCached(endHeight + 1, maxHeight);
+      
+      // block cannot be bigger than max request size
+      assert(header.getSize() <= maxReqSize, "Block exceeds maximum request size: " + header.getSize());
+      
+      // done iterating if fetching block would exceed max request size
+      if (reqSize + header.getSize() > maxReqSize) break;
+      
+      // otherwise block is included
+      reqSize += header.getSize();
+      endHeight++;
+    }
+    return endHeight >= startHeight ? await this.getBlocksByRange(startHeight, endHeight) : [];
   }
   
   /**

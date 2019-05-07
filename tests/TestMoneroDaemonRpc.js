@@ -216,69 +216,63 @@ class TestMoneroDaemonRpc {
         assert(txFound, "No transactions found to test");
       });
       
-      it("Can get blocks by range", async function() {
+      it("Can get blocks by range in a single request", async function() {
         
-        // get current height
-        let height = await daemon.getHeight();
-        
-        // get valid height range
+        // get height range
         let numBlocks = 100;
         let numBlocksAgo = 190;
         assert(numBlocks > 0);
         assert(numBlocksAgo >= numBlocks);
+        let height = await daemon.getHeight();
         assert(height - numBlocksAgo + numBlocks - 1 < height);
         let startHeight = height - numBlocksAgo;
         let endHeight = height - numBlocksAgo + numBlocks - 1;
         
         // test known start and end heights
-        //console.log("Height: " + height);
-        //console.log("Fecthing " + (endHeight - startHeight + 1) + " blocks [" + startHeight + ", " + endHeight + "]");
-        await testGetRange(startHeight, endHeight);
+        await testGetBlocksRange(startHeight, endHeight, height, false);
         
         // test unspecified start
-        await testGetRange(undefined, numBlocks - 1);
+        await testGetBlocksRange(undefined, numBlocks - 1, height, false);
         
         // test unspecified end
-        await testGetRange(height - numBlocks - 1, undefined);
-        
-        // test unspecified start and end 
-        //await testGetRange(undefined, undefined);  // TODO: RequestError: Error: socket hang up
-        
-        async function testGetRange(startHeight, endHeight) {
-          
-          // fetch blocks by range
-          let realStartHeight = startHeight === undefined ? 0 : startHeight;
-          let realEndHeight = endHeight === undefined ? height - 1 : endHeight;
-          let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
-          assert.equal(blocks.length, realEndHeight - realStartHeight + 1);
-          
-          // test each block
-          for (let i = 0; i < blocks.length; i++) {
-            assert.equal(blocks[i].getHeight(), realStartHeight + i);
-            testBlock(blocks[i], BINARY_BLOCK_CTX);
-          }
-        }
+        await testGetBlocksRange(height - numBlocks - 1, undefined, height, false);
       });
       
-      it("Can return every block in a long range using chunked requests", async function() {
-        let numBlocks = 2160; // test ~last 3 days of blocks
-        let endHeight = await daemon.getHeight() - 1;
-        let startHeight = Math.max(0, endHeight - numBlocks + 1);
-        //let startHeight = 250000;
-        let lastHeight = startHeight - 1;
-        while (lastHeight < endHeight) {
-          let blocks = await daemon.getAsManyBlocksAsPossible(lastHeight + 1, endHeight);
-          for (let block of blocks) {
-            testBlock(block, BINARY_BLOCK_CTX);
-          }
-          lastHeight = blocks[blocks.length - 1].getHeight();
-          
-          // print out
-          let numTxs = 0;
-          for (let block of blocks) numTxs += block.getTxs().length;
-          console.log(lastHeight + "/" + endHeight + ", fetched " + blocks.length + " blocks with " + numTxs + " txs");
-        }
+      // Can get blocks by range using chunked requests
+      it("Can get blocks by range using chunked requests", async function() {
+        
+        // get long height range
+        let numBlocks = 2160; // test ~3 days of blocks
+        assert(numBlocks > 0);
+        let height = await daemon.getHeight();
+        assert(height - numBlocks - 1 < height);
+        let startHeight = height - numBlocks;
+        let endHeight = height - 1;
+        
+        // test known start and end heights
+        testGetBlocksRange(startHeight, endHeight, height, true);
+        
+        // test unspecified start
+        testGetBlocksRange(undefined, numBlocks - 1, height, true);
+        
+        // test unspecified end
+        testGetBlocksRange(endHeight - numBlocks - 1, undefined, height, true);
       });
+      
+      async function testGetBlocksRange(startHeight, endHeight, chainHeight, chunked) {
+        
+        // fetch blocks by range
+        let realStartHeight = startHeight === undefined ? 0 : startHeight;
+        let realEndHeight = endHeight === undefined ? chainHeight - 1 : endHeight;
+        let blocks = chunked ? await daemon.getBlocksByRangeChunked(startHeight, endHeight) : await daemon.getBlocksByRange(startHeight, endHeight);
+        assert.equal(blocks.length, realEndHeight - realStartHeight + 1);
+        
+        // test each block
+        for (let i = 0; i < blocks.length; i++) {
+          assert.equal(blocks[i].getHeight(), realStartHeight + i);
+          testBlock(blocks[i], BINARY_BLOCK_CTX);
+        }
+      }
       
       it("Can get block ids (binary)", async function() {
         //get_hashes.bin
