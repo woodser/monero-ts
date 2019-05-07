@@ -1539,7 +1539,7 @@ class TestMoneroWalletCommon {
         
         // test with all fields3
         request1.getDestinations()[0].setAmount(new BigInteger("425000000000"));
-        request1.setPaymentId("03284e41c342f036");
+        request1.setPaymentId("03284e41c342f03603284e41c342f03603284e41c342f03603284e41c342f036");
         request1.setRecipientName("John Doe");
         request1.setNote("OMZG XMR FTW");
         uri = await wallet.createPaymentUri(request1);
