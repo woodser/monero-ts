@@ -136,6 +136,23 @@ Note: some tests are failing as not all functionality is implemented.
 - [Monero wallet rpc implementation](src/wallet/MoneroWalletRpc.js)
 - [Monero wallet models](src/wallet/model)
 
+## API Documentation
+
+This library follows the wallet and daemon interfaces and models defined [here](https://github.com/monero-ecosystem/monero-javascript/blob/master/monero-model.pdf).
+
+Jsdoc is provided in the [jsdoc](jsdoc) folder (best viewed opening [jsdoc/index.html](jsdoc/index.html) in a browser).
+
+The main interfaces are [MoneroWallet.js](src/wallet/MoneroWallet.js) and [MoneroDaemon.js](src/daemon/MoneroDaemon.js).
+
+Here is the source code to the main interfaces, implementations, and models:
+
+- [Monero daemon (MoneroDaemon.js)](src/daemon/MoneroDaemon.js)
+- [Monero daemon rpc implementation](src/daemon/MoneroDaemonRpc.js)
+- [Monero daemon models](src/daemon/model)
+- [Monero wallet (MoneroWallet.js)](src/wallet/MoneroWallet.js)
+- [Monero wallet rpc implementation](src/wallet/MoneroWalletRpc.js)
+- [Monero wallet models](src/wallet/model)
+
 ## Project Goals
 
 - Offer consistent terminology and APIs for Monero's developer ecosystem
