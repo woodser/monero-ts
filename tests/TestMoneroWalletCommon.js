@@ -1193,7 +1193,7 @@ class TestMoneroWalletCommon {
             }
           }
         }
-        assert(differentAddress, "Could not get a different address to test");
+        assert(differentAddress, "Could not get a different outgoing address to test; run send tests");
         let check = await wallet.checkTxKey(tx.getId(), key, differentAddress);
         assert(check.getIsGood());
         assert(check.getReceivedAmount().compare(new BigInteger(0)) >= 0);
