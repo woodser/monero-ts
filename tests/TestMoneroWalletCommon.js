@@ -1990,7 +1990,12 @@ class TestMoneroWalletCommon {
       });
       
       it("Can send to multiple addresses in split transactions using a JavaScript object for configuration", async function() {
-        await testSendToMultiple(1, 15, true, true);
+        await testSendToMultiple(1, 15, true, undefined, true);
+      });
+      
+      it("Can send dust to multiple addresses in split transactions", async function() {
+        let dustAmt = (await daemon.getFeeEstimate()).divide(new BigInteger(2));
+        await testSendToMultiple(5, 3, true, dustAmt);
       });
       
       /**
@@ -1999,13 +2004,16 @@ class TestMoneroWalletCommon {
        * @param numAccounts is the number of accounts to receive funds
        * @param numSubaddressesPerAccount is the number of subaddresses per account to receive funds
        * @param canSplit specifies if the operation can be split into multiple transactions
+       * @param sendAmountPerSubaddress is the amount to send to each subaddress (optional, computed if not given)
        * @param useJsConfig specifies if the api should be invoked with a JS object instead of a MoneroSendRequest
        */
-      async function testSendToMultiple(numAccounts, numSubaddressesPerAccount, canSplit, useJsConfig) {
+      async function testSendToMultiple(numAccounts, numSubaddressesPerAccount, canSplit, sendAmountPerSubaddress, useJsConfig) {
         
-        // test constants
+        // compute the minimum account unlocked balance needed in order to fulfill the request
+        let minAccountAmount;
         let totalSubaddresses = numAccounts * numSubaddressesPerAccount;
-        let minAccountAmount = TestUtils.MAX_FEE.multiply(new BigInteger(totalSubaddresses)).multiply(new BigInteger(SEND_DIVISOR)).add(TestUtils.MAX_FEE); // account balance must be more than divisor * fee * numAddresses + fee so each destination amount is at least a fee's worth 
+        if (sendAmountPerSubaddress !== undefined) minAccountAmount = new BigInteger(totalSubaddresses).multiply(sendAmountPerSubaddress.add(TestUtils.MAX_FEE)); // min account amount must cover the total amount being sent plus the tx fee = numAddresses * (amtPerSubaddress + fee)
+        else minAccountAmount = TestUtils.MAX_FEE.multiply(new BigInteger(totalSubaddresses)).multiply(new BigInteger(SEND_DIVISOR)).add(TestUtils.MAX_FEE); // account balance must be more than fee * numAddresses * divisor + fee so each destination amount is at least a fee's worth (so dust is not sent)
         
         // send funds from first account with sufficient unlocked funds
         let srcAccount;
@@ -2019,12 +2027,17 @@ class TestMoneroWalletCommon {
         }
         assert(hasBalance, "Wallet does not have enough balance; load '" + TestUtils.WALLET_RPC_NAME_1 + "' with XMR in order to test sending");
         assert(srcAccount, "Wallet is waiting on unlocked funds");
-        
-        // get amount to send per address
         let balance = srcAccount.getBalance();
         let unlockedBalance = srcAccount.getUnlockedBalance();
-        let sendAmount = unlockedBalance.subtract(TestUtils.MAX_FEE).divide(new BigInteger(SEND_DIVISOR));
-        let sendAmountPerSubaddress = sendAmount.divide(new BigInteger(totalSubaddresses));
+        
+        // get amount to send total and per subaddress
+        let sendAmount;
+        if (sendAmountPerSubaddress === undefined) {
+          sendAmount = unlockedBalance.subtract(TestUtils.MAX_FEE).divide(new BigInteger(SEND_DIVISOR));
+          sendAmountPerSubaddress = sendAmount.divide(new BigInteger(totalSubaddresses));
+        } else {
+          sendAmount = sendAmountPerSubaddress.multiply(new BigInteger(totalSubaddresses));
+        }
         
         // create minimum number of accounts
         let accounts = await wallet.getAccounts();
