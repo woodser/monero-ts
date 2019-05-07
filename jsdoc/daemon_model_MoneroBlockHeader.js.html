@@ -28,6 +28,7 @@
         <article>
             <pre class="prettyprint source linenums"><code>const assert = require("assert");
 const MoneroUtils = require("../../utils/MoneroUtils");
+const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
  * Monero block header information.
@@ -45,7 +46,7 @@ class MoneroBlockHeader {
     if (!state) state = {};
     else if (state instanceof MoneroBlockHeader) state = state.toJson();
     else if (typeof state === "object") state = Object.assign({}, state);
-    else throw new Error("state must be a MoneroBlockHeader or JavaScript object");
+    else throw new MoneroError("state must be a MoneroBlockHeader or JavaScript object");
     this.state = state;
     
     // deserialize big integers
@@ -162,6 +163,15 @@ class MoneroBlockHeader {
     return this;
   }
   
+  getCoinbaseTxId() {
+    return this.state.coinbaseTxId;
+  }
+  
+  setCoinbaseTxId(coinbaseTxId) {
+    this.state.coinbaseTxId = coinbaseTxId;
+    return this;
+  }
+  
   getNumTxs() {
     return this.state.numTxs;
   }
@@ -221,7 +231,7 @@ class MoneroBlockHeader {
   
   merge(header) {
     assert(header instanceof MoneroBlockHeader);
-    if (this === header) return;
+    if (this === header) return this;
     this.setId(MoneroUtils.reconcile(this.getId(), header.getId()));
     this.setHeight(MoneroUtils.reconcile(this.getHeight(), header.getHeight(), {resolveMax: true}));  // height can increase
     this.setTimestamp(MoneroUtils.reconcile(this.getTimestamp(), header.getTimestamp(), {resolveMax: true}));  // block timestamp can increase
@@ -233,6 +243,7 @@ class MoneroBlockHeader {
     this.setMajorVersion(MoneroUtils.reconcile(this.getMajorVersion(), header.getMajorVersion()));
     this.setMinorVersion(MoneroUtils.reconcile(this.getMinorVersion(), header.getMinorVersion()));
     this.setNonce(MoneroUtils.reconcile(this.getNonce(), header.getNonce()));
+    this.setCoinbaseTxId(MoneroUtils.reconcile(this.getCoinbaseTxId(), header.getCoinbaseTxId()));
     this.setNumTxs(MoneroUtils.reconcile(this.getNumTxs(), header.getNumTxs()));
     this.setOrphanStatus(MoneroUtils.reconcile(this.getOrphanStatus(), header.getOrphanStatus()));
     this.setPrevId(MoneroUtils.reconcile(this.getPrevId(), header.getPrevId()));
@@ -245,7 +256,7 @@ class MoneroBlockHeader {
     let str = "";
     str += MoneroUtils.kvLine("Id", this.getId(), indent);
     str += MoneroUtils.kvLine("Height", this.getHeight(), indent);
-    str += MoneroUtils.kvLine("Timestamp", this.getNumTxs(), indent);
+    str += MoneroUtils.kvLine("Timestamp", this.getTimestamp(), indent);
     str += MoneroUtils.kvLine("Size", this.getSize(), indent);
     str += MoneroUtils.kvLine("Weight", this.getWeight(), indent);
     str += MoneroUtils.kvLine("Depth", this.getDepth(), indent);
@@ -254,6 +265,7 @@ class MoneroBlockHeader {
     str += MoneroUtils.kvLine("Major version", this.getMajorVersion(), indent);
     str += MoneroUtils.kvLine("Minor version", this.getMinorVersion(), indent);
     str += MoneroUtils.kvLine("Nonce", this.getNonce(), indent);
+    str += MoneroUtils.kvLine("Coinbase tx id", this.getCoinbaseTxId(), indent);
     str += MoneroUtils.kvLine("Num txs", this.getNumTxs(), indent);
     str += MoneroUtils.kvLine("Orphan status", this.getOrphanStatus(), indent);
     str += MoneroUtils.kvLine("Prev id", this.getPrevId(), indent);
@@ -273,13 +285,13 @@ module.exports = MoneroBlockHeader;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BooleanSet.html">BooleanSet</a></li><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroCoinbaseTxSum.html">MoneroCoinbaseTxSum</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroRpc.html">MoneroRpc</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendConfig.html">MoneroSendConfig</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferFilter.html">MoneroTransferFilter</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="global.html#MoneroTxFilter">MoneroTxFilter</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroVoutFilter.html">MoneroVoutFilter</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletOutput.html">MoneroWalletOutput</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletTx.html">MoneroWalletTx</a></li></ul><h3>Global</h3><ul><li><a href="global.html#assert">assert</a></li><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BooleanSet.html">BooleanSet</a></li><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroCoinbaseTxSum.html">MoneroCoinbaseTxSum</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputRequest.html">MoneroOutputRequest</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpc.html">MoneroRpc</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendRequest.html">MoneroSendRequest</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferRequest.html">MoneroTransferRequest</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="global.html#MoneroTxRequest">MoneroTxRequest</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li></ul><h3>Global</h3><ul><li><a href="global.html#assert">assert</a></li><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Feb 25 2019 14:25:56 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue May 07 2019 12:55:09 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

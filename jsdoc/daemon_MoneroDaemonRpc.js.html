@@ -30,6 +30,7 @@
 const GenUtils = require("../utils/GenUtils");
 const BigInteger = require("../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroUtils = require("../utils/MoneroUtils");
+const MoneroError = require("../utils/MoneroError");
 const MoneroRpc = require("../rpc/MoneroRpc")
 const MoneroDaemon = require("./MoneroDaemon");
 const MoneroNetworkType = require("./model/MoneroNetworkType");
@@ -83,10 +84,11 @@ class MoneroDaemonRpc extends MoneroDaemon {
     
     // one time initialization
     this.listeners = [];  // block listeners
+    this.cachedHeaders = {};  // cached headers for fetching blocks in manageable chunks
     this.initPromise = this._initOneTime();
   }
   
-  async isTrusted() {
+  async getIsTrusted() {
     await this._initOneTime();
     let resp = await this.config.rpc.sendPathRequest("get_height");
     MoneroDaemonRpc._checkResponseStatus(resp);
@@ -96,42 +98,42 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async getHeight() {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_block_count");
-    MoneroDaemonRpc._checkResponseStatus(resp);
-    return resp.count;
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
+    return resp.result.count;
   }
   
   async getBlockId(height) {
     await this._initOneTime();
-    return await this.config.rpc.sendJsonRequest("on_get_block_hash", [height]);  // TODO monero-wallet-rpc: no status returned
+    return (await this.config.rpc.sendJsonRequest("on_get_block_hash", [height])).result;  // TODO monero-wallet-rpc: no status returned
   }
   
   async getBlockTemplate(walletAddress, reserveSize) {
     assert(walletAddress &amp;&amp; typeof walletAddress === "string", "Must specify wallet address to be mined to");
     await this._initOneTime();
-    let resp = await this.config.rpc.sendJsonRequest("get_block_template", { wallet_address: walletAddress, reserve_size: reserveSize });
-    MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildBlockTemplate(resp);
+    let resp = await this.config.rpc.sendJsonRequest("get_block_template", {wallet_address: walletAddress, reserve_size: reserveSize});
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
+    return MoneroDaemonRpc._convertRpcBlockTemplate(resp.result);
   }
   
   async getLastBlockHeader() {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_last_block_header");
-    MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildBlockHeader(resp.block_header);
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
+    return MoneroDaemonRpc._convertRpcBlockHeader(resp.result.block_header);
   }
   
   async getBlockHeaderById(blockId) {
     await this._initOneTime();
-    let resp = await this.config.rpc.sendJsonRequest("get_block_header_by_hash", { hash: blockId } );
-    MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildBlockHeader(resp.block_header);
+    let resp = await this.config.rpc.sendJsonRequest("get_block_header_by_hash", {hash: blockId} );
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
+    return MoneroDaemonRpc._convertRpcBlockHeader(resp.result.block_header);
   }
   
   async getBlockHeaderByHeight(height) {
     await this._initOneTime();
-    let resp = await this.config.rpc.sendJsonRequest("get_block_header_by_height", { height: height } );
-    MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildBlockHeader(resp.block_header);
+    let resp = await this.config.rpc.sendJsonRequest("get_block_header_by_height", {height: height} );
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
+    return MoneroDaemonRpc._convertRpcBlockHeader(resp.result.block_header);
   }
   
   async getBlockHeadersByRange(startHeight, endHeight) {
@@ -142,35 +144,35 @@ class MoneroDaemonRpc extends MoneroDaemon {
       start_height: startHeight,
       end_height: endHeight
     });
-    MoneroDaemonRpc._checkResponseStatus(resp);
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
     
     // build headers
     let headers = [];
-    for (let respHeader of resp.headers) {
-      headers.push(MoneroDaemonRpc._buildBlockHeader(respHeader));
+    for (let rpcHeader of resp.result.headers) {
+      headers.push(MoneroDaemonRpc._convertRpcBlockHeader(rpcHeader));
     }
     return headers;
   }
   
   async getBlockById(blockId) {
     await this._initOneTime();
-    let resp = await this.config.rpc.sendJsonRequest("get_block", { hash: blockId });
-    MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildBlock(resp);
+    let resp = await this.config.rpc.sendJsonRequest("get_block", {hash: blockId});
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
+    return MoneroDaemonRpc._convertRpcBlock(resp.result);
   }
   
   async getBlockByHeight(height) {
     await this._initOneTime();
-    let resp = await this.config.rpc.sendJsonRequest("get_block", { height: height });
-    MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildBlock(resp);
+    let resp = await this.config.rpc.sendJsonRequest("get_block", {height: height});
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
+    return MoneroDaemonRpc._convertRpcBlock(resp.result);
   }
   
   async getBlocksByHeight(heights) {
     await this._initOneTime();
     
     // fetch blocks in binary
-    let respBin = await this.config.rpc.sendBinaryRequest("get_blocks_by_height.bin", { heights: heights });
+    let respBin = await this.config.rpc.sendBinaryRequest("get_blocks_by_height.bin", {heights: heights});
     
     // convert binary blocks to json
     let rpcBlocks = this.coreUtils.binary_blocks_to_json(respBin);
@@ -183,8 +185,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
     for (let blockIdx = 0; blockIdx &lt; rpcBlocks.blocks.length; blockIdx++) {
       
       // build block
-      let block = MoneroDaemonRpc._buildBlock(rpcBlocks.blocks[blockIdx]);
-      block.getHeader().setHeight(heights[blockIdx]);
+      let block = MoneroDaemonRpc._convertRpcBlock(rpcBlocks.blocks[blockIdx]);
+      block.setHeight(heights[blockIdx]);
       blocks.push(block);
       
       // build transactions
@@ -200,7 +202,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.setIsRelayed(true);
         tx.setIsFailed(false);
         tx.setIsDoubleSpend(false);
-        MoneroDaemonRpc._buildTx(rpcBlocks.txs[blockIdx][txIdx], tx);
+        MoneroDaemonRpc._convertRpcTx(rpcBlocks.txs[blockIdx][txIdx], tx);
       }
       
       // merge into one block
@@ -215,12 +217,25 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getBlocksByRange(startHeight, endHeight) {
-    await this._initOneTime();
-    if (typeof startHeight !== "number") startHeight = 0;
-    if (typeof endHeight !== "number") endHeight = await this.getHeight() - 1;
+    if (startHeight === undefined) startHeight = 0;
+    if (endHeight === undefined) endHeight = await this.getHeight() - 1;
     let heights = [];
     for (let height = startHeight; height &lt;= endHeight; height++) heights.push(height);
     return await this.getBlocksByHeight(heights);
+  }
+  
+  async getBlocksByRangeChunked(startHeight, endHeight, maxChunkSize) {
+    if (startHeight === undefined) startHeight = 0;
+    if (endHeight === undefined) endHeight = await this.getHeight() - 1;
+    let lastHeight = startHeight - 1;
+    let blocks = [];
+    while (lastHeight &lt; endHeight) {
+      for (let block of await this._getMaxBlocks(lastHeight + 1, endHeight, maxChunkSize)) {
+        blocks.push(block);
+      }
+      lastHeight = blocks[blocks.length - 1].getHeight();
+    }
+    return blocks;
   }
   
   async getTxs(txIds, prune) {
@@ -239,7 +254,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     try {
       MoneroDaemonRpc._checkResponseStatus(resp);
     } catch (e) {
-      if (e.message.indexOf("Failed to parse hex representation of transaction hash") >= 0) throw new Error("Invalid transaction id");
+      if (e.message.indexOf("Failed to parse hex representation of transaction hash") >= 0) throw new MoneroError("Invalid transaction id");
       throw e;
     }
     
@@ -249,40 +264,25 @@ class MoneroDaemonRpc extends MoneroDaemon {
       for (let txIdx = 0; txIdx &lt; resp.txs.length; txIdx++) {
         let tx = new MoneroTx();
         tx.setIsCoinbase(false);
-        txs.push(MoneroDaemonRpc._buildTx(resp.txs[txIdx], tx));
+        txs.push(MoneroDaemonRpc._convertRpcTx(resp.txs[txIdx], tx));
       }
     }
+    
+    // fetch unconfirmed txs from pool and merge additional fields  // TODO monero-daemon-rpc: merge rpc calls so this isn't necessary?
+    let poolTxs = await this.getTxPool();
+    for (let tx of txs) {
+      for (let poolTx of poolTxs) {
+        if (tx.getId() === poolTx.getId()) tx.merge(poolTx);
+      }
+    }
+    
     return txs;
   }
   
   async getTxHexes(txIds, prune) {
     await this._initOneTime();
-    
-    // validate input
-    assert(Array.isArray(txIds) &amp;&amp; txIds.length > 0, "Must provide an array of transaction ids");
-    assert(prune === undefined || typeof prune === "boolean", "Prune must be a boolean or undefined");
-    
-    // fetch transactions
-    let resp = await this.config.rpc.sendPathRequest("get_transactions", {
-      txs_hashes: txIds,
-      decode_as_json: false,
-      prune: prune
-    });
-    try {
-      MoneroDaemonRpc._checkResponseStatus(resp);
-    } catch (e) {
-      if (e.message.indexOf("Failed to parse hex representation of transaction hash") >= 0) throw new Error("Invalid transaction id");
-      throw e;
-    }
-
-    // collect hexes which may be pruned
     let hexes = [];
-    if (resp.txs) {
-      assert.equal(resp.txs.length, txIds.length);
-      for (let rpcTx of resp.txs) {
-        hexes.push(rpcTx.as_hex);
-      }
-    }
+    for (let tx of await this.getTxs(txIds, prune)) hexes.push(prune ? tx.getPrunedHex() : tx.getFullHex());
     return hexes;
   }
   
@@ -292,23 +292,25 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (numBlocks === undefined) numBlocks = await this.getHeight();
     else assert(numBlocks >= 0, "Count must be an integer >= 0");
     let resp = await this.config.rpc.sendJsonRequest("get_coinbase_tx_sum", {height: height, count: numBlocks});
-    MoneroDaemonRpc._checkResponseStatus(resp);
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
     let txSum = new MoneroCoinbaseTxSum();
-    txSum.setEmissionSum(new BigInteger(resp.emission_amount));
-    txSum.setFeeSum(new BigInteger(resp.fee_amount));
+    txSum.setEmissionSum(new BigInteger(resp.result.emission_amount));
+    txSum.setFeeSum(new BigInteger(resp.result.fee_amount));
     return txSum;
   }
   
   async getFeeEstimate(graceBlocks) {
     let resp = await this.config.rpc.sendJsonRequest("get_fee_estimate", {grace_blocks: graceBlocks});
-    MoneroDaemonRpc._checkResponseStatus(resp);
-    return new BigInteger(resp.fee);
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
+    return new BigInteger(resp.result.fee);
   }
   
   async submitTxHex(txHex, doNotRelay) {
     let resp = await this.config.rpc.sendPathRequest("send_raw_transaction", {tx_as_hex: txHex, do_not_relay: doNotRelay});
-    let result = MoneroDaemonRpc._buildSubmitTxResult(resp);
-    try { // collect response instead of throwing
+    let result = MoneroDaemonRpc._convertRpcSubmitTxResult(resp);
+    
+    // set isGood based on status
+    try {
       MoneroDaemonRpc._checkResponseStatus(resp); 
       result.setIsGood(true);
     } catch(e) {
@@ -319,7 +321,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async relayTxsById(txIds) {
     let resp = await this.config.rpc.sendJsonRequest("relay_tx", {txids: txIds});
-    MoneroDaemonRpc._checkResponseStatus(resp);
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
   }
   
   async getTxPool() {
@@ -338,7 +340,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.setIsCoinbase(false);
         tx.setInTxPool(true);
         tx.setNumConfirmations(0);
-        MoneroDaemonRpc._buildTx(rpcTx, tx);
+        MoneroDaemonRpc._convertRpcTx(rpcTx, tx);
       }
     }
     
@@ -346,18 +348,18 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getTxPoolIds() {
-    throw new Error("Not implemented");
+    throw new MoneroError("Not implemented");
   }
   
   async getTxPoolBacklog() {
-    throw new Error("Not implemented");
+    throw new MoneroError("Not implemented");
   }
 
   async getTxPoolStats() {
-    throw new Error("Response contains field 'histo' which is binary'");
+    throw new MoneroError("Response contains field 'histo' which is binary'");
     let resp = await this.config.rpc.sendPathRequest("get_transaction_pool_stats");
     MoneroDaemonRpc._checkResponseStatus(resp);
-    let stats = MoneroDaemonRpc._buildTxPoolStats(resp.pool_stats);
+    let stats = MoneroDaemonRpc._convertRpcTxPoolStats(resp.pool_stats);
     
     // uninitialize some stats if not applicable
     if (stats.getHisto98pc() === 0) stats.setHisto98pc(undefined);
@@ -375,10 +377,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async flushTxPool(ids) {
     if (ids) ids = GenUtils.listify(ids);
     let resp = await this.config.rpc.sendJsonRequest("flush_txpool", {txids: ids});
-    MoneroDaemonRpc._checkResponseStatus(resp);
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
   }
   
-  async getSpentStatuses(keyImages) {
+  async getKeyImageSpentStatuses(keyImages) {
     let resp = await this.config.rpc.sendPathRequest("is_key_image_spent", {key_images: keyImages});
     MoneroDaemonRpc._checkResponseStatus(resp);
     return resp.spent_status;
@@ -392,21 +394,21 @@ class MoneroDaemonRpc extends MoneroDaemon {
       min_count: minCount,
       max_count: maxCount,
       unlocked: isUnlocked,
-      recent_cutoff: isUnlocked
+      recent_cutoff: recentCutoff
     });
-    MoneroDaemonRpc._checkResponseStatus(resp);
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
     
     // build histogram entries from response
     let entries = [];
-    if (!resp.histogram) return entries;
-    for (let rpcEntry of resp.histogram) {
-      entries.push(MoneroDaemonRpc._buildOutputHistogramEntry(rpcEntry));
+    if (!resp.result.histogram) return entries;
+    for (let rpcEntry of resp.result.histogram) {
+      entries.push(MoneroDaemonRpc._convertRpcOutputHistogramEntry(rpcEntry));
     }
     return entries;
   }
   
   async getOutputDistribution(amounts, cumulative, startHeight, endHeight) {
-    throw new Error("Not implemented (response 'distribution' field is binary)");
+    throw new MoneroError("Not implemented (response 'distribution' field is binary)");
     
 //    let amountStrs = [];
 //    for (let amount of amounts) amountStrs.push(amount.toJSValue());
@@ -430,9 +432,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
 //    
 //    // build distribution entries from response
 //    let entries = [];
-//    if (!resp.distributions) return entries; 
-//    for (let rpcEntry of resp.distributions) {
-//      let entry = MoneroDaemonRpc._buildOutputDistributionEntry(rpcEntry);
+//    if (!resp.result.distributions) return entries; 
+//    for (let rpcEntry of resp.result.distributions) {
+//      let entry = MoneroDaemonRpc._convertRpcOutputDistributionEntry(rpcEntry);
 //      entries.push(entry);
 //    }
 //    return entries;
@@ -441,21 +443,21 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async getInfo() {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_info");
-    MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildInfo(resp);
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
+    return MoneroDaemonRpc._convertRpcInfo(resp.result);
   }
   
   async getSyncInfo() {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("sync_info");
-    MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildSyncInfo(resp);
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
+    return MoneroDaemonRpc._convertRpcSyncInfo(resp.result);
   }
   
   async getHardForkInfo() {
     let resp = await this.config.rpc.sendJsonRequest("hard_fork_info");
-    MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildHardForkInfo(resp);
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
+    return MoneroDaemonRpc._convertRpcHardForkInfo(resp.result);
   }
   
   async getAltChains() {
@@ -474,10 +476,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
 //    }
     
     let resp = await this.config.rpc.sendJsonRequest("get_alternate_chains");
-    MoneroDaemonRpc._checkResponseStatus(resp);
-    if (!resp.chains) return [];
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
     let chains = [];
-    for (let rpcChain of resp.chains) chains.push(MoneroDaemonRpc._buildAltChain(rpcChain));
+    if (!resp.result.chains) return chains;
+    for (let rpcChain of resp.result.chains) chains.push(MoneroDaemonRpc._convertRpcAltChain(rpcChain));
     return chains;
   }
   
@@ -501,12 +503,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async setDownloadLimit(limit) {
-    assert(GenUtils.isInt(limit) &amp;&amp; limit > 0, "Download limit must be an integer greater than 0");
-    await this._setBandwidthLimits(limit);
+    if (limit == -1) return await this.resetDownloadLimit();
+    if (!(GenUtils.isInt(limit) &amp;&amp; limit > 0)) throw new MoneroError("Download limit must be an integer greater than 0");
+    return (await this._setBandwidthLimits(limit, 0))[0];
   }
   
   async resetDownloadLimit() {
-    return (await this._setBandwidthLimits(-1))[0];
+    return (await this._setBandwidthLimits(-1, 0))[0];
   }
 
   async getUploadLimit() {
@@ -514,22 +517,23 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async setUploadLimit(limit) {
-    assert(GenUtils.isInt(limit) &amp;&amp; limit > 0, "Upload limit must be an integer greater than 0");
-    await this._setBandwidthLimits(undefined, limit);
+    if (limit == -1) return await this.resetUploadLimit();
+    if (!(GenUtils.isInt(limit) &amp;&amp; limit > 0)) throw new MoneroError("Upload limit must be an integer greater than 0");
+    return (await this._setBandwidthLimits(0, limit))[1];
   }
   
   async resetUploadLimit() {
-    return (await this._setBandwidthLimits(undefined, -1))[1];
+    return (await this._setBandwidthLimits(0, -1))[1];
   }
   
   async getConnections() {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_connections");
-    MoneroDaemonRpc._checkResponseStatus(resp);
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
     let connections = [];
-    if (!resp.connections) return connections;
-    for (let rpcConnection of resp.connections) {
-      connections.push(MoneroDaemonRpc._buildConnection(rpcConnection));
+    if (!resp.result.connections) return connections;
+    for (let rpcConnection of resp.result.connections) {
+      connections.push(MoneroDaemonRpc._convertRpcConnection(rpcConnection));
     }
     return connections;
   }
@@ -544,14 +548,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let peers = [];
     if (resp.gray_list) {
       for (let rpcPeer of resp.gray_list) {
-        let peer = MoneroDaemonRpc._buildPeer(rpcPeer);
+        let peer = MoneroDaemonRpc._convertRpcPeer(rpcPeer);
         peer.setIsOnline(false); // gray list means offline last checked
         peers.push(peer);
       }
     }
     if (resp.white_list) {
       for (let rpcPeer of resp.white_list) {
-        let peer = MoneroDaemonRpc._buildPeer(rpcPeer);
+        let peer = MoneroDaemonRpc._convertRpcPeer(rpcPeer);
         peer.setIsOnline(true); // white list means online last checked
         peers.push(peer);
       }
@@ -560,22 +564,22 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async setOutgoingPeerLimit(limit) {
-    assert(GenUtils.isInt(limit) &amp;&amp; limit >= 0, "Outgoing peer limit must be >= 0");
+    if (!(GenUtils.isInt(limit) &amp;&amp; limit >= 0)) throw new MoneroError("Outgoing peer limit must be >= 0");
     let resp = await this.config.rpc.sendPathRequest("out_peers", {out_peers: limit});
     MoneroDaemonRpc._checkResponseStatus(resp);
   }
   
   async setIncomingPeerLimit(limit) {
-    assert(GenUtils.isInt(limit) &amp;&amp; limit >= 0, "Incoming peer limit must be >= 0");
+    if (!(GenUtils.isInt(limit) &amp;&amp; limit >= 0)) throw new MoneroError("Incoming peer limit must be >= 0");
     let resp = await this.config.rpc.sendPathRequest("in_peers", {in_peers: limit});
     MoneroDaemonRpc._checkResponseStatus(resp);
   }
   
   async getPeerBans() {
     let resp = await this.config.rpc.sendJsonRequest("get_bans");
-    MoneroDaemonRpc._checkResponseStatus(resp);
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
     let bans = [];
-    for (let rpcBan of resp.bans) {
+    for (let rpcBan of resp.result.bans) {
       let ban = new MoneroBan();
       ban.setHost(rpcBan.host);
       ban.setIp(rpcBan.ip);
@@ -591,13 +595,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async setPeerBans(bans) {
     let rpcBans = [];
-    for (let ban of bans) rpcBans.push(MoneroDaemonRpc._buildRpcBan(ban));
+    for (let ban of bans) rpcBans.push(MoneroDaemonRpc._convertToRpcBan(ban));
     let resp = await this.config.rpc.sendJsonRequest("set_bans", {bans: rpcBans});
-    MoneroDaemonRpc._checkResponseStatus(resp);
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
   }
   
   async startMining(address, numThreads, isBackground, ignoreBattery) {
-    assert(address, "Address must be given to mine to");
+    assert(address, "Must provide address to mine to");
     assert(GenUtils.isInt(numThreads) &amp;&amp; numThreads > 0, "Number of threads must be an integer greater than 0");
     assert(isBackground === undefined || typeof isBackground === "boolean");
     assert(ignoreBattery === undefined || typeof ignoreBattery === "boolean");
@@ -618,25 +622,25 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async getMiningStatus() {
     let resp = await this.config.rpc.sendPathRequest("mining_status");
     MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildMiningStatus(resp);
+    return MoneroDaemonRpc._convertRpcMiningStatus(resp);
   }
   
   async submitBlocks(blockBlobs) {
     assert(Array.isArray(blockBlobs) &amp;&amp; blockBlobs.length > 0, "Must provide an array of mined block blobs to submit");
     let resp = await this.config.rpc.sendJsonRequest("submit_block", blockBlobs);
-    MoneroDaemonRpc._checkResponseStatus(resp);
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
   }
   
   async checkForUpdate() {
     let resp = await this.config.rpc.sendPathRequest("update", {command: "check"});
     MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildUpdateCheckResult(resp);
+    return MoneroDaemonRpc._convertRpcUpdateCheckResult(resp);
   }
   
   async downloadUpdate(path) {
     let resp = await this.config.rpc.sendPathRequest("update", {command: "download", path: path});
     MoneroDaemonRpc._checkResponseStatus(resp);
-    return MoneroDaemonRpc._buildUpdateDownloadResult(resp);
+    return MoneroDaemonRpc._convertRpcUpdateDownloadResult(resp);
   }
   
   async stop() {
@@ -713,26 +717,91 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async _setBandwidthLimits(downLimit, upLimit) {
+    if (downLimit === undefined) downLimit = 0;
+    if (upLimit === undefined) upLimit = 0;
     let resp = await this.config.rpc.sendPathRequest("set_limit", {limit_down: downLimit, limit_up: upLimit});
     MoneroDaemonRpc._checkResponseStatus(resp);
     return [resp.limit_down, resp.limit_up];
   }
   
+  /**
+   * Get a contiguous chunk of blocks starting from a given height up to a maximum
+   * height or amount of block data fetched from the blockchain, whichever comes first.
+   * 
+   * @param {number} startHeight is the start height to retrieve blocks (default 0)
+   * @param {number} maxHeight is the maximum end height to retrieve blocks (default blockchain height)
+   * @param {number} maxReqSize is the maximum amount of block data to fetch from the blockchain in bytes (default 3,000,000 bytes)
+   * @return {MoneroBlock[]} are the resulting chunk of blocks
+   */
+  async _getMaxBlocks(startHeight, maxHeight, maxReqSize) {
+    if (startHeight === undefined) startHeight = 0;
+    if (maxHeight === undefined) maxHeight = await this.getHeight() - 1;
+    if (maxReqSize === undefined) maxReqSize = MoneroDaemonRpc.MAX_REQ_SIZE;
+    
+    // determine end height to fetch
+    let reqSize = 0;
+    let endHeight = startHeight - 1;
+    while (reqSize &lt; maxReqSize &amp;&amp; endHeight &lt; maxHeight) {
+      
+      // get header of next block
+      let header = await this._getBlockHeaderByHeightCached(endHeight + 1, maxHeight);
+      
+      // block cannot be bigger than max request size
+      assert(header.getSize() &lt;= maxReqSize, "Block exceeds maximum request size: " + header.getSize());
+      
+      // done iterating if fetching block would exceed max request size
+      if (reqSize + header.getSize() > maxReqSize) break;
+      
+      // otherwise block is included
+      reqSize += header.getSize();
+      endHeight++;
+    }
+    return endHeight >= startHeight ? await this.getBlocksByRange(startHeight, endHeight) : [];
+  }
+  
+  /**
+   * Retrieves a header by height from the cache or fetches and caches a header
+   * range if not already in the cache.
+   * 
+   * @param {number} height is the height of the header to retrieve from the cache
+   * @param {number} maxHeight is the maximum height of headers to cache
+   */
+  async _getBlockHeaderByHeightCached(height, maxHeight) {
+    
+    // get header from cache
+    let cachedHeader = this.cachedHeaders[height];
+    if (cachedHeader) return cachedHeader;
+    
+    // fetch and cache headers if not in cache
+    let endHeight = Math.min(maxHeight, height + MoneroDaemonRpc.NUM_HEADERS_PER_REQ - 1);  // TODO: could specify end height to cache to optimize small requests (would like to have time profiling in place though)
+    let headers = await this.getBlockHeadersByRange(height, endHeight);
+    for (let header of headers) {
+      this.cachedHeaders[header.getHeight()] = header;
+    }
+    
+    // return the cached header
+    return this.cachedHeaders[height];
+  }
+  
   // --------------------------------- STATIC ---------------------------------
   
   static _checkResponseStatus(resp) {
-    if (resp.status !== "OK") throw new Error(resp.status);
+    if (resp.status !== "OK") throw new MoneroError(resp.status);
   }
   
-  static _buildBlockHeader(rpcHeader) {
+  static _convertRpcBlockHeader(rpcHeader) {
     if (!rpcHeader) return undefined;
     let header = new MoneroBlockHeader();
     for (let key of Object.keys(rpcHeader)) {
       let val = rpcHeader[key];
       if (key === "block_size") MoneroUtils.safeSet(header, header.getSize, header.setSize, val);
       else if (key === "depth") MoneroUtils.safeSet(header, header.getDepth, header.setDepth, val);
-      else if (key === "difficulty") MoneroUtils.safeSet(header, header.getDifficulty, header.setDifficulty, new BigInteger(val));
-      else if (key === "cumulative_difficulty") MoneroUtils.safeSet(header, header.getCumulativeDifficulty, header.setCumulativeDifficulty, new BigInteger(val));
+      else if (key === "difficulty") { }  // handled by wide_difficulty
+      else if (key === "cumulative_difficulty") { } // handled by wide_cumulative_difficulty
+      else if (key === "difficulty_top64") { }  // handled by wide_difficulty
+      else if (key === "cumulative_difficulty_top64") { } // handled by wide_cumulative_difficulty
+      else if (key === "wide_difficulty") header.setDifficulty(MoneroUtils.reconcile(header.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
+      else if (key === "wide_cumulative_difficulty") header.setCumulativeDifficulty(MoneroUtils.reconcile(header.getCumulativeDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
       else if (key === "hash") MoneroUtils.safeSet(header, header.getId, header.setId, val);
       else if (key === "height") MoneroUtils.safeSet(header, header.getHeight, header.setHeight, val);
       else if (key === "major_version") MoneroUtils.safeSet(header, header.getMajorVersion, header.setMajorVersion, val);
@@ -748,17 +817,17 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "pow_hash") MoneroUtils.safeSet(header, header.getPowHash, header.setPowHash, val === "" ? undefined : val);
       else if (key === "tx_hashes") {}  // used in block model, not header model
       else if (key === "miner_tx") {}   // used in block model, not header model
+      else if (key === "miner_tx_hash") header.setCoinbaseTxId(val);
       else console.log("WARNING: ignoring unexpected block header field: '" + key + "': " + val);
     }
     return header;
   }
   
-  static _buildBlock(rpcBlock) {
+  static _convertRpcBlock(rpcBlock) {
     
     // build block
-    let block = new MoneroBlock();
+    let block = new MoneroBlock(MoneroDaemonRpc._convertRpcBlockHeader(rpcBlock.block_header ? rpcBlock.block_header : rpcBlock));
     block.setHex(rpcBlock.blob);
-    block.setHeader(MoneroDaemonRpc._buildBlockHeader(rpcBlock.block_header ? rpcBlock.block_header : rpcBlock));
     block.setTxIds(rpcBlock.tx_hashes === undefined ? [] : rpcBlock.tx_hashes);
     
     // build coinbase tx
@@ -767,7 +836,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     block.setCoinbaseTx(coinbaseTx);
     coinbaseTx.setIsConfirmed(true);
     coinbaseTx.setIsCoinbase(true);
-    MoneroDaemonRpc._buildTx(rpcCoinbaseTx, coinbaseTx);
+    MoneroDaemonRpc._convertRpcTx(rpcCoinbaseTx, coinbaseTx);
     
     return block;
   }
@@ -781,7 +850,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * @param tx is the MoneroTx to populate with values (optional)
    * @returns tx is the same tx that was passed in or a new one if none given
    */
-  static _buildTx(rpcTx, tx) {
+  static _convertRpcTx(rpcTx, tx) {
     if (rpcTx === undefined) return undefined;
     if (tx === undefined) tx = new MoneroTx();
     
@@ -813,15 +882,15 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "extra") MoneroUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
       else if (key === "vin") {
         if (val.length !== 1 || !val[0].gen) {  // ignore coinbase vin TODO: why?
-          tx.setVins(val.map(rpcVin => MoneroDaemonRpc._buildOutput(rpcVin, tx)));
+          tx.setVins(val.map(rpcVin => MoneroDaemonRpc._convertRpcOutput(rpcVin, tx)));
         }
       }
-      else if (key === "vout") tx.setVouts(val.map(rpcVout => MoneroDaemonRpc._buildOutput(rpcVout, tx)));
+      else if (key === "vout") tx.setVouts(val.map(rpcVout => MoneroDaemonRpc._convertRpcOutput(rpcVout, tx)));
       else if (key === "rct_signatures") MoneroUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, val);
       else if (key === "rctsig_prunable") MoneroUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
       else if (key === "unlock_time") MoneroUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, val);
       else if (key === "as_json" || key === "tx_json") { }  // handled last so tx is as initialized as possible
-      else if (key === "as_hex" || key === "tx_blob") MoneroUtils.safeSet(tx, tx.getHex, tx.setHex, val ? val : undefined);
+      else if (key === "as_hex" || key === "tx_blob") MoneroUtils.safeSet(tx, tx.getFullHex, tx.setFullHex, val ? val : undefined);
       else if (key === "blob_size") MoneroUtils.safeSet(tx, tx.getSize, tx.setSize, val);
       else if (key === "weight") MoneroUtils.safeSet(tx, tx.getWeight, tx.setWeight, val);
       else if (key === "fee") MoneroUtils.safeSet(tx, tx.getFee, tx.setFee, new BigInteger(val));
@@ -838,7 +907,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         }
       }
       else if (key === "last_failed_id_hash") {
-        if (val === MoneroDaemonRpc.DEFAULT_ID) MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed);
+        if (val === MoneroDaemonRpc.DEFAULT_ID) MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed, false);
         else {
           MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed, true);
           MoneroUtils.safeSet(tx, tx.getLastFailedId, tx.setLastFailedId, val);
@@ -848,15 +917,15 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "max_used_block_id_hash") MoneroUtils.safeSet(tx, tx.getMaxUsedBlockId, tx.setMaxUsedBlockId, val);
       else if (key === "prunable_hash") MoneroUtils.safeSet(tx, tx.getPrunableHash, tx.setPrunableHash, val ? val : undefined);
       else if (key === "prunable_as_hex") MoneroUtils.safeSet(tx, tx.getPrunableHex, tx.setPrunableHex, val ? val : undefined);
+      else if (key === "pruned_as_hex") MoneroUtils.safeSet(tx, tx.getPrunedHex, tx.setPrunedHex, val ? val : undefined);
       else console.log("WARNING: ignoring unexpected field in rpc tx: " + key + ": " + val);
     }
     
     // link block and tx
-    if (header) tx.setBlock(new MoneroBlock().setHeader(header).setTxs([tx]));
+    if (header) tx.setBlock(new MoneroBlock(header).setTxs([tx]));
     
-    // TODO monero-daemon-rpc: unconfirmed txs block height and timestamp are actually received timestamp; overloading data model variables is bad juju
-    if (tx.getBlock() &amp;&amp; tx.getBlock().getHeader().getHeight() !== undefined &amp;&amp; tx.getBlock().getHeader().getHeight() === tx.getBlock().getHeader().getTimestamp()) {
-      tx.setReceivedTimestamp(tx.getBlock().getHeader().getHeight());
+    // TODO monero-daemon-rpc: unconfirmed txs misreport block height and timestamp
+    if (tx.getBlock() &amp;&amp; tx.getBlock().getHeight() !== undefined &amp;&amp; tx.getBlock().getHeight() === tx.getBlock().getTimestamp()) {
       tx.setBlock(undefined);
       tx.setIsConfirmed(false);
     }
@@ -876,20 +945,20 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.getVouts()[i].setIndex(tx.getOutputIndices()[i]);  // transfer output indices to vouts
       }
     }
-    if (rpcTx.as_json) MoneroDaemonRpc._buildTx(JSON.parse(rpcTx.as_json), tx);
-    if (rpcTx.tx_json) MoneroDaemonRpc._buildTx(JSON.parse(rpcTx.tx_json), tx);
+    if (rpcTx.as_json) MoneroDaemonRpc._convertRpcTx(JSON.parse(rpcTx.as_json), tx);
+    if (rpcTx.tx_json) MoneroDaemonRpc._convertRpcTx(JSON.parse(rpcTx.tx_json), tx);
     if (!tx.getIsRelayed()) tx.setLastRelayedTimestamp(undefined);  // TODO monero-daemon-rpc: returns last_relayed_timestamp despite relayed: false, self inconsistent
     
     // return built transaction
     return tx;
   }
   
-  static _buildOutput(rpcOutput, tx) {
+  static _convertRpcOutput(rpcOutput, tx) {
     let output = new MoneroOutput();
     output.setTx(tx);
     for (let key of Object.keys(rpcOutput)) {
       let val = rpcOutput[key];
-      if (key === "gen") throw new Error("Output with 'gen' from daemon rpc is coinbase tx which we ignore (i.e. each coinbase vin is undefined)");
+      if (key === "gen") throw new MoneroError("Output with 'gen' from daemon rpc is coinbase tx which we ignore (i.e. each coinbase vin is undefined)");
       else if (key === "key") {
         MoneroUtils.safeSet(output, output.getAmount, output.setAmount, new BigInteger(val.amount));
         MoneroUtils.safeSet(output, output.getKeyImage, output.setKeyImage, new MoneroKeyImage(val.k_image));
@@ -902,7 +971,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return output;
   }
   
-  static _buildBlockTemplate(rpcTemplate) {
+  static _convertRpcBlockTemplate(rpcTemplate) {
     let template = new MoneroBlockTemplate();
     for (let key of Object.keys(rpcTemplate)) {
       let val = rpcTemplate[key];
@@ -910,17 +979,20 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "blocktemplate_blob") template.setBlockHashingBlob(val);
       else if (key === "difficulty") template.setDifficulty(new BigInteger(val));
       else if (key === "expected_reward") template.setExpectedReward(val);
+      else if (key === "difficulty") { }  // handled by wide_difficulty
+      else if (key === "difficulty_top64") { }  // handled by wide_difficulty
+      else if (key === "wide_difficulty") template.setDifficulty(MoneroUtils.reconcile(template.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
       else if (key === "height") template.setHeight(val);
       else if (key === "prev_hash") template.setPrevId(val);
       else if (key === "reserved_offset") template.setReservedOffset(val);
-      else if (key === "status") {}  // set elsewhere
-      else if (key === "untrusted") {}  // set elsewhere
+      else if (key === "status") {}  // handled elsewhere
+      else if (key === "untrusted") {}  // handled elsewhere
       else console.log("WARNING: ignoring unexpected field in block template: " + key + ": " + val);
     }
     return template;
   }
   
-  static _buildInfo(rpcInfo) {
+  static _convertRpcInfo(rpcInfo) {
     if (!rpcInfo) return undefined;
     let info = new MoneroDaemonInfo();
     for (let key of Object.keys(rpcInfo)) {
@@ -931,9 +1003,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "block_size_median") info.setBlockSizeMedian(val);
       else if (key === "block_weight_limit") info.setBlockWeightLimit(val);
       else if (key === "block_weight_median") info.setBlockWeightMedian(val);
-      else if (key === "bootstrap_daemon_address") info.setBootstrapDaemonAddress(val);
-      else if (key === "cumulative_difficulty") info.setCumulativeDifficulty(new BigInteger(val));
-      else if (key === "difficulty") info.setDifficulty(new BigInteger(val));
+      else if (key === "bootstrap_daemon_address") { if (val) info.setBootstrapDaemonAddress(val); }
+      else if (key === "difficulty") { }  // handled by wide_difficulty
+      else if (key === "cumulative_difficulty") { } // handled by wide_cumulative_difficulty
+      else if (key === "difficulty_top64") { }  // handled by wide_difficulty
+      else if (key === "cumulative_difficulty_top64") { } // handled by wide_cumulative_difficulty
+      else if (key === "wide_difficulty") info.setDifficulty(MoneroUtils.reconcile(info.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
+      else if (key === "wide_cumulative_difficulty") info.setCumulativeDifficulty(MoneroUtils.reconcile(info.getCumulativeDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
       else if (key === "free_space") info.setFreeSpace(new BigInteger(val));
       else if (key === "database_size") info.setDatabaseSize(val);
       else if (key === "grey_peerlist_size") info.setNumOfflinePeers(val);
@@ -944,13 +1020,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "outgoing_connections_count") info.setNumOutgoingConnections(val);
       else if (key === "rpc_connections_count") info.setNumRpcConnections(val);
       else if (key === "start_time") info.setStartTimestamp(val);
-      else if (key === "status") {}  // set elsewhere
+      else if (key === "status") {}  // handled elsewhere
       else if (key === "target") info.setTarget(val);
       else if (key === "target_height") info.setTargetHeight(val);
       else if (key === "top_block_hash") info.setTopBlockId(val);
       else if (key === "tx_count") info.setNumTxs(val);
       else if (key === "tx_pool_size") info.setNumTxsPool(val);
-      else if (key === "untrusted") {} // set elsewhere
+      else if (key === "untrusted") {} // handled elsewhere
       else if (key === "was_bootstrap_ever_used") info.setWasBootstrapEverUsed(val);
       else if (key === "white_peerlist_size") info.setNumOnlinePeers(val);
       else if (key === "update_available") info.setUpdateAvailable(val);
@@ -969,7 +1045,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * @param rpcSyncInfo is the rpc map to initialize the sync info from
    * @return {MoneroDaemonSyncInfo} is sync info initialized from the map
    */
-  static _buildSyncInfo(rpcSyncInfo) {
+  static _convertRpcSyncInfo(rpcSyncInfo) {
     let syncInfo = new MoneroDaemonSyncInfo();
     for (let key of Object.keys(rpcSyncInfo)) {
       let val = rpcSyncInfo[key];
@@ -978,35 +1054,40 @@ class MoneroDaemonRpc extends MoneroDaemon {
         syncInfo.setConnections([]);
         let rpcConnections = val;
         for (let rpcConnection of rpcConnections) {
-          syncInfo.getConnections().push(MoneroDaemonRpc._buildConnection(rpcConnection.info));
+          syncInfo.getConnections().push(MoneroDaemonRpc._convertRpcConnection(rpcConnection.info));
         }
-      } else if (key === "spans") {
+      }
+      else if (key === "spans") {
         syncInfo.setSpans([]);
         let rpcSpans = val;
         for (let rpcSpan of rpcSpans) {
-          syncInfo.getSpans().push(MoneroDaemonRpc._buildConnetionSpan(rpcSpan));
+          syncInfo.getSpans().push(MoneroDaemonRpc._convertRpcConnetionSpan(rpcSpan));
         }
-      } else if (key === "status") {}   // set elsewhere
+      } else if (key === "status") {}   // handled elsewhere
       else if (key === "target_height") syncInfo.setTargetHeight(new BigInteger(val));
       else if (key === "next_needed_pruning_seed") syncInfo.setNextNeededPruningSeed(val);
-      else if (key === "overview") {
-        let overview = JSON.parse(val); // TODO: not tested with pruning enabled
-        if (overview.length > 0) syncInfo.setOverview(val);
+      else if (key === "overview") {  // this returns [] without pruning
+        try {
+          let overview = JSON.parse(val);
+          if (overview.length > 0) console.log("WARNING: ignoring non-empty 'overview' field (not implemented): " + overview); // TODO
+        } catch (e) {
+          console.log("WARNING: failed to parse 'overview' field: " + overview + ": " + e.message);
+        }
       }
       else console.log("WARNING: ignoring unexpected field in sync info: " + key + ": " + val);
     }
     return syncInfo;
   }
   
-  static _buildHardForkInfo(rpcHardForkInfo) {
+  static _convertRpcHardForkInfo(rpcHardForkInfo) {
     let info = new MoneroHardForkInfo();
     for (let key of Object.keys(rpcHardForkInfo)) {
       let val = rpcHardForkInfo[key];
       if (key === "earliest_height") info.setEarliestHeight(val);
       else if (key === "enabled") info.setIsEnabled(val);
       else if (key === "state") info.setState(val);
-      else if (key === "status") {}     // set elsewhere
-      else if (key === "untrusted") {}  // set elsewhere
+      else if (key === "status") {}     // handled elsewhere
+      else if (key === "untrusted") {}  // handled elsewhere
       else if (key === "threshold") info.setThreshold(val);
       else if (key === "version") info.setVersion(val);
       else if (key === "votes") info.setNumVotes(val);
@@ -1017,11 +1098,11 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return info;
   }
   
-  static _buildConnectionSpan(rpcConnectionSpan) {
-    throw new Error("Not implemented");
+  static _convertRpcConnectionSpan(rpcConnectionSpan) {
+    throw new MoneroError("Not implemented");
   }
   
-  static _buildOutputHistogramEntry(rpcEntry) {
+  static _convertRpcOutputHistogramEntry(rpcEntry) {
     let entry = new MoneroOutputHistogramEntry();
     for (let key of Object.keys(rpcEntry)) {
       let val = rpcEntry[key];
@@ -1034,7 +1115,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return entry;
   }
   
-  static _buildSubmitTxResult(rpcResult) {
+  static _convertRpcSubmitTxResult(rpcResult) {
     assert(rpcResult);
     let result = new MoneroSubmitTxResult();
     for (let key of Object.keys(rpcResult)) {
@@ -1047,15 +1128,16 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "not_rct") result.setIsRct(!val);
       else if (key === "not_relayed") result.setIsRelayed(!val);
       else if (key === "overspend") result.setIsOverspend(val);
-      else if (key === "reason") result.setReason(val);
+      else if (key === "reason") result.setReason(val === "" ? undefined : val);
       else if (key === "too_big") result.setIsTooBig(val);
+      else if (key === "sanity_check_failed") result.setSanityCheckFailed(val);
       else if (key === "status" || key === "untrusted") {}  // handled elsewhere
       else console.log("WARNING: ignoring unexpected field in submit tx hex result: " + key + ": " + val);
     }
     return result;
   }
   
-  static _buildTxPoolStats(rpcStats) {
+  static _convertRpcTxPoolStats(rpcStats) {
     assert(rpcStats);
     let stats = new MoneroTxPoolStats();
     for (let key of Object.keys(rpcStats)) {
@@ -1072,19 +1154,21 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "oldest") stats.setOldestTimestamp(val);
       else if (key === "txs_total") stats.setNumTxs(val);
       else if (key === "fee_total") stats.setFeeTotal(new BigInteger(val));
-      else if (key === "histo") throw new Error("Not implemented");
+      else if (key === "histo") throw new MoneroError("Not implemented");
       else console.log("WARNING: ignoring unexpected field in tx pool stats: " + key + ": " + val);
     }
     return stats;
   }
   
-  static _buildAltChain(rpcChain) {
+  static _convertRpcAltChain(rpcChain) {
     assert(rpcChain);
     let chain = new MoneroAltChain();
     for (let key of Object.keys(rpcChain)) {
       let val = rpcChain[key];
       if (key === "block_hash") {}  // using block_hashes instead
-      else if (key === "difficulty") chain.setDifficulty(new BigInteger(val));
+      else if (key === "difficulty") { } // handled by wide_difficulty
+      else if (key === "difficulty_top64") { }  // handled by wide_difficulty
+      else if (key === "wide_difficulty") chain.setDifficulty(MoneroUtils.reconcile(chain.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
       else if (key === "height") chain.setHeight(val);
       else if (key === "length") chain.setLength(val);
       else if (key === "block_hashes") chain.setBlockIds(val);
@@ -1094,7 +1178,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return chain;
   }
   
-  static _buildPeer(rpcPeer) {
+  static _convertRpcPeer(rpcPeer) {
     assert(rpcPeer);
     let peer = new MoneroDaemonPeer();
     for (let key of Object.keys(rpcPeer)) {
@@ -1104,13 +1188,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "ip") {} // host used instead which is consistently a string
       else if (key === "last_seen") peer.setLastSeenTimestamp(val);
       else if (key === "port") peer.setPort(val);
+      else if (key === "rpc_port") peer.setRpcPort(val);
       else if (key === "pruning_seed") peer.setPruningSeed(val);
       else console.log("WARNING: ignoring unexpected field in rpc peer: " + key + ": " + val);
     }
     return peer;
   }
   
-  static _buildConnection(rpcConnection) {
+  static _convertRpcConnection(rpcConnection) {
     let connection = new MoneroDaemonConnection();
     let peer = new MoneroDaemonPeer();
     connection.setPeer(peer);
@@ -1131,7 +1216,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "local_ip") connection.setIsLocalIp(val);
       else if (key === "localhost") connection.setIsLocalHost(val);
       else if (key === "peer_id") peer.setId(val);
-      else if (key === "port") peer.setPort(val);
+      else if (key === "port") peer.setPort(parseInt(val));
+      else if (key === "rpc_port") peer.setRpcPort(val);
       else if (key === "recv_count") connection.setNumReceives(val);
       else if (key === "recv_idle_time") connection.setReceiveIdleTime(val);
       else if (key === "send_count") connection.setNumSends(val);
@@ -1144,7 +1230,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return connection;
   }
   
-  static _buildRpcBan(ban) {
+  static _convertToRpcBan(ban) {
     let rpcBan = {};
     rpcBan.host = ban.getHost();
     rpcBan.ip = ban.getIp();
@@ -1153,7 +1239,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return rpcBan;
   }
   
-  static _buildMiningStatus(rpcStatus) {
+  static _convertRpcMiningStatus(rpcStatus) {
     let status = new MoneroMiningStatus();
     status.setIsActive(rpcStatus.active);
     status.setSpeed(rpcStatus.speed);
@@ -1165,7 +1251,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return status;
   }
   
-  static _buildUpdateCheckResult(rpcResult) {
+  static _convertRpcUpdateCheckResult(rpcResult) {
     assert(rpcResult);
     let result = new MoneroDaemonUpdateCheckResult();
     for (let key of Object.keys(rpcResult)) {
@@ -1179,20 +1265,36 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "version") result.setVersion(val);
       else console.log("WARNING: ignoring unexpected field in rpc check update result: " + key + ": " + val);
     }
+    if (result.getAutoUri() === "") result.setAutoUri(undefined);
+    if (result.getUserUri() === "") result.setUserUri(undefined);
     if (result.getVersion() === "") result.setVersion(undefined);
     if (result.getHash() === "") result.setHash(undefined);
     return result;
   }
   
-  static _buildUpdateDownloadResult(rpcResult) {
-    let result = new MoneroDaemonUpdateDownloadResult(MoneroDaemonRpc._buildUpdateCheckResult(rpcResult));
-    if (rpcResult["path"] !== "") result.setDownloadPath(rpcResult["path"]);
+  static _convertRpcUpdateDownloadResult(rpcResult) {
+    let result = new MoneroDaemonUpdateDownloadResult(MoneroDaemonRpc._convertRpcUpdateCheckResult(rpcResult));
+    result.setDownloadPath(rpcResult["path"]);
+    if (result.getDownloadPath() === "") result.setDownloadPath(undefined);
     return result;
+  }
+
+  /**
+   * Converts a '0x' prefixed hexidecimal string to a BigInteger.
+   * 
+   * @param hex is the '0x' prefixed hexidecimal string to convert
+   * @return BigInteger is the hexicedimal converted to decimal
+   */
+  static _prefixedHexToBI(hex) {
+    assert(hex.substring(0, 2) === "0x");
+    return BigInteger.parse(hex, 16);
   }
 }
 
-// uninitialized tx or block id from daemon rpc
-MoneroDaemonRpc.DEFAULT_ID = "0000000000000000000000000000000000000000000000000000000000000000";
+// static variables
+MoneroDaemonRpc.DEFAULT_ID = "0000000000000000000000000000000000000000000000000000000000000000";  // uninitialized tx or block id from daemon rpc
+MoneroDaemonRpc.MAX_REQ_SIZE = "3000000";  // max request size when fetching blocks from daemon
+MoneroDaemonRpc.NUM_HEADERS_PER_REQ = "750";  // number of headers to fetch and cache per request
 
 module.exports = MoneroDaemonRpc;</code></pre>
         </article>
@@ -1204,13 +1306,13 @@ module.exports = MoneroDaemonRpc;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BooleanSet.html">BooleanSet</a></li><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroCoinbaseTxSum.html">MoneroCoinbaseTxSum</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroRpc.html">MoneroRpc</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendConfig.html">MoneroSendConfig</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferFilter.html">MoneroTransferFilter</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="global.html#MoneroTxFilter">MoneroTxFilter</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroVoutFilter.html">MoneroVoutFilter</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletOutput.html">MoneroWalletOutput</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletTx.html">MoneroWalletTx</a></li></ul><h3>Global</h3><ul><li><a href="global.html#assert">assert</a></li><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BooleanSet.html">BooleanSet</a></li><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroCoinbaseTxSum.html">MoneroCoinbaseTxSum</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputRequest.html">MoneroOutputRequest</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpc.html">MoneroRpc</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendRequest.html">MoneroSendRequest</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferRequest.html">MoneroTransferRequest</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="global.html#MoneroTxRequest">MoneroTxRequest</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li></ul><h3>Global</h3><ul><li><a href="global.html#assert">assert</a></li><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Feb 25 2019 14:25:56 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue May 07 2019 12:55:09 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>

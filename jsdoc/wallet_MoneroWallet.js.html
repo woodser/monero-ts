@@ -48,8 +48,9 @@
  * SOFTWARE.
  */
 
-const MoneroTxFilter = require("./config/MoneroTxFilter");
-const MoneroSendConfig = require("./config/MoneroSendConfig");
+const MoneroTxRequest = require("./request/MoneroTxRequest");
+const MoneroSendRequest = require("./request/MoneroSendRequest");
+const MoneroError = require("../utils/MoneroError");
 
 /**
  * Monero wallet interface and default implementations.
@@ -62,7 +63,7 @@ class MoneroWallet {
    * @return {string} is the wallet's seed
    */
   async getSeed() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -71,7 +72,7 @@ class MoneroWallet {
    * @return {string} is the wallet's mnemonic phrase
    */
   async getMnemonic() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -80,7 +81,7 @@ class MoneroWallet {
    * @return {string} is the wallet's public view key
    */
   async getPublicViewKey() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -89,7 +90,7 @@ class MoneroWallet {
    * @return {string} is the wallet's private view key
    */
   async getPrivateViewKey() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -98,7 +99,7 @@ class MoneroWallet {
    * @return {string[]} are the available languages for the wallet's seed
    */
   async getLanguages() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -107,16 +108,16 @@ class MoneroWallet {
    * @return {int} is the height of the last block processed by the wallet
    */
   async getHeight() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Get the blockchain's height.
    * 
-   * @return {int} is the block chain's height
+   * @return {int} is the blockchain's height
    */
   async getChainHeight() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -125,7 +126,7 @@ class MoneroWallet {
    * @return {string} is the wallet's primary address
    */
   async getPrimaryAddress() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -136,7 +137,7 @@ class MoneroWallet {
    * @return {MoneroIntegratedAddress} is the integrated address
    */
   async getIntegratedAddress(paymentId) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -146,7 +147,7 @@ class MoneroWallet {
    * @return {MoneroIntegratedAddress} contains the standard address and payment id
    */
   async decodeIntegratedAddress(integratedAddress) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -157,7 +158,18 @@ class MoneroWallet {
    * @param {function} onProgress({percent: , message: , totalBlocks: , doneBlocks: }) is invoked as progress is made
    */
   async sync(startHeight, endHeight, onProgress) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
+   * Rescan the blockchain from scratch, losing any information which can not
+   * be recovered from the blockchain itself.
+   * 
+   * WARNING: This method discards local wallet data like destination
+   * addresses, tx secret keys, tx notes, etc.
+   */
+  async rescanBlockchain() {
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -166,7 +178,7 @@ class MoneroWallet {
    * @return {boolean} true if importing multisig data is needed for returning a correct balance, false otherwise
    */
   async isMultisigImportNeeded() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -176,7 +188,7 @@ class MoneroWallet {
    * @return {MoneroAccount[]} are the retrieved accounts
    */
   async getAccounts(includeSubaddresses) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -187,7 +199,7 @@ class MoneroWallet {
    * @return {MoneroAccount} is the retrieved account
    */
   async getAccount(accountIdx, includeSubaddresses) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
 
   /**
@@ -197,18 +209,18 @@ class MoneroWallet {
    * @return {MoneroAccount} is the created account
    */
   async createAccount(label) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Get subaddresses.
    * 
    * @param {int} accountIdx specifies the account to get subaddresses within
-   * @param {(int|int[])} subaddressIndices specifies subaddresses within the account (optional)
+   * @param {(int|int[])} subaddressIndices are specific subaddresses to get (optional)
    * @return {MoneroSubaddress[]} are the retrieved subaddresses
    */
   async getSubaddresses(accountIdx, subaddressIndices) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -219,7 +231,7 @@ class MoneroWallet {
    * @return {MoneroSubaddress} is the retrieved subaddress
    */
   async getSubaddress(accountIdx, subaddressIdx) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -230,7 +242,7 @@ class MoneroWallet {
    * @return {MoneroSubaddress} is the created subaddress
    */
   async createSubaddress(accountIdx, label) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -241,7 +253,7 @@ class MoneroWallet {
    * @return {string} is the receive address of the specified subaddress
    */
   async getAddress(accountIdx, subaddressIdx) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -252,7 +264,7 @@ class MoneroWallet {
    * @throws {Error} if the address is not found
    */
   async getAddressIndex(address) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -263,7 +275,7 @@ class MoneroWallet {
    * @return {BigInteger} is the balance
    */
   async getBalance(accountIdx, subaddressIdx) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -274,19 +286,32 @@ class MoneroWallet {
    * @return {BigInteger} is the unlocked balance
    */
   async getUnlockedBalance(accountIdx, subaddressIdx) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
+   * Get a wallet transaction by id.
+   * 
+   * @param txId is an id of a transaction to get
+   * @return MoneroTxWallet is the identified transactions
+   */
+  async getTx(txId) {
+    return (await this.getTxs([txId]))[0];
   }
   
   /**
    * Get wallet transactions.  Wallet transactions contain one or more
    * transfers that are either incoming or outgoing to the wallet.
    * 
-   * Query results can be configured or filtered by passing in a configuration.
-   * Transactions must meet every criteria defined in the configuration in
-   * order to be returned.  All configuration is optional and no filtering is
-   * applied when not defined.
+   * Query results can be filtered by passing in a transaction request.
+   * Transactions must meet every criteria defined in the request in order to
+   * be returned.  All filtering is optional and no filtering is applied when
+   * not defined.
    * 
-   * @param {(MoneroTxFilter|object)} config configures the query (optional)
+   * Transactions can be fetched by a MoneroTxRequest, equivalent js object, or
+   * array of tx ids.
+   * 
+   * @param {(MoneroTxRequest|string[]|object)} config configures the query (optional)
    * @param {boolean} config.isConfirmed gets txs that are confirmed or not (optional)
    * @param {boolean} config.inTxPool get txs that are in the tx pool or not (optional)
    * @param {boolean} config.isRelayed gets txs that are relayed or not (optional)
@@ -300,14 +325,14 @@ class MoneroWallet {
    * @param {boolean} config.hasPaymentId gets transactions with a payment id or not (optional)
    * @param {int} config.minHeight gets txs with height >= the given height (optional)
    * @param {int} config.maxHeight gets txs with height &lt;= the given height (optional)
-   * @param {boolean} config.hasOutgoingTransfer gets txs with an outgoing transfer or not (optional)
-   * @param {boolean} config.hasIncomingTransfer gets txs with an incoming transfer or not (optional)
-   * @param {MoneroTransferFilter} config.transferFilter gets txs that have a transfer that meets this filter (optional)
-   * @param {boolean} config.getVouts specifies that tx vouts should be returned with tx results (optional)
-   * @return {MoneroWalletTx[]} are wallet transactions per the configuration
+   * @param {boolean} config.isOutgoing gets txs with an outgoing transfer or not (optional)
+   * @param {boolean} config.isIncoming gets txs with an incoming transfer or not (optional)
+   * @param {MoneroTransferRequest} config.transferRequest gets txs that have a transfer that meets this request (optional)
+   * @param {boolean} config.includeOutputs specifies that tx vouts should be returned with tx results (optional)
+   * @return {MoneroTxWallet[]} are wallet transactions per the configuration
    */
   async getTxs(config) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -323,7 +348,7 @@ class MoneroWallet {
    * to be returned.  All configuration is optional and no filtering is applied
    * when not defined.
    * 
-   * @param {(MoneroTransferFilter|object)} config configures the query (optional)
+   * @param {(MoneroTransferRequest|object)} config configures the query (optional)
    * @param {boolean} config.isOutgoing gets transfers that are outgoing or not (optional)
    * @param {boolean} config.isIncoming gets transfers that are incoming or not (optional)
    * @param {string} config.address is the wallet's address that a transfer either originated from (if outgoing) or is destined for (if incoming) (optional)
@@ -333,37 +358,36 @@ class MoneroWallet {
    * @param {BigInteger} config.amount is the amount being transferred (optional)
    * @param {MoneroDestination[]} config.destinations are individual destinations of an outgoing transfer, which is local wallet data and NOT recoverable from the blockchain (optional)
    * @param {boolean} config.hasDestinations gets transfers that have destinations or not (optional)
-   * @param {MoneroTxFilter} config.txFilter gets transfers whose transaction meets this filter (optional)
+   * @param {MoneroTxRequest} config.txRequest gets transfers whose transaction meets this request (optional)
    * @return {MoneroTransfer[]} are wallet transfers per the configuration
    */
   async getTransfers(config) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
-   * Get wallet vouts.  A wallet vout is an output created from a previous
-   * transaction that the wallet can spend one time.  Vouts belong to
-   * transactions which are stored on the blockchain.
+   * Get outputs created from previous transactions that belong to the wallet
+   * (i.e. that the wallet can spend one time).  Outputs are part of
+   * transactions which are stored in blocks on the blockchain.
    * 
-   * Query results can be configured or filtered by passing in a configuration.
-   * Vouts must meet every criteria defined in the configuration in order to be
-   * returned.  All configuration is optional and no filtering is applied when
-   * not defined.
+   * Results can be configured by passing a MoneroOutputRequest.  Outputs must
+   * meet every criteria defined in the request in order to be returned.  All
+   * filtering is optional and no filtering is applied when not defined.
    * 
-   * TODO: add additional filtering in MoneroVoutFilter.js meetsCriteria() (easy)
+   * TODO: add additional filtering in MoneroOutputRequest.js meetsCriteria()
    * 
-   * @param {(MoneroVoutFilter|object)} config configures the query (optional)
-   * @param {int} config.accountIndex gets vouts associated with a specific account index
-   * @param {int} config.subaddressIndex gets vouts associated with a specific subaddress index
-   * @param {int[]} config.subaddressIndices gets vouts associated with specific subaddress indices
-   * @param {BigInteger} config.amount gets vouts with a specific amount
-   * @param {boolean} config.isSpent gets vouts that are spent or not
-   * @param {MoneroKeyImage} config.keyImage is a key image whose defined fields filter vouts to get
-   * @param {MoneroTxFilter} config.txFilter gets vouts whose transaction meets this filter (optional)
-   * @return {MoneroWalletOutput[]} are wallet vouts per the configuration
+   * @param {(MoneroOutputRequest|object)} config configures the query (optional)
+   * @param {int} config.accountIndex gets outputs associated with a specific account index
+   * @param {int} config.subaddressIndex gets outputs associated with a specific subaddress index
+   * @param {int[]} config.subaddressIndices gets outputs associated with specific subaddress indices
+   * @param {BigInteger} config.amount gets outputs with a specific amount
+   * @param {boolean} config.isSpent gets outputs that are spent or not
+   * @param {MoneroKeyImage} config.keyImage is a key image whose defined fields filter outputs to get
+   * @param {MoneroTxRequest} config.txRequest gets outputs whose transaction meets this filter (optional)
+   * @return {MoneroOutputWallet[]} are wallet outputs per the configuration
    */
-  async getVouts(config) {
-    throw new Error("Subclass must implement");
+  async getOutputs(config) {
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -372,7 +396,7 @@ class MoneroWallet {
    * @return {MoneroKeyImage[]} are the wallet's signed key images
    */
   async getKeyImages() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -382,7 +406,7 @@ class MoneroWallet {
    * @return {MoneroKeyImageImportResult} contains results of the import
    */
   async importKeyImages(keyImages) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -391,13 +415,13 @@ class MoneroWallet {
    * @return {MoneroKeyImage[]} are the key images from the last imported outputs
    */
   async getNewKeyImagesFromLastImport() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Creates a transaction which transfers funds from this wallet to one or more destinations.
    * 
-   * @param {(MoneroSendConfig|object|string)} configOrAddress defines send configuration (documented next) xor an address to send to
+   * @param {(MoneroSendRequest|object|string)} requestOrAddress defines send configuration (documented next) xor an address to send to
    * 
    * Send with single config param:
    * 
@@ -417,16 +441,16 @@ class MoneroWallet {
    * @param {int|MoneroSendPriority} priority is the priority to have the tx confirmed; 0-3 for default, unimportant, normal, and elevated (optional)
    * @param {int} mixin is the number of outputs from the blockchain to mix with (optional)
    * 
-   * @return {MoneroWalletTx} is the resulting transaction
+   * @return {MoneroTxWallet} is the resulting transaction
    */
-  async send(configOrAddress, sendAmount, priority, mixin) {
-    throw new Error("Subclass must implement");
+  async send(requestOrAddress, sendAmount, priority, mixin) {
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Creates one or more transactions which transfer funds from this wallet to one or more destinations.
    * 
-   * @param {(MoneroSendConfig|object|string)} configOrAddress defines send configuration (documented next) xor an address to send to
+   * @param {(MoneroSendRequest|object|string)} requestOrAddress defines send configuration (documented next) xor an address to send to
    * 
    * Send with single config param:
    * 
@@ -446,101 +470,102 @@ class MoneroWallet {
    * @param {int|MoneroSendPriority} priority is the priority to have the tx confirmed; 0-3 for default, unimportant, normal, and elevated (optional)
    * @param {int} mixin is the number of outputs from the blockchain to mix with (optional)
    * 
-   * @return {MoneroWalletTx[]} are the resulting transactions
+   * @return {MoneroTxWallet[]} are the resulting transactions
    */
-  async sendSplit(configOrAddress, sendAmount, priority, mixin) {
-    throw new Error("Subclass must implement");
+  async sendSplit(requestOrAddress, sendAmount, priority, mixin) {
+    throw new MoneroError("Subclass must implement");
   }
   
+  
   /**
-   * Sweep the wallet's unlocked funds to an address.
+   * Sweep an output with a given key image.
    * 
-   * @param {string} address is the address to sweep the wallet's funds to
-   * @return {MoneroWalletTx[]} are the resulting transactions
+   * @param {(MoneroSendRequest|string)} requestOrAddress is a send configuration or destination address
+   * @param {string} keyImage is the key image hex of the output to sweep
+   * @param {int} priority sets a transaction priority as an integer between 0 and 3 (see {MoneroSendPriority})
+   * @param {int} mixin is the number of outputs from the blockchain to mix with (default 11)
+   * @return {MoneroTxWallet} is the resulting transaction from sweeping an output 
    */
-  async sweepWallet(address) {
-    return await this.sweepUnlocked(new MoneroSendConfig(address));
+  async sweepOutput(requestOrAddress, keyImage, priority, mixin) {
+    throw new MoneroError("Subclass must implement");
   }
-
-  /**
-   * Sweep an acount's unlocked funds to an address.
-   * 
-   * @param {int} accountIdx is the index of the account
-   * @param {address} address is the address to sweep the account's funds to
-   * @return {MoneroWalletTx[]} are the resulting transactions
-   */
-  async sweepAccount(accountIdx, address) {
-    let config = new MoneroSendConfig(address);
-    config.setAccountIndex(accountIdx);
-    return await this.sweepUnlocked(config);
-  }
-
+  
   /**
    * Sweep a subaddress's unlocked funds to an address.
    * 
    * @param {int} accountIdx is the index of the account
    * @param {int} subaddressIdx is the index of the subaddress
    * @param {string} address is the address to sweep the subaddress's funds to
-   * @return {MoneroWalletTx[]} are the resulting transactions
+   * @return {MoneroTxWallet[]} are the resulting transactions
    */
   async sweepSubaddress(accountIdx, subaddressIdx, address) {
-    let config = new MoneroSendConfig(address);
-    config.setAccountIndex(accountIdx);
-    config.setSubaddressIndices([subaddressIdx]);
-    return await this.sweepUnlocked(config);
+    let request = new MoneroSendRequest(address);
+    request.setAccountIndex(accountIdx);
+    request.setSubaddressIndices([subaddressIdx]);
+    return this.sweepAllUnlocked(request);
+  }
+  
+  /**
+   * Sweep an acount's unlocked funds to an address.
+   * 
+   * @param {int} accountIdx is the index of the account
+   * @param {address} address is the address to sweep the account's funds to
+   * @return {MoneroTxWallet[]} are the resulting transactions
+   */
+  async sweepAccount(accountIdx, address) {
+    let request = new MoneroSendRequest(address);
+    request.setAccountIndex(accountIdx);
+    return this.sweepAllUnlocked(request);
+  }
+  
+  /**
+   * Sweep the wallet's unlocked funds to an address.
+   * 
+   * @param {string} address is the address to sweep the wallet's funds to
+   * @return {MoneroTxWallet[]} are the resulting transactions
+   */
+  async sweepWallet(address) {
+    return this.sweepAllUnlocked(new MoneroSendRequest(address));
   }
 
   /**
-   * Sweep unlocked funds.
+   * Sweep all unlocked funds according to the given request.
    * 
-   * @param {(MoneroSendConfig|object)} is the sweep configuration
-   * @return {MoneroWalletTx[]} are the resulting transactions
+   * @param {(MoneroSendRequest|object)} config is the sweep configuration
+   * @return {MoneroTxWallet[]} are the resulting transactions
    */
-  async sweepUnlocked(config) {
-    throw new Error("Subclass must implement");
+  async sweepAllUnlocked(config) {
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Sweep all unmixable dust outputs back to the wallet to make them easier to spend and mix.
    * 
    * @param {boolean} doNotRelay specifies if the resulting transaction should not be relayed (defaults to false i.e. relayed)
-   * @return {MoneroWalletTx[]} are the resulting transactions from sweeping dust
+   * @return {MoneroTxWallet[]} are the resulting transactions from sweeping dust
    */
   async sweepDust(doNotRelay) {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
-   * Sweep an output with a given key image.
-   * 
-   * @param {(MoneroSendConfig|string)} is a send configuration or destination address
-   * @param {string} keyImage is the key image hex of the output to sweep
-   * @param {int} priority sets a transaction priority as an integer between 0 and 3 (see {MoneroSendPriority})
-   * @param {int} mixin is the number of outputs from the blockchain to mix with (default 11)
-   * @return {MoneroWalletTx} is the resulting transaction from sweeping an output 
-   */
-  async sweepOutput(configOrAddress, keyImage, priority, mixin) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Relay a transaction previously created without relaying.
    * 
    * @param {string} txMetadata is transaction metadata previously created without relaying
-   * @return {MoneroWalletTx} is the relayed tx
+   * @return {String} is the id of the relayed tx
    */
   async relayTx(txMetadata) {
-    return await relayTxs([txMetadata])[0];
+    return (await this.relayTxs([txMetadata]))[0];
   }
   
   /**
    * Relay transactions previously created without relaying.
    * 
    * @param {string[]} txMetadatas are transaction metadata previously created without relaying
-   * @return {MoneroWalletTx[]} are the relayed txs
+   * @return {String[]} are the ids of the relayed txs
    */
   async relayTxs(txMetadatas) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -550,7 +575,7 @@ class MoneroWallet {
    * @return {string} is the tx note
    */
   async getTxNote(txId) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -560,7 +585,7 @@ class MoneroWallet {
    * @param {string} note specifies the note
    */
   async setTxNote(txId, note) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -570,7 +595,7 @@ class MoneroWallet {
    * @preturns {string[]} are notes for the transactions
    */
   async getTxNotes(txIds) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -580,7 +605,7 @@ class MoneroWallet {
    * @param {string[]} notes are the notes to set for the transactions
    */
   async setTxNotes(txIds, notes) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -590,7 +615,7 @@ class MoneroWallet {
    * @return {string} is the signature
    */
   async sign(msg) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -602,7 +627,7 @@ class MoneroWallet {
    * @return {boolean} true if the signature is good, false otherwise
    */
   async verify(msg, address, signature) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -612,7 +637,7 @@ class MoneroWallet {
    * @return {string} is the transaction's secret key
    */
   async getTxKey(txId) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -624,7 +649,7 @@ class MoneroWallet {
    * @return {MoneroCheckTx} is the result of the check
    */
   async checkTxKey(txId, txKey, address) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -636,7 +661,7 @@ class MoneroWallet {
    * @return {string} is the transaction signature
    */
   async getTxProof(txId, address, message) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -649,7 +674,7 @@ class MoneroWallet {
    * @return {MoneroCheckTx} is the result of the check
    */
   async checkTxProof(txId, address, message, signature) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -660,7 +685,7 @@ class MoneroWallet {
    * @return {string} is the transaction signature
    */
   async getSpendProof(txId, message) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -672,7 +697,7 @@ class MoneroWallet {
    * @return {boolean} true if the signature is good, false otherwise
    */
   async checkSpendProof(txId, message, signature) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -682,7 +707,7 @@ class MoneroWallet {
    * @return {string} is the reserve proof signature
    */
   async getReserveProofWallet(message) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -694,7 +719,7 @@ class MoneroWallet {
    * @return {string} is the reserve proof signature
    */
   async getReserveProofAccount(accountIdx, amount, message) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
 
   /**
@@ -706,7 +731,7 @@ class MoneroWallet {
    * @return {MoneroCheckReserve} is the result of checking the signature proof
    */
   async checkReserveProof(address, message, signature) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -716,7 +741,7 @@ class MoneroWallet {
    * @return {MoneroAddressBookEntry[]} are the address book entries
    */
   async getAddressBookEntries(entryIndices) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -728,7 +753,7 @@ class MoneroWallet {
    * @return {int} is the index of the added entry
    */
   async addAddressBookEntry(address, description, paymentId) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -737,7 +762,7 @@ class MoneroWallet {
    * @param {int} entryIdx is the index of the entry to delete
    */
   async deleteAddressBookEntry(entryIdx) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -747,7 +772,7 @@ class MoneroWallet {
    * @param {int[]} accountIndices are the indices of the accounts to tag
    */
   async tagAccounts(tag, accountIndices) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
 
   /**
@@ -756,7 +781,7 @@ class MoneroWallet {
    * @param {int[]} accountIndices are the indices of the accounts to untag
    */
   async untagAccounts(accountIndices) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
 
   /**
@@ -765,7 +790,7 @@ class MoneroWallet {
    * @return {MoneroAccountTag[]} are the wallet's account tags
    */
   async getAccountTags() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
 
   /**
@@ -775,27 +800,27 @@ class MoneroWallet {
    * @param {string} label is the label to set for the tag
    */
   async setAccountTagLabel(tag, label) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Creates a payment URI from a send configuration.
    * 
-   * @param {MoneroSendConfig} sendConfig specifies configuration for a potential tx
+   * @param {MoneroSendRequest} request specifies configuration for a potential tx
    * @return {string} is the payment uri
    */
-  async createPaymentUri(sendConfig) {
-    throw new Error("Subclass must implement");
+  async createPaymentUri(request) {
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Parses a payment URI to a send configuration.
    * 
    * @param {string} uri is the payment uri to parse
-   * @return {MoneroSendConfig} is the send configuration parsed from the uri
+   * @return {MoneroSendRequest} is the send configuration parsed from the uri
    */
   async parsePaymentUri(uri) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -804,7 +829,7 @@ class MoneroWallet {
    * @return {string} are all outputs in hex format, undefined if no outputs
    */
   async getOutputsHex() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -814,7 +839,7 @@ class MoneroWallet {
    * @return {int} is the number of outputs imported
    */
   async importOutputsHex(outputsHex) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -824,7 +849,7 @@ class MoneroWallet {
    * @param {string} val is the attribute value
    */
   async setAttribute(key, val) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -834,7 +859,7 @@ class MoneroWallet {
    * @return {string} is the attribute's value
    */
   async getAttribute(key) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
@@ -845,14 +870,14 @@ class MoneroWallet {
    * @param {boolean} ignoreBattery specifies if the battery should be ignored for mining
    */
   async startMining(numThreads, backgroundMining, ignoreBattery) {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Stop mining.
    */
   async stopMining() {
-    throw new Error("Subclass must implement");
+    throw new MoneroError("Subclass must implement");
   }
 }
 
@@ -866,13 +891,13 @@ module.exports = MoneroWallet;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BooleanSet.html">BooleanSet</a></li><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroCoinbaseTxSum.html">MoneroCoinbaseTxSum</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroRpc.html">MoneroRpc</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendConfig.html">MoneroSendConfig</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferFilter.html">MoneroTransferFilter</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="global.html#MoneroTxFilter">MoneroTxFilter</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroVoutFilter.html">MoneroVoutFilter</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletOutput.html">MoneroWalletOutput</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletTx.html">MoneroWalletTx</a></li></ul><h3>Global</h3><ul><li><a href="global.html#assert">assert</a></li><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BooleanSet.html">BooleanSet</a></li><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroCoinbaseTxSum.html">MoneroCoinbaseTxSum</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputRequest.html">MoneroOutputRequest</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpc.html">MoneroRpc</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendRequest.html">MoneroSendRequest</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferRequest.html">MoneroTransferRequest</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="global.html#MoneroTxRequest">MoneroTxRequest</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li></ul><h3>Global</h3><ul><li><a href="global.html#assert">assert</a></li><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Feb 25 2019 14:25:56 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue May 07 2019 12:55:09 GMT-0400 (EDT)
 </footer>
 
 <script> prettyPrint(); </script>
