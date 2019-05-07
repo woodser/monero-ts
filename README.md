@@ -108,7 +108,7 @@ for (let transfer of await wallet.getTransfers({isIncoming: true, accountIndex: 
 
 ## Running Tests
 
-1. Set up running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon RPC](https://getmonero.org/resources/developer-guides/daemon-rpc.html) with two test wallets named `test_wallet_1` and `test_wallet_2`.  The mnemonic phrase and public address of `test_wallet_1` must match TestUtils.TEST_MNEMONIC and TestUtils.TEST_ADDRESS, respectively.  Both wallets must be encrypted with a password which matches TestUtils.WALLET_RPC_PW ("supersecretpassword123").  See [Monero RPC Setup](#monero-rpc-setup).
+1. Set up running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon RPC](https://getmonero.org/resources/developer-guides/daemon-rpc.html) with two test wallets named `test_wallet_1` and `test_wallet_2`.  The mnemonic phrase and public address of `test_wallet_1` must match `TestUtils.TEST_MNEMONIC` and `TestUtils.TEST_ADDRESS`, respectively.  Both wallets must be encrypted with a password which matches `TestUtils.WALLET_RPC_PW` ("supersecretpassword123").  See [Monero RPC Setup](#monero-rpc-setup).
 2. `git clone --recurse-submodules https://github.com/woodser/monero-javascript.git`
 3. `npm install`
 4. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](tests/TestUtils.js).
