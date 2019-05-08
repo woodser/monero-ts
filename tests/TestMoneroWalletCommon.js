@@ -125,8 +125,8 @@ class TestMoneroWalletCommon {
           assert.equal(e.getDescription(), "Invalid payment ID");
         }
         
-        // test null payment id which generates a new one
-        integratedAddress = await wallet.getIntegratedAddress(null);
+        // test undefined payment id which generates a new one
+        integratedAddress = await wallet.getIntegratedAddress(undefined);
         assert.equal(integratedAddress.getStandardAddress(), address);
         assert(integratedAddress.getPaymentId().length);
       });
@@ -769,7 +769,7 @@ class TestMoneroWalletCommon {
           }
           
           // get and test transfers by subaddress indices
-          let transfers = await getAndTestTransfers(wallet, new MoneroTransferRequest().setAccountIndex(account.getIndex()).setSubaddressIndices(Array.from(subaddressIndices)), null, null);
+          let transfers = await getAndTestTransfers(wallet, new MoneroTransferRequest().setAccountIndex(account.getIndex()).setSubaddressIndices(Array.from(subaddressIndices)), undefined, undefined);
           //if (transfers.length !== subaddressTransfers.length) console.log("WARNING: outgoing transfers always from subaddress 0 (monero-wallet-rpc #5171)");
           assert.equal(transfers.length, subaddressTransfers.length); // TODO monero-wallet-rpc: these may not be equal because outgoing transfers are always from subaddress 0 (#5171) and/or incoming transfers from/to same account are occluded (#4500)
           for (let transfer of transfers) {
@@ -1602,8 +1602,7 @@ class TestMoneroWalletCommon {
       // TODO: test sending to multiple accounts
       
       it("Can update a locked tx sent from/to the same account as blocks are added to the chain", async function() {
-        let request = new MoneroSendRequest(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
-        request.setAccountIndex(0);
+        let request = new MoneroSendRequest(0, await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
         request.setCanSplit(false);
         await testSendAndUpdateTxs(request);
@@ -1611,8 +1610,7 @@ class TestMoneroWalletCommon {
       
       if (!liteMode)
       it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
-        let request = new MoneroSendRequest(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
-        request.setAccountIndex(0);
+        let request = new MoneroSendRequest(0, await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
         request.setCanSplit(true);
         await testSendAndUpdateTxs(request);
@@ -1620,16 +1618,14 @@ class TestMoneroWalletCommon {
       
       if (!liteMode)
       it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
-        let request = new MoneroSendRequest((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
-        request.setAccountIndex(0);
+        let request = new MoneroSendRequest(0, (await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
         await testSendAndUpdateTxs(request);
       });
       
       if (!liteMode)
       it("Can update locked, split txs sent from/to different accounts as blocks are added to the chain", async function() {
-        let request = new MoneroSendRequest((await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
-        request.setAccountIndex(0);
+        let request = new MoneroSendRequest(0, (await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
         await testSendAndUpdateTxs(request);
       });
@@ -1896,8 +1892,8 @@ class TestMoneroWalletCommon {
         
         // find a non-primary subaddress to send from
         let sufficientBalance = false;
-        let fromAccount = null;
-        let fromSubaddress = null;
+        let fromAccount = undefined;
+        let fromSubaddress = undefined;
         let accounts = await wallet.getAccounts(true);
         for (let account of accounts) {
           let subaddresses = account.getSubaddresses();
@@ -1909,10 +1905,10 @@ class TestMoneroWalletCommon {
               break;
             }
           }
-          if (fromAccount != null) break;
+          if (fromAccount != undefined) break;
         }
         assert(sufficientBalance, "No non-primary subaddress found with sufficient balance");
-        assert(fromSubaddress !== null, "Wallet is waiting on unlocked funds");
+        assert(fromSubaddress !== undefined, "Wallet is waiting on unlocked funds");
         
         // get balance before send
         let balanceBefore = fromSubaddress.getBalance();
@@ -2138,7 +2134,7 @@ class TestMoneroWalletCommon {
           let address = await wallet.getAddress(output.getAccountIndex(), output.getSubaddressIndex());
           let request = new MoneroSendRequest(address).setKeyImage(output.getKeyImage().getHex());
           let tx;
-          if (useParams) tx = await wallet.sweepOutput(address, output.getKeyImage().getHex(), null); // test params
+          if (useParams) tx = await wallet.sweepOutput(address, output.getKeyImage().getHex(), undefined); // test params
           else tx = await wallet.sweepOutput(request);  // test request
           
           // test resulting tx

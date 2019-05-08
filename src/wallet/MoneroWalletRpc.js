@@ -581,19 +581,19 @@ class MoneroWalletRpc extends MoneroWallet {
     return await this._rpcExportKeyImages(false);
   }
   
-  async send(requestOrAddress, amount, priority, mixin) {
+  async send(requestOrAccountIndex, address, amount, priority) {
     let args = [].slice.call(arguments);
     args.splice(0, 0, false);  // specify splitting
     return await this._send.apply(this, args);
   }
 
-  async sendSplit(requestOrAddress, amount, priority, mixin) {
+  async sendSplit(requestOrAccountIndex, address, amount, priority) {
     let args = [].slice.call(arguments);
     args.splice(0, 0, true);  // specify splitting
     return await this._send.apply(this, args);
   }
   
-  async sweepOutput(requestOrAddress, keyImage, priority, mixin) {
+  async sweepOutput(requestOrAddress, keyImage, priority) {
     
     // normalize and validate request
     let request;
@@ -603,7 +603,7 @@ class MoneroWalletRpc extends MoneroWallet {
     } else {
       if (requestOrAddress instanceof Object) request = new MoneroSendRequest(requestOrAddress);
       else {
-        request = new MoneroSendRequest(requestOrAddress, undefined, priority, mixin);
+        request = new MoneroSendRequest(requestOrAddress, undefined, priority);
         request.setKeyImage(keyImage);
       }
     }
@@ -982,18 +982,16 @@ class MoneroWalletRpc extends MoneroWallet {
     return subaddressIndices;
   }
   
-  async _send(split, requestOrAddress, amount, priority, mixin) {
+  async _send(split, requestOrAccountIndex, address, amount, priority) {
     
     // normalize and validate request
     let request;
-    if (requestOrAddress instanceof MoneroSendRequest) {
+    if (requestOrAccountIndex instanceof MoneroSendRequest) {
       assert.equal(arguments.length, 2, "Sending requires a send request or parameters but not both");
-      request = requestOrAddress;
+      request = requestOrAccountIndex;
     } else {
-      if (requestOrAddress instanceof Object) request = new MoneroSendRequest(requestOrAddress);
-      else {
-        request = new MoneroSendRequest(requestOrAddress, amount, priority, mixin);
-      }
+      if (requestOrAccountIndex instanceof Object) request = new MoneroSendRequest(requestOrAccountIndex);
+      else request = new MoneroSendRequest(requestOrAccountIndex, address, amount, priority);
     }
     assert.equal(request.getSweepEachSubaddress(), undefined);
     assert.equal(request.getBelowAmount(), undefined);
@@ -1001,8 +999,8 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // determine account and subaddresses to send from
     let accountIdx = request.getAccountIndex();
-    if (accountIdx === undefined) accountIdx = 0; // default to account 0
-    let subaddressIndices = request.getSubaddressIndices() === undefined ? await this._getSubaddressIndices(accountIdx) : request.getSubaddressIndices().slice(0);  // copy given indices or fetch all
+    if (accountIdx === undefined) throw new MoneroError("Must specify the account index to send from");
+    let subaddressIndices = request.getSubaddressIndices() === undefined ? undefined : request.getSubaddressIndices().slice(0); // fetch all or copy given indices
     
     // build request parameters
     let params = {};
@@ -1037,7 +1035,7 @@ class MoneroWalletRpc extends MoneroWallet {
     for (let tx of txs) {
       MoneroWalletRpc._initSentTxWallet(request, tx);
       tx.getOutgoingTransfer().setAccountIndex(accountIdx);
-      if (subaddressIndices.length === 1) tx.getOutgoingTransfer().setSubaddressIndices(subaddressIndices);
+      if (subaddressIndices !== undefined && subaddressIndices.length === 1) tx.getOutgoingTransfer().setSubaddressIndices(subaddressIndices);
     }
     
     // initialize txs from rpc response

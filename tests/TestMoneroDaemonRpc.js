@@ -428,7 +428,7 @@ class TestMoneroDaemonRpc {
       it("Can get all transactions in the transaction pool", async function() {
         
         // submit tx to pool but don't relay
-        let tx = await getUnrelayedTx(wallet);
+        let tx = await getUnrelayedTx(wallet, 0);
         await daemon.submitTxHex(tx.getFullHex(), true);
         
         // fetch txs in pool
@@ -1486,9 +1486,8 @@ function testTxPoolStats(stats) {
 }
 
 async function getUnrelayedTx(wallet, accountIdx) {
-  let request = new MoneroSendRequest(await wallet.getPrimaryAddress(), TestUtils.MAX_FEE); 
+  let request = new MoneroSendRequest(accountIdx, await wallet.getPrimaryAddress(), TestUtils.MAX_FEE); 
   request.setDoNotRelay(true);
-  request.setAccountIndex(accountIdx);
   let tx = await wallet.send(request);
   assert(tx.getFullHex());
   assert.equal(tx.getDoNotRelay(), true);

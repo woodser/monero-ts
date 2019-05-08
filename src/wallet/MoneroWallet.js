@@ -389,65 +389,28 @@ class MoneroWallet {
   async getNewKeyImagesFromLastImport() {
     throw new MoneroError("Subclass must implement");
   }
-  
+
   /**
-   * Creates a transaction which transfers funds from this wallet to one or more destinations.
+   * Create a transaction which transfers funds from this wallet to one or more destinations.
    * 
-   * @param {(MoneroSendRequest|object|string)} requestOrAddress defines send configuration (documented next) xor an address to send to
-   * 
-   * Send with single config param:
-   * 
-   * @param {MoneroDestination[]|object[]} config.destinations are destination addresses to send to and their amounts
-   * @param {string} config.paymentId is a random 32-byte/64-character hex string to identify a transaction (optional)
-   * @param {int|MoneroSendPriority} config.priority is the priority to have the tx confirmed; 0-3 for default, unimportant, normal, and elevated (optional)
-   * @param {int} config.mixin is number of outputs from the blockchain to mix with (optional)
-   * @param {int} config.accountIndex identifies the account to transfer from (optional, defaults to 0)
-   * @param {int} config.subaddressIndices identifies one or more subaddresses to transfer from (optional, defaults to any)
-   * @param {int} config.unlockTime is the number of blocks before the monero can be spent (0 or undefined to not add a lock) (optional)
-   * @param {boolean} config.doNotRelay does not relay the created transaction to the Monero network iff true (optional)
-   * 
-   * Send with multiple function params:
-   * 
-   * @param {string} address is a destination address to send to (required iff no config object)
-   * @para {BigInteger} sendAmount is the amount to send (required iff no config object)
-   * @param {int|MoneroSendPriority} priority is the priority to have the tx confirmed; 0-3 for default, unimportant, normal, and elevated (optional)
-   * @param {int} mixin is the number of outputs from the blockchain to mix with (optional)
-   * 
-   * @return {MoneroTxWallet} is the resulting transaction
+   * @param {MoneroSendRequest|json|uint} requestOrAccountIndex is a send request as an object or json or a source account index
+   * @param {string} address is a destination address to send to (required iff no request given)
+   * @param {BigInteger} sendAmount is the amount to send (required iff no request given)
    */
-  async send(requestOrAddress, sendAmount, priority, mixin) {
+  async send(requestOrAccountIndex, address, amount, priority) {
     throw new MoneroError("Subclass must implement");
   }
   
   /**
-   * Creates one or more transactions which transfer funds from this wallet to one or more destinations.
+   * Create one or more transactions which transfers funds from this wallet to one or more destinations.
    * 
-   * @param {(MoneroSendRequest|object|string)} requestOrAddress defines send configuration (documented next) xor an address to send to
-   * 
-   * Send with single config param:
-   * 
-   * @param {MoneroDestination[]|object[]} config.destinations are destination addresses to send to and their amounts
-   * @param {string} config.paymentId is a random 32-byte/64-character hex string to identify a transaction (optional)
-   * @param {int|MoneroSendPriority} config.priority is the priority to have the tx confirmed; 0-3 for default, unimportant, normal, and elevated (optional)
-   * @param {int} config.mixin is number of outputs from the blockchain to mix with (optional)
-   * @param {int} config.accountIndex identifies the account to transfer from (optional, defaults to 0)
-   * @param {int} config.subaddressIndices identifies one or more subaddresses to transfer from (optional, defaults to any)
-   * @param {int} config.unlockTime is the number of blocks before the monero can be spent (0 or undefined to not add a lock) (optional)
-   * @param {boolean} config.doNotRelay does not relay the created transaction to the Monero network iff true (optional)
-   * 
-   * Send with multiple function params:
-   * 
-   * @param {string} address is a destination address to send to (required iff no config object)
-   * @para {BigInteger} sendAmount is the amount to send (required iff no config object)
-   * @param {int|MoneroSendPriority} priority is the priority to have the tx confirmed; 0-3 for default, unimportant, normal, and elevated (optional)
-   * @param {int} mixin is the number of outputs from the blockchain to mix with (optional)
-   * 
-   * @return {MoneroTxWallet[]} are the resulting transactions
+   * @param {MoneroSendRequest|json|uint} requestOrAccountIndex is a send request as an object or json or a source account index
+   * @param {string} address is a destination address to send to (required iff no request given)
+   * @param {BigInteger} sendAmount is the amount to send (required iff no request given)
    */
-  async sendSplit(requestOrAddress, sendAmount, priority, mixin) {
+  async send(requestOrAccountIndex, address, amount, priority) {
     throw new MoneroError("Subclass must implement");
   }
-  
   
   /**
    * Sweep an output with a given key image.
@@ -455,10 +418,9 @@ class MoneroWallet {
    * @param {(MoneroSendRequest|string)} requestOrAddress is a send configuration or destination address
    * @param {string} keyImage is the key image hex of the output to sweep
    * @param {int} priority sets a transaction priority as an integer between 0 and 3 (see {MoneroSendPriority})
-   * @param {int} mixin is the number of outputs from the blockchain to mix with (default 11)
    * @return {MoneroTxWallet} is the resulting transaction from sweeping an output 
    */
-  async sweepOutput(requestOrAddress, keyImage, priority, mixin) {
+  async sweepOutput(requestOrAddress, keyImage, priority) {
     throw new MoneroError("Subclass must implement");
   }
   

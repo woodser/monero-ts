@@ -41,10 +41,10 @@ let subaddress = await wallet.getSubaddress(1, 0);
 let subaddressBalance = subaddress.getBalance();
 let subaddressAddress = subaddress.getAddress();
 
-// send to an address
-let sentTx = await wallet.send("74oAtjgE2dfD1bJBo4DW...", new BigInteger(50000));
+// send to an address from account 0
+let sentTx = await wallet.send(0, "74oAtjgE2dfD1bJBo4DW...", new BigInteger(50000));
 
-// send to multiple destinations from subaddress 1, 0 which can be split into multiple transactions
+// send to multiple destinations from multiple subaddresses in account 1 which can be split into multiple transactions
 // see MoneroSendConfig.js for all config options or to build a config object
 let sentTxs = await wallet.sendSplit({
   destinations: [
