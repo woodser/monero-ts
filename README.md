@@ -20,7 +20,7 @@ A quick reference of the wallet and daemon data models can be found [here](moner
 
 ## Wallet Sample Code
 
-See the [tests](tests) for the most complete examples of using this library.
+See [tests](tests) for the most complete examples of using this library.
 
 ```js
 // create a wallet that uses a monero-wallet-rpc endpoint
