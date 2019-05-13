@@ -18,7 +18,7 @@ const MoneroRpcConfigDefault = {
 }
 
 /**
- * Interacts with a Monero RPC API.
+ * Maintains a connection and sends requests to a Monero RPC API.
  */
 class MoneroRpc {
   
