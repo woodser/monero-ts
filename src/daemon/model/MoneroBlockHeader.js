@@ -36,10 +36,21 @@ class MoneroBlockHeader {
     return this;
   }
   
+  /**
+   * Return the block's height which is the total number of blocks that have occurred before.
+   * 
+   * @return {number} the block's height
+   */
   getHeight() {
     return this.state.height;
   }
   
+  /**
+   * Set the block's height which is the total number of blocks that have occurred before.
+   * 
+   * @param {number} height is the block's height to set
+   * @return {MoneroBlockHeader} a reference to this header for chaining
+   */
   setHeight(height) {
     this.state.height = height;
     return this;

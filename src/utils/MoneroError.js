@@ -25,6 +25,7 @@ class MoneroError extends Error {
   }
   
   toString() {
+    if (this.getDescription() === undefined && this.getCode() === undefined) return super.message;
     let str = "";
     if (this.getCode() !== undefined) str += this.getCode() + ": ";
     str += this.getDescription();
