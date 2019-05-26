@@ -243,7 +243,7 @@ add_executable(scratchpad ${SCRATCHPAD_SRC_FILES})
 
 target_link_libraries(scratchpad
 
-	#hidapi
+	hidapi
 	
 	boost_chrono
 	boost_date_time
