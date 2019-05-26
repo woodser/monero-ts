@@ -1,0 +1,3 @@
+[submodule "submodules/monero-core"]
+	path = submodules/monero-core
+	url = https://github.com/monero-project/monero
