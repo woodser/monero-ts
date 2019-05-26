@@ -233,7 +233,7 @@ set_target_properties(version PROPERTIES IMPORTED_LOCATION
 
 set(
     SCRATCHPAD_SRC_FILES
-    src/main/cpp/Scratchpad.cpp
+    test/Scratchpad.cpp
 )
 
 add_executable(scratchpad ${SCRATCHPAD_SRC_FILES})
