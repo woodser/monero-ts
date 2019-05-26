@@ -17,7 +17,6 @@ set(MONERO_SRC "${MONERO}/src")
 include_directories("$ENV{JAVA_HOME}")
 include_directories("$ENV{JAVA_HOME}/include")
 include_directories("$ENV{JAVA_HOME}/include/darwin")
-include_directories(contrib/openssl-sdk/include)
 include_directories(${MONERO}/contrib/epee/include)
 include_directories(${MONERO}/external/)
 include_directories(${MONERO}/external/easylogging++)
@@ -123,6 +122,8 @@ set_target_properties(boost_thread PROPERTIES IMPORTED_LOCATION
 # OpenSSL
 ############
 
+include_directories(contrib/openssl-sdk/include)
+
 add_library(crypto STATIC IMPORTED)
 set_target_properties(crypto PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/openssl/libcrypto.a)
@@ -134,6 +135,8 @@ set_target_properties(ssl PROPERTIES IMPORTED_LOCATION
 ############
 # libsodium
 ############
+
+include_directories(contrib/libsodium/include/sodium)
 
 add_library(sodium STATIC IMPORTED)
 set_target_properties(sodium PROPERTIES IMPORTED_LOCATION
