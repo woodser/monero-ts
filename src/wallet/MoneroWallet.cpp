@@ -47,6 +47,15 @@ void MoneroWallet::getMnemonic(epee::wipeable_string& mnemonic) const {
   throw runtime_error("Not implemented");
 }
 
-void MoneroWallet::setDaemonConnection(const string& daemonUri, const string& daemonUsername, const epee::wipeable_string& daemonPassword) {
-  throw runtime_error("Not implemented");
+void MoneroWallet::setDaemonConnection(const string& uri, const string& username, const epee::wipeable_string& password) {
+
+  // prepare uri, login, and isTrusted for wallet2
+  boost::optional<epee::net_utils::http::login> login{};
+  login.emplace(username, password);
+  bool isTrusted = false;
+  try { isTrusted = tools::is_local_address(uri); }	// wallet is trusted iff local
+  catch (const exception &e) { }
+
+  // set wallet2 daemon connection
+  wallet2->set_daemon(uri, login, isTrusted);
 }
