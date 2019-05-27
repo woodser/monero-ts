@@ -25,7 +25,7 @@ using namespace cryptonote;
      * @param daemonConnection is connection information to a daemon (default = an unconnected wallet)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    MoneroWallet(network_type networkType, string daemonConnection, string language);
+    MoneroWallet(network_type networkType, const string& daemonConnection, const string& language);
 
     /**
      * Construct a wallet from a mnemonic phrase.
@@ -35,7 +35,7 @@ using namespace cryptonote;
      * @param daemonConnection is connection information to a daemon (default = an unconnected wallet)
      * @param restoreHeight is the block height to restore (i.e. scan the chain) from (default = 0)
      */
-    MoneroWallet(string mnemonic, network_type networkType, string daemonConnection, uint64_t restoreHeight);
+    MoneroWallet(const string& mnemonic, network_type networkType, const string& daemonConnection, uint64_t restoreHeight);
 
     /**
      * Construct a wallet from an address, view key, and spend key.
@@ -48,7 +48,7 @@ using namespace cryptonote;
      * @param restoreHeight is the block height to restore (i.e. scan the chain) from (default = 0)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    MoneroWallet(string address, string viewKey, string spendKey, network_type networkType, string daemonConnection, uint64_t restoreHeight, string language);
+    MoneroWallet(const string& address, const string& viewKey, const string& spendKey, network_type networkType, const string& daemonConnection, uint64_t restoreHeight, const string& language);
 
     /**
      * Construct a wallet by opening a wallet file on disk.
@@ -57,12 +57,21 @@ using namespace cryptonote;
      * @param password is the password of the wallet file to open
      * @param networkType is the wallet's network type
      */
-    MoneroWallet(string path, string password, network_type networkType);
+    MoneroWallet(const string& path, const epee::wipeable_string& password, network_type networkType);
 
     /**
      * Deconstructs the wallet.
      */
     ~MoneroWallet();
+
+    /**
+     * Set the wallet's daemon connection.
+     *
+     * @param daemonUri is the daemon's URI
+     * @param daemonUsername is the daemon's username
+     * @param daemonPassword is the daemon's password
+     */
+    void setDaemonConnection(const string& daemonUri, const string& daemonUsername, const const epee::wipeable_string& daemonPassword);
 
 //   /**
 //    * Get the wallet's seed.
@@ -80,4 +89,6 @@ using namespace cryptonote;
 
    // --------------------------------- PRIVATE --------------------------------
 
+ private:
+   tools::wallet2* wallet2;	// internal wallet implementation
  };
