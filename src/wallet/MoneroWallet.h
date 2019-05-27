@@ -24,7 +24,7 @@ using namespace cryptonote;
   static bool walletExists(const string& path);
 
   /**
-   * Construct a wallet with a randomly generated seed.
+   * Construct an unconnected English wallet with a randomly generated seed on mainnet.
    */
   MoneroWallet();
 
