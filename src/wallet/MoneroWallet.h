@@ -73,10 +73,10 @@ using namespace crypto;
    */
   ~MoneroWallet();
 
-  // ------------ WALLET METHODS SPECIFIC TO JNI IMPLEMENTATION ---------------
-
   /**
    * Set the wallet's daemon connection.
+   *
+   * TODO: switch to MoneroNetworkType
    *
    * @param uri is the daemon's URI
    * @param username is the daemon's username
@@ -84,9 +84,9 @@ using namespace crypto;
    */
   void setDaemonConnection(const string& uri, const string& username, const epee::wipeable_string& password);
 
-  MoneroNetworkType getNetworkType();
+  MoneroRpcConnection getDaemonConnection();
 
-  // -------------------------- COMMON WALLET METHODS -------------------------
+  MoneroNetworkType getNetworkType();
 
 //   /**
 //    * Get the wallet's seed.

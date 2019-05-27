@@ -235,6 +235,8 @@ set_target_properties(version PROPERTIES IMPORTED_LOCATION
 # Build C++ scratchpad
 ########################
 
+#[[	--- START BLOCK COMMENT ---
+
 set(
     SCRATCHPAD_SRC_FILES
     test/Scratchpad.cpp
@@ -285,6 +287,8 @@ target_link_libraries(scratchpad
 	
 	${EXTRA_LIBRARIES}
 )
+
+]]	# --- END BLOCK COMMENT ---
 
 ########################
 # Build c++ library

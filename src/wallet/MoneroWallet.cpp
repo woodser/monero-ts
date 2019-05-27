@@ -58,6 +58,10 @@ void MoneroWallet::setDaemonConnection(const string& uri, const string& username
   wallet2->set_daemon(uri, login, isTrusted);
 }
 
+MoneroRpcConnection MoneroWallet::getDaemonConnection() {
+  throw runtime_error("ready to implement getDaemonConnection()");
+}
+
 MoneroNetworkType MoneroWallet::getNetworkType() {
   return static_cast<MoneroNetworkType>(wallet2->nettype());
 }
