@@ -15,6 +15,7 @@ bool MoneroWallet::walletExists(const string& path) {
 
 MoneroWallet::MoneroWallet() {
   cout << "MoneroWallet()" << endl;
+  throw runtime_error("Not implemented");
 }
 
 MoneroWallet::MoneroWallet(const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, const string& language) {
@@ -27,10 +28,12 @@ MoneroWallet::MoneroWallet(const MoneroNetworkType networkType, const MoneroRpcC
 
 MoneroWallet::MoneroWallet(const string& mnemonic, const MoneroNetworkType networkType, const string& daemonConnection, uint64_t restoreHeight) {
   cout << "MoneroWallet(4)" << endl;
+  throw runtime_error("Not implemented");
 }
 
 MoneroWallet::MoneroWallet(const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const string& daemonConnection, uint64_t restoreHeight, const string& language) {
   cout << "MoneroWallet(7)" << endl;
+  throw runtime_error("Not implemented");
 }
 
 MoneroWallet::MoneroWallet(const string& path, const epee::wipeable_string& password, const MoneroNetworkType networkType) {
@@ -40,10 +43,6 @@ MoneroWallet::MoneroWallet(const string& path, const epee::wipeable_string& pass
 
 MoneroWallet::~MoneroWallet() {
   cout << "~MoneroWallet()" << endl;
-}
-
-void MoneroWallet::getMnemonic(epee::wipeable_string& mnemonic) const {
-  wallet2->get_seed(mnemonic);
 }
 
 void MoneroWallet::setDaemonConnection(const string& uri, const string& username, const epee::wipeable_string& password) {
@@ -57,4 +56,16 @@ void MoneroWallet::setDaemonConnection(const string& uri, const string& username
 
   // set wallet2 daemon connection
   wallet2->set_daemon(uri, login, isTrusted);
+}
+
+MoneroNetworkType MoneroWallet::getNetworkType() {
+  return static_cast<MoneroNetworkType>(wallet2->nettype());
+}
+
+void MoneroWallet::getMnemonic(epee::wipeable_string& mnemonic) const {
+  wallet2->get_seed(mnemonic);
+}
+
+string MoneroWallet::getAddress(uint32_t accountIdx, uint32_t subaddressIdx) {
+  return wallet2->get_subaddress_as_str({accountIdx, subaddressIdx});
 }

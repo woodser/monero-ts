@@ -73,6 +73,8 @@ using namespace crypto;
    */
   ~MoneroWallet();
 
+  // ------------ WALLET METHODS SPECIFIC TO JNI IMPLEMENTATION ---------------
+
   /**
    * Set the wallet's daemon connection.
    *
@@ -81,6 +83,10 @@ using namespace crypto;
    * @param password is the daemon's password
    */
   void setDaemonConnection(const string& uri, const string& username, const epee::wipeable_string& password);
+
+  MoneroNetworkType getNetworkType();
+
+  // -------------------------- COMMON WALLET METHODS -------------------------
 
 //   /**
 //    * Get the wallet's seed.
@@ -95,6 +101,15 @@ using namespace crypto;
   * @param mnemonic is assigned the wallet's mnemonic phrase
   */
  void getMnemonic(epee::wipeable_string& mnemonic) const;
+
+ /**
+  * Get the address of a specific subaddress.
+  *
+  * @param accountIdx specifies the account index of the address's subaddress
+  * @param subaddressIdx specifies the subaddress index within the account
+  * @return the receive address of the specified subaddress
+  */
+ string getAddress(uint32_t accountIdx, uint32_t subaddressIdx);
 
  // --------------------------------- PRIVATE --------------------------------
 
