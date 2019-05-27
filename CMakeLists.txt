@@ -10,21 +10,21 @@ project(MoneroCppLibrary)
 # System
 #############
 
-set(MONERO "submodules/monero-core")
-set(MONERO_SRC "${MONERO}/src")
+set(MONERO_CORE "submodules/monero-core")
+set(MONERO_CORE_SRC "${MONERO_CORE}/src")
 
 # header includes
 include_directories("$ENV{JAVA_HOME}")
 include_directories("$ENV{JAVA_HOME}/include")
 include_directories("$ENV{JAVA_HOME}/include/darwin")
 include_directories(src/)
-include_directories(${MONERO}/contrib/epee/include)
-include_directories(${MONERO}/external/)
-include_directories(${MONERO}/external/easylogging++)
-include_directories("${MONERO_SRC}/")
-include_directories("${MONERO_SRC}/wallet")
-include_directories("${MONERO_SRC}/wallet/api")
-include_directories("${MONERO_SRC}/crypto/crypto_ops_builder/include/")
+include_directories(${MONERO_CORE}/contrib/epee/include)
+include_directories(${MONERO_CORE}/external/)
+include_directories(${MONERO_CORE}/external/easylogging++)
+include_directories("${MONERO_CORE_SRC}/")
+include_directories("${MONERO_CORE_SRC}/wallet")
+include_directories("${MONERO_CORE_SRC}/wallet/api")
+include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")
 
 set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/external-libs)
 message(STATUS EXTERNAL_LIBS_DIR : ${EXTERNAL_LIBS_DIR})
@@ -69,16 +69,16 @@ set_target_properties(hidapi PROPERTIES IMPORTED_LOCATION
 
 #include_directories(/Users/Eric/Downloads/boost_1_70_0)
 #include_directories(contrib/boost-sdk)
-#SET(boost_SRC /Users/Eric/git/build_stuff/boost_1_69_0/boost)
-#SET(boost_LIB /Users/Eric/git/build_stuff/boost_1_69_0/stage/lib)
+#SET(BOOST_SRC /Users/Eric/git/build_stuff/boost_1_69_0/boost)
+#SET(BOOST_LIB /Users/Eric/git/build_stuff/boost_1_69_0/stage/lib)
 #include_directories(/Users/Eric/git/build_stuff/boost_1_69_0)
-#include_directories("${boost_SRC}")
-#link_directories(${boost_LIB})
-#SET(boost_SRC ${boost_DIR}/boost)
-#SET(boost_LIB ${boost_DIR}/stage/lib)
+#include_directories("${BOOST_SRC}")
+#link_directories(${BOOST_LIB})
+#SET(BOOST_SRC ${BOOST}/boost)
+#SET(BOOST_LIB ${BOOST}/stage/lib)
 
-SET(boost_DIR contrib/boost-sdk)
-include_directories(${boost_DIR})
+SET(BOOST contrib/boost-sdk)
+include_directories(${BOOST})
 link_directories(${EXTERNAL_LIBS_DIR}/boost)
 
 find_package(Boost 1.69 REQUIRED COMPONENTS chrono date_time filesystem program_options regex serialization wserialization system thread)
@@ -295,7 +295,7 @@ set(
     src/wallet/MoneroWallet.cpp
 )
 
-add_library(monero-cpp ${LIBRARY_SRC_FILES})
+add_library(monero-cpp SHARED ${LIBRARY_SRC_FILES})
 
 target_link_libraries(monero-cpp
 

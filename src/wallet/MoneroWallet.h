@@ -1,5 +1,3 @@
-#include "include_base_utils.h"
-#include "cryptonote_basic/cryptonote_basic_impl.h"
 #include "wallet/wallet2.h"
 
 using namespace std;
