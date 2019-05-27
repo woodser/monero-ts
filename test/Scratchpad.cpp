@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <iostream>
 #include "wallet2.h"
-#include "wallet/MoneroWallet.h"
 #include "wallet/MoneroWallet.cpp"
 //#include <boost/stacktrace.hpp>
 using namespace std;

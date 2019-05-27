@@ -1,4 +1,9 @@
+#include <stdio.h>
+#include <iostream>
+#include "MoneroWallet.h"
+
 using namespace std;
+using namespace epee;
 
 MoneroWallet::MoneroWallet() {
   cout << "MoneroWallet()" << endl;
@@ -34,6 +39,6 @@ void MoneroWallet::getMnemonic(epee::wipeable_string& mnemonic) const {
   throw runtime_error("Not implemented");
 }
 
-void MoneroWallet::setDaemonConnection(const string& daemonUri, const string& daemonUsername, const const epee::wipeable_string& daemonPassword) {
+void MoneroWallet::setDaemonConnection(const string& daemonUri, const string& daemonUsername, const epee::wipeable_string& daemonPassword) {
   throw runtime_error("Not implemented");
 }

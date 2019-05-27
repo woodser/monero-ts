@@ -1,6 +1,14 @@
+#include "include_base_utils.h"
+#include "cryptonote_basic/cryptonote_basic_impl.h"
+#include "wallet/wallet2.h"
+
 using namespace std;
 using namespace crypto;
 using namespace cryptonote;
+
+//int main(int argc, const char* argv[]) {
+//  cout << "===== MAIN =====" << endl;
+//}
 
 /**
  * Monero wallet interface.
@@ -71,7 +79,7 @@ using namespace cryptonote;
      * @param daemonUsername is the daemon's username
      * @param daemonPassword is the daemon's password
      */
-    void setDaemonConnection(const string& daemonUri, const string& daemonUsername, const const epee::wipeable_string& daemonPassword);
+    void setDaemonConnection(const string& daemonUri, const string& daemonUsername, const epee::wipeable_string& daemonPassword);
 
 //   /**
 //    * Get the wallet's seed.
