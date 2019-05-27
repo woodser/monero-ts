@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <iostream>
 #include "wallet2.h"
+#include "wallet/MoneroWallet.h"
+#include "wallet/MoneroWallet.cpp"
 //#include <boost/stacktrace.hpp>
 using namespace std;
 
@@ -51,5 +53,13 @@ int main(int argc, const char* argv[]) {
   cout << "Wallet exists: " << walletExists(path) << endl;
 
 //  openWallet(path, password, networkType);
-  createWalletRandom(language, networkType);
+//  createWalletRandom(language, networkType);
+
+  // create wallet
+  MoneroWallet* wallet = new MoneroWallet();
+
+  // get the mnemonic
+  epee::wipeable_string mnemonic;
+  wallet->getMnemonic(mnemonic);
+  cout << "Mnemonic: " << string(mnemonic.data(), mnemonic.size()) << endl;
 }

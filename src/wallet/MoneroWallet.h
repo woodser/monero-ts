@@ -5,19 +5,19 @@ using namespace std;
  */
  class MoneroWallet {
 
-   /**
-    * Construct the wallet.	TODO
-    */
-   MoneroWallet()
-
-   /**
-    * Deconstructs the wallet.
-    */
-   ~MoneroWallet();
-
    // --------------------------------- PUBLIC --------------------------------
 
  public:
+
+    /**
+     * Construct the wallet.	TODO
+     */
+    MoneroWallet();
+
+    /**
+     * Deconstructs the wallet.
+     */
+    ~MoneroWallet();
 
 //   /**
 //    * Get the wallet's seed.
@@ -34,7 +34,5 @@ using namespace std;
    void getMnemonic(epee::wipeable_string& mnemonic) const;
 
    // --------------------------------- PRIVATE --------------------------------
-
- private:
 
  };
