@@ -287,7 +287,7 @@ target_link_libraries(scratchpad
 )
 
 ########################
-# Build C++ library
+# Build c++ library
 ########################
 
 set(
