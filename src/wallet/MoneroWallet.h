@@ -66,7 +66,7 @@ using namespace crypto;
    * @param password is the password of the wallet file to open
    * @param networkType is the wallet's network type
    */
-  MoneroWallet(const string& path, const epee::wipeable_string& password, const MoneroNetworkType networkType);
+  MoneroWallet(const string& path, const string& password, const MoneroNetworkType networkType);
 
   /**
    * Deconstructs the wallet.
@@ -82,7 +82,7 @@ using namespace crypto;
    * @param username is the daemon's username
    * @param password is the daemon's password
    */
-  void setDaemonConnection(const string& uri, const string& username, const epee::wipeable_string& password);
+  void setDaemonConnection(const string& uri, const string& username, const string& password);
 
   MoneroRpcConnection getDaemonConnection();
 
@@ -100,7 +100,7 @@ using namespace crypto;
   *
   * @param mnemonic is assigned the wallet's mnemonic phrase
   */
- void getMnemonic(epee::wipeable_string& mnemonic) const;
+ string getMnemonic() const;
 
  /**
   * Get the address of a specific subaddress.

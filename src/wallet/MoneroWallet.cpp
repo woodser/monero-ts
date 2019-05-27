@@ -19,6 +19,7 @@ MoneroWallet::MoneroWallet() {
 }
 
 MoneroWallet::MoneroWallet(const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, const string& language) {
+  cout << "MoneroWallet(3)" << endl;
   wallet2 = new tools::wallet2(static_cast<network_type>(networkType), 1, true);
   MoneroWallet::setDaemonConnection(daemonConnection.uri, daemonConnection.username, daemonConnection.password);
   wallet2->set_seed_language(language);
@@ -36,7 +37,8 @@ MoneroWallet::MoneroWallet(const string& address, const string& viewKey, const s
   throw runtime_error("Not implemented");
 }
 
-MoneroWallet::MoneroWallet(const string& path, const epee::wipeable_string& password, const MoneroNetworkType networkType) {
+MoneroWallet::MoneroWallet(const string& path, const string& password, const MoneroNetworkType networkType) {
+  cout << "MoneroWallet(3b)" << endl;
   wallet2 = new tools::wallet2(static_cast<network_type>(networkType), 1, true);
   wallet2->load(path, password);
 }
@@ -45,7 +47,8 @@ MoneroWallet::~MoneroWallet() {
   cout << "~MoneroWallet()" << endl;
 }
 
-void MoneroWallet::setDaemonConnection(const string& uri, const string& username, const epee::wipeable_string& password) {
+void MoneroWallet::setDaemonConnection(const string& uri, const string& username, const string& password) {
+  cout << "setDaemonConnection(" << uri << ", " << username << ", " << password << ")" << endl;
 
   // prepare uri, login, and isTrusted for wallet2
   boost::optional<epee::net_utils::http::login> login{};
@@ -59,15 +62,25 @@ void MoneroWallet::setDaemonConnection(const string& uri, const string& username
 }
 
 MoneroRpcConnection MoneroWallet::getDaemonConnection() {
-  throw runtime_error("ready to implement getDaemonConnection()");
+  MoneroRpcConnection connection;
+  if (!wallet2->get_daemon_address().empty()) connection.uri = wallet2->get_daemon_address();
+  if (wallet2->get_daemon_login()) {
+    if (!wallet2->get_daemon_login()->username.empty()) connection.username = wallet2->get_daemon_login()->username;
+    epee::wipeable_string wipeablePassword = wallet2->get_daemon_login()->password;
+    string password = string(wipeablePassword.data(), wipeablePassword.size());
+    if (!password.empty()) connection.password = password;
+  }
+  return connection;
 }
 
 MoneroNetworkType MoneroWallet::getNetworkType() {
   return static_cast<MoneroNetworkType>(wallet2->nettype());
 }
 
-void MoneroWallet::getMnemonic(epee::wipeable_string& mnemonic) const {
-  wallet2->get_seed(mnemonic);
+string MoneroWallet::getMnemonic() const {
+  epee::wipeable_string wipeablePassword;
+  wallet2->get_seed(wipeablePassword);
+  return string(wipeablePassword.data(), wipeablePassword.size());
 }
 
 string MoneroWallet::getAddress(uint32_t accountIdx, uint32_t subaddressIdx) {

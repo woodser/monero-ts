@@ -21,10 +21,10 @@ namespace monero {
    * Models a connection to a daemon.
    */
   struct MoneroRpcConnection {
+    string uri;
+    string username;
+    string password;
     //MoneroRpcConnection() : uri(""), username(""), password("")) {}
-    MoneroRpcConnection(const string& uri = "", const string& username = "", const epee::wipeable_string& password = epee::wipeable_string()) : uri(uri), username(username), password(password) {}
-    const string& uri;
-    const string& username;
-    const epee::wipeable_string& password;
+    MoneroRpcConnection(const string& uri = "", const string& username = "", const string& password = "") : uri(uri), username(username), password(password) {}
   };
 }
