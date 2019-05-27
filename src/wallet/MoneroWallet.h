@@ -1,6 +1,8 @@
+#include "daemon/MoneroDaemon.h"
 #include "wallet/wallet2.h"
 
 using namespace std;
+using namespace monero;
 using namespace crypto;
 using namespace cryptonote;
 
@@ -35,7 +37,7 @@ using namespace cryptonote;
    * @param daemonConnection is connection information to a daemon (default = an unconnected wallet)
    * @param language is the wallet and mnemonic's language (default = "English")
    */
-  MoneroWallet(network_type networkType, const string& daemonConnection, const string& language);
+  MoneroWallet(network_type networkType, const MoneroRpcConnection& daemonConnection, const string& language);
 
   /**
    * Construct a wallet from a mnemonic phrase.

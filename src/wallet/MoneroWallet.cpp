@@ -2,9 +2,6 @@
 #include <iostream>
 #include "MoneroWallet.h"
 
-using namespace std;
-using namespace epee;
-
 bool MoneroWallet::walletExists(const string& path) {
   cout << "walletExists(" << path << ")" << endl;
   bool keyFileExists;
@@ -17,13 +14,12 @@ MoneroWallet::MoneroWallet() {
   cout << "MoneroWallet()" << endl;
 }
 
-MoneroWallet::MoneroWallet(network_type networkType, const string& daemonConnection, const string& language) {
+MoneroWallet::MoneroWallet(network_type networkType, const MoneroRpcConnection& daemonConnection, const string& language) {
   wallet2 = new tools::wallet2(networkType, 1, true);
-  MoneroWallet::setDaemonConnection(daemonConnection, nullptr, nullptr);
+  MoneroWallet::setDaemonConnection(daemonConnection.uri, daemonConnection.username, daemonConnection.password);
   wallet2->set_seed_language(language);
   crypto::secret_key recovery_val, secret_key;
   wallet2->generate(string(""), string(""), secret_key, false, false);
-  cout << "MoneroWallet(3)" << endl;
 }
 
 MoneroWallet::MoneroWallet(const string& mnemonic, network_type networkType, const string& daemonConnection, uint64_t restoreHeight) {
