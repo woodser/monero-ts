@@ -5,6 +5,14 @@
 using namespace std;
 using namespace epee;
 
+bool MoneroWallet::walletExists(const string& path) {
+  cout << "walletExists(" << path << ")" << endl;
+  bool keyFileExists;
+  bool walletFileExists;
+  tools::wallet2::wallet_exists(path, keyFileExists, walletFileExists);
+  return walletFileExists;
+}
+
 MoneroWallet::MoneroWallet() {
   cout << "MoneroWallet()" << endl;
 }
