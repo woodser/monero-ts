@@ -23,8 +23,8 @@ namespace monero {
   struct MoneroRpcConnection {
     //MoneroRpcConnection() : uri(""), username(""), password("")) {}
     MoneroRpcConnection(const string& uri = "", const string& username = "", const epee::wipeable_string& password = epee::wipeable_string()) : uri(uri), username(username), password(password) {}
-    const string uri;
-    const string username;
+    const string& uri;
+    const string& username;
     const epee::wipeable_string& password;
   };
 }

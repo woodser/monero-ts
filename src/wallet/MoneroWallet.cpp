@@ -1,6 +1,9 @@
+#include "MoneroWallet.h"
+
 #include <stdio.h>
 #include <iostream>
-#include "MoneroWallet.h"
+
+using namespace cryptonote;
 
 bool MoneroWallet::walletExists(const string& path) {
   cout << "walletExists(" << path << ")" << endl;
@@ -14,24 +17,24 @@ MoneroWallet::MoneroWallet() {
   cout << "MoneroWallet()" << endl;
 }
 
-MoneroWallet::MoneroWallet(network_type networkType, const MoneroRpcConnection& daemonConnection, const string& language) {
-  wallet2 = new tools::wallet2(networkType, 1, true);
+MoneroWallet::MoneroWallet(const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, const string& language) {
+  wallet2 = new tools::wallet2(static_cast<network_type>(networkType), 1, true);
   MoneroWallet::setDaemonConnection(daemonConnection.uri, daemonConnection.username, daemonConnection.password);
   wallet2->set_seed_language(language);
   crypto::secret_key recovery_val, secret_key;
   wallet2->generate(string(""), string(""), secret_key, false, false);
 }
 
-MoneroWallet::MoneroWallet(const string& mnemonic, network_type networkType, const string& daemonConnection, uint64_t restoreHeight) {
+MoneroWallet::MoneroWallet(const string& mnemonic, const MoneroNetworkType networkType, const string& daemonConnection, uint64_t restoreHeight) {
   cout << "MoneroWallet(4)" << endl;
 }
 
-MoneroWallet::MoneroWallet(const string& address, const string& viewKey, const string& spendKey, network_type networkType, const string& daemonConnection, uint64_t restoreHeight, const string& language) {
+MoneroWallet::MoneroWallet(const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const string& daemonConnection, uint64_t restoreHeight, const string& language) {
   cout << "MoneroWallet(7)" << endl;
 }
 
-MoneroWallet::MoneroWallet(const string& path, const epee::wipeable_string& password, network_type networkType) {
-  wallet2 = new tools::wallet2(networkType, 1, true);
+MoneroWallet::MoneroWallet(const string& path, const epee::wipeable_string& password, const MoneroNetworkType networkType) {
+  wallet2 = new tools::wallet2(static_cast<network_type>(networkType), 1, true);
   wallet2->load(path, password);
 }
 
@@ -40,7 +43,7 @@ MoneroWallet::~MoneroWallet() {
 }
 
 void MoneroWallet::getMnemonic(epee::wipeable_string& mnemonic) const {
-  throw runtime_error("Not implemented");
+  wallet2->get_seed(mnemonic);
 }
 
 void MoneroWallet::setDaemonConnection(const string& uri, const string& username, const epee::wipeable_string& password) {
