@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 #include <iostream>
+#include "mnemonics/electrum-words.h"
+#include "mnemonics/english.h"
 
 using namespace cryptonote;
 
@@ -27,9 +29,25 @@ MoneroWallet::MoneroWallet(const MoneroNetworkType networkType, const MoneroRpcC
   wallet2->generate(string(""), string(""), secret_key, false, false);
 }
 
-MoneroWallet::MoneroWallet(const string& mnemonic, const MoneroNetworkType networkType, const string& daemonConnection, uint64_t restoreHeight) {
-  cout << "MoneroWallet(4)" << endl;
-  throw runtime_error("Not implemented");
+MoneroWallet::MoneroWallet(const string& mnemonic, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight) {
+
+  // validate mnemonic and get recovery key and language
+  crypto::secret_key recoveryKey;
+  std::string language;
+  bool isValid = crypto::ElectrumWords::words_to_bytes(mnemonic, recoveryKey, language);
+  if (!isValid) throw runtime_error("Invalid mnemonic");	// TODO: need proper error handling
+  if (language == crypto::ElectrumWords::old_language_name) language = Language::English().get_language_name();
+
+  // initialize wallet
+  wallet2 = new tools::wallet2(static_cast<cryptonote::network_type>(networkType), 1, true);
+  wallet2->set_seed_language(language);
+  wallet2->generate(string(""), string(""), recoveryKey, true, false);
+  wallet2->set_refresh_from_block_height(restoreHeight);
+
+  // print the mnemonic
+  epee::wipeable_string fetchedMnemonic;
+  wallet2->get_seed(fetchedMnemonic);
+  cout << "Mnemonic: " << string(fetchedMnemonic.data(), fetchedMnemonic.size()) << endl;
 }
 
 MoneroWallet::MoneroWallet(const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const string& daemonConnection, uint64_t restoreHeight, const string& language) {
@@ -47,6 +65,7 @@ MoneroWallet::~MoneroWallet() {
   cout << "~MoneroWallet()" << endl;
 }
 
+// TODO: switch this to setDaemonConnection(MoneroDaemonRpc& daemonConnection)
 void MoneroWallet::setDaemonConnection(const string& uri, const string& username, const string& password) {
   cout << "setDaemonConnection(" << uri << ", " << username << ", " << password << ")" << endl;
 

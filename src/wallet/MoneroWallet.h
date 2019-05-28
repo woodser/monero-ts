@@ -44,7 +44,7 @@ using namespace crypto;
    * @param daemonConnection is connection information to a daemon (default = an unconnected wallet)
    * @param restoreHeight is the block height to restore (i.e. scan the chain) from (default = 0)
    */
-  MoneroWallet(const string& mnemonic, const MoneroNetworkType networkType, const string& daemonConnection, uint64_t restoreHeight);
+  MoneroWallet(const string& mnemonic, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight);
 
   /**
    * Construct a wallet from an address, view key, and spend key.
