@@ -251,6 +251,7 @@ namespace monero {
    // --------------------------------- PRIVATE --------------------------------
 
    private:
-     tools::wallet2* wallet2;	// internal wallet implementation
+     tools::wallet2* wallet2;		// internal wallet implementation
+     MoneroWalletListener* listener;	// wallet's assigned listener
    };
 }
