@@ -55,7 +55,7 @@ namespace monero {
     /**
      * Invoked with info as sync progress is made.
      *
-     * @param startHeight is the starting height of the sync process
+     * @param startHeight is the starting height of the sync request
      * @param numBlocksDone is the number of blocks synced
      * @param numBlocksTotal is the total number of blocks to sync
      * @param percentDone is the sync progress as a percentage
