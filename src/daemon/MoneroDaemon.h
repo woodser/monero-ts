@@ -4,7 +4,7 @@
 using namespace std;
 
 /**
- * Public interface for libmonero library.
+ * Public interface for libmonero-cpp library.
  */
 namespace monero {
 

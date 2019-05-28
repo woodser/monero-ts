@@ -65,6 +65,11 @@ MoneroWallet::~MoneroWallet() {
   cout << "~MoneroWallet()" << endl;
 }
 
+
+tools::wallet2* MoneroWallet::getWallet2() {
+  return wallet2;
+}
+
 // TODO: switch this to setDaemonConnection(MoneroDaemonRpc& daemonConnection)
 void MoneroWallet::setDaemonConnection(const string& uri, const string& username, const string& password) {
   cout << "setDaemonConnection(" << uri << ", " << username << ", " << password << ")" << endl;
@@ -121,6 +126,31 @@ uint64_t MoneroWallet::getChainHeight() const {
 
 uint64_t MoneroWallet::getRestoreHeight() const {
   return wallet2->get_refresh_from_block_height();
+}
+
+MoneroSyncResult MoneroWallet::sync() {
+  cout << "sync()" << endl;
+  throw runtime_error("Not implemented");
+  //  tools::wallet2* wallet = getHandle<tools::wallet2>(env, instance, "walletHandle");
+  //  uint64_t blocksFetched;
+  //  bool receivedMoney;
+  //  wallet->refresh(wallet->is_trusted_daemon(), startHeight, blocksFetched, receivedMoney, true);
+  //  cout << "Done refreshing.  Blocks fetched: " << blocksFetched << ", received money: " << receivedMoney << endl;
+}
+
+MoneroSyncResult MoneroWallet::sync(MoneroSyncListener& listener) {
+  cout << "sync(listener)" << endl;
+  throw runtime_error("Not implemented");
+}
+
+MoneroSyncResult MoneroWallet::sync(uint64_t startHeight) {
+  cout << "sync(startHeight)" << endl;
+  throw runtime_error("Not implemented");
+}
+
+MoneroSyncResult MoneroWallet::sync(uint64_t startHeight, MoneroSyncListener& listener) {
+  cout << "sync(startHeight, listener)" << endl;
+  throw runtime_error("Not implemented");
 }
 
 string MoneroWallet::getAddress(uint32_t accountIdx, uint32_t subaddressIdx) const {
