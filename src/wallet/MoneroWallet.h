@@ -26,7 +26,8 @@ namespace monero {
    * Models a result of syncing a wallet.
    */
   struct MoneroBlockHeader {
-    // TODO
+    uint64_t height;
+    MoneroBlockHeader() {}
   };
 
   /**
@@ -78,7 +79,7 @@ namespace monero {
      * @param percentDone is the sync progress as a percentage
      * @param message is a human-readable description of the current progress
      */
-    virtual void onSyncProgress(uint64_t startHeight, uint64_t numBlocksDone, uint64_t numBlocksTotal, double percentDone, string message);
+    virtual void onSyncProgress(uint64_t startHeight, uint64_t numBlocksDone, uint64_t numBlocksTotal, double percentDone, string message) {}
   };
 
   /**
@@ -91,7 +92,7 @@ namespace monero {
      *
      * @param block is the newly processed block
      */
-    virtual void onNewBlock(MoneroBlock& block);
+    virtual void onNewBlock(MoneroBlock& block) {};
   };
 
   // ---------------------------- WALLET INTERFACE ----------------------------
@@ -227,6 +228,8 @@ namespace monero {
    uint64_t getChainHeight() const;
 
    uint64_t getRestoreHeight() const;
+
+   void setListener(MoneroWalletListener* listener);
 
    MoneroSyncResult sync();
 

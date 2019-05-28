@@ -128,6 +128,11 @@ uint64_t MoneroWallet::getRestoreHeight() const {
   return wallet2->get_refresh_from_block_height();
 }
 
+void MoneroWallet::setListener(MoneroWalletListener* listener) {
+  cout << "setListener()" << endl;
+  throw runtime_error("Not implemented");
+}
+
 MoneroSyncResult MoneroWallet::sync() {
   cout << "sync()" << endl;
   throw runtime_error("Not implemented");
