@@ -1,2 +1,3 @@
 DaemonConnection is its own object
 rename external-libs/monero to monero-core for clarity
+onSyncProgress(startHeight, currentHeight, endHeight, percentDone, message)?

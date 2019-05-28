@@ -10,6 +10,8 @@ using namespace crypto;
  */
 namespace monero {
 
+  // ----------------------------------- MODEL --------------------------------
+
   /**
    * Models a result of syncing a wallet.
    */
@@ -19,41 +21,56 @@ namespace monero {
     MoneroSyncResult() {}
     MoneroSyncResult(const uint64_t numBlocksFetched, const bool receivedMoney) : numBlocksFetched(numBlocksFetched), receivedMoney(receivedMoney) {}
   };
-//
-//  class i_wallet2_callback
-//    {
-//    public:
-//      // Full wallet callbacks
-//      virtual void on_new_block(uint64_t height, const cryptonote::block& block) {}
-//      virtual void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index) {}
-//      virtual void on_unconfirmed_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index) {}
-//      virtual void on_money_spent(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& in_tx, uint64_t amount, const cryptonote::transaction& spend_tx, const cryptonote::subaddress_index& subaddr_index) {}
-//      virtual void on_skip_transaction(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx) {}
-//      virtual boost::optional<epee::wipeable_string> on_get_password(const char *reason) { return boost::none; }
-//      // Light wallet callbacks
-//      virtual void on_lw_new_block(uint64_t height) {}
-//      virtual void on_lw_money_received(uint64_t height, const crypto::hash &txid, uint64_t amount) {}
-//      virtual void on_lw_unconfirmed_money_received(uint64_t height, const crypto::hash &txid, uint64_t amount) {}
-//      virtual void on_lw_money_spent(uint64_t height, const crypto::hash &txid, uint64_t amount) {}
-//      // Device callbacks
-//      virtual void on_device_button_request(uint64_t code) {}
-//      virtual void on_device_button_pressed() {}
-//      virtual boost::optional<epee::wipeable_string> on_device_pin_request() { return boost::none; }
-//      virtual boost::optional<epee::wipeable_string> on_device_passphrase_request(bool on_device) { return boost::none; }
-//      virtual void on_device_progress(const hw::device_progress& event) {};
-//      // Common callbacks
-//      virtual void on_pool_tx_removed(const crypto::hash &txid) {}
-//      virtual ~i_wallet2_callback() {}
-//    };
+
+  /**
+   * Models a result of syncing a wallet.
+   */
+  struct MoneroBlockHeader {
+    // TODO
+  };
+
+  /**
+   * Models a result of syncing a wallet.
+   */
+  struct MoneroBlock : public MoneroBlockHeader {
+    // TODO
+  };
+
+  // --------------------------------- LISTENERS ------------------------------
+
+  //  class i_wallet2_callback
+  //    {
+  //    public:
+  //      // Full wallet callbacks
+  //      virtual void on_new_block(uint64_t height, const cryptonote::block& block) {}
+  //      virtual void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index) {}
+  //      virtual void on_unconfirmed_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index) {}
+  //      virtual void on_money_spent(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& in_tx, uint64_t amount, const cryptonote::transaction& spend_tx, const cryptonote::subaddress_index& subaddr_index) {}
+  //      virtual void on_skip_transaction(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx) {}
+  //      virtual boost::optional<epee::wipeable_string> on_get_password(const char *reason) { return boost::none; }
+  //      // Light wallet callbacks
+  //      virtual void on_lw_new_block(uint64_t height) {}
+  //      virtual void on_lw_money_received(uint64_t height, const crypto::hash &txid, uint64_t amount) {}
+  //      virtual void on_lw_unconfirmed_money_received(uint64_t height, const crypto::hash &txid, uint64_t amount) {}
+  //      virtual void on_lw_money_spent(uint64_t height, const crypto::hash &txid, uint64_t amount) {}
+  //      // Device callbacks
+  //      virtual void on_device_button_request(uint64_t code) {}
+  //      virtual void on_device_button_pressed() {}
+  //      virtual boost::optional<epee::wipeable_string> on_device_pin_request() { return boost::none; }
+  //      virtual boost::optional<epee::wipeable_string> on_device_passphrase_request(bool on_device) { return boost::none; }
+  //      virtual void on_device_progress(const hw::device_progress& event) {};
+  //      // Common callbacks
+  //      virtual void on_pool_tx_removed(const crypto::hash &txid) {}
+  //      virtual ~i_wallet2_callback() {}
+  //    };
 
   /**
    * Receives progress notifications as a wallet is synchronized.
    */
   class MoneroSyncListener {
-  public:
 
     /**
-     * Invoked with info as sync progress is made.
+     * Invoked when sync progress is made.
      *
      * @param startHeight is the starting height of the sync request
      * @param numBlocksDone is the number of blocks synced
@@ -65,11 +82,24 @@ namespace monero {
   };
 
   /**
+   * Receives notifications as a wallet is updated.
+   */
+  class MoneroWalletListener : public MoneroSyncListener {
+
+    /**
+     * Invoked when a new block is processed.
+     *
+     * @param block is the newly processed block
+     */
+    virtual void onNewBlock(MoneroBlock& block);
+  };
+
+  // ---------------------------- WALLET INTERFACE ----------------------------
+
+  /**
    * Monero wallet interface.
    */
    class MoneroWallet {
-
-    // --------------------------------- PUBLIC --------------------------------
 
    public:
 

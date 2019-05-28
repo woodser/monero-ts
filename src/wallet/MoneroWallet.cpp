@@ -131,11 +131,6 @@ uint64_t MoneroWallet::getRestoreHeight() const {
 MoneroSyncResult MoneroWallet::sync() {
   cout << "sync()" << endl;
   throw runtime_error("Not implemented");
-  //  tools::wallet2* wallet = getHandle<tools::wallet2>(env, instance, "walletHandle");
-  //  uint64_t blocksFetched;
-  //  bool receivedMoney;
-  //  wallet->refresh(wallet->is_trusted_daemon(), startHeight, blocksFetched, receivedMoney, true);
-  //  cout << "Done refreshing.  Blocks fetched: " << blocksFetched << ", received money: " << receivedMoney << endl;
 }
 
 MoneroSyncResult MoneroWallet::sync(MoneroSyncListener& listener) {
@@ -145,7 +140,9 @@ MoneroSyncResult MoneroWallet::sync(MoneroSyncListener& listener) {
 
 MoneroSyncResult MoneroWallet::sync(uint64_t startHeight) {
   cout << "sync(startHeight)" << endl;
-  throw runtime_error("Not implemented");
+  MoneroSyncResult result;
+  wallet2->refresh(wallet2->is_trusted_daemon(), startHeight, result.numBlocksFetched, result.receivedMoney, true);
+  return result;
 }
 
 MoneroSyncResult MoneroWallet::sync(uint64_t startHeight, MoneroSyncListener& listener) {
