@@ -84,9 +84,25 @@ using namespace crypto;
    */
   void setDaemonConnection(const string& uri, const string& username, const string& password);
 
-  MoneroRpcConnection getDaemonConnection();
+  /**
+   * TODO
+   */
+  MoneroRpcConnection getDaemonConnection() const;
 
-  MoneroNetworkType getNetworkType();
+  /**
+   * TODO
+   */
+  string getPath() const;
+
+  /**
+   * TODO
+   */
+  MoneroNetworkType getNetworkType() const;
+
+  /**
+   * TODO
+   */
+  string getLanguage() const;
 
 //   /**
 //    * Get the wallet's seed.
@@ -103,13 +119,32 @@ using namespace crypto;
  string getMnemonic() const;
 
  /**
+  * Get the height of the last block processed by the wallet (its index + 1).
+  *
+  * @return the height of the last block processed by the wallet
+  */
+ uint64_t getHeight() const;
+
+ /**
+  * Get the blockchain's height.
+  *
+  * @return the block chain's height
+  */
+ uint64_t getChainHeight() const;
+
+ /**
+  * TODO
+  */
+ uint64_t getRestoreHeight() const;
+
+ /**
   * Get the address of a specific subaddress.
   *
   * @param accountIdx specifies the account index of the address's subaddress
   * @param subaddressIdx specifies the subaddress index within the account
   * @return the receive address of the specified subaddress
   */
- string getAddress(uint32_t accountIdx, uint32_t subaddressIdx);
+ string getAddress(uint32_t accountIdx, uint32_t subaddressIdx) const;
 
  // --------------------------------- PRIVATE --------------------------------
 

@@ -61,7 +61,7 @@ void MoneroWallet::setDaemonConnection(const string& uri, const string& username
   wallet2->set_daemon(uri, login, isTrusted);
 }
 
-MoneroRpcConnection MoneroWallet::getDaemonConnection() {
+MoneroRpcConnection MoneroWallet::getDaemonConnection() const {
   MoneroRpcConnection connection;
   if (!wallet2->get_daemon_address().empty()) connection.uri = wallet2->get_daemon_address();
   if (wallet2->get_daemon_login()) {
@@ -73,8 +73,16 @@ MoneroRpcConnection MoneroWallet::getDaemonConnection() {
   return connection;
 }
 
-MoneroNetworkType MoneroWallet::getNetworkType() {
+string MoneroWallet::getPath() const {
+  return wallet2->path();
+}
+
+MoneroNetworkType MoneroWallet::getNetworkType() const {
   return static_cast<MoneroNetworkType>(wallet2->nettype());
+}
+
+string MoneroWallet::getLanguage() const {
+  return wallet2->get_seed_language();
 }
 
 string MoneroWallet::getMnemonic() const {
@@ -83,6 +91,19 @@ string MoneroWallet::getMnemonic() const {
   return string(wipeablePassword.data(), wipeablePassword.size());
 }
 
-string MoneroWallet::getAddress(uint32_t accountIdx, uint32_t subaddressIdx) {
+uint64_t MoneroWallet::getHeight() const {
+  return wallet2->get_blockchain_current_height();
+}
+
+uint64_t MoneroWallet::getChainHeight() const {
+  string err;
+  return wallet2->get_daemon_blockchain_height(err);
+}
+
+uint64_t MoneroWallet::getRestoreHeight() const {
+  return wallet2->get_refresh_from_block_height();
+}
+
+string MoneroWallet::getAddress(uint32_t accountIdx, uint32_t subaddressIdx) const {
   return wallet2->get_subaddress_as_str({accountIdx, subaddressIdx});
 }
