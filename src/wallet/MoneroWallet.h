@@ -23,15 +23,14 @@ namespace monero {
   };
 
   /**
-   * Models a result of syncing a wallet.
+   * Models a Monero block header.
    */
   struct MoneroBlockHeader {
     uint64_t height;
-    MoneroBlockHeader() {}
   };
 
   /**
-   * Models a result of syncing a wallet.
+   * Models a Monero block.
    */
   struct MoneroBlock : public MoneroBlockHeader {
     // TODO
@@ -69,6 +68,7 @@ namespace monero {
    * Receives progress notifications as a wallet is synchronized.
    */
   class MoneroSyncListener {
+  public:
 
     /**
      * Invoked when sync progress is made.
@@ -86,6 +86,7 @@ namespace monero {
    * Receives notifications as a wallet is updated.
    */
   class MoneroWalletListener : public MoneroSyncListener {
+  public:
 
     /**
      * Invoked when a new block is processed.

@@ -7,6 +7,30 @@
 
 using namespace cryptonote;
 
+/**
+ * Adapts wallet2 notifications to a public listener.
+ */
+struct Wallet2ListenerAdapter : public tools::i_wallet2_callback {
+
+  Wallet2ListenerAdapter(MoneroWalletListener* listener) {
+    this->listener = listener;
+  }
+
+  ~Wallet2ListenerAdapter() {
+
+  }
+
+  virtual void on_new_block(uint64_t height, const cryptonote::block& cnBlock) {
+    MoneroBlock block;
+    block.height = height;
+    listener->onNewBlock(block);
+  }
+
+  MoneroWalletListener* listener;
+};
+
+// ------------------------------- WALLET METHODS -----------------------------
+
 bool MoneroWallet::walletExists(const string& path) {
   cout << "walletExists(" << path << ")" << endl;
   bool keyFileExists;
@@ -127,27 +151,6 @@ uint64_t MoneroWallet::getChainHeight() const {
 uint64_t MoneroWallet::getRestoreHeight() const {
   return wallet2->get_refresh_from_block_height();
 }
-
-/**
- * Adapts wallet2 notifications to a public listener.
- */
-struct Wallet2ListenerAdapter : public tools::i_wallet2_callback {
-
-  Wallet2ListenerAdapter(MoneroWalletListener* listener) {
-    this->listener = listener;
-  }
-
-  ~Wallet2ListenerAdapter() {
-
-  }
-
-  virtual void on_new_block(uint64_t height, const cryptonote::block& block) {
-    cout << "Wallet2ListenerAdapter.on_new_block()" << endl;
-    throw runtime_error("Not implemented");
-  }
-
-  MoneroWalletListener* listener;
-};
 
 void MoneroWallet::setListener(MoneroWalletListener* listener) {
   cout << "setListener()" << endl;
