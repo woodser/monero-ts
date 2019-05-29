@@ -46,7 +46,7 @@ MoneroWallet::MoneroWallet() {
 
 MoneroWallet::MoneroWallet(const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, const string& language) {
   cout << "MoneroWallet(3)" << endl;
-  wallet2 = new tools::wallet2(static_cast<network_type>(networkType), 1, true);
+  wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
   MoneroWallet::setDaemonConnection(daemonConnection.uri, daemonConnection.username, daemonConnection.password);
   wallet2->set_seed_language(language);
   crypto::secret_key recovery_val, secret_key;
@@ -63,7 +63,7 @@ MoneroWallet::MoneroWallet(const string& mnemonic, const MoneroNetworkType netwo
   if (language == crypto::ElectrumWords::old_language_name) language = Language::English().get_language_name();
 
   // initialize wallet
-  wallet2 = new tools::wallet2(static_cast<cryptonote::network_type>(networkType), 1, true);
+  wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(networkType), 1, true));
   wallet2->set_seed_language(language);
   wallet2->generate(string(""), string(""), recoveryKey, true, false);
   wallet2->set_refresh_from_block_height(restoreHeight);
@@ -81,7 +81,7 @@ MoneroWallet::MoneroWallet(const string& address, const string& viewKey, const s
 
 MoneroWallet::MoneroWallet(const string& path, const string& password, const MoneroNetworkType networkType) {
   cout << "MoneroWallet(3b)" << endl;
-  wallet2 = new tools::wallet2(static_cast<network_type>(networkType), 1, true);
+  wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
   wallet2->load(path, password);
 }
 
@@ -91,7 +91,7 @@ MoneroWallet::~MoneroWallet() {
 
 
 tools::wallet2* MoneroWallet::getWallet2() {
-  return wallet2;
+  return wallet2.get();
 }
 
 // TODO: switch this to setDaemonConnection(MoneroDaemonRpc& daemonConnection)
@@ -154,33 +154,93 @@ uint64_t MoneroWallet::getRestoreHeight() const {
 
 void MoneroWallet::setListener(MoneroWalletListener* listener) {
   cout << "setListener()" << endl;
-  this->listener = listener;
-  if (!listener) wallet2->callback(nullptr);
-  else wallet2->callback(new Wallet2Listener(listener));	// TODO: is this memory leak when adapter is re-set?
+  if (listener == nullptr) {
+      this->listener = nullptr;
+      wallet2->callback(nullptr);
+  } else {
+      this->listener = listener;
+      wallet2->callback(new Wallet2Listener(listener));	// TODO: this is memory leak next time listener is set?
+  }
 }
 
 MoneroSyncResult MoneroWallet::sync() {
   cout << "sync()" << endl;
-  throw runtime_error("Not implemented");
+  return syncAux(nullptr, nullptr, nullptr);
 }
 
 MoneroSyncResult MoneroWallet::sync(MoneroSyncListener& listener) {
-  cout << "sync(listener)" << endl;
-  throw runtime_error("Not implemented");
+  cout << "sync(startHeight)" << endl;
+  return syncAux(nullptr, nullptr, &listener);
 }
 
 MoneroSyncResult MoneroWallet::sync(uint64_t startHeight) {
   cout << "sync(startHeight)" << endl;
-  MoneroSyncResult result;
-  wallet2->refresh(wallet2->is_trusted_daemon(), startHeight, result.numBlocksFetched, result.receivedMoney, true);
-  return result;
+  return syncAux(&startHeight, nullptr, nullptr);
 }
 
 MoneroSyncResult MoneroWallet::sync(uint64_t startHeight, MoneroSyncListener& listener) {
   cout << "sync(startHeight, listener)" << endl;
-  throw runtime_error("Not implemented");
+  return syncAux(&startHeight, nullptr, &listener);
 }
 
 string MoneroWallet::getAddress(uint32_t accountIdx, uint32_t subaddressIdx) const {
   return wallet2->get_subaddress_as_str({accountIdx, subaddressIdx});
+}
+
+// ------------------------------- PRIVATE HELPERS ----------------------------
+
+MoneroSyncResult MoneroWallet::syncAux(uint64_t* startHeight, uint64_t* endHeight, MoneroSyncListener* listener) {
+  cout << "syncAux()" << endl;
+
+  // validate inputs
+  if (endHeight != nullptr) throw runtime_error("Monero core wallet does not support syncing to an end height");	// TODO: custom exception type
+
+  // save sync start height and listener for sync notifications	// TODO monero-core: support sync notifications
+  syncStartHeight = new uint64_t(startHeight == nullptr ? max(MoneroWallet::getHeight(), MoneroWallet::getRestoreHeight()) : *startHeight);
+  if (listener != nullptr) syncListener = unique_ptr<MoneroSyncListener>(listener);
+
+  // sync wallet
+  MoneroSyncResult result;
+  wallet2->refresh(wallet2->is_trusted_daemon(), *syncStartHeight, result.numBlocksFetched, result.receivedMoney, true);
+
+  // clear sync state variables
+  delete syncStartHeight;
+  syncStartHeight = nullptr;
+  syncListener.reset();
+  return result;
+
+//    if (startHeight == null) startHeight = Math.max(getHeight(), getRestoreHeight());
+//    if (endHeight != null) throw new MoneroException("Monero core wallet does not support syncing to an end height");
+//
+//    // verify connection to daemon which informs sync end height
+//    MoneroDaemonRpc daemon = new MoneroDaemonRpc(getDaemonConnection());
+//    assertTrue("No connection to daemon", daemon.getIsConnected()); // TODO: way to get end height from wallet2?  need to fallback if daemon not connected, let wallet report sync error
+//
+//    // wrap and register sync listener as normal wallet listener
+//    SyncListenerWrapper syncListenerWrapper = new SyncListenerWrapper(listener);
+//    addListener(syncListenerWrapper);
+//
+//    // register listener which notifies all listeners of sync updates
+//    SyncNotifier syncNotifier = new SyncNotifier(startHeight, getChainHeight() - 1);
+//    addListener(syncNotifier);
+//
+//    // listen for new blocks added to the chain in order to update sync height // TODO: no way to get this from wallet2?
+//    MoneroDaemonListener syncRangeUpdater = new MoneroDaemonListener() {
+//      public void onBlockHeader(MoneroBlockHeader header) {
+//	syncNotifier.setEndHeight(header.getHeight());
+//      }
+//    };
+//    daemon.addListener(syncRangeUpdater);
+//
+//    // sync wallet
+//    syncNotifier.onStart(); // notify sync listeners of 0% progress
+//    Object[] results = syncJni(startHeight);
+//
+//    // unregister listeners
+//    removeListener(syncNotifier);
+//    removeListener(syncListenerWrapper);
+//    daemon.removeListener(syncRangeUpdater);
+//
+//    // return results
+//    return new MoneroSyncResult((long) results[0], (boolean) results[1]);
 }
