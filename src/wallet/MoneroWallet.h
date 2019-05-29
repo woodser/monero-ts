@@ -5,10 +5,14 @@ using namespace std;
 using namespace monero;
 using namespace crypto;
 
+
+
 /**
  * Public interface for libmonero-cpp library.
  */
 namespace monero {
+
+  struct Wallet2Listener;
 
   // ----------------------------------- MODEL --------------------------------
 
@@ -252,11 +256,10 @@ namespace monero {
    // --------------------------------- PRIVATE --------------------------------
 
    private:
-     unique_ptr<tools::wallet2> wallet2;		// internal wallet implementation
-     MoneroWalletListener* listener;			// wallet's assigned listener
-     uint64_t* syncStartHeight;				// start height when sync is invoked for notifications
-     uint64_t* syncEndHeight;				// current end height of sync
-     unique_ptr<MoneroSyncListener> syncListener;	// listener when sync is invoked for notifications
+     friend struct Wallet2Listener;
+     shared_ptr<tools::wallet2> wallet2;		// internal wallet implementation
+     unique_ptr<Wallet2Listener> wallet2Listener;	// listener for internal wallet implementation
+     MoneroWalletListener* listener;			// wallet's external listener
 
      MoneroSyncResult syncAux(uint64_t* startHeight, uint64_t* endHeight, MoneroSyncListener* listener);
    };
