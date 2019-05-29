@@ -83,7 +83,7 @@ namespace monero {
      * @param percentDone is the sync progress as a percentage
      * @param message is a human-readable description of the current progress
      */
-    virtual void onSyncProgress(uint64_t startHeight, uint64_t numBlocksDone, uint64_t numBlocksTotal, double percentDone, string message) {}
+    virtual void onSyncProgress(uint64_t startHeight, uint64_t numBlocksDone, uint64_t numBlocksTotal, double percentDone, string& message) {}
   };
 
   /**
