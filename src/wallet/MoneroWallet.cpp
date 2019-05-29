@@ -8,15 +8,15 @@
 using namespace cryptonote;
 
 /**
- * Adapts wallet2 notifications to a public listener.
+ * Listens for wallet2 notifications and notifies an external wallet listener.
  */
-struct Wallet2ListenerAdapter : public tools::i_wallet2_callback {
+struct Wallet2Listener : public tools::i_wallet2_callback {
 
-  Wallet2ListenerAdapter(MoneroWalletListener* listener) {
+  Wallet2Listener(MoneroWalletListener* listener) {
     this->listener = listener;
   }
 
-  ~Wallet2ListenerAdapter() {
+  ~Wallet2Listener() {
 
   }
 
@@ -156,7 +156,7 @@ void MoneroWallet::setListener(MoneroWalletListener* listener) {
   cout << "setListener()" << endl;
   this->listener = listener;
   if (!listener) wallet2->callback(nullptr);
-  else wallet2->callback(new Wallet2ListenerAdapter(listener));	// TODO: is this memory leak when adapter is re-set?
+  else wallet2->callback(new Wallet2Listener(listener));	// TODO: is this memory leak when adapter is re-set?
 }
 
 MoneroSyncResult MoneroWallet::sync() {
