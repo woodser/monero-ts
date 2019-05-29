@@ -36,8 +36,17 @@ namespace monero {
 
     void onSyncStart(uint64_t startHeight, MoneroSyncListener* syncListener) {
       syncStartHeight = new uint64_t(startHeight);
+      syncEndHeight = new uint64_t(wallet->getChainHeight() - 1);
       this->syncListener = syncListener;
       updateListening();
+
+      // notify listeners of sync start
+      uint64_t numBlocksDone = 0;
+      uint64_t numBlocksTotal = *syncEndHeight - *syncStartHeight + 1;
+      double percentDone = numBlocksDone / (double) numBlocksTotal;
+      string message = string("Synchronizing");
+      if (this->listener != nullptr) this->listener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
+      if (this->syncListener != nullptr) this->syncListener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
     }
 
     void onSyncEnd() {
@@ -60,22 +69,11 @@ namespace monero {
 
       // notify listeners of sync progress
       if (syncStartHeight != nullptr && height > *syncStartHeight) {
-
-	// assign end height if necessary
-	if (syncEndHeight == nullptr) {
-	  syncEndHeight = new uint64_t(wallet->getChainHeight());
-	}
-
-	// increase end height if necessary
-	if (height > *syncEndHeight) *syncEndHeight = height - *syncStartHeight + 1;
-
-	// prep notification params
-	uint64_t numBlocksDone = height - *syncStartHeight;
+	if (height > *syncEndHeight) *syncEndHeight = height;	// increase end height if necessary
+	uint64_t numBlocksDone = height - *syncStartHeight + 1;
 	uint64_t numBlocksTotal = *syncEndHeight - *syncStartHeight + 1;
 	double percentDone = numBlocksDone / (double) numBlocksTotal;
 	string message = string("Synchronizing");
-
-	// notify listeners of progress
 	if (this->listener != nullptr) this->listener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
 	if (this->syncListener != nullptr) this->syncListener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
       }
