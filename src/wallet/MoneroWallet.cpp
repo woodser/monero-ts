@@ -72,7 +72,10 @@ namespace monero {
 	uint64_t numBlocksTotal = *syncEndHeight - *syncStartHeight + 1;
 	double percentDone = numBlocksDone / (double) numBlocksTotal;
 	string message = string("Synchronizing");
-	cout << "Ready to notify sync progress(" << *syncStartHeight << ", " << numBlocksDone << ", " << numBlocksTotal << ", " << percentDone << ", " << message << ")" << endl;
+
+	// notify listeners of progress
+	if (this->listener != nullptr) this->listener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
+	if (this->syncListener != nullptr) this->syncListener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
       }
     }
 
