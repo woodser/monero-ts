@@ -36,13 +36,14 @@ namespace monero {
 
     void onSyncStart(uint64_t startHeight, MoneroSyncListener* syncListener) {
       syncStartHeight = new uint64_t(startHeight);
-      cout << "Set start height " << startHeight << " vs " << *syncStartHeight << endl;
       this->syncListener = syncListener;
       updateListening();
     }
 
     void onSyncEnd() {
-      syncStartHeight = nullptr;	// TODO: delete first? yes.
+      delete syncStartHeight;
+      syncStartHeight = nullptr;
+      delete syncEndHeight;
       syncEndHeight = nullptr;
       syncListener = nullptr;
       updateListening();
