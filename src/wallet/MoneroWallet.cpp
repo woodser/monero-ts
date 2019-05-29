@@ -195,8 +195,10 @@ MoneroSyncResult MoneroWallet::syncAux(uint64_t* startHeight, uint64_t* endHeigh
   // validate inputs
   if (endHeight != nullptr) throw runtime_error("Monero core wallet does not support syncing to an end height");	// TODO: custom exception type
 
-  // save sync start height and listener for sync notifications	// TODO monero-core: support sync notifications
+  // save start height, end height, and listener for sync notifications
+  // TODO monero-core: support sync notifications
   syncStartHeight = new uint64_t(startHeight == nullptr ? max(MoneroWallet::getHeight(), MoneroWallet::getRestoreHeight()) : *startHeight);
+  syncEndHeight = new uint64_t(MoneroWallet::getChainHeight());
   if (listener != nullptr) syncListener = unique_ptr<MoneroSyncListener>(listener);
 
   // sync wallet
@@ -206,6 +208,8 @@ MoneroSyncResult MoneroWallet::syncAux(uint64_t* startHeight, uint64_t* endHeigh
   // clear sync state variables
   delete syncStartHeight;
   syncStartHeight = nullptr;
+  delete syncEndHeight;
+  syncEndHeight = nullptr;
   syncListener.reset();
   return result;
 

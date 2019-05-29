@@ -255,6 +255,7 @@ namespace monero {
      unique_ptr<tools::wallet2> wallet2;		// internal wallet implementation
      MoneroWalletListener* listener;			// wallet's assigned listener
      uint64_t* syncStartHeight;				// start height when sync is invoked for notifications
+     uint64_t* syncEndHeight;				// current end height of sync
      unique_ptr<MoneroSyncListener> syncListener;	// listener when sync is invoked for notifications
 
      MoneroSyncResult syncAux(uint64_t* startHeight, uint64_t* endHeight, MoneroSyncListener* listener);
