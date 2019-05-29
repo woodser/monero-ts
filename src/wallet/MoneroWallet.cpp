@@ -51,10 +51,12 @@ namespace monero {
 
     virtual void on_new_block(uint64_t height, const cryptonote::block& cnBlock) {
 
-      // notify listeners of block
-      MoneroBlock block;
-      block.height = height;
-      listener->onNewBlock(block);
+      // notify listener of block
+      if (this->listener != nullptr) {
+	MoneroBlock block;
+	block.height = height;
+        listener->onNewBlock(block);
+      }
 
       // notify listeners of sync progress
       if (syncStartHeight != nullptr && height > *syncStartHeight) {
