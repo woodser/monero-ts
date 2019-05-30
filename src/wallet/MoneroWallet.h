@@ -66,6 +66,16 @@ namespace monero {
     uint64_t unlockedBalance;
     string tag;
     vector<MoneroSubaddress> subaddresses;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(index)
+      KV_SERIALIZE(primaryAddress)
+      KV_SERIALIZE(label)
+      KV_SERIALIZE(balance)
+      KV_SERIALIZE(unlockedBalance)
+      KV_SERIALIZE(tag)
+      //KV_SERIALIZE(subaddresses)
+    END_KV_SERIALIZE_MAP()
   };
 
   // --------------------------------- LISTENERS ------------------------------
