@@ -43,6 +43,7 @@ namespace monero {
       // notify listeners of sync start
       uint64_t numBlocksDone = 0;
       uint64_t numBlocksTotal = *syncEndHeight - *syncStartHeight + 1;
+      if (numBlocksTotal < 1) return;	// don't report 0% progress if no subsequent progress to report
       double percentDone = numBlocksDone / (double) numBlocksTotal;
       string message = string("Synchronizing");
       if (this->listener != nullptr) this->listener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
