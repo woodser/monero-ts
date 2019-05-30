@@ -40,6 +40,34 @@ namespace monero {
     // TODO
   };
 
+  /**
+   * Models a Monero subaddress.
+   */
+  struct MoneroSubaddress {
+    uint32_t accountIndex;
+    uint32_t index;
+    string address;
+    string label;
+    uint64_t balance;
+    uint64_t unlockedBalance;
+    uint32_t numUnspentOutputs;
+    bool isUsed;
+    uint32_t numBlocksToUnlock;
+  };
+
+  /**
+   * Models a Monero account.
+   */
+  struct MoneroAccount {
+    uint32_t index;
+    string primaryAddress;
+    string label;
+    uint64_t balance;
+    uint64_t unlockedBalance;
+    string tag;
+    vector<MoneroSubaddress> subaddresses;
+  };
+
   // --------------------------------- LISTENERS ------------------------------
 
   //  class i_wallet2_callback
@@ -304,55 +332,55 @@ namespace monero {
 //     * @return true if importing multisig data is needed for returning a correct balance, false otherwise
 //     */
 //    public boolean isMultisigImportNeeded();
-//
-//    /**
-//     * Get all accounts.
-//     *
-//     * @return List<MoneroAccount> are all accounts within the wallet
-//     */
-//    public List<MoneroAccount> getAccounts();
-//
-//    /**
-//     * Get all accounts.
-//     *
-//     * @param includeSubaddresses specifies if subaddresses should be included
-//     * @return List<MoneroAccount> are all accounts
-//     */
-//    public List<MoneroAccount> getAccounts(boolean includeSubaddresses);
-//
-//    /**
-//     * Get accounts with a given tag.
-//     *
-//     * @param tag is the tag for filtering accounts, all accounts if null
-//     * @return List<MoneroAccount> are all accounts for the wallet with the given tag
-//     */
-//    public List<MoneroAccount> getAccounts(String tag);
-//
-//    /**
-//     * Get accounts with a given tag.
-//     *
-//     * @param includeSubaddresses specifies if subaddresses should be included
-//     * @param tag is the tag for filtering accounts, all accounts if null
-//     * @return List<MoneroAccount> are all accounts for the wallet with the given tag
-//     */
-//    public List<MoneroAccount> getAccounts(boolean includeSubaddresses, String tag);
-//
-//    /**
-//     * Get an account without subaddress information.
-//     *
-//     * @param accountIdx specifies the account to get
-//     * @return the retrieved account
-//     */
-//    public MoneroAccount getAccount(int accountIdx);
-//
-//    /**
-//     * Get an account.
-//     *
-//     * @param accountIdx specifies the account to get
-//     * @param includeSubaddresses specifies if subaddresses should be included
-//     * @return the retrieved account
-//     */
-//    public MoneroAccount getAccount(int accountIdx, boolean includeSubaddresses);
+
+    /**
+     * Get all accounts.
+     *
+     * @return List<MoneroAccount> are all accounts within the wallet
+     */
+    list<MoneroAccount> getAccounts() const;
+
+    /**
+     * Get all accounts.
+     *
+     * @param includeSubaddresses specifies if subaddresses should be included
+     * @return List<MoneroAccount> are all accounts
+     */
+    list<MoneroAccount> getAccounts(const bool includeSubaddresses) const;
+
+    /**
+     * Get accounts with a given tag.
+     *
+     * @param tag is the tag for filtering accounts, all accounts if null
+     * @return List<MoneroAccount> are all accounts for the wallet with the given tag
+     */
+    list<MoneroAccount> getAccounts(const string tag) const;
+
+    /**
+     * Get accounts with a given tag.
+     *
+     * @param includeSubaddresses specifies if subaddresses should be included
+     * @param tag is the tag for filtering accounts, all accounts if null
+     * @return List<MoneroAccount> are all accounts for the wallet with the given tag
+     */
+    list<MoneroAccount> getAccounts(const bool includeSubaddresses, const string tag) const;
+
+    /**
+     * Get an account without subaddress information.
+     *
+     * @param accountIdx specifies the account to get
+     * @return the retrieved account
+     */
+    MoneroAccount getAccount(const uint32_t accountIdx) const;
+
+    /**
+     * Get an account.
+     *
+     * @param accountIdx specifies the account to get
+     * @param includeSubaddresses specifies if subaddresses should be included
+     * @return the retrieved account
+     */
+    MoneroAccount getAccount(const uint32_t accountIdx, const bool includeSubaddresses) const;
 //
 //    /**
 //     * Create a new account without a label.

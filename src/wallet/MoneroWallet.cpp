@@ -246,6 +246,35 @@ namespace monero {
     return syncAux(&startHeight, nullptr, &listener);
   }
 
+  // rescanBlockchain
+
+  // isMultisigImportNeeded
+
+  list<MoneroAccount> MoneroWallet::getAccounts() const {
+    cout << "getAccounts()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
+  list<MoneroAccount> MoneroWallet::getAccounts(const bool includeSubaddresses) const {
+    throw runtime_error("Not implemented");
+  }
+
+  list<MoneroAccount> MoneroWallet::getAccounts(const string tag) const {
+    throw runtime_error("Not implemented");
+  }
+
+  list<MoneroAccount> MoneroWallet::getAccounts(const bool includeSubaddresses, const string tag) const {
+    throw runtime_error("Not implemented");
+  }
+
+  MoneroAccount MoneroWallet::getAccount(const uint32_t accountIdx) const {
+    throw runtime_error("Not implemented");
+  }
+
+  MoneroAccount MoneroWallet::getAccount(const uint32_t accountIdx, const bool includeSubaddresses) const {
+    throw runtime_error("Not implemented");
+  }
+
   string MoneroWallet::getAddress(uint32_t accountIdx, uint32_t subaddressIdx) const {
     return wallet2->get_subaddress_as_str({accountIdx, subaddressIdx});
   }
