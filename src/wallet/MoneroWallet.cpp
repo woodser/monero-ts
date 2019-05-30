@@ -22,7 +22,8 @@ namespace monero {
     Wallet2Listener(MoneroWallet* wallet, shared_ptr<tools::wallet2> wallet2) {
       this->wallet = wallet;
       this->wallet2 = wallet2;
-      cout << "syncStartHeight: " << syncStartHeight << ", syncEndHeight: " << syncEndHeight << endl;
+      this->listener = nullptr;
+      this->syncListener = nullptr;
     }
 
     ~Wallet2Listener() {
@@ -46,8 +47,8 @@ namespace monero {
       if (numBlocksTotal < 1) return;	// don't report 0% progress if no subsequent progress to report
       double percentDone = numBlocksDone / (double) numBlocksTotal;
       string message = string("Synchronizing");
-      if (this->listener != nullptr) this->listener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
-      if (this->syncListener != nullptr) this->syncListener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
+      if (listener != nullptr) listener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
+      if (syncListener != nullptr) syncListener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
     }
 
     void onSyncEnd() {
@@ -149,12 +150,12 @@ namespace monero {
     cout << "MoneroWallet(3b)" << endl;
     wallet2 = shared_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
     wallet2->load(path, password);
+    wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(this, wallet2));
   }
 
   MoneroWallet::~MoneroWallet() {
     cout << "~MoneroWallet()" << endl;
   }
-
 
   tools::wallet2* MoneroWallet::getWallet2() {
     return wallet2.get();
@@ -211,7 +212,9 @@ namespace monero {
 
   uint64_t MoneroWallet::getChainHeight() const {
     string err;
-    return wallet2->get_daemon_blockchain_height(err);
+    uint64_t chainHeight = wallet2->get_daemon_blockchain_height(err);
+    if (!err.empty()) throw runtime_error(err);	// TODO: proper monero error
+    return chainHeight;
   }
 
   uint64_t MoneroWallet::getRestoreHeight() const {
@@ -288,63 +291,5 @@ namespace monero {
     wallet2->refresh(wallet2->is_trusted_daemon(), syncStartHeight, result.numBlocksFetched, result.receivedMoney, true);
     wallet2Listener->onSyncEnd();
     return result;
-
-
-
-
-
-  //  // save start height, end height, and listener for sync notifications
-  //  // TODO monero-core: support sync notifications
-  //  syncStartHeight = new uint64_t(startHeight == nullptr ? max(MoneroWallet::getHeight(), MoneroWallet::getRestoreHeight()) : *startHeight);
-  //  syncEndHeight = new uint64_t(MoneroWallet::getChainHeight());
-  //  if (listener != nullptr) syncListener = unique_ptr<MoneroSyncListener>(listener);
-  //
-  //  // sync wallet
-  //  MoneroSyncResult result;
-  //  wallet2->refresh(wallet2->is_trusted_daemon(), *syncStartHeight, result.numBlocksFetched, result.receivedMoney, true);
-  //
-  //  // clear sync state variables
-  //  delete syncStartHeight;
-  //  syncStartHeight = nullptr;
-  //  delete syncEndHeight;
-  //  syncEndHeight = nullptr;
-  //  syncListener.reset();
-  //  return result;
-
-  //    if (startHeight == null) startHeight = Math.max(getHeight(), getRestoreHeight());
-  //    if (endHeight != null) throw new MoneroException("Monero core wallet does not support syncing to an end height");
-  //
-  //    // verify connection to daemon which informs sync end height
-  //    MoneroDaemonRpc daemon = new MoneroDaemonRpc(getDaemonConnection());
-  //    assertTrue("No connection to daemon", daemon.getIsConnected()); // TODO: way to get end height from wallet2?  need to fallback if daemon not connected, let wallet report sync error
-  //
-  //    // wrap and register sync listener as normal wallet listener
-  //    SyncListenerWrapper syncListenerWrapper = new SyncListenerWrapper(listener);
-  //    addListener(syncListenerWrapper);
-  //
-  //    // register listener which notifies all listeners of sync updates
-  //    SyncNotifier syncNotifier = new SyncNotifier(startHeight, getChainHeight() - 1);
-  //    addListener(syncNotifier);
-  //
-  //    // listen for new blocks added to the chain in order to update sync height // TODO: no way to get this from wallet2?
-  //    MoneroDaemonListener syncRangeUpdater = new MoneroDaemonListener() {
-  //      public void onBlockHeader(MoneroBlockHeader header) {
-  //	syncNotifier.setEndHeight(header.getHeight());
-  //      }
-  //    };
-  //    daemon.addListener(syncRangeUpdater);
-  //
-  //    // sync wallet
-  //    syncNotifier.onStart(); // notify sync listeners of 0% progress
-  //    Object[] results = syncJni(startHeight);
-  //
-  //    // unregister listeners
-  //    removeListener(syncNotifier);
-  //    removeListener(syncListenerWrapper);
-  //    daemon.removeListener(syncRangeUpdater);
-  //
-  //    // return results
-  //    return new MoneroSyncResult((long) results[0], (boolean) results[1]);
   }
-
 }
