@@ -247,6 +247,30 @@ namespace monero {
     return wallet2->get_subaddress_as_str({accountIdx, subaddressIdx});
   }
 
+  uint64_t MoneroWallet::getBalance() const {
+    return wallet2->balance_all();
+  }
+
+  uint64_t MoneroWallet::getBalance(uint32_t accountIdx) const {
+    return wallet2->balance(accountIdx);
+  }
+
+  uint64_t MoneroWallet::getBalance(uint32_t accountIdx, uint32_t subaddressIdx) const {
+    return wallet2->balance_per_subaddress(accountIdx).at(subaddressIdx);
+  }
+
+  uint64_t MoneroWallet::getUnlockedBalance() const {
+    return wallet2->unlocked_balance_all();
+  }
+
+  uint64_t MoneroWallet::getUnlockedBalance(uint32_t accountIdx) const {
+    return wallet2->unlocked_balance(accountIdx);
+  }
+
+  uint64_t MoneroWallet::getUnlockedBalance(uint32_t accountIdx, uint32_t subaddressIdx) const {
+    return wallet2->unlocked_balance_per_subaddress(accountIdx).at(subaddressIdx).first;
+  }
+
   // ------------------------------- PRIVATE HELPERS ----------------------------
 
   MoneroSyncResult MoneroWallet::syncAux(uint64_t* startHeight, uint64_t* endHeight, MoneroSyncListener* listener) {

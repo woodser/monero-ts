@@ -249,7 +249,7 @@ namespace monero {
     /**
      * Get the blockchain's height.
      *
-     * @return the block chain's height
+     * @return the blockchain's height
      */
     uint64_t getChainHeight() const;
 
@@ -429,54 +429,54 @@ namespace monero {
 //     * @throws exception if address is not a wallet address
 //     */
 //    public MoneroSubaddress getAddressIndex(String address);
-//
-//    /**
-//     * Get the wallet's balance.
-//     *
-//     * @return the wallet's balance
-//     */
-//    public BigInteger getBalance();
-//
-//    /**
-//     * Get an account's balance.
-//     *
-//     * @param accountIdx is the index of the account to get the balance of
-//     * @return the account's balance
-//     */
-//    public BigInteger getBalance(int accountIdx);
-//
-//    /**
-//     * Get a subaddress's balance.
-//     *
-//     * @param accountIdx is the index of the subaddress's account to get the balance of
-//     * @param subaddressIdx is the index of the subaddress to get the balance of
-//     * @return the subaddress's balance
-//     */
-//    public BigInteger getBalance(int accountIdx, int subaddressIdx);
-//
-//    /**
-//     * Get the wallet's unlocked balance.
-//     *
-//     * @return the wallet's unlocked balance
-//     */
-//    public BigInteger getUnlockedBalance();
-//
-//    /**
-//     * Get an account's unlocked balance.
-//     *
-//     * @param accountIdx is the index of the account to get the unlocked balance of
-//     * @return the account's unlocked balance
-//     */
-//    public BigInteger getUnlockedBalance(int accountIdx);
-//
-//    /**
-//     * Get a subaddress's unlocked balance.
-//     *
-//     * @param accountIdx is the index of the subaddress's account to get the unlocked balance of
-//     * @param subaddressIdx is the index of the subaddress to get the unlocked balance of
-//     * @return the subaddress's balance
-//     */
-//    public BigInteger getUnlockedBalance(int accountIdx, int subaddressIdx);
+
+    /**
+     * Get the wallet's balance.
+     *
+     * @return the wallet's balance
+     */
+    uint64_t getBalance() const;
+
+    /**
+     * Get an account's balance.
+     *
+     * @param accountIdx is the index of the account to get the balance of
+     * @return the account's balance
+     */
+    uint64_t getBalance(uint32_t accountIdx) const;
+
+    /**
+     * Get a subaddress's balance.
+     *
+     * @param accountIdx is the index of the subaddress's account to get the balance of
+     * @param subaddressIdx is the index of the subaddress to get the balance of
+     * @return the subaddress's balance
+     */
+    uint64_t getBalance(uint32_t accountIdx, uint32_t subaddressIdx) const;
+
+    /**
+     * Get the wallet's unlocked balance.
+     *
+     * @return the wallet's unlocked balance
+     */
+    uint64_t getUnlockedBalance() const;
+
+    /**
+     * Get an account's unlocked balance.
+     *
+     * @param accountIdx is the index of the account to get the unlocked balance of
+     * @return the account's unlocked balance
+     */
+    uint64_t getUnlockedBalance(uint32_t accountIdx) const;
+
+    /**
+     * Get a subaddress's unlocked balance.
+     *
+     * @param accountIdx is the index of the subaddress's account to get the unlocked balance of
+     * @param subaddressIdx is the index of the subaddress to get the unlocked balance of
+     * @return the subaddress's balance
+     */
+    uint64_t getUnlockedBalance(uint32_t accountIdx, uint32_t subaddressIdx) const;
 //
 //    /**
 //     * Get a wallet transaction by id.
