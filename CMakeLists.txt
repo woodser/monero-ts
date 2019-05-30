@@ -68,7 +68,7 @@ set_target_properties(hidapi PROPERTIES IMPORTED_LOCATION
 ############
 
 #include_directories(/Users/Eric/Downloads/boost_1_70_0)
-#include_directories(contrib/boost-sdk)
+#include_directories(external/boost-sdk)
 #SET(BOOST_SRC /Users/Eric/git/build_stuff/boost_1_69_0/boost)
 #SET(BOOST_LIB /Users/Eric/git/build_stuff/boost_1_69_0/stage/lib)
 #include_directories(/Users/Eric/git/build_stuff/boost_1_69_0)
@@ -77,7 +77,7 @@ set_target_properties(hidapi PROPERTIES IMPORTED_LOCATION
 #SET(BOOST_SRC ${BOOST}/boost)
 #SET(BOOST_LIB ${BOOST}/stage/lib)
 
-SET(BOOST contrib/boost-sdk)
+SET(BOOST external/boost-sdk)
 include_directories(${BOOST})
 link_directories(${EXTERNAL_LIBS_DIR}/boost)
 
@@ -123,7 +123,7 @@ set_target_properties(boost_thread PROPERTIES IMPORTED_LOCATION
 # OpenSSL
 ############
 
-include_directories(contrib/openssl-sdk/include)
+include_directories(external/openssl-sdk/include)
 
 add_library(crypto STATIC IMPORTED)
 set_target_properties(crypto PROPERTIES IMPORTED_LOCATION
@@ -137,7 +137,7 @@ set_target_properties(ssl PROPERTIES IMPORTED_LOCATION
 # libsodium
 ############
 
-include_directories(contrib/libsodium/include/sodium)
+include_directories(external/libsodium/include/sodium)
 
 add_library(sodium STATIC IMPORTED)
 set_target_properties(sodium PROPERTIES IMPORTED_LOCATION
