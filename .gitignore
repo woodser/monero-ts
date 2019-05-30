@@ -6,5 +6,5 @@
 /external-libs/boost/
 /external-libs/hidapi/
 /external-libs/libsodium/
-/external-libs/monero/
+/external-libs/monero-core/
 /external-libs/openssl/

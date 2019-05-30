@@ -149,87 +149,87 @@ set_target_properties(sodium PROPERTIES IMPORTED_LOCATION
 
 add_library(wallet_merged STATIC IMPORTED)
 set_target_properties(wallet_merged PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libwallet_merged.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libwallet_merged.a)
 
 #add_library(wallet_api STATIC IMPORTED)
 #set_target_properties(wallet_api PROPERTIES IMPORTED_LOCATION
-    #${EXTERNAL_LIBS_DIR}/monero/libwallet_api.a)
+    #${EXTERNAL_LIBS_DIR}/monero-core/libwallet_api.a)
 
 add_library(wallet STATIC IMPORTED)
 set_target_properties(wallet PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libwallet.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libwallet.a)
     
 add_library(lmdb STATIC IMPORTED)
 set_target_properties(lmdb PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/liblmdb.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/liblmdb.a)
     
 add_library(epee STATIC IMPORTED)
 set_target_properties(epee PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libepee.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libepee.a)
     
 add_library(unbound STATIC IMPORTED)
 set_target_properties(unbound PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libunbound.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libunbound.a)
     
 add_library(easylogging STATIC IMPORTED)
 set_target_properties(easylogging PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libeasylogging.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libeasylogging.a)
 
 add_library(cryptonote_core STATIC IMPORTED)
 set_target_properties(cryptonote_core PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libcryptonote_core.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libcryptonote_core.a)
 
 add_library(cryptonote_basic STATIC IMPORTED)
 set_target_properties(cryptonote_basic PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libcryptonote_basic.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libcryptonote_basic.a)
 
 add_library(mnemonics STATIC IMPORTED)
 set_target_properties(mnemonics PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libmnemonics.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libmnemonics.a)
 
 add_library(common STATIC IMPORTED)
 set_target_properties(common PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libcommon.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libcommon.a)
 
 add_library(cncrypto STATIC IMPORTED)
 set_target_properties(cncrypto PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libcncrypto.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libcncrypto.a)
 
 add_library(ringct STATIC IMPORTED)
 set_target_properties(ringct PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libringct.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libringct.a)
 
 add_library(ringct_basic STATIC IMPORTED)
 set_target_properties(ringct_basic PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libringct_basic.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libringct_basic.a)
 
 add_library(blockchain_db STATIC IMPORTED)
 set_target_properties(blockchain_db PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libblockchain_db.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libblockchain_db.a)
 
 add_library(blocks STATIC IMPORTED)
 set_target_properties(blocks PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libblocks.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libblocks.a)
 
 add_library(checkpoints STATIC IMPORTED)
 set_target_properties(checkpoints PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libcheckpoints.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libcheckpoints.a)
 
 add_library(device STATIC IMPORTED)
 set_target_properties(device PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libdevice.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libdevice.a)
     
 add_library(device_trezor STATIC IMPORTED)
 set_target_properties(device_trezor PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libdevice_trezor.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libdevice_trezor.a)
 
 add_library(multisig STATIC IMPORTED)
 set_target_properties(multisig PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libmultisig.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libmultisig.a)
 
 add_library(version STATIC IMPORTED)
 set_target_properties(version PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/libversion.a)
+    ${EXTERNAL_LIBS_DIR}/monero-core/libversion.a)
 
 ########################
 # Build C++ scratchpad
