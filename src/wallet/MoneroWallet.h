@@ -338,7 +338,7 @@ namespace monero {
      *
      * @return List<MoneroAccount> are all accounts within the wallet
      */
-    list<MoneroAccount> getAccounts() const;
+    vector<MoneroAccount> getAccounts() const;
 
     /**
      * Get all accounts.
@@ -346,7 +346,7 @@ namespace monero {
      * @param includeSubaddresses specifies if subaddresses should be included
      * @return List<MoneroAccount> are all accounts
      */
-    list<MoneroAccount> getAccounts(const bool includeSubaddresses) const;
+    vector<MoneroAccount> getAccounts(const bool includeSubaddresses) const;
 
     /**
      * Get accounts with a given tag.
@@ -354,7 +354,7 @@ namespace monero {
      * @param tag is the tag for filtering accounts, all accounts if null
      * @return List<MoneroAccount> are all accounts for the wallet with the given tag
      */
-    list<MoneroAccount> getAccounts(const string tag) const;
+    vector<MoneroAccount> getAccounts(const string tag) const;
 
     /**
      * Get accounts with a given tag.
@@ -363,7 +363,7 @@ namespace monero {
      * @param tag is the tag for filtering accounts, all accounts if null
      * @return List<MoneroAccount> are all accounts for the wallet with the given tag
      */
-    list<MoneroAccount> getAccounts(const bool includeSubaddresses, const string tag) const;
+    vector<MoneroAccount> getAccounts(const bool includeSubaddresses, const string tag) const;
 
     /**
      * Get an account without subaddress information.

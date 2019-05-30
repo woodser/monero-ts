@@ -250,20 +250,39 @@ namespace monero {
 
   // isMultisigImportNeeded
 
-  list<MoneroAccount> MoneroWallet::getAccounts() const {
+  vector<MoneroAccount> MoneroWallet::getAccounts() const {
     cout << "getAccounts()" << endl;
+    vector<MoneroAccount> accounts;
+    for (uint32_t accountIdx = 0; accountIdx < wallet2->get_num_subaddress_accounts(); accountIdx++) {
+      MoneroAccount account;
+      account.index = accountIdx;
+      accounts.push_back(account);
+    }
+    return accounts;
+  }
+
+  vector<MoneroAccount> MoneroWallet::getAccounts(const bool includeSubaddresses) const {
+    throw runtime_error("Not implemented");
+
+    cout << "getAccounts(includeSubaddresses)" << endl;
+    vector<MoneroAccount> accounts;
+    for (uint32_t accountIdx = 0; accountIdx < wallet2->get_num_subaddress_accounts(); accountIdx++) {
+      MoneroAccount account;
+      account.index = accountIdx;
+      accounts.push_back(account);
+//      // build subaddresses
+//      for (uint32_t subaddressIdx = 0; subaddressIdx < wallet2->get_num_subaddresses(accountIdx); subaddressIdx++) {
+//	cout << "Account " << accountIdx << ", " << subaddressIdx << endl;
+//      }
+    }
+    return accounts;
+  }
+
+  vector<MoneroAccount> MoneroWallet::getAccounts(const string tag) const {
     throw runtime_error("Not implemented");
   }
 
-  list<MoneroAccount> MoneroWallet::getAccounts(const bool includeSubaddresses) const {
-    throw runtime_error("Not implemented");
-  }
-
-  list<MoneroAccount> MoneroWallet::getAccounts(const string tag) const {
-    throw runtime_error("Not implemented");
-  }
-
-  list<MoneroAccount> MoneroWallet::getAccounts(const bool includeSubaddresses, const string tag) const {
+  vector<MoneroAccount> MoneroWallet::getAccounts(const bool includeSubaddresses, const string tag) const {
     throw runtime_error("Not implemented");
   }
 
