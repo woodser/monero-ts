@@ -53,6 +53,18 @@ namespace monero {
     uint32_t numUnspentOutputs;
     bool isUsed;
     uint32_t numBlocksToUnlock;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(accountIndex)
+      KV_SERIALIZE(index)
+      KV_SERIALIZE(address)
+      KV_SERIALIZE(label)
+      KV_SERIALIZE(balance)
+      KV_SERIALIZE(unlockedBalance)
+      KV_SERIALIZE(numUnspentOutputs)
+      KV_SERIALIZE(isUsed)
+      KV_SERIALIZE(numBlocksToUnlock)
+    END_KV_SERIALIZE_MAP()
   };
 
   /**
@@ -74,7 +86,7 @@ namespace monero {
       KV_SERIALIZE(balance)
       KV_SERIALIZE(unlockedBalance)
       KV_SERIALIZE(tag)
-      //KV_SERIALIZE(subaddresses)
+      KV_SERIALIZE(subaddresses)
     END_KV_SERIALIZE_MAP()
   };
 
