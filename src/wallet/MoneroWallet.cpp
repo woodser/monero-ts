@@ -268,21 +268,23 @@ namespace monero {
   vector<MoneroAccount> MoneroWallet::getAccounts(const bool includeSubaddresses, const string tag) const {
     cout << "getAccounts(" << includeSubaddresses << ", " << tag << ")" << endl;
 
+    // need transfers to inform subaddresses if included
+    vector<tools::wallet2::transfer_details> transfers;
+    if (includeSubaddresses) wallet2->get_transfers(transfers);
+
     // build accounts
     vector<MoneroAccount> accounts;
     for (uint32_t accountIdx = 0; accountIdx < wallet2->get_num_subaddress_accounts(); accountIdx++) {
       MoneroAccount account;
       account.index = accountIdx;
       account.primaryAddress = MoneroWallet::getAddress(0, 0);
-      if (includeSubaddresses) account.subaddresses = getSubaddresses(accountIdx);
+      account.balance = wallet2->balance(accountIdx);
+      account.unlockedBalance = wallet2->unlocked_balance(accountIdx);
+      if (includeSubaddresses) account.subaddresses = getSubaddressesAux(accountIdx, transfers);
       accounts.push_back(account);
     }
 
     return accounts;
-
-    //    m_wallet->get_num_subaddress_accounts()
-    //    m_wallet->get_num_subaddresses(accountIdx)  // returns 0 if account out of index
-    //    m_wallet->balance_per_subaddress
   }
 
   MoneroAccount MoneroWallet::getAccount(const uint32_t accountIdx) const {
@@ -298,12 +300,31 @@ namespace monero {
   }
 
   vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx) const {
+    vector<tools::wallet2::transfer_details> transfers;
+    wallet2->get_transfers(transfers);
+    return getSubaddressesAux(accountIdx, transfers);
+  }
+
+  // private helper to initialize subaddresses using transfer details
+  vector<MoneroSubaddress> MoneroWallet::getSubaddressesAux(const uint32_t accountIdx, vector<tools::wallet2::transfer_details> transfers) const {
     vector<MoneroSubaddress> subaddresses;
+
+    // get balances per subaddress
+    map<uint32_t, uint64_t> balancePerSubaddress = wallet2->balance_per_subaddress(accountIdx);
+    map<uint32_t, std::pair<uint64_t, uint64_t>> unlockedBalancePerSubaddress = wallet2->unlocked_balance_per_subaddress(accountIdx);
+
+    // initialize subaddresses
     for (uint32_t subaddressIdx = 0; subaddressIdx < wallet2->get_num_subaddresses(accountIdx); subaddressIdx++) {
       MoneroSubaddress subaddress;
       subaddress.accountIndex = accountIdx;
       subaddress.index = subaddressIdx;
       subaddress.address = getAddress(accountIdx, subaddressIdx);
+      subaddress.balance = balancePerSubaddress[subaddressIdx];
+      subaddress.unlockedBalance = unlockedBalancePerSubaddress[subaddressIdx].first;
+      cryptonote::subaddress_index index = {accountIdx, subaddressIdx};
+      subaddress.numUnspentOutputs = count_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return !td.m_spent && td.m_subaddr_index == index; });
+      subaddress.isUsed = find_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return td.m_subaddr_index == index; }) != transfers.end();
+      subaddress.numBlocksToUnlock = unlockedBalancePerSubaddress[subaddressIdx].second;
       subaddresses.push_back(subaddress);
     }
     return subaddresses;
