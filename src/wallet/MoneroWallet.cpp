@@ -267,14 +267,32 @@ namespace monero {
 
   vector<MoneroAccount> MoneroWallet::getAccounts(const bool includeSubaddresses, const string tag) const {
     cout << "getAccounts(" << includeSubaddresses << ", " << tag << ")" << endl;
+
+    // build accounts
     vector<MoneroAccount> accounts;
     for (uint32_t accountIdx = 0; accountIdx < wallet2->get_num_subaddress_accounts(); accountIdx++) {
       MoneroAccount account;
       account.index = accountIdx;
       account.primaryAddress = MoneroWallet::getAddress(0, 0);
+
+      // build subaddresses
+      if (includeSubaddresses) {
+	for (uint32_t subaddressIdx = 0; subaddressIdx < wallet2->get_num_subaddresses(accountIdx); subaddressIdx++) {
+	  MoneroSubaddress subaddress;
+	  subaddress.accountIndex = accountIdx;
+	  subaddress.index = subaddressIdx;
+	  subaddress.address = MoneroWallet::getAddress(accountIdx, subaddressIdx);
+	  account.subaddresses.push_back(subaddress);
+	}
+      }
       accounts.push_back(account);
     }
+
     return accounts;
+
+    //    m_wallet->get_num_subaddress_accounts()
+    //    m_wallet->get_num_subaddresses(accountIdx)  // returns 0 if account out of index
+    //    m_wallet->balance_per_subaddress
   }
 
   MoneroAccount MoneroWallet::getAccount(const uint32_t accountIdx) const {
