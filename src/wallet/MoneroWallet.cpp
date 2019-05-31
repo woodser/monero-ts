@@ -252,38 +252,29 @@ namespace monero {
 
   vector<MoneroAccount> MoneroWallet::getAccounts() const {
     cout << "getAccounts()" << endl;
-    vector<MoneroAccount> accounts;
-    for (uint32_t accountIdx = 0; accountIdx < wallet2->get_num_subaddress_accounts(); accountIdx++) {
-      MoneroAccount account;
-      account.index = accountIdx;
-      accounts.push_back(account);
-    }
-    return accounts;
+    return getAccounts(false, string(""));
   }
 
   vector<MoneroAccount> MoneroWallet::getAccounts(const bool includeSubaddresses) const {
+    cout << "getAccounts(" << includeSubaddresses << ")" << endl;
     throw runtime_error("Not implemented");
-
-    cout << "getAccounts(includeSubaddresses)" << endl;
-    vector<MoneroAccount> accounts;
-    for (uint32_t accountIdx = 0; accountIdx < wallet2->get_num_subaddress_accounts(); accountIdx++) {
-      MoneroAccount account;
-      account.index = accountIdx;
-      accounts.push_back(account);
-//      // build subaddresses
-//      for (uint32_t subaddressIdx = 0; subaddressIdx < wallet2->get_num_subaddresses(accountIdx); subaddressIdx++) {
-//	cout << "Account " << accountIdx << ", " << subaddressIdx << endl;
-//      }
-    }
-    return accounts;
   }
 
   vector<MoneroAccount> MoneroWallet::getAccounts(const string tag) const {
+    cout << "getAccounts(" << tag << ")" << endl;
     throw runtime_error("Not implemented");
   }
 
   vector<MoneroAccount> MoneroWallet::getAccounts(const bool includeSubaddresses, const string tag) const {
-    throw runtime_error("Not implemented");
+    cout << "getAccounts(" << includeSubaddresses << ", " << tag << ")" << endl;
+    vector<MoneroAccount> accounts;
+    for (uint32_t accountIdx = 0; accountIdx < wallet2->get_num_subaddress_accounts(); accountIdx++) {
+      MoneroAccount account;
+      account.index = accountIdx;
+      account.primaryAddress = MoneroWallet::getAddress(0, 0);
+      accounts.push_back(account);
+    }
+    return accounts;
   }
 
   MoneroAccount MoneroWallet::getAccount(const uint32_t accountIdx) const {
