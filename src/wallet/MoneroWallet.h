@@ -403,64 +403,49 @@ namespace monero {
      * @return the retrieved account
      */
     MoneroAccount getAccount(const uint32_t accountIdx, const bool includeSubaddresses) const;
-//
-//    /**
-//     * Create a new account without a label.
-//     *
-//     * @return the created account
-//     */
-//    public MoneroAccount createAccount();
-//
-//    /**
-//     * Create a new account.
-//     *
-//     * @param label specifies the label for the account (optional)
-//     * @return the created account
-//     */
-//    public MoneroAccount createAccount(String label);
-//
-//    /**
-//     * Get all subaddresses in an account.
-//     *
-//     * @param accountIdx specifies the account to get subaddresses within
-//     * @return List<MoneroSubaddress> are the retrieved subaddresses
-//     */
-//    public List<MoneroSubaddress> getSubaddresses(int accountIdx);
-//
-//    /**
-//     * Get subaddresses in an account.
-//     *
-//     * @param accountIdx specifies the account to get subaddresses within
-//     * @param subaddressIndices are specific subaddresses to get (optional)
-//     * @return the retrieved subaddresses
-//     */
-//    public List<MoneroSubaddress> getSubaddresses(int accountIdx, List<Integer> subaddressIndices);
-//
-//    /**
-//     * Get a subaddress.
-//     *
-//     * @param accountIdx specifies the index of the subaddress's account
-//     * @param subaddressIdx specifies index of the subaddress within the account
-//     * @return the retrieved subaddress
-//     */
-//    public MoneroSubaddress getSubaddress(int accountIdx, int subaddressIdx);
-//
-//    /**
-//     * Create a subaddress within an account and without a label.
-//     *
-//     * @param accountIdx specifies the index of the account to create the subaddress within
-//     * @return the created subaddress
-//     */
-//    public MoneroSubaddress createSubaddress(int accountIdx);
-//
-//    /**
-//     * Create a subaddress within an account.
-//     *
-//     * @param accountIdx specifies the index of the account to create the subaddress within
-//     * @param label specifies the the label for the subaddress (optional)
-//     * @return the created subaddress
-//     */
-//    public MoneroSubaddress createSubaddress(int accountIdx, String label);
+
+    /**
+     * Create a new account.
+     *
+     * @param label specifies the label for the account (optional)
+     * @return the created account
+     */
+    MoneroAccount createAccount(const string label = "");
+
+    /**
+     * Get all subaddresses in an account.
+     *
+     * @param accountIdx specifies the account to get subaddresses within
+     * @return List<MoneroSubaddress> are the retrieved subaddresses
+     */
+    vector<MoneroSubaddress> getSubaddresses(const uint32_t accountIdx) const;
+
+    /**
+     * Get subaddresses in an account.
+     *
+     * @param accountIdx specifies the account to get subaddresses within
+     * @param subaddressIndices are specific subaddresses to get (optional)
+     * @return the retrieved subaddresses
+     */
+    vector<MoneroSubaddress> getSubaddresses(const uint32_t accountIdx, const vector<uint32_t> subaddressIndices) const;
+
+    /**
+     * Get a subaddress.
+     *
+     * @param accountIdx specifies the index of the subaddress's account
+     * @param subaddressIdx specifies index of the subaddress within the account
+     * @return the retrieved subaddress
+     */
+    MoneroSubaddress getSubaddress(const uint32_t accountIdx, const uint32_t subaddressIdx) const;
+
+    /**
+     * Create a subaddress within an account.
+     *
+     * @param accountIdx specifies the index of the account to create the subaddress within
+     * @param label specifies the the label for the subaddress (optional)
+     * @return the created subaddress
+     */
+    MoneroSubaddress createSubaddress(uint32_t accountIdx, const string label = "");
 
     /**
      * Get the address of a specific subaddress.
@@ -469,7 +454,9 @@ namespace monero {
      * @param subaddressIdx specifies the subaddress index within the account
      * @return the receive address of the specified subaddress
      */
-    string getAddress(uint32_t accountIdx, uint32_t subaddressIdx) const;
+    string getAddress(const uint32_t accountIdx, const uint32_t subaddressIdx) const;
+
+    // get address index
 
 //    /**
 //     * Get the account and subaddress index of the given address.
@@ -493,7 +480,7 @@ namespace monero {
      * @param accountIdx is the index of the account to get the balance of
      * @return the account's balance
      */
-    uint64_t getBalance(uint32_t accountIdx) const;
+    uint64_t getBalance(uint32_t accountIdx) const;	// TODO: this param should be const and others
 
     /**
      * Get a subaddress's balance.

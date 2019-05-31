@@ -274,17 +274,7 @@ namespace monero {
       MoneroAccount account;
       account.index = accountIdx;
       account.primaryAddress = MoneroWallet::getAddress(0, 0);
-
-      // build subaddresses
-      if (includeSubaddresses) {
-	for (uint32_t subaddressIdx = 0; subaddressIdx < wallet2->get_num_subaddresses(accountIdx); subaddressIdx++) {
-	  MoneroSubaddress subaddress;
-	  subaddress.accountIndex = accountIdx;
-	  subaddress.index = subaddressIdx;
-	  subaddress.address = MoneroWallet::getAddress(accountIdx, subaddressIdx);
-	  account.subaddresses.push_back(subaddress);
-	}
-      }
+      if (includeSubaddresses) account.subaddresses = getSubaddresses(accountIdx);
       accounts.push_back(account);
     }
 
@@ -303,9 +293,45 @@ namespace monero {
     throw runtime_error("Not implemented");
   }
 
+  MoneroAccount MoneroWallet::createAccount(const string label) {
+    throw runtime_error("Not implemented");
+  }
+
+  vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx) const {
+    vector<MoneroSubaddress> subaddresses;
+    for (uint32_t subaddressIdx = 0; subaddressIdx < wallet2->get_num_subaddresses(accountIdx); subaddressIdx++) {
+      MoneroSubaddress subaddress;
+      subaddress.accountIndex = accountIdx;
+      subaddress.index = subaddressIdx;
+      subaddress.address = getAddress(accountIdx, subaddressIdx);
+      subaddresses.push_back(subaddress);
+    }
+    return subaddresses;
+  }
+
+  vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx, const vector<uint32_t> subaddressIndices) const {
+    throw runtime_error("Not implemented");
+  }
+
+  MoneroSubaddress MoneroWallet::getSubaddress(const uint32_t accountIdx, const uint32_t subaddressIdx) const {
+    throw runtime_error("Not implemented");
+  }
+
+  MoneroSubaddress MoneroWallet::createSubaddress(const uint32_t accountIdx, const string label) {
+    throw runtime_error("Not implemented");
+  }
+
+  // create account
+
+  // getSubaddresses
+
+  // createSubaddress
+
   string MoneroWallet::getAddress(uint32_t accountIdx, uint32_t subaddressIdx) const {
     return wallet2->get_subaddress_as_str({accountIdx, subaddressIdx});
   }
+
+  // get address index
 
   uint64_t MoneroWallet::getBalance() const {
     return wallet2->balance_all();
