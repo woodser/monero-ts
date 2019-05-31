@@ -219,11 +219,6 @@ namespace monero {
     ~MoneroWallet();
 
     /**
-     * TODO: remove this.
-     */
-    tools::wallet2* getWallet2();
-
-    /**
      * Set the wallet's daemon connection.
      *
      * TODO: switch to MoneroNetworkType

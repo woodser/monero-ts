@@ -23,11 +23,15 @@ namespace monero {
       this->wallet = wallet;
       this->wallet2 = wallet2;
       this->listener = nullptr;
+      this->syncStartHeight = nullptr;
+      this->syncEndHeight = nullptr;
       this->syncListener = nullptr;
     }
 
     ~Wallet2Listener() {
-
+      cout << "~Wallet2Listener()" << endl;
+      delete syncStartHeight;
+      delete syncEndHeight;
     }
 
     void setWalletListener(MoneroWalletListener* listener) {
@@ -36,6 +40,7 @@ namespace monero {
     }
 
     void onSyncStart(uint64_t startHeight, MoneroSyncListener* syncListener) {
+      if (syncStartHeight != nullptr || syncEndHeight != nullptr) throw runtime_error("Sync start or end height should not already be allocated");
       syncStartHeight = new uint64_t(startHeight);
       syncEndHeight = new uint64_t(wallet->getChainHeight() - 1);
       this->syncListener = syncListener;
@@ -155,10 +160,6 @@ namespace monero {
 
   MoneroWallet::~MoneroWallet() {
     cout << "~MoneroWallet()" << endl;
-  }
-
-  tools::wallet2* MoneroWallet::getWallet2() {
-    return wallet2.get();
   }
 
   // TODO: switch this to setDaemonConnection(MoneroDaemonRpc& daemonConnection)
