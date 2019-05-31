@@ -114,9 +114,10 @@ class MoneroUtils {
     assert(privateViewKey.length === 64);
   }
   
-  // TODO: implement this, will require knowing network type
+  // TODO: beef this up, will require knowing network type
   static validateAddress(address) {
-    
+    assert(address);
+    assert(address.length > 0);
   }
   
   static isValidPaymentId(paymentId) {

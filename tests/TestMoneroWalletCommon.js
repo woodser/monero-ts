@@ -2423,7 +2423,7 @@ function testAccount(account) {
   // test account
   assert(account);
   assert(account.getIndex() >= 0);
-  assert(account.getPrimaryAddress());
+  MoneroUtils.validateAddress(account.getPrimaryAddress());
   TestUtils.testUnsignedBigInteger(account.getBalance());
   TestUtils.testUnsignedBigInteger(account.getUnlockedBalance());
   assert(account.getLabel() === undefined || typeof account.getLabel() === "string");

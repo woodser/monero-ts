@@ -60,6 +60,15 @@ class MoneroAccount {
     return this;
   }
   
+  getTag() {
+    return this.json.tag;
+  }
+  
+  setTag(tag) {
+    this.json.tag = tag;
+    return this;
+  }
+  
   getSubaddresses() {
     return this.json.subaddresses;
   }
@@ -72,15 +81,6 @@ class MoneroAccount {
         subaddress.setAccountIndex(this.json.index);
       }
     }
-    return this;
-  }
-  
-  getTag() {
-    return this.json.tag;
-  }
-  
-  setTag(tag) {
-    this.json.tag = tag;
     return this;
   }
 }
