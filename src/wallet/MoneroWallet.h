@@ -1111,6 +1111,6 @@ namespace monero {
      MoneroWalletListener* listener;			// wallet's external listener
 
      MoneroSyncResult syncAux(uint64_t* startHeight, uint64_t* endHeight, MoneroSyncListener* listener);
-     vector<MoneroSubaddress> getSubaddressesAux(uint32_t accountIdx, vector<tools::wallet2::transfer_details> transfers) const;
+     vector<MoneroSubaddress> getSubaddressesAux(uint32_t accountIdx, vector<uint32_t> subaddressIndices, vector<tools::wallet2::transfer_details> transfers) const;
     };
 }

@@ -281,7 +281,7 @@ namespace monero {
       account.primaryAddress = getAddress(0, 0);
       account.balance = wallet2->balance(accountIdx);
       account.unlockedBalance = wallet2->unlocked_balance(accountIdx);
-      if (includeSubaddresses) account.subaddresses = getSubaddressesAux(accountIdx, transfers);
+      if (includeSubaddresses) account.subaddresses = getSubaddressesAux(accountIdx, vector<uint32_t>(), transfers);
       accounts.push_back(account);
     }
 
@@ -303,12 +303,22 @@ namespace monero {
   vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx) const {
     vector<tools::wallet2::transfer_details> transfers;
     wallet2->get_transfers(transfers);
-    return getSubaddressesAux(accountIdx, transfers);
+    return getSubaddressesAux(accountIdx, vector<uint32_t>(), transfers);
+  }
+
+  vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx, const vector<uint32_t> subaddressIndices) const {
+    cout << "getSubaddresses(" << accountIdx << ", " << subaddressIndices.size() << ")" << endl;
+    vector<tools::wallet2::transfer_details> transfers;
+    wallet2->get_transfers(transfers);
+    return getSubaddressesAux(accountIdx, subaddressIndices, transfers);
   }
 
   // private helper to initialize subaddresses using transfer details
-  vector<MoneroSubaddress> MoneroWallet::getSubaddressesAux(const uint32_t accountIdx, vector<tools::wallet2::transfer_details> transfers) const {
+  vector<MoneroSubaddress> MoneroWallet::getSubaddressesAux(const uint32_t accountIdx, vector<uint32_t> subaddressIndices, vector<tools::wallet2::transfer_details> transfers) const {
     vector<MoneroSubaddress> subaddresses;
+
+    // TODO implement
+    if (!subaddressIndices.empty()) throw runtime_error("getting by subaddress index not yet supported");
 
     // get balances per subaddress as maps
     map<uint32_t, uint64_t> balancePerSubaddress = wallet2->balance_per_subaddress(accountIdx);
@@ -331,10 +341,6 @@ namespace monero {
       subaddresses.push_back(subaddress);
     }
     return subaddresses;
-  }
-
-  vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx, const vector<uint32_t> subaddressIndices) const {
-    throw runtime_error("Not implemented");
   }
 
   MoneroSubaddress MoneroWallet::getSubaddress(const uint32_t accountIdx, const uint32_t subaddressIdx) const {
