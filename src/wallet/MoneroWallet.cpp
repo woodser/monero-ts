@@ -112,7 +112,7 @@ namespace monero {
   MoneroWallet::MoneroWallet(const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, const string& language) {
     cout << "MoneroWallet(3)" << endl;
     wallet2 = shared_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
-    MoneroWallet::setDaemonConnection(daemonConnection.uri, daemonConnection.username, daemonConnection.password);
+    setDaemonConnection(daemonConnection.uri, daemonConnection.username, daemonConnection.password);
     wallet2->set_seed_language(language);
     crypto::secret_key recovery_val, secret_key;
     wallet2->generate(string(""), string(""), secret_key, false, false);
@@ -277,7 +277,7 @@ namespace monero {
     for (uint32_t accountIdx = 0; accountIdx < wallet2->get_num_subaddress_accounts(); accountIdx++) {
       MoneroAccount account;
       account.index = accountIdx;
-      account.primaryAddress = MoneroWallet::getAddress(0, 0);
+      account.primaryAddress = getAddress(0, 0);
       account.balance = wallet2->balance(accountIdx);
       account.unlockedBalance = wallet2->unlocked_balance(accountIdx);
       if (includeSubaddresses) account.subaddresses = getSubaddressesAux(accountIdx, transfers);
@@ -393,7 +393,7 @@ namespace monero {
     if (endHeight != nullptr) throw runtime_error("Monero core wallet does not support syncing to an end height");	// TODO: custom exception type
 
     // determine sync start height
-    uint64_t syncStartHeight = startHeight == nullptr ? max(MoneroWallet::getHeight(), MoneroWallet::getRestoreHeight()) : *startHeight;
+    uint64_t syncStartHeight = startHeight == nullptr ? max(getHeight(), getRestoreHeight()) : *startHeight;
 
     // sync wallet
     wallet2Listener->onSyncStart(syncStartHeight, listener);
