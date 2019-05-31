@@ -309,7 +309,7 @@ namespace monero {
   vector<MoneroSubaddress> MoneroWallet::getSubaddressesAux(const uint32_t accountIdx, vector<tools::wallet2::transfer_details> transfers) const {
     vector<MoneroSubaddress> subaddresses;
 
-    // get balances per subaddress
+    // get balances per subaddress as maps
     map<uint32_t, uint64_t> balancePerSubaddress = wallet2->balance_per_subaddress(accountIdx);
     map<uint32_t, std::pair<uint64_t, uint64_t>> unlockedBalancePerSubaddress = wallet2->unlocked_balance_per_subaddress(accountIdx);
 
@@ -319,12 +319,14 @@ namespace monero {
       subaddress.accountIndex = accountIdx;
       subaddress.index = subaddressIdx;
       subaddress.address = getAddress(accountIdx, subaddressIdx);
-      subaddress.balance = balancePerSubaddress[subaddressIdx];
-      subaddress.unlockedBalance = unlockedBalancePerSubaddress[subaddressIdx].first;
+      auto iter1 = balancePerSubaddress.find(subaddressIdx);
+      subaddress.balance = iter1 == balancePerSubaddress.end() ? 0 : iter1->second;
+      auto iter2 = unlockedBalancePerSubaddress.find(subaddressIdx);
+      subaddress.unlockedBalance = iter2 == unlockedBalancePerSubaddress.end() ? 0 : iter2->second.first;
+      subaddress.numBlocksToUnlock = iter2 == unlockedBalancePerSubaddress.end() ? 0 : iter2->second.second;
       cryptonote::subaddress_index index = {accountIdx, subaddressIdx};
       subaddress.numUnspentOutputs = count_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return !td.m_spent && td.m_subaddr_index == index; });
       subaddress.isUsed = find_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return td.m_subaddr_index == index; }) != transfers.end();
-      subaddress.numBlocksToUnlock = unlockedBalancePerSubaddress[subaddressIdx].second;
       subaddresses.push_back(subaddress);
     }
     return subaddresses;
@@ -363,7 +365,9 @@ namespace monero {
   }
 
   uint64_t MoneroWallet::getBalance(uint32_t accountIdx, uint32_t subaddressIdx) const {
-    return wallet2->balance_per_subaddress(accountIdx).at(subaddressIdx);
+    map<uint32_t, uint64_t> balancePerSubaddress = wallet2->balance_per_subaddress(accountIdx);
+    auto iter = balancePerSubaddress.find(subaddressIdx);
+    return iter == balancePerSubaddress.end() ? 0 : iter->second;
   }
 
   uint64_t MoneroWallet::getUnlockedBalance() const {
@@ -375,7 +379,9 @@ namespace monero {
   }
 
   uint64_t MoneroWallet::getUnlockedBalance(uint32_t accountIdx, uint32_t subaddressIdx) const {
-    return wallet2->unlocked_balance_per_subaddress(accountIdx).at(subaddressIdx).first;
+    map<uint32_t, std::pair<uint64_t, uint64_t>> unlockedBalancePerSubaddress = wallet2->unlocked_balance_per_subaddress(accountIdx);
+    auto iter = unlockedBalancePerSubaddress.find(subaddressIdx);
+    return iter == unlockedBalancePerSubaddress.end() ? 0 : iter->second.first;
   }
 
   // ------------------------------- PRIVATE HELPERS ----------------------------
