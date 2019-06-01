@@ -300,7 +300,7 @@ namespace monero {
     throw runtime_error("Not implemented");
   }
 
-  vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx) const {
+  vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx) const {	// TODO: this should call one below
     vector<tools::wallet2::transfer_details> transfers;
     wallet2->get_transfers(transfers);
     return getSubaddressesAux(accountIdx, vector<uint32_t>(), transfers);
@@ -317,17 +317,23 @@ namespace monero {
   vector<MoneroSubaddress> MoneroWallet::getSubaddressesAux(const uint32_t accountIdx, vector<uint32_t> subaddressIndices, vector<tools::wallet2::transfer_details> transfers) const {
     vector<MoneroSubaddress> subaddresses;
 
-    // TODO implement
-    if (!subaddressIndices.empty()) throw runtime_error("getting by subaddress index not yet supported");
-
     // get balances per subaddress as maps
     map<uint32_t, uint64_t> balancePerSubaddress = wallet2->balance_per_subaddress(accountIdx);
     map<uint32_t, std::pair<uint64_t, uint64_t>> unlockedBalancePerSubaddress = wallet2->unlocked_balance_per_subaddress(accountIdx);
 
-    // initialize subaddresses
-    for (uint32_t subaddressIdx = 0; subaddressIdx < wallet2->get_num_subaddresses(accountIdx); subaddressIdx++) {
+    // get all indices if no indices given
+    if (subaddressIndices.empty()) {
+      subaddressIndices = vector<uint32_t>();
+      for (uint32_t subaddressIdx = 0; subaddressIdx < wallet2->get_num_subaddresses(accountIdx); subaddressIdx++) {
+        subaddressIndices.push_back(subaddressIdx);
+      }
+    }
+
+    // initialize subaddresses at indices
+    for (uint32_t subaddressIndicesIdx = 0; subaddressIndicesIdx < subaddressIndices.size(); subaddressIndicesIdx++) {
       MoneroSubaddress subaddress;
       subaddress.accountIndex = accountIdx;
+      uint32_t subaddressIdx = subaddressIndices.at(subaddressIndicesIdx);
       subaddress.index = subaddressIdx;
       subaddress.address = getAddress(accountIdx, subaddressIdx);
       auto iter1 = balancePerSubaddress.find(subaddressIdx);
@@ -340,6 +346,7 @@ namespace monero {
       subaddress.isUsed = find_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return td.m_subaddr_index == index; }) != transfers.end();
       subaddresses.push_back(subaddress);
     }
+
     return subaddresses;
   }
 
