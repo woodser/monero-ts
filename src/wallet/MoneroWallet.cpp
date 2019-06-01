@@ -160,6 +160,7 @@ namespace monero {
 
   MoneroWallet::~MoneroWallet() {
     cout << "~MoneroWallet()" << endl;
+    close();
   }
 
   // TODO: switch this to setDaemonConnection(MoneroDaemonRpc& daemonConnection)
@@ -400,6 +401,21 @@ namespace monero {
     map<uint32_t, std::pair<uint64_t, uint64_t>> unlockedBalancePerSubaddress = wallet2->unlocked_balance_per_subaddress(accountIdx);
     auto iter = unlockedBalancePerSubaddress.find(subaddressIdx);
     return iter == unlockedBalancePerSubaddress.end() ? 0 : iter->second.first;
+  }
+
+  void MoneroWallet::save() {
+    cout << "save()" << endl;
+    save(nullptr, nullptr);
+  }
+
+  void MoneroWallet::save(string path, string password) {
+    cout << "save(" << path << ", " << password << ")" << endl;
+    throw runtime_error("Not implemented");
+  }
+
+  void MoneroWallet::close() {
+    cout << "close()" << endl;
+    throw runtime_error("Not implemented");
   }
 
   // ------------------------------- PRIVATE HELPERS ----------------------------

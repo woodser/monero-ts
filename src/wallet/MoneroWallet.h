@@ -1102,6 +1102,27 @@ namespace monero {
 //     */
 //    public void stopMining();
 
+    /**
+     * Re-save the wallet at its current path.
+     *
+     * Throws an exception if the wallet was not loaded from a path and has not
+     * been saved to an explicit path.
+     */
+    void save();
+
+    /**
+     * Save the wallet at the given path.
+     *
+     * @param path is the path to save the wallet at
+     * @param password is the password to encrypt the wallet
+     */
+    void save(string path, string password);
+
+    /**
+     * Close the wallet.
+     */
+    void close();
+
     // --------------------------------- PRIVATE --------------------------------
 
     private:
