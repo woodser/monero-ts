@@ -307,7 +307,11 @@ namespace monero {
   }
 
   vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx, const vector<uint32_t> subaddressIndices) const {
-    cout << "getSubaddresses(" << accountIdx << ", " << subaddressIndices.size() << ")" << endl;
+    cout << "getSubaddresses(" << accountIdx << ", ...)" << endl;
+    cout << "Subaddress indices size: " << subaddressIndices.size();
+    if (subaddressIndices.size() > 0) cout << ", First element: " << subaddressIndices.at(0) << endl;
+    else cout << endl;
+
     vector<tools::wallet2::transfer_details> transfers;
     wallet2->get_transfers(transfers);
     return getSubaddressesAux(accountIdx, subaddressIndices, transfers);
