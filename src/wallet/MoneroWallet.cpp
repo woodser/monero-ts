@@ -411,15 +411,16 @@ namespace monero {
   void MoneroWallet::save(string path, string password) {
     cout << "save(" << path << ", " << password << ")" << endl;
     if (path.empty()) {
-	wallet2->store();	// TODO: hopefully this fails if not known?
-	throw runtime_error("where is this storing to?");
+      if (wallet2->get_wallet_file().empty()) throw runtime_error("Must specify path to save wallet because wallet has not been previously saved");
+      else wallet2->store();
+    } else {
+      wallet2->store_to(path, password);
     }
-    else wallet2->store_to(path, password);
   }
 
   void MoneroWallet::close() {
     cout << "close()" << endl;
-    throw runtime_error("Not implemented");
+    wallet2->stop();
   }
 
   // ------------------------------- PRIVATE HELPERS ----------------------------
