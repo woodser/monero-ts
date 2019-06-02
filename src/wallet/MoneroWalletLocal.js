@@ -112,17 +112,6 @@ class MoneroWalletLocal extends MoneroWallet {
     return this.cache.primaryAddress;
   }
   
-  async getHeight() {
-    await this._initOneTime();
-    let lastIdx = this.cache.processed.getLast(true);
-    return lastIdx === null ? this.store.startHeight : lastIdx + 1;
-  }
-  
-  async getChainHeight() {
-    await this._initOneTime();
-    return this.cache.chainHeight;
-  }
-  
   // TODO: only allow one refresh at a time
   async sync(startHeight, endHeight, onProgress) {
     await this._initOneTime();
@@ -173,6 +162,17 @@ class MoneroWalletLocal extends MoneroWallet {
         totalBlocks: endHeight - startHeight + 1
       });
     }
+  }
+  
+  async getHeight() {
+    await this._initOneTime();
+    let lastIdx = this.cache.processed.getLast(true);
+    return lastIdx === null ? this.store.startHeight : lastIdx + 1;
+  }
+  
+  async getChainHeight() {
+    await this._initOneTime();
+    return this.cache.chainHeight;
   }
   
   // -------------------------------- PRIVATE ---------------------------------

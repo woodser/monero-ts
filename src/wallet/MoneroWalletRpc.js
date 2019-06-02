@@ -133,12 +133,37 @@ class MoneroWalletRpc extends MoneroWallet {
     return (await this.config.rpc.sendJsonRequest("get_languages")).result.languages;
   }
   
-  async getHeight() {
-    return (await this.config.rpc.sendJsonRequest("get_height")).result.height;
+  async getAddress(accountIdx, subaddressIdx) {
+    let subaddressMap = this.addressCache[accountIdx];
+    if (!subaddressMap) {
+      await this.getSubaddresses(accountIdx, undefined, true);  // cache's all addresses at this account
+      return this.getAddress(accountIdx, subaddressIdx);        // recursive call uses cache
+    }
+    let address = subaddressMap[subaddressIdx];
+    if (!address) {
+      await this.getSubaddresses(accountIdx, undefined, true);  // cache's all addresses at this account
+      return this.addressCache[accountIdx][subaddressIdx];
+    }
+    return address;
   }
   
-  async getPrimaryAddress() {
-    return (await this.config.rpc.sendJsonRequest("get_address", {account_index: 0, address_index: 0})).result.address;
+  // TODO: use cache
+  async getAddressIndex(address) {
+    
+    // fetch result and normalize error if address does not belong to the wallet
+    let resp;
+    try {
+      resp = await this.config.rpc.sendJsonRequest("get_address_index", {address: address});
+    } catch (e) {
+      if (e.getCode() === -2) throw new MoneroError("Address does not belong to the wallet");
+      throw e;
+    }
+    
+    // convert rpc response
+    let subaddress = new MoneroSubaddress(address);
+    subaddress.setAccountIndex(resp.result.index.major);
+    subaddress.setIndex(resp.result.index.minor);
+    return subaddress;
   }
   
   async getIntegratedAddress(paymentId) {
@@ -162,9 +187,21 @@ class MoneroWalletRpc extends MoneroWallet {
     await this.config.rpc.sendJsonRequest("rescan_blockchain");
   }
   
+  async getHeight() {
+    return (await this.config.rpc.sendJsonRequest("get_height")).result.height;
+  }
+  
   async isMultisigImportNeeded() {
     let resp = await this.config.rpc.sendJsonRequest("get_balance");
     return resp.result.multisig_import_needed === true;
+  }
+  
+  async getBalance(accountIdx, subaddressIdx) {
+    return (await this._getBalances(accountIdx, subaddressIdx))[0];
+  }
+  
+  async getUnlockedBalance(accountIdx, subaddressIdx) {
+    return (await this._getBalances(accountIdx, subaddressIdx))[1];
   }
   
   async getAccounts(includeSubaddresses, tag, skipBalances) {
@@ -316,47 +353,6 @@ class MoneroWalletRpc extends MoneroWallet {
     subaddress.setIsUsed(false);
     subaddress.setNumBlocksToUnlock(0);
     return subaddress;
-  }
-
-  async getAddress(accountIdx, subaddressIdx) {
-    let subaddressMap = this.addressCache[accountIdx];
-    if (!subaddressMap) {
-      await this.getSubaddresses(accountIdx, undefined, true);  // cache's all addresses at this account
-      return this.getAddress(accountIdx, subaddressIdx);        // recursive call uses cache
-    }
-    let address = subaddressMap[subaddressIdx];
-    if (!address) {
-      await this.getSubaddresses(accountIdx, undefined, true);  // cache's all addresses at this account
-      return this.addressCache[accountIdx][subaddressIdx];
-    }
-    return address;
-  }
-  
-  // TODO: use cache
-  async getAddressIndex(address) {
-    
-    // fetch result and normalize error if address does not belong to the wallet
-    let resp;
-    try {
-      resp = await this.config.rpc.sendJsonRequest("get_address_index", {address: address});
-    } catch (e) {
-      if (e.getCode() === -2) throw new MoneroError("Address does not belong to the wallet");
-      throw e;
-    }
-    
-    // convert rpc response
-    let subaddress = new MoneroSubaddress(address);
-    subaddress.setAccountIndex(resp.result.index.major);
-    subaddress.setIndex(resp.result.index.minor);
-    return subaddress;
-  }
-  
-  async getBalance(accountIdx, subaddressIdx) {
-    return (await this._getBalances(accountIdx, subaddressIdx))[0];
-  }
-  
-  async getUnlockedBalance(accountIdx, subaddressIdx) {
-    return (await this._getBalances(accountIdx, subaddressIdx))[1];
   }
   
   async getTxs(request) {
