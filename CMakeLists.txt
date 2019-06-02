@@ -297,6 +297,7 @@ target_link_libraries(scratchpad
 set(
     LIBRARY_SRC_FILES
     src/wallet/MoneroWallet.cpp
+    src/utils/MoneroUtils.cpp
 )
 
 add_library(monero-cpp SHARED ${LIBRARY_SRC_FILES})
