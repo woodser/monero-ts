@@ -286,28 +286,12 @@ namespace monero {
      */
     string getLanguage() const;
 
-//    /**
-//     * Get a list of available languages for the wallet's seed.
-//     *
-//     * @return the available languages for the wallet's seed
-//     */
-//    virtual string[] getLanguages() const;
-
-    /**
-     * Get the height of the last block processed by the wallet (its index + 1).
-     *
-     * @return the height of the last block processed by the wallet
-     */
-    uint64_t getHeight() const;
-
-    /**
-     * Get the blockchain's height.
-     *
-     * @return the blockchain's height
-     */
-    uint64_t getChainHeight() const;
-
-    uint64_t getRestoreHeight() const;
+    //    /**
+    //     * Get a list of available languages for the wallet's seed.
+    //     *
+    //     * @return the available languages for the wallet's seed
+    //     */
+    //    virtual string[] getLanguages() const;
 
     /**
      * Get the wallet's primary address.
@@ -315,6 +299,24 @@ namespace monero {
      * @return the wallet's primary address
      */
     string getPrimaryAddress() const;
+
+    /**
+     * Get the address of a specific subaddress.
+     *
+     * @param accountIdx specifies the account index of the address's subaddress
+     * @param subaddressIdx specifies the subaddress index within the account
+     * @return the receive address of the specified subaddress
+     */
+    string getAddress(const uint32_t accountIdx, const uint32_t subaddressIdx) const;
+
+//    /**
+//     * Get the account and subaddress index of the given address.
+//     *
+//     * @param address is the address to get the account and subaddress index from
+//     * @return the account and subaddress indices
+//     * @throws exception if address is not a wallet address
+//     */
+//    public MoneroSubaddress getAddressIndex(String address);
 
 //    /**
 //     * Get an integrated address based on this wallet's primary address and the
@@ -343,21 +345,86 @@ namespace monero {
 
     MoneroSyncResult sync(uint64_t startHeight, MoneroSyncListener& listener);
 
-//    /**
-//     * Rescan the blockchain from scratch, losing any information which cannot be recovered from
-//     * the blockchain itself.
-//     *
-//     * WARNING: This method discards local wallet data like destination addresses, tx secret keys,
-//     * tx notes, etc.
-//     */
-//    public void rescanBlockchain();
-//
+    //    /**
+    //     * Rescan the blockchain from scratch, losing any information which cannot be recovered from
+    //     * the blockchain itself.
+    //     *
+    //     * WARNING: This method discards local wallet data like destination addresses, tx secret keys,
+    //     * tx notes, etc.
+    //     */
+    //    public void rescanBlockchain();
+
+    /**
+     * Get the height of the last block processed by the wallet (its index + 1).
+     *
+     * @return the height of the last block processed by the wallet
+     */
+    uint64_t getHeight() const;
+
+    /**
+     * Get the blockchain's height.
+     *
+     * @return the blockchain's height
+     */
+    uint64_t getChainHeight() const;
+
+    uint64_t getRestoreHeight() const;
+
+    //
 //    /**
 //     * Indicates if importing multisig data is needed for returning a correct balance.
 //     *
 //     * @return true if importing multisig data is needed for returning a correct balance, false otherwise
 //     */
 //    public boolean isMultisigImportNeeded();
+
+    /**
+     * Get the wallet's balance.
+     *
+     * @return the wallet's balance
+     */
+    uint64_t getBalance() const;
+
+    /**
+     * Get an account's balance.
+     *
+     * @param accountIdx is the index of the account to get the balance of
+     * @return the account's balance
+     */
+    uint64_t getBalance(uint32_t accountIdx) const;	// TODO: this param should be const and others
+
+    /**
+     * Get a subaddress's balance.
+     *
+     * @param accountIdx is the index of the subaddress's account to get the balance of
+     * @param subaddressIdx is the index of the subaddress to get the balance of
+     * @return the subaddress's balance
+     */
+    uint64_t getBalance(uint32_t accountIdx, uint32_t subaddressIdx) const;
+
+    /**
+     * Get the wallet's unlocked balance.
+     *
+     * @return the wallet's unlocked balance
+     */
+    uint64_t getUnlockedBalance() const;
+
+    /**
+     * Get an account's unlocked balance.
+     *
+     * @param accountIdx is the index of the account to get the unlocked balance of
+     * @return the account's unlocked balance
+     */
+    uint64_t getUnlockedBalance(uint32_t accountIdx) const;
+
+    /**
+     * Get a subaddress's unlocked balance.
+     *
+     * @param accountIdx is the index of the subaddress's account to get the unlocked balance of
+     * @param subaddressIdx is the index of the subaddress to get the unlocked balance of
+     * @return the subaddress's balance
+     */
+    uint64_t getUnlockedBalance(uint32_t accountIdx, uint32_t subaddressIdx) const;
 
     /**
      * Get all accounts.
@@ -451,74 +518,6 @@ namespace monero {
      */
     MoneroSubaddress createSubaddress(uint32_t accountIdx, const string label = "");
 
-    /**
-     * Get the address of a specific subaddress.
-     *
-     * @param accountIdx specifies the account index of the address's subaddress
-     * @param subaddressIdx specifies the subaddress index within the account
-     * @return the receive address of the specified subaddress
-     */
-    string getAddress(const uint32_t accountIdx, const uint32_t subaddressIdx) const;
-
-    // get address index
-
-//    /**
-//     * Get the account and subaddress index of the given address.
-//     *
-//     * @param address is the address to get the account and subaddress index from
-//     * @return the account and subaddress indices
-//     * @throws exception if address is not a wallet address
-//     */
-//    public MoneroSubaddress getAddressIndex(String address);
-
-    /**
-     * Get the wallet's balance.
-     *
-     * @return the wallet's balance
-     */
-    uint64_t getBalance() const;
-
-    /**
-     * Get an account's balance.
-     *
-     * @param accountIdx is the index of the account to get the balance of
-     * @return the account's balance
-     */
-    uint64_t getBalance(uint32_t accountIdx) const;	// TODO: this param should be const and others
-
-    /**
-     * Get a subaddress's balance.
-     *
-     * @param accountIdx is the index of the subaddress's account to get the balance of
-     * @param subaddressIdx is the index of the subaddress to get the balance of
-     * @return the subaddress's balance
-     */
-    uint64_t getBalance(uint32_t accountIdx, uint32_t subaddressIdx) const;
-
-    /**
-     * Get the wallet's unlocked balance.
-     *
-     * @return the wallet's unlocked balance
-     */
-    uint64_t getUnlockedBalance() const;
-
-    /**
-     * Get an account's unlocked balance.
-     *
-     * @param accountIdx is the index of the account to get the unlocked balance of
-     * @return the account's unlocked balance
-     */
-    uint64_t getUnlockedBalance(uint32_t accountIdx) const;
-
-    /**
-     * Get a subaddress's unlocked balance.
-     *
-     * @param accountIdx is the index of the subaddress's account to get the unlocked balance of
-     * @param subaddressIdx is the index of the subaddress to get the unlocked balance of
-     * @return the subaddress's balance
-     */
-    uint64_t getUnlockedBalance(uint32_t accountIdx, uint32_t subaddressIdx) const;
-//
 //    /**
 //     * Get a wallet transaction by id.
 //     *

@@ -202,25 +202,18 @@ namespace monero {
     return wallet2->get_seed_language();
   }
 
+  // get primary address (default impl?)
+
+  string MoneroWallet::getAddress(uint32_t accountIdx, uint32_t subaddressIdx) const {
+    return wallet2->get_subaddress_as_str({accountIdx, subaddressIdx});
+  }
+
+  // get address index
+
   string MoneroWallet::getMnemonic() const {
     epee::wipeable_string wipeablePassword;
     wallet2->get_seed(wipeablePassword);
     return string(wipeablePassword.data(), wipeablePassword.size());
-  }
-
-  uint64_t MoneroWallet::getHeight() const {
-    return wallet2->get_blockchain_current_height();
-  }
-
-  uint64_t MoneroWallet::getChainHeight() const {
-    string err;
-    uint64_t chainHeight = wallet2->get_daemon_blockchain_height(err);
-    if (!err.empty()) throw runtime_error(err);	// TODO: proper monero error
-    return chainHeight;
-  }
-
-  uint64_t MoneroWallet::getRestoreHeight() const {
-    return wallet2->get_refresh_from_block_height();
   }
 
   void MoneroWallet::setListener(MoneroWalletListener* listener) {
@@ -251,6 +244,49 @@ namespace monero {
   // rescanBlockchain
 
   // isMultisigImportNeeded
+
+  uint64_t MoneroWallet::getHeight() const {
+    return wallet2->get_blockchain_current_height();
+  }
+
+  uint64_t MoneroWallet::getChainHeight() const {
+    string err;
+    uint64_t chainHeight = wallet2->get_daemon_blockchain_height(err);
+    if (!err.empty()) throw runtime_error(err);	// TODO: proper monero error
+    return chainHeight;
+  }
+
+  uint64_t MoneroWallet::getRestoreHeight() const {
+    return wallet2->get_refresh_from_block_height();
+  }
+
+  uint64_t MoneroWallet::getBalance() const {
+    return wallet2->balance_all();
+  }
+
+  uint64_t MoneroWallet::getBalance(uint32_t accountIdx) const {
+    return wallet2->balance(accountIdx);
+  }
+
+  uint64_t MoneroWallet::getBalance(uint32_t accountIdx, uint32_t subaddressIdx) const {
+    map<uint32_t, uint64_t> balancePerSubaddress = wallet2->balance_per_subaddress(accountIdx);
+    auto iter = balancePerSubaddress.find(subaddressIdx);
+    return iter == balancePerSubaddress.end() ? 0 : iter->second;
+  }
+
+  uint64_t MoneroWallet::getUnlockedBalance() const {
+    return wallet2->unlocked_balance_all();
+  }
+
+  uint64_t MoneroWallet::getUnlockedBalance(uint32_t accountIdx) const {
+    return wallet2->unlocked_balance(accountIdx);
+  }
+
+  uint64_t MoneroWallet::getUnlockedBalance(uint32_t accountIdx, uint32_t subaddressIdx) const {
+    map<uint32_t, std::pair<uint64_t, uint64_t>> unlockedBalancePerSubaddress = wallet2->unlocked_balance_per_subaddress(accountIdx);
+    auto iter = unlockedBalancePerSubaddress.find(subaddressIdx);
+    return iter == unlockedBalancePerSubaddress.end() ? 0 : iter->second.first;
+  }
 
   vector<MoneroAccount> MoneroWallet::getAccounts() const {
     cout << "getAccounts()" << endl;
@@ -368,40 +404,6 @@ namespace monero {
   // getSubaddresses
 
   // createSubaddress
-
-  string MoneroWallet::getAddress(uint32_t accountIdx, uint32_t subaddressIdx) const {
-    return wallet2->get_subaddress_as_str({accountIdx, subaddressIdx});
-  }
-
-  // get address index
-
-  uint64_t MoneroWallet::getBalance() const {
-    return wallet2->balance_all();
-  }
-
-  uint64_t MoneroWallet::getBalance(uint32_t accountIdx) const {
-    return wallet2->balance(accountIdx);
-  }
-
-  uint64_t MoneroWallet::getBalance(uint32_t accountIdx, uint32_t subaddressIdx) const {
-    map<uint32_t, uint64_t> balancePerSubaddress = wallet2->balance_per_subaddress(accountIdx);
-    auto iter = balancePerSubaddress.find(subaddressIdx);
-    return iter == balancePerSubaddress.end() ? 0 : iter->second;
-  }
-
-  uint64_t MoneroWallet::getUnlockedBalance() const {
-    return wallet2->unlocked_balance_all();
-  }
-
-  uint64_t MoneroWallet::getUnlockedBalance(uint32_t accountIdx) const {
-    return wallet2->unlocked_balance(accountIdx);
-  }
-
-  uint64_t MoneroWallet::getUnlockedBalance(uint32_t accountIdx, uint32_t subaddressIdx) const {
-    map<uint32_t, std::pair<uint64_t, uint64_t>> unlockedBalancePerSubaddress = wallet2->unlocked_balance_per_subaddress(accountIdx);
-    auto iter = unlockedBalancePerSubaddress.find(subaddressIdx);
-    return iter == unlockedBalancePerSubaddress.end() ? 0 : iter->second.first;
-  }
 
   void MoneroWallet::save() {
     cout << "save()" << endl;
