@@ -67,11 +67,7 @@ set_target_properties(hidapi PROPERTIES IMPORTED_LOCATION
 # Boost
 ############
 
-#include_directories(/Users/Eric/Downloads/boost_1_70_0)
 #include_directories(external/boost-sdk)
-#SET(BOOST_SRC /Users/Eric/git/build_stuff/boost_1_69_0/boost)
-#SET(BOOST_LIB /Users/Eric/git/build_stuff/boost_1_69_0/stage/lib)
-#include_directories(/Users/Eric/git/build_stuff/boost_1_69_0)
 #include_directories("${BOOST_SRC}")
 #link_directories(${BOOST_LIB})
 #SET(BOOST_SRC ${BOOST}/boost)
