@@ -169,31 +169,40 @@ namespace monero {
 
     /**
      * Construct an unconnected English wallet with a randomly generated seed on mainnet.
+     *
+     * @param path is the path to create the wallet
+     * @param password is the password encrypt the wallet
      */
-    MoneroWallet();
+    MoneroWallet(const string& path, const string& password);
 
     /**
      * Construct a wallet with a randomly generated seed.
      *
+     * @param path is the path to create the wallet
+     * @param password is the password encrypt the wallet
      * @param networkType is the wallet's network type (default = MoneroNetworkType.MAINNET)
      * @param daemonConnection is connection information to a daemon (default = an unconnected wallet)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    MoneroWallet(const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, const string& language);
+    MoneroWallet(const string& path, const string& password, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, const string& language);
 
     /**
      * Construct a wallet from a mnemonic phrase.
      *
+     * @param path is the path to create the wallet
+     * @param password is the password encrypt the wallet
      * @param mnemonic is the mnemonic of the wallet to construct
      * @param networkType is the wallet's network type
      * @param daemonConnection is connection information to a daemon (default = an unconnected wallet)
      * @param restoreHeight is the block height to restore (i.e. scan the chain) from (default = 0)
      */
-    MoneroWallet(const string& mnemonic, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight);
+    MoneroWallet(const string& path, const string& password, const string& mnemonic, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight);
 
     /**
      * Construct a wallet from an address, view key, and spend key.
      *
+     * @param path is the path to create the wallet
+     * @param password is the password encrypt the wallet
      * @param address is the address of the wallet to construct
      * @param viewKey is the view key of the wallet to construct
      * @param spendKey is the spend key of the wallet to construct
@@ -202,7 +211,7 @@ namespace monero {
      * @param restoreHeight is the block height to restore (i.e. scan the chain) from (default = 0)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    MoneroWallet(const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const string& daemonConnection, uint64_t restoreHeight, const string& language);
+    MoneroWallet(const string& path, const string& password, const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const string& daemonConnection, uint64_t restoreHeight, const string& language);
 
     /**
      * Construct a wallet by opening a wallet file on disk.

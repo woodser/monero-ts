@@ -109,22 +109,22 @@ namespace monero {
     return walletFileExists;
   }
 
-  MoneroWallet::MoneroWallet() {
+  MoneroWallet::MoneroWallet(const string& path, const string&password) {
     cout << "MoneroWallet()" << endl;
     throw runtime_error("Not implemented");
   }
 
-  MoneroWallet::MoneroWallet(const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, const string& language) {
+  MoneroWallet::MoneroWallet(const string& path, const string&password, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, const string& language) {
     cout << "MoneroWallet(3)" << endl;
     wallet2 = shared_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
     setDaemonConnection(daemonConnection.uri, daemonConnection.username, daemonConnection.password);
     wallet2->set_seed_language(language);
     crypto::secret_key recovery_val, secret_key;
-    wallet2->generate(string(""), string(""), secret_key, false, false);
+    wallet2->generate(path, password, secret_key, false, false);
     wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(this, wallet2));
   }
 
-  MoneroWallet::MoneroWallet(const string& mnemonic, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight) {
+  MoneroWallet::MoneroWallet(const string& path, const string& password, const string& mnemonic, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight) {
 
     // validate mnemonic and get recovery key and language
     crypto::secret_key recoveryKey;
@@ -136,7 +136,7 @@ namespace monero {
     // initialize wallet
     wallet2 = shared_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(networkType), 1, true));
     wallet2->set_seed_language(language);
-    wallet2->generate(string(""), string(""), recoveryKey, true, false);
+    wallet2->generate(path, password, recoveryKey, true, false);
     wallet2->set_refresh_from_block_height(restoreHeight);
     wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(this, wallet2));
 
@@ -146,7 +146,7 @@ namespace monero {
     cout << "Mnemonic: " << string(fetchedMnemonic.data(), fetchedMnemonic.size()) << endl;
   }
 
-  MoneroWallet::MoneroWallet(const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const string& daemonConnection, uint64_t restoreHeight, const string& language) {
+  MoneroWallet::MoneroWallet(const string& path, const string& password, const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const string& daemonConnection, uint64_t restoreHeight, const string& language) {
     cout << "MoneroWallet(7)" << endl;
     throw runtime_error("Not implemented");
   }
