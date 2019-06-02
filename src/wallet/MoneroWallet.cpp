@@ -306,7 +306,7 @@ namespace monero {
   vector<MoneroAccount> MoneroWallet::getAccounts(const bool includeSubaddresses, const string tag) const {
     cout << "getAccounts(" << includeSubaddresses << ", " << tag << ")" << endl;
 
-    // need transfers to inform subaddresses if included
+    // need transfers to inform if subaddresses used
     vector<tools::wallet2::transfer_details> transfers;
     if (includeSubaddresses) wallet2->get_transfers(transfers);
 
@@ -315,7 +315,7 @@ namespace monero {
     for (uint32_t accountIdx = 0; accountIdx < wallet2->get_num_subaddress_accounts(); accountIdx++) {
       MoneroAccount account;
       account.index = accountIdx;
-      account.primaryAddress = getAddress(0, 0);
+      account.primaryAddress = getAddress(accountIdx, 0);
       account.balance = wallet2->balance(accountIdx);
       account.unlockedBalance = wallet2->unlocked_balance(accountIdx);
       if (includeSubaddresses) account.subaddresses = getSubaddressesAux(accountIdx, vector<uint32_t>(), transfers);
@@ -326,11 +326,24 @@ namespace monero {
   }
 
   MoneroAccount MoneroWallet::getAccount(const uint32_t accountIdx) const {
-    throw runtime_error("Not implemented");
+    return getAccount(accountIdx, false);
   }
 
   MoneroAccount MoneroWallet::getAccount(const uint32_t accountIdx, const bool includeSubaddresses) const {
-    throw runtime_error("Not implemented");
+    cout << "getAccount(" << accountIdx << ", " << includeSubaddresses << ")" << endl;
+
+    // need transfers to inform if subaddresses used
+    vector<tools::wallet2::transfer_details> transfers;
+    if (includeSubaddresses) wallet2->get_transfers(transfers);
+
+    // build and return account
+    MoneroAccount account;
+    account.index = accountIdx;
+    account.primaryAddress = getAddress(accountIdx, 0);
+    account.balance = wallet2->balance(accountIdx);
+    account.unlockedBalance = wallet2->unlocked_balance(accountIdx);
+    if (includeSubaddresses) account.subaddresses = getSubaddressesAux(accountIdx, vector<uint32_t>(), transfers);
+    return account;
   }
 
   MoneroAccount MoneroWallet::createAccount(const string label) {
