@@ -5,21 +5,21 @@ const MoneroCheck = require("./MoneroCheck");
  */
 class MoneroCheckReserve extends MoneroCheck {
   
-  getSpentAmount() {
-    return this.spentAmount;
-  }
-
-  setSpentAmount(spentAmount) {
-    this.spentAmount = spentAmount;
-    return this;
-  }
-
   getTotalAmount() {
     return this.totalAmount;
   }
 
   setTotalAmount(totalAmount) {
     this.totalAmount = totalAmount;
+    return this;
+  }
+  
+  getUnconfirmedSpentAmount() {
+    return this.unconfirmedSpentAmount;
+  }
+
+  setUnconfirmedSpentAmount(unconfirmedSpentAmount) {
+    this.unconfirmedSpentAmount = unconfirmedSpentAmount;
     return this;
   }
 }

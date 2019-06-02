@@ -843,7 +843,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let check = new MoneroCheckReserve();
     check.setIsGood(isGood);
     if (isGood) {
-      check.setSpentAmount(new BigInteger(resp.result.spent));
+      check.setUnconfirmedSpentAmount(new BigInteger(resp.result.spent));
       check.setTotalAmount(new BigInteger(resp.result.total));
     }
     return check;

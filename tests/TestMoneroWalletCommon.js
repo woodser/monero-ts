@@ -2929,13 +2929,13 @@ function testCheckTx(tx, check) {
 function testCheckReserve(check) {
   assert.equal(typeof check.getIsGood(), "boolean");
   if (check.getIsGood()) {
-    TestUtils.testUnsignedBigInteger(check.getSpentAmount());
-    assert.equal(check.getSpentAmount().toString(), "0");  // TODO sometimes see non-zero, seg fault after sweep and send tests
     TestUtils.testUnsignedBigInteger(check.getTotalAmount());
     assert(check.getTotalAmount().compare(new BigInteger(0)) >= 0);
+    TestUtils.testUnsignedBigInteger(check.getUnconfirmedSpentAmount());
+    assert(check.getUnconfirmedSpentAmount().compare(new BigInteger(0)) >= 0);
   } else {
-    assert.equal(check.getSpentAmount(), undefined);
     assert.equal(check.getTotalAmount(), undefined);
+    assert.equal(check.getUnconfirmedSpentAmount(), undefined);
   }
 }
 
