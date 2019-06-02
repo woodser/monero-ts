@@ -1,3 +1,6 @@
+move submodules to ./
+move tests to src/
+
 model rct_signatures and rct_prunable
 mms
 what happens if sweep_all is not given account_index.  if it sweeps wallet, replace sweepWallet() impl
