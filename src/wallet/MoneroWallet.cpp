@@ -208,7 +208,26 @@ namespace monero {
     return wallet2->get_subaddress_as_str({accountIdx, subaddressIdx});
   }
 
-  // get address index
+  MoneroSubaddress MoneroWallet::getAddressIndex(const string& address) const {
+    cout << "getAddressIndex(" << address << ")" << endl;
+
+    // validate address
+    cryptonote::address_parse_info info;
+    if (!get_account_address_from_str(info, wallet2->nettype(), address)) {
+      throw runtime_error("Invalid address");
+    }
+
+    // get index of address in wallet
+    auto index = wallet2->get_subaddress_index(info.address);
+    if (!index) throw runtime_error("Address doesn't belong to the wallet");
+
+    // return indices in subaddress
+    MoneroSubaddress subaddress;
+    cryptonote::subaddress_index cnIndex = *index;
+    subaddress.accountIndex = cnIndex.major;
+    subaddress.index = cnIndex.minor;
+    return subaddress;
+  }
 
   string MoneroWallet::getMnemonic() const {
     epee::wipeable_string wipeablePassword;

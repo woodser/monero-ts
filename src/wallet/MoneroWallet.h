@@ -309,14 +309,14 @@ namespace monero {
      */
     string getAddress(const uint32_t accountIdx, const uint32_t subaddressIdx) const;
 
-//    /**
-//     * Get the account and subaddress index of the given address.
-//     *
-//     * @param address is the address to get the account and subaddress index from
-//     * @return the account and subaddress indices
-//     * @throws exception if address is not a wallet address
-//     */
-//    public MoneroSubaddress getAddressIndex(String address);
+    /**
+     * Get the account and subaddress index of the given address.
+     *
+     * @param address is the address to get the account and subaddress index from
+     * @return the account and subaddress indices
+     * @throws exception if address is not a wallet address
+     */
+    MoneroSubaddress getAddressIndex(const string& address) const;
 
 //    /**
 //     * Get an integrated address based on this wallet's primary address and the
