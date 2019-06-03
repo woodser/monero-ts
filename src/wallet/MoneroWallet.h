@@ -89,7 +89,7 @@ namespace monero {
    * Models a base transfer of funds to or from the wallet.
    */
   struct MoneroTransfer {
-    MoneroTxWallet* tx;
+    unique_ptr<MoneroTxWallet> tx;
     uint64_t amount;
     uint32_t accountIndex;
     bool isIncoming;
@@ -117,7 +117,7 @@ namespace monero {
    */
   struct MoneroTxWallet : public MoneroTx {
     vector<MoneroIncomingTransfer> incomingTransfers;
-    MoneroOutgoingTransfer* outgoingTransfer;
+    unique_ptr<MoneroOutgoingTransfer> outgoingTransfer;
     uint32_t numSuggestedConfirmations;
     string note;
   };
@@ -127,15 +127,17 @@ namespace monero {
    *
    * All transfers are returned except those that do not meet the criteria defined in this request.
    */
-  struct MoneroTransferRequest : public MoneroTransfer {
-    bool isIncoming;
+  struct MoneroTransferRequest {
+    unique_ptr<uint64_t> amount;
+    unique_ptr<uint32_t> accountIndex;
+    unique_ptr<bool> isIncoming;
     string address;
     vector<string> addresses;
-    uint32_t subaddressIndex;
+    unique_ptr<uint32_t> subaddressIndex;
     vector<uint32_t> subaddressIndices;
     vector<MoneroDestination> destinations;
-    bool hasDestinations;
-    MoneroTxRequest* txRequest;
+    unique_ptr<bool> hasDestinations;
+    unique_ptr<MoneroTxRequest> txRequest;
   };
 
   /**
@@ -143,16 +145,50 @@ namespace monero {
    *
    * All transactions are returned except those that do not meet the criteria defined in this request.
    */
-  struct MoneroTxRequest : public MoneroTxWallet {
-    bool isOutgoing;  // TODO: these are going to need to be pointers to indicate no preference
-    bool isIncoming;
+  struct MoneroTxRequest {
+    unique_ptr<MoneroBlock> block;
+    string id;
+    string version;
+    unique_ptr<bool> isCoinbase;
+    string paymentId;
+    unique_ptr<uint64_t> fee;
+    unique_ptr<uint32_t> mixin;
+    unique_ptr<bool> doNotRelay;
+    unique_ptr<bool> isRelayed;
+    unique_ptr<bool> isConfirmed;
+    unique_ptr<bool> inTxPool;
+    unique_ptr<uint64_t> numConfirmations;
+    unique_ptr<uint64_t> unlockTime;
+    unique_ptr<uint64_t> lastRelayedTimestamp;
+    unique_ptr<uint64_t> receivedTimestamp;
+    unique_ptr<bool> isDoubleSpend;
+    string key;
+    string fullHex;
+    string prunedHex;
+    string prunableHex;
+    string prunableHash;
+    unique_ptr<uint32_t> size;
+    unique_ptr<uint32_t> weight;
+    vector<MoneroOutput> vins;
+    vector<MoneroOutput> vouts;
+    vector<uint32_t> outputIndices;
+    string metadata;
+    unique_ptr<bool> isFailed;
+
+    vector<MoneroIncomingTransfer> incomingTransfers;
+    unique_ptr<MoneroOutgoingTransfer> outgoingTransfer;
+    unique_ptr<uint32_t> numSuggestedConfirmations;
+    string note;
+
+    unique_ptr<bool> isOutgoing;
+    unique_ptr<bool> isIncoming;
     vector<string> txIds;
-    bool hasPaymentId;
+    unique_ptr<bool> hasPaymentId;
     vector<string> paymentIds;
-    uint64_t minHeight;
-    uint64_t maxHeight;
-    bool includeOutputs;
-    MoneroTransferRequest* transferRequest;
+    unique_ptr<uint64_t> minHeight;
+    unique_ptr<uint64_t> maxHeight;
+    unique_ptr<uint64_t> includeOutputs;
+    unique_ptr<MoneroTransferRequest> transferRequest;
   };
 
   // --------------------------------- LISTENERS ------------------------------

@@ -37,7 +37,7 @@ namespace monero {
    * Models a Monero transaction on the blockchain.
    */
   struct MoneroTx {
-    MoneroBlock* block;
+    unique_ptr<MoneroBlock> block;
     string id;
     string version;
     bool isCoinbase;
@@ -70,51 +70,11 @@ namespace monero {
     string rctSigPrunable;  // TODO: implement
     bool isKeptByBlock;
     bool isFailed;
-    uint32_t lastFailedHeight;
+    unique_ptr<uint32_t> lastFailedHeight;
     string lastFailedId;
-    uint32_t maxUsedBlockHeight;
+    unique_ptr<uint32_t> maxUsedBlockHeight;
     string maxUsedBlockId;
     vector<string> signatures;
-
-    BEGIN_KV_SERIALIZE_MAP()
-      KV_SERIALIZE(id)
-      KV_SERIALIZE(version)
-      KV_SERIALIZE(isCoinbase)
-      KV_SERIALIZE(paymentId)
-      KV_SERIALIZE(fee)
-      KV_SERIALIZE(mixin)
-      KV_SERIALIZE(doNotRelay)
-      KV_SERIALIZE(isRelayed)
-      KV_SERIALIZE(isConfirmed)
-      KV_SERIALIZE(inTxPool)
-      KV_SERIALIZE(numConfirmations)
-      KV_SERIALIZE(unlockTime)
-      KV_SERIALIZE(lastRelayedTimestamp)
-      KV_SERIALIZE(receivedTimestamp)
-      KV_SERIALIZE(isDoubleSpend)
-      KV_SERIALIZE(key)
-      KV_SERIALIZE(fullHex)
-      KV_SERIALIZE(prunedHex)
-      KV_SERIALIZE(prunableHex)
-      KV_SERIALIZE(prunableHash)
-      KV_SERIALIZE(size)
-      KV_SERIALIZE(weight)
-      KV_SERIALIZE(vins)
-      KV_SERIALIZE(vouts)
-      KV_SERIALIZE(outputIndices)
-      KV_SERIALIZE(metadata)
-      KV_SERIALIZE(commonTxSets)
-      KV_SERIALIZE(extra)
-      KV_SERIALIZE(rctSignatures)
-      KV_SERIALIZE(rctSigPrunable)
-      KV_SERIALIZE(isKeptByBlock)
-      KV_SERIALIZE(isFailed)
-      KV_SERIALIZE(lastFailedHeight)
-      KV_SERIALIZE(lastFailedId)
-      KV_SERIALIZE(maxUsedBlockHeight)
-      KV_SERIALIZE(maxUsedBlockId)
-      KV_SERIALIZE(signatures)
-    END_KV_SERIALIZE_MAP()
   };
 
   /**

@@ -14,20 +14,11 @@ namespace MoneroUtils
   using namespace boost;
   using namespace cryptonote;
 
-  /**
-   * TODO.
-   */
-  void json_to_binary(const std::string &buff_json, std::string &buff_bin);
+  void jsonToBinary(const std::string &json, std::string &bin);
 
-  /**
-   * TODO.
-   */
-  void binary_to_json(const std::string &buff_bin, std::string &buff_json);
+  void binaryToJson(const std::string &bin, std::string &json);
 
-  /**
-   * TODO.
-   */
-  void binary_blocks_to_json(const std::string &buff_bin, std::string &buff_json);
+  void binaryBlocksToJson(const std::string &bin, std::string &json);
 
   /**
    * Modified from core_rpc_server.cpp to return a string.

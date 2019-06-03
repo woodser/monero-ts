@@ -10,23 +10,23 @@ using namespace boost;
 using namespace cryptonote;
 using namespace MoneroUtils;
 
-void MoneroUtils::json_to_binary(const std::string &buff_json, std::string &buff_bin) {
+void MoneroUtils::jsonToBinary(const std::string &json, std::string &bin) {
   epee::serialization::portable_storage ps;
-  ps.load_from_json(buff_json);
-  ps.store_to_binary(buff_bin);
+  ps.load_from_json(json);
+  ps.store_to_binary(bin);
 }
 
-void MoneroUtils::binary_to_json(const std::string &buff_bin, std::string &buff_json) {
+void MoneroUtils::binaryToJson(const std::string &bin, std::string &json) {
   epee::serialization::portable_storage ps;
-  ps.load_from_binary(buff_bin);
-  ps.dump_as_json(buff_json);
+  ps.load_from_binary(bin);
+  ps.dump_as_json(json);
 }
 
-void MoneroUtils::binary_blocks_to_json(const std::string &buff_bin, std::string &buff_json) {
+void MoneroUtils::binaryBlocksToJson(const std::string &bin, std::string &json) {
 
   // load binary rpc response to struct
   cryptonote::COMMAND_RPC_GET_BLOCKS_BY_HEIGHT::response resp_struct;
-  epee::serialization::load_t_from_binary(resp_struct, buff_bin);
+  epee::serialization::load_t_from_binary(resp_struct, bin);
 
   // build property tree from deserialized blocks and transactions
   boost::property_tree::ptree root;
@@ -71,5 +71,5 @@ void MoneroUtils::binary_blocks_to_json(const std::string &buff_bin, std::string
   // convert root to string // TODO: common utility with serial_bridge
   std::stringstream ss;
   boost::property_tree::write_json(ss, root, false/*pretty*/);
-  buff_json = ss.str();
+  json = ss.str();
 }
