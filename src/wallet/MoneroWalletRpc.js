@@ -155,7 +155,7 @@ class MoneroWalletRpc extends MoneroWallet {
     try {
       resp = await this.config.rpc.sendJsonRequest("get_address_index", {address: address});
     } catch (e) {
-      if (e.getCode() === -2) throw new MoneroError("Address does not belong to the wallet");
+      if (e.getCode() === -2) throw new MoneroError(e.getDescription());
       throw e;
     }
     
