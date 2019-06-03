@@ -1,5 +1,4 @@
 #include "daemon/MoneroDaemon.h"
-#include "wallet/wallet2.h"
 
 using namespace std;
 using namespace monero;
@@ -145,7 +144,7 @@ namespace monero {
    * All transactions are returned except those that do not meet the criteria defined in this request.
    */
   struct MoneroTxRequest : public MoneroTxWallet {
-    bool isOutgoing;
+    bool isOutgoing;  // TODO: these are going to need to be pointers to indicate no preference
     bool isIncoming;
     vector<string> txIds;
     bool hasPaymentId;
