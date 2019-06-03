@@ -76,6 +76,7 @@ namespace monero {
 
   // forward declarations
   struct MoneroTxWallet;
+  struct MoneroTxRequest;
 
   /**
    * Models an outgoing transfer destination.
@@ -120,6 +121,39 @@ namespace monero {
     MoneroOutgoingTransfer* outgoingTransfer;
     uint32_t numSuggestedConfirmations;
     string note;
+  };
+
+  /**
+   * Configures a request to retrieve transfers.
+   *
+   * All transfers are returned except those that do not meet the criteria defined in this request.
+   */
+  struct MoneroTransferRequest : public MoneroTransfer {
+    bool isIncoming;
+    string address;
+    vector<string> addresses;
+    uint32_t subaddressIndex;
+    vector<uint32_t> subaddressIndices;
+    vector<MoneroDestination> destinations;
+    bool hasDestinations;
+    MoneroTxRequest* txRequest;
+  };
+
+  /**
+   * Configures a request to retrieve transactions.
+   *
+   * All transactions are returned except those that do not meet the criteria defined in this request.
+   */
+  struct MoneroTxRequest : public MoneroTxWallet {
+    bool isOutgoing;
+    bool isIncoming;
+    vector<string> txIds;
+    bool hasPaymentId;
+    vector<string> paymentIds;
+    uint64_t minHeight;
+    uint64_t maxHeight;
+    bool includeOutputs;
+    MoneroTransferRequest* transferRequest;
   };
 
   // --------------------------------- LISTENERS ------------------------------
@@ -556,7 +590,7 @@ namespace monero {
 //     * @param txId is an id of a transaction to get
 //     * @return MoneroTxWallet is the identified transactions
 //     */
-//    public MoneroTxWallet getTx(String txId);
+//    public MoneroTxWallet getTx(string txId);
 //
 //    /**
 //     * Get all wallet transactions.  Wallet transactions contain one or more
@@ -572,7 +606,7 @@ namespace monero {
 //     * @param txIds are ids of transactions to get
 //     * @return List<MoneroTxWallet> are the identified transactions
 //     */
-//    public List<MoneroTxWallet> getTxs(String... txIds);
+//    public List<MoneroTxWallet> getTxs(string... txIds);
 //
 //    /**
 //     * Get wallet transactions by id.
@@ -580,22 +614,22 @@ namespace monero {
 //     * @param txIds are ids of transactions to get
 //     * @return List<MoneroTxWallet> are the identified transactions
 //     */
-//    public List<MoneroTxWallet> getTxs(Collection<String> txIds);
-//
-//    /**
-//     * Get wallet transactions.  Wallet transactions contain one or more
-//     * transfers that are either incoming or outgoing to the wallet.
-//     *
-//     * Query results can be filtered by passing in a transaction request.
-//     * Transactions must meet every criteria defined in the request in order to
-//     * be returned.  All filtering is optional and no filtering is applied when
-//     * not defined.
-//     *
-//     * @param request filters query results (optional)
-//     * @return wallet transactions per the request
-//     */
-//    public List<MoneroTxWallet> getTxs(MoneroTxRequest request);
-//
+//    public List<MoneroTxWallet> getTxs(Collection<string> txIds);
+
+    /**
+     * Get wallet transactions.  Wallet transactions contain one or more
+     * transfers that are either incoming or outgoing to the wallet.
+     *
+     * Query results can be filtered by passing in a transaction request.
+     * Transactions must meet every criteria defined in the request in order to
+     * be returned.  All filtering is optional and no filtering is applied when
+     * not defined.
+     *
+     * @param request filters query results (optional)
+     * @return wallet transactions per the request
+     */
+    vector<MoneroTxWallet> getTxs(const MoneroTxRequest& request) const;
+
 //    /**
 //     * Get all incoming and outgoing transfers to and from this wallet.  An
 //     * outgoing transfer represents a total amount sent from one or more
@@ -716,7 +750,7 @@ namespace monero {
 //     * @param sendAmount is the amount being sent
 //     * @return the resulting transaction
 //     */
-//    public MoneroTxWallet send(int accountIndex, String address, BigInteger sendAmount);
+//    public MoneroTxWallet send(int accountIndex, string address, BigInteger sendAmount);
 //
 //    /**
 //     * Create and relay a transaction which transfers funds from this wallet to
@@ -728,7 +762,7 @@ namespace monero {
 //     * @param priority is the send priority (default normal)
 //     * @return the resulting transaction
 //     */
-//    public MoneroTxWallet send(int accountIndex, String address, BigInteger sendAmount, MoneroSendPriority priority);
+//    public MoneroTxWallet send(int accountIndex, string address, BigInteger sendAmount, MoneroSendPriority priority);
 //
 //    /**
 //     * Create and relay (depending on configuration) one or more transactions
@@ -748,7 +782,7 @@ namespace monero {
 //     * @param sendAmount is the amount being sent
 //     * @return the resulting transactions
 //     */
-//    public List<MoneroTxWallet> sendSplit(int accountIndex, String address, BigInteger sendAmount);
+//    public List<MoneroTxWallet> sendSplit(int accountIndex, string address, BigInteger sendAmount);
 //
 //    /**
 //     * Create and relay one or more transactions which transfer funds from this
@@ -760,7 +794,7 @@ namespace monero {
 //     * @param priority is the send priority (default normal)
 //     * @return the resulting transactions
 //     */
-//    public List<MoneroTxWallet> sendSplit(int accountIndex, String address, BigInteger sendAmount, MoneroSendPriority priority);
+//    public List<MoneroTxWallet> sendSplit(int accountIndex, string address, BigInteger sendAmount, MoneroSendPriority priority);
 //
 //    /**
 //     * Sweep an output with a given key image.
@@ -777,7 +811,7 @@ namespace monero {
 //     * @param keyImage is the key image hex of the output to sweep
 //     * @return the resulting transaction from sweeping an output
 //     */
-//    public MoneroTxWallet sweepOutput(String address, String keyImage);
+//    public MoneroTxWallet sweepOutput(string address, string keyImage);
 //
 //    /**
 //     * Sweep an output with a given key image.
@@ -787,7 +821,7 @@ namespace monero {
 //     * @param priority is the transaction priority (optional)
 //     * @return the resulting transaction from sweeping an output
 //     */
-//    public MoneroTxWallet sweepOutput(String address, String keyImage, MoneroSendPriority priority);
+//    public MoneroTxWallet sweepOutput(string address, string keyImage, MoneroSendPriority priority);
 //
 //    /**
 //     * Sweep a subaddress's unlocked funds to an address.
@@ -797,7 +831,7 @@ namespace monero {
 //     * @param address is the address to sweep the subaddress's funds to
 //     * @return the resulting transactions
 //     */
-//    public List<MoneroTxWallet> sweepSubaddress(int accountIdx, int subaddressIdx, String address);
+//    public List<MoneroTxWallet> sweepSubaddress(int accountIdx, int subaddressIdx, string address);
 //
 //    /**
 //     * Sweep an acount's unlocked funds to an address.
@@ -806,7 +840,7 @@ namespace monero {
 //     * @param address is the address to sweep the account's funds to
 //     * @return the resulting transactions
 //     */
-//    public List<MoneroTxWallet> sweepAccount(int accountIdx, String address);
+//    public List<MoneroTxWallet> sweepAccount(int accountIdx, string address);
 //
 //    /**
 //     * Sweep the wallet's unlocked funds to an address.
@@ -814,7 +848,7 @@ namespace monero {
 //     * @param address is the address to sweep the wallet's funds to
 //     * @return the resulting transactions
 //     */
-//    public List<MoneroTxWallet> sweepWallet(String address);
+//    public List<MoneroTxWallet> sweepWallet(string address);
 //
 //    /**
 //     * Sweep all unlocked funds according to the given request.
@@ -845,17 +879,17 @@ namespace monero {
 //     * Relay a transaction previously created without relaying.
 //     *
 //     * @param txMetadata is transaction metadata previously created without relaying
-//     * @return String is the id of the relayed tx
+//     * @return string is the id of the relayed tx
 //     */
-//    public String relayTx(String txMetadata);
+//    public string relayTx(string txMetadata);
 //
 //    /**
 //     * Relay transactions previously created without relaying.
 //     *
 //     * @param txMetadatas are transaction metadata previously created without relaying
-//     * @return List<String> are ids of the relayed txs
+//     * @return List<string> are ids of the relayed txs
 //     */
-//    public List<String> relayTxs(Collection<String> txMetadatas);
+//    public List<string> relayTxs(Collection<string> txMetadatas);
 //
 //    /**
 //     * Get a transaction note.
@@ -863,7 +897,7 @@ namespace monero {
 //     * @param txId specifies the transaction to get the note of
 //     * @return the tx note
 //     */
-//    public String getTxNote(String txId);
+//    public string getTxNote(string txId);
 //
 //    /**
 //     * Set a note for a specific transaction.
@@ -871,7 +905,7 @@ namespace monero {
 //     * @param txId specifies the transaction
 //     * @param note specifies the note
 //     */
-//    public void setTxNote(String txId, String note);
+//    public void setTxNote(string txId, string note);
 //
 //    /**
 //     * Get notes for multiple transactions.
@@ -879,7 +913,7 @@ namespace monero {
 //     * @param txIds identify the transactions to get notes for
 //     * @preturns notes for the transactions
 //     */
-//    public List<String> getTxNotes(Collection<String> txIds);
+//    public List<string> getTxNotes(Collection<string> txIds);
 //
 //    /**
 //     * Set notes for multiple transactions.
@@ -887,7 +921,7 @@ namespace monero {
 //     * @param txIds specify the transactions to set notes for
 //     * @param notes are the notes to set for the transactions
 //     */
-//    public void setTxNotes(Collection<String> txIds, Collection<String> notes);
+//    public void setTxNotes(Collection<string> txIds, Collection<string> notes);
 //
 //    /**
 //     * Sign a message.
@@ -895,7 +929,7 @@ namespace monero {
 //     * @param msg is the message to sign
 //     * @return the signature
 //     */
-//    public String sign(String msg);
+//    public string sign(string msg);
 //
 //    /**
 //     * Verify a signature on a message.
@@ -905,7 +939,7 @@ namespace monero {
 //     * @param signature is the signature
 //     * @return true if the signature is good, false otherwise
 //     */
-//    public boolean verify(String msg, String address, String signature);
+//    public boolean verify(string msg, string address, string signature);
 //
 //    /**
 //     * Get a transaction's secret key from its id.
@@ -913,7 +947,7 @@ namespace monero {
 //     * @param txId is the transaction's id
 //     * @return is the transaction's secret key
 //     */
-//    public String getTxKey(String txId);
+//    public string getTxKey(string txId);
 //
 //    /**
 //     * Check a transaction in the blockchain with its secret key.
@@ -923,7 +957,7 @@ namespace monero {
 //     * @param address is the destination public address of the transaction
 //     * @return the result of the check
 //     */
-//    public MoneroCheckTx checkTxKey(String txId, String txKey, String address);
+//    public MoneroCheckTx checkTxKey(string txId, string txKey, string address);
 //
 //    /**
 //     * Get a transaction signature to prove it.
@@ -932,7 +966,7 @@ namespace monero {
 //     * @param address is the destination public address of the transaction
 //     * @return the transaction signature
 //     */
-//    public String getTxProof(String txId, String address);
+//    public string getTxProof(string txId, string address);
 //
 //    /**
 //     * Get a transaction signature to prove it.
@@ -942,7 +976,7 @@ namespace monero {
 //     * @param message is a message to include with the signature to further authenticate the proof (optional)
 //     * @return the transaction signature
 //     */
-//    public String getTxProof(String txId, String address, String message);
+//    public string getTxProof(string txId, string address, string message);
 //
 //    /**
 //     * Prove a transaction by checking its signature.
@@ -953,7 +987,7 @@ namespace monero {
 //     * @param signature is the transaction signature to confirm
 //     * @return the result of the check
 //     */
-//    public MoneroCheckTx checkTxProof(String txId, String address, String message, String signature);
+//    public MoneroCheckTx checkTxProof(string txId, string address, string message, string signature);
 //
 //    /**
 //     * Generate a signature to prove a spend. Unlike proving a transaction, it does not require the destination public address.
@@ -961,7 +995,7 @@ namespace monero {
 //     * @param txId specifies the transaction to prove
 //     * @return the transaction signature
 //     */
-//    public String getSpendProof(String txId);
+//    public string getSpendProof(string txId);
 //
 //    /**
 //     * Generate a signature to prove a spend. Unlike proving a transaction, it does not require the destination public address.
@@ -970,7 +1004,7 @@ namespace monero {
 //     * @param message is a message to include with the signature to further authenticate the proof (optional)
 //     * @return the transaction signature
 //     */
-//    public String getSpendProof(String txId, String message);
+//    public string getSpendProof(string txId, string message);
 //
 //    /**
 //     * Prove a spend using a signature. Unlike proving a transaction, it does not require the destination public address.
@@ -980,7 +1014,7 @@ namespace monero {
 //     * @param signature is the transaction signature to confirm
 //     * @return true if the signature is good, false otherwise
 //     */
-//    public boolean checkSpendProof(String txId, String message, String signature);
+//    public boolean checkSpendProof(string txId, string message, string signature);
 //
 //    /**
 //     * Generate a signature to prove the entire balance of the wallet.
@@ -988,7 +1022,7 @@ namespace monero {
 //     * @param message is a message included with the signature to further authenticate the proof (optional)
 //     * @return the reserve proof signature
 //     */
-//    public String getReserveProofWallet(String message);
+//    public string getReserveProofWallet(string message);
 //
 //    /**
 //     * Generate a signature to prove an available amount in an account.
@@ -998,7 +1032,7 @@ namespace monero {
 //     * @param message is a message to include with the signature to further authenticate the proof (optional)
 //     * @return the reserve proof signature
 //     */
-//    public String getReserveProofAccount(int accountIdx, BigInteger amount, String message);
+//    public string getReserveProofAccount(int accountIdx, BigInteger amount, string message);
 //
 //    /**
 //     * Proves a wallet has a disposable reserve using a signature.
@@ -1008,7 +1042,7 @@ namespace monero {
 //     * @param signature is the reserve proof signature to check
 //     * @return the result of checking the signature proof
 //     */
-//    public MoneroCheckReserve checkReserveProof(String address, String message, String signature);
+//    public MoneroCheckReserve checkReserveProof(string address, string message, string signature);
 //
 //    /**
 //     * Get all address book entries.
@@ -1032,7 +1066,7 @@ namespace monero {
 //     * @param description is the entry description (optional)
 //     * @return the index of the added entry
 //     */
-//    public int addAddressBookEntry(String address, String description);
+//    public int addAddressBookEntry(string address, string description);
 //
 //    /**
 //     * Add an address book entry.
@@ -1042,7 +1076,7 @@ namespace monero {
 //     * @param paymentId is the entry paymet id (optional)
 //     * @return the index of the added entry
 //     */
-//    public int addAddressBookEntry(String address, String description, String paymentId);
+//    public int addAddressBookEntry(string address, string description, string paymentId);
 //
 //    /**
 //     * Delete an address book entry.
@@ -1057,7 +1091,7 @@ namespace monero {
 //     * @param tag is the tag to apply to the specified accounts
 //     * @param accountIndices are the indices of the accounts to tag
 //     */
-//    public void tagAccounts(String tag, Collection<Integer> accountIndices);
+//    public void tagAccounts(string tag, Collection<Integer> accountIndices);
 //
 //    /**
 //     * Untag acconts.
@@ -1079,7 +1113,7 @@ namespace monero {
 //     * @param tag is the tag to set a description for
 //     * @param label is the label to set for the tag
 //     */
-//    public void setAccountTagLabel(String tag, String label);
+//    public void setAccountTagLabel(string tag, string label);
 //
 //    /**
 //     * Creates a payment URI from a send configuration.
@@ -1087,7 +1121,7 @@ namespace monero {
 //     * @param request specifies configuration for a potential tx
 //     * @return is the payment uri
 //     */
-//    public String createPaymentUri(MoneroSendRequest request);
+//    public string createPaymentUri(MoneroSendRequest request);
 //
 //    /**
 //     * Parses a payment URI to a send configuration.
@@ -1095,14 +1129,14 @@ namespace monero {
 //     * @param uri is the payment uri to parse
 //     * @return the send configuration parsed from the uri
 //     */
-//    public MoneroSendRequest parsePaymentUri(String uri);
+//    public MoneroSendRequest parsePaymentUri(string uri);
 //
 //    /**
 //     * Export all outputs in hex format.
 //     *
 //     * @return all outputs in hex format, null if no outputs
 //     */
-//    public String getOutputsHex();
+//    public string getOutputsHex();
 //
 //    /**
 //     * Import outputs in hex format.
@@ -1110,7 +1144,7 @@ namespace monero {
 //     * @param outputsHex are outputs in hex format
 //     * @return the number of outputs imported
 //     */
-//    public int importOutputsHex(String outputsHex);
+//    public int importOutputsHex(string outputsHex);
 //
 //    /**
 //     * Set an arbitrary attribute.
@@ -1118,7 +1152,7 @@ namespace monero {
 //     * @param key is the attribute key
 //     * @param val is the attribute value
 //     */
-//    public void setAttribute(String key, String val);
+//    public void setAttribute(string key, string val);
 //
 //    /**
 //     * Get an attribute.
@@ -1126,7 +1160,7 @@ namespace monero {
 //     * @param key is the attribute to get the value of
 //     * @return the attribute's value
 //     */
-//    public String getAttribute(String key);
+//    public string getAttribute(string key);
 //
 //    /**
 //     * Start mining.

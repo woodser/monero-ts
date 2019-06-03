@@ -437,6 +437,11 @@ namespace monero {
 
   // createSubaddress
 
+  vector<MoneroTxWallet> MoneroWallet::getTxs(const MoneroTxRequest& request) const {
+    cout << "getTxs(request)" << endl;
+    throw runtime_error("Not implemented");
+  }
+
   void MoneroWallet::save() {
     cout << "save()" << endl;
     save("", "");
