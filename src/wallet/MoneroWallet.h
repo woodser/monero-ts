@@ -27,20 +27,6 @@ namespace monero {
   };
 
   /**
-   * Models a Monero block header.
-   */
-  struct MoneroBlockHeader {
-    uint64_t height;
-  };
-
-  /**
-   * Models a Monero block.
-   */
-  struct MoneroBlock : public MoneroBlockHeader {
-    // TODO
-  };
-
-  /**
    * Models a Monero subaddress.
    */
   struct MoneroSubaddress {
@@ -88,6 +74,54 @@ namespace monero {
       KV_SERIALIZE(tag)
       KV_SERIALIZE(subaddresses)
     END_KV_SERIALIZE_MAP()
+  };
+
+  // forward declarations
+  struct MoneroTxWallet;
+
+  /**
+   * Models an outgoing transfer destination.
+   */
+  struct MoneroDestination {
+    string address;
+    uint64_t amount;
+  };
+
+  /**
+   * Models a base transfer of funds to or from the wallet.
+   */
+  struct MoneroTransfer {
+    MoneroTxWallet tx;
+    uint64_t amount;
+    uint32_t accountIndex;
+    bool isIncoming;
+  };
+
+  /**
+   * Models an incoming transfer of funds to the wallet.
+   */
+  struct MoneroIncomingTransfer : public MoneroTransfer {
+    uint32_t subaddressIndex;
+    string address;
+  };
+
+  /**
+   * Models an outgoing transfer of funds from the wallet.
+   */
+  struct MoneroOutgoingTransfer : public MoneroTransfer {
+    vector<uint32_t> subaddressIndices;
+    vector<string> addresses;
+    vector<MoneroDestination> destinations;
+  };
+
+  /**
+   * Models a Monero transaction in the context of a wallet.
+   */
+  struct MoneroTxWallet : public MoneroTx {
+    vector<MoneroIncomingTransfer> incomingTransfers;
+    MoneroOutgoingTransfer outgoingTransfer;
+    uint32_t numSuggestedConfirmations;
+    string note;
   };
 
   // --------------------------------- LISTENERS ------------------------------
