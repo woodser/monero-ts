@@ -439,6 +439,8 @@ namespace monero {
 
   vector<MoneroTxWallet> MoneroWallet::getTxs(const MoneroTxRequest& request) const {
     cout << "getTxs(request)" << endl;
+    string reqStr = epee::serialization::store_t_to_json(request);
+    cout << "Tx request: " << reqStr << endl;
     throw runtime_error("Not implemented");
   }
 
