@@ -5,8 +5,6 @@ using namespace std;
 using namespace monero;
 using namespace crypto;
 
-
-
 /**
  * Public interface for libmonero-cpp library.
  */
