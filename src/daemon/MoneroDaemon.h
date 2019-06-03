@@ -30,7 +30,6 @@ namespace monero {
 
   // forward declarations
   struct MoneroTx;
-  struct MoneroBlock;
 
   /**
    * Models a Monero block header which contains information about the block.
@@ -60,7 +59,7 @@ namespace monero {
    */
   struct MoneroBlock : public MoneroBlockHeader {
     string hex;
-    MoneroTx coinbaseTx;
+    MoneroTx* coinbaseTx;
     vector<MoneroTx> txs;
     vector<string> txIds;
   };
@@ -78,7 +77,7 @@ namespace monero {
    */
   struct MoneroOutput {
     MoneroTx* tx;
-    MoneroKeyImage keyImage;
+    MoneroKeyImage* keyImage;
     uint64_t amount;
     uint32_t index;
     vector<uint32_t> ringOutputIndices;

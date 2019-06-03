@@ -91,7 +91,7 @@ namespace monero {
    * Models a base transfer of funds to or from the wallet.
    */
   struct MoneroTransfer {
-    MoneroTxWallet tx;
+    MoneroTxWallet* tx;
     uint64_t amount;
     uint32_t accountIndex;
     bool isIncoming;
@@ -119,7 +119,7 @@ namespace monero {
    */
   struct MoneroTxWallet : public MoneroTx {
     vector<MoneroIncomingTransfer> incomingTransfers;
-    MoneroOutgoingTransfer outgoingTransfer;
+    MoneroOutgoingTransfer* outgoingTransfer;
     uint32_t numSuggestedConfirmations;
     string note;
   };
