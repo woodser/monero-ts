@@ -116,7 +116,7 @@ namespace monero {
     vector<uint32_t> outputIndices;
     string metadata;
     string commonTxSets;
-    //uint32_t* extra[];    // TODO: flexible member?
+    vector<uint32_t> extra;
     string rctSignatures;   // TODO: implement
     string rctSigPrunable;  // TODO: implement
     bool isKeptByBlock;
