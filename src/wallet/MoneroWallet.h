@@ -89,7 +89,7 @@ namespace monero {
    * Models a base transfer of funds to or from the wallet.
    */
   struct MoneroTransfer {
-    unique_ptr<MoneroTxWallet> tx;
+    shared_ptr<MoneroTxWallet> tx;
     uint64_t amount;
     uint32_t accountIndex;
     bool isIncoming;
@@ -117,7 +117,7 @@ namespace monero {
    */
   struct MoneroTxWallet : public MoneroTx {
     vector<MoneroIncomingTransfer> incomingTransfers;
-    unique_ptr<MoneroOutgoingTransfer> outgoingTransfer;
+    shared_ptr<MoneroOutgoingTransfer> outgoingTransfer;
     uint32_t numSuggestedConfirmations;
     string note;
   };
@@ -128,16 +128,16 @@ namespace monero {
    * All transfers are returned except those that do not meet the criteria defined in this request.
    */
   struct MoneroTransferRequest {
-    unique_ptr<uint64_t> amount;
-    unique_ptr<uint32_t> accountIndex;
-    unique_ptr<bool> isIncoming;
+    shared_ptr<uint64_t> amount;
+    shared_ptr<uint32_t> accountIndex;
+    shared_ptr<bool> isIncoming;
     string address;
     vector<string> addresses;
-    unique_ptr<uint32_t> subaddressIndex;
+    shared_ptr<uint32_t> subaddressIndex;
     vector<uint32_t> subaddressIndices;
     vector<MoneroDestination> destinations;
-    unique_ptr<bool> hasDestinations;
-    unique_ptr<MoneroTxRequest> txRequest;
+    shared_ptr<bool> hasDestinations;
+    shared_ptr<MoneroTxRequest> txRequest;
   };
 
   /**
@@ -146,49 +146,49 @@ namespace monero {
    * All transactions are returned except those that do not meet the criteria defined in this request.
    */
   struct MoneroTxRequest {
-    unique_ptr<MoneroBlock> block;
+    shared_ptr<MoneroBlock> block;
     string id;
     string version;
-    unique_ptr<bool> isCoinbase;
+    shared_ptr<bool> isCoinbase;
     string paymentId;
-    unique_ptr<uint64_t> fee;
-    unique_ptr<uint32_t> mixin;
-    unique_ptr<bool> doNotRelay;
-    unique_ptr<bool> isRelayed;
-    unique_ptr<bool> isConfirmed;
-    unique_ptr<bool> inTxPool;
-    unique_ptr<uint64_t> numConfirmations;
-    unique_ptr<uint64_t> unlockTime;
-    unique_ptr<uint64_t> lastRelayedTimestamp;
-    unique_ptr<uint64_t> receivedTimestamp;
-    unique_ptr<bool> isDoubleSpend;
+    shared_ptr<uint64_t> fee;
+    shared_ptr<uint32_t> mixin;
+    shared_ptr<bool> doNotRelay;
+    shared_ptr<bool> isRelayed;
+    shared_ptr<bool> isConfirmed;
+    shared_ptr<bool> inTxPool;
+    shared_ptr<uint64_t> numConfirmations;
+    shared_ptr<uint64_t> unlockTime;
+    shared_ptr<uint64_t> lastRelayedTimestamp;
+    shared_ptr<uint64_t> receivedTimestamp;
+    shared_ptr<bool> isDoubleSpend;
     string key;
     string fullHex;
     string prunedHex;
     string prunableHex;
     string prunableHash;
-    unique_ptr<uint32_t> size;
-    unique_ptr<uint32_t> weight;
+    shared_ptr<uint32_t> size;
+    shared_ptr<uint32_t> weight;
     vector<MoneroOutput> vins;
     vector<MoneroOutput> vouts;
     vector<uint32_t> outputIndices;
     string metadata;
-    unique_ptr<bool> isFailed;
+    shared_ptr<bool> isFailed;
 
     vector<MoneroIncomingTransfer> incomingTransfers;
-    unique_ptr<MoneroOutgoingTransfer> outgoingTransfer;
-    unique_ptr<uint32_t> numSuggestedConfirmations;
+    shared_ptr<MoneroOutgoingTransfer> outgoingTransfer;
+    shared_ptr<uint32_t> numSuggestedConfirmations;
     string note;
 
-    unique_ptr<bool> isOutgoing;
-    unique_ptr<bool> isIncoming;
+    shared_ptr<bool> isOutgoing;
+    shared_ptr<bool> isIncoming;
     vector<string> txIds;
-    unique_ptr<bool> hasPaymentId;
+    shared_ptr<bool> hasPaymentId;
     vector<string> paymentIds;
-    unique_ptr<uint64_t> minHeight;
-    unique_ptr<uint64_t> maxHeight;
-    unique_ptr<uint64_t> includeOutputs;
-    unique_ptr<MoneroTransferRequest> transferRequest;
+    shared_ptr<uint64_t> minHeight;
+    shared_ptr<uint64_t> maxHeight;
+    shared_ptr<uint64_t> includeOutputs;
+    shared_ptr<MoneroTransferRequest> transferRequest;
   };
 
   // --------------------------------- LISTENERS ------------------------------

@@ -37,7 +37,7 @@ namespace monero {
    * Models a Monero transaction on the blockchain.
    */
   struct MoneroTx {
-    unique_ptr<MoneroBlock> block;
+    shared_ptr<MoneroBlock> block;
     string id;
     string version;
     bool isCoinbase;
@@ -70,9 +70,9 @@ namespace monero {
     string rctSigPrunable;  // TODO: implement
     bool isKeptByBlock;
     bool isFailed;
-    unique_ptr<uint32_t> lastFailedHeight;
+    shared_ptr<uint32_t> lastFailedHeight;
     string lastFailedId;
-    unique_ptr<uint32_t> maxUsedBlockHeight;
+    shared_ptr<uint32_t> maxUsedBlockHeight;
     string maxUsedBlockId;
     vector<string> signatures;
   };

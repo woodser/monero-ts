@@ -1,6 +1,7 @@
 #ifndef MoneroUtils_h
 #define MoneroUtils_h
 
+#include "wallet/MoneroWallet.h"
 #include "cryptonote_basic/cryptonote_basic.h"
 #include "serialization/keyvalue_serialization.h"	// TODO: consolidate with other binary deps?
 #include "storages/portable_storage.h"
@@ -19,6 +20,8 @@ namespace MoneroUtils
   void binaryToJson(const std::string &bin, std::string &json);
 
   void binaryBlocksToJson(const std::string &bin, std::string &json);
+
+  string serialize(vector<MoneroBlock> blocks);
 
   /**
    * Modified from core_rpc_server.cpp to return a string.
