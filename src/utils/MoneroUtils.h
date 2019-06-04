@@ -21,7 +21,9 @@ namespace MoneroUtils
 
   void binaryBlocksToJson(const std::string &bin, std::string &json);
 
-  string serialize(vector<MoneroBlock> blocks);
+  string serialize(const vector<MoneroBlock> blocks);
+
+  MoneroTxRequest deserialize(const string& txRequestStr);
 
   /**
    * Modified from core_rpc_server.cpp to return a string.
