@@ -21,12 +21,22 @@ namespace MoneroUtils
 
   void binaryBlocksToJson(const std::string &bin, std::string &json);
 
-  string serialize(const vector<MoneroBlock> blocks);
+  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
+  template <class T> string serialize(const vector<T> types) {
+    cout << "serialize(types)" << endl;
+    throw runtime_error("Not implemented");
+  }
 
-  MoneroTxRequest deserialize(const string& txRequestStr);
+  string serialize(const MoneroAccount& account);
+
+  string serialize(const MoneroSubaddress& subaddress);
+
+  string serialize(const MoneroBlock& block);
 
   /**
    * Modified from core_rpc_server.cpp to return a string.
+   *
+   * TODO: remove this duplicate, use core_rpc_server instead
    */
   static std::string get_pruned_tx_json(cryptonote::transaction &tx)
   {

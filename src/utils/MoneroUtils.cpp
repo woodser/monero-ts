@@ -74,13 +74,14 @@ void MoneroUtils::binaryBlocksToJson(const std::string &bin, std::string &json) 
   json = ss.str();
 }
 
-string MoneroUtils::serialize(vector<MoneroBlock> blocks) {
-  cout << "serialize(blocks)" << endl;
-  throw runtime_error("Not implemented");
+string MoneroUtils::serialize(const MoneroAccount& account) {
+  throw runtime_error("serialize(account) not implemented");
 }
 
-MoneroTxRequest MoneroUtils::deserialize(const string& txRequestStr) {
-  cout << "deserialize(txRequestStr)" << endl;
-  cout << txRequestStr << endl;
-  throw runtime_error("Not implemented");
+string MoneroUtils::serialize(const MoneroSubaddress& subaddress) {
+  throw runtime_error("serialize(subaddress) not implemented");
+}
+
+string MoneroUtils::serialize(const MoneroBlock& block) {
+  throw runtime_error("serialize(block) not implemented");
 }
