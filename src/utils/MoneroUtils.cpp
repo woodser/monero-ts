@@ -2,8 +2,6 @@
 #include "rpc/core_rpc_server_commands_defs.h"
 #include "storages/portable_storage_template_helper.h"
 #include "cryptonote_basic/cryptonote_format_utils.h"
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
 
 using namespace std;
 using namespace boost;
@@ -74,34 +72,42 @@ void MoneroUtils::binaryBlocksToJson(const std::string &bin, std::string &json) 
   json = ss.str();
 }
 
-string MoneroUtils::serialize(const MoneroAccount& account) {
-  throw runtime_error("serialize(account) not implemented");
-}
-
-string MoneroUtils::serialize(const MoneroSubaddress& subaddress) {
-  throw runtime_error("serialize(subaddress) not implemented");
-}
-
-string MoneroUtils::serialize(const MoneroBlock& block) {
-  throw runtime_error("serialize(block) not implemented");
-}
-
-void MoneroUtils::deserializeTx(const string& txStr, MoneroTx& tx) {
-  throw runtime_error("deserializeTx(txStr) not implemented");
-}
-
-void MoneroUtils::deserializeTxWallet(const string& txStr, MoneroTxWallet& tx) {
-  throw runtime_error("deserializeTxWallet(txStr) not implemented");
-}
-
-void MoneroUtils::deserializeTxRequest(const string& txRequestStr, MoneroTxRequest& request) {
-  throw runtime_error("deserializeTxRequest(txRequestStr) not implemented");
-}
-
-void MoneroUtils::deserializeOutput(const string& outputStr, MoneroOutput& output) {
-  throw runtime_error("deserializeOutput(outputStr) not implemented");
-}
-
-void MoneroUtils::deserializeOutputWallet(const string& outputStr, MoneroOutputWallet& output) {
-  throw runtime_error("deserializeOutputWallet(outputStr) not implemented");
-}
+//string MoneroUtils::serialize(const MoneroAccount& account) {
+//
+//  // build property tree from account
+//  boost::property_tree::ptree accountNode;
+//  addNode(accountNode, string("index"), account.index);
+//
+//  // convert root to string
+//  std::stringstream ss;
+//  boost::property_tree::write_json(ss, accountNode, false);
+//  return ss.str();
+//}
+//
+//string MoneroUtils::serialize(const MoneroSubaddress& subaddress) {
+//  throw runtime_error("serialize(subaddress) not implemented");
+//}
+//
+//string MoneroUtils::serialize(const MoneroBlock& block) {
+//  throw runtime_error("serialize(block) not implemented");
+//}
+//
+//void MoneroUtils::deserializeTx(const string& txStr, MoneroTx& tx) {
+//  throw runtime_error("deserializeTx(txStr) not implemented");
+//}
+//
+//void MoneroUtils::deserializeTxWallet(const string& txStr, MoneroTxWallet& tx) {
+//  throw runtime_error("deserializeTxWallet(txStr) not implemented");
+//}
+//
+//void MoneroUtils::deserializeTxRequest(const string& txRequestStr, MoneroTxRequest& request) {
+//  throw runtime_error("deserializeTxRequest(txRequestStr) not implemented");
+//}
+//
+//void MoneroUtils::deserializeOutput(const string& outputStr, MoneroOutput& output) {
+//  throw runtime_error("deserializeOutput(outputStr) not implemented");
+//}
+//
+//void MoneroUtils::deserializeOutputWallet(const string& outputStr, MoneroOutputWallet& output) {
+//  throw runtime_error("deserializeOutputWallet(outputStr) not implemented");
+//}

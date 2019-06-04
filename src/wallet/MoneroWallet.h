@@ -212,9 +212,9 @@ namespace monero {
   /**
    * Monero wallet interface.
    */
-   class MoneroWallet {
+  class MoneroWallet {
 
-   public:
+  public:
 
     /**
      * Indicates if a wallet exists at the given path.
@@ -1190,13 +1190,46 @@ namespace monero {
 
     // --------------------------------- PRIVATE --------------------------------
 
-    private:
-     friend struct Wallet2Listener;
-     shared_ptr<tools::wallet2> wallet2;		// internal wallet implementation
-     unique_ptr<Wallet2Listener> wallet2Listener;	// listener for internal wallet implementation
-     MoneroWalletListener* listener;			// wallet's external listener
+  private:
+    friend struct Wallet2Listener;
+    shared_ptr<tools::wallet2> wallet2;		// internal wallet implementation
+    unique_ptr<Wallet2Listener> wallet2Listener;	// listener for internal wallet implementation
+    MoneroWalletListener* listener;			// wallet's external listener
 
-     MoneroSyncResult syncAux(uint64_t* startHeight, uint64_t* endHeight, MoneroSyncListener* listener);
-     vector<MoneroSubaddress> getSubaddressesAux(uint32_t accountIdx, vector<uint32_t> subaddressIndices, vector<tools::wallet2::transfer_details> transfers) const;
-    };
+    MoneroSyncResult syncAux(uint64_t* startHeight, uint64_t* endHeight, MoneroSyncListener* listener);
+    vector<MoneroSubaddress> getSubaddressesAux(uint32_t accountIdx, vector<uint32_t> subaddressIndices, vector<tools::wallet2::transfer_details> transfers) const;
+  };
 }
+
+//// --------------------------- MODEL SERIALIZATION ----------------------------
+//
+//BOOST_CLASS_VERSION(monero::MoneroWallet, 0)
+//BOOST_CLASS_VERSION(monero::MoneroAccount, 0)
+//BOOST_CLASS_VERSION(monero::MoneroSubaddress, 0)
+//
+//namespace boost {
+//  namespace serialization {
+//    template <class Archive>
+//    inline void serialize(Archive &a, monero::MoneroWallet& x, const boost::serialization::version_type ver)
+//    {
+////        a & x.m_L;
+////        a & x.m_R;
+//    }
+//
+//    template <class Archive>
+//    inline void serialize(Archive &a, monero::MoneroAccount& x, const boost::serialization::version_type ver)
+//    {
+////        a & x.m_signer;
+////        a & x.m_LR;
+////        a & x.m_partial_key_images;
+//    }
+//
+//    template <class Archive>
+//    inline void serialize(Archive &a, monero::MoneroSubaddress& x, const boost::serialization::version_type ver)
+//    {
+////        a & x.m_signer;
+////        a & x.m_LR;
+////        a & x.m_partial_key_images;
+//    }
+//  } // namepsace serialization
+//} // namespace boost

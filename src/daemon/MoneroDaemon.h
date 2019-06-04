@@ -132,3 +132,36 @@ namespace monero {
     shared_ptr<string> stealthPublicKey;
   };
 }
+
+//// --------------------------- MODEL SERIALIZATION ----------------------------
+//
+//BOOST_CLASS_VERSION(monero::MoneroTx, 0)
+//BOOST_CLASS_VERSION(monero::MoneroOutput, 0)
+//BOOST_CLASS_VERSION(monero::MoneroKeyImage, 0)
+//
+//namespace boost {
+//  namespace serialization {
+//    template <class Archive>
+//    inline void serialize(Archive &a, monero::MoneroTx& x, const boost::serialization::version_type ver)
+//    {
+////        a & x.m_L;
+////        a & x.m_R;
+//    }
+//
+//    template <class Archive>
+//    inline void serialize(Archive &a, monero::MoneroOutput& x, const boost::serialization::version_type ver)
+//    {
+////        a & x.m_signer;
+////        a & x.m_LR;
+////        a & x.m_partial_key_images;
+//    }
+//
+//    template <class Archive>
+//    inline void serialize(Archive &a, monero::MoneroKeyImage& x, const boost::serialization::version_type ver)
+//    {
+////        a & x.m_signer;
+////        a & x.m_LR;
+////        a & x.m_partial_key_images;
+//    }
+//  } // namepsace serialization
+//} // namespace boost

@@ -5,6 +5,8 @@
 #include "cryptonote_basic/cryptonote_basic.h"
 #include "serialization/keyvalue_serialization.h"	// TODO: consolidate with other binary deps?
 #include "storages/portable_storage.h"
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 /**
  * Collection of utilities for working with Monero's binary portable storage format.
@@ -21,27 +23,32 @@ namespace MoneroUtils
 
   void binaryBlocksToJson(const std::string &bin, std::string &json);
 
-  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-  template <class T> string serialize(const vector<T> types) {
-    cout << "serialize(types)" << endl;
-    throw runtime_error("Not implemented");
-  }
-
-  string serialize(const MoneroAccount& account);
-
-  string serialize(const MoneroSubaddress& subaddress);
-
-  string serialize(const MoneroBlock& block);
-
-  void deserializeTx(const string& txStr, MoneroTx& tx);
-
-  void deserializeTxWallet(const string& txStr, MoneroTxWallet& tx);
-
-  void deserializeTxRequest(const string& txRequestStr, MoneroTxRequest& request);
-
-  void deserializeOutput(const string& outputStr, MoneroOutput& output);
-
-  void deserializeOutputWallet(const string& outputStr, MoneroOutputWallet& output);
+//  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
+//  template <class T> string serialize(const vector<T> types) {
+//    cout << "serialize(types)" << endl;
+//    throw runtime_error("Not implemented");
+//  }
+//
+//  void addNode(boost::property_tree::ptree root, const string& key, shared_ptr<void> ptr) {
+//    cout << "addNode(...)" << endl;
+//    throw runtime_error("Not implemented");
+//  }
+//
+//  string serialize(const MoneroAccount& account);
+//
+//  string serialize(const MoneroSubaddress& subaddress);
+//
+//  string serialize(const MoneroBlock& block);
+//
+//  void deserializeTx(const string& txStr, MoneroTx& tx);
+//
+//  void deserializeTxWallet(const string& txStr, MoneroTxWallet& tx);
+//
+//  void deserializeTxRequest(const string& txRequestStr, MoneroTxRequest& request);
+//
+//  void deserializeOutput(const string& outputStr, MoneroOutput& output);
+//
+//  void deserializeOutputWallet(const string& outputStr, MoneroOutputWallet& output);
 
   /**
    * Modified from core_rpc_server.cpp to return a string.
