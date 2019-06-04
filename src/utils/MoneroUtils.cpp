@@ -85,3 +85,15 @@ string MoneroUtils::serialize(const MoneroSubaddress& subaddress) {
 string MoneroUtils::serialize(const MoneroBlock& block) {
   throw runtime_error("serialize(block) not implemented");
 }
+
+MoneroTx MoneroUtils::deserializeTx(const string& txStr) {
+  throw runtime_error("deserializeTxWallet(txStr) not implemented");
+}
+
+MoneroTxWallet MoneroUtils::deserializeTxWallet(const string& txStr) {
+  throw runtime_error("deserializeTxWallet(txStr) not implemented");
+}
+
+MoneroTxRequest MoneroUtils::deserializeTxRequest(const string& txRequestStr) {
+  throw runtime_error("deserializeTxRequest(txRequestStr) not implemented");
+}
