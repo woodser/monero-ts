@@ -86,14 +86,22 @@ string MoneroUtils::serialize(const MoneroBlock& block) {
   throw runtime_error("serialize(block) not implemented");
 }
 
-MoneroTx MoneroUtils::deserializeTx(const string& txStr) {
+void MoneroUtils::deserializeTx(const string& txStr, MoneroTx& tx) {
+  throw runtime_error("deserializeTx(txStr) not implemented");
+}
+
+void MoneroUtils::deserializeTxWallet(const string& txStr, MoneroTxWallet& tx) {
   throw runtime_error("deserializeTxWallet(txStr) not implemented");
 }
 
-MoneroTxWallet MoneroUtils::deserializeTxWallet(const string& txStr) {
-  throw runtime_error("deserializeTxWallet(txStr) not implemented");
-}
-
-MoneroTxRequest MoneroUtils::deserializeTxRequest(const string& txRequestStr) {
+void MoneroUtils::deserializeTxRequest(const string& txRequestStr, MoneroTxRequest& request) {
   throw runtime_error("deserializeTxRequest(txRequestStr) not implemented");
+}
+
+void MoneroUtils::deserializeOutput(const string& outputStr, MoneroOutput& output) {
+  throw runtime_error("deserializeOutput(outputStr) not implemented");
+}
+
+void MoneroUtils::deserializeOutputWallet(const string& outputStr, MoneroOutputWallet& output) {
+  throw runtime_error("deserializeOutputWallet(outputStr) not implemented");
 }

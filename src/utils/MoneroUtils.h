@@ -33,11 +33,15 @@ namespace MoneroUtils
 
   string serialize(const MoneroBlock& block);
 
-  MoneroTx deserializeTx(const string& txStr);
+  void deserializeTx(const string& txStr, MoneroTx& tx);
 
-  MoneroTxWallet deserializeTxWallet(const string& txStr);
+  void deserializeTxWallet(const string& txStr, MoneroTxWallet& tx);
 
-  MoneroTxRequest deserializeTxRequest(const string& txRequestStr);
+  void deserializeTxRequest(const string& txRequestStr, MoneroTxRequest& request);
+
+  void deserializeOutput(const string& outputStr, MoneroOutput& output);
+
+  void deserializeOutputWallet(const string& outputStr, MoneroOutputWallet& output);
 
   /**
    * Modified from core_rpc_server.cpp to return a string.

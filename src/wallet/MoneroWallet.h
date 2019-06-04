@@ -91,9 +91,21 @@ namespace monero {
   };
 
   /**
+   * Models a Monero output with wallet extensions.
+   */
+  struct MoneroOutputWallet : public MoneroOutput {
+    shared_ptr<uint32_t> accountIndex;
+    shared_ptr<uint32_t> subaddressIndex;
+    shared_ptr<bool> isSpent;
+    shared_ptr<bool> isUnlocked;
+    shared_ptr<bool> isFrozen;
+  };
+
+  /**
    * Models a Monero transaction in the context of a wallet.
    */
   struct MoneroTxWallet : public MoneroTx {
+    vector<MoneroOutputWallet> vouts;  // TODO: override vouts with different type?
     vector<MoneroIncomingTransfer> incomingTransfers;
     shared_ptr<MoneroOutgoingTransfer> outgoingTransfer;
     shared_ptr<uint32_t> numSuggestedConfirmations;
