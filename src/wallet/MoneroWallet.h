@@ -17,60 +17,38 @@ namespace monero {
    * Models a result of syncing a wallet.
    */
   struct MoneroSyncResult {
-    uint64_t numBlocksFetched;
-    bool receivedMoney;
+    shared_ptr<uint64_t> numBlocksFetched;
+    shared_ptr<bool> receivedMoney;
     MoneroSyncResult() {}
-    MoneroSyncResult(const uint64_t numBlocksFetched, const bool receivedMoney) : numBlocksFetched(numBlocksFetched), receivedMoney(receivedMoney) {}
+    MoneroSyncResult(const shared_ptr<uint64_t> numBlocksFetched, const shared_ptr<bool> receivedMoney) : numBlocksFetched(numBlocksFetched), receivedMoney(receivedMoney) {}
   };
 
   /**
    * Models a Monero subaddress.
    */
   struct MoneroSubaddress {
-    uint32_t accountIndex;
-    uint32_t index;
-    string address;
-    string label;
-    uint64_t balance;
-    uint64_t unlockedBalance;
-    uint32_t numUnspentOutputs;
-    bool isUsed;
-    uint32_t numBlocksToUnlock;
-
-    BEGIN_KV_SERIALIZE_MAP()
-      KV_SERIALIZE(accountIndex)
-      KV_SERIALIZE(index)
-      KV_SERIALIZE(address)
-      KV_SERIALIZE(label)
-      KV_SERIALIZE(balance)
-      KV_SERIALIZE(unlockedBalance)
-      KV_SERIALIZE(numUnspentOutputs)
-      KV_SERIALIZE(isUsed)
-      KV_SERIALIZE(numBlocksToUnlock)
-    END_KV_SERIALIZE_MAP()
+    shared_ptr<uint32_t> accountIndex;
+    shared_ptr<uint32_t> index;
+    shared_ptr<string> address;
+    shared_ptr<string> label;
+    shared_ptr<uint64_t> balance;
+    shared_ptr<uint64_t> unlockedBalance;
+    shared_ptr<uint32_t> numUnspentOutputs;
+    shared_ptr<bool> isUsed;
+    shared_ptr<uint32_t> numBlocksToUnlock;
   };
 
   /**
    * Models a Monero account.
    */
   struct MoneroAccount {
-    uint32_t index;
-    string primaryAddress;
-    string label;
-    uint64_t balance;
-    uint64_t unlockedBalance;
-    string tag;
+    shared_ptr<uint32_t> index;
+    shared_ptr<string> primaryAddress;
+    shared_ptr<string> label;
+    shared_ptr<uint64_t> balance;
+    shared_ptr<uint64_t> unlockedBalance;
+    shared_ptr<string> tag;
     vector<MoneroSubaddress> subaddresses;
-
-    BEGIN_KV_SERIALIZE_MAP()
-      KV_SERIALIZE(index)
-      KV_SERIALIZE(primaryAddress)
-      KV_SERIALIZE(label)
-      KV_SERIALIZE(balance)
-      KV_SERIALIZE(unlockedBalance)
-      KV_SERIALIZE(tag)
-      KV_SERIALIZE(subaddresses)
-    END_KV_SERIALIZE_MAP()
   };
 
   // forward declarations
@@ -81,8 +59,8 @@ namespace monero {
    * Models an outgoing transfer destination.
    */
   struct MoneroDestination {
-    string address;
-    uint64_t amount;
+    shared_ptr<string> address;
+    shared_ptr<uint64_t> amount;
   };
 
   /**
@@ -90,17 +68,17 @@ namespace monero {
    */
   struct MoneroTransfer {
     shared_ptr<MoneroTxWallet> tx;
-    uint64_t amount;
-    uint32_t accountIndex;
-    bool isIncoming;
+    shared_ptr<uint64_t> amount;
+    shared_ptr<uint32_t> accountIndex;
+    shared_ptr<bool> isIncoming;
   };
 
   /**
    * Models an incoming transfer of funds to the wallet.
    */
   struct MoneroIncomingTransfer : public MoneroTransfer {
-    uint32_t subaddressIndex;
-    string address;
+    shared_ptr<uint32_t> subaddressIndex;
+    shared_ptr<string> address;
   };
 
   /**
@@ -118,8 +96,8 @@ namespace monero {
   struct MoneroTxWallet : public MoneroTx {
     vector<MoneroIncomingTransfer> incomingTransfers;
     shared_ptr<MoneroOutgoingTransfer> outgoingTransfer;
-    uint32_t numSuggestedConfirmations;
-    string note;
+    shared_ptr<uint32_t> numSuggestedConfirmations;
+    shared_ptr<string> note;
   };
 
   /**
@@ -131,7 +109,7 @@ namespace monero {
     shared_ptr<uint64_t> amount;
     shared_ptr<uint32_t> accountIndex;
     shared_ptr<bool> isIncoming;
-    string address;
+    shared_ptr<string> address;
     vector<string> addresses;
     shared_ptr<uint32_t> subaddressIndex;
     vector<uint32_t> subaddressIndices;
@@ -145,41 +123,7 @@ namespace monero {
    *
    * All transactions are returned except those that do not meet the criteria defined in this request.
    */
-  struct MoneroTxRequest {
-    shared_ptr<MoneroBlock> block;
-    string id;
-    string version;
-    shared_ptr<bool> isCoinbase;
-    string paymentId;
-    shared_ptr<uint64_t> fee;
-    shared_ptr<uint32_t> mixin;
-    shared_ptr<bool> doNotRelay;
-    shared_ptr<bool> isRelayed;
-    shared_ptr<bool> isConfirmed;
-    shared_ptr<bool> inTxPool;
-    shared_ptr<uint64_t> numConfirmations;
-    shared_ptr<uint64_t> unlockTime;
-    shared_ptr<uint64_t> lastRelayedTimestamp;
-    shared_ptr<uint64_t> receivedTimestamp;
-    shared_ptr<bool> isDoubleSpend;
-    string key;
-    string fullHex;
-    string prunedHex;
-    string prunableHex;
-    string prunableHash;
-    shared_ptr<uint32_t> size;
-    shared_ptr<uint32_t> weight;
-    vector<MoneroOutput> vins;
-    vector<MoneroOutput> vouts;
-    vector<uint32_t> outputIndices;
-    string metadata;
-    shared_ptr<bool> isFailed;
-
-    vector<MoneroIncomingTransfer> incomingTransfers;
-    shared_ptr<MoneroOutgoingTransfer> outgoingTransfer;
-    shared_ptr<uint32_t> numSuggestedConfirmations;
-    string note;
-
+  struct MoneroTxRequest : public MoneroTxWallet {
     shared_ptr<bool> isOutgoing;
     shared_ptr<bool> isIncoming;
     vector<string> txIds;

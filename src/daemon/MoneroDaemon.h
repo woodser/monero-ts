@@ -20,6 +20,8 @@ namespace monero {
 
   /**
    * Models a connection to a daemon.
+   *
+   * TODO: shared_ptr<string>?
    */
   struct MoneroRpcConnection {
     string uri;
@@ -38,42 +40,42 @@ namespace monero {
    */
   struct MoneroTx {
     shared_ptr<MoneroBlock> block;
-    string id;
-    string version;
-    bool isCoinbase;
-    string paymentId;
-    uint64_t fee;
-    uint32_t mixin;
-    bool doNotRelay;
-    bool isRelayed;
-    bool isConfirmed;
-    bool inTxPool;
-    uint64_t numConfirmations;
-    uint64_t unlockTime;
-    uint64_t lastRelayedTimestamp;
-    uint64_t receivedTimestamp;
-    bool isDoubleSpend;
-    string key;
-    string fullHex;
-    string prunedHex;
-    string prunableHex;
-    string prunableHash;
-    uint32_t size;
-    uint32_t weight;
+    shared_ptr<string> id;
+    shared_ptr<string> version;
+    shared_ptr<bool> isCoinbase;
+    shared_ptr<string> paymentId;
+    shared_ptr<uint64_t> fee;
+    shared_ptr<uint32_t> mixin;
+    shared_ptr<bool> doNotRelay;
+    shared_ptr<bool> isRelayed;
+    shared_ptr<bool> isConfirmed;
+    shared_ptr<bool> inTxPool;
+    shared_ptr<uint64_t> numConfirmations;
+    shared_ptr<uint64_t> unlockTime;
+    shared_ptr<uint64_t> lastRelayedTimestamp;
+    shared_ptr<uint64_t> receivedTimestamp;
+    shared_ptr<bool> isDoubleSpend;
+    shared_ptr<string> key;
+    shared_ptr<string> fullHex;
+    shared_ptr<string> prunedHex;
+    shared_ptr<string> prunableHex;
+    shared_ptr<string> prunableHash;
+    shared_ptr<uint32_t> size;
+    shared_ptr<uint32_t> weight;
     vector<MoneroOutput> vins;
     vector<MoneroOutput> vouts;
     vector<uint32_t> outputIndices;
-    string metadata;
-    string commonTxSets;
+    shared_ptr<string> metadata;
+    shared_ptr<string> commonTxSets;
     vector<uint32_t> extra;
-    string rctSignatures;   // TODO: implement
-    string rctSigPrunable;  // TODO: implement
-    bool isKeptByBlock;
-    bool isFailed;
+    shared_ptr<string> rctSignatures;   // TODO: implement
+    shared_ptr<string> rctSigPrunable;  // TODO: implement
+    shared_ptr<bool> isKeptByBlock;
+    shared_ptr<bool> isFailed;
     shared_ptr<uint32_t> lastFailedHeight;
-    string lastFailedId;
+    shared_ptr<string> lastFailedId;
     shared_ptr<uint32_t> maxUsedBlockHeight;
-    string maxUsedBlockId;
+    shared_ptr<string> maxUsedBlockId;
     vector<string> signatures;
   };
 
@@ -81,92 +83,52 @@ namespace monero {
    * Models a Monero block header which contains information about the block.
    */
   struct MoneroBlockHeader {
-    string id;
-    uint64_t height;
-    uint64_t timestamp;
-    uint64_t size;
-    uint64_t weight;
-    uint64_t longTermWeight;
-    uint64_t depth;
-    uint64_t difficulty;
-    uint64_t cumulativeDifficulty;
-    uint32_t majorVersion;
-    uint32_t minorVersion;
-    uint64_t nonce;
-    string coinbaseTxId;
-    uint32_t numTxs;
-    bool orphanStatus;
-    string prevId;
-    uint64_t reward;
-
-    BEGIN_KV_SERIALIZE_MAP()
-      KV_SERIALIZE(id)
-      KV_SERIALIZE(height)
-      KV_SERIALIZE(timestamp)
-      KV_SERIALIZE(size)
-      KV_SERIALIZE(weight)
-      KV_SERIALIZE(longTermWeight)
-      KV_SERIALIZE(depth)
-      KV_SERIALIZE(difficulty)
-      KV_SERIALIZE(cumulativeDifficulty)
-      KV_SERIALIZE(majorVersion)
-      KV_SERIALIZE(minorVersion)
-      KV_SERIALIZE(nonce)
-      KV_SERIALIZE(coinbaseTxId)
-      KV_SERIALIZE(numTxs)
-      KV_SERIALIZE(orphanStatus)
-      KV_SERIALIZE(prevId)
-      KV_SERIALIZE(reward)
-    END_KV_SERIALIZE_MAP()
+    shared_ptr<string> id;
+    shared_ptr<uint64_t> height;
+    shared_ptr<uint64_t> timestamp;
+    shared_ptr<uint64_t> size;
+    shared_ptr<uint64_t> weight;
+    shared_ptr<uint64_t> longTermWeight;
+    shared_ptr<uint64_t> depth;
+    shared_ptr<uint64_t> difficulty;
+    shared_ptr<uint64_t> cumulativeDifficulty;
+    shared_ptr<uint32_t> majorVersion;
+    shared_ptr<uint32_t> minorVersion;
+    shared_ptr<uint64_t> nonce;
+    shared_ptr<string> coinbaseTxId;
+    shared_ptr<uint32_t> numTxs;
+    shared_ptr<bool> orphanStatus;
+    shared_ptr<string> prevId;
+    shared_ptr<uint64_t> reward;
   };
 
   /**
    * Models a Monero block in the blockchain.
    */
   struct MoneroBlock : public MoneroBlockHeader {
-    string hex;
-    MoneroTx coinbaseTx;
+    shared_ptr<string> hex;
+    shared_ptr<MoneroTx> coinbaseTx;
     vector<MoneroTx> txs;
     vector<string> txIds;
-
-    BEGIN_KV_SERIALIZE_MAP()
-      KV_SERIALIZE(hex)
-      KV_SERIALIZE(coinbaseTx)
-      KV_SERIALIZE(txs)
-      KV_SERIALIZE(txIds)
-    END_KV_SERIALIZE_MAP()
   };
 
   /**
    * Models a Monero key image.
    */
   struct MoneroKeyImage {
-    string hex;
-    string signature;
-
-    BEGIN_KV_SERIALIZE_MAP()
-      KV_SERIALIZE(hex)
-      KV_SERIALIZE(signature)
-    END_KV_SERIALIZE_MAP()
+    shared_ptr<string> hex;
+    shared_ptr<string> signature;
   };
 
   /**
    * Models a Monero transaction output.
    */
   struct MoneroOutput {
-    MoneroTx* tx;
-    MoneroKeyImage keyImage;
-    uint64_t amount;
-    uint32_t index;
+    shared_ptr<MoneroTx> tx;
+    shared_ptr<MoneroKeyImage> keyImage;
+    shared_ptr<uint64_t> amount;
+    shared_ptr<uint32_t> index;
     vector<uint32_t> ringOutputIndices;
-    string stealthPublicKey;
-
-    BEGIN_KV_SERIALIZE_MAP()
-      KV_SERIALIZE(keyImage)
-      KV_SERIALIZE(amount)
-      KV_SERIALIZE(index)
-      KV_SERIALIZE(ringOutputIndices)
-      KV_SERIALIZE(stealthPublicKey)
-    END_KV_SERIALIZE_MAP()
+    shared_ptr<string> stealthPublicKey;
   };
 }

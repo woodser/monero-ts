@@ -69,20 +69,20 @@ namespace monero {
 
       // notify listener of block
       if (this->listener != nullptr) {
-	MoneroBlock block;
-	block.height = height;
+        MoneroBlock block;
+        block.height = shared_ptr<uint64_t>(make_shared<uint64_t>(height));
         listener->onNewBlock(block);
       }
 
       // notify listeners of sync progress
       if (syncStartHeight != nullptr && height > *syncStartHeight) {
-	if (height > *syncEndHeight) *syncEndHeight = height;	// increase end height if necessary
-	uint64_t numBlocksDone = height - *syncStartHeight + 1;
-	uint64_t numBlocksTotal = *syncEndHeight - *syncStartHeight + 1;
-	double percentDone = numBlocksDone / (double) numBlocksTotal;
-	string message = string("Synchronizing");
-	if (this->listener != nullptr) this->listener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
-	if (this->syncListener != nullptr) this->syncListener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
+      if (height > *syncEndHeight) *syncEndHeight = height;	// increase end height if necessary
+      uint64_t numBlocksDone = height - *syncStartHeight + 1;
+      uint64_t numBlocksTotal = *syncEndHeight - *syncStartHeight + 1;
+      double percentDone = numBlocksDone / (double) numBlocksTotal;
+      string message = string("Synchronizing");
+      if (this->listener != nullptr) this->listener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
+      if (this->syncListener != nullptr) this->syncListener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
       }
     }
 
@@ -224,8 +224,8 @@ namespace monero {
     // return indices in subaddress
     MoneroSubaddress subaddress;
     cryptonote::subaddress_index cnIndex = *index;
-    subaddress.accountIndex = cnIndex.major;
-    subaddress.index = cnIndex.minor;
+    subaddress.accountIndex = shared_ptr<uint32_t>(make_shared<uint32_t>(cnIndex.major));
+    subaddress.index = shared_ptr<uint32_t>(make_shared<uint32_t>(cnIndex.minor));
     return subaddress;
   }
 
@@ -333,10 +333,10 @@ namespace monero {
     vector<MoneroAccount> accounts;
     for (uint32_t accountIdx = 0; accountIdx < wallet2->get_num_subaddress_accounts(); accountIdx++) {
       MoneroAccount account;
-      account.index = accountIdx;
-      account.primaryAddress = getAddress(accountIdx, 0);
-      account.balance = wallet2->balance(accountIdx);
-      account.unlockedBalance = wallet2->unlocked_balance(accountIdx);
+      account.index = shared_ptr<uint32_t>(make_shared<uint32_t>(accountIdx));
+      account.primaryAddress = shared_ptr<string>(make_shared<string>(getAddress(accountIdx, 0)));
+      account.balance = shared_ptr<uint64_t>(make_shared<uint64_t>(wallet2->balance(accountIdx)));
+      account.unlockedBalance = shared_ptr<uint64_t>(make_shared<uint64_t>(wallet2->unlocked_balance(accountIdx)));
       if (includeSubaddresses) account.subaddresses = getSubaddressesAux(accountIdx, vector<uint32_t>(), transfers);
       accounts.push_back(account);
     }
@@ -357,10 +357,10 @@ namespace monero {
 
     // build and return account
     MoneroAccount account;
-    account.index = accountIdx;
-    account.primaryAddress = getAddress(accountIdx, 0);
-    account.balance = wallet2->balance(accountIdx);
-    account.unlockedBalance = wallet2->unlocked_balance(accountIdx);
+    account.index = shared_ptr<uint32_t>(make_shared<uint32_t>(accountIdx));
+    account.primaryAddress = shared_ptr<string>(make_shared<string>(getAddress(accountIdx, 0)));
+    account.balance = shared_ptr<uint64_t>(make_shared<uint64_t>(wallet2->balance(accountIdx)));
+    account.unlockedBalance = shared_ptr<uint64_t>(make_shared<uint64_t>(wallet2->unlocked_balance(accountIdx)));
     if (includeSubaddresses) account.subaddresses = getSubaddressesAux(accountIdx, vector<uint32_t>(), transfers);
     return account;
   }
@@ -405,18 +405,18 @@ namespace monero {
     // initialize subaddresses at indices
     for (uint32_t subaddressIndicesIdx = 0; subaddressIndicesIdx < subaddressIndices.size(); subaddressIndicesIdx++) {
       MoneroSubaddress subaddress;
-      subaddress.accountIndex = accountIdx;
+      subaddress.accountIndex = shared_ptr<uint32_t>(make_shared<uint32_t>(accountIdx));
       uint32_t subaddressIdx = subaddressIndices.at(subaddressIndicesIdx);
-      subaddress.index = subaddressIdx;
-      subaddress.address = getAddress(accountIdx, subaddressIdx);
+      subaddress.index = shared_ptr<uint32_t>(make_shared<uint32_t>(subaddressIdx));
+      subaddress.address = shared_ptr<string>(make_shared<string>(getAddress(accountIdx, subaddressIdx)));
       auto iter1 = balancePerSubaddress.find(subaddressIdx);
-      subaddress.balance = iter1 == balancePerSubaddress.end() ? 0 : iter1->second;
+      subaddress.balance = shared_ptr<uint64_t>(make_shared<uint64_t>(iter1 == balancePerSubaddress.end() ? 0 : iter1->second));
       auto iter2 = unlockedBalancePerSubaddress.find(subaddressIdx);
-      subaddress.unlockedBalance = iter2 == unlockedBalancePerSubaddress.end() ? 0 : iter2->second.first;
-      subaddress.numBlocksToUnlock = iter2 == unlockedBalancePerSubaddress.end() ? 0 : iter2->second.second;
+      subaddress.unlockedBalance = shared_ptr<uint64_t>(make_shared<uint64_t>(iter2 == unlockedBalancePerSubaddress.end() ? 0 : iter2->second.first));
+      subaddress.numBlocksToUnlock = shared_ptr<uint32_t>(make_shared<uint32_t>(iter2 == unlockedBalancePerSubaddress.end() ? 0 : iter2->second.second));
       cryptonote::subaddress_index index = {accountIdx, subaddressIdx};
-      subaddress.numUnspentOutputs = count_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return !td.m_spent && td.m_subaddr_index == index; });
-      subaddress.isUsed = find_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return td.m_subaddr_index == index; }) != transfers.end();
+      subaddress.numUnspentOutputs = shared_ptr<uint32_t>(make_shared<uint32_t>(count_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return !td.m_spent && td.m_subaddr_index == index; })));
+      subaddress.isUsed = shared_ptr<bool>(make_shared<bool>(find_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return td.m_subaddr_index == index; }) != transfers.end()));
       subaddresses.push_back(subaddress);
     }
 
@@ -475,8 +475,12 @@ namespace monero {
 
     // sync wallet
     wallet2Listener->onSyncStart(syncStartHeight, listener);
+
+
     MoneroSyncResult result;
-    wallet2->refresh(wallet2->is_trusted_daemon(), syncStartHeight, result.numBlocksFetched, result.receivedMoney, true);
+    result.numBlocksFetched = shared_ptr<uint64_t>(new uint64_t());
+    result.receivedMoney = shared_ptr<bool>(new bool());
+    wallet2->refresh(wallet2->is_trusted_daemon(), syncStartHeight, *result.numBlocksFetched, *result.receivedMoney, true);
     wallet2Listener->onSyncEnd();
     return result;
   }
