@@ -475,12 +475,8 @@ namespace monero {
 
     // sync wallet
     wallet2Listener->onSyncStart(syncStartHeight, listener);
-
-
     MoneroSyncResult result;
-    result.numBlocksFetched = shared_ptr<uint64_t>(new uint64_t());
-    result.receivedMoney = shared_ptr<bool>(new bool());
-    wallet2->refresh(wallet2->is_trusted_daemon(), syncStartHeight, *result.numBlocksFetched, *result.receivedMoney, true);
+    wallet2->refresh(wallet2->is_trusted_daemon(), syncStartHeight, result.numBlocksFetched, result.receivedMoney, true);
     wallet2Listener->onSyncEnd();
     return result;
   }

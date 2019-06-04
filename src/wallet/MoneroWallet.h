@@ -17,10 +17,10 @@ namespace monero {
    * Models a result of syncing a wallet.
    */
   struct MoneroSyncResult {
-    shared_ptr<uint64_t> numBlocksFetched;
-    shared_ptr<bool> receivedMoney;
+    uint64_t numBlocksFetched;
+    bool receivedMoney;
     MoneroSyncResult() {}
-    MoneroSyncResult(const shared_ptr<uint64_t> numBlocksFetched, const shared_ptr<bool> receivedMoney) : numBlocksFetched(numBlocksFetched), receivedMoney(receivedMoney) {}
+    MoneroSyncResult(const uint64_t numBlocksFetched, const bool receivedMoney) : numBlocksFetched(numBlocksFetched), receivedMoney(receivedMoney) {}
   };
 
   /**
