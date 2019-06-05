@@ -72,22 +72,46 @@ void MoneroUtils::binaryBlocksToJson(const std::string &bin, std::string &json) 
   json = ss.str();
 }
 
-//string MoneroUtils::serialize(const MoneroAccount& account) {
-//
-//  // build property tree from account
-//  boost::property_tree::ptree accountNode;
-//  addNode(accountNode, string("index"), account.index);
-//
-//  // convert root to string
-//  std::stringstream ss;
-//  boost::property_tree::write_json(ss, accountNode, false);
-//  return ss.str();
-//}
-//
-//string MoneroUtils::serialize(const MoneroSubaddress& subaddress) {
-//  throw runtime_error("serialize(subaddress) not implemented");
-//}
-//
+boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroAccount& account) {
+  cout << "toPropertyTree(account)" << endl;
+  boost::property_tree::ptree accountNode;
+  if (account.index != nullptr) accountNode.put("index", *account.index);
+  if (account.primaryAddress != nullptr) accountNode.put("primaryAddress", *account.primaryAddress);
+  if (account.balance != nullptr) accountNode.put("balance", *account.balance);
+  if (account.unlockedBalance != nullptr) accountNode.put("unlockedBalance", *account.unlockedBalance);
+  if (!account.subaddresses.empty()) {
+    boost::property_tree::ptree subaddressesNode;
+    for (const auto& subaddress : account.subaddresses) {
+      subaddressesNode.push_back(std::make_pair("", toPropertyTree(subaddress)));
+    }
+    accountNode.add_child("subaddresses", subaddressesNode);
+  }
+  return accountNode;
+}
+
+boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroSubaddress& subaddress) {
+  cout << "toPropertyTree(subaddress)" << endl;
+  throw runtime_error("Not implemented");
+}
+
+string MoneroUtils::serialize(const MoneroAccount& account) {
+  cout << "serialize(account)" << endl;
+
+  // build property tree from account
+  boost::property_tree::ptree accountNode;
+  //addNode(accountNode, string("index"), account.index);
+
+  // convert root to string
+  std::stringstream ss;
+  boost::property_tree::write_json(ss, accountNode, false);
+  return ss.str();
+}
+
+string MoneroUtils::serialize(const MoneroSubaddress& subaddress) {
+  cout << "serialize(subaddress)" << endl;
+  throw runtime_error("serialize(subaddress) not implemented");
+}
+
 //string MoneroUtils::serialize(const MoneroBlock& block) {
 //  throw runtime_error("serialize(block) not implemented");
 //}

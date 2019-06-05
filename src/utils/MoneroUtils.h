@@ -23,20 +23,14 @@ namespace MoneroUtils
 
   void binaryBlocksToJson(const std::string &bin, std::string &json);
 
-//  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-//  template <class T> string serialize(const vector<T> types) {
-//    cout << "serialize(types)" << endl;
-//    throw runtime_error("Not implemented");
-//  }
-//
 //  void addNode(boost::property_tree::ptree root, const string& key, shared_ptr<void> ptr) {
 //    cout << "addNode(...)" << endl;
 //    throw runtime_error("Not implemented");
 //  }
 //
-//  string serialize(const MoneroAccount& account);
-//
-//  string serialize(const MoneroSubaddress& subaddress);
+  string serialize(const MoneroAccount& account);
+
+  string serialize(const MoneroSubaddress& subaddress);
 //
 //  string serialize(const MoneroBlock& block);
 //
@@ -49,6 +43,38 @@ namespace MoneroUtils
 //  void deserializeOutput(const string& outputStr, MoneroOutput& output);
 //
 //  void deserializeOutputWallet(const string& outputStr, MoneroOutputWallet& output);
+
+  boost::property_tree::ptree toPropertyTree(const MoneroAccount& account);
+
+  boost::property_tree::ptree toPropertyTree(const MoneroSubaddress& subaddress);
+
+  template <class T> boost::property_tree::ptree toPropertyTree(const vector<T> types) {
+    cout << "toPropertyTree(types)" << endl;
+    boost::property_tree::ptree typeNodes;
+    for (const auto& type : types)  {
+      typeNodes.push_back(std::make_pair("", toPropertyTree(type)));
+    }
+    return typeNodes;
+  }
+
+  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
+  template <class T> string serialize(const vector<T> types) {
+    cout << "serialize(types)" << endl;
+    boost::property_tree::ptree root;
+    boost::property_tree::ptree typesNode;
+    for (const auto& type : types)  {
+      boost::property_tree::ptree typeNode;
+      typeNode.put("", serialize(type));
+      typesNode.push_back(std::make_pair("", typeNode));
+    }
+    root.add_child("types", typesNode);
+
+    // serialize property tree to json
+    std::stringstream ss;
+    boost::property_tree::write_json(ss, root, false);
+    string str = ss.str();
+    return str;
+  }
 
   /**
    * Modified from core_rpc_server.cpp to return a string.

@@ -36,19 +36,39 @@ namespace monero {
     shared_ptr<uint32_t> numUnspentOutputs;
     shared_ptr<bool> isUsed;
     shared_ptr<uint32_t> numBlocksToUnlock;
+//    BEGIN_KV_SERIALIZE_MAP()
+//      KV_SERIALIZE_OPT_N(accountIndex, "accountIndex", nullptr)
+//      KV_SERIALIZE_OPT_N(index, "index", nullptr)
+//      KV_SERIALIZE_OPT_N(address, "address", nullptr)
+//      KV_SERIALIZE_OPT_N(label, "label", nullptr)
+//      KV_SERIALIZE_OPT_N(balance, "balance", nullptr)
+//      KV_SERIALIZE_OPT_N(unlockedBalance, "unlockedBalance", nullptr)
+//      KV_SERIALIZE_OPT_N(numUnspentOutputs, "numUnspentOutputs", nullptr)
+//      KV_SERIALIZE_OPT_N(isUsed, "isUsed", nullptr)
+//      KV_SERIALIZE_OPT_N(numBlocksToUnlock, "numBlocksToUnlock", nullptr)
+//    END_KV_SERIALIZE_MAP()
   };
 
   /**
    * Models a Monero account.
    */
   struct MoneroAccount {
-    shared_ptr<uint32_t> index;
-    shared_ptr<string> primaryAddress;
+    shared_ptr<uint32_t> index = nullptr;
+    shared_ptr<string> primaryAddress = nullptr;
     shared_ptr<string> label;
     shared_ptr<uint64_t> balance;
     shared_ptr<uint64_t> unlockedBalance;
     shared_ptr<string> tag;
     vector<MoneroSubaddress> subaddresses;
+//    BEGIN_KV_SERIALIZE_MAP()
+//      KV_SERIALIZE_OPT_N(index, "index", nullptr)
+//      KV_SERIALIZE_OPT_N(primaryAddress, "primaryAddress", nullptr)
+//      KV_SERIALIZE_OPT_N(label, "label", nullptr)
+//      KV_SERIALIZE_OPT_N(balance, "balance", nullptr)
+//      KV_SERIALIZE_OPT_N(unlockedBalance, "unlockedBalance", nullptr)
+//      KV_SERIALIZE_OPT_N(tag, "tag", nullptr)
+//      KV_SERIALIZE(subaddresses)
+//    END_KV_SERIALIZE_MAP()
   };
 
   // forward declarations
