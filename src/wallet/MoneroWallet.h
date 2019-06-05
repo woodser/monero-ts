@@ -137,9 +137,7 @@ namespace monero {
    *
    * All transfers are returned except those that do not meet the criteria defined in this request.
    */
-  struct MoneroTransferRequest {
-    shared_ptr<uint64_t> amount;
-    shared_ptr<uint32_t> accountIndex;
+  struct MoneroTransferRequest : public MoneroTransfer {
     shared_ptr<bool> isIncoming;
     shared_ptr<string> address;
     vector<string> addresses;
@@ -165,6 +163,17 @@ namespace monero {
     shared_ptr<uint64_t> maxHeight;
     shared_ptr<uint64_t> includeOutputs;
     shared_ptr<MoneroTransferRequest> transferRequest;
+  };
+
+  /**
+   * Configures a request to retrieve wallet outputs (i.e. outputs that the wallet has or had the
+   * ability to spend).
+   *
+   * All outputs are returned except those that do not meet the criteria defined in this request.
+   */
+  struct MoneroOutputRequest : public MoneroOutput {
+    vector<uint32_t> subaddressIndices;
+    shared_ptr<MoneroTxRequest> txRequest;
   };
 
   // --------------------------------- LISTENERS ------------------------------

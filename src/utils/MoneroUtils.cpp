@@ -72,69 +72,24 @@ void MoneroUtils::binaryBlocksToJson(const std::string &bin, std::string &json) 
   json = ss.str();
 }
 
-boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroAccount& account) {
-  cout << "toPropertyTree(account)" << endl;
-  boost::property_tree::ptree accountNode;
-  if (account.index != nullptr) accountNode.put("index", *account.index);
-  if (account.primaryAddress != nullptr) accountNode.put("primaryAddress", *account.primaryAddress);
-  if (account.balance != nullptr) accountNode.put("balance", *account.balance);
-  if (account.unlockedBalance != nullptr) accountNode.put("unlockedBalance", *account.unlockedBalance);
-  if (!account.subaddresses.empty()) {
-    boost::property_tree::ptree subaddressesNode;
-    for (const auto& subaddress : account.subaddresses) {
-      subaddressesNode.push_back(std::make_pair("", toPropertyTree(subaddress)));
-    }
-    accountNode.add_child("subaddresses", subaddressesNode);
-  }
-  return accountNode;
-}
-
-boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroSubaddress& subaddress) {
-  cout << "toPropertyTree(subaddress)" << endl;
-  boost::property_tree::ptree subaddressNode;
-  if (subaddress.accountIndex != nullptr) subaddressNode.put("accountIndex", *subaddress.accountIndex);
-  if (subaddress.index != nullptr) subaddressNode.put("index", *subaddress.index);
-  if (subaddress.address != nullptr) subaddressNode.put("address", *subaddress.address);
-  if (subaddress.label != nullptr) subaddressNode.put("label", *subaddress.label);
-  if (subaddress.balance != nullptr) subaddressNode.put("balance", *subaddress.balance);
-  if (subaddress.unlockedBalance != nullptr) subaddressNode.put("unlockedBalance", *subaddress.unlockedBalance);
-  if (subaddress.numUnspentOutputs != nullptr) subaddressNode.put("numUnspentOutputs", *subaddress.numUnspentOutputs);
-  if (subaddress.isUsed != nullptr) subaddressNode.put("isUsed", *subaddress.isUsed);
-  if (subaddress.numBlocksToUnlock != nullptr) subaddressNode.put("numBlocksToUnlock", *subaddress.numBlocksToUnlock);
-  return subaddressNode;
-}
-
-void MoneroUtils::toModel(const boost::property_tree::ptree& node, MoneroTxWallet& tx) {
-  cout << "toModel(txWallet)" << endl;
-  for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
-    string key = it->first;
-    if (key == string("height")) {
-      cout << "Setting height!" << endl;
-      MoneroBlock block;
-      block.height = std::shared_ptr<uint64_t>(std::make_shared<uint64_t>((uint64_t) 7));
-      tx.block = std::shared_ptr<MoneroBlock>(std::make_shared<MoneroBlock>(block));
-    }
-  }
-}
-
-string MoneroUtils::serialize(const MoneroAccount& account) {
-  cout << "serialize(account)" << endl;
-
-  // build property tree from account
-  boost::property_tree::ptree accountNode;
-  //addNode(accountNode, string("index"), account.index);
-
-  // convert root to string
-  std::stringstream ss;
-  boost::property_tree::write_json(ss, accountNode, false);
-  return ss.str();
-}
-
-string MoneroUtils::serialize(const MoneroSubaddress& subaddress) {
-  cout << "serialize(subaddress)" << endl;
-  throw runtime_error("serialize(subaddress) not implemented");
-}
-
+//string MoneroUtils::serialize(const MoneroAccount& account) {
+//  cout << "serialize(account)" << endl;
+//
+//  // build property tree from account
+//  boost::property_tree::ptree accountNode;
+//  //addNode(accountNode, string("index"), account.index);
+//
+//  // convert root to string
+//  std::stringstream ss;
+//  boost::property_tree::write_json(ss, accountNode, false);
+//  return ss.str();
+//}
+//
+//string MoneroUtils::serialize(const MoneroSubaddress& subaddress) {
+//  cout << "serialize(subaddress)" << endl;
+//  throw runtime_error("serialize(subaddress) not implemented");
+//}
+//
 //string MoneroUtils::serialize(const MoneroBlock& block) {
 //  throw runtime_error("serialize(block) not implemented");
 //}
@@ -158,3 +113,35 @@ string MoneroUtils::serialize(const MoneroSubaddress& subaddress) {
 //void MoneroUtils::deserializeOutputWallet(const string& outputStr, MoneroOutputWallet& output) {
 //  throw runtime_error("deserializeOutputWallet(outputStr) not implemented");
 //}
+
+boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroAccount& account) {
+  cout << "toPropertyTree(account)" << endl;
+  boost::property_tree::ptree accountNode;
+  if (account.index != nullptr) accountNode.put("index", *account.index);
+  if (account.primaryAddress != nullptr) accountNode.put("primaryAddress", *account.primaryAddress);
+  if (account.balance != nullptr) accountNode.put("balance", *account.balance);
+  if (account.unlockedBalance != nullptr) accountNode.put("unlockedBalance", *account.unlockedBalance);
+  if (!account.subaddresses.empty()) {
+    boost::property_tree::ptree subaddressesNode;
+    for (const auto& subaddress : account.subaddresses) {
+      subaddressesNode.push_back(std::make_pair("", toPropertyTree(subaddress)));
+    }
+    accountNode.add_child("subaddresses", subaddressesNode);
+  }
+  return accountNode;
+}
+
+boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroSubaddress& subaddress) {
+  cout << "toPropertyTree(subaddress)" << endl;
+  boost::property_tree::ptree subaddressNode;
+  if (subaddress.accountIndex != nullptr) subaddressNode.put("accountIndcd ex", *subaddress.accountIndex);
+  if (subaddress.index != nullptr) subaddressNode.put("index", *subaddress.index);
+  if (subaddress.address != nullptr) subaddressNode.put("address", *subaddress.address);
+  if (subaddress.label != nullptr) subaddressNode.put("label", *subaddress.label);
+  if (subaddress.balance != nullptr) subaddressNode.put("balance", *subaddress.balance);
+  if (subaddress.unlockedBalance != nullptr) subaddressNode.put("unlockedBalance", *subaddress.unlockedBalance);
+  if (subaddress.numUnspentOutputs != nullptr) subaddressNode.put("numUnspentOutputs", *subaddress.numUnspentOutputs);
+  if (subaddress.isUsed != nullptr) subaddressNode.put("isUsed", *subaddress.isUsed);
+  if (subaddress.numBlocksToUnlock != nullptr) subaddressNode.put("numBlocksToUnlock", *subaddress.numBlocksToUnlock);
+  return subaddressNode;
+}
