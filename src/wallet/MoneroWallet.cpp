@@ -439,6 +439,13 @@ namespace monero {
 
   vector<MoneroTxWallet> MoneroWallet::getTxs(const MoneroTxRequest& request) const {
     cout << "getTxs(request)" << endl;
+
+    // print for debug
+    std::stringstream ss;
+    boost::property_tree::write_json(ss, MoneroUtils::txRequestToPropertyTree(txRequest), false);
+    string requestStr = ss.str();
+    cout << "Tx request: " << requestStr << endl;
+
     throw runtime_error("Not implemented");
   }
 
