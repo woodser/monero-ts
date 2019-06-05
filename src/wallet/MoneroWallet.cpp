@@ -1,4 +1,4 @@
-#include "MoneroWallet.h"
+#include "utils/MoneroUtils.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -442,7 +442,7 @@ namespace monero {
 
     // print for debug
     std::stringstream ss;
-    boost::property_tree::write_json(ss, MoneroUtils::txRequestToPropertyTree(txRequest), false);
+    boost::property_tree::write_json(ss, MoneroUtils::txRequestToPropertyTree(request), false);
     string requestStr = ss.str();
     cout << "Tx request: " << requestStr << endl;
 
