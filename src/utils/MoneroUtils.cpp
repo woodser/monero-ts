@@ -104,6 +104,19 @@ boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroSubaddress& 
   return subaddressNode;
 }
 
+void MoneroUtils::toModel(const boost::property_tree::ptree& node, MoneroTxWallet& tx) {
+  cout << "toModel(txWallet)" << endl;
+  for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
+    string key = it->first;
+    if (key == string("height")) {
+      cout << "Setting height!" << endl;
+      MoneroBlock block;
+      block.height = std::shared_ptr<uint64_t>(std::make_shared<uint64_t>((uint64_t) 7));
+      tx.block = std::shared_ptr<MoneroBlock>(std::make_shared<MoneroBlock>(block));
+    }
+  }
+}
+
 string MoneroUtils::serialize(const MoneroAccount& account) {
   cout << "serialize(account)" << endl;
 

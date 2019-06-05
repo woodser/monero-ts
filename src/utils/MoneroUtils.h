@@ -48,6 +48,8 @@ namespace MoneroUtils
 
   boost::property_tree::ptree toPropertyTree(const MoneroSubaddress& subaddress);
 
+  void toModel(const boost::property_tree::ptree& node, MoneroTxWallet& tx);
+
   template <class T> boost::property_tree::ptree toPropertyTree(const vector<T> types) {
     cout << "toPropertyTree(types)" << endl;
     boost::property_tree::ptree typeNodes;
