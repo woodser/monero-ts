@@ -151,7 +151,7 @@ boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroSubaddress& 
 boost::property_tree::ptree MoneroUtils::txToPropertyTree(const MoneroTx& tx) {
   cout << "txToPropertyTree(tx)" << endl;
   boost::property_tree::ptree txNode;
-  if (tx.block != nullptr) throw runtime_error("not implemented");
+  if (tx.block != nullptr) throw runtime_error("not implemented");  // this should be ignored since we only serialize down the tree
   if (tx.id != nullptr) txNode.put("id", *tx.id);
   if (tx.version != nullptr) txNode.put("version", *tx.version);
   if (tx.isCoinbase != nullptr) txNode.put("isCoinbase", *tx.isCoinbase);
