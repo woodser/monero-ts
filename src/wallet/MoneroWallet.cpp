@@ -446,6 +446,20 @@ namespace monero {
     string requestStr = ss.str();
     cout << "Tx request: " << requestStr << endl;
 
+    // build parameters to wallet2->get_payments()
+    uint64_t min_height = request.minHeight == nullptr ? 0 : *request.minHeight;
+    uint64_t max_height = request.maxHeight == nullptr ? CRYPTONOTE_MAX_BLOCK_NUMBER : min((uint64_t) 0, *request.maxHeight);
+    boost::optional<uint32_t> accountIndex = boost::none;
+    if (request.transferRequest != nullptr && request.transferRequest->accountIndex != nullptr) accountIndex = *(request.transferRequest->accountIndex);
+    std::set<uint32_t> subaddressIndices;
+    if (request.transferRequest != nullptr) {
+      for (int i = 0; i < request.transferRequest->subaddressIndices.size(); i++) {
+        subaddressIndices.insert(request.transferRequest->subaddressIndices[i]);
+      }
+    }
+
+
+
     throw runtime_error("Not implemented");
   }
 
