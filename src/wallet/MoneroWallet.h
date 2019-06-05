@@ -688,25 +688,25 @@ namespace monero {
 //     * @return transfers to/from the subaddress
 //     */
 //    public List<MoneroTransfer> getTransfers(int accountIdx, int subaddressIdx);
-//
-//    /**
-//     * Get incoming and outgoing transfers to and from this wallet.  An outgoing
-//     * transfer represents a total amount sent from one or more subaddresses
-//     * within an account to individual destination addresses, each with their
-//     * own amount.  An incoming transfer represents a total amount received into
-//     * a subaddress within an account.  Transfers belong to transactions which
-//     * are stored on the blockchain.
-//     *
-//     * Query results can be filtered by passing in a MoneroTransferRequest.
-//     * Transfers must meet every criteria defined in the request in order to be
-//     * returned.  All filtering is optional and no filtering is applied when not
-//     * defined.
-//     *
-//     * @param request filters query results (optional)
-//     * @return wallet transfers per the request
-//     */
-//    public List<MoneroTransfer> getTransfers(MoneroTransferRequest request);
-//
+
+    /**
+     * Get incoming and outgoing transfers to and from this wallet.  An outgoing
+     * transfer represents a total amount sent from one or more subaddresses
+     * within an account to individual destination addresses, each with their
+     * own amount.  An incoming transfer represents a total amount received into
+     * a subaddress within an account.  Transfers belong to transactions which
+     * are stored on the blockchain.
+     *
+     * Query results can be filtered by passing in a MoneroTransferRequest.
+     * Transfers must meet every criteria defined in the request in order to be
+     * returned.  All filtering is optional and no filtering is applied when not
+     * defined.
+     *
+     * @param request filters query results (optional)
+     * @return wallet transfers per the request
+     */
+    vector<MoneroTransfer> getTransfers(const MoneroTransferRequest& request) const;
+
 //    /**
 //     * Get outputs created from previous transactions that belong to the wallet
 //     * (i.e. that the wallet can spend one time).  Outputs are part of
@@ -715,20 +715,20 @@ namespace monero {
 //     * @return List<MoneroOutputWallet> are all wallet outputs
 //     */
 //    public List<MoneroOutputWallet> getOutputs();
-//
-//    /**
-//     * Get outputs created from previous transactions that belong to the wallet
-//     * (i.e. that the wallet can spend one time).  Outputs are part of
-//     * transactions which are stored in blocks on the blockchain.
-//     *
-//     * Results can be configured by passing a MoneroOutputRequest.  Outputs must
-//     * meet every criteria defined in the request in order to be returned.  All
-//     * filtering is optional and no filtering is applied when not defined.
-//     *
-//     * @param request specifies request options (optional)
-//     * @return List<MoneroOutputWallet> are wallet outputs per the request
-//     */
-//    public List<MoneroOutputWallet> getOutputs(MoneroOutputRequest request);
+
+    /**
+     * Get outputs created from previous transactions that belong to the wallet
+     * (i.e. that the wallet can spend one time).  Outputs are part of
+     * transactions which are stored in blocks on the blockchain.
+     *
+     * Results can be configured by passing a MoneroOutputRequest.  Outputs must
+     * meet every criteria defined in the request in order to be returned.  All
+     * filtering is optional and no filtering is applied when not defined.
+     *
+     * @param request specifies request options (optional)
+     * @return List<MoneroOutputWallet> are wallet outputs per the request
+     */
+    vector<MoneroOutputWallet> getOutputs(const MoneroOutputRequest& request) const;
 //
 //    /**
 //     * Get all signed key images.

@@ -12,6 +12,19 @@ using namespace cryptonote;
  */
 namespace monero {
 
+  // ---------------------------- PRIVATE HELPERS -----------------------------
+
+  bool boolEquals(bool val, shared_ptr<bool> ptr) {
+    return ptr == nullptr ? false : val == *ptr;
+  }
+
+  MoneroTransfer wallet2ToTransfer(const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) {
+    cout << "wallet2ToTransfer(3)" << endl;
+    throw runtime_error("not implemented");
+  }
+
+  // ----------------------------- WALLET LISTENER ----------------------------
+
   /**
    * Listens to wallet2 notifications in order to facilitate external wallet notifications.
    */
@@ -446,20 +459,79 @@ namespace monero {
     string requestStr = ss.str();
     cout << "Tx request: " << requestStr << endl;
 
-    // build parameters to wallet2->get_payments()
-    uint64_t min_height = request.minHeight == nullptr ? 0 : *request.minHeight;
-    uint64_t max_height = request.maxHeight == nullptr ? CRYPTONOTE_MAX_BLOCK_NUMBER : min((uint64_t) 0, *request.maxHeight);
+
+
+
+
+
+    throw runtime_error("getTxs() not implemented");
+  }
+
+  vector<MoneroTransfer> MoneroWallet::getTransfers(const MoneroTransferRequest& request) const {
+    cout << "getTransfers(request)" << endl;
+
+    // normalize transfer request
+    if (request.txRequest == nullptr) request.txRequest = shared_ptr<MoneroTxRequest>(make_shared<MoneroTxRequest>(MoneroTxRequest()));
+    MoneroTxRequest& txReq = *request.txRequest;
+
+    // build parameters for wallet2->get_payments()
+    uint64_t minHeight = txReq.minHeight == nullptr ? 0 : *txReq.minHeight;
+    uint64_t maxHeight = txReq.maxHeight == nullptr ? CRYPTONOTE_MAX_BLOCK_NUMBER : min((uint64_t) CRYPTONOTE_MAX_BLOCK_NUMBER, *txReq.maxHeight);
     boost::optional<uint32_t> accountIndex = boost::none;
-    if (request.transferRequest != nullptr && request.transferRequest->accountIndex != nullptr) accountIndex = *(request.transferRequest->accountIndex);
+    if (request.accountIndex != nullptr) accountIndex = *request.accountIndex;
     std::set<uint32_t> subaddressIndices;
-    if (request.transferRequest != nullptr) {
-      for (int i = 0; i < request.transferRequest->subaddressIndices.size(); i++) {
-        subaddressIndices.insert(request.transferRequest->subaddressIndices[i]);
+    for (int i = 0; i < request.subaddressIndices.size(); i++) {
+      subaddressIndices.insert(request.subaddressIndices[i]);
+    }
+
+    // TODO: txReq does not have field height because block has height; used accessor in Java
+    // TODO: transferReq does not have field isOutgoing because isIncoming is sufficient , but then need bool logic on isOutgoing
+
+    // translate from MoneroTxRequest to in, out, pending, pool, failed terminology
+    bool canBeConfirmed = !boolEquals(false, txReq.isConfirmed) && !boolEquals(true, txReq.inTxPool) && !boolEquals(true, txReq.isFailed) && !boolEquals(false, txReq.isRelayed);
+    bool canBeInTxPool = !boolEquals(true, txReq.isConfirmed) && !boolEquals(false, txReq.inTxPool) && !boolEquals(true, txReq.isFailed) && !boolEquals(false, txReq.isRelayed) && txReq.height == nullptr && txReq.minHeight == nullptr;
+    bool canBeIncoming = !boolEquals(false, request.isIncoming) && !boolEquals(true, request.isOutgoing) && !boolEquals(true, request.hasDestinations);
+    bool canBeOutgoing = !boolEquals(false, request.isOutgoing) && !boolEquals(true, request.isIncoming);
+    bool isIn = canBeIncoming && canBeConfirmed;
+    bool isOut = canBeOutgoing && canBeConfirmed;
+    bool isPending = canBeOutgoing && canBeInTxPool;
+    bool isPool = canBeIncoming && canBeInTxPool;
+    bool isFailed = !boolEquals(false, txReq.isFailed) && !boolEquals(true, txReq.isConfirmed) && !boolEquals(true, txReq.inTxPool);
+
+    // TODO: this duplicates common transfer txs
+
+    // collect transfers
+    vector<MoneroTransfer> transfers;
+
+    // get confirmed incoming transfers
+    if (isIn) {
+      std::list<std::pair<crypto::hash, tools::wallet2::payment_details>> payments;
+      wallet2->get_payments(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
+      for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
+        transfers.push_back(wallet2ToTransfer(i->second.m_tx_hash, i->first, i->second));
       }
     }
 
+    // get confirmed outgoing transfers
+    if (isOut) {
+      throw runtime_error("Not implemented");
+    }
 
+    // get unconfirmed outgoing transfers
+    if (isPending || isFailed) {
+      throw runtime_error("Not implemented");
+    }
 
+    // get unconfirmed incoming transfers
+    if (isPool) {
+      throw runtime_error("Not implemented");
+    }
+
+    return transfers;
+  }
+
+  vector<MoneroOutputWallet> MoneroWallet::getOutputs(const MoneroOutputRequest& request) const {
+    cout << "getOutputs(request)" << endl;
     throw runtime_error("Not implemented");
   }
 
