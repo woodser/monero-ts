@@ -134,7 +134,7 @@ boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroAccount& acc
 boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroSubaddress& subaddress) {
   cout << "toPropertyTree(subaddress)" << endl;
   boost::property_tree::ptree subaddressNode;
-  if (subaddress.accountIndex != nullptr) subaddressNode.put("accountIndcd ex", *subaddress.accountIndex);
+  if (subaddress.accountIndex != nullptr) subaddressNode.put("accountIndex", *subaddress.accountIndex);
   if (subaddress.index != nullptr) subaddressNode.put("index", *subaddress.index);
   if (subaddress.address != nullptr) subaddressNode.put("address", *subaddress.address);
   if (subaddress.label != nullptr) subaddressNode.put("label", *subaddress.label);
