@@ -70,6 +70,8 @@ namespace MoneroUtils
 
   boost::property_tree::ptree txWalletToPropertyTree(const MoneroTxWallet& tx);
 
+  boost::property_tree::ptree txRequestToPropertyTree(const MoneroTxRequest& tx);
+
   //  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
   template <class T> boost::property_tree::ptree toPropertyTree(const vector<T> types) {
     cout << "toPropertyTree(types)" << endl;
