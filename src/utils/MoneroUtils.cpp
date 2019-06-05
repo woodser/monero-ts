@@ -91,7 +91,17 @@ boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroAccount& acc
 
 boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroSubaddress& subaddress) {
   cout << "toPropertyTree(subaddress)" << endl;
-  throw runtime_error("Not implemented");
+  boost::property_tree::ptree subaddressNode;
+  if (subaddress.accountIndex != nullptr) subaddressNode.put("accountIndex", *subaddress.accountIndex);
+  if (subaddress.index != nullptr) subaddressNode.put("index", *subaddress.index);
+  if (subaddress.address != nullptr) subaddressNode.put("address", *subaddress.address);
+  if (subaddress.label != nullptr) subaddressNode.put("label", *subaddress.label);
+  if (subaddress.balance != nullptr) subaddressNode.put("balance", *subaddress.balance);
+  if (subaddress.unlockedBalance != nullptr) subaddressNode.put("unlockedBalance", *subaddress.unlockedBalance);
+  if (subaddress.numUnspentOutputs != nullptr) subaddressNode.put("numUnspentOutputs", *subaddress.numUnspentOutputs);
+  if (subaddress.isUsed != nullptr) subaddressNode.put("isUsed", *subaddress.isUsed);
+  if (subaddress.numBlocksToUnlock != nullptr) subaddressNode.put("numBlocksToUnlock", *subaddress.numBlocksToUnlock);
+  return subaddressNode;
 }
 
 string MoneroUtils::serialize(const MoneroAccount& account) {
