@@ -27,15 +27,15 @@ namespace monero {
    * Models a Monero subaddress.
    */
   struct MoneroSubaddress {
-    shared_ptr<uint32_t> accountIndex;
-    shared_ptr<uint32_t> index;
-    shared_ptr<string> address;
-    shared_ptr<string> label;
-    shared_ptr<uint64_t> balance;
-    shared_ptr<uint64_t> unlockedBalance;
-    shared_ptr<uint32_t> numUnspentOutputs;
-    shared_ptr<bool> isUsed;
-    shared_ptr<uint32_t> numBlocksToUnlock;
+    boost::optional<uint32_t> accountIndex;
+    boost::optional<uint32_t> index;
+    boost::optional<string> address;
+    boost::optional<string> label;
+    boost::optional<uint64_t> balance;
+    boost::optional<uint64_t> unlockedBalance;
+    boost::optional<uint32_t> numUnspentOutputs;
+    boost::optional<bool> isUsed;
+    boost::optional<uint32_t> numBlocksToUnlock;
 //    BEGIN_KV_SERIALIZE_MAP()
 //      KV_SERIALIZE_OPT_N(accountIndex, "accountIndex", nullptr)
 //      KV_SERIALIZE_OPT_N(index, "index", nullptr)
@@ -53,12 +53,12 @@ namespace monero {
    * Models a Monero account.
    */
   struct MoneroAccount {
-    shared_ptr<uint32_t> index = nullptr;
-    shared_ptr<string> primaryAddress = nullptr;
-    shared_ptr<string> label;
-    shared_ptr<uint64_t> balance;
-    shared_ptr<uint64_t> unlockedBalance;
-    shared_ptr<string> tag;
+    boost::optional<uint32_t> index;
+    boost::optional<string> primaryAddress;
+    boost::optional<string> label;
+    boost::optional<uint64_t> balance;
+    boost::optional<uint64_t> unlockedBalance;
+    boost::optional<string> tag;
     vector<MoneroSubaddress> subaddresses;
 //    BEGIN_KV_SERIALIZE_MAP()
 //      KV_SERIALIZE_OPT_N(index, "index", nullptr)
@@ -79,8 +79,8 @@ namespace monero {
    * Models an outgoing transfer destination.
    */
   struct MoneroDestination {
-    shared_ptr<string> address;
-    shared_ptr<uint64_t> amount;
+    boost::optional<string> address;
+    boost::optional<uint64_t> amount;
   };
 
   /**
@@ -88,17 +88,17 @@ namespace monero {
    */
   struct MoneroTransfer {
     shared_ptr<MoneroTxWallet> tx;
-    shared_ptr<uint64_t> amount;
-    shared_ptr<uint32_t> accountIndex;
-    shared_ptr<bool> isIncoming;
+    boost::optional<uint64_t> amount;
+    boost::optional<uint32_t> accountIndex;
+    boost::optional<bool> isIncoming;
   };
 
   /**
    * Models an incoming transfer of funds to the wallet.
    */
   struct MoneroIncomingTransfer : public MoneroTransfer {
-    shared_ptr<uint32_t> subaddressIndex;
-    shared_ptr<string> address;
+    boost::optional<uint32_t> subaddressIndex;
+    boost::optional<string> address;
   };
 
   /**
@@ -114,11 +114,11 @@ namespace monero {
    * Models a Monero output with wallet extensions.
    */
   struct MoneroOutputWallet : public MoneroOutput {
-    shared_ptr<uint32_t> accountIndex;
-    shared_ptr<uint32_t> subaddressIndex;
-    shared_ptr<bool> isSpent;
-    shared_ptr<bool> isUnlocked;
-    shared_ptr<bool> isFrozen;
+    boost::optional<uint32_t> accountIndex;
+    boost::optional<uint32_t> subaddressIndex;
+    boost::optional<bool> isSpent;
+    boost::optional<bool> isUnlocked;
+    boost::optional<bool> isFrozen;
   };
 
   /**
@@ -127,9 +127,9 @@ namespace monero {
   struct MoneroTxWallet : public MoneroTx {
     vector<MoneroOutputWallet> vouts;  // TODO: override vouts with different type?
     vector<MoneroIncomingTransfer> incomingTransfers;
-    shared_ptr<MoneroOutgoingTransfer> outgoingTransfer;
-    shared_ptr<uint32_t> numSuggestedConfirmations;
-    shared_ptr<string> note;
+    boost::optional<MoneroOutgoingTransfer> outgoingTransfer;
+    boost::optional<uint32_t> numSuggestedConfirmations;
+    boost::optional<string> note;
   };
 
   /**
@@ -138,14 +138,14 @@ namespace monero {
    * All transfers are returned except those that do not meet the criteria defined in this request.
    */
   struct MoneroTransferRequest : public MoneroTransfer {
-    shared_ptr<bool> isIncoming;
-    shared_ptr<string> address;
+    boost::optional<bool> isIncoming;
+    boost::optional<string> address;
     vector<string> addresses;
-    shared_ptr<uint32_t> subaddressIndex;
+    boost::optional<uint32_t> subaddressIndex;
     vector<uint32_t> subaddressIndices;
     vector<MoneroDestination> destinations;
-    shared_ptr<bool> hasDestinations;
-    shared_ptr<MoneroTxRequest> txRequest;
+    boost::optional<bool> hasDestinations;
+    boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
   };
 
   /**
@@ -154,15 +154,15 @@ namespace monero {
    * All transactions are returned except those that do not meet the criteria defined in this request.
    */
   struct MoneroTxRequest : public MoneroTxWallet {
-    shared_ptr<bool> isOutgoing;
-    shared_ptr<bool> isIncoming;
+    boost::optional<bool> isOutgoing;
+    boost::optional<bool> isIncoming;
     vector<string> txIds;
-    shared_ptr<bool> hasPaymentId;
+    boost::optional<bool> hasPaymentId;
     vector<string> paymentIds;
-    shared_ptr<uint64_t> minHeight;
-    shared_ptr<uint64_t> maxHeight;
-    shared_ptr<uint64_t> includeOutputs;
-    shared_ptr<MoneroTransferRequest> transferRequest;
+    boost::optional<uint64_t> minHeight;
+    boost::optional<uint64_t> maxHeight;
+    boost::optional<uint64_t> includeOutputs;
+    boost::optional<MoneroTransferRequest> transferRequest;
   };
 
   /**
@@ -173,7 +173,7 @@ namespace monero {
    */
   struct MoneroOutputRequest : public MoneroOutput {
     vector<uint32_t> subaddressIndices;
-    shared_ptr<MoneroTxRequest> txRequest;
+    boost::optional<MoneroTxRequest> txRequest;
   };
 
   // --------------------------------- LISTENERS ------------------------------
@@ -212,6 +212,8 @@ namespace monero {
 
     /**
      * Invoked when sync progress is made.
+     *
+     * TODO: const uint64_t& startHeight, etc...?
      *
      * @param startHeight is the starting height of the sync request
      * @param numBlocksDone is the number of blocks synced
@@ -421,7 +423,7 @@ namespace monero {
 //     */
 //    virtual MoneroIntegratedAddress decodeIntegratedAddress(const string& integratedAddress = "") const;
 
-    void setListener(MoneroWalletListener* listener);
+    void setListener(boost::optional<MoneroWalletListener&> listener);
 
     MoneroSyncResult sync();
 
@@ -533,7 +535,7 @@ namespace monero {
      * @param tag is the tag for filtering accounts, all accounts if null
      * @return List<MoneroAccount> are all accounts for the wallet with the given tag
      */
-    vector<MoneroAccount> getAccounts(const string tag) const;
+    vector<MoneroAccount> getAccounts(const string& tag) const;
 
     /**
      * Get accounts with a given tag.
@@ -542,7 +544,7 @@ namespace monero {
      * @param tag is the tag for filtering accounts, all accounts if null
      * @return List<MoneroAccount> are all accounts for the wallet with the given tag
      */
-    vector<MoneroAccount> getAccounts(const bool includeSubaddresses, const string tag) const;
+    vector<MoneroAccount> getAccounts(const bool includeSubaddresses, const string& tag) const;
 
     /**
      * Get an account without subaddress information.
@@ -564,10 +566,17 @@ namespace monero {
     /**
      * Create a new account.
      *
+     * @return the created account
+     */
+    MoneroAccount createAccount();
+
+    /**
+     * Create a new account.
+     *
      * @param label specifies the label for the account (optional)
      * @return the created account
      */
-    MoneroAccount createAccount(const string label = "");
+    MoneroAccount createAccount(const string& label);
 
     /**
      * Get all subaddresses in an account.
@@ -599,10 +608,18 @@ namespace monero {
      * Create a subaddress within an account.
      *
      * @param accountIdx specifies the index of the account to create the subaddress within
-     * @param label specifies the the label for the subaddress (optional)
      * @return the created subaddress
      */
-    MoneroSubaddress createSubaddress(uint32_t accountIdx, const string label = "");
+    MoneroSubaddress createSubaddress(uint32_t accountIdx);
+
+    /**
+     * Create a subaddress within an account.
+     *
+     * @param accountIdx specifies the index of the account to create the subaddress within
+     * @param label specifies the the label for the subaddress
+     * @return the created subaddress
+     */
+    MoneroSubaddress createSubaddress(uint32_t accountIdx, const string& label);
 
 //    /**
 //     * Get a wallet transaction by id.
@@ -1221,11 +1238,11 @@ namespace monero {
 
   private:
     friend struct Wallet2Listener;
-    shared_ptr<tools::wallet2> wallet2;		// internal wallet implementation
-    unique_ptr<Wallet2Listener> wallet2Listener;	// listener for internal wallet implementation
-    MoneroWalletListener* listener;			// wallet's external listener
+    unique_ptr<tools::wallet2> wallet2;               // internal wallet implementation
+    unique_ptr<Wallet2Listener> wallet2Listener;	    // listener for internal wallet implementation
+    boost::optional<MoneroWalletListener&> listener = boost::none;  // wallet's external listener
 
-    MoneroSyncResult syncAux(uint64_t* startHeight, uint64_t* endHeight, MoneroSyncListener* listener);
+    MoneroSyncResult syncAux(boost::optional<uint64_t> startHeight, boost::optional<uint64_t> endHeight, boost::optional<MoneroSyncListener&> listener);
     vector<MoneroSubaddress> getSubaddressesAux(uint32_t accountIdx, vector<uint32_t> subaddressIndices, vector<tools::wallet2::transfer_details> transfers) const;
   };
 }

@@ -14,8 +14,8 @@ namespace monero {
 
   // ---------------------------- PRIVATE HELPERS -----------------------------
 
-  bool boolEquals(bool val, shared_ptr<bool> ptr) {
-    return ptr == nullptr ? false : val == *ptr;
+  bool boolEquals(bool val, boost::optional<bool> optVal) {
+    return optVal == boost::none ? false : val == *optVal;
   }
 
   MoneroTransfer wallet2ToTransfer(const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) {
@@ -32,30 +32,26 @@ namespace monero {
 
   public:
 
-    Wallet2Listener(MoneroWallet* wallet, shared_ptr<tools::wallet2> wallet2) {
-      this->wallet = wallet;
-      this->wallet2 = wallet2;
-      this->listener = nullptr;
-      this->syncStartHeight = nullptr;
-      this->syncEndHeight = nullptr;
-      this->syncListener = nullptr;
+    Wallet2Listener(MoneroWallet& wallet, tools::wallet2& wallet2) : wallet(wallet), wallet2(wallet2) {
+      this->listener = boost::none;
+      this->syncStartHeight = boost::none;
+      this->syncEndHeight = boost::none;
+      this->syncListener = boost::none;
     }
 
     ~Wallet2Listener() {
       cout << "~Wallet2Listener()" << endl;
-      delete syncStartHeight;
-      delete syncEndHeight;
     }
 
-    void setWalletListener(MoneroWalletListener* listener) {
+    void setWalletListener(boost::optional<MoneroWalletListener&> listener) {
       this->listener = listener;
       updateListening();
     }
 
-    void onSyncStart(uint64_t startHeight, MoneroSyncListener* syncListener) {
-      if (syncStartHeight != nullptr || syncEndHeight != nullptr) throw runtime_error("Sync start or end height should not already be allocated");
-      syncStartHeight = new uint64_t(startHeight);
-      syncEndHeight = new uint64_t(wallet->getChainHeight() - 1);
+    void onSyncStart(uint64_t startHeight, boost::optional<MoneroSyncListener&> syncListener) {
+      if (syncStartHeight != boost::none || syncEndHeight != boost::none) throw runtime_error("Sync start or end height should not already be allocated, is previous sync in progress?");
+      syncStartHeight = startHeight;
+      syncEndHeight = wallet.getChainHeight() - 1;
       this->syncListener = syncListener;
       updateListening();
 
@@ -65,50 +61,48 @@ namespace monero {
       if (numBlocksTotal < 1) return;	// don't report 0% progress if no subsequent progress to report
       double percentDone = numBlocksDone / (double) numBlocksTotal;
       string message = string("Synchronizing");
-      if (listener != nullptr) listener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
-      if (syncListener != nullptr) syncListener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
+      if (listener != boost::none) listener.get().onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
+      if (syncListener != boost::none) syncListener.get().onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
     }
 
     void onSyncEnd() {
-      delete syncStartHeight;
-      syncStartHeight = nullptr;
-      delete syncEndHeight;
-      syncEndHeight = nullptr;
-      syncListener = nullptr;
+      syncStartHeight = boost::none;
+      syncEndHeight = boost::none;
+      syncListener = boost::none;
       updateListening();
     }
 
     virtual void on_new_block(uint64_t height, const cryptonote::block& cnBlock) {
 
       // notify listener of block
-      if (this->listener != nullptr) {
+      if (listener != boost::none) {
         MoneroBlock block;
-        block.height = shared_ptr<uint64_t>(make_shared<uint64_t>(height));
-        listener->onNewBlock(block);
+        block.height = height;
+        listener.get().onNewBlock(block);
       }
 
       // notify listeners of sync progress
-      if (syncStartHeight != nullptr && height > *syncStartHeight) {
+      if (syncStartHeight != boost::none && height > *syncStartHeight) {
       if (height > *syncEndHeight) *syncEndHeight = height;	// increase end height if necessary
       uint64_t numBlocksDone = height - *syncStartHeight + 1;
       uint64_t numBlocksTotal = *syncEndHeight - *syncStartHeight + 1;
       double percentDone = numBlocksDone / (double) numBlocksTotal;
       string message = string("Synchronizing");
-      if (this->listener != nullptr) this->listener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
-      if (this->syncListener != nullptr) this->syncListener->onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
+      if (listener != boost::none) listener.get().onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
+      if (syncListener != boost::none) syncListener.get().onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
       }
     }
 
   private:
-    MoneroWallet* wallet;
-    shared_ptr<tools::wallet2> wallet2;
-    MoneroWalletListener* listener;
-    uint64_t* syncStartHeight;
-    uint64_t* syncEndHeight;
-    MoneroSyncListener* syncListener;
+    MoneroWallet& wallet;     // wallet to inform notifications
+    tools::wallet2& wallet2;  // internal wallet implementation to listen to
+    boost::optional<MoneroWalletListener&> listener; // listener to invoke with notifications
+    boost::optional<uint64_t> syncStartHeight;
+    boost::optional<uint64_t> syncEndHeight;
+    boost::optional<MoneroSyncListener&> syncListener;
 
     void updateListening() {
-      wallet2->callback(listener == nullptr && syncListener == nullptr ? nullptr : this);
+      wallet2.callback(listener == boost::none && syncListener == boost::none ? nullptr : this);
     }
   };
 
@@ -122,19 +116,19 @@ namespace monero {
     return walletFileExists;
   }
 
-  MoneroWallet::MoneroWallet(const string& path, const string&password) {
+  MoneroWallet::MoneroWallet(const string& path, const string& password) {
     cout << "MoneroWallet()" << endl;
     throw runtime_error("Not implemented");
   }
 
   MoneroWallet::MoneroWallet(const string& path, const string&password, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, const string& language) {
     cout << "MoneroWallet(3)" << endl;
-    wallet2 = shared_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
+    wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
     setDaemonConnection(daemonConnection.uri, daemonConnection.username, daemonConnection.password);
     wallet2->set_seed_language(language);
     crypto::secret_key recovery_val, secret_key;
     wallet2->generate(path, password, secret_key, false, false);
-    wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(this, wallet2));
+    wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(*this, *wallet2));
   }
 
   MoneroWallet::MoneroWallet(const string& path, const string& password, const string& mnemonic, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight) {
@@ -147,11 +141,11 @@ namespace monero {
     if (language == crypto::ElectrumWords::old_language_name) language = Language::English().get_language_name();
 
     // initialize wallet
-    wallet2 = shared_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(networkType), 1, true));
+    wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(networkType), 1, true));
     wallet2->set_seed_language(language);
     wallet2->generate(path, password, recoveryKey, true, false);
     wallet2->set_refresh_from_block_height(restoreHeight);
-    wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(this, wallet2));
+    wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(*this, *wallet2));
 
     // print the mnemonic
     epee::wipeable_string fetchedMnemonic;
@@ -166,9 +160,9 @@ namespace monero {
 
   MoneroWallet::MoneroWallet(const string& path, const string& password, const MoneroNetworkType networkType) {
     cout << "MoneroWallet(3b)" << endl;
-    wallet2 = shared_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
+    wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
     wallet2->load(path, password);
-    wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(this, wallet2));
+    wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(*this, *wallet2));
   }
 
   MoneroWallet::~MoneroWallet() {
@@ -177,6 +171,7 @@ namespace monero {
   }
 
   // TODO: switch this to setDaemonConnection(MoneroDaemonRpc& daemonConnection)
+  // TODO: actually setDaemonConnection(boost::optional<MoneroRpcConnection>& connection)
   void MoneroWallet::setDaemonConnection(const string& uri, const string& username, const string& password) {
     cout << "setDaemonConnection(" << uri << ", " << username << ", " << password << ")" << endl;
 
@@ -237,8 +232,8 @@ namespace monero {
     // return indices in subaddress
     MoneroSubaddress subaddress;
     cryptonote::subaddress_index cnIndex = *index;
-    subaddress.accountIndex = shared_ptr<uint32_t>(make_shared<uint32_t>(cnIndex.major));
-    subaddress.index = shared_ptr<uint32_t>(make_shared<uint32_t>(cnIndex.minor));
+    subaddress.accountIndex = cnIndex.major;
+    subaddress.index = cnIndex.minor;
     return subaddress;
   }
 
@@ -248,29 +243,29 @@ namespace monero {
     return string(wipeablePassword.data(), wipeablePassword.size());
   }
 
-  void MoneroWallet::setListener(MoneroWalletListener* listener) {
+  void MoneroWallet::setListener(boost::optional<MoneroWalletListener&> listener) {
     cout << "setListener()" << endl;
     wallet2Listener->setWalletListener(listener);
   }
 
   MoneroSyncResult MoneroWallet::sync() {
     cout << "sync()" << endl;
-    return syncAux(nullptr, nullptr, nullptr);
+    return syncAux(boost::none, boost::none, boost::none);
   }
 
   MoneroSyncResult MoneroWallet::sync(MoneroSyncListener& listener) {
     cout << "sync(startHeight)" << endl;
-    return syncAux(nullptr, nullptr, &listener);
+    return syncAux(boost::none, boost::none, listener);
   }
 
   MoneroSyncResult MoneroWallet::sync(uint64_t startHeight) {
     cout << "sync(startHeight)" << endl;
-    return syncAux(&startHeight, nullptr, nullptr);
+    return syncAux(startHeight, boost::none, boost::none);
   }
 
   MoneroSyncResult MoneroWallet::sync(uint64_t startHeight, MoneroSyncListener& listener) {
     cout << "sync(startHeight, listener)" << endl;
-    return syncAux(&startHeight, nullptr, &listener);
+    return syncAux(startHeight, boost::none, listener);
   }
 
   // rescanBlockchain
@@ -330,12 +325,12 @@ namespace monero {
     throw runtime_error("Not implemented");
   }
 
-  vector<MoneroAccount> MoneroWallet::getAccounts(const string tag) const {
+  vector<MoneroAccount> MoneroWallet::getAccounts(const string& tag) const {
     cout << "getAccounts(" << tag << ")" << endl;
     throw runtime_error("Not implemented");
   }
 
-  vector<MoneroAccount> MoneroWallet::getAccounts(const bool includeSubaddresses, const string tag) const {
+  vector<MoneroAccount> MoneroWallet::getAccounts(const bool includeSubaddresses, const string& tag) const {
     cout << "getAccounts(" << includeSubaddresses << ", " << tag << ")" << endl;
 
     // need transfers to inform if subaddresses used
@@ -346,10 +341,10 @@ namespace monero {
     vector<MoneroAccount> accounts;
     for (uint32_t accountIdx = 0; accountIdx < wallet2->get_num_subaddress_accounts(); accountIdx++) {
       MoneroAccount account;
-      account.index = shared_ptr<uint32_t>(make_shared<uint32_t>(accountIdx));
-      account.primaryAddress = shared_ptr<string>(make_shared<string>(getAddress(accountIdx, 0)));
-      account.balance = shared_ptr<uint64_t>(make_shared<uint64_t>(wallet2->balance(accountIdx)));
-      account.unlockedBalance = shared_ptr<uint64_t>(make_shared<uint64_t>(wallet2->unlocked_balance(accountIdx)));
+      account.index = accountIdx;
+      account.primaryAddress = getAddress(accountIdx, 0);
+      account.balance = wallet2->balance(accountIdx);
+      account.unlockedBalance = wallet2->unlocked_balance(accountIdx);
       if (includeSubaddresses) account.subaddresses = getSubaddressesAux(accountIdx, vector<uint32_t>(), transfers);
       accounts.push_back(account);
     }
@@ -370,15 +365,19 @@ namespace monero {
 
     // build and return account
     MoneroAccount account;
-    account.index = shared_ptr<uint32_t>(make_shared<uint32_t>(accountIdx));
-    account.primaryAddress = shared_ptr<string>(make_shared<string>(getAddress(accountIdx, 0)));
-    account.balance = shared_ptr<uint64_t>(make_shared<uint64_t>(wallet2->balance(accountIdx)));
-    account.unlockedBalance = shared_ptr<uint64_t>(make_shared<uint64_t>(wallet2->unlocked_balance(accountIdx)));
+    account.index = accountIdx;
+    account.primaryAddress = getAddress(accountIdx, 0);
+    account.balance = wallet2->balance(accountIdx);
+    account.unlockedBalance = wallet2->unlocked_balance(accountIdx);
     if (includeSubaddresses) account.subaddresses = getSubaddressesAux(accountIdx, vector<uint32_t>(), transfers);
     return account;
   }
 
-  MoneroAccount MoneroWallet::createAccount(const string label) {
+  MoneroAccount MoneroWallet::createAccount() {
+    throw runtime_error("Not implemented");
+  }
+
+  MoneroAccount MoneroWallet::createAccount(const string& label) {
     throw runtime_error("Not implemented");
   }
 
@@ -418,18 +417,18 @@ namespace monero {
     // initialize subaddresses at indices
     for (uint32_t subaddressIndicesIdx = 0; subaddressIndicesIdx < subaddressIndices.size(); subaddressIndicesIdx++) {
       MoneroSubaddress subaddress;
-      subaddress.accountIndex = shared_ptr<uint32_t>(make_shared<uint32_t>(accountIdx));
+      subaddress.accountIndex = accountIdx;
       uint32_t subaddressIdx = subaddressIndices.at(subaddressIndicesIdx);
-      subaddress.index = shared_ptr<uint32_t>(make_shared<uint32_t>(subaddressIdx));
-      subaddress.address = shared_ptr<string>(make_shared<string>(getAddress(accountIdx, subaddressIdx)));
+      subaddress.index = subaddressIdx;
+      subaddress.address = getAddress(accountIdx, subaddressIdx);
       auto iter1 = balancePerSubaddress.find(subaddressIdx);
-      subaddress.balance = shared_ptr<uint64_t>(make_shared<uint64_t>(iter1 == balancePerSubaddress.end() ? 0 : iter1->second));
+      subaddress.balance = iter1 == balancePerSubaddress.end() ? 0 : iter1->second;
       auto iter2 = unlockedBalancePerSubaddress.find(subaddressIdx);
-      subaddress.unlockedBalance = shared_ptr<uint64_t>(make_shared<uint64_t>(iter2 == unlockedBalancePerSubaddress.end() ? 0 : iter2->second.first));
-      subaddress.numBlocksToUnlock = shared_ptr<uint32_t>(make_shared<uint32_t>(iter2 == unlockedBalancePerSubaddress.end() ? 0 : iter2->second.second));
+      subaddress.unlockedBalance = iter2 == unlockedBalancePerSubaddress.end() ? 0 : iter2->second.first;
+      subaddress.numBlocksToUnlock = iter2 == unlockedBalancePerSubaddress.end() ? 0 : iter2->second.second;
       cryptonote::subaddress_index index = {accountIdx, subaddressIdx};
-      subaddress.numUnspentOutputs = shared_ptr<uint32_t>(make_shared<uint32_t>(count_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return !td.m_spent && td.m_subaddr_index == index; })));
-      subaddress.isUsed = shared_ptr<bool>(make_shared<bool>(find_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return td.m_subaddr_index == index; }) != transfers.end()));
+      subaddress.numUnspentOutputs = count_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return !td.m_spent && td.m_subaddr_index == index; });
+      subaddress.isUsed = find_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return td.m_subaddr_index == index; }) != transfers.end();
       subaddresses.push_back(subaddress);
     }
 
@@ -440,7 +439,11 @@ namespace monero {
     throw runtime_error("Not implemented");
   }
 
-  MoneroSubaddress MoneroWallet::createSubaddress(const uint32_t accountIdx, const string label) {
+  MoneroSubaddress MoneroWallet::createSubaddress(const uint32_t accountIdx) {
+    throw runtime_error("Not implemented");
+  }
+
+  MoneroSubaddress MoneroWallet::createSubaddress(const uint32_t accountIdx, const string& label) {
     throw runtime_error("Not implemented");
   }
 
@@ -470,15 +473,17 @@ namespace monero {
   vector<MoneroTransfer> MoneroWallet::getTransfers(const MoneroTransferRequest& request) const {
     cout << "getTransfers(request)" << endl;
 
-    // normalize transfer request
-    if (request.txRequest == nullptr) request.txRequest = shared_ptr<MoneroTxRequest>(make_shared<MoneroTxRequest>(MoneroTxRequest()));
-    MoneroTxRequest& txReq = *request.txRequest;
+    // normalize request
+    MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : shared_ptr<MoneroTxRequest>(make_shared<MoneroTxRequest>(MoneroTxRequest())));
+
+    //MoneroTxRequest txReq = MoneroTxRequest();
+    //if (request.txRequest != boost::none) txReq = **request.txRequest;
 
     // build parameters for wallet2->get_payments()
-    uint64_t minHeight = txReq.minHeight == nullptr ? 0 : *txReq.minHeight;
-    uint64_t maxHeight = txReq.maxHeight == nullptr ? CRYPTONOTE_MAX_BLOCK_NUMBER : min((uint64_t) CRYPTONOTE_MAX_BLOCK_NUMBER, *txReq.maxHeight);
+    uint64_t minHeight = txReq.minHeight == boost::none ? 0 : *txReq.minHeight;
+    uint64_t maxHeight = txReq.maxHeight == boost::none ? CRYPTONOTE_MAX_BLOCK_NUMBER : min((uint64_t) CRYPTONOTE_MAX_BLOCK_NUMBER, *txReq.maxHeight);
     boost::optional<uint32_t> accountIndex = boost::none;
-    if (request.accountIndex != nullptr) accountIndex = *request.accountIndex;
+    if (request.accountIndex != boost::none) accountIndex = *request.accountIndex;
     std::set<uint32_t> subaddressIndices;
     for (int i = 0; i < request.subaddressIndices.size(); i++) {
       subaddressIndices.insert(request.subaddressIndices[i]);
@@ -489,7 +494,7 @@ namespace monero {
 
     // translate from MoneroTxRequest to in, out, pending, pool, failed terminology
     bool canBeConfirmed = !boolEquals(false, txReq.isConfirmed) && !boolEquals(true, txReq.inTxPool) && !boolEquals(true, txReq.isFailed) && !boolEquals(false, txReq.isRelayed);
-    bool canBeInTxPool = !boolEquals(true, txReq.isConfirmed) && !boolEquals(false, txReq.inTxPool) && !boolEquals(true, txReq.isFailed) && !boolEquals(false, txReq.isRelayed) && txReq.height == nullptr && txReq.minHeight == nullptr;
+    bool canBeInTxPool = !boolEquals(true, txReq.isConfirmed) && !boolEquals(false, txReq.inTxPool) && !boolEquals(true, txReq.isFailed) && !boolEquals(false, txReq.isRelayed) && txReq.height == boost::none && txReq.minHeight == boost::none;
     bool canBeIncoming = !boolEquals(false, request.isIncoming) && !boolEquals(true, request.isOutgoing) && !boolEquals(true, request.hasDestinations);
     bool canBeOutgoing = !boolEquals(false, request.isOutgoing) && !boolEquals(true, request.isIncoming);
     bool isIn = canBeIncoming && canBeConfirmed;
@@ -557,14 +562,14 @@ namespace monero {
 
   // ------------------------------- PRIVATE HELPERS ----------------------------
 
-  MoneroSyncResult MoneroWallet::syncAux(uint64_t* startHeight, uint64_t* endHeight, MoneroSyncListener* listener) {
+  MoneroSyncResult MoneroWallet::syncAux(boost::optional<uint64_t> startHeight, boost::optional<uint64_t> endHeight, boost::optional<MoneroSyncListener&> listener) {
     cout << "syncAux()" << endl;
 
     // validate inputs
-    if (endHeight != nullptr) throw runtime_error("Monero core wallet does not support syncing to an end height");	// TODO: custom exception type
+    if (endHeight != boost::none) throw runtime_error("Monero core wallet does not support syncing to an end height");	// TODO: custom exception type
 
     // determine sync start height
-    uint64_t syncStartHeight = startHeight == nullptr ? max(getHeight(), getRestoreHeight()) : *startHeight;
+    uint64_t syncStartHeight = startHeight == boost::none ? max(getHeight(), getRestoreHeight()) : *startHeight;
 
     // sync wallet
     wallet2Listener->onSyncStart(syncStartHeight, listener);
