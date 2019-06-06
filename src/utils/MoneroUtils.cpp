@@ -146,7 +146,12 @@ boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroSubaddress& 
   return subaddressNode;
 }
 
-// blockToPropertyTree
+boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroBlock& block) {
+  cout << "toPropertyTree(block)" << endl;
+  boost::property_tree::ptree blockNode;
+  if (block.height != boost::none) blockNode.put("height", *block.height);  // TODO: finish this, add txs
+  return blockNode;
+}
 
 boost::property_tree::ptree MoneroUtils::txToPropertyTree(const MoneroTx& tx) {
   cout << "txToPropertyTree(tx)" << endl;

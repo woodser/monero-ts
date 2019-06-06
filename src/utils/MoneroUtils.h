@@ -66,6 +66,8 @@ namespace MoneroUtils
 
   boost::property_tree::ptree toPropertyTree(const MoneroSubaddress& subaddress);
 
+  boost::property_tree::ptree toPropertyTree(const MoneroBlock& block);
+
   boost::property_tree::ptree txToPropertyTree(const MoneroTx& tx);
 
   boost::property_tree::ptree txWalletToPropertyTree(const MoneroTxWallet& tx);

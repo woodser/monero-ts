@@ -21,11 +21,19 @@ namespace monero {
 
   MoneroTransfer wallet2ToIncomingTransfer(const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) {
     cout << "wallet2ToIncomingTransfer(3)" << endl;
+
+    MoneroBlock block;
+    block.height = pd.m_block_height;
+
     MoneroTxWallet tx;
     tx.id = string_tools::pod_to_hex(pd.m_tx_hash);
+    tx.block = make_shared<MoneroBlock>(block);
+
     MoneroIncomingTransfer incomingTransfer;
-    tx.incomingTransfers.push_back(incomingTransfer);
     incomingTransfer.tx = make_shared<MoneroTxWallet>(tx);
+
+    tx.incomingTransfers.push_back(incomingTransfer);
+    block.txs.push_back(make_shared<MoneroTxWallet>(tx));
     return incomingTransfer;
   }
 
@@ -525,17 +533,17 @@ namespace monero {
 
     // get confirmed outgoing transfers
     if (isOut) {
-      throw runtime_error("isOut not implemented");
+      //throw runtime_error("isOut not implemented");
     }
 
     // get unconfirmed outgoing transfers
     if (isPending || isFailed) {
-      throw runtime_error("isPending || isFailed not implemented");
+      //throw runtime_error("isPending || isFailed not implemented");
     }
 
     // get unconfirmed incoming transfers
     if (isPool) {
-      throw runtime_error("isPool not implemented");
+      //throw runtime_error("isPool not implemented");
     }
 
     return transfers;
