@@ -146,6 +146,11 @@ namespace monero {
     vector<MoneroDestination> destinations;
     boost::optional<bool> hasDestinations;
     boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
+
+    boost::optional<bool> getIsOutgoing() const {
+      if (isIncoming == boost::none ) return boost::none;
+      return !(*isIncoming);
+    }
   };
 
   /**
@@ -163,6 +168,8 @@ namespace monero {
     boost::optional<uint64_t> maxHeight;
     boost::optional<uint64_t> includeOutputs;
     boost::optional<MoneroTransferRequest> transferRequest;
+
+    boost::optional<uint64_t> getHeight() { return block == boost::none ? boost::none : (*block)->height; }
   };
 
   /**

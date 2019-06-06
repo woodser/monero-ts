@@ -14,7 +14,7 @@ namespace monero {
 
   // ---------------------------- PRIVATE HELPERS -----------------------------
 
-  bool boolEquals(bool val, boost::optional<bool> optVal) {
+  bool boolEquals(bool val, const boost::optional<bool>& optVal) {
     return optVal == boost::none ? false : val == *optVal;
   }
 
@@ -494,9 +494,9 @@ namespace monero {
 
     // translate from MoneroTxRequest to in, out, pending, pool, failed terminology
     bool canBeConfirmed = !boolEquals(false, txReq.isConfirmed) && !boolEquals(true, txReq.inTxPool) && !boolEquals(true, txReq.isFailed) && !boolEquals(false, txReq.isRelayed);
-    bool canBeInTxPool = !boolEquals(true, txReq.isConfirmed) && !boolEquals(false, txReq.inTxPool) && !boolEquals(true, txReq.isFailed) && !boolEquals(false, txReq.isRelayed) && txReq.height == boost::none && txReq.minHeight == boost::none;
-    bool canBeIncoming = !boolEquals(false, request.isIncoming) && !boolEquals(true, request.isOutgoing) && !boolEquals(true, request.hasDestinations);
-    bool canBeOutgoing = !boolEquals(false, request.isOutgoing) && !boolEquals(true, request.isIncoming);
+    bool canBeInTxPool = !boolEquals(true, txReq.isConfirmed) && !boolEquals(false, txReq.inTxPool) && !boolEquals(true, txReq.isFailed) && !boolEquals(false, txReq.isRelayed) && txReq.getHeight() == boost::none && txReq.minHeight == boost::none;
+    bool canBeIncoming = !boolEquals(false, request.isIncoming) && !boolEquals(true, request.getIsOutgoing()) && !boolEquals(true, request.hasDestinations);
+    bool canBeOutgoing = !boolEquals(false, request.getIsOutgoing()) && !boolEquals(true, request.isIncoming);
     bool isIn = canBeIncoming && canBeConfirmed;
     bool isOut = canBeOutgoing && canBeConfirmed;
     bool isPending = canBeOutgoing && canBeInTxPool;
