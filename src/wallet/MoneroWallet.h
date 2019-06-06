@@ -37,15 +37,15 @@ namespace monero {
     boost::optional<bool> isUsed;
     boost::optional<uint32_t> numBlocksToUnlock;
 //    BEGIN_KV_SERIALIZE_MAP()
-//      KV_SERIALIZE_OPT_N(accountIndex, "accountIndex", nullptr)
-//      KV_SERIALIZE_OPT_N(index, "index", nullptr)
-//      KV_SERIALIZE_OPT_N(address, "address", nullptr)
-//      KV_SERIALIZE_OPT_N(label, "label", nullptr)
-//      KV_SERIALIZE_OPT_N(balance, "balance", nullptr)
-//      KV_SERIALIZE_OPT_N(unlockedBalance, "unlockedBalance", nullptr)
-//      KV_SERIALIZE_OPT_N(numUnspentOutputs, "numUnspentOutputs", nullptr)
-//      KV_SERIALIZE_OPT_N(isUsed, "isUsed", nullptr)
-//      KV_SERIALIZE_OPT_N(numBlocksToUnlock, "numBlocksToUnlock", nullptr)
+//      KV_SERIALIZE(accountIndex)
+//      KV_SERIALIZE(index)
+//      KV_SERIALIZE(address)
+//      KV_SERIALIZE(label)
+//      KV_SERIALIZE(balance)
+//      KV_SERIALIZE(unlockedBalance)
+//      KV_SERIALIZE(numUnspentOutputs)
+//      KV_SERIALIZE(isUsed)
+//      KV_SERIALIZE(numBlocksToUnlock)
 //    END_KV_SERIALIZE_MAP()
   };
 
@@ -61,12 +61,12 @@ namespace monero {
     boost::optional<string> tag;
     vector<MoneroSubaddress> subaddresses;
 //    BEGIN_KV_SERIALIZE_MAP()
-//      KV_SERIALIZE_OPT_N(index, "index", nullptr)
-//      KV_SERIALIZE_OPT_N(primaryAddress, "primaryAddress", nullptr)
-//      KV_SERIALIZE_OPT_N(label, "label", nullptr)
-//      KV_SERIALIZE_OPT_N(balance, "balance", nullptr)
-//      KV_SERIALIZE_OPT_N(unlockedBalance, "unlockedBalance", nullptr)
-//      KV_SERIALIZE_OPT_N(tag, "tag", nullptr)
+//      KV_SERIALIZE(index)
+//      KV_SERIALIZE(primaryAddress)
+//      KV_SERIALIZE(label)
+//      KV_SERIALIZE(balance)
+//      KV_SERIALIZE(unlockedBalance)
+//      KV_SERIALIZE(tag)
 //      KV_SERIALIZE(subaddresses)
 //    END_KV_SERIALIZE_MAP()
   };

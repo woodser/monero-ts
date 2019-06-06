@@ -117,32 +117,32 @@ void MoneroUtils::binaryBlocksToJson(const std::string &bin, std::string &json) 
 boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroAccount& account) {
   cout << "toPropertyTree(account)" << endl;
   boost::property_tree::ptree accountNode;
-//  if (account.index != nullptr) accountNode.put("index", *account.index);
-//  if (account.primaryAddress != nullptr) accountNode.put("primaryAddress", *account.primaryAddress);
-//  if (account.balance != nullptr) accountNode.put("balance", *account.balance);
-//  if (account.unlockedBalance != nullptr) accountNode.put("unlockedBalance", *account.unlockedBalance);
-//  if (!account.subaddresses.empty()) {
-//    boost::property_tree::ptree subaddressesNode;
-//    for (const auto& subaddress : account.subaddresses) {
-//      subaddressesNode.push_back(std::make_pair("", toPropertyTree(subaddress)));
-//    }
-//    accountNode.add_child("subaddresses", subaddressesNode);
-//  }
+  if (account.index != boost::none) accountNode.put("index", *account.index);
+  if (account.primaryAddress != boost::none) accountNode.put("primaryAddress", *account.primaryAddress);
+  if (account.balance != boost::none) accountNode.put("balance", *account.balance);
+  if (account.unlockedBalance != boost::none) accountNode.put("unlockedBalance", *account.unlockedBalance);
+  if (!account.subaddresses.empty()) {
+    boost::property_tree::ptree subaddressesNode;
+    for (const auto& subaddress : account.subaddresses) {
+      subaddressesNode.push_back(std::make_pair("", toPropertyTree(subaddress)));
+    }
+    accountNode.add_child("subaddresses", subaddressesNode);
+  }
   return accountNode;
 }
 
 boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroSubaddress& subaddress) {
   cout << "toPropertyTree(subaddress)" << endl;
   boost::property_tree::ptree subaddressNode;
-//  if (subaddress.accountIndex != nullptr) subaddressNode.put("accountIndex", *subaddress.accountIndex);
-//  if (subaddress.index != nullptr) subaddressNode.put("index", *subaddress.index);
-//  if (subaddress.address != nullptr) subaddressNode.put("address", *subaddress.address);
-//  if (subaddress.label != nullptr) subaddressNode.put("label", *subaddress.label);
-//  if (subaddress.balance != nullptr) subaddressNode.put("balance", *subaddress.balance);
-//  if (subaddress.unlockedBalance != nullptr) subaddressNode.put("unlockedBalance", *subaddress.unlockedBalance);
-//  if (subaddress.numUnspentOutputs != nullptr) subaddressNode.put("numUnspentOutputs", *subaddress.numUnspentOutputs);
-//  if (subaddress.isUsed != nullptr) subaddressNode.put("isUsed", *subaddress.isUsed);
-//  if (subaddress.numBlocksToUnlock != nullptr) subaddressNode.put("numBlocksToUnlock", *subaddress.numBlocksToUnlock);
+  if (subaddress.accountIndex != boost::none) subaddressNode.put("accountIndex", *subaddress.accountIndex);
+  if (subaddress.index != boost::none) subaddressNode.put("index", *subaddress.index);
+  if (subaddress.address != boost::none) subaddressNode.put("address", *subaddress.address);
+  if (subaddress.label != boost::none) subaddressNode.put("label", *subaddress.label);
+  if (subaddress.balance != boost::none) subaddressNode.put("balance", *subaddress.balance);
+  if (subaddress.unlockedBalance != boost::none) subaddressNode.put("unlockedBalance", *subaddress.unlockedBalance);
+  if (subaddress.numUnspentOutputs != boost::none) subaddressNode.put("numUnspentOutputs", *subaddress.numUnspentOutputs);
+  if (subaddress.isUsed != boost::none) subaddressNode.put("isUsed", *subaddress.isUsed);
+  if (subaddress.numBlocksToUnlock != boost::none) subaddressNode.put("numBlocksToUnlock", *subaddress.numBlocksToUnlock);
   return subaddressNode;
 }
 
@@ -151,69 +151,68 @@ boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroSubaddress& 
 boost::property_tree::ptree MoneroUtils::txToPropertyTree(const MoneroTx& tx) {
   cout << "txToPropertyTree(tx)" << endl;
   boost::property_tree::ptree txNode;
-//  if (tx.block != nullptr) throw runtime_error("not implemented");  // this should be ignored since we only serialize down the tree
-//  if (tx.id != nullptr) txNode.put("id", *tx.id);
-//  if (tx.version != nullptr) txNode.put("version", *tx.version);
-//  if (tx.isCoinbase != nullptr) txNode.put("isCoinbase", *tx.isCoinbase);
-//  if (tx.paymentId != nullptr) txNode.put("paymentId", *tx.paymentId);
-//  if (tx.fee != nullptr) txNode.put("fee", *tx.fee);
-//  if (tx.mixin != nullptr) txNode.put("mixin", *tx.mixin);
-//  if (tx.doNotRelay != nullptr) txNode.put("doNotRelay", *tx.doNotRelay);
-//  if (tx.isRelayed != nullptr) txNode.put("isRelayed", *tx.isRelayed);
-//  if (tx.isConfirmed != nullptr) txNode.put("isConfirmed", *tx.isConfirmed);
-//  if (tx.inTxPool != nullptr) txNode.put("inTxPool", *tx.inTxPool);
-//  if (tx.numConfirmations != nullptr) txNode.put("numConfirmations", *tx.numConfirmations);
-//  if (tx.unlockTime != nullptr) txNode.put("unlockTime", *tx.unlockTime);
-//  if (tx.lastRelayedTimestamp != nullptr) txNode.put("lastRelayedTimestamp", *tx.lastRelayedTimestamp);
-//  if (tx.receivedTimestamp != nullptr) txNode.put("receivedTimestamp", *tx.receivedTimestamp);
-//  if (tx.isDoubleSpend != nullptr) txNode.put("isDoubleSpend", *tx.isDoubleSpend);
-//  if (tx.key != nullptr) txNode.put("key", *tx.key);
-//  if (tx.fullHex != nullptr) txNode.put("fullHex", *tx.fullHex);
-//  if (tx.prunedHex != nullptr) txNode.put("prunedHex", *tx.prunedHex);
-//  if (tx.prunableHex != nullptr) txNode.put("prunableHex", *tx.prunableHex);
-//  if (tx.prunableHash != nullptr) txNode.put("prunableHash", *tx.prunableHash);
-//  if (tx.size != nullptr) txNode.put("size", *tx.size);
-//  if (tx.weight != nullptr) txNode.put("weight", *tx.weight);
-//  if (!tx.vins.empty()) throw runtime_error("not implemented");
-//  if (!tx.vouts.empty()) throw runtime_error("not implemented");
-//  if (!tx.outputIndices.empty()) throw runtime_error("not implemented");
-//  if (tx.metadata != nullptr) txNode.put("metadata", *tx.metadata);
-//  if (tx.commonTxSets != nullptr) throw runtime_error("not implemented");
-//  if (!tx.extra.empty()) throw runtime_error("not implemented");
-//  if (tx.rctSignatures != nullptr) throw runtime_error("not implemented");
-//  if (tx.rctSigPrunable != nullptr) throw runtime_error("not implemented");
-//  if (tx.isKeptByBlock != nullptr) txNode.put("isKeptByBlock", *tx.isKeptByBlock);
-//  if (tx.isFailed != nullptr) txNode.put("isFailed", *tx.isFailed);
-//  if (tx.lastFailedHeight != nullptr) txNode.put("lastFailedHeight", *tx.lastFailedHeight);
-//  if (tx.lastFailedId != nullptr) txNode.put("lastFailedId", *tx.lastFailedId);
-//  if (tx.maxUsedBlockHeight != nullptr) txNode.put("maxUsedBlockHeight", *tx.maxUsedBlockHeight);
-//  if (tx.maxUsedBlockId != nullptr) txNode.put("maxUsedBlockId", *tx.maxUsedBlockId);
-//  if (!tx.signatures.empty()) throw runtime_error("not implemented");
+  if (tx.id != boost::none) txNode.put("id", *tx.id);
+  if (tx.version != boost::none) txNode.put("version", *tx.version);
+  if (tx.isCoinbase != boost::none) txNode.put("isCoinbase", *tx.isCoinbase);
+  if (tx.paymentId != boost::none) txNode.put("paymentId", *tx.paymentId);
+  if (tx.fee != boost::none) txNode.put("fee", *tx.fee);
+  if (tx.mixin != boost::none) txNode.put("mixin", *tx.mixin);
+  if (tx.doNotRelay != boost::none) txNode.put("doNotRelay", *tx.doNotRelay);
+  if (tx.isRelayed != boost::none) txNode.put("isRelayed", *tx.isRelayed);
+  if (tx.isConfirmed != boost::none) txNode.put("isConfirmed", *tx.isConfirmed);
+  if (tx.inTxPool != boost::none) txNode.put("inTxPool", *tx.inTxPool);
+  if (tx.numConfirmations != boost::none) txNode.put("numConfirmations", *tx.numConfirmations);
+  if (tx.unlockTime != boost::none) txNode.put("unlockTime", *tx.unlockTime);
+  if (tx.lastRelayedTimestamp != boost::none) txNode.put("lastRelayedTimestamp", *tx.lastRelayedTimestamp);
+  if (tx.receivedTimestamp != boost::none) txNode.put("receivedTimestamp", *tx.receivedTimestamp);
+  if (tx.isDoubleSpend != boost::none) txNode.put("isDoubleSpend", *tx.isDoubleSpend);
+  if (tx.key != boost::none) txNode.put("key", *tx.key);
+  if (tx.fullHex != boost::none) txNode.put("fullHex", *tx.fullHex);
+  if (tx.prunedHex != boost::none) txNode.put("prunedHex", *tx.prunedHex);
+  if (tx.prunableHex != boost::none) txNode.put("prunableHex", *tx.prunableHex);
+  if (tx.prunableHash != boost::none) txNode.put("prunableHash", *tx.prunableHash);
+  if (tx.size != boost::none) txNode.put("size", *tx.size);
+  if (tx.weight != boost::none) txNode.put("weight", *tx.weight);
+  if (!tx.vins.empty()) throw runtime_error("not implemented");
+  if (!tx.vouts.empty()) throw runtime_error("not implemented");
+  if (!tx.outputIndices.empty()) throw runtime_error("not implemented");
+  if (tx.metadata != boost::none) txNode.put("metadata", *tx.metadata);
+  if (tx.commonTxSets != boost::none) throw runtime_error("not implemented");
+  if (!tx.extra.empty()) throw runtime_error("not implemented");
+  if (tx.rctSignatures != boost::none) throw runtime_error("not implemented");
+  if (tx.rctSigPrunable != boost::none) throw runtime_error("not implemented");
+  if (tx.isKeptByBlock != boost::none) txNode.put("isKeptByBlock", *tx.isKeptByBlock);
+  if (tx.isFailed != boost::none) txNode.put("isFailed", *tx.isFailed);
+  if (tx.lastFailedHeight != boost::none) txNode.put("lastFailedHeight", *tx.lastFailedHeight);
+  if (tx.lastFailedId != boost::none) txNode.put("lastFailedId", *tx.lastFailedId);
+  if (tx.maxUsedBlockHeight != boost::none) txNode.put("maxUsedBlockHeight", *tx.maxUsedBlockHeight);
+  if (tx.maxUsedBlockId != boost::none) txNode.put("maxUsedBlockId", *tx.maxUsedBlockId);
+  if (!tx.signatures.empty()) throw runtime_error("not implemented");
   return txNode;
 }
 
 boost::property_tree::ptree MoneroUtils::txWalletToPropertyTree(const MoneroTxWallet& tx) {
   cout << "txWalletToPropertyTree(tx)" << endl;
   boost::property_tree::ptree txNode = txToPropertyTree(tx);
-//  if (!tx.vouts.empty()) throw runtime_error("not implemented");
-//  if (!tx.incomingTransfers.empty()) throw runtime_error("not implemented");
-//  if (tx.outgoingTransfer != nullptr) throw runtime_error("not implemented");
-//  if (tx.numSuggestedConfirmations != nullptr) txNode.put("numSuggestedConfirmations", *tx.numSuggestedConfirmations);
-//  if (tx.note != nullptr) txNode.put("note", *tx.note);
+  if (!tx.vouts.empty()) throw runtime_error("not implemented");
+  if (!tx.incomingTransfers.empty()) throw runtime_error("not implemented");
+  if (tx.outgoingTransfer != boost::none) throw runtime_error("not implemented");
+  if (tx.numSuggestedConfirmations != boost::none) txNode.put("numSuggestedConfirmations", *tx.numSuggestedConfirmations);
+  if (tx.note != boost::none) txNode.put("note", *tx.note);
   return txNode;
 }
 
 boost::property_tree::ptree MoneroUtils::txRequestToPropertyTree(const MoneroTxRequest& tx) {
   cout << "txWalletToPropertyTree(tx)" << endl;
   boost::property_tree::ptree txNode = txWalletToPropertyTree(tx);
-//  if (tx.isOutgoing != nullptr) txNode.put("isOutgoing", *tx.isOutgoing);
-//  if (tx.isIncoming != nullptr) txNode.put("isIncoming", *tx.isIncoming);
-//  if (!tx.txIds.empty()) throw runtime_error("not implemented");
-//  if (tx.hasPaymentId != nullptr) txNode.put("hasPaymentId", *tx.hasPaymentId);
-//  if (!tx.paymentIds.empty()) throw runtime_error("not implemented");
-//  if (tx.minHeight != nullptr) txNode.put("minHeight", *tx.minHeight);
-//  if (tx.maxHeight != nullptr) txNode.put("maxHeight", *tx.maxHeight);
-//  if (tx.includeOutputs != nullptr) txNode.put("includeOutputs", *tx.includeOutputs);
-//  if (tx.transferRequest != nullptr) throw runtime_error("not implemented");
+  if (tx.isOutgoing != boost::none) txNode.put("isOutgoing", *tx.isOutgoing);
+  if (tx.isIncoming != boost::none) txNode.put("isIncoming", *tx.isIncoming);
+  if (!tx.txIds.empty()) throw runtime_error("not implemented");
+  if (tx.hasPaymentId != boost::none) txNode.put("hasPaymentId", *tx.hasPaymentId);
+  if (!tx.paymentIds.empty()) throw runtime_error("not implemented");
+  if (tx.minHeight != boost::none) txNode.put("minHeight", *tx.minHeight);
+  if (tx.maxHeight != boost::none) txNode.put("maxHeight", *tx.maxHeight);
+  if (tx.includeOutputs != boost::none) txNode.put("includeOutputs", *tx.includeOutputs);
+  if (tx.transferRequest != boost::none) throw runtime_error("not implemented");
   return txNode;
 }
