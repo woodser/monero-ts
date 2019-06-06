@@ -6,6 +6,7 @@
 #include "mnemonics/english.h"
 
 using namespace cryptonote;
+using namespace epee;
 
 /**
  * Public interface for libmonero-cpp library.
@@ -18,9 +19,14 @@ namespace monero {
     return optVal == boost::none ? false : val == *optVal;
   }
 
-  MoneroTransfer wallet2ToTransfer(const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) {
-    cout << "wallet2ToTransfer(3)" << endl;
-    throw runtime_error("not implemented");
+  MoneroTransfer wallet2ToIncomingTransfer(const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) {
+    cout << "wallet2ToIncomingTransfer(3)" << endl;
+    MoneroTxWallet tx;
+    tx.id = string_tools::pod_to_hex(pd.m_tx_hash);
+    MoneroIncomingTransfer incomingTransfer;
+    tx.incomingTransfers.push_back(incomingTransfer);
+    incomingTransfer.tx = make_shared<MoneroTxWallet>(tx);
+    return incomingTransfer;
   }
 
   // ----------------------------- WALLET LISTENER ----------------------------
@@ -513,23 +519,23 @@ namespace monero {
       std::list<std::pair<crypto::hash, tools::wallet2::payment_details>> payments;
       wallet2->get_payments(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
-        transfers.push_back(wallet2ToTransfer(i->second.m_tx_hash, i->first, i->second));
+        transfers.push_back(wallet2ToIncomingTransfer(i->second.m_tx_hash, i->first, i->second));
       }
     }
 
     // get confirmed outgoing transfers
     if (isOut) {
-      throw runtime_error("Not implemented");
+      throw runtime_error("isOut not implemented");
     }
 
     // get unconfirmed outgoing transfers
     if (isPending || isFailed) {
-      throw runtime_error("Not implemented");
+      throw runtime_error("isPending || isFailed not implemented");
     }
 
     // get unconfirmed incoming transfers
     if (isPool) {
-      throw runtime_error("Not implemented");
+      throw runtime_error("isPool not implemented");
     }
 
     return transfers;
