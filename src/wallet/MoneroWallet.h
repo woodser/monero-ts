@@ -125,7 +125,6 @@ namespace monero {
    * Models a Monero transaction in the context of a wallet.
    */
   struct MoneroTxWallet : public MoneroTx {
-    vector<MoneroOutputWallet> vouts;  // TODO: override vouts with different type?
     vector<MoneroIncomingTransfer> incomingTransfers;
     boost::optional<MoneroOutgoingTransfer> outgoingTransfer;
     boost::optional<uint32_t> numSuggestedConfirmations;
@@ -180,7 +179,7 @@ namespace monero {
    */
   struct MoneroOutputRequest : public MoneroOutput {
     vector<uint32_t> subaddressIndices;
-    boost::optional<MoneroTxRequest> txRequest;
+    boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
   };
 
   // --------------------------------- LISTENERS ------------------------------

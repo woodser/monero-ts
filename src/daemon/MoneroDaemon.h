@@ -62,8 +62,8 @@ namespace monero {
     boost::optional<string> prunableHash;
     boost::optional<uint32_t> size;
     boost::optional<uint32_t> weight;
-    vector<MoneroOutput> vins;
-    vector<MoneroOutput> vouts;
+    vector<shared_ptr<MoneroOutput>> vins;
+    vector<shared_ptr<MoneroOutput>> vouts;
     vector<uint32_t> outputIndices;
     boost::optional<string> metadata;
     boost::optional<string> commonTxSets;
@@ -108,7 +108,7 @@ namespace monero {
   struct MoneroBlock : public MoneroBlockHeader {
     boost::optional<string> hex;
     boost::optional<MoneroTx> coinbaseTx;
-    vector<MoneroTx> txs;
+    vector<shared_ptr<MoneroTx>> txs;
     vector<string> txIds;
   };
 
