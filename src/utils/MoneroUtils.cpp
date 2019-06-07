@@ -150,6 +150,7 @@ boost::property_tree::ptree MoneroUtils::toPropertyTree(const MoneroBlock& block
   cout << "toPropertyTree(block)" << endl;
   boost::property_tree::ptree blockNode;
   if (block.height != boost::none) blockNode.put("height", *block.height);  // TODO: finish this, add txs
+  //blockNode.add_child("txs", toPropertyTree(block.txs));  // TODO: block.txs is vector<shared_ptr<MoneroTx>> so need to handle
   return blockNode;
 }
 

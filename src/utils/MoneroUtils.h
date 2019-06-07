@@ -84,6 +84,15 @@ namespace MoneroUtils
     return typeNodes;
   }
 
+//  template <class T*> boost::property_tree::ptree toPropertyTree(const vector<T*> types) {
+//    cout << "toPropertyTree(types*)" << endl;
+//    boost::property_tree::ptree typeNodes;
+//    for (const auto& type : types)  {
+//      typeNodes.push_back(std::make_pair("", toPropertyTree(type)));
+//    }
+//    return typeNodes;
+//  }
+
   /**
    * Modified from core_rpc_server.cpp to return a string.
    *
