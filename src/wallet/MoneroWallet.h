@@ -1,8 +1,11 @@
+#pragma once
+
 #include "daemon/MoneroDaemon.h"
+#include "wallet/wallet2.h"
 
 using namespace std;
-using namespace monero;
 using namespace crypto;
+using namespace monero;
 
 /**
  * Public interface for libmonero-cpp library.
@@ -129,6 +132,8 @@ namespace monero {
     boost::optional<MoneroOutgoingTransfer> outgoingTransfer;
     boost::optional<uint32_t> numSuggestedConfirmations;
     boost::optional<string> note;
+
+    virtual void toPropertyTree(boost::property_tree::ptree& node) const;
   };
 
   /**
@@ -169,6 +174,7 @@ namespace monero {
     boost::optional<MoneroTransferRequest> transferRequest;
 
     boost::optional<uint64_t> getHeight() { return block == boost::none ? boost::none : (*block)->height; }
+    virtual void toPropertyTree(boost::property_tree::ptree& node) const;
   };
 
   /**

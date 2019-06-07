@@ -1,5 +1,6 @@
-#include "utils/MoneroUtils.h"
+#include "wallet/MoneroWallet.h"
 
+#include "utils/MoneroUtils.h"
 #include <stdio.h>
 #include <iostream>
 #include "mnemonics/electrum-words.h"
@@ -12,6 +13,16 @@ using namespace epee;
  * Public interface for libmonero-cpp library.
  */
 namespace monero {
+
+  // -------------------------- MODEL SERIALIZATION ---------------------------
+
+  void MoneroTxWallet::toPropertyTree(boost::property_tree::ptree& node) const {
+    throw runtime_error("Not implemented");
+  }
+
+  void MoneroTxRequest::toPropertyTree(boost::property_tree::ptree& node) const {
+    throw runtime_error("Not implemented");
+  }
 
   // ---------------------------- PRIVATE HELPERS -----------------------------
 
