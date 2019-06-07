@@ -5,8 +5,6 @@
 #include "cryptonote_basic/cryptonote_basic.h"
 #include "serialization/keyvalue_serialization.h"	// TODO: consolidate with other binary deps?
 #include "storages/portable_storage.h"
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
 
 /**
  * Collection of utilities for working with Monero's binary portable storage format.
@@ -61,6 +59,8 @@ namespace MoneroUtils
   //    string str = ss.str();
   //    return str;
   //  }
+
+  string serialize(const boost::property_tree::ptree& node);
 
   boost::property_tree::ptree toPropertyTree(const MoneroAccount& account);
 

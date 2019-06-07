@@ -1,6 +1,9 @@
+#include "utils/MoneroUtils.h"
 #include "include_base_utils.h"
 #include "common/util.h"
 #include "wallet/wallet2.h" // TODO: this is imported so BEGIN_KV_SERIALIZE_MAP works; more precise import?
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 using namespace std;
 
@@ -8,6 +11,26 @@ using namespace std;
  * Public interface for libmonero-cpp library.
  */
 namespace monero {
+
+  /**
+   * Base struct model which is serializable.
+   */
+  struct SerializableStruct {
+
+    /**
+     * Serializes the struct to a json string.
+     *
+     * @return the struct serialized to a json string
+     */
+    string serialize();
+
+    /**
+     * Initializes a property tree node from this struct.
+     *
+     * @param node is the node to initialize
+     */
+    virtual void toPropertyTree(boost::property_tree::ptree& node);
+  };
 
   /**
    * Enumerates Monero network types.
