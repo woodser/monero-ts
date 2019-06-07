@@ -45,6 +45,7 @@ namespace monero {
     if (numUnspentOutputs != boost::none) node.put("numUnspentOutputs", *numUnspentOutputs);
     if (isUsed != boost::none) node.put("isUsed", *isUsed);
     if (numBlocksToUnlock != boost::none) node.put("numBlocksToUnlock", *numBlocksToUnlock);
+    return node;
   }
 
   boost::property_tree::ptree MoneroTxWallet::toPropertyTree() const {

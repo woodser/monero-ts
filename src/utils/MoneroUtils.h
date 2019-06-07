@@ -63,11 +63,11 @@ namespace MoneroUtils
   string serialize(const boost::property_tree::ptree& node);
 
   //  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-  template <class T> boost::property_tree::ptree toPropertyTree(const vector<T> types) {
+  template <class SerializableStruct> boost::property_tree::ptree toPropertyTree(const vector<SerializableStruct> types) {
     cout << "toPropertyTree(types)" << endl;
     boost::property_tree::ptree typeNodes;
     for (const auto& type : types)  {
-      typeNodes.push_back(std::make_pair("", toPropertyTree(type)));
+      typeNodes.push_back(std::make_pair("", type.toPropertyTree()));
     }
     return typeNodes;
   }
