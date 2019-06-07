@@ -29,7 +29,7 @@ namespace monero {
   /**
    * Models a Monero subaddress.
    */
-  struct MoneroSubaddress {
+  struct MoneroSubaddress : public SerializableStruct {
     boost::optional<uint32_t> accountIndex;
     boost::optional<uint32_t> index;
     boost::optional<string> address;
@@ -50,12 +50,14 @@ namespace monero {
 //      KV_SERIALIZE(isUsed)
 //      KV_SERIALIZE(numBlocksToUnlock)
 //    END_KV_SERIALIZE_MAP()
+
+    void toPropertyTree(boost::property_tree::ptree& node) const;
   };
 
   /**
    * Models a Monero account.
    */
-  struct MoneroAccount {
+  struct MoneroAccount : public SerializableStruct {
     boost::optional<uint32_t> index;
     boost::optional<string> primaryAddress;
     boost::optional<string> label;
@@ -72,6 +74,8 @@ namespace monero {
 //      KV_SERIALIZE(tag)
 //      KV_SERIALIZE(subaddresses)
 //    END_KV_SERIALIZE_MAP()
+
+    void toPropertyTree(boost::property_tree::ptree& node) const;
   };
 
   // forward declarations

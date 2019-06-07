@@ -62,18 +62,6 @@ namespace MoneroUtils
 
   string serialize(const boost::property_tree::ptree& node);
 
-  boost::property_tree::ptree toPropertyTree(const MoneroAccount& account);
-
-  boost::property_tree::ptree toPropertyTree(const MoneroSubaddress& subaddress);
-
-  boost::property_tree::ptree toPropertyTree(const MoneroBlock& block);
-
-  boost::property_tree::ptree txToPropertyTree(const MoneroTx& tx);
-
-  boost::property_tree::ptree txWalletToPropertyTree(const MoneroTxWallet& tx);
-
-  boost::property_tree::ptree txRequestToPropertyTree(const MoneroTxRequest& tx);
-
   //  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
   template <class T> boost::property_tree::ptree toPropertyTree(const vector<T> types) {
     cout << "toPropertyTree(types)" << endl;

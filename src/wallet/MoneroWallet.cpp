@@ -16,6 +16,34 @@ namespace monero {
 
   // -------------------------- MODEL SERIALIZATION ---------------------------
 
+  void MoneroAccount::toPropertyTree(boost::property_tree::ptree& node) const {
+    cout << "MoneroAccount::toPropertyTree(node)" << endl;
+    if (index != boost::none) node.put("index", *index);
+    if (primaryAddress != boost::none) node.put("primaryAddress", *primaryAddress);
+    if (balance != boost::none) node.put("balance", *balance);
+    if (unlockedBalance != boost::none) node.put("unlockedBalance", *unlockedBalance);
+    if (!subaddresses.empty()) {
+      boost::property_tree::ptree subaddressesNode;
+      for (const auto& subaddress : subaddresses) {
+        subaddressesNode.push_back(std::make_pair("", subaddress.toPropertyTree2()));
+      }
+      node.add_child("subaddresses", subaddressesNode);
+    }
+  }
+
+  void MoneroSubaddress::toPropertyTree(boost::property_tree::ptree& node) const {
+    cout << "MoneroSubaddress::toPropertyTree(node)" << endl;
+    if (accountIndex != boost::none) node.put("accountIndex", *accountIndex);
+    if (index != boost::none) node.put("index", *index);
+    if (address != boost::none) node.put("address", *address);
+    if (label != boost::none) node.put("label", *label);
+    if (balance != boost::none) node.put("balance", *balance);
+    if (unlockedBalance != boost::none) node.put("unlockedBalance", *unlockedBalance);
+    if (numUnspentOutputs != boost::none) node.put("numUnspentOutputs", *numUnspentOutputs);
+    if (isUsed != boost::none) node.put("isUsed", *isUsed);
+    if (numBlocksToUnlock != boost::none) node.put("numBlocksToUnlock", *numBlocksToUnlock);
+  }
+
   void MoneroTxWallet::toPropertyTree(boost::property_tree::ptree& node) const {
     throw runtime_error("Not implemented");
   }
@@ -23,6 +51,32 @@ namespace monero {
   void MoneroTxRequest::toPropertyTree(boost::property_tree::ptree& node) const {
     throw runtime_error("Not implemented");
   }
+
+  //boost::property_tree::ptree MoneroUtils::txWalletToPropertyTree(const MoneroTxWallet& tx) {
+  //  cout << "txWalletToPropertyTree(tx)" << endl;
+  //  boost::property_tree::ptree txNode = txToPropertyTree(tx);
+  //  if (!tx.vouts.empty()) throw runtime_error("not implemented");
+  //  if (!tx.incomingTransfers.empty()) throw runtime_error("not implemented");
+  //  if (tx.outgoingTransfer != boost::none) throw runtime_error("not implemented");
+  //  if (tx.numSuggestedConfirmations != boost::none) txNode.put("numSuggestedConfirmations", *tx.numSuggestedConfirmations);
+  //  if (tx.note != boost::none) txNode.put("note", *tx.note);
+  //  return txNode;
+  //}
+  //
+  //boost::property_tree::ptree MoneroUtils::txRequestToPropertyTree(const MoneroTxRequest& tx) {
+  //  cout << "txWalletToPropertyTree(tx)" << endl;
+  //  boost::property_tree::ptree txNode = txWalletToPropertyTree(tx);
+  //  if (tx.isOutgoing != boost::none) txNode.put("isOutgoing", *tx.isOutgoing);
+  //  if (tx.isIncoming != boost::none) txNode.put("isIncoming", *tx.isIncoming);
+  //  if (!tx.txIds.empty()) throw runtime_error("not implemented");
+  //  if (tx.hasPaymentId != boost::none) txNode.put("hasPaymentId", *tx.hasPaymentId);
+  //  if (!tx.paymentIds.empty()) throw runtime_error("not implemented");
+  //  if (tx.minHeight != boost::none) txNode.put("minHeight", *tx.minHeight);
+  //  if (tx.maxHeight != boost::none) txNode.put("maxHeight", *tx.maxHeight);
+  //  if (tx.includeOutputs != boost::none) txNode.put("includeOutputs", *tx.includeOutputs);
+  //  if (tx.transferRequest != boost::none) throw runtime_error("not implemented");
+  //  return txNode;
+  //}
 
   // ---------------------------- PRIVATE HELPERS -----------------------------
 
@@ -483,9 +537,9 @@ namespace monero {
 
     // print for debug
     std::stringstream ss;
-    boost::property_tree::write_json(ss, MoneroUtils::txRequestToPropertyTree(request), false);
-    string requestStr = ss.str();
-    cout << "Tx request: " << requestStr << endl;
+    //boost::property_tree::write_json(ss, MoneroUtils::txRequestToPropertyTree(request), false);
+    //string requestStr = ss.str();
+    //cout << "Tx request: " << requestStr << endl;
 
 
 

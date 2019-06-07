@@ -23,9 +23,16 @@ namespace monero {
     string serialize() const;
 
     /**
-     * Initializes a property tree node from this struct.
+     * Convert the struct to a property tree.
      *
-     * @param node is the node to initialize
+     * @return the converted property tree
+     */
+    boost::property_tree::ptree toPropertyTree2() const;
+
+    /**
+     * Convert the struct to a property tree.
+     *
+     * @param node is the property tree node to initialize from the struct
      */
     virtual void toPropertyTree(boost::property_tree::ptree& node) const = 0;
   };
@@ -98,13 +105,14 @@ namespace monero {
     boost::optional<uint32_t> maxUsedBlockHeight;
     boost::optional<string> maxUsedBlockId;
     vector<string> signatures;
-    virtual void toPropertyTree(boost::property_tree::ptree& node) const;
+
+    void toPropertyTree(boost::property_tree::ptree& node) const;
   };
 
   /**
    * Models a Monero block header which contains information about the block.
    */
-  struct MoneroBlockHeader {
+  struct MoneroBlockHeader : public SerializableStruct {
     boost::optional<string> id;
     boost::optional<uint64_t> height;
     boost::optional<uint64_t> timestamp;
@@ -122,6 +130,8 @@ namespace monero {
     boost::optional<bool> orphanStatus;
     boost::optional<string> prevId;
     boost::optional<uint64_t> reward;
+
+    void toPropertyTree(boost::property_tree::ptree& node) const;
   };
 
   /**
@@ -132,6 +142,8 @@ namespace monero {
     boost::optional<MoneroTx> coinbaseTx;
     vector<shared_ptr<MoneroTx>> txs;
     vector<string> txIds;
+
+    void toPropertyTree(boost::property_tree::ptree& node) const;
   };
 
   /**
