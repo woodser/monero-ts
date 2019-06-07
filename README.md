@@ -1,5 +1,8 @@
 # Monero C++ Library
 
-General-purpose Monero library with focus on ease-of-use by wrapping Monero core c++ code.
+A lightweight wrapper of Monero core's native c++ wallet which conforms to the specification defined [here](https://github.com/monero-ecosystem/monero-javascript/blob/master/monero-model.pdf).
 
-This library conforms to the API specification defined here: https://github.com/monero-ecosystem/monero-javascript/blob/master/monero-model.pdf
+# See Also
+
+[Java reference implementation](https://github.com/monero-ecosystem/monero-java-rpc)
+[JavaScript reference implementation](https://github.com/monero-ecosystem/monero-javascript)
