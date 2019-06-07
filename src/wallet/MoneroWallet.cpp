@@ -6,6 +6,7 @@
 #include "mnemonics/electrum-words.h"
 #include "mnemonics/english.h"
 
+using namespace std;
 using namespace cryptonote;
 using namespace epee;
 
@@ -49,10 +50,12 @@ namespace monero {
   }
 
   boost::property_tree::ptree MoneroTxWallet::toPropertyTree() const {
+    cout << "MoneroTxWallet::toPropertyTree(node)" << endl;
     throw runtime_error("Not implemented");
   }
 
   boost::property_tree::ptree MoneroTxRequest::toPropertyTree() const {
+    cout << "MoneroTxRequest::toPropertyTree(node)" << endl;
     throw runtime_error("Not implemented");
   }
 
@@ -91,18 +94,20 @@ namespace monero {
   MoneroTransfer wallet2ToIncomingTransfer(const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) {
     cout << "wallet2ToIncomingTransfer(3)" << endl;
 
-    MoneroBlock block;
-    block.height = pd.m_block_height;
+    shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(new MoneroBlock());
+    //shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(make_shared<MoneroBlock>(MoneroBlock()));
+    block->height = pd.m_block_height;
 
-    MoneroTxWallet tx;
-    tx.id = string_tools::pod_to_hex(pd.m_tx_hash);
-    tx.block = make_shared<MoneroBlock>(block);
+    //shared_ptr<MoneroTxWallet> tx = nullptr;
+    shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+    tx->id = string_tools::pod_to_hex(pd.m_tx_hash);
+    tx->block = block;
+    block->txs.push_back(tx);
 
     MoneroIncomingTransfer incomingTransfer;
-    incomingTransfer.tx = make_shared<MoneroTxWallet>(tx);
+    incomingTransfer.tx = tx;
+    tx->incomingTransfers.push_back(incomingTransfer);
 
-    tx.incomingTransfers.push_back(incomingTransfer);
-    block.txs.push_back(make_shared<MoneroTxWallet>(tx));
     return incomingTransfer;
   }
 
@@ -596,7 +601,9 @@ namespace monero {
       std::list<std::pair<crypto::hash, tools::wallet2::payment_details>> payments;
       wallet2->get_payments(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
-        transfers.push_back(wallet2ToIncomingTransfer(i->second.m_tx_hash, i->first, i->second));
+        MoneroTransfer transfer = wallet2ToIncomingTransfer(i->second.m_tx_hash, i->first, i->second);
+        cout << "Transfer has tx? " << (transfer.tx != nullptr) << endl;
+        transfers.push_back(transfer);
       }
     }
 
