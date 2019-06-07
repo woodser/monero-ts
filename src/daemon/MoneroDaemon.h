@@ -27,14 +27,7 @@ namespace monero {
      *
      * @return the converted property tree
      */
-    boost::property_tree::ptree toPropertyTree2() const;
-
-    /**
-     * Convert the struct to a property tree.
-     *
-     * @param node is the property tree node to initialize from the struct
-     */
-    virtual void toPropertyTree(boost::property_tree::ptree& node) const = 0;
+    virtual boost::property_tree::ptree toPropertyTree() const = 0;
   };
 
   /**
@@ -106,7 +99,7 @@ namespace monero {
     boost::optional<string> maxUsedBlockId;
     vector<string> signatures;
 
-    void toPropertyTree(boost::property_tree::ptree& node) const;
+    boost::property_tree::ptree toPropertyTree() const;
   };
 
   /**
@@ -131,7 +124,7 @@ namespace monero {
     boost::optional<string> prevId;
     boost::optional<uint64_t> reward;
 
-    void toPropertyTree(boost::property_tree::ptree& node) const;
+    boost::property_tree::ptree toPropertyTree() const;
   };
 
   /**
@@ -143,7 +136,7 @@ namespace monero {
     vector<shared_ptr<MoneroTx>> txs;
     vector<string> txIds;
 
-    void toPropertyTree(boost::property_tree::ptree& node) const;
+    boost::property_tree::ptree toPropertyTree() const;
   };
 
   /**

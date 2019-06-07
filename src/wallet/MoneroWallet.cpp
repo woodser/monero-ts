@@ -16,23 +16,26 @@ namespace monero {
 
   // -------------------------- MODEL SERIALIZATION ---------------------------
 
-  void MoneroAccount::toPropertyTree(boost::property_tree::ptree& node) const {
+  boost::property_tree::ptree MoneroAccount::toPropertyTree() const {
     cout << "MoneroAccount::toPropertyTree(node)" << endl;
+    boost::property_tree::ptree node;
     if (index != boost::none) node.put("index", *index);
     if (primaryAddress != boost::none) node.put("primaryAddress", *primaryAddress);
     if (balance != boost::none) node.put("balance", *balance);
     if (unlockedBalance != boost::none) node.put("unlockedBalance", *unlockedBalance);
     if (!subaddresses.empty()) {
       boost::property_tree::ptree subaddressesNode;
-      for (const auto& subaddress : subaddresses) {
-        subaddressesNode.push_back(std::make_pair("", subaddress.toPropertyTree2()));
+      for (const MoneroSubaddress& subaddress : subaddresses) {
+        subaddressesNode.push_back(std::make_pair("", subaddress.toPropertyTree()));
       }
       node.add_child("subaddresses", subaddressesNode);
     }
+    return node;
   }
 
-  void MoneroSubaddress::toPropertyTree(boost::property_tree::ptree& node) const {
+  boost::property_tree::ptree MoneroSubaddress::toPropertyTree() const {
     cout << "MoneroSubaddress::toPropertyTree(node)" << endl;
+    boost::property_tree::ptree node;
     if (accountIndex != boost::none) node.put("accountIndex", *accountIndex);
     if (index != boost::none) node.put("index", *index);
     if (address != boost::none) node.put("address", *address);
@@ -44,11 +47,11 @@ namespace monero {
     if (numBlocksToUnlock != boost::none) node.put("numBlocksToUnlock", *numBlocksToUnlock);
   }
 
-  void MoneroTxWallet::toPropertyTree(boost::property_tree::ptree& node) const {
+  boost::property_tree::ptree MoneroTxWallet::toPropertyTree() const {
     throw runtime_error("Not implemented");
   }
 
-  void MoneroTxRequest::toPropertyTree(boost::property_tree::ptree& node) const {
+  boost::property_tree::ptree MoneroTxRequest::toPropertyTree() const {
     throw runtime_error("Not implemented");
   }
 

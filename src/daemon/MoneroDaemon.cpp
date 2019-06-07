@@ -12,28 +12,25 @@ namespace monero {
   // -------------------------- MODEL SERIALIZATION ---------------------------
 
   string SerializableStruct::serialize() const {
-    return MoneroUtils::serialize(toPropertyTree2());
+    return MoneroUtils::serialize(toPropertyTree());
   }
 
-  boost::property_tree::ptree SerializableStruct::toPropertyTree2() const {
-    boost::property_tree::ptree node;
-    toPropertyTree(node);
-    return node;
-  }
-
-  void MoneroBlockHeader::toPropertyTree(boost::property_tree::ptree& node) const {
+  boost::property_tree::ptree MoneroBlockHeader::toPropertyTree() const {
     cout << "MoneroBlockHeader::toPropertyTree(block)" << endl;
     throw runtime_error("not implemented");
   }
 
-  void MoneroBlock::toPropertyTree(boost::property_tree::ptree& node) const {
+  boost::property_tree::ptree MoneroBlock::toPropertyTree() const {
     cout << "MoneroBlock::toPropertyTree(block)" << endl;
+    boost::property_tree::ptree node;
     if (height != boost::none) node.put("height", *height);  // TODO: finish this, add txs
     //node.add_child("txs", toPropertyTree(txs));  // TODO: txs is vector<shared_ptr<MoneroTx>> so need to handle
+    return node;
   }
 
-  void MoneroTx::toPropertyTree(boost::property_tree::ptree& node) const {
+  boost::property_tree::ptree MoneroTx::toPropertyTree() const {
     cout << "MoneroTx::txToPropertyTree(tx)" << endl;
+    boost::property_tree::ptree node;
     if (id != boost::none) node.put("id", *id);
     if (version != boost::none) node.put("version", *version);
     if (isCoinbase != boost::none) node.put("isCoinbase", *isCoinbase);
@@ -71,6 +68,7 @@ namespace monero {
     if (maxUsedBlockHeight != boost::none) node.put("maxUsedBlockHeight", *maxUsedBlockHeight);
     if (maxUsedBlockId != boost::none) node.put("maxUsedBlockId", *maxUsedBlockId);
     if (!signatures.empty()) throw runtime_error("not implemented");
+    return node;
   }
 
   // ---------------------------- PRIVATE HELPERS -----------------------------

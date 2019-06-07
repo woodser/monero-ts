@@ -51,7 +51,7 @@ namespace monero {
 //      KV_SERIALIZE(numBlocksToUnlock)
 //    END_KV_SERIALIZE_MAP()
 
-    void toPropertyTree(boost::property_tree::ptree& node) const;
+    boost::property_tree::ptree toPropertyTree() const;
   };
 
   /**
@@ -75,7 +75,7 @@ namespace monero {
 //      KV_SERIALIZE(subaddresses)
 //    END_KV_SERIALIZE_MAP()
 
-    void toPropertyTree(boost::property_tree::ptree& node) const;
+    boost::property_tree::ptree toPropertyTree() const;
   };
 
   // forward declarations
@@ -137,7 +137,7 @@ namespace monero {
     boost::optional<uint32_t> numSuggestedConfirmations;
     boost::optional<string> note;
 
-    virtual void toPropertyTree(boost::property_tree::ptree& node) const;
+    boost::property_tree::ptree toPropertyTree() const;
   };
 
   /**
@@ -178,7 +178,7 @@ namespace monero {
     boost::optional<MoneroTransferRequest> transferRequest;
 
     boost::optional<uint64_t> getHeight() { return block == boost::none ? boost::none : (*block)->height; }
-    virtual void toPropertyTree(boost::property_tree::ptree& node) const;
+    boost::property_tree::ptree toPropertyTree() const;
   };
 
   /**
