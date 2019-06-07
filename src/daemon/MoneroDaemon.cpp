@@ -24,7 +24,8 @@ namespace monero {
     cout << "MoneroBlock::toPropertyTree(block)" << endl;
     boost::property_tree::ptree node;
     if (height != boost::none) node.put("height", *height);  // TODO: finish this, add txs
-    //node.add_child("txs", toPropertyTree(txs));  // TODO: txs is vector<shared_ptr<MoneroTx>> so need to handle
+    cout << "We should be adding " << txs.size() << " txs" << endl;
+    node.add_child("txs", MoneroUtils::toPropertyTree(txs));  // TODO: txs is vector<shared_ptr<MoneroTx>> so need to handle
     return node;
   }
 

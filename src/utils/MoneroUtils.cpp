@@ -4,7 +4,6 @@
 #include "cryptonote_basic/cryptonote_format_utils.h"
 
 using namespace std;
-using namespace boost;
 using namespace cryptonote;
 using namespace MoneroUtils;
 

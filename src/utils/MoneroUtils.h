@@ -12,7 +12,6 @@
 namespace MoneroUtils
 {
   using namespace std;
-  using namespace boost;
   using namespace cryptonote;
 
   void jsonToBinary(const std::string &json, std::string &bin);
@@ -63,7 +62,17 @@ namespace MoneroUtils
   string serialize(const boost::property_tree::ptree& node);
 
   //  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-  template <class SerializableStruct> boost::property_tree::ptree toPropertyTree(const vector<SerializableStruct> types) {
+  template <class T> boost::property_tree::ptree toPropertyTree(const vector<shared_ptr<T>> types) {
+    cout << "toPropertyTree(types)" << endl;
+    boost::property_tree::ptree typeNodes;
+    for (const auto& type : types)  {
+      typeNodes.push_back(std::make_pair("", type->toPropertyTree()));
+    }
+    return typeNodes;
+  }
+
+  //  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
+  template <class T> boost::property_tree::ptree toPropertyTree(const vector<T> types) {
     cout << "toPropertyTree(types)" << endl;
     boost::property_tree::ptree typeNodes;
     for (const auto& type : types)  {
@@ -71,15 +80,6 @@ namespace MoneroUtils
     }
     return typeNodes;
   }
-
-//  template <class T*> boost::property_tree::ptree toPropertyTree(const vector<T*> types) {
-//    cout << "toPropertyTree(types*)" << endl;
-//    boost::property_tree::ptree typeNodes;
-//    for (const auto& type : types)  {
-//      typeNodes.push_back(std::make_pair("", toPropertyTree(type)));
-//    }
-//    return typeNodes;
-//  }
 
   /**
    * Modified from core_rpc_server.cpp to return a string.
