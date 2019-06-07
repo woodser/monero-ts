@@ -93,11 +93,13 @@ namespace monero {
   /**
    * Models a base transfer of funds to or from the wallet.
    */
-  struct MoneroTransfer {
+  struct MoneroTransfer : SerializableStruct {
     shared_ptr<MoneroTxWallet> tx;
     boost::optional<uint64_t> amount;
     boost::optional<uint32_t> accountIndex;
     boost::optional<bool> isIncoming;
+
+    boost::property_tree::ptree toPropertyTree() const;
   };
 
   /**
@@ -106,6 +108,8 @@ namespace monero {
   struct MoneroIncomingTransfer : public MoneroTransfer {
     boost::optional<uint32_t> subaddressIndex;
     boost::optional<string> address;
+
+    boost::property_tree::ptree toPropertyTree() const;
   };
 
   /**
@@ -115,6 +119,8 @@ namespace monero {
     vector<uint32_t> subaddressIndices;
     vector<string> addresses;
     vector<MoneroDestination> destinations;
+
+    boost::property_tree::ptree toPropertyTree() const;
   };
 
   /**
