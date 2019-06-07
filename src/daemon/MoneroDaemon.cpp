@@ -17,15 +17,35 @@ namespace monero {
 
   boost::property_tree::ptree MoneroBlockHeader::toPropertyTree() const {
     cout << "MoneroBlockHeader::toPropertyTree(block)" << endl;
-    throw runtime_error("not implemented");
+    boost::property_tree::ptree node;
+    if (id != boost::none) node.put("id", *id);
+    if (height != boost::none) node.put("height", *height);
+    if (timestamp != boost::none) node.put("timestamp", *timestamp);
+    if (size != boost::none) node.put("size", *size);
+    if (weight != boost::none) node.put("weight", *weight);
+    if (longTermWeight != boost::none) node.put("longTermWeight", *longTermWeight);
+    if (depth != boost::none) node.put("depth", *depth);
+    if (difficulty != boost::none) node.put("difficulty", *difficulty);
+    if (cumulativeDifficulty != boost::none) node.put("cumulativeDifficulty", *height);
+    if (majorVersion != boost::none) node.put("majorVersion", *majorVersion);
+    if (minorVersion != boost::none) node.put("minorVersion", *minorVersion);
+    if (nonce != boost::none) node.put("nonce", *nonce);
+    if (coinbaseTxId != boost::none) node.put("coinbaseTxId", *coinbaseTxId);
+    if (numTxs != boost::none) node.put("numTxs", *numTxs);
+    if (orphanStatus != boost::none) node.put("orphanStatus", *orphanStatus);
+    if (prevId != boost::none) node.put("prevId", *prevId);
+    if (reward != boost::none) node.put("reward", *reward);
+    if (powHash != boost::none) node.put("powHash", *powHash);
+    return node;
   }
 
   boost::property_tree::ptree MoneroBlock::toPropertyTree() const {
     cout << "MoneroBlock::toPropertyTree(block)" << endl;
-    boost::property_tree::ptree node;
-    if (height != boost::none) node.put("height", *height);  // TODO: finish this, add txs
-    cout << "We should be adding " << txs.size() << " txs" << endl;
-    node.add_child("txs", MoneroUtils::toPropertyTree(txs));  // TODO: txs is vector<shared_ptr<MoneroTx>> so need to handle
+    boost::property_tree::ptree node = MoneroBlockHeader::toPropertyTree();
+    if (hex != boost::none) node.put("hex", *hex);
+    if (coinbaseTx != boost::none) node.add_child("coinbaseTx", coinbaseTx->toPropertyTree());
+    node.add_child("txs", MoneroUtils::toPropertyTree(txs));
+    // TODO: handle txIds
     return node;
   }
 

@@ -54,7 +54,7 @@ namespace monero {
     cout << "MoneroTxWallet::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node = MoneroTx::toPropertyTree();
     if (!vouts.empty()) throw runtime_error("vouts not implemented");
-    if (!incomingTransfers.empty()) MoneroUtils::toPropertyTree(incomingTransfers);
+    if (!incomingTransfers.empty()) node.add_child("incomingTransfers", MoneroUtils::toPropertyTree(incomingTransfers));
     if (outgoingTransfer != boost::none) throw runtime_error("outgoingTransfers not implemented");
     if (numSuggestedConfirmations != boost::none) node.put("numSuggestedConfirmations", *numSuggestedConfirmations);
     if (note != boost::none) node.put("note", *note);

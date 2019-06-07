@@ -125,6 +125,7 @@ namespace monero {
     boost::optional<bool> orphanStatus;
     boost::optional<string> prevId;
     boost::optional<uint64_t> reward;
+    boost::optional<string> powHash;
 
     boost::property_tree::ptree toPropertyTree() const;
   };
