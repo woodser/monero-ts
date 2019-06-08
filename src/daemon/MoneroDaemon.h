@@ -62,6 +62,7 @@ namespace monero {
    * Models a Monero transaction on the blockchain.
    */
   struct MoneroTx : public SerializableStruct {
+    static const string DEFAULT_PAYMENT_ID;  // default payment id "0000000000000000"
     boost::optional<shared_ptr<MoneroBlock>> block;
     boost::optional<string> id;
     boost::optional<string> version;

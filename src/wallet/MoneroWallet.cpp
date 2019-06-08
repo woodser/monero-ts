@@ -693,10 +693,17 @@ namespace monero {
     tx->id = string_tools::pod_to_hex(pd.m_tx_hash);
     tx->paymentId = string_tools::pod_to_hex(payment_id);
     if (tx->paymentId->substr(16).find_first_not_of('0') == std::string::npos) tx->paymentId = tx->paymentId->substr(0, 16);  // TODO monero core: this should be part of core wallet
+    if (tx->paymentId == MoneroTx::DEFAULT_PAYMENT_ID) tx->paymentId = boost::none;  // clear default payment id
     tx->unlockTime = pd.m_unlock_time;
     tx->fee = pd.m_fee;
     tx->note = wallet2->get_tx_note(pd.m_tx_hash);
-    //entry.type = pd.m_coinbase ? "block" : "in";  // TODO: confirm how coinbase tx/transfers handled now in model, add test
+    if (tx->note->empty()) tx->note = boost::none; // clear empty note
+    tx->isCoinbase = pd.m_coinbase ? true : false;
+    tx->isConfirmed = true;
+    tx->isFailed = false;
+    tx->isRelayed = true;
+    tx->inTxPool = false;
+
     //set_confirmations(entry, m_wallet->get_blockchain_current_height(), m_wallet->get_last_block_reward()); // TODO
 
     MoneroIncomingTransfer incomingTransfer;

@@ -9,6 +9,10 @@
  */
 namespace monero {
 
+  // ------------------------- INITIALIZE CONSTANTS ---------------------------
+
+  const string MoneroTx::DEFAULT_PAYMENT_ID = string("0000000000000000");
+
   // -------------------------- MODEL SERIALIZATION ---------------------------
 
   string SerializableStruct::serialize() const {
