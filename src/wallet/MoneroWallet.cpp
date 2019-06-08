@@ -76,7 +76,7 @@ namespace monero {
 
   boost::property_tree::ptree MoneroIncomingTransfer::toPropertyTree() const {
     cout << "MoneroIncomingTransfer::toPropertyTree(node)" << endl;
-    boost::property_tree::ptree node;
+    boost::property_tree::ptree node = MoneroTransfer::toPropertyTree();
     if (subaddressIndex != boost::none) node.put("subaddressIndex", *subaddressIndex);
     if (address != boost::none) node.put("address", *address);
     return node;
@@ -84,7 +84,7 @@ namespace monero {
 
   boost::property_tree::ptree MoneroOutgoingTransfer::toPropertyTree() const {
     cout << "MoneroOutgoingTransfer::toPropertyTree(node)" << endl;
-    boost::property_tree::ptree node;
+    boost::property_tree::ptree node = MoneroTransfer::toPropertyTree();
     if (!subaddressIndices.empty()) throw runtime_error("subaddressIndices not implemented");
     if (!addresses.empty()) throw runtime_error("addresses not implemented");
     if (!destinations.empty()) throw runtime_error("destinations not implemented");
