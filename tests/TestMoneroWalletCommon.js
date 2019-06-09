@@ -2572,10 +2572,8 @@ async function testTxWallet(tx, ctx) {
     // these should be initialized unless a response from sending
     if (!ctx.isSendResponse) {
       //assert(tx.getReceivedTimestamp() > 0);    // TODO: re-enable when received timestamp returned in wallet rpc
-      assert(tx.getNumSuggestedConfirmations() > 0);
     }
   } else {
-    assert.equal(tx.getNumSuggestedConfirmations(), undefined);
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
   }
   
@@ -2804,6 +2802,7 @@ function testTransfer(transfer, ctx) {
   assert(transfer instanceof MoneroTransfer);
   TestUtils.testUnsignedBigInteger(transfer.getAmount());
   if (!ctx.isSweepOutputResponse) assert(transfer.getAccountIndex() >= 0);
+  assert(transfer.getNumSuggestedConfirmations() >= 0); // TODO monero-wallet-rpc: some outgoing transfers have suggested_confirmations_threshold = 0
   if (transfer.getIsIncoming()) testIncomingTransfer(transfer);
   else testOutgoingTransfer(transfer, ctx);
   
@@ -2820,6 +2819,7 @@ function testIncomingTransfer(transfer) {
   assert(!transfer.getIsOutgoing());
   assert(transfer.getAddress());
   assert(transfer.getSubaddressIndex() >= 0);
+  assert(transfer.getNumSuggestedConfirmations() > 0);
 }
 
 function testOutgoingTransfer(transfer, ctx) {

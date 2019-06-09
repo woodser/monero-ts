@@ -1219,8 +1219,8 @@ class MoneroWalletRpc extends MoneroWallet {
         else tx.setNumConfirmations(val);
       }
       else if (key === "suggested_confirmations_threshold") {
-        if (tx.getInTxPool()) tx.setNumSuggestedConfirmations(val);
-        else tx.setNumSuggestedConfirmations(undefined);
+        if (transfer === undefined) transfer = (isOutgoing ? new MoneroOutgoingTransfer() : new MoneroIncomingTransfer()).setTx(tx);
+        transfer.setNumSuggestedConfirmations(val);
       }
       else if (key === "amount") {
         if (transfer === undefined) transfer = (isOutgoing ? new MoneroOutgoingTransfer() : new MoneroIncomingTransfer()).setTx(tx);

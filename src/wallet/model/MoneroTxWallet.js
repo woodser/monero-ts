@@ -94,23 +94,6 @@ class MoneroTxWallet extends MoneroTx {
     return this;
   }
   
-  /**
-   * Return how many confirmations till it's not economically worth re-writing the chain.
-   * That is, the number of confirmations before the transaction is highly unlikely to be
-   * double spent or overwritten and may be considered settled, e.g. for a merchant to trust
-   * as finalized.
-   * 
-   * @return Integer is the number of confirmations before it's not worth rewriting the chain
-   */
-  getNumSuggestedConfirmations() {
-    return this.state.numSuggestedConfirmations;
-  }
-  
-  setNumSuggestedConfirmations(numSuggestedConfirmations) {
-    this.state.numSuggestedConfirmations = numSuggestedConfirmations;
-    return this;
-  }
-  
   getNote() {
     return this.state.note;
   }
@@ -167,13 +150,6 @@ class MoneroTxWallet extends MoneroTx {
       else this.getOutgoingTransfer().merge(tx.getOutgoingTransfer());
     }
     
-    // handle unrelayed -> relayed -> confirmed
-    if (this.getIsConfirmed()) {
-      this.setNumSuggestedConfirmations(undefined);
-    } else {
-      this.setNumSuggestedConfirmations(MoneroUtils.reconcile(this.getNumSuggestedConfirmations(), tx.getNumSuggestedConfirmations(), {resolveMax: false})); // take min
-    }
-    
     return this;  // for chaining
   }
   
@@ -208,7 +184,6 @@ class MoneroTxWallet extends MoneroTx {
       str += MoneroUtils.kvLine("Outgoing transfer", "", indent);
       str += this.getOutgoingTransfer().toString(indent + 1) + "\n";
     }
-    str += MoneroUtils.kvLine("Num suggested confirmations", this.getNumSuggestedConfirmations(), indent);
     str += MoneroUtils.kvLine("Note: ", this.getNote(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
