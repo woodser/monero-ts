@@ -18,7 +18,7 @@ namespace monero {
   // -------------------------- MODEL SERIALIZATION ---------------------------
 
   boost::property_tree::ptree MoneroAccount::toPropertyTree() const {
-    cout << "MoneroAccount::toPropertyTree(node)" << endl;
+    //cout << "MoneroAccount::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node;
     if (index != boost::none) node.put("index", *index);
     if (primaryAddress != boost::none) node.put("primaryAddress", *primaryAddress);
@@ -36,7 +36,7 @@ namespace monero {
   }
 
   boost::property_tree::ptree MoneroSubaddress::toPropertyTree() const {
-    cout << "MoneroSubaddress::toPropertyTree(node)" << endl;
+    //cout << "MoneroSubaddress::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node;
     if (accountIndex != boost::none) node.put("accountIndex", *accountIndex);
     if (index != boost::none) node.put("index", *index);
@@ -51,7 +51,7 @@ namespace monero {
   }
 
   boost::property_tree::ptree MoneroTxWallet::toPropertyTree() const {
-    cout << "MoneroTxWallet::toPropertyTree(node)" << endl;
+    //cout << "MoneroTxWallet::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node = MoneroTx::toPropertyTree();
     if (!vouts.empty()) throw runtime_error("vouts not implemented");
     if (!incomingTransfers.empty()) node.add_child("incomingTransfers", MoneroUtils::toPropertyTree(incomingTransfers));
@@ -62,12 +62,12 @@ namespace monero {
   }
 
   boost::property_tree::ptree MoneroTxRequest::toPropertyTree() const {
-    cout << "MoneroTxRequest::toPropertyTree(node)" << endl;
+    //cout << "MoneroTxRequest::toPropertyTree(node)" << endl;
     throw runtime_error("Not implemented");
   }
 
   boost::property_tree::ptree MoneroTransfer::toPropertyTree() const {
-    cout << "MoneroTransfer::toPropertyTree(node)" << endl;
+    //cout << "MoneroTransfer::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node;
     if (amount != boost::none) node.put("amount", *amount);
     if (accountIndex != boost::none) node.put("accountIndex", *accountIndex);
@@ -75,7 +75,7 @@ namespace monero {
   }
 
   boost::property_tree::ptree MoneroIncomingTransfer::toPropertyTree() const {
-    cout << "MoneroIncomingTransfer::toPropertyTree(node)" << endl;
+    //cout << "MoneroIncomingTransfer::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node = MoneroTransfer::toPropertyTree();
     if (subaddressIndex != boost::none) node.put("subaddressIndex", *subaddressIndex);
     if (address != boost::none) node.put("address", *address);
@@ -83,7 +83,7 @@ namespace monero {
   }
 
   boost::property_tree::ptree MoneroOutgoingTransfer::toPropertyTree() const {
-    cout << "MoneroOutgoingTransfer::toPropertyTree(node)" << endl;
+    //cout << "MoneroOutgoingTransfer::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node = MoneroTransfer::toPropertyTree();
     if (!subaddressIndices.empty()) throw runtime_error("subaddressIndices not implemented");
     if (!addresses.empty()) throw runtime_error("addresses not implemented");
@@ -577,7 +577,6 @@ namespace monero {
       wallet2->get_payments(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
         MoneroTransfer transfer = wallet2ToIncomingTransfer(i->second.m_tx_hash, i->first, i->second);
-        cout << "Transfer has tx? " << (transfer.tx != nullptr) << endl;
         transfers.push_back(transfer);
       }
     }
@@ -682,9 +681,10 @@ namespace monero {
   }
 
   MoneroTransfer MoneroWallet::wallet2ToIncomingTransfer(const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) const {
-    cout << "wallet2ToIncomingTransfer(3)" << endl;
+    //cout << "wallet2ToIncomingTransfer(3)" << endl;
     shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(new MoneroBlock());
     block->height = pd.m_block_height;
+    block->timestamp = pd.m_timestamp;
 
     //shared_ptr<MoneroTxWallet> tx = nullptr;
     shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
@@ -703,8 +703,13 @@ namespace monero {
     tx->isFailed = false;
     tx->isRelayed = true;
     tx->inTxPool = false;
+    tx->doNotRelay = false;
+    tx->isDoubleSpend = false;
 
-    //set_confirmations(entry, m_wallet->get_blockchain_current_height(), m_wallet->get_last_block_reward()); // TODO
+    // compute numConfirmations TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2.h
+    uint64_t chainHeight = getChainHeight();
+    if (*block->height >= chainHeight || (*block->height == 0 && !tx->inTxPool)) tx->numConfirmations = 0;
+    else tx->numConfirmations = chainHeight - *block->height;
 
     MoneroIncomingTransfer incomingTransfer;
     incomingTransfer.tx = tx;
@@ -713,6 +718,11 @@ namespace monero {
     //incomingTransfer.subaddressIndex = pd.m_subaddr_index;  // TODO: this is {major, minor} me thinks
     incomingTransfer.address = wallet2->get_subaddress_as_str(pd.m_subaddr_index);
     tx->incomingTransfers.push_back(incomingTransfer);
+
+    // compute numSuggestedConfirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2.h
+    uint64_t blockReward = wallet2->get_last_block_reward();
+    if (blockReward == 0) tx->numSuggestedConfirmations = 0;
+    else tx->numSuggestedConfirmations = (*incomingTransfer.amount + blockReward - 1) / blockReward; // TODO: ***model change***: numSuggestedConfirmtions is per transfer
 
     return incomingTransfer;
   }

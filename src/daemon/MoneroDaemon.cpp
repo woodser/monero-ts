@@ -20,7 +20,7 @@ namespace monero {
   }
 
   boost::property_tree::ptree MoneroBlockHeader::toPropertyTree() const {
-    cout << "MoneroBlockHeader::toPropertyTree(block)" << endl;
+    //cout << "MoneroBlockHeader::toPropertyTree(block)" << endl;
     boost::property_tree::ptree node;
     if (id != boost::none) node.put("id", *id);
     if (height != boost::none) node.put("height", *height);
@@ -44,7 +44,7 @@ namespace monero {
   }
 
   boost::property_tree::ptree MoneroBlock::toPropertyTree() const {
-    cout << "MoneroBlock::toPropertyTree(block)" << endl;
+    //cout << "MoneroBlock::toPropertyTree(block)" << endl;
     boost::property_tree::ptree node = MoneroBlockHeader::toPropertyTree();
     if (hex != boost::none) node.put("hex", *hex);
     if (coinbaseTx != boost::none) node.add_child("coinbaseTx", coinbaseTx->toPropertyTree());
@@ -54,7 +54,7 @@ namespace monero {
   }
 
   boost::property_tree::ptree MoneroTx::toPropertyTree() const {
-    cout << "MoneroTx::txToPropertyTree(tx)" << endl;
+    //cout << "MoneroTx::txToPropertyTree(tx)" << endl;
     boost::property_tree::ptree node;
     if (id != boost::none) node.put("id", *id);
     if (version != boost::none) node.put("version", *version);
