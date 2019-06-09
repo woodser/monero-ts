@@ -13,14 +13,14 @@ new TestMoneroDaemonRpc().runTests({
   liteMode: false,  // skips some lengthy but detailed tests
   testNonRelays: true,
   testRelays: true, // creates and relays outgoing txs
-  testNotifications: false
+  testNotifications: true
 });
 
 // test wallet rpc
 new TestMoneroWalletRpc().runTests({
   liteMode: false, // skips some lengthy but detailed tests
   testNonSends: true,
-  testNotifications: false,
+  testNotifications: true,
   testSends: true,
   testResets: false
 });

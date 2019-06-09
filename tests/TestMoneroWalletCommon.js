@@ -431,7 +431,7 @@ class TestMoneroWalletCommon {
         // test fetching by id
         let fetchedTx = await wallet.getTx(txs[0].getId());
         assert.equal(fetchedTx.getId(), txs[0].getId());
-        testTxWallet(fetchedTx);
+        await testTxWallet(fetchedTx);
         
         // test fetching by ids
         let txId1 = txs[0].getId();
@@ -445,7 +445,7 @@ class TestMoneroWalletCommon {
         assert.equal(fetchedTxs.length, txs.length);
         for (let i = 0; i < txs.length; i++) {
           assert.equal(fetchedTxs[i].getId(), txs[i].getId());
-          testTxWallet(fetchedTxs[i]);
+          await testTxWallet(fetchedTxs[i]);
         }
       });
       
@@ -454,7 +454,7 @@ class TestMoneroWalletCommon {
         
         // get random transactions for testing
         let randomTxs = await getRandomTransactions(wallet, undefined, 3, 5);
-        for (let randomTx of randomTxs) testTxWallet(randomTx);
+        for (let randomTx of randomTxs) await testTxWallet(randomTx);
         
         // get transactions by id
         let txIds = [];
@@ -2138,7 +2138,7 @@ class TestMoneroWalletCommon {
           else tx = await wallet.sweepOutput(request);  // test request
           
           // test resulting tx
-          testTxWallet(tx, {wallet: wallet, sendRequest: request, isSendResponse: true, isSweepResponse: true, isSweepOutputResponse: true});
+          await testTxWallet(tx, {wallet: wallet, sendRequest: request, isSendResponse: true, isSweepResponse: true, isSweepOutputResponse: true});
           useParams = !useParams;
         }
         
@@ -2164,7 +2164,7 @@ class TestMoneroWalletCommon {
         // test txs
         let ctx = {sendRequest: new MoneroSendRequest().setDoNotRelay(true), isSendResponse: true, isSweepResponse: true};
         for (let tx of txs) {
-          testTxWallet(tx, ctx);
+          await testTxWallet(tx, ctx);
         }
         
         // relay txs
@@ -2178,7 +2178,7 @@ class TestMoneroWalletCommon {
         txs = wallet.getTxs(new MoneroTxRequest().setTxIds(txIds));
         ctx.sendRequest.setDoNotRelay(false);
         for (let tx of txs) {
-          testTxWallet(tx, ctx);
+          await testTxWallet(tx, ctx);
         }
       });
       
@@ -2187,7 +2187,7 @@ class TestMoneroWalletCommon {
         if (txs.length === 0) return;  // dust does not exist after rct
         let ctx = {wallet: wallet, isSendResponse: true, isSweepResponse: true};
         for (let tx of txs) {
-          testTxWallet(tx, ctx);
+          await testTxWallet(tx, ctx);
         }
       });
     });
@@ -2233,7 +2233,7 @@ class TestMoneroWalletCommon {
             let request = new MoneroSendRequest(await wallet.getPrimaryAddress());
             request.setAccountIndex(unlockedSubaddress.getAccountIndex());
             request.setSubaddressIndices([unlockedSubaddress.getIndex()]);
-            testTxWallet(tx, {wallet: wallet, sendRequest: request, isSendResponse: true, isSweepResponse: true});
+            await testTxWallet(tx, {wallet: wallet, sendRequest: request, isSendResponse: true, isSweepResponse: true});
           }
           
           // assert no unlocked funds in subaddress
@@ -2802,7 +2802,7 @@ function testTransfer(transfer, ctx) {
   assert(transfer instanceof MoneroTransfer);
   TestUtils.testUnsignedBigInteger(transfer.getAmount());
   if (!ctx.isSweepOutputResponse) assert(transfer.getAccountIndex() >= 0);
-  assert(transfer.getNumSuggestedConfirmations() >= 0); // TODO monero-wallet-rpc: some outgoing transfers have suggested_confirmations_threshold = 0
+  if (!ctx.isSendResponse) assert(transfer.getNumSuggestedConfirmations() >= 0); // TODO monero-wallet-rpc: some outgoing transfers have suggested_confirmations_threshold = 0
   if (transfer.getIsIncoming()) testIncomingTransfer(transfer);
   else testOutgoingTransfer(transfer, ctx);
   

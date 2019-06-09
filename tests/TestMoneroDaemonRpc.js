@@ -1581,7 +1581,7 @@ function testKnownPeer(peer, fromConnection) {
   assert(peer.getRpcPort() >= 0);
   assert.equal(typeof peer.getIsOnline(), "boolean");
   if (fromConnection) assert.equal(undefined, peer.getLastSeenTimestamp());
-  else assert(peer.getLastSeenTimestamp() > 0);
+  else assert(peer.getLastSeenTimestamp() >= 0);  // TODO monero-wallet-rpc: what does last seen 0 mean?
   assert(peer.getPruningSeed() >= 0);
 }
 

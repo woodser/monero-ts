@@ -112,7 +112,7 @@ class MoneroTransfer {
     else {
       this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), transfer.getAccountIndex()));
       this.setAmount(MoneroUtils.reconcile(this.getAmount(), transfer.getAmount()));
-      this.setNumSuggestedConfirmations(MoneroUtils.reconcile(this.getNumSuggestedConfirmations(), transfer.getNumSuggestedConfirmations()));
+      this.setNumSuggestedConfirmations(MoneroUtils.reconcile(this.getNumSuggestedConfirmations(), transfer.getNumSuggestedConfirmations(), {resolveMax: false}));
     }
     
     return this;
