@@ -5,7 +5,7 @@ const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/b
 const MoneroKeyImage = require("./MoneroKeyImage");
 
 /**
- * Represents a transaction output.
+ * Models a Monero transaction output.
  */
 class MoneroOutput {
   

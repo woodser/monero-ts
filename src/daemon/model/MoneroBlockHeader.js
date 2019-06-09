@@ -3,7 +3,7 @@ const MoneroUtils = require("../../utils/MoneroUtils");
 const BigInteger = require("../../submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
- * Monero block header information.
+ * Models a Monero block header which contains information about the block.
  */
 class MoneroBlockHeader {
   

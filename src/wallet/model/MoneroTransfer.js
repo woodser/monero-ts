@@ -5,7 +5,7 @@ const MoneroError = require("../../utils/MoneroError");
 const MoneroDestination = require("./MoneroDestination");
 
 /**
- * Base model for a transfer of funds to or from the wallet.
+ * Models a base transfer of funds to or from the wallet.
  */
 class MoneroTransfer {
   

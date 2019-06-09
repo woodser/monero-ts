@@ -2555,8 +2555,8 @@ async function testTxWallet(tx, ctx) {
     assert.equal(tx.getIsFailed(), false);
     assert.equal(tx.getInTxPool(), false);
     assert.equal(tx.getDoNotRelay(), false);
-    assert(tx.getNumConfirmations() > 0);
     assert.equal(tx.getIsDoubleSpend(), false);
+    assert(tx.getNumConfirmations() > 0);
   } else {
     assert.equal(tx.getBlock(), undefined);
     assert.equal(tx.getNumConfirmations(), 0);

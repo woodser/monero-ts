@@ -4,7 +4,7 @@ const MoneroTx = require("./MoneroTx");
 const MoneroBlockHeader = require("./MoneroBlockHeader");
 
 /**
- * Monero block.
+ * Models a Monero block in the blockchain.
  */
 class MoneroBlock extends MoneroBlockHeader {
   
