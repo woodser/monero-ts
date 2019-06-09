@@ -95,9 +95,10 @@ namespace monero {
    */
   struct MoneroTransfer : SerializableStruct {
     shared_ptr<MoneroTxWallet> tx;
+    boost::optional<bool> isIncoming;
     boost::optional<uint64_t> amount;
     boost::optional<uint32_t> accountIndex;
-    boost::optional<bool> isIncoming;
+    boost::optional<uint32_t> numSuggestedConfirmations;
 
     boost::property_tree::ptree toPropertyTree() const;
   };
@@ -140,7 +141,6 @@ namespace monero {
   struct MoneroTxWallet : public MoneroTx {
     vector<MoneroIncomingTransfer> incomingTransfers;
     boost::optional<MoneroOutgoingTransfer> outgoingTransfer;
-    boost::optional<uint32_t> numSuggestedConfirmations;
     boost::optional<string> note;
 
     boost::property_tree::ptree toPropertyTree() const;

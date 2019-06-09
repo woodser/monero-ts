@@ -56,7 +56,6 @@ namespace monero {
     if (!vouts.empty()) throw runtime_error("vouts not implemented");
     if (!incomingTransfers.empty()) node.add_child("incomingTransfers", MoneroUtils::toPropertyTree(incomingTransfers));
     if (outgoingTransfer != boost::none) throw runtime_error("outgoingTransfers not implemented");
-    if (numSuggestedConfirmations != boost::none) node.put("numSuggestedConfirmations", *numSuggestedConfirmations);
     if (note != boost::none) node.put("note", *note);
     return node;
   }
@@ -71,6 +70,7 @@ namespace monero {
     boost::property_tree::ptree node;
     if (amount != boost::none) node.put("amount", *amount);
     if (accountIndex != boost::none) node.put("accountIndex", *accountIndex);
+    if (numSuggestedConfirmations != boost::none) node.put("numSuggestedConfirmations", *numSuggestedConfirmations);
     return node;
   }
 
@@ -706,7 +706,7 @@ namespace monero {
     tx->doNotRelay = false;
     tx->isDoubleSpend = false;
 
-    // compute numConfirmations TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2.h
+    // compute numConfirmations TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
     uint64_t chainHeight = getChainHeight();
     if (*block->height >= chainHeight || (*block->height == 0 && !tx->inTxPool)) tx->numConfirmations = 0;
     else tx->numConfirmations = chainHeight - *block->height;
@@ -719,10 +719,10 @@ namespace monero {
     incomingTransfer.address = wallet2->get_subaddress_as_str(pd.m_subaddr_index);
     tx->incomingTransfers.push_back(incomingTransfer);
 
-    // compute numSuggestedConfirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2.h
+    // compute numSuggestedConfirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
     uint64_t blockReward = wallet2->get_last_block_reward();
-    if (blockReward == 0) tx->numSuggestedConfirmations = 0;
-    else tx->numSuggestedConfirmations = (*incomingTransfer.amount + blockReward - 1) / blockReward; // TODO: ***model change***: numSuggestedConfirmtions is per transfer
+    if (blockReward == 0) incomingTransfer.numSuggestedConfirmations = 0;
+    else incomingTransfer.numSuggestedConfirmations = (*incomingTransfer.amount + blockReward - 1) / blockReward;
 
     return incomingTransfer;
   }
