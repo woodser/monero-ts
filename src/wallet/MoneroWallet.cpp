@@ -596,6 +596,8 @@ namespace monero {
       //throw runtime_error("isPool not implemented");
     }
 
+    // TODO: apply filtering
+
     return transfers;
   }
 
@@ -711,18 +713,21 @@ namespace monero {
     if (*block->height >= chainHeight || (*block->height == 0 && !tx->inTxPool)) tx->numConfirmations = 0;
     else tx->numConfirmations = chainHeight - *block->height;
 
+    // construct transfer
     MoneroIncomingTransfer incomingTransfer;
     incomingTransfer.tx = tx;
     incomingTransfer.amount = pd.m_amount;
-    incomingTransfer.accountIndex = boost::none;
-    //incomingTransfer.subaddressIndex = pd.m_subaddr_index;  // TODO: this is {major, minor} me thinks
+    incomingTransfer.accountIndex = pd.m_subaddr_index.major;
+    incomingTransfer.subaddressIndex = pd.m_subaddr_index.minor;
     incomingTransfer.address = wallet2->get_subaddress_as_str(pd.m_subaddr_index);
-    tx->incomingTransfers.push_back(incomingTransfer);
 
     // compute numSuggestedConfirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
     uint64_t blockReward = wallet2->get_last_block_reward();
     if (blockReward == 0) incomingTransfer.numSuggestedConfirmations = 0;
     else incomingTransfer.numSuggestedConfirmations = (*incomingTransfer.amount + blockReward - 1) / blockReward;
+
+    // add transfer to tx
+    tx->incomingTransfers.push_back(incomingTransfer);
 
     return incomingTransfer;
   }
