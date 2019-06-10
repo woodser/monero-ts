@@ -4,7 +4,7 @@ This project is a lightweight wrapper of Monero's core c++ wallet, [wallet2.h](h
 
 ## Building a Dynamic / Shared Library
 
-The source code in this project may be built as a dynamic or "shared" library for use on a target platform (e.g. Linux, Mac, Windows, etc).  For example, the associated [Java reference implementation](https://github.com/monero-ecosystem/monero-java-rpc) depends on a dynamic library built from this project to support a wallet using JNI.
+The source code in this project may be built as a dynamic or "shared" library for use on a target platform (e.g. Linux, Mac, Windows, etc).  For example, the associated [Java library](https://github.com/monero-ecosystem/monero-java-rpc) depends on a dynamic library built from this project to support a wallet using JNI.
 
 ### Build Steps
 
