@@ -47,7 +47,7 @@ namespace monero {
     //cout << "MoneroBlock::toPropertyTree(block)" << endl;
     boost::property_tree::ptree node = MoneroBlockHeader::toPropertyTree();
     if (hex != boost::none) node.put("hex", *hex);
-    if (coinbaseTx != boost::none) node.add_child("coinbaseTx", coinbaseTx->toPropertyTree());
+    if (coinbaseTx != boost::none) node.add_child("coinbaseTx", (*coinbaseTx)->toPropertyTree());
     node.add_child("txs", MoneroUtils::toPropertyTree(txs));
     // TODO: handle txIds
     return node;

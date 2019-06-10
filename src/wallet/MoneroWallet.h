@@ -119,7 +119,7 @@ namespace monero {
   struct MoneroOutgoingTransfer : public MoneroTransfer {
     vector<uint32_t> subaddressIndices;
     vector<string> addresses;
-    vector<MoneroDestination> destinations;
+    vector<shared_ptr<MoneroDestination>> destinations;
 
     boost::property_tree::ptree toPropertyTree() const;
   };
@@ -139,8 +139,8 @@ namespace monero {
    * Models a Monero transaction in the context of a wallet.
    */
   struct MoneroTxWallet : public MoneroTx {
-    vector<MoneroIncomingTransfer> incomingTransfers;
-    boost::optional<MoneroOutgoingTransfer> outgoingTransfer;
+    vector<shared_ptr<MoneroIncomingTransfer>> incomingTransfers;
+    boost::optional<shared_ptr<MoneroOutgoingTransfer>> outgoingTransfer;
     boost::optional<string> note;
 
     boost::property_tree::ptree toPropertyTree() const;
@@ -157,7 +157,7 @@ namespace monero {
     vector<string> addresses;
     boost::optional<uint32_t> subaddressIndex;
     vector<uint32_t> subaddressIndices;
-    vector<MoneroDestination> destinations;
+    vector<shared_ptr<MoneroDestination>> destinations;
     boost::optional<bool> hasDestinations;
     boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
 
@@ -181,7 +181,7 @@ namespace monero {
     boost::optional<uint64_t> minHeight;
     boost::optional<uint64_t> maxHeight;
     boost::optional<uint64_t> includeOutputs;
-    boost::optional<MoneroTransferRequest> transferRequest;
+    boost::optional<shared_ptr<MoneroTransferRequest>> transferRequest;
 
     boost::optional<uint64_t> getHeight() { return block == boost::none ? boost::none : (*block)->height; }
     boost::property_tree::ptree toPropertyTree() const;
@@ -744,7 +744,9 @@ namespace monero {
      * @param request filters query results (optional)
      * @return wallet transfers per the request
      */
-    vector<MoneroTransfer> getTransfers(const MoneroTransferRequest& request) const;
+    vector<shared_ptr<MoneroTransfer>> getTransfers(const MoneroTransferRequest& request) const;
+
+//    void getTransfers(const MoneroTransferRequest& request, vector<MoneroTransfer>& transfers) const;
 
 //    /**
 //     * Get outputs created from previous transactions that belong to the wallet
@@ -1266,7 +1268,7 @@ namespace monero {
 
     MoneroSyncResult syncAux(boost::optional<uint64_t> startHeight, boost::optional<uint64_t> endHeight, boost::optional<MoneroSyncListener&> listener);
     vector<MoneroSubaddress> getSubaddressesAux(uint32_t accountIdx, vector<uint32_t> subaddressIndices, vector<tools::wallet2::transfer_details> transfers) const;
-    MoneroTransfer wallet2ToIncomingTransfer(const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) const;
+    shared_ptr<MoneroTxWallet> buildTxWithIncomingTransfer(const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) const;
   };
 }
 

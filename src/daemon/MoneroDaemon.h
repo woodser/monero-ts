@@ -136,7 +136,7 @@ namespace monero {
    */
   struct MoneroBlock : public MoneroBlockHeader {
     boost::optional<string> hex;
-    boost::optional<MoneroTx> coinbaseTx;
+    boost::optional<shared_ptr<MoneroTx>> coinbaseTx;
     vector<shared_ptr<MoneroTx>> txs;
     vector<string> txIds;
 
