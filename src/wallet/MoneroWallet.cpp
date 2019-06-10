@@ -629,7 +629,8 @@ namespace monero {
       wallet2->get_payments(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
         shared_ptr<MoneroTxWallet> tx = buildTxWithIncomingTransfer(i->second.m_tx_hash, i->first, i->second);
-        mergeTx(txs, tx);
+        //mergeTx(txs, tx); // TODO
+        txs.push_back(tx);
       }
     }
 
