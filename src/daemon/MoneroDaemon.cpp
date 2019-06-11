@@ -99,14 +99,17 @@ namespace monero {
   // -------------------------- MODEL IMPLEMENTATION --------------------------
 
   void MoneroBlockHeader::merge(const MoneroBlockHeader& header) {
+    cout << "MoneroBlockHeader::merge()" << endl;
     throw runtime_error("Not implemented");
   }
 
   void MoneroBlock::merge(const MoneroBlock& block) {
+    cout << "MoneroBlock::merge()" << endl;
     throw runtime_error("Not implemented");
   }
 
   void MoneroTx::merge(const MoneroTx& tx) {
+    cout << "MoneroTx::merge()" << endl;
     throw runtime_error("Not implemented");
   }
 

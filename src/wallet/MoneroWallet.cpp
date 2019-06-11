@@ -185,7 +185,7 @@ namespace monero {
    * @param skipIfAbsent specifies if the tx should not be added if it doesn't already exist
    * @returns the merged tx
    */
-  void mergeTx(vector<shared_ptr<MoneroTxWallet>> txs, const shared_ptr<MoneroTxWallet>& tx, bool skipIfAbsent) {
+  void mergeTx(vector<shared_ptr<MoneroTxWallet>>& txs, const shared_ptr<MoneroTxWallet>& tx, bool skipIfAbsent) {
     cout << "mergeTx()" << endl;
     if (tx->id == boost::none) throw runtime_error("Tx id is not initialized");
     for (const auto& aTx:  txs) {
