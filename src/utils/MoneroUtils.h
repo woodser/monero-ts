@@ -94,5 +94,25 @@ namespace MoneroUtils
     CHECK_AND_ASSERT_MES(r, std::string(), "Failed to serialize rct signatures base");
     return ss.str();
   }
+
+  template <class T> boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax) {
+    cout << "reconcile(" << val1 << ", " << val2 << ")" << endl;
+
+    // check for equality
+    if (val1 == val2) return val1;
+
+    // resolve one value none
+    if (val1 == boost::none || val2 == boost::none) {
+      if (resolveDefined == false) return boost::none;  // TODO: boost::optional equality comparitor wokrs like this?
+      else return val1 == boost::none ? val2 : val1;
+    }
+
+    // throw runtime_error("Cannot reconcile values " + val1 + " and " + val2 + " with config: [" + resolveDefined + ", " + resolveTrue + ", " + resolveMax + "]", val1, val2);
+    throw runtime_error("Cannot reconcile values");
+  }
+
+  template <class T> boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2) {
+    return reconcile(val1, val2, boost::none, boost::none, boost::none);
+  }
 }
 #endif /* MoneroUtils_h */

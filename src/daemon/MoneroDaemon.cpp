@@ -100,11 +100,14 @@ namespace monero {
 
   void MoneroBlockHeader::merge(const MoneroBlockHeader& header) {
     cout << "MoneroBlockHeader::merge()" << endl;
+    if (this == &header) return;
+    id = MoneroUtils::reconcile(id, header.id);
     throw runtime_error("Not implemented");
   }
 
   void MoneroBlock::merge(const MoneroBlock& block) {
     cout << "MoneroBlock::merge()" << endl;
+    MoneroBlockHeader::merge(block);
     throw runtime_error("Not implemented");
   }
 
