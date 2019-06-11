@@ -96,6 +96,9 @@ namespace monero {
     return node;
   }
 
+  // -------------------------- MODEL IMPLEMENTATION --------------------------
+
+
   // ---------------------------- PRIVATE HELPERS -----------------------------
 
 }

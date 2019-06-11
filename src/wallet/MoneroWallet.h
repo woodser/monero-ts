@@ -101,6 +101,10 @@ namespace monero {
     boost::optional<uint32_t> numSuggestedConfirmations;
 
     boost::property_tree::ptree toPropertyTree() const;
+    boost::optional<bool> getIsOutgoing() const {
+      if (isIncoming == boost::none ) return boost::none;
+      return !(*isIncoming);
+    }
   };
 
   /**
@@ -160,11 +164,6 @@ namespace monero {
     vector<shared_ptr<MoneroDestination>> destinations;
     boost::optional<bool> hasDestinations;
     boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
-
-    boost::optional<bool> getIsOutgoing() const {
-      if (isIncoming == boost::none ) return boost::none;
-      return !(*isIncoming);
-    }
   };
 
   /**

@@ -55,8 +55,46 @@ namespace monero {
   };
 
   // forward declarations
-  struct MoneroBlock;
+  struct MoneroTx;
   struct MoneroOutput;
+
+  /**
+   * Models a Monero block header which contains information about the block.
+   */
+  struct MoneroBlockHeader : public SerializableStruct {
+    boost::optional<string> id;
+    boost::optional<uint64_t> height;
+    boost::optional<uint64_t> timestamp;
+    boost::optional<uint64_t> size;
+    boost::optional<uint64_t> weight;
+    boost::optional<uint64_t> longTermWeight;
+    boost::optional<uint64_t> depth;
+    boost::optional<uint64_t> difficulty;
+    boost::optional<uint64_t> cumulativeDifficulty;
+    boost::optional<uint32_t> majorVersion;
+    boost::optional<uint32_t> minorVersion;
+    boost::optional<uint64_t> nonce;
+    boost::optional<string> coinbaseTxId;
+    boost::optional<uint32_t> numTxs;
+    boost::optional<bool> orphanStatus;
+    boost::optional<string> prevId;
+    boost::optional<uint64_t> reward;
+    boost::optional<string> powHash;
+
+    boost::property_tree::ptree toPropertyTree() const;
+  };
+
+  /**
+   * Models a Monero block in the blockchain.
+   */
+  struct MoneroBlock : public MoneroBlockHeader {
+    boost::optional<string> hex;
+    boost::optional<shared_ptr<MoneroTx>> coinbaseTx;
+    vector<shared_ptr<MoneroTx>> txs;
+    vector<string> txIds;
+
+    boost::property_tree::ptree toPropertyTree() const;
+  };
 
   /**
    * Models a Monero transaction on the blockchain.
@@ -103,44 +141,10 @@ namespace monero {
     vector<string> signatures;
 
     boost::property_tree::ptree toPropertyTree() const;
-  };
-
-  /**
-   * Models a Monero block header which contains information about the block.
-   */
-  struct MoneroBlockHeader : public SerializableStruct {
-    boost::optional<string> id;
-    boost::optional<uint64_t> height;
-    boost::optional<uint64_t> timestamp;
-    boost::optional<uint64_t> size;
-    boost::optional<uint64_t> weight;
-    boost::optional<uint64_t> longTermWeight;
-    boost::optional<uint64_t> depth;
-    boost::optional<uint64_t> difficulty;
-    boost::optional<uint64_t> cumulativeDifficulty;
-    boost::optional<uint32_t> majorVersion;
-    boost::optional<uint32_t> minorVersion;
-    boost::optional<uint64_t> nonce;
-    boost::optional<string> coinbaseTxId;
-    boost::optional<uint32_t> numTxs;
-    boost::optional<bool> orphanStatus;
-    boost::optional<string> prevId;
-    boost::optional<uint64_t> reward;
-    boost::optional<string> powHash;
-
-    boost::property_tree::ptree toPropertyTree() const;
-  };
-
-  /**
-   * Models a Monero block in the blockchain.
-   */
-  struct MoneroBlock : public MoneroBlockHeader {
-    boost::optional<string> hex;
-    boost::optional<shared_ptr<MoneroTx>> coinbaseTx;
-    vector<shared_ptr<MoneroTx>> txs;
-    vector<string> txIds;
-
-    boost::property_tree::ptree toPropertyTree() const;
+    boost::optional<uint64_t> getHeight() const {
+      if (block == boost::none) return boost::none;
+      return *((*block)->height);
+    }
   };
 
   /**

@@ -174,9 +174,107 @@ namespace monero {
 //    return incomingTransfer;
 //  }
 
-  void mergeTx(vector<shared_ptr<MoneroTxWallet>> txs, const shared_ptr<MoneroTxWallet>& tx) {
+  /**
+   * Merges a transaction into a unique set of transactions.
+   *
+   * TODO monero-core: skipIfAbsent only necessary because incoming payments not returned
+   * when sent from/to same account #4500
+   *
+   * @param txs are existing transactions to merge into
+   * @param tx is the transaction to merge into the existing txs
+   * @param skipIfAbsent specifies if the tx should not be added if it doesn't already exist
+   * @returns the merged tx
+   */
+  void mergeTx(vector<shared_ptr<MoneroTxWallet>> txs, const shared_ptr<MoneroTxWallet>& tx, bool skipIfAbsent) {
     cout << "mergeTx()" << endl;
-    throw runtime_error("Not implemented");
+    if (tx->id == boost::none) throw runtime_error("Tx id is not initialized");
+    for (const auto& aTx:  txs) {
+
+      // merge tx
+      if (*aTx->id == *tx->id) {
+
+        // merge blocks if confirmed, txs otherwise
+        if (aTx->block != boost::none || tx->block != boost::none) {
+          if (aTx->block == boost::none) {
+            aTx->block = shared_ptr<MoneroBlock>(new MoneroBlock());
+            vector<shared_ptr<MoneroTx>> txs;
+            txs.push_back(tx);
+            (*aTx->block)->txs = txs;
+            (*aTx->block)->height = *tx->getHeight();
+          }
+          if (tx->block == boost::none) {
+            tx->block = shared_ptr<MoneroBlock>(new MoneroBlock());
+            vector<shared_ptr<MoneroTx>> txs;
+            txs.push_back(tx);
+            (*tx->block)->txs = txs;
+            (*tx->block)->height = *aTx->getHeight();
+          }
+          aTx->block->merge(tx->block);
+        } else {
+          aTx->merge(*tx);
+        }
+        return;
+      }
+
+      // merge common block of different txs
+      if (tx->getHeight() != boost::none && *tx->getHeight() == *aTx->getHeight())
+        (*aTx-block)->merge(*tx->block);
+        //if (aTx.getIsConfirmed()) assertTrue(aTx.getBlock().getTxs().contains(aTx));
+      }
+    }
+
+    // add tx if it doesn't already exist unless skipped
+    if (!skipIfAbsent) {
+      txs.push_back(tx);
+    } else {
+      cout << "WARNING: tx does not already exist" << endl; // TODO: proper logging
+    }
+  }
+
+  /**
+   * Merges a transaction into a unique set of transactions.
+   *
+   * TODO monero-wallet-rpc: skipIfAbsent only necessary because incoming payments not returned
+   * when sent from/to same account
+   *
+   * @param txs are existing transactions to merge into
+   * @param tx is the transaction to merge into the existing txs
+   * @param skipIfAbsent specifies if the tx should not be added
+   *        if it doesn't already exist.  Only necessasry to handle
+   *        missing incoming payments from #4500. // TODO
+   * @returns the merged tx
+   */
+  private static void mergeTx(List<MoneroTxWallet> txs, MoneroTxWallet tx, boolean skipIfAbsent) {
+    assertNotNull(tx.getId());
+    for (MoneroTxWallet aTx : txs) {
+
+      // merge tx
+      if (aTx.getId().equals(tx.getId())) {
+
+        // merge blocks which only exist when confirmed
+        if (aTx.getBlock() != null || tx.getBlock() != null) {
+          if (aTx.getBlock() == null) aTx.setBlock(new MoneroBlock().setTxs(new ArrayList<MoneroTx>(Arrays.asList(aTx))).setHeight(tx.getHeight()));
+          if (tx.getBlock() == null) tx.setBlock(new MoneroBlock().setTxs(new ArrayList<MoneroTx>(Arrays.asList(tx))).setHeight(aTx.getHeight()));
+          aTx.getBlock().merge(tx.getBlock());
+        } else {
+          aTx.merge(tx);
+        }
+        return;
+      }
+
+      // merge common block of different txs
+      if (tx.getHeight() != null && tx.getHeight().equals(aTx.getHeight())) {
+        aTx.getBlock().merge(tx.getBlock());
+        if (aTx.getIsConfirmed()) assertTrue(aTx.getBlock().getTxs().contains(aTx));
+      }
+    }
+
+    // add tx if it doesn't already exist unless skipped
+    if (!skipIfAbsent) {
+      txs.add(tx);
+    } else {
+      LOGGER.warn("WARNING: tx does not already exist");
+    }
   }
 
   // ----------------------------- WALLET LISTENER ----------------------------
@@ -629,8 +727,8 @@ namespace monero {
       wallet2->get_payments(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
         shared_ptr<MoneroTxWallet> tx = buildTxWithIncomingTransfer(i->second.m_tx_hash, i->first, i->second);
-        //mergeTx(txs, tx); // TODO
-        txs.push_back(tx);
+        mergeTx(txs, tx); // TODO
+        //txs.push_back(tx);
       }
     }
 
