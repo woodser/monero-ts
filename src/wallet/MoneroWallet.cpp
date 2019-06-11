@@ -209,16 +209,16 @@ namespace monero {
             (*tx->block)->txs = txs;
             (*tx->block)->height = *aTx->getHeight();
           }
-          //aTx->block->merge(tx->block);
+          (*aTx->block)->merge(**tx->block);
         } else {
-          //aTx->merge(*tx);
+          aTx->merge(*tx);
         }
         return;
       }
 
       // merge common block of different txs
       if (tx->getHeight() != boost::none && *tx->getHeight() == *aTx->getHeight()) {
-        //(*aTx-block)->merge(*tx->block);
+        (*aTx->block)->merge(**tx->block);
         //if (aTx.getIsConfirmed()) assertTrue(aTx.getBlock().getTxs().contains(aTx));
       }
     }

@@ -82,6 +82,7 @@ namespace monero {
     boost::optional<string> powHash;
 
     boost::property_tree::ptree toPropertyTree() const;
+    void merge(const MoneroBlockHeader& header);
   };
 
   /**
@@ -94,6 +95,7 @@ namespace monero {
     vector<string> txIds;
 
     boost::property_tree::ptree toPropertyTree() const;
+    void merge(const MoneroBlock& block);
   };
 
   /**
@@ -145,6 +147,7 @@ namespace monero {
       if (block == boost::none) return boost::none;
       return *((*block)->height);
     }
+    void merge(const MoneroTx& tx);
   };
 
   /**
