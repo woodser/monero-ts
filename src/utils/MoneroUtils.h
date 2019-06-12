@@ -117,6 +117,11 @@ namespace MoneroUtils
     throw runtime_error("Cannot reconcile non-booleans");
   }
 
+  template <class T>
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2) {
+    return reconcile(val1, val2, boost::none, boost::none, boost::none);
+  }
+
   template <class T, typename std::enable_if<std::is_same<T, bool>::value, T>::type* = nullptr>
   boost::optional<bool> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax) {
     cout << "reconcile(" << val1 << ", " << val2 << ")" << endl;
@@ -138,6 +143,11 @@ namespace MoneroUtils
     }
 
     throw runtime_error("Cannot reconcile booleans");
+  }
+
+  template <class T, typename std::enable_if<std::is_same<T, bool>::value, T>::type* = nullptr>
+  boost::optional<bool> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2) {
+    return reconcile(val1, val2, boost::none, boost::none, boost::none);
   }
 }
 #endif /* MoneroUtils_h */
