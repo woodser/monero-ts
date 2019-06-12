@@ -95,7 +95,8 @@ namespace MoneroUtils
     return ss.str();
   }
 
-  template <class T> boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax) {
+  template <class T>
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax) {
     cout << "reconcile(" << val1 << ", " << val2 << ")" << endl;
 
     // check for equality
@@ -107,12 +108,36 @@ namespace MoneroUtils
       else return val1 == boost::none ? val2 : val1;
     }
 
+    // resolve different numbers
+    if (resolveMax != boost::none) {
+      return *resolveMax ? max(*val1, *val2) : min(*val1, *val2);
+    }
+
     // throw runtime_error("Cannot reconcile values " + val1 + " and " + val2 + " with config: [" + resolveDefined + ", " + resolveTrue + ", " + resolveMax + "]", val1, val2);
-    throw runtime_error("Cannot reconcile values");
+    throw runtime_error("Cannot reconcile non-booleans");
   }
 
-  template <class T> boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2) {
-    return reconcile(val1, val2, boost::none, boost::none, boost::none);
+  template <class T, typename std::enable_if<std::is_same<T, bool>::value, T>::type* = nullptr>
+  boost::optional<bool> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax) {
+    cout << "reconcile(" << val1 << ", " << val2 << ")" << endl;
+
+    // check for equality
+    if (val1 == val2) return val1;
+
+    // resolve one value none
+    if (val1 == boost::none || val2 == boost::none) {
+      if (resolveDefined == false) return boost::none;  // TODO: boost::optional equality comparitor wokrs like this?
+      else return val1 == boost::none ? val2 : val1;
+    }
+
+    // resolve different booleans
+    if (resolveTrue != boost::none) {
+      return val1 == resolveTrue ? val1 : val2; // if resolve true, return true, else return false
+    } else {
+      throw runtime_error("Cannot reconcile boolean values");
+    }
+
+    throw runtime_error("Cannot reconcile booleans");
   }
 }
 #endif /* MoneroUtils_h */
