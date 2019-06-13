@@ -210,6 +210,53 @@ namespace monero {
       }
     }
 
+    // merge vouts
+    if (!tx.vouts.empty()) {
+      for (const shared_ptr<MoneroOutput>& vout : tx.vouts) vout->tx = shared_ptr<MoneroTx>(this);
+      if (vouts.empty()) vouts = tx.vouts;
+      else {
+
+        // determine if key images present
+        int numKeyImages = 0;
+        for (const shared_ptr<MoneroOutput> vout : vouts) {
+          if (vout->keyImage != boost::none) {
+            if ((*vout->keyImage)->hex == boost::none) throw runtime_error("Key image hex cannot be null");
+            numKeyImages++;
+          }
+        }
+        for (const shared_ptr<MoneroOutput>& vout : tx.vouts) {
+          if (vout->keyImage != boost::none) {
+            if ((*vout->keyImage)->hex == boost::none) throw runtime_error("Key image hex cannot be null");
+            numKeyImages++;
+          }
+        }
+        if (numKeyImages != 0 && vouts.size() + tx.vouts.size() != numKeyImages) throw runtime_error("Some vouts have a key image and some do not");
+
+        // merge by key images
+        if (numKeyImages > 0) {
+          for (const shared_ptr<MoneroOutput>& merger : tx.vouts) {
+            bool merged = false;
+            for (const shared_ptr<MoneroOutput>& mergee : vouts) {
+              if ((*mergee->keyImage)->hex == (*merger->keyImage)->hex) {
+                mergee->merge(*merger);
+                merged = true;
+                break;
+              }
+            }
+            if (!merged) vouts.push_back(merger);
+          }
+        }
+
+        // merge by position
+        else {
+          if (vouts.size() != tx.vouts.size()) throw runtime_error("Vout sizes are different");
+          for (int i = 0; i < tx.vouts.size(); i++) {
+            vouts.at(i)->merge(*tx.vouts.at(i));
+          }
+        }
+      }
+    }
+
     throw runtime_error("Not implemented");
   }
 
