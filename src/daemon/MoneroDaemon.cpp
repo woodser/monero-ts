@@ -123,6 +123,7 @@ namespace monero {
 
   void MoneroBlock::merge(const MoneroBlock& block) {
     cout << "MoneroBlock::merge()" << endl;
+    if (this == &block) return;
 
     // merge header fields
     MoneroBlockHeader::merge(block);
@@ -160,6 +161,39 @@ namespace monero {
 
   void MoneroTx::merge(const MoneroTx& tx) {
     cout << "MoneroTx::merge()" << endl;
+    if (this == &tx) return;
+    id = MoneroUtils::reconcile(id, tx.id);
+    version = MoneroUtils::reconcile(version, tx.version);
+    paymentId = MoneroUtils::reconcile(paymentId, tx.paymentId);
+    fee = MoneroUtils::reconcile(fee, tx.fee);
+    mixin = MoneroUtils::reconcile(mixin, tx.mixin);
+    isConfirmed = MoneroUtils::reconcile(isConfirmed, tx.isConfirmed);
+    doNotRelay = MoneroUtils::reconcile(doNotRelay, tx.doNotRelay);
+    isRelayed = MoneroUtils::reconcile(isRelayed, tx.isRelayed);
+    isDoubleSpend = MoneroUtils::reconcile(isDoubleSpend, tx.isDoubleSpend);
+    key = MoneroUtils::reconcile(key, tx.key);
+    fullHex = MoneroUtils::reconcile(fullHex, tx.fullHex);
+    prunedHex = MoneroUtils::reconcile(prunedHex, tx.prunedHex);
+    prunableHex = MoneroUtils::reconcile(prunableHex, tx.prunableHex);
+    prunableHash = MoneroUtils::reconcile(prunableHash, tx.prunableHash);
+    size = MoneroUtils::reconcile(size, tx.size);
+    weight = MoneroUtils::reconcile(weight, tx.weight);
+    //outputIndices = MoneroUtils::reconcile(outputIndices, tx.outputIndices);  // TODO
+    metadata = MoneroUtils::reconcile(metadata, tx.metadata);
+    commonTxSets = MoneroUtils::reconcile(commonTxSets, tx.commonTxSets);
+    //extra = MoneroUtils::reconcile(extra, tx.extra);  // TODO
+    rctSignatures = MoneroUtils::reconcile(rctSignatures, tx.rctSignatures);
+    rctSigPrunable = MoneroUtils::reconcile(rctSigPrunable, tx.rctSigPrunable);
+    isKeptByBlock = MoneroUtils::reconcile(isKeptByBlock, tx.isKeptByBlock);
+    isFailed = MoneroUtils::reconcile(isFailed, tx.isFailed);
+    lastFailedHeight = MoneroUtils::reconcile(lastFailedHeight, tx.lastFailedHeight);
+    lastFailedId = MoneroUtils::reconcile(lastFailedId, tx.lastFailedId);
+    maxUsedBlockHeight = MoneroUtils::reconcile(maxUsedBlockHeight, tx.maxUsedBlockHeight);
+    maxUsedBlockId = MoneroUtils::reconcile(maxUsedBlockId, tx.maxUsedBlockId);
+    //signatures = MoneroUtils::reconcile(signatures, tx.signatures); // TODO
+    unlockTime = MoneroUtils::reconcile(unlockTime, tx.unlockTime);
+    numConfirmations = MoneroUtils::reconcile(numConfirmations, tx.numConfirmations);
+
     throw runtime_error("Not implemented");
   }
 
