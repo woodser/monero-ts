@@ -200,7 +200,6 @@ namespace monero {
         bool merged = false;
         merger->tx = shared_ptr<MoneroTx>(this); // TODO: can this cause this* to be deleted prematurely?
         for (const shared_ptr<MoneroOutput>& mergee : vins) {
-          //if (mergee.getKeyImage().getHex().equals(merger.getKeyImage().getHex())) {
           if ((*mergee->keyImage)->hex == (*merger->keyImage)->hex) {
             mergee->merge(*merger);
             merged = true;
