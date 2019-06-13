@@ -156,6 +156,8 @@ namespace monero {
   struct MoneroKeyImage {
     boost::optional<string> hex;
     boost::optional<string> signature;
+
+    void merge(const MoneroKeyImage& keyImage);
   };
 
   /**
@@ -163,11 +165,13 @@ namespace monero {
    */
   struct MoneroOutput {
     shared_ptr<MoneroTx> tx;
-    boost::optional<MoneroKeyImage> keyImage;
+    boost::optional<shared_ptr<MoneroKeyImage>> keyImage;
     boost::optional<uint64_t> amount;
     boost::optional<uint32_t> index;
     vector<uint32_t> ringOutputIndices;
     boost::optional<string> stealthPublicKey;
+
+    void merge(const MoneroOutput& output);
   };
 }
 

@@ -194,6 +194,33 @@ namespace monero {
     unlockTime = MoneroUtils::reconcile(unlockTime, tx.unlockTime);
     numConfirmations = MoneroUtils::reconcile(numConfirmations, tx.numConfirmations);
 
+    // merge vins
+    if (!tx.vins.empty()) {
+      for (const shared_ptr<MoneroOutput>& merger : tx.vins) {
+        bool merged = false;
+        merger->tx = shared_ptr<MoneroTx>(this); // TODO: can this cause this* to be deleted prematurely?
+        for (const shared_ptr<MoneroOutput>& mergee : vins) {
+          //if (mergee.getKeyImage().getHex().equals(merger.getKeyImage().getHex())) {
+          if ((*mergee->keyImage)->hex == (*merger->keyImage)->hex) {
+            mergee->merge(*merger);
+            merged = true;
+            break;
+          }
+        }
+        if (!merged) vins.push_back(merger);
+      }
+    }
+
+    throw runtime_error("Not implemented");
+  }
+
+  void MoneroKeyImage::merge(const MoneroKeyImage& keyImage) {
+    cout << "MoneroKeyImage::merge()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
+  void MoneroOutput::merge(const MoneroOutput& output) {
+    cout << "MoneroOutput::merge()" << endl;
     throw runtime_error("Not implemented");
   }
 
