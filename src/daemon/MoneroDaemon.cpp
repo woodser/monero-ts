@@ -123,8 +123,39 @@ namespace monero {
 
   void MoneroBlock::merge(const MoneroBlock& block) {
     cout << "MoneroBlock::merge()" << endl;
+
+    // merge header fields
     MoneroBlockHeader::merge(block);
-    throw runtime_error("Not implemented");
+
+    // merge coinbase tx
+    if (coinbaseTx == boost::none) coinbaseTx = block.coinbaseTx;
+    else if (block.coinbaseTx != boost::none) (**coinbaseTx).merge(**block.coinbaseTx);
+
+    // merge non-coinbase txs
+    if (txs.empty()) txs = block.txs;
+    else if (!block.txs.empty()) {
+      for (const shared_ptr<MoneroTx>& thatTx : block.txs) {
+        bool found = false;
+        for (const shared_ptr<MoneroTx>& thisTx : txs) {
+          if (thatTx->id == thatTx->id) {
+            thisTx->merge(*thatTx);
+            found = true;
+            break;
+          }
+        }
+        if (!found) txs.push_back(thatTx);
+      }
+    }
+    if (!txs.empty()) {
+      for (const shared_ptr<MoneroTx>& tx : txs) {
+        tx->block = shared_ptr<MoneroBlock>(this);
+      }
+    }
+
+    // merge other fields
+    hex = MoneroUtils::reconcile(hex, block.hex);
+    //txIds = MoneroUtils::reconcile(txIds, block.txIds); // TODO: implement
+    throw runtime_error("ready to reconcile txIds");
   }
 
   void MoneroTx::merge(const MoneroTx& tx) {
