@@ -101,8 +101,24 @@ namespace monero {
   void MoneroBlockHeader::merge(const MoneroBlockHeader& header) {
     cout << "MoneroBlockHeader::merge()" << endl;
     if (this == &header) return;
-    id = MoneroUtils::reconcile(id, header.id, boost::none, boost::none, boost::none);
-    throw runtime_error("Not implemented");
+    id = MoneroUtils::reconcile(id, header.id);
+    height = MoneroUtils::reconcile(height, header.height, boost::none, boost::none, true); // height can increase
+    timestamp = MoneroUtils::reconcile(timestamp, header.timestamp, boost::none, boost::none, true);  // timestamp can increase
+    size = MoneroUtils::reconcile(size, header.size);
+    weight = MoneroUtils::reconcile(weight, header.weight);
+    longTermWeight = MoneroUtils::reconcile(longTermWeight, header.longTermWeight);
+    depth = MoneroUtils::reconcile(depth, header.depth);
+    difficulty = MoneroUtils::reconcile(difficulty, header.difficulty);
+    cumulativeDifficulty = MoneroUtils::reconcile(cumulativeDifficulty, header.cumulativeDifficulty);
+    majorVersion = MoneroUtils::reconcile(majorVersion, header.majorVersion);
+    minorVersion = MoneroUtils::reconcile(minorVersion, header.minorVersion);
+    nonce = MoneroUtils::reconcile(nonce, header.nonce);
+    coinbaseTxId = MoneroUtils::reconcile(coinbaseTxId, header.coinbaseTxId);
+    numTxs = MoneroUtils::reconcile(numTxs, header.numTxs);
+    orphanStatus = MoneroUtils::reconcile(orphanStatus, header.orphanStatus);
+    prevId = MoneroUtils::reconcile(prevId, header.prevId);
+    reward = MoneroUtils::reconcile(reward, header.reward);
+    powHash = MoneroUtils::reconcile(powHash, header.powHash);
   }
 
   void MoneroBlock::merge(const MoneroBlock& block) {
