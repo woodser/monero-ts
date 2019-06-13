@@ -138,7 +138,7 @@ namespace monero {
       for (const shared_ptr<MoneroTx>& thatTx : block.txs) {
         bool found = false;
         for (const shared_ptr<MoneroTx>& thisTx : txs) {
-          if (thatTx->id == thatTx->id) {
+          if (thatTx->id == thisTx->id) {
             thisTx->merge(*thatTx);
             found = true;
             break;
@@ -156,7 +156,7 @@ namespace monero {
     // merge other fields
     hex = MoneroUtils::reconcile(hex, block.hex);
     //txIds = MoneroUtils::reconcile(txIds, block.txIds); // TODO: implement
-    throw runtime_error("ready to reconcile txIds");
+    cout << "Returning from block::merge()!" << endl;
   }
 
   void MoneroTx::merge(const MoneroTx& tx) {
