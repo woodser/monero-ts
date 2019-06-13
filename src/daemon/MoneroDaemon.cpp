@@ -257,7 +257,16 @@ namespace monero {
       }
     }
 
-    throw runtime_error("Not implemented");
+    // handle unrelayed -> relayed -> confirmed
+    if (*isConfirmed) {
+      inTxPool = false;
+      receivedTimestamp = boost::none;
+      lastRelayedTimestamp = boost::none;
+    } else {
+      inTxPool = MoneroUtils::reconcile(inTxPool, tx.inTxPool, boost::none, true, boost::none); // unrelayed -> tx pool
+      receivedTimestamp = MoneroUtils::reconcile(receivedTimestamp, tx.receivedTimestamp, boost::none, boost::none, false); // take earliest receive time
+      lastRelayedTimestamp = MoneroUtils::reconcile(lastRelayedTimestamp, tx.lastRelayedTimestamp, boost::none, boost::none, true); // take latest relay time
+    }
   }
 
   void MoneroKeyImage::merge(const MoneroKeyImage& keyImage) {
