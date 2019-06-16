@@ -185,8 +185,8 @@ namespace monero {
    * @param skipIfAbsent specifies if the tx should not be added if it doesn't already exist
    * @returns the merged tx
    */
-  void mergeTx(vector<shared_ptr<MoneroTxWallet>>& txs, const shared_ptr<MoneroTxWallet>& tx, bool skipIfAbsent) {
-    cout << "mergeTx()" << endl;
+  void mergeTx(vector<shared_ptr<MoneroTx>>& txs, const shared_ptr<MoneroTx>& tx, bool skipIfAbsent) {
+    cout << "mergeTx(txs, txs)" << endl;
     if (tx->id == boost::none) throw runtime_error("Tx id is not initialized");
     for (const auto& aTx:  txs) {
 
@@ -209,16 +209,16 @@ namespace monero {
             (*tx->block)->txs = txs;
             (*tx->block)->height = *aTx->getHeight();
           }
-          (*aTx->block)->merge(**tx->block);
+          (*aTx->block)->merge(*tx->block);
         } else {
-          aTx->merge(*tx);
+          aTx->merge(aTx, tx);
         }
         return;
       }
 
       // merge common block of different txs
       if (tx->getHeight() != boost::none && *tx->getHeight() == *aTx->getHeight()) {
-        (*aTx->block)->merge(**tx->block);
+        (*aTx->block)->merge(*tx->block);
         //if (aTx.getIsConfirmed()) assertTrue(aTx.getBlock().getTxs().contains(aTx));
       }
     }
@@ -624,7 +624,7 @@ namespace monero {
 
   // createSubaddress
 
-  vector<MoneroTxWallet> MoneroWallet::getTxs(const MoneroTxRequest& request) const {
+  vector<shared_ptr<MoneroTxWallet>> MoneroWallet::getTxs(const MoneroTxRequest& request) const {
     cout << "getTxs(request)" << endl;
 
     // print for debug
@@ -673,14 +673,14 @@ namespace monero {
 
 
     // collect unique transactions
-    vector<shared_ptr<MoneroTxWallet>> txs;
+    vector<shared_ptr<MoneroTx>> txs;
 
     // get confirmed incoming transfers
     if (isIn) {
       std::list<std::pair<crypto::hash, tools::wallet2::payment_details>> payments;
       wallet2->get_payments(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
-        shared_ptr<MoneroTxWallet> tx = buildTxWithIncomingTransfer(i->second.m_tx_hash, i->first, i->second);
+        shared_ptr<MoneroTx> tx = buildTxWithIncomingTransfer(i->second.m_tx_hash, i->first, i->second);
         mergeTx(txs, tx, false);
         //txs.push_back(tx);
       }
@@ -706,7 +706,8 @@ namespace monero {
     // collect resulting transfers
     vector<shared_ptr<MoneroTransfer>> transfers;
     for (int i = 0; i < txs.size(); i++) {
-      shared_ptr<MoneroTxWallet> tx = txs[i];
+      shared_ptr<MoneroTx> txBase = txs[i];
+      const MoneroTxWallet* tx = static_cast<MoneroTxWallet*>(&*txBase);  // shared_ptrs use base class but these are actually MoneroTxWallets
       for (int j = 0; j < tx->incomingTransfers.size(); j++) {
         transfers.push_back(tx->incomingTransfers[j]);
       }
@@ -862,16 +863,19 @@ namespace monero {
     return subaddresses;
   }
 
-  shared_ptr<MoneroTxWallet> MoneroWallet::buildTxWithIncomingTransfer(const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) const {
+  shared_ptr<MoneroTx> MoneroWallet::buildTxWithIncomingTransfer(const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) const {
     cout << "buildTxWithIncomingTransfer()" << endl;
 
+    // construct block
     shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(new MoneroBlock());
     block->height = pd.m_block_height;
     block->timestamp = pd.m_timestamp;
 
-    shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+    // construct tx
+    shared_ptr<MoneroTx> txBase = shared_ptr<MoneroTx>(new MoneroTxWallet());
+    MoneroTxWallet* tx = static_cast<MoneroTxWallet*>(&*txBase);  // get MoneroTxWallet* from base shared_ptr
     tx->block = block;
-    block->txs.push_back(tx);
+    block->txs.push_back(txBase);
     tx->id = string_tools::pod_to_hex(pd.m_tx_hash);
     tx->paymentId = string_tools::pod_to_hex(payment_id);
     if (tx->paymentId->substr(16).find_first_not_of('0') == std::string::npos) tx->paymentId = tx->paymentId->substr(0, 16);  // TODO monero core: this should be part of core wallet
@@ -894,9 +898,10 @@ namespace monero {
     else tx->numConfirmations = chainHeight - *block->height;
 
     // construct transfer
-    shared_ptr<MoneroIncomingTransfer> incomingTransfer = shared_ptr<MoneroIncomingTransfer>(new MoneroIncomingTransfer());
-    incomingTransfer->tx = tx;
-    tx->incomingTransfers.push_back(incomingTransfer);
+    shared_ptr<MoneroIncomingTransfer> incomingTransferBase = shared_ptr<MoneroIncomingTransfer>(new MoneroIncomingTransfer());
+    MoneroIncomingTransfer* incomingTransfer = static_cast<MoneroIncomingTransfer*>(&*incomingTransferBase);
+    incomingTransfer->tx = txBase;
+    tx->incomingTransfers.push_back(incomingTransferBase);
     incomingTransfer->amount = pd.m_amount;
     incomingTransfer->accountIndex = pd.m_subaddr_index.major;
     incomingTransfer->subaddressIndex = pd.m_subaddr_index.minor;
@@ -908,7 +913,7 @@ namespace monero {
     else incomingTransfer->numSuggestedConfirmations = (*incomingTransfer->amount + blockReward - 1) / blockReward;
 
     // return pointer to new tx
-    return tx;
+    return txBase;
   }
 
 //  MoneroTransfer MoneroWallet::convertWallet2IncomingTransfer(const tools::wallet2& wallet2, const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) const {

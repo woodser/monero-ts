@@ -82,7 +82,7 @@ namespace monero {
     boost::optional<string> powHash;
 
     boost::property_tree::ptree toPropertyTree() const;
-    void merge(const MoneroBlockHeader& header);
+    void merge(const shared_ptr<MoneroBlockHeader>& header);
   };
 
   /**
@@ -95,7 +95,7 @@ namespace monero {
     vector<string> txIds;
 
     boost::property_tree::ptree toPropertyTree() const;
-    void merge(const MoneroBlock& block);
+    void merge(const shared_ptr<MoneroBlockHeader>& block);
   };
 
   /**
@@ -147,7 +147,7 @@ namespace monero {
       if (block == boost::none) return boost::none;
       return *((*block)->height);
     }
-    void merge(const MoneroTx& tx);
+    void merge(const shared_ptr<MoneroTx>& self, const shared_ptr<MoneroTx>& other);
   };
 
   /**
@@ -157,7 +157,7 @@ namespace monero {
     boost::optional<string> hex;
     boost::optional<string> signature;
 
-    void merge(const MoneroKeyImage& keyImage);
+    void merge(const shared_ptr<MoneroKeyImage>& self, const shared_ptr<MoneroKeyImage>& other);
   };
 
   /**
@@ -171,7 +171,7 @@ namespace monero {
     vector<uint32_t> ringOutputIndices;
     boost::optional<string> stealthPublicKey;
 
-    void merge(const MoneroOutput& output);
+    void merge(const shared_ptr<MoneroOutput>& self, const shared_ptr<MoneroOutput>& other);
   };
 }
 

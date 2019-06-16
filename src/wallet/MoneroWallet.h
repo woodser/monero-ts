@@ -52,6 +52,7 @@ namespace monero {
 //    END_KV_SERIALIZE_MAP()
 
     boost::property_tree::ptree toPropertyTree() const;
+    //void merge(const shared_ptr<MoneroSubaddress>& self, const shared_ptr<MoneroSubaddress>& other);
   };
 
   /**
@@ -686,7 +687,7 @@ namespace monero {
      * @param request filters query results (optional)
      * @return wallet transactions per the request
      */
-    vector<MoneroTxWallet> getTxs(const MoneroTxRequest& request) const;
+    vector<shared_ptr<MoneroTxWallet>> getTxs(const MoneroTxRequest& request) const;
 
 //    /**
 //     * Get all incoming and outgoing transfers to and from this wallet.  An
@@ -1267,7 +1268,7 @@ namespace monero {
 
     MoneroSyncResult syncAux(boost::optional<uint64_t> startHeight, boost::optional<uint64_t> endHeight, boost::optional<MoneroSyncListener&> listener);
     vector<MoneroSubaddress> getSubaddressesAux(uint32_t accountIdx, vector<uint32_t> subaddressIndices, vector<tools::wallet2::transfer_details> transfers) const;
-    shared_ptr<MoneroTxWallet> buildTxWithIncomingTransfer(const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) const;
+    shared_ptr<MoneroTx> buildTxWithIncomingTransfer(const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) const;
   };
 }
 
