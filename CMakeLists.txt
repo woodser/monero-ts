@@ -292,7 +292,9 @@ target_link_libraries(scratchpad
 
 set(
     LIBRARY_SRC_FILES
+    src/daemon/MoneroDaemonModel.cpp
     src/daemon/MoneroDaemon.cpp
+    src/wallet/MoneroWalletModel.cpp
     src/wallet/MoneroWallet.cpp
     src/utils/MoneroUtils.cpp
 )
