@@ -99,8 +99,7 @@ namespace monero {
   // -------------------------- MODEL IMPLEMENTATION --------------------------
 
   void MoneroBlockHeader::merge(const shared_ptr<MoneroBlockHeader>& self, const shared_ptr<MoneroBlockHeader>& other) {
-    cout << "MoneroBlockHeader::merge()" << endl;
-    if (this != &*self) throw runtime_error("this != self");
+    if (this != self.get()) throw runtime_error("this != self");
     if (self == other) return;
     id = MoneroUtils::reconcile(id, other->id);
     height = MoneroUtils::reconcile(height, other->height, boost::none, boost::none, true); // height can increase
@@ -123,15 +122,14 @@ namespace monero {
   }
 
   void MoneroBlock::merge(const shared_ptr<MoneroBlock>& self, const shared_ptr<MoneroBlock>& other) {
-    cout << "MoneroBlock::merge()" << endl;
-    if (this != &*self) throw runtime_error("this != self");
+    if (this != self.get()) throw runtime_error("this != self");
     if (self == other) return;
 
     // merge header fields
     MoneroBlockHeader::merge(self, other);
 
     // convert other to MoneroBlock*
-    MoneroBlock* otherBlock = static_cast<MoneroBlock*>(&*other);
+    MoneroBlock* otherBlock = static_cast<MoneroBlock*>(other.get());
 
     // merge coinbase tx
     if (coinbaseTx == boost::none) coinbaseTx = otherBlock->coinbaseTx;
@@ -161,117 +159,116 @@ namespace monero {
     // merge other fields
     hex = MoneroUtils::reconcile(hex, otherBlock->hex);
     //txIds = MoneroUtils::reconcile(txIds, otherBlock->txIds); // TODO: implement
-    cout << "Returning from block::merge()!" << endl;
   }
 
   void MoneroTx::merge(const shared_ptr<MoneroTx>& self, const shared_ptr<MoneroTx>& other) {
-    cout << "MoneroTx::merge()" << endl;
-//    if (this == &tx) return;
-//    id = MoneroUtils::reconcile(id, tx.id);
-//    version = MoneroUtils::reconcile(version, tx.version);
-//    paymentId = MoneroUtils::reconcile(paymentId, tx.paymentId);
-//    fee = MoneroUtils::reconcile(fee, tx.fee);
-//    mixin = MoneroUtils::reconcile(mixin, tx.mixin);
-//    isConfirmed = MoneroUtils::reconcile(isConfirmed, tx.isConfirmed);
-//    doNotRelay = MoneroUtils::reconcile(doNotRelay, tx.doNotRelay);
-//    isRelayed = MoneroUtils::reconcile(isRelayed, tx.isRelayed);
-//    isDoubleSpend = MoneroUtils::reconcile(isDoubleSpend, tx.isDoubleSpend);
-//    key = MoneroUtils::reconcile(key, tx.key);
-//    fullHex = MoneroUtils::reconcile(fullHex, tx.fullHex);
-//    prunedHex = MoneroUtils::reconcile(prunedHex, tx.prunedHex);
-//    prunableHex = MoneroUtils::reconcile(prunableHex, tx.prunableHex);
-//    prunableHash = MoneroUtils::reconcile(prunableHash, tx.prunableHash);
-//    size = MoneroUtils::reconcile(size, tx.size);
-//    weight = MoneroUtils::reconcile(weight, tx.weight);
-//    //outputIndices = MoneroUtils::reconcile(outputIndices, tx.outputIndices);  // TODO
-//    metadata = MoneroUtils::reconcile(metadata, tx.metadata);
-//    commonTxSets = MoneroUtils::reconcile(commonTxSets, tx.commonTxSets);
-//    //extra = MoneroUtils::reconcile(extra, tx.extra);  // TODO
-//    rctSignatures = MoneroUtils::reconcile(rctSignatures, tx.rctSignatures);
-//    rctSigPrunable = MoneroUtils::reconcile(rctSigPrunable, tx.rctSigPrunable);
-//    isKeptByBlock = MoneroUtils::reconcile(isKeptByBlock, tx.isKeptByBlock);
-//    isFailed = MoneroUtils::reconcile(isFailed, tx.isFailed);
-//    lastFailedHeight = MoneroUtils::reconcile(lastFailedHeight, tx.lastFailedHeight);
-//    lastFailedId = MoneroUtils::reconcile(lastFailedId, tx.lastFailedId);
-//    maxUsedBlockHeight = MoneroUtils::reconcile(maxUsedBlockHeight, tx.maxUsedBlockHeight);
-//    maxUsedBlockId = MoneroUtils::reconcile(maxUsedBlockId, tx.maxUsedBlockId);
-//    //signatures = MoneroUtils::reconcile(signatures, tx.signatures); // TODO
-//    unlockTime = MoneroUtils::reconcile(unlockTime, tx.unlockTime);
-//    numConfirmations = MoneroUtils::reconcile(numConfirmations, tx.numConfirmations);
-//
-//    // merge vins
-//    if (!tx.vins.empty()) {
-//      for (const shared_ptr<MoneroOutput>& merger : tx.vins) {
-//        bool merged = false;
-//        merger->tx = shared_ptr<MoneroTx>(this); // TODO: can this cause this* to be deleted prematurely?
-//        for (const shared_ptr<MoneroOutput>& mergee : vins) {
-//          if ((*mergee->keyImage)->hex == (*merger->keyImage)->hex) {
-//            mergee->merge(*merger);
-//            merged = true;
-//            break;
-//          }
-//        }
-//        if (!merged) vins.push_back(merger);
-//      }
-//    }
-//
-//    // merge vouts
-//    if (!tx.vouts.empty()) {
-//      for (const shared_ptr<MoneroOutput>& vout : tx.vouts) vout->tx = shared_ptr<MoneroTx>(this);
-//      if (vouts.empty()) vouts = tx.vouts;
-//      else {
-//
-//        // determine if key images present
-//        int numKeyImages = 0;
-//        for (const shared_ptr<MoneroOutput> vout : vouts) {
-//          if (vout->keyImage != boost::none) {
-//            if ((*vout->keyImage)->hex == boost::none) throw runtime_error("Key image hex cannot be null");
-//            numKeyImages++;
-//          }
-//        }
-//        for (const shared_ptr<MoneroOutput>& vout : tx.vouts) {
-//          if (vout->keyImage != boost::none) {
-//            if ((*vout->keyImage)->hex == boost::none) throw runtime_error("Key image hex cannot be null");
-//            numKeyImages++;
-//          }
-//        }
-//        if (numKeyImages != 0 && vouts.size() + tx.vouts.size() != numKeyImages) throw runtime_error("Some vouts have a key image and some do not");
-//
-//        // merge by key images
-//        if (numKeyImages > 0) {
-//          for (const shared_ptr<MoneroOutput>& merger : tx.vouts) {
-//            bool merged = false;
-//            for (const shared_ptr<MoneroOutput>& mergee : vouts) {
-//              if ((*mergee->keyImage)->hex == (*merger->keyImage)->hex) {
-//                mergee->merge(*merger);
-//                merged = true;
-//                break;
-//              }
-//            }
-//            if (!merged) vouts.push_back(merger);
-//          }
-//        }
-//
-//        // merge by position
-//        else {
-//          if (vouts.size() != tx.vouts.size()) throw runtime_error("Vout sizes are different");
-//          for (int i = 0; i < tx.vouts.size(); i++) {
-//            vouts.at(i)->merge(*tx.vouts.at(i));
-//          }
-//        }
-//      }
-//    }
-//
-//    // handle unrelayed -> relayed -> confirmed
-//    if (*isConfirmed) {
-//      inTxPool = false;
-//      receivedTimestamp = boost::none;
-//      lastRelayedTimestamp = boost::none;
-//    } else {
-//      inTxPool = MoneroUtils::reconcile(inTxPool, tx.inTxPool, boost::none, true, boost::none); // unrelayed -> tx pool
-//      receivedTimestamp = MoneroUtils::reconcile(receivedTimestamp, tx.receivedTimestamp, boost::none, boost::none, false); // take earliest receive time
-//      lastRelayedTimestamp = MoneroUtils::reconcile(lastRelayedTimestamp, tx.lastRelayedTimestamp, boost::none, boost::none, true); // take latest relay time
-//    }
+    if (this != self.get()) throw runtime_error("this != self");
+    if (self == other) return;
+    id = MoneroUtils::reconcile(id, other->id);
+    version = MoneroUtils::reconcile(version, other->version);
+    paymentId = MoneroUtils::reconcile(paymentId, other->paymentId);
+    fee = MoneroUtils::reconcile(fee, other->fee);
+    mixin = MoneroUtils::reconcile(mixin, other->mixin);
+    isConfirmed = MoneroUtils::reconcile(isConfirmed, other->isConfirmed);
+    doNotRelay = MoneroUtils::reconcile(doNotRelay, other->doNotRelay);
+    isRelayed = MoneroUtils::reconcile(isRelayed, other->isRelayed);
+    isDoubleSpend = MoneroUtils::reconcile(isDoubleSpend, other->isDoubleSpend);
+    key = MoneroUtils::reconcile(key, other->key);
+    fullHex = MoneroUtils::reconcile(fullHex, other->fullHex);
+    prunedHex = MoneroUtils::reconcile(prunedHex, other->prunedHex);
+    prunableHex = MoneroUtils::reconcile(prunableHex, other->prunableHex);
+    prunableHash = MoneroUtils::reconcile(prunableHash, other->prunableHash);
+    size = MoneroUtils::reconcile(size, other->size);
+    weight = MoneroUtils::reconcile(weight, other->weight);
+    //outputIndices = MoneroUtils::reconcile(outputIndices, other->outputIndices);  // TODO
+    metadata = MoneroUtils::reconcile(metadata, other->metadata);
+    commonTxSets = MoneroUtils::reconcile(commonTxSets, other->commonTxSets);
+    //extra = MoneroUtils::reconcile(extra, other->extra);  // TODO
+    rctSignatures = MoneroUtils::reconcile(rctSignatures, other->rctSignatures);
+    rctSigPrunable = MoneroUtils::reconcile(rctSigPrunable, other->rctSigPrunable);
+    isKeptByBlock = MoneroUtils::reconcile(isKeptByBlock, other->isKeptByBlock);
+    isFailed = MoneroUtils::reconcile(isFailed, other->isFailed);
+    lastFailedHeight = MoneroUtils::reconcile(lastFailedHeight, other->lastFailedHeight);
+    lastFailedId = MoneroUtils::reconcile(lastFailedId, other->lastFailedId);
+    maxUsedBlockHeight = MoneroUtils::reconcile(maxUsedBlockHeight, other->maxUsedBlockHeight);
+    maxUsedBlockId = MoneroUtils::reconcile(maxUsedBlockId, other->maxUsedBlockId);
+    //signatures = MoneroUtils::reconcile(signatures, other->signatures); // TODO
+    unlockTime = MoneroUtils::reconcile(unlockTime, other->unlockTime);
+    numConfirmations = MoneroUtils::reconcile(numConfirmations, other->numConfirmations);
+
+    // merge vins
+    if (!other->vins.empty()) {
+      for (const shared_ptr<MoneroOutput>& merger : other->vins) {
+        bool merged = false;
+        merger->tx = self;
+        for (const shared_ptr<MoneroOutput>& mergee : vins) {
+          if ((*mergee->keyImage)->hex == (*merger->keyImage)->hex) {
+            mergee->merge(mergee, merger);
+            merged = true;
+            break;
+          }
+        }
+        if (!merged) vins.push_back(merger);
+      }
+    }
+
+    // merge vouts
+    if (!other->vouts.empty()) {
+      for (const shared_ptr<MoneroOutput>& vout : other->vouts) vout->tx = shared_ptr<MoneroTx>(this);
+      if (vouts.empty()) vouts = other->vouts;
+      else {
+
+        // determine if key images present
+        int numKeyImages = 0;
+        for (const shared_ptr<MoneroOutput> vout : vouts) {
+          if (vout->keyImage != boost::none) {
+            if ((*vout->keyImage)->hex == boost::none) throw runtime_error("Key image hex cannot be null");
+            numKeyImages++;
+          }
+        }
+        for (const shared_ptr<MoneroOutput>& vout : other->vouts) {
+          if (vout->keyImage != boost::none) {
+            if ((*vout->keyImage)->hex == boost::none) throw runtime_error("Key image hex cannot be null");
+            numKeyImages++;
+          }
+        }
+        if (numKeyImages != 0 && vouts.size() + other->vouts.size() != numKeyImages) throw runtime_error("Some vouts have a key image and some do not");
+
+        // merge by key images
+        if (numKeyImages > 0) {
+          for (const shared_ptr<MoneroOutput>& merger : other->vouts) {
+            bool merged = false;
+            for (const shared_ptr<MoneroOutput>& mergee : vouts) {
+              if ((*mergee->keyImage)->hex == (*merger->keyImage)->hex) {
+                mergee->merge(mergee, merger);
+                merged = true;
+                break;
+              }
+            }
+            if (!merged) vouts.push_back(merger);
+          }
+        }
+
+        // merge by position
+        else {
+          if (vouts.size() != other->vouts.size()) throw runtime_error("Vout sizes are different");
+          for (int i = 0; i < other->vouts.size(); i++) {
+            vouts.at(i)->merge(vouts.at(i), other->vouts.at(i));
+          }
+        }
+      }
+    }
+
+    // handle unrelayed -> relayed -> confirmed
+    if (*isConfirmed) {
+      inTxPool = false;
+      receivedTimestamp = boost::none;
+      lastRelayedTimestamp = boost::none;
+    } else {
+      inTxPool = MoneroUtils::reconcile(inTxPool, other->inTxPool, boost::none, true, boost::none); // unrelayed -> tx pool
+      receivedTimestamp = MoneroUtils::reconcile(receivedTimestamp, other->receivedTimestamp, boost::none, boost::none, false); // take earliest receive time
+      lastRelayedTimestamp = MoneroUtils::reconcile(lastRelayedTimestamp, other->lastRelayedTimestamp, boost::none, boost::none, true); // take latest relay time
+    }
   }
 
   void MoneroKeyImage::merge(const shared_ptr<MoneroKeyImage>& self, const shared_ptr<MoneroKeyImage>& other) {
