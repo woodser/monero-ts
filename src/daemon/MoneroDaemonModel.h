@@ -95,7 +95,7 @@ namespace monero {
     vector<string> txIds;
 
     boost::property_tree::ptree toPropertyTree() const;
-    void merge(const shared_ptr<MoneroBlockHeader>& self, const shared_ptr<MoneroBlockHeader>& other);
+    void merge(const shared_ptr<MoneroBlock>& self, const shared_ptr<MoneroBlock>& other);
   };
 
   /**

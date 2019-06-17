@@ -122,7 +122,7 @@ namespace monero {
     powHash = MoneroUtils::reconcile(powHash, other->powHash);
   }
 
-  void MoneroBlock::merge(const shared_ptr<MoneroBlockHeader>& self, const shared_ptr<MoneroBlockHeader>& other) {
+  void MoneroBlock::merge(const shared_ptr<MoneroBlock>& self, const shared_ptr<MoneroBlock>& other) {
     cout << "MoneroBlock::merge()" << endl;
     if (this != &*self) throw runtime_error("this != self");
     if (self == other) return;
