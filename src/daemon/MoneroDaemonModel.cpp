@@ -154,7 +154,7 @@ namespace monero {
     }
     if (!txs.empty()) {
       for (const shared_ptr<MoneroTx>& tx : txs) {
-        tx->block = self;
+        tx->block = static_pointer_cast<MoneroBlock>(self);
       }
     }
 

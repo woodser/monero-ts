@@ -107,7 +107,7 @@ namespace monero {
             (*tx->block)->txs = txs;
             (*tx->block)->height = *aTx->getHeight();
           }
-          (*aTx->block)->merge(*tx->block);
+          (*aTx->block)->merge(*aTx->block, *tx->block);
         } else {
           aTx->merge(aTx, tx);
         }
@@ -116,7 +116,7 @@ namespace monero {
 
       // merge common block of different txs
       if (tx->getHeight() != boost::none && *tx->getHeight() == *aTx->getHeight()) {
-        (*aTx->block)->merge(*tx->block);
+        (*aTx->block)->merge(*aTx->block, *tx->block);
         //if (aTx.getIsConfirmed()) assertTrue(aTx.getBlock().getTxs().contains(aTx));
       }
     }
@@ -798,7 +798,7 @@ namespace monero {
     // construct transfer
     shared_ptr<MoneroIncomingTransfer> incomingTransferBase = shared_ptr<MoneroIncomingTransfer>(new MoneroIncomingTransfer());
     MoneroIncomingTransfer* incomingTransfer = static_cast<MoneroIncomingTransfer*>(&*incomingTransferBase);
-    incomingTransfer->tx = txBase;
+    incomingTransfer->tx = static_pointer_cast<MoneroTxWallet>(txBase);
     tx->incomingTransfers.push_back(incomingTransferBase);
     incomingTransfer->amount = pd.m_amount;
     incomingTransfer->accountIndex = pd.m_subaddr_index.major;

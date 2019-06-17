@@ -89,7 +89,7 @@ namespace monero {
    * Models a base transfer of funds to or from the wallet.
    */
   struct MoneroTransfer : SerializableStruct {
-    shared_ptr<MoneroTx> tx;  // TODO *** switch to MoneroTxWallet ***
+    shared_ptr<MoneroTxWallet> tx;
     boost::optional<bool> isIncoming;
     boost::optional<uint64_t> amount;
     boost::optional<uint32_t> accountIndex;
