@@ -543,10 +543,8 @@ namespace monero {
     cout << "vector<shared_ptr<MoneroTransfer>> getTransfers(request)" << endl;
 
     // normalize request
+    // TODO: this will modify original request, construct copy? add test
     MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : shared_ptr<MoneroTxRequest>(new MoneroTxRequest()));
-
-    //MoneroTxRequest txReq = MoneroTxRequest();
-    //if (request.txRequest != boost::none) txReq = **request.txRequest;
 
     // build parameters for wallet2->get_payments()
     uint64_t minHeight = txReq.minHeight == boost::none ? 0 : *txReq.minHeight;
@@ -598,18 +596,14 @@ namespace monero {
       //throw runtime_error("isPool not implemented");
     }
 
-    // TODO: apply filtering
-
-    // collect resulting transfers
+    // filter and return transfers
     vector<shared_ptr<MoneroTransfer>> transfers;
-    for (int i = 0; i < txs.size(); i++) {
-      shared_ptr<MoneroTxWallet> tx = txs[i];
-      for (int j = 0; j < tx->incomingTransfers.size(); j++) {
-        transfers.push_back(tx->incomingTransfers[j]);
+    for (const shared_ptr<MoneroTxWallet>& tx : txs) {
+      if (tx->outgoingTransfer != boost::none && request.meetsCriteria(&(**tx->outgoingTransfer))) transfers.push_back(*tx->outgoingTransfer);
+      for (const shared_ptr<MoneroIncomingTransfer>& incomingTransfer : tx->incomingTransfers) {
+        if (request.meetsCriteria(&(*incomingTransfer))) transfers.push_back(incomingTransfer); // TODO: replace this with e.g. incomingTransfer.get()
       }
-      if (tx->outgoingTransfer != boost::none) transfers.push_back(*tx->outgoingTransfer);
     }
-
     return transfers;
   }
 

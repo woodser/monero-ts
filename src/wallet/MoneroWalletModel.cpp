@@ -13,6 +13,9 @@ using namespace epee; // TODO: delete?
  */
 namespace monero {
 
+  // ----------------------- UNDECLARED PRIVATE HELPERS -----------------------
+
+
   // -------------------------- MODEL SERIALIZATION ---------------------------
 
   boost::property_tree::ptree MoneroAccount::toPropertyTree() const {
@@ -115,6 +118,10 @@ namespace monero {
   //  return txNode;
   //}
 
-  // ----------------------- UNDECLARED PRIVATE HELPERS -----------------------
+  // --------------------------------- REQUESTS -------------------------------
 
+  bool MoneroTransferRequest::meetsCriteria(const MoneroTransfer* transfer) const {
+    //return true;  // TODO
+    return false;
+  }
 }
