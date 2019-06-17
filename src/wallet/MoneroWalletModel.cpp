@@ -120,8 +120,64 @@ namespace monero {
 
   // --------------------------------- REQUESTS -------------------------------
 
-  bool MoneroTransferRequest::meetsCriteria(const MoneroTransfer* transfer) const {
-    //return true;  // TODO
-    return false;
+  bool MoneroTransferRequest::meetsCriteria(const MoneroTransfer& transfer) const {
+
+    throw runtime_error("Not implemented");
+
+
+//    if (transfer == null) return false;
+//
+//    // filter on common fields
+//    if (this.getIsIncoming() != null && this.getIsIncoming() != transfer.getIsIncoming()) return false;
+//    if (this.getIsOutgoing() != null && this.getIsOutgoing() != transfer.getIsOutgoing()) return false;
+//    if (this.getAmount() != null && this.getAmount().compareTo(transfer.getAmount()) != 0) return false;
+//    if (this.getAccountIndex() != null && !this.getAccountIndex().equals(transfer.getAccountIndex())) return false;
+//
+//    // filter on incoming fields
+//    if (transfer instanceof MoneroIncomingTransfer) {
+//      if (Boolean.TRUE.equals(this.getHasDestinations())) return false;
+//      MoneroIncomingTransfer inTransfer = (MoneroIncomingTransfer) transfer;
+//      if (this.getAddress() != null && !this.getAddress().equals(inTransfer.getAddress())) return false;
+//      if (this.getAddresses() != null && !this.getAddresses().contains(inTransfer.getAddress())) return false;
+//      if (this.getSubaddressIndex() != null && !this.getSubaddressIndex().equals(inTransfer.getSubaddressIndex())) return false;
+//      if (this.getSubaddressIndices() != null && !this.getSubaddressIndices().contains(inTransfer.getSubaddressIndex())) return false;
+//    }
+//
+//    // filter on outgoing fields
+//    else if (transfer instanceof MoneroOutgoingTransfer) {
+//      MoneroOutgoingTransfer outTransfer = (MoneroOutgoingTransfer) transfer;
+//
+//      // filter on addresses
+//      if (this.getAddress() != null && (outTransfer.getAddresses() == null || !outTransfer.getAddresses().contains(this.getAddress()))) return false;   // TODO: will filter all transfers if they don't contain addresses
+//      if (this.getAddresses() != null) {
+//        List<String> intersections = new ArrayList<String>(this.getAddresses());
+//        intersections.retainAll(outTransfer.getAddresses());
+//        if (intersections.isEmpty()) return false;  // must have overlapping addresses
+//      }
+//
+//      // filter on subaddress indices
+//      if (this.getSubaddressIndex() != null && (outTransfer.getSubaddressIndices() == null || !outTransfer.getSubaddressIndices().contains(this.getSubaddressIndex()))) return false;
+//      if (this.getSubaddressIndices() != null) {
+//        List<Integer> intersections = new ArrayList<Integer>(this.getSubaddressIndices());
+//        intersections.retainAll(outTransfer.getSubaddressIndices());
+//        if (intersections.isEmpty()) return false;  // must have overlapping subaddress indices
+//      }
+//
+//      // filter on having destinations
+//      if (this.getHasDestinations() != null) {
+//        if (this.getHasDestinations() && outTransfer.getDestinations() == null) return false;
+//        if (!this.getHasDestinations() && outTransfer.getDestinations() != null) return false;
+//      }
+//
+//      // filter on destinations TODO: start with test for this
+////    if (this.getDestionations() != null && this.getDestionations() != transfer.getDestionations()) return false;
+//    }
+//
+//    // otherwise invalid type
+//    else throw new RuntimeException("Transfer must be MoneroIncomingTransfer or MoneroOutgoingTransfer");
+//
+//    // filter with tx filter
+//    if (this.getTxRequest() != null && !this.getTxRequest().meetsCriteria(transfer.getTx())) return false;
+//    return true;
   }
 }
