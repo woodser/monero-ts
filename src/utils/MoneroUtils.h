@@ -99,7 +99,6 @@ namespace MoneroUtils
 
   template <class T, typename std::enable_if<std::is_same<T, string>::value, T>::type* = nullptr>
   boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax) {
-    cout << "reconcile(" << val1 << ", " << val2 << ")" << endl;
 
     // check for equality
     if (val1 == val2) return val1;
@@ -120,7 +119,6 @@ namespace MoneroUtils
 
   template <class T, typename std::enable_if<std::is_integral<T>::value, T>::type* = nullptr>
   boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax) {
-    cout << "reconcile(" << val1 << ", " << val2 << ")" << endl;
 
     // check for equality
     if (val1 == val2) return val1;
@@ -147,7 +145,6 @@ namespace MoneroUtils
 
   template <class T, typename std::enable_if<std::is_same<T, bool>::value, T>::type>
   boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax) {
-    cout << "reconcile(" << val1 << ", " << val2 << ")" << endl;
 
     // check for equality
     if (val1 == val2) return val1;
