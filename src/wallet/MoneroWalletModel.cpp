@@ -159,22 +159,29 @@ namespace monero {
         if (!intersects) return false;  // must have overlapping addresses
       }
 
-//      // filter on subaddress indices
-//      if (this.getSubaddressIndex() != null && (outTransfer.getSubaddressIndices() == null || !outTransfer.getSubaddressIndices().contains(this.getSubaddressIndex()))) return false;
-//      if (this.getSubaddressIndices() != null) {
-//        List<Integer> intersections = new ArrayList<Integer>(this.getSubaddressIndices());
-//        intersections.retainAll(outTransfer.getSubaddressIndices());
-//        if (intersections.isEmpty()) return false;  // must have overlapping subaddress indices
-//      }
-//
-//      // filter on having destinations
-//      if (this.getHasDestinations() != null) {
-//        if (this.getHasDestinations() && outTransfer.getDestinations() == null) return false;
-//        if (!this.getHasDestinations() && outTransfer.getDestinations() != null) return false;
-//      }
-//
-//      // filter on destinations TODO: start with test for this
-//      //    if (this.getDestionations() != null && this.getDestionations() != transfer.getDestionations()) return false;
+      // filter on subaddress indices
+      if (subaddressIndex != boost::none && (outTransfer->subaddressIndices.empty() || find(outTransfer->subaddressIndices.begin(), outTransfer->subaddressIndices.end(), subaddressIndex) == outTransfer->subaddressIndices.end())) return false;   // TODO: will filter all transfers if they don't contain subaddress indices
+      if (!subaddressIndices.empty()) {
+        bool intersects = false;
+        for (const uint32_t& subaddressIndexReq : subaddressIndices) {
+          for (const uint32_t& subaddressIndex : outTransfer->subaddressIndices) {
+            if (subaddressIndexReq == subaddressIndex) {
+              intersects = true;
+              break;
+            }
+          }
+        }
+        if (!intersects) return false;  // must have overlapping subaddress indices
+      }
+
+      // filter on having destinations
+      if (hasDestinations != boost::none) {
+        if (*hasDestinations && outTransfer->destinations.empty()) return false;
+        if (!*hasDestinations && !outTransfer->destinations.empty()) return false;
+      }
+
+      // filter on destinations TODO: start with test for this
+      //    if (this.getDestionations() != null && this.getDestionations() != transfer.getDestionations()) return false;
     }
 
 
