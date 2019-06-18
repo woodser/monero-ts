@@ -88,7 +88,7 @@ namespace monero {
     for (const auto& aTx:  txs) {
 
       // merge tx
-      if (*aTx->id == *tx->id) {
+      if (*aTx->id == *tx->id) {  // TODO: hash map lookup by id instead of iteration
 
         // merge blocks if confirmed, txs otherwise
         if (aTx->block != boost::none || tx->block != boost::none) {
