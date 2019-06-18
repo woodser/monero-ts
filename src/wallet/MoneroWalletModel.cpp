@@ -93,6 +93,14 @@ namespace monero {
     return node;
   }
 
+  // TODO: finish this
+  boost::property_tree::ptree MoneroTransferRequest::toPropertyTree() const {
+    //cout << "MoneroTransferRequest::toPropertyTree(node)" << endl;
+    boost::property_tree::ptree node = MoneroTransfer::toPropertyTree();
+    if (subaddressIndex != boost::none) node.put("subaddressIndex", *subaddressIndex);
+    return node;
+  }
+
   //boost::property_tree::ptree MoneroUtils::txWalletToPropertyTree(const MoneroTxWallet& tx) {
   //  cout << "txWalletToPropertyTree(tx)" << endl;
   //  boost::property_tree::ptree txNode = txToPropertyTree(tx);
@@ -122,9 +130,9 @@ namespace monero {
   // --------------------------------- REQUESTS -------------------------------
 
   bool MoneroTransferRequest::meetsCriteria(MoneroTransfer* transfer) const {
-    cout << "meetsCriteria()" << endl;
+    //cout << "meetsCriteria()" << endl;
 
-    cout << "Common fields" << endl;
+    //cout << "Common fields" << endl;
 
     // filter on common fields
     if (isIncoming != boost::none && *isIncoming != *transfer->isIncoming) return false;
@@ -132,7 +140,7 @@ namespace monero {
     if (amount != boost::none && *amount != *transfer->amount) return false;
     if (accountIndex != boost::none && *accountIndex != *transfer->accountIndex) return false;
 
-    cout << "incoming fields" << endl;
+    //cout << "incoming fields" << endl;
 
     // TODO: could instead Monerotransfer->meetsCriteria(const MoneroTxRequest& req) and use inheritance instead of instanceof
 
@@ -142,17 +150,17 @@ namespace monero {
       if (hasDestinations != boost::none) return false;
       if (address != boost::none && *address != *inTransfer->address) return false;
       if (!addresses.empty() && find(addresses.begin(), addresses.end(), *inTransfer->address) == addresses.end()) return false;
-      if (subaddressIndex != boost::none && *subaddressIndex == *inTransfer->subaddressIndex) return false;
+      if (subaddressIndex != boost::none && *subaddressIndex != *inTransfer->subaddressIndex) return false;
       if (!subaddressIndices.empty() && find(subaddressIndices.begin(), subaddressIndices.end(), *inTransfer->subaddressIndex) == subaddressIndices.end()) return false;
     }
 
-    cout << "outgoing fields" << endl;
+    //cout << "outgoing fields" << endl;
 
     // filter on outgoing fields
     MoneroOutgoingTransfer* outTransfer = dynamic_cast<MoneroOutgoingTransfer*>(transfer);
     if (outTransfer != nullptr) {
 
-      cout << "addresses" << endl;
+      //cout << "addresses" << endl;
 
       // filter on addresses
       if (address != boost::none && (outTransfer->addresses.empty() || find(outTransfer->addresses.begin(), outTransfer->addresses.end(), address) == outTransfer->addresses.end())) return false;   // TODO: will filter all transfers if they don't contain addresses
@@ -169,7 +177,7 @@ namespace monero {
         if (!intersects) return false;  // must have overlapping addresses
       }
 
-      cout << "subaddress indices" << endl;
+      //cout << "subaddress indices" << endl;
 
       // filter on subaddress indices
       if (subaddressIndex != boost::none && (outTransfer->subaddressIndices.empty() || find(outTransfer->subaddressIndices.begin(), outTransfer->subaddressIndices.end(), subaddressIndex) == outTransfer->subaddressIndices.end())) return false;   // TODO: will filter all transfers if they don't contain subaddress indices
@@ -186,7 +194,7 @@ namespace monero {
         if (!intersects) return false;  // must have overlapping subaddress indices
       }
 
-      cout << "having destinations" << endl;
+      //cout << "having destinations" << endl;
 
       // filter on having destinations
       if (hasDestinations != boost::none) {

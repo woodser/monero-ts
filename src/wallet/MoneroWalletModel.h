@@ -159,6 +159,7 @@ namespace monero {
     vector<shared_ptr<MoneroDestination>> destinations;
     boost::optional<bool> hasDestinations;
     boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
+    boost::property_tree::ptree toPropertyTree() const;
     bool meetsCriteria(MoneroTransfer* transfer) const;
   };
 

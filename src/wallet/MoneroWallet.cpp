@@ -601,9 +601,20 @@ namespace monero {
     // filter and return transfers
     vector<shared_ptr<MoneroTransfer>> transfers;
     for (const shared_ptr<MoneroTxWallet>& tx : txs) {
+
+      // collect outgoing transfer, erase if filtered TODO: java/js do not erase filtered transfers
       if (tx->outgoingTransfer != boost::none && request.meetsCriteria((*tx->outgoingTransfer).get())) transfers.push_back(*tx->outgoingTransfer);
-      for (const shared_ptr<MoneroIncomingTransfer>& incomingTransfer : tx->incomingTransfers) {
-        if (request.meetsCriteria(incomingTransfer.get())) transfers.push_back(incomingTransfer); // TODO: replace this with e.g. incomingTransfer.get()
+      else tx->outgoingTransfer = boost::none;
+
+      // collect incoming transfers, erase if filtered
+      vector<shared_ptr<MoneroIncomingTransfer>>::iterator iter = tx->incomingTransfers.begin();
+      while (iter != tx->incomingTransfers.end()) {
+        if (request.meetsCriteria((*iter).get())) {
+          transfers.push_back(*iter);
+          iter++;
+        } else {
+          iter = tx->incomingTransfers.erase(iter);
+        }
       }
     }
     return transfers;
