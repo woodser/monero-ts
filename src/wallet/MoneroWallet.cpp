@@ -78,53 +78,61 @@ namespace monero {
    * TODO monero-core: skipIfAbsent only necessary because incoming payments not returned
    * when sent from/to same account #4500
    *
-   * @param txs are existing transactions to merge into
    * @param tx is the transaction to merge into the existing txs
+   * @param txMap maps tx ids to txs
+   * @param blockMap maps block heights to blocks
    * @param skipIfAbsent specifies if the tx should not be added if it doesn't already exist
-   * @returns the merged tx
    */
-  void mergeTx(vector<shared_ptr<MoneroTxWallet>>& txs, const shared_ptr<MoneroTxWallet>& tx, bool skipIfAbsent) {
+  void mergeTx(const shared_ptr<MoneroTxWallet>& tx, map<string, shared_ptr<MoneroTxWallet>>& txMap, map<uint64_t, shared_ptr<MoneroBlock>>& blockMap, bool skipIfAbsent) {
     if (tx->id == boost::none) throw runtime_error("Tx id is not initialized");
-    for (const auto& aTx:  txs) {
 
-      // merge tx
-      if (*aTx->id == *tx->id) {  // TODO: hash map lookup by id instead of iteration
-
-        // merge blocks if confirmed, txs otherwise
-        if (aTx->block != boost::none || tx->block != boost::none) {
-          if (aTx->block == boost::none) {
-            aTx->block = shared_ptr<MoneroBlock>(new MoneroBlock());
-            vector<shared_ptr<MoneroTx>> txs;
-            txs.push_back(tx);
-            (*aTx->block)->txs = txs;
-            (*aTx->block)->height = *tx->getHeight();
-          }
-          if (tx->block == boost::none) {
-            tx->block = shared_ptr<MoneroBlock>(new MoneroBlock());
-            vector<shared_ptr<MoneroTx>> txs;
-            txs.push_back(tx);
-            (*tx->block)->txs = txs;
-            (*tx->block)->height = *aTx->getHeight();
-          }
-          (*aTx->block)->merge(*aTx->block, *tx->block);
-        } else {
-          aTx->merge(aTx, tx);
-        }
-        return;
-      }
-
-      // merge common block of different txs
-      if (tx->getHeight() != boost::none && *tx->getHeight() == *aTx->getHeight()) {
-        (*aTx->block)->merge(*aTx->block, *tx->block);
-        //if (aTx.getIsConfirmed()) assertTrue(aTx.getBlock().getTxs().contains(aTx));
+    // if tx doesn't exist, add it (unless skipped)
+    map<string, shared_ptr<MoneroTxWallet>>::const_iterator txIter = txMap.find(*tx->id);
+    if (txIter == txMap.end()) {
+      if (!skipIfAbsent) {
+        txMap[*tx->id] = tx;
+      } else {
+        cout << "WARNING: tx does not already exist" << endl; // TODO: proper logging
       }
     }
 
-    // add tx if it doesn't already exist unless skipped
-    if (!skipIfAbsent) {
-      txs.push_back(tx);
-    } else {
-      cout << "WARNING: tx does not already exist" << endl; // TODO: proper logging
+    // otherwise merge with existing tx
+    else {
+
+      // get existing tx to merge with
+      shared_ptr<MoneroTxWallet> aTx = txMap[*tx->id];
+
+      // merge blocks if confirmed, txs otherwise
+      if (aTx->block != boost::none || tx->block != boost::none) {
+        if (aTx->block == boost::none) {
+          aTx->block = shared_ptr<MoneroBlock>(new MoneroBlock());
+          vector<shared_ptr<MoneroTx>> txs;
+          txs.push_back(tx);
+          (*aTx->block)->txs = txs;
+          (*aTx->block)->height = *tx->getHeight();
+        }
+        if (tx->block == boost::none) {
+          tx->block = shared_ptr<MoneroBlock>(new MoneroBlock());
+          vector<shared_ptr<MoneroTx>> txs;
+          txs.push_back(tx);
+          (*tx->block)->txs = txs;
+          (*tx->block)->height = *aTx->getHeight();
+        }
+        (*aTx->block)->merge(*aTx->block, *tx->block);
+      } else {
+        aTx->merge(aTx, tx);
+      }
+    }
+
+    // if confirmed, merge tx's block
+    if (tx->getHeight() != boost::none) {
+      map<uint64_t, shared_ptr<MoneroBlock>>::const_iterator blockIter = blockMap.find(*tx->getHeight());
+      if (blockIter == blockMap.end()) {
+        blockMap[*tx->getHeight()] = *tx->block;
+      } else {
+        shared_ptr<MoneroBlock> aBlock = blockMap[*tx->getHeight()];
+        aBlock->merge(aBlock, *tx->block);
+      }
     }
   }
 
@@ -569,8 +577,9 @@ namespace monero {
     bool isPool = canBeIncoming && canBeInTxPool;
     bool isFailed = !boolEquals(false, txReq.isFailed) && !boolEquals(true, txReq.isConfirmed) && !boolEquals(true, txReq.inTxPool);
 
-    // collect unique transactions
-    vector<shared_ptr<MoneroTxWallet>> txs;
+    // collect unique txs and blocks using internal data structures
+    map<string, shared_ptr<MoneroTxWallet>> txMap;
+    map<uint64_t, shared_ptr<MoneroBlock>> blockMap;
 
     // get confirmed incoming transfers
     if (isIn) {
@@ -578,7 +587,7 @@ namespace monero {
       wallet2->get_payments(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
         shared_ptr<MoneroTxWallet> tx = buildTxWithIncomingTransfer(i->second.m_tx_hash, i->first, i->second);
-        mergeTx(txs, tx, false);
+        mergeTx(tx, txMap, blockMap, false);
         //txs.push_back(tx);
       }
     }
@@ -600,7 +609,8 @@ namespace monero {
 
     // filter and return transfers
     vector<shared_ptr<MoneroTransfer>> transfers;
-    for (const shared_ptr<MoneroTxWallet>& tx : txs) {
+    for (map<string, shared_ptr<MoneroTxWallet>>::const_iterator txIter = txMap.begin(); txIter != txMap.end(); txIter++) {
+      shared_ptr<MoneroTxWallet> tx = txIter->second;
 
       // collect outgoing transfer, erase if filtered TODO: java/js do not erase filtered transfers
       if (tx->outgoingTransfer != boost::none && request.meetsCriteria((*tx->outgoingTransfer).get())) transfers.push_back(*tx->outgoingTransfer);
