@@ -120,29 +120,64 @@ namespace monero {
 
   // --------------------------------- REQUESTS -------------------------------
 
-  bool MoneroTransferRequest::meetsCriteria(const MoneroTransfer& transfer) const {
+  bool MoneroTransferRequest::meetsCriteria(MoneroTransfer* transfer) const {
 
-    throw runtime_error("Not implemented");
+    // filter on common fields
+    if (isIncoming != boost::none && *isIncoming != *transfer->isIncoming) return false;
+    if (getIsOutgoing() != boost::none && *getIsOutgoing() != *transfer->getIsOutgoing()) return false;
+    if (amount != boost::none && *amount != *transfer->amount) return false;
+    if (accountIndex != boost::none && *accountIndex != *transfer->accountIndex) return false;
+
+    // TODO: could instead Monerotransfer->meetsCriteria(const MoneroTxRequest& req) and use inheritance instead of instanceof
+
+    // filter on incoming fields
+    MoneroIncomingTransfer* inTransfer = dynamic_cast<MoneroIncomingTransfer*>(transfer);
+    if (inTransfer != nullptr) {
+      if (hasDestinations != boost::none) return false;
+      if (address != boost::none && *address != *inTransfer->address) return false;
+      if (find(addresses.begin(), addresses.end(), *inTransfer->address) == addresses.end()) return false;
+      if (subaddressIndex != boost::none && *subaddressIndex == *inTransfer->subaddressIndex) return false;
+      if (find(subaddressIndices.begin(), subaddressIndices.end(), *inTransfer->subaddressIndex) == subaddressIndices.end()) return false;
+    }
+
+    // filter on outgoing fields
+    MoneroOutgoingTransfer* outTransfer = dynamic_cast<MoneroOutgoingTransfer*>(transfer);
+    if (outTransfer != nullptr) {
+
+      // filter on addresses
+      if (address != boost::none && (outTransfer->addresses.empty() || find(outTransfer->addresses.begin(), outTransfer->addresses.end(), address) == outTransfer->addresses.end())) return false;   // TODO: will filter all transfers if they don't contain addresses
+      if (!addresses.empty()) {
+        bool intersects = false;
+        for (const string& addressReq : addresses) {
+          for (const string& address : outTransfer->addresses) {
+            if (addressReq == address) {
+              intersects = true;
+              break;
+            }
+          }
+        }
+        if (!intersects) return false;  // must have overlapping addresses
+      }
+
+//      // filter on subaddress indices
+//      if (this.getSubaddressIndex() != null && (outTransfer.getSubaddressIndices() == null || !outTransfer.getSubaddressIndices().contains(this.getSubaddressIndex()))) return false;
+//      if (this.getSubaddressIndices() != null) {
+//        List<Integer> intersections = new ArrayList<Integer>(this.getSubaddressIndices());
+//        intersections.retainAll(outTransfer.getSubaddressIndices());
+//        if (intersections.isEmpty()) return false;  // must have overlapping subaddress indices
+//      }
+//
+//      // filter on having destinations
+//      if (this.getHasDestinations() != null) {
+//        if (this.getHasDestinations() && outTransfer.getDestinations() == null) return false;
+//        if (!this.getHasDestinations() && outTransfer.getDestinations() != null) return false;
+//      }
+//
+//      // filter on destinations TODO: start with test for this
+//      //    if (this.getDestionations() != null && this.getDestionations() != transfer.getDestionations()) return false;
+    }
 
 
-//    if (transfer == null) return false;
-//
-//    // filter on common fields
-//    if (this.getIsIncoming() != null && this.getIsIncoming() != transfer.getIsIncoming()) return false;
-//    if (this.getIsOutgoing() != null && this.getIsOutgoing() != transfer.getIsOutgoing()) return false;
-//    if (this.getAmount() != null && this.getAmount().compareTo(transfer.getAmount()) != 0) return false;
-//    if (this.getAccountIndex() != null && !this.getAccountIndex().equals(transfer.getAccountIndex())) return false;
-//
-//    // filter on incoming fields
-//    if (transfer instanceof MoneroIncomingTransfer) {
-//      if (Boolean.TRUE.equals(this.getHasDestinations())) return false;
-//      MoneroIncomingTransfer inTransfer = (MoneroIncomingTransfer) transfer;
-//      if (this.getAddress() != null && !this.getAddress().equals(inTransfer.getAddress())) return false;
-//      if (this.getAddresses() != null && !this.getAddresses().contains(inTransfer.getAddress())) return false;
-//      if (this.getSubaddressIndex() != null && !this.getSubaddressIndex().equals(inTransfer.getSubaddressIndex())) return false;
-//      if (this.getSubaddressIndices() != null && !this.getSubaddressIndices().contains(inTransfer.getSubaddressIndex())) return false;
-//    }
-//
 //    // filter on outgoing fields
 //    else if (transfer instanceof MoneroOutgoingTransfer) {
 //      MoneroOutgoingTransfer outTransfer = (MoneroOutgoingTransfer) transfer;
@@ -178,6 +213,6 @@ namespace monero {
 //
 //    // filter with tx filter
 //    if (this.getTxRequest() != null && !this.getTxRequest().meetsCriteria(transfer.getTx())) return false;
-//    return true;
+    return true;
   }
 }

@@ -599,9 +599,9 @@ namespace monero {
     // filter and return transfers
     vector<shared_ptr<MoneroTransfer>> transfers;
     for (const shared_ptr<MoneroTxWallet>& tx : txs) {
-      if (tx->outgoingTransfer != boost::none && request.meetsCriteria(**tx->outgoingTransfer)) transfers.push_back(*tx->outgoingTransfer);
+      if (tx->outgoingTransfer != boost::none && request.meetsCriteria((*tx->outgoingTransfer).get())) transfers.push_back(*tx->outgoingTransfer);
       for (const shared_ptr<MoneroIncomingTransfer>& incomingTransfer : tx->incomingTransfers) {
-        if (request.meetsCriteria(*incomingTransfer)) transfers.push_back(incomingTransfer); // TODO: replace this with e.g. incomingTransfer.get()
+        if (request.meetsCriteria(incomingTransfer.get())) transfers.push_back(incomingTransfer); // TODO: replace this with e.g. incomingTransfer.get()
       }
     }
     return transfers;
