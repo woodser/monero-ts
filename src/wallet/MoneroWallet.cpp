@@ -541,6 +541,9 @@ namespace monero {
   vector<shared_ptr<MoneroTransfer>> MoneroWallet::getTransfers(const MoneroTransferRequest& request) const {
     cout << "vector<shared_ptr<MoneroTransfer>> getTransfers(request)" << endl;
 
+    // print request
+    cout << "Fetching transfers with request: " << MoneroUtils::serialize(request.toPropertyTree()) << endl;
+
     // normalize request
     // TODO: this will modify original request, construct copy? add test
     MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : shared_ptr<MoneroTxRequest>(new MoneroTxRequest()));

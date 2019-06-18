@@ -18,6 +18,7 @@ namespace monero {
 
   // -------------------------- MODEL SERIALIZATION ---------------------------
 
+  // TODO: ensure return object is not being unecessarily copied
   boost::property_tree::ptree MoneroAccount::toPropertyTree() const {
     //cout << "MoneroAccount::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node;
