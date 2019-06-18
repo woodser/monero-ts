@@ -84,7 +84,6 @@ namespace monero {
    * @returns the merged tx
    */
   void mergeTx(vector<shared_ptr<MoneroTxWallet>>& txs, const shared_ptr<MoneroTxWallet>& tx, bool skipIfAbsent) {
-    cout << "mergeTx(txs, txs)" << endl;
     if (tx->id == boost::none) throw runtime_error("Tx id is not initialized");
     for (const auto& aTx:  txs) {
 
@@ -754,7 +753,7 @@ namespace monero {
   }
 
   shared_ptr<MoneroTxWallet> MoneroWallet::buildTxWithIncomingTransfer(const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) const {
-    cout << "buildTxWithIncomingTransfer()" << endl;
+    //cout << "buildTxWithIncomingTransfer()" << endl;
 
     // construct block
     shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(new MoneroBlock());

@@ -121,12 +121,17 @@ namespace monero {
   // --------------------------------- REQUESTS -------------------------------
 
   bool MoneroTransferRequest::meetsCriteria(MoneroTransfer* transfer) const {
+    cout << "meetsCriteria()" << endl;
+
+    cout << "Common fields" << endl;
 
     // filter on common fields
     if (isIncoming != boost::none && *isIncoming != *transfer->isIncoming) return false;
     if (getIsOutgoing() != boost::none && *getIsOutgoing() != *transfer->getIsOutgoing()) return false;
     if (amount != boost::none && *amount != *transfer->amount) return false;
     if (accountIndex != boost::none && *accountIndex != *transfer->accountIndex) return false;
+
+    cout << "incoming fields" << endl;
 
     // TODO: could instead Monerotransfer->meetsCriteria(const MoneroTxRequest& req) and use inheritance instead of instanceof
 
@@ -135,14 +140,18 @@ namespace monero {
     if (inTransfer != nullptr) {
       if (hasDestinations != boost::none) return false;
       if (address != boost::none && *address != *inTransfer->address) return false;
-      if (find(addresses.begin(), addresses.end(), *inTransfer->address) == addresses.end()) return false;
+      if (!addresses.empty() && find(addresses.begin(), addresses.end(), *inTransfer->address) == addresses.end()) return false;
       if (subaddressIndex != boost::none && *subaddressIndex == *inTransfer->subaddressIndex) return false;
-      if (find(subaddressIndices.begin(), subaddressIndices.end(), *inTransfer->subaddressIndex) == subaddressIndices.end()) return false;
+      if (!subaddressIndices.empty() && find(subaddressIndices.begin(), subaddressIndices.end(), *inTransfer->subaddressIndex) == subaddressIndices.end()) return false;
     }
+
+    cout << "outgoing fields" << endl;
 
     // filter on outgoing fields
     MoneroOutgoingTransfer* outTransfer = dynamic_cast<MoneroOutgoingTransfer*>(transfer);
     if (outTransfer != nullptr) {
+
+      cout << "addresses" << endl;
 
       // filter on addresses
       if (address != boost::none && (outTransfer->addresses.empty() || find(outTransfer->addresses.begin(), outTransfer->addresses.end(), address) == outTransfer->addresses.end())) return false;   // TODO: will filter all transfers if they don't contain addresses
@@ -159,6 +168,8 @@ namespace monero {
         if (!intersects) return false;  // must have overlapping addresses
       }
 
+      cout << "subaddress indices" << endl;
+
       // filter on subaddress indices
       if (subaddressIndex != boost::none && (outTransfer->subaddressIndices.empty() || find(outTransfer->subaddressIndices.begin(), outTransfer->subaddressIndices.end(), subaddressIndex) == outTransfer->subaddressIndices.end())) return false;   // TODO: will filter all transfers if they don't contain subaddress indices
       if (!subaddressIndices.empty()) {
@@ -173,6 +184,8 @@ namespace monero {
         }
         if (!intersects) return false;  // must have overlapping subaddress indices
       }
+
+      cout << "having destinations" << endl;
 
       // filter on having destinations
       if (hasDestinations != boost::none) {
