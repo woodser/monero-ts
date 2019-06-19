@@ -14,9 +14,6 @@ set(MONERO_CORE "submodules/monero-core")
 set(MONERO_CORE_SRC "${MONERO_CORE}/src")
 
 # header includes
-include_directories("$ENV{JAVA_HOME}")
-include_directories("$ENV{JAVA_HOME}/include")
-include_directories("$ENV{JAVA_HOME}/include/darwin")
 include_directories(src/)
 include_directories(${MONERO_CORE}/contrib/epee/include)
 include_directories(${MONERO_CORE}/external/)
