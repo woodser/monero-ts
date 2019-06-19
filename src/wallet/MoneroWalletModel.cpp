@@ -81,7 +81,7 @@ namespace monero {
 
   boost::property_tree::ptree MoneroTxRequest::toPropertyTree() const {
     //cout << "MoneroTxRequest::toPropertyTree(node)" << endl;
-    throw runtime_error("Not implemented");
+    throw runtime_error("MoneroTxRequest toPropertyTree() Not implemented");
   }
 
   //boost::property_tree::ptree MoneroUtils::txRequestToPropertyTree(const MoneroTxRequest& tx) {
