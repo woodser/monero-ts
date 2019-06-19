@@ -3,5 +3,6 @@ rename external-libs/monero to monero-core for clarity
 onSyncProgress(startHeight, currentHeight, endHeight, percentDone, message)?
 optimize by moving shared_ptrs
 
+re-usable debug trace statements
 use gnu debugger and sanitize=on
 further automate build process
