@@ -110,6 +110,8 @@ namespace monero {
     if (hasDestinations != boost::none) node.put("hasDestinations", *hasDestinations);
     if (txRequest != boost::none) node.add_child("txRequest", (*txRequest)->toPropertyTree());
 
+    // TODO: if (!addresses.empty()) node.add_child("addresses", MoneroUtils::toPropertyTree(subaddresses));
+
     // convert addresses
     boost::property_tree::ptree addressesNode;
     for (const string& address : addresses) {
