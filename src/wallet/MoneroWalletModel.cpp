@@ -76,6 +76,14 @@ namespace monero {
     return node;
   }
 
+  boost::property_tree::ptree MoneroDestination::toPropertyTree() const {
+    //cout << "MoneroDestination::toPropertyTree(node)" << endl;
+    boost::property_tree::ptree node;
+    if (address != boost::none) node.put("address", *address);
+    if (amount != boost::none) node.put("amount", *amount);
+    return node;
+  }
+
   boost::property_tree::ptree MoneroIncomingTransfer::toPropertyTree() const {
     //cout << "MoneroIncomingTransfer::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node = MoneroTransfer::toPropertyTree();
@@ -93,18 +101,41 @@ namespace monero {
     return node;
   }
 
-  // TODO: finish this
   boost::property_tree::ptree MoneroTransferRequest::toPropertyTree() const {
     //cout << "MoneroTransferRequest::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node = MoneroTransfer::toPropertyTree();
     if (isIncoming != boost::none) node.put("isIncoming", *isIncoming);
     if (address != boost::none) node.put("address", *address);
-    // TODO: handle addresses
     if (subaddressIndex != boost::none) node.put("subaddressIndex", *subaddressIndex);
-    // TODO: handle subaddress indices
-    // TODO: handle destinations
     if (hasDestinations != boost::none) node.put("hasDestinations", *hasDestinations);
     if (txRequest != boost::none) node.add_child("txRequest", (*txRequest)->toPropertyTree());
+
+    // convert addresses
+    boost::property_tree::ptree addressesNode;
+    for (const string& address : addresses) {
+      boost::property_tree::ptree addressNode;
+      addressNode.put("", address);
+      addressesNode.push_back(std::make_pair("", addressNode));
+    }
+    node.add_child("addresses", addressesNode);
+
+    // convert subaddress indices
+    boost::property_tree::ptree subaddressIndicesNode;
+    for (const uint32_t& subaddressIndex : subaddressIndices) {
+      boost::property_tree::ptree subaddressIndexNode;
+      subaddressIndexNode.put("", subaddressIndex);
+      subaddressIndicesNode.push_back(std::make_pair("", subaddressIndexNode));
+    }
+    node.add_child("subaddressIndices", subaddressIndicesNode);
+
+    // convert destinations
+    boost::property_tree::ptree destinationsNode;
+    for (const shared_ptr<MoneroDestination>& destination : destinations) {
+      boost::property_tree::ptree destinationNode;
+      destinationNode.add_child("", destination->toPropertyTree());
+      destinationsNode.push_back(std::make_pair("", destinationNode));
+    }
+    node.add_child("destinations", destinationsNode);
     return node;
   }
 

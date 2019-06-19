@@ -83,6 +83,8 @@ namespace monero {
   struct MoneroDestination {
     boost::optional<string> address;
     boost::optional<uint64_t> amount;
+
+    boost::property_tree::ptree toPropertyTree() const;
   };
 
   /**
