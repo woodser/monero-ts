@@ -92,16 +92,16 @@ namespace monero {
    */
   struct MoneroTransfer : SerializableStruct {
     shared_ptr<MoneroTxWallet> tx;
-    boost::optional<bool> isIncoming;
     boost::optional<uint64_t> amount;
     boost::optional<uint32_t> accountIndex;
     boost::optional<uint32_t> numSuggestedConfirmations;
 
-    boost::property_tree::ptree toPropertyTree() const;
+    virtual boost::optional<bool> getIsIncoming() const = 0;  // derived class must implement
     boost::optional<bool> getIsOutgoing() const {
-      if (isIncoming == boost::none ) return boost::none;
-      return !(*isIncoming);
+			if (getIsIncoming() == boost::none) return boost::none;
+      return !(*getIsIncoming());
     }
+    boost::property_tree::ptree toPropertyTree() const;
   };
 
   /**
@@ -111,6 +111,7 @@ namespace monero {
     boost::optional<uint32_t> subaddressIndex;
     boost::optional<string> address;
 
+    boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
   };
 
@@ -122,7 +123,27 @@ namespace monero {
     vector<string> addresses;
     vector<shared_ptr<MoneroDestination>> destinations;
 
+    boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
+  };
+
+  /**
+   * Configures a request to retrieve transfers.
+   *
+   * All transfers are returned except those that do not meet the criteria defined in this request.
+   */
+  struct MoneroTransferRequest : public MoneroTransfer {
+    boost::optional<bool> isIncoming;
+    boost::optional<string> address;
+    vector<string> addresses;
+    boost::optional<uint32_t> subaddressIndex;
+    vector<uint32_t> subaddressIndices;
+    vector<shared_ptr<MoneroDestination>> destinations;
+    boost::optional<bool> hasDestinations;
+    boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
+    boost::optional<bool> getIsIncoming() const;
+    boost::property_tree::ptree toPropertyTree() const;
+    bool meetsCriteria(MoneroTransfer* transfer) const;
   };
 
   /**
@@ -145,24 +166,6 @@ namespace monero {
     boost::optional<string> note;
 
     boost::property_tree::ptree toPropertyTree() const;
-  };
-
-  /**
-   * Configures a request to retrieve transfers.
-   *
-   * All transfers are returned except those that do not meet the criteria defined in this request.
-   */
-  struct MoneroTransferRequest : public MoneroTransfer {
-    boost::optional<bool> isIncoming;
-    boost::optional<string> address;
-    vector<string> addresses;
-    boost::optional<uint32_t> subaddressIndex;
-    vector<uint32_t> subaddressIndices;
-    vector<shared_ptr<MoneroDestination>> destinations;
-    boost::optional<bool> hasDestinations;
-    boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
-    boost::property_tree::ptree toPropertyTree() const;
-    bool meetsCriteria(MoneroTransfer* transfer) const;
   };
 
   /**

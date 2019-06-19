@@ -831,6 +831,14 @@ namespace monero {
       outgoingTransfer->destinations.push_back(destination);
     }
 
+    // replace transfer amount with destination sum
+    // TODO monero core: confirmed tx from/to same account has amount 0 but cached transfer destinations
+    if (*outgoingTransfer->amount == 0 && !outgoingTransfer->destinations.empty()) {
+      uint64_t amount = 0;
+      for (const shared_ptr<MoneroDestination>& destination : outgoingTransfer->destinations) amount += *destination->amount;
+      outgoingTransfer->amount = amount;
+    }
+
     // compute numSuggestedConfirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
     uint64_t blockReward = wallet2->get_last_block_reward();
     if (blockReward == 0) outgoingTransfer->numSuggestedConfirmations = 0;
