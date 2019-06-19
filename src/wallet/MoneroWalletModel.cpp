@@ -57,7 +57,7 @@ namespace monero {
     boost::property_tree::ptree node = MoneroTx::toPropertyTree();
     if (!vouts.empty()) throw runtime_error("vouts not implemented");
     if (!incomingTransfers.empty()) node.add_child("incomingTransfers", MoneroUtils::toPropertyTree(incomingTransfers));
-    if (outgoingTransfer != boost::none) throw runtime_error("outgoingTransfers not implemented");
+    if (outgoingTransfer != boost::none) node.add_child("outgoingTransfer", (*outgoingTransfer)->toPropertyTree());
     if (note != boost::none) node.put("note", *note);
     return node;
   }
@@ -109,6 +109,7 @@ namespace monero {
     if (subaddressIndex != boost::none) node.put("subaddressIndex", *subaddressIndex);
     if (hasDestinations != boost::none) node.put("hasDestinations", *hasDestinations);
     if (txRequest != boost::none) node.add_child("txRequest", (*txRequest)->toPropertyTree());
+    if (!destinations.empty()) node.add_child("destinations", MoneroUtils::toPropertyTree(destinations));
 
     // TODO: if (!addresses.empty()) node.add_child("addresses", MoneroUtils::toPropertyTree(subaddresses));
 
@@ -130,14 +131,6 @@ namespace monero {
     }
     node.add_child("subaddressIndices", subaddressIndicesNode);
 
-    // convert destinations
-    boost::property_tree::ptree destinationsNode;
-    for (const shared_ptr<MoneroDestination>& destination : destinations) {
-      boost::property_tree::ptree destinationNode;
-      destinationNode.add_child("", destination->toPropertyTree());
-      destinationsNode.push_back(std::make_pair("", destinationNode));
-    }
-    node.add_child("destinations", destinationsNode);
     return node;
   }
 

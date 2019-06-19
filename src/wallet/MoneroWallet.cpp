@@ -588,13 +588,17 @@ namespace monero {
       for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
         shared_ptr<MoneroTxWallet> tx = buildTxWithIncomingTransfer(i->second.m_tx_hash, i->first, i->second);
         mergeTx(tx, txMap, blockMap, false);
-        //txs.push_back(tx);
       }
     }
 
     // get confirmed outgoing transfers
     if (isOut) {
-      //throw runtime_error("isOut not implemented");
+      std::list<std::pair<crypto::hash, tools::wallet2::confirmed_transfer_details>> payments;
+      wallet2->get_payments_out(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
+      for (std::list<std::pair<crypto::hash, tools::wallet2::confirmed_transfer_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
+        shared_ptr<MoneroTxWallet> tx = buildTxWithOutgoingTransfer(i->first, i->second);
+        mergeTx(tx, txMap, blockMap, false);
+      }
     }
 
     // get unconfirmed outgoing transfers
@@ -629,71 +633,6 @@ namespace monero {
     }
     return transfers;
   }
-
-//  vector<MoneroTransfer> MoneroWallet::getTransfers(const MoneroTransferRequest& request) const {
-//    cout << "getTransfers(request)" << endl;
-//
-//    // normalize request
-//    MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : shared_ptr<MoneroTxRequest>(make_shared<MoneroTxRequest>(MoneroTxRequest())));
-//
-//    //MoneroTxRequest txReq = MoneroTxRequest();
-//    //if (request.txRequest != boost::none) txReq = **request.txRequest;
-//
-//    // build parameters for wallet2->get_payments()
-//    uint64_t minHeight = txReq.minHeight == boost::none ? 0 : *txReq.minHeight;
-//    uint64_t maxHeight = txReq.maxHeight == boost::none ? CRYPTONOTE_MAX_BLOCK_NUMBER : min((uint64_t) CRYPTONOTE_MAX_BLOCK_NUMBER, *txReq.maxHeight);
-//    boost::optional<uint32_t> accountIndex = boost::none;
-//    if (request.accountIndex != boost::none) accountIndex = *request.accountIndex;
-//    std::set<uint32_t> subaddressIndices;
-//    for (int i = 0; i < request.subaddressIndices.size(); i++) {
-//      subaddressIndices.insert(request.subaddressIndices[i]);
-//    }
-//
-//    // translate from MoneroTxRequest to in, out, pending, pool, failed terminology used by monero-wallet-rpc
-//    bool canBeConfirmed = !boolEquals(false, txReq.isConfirmed) && !boolEquals(true, txReq.inTxPool) && !boolEquals(true, txReq.isFailed) && !boolEquals(false, txReq.isRelayed);
-//    bool canBeInTxPool = !boolEquals(true, txReq.isConfirmed) && !boolEquals(false, txReq.inTxPool) && !boolEquals(true, txReq.isFailed) && !boolEquals(false, txReq.isRelayed) && txReq.getHeight() == boost::none && txReq.minHeight == boost::none;
-//    bool canBeIncoming = !boolEquals(false, request.isIncoming) && !boolEquals(true, request.getIsOutgoing()) && !boolEquals(true, request.hasDestinations);
-//    bool canBeOutgoing = !boolEquals(false, request.getIsOutgoing()) && !boolEquals(true, request.isIncoming);
-//    bool isIn = canBeIncoming && canBeConfirmed;
-//    bool isOut = canBeOutgoing && canBeConfirmed;
-//    bool isPending = canBeOutgoing && canBeInTxPool;
-//    bool isPool = canBeIncoming && canBeInTxPool;
-//    bool isFailed = !boolEquals(false, txReq.isFailed) && !boolEquals(true, txReq.isConfirmed) && !boolEquals(true, txReq.inTxPool);
-//
-//    // TODO: this duplicates common transfer txs
-//
-//    // collect transfers
-//    vector<MoneroTransfer> transfers;
-//
-//    // get confirmed incoming transfers
-//    if (isIn) {
-//      std::list<std::pair<crypto::hash, tools::wallet2::payment_details>> payments;
-//      wallet2->get_payments(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
-//      for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
-////        MoneroTransfer transfer = convertWallet2IncomingTransfer(i->second.m_tx_hash, i->first, i->second);
-////        transfers.push_back(transfer);
-//      }
-//    }
-//
-//    // get confirmed outgoing transfers
-//    if (isOut) {
-//      //throw runtime_error("isOut not implemented");
-//    }
-//
-//    // get unconfirmed outgoing transfers
-//    if (isPending || isFailed) {
-//      //throw runtime_error("isPending || isFailed not implemented");
-//    }
-//
-//    // get unconfirmed incoming transfers
-//    if (isPool) {
-//      //throw runtime_error("isPool not implemented");
-//    }
-//
-//    // TODO: apply filtering
-//
-//    return transfers;
-//  }
 
   vector<MoneroOutputWallet> MoneroWallet::getOutputs(const MoneroOutputRequest& request) const {
     cout << "getOutputs(request)" << endl;
@@ -827,53 +766,77 @@ namespace monero {
     return tx;
   }
 
-//  MoneroTransfer MoneroWallet::convertWallet2IncomingTransfer(const tools::wallet2& wallet2, const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) const {
-//    //cout << "convertWallet2IncomingTransfer(3)" << endl;
-//    shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(new MoneroBlock());
-//    block->height = pd.m_block_height;
-//    block->timestamp = pd.m_timestamp;
-//
-//    //shared_ptr<MoneroTxWallet> tx = nullptr;
-//    shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
-//    tx->block = block;
-//    block->txs.push_back(tx);
-//    tx->id = string_tools::pod_to_hex(pd.m_tx_hash);
-//    tx->paymentId = string_tools::pod_to_hex(payment_id);
-//    if (tx->paymentId->substr(16).find_first_not_of('0') == std::string::npos) tx->paymentId = tx->paymentId->substr(0, 16);  // TODO monero core: this should be part of core wallet
-//    if (tx->paymentId == MoneroTx::DEFAULT_PAYMENT_ID) tx->paymentId = boost::none;  // clear default payment id
-//    tx->unlockTime = pd.m_unlock_time;
-//    tx->fee = pd.m_fee;
-//    tx->note = wallet2->get_tx_note(pd.m_tx_hash);
-//    if (tx->note->empty()) tx->note = boost::none; // clear empty note
-//    tx->isCoinbase = pd.m_coinbase ? true : false;
-//    tx->isConfirmed = true;
-//    tx->isFailed = false;
-//    tx->isRelayed = true;
-//    tx->inTxPool = false;
-//    tx->doNotRelay = false;
-//    tx->isDoubleSpend = false;
-//
-//    // compute numConfirmations TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
-//    uint64_t chainHeight = getChainHeight();
-//    if (*block->height >= chainHeight || (*block->height == 0 && !tx->inTxPool)) tx->numConfirmations = 0;
-//    else tx->numConfirmations = chainHeight - *block->height;
-//
-//    // construct transfer
-//    MoneroIncomingTransfer incomingTransfer;
-//    incomingTransfer.tx = tx;
-//    incomingTransfer.amount = pd.m_amount;
-//    incomingTransfer.accountIndex = pd.m_subaddr_index.major;
-//    incomingTransfer.subaddressIndex = pd.m_subaddr_index.minor;
-//    incomingTransfer.address = wallet2->get_subaddress_as_str(pd.m_subaddr_index);
-//
-//    // compute numSuggestedConfirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
-//    uint64_t blockReward = wallet2->get_last_block_reward();
-//    if (blockReward == 0) incomingTransfer.numSuggestedConfirmations = 0;
-//    else incomingTransfer.numSuggestedConfirmations = (*incomingTransfer.amount + blockReward - 1) / blockReward;
-//
-//    // add transfer to tx
-//    tx->incomingTransfers.push_back(incomingTransfer);
-//
-//    return incomingTransfer;
-//  }
+  //void wallet_rpc_server::fill_transfer_entry(tools::wallet_rpc::transfer_entry &entry, const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd)
+
+  //void wallet_rpc_server::fill_transfer_entry(tools::wallet_rpc::transfer_entry &entry, const crypto::hash &txid, const tools::wallet2::confirmed_transfer_details &pd)
+
+  //void wallet_rpc_server::fill_transfer_entry(tools::wallet_rpc::transfer_entry &entry, const crypto::hash &txid, const tools::wallet2::unconfirmed_transfer_details &pd)
+
+  //void wallet_rpc_server::fill_transfer_entry(tools::wallet_rpc::transfer_entry &entry, const crypto::hash &payment_id, const tools::wallet2::pool_payment_details &ppd)
+
+  shared_ptr<MoneroTxWallet> MoneroWallet::buildTxWithOutgoingTransfer(const crypto::hash &txid, const tools::wallet2::confirmed_transfer_details &pd) const {
+    //cout << "buildTxWithOutgoingTransfer()" << endl;
+
+    // construct block
+    shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(new MoneroBlock());
+    block->height = pd.m_block_height;
+    block->timestamp = pd.m_timestamp;
+
+    // construct tx
+    shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+    tx->block = block;
+    block->txs.push_back(tx);
+    tx->id = string_tools::pod_to_hex(txid);
+    tx->paymentId = string_tools::pod_to_hex(pd.m_payment_id);
+    if (tx->paymentId->substr(16).find_first_not_of('0') == std::string::npos) tx->paymentId = tx->paymentId->substr(0, 16);  // TODO monero core: this should be part of core wallet
+    if (tx->paymentId == MoneroTx::DEFAULT_PAYMENT_ID) tx->paymentId = boost::none;  // clear default payment id
+    tx->unlockTime = pd.m_unlock_time;
+    tx->fee = pd.m_amount_in - pd.m_amount_out;
+    tx->note = wallet2->get_tx_note(txid);
+    if (tx->note->empty()) tx->note = boost::none; // clear empty note
+    tx->isCoinbase = false;
+    tx->isConfirmed = true;
+    tx->isFailed = false;
+    tx->isRelayed = true;
+    tx->inTxPool = false;
+    tx->doNotRelay = false;
+    tx->isDoubleSpend = false;
+
+    // compute numConfirmations TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
+    uint64_t chainHeight = getChainHeight();
+    if (*block->height >= chainHeight || (*block->height == 0 && !tx->inTxPool)) tx->numConfirmations = 0;
+    else tx->numConfirmations = chainHeight - *block->height;
+
+    // construct transfer
+    shared_ptr<MoneroOutgoingTransfer> outgoingTransfer = shared_ptr<MoneroOutgoingTransfer>(new MoneroOutgoingTransfer());
+    outgoingTransfer->tx = tx;
+    tx->outgoingTransfer = outgoingTransfer;
+    uint64_t change = pd.m_change == (uint64_t)-1 ? 0 : pd.m_change; // change may not be known
+    outgoingTransfer->amount = pd.m_amount_in - change - *tx->fee;
+    outgoingTransfer->accountIndex = pd.m_subaddr_account;
+    vector<uint32_t> subaddressIndices;
+    vector<string> addresses;
+    for (uint32_t i: pd.m_subaddr_indices) {
+      subaddressIndices.push_back(i);
+      addresses.push_back(wallet2->get_subaddress_as_str({pd.m_subaddr_account, i}));
+    }
+    outgoingTransfer->subaddressIndices = subaddressIndices;
+    outgoingTransfer->addresses = addresses;
+
+    // initialize destinations
+    for (const auto &d: pd.m_dests) {
+      shared_ptr<MoneroDestination> destination = shared_ptr<MoneroDestination>(new MoneroDestination());
+      destination->amount = d.amount;
+      destination->address = d.original.empty() ? cryptonote::get_account_address_as_str(wallet2->nettype(), d.is_subaddress, d.addr) : d.original;
+      outgoingTransfer->destinations.push_back(destination);
+    }
+
+    // compute numSuggestedConfirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
+    uint64_t blockReward = wallet2->get_last_block_reward();
+    if (blockReward == 0) outgoingTransfer->numSuggestedConfirmations = 0;
+    else outgoingTransfer->numSuggestedConfirmations = (*outgoingTransfer->amount + blockReward - 1) / blockReward;
+
+    // return pointer to new tx
+    return tx;
+  }
 }
