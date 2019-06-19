@@ -113,6 +113,7 @@ void MoneroUtils::binaryBlocksToJson(const std::string &bin, std::string &json) 
 //  throw runtime_error("deserializeOutputWallet(outputStr) not implemented");
 //}
 
+// TODO: strip newline
 string MoneroUtils::serialize(const boost::property_tree::ptree& node) {
   std::stringstream ss;
   boost::property_tree::write_json(ss, node, false);
