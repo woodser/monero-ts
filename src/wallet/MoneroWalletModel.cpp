@@ -81,6 +81,7 @@ namespace monero {
 
   boost::property_tree::ptree MoneroTxRequest::toPropertyTree() const {
     //cout << "MoneroTxRequest::toPropertyTree(node)" << endl;
+    //if (transferRequest != boost::none) node.add_child("transferRequest", (*transferRequest)->toPropertyTree());
     throw runtime_error("MoneroTxRequest toPropertyTree() Not implemented");
   }
 
@@ -156,7 +157,6 @@ namespace monero {
     if (address != boost::none) node.put("address", *address);
     if (subaddressIndex != boost::none) node.put("subaddressIndex", *subaddressIndex);
     if (hasDestinations != boost::none) node.put("hasDestinations", *hasDestinations);
-    if (txRequest != boost::none) node.add_child("txRequest", (*txRequest)->toPropertyTree());
     if (!subaddressIndices.empty()) node.add_child("subaddressIndices", MoneroUtils::toPropertyTree(subaddressIndices));
     if (!addresses.empty()) node.add_child("addresses", MoneroUtils::toPropertyTree(addresses));
     if (!destinations.empty()) node.add_child("destinations", MoneroUtils::toPropertyTree(destinations));
