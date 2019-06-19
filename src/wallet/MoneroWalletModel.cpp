@@ -80,9 +80,18 @@ namespace monero {
   // -------------------------- MONERO TX REQUEST -----------------------------
 
   boost::property_tree::ptree MoneroTxRequest::toPropertyTree() const {
-    //cout << "MoneroTxRequest::toPropertyTree(node)" << endl;
-    //if (transferRequest != boost::none) node.add_child("transferRequest", (*transferRequest)->toPropertyTree());
-    throw runtime_error("MoneroTxRequest toPropertyTree() Not implemented");
+//    cout << "MoneroTxRequest::toPropertyTree(node)" << endl;
+    boost::property_tree::ptree node = MoneroTxWallet::toPropertyTree();
+    if (isOutgoing != boost::none) node.put("isOutgoing", *isOutgoing);
+    if (isIncoming != boost::none) node.put("isIncoming", *isIncoming);
+    if (!txIds.empty()) throw runtime_error("txIds not implemented");
+    if (hasPaymentId != boost::none) node.put("hasPaymentId", *hasPaymentId);
+    if (!paymentIds.empty()) throw runtime_error("paymentIds not implemented");
+    if (minHeight != boost::none) node.put("minHeight", *minHeight);
+    if (maxHeight != boost::none) node.put("maxHeight", *maxHeight);
+    if (includeOutputs != boost::none) node.put("includeOutputs", *includeOutputs);
+    if (transferRequest != boost::none) node.add_child("transferRequest", (*transferRequest)->toPropertyTree());
+    return node;
   }
 
   //boost::property_tree::ptree MoneroUtils::txRequestToPropertyTree(const MoneroTxRequest& tx) {
@@ -100,7 +109,7 @@ namespace monero {
   //  return txNode;
   //}
 
-  // ----------------------- MONERO DESTINATION -------------------------
+  // -------------------------- MONERO DESTINATION ----------------------------
 
   boost::property_tree::ptree MoneroDestination::toPropertyTree() const {
     //cout << "MoneroDestination::toPropertyTree(node)" << endl;
