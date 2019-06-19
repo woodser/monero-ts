@@ -81,6 +81,9 @@ namespace MoneroUtils
     return typeNodes;
   }
 
+  boost::property_tree::ptree toPropertyTree(const vector<string> strs);
+  boost::property_tree::ptree toPropertyTree(const vector<uint32_t> nums);
+
   /**
    * Modified from core_rpc_server.cpp to return a string.
    *

@@ -95,9 +95,9 @@ namespace monero {
   boost::property_tree::ptree MoneroOutgoingTransfer::toPropertyTree() const {
     //cout << "MoneroOutgoingTransfer::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node = MoneroTransfer::toPropertyTree();
-    if (!subaddressIndices.empty()) throw runtime_error("subaddressIndices not implemented");
-    if (!addresses.empty()) throw runtime_error("addresses not implemented");
-    if (!destinations.empty()) throw runtime_error("destinations not implemented");
+    if (!subaddressIndices.empty()) node.add_child("subaddressIndices", MoneroUtils::toPropertyTree(subaddressIndices));
+    if (!addresses.empty()) node.add_child("addresses", MoneroUtils::toPropertyTree(addresses));
+    if (!destinations.empty()) node.add_child("destinations", MoneroUtils::toPropertyTree(destinations));
     return node;
   }
 
@@ -109,29 +109,31 @@ namespace monero {
     if (subaddressIndex != boost::none) node.put("subaddressIndex", *subaddressIndex);
     if (hasDestinations != boost::none) node.put("hasDestinations", *hasDestinations);
     if (txRequest != boost::none) node.add_child("txRequest", (*txRequest)->toPropertyTree());
+    if (!subaddressIndices.empty()) node.add_child("subaddressIndices", MoneroUtils::toPropertyTree(subaddressIndices));
+    if (!addresses.empty()) node.add_child("addresses", MoneroUtils::toPropertyTree(addresses));
     if (!destinations.empty()) node.add_child("destinations", MoneroUtils::toPropertyTree(destinations));
-
-    // TODO: if (!addresses.empty()) node.add_child("addresses", MoneroUtils::toPropertyTree(subaddresses));
-
-    // convert addresses
-    boost::property_tree::ptree addressesNode;
-    for (const string& address : addresses) {
-      boost::property_tree::ptree addressNode;
-      addressNode.put("", address);
-      addressesNode.push_back(std::make_pair("", addressNode));
-    }
-    node.add_child("addresses", addressesNode);
-
-    // convert subaddress indices
-    boost::property_tree::ptree subaddressIndicesNode;
-    for (const uint32_t& subaddressIndex : subaddressIndices) {
-      boost::property_tree::ptree subaddressIndexNode;
-      subaddressIndexNode.put("", subaddressIndex);
-      subaddressIndicesNode.push_back(std::make_pair("", subaddressIndexNode));
-    }
-    node.add_child("subaddressIndices", subaddressIndicesNode);
-
     return node;
+
+//     TODO: if (!addresses.empty()) node.add_child("addresses", MoneroUtils::toPropertyTree(subaddresses));
+//
+//     convert addresses
+//
+//    boost::property_tree::ptree addressesNode;
+//    for (const string& address : addresses) {
+//      boost::property_tree::ptree addressNode;
+//      addressNode.put("", address);
+//      addressesNode.push_back(std::make_pair("", addressNode));
+//    }
+//    node.add_child("addresses", addressesNode);
+//
+//    // convert subaddress indices
+//    boost::property_tree::ptree subaddressIndicesNode;
+//    for (const uint32_t& subaddressIndex : subaddressIndices) {
+//      boost::property_tree::ptree subaddressIndexNode;
+//      subaddressIndexNode.put("", subaddressIndex);
+//      subaddressIndicesNode.push_back(std::make_pair("", subaddressIndexNode));
+//    }
+//    node.add_child("subaddressIndices", subaddressIndicesNode);
   }
 
   //boost::property_tree::ptree MoneroUtils::txWalletToPropertyTree(const MoneroTxWallet& tx) {

@@ -118,3 +118,25 @@ string MoneroUtils::serialize(const boost::property_tree::ptree& node) {
   boost::property_tree::write_json(ss, node, false);
   return ss.str();
 }
+
+boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<string> strs) {
+  //cout << "toPropertyTree(strs)" << endl;
+  boost::property_tree::ptree strsNode;
+  for (const auto& str : strs)  {
+    boost::property_tree::ptree strNode;
+    strNode.put("", str);
+    strsNode.push_back(std::make_pair("", strNode));
+  }
+  return strsNode;
+}
+
+boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<uint32_t> nums) {
+  //cout << "toPropertyTree(nums)" << endl;
+  boost::property_tree::ptree numsNode;
+  for (const auto& num : nums)  {
+    boost::property_tree::ptree numNode;
+    numNode.put("", num);
+    numsNode.push_back(std::make_pair("", numNode));
+  }
+  return numsNode;
+}
