@@ -165,6 +165,8 @@ namespace monero {
     boost::optional<shared_ptr<MoneroOutgoingTransfer>> outgoingTransfer;
     boost::optional<string> note;
 
+    bool getIsIncoming() const;
+    bool getIsOutgoing() const;
     boost::property_tree::ptree toPropertyTree() const;
   };
 
@@ -184,7 +186,6 @@ namespace monero {
     boost::optional<uint64_t> includeOutputs;
     boost::optional<shared_ptr<MoneroTransferRequest>> transferRequest;
 
-    boost::optional<uint64_t> getHeight() { return block == boost::none ? boost::none : (*block)->height; }
     boost::property_tree::ptree toPropertyTree() const;
     bool meetsCriteria(MoneroTxWallet* tx) const;
   };

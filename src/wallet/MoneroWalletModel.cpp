@@ -65,6 +65,14 @@ namespace monero {
     return node;
   }
 
+  bool MoneroTxWallet::getIsIncoming() const {
+    return outgoingTransfer != boost::none;
+  }
+
+  bool MoneroTxWallet::getIsOutgoing() const {
+    return !incomingTransfers.empty();
+  }
+
   //boost::property_tree::ptree MoneroUtils::txWalletToPropertyTree(const MoneroTxWallet& tx) {
   //  cout << "txWalletToPropertyTree(tx)" << endl;
   //  boost::property_tree::ptree txNode = txToPropertyTree(tx);
@@ -95,7 +103,60 @@ namespace monero {
   }
 
   bool MoneroTxRequest::meetsCriteria(MoneroTxWallet* tx) const {
-    throw runtime_error("MoneroTxRequest meetsCriteria() not implemented");
+    if (tx == nullptr) return false;
+
+    // filter on tx
+    if (id != boost::none && *id != *tx->id) return false;
+    if (paymentId != boost::none && *paymentId != *tx->paymentId) return false;
+    if (isConfirmed != boost::none && *isConfirmed != *tx->isConfirmed) return false;
+    if (inTxPool != boost::none && *inTxPool != *tx->inTxPool) return false;
+    if (doNotRelay != boost::none && *doNotRelay != *tx->doNotRelay) return false;
+    if (isFailed != boost::none && *isFailed != *tx->isFailed) return false;
+    if (isCoinbase != boost::none && *isCoinbase != *tx->isCoinbase) return false;
+
+    // at least one transfer must meet transfer request if defined
+    if (transferRequest != boost::none) {
+      bool matchFound = false;
+      if (outgoingTransfer != boost::none && (*transferRequest)->meetsCriteria((*tx->outgoingTransfer).get())) matchFound = true;
+      else if (!incomingTransfers.empty()) {
+        for (const shared_ptr<MoneroIncomingTransfer>& incomingTransfer : tx->incomingTransfers) {
+          if ((*transferRequest)->meetsCriteria(incomingTransfer.get())) {
+            matchFound = true;
+            break;
+          }
+        }
+      }
+      if (!matchFound) return false;
+    }
+
+    // filter on having a payment id
+    if (hasPaymentId != boost::none) {
+      if (*hasPaymentId && tx->paymentId == boost::none) return false;
+      if (!*hasPaymentId && tx->paymentId != boost::none) return false;
+    }
+
+    // filter on incoming
+    if (isIncoming != boost::none) {
+      if (*isIncoming && !tx->getIsIncoming()) return false;
+      if (!*isIncoming && tx->getIsIncoming()) return false;
+    }
+
+    // filter on outgoing
+    if (isOutgoing != boost::none) {
+      if (*isOutgoing && !tx->getIsOutgoing()) return false;
+      if (!*isOutgoing && tx->getIsOutgoing()) return false;
+    }
+
+    // filter on remaining fields
+    boost::optional<uint64_t> txHeight = tx->block == boost::none ? boost::none : (*tx->block)->height;
+    if (!txIds.empty() && find(txIds.begin(), txIds.end(), *tx->id) == txIds.end()) return false;
+    if (!paymentIds.empty() && find(paymentIds.begin(), paymentIds.end(), *tx->paymentId) == paymentIds.end()) return false;
+    if (getHeight() != boost::none && *txHeight != *getHeight()) return false;
+    if (minHeight != boost::none && (txHeight == boost::none || *txHeight < *minHeight)) return false;
+    if (maxHeight != boost::none && (txHeight == boost::none || *txHeight > *maxHeight)) return false;
+
+    // transaction meets request criteria
+    return true;
   }
 
   //boost::property_tree::ptree MoneroUtils::txRequestToPropertyTree(const MoneroTxRequest& tx) {

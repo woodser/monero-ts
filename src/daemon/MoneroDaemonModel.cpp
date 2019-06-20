@@ -6,6 +6,8 @@
 
 /**
  * Public library interface.
+ *
+ * TODO: separate per model class like wallet (cleanup)
  */
 namespace monero {
 
@@ -159,6 +161,11 @@ namespace monero {
     // merge other fields
     hex = MoneroUtils::reconcile(hex, otherBlock->hex);
     //txIds = MoneroUtils::reconcile(txIds, otherBlock->txIds); // TODO: implement
+  }
+
+  boost::optional<uint64_t> MoneroTx::getHeight() const {
+    if (block == boost::none) return boost::none;
+    return *((*block)->height);
   }
 
   void MoneroTx::merge(const shared_ptr<MoneroTx>& self, const shared_ptr<MoneroTx>& other) {

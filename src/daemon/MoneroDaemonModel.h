@@ -143,10 +143,7 @@ namespace monero {
     vector<string> signatures;
 
     boost::property_tree::ptree toPropertyTree() const;
-    boost::optional<uint64_t> getHeight() const {
-      if (block == boost::none) return boost::none;
-      return *((*block)->height);
-    }
+    boost::optional<uint64_t> getHeight() const;
     void merge(const shared_ptr<MoneroTx>& self, const shared_ptr<MoneroTx>& other);
   };
 
