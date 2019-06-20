@@ -186,6 +186,7 @@ namespace monero {
 
     boost::optional<uint64_t> getHeight() { return block == boost::none ? boost::none : (*block)->height; }
     boost::property_tree::ptree toPropertyTree() const;
+    bool meetsCriteria(MoneroTxWallet* tx) const;
   };
 
   /**

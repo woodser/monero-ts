@@ -94,6 +94,10 @@ namespace monero {
     return node;
   }
 
+  bool MoneroTxRequest::meetsCriteria(MoneroTxWallet* tx) const {
+    throw runtime_error("MoneroTxRequest meetsCriteria() not implemented");
+  }
+
   //boost::property_tree::ptree MoneroUtils::txRequestToPropertyTree(const MoneroTxRequest& tx) {
   //  cout << "txWalletToPropertyTree(tx)" << endl;
   //  boost::property_tree::ptree txNode = txWalletToPropertyTree(tx);
@@ -157,7 +161,7 @@ namespace monero {
 
   // ----------------------- MONERO TRANSFER REQUEST --------------------------
 
-  boost::optional<bool> MoneroTransferRequest::getIsIncoming() const { return false; }
+  boost::optional<bool> MoneroTransferRequest::getIsIncoming() const { return isIncoming; }
 
   boost::property_tree::ptree MoneroTransferRequest::toPropertyTree() const {
     //cout << "MoneroTransferRequest::toPropertyTree(node)" << endl;
@@ -238,7 +242,7 @@ namespace monero {
     if (inTransfer == nullptr && outTransfer == nullptr) throw runtime_error("Transfer must be MoneroIncomingTransfer or MoneroOutgoingTransfer");
 
     // filter with tx filter
-    //if (this.getTxRequest() != null && !this.getTxRequest().meetsCriteria(transfer.getTx())) return false;  // TODO
+    if (txRequest != boost::none && !(*txRequest)->meetsCriteria(transfer->tx.get())) return false;
     return true;
   }
 }
