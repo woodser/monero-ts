@@ -244,8 +244,8 @@ namespace monero {
     // filter on common fields
     if (getIsIncoming() != boost::none && *getIsIncoming() != *transfer->getIsIncoming()) return false;
     if (getIsOutgoing() != boost::none && getIsOutgoing() != transfer->getIsOutgoing()) return false;
-    if (amount != boost::none && amount != transfer->amount) return false;
-    if (accountIndex != boost::none && accountIndex != transfer->accountIndex) return false;
+    if (amount != boost::none && *amount != *transfer->amount) return false;
+    if (accountIndex != boost::none && *accountIndex != *transfer->accountIndex) return false;
 
     // filter on incoming fields
     MoneroIncomingTransfer* inTransfer = dynamic_cast<MoneroIncomingTransfer*>(transfer);
@@ -262,7 +262,7 @@ namespace monero {
     if (outTransfer != nullptr) {
 
       // filter on addresses
-      if (address != boost::none && (outTransfer->addresses.empty() || find(outTransfer->addresses.begin(), outTransfer->addresses.end(), address) == outTransfer->addresses.end())) return false;   // TODO: will filter all transfers if they don't contain addresses
+      if (address != boost::none && (outTransfer->addresses.empty() || find(outTransfer->addresses.begin(), outTransfer->addresses.end(), *address) == outTransfer->addresses.end())) return false;   // TODO: will filter all transfers if they don't contain addresses
       if (!addresses.empty()) {
         bool intersects = false;
         for (const string& addressReq : addresses) {
@@ -277,7 +277,7 @@ namespace monero {
       }
 
       // filter on subaddress indices
-      if (subaddressIndex != boost::none && (outTransfer->subaddressIndices.empty() || find(outTransfer->subaddressIndices.begin(), outTransfer->subaddressIndices.end(), subaddressIndex) == outTransfer->subaddressIndices.end())) return false;   // TODO: will filter all transfers if they don't contain subaddress indices
+      if (subaddressIndex != boost::none && (outTransfer->subaddressIndices.empty() || find(outTransfer->subaddressIndices.begin(), outTransfer->subaddressIndices.end(), *subaddressIndex) == outTransfer->subaddressIndices.end())) return false;   // TODO: will filter all transfers if they don't contain subaddress indices
       if (!subaddressIndices.empty()) {
         bool intersects = false;
         for (const uint32_t& subaddressIndexReq : subaddressIndices) {
@@ -304,7 +304,7 @@ namespace monero {
     // validate type
     if (inTransfer == nullptr && outTransfer == nullptr) throw runtime_error("Transfer must be MoneroIncomingTransfer or MoneroOutgoingTransfer");
 
-    // filter with tx filter
+    // filter with tx request
     if (txRequest != boost::none && !(*txRequest)->meetsCriteria(transfer->tx.get())) return false;
     return true;
   }
@@ -333,6 +333,28 @@ namespace monero {
 
   bool MoneroOutputRequest::meetsCriteria(MoneroOutputWallet* output) const {
     cout << "MoneroOutputRequest::meetsCriteria()" << endl;
-    throw runtime_error("Not implemented");
+
+    // filter on output
+    if (accountIndex != boost::none && *accountIndex != *output->accountIndex) return false;
+    if (subaddressIndex != boost::none && *subaddressIndex != *output->subaddressIndex) return false;
+    if (amount != boost::none && *amount != *output->amount) return false;
+    if (isSpent != boost::none && *isSpent != *output->isSpent) return false;
+    if (isUnlocked != boost::none && *isUnlocked != *output->isUnlocked) return false;
+
+    // filter on output key image
+    if (keyImage != boost::none) {
+      if (output->keyImage == boost::none) return false;
+      if ((*keyImage)->hex != boost::none && ((*output->keyImage)->hex == boost::none || *(*keyImage)->hex != *(*output->keyImage)->hex)) return false;
+      if ((*keyImage)->signature != boost::none && ((*output->keyImage)->signature == boost::none || *(*keyImage)->signature != *(*output->keyImage)->signature)) return false;
+    }
+
+    // filter on extensions
+    if (!subaddressIndices.empty() && find(subaddressIndices.begin(), subaddressIndices.end(), *output->subaddressIndex) == subaddressIndices.end()) return false;
+
+    // filter with tx request
+    if (txRequest != boost::none && !(*txRequest)->meetsCriteria(static_pointer_cast<MoneroTxWallet>(output->tx).get())) return false;
+
+    // output meets request
+    return true;
   }
 }
