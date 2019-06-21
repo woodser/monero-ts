@@ -239,7 +239,7 @@ namespace monero {
 
   bool MoneroTransferRequest::meetsCriteria(MoneroTransfer* transfer) const {
     if (transfer == nullptr) throw runtime_error("transfer is null"); // TODO: port to java/js
-    if (txRequest != boost::none && this == (*(*txRequest)->transferRequest).get()) throw runtime_error("MoneroTransferFilter and MoneroTxFilter must not reference each other");  // TODO: port to java/js
+    if (txRequest != boost::none && (*txRequest)->transferRequest != boost::none) throw runtime_error("Transfer request's tx request cannot have a circular transfer request");   // TODO: port to java/js
 
     // filter on common fields
     if (getIsIncoming() != boost::none && *getIsIncoming() != *transfer->getIsIncoming()) return false;
