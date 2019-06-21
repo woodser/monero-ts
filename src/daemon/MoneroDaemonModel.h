@@ -150,10 +150,11 @@ namespace monero {
   /**
    * Models a Monero key image.
    */
-  struct MoneroKeyImage {
+  struct MoneroKeyImage : public SerializableStruct {
     boost::optional<string> hex;
     boost::optional<string> signature;
 
+    boost::property_tree::ptree toPropertyTree() const;
     void merge(const shared_ptr<MoneroKeyImage>& self, const shared_ptr<MoneroKeyImage>& other);
   };
 

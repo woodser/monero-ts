@@ -280,25 +280,36 @@ namespace monero {
     }
   }
 
+  // --------------------------- MONERO KEY IMAGE -----------------------------
+
+  boost::property_tree::ptree MoneroKeyImage::toPropertyTree() const {
+    //cout << "MoneroKeyImage::toPropertyTree(tx)" << endl;
+    boost::property_tree::ptree node;
+    if (hex != boost::none) node.put("hex", *hex);
+    if (signature != boost::none) node.put("signature", *signature);
+    return node;
+  }
+
+  void MoneroKeyImage::merge(const shared_ptr<MoneroKeyImage>& self, const shared_ptr<MoneroKeyImage>& other) {
+    cout << "MoneroKeyImage::merge()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
   // ------------------------------ MONERO OUTPUT -----------------------------
 
   boost::property_tree::ptree MoneroOutput::toPropertyTree() const {
-    //cout << "MoneroOutput::txToPropertyTree(tx)" << endl;
+    //cout << "MoneroOutput::toPropertyTree(tx)" << endl;
     boost::property_tree::ptree node;
-    //if (id != boost::none) node.put("id", *id); TODO
-    throw runtime_error("MoneroOutput toPropertyTree() not implemented");
+    if (keyImage != boost::none) node.add_child("keyImage", (*keyImage)->toPropertyTree());
+    if (amount != boost::none) node.put("amount", *amount);
+    if (index != boost::none) node.put("index", *index);
+    if (!ringOutputIndices.empty()) throw runtime_error("MoneroOutput::toPropertyTree() ringOutputIndices not implemented");
+    if (stealthPublicKey != boost::none) node.put("stealthPublicKey", *stealthPublicKey);
     return node;
   }
 
   void MoneroOutput::merge(const shared_ptr<MoneroOutput>& self, const shared_ptr<MoneroOutput>& other) {
     cout << "MoneroOutput::merge()" << endl;
-    throw runtime_error("Not implemented");
-  }
-
-  // --------------------------- MONERO KEY IMAGE -----------------------------
-
-  void MoneroKeyImage::merge(const shared_ptr<MoneroKeyImage>& self, const shared_ptr<MoneroKeyImage>& other) {
-    cout << "MoneroKeyImage::merge()" << endl;
     throw runtime_error("Not implemented");
   }
 }
