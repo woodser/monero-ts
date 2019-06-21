@@ -157,7 +157,7 @@ namespace monero {
     /**
      * Set the wallet's daemon connection.
      *
-     * TODO: switch to MoneroNetworkType
+     * TODO: support MoneroRpcConnection
      *
      * @param uri is the daemon's URI
      * @param username is the daemon's username
