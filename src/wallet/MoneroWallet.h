@@ -586,7 +586,7 @@ namespace monero {
      * @param request specifies request options (optional)
      * @return List<MoneroOutputWallet> are wallet outputs per the request
      */
-    vector<MoneroOutputWallet> getOutputs(const MoneroOutputRequest& request) const;
+    vector<shared_ptr<MoneroOutputWallet>> getOutputs(const MoneroOutputRequest& request) const;
 //
 //    /**
 //     * Get all signed key images.

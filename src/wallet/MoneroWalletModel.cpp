@@ -308,4 +308,31 @@ namespace monero {
     if (txRequest != boost::none && !(*txRequest)->meetsCriteria(transfer->tx.get())) return false;
     return true;
   }
+
+  // ------------------------- MONERO OUTPUT WALLET ---------------------------
+
+  boost::property_tree::ptree MoneroOutputWallet::toPropertyTree() const {
+    //cout << "MoneroTransfer::toPropertyTree(node)" << endl;
+    boost::property_tree::ptree node = MoneroOutput::toPropertyTree();
+    if (accountIndex != boost::none) node.put("accountIndex", *accountIndex);
+    if (subaddressIndex != boost::none) node.put("subaddressIndex", *subaddressIndex);
+    if (isSpent != boost::none) node.put("isSpent", *isSpent);
+    if (isUnlocked != boost::none) node.put("isUnlocked", *isUnlocked);
+    if (isFrozen != boost::none) node.put("isFrozen", *isFrozen);
+    return node;
+  }
+
+  // ------------------------ MONERO OUTPUT REQUEST ---------------------------
+
+  boost::property_tree::ptree MoneroOutputRequest::toPropertyTree() const {
+    cout << "MoneroOutputRequest::toPropertyTree(node)" << endl;
+    boost::property_tree::ptree node = MoneroOutputWallet::toPropertyTree();
+    if (!subaddressIndices.empty()) throw runtime_error("MoneroOutputRequest toPropertyTree() subaddressIndices not implemented");
+    return node;
+  }
+
+  bool MoneroOutputRequest::meetsCriteria(MoneroOutputWallet* output) const {
+    cout << "MoneroOutputRequest::meetsCriteria()" << endl;
+    throw runtime_error("Not implemented");
+  }
 }

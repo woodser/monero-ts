@@ -160,7 +160,7 @@ namespace monero {
   /**
    * Models a Monero transaction output.
    */
-  struct MoneroOutput {
+  struct MoneroOutput : public SerializableStruct {
     shared_ptr<MoneroTx> tx;
     boost::optional<shared_ptr<MoneroKeyImage>> keyImage;
     boost::optional<uint64_t> amount;
@@ -168,6 +168,7 @@ namespace monero {
     vector<uint32_t> ringOutputIndices;
     boost::optional<string> stealthPublicKey;
 
+    boost::property_tree::ptree toPropertyTree() const;
     void merge(const shared_ptr<MoneroOutput>& self, const shared_ptr<MoneroOutput>& other);
   };
 }

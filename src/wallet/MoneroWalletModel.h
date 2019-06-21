@@ -141,6 +141,7 @@ namespace monero {
     vector<shared_ptr<MoneroDestination>> destinations;
     boost::optional<bool> hasDestinations;
     boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
+
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
     bool meetsCriteria(MoneroTransfer* transfer) const;
@@ -155,6 +156,22 @@ namespace monero {
     boost::optional<bool> isSpent;
     boost::optional<bool> isUnlocked;
     boost::optional<bool> isFrozen;
+
+    boost::property_tree::ptree toPropertyTree() const;
+  };
+
+  /**
+   * Configures a request to retrieve wallet outputs (i.e. outputs that the wallet has or had the
+   * ability to spend).
+   *
+   * All outputs are returned except those that do not meet the criteria defined in this request.
+   */
+  struct MoneroOutputRequest : public MoneroOutputWallet {
+    vector<uint32_t> subaddressIndices;
+    boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
+
+    boost::property_tree::ptree toPropertyTree() const;
+    bool meetsCriteria(MoneroOutputWallet* output) const;
   };
 
   /**
@@ -185,19 +202,9 @@ namespace monero {
     boost::optional<uint64_t> maxHeight;
     boost::optional<uint64_t> includeOutputs;
     boost::optional<shared_ptr<MoneroTransferRequest>> transferRequest;
+    boost::optional<shared_ptr<MoneroOutputRequest>> outputRequest;
 
     boost::property_tree::ptree toPropertyTree() const;
     bool meetsCriteria(MoneroTxWallet* tx) const;
-  };
-
-  /**
-   * Configures a request to retrieve wallet outputs (i.e. outputs that the wallet has or had the
-   * ability to spend).
-   *
-   * All outputs are returned except those that do not meet the criteria defined in this request.
-   */
-  struct MoneroOutputRequest : public MoneroOutput {
-    vector<uint32_t> subaddressIndices;
-    boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
   };
 }

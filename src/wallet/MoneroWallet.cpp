@@ -639,7 +639,7 @@ namespace monero {
     return transfers;
   }
 
-  vector<MoneroOutputWallet> MoneroWallet::getOutputs(const MoneroOutputRequest& request) const {
+  vector<shared_ptr<MoneroOutputWallet>> MoneroWallet::getOutputs(const MoneroOutputRequest& request) const {
     cout << "getOutputs(request)" << endl;
     throw runtime_error("Not implemented");
   }
