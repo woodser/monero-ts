@@ -1,9 +1,10 @@
-DaemonConnection is its own object
-rename external-libs/monero to monero-core for clarity
-onSyncProgress(startHeight, currentHeight, endHeight, percentDone, message)?
-optimize by moving shared_ptrs
-
+cannot reconcile integrals on getTransfers() test, need to add reconcile debug info including vals and pass error message
 model members are private, use accessors and mutators, return this for chaining
 re-usable debug trace statements
+DaemonConnection is its own object
+onSyncProgress(startHeight, currentHeight, endHeight, percentDone, message)?
+
 use gnu debugger and sanitize=on
 further automate build process
+rename external-libs/monero to monero-core for clarity
+optimize by moving shared_ptrs
