@@ -550,10 +550,12 @@ namespace monero {
     cout << "vector<shared_ptr<MoneroTransfer>> getTransfers(request)" << endl;
 
     // print request
-    cout << "Fetching transfers with request: ";
-    if (request.txRequest == boost::none) cout << "[transferRequest] " << request.serialize() << endl;
-    else if ((*request.txRequest)->block == boost::none) cout << "[txRequest] " << (*request.txRequest)->serialize() << endl;
-    else cout << "[block] " << (*(*request.txRequest)->block)->serialize() << endl;
+    cout << "MoneroWallet::getTransfers()" << endl;
+    cout << "Transfer request: " << request.serialize() << endl;
+    if (request.txRequest != boost::none) {
+      if ((*request.txRequest)->block == boost::none) cout << "Transfer request's tx request rooted at [tx]:" << (*request.txRequest)->serialize() << endl;
+      else cout << "Transfer request's tx request rooted at [block]: " << (*(*request.txRequest)->block)->serialize() << endl;
+    }
 
     // normalize request
     // TODO: this will modify original request, construct copy? add test
