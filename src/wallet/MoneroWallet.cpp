@@ -547,10 +547,9 @@ namespace monero {
   }
 
   vector<shared_ptr<MoneroTransfer>> MoneroWallet::getTransfers(const MoneroTransferRequest& request) const {
-    cout << "vector<shared_ptr<MoneroTransfer>> getTransfers(request)" << endl;
+    cout << "MoneroWallet::getTransfers(request)" << endl;
 
     // print request
-    cout << "MoneroWallet::getTransfers()" << endl;
     cout << "Transfer request: " << request.serialize() << endl;
     if (request.txRequest != boost::none) {
       if ((*request.txRequest)->block == boost::none) cout << "Transfer request's tx request rooted at [tx]:" << (*request.txRequest)->serialize() << endl;
@@ -640,7 +639,19 @@ namespace monero {
   }
 
   vector<shared_ptr<MoneroOutputWallet>> MoneroWallet::getOutputs(const MoneroOutputRequest& request) const {
-    cout << "getOutputs(request)" << endl;
+    cout << "MoneroWallet::getOutputs(request)" << endl;
+
+    // print request
+    cout << "Output request: " << request.serialize() << endl;
+    if (request.txRequest != boost::none) {
+      if ((*request.txRequest)->block == boost::none) cout << "Output request's tx request rooted at [tx]:" << (*request.txRequest)->serialize() << endl;
+      else cout << "Output request's tx request rooted at [block]: " << (*(*request.txRequest)->block)->serialize() << endl;
+    }
+
+    // normalize request
+    // TODO: this will modify original request, construct copy? add test
+    MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : shared_ptr<MoneroTxRequest>(new MoneroTxRequest()));
+
     throw runtime_error("Not implemented");
   }
 
