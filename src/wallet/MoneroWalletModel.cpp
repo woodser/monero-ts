@@ -148,10 +148,10 @@ namespace monero {
     }
 
     // filter on remaining fields
-    boost::optional<uint64_t> txHeight = tx->block == boost::none ? boost::none : (*tx->block)->height;
+    boost::optional<uint64_t> txHeight = tx->getHeight();
     if (!txIds.empty() && find(txIds.begin(), txIds.end(), *tx->id) == txIds.end()) return false;
     if (!paymentIds.empty() && find(paymentIds.begin(), paymentIds.end(), *tx->paymentId) == paymentIds.end()) return false;
-    if (getHeight() != boost::none && *txHeight != *getHeight()) return false;
+    if (getHeight() != boost::none && (txHeight == boost::none || *txHeight != *getHeight())) return false;
     if (minHeight != boost::none && (txHeight == boost::none || *txHeight < *minHeight)) return false;
     if (maxHeight != boost::none && (txHeight == boost::none || *txHeight > *maxHeight)) return false;
 
@@ -238,6 +238,8 @@ namespace monero {
   }
 
   bool MoneroTransferRequest::meetsCriteria(MoneroTransfer* transfer) const {
+    if (transfer == nullptr) throw runtime_error("transfer is null"); // TODO: port to java/js
+    if (txRequest != boost::none && this == (*(*txRequest)->transferRequest).get()) throw runtime_error("MoneroTransferFilter and MoneroTxFilter must not reference each other");  // TODO: port to java/js
 
     // filter on common fields
     if (getIsIncoming() != boost::none && *getIsIncoming() != *transfer->getIsIncoming()) return false;

@@ -551,9 +551,9 @@ namespace monero {
 
     // print request
     cout << "Fetching transfers with request: ";
-    if (request.txRequest == boost::none) cout << request.serialize() << endl;
-    else if ((*request.txRequest)->block == boost::none) cout << (*request.txRequest)->serialize() << endl;
-    else cout << (*(*request.txRequest)->block)->serialize() << endl;
+    if (request.txRequest == boost::none) cout << "[transferRequest] " << request.serialize() << endl;
+    else if ((*request.txRequest)->block == boost::none) cout << "[txRequest] " << (*request.txRequest)->serialize() << endl;
+    else cout << "[block] " << (*(*request.txRequest)->block)->serialize() << endl;
 
     // normalize request
     // TODO: this will modify original request, construct copy? add test
