@@ -886,7 +886,42 @@ namespace monero {
     return tx;
   }
 
-  shared_ptr<MoneroTxWallet> MoneroWallet::buildTxWithVout(const tools::wallet2::transfer_details& outputW2) const {
-    throw runtime_error("buildTxWithVout() not implemented");
+  shared_ptr<MoneroTxWallet> MoneroWallet::buildTxWithVout(const tools::wallet2::transfer_details& td) const {
+    cout << "MoneroWallet::bulidTxWithVout()" << endl;
+
+    // construct block
+    shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(new MoneroBlock());
+    block->height = td.m_block_height;
+
+    // construct tx
+    shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+    tx->block = block;
+    block->txs.push_back(tx);
+    tx->id = epee::string_tools::pod_to_hex(td.m_txid);
+    tx->isConfirmed = true;
+    tx->isFailed = false;
+    tx->isRelayed = true;
+    tx->inTxPool = false;
+    tx->doNotRelay = false;
+    tx->isDoubleSpend = false;
+
+    // construct vout
+    shared_ptr<MoneroOutputWallet> vout = shared_ptr<MoneroOutputWallet>(new MoneroOutputWallet());
+    vout->tx = tx;
+    tx->vouts.push_back(vout);
+    vout->amount = td.amount();
+    vout->index = td.m_global_output_index;
+    vout->accountIndex = td.m_subaddr_index.major;
+    vout->subaddressIndex = td.m_subaddr_index.minor;
+    vout->isSpent = td.m_spent;
+    vout->isUnlocked = wallet2->is_transfer_unlocked(td);
+    vout->isFrozen = td.m_frozen;
+    if (td.m_key_image_known) {
+      vout->keyImage = shared_ptr<MoneroKeyImage>(new MoneroKeyImage());
+      vout->keyImage.get()->hex = epee::string_tools::pod_to_hex(td.m_key_image);
+    }
+
+    // return pointer to new tx
+    return tx;
   }
 }
