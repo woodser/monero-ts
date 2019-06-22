@@ -581,7 +581,7 @@ namespace monero {
     bool isPool = canBeIncoming && canBeInTxPool;
     bool isFailed = !boolEquals(false, txReq.isFailed) && !boolEquals(true, txReq.isConfirmed) && !boolEquals(true, txReq.inTxPool);
 
-    // collect unique txs and blocks using internal data structures
+    // collect unique txs and blocks
     map<string, shared_ptr<MoneroTxWallet>> txMap;
     map<uint64_t, shared_ptr<MoneroBlock>> blockMap;
 
@@ -652,7 +652,29 @@ namespace monero {
     // TODO: this will modify original request, construct copy? add test
     MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : shared_ptr<MoneroTxRequest>(new MoneroTxRequest()));
 
-    throw runtime_error("Not implemented");
+    // get outputs from wallet2 (referred to as "transfers" in wallet2 terminology)
+    tools::wallet2::transfer_container outputsW2;
+    wallet2->get_transfers(outputsW2);
+
+    // collect unique txs and blocks
+    map<string, shared_ptr<MoneroTxWallet>> txMap;
+    map<uint64_t, shared_ptr<MoneroBlock>> blockMap;
+    for (const auto& outputW2 : outputsW2) {
+      // TODO: skip tx building if w2 output filtered by indices, etc
+      shared_ptr<MoneroTxWallet> tx = buildTxWithVout(outputW2);
+      mergeTx(tx, txMap, blockMap, false);
+    }
+
+    // filter and return vouts
+    vector<shared_ptr<MoneroOutputWallet>> vouts;
+    for (map<string, shared_ptr<MoneroTxWallet>>::const_iterator txIter = txMap.begin(); txIter != txMap.end(); txIter++) {
+      shared_ptr<MoneroTxWallet> tx = txIter->second;
+      for (const shared_ptr<MoneroOutput>& output : tx->vouts) {
+        shared_ptr<MoneroOutputWallet> outputWallet = static_pointer_cast<MoneroOutputWallet>(output);
+        if (request.meetsCriteria(outputWallet.get())) vouts.push_back(outputWallet);
+      }
+    }
+    return vouts;
   }
 
   void MoneroWallet::save() {
@@ -862,5 +884,9 @@ namespace monero {
 
     // return pointer to new tx
     return tx;
+  }
+
+  shared_ptr<MoneroTxWallet> MoneroWallet::buildTxWithVout(const tools::wallet2::transfer_details& outputW2) const {
+    throw runtime_error("buildTxWithVout() not implemented");
   }
 }
