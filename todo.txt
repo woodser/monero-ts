@@ -3,7 +3,7 @@ re-usable debug trace statements
 DaemonConnection is its own object
 onSyncProgress(startHeight, currentHeight, endHeight, percentDone, message)?
 
-mergeTx, model members are private, use accessors and mutators, return this for chaining
+mergeTx(), model members are private, use accessors and mutators, return this for chaining
 use gnu debugger and sanitize=on
 further automate build process
 rename external-libs/monero to monero-core for clarity
