@@ -106,16 +106,12 @@ namespace monero {
       if (aTx->block != boost::none || tx->block != boost::none) {
         if (aTx->block == boost::none) {
           aTx->block = shared_ptr<MoneroBlock>(new MoneroBlock());
-          vector<shared_ptr<MoneroTx>> txs;
-          txs.push_back(tx);
-          (*aTx->block)->txs = txs;
+          (*aTx->block)->txs.push_back(tx);
           (*aTx->block)->height = *tx->getHeight();
         }
         if (tx->block == boost::none) {
           tx->block = shared_ptr<MoneroBlock>(new MoneroBlock());
-          vector<shared_ptr<MoneroTx>> txs;
-          txs.push_back(tx);
-          (*tx->block)->txs = txs;
+          (*tx->block)->txs.push_back(tx);
           (*tx->block)->height = *aTx->getHeight();
         }
         (*aTx->block)->merge(*aTx->block, *tx->block);
