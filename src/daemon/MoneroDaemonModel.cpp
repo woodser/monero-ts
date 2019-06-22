@@ -307,6 +307,11 @@ namespace monero {
 
   void MoneroOutput::merge(const shared_ptr<MoneroOutput>& self, const shared_ptr<MoneroOutput>& other) {
     cout << "MoneroOutput::merge()" << endl;
-    throw runtime_error("Not implemented");
+    if (this != self.get()) throw runtime_error("this != self");
+    if (self == other) return;
+    if (keyImage == boost::none) keyImage = other->keyImage;
+    else if (other->keyImage != boost::none) keyImage.get()->merge(keyImage.get(), other->keyImage.get());
+    amount = MoneroUtils::reconcile(amount, other->amount);
+    index = MoneroUtils::reconcile(index, other->index);
   }
 }
