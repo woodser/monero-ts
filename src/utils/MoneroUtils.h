@@ -173,6 +173,20 @@ namespace MoneroUtils
     return reconcile(val1, val2, boost::none, boost::none, boost::none);
   }
 
+  template <class T>
+  vector<T> reconcile(const vector<T>& v1, const vector<T>& v2) {
+
+    // check for equality
+    if (v1 == v2) return v1;
+
+    // resolve one vector empty
+    if (v1.empty()) return v2;
+    if (v2.empty()) return v1;
+
+    // otherwise cannot reconcile
+    throw runtime_error("Cannot reconcile vectors");
+  }
+
 //    template <class T>
 //    boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2) {
 //      return reconcile(val1, val2, boost::none, boost::none, boost::none);

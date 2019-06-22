@@ -92,7 +92,7 @@ namespace monero {
 
     // merge coinbase tx
     if (coinbaseTx == boost::none) coinbaseTx = otherBlock->coinbaseTx;
-    else if (otherBlock->coinbaseTx != boost::none) (**coinbaseTx).merge(*coinbaseTx, *otherBlock->coinbaseTx);
+    else if (otherBlock->coinbaseTx != boost::none) coinbaseTx.get()->merge(*coinbaseTx, *otherBlock->coinbaseTx);
 
     // merge non-coinbase txs
     if (txs.empty()) txs = otherBlock->txs;
@@ -111,13 +111,13 @@ namespace monero {
     }
     if (!txs.empty()) {
       for (const shared_ptr<MoneroTx>& tx : txs) {
-        tx->block = static_pointer_cast<MoneroBlock>(self);
+        tx->block = self;
       }
     }
 
     // merge other fields
     hex = MoneroUtils::reconcile(hex, otherBlock->hex);
-    //txIds = MoneroUtils::reconcile(txIds, otherBlock->txIds); // TODO: implement
+    txIds = MoneroUtils::reconcile(txIds, otherBlock->txIds);
   }
 
   // ------------------------------- MONERO TX --------------------------------
