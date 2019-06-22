@@ -84,7 +84,11 @@ namespace monero {
    * @param skipIfAbsent specifies if the tx should not be added if it doesn't already exist
    */
   void mergeTx(const shared_ptr<MoneroTxWallet>& tx, map<string, shared_ptr<MoneroTxWallet>>& txMap, map<uint64_t, shared_ptr<MoneroBlock>>& blockMap, bool skipIfAbsent) {
+    cout << "MoneroWallet::mergeTx()" << endl;
     if (tx->id == boost::none) throw runtime_error("Tx id is not initialized");
+
+//    txMap[*tx->id] = tx;
+//    if (true) return;
 
     // if tx doesn't exist, add it (unless skipped)
     map<string, shared_ptr<MoneroTxWallet>>::const_iterator txIter = txMap.find(*tx->id);
@@ -100,21 +104,21 @@ namespace monero {
     else {
 
       // get existing tx to merge with
-      shared_ptr<MoneroTxWallet> aTx = txMap[*tx->id];
+      shared_ptr<MoneroTxWallet>& aTx = txMap[*tx->id];
 
       // merge blocks if confirmed, txs otherwise
       if (aTx->block != boost::none || tx->block != boost::none) {
         if (aTx->block == boost::none) {
           aTx->block = shared_ptr<MoneroBlock>(new MoneroBlock());
-          (*aTx->block)->txs.push_back(tx);
-          (*aTx->block)->height = *tx->getHeight();
+          aTx->block.get()->txs.push_back(tx);
+          aTx->block.get()->height = tx->getHeight();
         }
         if (tx->block == boost::none) {
           tx->block = shared_ptr<MoneroBlock>(new MoneroBlock());
-          (*tx->block)->txs.push_back(tx);
-          (*tx->block)->height = *aTx->getHeight();
+          tx->block.get()->txs.push_back(tx);
+          tx->block.get()->height = aTx->getHeight();
         }
-        (*aTx->block)->merge(*aTx->block, *tx->block);
+        aTx->block.get()->merge(aTx->block.get(), tx->block.get());
       } else {
         aTx->merge(aTx, tx);
       }
@@ -122,12 +126,12 @@ namespace monero {
 
     // if confirmed, merge tx's block
     if (tx->getHeight() != boost::none) {
-      map<uint64_t, shared_ptr<MoneroBlock>>::const_iterator blockIter = blockMap.find(*tx->getHeight());
+      map<uint64_t, shared_ptr<MoneroBlock>>::const_iterator blockIter = blockMap.find(tx->getHeight().get());
       if (blockIter == blockMap.end()) {
-        blockMap[*tx->getHeight()] = *tx->block;
+        blockMap[tx->getHeight().get()] = tx->block.get();
       } else {
-        shared_ptr<MoneroBlock> aBlock = blockMap[*tx->getHeight()];
-        aBlock->merge(aBlock, *tx->block);
+        shared_ptr<MoneroBlock>& aBlock = blockMap[tx->getHeight().get()];
+        aBlock->merge(aBlock, tx->block.get());
       }
     }
   }
@@ -883,7 +887,7 @@ namespace monero {
   }
 
   shared_ptr<MoneroTxWallet> MoneroWallet::buildTxWithVout(const tools::wallet2::transfer_details& td) const {
-    cout << "MoneroWallet::bulidTxWithVout()" << endl;
+    cout << "MoneroWallet::buildWithVout()" << endl;
 
     // construct block
     shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(new MoneroBlock());
