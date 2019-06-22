@@ -332,7 +332,6 @@ namespace monero {
   }
 
   bool MoneroOutputRequest::meetsCriteria(MoneroOutputWallet* output) const {
-    cout << "MoneroOutputRequest::meetsCriteria()" << endl;
 
     // filter on output
     if (accountIndex != boost::none && *accountIndex != *output->accountIndex) return false;

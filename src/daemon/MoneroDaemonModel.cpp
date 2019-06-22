@@ -144,21 +144,21 @@ namespace monero {
     if (prunableHash != boost::none) node.put("prunableHash", *prunableHash);
     if (size != boost::none) node.put("size", *size);
     if (weight != boost::none) node.put("weight", *weight);
-    if (!vins.empty()) throw runtime_error("not implemented");
-    if (!vouts.empty()) throw runtime_error("not implemented");
-    if (!outputIndices.empty()) throw runtime_error("not implemented");
+    if (!vins.empty()) throw runtime_error("vins not implemented");
+    if (!vouts.empty()) throw runtime_error("vouts not implemented");
+    if (!outputIndices.empty()) throw runtime_error("outputIndices not implemented");
     if (metadata != boost::none) node.put("metadata", *metadata);
-    if (commonTxSets != boost::none) throw runtime_error("not implemented");
-    if (!extra.empty()) throw runtime_error("not implemented");
-    if (rctSignatures != boost::none) throw runtime_error("not implemented");
-    if (rctSigPrunable != boost::none) throw runtime_error("not implemented");
+    if (commonTxSets != boost::none) throw runtime_error("commonTxSets not implemented");
+    if (!extra.empty()) throw runtime_error("extra not implemented");
+    if (rctSignatures != boost::none) throw runtime_error("rctSignatures not implemented");
+    if (rctSigPrunable != boost::none) throw runtime_error("rctSigPrunable not implemented");
     if (isKeptByBlock != boost::none) node.put("isKeptByBlock", *isKeptByBlock);
     if (isFailed != boost::none) node.put("isFailed", *isFailed);
     if (lastFailedHeight != boost::none) node.put("lastFailedHeight", *lastFailedHeight);
     if (lastFailedId != boost::none) node.put("lastFailedId", *lastFailedId);
     if (maxUsedBlockHeight != boost::none) node.put("maxUsedBlockHeight", *maxUsedBlockHeight);
     if (maxUsedBlockId != boost::none) node.put("maxUsedBlockId", *maxUsedBlockId);
-    if (!signatures.empty()) throw runtime_error("not implemented");
+    if (!signatures.empty()) throw runtime_error("signatures not implemented");
     return node;
   }
 
@@ -306,7 +306,6 @@ namespace monero {
   }
 
   void MoneroOutput::merge(const shared_ptr<MoneroOutput>& self, const shared_ptr<MoneroOutput>& other) {
-    cout << "MoneroOutput::merge()" << endl;
     if (this != self.get()) throw runtime_error("this != self");
     if (self == other) return;
     if (keyImage == boost::none) keyImage = other->keyImage;

@@ -84,7 +84,6 @@ namespace monero {
    * @param skipIfAbsent specifies if the tx should not be added if it doesn't already exist
    */
   void mergeTx(const shared_ptr<MoneroTxWallet>& tx, map<string, shared_ptr<MoneroTxWallet>>& txMap, map<uint64_t, shared_ptr<MoneroBlock>>& blockMap, bool skipIfAbsent) {
-    cout << "MoneroWallet::mergeTx()" << endl;
     if (tx->id == boost::none) throw runtime_error("Tx id is not initialized");
 
 //    txMap[*tx->id] = tx;
@@ -887,7 +886,6 @@ namespace monero {
   }
 
   shared_ptr<MoneroTxWallet> MoneroWallet::buildTxWithVout(const tools::wallet2::transfer_details& td) const {
-    cout << "MoneroWallet::buildWithVout()" << endl;
 
     // construct block
     shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(new MoneroBlock());
