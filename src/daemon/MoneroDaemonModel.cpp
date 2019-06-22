@@ -220,7 +220,7 @@ namespace monero {
 
     // merge vouts
     if (!other->vouts.empty()) {
-      for (const shared_ptr<MoneroOutput>& vout : other->vouts) vout->tx = shared_ptr<MoneroTx>(this);
+      for (const shared_ptr<MoneroOutput>& vout : other->vouts) vout->tx = self;
       if (vouts.empty()) vouts = other->vouts;
       else {
 
