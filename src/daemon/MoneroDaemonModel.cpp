@@ -144,8 +144,8 @@ namespace monero {
     if (prunableHash != boost::none) node.put("prunableHash", *prunableHash);
     if (size != boost::none) node.put("size", *size);
     if (weight != boost::none) node.put("weight", *weight);
-    if (!vins.empty()) throw runtime_error("vins not implemented");
-    if (!vouts.empty()) throw runtime_error("vouts not implemented");
+    if (!vins.empty()) node.add_child("vouts", MoneroUtils::toPropertyTree(vouts));
+    if (!vouts.empty()) node.add_child("vouts", MoneroUtils::toPropertyTree(vouts));
     if (!outputIndices.empty()) throw runtime_error("outputIndices not implemented");
     if (metadata != boost::none) node.put("metadata", *metadata);
     if (commonTxSets != boost::none) throw runtime_error("commonTxSets not implemented");

@@ -56,9 +56,7 @@ namespace monero {
   // --------------------------- MONERO TX WALLET -----------------------------
 
   boost::property_tree::ptree MoneroTxWallet::toPropertyTree() const {
-    //cout << "MoneroTxWallet::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node = MoneroTx::toPropertyTree();
-    if (!vouts.empty()) throw runtime_error("vouts not implemented");
     if (!incomingTransfers.empty()) node.add_child("incomingTransfers", MoneroUtils::toPropertyTree(incomingTransfers));
     if (outgoingTransfer != boost::none) node.add_child("outgoingTransfer", (*outgoingTransfer)->toPropertyTree());
     if (note != boost::none) node.put("note", *note);
