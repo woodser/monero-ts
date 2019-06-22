@@ -87,17 +87,14 @@ namespace monero {
     // merge header fields
     MoneroBlockHeader::merge(self, other);
 
-    // convert other to MoneroBlock*
-    MoneroBlock* otherBlock = static_cast<MoneroBlock*>(other.get());
-
     // merge coinbase tx
-    if (coinbaseTx == boost::none) coinbaseTx = otherBlock->coinbaseTx;
-    else if (otherBlock->coinbaseTx != boost::none) coinbaseTx.get()->merge(*coinbaseTx, *otherBlock->coinbaseTx);
+    if (coinbaseTx == boost::none) coinbaseTx = other->coinbaseTx;
+    else if (other->coinbaseTx != boost::none) coinbaseTx.get()->merge(*coinbaseTx, *other->coinbaseTx);
 
     // merge non-coinbase txs
-    if (txs.empty()) txs = otherBlock->txs;
-    else if (!otherBlock->txs.empty()) {
-      for (const shared_ptr<MoneroTx>& thatTx : otherBlock->txs) {
+    if (txs.empty()) txs = other->txs;
+    else if (!other->txs.empty()) {
+      for (const shared_ptr<MoneroTx>& thatTx : other->txs) {
         bool found = false;
         for (const shared_ptr<MoneroTx>& thisTx : txs) {
           if (thatTx->id == thisTx->id) {
@@ -116,8 +113,8 @@ namespace monero {
     }
 
     // merge other fields
-    hex = MoneroUtils::reconcile(hex, otherBlock->hex);
-    txIds = MoneroUtils::reconcile(txIds, otherBlock->txIds);
+    hex = MoneroUtils::reconcile(hex, other->hex);
+    txIds = MoneroUtils::reconcile(txIds, other->txIds);
   }
 
   // ------------------------------- MONERO TX --------------------------------
