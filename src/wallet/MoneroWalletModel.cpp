@@ -323,7 +323,6 @@ namespace monero {
   // ------------------------ MONERO OUTPUT REQUEST ---------------------------
 
   boost::property_tree::ptree MoneroOutputRequest::toPropertyTree() const {
-    cout << "MoneroOutputRequest::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node = MoneroOutputWallet::toPropertyTree();
     if (!subaddressIndices.empty()) throw runtime_error("MoneroOutputRequest toPropertyTree() subaddressIndices not implemented");
     return node;

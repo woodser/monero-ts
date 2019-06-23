@@ -664,13 +664,19 @@ namespace monero {
       mergeTx(tx, txMap, blockMap, false);
     }
 
-    // filter and return vouts
+    // collect outputs, erase if filtered
     vector<shared_ptr<MoneroOutputWallet>> vouts;
     for (map<string, shared_ptr<MoneroTxWallet>>::const_iterator txIter = txMap.begin(); txIter != txMap.end(); txIter++) {
       shared_ptr<MoneroTxWallet> tx = txIter->second;
-      for (const shared_ptr<MoneroOutput>& output : tx->vouts) {
-        shared_ptr<MoneroOutputWallet> outputWallet = static_pointer_cast<MoneroOutputWallet>(output);
-        if (request.meetsCriteria(outputWallet.get())) vouts.push_back(outputWallet);
+      vector<shared_ptr<MoneroOutput>>::iterator voutIter = tx->vouts.begin();
+      while (voutIter != tx->vouts.end()) {
+        shared_ptr<MoneroOutputWallet> voutWallet = static_pointer_cast<MoneroOutputWallet>(*voutIter);
+        if (request.meetsCriteria(voutWallet.get())) {
+          vouts.push_back(voutWallet);
+          voutIter++;
+        } else {
+          voutIter = tx->vouts.erase(voutIter);
+        }
       }
     }
     return vouts;
