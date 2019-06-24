@@ -528,18 +528,63 @@ namespace monero {
 
   // createSubaddress
 
-  vector<shared_ptr<MoneroTxWallet>> MoneroWallet::getTxs(const MoneroTxRequest& request) const {
+  vector<shared_ptr<MoneroTxWallet>> MoneroWallet::getTxs(MoneroTxRequest& request) const {
     cout << "getTxs(request)" << endl;
 
-    // print for debug
-    std::stringstream ss;
-    //boost::property_tree::write_json(ss, MoneroUtils::txRequestToPropertyTree(request), false);
-    //string requestStr = ss.str();
-    //cout << "Tx request: " << requestStr << endl;
+    // print request
+    cout << "Tx request: " << request.serialize() << endl;
+    if (request.block != boost::none) cout << "Tx request's rooted at [block]: " << request.block.get()->serialize() << endl;
 
+    // normalize request
+    // TODO: this modifies original request so given req cannot be constant, make given request constant
+    if (request.transferRequest == boost::none) request.transferRequest = shared_ptr<MoneroTransferRequest>(new MoneroTransferRequest());
+    shared_ptr<MoneroTransferRequest> transferRequest = request.transferRequest.get();
 
+    // temporarily disable transfer request
+    request.transferRequest = boost::none;
 
+    // fetch all transfers that meet tx request
+    MoneroTransferRequest tempTransferReq;
+    tempTransferReq.txRequest = shared_ptr<MoneroTxRequest>(&request);
+    vector<shared_ptr<MoneroTransfer>> transfers = getTransfers(tempTransferReq);
 
+    // collect unique txs from transfers while retaining order
+    vector<shared_ptr<MoneroTxWallet>> txs = vector<shared_ptr<MoneroTxWallet>>();
+    unordered_set<shared_ptr<MoneroTxWallet>> txsSet;
+    for (const shared_ptr<MoneroTransfer>& transfer : transfers) {
+      if (txsSet.find(transfer->tx) == txsSet.end()) {
+        txs.push_back(transfer->tx);
+        txsSet.insert(transfer->tx);
+      }
+    }
+
+    // fetch and merge outputs if requested
+    MoneroOutputRequest tempOutputReq;
+    tempOutputReq.txRequest = shared_ptr<MoneroTxRequest>(&request);
+    if (request.includeOutputs != boost::none && *request.includeOutputs) {
+
+      // fetch outputs
+      vector<shared_ptr<MoneroOutputWallet>> outputs = getOutputs(tempOutputReq);
+
+      // build types for merging
+      map<string, shared_ptr<MoneroTxWallet>> txMap;
+      map<uint64_t, shared_ptr<MoneroBlock>> blockMap;
+      for (const shared_ptr<MoneroTxWallet>& tx : txs) {
+        mergeTx(tx, txMap, blockMap, false);
+      }
+
+      // merge output txs one time while retaining order
+      unordered_set<shared_ptr<MoneroTxWallet>> outputTxs;
+      for (const shared_ptr<MoneroOutputWallet>& output : outputs) {
+        shared_ptr<MoneroTxWallet> tx = static_pointer_cast<MoneroTxWallet>(output->tx);
+        if (outputTxs.find(tx) == outputTxs.end()) {
+          mergeTx(tx, txMap, blockMap, true);
+          outputTxs.insert(tx);
+        }
+      }
+    }
+
+    // filter txs that don't meet transfer request
 
 
     throw runtime_error("getTxs() not implemented");
@@ -651,7 +696,7 @@ namespace monero {
     // TODO: this will modify original request, construct copy? add test
     MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : shared_ptr<MoneroTxRequest>(new MoneroTxRequest()));
 
-    // get outputs from wallet2 (referred to as "transfers" in wallet2 terminology)
+    // get output data from wallet2
     tools::wallet2::transfer_container outputsW2;
     wallet2->get_transfers(outputsW2);
 

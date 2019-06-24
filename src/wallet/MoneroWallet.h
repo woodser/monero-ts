@@ -500,11 +500,13 @@ namespace monero {
      * Transactions must meet every criteria defined in the request in order to
      * be returned.  All filtering is optional and no filtering is applied when
      * not defined.
+     * 
+     * TODO: request should be const
      *
      * @param request filters query results (optional)
      * @return wallet transactions per the request
      */
-    vector<shared_ptr<MoneroTxWallet>> getTxs(const MoneroTxRequest& request) const;
+    vector<shared_ptr<MoneroTxWallet>> getTxs(MoneroTxRequest& request) const;
 
 //    /**
 //     * Get all incoming and outgoing transfers to and from this wallet.  An
