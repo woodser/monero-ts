@@ -664,7 +664,7 @@ namespace monero {
       mergeTx(tx, txMap, blockMap, false);
     }
 
-    // collect outputs, erase if filtered
+		// collect requested outputs and discard irrelevant data
     vector<shared_ptr<MoneroOutputWallet>> vouts;
     for (map<string, shared_ptr<MoneroTxWallet>>::const_iterator txIter = txMap.begin(); txIter != txMap.end(); txIter++) {
       shared_ptr<MoneroTxWallet> tx = txIter->second;
@@ -675,9 +675,12 @@ namespace monero {
           vouts.push_back(voutWallet);
           voutIter++;
         } else {
-          voutIter = tx->vouts.erase(voutIter);
+          voutIter = tx->vouts.erase(voutIter); // remove irrelevant vouts
         }
       }
+
+      // remove irrelevant txs
+      if (tx->vouts.empty()) tx->block.get()->txs.erase(std::remove(tx->block.get()->txs.begin(), tx->block.get()->txs.end(), tx), tx->block.get()->txs.end()); // TODO, no way to use const_iterator?
     }
     return vouts;
   }
