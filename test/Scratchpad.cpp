@@ -68,16 +68,24 @@ int main(int argc, const char* argv[]) {
   //MoneroRpcConnection daemonConnection = MoneroRpcConnection("http://localhost:38083", "", "");
   wallet->setDaemonConnection("http://localhost:38081", "", "");
 
-  shared_ptr<MoneroTransferRequest> transferRequest = shared_ptr<MoneroTransferRequest>(new MoneroTransferRequest());
-  transferRequest->accountIndex = 0;
+//  shared_ptr<MoneroTransferRequest> transferRequest = shared_ptr<MoneroTransferRequest>(new MoneroTransferRequest());
+//  transferRequest->accountIndex = 0;
+//  shared_ptr<MoneroTxRequest> txRequest = shared_ptr<MoneroTxRequest>(new MoneroTxRequest());
+//  txRequest->isConfirmed = true;
+//  transferRequest->txRequest = txRequest;
+//  //txRequest->transferRequest = transferRequest;
+//  vector<shared_ptr<MoneroTransfer>> transfers = wallet->getTransfers(*transferRequest);
+//  if (transfers.empty()) throw runtime_error("Transfers should not be empty");
+//  for (const shared_ptr<MoneroTransfer>& transfer : transfers) {
+//    if (*transfer->accountIndex != 0) throw runtime_error("Account should be 0");
+//    if (!*transfer->tx->isConfirmed) throw runtime_error("Transfer should be confirmed");
+//  }
+
   shared_ptr<MoneroTxRequest> txRequest = shared_ptr<MoneroTxRequest>(new MoneroTxRequest());
   txRequest->isConfirmed = true;
-  transferRequest->txRequest = txRequest;
-  //txRequest->transferRequest = transferRequest;
-  vector<shared_ptr<MoneroTransfer>> transfers = wallet->getTransfers(*transferRequest);
-  if (transfers.empty()) throw runtime_error("Transfers should not be empty");
-  for (const shared_ptr<MoneroTransfer>& transfer : transfers) {
-    if (*transfer->accountIndex != 0) throw runtime_error("Account should be 0");
-    if (!*transfer->tx->isConfirmed) throw runtime_error("Transfer should be confirmed");
+  vector<shared_ptr<MoneroTxWallet>> txs = wallet->getTxs(*txRequest);
+  if (txs.empty()) throw runtime_error("Txs should not be empty");
+  for (const shared_ptr<MoneroTxWallet>& tx : txs) {
+    if (!*tx->isConfirmed) throw runtime_error("Tx should be confirmed");
   }
 }
