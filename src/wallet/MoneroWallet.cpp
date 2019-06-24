@@ -558,6 +558,13 @@ namespace monero {
       }
     }
 
+    // cache types into maps for merging and lookup
+    map<string, shared_ptr<MoneroTxWallet>> txMap;
+    map<uint64_t, shared_ptr<MoneroBlock>> blockMap;
+    for (const shared_ptr<MoneroTxWallet>& tx : txs) {
+      mergeTx(tx, txMap, blockMap, false);
+    }
+
     // fetch and merge outputs if requested
     MoneroOutputRequest tempOutputReq;
     tempOutputReq.txRequest = shared_ptr<MoneroTxRequest>(&request);
@@ -565,13 +572,6 @@ namespace monero {
 
       // fetch outputs
       vector<shared_ptr<MoneroOutputWallet>> outputs = getOutputs(tempOutputReq);
-
-      // build types for merging
-      map<string, shared_ptr<MoneroTxWallet>> txMap;
-      map<uint64_t, shared_ptr<MoneroBlock>> blockMap;
-      for (const shared_ptr<MoneroTxWallet>& tx : txs) {
-        mergeTx(tx, txMap, blockMap, false);
-      }
 
       // merge output txs one time while retaining order
       unordered_set<shared_ptr<MoneroTxWallet>> outputTxs;
@@ -585,9 +585,42 @@ namespace monero {
     }
 
     // filter txs that don't meet transfer request
+    request.transferRequest = transferRequest;
+    vector<shared_ptr<MoneroTxWallet>> txsRequested;
+    for (const shared_ptr<MoneroTxWallet>& tx : txs) {
+      if (request.meetsCriteria(tx.get())) txsRequested.push_back(tx);
+    }
+    txs = txsRequested;
 
+    // verify all specified tx ids found
+    if (!request.txIds.empty()) {
+      for (const string& txId : request.txIds) {
+        bool found = false;
+        for (const shared_ptr<MoneroTxWallet>& tx : txs) {
+          if (txId == *tx->id) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) throw runtime_error("Tx not found in wallet: " + txId);
+      }
+    }
 
-    throw runtime_error("getTxs() not implemented");
+    // special case: re-fetch txs if inconsistency caused by needing to make multiple wallet calls
+    for (const shared_ptr<MoneroTxWallet>& tx : txs) {
+      if (*tx->isConfirmed && tx->block == boost::none) return getTxs(request);
+    }
+
+    // otherwise order txs if tx ids given then return
+    if (!request.txIds.empty()) {
+      vector<shared_ptr<MoneroTxWallet>> orderedTxs;
+      for (const string& txId : request.txIds) {
+        map<string, shared_ptr<MoneroTxWallet>>::const_iterator txIter = txMap.find(txId);
+        orderedTxs.push_back(txIter->second);
+      }
+      txs = orderedTxs;
+    }
+    return txs;
   }
 
   vector<shared_ptr<MoneroTransfer>> MoneroWallet::getTransfers(const MoneroTransferRequest& request) const {
