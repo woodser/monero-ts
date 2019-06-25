@@ -545,7 +545,7 @@ namespace monero {
 
     // fetch all transfers that meet tx request
     MoneroTransferRequest tempTransferReq;
-    tempTransferReq.txRequest = shared_ptr<MoneroTxRequest>(&request);
+    tempTransferReq.txRequest = make_shared<MoneroTxRequest>(request);
     vector<shared_ptr<MoneroTransfer>> transfers = getTransfers(tempTransferReq);
 
     // collect unique txs from transfers while retaining order
@@ -567,7 +567,7 @@ namespace monero {
 
     // fetch and merge outputs if requested
     MoneroOutputRequest tempOutputReq;
-    tempOutputReq.txRequest = shared_ptr<MoneroTxRequest>(&request);
+    tempOutputReq.txRequest = make_shared<MoneroTxRequest>(request);
     if (request.includeOutputs != boost::none && *request.includeOutputs) {
 
       // fetch outputs
@@ -626,16 +626,22 @@ namespace monero {
   vector<shared_ptr<MoneroTransfer>> MoneroWallet::getTransfers(const MoneroTransferRequest& request) const {
     cout << "MoneroWallet::getTransfers(request)" << endl;
 
-    // print request
-    cout << "Transfer request: " << request.serialize() << endl;
-    if (request.txRequest != boost::none) {
-      if ((*request.txRequest)->block == boost::none) cout << "Transfer request's tx request rooted at [tx]:" << (*request.txRequest)->serialize() << endl;
-      else cout << "Transfer request's tx request rooted at [block]: " << (*(*request.txRequest)->block)->serialize() << endl;
-    }
+    //cout << "1" << endl;
+
+//    // print request
+//    cout << "Transfer request: " << request.serialize() << endl;
+//    if (request.txRequest != boost::none) {
+//      if ((*request.txRequest)->block == boost::none) cout << "Transfer request's tx request rooted at [tx]:" << (*request.txRequest)->serialize() << endl;
+//      else cout << "Transfer request's tx request rooted at [block]: " << (*(*request.txRequest)->block)->serialize() << endl;
+//    }
 
     // normalize request
     // TODO: this will modify original request, construct copy? add test
     MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : shared_ptr<MoneroTxRequest>(new MoneroTxRequest()));
+
+    // print request
+    //cout << "Tx request: " << txReq.serialize() << endl;
+    //cout << "2" << endl;
 
     // build parameters for wallet2->get_payments()
     uint64_t minHeight = txReq.minHeight == boost::none ? 0 : *txReq.minHeight;
@@ -647,6 +653,8 @@ namespace monero {
       subaddressIndices.insert(request.subaddressIndices[i]);
     }
 
+    //cout << "3" << endl;
+
     // translate from MoneroTxRequest to in, out, pending, pool, failed terminology used by monero-wallet-rpc
     bool canBeConfirmed = !boolEquals(false, txReq.isConfirmed) && !boolEquals(true, txReq.inTxPool) && !boolEquals(true, txReq.isFailed) && !boolEquals(false, txReq.isRelayed);
     bool canBeInTxPool = !boolEquals(true, txReq.isConfirmed) && !boolEquals(false, txReq.inTxPool) && !boolEquals(true, txReq.isFailed) && !boolEquals(false, txReq.isRelayed) && txReq.getHeight() == boost::none && txReq.minHeight == boost::none;
@@ -657,6 +665,8 @@ namespace monero {
     bool isPending = canBeOutgoing && canBeInTxPool;
     bool isPool = canBeIncoming && canBeInTxPool;
     bool isFailed = !boolEquals(false, txReq.isFailed) && !boolEquals(true, txReq.isConfirmed) && !boolEquals(true, txReq.inTxPool);
+
+    //cout << "4" << endl;
 
     // collect unique txs and blocks
     map<string, shared_ptr<MoneroTxWallet>> txMap;
@@ -672,6 +682,8 @@ namespace monero {
       }
     }
 
+    //cout << "5" << endl;
+
     // get confirmed outgoing transfers
     if (isOut) {
       std::list<std::pair<crypto::hash, tools::wallet2::confirmed_transfer_details>> payments;
@@ -681,6 +693,8 @@ namespace monero {
         mergeTx(tx, txMap, blockMap, false);
       }
     }
+
+    //cout << "6" << endl;
 
     // get unconfirmed outgoing transfers
     if (isPending || isFailed) {
@@ -712,6 +726,8 @@ namespace monero {
         }
       }
     }
+    //cout << "7" << endl;
+    cout << "MoneroWallet.cpp getTransfers() returning " << transfers.size() << " transfers" << endl;
     return transfers;
   }
 

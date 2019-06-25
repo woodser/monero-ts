@@ -103,6 +103,10 @@ namespace monero {
   bool MoneroTxRequest::meetsCriteria(MoneroTxWallet* tx) const {
     if (tx == nullptr) return false;
 
+    //cout << "MoneroTxRequest::meetsCriteria()" << endl;
+    //cout << "Testing tx: " << tx->serialize() << endl;
+    //cout << "1" << endl;
+
     // filter on tx
     if (id != boost::none && *id != *tx->id) return false;
     if (paymentId != boost::none && *paymentId != *tx->paymentId) return false;
@@ -112,11 +116,13 @@ namespace monero {
     if (isFailed != boost::none && *isFailed != *tx->isFailed) return false;
     if (isCoinbase != boost::none && *isCoinbase != *tx->isCoinbase) return false;
 
+    //cout << "2" << endl;
+
     // at least one transfer must meet transfer request if defined
     if (transferRequest != boost::none) {
       bool matchFound = false;
-      if (outgoingTransfer != boost::none && (*transferRequest)->meetsCriteria((*tx->outgoingTransfer).get())) matchFound = true;
-      else if (!incomingTransfers.empty()) {
+      if (tx->outgoingTransfer != boost::none && (*transferRequest)->meetsCriteria((*tx->outgoingTransfer).get())) matchFound = true;
+      else if (!tx->incomingTransfers.empty()) {
         for (const shared_ptr<MoneroIncomingTransfer>& incomingTransfer : tx->incomingTransfers) {
           if ((*transferRequest)->meetsCriteria(incomingTransfer.get())) {
             matchFound = true;
@@ -127,11 +133,15 @@ namespace monero {
       if (!matchFound) return false;
     }
 
+    //cout << "3" << endl;
+
     // filter on having a payment id
     if (hasPaymentId != boost::none) {
       if (*hasPaymentId && tx->paymentId == boost::none) return false;
       if (!*hasPaymentId && tx->paymentId != boost::none) return false;
     }
+
+    //cout << "4" << endl;
 
     // filter on incoming
     if (isIncoming != boost::none) {
@@ -139,11 +149,15 @@ namespace monero {
       if (!*isIncoming && tx->getIsIncoming()) return false;
     }
 
+    //cout << "5" << endl;
+
     // filter on outgoing
     if (isOutgoing != boost::none) {
       if (*isOutgoing && !tx->getIsOutgoing()) return false;
       if (!*isOutgoing && tx->getIsOutgoing()) return false;
     }
+
+    //cout << "6" << endl;
 
     // filter on remaining fields
     boost::optional<uint64_t> txHeight = tx->getHeight();
@@ -152,6 +166,8 @@ namespace monero {
     if (getHeight() != boost::none && (txHeight == boost::none || *txHeight != *getHeight())) return false;
     if (minHeight != boost::none && (txHeight == boost::none || *txHeight < *minHeight)) return false;
     if (maxHeight != boost::none && (txHeight == boost::none || *txHeight > *maxHeight)) return false;
+
+    //cout << "7" << endl;
 
     // transaction meets request criteria
     return true;
@@ -236,14 +252,19 @@ namespace monero {
   }
 
   bool MoneroTransferRequest::meetsCriteria(MoneroTransfer* transfer) const {
+    //cout << "MoneroTransferRequest::meetsCriteria()" << endl;
     if (transfer == nullptr) throw runtime_error("transfer is null"); // TODO: port to java/js
     if (txRequest != boost::none && (*txRequest)->transferRequest != boost::none) throw runtime_error("Transfer request's tx request cannot have a circular transfer request");   // TODO: port to java/js
+
+    //cout << "1" << endl;
 
     // filter on common fields
     if (getIsIncoming() != boost::none && *getIsIncoming() != *transfer->getIsIncoming()) return false;
     if (getIsOutgoing() != boost::none && getIsOutgoing() != transfer->getIsOutgoing()) return false;
     if (amount != boost::none && *amount != *transfer->amount) return false;
     if (accountIndex != boost::none && *accountIndex != *transfer->accountIndex) return false;
+
+    //cout << "2" << endl;
 
     // filter on incoming fields
     MoneroIncomingTransfer* inTransfer = dynamic_cast<MoneroIncomingTransfer*>(transfer);
@@ -254,6 +275,8 @@ namespace monero {
       if (subaddressIndex != boost::none && *subaddressIndex != *inTransfer->subaddressIndex) return false;
       if (!subaddressIndices.empty() && find(subaddressIndices.begin(), subaddressIndices.end(), *inTransfer->subaddressIndex) == subaddressIndices.end()) return false;
     }
+
+    //cout << "3" << endl;
 
     // filter on outgoing fields
     MoneroOutgoingTransfer* outTransfer = dynamic_cast<MoneroOutgoingTransfer*>(transfer);
@@ -298,6 +321,8 @@ namespace monero {
       // filter on destinations TODO: start with test for this
       //    if (this.getDestionations() != null && this.getDestionations() != transfer.getDestionations()) return false;
     }
+
+    //cout << "4" << endl;
 
     // validate type
     if (inTransfer == nullptr && outTransfer == nullptr) throw runtime_error("Transfer must be MoneroIncomingTransfer or MoneroOutgoingTransfer");
