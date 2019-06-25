@@ -90,7 +90,7 @@ namespace monero {
     boost::property_tree::ptree node = MoneroTxWallet::toPropertyTree();
     if (isOutgoing != boost::none) node.put("isOutgoing", *isOutgoing);
     if (isIncoming != boost::none) node.put("isIncoming", *isIncoming);
-    if (!txIds.empty()) throw runtime_error("txIds not implemented");
+    if (!txIds.empty()) node.add_child("txIds", MoneroUtils::toPropertyTree(txIds));
     if (hasPaymentId != boost::none) node.put("hasPaymentId", *hasPaymentId);
     if (!paymentIds.empty()) throw runtime_error("paymentIds not implemented");
     if (minHeight != boost::none) node.put("minHeight", *minHeight);
