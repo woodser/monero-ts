@@ -712,7 +712,7 @@ namespace monero {
       shared_ptr<MoneroTxWallet> tx = txIter->second;
 
       // collect outgoing transfer, erase if filtered TODO: java/js do not erase filtered transfers
-      if (tx->outgoingTransfer != boost::none && request.meetsCriteria((*tx->outgoingTransfer).get())) transfers.push_back(*tx->outgoingTransfer);
+      if (tx->outgoingTransfer != boost::none && request.meetsCriteria(tx->outgoingTransfer.get().get())) transfers.push_back(tx->outgoingTransfer.get());
       else tx->outgoingTransfer = boost::none;
 
       // collect incoming transfers, erase if filtered
@@ -725,6 +725,9 @@ namespace monero {
           iter = tx->incomingTransfers.erase(iter);
         }
       }
+
+      // remove unrequested txs
+      if (tx->outgoingTransfer == boost::none && tx->incomingTransfers.empty()) tx->block.get()->txs.erase(std::remove(tx->block.get()->txs.begin(), tx->block.get()->txs.end(), tx), tx->block.get()->txs.end()); // TODO, no way to use const_iterator?
     }
     //cout << "7" << endl;
     cout << "MoneroWallet.cpp getTransfers() returning " << transfers.size() << " transfers" << endl;
@@ -769,11 +772,11 @@ namespace monero {
           vouts.push_back(voutWallet);
           voutIter++;
         } else {
-          voutIter = tx->vouts.erase(voutIter); // remove irrelevant vouts
+          voutIter = tx->vouts.erase(voutIter); // remove unrequested vouts
         }
       }
 
-      // remove irrelevant txs
+      // remove txs without requested transfer
       if (tx->vouts.empty()) tx->block.get()->txs.erase(std::remove(tx->block.get()->txs.begin(), tx->block.get()->txs.end(), tx), tx->block.get()->txs.end()); // TODO, no way to use const_iterator?
     }
     return vouts;

@@ -63,11 +63,11 @@ namespace monero {
     return node;
   }
 
-  bool MoneroTxWallet::getIsIncoming() const {
+  bool MoneroTxWallet::getIsOutgoing() const {
     return outgoingTransfer != boost::none;
   }
 
-  bool MoneroTxWallet::getIsOutgoing() const {
+  bool MoneroTxWallet::getIsIncoming() const {
     return !incomingTransfers.empty();
   }
 
@@ -153,8 +153,7 @@ namespace monero {
 
     // filter on outgoing
     if (isOutgoing != boost::none) {
-      if (*isOutgoing && !tx->getIsOutgoing()) return false;
-      if (!*isOutgoing && tx->getIsOutgoing()) return false;
+       if (isOutgoing.get() != tx->getIsOutgoing()) return false;
     }
 
     //cout << "6" << endl;
