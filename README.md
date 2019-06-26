@@ -159,6 +159,12 @@ Here is the source code to the main interfaces, implementations, and models:
 - Build a wallet adapter for a local wallet which uses client-side crypto and a daemon
 - Build a wallet adapter for a MyMonero wallet which shares the view key with a 3rd party to scan the blockchain
 
+## See Also
+
+[Java reference implementation](https://github.com/monero-ecosystem/monero-java-rpc)
+
+[C++ reference implementation](https://github.com/woodser/monero-cpp-library)
+
 ## License
 
 This project is licensed under MIT.
