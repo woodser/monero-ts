@@ -169,12 +169,12 @@ class MoneroTxRequest extends MoneroTxWallet {
     }
     
     // filter on remaining fields
-    let height = tx.getBlock() === undefined ? undefined : tx.getBlock().getHeight();
+    let txHeight = tx.getBlock() === undefined ? undefined : tx.getBlock().getHeight();
     if (this.getTxIds() !== undefined && !this.getTxIds().includes(tx.getId())) return false;
     if (this.getPaymentIds() !== undefined && !this.getPaymentIds().includes(tx.getPaymentId())) return false;
-    if (this.getHeight() !== undefined && height !== this.getHeight()) return false;
-    if (this.getMinHeight() !== undefined && (height === undefined || height < this.getMinHeight())) return false;
-    if (this.getMaxHeight() !== undefined && (height === undefined || height > this.getMaxHeight())) return false;
+    if (this.getHeight() !== undefined && txHeight !== this.getHeight()) return false;
+    if (this.getMinHeight() !== undefined && (txHeight === undefined || txHeight < this.getMinHeight())) return false;
+    if (this.getMaxHeight() !== undefined && (txHeight === undefined || txHeight > this.getMaxHeight())) return false;
     
     // transaction meets filter criteria
     return true;

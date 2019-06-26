@@ -56,13 +56,13 @@ class MoneroOutputRequest extends MoneroOutputWallet {
       if (this.getKeyImage().getSignature() !== undefined && this.getKeyImage().getSignature() !== output.getKeyImage().getSignature()) return false;
     }
     
-    // filter extensions
+    // filter on extensions
     if (this.getSubaddressIndices() !== undefined && !this.getSubaddressIndices().includes(output.getSubaddressIndex())) return false;
     
-    // filter with tx requestion
+    // filter with tx request
     if (this.getTxRequest() && !this.getTxRequest().meetsCriteria(output.getTx())) return false;
     
-    // output meets filter criteria
+    // output meets request
     return true;
   }
 }
