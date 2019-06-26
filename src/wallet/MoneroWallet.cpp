@@ -587,8 +587,16 @@ namespace monero {
     // filter txs that don't meet transfer request
     request.transferRequest = transferRequest;
     vector<shared_ptr<MoneroTxWallet>> txsRequested;
-    for (const shared_ptr<MoneroTxWallet>& tx : txs) {
-      if (request.meetsCriteria(tx.get())) txsRequested.push_back(tx);
+    vector<shared_ptr<MoneroTxWallet>>::iterator txIter = txs.begin();
+    while (txIter != txs.end()) {
+      shared_ptr<MoneroTxWallet> tx = *txIter;
+      if (request.meetsCriteria(tx.get())) {
+        txsRequested.push_back(tx);
+        txIter++;
+      } else {
+        txIter = txs.erase(txIter);
+        tx->block.get()->txs.erase(std::remove(tx->block.get()->txs.begin(), tx->block.get()->txs.end(), tx), tx->block.get()->txs.end()); // TODO, no way to use txIter?
+      }
     }
     txs = txsRequested;
 
@@ -628,12 +636,12 @@ namespace monero {
 
     //cout << "1" << endl;
 
-//    // print request
-//    cout << "Transfer request: " << request.serialize() << endl;
-//    if (request.txRequest != boost::none) {
-//      if ((*request.txRequest)->block == boost::none) cout << "Transfer request's tx request rooted at [tx]:" << (*request.txRequest)->serialize() << endl;
-//      else cout << "Transfer request's tx request rooted at [block]: " << (*(*request.txRequest)->block)->serialize() << endl;
-//    }
+    // print request
+    cout << "Transfer request: " << request.serialize() << endl;
+    if (request.txRequest != boost::none) {
+      if ((*request.txRequest)->block == boost::none) cout << "Transfer request's tx request rooted at [tx]:" << (*request.txRequest)->serialize() << endl;
+      else cout << "Transfer request's tx request rooted at [block]: " << (*(*request.txRequest)->block)->serialize() << endl;
+    }
 
     // normalize request
     // TODO: this will modify original request, construct copy? add test

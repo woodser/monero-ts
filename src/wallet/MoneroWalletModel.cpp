@@ -145,15 +145,14 @@ namespace monero {
 
     // filter on incoming
     if (isIncoming != boost::none) {
-      if (*isIncoming && !tx->getIsIncoming()) return false;
-      if (!*isIncoming && tx->getIsIncoming()) return false;
+      if (isIncoming != tx->getIsIncoming()) return false;
     }
 
     //cout << "5" << endl;
 
     // filter on outgoing
     if (isOutgoing != boost::none) {
-       if (isOutgoing.get() != tx->getIsOutgoing()) return false;
+       if (isOutgoing != tx->getIsOutgoing()) return false;
     }
 
     //cout << "6" << endl;
