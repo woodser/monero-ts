@@ -23,16 +23,10 @@ namespace monero {
     boost::property_tree::ptree node;
     if (index != boost::none) node.put("index", *index);
     if (primaryAddress != boost::none) node.put("primaryAddress", *primaryAddress);
+    if (label != boost::none) node.put("label", *label);
     if (balance != boost::none) node.put("balance", *balance);
     if (unlockedBalance != boost::none) node.put("unlockedBalance", *unlockedBalance);
     if (!subaddresses.empty()) node.add_child("subaddresses", MoneroUtils::toPropertyTree(subaddresses));
-//    if (!subaddresses.empty()) {
-//      boost::property_tree::ptree subaddressesNode;
-//      for (const MoneroSubaddress& subaddress : subaddresses) {
-//        subaddressesNode.push_back(std::make_pair("", subaddress.toPropertyTree()));
-//      }
-//      node.add_child("subaddresses", subaddressesNode);
-//    }
     return node;
   }
 

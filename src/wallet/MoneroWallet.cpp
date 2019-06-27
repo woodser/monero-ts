@@ -531,12 +531,20 @@ namespace monero {
     return account;
   }
 
-  MoneroAccount MoneroWallet::createAccount() {
-    throw runtime_error("Not implemented");
-  }
-
   MoneroAccount MoneroWallet::createAccount(const string& label) {
-    throw runtime_error("Not implemented");
+    cout << "createAccount(" << label << ")" << endl;
+
+    // create account
+    wallet2->add_subaddress_account(label);
+
+    // initialize and return result
+    MoneroAccount account;
+    account.index = wallet2->get_num_subaddress_accounts() - 1;
+    account.primaryAddress = wallet2->get_subaddress_as_str({account.index.get(), 0});
+    account.label = label;
+    account.balance = 0;
+    account.unlockedBalance = 0;
+    return account;
   }
 
   vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx) const {	// TODO: this should call one below

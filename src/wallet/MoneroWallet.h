@@ -405,17 +405,10 @@ namespace monero {
     /**
      * Create a new account.
      *
-     * @return the created account
-     */
-    MoneroAccount createAccount();
-
-    /**
-     * Create a new account.
-     *
      * @param label specifies the label for the account (optional)
      * @return the created account
      */
-    MoneroAccount createAccount(const string& label);
+    MoneroAccount createAccount(const string& label = "");
 
     /**
      * Get all subaddresses in an account.
