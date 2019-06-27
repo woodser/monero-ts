@@ -854,6 +854,7 @@ namespace monero {
 
   vector<shared_ptr<MoneroTxWallet>> MoneroWallet::sendTxs(const MoneroSendRequest& request) {
     cout << "MoneroWallet::sendTxs(request)" << endl;
+    cout << "MoneroSendRequest: " << request.serialize() << endl;
     throw runtime_error("not implemented");
   }
 

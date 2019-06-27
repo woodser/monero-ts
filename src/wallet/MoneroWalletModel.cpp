@@ -374,7 +374,23 @@ namespace monero {
   // ------------------------- MONERO SEND REQUEST ----------------------------
 
   boost::property_tree::ptree MoneroSendRequest::toPropertyTree() const {
-    throw runtime_error("MoneroSendRequest::toPropertyTree() not implemented");
+    boost::property_tree::ptree node;
+    if (!destinations.empty()) node.add_child("destinations", MoneroUtils::toPropertyTree(destinations));
+    if (paymentId != boost::none) node.put("paymentId", *paymentId);
+    if (priority != boost::none) node.put("priority", *priority);
+    if (mixin != boost::none) node.put("mixin", *mixin);
+    if (ringSize != boost::none) node.put("ringSize", *ringSize);
+    if (accountIndex != boost::none) node.put("accountIndex", *accountIndex);
+    if (!subaddressIndices.empty()) node.add_child("subaddressIndices", MoneroUtils::toPropertyTree(subaddressIndices));
+    if (unlockTime != boost::none) node.put("unlockTime", *unlockTime);
+    if (canSplit != boost::none) node.put("canSplit", *canSplit);
+    if (doNotRelay != boost::none) node.put("doNotRelay", *doNotRelay);
+    if (note != boost::none) node.put("note", *note);
+    if (recipientName != boost::none) node.put("recipientName", *recipientName);
+    if (belowAmount != boost::none) node.put("belowAmount", *belowAmount);
+    if (sweepEachSubaddress != boost::none) node.put("sweepEachSubaddress", *sweepEachSubaddress);
+    if (keyImage != boost::none) node.put("keyImage", *keyImage);
+    return node;
   }
 
   // -------------------------- MONERO INTEGRATED ADDRESS -----------------------------
