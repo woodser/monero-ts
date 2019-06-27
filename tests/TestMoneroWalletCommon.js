@@ -160,13 +160,13 @@ class TestMoneroWalletCommon {
         assert.equal(integratedAddress.getPaymentId(), paymentId);
         
         // test invalid payment id
+        let invalidPaymentId = "invalid_payment_id_123456";
         try {
-          let invalidPaymentId = "invalid_payment_id_123456";
           integratedAddress = await wallet.getIntegratedAddress(invalidPaymentId);
           throw new Error("Getting integrated address with invalid payment id " + invalidPaymentId + " should have thrown a RPC exception");
         } catch (e) {
-          assert.equal(e.getCode(), -5);
-          assert.equal(e.getDescription(), "Invalid payment ID");
+          //assert.equal(e.getCode(), -5);  // TODO: error codes part of rpc only?
+          assert.equal(e.getDescription(), "Invalid payment ID: " + invalidPaymentId);
         }
         
         // test undefined payment id which generates a new one
