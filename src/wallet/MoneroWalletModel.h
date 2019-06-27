@@ -218,4 +218,40 @@ namespace monero {
 
     boost::property_tree::ptree toPropertyTree() const;
   };
+
+  /**
+   * Enumerates Monero network types.
+   */
+  enum MoneroSendPriority : uint8_t {
+    DEFAULT = 0,
+    UNIMPORTANT,
+    NORMAL,
+    ELEVATED
+  };
+
+  /**
+   * Configures a request to send/sweep funds or create a payment URI.
+   *
+   * TODO: allow setAddress(), setAmount() for default destination?
+   */
+  struct MoneroSendRequest : public SerializableStruct {
+    vector<shared_ptr<MoneroDestination>> destinations;
+    boost::optional<string> paymentId;
+    boost::optional<MoneroSendPriority> priority;
+    boost::optional<uint32_t> mixin;
+    boost::optional<uint32_t> ringSize;
+    boost::optional<uint64_t> fee;
+    boost::optional<uint32_t> accountIndex;
+    vector<uint32_t> subaddressIndices;
+    boost::optional<uint64_t> unlockTime;
+    boost::optional<bool> canSplit;
+    boost::optional<bool> doNotRelay;
+    boost::optional<string> note;
+    boost::optional<string> recipientName;
+    boost::optional<uint64_t> belowAmount;
+    boost::optional<bool> sweepEachSubaddress;
+    boost::optional<string> keyImage;
+
+    boost::property_tree::ptree toPropertyTree() const;
+  };
 }

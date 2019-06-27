@@ -371,6 +371,12 @@ namespace monero {
     return true;
   }
 
+  // ------------------------- MONERO SEND REQUEST ----------------------------
+
+  boost::property_tree::ptree MoneroSendRequest::toPropertyTree() const {
+    throw runtime_error("MoneroSendRequest::toPropertyTree() not implemented");
+  }
+
   // -------------------------- MONERO INTEGRATED ADDRESS -----------------------------
 
   boost::property_tree::ptree MoneroIntegratedAddress::toPropertyTree() const {

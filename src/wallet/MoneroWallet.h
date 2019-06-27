@@ -596,15 +596,16 @@ namespace monero {
 //     * @return the key images from the last imported outputs
 //     */
 //    public List<MoneroKeyImage> getNewKeyImagesFromLastImport();
-//
-//    /**
-//     * Create and relay (depending on configuration) a transaction which
-//     * transfers funds from this wallet to one or more destination addresses.
-//     *
-//     * @param request configures the transaction
-//     * @return the resulting transaction
-//     */
-//    public MoneroTxWallet send(MoneroSendRequest request);
+
+    /**
+     * Create one or more transactions which transfer funds from this wallet to
+     * one or more destinations depending on the given configuration.
+     *
+     * @param request configures the transaction
+     * @return the resulting transaction
+     */
+    vector<shared_ptr<MoneroTxWallet>> sendTxs(const MoneroSendRequest& request);
+
 //
 //    /**
 //     * Create and relay a transaction which transfers funds from this wallet to
