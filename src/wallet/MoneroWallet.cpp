@@ -349,6 +349,52 @@ namespace monero {
     return subaddress;
   }
 
+  MoneroIntegratedAddress MoneroWallet::getIntegratedAddress(const string& standardAddress, const string& paymentId) const {
+    cout << "getIntegratedAddress(" << standardAddress << ", " << paymentId << ")" << endl;
+
+    // TODO monero-core: this logic is based on wallet_rpc_server::on_make_integrated_address() and should be moved to wallet so this is unecessary for api users
+
+    // randomly generate payment id if not given, else validate
+    crypto::hash8 paymentIdH8;
+    if (paymentId.empty()) {
+      paymentIdH8 = crypto::rand<crypto::hash8>();
+    } else {
+      if (!tools::wallet2::parse_short_payment_id(paymentId, paymentIdH8)) throw runtime_error("Invalid payment ID: " + paymentId);
+    }
+
+    // use primary address if standard address not given, else validate
+    if (standardAddress.empty()) {
+      return decodeIntegratedAddress(wallet2->get_integrated_address_as_str(paymentIdH8));
+    } else {
+
+      // validate standard address
+      cryptonote::address_parse_info info;
+      if (!cryptonote::get_account_address_from_str(info, wallet2->nettype(), standardAddress)) throw runtime_error("Invalid address: " + standardAddress);
+      if (info.is_subaddress) throw runtime_error("Subaddress shouldn't be used");
+      if (info.has_payment_id) throw runtime_error("Already integrated address");
+      if (paymentId.empty()) throw runtime_error("Payment ID shouldn't be left unspecified");
+
+      // create integrated address from given standard address
+      return decodeIntegratedAddress(cryptonote::get_account_integrated_address_as_str(wallet2->nettype(), info.address, paymentIdH8));
+    }
+  }
+
+  MoneroIntegratedAddress MoneroWallet::decodeIntegratedAddress(const string& integratedAddress) const {
+    cout << "decodeIntegratedAddress(" << integratedAddress << ")" << endl;
+
+    // validate integrated address
+    cryptonote::address_parse_info info;
+    if (!cryptonote::get_account_address_from_str(info, wallet2->nettype(), integratedAddress)) throw runtime_error("Invalid integrated address: " + integratedAddress);
+    if (!info.has_payment_id) throw runtime_error("Address is not an integrated address");
+
+    // initialize and return result
+    MoneroIntegratedAddress result;
+    result.standardAddress = cryptonote::get_account_address_as_str(wallet2->nettype(), info.is_subaddress, info.address);
+    result.paymentId = epee::string_tools::pod_to_hex(info.payment_id);
+    result.integratedAddress = integratedAddress;
+    return result;
+  }
+
   string MoneroWallet::getMnemonic() const {
     epee::wipeable_string wipeablePassword;
     wallet2->get_seed(wipeablePassword);

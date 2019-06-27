@@ -207,4 +207,15 @@ namespace monero {
     boost::property_tree::ptree toPropertyTree() const;
     bool meetsCriteria(MoneroTxWallet* tx) const;
   };
+
+  /**
+   * Monero integrated address model.
+   */
+  struct MoneroIntegratedAddress : public SerializableStruct {
+    string standardAddress;
+    string paymentId;
+    string integratedAddress;
+
+    boost::property_tree::ptree toPropertyTree() const;
+  };
 }

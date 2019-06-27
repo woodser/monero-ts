@@ -245,22 +245,22 @@ namespace monero {
      */
     MoneroSubaddress getAddressIndex(const string& address) const;
 
-//    /**
-//     * Get an integrated address based on this wallet's primary address and the
-//     * given payment ID.  Generates a random payment ID if none is given.
-//     *
-//     * @param paymentId is the payment ID to generate an integrated address from (randomly generated if null)
-//     * @return the integrated address
-//     */
-//    virtual MoneroIntegratedAddress getIntegratedAddress(const string& paymentId = "") const;
-//
-//    /**
-//     * Decode an integrated address to get its standard address and payment id.
-//     *
-//     * @param integratedAddress is an integrated address to decode
-//     * @return the decoded integrated address including standard address and payment id
-//     */
-//    virtual MoneroIntegratedAddress decodeIntegratedAddress(const string& integratedAddress = "") const;
+    /**
+     * Get an integrated address from a standard address and a payment id.
+     *
+     * @param standardAddress is the integrated addresse's standard address (defaults to wallet's primary address)
+     * @param paymentId is the integrated addresse's payment id (defaults to randomly generating new payment id)
+     * @return the integrated address
+     */
+    MoneroIntegratedAddress getIntegratedAddress(const string& standardAddress = "", const string& paymentId = "") const;
+
+    /**
+     * Decode an integrated address to get its standard address and payment id.
+     *
+     * @param integratedAddress is an integrated address to decode
+     * @return the decoded integrated address including standard address and payment id
+     */
+    MoneroIntegratedAddress decodeIntegratedAddress(const string& integratedAddress) const;
 
     void setListener(boost::optional<MoneroWalletListener&> listener);
 

@@ -1,3 +1,4 @@
+toPropertyTree() should take node as parameter; optimize memory elsewhere
 cannot reconcile integrals on getTransfers() test, need to add reconcile debug info including vals and pass error message
 re-usable debug trace statements
 DaemonConnection is its own object

@@ -376,4 +376,14 @@ namespace monero {
     // output meets request
     return true;
   }
+
+  // -------------------------- MONERO INTEGRATED ADDRESS -----------------------------
+
+  boost::property_tree::ptree MoneroIntegratedAddress::toPropertyTree() const {
+    boost::property_tree::ptree node;
+    node.put("standardAddress", standardAddress);
+    node.put("paymentId", paymentId);
+    node.put("integratedAddress", integratedAddress);
+    return node;
+  }
 }
