@@ -568,19 +568,27 @@ namespace monero {
     throw runtime_error("Not implemented");
   }
 
-  MoneroSubaddress MoneroWallet::createSubaddress(const uint32_t accountIdx) {
-    throw runtime_error("Not implemented");
-  }
-
-  MoneroSubaddress MoneroWallet::createSubaddress(const uint32_t accountIdx, const string& label) {
-    throw runtime_error("Not implemented");
-  }
-
-  // create account
-
   // getSubaddresses
 
-  // createSubaddress
+  MoneroSubaddress MoneroWallet::createSubaddress(const uint32_t accountIdx, const string& label) {
+    cout << "createSubaddress(" << accountIdx << ", " << label << ")" << endl;
+
+    // create subaddress
+    wallet2->add_subaddress(accountIdx, label);
+
+    // initialize and return result
+    MoneroSubaddress subaddress;
+    subaddress.accountIndex = accountIdx;
+    subaddress.index = wallet2->get_num_subaddresses(accountIdx) - 1;
+    subaddress.address = wallet2->get_subaddress_as_str({accountIdx, subaddress.index.get()});
+    subaddress.label = label;
+    subaddress.balance = 0;
+    subaddress.unlockedBalance = 0;
+    subaddress.numUnspentOutputs = 0;
+    subaddress.isUsed = false;
+    subaddress.numBlocksToUnlock = 0;
+    return subaddress;
+  }
 
   vector<shared_ptr<MoneroTxWallet>> MoneroWallet::getTxs(MoneroTxRequest& request) const {
     cout << "getTxs(request)" << endl;
@@ -906,6 +914,7 @@ namespace monero {
       uint32_t subaddressIdx = subaddressIndices.at(subaddressIndicesIdx);
       subaddress.index = subaddressIdx;
       subaddress.address = getAddress(accountIdx, subaddressIdx);
+      subaddress.label = wallet2->get_subaddress_label({accountIdx, subaddressIdx});
       auto iter1 = balancePerSubaddress.find(subaddressIdx);
       subaddress.balance = iter1 == balancePerSubaddress.end() ? 0 : iter1->second;
       auto iter2 = unlockedBalancePerSubaddress.find(subaddressIdx);

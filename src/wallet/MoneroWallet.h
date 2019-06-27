@@ -440,18 +440,10 @@ namespace monero {
      * Create a subaddress within an account.
      *
      * @param accountIdx specifies the index of the account to create the subaddress within
+     * @param label specifies the the label for the subaddress (defaults to empty string)
      * @return the created subaddress
      */
-    MoneroSubaddress createSubaddress(uint32_t accountIdx);
-
-    /**
-     * Create a subaddress within an account.
-     *
-     * @param accountIdx specifies the index of the account to create the subaddress within
-     * @param label specifies the the label for the subaddress
-     * @return the created subaddress
-     */
-    MoneroSubaddress createSubaddress(uint32_t accountIdx, const string& label);
+    MoneroSubaddress createSubaddress(uint32_t accountIdx, const string& label = "");
 
 //    /**
 //     * Get a wallet transaction by id.
