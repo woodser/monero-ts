@@ -1118,6 +1118,41 @@ namespace monero {
       throw runtime_error("Need to handle sendTxs() error");  // TODO
     }
 
+    // TODO: *** HERE ***
+    try {
+
+      // prepare parameters for wallet2 create_transactions_2
+      uint64_t mixin = wallet2->adjust_mixin(request.ringSize == boost::none ? 0 : request.ringSize.get() - 1);
+      uint32_t priority = wallet2->adjust_priority(request.priority == boost::none ? 0 : request.priority.get());
+      uint64_t unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
+      uint32_t accountIndex = 0;  // TODO
+      std::set<uint32_t> subaddressIndices; // TODO
+
+
+      //if (request.priority != boost::none) wallet2->adjust_priority((uint32_t) request.priority.get());
+
+
+      vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, unlockTime, priority, extra, accountIndex, subaddressIndices);
+      cout << "CREATED " << ptx_vector.size() << " PENDING TXS" << endl;
+//
+//      if (ptx_vector.empty()) {
+//        er.code = WALLET_RPC_ERROR_CODE_TX_NOT_POSSIBLE;
+//        er.message = "No transaction created";
+//        return false;
+//      }
+//
+//      // reject proposed transactions if there are more than one.  see on_transfer_split below.
+//      if (ptx_vector.size() != 1) {
+//        er.code = WALLET_RPC_ERROR_CODE_TX_TOO_LARGE;
+//        er.message = "Transaction would be too large.  try /transfer_split.";
+//        return false;
+//      }
+//
+//      return fill_response(wallet2, ptx_vector, req.get_tx_key, res.tx_key, res.amount, res.fee, res.multisig_txset, res.unsigned_txset, req.do_not_relay, res.tx_hash, req.get_tx_hex, res.tx_blob, req.get_tx_metadata, res.tx_metadata, er);
+    } catch (const std::exception& e) {
+      throw runtime_error("Need to handle exception");  // TODO
+    }
+
 
 
 
