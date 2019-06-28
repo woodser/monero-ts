@@ -5,10 +5,12 @@
 #include <iostream>
 #include "mnemonics/electrum-words.h"
 #include "mnemonics/english.h"
+#include "wallet/wallet_rpc_server_commands_defs.h"
 
 using namespace std;
 using namespace cryptonote;
 using namespace epee;
+using namespace tools;
 
 /**
  * Public library interface.
@@ -22,55 +24,314 @@ namespace monero {
     return optVal == boost::none ? false : val == *optVal;
   }
 
-//  MoneroTxWallet convertTxWithIncomingTransfer(const tools::wallet2& wallet2, const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) {
+  /**
+   * ---------------- DUPLICATED WALLET RPC TRANSFER CODE ---------------------
+   *
+   * This code is duplicated from wallet_rpc_server.cpp and modified to not be class members
+   * in order to generate and send transactions with equivalent functionality as wallet rpc.
+   *
+   * Code duplication is not the preferred solution.  Solutions considered:
+   *
+   * (1) Duplicate wallet rpc code as done here.
+   * (2) Modify monero-wallet-rpc on_transfer() / on_transfer_split() to be public.
+   * (3) Modify monero-wallet-rpc to make this class a friend.
+   * (4) Move all logic in monero-wallet-rpc to wallet2 so all users can access.
+   *
+   * Options 2-4 require modification of Monero Core C++, of which (4) is probably ideal.
+   * TODO: open patch on Monero core which moves common wallet rpc logic (e.g. on_transfer, on_transfer_split) to wallet2.
+   *
+   * Until then, option (1) is used because it allows the official Monero binaries to be used without modification and
+   * anything other than (4) is temporary.
+   */
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool validate_transfer(wallet2* wallet2, const std::list<wallet_rpc::transfer_destination>& destinations, const std::string& payment_id, std::vector<cryptonote::tx_destination_entry>& dsts, std::vector<uint8_t>& extra, bool at_least_one_destination, epee::json_rpc::error& er)
+  {
+    crypto::hash8 integrated_payment_id = crypto::null_hash8;
+    std::string extra_nonce;
+    for (auto it = destinations.begin(); it != destinations.end(); it++)
+    {
+      cryptonote::address_parse_info info;
+      cryptonote::tx_destination_entry de;
+      er.message = "";
+      if(!get_account_address_from_str_or_url(info, wallet2->nettype(), it->address,
+        [&er](const std::string &url, const std::vector<std::string> &addresses, bool dnssec_valid)->std::string {
+          if (!dnssec_valid)
+          {
+            er.message = std::string("Invalid DNSSEC for ") + url;
+            return {};
+          }
+          if (addresses.empty())
+          {
+            er.message = std::string("No Monero address found at ") + url;
+            return {};
+          }
+          return addresses[0];
+        }))
+      {
+        er.code = WALLET_RPC_ERROR_CODE_WRONG_ADDRESS;
+        if (er.message.empty())
+          er.message = std::string("WALLET_RPC_ERROR_CODE_WRONG_ADDRESS: ") + it->address;
+        return false;
+      }
+
+      de.original = it->address;
+      de.addr = info.address;
+      de.is_subaddress = info.is_subaddress;
+      de.amount = it->amount;
+      de.is_integrated = info.has_payment_id;
+      dsts.push_back(de);
+
+      if (info.has_payment_id)
+      {
+        if (!payment_id.empty() || integrated_payment_id != crypto::null_hash8)
+        {
+          er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
+          er.message = "A single payment id is allowed per transaction";
+          return false;
+        }
+        integrated_payment_id = info.payment_id;
+        cryptonote::set_encrypted_payment_id_to_tx_extra_nonce(extra_nonce, integrated_payment_id);
+
+        /* Append Payment ID data into extra */
+        if (!cryptonote::add_extra_nonce_to_tx_extra(extra, extra_nonce)) {
+          er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
+          er.message = "Something went wrong with integrated payment_id.";
+          return false;
+        }
+      }
+    }
+
+    if (at_least_one_destination && dsts.empty())
+    {
+      er.code = WALLET_RPC_ERROR_CODE_ZERO_DESTINATION;
+      er.message = "No destinations for this transfer";
+      return false;
+    }
+
+    if (!payment_id.empty())
+    {
+
+      /* Just to clarify */
+      const std::string& payment_id_str = payment_id;
+
+      crypto::hash long_payment_id;
+      crypto::hash8 short_payment_id;
+
+      /* Parse payment ID */
+      if (wallet2::parse_long_payment_id(payment_id_str, long_payment_id)) {
+        cryptonote::set_payment_id_to_tx_extra_nonce(extra_nonce, long_payment_id);
+      }
+      else {
+        er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
+        er.message = "Payment id has invalid format: \"" + payment_id_str + "\", expected 64 character string";
+        return false;
+      }
+
+      /* Append Payment ID data into extra */
+      if (!cryptonote::add_extra_nonce_to_tx_extra(extra, extra_nonce)) {
+        er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
+        er.message = "Something went wrong with payment_id. Please check its format: \"" + payment_id_str + "\", expected 64-character string";
+        return false;
+      }
+
+    }
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  static std::string ptx_to_string(const tools::wallet2::pending_tx &ptx)
+  {
+    std::ostringstream oss;
+    boost::archive::portable_binary_oarchive ar(oss);
+    try
+    {
+      ar << ptx;
+    }
+    catch (...)
+    {
+      return "";
+    }
+    return epee::string_tools::buff_to_hex_nodelimer(oss.str());
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  template<typename T> static bool is_error_value(const T &val) { return false; }
+  static bool is_error_value(const std::string &s) { return s.empty(); }
+  //------------------------------------------------------------------------------------------------------------------------------
+  template<typename T, typename V>
+  static bool fill(T &where, V s)
+  {
+    if (is_error_value(s)) return false;
+    where = std::move(s);
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  template<typename T, typename V>
+  static bool fill(std::list<T> &where, V s)
+  {
+    if (is_error_value(s)) return false;
+    where.emplace_back(std::move(s));
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  static uint64_t total_amount(const tools::wallet2::pending_tx &ptx)
+  {
+    uint64_t amount = 0;
+    for (const auto &dest: ptx.dests) amount += dest.amount;
+    return amount;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  template<typename Ts, typename Tu>
+  bool fill_response(wallet2* wallet2, std::vector<tools::wallet2::pending_tx> &ptx_vector,
+      bool get_tx_key, Ts& tx_key, Tu &amount, Tu &fee, std::string &multisig_txset, std::string &unsigned_txset, bool do_not_relay,
+      Ts &tx_hash, bool get_tx_hex, Ts &tx_blob, bool get_tx_metadata, Ts &tx_metadata, epee::json_rpc::error &er)
+  {
+    for (const auto & ptx : ptx_vector)
+    {
+      if (get_tx_key)
+      {
+        epee::wipeable_string s = epee::to_hex::wipeable_string(ptx.tx_key);
+        for (const crypto::secret_key& additional_tx_key : ptx.additional_tx_keys)
+          s += epee::to_hex::wipeable_string(additional_tx_key);
+        fill(wallet2, tx_key, std::string(s.data(), s.size()));
+      }
+      // Compute amount leaving wallet in tx. By convention dests does not include change outputs
+      fill(wallet2, amount, total_amount(ptx));
+      fill(wallet2, fee, ptx.fee);
+    }
+
+    if (wallet2->multisig())
+    {
+      multisig_txset = epee::string_tools::buff_to_hex_nodelimer(wallet2->save_multisig_tx(ptx_vector));
+      if (multisig_txset.empty())
+      {
+        er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
+        er.message = "Failed to save multisig tx set after creation";
+        return false;
+      }
+    }
+    else
+    {
+      if (wallet2->watch_only()){
+        unsigned_txset = epee::string_tools::buff_to_hex_nodelimer(wallet2->dump_tx_to_str(ptx_vector));
+        if (unsigned_txset.empty())
+        {
+          er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
+          er.message = "Failed to save unsigned tx set after creation";
+          return false;
+        }
+      }
+      else if (!do_not_relay)
+        wallet2->commit_tx(ptx_vector);
+
+      // populate response with tx hashes
+      for (auto & ptx : ptx_vector)
+      {
+        bool r = fill(wallet2, tx_hash, epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(ptx.tx)));
+        r = r && (!get_tx_hex || fill(tx_blob, epee::string_tools::buff_to_hex_nodelimer(tx_to_blob(ptx.tx))));
+        r = r && (!get_tx_metadata || fill(tx_metadata, ptx_to_string(ptx)));
+        if (!r)
+        {
+          er.code = WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR;
+          er.message = "Failed to save tx info";
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+//  //------------------------------------------------------------------------------------------------------------------------------
+//  bool on_transfer(wallet2* wallet2, const wallet_rpc::COMMAND_RPC_TRANSFER::request& req, wallet_rpc::COMMAND_RPC_TRANSFER::response& res, epee::json_rpc::error& er, const connection_context *ctx)
+//  {
 //
-//    //cout << "static convertTxWithIncomingTransfer(3)" << endl;
-//    shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(new MoneroBlock());
-//    block->height = pd.m_block_height;
-//    block->timestamp = pd.m_timestamp;
-//    block->txs.push_back(tx);
+//    std::vector<cryptonote::tx_destination_entry> dsts;
+//    std::vector<uint8_t> extra;
 //
-//    //shared_ptr<MoneroTxWallet> tx = nullptr;
-//    tx.block = block
-//    tx.id = string_tools::pod_to_hex(pd.m_tx_hash);
-//    tx.paymentId = string_tools::pod_to_hex(payment_id);
-//    if (tx.paymentId->substr(16).find_first_not_of('0') == std::string::npos) tx.paymentId = tx.paymentId->substr(0, 16);  // TODO monero core: this should be part of core wallet
-//    if (tx.paymentId == MoneroTx::DEFAULT_PAYMENT_ID) tx.paymentId = boost::none;  // clear default payment id
-//    tx.unlockTime = pd.m_unlock_time;
-//    tx.fee = pd.m_fee;
-//    tx.note = wallet2.get_tx_note(pd.m_tx_hash);
-//    if (tx.note->empty()) tx.note = boost::none; // clear empty note
-//    tx.isCoinbase = pd.m_coinbase ? true : false;
-//    tx.isConfirmed = true;
-//    tx.isFailed = false;
-//    tx.isRelayed = true;
-//    tx.inTxPool = false;
-//    tx.doNotRelay = false;
-//    tx.isDoubleSpend = false;
+//    LOG_PRINT_L3("on_transfer starts");
+//    if (!wallet2) return not_open(er);
+//    if (m_restricted)
+//    {
+//      er.code = WALLET_RPC_ERROR_CODE_DENIED;
+//      er.message = "Command unavailable in restricted mode.";
+//      return false;
+//    }
 //
-//    // compute numConfirmations TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
-//    uint64_t chainHeight = getChainHeight();
-//    if (*block->height >= chainHeight || (*block->height == 0 && !tx.inTxPool)) tx.numConfirmations = 0;
-//    else tx.numConfirmations = chainHeight - *block->height;
+//    // validate the transfer requested and populate dsts & extra
+//    if (!validate_transfer(req.destinations, req.payment_id, dsts, extra, true, er))
+//    {
+//      return false;
+//    }
 //
-//    // construct transfer
-//    MoneroIncomingTransfer incomingTransfer;
-//    incomingTransfer.tx = shared_ptr<MoneroTxWallet>(tx);
-//    incomingTransfer.amount = pd.m_amount;
-//    incomingTransfer.accountIndex = pd.m_subaddr_index.major;
-//    incomingTransfer.subaddressIndex = pd.m_subaddr_index.minor;
-//    incomingTransfer.address = wallet2->get_subaddress_as_str(pd.m_subaddr_index);
+//    try
+//    {
+//      uint64_t mixin = wallet2->adjust_mixin(req.ring_size ? req.ring_size - 1 : 0);
+//      uint32_t priority = wallet2->adjust_priority(req.priority);
+//      std::vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices);
 //
-//    // compute numSuggestedConfirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
-//    uint64_t blockReward = wallet2->get_last_block_reward();
-//    if (blockReward == 0) incomingTransfer.numSuggestedConfirmations = 0;
-//    else incomingTransfer.numSuggestedConfirmations = (*incomingTransfer.amount + blockReward - 1) / blockReward;
+//      if (ptx_vector.empty())
+//      {
+//        er.code = WALLET_RPC_ERROR_CODE_TX_NOT_POSSIBLE;
+//        er.message = "No transaction created";
+//        return false;
+//      }
 //
-//    // add transfer to tx
-//    tx.incomingTransfers.push_back(incomingTransfer);
+//      // reject proposed transactions if there are more than one.  see on_transfer_split below.
+//      if (ptx_vector.size() != 1)
+//      {
+//        er.code = WALLET_RPC_ERROR_CODE_TX_TOO_LARGE;
+//        er.message = "Transaction would be too large.  try /transfer_split.";
+//        return false;
+//      }
 //
-//    return incomingTransfer;
+//      return fill_response(ptx_vector, req.get_tx_key, res.tx_key, res.amount, res.fee, res.multisig_txset, res.unsigned_txset, req.do_not_relay,
+//          res.tx_hash, req.get_tx_hex, res.tx_blob, req.get_tx_metadata, res.tx_metadata, er);
+//    }
+//    catch (const std::exception& e)
+//    {
+//      handle_rpc_exception(std::current_exception(), er, WALLET_RPC_ERROR_CODE_GENERIC_TRANSFER_ERROR);
+//      return false;
+//    }
+//    return true;
 //  }
+//  //------------------------------------------------------------------------------------------------------------------------------
+//  bool on_transfer_split(wallet2* wallet2, const wallet_rpc::COMMAND_RPC_TRANSFER_SPLIT::request& req, wallet_rpc::COMMAND_RPC_TRANSFER_SPLIT::response& res, epee::json_rpc::error& er, const connection_context *ctx)
+//  {
+//
+//    std::vector<cryptonote::tx_destination_entry> dsts;
+//    std::vector<uint8_t> extra;
+//
+//    if (!wallet2) return not_open(er);
+//    if (m_restricted)
+//    {
+//      er.code = WALLET_RPC_ERROR_CODE_DENIED;
+//      er.message = "Command unavailable in restricted mode.";
+//      return false;
+//    }
+//
+//    // validate the transfer requested and populate dsts & extra; RPC_TRANSFER::request and RPC_TRANSFER_SPLIT::request are identical types.
+//    if (!validate_transfer(req.destinations, req.payment_id, dsts, extra, true, er))
+//    {
+//      return false;
+//    }
+//
+//    try
+//    {
+//      uint64_t mixin = wallet2->adjust_mixin(req.ring_size ? req.ring_size - 1 : 0);
+//      uint32_t priority = wallet2->adjust_priority(req.priority);
+//      LOG_PRINT_L2("on_transfer_split calling create_transactions_2");
+//      std::vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices);
+//      LOG_PRINT_L2("on_transfer_split called create_transactions_2");
+//
+//      return fill_response(wallet2, ptx_vector, req.get_tx_keys, res.tx_key_list, res.amount_list, res.fee_list, res.multisig_txset, res.unsigned_txset, req.do_not_relay,
+//          res.tx_hash_list, req.get_tx_hex, res.tx_blob_list, req.get_tx_metadata, res.tx_metadata_list, er);
+//    }
+//    catch (const std::exception& e)
+//    {
+//      handle_rpc_exception(std::current_exception(), er, WALLET_RPC_ERROR_CODE_GENERIC_TRANSFER_ERROR);
+//      return false;
+//    }
+//    return true;
+//  }
+
+  // -------------------- END WALLET RPC CODE DUPLCIATION ---------------------
 
   /**
    * Merges a transaction into a unique set of transactions.
@@ -855,7 +1116,29 @@ namespace monero {
   vector<shared_ptr<MoneroTxWallet>> MoneroWallet::sendTxs(const MoneroSendRequest& request) {
     cout << "MoneroWallet::sendTxs(request)" << endl;
     cout << "MoneroSendRequest: " << request.serialize() << endl;
-    throw runtime_error("not implemented");
+
+    wallet_rpc::COMMAND_RPC_TRANSFER::request req;
+    wallet_rpc::COMMAND_RPC_TRANSFER::response res;
+    epee::json_rpc::error er;
+    //tools::wallet_rpc_server::connection_context* ctx = 0;
+
+
+    //wallet_rpc_server* server = new wallet_rpc_server();
+    //server->on_transfer(req, res, er, ctx);
+
+    // convert request destinations to wallet2 types
+    //std::list<transfer_destination> destinations;
+
+
+
+
+    // validate the transfer requested and populate dsts & extra
+    std::vector<cryptonote::tx_destination_entry> dsts;
+    std::vector<uint8_t> extra;
+
+
+    return vector<shared_ptr<MoneroTxWallet>>();
+    //throw runtime_error("not implemented");
   }
 
   void MoneroWallet::save() {
