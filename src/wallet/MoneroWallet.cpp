@@ -191,11 +191,11 @@ namespace monero {
         epee::wipeable_string s = epee::to_hex::wipeable_string(ptx.tx_key);
         for (const crypto::secret_key& additional_tx_key : ptx.additional_tx_keys)
           s += epee::to_hex::wipeable_string(additional_tx_key);
-        fill(wallet2, tx_key, std::string(s.data(), s.size()));
+        fill(tx_key, std::string(s.data(), s.size()));
       }
       // Compute amount leaving wallet in tx. By convention dests does not include change outputs
-      fill(wallet2, amount, total_amount(ptx));
-      fill(wallet2, fee, ptx.fee);
+      fill(amount, total_amount(ptx));
+      fill(fee, ptx.fee);
     }
 
     if (wallet2->multisig())
@@ -225,7 +225,7 @@ namespace monero {
       // populate response with tx hashes
       for (auto & ptx : ptx_vector)
       {
-        bool r = fill(wallet2, tx_hash, epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(ptx.tx)));
+        bool r = fill(tx_hash, epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(ptx.tx)));
         r = r && (!get_tx_hex || fill(tx_blob, epee::string_tools::buff_to_hex_nodelimer(tx_to_blob(ptx.tx))));
         r = r && (!get_tx_metadata || fill(tx_metadata, ptx_to_string(ptx)));
         if (!r)
@@ -238,98 +238,78 @@ namespace monero {
     }
     return true;
   }
-//  //------------------------------------------------------------------------------------------------------------------------------
-//  bool on_transfer(wallet2* wallet2, const wallet_rpc::COMMAND_RPC_TRANSFER::request& req, wallet_rpc::COMMAND_RPC_TRANSFER::response& res, epee::json_rpc::error& er, const connection_context *ctx)
-//  {
-//
-//    std::vector<cryptonote::tx_destination_entry> dsts;
-//    std::vector<uint8_t> extra;
-//
-//    LOG_PRINT_L3("on_transfer starts");
-//    if (!wallet2) return not_open(er);
-//    if (m_restricted)
-//    {
-//      er.code = WALLET_RPC_ERROR_CODE_DENIED;
-//      er.message = "Command unavailable in restricted mode.";
-//      return false;
-//    }
-//
-//    // validate the transfer requested and populate dsts & extra
-//    if (!validate_transfer(req.destinations, req.payment_id, dsts, extra, true, er))
-//    {
-//      return false;
-//    }
-//
-//    try
-//    {
-//      uint64_t mixin = wallet2->adjust_mixin(req.ring_size ? req.ring_size - 1 : 0);
-//      uint32_t priority = wallet2->adjust_priority(req.priority);
-//      std::vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices);
-//
-//      if (ptx_vector.empty())
-//      {
-//        er.code = WALLET_RPC_ERROR_CODE_TX_NOT_POSSIBLE;
-//        er.message = "No transaction created";
-//        return false;
-//      }
-//
-//      // reject proposed transactions if there are more than one.  see on_transfer_split below.
-//      if (ptx_vector.size() != 1)
-//      {
-//        er.code = WALLET_RPC_ERROR_CODE_TX_TOO_LARGE;
-//        er.message = "Transaction would be too large.  try /transfer_split.";
-//        return false;
-//      }
-//
-//      return fill_response(ptx_vector, req.get_tx_key, res.tx_key, res.amount, res.fee, res.multisig_txset, res.unsigned_txset, req.do_not_relay,
-//          res.tx_hash, req.get_tx_hex, res.tx_blob, req.get_tx_metadata, res.tx_metadata, er);
-//    }
-//    catch (const std::exception& e)
-//    {
-//      handle_rpc_exception(std::current_exception(), er, WALLET_RPC_ERROR_CODE_GENERIC_TRANSFER_ERROR);
-//      return false;
-//    }
-//    return true;
-//  }
-//  //------------------------------------------------------------------------------------------------------------------------------
-//  bool on_transfer_split(wallet2* wallet2, const wallet_rpc::COMMAND_RPC_TRANSFER_SPLIT::request& req, wallet_rpc::COMMAND_RPC_TRANSFER_SPLIT::response& res, epee::json_rpc::error& er, const connection_context *ctx)
-//  {
-//
-//    std::vector<cryptonote::tx_destination_entry> dsts;
-//    std::vector<uint8_t> extra;
-//
-//    if (!wallet2) return not_open(er);
-//    if (m_restricted)
-//    {
-//      er.code = WALLET_RPC_ERROR_CODE_DENIED;
-//      er.message = "Command unavailable in restricted mode.";
-//      return false;
-//    }
-//
-//    // validate the transfer requested and populate dsts & extra; RPC_TRANSFER::request and RPC_TRANSFER_SPLIT::request are identical types.
-//    if (!validate_transfer(req.destinations, req.payment_id, dsts, extra, true, er))
-//    {
-//      return false;
-//    }
-//
-//    try
-//    {
-//      uint64_t mixin = wallet2->adjust_mixin(req.ring_size ? req.ring_size - 1 : 0);
-//      uint32_t priority = wallet2->adjust_priority(req.priority);
-//      LOG_PRINT_L2("on_transfer_split calling create_transactions_2");
-//      std::vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices);
-//      LOG_PRINT_L2("on_transfer_split called create_transactions_2");
-//
-//      return fill_response(wallet2, ptx_vector, req.get_tx_keys, res.tx_key_list, res.amount_list, res.fee_list, res.multisig_txset, res.unsigned_txset, req.do_not_relay,
-//          res.tx_hash_list, req.get_tx_hex, res.tx_blob_list, req.get_tx_metadata, res.tx_metadata_list, er);
-//    }
-//    catch (const std::exception& e)
-//    {
-//      handle_rpc_exception(std::current_exception(), er, WALLET_RPC_ERROR_CODE_GENERIC_TRANSFER_ERROR);
-//      return false;
-//    }
-//    return true;
-//  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool on_transfer(wallet2* wallet2, const wallet_rpc::COMMAND_RPC_TRANSFER::request& req, wallet_rpc::COMMAND_RPC_TRANSFER::response& res, epee::json_rpc::error& er)
+  {
+
+    std::vector<cryptonote::tx_destination_entry> dsts;
+    std::vector<uint8_t> extra;
+
+
+    // validate the transfer requested and populate dsts & extra
+    if (!validate_transfer(wallet2, req.destinations, req.payment_id, dsts, extra, true, er))
+    {
+      return false;
+    }
+
+    try
+    {
+      uint64_t mixin = wallet2->adjust_mixin(req.ring_size ? req.ring_size - 1 : 0);
+      uint32_t priority = wallet2->adjust_priority(req.priority);
+      std::vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices);
+
+      if (ptx_vector.empty())
+      {
+        er.code = WALLET_RPC_ERROR_CODE_TX_NOT_POSSIBLE;
+        er.message = "No transaction created";
+        return false;
+      }
+
+      // reject proposed transactions if there are more than one.  see on_transfer_split below.
+      if (ptx_vector.size() != 1)
+      {
+        er.code = WALLET_RPC_ERROR_CODE_TX_TOO_LARGE;
+        er.message = "Transaction would be too large.  try /transfer_split.";
+        return false;
+      }
+
+      return fill_response(wallet2, ptx_vector, req.get_tx_key, res.tx_key, res.amount, res.fee, res.multisig_txset, res.unsigned_txset, req.do_not_relay,
+          res.tx_hash, req.get_tx_hex, res.tx_blob, req.get_tx_metadata, res.tx_metadata, er);
+    }
+    catch (const std::exception& e)
+    {
+      return false;
+    }
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool on_transfer_split(wallet2* wallet2, const wallet_rpc::COMMAND_RPC_TRANSFER_SPLIT::request& req, wallet_rpc::COMMAND_RPC_TRANSFER_SPLIT::response& res, epee::json_rpc::error& er)
+  {
+
+    std::vector<cryptonote::tx_destination_entry> dsts;
+    std::vector<uint8_t> extra;
+
+    // validate the transfer requested and populate dsts & extra; RPC_TRANSFER::request and RPC_TRANSFER_SPLIT::request are identical types.
+    if (!validate_transfer(wallet2, req.destinations, req.payment_id, dsts, extra, true, er))
+    {
+      return false;
+    }
+
+    try
+    {
+      uint64_t mixin = wallet2->adjust_mixin(req.ring_size ? req.ring_size - 1 : 0);
+      uint32_t priority = wallet2->adjust_priority(req.priority);
+      std::vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices);
+
+      return fill_response(wallet2, ptx_vector, req.get_tx_keys, res.tx_key_list, res.amount_list, res.fee_list, res.multisig_txset, res.unsigned_txset, req.do_not_relay,
+          res.tx_hash_list, req.get_tx_hex, res.tx_blob_list, req.get_tx_metadata, res.tx_metadata_list, er);
+    }
+    catch (const std::exception& e)
+    {
+      return false;
+    }
+    return true;
+  }
 
   // -------------------- END WALLET RPC CODE DUPLCIATION ---------------------
 
