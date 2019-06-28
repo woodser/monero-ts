@@ -1099,7 +1099,110 @@ namespace monero {
 
     wallet_rpc::COMMAND_RPC_TRANSFER::request req;
     wallet_rpc::COMMAND_RPC_TRANSFER::response res;
-    epee::json_rpc::error er;
+    epee::json_rpc::error err;
+
+    // prepare parameters for wallet rpc's validate_transfer()
+    string paymentId = request.paymentId == boost::none ? string("") : request.paymentId.get();
+    list<tools::wallet_rpc::transfer_destination> trDestinations;
+    for (const shared_ptr<MoneroDestination>& destination : request.destinations) {
+      tools::wallet_rpc::transfer_destination trDestination;
+      trDestination.amount = destination->amount.get();
+      trDestination.address = destination->address.get();
+      trDestinations.push_back(trDestination);
+    }
+
+    // validate the requested txs and populate dsts & extra
+    std::vector<cryptonote::tx_destination_entry> dsts;
+    std::vector<uint8_t> extra;
+    if (!validate_transfer(wallet2.get(), trDestinations, paymentId, dsts, extra, true, err)) {
+      throw runtime_error("Need to handle sendTxs() error");  // TODO
+    }
+
+
+
+
+//    std::vector<cryptonote::tx_destination_entry> dsts;
+//    std::vector<uint8_t> extra;
+//
+//
+//    // validate the transfer requested and populate dsts & extra
+//    if (!validate_transfer(wallet2, req.destinations, req.payment_id, dsts, extra, true, er))
+//    {
+//      return false;
+//    }
+//
+//    try
+//    {
+//      uint64_t mixin = wallet2->adjust_mixin(req.ring_size ? req.ring_size - 1 : 0);
+//      uint32_t priority = wallet2->adjust_priority(req.priority);
+//      std::vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices);
+//
+//      if (ptx_vector.empty())
+//      {
+//        er.code = WALLET_RPC_ERROR_CODE_TX_NOT_POSSIBLE;
+//        er.message = "No transaction created";
+//        return false;
+//      }
+//
+//      // reject proposed transactions if there are more than one.  see on_transfer_split below.
+//      if (ptx_vector.size() != 1)
+//      {
+//        er.code = WALLET_RPC_ERROR_CODE_TX_TOO_LARGE;
+//        er.message = "Transaction would be too large.  try /transfer_split.";
+//        return false;
+//      }
+//
+//      return fill_response(wallet2, ptx_vector, req.get_tx_key, res.tx_key, res.amount, res.fee, res.multisig_txset, res.unsigned_txset, req.do_not_relay,
+//          res.tx_hash, req.get_tx_hex, res.tx_blob, req.get_tx_metadata, res.tx_metadata, er);
+//    }
+//    catch (const std::exception& e)
+//    {
+//      return false;
+//    }
+//    return true;
+//  }
+//  //------------------------------------------------------------------------------------------------------------------------------
+//  bool on_transfer_split(wallet2* wallet2, const wallet_rpc::COMMAND_RPC_TRANSFER_SPLIT::request& req, wallet_rpc::COMMAND_RPC_TRANSFER_SPLIT::response& res, epee::json_rpc::error& er)
+//  {
+//
+//    std::vector<cryptonote::tx_destination_entry> dsts;
+//    std::vector<uint8_t> extra;
+//
+//    // validate the transfer requested and populate dsts & extra; RPC_TRANSFER::request and RPC_TRANSFER_SPLIT::request are identical types.
+//    if (!validate_transfer(wallet2, req.destinations, req.payment_id, dsts, extra, true, er))
+//    {
+//      return false;
+//    }
+//
+//    try
+//    {
+//      uint64_t mixin = wallet2->adjust_mixin(req.ring_size ? req.ring_size - 1 : 0);
+//      uint32_t priority = wallet2->adjust_priority(req.priority);
+//      std::vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices);
+//
+//      return fill_response(wallet2, ptx_vector, req.get_tx_keys, res.tx_key_list, res.amount_list, res.fee_list, res.multisig_txset, res.unsigned_txset, req.do_not_relay,
+//          res.tx_hash_list, req.get_tx_hex, res.tx_blob_list, req.get_tx_metadata, res.tx_metadata_list, er);
+//    }
+//    catch (const std::exception& e)
+//    {
+//      return false;
+//    }
+//    return true;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     //tools::wallet_rpc_server::connection_context* ctx = 0;
 
 
@@ -1113,12 +1216,9 @@ namespace monero {
 
 
     // validate the transfer requested and populate dsts & extra
-    std::vector<cryptonote::tx_destination_entry> dsts;
-    std::vector<uint8_t> extra;
 
-
-    return vector<shared_ptr<MoneroTxWallet>>();
-    //throw runtime_error("not implemented");
+    //return vector<shared_ptr<MoneroTxWallet>>();
+    throw runtime_error("not implemented");
   }
 
   void MoneroWallet::save() {
