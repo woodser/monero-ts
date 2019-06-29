@@ -1118,10 +1118,7 @@ namespace monero {
       throw runtime_error("Need to handle sendTxs() error");  // TODO
     }
 
-    // TODO: *** HERE ***
-//    try {
-
-    // prepare parameters for wallet2 create_transactions_2
+    // prepare parameters for wallet2's create_transactions_2()
     uint64_t mixin = wallet2->adjust_mixin(request.ringSize == boost::none ? 0 : request.ringSize.get() - 1);
     uint32_t priority = wallet2->adjust_priority(request.priority == boost::none ? 0 : request.priority.get());
     uint64_t unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
@@ -1130,7 +1127,7 @@ namespace monero {
 
     vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, unlockTime, priority, extra, accountIndex, subaddressIndices);
     cout << "CREATED " << ptx_vector.size() << " PENDING TXS" << endl;
-//
+
 //      if (ptx_vector.empty()) {
 //        er.code = WALLET_RPC_ERROR_CODE_TX_NOT_POSSIBLE;
 //        er.message = "No transaction created";
@@ -1143,9 +1140,6 @@ namespace monero {
 //        er.message = "Transaction would be too large.  try /transfer_split.";
 //        return false;
 //      }
-//
-//      return fill_response(wallet2, ptx_vector, req.get_tx_key, res.tx_key, res.amount, res.fee, res.multisig_txset, res.unsigned_txset, req.do_not_relay, res.tx_hash, req.get_tx_hex, res.tx_blob, req.get_tx_metadata, res.tx_metadata, er);
-
 
     // config for fill_response()
     bool getTxKeys = true;
@@ -1164,123 +1158,40 @@ namespace monero {
     list<string> txMetadatas;
     fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, doNotRelay, txIds, getTxHex, txBlobs, getTxMetadata, txMetadatas, err);
 
-    for (const auto& txKey : txKeys) cout << txKey << endl;
+    // build sent txs from results
+    vector<shared_ptr<MoneroTxWallet>> txs;
+    auto txIdsIter = txIds.begin();
+    auto txKeysIter = txKeys.begin();
+    auto txAmountsIter = txAmounts.begin();
+    auto txFeesIter = txFees.begin();
+    auto txBlobsIter = txBlobs.begin();
+    auto txMetadatasIter = txMetadatas.begin();
+    while (txIdsIter != txIds.end()) {
+      shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+      txs.push_back(tx);
+      tx->id = *txIdsIter;
+      tx->key = *txKeysIter;
+      tx->fee = *txFeesIter;
+      tx->fullHex = *txBlobsIter;
+      tx->metadata = *txMetadatasIter;
+      shared_ptr<MoneroOutgoingTransfer> outTransfer = shared_ptr<MoneroOutgoingTransfer>(new MoneroOutgoingTransfer());
+      tx->outgoingTransfer = outTransfer;
+      outTransfer->amount = *txAmountsIter;
 
-      // build txs from filled data
+      // iterate to next element
+      txKeysIter++;
+      txAmountsIter++;
+      txFeesIter++;
+      txIdsIter++;
+      txBlobsIter++;
+      txMetadatasIter++;
+    }
 
+    // print transactions
+    cout << "BUILT TRANSACTIONS!!!" << endl;
+    for (const auto& tx : txs) cout << tx->serialize() << endl;
 
-
-      //return fill_response(wallet2, ptx_vector, req.get_tx_key, res.tx_key, res.amount, res.fee, res.multisig_txset, res.unsigned_txset, req.do_not_relay, res.tx_hash, req.get_tx_hex, res.tx_blob, req.get_tx_metadata, res.tx_metadata, er);
-
-      //      return fill_response(wallet2, ptx_vector, req.get_tx_keys, res.tx_key_list, res.amount_list, res.fee_list, res.multisig_txset, res.unsigned_txset, req.do_not_relay,
-      //          res.tx_hash_list, req.get_tx_hex, res.tx_blob_list, req.get_tx_metadata, res.tx_metadata_list, er);
-//    } catch (const std::exception& e) {
-//      throw runtime_error(e.what());
-//      //cout << "Caught exception: " << e.what() << endl;
-//      //throw runtime_error(e.);  // TODO
-//    }
-
-
-
-
-//    std::vector<cryptonote::tx_destination_entry> dsts;
-//    std::vector<uint8_t> extra;
-//
-//
-//    // validate the transfer requested and populate dsts & extra
-//    if (!validate_transfer(wallet2, req.destinations, req.payment_id, dsts, extra, true, er))
-//    {
-//      return false;
-//    }
-//
-//    try
-//    {
-//      uint64_t mixin = wallet2->adjust_mixin(req.ring_size ? req.ring_size - 1 : 0);
-//      uint32_t priority = wallet2->adjust_priority(req.priority);
-//      std::vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices);
-//
-//      if (ptx_vector.empty())
-//      {
-//        er.code = WALLET_RPC_ERROR_CODE_TX_NOT_POSSIBLE;
-//        er.message = "No transaction created";
-//        return false;
-//      }
-//
-//      // reject proposed transactions if there are more than one.  see on_transfer_split below.
-//      if (ptx_vector.size() != 1)
-//      {
-//        er.code = WALLET_RPC_ERROR_CODE_TX_TOO_LARGE;
-//        er.message = "Transaction would be too large.  try /transfer_split.";
-//        return false;
-//      }
-//
-//      return fill_response(wallet2, ptx_vector, req.get_tx_key, res.tx_key, res.amount, res.fee, res.multisig_txset, res.unsigned_txset, req.do_not_relay,
-//          res.tx_hash, req.get_tx_hex, res.tx_blob, req.get_tx_metadata, res.tx_metadata, er);
-//    }
-//    catch (const std::exception& e)
-//    {
-//      return false;
-//    }
-//    return true;
-//  }
-//  //------------------------------------------------------------------------------------------------------------------------------
-//  bool on_transfer_split(wallet2* wallet2, const wallet_rpc::COMMAND_RPC_TRANSFER_SPLIT::request& req, wallet_rpc::COMMAND_RPC_TRANSFER_SPLIT::response& res, epee::json_rpc::error& er)
-//  {
-//
-//    std::vector<cryptonote::tx_destination_entry> dsts;
-//    std::vector<uint8_t> extra;
-//
-//    // validate the transfer requested and populate dsts & extra; RPC_TRANSFER::request and RPC_TRANSFER_SPLIT::request are identical types.
-//    if (!validate_transfer(wallet2, req.destinations, req.payment_id, dsts, extra, true, er))
-//    {
-//      return false;
-//    }
-//
-//    try
-//    {
-//      uint64_t mixin = wallet2->adjust_mixin(req.ring_size ? req.ring_size - 1 : 0);
-//      uint32_t priority = wallet2->adjust_priority(req.priority);
-//      std::vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices);
-//
-//      return fill_response(wallet2, ptx_vector, req.get_tx_keys, res.tx_key_list, res.amount_list, res.fee_list, res.multisig_txset, res.unsigned_txset, req.do_not_relay,
-//          res.tx_hash_list, req.get_tx_hex, res.tx_blob_list, req.get_tx_metadata, res.tx_metadata_list, er);
-//    }
-//    catch (const std::exception& e)
-//    {
-//      return false;
-//    }
-//    return true;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //tools::wallet_rpc_server::connection_context* ctx = 0;
-
-
-    //wallet_rpc_server* server = new wallet_rpc_server();
-    //server->on_transfer(req, res, er, ctx);
-
-    // convert request destinations to wallet2 types
-    //std::list<transfer_destination> destinations;
-
-
-
-
-    // validate the transfer requested and populate dsts & extra
-
-    //return vector<shared_ptr<MoneroTxWallet>>();
-    throw runtime_error("not implemented");
+    return txs;
   }
 
   void MoneroWallet::save() {
