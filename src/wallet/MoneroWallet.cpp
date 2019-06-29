@@ -1139,16 +1139,19 @@ namespace monero {
     std::vector<cryptonote::tx_destination_entry> dsts;
     std::vector<uint8_t> extra;
     if (!validate_transfer(wallet2.get(), trDestinations, paymentId, dsts, extra, true, err)) {
-      throw runtime_error("Need to handle sendTxs() error");  // TODO
+      throw runtime_error("Need to handle sendTxs() validate_transfer error");  // TODO
     }
 
     // prepare parameters for wallet2's create_transactions_2()
     uint64_t mixin = wallet2->adjust_mixin(request.ringSize == boost::none ? 0 : request.ringSize.get() - 1);
     uint32_t priority = wallet2->adjust_priority(request.priority == boost::none ? 0 : request.priority.get());
     uint64_t unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
-    uint32_t accountIndex = 0;  // TODO
-    std::set<uint32_t> subaddressIndices; // TODO
+    if (request.accountIndex == boost::none) throw runtime_error("Must specify the account index to send from");
+    uint32_t accountIndex = request.accountIndex.get();
+    std::set<uint32_t> subaddressIndices;
+    for (const uint32_t& subaddressIdx : request.subaddressIndices) subaddressIndices.insert(subaddressIdx);
 
+    // prepare transactions
     vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, unlockTime, priority, extra, accountIndex, subaddressIndices);
     cout << "CREATED " << ptx_vector.size() << " PENDING TXS" << endl;
 
@@ -1172,7 +1175,7 @@ namespace monero {
     bool doNotRelay = request.doNotRelay == boost::none ? false : request.doNotRelay.get();
     cout << "doNotRelay: " << doNotRelay << endl;
 
-    // commit txs and get response using wallet rpc's fill_response()
+    // commit txs (if relaying) and get response using wallet rpc's fill_response()
     list<string> txKeys;
     list<uint64_t> txAmounts;
     list<uint64_t> txFees;
@@ -1182,12 +1185,15 @@ namespace monero {
     list<string> txBlobs;
     list<string> txMetadatas;
     cout << "Attempting to fill..." << endl;
-    fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, doNotRelay, txIds, getTxHex, txBlobs, getTxMetadata, txMetadatas, err);
+    if (!fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, doNotRelay, txIds, getTxHex, txBlobs, getTxMetadata, txMetadatas, err)) {
+      throw runtime_error("need to handle error filling response!");
+    }
     cout << "Done filling!" << endl;
 
     // refresh wallet after committing txs
     //wallet2->rescan_blockchain(false);
-    wallet2->refresh(wallet2->is_trusted_daemon());
+//    wallet2->refresh(true);
+//    sync();
 
     // build sent txs from results
     vector<shared_ptr<MoneroTxWallet>> txs;
@@ -1198,6 +1204,8 @@ namespace monero {
     auto txBlobsIter = txBlobs.begin();
     auto txMetadatasIter = txMetadatas.begin();
     while (txIdsIter != txIds.end()) {
+
+      // transfer filled values
       shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
       txs.push_back(tx);
       tx->id = *txIdsIter;
@@ -1208,6 +1216,16 @@ namespace monero {
       shared_ptr<MoneroOutgoingTransfer> outTransfer = shared_ptr<MoneroOutgoingTransfer>(new MoneroOutgoingTransfer());
       tx->outgoingTransfer = outTransfer;
       outTransfer->amount = *txAmountsIter;
+
+      // init common sent tx fields
+      tx->isConfirmed = false;
+      tx->isCoinbase = false;
+      tx->isFailed = false;
+      tx->doNotRelay = request.doNotRelay != boost::none && request.doNotRelay.get() == true;
+      tx->isRelayed = tx->doNotRelay.get() != true;
+      tx->inTxPool = !tx->doNotRelay.get();
+      tx->numConfirmations = 0;
+      tx->mixin = request.mixin;
 
       // iterate to next element
       txKeysIter++;
