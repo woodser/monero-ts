@@ -388,6 +388,12 @@ namespace monero {
 
   public:
 
+    /**
+     * Constructs the listener.
+     *
+     * @param wallet provides context to inform external notifications
+     * @param wallet2 provides source notifications which this listener propagates to external listeners
+     */
     Wallet2Listener(MoneroWallet& wallet, tools::wallet2& wallet2) : wallet(wallet), wallet2(wallet2) {
       this->listener = boost::none;
       this->syncStartHeight = boost::none;
@@ -439,18 +445,18 @@ namespace monero {
 
       // notify listeners of sync progress
       if (syncStartHeight != boost::none && height > *syncStartHeight) {
-      if (height > *syncEndHeight) *syncEndHeight = height;	// increase end height if necessary
-      uint64_t numBlocksDone = height - *syncStartHeight + 1;
-      uint64_t numBlocksTotal = *syncEndHeight - *syncStartHeight + 1;
-      double percentDone = numBlocksDone / (double) numBlocksTotal;
-      string message = string("Synchronizing");
-      if (listener != boost::none) listener.get().onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
-      if (syncListener != boost::none) syncListener.get().onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
+        if (height > *syncEndHeight) *syncEndHeight = height;	// increase end height if necessary
+        uint64_t numBlocksDone = height - *syncStartHeight + 1;
+        uint64_t numBlocksTotal = *syncEndHeight - *syncStartHeight + 1;
+        double percentDone = numBlocksDone / (double) numBlocksTotal;
+        string message = string("Synchronizing");
+        if (listener != boost::none) listener.get().onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
+        if (syncListener != boost::none) syncListener.get().onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
       }
     }
 
   private:
-    MoneroWallet& wallet;     // wallet to inform notifications
+    MoneroWallet& wallet;     // wallet to provide context for notifications
     tools::wallet2& wallet2;  // internal wallet implementation to listen to
     boost::optional<MoneroWalletListener&> listener; // listener to invoke with notifications
     boost::optional<uint64_t> syncStartHeight;
@@ -1151,7 +1157,7 @@ namespace monero {
     bool doNotRelay = request.doNotRelay == boost::none ? false : request.doNotRelay.get();
     cout << "doNotRelay: " << doNotRelay << endl;
 
-    // initialize tx data using fill_response()
+    // commit txs and get response using wallet rpc's fill_response()
     list<string> txKeys;
     list<uint64_t> txAmounts;
     list<uint64_t> txFees;
@@ -1163,6 +1169,9 @@ namespace monero {
     cout << "Attempting to fill..." << endl;
     fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, doNotRelay, txIds, getTxHex, txBlobs, getTxMetadata, txMetadatas, err);
     cout << "Done filling!" << endl;
+
+//    // refresh wallet after committing txs
+//    wallet2->refresh(wallet2->is_trusted_daemon());
 
     // build sent txs from results
     vector<shared_ptr<MoneroTxWallet>> txs;
