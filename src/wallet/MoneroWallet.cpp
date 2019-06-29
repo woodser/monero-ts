@@ -1221,11 +1221,13 @@ namespace monero {
       tx->isConfirmed = false;
       tx->isCoinbase = false;
       tx->isFailed = false;
+      tx->isDoubleSpend = false;
       tx->doNotRelay = request.doNotRelay != boost::none && request.doNotRelay.get() == true;
       tx->isRelayed = tx->doNotRelay.get() != true;
       tx->inTxPool = !tx->doNotRelay.get();
       tx->numConfirmations = 0;
       tx->mixin = request.mixin;
+      tx->unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
 
       // iterate to next element
       txKeysIter++;
