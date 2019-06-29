@@ -455,10 +455,25 @@ namespace monero {
       }
     }
 
+    virtual void on_money_spent(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& in_tx, uint64_t amount, const cryptonote::transaction& spend_tx, const cryptonote::subaddress_index& subaddr_index) {
+      cout << "Wallet2Listener::on_money_spent()" << endl;
+//        // TODO;
+//        std::string tx_hash = epee::string_tools::pod_to_hex(txid);
+//        LOG_PRINT_L3(__FUNCTION__ << ": money spent. height:  " << height
+//                     << ", tx: " << tx_hash
+//                     << ", amount: " << print_money(amount)
+//                     << ", idx: " << subaddr_index);
+//        // do not signal on sent tx if wallet is not syncronized completely
+//        if (m_listener && m_wallet->synchronized()) {
+//            m_listener->moneySpent(tx_hash, amount);
+//            m_listener->updated();
+//        }
+    }
+
   private:
     MoneroWallet& wallet;     // wallet to provide context for notifications
     tools::wallet2& wallet2;  // internal wallet implementation to listen to
-    boost::optional<MoneroWalletListener&> listener; // listener to invoke with notifications
+    boost::optional<MoneroWalletListener&> listener; // target listener to invoke with notifications
     boost::optional<uint64_t> syncStartHeight;
     boost::optional<uint64_t> syncEndHeight;
     boost::optional<MoneroSyncListener&> syncListener;
@@ -1170,8 +1185,9 @@ namespace monero {
     fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, doNotRelay, txIds, getTxHex, txBlobs, getTxMetadata, txMetadatas, err);
     cout << "Done filling!" << endl;
 
-//    // refresh wallet after committing txs
-//    wallet2->refresh(wallet2->is_trusted_daemon());
+    // refresh wallet after committing txs
+    //wallet2->rescan_blockchain(false);
+    wallet2->refresh(wallet2->is_trusted_daemon());
 
     // build sent txs from results
     vector<shared_ptr<MoneroTxWallet>> txs;
