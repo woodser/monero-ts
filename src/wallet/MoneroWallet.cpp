@@ -1119,21 +1119,17 @@ namespace monero {
     }
 
     // TODO: *** HERE ***
-    try {
+//    try {
 
-      // prepare parameters for wallet2 create_transactions_2
-      uint64_t mixin = wallet2->adjust_mixin(request.ringSize == boost::none ? 0 : request.ringSize.get() - 1);
-      uint32_t priority = wallet2->adjust_priority(request.priority == boost::none ? 0 : request.priority.get());
-      uint64_t unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
-      uint32_t accountIndex = 0;  // TODO
-      std::set<uint32_t> subaddressIndices; // TODO
+    // prepare parameters for wallet2 create_transactions_2
+    uint64_t mixin = wallet2->adjust_mixin(request.ringSize == boost::none ? 0 : request.ringSize.get() - 1);
+    uint32_t priority = wallet2->adjust_priority(request.priority == boost::none ? 0 : request.priority.get());
+    uint64_t unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
+    uint32_t accountIndex = 0;  // TODO
+    std::set<uint32_t> subaddressIndices; // TODO
 
-
-      //if (request.priority != boost::none) wallet2->adjust_priority((uint32_t) request.priority.get());
-
-
-      vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, unlockTime, priority, extra, accountIndex, subaddressIndices);
-      cout << "CREATED " << ptx_vector.size() << " PENDING TXS" << endl;
+    vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, unlockTime, priority, extra, accountIndex, subaddressIndices);
+    cout << "CREATED " << ptx_vector.size() << " PENDING TXS" << endl;
 //
 //      if (ptx_vector.empty()) {
 //        er.code = WALLET_RPC_ERROR_CODE_TX_NOT_POSSIBLE;
@@ -1149,9 +1145,40 @@ namespace monero {
 //      }
 //
 //      return fill_response(wallet2, ptx_vector, req.get_tx_key, res.tx_key, res.amount, res.fee, res.multisig_txset, res.unsigned_txset, req.do_not_relay, res.tx_hash, req.get_tx_hex, res.tx_blob, req.get_tx_metadata, res.tx_metadata, er);
-    } catch (const std::exception& e) {
-      throw runtime_error("Need to handle exception");  // TODO
-    }
+
+
+    // config for fill_response()
+    bool getTxKeys = true;
+    bool getTxHex = true;
+    bool getTxMetadata = true;
+    bool doNotRelay = request.doNotRelay == boost::none ? false : request.doNotRelay.get();
+
+    // initialize tx data using fill_response()
+    list<string> txKeys;
+    list<uint64_t> txAmounts;
+    list<uint64_t> txFees;
+    string multisigTxSet;
+    string unsignedTxSet;
+    list<string> txIds;
+    list<string> txBlobs;
+    list<string> txMetadatas;
+    fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, doNotRelay, txIds, getTxHex, txBlobs, getTxMetadata, txMetadatas, err);
+
+    for (const auto& txKey : txKeys) cout << txKey << endl;
+
+      // build txs from filled data
+
+
+
+      //return fill_response(wallet2, ptx_vector, req.get_tx_key, res.tx_key, res.amount, res.fee, res.multisig_txset, res.unsigned_txset, req.do_not_relay, res.tx_hash, req.get_tx_hex, res.tx_blob, req.get_tx_metadata, res.tx_metadata, er);
+
+      //      return fill_response(wallet2, ptx_vector, req.get_tx_keys, res.tx_key_list, res.amount_list, res.fee_list, res.multisig_txset, res.unsigned_txset, req.do_not_relay,
+      //          res.tx_hash_list, req.get_tx_hex, res.tx_blob_list, req.get_tx_metadata, res.tx_metadata_list, er);
+//    } catch (const std::exception& e) {
+//      throw runtime_error(e.what());
+//      //cout << "Caught exception: " << e.what() << endl;
+//      //throw runtime_error(e.);  // TODO
+//    }
 
 
 
