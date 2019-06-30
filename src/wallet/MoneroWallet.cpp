@@ -1191,11 +1191,6 @@ namespace monero {
     }
     cout << "Done filling!" << endl;
 
-    // refresh wallet after committing txs
-    //wallet2->rescan_blockchain(false);
-//    wallet2->refresh(true);
-//    sync();
-
     // build sent txs from results
     vector<shared_ptr<MoneroTxWallet>> txs;
     auto txIdsIter = txIds.begin();
