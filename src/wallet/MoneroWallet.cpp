@@ -1226,7 +1226,7 @@ namespace monero {
       tx->unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
       tx->lastRelayedTimestamp = static_cast<uint64_t>(time(NULL));
       outTransfer->accountIndex = *request.accountIndex;
-      if (request.subaddressIndices.size() == 1) outTransfer->subaddressIndices.push_back(request.subaddressIndices[0]);  // subaddress index is known iff 1 requested
+      if (request.subaddressIndices.size() == 1) outTransfer->subaddressIndices.push_back(request.subaddressIndices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
       outTransfer->destinations = request.destinations;
 
       // iterate to next element
