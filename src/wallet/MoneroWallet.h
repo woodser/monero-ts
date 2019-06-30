@@ -1075,6 +1075,7 @@ namespace monero {
     vector<MoneroSubaddress> getSubaddressesAux(uint32_t accountIdx, vector<uint32_t> subaddressIndices, vector<tools::wallet2::transfer_details> transfers) const;
     shared_ptr<MoneroTxWallet> buildTxWithIncomingTransfer(const crypto::hash &txid, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) const;  // TODO: these could be made inner anonymous by moving to top of .cpp
     shared_ptr<MoneroTxWallet> buildTxWithOutgoingTransfer(const crypto::hash &txid, const tools::wallet2::confirmed_transfer_details &pd) const;
+    shared_ptr<MoneroTxWallet> buildTxWithOutgoingTransferUnconfirmed(const crypto::hash &txid, const tools::wallet2::unconfirmed_transfer_details &pd) const;
     shared_ptr<MoneroTxWallet> buildTxWithVout(const tools::wallet2::transfer_details& outputW2) const;
   };
 }

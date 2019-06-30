@@ -960,9 +960,15 @@ namespace monero {
 
     //cout << "6" << endl;
 
-    // get unconfirmed outgoing transfers
+    // get unconfirmed or failed outgoing transfers
     if (isPending || isFailed) {
-      //throw runtime_error("isPending || isFailed not implemented");
+      std::list<std::pair<crypto::hash, tools::wallet2::unconfirmed_transfer_details>> upayments;
+      wallet2->get_unconfirmed_payments_out(upayments, accountIndex, subaddressIndices);
+      for (std::list<std::pair<crypto::hash, tools::wallet2::unconfirmed_transfer_details>>::const_iterator i = upayments.begin(); i != upayments.end(); ++i) {
+        shared_ptr<MoneroTxWallet> tx = buildTxWithOutgoingTransferUnconfirmed(i->first, i->second);
+        if (txReq.isFailed != boost::none && txReq.isFailed.get() != tx->isFailed.get()) continue; // skip merging if tx unrequested
+        mergeTx(tx, txMap, blockMap, false);
+      }
     }
 
     // get unconfirmed incoming transfers
@@ -1343,6 +1349,68 @@ namespace monero {
     tx->outgoingTransfer = outgoingTransfer;
     uint64_t change = pd.m_change == (uint64_t)-1 ? 0 : pd.m_change; // change may not be known
     outgoingTransfer->amount = pd.m_amount_in - change - *tx->fee;
+    outgoingTransfer->accountIndex = pd.m_subaddr_account;
+    vector<uint32_t> subaddressIndices;
+    vector<string> addresses;
+    for (uint32_t i: pd.m_subaddr_indices) {
+      subaddressIndices.push_back(i);
+      addresses.push_back(wallet2->get_subaddress_as_str({pd.m_subaddr_account, i}));
+    }
+    outgoingTransfer->subaddressIndices = subaddressIndices;
+    outgoingTransfer->addresses = addresses;
+
+    // initialize destinations
+    for (const auto &d: pd.m_dests) {
+      shared_ptr<MoneroDestination> destination = shared_ptr<MoneroDestination>(new MoneroDestination());
+      destination->amount = d.amount;
+      destination->address = d.original.empty() ? cryptonote::get_account_address_as_str(wallet2->nettype(), d.is_subaddress, d.addr) : d.original;
+      outgoingTransfer->destinations.push_back(destination);
+    }
+
+    // replace transfer amount with destination sum
+    // TODO monero core: confirmed tx from/to same account has amount 0 but cached transfer destinations
+    if (*outgoingTransfer->amount == 0 && !outgoingTransfer->destinations.empty()) {
+      uint64_t amount = 0;
+      for (const shared_ptr<MoneroDestination>& destination : outgoingTransfer->destinations) amount += *destination->amount;
+      outgoingTransfer->amount = amount;
+    }
+
+    // compute numSuggestedConfirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
+    uint64_t blockReward = wallet2->get_last_block_reward();
+    if (blockReward == 0) outgoingTransfer->numSuggestedConfirmations = 0;
+    else outgoingTransfer->numSuggestedConfirmations = (*outgoingTransfer->amount + blockReward - 1) / blockReward;
+
+    // return pointer to new tx
+    return tx;
+  }
+
+  shared_ptr<MoneroTxWallet> MoneroWallet::buildTxWithOutgoingTransferUnconfirmed(const crypto::hash &txid, const tools::wallet2::unconfirmed_transfer_details &pd) const {
+    //cout << "buildTxWithOutgoingTransferUnconfirmed()" << endl;
+
+    // construct tx
+    shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+    tx->isFailed = pd.m_state == tools::wallet2::unconfirmed_transfer_details::failed;
+    tx->id = string_tools::pod_to_hex(txid);
+    tx->paymentId = string_tools::pod_to_hex(pd.m_payment_id);
+    if (tx->paymentId->substr(16).find_first_not_of('0') == std::string::npos) tx->paymentId = tx->paymentId->substr(0, 16);  // TODO monero core: this should be part of core wallet
+    if (tx->paymentId == MoneroTx::DEFAULT_PAYMENT_ID) tx->paymentId = boost::none;  // clear default payment id
+    tx->unlockTime = pd.m_tx.unlock_time;
+    tx->fee = pd.m_amount_in - pd.m_amount_out;
+    tx->note = wallet2->get_tx_note(txid);
+    if (tx->note->empty()) tx->note = boost::none; // clear empty note
+    tx->isCoinbase = false;
+    tx->isConfirmed = false;
+    tx->isRelayed = !tx->isFailed.get();
+    tx->inTxPool = !tx->isFailed.get();
+    tx->doNotRelay = false;
+    tx->isDoubleSpend = false;  // TODO: test, detect, and set double spend
+    tx->numConfirmations = 0;
+
+    // construct transfer
+    shared_ptr<MoneroOutgoingTransfer> outgoingTransfer = shared_ptr<MoneroOutgoingTransfer>(new MoneroOutgoingTransfer());
+    outgoingTransfer->tx = tx;
+    tx->outgoingTransfer = outgoingTransfer;
+    outgoingTransfer->amount = pd.m_amount_in - pd.m_change - tx->fee.get();
     outgoingTransfer->accountIndex = pd.m_subaddr_account;
     vector<uint32_t> subaddressIndices;
     vector<string> addresses;
