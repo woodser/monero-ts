@@ -138,19 +138,12 @@ namespace monero {
     //cout << "4" << endl;
 
     // filter on incoming
-    if (isIncoming != boost::none) {
-        cout << "Is... incoming?" << endl;
-        cout << tx->getIsIncoming() << endl;
-        cout << isIncoming << endl;
-      if (isIncoming != tx->getIsIncoming()) return false;
-    }
+    if (isIncoming != boost::none && isIncoming != tx->getIsIncoming()) return false;
 
     //cout << "5" << endl;
 
     // filter on outgoing
-    if (isOutgoing != boost::none) {
-       if (isOutgoing != tx->getIsOutgoing()) return false;
-    }
+    if (isOutgoing != boost::none && isOutgoing != tx->getIsOutgoing()) return false;
 
     //cout << "6" << endl;
 
@@ -247,19 +240,37 @@ namespace monero {
   }
 
   bool MoneroTransferRequest::meetsCriteria(MoneroTransfer* transfer) const {
-    //cout << "MoneroTransferRequest::meetsCriteria()" << endl;
+
+    cout << "MoneroTransferRequest::meetsCriteria()" << endl;
     if (transfer == nullptr) throw runtime_error("transfer is null"); // TODO: port to java/js
+    if (transfer->accountIndex == boost::none) throw runtime_error("why isn't account index initialized?");
     if (txRequest != boost::none && (*txRequest)->transferRequest != boost::none) throw runtime_error("Transfer request's tx request cannot have a circular transfer request");   // TODO: could auto detect and handl this.  port to java/js
 
-    //cout << "1" << endl;
+    cout << "1" << endl;
 
     // filter on common fields
     if (getIsIncoming() != boost::none && *getIsIncoming() != *transfer->getIsIncoming()) return false;
+    cout << "1.1" << endl;
     if (getIsOutgoing() != boost::none && getIsOutgoing() != transfer->getIsOutgoing()) return false;
+    cout << "1.2" << endl;
     if (amount != boost::none && *amount != *transfer->amount) return false;
+    cout << "1.3" << endl;
+    cout << "Here we go" << endl;
+    cout << accountIndex << endl;
+    if (transfer->accountIndex == boost::none) throw runtime_error("why isn't account index initialized?");
+    else {
+        cout << "Transfer account index is not boost none" << endl;
+        cout << *transfer->accountIndex << endl;
+    }
+    if (accountIndex == boost::none) cout << "Account index is boost none!" << endl;
+    else cout << *accountIndex << endl;
+    cout << transfer->accountIndex << endl;
+    cout << "Done" << endl;
+
+
     if (accountIndex != boost::none && *accountIndex != *transfer->accountIndex) return false;
 
-    //cout << "2" << endl;
+    cout << "2" << endl;
 
     // filter on incoming fields
     MoneroIncomingTransfer* inTransfer = dynamic_cast<MoneroIncomingTransfer*>(transfer);
@@ -271,7 +282,7 @@ namespace monero {
       if (!subaddressIndices.empty() && find(subaddressIndices.begin(), subaddressIndices.end(), *inTransfer->subaddressIndex) == subaddressIndices.end()) return false;
     }
 
-    //cout << "3" << endl;
+    cout << "3" << endl;
 
     // filter on outgoing fields
     MoneroOutgoingTransfer* outTransfer = dynamic_cast<MoneroOutgoingTransfer*>(transfer);
@@ -317,7 +328,7 @@ namespace monero {
       //    if (this.getDestionations() != null && this.getDestionations() != transfer.getDestionations()) return false;
     }
 
-    //cout << "4" << endl;
+    cout << "4" << endl;
 
     // validate type
     if (inTransfer == nullptr && outTransfer == nullptr) throw runtime_error("Transfer must be MoneroIncomingTransfer or MoneroOutgoingTransfer");

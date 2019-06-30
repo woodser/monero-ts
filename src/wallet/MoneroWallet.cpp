@@ -795,7 +795,7 @@ namespace monero {
     // TODO: this modifies original request so given req cannot be constant, make given request constant
     if (request.transferRequest == boost::none) request.transferRequest = shared_ptr<MoneroTransferRequest>(new MoneroTransferRequest());
     shared_ptr<MoneroTransferRequest> transferRequest = request.transferRequest.get();
-
+    
     // temporarily disable transfer request
     request.transferRequest = boost::none;
 
@@ -851,7 +851,7 @@ namespace monero {
         txIter++;
       } else {
         txIter = txs.erase(txIter);
-        tx->block.get()->txs.erase(std::remove(tx->block.get()->txs.begin(), tx->block.get()->txs.end(), tx), tx->block.get()->txs.end()); // TODO, no way to use txIter?
+        if (tx->block != boost::none) tx->block.get()->txs.erase(std::remove(tx->block.get()->txs.begin(), tx->block.get()->txs.end(), tx), tx->block.get()->txs.end()); // TODO, no way to use txIter?
       }
     }
     txs = txsRequested;
@@ -1059,7 +1059,7 @@ namespace monero {
       }
 
       // remove txs without requested transfer
-      if (tx->vouts.empty()) tx->block.get()->txs.erase(std::remove(tx->block.get()->txs.begin(), tx->block.get()->txs.end(), tx), tx->block.get()->txs.end()); // TODO, no way to use const_iterator?
+      if (tx->vouts.empty() && tx->block != boost::none) tx->block.get()->txs.erase(std::remove(tx->block.get()->txs.begin(), tx->block.get()->txs.end(), tx), tx->block.get()->txs.end()); // TODO, no way to use const_iterator?
     }
     return vouts;
   }

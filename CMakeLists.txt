@@ -289,7 +289,7 @@ target_link_libraries(monero-cpp
 # Build C++ scratchpad
 ########################
 
-###[[	--- START BLOCK COMMENT ---
+#[[	--- START BLOCK COMMENT ---
 
 set(
     SCRATCHPAD_SRC_FILES
@@ -342,4 +342,4 @@ target_link_libraries(scratchpad
 	${EXTRA_LIBRARIES}
 )
 
-###]]	# --- END BLOCK COMMENT ---
+#]]	# --- END BLOCK COMMENT ---
