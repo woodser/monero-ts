@@ -1131,11 +1131,9 @@ namespace monero {
     list<string> txIds;
     list<string> txBlobs;
     list<string> txMetadatas;
-    cout << "Attempting to fill..." << endl;
     if (!fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, doNotRelay, txIds, getTxHex, txBlobs, getTxMetadata, txMetadatas, err)) {
       throw runtime_error("need to handle error filling response!");
     }
-    cout << "Done filling!" << endl;
 
     // build sent txs from results
     vector<shared_ptr<MoneroTxWallet>> txs;
