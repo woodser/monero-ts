@@ -97,7 +97,7 @@ namespace monero {
   bool MoneroTxRequest::meetsCriteria(MoneroTxWallet* tx) const {
     if (tx == nullptr) return false;
 
-    cout << "MoneroTxRequest::meetsCriteria()" << endl;
+    //cout << "MoneroTxRequest::meetsCriteria()" << endl;
     //cout << "Testing tx: " << tx->serialize() << endl;
     //cout << "1" << endl;
 
