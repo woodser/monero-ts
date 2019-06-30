@@ -604,7 +604,7 @@ namespace monero {
      * @param request configures the transaction
      * @return the resulting transaction
      */
-    vector<shared_ptr<MoneroTxWallet>> sendTxs(const MoneroSendRequest& request);
+    vector<shared_ptr<MoneroTxWallet>> sendSplit(const MoneroSendRequest& request);
 
 //
 //    /**

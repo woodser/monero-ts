@@ -246,7 +246,7 @@ namespace monero {
   bool MoneroTransferRequest::meetsCriteria(MoneroTransfer* transfer) const {
     //cout << "MoneroTransferRequest::meetsCriteria()" << endl;
     if (transfer == nullptr) throw runtime_error("transfer is null"); // TODO: port to java/js
-    if (txRequest != boost::none && (*txRequest)->transferRequest != boost::none) throw runtime_error("Transfer request's tx request cannot have a circular transfer request");   // TODO: port to java/js
+    if (txRequest != boost::none && (*txRequest)->transferRequest != boost::none) throw runtime_error("Transfer request's tx request cannot have a circular transfer request");   // TODO: could auto detect and handl this.  port to java/js
 
     //cout << "1" << endl;
 
