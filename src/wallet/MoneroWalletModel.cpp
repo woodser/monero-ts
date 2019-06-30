@@ -86,7 +86,7 @@ namespace monero {
     if (isIncoming != boost::none) node.put("isIncoming", *isIncoming);
     if (!txIds.empty()) node.add_child("txIds", MoneroUtils::toPropertyTree(txIds));
     if (hasPaymentId != boost::none) node.put("hasPaymentId", *hasPaymentId);
-    if (!paymentIds.empty()) throw runtime_error("paymentIds not implemented");
+    if (!paymentIds.empty()) node.add_child("paymentIds", MoneroUtils::toPropertyTree(paymentIds));
     if (minHeight != boost::none) node.put("minHeight", *minHeight);
     if (maxHeight != boost::none) node.put("maxHeight", *maxHeight);
     if (includeOutputs != boost::none) node.put("includeOutputs", *includeOutputs);
@@ -97,18 +97,18 @@ namespace monero {
   bool MoneroTxRequest::meetsCriteria(MoneroTxWallet* tx) const {
     if (tx == nullptr) return false;
 
-    //cout << "MoneroTxRequest::meetsCriteria()" << endl;
+    cout << "MoneroTxRequest::meetsCriteria()" << endl;
     //cout << "Testing tx: " << tx->serialize() << endl;
     //cout << "1" << endl;
 
     // filter on tx
-    if (id != boost::none && *id != *tx->id) return false;
-    if (paymentId != boost::none && *paymentId != *tx->paymentId) return false;
-    if (isConfirmed != boost::none && *isConfirmed != *tx->isConfirmed) return false;
-    if (inTxPool != boost::none && *inTxPool != *tx->inTxPool) return false;
-    if (doNotRelay != boost::none && *doNotRelay != *tx->doNotRelay) return false;
-    if (isFailed != boost::none && *isFailed != *tx->isFailed) return false;
-    if (isCoinbase != boost::none && *isCoinbase != *tx->isCoinbase) return false;
+    if (id != boost::none && id != tx->id) return false;
+    if (paymentId != boost::none && paymentId != tx->paymentId) return false;
+    if (isConfirmed != boost::none && isConfirmed != tx->isConfirmed) return false;
+    if (inTxPool != boost::none && inTxPool != tx->inTxPool) return false;
+    if (doNotRelay != boost::none && doNotRelay != tx->doNotRelay) return false;
+    if (isFailed != boost::none && isFailed != tx->isFailed) return false;
+    if (isCoinbase != boost::none && isCoinbase != tx->isCoinbase) return false;
 
     //cout << "2" << endl;
 
@@ -139,6 +139,9 @@ namespace monero {
 
     // filter on incoming
     if (isIncoming != boost::none) {
+        cout << "Is... incoming?" << endl;
+        cout << tx->getIsIncoming() << endl;
+        cout << isIncoming << endl;
       if (isIncoming != tx->getIsIncoming()) return false;
     }
 
@@ -154,7 +157,7 @@ namespace monero {
     // filter on remaining fields
     boost::optional<uint64_t> txHeight = tx->getHeight();
     if (!txIds.empty() && find(txIds.begin(), txIds.end(), *tx->id) == txIds.end()) return false;
-    if (!paymentIds.empty() && find(paymentIds.begin(), paymentIds.end(), *tx->paymentId) == paymentIds.end()) return false;
+    if (!paymentIds.empty() && (tx->paymentId == boost::none || find(paymentIds.begin(), paymentIds.end(), *tx->paymentId) == paymentIds.end())) return false;
     if (getHeight() != boost::none && (txHeight == boost::none || *txHeight != *getHeight())) return false;
     if (minHeight != boost::none && (txHeight == boost::none || *txHeight < *minHeight)) return false;
     if (maxHeight != boost::none && (txHeight == boost::none || *txHeight > *maxHeight)) return false;

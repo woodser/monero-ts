@@ -971,6 +971,8 @@ namespace monero {
       }
     }
 
+    //cout << "7" << endl;
+
     // get unconfirmed incoming transfers
     if (isPool) {
       wallet2->update_pool_state(); // TODO monero-core: this should be encapsulated in wallet when unconfirmed transfers requested
@@ -981,6 +983,8 @@ namespace monero {
         mergeTx(tx, txMap, blockMap, false);
       }
     }
+
+    //cout << "8" << endl;
 
     // filter and return transfers
     vector<shared_ptr<MoneroTransfer>> transfers;
@@ -1002,10 +1006,12 @@ namespace monero {
         }
       }
 
-      // remove unrequested txs
-      if (tx->outgoingTransfer == boost::none && tx->incomingTransfers.empty()) tx->block.get()->txs.erase(std::remove(tx->block.get()->txs.begin(), tx->block.get()->txs.end(), tx), tx->block.get()->txs.end()); // TODO, no way to use const_iterator?
+      // remove unrequested txs from block
+      if (tx->block != boost::none && tx->outgoingTransfer == boost::none && tx->incomingTransfers.empty()) {
+        tx->block.get()->txs.erase(std::remove(tx->block.get()->txs.begin(), tx->block.get()->txs.end(), tx), tx->block.get()->txs.end()); // TODO, no way to use const_iterator?
+      }
     }
-    //cout << "7" << endl;
+    //cout << "9" << endl;
     cout << "MoneroWallet.cpp getTransfers() returning " << transfers.size() << " transfers" << endl;
     return transfers;
   }
@@ -1154,6 +1160,7 @@ namespace monero {
       outTransfer->amount = *txAmountsIter;
 
       // init other known fields
+      tx->paymentId = request.paymentId;
       tx->isConfirmed = false;
       tx->isCoinbase = false;
       tx->isFailed = false;   // TODO: test and handle if true
