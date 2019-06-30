@@ -1150,11 +1150,11 @@ namespace monero {
       // init other known fields
       tx->isConfirmed = false;
       tx->isCoinbase = false;
-      tx->isFailed = false;
-      tx->isDoubleSpend = false;
+      tx->isFailed = false;   // TODO: test and handle if true
       tx->doNotRelay = request.doNotRelay != boost::none && request.doNotRelay.get() == true;
       tx->isRelayed = tx->doNotRelay.get() != true;
       tx->inTxPool = !tx->doNotRelay.get();
+      if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpend = false;  // TODO: test and handle if true
       tx->numConfirmations = 0;
       tx->mixin = request.mixin;
       tx->unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
@@ -1403,7 +1403,7 @@ namespace monero {
     tx->isRelayed = !tx->isFailed.get();
     tx->inTxPool = !tx->isFailed.get();
     tx->doNotRelay = false;
-    tx->isDoubleSpend = false;  // TODO: test, detect, and set double spend
+    if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpend = false;  // TODO: test and handle if true
     tx->numConfirmations = 0;
 
     // construct transfer
