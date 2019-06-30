@@ -1,6 +1,7 @@
 #include "MoneroWallet.h"
 
 #include "utils/MoneroUtils.h"
+#include <chrono>
 #include <stdio.h>
 #include <iostream>
 #include "mnemonics/electrum-words.h"
@@ -1205,7 +1206,7 @@ namespace monero {
     auto txMetadatasIter = txMetadatas.begin();
     while (txIdsIter != txIds.end()) {
 
-      // transfer filled values
+      // init tx with outgoing transfer from filled values
       shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
       txs.push_back(tx);
       tx->id = *txIdsIter;
@@ -1217,7 +1218,7 @@ namespace monero {
       tx->outgoingTransfer = outTransfer;
       outTransfer->amount = *txAmountsIter;
 
-      // init common sent tx fields
+      // init other known fields
       tx->isConfirmed = false;
       tx->isCoinbase = false;
       tx->isFailed = false;
@@ -1228,6 +1229,10 @@ namespace monero {
       tx->numConfirmations = 0;
       tx->mixin = request.mixin;
       tx->unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
+      tx->lastRelayedTimestamp = static_cast<uint64_t>(time(NULL));
+      outTransfer->accountIndex = *request.accountIndex;
+      if (request.subaddressIndices.size() == 1) outTransfer->subaddressIndices.push_back(request.subaddressIndices[0]);  // subaddress index is known iff 1 requested
+      outTransfer->destinations = request.destinations;
 
       // iterate to next element
       txKeysIter++;
