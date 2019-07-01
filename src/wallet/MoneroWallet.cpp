@@ -1235,7 +1235,24 @@ namespace monero {
 
   string MoneroWallet::createPaymentUri(const MoneroSendRequest& request) {
     cout << "createPaymentUri()" << endl;
-    throw runtime_error("Not implemented");
+
+    // validate request
+    if (request.destinations.size() != 1) throw runtime_error("Must provide exactly one destination to send funds");
+    if (request.destinations.at(0)->address == boost::none) throw runtime_error("Must provide destination address");
+    if (request.destinations.at(0)->amount == boost::none) throw runtime_error("Must provide destination amount");
+
+    // prep params for wallet2
+    string address = request.destinations.at(0)->address.get();
+    string paymentId = request.paymentId == boost::none ? "" : request.paymentId.get();
+    uint64_t amount = request.destinations.at(0)->amount.get();
+    string note = request.note == boost::none ? "" : request.note.get();
+    string recipientName = request.recipientName == boost::none ? "" : request.recipientName.get();
+
+    // make uri using wallet2
+    std::string error;
+    string uri = wallet2->make_uri(address, paymentId, amount, note, recipientName, error);
+    if (uri.empty()) throw runtime_error("Cannot make URI from supplied parameters: " + error);
+    return uri;
   }
 
   void MoneroWallet::save() {
