@@ -588,7 +588,7 @@ namespace monero {
      * @param keyImages are key images to import and verify (requires hex and signature)
      * @return results of the import
      */
-    shared_ptr<MoneroKeyImageImportResult> importKeyImages(const vector<MoneroKeyImage>& keyImages);
+    shared_ptr<MoneroKeyImageImportResult> importKeyImages(const vector<shared_ptr<MoneroKeyImage>>& keyImages);
 
 //    /**
 //     * Get new key images from the last imported outputs.
