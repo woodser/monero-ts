@@ -415,7 +415,7 @@ class MoneroWallet {
   /**
    * Sweep an output with a given key image.
    * 
-   * @param {(MoneroSendRequest|string)} requestOrAddress is a send configuration or destination address
+   * @param {(MoneroSendRequest|string)} requestOrAddress is a send request or destination address
    * @param {string} keyImage is the key image hex of the output to sweep
    * @param {int} priority sets a transaction priority as an integer between 0 and 3 (see {MoneroSendPriority})
    * @return {MoneroTxWallet} is the resulting transaction from sweeping an output 
