@@ -44,7 +44,7 @@ namespace monero {
    * Options 2-4 require modification of Monero Core C++.  Of those, (4) is probably ideal.
    * TODO: open patch on Monero core which moves common wallet rpc logic (e.g. on_transfer, on_transfer_split) to wallet2.
    *
-   * Until then, option (1) is used because it allows the official Monero binaries to be used without modification and
+   * Until then, option (1) is used because it allows Monero Core binaries to be used without modification and
    * anything other than (4) is temporary.
    */
   //------------------------------------------------------------------------------------------------------------------------------
@@ -385,7 +385,7 @@ namespace monero {
     }
 
     virtual void on_money_spent(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& in_tx, uint64_t amount, const cryptonote::transaction& spend_tx, const cryptonote::subaddress_index& subaddr_index) {
-      cout << "Wallet2Listener::on_money_spent()" << endl;
+//      cout << "Wallet2Listener::on_money_spent()" << endl;
 //        // TODO;
 //        std::string tx_hash = epee::string_tools::pod_to_hex(txid);
 //        LOG_PRINT_L3(__FUNCTION__ << ": money spent. height:  " << height
@@ -1197,7 +1197,40 @@ namespace monero {
 
   vector<string> MoneroWallet::relayTxs(const vector<string>& txMetadatas) {
     cout << "relayTxs()" << endl;
-    throw runtime_error("Not implemented");
+
+    // relay each metadata as a tx
+    vector<string> txIds;
+    for (const auto& txMetadata : txMetadatas) {
+
+      // parse tx metadata hex
+      cryptonote::blobdata blob;
+      if (!epee::string_tools::parse_hexstr_to_binbuff(txMetadata, blob)) {
+        throw runtime_error("Failed to parse hex.");
+      }
+
+      // deserialize tx
+      tools::wallet2::pending_tx ptx;
+      try {
+        std::istringstream iss(blob);
+        boost::archive::portable_binary_iarchive ar(iss);
+        ar >> ptx;
+      } catch (...) {
+        throw runtime_error("Failed to parse tx metadata.");
+      }
+
+      // commit tx
+      try {
+        wallet2->commit_tx(ptx);
+      } catch (const std::exception& e) {
+        throw runtime_error("Failed to commit tx.");
+      }
+
+      // collect resulting id
+      txIds.push_back(epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(ptx.tx)));
+    }
+
+    // return relayed tx ids
+    return txIds;
   }
 
   void MoneroWallet::save() {
