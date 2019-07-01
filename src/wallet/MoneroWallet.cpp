@@ -1237,9 +1237,9 @@ namespace monero {
     cout << "createPaymentUri()" << endl;
 
     // validate request
-    if (request.destinations.size() != 1) throw runtime_error("Must provide exactly one destination to send funds");
-    if (request.destinations.at(0)->address == boost::none) throw runtime_error("Must provide destination address");
-    if (request.destinations.at(0)->amount == boost::none) throw runtime_error("Must provide destination amount");
+    if (request.destinations.size() != 1) throw runtime_error("Cannot make URI from supplied parameters: must provide exactly one destination to send funds");
+    if (request.destinations.at(0)->address == boost::none) throw runtime_error("Cannot make URI from supplied parameters: must provide destination address");
+    if (request.destinations.at(0)->amount == boost::none) throw runtime_error("Cannot make URI from supplied parameters: must provide destination amount");
 
     // prepare wallet2 params
     string address = request.destinations.at(0)->address.get();
