@@ -980,15 +980,15 @@ namespace monero {
 //     * @param label is the label to set for the tag
 //     */
 //    public void setAccountTagLabel(string tag, string label);
-//
-//    /**
-//     * Creates a payment URI from a send configuration.
-//     *
-//     * @param request specifies configuration for a potential tx
-//     * @return is the payment uri
-//     */
-//    public string createPaymentUri(MoneroSendRequest request);
-//
+
+    /**
+     * Creates a payment URI from a send configuration.
+     *
+     * @param request specifies configuration for a potential tx
+     * @return is the payment uri
+     */
+    string createPaymentUri(const MoneroSendRequest& request);
+
 //    /**
 //     * Parses a payment URI to a send configuration.
 //     *

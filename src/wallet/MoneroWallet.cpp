@@ -1233,6 +1233,11 @@ namespace monero {
     return txIds;
   }
 
+  string MoneroWallet::createPaymentUri(const MoneroSendRequest& request) {
+    cout << "createPaymentUri()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
   void MoneroWallet::save() {
     cout << "save()" << endl;
     save("", "");
