@@ -595,6 +595,16 @@ namespace monero {
     return string(wipeablePassword.data(), wipeablePassword.size());
   }
 
+  string MoneroWallet::getPublicViewKey() const {
+    cout << "getPrivateViewKey()" << endl;
+    return epee::string_tools::pod_to_hex(wallet2->get_account().get_keys().m_account_address.m_view_public_key);
+  }
+
+  string MoneroWallet::getPrivateViewKey() const {
+    cout << "getPrivateViewKey()" << endl;
+    return epee::string_tools::pod_to_hex(wallet2->get_account().get_keys().m_view_secret_key);
+  }
+
   void MoneroWallet::setListener(boost::optional<MoneroWalletListener&> listener) {
     cout << "setListener()" << endl;
     wallet2Listener->setWalletListener(listener);
