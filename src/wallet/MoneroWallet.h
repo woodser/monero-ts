@@ -748,15 +748,15 @@ namespace monero {
 //     * @return string is the id of the relayed tx
 //     */
 //    public string relayTx(string txMetadata);
-//
-//    /**
-//     * Relay transactions previously created without relaying.
-//     *
-//     * @param txMetadatas are transaction metadata previously created without relaying
-//     * @return List<string> are ids of the relayed txs
-//     */
-//    public List<string> relayTxs(Collection<string> txMetadatas);
-//
+
+    /**
+     * Relay transactions previously created without relaying.
+     *
+     * @param txMetadatas are transaction metadata previously created without relaying
+     * @return the ids of the relayed txs
+     */
+    vector<string> relayTxs(const vector<string>& txMetadatas);
+
 //    /**
 //     * Get a transaction note.
 //     *

@@ -1145,7 +1145,7 @@ namespace monero {
       throw runtime_error("need to handle error filling response!");
     }
 
-    // build sent txs from results
+    // build sent txs from results  // TODO: break this into separate utility function
     vector<shared_ptr<MoneroTxWallet>> txs;
     auto txIdsIter = txIds.begin();
     auto txKeysIter = txKeys.begin();
@@ -1193,6 +1193,11 @@ namespace monero {
       txMetadatasIter++;
     }
     return txs;
+  }
+
+  vector<string> MoneroWallet::relayTxs(const vector<string>& txMetadatas) {
+    cout << "relayTxs()" << endl;
+    throw runtime_error("Not implemented");
   }
 
   void MoneroWallet::save() {
