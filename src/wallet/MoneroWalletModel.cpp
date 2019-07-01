@@ -389,13 +389,23 @@ namespace monero {
     return node;
   }
 
-  // -------------------------- MONERO INTEGRATED ADDRESS -----------------------------
+  // ---------------------- MONERO INTEGRATED ADDRESS -------------------------
 
   boost::property_tree::ptree MoneroIntegratedAddress::toPropertyTree() const {
     boost::property_tree::ptree node;
     node.put("standardAddress", standardAddress);
     node.put("paymentId", paymentId);
     node.put("integratedAddress", integratedAddress);
+    return node;
+  }
+
+  // -------------------- MONERO KEY IMAGE IMPORT RESULT ----------------------
+
+  boost::property_tree::ptree MoneroKeyImageImportResult::toPropertyTree() const {
+    boost::property_tree::ptree node;
+    if (height != boost::none) node.put("height", *height);
+    if (spentAmount != boost::none) node.put("spentAmount", *spentAmount);
+    if (unspentAmount != boost::none) node.put("unspentAmount", *unspentAmount);
     return node;
   }
 }

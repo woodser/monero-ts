@@ -254,4 +254,15 @@ namespace monero {
 
     boost::property_tree::ptree toPropertyTree() const;
   };
+
+  /**
+   * Models results from importing key images.
+   */
+  struct MoneroKeyImageImportResult : public SerializableStruct {
+    boost::optional<uint64_t> height;
+    boost::optional<uint64_t> spentAmount;
+    boost::optional<uint64_t> unspentAmount;
+
+    boost::property_tree::ptree toPropertyTree() const;
+  };
 }
