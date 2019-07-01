@@ -574,14 +574,14 @@ namespace monero {
      * @return List<MoneroOutputWallet> are wallet outputs per the request
      */
     vector<shared_ptr<MoneroOutputWallet>> getOutputs(const MoneroOutputRequest& request) const;
-//
-//    /**
-//     * Get all signed key images.
-//     *
-//     * @return the wallet's signed key images
-//     */
-//    public List<MoneroKeyImage> getKeyImages();
-//
+
+    /**
+     * Get all signed key images.
+     *
+     * @return the wallet's signed key images
+     */
+    vector<shared_ptr<MoneroKeyImage>> getKeyImages() const;
+
 //    /**
 //     * Import signed key images and verify their spent status.
 //     *

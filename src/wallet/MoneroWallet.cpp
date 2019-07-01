@@ -1074,6 +1074,14 @@ namespace monero {
     return vouts;
   }
 
+  vector<shared_ptr<MoneroKeyImage>> MoneroWallet::getKeyImages() const {
+    cout << "MoneroWallet::getKeyImages()" << endl;
+
+    vector<shared_ptr<MoneroKeyImage>> keyImages;
+    throw runtime_error("Not implemented");
+    //return keyImages;
+  }
+
   vector<shared_ptr<MoneroTxWallet>> MoneroWallet::sendSplit(const MoneroSendRequest& request) {
     cout << "MoneroWallet::sendSplit(request)" << endl;
     cout << "MoneroSendRequest: " << request.serialize() << endl;
