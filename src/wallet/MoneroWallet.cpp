@@ -1077,9 +1077,16 @@ namespace monero {
   vector<shared_ptr<MoneroKeyImage>> MoneroWallet::getKeyImages() const {
     cout << "MoneroWallet::getKeyImages()" << endl;
 
+    // build key images from wallet2 types
     vector<shared_ptr<MoneroKeyImage>> keyImages;
-    throw runtime_error("Not implemented");
-    //return keyImages;
+    std::pair<size_t, std::vector<std::pair<crypto::key_image, crypto::signature>>> ski = wallet2->export_key_images(true);
+    for (size_t n = 0; n < ski.second.size(); ++n) {
+      shared_ptr<MoneroKeyImage> keyImage = shared_ptr<MoneroKeyImage>(new MoneroKeyImage());
+      keyImages.push_back(keyImage);
+      keyImage->hex = epee::string_tools::pod_to_hex(ski.second[n].first);
+      keyImage->signature = epee::string_tools::pod_to_hex(ski.second[n].second);
+    }
+    return keyImages;
   }
 
   vector<shared_ptr<MoneroTxWallet>> MoneroWallet::sendSplit(const MoneroSendRequest& request) {
