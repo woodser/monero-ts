@@ -1091,7 +1091,29 @@ namespace monero {
 
   shared_ptr<MoneroKeyImageImportResult> MoneroWallet::importKeyImages(const vector<shared_ptr<MoneroKeyImage>>& keyImages) {
     cout << "MoneroWallet::importKeyImages()" << endl;
-    throw runtime_error("Not implemented");
+
+    // validate and prepare key images for wallet2
+    std::vector<std::pair<crypto::key_image, crypto::signature>> ski;
+    ski.resize(keyImages.size());
+    for (size_t n = 0; n < ski.size(); ++n) {
+      if (!epee::string_tools::hex_to_pod(keyImages[n]->hex.get(), ski[n].first)) {
+        throw runtime_error("failed to parse key image");
+      }
+      if (!epee::string_tools::hex_to_pod(keyImages[n]->signature.get(), ski[n].second)) {
+        throw runtime_error("failed to parse signature");
+      }
+    }
+
+    // import key images
+    uint64_t spent = 0, unspent = 0;
+    uint64_t height = wallet2->import_key_images(ski, 0, spent, unspent); // TODO: use offset? refer to wallet_rpc_server::on_import_key_images() req.offset
+
+    // translate results
+    shared_ptr<MoneroKeyImageImportResult> result = shared_ptr<MoneroKeyImageImportResult>(new MoneroKeyImageImportResult());
+    result->height = height;
+    result->spentAmount = spent;
+    result->unspentAmount = unspent;
+    return result;
   }
 
   vector<shared_ptr<MoneroTxWallet>> MoneroWallet::sendSplit(const MoneroSendRequest& request) {
