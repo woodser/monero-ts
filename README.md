@@ -171,7 +171,7 @@ This project is licensed under MIT.
 
 ## Donate
 
-If you want to support this project, please consider donating.  Thank you!
+Please consider donating if you want to support this project.  Thank you!
 
 <p align="center">
 	<img src="donate.png" width="150" height="150"/>
