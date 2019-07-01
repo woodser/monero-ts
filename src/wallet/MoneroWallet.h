@@ -987,16 +987,16 @@ namespace monero {
      * @param request specifies configuration for a potential tx
      * @return is the payment uri
      */
-    string createPaymentUri(const MoneroSendRequest& request);
+    string createPaymentUri(const MoneroSendRequest& request) const;
 
-//    /**
-//     * Parses a payment URI to a send configuration.
-//     *
-//     * @param uri is the payment uri to parse
-//     * @return the send configuration parsed from the uri
-//     */
-//    public MoneroSendRequest parsePaymentUri(string uri);
-//
+    /**
+     * Parses a payment URI to a send request.
+     *
+     * @param uri is the payment uri to parse
+     * @return the send request parsed from the uri
+     */
+    shared_ptr<MoneroSendRequest> parsePaymentUri(const string& uri) const;
+
 //    /**
 //     * Export all outputs in hex format.
 //     *

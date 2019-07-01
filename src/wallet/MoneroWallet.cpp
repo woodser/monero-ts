@@ -1233,7 +1233,7 @@ namespace monero {
     return txIds;
   }
 
-  string MoneroWallet::createPaymentUri(const MoneroSendRequest& request) {
+  string MoneroWallet::createPaymentUri(const MoneroSendRequest& request) const {
     cout << "createPaymentUri()" << endl;
 
     // validate request
@@ -1241,7 +1241,7 @@ namespace monero {
     if (request.destinations.at(0)->address == boost::none) throw runtime_error("Must provide destination address");
     if (request.destinations.at(0)->amount == boost::none) throw runtime_error("Must provide destination amount");
 
-    // prep params for wallet2
+    // prepare wallet2 params
     string address = request.destinations.at(0)->address.get();
     string paymentId = request.paymentId == boost::none ? "" : request.paymentId.get();
     uint64_t amount = request.destinations.at(0)->amount.get();
@@ -1253,6 +1253,34 @@ namespace monero {
     string uri = wallet2->make_uri(address, paymentId, amount, note, recipientName, error);
     if (uri.empty()) throw runtime_error("Cannot make URI from supplied parameters: " + error);
     return uri;
+  }
+
+  shared_ptr<MoneroSendRequest> MoneroWallet::parsePaymentUri(const string& uri) const {
+    cout << "parsePaymentUri(" << uri << ")" << endl;
+
+    // decode uri to parameters
+    string address;
+    string paymentId;
+    uint64_t amount = 0;
+    string note;
+    string recipientName;
+    vector<string> unknownParameters;
+    string error;
+    if (!wallet2->parse_uri(uri, address, paymentId, amount, note, recipientName, unknownParameters, error)) {
+      throw runtime_error("Error parsing URI: " + error);
+    }
+
+    // initialize send request
+    shared_ptr<MoneroSendRequest> sendRequest = shared_ptr<MoneroSendRequest>(new MoneroSendRequest());
+    shared_ptr<MoneroDestination> destination = shared_ptr<MoneroDestination>(new MoneroDestination());
+    sendRequest->destinations.push_back(destination);
+    if (!address.empty()) destination->address = address;
+    destination->amount = amount;
+    if (!paymentId.empty()) sendRequest->paymentId = paymentId;
+    if (!note.empty()) sendRequest->note = note;
+    if (!recipientName.empty()) sendRequest->recipientName = recipientName;
+    if (!unknownParameters.empty()) cout << "WARNING in MoneroWallet::parsePaymentUri: URI contains unknown parameters which are discarded" << endl; // TODO: return unknown parameters?
+    return sendRequest;
   }
 
   void MoneroWallet::save() {
