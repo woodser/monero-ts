@@ -213,12 +213,12 @@ namespace monero {
      */
     string getLanguage() const;
 
-    //    /**
-    //     * Get a list of available languages for the wallet's seed.
-    //     *
-    //     * @return the available languages for the wallet's seed
-    //     */
-    //    virtual string[] getLanguages() const;
+    /**
+     * Get a list of available languages for the wallet's seed.
+     *
+     * @return the available languages for the wallet's seed
+     */
+    vector<string> getLanguages() const;
 
     /**
      * Get the wallet's primary address.

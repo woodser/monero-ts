@@ -517,6 +517,12 @@ namespace monero {
     return wallet2->get_seed_language();
   }
 
+  vector<string> MoneroWallet::getLanguages() const {
+    vector<string> languages;
+    crypto::ElectrumWords::get_language_list(languages, true);
+    return languages;
+  }
+
   // get primary address (default impl?)
 
   string MoneroWallet::getAddress(uint32_t accountIdx, uint32_t subaddressIdx) const {
