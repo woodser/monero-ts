@@ -1287,6 +1287,41 @@ namespace monero {
     return txIds;
   }
 
+  string MoneroWallet::getTxNote(const string& txId) const {
+    cout << "MoneroWallet::getTxNote" << endl;
+    cryptonote::blobdata txBlob;
+    if (!epee::string_tools::parse_hexstr_to_binbuff(txId, txBlob) || txBlob.size() != sizeof(crypto::hash)) {
+      throw runtime_error("TX ID has invalid format");
+    }
+    crypto::hash txHash = *reinterpret_cast<const crypto::hash*>(txBlob.data());
+    return wallet2->get_tx_note(txHash);
+  }
+
+  void MoneroWallet::setTxNote(const string& txId, const string& note) {
+    cout << "MoneroWallet::setTxNote" << endl;
+    cryptonote::blobdata txBlob;
+    if (!epee::string_tools::parse_hexstr_to_binbuff(txId, txBlob) || txBlob.size() != sizeof(crypto::hash)) {
+      throw runtime_error("TX ID has invalid format");
+    }
+    crypto::hash txHash = *reinterpret_cast<const crypto::hash*>(txBlob.data());
+    wallet2->set_tx_note(txHash, note);
+  }
+
+  vector<string> MoneroWallet::getTxNotes(const vector<string>& txIds) const {
+    cout << "MoneroWallet::getTxNotes()" << endl;
+    vector<string> txNotes;
+    for (const auto& txId : txIds) txNotes.push_back(getTxNote(txId));
+    return txNotes;
+  }
+
+  void MoneroWallet::setTxNotes(const vector<string>& txIds, const vector<string>& txNotes) {
+    cout << "MoneroWallet::setTxNotes()" << endl;
+    if (txIds.size() != txNotes.size()) throw runtime_error("Different amount of txids and notes");
+    for (int i = 0; i < txIds.size(); i++) {
+      setTxNote(txIds[i], txNotes[i]);
+    }
+  }
+
   string MoneroWallet::createPaymentUri(const MoneroSendRequest& request) const {
     cout << "createPaymentUri()" << endl;
 

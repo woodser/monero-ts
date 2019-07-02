@@ -759,38 +759,38 @@ namespace monero {
      */
     vector<string> relayTxs(const vector<string>& txMetadatas);
 
-//    /**
-//     * Get a transaction note.
-//     *
-//     * @param txId specifies the transaction to get the note of
-//     * @return the tx note
-//     */
-//    public string getTxNote(string txId);
-//
-//    /**
-//     * Set a note for a specific transaction.
-//     *
-//     * @param txId specifies the transaction
-//     * @param note specifies the note
-//     */
-//    public void setTxNote(string txId, string note);
-//
-//    /**
-//     * Get notes for multiple transactions.
-//     *
-//     * @param txIds identify the transactions to get notes for
-//     * @preturns notes for the transactions
-//     */
-//    public List<string> getTxNotes(Collection<string> txIds);
-//
-//    /**
-//     * Set notes for multiple transactions.
-//     *
-//     * @param txIds specify the transactions to set notes for
-//     * @param notes are the notes to set for the transactions
-//     */
-//    public void setTxNotes(Collection<string> txIds, Collection<string> notes);
-//
+    /**
+     * Get a transaction note.
+     *
+     * @param txId specifies the transaction to get the note of
+     * @return the tx note
+     */
+    string getTxNote(const string& txId) const;
+
+    /**
+     * Set a note for a specific transaction.
+     *
+     * @param txId specifies the transaction
+     * @param note specifies the note
+     */
+    void setTxNote(const string& txId, const string& note);
+
+    /**
+     * Get notes for multiple transactions.
+     *
+     * @param txIds identify the transactions to get notes for
+     * @preturns notes for the transactions
+     */
+    vector<string> getTxNotes(const vector<string>& txIds) const;
+
+    /**
+     * Set notes for multiple transactions.
+     *
+     * @param txIds specify the transactions to set notes for
+     * @param notes are the notes to set for the transactions
+     */
+    void setTxNotes(const vector<string>& txIds, const vector<string>& notes);
+
 //    /**
 //     * Sign a message.
 //     *
