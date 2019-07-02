@@ -1337,6 +1337,10 @@ namespace monero {
     return sendRequest;
   }
 
+  string MoneroWallet::getOutputsHex() const {
+    return epee::string_tools::buff_to_hex_nodelimer(wallet2->export_outputs_to_str(true));
+  }
+
   void MoneroWallet::save() {
     cout << "save()" << endl;
     wallet2->store();

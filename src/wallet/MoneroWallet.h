@@ -999,13 +999,13 @@ namespace monero {
      */
     shared_ptr<MoneroSendRequest> parsePaymentUri(const string& uri) const;
 
-//    /**
-//     * Export all outputs in hex format.
-//     *
-//     * @return all outputs in hex format, null if no outputs
-//     */
-//    public string getOutputsHex();
-//
+    /**
+     * Export all outputs in hex format.
+     *
+     * @return all outputs in hex format, empty string if no outputs
+     */
+    string getOutputsHex() const;
+
 //    /**
 //     * Import outputs in hex format.
 //     *
