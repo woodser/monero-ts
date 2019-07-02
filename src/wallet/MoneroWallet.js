@@ -647,7 +647,7 @@ class MoneroWallet {
   /**
    * Generate a signature to prove an available amount in an account.
    * 
-   * @param {int} accountIdx specifies the account to prove contains an available amount
+   * @param {int} accountIdx specifies the account to prove ownership of the amount
    * @param {BigInteger} amount is the minimum amount to prove as available in the account
    * @param {string} message is a message to include with the signature to further authenticate the proof (optional)
    * @return {string} is the reserve proof signature
