@@ -4,7 +4,7 @@ This project is a lightweight wrapper of [Monero Core's](https://github.com/mone
 
 The purpose of this library is to define common daemon and wallet types for a general-purpose Monero API which focuses on ease-of-use.  
 
-This library may be used to build Monero-related GUI applications, libraries in other languages (e.g. [monero-java](https://github.com/monero-ecosystem/monero-java-rpc)), or a comformant REST/JSON-RPC API.
+This library may be used to build Monero-related GUI applications, libraries in other languages (e.g. [monero-java](https://github.com/monero-ecosystem/monero-java-rpc)), or a conformant REST/JSON-RPC API.
 
 ## Building a Dynamic / Shared Library
 
