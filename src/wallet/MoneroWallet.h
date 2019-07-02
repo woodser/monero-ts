@@ -809,24 +809,24 @@ namespace monero {
      */
     bool verify(const string& msg, const string& address, const string& signature) const;
 
-//    /**
-//     * Get a transaction's secret key from its id.
-//     *
-//     * @param txId is the transaction's id
-//     * @return is the transaction's secret key
-//     */
-//    public string getTxKey(string txId);
-//
-//    /**
-//     * Check a transaction in the blockchain with its secret key.
-//     *
-//     * @param txId specifies the transaction to check
-//     * @param txKey is the transaction's secret key
-//     * @param address is the destination public address of the transaction
-//     * @return the result of the check
-//     */
-//    public MoneroCheckTx checkTxKey(string txId, string txKey, string address);
-//
+    /**
+     * Get a transaction's secret key from its id.
+     *
+     * @param txId is the transaction's id
+     * @return is the transaction's secret key
+     */
+    string getTxKey(const string& txId) const;
+
+    /**
+     * Check a transaction in the blockchain with its secret key.
+     *
+     * @param txId specifies the transaction to check
+     * @param txKey is the transaction's secret key
+     * @param address is the destination public address of the transaction
+     * @return the result of the check
+     */
+    shared_ptr<MoneroCheckTx> checkTxKey(const string& txId, const string& txKey, const string& address) const;
+
 //    /**
 //     * Get a transaction signature to prove it.
 //     *
@@ -834,84 +834,84 @@ namespace monero {
 //     * @param address is the destination public address of the transaction
 //     * @return the transaction signature
 //     */
-//    public string getTxProof(string txId, string address);
-//
-//    /**
-//     * Get a transaction signature to prove it.
-//     *
-//     * @param txId specifies the transaction to prove
-//     * @param address is the destination public address of the transaction
-//     * @param message is a message to include with the signature to further authenticate the proof (optional)
-//     * @return the transaction signature
-//     */
-//    public string getTxProof(string txId, string address, string message);
-//
-//    /**
-//     * Prove a transaction by checking its signature.
-//     *
-//     * @param txId specifies the transaction to prove
-//     * @param address is the destination public address of the transaction
-//     * @param message is a message included with the signature to further authenticate the proof (optional)
-//     * @param signature is the transaction signature to confirm
-//     * @return the result of the check
-//     */
-//    public MoneroCheckTx checkTxProof(string txId, string address, string message, string signature);
-//
+//    string getTxProof(const string& txId, const string& address) const;
+
+    /**
+     * Get a transaction signature to prove it.
+     *
+     * @param txId specifies the transaction to prove
+     * @param address is the destination public address of the transaction
+     * @param message is a message to include with the signature to further authenticate the proof (optional)
+     * @return the transaction signature
+     */
+    string getTxProof(const string& txId, const string& address, const string& message) const;
+
+    /**
+     * Prove a transaction by checking its signature.
+     *
+     * @param txId specifies the transaction to prove
+     * @param address is the destination public address of the transaction
+     * @param message is a message included with the signature to further authenticate the proof (optional)
+     * @param signature is the transaction signature to confirm
+     * @return the result of the check
+     */
+    shared_ptr<MoneroCheckTx> checkTxProof(const string& txId, const string& address, const string& message, const string& signature) const;
+
 //    /**
 //     * Generate a signature to prove a spend. Unlike proving a transaction, it does not require the destination public address.
 //     *
 //     * @param txId specifies the transaction to prove
 //     * @return the transaction signature
 //     */
-//    public string getSpendProof(string txId);
-//
-//    /**
-//     * Generate a signature to prove a spend. Unlike proving a transaction, it does not require the destination public address.
-//     *
-//     * @param txId specifies the transaction to prove
-//     * @param message is a message to include with the signature to further authenticate the proof (optional)
-//     * @return the transaction signature
-//     */
-//    public string getSpendProof(string txId, string message);
-//
-//    /**
-//     * Prove a spend using a signature. Unlike proving a transaction, it does not require the destination public address.
-//     *
-//     * @param txId specifies the transaction to prove
-//     * @param message is a message included with the signature to further authenticate the proof (optional)
-//     * @param signature is the transaction signature to confirm
-//     * @return true if the signature is good, false otherwise
-//     */
-//    public boolean checkSpendProof(string txId, string message, string signature);
-//
-//    /**
-//     * Generate a signature to prove the entire balance of the wallet.
-//     *
-//     * @param message is a message included with the signature to further authenticate the proof (optional)
-//     * @return the reserve proof signature
-//     */
-//    public string getReserveProofWallet(string message);
-//
-//    /**
-//     * Generate a signature to prove an available amount in an account.
-//     *
-//     * @param accountIdx specifies the account to prove contains an available amount
-//     * @param amount is the minimum amount to prove as available in the account
-//     * @param message is a message to include with the signature to further authenticate the proof (optional)
-//     * @return the reserve proof signature
-//     */
-//    public string getReserveProofAccount(int accountIdx, BigInteger amount, string message);
-//
-//    /**
-//     * Proves a wallet has a disposable reserve using a signature.
-//     *
-//     * @param address is the public wallet address
-//     * @param message is a message included with the signature to further authenticate the proof (optional)
-//     * @param signature is the reserve proof signature to check
-//     * @return the result of checking the signature proof
-//     */
-//    public MoneroCheckReserve checkReserveProof(string address, string message, string signature);
-//
+//    string getSpendProof(const string& txId) const;
+
+    /**
+     * Generate a signature to prove a spend. Unlike proving a transaction, it does not require the destination public address.
+     *
+     * @param txId specifies the transaction to prove
+     * @param message is a message to include with the signature to further authenticate the proof (optional)
+     * @return the transaction signature
+     */
+    string getSpendProof(const string& txId, const string& message) const;
+
+    /**
+     * Prove a spend using a signature. Unlike proving a transaction, it does not require the destination public address.
+     *
+     * @param txId specifies the transaction to prove
+     * @param message is a message included with the signature to further authenticate the proof (optional)
+     * @param signature is the transaction signature to confirm
+     * @return true if the signature is good, false otherwise
+     */
+    bool checkSpendProof(const string& txId, const string& message, const string& signature) const;
+
+    /**
+     * Generate a signature to prove the entire balance of the wallet.
+     *
+     * @param message is a message included with the signature to further authenticate the proof (optional)
+     * @return the reserve proof signature
+     */
+    string getReserveProofWallet(const string& message) const;
+
+    /**
+     * Generate a signature to prove an available amount in an account.
+     *
+     * @param accountIdx specifies the account to prove contains an available amount
+     * @param amount is the minimum amount to prove as available in the account
+     * @param message is a message to include with the signature to further authenticate the proof (optional)
+     * @return the reserve proof signature
+     */
+    string getReserveProofAccount(uint32_t accountIdx, uint64_t amount, const string& message) const;
+
+    /**
+     * Proves a wallet has a disposable reserve using a signature.
+     *
+     * @param address is the public wallet address
+     * @param message is a message included with the signature to further authenticate the proof (optional)
+     * @param signature is the reserve proof signature to check
+     * @return the result of checking the signature proof
+     */
+    shared_ptr<MoneroCheckReserve> checkReserveProof(const string& address, const string& message, const string& signature) const;
+
 //    /**
 //     * Get all address book entries.
 //     *

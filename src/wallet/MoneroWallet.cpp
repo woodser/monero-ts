@@ -1351,6 +1351,51 @@ namespace monero {
     return wallet2->verify(msg, info.address, signature);
   }
 
+  string MoneroWallet::getTxKey(const string& txId) const {
+    cout << "MoneroWallet::getTxKey()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
+  shared_ptr<MoneroCheckTx> MoneroWallet::checkTxKey(const string& txId, const string& txKey, const string& address) const {
+    cout << "MoneroWallet::checkTxKey()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
+  string MoneroWallet::getTxProof(const string& txId, const string& address, const string& message) const {
+    cout << "MoneroWallet::getTxProof()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
+  shared_ptr<MoneroCheckTx> MoneroWallet::checkTxProof(const string& txId, const string& address, const string& message, const string& signature) const {
+    cout << "MoneroWallet::checkTxProof()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
+  string MoneroWallet::getSpendProof(const string& txId, const string& message) const {
+    cout << "MoneroWallet::getSpendProof()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
+  bool MoneroWallet::checkSpendProof(const string& txId, const string& message, const string& signature) const {
+    cout << "MoneroWallet::checkSpendProof()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
+  string MoneroWallet::getReserveProofWallet(const string& message) const {
+    cout << "MoneroWallet::getReserveProofWallet()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
+  string MoneroWallet::getReserveProofAccount(uint32_t accountIdx, uint64_t amount, const string& message) const {
+    cout << "MoneroWallet::getReserveProofAccount()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
+  shared_ptr<MoneroCheckReserve> MoneroWallet::checkReserveProof(const string& address, const string& message, const string& signature) const {
+    cout << "MoneroWallet::checkReserveProof()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
   string MoneroWallet::createPaymentUri(const MoneroSendRequest& request) const {
     cout << "createPaymentUri()" << endl;
 

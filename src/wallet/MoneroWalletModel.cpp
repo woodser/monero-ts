@@ -408,4 +408,31 @@ namespace monero {
     if (unspentAmount != boost::none) node.put("unspentAmount", *unspentAmount);
     return node;
   }
+
+  // ----------------------------- MONERO CHECK -------------------------------
+
+  boost::property_tree::ptree MoneroCheck::toPropertyTree() const {
+    boost::property_tree::ptree node;
+    node.put("isGood", isGood);
+    return node;
+  }
+
+  // --------------------------- MONERO CHECK TX ------------------------------
+
+  boost::property_tree::ptree MoneroCheckTx::toPropertyTree() const {
+    boost::property_tree::ptree node;
+    node.put("inTxPool", inTxPool);
+    node.put("numConfirmations", numConfirmations);
+    node.put("receivedAmount", receivedAmount);
+    return node;
+  }
+
+  // ------------------------ MONERO CHECK RESERVE ----------------------------
+
+  boost::property_tree::ptree MoneroCheckReserve::toPropertyTree() const {
+    boost::property_tree::ptree node;
+    node.put("totalAmount", totalAmount);
+    node.put("unconfirmedSpentAmount", unconfirmedSpentAmount);
+    return node;
+  }
 }

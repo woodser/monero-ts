@@ -265,4 +265,34 @@ namespace monero {
 
     boost::property_tree::ptree toPropertyTree() const;
   };
+
+  /**
+   * Base class for results from checking a transaction or reserve proof.
+   */
+  struct MoneroCheck : public SerializableStruct {
+    bool isGood;
+
+    boost::property_tree::ptree toPropertyTree() const;
+  };
+
+  /**
+   * Results from checking a transaction key.
+   */
+  struct MoneroCheckTx : public MoneroCheck {
+    bool inTxPool;
+    uint64_t numConfirmations;
+    uint64_t receivedAmount;
+
+    boost::property_tree::ptree toPropertyTree() const;
+  };
+
+  /**
+   * Results from checking a reserve proof.
+   */
+  struct MoneroCheckReserve : public MoneroCheck  {
+    uint64_t totalAmount;
+    uint64_t unconfirmedSpentAmount;
+
+    boost::property_tree::ptree toPropertyTree() const;
+  };
 }
