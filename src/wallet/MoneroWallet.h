@@ -791,24 +791,24 @@ namespace monero {
      */
     void setTxNotes(const vector<string>& txIds, const vector<string>& notes);
 
-//    /**
-//     * Sign a message.
-//     *
-//     * @param msg is the message to sign
-//     * @return the signature
-//     */
-//    public string sign(string msg);
-//
-//    /**
-//     * Verify a signature on a message.
-//     *
-//     * @param msg is the signed message
-//     * @param address is the signing address
-//     * @param signature is the signature
-//     * @return true if the signature is good, false otherwise
-//     */
-//    public boolean verify(string msg, string address, string signature);
-//
+    /**
+     * Sign a message.
+     *
+     * @param msg is the message to sign
+     * @return the signature
+     */
+    string sign(const string& msg) const;
+
+    /**
+     * Verify a signature on a message.
+     *
+     * @param msg is the signed message
+     * @param address is the signing address
+     * @param signature is the signature
+     * @return true if the signature is good, false otherwise
+     */
+    bool verify(const string& msg, const string& address, const string& signature) const;
+
 //    /**
 //     * Get a transaction's secret key from its id.
 //     *

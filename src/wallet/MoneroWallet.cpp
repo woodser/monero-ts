@@ -1322,6 +1322,35 @@ namespace monero {
     }
   }
 
+  string MoneroWallet::sign(const string& msg) const {
+    return wallet2->sign(msg);
+  }
+
+  bool MoneroWallet::verify(const string& msg, const string& address, const string& signature) const {
+
+    // validate and parse address or url
+    cryptonote::address_parse_info info;
+    string err;
+    if (!get_account_address_from_str_or_url(info, wallet2->nettype(), address,
+      [&err](const std::string &url, const std::vector<std::string> &addresses, bool dnssec_valid)->std::string {
+        if (!dnssec_valid) {
+          err = std::string("Invalid DNSSEC for ") + url;
+          return {};
+        }
+        if (addresses.empty()) {
+          err = std::string("No Monero address found at ") + url;
+          return {};
+        }
+        return addresses[0];
+      }))
+    {
+      throw runtime_error(err);
+    }
+
+    // verify and return result
+    return wallet2->verify(msg, info.address, signature);
+  }
+
   string MoneroWallet::createPaymentUri(const MoneroSendRequest& request) const {
     cout << "createPaymentUri()" << endl;
 
