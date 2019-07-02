@@ -420,7 +420,7 @@ namespace monero {
   // --------------------------- MONERO CHECK TX ------------------------------
 
   boost::property_tree::ptree MoneroCheckTx::toPropertyTree() const {
-    boost::property_tree::ptree node;
+    boost::property_tree::ptree node = MoneroCheck::toPropertyTree();;
     node.put("inTxPool", inTxPool);
     node.put("numConfirmations", numConfirmations);
     node.put("receivedAmount", receivedAmount);
@@ -430,7 +430,7 @@ namespace monero {
   // ------------------------ MONERO CHECK RESERVE ----------------------------
 
   boost::property_tree::ptree MoneroCheckReserve::toPropertyTree() const {
-    boost::property_tree::ptree node;
+    boost::property_tree::ptree node = MoneroCheck::toPropertyTree();
     node.put("totalAmount", totalAmount);
     node.put("unconfirmedSpentAmount", unconfirmedSpentAmount);
     return node;

@@ -1291,7 +1291,7 @@ namespace monero {
     cout << "MoneroWallet::getTxNote" << endl;
     cryptonote::blobdata txBlob;
     if (!epee::string_tools::parse_hexstr_to_binbuff(txId, txBlob) || txBlob.size() != sizeof(crypto::hash)) {
-      throw runtime_error("TX ID has invalid format");
+      throw runtime_error("Tx id has invalid format");
     }
     crypto::hash txHash = *reinterpret_cast<const crypto::hash*>(txBlob.data());
     return wallet2->get_tx_note(txHash);
@@ -1301,7 +1301,7 @@ namespace monero {
     cout << "MoneroWallet::setTxNote" << endl;
     cryptonote::blobdata txBlob;
     if (!epee::string_tools::parse_hexstr_to_binbuff(txId, txBlob) || txBlob.size() != sizeof(crypto::hash)) {
-      throw runtime_error("TX ID has invalid format");
+      throw runtime_error("Tx id has invalid format");
     }
     crypto::hash txHash = *reinterpret_cast<const crypto::hash*>(txBlob.data());
     wallet2->set_tx_note(txHash, note);
@@ -1353,47 +1353,164 @@ namespace monero {
 
   string MoneroWallet::getTxKey(const string& txId) const {
     cout << "MoneroWallet::getTxKey()" << endl;
-    throw runtime_error("Not implemented");
+
+    // validate and parse tx id hash
+    crypto::hash txHash;
+    if (!epee::string_tools::hex_to_pod(txId, txHash)) {
+      throw runtime_error("Tx id has invalid format");
+    }
+
+    // get tx key and additional keys
+    crypto::secret_key txKey;
+    std::vector<crypto::secret_key> additionalTxKeys;
+    if (!wallet2->get_tx_key(txHash, txKey, additionalTxKeys)) {
+      throw runtime_error("No tx secret key is stored for this tx");
+    }
+
+    // build and return tx key with additional keys
+    epee::wipeable_string s;
+    s += epee::to_hex::wipeable_string(txKey);
+    for (size_t i = 0; i < additionalTxKeys.size(); ++i) {
+      s += epee::to_hex::wipeable_string(additionalTxKeys[i]);
+    }
+    return std::string(s.data(), s.size());
   }
 
   shared_ptr<MoneroCheckTx> MoneroWallet::checkTxKey(const string& txId, const string& txKey, const string& address) const {
     cout << "MoneroWallet::checkTxKey()" << endl;
-    throw runtime_error("Not implemented");
+
+    // validate and parse tx id
+    crypto::hash txHash;
+    if (!epee::string_tools::hex_to_pod(txId, txHash)) {
+      throw runtime_error("Tx id has invalid format");
+    }
+
+    // validate and parse tx key
+    epee::wipeable_string tx_key_str = txKey;
+    if (tx_key_str.size() < 64 || tx_key_str.size() % 64) {
+      throw runtime_error("Tx key has invalid format");
+    }
+    const char *data = tx_key_str.data();
+    crypto::secret_key tx_key;
+    if (!epee::wipeable_string(data, 64).hex_to_pod(unwrap(unwrap(tx_key)))) {
+      throw runtime_error("Tx key has invalid format");
+    }
+
+    // get additional keys
+    size_t offset = 64;
+    std::vector<crypto::secret_key> additionalTxKeys;
+    while (offset < tx_key_str.size()) {
+      additionalTxKeys.resize(additionalTxKeys.size() + 1);
+      if (!epee::wipeable_string(data + offset, 64).hex_to_pod(unwrap(unwrap(additionalTxKeys.back())))) {
+        throw runtime_error("Tx key has invalid format");
+      }
+      offset += 64;
+    }
+
+    // validate and parse address
+    cryptonote::address_parse_info info;
+    if (!get_account_address_from_str(info, wallet2->nettype(), address)) {
+      throw runtime_error("Invalid address");
+    }
+
+    // initialize and return tx check using wallet2
+    shared_ptr<MoneroCheckTx> checkTx = shared_ptr<MoneroCheckTx>(new MoneroCheckTx());
+    wallet2->check_tx_key(txHash, tx_key, additionalTxKeys, info.address, checkTx->receivedAmount, checkTx->inTxPool, checkTx->numConfirmations);
+    checkTx->isGood = true; // check is good if we get this far
+    return checkTx;
   }
 
   string MoneroWallet::getTxProof(const string& txId, const string& address, const string& message) const {
-    cout << "MoneroWallet::getTxProof()" << endl;
-    throw runtime_error("Not implemented");
+
+    // validate and parse tx id hash
+    crypto::hash txHash;
+    if (!epee::string_tools::hex_to_pod(txId, txHash)) {
+      throw runtime_error("Tx id has invalid format");
+    }
+
+    // validate and parse address
+    cryptonote::address_parse_info info;
+    if (!get_account_address_from_str(info, wallet2->nettype(), address)) {
+      throw runtime_error("Invalid address");
+    }
+
+    // get tx proof
+    return wallet2->get_tx_proof(txHash, info.address, info.is_subaddress, message);
   }
 
   shared_ptr<MoneroCheckTx> MoneroWallet::checkTxProof(const string& txId, const string& address, const string& message, const string& signature) const {
     cout << "MoneroWallet::checkTxProof()" << endl;
-    throw runtime_error("Not implemented");
+
+    // validate and parse tx id
+    crypto::hash txHash;
+    if (!epee::string_tools::hex_to_pod(txId, txHash)) {
+      throw runtime_error("Tx id has invalid format");
+    }
+
+    // validate and parse address
+    cryptonote::address_parse_info info;
+    if (!get_account_address_from_str(info, wallet2->nettype(), address)) {
+      throw runtime_error("Invalid address");
+    }
+
+    // initialize and return tx check using wallet2
+    shared_ptr<MoneroCheckTx> checkTx = shared_ptr<MoneroCheckTx>(new MoneroCheckTx());
+    checkTx->isGood = wallet2->check_tx_proof(txHash, info.address, info.is_subaddress, message, signature, checkTx->receivedAmount, checkTx->inTxPool, checkTx->numConfirmations);
+    return checkTx;
   }
 
   string MoneroWallet::getSpendProof(const string& txId, const string& message) const {
     cout << "MoneroWallet::getSpendProof()" << endl;
-    throw runtime_error("Not implemented");
+
+    // validate and parse tx id
+    crypto::hash txHash;
+    if (!epee::string_tools::hex_to_pod(txId, txHash)) {
+      throw runtime_error("Tx id has invalid format");
+    }
+
+    // return spend proof signature
+    return wallet2->get_spend_proof(txHash, message);
   }
 
   bool MoneroWallet::checkSpendProof(const string& txId, const string& message, const string& signature) const {
     cout << "MoneroWallet::checkSpendProof()" << endl;
-    throw runtime_error("Not implemented");
+
+    // validate and parse tx id
+    crypto::hash txHash;
+    if (!epee::string_tools::hex_to_pod(txId, txHash)) {
+      throw runtime_error("Tx id has invalid format");
+    }
+
+    // check spend proof
+    wallet2->check_spend_proof(txHash, message, signature);
   }
 
   string MoneroWallet::getReserveProofWallet(const string& message) const {
     cout << "MoneroWallet::getReserveProofWallet()" << endl;
-    throw runtime_error("Not implemented");
+    boost::optional<std::pair<uint32_t, uint64_t>> account_minreserve;
+    return wallet2->get_reserve_proof(account_minreserve, message);
   }
 
   string MoneroWallet::getReserveProofAccount(uint32_t accountIdx, uint64_t amount, const string& message) const {
     cout << "MoneroWallet::getReserveProofAccount()" << endl;
-    throw runtime_error("Not implemented");
+    boost::optional<std::pair<uint32_t, uint64_t>> account_minreserve;
+    if (accountIdx >= wallet2->get_num_subaddress_accounts()) throw runtime_error("Account index is out of bound");
+    account_minreserve = std::make_pair(accountIdx, amount);
+    return wallet2->get_reserve_proof(account_minreserve, message);
   }
 
   shared_ptr<MoneroCheckReserve> MoneroWallet::checkReserveProof(const string& address, const string& message, const string& signature) const {
     cout << "MoneroWallet::checkReserveProof()" << endl;
-    throw runtime_error("Not implemented");
+
+    // validate and parse input
+    cryptonote::address_parse_info info;
+    if (!get_account_address_from_str(info, wallet2->nettype(), address)) throw runtime_error("Invalid address");
+    if (info.is_subaddress) throw runtime_error("Address must not be a subaddress");
+
+    // initialize check reserve using wallet2
+    shared_ptr<MoneroCheckReserve> checkReserve = shared_ptr<MoneroCheckReserve>(new MoneroCheckReserve());
+    checkReserve->isGood = wallet2->check_reserve_proof(info.address, message, signature, checkReserve->totalAmount, checkReserve->unconfirmedSpentAmount);
+    return checkReserve;
   }
 
   string MoneroWallet::createPaymentUri(const MoneroSendRequest& request) const {
