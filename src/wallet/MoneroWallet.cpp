@@ -1341,6 +1341,18 @@ namespace monero {
     return epee::string_tools::buff_to_hex_nodelimer(wallet2->export_outputs_to_str(true));
   }
 
+  int MoneroWallet::importOutputsHex(const string& outputsHex) {
+
+    // validate and parse hex data
+    cryptonote::blobdata blob;
+    if (!epee::string_tools::parse_hexstr_to_binbuff(outputsHex, blob)) {
+      throw runtime_error("Failed to parse hex.");
+    }
+
+    // import hex and return result
+    return wallet2->import_outputs_from_str(blob);
+  }
+
   void MoneroWallet::save() {
     cout << "save()" << endl;
     wallet2->store();

@@ -1,3 +1,4 @@
+handle e.g. restricted or hw wallet limitations in wallet_rpc_server, e.g. on_import_outputs?
 wallet2 does not automatically save unlike rpc; where to invoke save and how to separate for tests?
 throw MoneroErrors instead of runtime_errors
 toPropertyTree() should take node as parameter; optimize memory elsewhere

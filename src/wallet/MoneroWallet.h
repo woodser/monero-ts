@@ -1006,14 +1006,14 @@ namespace monero {
      */
     string getOutputsHex() const;
 
-//    /**
-//     * Import outputs in hex format.
-//     *
-//     * @param outputsHex are outputs in hex format
-//     * @return the number of outputs imported
-//     */
-//    public int importOutputsHex(string outputsHex);
-//
+    /**
+     * Import outputs in hex format.
+     *
+     * @param outputsHex are outputs in hex format
+     * @return the number of outputs imported
+     */
+    int importOutputsHex(const string& outputsHex);
+
 //    /**
 //     * Set an arbitrary attribute.
 //     *
