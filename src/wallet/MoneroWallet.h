@@ -168,7 +168,7 @@ namespace monero {
     /**
      * TODO
      */
-    MoneroRpcConnection getDaemonConnection() const;
+    shared_ptr<MoneroRpcConnection> getDaemonConnection() const;
 
     /**
      * TODO

@@ -492,14 +492,15 @@ namespace monero {
     wallet2->set_daemon(uri, login, isTrusted);
   }
 
-  MoneroRpcConnection MoneroWallet::getDaemonConnection() const {
-    MoneroRpcConnection connection;
-    if (!wallet2->get_daemon_address().empty()) connection.uri = wallet2->get_daemon_address();
+  shared_ptr<MoneroRpcConnection> MoneroWallet::getDaemonConnection() const {
+    if (wallet2->get_daemon_address().empty()) return nullptr;
+    shared_ptr<MoneroRpcConnection> connection = shared_ptr<MoneroRpcConnection>(new MoneroRpcConnection());
+    if (!wallet2->get_daemon_address().empty()) connection->uri = wallet2->get_daemon_address();
     if (wallet2->get_daemon_login()) {
-      if (!wallet2->get_daemon_login()->username.empty()) connection.username = wallet2->get_daemon_login()->username;
+      if (!wallet2->get_daemon_login()->username.empty()) connection->username = wallet2->get_daemon_login()->username;
       epee::wipeable_string wipeablePassword = wallet2->get_daemon_login()->password;
       string password = string(wipeablePassword.data(), wipeablePassword.size());
-      if (!password.empty()) connection.password = password;
+      if (!password.empty()) connection->password = password;
     }
     return connection;
   }
@@ -640,8 +641,9 @@ namespace monero {
 
   uint64_t MoneroWallet::getChainHeight() const {
     string err;
+    if (getDaemonConnection() == nullptr) throw runtime_error("No connection to daemon");
     uint64_t chainHeight = wallet2->get_daemon_blockchain_height(err);
-    if (!err.empty()) throw runtime_error(err);	// TODO: proper monero error
+    if (!err.empty()) throw runtime_error(err);
     return chainHeight;
   }
 
