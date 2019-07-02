@@ -651,6 +651,10 @@ namespace monero {
     return wallet2->get_refresh_from_block_height();
   }
 
+  void MoneroWallet::setRestoreHeight(uint64_t restoreHeight) {
+    wallet2->set_refresh_from_block_height(restoreHeight);
+  }
+
   uint64_t MoneroWallet::getBalance() const {
     return wallet2->balance_all();
   }
@@ -1329,17 +1333,12 @@ namespace monero {
 
   void MoneroWallet::save() {
     cout << "save()" << endl;
-    save("", "");
+    wallet2->store();
   }
 
-  void MoneroWallet::save(string path, string password) {
-    cout << "save(" << path << ", " << password << ")" << endl;
-    if (path.empty()) {
-      if (wallet2->get_wallet_file().empty()) throw runtime_error("Must specify path to save wallet because wallet has not been previously saved");
-      else wallet2->store();
-    } else {
-      wallet2->store_to(path, password);
-    }
+  void MoneroWallet::moveTo(string path, string password) {
+    cout << "moveTo(" << path << ", " << password << ")" << endl;
+    wallet2->store_to(path, password);
   }
 
   void MoneroWallet::close() {
