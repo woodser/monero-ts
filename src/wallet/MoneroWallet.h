@@ -1037,12 +1037,12 @@ namespace monero {
      * @param backgroundMining specifies if mining should occur in the background (optional)
      * @param ignoreBattery specifies if the battery should be ignored for mining (optional)
      */
-    void startMining(uint64_t numThreads, boost::optional<bool> backgroundMining, boost::optional<bool> ignoreBattery);
+    void startMining(boost::optional<uint64_t> numThreads, boost::optional<bool> backgroundMining, boost::optional<bool> ignoreBattery);
 
-//    /**
-//     * Stop mining.
-//     */
-//    public void stopMining();
+    /**
+     * Stop mining.
+     */
+    void stopMining();
 
     /**
      * Save the wallet at its current path.

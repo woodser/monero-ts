@@ -1599,9 +1599,44 @@ namespace monero {
     return wallet2->import_outputs_from_str(blob);
   }
 
-  void MoneroWallet::startMining(uint64_t numThreads, boost::optional<bool> backgroundMining, boost::optional<bool> ignoreBattery) {
+  void MoneroWallet::startMining(boost::optional<uint64_t> numThreads, boost::optional<bool> backgroundMining, boost::optional<bool> ignoreBattery) {
     cout << "startMining" << endl;
-    throw runtime_error("Not implemented");
+
+    // only mine on trusted daemon
+    if (!wallet2->is_trusted_daemon()) throw runtime_error("This command requires a trusted daemon.");
+
+    // set defaults
+    if (numThreads == boost::none || numThreads.get() == 0) numThreads = 1;  // TODO: how to autodetect optimal number of threads which daemon supports?
+    if (backgroundMining == boost::none) backgroundMining = false;
+    if (ignoreBattery == boost::none) ignoreBattery = false;
+
+    // validate num threads
+    size_t max_mining_threads_count = (std::max)(tools::get_max_concurrency(), static_cast<unsigned>(2));
+    if (numThreads.get() < 1 || max_mining_threads_count < numThreads.get()) {
+      throw runtime_error("The specified number of threads is inappropriate.");
+    }
+
+    // start mining on daemon
+    cryptonote::COMMAND_RPC_START_MINING::request daemon_req = AUTO_VAL_INIT(daemon_req);
+    daemon_req.miner_address = wallet2->get_account().get_public_address_str(wallet2->nettype());
+    daemon_req.threads_count = numThreads.get();
+    daemon_req.do_background_mining = backgroundMining.get();
+    daemon_req.ignore_battery       = ignoreBattery.get();
+    cryptonote::COMMAND_RPC_START_MINING::response daemon_res;
+    bool r = wallet2->invoke_http_json("/start_mining", daemon_req, daemon_res);
+    if (!r || daemon_res.status != CORE_RPC_STATUS_OK) {
+      throw runtime_error("Couldn't start mining due to unknown error.");
+    }
+  }
+
+  void MoneroWallet::stopMining() {
+    cout << "stopMining()" << endl;
+    cryptonote::COMMAND_RPC_STOP_MINING::request daemon_req;
+    cryptonote::COMMAND_RPC_STOP_MINING::response daemon_res;
+    bool r = wallet2->invoke_http_json("/stop_mining", daemon_req, daemon_res);
+    if (!r || daemon_res.status != CORE_RPC_STATUS_OK) {
+      throw runtime_error("Couldn't stop mining due to unknown error.");
+    }
   }
 
   void MoneroWallet::save() {
