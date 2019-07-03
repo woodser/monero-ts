@@ -382,6 +382,11 @@ namespace monero {
     return node;
   }
 
+  void MoneroOutputWallet::merge(const shared_ptr<MoneroOutputWallet>& self, const shared_ptr<MoneroOutputWallet>& other) {
+    cout << "MoneroOutputWallet::merge()" << endl;
+    throw runtime_error("not implemented");
+  }
+
   // ------------------------ MONERO OUTPUT REQUEST ---------------------------
 
   boost::property_tree::ptree MoneroOutputRequest::toPropertyTree() const {

@@ -161,6 +161,7 @@ namespace monero {
     boost::optional<bool> isFrozen;
 
     boost::property_tree::ptree toPropertyTree() const;
+    void merge(const shared_ptr<MoneroOutputWallet>& self, const shared_ptr<MoneroOutputWallet>& other);
   };
 
   /**
