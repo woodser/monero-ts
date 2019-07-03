@@ -1029,16 +1029,16 @@ namespace monero {
 //     * @return the attribute's value
 //     */
 //    public string getAttribute(string key);
-//
-//    /**
-//     * Start mining.
-//     *
-//     * @param numThreads is the number of threads created for mining (optional)
-//     * @param backgroundMining specifies if mining should occur in the background (optional)
-//     * @param ignoreBattery specifies if the battery should be ignored for mining (optional)
-//     */
-//    public void startMining(Integer numThreads, Boolean backgroundMining, Boolean ignoreBattery);
-//
+
+    /**
+     * Start mining.
+     *
+     * @param numThreads is the number of threads created for mining (optional)
+     * @param backgroundMining specifies if mining should occur in the background (optional)
+     * @param ignoreBattery specifies if the battery should be ignored for mining (optional)
+     */
+    void startMining(uint64_t numThreads, boost::optional<bool> backgroundMining, boost::optional<bool> ignoreBattery);
+
 //    /**
 //     * Stop mining.
 //     */

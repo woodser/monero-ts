@@ -1599,6 +1599,11 @@ namespace monero {
     return wallet2->import_outputs_from_str(blob);
   }
 
+  void MoneroWallet::startMining(uint64_t numThreads, boost::optional<bool> backgroundMining, boost::optional<bool> ignoreBattery) {
+    cout << "startMining" << endl;
+    throw runtime_error("Not implemented");
+  }
+
   void MoneroWallet::save() {
     cout << "save()" << endl;
     wallet2->store();
