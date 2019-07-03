@@ -15,6 +15,15 @@ namespace monero {
 
   // ----------------------- UNDECLARED PRIVATE HELPERS -----------------------
 
+  void mergeIncomingTransfer(const vector<shared_ptr<MoneroIncomingTransfer>> transfers, const shared_ptr<MoneroIncomingTransfer>& transfer) {
+    for (const shared_ptr<MoneroIncomingTransfer>& aTransfer : transfers) {
+      if (aTransfer->accountIndex.get() == transfer->accountIndex.get() && aTransfer->subaddressIndex.get() == transfer->subaddressIndex.get()) {
+        aTransfer->merge(aTransfer, transfer);
+        return;
+      }
+    }
+  }
+
   // ---------------------------- MONERO ACCOUNT ------------------------------
 
   // TODO: ensure return object is not being unecessarily copied
@@ -63,6 +72,31 @@ namespace monero {
 
   bool MoneroTxWallet::getIsIncoming() const {
     return !incomingTransfers.empty();
+  }
+
+  void MoneroTxWallet::merge(const shared_ptr<MoneroTxWallet>& self, const shared_ptr<MoneroTxWallet>& other) {
+    cout << "MoneroTxWallet::merge()" << endl;
+    if (this != self.get()) throw runtime_error("this != self");
+    if (self == other) return;
+    MoneroTx::merge(self, other);
+
+    // merge wallet extensions
+    note = MoneroUtils::reconcile(note, other->note);
+
+    // merge incoming transfers
+    if (!other->incomingTransfers.empty()) {
+      for (const shared_ptr<MoneroIncomingTransfer>& transfer : other->incomingTransfers) {
+        transfer->tx = self;
+        mergeIncomingTransfer(self->incomingTransfers, transfer);
+      }
+    }
+
+    // merge outgoing transfer
+    if (other->outgoingTransfer != boost::none) {
+      other->outgoingTransfer.get()->tx = self;
+      if (self->outgoingTransfer == boost::none) self->outgoingTransfer = other->outgoingTransfer;
+      else self->outgoingTransfer.get()->merge(self->outgoingTransfer.get(), other->outgoingTransfer.get());
+    }
   }
 
   //boost::property_tree::ptree MoneroUtils::txWalletToPropertyTree(const MoneroTxWallet& tx) {
@@ -197,6 +231,11 @@ namespace monero {
     return node;
   }
 
+  void MoneroTransfer::merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other) {
+    cout << "MoneroTransfer::merge" << endl;
+    throw runtime_error("Not implemented");
+  }
+
   // ----------------------- MONERO INCOMING TRANSFER -------------------------
 
   boost::optional<bool> MoneroIncomingTransfer::getIsIncoming() const { return true; }
@@ -207,6 +246,11 @@ namespace monero {
     if (subaddressIndex != boost::none) node.put("subaddressIndex", *subaddressIndex);
     if (address != boost::none) node.put("address", *address);
     return node;
+  }
+
+  void MoneroIncomingTransfer::merge(const shared_ptr<MoneroIncomingTransfer>& self, const shared_ptr<MoneroIncomingTransfer>& other) {
+    cout << "MoneroIncomingTransfer::merge" << endl;
+    throw runtime_error("Not implemented");
   }
 
   // ----------------------- MONERO OUTGOING TRANSFER -------------------------
@@ -220,6 +264,11 @@ namespace monero {
     if (!addresses.empty()) node.add_child("addresses", MoneroUtils::toPropertyTree(addresses));
     if (!destinations.empty()) node.add_child("destinations", MoneroUtils::toPropertyTree(destinations));
     return node;
+  }
+
+  void MoneroOutgoingTransfer::merge(const shared_ptr<MoneroOutgoingTransfer>& self, const shared_ptr<MoneroOutgoingTransfer>& other) {
+    cout << "MoneroIncomingTransfer::merge" << endl;
+    throw runtime_error("Not implemented");
   }
 
   // ----------------------- MONERO TRANSFER REQUEST --------------------------
