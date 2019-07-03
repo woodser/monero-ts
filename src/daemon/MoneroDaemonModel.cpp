@@ -80,6 +80,10 @@ namespace monero {
     return node;
   }
 
+  void MoneroBlock::merge(const shared_ptr<MoneroBlockHeader>& self, const shared_ptr<MoneroBlockHeader>& other) {
+    merge(static_pointer_cast<MoneroBlock>(self), static_pointer_cast<MoneroBlock>(other));
+  }
+
   void MoneroBlock::merge(const shared_ptr<MoneroBlock>& self, const shared_ptr<MoneroBlock>& other) {
     if (this != self.get()) throw runtime_error("this != self");
     if (self == other) return;

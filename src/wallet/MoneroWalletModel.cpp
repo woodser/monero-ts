@@ -74,6 +74,11 @@ namespace monero {
     return !incomingTransfers.empty();
   }
 
+  void MoneroTxWallet::merge(const shared_ptr<MoneroTx>& self, const shared_ptr<MoneroTx>& other) {
+    cout << "MoneroTxWallet::merge(MoneroTx&, MoneroTx&)" << endl;
+    merge(static_pointer_cast<MoneroTxWallet>(self), static_pointer_cast<MoneroTxWallet>(other));
+  }
+
   void MoneroTxWallet::merge(const shared_ptr<MoneroTxWallet>& self, const shared_ptr<MoneroTxWallet>& other) {
     cout << "MoneroTxWallet::merge()" << endl;
     if (this != self.get()) throw runtime_error("this != self");
@@ -380,11 +385,6 @@ namespace monero {
     if (isUnlocked != boost::none) node.put("isUnlocked", *isUnlocked);
     if (isFrozen != boost::none) node.put("isFrozen", *isFrozen);
     return node;
-  }
-
-  void MoneroOutputWallet::merge(const shared_ptr<MoneroOutputWallet>& self, const shared_ptr<MoneroOutputWallet>& other) {
-    cout << "MoneroOutputWallet::merge()" << endl;
-    throw runtime_error("not implemented");
   }
 
   // ------------------------ MONERO OUTPUT REQUEST ---------------------------
