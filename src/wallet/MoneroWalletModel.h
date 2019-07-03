@@ -114,6 +114,7 @@ namespace monero {
 
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
+    void merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other);
     void merge(const shared_ptr<MoneroIncomingTransfer>& self, const shared_ptr<MoneroIncomingTransfer>& other);
   };
 
@@ -127,6 +128,7 @@ namespace monero {
 
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
+    void merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other);
     void merge(const shared_ptr<MoneroOutgoingTransfer>& self, const shared_ptr<MoneroOutgoingTransfer>& other);
   };
 

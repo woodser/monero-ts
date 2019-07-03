@@ -253,6 +253,10 @@ namespace monero {
     return node;
   }
 
+  void MoneroIncomingTransfer::merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other) {
+    merge(static_pointer_cast<MoneroIncomingTransfer>(self), static_pointer_cast<MoneroIncomingTransfer>(other));
+  }
+
   void MoneroIncomingTransfer::merge(const shared_ptr<MoneroIncomingTransfer>& self, const shared_ptr<MoneroIncomingTransfer>& other) {
     cout << "MoneroIncomingTransfer::merge" << endl;
     throw runtime_error("Not implemented");
@@ -269,6 +273,10 @@ namespace monero {
     if (!addresses.empty()) node.add_child("addresses", MoneroUtils::toPropertyTree(addresses));
     if (!destinations.empty()) node.add_child("destinations", MoneroUtils::toPropertyTree(destinations));
     return node;
+  }
+
+  void MoneroOutgoingTransfer::merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other) {
+    merge(static_pointer_cast<MoneroOutgoingTransfer>(self), static_pointer_cast<MoneroOutgoingTransfer>(other));
   }
 
   void MoneroOutgoingTransfer::merge(const shared_ptr<MoneroOutgoingTransfer>& self, const shared_ptr<MoneroOutgoingTransfer>& other) {

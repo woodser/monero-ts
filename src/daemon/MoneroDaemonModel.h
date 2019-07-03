@@ -145,7 +145,7 @@ namespace monero {
 
     boost::property_tree::ptree toPropertyTree() const;
     boost::optional<uint64_t> getHeight() const;
-    virtual void merge(const shared_ptr<MoneroTx>& self, const shared_ptr<MoneroTx>& other) ;
+    virtual void merge(const shared_ptr<MoneroTx>& self, const shared_ptr<MoneroTx>& other);
   };
 
   /**
