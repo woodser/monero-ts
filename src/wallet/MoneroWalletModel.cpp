@@ -75,14 +75,16 @@ namespace monero {
   }
 
   void MoneroTxWallet::merge(const shared_ptr<MoneroTx>& self, const shared_ptr<MoneroTx>& other) {
-    cout << "MoneroTxWallet::merge(MoneroTx&, MoneroTx&)" << endl;
+    //cout << "MoneroTxWallet::merge(MoneroTx&, MoneroTx&)" << endl;
     merge(static_pointer_cast<MoneroTxWallet>(self), static_pointer_cast<MoneroTxWallet>(other));
   }
 
   void MoneroTxWallet::merge(const shared_ptr<MoneroTxWallet>& self, const shared_ptr<MoneroTxWallet>& other) {
-    cout << "MoneroTxWallet::merge()" << endl;
+    //cout << "MoneroTxWallet::merge()" << endl;
     if (this != self.get()) throw runtime_error("this != self");
     if (self == other) return;
+
+    // merge base classes
     MoneroTx::merge(self, other);
 
     // merge wallet extensions
@@ -237,8 +239,19 @@ namespace monero {
   }
 
   void MoneroTransfer::merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other) {
-    cout << "MoneroTransfer::merge" << endl;
-    throw runtime_error("Not implemented");
+    //cout << "MoneroTransfer::merge" << endl;
+    if (this != self.get()) throw runtime_error("this != self");
+    if (self == other) return;
+
+    // merge txs if they're different which comes back to merging transfers
+    if (tx != other->tx) tx->merge(tx, other->tx);
+
+    // otherwise merge transfer fields
+    else {
+      amount = MoneroUtils::reconcile(amount, other->amount);
+      accountIndex = MoneroUtils::reconcile(accountIndex, other->accountIndex);
+      numSuggestedConfirmations = MoneroUtils::reconcile(numSuggestedConfirmations, other->numSuggestedConfirmations, boost::none, boost::none, false);
+    }
   }
 
   // ----------------------- MONERO INCOMING TRANSFER -------------------------
@@ -258,8 +271,11 @@ namespace monero {
   }
 
   void MoneroIncomingTransfer::merge(const shared_ptr<MoneroIncomingTransfer>& self, const shared_ptr<MoneroIncomingTransfer>& other) {
-    cout << "MoneroIncomingTransfer::merge" << endl;
-    throw runtime_error("Not implemented");
+    //cout << "MoneroIncomingTransfer::merge" << endl;
+    if (self == other) return;
+    MoneroTransfer::merge(self, other);
+    subaddressIndex = MoneroUtils::reconcile(subaddressIndex, other->subaddressIndex);
+    address = MoneroUtils::reconcile(address, other->address);
   }
 
   // ----------------------- MONERO OUTGOING TRANSFER -------------------------
@@ -280,8 +296,12 @@ namespace monero {
   }
 
   void MoneroOutgoingTransfer::merge(const shared_ptr<MoneroOutgoingTransfer>& self, const shared_ptr<MoneroOutgoingTransfer>& other) {
-    cout << "MoneroIncomingTransfer::merge" << endl;
-    throw runtime_error("Not implemented");
+    //cout << "MoneroOutgoingTransfer::merge" << endl;
+    if (self == other) return;
+    MoneroTransfer::merge(self, other);
+    subaddressIndices = MoneroUtils::reconcile(subaddressIndices, other->subaddressIndices);
+    addresses = MoneroUtils::reconcile(addresses, other->addresses);
+    destinations = MoneroUtils::reconcile(destinations, other->destinations);
   }
 
   // ----------------------- MONERO TRANSFER REQUEST --------------------------
