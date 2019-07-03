@@ -421,9 +421,9 @@ namespace monero {
 
   boost::property_tree::ptree MoneroCheckTx::toPropertyTree() const {
     boost::property_tree::ptree node = MoneroCheck::toPropertyTree();;
-    node.put("inTxPool", inTxPool);
-    node.put("numConfirmations", numConfirmations);
-    node.put("receivedAmount", receivedAmount);
+    if (inTxPool != boost::none) node.put("inTxPool", *inTxPool);
+    if (numConfirmations != boost::none) node.put("numConfirmations", *numConfirmations);
+    if (receivedAmount != boost::none) node.put("receivedAmount", *receivedAmount);
     return node;
   }
 
@@ -431,8 +431,8 @@ namespace monero {
 
   boost::property_tree::ptree MoneroCheckReserve::toPropertyTree() const {
     boost::property_tree::ptree node = MoneroCheck::toPropertyTree();
-    node.put("totalAmount", totalAmount);
-    node.put("unconfirmedSpentAmount", unconfirmedSpentAmount);
+    if (totalAmount != boost::none) node.put("totalAmount", *totalAmount);
+    if (unconfirmedSpentAmount != boost::none) node.put("unconfirmedSpentAmount", *unconfirmedSpentAmount);
     return node;
   }
 }

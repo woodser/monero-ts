@@ -1291,7 +1291,7 @@ namespace monero {
     cout << "MoneroWallet::getTxNote" << endl;
     cryptonote::blobdata txBlob;
     if (!epee::string_tools::parse_hexstr_to_binbuff(txId, txBlob) || txBlob.size() != sizeof(crypto::hash)) {
-      throw runtime_error("Tx id has invalid format");
+      throw runtime_error("TX ID has invalid format");
     }
     crypto::hash txHash = *reinterpret_cast<const crypto::hash*>(txBlob.data());
     return wallet2->get_tx_note(txHash);
@@ -1301,7 +1301,7 @@ namespace monero {
     cout << "MoneroWallet::setTxNote" << endl;
     cryptonote::blobdata txBlob;
     if (!epee::string_tools::parse_hexstr_to_binbuff(txId, txBlob) || txBlob.size() != sizeof(crypto::hash)) {
-      throw runtime_error("Tx id has invalid format");
+      throw runtime_error("TX ID has invalid format");
     }
     crypto::hash txHash = *reinterpret_cast<const crypto::hash*>(txBlob.data());
     wallet2->set_tx_note(txHash, note);
@@ -1357,7 +1357,7 @@ namespace monero {
     // validate and parse tx id hash
     crypto::hash txHash;
     if (!epee::string_tools::hex_to_pod(txId, txHash)) {
-      throw runtime_error("Tx id has invalid format");
+      throw runtime_error("TX ID has invalid format");
     }
 
     // get tx key and additional keys
@@ -1382,7 +1382,7 @@ namespace monero {
     // validate and parse tx id
     crypto::hash txHash;
     if (!epee::string_tools::hex_to_pod(txId, txHash)) {
-      throw runtime_error("Tx id has invalid format");
+      throw runtime_error("TX ID has invalid format");
     }
 
     // validate and parse tx key
@@ -1414,9 +1414,15 @@ namespace monero {
     }
 
     // initialize and return tx check using wallet2
+    uint64_t receivedAmount;
+    bool inTxPool;
+    uint64_t numConfirmations;
+    wallet2->check_tx_key(txHash, tx_key, additionalTxKeys, info.address, receivedAmount, inTxPool, numConfirmations);
     shared_ptr<MoneroCheckTx> checkTx = shared_ptr<MoneroCheckTx>(new MoneroCheckTx());
-    wallet2->check_tx_key(txHash, tx_key, additionalTxKeys, info.address, checkTx->receivedAmount, checkTx->inTxPool, checkTx->numConfirmations);
     checkTx->isGood = true; // check is good if we get this far
+    checkTx->receivedAmount = receivedAmount;
+    checkTx->inTxPool = inTxPool;
+    checkTx->numConfirmations = numConfirmations;
     return checkTx;
   }
 
@@ -1425,7 +1431,7 @@ namespace monero {
     // validate and parse tx id hash
     crypto::hash txHash;
     if (!epee::string_tools::hex_to_pod(txId, txHash)) {
-      throw runtime_error("Tx id has invalid format");
+      throw runtime_error("TX ID has invalid format");
     }
 
     // validate and parse address
@@ -1444,7 +1450,7 @@ namespace monero {
     // validate and parse tx id
     crypto::hash txHash;
     if (!epee::string_tools::hex_to_pod(txId, txHash)) {
-      throw runtime_error("Tx id has invalid format");
+      throw runtime_error("TX ID has invalid format");
     }
 
     // validate and parse address
@@ -1455,7 +1461,15 @@ namespace monero {
 
     // initialize and return tx check using wallet2
     shared_ptr<MoneroCheckTx> checkTx = shared_ptr<MoneroCheckTx>(new MoneroCheckTx());
-    checkTx->isGood = wallet2->check_tx_proof(txHash, info.address, info.is_subaddress, message, signature, checkTx->receivedAmount, checkTx->inTxPool, checkTx->numConfirmations);
+    uint64_t receivedAmount;
+    bool inTxPool;
+    uint64_t numConfirmations;
+    checkTx->isGood = wallet2->check_tx_proof(txHash, info.address, info.is_subaddress, message, signature, receivedAmount, inTxPool, numConfirmations);
+    if (checkTx->isGood) {
+      checkTx->receivedAmount = receivedAmount;
+      checkTx->inTxPool = inTxPool;
+      checkTx->numConfirmations = numConfirmations;
+    }
     return checkTx;
   }
 
@@ -1465,7 +1479,7 @@ namespace monero {
     // validate and parse tx id
     crypto::hash txHash;
     if (!epee::string_tools::hex_to_pod(txId, txHash)) {
-      throw runtime_error("Tx id has invalid format");
+      throw runtime_error("TX ID has invalid format");
     }
 
     // return spend proof signature
@@ -1478,11 +1492,11 @@ namespace monero {
     // validate and parse tx id
     crypto::hash txHash;
     if (!epee::string_tools::hex_to_pod(txId, txHash)) {
-      throw runtime_error("Tx id has invalid format");
+      throw runtime_error("TX ID has invalid format");
     }
 
     // check spend proof
-    wallet2->check_spend_proof(txHash, message, signature);
+    return wallet2->check_spend_proof(txHash, message, signature);
   }
 
   string MoneroWallet::getReserveProofWallet(const string& message) const {
@@ -1509,7 +1523,13 @@ namespace monero {
 
     // initialize check reserve using wallet2
     shared_ptr<MoneroCheckReserve> checkReserve = shared_ptr<MoneroCheckReserve>(new MoneroCheckReserve());
-    checkReserve->isGood = wallet2->check_reserve_proof(info.address, message, signature, checkReserve->totalAmount, checkReserve->unconfirmedSpentAmount);
+    uint64_t totalAmount;
+    uint64_t unconfirmedSpentAmount;
+    checkReserve->isGood = wallet2->check_reserve_proof(info.address, message, signature, totalAmount, unconfirmedSpentAmount);
+    if (checkReserve->isGood) {
+      checkReserve->totalAmount = totalAmount;
+      checkReserve->unconfirmedSpentAmount = unconfirmedSpentAmount;
+    }
     return checkReserve;
   }
 

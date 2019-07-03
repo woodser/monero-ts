@@ -279,9 +279,9 @@ namespace monero {
    * Results from checking a transaction key.
    */
   struct MoneroCheckTx : public MoneroCheck {
-    bool inTxPool;
-    uint64_t numConfirmations;
-    uint64_t receivedAmount;
+    boost::optional<bool> inTxPool;
+    boost::optional<uint64_t> numConfirmations;
+    boost::optional<uint64_t> receivedAmount;
 
     boost::property_tree::ptree toPropertyTree() const;
   };
@@ -290,8 +290,8 @@ namespace monero {
    * Results from checking a reserve proof.
    */
   struct MoneroCheckReserve : public MoneroCheck  {
-    uint64_t totalAmount;
-    uint64_t unconfirmedSpentAmount;
+    boost::optional<uint64_t> totalAmount;
+    boost::optional<uint64_t> unconfirmedSpentAmount;
 
     boost::property_tree::ptree toPropertyTree() const;
   };
