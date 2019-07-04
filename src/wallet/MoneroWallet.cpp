@@ -489,8 +489,8 @@ namespace monero {
     try { isTrusted = tools::is_local_address(uri); }	// wallet is trusted iff local
     catch (const exception &e) { }
 
-    // set wallet2 daemon connection
-    wallet2->set_daemon(uri, login, isTrusted);
+    // init wallet2 and set daemon connection
+    if (!wallet2->init(uri, login)) throw runtime_error("Failed to initialize wallet with daemon connection");
   }
 
   shared_ptr<MoneroRpcConnection> MoneroWallet::getDaemonConnection() const {
