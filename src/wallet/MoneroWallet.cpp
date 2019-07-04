@@ -1250,6 +1250,12 @@ namespace monero {
     return txs;
   }
 
+  shared_ptr<MoneroTxWallet> MoneroWallet::sweepOutput(const MoneroSendRequest& request) const  {
+    cout << "sweepOutput()" << endl;
+    cout << "MoneroSendRequest: " << request.serialize() << endl;
+    throw runtime_error("Not implemented");
+  }
+
   vector<string> MoneroWallet::relayTxs(const vector<string>& txMetadatas) {
     cout << "relayTxs()" << endl;
 

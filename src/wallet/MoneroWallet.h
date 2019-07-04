@@ -663,15 +663,15 @@ namespace monero {
 //     * @return the resulting transactions
 //     */
 //    public List<MoneroTxWallet> sendSplit(int accountIndex, string address, BigInteger sendAmount, MoneroSendPriority priority);
-//
-//    /**
-//     * Sweep an output with a given key image.
-//     *
-//     * @param request configures the sweep transaction
-//     * @return the resulting transaction from sweeping an output
-//     */
-//    public MoneroTxWallet sweepOutput(MoneroSendRequest request);
-//
+
+    /**
+     * Sweep an output with a given key image.
+     *
+     * @param request configures the sweep transaction
+     * @return the resulting transaction from sweeping an output
+     */
+    shared_ptr<MoneroTxWallet> sweepOutput(const MoneroSendRequest& request) const;
+
 //    /**
 //     * Sweep an output with a given key image.
 //     *
