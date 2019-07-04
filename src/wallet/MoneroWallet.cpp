@@ -1231,7 +1231,7 @@ namespace monero {
       tx->mixin = request.mixin;
       tx->unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
       if (tx->isRelayed.get()) tx->lastRelayedTimestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
-      outTransfer->accountIndex = *request.accountIndex;
+      outTransfer->accountIndex = request.accountIndex;
       if (request.subaddressIndices.size() == 1) outTransfer->subaddressIndices.push_back(request.subaddressIndices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
       outTransfer->destinations = request.destinations;
 
@@ -1306,8 +1306,58 @@ namespace monero {
       throw runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
-    // TODO: translate to MoneroTxWallet
-    throw runtime_error("Not implemented");
+    // build sent txs from results  // TODO: use common utility with sendSplit() to avoid code duplication
+    vector<shared_ptr<MoneroTxWallet>> txs;
+    auto txIdsIter = txIds.begin();
+    auto txKeysIter = txKeys.begin();
+    auto txAmountsIter = txAmounts.begin();
+    auto txFeesIter = txFees.begin();
+    auto txBlobsIter = txBlobs.begin();
+    auto txMetadatasIter = txMetadatas.begin();
+    while (txIdsIter != txIds.end()) {
+
+      // init tx with outgoing transfer from filled values
+      shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+      txs.push_back(tx);
+      tx->id = *txIdsIter;
+      tx->key = *txKeysIter;
+      tx->fee = *txFeesIter;
+      tx->fullHex = *txBlobsIter;
+      tx->metadata = *txMetadatasIter;
+      shared_ptr<MoneroOutgoingTransfer> outTransfer = shared_ptr<MoneroOutgoingTransfer>(new MoneroOutgoingTransfer());
+      tx->outgoingTransfer = outTransfer;
+      outTransfer->amount = *txAmountsIter;
+
+      // init other known fields
+      tx->paymentId = request.paymentId;
+      tx->isConfirmed = false;
+      tx->isCoinbase = false;
+      tx->isFailed = false;   // TODO: test and handle if true
+      tx->doNotRelay = request.doNotRelay != boost::none && request.doNotRelay.get() == true;
+      tx->isRelayed = tx->doNotRelay.get() != true;
+      tx->inTxPool = !tx->doNotRelay.get();
+      if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpend = false;  // TODO: test and handle if true
+      tx->numConfirmations = 0;
+      tx->mixin = request.mixin;
+      tx->unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
+      if (tx->isRelayed.get()) tx->lastRelayedTimestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
+      outTransfer->accountIndex = request.accountIndex;
+      if (request.subaddressIndices.size() == 1) outTransfer->subaddressIndices.push_back(request.subaddressIndices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
+      outTransfer->destinations = request.destinations;
+      outTransfer->destinations[0]->amount = *txAmountsIter;
+
+      // iterate to next element
+      txKeysIter++;
+      txAmountsIter++;
+      txFeesIter++;
+      txIdsIter++;
+      txBlobsIter++;
+      txMetadatasIter++;
+    }
+
+    // return tx
+    if (txs.size() != 1) throw runtime_error("Expected 1 transaction but was " + txs.size());
+    return txs[0];
   }
 
   vector<string> MoneroWallet::relayTxs(const vector<string>& txMetadatas) {
