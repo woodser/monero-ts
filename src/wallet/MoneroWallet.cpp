@@ -28,13 +28,13 @@ namespace monero {
   /**
    * ---------------- DUPLICATED WALLET RPC TRANSFER CODE ---------------------
    *
-   * These functions are duplicated from private dependencies in wallet rpc
+   * These functions are duplicated from private functions in wallet rpc
    * on_transfer/on_transfer_split, with minor modifications to not be class members.
    *
    * This code is used to generate and send transactions with equivalent functionality as
    * wallet rpc.
    *
-   * Code duplication is not desired.  Solutions considered:
+   * Duplicated code is not ideal.  Solutions considered:
    *
    * (1) Duplicate wallet rpc code as done here.
    * (2) Modify monero-wallet-rpc on_transfer() / on_transfer_split() to be public.
@@ -44,7 +44,7 @@ namespace monero {
    * Options 2-4 require modification of Monero Core C++.  Of those, (4) is probably ideal.
    * TODO: open patch on Monero core which moves common wallet rpc logic (e.g. on_transfer, on_transfer_split) to wallet2.
    *
-   * Until then, option (1) is used because it allows Monero Core binaries to be used without modification and
+   * Until then, option (1) is used because it allows Monero Core binaries to be used without modification, it's easy, and
    * anything other than (4) is temporary.
    */
   //------------------------------------------------------------------------------------------------------------------------------
@@ -279,6 +279,7 @@ namespace monero {
       shared_ptr<MoneroTxWallet>& aTx = txMap[*tx->id];
 
       // merge blocks if confirmed, txs otherwise
+      // TODO: follow transfer->tx merging pattern which merges txs which comes back to transfers
       if (aTx->block != boost::none || tx->block != boost::none) {
         if (aTx->block == boost::none) {
           aTx->block = shared_ptr<MoneroBlock>(new MoneroBlock());
@@ -1065,7 +1066,7 @@ namespace monero {
       mergeTx(tx, txMap, blockMap, false);
     }
 
-		// collect requested outputs and discard irrelevant data
+    // collect requested outputs and discard irrelevant data
     vector<shared_ptr<MoneroOutputWallet>> vouts;
     for (map<string, shared_ptr<MoneroTxWallet>>::const_iterator txIter = txMap.begin(); txIter != txMap.end(); txIter++) {
       shared_ptr<MoneroTxWallet> tx = txIter->second;
