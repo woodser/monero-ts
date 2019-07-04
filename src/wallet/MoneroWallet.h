@@ -1014,21 +1014,21 @@ namespace monero {
      */
     int importOutputsHex(const string& outputsHex);
 
-//    /**
-//     * Set an arbitrary attribute.
-//     *
-//     * @param key is the attribute key
-//     * @param val is the attribute value
-//     */
-//    public void setAttribute(string key, string val);
-//
-//    /**
-//     * Get an attribute.
-//     *
-//     * @param key is the attribute to get the value of
-//     * @return the attribute's value
-//     */
-//    public string getAttribute(string key);
+    /**
+     * Set an arbitrary attribute.
+     *
+     * @param key is the attribute key
+     * @param val is the attribute value
+     */
+    void setAttribute(const string& key, const string& val);
+
+    /**
+     * Get an attribute.
+     *
+     * @param key is the attribute to get the value of
+     * @return the attribute's value
+     */
+    string getAttribute(const string& key) const;
 
     /**
      * Start mining.

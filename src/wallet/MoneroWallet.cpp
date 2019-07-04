@@ -1600,6 +1600,14 @@ namespace monero {
     return wallet2->import_outputs_from_str(blob);
   }
 
+  void MoneroWallet::setAttribute(const string& key, const string& val) {
+    wallet2->set_attribute(key, val);
+  }
+
+  string MoneroWallet::getAttribute(const string& key) const {
+    return wallet2->get_attribute(key);
+  }
+
   void MoneroWallet::startMining(boost::optional<uint64_t> numThreads, boost::optional<bool> backgroundMining, boost::optional<bool> ignoreBattery) {
     cout << "startMining" << endl;
 
