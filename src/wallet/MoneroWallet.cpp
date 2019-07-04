@@ -1166,13 +1166,9 @@ namespace monero {
     // prepare transactions
     vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, unlockTime, priority, extra, accountIndex, subaddressIndices);
     cout << "CREATED " << ptx_vector.size() << " PENDING TXS" << endl;
+    if (ptx_vector.empty()) throw runtime_error("No transaction created");
 
-//      if (ptx_vector.empty()) {
-//        er.code = WALLET_RPC_ERROR_CODE_TX_NOT_POSSIBLE;
-//        er.message = "No transaction created";
-//        return false;
-//      }
-//
+    // TODO: test send() (canSplit=false) checks for 1 and rejects
 //      // reject proposed transactions if there are more than one.  see on_transfer_split below.
 //      if (ptx_vector.size() != 1) {
 //        er.code = WALLET_RPC_ERROR_CODE_TX_TOO_LARGE;
@@ -1253,6 +1249,64 @@ namespace monero {
   shared_ptr<MoneroTxWallet> MoneroWallet::sweepOutput(const MoneroSendRequest& request) const  {
     cout << "sweepOutput()" << endl;
     cout << "MoneroSendRequest: " << request.serialize() << endl;
+
+    // validate input request
+    if (request.keyImage == boost::none || request.keyImage.get().empty()) throw runtime_error("Must provide key image of output to sweep");
+    if (request.destinations.size() != 1 || request.destinations[0]->address == boost::none || request.destinations[0]->address.get().empty()) throw runtime_error("Must provide exactly one destination to sweep output to");
+
+    // validate the transfer requested and populate dsts & extra
+    string paymentId = request.paymentId == boost::none ? string("") : request.paymentId.get();
+    std::vector<cryptonote::tx_destination_entry> dsts;
+    std::vector<uint8_t> extra;
+    std::list<wallet_rpc::transfer_destination> destination;
+    destination.push_back(wallet_rpc::transfer_destination());
+    destination.back().amount = 0;
+    destination.back().address = request.destinations[0]->address.get();
+    epee::json_rpc::error er;
+    if (!validate_transfer(wallet2.get(), destination, paymentId, dsts, extra, true, er)) {
+      //throw runtime_error(er);  // TODO
+      throw runtime_error("Handle validate_transfer error!");
+    }
+
+    // validate key image
+    crypto::key_image ki;
+    if (!epee::string_tools::hex_to_pod(request.keyImage.get(), ki)) {
+      throw runtime_error("failed to parse key image");
+    }
+
+    // create transaction
+    uint64_t mixin = wallet2->adjust_mixin(request.ringSize == boost::none ? 0 : request.ringSize.get() - 1);
+    uint32_t priority = wallet2->adjust_priority(request.priority == boost::none ? 0 : request.priority.get());
+    uint64_t unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
+    std::vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_single(ki, dsts[0].addr, dsts[0].is_subaddress, 1, mixin, unlockTime, priority, extra);
+
+    // validate created transaction
+    if (ptx_vector.empty()) throw runtime_error("No outputs found");
+    if (ptx_vector.size() > 1) throw runtime_error("Multiple transactions are created, which is not supposed to happen");
+    const wallet2::pending_tx &ptx = ptx_vector[0];
+    if (ptx.selected_transfers.size() > 1) throw runtime_error("The transaction uses multiple inputs, which is not supposed to happen");
+
+    // config for fill_response()
+    bool getTxKeys = true;
+    bool getTxHex = true;
+    bool getTxMetadata = true;
+    bool doNotRelay = request.doNotRelay == boost::none ? false : request.doNotRelay.get();
+    cout << "doNotRelay: " << doNotRelay << endl;
+
+    // commit txs (if relaying) and get response using wallet rpc's fill_response()
+    list<string> txKeys;
+    list<uint64_t> txAmounts;
+    list<uint64_t> txFees;
+    string multisigTxSet;
+    string unsignedTxSet;
+    list<string> txIds;
+    list<string> txBlobs;
+    list<string> txMetadatas;
+    if (!fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, doNotRelay, txIds, getTxHex, txBlobs, getTxMetadata, txMetadatas, er)) {
+      throw runtime_error("need to handle error filling response!");  // TODO: return err message
+    }
+
+    // TODO: translate to MoneroTxWallet
     throw runtime_error("Not implemented");
   }
 
