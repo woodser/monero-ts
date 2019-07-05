@@ -13,6 +13,8 @@ using namespace cryptonote;
 using namespace epee;
 using namespace tools;
 
+// TODO: my license, monero core license
+
 /**
  * Public library interface.
  */
@@ -433,7 +435,7 @@ namespace monero {
     wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
     setDaemonConnection(daemonConnection.uri, daemonConnection.username, daemonConnection.password);
     wallet2->set_seed_language(language);
-    crypto::secret_key recovery_val, secret_key;
+    crypto::secret_key secret_key;
     wallet2->generate(path, password, secret_key, false, false);
     wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(*this, *wallet2));
   }
@@ -449,6 +451,7 @@ namespace monero {
 
     // initialize wallet
     wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(networkType), 1, true));
+    setDaemonConnection(daemonConnection.uri, daemonConnection.username, daemonConnection.password);
     wallet2->set_seed_language(language);
     wallet2->generate(path, password, recoveryKey, true, false);
     wallet2->set_refresh_from_block_height(restoreHeight);
@@ -462,7 +465,63 @@ namespace monero {
 
   MoneroWallet::MoneroWallet(const string& path, const string& password, const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight, const string& language) {
     cout << "MoneroWallet(7)" << endl;
-    throw runtime_error("Not implemented");
+
+    // validate and parse address
+    cryptonote::address_parse_info info;
+    if (!get_account_address_from_str(info, static_cast<cryptonote::network_type>(networkType), address)) throw runtime_error("failed to parse address");
+
+    // validate and parse optional private spend key
+    crypto::secret_key spendKeySK;
+    bool hasSpendKey = false;
+    if (!spendKey.empty()) {
+      cryptonote::blobdata spendKeyData;
+      if (!epee::string_tools::parse_hexstr_to_binbuff(spendKey, spendKeyData) || spendKeyData.size() != sizeof(crypto::secret_key)) {
+        throw runtime_error("failed to parse secret spend key");
+      }
+      hasSpendKey = true;
+      spendKeySK = *reinterpret_cast<const crypto::secret_key*>(spendKeyData.data());
+    }
+
+    // validate and parse private view key
+    bool hasViewKey = true;
+    crypto::secret_key viewKeySK;
+    if (!viewKey.empty()) {
+      if (hasSpendKey) hasViewKey = false;
+      else throw runtime_error("Neither view key nor spend key supplied, cancelled");
+    }
+    if (hasViewKey) {
+      cryptonote::blobdata viewKeyData;
+      if (!epee::string_tools::parse_hexstr_to_binbuff(viewKey, viewKeyData) || viewKeyData.size() != sizeof(crypto::secret_key)) {
+        throw runtime_error("failed to parse secret view key");
+      }
+      viewKeySK = *reinterpret_cast<const crypto::secret_key*>(viewKeyData.data());
+    }
+
+    // check the spend and view keys match the given address
+    crypto::public_key pkey;
+    if (hasSpendKey) {
+      if (!crypto::secret_key_to_public_key(spendKeySK, pkey)) throw runtime_error("failed to verify secret spend key");
+      if (info.address.m_spend_public_key != pkey) throw runtime_error("spend key does not match address");
+    }
+    if (hasViewKey) {
+      if (!crypto::secret_key_to_public_key(viewKeySK, pkey)) throw runtime_error("failed to verify secret view key");
+      if (info.address.m_view_public_key != pkey) throw runtime_error("view key does not match address");
+    }
+
+    // initialize wallet
+    wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(networkType), 1, true));
+    if (hasSpendKey && hasViewKey) wallet2->generate(path, password, info.address, spendKeySK, viewKeySK);
+    if (!hasSpendKey && hasViewKey) wallet2->generate(path, password, info.address, viewKeySK);
+    if (hasSpendKey && !hasViewKey) wallet2->generate(path, password, spendKeySK, true, false);
+    setDaemonConnection(daemonConnection.uri, daemonConnection.username, daemonConnection.password);
+    wallet2->set_refresh_from_block_height(restoreHeight);
+    wallet2->set_seed_language(language);
+    wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(*this, *wallet2));
+
+    // print the mnemonic
+    epee::wipeable_string fetchedMnemonic;
+    wallet2->get_seed(fetchedMnemonic);
+    cout << "Mnemonic: " << string(fetchedMnemonic.data(), fetchedMnemonic.size()) << endl;
   }
 
   MoneroWallet::MoneroWallet(const string& path, const string& password, const MoneroNetworkType networkType) {
