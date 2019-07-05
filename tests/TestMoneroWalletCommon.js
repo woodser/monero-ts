@@ -275,8 +275,8 @@ class TestMoneroWalletCommon {
         let accountsBefore = await wallet.getAccounts();
         let createdAccount = await wallet.createAccount();
         testAccount(createdAccount);
-        assert(createdAccount.getLabel() === undefined);
-        assert(accountsBefore.length === (await wallet.getAccounts()).length - 1);
+        assert.equal(createdAccount.getLabel(), undefined);
+        assert.equal((await wallet.getAccounts()).length - 1, accountsBefore.length);
       });
       
       it("Can create a new account with a label", async function() {
@@ -286,14 +286,24 @@ class TestMoneroWalletCommon {
         let label = GenUtils.uuidv4();
         let createdAccount = await wallet.createAccount(label);
         testAccount(createdAccount);
-        assert(createdAccount.getLabel() === label);
-        assert(accountsBefore.length === (await wallet.getAccounts()).length - 1);
-
+        assert.equal(createdAccount.getLabel(), label);
+        assert.equal((await wallet.getAccounts()).length - 1, accountsBefore.length);
+        
+        // fetch and test account
+        createdAccount = await wallet.getAccount(createdAccount.getIndex());
+        testAccount(createdAccount);
+        assert.equal(createdAccount.getLabel(), label);
+        
         // create account with same label
         createdAccount = await wallet.createAccount(label);
         testAccount(createdAccount);
-        assert(createdAccount.getLabel() === label);
-        assert(accountsBefore.length === (await wallet.getAccounts()).length - 2);
+        assert.equal(createdAccount.getLabel(), label);
+        assert.equal((await wallet.getAccounts()).length - 2, accountsBefore.length);
+        
+        // fetch and test account
+        createdAccount = await wallet.getAccount(createdAccount.getIndex());
+        testAccount(createdAccount);
+        assert.equal(createdAccount.getLabel(), label);
       });
       
       it("Can get subaddresses at a specified account index", async function() {
