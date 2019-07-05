@@ -209,6 +209,20 @@ namespace monero {
     string getPrivateViewKey() const;
 
     /**
+     * Get the wallet's public spend key.
+     *
+     * @return the wallet's public spend key
+     */
+    string getPublicSpendKey() const;
+
+    /**
+     * Get the wallet's private spend key.
+     *
+     * @return the wallet's private spend key
+     */
+    string getPrivateSpendKey() const;
+
+    /**
      * TODO
      */
     string getLanguage() const;

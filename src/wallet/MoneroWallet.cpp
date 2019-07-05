@@ -613,6 +613,16 @@ namespace monero {
     return epee::string_tools::pod_to_hex(wallet2->get_account().get_keys().m_view_secret_key);
   }
 
+  string MoneroWallet::getPublicSpendKey() const {
+    cout << "getPrivateSpendKey()" << endl;
+    return epee::string_tools::pod_to_hex(wallet2->get_account().get_keys().m_account_address.m_spend_public_key);
+  }
+
+  string MoneroWallet::getPrivateSpendKey() const {
+    cout << "getPrivateSpendKey()" << endl;
+    return epee::string_tools::pod_to_hex(wallet2->get_account().get_keys().m_spend_secret_key);
+  }
+
   void MoneroWallet::setListener(boost::optional<MoneroWalletListener&> listener) {
     cout << "setListener()" << endl;
     wallet2Listener->setWalletListener(listener);
