@@ -138,7 +138,7 @@ namespace monero {
      * @param restoreHeight is the block height to restore (i.e. scan the chain) from (default = 0)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    MoneroWallet(const string& path, const string& password, const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const string& daemonConnection, uint64_t restoreHeight, const string& language);
+    MoneroWallet(const string& path, const string& password, const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight, const string& language);
 
     /**
      * Construct a wallet by opening a wallet file on disk.

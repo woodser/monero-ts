@@ -460,7 +460,7 @@ namespace monero {
     cout << "Mnemonic: " << string(fetchedMnemonic.data(), fetchedMnemonic.size()) << endl;
   }
 
-  MoneroWallet::MoneroWallet(const string& path, const string& password, const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const string& daemonConnection, uint64_t restoreHeight, const string& language) {
+  MoneroWallet::MoneroWallet(const string& path, const string& password, const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight, const string& language) {
     cout << "MoneroWallet(7)" << endl;
     throw runtime_error("Not implemented");
   }
@@ -1367,7 +1367,7 @@ namespace monero {
     }
 
     // return tx
-    if (txs.size() != 1) throw runtime_error("Expected 1 transaction but was " + txs.size());
+    if (txs.size() != 1) throw runtime_error("Expected 1 transaction but was " + boost::lexical_cast<std::string>(txs.size()));
     return txs[0];
   }
 
