@@ -731,7 +731,7 @@ namespace monero {
     return getAccount(accountIdx, false);
   }
 
-  MoneroAccount MoneroWallet::getAccount(const uint32_t accountIdx, const bool includeSubaddresses) const {
+  MoneroAccount MoneroWallet::getAccount(uint32_t accountIdx, const bool includeSubaddresses) const {
     cout << "getAccount(" << accountIdx << ", " << includeSubaddresses << ")" << endl;
 
     // need transfers to inform if subaddresses used
@@ -742,6 +742,7 @@ namespace monero {
     MoneroAccount account;
     account.index = accountIdx;
     account.primaryAddress = getAddress(accountIdx, 0);
+    account.label = wallet2->get_subaddress_label({accountIdx, 0});
     account.balance = wallet2->balance(accountIdx);
     account.unlockedBalance = wallet2->unlocked_balance(accountIdx);
     if (includeSubaddresses) account.subaddresses = getSubaddressesAux(accountIdx, vector<uint32_t>(), transfers);

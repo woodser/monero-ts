@@ -393,7 +393,7 @@ namespace monero {
      * @param accountIdx specifies the account to get
      * @return the retrieved account
      */
-    MoneroAccount getAccount(const uint32_t accountIdx) const;
+    MoneroAccount getAccount(uint32_t accountIdx) const;
 
     /**
      * Get an account.
