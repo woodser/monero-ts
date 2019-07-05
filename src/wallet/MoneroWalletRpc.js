@@ -128,6 +128,11 @@ class MoneroWalletRpc extends MoneroWallet {
     let resp = await this.config.rpc.sendJsonRequest("query_key", { key_type: "view_key" });
     return resp.result.key;
   }
+  
+  async getPrivateSpendKey() {
+    let resp = await this.config.rpc.sendJsonRequest("query_key", { key_type: "spend_key" });
+    return resp.result.key;
+  }
 
   async getLanguages() {
     return (await this.config.rpc.sendJsonRequest("get_languages")).result.languages;

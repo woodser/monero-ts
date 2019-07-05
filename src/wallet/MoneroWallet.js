@@ -66,6 +66,15 @@ class MoneroWallet {
   }
   
   /**
+   * Get the wallet's private spend key.
+   * 
+   * @return {string} is the wallet's private spend key
+   */
+  async getPrivateSpendKey() {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
    * Get a list of available languages for the wallet's seed.
    * 
    * @return {string[]} are the available languages for the wallet's seed

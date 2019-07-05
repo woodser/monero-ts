@@ -93,6 +93,11 @@ class TestMoneroWalletCommon {
         MoneroUtils.validatePrivateViewKey(privateViewKey);
       });
       
+      it("Can get the private spend key", async function() {
+        let privateSpendKey = await wallet.getPrivateSpendKey()
+        MoneroUtils.validatePrivateSpendKey(privateSpendKey);
+      });
+      
       it("Can get the primary address", async function() {
         let primaryAddress = await wallet.getPrimaryAddress();
         MoneroUtils.validateAddress(primaryAddress);
