@@ -1,18 +1,22 @@
-handle e.g. restricted or hw wallet limitations in wallet_rpc_server, e.g. on_import_outputs?
-wallet2 does not automatically save unlike rpc; where to invoke save and how to separate for tests?
-throw MoneroErrors instead of runtime_errors
-toPropertyTree() should take node as parameter; optimize memory elsewhere
+HIGH PRIORITY
 cannot reconcile integrals on getTransfers() test, need to add reconcile debug info including vals and pass error message
-re-usable debug trace statements
 DaemonConnection is its own object
 onSyncProgress(startHeight, currentHeight, endHeight, percentDone, message)?
 remove warning jstring2string
 comb code todos
-mergeTx(), model members are private, use accessors and mutators, return this for chaining
-use gnu debugger and sanitize=on
-further automate build process
 rename external-libs/monero to monero-core for clarity
-optimize by moving shared_ptrs
 testGetTransfers() cannot reconcile integrals: new MoneroTransferRequest().setAccountIndex(subaddress.getAccountIndex()).setSubaddressIndex(subaddress.getIndex())
 tx c40d5dbf49172a1a42111e414ee243e8c7a45cf0c09c5d91c5cef21672145755 should have outgoing but does not according to jni 
 tx 121158a7e51044e27de6958a9501cc9eba811b2e37bc651ab9a04e749d11cc38 should have outgoing but does not according to rpc
+cppWalletHandle, cppListenerHandle string constants in MoneroWalletJni.cpp
+
+MEDIUM PRIORITY
+toPropertyTree() should take node as parameter; optimize memory elsewhere (move shared_ptrs, etc)
+re-usable debug trace statements
+model accessors/mutators/chaining?
+use gnu debugger and sanitize=on
+further automate build process
+
+LOW PRIORITY
+throw MoneroErrors with error codes instead of runtime_errors
+handle e.g. restricted or hw wallet limitations in wallet_rpc_server, e.g. on_import_outputs?
