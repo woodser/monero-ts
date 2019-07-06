@@ -1067,7 +1067,7 @@ namespace monero {
      * Move the wallet from its current path to the given path.
      *
      * @param path is the new wallet's path
-     * @param password is the new wallet's password // TODO: can this be used to change wallet password?
+     * @param password is the new wallet's password
      */
     void moveTo(string path, string password);
 
