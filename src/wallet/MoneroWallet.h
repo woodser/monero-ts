@@ -252,6 +252,20 @@ namespace monero {
     string getMnemonic() const;
 
     /**
+     * Get the language of the wallet's mnemonic phrase.
+     *
+     * @return the language of the wallet's mnemonic phrase
+     */
+    string getLanguage() const;
+
+    /**
+     * Get a list of available languages for the wallet's mnemonic phrase.
+     *
+     * @return the available languages for the wallet's mnemonic phrase
+     */
+    vector<string> getLanguages() const;
+
+    /**
      * Get the wallet's public view key.
      *
      * @return the wallet's public view key
@@ -278,18 +292,6 @@ namespace monero {
      * @return the wallet's private spend key
      */
     string getPrivateSpendKey() const;
-
-    /**
-     * TODO
-     */
-    string getLanguage() const;
-
-    /**
-     * Get a list of available languages for the wallet's seed.
-     *
-     * @return the available languages for the wallet's seed
-     */
-    vector<string> getLanguages() const;
 
     /**
      * Get the wallet's primary address.
@@ -649,6 +651,21 @@ namespace monero {
     vector<shared_ptr<MoneroOutputWallet>> getOutputs(const MoneroOutputRequest& request) const;
 
     /**
+     * Export all outputs in hex format.
+     *
+     * @return all outputs in hex format, empty string if no outputs
+     */
+    string getOutputsHex() const;
+
+    /**
+     * Import outputs in hex format.
+     *
+     * @param outputsHex are outputs in hex format
+     * @return the number of outputs imported
+     */
+    int importOutputsHex(const string& outputsHex);
+
+    /**
      * Get all signed key images.
      *
      * @return the wallet's signed key images
@@ -839,20 +856,20 @@ namespace monero {
     string getTxNote(const string& txId) const;
 
     /**
-     * Set a note for a specific transaction.
-     *
-     * @param txId specifies the transaction
-     * @param note specifies the note
-     */
-    void setTxNote(const string& txId, const string& note);
-
-    /**
      * Get notes for multiple transactions.
      *
      * @param txIds identify the transactions to get notes for
      * @preturns notes for the transactions
      */
     vector<string> getTxNotes(const vector<string>& txIds) const;
+
+    /**
+     * Set a note for a specific transaction.
+     *
+     * @param txId specifies the transaction
+     * @param note specifies the note
+     */
+    void setTxNote(const string& txId, const string& note);
 
     /**
      * Set notes for multiple transactions.
@@ -1069,21 +1086,6 @@ namespace monero {
      * @return the send request parsed from the uri
      */
     shared_ptr<MoneroSendRequest> parsePaymentUri(const string& uri) const;
-
-    /**
-     * Export all outputs in hex format.
-     *
-     * @return all outputs in hex format, empty string if no outputs
-     */
-    string getOutputsHex() const;
-
-    /**
-     * Import outputs in hex format.
-     *
-     * @param outputsHex are outputs in hex format
-     * @return the number of outputs imported
-     */
-    int importOutputsHex(const string& outputsHex);
 
     /**
      * Set an arbitrary attribute.

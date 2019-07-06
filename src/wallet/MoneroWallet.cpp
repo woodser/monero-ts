@@ -1473,6 +1473,22 @@ namespace monero {
     return vouts;
   }
 
+  string MoneroWallet::getOutputsHex() const {
+    return epee::string_tools::buff_to_hex_nodelimer(wallet2->export_outputs_to_str(true));
+  }
+
+  int MoneroWallet::importOutputsHex(const string& outputsHex) {
+
+    // validate and parse hex data
+    cryptonote::blobdata blob;
+    if (!epee::string_tools::parse_hexstr_to_binbuff(outputsHex, blob)) {
+      throw runtime_error("Failed to parse hex.");
+    }
+
+    // import hex and return result
+    return wallet2->import_outputs_from_str(blob);
+  }
+
   vector<shared_ptr<MoneroKeyImage>> MoneroWallet::getKeyImages() const {
     cout << "MoneroWallet::getKeyImages()" << endl;
 
@@ -1867,6 +1883,13 @@ namespace monero {
     return wallet2->get_tx_note(txHash);
   }
 
+  vector<string> MoneroWallet::getTxNotes(const vector<string>& txIds) const {
+    cout << "MoneroWallet::getTxNotes()" << endl;
+    vector<string> txNotes;
+    for (const auto& txId : txIds) txNotes.push_back(getTxNote(txId));
+    return txNotes;
+  }
+
   void MoneroWallet::setTxNote(const string& txId, const string& note) {
     cout << "MoneroWallet::setTxNote" << endl;
     cryptonote::blobdata txBlob;
@@ -1875,13 +1898,6 @@ namespace monero {
     }
     crypto::hash txHash = *reinterpret_cast<const crypto::hash*>(txBlob.data());
     wallet2->set_tx_note(txHash, note);
-  }
-
-  vector<string> MoneroWallet::getTxNotes(const vector<string>& txIds) const {
-    cout << "MoneroWallet::getTxNotes()" << endl;
-    vector<string> txNotes;
-    for (const auto& txId : txIds) txNotes.push_back(getTxNote(txId));
-    return txNotes;
   }
 
   void MoneroWallet::setTxNotes(const vector<string>& txIds, const vector<string>& txNotes) {
@@ -2151,22 +2167,6 @@ namespace monero {
     if (!recipientName.empty()) sendRequest->recipientName = recipientName;
     if (!unknownParameters.empty()) cout << "WARNING in MoneroWallet::parsePaymentUri: URI contains unknown parameters which are discarded" << endl; // TODO: return unknown parameters?
     return sendRequest;
-  }
-
-  string MoneroWallet::getOutputsHex() const {
-    return epee::string_tools::buff_to_hex_nodelimer(wallet2->export_outputs_to_str(true));
-  }
-
-  int MoneroWallet::importOutputsHex(const string& outputsHex) {
-
-    // validate and parse hex data
-    cryptonote::blobdata blob;
-    if (!epee::string_tools::parse_hexstr_to_binbuff(outputsHex, blob)) {
-      throw runtime_error("Failed to parse hex.");
-    }
-
-    // import hex and return result
-    return wallet2->import_outputs_from_str(blob);
   }
 
   void MoneroWallet::setAttribute(const string& key, const string& val) {
