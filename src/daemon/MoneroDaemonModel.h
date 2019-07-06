@@ -100,7 +100,7 @@ namespace monero {
    */
   struct MoneroRpcConnection {
     string uri;
-    string username;
+    string username;  // todo: these should be optional
     string password;
     //MoneroRpcConnection() : uri(""), username(""), password("")) {}
     MoneroRpcConnection(const string& uri = "", const string& username = "", const string& password = "") : uri(uri), username(username), password(password) {}

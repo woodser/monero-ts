@@ -867,6 +867,7 @@ namespace monero {
   }
 
   shared_ptr<MoneroRpcConnection> MoneroWallet::getDaemonConnection() const {
+    cout << "MoneroWallet::getDaemonConnection()" << endl;
     if (wallet2->get_daemon_address().empty()) return nullptr;
     shared_ptr<MoneroRpcConnection> connection = shared_ptr<MoneroRpcConnection>(new MoneroRpcConnection());
     if (!wallet2->get_daemon_address().empty()) connection->uri = wallet2->get_daemon_address();
