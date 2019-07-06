@@ -1263,7 +1263,7 @@ namespace monero {
     list<string> txBlobs;
     list<string> txMetadatas;
     if (!fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, doNotRelay, txIds, getTxHex, txBlobs, getTxMetadata, txMetadatas, err)) {
-      throw runtime_error("need to handle error filling response!");
+      throw runtime_error("need to handle error filling response!");  // TODO
     }
 
     // build sent txs from results  // TODO: break this into separate utility function
@@ -1432,7 +1432,75 @@ namespace monero {
 
   vector<shared_ptr<MoneroTxWallet>> MoneroWallet::sweepDust(bool doNotRelay) {
     cout << "MoneroWallet::sweepDust()" << endl;
-    throw runtime_error("Not implemented");
+
+    // create transaction to fill
+    std::vector<wallet2::pending_tx> ptx_vector = wallet2->create_unmixable_sweep_transactions();
+
+    // config for fill_response
+    bool getTxKeys = true;
+    bool getTxHex = true;
+    bool getTxMetadata = true;
+
+    // commit txs (if relaying) and get response using wallet rpc's fill_response()
+    list<string> txKeys;
+    list<uint64_t> txAmounts;
+    list<uint64_t> txFees;
+    string multisigTxSet;
+    string unsignedTxSet;
+    list<string> txIds;
+    list<string> txBlobs;
+    list<string> txMetadatas;
+    epee::json_rpc::error er;
+    if (!fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, doNotRelay, txIds, getTxHex, txBlobs, getTxMetadata, txMetadatas, er)) {
+      throw runtime_error("need to handle error filling response!");  // TODO: return err message
+    }
+
+    // build sent txs from results  // TODO: use common utility with sendSplit() to avoid code duplication
+    vector<shared_ptr<MoneroTxWallet>> txs;
+    auto txIdsIter = txIds.begin();
+    auto txKeysIter = txKeys.begin();
+    auto txAmountsIter = txAmounts.begin();
+    auto txFeesIter = txFees.begin();
+    auto txBlobsIter = txBlobs.begin();
+    auto txMetadatasIter = txMetadatas.begin();
+    while (txIdsIter != txIds.end()) {
+
+      // init tx with outgoing transfer from filled values
+      shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+      txs.push_back(tx);
+      tx->id = *txIdsIter;
+      tx->key = *txKeysIter;
+      tx->fee = *txFeesIter;
+      tx->fullHex = *txBlobsIter;
+      tx->metadata = *txMetadatasIter;
+      shared_ptr<MoneroOutgoingTransfer> outTransfer = shared_ptr<MoneroOutgoingTransfer>(new MoneroOutgoingTransfer());
+      tx->outgoingTransfer = outTransfer;
+      outTransfer->amount = *txAmountsIter;
+
+      // init other known fields
+      tx->isConfirmed = false;
+      tx->isCoinbase = false;
+      tx->isFailed = false;   // TODO: test and handle if true
+      tx->doNotRelay = doNotRelay;
+      tx->isRelayed = tx->doNotRelay.get() != true;
+      tx->inTxPool = !tx->doNotRelay.get();
+      if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpend = false;  // TODO: test and handle if true
+      tx->numConfirmations = 0;
+      //tx->mixin = request.mixin;  // TODO: how to get?
+      tx->unlockTime = 0;
+      if (tx->isRelayed.get()) tx->lastRelayedTimestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
+      outTransfer->destinations[0]->amount = *txAmountsIter;
+
+      // iterate to next element
+      txKeysIter++;
+      txAmountsIter++;
+      txFeesIter++;
+      txIdsIter++;
+      txBlobsIter++;
+      txMetadatasIter++;
+    }
+
+    return txs;
   }
 
   vector<string> MoneroWallet::relayTxs(const vector<string>& txMetadatas) {
