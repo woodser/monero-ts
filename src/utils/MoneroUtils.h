@@ -72,50 +72,20 @@ namespace MoneroUtils
 
   void binaryBlocksToJson(const std::string &bin, std::string &json);
 
-//  void addNode(boost::property_tree::ptree root, const string& key, shared_ptr<void> ptr) {
-//    cout << "addNode(...)" << endl;
-//    throw runtime_error("Not implemented");
-//  }
-//
-//  string serialize(const MoneroAccount& account);
-//
-//  string serialize(const MoneroSubaddress& subaddress);
-//
-//  string serialize(const MoneroBlock& block);
-//
-//  void deserializeTx(const string& txStr, MoneroTx& tx);
-//
-//  void deserializeTxWallet(const string& txStr, MoneroTxWallet& tx);
-//
-//  void deserializeTxRequest(const string& txRequestStr, MoneroTxRequest& request);
-//
-//  void deserializeOutput(const string& outputStr, MoneroOutput& output);
-//
-//  void deserializeOutputWallet(const string& outputStr, MoneroOutputWallet& output);
+  shared_ptr<MoneroTxRequest> deserializeTxRequest(const string& txRequestStr);
 
-  //  template <class T> string serialize(const vector<T> types) {
-  //    cout << "serialize(types)" << endl;
-  //    boost::property_tree::ptree root;
-  //    boost::property_tree::ptree typesNode;
-  //    for (const auto& type : types)  {
-  //      boost::property_tree::ptree typeNode;
-  //      typeNode.put("", serialize(type));
-  //      typesNode.push_back(std::make_pair("", typeNode));
-  //    }
-  //    root.add_child("types", typesNode);
-  //
-  //    // serialize property tree to json
-  //    std::stringstream ss;
-  //    boost::property_tree::write_json(ss, root, false);
-  //    string str = ss.str();
-  //    return str;
-  //  }
+  shared_ptr<MoneroTransferRequest> deserializeTransferRequest(const string& transferRequestStr);
+
+  shared_ptr<MoneroOutputRequest> deserializeOutputRequest(const string& outputRequestStr);
+
+  shared_ptr<MoneroSendRequest> deserializeSendRequest(const string& sendRequestStr);
+
+  vector<shared_ptr<MoneroKeyImage>> deserializeKeyImages(const string& keyImagesJson);
 
   string serialize(const boost::property_tree::ptree& node);
 
   //  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
   template <class T> boost::property_tree::ptree toPropertyTree(const vector<shared_ptr<T>> types) {
-    //cout << "toPropertyTree(types)" << endl;
     boost::property_tree::ptree typeNodes;
     for (const auto& type : types)  {
       typeNodes.push_back(std::make_pair("", type->toPropertyTree()));
@@ -125,7 +95,6 @@ namespace MoneroUtils
 
   //  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
   template <class T> boost::property_tree::ptree toPropertyTree(const vector<T> types) {
-    //cout << "toPropertyTree(types)" << endl;
     boost::property_tree::ptree typeNodes;
     for (const auto& type : types)  {
       typeNodes.push_back(std::make_pair("", type.toPropertyTree()));
@@ -136,22 +105,8 @@ namespace MoneroUtils
   boost::property_tree::ptree toPropertyTree(const vector<string> strs);
   boost::property_tree::ptree toPropertyTree(const vector<uint32_t> nums);
 
-  /**
-   * Modified from core_rpc_server.cpp to return a string.
-   *
-   * TODO: remove this duplicate, use core_rpc_server instead
-   */
-  static std::string get_pruned_tx_json(cryptonote::transaction &tx)
-  {
-    std::stringstream ss;
-    json_archive<true> ar(ss);
-    bool r = tx.serialize_base(ar);
-    CHECK_AND_ASSERT_MES(r, std::string(), "Failed to serialize rct signatures base");
-    return ss.str();
-  }
 
   // TODO: refactor common template code
-
   template <class T, typename std::enable_if<std::is_same<T, string>::value, T>::type* = nullptr>
   boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax) {
 
@@ -243,5 +198,19 @@ namespace MoneroUtils
 //    boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2) {
 //      return reconcile(val1, val2, boost::none, boost::none, boost::none);
 //    }
+
+  /**
+   * Modified from core_rpc_server.cpp to return a string.
+   *
+   * TODO: remove this duplicate, use core_rpc_server instead
+   */
+  static std::string get_pruned_tx_json(cryptonote::transaction &tx)
+  {
+    std::stringstream ss;
+    json_archive<true> ar(ss);
+    bool r = tx.serialize_base(ar);
+    CHECK_AND_ASSERT_MES(r, std::string(), "Failed to serialize rct signatures base");
+    return ss.str();
+  }
 }
 #endif /* MoneroUtils_h */
