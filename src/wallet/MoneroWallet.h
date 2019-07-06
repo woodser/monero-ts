@@ -748,14 +748,14 @@ namespace monero {
 //     * @return the resulting transactions from sweeping dust
 //     */
 //    public List<MoneroTxWallet> sweepDust();
-//
-//    /**
-//     * Sweep all unmixable dust outputs back to the wallet to make them easier to spend and mix.
-//     *
-//     * @param doNotRelay specifies if the resulting transaction should not be relayed (defaults to false i.e. relayed)
-//     * @return the resulting transactions from sweeping dust
-//     */
-//    public List<MoneroTxWallet> sweepDust(boolean doNotRelay);
+
+    /**
+     * Sweep all unmixable dust outputs back to the wallet to make them easier to spend and mix.
+     *
+     * @param doNotRelay specifies if the resulting transaction should not be relayed (defaults to false i.e. relayed)
+     * @return the resulting transactions from sweeping dust
+     */
+    vector<shared_ptr<MoneroTxWallet>> sweepDust(bool doNotRelay = false);
 //
 //    /**
 //     * Relay a transaction previously created without relaying.

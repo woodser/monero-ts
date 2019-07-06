@@ -1430,6 +1430,11 @@ namespace monero {
     return txs[0];
   }
 
+  vector<shared_ptr<MoneroTxWallet>> MoneroWallet::sweepDust(bool doNotRelay) {
+    cout << "MoneroWallet::sweepDust()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
   vector<string> MoneroWallet::relayTxs(const vector<string>& txMetadatas) {
     cout << "relayTxs()" << endl;
 
