@@ -12,7 +12,7 @@ remove warning jstring2string
 rename external-libs/monero to monero-core for clarity
 cppWalletHandle, cppListenerHandle string constants in MoneroWalletJni.cpp
 toPropertyTree() should take node as parameter; optimize memory elsewhere (move shared_ptrs, etc)
-re-usable debug trace statements
+enable debug logging
 model accessors/mutators/chaining?
 use gnu debugger and sanitize=on
 further automate build process
