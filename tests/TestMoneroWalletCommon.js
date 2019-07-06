@@ -1014,6 +1014,24 @@ class TestMoneroWalletCommon {
         for (let output of outputs) assert(tx === output.getTx());
       });
       
+      it("Can get outputs in hex format", async function() {
+        let outputsHex = await wallet.getOutputsHex();
+        assert.equal(typeof outputsHex, "string");  // TODO: this will fail if wallet has no outputs; run these tests on new wallet
+        assert(outputsHex.length > 0);
+      });
+      
+      it("Can import outputs in hex format", async function() {
+        
+        // get outputs hex
+        let outputsHex = await wallet.getOutputsHex();
+        
+        // import outputs hex
+        if (outputsHex !== undefined) {
+          let numImported = await wallet.importOutputsHex(outputsHex);
+          assert(numImported > 0);
+        }
+      });
+      
       it("Has correct accounting across accounts, subaddresses, txs, transfers, and outputs", async function() {
         
         // pre-fetch wallet balances, accounts, subaddresses, and txs
@@ -1447,24 +1465,6 @@ class TestMoneroWalletCommon {
 //          assert.equal(e.getCode(), -1);
 //        }
 //      });
-      
-      it("Can get outputs in hex format", async function() {
-        let outputsHex = await wallet.getOutputsHex();
-        assert.equal(typeof outputsHex, "string");  // TODO: this will fail if wallet has no outputs; run these tests on new wallet
-        assert(outputsHex.length > 0);
-      });
-      
-      it("Can import outputs in hex format", async function() {
-        
-        // get outputs hex
-        let outputsHex = await wallet.getOutputsHex();
-        
-        // import outputs hex
-        if (outputsHex !== undefined) {
-          let numImported = await wallet.importOutputsHex(outputsHex);
-          assert(numImported > 0);
-        }
-      });
       
       it("Can get signed key images", async function() {
         let images = await wallet.getKeyImages();

@@ -563,6 +563,15 @@ class MoneroWalletRpc extends MoneroWallet {
     return vouts;
   }
   
+  async getOutputsHex() {
+    return (await this.config.rpc.sendJsonRequest("export_outputs")).result.outputs_data_hex;
+  }
+  
+  async importOutputsHex(outputsHex) {
+    let resp = await this.config.rpc.sendJsonRequest("import_outputs", {outputs_data_hex: outputsHex});
+    return resp.result.num_imported;
+  }
+  
   async getKeyImages() {
     return await this._rpcExportKeyImages(true);
   }
@@ -921,15 +930,6 @@ class MoneroWalletRpc extends MoneroWallet {
     if ("" === request.getRecipientName()) request.setRecipientName(undefined);
     if ("" === request.getNote()) request.setNote(undefined);
     return request;
-  }
-  
-  async getOutputsHex() {
-    return (await this.config.rpc.sendJsonRequest("export_outputs")).result.outputs_data_hex;
-  }
-  
-  async importOutputsHex(outputsHex) {
-    let resp = await this.config.rpc.sendJsonRequest("import_outputs", {outputs_data_hex: outputsHex});
-    return resp.result.num_imported;
   }
   
   async setAttribute(key, val) {

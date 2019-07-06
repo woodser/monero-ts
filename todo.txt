@@ -1,4 +1,5 @@
-move submodules to ./
+MoneroRpc -> MoneroRpcConnection
+move submodules to ./external
 move tests to src/
 
 model rct_signatures and rct_prunable

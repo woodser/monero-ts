@@ -372,6 +372,25 @@ class MoneroWallet {
   }
   
   /**
+   * Export all outputs in hex format.
+   * 
+   * @return {string} are all outputs in hex format, undefined if no outputs
+   */
+  async getOutputsHex() {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
+   * Import outputs in hex format.
+   * 
+   * @param {string} outputsHex are outputs in hex format
+   * @return {int} is the number of outputs imported
+   */
+  async importOutputsHex(outputsHex) {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
    * Get all signed key images.
    * 
    * @return {MoneroKeyImage[]} are the wallet's signed key images
@@ -763,25 +782,6 @@ class MoneroWallet {
    * @return {MoneroSendRequest} is the send configuration parsed from the uri
    */
   async parsePaymentUri(uri) {
-    throw new MoneroError("Subclass must implement");
-  }
-  
-  /**
-   * Export all outputs in hex format.
-   * 
-   * @return {string} are all outputs in hex format, undefined if no outputs
-   */
-  async getOutputsHex() {
-    throw new MoneroError("Subclass must implement");
-  }
-  
-  /**
-   * Import outputs in hex format.
-   * 
-   * @param {string} outputsHex are outputs in hex format
-   * @return {int} is the number of outputs imported
-   */
-  async importOutputsHex(outputsHex) {
     throw new MoneroError("Subclass must implement");
   }
   
