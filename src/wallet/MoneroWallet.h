@@ -147,7 +147,16 @@ namespace monero {
     static bool walletExists(const string& path);
 
     /**
-     * Construct an unconnected English wallet with a randomly generated seed on mainnet.
+     * Open an existing wallet.
+     *
+     * @param path is the path to the wallet file to open
+     * @param password is the password of the wallet file to open
+     * @param networkType is the wallet's network type
+     */
+    MoneroWallet(const string& path, const string& password, const MoneroNetworkType networkType);
+
+    /**
+     * Create a new wallet with a randomly generated seed on mainnet in English.
      *
      * @param path is the path to create the wallet
      * @param password is the password encrypt the wallet
@@ -155,7 +164,7 @@ namespace monero {
     MoneroWallet(const string& path, const string& password);
 
     /**
-     * Construct a wallet with a randomly generated seed.
+     * Create a new wallet with a randomly generated seed.
      *
      * @param path is the path to create the wallet
      * @param password is the password encrypt the wallet
@@ -166,7 +175,7 @@ namespace monero {
     MoneroWallet(const string& path, const string& password, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, const string& language);
 
     /**
-     * Construct a wallet from a mnemonic phrase.
+     * Create a wallet from an existing mnemonic phrase.
      *
      * @param path is the path to create the wallet
      * @param password is the password encrypt the wallet
@@ -178,7 +187,7 @@ namespace monero {
     MoneroWallet(const string& path, const string& password, const string& mnemonic, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight);
 
     /**
-     * Construct a wallet from an address, view key, and spend key.
+     * Create a wallet from an address, view key, and spend key.
      *
      * @param path is the path to create the wallet
      * @param password is the password encrypt the wallet
@@ -193,29 +202,25 @@ namespace monero {
     MoneroWallet(const string& path, const string& password, const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight, const string& language);
 
     /**
-     * Construct a wallet by opening a wallet file on disk.
-     *
-     * @param path is the path to the wallet file to open
-     * @param password is the password of the wallet file to open
-     * @param networkType is the wallet's network type
-     */
-    MoneroWallet(const string& path, const string& password, const MoneroNetworkType networkType);
-
-    /**
-     * Deconstructs the wallet.
+     * Deconstruct the wallet.
      */
     ~MoneroWallet();
 
     /**
      * Set the wallet's daemon connection.
      *
-     * TODO: support MoneroRpcConnection
-     *
      * @param uri is the daemon's URI
      * @param username is the daemon's username
      * @param password is the daemon's password
      */
-    void setDaemonConnection(const string& uri, const string& username, const string& password);
+    void setDaemonConnection(const string& uri, const string& username = "", const string& password = "");
+
+    /**
+     * Set the wallet's daemon connection.
+     *
+     * @param connection is the connection to set
+     */
+    void setDaemonConnection(const MoneroRpcConnection& connection);
 
     /**
      * TODO

@@ -737,6 +737,13 @@ namespace monero {
     return walletFileExists;
   }
 
+  MoneroWallet::MoneroWallet(const string& path, const string& password, const MoneroNetworkType networkType) {
+    cout << "MoneroWallet(3b)" << endl;
+    wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
+    wallet2->load(path, password);
+    wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(*this, *wallet2));
+  }
+
   MoneroWallet::MoneroWallet(const string& path, const string& password) {
     cout << "MoneroWallet()" << endl;
     throw runtime_error("Not implemented");
@@ -745,7 +752,7 @@ namespace monero {
   MoneroWallet::MoneroWallet(const string& path, const string&password, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, const string& language) {
     cout << "MoneroWallet(3)" << endl;
     wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
-    setDaemonConnection(daemonConnection.uri, daemonConnection.username, daemonConnection.password);
+    setDaemonConnection(daemonConnection);
     wallet2->set_seed_language(language);
     crypto::secret_key secret_key;
     wallet2->generate(path, password, secret_key, false, false);
@@ -763,7 +770,7 @@ namespace monero {
 
     // initialize wallet
     wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(networkType), 1, true));
-    setDaemonConnection(daemonConnection.uri, daemonConnection.username, daemonConnection.password);
+    setDaemonConnection(daemonConnection);
     wallet2->set_seed_language(language);
     wallet2->generate(path, password, recoveryKey, true, false);
     wallet2->set_refresh_from_block_height(restoreHeight);
@@ -825,7 +832,7 @@ namespace monero {
     if (hasSpendKey && hasViewKey) wallet2->generate(path, password, info.address, spendKeySK, viewKeySK);
     if (!hasSpendKey && hasViewKey) wallet2->generate(path, password, info.address, viewKeySK);
     if (hasSpendKey && !hasViewKey) wallet2->generate(path, password, spendKeySK, true, false);
-    setDaemonConnection(daemonConnection.uri, daemonConnection.username, daemonConnection.password);
+    setDaemonConnection(daemonConnection);
     wallet2->set_refresh_from_block_height(restoreHeight);
     wallet2->set_seed_language(language);
     wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(*this, *wallet2));
@@ -836,20 +843,11 @@ namespace monero {
     cout << "Mnemonic: " << string(fetchedMnemonic.data(), fetchedMnemonic.size()) << endl;
   }
 
-  MoneroWallet::MoneroWallet(const string& path, const string& password, const MoneroNetworkType networkType) {
-    cout << "MoneroWallet(3b)" << endl;
-    wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
-    wallet2->load(path, password);
-    wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(*this, *wallet2));
-  }
-
   MoneroWallet::~MoneroWallet() {
     cout << "~MoneroWallet()" << endl;
     close();
   }
 
-  // TODO: switch this to setDaemonConnection(MoneroDaemonRpc& daemonConnection)
-  // TODO: actually setDaemonConnection(boost::optional<MoneroRpcConnection>& connection)
   void MoneroWallet::setDaemonConnection(const string& uri, const string& username, const string& password) {
     cout << "setDaemonConnection(" << uri << ", " << username << ", " << password << ")" << endl;
 
@@ -862,6 +860,10 @@ namespace monero {
 
     // init wallet2 and set daemon connection
     if (!wallet2->init(uri, login)) throw runtime_error("Failed to initialize wallet with daemon connection");
+  }
+
+  void MoneroWallet::setDaemonConnection(const MoneroRpcConnection& connection) {
+    setDaemonConnection(connection.uri, connection.username, connection.password);
   }
 
   shared_ptr<MoneroRpcConnection> MoneroWallet::getDaemonConnection() const {

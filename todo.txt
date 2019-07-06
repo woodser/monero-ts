@@ -6,7 +6,6 @@ tx 121158a7e51044e27de6958a9501cc9eba811b2e37bc651ab9a04e749d11cc38 should have 
 comb code todos
 
 MEDIUM PRIORITY
-DaemonConnection is its own object
 onSyncProgress(startHeight, currentHeight, endHeight, percentDone, message)?
 remove warning jstring2string
 rename external-libs/monero to monero-core for clarity
