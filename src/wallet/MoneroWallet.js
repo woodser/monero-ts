@@ -139,7 +139,7 @@ class MoneroWallet {
    * Synchronizes the wallet with the block chain.
    * 
    * @param {int} startHeight is the start height to sync from, syncs from the last synced block by default
-   * @param {int} endHeight is the end height to sync to, syncs to the current chain height by default
+   * @param {int} endHeight is the end height to sync to (exclusive), syncs to the current chain height by default
    * @param {function} onProgress({percent: , message: , totalBlocks: , doneBlocks: }) is invoked as progress is made
    */
   async sync(startHeight, endHeight, onProgress) {
