@@ -101,15 +101,13 @@ namespace monero {
     /**
      * Invoked when sync progress is made.
      *
-     * TODO: const uint64_t& startHeight, etc...?
-     *
+     * @param height is the height of the synced block
      * @param startHeight is the starting height of the sync request
-     * @param numBlocksDone is the number of blocks synced
-     * @param numBlocksTotal is the total number of blocks to sync
+     * @param endHeight is the ending height of the sync request
      * @param percentDone is the sync progress as a percentage
      * @param message is a human-readable description of the current progress
      */
-    virtual void onSyncProgress(uint64_t startHeight, uint64_t numBlocksDone, uint64_t numBlocksTotal, double percentDone, string& message) {}
+    virtual void onSyncProgress(uint64_t height, uint64_t startHeight, uint64_t endHeight, double percentDone, const string& message) {}
   };
 
   /**

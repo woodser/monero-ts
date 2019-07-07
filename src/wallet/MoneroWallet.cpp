@@ -657,18 +657,9 @@ namespace monero {
     void onSyncStart(uint64_t startHeight, boost::optional<MoneroSyncListener&> syncListener) {
       if (syncStartHeight != boost::none || syncEndHeight != boost::none) throw runtime_error("Sync start or end height should not already be allocated, is previous sync in progress?");
       syncStartHeight = startHeight;
-      syncEndHeight = wallet.getChainHeight() - 1;
+      syncEndHeight = wallet.getChainHeight();
       this->syncListener = syncListener;
       updateListening();
-
-      // notify listeners of sync start
-      uint64_t numBlocksDone = 0;
-      uint64_t numBlocksTotal = *syncEndHeight - *syncStartHeight + 1;
-      if (numBlocksTotal < 1) return;	// don't report 0% progress if no subsequent progress to report
-      double percentDone = numBlocksDone / (double) numBlocksTotal;
-      string message = string("Synchronizing");
-      if (listener != boost::none) listener.get().onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
-      if (syncListener != boost::none) syncListener.get().onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
     }
 
     void onSyncEnd() {
@@ -688,14 +679,12 @@ namespace monero {
       }
 
       // notify listeners of sync progress
-      if (syncStartHeight != boost::none && height > *syncStartHeight) {
-        if (height > *syncEndHeight) *syncEndHeight = height;	// increase end height if necessary
-        uint64_t numBlocksDone = height - *syncStartHeight + 1;
-        uint64_t numBlocksTotal = *syncEndHeight - *syncStartHeight + 1;
-        double percentDone = numBlocksDone / (double) numBlocksTotal;
+      if (syncStartHeight != boost::none && height >= *syncStartHeight) {
+        if (height >= *syncEndHeight) syncEndHeight = height + 1;	// increase end height if necessary
+        double percentDone = (double) (height - *syncStartHeight + 1) / (double) (*syncEndHeight - *syncStartHeight);
         string message = string("Synchronizing");
-        if (listener != boost::none) listener.get().onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
-        if (syncListener != boost::none) syncListener.get().onSyncProgress(*syncStartHeight, numBlocksDone, numBlocksTotal, percentDone, message);
+        if (listener != boost::none) listener.get().onSyncProgress(height, *syncStartHeight, *syncEndHeight, percentDone, message);
+        if (syncListener != boost::none) syncListener.get().onSyncProgress(height, *syncStartHeight, *syncEndHeight, percentDone, message);
       }
     }
 
@@ -2238,7 +2227,7 @@ namespace monero {
     cout << "syncAux()" << endl;
 
     // validate inputs
-    if (endHeight != boost::none) throw runtime_error("Monero core wallet does not support syncing to an end height");	// TODO: custom exception type
+    if (endHeight != boost::none) throw runtime_error("Monero core wallet2 does not support syncing to an end height");	// TODO: custom exception type
 
     // determine sync start height
     uint64_t syncStartHeight = startHeight == boost::none ? max(getHeight(), getRestoreHeight()) : *startHeight;
