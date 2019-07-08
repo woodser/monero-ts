@@ -81,11 +81,30 @@ int main(int argc, const char* argv[]) {
 //    if (!*transfer->tx->isConfirmed) throw runtime_error("Transfer should be confirmed");
 //  }
 
-  shared_ptr<MoneroTxRequest> txRequest = shared_ptr<MoneroTxRequest>(new MoneroTxRequest());
-  txRequest->isConfirmed = true;
-  vector<shared_ptr<MoneroTxWallet>> txs = wallet->getTxs(*txRequest);
+//  shared_ptr<MoneroTxRequest> txRequest = shared_ptr<MoneroTxRequest>(new MoneroTxRequest());
+//  txRequest->isConfirmed = true;
+//  vector<shared_ptr<MoneroTxWallet>> txs = wallet->getTxs(*txRequest);
+//  if (txs.empty()) throw runtime_error("Txs should not be empty");
+//  for (const shared_ptr<MoneroTxWallet>& tx : txs) {
+//    if (!*tx->isConfirmed) throw runtime_error("Tx should be confirmed");
+//  }
+
+
+  // debug simple block merging
+  vector<shared_ptr<MoneroTxWallet>> txs = wallet->getTxs();
   if (txs.empty()) throw runtime_error("Txs should not be empty");
+  shared_ptr<MoneroBlock> block = nullptr;
   for (const shared_ptr<MoneroTxWallet>& tx : txs) {
-    if (!*tx->isConfirmed) throw runtime_error("Tx should be confirmed");
+    if (tx->getHeight().get() != 360559l) throw runtime_error("Anything other than 360559l should be filtered");
+    cout << "We have one!!!" << endl;
+    if (block == nullptr) block = tx->block.get();
+    else {
+      if (block != tx->block.get()) {
+        cout << "BOOM" << endl;
+        cout << block->serialize();
+        cout << "--- VS ---" << endl;
+        cout << tx->block.get()->serialize();
+      }
+    }
   }
 }
