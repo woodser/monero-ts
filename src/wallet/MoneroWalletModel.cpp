@@ -128,12 +128,10 @@ namespace monero {
   }
 
   void MoneroTxWallet::merge(const shared_ptr<MoneroTx>& self, const shared_ptr<MoneroTx>& other) {
-    cout << "MoneroTxWallet::merge(MoneroTxs)" << endl;
     merge(static_pointer_cast<MoneroTxWallet>(self), static_pointer_cast<MoneroTxWallet>(other));
   }
 
   void MoneroTxWallet::merge(const shared_ptr<MoneroTxWallet>& self, const shared_ptr<MoneroTxWallet>& other) {
-    cout << "MoneroTxWallet::merge()" << endl;
     if (this != self.get()) throw runtime_error("this != self");
     if (self == other) return;
 

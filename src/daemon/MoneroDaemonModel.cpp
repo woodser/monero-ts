@@ -149,7 +149,6 @@ namespace monero {
   }
 
   void MoneroBlock::merge(const shared_ptr<MoneroBlock>& self, const shared_ptr<MoneroBlock>& other) {
-    cout << "MoneroBlock::merge()" << endl;
     if (this != self.get()) throw runtime_error("this != self");
     if (self == other) return;
 
@@ -224,9 +223,7 @@ namespace monero {
   }
 
   void MoneroTx::merge(const shared_ptr<MoneroTx>& self, const shared_ptr<MoneroTx>& other) {
-    cout << "MoneroTx::merge()" << endl;
     if (this != self.get()) throw runtime_error("this != self");
-    cout << self << ", " << other << endl;
     if (self == other) return;
 
     // merge blocks if they're different which comes back to merging txs
