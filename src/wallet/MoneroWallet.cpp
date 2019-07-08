@@ -1160,6 +1160,11 @@ namespace monero {
     return subaddress;
   }
 
+  vector<shared_ptr<MoneroTxWallet>> MoneroWallet::getTxs() const {
+    MoneroTxRequest request;
+    return getTxs(request);
+  }
+
   vector<shared_ptr<MoneroTxWallet>> MoneroWallet::getTxs(MoneroTxRequest& request) const {
     cout << "getTxs(request)" << endl;
 
@@ -1318,6 +1323,7 @@ namespace monero {
       wallet2->get_payments(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
         shared_ptr<MoneroTxWallet> tx = buildTxWithIncomingTransfer(*wallet2, chainHeight, i->first, i->second);
+        if (tx->getHeight().get() != 360559l) continue;
         mergeTx(tx, txMap, false);
       }
     }
@@ -1330,6 +1336,7 @@ namespace monero {
       wallet2->get_payments_out(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::confirmed_transfer_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
         shared_ptr<MoneroTxWallet> tx = buildTxWithOutgoingTransfer(*wallet2, chainHeight, i->first, i->second);
+        if (tx->getHeight().get() != 360559l) continue;
         mergeTx(tx, txMap, false);
       }
     }
@@ -1342,6 +1349,7 @@ namespace monero {
       wallet2->get_unconfirmed_payments_out(upayments, accountIndex, subaddressIndices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::unconfirmed_transfer_details>>::const_iterator i = upayments.begin(); i != upayments.end(); ++i) {
         shared_ptr<MoneroTxWallet> tx = buildTxWithOutgoingTransferUnconfirmed(*wallet2, i->first, i->second);
+        if (tx->getHeight().get() != 360559l) continue;
         if (txReq.isFailed != boost::none && txReq.isFailed.get() != tx->isFailed.get()) continue; // skip merging if tx unrequested
         mergeTx(tx, txMap, false);
       }
@@ -1356,6 +1364,7 @@ namespace monero {
       wallet2->get_unconfirmed_payments(payments, accountIndex, subaddressIndices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::pool_payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
         shared_ptr<MoneroTxWallet> tx = buildTxWithIncomingTransferUnconfirmed(*wallet2, i->first, i->second);
+        if (tx->getHeight().get() != 360559l) continue;
         mergeTx(tx, txMap, false);
       }
     }

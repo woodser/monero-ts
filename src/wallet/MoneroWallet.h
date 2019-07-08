@@ -526,13 +526,13 @@ namespace monero {
 //     */
 //    public MoneroTxWallet getTx(string txId);
 //
-//    /**
-//     * Get all wallet transactions.  Wallet transactions contain one or more
-//     * transfers that are either incoming or outgoing to the wallet.
-//     *
-//     * @return all wallet transactions
-//     */
-//    public List<MoneroTxWallet> getTxs();
+    /**
+     * Get all wallet transactions.  Wallet transactions contain one or more
+     * transfers that are either incoming or outgoing to the wallet.
+     *
+     * @return all wallet transactions
+     */
+    vector<shared_ptr<MoneroTxWallet>> getTxs() const;
 //
 //    /**
 //     * Get wallet transactions by id.
