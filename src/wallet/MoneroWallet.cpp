@@ -351,7 +351,7 @@ namespace monero {
    * @param blockMap maps block heights to blocks
    * @param skipIfAbsent specifies if the tx should not be added if it doesn't already exist
    */
-  void mergeTx(shared_ptr<MoneroTxWallet> tx, map<string, shared_ptr<MoneroTxWallet>>& txMap, map<uint64_t, shared_ptr<MoneroBlock>>& blockMap, bool skipIfAbsent) {
+  void mergeTx(const shared_ptr<MoneroTxWallet>& tx, map<string, shared_ptr<MoneroTxWallet>>& txMap, map<uint64_t, shared_ptr<MoneroBlock>>& blockMap, bool skipIfAbsent) {
     if (tx->id == boost::none) throw runtime_error("Tx id is not initialized");
 
     // if tx doesn't exist, add it (unless skipped)

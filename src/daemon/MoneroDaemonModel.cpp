@@ -63,7 +63,7 @@ namespace monero {
 
   // ----------------------- UNDECLARED PRIVATE HELPERS -----------------------
 
-  void mergeTx(vector<shared_ptr<MoneroTx>> txs, const shared_ptr<MoneroTx>& tx) {
+  void mergeTx(vector<shared_ptr<MoneroTx>>& txs, const shared_ptr<MoneroTx>& tx) {
     for (const shared_ptr<MoneroTx>& aTx : txs) {
       if (aTx->id.get() == tx->id.get()) {
         aTx->merge(aTx, tx);
@@ -161,7 +161,10 @@ namespace monero {
 
     // merge coinbase tx
     if (coinbaseTx == boost::none) coinbaseTx = other->coinbaseTx;
-    else if (other->coinbaseTx != boost::none) coinbaseTx.get()->merge(*coinbaseTx, *other->coinbaseTx);
+    else if (other->coinbaseTx != boost::none) {
+      other->coinbaseTx.get()->block = self;
+      coinbaseTx.get()->merge(*coinbaseTx, *other->coinbaseTx);
+    }
 
     // merge non-coinbase txs
     if (!other->txs.empty()) {
@@ -277,7 +280,7 @@ namespace monero {
 
     // merge vins
     if (!other->vins.empty()) {
-      for (shared_ptr<MoneroOutput> merger : other->vins) {
+      for (const shared_ptr<MoneroOutput>& merger : other->vins) {
         bool merged = false;
         merger->tx = self;
         for (const shared_ptr<MoneroOutput>& mergee : vins) {
@@ -293,7 +296,7 @@ namespace monero {
 
     // merge vouts
     if (!other->vouts.empty()) {
-      for (shared_ptr<MoneroOutput> vout : other->vouts) vout->tx = self;
+      for (const shared_ptr<MoneroOutput>& vout : other->vouts) vout->tx = self;
       if (vouts.empty()) vouts = other->vouts;
       else {
 
@@ -315,7 +318,7 @@ namespace monero {
 
         // merge by key images
         if (numKeyImages > 0) {
-          for (shared_ptr<MoneroOutput> merger : other->vouts) {
+          for (const shared_ptr<MoneroOutput>& merger : other->vouts) {
             bool merged = false;
             merger->tx = self;  // TODO: this update needs made in Java and JS
             for (const shared_ptr<MoneroOutput>& mergee : vouts) {

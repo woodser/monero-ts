@@ -67,7 +67,7 @@ namespace monero {
 
   // ----------------------- UNDECLARED PRIVATE HELPERS -----------------------
 
-  void mergeIncomingTransfer(vector<shared_ptr<MoneroIncomingTransfer>> transfers, const shared_ptr<MoneroIncomingTransfer>& transfer) {
+  void mergeIncomingTransfer(vector<shared_ptr<MoneroIncomingTransfer>>& transfers, const shared_ptr<MoneroIncomingTransfer>& transfer) {
     for (const shared_ptr<MoneroIncomingTransfer>& aTransfer : transfers) {
       if (aTransfer->accountIndex.get() == transfer->accountIndex.get() && aTransfer->subaddressIndex.get() == transfer->subaddressIndex.get()) {
         aTransfer->merge(aTransfer, transfer);
@@ -143,7 +143,7 @@ namespace monero {
 
     // merge incoming transfers
     if (!other->incomingTransfers.empty()) {
-      for (const shared_ptr<MoneroIncomingTransfer> transfer : other->incomingTransfers) {  // NOTE: not using reference so shared_ptr is not deleted when tx is dereferenced
+      for (const shared_ptr<MoneroIncomingTransfer>& transfer : other->incomingTransfers) {  // NOTE: not using reference so shared_ptr is not deleted when tx is dereferenced
         transfer->tx = self;
         mergeIncomingTransfer(self->incomingTransfers, transfer);
       }
