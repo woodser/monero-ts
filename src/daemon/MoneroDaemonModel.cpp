@@ -61,6 +61,23 @@
  */
 namespace monero {
 
+  // ----------------------- UNDECLARED PRIVATE HELPERS -----------------------
+
+  void mergeTx(vector<shared_ptr<MoneroTx>> txs, const shared_ptr<MoneroTx>& tx) {
+    cout << "Merging this other guy in: " << tx << endl;
+    for (const shared_ptr<MoneroTx>& aTx : txs) {
+        cout << "Comparaing against self tx: " << aTx << endl;
+      if (aTx->id.get() == tx->id.get()) {
+          cout << "And we're merging..." << endl;
+          cout << aTx << endl;
+          cout << tx << endl;
+        aTx->merge(aTx, tx);
+        return;
+      }
+    }
+    txs.push_back(tx);
+  }
+
   // ------------------------- INITIALIZE CONSTANTS ---------------------------
 
   const string MoneroTx::DEFAULT_PAYMENT_ID = string("0000000000000000");
@@ -133,44 +150,86 @@ namespace monero {
   }
 
   void MoneroBlock::merge(const shared_ptr<MoneroBlockHeader>& self, const shared_ptr<MoneroBlockHeader>& other) {
+    cout << "CALLING MONERO BLOCK BASE MERGE" << endl;
     merge(static_pointer_cast<MoneroBlock>(self), static_pointer_cast<MoneroBlock>(other));
   }
 
   void MoneroBlock::merge(const shared_ptr<MoneroBlock>& self, const shared_ptr<MoneroBlock>& other) {
+    cout << "MoneroBlock::merge()" << endl;
+    cout << self << ", " << other << endl;
     if (this != self.get()) throw runtime_error("this != self");
     if (self == other) return;
+    cout << "1" << endl;
 
-    // merge header fields
+    cout << "Lets iterate over self block tx pointers" << endl;
+      for (const shared_ptr<MoneroTx>& tx : self->txs) {
+        cout << tx << endl;
+      }
+
+    cout << "Lets iterate over other block tx pointers" << endl;
+      for (const shared_ptr<MoneroTx>& tx : other->txs) {
+        cout << tx << endl;
+      }
+
+    // merge base classes
     MoneroBlockHeader::merge(self, other);
+
+    // merge reconcilable block extensions
+    hex = MoneroUtils::reconcile(hex, other->hex);
+    txIds = MoneroUtils::reconcile(txIds, other->txIds);
+
+    cout << "2" << endl;
 
     // merge coinbase tx
     if (coinbaseTx == boost::none) coinbaseTx = other->coinbaseTx;
     else if (other->coinbaseTx != boost::none) coinbaseTx.get()->merge(*coinbaseTx, *other->coinbaseTx);
 
+    cout << "3" << endl;
+
+
     // merge non-coinbase txs
-    if (txs.empty()) txs = other->txs;
-    else if (!other->txs.empty()) {
-      for (const shared_ptr<MoneroTx>& thatTx : other->txs) {
-        bool found = false;
-        for (const shared_ptr<MoneroTx>& thisTx : txs) {
-          if (thatTx->id == thisTx->id) {
-            thisTx->merge(thisTx, thatTx);
-            found = true;
-            break;
-          }
-        }
-        if (!found) txs.push_back(thatTx);
-      }
-    }
-    if (!txs.empty()) {
-      for (const shared_ptr<MoneroTx>& tx : txs) {
-        tx->block = self;
+    if (!other->txs.empty()) {
+        cout << "4" << endl;
+      for (const shared_ptr<MoneroTx> otherTx : other->txs) { // NOTE: not using reference so shared_ptr is not deleted when block is dereferenced
+          cout << "5" << endl;
+          cout << "Merging into existing txs: " << otherTx << endl;
+        otherTx->block = self;
+        cout << "Merging into existing txs: " << otherTx << endl;
+        mergeTx(self->txs, otherTx);
       }
     }
 
-    // merge other fields
-    hex = MoneroUtils::reconcile(hex, other->hex);
-    txIds = MoneroUtils::reconcile(txIds, other->txIds);
+//    // merge non-coinbase txs
+//    if (txs.empty()) {
+//        txs = other->txs;
+//        cout << "4" << endl;
+//    }
+//    else if (!other->txs.empty()) {
+//        cout << "5" << endl;
+//      for (const shared_ptr<MoneroTx>& thatTx : other->txs) {
+//        bool found = false;
+//        for (const shared_ptr<MoneroTx>& thisTx : txs) {
+//            cout << "6" << endl;
+//          if (thatTx->id == thisTx->id) {
+//              cout << "7" << endl;
+//            thatTx->block = self;
+//            cout << "And here we go for merging txs" << endl;
+//            thisTx->merge(thisTx, thatTx);
+//            found = true;
+//            break;
+//          }
+//        }
+//        if (!found) txs.push_back(thatTx);
+//      }
+//    }
+//    cout << "4.2" << endl;
+//    if (!txs.empty()) {
+//      for (const shared_ptr<MoneroTx>& tx : txs) {
+//        tx->block = self;
+//      }
+//    }
+
+    cout << "Returning from MoneroBlock merge" << endl;
   }
 
   // ------------------------------- MONERO TX --------------------------------
@@ -224,8 +283,40 @@ namespace monero {
   }
 
   void MoneroTx::merge(const shared_ptr<MoneroTx>& self, const shared_ptr<MoneroTx>& other) {
+    cout << "MoneroTx::merge()" << endl;
     if (this != self.get()) throw runtime_error("this != self");
+    cout << self << ", " << other << endl;
+    cout << "1" << endl;
     if (self == other) return;
+    cout << "2" << endl;
+
+    // merge blocks if they're different which comes back to merging txs
+    if (block != other->block) {
+        cout << "4" << endl;
+      if (block == boost::none) {
+          cout << "5" << endl;
+        block = shared_ptr<MoneroBlock>(new MoneroBlock());
+        block.get()->txs.push_back(self);
+        block.get()->height = other->getHeight();
+      }
+      if (other->block == boost::none) {
+          cout << "About to access other->block" << endl;
+          cout << other->block << endl;
+          cout << "6" << endl;
+        other->block = shared_ptr<MoneroBlock>(new MoneroBlock());
+        cout << "7" << endl;
+        other->block.get()->txs.push_back(other);
+        cout << "8" << endl;
+        other->block.get()->height = self->getHeight();
+        cout << "9" << endl;
+      }
+      cout << "Merging blocks!" << endl;
+      block.get()->merge(block.get(), other->block.get());
+      return;
+    }
+    cout << "merging tx fields!!!" << endl;
+
+    // otherwise merge tx fields
     id = MoneroUtils::reconcile(id, other->id);
     version = MoneroUtils::reconcile(version, other->version);
     paymentId = MoneroUtils::reconcile(paymentId, other->paymentId);
@@ -258,9 +349,11 @@ namespace monero {
     unlockTime = MoneroUtils::reconcile(unlockTime, other->unlockTime);
     numConfirmations = MoneroUtils::reconcile(numConfirmations, other->numConfirmations);
 
+    cout << "Merging vins!" << endl;
+
     // merge vins
     if (!other->vins.empty()) {
-      for (const shared_ptr<MoneroOutput>& merger : other->vins) {
+      for (shared_ptr<MoneroOutput> merger : other->vins) {
         bool merged = false;
         merger->tx = self;
         for (const shared_ptr<MoneroOutput>& mergee : vins) {
@@ -274,9 +367,11 @@ namespace monero {
       }
     }
 
+    cout << "Merging vouts!" << endl;
+
     // merge vouts
     if (!other->vouts.empty()) {
-      for (const shared_ptr<MoneroOutput>& vout : other->vouts) vout->tx = self;
+      for (shared_ptr<MoneroOutput> vout : other->vouts) vout->tx = self;
       if (vouts.empty()) vouts = other->vouts;
       else {
 
@@ -298,8 +393,9 @@ namespace monero {
 
         // merge by key images
         if (numKeyImages > 0) {
-          for (const shared_ptr<MoneroOutput>& merger : other->vouts) {
+          for (shared_ptr<MoneroOutput> merger : other->vouts) {
             bool merged = false;
+            merger->tx = self;  // TODO: this update needs made in Java and JS
             for (const shared_ptr<MoneroOutput>& mergee : vouts) {
               if ((*mergee->keyImage)->hex == (*merger->keyImage)->hex) {
                 mergee->merge(mergee, merger);
@@ -331,6 +427,8 @@ namespace monero {
       receivedTimestamp = MoneroUtils::reconcile(receivedTimestamp, other->receivedTimestamp, boost::none, boost::none, false); // take earliest receive time
       lastRelayedTimestamp = MoneroUtils::reconcile(lastRelayedTimestamp, other->lastRelayedTimestamp, boost::none, boost::none, true); // take latest relay time
     }
+
+    cout << "Returning from MoneroTx::merge()" << endl;
   }
 
   // --------------------------- MONERO KEY IMAGE -----------------------------

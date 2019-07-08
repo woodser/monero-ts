@@ -67,13 +67,14 @@ namespace monero {
 
   // ----------------------- UNDECLARED PRIVATE HELPERS -----------------------
 
-  void mergeIncomingTransfer(const vector<shared_ptr<MoneroIncomingTransfer>> transfers, const shared_ptr<MoneroIncomingTransfer>& transfer) {
+  void mergeIncomingTransfer(vector<shared_ptr<MoneroIncomingTransfer>> transfers, const shared_ptr<MoneroIncomingTransfer>& transfer) {
     for (const shared_ptr<MoneroIncomingTransfer>& aTransfer : transfers) {
       if (aTransfer->accountIndex.get() == transfer->accountIndex.get() && aTransfer->subaddressIndex.get() == transfer->subaddressIndex.get()) {
         aTransfer->merge(aTransfer, transfer);
         return;
       }
     }
+    transfers.push_back(transfer);
   }
 
   // ---------------------------- MONERO ACCOUNT ------------------------------
@@ -127,28 +128,67 @@ namespace monero {
   }
 
   void MoneroTxWallet::merge(const shared_ptr<MoneroTx>& self, const shared_ptr<MoneroTx>& other) {
+    cout << "MoneroTxWallet::merge(MoneroTxs)" << endl;
+    cout << self << ", " << other << endl;
+
     //cout << "MoneroTxWallet::merge(MoneroTx&, MoneroTx&)" << endl;
+    cout << self->id << endl;
+    cout << "bump" << endl;
+    cout << other->id << endl;
+    cout << "And onward..." << endl;
+    shared_ptr<MoneroTxWallet> temp = dynamic_pointer_cast<MoneroTxWallet>(self);
+    if (temp == nullptr) cout << "you're gonna be in for a bad time" << endl;
+    shared_ptr<MoneroTxWallet> temp2 = dynamic_pointer_cast<MoneroTxWallet>(other);
+    if (temp2 == nullptr) cout << "you're gonna be in for a bad time 2" << endl;
+
     merge(static_pointer_cast<MoneroTxWallet>(self), static_pointer_cast<MoneroTxWallet>(other));
   }
 
   void MoneroTxWallet::merge(const shared_ptr<MoneroTxWallet>& self, const shared_ptr<MoneroTxWallet>& other) {
-    //cout << "MoneroTxWallet::merge()" << endl;
+    cout << "MoneroTxWallet::merge()" << endl;
+    cout << self << ", " << other << endl;
+
+
+    cout << "Lets iterate over self block tx pointers" << endl;
+    if (self->block != boost::none) {
+      for (const shared_ptr<MoneroTx>& tx : self->block.get()->txs) {
+        cout << tx << endl;
+      }
+    }
+
+    cout << "Lets iterate over other block tx pointers" << endl;
+    if (other->block != boost::none) {
+      for (const shared_ptr<MoneroTx>& tx : other->block.get()->txs) {
+        cout << tx << endl;
+      }
+    }
+
     if (this != self.get()) throw runtime_error("this != self");
-    if (self == other) return;
+    if (self == other) {
+        cout << "These are the same reference so we're returning" << endl;
+        return;
+    }
 
     // merge base classes
+    cout << "Merging base classes" << endl;
     MoneroTx::merge(self, other);
+
+    cout << "Returned from MoneroTx::merge()" << endl;
 
     // merge wallet extensions
     note = MoneroUtils::reconcile(note, other->note);
 
+    cout << "2" << endl;
+
     // merge incoming transfers
     if (!other->incomingTransfers.empty()) {
-      for (const shared_ptr<MoneroIncomingTransfer>& transfer : other->incomingTransfers) {
+      for (const shared_ptr<MoneroIncomingTransfer> transfer : other->incomingTransfers) {  // NOTE: not using reference so shared_ptr is not deleted when tx is dereferenced
         transfer->tx = self;
         mergeIncomingTransfer(self->incomingTransfers, transfer);
       }
     }
+
+    cout << "3" << endl;
 
     // merge outgoing transfer
     if (other->outgoingTransfer != boost::none) {
@@ -156,6 +196,8 @@ namespace monero {
       if (self->outgoingTransfer == boost::none) self->outgoingTransfer = other->outgoingTransfer;
       else self->outgoingTransfer.get()->merge(self->outgoingTransfer.get(), other->outgoingTransfer.get());
     }
+
+    cout << "4" << endl;
   }
 
   //boost::property_tree::ptree MoneroUtils::txWalletToPropertyTree(const MoneroTxWallet& tx) {
@@ -296,14 +338,15 @@ namespace monero {
     if (self == other) return;
 
     // merge txs if they're different which comes back to merging transfers
-    if (tx != other->tx) tx->merge(tx, other->tx);
+    if (tx != other->tx) {
+      tx->merge(tx, other->tx);
+      return;
+    }
 
     // otherwise merge transfer fields
-    else {
-      amount = MoneroUtils::reconcile(amount, other->amount);
-      accountIndex = MoneroUtils::reconcile(accountIndex, other->accountIndex);
-      numSuggestedConfirmations = MoneroUtils::reconcile(numSuggestedConfirmations, other->numSuggestedConfirmations, boost::none, boost::none, false);
-    }
+    amount = MoneroUtils::reconcile(amount, other->amount);
+    accountIndex = MoneroUtils::reconcile(accountIndex, other->accountIndex);
+    numSuggestedConfirmations = MoneroUtils::reconcile(numSuggestedConfirmations, other->numSuggestedConfirmations, boost::none, boost::none, false);
   }
 
   // ----------------------- MONERO INCOMING TRANSFER -------------------------
