@@ -1246,6 +1246,7 @@ namespace monero {
     }
 
     // special case: re-fetch txs if inconsistency caused by needing to make multiple wallet calls
+    // TODO monero core: offer wallet.get_txs(...)
     for (const shared_ptr<MoneroTxWallet>& tx : txs) {
       if (*tx->isConfirmed && tx->block == boost::none) return getTxs(request);
     }
