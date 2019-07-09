@@ -383,6 +383,16 @@ namespace monero {
   }
 
   /**
+   * Returns true iff tx1's height is known to be less than tx2's height for sorting.
+   */
+  bool txHeightLessThan(const shared_ptr<MoneroTxWallet>& tx1, const shared_ptr<MoneroTxWallet>& tx2) {
+    if (tx1->block != boost::none && tx2->block != boost::none) return tx1->getHeight() < tx2->getHeight();
+    else if (tx1->block == boost::none) return false;
+    else return true;
+  }
+
+
+  /**
    * ---------------- DUPLICATED WALLET RPC TRANSFER CODE ---------------------
    *
    * These functions are duplicated from private functions in wallet rpc
@@ -1367,10 +1377,16 @@ namespace monero {
 
     //cout << "8" << endl;
 
+    // sort txs by block height
+    vector<shared_ptr<MoneroTxWallet>> txs ;
+    for (map<string, shared_ptr<MoneroTxWallet>>::const_iterator txIter = txMap.begin(); txIter != txMap.end(); txIter++) {
+      txs.push_back(txIter->second);
+    }
+    sort(txs.begin(), txs.end(), txHeightLessThan);
+
     // filter and return transfers
     vector<shared_ptr<MoneroTransfer>> transfers;
-    for (map<string, shared_ptr<MoneroTxWallet>>::const_iterator txIter = txMap.begin(); txIter != txMap.end(); txIter++) {
-      shared_ptr<MoneroTxWallet> tx = txIter->second;
+    for (const shared_ptr<MoneroTxWallet>& tx : txs) {
 
       // collect outgoing transfer, erase if filtered TODO: java/js do not erase filtered transfers
       if (tx->outgoingTransfer != boost::none && request.meetsCriteria(tx->outgoingTransfer.get().get())) transfers.push_back(tx->outgoingTransfer.get());
@@ -1394,6 +1410,7 @@ namespace monero {
     }
     //cout << "9" << endl;
     cout << "MoneroWallet.cpp getTransfers() returning " << transfers.size() << " transfers" << endl;
+
     return transfers;
   }
 
