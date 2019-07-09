@@ -1,9 +1,6 @@
 HIGH PRIORITY
-memory leak
 shared_ptr<Foo>(new Foo()) vs make_shared
 strong vs weak references
-
-
 cannot reconcile integrals on getTransfers() test, need to add reconcile debug info including vals and pass error message
 testGetTransfers() cannot reconcile integrals: new MoneroTransferRequest().setAccountIndex(subaddress.getAccountIndex()).setSubaddressIndex(subaddress.getIndex())
 tx c40d5dbf49172a1a42111e414ee243e8c7a45cf0c09c5d91c5cef21672145755 should have outgoing but does not according to jni 
