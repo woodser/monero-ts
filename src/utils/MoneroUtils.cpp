@@ -110,7 +110,7 @@ shared_ptr<MoneroKeyImage> nodeToKeyImage(const boost::property_tree::ptree& nod
   shared_ptr<MoneroKeyImage> keyImage = shared_ptr<MoneroKeyImage>(new MoneroKeyImage());
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    cout << "Key image node key: " << key << endl;
+    //cout << "Key image node key: " << key << endl;
     if (key == string("hex")) keyImage->hex = it->second.data();
     else if (key == string("signature")) keyImage->signature = it->second.data();
   }
