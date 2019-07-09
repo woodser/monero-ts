@@ -8,11 +8,9 @@ tx 121158a7e51044e27de6958a9501cc9eba811b2e37bc651ab9a04e749d11cc38 should have 
 comb code todos
 
 MEDIUM PRIORITY
-onSyncProgress(startHeight, currentHeight, endHeight, percentDone, message)?
 toPropertyTree() should take node as parameter; optimize memory elsewhere (move shared_ptrs, etc)
 enable debug logging
 model accessors/mutators/chaining?
-use gnu debugger and sanitize=on
 further automate build process
 
 LOW PRIORITY
