@@ -391,6 +391,14 @@ namespace monero {
     else return true;
   }
 
+  /**
+   * Returns true iff transfer1 is ordered before transfer2 by ascending account and subaddress indices.
+   */
+  bool incomingTransferBefore(const shared_ptr<MoneroIncomingTransfer>& transfer1, const shared_ptr<MoneroIncomingTransfer>& transfer2) {
+    if (transfer1->accountIndex.get() < transfer2->accountIndex.get()) return true;
+    else if (transfer1->accountIndex.get() == transfer2->accountIndex.get()) return transfer1->subaddressIndex.get() < transfer2->subaddressIndex.get();
+    else return false;
+  }
 
   /**
    * ---------------- DUPLICATED WALLET RPC TRANSFER CODE ---------------------
@@ -1387,6 +1395,9 @@ namespace monero {
     // filter and return transfers
     vector<shared_ptr<MoneroTransfer>> transfers;
     for (const shared_ptr<MoneroTxWallet>& tx : txs) {
+
+      // sort transfers
+      sort(tx->incomingTransfers.begin(), tx->incomingTransfers.end(), incomingTransferBefore);
 
       // collect outgoing transfer, erase if filtered TODO: java/js do not erase filtered transfers
       if (tx->outgoingTransfer != boost::none && request.meetsCriteria(tx->outgoingTransfer.get().get())) transfers.push_back(tx->outgoingTransfer.get());
