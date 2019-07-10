@@ -15,7 +15,7 @@ The source code in this project may be built as a dynamic or "shared" library fo
 1. Download the boost source code to ./external/boost-sdk
 2. Download the OpenSSL source code to ./external/openssl-sdk
 3.	Build dependent libraries (boost, hidapi, libsodium, monero-core, and OpenSSL) and place .a files in corresponding folders in ./external-libs per CMakeLists.txt.
-    - Monero Core: Modify CMakeLists.txt option(BUILD_GUI_DEPS "Build GUI dependencies." ON) (line 1024).  Build twice to get libwallet_merged.a.
+    - Monero Core: Modify CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`.  Build twice to create libwallet_merged.a.
     - Todo: document/automate further
 4. Build libmonero-cpp.dylib to ./build: `./bin/build-libmonero-cpp.sh`
 
