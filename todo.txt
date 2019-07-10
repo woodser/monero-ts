@@ -8,6 +8,7 @@ tx 121158a7e51044e27de6958a9501cc9eba811b2e37bc651ab9a04e749d11cc38 should have 
 comb code todos
 
 MEDIUM PRIORITY
+MoneroWallet getChainHeight() calling daemon connection every time, surely better way
 toPropertyTree() should take node as parameter; optimize memory elsewhere (move shared_ptrs, etc)
 enable debug logging
 model accessors/mutators/chaining?
