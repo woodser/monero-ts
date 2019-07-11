@@ -2252,7 +2252,7 @@ namespace monero {
   }
 
   // private helper to initialize subaddresses using transfer details
-  vector<MoneroSubaddress> MoneroWallet::getSubaddressesAux(const uint32_t accountIdx, vector<uint32_t> subaddressIndices, vector<tools::wallet2::transfer_details> transfers) const {
+  vector<MoneroSubaddress> MoneroWallet::getSubaddressesAux(const uint32_t accountIdx, vector<uint32_t> subaddressIndices, const vector<tools::wallet2::transfer_details>& transfers) const {
     vector<MoneroSubaddress> subaddresses;
 
     // get balances per subaddress as maps
@@ -2282,7 +2282,7 @@ namespace monero {
       cryptonote::subaddress_index index = {accountIdx, subaddressIdx};
       subaddress.numUnspentOutputs = count_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return !td.m_spent && td.m_subaddr_index == index; });
       subaddress.isUsed = find_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return td.m_subaddr_index == index; }) != transfers.end();
-      subaddress.numBlocksToUnlock = subaddress.isUsed.get() ? iter2->second.second : 0;
+      subaddress.numBlocksToUnlock = iter2 == balancePerSubaddress.end() ? 0 : iter2->second.second;
       subaddresses.push_back(subaddress);
     }
 
