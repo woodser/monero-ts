@@ -2282,7 +2282,7 @@ namespace monero {
       cryptonote::subaddress_index index = {accountIdx, subaddressIdx};
       subaddress.numUnspentOutputs = count_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return !td.m_spent && td.m_subaddr_index == index; });
       subaddress.isUsed = find_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return td.m_subaddr_index == index; }) != transfers.end();
-      subaddress.numBlocksToUnlock = iter2 == balancePerSubaddress.end() ? 0 : iter2->second.second;
+      subaddress.numBlocksToUnlock = iter1 == balancePerSubaddress.end() ? 0 : iter2->second.second;
       subaddresses.push_back(subaddress);
     }
 
