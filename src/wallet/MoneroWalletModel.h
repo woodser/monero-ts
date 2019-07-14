@@ -257,6 +257,7 @@ namespace monero {
     vector<string> txIds;
     boost::optional<bool> hasPaymentId;
     vector<string> paymentIds;
+    boost::optional<uint64_t> height;
     boost::optional<uint64_t> minHeight;
     boost::optional<uint64_t> maxHeight;
     boost::optional<uint64_t> includeOutputs;

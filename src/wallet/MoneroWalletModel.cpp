@@ -179,6 +179,7 @@ namespace monero {
     if (!txIds.empty()) node.add_child("txIds", MoneroUtils::toPropertyTree(txIds));
     if (hasPaymentId != boost::none) node.put("hasPaymentId", *hasPaymentId);
     if (!paymentIds.empty()) node.add_child("paymentIds", MoneroUtils::toPropertyTree(paymentIds));
+    if (height != boost::none) node.put("height", *height);
     if (minHeight != boost::none) node.put("minHeight", *minHeight);
     if (maxHeight != boost::none) node.put("maxHeight", *maxHeight);
     if (includeOutputs != boost::none) node.put("includeOutputs", *includeOutputs);
@@ -243,7 +244,7 @@ namespace monero {
     boost::optional<uint64_t> txHeight = tx->getHeight();
     if (!txIds.empty() && find(txIds.begin(), txIds.end(), *tx->id) == txIds.end()) return false;
     if (!paymentIds.empty() && (tx->paymentId == boost::none || find(paymentIds.begin(), paymentIds.end(), *tx->paymentId) == paymentIds.end())) return false;
-    if (getHeight() != boost::none && (txHeight == boost::none || *txHeight != *getHeight())) return false;
+    if (height != boost::none && (txHeight == boost::none || *txHeight != *height)) return false;
     if (minHeight != boost::none && (txHeight == boost::none || *txHeight < *minHeight)) return false;
     if (maxHeight != boost::none && (txHeight == boost::none || *txHeight > *maxHeight)) return false;
 
