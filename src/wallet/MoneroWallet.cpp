@@ -1308,7 +1308,7 @@ namespace monero {
     // build parameters for wallet2->get_payments()
     uint64_t minHeight = txReq.minHeight == boost::none ? 0 : *txReq.minHeight;
     uint64_t maxHeight = txReq.maxHeight == boost::none ? CRYPTONOTE_MAX_BLOCK_NUMBER : min((uint64_t) CRYPTONOTE_MAX_BLOCK_NUMBER, *txReq.maxHeight);
-    if (minHeight > 0) minHeight--; // TODO monero core: wallet2::get_payments() min_height is exclusive, so manually offset to match intended range (https://github.com/monero-project/monero/issues/5751)
+    if (minHeight > 0) minHeight--; // TODO monero core: wallet2::get_payments() min_height is exclusive, so manually offset to match intended range (issues 5751, #5598)
     boost::optional<uint32_t> accountIndex = boost::none;
     if (request.accountIndex != boost::none) accountIndex = *request.accountIndex;
     std::set<uint32_t> subaddressIndices;
