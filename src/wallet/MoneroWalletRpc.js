@@ -409,7 +409,12 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // filter txs that don't meet transfer request
     request.setTransferRequest(transferRequest);
-    txs = Filter.apply(request, txs);
+    let txsRequested = [];
+    for (let tx of txs) {
+      if (request.meetsCriteria(tx)) txsRequested.push(tx);
+      else if (tx.getBlock() !== undefined) tx.getBlock().getTxs().splice(tx.getBlock().getTxs().indexOf(tx), 1);
+    }
+    txs = txsRequested;
     
     // verify all specified tx ids found
     if (request.getTxIds()) {
@@ -455,7 +460,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // build params for get_transfers rpc call
     let params = {};
     let canBeConfirmed = txRequest.getIsConfirmed() !== false && txRequest.getInTxPool() !== true && txRequest.getIsFailed() !== true && txRequest.getIsRelayed() !== false;
-    let canBeInTxPool = txRequest.getIsConfirmed() !== true && txRequest.getInTxPool() !== false && txRequest.getIsFailed() !== true && txRequest.getIsRelayed() !== false && txRequest.getHeight() === undefined && txRequest.getMinHeight() === undefined;
+    let canBeInTxPool = txRequest.getIsConfirmed() !== true && txRequest.getInTxPool() !== false && txRequest.getIsFailed() !== true && txRequest.getIsRelayed() !== false && txRequest.getHeight() === undefined && txRequest.getMinHeight() === undefined && txRequest.getMaxHeight() === undefined;
     let canBeIncoming = request.getIsIncoming() !== false && request.getIsOutgoing() !== true && request.getHasDestinations() !== true;
     let canBeOutgoing = request.getIsOutgoing() !== false && request.getIsIncoming() !== true;
     params.in = canBeIncoming && canBeConfirmed;
@@ -463,7 +468,10 @@ class MoneroWalletRpc extends MoneroWallet {
     params.pool = canBeIncoming && canBeInTxPool;
     params.pending = canBeOutgoing && canBeInTxPool;
     params.failed = txRequest.getIsFailed() !== false && txRequest.getIsConfirmed() !== true && txRequest.getInTxPool() != true;
-    if (txRequest.getMinHeight() !== undefined) params.min_height = txRequest.getMinHeight(); 
+    if (txRequest.getMinHeight() !== undefined) {
+      if (txRequest.getMinHeight() > 0) params.min_height = txRequest.getMinHeight() - 1; // TODO monero core: wallet2::get_payments() min_height is exclusive, so manually offset to match intended range (issues #5751, #5598)
+      else params.min_height = txRequest.getMinHeight();
+    }
     if (txRequest.getMaxHeight() !== undefined) params.max_height = txRequest.getMaxHeight();
     params.filter_by_height = txRequest.getMinHeight() !== undefined || txRequest.getMaxHeight() !== undefined;
     if (request.getAccountIndex() === undefined) {
@@ -502,11 +510,59 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
     
+    // sort txs by block height
+    txs.sort((tx1, tx2) => {
+      if (tx1.getHeight() === undefined && tx2.getHeight() === undefined) return 0; // both unconfirmed
+      else if (tx1.getHeight() === undefined) return 1;   // tx1 is unconfirmed
+      else if (tx2.getHeight() === undefined) return -1;  // tx2 is unconfirmed
+      let diff = tx1.getHeight() - tx2.getHeight();
+      if (diff !== 0) return diff;
+      return tx1.getBlock().getTxs().indexOf(tx1) - tx2.getBlock().getTxs().indexOf(tx2); // txs are in the same block so retain their original order
+    });
+    
     // filter and return transfers
     let transfers = [];
     for (let tx of txs) {
+      
+      // sort transfers
+      if (tx.getIncomingTransfers() !== undefined) tx.getIncomingTransfers().sort((t1, t2) => {
+        if (t1.getAccountIndex() < t2.getAccountIndex()) return -1;
+        else if (t1.getAccountIndex() === t2.getAccountIndex()) return t1.getSubaddressIndex() - t2.getSubaddressIndex();
+        return 1;
+      });
+      
+      // collect outgoing transfer, erase if filtered
       if (request.meetsCriteria(tx.getOutgoingTransfer())) transfers.push(tx.getOutgoingTransfer());
-      if (tx.getIncomingTransfers()) Filter.apply(request, tx.getIncomingTransfers()).map(transfer => transfers.push(transfer));
+      else tx.setOutgoingTransfer(undefined);
+      
+      // collect incoming transfers, erase if filtered
+      if (tx.getIncomingTransfers() !== undefined) {
+        let toRemoves = [];
+        for (let transfer of tx.getIncomingTransfers()) {
+          if (request.meetsCriteria(transfer)) transfers.push(transfer);
+          else toRemoves.push(transfer);
+        }
+        
+        // erase filtered transfers
+        tx.setIncomingTransfers(tx.getIncomingTransfers().filter(function(transfer) {
+          return !toRemoves.includes(transfer);
+        }));
+        if (tx.getIncomingTransfers().length === 0) tx.setIncomingTransfers(undefined);
+      }
+      
+      // remove unrequested txs from block
+      if (tx.getBlock() !== undefined && tx.getOutgoingTransfer() === undefined && tx.getIncomingTransfers() === undefined) {
+        tx.getBlock().getTxs().splice(tx.getBlock().getTxs().indexOf(tx), 1);
+      }
+      
+//      if (tx.getHeight() === 364866) {
+//        console.log("HERE IS TX WITH HEIGHT");
+//        if (request.meetsCriteria(tx.getOutgoingTransfer())) console.log("Outgoing transfer met!!!");
+//        else console.log("Outgoing transfer not met!");
+//        assert(request.meetsCriteria(tx.getOutgoingTransfer()));
+//      }
+//      if (request.meetsCriteria(tx.getOutgoingTransfer())) transfers.push(tx.getOutgoingTransfer());
+//      if (tx.getIncomingTransfers()) Filter.apply(request, tx.getIncomingTransfers()).map(transfer => transfers.push(transfer));
     }
     
     return transfers;

@@ -71,7 +71,9 @@ class TestMoneroWalletCommon {
       // local tx cache for tests
       let txCache;
       async function getCachedTxs() {
-        if (!txCache) txCache = await wallet.getTxs();
+        if (txCache !== undefined) return txCache;
+        txCache = await wallet.getTxs();
+        testGetTxsStructure(txCache);
         return txCache;
       }
       
@@ -559,7 +561,49 @@ class TestMoneroWalletCommon {
           assert(tx.getOutgoingTransfer().getDestinations().length > 0);
         }
         
-        // test block height filtering
+        // include outputs with transactions
+        txs = await getAndTestTxs(wallet, {includeOutputs: true}, true);
+        let found = false;
+        for (let tx of txs) {
+          if (tx.getVouts()) {
+            assert(tx.getVouts().length > 0);
+            found = true;
+          } else {
+            assert(tx.getIsOutgoing() || (tx.getIsIncoming() && !tx.getIsConfirmed())); // TODO: monero-wallet-rpc: return vouts for unconfirmed txs
+          }
+        }
+        assert(found, "No vouts found in txs");
+      });
+      
+      it("Can get transactions by height", async function() {
+        
+        // get all confirmed txs for testing
+        let txs = await getAndTestTxs(wallet, new MoneroTxRequest().setIsConfirmed(true));
+        assert(txs.length > 0, "Wallet has no confirmed txs; run send tests");
+        
+        // collect all tx heights
+        let txHeights = [];
+        for (let tx of txs) txHeights.push(tx.getHeight());
+        
+        // get height that most txs occur at
+        let heightCounts = countNumInstances(txHeights);
+        let heightModes = getModes(heightCounts);
+        let modeHeight = heightModes.values().next().value;
+        
+        // fetch txs at mode height
+        let modeTxs = await getAndTestTxs(wallet, new MoneroTxRequest().setHeight(modeHeight));
+        assert.equal(modeTxs.length, heightCounts.get(modeHeight));
+        
+        // fetch txs at mode height by range
+        let modeTxsByRange = await getAndTestTxs(wallet, new MoneroTxRequest().setMinHeight(modeHeight).setMaxHeight(modeHeight));
+        assert.equal(modeTxsByRange.length, modeTxs.length);
+        assert.deepEqual(modeTxsByRange, modeTxs);
+        
+        // fetch all txs by range
+        let fetched = await getAndTestTxs(wallet, new MoneroTxRequest().setMinHeight(txs[0].getHeight()).setMaxHeight(txs[txs.length - 1].getHeight()));
+        assert.deepEqual(txs, fetched);
+        
+        // test some filtered by range
         {
           txs = await wallet.getTxs({isConfirmed: true});
           assert(txs.length > 0, "No transactions; run send to multiple test");
@@ -591,19 +635,6 @@ class TestMoneroWalletCommon {
             assert(height >= minHeight && height <= maxHeight);
           }
         }
-        
-        // include outputs with transactions
-        txs = await getAndTestTxs(wallet, {includeOutputs: true}, true);
-        let found = false;
-        for (let tx of txs) {
-          if (tx.getVouts()) {
-            assert(tx.getVouts().length > 0);
-            found = true;
-          } else {
-            assert(tx.getIsOutgoing() || (tx.getIsIncoming() && !tx.getIsConfirmed())); // TODO: monero-wallet-rpc: return vouts for unconfirmed txs
-          }
-        }
-        assert(found, "No vouts found in txs");
       });
       
       // NOTE: payment ids are deprecated so this test will require an old wallet to pass
@@ -2432,6 +2463,8 @@ class TestMoneroWalletCommon {
     return subaddresses;
   }
 }
+
+// ------------------------------ PRIVATE STATIC ------------------------------
   
 function testAccount(account) {
   
@@ -2485,6 +2518,7 @@ async function getAndTestTxs(wallet, request, isExpected) {
   if (isExpected === false) assert.equal(txs.length, 0);
   if (isExpected === true) assert(txs.length > 0);
   for (let tx of txs) await testTxWallet(tx, Object.assign({wallet: wallet}, request));
+  testGetTxsStructure(txs, request);
   return txs;
 }
 
@@ -2952,6 +2986,119 @@ function testCheckReserve(check) {
     assert.equal(check.getTotalAmount(), undefined);
     assert.equal(check.getUnconfirmedSpentAmount(), undefined);
   }
+}
+
+/**
+ * Tests the integrity of the full structure in the given txs from the block down
+ * to transfers / destinations.
+ */
+function testGetTxsStructure(txs, request = undefined) {
+  
+  // normalize request
+  if (request === undefined) request = new MoneroTxRequest();
+  if (!(request instanceof MoneroTxRequest)) request = new MoneroTxRequest(request);
+  
+  // collect unique blocks in order (using set and list instead of TreeSet for direct portability to other languages)
+  let seenBlocks = new Set();
+  let blocks = [];
+  let unconfirmedTxs = [];
+  for (let tx of txs) {
+    if (tx.getBlock() === undefined) unconfirmedTxs.push(tx);
+    else {
+      if (!seenBlocks.has(tx.getBlock())) {
+        seenBlocks.add(tx.getBlock());
+        blocks.push(tx.getBlock());
+      }
+    }
+  }
+  
+  // tx ids must be in order if requested
+  if (request.getTxIds() !== undefined) {
+    assert.equal(txs.length, request.getTxIds().length);
+    for (let i = 0; i < request.getTxIds().length; i++) {
+      assert.equal(txs[i].getId(), request.getTxIds()[i]);
+    }
+  }
+  
+  // test that txs and blocks reference each other and blocks are in ascending order unless specific tx ids requested
+  let index = 0;
+  let prevBlockHeight = undefined;
+  for (let block of blocks) {
+    if (prevBlockHeight === undefined) prevBlockHeight = block.getHeight();
+    else if (request.getTxIds() === undefined) assert(block.getHeight() > prevBlockHeight, "Blocks are not in order of heights: " + prevBlockHeight + " vs " + block.getHeight());
+    for (let tx of block.getTxs()) {
+      assert(tx.getBlock() === block);
+      if (request.getTxIds() === undefined) { 
+        assert.equal(tx.getId(), txs[index].getId()); // verify tx order is self-consistent with blocks unless txs manually re-ordered by requesting by id
+        assert(tx === txs[index]);
+      }
+      index++;
+    }
+  }
+  assert.equal(index + unconfirmedTxs.length, txs.length);
+  
+  // test that incoming transfers are in order of ascending accounts and subaddresses
+  for (let tx of txs) {
+    let prevAccountIdx = undefined;
+    let prevSubaddressIdx = undefined;
+    if (tx.getIncomingTransfers() === undefined) continue;
+    for (let transfer of tx.getIncomingTransfers()) {
+      if (prevAccountIdx === undefined) prevAccountIdx = transfer.getAccountIndex();
+      else {
+        assert(prevAccountIdx <= transfer.getAccountIndex());
+        if (prevAccountIdx < transfer.getAccountIndex()) {
+          prevSubaddressIdx = undefined;
+          prevAccountIdx = transfer.getAccountIndex();
+        }
+        if (prevSubaddressIdx === undefined) prevSubaddressIdx = transfer.getSubaddressIndex();
+        else assert(prevSubaddressIdx < transfer.getSubaddressIndex());
+      }
+    }
+  }
+  
+  // TODO monero core wallet2 does not provide ordered blocks or txs
+//  // collect given tx ids
+//  List<String> txIds = new ArrayList<String>();
+//  for (MoneroTx tx : txs) txIds.add(tx.getId());
+//  
+//  // fetch network blocks at tx heights
+//  List<Long> heights = new ArrayList<Long>();
+//  for (MoneroBlock block : blocks) heights.add(block.getHeight());
+//  List<MoneroBlock> networkBlocks = daemon.getBlocksByHeight(heights);
+//  
+//  // collect matching tx ids from network blocks in order
+//  List<String> expectedTxIds = new ArrayList<String>();
+//  for (MoneroBlock networkBlock : networkBlocks) {
+//    for (String txId : networkBlock.getTxIds()) {
+//      if (!txIds.contains(txId)) expectedTxIds.add(txId);
+//    }
+//  }
+//  
+//  // order of ids must match
+//  assertEquals(expectedTxIds, txIds);
+}
+
+function countNumInstances(instances) {
+  let counts = new Map();
+  for (let instance of instances) {
+    let count = counts.get(instance);
+    counts.set(instance, count === undefined ? 1 : count + 1);
+  }
+  return counts;
+}
+
+function getModes(counts) {
+  let modes = new Set();
+  let maxCount;
+  for (let key of counts.keys()) {
+    let count = counts.get(key);
+    if (maxCount === undefined || count > maxCount) maxCount = count;
+  }
+  for (let key of counts.keys()) {
+    let count = counts.get(key);
+    if (count === maxCount) modes.add(key);
+  }
+  return modes;
 }
 
 module.exports = TestMoneroWalletCommon;

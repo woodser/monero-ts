@@ -1033,15 +1033,16 @@ class MoneroDaemonRpc extends MoneroDaemon {
         syncInfo.setSpans([]);
         let rpcSpans = val;
         for (let rpcSpan of rpcSpans) {
-          syncInfo.getSpans().push(MoneroDaemonRpc._convertRpcConnetionSpan(rpcSpan));
+          syncInfo.getSpans().push(MoneroDaemonRpc._convertRpcConnectionSpan(rpcSpan));
         }
       } else if (key === "status") {}   // handled elsewhere
       else if (key === "target_height") syncInfo.setTargetHeight(new BigInteger(val));
       else if (key === "next_needed_pruning_seed") syncInfo.setNextNeededPruningSeed(val);
       else if (key === "overview") {  // this returns [] without pruning
+        let overview;
         try {
-          let overview = JSON.parse(val);
-          if (overview.length > 0) console.log("WARNING: ignoring non-empty 'overview' field (not implemented): " + overview); // TODO
+          overview = JSON.parse(val);
+          if (overview !== undefined && overview.length > 0) console.log("WARNING: ignoring non-empty 'overview' field (not implemented): " + overview); // TODO
         } catch (e) {
           console.log("WARNING: failed to parse 'overview' field: " + overview + ": " + e.message);
         }

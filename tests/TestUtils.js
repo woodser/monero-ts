@@ -90,8 +90,8 @@ class TestUtils {
 TestUtils.MAX_FEE = new BigInteger(7500000).multiply(new BigInteger(10000));
 
 // default keypair to test
-TestUtils.TEST_MNEMONIC = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
-TestUtils.TEST_ADDRESS = "59aZULsUF3YNSKGiHz4JPMfjGYkm1S4TB3sPsTr3j85HhXb9crZqGa7jJ8cA87U48kT5wzi2VzGZnN2PKojEwoyaHqtpeZh";
+TestUtils.TEST_MNEMONIC = "dilute arrow koala gorilla loudly uttered bygones stockpile problems efficient alerts lordship sighting launching hire tycoon hence ultimate fetches napkin cube usage agony army efficient";
+TestUtils.TEST_ADDRESS = "55PEGdaqz7iW3M4Puddfup1LumsrF2hHc4cQrVnFLVJ2eXexULWwYEUDRKHTRb6uouM9ybJs7GYcEXFht25jw3HZKHcULwp";
 
 //wallet rpc test wallet filenames and passwords
 TestUtils.WALLET_RPC_NAME_1 = "test_wallet_1";

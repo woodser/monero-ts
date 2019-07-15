@@ -85,6 +85,15 @@ class MoneroTxRequest extends MoneroTxWallet {
     return this.setPaymentIds([paymentId]);
   }
   
+  getHeight() {
+    return this.state.height;
+  }
+  
+  setHeight(height) {
+    this.state.height = height;
+    return this;
+  }
+  
   getMinHeight() {
     return this.state.minHeight;
   }
@@ -172,7 +181,7 @@ class MoneroTxRequest extends MoneroTxWallet {
     let txHeight = tx.getBlock() === undefined ? undefined : tx.getBlock().getHeight();
     if (this.getTxIds() !== undefined && !this.getTxIds().includes(tx.getId())) return false;
     if (this.getPaymentIds() !== undefined && !this.getPaymentIds().includes(tx.getPaymentId())) return false;
-    if (this.getHeight() !== undefined && txHeight !== this.getHeight()) return false;
+    if (this.getHeight() !== undefined && (txHeight === undefined || txHeight !== this.getHeight())) return false;
     if (this.getMinHeight() !== undefined && (txHeight === undefined || txHeight < this.getMinHeight())) return false;
     if (this.getMaxHeight() !== undefined && (txHeight === undefined || txHeight > this.getMaxHeight())) return false;
     

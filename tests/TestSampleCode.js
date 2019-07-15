@@ -77,8 +77,8 @@ describe("Test Sample Code", function() {
     }
     
     // get a wallet transaction by id
-    let tx = await wallet.getTx("c936b213b236a8ff60da84067c39409db6934faf6c0acffce752ac5a0d53f6b6");
-    let txId = tx.getId();                  // e.g. c936b213b236a8ff6...
+    let tx = await wallet.getTx("69a0d27a3e019526cb5a969ce9f65f1433b8069b68b3ff3c6a5b992a2983f7a2");
+    let txId = tx.getId();                  // e.g. 69a0d27a3e019526c...
     let txFee = tx.getFee();                // e.g. 750000
     let isConfirmed = tx.getIsConfirmed();  // e.g. true
   });
