@@ -152,7 +152,7 @@ namespace monero {
     if (this != self.get()) throw runtime_error("this != self");
     if (self == other) return;
 
-    // merge base classes
+    // merge header fields
     MoneroBlockHeader::merge(self, other);
 
     // merge reconcilable block extensions
@@ -161,9 +161,9 @@ namespace monero {
 
     // merge coinbase tx
     if (coinbaseTx == boost::none) coinbaseTx = other->coinbaseTx;
-    else if (other->coinbaseTx != boost::none) {
+    if (other->coinbaseTx != boost::none) {
       other->coinbaseTx.get()->block = self;
-      coinbaseTx.get()->merge(*coinbaseTx, *other->coinbaseTx);
+      coinbaseTx.get()->merge(coinbaseTx.get(), other->coinbaseTx.get());
     }
 
     // merge non-coinbase txs
@@ -385,6 +385,14 @@ namespace monero {
   void MoneroOutput::merge(const shared_ptr<MoneroOutput>& self, const shared_ptr<MoneroOutput>& other) {
     if (this != self.get()) throw runtime_error("this != self");
     if (self == other) return;
+
+    // merge txs if they're different which comes back to merging outputs
+    if (tx != other->tx) {
+      tx->merge(tx, other->tx);
+      return;
+    }
+
+    // otherwise merge output fields
     if (keyImage == boost::none) keyImage = other->keyImage;
     else if (other->keyImage != boost::none) keyImage.get()->merge(keyImage.get(), other->keyImage.get());
     amount = MoneroUtils::reconcile(amount, other->amount);

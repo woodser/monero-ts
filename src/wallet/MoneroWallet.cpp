@@ -1329,7 +1329,7 @@ namespace monero {
 
     //cout << "4" << endl;
 
-    // collect unique txs
+    // cache unique txs and blocks
     uint64_t chainHeight = getChainHeight();
     map<string, shared_ptr<MoneroTxWallet>> txMap;
     map<uint64_t, shared_ptr<MoneroBlock>> blockMap;
@@ -1442,7 +1442,7 @@ namespace monero {
     tools::wallet2::transfer_container outputsW2;
     wallet2->get_transfers(outputsW2);
 
-    // collect unique txs and blocks
+    // cache unique txs and blocks
     map<string, shared_ptr<MoneroTxWallet>> txMap;
     map<uint64_t, shared_ptr<MoneroBlock>> blockMap;
     for (const auto& outputW2 : outputsW2) {
@@ -1466,7 +1466,7 @@ namespace monero {
         }
       }
 
-      // remove txs without requested transfer
+      // remove txs without requested vout
       if (tx->vouts.empty() && tx->block != boost::none) tx->block.get()->txs.erase(std::remove(tx->block.get()->txs.begin(), tx->block.get()->txs.end(), tx), tx->block.get()->txs.end()); // TODO, no way to use const_iterator?
     }
     return vouts;

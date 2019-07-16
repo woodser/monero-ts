@@ -156,18 +156,6 @@ namespace monero {
     }
   }
 
-  //boost::property_tree::ptree MoneroUtils::txWalletToPropertyTree(const MoneroTxWallet& tx) {
-  //  cout << "txWalletToPropertyTree(tx)" << endl;
-  //  boost::property_tree::ptree txNode = txToPropertyTree(tx);
-  //  if (!tx.vouts.empty()) throw runtime_error("not implemented");
-  //  if (!tx.incomingTransfers.empty()) throw runtime_error("not implemented");
-  //  if (tx.outgoingTransfer != boost::none) throw runtime_error("not implemented");
-  //  if (tx.numSuggestedConfirmations != boost::none) txNode.put("numSuggestedConfirmations", *tx.numSuggestedConfirmations);
-  //  if (tx.note != boost::none) txNode.put("note", *tx.note);
-  //  return txNode;
-  //}
-  //
-
   // -------------------------- MONERO TX REQUEST -----------------------------
 
   boost::property_tree::ptree MoneroTxRequest::toPropertyTree() const {
