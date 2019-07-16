@@ -5,11 +5,10 @@ const assert = require("assert");
  */
 class MoneroAccount {
   
-  constructor(index, primaryAddress, label, balance, unlockedBalance, subaddresses) {
+  constructor(index, primaryAddress, balance, unlockedBalance, subaddresses) {
     this.json = {};
     this.setIndex(index);
     this.setPrimaryAddress(primaryAddress);
-    this.setLabel(label);
     this.setBalance(balance);
     this.setUnlockedBalance(unlockedBalance);
     this.setSubaddresses(subaddresses);
@@ -30,15 +29,6 @@ class MoneroAccount {
 
   setPrimaryAddress(primaryAddress) {
     this.json.primaryAddress = primaryAddress;
-    return this;
-  }
-
-  getLabel() {
-    return this.json.label;
-  }
-  
-  setLabel(label) {
-    this.json.label = label;
     return this;
   }
   

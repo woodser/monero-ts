@@ -228,9 +228,9 @@ class MoneroWallet {
   }
 
   /**
-   * Create a new account.
+   * Create a new account with a label for the first subaddress.
    * 
-   * @param {string} label specifies the label for the account (optional)
+   * @param {string} label specifies the label for the account's first subaddress (optional)
    * @return {MoneroAccount} is the created account
    */
   async createAccount(label) {

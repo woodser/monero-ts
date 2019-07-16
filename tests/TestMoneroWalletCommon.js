@@ -282,7 +282,6 @@ class TestMoneroWalletCommon {
         let accountsBefore = await wallet.getAccounts();
         let createdAccount = await wallet.createAccount();
         testAccount(createdAccount);
-        assert.equal(createdAccount.getLabel(), undefined);
         assert.equal((await wallet.getAccounts()).length - 1, accountsBefore.length);
       });
       
@@ -293,24 +292,22 @@ class TestMoneroWalletCommon {
         let label = GenUtils.uuidv4();
         let createdAccount = await wallet.createAccount(label);
         testAccount(createdAccount);
-        assert.equal(createdAccount.getLabel(), label);
         assert.equal((await wallet.getAccounts()).length - 1, accountsBefore.length);
+        assert.equal((await wallet.getSubaddress(createdAccount.getIndex(), 0)).getLabel(), label);
         
         // fetch and test account
         createdAccount = await wallet.getAccount(createdAccount.getIndex());
         testAccount(createdAccount);
-        assert.equal(createdAccount.getLabel(), label);
         
         // create account with same label
         createdAccount = await wallet.createAccount(label);
         testAccount(createdAccount);
-        assert.equal(createdAccount.getLabel(), label);
         assert.equal((await wallet.getAccounts()).length - 2, accountsBefore.length);
+        assert.equal((await wallet.getSubaddress(createdAccount.getIndex(), 0)).getLabel(), label);
         
         // fetch and test account
         createdAccount = await wallet.getAccount(createdAccount.getIndex());
         testAccount(createdAccount);
-        assert.equal(createdAccount.getLabel(), label);
       });
       
       it("Can get subaddresses at a specified account index", async function() {
@@ -2474,8 +2471,6 @@ function testAccount(account) {
   MoneroUtils.validateAddress(account.getPrimaryAddress());
   TestUtils.testUnsignedBigInteger(account.getBalance());
   TestUtils.testUnsignedBigInteger(account.getUnlockedBalance());
-  assert(account.getLabel() === undefined || typeof account.getLabel() === "string");
-  if (typeof account.getLabel() === "string") assert(account.getLabel().length > 0);
   
   // if given, test subaddresses and that their balances add up to account balances
   if (account.getSubaddresses()) {

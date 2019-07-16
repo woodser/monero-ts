@@ -278,7 +278,7 @@ class MoneroWalletRpc extends MoneroWallet {
   async createAccount(label) {
     label = label ? label : undefined;
     let resp = await this.config.rpc.sendJsonRequest("create_account", {label: label});
-    return new MoneroAccount(resp.result.account_index, resp.result.address, label, new BigInteger(0), new BigInteger(0));
+    return new MoneroAccount(resp.result.account_index, resp.result.address, new BigInteger(0), new BigInteger(0));
   }
 
   async getSubaddresses(accountIdx, subaddressIndices, skipBalances) {
@@ -1200,8 +1200,8 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "balance") account.setBalance(new BigInteger(val));
       else if (key === "unlocked_balance") account.setUnlockedBalance(new BigInteger(val));
       else if (key === "base_address") account.setPrimaryAddress(val);
-      else if (key === "label") { if (val) account.setLabel(val); }
       else if (key === "tag") account.setTag(val);
+      else if (key === "label") { } // label belongs to first subaddress
       else console.log("WARNING: ignoring unexpected account field: " + key + ": " + val);
     }
     return account;
