@@ -16,6 +16,7 @@ const MoneroDaemonSyncInfo = require("./model/MoneroDaemonSyncInfo");
 const MoneroHardForkInfo = require("./model/MoneroHardForkInfo");
 const MoneroBan = require("./model/MoneroBan");
 const MoneroDaemonConnection = require("./model/MoneroDaemonConnection");
+const MoneroDaemonConnectionSpan = require("./model/MoneroDaemonConnectionSpan");
 const MoneroCoinbaseTxSum = require("./model/MoneroCoinbaseTxSum");
 const MoneroOutputHistogramEntry = require("./model/MoneroOutputHistogramEntry");
 const MoneroKeyImage = require("./model/MoneroKeyImage");
@@ -1072,7 +1073,19 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   static _convertRpcConnectionSpan(rpcConnectionSpan) {
-    throw new MoneroError("Not implemented");
+    let span = new MoneroDaemonConnectionSpan();
+    for (let key of Object.keys(rpcConnectionSpan)) {
+      let val = rpcConnectionSpan[key];
+      if (key === "connection_id") span.setConnectionId(val);
+      else if (key === "nblocks") span.setNumBlocks(val);
+      else if (key === "rate") span.setRate(val);
+      else if (key === "remote_address") { if (val !== "") span.setRemoteAddress(val); }
+      else if (key === "size") span.setSize(val);
+      else if (key === "speed") span.setSpeed(val);
+      else if (key === "start_block_height") span.setStartBlockHeight(val);
+      else console.log("WARNING: ignoring unexpected field in daemon connection span: " + key + ": " + val);
+    }
+    return span;
   }
   
   static _convertRpcOutputHistogramEntry(rpcEntry) {

@@ -1,3 +1,4 @@
+Upgrade lodash
 MoneroRpc -> MoneroRpcConnection
 move submodules to ./external
 move tests to src/

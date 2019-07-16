@@ -17,6 +17,7 @@ const MoneroAltChain = require("../src/daemon/model/MoneroAltChain");
 const MoneroDaemonSyncInfo = require("../src/daemon/model/MoneroDaemonSyncInfo");
 const MoneroDaemonPeer = require("../src/daemon/model/MoneroDaemonPeer");
 const MoneroDaemonConnection = require("../src/daemon/model/MoneroDaemonConnection");
+const MoneroDaemonConnectionSpan = require("../src/daemon/model/MoneroDaemonConnectionSpan");
 const MoneroDaemonUpdateCheckResult = require("../src/daemon/model/MoneroDaemonUpdateCheckResult");
 
 // context for testing binary blocks
@@ -1370,6 +1371,17 @@ function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
   }
   assert(syncInfo.getNextNeededPruningSeed() >= 0);
   assert.equal(syncInfo.getOverview(), undefined);
+}
+
+function testDaemonConnectionSpan(span) {
+  assert.notEqual(span, undefined);
+  assert.notEqual(span.getConnectionId(), undefined);
+  assert(span.getConnectionId().length > 0);
+  assert(span.getNumBlocks() > 0);
+  assert(span.getRemoteAddress() === undefined || span.getRemoteAddress().length > 0);
+  assert(span.getRate() > 0);
+  assert(span.getSpeed() > 0);
+  assert(span.getSize() > 0);
 }
 
 function testHardForkInfo(hardForkInfo) {
