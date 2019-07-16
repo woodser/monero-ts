@@ -1569,13 +1569,10 @@ namespace monero {
     cout << "CREATED " << ptx_vector.size() << " PENDING TXS" << endl;
     if (ptx_vector.empty()) throw runtime_error("No transaction created");
 
-    // TODO: test send() (canSplit=false) checks for 1 and rejects
-//      // reject proposed transactions if there are more than one.  see on_transfer_split below.
-//      if (ptx_vector.size() != 1) {
-//        er.code = WALLET_RPC_ERROR_CODE_TX_TOO_LARGE;
-//        er.message = "Transaction would be too large.  try /transfer_split.";
-//        return false;
-//      }
+    // check if request cannot be fulfilled due to splitting
+    if (request.canSplit != boost::none && request.canSplit.get() == false && ptx_vector.size() != 1) {
+      throw runtime_error("Transaction would be too large.  Try sendSplit()");
+    }
 
     // config for fill_response()
     bool getTxKeys = true;
