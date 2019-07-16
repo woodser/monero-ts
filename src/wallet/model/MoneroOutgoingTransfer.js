@@ -66,6 +66,7 @@ class MoneroOutgoingTransfer extends MoneroTransfer {
       json.destinations = [];
       for (let destination of this.getDestinations()) json.destinations.push(destination.toJson());
     }
+    delete json.tx; // parent tx is not serialized
     return json;
   }
   

@@ -85,30 +85,25 @@ class MoneroBlock extends MoneroBlockHeader {
     // merge header fields
     super.merge(block);
     
-    // merge coinbase tx
-    if (!this.getCoinbaseTx()) this.setCoinbaseTx(block.getCoinbaseTx());
-    else if (block.getCoinbaseTx()) this.getCoinbaseTx().merge(block.getCoinbaseTx());
-    
-    // merge non-coinbase txs
-    if (!this.getTxs()) this.setTxs(block.getTxs());
-    else if (block.getTxs()) {
-      for (let thatTx of block.getTxs()) {
-        let found = false;
-        for (let thisTx of this.getTxs()) {
-          if (thatTx.getId() === thisTx.getId()) {
-            thisTx.merge(thatTx);
-            found = true;
-            break;
-          }
-        }
-        if (!found) this.getTxs().push(thatTx);
-      }
-    }
-    if (this.getTxs()) for (let tx of this.getTxs()) tx.setBlock(this);
-    
-    // merge other fields
+    // merge reconcilable block extensions
     this.setHex(MoneroUtils.reconcile(this.getHex(), block.getHex()));
     this.setTxIds(MoneroUtils.reconcile(this.getTxIds(), block.getTxIds()));
+    
+    // merge coinbase tx
+    if (this.getCoinbaseTx() === undefined) this.setCoinbaseTx(block.getCoinbaseTx());
+    if (block.getCoinbaseTx() !== undefined) {
+      block.getCoinbaseTx().setBlock(this);
+      coinbaseTx.merge(block.getCoinbaseTx());
+    }
+    
+    // merge non-coinbase txs
+    if (block.getTxs() !== undefined) {
+      for (let tx of block.getTxs()) {
+        tx.setBlock(this);
+        MoneroBlock._mergeTx(this.getTxs(), tx);
+      }
+    }
+
     return this;
   }
   
@@ -127,6 +122,17 @@ class MoneroBlock extends MoneroBlockHeader {
     }
     str += MoneroUtils.kvLine("Txs ids", this.getTxIds(), indent);
     return str[str.length - 1] === "\n" ? str.slice(0, str.length - 1) : str  // strip last newline
+  }
+  
+  // private helper to merge txs
+  static _mergeTx(txs, tx) {
+    for (let aTx of txs) {
+      if (aTx.getId() === tx.getId()) {
+        aTx.merge(tx);
+        return;
+      }
+    }
+    txs.push(tx);
   }
 }
 

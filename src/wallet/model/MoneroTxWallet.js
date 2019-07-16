@@ -114,6 +114,7 @@ class MoneroTxWallet extends MoneroTx {
       for (let incomingTransfer of this.getIncomingTransfers()) json.incomingTransfers.push(incomingTransfer.toJson());
     }
     if (this.getOutgoingTransfer()) json.outgoingTransfer = this.getOutgoingTransfer().toJson();
+    delete json.block;  // do not serialize parent block
     return json;
   }
   
@@ -129,6 +130,8 @@ class MoneroTxWallet extends MoneroTx {
   merge(tx) {
     assert(tx instanceof MoneroTxWallet);
     if (this === tx) return this;
+    
+    // merge base classes
     super.merge(tx);
     
     // merge wallet extensions

@@ -1748,6 +1748,7 @@ class TestMoneroWalletCommon {
           }
           
           // test updated txs
+          testGetTxsStructure(updatedTxs, request);
           await testOutInPairs(wallet, updatedTxs, request, false);
           
           // update confirmations in order to exit loop
@@ -2798,7 +2799,7 @@ async function testTxWalletCopy(tx, ctx) {
   // copy tx and assert deep equality
   let copy = tx.copy();
   assert(copy instanceof MoneroTxWallet);
-  assert.deepEqual(copy, tx);
+  assert.deepEqual(copy.toJson(), tx.toJson());
   
   // test different references
   if (tx.getOutgoingTransfer()) {
@@ -2817,14 +2818,14 @@ async function testTxWalletCopy(tx, ctx) {
   }
   if (tx.getIncomingTransfers()) {
     for (let i = 0; i < tx.getIncomingTransfers().length; i++) {
-      assert.deepEqual(copy.getIncomingTransfers()[i], tx.getIncomingTransfers()[i]);
+      assert.deepEqual(copy.getIncomingTransfers()[i].toJson(), tx.getIncomingTransfers()[i].toJson());
       assert(tx.getIncomingTransfers()[i] !== copy.getIncomingTransfers()[i]);
       if (tx.getIncomingTransfers()[i].getAmount() == copy.getIncomingTransfers()[i].getAmount()) assert(tx.getIncomingTransfers()[i].getAmount().toJSValue() === 0);
     }
   }
   if (tx.getVouts()) {
     for (let i = 0; i < tx.getVouts().length; i++) {
-      assert.deepEqual(copy.getVouts()[i], tx.getVouts()[i]);
+      assert.deepEqual(copy.getVouts()[i].toJson(), tx.getVouts()[i].toJson());
       assert(tx.getVouts()[i] !== copy.getVouts()[i]);
       if (tx.getVouts()[i].getAmount() == copy.getVouts()[i].getAmount()) assert(tx.getVouts()[i].getAmount().toJSValue() === 0);
     }
@@ -3000,6 +3001,7 @@ function testGetTxsStructure(txs, request = undefined) {
   for (let tx of txs) {
     if (tx.getBlock() === undefined) unconfirmedTxs.push(tx);
     else {
+      assert(tx.getBlock().getTxs().includes(tx));
       if (!seenBlocks.has(tx.getBlock())) {
         seenBlocks.add(tx.getBlock());
         blocks.push(tx.getBlock());

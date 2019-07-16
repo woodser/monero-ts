@@ -393,6 +393,13 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
     
+    // cache types into maps for merging and lookup
+    let txMap = {};
+    let blockMap = {}
+    for (let tx of txs) {
+      MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
+    }
+    
     // fetch and merge outputs if requested
     if (request.getIncludeOutputs()) {
       let outputs = await this.getOutputs(new MoneroOutputRequest().setTxRequest(request));
@@ -401,7 +408,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let outputTxs = [];
       for (let output of outputs) {
         if (!outputTxs.includes(output.getTx())){
-          MoneroWalletRpc._mergeTx(txs, output.getTx(), true);
+          MoneroWalletRpc._mergeTx(output.getTx(), txMap, blockMap, true);
           outputTxs.push(output.getTx());
         }
       }
@@ -487,8 +494,11 @@ class MoneroWalletRpc extends MoneroWallet {
       if (subaddressIndices.size) params.subaddr_indices = Array.from(subaddressIndices);
     }
     
+    // cache unique txs and blocks
+    let txMap = {};
+    let blockMap = {};
+    
     // build txs using `get_transfers`
-    let txs = [];
     let resp = await this.config.rpc.sendJsonRequest("get_transfers", params);
     for (let key of Object.keys(resp.result)) {
       for (let rpcTx of resp.result[key]) {
@@ -506,11 +516,12 @@ class MoneroWalletRpc extends MoneroWallet {
         }
         
         // merge tx
-        MoneroWalletRpc._mergeTx(txs, tx);
+        MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
       }
     }
     
     // sort txs by block height
+    let txs = Object.values(txMap);
     txs.sort((tx1, tx2) => {
       if (tx1.getHeight() === undefined && tx2.getHeight() === undefined) return 0; // both unconfirmed
       else if (tx1.getHeight() === undefined) return 1;   // tx1 is unconfirmed
@@ -543,14 +554,14 @@ class MoneroWalletRpc extends MoneroWallet {
           else toRemoves.push(transfer);
         }
         
-        // erase filtered transfers
+        // remove unrequested transfers
         tx.setIncomingTransfers(tx.getIncomingTransfers().filter(function(transfer) {
           return !toRemoves.includes(transfer);
         }));
         if (tx.getIncomingTransfers().length === 0) tx.setIncomingTransfers(undefined);
       }
       
-      // remove unrequested txs from block
+      // remove txs without requested transfer
       if (tx.getBlock() !== undefined && tx.getOutgoingTransfer() === undefined && tx.getIncomingTransfers() === undefined) {
         tx.getBlock().getTxs().splice(tx.getBlock().getTxs().indexOf(tx), 1);
       }
@@ -591,8 +602,11 @@ class MoneroWalletRpc extends MoneroWallet {
       indices = await this._getAccountIndices();  // fetch all account indices without subaddresses
     }
     
+    // cache unique txs and blocks
+    let txMap = {};
+    let blockMap = {};
+    
     // collect txs with vouts for each indicated account using `incoming_transfers` rpc call
-    let txs = [];
     let params = {};
     params.transfer_type = request.getIsSpent() === true ? "unavailable" : request.getIsSpent() === false ? "available" : "all";
     params.verbose = true;
@@ -607,14 +621,29 @@ class MoneroWalletRpc extends MoneroWallet {
       if (resp.result.transfers === undefined) continue;
       for (let rpcVout of resp.result.transfers) {
         let tx = MoneroWalletRpc._convertRpcTxWalletWithVout(rpcVout);
-        MoneroWalletRpc._mergeTx(txs, tx);
+        MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
       }
     }
     
-    // filter and return vouts
+    // collect requested vouts
     let vouts = [];
-    for (let tx of txs) {
-      Filter.apply(request, tx.getVouts()).map(vout => vouts.push(vout));
+    for (let tx of Object.values(txMap)) {
+      let toRemoves = [];
+      for (let vout of tx.getVouts()) {
+        if (request.meetsCriteria(vout)) vouts.push(vout);
+        else toRemoves.push(vout);
+      }
+      
+      // remove unrequested vouts
+      tx.setVouts(tx.getVouts().filter(function(vout) {
+        return !toRemoves.includes(vout);
+      }));
+      if (tx.getVouts().length === 0) tx.setVouts(undefined);   
+      
+      // remove txs without requested vout
+      if (tx.getBlock() !== undefined && tx.getVouts() === undefined) {
+        tx.getBlock().getTxs().splice(tx.getBlock().getTxs().indexOf(tx), 1);
+      }
     }
     return vouts;
   }
@@ -1526,46 +1555,41 @@ class MoneroWalletRpc extends MoneroWallet {
   
   /**
    * Merges a transaction into a unique set of transactions.
-   * 
-   * TODO monero-wallet-rpc: skipIfAbsent only necessary because incoming payments not returned
-   * when sent from/to same account
-   * 
-   * @param txs are existing transactions to merge into
+   *
+   * TODO monero core: skipIfAbsent only necessary because incoming payments not returned
+   * when sent from/to same account #4500
+   *
    * @param tx is the transaction to merge into the existing txs
-   * @param skipIfAbsent specifies if the tx should not be added
-   *        if it doesn't already exist.  Only necessasry to handle
-   *        missing incoming payments from #4500. // TODO
-   * @returns the merged tx
+   * @param txMap maps tx ids to txs
+   * @param blockMap maps block heights to blocks
+   * @param skipIfAbsent specifies if the tx should not be added if it doesn't already exist
    */
-  static _mergeTx(txs, tx, skipIfAbsent) {
-    assert(tx.getId());
-    for (let aTx of txs) {
-      
-      // merge tx
-      if (aTx.getId() === tx.getId()) {
-        
-        // merge blocks which only exist when confirmed
-        if (aTx.getBlock() !== undefined || tx.getBlock() !== undefined) {
-          if (aTx.getBlock() === undefined) aTx.setBlock(new MoneroBlock().setTxs([aTx]).setHeight(tx.getHeight()));
-          if (tx.getBlock() === undefined) tx.setBlock(new MoneroBlock().setTxs([tx]).setHeight(aTx.getHeight()));
-          aTx.getBlock().merge(tx.getBlock());
-        } else {
-          aTx.merge(tx);
-        }
-        return;
-      }
-      
-      // merge common block of different txs
-      if (tx.getHeight() !== undefined && aTx.getHeight() === tx.getHeight()) {
-        aTx.getBlock().merge(tx.getBlock());
+  static _mergeTx(tx, txMap, blockMap, skipIfAbsent) {
+    assert(tx.getId() !== undefined);
+
+    // if tx doesn't exist, add it (unless skipped)
+    let aTx = txMap[tx.getId()];
+    if (aTx === undefined) {
+      if (!skipIfAbsent) {
+        txMap[tx.getId()] = tx;
+      } else {
+        console.log("WARNING: tx does not already exist");
       }
     }
-    
-    // add tx if it doesn't already exist unless skipped
-    if (!skipIfAbsent) {
-      txs.push(tx);
-    } else {
-      console.log("WARNING: tx does not already exist"); 
+
+    // otherwise merge with existing tx
+    else {
+      aTx.merge(tx);
+    }
+
+    // if confirmed, merge tx's block
+    if (tx.getHeight() !== undefined) {
+      let aBlock = blockMap[tx.getHeight()];
+      if (aBlock === undefined) {
+        blockMap[tx.getHeight()] = tx.getBlock();
+      } else {
+        aBlock.merge(tx.getBlock());
+      }
     }
   }
 }

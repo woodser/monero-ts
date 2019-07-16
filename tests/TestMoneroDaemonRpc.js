@@ -1380,7 +1380,7 @@ function testDaemonConnectionSpan(span) {
   assert(span.getNumBlocks() > 0);
   assert(span.getRemoteAddress() === undefined || span.getRemoteAddress().length > 0);
   assert(span.getRate() > 0);
-  assert(span.getSpeed() > 0);
+  assert(span.getSpeed() >= 0);
   assert(span.getSize() > 0);
 }
 

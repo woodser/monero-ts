@@ -91,17 +91,9 @@ class MoneroOutputWallet extends MoneroOutput {
     assert(output instanceof MoneroOutputWallet);
     if (this === output) return;
     super.merge(output);
-    
-    // merge transactions if they're different which comes back to merging outputs
-    if (this.getTx() !== output.getTx()) this.getTx().merge(output.getTx());
-    
-    // otherwise merge output fields
-    else {
-      this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), output.getAccountIndex()));
-      this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), output.getSubaddressIndex()));
-      this.setIsSpent(MoneroUtils.reconcile(this.getIsSpent(), output.getIsSpent(), {resolveTrue: true})); // output can become spent
-    }
-    
+    this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), output.getAccountIndex()));
+    this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), output.getSubaddressIndex()));
+    this.setIsSpent(MoneroUtils.reconcile(this.getIsSpent(), output.getIsSpent(), {resolveTrue: true})); // output can become spent
     return this;
   }
   

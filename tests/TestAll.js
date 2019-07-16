@@ -3,7 +3,7 @@ const TestMoneroWalletRpc = require("./TestMoneroWalletRpc")
 const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 
 // test sample code for readme
-require("./TestSampleCode");
+//require("./TestSampleCode");
 
 //test core utils
 require("./TestMoneroCppUtils");
