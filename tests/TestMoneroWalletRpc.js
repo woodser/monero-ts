@@ -82,46 +82,6 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           }
         }
       });
-      
-      it("Preserves order from rpc", async function() {
-        
-        // fetch transfers directly from rpc for comparison to library
-        let rpc = wallet.getRpc();
-        let params = {};
-        params.all_accounts = true;
-        params.in = true;
-        params.out = true;
-        params.pool = true;
-        params.pending = true;
-        params.failed = true;
-        let resp = await rpc.sendJsonRequest("get_transfers", params);
-        let result = resp.result;
-        
-        // compare transfer order to rpc
-        TestMoneroWalletRpc._compareTransferOrder(result.in, await wallet.getTransfers(new MoneroTransferRequest().setIsIncoming(true).setTxRequest(new MoneroTxRequest().setIsConfirmed(true))));
-        TestMoneroWalletRpc._compareTransferOrder(result.out, await wallet.getTransfers(new MoneroTransferRequest().setIsOutgoing(true).setTxRequest(new MoneroTxRequest().setIsConfirmed(true))));
-        TestMoneroWalletRpc._compareTransferOrder(result.pool, await wallet.getTransfers(new MoneroTransferRequest().setIsIncoming(true).setTxRequest(new MoneroTxRequest().setIsConfirmed(false))));
-        TestMoneroWalletRpc._compareTransferOrder(result.pending, await wallet.getTransfers(new MoneroTransferRequest().setIsOutgoing(true).setTxRequest(new MoneroTxRequest().setIsConfirmed(false).setIsFailed(false))));
-        TestMoneroWalletRpc._compareTransferOrder(result.failed, await wallet.getTransfers(new MoneroTransferRequest().setTxRequest(new MoneroTxRequest().setIsFailed(true))));
-
-        // fetch outputs directly from rpc for comparison to library
-        params = {};
-        params.transfer_type = "all";
-        params.verbose = true;
-        params.account_index = 0;
-        resp = await rpc.sendJsonRequest("incoming_transfers", params);
-        let rpcOutputs = resp.result.transfers;
-        
-        // compare output order to rpc
-        let outputs = await wallet.getOutputs(new MoneroOutputRequest().setAccountIndex(0));
-        assert.equal(outputs.length, rpcOutputs.length);
-        for (let i = 0; i < outputs.length; i++) {
-          assert.equal(rpcOutputs[i].key_image, outputs[i].getKeyImage().getHex());
-          let rpcIndices = rpcOutputs[i].subaddr_index;
-          assert.equal(outputs[i].getAccountIndex(), rpcIndices.major);
-          assert.equal(outputs[i].getSubaddressIndex(), rpcIndices.minor);
-        }
-      });
 
       it("Can tag accounts and query accounts by tag", async function() {
         
@@ -291,40 +251,6 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
 //        await wallet.close();
 //      });
     })
-  }
-  
-  static _compareTransferOrder(rpcTransfers, transfers) {
-    if (rpcTransfers === undefined) {
-      assert(transfers.length === 0);
-      return;
-    }
-    assert.equal(transfers.length, rpcTransfers.length);
-    for (let i = 0; i < transfers.length; i++) {
-      let transfer = transfers[i];
-      let rpcTransfer = rpcTransfers[i];
-      assert.equal(transfer.getTx().getId(), rpcTransfer.txid);
-      
-      // collect account and subaddress indices from rpc response
-      let rpcSubaddrIndices = rpcTransfer.subaddr_indices;
-      let accountIdx = undefined;
-      let subaddressIndices = [];
-      for (let rpcSubaddrIdx of rpcSubaddrIndices) {
-        if (accountIdx === undefined) accountIdx = rpcSubaddrIdx.major;
-        else assert.equal(accountIdx, rpcSubaddrIdx.major);
-        subaddressIndices.push(rpcSubaddrIdx.minor);
-      }
-      
-      // test transfer
-      assert.equal(transfer.getAccountIndex(), accountIdx);
-      if (transfer instanceof MoneroIncomingTransfer) {
-        assert.equal(rpcSubaddrIndices.length, 1);
-        assert.equal(transfer.getSubaddressIndex(), subaddressIndices[0]);
-      } else if (transfer instanceof MoneroOutgoingTransfer) {
-        assert(GenUtils.arraysEqual(transfer.getSubaddressIndices(), subaddressIndices));
-      } else {
-        throw new Error("Unrecognized transfer instance");
-      }
-    }
   }
 }
 
