@@ -1110,7 +1110,6 @@ namespace monero {
     MoneroAccount account;
     account.index = accountIdx;
     account.primaryAddress = getAddress(accountIdx, 0);
-    account.label = wallet2->get_subaddress_label({accountIdx, 0});
     account.balance = wallet2->balance(accountIdx);
     account.unlockedBalance = wallet2->unlocked_balance(accountIdx);
     if (includeSubaddresses) account.subaddresses = getSubaddressesAux(accountIdx, vector<uint32_t>(), transfers);
@@ -1127,7 +1126,6 @@ namespace monero {
     MoneroAccount account;
     account.index = wallet2->get_num_subaddress_accounts() - 1;
     account.primaryAddress = wallet2->get_subaddress_as_str({account.index.get(), 0});
-    account.label = label;
     account.balance = 0;
     account.unlockedBalance = 0;
     return account;

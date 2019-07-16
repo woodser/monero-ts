@@ -107,7 +107,6 @@ namespace monero {
   struct MoneroAccount : public SerializableStruct {
     boost::optional<uint32_t> index;
     boost::optional<string> primaryAddress;
-    boost::optional<string> label;
     boost::optional<uint64_t> balance;
     boost::optional<uint64_t> unlockedBalance;
     boost::optional<string> tag;

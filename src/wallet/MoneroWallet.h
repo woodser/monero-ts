@@ -476,9 +476,9 @@ namespace monero {
     MoneroAccount getAccount(const uint32_t accountIdx, const bool includeSubaddresses) const;
 
     /**
-     * Create a new account.
+     * Create a new account with a label for the first subaddress.
      *
-     * @param label specifies the label for the account (optional)
+     * @param label specifies the label for the account's first subaddress (optional)
      * @return the created account
      */
     MoneroAccount createAccount(const string& label = "");
