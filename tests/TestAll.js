@@ -3,7 +3,7 @@ const TestMoneroWalletRpc = require("./TestMoneroWalletRpc")
 const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 
 // test sample code for readme
-//require("./TestSampleCode");
+require("./TestSampleCode");
 
 //test core utils
 require("./TestMoneroCppUtils");
@@ -21,7 +21,7 @@ new TestMoneroWalletRpc().runTests({
   liteMode: false, // skips some lengthy but detailed tests
   testNonSends: true,
   testNotifications: true,
-  testSends: false,
+  testSends: true,
   testResets: false
 });
 
