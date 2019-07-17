@@ -1011,6 +1011,11 @@ namespace monero {
     return syncAux(startHeight, boost::none, listener);
   }
 
+  void MoneroWallet::setAutoSync(bool autoSync) {
+    cout << "setAutoSync(" << autoSync << ")" << endl;
+    throw runtime_error("Not implemented");
+  }
+
   // rescanBlockchain
 
   // isMultisigImportNeeded

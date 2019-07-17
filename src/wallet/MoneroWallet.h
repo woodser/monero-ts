@@ -343,6 +343,13 @@ namespace monero {
 
     MoneroSyncResult sync(uint64_t startHeight, MoneroSyncListener& listener);
 
+    /**
+     * Enable or disable automatic synchronization.
+     *
+     * @param autoSync specifies if automatic synchronization is enabled or disabled
+     */
+    void setAutoSync(bool autoSync);
+
     //    /**
     //     * Rescan the blockchain from scratch, losing any information which cannot be recovered from
     //     * the blockchain itself.
