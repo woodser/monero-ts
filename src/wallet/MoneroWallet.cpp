@@ -683,6 +683,11 @@ namespace monero {
       }
     }
 
+    virtual void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index, uint64_t unlock_time) {
+      cout << "Wallet2Listener::on_money_received()" << endl;
+      throw runtime_error("Not implemented");
+    }
+
     virtual void on_money_spent(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& in_tx, uint64_t amount, const cryptonote::transaction& spend_tx, const cryptonote::subaddress_index& subaddr_index) {
 //      cout << "Wallet2Listener::on_money_spent()" << endl;
 //        // TODO;
