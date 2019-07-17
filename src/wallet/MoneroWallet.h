@@ -1148,7 +1148,19 @@ namespace monero {
     unique_ptr<Wallet2Listener> wallet2Listener;	    // listener for internal wallet implementation
     boost::optional<MoneroWalletListener&> listener = boost::none;  // wallet's external listener
 
+    void initCommon();
     MoneroSyncResult syncAux(boost::optional<uint64_t> startHeight, boost::optional<uint64_t> endHeight, boost::optional<MoneroSyncListener&> listener);
     vector<MoneroSubaddress> getSubaddressesAux(uint32_t accountIdx, vector<uint32_t> subaddressIndices, const vector<tools::wallet2::transfer_details>& transfers) const;
+
+    // sync thread management
+    boost::condition_variable syncCV;         // to awaken sync threads
+    std::mutex syncMutex;                     // synchronize sync() and syncAsync() requests
+    std::atomic<bool> rescanOnSync;           // whether or not to rescan on sync
+    std::atomic<bool> autoSyncEnabled;        // whether or not auto sync is enabled
+    std::atomic<int> autoSyncIntervalMillis;  // auto sync loop inteval
+    boost::thread autoSyncThread;             // thread for auto sync loop
+    std::mutex autoSyncMutex;                 // synchronize auto sync loop
+    std::atomic<bool> autoSyncThreadDone;     // whether or not auto sync loop is done (cannot be re-started)
+    void autoSyncThreadFunc();                // function to run auto sync loop thread
   };
 }

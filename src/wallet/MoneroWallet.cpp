@@ -730,7 +730,7 @@ namespace monero {
     cout << "MoneroWallet(3b)" << endl;
     wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
     wallet2->load(path, password);
-    wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(*this, *wallet2));
+    initCommon();
   }
 
   MoneroWallet::MoneroWallet(const string& path, const string& password) {
@@ -745,7 +745,7 @@ namespace monero {
     wallet2->set_seed_language(language);
     crypto::secret_key secret_key;
     wallet2->generate(path, password, secret_key, false, false);
-    wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(*this, *wallet2));
+    initCommon();
   }
 
   MoneroWallet::MoneroWallet(const string& path, const string& password, const string& mnemonic, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight) {
@@ -763,12 +763,7 @@ namespace monero {
     wallet2->set_seed_language(language);
     wallet2->generate(path, password, recoveryKey, true, false);
     wallet2->set_refresh_from_block_height(restoreHeight);
-    wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(*this, *wallet2));
-
-    // print the mnemonic
-    epee::wipeable_string fetchedMnemonic;
-    wallet2->get_seed(fetchedMnemonic);
-    cout << "Mnemonic: " << string(fetchedMnemonic.data(), fetchedMnemonic.size()) << endl;
+    initCommon();
   }
 
   MoneroWallet::MoneroWallet(const string& path, const string& password, const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight, const string& language) {
@@ -824,12 +819,7 @@ namespace monero {
     setDaemonConnection(daemonConnection);
     wallet2->set_refresh_from_block_height(restoreHeight);
     wallet2->set_seed_language(language);
-    wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(*this, *wallet2));
-
-    // print the mnemonic
-    epee::wipeable_string fetchedMnemonic;
-    wallet2->get_seed(fetchedMnemonic);
-    cout << "Mnemonic: " << string(fetchedMnemonic.data(), fetchedMnemonic.size()) << endl;
+    initCommon();
   }
 
   MoneroWallet::~MoneroWallet() {
@@ -2239,6 +2229,21 @@ namespace monero {
   }
 
   // ------------------------------- PRIVATE HELPERS ----------------------------
+
+  void MoneroWallet::initCommon() {
+    cout << "MoneroWallet.cpp initCommon()" << endl;
+    wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(*this, *wallet2));
+
+    // start auto sync loop
+    autoSyncThread = boost::thread([this]() {
+      this->autoSyncThreadFunc();
+    });
+  }
+
+  void MoneroWallet::autoSyncThreadFunc() {
+    cout << "autoSyncThreadFunc()" << endl;
+    throw runtime_error("autoSyncThreadFunc() not implemented");
+  }
 
   MoneroSyncResult MoneroWallet::syncAux(boost::optional<uint64_t> startHeight, boost::optional<uint64_t> endHeight, boost::optional<MoneroSyncListener&> listener) {
     cout << "syncAux()" << endl;
