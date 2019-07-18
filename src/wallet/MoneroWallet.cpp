@@ -684,7 +684,7 @@ namespace monero {
     }
 
     virtual void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index, uint64_t unlock_time) {
-      cout << "Wallet2Listener::on_money_received()" << endl;
+      //cout << "Wallet2Listener::on_money_received()" << endl;
       //throw runtime_error("Not implemented");
     }
 
@@ -1003,7 +1003,7 @@ namespace monero {
 
   void MoneroWallet::setAutoSync(bool autoSync) {
     cout << "setAutoSync(" << autoSync << ")" << endl;
-    throw runtime_error("Not implemented");
+    //throw runtime_error("Not implemented");
   }
 
   // rescanBlockchain
@@ -2242,7 +2242,31 @@ namespace monero {
 
   void MoneroWallet::autoSyncThreadFunc() {
     cout << "autoSyncThreadFunc()" << endl;
-    throw runtime_error("autoSyncThreadFunc() not implemented");
+//    while (true) {
+//      boost::mutex::scoped_lock lock(autoSyncMutex);
+//      if (autoSyncThreadDone) break;
+//      if (autoSyncEnabled) {
+//        boost::posix_time::milliseconds wait_for_ms(autoSyncIntervalMillis.load());
+//        syncCV.timed_wait(lock, wait_for_ms);
+//      } else {
+//        syncCV.wait(lock);
+//      }
+//      if (autoSyncEnabled) {
+//        doRefresh();
+//      }
+//    }
+  }
+
+  void MoneroWallet::doSync() {
+//    bool rescan = rescanOnSync.exchange(false);
+//    boost::lock_guard<boost::mutex> guarg(syncMutex);
+//    do {
+//      if (daemonSynced()) {
+//        if (rescan) wallet2->rescan_blockchain(false);
+//        wallet2->refresh(wallet2->is_trusted_daemon());
+//        wallet2->find_and_save_rings(false);
+//      }
+//    } while (!rescan && (rescan = rescanOnSync.exchange(false))); // repeat if not rescanned and rescan was requested
   }
 
   MoneroSyncResult MoneroWallet::syncAux(boost::optional<uint64_t> startHeight, boost::optional<uint64_t> endHeight, boost::optional<MoneroSyncListener&> listener) {
@@ -2253,6 +2277,7 @@ namespace monero {
 
     // determine sync start height
     uint64_t syncStartHeight = startHeight == boost::none ? max(getHeight(), getRestoreHeight()) : *startHeight;
+    if (syncStartHeight < getRestoreHeight()) setRestoreHeight(syncStartHeight); // TODO monero core: start height processed > requested start height unless restore height manually set
 
     // sync wallet
     wallet2Listener->onSyncStart(syncStartHeight, listener);

@@ -1162,5 +1162,6 @@ namespace monero {
     std::mutex autoSyncMutex;                 // synchronize auto sync loop
     std::atomic<bool> autoSyncThreadDone;     // whether or not auto sync loop is done (cannot be re-started)
     void autoSyncThreadFunc();                // function to run auto sync loop thread
+    void doSync();                            // internal synchronized sync function
   };
 }
