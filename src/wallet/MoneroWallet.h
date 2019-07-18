@@ -225,6 +225,16 @@ namespace monero {
      */
     shared_ptr<MoneroRpcConnection> getDaemonConnection() const;
 
+    bool getIsConnected();
+
+    long getDaemonHeight();
+
+    long getDaemonTargetHeight();
+
+    bool getIsDaemonSynced();
+
+    bool getIsSynced();
+
     /**
      * TODO
      */

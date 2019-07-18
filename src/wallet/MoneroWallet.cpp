@@ -70,6 +70,10 @@ using namespace tools;
  */
 namespace monero {
 
+  // ------------------------- INITIALIZE CONSTANTS ---------------------------
+
+  static const int DEFAULT_CONNECTION_TIMEOUT_MILLIS = 1000 * 30;
+
   // ----------------------- INTERNAL PRIVATE HELPERS -----------------------
 
   bool boolEquals(bool val, const boost::optional<bool>& optVal) {
@@ -857,6 +861,31 @@ namespace monero {
       if (!password.empty()) connection->password = password;
     }
     return connection;
+  }
+
+  // TODO: could return Wallet::ConnectionStatus_Disconnected, Wallet::ConnectionStatus_WrongVersion, Wallet::ConnectionStatus_Connected like wallet.cpp::connected()
+  bool MoneroWallet::getIsConnected() {
+    uint32_t version = 0;
+    bool isConnected = wallet2->check_connection(&version, NULL, DEFAULT_CONNECTION_TIMEOUT_MILLIS);
+    if (!isConnected) return false;
+    if (!wallet2->light_wallet() && (version >> 16) != CORE_RPC_VERSION_MAJOR) return false;
+    return true;
+  }
+
+  long MoneroWallet::getDaemonHeight() {
+    throw runtime_error("getDaemonHeight() not implemented");
+  }
+
+  long MoneroWallet::getDaemonTargetHeight() {
+    throw runtime_error("getDaemonTargetHeight() not implemented");
+  }
+
+  bool MoneroWallet::getIsDaemonSynced() {
+    throw runtime_error("getIsDaemonSynced() not implemented");
+  }
+
+  bool MoneroWallet::getIsSynced() {
+    throw runtime_error("getIsSynced() not implemented");
   }
 
   string MoneroWallet::getPath() const {
