@@ -866,26 +866,39 @@ namespace monero {
   // TODO: could return Wallet::ConnectionStatus_Disconnected, Wallet::ConnectionStatus_WrongVersion, Wallet::ConnectionStatus_Connected like wallet.cpp::connected()
   bool MoneroWallet::getIsConnected() {
     uint32_t version = 0;
-    bool isConnected = wallet2->check_connection(&version, NULL, DEFAULT_CONNECTION_TIMEOUT_MILLIS);
+    isConnected = wallet2->check_connection(&version, NULL, DEFAULT_CONNECTION_TIMEOUT_MILLIS); // TODO: should this be updated elsewhere?
     if (!isConnected) return false;
-    if (!wallet2->light_wallet() && (version >> 16) != CORE_RPC_VERSION_MAJOR) return false;
-    return true;
+    if (!wallet2->light_wallet() && (version >> 16) != CORE_RPC_VERSION_MAJOR) isConnected = false;
+    return isConnected;
   }
 
-  long MoneroWallet::getDaemonHeight() {
+  uint64_t MoneroWallet::getDaemonHeight() {
+    if (!isConnected) throw runtime_error("Wallet is not connected to daemon");
+    std::string err;
+    uint64_t result = wallet2->get_daemon_blockchain_height(err);
+    if (!err.empty()) throw runtime_error(err);
+    return result;
+
     throw runtime_error("getDaemonHeight() not implemented");
   }
 
-  long MoneroWallet::getDaemonTargetHeight() {
-    throw runtime_error("getDaemonTargetHeight() not implemented");
+  uint64_t MoneroWallet::getDaemonTargetHeight() {
+    if (!isConnected) throw runtime_error("Wallet is not connected to daemon");
+    std::string err;
+    uint64_t result = wallet2->get_daemon_blockchain_target_height(err);
+    if (!err.empty()) throw runtime_error(err);
+    if (result == 0) result = getDaemonHeight();  // TODO monero core: target height can be 0 when daemon is synced.  Use blockchain height instead
+    return result;
   }
 
   bool MoneroWallet::getIsDaemonSynced() {
-    throw runtime_error("getIsDaemonSynced() not implemented");
+    if (!isConnected) return false;
+    uint64_t daemonHeight = getDaemonHeight();
+    return daemonHeight >= getDaemonTargetHeight() && daemonHeight > 1;
   }
 
   bool MoneroWallet::getIsSynced() {
-    throw runtime_error("getIsSynced() not implemented");
+    return isSynced;
   }
 
   string MoneroWallet::getPath() const {

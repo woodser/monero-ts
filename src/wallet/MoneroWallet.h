@@ -227,9 +227,9 @@ namespace monero {
 
     bool getIsConnected();
 
-    long getDaemonHeight();
+    uint64_t getDaemonHeight();
 
-    long getDaemonTargetHeight();
+    uint64_t getDaemonTargetHeight();
 
     bool getIsDaemonSynced();
 
@@ -1163,6 +1163,8 @@ namespace monero {
     vector<MoneroSubaddress> getSubaddressesAux(uint32_t accountIdx, vector<uint32_t> subaddressIndices, const vector<tools::wallet2::transfer_details>& transfers) const;
 
     // sync thread management
+    mutable std::atomic<bool> isSynced;       // whether or not wallet is synced
+    mutable std::atomic<bool> isConnected;    // cache connection status to avoid unecessary RPC calls
     boost::condition_variable syncCV;         // to awaken sync threads
     std::mutex syncMutex;                     // synchronize sync() and syncAsync() requests
     std::atomic<bool> rescanOnSync;           // whether or not to rescan on sync
