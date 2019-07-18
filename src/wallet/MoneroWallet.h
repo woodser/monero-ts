@@ -55,6 +55,10 @@
 #include "MoneroWalletModel.h"
 #include "wallet/wallet2.h"
 
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/thread/condition_variable.hpp>
+
 using namespace std;
 using namespace crypto;
 using namespace monero;
@@ -225,15 +229,15 @@ namespace monero {
      */
     shared_ptr<MoneroRpcConnection> getDaemonConnection() const;
 
-    bool getIsConnected();
+    bool getIsConnected() const;
 
-    uint64_t getDaemonHeight();
+    uint64_t getDaemonHeight() const;
 
-    uint64_t getDaemonTargetHeight();
+    uint64_t getDaemonTargetHeight() const;
 
-    bool getIsDaemonSynced();
+    bool getIsDaemonSynced() const;
 
-    bool getIsSynced();
+    bool getIsSynced() const;
 
     /**
      * TODO
@@ -1159,21 +1163,20 @@ namespace monero {
     boost::optional<MoneroWalletListener&> listener = boost::none;  // wallet's external listener
 
     void initCommon();
-    MoneroSyncResult syncAux(boost::optional<uint64_t> startHeight, boost::optional<uint64_t> endHeight, boost::optional<MoneroSyncListener&> listener);
     vector<MoneroSubaddress> getSubaddressesAux(uint32_t accountIdx, vector<uint32_t> subaddressIndices, const vector<tools::wallet2::transfer_details>& transfers) const;
 
-    // sync thread management
+    // sync management
     mutable std::atomic<bool> isSynced;       // whether or not wallet is synced
     mutable std::atomic<bool> isConnected;    // cache connection status to avoid unecessary RPC calls
     boost::condition_variable syncCV;         // to awaken sync threads
-    std::mutex syncMutex;                     // synchronize sync() and syncAsync() requests
+    boost::mutex syncMutex;                     // synchronize sync() and syncAsync() requests
     std::atomic<bool> rescanOnSync;           // whether or not to rescan on sync
     std::atomic<bool> autoSyncEnabled;        // whether or not auto sync is enabled
-    std::atomic<int> autoSyncIntervalMillis;  // auto sync loop inteval
     boost::thread autoSyncThread;             // thread for auto sync loop
-    std::mutex autoSyncMutex;                 // synchronize auto sync loop
+    boost::mutex autoSyncMutex;                 // synchronize auto sync loop
     std::atomic<bool> autoSyncThreadDone;     // whether or not auto sync loop is done (cannot be re-started)
     void autoSyncThreadFunc();                // function to run auto sync loop thread
     void doSync();                            // internal synchronized sync function
+    MoneroSyncResult syncAux(boost::optional<uint64_t> startHeight, boost::optional<uint64_t> endHeight, boost::optional<MoneroSyncListener&> listener);  // TODO: replace this with doSync()
   };
 }

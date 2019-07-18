@@ -60,6 +60,11 @@
 #include "mnemonics/english.h"
 #include "wallet/wallet_rpc_server_commands_defs.h"
 
+#ifdef WIN32
+#include <boost/locale.hpp>
+#include <boost/filesystem.hpp>
+#endif
+
 using namespace std;
 using namespace cryptonote;
 using namespace epee;
@@ -72,7 +77,8 @@ namespace monero {
 
   // ------------------------- INITIALIZE CONSTANTS ---------------------------
 
-  static const int DEFAULT_CONNECTION_TIMEOUT_MILLIS = 1000 * 30;
+  static const int DEFAULT_REFRESH_INTERVAL_MILLIS = 1000 * 10;   // default refresh interval 10 sec
+  static const int DEFAULT_CONNECTION_TIMEOUT_MILLIS = 1000 * 30; // default connection timeout 30 sec
 
   // ----------------------- INTERNAL PRIVATE HELPERS -----------------------
 
@@ -864,7 +870,7 @@ namespace monero {
   }
 
   // TODO: could return Wallet::ConnectionStatus_Disconnected, Wallet::ConnectionStatus_WrongVersion, Wallet::ConnectionStatus_Connected like wallet.cpp::connected()
-  bool MoneroWallet::getIsConnected() {
+  bool MoneroWallet::getIsConnected() const {
     uint32_t version = 0;
     isConnected = wallet2->check_connection(&version, NULL, DEFAULT_CONNECTION_TIMEOUT_MILLIS); // TODO: should this be updated elsewhere?
     if (!isConnected) return false;
@@ -872,18 +878,16 @@ namespace monero {
     return isConnected;
   }
 
-  uint64_t MoneroWallet::getDaemonHeight() {
-    if (!isConnected) throw runtime_error("Wallet is not connected to daemon");
+  uint64_t MoneroWallet::getDaemonHeight() const {
+    if (!isConnected) throw runtime_error("wallet is not connected to daemon");
     std::string err;
     uint64_t result = wallet2->get_daemon_blockchain_height(err);
     if (!err.empty()) throw runtime_error(err);
     return result;
-
-    throw runtime_error("getDaemonHeight() not implemented");
   }
 
-  uint64_t MoneroWallet::getDaemonTargetHeight() {
-    if (!isConnected) throw runtime_error("Wallet is not connected to daemon");
+  uint64_t MoneroWallet::getDaemonTargetHeight() const {
+    if (!isConnected) throw runtime_error("wallet is not connected to daemon");
     std::string err;
     uint64_t result = wallet2->get_daemon_blockchain_target_height(err);
     if (!err.empty()) throw runtime_error(err);
@@ -891,13 +895,13 @@ namespace monero {
     return result;
   }
 
-  bool MoneroWallet::getIsDaemonSynced() {
-    if (!isConnected) return false;
+  bool MoneroWallet::getIsDaemonSynced() const {
+    if (!isConnected) throw runtime_error("wallet is not connected to daemon");
     uint64_t daemonHeight = getDaemonHeight();
     return daemonHeight >= getDaemonTargetHeight() && daemonHeight > 1;
   }
 
-  bool MoneroWallet::getIsSynced() {
+  bool MoneroWallet::getIsSynced() const {
     return isSynced;
   }
 
@@ -2275,6 +2279,11 @@ namespace monero {
   void MoneroWallet::initCommon() {
     cout << "MoneroWallet.cpp initCommon()" << endl;
     wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(*this, *wallet2));
+    isConnected = false;
+    isSynced = false;
+    rescanOnSync = false;
+    autoSyncEnabled = false;
+    autoSyncThreadDone = false;
 
     // start auto sync loop
     autoSyncThread = boost::thread([this]() {
@@ -2284,31 +2293,32 @@ namespace monero {
 
   void MoneroWallet::autoSyncThreadFunc() {
     cout << "autoSyncThreadFunc()" << endl;
-//    while (true) {
-//      boost::mutex::scoped_lock lock(autoSyncMutex);
-//      if (autoSyncThreadDone) break;
-//      if (autoSyncEnabled) {
-//        boost::posix_time::milliseconds wait_for_ms(autoSyncIntervalMillis.load());
-//        syncCV.timed_wait(lock, wait_for_ms);
-//      } else {
-//        syncCV.wait(lock);
-//      }
-//      if (autoSyncEnabled) {
-//        doRefresh();
-//      }
-//    }
+    while (true) {
+      boost::mutex::scoped_lock lock(autoSyncMutex);
+      if (autoSyncThreadDone) break;
+      if (autoSyncEnabled) {
+        boost::posix_time::milliseconds wait_for_ms(DEFAULT_REFRESH_INTERVAL_MILLIS);
+        syncCV.timed_wait(lock, wait_for_ms);
+      } else {
+        syncCV.wait(lock);
+      }
+      if (autoSyncEnabled) {
+        doSync();
+      }
+    }
   }
 
   void MoneroWallet::doSync() {
-//    bool rescan = rescanOnSync.exchange(false);
-//    boost::lock_guard<boost::mutex> guarg(syncMutex);
-//    do {
-//      if (daemonSynced()) {
-//        if (rescan) wallet2->rescan_blockchain(false);
-//        wallet2->refresh(wallet2->is_trusted_daemon());
-//        wallet2->find_and_save_rings(false);
-//      }
-//    } while (!rescan && (rescan = rescanOnSync.exchange(false))); // repeat if not rescanned and rescan was requested
+    bool rescan = rescanOnSync.exchange(false);
+    boost::lock_guard<boost::mutex> guarg(syncMutex);
+    do {
+      if (getIsDaemonSynced()) {
+        if (rescan) wallet2->rescan_blockchain(false);
+        wallet2->refresh(wallet2->is_trusted_daemon());
+        if (!isSynced) isSynced = true;
+        wallet2->find_and_save_rings(false);
+      }
+    } while (!rescan && (rescan = rescanOnSync.exchange(false))); // repeat if not rescanned and rescan was requested
   }
 
   MoneroSyncResult MoneroWallet::syncAux(boost::optional<uint64_t> startHeight, boost::optional<uint64_t> endHeight, boost::optional<MoneroSyncListener&> listener) {
