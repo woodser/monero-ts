@@ -146,10 +146,6 @@ add_library(wallet_merged STATIC IMPORTED)
 set_target_properties(wallet_merged PROPERTIES IMPORTED_LOCATION
     ${EXTERNAL_LIBS_DIR}/monero-core/libwallet_merged.a)
 
-#add_library(wallet_api STATIC IMPORTED)
-#set_target_properties(wallet_api PROPERTIES IMPORTED_LOCATION
-    #${EXTERNAL_LIBS_DIR}/monero-core/libwallet_api.a)
-
 add_library(wallet STATIC IMPORTED)
 set_target_properties(wallet PROPERTIES IMPORTED_LOCATION
     ${EXTERNAL_LIBS_DIR}/monero-core/libwallet.a)

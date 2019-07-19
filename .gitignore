@@ -1,10 +1,6 @@
 /build/
 
-/external/boost-sdk/*
-/external/openssl-sdk/*
+/external/boost-sdk/
+/external/openssl-sdk/
 
-/external-libs/boost/*
-/external-libs/hidapi/*
-/external-libs/libsodium/*
-/external-libs/monero-core/*
-/external-libs/openssl/*
+/external-libs/
