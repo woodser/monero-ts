@@ -113,7 +113,7 @@ class MoneroWalletLocal extends MoneroWallet {
   }
   
   // TODO: only allow one refresh at a time
-  async sync(startHeight, endHeight, onProgress) {
+  async sync(startHeight, onProgress) {
     await this._initOneTime();
     
     // fetch and cache latest daemon info
@@ -125,11 +125,7 @@ class MoneroWalletLocal extends MoneroWallet {
     this.cache.unprocessed = this.cache.processed.copy().flip();
 
     // sanitize and validate range to process
-    if (endHeight === undefined || endHeight === null) endHeight = this.cache.chainHeight - 1;
-    else {
-      assert(startHeight !== undefined && startHeight !== null, "Start height must be defined if end height is defined");
-      assert(endHeight >= startHeight && endHeight < this.cache.chainHeight);
-    }
+    let endHeight = this.cache.chainHeight - 1;
     if (startHeight === undefined || startHeight === null) startHeight = await this.getHeight();
     else assert(startHeight >= 0 && startHeight < this.cache.chainHeight, "Start height must be >= 0 and < chain height " + this.cache.chainHeight + " but was " + startHeight);
     

@@ -193,7 +193,7 @@ class TestMoneroWalletCommon {
         let numBlocks = 100;
         let chainHeight = await daemon.getHeight();
         assert(chainHeight >= numBlocks);
-        let result = await wallet.sync(chainHeight - numBlocks);  // sync end of chain
+        let result = await wallet.sync(chainHeight - numBlocks);  // sync to end of chain
         assert(result instanceof MoneroSyncResult);
         assert(result.getNumBlocksFetched() >= 0);
         assert.equal(typeof result.getReceivedMoney(), "boolean");

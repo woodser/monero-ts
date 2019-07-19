@@ -44,7 +44,6 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
             mnemonic: TestUtils.TEST_MNEMONIC,
             blockHeights: [197148, 199930, 209120, 209121], // known block heights (optional)
             startHeight: 192000,                            // start of range to scan (ignored if block heights given)
-            endHeight: 200000,                              // end of range to scan (ignored if block heights given)
         }
         
         // create the wallet
@@ -52,12 +51,12 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         
         // scan specific blocks
         if (config.blockHeights && config.blockHeights.length > 0) {
-          for (let height of config.blockHeights) await wallet.sync(height, height, onProgress);
+          for (let height of config.blockHeights) await wallet.sync(height, onProgress);
         }
         
         // otherwise scan range
         else {
-          await wallet.sync(config.startHeight, config.endHeight, onProgress);
+          await wallet.sync(config.startHeight, onProgress);
         }
         
         // print updates as they happen
@@ -140,9 +139,9 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         assert.equal(await wallet.getHeight(), 0);
         
         // sync some blocks
-        let endHeight = Math.min(1000, await daemon.getHeight());
-        await wallet.sync(0, endHeight);
-        assert.equal(await wallet.getHeight(), endHeight + 1);
+        let startHeight = Math.max(1000, await daemon.getHeight() - 1000);
+        await wallet.sync(startHeight);
+        assert.equal(await wallet.getHeight(), await daemon.getHeight());
         
         // save the wallet
         let store = await wallet.getStore();
@@ -154,7 +153,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         
         // sync the same blocks and assert progress is immediately done
         let progressTester = new SyncProgressTester(wallet, 0, endHeight, true);
-        await wallet.sync(0, endHeight, function(progress) { progressTester.onProgress(progress) });
+        await wallet.sync(function(progress) { progressTester.onProgress(progress) });
         progressTester.testDone();
       });
       
@@ -167,24 +166,12 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         
         // heights must be less than chain height
         try {
-          await wallet.sync(await wallet.getHeight(), chainHeight);
-          fail("Should have failed");
-        } catch (e) { }
-        
-        // end height must be greater than start height
-        try {
-          await wallet.sync(200, 199);
-          fail("Should have failed");
-        } catch (e) { }
-        
-        // end height must be less than chain height
-        try {
-          await wallet.sync(0, chainHeight);
+          await wallet.sync(chainHeight + 1);
           fail("Should have failed");
         } catch (e) { }
         
         // sync last few
-        await wallet.sync(chainHeight - 20, chainHeight - 1);
+        await wallet.sync(chainHeight - 20);
       });
       
       it("Reports progress while it's syncing", async function() {
@@ -193,44 +180,44 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         let startHeight = await wallet.getChainHeight() - numBlocks
         let endHeight = await wallet.getChainHeight() - 1;
         let progressTester = new SyncProgressTester(wallet, startHeight, endHeight);
-        let resp = await wallet.sync(startHeight, null, function(progress) { progressTester.onProgress(progress) });
+        let resp = await wallet.sync(startHeight, function(progress) { progressTester.onProgress(progress) });
         progressTester.testDone();
         assert.equal(resp.blocks_fetched, numBlocks);
         assert(typeof resp.received_money === "boolean");
       });
       
-      it("Can sync specific ranges", async function() {
-        
-        // create a new wallet
-        let chainHeight = await daemon.getHeight();
-        let wallet = new MoneroWalletLocal(daemon);
-        assert.equal(await wallet.getHeight(), chainHeight);
-        
-        // scan a few ranges
-        // TODO: randomly sample ranges of varying but capped heights
-        let progressTester = new SyncProgressTester(wallet, 0, 0);
-        await wallet.sync(0, 0, function(progress) { progressTester.onProgress(progress) });
-        progressTester.testDone();
-        assert.equal(await wallet.getHeight(), 1);
-        progressTester = new SyncProgressTester(wallet, 101000, 102000);
-        await wallet.sync(101000, 102000, function(progress) { progressTester.onProgress(progress) });
-        progressTester.testDone();
-        assert.equal(await wallet.getHeight(), 102001);
-        progressTester = new SyncProgressTester(wallet, 103000, 104000);
-        await wallet.sync(103000, 104000, function(progress) { progressTester.onProgress(progress) });
-        progressTester.testDone();
-        assert.equal(await wallet.getHeight(), 104001);
-        progressTester = new SyncProgressTester(wallet, 105000, 106000);
-        await wallet.sync(105000, 106000, function(progress) { progressTester.onProgress(progress) });
-        progressTester.testDone();
-        assert.equal(await wallet.getHeight(), 106001);
-        
-        // scan a previously processed range
-        progressTester = new SyncProgressTester(wallet, 101000, 102000, true);
-        await wallet.sync(101000, 102000, function(progress) { progressTester.onProgress(progress) });
-        progressTester.testDone();
-        assert.equal(await wallet.getHeight(), 106001);
-      });
+//      it("Can sync specific ranges", async function() {
+//        
+//        // create a new wallet
+//        let chainHeight = await daemon.getHeight();
+//        let wallet = new MoneroWalletLocal(daemon);
+//        assert.equal(await wallet.getHeight(), chainHeight);
+//        
+//        // scan a few ranges
+//        // TODO: randomly sample ranges of varying but capped heights
+//        let progressTester = new SyncProgressTester(wallet, 0, 0);
+//        await wallet.sync(0, 0, function(progress) { progressTester.onProgress(progress) });
+//        progressTester.testDone();
+//        assert.equal(await wallet.getHeight(), 1);
+//        progressTester = new SyncProgressTester(wallet, 101000, 102000);
+//        await wallet.sync(101000, 102000, function(progress) { progressTester.onProgress(progress) });
+//        progressTester.testDone();
+//        assert.equal(await wallet.getHeight(), 102001);
+//        progressTester = new SyncProgressTester(wallet, 103000, 104000);
+//        await wallet.sync(103000, 104000, function(progress) { progressTester.onProgress(progress) });
+//        progressTester.testDone();
+//        assert.equal(await wallet.getHeight(), 104001);
+//        progressTester = new SyncProgressTester(wallet, 105000, 106000);
+//        await wallet.sync(105000, 106000, function(progress) { progressTester.onProgress(progress) });
+//        progressTester.testDone();
+//        assert.equal(await wallet.getHeight(), 106001);
+//        
+//        // scan a previously processed range
+//        progressTester = new SyncProgressTester(wallet, 101000, 102000, true);
+//        await wallet.sync(101000, 102000, function(progress) { progressTester.onProgress(progress) });
+//        progressTester.testDone();
+//        assert.equal(await wallet.getHeight(), 106001);
+//      });
     });
   }
 }

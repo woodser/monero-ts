@@ -186,8 +186,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return new MoneroIntegratedAddress(resp.result.standard_address, resp.result.payment_id, integratedAddress);
   }
   
-  async sync(startHeight, endHeight, onProgress) {
-    assert(endHeight === undefined, "Monero Wallet RPC does not support syncing to an end height");
+  async sync(startHeight, onProgress) {
     assert(onProgress === undefined, "Monero Wallet RPC does not support reporting sync progress");
     let resp = await this.config.rpc.sendJsonRequest("refresh", {start_height: startHeight});
     return new MoneroSyncResult(resp.result.blocks_fetched, resp.result.received_money);
