@@ -1169,14 +1169,15 @@ namespace monero {
     mutable std::atomic<bool> isSynced;       // whether or not wallet is synced
     mutable std::atomic<bool> isConnected;    // cache connection status to avoid unecessary RPC calls
     boost::condition_variable syncCV;         // to awaken sync threads
-    boost::mutex syncMutex;                     // synchronize sync() and syncAsync() requests
+    boost::mutex syncMutex;                   // synchronize sync() and syncAsync() requests
     std::atomic<bool> rescanOnSync;           // whether or not to rescan on sync
     std::atomic<bool> autoSyncEnabled;        // whether or not auto sync is enabled
+    std::atomic<int> autoSyncInterval;        // auto sync loop interval in milliseconds
     boost::thread autoSyncThread;             // thread for auto sync loop
-    boost::mutex autoSyncMutex;                 // synchronize auto sync loop
+    boost::mutex autoSyncMutex;               // synchronize auto sync loop
     std::atomic<bool> autoSyncThreadDone;     // whether or not auto sync loop is done (cannot be re-started)
     void autoSyncThreadFunc();                // function to run auto sync loop thread
-    void doSync();                            // internal synchronized sync function
-    MoneroSyncResult syncAux(boost::optional<uint64_t> startHeight, boost::optional<uint64_t> endHeight, boost::optional<MoneroSyncListener&> listener);  // TODO: replace this with doSync()
+    void autoSyncAux();												// internal synchronized sync function
+    MoneroSyncResult syncAux(boost::optional<uint64_t> startHeight, boost::optional<uint64_t> endHeight, boost::optional<MoneroSyncListener&> listener);
   };
 }

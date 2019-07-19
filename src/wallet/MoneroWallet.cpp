@@ -849,6 +849,7 @@ namespace monero {
 
     // init wallet2 and set daemon connection
     if (!wallet2->init(uri, login)) throw runtime_error("Failed to initialize wallet with daemon connection");
+    getIsConnected(); // update isConnected cache // TODO: better naming?
   }
 
   void MoneroWallet::setDaemonConnection(const MoneroRpcConnection& connection) {
@@ -1049,7 +1050,16 @@ namespace monero {
 
   void MoneroWallet::setAutoSync(bool autoSync) {
     cout << "setAutoSync(" << autoSync << ")" << endl;
-    //throw runtime_error("Not implemented");
+    if (autoSync) {
+      if (!autoSyncEnabled) {
+        autoSyncEnabled = true;
+        syncCV.notify_one();
+      }
+    } else {
+      if (!autoSyncThreadDone) {
+        autoSyncEnabled = false;
+      }
+    }
   }
 
   // rescanBlockchain
@@ -2271,6 +2281,10 @@ namespace monero {
 
   void MoneroWallet::close() {
     cout << "close()" << endl;
+    autoSyncEnabled = false;
+    autoSyncThreadDone = true;
+    syncCV.notify_one();
+    autoSyncThread.join();
     wallet2->stop();
   }
 
@@ -2297,24 +2311,24 @@ namespace monero {
       boost::mutex::scoped_lock lock(autoSyncMutex);
       if (autoSyncThreadDone) break;
       if (autoSyncEnabled) {
-        boost::posix_time::milliseconds wait_for_ms(DEFAULT_REFRESH_INTERVAL_MILLIS);
+        boost::posix_time::milliseconds wait_for_ms(autoSyncInterval.load());
         syncCV.timed_wait(lock, wait_for_ms);
       } else {
         syncCV.wait(lock);
       }
       if (autoSyncEnabled) {
-        doSync();
+        autoSyncAux();
       }
     }
   }
 
-  void MoneroWallet::doSync() {
+  void MoneroWallet::autoSyncAux() {
     bool rescan = rescanOnSync.exchange(false);
     boost::lock_guard<boost::mutex> guarg(syncMutex);
     do {
       if (getIsDaemonSynced()) {
         if (rescan) wallet2->rescan_blockchain(false);
-        wallet2->refresh(wallet2->is_trusted_daemon());
+        sync();
         if (!isSynced) isSynced = true;
         wallet2->find_and_save_rings(false);
       }
@@ -2325,16 +2339,17 @@ namespace monero {
     cout << "syncAux()" << endl;
 
     // validate inputs
-    if (endHeight != boost::none) throw runtime_error("Monero core wallet2 does not support syncing to an end height");	// TODO: custom exception type
+    if (endHeight != boost::none) throw runtime_error("Monero core wallet2 does not support syncing to an end height"); // TODO: remove end height altogether
 
     // determine sync start height
     uint64_t syncStartHeight = startHeight == boost::none ? max(getHeight(), getRestoreHeight()) : *startHeight;
     if (syncStartHeight < getRestoreHeight()) setRestoreHeight(syncStartHeight); // TODO monero core: start height processed > requested start height unless restore height manually set
 
-    // sync wallet
+    // sync wallet and return result
     wallet2Listener->onSyncStart(syncStartHeight, listener);
     MoneroSyncResult result;
     wallet2->refresh(wallet2->is_trusted_daemon(), syncStartHeight, result.numBlocksFetched, result.receivedMoney, true);
+    if (!isSynced) isSynced = true;
     wallet2Listener->onSyncEnd();
     return result;
   }
