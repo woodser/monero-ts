@@ -1031,22 +1031,22 @@ namespace monero {
 
   MoneroSyncResult MoneroWallet::sync() {
     cout << "sync()" << endl;
-    return syncAux(boost::none, boost::none, boost::none);
+    return syncAux(boost::none, boost::none);
   }
 
   MoneroSyncResult MoneroWallet::sync(MoneroSyncListener& listener) {
     cout << "sync(startHeight)" << endl;
-    return syncAux(boost::none, boost::none, listener);
+    return syncAux(boost::none, listener);
   }
 
   MoneroSyncResult MoneroWallet::sync(uint64_t startHeight) {
     cout << "sync(startHeight)" << endl;
-    return syncAux(startHeight, boost::none, boost::none);
+    return syncAux(startHeight, boost::none);
   }
 
   MoneroSyncResult MoneroWallet::sync(uint64_t startHeight, MoneroSyncListener& listener) {
     cout << "sync(startHeight, listener)" << endl;
-    return syncAux(startHeight, boost::none, listener);
+    return syncAux(startHeight, listener);
   }
 
   void MoneroWallet::setAutoSync(bool autoSync) {
@@ -2331,18 +2331,15 @@ namespace monero {
     do {
       if (getIsDaemonSynced()) {
         if (rescan) wallet2->rescan_blockchain(false);
-        syncAux(boost::none, boost::none, boost::none);
+        syncAux(boost::none, boost::none);
         if (!isSynced) isSynced = true;
         wallet2->find_and_save_rings(false);
       }
     } while (!rescan && (rescan = rescanOnSync.exchange(false))); // repeat if not rescanned and rescan was requested
   }
 
-  MoneroSyncResult MoneroWallet::syncAux(boost::optional<uint64_t> startHeight, boost::optional<uint64_t> endHeight, boost::optional<MoneroSyncListener&> listener) {
+  MoneroSyncResult MoneroWallet::syncAux(boost::optional<uint64_t> startHeight, boost::optional<MoneroSyncListener&> listener) {
     cout << "syncAux()" << endl;
-
-    // validate inputs
-    if (endHeight != boost::none) throw runtime_error("Monero core wallet2 does not support syncing to an end height"); // TODO: remove end height altogether
 
     // determine sync start height
     uint64_t syncStartHeight = startHeight == boost::none ? max(getHeight(), getRestoreHeight()) : *startHeight;
