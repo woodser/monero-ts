@@ -395,6 +395,7 @@ class TestMoneroWalletCommon {
         let txs1 = await getCachedTxs();
         let txs2 = await getAndTestTxs(wallet, undefined, true);
         assert.equal(txs2.length, txs1.length);
+        assert.equal(txs1[0].getHeight(), TestUtils.TEST_RESTORE_HEIGHT, "First tx's restore height must match the restore height in TestUtils");
         
         // test each tranasction
         let blocksPerHeight = {};
