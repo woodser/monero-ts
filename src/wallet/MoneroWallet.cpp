@@ -77,7 +77,7 @@ namespace monero {
 
   // ------------------------- INITIALIZE CONSTANTS ---------------------------
 
-  static const int DEFAULT_REFRESH_INTERVAL_MILLIS = 1000 * 10;   // default refresh interval 10 sec
+  static const int DEFAULT_SYNC_INTERVAL_MILLIS = 1000 * 10;   // default refresh interval 10 sec
   static const int DEFAULT_CONNECTION_TIMEOUT_MILLIS = 1000 * 30; // default connection timeout 30 sec
 
   // ----------------------- INTERNAL PRIVATE HELPERS -----------------------
@@ -740,6 +740,7 @@ namespace monero {
     cout << "MoneroWallet(3b)" << endl;
     wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
     wallet2->load(path, password);
+    wallet2->init("");
     initCommon();
   }
 
@@ -1072,7 +1073,7 @@ namespace monero {
 
   uint64_t MoneroWallet::getChainHeight() const {
     string err;
-    if (getDaemonConnection() == nullptr) throw runtime_error("No connection to daemon");
+    if (!isConnected) throw runtime_error("No connection to daemon");
     uint64_t chainHeight = wallet2->get_daemon_blockchain_height(err);
     if (!err.empty()) throw runtime_error(err);
     return chainHeight;
@@ -2298,6 +2299,7 @@ namespace monero {
     rescanOnSync = false;
     autoSyncEnabled = false;
     autoSyncThreadDone = false;
+    autoSyncInterval = DEFAULT_SYNC_INTERVAL_MILLIS;
 
     // start auto sync loop
     autoSyncThread = boost::thread([this]() {
@@ -2328,7 +2330,7 @@ namespace monero {
     do {
       if (getIsDaemonSynced()) {
         if (rescan) wallet2->rescan_blockchain(false);
-        sync();
+        syncAux(boost::none, boost::none, boost::none);
         if (!isSynced) isSynced = true;
         wallet2->find_and_save_rings(false);
       }
