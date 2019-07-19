@@ -2287,6 +2287,7 @@ namespace monero {
     syncCV.notify_one();
     autoSyncThread.join();
     wallet2->stop();
+    wallet2->deinit();
   }
 
   // ------------------------------- PRIVATE HELPERS ----------------------------
