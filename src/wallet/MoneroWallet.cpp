@@ -1069,7 +1069,7 @@ namespace monero {
   void MoneroWallet::rescanBlockchain() {
     cout << "rescanBlockchain()" << endl;
     rescanOnSync = true;
-    syncAux();
+    lockAndSync();
   }
 
   // isMultisigImportNeeded
