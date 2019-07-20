@@ -1033,22 +1033,22 @@ namespace monero {
 
   MoneroSyncResult MoneroWallet::sync() {
     cout << "sync()" << endl;
-    return syncAux(boost::none, boost::none);
+    return lockAndSync();
   }
 
   MoneroSyncResult MoneroWallet::sync(MoneroSyncListener& listener) {
     cout << "sync(startHeight)" << endl;
-    return syncAux(boost::none, listener);
+    return lockAndSync(boost::none, listener);
   }
 
   MoneroSyncResult MoneroWallet::sync(uint64_t startHeight) {
     cout << "sync(startHeight)" << endl;
-    return syncAux(startHeight, boost::none);
+    return lockAndSync(startHeight);
   }
 
   MoneroSyncResult MoneroWallet::sync(uint64_t startHeight, MoneroSyncListener& listener) {
     cout << "sync(startHeight, listener)" << endl;
-    return syncAux(startHeight, listener);
+    return lockAndSync(startHeight, listener);
   }
 
   void MoneroWallet::setAutoSync(bool autoSync) {
@@ -1065,9 +1065,11 @@ namespace monero {
     }
   }
 
+  // TODO: support arguments bool hard, bool refresh = true, bool keep_key_images = false
   void MoneroWallet::rescanBlockchain() {
     cout << "rescanBlockchain()" << endl;
-    wallet2->rescan_blockchain(false); // TODO: support arguments bool hard, bool refresh = true, bool keep_key_images = false
+    rescanOnSync = true;
+    syncAux();
   }
 
   // isMultisigImportNeeded
@@ -2325,22 +2327,32 @@ namespace monero {
         syncCV.wait(lock);
       }
       if (autoSyncEnabled) {
-        autoSyncAux();
+        lockAndSync();
       }
     }
   }
 
-  void MoneroWallet::autoSyncAux() {
+  MoneroSyncResult MoneroWallet::lockAndSync(boost::optional<uint64_t> startHeight, boost::optional<MoneroSyncListener&> listener) {
     bool rescan = rescanOnSync.exchange(false);
-    boost::lock_guard<boost::mutex> guarg(syncMutex);
+    boost::lock_guard<boost::mutex> guarg(syncMutex); // synchronize sync() and syncAsync()
+    MoneroSyncResult result;
+    result.numBlocksFetched = 0;
+    result.receivedMoney = false;
     do {
+      // skip if daemon is not synced
       if (getIsDaemonSynced()) {
+
+        // rescan blockchain if requested
         if (rescan) wallet2->rescan_blockchain(false);
-        syncAux(boost::none, boost::none);
-        if (!isSynced) isSynced = true;
+
+        // sync wallet
+        result = syncAux(startHeight, listener);
+
+        // find and save rings
         wallet2->find_and_save_rings(false);
       }
     } while (!rescan && (rescan = rescanOnSync.exchange(false))); // repeat if not rescanned and rescan was requested
+    return result;
   }
 
   MoneroSyncResult MoneroWallet::syncAux(boost::optional<uint64_t> startHeight, boost::optional<MoneroSyncListener&> listener) {

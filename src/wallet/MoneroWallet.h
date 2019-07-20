@@ -1177,7 +1177,7 @@ namespace monero {
     boost::mutex autoSyncMutex;               // synchronize auto sync loop
     std::atomic<bool> autoSyncThreadDone;     // whether or not auto sync loop is done (cannot be re-started)
     void autoSyncThreadFunc();                // function to run auto sync loop thread
-    void autoSyncAux();												// internal synchronized sync function
-    MoneroSyncResult syncAux(boost::optional<uint64_t> startHeight, boost::optional<MoneroSyncListener&> listener);
+    MoneroSyncResult lockAndSync(boost::optional<uint64_t> startHeight = boost::none, boost::optional<MoneroSyncListener&> listener = boost::none); // internal function to synchronize request to sync and rescan
+    MoneroSyncResult syncAux(boost::optional<uint64_t> startHeight = boost::none, boost::optional<MoneroSyncListener&> listener = boost::none);     // internal function to immediately block, sync, and report progress
   };
 }
