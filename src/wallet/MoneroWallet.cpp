@@ -86,7 +86,7 @@ namespace monero {
     return optVal == boost::none ? false : val == *optVal;
   }
 
-  shared_ptr<MoneroTxWallet> buildTxWithIncomingTransfer(const tools::wallet2& wallet2, uint64_t chainHeight, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) {
+  shared_ptr<MoneroTxWallet> buildTxWithIncomingTransfer(const tools::wallet2& wallet2, uint64_t height, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) {
     //cout << "buildTxWithIncomingTransfer()" << endl;
 
     // construct block
@@ -115,8 +115,9 @@ namespace monero {
     tx->isDoubleSpend = false;
 
     // compute numConfirmations TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
-    if (*block->height >= chainHeight || (*block->height == 0 && !tx->inTxPool)) tx->numConfirmations = 0;
-    else tx->numConfirmations = chainHeight - *block->height;
+    // TODO: factor out this duplicate code with buildTxWithOutgoingTransfer()
+    if (*block->height >= height || (*block->height == 0 && !*tx->inTxPool)) tx->numConfirmations = 0;
+    else tx->numConfirmations = height - *block->height;
 
     // construct transfer
     shared_ptr<MoneroIncomingTransfer> incomingTransfer = shared_ptr<MoneroIncomingTransfer>(new MoneroIncomingTransfer());
@@ -127,7 +128,8 @@ namespace monero {
     incomingTransfer->subaddressIndex = pd.m_subaddr_index.minor;
     incomingTransfer->address = wallet2.get_subaddress_as_str(pd.m_subaddr_index);
 
-    // compute numSuggestedConfirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
+    // compute numSuggestedConfirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 `set_confirmations` but it should be encapsulated in wallet2
+    // TODO: factor out this duplicate code with buildTxWithOutgoingTransfer()
     uint64_t blockReward = wallet2.get_last_block_reward();
     if (blockReward == 0) incomingTransfer->numSuggestedConfirmations = 0;
     else incomingTransfer->numSuggestedConfirmations = (*incomingTransfer->amount + blockReward - 1) / blockReward;
@@ -136,7 +138,7 @@ namespace monero {
     return tx;
   }
 
-  shared_ptr<MoneroTxWallet> buildTxWithOutgoingTransfer(const tools::wallet2& wallet2, uint64_t chainHeight, const crypto::hash &txid, const tools::wallet2::confirmed_transfer_details &pd) {
+  shared_ptr<MoneroTxWallet> buildTxWithOutgoingTransfer(const tools::wallet2& wallet2, uint64_t height, const crypto::hash &txid, const tools::wallet2::confirmed_transfer_details &pd) {
     //cout << "buildTxWithOutgoingTransfer()" << endl;
 
     // construct block
@@ -165,8 +167,8 @@ namespace monero {
     tx->isDoubleSpend = false;
 
     // compute numConfirmations TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
-    if (*block->height >= chainHeight || (*block->height == 0 && !tx->inTxPool)) tx->numConfirmations = 0;
-    else tx->numConfirmations = chainHeight - *block->height;
+    if (*block->height >= height || (*block->height == 0 && !*tx->inTxPool)) tx->numConfirmations = 0;
+    else tx->numConfirmations = height - *block->height;
 
     // construct transfer
     shared_ptr<MoneroOutgoingTransfer> outgoingTransfer = shared_ptr<MoneroOutgoingTransfer>(new MoneroOutgoingTransfer());
@@ -1063,7 +1065,10 @@ namespace monero {
     }
   }
 
-  // rescanBlockchain
+  void MoneroWallet::rescanBlockchain() {
+    cout << "rescanBlockchain()" << endl;
+    wallet2->rescan_blockchain(false); // TODO: support arguments bool hard, bool refresh = true, bool keep_key_images = false
+  }
 
   // isMultisigImportNeeded
 
@@ -1387,7 +1392,7 @@ namespace monero {
     //cout << "4" << endl;
 
     // cache unique txs and blocks
-    uint64_t chainHeight = getChainHeight();
+    uint64_t height = getHeight();
     map<string, shared_ptr<MoneroTxWallet>> txMap;
     map<uint64_t, shared_ptr<MoneroBlock>> blockMap;
 
@@ -1396,7 +1401,7 @@ namespace monero {
       std::list<std::pair<crypto::hash, tools::wallet2::payment_details>> payments;
       wallet2->get_payments(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
-        shared_ptr<MoneroTxWallet> tx = buildTxWithIncomingTransfer(*wallet2, chainHeight, i->first, i->second);
+        shared_ptr<MoneroTxWallet> tx = buildTxWithIncomingTransfer(*wallet2, height, i->first, i->second);
         mergeTx(tx, txMap, blockMap, false);
       }
     }
@@ -1408,7 +1413,7 @@ namespace monero {
       std::list<std::pair<crypto::hash, tools::wallet2::confirmed_transfer_details>> payments;
       wallet2->get_payments_out(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::confirmed_transfer_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
-        shared_ptr<MoneroTxWallet> tx = buildTxWithOutgoingTransfer(*wallet2, chainHeight, i->first, i->second);
+        shared_ptr<MoneroTxWallet> tx = buildTxWithOutgoingTransfer(*wallet2, height, i->first, i->second);
         mergeTx(tx, txMap, blockMap, false);
       }
     }

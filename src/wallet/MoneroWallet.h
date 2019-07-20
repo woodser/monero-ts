@@ -364,14 +364,14 @@ namespace monero {
      */
     void setAutoSync(bool autoSync);
 
-    //    /**
-    //     * Rescan the blockchain from scratch, losing any information which cannot be recovered from
-    //     * the blockchain itself.
-    //     *
-    //     * WARNING: This method discards local wallet data like destination addresses, tx secret keys,
-    //     * tx notes, etc.
-    //     */
-    //    public void rescanBlockchain();
+    /**
+     * Rescan the blockchain from scratch, losing any information which cannot be recovered from
+     * the blockchain itself.
+     *
+     * WARNING: This method discards local wallet data like destination addresses, tx secret keys,
+     * tx notes, etc.
+     */
+    void rescanBlockchain();
 
     /**
      * Get the height of the last block processed by the wallet (its index + 1).
