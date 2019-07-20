@@ -1037,7 +1037,7 @@ namespace monero {
   }
 
   MoneroSyncResult MoneroWallet::sync(MoneroSyncListener& listener) {
-    cout << "sync(startHeight)" << endl;
+    cout << "sync(listener)" << endl;
     return lockAndSync(boost::none, listener);
   }
 
