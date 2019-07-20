@@ -108,7 +108,7 @@ namespace MoneroUtils
 
   // TODO: refactor common template code
   template <class T, typename std::enable_if<std::is_same<T, string>::value, T>::type* = nullptr>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax) {
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax, const string& errMsg = "") {
 
     // check for equality
     if (val1 == val2) return val1;
@@ -119,16 +119,15 @@ namespace MoneroUtils
       else return val1 == boost::none ? val2 : val1;
     }
 
-    throw runtime_error("Cannot reconcile strings");
+    throw runtime_error(string("Cannot reconcile strings: ") + to_string(val1) + string(" vs ") + to_string(val2) + (!errMsg.empty() ? string(". ") + errMsg : string("")));
   }
-
   template <class T, typename std::enable_if<std::is_same<T, string>::value, T>::type* = nullptr>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2) {
-    return reconcile(val1, val2, boost::none, boost::none, boost::none);
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const string& errMsg = "") {
+    return reconcile(val1, val2, boost::none, boost::none, boost::none, errMsg);
   }
 
   template <class T, typename std::enable_if<std::is_integral<T>::value, T>::type* = nullptr>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax) {
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax, const string& errMsg = "") {
 
     // check for equality
     if (val1 == val2) return val1;
@@ -145,16 +144,15 @@ namespace MoneroUtils
     }
 
     // throw runtime_error("Cannot reconcile values " + val1 + " and " + val2 + " with config: [" + resolveDefined + ", " + resolveTrue + ", " + resolveMax + "]", val1, val2);
-    throw runtime_error("Cannot reconcile integrals");
+    throw runtime_error(string("Cannot reconcile integrals: ") + to_string(val1) + string(" vs ") + to_string(val2) + (!errMsg.empty() ? string(". ") + errMsg : string("")));
   }
-
   template <class T, typename std::enable_if<std::is_integral<T>::value, T>::type* = nullptr>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2) {
-    return reconcile(val1, val2, boost::none, boost::none, boost::none);
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const string& errMsg = "") {
+    return reconcile(val1, val2, boost::none, boost::none, boost::none, errMsg);
   }
 
   template <class T, typename std::enable_if<std::is_same<T, bool>::value, T>::type>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax) {
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax, const string& errMsg = "") {
 
     // check for equality
     if (val1 == val2) return val1;
@@ -169,19 +167,16 @@ namespace MoneroUtils
     if (resolveTrue != boost::none) {
       return val1 == resolveTrue ? val1 : val2; // if resolve true, return true, else return false
     } else {
-      throw runtime_error("Cannot reconcile booleans");
+      throw runtime_error(string("Cannot reconcile booleans: ") + to_string(val1) + string(" vs ") + to_string(val2) + (!errMsg.empty() ? string(". ") + errMsg : string("")));
     }
-
-    throw runtime_error("Cannot reconcile booleans");
   }
-
   template <class T, typename std::enable_if<std::is_same<T, bool>::value, T>::type>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2) {
-    return reconcile(val1, val2, boost::none, boost::none, boost::none);
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const string& errMsg = "") {
+    return reconcile(val1, val2, boost::none, boost::none, boost::none, errMsg);
   }
 
   template <class T>
-  vector<T> reconcile(const vector<T>& v1, const vector<T>& v2) {
+  vector<T> reconcile(const vector<T>& v1, const vector<T>& v2, const string& errMsg = "") {
 
     // check for equality
     if (v1 == v2) return v1;
@@ -191,7 +186,7 @@ namespace MoneroUtils
     if (v2.empty()) return v1;
 
     // otherwise cannot reconcile
-    throw runtime_error("Cannot reconcile vectors");
+    throw runtime_error("Cannot reconcile vectors" + (!errMsg.empty() ? string(". ") + errMsg : string("")));
   }
 
 //    template <class T>

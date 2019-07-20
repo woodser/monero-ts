@@ -113,22 +113,22 @@ namespace monero {
     if (this != self.get()) throw runtime_error("this != self");
     if (self == other) return;
     id = MoneroUtils::reconcile(id, other->id);
-    height = MoneroUtils::reconcile(height, other->height, boost::none, boost::none, true); // height can increase
-    timestamp = MoneroUtils::reconcile(timestamp, other->timestamp, boost::none, boost::none, true);  // timestamp can increase
-    size = MoneroUtils::reconcile(size, other->size);
-    weight = MoneroUtils::reconcile(weight, other->weight);
-    longTermWeight = MoneroUtils::reconcile(longTermWeight, other->longTermWeight);
-    depth = MoneroUtils::reconcile(depth, other->depth);
-    difficulty = MoneroUtils::reconcile(difficulty, other->difficulty);
-    cumulativeDifficulty = MoneroUtils::reconcile(cumulativeDifficulty, other->cumulativeDifficulty);
-    majorVersion = MoneroUtils::reconcile(majorVersion, other->majorVersion);
-    minorVersion = MoneroUtils::reconcile(minorVersion, other->minorVersion);
-    nonce = MoneroUtils::reconcile(nonce, other->nonce);
+    height = MoneroUtils::reconcile(height, other->height, boost::none, boost::none, true, "block height"); // height can increase
+    timestamp = MoneroUtils::reconcile(timestamp, other->timestamp, boost::none, boost::none, true, "block header timestamp");  // timestamp can increase
+    size = MoneroUtils::reconcile(size, other->size, "block header size");
+    weight = MoneroUtils::reconcile(weight, other->weight, "block header weight");
+    longTermWeight = MoneroUtils::reconcile(longTermWeight, other->longTermWeight, "block header long term weight");
+    depth = MoneroUtils::reconcile(depth, other->depth, "block header depth");
+    difficulty = MoneroUtils::reconcile(difficulty, other->difficulty, "difficulty");
+    cumulativeDifficulty = MoneroUtils::reconcile(cumulativeDifficulty, other->cumulativeDifficulty, "cumulativeDifficulty");
+    majorVersion = MoneroUtils::reconcile(majorVersion, other->majorVersion, "majorVersion");
+    minorVersion = MoneroUtils::reconcile(minorVersion, other->minorVersion, "minorVersion");
+    nonce = MoneroUtils::reconcile(nonce, other->nonce, "nonce");
     coinbaseTxId = MoneroUtils::reconcile(coinbaseTxId, other->coinbaseTxId);
-    numTxs = MoneroUtils::reconcile(numTxs, other->numTxs);
+    numTxs = MoneroUtils::reconcile(numTxs, other->numTxs, "block header numTxs");
     orphanStatus = MoneroUtils::reconcile(orphanStatus, other->orphanStatus);
     prevId = MoneroUtils::reconcile(prevId, other->prevId);
-    reward = MoneroUtils::reconcile(reward, other->reward);
+    reward = MoneroUtils::reconcile(reward, other->reward, "block header reward");
     powHash = MoneroUtils::reconcile(powHash, other->powHash);
   }
 
@@ -249,8 +249,8 @@ namespace monero {
     id = MoneroUtils::reconcile(id, other->id);
     version = MoneroUtils::reconcile(version, other->version);
     paymentId = MoneroUtils::reconcile(paymentId, other->paymentId);
-    fee = MoneroUtils::reconcile(fee, other->fee);
-    mixin = MoneroUtils::reconcile(mixin, other->mixin);
+    fee = MoneroUtils::reconcile(fee, other->fee, "tx fee");
+    mixin = MoneroUtils::reconcile(mixin, other->mixin, "tx mixin");
     isConfirmed = MoneroUtils::reconcile(isConfirmed, other->isConfirmed);
     doNotRelay = MoneroUtils::reconcile(doNotRelay, other->doNotRelay);
     isRelayed = MoneroUtils::reconcile(isRelayed, other->isRelayed);
@@ -260,8 +260,8 @@ namespace monero {
     prunedHex = MoneroUtils::reconcile(prunedHex, other->prunedHex);
     prunableHex = MoneroUtils::reconcile(prunableHex, other->prunableHex);
     prunableHash = MoneroUtils::reconcile(prunableHash, other->prunableHash);
-    size = MoneroUtils::reconcile(size, other->size);
-    weight = MoneroUtils::reconcile(weight, other->weight);
+    size = MoneroUtils::reconcile(size, other->size, "tx size");
+    weight = MoneroUtils::reconcile(weight, other->weight, "tx weight");
     //outputIndices = MoneroUtils::reconcile(outputIndices, other->outputIndices);  // TODO
     metadata = MoneroUtils::reconcile(metadata, other->metadata);
     commonTxSets = MoneroUtils::reconcile(commonTxSets, other->commonTxSets);
@@ -270,13 +270,13 @@ namespace monero {
     rctSigPrunable = MoneroUtils::reconcile(rctSigPrunable, other->rctSigPrunable);
     isKeptByBlock = MoneroUtils::reconcile(isKeptByBlock, other->isKeptByBlock);
     isFailed = MoneroUtils::reconcile(isFailed, other->isFailed);
-    lastFailedHeight = MoneroUtils::reconcile(lastFailedHeight, other->lastFailedHeight);
+    lastFailedHeight = MoneroUtils::reconcile(lastFailedHeight, other->lastFailedHeight, "lastFailedHeight");
     lastFailedId = MoneroUtils::reconcile(lastFailedId, other->lastFailedId);
-    maxUsedBlockHeight = MoneroUtils::reconcile(maxUsedBlockHeight, other->maxUsedBlockHeight);
+    maxUsedBlockHeight = MoneroUtils::reconcile(maxUsedBlockHeight, other->maxUsedBlockHeight, "maxUsedBlockHeight");
     maxUsedBlockId = MoneroUtils::reconcile(maxUsedBlockId, other->maxUsedBlockId);
     //signatures = MoneroUtils::reconcile(signatures, other->signatures); // TODO
-    unlockTime = MoneroUtils::reconcile(unlockTime, other->unlockTime);
-    numConfirmations = MoneroUtils::reconcile(numConfirmations, other->numConfirmations);
+    unlockTime = MoneroUtils::reconcile(unlockTime, other->unlockTime, "unlockTime");
+    numConfirmations = MoneroUtils::reconcile(numConfirmations, other->numConfirmations, "numConfirmations");
 
     // merge vins
     if (!other->vins.empty()) {
@@ -349,8 +349,8 @@ namespace monero {
       lastRelayedTimestamp = boost::none;
     } else {
       inTxPool = MoneroUtils::reconcile(inTxPool, other->inTxPool, boost::none, true, boost::none); // unrelayed -> tx pool
-      receivedTimestamp = MoneroUtils::reconcile(receivedTimestamp, other->receivedTimestamp, boost::none, boost::none, false); // take earliest receive time
-      lastRelayedTimestamp = MoneroUtils::reconcile(lastRelayedTimestamp, other->lastRelayedTimestamp, boost::none, boost::none, true); // take latest relay time
+      receivedTimestamp = MoneroUtils::reconcile(receivedTimestamp, other->receivedTimestamp, boost::none, boost::none, false, "receivedTimestamp"); // take earliest receive time
+      lastRelayedTimestamp = MoneroUtils::reconcile(lastRelayedTimestamp, other->lastRelayedTimestamp, boost::none, boost::none, true, "lastRelayedTimestamp"); // take latest relay time
     }
   }
 
@@ -395,7 +395,7 @@ namespace monero {
     // otherwise merge output fields
     if (keyImage == boost::none) keyImage = other->keyImage;
     else if (other->keyImage != boost::none) keyImage.get()->merge(keyImage.get(), other->keyImage.get());
-    amount = MoneroUtils::reconcile(amount, other->amount);
-    index = MoneroUtils::reconcile(index, other->index);
+    amount = MoneroUtils::reconcile(amount, other->amount, "output amount");
+    index = MoneroUtils::reconcile(index, other->index, "output index");
   }
 }

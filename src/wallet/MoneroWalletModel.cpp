@@ -289,9 +289,17 @@ namespace monero {
     }
 
     // otherwise merge transfer fields
-    amount = MoneroUtils::reconcile(amount, other->amount);
-    accountIndex = MoneroUtils::reconcile(accountIndex, other->accountIndex);
-    numSuggestedConfirmations = MoneroUtils::reconcile(numSuggestedConfirmations, other->numSuggestedConfirmations, boost::none, boost::none, false);
+    accountIndex = MoneroUtils::reconcile(accountIndex, other->accountIndex, "acountIndex");
+
+    // TODO monero core: failed tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount/numSuggestedConfirmations of 0
+    if (amount != boost::none && other->amount != boost::none && *amount != *other->amount && (*amount == 0 || *other->amount == 0)) {
+      accountIndex = MoneroUtils::reconcile(accountIndex, other->accountIndex, boost::none, boost::none, true, "acountIndex");
+      numSuggestedConfirmations = MoneroUtils::reconcile(numSuggestedConfirmations, other->numSuggestedConfirmations, boost::none, boost::none, true, "numSuggestedConfirmations");
+      cout << "WARNING: failed tx in pool causes non-originating wallets to return duplicate incoming transfers but with one amount/numSuggestedConfirmations of 0" << endl;
+    } else {
+      amount = MoneroUtils::reconcile(amount, other->amount, "transfer amount");
+      numSuggestedConfirmations = MoneroUtils::reconcile(numSuggestedConfirmations, other->numSuggestedConfirmations, boost::none, boost::none, false, "numSuggestedConfirmations");
+    }
   }
 
   // ----------------------- MONERO INCOMING TRANSFER -------------------------
@@ -314,7 +322,7 @@ namespace monero {
     //cout << "MoneroIncomingTransfer::merge" << endl;
     if (self == other) return;
     MoneroTransfer::merge(self, other);
-    subaddressIndex = MoneroUtils::reconcile(subaddressIndex, other->subaddressIndex);
+    subaddressIndex = MoneroUtils::reconcile(subaddressIndex, other->subaddressIndex, "incoming transfer subaddressIndex");
     address = MoneroUtils::reconcile(address, other->address);
   }
 
