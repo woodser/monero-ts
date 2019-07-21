@@ -1,5 +1,5 @@
 HIGH PRIORITY
-shared_ptr<Foo>(new Foo()) vs make_shared
+change shared_ptr<Foo>(new Foo()) to make_shared
 strong vs weak references
 cannot reconcile integrals on getTransfers() test, need to add reconcile debug info including vals and pass error message
 getReserveProofAccount() jni seg fault
