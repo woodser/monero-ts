@@ -1,10 +1,9 @@
 HIGH PRIORITY
 change shared_ptr<Foo>(new Foo()) to make_shared
+cpp library readme with sample code
+code todos
 strong vs weak references
-cannot reconcile integrals on getTransfers() test, need to add reconcile debug info including vals and pass error message
 getReserveProofAccount() jni seg fault
-testGetTransfers() cannot reconcile integrals: new MoneroTransferRequest().setAccountIndex(subaddress.getAccountIndex()).setSubaddressIndex(subaddress.getIndex())
-comb code todos
 cleanup MoneroWallet.h/MoneroDaemon.h documentation
 gen documentation
 
