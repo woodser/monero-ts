@@ -19,9 +19,9 @@ These build steps aspire to be automated further.
     2. `cd ./external/boost-sdk/`
     3. `./bootstraph.sh`
     4. `./b2`
-    5. Copy .a files from ./external/boost-sdk/bin.v2/libs/*/link-static/* to ./external-libs/boost according to CMakeLists.txt.
+    5. Copy .a files from ./external/boost-sdk/bin.v2/libs/\*/link-static/\* to ./external-libs/boost according to CMakeLists.txt.
 2. Setup OpenSSL
-    1. Download and extract the latest boost source code zip from https://github.com/openssl/openssl to ./external/openssl-sdk/.
+    1. Download and extract the latest OpenSSL source code zip from https://github.com/openssl/openssl to ./external/openssl-sdk/.
     2. Build for your system.<br>
        Mac: installed through boost at /usr/local/opt/openssl/lib
     3. Copy libcrypto.a and libssl.a ./external-libs/openssl.
