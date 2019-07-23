@@ -1,4 +1,5 @@
 HIGH PRIORITY
+sign/submit tx
 change shared_ptr<Foo>(new Foo()) to make_shared
 cpp library readme with sample code
 code todos
