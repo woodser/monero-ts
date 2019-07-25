@@ -112,7 +112,7 @@ namespace monero {
     tx->isRelayed = true;
     tx->inTxPool = false;
     tx->doNotRelay = false;
-    tx->isDoubleSpend = false;
+    tx->isDoubleSpendSeen = false;
 
     // compute numConfirmations TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
     // TODO: factor out this duplicate code with buildTxWithOutgoingTransfer()
@@ -164,7 +164,7 @@ namespace monero {
     tx->isRelayed = true;
     tx->inTxPool = false;
     tx->doNotRelay = false;
-    tx->isDoubleSpend = false;
+    tx->isDoubleSpendSeen = false;
 
     // compute numConfirmations TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
     if (*block->height >= height || (*block->height == 0 && !*tx->inTxPool)) tx->numConfirmations = 0;
@@ -231,7 +231,7 @@ namespace monero {
     tx->isRelayed = true;
     tx->inTxPool = true;
     tx->doNotRelay = false;
-    tx->isDoubleSpend = ppd.m_double_spend_seen;
+    tx->isDoubleSpendSeen = ppd.m_double_spend_seen;
     tx->numConfirmations = 0;
 
     // construct transfer
@@ -271,7 +271,7 @@ namespace monero {
     tx->isRelayed = !tx->isFailed.get();
     tx->inTxPool = !tx->isFailed.get();
     tx->doNotRelay = false;
-    if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpend = false;  // TODO: test and handle if true
+    if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpendSeen = false;  // TODO: test and handle if true
     tx->numConfirmations = 0;
 
     // construct transfer
@@ -330,7 +330,7 @@ namespace monero {
     tx->isRelayed = true;
     tx->inTxPool = false;
     tx->doNotRelay = false;
-    tx->isDoubleSpend = false;
+    tx->isDoubleSpendSeen = false;
 
     // construct vout
     shared_ptr<MoneroOutputWallet> vout = shared_ptr<MoneroOutputWallet>(new MoneroOutputWallet());
@@ -1688,7 +1688,7 @@ namespace monero {
       tx->doNotRelay = request.doNotRelay != boost::none && request.doNotRelay.get() == true;
       tx->isRelayed = tx->doNotRelay.get() != true;
       tx->inTxPool = !tx->doNotRelay.get();
-      if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpend = false;  // TODO: test and handle if true
+      if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpendSeen = false;  // TODO: test and handle if true
       tx->numConfirmations = 0;
       tx->mixin = request.mixin;
       tx->unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
@@ -1798,7 +1798,7 @@ namespace monero {
       tx->doNotRelay = request.doNotRelay != boost::none && request.doNotRelay.get() == true;
       tx->isRelayed = tx->doNotRelay.get() != true;
       tx->inTxPool = !tx->doNotRelay.get();
-      if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpend = false;  // TODO: test and handle if true
+      if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpendSeen = false;  // TODO: test and handle if true
       tx->numConfirmations = 0;
       tx->mixin = request.mixin;
       tx->unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
@@ -1876,7 +1876,7 @@ namespace monero {
       tx->doNotRelay = doNotRelay;
       tx->isRelayed = tx->doNotRelay.get() != true;
       tx->inTxPool = !tx->doNotRelay.get();
-      if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpend = false;  // TODO: test and handle if true
+      if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpendSeen = false;  // TODO: test and handle if true
       tx->numConfirmations = 0;
       //tx->mixin = request.mixin;  // TODO: how to get?
       tx->unlockTime = 0;

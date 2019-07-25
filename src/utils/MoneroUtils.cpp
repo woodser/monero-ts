@@ -194,7 +194,7 @@ void nodeToTx(const boost::property_tree::ptree& node, shared_ptr<MoneroTx> tx) 
     else if (key == string("unlockTime")) throw runtime_error("unlockTime deserialization not implemented");
     else if (key == string("lastRelayedTimestamp")) throw runtime_error("lastRelayedTimestamp deserialization not implemented");
     else if (key == string("receivedTimestamp")) throw runtime_error("receivedTimestamp deserializationn not implemented");
-    else if (key == string("isDoubleSpend")) tx->isDoubleSpend = stringToBool(it->second.data());
+    else if (key == string("isDoubleSpendSeen")) tx->isDoubleSpendSeen = stringToBool(it->second.data());
     else if (key == string("key")) tx->key = it->second.data();
     else if (key == string("fullHex")) tx->fullHex = it->second.data();
     else if (key == string("prunedHex")) tx->prunedHex = it->second.data();

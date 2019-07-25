@@ -194,7 +194,7 @@ namespace monero {
     if (unlockTime != boost::none) node.put("unlockTime", *unlockTime);
     if (lastRelayedTimestamp != boost::none) node.put("lastRelayedTimestamp", *lastRelayedTimestamp);
     if (receivedTimestamp != boost::none) node.put("receivedTimestamp", *receivedTimestamp);
-    if (isDoubleSpend != boost::none) node.put("isDoubleSpend", *isDoubleSpend);
+    if (isDoubleSpendSeen != boost::none) node.put("isDoubleSpendSeen", *isDoubleSpendSeen);
     if (key != boost::none) node.put("key", *key);
     if (fullHex != boost::none) node.put("fullHex", *fullHex);
     if (prunedHex != boost::none) node.put("prunedHex", *prunedHex);
@@ -254,7 +254,7 @@ namespace monero {
     isConfirmed = MoneroUtils::reconcile(isConfirmed, other->isConfirmed);
     doNotRelay = MoneroUtils::reconcile(doNotRelay, other->doNotRelay);
     isRelayed = MoneroUtils::reconcile(isRelayed, other->isRelayed);
-    isDoubleSpend = MoneroUtils::reconcile(isDoubleSpend, other->isDoubleSpend);
+    isDoubleSpendSeen = MoneroUtils::reconcile(isDoubleSpendSeen, other->isDoubleSpendSeen);
     key = MoneroUtils::reconcile(key, other->key);
     fullHex = MoneroUtils::reconcile(fullHex, other->fullHex);
     prunedHex = MoneroUtils::reconcile(prunedHex, other->prunedHex);

@@ -171,7 +171,7 @@ namespace monero {
     boost::optional<uint64_t> unlockTime;
     boost::optional<uint64_t> lastRelayedTimestamp;
     boost::optional<uint64_t> receivedTimestamp;
-    boost::optional<bool> isDoubleSpend;
+    boost::optional<bool> isDoubleSpendSeen;
     boost::optional<string> key;
     boost::optional<string> fullHex;
     boost::optional<string> prunedHex;
