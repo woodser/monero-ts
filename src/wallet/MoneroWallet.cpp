@@ -2302,7 +2302,7 @@ namespace monero {
   void MoneroWallet::initCommon() {
     cout << "MoneroWallet.cpp initCommon()" << endl;
     wallet2Listener = unique_ptr<Wallet2Listener>(new Wallet2Listener(*this, *wallet2));
-    isConnected = false;
+    if (getDaemonConnection() == nullptr) isConnected = false;
     isSynced = false;
     rescanOnSync = false;
     autoSyncEnabled = false;
@@ -2339,8 +2339,8 @@ namespace monero {
     result.numBlocksFetched = 0;
     result.receivedMoney = false;
     do {
-      // skip if daemon is not synced
-      if (getIsDaemonSynced()) {
+      // skip if daemon is not connected or synced
+      if (isConnected && getIsDaemonSynced()) {
 
         // rescan blockchain if requested
         if (rescan) wallet2->rescan_blockchain(false);
