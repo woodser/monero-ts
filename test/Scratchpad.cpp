@@ -38,7 +38,7 @@ void createWalletRandom(string language, int networkType) {
 int main(int argc, const char* argv[]) {
 
   // configure logging
-  mlog_configure("log_scratchpad.txt", true);
+  mlog_configure("log_scratchpad_cpp.txt", true);
   mlog_set_log_level(1);
   //MINFO("logging info!!!");
   //MWARNING("logging a warning!!!");
