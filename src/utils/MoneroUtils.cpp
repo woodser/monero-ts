@@ -74,7 +74,6 @@ void nodeToTransfer(const boost::property_tree::ptree& node, shared_ptr<MoneroTr
   // initialize transfer from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    cout << "Transfer node key: " << key << endl;
     if (key == string("accountIndex")) transfer->accountIndex = it->second.get_value<uint32_t>();
   }
 }
@@ -86,7 +85,6 @@ shared_ptr<MoneroTransferRequest> nodeToTransferRequest(const boost::property_tr
   // initialize request from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    cout << "Transfer request node key: " << key << endl;
     if (key == string("isIncoming")) transferRequest->isIncoming = stringToBool(it->second.data());
     else if (key == string("address")) transferRequest->address = it->second.data();
     else if (key == string("addresses")) throw runtime_error("addresses not implemented");
@@ -110,7 +108,6 @@ shared_ptr<MoneroKeyImage> nodeToKeyImage(const boost::property_tree::ptree& nod
   shared_ptr<MoneroKeyImage> keyImage = shared_ptr<MoneroKeyImage>(new MoneroKeyImage());
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    //cout << "Key image node key: " << key << endl;
     if (key == string("hex")) keyImage->hex = it->second.data();
     else if (key == string("signature")) keyImage->signature = it->second.data();
   }
@@ -119,18 +116,10 @@ shared_ptr<MoneroKeyImage> nodeToKeyImage(const boost::property_tree::ptree& nod
 }
 
 void nodeToOutput(const boost::property_tree::ptree& node, shared_ptr<MoneroOutput> output) {
-  cout << "nodeToOutput()" << endl;
-
-//  // print for debug
-//  std::stringstream ss;
-//  boost::property_tree::write_json(ss, node, false);
-//  string receivedNode = ss.str();
-//  cout << "Received node: " << receivedNode << endl;
 
   // initialize output from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    cout << "Output node key: " << key << endl;
     if (key == string("keyImage")) output->keyImage = nodeToKeyImage(it->second);
     else if (key == string("amount")) output->amount = it->second.get_value<uint64_t>();
     else if (key == string("index")) output->index = it->second.get_value<uint32_t>();
@@ -143,7 +132,6 @@ void nodeToOutputWallet(const boost::property_tree::ptree& node, shared_ptr<Mone
   nodeToOutput(node, outputWallet);
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    cout << "Output wallet node key: " << key << endl;
     if (key == string("accountIndex")) outputWallet->accountIndex = it->second.get_value<uint32_t>();
     else if (key == string("subaddressIndex")) outputWallet->subaddressIndex = it->second.get_value<uint32_t>();
     else if (key == string("isSpent")) outputWallet->isSpent = stringToBool(it->second.data());
@@ -159,7 +147,6 @@ shared_ptr<MoneroOutputRequest> nodeToOutputRequest(const boost::property_tree::
   // initialize request from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    cout << "Output request node key: " << key << endl;
     if (key == string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) outputRequest->subaddressIndices.push_back(it2->second.get_value<uint32_t>());
     else if (key == string("txRequest")) {} // ignored
   }
@@ -168,18 +155,10 @@ shared_ptr<MoneroOutputRequest> nodeToOutputRequest(const boost::property_tree::
 }
 
 void nodeToTx(const boost::property_tree::ptree& node, shared_ptr<MoneroTx> tx) {
-  cout << "nodeToTx()" << endl;
-
-//  // print for debug
-//  std::stringstream ss;
-//  boost::property_tree::write_json(ss, node, false);
-//  string receivedNode = ss.str();
-//  cout << "Received node: " << receivedNode << endl;
 
   // initialize tx from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    cout << "Tx node key: " << key << endl;
     if (key == string("id")) tx->id = it->second.data();
     else if (key == string("version")) throw runtime_error("version deserializationn not implemented");
     else if (key == string("isCoinbase")) tx->isCoinbase = stringToBool(it->second.data());
@@ -220,12 +199,12 @@ void nodeToTx(const boost::property_tree::ptree& node, shared_ptr<MoneroTx> tx) 
   }
 }
 
+// TODO: fill this out
 void nodeToTxWallet(const boost::property_tree::ptree& node, shared_ptr<MoneroTxWallet> txWallet) {
   nodeToTx(node, txWallet);
 
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    cout << "Tx wallet node key: " << key << endl;
     //if (key == string("id")) tx->id = it->second.data();
   }
 }
@@ -237,7 +216,6 @@ shared_ptr<MoneroTxRequest> nodeToTxRequest(const boost::property_tree::ptree& n
   // initialize request from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    cout << "Tx request node key: " << key << endl;
     if (key == string("isOutgoing")) txRequest->isOutgoing = stringToBool(it->second.data());
     else if (key == string("isIncoming")) txRequest->isIncoming = stringToBool(it->second.data());
     else if (key == string("txIds")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) txRequest->txIds.push_back(it2->second.data());
@@ -255,11 +233,9 @@ shared_ptr<MoneroTxRequest> nodeToTxRequest(const boost::property_tree::ptree& n
 }
 
 shared_ptr<MoneroBlock> nodeToBlockRequest(const boost::property_tree::ptree& node) {
-  cout << "nodeToBlockRequest()" << endl;
   shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(new MoneroBlock());
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    cout << "Block node key: " << key << endl;
     if (key == string("height")) block->height = (uint64_t) 7;  // TODO
     else if (key == string("txs")) {
       boost::property_tree::ptree txsNode = it->second;
@@ -272,11 +248,9 @@ shared_ptr<MoneroBlock> nodeToBlockRequest(const boost::property_tree::ptree& no
 }
 
 shared_ptr<MoneroDestination> nodeToDestination(const boost::property_tree::ptree& node) {
-  cout << "nodeToDestination()" << endl;
   shared_ptr<MoneroDestination> destination = shared_ptr<MoneroDestination>(new MoneroDestination());
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    cout << "Destination node key: " << key << endl;
     if (key == string("address")) destination->address = it->second.data();
     else if (key == string("amount")) destination->amount = it->second.get_value<uint64_t>();
   }
@@ -329,7 +303,7 @@ void MoneroUtils::binaryBlocksToJson(const std::string &bin, std::string &json) 
 
         // add tx node to txs node
         boost::property_tree::ptree txNode;
-        //std::cout << "PRUNED:\n" << MoneroUtils::get_pruned_tx_json(tx) << "\n";
+        MTRACE("PRUNED:\n" << MoneroUtils::get_pruned_tx_json(tx));
         txNode.put("", MoneroUtils::get_pruned_tx_json(tx));	// TODO: no pretty print
         txsNode.push_back(std::make_pair("", txNode));
       } else {
@@ -350,7 +324,6 @@ void MoneroUtils::binaryBlocksToJson(const std::string &bin, std::string &json) 
 }
 
 shared_ptr<MoneroTxRequest> MoneroUtils::deserializeTxRequest(const string& txRequestStr) {
-  cout << "deserializeTxRequest(): " <<  txRequestStr << endl;
 
   // deserialize tx request string to property rooted at block
   std::istringstream iss = txRequestStr.empty() ? std::istringstream() : std::istringstream(txRequestStr);
@@ -363,14 +336,11 @@ shared_ptr<MoneroTxRequest> MoneroUtils::deserializeTxRequest(const string& txRe
   // get tx request
   shared_ptr<MoneroTxRequest> txRequest = static_pointer_cast<MoneroTxRequest>(block->txs[0]);
 
-  cout << "Returning deserialized tx request" << endl;
-
   // return deserialized request
   return txRequest;
 }
 
 shared_ptr<MoneroTransferRequest> MoneroUtils::deserializeTransferRequest(const string& transferRequestStr) {
-  cout << "deserializeTransferRequest(): " <<  transferRequestStr << endl;
 
   // deserialize transfer request string to property rooted at block
   std::istringstream iss = transferRequestStr.empty() ? std::istringstream() : std::istringstream(transferRequestStr);
@@ -393,14 +363,11 @@ shared_ptr<MoneroTransferRequest> MoneroUtils::deserializeTransferRequest(const 
   transferRequest->txRequest = txRequest;
   txRequest->transferRequest = boost::none;
 
-  cout << "Returning deserialized transfer request" << endl;
-
   // return deserialized request
   return transferRequest;
 }
 
 shared_ptr<MoneroOutputRequest> MoneroUtils::deserializeOutputRequest(const string& outputRequestStr) {
-  cout << "deserializeOutputRequest(): " <<  outputRequestStr << endl;
 
   // deserialize output request string to property rooted at block
   std::istringstream iss = outputRequestStr.empty() ? std::istringstream() : std::istringstream(outputRequestStr);
@@ -423,15 +390,11 @@ shared_ptr<MoneroOutputRequest> MoneroUtils::deserializeOutputRequest(const stri
   outputRequest->txRequest = txRequest;
   txRequest->outputRequest = boost::none;
 
-  //cout << block->serialize() << endl;
-  cout << "Returning deserialized output request" << endl;
-
   // return deserialized request
   return outputRequest;
 }
 
 shared_ptr<MoneroSendRequest> MoneroUtils::deserializeSendRequest(const string& sendRequestStr) {
-  cout << "deserializeSendRequest(): " <<  sendRequestStr << endl;
 
   // deserialize send request json to property node
   std::istringstream iss = sendRequestStr.empty() ? std::istringstream() : std::istringstream(sendRequestStr);
@@ -442,7 +405,6 @@ shared_ptr<MoneroSendRequest> MoneroUtils::deserializeSendRequest(const string& 
   shared_ptr<MoneroSendRequest> sendRequest = shared_ptr<MoneroSendRequest>(new MoneroSendRequest());
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    cout << "Send request node key: " << key << endl;
     if (key == string("destinations")) {
       boost::property_tree::ptree destinationsNode = it->second;
       for (boost::property_tree::ptree::const_iterator it2 = destinationsNode.begin(); it2 != destinationsNode.end(); ++it2) {
@@ -466,7 +428,6 @@ shared_ptr<MoneroSendRequest> MoneroUtils::deserializeSendRequest(const string& 
     else if (key == string("keyImage")) sendRequest->keyImage = it->second.data();
   }
 
-  cout << "Returning deserialized send request" << endl;
   return sendRequest;
 }
 
@@ -481,13 +442,12 @@ vector<shared_ptr<MoneroKeyImage>> MoneroUtils::deserializeKeyImages(const strin
   vector<shared_ptr<MoneroKeyImage>> keyImages;
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    //cout << "deserializeKeyImage() key: " << key << endl;
     if (key == string("keyImages")) {
       for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
         keyImages.push_back(nodeToKeyImage(it2->second));
       }
     }
-    else cout << "WARNING MoneroWalletJni::deserializeKeyImages() unrecognized key: " << key << endl;
+    else MWARNING("WARNING MoneroWalletJni::deserializeKeyImages() unrecognized key: " << key);
   }
   return keyImages;
 }
@@ -500,7 +460,6 @@ string MoneroUtils::serialize(const boost::property_tree::ptree& node) {
 }
 
 boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<string> strs) {
-  //cout << "toPropertyTree(strs)" << endl;
   boost::property_tree::ptree strsNode;
   for (const auto& str : strs)  {
     boost::property_tree::ptree strNode;
@@ -511,7 +470,6 @@ boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<string> str
 }
 
 boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<uint32_t> nums) {
-  //cout << "toPropertyTree(nums)" << endl;
   boost::property_tree::ptree numsNode;
   for (const auto& num : nums)  {
     boost::property_tree::ptree numNode;

@@ -81,7 +81,6 @@ namespace monero {
 
   // TODO: ensure return object is not being unecessarily copied
   boost::property_tree::ptree MoneroAccount::toPropertyTree() const {
-    //cout << "MoneroAccount::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node;
     if (index != boost::none) node.put("index", *index);
     if (primaryAddress != boost::none) node.put("primaryAddress", *primaryAddress);
@@ -94,7 +93,6 @@ namespace monero {
   // -------------------------- MONERO SUBADDRESS -----------------------------
 
   boost::property_tree::ptree MoneroSubaddress::toPropertyTree() const {
-    //cout << "MoneroSubaddress::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node;
     if (accountIndex != boost::none) node.put("accountIndex", *accountIndex);
     if (index != boost::none) node.put("index", *index);
@@ -159,7 +157,6 @@ namespace monero {
   // -------------------------- MONERO TX REQUEST -----------------------------
 
   boost::property_tree::ptree MoneroTxRequest::toPropertyTree() const {
-//    cout << "MoneroTxRequest::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node = MoneroTxWallet::toPropertyTree();
     if (isOutgoing != boost::none) node.put("isOutgoing", *isOutgoing);
     if (isIncoming != boost::none) node.put("isIncoming", *isIncoming);
@@ -177,10 +174,6 @@ namespace monero {
   bool MoneroTxRequest::meetsCriteria(MoneroTxWallet* tx) const {
     if (tx == nullptr) return false;
 
-    //cout << "MoneroTxRequest::meetsCriteria()" << endl;
-    //cout << "Testing tx: " << tx->serialize() << endl;
-    //cout << "1" << endl;
-
     // filter on tx
     if (id != boost::none && id != tx->id) return false;
     if (paymentId != boost::none && paymentId != tx->paymentId) return false;
@@ -189,8 +182,6 @@ namespace monero {
     if (doNotRelay != boost::none && doNotRelay != tx->doNotRelay) return false;
     if (isFailed != boost::none && isFailed != tx->isFailed) return false;
     if (isCoinbase != boost::none && isCoinbase != tx->isCoinbase) return false;
-
-    //cout << "2" << endl;
 
     // at least one transfer must meet transfer request if defined
     if (transferRequest != boost::none) {
@@ -207,25 +198,17 @@ namespace monero {
       if (!matchFound) return false;
     }
 
-    //cout << "3" << endl;
-
     // filter on having a payment id
     if (hasPaymentId != boost::none) {
       if (*hasPaymentId && tx->paymentId == boost::none) return false;
       if (!*hasPaymentId && tx->paymentId != boost::none) return false;
     }
 
-    //cout << "4" << endl;
-
     // filter on incoming
     if (isIncoming != boost::none && isIncoming != tx->getIsIncoming()) return false;
 
-    //cout << "5" << endl;
-
     // filter on outgoing
     if (isOutgoing != boost::none && isOutgoing != tx->getIsOutgoing()) return false;
-
-    //cout << "6" << endl;
 
     // filter on remaining fields
     boost::optional<uint64_t> txHeight = tx->getHeight();
@@ -235,31 +218,13 @@ namespace monero {
     if (minHeight != boost::none && (txHeight == boost::none || *txHeight < *minHeight)) return false;
     if (maxHeight != boost::none && (txHeight == boost::none || *txHeight > *maxHeight)) return false;
 
-    //cout << "7" << endl;
-
     // transaction meets request criteria
     return true;
   }
 
-  //boost::property_tree::ptree MoneroUtils::txRequestToPropertyTree(const MoneroTxRequest& tx) {
-  //  cout << "txWalletToPropertyTree(tx)" << endl;
-  //  boost::property_tree::ptree txNode = txWalletToPropertyTree(tx);
-  //  if (tx.isOutgoing != boost::none) txNode.put("isOutgoing", *tx.isOutgoing);
-  //  if (tx.isIncoming != boost::none) txNode.put("isIncoming", *tx.isIncoming);
-  //  if (!tx.txIds.empty()) throw runtime_error("not implemented");
-  //  if (tx.hasPaymentId != boost::none) txNode.put("hasPaymentId", *tx.hasPaymentId);
-  //  if (!tx.paymentIds.empty()) throw runtime_error("not implemented");
-  //  if (tx.minHeight != boost::none) txNode.put("minHeight", *tx.minHeight);
-  //  if (tx.maxHeight != boost::none) txNode.put("maxHeight", *tx.maxHeight);
-  //  if (tx.includeOutputs != boost::none) txNode.put("includeOutputs", *tx.includeOutputs);
-  //  if (tx.transferRequest != boost::none) throw runtime_error("not implemented");
-  //  return txNode;
-  //}
-
   // -------------------------- MONERO DESTINATION ----------------------------
 
   boost::property_tree::ptree MoneroDestination::toPropertyTree() const {
-    //cout << "MoneroDestination::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node;
     if (address != boost::none) node.put("address", *address);
     if (amount != boost::none) node.put("amount", *amount);
@@ -269,7 +234,6 @@ namespace monero {
   // ---------------------------- MONERO TRANSFER -----------------------------
 
   boost::property_tree::ptree MoneroTransfer::toPropertyTree() const {
-    //cout << "MoneroTransfer::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node;
     if (amount != boost::none) node.put("amount", *amount);
     if (accountIndex != boost::none) node.put("accountIndex", *accountIndex);
@@ -278,7 +242,6 @@ namespace monero {
   }
 
   void MoneroTransfer::merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other) {
-    //cout << "MoneroTransfer::merge" << endl;
     if (this != self.get()) throw runtime_error("this != self");
     if (self == other) return;
 
@@ -295,7 +258,7 @@ namespace monero {
     if (amount != boost::none && other->amount != boost::none && *amount != *other->amount && (*amount == 0 || *other->amount == 0)) {
       accountIndex = MoneroUtils::reconcile(accountIndex, other->accountIndex, boost::none, boost::none, true, "acountIndex");
       numSuggestedConfirmations = MoneroUtils::reconcile(numSuggestedConfirmations, other->numSuggestedConfirmations, boost::none, boost::none, true, "numSuggestedConfirmations");
-      cout << "WARNING: failed tx in pool causes non-originating wallets to return duplicate incoming transfers but with one amount/numSuggestedConfirmations of 0" << endl;
+      MWARNING("WARNING: failed tx in pool causes non-originating wallets to return duplicate incoming transfers but with one amount/numSuggestedConfirmations of 0");
     } else {
       amount = MoneroUtils::reconcile(amount, other->amount, "transfer amount");
       numSuggestedConfirmations = MoneroUtils::reconcile(numSuggestedConfirmations, other->numSuggestedConfirmations, boost::none, boost::none, false, "numSuggestedConfirmations");
@@ -307,7 +270,6 @@ namespace monero {
   boost::optional<bool> MoneroIncomingTransfer::getIsIncoming() const { return true; }
 
   boost::property_tree::ptree MoneroIncomingTransfer::toPropertyTree() const {
-    //cout << "MoneroIncomingTransfer::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node = MoneroTransfer::toPropertyTree();
     if (subaddressIndex != boost::none) node.put("subaddressIndex", *subaddressIndex);
     if (address != boost::none) node.put("address", *address);
@@ -319,7 +281,6 @@ namespace monero {
   }
 
   void MoneroIncomingTransfer::merge(const shared_ptr<MoneroIncomingTransfer>& self, const shared_ptr<MoneroIncomingTransfer>& other) {
-    //cout << "MoneroIncomingTransfer::merge" << endl;
     if (self == other) return;
     MoneroTransfer::merge(self, other);
     subaddressIndex = MoneroUtils::reconcile(subaddressIndex, other->subaddressIndex, "incoming transfer subaddressIndex");
@@ -331,7 +292,6 @@ namespace monero {
   boost::optional<bool> MoneroOutgoingTransfer::getIsIncoming() const { return false; }
 
   boost::property_tree::ptree MoneroOutgoingTransfer::toPropertyTree() const {
-    //cout << "MoneroOutgoingTransfer::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node = MoneroTransfer::toPropertyTree();
     if (!subaddressIndices.empty()) node.add_child("subaddressIndices", MoneroUtils::toPropertyTree(subaddressIndices));
     if (!addresses.empty()) node.add_child("addresses", MoneroUtils::toPropertyTree(addresses));
@@ -344,7 +304,6 @@ namespace monero {
   }
 
   void MoneroOutgoingTransfer::merge(const shared_ptr<MoneroOutgoingTransfer>& self, const shared_ptr<MoneroOutgoingTransfer>& other) {
-    //cout << "MoneroOutgoingTransfer::merge" << endl;
     if (self == other) return;
     MoneroTransfer::merge(self, other);
     subaddressIndices = MoneroUtils::reconcile(subaddressIndices, other->subaddressIndices);
@@ -357,7 +316,6 @@ namespace monero {
   boost::optional<bool> MoneroTransferRequest::getIsIncoming() const { return isIncoming; }
 
   boost::property_tree::ptree MoneroTransferRequest::toPropertyTree() const {
-    //cout << "MoneroTransferRequest::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node = MoneroTransfer::toPropertyTree();
     if (getIsIncoming() != boost::none) node.put("isIncoming", *getIsIncoming());
     if (address != boost::none) node.put("address", *address);
@@ -370,19 +328,14 @@ namespace monero {
   }
 
   bool MoneroTransferRequest::meetsCriteria(MoneroTransfer* transfer) const {
-    //cout << "MoneroTransferRequest::meetsCriteria()" << endl;
     if (transfer == nullptr) throw runtime_error("transfer is null"); // TODO: port to java/js
     if (txRequest != boost::none && (*txRequest)->transferRequest != boost::none) throw runtime_error("Transfer request's tx request cannot have a circular transfer request");   // TODO: could auto detect and handl this.  port to java/js
-
-    //cout << "1" << endl;
 
     // filter on common fields
     if (getIsIncoming() != boost::none && *getIsIncoming() != *transfer->getIsIncoming()) return false;
     if (getIsOutgoing() != boost::none && getIsOutgoing() != transfer->getIsOutgoing()) return false;
     if (amount != boost::none && *amount != *transfer->amount) return false;
     if (accountIndex != boost::none && *accountIndex != *transfer->accountIndex) return false;
-
-    //cout << "2" << endl;
 
     // filter on incoming fields
     MoneroIncomingTransfer* inTransfer = dynamic_cast<MoneroIncomingTransfer*>(transfer);
@@ -393,8 +346,6 @@ namespace monero {
       if (subaddressIndex != boost::none && *subaddressIndex != *inTransfer->subaddressIndex) return false;
       if (!subaddressIndices.empty() && find(subaddressIndices.begin(), subaddressIndices.end(), *inTransfer->subaddressIndex) == subaddressIndices.end()) return false;
     }
-
-    //cout << "3" << endl;
 
     // filter on outgoing fields
     MoneroOutgoingTransfer* outTransfer = dynamic_cast<MoneroOutgoingTransfer*>(transfer);
@@ -440,8 +391,6 @@ namespace monero {
       //    if (this.getDestionations() != null && this.getDestionations() != transfer.getDestionations()) return false;
     }
 
-    //cout << "4" << endl;
-
     // validate type
     if (inTransfer == nullptr && outTransfer == nullptr) throw runtime_error("Transfer must be MoneroIncomingTransfer or MoneroOutgoingTransfer");
 
@@ -453,7 +402,6 @@ namespace monero {
   // ------------------------- MONERO OUTPUT WALLET ---------------------------
 
   boost::property_tree::ptree MoneroOutputWallet::toPropertyTree() const {
-    //cout << "MoneroTransfer::toPropertyTree(node)" << endl;
     boost::property_tree::ptree node = MoneroOutput::toPropertyTree();
     if (accountIndex != boost::none) node.put("accountIndex", *accountIndex);
     if (subaddressIndex != boost::none) node.put("subaddressIndex", *subaddressIndex);

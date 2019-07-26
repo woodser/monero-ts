@@ -86,7 +86,6 @@ namespace monero {
   // ------------------------- MONERO BLOCK HEADER ----------------------------
 
   boost::property_tree::ptree MoneroBlockHeader::toPropertyTree() const {
-    //cout << "MoneroBlockHeader::toPropertyTree(block)" << endl;
     boost::property_tree::ptree node;
     if (id != boost::none) node.put("id", *id);
     if (height != boost::none) node.put("height", *height);
@@ -135,7 +134,6 @@ namespace monero {
   // ----------------------------- MONERO BLOCK -------------------------------
 
   boost::property_tree::ptree MoneroBlock::toPropertyTree() const {
-    //cout << "MoneroBlock::toPropertyTree(block)" << endl;
     boost::property_tree::ptree node = MoneroBlockHeader::toPropertyTree();
     if (hex != boost::none) node.put("hex", *hex);
     if (coinbaseTx != boost::none) node.add_child("coinbaseTx", (*coinbaseTx)->toPropertyTree());
@@ -178,7 +176,6 @@ namespace monero {
   // ------------------------------- MONERO TX --------------------------------
 
   boost::property_tree::ptree MoneroTx::toPropertyTree() const {
-    //cout << "MoneroTx::txToPropertyTree(tx)" << endl;
     boost::property_tree::ptree node;
     if (id != boost::none) node.put("id", *id);
     if (version != boost::none) node.put("version", *version);
@@ -357,7 +354,6 @@ namespace monero {
   // --------------------------- MONERO KEY IMAGE -----------------------------
 
   boost::property_tree::ptree MoneroKeyImage::toPropertyTree() const {
-    //cout << "MoneroKeyImage::toPropertyTree(tx)" << endl;
     boost::property_tree::ptree node;
     if (hex != boost::none) node.put("hex", *hex);
     if (signature != boost::none) node.put("signature", *signature);
@@ -365,14 +361,12 @@ namespace monero {
   }
 
   void MoneroKeyImage::merge(const shared_ptr<MoneroKeyImage>& self, const shared_ptr<MoneroKeyImage>& other) {
-    cout << "MoneroKeyImage::merge()" << endl;
     throw runtime_error("Not implemented");
   }
 
   // ------------------------------ MONERO OUTPUT -----------------------------
 
   boost::property_tree::ptree MoneroOutput::toPropertyTree() const {
-    //cout << "MoneroOutput::toPropertyTree(tx)" << endl;
     boost::property_tree::ptree node;
     if (keyImage != boost::none) node.add_child("keyImage", (*keyImage)->toPropertyTree());
     if (amount != boost::none) node.put("amount", *amount);
