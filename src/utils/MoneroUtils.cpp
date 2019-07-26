@@ -456,7 +456,8 @@ vector<shared_ptr<MoneroKeyImage>> MoneroUtils::deserializeKeyImages(const strin
 string MoneroUtils::serialize(const boost::property_tree::ptree& node) {
   std::stringstream ss;
   boost::property_tree::write_json(ss, node, false);
-  return ss.str();
+  string str = ss.str();
+  return str.substr(0, str.size() - 1); // strip newline
 }
 
 boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<string> strs) {
