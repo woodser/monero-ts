@@ -358,11 +358,14 @@ namespace monero {
     MoneroSyncResult sync(uint64_t startHeight, MoneroSyncListener& listener);
 
     /**
-     * Enable or disable automatic synchronization.
-     *
-     * @param autoSync specifies if automatic synchronization is enabled or disabled
+     * Start automatic syncing as its own thread.
      */
-    void setAutoSync(bool autoSync);
+    void startSyncing();
+
+    /**
+     * Stop automatic syncing as its own thread.
+     */
+    void stopSyncing();
 
     /**
      * Rescan the blockchain from scratch, losing any information which cannot be recovered from
@@ -1171,12 +1174,12 @@ namespace monero {
     boost::condition_variable syncCV;         // to awaken sync threads
     boost::mutex syncMutex;                   // synchronize sync() and syncAsync() requests
     std::atomic<bool> rescanOnSync;           // whether or not to rescan on sync
-    std::atomic<bool> autoSyncEnabled;        // whether or not auto sync is enabled
-    std::atomic<int> autoSyncInterval;        // auto sync loop interval in milliseconds
-    boost::thread autoSyncThread;             // thread for auto sync loop
-    boost::mutex autoSyncMutex;               // synchronize auto sync loop
-    std::atomic<bool> autoSyncThreadDone;     // whether or not auto sync loop is done (cannot be re-started)
-    void autoSyncThreadFunc();                // function to run auto sync loop thread
+    std::atomic<bool> syncingEnabled;         // whether or not auto sync is enabled
+    std::atomic<int> syncingInterval;         // auto sync loop interval in milliseconds
+    boost::thread syncingThread;              // thread for auto sync loop
+    boost::mutex syncingMutex;                // synchronize auto sync loop
+    std::atomic<bool> syncingThreadDone;      // whether or not the syncing thread is shut down
+    void syncingThreadFunc();                 // function to run syncing loop thread
     MoneroSyncResult lockAndSync(boost::optional<uint64_t> startHeight = boost::none, boost::optional<MoneroSyncListener&> listener = boost::none); // internal function to synchronize request to sync and rescan
     MoneroSyncResult syncAux(boost::optional<uint64_t> startHeight = boost::none, boost::optional<MoneroSyncListener&> listener = boost::none);     // internal function to immediately block, sync, and report progress
   };

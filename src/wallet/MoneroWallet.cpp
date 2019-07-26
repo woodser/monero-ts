@@ -1051,17 +1051,22 @@ namespace monero {
     return lockAndSync(startHeight, listener);
   }
 
-  void MoneroWallet::setAutoSync(bool autoSync) {
-    cout << "setAutoSync(" << autoSync << ")" << endl;
-    if (autoSync) {
-      if (!autoSyncEnabled) {
-        autoSyncEnabled = true;
-        syncCV.notify_one();
-      }
-    } else {
-      if (!autoSyncThreadDone) {
-        autoSyncEnabled = false;
-      }
+  /**
+   * Start automatic syncing as its own thread.
+   */
+  void MoneroWallet::startSyncing() {
+    if (!syncingEnabled) {
+      syncingEnabled = true;
+      syncCV.notify_one();
+    }
+  }
+
+  /**
+   * Stop automatic syncing as its own thread.
+   */
+  void MoneroWallet::stopSyncing() {
+    if (!syncingThreadDone) {
+      syncingEnabled = false;
     }
   }
 
@@ -2289,10 +2294,10 @@ namespace monero {
 
   void MoneroWallet::close() {
     cout << "close()" << endl;
-    autoSyncEnabled = false;
-    autoSyncThreadDone = true;
+    syncingEnabled = false;
+    syncingThreadDone = true;
     syncCV.notify_one();
-    autoSyncThread.join();
+    syncingThread.join();
     wallet2->stop();
     wallet2->deinit();
   }
@@ -2305,28 +2310,28 @@ namespace monero {
     if (getDaemonConnection() == nullptr) isConnected = false;
     isSynced = false;
     rescanOnSync = false;
-    autoSyncEnabled = false;
-    autoSyncThreadDone = false;
-    autoSyncInterval = DEFAULT_SYNC_INTERVAL_MILLIS;
+    syncingEnabled = false;
+    syncingThreadDone = false;
+    syncingInterval = DEFAULT_SYNC_INTERVAL_MILLIS;
 
     // start auto sync loop
-    autoSyncThread = boost::thread([this]() {
-      this->autoSyncThreadFunc();
+    syncingThread = boost::thread([this]() {
+      this->syncingThreadFunc();
     });
   }
 
-  void MoneroWallet::autoSyncThreadFunc() {
-    cout << "autoSyncThreadFunc()" << endl;
+  void MoneroWallet::syncingThreadFunc() {
+    cout << "syncingThreadFunc()" << endl;
     while (true) {
-      boost::mutex::scoped_lock lock(autoSyncMutex);
-      if (autoSyncThreadDone) break;
-      if (autoSyncEnabled) {
-        boost::posix_time::milliseconds wait_for_ms(autoSyncInterval.load());
+      boost::mutex::scoped_lock lock(syncingMutex);
+      if (syncingThreadDone) break;
+      if (syncingEnabled) {
+        boost::posix_time::milliseconds wait_for_ms(syncingInterval.load());
         syncCV.timed_wait(lock, wait_for_ms);
       } else {
         syncCV.wait(lock);
       }
-      if (autoSyncEnabled) {
+      if (syncingEnabled) {
         lockAndSync();
       }
     }
