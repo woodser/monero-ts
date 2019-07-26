@@ -731,7 +731,7 @@ namespace monero {
   // ------------------------------- WALLET METHODS -----------------------------
 
   bool MoneroWallet::walletExists(const string& path) {
-    cout << "walletExists(" << path << ")" << endl;
+    MTRACE("walletExists(" << path << ")");
     bool keyFileExists;
     bool walletFileExists;
     tools::wallet2::wallet_exists(path, keyFileExists, walletFileExists);
@@ -739,7 +739,7 @@ namespace monero {
   }
 
   MoneroWallet::MoneroWallet(const string& path, const string& password, const MoneroNetworkType networkType) {
-    cout << "MoneroWallet(3b)" << endl;
+    MTRACE("openWallet(" << path << ", " << password << ", " << networkType << ")");
     wallet2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(networkType), 1, true));
     wallet2->load(path, password);
     wallet2->init("");
