@@ -37,19 +37,25 @@ void createWalletRandom(string language, int networkType) {
  */
 int main(int argc, const char* argv[]) {
 
+  // configure logging
+  mlog_configure("log_scratchpad.txt", true);
+  mlog_set_log_level(1);
+  //MINFO("logging info!!!");
+  //MWARNING("logging a warning!!!");
+  //MERROR("logging an error!!!");
+
   // print header
-  cout << "===== Scratchpad =====" << endl;
+  MINFO("===== Scratchpad =====");
   for (int i = 0; i < argc; i++) {
-    printf("Argument %d: %s\n", i, argv[i]);
+    MINFO("Argument" << i << ": " << argv[i]);
   }
-  cout << endl;
 
   string path = "test_wallet_1";
   string password = "supersecretpassword123";
   string language = "English";
   int networkType = 2;
 
-  cout << "Wallet exists: " << walletExists(path) << endl;
+  MINFO("Wallet exists: " << walletExists(path));
 
 //  openWallet(path, password, networkType);
 //  createWalletRandom(language, networkType);
@@ -65,8 +71,14 @@ int main(int argc, const char* argv[]) {
 
   // load wallet
   MoneroWallet* wallet = new MoneroWallet("../../test_wallets/test_wallet_1", "supersecretpassword123", MoneroNetworkType::STAGENET);
-  //MoneroRpcConnection daemonConnection = MoneroRpcConnection("http://localhost:38083", "", "");
   wallet->setDaemonConnection("http://localhost:38081", "", "");
+
+  // fetch txs
+  vector<shared_ptr<MoneroTxWallet>> txs = wallet->getTxs();
+  MINFO("Wallet has " << txs.size() << " txs.  Printing some.");
+  for (int i = 0; i < txs.size() && i < 10; i++) {
+    MINFO(txs[i]->serialize());
+  }
 
 //  shared_ptr<MoneroTransferRequest> transferRequest = shared_ptr<MoneroTransferRequest>(new MoneroTransferRequest());
 //  transferRequest->accountIndex = 0;
@@ -90,21 +102,21 @@ int main(int argc, const char* argv[]) {
 //  }
 
 
-  // debug simple block merging
-  vector<shared_ptr<MoneroTxWallet>> txs = wallet->getTxs();
-  if (txs.empty()) throw runtime_error("Txs should not be empty");
-  shared_ptr<MoneroBlock> block = nullptr;
-  for (const shared_ptr<MoneroTxWallet>& tx : txs) {
-    if (tx->getHeight().get() != 360559l) throw runtime_error("Anything other than 360559l should be filtered");
-    cout << "We have one!!!" << endl;
-    if (block == nullptr) block = tx->block.get();
-    else {
-      if (block != tx->block.get()) {
-        cout << "BOOM" << endl;
-        cout << block->serialize();
-        cout << "--- VS ---" << endl;
-        cout << tx->block.get()->serialize();
-      }
-    }
-  }
+//  // debug simple block merging
+//  vector<shared_ptr<MoneroTxWallet>> txs = wallet->getTxs();
+//  if (txs.empty()) throw runtime_error("Txs should not be empty");
+//  shared_ptr<MoneroBlock> block = nullptr;
+//  for (const shared_ptr<MoneroTxWallet>& tx : txs) {
+//    if (tx->getHeight().get() != 360559l) throw runtime_error("Anything other than 360559l should be filtered");
+//    cout << "We have one!!!" << endl;
+//    if (block == nullptr) block = tx->block.get();
+//    else {
+//      if (block != tx->block.get()) {
+//        cout << "BOOM" << endl;
+//        cout << block->serialize();
+//        cout << "--- VS ---" << endl;
+//        cout << tx->block.get()->serialize();
+//      }
+//    }
+//  }
 }
