@@ -70,7 +70,7 @@ int main(int argc, const char* argv[]) {
 
 
   // load wallet
-  MoneroWallet* wallet = new MoneroWallet("../../test_wallets/test_wallet_1", "supersecretpassword123", MoneroNetworkType::STAGENET);
+  MoneroWallet* wallet = MoneroWallet::openWallet("../../test_wallets/test_wallet_1", "supersecretpassword123", MoneroNetworkType::STAGENET);
   wallet->setDaemonConnection("http://localhost:38081", "", "");
 
   // fetch txs
