@@ -79,7 +79,7 @@ void nodeToTransfer(const boost::property_tree::ptree& node, shared_ptr<MoneroTr
 }
 
 shared_ptr<MoneroTransferRequest> nodeToTransferRequest(const boost::property_tree::ptree& node) {
-  shared_ptr<MoneroTransferRequest> transferRequest = shared_ptr<MoneroTransferRequest>(new MoneroTransferRequest());
+  shared_ptr<MoneroTransferRequest> transferRequest = make_shared<MoneroTransferRequest>();
   nodeToTransfer(node, transferRequest);
 
   // initialize request from node
@@ -105,7 +105,7 @@ shared_ptr<MoneroTransferRequest> nodeToTransferRequest(const boost::property_tr
 shared_ptr<MoneroKeyImage> nodeToKeyImage(const boost::property_tree::ptree& node) {
 
   // initialize key image from node
-  shared_ptr<MoneroKeyImage> keyImage = shared_ptr<MoneroKeyImage>(new MoneroKeyImage());
+  shared_ptr<MoneroKeyImage> keyImage = make_shared<MoneroKeyImage>();
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
     if (key == string("hex")) keyImage->hex = it->second.data();
@@ -141,7 +141,7 @@ void nodeToOutputWallet(const boost::property_tree::ptree& node, shared_ptr<Mone
 }
 
 shared_ptr<MoneroOutputRequest> nodeToOutputRequest(const boost::property_tree::ptree& node) {
-  shared_ptr<MoneroOutputRequest> outputRequest = shared_ptr<MoneroOutputRequest>(new MoneroOutputRequest());
+  shared_ptr<MoneroOutputRequest> outputRequest = make_shared<MoneroOutputRequest>();
   nodeToOutputWallet(node, outputRequest);
 
   // initialize request from node
@@ -210,7 +210,7 @@ void nodeToTxWallet(const boost::property_tree::ptree& node, shared_ptr<MoneroTx
 }
 
 shared_ptr<MoneroTxRequest> nodeToTxRequest(const boost::property_tree::ptree& node) {
-  shared_ptr<MoneroTxRequest> txRequest = shared_ptr<MoneroTxRequest>(new MoneroTxRequest());
+  shared_ptr<MoneroTxRequest> txRequest = make_shared<MoneroTxRequest>();
   nodeToTxWallet(node, txRequest);
 
   // initialize request from node
@@ -233,7 +233,7 @@ shared_ptr<MoneroTxRequest> nodeToTxRequest(const boost::property_tree::ptree& n
 }
 
 shared_ptr<MoneroBlock> nodeToBlockRequest(const boost::property_tree::ptree& node) {
-  shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(new MoneroBlock());
+  shared_ptr<MoneroBlock> block = make_shared<MoneroBlock>();
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
     if (key == string("height")) block->height = (uint64_t) 7;  // TODO
@@ -248,7 +248,7 @@ shared_ptr<MoneroBlock> nodeToBlockRequest(const boost::property_tree::ptree& no
 }
 
 shared_ptr<MoneroDestination> nodeToDestination(const boost::property_tree::ptree& node) {
-  shared_ptr<MoneroDestination> destination = shared_ptr<MoneroDestination>(new MoneroDestination());
+  shared_ptr<MoneroDestination> destination = make_shared<MoneroDestination>();
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
     if (key == string("address")) destination->address = it->second.data();
@@ -351,13 +351,13 @@ shared_ptr<MoneroTransferRequest> MoneroUtils::deserializeTransferRequest(const 
   shared_ptr<MoneroBlock> block = nodeToBlockRequest(blockNode);
 
   // return mpty request if no txs
-  if (block->txs.empty()) return shared_ptr<MoneroTransferRequest>(new MoneroTransferRequest());
+  if (block->txs.empty()) return make_shared<MoneroTransferRequest>();
 
   // get tx request
   shared_ptr<MoneroTxRequest> txRequest = static_pointer_cast<MoneroTxRequest>(block->txs[0]);
 
   // get / create transfer request
-  shared_ptr<MoneroTransferRequest> transferRequest = txRequest->transferRequest == boost::none ? shared_ptr<MoneroTransferRequest>(new MoneroTransferRequest()) : *txRequest->transferRequest;
+  shared_ptr<MoneroTransferRequest> transferRequest = txRequest->transferRequest == boost::none ? make_shared<MoneroTransferRequest>() : *txRequest->transferRequest;
 
   // transfer request references tx request but not the other way around to avoid circular loop // TODO: could add check within meetsCriterias()
   transferRequest->txRequest = txRequest;
@@ -378,13 +378,13 @@ shared_ptr<MoneroOutputRequest> MoneroUtils::deserializeOutputRequest(const stri
   shared_ptr<MoneroBlock> block = nodeToBlockRequest(blockNode);
 
   // empty request if no txs
-  if (block->txs.empty()) return shared_ptr<MoneroOutputRequest>(new MoneroOutputRequest());
+  if (block->txs.empty()) return make_shared<MoneroOutputRequest>();
 
   // get tx request
   shared_ptr<MoneroTxRequest> txRequest = static_pointer_cast<MoneroTxRequest>(block->txs[0]);
 
   // get / create output request
-  shared_ptr<MoneroOutputRequest> outputRequest = txRequest->outputRequest == boost::none ? shared_ptr<MoneroOutputRequest>(new MoneroOutputRequest()) : *txRequest->outputRequest;
+  shared_ptr<MoneroOutputRequest> outputRequest = txRequest->outputRequest == boost::none ? make_shared<MoneroOutputRequest>() : *txRequest->outputRequest;
 
   // output request references tx request but not the other way around to avoid circular loop // TODO: could add check within meetsCriterias()
   outputRequest->txRequest = txRequest;
@@ -402,7 +402,7 @@ shared_ptr<MoneroSendRequest> MoneroUtils::deserializeSendRequest(const string& 
   boost::property_tree::read_json(iss, node);
 
   // convert request property tree to MoneroSendRequest
-  shared_ptr<MoneroSendRequest> sendRequest = shared_ptr<MoneroSendRequest>(new MoneroSendRequest());
+  shared_ptr<MoneroSendRequest> sendRequest = make_shared<MoneroSendRequest>();
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
     if (key == string("destinations")) {

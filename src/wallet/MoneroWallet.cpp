@@ -89,12 +89,12 @@ namespace monero {
   shared_ptr<MoneroTxWallet> buildTxWithIncomingTransfer(const tools::wallet2& wallet2, uint64_t height, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) {
 
     // construct block
-    shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(new MoneroBlock());
+    shared_ptr<MoneroBlock> block = make_shared<MoneroBlock>();
     block->height = pd.m_block_height;
     block->timestamp = pd.m_timestamp;
 
     // construct tx
-    shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+    shared_ptr<MoneroTxWallet> tx = make_shared<MoneroTxWallet>();
     tx->block = block;
     block->txs.push_back(tx);
     tx->id = string_tools::pod_to_hex(pd.m_tx_hash);
@@ -119,7 +119,7 @@ namespace monero {
     else tx->numConfirmations = height - *block->height;
 
     // construct transfer
-    shared_ptr<MoneroIncomingTransfer> incomingTransfer = shared_ptr<MoneroIncomingTransfer>(new MoneroIncomingTransfer());
+    shared_ptr<MoneroIncomingTransfer> incomingTransfer = make_shared<MoneroIncomingTransfer>();
     incomingTransfer->tx = tx;
     tx->incomingTransfers.push_back(incomingTransfer);
     incomingTransfer->amount = pd.m_amount;
@@ -140,12 +140,12 @@ namespace monero {
   shared_ptr<MoneroTxWallet> buildTxWithOutgoingTransfer(const tools::wallet2& wallet2, uint64_t height, const crypto::hash &txid, const tools::wallet2::confirmed_transfer_details &pd) {
 
     // construct block
-    shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(new MoneroBlock());
+    shared_ptr<MoneroBlock> block = make_shared<MoneroBlock>();
     block->height = pd.m_block_height;
     block->timestamp = pd.m_timestamp;
 
     // construct tx
-    shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+    shared_ptr<MoneroTxWallet> tx = make_shared<MoneroTxWallet>();
     tx->block = block;
     block->txs.push_back(tx);
     tx->id = string_tools::pod_to_hex(txid);
@@ -169,7 +169,7 @@ namespace monero {
     else tx->numConfirmations = height - *block->height;
 
     // construct transfer
-    shared_ptr<MoneroOutgoingTransfer> outgoingTransfer = shared_ptr<MoneroOutgoingTransfer>(new MoneroOutgoingTransfer());
+    shared_ptr<MoneroOutgoingTransfer> outgoingTransfer = make_shared<MoneroOutgoingTransfer>();
     outgoingTransfer->tx = tx;
     tx->outgoingTransfer = outgoingTransfer;
     uint64_t change = pd.m_change == (uint64_t)-1 ? 0 : pd.m_change; // change may not be known
@@ -186,7 +186,7 @@ namespace monero {
 
     // initialize destinations
     for (const auto &d: pd.m_dests) {
-      shared_ptr<MoneroDestination> destination = shared_ptr<MoneroDestination>(new MoneroDestination());
+      shared_ptr<MoneroDestination> destination = make_shared<MoneroDestination>();
       destination->amount = d.amount;
       destination->address = d.original.empty() ? cryptonote::get_account_address_as_str(wallet2.nettype(), d.is_subaddress, d.addr) : d.original;
       outgoingTransfer->destinations.push_back(destination);
@@ -213,7 +213,7 @@ namespace monero {
 
     // construct tx
     const tools::wallet2::payment_details &pd = ppd.m_pd;
-    shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+    shared_ptr<MoneroTxWallet> tx = make_shared<MoneroTxWallet>();
     tx->id = string_tools::pod_to_hex(pd.m_tx_hash);
     tx->paymentId = string_tools::pod_to_hex(payment_id);
     if (tx->paymentId->substr(16).find_first_not_of('0') == std::string::npos) tx->paymentId = tx->paymentId->substr(0, 16);  // TODO monero core: this should be part of core wallet
@@ -232,7 +232,7 @@ namespace monero {
     tx->numConfirmations = 0;
 
     // construct transfer
-    shared_ptr<MoneroIncomingTransfer> incomingTransfer = shared_ptr<MoneroIncomingTransfer>(new MoneroIncomingTransfer());
+    shared_ptr<MoneroIncomingTransfer> incomingTransfer = make_shared<MoneroIncomingTransfer>();
     incomingTransfer->tx = tx;
     tx->incomingTransfers.push_back(incomingTransfer);
     incomingTransfer->amount = pd.m_amount;
@@ -252,7 +252,7 @@ namespace monero {
   shared_ptr<MoneroTxWallet> buildTxWithOutgoingTransferUnconfirmed(const tools::wallet2& wallet2, const crypto::hash &txid, const tools::wallet2::unconfirmed_transfer_details &pd) {
 
     // construct tx
-    shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+    shared_ptr<MoneroTxWallet> tx = make_shared<MoneroTxWallet>();
     tx->isFailed = pd.m_state == tools::wallet2::unconfirmed_transfer_details::failed;
     tx->id = string_tools::pod_to_hex(txid);
     tx->paymentId = string_tools::pod_to_hex(pd.m_payment_id);
@@ -271,7 +271,7 @@ namespace monero {
     tx->numConfirmations = 0;
 
     // construct transfer
-    shared_ptr<MoneroOutgoingTransfer> outgoingTransfer = shared_ptr<MoneroOutgoingTransfer>(new MoneroOutgoingTransfer());
+    shared_ptr<MoneroOutgoingTransfer> outgoingTransfer = make_shared<MoneroOutgoingTransfer>();
     outgoingTransfer->tx = tx;
     tx->outgoingTransfer = outgoingTransfer;
     outgoingTransfer->amount = pd.m_amount_in - pd.m_change - tx->fee.get();
@@ -287,7 +287,7 @@ namespace monero {
 
     // initialize destinations
     for (const auto &d: pd.m_dests) {
-      shared_ptr<MoneroDestination> destination = shared_ptr<MoneroDestination>(new MoneroDestination());
+      shared_ptr<MoneroDestination> destination = make_shared<MoneroDestination>();
       destination->amount = d.amount;
       destination->address = d.original.empty() ? cryptonote::get_account_address_as_str(wallet2.nettype(), d.is_subaddress, d.addr) : d.original;
       outgoingTransfer->destinations.push_back(destination);
@@ -313,11 +313,11 @@ namespace monero {
   shared_ptr<MoneroTxWallet> buildTxWithVout(const tools::wallet2& wallet2, const tools::wallet2::transfer_details& td) {
 
     // construct block
-    shared_ptr<MoneroBlock> block = shared_ptr<MoneroBlock>(new MoneroBlock());
+    shared_ptr<MoneroBlock> block = make_shared<MoneroBlock>();
     block->height = td.m_block_height;
 
     // construct tx
-    shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+    shared_ptr<MoneroTxWallet> tx = make_shared<MoneroTxWallet>();
     tx->block = block;
     block->txs.push_back(tx);
     tx->id = epee::string_tools::pod_to_hex(td.m_txid);
@@ -329,7 +329,7 @@ namespace monero {
     tx->isDoubleSpendSeen = false;
 
     // construct vout
-    shared_ptr<MoneroOutputWallet> vout = shared_ptr<MoneroOutputWallet>(new MoneroOutputWallet());
+    shared_ptr<MoneroOutputWallet> vout = make_shared<MoneroOutputWallet>();
     vout->tx = tx;
     tx->vouts.push_back(vout);
     vout->amount = td.amount();
@@ -340,7 +340,7 @@ namespace monero {
     vout->isUnlocked = wallet2.is_transfer_unlocked(td);
     vout->isFrozen = td.m_frozen;
     if (td.m_key_image_known) {
-      vout->keyImage = shared_ptr<MoneroKeyImage>(new MoneroKeyImage());
+      vout->keyImage = make_shared<MoneroKeyImage>();
       vout->keyImage.get()->hex = epee::string_tools::pod_to_hex(td.m_key_image);
     }
 
@@ -884,7 +884,7 @@ namespace monero {
   shared_ptr<MoneroRpcConnection> MoneroWallet::getDaemonConnection() const {
     MTRACE("MoneroWallet::getDaemonConnection()");
     if (wallet2->get_daemon_address().empty()) return nullptr;
-    shared_ptr<MoneroRpcConnection> connection = shared_ptr<MoneroRpcConnection>(new MoneroRpcConnection());
+    shared_ptr<MoneroRpcConnection> connection = make_shared<MoneroRpcConnection>();
     if (!wallet2->get_daemon_address().empty()) connection->uri = wallet2->get_daemon_address();
     if (wallet2->get_daemon_login()) {
       if (!wallet2->get_daemon_login()->username.empty()) connection->username = wallet2->get_daemon_login()->username;
@@ -1277,7 +1277,7 @@ namespace monero {
 
     // normalize request
     // TODO: this modifies original request so given req cannot be constant, make given request constant
-    if (request.transferRequest == boost::none) request.transferRequest = shared_ptr<MoneroTransferRequest>(new MoneroTransferRequest());
+    if (request.transferRequest == boost::none) request.transferRequest = make_shared<MoneroTransferRequest>();
     shared_ptr<MoneroTransferRequest> transferRequest = request.transferRequest.get();
     
     // temporarily disable transfer request
@@ -1384,7 +1384,7 @@ namespace monero {
 
     // normalize request
     // TODO: this will modify original request, construct copy? add test
-    MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : shared_ptr<MoneroTxRequest>(new MoneroTxRequest()));
+    MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : make_shared<MoneroTxRequest>());
 
     // build parameters for wallet2->get_payments()
     uint64_t minHeight = txReq.minHeight == boost::none ? 0 : *txReq.minHeight;
@@ -1506,7 +1506,7 @@ namespace monero {
 
     // normalize request
     // TODO: this will modify original request, construct copy? add test
-    MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : shared_ptr<MoneroTxRequest>(new MoneroTxRequest()));
+    MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : make_shared<MoneroTxRequest>());
 
     // get output data from wallet2
     tools::wallet2::transfer_container outputsW2;
@@ -1565,7 +1565,7 @@ namespace monero {
     vector<shared_ptr<MoneroKeyImage>> keyImages;
     std::pair<size_t, std::vector<std::pair<crypto::key_image, crypto::signature>>> ski = wallet2->export_key_images(true);
     for (size_t n = 0; n < ski.second.size(); ++n) {
-      shared_ptr<MoneroKeyImage> keyImage = shared_ptr<MoneroKeyImage>(new MoneroKeyImage());
+      shared_ptr<MoneroKeyImage> keyImage = make_shared<MoneroKeyImage>();
       keyImages.push_back(keyImage);
       keyImage->hex = epee::string_tools::pod_to_hex(ski.second[n].first);
       keyImage->signature = epee::string_tools::pod_to_hex(ski.second[n].second);
@@ -1593,7 +1593,7 @@ namespace monero {
     uint64_t height = wallet2->import_key_images(ski, 0, spent, unspent); // TODO: use offset? refer to wallet_rpc_server::on_import_key_images() req.offset
 
     // translate results
-    shared_ptr<MoneroKeyImageImportResult> result = shared_ptr<MoneroKeyImageImportResult>(new MoneroKeyImageImportResult());
+    shared_ptr<MoneroKeyImageImportResult> result = make_shared<MoneroKeyImageImportResult>();
     result->height = height;
     result->spentAmount = spent;
     result->unspentAmount = unspent;
@@ -1673,14 +1673,14 @@ namespace monero {
     while (txIdsIter != txIds.end()) {
 
       // init tx with outgoing transfer from filled values
-      shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+      shared_ptr<MoneroTxWallet> tx = make_shared<MoneroTxWallet>();
       txs.push_back(tx);
       tx->id = *txIdsIter;
       tx->key = *txKeysIter;
       tx->fee = *txFeesIter;
       tx->fullHex = *txBlobsIter;
       tx->metadata = *txMetadatasIter;
-      shared_ptr<MoneroOutgoingTransfer> outTransfer = shared_ptr<MoneroOutgoingTransfer>(new MoneroOutgoingTransfer());
+      shared_ptr<MoneroOutgoingTransfer> outTransfer = make_shared<MoneroOutgoingTransfer>();
       tx->outgoingTransfer = outTransfer;
       outTransfer->amount = *txAmountsIter;
 
@@ -1782,14 +1782,14 @@ namespace monero {
     while (txIdsIter != txIds.end()) {
 
       // init tx with outgoing transfer from filled values
-      shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+      shared_ptr<MoneroTxWallet> tx = make_shared<MoneroTxWallet>();
       txs.push_back(tx);
       tx->id = *txIdsIter;
       tx->key = *txKeysIter;
       tx->fee = *txFeesIter;
       tx->fullHex = *txBlobsIter;
       tx->metadata = *txMetadatasIter;
-      shared_ptr<MoneroOutgoingTransfer> outTransfer = shared_ptr<MoneroOutgoingTransfer>(new MoneroOutgoingTransfer());
+      shared_ptr<MoneroOutgoingTransfer> outTransfer = make_shared<MoneroOutgoingTransfer>();
       tx->outgoingTransfer = outTransfer;
       outTransfer->amount = *txAmountsIter;
 
@@ -1861,14 +1861,14 @@ namespace monero {
     while (txIdsIter != txIds.end()) {
 
       // init tx with outgoing transfer from filled values
-      shared_ptr<MoneroTxWallet> tx = shared_ptr<MoneroTxWallet>(new MoneroTxWallet());
+      shared_ptr<MoneroTxWallet> tx = make_shared<MoneroTxWallet>();
       txs.push_back(tx);
       tx->id = *txIdsIter;
       tx->key = *txKeysIter;
       tx->fee = *txFeesIter;
       tx->fullHex = *txBlobsIter;
       tx->metadata = *txMetadatasIter;
-      shared_ptr<MoneroOutgoingTransfer> outTransfer = shared_ptr<MoneroOutgoingTransfer>(new MoneroOutgoingTransfer());
+      shared_ptr<MoneroOutgoingTransfer> outTransfer = make_shared<MoneroOutgoingTransfer>();
       tx->outgoingTransfer = outTransfer;
       outTransfer->amount = *txAmountsIter;
 
@@ -2067,7 +2067,7 @@ namespace monero {
     bool inTxPool;
     uint64_t numConfirmations;
     wallet2->check_tx_key(txHash, tx_key, additionalTxKeys, info.address, receivedAmount, inTxPool, numConfirmations);
-    shared_ptr<MoneroCheckTx> checkTx = shared_ptr<MoneroCheckTx>(new MoneroCheckTx());
+    shared_ptr<MoneroCheckTx> checkTx = make_shared<MoneroCheckTx>();
     checkTx->isGood = true; // check is good if we get this far
     checkTx->receivedAmount = receivedAmount;
     checkTx->inTxPool = inTxPool;
@@ -2109,7 +2109,7 @@ namespace monero {
     }
 
     // initialize and return tx check using wallet2
-    shared_ptr<MoneroCheckTx> checkTx = shared_ptr<MoneroCheckTx>(new MoneroCheckTx());
+    shared_ptr<MoneroCheckTx> checkTx = make_shared<MoneroCheckTx>();
     uint64_t receivedAmount;
     bool inTxPool;
     uint64_t numConfirmations;
@@ -2171,7 +2171,7 @@ namespace monero {
     if (info.is_subaddress) throw runtime_error("Address must not be a subaddress");
 
     // initialize check reserve using wallet2
-    shared_ptr<MoneroCheckReserve> checkReserve = shared_ptr<MoneroCheckReserve>(new MoneroCheckReserve());
+    shared_ptr<MoneroCheckReserve> checkReserve = make_shared<MoneroCheckReserve>();
     uint64_t totalAmount;
     uint64_t unconfirmedSpentAmount;
     checkReserve->isGood = wallet2->check_reserve_proof(info.address, message, signature, totalAmount, unconfirmedSpentAmount);
@@ -2220,8 +2220,8 @@ namespace monero {
     }
 
     // initialize send request
-    shared_ptr<MoneroSendRequest> sendRequest = shared_ptr<MoneroSendRequest>(new MoneroSendRequest());
-    shared_ptr<MoneroDestination> destination = shared_ptr<MoneroDestination>(new MoneroDestination());
+    shared_ptr<MoneroSendRequest> sendRequest = make_shared<MoneroSendRequest>();
+    shared_ptr<MoneroDestination> destination = make_shared<MoneroDestination>();
     sendRequest->destinations.push_back(destination);
     if (!address.empty()) destination->address = address;
     destination->amount = amount;

@@ -1,7 +1,6 @@
 HIGH PRIORITY
-nodeToTransferRequest(), etc need a final else catch-all
 sign/submit tx
-change shared_ptr<Foo>(new Foo()) to make_shared
+change shared_ptr<Foo>(new Foo()) to make_shared<Foo>()
 cpp library readme with sample code
 code todos
 strong vs weak references
@@ -10,6 +9,7 @@ cleanup MoneroWallet.h/MoneroDaemon.h documentation
 gen documentation
 
 MEDIUM PRIORITY
+nodeToTransferRequest(), etc need a final else catch-all
 MoneroWallet getChainHeight() calling daemon connection every time, surely better way
 toPropertyTree() should take node as parameter; optimize memory elsewhere (move shared_ptrs, etc)
 enable debug logging

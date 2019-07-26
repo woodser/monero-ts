@@ -229,12 +229,12 @@ namespace monero {
     // merge blocks if they're different which comes back to merging txs
     if (block != other->block) {
       if (block == boost::none) {
-        block = shared_ptr<MoneroBlock>(new MoneroBlock());
+        block = make_shared<MoneroBlock>();
         block.get()->txs.push_back(self);
         block.get()->height = other->getHeight();
       }
       if (other->block == boost::none) {
-        other->block = shared_ptr<MoneroBlock>(new MoneroBlock());
+        other->block = make_shared<MoneroBlock>();
         other->block.get()->txs.push_back(other);
         other->block.get()->height = self->getHeight();
       }
