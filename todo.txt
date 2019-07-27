@@ -1,3 +1,6 @@
+port incoming transfer duplicate resolution from java/cpp
+port ground truth test from java
+
 MoneroRpc -> MoneroRpcConnection
 move submodules to ./external
 move tests to src/

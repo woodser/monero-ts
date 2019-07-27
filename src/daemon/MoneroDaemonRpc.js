@@ -354,6 +354,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   }
   
   async getKeyImageSpentStatuses(keyImages) {
+    if (keyImages === undefined || keyImages.length === 0) throw new MoneroError("Must provide key images to check the status of");
     let resp = await this.config.rpc.sendPathRequest("is_key_image_spent", {key_images: keyImages});
     MoneroDaemonRpc._checkResponseStatus(resp);
     return resp.spent_status;
