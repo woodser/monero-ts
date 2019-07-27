@@ -98,10 +98,9 @@ namespace monero {
    */
   struct MoneroRpcConnection {
     string uri;
-    string username;  // todo: these should be optional
-    string password;
-    //MoneroRpcConnection() : uri(""), username(""), password("")) {}
-    MoneroRpcConnection(const string& uri = "", const string& username = "", const string& password = "") : uri(uri), username(username), password(password) {}
+    boost::optional<string> username;
+    boost::optional<string> password;
+    MoneroRpcConnection(const string& uri = "", const boost::optional<string>& username = boost::none, const boost::optional<string>& password = boost::none) : uri(uri), username(username), password(password) {}
   };
 
   // forward declarations

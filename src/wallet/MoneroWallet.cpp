@@ -878,7 +878,7 @@ namespace monero {
   }
 
   void MoneroWallet::setDaemonConnection(const MoneroRpcConnection& connection) {
-    setDaemonConnection(connection.uri, connection.username, connection.password);
+    setDaemonConnection(connection.uri, connection.username == boost::none ? "" : connection.username.get(), connection.password == boost::none ? "" : connection.password.get());
   }
 
   shared_ptr<MoneroRpcConnection> MoneroWallet::getDaemonConnection() const {
