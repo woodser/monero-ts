@@ -84,7 +84,7 @@ namespace MoneroUtils
 
   string serialize(const boost::property_tree::ptree& node);
 
-  //  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
+  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
   template <class T> boost::property_tree::ptree toPropertyTree(const vector<shared_ptr<T>> types) {
     boost::property_tree::ptree typeNodes;
     for (const auto& type : types)  {
@@ -93,7 +93,7 @@ namespace MoneroUtils
     return typeNodes;
   }
 
-  //  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
+  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
   template <class T> boost::property_tree::ptree toPropertyTree(const vector<T> types) {
     boost::property_tree::ptree typeNodes;
     for (const auto& type : types)  {
@@ -115,7 +115,7 @@ namespace MoneroUtils
 
     // resolve one value none
     if (val1 == boost::none || val2 == boost::none) {
-      if (resolveDefined == false) return boost::none;  // TODO: boost::optional equality comparitor wokrs like this?
+      if (resolveDefined != boost::none && *resolveDefined == false) return boost::none;
       else return val1 == boost::none ? val2 : val1;
     }
 
@@ -134,7 +134,7 @@ namespace MoneroUtils
 
     // resolve one value none
     if (val1 == boost::none || val2 == boost::none) {
-      if (resolveDefined == false) return boost::none;  // TODO: boost::optional equality comparitor wokrs like this?
+      if (resolveDefined != boost::none && *resolveDefined == false) return boost::none;
       else return val1 == boost::none ? val2 : val1;
     }
 
@@ -159,7 +159,7 @@ namespace MoneroUtils
 
     // resolve one value none
     if (val1 == boost::none || val2 == boost::none) {
-      if (resolveDefined == false) return boost::none;  // TODO: boost::optional equality comparitor wokrs like this?
+      if (resolveDefined != boost::none && *resolveDefined == false) return boost::none;
       else return val1 == boost::none ? val2 : val1;
     }
 
