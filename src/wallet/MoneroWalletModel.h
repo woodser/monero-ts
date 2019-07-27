@@ -292,8 +292,6 @@ namespace monero {
 
   /**
    * Configures a request to send/sweep funds or create a payment URI.
-   *
-   * TODO: allow setAddress(), setAmount() for default destination?
    */
   struct MoneroSendRequest : public SerializableStruct {
     vector<shared_ptr<MoneroDestination>> destinations;

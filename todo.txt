@@ -1,4 +1,5 @@
 HIGH PRIORITY
+ensure model toPropertyTrees(), etc are not unecessarily copying return objects
 sign/submit tx
 cpp library readme with sample code
 code todos

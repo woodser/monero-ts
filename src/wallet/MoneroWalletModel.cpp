@@ -79,7 +79,6 @@ namespace monero {
 
   // ---------------------------- MONERO ACCOUNT ------------------------------
 
-  // TODO: ensure return object is not being unecessarily copied
   boost::property_tree::ptree MoneroAccount::toPropertyTree() const {
     boost::property_tree::ptree node;
     if (index != boost::none) node.put("index", *index);
@@ -328,7 +327,7 @@ namespace monero {
   }
 
   bool MoneroTransferRequest::meetsCriteria(MoneroTransfer* transfer) const {
-    if (transfer == nullptr) throw runtime_error("transfer is null"); // TODO: port to java/js
+    if (transfer == nullptr) throw runtime_error("transfer is null");
     if (txRequest != boost::none && (*txRequest)->transferRequest != boost::none) throw runtime_error("Transfer request's tx request cannot have a circular transfer request");   // TODO: could auto detect and handl this.  port to java/js
 
     // filter on common fields
