@@ -64,8 +64,6 @@ namespace monero {
 
   /**
    * Base struct which can be serialized.
-   *
-   * TODO: move this to MoneroUtils?
    */
   struct SerializableStruct {
 
