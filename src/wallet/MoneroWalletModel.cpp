@@ -57,8 +57,6 @@
 #include <iostream>
 
 using namespace std;
-using namespace cryptonote; // TODO: delete?
-using namespace epee; // TODO: delete?
 
 /**
  * Public library interface.
