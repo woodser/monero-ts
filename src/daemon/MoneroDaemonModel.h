@@ -216,7 +216,7 @@ namespace monero {
     shared_ptr<MoneroTx> tx;
     boost::optional<shared_ptr<MoneroKeyImage>> keyImage;
     boost::optional<uint64_t> amount;
-    boost::optional<uint32_t> index;  // TODO: is index 32 or 64?
+    boost::optional<uint64_t> index;
     vector<uint32_t> ringOutputIndices;
     boost::optional<string> stealthPublicKey;
 
