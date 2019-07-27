@@ -228,8 +228,7 @@ shared_ptr<MoneroBlock> nodeToBlockRequest(const boost::property_tree::ptree& no
   shared_ptr<MoneroBlock> block = make_shared<MoneroBlock>();
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("height")) block->height = (uint64_t) 7;  // TODO
-    else if (key == string("txs")) {
+    if (key == string("txs")) {
       boost::property_tree::ptree txsNode = it->second;
       for (boost::property_tree::ptree::const_iterator it2 = txsNode.begin(); it2 != txsNode.end(); ++it2) {
         block->txs.push_back(nodeToTxRequest(it2->second));

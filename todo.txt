@@ -4,7 +4,6 @@ query args should be constant
 ensure model toPropertyTrees(), etc are not unecessarily copying return objects
 MoneroWallet.h documentation
 sample code including readme
-
 sign/submit tx
 strong vs weak references
 getReserveProofAccount() jni seg fault
