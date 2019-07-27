@@ -317,7 +317,7 @@ namespace monero {
         if (numKeyImages > 0) {
           for (const shared_ptr<MoneroOutput>& merger : other->vouts) {
             bool merged = false;
-            merger->tx = self;  // TODO: this update needs made in Java and JS
+            merger->tx = self;
             for (const shared_ptr<MoneroOutput>& mergee : vouts) {
               if ((*mergee->keyImage)->hex == (*merger->keyImage)->hex) {
                 mergee->merge(mergee, merger);
