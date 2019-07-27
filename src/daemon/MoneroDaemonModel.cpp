@@ -138,7 +138,7 @@ namespace monero {
     if (hex != boost::none) node.put("hex", *hex);
     if (coinbaseTx != boost::none) node.add_child("coinbaseTx", (*coinbaseTx)->toPropertyTree());
     if (!txs.empty()) node.add_child("txs", MoneroUtils::toPropertyTree(txs));
-    // TODO: handle txIds; add test
+    if (!txIds.empty()) node.add_child("txIds", MoneroUtils::toPropertyTree(txIds));
     return node;
   }
 
