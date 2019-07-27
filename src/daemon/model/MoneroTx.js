@@ -532,6 +532,7 @@ class MoneroTx {
         if (numKeyImages > 0) {
           for (let merger of tx.getVouts()) {
             let merged = false;
+            merger.setTx(this);
             if (this.getVouts() === undefined) this.setVouts([]);
             for (let mergee of this.getVouts()) {
               if (mergee.getKeyImage().getHex() === merger.getKeyImage().getHex()) {
