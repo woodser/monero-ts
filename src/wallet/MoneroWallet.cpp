@@ -1154,7 +1154,7 @@ namespace monero {
     return getAccounts(false, string(""));
   }
 
-  vector<MoneroAccount> MoneroWallet::getAccounts(const bool includeSubaddresses) const {
+  vector<MoneroAccount> MoneroWallet::getAccounts(bool includeSubaddresses) const {
     MTRACE("getAccounts(" << includeSubaddresses << ")");
     throw runtime_error("Not implemented");
   }
@@ -1164,7 +1164,7 @@ namespace monero {
     throw runtime_error("Not implemented");
   }
 
-  vector<MoneroAccount> MoneroWallet::getAccounts(const bool includeSubaddresses, const string& tag) const {
+  vector<MoneroAccount> MoneroWallet::getAccounts(bool includeSubaddresses, const string& tag) const {
     MTRACE("getAccounts(" << includeSubaddresses << ", " << tag << ")");
 
     // need transfers to inform if subaddresses used
@@ -1190,7 +1190,7 @@ namespace monero {
     return getAccount(accountIdx, false);
   }
 
-  MoneroAccount MoneroWallet::getAccount(uint32_t accountIdx, const bool includeSubaddresses) const {
+  MoneroAccount MoneroWallet::getAccount(uint32_t accountIdx, bool includeSubaddresses) const {
     MTRACE("getAccount(" << accountIdx << ", " << includeSubaddresses << ")");
 
     // need transfers to inform if subaddresses used

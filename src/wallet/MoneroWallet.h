@@ -220,9 +220,6 @@ namespace monero {
      */
     void setDaemonConnection(const MoneroRpcConnection& connection);
 
-    /**
-     * TODO
-     */
     shared_ptr<MoneroRpcConnection> getDaemonConnection() const;
 
     bool getIsConnected() const;
@@ -235,14 +232,8 @@ namespace monero {
 
     bool getIsSynced() const;
 
-    /**
-     * TODO
-     */
     string getPath() const;
 
-    /**
-     * TODO
-     */
     MoneroNetworkType getNetworkType() const;
 
     /**
@@ -411,7 +402,7 @@ namespace monero {
      * @param accountIdx is the index of the account to get the balance of
      * @return the account's balance
      */
-    uint64_t getBalance(uint32_t accountIdx) const;	// TODO: this param should be const and others
+    uint64_t getBalance(uint32_t accountIdx) const;
 
     /**
      * Get a subaddress's balance.
@@ -459,7 +450,7 @@ namespace monero {
      * @param includeSubaddresses specifies if subaddresses should be included
      * @return List<MoneroAccount> are all accounts
      */
-    vector<MoneroAccount> getAccounts(const bool includeSubaddresses) const;
+    vector<MoneroAccount> getAccounts(bool includeSubaddresses) const;
 
     /**
      * Get accounts with a given tag.
@@ -476,7 +467,7 @@ namespace monero {
      * @param tag is the tag for filtering accounts, all accounts if null
      * @return List<MoneroAccount> are all accounts for the wallet with the given tag
      */
-    vector<MoneroAccount> getAccounts(const bool includeSubaddresses, const string& tag) const;
+    vector<MoneroAccount> getAccounts(bool includeSubaddresses, const string& tag) const;
 
     /**
      * Get an account without subaddress information.
@@ -493,7 +484,7 @@ namespace monero {
      * @param includeSubaddresses specifies if subaddresses should be included
      * @return the retrieved account
      */
-    MoneroAccount getAccount(const uint32_t accountIdx, const bool includeSubaddresses) const;
+    MoneroAccount getAccount(const uint32_t accountIdx, bool includeSubaddresses) const;
 
     /**
      * Create a new account with a label for the first subaddress.
@@ -578,8 +569,6 @@ namespace monero {
      * Transactions must meet every criteria defined in the request in order to
      * be returned.  All filtering is optional and no filtering is applied when
      * not defined.
-     * 
-     * TODO: request should be const
      *
      * @param request filters query results (optional)
      * @return wallet transactions per the request

@@ -1,11 +1,13 @@
 HIGH PRIORITY
-ensure model toPropertyTrees(), etc are not unecessarily copying return objects
-sign/submit tx
-cpp library readme with sample code
 code todos
+query args should be constant
+ensure model toPropertyTrees(), etc are not unecessarily copying return objects
+MoneroWallet.h documentation
+sample code including readme
+
+sign/submit tx
 strong vs weak references
 getReserveProofAccount() jni seg fault
-cleanup MoneroWallet.h/MoneroDaemon.h documentation
 gen documentation
 
 MEDIUM PRIORITY
