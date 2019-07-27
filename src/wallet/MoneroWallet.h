@@ -70,6 +70,7 @@ namespace monero {
 
   // --------------------------------- LISTENERS ------------------------------
 
+  // TODO: this is here for reference to complete the wallet listener
   //  class i_wallet2_callback
   //    {
   //    public:
@@ -208,8 +209,8 @@ namespace monero {
      * Set the wallet's daemon connection.
      *
      * @param uri is the daemon's URI
-     * @param username is the daemon's username
-     * @param password is the daemon's password
+     * @param username is the username to authenticate with the daemon (optional)
+     * @param password is the password to authenticate with the daemon (optional)
      */
     void setDaemonConnection(const string& uri, const string& username = "", const string& password = "");
 
@@ -220,20 +221,60 @@ namespace monero {
      */
     void setDaemonConnection(const MoneroRpcConnection& connection);
 
+    /**
+     * Get the wallet's daemon connection.
+     *
+     * @return the wallet's daemon connection
+     */
     shared_ptr<MoneroRpcConnection> getDaemonConnection() const;
 
+    /**
+     * Indicates if the wallet is connected a daemon.
+     *
+     * @return true if the wallet is connected to a daemon, false otherwise
+     */
     bool getIsConnected() const;
 
+    /**
+     * Get the height that the wallet's daemon is synced to.
+     *
+     * @return the height that the wallet's daemon is synced to
+     */
     uint64_t getDaemonHeight() const;
 
+    /**
+     * Get the height of the next block in the chain.
+     *
+     * @return the height of the next block in the chain
+     */
     uint64_t getDaemonTargetHeight() const;
 
+    /**
+     * Indicates if the wallet's daemon is synced with the network.
+     *
+     * @return true if the daemon is synced with the network, false otherwise
+     */
     bool getIsDaemonSynced() const;
 
+    /**
+     * Indicates if the wallet is synced with the daemon.
+     *
+     * @return true if the wallet is synced with the daemon, false otherwise
+     */
     bool getIsSynced() const;
 
+    /**
+     * Get the path of this wallet's file on disk.
+     *
+     * @return the path of this wallet's file on disk
+     */
     string getPath() const;
 
+    /**
+     * Get the wallet's network type (mainnet, testnet, or stagenet).
+     *
+     * @return the wallet's network type
+     */
     MoneroNetworkType getNetworkType() const;
 
     /**
@@ -334,14 +375,43 @@ namespace monero {
      */
     MoneroIntegratedAddress decodeIntegratedAddress(const string& integratedAddress) const;
 
+    /**
+     * Set the wallet's listener to receive wallet notifications.
+     *
+     * @param listener is the listener to receive wallet notifications
+     */
     void setListener(boost::optional<MoneroWalletListener&> listener);
 
+    /**
+     * Synchronizes the wallet with the blockchain.
+     *
+     * @return the sync result
+     */
     MoneroSyncResult sync();
 
+    /**
+     * Synchronizes the wallet with the blockchain.
+     *
+     * @param listener is invoked as sync progress is made
+     * @return the sync result
+     */
     MoneroSyncResult sync(MoneroSyncListener& listener);
 
+    /**
+     * Synchronizes the wallet with the blockchain.
+     *
+     * @param startHeight is the start height to sync from, syncs from the last synced block by default
+     * @return the sync result
+     */
     MoneroSyncResult sync(uint64_t startHeight);
 
+    /**
+     * Synchronizes the wallet with the blockchain.
+     *
+     * @param startHeight is the start height to sync from, syncs from the last synced block by default
+     * @param listener is invoked as sync progress is made
+     * @return the sync result
+     */
     MoneroSyncResult sync(uint64_t startHeight, MoneroSyncListener& listener);
 
     /**
@@ -377,11 +447,20 @@ namespace monero {
      */
     uint64_t getChainHeight() const;
 
+    /**
+     * Get the height of the first block that the wallet scans.
+     *
+     * @return the height of the first block that the wallet scans
+     */
     uint64_t getRestoreHeight() const;
 
+    /**
+     * Set the height of the first block that the wallet scans.
+     *
+     * @param restoreHeight is the height of the first block that the wallet scans
+     */
     void setRestoreHeight(uint64_t restoreHeight);
 
-    //
 //    /**
 //     * Indicates if importing multisig data is needed for returning a correct balance.
 //     *
@@ -536,7 +615,7 @@ namespace monero {
 //     * @return MoneroTxWallet is the identified transactions
 //     */
 //    public MoneroTxWallet getTx(string txId);
-//
+
     /**
      * Get all wallet transactions.  Wallet transactions contain one or more
      * transfers that are either incoming or outgoing to the wallet.
@@ -544,20 +623,12 @@ namespace monero {
      * @return all wallet transactions
      */
     vector<shared_ptr<MoneroTxWallet>> getTxs() const;
-//
+
 //    /**
 //     * Get wallet transactions by id.
 //     *
 //     * @param txIds are ids of transactions to get
-//     * @return List<MoneroTxWallet> are the identified transactions
-//     */
-//    public List<MoneroTxWallet> getTxs(string... txIds);
-//
-//    /**
-//     * Get wallet transactions by id.
-//     *
-//     * @param txIds are ids of transactions to get
-//     * @return List<MoneroTxWallet> are the identified transactions
+//     * @return the identified transactions
 //     */
 //    public List<MoneroTxWallet> getTxs(Collection<string> txIds);
 
@@ -631,8 +702,6 @@ namespace monero {
      * @return wallet transfers per the request
      */
     vector<shared_ptr<MoneroTransfer>> getTransfers(const MoneroTransferRequest& request) const;
-
-//    void getTransfers(const MoneroTransferRequest& request, vector<MoneroTransfer>& transfers) const;
 
 //    /**
 //     * Get outputs created from previous transactions that belong to the wallet
@@ -1153,7 +1222,7 @@ namespace monero {
     void initCommon();
     vector<MoneroSubaddress> getSubaddressesAux(uint32_t accountIdx, vector<uint32_t> subaddressIndices, const vector<tools::wallet2::transfer_details>& transfers) const;
 
-    // sync management
+    // blockchain sync management
     mutable std::atomic<bool> isSynced;       // whether or not wallet is synced
     mutable std::atomic<bool> isConnected;    // cache connection status to avoid unecessary RPC calls
     boost::condition_variable syncCV;         // to awaken sync threads
@@ -1164,7 +1233,7 @@ namespace monero {
     boost::thread syncingThread;              // thread for auto sync loop
     boost::mutex syncingMutex;                // synchronize auto sync loop
     std::atomic<bool> syncingThreadDone;      // whether or not the syncing thread is shut down
-    void syncingThreadFunc();                 // function to run syncing loop thread
+    void syncingThreadFunc();                 // function to run thread with syncing loop
     MoneroSyncResult lockAndSync(boost::optional<uint64_t> startHeight = boost::none, boost::optional<MoneroSyncListener&> listener = boost::none); // internal function to synchronize request to sync and rescan
     MoneroSyncResult syncAux(boost::optional<uint64_t> startHeight = boost::none, boost::optional<MoneroSyncListener&> listener = boost::none);     // internal function to immediately block, sync, and report progress
   };

@@ -652,7 +652,7 @@ namespace monero {
       MTRACE("~Wallet2Listener()");
     }
 
-    void setWalletListener(boost::optional<MoneroWalletListener&> listener) {
+    void setWalletListener(const boost::optional<MoneroWalletListener&> listener) {
       this->listener = listener;
       updateListening();
     }
@@ -1048,7 +1048,7 @@ namespace monero {
     return epee::string_tools::pod_to_hex(wallet2->get_account().get_keys().m_spend_secret_key);
   }
 
-  void MoneroWallet::setListener(boost::optional<MoneroWalletListener&> listener) {
+  void MoneroWallet::setListener(const boost::optional<MoneroWalletListener&> listener) {
     MTRACE("setListener()");
     wallet2Listener->setWalletListener(listener);
   }
