@@ -61,14 +61,6 @@ using namespace MoneroUtils;
 
 // ------------------------------- INNER HELPERS ------------------------------
 
-// TODO: no common utility?  make common utility
-bool stringToBool(string str) {
-  transform(str.begin(), str.end(), str.begin(), ::tolower);
-  if (string("true") == str) return true;
-  if (string("false") == str) return false;
-  return boost::lexical_cast<bool>(str);
-}
-
 void nodeToTransfer(const boost::property_tree::ptree& node, shared_ptr<MoneroTransfer> transfer) {
 
   // initialize transfer from node
@@ -85,7 +77,7 @@ shared_ptr<MoneroTransferRequest> nodeToTransferRequest(const boost::property_tr
   // initialize request from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("isIncoming")) transferRequest->isIncoming = stringToBool(it->second.data());
+    if (key == string("isIncoming")) transferRequest->isIncoming = it->second.get_value<bool>();
     else if (key == string("address")) transferRequest->address = it->second.data();
     else if (key == string("addresses")) throw runtime_error("addresses not implemented");
     else if (key == string("subaddressIndex")) transferRequest->subaddressIndex = it->second.get_value<uint32_t>();
@@ -95,7 +87,7 @@ shared_ptr<MoneroTransferRequest> nodeToTransferRequest(const boost::property_tr
       transferRequest->subaddressIndices = subaddressIndices;
     }
     else if (key == string("destinations")) throw runtime_error("destinations not implemented");
-    else if (key == string("hasDestinations")) transferRequest->hasDestinations = stringToBool(it->second.data());
+    else if (key == string("hasDestinations")) transferRequest->hasDestinations = it->second.get_value<bool>();
     else if (key == string("txRequest")) throw runtime_error("txRequest not implemented");
   }
 
@@ -134,9 +126,9 @@ void nodeToOutputWallet(const boost::property_tree::ptree& node, shared_ptr<Mone
     string key = it->first;
     if (key == string("accountIndex")) outputWallet->accountIndex = it->second.get_value<uint32_t>();
     else if (key == string("subaddressIndex")) outputWallet->subaddressIndex = it->second.get_value<uint32_t>();
-    else if (key == string("isSpent")) outputWallet->isSpent = stringToBool(it->second.data());
-    else if (key == string("isUnlocked")) outputWallet->isUnlocked = stringToBool(it->second.data());
-    else if (key == string("isFrozen")) outputWallet->isFrozen = stringToBool(it->second.data());
+    else if (key == string("isSpent")) outputWallet->isSpent = it->second.get_value<bool>();
+    else if (key == string("isUnlocked")) outputWallet->isUnlocked = it->second.get_value<bool>();
+    else if (key == string("isFrozen")) outputWallet->isFrozen = it->second.get_value<bool>();
   }
 }
 
@@ -161,19 +153,19 @@ void nodeToTx(const boost::property_tree::ptree& node, shared_ptr<MoneroTx> tx) 
     string key = it->first;
     if (key == string("id")) tx->id = it->second.data();
     else if (key == string("version")) throw runtime_error("version deserializationn not implemented");
-    else if (key == string("isCoinbase")) tx->isCoinbase = stringToBool(it->second.data());
+    else if (key == string("isCoinbase")) tx->isCoinbase = it->second.get_value<bool>();
     else if (key == string("paymentId")) throw runtime_error("paymentId deserializationn not implemented");
     else if (key == string("fee")) throw runtime_error("fee deserialization not implemented");
     else if (key == string("mixin")) throw runtime_error("mixin deserialization not implemented");
-    else if (key == string("doNotRelay")) tx->doNotRelay = stringToBool(it->second.data());
-    else if (key == string("isRelayed")) tx->isRelayed = stringToBool(it->second.data());
-    else if (key == string("isConfirmed")) tx->isConfirmed = stringToBool(it->second.data());
-    else if (key == string("inTxPool")) tx->inTxPool = stringToBool(it->second.data());
+    else if (key == string("doNotRelay")) tx->doNotRelay = it->second.get_value<bool>();
+    else if (key == string("isRelayed")) tx->isRelayed = it->second.get_value<bool>();
+    else if (key == string("isConfirmed")) tx->isConfirmed = it->second.get_value<bool>();
+    else if (key == string("inTxPool")) tx->inTxPool = it->second.get_value<bool>();
     else if (key == string("numConfirmations")) throw runtime_error("numConfirmations deserialization not implemented");
     else if (key == string("unlockTime")) throw runtime_error("unlockTime deserialization not implemented");
     else if (key == string("lastRelayedTimestamp")) throw runtime_error("lastRelayedTimestamp deserialization not implemented");
     else if (key == string("receivedTimestamp")) throw runtime_error("receivedTimestamp deserializationn not implemented");
-    else if (key == string("isDoubleSpendSeen")) tx->isDoubleSpendSeen = stringToBool(it->second.data());
+    else if (key == string("isDoubleSpendSeen")) tx->isDoubleSpendSeen = it->second.get_value<bool>();
     else if (key == string("key")) tx->key = it->second.data();
     else if (key == string("fullHex")) tx->fullHex = it->second.data();
     else if (key == string("prunedHex")) tx->prunedHex = it->second.data();
@@ -189,8 +181,8 @@ void nodeToTx(const boost::property_tree::ptree& node, shared_ptr<MoneroTx> tx) 
     else if (key == string("extra")) throw runtime_error("extra deserialization not implemented");
     else if (key == string("rctSignatures")) throw runtime_error("rctSignatures deserialization not implemented");
     else if (key == string("rctSigPrunable")) throw runtime_error("rctSigPrunable deserialization not implemented");
-    else if (key == string("isKeptByBlock")) tx->isKeptByBlock = stringToBool(it->second.data());
-    else if (key == string("isFailed")) tx->isFailed = stringToBool(it->second.data());
+    else if (key == string("isKeptByBlock")) tx->isKeptByBlock = it->second.get_value<bool>();
+    else if (key == string("isFailed")) tx->isFailed = it->second.get_value<bool>();
     else if (key == string("lastFailedHeight")) throw runtime_error("lastFailedHeight deserialization not implemented");
     else if (key == string("lastFailedId")) tx->lastFailedId = it->second.data();
     else if (key == string("maxUsedBlockHeight")) throw runtime_error("maxUsedBlockHeight deserialization not implemented");
@@ -216,15 +208,15 @@ shared_ptr<MoneroTxRequest> nodeToTxRequest(const boost::property_tree::ptree& n
   // initialize request from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("isOutgoing")) txRequest->isOutgoing = stringToBool(it->second.data());
-    else if (key == string("isIncoming")) txRequest->isIncoming = stringToBool(it->second.data());
+    if (key == string("isOutgoing")) txRequest->isOutgoing = it->second.get_value<bool>();
+    else if (key == string("isIncoming")) txRequest->isIncoming = it->second.get_value<bool>();
     else if (key == string("txIds")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) txRequest->txIds.push_back(it2->second.data());
-    else if (key == string("hasPaymentId")) txRequest->hasPaymentId = stringToBool(it->second.data());
+    else if (key == string("hasPaymentId")) txRequest->hasPaymentId = it->second.get_value<bool>();
     else if (key == string("paymentIds")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) txRequest->paymentIds.push_back(it2->second.data());
     else if (key == string("height")) txRequest->height = it->second.get_value<uint64_t>();
     else if (key == string("minHeight")) txRequest->minHeight = it->second.get_value<uint64_t>();
     else if (key == string("maxHeight")) txRequest->maxHeight = it->second.get_value<uint64_t>();
-    else if (key == string("includeOutputs")) txRequest->includeOutputs = stringToBool(it->second.data());
+    else if (key == string("includeOutputs")) txRequest->includeOutputs = it->second.get_value<bool>();
     else if (key == string("transferRequest")) txRequest->transferRequest = nodeToTransferRequest(it->second);
     else if (key == string("outputRequest")) txRequest->outputRequest = nodeToOutputRequest(it->second);
   }
