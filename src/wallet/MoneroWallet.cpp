@@ -1055,21 +1055,26 @@ namespace monero {
 
   MoneroSyncResult MoneroWallet::sync() {
     MTRACE("sync()");
+    if (!isConnected) throw runtime_error("No connection to daemon");
     return lockAndSync();
   }
 
+  // TODO **: listener should be constant
   MoneroSyncResult MoneroWallet::sync(MoneroSyncListener& listener) {
     MTRACE("sync(listener)");
+    if (!isConnected) throw runtime_error("No connection to daemon");
     return lockAndSync(boost::none, listener);
   }
 
   MoneroSyncResult MoneroWallet::sync(uint64_t startHeight) {
     MTRACE("sync(" << startHeight << ")");
+    if (!isConnected) throw runtime_error("No connection to daemon");
     return lockAndSync(startHeight);
   }
 
   MoneroSyncResult MoneroWallet::sync(uint64_t startHeight, MoneroSyncListener& listener) {
     MTRACE("sync(" << startHeight << ", listener)");
+    if (!isConnected) throw runtime_error("No connection to daemon");
     return lockAndSync(startHeight, listener);
   }
 
@@ -1095,6 +1100,7 @@ namespace monero {
   // TODO: support arguments bool hard, bool refresh = true, bool keep_key_images = false
   void MoneroWallet::rescanBlockchain() {
     MTRACE("rescanBlockchain()");
+    if (!isConnected) throw runtime_error("No connection to daemon");
     rescanOnSync = true;
     lockAndSync();
   }
@@ -1222,7 +1228,7 @@ namespace monero {
     return account;
   }
 
-  vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx) const {	// TODO: this should call one below
+  vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx) const {	// TODO **: this should call one below
     vector<tools::wallet2::transfer_details> transfers;
     wallet2->get_transfers(transfers);
     return getSubaddressesAux(accountIdx, vector<uint32_t>(), transfers);
@@ -1276,7 +1282,7 @@ namespace monero {
     else MTRACE("Tx request: " << request.serialize());
 
     // normalize request
-    // TODO: this modifies original request so given req cannot be constant, make given request constant
+    // TODO **: this modifies original request so given req cannot be constant, make given request constant
     if (request.transferRequest == boost::none) request.transferRequest = make_shared<MoneroTransferRequest>();
     shared_ptr<MoneroTransferRequest> transferRequest = request.transferRequest.get();
     
@@ -1324,7 +1330,7 @@ namespace monero {
       }
     }
 
-    // filter txs that don't meet transfer request  // TODO: port this updated version to js
+    // filter txs that don't meet transfer request  // TODO **: port this updated version to js
     request.transferRequest = transferRequest;
     vector<shared_ptr<MoneroTxWallet>> txsRequested;
     vector<shared_ptr<MoneroTxWallet>>::iterator txIter = txs.begin();
@@ -1383,7 +1389,7 @@ namespace monero {
     }
 
     // normalize request
-    // TODO: this will modify original request, construct copy? add test
+    // TODO **: this will modify original request, construct copy? add test
     MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : make_shared<MoneroTxRequest>());
 
     // build parameters for wallet2->get_payments()
@@ -1469,7 +1475,7 @@ namespace monero {
       // sort transfers
       sort(tx->incomingTransfers.begin(), tx->incomingTransfers.end(), incomingTransferBefore);
 
-      // collect outgoing transfer, erase if filtered TODO: js does not erase unrequested data, port to js
+      // collect outgoing transfer, erase if filtered TODO **: js does not erase unrequested data, port to js
       if (tx->outgoingTransfer != boost::none && request.meetsCriteria(tx->outgoingTransfer.get().get())) transfers.push_back(tx->outgoingTransfer.get());
       else tx->outgoingTransfer = boost::none;
 
@@ -1505,7 +1511,7 @@ namespace monero {
     }
 
     // normalize request
-    // TODO: this will modify original request, construct copy? add test
+    // TODO **: this will modify original request, construct copy? add test
     MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : make_shared<MoneroTxRequest>());
 
     // get output data from wallet2
