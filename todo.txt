@@ -1,12 +1,13 @@
 HIGH PRIORITY
 code todos
+const tx request
 query args should be constant
 ensure model toPropertyTrees(), etc are not unecessarily copying return objects
 gen documentation
 sample code including readme
 
-
 MEDIUM PRIORITY
+number of mining threads should be uint32_t instead of uint64_t
 getReserveProofAccount() jni seg fault
 sign/submit tx
 nodeToTransferRequest(), etc need a final else catch-all
