@@ -147,6 +147,8 @@ namespace monero {
     boost::optional<uint32_t> accountIndex;
     boost::optional<uint32_t> numSuggestedConfirmations;
 
+    MoneroTransfer();
+    MoneroTransfer(const MoneroTransfer& transfer); // deep copy constructor
     virtual boost::optional<bool> getIsIncoming() const = 0;  // derived class must implement
     boost::optional<bool> getIsOutgoing() const {
 			if (getIsIncoming() == boost::none) return boost::none;
@@ -163,6 +165,8 @@ namespace monero {
     boost::optional<uint32_t> subaddressIndex;
     boost::optional<string> address;
 
+    MoneroIncomingTransfer();
+    MoneroIncomingTransfer(const MoneroIncomingTransfer& transfer); // deep copy constructor
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
     void merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other);
@@ -177,6 +181,8 @@ namespace monero {
     vector<string> addresses;
     vector<shared_ptr<MoneroDestination>> destinations;
 
+    MoneroOutgoingTransfer();
+    MoneroOutgoingTransfer(const MoneroOutgoingTransfer& transfer);
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
     void merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other);
@@ -198,6 +204,9 @@ namespace monero {
     boost::optional<bool> hasDestinations;
     boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
 
+    MoneroTransferRequest();
+    MoneroTransferRequest(const MoneroTransferRequest& request);
+    //shared_ptr<MoneroTransferRequest> copy() const;
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
     bool meetsCriteria(MoneroTransfer* transfer) const;
@@ -213,6 +222,8 @@ namespace monero {
     boost::optional<bool> isUnlocked;
     boost::optional<bool> isFrozen;
 
+    MoneroOutputWallet();
+    MoneroOutputWallet(const MoneroOutputWallet& output); // deep copy constructor
     boost::property_tree::ptree toPropertyTree() const;
     void merge(const shared_ptr<MoneroOutput>& self, const shared_ptr<MoneroOutput>& other);
     void merge(const shared_ptr<MoneroOutputWallet>& self, const shared_ptr<MoneroOutputWallet>& other);
@@ -228,6 +239,9 @@ namespace monero {
     vector<uint32_t> subaddressIndices;
     boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
 
+
+    MoneroOutputRequest();
+    MoneroOutputRequest(const MoneroOutputRequest& request);  // deep copy constructor
     boost::property_tree::ptree toPropertyTree() const;
     bool meetsCriteria(MoneroOutputWallet* output) const;
   };
@@ -240,6 +254,8 @@ namespace monero {
     boost::optional<shared_ptr<MoneroOutgoingTransfer>> outgoingTransfer;
     boost::optional<string> note;
 
+    MoneroTxWallet();
+    MoneroTxWallet(const MoneroTxWallet& tx);
     bool getIsIncoming() const;
     bool getIsOutgoing() const;
     boost::property_tree::ptree toPropertyTree() const;
@@ -265,6 +281,8 @@ namespace monero {
     boost::optional<shared_ptr<MoneroTransferRequest>> transferRequest;
     boost::optional<shared_ptr<MoneroOutputRequest>> outputRequest;
 
+    MoneroTxRequest();
+    MoneroTxRequest(const MoneroTxRequest& txRequest);
     boost::property_tree::ptree toPropertyTree() const;
     bool meetsCriteria(MoneroTxWallet* tx) const;
   };

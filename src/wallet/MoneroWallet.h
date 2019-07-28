@@ -644,7 +644,7 @@ namespace monero {
      * @param request filters query results (optional)
      * @return wallet transactions per the request
      */
-    vector<shared_ptr<MoneroTxWallet>> getTxs(MoneroTxRequest& request) const;
+    vector<shared_ptr<MoneroTxWallet>> getTxs(const MoneroTxRequest& request) const;
 
 //    /**
 //     * Get all incoming and outgoing transfers to and from this wallet.  An

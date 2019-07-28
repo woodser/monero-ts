@@ -175,6 +175,18 @@ namespace monero {
 
   // ------------------------------- MONERO TX --------------------------------
 
+  MoneroTx::MoneroTx() {
+
+  }
+
+  MoneroTx::MoneroTx(const MoneroTx& tx) {
+    throw runtime_error("MoneroTx deep copy constructor not implemented");
+  }
+
+//  shared_ptr<MoneroTx> MoneroTx::copy() const {
+//    return MoneroTx(this);
+//  }
+
   boost::property_tree::ptree MoneroTx::toPropertyTree() const {
     boost::property_tree::ptree node;
     if (id != boost::none) node.put("id", *id);
@@ -365,6 +377,14 @@ namespace monero {
   }
 
   // ------------------------------ MONERO OUTPUT -----------------------------
+
+  MoneroOutput::MoneroOutput() {
+
+  }
+
+  MoneroOutput::MoneroOutput(const MoneroOutput& output) {
+    throw runtime_error("MoneroOutput deep copy not implemented");
+  }
 
   boost::property_tree::ptree MoneroOutput::toPropertyTree() const {
     boost::property_tree::ptree node;

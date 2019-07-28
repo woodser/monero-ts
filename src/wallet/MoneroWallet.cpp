@@ -1271,8 +1271,13 @@ namespace monero {
     return getTxs(request);
   }
 
-  vector<shared_ptr<MoneroTxWallet>> MoneroWallet::getTxs(MoneroTxRequest& request) const {
+  // TODO: change param to for real
+  vector<shared_ptr<MoneroTxWallet>> MoneroWallet::getTxs(const MoneroTxRequest& requestParam) const {
     MTRACE("getTxs(request)");
+
+    // preserve original request
+    //MoneroTxRequest& request = request.copy().get();
+    MoneroTxRequest request = requestParam;
 
     // print request
     if (request.block != boost::none) MTRACE("Tx request's rooted at [block]: " << request.block.get()->serialize());

@@ -105,6 +105,14 @@ namespace monero {
 
   // --------------------------- MONERO TX WALLET -----------------------------
 
+  MoneroTxWallet::MoneroTxWallet() {
+
+  }
+
+  MoneroTxWallet::MoneroTxWallet(const MoneroTxWallet& tx) {
+    throw runtime_error("MoneroTxWallet deepy copy constructor not implemented");
+  }
+
   boost::property_tree::ptree MoneroTxWallet::toPropertyTree() const {
     boost::property_tree::ptree node = MoneroTx::toPropertyTree();
     if (!incomingTransfers.empty()) node.add_child("incomingTransfers", MoneroUtils::toPropertyTree(incomingTransfers));
@@ -152,6 +160,14 @@ namespace monero {
   }
 
   // -------------------------- MONERO TX REQUEST -----------------------------
+
+  MoneroTxRequest::MoneroTxRequest() {
+
+  }
+
+  MoneroTxRequest::MoneroTxRequest(const MoneroTxRequest& txRequest) {
+    throw runtime_error("MoneroTxRequest deep copy constructor not implemented");
+  }
 
   boost::property_tree::ptree MoneroTxRequest::toPropertyTree() const {
     boost::property_tree::ptree node = MoneroTxWallet::toPropertyTree();
@@ -230,6 +246,14 @@ namespace monero {
 
   // ---------------------------- MONERO TRANSFER -----------------------------
 
+  MoneroTransfer::MoneroTransfer() {
+
+  }
+
+  MoneroTransfer::MoneroTransfer(const MoneroTransfer& transfer) {
+    throw runtime_error("MoneroTransfer deep copy constructor not implemented");
+  }
+
   boost::property_tree::ptree MoneroTransfer::toPropertyTree() const {
     boost::property_tree::ptree node;
     if (amount != boost::none) node.put("amount", *amount);
@@ -264,6 +288,14 @@ namespace monero {
 
   // ----------------------- MONERO INCOMING TRANSFER -------------------------
 
+  MoneroIncomingTransfer::MoneroIncomingTransfer() {
+
+  }
+
+  MoneroIncomingTransfer::MoneroIncomingTransfer(const MoneroIncomingTransfer& transfer) {
+    throw runtime_error("MoneroIncomingTransfer deepy copy not implemented");
+  }
+
   boost::optional<bool> MoneroIncomingTransfer::getIsIncoming() const { return true; }
 
   boost::property_tree::ptree MoneroIncomingTransfer::toPropertyTree() const {
@@ -285,6 +317,14 @@ namespace monero {
   }
 
   // ----------------------- MONERO OUTGOING TRANSFER -------------------------
+
+  MoneroOutgoingTransfer::MoneroOutgoingTransfer() {
+
+  }
+
+  MoneroOutgoingTransfer::MoneroOutgoingTransfer(const MoneroOutgoingTransfer& transfer) {
+    throw runtime_error("MoneroOutgoingTransfer deep copy not implemented");
+  }
 
   boost::optional<bool> MoneroOutgoingTransfer::getIsIncoming() const { return false; }
 
@@ -309,6 +349,18 @@ namespace monero {
   }
 
   // ----------------------- MONERO TRANSFER REQUEST --------------------------
+
+  MoneroTransferRequest::MoneroTransferRequest() {
+
+  }
+
+  MoneroTransferRequest::MoneroTransferRequest(const MoneroTransferRequest& request) {
+    throw runtime_error("MoneroTransferRequet deep copy not implemented");
+  }
+
+//  shared_ptr<MoneroTransfer>MoneroTransferRequest::copy() const {
+//
+//  }
 
   boost::optional<bool> MoneroTransferRequest::getIsIncoming() const { return isIncoming; }
 
@@ -398,6 +450,14 @@ namespace monero {
 
   // ------------------------- MONERO OUTPUT WALLET ---------------------------
 
+  MoneroOutputWallet::MoneroOutputWallet() {
+
+  }
+
+  MoneroOutputWallet::MoneroOutputWallet(const MoneroOutputWallet& output) {
+    throw runtime_error("MoneroOutputWallet deep copy constructor not implemented");
+  }
+
   boost::property_tree::ptree MoneroOutputWallet::toPropertyTree() const {
     boost::property_tree::ptree node = MoneroOutput::toPropertyTree();
     if (accountIndex != boost::none) node.put("accountIndex", *accountIndex);
@@ -417,6 +477,10 @@ namespace monero {
   }
 
   // ------------------------ MONERO OUTPUT REQUEST ---------------------------
+
+  MoneroOutputRequest::MoneroOutputRequest() {
+
+  }
 
   boost::property_tree::ptree MoneroOutputRequest::toPropertyTree() const {
     boost::property_tree::ptree node = MoneroOutputWallet::toPropertyTree();
