@@ -652,7 +652,7 @@ namespace monero {
       MTRACE("~Wallet2Listener()");
     }
 
-    void setWalletListener(const boost::optional<MoneroWalletListener&> listener) {
+    void setWalletListener(boost::optional<MoneroWalletListener&> listener) {
       this->listener = listener;
       updateListening();
     }
@@ -715,9 +715,9 @@ namespace monero {
     MoneroWallet& wallet;     // wallet to provide context for notifications
     tools::wallet2& wallet2;  // internal wallet implementation to listen to
     boost::optional<MoneroWalletListener&> listener; // target listener to invoke with notifications
+    boost::optional<MoneroSyncListener&> syncListener;
     boost::optional<uint64_t> syncStartHeight;
     boost::optional<uint64_t> syncEndHeight;
-    boost::optional<MoneroSyncListener&> syncListener;
 
     void updateListening() {
       wallet2.callback(listener == boost::none && syncListener == boost::none ? nullptr : this);
@@ -1059,7 +1059,6 @@ namespace monero {
     return lockAndSync();
   }
 
-  // TODO **: listener should be constant
   MoneroSyncResult MoneroWallet::sync(MoneroSyncListener& listener) {
     MTRACE("sync(listener)");
     if (!isConnected) throw runtime_error("No connection to daemon");
