@@ -1227,13 +1227,11 @@ namespace monero {
     return account;
   }
 
-  vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx) const {	// TODO **: this should call one below
-    vector<tools::wallet2::transfer_details> transfers;
-    wallet2->get_transfers(transfers);
-    return getSubaddressesAux(accountIdx, vector<uint32_t>(), transfers);
+  vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx) const {
+    return getSubaddresses(accountIdx, vector<uint32_t>());
   }
 
-  vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx, const vector<uint32_t> subaddressIndices) const {
+  vector<MoneroSubaddress> MoneroWallet::getSubaddresses(const uint32_t accountIdx, const vector<uint32_t>& subaddressIndices) const {
     MTRACE("getSubaddresses(" << accountIdx << ", ...)");
     MTRACE("Subaddress indices size: " << subaddressIndices.size());
 
@@ -2380,7 +2378,7 @@ namespace monero {
   }
 
   // private helper to initialize subaddresses using transfer details
-  vector<MoneroSubaddress> MoneroWallet::getSubaddressesAux(const uint32_t accountIdx, vector<uint32_t> subaddressIndices, const vector<tools::wallet2::transfer_details>& transfers) const {
+  vector<MoneroSubaddress> MoneroWallet::getSubaddressesAux(const uint32_t accountIdx, const vector<uint32_t>& subaddressIndices, const vector<tools::wallet2::transfer_details>& transfers) const {
     vector<MoneroSubaddress> subaddresses;
 
     // get balances per subaddress as maps
@@ -2388,18 +2386,20 @@ namespace monero {
     map<uint32_t, std::pair<uint64_t, uint64_t>> unlockedBalancePerSubaddress = wallet2->unlocked_balance_per_subaddress(accountIdx);
 
     // get all indices if no indices given
+    vector<uint32_t> subaddressIndicesReq;
     if (subaddressIndices.empty()) {
-      subaddressIndices = vector<uint32_t>();
       for (uint32_t subaddressIdx = 0; subaddressIdx < wallet2->get_num_subaddresses(accountIdx); subaddressIdx++) {
-        subaddressIndices.push_back(subaddressIdx);
+        subaddressIndicesReq.push_back(subaddressIdx);
       }
+    } else {
+      subaddressIndicesReq = subaddressIndices;
     }
 
     // initialize subaddresses at indices
-    for (uint32_t subaddressIndicesIdx = 0; subaddressIndicesIdx < subaddressIndices.size(); subaddressIndicesIdx++) {
+    for (uint32_t subaddressIndicesIdx = 0; subaddressIndicesIdx < subaddressIndicesReq.size(); subaddressIndicesIdx++) {
       MoneroSubaddress subaddress;
       subaddress.accountIndex = accountIdx;
-      uint32_t subaddressIdx = subaddressIndices.at(subaddressIndicesIdx);
+      uint32_t subaddressIdx = subaddressIndicesReq.at(subaddressIndicesIdx);
       subaddress.index = subaddressIdx;
       subaddress.address = getAddress(accountIdx, subaddressIdx);
       subaddress.label = wallet2->get_subaddress_label({accountIdx, subaddressIdx});

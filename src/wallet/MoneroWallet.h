@@ -588,7 +588,7 @@ namespace monero {
      * @param subaddressIndices are specific subaddresses to get (optional)
      * @return the retrieved subaddresses
      */
-    vector<MoneroSubaddress> getSubaddresses(const uint32_t accountIdx, const vector<uint32_t> subaddressIndices) const;
+    vector<MoneroSubaddress> getSubaddresses(const uint32_t accountIdx, const vector<uint32_t>& subaddressIndices) const;
 
     /**
      * Get a subaddress.
@@ -1220,7 +1220,7 @@ namespace monero {
     boost::optional<MoneroWalletListener&> listener = boost::none;  // wallet's external listener
 
     void initCommon();
-    vector<MoneroSubaddress> getSubaddressesAux(uint32_t accountIdx, vector<uint32_t> subaddressIndices, const vector<tools::wallet2::transfer_details>& transfers) const;
+    vector<MoneroSubaddress> getSubaddressesAux(uint32_t accountIdx, const vector<uint32_t>& subaddressIndices, const vector<tools::wallet2::transfer_details>& transfers) const;
 
     // blockchain sync management
     mutable std::atomic<bool> isSynced;       // whether or not wallet is synced
