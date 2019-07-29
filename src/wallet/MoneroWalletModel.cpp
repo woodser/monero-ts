@@ -165,7 +165,26 @@ namespace monero {
 
   }
 
-  MoneroTxRequest::MoneroTxRequest(const MoneroTxRequest& txRequest) {
+  MoneroTxRequest::MoneroTxRequest(const MoneroTxRequest& req) {
+//    super(req);
+//    isOutgoing = req.isOutgoing;
+//    isIncoming = req.isIncoming;
+//    if (req.txIds != null) txIds = new ArrayList<String>(req.txIds);
+//    hasPaymentId = req.hasPaymentId;
+//    height = req.height;
+//    minHeight = req.minHeight;
+//    maxHeight = req.maxHeight;
+//    includeOutputs = req.includeOutputs;
+//    if (req.transferRequest != boost::none) {
+//      transferRequest = shared_ptr<MoneroTransferRequest>(req.transferRequest);
+//
+//      transferRequest = new MoneroTransferRequest(req.transferRequest);
+//      if (req.transferRequest.getTxRequest() == req) transferRequest.setTxRequest(this);
+//    }
+//    if (req.outputRequest != boost::none) {
+//      outputRequest = new MoneroOutputRequest(req.outputRequest);
+//      if (req.outputRequest.getTxRequest() == req) outputRequest.setTxRequest(this) ;
+//    }
     throw runtime_error("MoneroTxRequest deep copy constructor not implemented");
   }
 

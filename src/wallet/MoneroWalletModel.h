@@ -287,7 +287,7 @@ namespace monero {
     boost::optional<shared_ptr<MoneroOutputRequest>> outputRequest;
 
     MoneroTxRequest();
-    MoneroTxRequest(const MoneroTxRequest& txRequest);
+    MoneroTxRequest(const MoneroTxRequest& req);
     shared_ptr<MoneroTxRequest> copy() const;
     boost::property_tree::ptree toPropertyTree() const;
     bool meetsCriteria(MoneroTxWallet* tx) const;
