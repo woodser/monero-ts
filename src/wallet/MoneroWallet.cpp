@@ -1272,28 +1272,28 @@ namespace monero {
   }
 
   // TODO: change param to for real
-  vector<shared_ptr<MoneroTxWallet>> MoneroWallet::getTxs(const MoneroTxRequest& requestParam) const {
+  vector<shared_ptr<MoneroTxWallet>> MoneroWallet::getTxs(const MoneroTxRequest& request) const {
     MTRACE("getTxs(request)");
 
     // preserve original request
     //MoneroTxRequest& request = request.copy().get();
-    MoneroTxRequest request = requestParam;
+    MoneroTxRequest req = request;
 
-    // print request
-    if (request.block != boost::none) MTRACE("Tx request's rooted at [block]: " << request.block.get()->serialize());
-    else MTRACE("Tx request: " << request.serialize());
+    // print req
+    if (req.block != boost::none) MTRACE("Tx req's rooted at [block]: " << req.block.get()->serialize());
+    else MTRACE("Tx req: " << req.serialize());
 
-    // normalize request
-    // TODO **: this modifies original request so given req cannot be constant, make given request constant
-    if (request.transferRequest == boost::none) request.transferRequest = make_shared<MoneroTransferRequest>();
-    shared_ptr<MoneroTransferRequest> transferRequest = request.transferRequest.get();
+    // normalize req
+    // TODO **: this modifies original req so given req cannot be constant, make given req constant
+    if (req.transferRequest == boost::none) req.transferRequest = make_shared<MoneroTransferRequest>();
+    shared_ptr<MoneroTransferRequest> transferRequest = req.transferRequest.get();
     
-    // temporarily disable transfer request
-    request.transferRequest = boost::none;
+    // temporarily disable transfer req
+    req.transferRequest = boost::none;
 
-    // fetch all transfers that meet tx request
+    // fetch all transfers that meet tx req
     MoneroTransferRequest tempTransferReq;
-    tempTransferReq.txRequest = make_shared<MoneroTxRequest>(request);
+    tempTransferReq.txRequest = make_shared<MoneroTxRequest>(req);
     vector<shared_ptr<MoneroTransfer>> transfers = getTransfers(tempTransferReq);
 
     // collect unique txs from transfers while retaining order
@@ -1315,8 +1315,8 @@ namespace monero {
 
     // fetch and merge outputs if requested
     MoneroOutputRequest tempOutputReq;
-    tempOutputReq.txRequest = make_shared<MoneroTxRequest>(request);
-    if (request.includeOutputs != boost::none && *request.includeOutputs) {
+    tempOutputReq.txRequest = make_shared<MoneroTxRequest>(req);
+    if (req.includeOutputs != boost::none && *req.includeOutputs) {
 
       // fetch outputs
       vector<shared_ptr<MoneroOutputWallet>> outputs = getOutputs(tempOutputReq);
@@ -1332,13 +1332,13 @@ namespace monero {
       }
     }
 
-    // filter txs that don't meet transfer request  // TODO **: port this updated version to js
-    request.transferRequest = transferRequest;
+    // filter txs that don't meet transfer req  // TODO **: port this updated version to js
+    req.transferRequest = transferRequest;
     vector<shared_ptr<MoneroTxWallet>> txsRequested;
     vector<shared_ptr<MoneroTxWallet>>::iterator txIter = txs.begin();
     while (txIter != txs.end()) {
       shared_ptr<MoneroTxWallet> tx = *txIter;
-      if (request.meetsCriteria(tx.get())) {
+      if (req.meetsCriteria(tx.get())) {
         txsRequested.push_back(tx);
         txIter++;
       } else {
@@ -1349,8 +1349,8 @@ namespace monero {
     txs = txsRequested;
 
     // verify all specified tx ids found
-    if (!request.txIds.empty()) {
-      for (const string& txId : request.txIds) {
+    if (!req.txIds.empty()) {
+      for (const string& txId : req.txIds) {
         bool found = false;
         for (const shared_ptr<MoneroTxWallet>& tx : txs) {
           if (txId == *tx->id) {
@@ -1365,13 +1365,13 @@ namespace monero {
     // special case: re-fetch txs if inconsistency caused by needing to make multiple wallet calls
     // TODO monero core: offer wallet.get_txs(...)
     for (const shared_ptr<MoneroTxWallet>& tx : txs) {
-      if (*tx->isConfirmed && tx->block == boost::none) return getTxs(request);
+      if (*tx->isConfirmed && tx->block == boost::none) return getTxs(req);
     }
 
     // otherwise order txs if tx ids given then return
-    if (!request.txIds.empty()) {
+    if (!req.txIds.empty()) {
       vector<shared_ptr<MoneroTxWallet>> orderedTxs;
-      for (const string& txId : request.txIds) {
+      for (const string& txId : req.txIds) {
         map<string, shared_ptr<MoneroTxWallet>>::const_iterator txIter = txMap.find(txId);
         orderedTxs.push_back(txIter->second);
       }
@@ -1390,31 +1390,66 @@ namespace monero {
       else MTRACE("Transfer request's tx request rooted at [block]: " << (*(*request.txRequest)->block)->serialize());
     }
 
-    // normalize request
-    // TODO **: this will modify original request, construct copy? add test
-    MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : make_shared<MoneroTxRequest>());
+    // copy and normalize request
+    shared_ptr<MoneroTransferRequest> req;
+    if (request.txRequest == boost::none) req = request.copy(make_shared<MoneroTransferRequest>(request));
+    else {
+      shared_ptr<MoneroTxRequest> txReq = request.txRequest.get()->copy(request.txRequest.get());
+      if (request.txRequest.get()->transferRequest.get().get() == &request) req = txReq->transferRequest.get();
+      else {
+        if (request.txRequest.get()->transferRequest != boost::none) throw new runtime_error("Transfer request's tx request must be a circular reference or null");
+        req = request.copy(make_shared<MoneroTransferRequest>(request));
+        req->txRequest = txReq;
+      }
+    }
+    if (req->txRequest == boost::none) req->txRequest = shared_ptr<MoneroTxRequest>();
+    shared_ptr<MoneroTxRequest> txReq = req->txRequest.get();
+    txReq->transferRequest = boost::none; // break circular link for meetsCriteria()
+
+//    // copy and normalize request
+//    MoneroTransferRequest req;
+//    if (request == null) req = new MoneroTransferRequest();
+//    else {
+//      if (request.getTxRequest() == null) req = request.copy();
+//      else {
+//        MoneroTxRequest txReq = request.getTxRequest().copy();
+//        if (request.getTxRequest().getTransferRequest() == request) req = txReq.getTransferRequest();
+//        else {
+//          assertNull("Transfer request's tx request must be circular reference or null", request.getTxRequest().getTransferRequest());
+//          req = request.copy();
+//          req.setTxRequest(txReq);
+//        }
+//      }
+//    }
+//    if (req.getTxRequest() == null) req.setTxRequest(new MoneroTxRequest());
+//    MoneroTxRequest txReq = req.getTxRequest();
+//    txReq.setTransferRequest(null); // break circular link for meetsCriteria()
+
+//    // normalize request
+//    // TODO **: this will modify original request, construct copy? add test
+//    MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : make_shared<MoneroTxRequest>());
 
     // build parameters for wallet2->get_payments()
-    uint64_t minHeight = txReq.minHeight == boost::none ? 0 : *txReq.minHeight;
-    uint64_t maxHeight = txReq.maxHeight == boost::none ? CRYPTONOTE_MAX_BLOCK_NUMBER : min((uint64_t) CRYPTONOTE_MAX_BLOCK_NUMBER, *txReq.maxHeight);
+    uint64_t minHeight = txReq->minHeight == boost::none ? 0 : *txReq->minHeight;
+    uint64_t maxHeight = txReq->maxHeight == boost::none ? CRYPTONOTE_MAX_BLOCK_NUMBER : min((uint64_t) CRYPTONOTE_MAX_BLOCK_NUMBER, *txReq->maxHeight);
     if (minHeight > 0) minHeight--; // TODO monero core: wallet2::get_payments() min_height is exclusive, so manually offset to match intended range (issues 5751, #5598)
     boost::optional<uint32_t> accountIndex = boost::none;
-    if (request.accountIndex != boost::none) accountIndex = *request.accountIndex;
+    if (req->accountIndex != boost::none) accountIndex = *req->accountIndex;
     std::set<uint32_t> subaddressIndices;
-    for (int i = 0; i < request.subaddressIndices.size(); i++) {
-      subaddressIndices.insert(request.subaddressIndices[i]);
+    for (int i = 0; i < req->subaddressIndices.size(); i++) {
+      subaddressIndices.insert(req->subaddressIndices[i]);
     }
 
     // translate from MoneroTxRequest to in, out, pending, pool, failed terminology used by monero-wallet-rpc
-    bool canBeConfirmed = !boolEquals(false, txReq.isConfirmed) && !boolEquals(true, txReq.inTxPool) && !boolEquals(true, txReq.isFailed) && !boolEquals(false, txReq.isRelayed);
-    bool canBeInTxPool = !boolEquals(true, txReq.isConfirmed) && !boolEquals(false, txReq.inTxPool) && !boolEquals(true, txReq.isFailed) && !boolEquals(false, txReq.isRelayed) && txReq.getHeight() == boost::none && txReq.minHeight == boost::none;
-    bool canBeIncoming = !boolEquals(false, request.isIncoming) && !boolEquals(true, request.getIsOutgoing()) && !boolEquals(true, request.hasDestinations);
-    bool canBeOutgoing = !boolEquals(false, request.getIsOutgoing()) && !boolEquals(true, request.isIncoming);
+    bool canBeConfirmed = !boolEquals(false, txReq->isConfirmed) && !boolEquals(true, txReq->inTxPool) && !boolEquals(true, txReq->isFailed) && !boolEquals(false, txReq->isRelayed);
+    bool canBeInTxPool = !boolEquals(true, txReq->isConfirmed) && !boolEquals(false, txReq->inTxPool) && !boolEquals(true, txReq->isFailed) && !boolEquals(false, txReq->isRelayed) && txReq->getHeight() == boost::none && txReq->minHeight == boost::none;
+    bool canBeIncoming = !boolEquals(false, req->isIncoming) && !boolEquals(true, req->getIsOutgoing()) && !boolEquals(true, req->hasDestinations);
+    bool canBeOutgoing = !boolEquals(false, req->getIsOutgoing()) && !boolEquals(true, req->isIncoming);
     bool isIn = canBeIncoming && canBeConfirmed;
     bool isOut = canBeOutgoing && canBeConfirmed;
     bool isPending = canBeOutgoing && canBeInTxPool;
     bool isPool = canBeIncoming && canBeInTxPool;
-    bool isFailed = !boolEquals(false, txReq.isFailed) && !boolEquals(true, txReq.isConfirmed) && !boolEquals(true, txReq.inTxPool);
+    bool isFailed = !boolEquals(false, txReq->isFailed) && !boolEquals(true, txReq->isConfirmed) && !boolEquals(true, txReq->inTxPool);
 
     // cache unique txs and blocks
     uint64_t height = getHeight();
@@ -1447,7 +1482,7 @@ namespace monero {
       wallet2->get_unconfirmed_payments_out(upayments, accountIndex, subaddressIndices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::unconfirmed_transfer_details>>::const_iterator i = upayments.begin(); i != upayments.end(); ++i) {
         shared_ptr<MoneroTxWallet> tx = buildTxWithOutgoingTransferUnconfirmed(*wallet2, i->first, i->second);
-        if (txReq.isFailed != boost::none && txReq.isFailed.get() != tx->isFailed.get()) continue; // skip merging if tx unrequested
+        if (txReq->isFailed != boost::none && txReq->isFailed.get() != tx->isFailed.get()) continue; // skip merging if tx unrequested
         mergeTx(tx, txMap, blockMap, false);
       }
     }
@@ -1478,13 +1513,13 @@ namespace monero {
       sort(tx->incomingTransfers.begin(), tx->incomingTransfers.end(), incomingTransferBefore);
 
       // collect outgoing transfer, erase if filtered TODO **: js does not erase unrequested data, port to js
-      if (tx->outgoingTransfer != boost::none && request.meetsCriteria(tx->outgoingTransfer.get().get())) transfers.push_back(tx->outgoingTransfer.get());
+      if (tx->outgoingTransfer != boost::none && req->meetsCriteria(tx->outgoingTransfer.get().get())) transfers.push_back(tx->outgoingTransfer.get());
       else tx->outgoingTransfer = boost::none;
 
       // collect incoming transfers, erase if unrequested
       vector<shared_ptr<MoneroIncomingTransfer>>::iterator iter = tx->incomingTransfers.begin();
       while (iter != tx->incomingTransfers.end()) {
-        if (request.meetsCriteria((*iter).get())) {
+        if (req->meetsCriteria((*iter).get())) {
           transfers.push_back(*iter);
           iter++;
         } else {
