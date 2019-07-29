@@ -148,9 +148,9 @@ namespace monero {
     boost::optional<uint32_t> numSuggestedConfirmations;
 
     MoneroTransfer();
-    MoneroTransfer(const MoneroTransfer& transfer); // deep copy constructor
-    virtual shared_ptr<MoneroTransfer> copy() const = 0;      // derived class must implement
+    MoneroTransfer(const MoneroTransfer& transfer);           // deep copy constructor
     virtual boost::optional<bool> getIsIncoming() const = 0;  // derived class must implement
+    shared_ptr<MoneroTransfer> copy() const;                  // not virtual in order for subclasses to return shared_ptr of derived types
     boost::optional<bool> getIsOutgoing() const {
 			if (getIsIncoming() == boost::none) return boost::none;
       return !(*getIsIncoming());
@@ -168,7 +168,7 @@ namespace monero {
 
     MoneroIncomingTransfer();
     MoneroIncomingTransfer(const MoneroIncomingTransfer& transfer); // deep copy constructor
-    shared_ptr<MoneroTransfer> copy() const;
+    shared_ptr<MoneroIncomingTransfer> copy() const;
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
     void merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other);
@@ -185,7 +185,7 @@ namespace monero {
 
     MoneroOutgoingTransfer();
     MoneroOutgoingTransfer(const MoneroOutgoingTransfer& transfer);
-    shared_ptr<MoneroTransfer> copy() const;
+    shared_ptr<MoneroOutgoingTransfer> copy() const;
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
     void merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other);
@@ -209,7 +209,7 @@ namespace monero {
 
     MoneroTransferRequest();
     MoneroTransferRequest(const MoneroTransferRequest& request);
-    shared_ptr<MoneroTransfer> copy() const;
+    shared_ptr<MoneroTransferRequest> copy() const;
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
     bool meetsCriteria(MoneroTransfer* transfer) const;

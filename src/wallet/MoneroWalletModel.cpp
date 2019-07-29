@@ -258,6 +258,10 @@ namespace monero {
     throw runtime_error("MoneroTransfer deep copy constructor not implemented");
   }
 
+  shared_ptr<MoneroTransfer> MoneroTransfer::copy() const {
+    throw runtime_error("Subclass must implement");
+  }
+
   boost::property_tree::ptree MoneroTransfer::toPropertyTree() const {
     boost::property_tree::ptree node;
     if (amount != boost::none) node.put("amount", *amount);
@@ -300,7 +304,7 @@ namespace monero {
     throw runtime_error("MoneroIncomingTransfer deepy copy not implemented");
   }
 
-  shared_ptr<MoneroTransfer> MoneroIncomingTransfer::copy() const {
+  shared_ptr<MoneroIncomingTransfer> MoneroIncomingTransfer::copy() const {
     return make_shared<MoneroIncomingTransfer>(*this);
   }
 
@@ -334,7 +338,7 @@ namespace monero {
     throw runtime_error("MoneroOutgoingTransfer deep copy not implemented");
   }
 
-  shared_ptr<MoneroTransfer> MoneroOutgoingTransfer::copy() const {
+  shared_ptr<MoneroOutgoingTransfer> MoneroOutgoingTransfer::copy() const {
     return make_shared<MoneroOutgoingTransfer>(*this);
   }
 
@@ -370,7 +374,7 @@ namespace monero {
     throw runtime_error("MoneroTransferRequet deep copy not implemented");
   }
 
-  shared_ptr<MoneroTransfer> MoneroTransferRequest::copy() const {
+  shared_ptr<MoneroTransferRequest> MoneroTransferRequest::copy() const {
     return make_shared<MoneroTransferRequest>(*this);
   }
 
