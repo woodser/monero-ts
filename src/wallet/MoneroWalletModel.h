@@ -149,14 +149,14 @@ namespace monero {
 
     MoneroTransfer();
     MoneroTransfer(const MoneroTransfer& transfer); // deep copy constructor
-    shared_ptr<MoneroTransfer> copy() const;
+    virtual shared_ptr<MoneroTransfer> copy() const = 0;      // derived class must implement
     virtual boost::optional<bool> getIsIncoming() const = 0;  // derived class must implement
     boost::optional<bool> getIsOutgoing() const {
 			if (getIsIncoming() == boost::none) return boost::none;
       return !(*getIsIncoming());
     }
     boost::property_tree::ptree toPropertyTree() const;
-    virtual void merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other);
+    void merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other);
   };
 
   /**
@@ -168,7 +168,7 @@ namespace monero {
 
     MoneroIncomingTransfer();
     MoneroIncomingTransfer(const MoneroIncomingTransfer& transfer); // deep copy constructor
-    shared_ptr<MoneroIncomingTransfer> copy() const;
+    shared_ptr<MoneroTransfer> copy() const;
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
     void merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other);
@@ -185,7 +185,7 @@ namespace monero {
 
     MoneroOutgoingTransfer();
     MoneroOutgoingTransfer(const MoneroOutgoingTransfer& transfer);
-    shared_ptr<MoneroOutgoingTransfer> copy() const;
+    shared_ptr<MoneroTransfer> copy() const;
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
     void merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other);
@@ -209,7 +209,7 @@ namespace monero {
 
     MoneroTransferRequest();
     MoneroTransferRequest(const MoneroTransferRequest& request);
-    shared_ptr<MoneroTransferRequest> copy() const;
+    shared_ptr<MoneroTransfer> copy() const;
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
     bool meetsCriteria(MoneroTransfer* transfer) const;

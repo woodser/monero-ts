@@ -258,10 +258,6 @@ namespace monero {
     throw runtime_error("MoneroTransfer deep copy constructor not implemented");
   }
 
-  shared_ptr<MoneroTransfer> MoneroTransfer::copy() const {
-    //return make_shared<MoneroTransfer>(); // TODO: MoneroTransfer is abstract
-  }
-
   boost::property_tree::ptree MoneroTransfer::toPropertyTree() const {
     boost::property_tree::ptree node;
     if (amount != boost::none) node.put("amount", *amount);
@@ -304,8 +300,8 @@ namespace monero {
     throw runtime_error("MoneroIncomingTransfer deepy copy not implemented");
   }
 
-  shared_ptr<MoneroIncomingTransfer> MoneroIncomingTransfer::copy() const {
-    return make_shared<MoneroIncomingTransfer>();
+  shared_ptr<MoneroTransfer> MoneroIncomingTransfer::copy() const {
+    return make_shared<MoneroIncomingTransfer>(*this);
   }
 
   boost::optional<bool> MoneroIncomingTransfer::getIsIncoming() const { return true; }
@@ -338,8 +334,8 @@ namespace monero {
     throw runtime_error("MoneroOutgoingTransfer deep copy not implemented");
   }
 
-  shared_ptr<MoneroOutgoingTransfer> MoneroOutgoingTransfer::copy() const {
-    return make_shared<MoneroOutgoingTransfer>();
+  shared_ptr<MoneroTransfer> MoneroOutgoingTransfer::copy() const {
+    return make_shared<MoneroOutgoingTransfer>(*this);
   }
 
   boost::optional<bool> MoneroOutgoingTransfer::getIsIncoming() const { return false; }
@@ -374,8 +370,8 @@ namespace monero {
     throw runtime_error("MoneroTransferRequet deep copy not implemented");
   }
 
-  shared_ptr<MoneroTransferRequest> MoneroTransferRequest::copy() const {
-    return make_shared<MoneroTransferRequest>();
+  shared_ptr<MoneroTransfer> MoneroTransferRequest::copy() const {
+    return make_shared<MoneroTransferRequest>(*this);
   }
 
   boost::optional<bool> MoneroTransferRequest::getIsIncoming() const { return isIncoming; }
@@ -394,7 +390,7 @@ namespace monero {
 
   bool MoneroTransferRequest::meetsCriteria(MoneroTransfer* transfer) const {
     if (transfer == nullptr) throw runtime_error("transfer is null");
-    if (txRequest != boost::none && (*txRequest)->transferRequest != boost::none) throw runtime_error("Transfer request's tx request cannot have a circular transfer request");   // TODO: could auto detect and handl this.  port to java/js
+    if (txRequest != boost::none && (*txRequest)->transferRequest != boost::none) throw runtime_error("Transfer request's tx request cannot have a circular transfer request");   // TODO: could auto detect and handle this.  port to java/js
 
     // filter on common fields
     if (getIsIncoming() != boost::none && *getIsIncoming() != *transfer->getIsIncoming()) return false;
