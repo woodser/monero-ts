@@ -184,7 +184,7 @@ namespace monero {
   }
 
   shared_ptr<MoneroTx> MoneroTx::copy() const {
-    return make_shared<MoneroTx>();
+    return make_shared<MoneroTx>(*this);
   }
 
   boost::property_tree::ptree MoneroTx::toPropertyTree() const {
@@ -387,7 +387,7 @@ namespace monero {
   }
 
   shared_ptr<MoneroOutput> MoneroOutput::copy() const {
-    return make_shared<MoneroOutput>();
+    return make_shared<MoneroOutput>(*this);
   }
 
   boost::property_tree::ptree MoneroOutput::toPropertyTree() const {

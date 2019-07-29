@@ -170,7 +170,7 @@ namespace monero {
   }
 
   shared_ptr<MoneroTxRequest> MoneroTxRequest::copy() const {
-    return make_shared<MoneroTxRequest>();
+    return make_shared<MoneroTxRequest>(*this);
   }
 
   boost::property_tree::ptree MoneroTxRequest::toPropertyTree() const {
@@ -475,7 +475,7 @@ namespace monero {
   }
 
   shared_ptr<MoneroOutputWallet> MoneroOutputWallet::copy() const {
-    return make_shared<MoneroOutputWallet>();
+    return make_shared<MoneroOutputWallet>(*this);
   }
 
   boost::property_tree::ptree MoneroOutputWallet::toPropertyTree() const {
@@ -507,7 +507,7 @@ namespace monero {
   }
 
   shared_ptr<MoneroOutputRequest> MoneroOutputRequest::copy() const {
-    return make_shared<MoneroOutputRequest>();
+    return make_shared<MoneroOutputRequest>(*this);
   }
 
   boost::property_tree::ptree MoneroOutputRequest::toPropertyTree() const {
