@@ -105,13 +105,13 @@ namespace monero {
 
   // --------------------------- MONERO TX WALLET -----------------------------
 
-  MoneroTxWallet::MoneroTxWallet() {
+  shared_ptr<MoneroTxWallet> MoneroTxWallet::copy(const shared_ptr<MoneroTx>& self) const {
+    throw runtime_error("MoneroOutputWallet::copy(tx) not implemented");
+  };
 
-  }
-
-  MoneroTxWallet::MoneroTxWallet(const MoneroTxWallet& tx) {
-    throw runtime_error("MoneroTxWallet deepy copy constructor not implemented");
-  }
+  shared_ptr<MoneroTxWallet> MoneroTxWallet::copy(const shared_ptr<MoneroTxWallet>& self) const {
+    throw runtime_error("MoneroTxWallet::copy(txWallet) not implemented");
+  };
 
   boost::property_tree::ptree MoneroTxWallet::toPropertyTree() const {
     boost::property_tree::ptree node = MoneroTx::toPropertyTree();
@@ -161,36 +161,17 @@ namespace monero {
 
   // -------------------------- MONERO TX REQUEST -----------------------------
 
-  MoneroTxRequest::MoneroTxRequest() {
+  shared_ptr<MoneroTxRequest> MoneroTxRequest::copy(const shared_ptr<MoneroTx>& self) const {
+    throw runtime_error("MoneroOutputWallet::copy(tx) not implemented");
+  };
 
-  }
+  shared_ptr<MoneroTxRequest> MoneroTxRequest::copy(const shared_ptr<MoneroTxWallet>& self) const {
+    throw runtime_error("MoneroTxRequest::copy(txWallet) not implemented");
+  };
 
-  MoneroTxRequest::MoneroTxRequest(const MoneroTxRequest& req) {
-//    super(req);
-//    isOutgoing = req.isOutgoing;
-//    isIncoming = req.isIncoming;
-//    if (req.txIds != null) txIds = new ArrayList<String>(req.txIds);
-//    hasPaymentId = req.hasPaymentId;
-//    height = req.height;
-//    minHeight = req.minHeight;
-//    maxHeight = req.maxHeight;
-//    includeOutputs = req.includeOutputs;
-//    if (req.transferRequest != boost::none) {
-//      transferRequest = shared_ptr<MoneroTransferRequest>(req.transferRequest);
-//
-//      transferRequest = new MoneroTransferRequest(req.transferRequest);
-//      if (req.transferRequest.getTxRequest() == req) transferRequest.setTxRequest(this);
-//    }
-//    if (req.outputRequest != boost::none) {
-//      outputRequest = new MoneroOutputRequest(req.outputRequest);
-//      if (req.outputRequest.getTxRequest() == req) outputRequest.setTxRequest(this) ;
-//    }
-    throw runtime_error("MoneroTxRequest deep copy constructor not implemented");
-  }
-
-  shared_ptr<MoneroTxRequest> MoneroTxRequest::copy() const {
-    return make_shared<MoneroTxRequest>(*this);
-  }
+  shared_ptr<MoneroTxRequest> MoneroTxRequest::copy(const shared_ptr<MoneroTxRequest>& self) const {
+    throw runtime_error("MoneroTxRequest::copy(txRequest) not implemented");
+  };
 
   boost::property_tree::ptree MoneroTxRequest::toPropertyTree() const {
     boost::property_tree::ptree node = MoneroTxWallet::toPropertyTree();
@@ -269,17 +250,9 @@ namespace monero {
 
   // ---------------------------- MONERO TRANSFER -----------------------------
 
-  MoneroTransfer::MoneroTransfer() {
-
-  }
-
-  MoneroTransfer::MoneroTransfer(const MoneroTransfer& transfer) {
-    throw runtime_error("MoneroTransfer deep copy constructor not implemented");
-  }
-
-  shared_ptr<MoneroTransfer> MoneroTransfer::copy() const {
-    throw runtime_error("Subclass must implement");
-  }
+//  shared_ptr<MoneroTransfer> MoneroTransfer::copy(const shared_ptr<MoneroTransfer>& self) const {
+//    throw runtime_error("MoneroTransfer::copy() not implemented");
+//  };
 
   boost::property_tree::ptree MoneroTransfer::toPropertyTree() const {
     boost::property_tree::ptree node;
@@ -315,17 +288,13 @@ namespace monero {
 
   // ----------------------- MONERO INCOMING TRANSFER -------------------------
 
-  MoneroIncomingTransfer::MoneroIncomingTransfer() {
+  shared_ptr<MoneroIncomingTransfer> MoneroIncomingTransfer::copy(const shared_ptr<MoneroTransfer>& self) const {
+    throw runtime_error("MoneroIncomingTransfer::copy(transfer) not implemented");
+  };
 
-  }
-
-  MoneroIncomingTransfer::MoneroIncomingTransfer(const MoneroIncomingTransfer& transfer) {
-    throw runtime_error("MoneroIncomingTransfer deepy copy not implemented");
-  }
-
-  shared_ptr<MoneroIncomingTransfer> MoneroIncomingTransfer::copy() const {
-    return make_shared<MoneroIncomingTransfer>(*this);
-  }
+  shared_ptr<MoneroIncomingTransfer> MoneroIncomingTransfer::copy(const shared_ptr<MoneroIncomingTransfer>& self) const {
+    throw runtime_error("MoneroIncomingTransfer::copy(inTransfer) not implemented");
+  };
 
   boost::optional<bool> MoneroIncomingTransfer::getIsIncoming() const { return true; }
 
@@ -349,17 +318,13 @@ namespace monero {
 
   // ----------------------- MONERO OUTGOING TRANSFER -------------------------
 
-  MoneroOutgoingTransfer::MoneroOutgoingTransfer() {
+  shared_ptr<MoneroOutgoingTransfer> MoneroOutgoingTransfer::copy(const shared_ptr<MoneroTransfer>& self) const {
+    throw runtime_error("MoneroOutgoingTransfer::copy(transfer) not implemented");
+  };
 
-  }
-
-  MoneroOutgoingTransfer::MoneroOutgoingTransfer(const MoneroOutgoingTransfer& transfer) {
-    throw runtime_error("MoneroOutgoingTransfer deep copy not implemented");
-  }
-
-  shared_ptr<MoneroOutgoingTransfer> MoneroOutgoingTransfer::copy() const {
-    return make_shared<MoneroOutgoingTransfer>(*this);
-  }
+  shared_ptr<MoneroOutgoingTransfer> MoneroOutgoingTransfer::copy(const shared_ptr<MoneroOutgoingTransfer>& self) const {
+    throw runtime_error("MoneroOutgoingTransfer::copy(outTransfer) not implemented");
+  };
 
   boost::optional<bool> MoneroOutgoingTransfer::getIsIncoming() const { return false; }
 
@@ -385,17 +350,13 @@ namespace monero {
 
   // ----------------------- MONERO TRANSFER REQUEST --------------------------
 
-  MoneroTransferRequest::MoneroTransferRequest() {
+  shared_ptr<MoneroTransferRequest> MoneroTransferRequest::copy(const shared_ptr<MoneroTransfer>& self) const {
+    throw runtime_error("MoneroTransferRequest::copy(transfer) not implemented");
+  };
 
-  }
-
-  MoneroTransferRequest::MoneroTransferRequest(const MoneroTransferRequest& request) {
-    throw runtime_error("MoneroTransferRequet deep copy not implemented");
-  }
-
-  shared_ptr<MoneroTransferRequest> MoneroTransferRequest::copy() const {
-    return make_shared<MoneroTransferRequest>(*this);
-  }
+  shared_ptr<MoneroTransferRequest> MoneroTransferRequest::copy(const shared_ptr<MoneroTransferRequest>& self) const {
+    throw runtime_error("MoneroTransferRequest::copy(request) not implemented");
+  };
 
   boost::optional<bool> MoneroTransferRequest::getIsIncoming() const { return isIncoming; }
 
@@ -485,17 +446,13 @@ namespace monero {
 
   // ------------------------- MONERO OUTPUT WALLET ---------------------------
 
-  MoneroOutputWallet::MoneroOutputWallet() {
+  shared_ptr<MoneroOutputWallet> MoneroOutputWallet::copy(const shared_ptr<MoneroOutput>& self) const {
+    throw runtime_error("MoneroOutputWallet::copy(output) not implemented");
+  };
 
-  }
-
-  MoneroOutputWallet::MoneroOutputWallet(const MoneroOutputWallet& output) {
-    throw runtime_error("MoneroOutputWallet deep copy constructor not implemented");
-  }
-
-  shared_ptr<MoneroOutputWallet> MoneroOutputWallet::copy() const {
-    return make_shared<MoneroOutputWallet>(*this);
-  }
+  shared_ptr<MoneroOutputWallet> MoneroOutputWallet::copy(const shared_ptr<MoneroOutputWallet>& self) const {
+    throw runtime_error("MoneroOutputWallet::copy(outputWallet) not implemented");
+  };
 
   boost::property_tree::ptree MoneroOutputWallet::toPropertyTree() const {
     boost::property_tree::ptree node = MoneroOutput::toPropertyTree();
@@ -517,17 +474,17 @@ namespace monero {
 
   // ------------------------ MONERO OUTPUT REQUEST ---------------------------
 
-  MoneroOutputRequest::MoneroOutputRequest() {
+  shared_ptr<MoneroOutputRequest> MoneroOutputRequest::copy(const shared_ptr<MoneroOutput>& self) const {
+    throw runtime_error("MoneroOutputRequest::copy(output) not implemented");
+  };
 
-  }
+  shared_ptr<MoneroOutputRequest> MoneroOutputRequest::copy(const shared_ptr<MoneroOutputWallet>& self) const {
+    throw runtime_error("MoneroOutputRequest::copy(outputWallet) not implemented");
+  };
 
-  MoneroOutputRequest::MoneroOutputRequest(const MoneroOutputRequest& request) {
-    throw runtime_error("MonerOutputRequest deep copy not implemented");
-  }
-
-  shared_ptr<MoneroOutputRequest> MoneroOutputRequest::copy() const {
-    return make_shared<MoneroOutputRequest>(*this);
-  }
+  shared_ptr<MoneroOutputRequest> MoneroOutputRequest::copy(const shared_ptr<MoneroOutputRequest>& self) const {
+    throw runtime_error("MoneroOutputRequest::copy(outputRequest) not implemented");
+  };
 
   boost::property_tree::ptree MoneroOutputRequest::toPropertyTree() const {
     boost::property_tree::ptree node = MoneroOutputWallet::toPropertyTree();
