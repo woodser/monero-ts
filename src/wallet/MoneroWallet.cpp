@@ -1525,9 +1525,23 @@ namespace monero {
       else MTRACE("Output request's tx request rooted at [block]: " << (*(*request.txRequest)->block)->serialize());
     }
 
-    // normalize request
-    // TODO **: this will modify original request, construct copy? add test
-    MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : make_shared<MoneroTxRequest>());
+    // copy and normalize request
+    shared_ptr<MoneroOutputRequest> req;
+    if (request.txRequest == boost::none) req = request.copy(make_shared<MoneroOutputRequest>(request), make_shared<MoneroOutputRequest>());
+    else {
+      shared_ptr<MoneroTxRequest> txReq = request.txRequest.get()->copy(request.txRequest.get(), make_shared<MoneroTxRequest>());
+      if (request.txRequest.get()->outputRequest != boost::none && request.txRequest.get()->outputRequest.get().get() == &request) {
+        req = txReq->outputRequest.get();
+      } else {
+        if (request.txRequest.get()->outputRequest != boost::none) throw new runtime_error("Output request's tx request must be a circular reference or null");
+        shared_ptr<MoneroOutputRequest> requestSp = make_shared<MoneroOutputRequest>(request);  // convert request to shared pointer for copy
+        req = requestSp->copy(requestSp, make_shared<MoneroOutputRequest>());
+        req->txRequest = txReq;
+      }
+    }
+    if (req->txRequest == boost::none) req->txRequest = make_shared<MoneroTxRequest>();
+    shared_ptr<MoneroTxRequest> txReq = req->txRequest.get();
+    txReq->outputRequest = boost::none; // break circular link for meetsCriteria()
 
     // get output data from wallet2
     tools::wallet2::transfer_container outputsW2;
@@ -1549,7 +1563,7 @@ namespace monero {
       vector<shared_ptr<MoneroOutput>>::iterator voutIter = tx->vouts.begin();
       while (voutIter != tx->vouts.end()) {
         shared_ptr<MoneroOutputWallet> voutWallet = static_pointer_cast<MoneroOutputWallet>(*voutIter);
-        if (request.meetsCriteria(voutWallet.get())) {
+        if (req->meetsCriteria(voutWallet.get())) {
           vouts.push_back(voutWallet);
           voutIter++;
         } else {
