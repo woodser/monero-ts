@@ -121,7 +121,7 @@ namespace monero {
     if (!src->incomingTransfers.empty()) {
       tgt->incomingTransfers = vector<shared_ptr<MoneroIncomingTransfer>>();
       for (const shared_ptr<MoneroIncomingTransfer>& transfer : src->incomingTransfers) {
-        shared_ptr<MoneroIncomingTransfer> transferCopy = transfer->copy(transfer, shared_ptr<MoneroIncomingTransfer>());
+        shared_ptr<MoneroIncomingTransfer> transferCopy = transfer->copy(transfer, make_shared<MoneroIncomingTransfer>());
         transferCopy->tx = tgt;
         tgt->incomingTransfers.push_back(transferCopy);
       }
@@ -211,6 +211,7 @@ namespace monero {
     tgt->includeOutputs = src->includeOutputs;
     if (src->transferRequest != boost::none) tgt->transferRequest = src->transferRequest.get()->copy(src->transferRequest.get(), make_shared<MoneroTransferRequest>());
     if (src->outputRequest != boost::none) tgt->outputRequest = src->outputRequest.get()->copy(src->outputRequest.get(), make_shared<MoneroOutputRequest>());
+    return tgt;
   };
 
   boost::property_tree::ptree MoneroTxRequest::toPropertyTree() const {
@@ -281,6 +282,14 @@ namespace monero {
 
   // -------------------------- MONERO DESTINATION ----------------------------
 
+  shared_ptr<MoneroDestination> MoneroDestination::copy(const shared_ptr<MoneroDestination>& src, const shared_ptr<MoneroDestination>& tgt) const {
+    MTRACE("MoneroDestination::copy(const shared_ptr<MoneroDestination>& src, const shared_ptr<MoneroDestination>& tgt)");
+    if (this != src.get()) throw runtime_error("this != src");
+    tgt->address = src->address;
+    tgt->amount = src->amount;
+    return tgt;
+  };
+
   boost::property_tree::ptree MoneroDestination::toPropertyTree() const {
     boost::property_tree::ptree node;
     if (address != boost::none) node.put("address", *address);
@@ -291,8 +300,13 @@ namespace monero {
   // ---------------------------- MONERO TRANSFER -----------------------------
 
   shared_ptr<MoneroTransfer> MoneroTransfer::copy(const shared_ptr<MoneroTransfer>& src, const shared_ptr<MoneroTransfer>& tgt) const {
-    throw runtime_error("MoneroTransfer::copy() not implemented");
-  };
+    MTRACE("MoneroTransfer::copy(const shared_ptr<MoneroTransfer>& src, const shared_ptr<MoneroTransfer>& tgt)");
+    tgt->tx = src->tx;  // reference parent tx by default
+    tgt->amount = src->amount;
+    tgt->accountIndex = src->accountIndex;
+    tgt->numSuggestedConfirmations = src->numSuggestedConfirmations;
+    return tgt;
+  }
 
   boost::property_tree::ptree MoneroTransfer::toPropertyTree() const {
     boost::property_tree::ptree node;
@@ -329,10 +343,13 @@ namespace monero {
   // ----------------------- MONERO INCOMING TRANSFER -------------------------
 
   shared_ptr<MoneroIncomingTransfer> MoneroIncomingTransfer::copy(const shared_ptr<MoneroTransfer>& src, const shared_ptr<MoneroTransfer>& tgt) const {
-    throw runtime_error("MoneroIncomingTransfer::copy(transfer) not implemented");
-  };
+    return copy(static_pointer_cast<MoneroIncomingTransfer>(src), static_pointer_cast<MoneroIncomingTransfer>(tgt));
+  }
 
   shared_ptr<MoneroIncomingTransfer> MoneroIncomingTransfer::copy(const shared_ptr<MoneroIncomingTransfer>& src, const shared_ptr<MoneroIncomingTransfer>& tgt) const {
+
+
+
     throw runtime_error("MoneroIncomingTransfer::copy(inTransfer) not implemented");
   };
 
@@ -359,7 +376,7 @@ namespace monero {
   // ----------------------- MONERO OUTGOING TRANSFER -------------------------
 
   shared_ptr<MoneroOutgoingTransfer> MoneroOutgoingTransfer::copy(const shared_ptr<MoneroTransfer>& src, const shared_ptr<MoneroTransfer>& tgt) const {
-    throw runtime_error("MoneroOutgoingTransfer::copy(transfer) not implemented");
+    return copy(static_pointer_cast<MoneroOutgoingTransfer>(src), static_pointer_cast<MoneroOutgoingTransfer>(tgt));
   };
 
   shared_ptr<MoneroOutgoingTransfer> MoneroOutgoingTransfer::copy(const shared_ptr<MoneroOutgoingTransfer>& src, const shared_ptr<MoneroOutgoingTransfer>& tgt) const {
@@ -391,13 +408,30 @@ namespace monero {
   // ----------------------- MONERO TRANSFER REQUEST --------------------------
 
   shared_ptr<MoneroTransferRequest> MoneroTransferRequest::copy(const shared_ptr<MoneroTransfer>& src, const shared_ptr<MoneroTransfer>& tgt) const {
-    MTRACE("MoneroTransferRequest::copy(const shared_ptr<MoneroTransfer>& src, const shared_ptr<MoneroTransfer>& tgt");
-    throw runtime_error("MoneroTransferRequest::copy(transfer) not implemented");
+    return copy(static_pointer_cast<MoneroTransferRequest>(src), static_pointer_cast<MoneroTransfer>(tgt));
   };
 
   shared_ptr<MoneroTransferRequest> MoneroTransferRequest::copy(const shared_ptr<MoneroTransferRequest>& src, const shared_ptr<MoneroTransferRequest>& tgt) const {
     MTRACE("MoneroTransferRequest::copy(const shared_ptr<MoneroTransferRequest>& src, const shared_ptr<MoneroTransferRequest>& tgt)");
-    throw runtime_error("MoneroTransferRequest::copy(request) not implemented");
+    if (this != src.get()) throw runtime_error("this != src");
+
+    // copy base class
+    MoneroTransfer::copy(static_pointer_cast<MoneroTransfer>(src), static_pointer_cast<MoneroTransfer>(tgt));
+
+    // copy extensions
+    tgt->isIncoming = src->isIncoming;
+    tgt->address = src->address;
+    if (!src->addresses.empty()) tgt->addresses = vector<string>(src->addresses);
+    tgt->subaddressIndex = src->subaddressIndex;
+    if (!src->subaddressIndices.empty()) tgt->subaddressIndices = vector<uint32_t>(src->subaddressIndices);
+    if (!src->destinations.empty()) {
+      for (const shared_ptr<MoneroDestination>& destination : src->destinations) {
+        tgt->destinations.push_back(destination->copy(destination, make_shared<MoneroDestination>()));
+      }
+    }
+    tgt->hasDestinations = src->hasDestinations;
+    tgt->txRequest = src->txRequest;
+    return tgt;
   };
 
   boost::optional<bool> MoneroTransferRequest::getIsIncoming() const { return isIncoming; }
@@ -524,15 +558,17 @@ namespace monero {
   // ------------------------ MONERO OUTPUT REQUEST ---------------------------
 
   shared_ptr<MoneroOutputRequest> MoneroOutputRequest::copy(const shared_ptr<MoneroOutput>& src, const shared_ptr<MoneroOutput>& tgt) const {
-    throw runtime_error("MoneroOutputRequest::copy(output) not implemented");
+    return MoneroOutputRequest::copy(static_pointer_cast<MoneroOutputRequest>(src), static_pointer_cast<MoneroOutputRequest>(tgt));
   };
 
   shared_ptr<MoneroOutputRequest> MoneroOutputRequest::copy(const shared_ptr<MoneroOutputWallet>& src, const shared_ptr<MoneroOutputWallet>& tgt) const {
-    throw runtime_error("MoneroOutputRequest::copy(outputWallet) not implemented");
+    return MoneroOutputRequest::copy(static_pointer_cast<MoneroOutputRequest>(src), static_pointer_cast<MoneroOutputRequest>(tgt));
   };
 
   shared_ptr<MoneroOutputRequest> MoneroOutputRequest::copy(const shared_ptr<MoneroOutputRequest>& src, const shared_ptr<MoneroOutputRequest>& tgt) const {
     throw runtime_error("MoneroOutputRequest::copy(outputRequest) not implemented");
+    if (this != src.get()) throw runtime_error("this != src");
+    throw runtime_error("MoneroOutputRequest::copy() not implemented");
   };
 
   boost::property_tree::ptree MoneroOutputRequest::toPropertyTree() const {

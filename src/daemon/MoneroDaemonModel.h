@@ -205,6 +205,7 @@ namespace monero {
     boost::optional<string> hex;
     boost::optional<string> signature;
 
+    shared_ptr<MoneroKeyImage> copy(const shared_ptr<MoneroKeyImage>& src, const shared_ptr<MoneroKeyImage>& tgt) const;
     boost::property_tree::ptree toPropertyTree() const;
     void merge(const shared_ptr<MoneroKeyImage>& self, const shared_ptr<MoneroKeyImage>& other);
   };

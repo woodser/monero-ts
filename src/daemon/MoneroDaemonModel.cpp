@@ -409,6 +409,13 @@ namespace monero {
 
   // --------------------------- MONERO KEY IMAGE -----------------------------
 
+  shared_ptr<MoneroKeyImage> MoneroKeyImage::copy(const shared_ptr<MoneroKeyImage>& src, const shared_ptr<MoneroKeyImage>& tgt) const {
+    if (this != src.get()) throw runtime_error("this != src");
+    tgt->hex = src->hex;
+    tgt->signature = src->signature;
+    return tgt;
+  }
+
   boost::property_tree::ptree MoneroKeyImage::toPropertyTree() const {
     boost::property_tree::ptree node;
     if (hex != boost::none) node.put("hex", *hex);
@@ -423,7 +430,14 @@ namespace monero {
   // ------------------------------ MONERO OUTPUT -----------------------------
 
   shared_ptr<MoneroOutput> MoneroOutput::copy(const shared_ptr<MoneroOutput>& src, const shared_ptr<MoneroOutput>& tgt) const {
-    throw runtime_error("MoneroOutput::copy() not implemented");
+    if (this != src.get()) throw runtime_error("this != src");
+    tgt->tx = src->tx;  // reference same parent tx by default
+    if (src->keyImage != boost::none) tgt->keyImage = src->keyImage.get()->copy(src->keyImage.get(), make_shared<MoneroKeyImage>());
+    tgt->amount = src->amount;
+    tgt->index = src->index;
+    if (!src->ringOutputIndices.empty()) tgt->ringOutputIndices = vector<uint32_t>(src->ringOutputIndices);
+    tgt->stealthPublicKey = src->stealthPublicKey;
+    return tgt;
   }
 
   boost::property_tree::ptree MoneroOutput::toPropertyTree() const {
