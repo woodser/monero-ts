@@ -202,7 +202,7 @@ namespace monero {
     if (!src->vins.empty()) {
       tgt->vins = vector<shared_ptr<MoneroOutput>>();
       for (const shared_ptr<MoneroOutput>& vin : src->vins) {
-        shared_ptr<MoneroOutput> vinCopy = vin->copy(vin, shared_ptr<MoneroOutput>());
+        shared_ptr<MoneroOutput> vinCopy = vin->copy(vin, make_shared<MoneroOutput>());
         vinCopy->tx = tgt;
         tgt->vins.push_back(vinCopy);
       }
@@ -210,7 +210,7 @@ namespace monero {
     if (!src->vouts.empty()) {
       tgt->vouts = vector<shared_ptr<MoneroOutput>>();
       for (const shared_ptr<MoneroOutput>& vout : src->vouts) {
-        shared_ptr<MoneroOutput> voutCopy = vout->copy(vout, shared_ptr<MoneroOutput>());
+        shared_ptr<MoneroOutput> voutCopy = vout->copy(vout, make_shared<MoneroOutput>());
         voutCopy->tx = tgt;
         tgt->vouts.push_back(voutCopy);
       }

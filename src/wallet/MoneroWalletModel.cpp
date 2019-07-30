@@ -107,8 +107,6 @@ namespace monero {
 
   shared_ptr<MoneroTxWallet> MoneroTxWallet::copy(const shared_ptr<MoneroTx>& src, const shared_ptr<MoneroTx>& tgt) const {
     MTRACE("MoneroTxWallet::copy(const shared_ptr<MoneroTx>& src, const shared_ptr<MoneroTx>& tgt)");
-    MTRACE("src: " << src);
-    MTRACE("tgt: " << tgt);
     return MoneroTxWallet::copy(static_pointer_cast<MoneroTxWallet>(src), static_pointer_cast<MoneroTxWallet>(tgt));
   };
 
@@ -120,7 +118,20 @@ namespace monero {
     MoneroTx::copy(static_pointer_cast<MoneroTx>(src), static_pointer_cast<MoneroTx>(tgt));
 
     // copy wallet extensions
-    throw runtime_error("MoneroTxWallet::copy(txWallet) not implemented");
+    if (!src->incomingTransfers.empty()) {
+      tgt->incomingTransfers = vector<shared_ptr<MoneroIncomingTransfer>>();
+      for (const shared_ptr<MoneroIncomingTransfer>& transfer : src->incomingTransfers) {
+        shared_ptr<MoneroIncomingTransfer> transferCopy = transfer->copy(transfer, shared_ptr<MoneroIncomingTransfer>());
+        transferCopy->tx = tgt;
+        tgt->incomingTransfers.push_back(transferCopy);
+      }
+    }
+    if (src->outgoingTransfer != boost::none) {
+      shared_ptr<MoneroOutgoingTransfer> transferCopy = src->outgoingTransfer.get()->copy(src->outgoingTransfer.get(), make_shared<MoneroOutgoingTransfer>());
+      transferCopy->tx = tgt;
+      tgt->outgoingTransfer = transferCopy;
+    }
+    tgt->note = src->note;
 
     return tgt;
   };
