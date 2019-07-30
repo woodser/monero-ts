@@ -393,7 +393,7 @@ namespace monero {
   /**
    * Returns true iff tx1's height is known to be less than tx2's height for sorting.
    */
-  bool txHeightLessThan(const shared_ptr<MoneroTxWallet>& tx1, const shared_ptr<MoneroTxWallet>& tx2) {
+  bool txHeightLessThan(const shared_ptr<MoneroTx>& tx1, const shared_ptr<MoneroTx>& tx2) {
     if (tx1->block != boost::none && tx2->block != boost::none) return tx1->getHeight() < tx2->getHeight();
     else if (tx1->block == boost::none) return false;
     else return true;
@@ -403,6 +403,11 @@ namespace monero {
    * Returns true iff transfer1 is ordered before transfer2 by ascending account and subaddress indices.
    */
   bool incomingTransferBefore(const shared_ptr<MoneroIncomingTransfer>& transfer1, const shared_ptr<MoneroIncomingTransfer>& transfer2) {
+
+    // compare by height
+    if (txHeightLessThan(transfer1->tx, transfer2->tx)) return true;
+
+    // compare by account and subaddress index
     if (transfer1->accountIndex.get() < transfer2->accountIndex.get()) return true;
     else if (transfer1->accountIndex.get() == transfer2->accountIndex.get()) return transfer1->subaddressIndex.get() < transfer2->subaddressIndex.get();
     else return false;
@@ -414,6 +419,11 @@ namespace monero {
   bool voutBefore(const shared_ptr<MoneroOutput>& o1, const shared_ptr<MoneroOutput>& o2) {
     shared_ptr<MoneroOutputWallet> ow1 = static_pointer_cast<MoneroOutputWallet>(o1);
     shared_ptr<MoneroOutputWallet> ow2 = static_pointer_cast<MoneroOutputWallet>(o2);
+
+    // compare by height
+    if (txHeightLessThan(ow1->tx, ow2->tx)) return true;
+
+    // compare by account index, subaddress index, and output
     if (ow1->accountIndex.get() < ow2->accountIndex.get()) return true;
     else if (ow1->accountIndex.get() == ow2->accountIndex.get()) {
       if (ow1->subaddressIndex.get() < ow2->subaddressIndex.get()) return true;
@@ -1566,10 +1576,16 @@ namespace monero {
       mergeTx(tx, txMap, blockMap, false);
     }
 
-    // collect requested vouts
-    vector<shared_ptr<MoneroOutputWallet>> vouts;
+    // sort txs by block height
+    vector<shared_ptr<MoneroTxWallet>> txs ;
     for (map<string, shared_ptr<MoneroTxWallet>>::const_iterator txIter = txMap.begin(); txIter != txMap.end(); txIter++) {
-      shared_ptr<MoneroTxWallet> tx = txIter->second;
+      txs.push_back(txIter->second);
+    }
+    sort(txs.begin(), txs.end(), txHeightLessThan);
+
+    // filter and return outputs
+    vector<shared_ptr<MoneroOutputWallet>> vouts;
+    for (const shared_ptr<MoneroTxWallet>& tx : txs) {
 
       // sort outputs
       sort(tx->vouts.begin(), tx->vouts.end(), voutBefore);
