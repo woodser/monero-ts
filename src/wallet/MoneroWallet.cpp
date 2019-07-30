@@ -1271,29 +1271,25 @@ namespace monero {
     return getTxs(request);
   }
 
-  // TODO: change param to for real
   vector<shared_ptr<MoneroTxWallet>> MoneroWallet::getTxs(const MoneroTxRequest& request) const {
     MTRACE("getTxs(request)");
-
-    // preserve original request
-    //MoneroTxRequest& request = request.copy().get();
-    MoneroTxRequest req = request;
+    
+    // copy and normalize tx request
+    shared_ptr<MoneroTxRequest> requestSp = make_shared<MoneroTxRequest>(request); // convert to shared pointer for copy
+    shared_ptr<MoneroTxRequest> req = requestSp->copy(requestSp, make_shared<MoneroTxRequest>());
+    if (req->transferRequest == boost::none) req->transferRequest = make_shared<MoneroTransferRequest>();
+    shared_ptr<MoneroTransferRequest> transferReq = req->transferRequest.get();
 
     // print req
-    if (req.block != boost::none) MTRACE("Tx req's rooted at [block]: " << req.block.get()->serialize());
-    else MTRACE("Tx req: " << req.serialize());
-
-    // normalize req
-    // TODO **: this modifies original req so given req cannot be constant, make given req constant
-    if (req.transferRequest == boost::none) req.transferRequest = make_shared<MoneroTransferRequest>();
-    shared_ptr<MoneroTransferRequest> transferRequest = req.transferRequest.get();
+    if (req->block != boost::none) MTRACE("Tx req's rooted at [block]: " << req->block.get()->serialize());
+    else MTRACE("Tx req: " << req->serialize());
     
-    // temporarily disable transfer req
-    req.transferRequest = boost::none;
+    // temporarily disable transfer request
+    req->transferRequest = boost::none;
 
-    // fetch all transfers that meet tx req
+    // fetch all transfers that meet tx request
     MoneroTransferRequest tempTransferReq;
-    tempTransferReq.txRequest = make_shared<MoneroTxRequest>(req);
+    tempTransferReq.txRequest = make_shared<MoneroTxRequest>(*req);
     vector<shared_ptr<MoneroTransfer>> transfers = getTransfers(tempTransferReq);
 
     // collect unique txs from transfers while retaining order
@@ -1315,8 +1311,8 @@ namespace monero {
 
     // fetch and merge outputs if requested
     MoneroOutputRequest tempOutputReq;
-    tempOutputReq.txRequest = make_shared<MoneroTxRequest>(req);
-    if (req.includeOutputs != boost::none && *req.includeOutputs) {
+    tempOutputReq.txRequest = make_shared<MoneroTxRequest>(*req);
+    if (req->includeOutputs != boost::none && *req->includeOutputs) {
 
       // fetch outputs
       vector<shared_ptr<MoneroOutputWallet>> outputs = getOutputs(tempOutputReq);
@@ -1333,12 +1329,12 @@ namespace monero {
     }
 
     // filter txs that don't meet transfer req  // TODO **: port this updated version to js
-    req.transferRequest = transferRequest;
+    req->transferRequest = transferReq;
     vector<shared_ptr<MoneroTxWallet>> txsRequested;
     vector<shared_ptr<MoneroTxWallet>>::iterator txIter = txs.begin();
     while (txIter != txs.end()) {
       shared_ptr<MoneroTxWallet> tx = *txIter;
-      if (req.meetsCriteria(tx.get())) {
+      if (req->meetsCriteria(tx.get())) {
         txsRequested.push_back(tx);
         txIter++;
       } else {
@@ -1349,8 +1345,8 @@ namespace monero {
     txs = txsRequested;
 
     // verify all specified tx ids found
-    if (!req.txIds.empty()) {
-      for (const string& txId : req.txIds) {
+    if (!req->txIds.empty()) {
+      for (const string& txId : req->txIds) {
         bool found = false;
         for (const shared_ptr<MoneroTxWallet>& tx : txs) {
           if (txId == *tx->id) {
@@ -1365,13 +1361,13 @@ namespace monero {
     // special case: re-fetch txs if inconsistency caused by needing to make multiple wallet calls
     // TODO monero core: offer wallet.get_txs(...)
     for (const shared_ptr<MoneroTxWallet>& tx : txs) {
-      if (*tx->isConfirmed && tx->block == boost::none) return getTxs(req);
+      if (*tx->isConfirmed && tx->block == boost::none) return getTxs(*req);
     }
 
     // otherwise order txs if tx ids given then return
-    if (!req.txIds.empty()) {
+    if (!req->txIds.empty()) {
       vector<shared_ptr<MoneroTxWallet>> orderedTxs;
-      for (const string& txId : req.txIds) {
+      for (const string& txId : req->txIds) {
         map<string, shared_ptr<MoneroTxWallet>>::const_iterator txIter = txMap.find(txId);
         orderedTxs.push_back(txIter->second);
       }
