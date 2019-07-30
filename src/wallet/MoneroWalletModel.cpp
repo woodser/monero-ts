@@ -106,6 +106,9 @@ namespace monero {
   // --------------------------- MONERO TX WALLET -----------------------------
 
   shared_ptr<MoneroTxWallet> MoneroTxWallet::copy(const shared_ptr<MoneroTx>& src, const shared_ptr<MoneroTx>& tgt) const {
+    MTRACE("MoneroTxWallet::copy(const shared_ptr<MoneroTx>& src, const shared_ptr<MoneroTx>& tgt)");
+    MTRACE("src: " << src);
+    MTRACE("tgt: " << tgt);
     return MoneroTxWallet::copy(static_pointer_cast<MoneroTxWallet>(src), static_pointer_cast<MoneroTxWallet>(tgt));
   };
 
@@ -116,7 +119,10 @@ namespace monero {
     // copy base class
     MoneroTx::copy(static_pointer_cast<MoneroTx>(src), static_pointer_cast<MoneroTx>(tgt));
 
+    // copy wallet extensions
     throw runtime_error("MoneroTxWallet::copy(txWallet) not implemented");
+
+    return tgt;
   };
 
   boost::property_tree::ptree MoneroTxWallet::toPropertyTree() const {
@@ -177,6 +183,8 @@ namespace monero {
 
   shared_ptr<MoneroTxRequest> MoneroTxRequest::copy(const shared_ptr<MoneroTxRequest>& src, const shared_ptr<MoneroTxRequest>& tgt) const {
     MTRACE("MoneroTxRequest::copy(const shared_ptr<MoneroTxRequest>& src, const shared_ptr<MoneroTxRequest>& tgt)");
+    MTRACE("src: " << src);
+    MTRACE("tgt: " << tgt);
     if (this != src.get()) throw runtime_error("this != src");
 
     // copy base class

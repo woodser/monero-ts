@@ -177,7 +177,58 @@ namespace monero {
 
   shared_ptr<MoneroTx> MoneroTx::copy(const shared_ptr<MoneroTx>& src, const shared_ptr<MoneroTx>& tgt) const {
     MTRACE("MoneroTx::copy(const shared_ptr<MoneroTx>& src, const shared_ptr<MoneroTx>& tgt)");
-    throw runtime_error("MoneroTx::copy() not implemented");
+    tgt->id = src->id;
+    tgt->version = src->version;
+    tgt->isCoinbase = src->isCoinbase;
+    tgt->paymentId = src->paymentId;
+    tgt->fee = src->fee;
+    tgt->mixin = src->mixin;
+    tgt->doNotRelay = src->doNotRelay;
+    tgt->isRelayed = src->isRelayed;
+    tgt->isConfirmed = src->isConfirmed;
+    tgt->inTxPool = src->inTxPool;
+    tgt->numConfirmations = src->numConfirmations;
+    tgt->unlockTime = src->unlockTime;
+    tgt->lastRelayedTimestamp = src->lastRelayedTimestamp;
+    tgt->receivedTimestamp = src->receivedTimestamp;
+    tgt->isDoubleSpendSeen = src->isDoubleSpendSeen;
+    tgt->key = src->key;
+    tgt->fullHex = src->fullHex;
+    tgt->prunedHex = src->prunedHex;
+    tgt->prunableHex = src->prunableHex;
+    tgt->prunableHash = src->prunableHash;
+    tgt->size = src->size;
+    tgt->weight = src->weight;
+    if (!src->vins.empty()) {
+      tgt->vins = vector<shared_ptr<MoneroOutput>>();
+      for (const shared_ptr<MoneroOutput>& vin : src->vins) {
+        shared_ptr<MoneroOutput> vinCopy = vin->copy(vin, shared_ptr<MoneroOutput>());
+        vinCopy->tx = tgt;
+        tgt->vins.push_back(vinCopy);
+      }
+    }
+    if (!src->vouts.empty()) {
+      tgt->vouts = vector<shared_ptr<MoneroOutput>>();
+      for (const shared_ptr<MoneroOutput>& vout : src->vouts) {
+        shared_ptr<MoneroOutput> voutCopy = vout->copy(vout, shared_ptr<MoneroOutput>());
+        voutCopy->tx = tgt;
+        tgt->vouts.push_back(voutCopy);
+      }
+    }
+    if (!src->outputIndices.empty()) tgt->outputIndices = vector<uint32_t>(src->outputIndices);
+    tgt->metadata = src->metadata;
+    tgt->commonTxSets = src->commonTxSets;
+    if (!src->extra.empty()) throw runtime_error("extra deep copy not implemented");  // TODO: implement extra
+    tgt->rctSignatures = src->rctSignatures;
+    tgt->rctSigPrunable = src->rctSigPrunable;
+    tgt->isKeptByBlock = src->isKeptByBlock;
+    tgt->isFailed = src->isFailed;
+    tgt->lastFailedHeight = src->lastFailedHeight;
+    tgt->lastFailedId = src->lastFailedId;
+    tgt->maxUsedBlockHeight = src->maxUsedBlockHeight;
+    tgt->maxUsedBlockId = src->maxUsedBlockId;
+    if (!src->signatures.empty()) tgt->signatures = vector<string>(src->signatures);
+    return tgt;
   }
 
   boost::property_tree::ptree MoneroTx::toPropertyTree() const {

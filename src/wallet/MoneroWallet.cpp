@@ -1384,45 +1384,26 @@ namespace monero {
     MTRACE("MoneroWallet::getTransfers(request)");
 
     // LOG request
-    MTRACE("Transfer request: " << request.serialize());
     if (request.txRequest != boost::none) {
       if ((*request.txRequest)->block == boost::none) MTRACE("Transfer request's tx request rooted at [tx]:" << (*request.txRequest)->serialize());
       else MTRACE("Transfer request's tx request rooted at [block]: " << (*(*request.txRequest)->block)->serialize());
     }
 
     // copy and normalize request
-    MTRACE("initializing shared pointer");
     shared_ptr<MoneroTransferRequest> req;
-    if (request.txRequest == boost::none) {
-        MTRACE("copying transfer request");
-        req = request.copy(make_shared<MoneroTransferRequest>(request), shared_ptr<MoneroTransferRequest>());
-        MTRACE("done copying request!!!");
-    }
+    if (request.txRequest == boost::none) req = request.copy(make_shared<MoneroTransferRequest>(request), make_shared<MoneroTransferRequest>());
     else {
-        MTRACE("copying tx request");
-      shared_ptr<MoneroTxRequest> txReq = request.txRequest.get()->copy(request.txRequest.get(), shared_ptr<MoneroTxRequest>());
-      MTRACE("1");
-      if (request.txRequest.get()->transferRequest.get().get() == &request) {
-          req = txReq->transferRequest.get();
-          MTRACE("2");
-      }
+      shared_ptr<MoneroTxRequest> txReq = request.txRequest.get()->copy(request.txRequest.get(), make_shared<MoneroTxRequest>());
+      if (request.txRequest.get()->transferRequest.get().get() == &request) req = txReq->transferRequest.get();
       else {
-          MTRACE("3");
         if (request.txRequest.get()->transferRequest != boost::none) throw new runtime_error("Transfer request's tx request must be a circular reference or null");
-        MTRACE("4");
-        req = request.copy(make_shared<MoneroTransferRequest>(request), shared_ptr<MoneroTransferRequest>());
-        MTRACE("5");
+        req = request.copy(make_shared<MoneroTransferRequest>(request), make_shared<MoneroTransferRequest>());
         req->txRequest = txReq;
-        MTRACE("6");
       }
     }
-    MTRACE("7");
-    if (req->txRequest == boost::none) req->txRequest = shared_ptr<MoneroTxRequest>();
-    MTRACE("8");
+    if (req->txRequest == boost::none) req->txRequest = make_shared<MoneroTxRequest>();
     shared_ptr<MoneroTxRequest> txReq = req->txRequest.get();
-    MTRACE("9");
     txReq->transferRequest = boost::none; // break circular link for meetsCriteria()
-    MTRACE("10");
 
 //    // copy and normalize request
 //    MoneroTransferRequest req;
