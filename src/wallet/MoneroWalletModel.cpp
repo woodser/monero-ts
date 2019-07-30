@@ -532,9 +532,15 @@ namespace monero {
     if (this != src.get()) throw runtime_error("this != src");
 
     // copy base class
-    MoneroOutputWallet::copy(static_pointer_cast<MoneroOutput>(src), static_pointer_cast<MoneroOutput>(tgt));
+    MoneroOutput::copy(static_pointer_cast<MoneroOutput>(src), static_pointer_cast<MoneroOutput>(tgt));
 
-    throw runtime_error("MoneroOutputWallet::copy(outputWallet) not implemented");
+    // copy extensions
+    tgt->accountIndex = src->accountIndex;
+    tgt->subaddressIndex = src->subaddressIndex;
+    tgt->isSpent = src->isSpent;
+    tgt->isUnlocked = src->isUnlocked;
+    tgt->isFrozen = src->isFrozen;
+    return tgt;
   };
 
   boost::property_tree::ptree MoneroOutputWallet::toPropertyTree() const {
@@ -566,9 +572,15 @@ namespace monero {
   };
 
   shared_ptr<MoneroOutputRequest> MoneroOutputRequest::copy(const shared_ptr<MoneroOutputRequest>& src, const shared_ptr<MoneroOutputRequest>& tgt) const {
-    throw runtime_error("MoneroOutputRequest::copy(outputRequest) not implemented");
+    MTRACE("MoneroOutputRequest::copy(outputRequest)");
     if (this != src.get()) throw runtime_error("this != src");
-    throw runtime_error("MoneroOutputRequest::copy() not implemented");
+
+    // copy base class
+    MoneroOutputWallet::copy(static_pointer_cast<MoneroOutput>(src), static_pointer_cast<MoneroOutput>(tgt));
+
+    // copy extensions
+    if (!src->subaddressIndices.empty()) tgt->subaddressIndices = vector<uint32_t>(src->subaddressIndices);
+    return tgt;
   };
 
   boost::property_tree::ptree MoneroOutputRequest::toPropertyTree() const {
