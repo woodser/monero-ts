@@ -192,7 +192,7 @@ namespace monero {
     boost::optional<string> maxUsedBlockId;
     vector<string> signatures;
 
-    shared_ptr<MoneroTx> copy(const shared_ptr<MoneroTx>& self) const;
+    shared_ptr<MoneroTx> copy(const shared_ptr<MoneroTx>& src, const shared_ptr<MoneroTx>& tgt) const;
     boost::property_tree::ptree toPropertyTree() const;
     virtual void merge(const shared_ptr<MoneroTx>& self, const shared_ptr<MoneroTx>& other);
     boost::optional<uint64_t> getHeight() const;
@@ -220,7 +220,7 @@ namespace monero {
     vector<uint32_t> ringOutputIndices;
     boost::optional<string> stealthPublicKey;
 
-    shared_ptr<MoneroOutput> copy(const shared_ptr<MoneroOutput>& self) const;
+    shared_ptr<MoneroOutput> copy(const shared_ptr<MoneroOutput>& src, const shared_ptr<MoneroOutput>& tgt) const;
     boost::property_tree::ptree toPropertyTree() const;
     virtual void merge(const shared_ptr<MoneroOutput>& self, const shared_ptr<MoneroOutput>& other);
   };

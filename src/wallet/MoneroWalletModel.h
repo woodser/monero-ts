@@ -148,9 +148,7 @@ namespace monero {
     boost::optional<uint32_t> numSuggestedConfirmations;
 
     virtual boost::optional<bool> getIsIncoming() const = 0;  // derived class must implement
-    shared_ptr<MoneroTransfer> copy(const shared_ptr<MoneroTransfer>& self) const { // not virtual in order for subclasses to return shared_ptr of derived types
-      throw runtime_error("Subclasses must implement");
-    };
+    shared_ptr<MoneroTransfer> copy(const shared_ptr<MoneroTransfer>& src, const shared_ptr<MoneroTransfer>& tgt) const;
     boost::optional<bool> getIsOutgoing() const {
 			if (getIsIncoming() == boost::none) return boost::none;
       return !(*getIsIncoming());
@@ -166,8 +164,8 @@ namespace monero {
     boost::optional<uint32_t> subaddressIndex;
     boost::optional<string> address;
 
-    shared_ptr<MoneroIncomingTransfer> copy(const shared_ptr<MoneroTransfer>& self) const;
-    shared_ptr<MoneroIncomingTransfer> copy(const shared_ptr<MoneroIncomingTransfer>& self) const;
+    shared_ptr<MoneroIncomingTransfer> copy(const shared_ptr<MoneroTransfer>& src, const shared_ptr<MoneroTransfer>& tgt) const;
+    shared_ptr<MoneroIncomingTransfer> copy(const shared_ptr<MoneroIncomingTransfer>& src, const shared_ptr<MoneroIncomingTransfer>& tgt) const;
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
     void merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other);
@@ -182,8 +180,8 @@ namespace monero {
     vector<string> addresses;
     vector<shared_ptr<MoneroDestination>> destinations;
 
-    shared_ptr<MoneroOutgoingTransfer> copy(const shared_ptr<MoneroTransfer>& self) const;
-    shared_ptr<MoneroOutgoingTransfer> copy(const shared_ptr<MoneroOutgoingTransfer>& self) const;
+    shared_ptr<MoneroOutgoingTransfer> copy(const shared_ptr<MoneroTransfer>& src, const shared_ptr<MoneroTransfer>& tgt) const;
+    shared_ptr<MoneroOutgoingTransfer> copy(const shared_ptr<MoneroOutgoingTransfer>& src, const shared_ptr<MoneroOutgoingTransfer>& tgt) const;
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
     void merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other);
@@ -205,8 +203,8 @@ namespace monero {
     boost::optional<bool> hasDestinations;
     boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
 
-    shared_ptr<MoneroTransferRequest> copy(const shared_ptr<MoneroTransfer>& self) const;
-    shared_ptr<MoneroTransferRequest> copy(const shared_ptr<MoneroTransferRequest>& self) const;
+    shared_ptr<MoneroTransferRequest> copy(const shared_ptr<MoneroTransfer>& src, const shared_ptr<MoneroTransfer>& tgt) const;
+    shared_ptr<MoneroTransferRequest> copy(const shared_ptr<MoneroTransferRequest>& src, const shared_ptr<MoneroTransferRequest>& tgt) const;
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree toPropertyTree() const;
     bool meetsCriteria(MoneroTransfer* transfer) const;
@@ -222,8 +220,8 @@ namespace monero {
     boost::optional<bool> isUnlocked;
     boost::optional<bool> isFrozen;
 
-    shared_ptr<MoneroOutputWallet> copy(const shared_ptr<MoneroOutput>& self) const;
-    shared_ptr<MoneroOutputWallet> copy(const shared_ptr<MoneroOutputWallet>& self) const;
+    shared_ptr<MoneroOutputWallet> copy(const shared_ptr<MoneroOutput>& src, const shared_ptr<MoneroOutput>& tgt) const;
+    shared_ptr<MoneroOutputWallet> copy(const shared_ptr<MoneroOutputWallet>& src, const shared_ptr<MoneroOutputWallet>& tgt) const;
     boost::property_tree::ptree toPropertyTree() const;
     void merge(const shared_ptr<MoneroOutput>& self, const shared_ptr<MoneroOutput>& other);
     void merge(const shared_ptr<MoneroOutputWallet>& self, const shared_ptr<MoneroOutputWallet>& other);
@@ -240,9 +238,9 @@ namespace monero {
     boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
 
     // TODO: necessary to override all super classes?
-    shared_ptr<MoneroOutputRequest> copy(const shared_ptr<MoneroOutput>& self) const;
-    shared_ptr<MoneroOutputRequest> copy(const shared_ptr<MoneroOutputWallet>& self) const;
-    shared_ptr<MoneroOutputRequest> copy(const shared_ptr<MoneroOutputRequest>& self) const;
+    shared_ptr<MoneroOutputRequest> copy(const shared_ptr<MoneroOutput>& src, const shared_ptr<MoneroOutput>& tgt) const;
+    shared_ptr<MoneroOutputRequest> copy(const shared_ptr<MoneroOutputWallet>& src, const shared_ptr<MoneroOutputWallet>& tgt) const;
+    shared_ptr<MoneroOutputRequest> copy(const shared_ptr<MoneroOutputRequest>& src, const shared_ptr<MoneroOutputRequest>& tgt) const;
     boost::property_tree::ptree toPropertyTree() const;
     bool meetsCriteria(MoneroOutputWallet* output) const;
   };
@@ -255,8 +253,8 @@ namespace monero {
     boost::optional<shared_ptr<MoneroOutgoingTransfer>> outgoingTransfer;
     boost::optional<string> note;
 
-    shared_ptr<MoneroTxWallet> copy(const shared_ptr<MoneroTx>& self) const;
-    shared_ptr<MoneroTxWallet> copy(const shared_ptr<MoneroTxWallet>& self) const;
+    shared_ptr<MoneroTxWallet> copy(const shared_ptr<MoneroTx>& src, const shared_ptr<MoneroTx>& tgt) const;
+    shared_ptr<MoneroTxWallet> copy(const shared_ptr<MoneroTxWallet>& src, const shared_ptr<MoneroTxWallet>& tgt) const;
     bool getIsIncoming() const;
     bool getIsOutgoing() const;
     boost::property_tree::ptree toPropertyTree() const;
@@ -283,9 +281,9 @@ namespace monero {
     boost::optional<shared_ptr<MoneroOutputRequest>> outputRequest;
 
     // TODO: necessary to override all super classes?
-    shared_ptr<MoneroTxRequest> copy(const shared_ptr<MoneroTx>& self) const;
-    shared_ptr<MoneroTxRequest> copy(const shared_ptr<MoneroTxWallet>& self) const;
-    shared_ptr<MoneroTxRequest> copy(const shared_ptr<MoneroTxRequest>& self) const;
+    shared_ptr<MoneroTxRequest> copy(const shared_ptr<MoneroTx>& src, const shared_ptr<MoneroTx>& tgt) const;
+    shared_ptr<MoneroTxRequest> copy(const shared_ptr<MoneroTxWallet>& src, const shared_ptr<MoneroTxWallet>& tgt) const;
+    shared_ptr<MoneroTxRequest> copy(const shared_ptr<MoneroTxRequest>& src, const shared_ptr<MoneroTxRequest>& tgt) const;
     boost::property_tree::ptree toPropertyTree() const;
     bool meetsCriteria(MoneroTxWallet* tx) const;
   };

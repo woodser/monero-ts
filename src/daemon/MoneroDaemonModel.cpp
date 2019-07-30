@@ -175,7 +175,8 @@ namespace monero {
 
   // ------------------------------- MONERO TX --------------------------------
 
-  shared_ptr<MoneroTx> MoneroTx::copy(const shared_ptr<MoneroTx>& self) const {
+  shared_ptr<MoneroTx> MoneroTx::copy(const shared_ptr<MoneroTx>& src, const shared_ptr<MoneroTx>& tgt) const {
+    MTRACE("MoneroTx::copy(const shared_ptr<MoneroTx>& src, const shared_ptr<MoneroTx>& tgt)");
     throw runtime_error("MoneroTx::copy() not implemented");
   }
 
@@ -370,7 +371,7 @@ namespace monero {
 
   // ------------------------------ MONERO OUTPUT -----------------------------
 
-  shared_ptr<MoneroOutput> MoneroOutput::copy(const shared_ptr<MoneroOutput>& self) const {
+  shared_ptr<MoneroOutput> MoneroOutput::copy(const shared_ptr<MoneroOutput>& src, const shared_ptr<MoneroOutput>& tgt) const {
     throw runtime_error("MoneroOutput::copy() not implemented");
   }
 
