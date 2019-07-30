@@ -1,7 +1,4 @@
 HIGH PRIORITY
-code todos
-const tx request
-query args should be constant
 ensure model toPropertyTrees(), etc are not unecessarily copying return objects
 gen documentation
 sample code including readme

@@ -1328,7 +1328,7 @@ namespace monero {
       }
     }
 
-    // filter txs that don't meet transfer req  // TODO **: port this updated version to js
+    // filter txs that don't meet transfer req  // TODO: port this updated version to js
     req->transferRequest = transferReq;
     vector<shared_ptr<MoneroTxWallet>> txsRequested;
     vector<shared_ptr<MoneroTxWallet>>::iterator txIter = txs.begin();
@@ -1486,7 +1486,7 @@ namespace monero {
       // sort transfers
       sort(tx->incomingTransfers.begin(), tx->incomingTransfers.end(), incomingTransferBefore);
 
-      // collect outgoing transfer, erase if filtered TODO **: js does not erase unrequested data, port to js
+      // collect outgoing transfer, erase if filtered TODO: js does not erase unrequested data, port to js
       if (tx->outgoingTransfer != boost::none && req->meetsCriteria(tx->outgoingTransfer.get().get())) transfers.push_back(tx->outgoingTransfer.get());
       else tx->outgoingTransfer = boost::none;
 
