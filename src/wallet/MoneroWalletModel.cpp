@@ -194,15 +194,23 @@ namespace monero {
 
   shared_ptr<MoneroTxRequest> MoneroTxRequest::copy(const shared_ptr<MoneroTxRequest>& src, const shared_ptr<MoneroTxRequest>& tgt) const {
     MTRACE("MoneroTxRequest::copy(const shared_ptr<MoneroTxRequest>& src, const shared_ptr<MoneroTxRequest>& tgt)");
-    MTRACE("src: " << src);
-    MTRACE("tgt: " << tgt);
     if (this != src.get()) throw runtime_error("this != src");
 
     // copy base class
-    MTRACE("copying base");
     MoneroTxWallet::copy(static_pointer_cast<MoneroTx>(src), static_pointer_cast<MoneroTx>(tgt));
 
-    throw runtime_error("MoneroTxRequest::copy(txRequest) not implemented");
+    // copy request extensions
+    tgt->isOutgoing = src->isOutgoing;
+    tgt->isIncoming = src->isIncoming;
+    if (!src->txIds.empty()) tgt->txIds = vector<string>(src->txIds);
+    tgt-> hasPaymentId = src->hasPaymentId;
+    if (!src->paymentIds.empty()) tgt->paymentIds = vector<string>(src->paymentIds);
+    tgt->height = src->height;
+    tgt->minHeight = src->minHeight;
+    tgt->maxHeight = src->maxHeight;
+    tgt->includeOutputs = src->includeOutputs;
+    if (src->transferRequest != boost::none) tgt->transferRequest = src->transferRequest.get()->copy(src->transferRequest.get(), make_shared<MoneroTransferRequest>());
+    if (src->outputRequest != boost::none) tgt->outputRequest = src->outputRequest.get()->copy(src->outputRequest.get(), make_shared<MoneroOutputRequest>());
   };
 
   boost::property_tree::ptree MoneroTxRequest::toPropertyTree() const {
