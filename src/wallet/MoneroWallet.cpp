@@ -409,6 +409,20 @@ namespace monero {
   }
 
   /**
+   * Returns true iff wallet vout1 is ordered before vout2 by ascending account and subaddress indices then index.
+   */
+  bool voutBefore(const shared_ptr<MoneroOutput>& o1, const shared_ptr<MoneroOutput>& o2) {
+    shared_ptr<MoneroOutputWallet> ow1 = static_pointer_cast<MoneroOutputWallet>(o1);
+    shared_ptr<MoneroOutputWallet> ow2 = static_pointer_cast<MoneroOutputWallet>(o2);
+    if (ow1->accountIndex.get() < ow2->accountIndex.get()) return true;
+    else if (ow1->accountIndex.get() == ow2->accountIndex.get()) {
+      if (ow1->subaddressIndex.get() < ow2->subaddressIndex.get()) return true;
+      if (ow1->subaddressIndex.get() == ow2->subaddressIndex.get() && ow1->index.get() < ow2->index.get()) return true;
+    }
+    return false;
+  }
+
+  /**
    * ---------------- DUPLICATED WALLET RPC TRANSFER CODE ---------------------
    *
    * These functions are duplicated from private functions in wallet rpc
@@ -1556,6 +1570,11 @@ namespace monero {
     vector<shared_ptr<MoneroOutputWallet>> vouts;
     for (map<string, shared_ptr<MoneroTxWallet>>::const_iterator txIter = txMap.begin(); txIter != txMap.end(); txIter++) {
       shared_ptr<MoneroTxWallet> tx = txIter->second;
+
+      // sort outputs
+      sort(tx->vouts.begin(), tx->vouts.end(), voutBefore);
+
+      // collect requested outputs, remove unrequested outputs
       vector<shared_ptr<MoneroOutput>>::iterator voutIter = tx->vouts.begin();
       while (voutIter != tx->vouts.end()) {
         shared_ptr<MoneroOutputWallet> voutWallet = static_pointer_cast<MoneroOutputWallet>(*voutIter);
