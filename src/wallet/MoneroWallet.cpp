@@ -1407,29 +1407,6 @@ namespace monero {
     shared_ptr<MoneroTxRequest> txReq = req->txRequest.get();
     txReq->transferRequest = boost::none; // break circular link for meetsCriteria()
 
-//    // copy and normalize request
-//    MoneroTransferRequest req;
-//    if (request == null) req = new MoneroTransferRequest();
-//    else {
-//      if (request.getTxRequest() == null) req = request.copy();
-//      else {
-//        MoneroTxRequest txReq = request.getTxRequest().copy();
-//        if (request.getTxRequest().getTransferRequest() == request) req = txReq.getTransferRequest();
-//        else {
-//          assertNull("Transfer request's tx request must be circular reference or null", request.getTxRequest().getTransferRequest());
-//          req = request.copy();
-//          req.setTxRequest(txReq);
-//        }
-//      }
-//    }
-//    if (req.getTxRequest() == null) req.setTxRequest(new MoneroTxRequest());
-//    MoneroTxRequest txReq = req.getTxRequest();
-//    txReq.setTransferRequest(null); // break circular link for meetsCriteria()
-
-//    // normalize request
-//    // TODO **: this will modify original request, construct copy? add test
-//    MoneroTxRequest txReq = *(request.txRequest != boost::none ? *request.txRequest : make_shared<MoneroTxRequest>());
-
     // build parameters for wallet2->get_payments()
     uint64_t minHeight = txReq->minHeight == boost::none ? 0 : *txReq->minHeight;
     uint64_t maxHeight = txReq->maxHeight == boost::none ? CRYPTONOTE_MAX_BLOCK_NUMBER : min((uint64_t) CRYPTONOTE_MAX_BLOCK_NUMBER, *txReq->maxHeight);
