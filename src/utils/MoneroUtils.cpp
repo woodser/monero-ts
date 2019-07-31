@@ -469,3 +469,36 @@ boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<uint32_t> n
   }
   return numsNode;
 }
+
+shared_ptr<MoneroBlock> MoneroUtils::cnBlockToBlock(const cryptonote::block& cnBlock) {
+  cryptonote::block temp = cnBlock;
+  cout << cryptonote::obj_to_json_str(temp) << endl;
+  shared_ptr<MoneroBlock> block = make_shared<MoneroBlock>();
+  block->majorVersion = cnBlock.major_version;
+  block->minorVersion = cnBlock.minor_version;
+  block->timestamp = cnBlock.timestamp;
+  block->prevId = epee::string_tools::pod_to_hex(cnBlock.prev_id);
+  block->nonce = cnBlock.nonce;
+  block->coinbaseTx = MoneroUtils::cnTransactionToTx(cnBlock.miner_tx);
+  for (const crypto::hash& txHash : cnBlock.tx_hashes) {
+    block->txIds.push_back(epee::string_tools::pod_to_hex(txHash));
+  }
+  return block;
+}
+
+shared_ptr<MoneroTx> MoneroUtils::cnTransactionToTx(const cryptonote::transaction& cnTx) {
+  shared_ptr<MoneroTx> tx = make_shared<MoneroTx>();
+  //tx->version = cnTx.version;
+  tx->unlockTime = cnTx.unlock_time;
+  tx->id = epee::string_tools::pod_to_hex(cnTx.hash);
+  return tx;
+
+  // TODO: finish this
+//  std::vector<txin_v> vin;
+//  std::vector<tx_out> vout;
+//  std::vector<uint8_t> extra;
+//  std::vector<std::vector<crypto::signature> > signatures;
+//  rct::rctSig rct_signatures;
+//  mutable size_t blob_size;
+//  throw runtime_error("cnTransactionToTx not implemented");
+}

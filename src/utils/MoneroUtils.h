@@ -84,6 +84,38 @@ namespace MoneroUtils
 
   string serialize(const boost::property_tree::ptree& node);
 
+  /**
+   * Convert a Monero Core cryptonote::block to a block in this library's native model.
+   *
+   * @param cnBlock is the Core block to convert
+   * @return a block in this library's native model
+   */
+  shared_ptr<MoneroBlock> cnBlockToBlock(const cryptonote::block& cnBlock);
+
+  /**
+   * Convert a Monero Core cryptonote::transaction to a transaction in this library's native model.
+   *
+   * @param cnTransaction is the Core transaction to convert
+   * @return a transaction in this library's native model
+   */
+  shared_ptr<MoneroTx> cnTransactionToTx(const cryptonote::transaction& cnTransaction);
+
+  /**
+   * Modified from core_rpc_server.cpp to return a string.
+   *
+   * TODO: remove this duplicate, use core_rpc_server instead
+   */
+  static std::string get_pruned_tx_json(cryptonote::transaction &tx)
+  {
+    std::stringstream ss;
+    json_archive<true> ar(ss);
+    bool r = tx.serialize_base(ar);
+    CHECK_AND_ASSERT_MES(r, std::string(), "Failed to serialize rct signatures base");
+    return ss.str();
+  }
+
+  // ------------------------- VALUE RECONCILATION- ---------------------------
+
   // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
   template <class T> boost::property_tree::ptree toPropertyTree(const vector<shared_ptr<T>> types) {
     boost::property_tree::ptree typeNodes;
@@ -193,19 +225,5 @@ namespace MoneroUtils
 //    boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2) {
 //      return reconcile(val1, val2, boost::none, boost::none, boost::none);
 //    }
-
-  /**
-   * Modified from core_rpc_server.cpp to return a string.
-   *
-   * TODO: remove this duplicate, use core_rpc_server instead
-   */
-  static std::string get_pruned_tx_json(cryptonote::transaction &tx)
-  {
-    std::stringstream ss;
-    json_archive<true> ar(ss);
-    bool r = tx.serialize_base(ar);
-    CHECK_AND_ASSERT_MES(r, std::string(), "Failed to serialize rct signatures base");
-    return ss.str();
-  }
 }
 #endif /* MoneroUtils_h */

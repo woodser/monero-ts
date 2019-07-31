@@ -698,12 +698,13 @@ namespace monero {
 
     virtual void on_new_block(uint64_t height, const cryptonote::block& cnBlock) {
 
+      //      // convert cryptonote block to library model
+      //      shared_ptr<MoneroBlock> block = MoneroUtils::cnBlockToBlock(cnBlock);
+      //      block->height = height;
+      //      listener->onNewBlock(*block);
+
       // notify listener of block
-      if (listener != boost::none) {
-        MoneroBlock block;
-        block.height = height;
-        listener.get().onNewBlock(block);
-      }
+      if (listener != boost::none) listener->onNewBlock(height);
 
       // notify listeners of sync progress
       if (syncStartHeight != boost::none && height >= *syncStartHeight) {

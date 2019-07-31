@@ -109,6 +109,8 @@ namespace monero {
 
   /**
    * Models a Monero block header which contains information about the block.
+   *
+   * TODO: a header that is transmitted may have fewer fields like cryptonote::block_header; separate?
    */
   struct MoneroBlockHeader : public SerializableStruct {
     boost::optional<string> id;

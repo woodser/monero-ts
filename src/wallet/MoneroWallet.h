@@ -126,7 +126,7 @@ namespace monero {
      *
      * @param block is the newly processed block
      */
-    virtual void onNewBlock(MoneroBlock& block) {};
+    virtual void onNewBlock(uint64_t height) {};
   };
 
   // forward declaration of internal wallet2 listener
