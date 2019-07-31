@@ -716,6 +716,7 @@ namespace monero {
       if (listener == boost::none) return;
 
       // create native library tx
+      // TODO **: fill this out
       shared_ptr<MoneroBlock> block = make_shared<MoneroBlock>();
       block->height = height;
       shared_ptr<MoneroTxWallet> tx = make_shared<MoneroTxWallet>();
@@ -735,6 +736,7 @@ namespace monero {
       MTRACE("Wallet2Listener::on_money_spent()");
 
       // create native library tx
+      // TODO **: fill this out
       shared_ptr<MoneroBlock> block = make_shared<MoneroBlock>();
       block->height = height;
       shared_ptr<MoneroTxWallet> tx = make_shared<MoneroTxWallet>();
