@@ -698,11 +698,6 @@ namespace monero {
 
     virtual void on_new_block(uint64_t height, const cryptonote::block& cnBlock) {
 
-      //      // convert cryptonote block to library model
-      //      shared_ptr<MoneroBlock> block = MoneroUtils::cnBlockToBlock(cnBlock);
-      //      block->height = height;
-      //      listener->onNewBlock(*block);
-
       // notify listener of block
       if (listener != boost::none) listener->onNewBlock(height);
 
@@ -716,14 +711,45 @@ namespace monero {
       }
     }
 
-    virtual void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index, uint64_t unlock_time) {
-      //MTRACE("Wallet2Listener::on_money_received()");
-      //throw runtime_error("Not implemented");
+    virtual void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cnTx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index, uint64_t unlock_time) {
+      MTRACE("Wallet2Listener::on_money_received()");
+      if (listener == boost::none) return;
+
+      // create native library tx
+      shared_ptr<MoneroBlock> block = make_shared<MoneroBlock>();
+      block->height = height;
+      shared_ptr<MoneroTxWallet> tx = make_shared<MoneroTxWallet>();
+      block->txs.push_back(tx);
+      tx->block = block;
+      tx->id = epee::string_tools::pod_to_hex(txid);
+      shared_ptr<MoneroIncomingTransfer> transfer = make_shared<MoneroIncomingTransfer>();
+      tx->incomingTransfers.push_back(transfer);
+      transfer->tx = tx;
+      transfer->amount = amount;
+
+      // notify listener of transfer
+      listener->onIncomingTransfer(*transfer);
     }
 
     virtual void on_money_spent(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& in_tx, uint64_t amount, const cryptonote::transaction& spend_tx, const cryptonote::subaddress_index& subaddr_index) {
-//      MTRACE("Wallet2Listener::on_money_spent()")
-//        // TODO;
+      MTRACE("Wallet2Listener::on_money_spent()");
+
+      // create native library tx
+      shared_ptr<MoneroBlock> block = make_shared<MoneroBlock>();
+      block->height = height;
+      shared_ptr<MoneroTxWallet> tx = make_shared<MoneroTxWallet>();
+      block->txs.push_back(tx);
+      tx->block = block;
+      tx->id = epee::string_tools::pod_to_hex(txid);
+      shared_ptr<MoneroOutgoingTransfer> transfer = make_shared<MoneroOutgoingTransfer>();
+      tx->outgoingTransfer = transfer;
+      transfer->tx = tx;
+      transfer->amount = amount;
+
+      // notify listener of transfer
+      listener->onOutgoingTransfer(*transfer);
+
+      // TODO **: to notify or not to notify?
 //        std::string tx_hash = epee::string_tools::pod_to_hex(txid);
 //        LOG_PRINT_L3(__FUNCTION__ << ": money spent. height:  " << height
 //                     << ", tx: " << tx_hash
