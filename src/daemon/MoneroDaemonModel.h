@@ -157,7 +157,7 @@ namespace monero {
     static const string DEFAULT_PAYMENT_ID;  // default payment id "0000000000000000"
     boost::optional<shared_ptr<MoneroBlock>> block;
     boost::optional<string> id;
-    boost::optional<string> version;
+    boost::optional<uint32_t> version;
     boost::optional<bool> isCoinbase;
     boost::optional<string> paymentId;
     boost::optional<uint64_t> fee;
@@ -183,7 +183,7 @@ namespace monero {
     vector<uint32_t> outputIndices;
     boost::optional<string> metadata;
     boost::optional<string> commonTxSets;
-    vector<uint32_t> extra;
+    vector<uint8_t> extra;
     boost::optional<string> rctSignatures;   // TODO: implement
     boost::optional<string> rctSigPrunable;  // TODO: implement
     boost::optional<bool> isKeptByBlock;
@@ -220,7 +220,7 @@ namespace monero {
     boost::optional<shared_ptr<MoneroKeyImage>> keyImage;
     boost::optional<uint64_t> amount;
     boost::optional<uint64_t> index;
-    vector<uint32_t> ringOutputIndices;
+    vector<uint64_t> ringOutputIndices;
     boost::optional<string> stealthPublicKey;
 
     shared_ptr<MoneroOutput> copy(const shared_ptr<MoneroOutput>& src, const shared_ptr<MoneroOutput>& tgt) const;

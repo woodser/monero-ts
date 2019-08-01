@@ -450,7 +450,7 @@ string MoneroUtils::serialize(const boost::property_tree::ptree& node) {
   return str.substr(0, str.size() - 1); // strip newline
 }
 
-boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<string> strs) {
+boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<string>& strs) {
   boost::property_tree::ptree strsNode;
   for (const auto& str : strs)  {
     boost::property_tree::ptree strNode;
@@ -460,7 +460,28 @@ boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<string> str
   return strsNode;
 }
 
-boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<uint32_t> nums) {
+boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<uint8_t>& nums) {
+  boost::property_tree::ptree numsNode;
+  for (const auto& num : nums)  {
+    boost::property_tree::ptree numNode;
+    numNode.put("", num);
+    numsNode.push_back(std::make_pair("", numNode));
+  }
+  return numsNode;
+}
+
+// TODO: remove these redundant implementations for different sizes?
+boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<uint32_t>& nums) {
+  boost::property_tree::ptree numsNode;
+  for (const auto& num : nums)  {
+    boost::property_tree::ptree numNode;
+    numNode.put("", num);
+    numsNode.push_back(std::make_pair("", numNode));
+  }
+  return numsNode;
+}
+
+boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<uint64_t>& nums) {
   boost::property_tree::ptree numsNode;
   for (const auto& num : nums)  {
     boost::property_tree::ptree numNode;
@@ -488,17 +509,41 @@ shared_ptr<MoneroBlock> MoneroUtils::cnBlockToBlock(const cryptonote::block& cnB
 
 shared_ptr<MoneroTx> MoneroUtils::cnTxToTx(const cryptonote::transaction& cnTx, bool initAsTxWallet) {
   shared_ptr<MoneroTx> tx = initAsTxWallet ? make_shared<MoneroTxWallet>() : make_shared<MoneroTx>();
-  //tx->version = cnTx.version;
+  tx->version = cnTx.version;
   tx->unlockTime = cnTx.unlock_time;
   tx->id = epee::string_tools::pod_to_hex(cnTx.hash);
+  tx->extra = cnTx.extra;
+
+  // init vins
+  for (const txin_v& cnVin : cnTx.vin) {
+    if (cnVin.which() != 0 && cnVin.which() != 3) throw runtime_error("Unsupported variant type");
+    if (tx->isCoinbase == boost::none) tx->isCoinbase = cnVin.which() == 0;
+    if (cnVin.which() != 3) continue; // only process txin_to_key of variant  TODO: support other types, like 0 "gen" which is miner tx?
+    shared_ptr<MoneroOutput> vin = initAsTxWallet ? make_shared<MoneroOutputWallet>() : make_shared<MoneroOutput>();
+    vin->tx = tx;
+    tx->vins.push_back(vin);
+    const txin_to_key& txin = boost::get<txin_to_key>(cnVin);
+    vin->amount = txin.amount;
+    vin->ringOutputIndices = txin.key_offsets;
+    crypto::key_image cnKeyImage = txin.k_image;
+    vin->keyImage = make_shared<MoneroKeyImage>();
+    vin->keyImage.get()->hex = epee::string_tools::pod_to_hex(cnKeyImage);
+  }
+
+  // init vouts
+  for (const tx_out& cnVout : cnTx.vout) {
+    shared_ptr<MoneroOutput> vout = initAsTxWallet ? make_shared<MoneroOutputWallet>() : make_shared<MoneroOutput>();
+    vout->tx = tx;
+    tx->vouts.push_back(vout);
+    vout->amount = cnVout.amount;
+    const crypto::public_key& cnStealthPublicKey = boost::get<txout_to_key>(cnVout.target).key;
+    vout->stealthPublicKey = epee::string_tools::pod_to_hex(cnStealthPublicKey);
+  }
+
   return tx;
 
-  // TODO: finish this
-//  std::vector<txin_v> vin;
-//  std::vector<tx_out> vout;
-//  std::vector<uint8_t> extra;
+  // TODO: finish this, cryptonote::transaction has:
 //  std::vector<std::vector<crypto::signature> > signatures;
 //  rct::rctSig rct_signatures;
 //  mutable size_t blob_size;
-//  throw runtime_error("cnTransactionToTx not implemented");
 }

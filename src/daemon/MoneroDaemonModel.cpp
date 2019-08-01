@@ -255,12 +255,12 @@ namespace monero {
     if (prunableHash != boost::none) node.put("prunableHash", *prunableHash);
     if (size != boost::none) node.put("size", *size);
     if (weight != boost::none) node.put("weight", *weight);
-    if (!vins.empty()) node.add_child("vouts", MoneroUtils::toPropertyTree(vouts));
+    if (!vins.empty()) node.add_child("vins", MoneroUtils::toPropertyTree(vins));
     if (!vouts.empty()) node.add_child("vouts", MoneroUtils::toPropertyTree(vouts));
     if (!outputIndices.empty()) throw runtime_error("outputIndices not implemented");
     if (metadata != boost::none) node.put("metadata", *metadata);
     if (commonTxSets != boost::none) throw runtime_error("commonTxSets not implemented");
-    if (!extra.empty()) throw runtime_error("extra not implemented");
+    if (!extra.empty()) node.add_child("extra", MoneroUtils::toPropertyTree(extra));
     if (rctSignatures != boost::none) throw runtime_error("rctSignatures not implemented");
     if (rctSigPrunable != boost::none) throw runtime_error("rctSigPrunable not implemented");
     if (isKeptByBlock != boost::none) node.put("isKeptByBlock", *isKeptByBlock);
@@ -435,7 +435,7 @@ namespace monero {
     if (src->keyImage != boost::none) tgt->keyImage = src->keyImage.get()->copy(src->keyImage.get(), make_shared<MoneroKeyImage>());
     tgt->amount = src->amount;
     tgt->index = src->index;
-    if (!src->ringOutputIndices.empty()) tgt->ringOutputIndices = vector<uint32_t>(src->ringOutputIndices);
+    if (!src->ringOutputIndices.empty()) tgt->ringOutputIndices = vector<uint64_t>(src->ringOutputIndices);
     tgt->stealthPublicKey = src->stealthPublicKey;
     return tgt;
   }
@@ -445,7 +445,7 @@ namespace monero {
     if (keyImage != boost::none) node.add_child("keyImage", (*keyImage)->toPropertyTree());
     if (amount != boost::none) node.put("amount", *amount);
     if (index != boost::none) node.put("index", *index);
-    if (!ringOutputIndices.empty()) throw runtime_error("MoneroOutput::toPropertyTree() ringOutputIndices not implemented");
+    if (!ringOutputIndices.empty()) node.add_child("ringOutputIndices", MoneroUtils::toPropertyTree(ringOutputIndices));
     if (stealthPublicKey != boost::none) node.put("stealthPublicKey", *stealthPublicKey);
     return node;
   }

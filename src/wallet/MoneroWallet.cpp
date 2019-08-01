@@ -716,7 +716,6 @@ namespace monero {
       if (listener == boost::none) return;
 
       // create native library tx
-      // TODO **: fill this out
       shared_ptr<MoneroBlock> block = make_shared<MoneroBlock>();
       block->height = height;
       shared_ptr<MoneroTxWallet> tx = static_pointer_cast<MoneroTxWallet>(MoneroUtils::cnTxToTx(cnTx, true));

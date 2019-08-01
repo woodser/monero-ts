@@ -116,10 +116,10 @@ namespace MoneroUtils
     return ss.str();
   }
 
-  // ------------------------- VALUE RECONCILATION- ---------------------------
+  // ----------------------------- PROPERTY TREE ------------------------------
 
   // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-  template <class T> boost::property_tree::ptree toPropertyTree(const vector<shared_ptr<T>> types) {
+  template <class T> boost::property_tree::ptree toPropertyTree(const vector<shared_ptr<T>>& types) {
     boost::property_tree::ptree typeNodes;
     for (const auto& type : types)  {
       typeNodes.push_back(std::make_pair("", type->toPropertyTree()));
@@ -128,7 +128,7 @@ namespace MoneroUtils
   }
 
   // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-  template <class T> boost::property_tree::ptree toPropertyTree(const vector<T> types) {
+  template <class T> boost::property_tree::ptree toPropertyTree(const vector<T>& types) {
     boost::property_tree::ptree typeNodes;
     for (const auto& type : types)  {
       typeNodes.push_back(std::make_pair("", type.toPropertyTree()));
@@ -136,9 +136,12 @@ namespace MoneroUtils
     return typeNodes;
   }
 
-  boost::property_tree::ptree toPropertyTree(const vector<string> strs);
-  boost::property_tree::ptree toPropertyTree(const vector<uint32_t> nums);
+  boost::property_tree::ptree toPropertyTree(const vector<string>& strs);
+  boost::property_tree::ptree toPropertyTree(const vector<uint8_t>& nums);
+  boost::property_tree::ptree toPropertyTree(const vector<uint32_t>& nums);
+  boost::property_tree::ptree toPropertyTree(const vector<uint64_t>& nums);
 
+  // ------------------------- VALUE RECONCILATION- ---------------------------
 
   // TODO: refactor common template code
   template <class T, typename std::enable_if<std::is_same<T, string>::value, T>::type* = nullptr>
