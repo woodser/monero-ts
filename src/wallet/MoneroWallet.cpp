@@ -734,14 +734,14 @@ namespace monero {
       listener->onIncomingTransfer(*transfer);
     }
 
-    virtual void on_money_spent(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& in_tx, uint64_t amount, const cryptonote::transaction& spend_tx, const cryptonote::subaddress_index& subaddr_index) {
+    virtual void on_money_spent(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cnTxIn, uint64_t amount, const cryptonote::transaction& cnTxOut, const cryptonote::subaddress_index& subaddr_index) {
       MTRACE("Wallet2Listener::on_money_spent()");
+      if (&cnTxIn != &cnTxOut) throw runtime_error("on_money_spent() in tx is different than out tx");
 
       // create native library tx
-      // TODO **: fill this out
       shared_ptr<MoneroBlock> block = make_shared<MoneroBlock>();
       block->height = height;
-      shared_ptr<MoneroTxWallet> tx = make_shared<MoneroTxWallet>();
+      shared_ptr<MoneroTxWallet> tx = static_pointer_cast<MoneroTxWallet>(MoneroUtils::cnTxToTx(cnTxIn, true));
       block->txs.push_back(tx);
       tx->block = block;
       tx->id = epee::string_tools::pod_to_hex(txid);
@@ -749,6 +749,8 @@ namespace monero {
       tx->outgoingTransfer = transfer;
       transfer->tx = tx;
       transfer->amount = amount;
+      transfer->accountIndex = subaddr_index.major;
+      transfer->subaddressIndices.push_back(subaddr_index.minor);
 
       // notify listener of transfer
       listener->onOutgoingTransfer(*transfer);
