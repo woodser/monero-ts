@@ -719,14 +719,17 @@ namespace monero {
       // TODO **: fill this out
       shared_ptr<MoneroBlock> block = make_shared<MoneroBlock>();
       block->height = height;
-      shared_ptr<MoneroTxWallet> tx = make_shared<MoneroTxWallet>();
+      shared_ptr<MoneroTxWallet> tx = static_pointer_cast<MoneroTxWallet>(MoneroUtils::cnTxToTx(cnTx, true));
       block->txs.push_back(tx);
       tx->block = block;
       tx->id = epee::string_tools::pod_to_hex(txid);
+      tx->unlockTime = unlock_time;
       shared_ptr<MoneroIncomingTransfer> transfer = make_shared<MoneroIncomingTransfer>();
       tx->incomingTransfers.push_back(transfer);
       transfer->tx = tx;
       transfer->amount = amount;
+      transfer->accountIndex = subaddr_index.major;
+      transfer->subaddressIndex = subaddr_index.minor;
 
       // notify listener of transfer
       listener->onIncomingTransfer(*transfer);

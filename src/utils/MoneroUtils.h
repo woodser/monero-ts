@@ -92,13 +92,15 @@ namespace MoneroUtils
    */
   shared_ptr<MoneroBlock> cnBlockToBlock(const cryptonote::block& cnBlock);
 
+
   /**
-   * Convert a Monero Core cryptonote::transaction to a transaction in this library's native model.
+   * Convert a Monero Core crpytonote::transaction to a transaction in this library's
+   * native model.
    *
-   * @param cnTransaction is the Core transaction to convert
-   * @return a transaction in this library's native model
+   * @param cnTx is the Core transaction to convert
+   * @param initAsTxWallet specifies if a MoneroTx xor MoneroTxWallet should be initialized
    */
-  shared_ptr<MoneroTx> cnTransactionToTx(const cryptonote::transaction& cnTransaction);
+  shared_ptr<MoneroTx> cnTxToTx(const cryptonote::transaction& cnTx, bool initAsTxWallet = false);
 
   /**
    * Modified from core_rpc_server.cpp to return a string.
