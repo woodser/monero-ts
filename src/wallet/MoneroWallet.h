@@ -129,18 +129,18 @@ namespace monero {
     virtual void onNewBlock(uint64_t height) {};
 
     /**
-     * Invoked when the wallet receives an incoming transfer.
+     * Invoked when the wallet receives an output.
      *
-     * @param transfer is the incoming transfer to the wallet
+     * @param output is the incoming output to the wallet
      */
-    virtual void onIncomingTransfer(const MoneroIncomingTransfer& transfer) {};
+    virtual void onOutputReceived(const MoneroOutputWallet& output) {};
 
     /**
-     * Invoked when the wallet sends an outgoing transfer.
+     * Invoked when the wallet spends an output.
      *
-     * @param transfer is the outgoing transfer from the wallet
+     * @param output the outgoing transfer from the wallet
      */
-    virtual void onOutgoingTransfer(const MoneroOutgoingTransfer& transfer) {};
+    virtual void onOutputSpent(const MoneroOutputWallet& output) {};
   };
 
   // forward declaration of internal wallet2 listener

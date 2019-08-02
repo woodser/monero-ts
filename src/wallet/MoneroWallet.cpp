@@ -723,15 +723,15 @@ namespace monero {
       tx->block = block;
       tx->id = epee::string_tools::pod_to_hex(txid);
       tx->unlockTime = unlock_time;
-      shared_ptr<MoneroIncomingTransfer> transfer = make_shared<MoneroIncomingTransfer>();
-      tx->incomingTransfers.push_back(transfer);
-      transfer->tx = tx;
-      transfer->amount = amount;
-      transfer->accountIndex = subaddr_index.major;
-      transfer->subaddressIndex = subaddr_index.minor;
+      shared_ptr<MoneroOutputWallet> output = make_shared<MoneroOutputWallet>();
+      tx->vouts.push_back(output);
+      output->tx = tx;
+      output->amount = amount;
+      output->accountIndex = subaddr_index.major;
+      output->subaddressIndex = subaddr_index.minor;
 
-      // notify listener of transfer
-      listener->onIncomingTransfer(*transfer);
+      // notify listener of output
+      listener->onOutputReceived(*output);
     }
 
     virtual void on_money_spent(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cnTxIn, uint64_t amount, const cryptonote::transaction& cnTxOut, const cryptonote::subaddress_index& subaddr_index) {
@@ -745,15 +745,15 @@ namespace monero {
       block->txs.push_back(tx);
       tx->block = block;
       tx->id = epee::string_tools::pod_to_hex(txid);
-      shared_ptr<MoneroOutgoingTransfer> transfer = make_shared<MoneroOutgoingTransfer>();
-      tx->outgoingTransfer = transfer;
-      transfer->tx = tx;
-      transfer->amount = amount;
-      transfer->accountIndex = subaddr_index.major;
-      transfer->subaddressIndices.push_back(subaddr_index.minor);
+      shared_ptr<MoneroOutputWallet> output = make_shared<MoneroOutputWallet>();
+      tx->vins.push_back(output);
+      output->tx = tx;
+      output->amount = amount;
+      output->accountIndex = subaddr_index.major;
+      output->subaddressIndex = subaddr_index.minor;
 
-      // notify listener of transfer
-      listener->onOutgoingTransfer(*transfer);
+      // notify listener of output
+      listener->onOutputSpent(*output);
 
       // TODO **: to notify or not to notify?
 //        std::string tx_hash = epee::string_tools::pod_to_hex(txid);
