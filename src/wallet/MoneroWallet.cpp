@@ -818,12 +818,12 @@ namespace monero {
     return wallet;
   }
 
-  MoneroWallet* MoneroWallet::createWalletFromMnemonic(const string& path, const string& password, const string& mnemonic, const MoneroNetworkType networkType) {
-    MTRACE("createWalletFromMnemonic(path, password, mnemonic, networkType)");
+  MoneroWallet* MoneroWallet::createWalletFromMnemonic(const string& path, const string& password, const MoneroNetworkType networkType, const string& mnemonic) {
+    MTRACE("createWalletFromMnemonic(path, password, networkType, mnemonic)");
     throw runtime_error("Not implemented");
   }
 
-  MoneroWallet* MoneroWallet::createWalletFromMnemonic(const string& path, const string& password, const string& mnemonic, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight) {
+  MoneroWallet* MoneroWallet::createWalletFromMnemonic(const string& path, const string& password, const MoneroNetworkType networkType, const string& mnemonic, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight) {
     MTRACE("createWalletFromMnemonic(path, password, mnemonic, networkType, daemonConnection, restoreHeight)");
     MoneroWallet* wallet = new MoneroWallet();
 
@@ -844,17 +844,17 @@ namespace monero {
     return wallet;
   }
 
-  MoneroWallet* MoneroWallet::createWalletFromKeys(const string& path, const string& password, const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType) {
+  MoneroWallet* MoneroWallet::createWalletFromKeys(const string& path, const string& password, const MoneroNetworkType networkType, const string& address, const string& viewKey, const string& spendKey) {
     MTRACE("createWalletFromKeys(path, password, address, viewKey, spendKey, networkType)");
     throw runtime_error("Not implemented");
   }
 
-  MoneroWallet* MoneroWallet::createWalletFromKeys(const string& path, const string& password, const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight) {
+  MoneroWallet* MoneroWallet::createWalletFromKeys(const string& path, const string& password, const MoneroNetworkType networkType, const string& address, const string& viewKey, const string& spendKey, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight) {
     MTRACE("createWalletFromKeys(path, password, address, viewKey, spendKey, networkType, daemonConnection, restoreHeight)");
     throw runtime_error("Not implemented");
   }
 
-  MoneroWallet* MoneroWallet::createWalletFromKeys(const string& path, const string& password, const string& address, const string& viewKey, const string& spendKey, const MoneroNetworkType networkType, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight, const string& language) {
+  MoneroWallet* MoneroWallet::createWalletFromKeys(const string& path, const string& password, const MoneroNetworkType networkType, const string& address, const string& viewKey, const string& spendKey, const MoneroRpcConnection& daemonConnection, uint64_t restoreHeight, const string& language) {
     MTRACE("createWalletFromKeys(path, password, address, viewKey, spendKey, networkType, daemonConnection, restoreHeight, language)");
     MoneroWallet* wallet = new MoneroWallet();
 
