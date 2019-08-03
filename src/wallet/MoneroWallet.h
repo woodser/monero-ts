@@ -397,14 +397,14 @@ namespace monero {
     void setListener(boost::optional<MoneroWalletListener&> listener);
 
     /**
-     * Synchronizes the wallet with the blockchain.
+     * Synchronize the wallet with the daemon as a one-time synchronous process.
      *
      * @return the sync result
      */
     MoneroSyncResult sync();
 
     /**
-     * Synchronizes the wallet with the blockchain.
+     * Synchronize the wallet with the daemon as a one-time synchronous process.
      *
      * @param listener is invoked as sync progress is made
      * @return the sync result
@@ -412,9 +412,9 @@ namespace monero {
     MoneroSyncResult sync(MoneroSyncListener& listener);
 
     /**
-     * Synchronizes the wallet with the blockchain.
+     * Synchronize the wallet with the daemon as a one-time synchronous process.
      *
-     * @param startHeight is the start height to sync from, syncs from the last synced block by default
+     * @param startHeight is the start height to sync from (ignored if less than last processed block)
      * @return the sync result
      */
     MoneroSyncResult sync(uint64_t startHeight);
@@ -422,19 +422,19 @@ namespace monero {
     /**
      * Synchronizes the wallet with the blockchain.
      *
-     * @param startHeight is the start height to sync from, syncs from the last synced block by default
+     * @param startHeight is the start height to sync from (ignored if less than last processed block)
      * @param listener is invoked as sync progress is made
      * @return the sync result
      */
     MoneroSyncResult sync(uint64_t startHeight, MoneroSyncListener& listener);
 
     /**
-     * Start automatic syncing as its own thread.
+     * Start an asynchronous thread to continuously synchronize the wallet with the daemon.
      */
     void startSyncing();
 
     /**
-     * Stop automatic syncing as its own thread.
+     * Stop the asynchronous thread to continuously synchronize the wallet with the daemon.
      */
     void stopSyncing();
 
