@@ -97,9 +97,9 @@ namespace monero {
    * TODO: switch to boost::optional<string>
    */
   struct monero_rpc_connection {
-    string m_uri;
-    boost::optional<string> m_username;
-    boost::optional<string> m_password;
+    string uri;
+    boost::optional<string> username;
+    boost::optional<string> password;
     monero_rpc_connection(const string& uri = "", const boost::optional<string>& username = boost::none, const boost::optional<string>& password = boost::none) : uri(uri), username(username), password(password) {}
   };
 
@@ -113,11 +113,11 @@ namespace monero {
    * TODO: a header that is transmitted may have fewer fields like cryptonote::block_header; separate?
    */
   struct monero_block_header : public serializable_struct {
-    boost::optional<string> m_id;
-    boost::optional<uint64_t> m_height;
-    boost::optional<uint64_t> m_timestamp;
-    boost::optional<uint64_t> m_size;
-    boost::optional<uint64_t> m_weight;
+    boost::optional<string> id;
+    boost::optional<uint64_t> height;
+    boost::optional<uint64_t> timestamp;
+    boost::optional<uint64_t> size;
+    boost::optional<uint64_t> weight;
     boost::optional<uint64_t> long_term_weight;
     boost::optional<uint64_t> depth;
     boost::optional<uint64_t> difficulty;

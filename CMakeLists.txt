@@ -228,11 +228,11 @@ set_target_properties(version PROPERTIES IMPORTED_LOCATION
 
 set(
     LIBRARY_SRC_FILES
-    src/utils/MoneroUtils.cpp
-    src/daemon/MoneroDaemonModel.cpp
-    src/daemon/MoneroDaemon.cpp
-    src/wallet/MoneroWalletModel.cpp
-    src/wallet/MoneroWallet.cpp
+    src/utils/monero_utils.cpp
+    src/daemon/monero_daemon_model.cpp
+    src/daemon/monero_daemon.cpp
+    src/wallet/monero_wallet_model.cpp
+    src/wallet/monero_wallet.cpp
 )
 
 add_library(monero-cpp SHARED ${LIBRARY_SRC_FILES})
@@ -289,7 +289,7 @@ target_link_libraries(monero-cpp
 
 set(
     SCRATCHPAD_SRC_FILES
-    test/Scratchpad.cpp
+    test/scratchpad.cpp
 )
 
 add_executable(scratchpad ${SCRATCHPAD_SRC_FILES} ${LIBRARY_SRC_FILES})
