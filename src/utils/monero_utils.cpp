@@ -61,139 +61,139 @@ using namespace monero_utils;
 
 // ------------------------------- INNER HELPERS ------------------------------
 
-void nodeToTransfer(const boost::property_tree::ptree& node, shared_ptr<monero_transfer> transfer) {
+void node_to_transfer(const boost::property_tree::ptree& node, shared_ptr<monero_transfer> transfer) {
 
   // initialize transfer from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("accountIndex")) transfer->accountIndex = it->second.get_value<uint32_t>();
+    if (key == string("account_index")) transfer->account_index = it->second.get_value<uint32_t>();
   }
 }
 
-shared_ptr<monero_transfer_request> nodeToTransferRequest(const boost::property_tree::ptree& node) {
-  shared_ptr<monero_transfer_request> transferRequest = make_shared<monero_transfer_request>();
-  nodeToTransfer(node, transferRequest);
+shared_ptr<monero_transfer_request> node_to_transfer_request(const boost::property_tree::ptree& node) {
+  shared_ptr<monero_transfer_request> transfer_request = make_shared<monero_transfer_request>();
+  node_to_transfer(node, transfer_request);
 
   // initialize request from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("isIncoming")) transferRequest->isIncoming = it->second.get_value<bool>();
-    else if (key == string("address")) transferRequest->address = it->second.data();
+    if (key == string("is_incoming")) transfer_request->is_incoming = it->second.get_value<bool>();
+    else if (key == string("address")) transfer_request->address = it->second.data();
     else if (key == string("addresses")) throw runtime_error("addresses not implemented");
-    else if (key == string("subaddressIndex")) transferRequest->subaddressIndex = it->second.get_value<uint32_t>();
-    else if (key == string("subaddressIndices")) {
-      vector<uint32_t> subaddressIndices;
-      for (const auto& child : it->second) subaddressIndices.push_back(child.second.get_value<uint32_t>());
-      transferRequest->subaddressIndices = subaddressIndices;
+    else if (key == string("subaddress_index")) transfer_request->subaddress_index = it->second.get_value<uint32_t>();
+    else if (key == string("subaddress_indices")) {
+      vector<uint32_t> subaddress_indices;
+      for (const auto& child : it->second) subaddress_indices.push_back(child.second.get_value<uint32_t>());
+      transfer_request->subaddress_indices = subaddress_indices;
     }
     else if (key == string("destinations")) throw runtime_error("destinations not implemented");
-    else if (key == string("hasDestinations")) transferRequest->hasDestinations = it->second.get_value<bool>();
-    else if (key == string("txRequest")) throw runtime_error("txRequest not implemented");
+    else if (key == string("has_destinations")) transfer_request->has_destinations = it->second.get_value<bool>();
+    else if (key == string("tx_request")) throw runtime_error("tx_request not implemented");
   }
 
-  return transferRequest;
+  return transfer_request;
 }
 
-shared_ptr<monero_key_image> nodeToKeyImage(const boost::property_tree::ptree& node) {
+shared_ptr<monero_key_image> node_to_key_image(const boost::property_tree::ptree& node) {
 
   // initialize key image from node
-  shared_ptr<monero_key_image> keyImage = make_shared<monero_key_image>();
+  shared_ptr<monero_key_image> key_image = make_shared<monero_key_image>();
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("hex")) keyImage->hex = it->second.data();
-    else if (key == string("signature")) keyImage->signature = it->second.data();
+    if (key == string("hex")) key_image->hex = it->second.data();
+    else if (key == string("signature")) key_image->signature = it->second.data();
   }
 
-  return keyImage;
+  return key_image;
 }
 
-void nodeToOutput(const boost::property_tree::ptree& node, shared_ptr<monero_output> output) {
+void node_to_output(const boost::property_tree::ptree& node, shared_ptr<monero_output> output) {
 
   // initialize output from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("keyImage")) output->keyImage = nodeToKeyImage(it->second);
+    if (key == string("key_image")) output->key_image = node_to_key_image(it->second);
     else if (key == string("amount")) output->amount = it->second.get_value<uint64_t>();
     else if (key == string("index")) output->index = it->second.get_value<uint32_t>();
-    else if (key == string("ringOutputIndices")) throw runtime_error("nodeToTx() deserialize ringOutputIndices not implemented");
-    else if (key == string("stealthPublicKey")) throw runtime_error("nodeToTx() deserialize stealthPublicKey not implemented");
+    else if (key == string("ring_output_indices")) throw runtime_error("node_to_tx() deserialize ring_output_indices not implemented");
+    else if (key == string("stealth_public_key")) throw runtime_error("node_to_tx() deserialize stealth_public_key not implemented");
   }
 }
 
-void nodeToOutputWallet(const boost::property_tree::ptree& node, shared_ptr<monero_output_wallet> outputWallet) {
-  nodeToOutput(node, outputWallet);
+void node_to_output_wallet(const boost::property_tree::ptree& node, shared_ptr<monero_output_wallet> output_wallet) {
+  node_to_output(node, output_wallet);
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("accountIndex")) outputWallet->accountIndex = it->second.get_value<uint32_t>();
-    else if (key == string("subaddressIndex")) outputWallet->subaddressIndex = it->second.get_value<uint32_t>();
-    else if (key == string("isSpent")) outputWallet->isSpent = it->second.get_value<bool>();
-    else if (key == string("isUnlocked")) outputWallet->isUnlocked = it->second.get_value<bool>();
-    else if (key == string("isFrozen")) outputWallet->isFrozen = it->second.get_value<bool>();
+    if (key == string("account_index")) output_wallet->account_index = it->second.get_value<uint32_t>();
+    else if (key == string("subaddress_index")) output_wallet->subaddress_index = it->second.get_value<uint32_t>();
+    else if (key == string("is_spent")) output_wallet->is_spent = it->second.get_value<bool>();
+    else if (key == string("is_unlocked")) output_wallet->is_unlocked = it->second.get_value<bool>();
+    else if (key == string("is_frozen")) output_wallet->is_frozen = it->second.get_value<bool>();
   }
 }
 
-shared_ptr<monero_output_request> nodeToOutputRequest(const boost::property_tree::ptree& node) {
-  shared_ptr<monero_output_request> outputRequest = make_shared<monero_output_request>();
-  nodeToOutputWallet(node, outputRequest);
+shared_ptr<monero_output_request> node_to_output_request(const boost::property_tree::ptree& node) {
+  shared_ptr<monero_output_request> output_request = make_shared<monero_output_request>();
+  node_to_output_wallet(node, output_request);
 
   // initialize request from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) outputRequest->subaddressIndices.push_back(it2->second.get_value<uint32_t>());
-    else if (key == string("txRequest")) {} // ignored
+    if (key == string("subaddress_indices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) output_request->subaddress_indices.push_back(it2->second.get_value<uint32_t>());
+    else if (key == string("tx_request")) {} // ignored
   }
 
-  return outputRequest;
+  return output_request;
 }
 
-void nodeToTx(const boost::property_tree::ptree& node, shared_ptr<monero_tx> tx) {
+void node_to_tx(const boost::property_tree::ptree& node, shared_ptr<monero_tx> tx) {
 
   // initialize tx from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
     if (key == string("id")) tx->id = it->second.data();
     else if (key == string("version")) throw runtime_error("version deserializationn not implemented");
-    else if (key == string("isMinerTx")) tx->isMinerTx = it->second.get_value<bool>();
-    else if (key == string("paymentId")) throw runtime_error("paymentId deserializationn not implemented");
+    else if (key == string("is_miner_tx")) tx->is_miner_tx = it->second.get_value<bool>();
+    else if (key == string("payment_id")) throw runtime_error("payment_id deserializationn not implemented");
     else if (key == string("fee")) throw runtime_error("fee deserialization not implemented");
     else if (key == string("mixin")) throw runtime_error("mixin deserialization not implemented");
-    else if (key == string("doNotRelay")) tx->doNotRelay = it->second.get_value<bool>();
-    else if (key == string("isRelayed")) tx->isRelayed = it->second.get_value<bool>();
-    else if (key == string("isConfirmed")) tx->isConfirmed = it->second.get_value<bool>();
-    else if (key == string("inTxPool")) tx->inTxPool = it->second.get_value<bool>();
-    else if (key == string("numConfirmations")) throw runtime_error("numConfirmations deserialization not implemented");
-    else if (key == string("unlockTime")) throw runtime_error("unlockTime deserialization not implemented");
-    else if (key == string("lastRelayedTimestamp")) throw runtime_error("lastRelayedTimestamp deserialization not implemented");
-    else if (key == string("receivedTimestamp")) throw runtime_error("receivedTimestamp deserializationn not implemented");
-    else if (key == string("isDoubleSpendSeen")) tx->isDoubleSpendSeen = it->second.get_value<bool>();
+    else if (key == string("do_not_relay")) tx->do_not_relay = it->second.get_value<bool>();
+    else if (key == string("is_relayed")) tx->is_relayed = it->second.get_value<bool>();
+    else if (key == string("is_confirmed")) tx->is_confirmed = it->second.get_value<bool>();
+    else if (key == string("in_tx_pool")) tx->in_tx_pool = it->second.get_value<bool>();
+    else if (key == string("num_confirmations")) throw runtime_error("num_confirmations deserialization not implemented");
+    else if (key == string("unlock_time")) throw runtime_error("unlock_time deserialization not implemented");
+    else if (key == string("last_relayed_timestamp")) throw runtime_error("last_relayed_timestamp deserialization not implemented");
+    else if (key == string("received_timestamp")) throw runtime_error("received_timestamp deserializationn not implemented");
+    else if (key == string("is_double_spend_seen")) tx->is_double_spend_seen = it->second.get_value<bool>();
     else if (key == string("key")) tx->key = it->second.data();
-    else if (key == string("fullHex")) tx->fullHex = it->second.data();
-    else if (key == string("prunedHex")) tx->prunedHex = it->second.data();
-    else if (key == string("prunableHex")) tx->prunableHex = it->second.data();
-    else if (key == string("prunableHash")) tx->prunableHash = it->second.data();
+    else if (key == string("full_hex")) tx->full_hex = it->second.data();
+    else if (key == string("pruned_hex")) tx->pruned_hex = it->second.data();
+    else if (key == string("prunable_hex")) tx->prunable_hex = it->second.data();
+    else if (key == string("prunable_hash")) tx->prunable_hash = it->second.data();
     else if (key == string("size")) throw runtime_error("size deserialization not implemented");
     else if (key == string("weight")) throw runtime_error("weight deserialization not implemented");
     else if (key == string("vins")) throw runtime_error("vins deserializationn not implemented");
     else if (key == string("vouts")) throw runtime_error("vouts deserializationn not implemented");
-    else if (key == string("outputIndices")) throw runtime_error("outputIndices deserialization not implemented");
+    else if (key == string("m_output_indices")) throw runtime_error("m_output_indices deserialization not implemented");
     else if (key == string("metadata")) throw runtime_error("metadata deserialization not implemented");
-    else if (key == string("commonTxSets")) throw runtime_error("commonTxSets deserialization not implemented");
+    else if (key == string("common_tx_sets")) throw runtime_error("common_tx_sets deserialization not implemented");
     else if (key == string("extra")) throw runtime_error("extra deserialization not implemented");
-    else if (key == string("rctSignatures")) throw runtime_error("rctSignatures deserialization not implemented");
-    else if (key == string("rctSigPrunable")) throw runtime_error("rctSigPrunable deserialization not implemented");
-    else if (key == string("isKeptByBlock")) tx->isKeptByBlock = it->second.get_value<bool>();
-    else if (key == string("isFailed")) tx->isFailed = it->second.get_value<bool>();
-    else if (key == string("lastFailedHeight")) throw runtime_error("lastFailedHeight deserialization not implemented");
-    else if (key == string("lastFailedId")) tx->lastFailedId = it->second.data();
-    else if (key == string("maxUsedBlockHeight")) throw runtime_error("maxUsedBlockHeight deserialization not implemented");
-    else if (key == string("maxUsedBlockId")) tx->maxUsedBlockId = it->second.data();
+    else if (key == string("rct_signatures")) throw runtime_error("rct_signatures deserialization not implemented");
+    else if (key == string("rct_sig_prunable")) throw runtime_error("rct_sig_prunable deserialization not implemented");
+    else if (key == string("is_kept_by_block")) tx->is_kept_by_block = it->second.get_value<bool>();
+    else if (key == string("is_failed")) tx->is_failed = it->second.get_value<bool>();
+    else if (key == string("last_failed_height")) throw runtime_error("last_failed_height deserialization not implemented");
+    else if (key == string("last_failed_id")) tx->last_failed_id = it->second.data();
+    else if (key == string("max_used_block_height")) throw runtime_error("max_used_block_height deserialization not implemented");
+    else if (key == string("max_used_block_id")) tx->max_used_block_id = it->second.data();
     else if (key == string("signatures")) throw runtime_error("signatures deserialization not implemented");
   }
 }
 
 // TODO: fill this out
-void nodeToTxWallet(const boost::property_tree::ptree& node, shared_ptr<monero_tx_wallet> txWallet) {
-  nodeToTx(node, txWallet);
+void node_to_tx_wallet(const boost::property_tree::ptree& node, shared_ptr<monero_tx_wallet> tx_wallet) {
+  node_to_tx(node, tx_wallet);
 
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
@@ -202,29 +202,29 @@ void nodeToTxWallet(const boost::property_tree::ptree& node, shared_ptr<monero_t
 }
 
 shared_ptr<monero_tx_request> nodeToTxRequest(const boost::property_tree::ptree& node) {
-  shared_ptr<monero_tx_request> txRequest = make_shared<monero_tx_request>();
-  nodeToTxWallet(node, txRequest);
+  shared_ptr<monero_tx_request> tx_request = make_shared<monero_tx_request>();
+  node_to_tx_wallet(node, tx_request);
 
   // initialize request from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("isOutgoing")) txRequest->isOutgoing = it->second.get_value<bool>();
-    else if (key == string("isIncoming")) txRequest->isIncoming = it->second.get_value<bool>();
-    else if (key == string("txIds")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) txRequest->txIds.push_back(it2->second.data());
-    else if (key == string("hasPaymentId")) txRequest->hasPaymentId = it->second.get_value<bool>();
-    else if (key == string("paymentIds")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) txRequest->paymentIds.push_back(it2->second.data());
-    else if (key == string("height")) txRequest->height = it->second.get_value<uint64_t>();
-    else if (key == string("minHeight")) txRequest->minHeight = it->second.get_value<uint64_t>();
-    else if (key == string("maxHeight")) txRequest->maxHeight = it->second.get_value<uint64_t>();
-    else if (key == string("includeOutputs")) txRequest->includeOutputs = it->second.get_value<bool>();
-    else if (key == string("transferRequest")) txRequest->transferRequest = nodeToTransferRequest(it->second);
-    else if (key == string("outputRequest")) txRequest->outputRequest = nodeToOutputRequest(it->second);
+    if (key == string("is_outgoing")) tx_request->is_outgoing = it->second.get_value<bool>();
+    else if (key == string("is_incoming")) tx_request->is_incoming = it->second.get_value<bool>();
+    else if (key == string("tx_ids")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) tx_request->tx_ids.push_back(it2->second.data());
+    else if (key == string("has_payment_id")) tx_request->has_payment_id = it->second.get_value<bool>();
+    else if (key == string("payment_ids")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) tx_request->payment_ids.push_back(it2->second.data());
+    else if (key == string("height")) tx_request->height = it->second.get_value<uint64_t>();
+    else if (key == string("min_height")) tx_request->min_height = it->second.get_value<uint64_t>();
+    else if (key == string("max_height")) tx_request->max_height = it->second.get_value<uint64_t>();
+    else if (key == string("include_outputs")) tx_request->include_outputs = it->second.get_value<bool>();
+    else if (key == string("transfer_request")) tx_request->transfer_request = node_to_transfer_request(it->second);
+    else if (key == string("output_request")) tx_request->output_request = node_to_output_request(it->second);
   }
 
-  return txRequest;
+  return tx_request;
 }
 
-shared_ptr<monero_block> nodeToBlockRequest(const boost::property_tree::ptree& node) {
+shared_ptr<monero_block> node_to_block_request(const boost::property_tree::ptree& node) {
   shared_ptr<monero_block> block = make_shared<monero_block>();
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
@@ -238,7 +238,7 @@ shared_ptr<monero_block> nodeToBlockRequest(const boost::property_tree::ptree& n
   return block;
 }
 
-shared_ptr<monero_destination> nodeToDestination(const boost::property_tree::ptree& node) {
+shared_ptr<monero_destination> node_to_destination(const boost::property_tree::ptree& node) {
   shared_ptr<monero_destination> destination = make_shared<monero_destination>();
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
@@ -250,19 +250,19 @@ shared_ptr<monero_destination> nodeToDestination(const boost::property_tree::ptr
 
 // ------------------------- PUBLIC STATIC UTILITIES --------------------------
 
-void monero_utils::jsonToBinary(const std::string &json, std::string &bin) {
+void monero_utils::json_to_binary(const std::string &json, std::string &bin) {
   epee::serialization::portable_storage ps;
   ps.load_from_json(json);
   ps.store_to_binary(bin);
 }
 
-void monero_utils::binaryToJson(const std::string &bin, std::string &json) {
+void monero_utils::binary_to_json(const std::string &bin, std::string &json) {
   epee::serialization::portable_storage ps;
   ps.load_from_binary(bin);
   ps.dump_as_json(json);
 }
 
-void monero_utils::binaryBlocksToJson(const std::string &bin, std::string &json) {
+void monero_utils::binary_blocks_to_json(const std::string &bin, std::string &json) {
 
   // load binary rpc response to struct
   cryptonote::COMMAND_RPC_GET_BLOCKS_BY_HEIGHT::response resp_struct;
@@ -314,7 +314,7 @@ void monero_utils::binaryBlocksToJson(const std::string &bin, std::string &json)
   json = ss.str();
 }
 
-shared_ptr<monero_tx_request> monero_utils::deserializeTxRequest(const string& txRequestStr) {
+shared_ptr<monero_tx_request> monero_utils::deserialize_tx_request(const string& txRequestStr) {
 
   // deserialize tx request string to property rooted at block
   std::istringstream iss = txRequestStr.empty() ? std::istringstream() : std::istringstream(txRequestStr);
@@ -322,73 +322,73 @@ shared_ptr<monero_tx_request> monero_utils::deserializeTxRequest(const string& t
   boost::property_tree::read_json(iss, blockNode);
 
   // convert request property tree to block
-  shared_ptr<monero_block> block = nodeToBlockRequest(blockNode);
+  shared_ptr<monero_block> block = node_to_block_request(blockNode);
 
   // get tx request
-  shared_ptr<monero_tx_request> txRequest = static_pointer_cast<monero_tx_request>(block->txs[0]);
+  shared_ptr<monero_tx_request> tx_request = static_pointer_cast<monero_tx_request>(block->txs[0]);
 
   // return deserialized request
-  return txRequest;
+  return tx_request;
 }
 
-shared_ptr<monero_transfer_request> monero_utils::deserializeTransferRequest(const string& transferRequestStr) {
+shared_ptr<monero_transfer_request> monero_utils::deserialize_transfer_request(const string& transfer_request_str) {
 
   // deserialize transfer request string to property rooted at block
-  std::istringstream iss = transferRequestStr.empty() ? std::istringstream() : std::istringstream(transferRequestStr);
+  std::istringstream iss = transfer_request_str.empty() ? std::istringstream() : std::istringstream(transfer_request_str);
   boost::property_tree::ptree blockNode;
   boost::property_tree::read_json(iss, blockNode);
 
   // convert request property tree to block
-  shared_ptr<monero_block> block = nodeToBlockRequest(blockNode);
+  shared_ptr<monero_block> block = node_to_block_request(blockNode);
 
   // return mpty request if no txs
   if (block->txs.empty()) return make_shared<monero_transfer_request>();
 
   // get tx request
-  shared_ptr<monero_tx_request> txRequest = static_pointer_cast<monero_tx_request>(block->txs[0]);
+  shared_ptr<monero_tx_request> tx_request = static_pointer_cast<monero_tx_request>(block->txs[0]);
 
   // get / create transfer request
-  shared_ptr<monero_transfer_request> transferRequest = txRequest->transferRequest == boost::none ? make_shared<monero_transfer_request>() : *txRequest->transferRequest;
+  shared_ptr<monero_transfer_request> transfer_request = tx_request->transfer_request == boost::none ? make_shared<monero_transfer_request>() : *tx_request->transfer_request;
 
   // transfer request references tx request but not the other way around to avoid circular loop // TODO: could add check within meetsCriterias()
-  transferRequest->txRequest = txRequest;
-  txRequest->transferRequest = boost::none;
+  transfer_request->tx_request = tx_request;
+  tx_request->transfer_request = boost::none;
 
   // return deserialized request
-  return transferRequest;
+  return transfer_request;
 }
 
-shared_ptr<monero_output_request> monero_utils::deserializeOutputRequest(const string& outputRequestStr) {
+shared_ptr<monero_output_request> monero_utils::deserialize_output_request(const string& output_request_str) {
 
   // deserialize output request string to property rooted at block
-  std::istringstream iss = outputRequestStr.empty() ? std::istringstream() : std::istringstream(outputRequestStr);
+  std::istringstream iss = output_request_str.empty() ? std::istringstream() : std::istringstream(output_request_str);
   boost::property_tree::ptree blockNode;
   boost::property_tree::read_json(iss, blockNode);
 
   // convert request property tree to block
-  shared_ptr<monero_block> block = nodeToBlockRequest(blockNode);
+  shared_ptr<monero_block> block = node_to_block_request(blockNode);
 
   // empty request if no txs
   if (block->txs.empty()) return make_shared<monero_output_request>();
 
   // get tx request
-  shared_ptr<monero_tx_request> txRequest = static_pointer_cast<monero_tx_request>(block->txs[0]);
+  shared_ptr<monero_tx_request> tx_request = static_pointer_cast<monero_tx_request>(block->txs[0]);
 
   // get / create output request
-  shared_ptr<monero_output_request> outputRequest = txRequest->outputRequest == boost::none ? make_shared<monero_output_request>() : *txRequest->outputRequest;
+  shared_ptr<monero_output_request> output_request = tx_request->output_request == boost::none ? make_shared<monero_output_request>() : *tx_request->output_request;
 
   // output request references tx request but not the other way around to avoid circular loop // TODO: could add check within meetsCriterias()
-  outputRequest->txRequest = txRequest;
-  txRequest->outputRequest = boost::none;
+  output_request->tx_request = tx_request;
+  tx_request->output_request = boost::none;
 
   // return deserialized request
-  return outputRequest;
+  return output_request;
 }
 
-shared_ptr<monero_send_request> monero_utils::deserializeSendRequest(const string& sendRequestStr) {
+shared_ptr<monero_send_request> monero_utils::deserialize_send_request(const string& send_request_str) {
 
   // deserialize send request json to property node
-  std::istringstream iss = sendRequestStr.empty() ? std::istringstream() : std::istringstream(sendRequestStr);
+  std::istringstream iss = send_request_str.empty() ? std::istringstream() : std::istringstream(send_request_str);
   boost::property_tree::ptree node;
   boost::property_tree::read_json(iss, node);
 
@@ -399,33 +399,33 @@ shared_ptr<monero_send_request> monero_utils::deserializeSendRequest(const strin
     if (key == string("destinations")) {
       boost::property_tree::ptree destinationsNode = it->second;
       for (boost::property_tree::ptree::const_iterator it2 = destinationsNode.begin(); it2 != destinationsNode.end(); ++it2) {
-        sendRequest->destinations.push_back(nodeToDestination(it2->second));
+        sendRequest->destinations.push_back(node_to_destination(it2->second));
       }
     }
-    else if (key == string("paymentId")) sendRequest->paymentId = it->second.data();
-    else if (key == string("priority")) throw runtime_error("deserializeSendRequest() paymentId not implemented");
+    else if (key == string("payment_id")) sendRequest->payment_id = it->second.data();
+    else if (key == string("priority")) throw runtime_error("deserialize_send_request() payment_id not implemented");
     else if (key == string("mixin")) sendRequest->mixin = it->second.get_value<uint32_t>();
     else if (key == string("ringSize")) sendRequest->ringSize = it->second.get_value<uint32_t>();
     else if (key == string("fee")) sendRequest->fee = it->second.get_value<uint64_t>();
-    else if (key == string("accountIndex")) sendRequest->accountIndex = it->second.get_value<uint32_t>();
-    else if (key == string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) sendRequest->subaddressIndices.push_back(it2->second.get_value<uint32_t>());
-    else if (key == string("unlockTime")) sendRequest->unlockTime = it->second.get_value<uint64_t>();
-    else if (key == string("canSplit")) sendRequest->canSplit = it->second.get_value<bool>();
-    else if (key == string("doNotRelay")) sendRequest->doNotRelay = it->second.get_value<bool>();
+    else if (key == string("account_index")) sendRequest->account_index = it->second.get_value<uint32_t>();
+    else if (key == string("subaddress_indices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) sendRequest->subaddress_indices.push_back(it2->second.get_value<uint32_t>());
+    else if (key == string("unlock_time")) sendRequest->unlock_time = it->second.get_value<uint64_t>();
+    else if (key == string("can_split")) sendRequest->can_split = it->second.get_value<bool>();
+    else if (key == string("do_not_relay")) sendRequest->do_not_relay = it->second.get_value<bool>();
     else if (key == string("note")) sendRequest->note = it->second.data();
-    else if (key == string("recipientName")) sendRequest->recipientName = it->second.data();
-    else if (key == string("belowAmount")) sendRequest->belowAmount = it->second.get_value<uint64_t>();
-    else if (key == string("sweepEachSubaddress")) sendRequest->sweepEachSubaddress = it->second.get_value<bool>();
-    else if (key == string("keyImage")) sendRequest->keyImage = it->second.data();
+    else if (key == string("receipient_name")) sendRequest->receipient_name = it->second.data();
+    else if (key == string("below_amount")) sendRequest->below_amount = it->second.get_value<uint64_t>();
+    else if (key == string("sweep_each_subaddress")) sendRequest->sweep_each_subaddress = it->second.get_value<bool>();
+    else if (key == string("key_image")) sendRequest->key_image = it->second.data();
   }
 
   return sendRequest;
 }
 
-vector<shared_ptr<monero_key_image>> monero_utils::deserializeKeyImages(const string& keyImagesJson) {
+vector<shared_ptr<monero_key_image>> monero_utils::deserialize_key_images(const string& key_images_json) {
 
   // deserialize json to property node
-  std::istringstream iss = keyImagesJson.empty() ? std::istringstream() : std::istringstream(keyImagesJson);
+  std::istringstream iss = key_images_json.empty() ? std::istringstream() : std::istringstream(key_images_json);
   boost::property_tree::ptree node;
   boost::property_tree::read_json(iss, node);
 
@@ -435,10 +435,10 @@ vector<shared_ptr<monero_key_image>> monero_utils::deserializeKeyImages(const st
     string key = it->first;
     if (key == string("keyImages")) {
       for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
-        keyImages.push_back(nodeToKeyImage(it2->second));
+        keyImages.push_back(node_to_key_image(it2->second));
       }
     }
-    else MWARNING("WARNING MoneroWalletJni::deserializeKeyImages() unrecognized key: " << key);
+    else MWARNING("WARNING MoneroWalletJni::deserialize_key_images() unrecognized key: " << key);
   }
   return keyImages;
 }
@@ -491,53 +491,53 @@ boost::property_tree::ptree monero_utils::to_property_tree(const vector<uint64_t
   return numsNode;
 }
 
-shared_ptr<monero_block> monero_utils::cnBlockToBlock(const cryptonote::block& cnBlock) {
-  cryptonote::block temp = cnBlock;
+shared_ptr<monero_block> monero_utils::cn_block_to_block(const cryptonote::block& cn_block) {
+  cryptonote::block temp = cn_block;
   cout << cryptonote::obj_to_json_str(temp) << endl;
   shared_ptr<monero_block> block = make_shared<monero_block>();
-  block->majorVersion = cnBlock.major_version;
-  block->minorVersion = cnBlock.minor_version;
-  block->timestamp = cnBlock.timestamp;
-  block->prevId = epee::string_tools::pod_to_hex(cnBlock.prev_id);
-  block->nonce = cnBlock.nonce;
-  block->minerTx = monero_utils::cnTxToTx(cnBlock.miner_tx);
-  for (const crypto::hash& txHash : cnBlock.tx_hashes) {
-    block->txIds.push_back(epee::string_tools::pod_to_hex(txHash));
+  block->major_version = cn_block.major_version;
+  block->minor_version = cn_block.minor_version;
+  block->timestamp = cn_block.timestamp;
+  block->prev_id = epee::string_tools::pod_to_hex(cn_block.prev_id);
+  block->nonce = cn_block.nonce;
+  block->miner_tx = monero_utils::cn_tx_to_tx(cn_block.miner_tx);
+  for (const crypto::hash& txHash : cn_block.tx_hashes) {
+    block->tx_ids.push_back(epee::string_tools::pod_to_hex(txHash));
   }
   return block;
 }
 
-shared_ptr<monero_tx> monero_utils::cnTxToTx(const cryptonote::transaction& cnTx, bool initAsTxWallet) {
-  shared_ptr<monero_tx> tx = initAsTxWallet ? make_shared<monero_tx_wallet>() : make_shared<monero_tx>();
-  tx->version = cnTx.version;
-  tx->unlockTime = cnTx.unlock_time;
-  tx->id = epee::string_tools::pod_to_hex(cnTx.hash);
-  tx->extra = cnTx.extra;
+shared_ptr<monero_tx> monero_utils::cn_tx_to_tx(const cryptonote::transaction& cn_tx, bool init_as_tx_wallet) {
+  shared_ptr<monero_tx> tx = init_as_tx_wallet ? make_shared<monero_tx_wallet>() : make_shared<monero_tx>();
+  tx->version = cn_tx.version;
+  tx->unlock_time = cn_tx.unlock_time;
+  tx->id = epee::string_tools::pod_to_hex(cn_tx.hash);
+  tx->extra = cn_tx.extra;
 
   // init vins
-  for (const txin_v& cnVin : cnTx.vin) {
+  for (const txin_v& cnVin : cn_tx.vin) {
     if (cnVin.which() != 0 && cnVin.which() != 3) throw runtime_error("Unsupported variant type");
-    if (tx->isMinerTx == boost::none) tx->isMinerTx = cnVin.which() == 0;
+    if (tx->is_miner_tx == boost::none) tx->is_miner_tx = cnVin.which() == 0;
     if (cnVin.which() != 3) continue; // only process txin_to_key of variant  TODO: support other types, like 0 "gen" which is miner tx?
-    shared_ptr<monero_output> vin = initAsTxWallet ? make_shared<monero_output_wallet>() : make_shared<monero_output>();
+    shared_ptr<monero_output> vin = init_as_tx_wallet ? make_shared<monero_output_wallet>() : make_shared<monero_output>();
     vin->tx = tx;
     tx->vins.push_back(vin);
     const txin_to_key& txin = boost::get<txin_to_key>(cnVin);
     vin->amount = txin.amount;
-    vin->ringOutputIndices = txin.key_offsets;
+    vin->ring_output_indices = txin.key_offsets;
     crypto::key_image cnKeyImage = txin.k_image;
-    vin->keyImage = make_shared<monero_key_image>();
-    vin->keyImage.get()->hex = epee::string_tools::pod_to_hex(cnKeyImage);
+    vin->key_image = make_shared<monero_key_image>();
+    vin->key_image.get()->hex = epee::string_tools::pod_to_hex(cnKeyImage);
   }
 
   // init vouts
-  for (const tx_out& cnVout : cnTx.vout) {
-    shared_ptr<monero_output> vout = initAsTxWallet ? make_shared<monero_output_wallet>() : make_shared<monero_output>();
+  for (const tx_out& cnVout : cn_tx.vout) {
+    shared_ptr<monero_output> vout = init_as_tx_wallet ? make_shared<monero_output_wallet>() : make_shared<monero_output>();
     vout->tx = tx;
     tx->vouts.push_back(vout);
     vout->amount = cnVout.amount;
     const crypto::public_key& cnStealthPublicKey = boost::get<txout_to_key>(cnVout.target).key;
-    vout->stealthPublicKey = epee::string_tools::pod_to_hex(cnStealthPublicKey);
+    vout->stealth_public_key = epee::string_tools::pod_to_hex(cnStealthPublicKey);
   }
 
   return tx;

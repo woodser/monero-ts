@@ -50,8 +50,8 @@
  * Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
  */
 
-#ifndef MoneroUtils_h
-#define MoneroUtils_h
+#ifndef monero_utils_h
+#define monero_utils_h
 
 #include "wallet/monero_wallet.h"
 #include "cryptonote_basic/cryptonote_basic.h"
@@ -66,41 +66,41 @@ namespace monero_utils
   using namespace std;
   using namespace cryptonote;
 
-  void jsonToBinary(const std::string &json, std::string &bin);
+  void json_to_binary(const std::string &json, std::string &bin);
 
-  void binaryToJson(const std::string &bin, std::string &json);
+  void binary_to_json(const std::string &bin, std::string &json);
 
-  void binaryBlocksToJson(const std::string &bin, std::string &json);
+  void binary_blocks_to_json(const std::string &bin, std::string &json);
 
-  shared_ptr<monero_tx_request> deserializeTxRequest(const string& txRequestStr);
+  shared_ptr<monero_tx_request> deserialize_tx_request(const string& txRequestStr);
 
-  shared_ptr<monero_transfer_request> deserializeTransferRequest(const string& transferRequestStr);
+  shared_ptr<monero_transfer_request> deserialize_transfer_request(const string& transfer_request_str);
 
-  shared_ptr<monero_output_request> deserializeOutputRequest(const string& outputRequestStr);
+  shared_ptr<monero_output_request> deserialize_output_request(const string& output_request_str);
 
-  shared_ptr<monero_send_request> deserializeSendRequest(const string& sendRequestStr);
+  shared_ptr<monero_send_request> deserialize_send_request(const string& send_request_str);
 
-  vector<shared_ptr<monero_key_image>> deserializeKeyImages(const string& keyImagesJson);
+  vector<shared_ptr<monero_key_image>> deserialize_key_images(const string& key_images_json);
 
   string serialize(const boost::property_tree::ptree& node);
 
   /**
    * Convert a Monero Core cryptonote::block to a block in this library's native model.
    *
-   * @param cnBlock is the Core block to convert
+   * @param cn_block is the Core block to convert
    * @return a block in this library's native model
    */
-  shared_ptr<monero_block> cnBlockToBlock(const cryptonote::block& cnBlock);
+  shared_ptr<monero_block> cn_block_to_block(const cryptonote::block& cn_block);
 
 
   /**
    * Convert a Monero Core crpytonote::transaction to a transaction in this library's
    * native model.
    *
-   * @param cnTx is the Core transaction to convert
-   * @param initAsTxWallet specifies if a monero_tx xor monero_tx_wallet should be initialized
+   * @param cn_tx is the Core transaction to convert
+   * @param init_as_tx_wallet specifies if a monero_tx xor monero_tx_wallet should be initialized
    */
-  shared_ptr<monero_tx> cnTxToTx(const cryptonote::transaction& cnTx, bool initAsTxWallet = false);
+  shared_ptr<monero_tx> cn_tx_to_tx(const cryptonote::transaction& cn_tx, bool init_as_tx_wallet = false);
 
   /**
    * Modified from core_rpc_server.cpp to return a string.
@@ -145,75 +145,75 @@ namespace monero_utils
 
   // TODO: refactor common template code
   template <class T, typename std::enable_if<std::is_same<T, string>::value, T>::type* = nullptr>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax, const string& errMsg = "") {
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolve_defined, boost::optional<bool> resolve_true, boost::optional<bool> resolve_max, const string& err_msg = "") {
 
     // check for equality
     if (val1 == val2) return val1;
 
     // resolve one value none
     if (val1 == boost::none || val2 == boost::none) {
-      if (resolveDefined != boost::none && *resolveDefined == false) return boost::none;
+      if (resolve_defined != boost::none && *resolve_defined == false) return boost::none;
       else return val1 == boost::none ? val2 : val1;
     }
 
-    throw runtime_error(string("Cannot reconcile strings: ") + to_string(val1) + string(" vs ") + to_string(val2) + (!errMsg.empty() ? string(". ") + errMsg : string("")));
+    throw runtime_error(string("Cannot reconcile strings: ") + to_string(val1) + string(" vs ") + to_string(val2) + (!err_msg.empty() ? string(". ") + err_msg : string("")));
   }
   template <class T, typename std::enable_if<std::is_same<T, string>::value, T>::type* = nullptr>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const string& errMsg = "") {
-    return reconcile(val1, val2, boost::none, boost::none, boost::none, errMsg);
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const string& err_msg = "") {
+    return reconcile(val1, val2, boost::none, boost::none, boost::none, err_msg);
   }
 
   template <class T, typename std::enable_if<std::is_integral<T>::value, T>::type* = nullptr>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax, const string& errMsg = "") {
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolve_defined, boost::optional<bool> resolve_true, boost::optional<bool> resolve_max, const string& err_msg = "") {
 
     // check for equality
     if (val1 == val2) return val1;
 
     // resolve one value none
     if (val1 == boost::none || val2 == boost::none) {
-      if (resolveDefined != boost::none && *resolveDefined == false) return boost::none;
+      if (resolve_defined != boost::none && *resolve_defined == false) return boost::none;
       else return val1 == boost::none ? val2 : val1;
     }
 
     // resolve different numbers
-    if (resolveMax != boost::none) {
-      return *resolveMax ? max(*val1, *val2) : min(*val1, *val2);
+    if (resolve_max != boost::none) {
+      return *resolve_max ? max(*val1, *val2) : min(*val1, *val2);
     }
 
-    // throw runtime_error("Cannot reconcile values " + val1 + " and " + val2 + " with config: [" + resolveDefined + ", " + resolveTrue + ", " + resolveMax + "]", val1, val2);
-    throw runtime_error(string("Cannot reconcile integrals: ") + to_string(val1) + string(" vs ") + to_string(val2) + (!errMsg.empty() ? string(". ") + errMsg : string("")));
+    // throw runtime_error("Cannot reconcile values " + val1 + " and " + val2 + " with config: [" + resolve_defined + ", " + resolve_true + ", " + resolve_max + "]", val1, val2);
+    throw runtime_error(string("Cannot reconcile integrals: ") + to_string(val1) + string(" vs ") + to_string(val2) + (!err_msg.empty() ? string(". ") + err_msg : string("")));
   }
   template <class T, typename std::enable_if<std::is_integral<T>::value, T>::type* = nullptr>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const string& errMsg = "") {
-    return reconcile(val1, val2, boost::none, boost::none, boost::none, errMsg);
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const string& err_msg = "") {
+    return reconcile(val1, val2, boost::none, boost::none, boost::none, err_msg);
   }
 
   template <class T, typename std::enable_if<std::is_same<T, bool>::value, T>::type>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolveDefined, boost::optional<bool> resolveTrue, boost::optional<bool> resolveMax, const string& errMsg = "") {
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, boost::optional<bool> resolve_defined, boost::optional<bool> resolve_true, boost::optional<bool> resolve_max, const string& err_msg = "") {
 
     // check for equality
     if (val1 == val2) return val1;
 
     // resolve one value none
     if (val1 == boost::none || val2 == boost::none) {
-      if (resolveDefined != boost::none && *resolveDefined == false) return boost::none;
+      if (resolve_defined != boost::none && *resolve_defined == false) return boost::none;
       else return val1 == boost::none ? val2 : val1;
     }
 
     // resolve different booleans
-    if (resolveTrue != boost::none) {
-      return val1 == resolveTrue ? val1 : val2; // if resolve true, return true, else return false
+    if (resolve_true != boost::none) {
+      return val1 == resolve_true ? val1 : val2; // if resolve true, return true, else return false
     } else {
-      throw runtime_error(string("Cannot reconcile booleans: ") + to_string(val1) + string(" vs ") + to_string(val2) + (!errMsg.empty() ? string(". ") + errMsg : string("")));
+      throw runtime_error(string("Cannot reconcile booleans: ") + to_string(val1) + string(" vs ") + to_string(val2) + (!err_msg.empty() ? string(". ") + err_msg : string("")));
     }
   }
   template <class T, typename std::enable_if<std::is_same<T, bool>::value, T>::type>
-  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const string& errMsg = "") {
-    return reconcile(val1, val2, boost::none, boost::none, boost::none, errMsg);
+  boost::optional<T> reconcile(const boost::optional<T>& val1, const boost::optional<T>& val2, const string& err_msg = "") {
+    return reconcile(val1, val2, boost::none, boost::none, boost::none, err_msg);
   }
 
   template <class T>
-  vector<T> reconcile(const vector<T>& v1, const vector<T>& v2, const string& errMsg = "") {
+  vector<T> reconcile(const vector<T>& v1, const vector<T>& v2, const string& err_msg = "") {
 
     // check for equality
     if (v1 == v2) return v1;
@@ -223,7 +223,7 @@ namespace monero_utils
     if (v2.empty()) return v1;
 
     // otherwise cannot reconcile
-    throw runtime_error("Cannot reconcile vectors" + (!errMsg.empty() ? string(". ") + errMsg : string("")));
+    throw runtime_error("Cannot reconcile vectors" + (!err_msg.empty() ? string(". ") + err_msg : string("")));
   }
 
 //    template <class T>
@@ -231,4 +231,4 @@ namespace monero_utils
 //      return reconcile(val1, val2, boost::none, boost::none, boost::none);
 //    }
 }
-#endif /* MoneroUtils_h */
+#endif /* monero_utils_h */

@@ -65,9 +65,9 @@ namespace monero {
 
   // ----------------------- UNDECLARED PRIVATE HELPERS -----------------------
 
-  void mergeIncomingTransfer(vector<shared_ptr<monero_incoming_transfer>>& transfers, const shared_ptr<monero_incoming_transfer>& transfer) {
+  void merge_incoming_transfer(vector<shared_ptr<monero_incoming_transfer>>& transfers, const shared_ptr<monero_incoming_transfer>& transfer) {
     for (const shared_ptr<monero_incoming_transfer>& aTransfer : transfers) {
-      if (aTransfer->accountIndex.get() == transfer->accountIndex.get() && aTransfer->subaddressIndex.get() == transfer->subaddressIndex.get()) {
+      if (aTransfer->account_index.get() == transfer->account_index.get() && aTransfer->subaddress_index.get() == transfer->subaddress_index.get()) {
         aTransfer->merge(aTransfer, transfer);
         return;
       }
@@ -80,9 +80,9 @@ namespace monero {
   boost::property_tree::ptree monero_account::to_property_tree() const {
     boost::property_tree::ptree node;
     if (index != boost::none) node.put("index", *index);
-    if (primaryAddress != boost::none) node.put("primaryAddress", *primaryAddress);
+    if (primary_address != boost::none) node.put("primary_address", *primary_address);
     if (balance != boost::none) node.put("balance", *balance);
-    if (unlockedBalance != boost::none) node.put("unlockedBalance", *unlockedBalance);
+    if (unlocked_balance != boost::none) node.put("unlocked_balance", *unlocked_balance);
     if (!subaddresses.empty()) node.add_child("subaddresses", monero_utils::to_property_tree(subaddresses));
     return node;
   }
@@ -91,15 +91,15 @@ namespace monero {
 
   boost::property_tree::ptree monero_subaddress::to_property_tree() const {
     boost::property_tree::ptree node;
-    if (accountIndex != boost::none) node.put("accountIndex", *accountIndex);
+    if (account_index != boost::none) node.put("account_index", *account_index);
     if (index != boost::none) node.put("index", *index);
     if (address != boost::none) node.put("address", *address);
     if (label != boost::none) node.put("label", *label);
     if (balance != boost::none) node.put("balance", *balance);
-    if (unlockedBalance != boost::none) node.put("unlockedBalance", *unlockedBalance);
-    if (numUnspentOutputs != boost::none) node.put("numUnspentOutputs", *numUnspentOutputs);
-    if (isUsed != boost::none) node.put("isUsed", *isUsed);
-    if (numBlocksToUnlock != boost::none) node.put("numBlocksToUnlock", *numBlocksToUnlock);
+    if (unlocked_balance != boost::none) node.put("unlocked_balance", *unlocked_balance);
+    if (num_unspent_outputs != boost::none) node.put("num_unspent_outputs", *num_unspent_outputs);
+    if (is_used != boost::none) node.put("is_used", *is_used);
+    if (num_blocks_to_unlock != boost::none) node.put("num_blocks_to_unlock", *num_blocks_to_unlock);
     return node;
   }
 
@@ -118,18 +118,18 @@ namespace monero {
     monero_tx::copy(static_pointer_cast<monero_tx>(src), static_pointer_cast<monero_tx>(tgt));
 
     // copy wallet extensions
-    if (!src->incomingTransfers.empty()) {
-      tgt->incomingTransfers = vector<shared_ptr<monero_incoming_transfer>>();
-      for (const shared_ptr<monero_incoming_transfer>& transfer : src->incomingTransfers) {
+    if (!src->incoming_transfers.empty()) {
+      tgt->incoming_transfers = vector<shared_ptr<monero_incoming_transfer>>();
+      for (const shared_ptr<monero_incoming_transfer>& transfer : src->incoming_transfers) {
         shared_ptr<monero_incoming_transfer> transferCopy = transfer->copy(transfer, make_shared<monero_incoming_transfer>());
         transferCopy->tx = tgt;
-        tgt->incomingTransfers.push_back(transferCopy);
+        tgt->incoming_transfers.push_back(transferCopy);
       }
     }
-    if (src->outgoingTransfer != boost::none) {
-      shared_ptr<monero_outgoing_transfer> transferCopy = src->outgoingTransfer.get()->copy(src->outgoingTransfer.get(), make_shared<monero_outgoing_transfer>());
+    if (src->outgoing_transfer != boost::none) {
+      shared_ptr<monero_outgoing_transfer> transferCopy = src->outgoing_transfer.get()->copy(src->outgoing_transfer.get(), make_shared<monero_outgoing_transfer>());
       transferCopy->tx = tgt;
-      tgt->outgoingTransfer = transferCopy;
+      tgt->outgoing_transfer = transferCopy;
     }
     tgt->note = src->note;
 
@@ -138,18 +138,18 @@ namespace monero {
 
   boost::property_tree::ptree monero_tx_wallet::to_property_tree() const {
     boost::property_tree::ptree node = monero_tx::to_property_tree();
-    if (!incomingTransfers.empty()) node.add_child("incomingTransfers", monero_utils::to_property_tree(incomingTransfers));
-    if (outgoingTransfer != boost::none) node.add_child("outgoingTransfer", (*outgoingTransfer)->to_property_tree());
+    if (!incoming_transfers.empty()) node.add_child("incoming_transfers", monero_utils::to_property_tree(incoming_transfers));
+    if (outgoing_transfer != boost::none) node.add_child("outgoing_transfer", (*outgoing_transfer)->to_property_tree());
     if (note != boost::none) node.put("note", *note);
     return node;
   }
 
   bool monero_tx_wallet::getIsOutgoing() const {
-    return outgoingTransfer != boost::none;
+    return outgoing_transfer != boost::none;
   }
 
   bool monero_tx_wallet::getIsIncoming() const {
-    return !incomingTransfers.empty();
+    return !incoming_transfers.empty();
   }
 
   void monero_tx_wallet::merge(const shared_ptr<monero_tx>& self, const shared_ptr<monero_tx>& other) {
@@ -167,18 +167,18 @@ namespace monero {
     note = monero_utils::reconcile(note, other->note);
 
     // merge incoming transfers
-    if (!other->incomingTransfers.empty()) {
-      for (const shared_ptr<monero_incoming_transfer>& transfer : other->incomingTransfers) {  // NOTE: not using reference so shared_ptr is not deleted when tx is dereferenced
+    if (!other->incoming_transfers.empty()) {
+      for (const shared_ptr<monero_incoming_transfer>& transfer : other->incoming_transfers) {  // NOTE: not using reference so shared_ptr is not deleted when tx is dereferenced
         transfer->tx = self;
-        mergeIncomingTransfer(self->incomingTransfers, transfer);
+        merge_incoming_transfer(self->incoming_transfers, transfer);
       }
     }
 
     // merge outgoing transfer
-    if (other->outgoingTransfer != boost::none) {
-      other->outgoingTransfer.get()->tx = self;
-      if (self->outgoingTransfer == boost::none) self->outgoingTransfer = other->outgoingTransfer;
-      else self->outgoingTransfer.get()->merge(self->outgoingTransfer.get(), other->outgoingTransfer.get());
+    if (other->outgoing_transfer != boost::none) {
+      other->outgoing_transfer.get()->tx = self;
+      if (self->outgoing_transfer == boost::none) self->outgoing_transfer = other->outgoing_transfer;
+      else self->outgoing_transfer.get()->merge(self->outgoing_transfer.get(), other->outgoing_transfer.get());
     }
   }
 
@@ -200,32 +200,32 @@ namespace monero {
     monero_tx_wallet::copy(static_pointer_cast<monero_tx>(src), static_pointer_cast<monero_tx>(tgt));
 
     // copy request extensions
-    tgt->isOutgoing = src->isOutgoing;
-    tgt->isIncoming = src->isIncoming;
-    if (!src->txIds.empty()) tgt->txIds = vector<string>(src->txIds);
-    tgt-> hasPaymentId = src->hasPaymentId;
-    if (!src->paymentIds.empty()) tgt->paymentIds = vector<string>(src->paymentIds);
+    tgt->is_outgoing = src->is_outgoing;
+    tgt->is_incoming = src->is_incoming;
+    if (!src->tx_ids.empty()) tgt->tx_ids = vector<string>(src->tx_ids);
+    tgt-> has_payment_id = src->has_payment_id;
+    if (!src->payment_ids.empty()) tgt->payment_ids = vector<string>(src->payment_ids);
     tgt->height = src->height;
-    tgt->minHeight = src->minHeight;
-    tgt->maxHeight = src->maxHeight;
-    tgt->includeOutputs = src->includeOutputs;
-    if (src->transferRequest != boost::none) tgt->transferRequest = src->transferRequest.get()->copy(src->transferRequest.get(), make_shared<monero_transfer_request>());
-    if (src->outputRequest != boost::none) tgt->outputRequest = src->outputRequest.get()->copy(src->outputRequest.get(), make_shared<monero_output_request>());
+    tgt->min_height = src->min_height;
+    tgt->max_height = src->max_height;
+    tgt->include_outputs = src->include_outputs;
+    if (src->transfer_request != boost::none) tgt->transfer_request = src->transfer_request.get()->copy(src->transfer_request.get(), make_shared<monero_transfer_request>());
+    if (src->output_request != boost::none) tgt->output_request = src->output_request.get()->copy(src->output_request.get(), make_shared<monero_output_request>());
     return tgt;
   };
 
   boost::property_tree::ptree monero_tx_request::to_property_tree() const {
     boost::property_tree::ptree node = monero_tx_wallet::to_property_tree();
-    if (isOutgoing != boost::none) node.put("isOutgoing", *isOutgoing);
-    if (isIncoming != boost::none) node.put("isIncoming", *isIncoming);
-    if (!txIds.empty()) node.add_child("txIds", monero_utils::to_property_tree(txIds));
-    if (hasPaymentId != boost::none) node.put("hasPaymentId", *hasPaymentId);
-    if (!paymentIds.empty()) node.add_child("paymentIds", monero_utils::to_property_tree(paymentIds));
+    if (is_outgoing != boost::none) node.put("is_outgoing", *is_outgoing);
+    if (is_incoming != boost::none) node.put("is_incoming", *is_incoming);
+    if (!tx_ids.empty()) node.add_child("tx_ids", monero_utils::to_property_tree(tx_ids));
+    if (has_payment_id != boost::none) node.put("has_payment_id", *has_payment_id);
+    if (!payment_ids.empty()) node.add_child("payment_ids", monero_utils::to_property_tree(payment_ids));
     if (height != boost::none) node.put("height", *height);
-    if (minHeight != boost::none) node.put("minHeight", *minHeight);
-    if (maxHeight != boost::none) node.put("maxHeight", *maxHeight);
-    if (includeOutputs != boost::none) node.put("includeOutputs", *includeOutputs);
-    if (transferRequest != boost::none) node.add_child("transferRequest", (*transferRequest)->to_property_tree());
+    if (min_height != boost::none) node.put("min_height", *min_height);
+    if (max_height != boost::none) node.put("max_height", *max_height);
+    if (include_outputs != boost::none) node.put("include_outputs", *include_outputs);
+    if (transfer_request != boost::none) node.add_child("transfer_request", (*transfer_request)->to_property_tree());
     return node;
   }
 
@@ -234,20 +234,20 @@ namespace monero {
 
     // filter on tx
     if (id != boost::none && id != tx->id) return false;
-    if (paymentId != boost::none && paymentId != tx->paymentId) return false;
-    if (isConfirmed != boost::none && isConfirmed != tx->isConfirmed) return false;
-    if (inTxPool != boost::none && inTxPool != tx->inTxPool) return false;
-    if (doNotRelay != boost::none && doNotRelay != tx->doNotRelay) return false;
-    if (isFailed != boost::none && isFailed != tx->isFailed) return false;
-    if (isMinerTx != boost::none && isMinerTx != tx->isMinerTx) return false;
+    if (payment_id != boost::none && payment_id != tx->payment_id) return false;
+    if (is_confirmed != boost::none && is_confirmed != tx->is_confirmed) return false;
+    if (in_tx_pool != boost::none && in_tx_pool != tx->in_tx_pool) return false;
+    if (do_not_relay != boost::none && do_not_relay != tx->do_not_relay) return false;
+    if (is_failed != boost::none && is_failed != tx->is_failed) return false;
+    if (is_miner_tx != boost::none && is_miner_tx != tx->is_miner_tx) return false;
 
     // at least one transfer must meet transfer request if defined
-    if (transferRequest != boost::none) {
+    if (transfer_request != boost::none) {
       bool matchFound = false;
-      if (tx->outgoingTransfer != boost::none && (*transferRequest)->meetsCriteria((*tx->outgoingTransfer).get())) matchFound = true;
-      else if (!tx->incomingTransfers.empty()) {
-        for (const shared_ptr<monero_incoming_transfer>& incomingTransfer : tx->incomingTransfers) {
-          if ((*transferRequest)->meetsCriteria(incomingTransfer.get())) {
+      if (tx->outgoing_transfer != boost::none && (*transfer_request)->meetsCriteria((*tx->outgoing_transfer).get())) matchFound = true;
+      else if (!tx->incoming_transfers.empty()) {
+        for (const shared_ptr<monero_incoming_transfer>& incomingTransfer : tx->incoming_transfers) {
+          if ((*transfer_request)->meetsCriteria(incomingTransfer.get())) {
             matchFound = true;
             break;
           }
@@ -257,24 +257,24 @@ namespace monero {
     }
 
     // filter on having a payment id
-    if (hasPaymentId != boost::none) {
-      if (*hasPaymentId && tx->paymentId == boost::none) return false;
-      if (!*hasPaymentId && tx->paymentId != boost::none) return false;
+    if (has_payment_id != boost::none) {
+      if (*has_payment_id && tx->payment_id == boost::none) return false;
+      if (!*has_payment_id && tx->payment_id != boost::none) return false;
     }
 
     // filter on incoming
-    if (isIncoming != boost::none && isIncoming != tx->getIsIncoming()) return false;
+    if (is_incoming != boost::none && is_incoming != tx->getIsIncoming()) return false;
 
     // filter on outgoing
-    if (isOutgoing != boost::none && isOutgoing != tx->getIsOutgoing()) return false;
+    if (is_outgoing != boost::none && is_outgoing != tx->getIsOutgoing()) return false;
 
     // filter on remaining fields
     boost::optional<uint64_t> txHeight = tx->get_height();
-    if (!txIds.empty() && find(txIds.begin(), txIds.end(), *tx->id) == txIds.end()) return false;
-    if (!paymentIds.empty() && (tx->paymentId == boost::none || find(paymentIds.begin(), paymentIds.end(), *tx->paymentId) == paymentIds.end())) return false;
+    if (!tx_ids.empty() && find(tx_ids.begin(), tx_ids.end(), *tx->id) == tx_ids.end()) return false;
+    if (!payment_ids.empty() && (tx->payment_id == boost::none || find(payment_ids.begin(), payment_ids.end(), *tx->payment_id) == payment_ids.end())) return false;
     if (height != boost::none && (txHeight == boost::none || *txHeight != *height)) return false;
-    if (minHeight != boost::none && (txHeight == boost::none || *txHeight < *minHeight)) return false;
-    if (maxHeight != boost::none && (txHeight == boost::none || *txHeight > *maxHeight)) return false;
+    if (min_height != boost::none && (txHeight == boost::none || *txHeight < *min_height)) return false;
+    if (max_height != boost::none && (txHeight == boost::none || *txHeight > *max_height)) return false;
 
     // transaction meets request criteria
     return true;
@@ -303,16 +303,16 @@ namespace monero {
     MTRACE("monero_transfer::copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt)");
     tgt->tx = src->tx;  // reference parent tx by default
     tgt->amount = src->amount;
-    tgt->accountIndex = src->accountIndex;
-    tgt->numSuggestedConfirmations = src->numSuggestedConfirmations;
+    tgt->account_index = src->account_index;
+    tgt->num_suggested_confirmations = src->num_suggested_confirmations;
     return tgt;
   }
 
   boost::property_tree::ptree monero_transfer::to_property_tree() const {
     boost::property_tree::ptree node;
     if (amount != boost::none) node.put("amount", *amount);
-    if (accountIndex != boost::none) node.put("accountIndex", *accountIndex);
-    if (numSuggestedConfirmations != boost::none) node.put("numSuggestedConfirmations", *numSuggestedConfirmations);
+    if (account_index != boost::none) node.put("account_index", *account_index);
+    if (num_suggested_confirmations != boost::none) node.put("num_suggested_confirmations", *num_suggested_confirmations);
     return node;
   }
 
@@ -327,16 +327,16 @@ namespace monero {
     }
 
     // otherwise merge transfer fields
-    accountIndex = monero_utils::reconcile(accountIndex, other->accountIndex, "acountIndex");
+    account_index = monero_utils::reconcile(account_index, other->account_index, "acountIndex");
 
-    // TODO monero core: failed tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount/numSuggestedConfirmations of 0
+    // TODO monero core: failed tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount/num_suggested_confirmations of 0
     if (amount != boost::none && other->amount != boost::none && *amount != *other->amount && (*amount == 0 || *other->amount == 0)) {
-      accountIndex = monero_utils::reconcile(accountIndex, other->accountIndex, boost::none, boost::none, true, "acountIndex");
-      numSuggestedConfirmations = monero_utils::reconcile(numSuggestedConfirmations, other->numSuggestedConfirmations, boost::none, boost::none, true, "numSuggestedConfirmations");
-      MWARNING("WARNING: failed tx in pool causes non-originating wallets to return duplicate incoming transfers but with one amount/numSuggestedConfirmations of 0");
+      account_index = monero_utils::reconcile(account_index, other->account_index, boost::none, boost::none, true, "acountIndex");
+      num_suggested_confirmations = monero_utils::reconcile(num_suggested_confirmations, other->num_suggested_confirmations, boost::none, boost::none, true, "num_suggested_confirmations");
+      MWARNING("WARNING: failed tx in pool causes non-originating wallets to return duplicate incoming transfers but with one amount/num_suggested_confirmations of 0");
     } else {
       amount = monero_utils::reconcile(amount, other->amount, "transfer amount");
-      numSuggestedConfirmations = monero_utils::reconcile(numSuggestedConfirmations, other->numSuggestedConfirmations, boost::none, boost::none, false, "numSuggestedConfirmations");
+      num_suggested_confirmations = monero_utils::reconcile(num_suggested_confirmations, other->num_suggested_confirmations, boost::none, boost::none, false, "num_suggested_confirmations");
     }
   }
 
@@ -357,7 +357,7 @@ namespace monero {
 
   boost::property_tree::ptree monero_incoming_transfer::to_property_tree() const {
     boost::property_tree::ptree node = monero_transfer::to_property_tree();
-    if (subaddressIndex != boost::none) node.put("subaddressIndex", *subaddressIndex);
+    if (subaddress_index != boost::none) node.put("subaddress_index", *subaddress_index);
     if (address != boost::none) node.put("address", *address);
     return node;
   }
@@ -369,7 +369,7 @@ namespace monero {
   void monero_incoming_transfer::merge(const shared_ptr<monero_incoming_transfer>& self, const shared_ptr<monero_incoming_transfer>& other) {
     if (self == other) return;
     monero_transfer::merge(self, other);
-    subaddressIndex = monero_utils::reconcile(subaddressIndex, other->subaddressIndex, "incoming transfer subaddressIndex");
+    subaddress_index = monero_utils::reconcile(subaddress_index, other->subaddress_index, "incoming transfer subaddress_index");
     address = monero_utils::reconcile(address, other->address);
   }
 
@@ -387,7 +387,7 @@ namespace monero {
 
   boost::property_tree::ptree monero_outgoing_transfer::to_property_tree() const {
     boost::property_tree::ptree node = monero_transfer::to_property_tree();
-    if (!subaddressIndices.empty()) node.add_child("subaddressIndices", monero_utils::to_property_tree(subaddressIndices));
+    if (!subaddress_indices.empty()) node.add_child("subaddress_indices", monero_utils::to_property_tree(subaddress_indices));
     if (!addresses.empty()) node.add_child("addresses", monero_utils::to_property_tree(addresses));
     if (!destinations.empty()) node.add_child("destinations", monero_utils::to_property_tree(destinations));
     return node;
@@ -400,7 +400,7 @@ namespace monero {
   void monero_outgoing_transfer::merge(const shared_ptr<monero_outgoing_transfer>& self, const shared_ptr<monero_outgoing_transfer>& other) {
     if (self == other) return;
     monero_transfer::merge(self, other);
-    subaddressIndices = monero_utils::reconcile(subaddressIndices, other->subaddressIndices);
+    subaddress_indices = monero_utils::reconcile(subaddress_indices, other->subaddress_indices);
     addresses = monero_utils::reconcile(addresses, other->addresses);
     destinations = monero_utils::reconcile(destinations, other->destinations);
   }
@@ -419,30 +419,30 @@ namespace monero {
     monero_transfer::copy(static_pointer_cast<monero_transfer>(src), static_pointer_cast<monero_transfer>(tgt));
 
     // copy extensions
-    tgt->isIncoming = src->isIncoming;
+    tgt->is_incoming = src->is_incoming;
     tgt->address = src->address;
     if (!src->addresses.empty()) tgt->addresses = vector<string>(src->addresses);
-    tgt->subaddressIndex = src->subaddressIndex;
-    if (!src->subaddressIndices.empty()) tgt->subaddressIndices = vector<uint32_t>(src->subaddressIndices);
+    tgt->subaddress_index = src->subaddress_index;
+    if (!src->subaddress_indices.empty()) tgt->subaddress_indices = vector<uint32_t>(src->subaddress_indices);
     if (!src->destinations.empty()) {
       for (const shared_ptr<monero_destination>& destination : src->destinations) {
         tgt->destinations.push_back(destination->copy(destination, make_shared<monero_destination>()));
       }
     }
-    tgt->hasDestinations = src->hasDestinations;
-    tgt->txRequest = src->txRequest;
+    tgt->has_destinations = src->has_destinations;
+    tgt->tx_request = src->tx_request;
     return tgt;
   };
 
-  boost::optional<bool> monero_transfer_request::getIsIncoming() const { return isIncoming; }
+  boost::optional<bool> monero_transfer_request::getIsIncoming() const { return is_incoming; }
 
   boost::property_tree::ptree monero_transfer_request::to_property_tree() const {
     boost::property_tree::ptree node = monero_transfer::to_property_tree();
-    if (getIsIncoming() != boost::none) node.put("isIncoming", *getIsIncoming());
+    if (getIsIncoming() != boost::none) node.put("is_incoming", *getIsIncoming());
     if (address != boost::none) node.put("address", *address);
-    if (subaddressIndex != boost::none) node.put("subaddressIndex", *subaddressIndex);
-    if (hasDestinations != boost::none) node.put("hasDestinations", *hasDestinations);
-    if (!subaddressIndices.empty()) node.add_child("subaddressIndices", monero_utils::to_property_tree(subaddressIndices));
+    if (subaddress_index != boost::none) node.put("subaddress_index", *subaddress_index);
+    if (has_destinations != boost::none) node.put("has_destinations", *has_destinations);
+    if (!subaddress_indices.empty()) node.add_child("subaddress_indices", monero_utils::to_property_tree(subaddress_indices));
     if (!addresses.empty()) node.add_child("addresses", monero_utils::to_property_tree(addresses));
     if (!destinations.empty()) node.add_child("destinations", monero_utils::to_property_tree(destinations));
     return node;
@@ -450,22 +450,22 @@ namespace monero {
 
   bool monero_transfer_request::meetsCriteria(monero_transfer* transfer) const {
     if (transfer == nullptr) throw runtime_error("transfer is null");
-    if (txRequest != boost::none && (*txRequest)->transferRequest != boost::none) throw runtime_error("Transfer request's tx request cannot have a circular transfer request");   // TODO: could auto detect and handle this.  port to java/js
+    if (tx_request != boost::none && (*tx_request)->transfer_request != boost::none) throw runtime_error("Transfer request's tx request cannot have a circular transfer request");   // TODO: could auto detect and handle this.  port to java/js
 
     // filter on common fields
     if (getIsIncoming() != boost::none && *getIsIncoming() != *transfer->getIsIncoming()) return false;
     if (getIsOutgoing() != boost::none && getIsOutgoing() != transfer->getIsOutgoing()) return false;
     if (amount != boost::none && *amount != *transfer->amount) return false;
-    if (accountIndex != boost::none && *accountIndex != *transfer->accountIndex) return false;
+    if (account_index != boost::none && *account_index != *transfer->account_index) return false;
 
     // filter on incoming fields
     monero_incoming_transfer* inTransfer = dynamic_cast<monero_incoming_transfer*>(transfer);
     if (inTransfer != nullptr) {
-      if (hasDestinations != boost::none) return false;
+      if (has_destinations != boost::none) return false;
       if (address != boost::none && *address != *inTransfer->address) return false;
       if (!addresses.empty() && find(addresses.begin(), addresses.end(), *inTransfer->address) == addresses.end()) return false;
-      if (subaddressIndex != boost::none && *subaddressIndex != *inTransfer->subaddressIndex) return false;
-      if (!subaddressIndices.empty() && find(subaddressIndices.begin(), subaddressIndices.end(), *inTransfer->subaddressIndex) == subaddressIndices.end()) return false;
+      if (subaddress_index != boost::none && *subaddress_index != *inTransfer->subaddress_index) return false;
+      if (!subaddress_indices.empty() && find(subaddress_indices.begin(), subaddress_indices.end(), *inTransfer->subaddress_index) == subaddress_indices.end()) return false;
     }
 
     // filter on outgoing fields
@@ -488,12 +488,12 @@ namespace monero {
       }
 
       // filter on subaddress indices
-      if (subaddressIndex != boost::none && (outTransfer->subaddressIndices.empty() || find(outTransfer->subaddressIndices.begin(), outTransfer->subaddressIndices.end(), *subaddressIndex) == outTransfer->subaddressIndices.end())) return false;   // TODO: will filter all transfers if they don't contain subaddress indices
-      if (!subaddressIndices.empty()) {
+      if (subaddress_index != boost::none && (outTransfer->subaddress_indices.empty() || find(outTransfer->subaddress_indices.begin(), outTransfer->subaddress_indices.end(), *subaddress_index) == outTransfer->subaddress_indices.end())) return false;   // TODO: will filter all transfers if they don't contain subaddress indices
+      if (!subaddress_indices.empty()) {
         bool intersects = false;
-        for (const uint32_t& subaddressIndexReq : subaddressIndices) {
-          for (const uint32_t& subaddressIndex : outTransfer->subaddressIndices) {
-            if (subaddressIndexReq == subaddressIndex) {
+        for (const uint32_t& subaddressIndexReq : subaddress_indices) {
+          for (const uint32_t& subaddress_index : outTransfer->subaddress_indices) {
+            if (subaddressIndexReq == subaddress_index) {
               intersects = true;
               break;
             }
@@ -503,9 +503,9 @@ namespace monero {
       }
 
       // filter on having destinations
-      if (hasDestinations != boost::none) {
-        if (*hasDestinations && outTransfer->destinations.empty()) return false;
-        if (!*hasDestinations && !outTransfer->destinations.empty()) return false;
+      if (has_destinations != boost::none) {
+        if (*has_destinations && outTransfer->destinations.empty()) return false;
+        if (!*has_destinations && !outTransfer->destinations.empty()) return false;
       }
 
       // filter on destinations TODO: start with test for this
@@ -516,7 +516,7 @@ namespace monero {
     if (inTransfer == nullptr && outTransfer == nullptr) throw runtime_error("Transfer must be monero_incoming_transfer or monero_outgoing_transfer");
 
     // filter with tx request
-    if (txRequest != boost::none && !(*txRequest)->meetsCriteria(transfer->tx.get())) return false;
+    if (tx_request != boost::none && !(*tx_request)->meetsCriteria(transfer->tx.get())) return false;
     return true;
   }
 
@@ -528,28 +528,28 @@ namespace monero {
   };
 
   shared_ptr<monero_output_wallet> monero_output_wallet::copy(const shared_ptr<monero_output_wallet>& src, const shared_ptr<monero_output_wallet>& tgt) const {
-    MTRACE("monero_output_wallet::copy(outputWallet)");
+    MTRACE("monero_output_wallet::copy(output_wallet)");
     if (this != src.get()) throw runtime_error("this != src");
 
     // copy base class
     monero_output::copy(static_pointer_cast<monero_output>(src), static_pointer_cast<monero_output>(tgt));
 
     // copy extensions
-    tgt->accountIndex = src->accountIndex;
-    tgt->subaddressIndex = src->subaddressIndex;
-    tgt->isSpent = src->isSpent;
-    tgt->isUnlocked = src->isUnlocked;
-    tgt->isFrozen = src->isFrozen;
+    tgt->account_index = src->account_index;
+    tgt->subaddress_index = src->subaddress_index;
+    tgt->is_spent = src->is_spent;
+    tgt->is_unlocked = src->is_unlocked;
+    tgt->is_frozen = src->is_frozen;
     return tgt;
   };
 
   boost::property_tree::ptree monero_output_wallet::to_property_tree() const {
     boost::property_tree::ptree node = monero_output::to_property_tree();
-    if (accountIndex != boost::none) node.put("accountIndex", *accountIndex);
-    if (subaddressIndex != boost::none) node.put("subaddressIndex", *subaddressIndex);
-    if (isSpent != boost::none) node.put("isSpent", *isSpent);
-    if (isUnlocked != boost::none) node.put("isUnlocked", *isUnlocked);
-    if (isFrozen != boost::none) node.put("isFrozen", *isFrozen);
+    if (account_index != boost::none) node.put("account_index", *account_index);
+    if (subaddress_index != boost::none) node.put("subaddress_index", *subaddress_index);
+    if (is_spent != boost::none) node.put("is_spent", *is_spent);
+    if (is_unlocked != boost::none) node.put("is_unlocked", *is_unlocked);
+    if (is_frozen != boost::none) node.put("is_frozen", *is_frozen);
     return node;
   }
 
@@ -572,44 +572,44 @@ namespace monero {
   };
 
   shared_ptr<monero_output_request> monero_output_request::copy(const shared_ptr<monero_output_request>& src, const shared_ptr<monero_output_request>& tgt) const {
-    MTRACE("monero_output_request::copy(outputRequest)");
+    MTRACE("monero_output_request::copy(output_request)");
     if (this != src.get()) throw runtime_error("this != src");
 
     // copy base class
     monero_output_wallet::copy(static_pointer_cast<monero_output>(src), static_pointer_cast<monero_output>(tgt));
 
     // copy extensions
-    if (!src->subaddressIndices.empty()) tgt->subaddressIndices = vector<uint32_t>(src->subaddressIndices);
+    if (!src->subaddress_indices.empty()) tgt->subaddress_indices = vector<uint32_t>(src->subaddress_indices);
     return tgt;
   };
 
   boost::property_tree::ptree monero_output_request::to_property_tree() const {
     boost::property_tree::ptree node = monero_output_wallet::to_property_tree();
-    if (!subaddressIndices.empty()) node.add_child("subaddressIndices", monero_utils::to_property_tree(subaddressIndices));
+    if (!subaddress_indices.empty()) node.add_child("subaddress_indices", monero_utils::to_property_tree(subaddress_indices));
     return node;
   }
 
   bool monero_output_request::meetsCriteria(monero_output_wallet* output) const {
 
     // filter on output
-    if (accountIndex != boost::none && *accountIndex != *output->accountIndex) return false;
-    if (subaddressIndex != boost::none && *subaddressIndex != *output->subaddressIndex) return false;
+    if (account_index != boost::none && *account_index != *output->account_index) return false;
+    if (subaddress_index != boost::none && *subaddress_index != *output->subaddress_index) return false;
     if (amount != boost::none && *amount != *output->amount) return false;
-    if (isSpent != boost::none && *isSpent != *output->isSpent) return false;
-    if (isUnlocked != boost::none && *isUnlocked != *output->isUnlocked) return false;
+    if (is_spent != boost::none && *is_spent != *output->is_spent) return false;
+    if (is_unlocked != boost::none && *is_unlocked != *output->is_unlocked) return false;
 
     // filter on output key image
-    if (keyImage != boost::none) {
-      if (output->keyImage == boost::none) return false;
-      if ((*keyImage)->hex != boost::none && ((*output->keyImage)->hex == boost::none || *(*keyImage)->hex != *(*output->keyImage)->hex)) return false;
-      if ((*keyImage)->signature != boost::none && ((*output->keyImage)->signature == boost::none || *(*keyImage)->signature != *(*output->keyImage)->signature)) return false;
+    if (key_image != boost::none) {
+      if (output->key_image == boost::none) return false;
+      if ((*key_image)->hex != boost::none && ((*output->key_image)->hex == boost::none || *(*key_image)->hex != *(*output->key_image)->hex)) return false;
+      if ((*key_image)->signature != boost::none && ((*output->key_image)->signature == boost::none || *(*key_image)->signature != *(*output->key_image)->signature)) return false;
     }
 
     // filter on extensions
-    if (!subaddressIndices.empty() && find(subaddressIndices.begin(), subaddressIndices.end(), *output->subaddressIndex) == subaddressIndices.end()) return false;
+    if (!subaddress_indices.empty() && find(subaddress_indices.begin(), subaddress_indices.end(), *output->subaddress_index) == subaddress_indices.end()) return false;
 
     // filter with tx request
-    if (txRequest != boost::none && !(*txRequest)->meetsCriteria(static_pointer_cast<monero_tx_wallet>(output->tx).get())) return false;
+    if (tx_request != boost::none && !(*tx_request)->meetsCriteria(static_pointer_cast<monero_tx_wallet>(output->tx).get())) return false;
 
     // output meets request
     return true;
@@ -620,20 +620,20 @@ namespace monero {
   boost::property_tree::ptree monero_send_request::to_property_tree() const {
     boost::property_tree::ptree node;
     if (!destinations.empty()) node.add_child("destinations", monero_utils::to_property_tree(destinations));
-    if (paymentId != boost::none) node.put("paymentId", *paymentId);
+    if (payment_id != boost::none) node.put("payment_id", *payment_id);
     if (priority != boost::none) node.put("priority", *priority);
     if (mixin != boost::none) node.put("mixin", *mixin);
     if (ringSize != boost::none) node.put("ringSize", *ringSize);
-    if (accountIndex != boost::none) node.put("accountIndex", *accountIndex);
-    if (!subaddressIndices.empty()) node.add_child("subaddressIndices", monero_utils::to_property_tree(subaddressIndices));
-    if (unlockTime != boost::none) node.put("unlockTime", *unlockTime);
-    if (canSplit != boost::none) node.put("canSplit", *canSplit);
-    if (doNotRelay != boost::none) node.put("doNotRelay", *doNotRelay);
+    if (account_index != boost::none) node.put("account_index", *account_index);
+    if (!subaddress_indices.empty()) node.add_child("subaddress_indices", monero_utils::to_property_tree(subaddress_indices));
+    if (unlock_time != boost::none) node.put("unlock_time", *unlock_time);
+    if (can_split != boost::none) node.put("can_split", *can_split);
+    if (do_not_relay != boost::none) node.put("do_not_relay", *do_not_relay);
     if (note != boost::none) node.put("note", *note);
-    if (recipientName != boost::none) node.put("recipientName", *recipientName);
-    if (belowAmount != boost::none) node.put("belowAmount", *belowAmount);
-    if (sweepEachSubaddress != boost::none) node.put("sweepEachSubaddress", *sweepEachSubaddress);
-    if (keyImage != boost::none) node.put("keyImage", *keyImage);
+    if (receipient_name != boost::none) node.put("receipient_name", *receipient_name);
+    if (below_amount != boost::none) node.put("below_amount", *below_amount);
+    if (sweep_each_subaddress != boost::none) node.put("sweep_each_subaddress", *sweep_each_subaddress);
+    if (key_image != boost::none) node.put("key_image", *key_image);
     return node;
   }
 
@@ -641,9 +641,9 @@ namespace monero {
 
   boost::property_tree::ptree monero_integrated_address::to_property_tree() const {
     boost::property_tree::ptree node;
-    node.put("standardAddress", standardAddress);
-    node.put("paymentId", paymentId);
-    node.put("integratedAddress", integratedAddress);
+    node.put("standard_address", standard_address);
+    node.put("payment_id", payment_id);
+    node.put("integrated_address", integrated_address);
     return node;
   }
 
@@ -652,8 +652,8 @@ namespace monero {
   boost::property_tree::ptree monero_key_image_import_result::to_property_tree() const {
     boost::property_tree::ptree node;
     if (height != boost::none) node.put("height", *height);
-    if (spentAmount != boost::none) node.put("spentAmount", *spentAmount);
-    if (unspentAmount != boost::none) node.put("unspentAmount", *unspentAmount);
+    if (spent_amount != boost::none) node.put("spent_amount", *spent_amount);
+    if (unspent_amount != boost::none) node.put("unspent_amount", *unspent_amount);
     return node;
   }
 
@@ -661,7 +661,7 @@ namespace monero {
 
   boost::property_tree::ptree monero_check::to_property_tree() const {
     boost::property_tree::ptree node;
-    node.put("isGood", isGood);
+    node.put("is_good", is_good);
     return node;
   }
 
@@ -669,9 +669,9 @@ namespace monero {
 
   boost::property_tree::ptree monero_check_tx::to_property_tree() const {
     boost::property_tree::ptree node = monero_check::to_property_tree();;
-    if (inTxPool != boost::none) node.put("inTxPool", *inTxPool);
-    if (numConfirmations != boost::none) node.put("numConfirmations", *numConfirmations);
-    if (receivedAmount != boost::none) node.put("receivedAmount", *receivedAmount);
+    if (in_tx_pool != boost::none) node.put("in_tx_pool", *in_tx_pool);
+    if (num_confirmations != boost::none) node.put("num_confirmations", *num_confirmations);
+    if (received_amount != boost::none) node.put("received_amount", *received_amount);
     return node;
   }
 
@@ -679,8 +679,8 @@ namespace monero {
 
   boost::property_tree::ptree monero_check_reserve::to_property_tree() const {
     boost::property_tree::ptree node = monero_check::to_property_tree();
-    if (totalAmount != boost::none) node.put("totalAmount", *totalAmount);
-    if (unconfirmedSpentAmount != boost::none) node.put("unconfirmedSpentAmount", *unconfirmedSpentAmount);
+    if (total_amount != boost::none) node.put("total_amount", *total_amount);
+    if (unconfirmed_spent_amount != boost::none) node.put("unconfirmed_spent_amount", *unconfirmed_spent_amount);
     return node;
   }
 }

@@ -375,19 +375,19 @@ namespace monero {
     /**
      * Get an integrated address from a standard address and a payment id.
      *
-     * @param standardAddress is the integrated addresse's standard address (defaults to wallet's primary address)
-     * @param paymentId is the integrated addresse's payment id (defaults to randomly generating new payment id)
+     * @param standard_address is the integrated addresse's standard address (defaults to wallet's primary address)
+     * @param payment_id is the integrated addresse's payment id (defaults to randomly generating new payment id)
      * @return the integrated address
      */
-    monero_integrated_address get_integrated_address(const string& standardAddress = "", const string& paymentId = "") const;
+    monero_integrated_address get_integrated_address(const string& standard_address = "", const string& payment_id = "") const;
 
     /**
      * Decode an integrated address to get its standard address and payment id.
      *
-     * @param integratedAddress is an integrated address to decode
+     * @param integrated_address is an integrated address to decode
      * @return the decoded integrated address including standard address and payment id
      */
-    monero_integrated_address decode_integrated_address(const string& integratedAddress) const;
+    monero_integrated_address decode_integrated_address(const string& integrated_address) const;
 
     /**
      * Set the wallet's listener to receive wallet notifications.
@@ -599,10 +599,10 @@ namespace monero {
      * Get subaddresses in an account.
      *
      * @param accountIdx specifies the account to get subaddresses within
-     * @param subaddressIndices are specific subaddresses to get (optional)
+     * @param subaddress_indices are specific subaddresses to get (optional)
      * @return the retrieved subaddresses
      */
-    vector<monero_subaddress> get_subaddresses(const uint32_t accountIdx, const vector<uint32_t>& subaddressIndices) const;
+    vector<monero_subaddress> get_subaddresses(const uint32_t accountIdx, const vector<uint32_t>& subaddress_indices) const;
 
     /**
      * Get a subaddress.
@@ -641,10 +641,10 @@ namespace monero {
 //    /**
 //     * Get wallet transactions by id.
 //     *
-//     * @param txIds are ids of transactions to get
+//     * @param tx_ids are ids of transactions to get
 //     * @return the identified transactions
 //     */
-//    public List<monero_tx_wallet> get_txs(Collection<string> txIds);
+//    public List<monero_tx_wallet> get_txs(Collection<string> tx_ids);
 
     /**
      * Get wallet transactions.  Wallet transactions contain one or more
@@ -791,24 +791,24 @@ namespace monero {
 //     * Create and relay a transaction which transfers funds from this wallet to
 //     * a destination address.
 //     *
-//     * @param accountIndex is the index of the account to draw funds from
+//     * @param account_index is the index of the account to draw funds from
 //     * @param address is the destination address to send funds to
 //     * @param sendAmount is the amount being sent
 //     * @return the resulting transaction
 //     */
-//    public monero_tx_wallet send(int accountIndex, string address, BigInteger sendAmount);
+//    public monero_tx_wallet send(int account_index, string address, BigInteger sendAmount);
 //
 //    /**
 //     * Create and relay a transaction which transfers funds from this wallet to
 //     * a destination address.
 //     *
-//     * @param accountIndex is the index of the account to draw funds from
+//     * @param account_index is the index of the account to draw funds from
 //     * @param address is the destination address to send funds to
 //     * @param sendAmount is the amount being sent
 //     * @param priority is the send priority (default normal)
 //     * @return the resulting transaction
 //     */
-//    public monero_tx_wallet send(int accountIndex, string address, BigInteger sendAmount, monero_send_priority priority);
+//    public monero_tx_wallet send(int account_index, string address, BigInteger sendAmount, monero_send_priority priority);
 //
 //    /**
 //     * Create and relay (depending on configuration) one or more transactions
@@ -823,24 +823,24 @@ namespace monero {
 //     * Create and relay one or more transactions which transfer funds from this
 //     * wallet to one or more destination.
 //     *
-//     * @param accountIndex is the index of the account to draw funds from
+//     * @param account_index is the index of the account to draw funds from
 //     * @param address is the destination address to send funds to
 //     * @param sendAmount is the amount being sent
 //     * @return the resulting transactions
 //     */
-//    public List<monero_tx_wallet> send_split(int accountIndex, string address, BigInteger sendAmount);
+//    public List<monero_tx_wallet> send_split(int account_index, string address, BigInteger sendAmount);
 //
 //    /**
 //     * Create and relay one or more transactions which transfer funds from this
 //     * wallet to one or more destination.
 //     *
-//     * @param accountIndex is the index of the account to draw funds from
+//     * @param account_index is the index of the account to draw funds from
 //     * @param address is the destination address to send funds to
 //     * @param sendAmount is the amount being sent
 //     * @param priority is the send priority (default normal)
 //     * @return the resulting transactions
 //     */
-//    public List<monero_tx_wallet> send_split(int accountIndex, string address, BigInteger sendAmount, monero_send_priority priority);
+//    public List<monero_tx_wallet> send_split(int account_index, string address, BigInteger sendAmount, monero_send_priority priority);
 
     /**
      * Sweep an output with a given key image.
@@ -854,20 +854,20 @@ namespace monero {
 //     * Sweep an output with a given key image.
 //     *
 //     * @param address is the destination address to send to
-//     * @param keyImage is the key image hex of the output to sweep
+//     * @param key_image is the key image hex of the output to sweep
 //     * @return the resulting transaction from sweeping an output
 //     */
-//    public monero_tx_wallet sweep_output(string address, string keyImage);
+//    public monero_tx_wallet sweep_output(string address, string key_image);
 //
 //    /**
 //     * Sweep an output with a given key image.
 //     *
 //     * @param address is the destination address to send to
-//     * @param keyImage is the key image hex of the output to sweep
+//     * @param key_image is the key image hex of the output to sweep
 //     * @param priority is the transaction priority (optional)
 //     * @return the resulting transaction from sweeping an output
 //     */
-//    public monero_tx_wallet sweep_output(string address, string keyImage, monero_send_priority priority);
+//    public monero_tx_wallet sweep_output(string address, string key_image, monero_send_priority priority);
 //
 //    /**
 //     * Sweep a subaddress's unlocked funds to an address.
@@ -916,10 +916,10 @@ namespace monero {
     /**
      * Sweep all unmixable dust outputs back to the wallet to make them easier to spend and mix.
      *
-     * @param doNotRelay specifies if the resulting transaction should not be relayed (defaults to false i.e. relayed)
+     * @param do_not_relay specifies if the resulting transaction should not be relayed (defaults to false i.e. relayed)
      * @return the resulting transactions from sweeping dust
      */
-    vector<shared_ptr<monero_tx_wallet>> sweep_dust(bool doNotRelay = false);
+    vector<shared_ptr<monero_tx_wallet>> sweep_dust(bool do_not_relay = false);
 //
 //    /**
 //     * Relay a transaction previously created without relaying.
@@ -948,10 +948,10 @@ namespace monero {
     /**
      * Get notes for multiple transactions.
      *
-     * @param txIds identify the transactions to get notes for
+     * @param tx_ids identify the transactions to get notes for
      * @preturns notes for the transactions
      */
-    vector<string> get_tx_notes(const vector<string>& txIds) const;
+    vector<string> get_tx_notes(const vector<string>& tx_ids) const;
 
     /**
      * Set a note for a specific transaction.
@@ -964,10 +964,10 @@ namespace monero {
     /**
      * Set notes for multiple transactions.
      *
-     * @param txIds specify the transactions to set notes for
+     * @param tx_ids specify the transactions to set notes for
      * @param notes are the notes to set for the transactions
      */
-    void set_tx_notes(const vector<string>& txIds, const vector<string>& notes);
+    void set_tx_notes(const vector<string>& tx_ids, const vector<string>& notes);
 
     /**
      * Sign a message.
@@ -1119,10 +1119,10 @@ namespace monero {
 //     *
 //     * @param address is the entry address
 //     * @param description is the entry description (optional)
-//     * @param paymentId is the entry paymet id (optional)
+//     * @param payment_id is the entry paymet id (optional)
 //     * @return the index of the added entry
 //     */
-//    public int addAddressBookEntry(string address, string description, string paymentId);
+//    public int addAddressBookEntry(string address, string description, string payment_id);
 //
 //    /**
 //     * Delete an address book entry.
@@ -1234,7 +1234,7 @@ namespace monero {
     boost::optional<MoneroWalletListener&> listener = boost::none;  // wallet's external listener
 
     void initCommon();
-    vector<monero_subaddress> getSubaddressesAux(uint32_t accountIdx, const vector<uint32_t>& subaddressIndices, const vector<tools::wallet2::transfer_details>& transfers) const;
+    vector<monero_subaddress> getSubaddressesAux(uint32_t accountIdx, const vector<uint32_t>& subaddress_indices, const vector<tools::wallet2::transfer_details>& transfers) const;
 
     // blockchain sync management
     mutable std::atomic<bool> isSynced;       // whether or not wallet is synced

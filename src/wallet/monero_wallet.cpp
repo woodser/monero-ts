@@ -98,40 +98,40 @@ namespace monero {
     tx->block = block;
     block->txs.push_back(tx);
     tx->id = string_tools::pod_to_hex(pd.m_tx_hash);
-    tx->paymentId = string_tools::pod_to_hex(payment_id);
-    if (tx->paymentId->substr(16).find_first_not_of('0') == std::string::npos) tx->paymentId = tx->paymentId->substr(0, 16);  // TODO monero core: this should be part of core wallet
-    if (tx->paymentId == monero_tx::DEFAULT_PAYMENT_ID) tx->paymentId = boost::none;  // clear default payment id
-    tx->unlockTime = pd.m_unlock_time;
+    tx->payment_id = string_tools::pod_to_hex(payment_id);
+    if (tx->payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->payment_id = tx->payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
+    if (tx->payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->payment_id = boost::none;  // clear default payment id
+    tx->unlock_time = pd.m_unlock_time;
     tx->fee = pd.m_fee;
     tx->note = wallet2.get_tx_note(pd.m_tx_hash);
     if (tx->note->empty()) tx->note = boost::none; // clear empty note
-    tx->isMinerTx = pd.m_coinbase ? true : false;
-    tx->isConfirmed = true;
-    tx->isFailed = false;
-    tx->isRelayed = true;
-    tx->inTxPool = false;
-    tx->doNotRelay = false;
-    tx->isDoubleSpendSeen = false;
+    tx->is_miner_tx = pd.m_coinbase ? true : false;
+    tx->is_confirmed = true;
+    tx->is_failed = false;
+    tx->is_relayed = true;
+    tx->in_tx_pool = false;
+    tx->do_not_relay = false;
+    tx->is_double_spend_seen = false;
 
-    // compute numConfirmations TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
+    // compute num_confirmations TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
     // TODO: factor out this duplicate code with buildTxWithOutgoingTransfer()
-    if (*block->height >= height || (*block->height == 0 && !*tx->inTxPool)) tx->numConfirmations = 0;
-    else tx->numConfirmations = height - *block->height;
+    if (*block->height >= height || (*block->height == 0 && !*tx->in_tx_pool)) tx->num_confirmations = 0;
+    else tx->num_confirmations = height - *block->height;
 
     // construct transfer
     shared_ptr<monero_incoming_transfer> incomingTransfer = make_shared<monero_incoming_transfer>();
     incomingTransfer->tx = tx;
-    tx->incomingTransfers.push_back(incomingTransfer);
+    tx->incoming_transfers.push_back(incomingTransfer);
     incomingTransfer->amount = pd.m_amount;
-    incomingTransfer->accountIndex = pd.m_subaddr_index.major;
-    incomingTransfer->subaddressIndex = pd.m_subaddr_index.minor;
+    incomingTransfer->account_index = pd.m_subaddr_index.major;
+    incomingTransfer->subaddress_index = pd.m_subaddr_index.minor;
     incomingTransfer->address = wallet2.get_subaddress_as_str(pd.m_subaddr_index);
 
-    // compute numSuggestedConfirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 `set_confirmations` but it should be encapsulated in wallet2
+    // compute num_suggested_confirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 `set_confirmations` but it should be encapsulated in wallet2
     // TODO: factor out this duplicate code with buildTxWithOutgoingTransfer()
     uint64_t blockReward = wallet2.get_last_block_reward();
-    if (blockReward == 0) incomingTransfer->numSuggestedConfirmations = 0;
-    else incomingTransfer->numSuggestedConfirmations = (*incomingTransfer->amount + blockReward - 1) / blockReward;
+    if (blockReward == 0) incomingTransfer->num_suggested_confirmations = 0;
+    else incomingTransfer->num_suggested_confirmations = (*incomingTransfer->amount + blockReward - 1) / blockReward;
 
     // return pointer to new tx
     return tx;
@@ -149,61 +149,61 @@ namespace monero {
     tx->block = block;
     block->txs.push_back(tx);
     tx->id = string_tools::pod_to_hex(txid);
-    tx->paymentId = string_tools::pod_to_hex(pd.m_payment_id);
-    if (tx->paymentId->substr(16).find_first_not_of('0') == std::string::npos) tx->paymentId = tx->paymentId->substr(0, 16);  // TODO monero core: this should be part of core wallet
-    if (tx->paymentId == monero_tx::DEFAULT_PAYMENT_ID) tx->paymentId = boost::none;  // clear default payment id
-    tx->unlockTime = pd.m_unlock_time;
+    tx->payment_id = string_tools::pod_to_hex(pd.m_payment_id);
+    if (tx->payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->payment_id = tx->payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
+    if (tx->payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->payment_id = boost::none;  // clear default payment id
+    tx->unlock_time = pd.m_unlock_time;
     tx->fee = pd.m_amount_in - pd.m_amount_out;
     tx->note = wallet2.get_tx_note(txid);
     if (tx->note->empty()) tx->note = boost::none; // clear empty note
-    tx->isMinerTx = false;
-    tx->isConfirmed = true;
-    tx->isFailed = false;
-    tx->isRelayed = true;
-    tx->inTxPool = false;
-    tx->doNotRelay = false;
-    tx->isDoubleSpendSeen = false;
+    tx->is_miner_tx = false;
+    tx->is_confirmed = true;
+    tx->is_failed = false;
+    tx->is_relayed = true;
+    tx->in_tx_pool = false;
+    tx->do_not_relay = false;
+    tx->is_double_spend_seen = false;
 
-    // compute numConfirmations TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
-    if (*block->height >= height || (*block->height == 0 && !*tx->inTxPool)) tx->numConfirmations = 0;
-    else tx->numConfirmations = height - *block->height;
+    // compute num_confirmations TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
+    if (*block->height >= height || (*block->height == 0 && !*tx->in_tx_pool)) tx->num_confirmations = 0;
+    else tx->num_confirmations = height - *block->height;
 
     // construct transfer
-    shared_ptr<monero_outgoing_transfer> outgoingTransfer = make_shared<monero_outgoing_transfer>();
-    outgoingTransfer->tx = tx;
-    tx->outgoingTransfer = outgoingTransfer;
+    shared_ptr<monero_outgoing_transfer> outgoing_transfer = make_shared<monero_outgoing_transfer>();
+    outgoing_transfer->tx = tx;
+    tx->outgoing_transfer = outgoing_transfer;
     uint64_t change = pd.m_change == (uint64_t)-1 ? 0 : pd.m_change; // change may not be known
-    outgoingTransfer->amount = pd.m_amount_in - change - *tx->fee;
-    outgoingTransfer->accountIndex = pd.m_subaddr_account;
-    vector<uint32_t> subaddressIndices;
+    outgoing_transfer->amount = pd.m_amount_in - change - *tx->fee;
+    outgoing_transfer->account_index = pd.m_subaddr_account;
+    vector<uint32_t> subaddress_indices;
     vector<string> addresses;
     for (uint32_t i: pd.m_subaddr_indices) {
-      subaddressIndices.push_back(i);
+      subaddress_indices.push_back(i);
       addresses.push_back(wallet2.get_subaddress_as_str({pd.m_subaddr_account, i}));
     }
-    outgoingTransfer->subaddressIndices = subaddressIndices;
-    outgoingTransfer->addresses = addresses;
+    outgoing_transfer->subaddress_indices = subaddress_indices;
+    outgoing_transfer->addresses = addresses;
 
     // initialize destinations
     for (const auto &d: pd.m_dests) {
       shared_ptr<monero_destination> destination = make_shared<monero_destination>();
       destination->amount = d.amount;
       destination->address = d.original.empty() ? cryptonote::get_account_address_as_str(wallet2.nettype(), d.is_subaddress, d.addr) : d.original;
-      outgoingTransfer->destinations.push_back(destination);
+      outgoing_transfer->destinations.push_back(destination);
     }
 
     // replace transfer amount with destination sum
     // TODO monero core: confirmed tx from/to same account has amount 0 but cached transfer destinations
-    if (*outgoingTransfer->amount == 0 && !outgoingTransfer->destinations.empty()) {
+    if (*outgoing_transfer->amount == 0 && !outgoing_transfer->destinations.empty()) {
       uint64_t amount = 0;
-      for (const shared_ptr<monero_destination>& destination : outgoingTransfer->destinations) amount += *destination->amount;
-      outgoingTransfer->amount = amount;
+      for (const shared_ptr<monero_destination>& destination : outgoing_transfer->destinations) amount += *destination->amount;
+      outgoing_transfer->amount = amount;
     }
 
-    // compute numSuggestedConfirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
+    // compute num_suggested_confirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
     uint64_t blockReward = wallet2.get_last_block_reward();
-    if (blockReward == 0) outgoingTransfer->numSuggestedConfirmations = 0;
-    else outgoingTransfer->numSuggestedConfirmations = (*outgoingTransfer->amount + blockReward - 1) / blockReward;
+    if (blockReward == 0) outgoing_transfer->num_suggested_confirmations = 0;
+    else outgoing_transfer->num_suggested_confirmations = (*outgoing_transfer->amount + blockReward - 1) / blockReward;
 
     // return pointer to new tx
     return tx;
@@ -215,35 +215,35 @@ namespace monero {
     const tools::wallet2::payment_details &pd = ppd.m_pd;
     shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
     tx->id = string_tools::pod_to_hex(pd.m_tx_hash);
-    tx->paymentId = string_tools::pod_to_hex(payment_id);
-    if (tx->paymentId->substr(16).find_first_not_of('0') == std::string::npos) tx->paymentId = tx->paymentId->substr(0, 16);  // TODO monero core: this should be part of core wallet
-    if (tx->paymentId == monero_tx::DEFAULT_PAYMENT_ID) tx->paymentId = boost::none;  // clear default payment id
-    tx->unlockTime = pd.m_unlock_time;
+    tx->payment_id = string_tools::pod_to_hex(payment_id);
+    if (tx->payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->payment_id = tx->payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
+    if (tx->payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->payment_id = boost::none;  // clear default payment id
+    tx->unlock_time = pd.m_unlock_time;
     tx->fee = pd.m_fee;
     tx->note = wallet2.get_tx_note(pd.m_tx_hash);
     if (tx->note->empty()) tx->note = boost::none; // clear empty note
-    tx->isMinerTx = false;
-    tx->isConfirmed = false;
-    tx->isFailed = false;
-    tx->isRelayed = true;
-    tx->inTxPool = true;
-    tx->doNotRelay = false;
-    tx->isDoubleSpendSeen = ppd.m_double_spend_seen;
-    tx->numConfirmations = 0;
+    tx->is_miner_tx = false;
+    tx->is_confirmed = false;
+    tx->is_failed = false;
+    tx->is_relayed = true;
+    tx->in_tx_pool = true;
+    tx->do_not_relay = false;
+    tx->is_double_spend_seen = ppd.m_double_spend_seen;
+    tx->num_confirmations = 0;
 
     // construct transfer
     shared_ptr<monero_incoming_transfer> incomingTransfer = make_shared<monero_incoming_transfer>();
     incomingTransfer->tx = tx;
-    tx->incomingTransfers.push_back(incomingTransfer);
+    tx->incoming_transfers.push_back(incomingTransfer);
     incomingTransfer->amount = pd.m_amount;
-    incomingTransfer->accountIndex = pd.m_subaddr_index.major;
-    incomingTransfer->subaddressIndex = pd.m_subaddr_index.minor;
+    incomingTransfer->account_index = pd.m_subaddr_index.major;
+    incomingTransfer->subaddress_index = pd.m_subaddr_index.minor;
     incomingTransfer->address = wallet2.get_subaddress_as_str(pd.m_subaddr_index);
 
-    // compute numSuggestedConfirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
+    // compute num_suggested_confirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
     uint64_t blockReward = wallet2.get_last_block_reward();
-    if (blockReward == 0) incomingTransfer->numSuggestedConfirmations = 0;
-    else incomingTransfer->numSuggestedConfirmations = (*incomingTransfer->amount + blockReward - 1) / blockReward;
+    if (blockReward == 0) incomingTransfer->num_suggested_confirmations = 0;
+    else incomingTransfer->num_suggested_confirmations = (*incomingTransfer->amount + blockReward - 1) / blockReward;
 
     // return pointer to new tx
     return tx;
@@ -253,58 +253,58 @@ namespace monero {
 
     // construct tx
     shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
-    tx->isFailed = pd.m_state == tools::wallet2::unconfirmed_transfer_details::failed;
+    tx->is_failed = pd.m_state == tools::wallet2::unconfirmed_transfer_details::failed;
     tx->id = string_tools::pod_to_hex(txid);
-    tx->paymentId = string_tools::pod_to_hex(pd.m_payment_id);
-    if (tx->paymentId->substr(16).find_first_not_of('0') == std::string::npos) tx->paymentId = tx->paymentId->substr(0, 16);  // TODO monero core: this should be part of core wallet
-    if (tx->paymentId == monero_tx::DEFAULT_PAYMENT_ID) tx->paymentId = boost::none;  // clear default payment id
-    tx->unlockTime = pd.m_tx.unlock_time;
+    tx->payment_id = string_tools::pod_to_hex(pd.m_payment_id);
+    if (tx->payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->payment_id = tx->payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
+    if (tx->payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->payment_id = boost::none;  // clear default payment id
+    tx->unlock_time = pd.m_tx.unlock_time;
     tx->fee = pd.m_amount_in - pd.m_amount_out;
     tx->note = wallet2.get_tx_note(txid);
     if (tx->note->empty()) tx->note = boost::none; // clear empty note
-    tx->isMinerTx = false;
-    tx->isConfirmed = false;
-    tx->isRelayed = !tx->isFailed.get();
-    tx->inTxPool = !tx->isFailed.get();
-    tx->doNotRelay = false;
-    if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpendSeen = false;  // TODO: test and handle if true
-    tx->numConfirmations = 0;
+    tx->is_miner_tx = false;
+    tx->is_confirmed = false;
+    tx->is_relayed = !tx->is_failed.get();
+    tx->in_tx_pool = !tx->is_failed.get();
+    tx->do_not_relay = false;
+    if (!tx->is_failed.get() && tx->is_relayed.get()) tx->is_double_spend_seen = false;  // TODO: test and handle if true
+    tx->num_confirmations = 0;
 
     // construct transfer
-    shared_ptr<monero_outgoing_transfer> outgoingTransfer = make_shared<monero_outgoing_transfer>();
-    outgoingTransfer->tx = tx;
-    tx->outgoingTransfer = outgoingTransfer;
-    outgoingTransfer->amount = pd.m_amount_in - pd.m_change - tx->fee.get();
-    outgoingTransfer->accountIndex = pd.m_subaddr_account;
-    vector<uint32_t> subaddressIndices;
+    shared_ptr<monero_outgoing_transfer> outgoing_transfer = make_shared<monero_outgoing_transfer>();
+    outgoing_transfer->tx = tx;
+    tx->outgoing_transfer = outgoing_transfer;
+    outgoing_transfer->amount = pd.m_amount_in - pd.m_change - tx->fee.get();
+    outgoing_transfer->account_index = pd.m_subaddr_account;
+    vector<uint32_t> subaddress_indices;
     vector<string> addresses;
     for (uint32_t i: pd.m_subaddr_indices) {
-      subaddressIndices.push_back(i);
+      subaddress_indices.push_back(i);
       addresses.push_back(wallet2.get_subaddress_as_str({pd.m_subaddr_account, i}));
     }
-    outgoingTransfer->subaddressIndices = subaddressIndices;
-    outgoingTransfer->addresses = addresses;
+    outgoing_transfer->subaddress_indices = subaddress_indices;
+    outgoing_transfer->addresses = addresses;
 
     // initialize destinations
     for (const auto &d: pd.m_dests) {
       shared_ptr<monero_destination> destination = make_shared<monero_destination>();
       destination->amount = d.amount;
       destination->address = d.original.empty() ? cryptonote::get_account_address_as_str(wallet2.nettype(), d.is_subaddress, d.addr) : d.original;
-      outgoingTransfer->destinations.push_back(destination);
+      outgoing_transfer->destinations.push_back(destination);
     }
 
     // replace transfer amount with destination sum
     // TODO monero core: confirmed tx from/to same account has amount 0 but cached transfer destinations
-    if (*outgoingTransfer->amount == 0 && !outgoingTransfer->destinations.empty()) {
+    if (*outgoing_transfer->amount == 0 && !outgoing_transfer->destinations.empty()) {
       uint64_t amount = 0;
-      for (const shared_ptr<monero_destination>& destination : outgoingTransfer->destinations) amount += *destination->amount;
-      outgoingTransfer->amount = amount;
+      for (const shared_ptr<monero_destination>& destination : outgoing_transfer->destinations) amount += *destination->amount;
+      outgoing_transfer->amount = amount;
     }
 
-    // compute numSuggestedConfirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
+    // compute num_suggested_confirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
     uint64_t blockReward = wallet2.get_last_block_reward();
-    if (blockReward == 0) outgoingTransfer->numSuggestedConfirmations = 0;
-    else outgoingTransfer->numSuggestedConfirmations = (*outgoingTransfer->amount + blockReward - 1) / blockReward;
+    if (blockReward == 0) outgoing_transfer->num_suggested_confirmations = 0;
+    else outgoing_transfer->num_suggested_confirmations = (*outgoing_transfer->amount + blockReward - 1) / blockReward;
 
     // return pointer to new tx
     return tx;
@@ -321,12 +321,12 @@ namespace monero {
     tx->block = block;
     block->txs.push_back(tx);
     tx->id = epee::string_tools::pod_to_hex(td.m_txid);
-    tx->isConfirmed = true;
-    tx->isFailed = false;
-    tx->isRelayed = true;
-    tx->inTxPool = false;
-    tx->doNotRelay = false;
-    tx->isDoubleSpendSeen = false;
+    tx->is_confirmed = true;
+    tx->is_failed = false;
+    tx->is_relayed = true;
+    tx->in_tx_pool = false;
+    tx->do_not_relay = false;
+    tx->is_double_spend_seen = false;
 
     // construct vout
     shared_ptr<monero_output_wallet> vout = make_shared<monero_output_wallet>();
@@ -334,14 +334,14 @@ namespace monero {
     tx->vouts.push_back(vout);
     vout->amount = td.amount();
     vout->index = td.m_global_output_index;
-    vout->accountIndex = td.m_subaddr_index.major;
-    vout->subaddressIndex = td.m_subaddr_index.minor;
-    vout->isSpent = td.m_spent;
-    vout->isUnlocked = wallet2.is_transfer_unlocked(td);
-    vout->isFrozen = td.m_frozen;
+    vout->account_index = td.m_subaddr_index.major;
+    vout->subaddress_index = td.m_subaddr_index.minor;
+    vout->is_spent = td.m_spent;
+    vout->is_unlocked = wallet2.is_transfer_unlocked(td);
+    vout->is_frozen = td.m_frozen;
     if (td.m_key_image_known) {
-      vout->keyImage = make_shared<monero_key_image>();
-      vout->keyImage.get()->hex = epee::string_tools::pod_to_hex(td.m_key_image);
+      vout->key_image = make_shared<monero_key_image>();
+      vout->key_image.get()->hex = epee::string_tools::pod_to_hex(td.m_key_image);
     }
 
     // return pointer to new tx
@@ -408,8 +408,8 @@ namespace monero {
     if (txHeightLessThan(transfer1->tx, transfer2->tx)) return true;
 
     // compare by account and subaddress index
-    if (transfer1->accountIndex.get() < transfer2->accountIndex.get()) return true;
-    else if (transfer1->accountIndex.get() == transfer2->accountIndex.get()) return transfer1->subaddressIndex.get() < transfer2->subaddressIndex.get();
+    if (transfer1->account_index.get() < transfer2->account_index.get()) return true;
+    else if (transfer1->account_index.get() == transfer2->account_index.get()) return transfer1->subaddress_index.get() < transfer2->subaddress_index.get();
     else return false;
   }
 
@@ -424,10 +424,10 @@ namespace monero {
     if (txHeightLessThan(ow1->tx, ow2->tx)) return true;
 
     // compare by account index, subaddress index, and output
-    if (ow1->accountIndex.get() < ow2->accountIndex.get()) return true;
-    else if (ow1->accountIndex.get() == ow2->accountIndex.get()) {
-      if (ow1->subaddressIndex.get() < ow2->subaddressIndex.get()) return true;
-      if (ow1->subaddressIndex.get() == ow2->subaddressIndex.get() && ow1->index.get() < ow2->index.get()) return true;
+    if (ow1->account_index.get() < ow2->account_index.get()) return true;
+    else if (ow1->account_index.get() == ow2->account_index.get()) {
+      if (ow1->subaddress_index.get() < ow2->subaddress_index.get()) return true;
+      if (ow1->subaddress_index.get() == ow2->subaddress_index.get() && ow1->index.get() < ow2->index.get()) return true;
     }
     return false;
   }
@@ -696,7 +696,7 @@ namespace monero {
       updateListening();
     }
 
-    virtual void on_new_block(uint64_t height, const cryptonote::block& cnBlock) {
+    virtual void on_new_block(uint64_t height, const cryptonote::block& cn_block) {
 
       // notify listener of block
       if (listener != boost::none) listener->on_new_block(height);
@@ -711,24 +711,24 @@ namespace monero {
       }
     }
 
-    virtual void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cnTx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index, uint64_t unlock_time) {
+    virtual void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cn_tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index, uint64_t unlock_time) {
       MTRACE("Wallet2Listener::on_money_received()");
       if (listener == boost::none) return;
 
       // create native library tx
       shared_ptr<monero_block> block = make_shared<monero_block>();
       block->height = height;
-      shared_ptr<monero_tx_wallet> tx = static_pointer_cast<monero_tx_wallet>(monero_utils::cnTxToTx(cnTx, true));
+      shared_ptr<monero_tx_wallet> tx = static_pointer_cast<monero_tx_wallet>(monero_utils::cn_tx_to_tx(cn_tx, true));
       block->txs.push_back(tx);
       tx->block = block;
       tx->id = epee::string_tools::pod_to_hex(txid);
-      tx->unlockTime = unlock_time;
+      tx->unlock_time = unlock_time;
       shared_ptr<monero_output_wallet> output = make_shared<monero_output_wallet>();
       tx->vouts.push_back(output);
       output->tx = tx;
       output->amount = amount;
-      output->accountIndex = subaddr_index.major;
-      output->subaddressIndex = subaddr_index.minor;
+      output->account_index = subaddr_index.major;
+      output->subaddress_index = subaddr_index.minor;
 
       // notify listener of output
       listener->on_output_received(*output);
@@ -741,7 +741,7 @@ namespace monero {
       // create native library tx
       shared_ptr<monero_block> block = make_shared<monero_block>();
       block->height = height;
-      shared_ptr<monero_tx_wallet> tx = static_pointer_cast<monero_tx_wallet>(monero_utils::cnTxToTx(cnTxIn, true));
+      shared_ptr<monero_tx_wallet> tx = static_pointer_cast<monero_tx_wallet>(monero_utils::cn_tx_to_tx(cnTxIn, true));
       block->txs.push_back(tx);
       tx->block = block;
       tx->id = epee::string_tools::pod_to_hex(txid);
@@ -749,8 +749,8 @@ namespace monero {
       tx->vins.push_back(output);
       output->tx = tx;
       output->amount = amount;
-      output->accountIndex = subaddr_index.major;
-      output->subaddressIndex = subaddr_index.minor;
+      output->account_index = subaddr_index.major;
+      output->subaddress_index = subaddr_index.minor;
 
       // notify listener of output
       listener->on_output_spent(*output);
@@ -1028,54 +1028,54 @@ namespace monero {
     // return indices in subaddress
     monero_subaddress subaddress;
     cryptonote::subaddress_index cnIndex = *index;
-    subaddress.accountIndex = cnIndex.major;
+    subaddress.account_index = cnIndex.major;
     subaddress.index = cnIndex.minor;
     return subaddress;
   }
 
-  monero_integrated_address monero_wallet::get_integrated_address(const string& standardAddress, const string& paymentId) const {
-    MTRACE("get_integrated_address(" << standardAddress << ", " << paymentId << ")");
+  monero_integrated_address monero_wallet::get_integrated_address(const string& standard_address, const string& payment_id) const {
+    MTRACE("get_integrated_address(" << standard_address << ", " << payment_id << ")");
 
     // TODO monero-core: this logic is based on wallet_rpc_server::on_make_integrated_address() and should be moved to wallet so this is unecessary for api users
 
     // randomly generate payment id if not given, else validate
     crypto::hash8 paymentIdH8;
-    if (paymentId.empty()) {
+    if (payment_id.empty()) {
       paymentIdH8 = crypto::rand<crypto::hash8>();
     } else {
-      if (!tools::wallet2::parse_short_payment_id(paymentId, paymentIdH8)) throw runtime_error("Invalid payment ID: " + paymentId);
+      if (!tools::wallet2::parse_short_payment_id(payment_id, paymentIdH8)) throw runtime_error("Invalid payment ID: " + payment_id);
     }
 
     // use primary address if standard address not given, else validate
-    if (standardAddress.empty()) {
+    if (standard_address.empty()) {
       return decode_integrated_address(wallet2->get_integrated_address_as_str(paymentIdH8));
     } else {
 
       // validate standard address
       cryptonote::address_parse_info info;
-      if (!cryptonote::get_account_address_from_str(info, wallet2->nettype(), standardAddress)) throw runtime_error("Invalid address: " + standardAddress);
+      if (!cryptonote::get_account_address_from_str(info, wallet2->nettype(), standard_address)) throw runtime_error("Invalid address: " + standard_address);
       if (info.is_subaddress) throw runtime_error("Subaddress shouldn't be used");
       if (info.has_payment_id) throw runtime_error("Already integrated address");
-      if (paymentId.empty()) throw runtime_error("Payment ID shouldn't be left unspecified");
+      if (payment_id.empty()) throw runtime_error("Payment ID shouldn't be left unspecified");
 
       // create integrated address from given standard address
       return decode_integrated_address(cryptonote::get_account_integrated_address_as_str(wallet2->nettype(), info.address, paymentIdH8));
     }
   }
 
-  monero_integrated_address monero_wallet::decode_integrated_address(const string& integratedAddress) const {
-    MTRACE("decode_integrated_address(" << integratedAddress << ")");
+  monero_integrated_address monero_wallet::decode_integrated_address(const string& integrated_address) const {
+    MTRACE("decode_integrated_address(" << integrated_address << ")");
 
     // validate integrated address
     cryptonote::address_parse_info info;
-    if (!cryptonote::get_account_address_from_str(info, wallet2->nettype(), integratedAddress)) throw runtime_error("Invalid integrated address: " + integratedAddress);
+    if (!cryptonote::get_account_address_from_str(info, wallet2->nettype(), integrated_address)) throw runtime_error("Invalid integrated address: " + integrated_address);
     if (!info.has_payment_id) throw runtime_error("Address is not an integrated address");
 
     // initialize and return result
     monero_integrated_address result;
-    result.standardAddress = cryptonote::get_account_address_as_str(wallet2->nettype(), info.is_subaddress, info.address);
-    result.paymentId = epee::string_tools::pod_to_hex(info.payment_id);
-    result.integratedAddress = integratedAddress;
+    result.standard_address = cryptonote::get_account_address_as_str(wallet2->nettype(), info.is_subaddress, info.address);
+    result.payment_id = epee::string_tools::pod_to_hex(info.payment_id);
+    result.integrated_address = integrated_address;
     return result;
   }
 
@@ -1238,9 +1238,9 @@ namespace monero {
     for (uint32_t accountIdx = 0; accountIdx < wallet2->get_num_subaddress_accounts(); accountIdx++) {
       monero_account account;
       account.index = accountIdx;
-      account.primaryAddress = get_address(accountIdx, 0);
+      account.primary_address = get_address(accountIdx, 0);
       account.balance = wallet2->balance(accountIdx);
-      account.unlockedBalance = wallet2->unlocked_balance(accountIdx);
+      account.unlocked_balance = wallet2->unlocked_balance(accountIdx);
       if (includeSubaddresses) account.subaddresses = getSubaddressesAux(accountIdx, vector<uint32_t>(), transfers);
       accounts.push_back(account);
     }
@@ -1262,9 +1262,9 @@ namespace monero {
     // build and return account
     monero_account account;
     account.index = accountIdx;
-    account.primaryAddress = get_address(accountIdx, 0);
+    account.primary_address = get_address(accountIdx, 0);
     account.balance = wallet2->balance(accountIdx);
-    account.unlockedBalance = wallet2->unlocked_balance(accountIdx);
+    account.unlocked_balance = wallet2->unlocked_balance(accountIdx);
     if (includeSubaddresses) account.subaddresses = getSubaddressesAux(accountIdx, vector<uint32_t>(), transfers);
     return account;
   }
@@ -1278,9 +1278,9 @@ namespace monero {
     // initialize and return result
     monero_account account;
     account.index = wallet2->get_num_subaddress_accounts() - 1;
-    account.primaryAddress = wallet2->get_subaddress_as_str({account.index.get(), 0});
+    account.primary_address = wallet2->get_subaddress_as_str({account.index.get(), 0});
     account.balance = 0;
-    account.unlockedBalance = 0;
+    account.unlocked_balance = 0;
     return account;
   }
 
@@ -1288,13 +1288,13 @@ namespace monero {
     return get_subaddresses(accountIdx, vector<uint32_t>());
   }
 
-  vector<monero_subaddress> monero_wallet::get_subaddresses(const uint32_t accountIdx, const vector<uint32_t>& subaddressIndices) const {
+  vector<monero_subaddress> monero_wallet::get_subaddresses(const uint32_t accountIdx, const vector<uint32_t>& subaddress_indices) const {
     MTRACE("get_subaddresses(" << accountIdx << ", ...)");
-    MTRACE("Subaddress indices size: " << subaddressIndices.size());
+    MTRACE("Subaddress indices size: " << subaddress_indices.size());
 
     vector<tools::wallet2::transfer_details> transfers;
     wallet2->get_transfers(transfers);
-    return getSubaddressesAux(accountIdx, subaddressIndices, transfers);
+    return getSubaddressesAux(accountIdx, subaddress_indices, transfers);
   }
 
   monero_subaddress monero_wallet::getSubaddress(const uint32_t accountIdx, const uint32_t subaddressIdx) const {
@@ -1311,15 +1311,15 @@ namespace monero {
 
     // initialize and return result
     monero_subaddress subaddress;
-    subaddress.accountIndex = accountIdx;
+    subaddress.account_index = accountIdx;
     subaddress.index = wallet2->get_num_subaddresses(accountIdx) - 1;
     subaddress.address = wallet2->get_subaddress_as_str({accountIdx, subaddress.index.get()});
     subaddress.label = label;
     subaddress.balance = 0;
-    subaddress.unlockedBalance = 0;
-    subaddress.numUnspentOutputs = 0;
-    subaddress.isUsed = false;
-    subaddress.numBlocksToUnlock = 0;
+    subaddress.unlocked_balance = 0;
+    subaddress.num_unspent_outputs = 0;
+    subaddress.is_used = false;
+    subaddress.num_blocks_to_unlock = 0;
     return subaddress;
   }
 
@@ -1334,19 +1334,19 @@ namespace monero {
     // copy and normalize tx request
     shared_ptr<monero_tx_request> requestSp = make_shared<monero_tx_request>(request); // convert to shared pointer for copy
     shared_ptr<monero_tx_request> req = requestSp->copy(requestSp, make_shared<monero_tx_request>());
-    if (req->transferRequest == boost::none) req->transferRequest = make_shared<monero_transfer_request>();
-    shared_ptr<monero_transfer_request> transferReq = req->transferRequest.get();
+    if (req->transfer_request == boost::none) req->transfer_request = make_shared<monero_transfer_request>();
+    shared_ptr<monero_transfer_request> transferReq = req->transfer_request.get();
 
     // print req
     if (req->block != boost::none) MTRACE("Tx req's rooted at [block]: " << req->block.get()->serialize());
     else MTRACE("Tx req: " << req->serialize());
     
     // temporarily disable transfer request
-    req->transferRequest = boost::none;
+    req->transfer_request = boost::none;
 
     // fetch all transfers that meet tx request
     monero_transfer_request tempTransferReq;
-    tempTransferReq.txRequest = make_shared<monero_tx_request>(*req);
+    tempTransferReq.tx_request = make_shared<monero_tx_request>(*req);
     vector<shared_ptr<monero_transfer>> transfers = get_transfers(tempTransferReq);
 
     // collect unique txs from transfers while retaining order
@@ -1368,8 +1368,8 @@ namespace monero {
 
     // fetch and merge outputs if requested
     monero_output_request tempOutputReq;
-    tempOutputReq.txRequest = make_shared<monero_tx_request>(*req);
-    if (req->includeOutputs != boost::none && *req->includeOutputs) {
+    tempOutputReq.tx_request = make_shared<monero_tx_request>(*req);
+    if (req->include_outputs != boost::none && *req->include_outputs) {
 
       // fetch outputs
       vector<shared_ptr<monero_output_wallet>> outputs = get_outputs(tempOutputReq);
@@ -1386,7 +1386,7 @@ namespace monero {
     }
 
     // filter txs that don't meet transfer req  // TODO: port this updated version to js
-    req->transferRequest = transferReq;
+    req->transfer_request = transferReq;
     vector<shared_ptr<monero_tx_wallet>> txsRequested;
     vector<shared_ptr<monero_tx_wallet>>::iterator txIter = txs.begin();
     while (txIter != txs.end()) {
@@ -1402,8 +1402,8 @@ namespace monero {
     txs = txsRequested;
 
     // verify all specified tx ids found
-    if (!req->txIds.empty()) {
-      for (const string& txId : req->txIds) {
+    if (!req->tx_ids.empty()) {
+      for (const string& txId : req->tx_ids) {
         bool found = false;
         for (const shared_ptr<monero_tx_wallet>& tx : txs) {
           if (txId == *tx->id) {
@@ -1418,13 +1418,13 @@ namespace monero {
     // special case: re-fetch txs if inconsistency caused by needing to make multiple wallet calls
     // TODO monero core: offer wallet.get_txs(...)
     for (const shared_ptr<monero_tx_wallet>& tx : txs) {
-      if (*tx->isConfirmed && tx->block == boost::none) return get_txs(*req);
+      if (*tx->is_confirmed && tx->block == boost::none) return get_txs(*req);
     }
 
     // otherwise order txs if tx ids given then return
-    if (!req->txIds.empty()) {
+    if (!req->tx_ids.empty()) {
       vector<shared_ptr<monero_tx_wallet>> orderedTxs;
-      for (const string& txId : req->txIds) {
+      for (const string& txId : req->tx_ids) {
         map<string, shared_ptr<monero_tx_wallet>>::const_iterator txIter = txMap.find(txId);
         orderedTxs.push_back(txIter->second);
       }
@@ -1437,50 +1437,50 @@ namespace monero {
     MTRACE("monero_wallet::get_transfers(request)");
 
     // LOG request
-    if (request.txRequest != boost::none) {
-      if ((*request.txRequest)->block == boost::none) MTRACE("Transfer request's tx request rooted at [tx]:" << (*request.txRequest)->serialize());
-      else MTRACE("Transfer request's tx request rooted at [block]: " << (*(*request.txRequest)->block)->serialize());
+    if (request.tx_request != boost::none) {
+      if ((*request.tx_request)->block == boost::none) MTRACE("Transfer request's tx request rooted at [tx]:" << (*request.tx_request)->serialize());
+      else MTRACE("Transfer request's tx request rooted at [block]: " << (*(*request.tx_request)->block)->serialize());
     }
 
     // copy and normalize request
     shared_ptr<monero_transfer_request> req;
-    if (request.txRequest == boost::none) req = request.copy(make_shared<monero_transfer_request>(request), make_shared<monero_transfer_request>());
+    if (request.tx_request == boost::none) req = request.copy(make_shared<monero_transfer_request>(request), make_shared<monero_transfer_request>());
     else {
-      shared_ptr<monero_tx_request> txReq = request.txRequest.get()->copy(request.txRequest.get(), make_shared<monero_tx_request>());
-      if (request.txRequest.get()->transferRequest != boost::none && request.txRequest.get()->transferRequest.get().get() == &request) {
-        req = txReq->transferRequest.get();
+      shared_ptr<monero_tx_request> txReq = request.tx_request.get()->copy(request.tx_request.get(), make_shared<monero_tx_request>());
+      if (request.tx_request.get()->transfer_request != boost::none && request.tx_request.get()->transfer_request.get().get() == &request) {
+        req = txReq->transfer_request.get();
       } else {
-        if (request.txRequest.get()->transferRequest != boost::none) throw new runtime_error("Transfer request's tx request must be a circular reference or null");
+        if (request.tx_request.get()->transfer_request != boost::none) throw new runtime_error("Transfer request's tx request must be a circular reference or null");
         shared_ptr<monero_transfer_request> requestSp = make_shared<monero_transfer_request>(request);  // convert request to shared pointer for copy
         req = requestSp->copy(requestSp, make_shared<monero_transfer_request>());
-        req->txRequest = txReq;
+        req->tx_request = txReq;
       }
     }
-    if (req->txRequest == boost::none) req->txRequest = make_shared<monero_tx_request>();
-    shared_ptr<monero_tx_request> txReq = req->txRequest.get();
-    txReq->transferRequest = boost::none; // break circular link for meetsCriteria()
+    if (req->tx_request == boost::none) req->tx_request = make_shared<monero_tx_request>();
+    shared_ptr<monero_tx_request> txReq = req->tx_request.get();
+    txReq->transfer_request = boost::none; // break circular link for meetsCriteria()
 
     // build parameters for wallet2->get_payments()
-    uint64_t minHeight = txReq->minHeight == boost::none ? 0 : *txReq->minHeight;
-    uint64_t maxHeight = txReq->maxHeight == boost::none ? CRYPTONOTE_MAX_BLOCK_NUMBER : min((uint64_t) CRYPTONOTE_MAX_BLOCK_NUMBER, *txReq->maxHeight);
-    if (minHeight > 0) minHeight--; // TODO monero core: wallet2::get_payments() min_height is exclusive, so manually offset to match intended range (issues 5751, #5598)
-    boost::optional<uint32_t> accountIndex = boost::none;
-    if (req->accountIndex != boost::none) accountIndex = *req->accountIndex;
-    std::set<uint32_t> subaddressIndices;
-    for (int i = 0; i < req->subaddressIndices.size(); i++) {
-      subaddressIndices.insert(req->subaddressIndices[i]);
+    uint64_t min_height = txReq->min_height == boost::none ? 0 : *txReq->min_height;
+    uint64_t max_height = txReq->max_height == boost::none ? CRYPTONOTE_MAX_BLOCK_NUMBER : min((uint64_t) CRYPTONOTE_MAX_BLOCK_NUMBER, *txReq->max_height);
+    if (min_height > 0) min_height--; // TODO monero core: wallet2::get_payments() min_height is exclusive, so manually offset to match intended range (issues 5751, #5598)
+    boost::optional<uint32_t> account_index = boost::none;
+    if (req->account_index != boost::none) account_index = *req->account_index;
+    std::set<uint32_t> subaddress_indices;
+    for (int i = 0; i < req->subaddress_indices.size(); i++) {
+      subaddress_indices.insert(req->subaddress_indices[i]);
     }
 
     // translate from monero_tx_request to in, out, pending, pool, failed terminology used by monero-wallet-rpc
-    bool canBeConfirmed = !boolEquals(false, txReq->isConfirmed) && !boolEquals(true, txReq->inTxPool) && !boolEquals(true, txReq->isFailed) && !boolEquals(false, txReq->isRelayed);
-    bool canBeInTxPool = !boolEquals(true, txReq->isConfirmed) && !boolEquals(false, txReq->inTxPool) && !boolEquals(true, txReq->isFailed) && !boolEquals(false, txReq->isRelayed) && txReq->get_height() == boost::none && txReq->minHeight == boost::none;
-    bool canBeIncoming = !boolEquals(false, req->isIncoming) && !boolEquals(true, req->getIsOutgoing()) && !boolEquals(true, req->hasDestinations);
-    bool canBeOutgoing = !boolEquals(false, req->getIsOutgoing()) && !boolEquals(true, req->isIncoming);
+    bool canBeConfirmed = !boolEquals(false, txReq->is_confirmed) && !boolEquals(true, txReq->in_tx_pool) && !boolEquals(true, txReq->is_failed) && !boolEquals(false, txReq->is_relayed);
+    bool canBeInTxPool = !boolEquals(true, txReq->is_confirmed) && !boolEquals(false, txReq->in_tx_pool) && !boolEquals(true, txReq->is_failed) && !boolEquals(false, txReq->is_relayed) && txReq->get_height() == boost::none && txReq->min_height == boost::none;
+    bool canBeIncoming = !boolEquals(false, req->is_incoming) && !boolEquals(true, req->getIsOutgoing()) && !boolEquals(true, req->has_destinations);
+    bool canBeOutgoing = !boolEquals(false, req->getIsOutgoing()) && !boolEquals(true, req->is_incoming);
     bool isIn = canBeIncoming && canBeConfirmed;
     bool isOut = canBeOutgoing && canBeConfirmed;
     bool isPending = canBeOutgoing && canBeInTxPool;
     bool isPool = canBeIncoming && canBeInTxPool;
-    bool isFailed = !boolEquals(false, txReq->isFailed) && !boolEquals(true, txReq->isConfirmed) && !boolEquals(true, txReq->inTxPool);
+    bool is_failed = !boolEquals(false, txReq->is_failed) && !boolEquals(true, txReq->is_confirmed) && !boolEquals(true, txReq->in_tx_pool);
 
     // cache unique txs and blocks
     uint64_t height = get_height();
@@ -1490,7 +1490,7 @@ namespace monero {
     // get confirmed incoming transfers
     if (isIn) {
       std::list<std::pair<crypto::hash, tools::wallet2::payment_details>> payments;
-      wallet2->get_payments(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
+      wallet2->get_payments(payments, min_height, max_height, account_index, subaddress_indices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
         shared_ptr<monero_tx_wallet> tx = buildTxWithIncomingTransfer(*wallet2, height, i->first, i->second);
         merge_tx(tx, txMap, blockMap, false);
@@ -1500,7 +1500,7 @@ namespace monero {
     // get confirmed outgoing transfers
     if (isOut) {
       std::list<std::pair<crypto::hash, tools::wallet2::confirmed_transfer_details>> payments;
-      wallet2->get_payments_out(payments, minHeight, maxHeight, accountIndex, subaddressIndices);
+      wallet2->get_payments_out(payments, min_height, max_height, account_index, subaddress_indices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::confirmed_transfer_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
         shared_ptr<monero_tx_wallet> tx = buildTxWithOutgoingTransfer(*wallet2, height, i->first, i->second);
         merge_tx(tx, txMap, blockMap, false);
@@ -1508,12 +1508,12 @@ namespace monero {
     }
 
     // get unconfirmed or failed outgoing transfers
-    if (isPending || isFailed) {
+    if (isPending || is_failed) {
       std::list<std::pair<crypto::hash, tools::wallet2::unconfirmed_transfer_details>> upayments;
-      wallet2->get_unconfirmed_payments_out(upayments, accountIndex, subaddressIndices);
+      wallet2->get_unconfirmed_payments_out(upayments, account_index, subaddress_indices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::unconfirmed_transfer_details>>::const_iterator i = upayments.begin(); i != upayments.end(); ++i) {
         shared_ptr<monero_tx_wallet> tx = buildTxWithOutgoingTransferUnconfirmed(*wallet2, i->first, i->second);
-        if (txReq->isFailed != boost::none && txReq->isFailed.get() != tx->isFailed.get()) continue; // skip merging if tx unrequested
+        if (txReq->is_failed != boost::none && txReq->is_failed.get() != tx->is_failed.get()) continue; // skip merging if tx unrequested
         merge_tx(tx, txMap, blockMap, false);
       }
     }
@@ -1522,7 +1522,7 @@ namespace monero {
     if (isPool) {
       wallet2->update_pool_state(); // TODO monero-core: this should be encapsulated in wallet when unconfirmed transfers requested
       std::list<std::pair<crypto::hash, tools::wallet2::pool_payment_details>> payments;
-      wallet2->get_unconfirmed_payments(payments, accountIndex, subaddressIndices);
+      wallet2->get_unconfirmed_payments(payments, account_index, subaddress_indices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::pool_payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
         shared_ptr<monero_tx_wallet> tx = buildTxWithIncomingTransferUnconfirmed(*wallet2, i->first, i->second);
         merge_tx(tx, txMap, blockMap, false);
@@ -1541,25 +1541,25 @@ namespace monero {
     for (const shared_ptr<monero_tx_wallet>& tx : txs) {
 
       // sort transfers
-      sort(tx->incomingTransfers.begin(), tx->incomingTransfers.end(), incomingTransferBefore);
+      sort(tx->incoming_transfers.begin(), tx->incoming_transfers.end(), incomingTransferBefore);
 
       // collect outgoing transfer, erase if filtered TODO: js does not erase unrequested data, port to js
-      if (tx->outgoingTransfer != boost::none && req->meetsCriteria(tx->outgoingTransfer.get().get())) transfers.push_back(tx->outgoingTransfer.get());
-      else tx->outgoingTransfer = boost::none;
+      if (tx->outgoing_transfer != boost::none && req->meetsCriteria(tx->outgoing_transfer.get().get())) transfers.push_back(tx->outgoing_transfer.get());
+      else tx->outgoing_transfer = boost::none;
 
       // collect incoming transfers, erase if unrequested
-      vector<shared_ptr<monero_incoming_transfer>>::iterator iter = tx->incomingTransfers.begin();
-      while (iter != tx->incomingTransfers.end()) {
+      vector<shared_ptr<monero_incoming_transfer>>::iterator iter = tx->incoming_transfers.begin();
+      while (iter != tx->incoming_transfers.end()) {
         if (req->meetsCriteria((*iter).get())) {
           transfers.push_back(*iter);
           iter++;
         } else {
-          iter = tx->incomingTransfers.erase(iter);
+          iter = tx->incoming_transfers.erase(iter);
         }
       }
 
       // remove unrequested txs from block
-      if (tx->block != boost::none && tx->outgoingTransfer == boost::none && tx->incomingTransfers.empty()) {
+      if (tx->block != boost::none && tx->outgoing_transfer == boost::none && tx->incoming_transfers.empty()) {
         tx->block.get()->txs.erase(std::remove(tx->block.get()->txs.begin(), tx->block.get()->txs.end(), tx), tx->block.get()->txs.end()); // TODO, no way to use const_iterator?
       }
     }
@@ -1573,28 +1573,28 @@ namespace monero {
 
     // print request
     MTRACE("Output request: " << request.serialize());
-    if (request.txRequest != boost::none) {
-      if ((*request.txRequest)->block == boost::none) MTRACE("Output request's tx request rooted at [tx]:" << (*request.txRequest)->serialize());
-      else MTRACE("Output request's tx request rooted at [block]: " << (*(*request.txRequest)->block)->serialize());
+    if (request.tx_request != boost::none) {
+      if ((*request.tx_request)->block == boost::none) MTRACE("Output request's tx request rooted at [tx]:" << (*request.tx_request)->serialize());
+      else MTRACE("Output request's tx request rooted at [block]: " << (*(*request.tx_request)->block)->serialize());
     }
 
     // copy and normalize request
     shared_ptr<monero_output_request> req;
-    if (request.txRequest == boost::none) req = request.copy(make_shared<monero_output_request>(request), make_shared<monero_output_request>());
+    if (request.tx_request == boost::none) req = request.copy(make_shared<monero_output_request>(request), make_shared<monero_output_request>());
     else {
-      shared_ptr<monero_tx_request> txReq = request.txRequest.get()->copy(request.txRequest.get(), make_shared<monero_tx_request>());
-      if (request.txRequest.get()->outputRequest != boost::none && request.txRequest.get()->outputRequest.get().get() == &request) {
-        req = txReq->outputRequest.get();
+      shared_ptr<monero_tx_request> txReq = request.tx_request.get()->copy(request.tx_request.get(), make_shared<monero_tx_request>());
+      if (request.tx_request.get()->output_request != boost::none && request.tx_request.get()->output_request.get().get() == &request) {
+        req = txReq->output_request.get();
       } else {
-        if (request.txRequest.get()->outputRequest != boost::none) throw new runtime_error("Output request's tx request must be a circular reference or null");
+        if (request.tx_request.get()->output_request != boost::none) throw new runtime_error("Output request's tx request must be a circular reference or null");
         shared_ptr<monero_output_request> requestSp = make_shared<monero_output_request>(request);  // convert request to shared pointer for copy
         req = requestSp->copy(requestSp, make_shared<monero_output_request>());
-        req->txRequest = txReq;
+        req->tx_request = txReq;
       }
     }
-    if (req->txRequest == boost::none) req->txRequest = make_shared<monero_tx_request>();
-    shared_ptr<monero_tx_request> txReq = req->txRequest.get();
-    txReq->outputRequest = boost::none; // break circular link for meetsCriteria()
+    if (req->tx_request == boost::none) req->tx_request = make_shared<monero_tx_request>();
+    shared_ptr<monero_tx_request> txReq = req->tx_request.get();
+    txReq->output_request = boost::none; // break circular link for meetsCriteria()
 
     // get output data from wallet2
     tools::wallet2::transfer_container outputsW2;
@@ -1664,10 +1664,10 @@ namespace monero {
     vector<shared_ptr<monero_key_image>> keyImages;
     std::pair<size_t, std::vector<std::pair<crypto::key_image, crypto::signature>>> ski = wallet2->export_key_images(true);
     for (size_t n = 0; n < ski.second.size(); ++n) {
-      shared_ptr<monero_key_image> keyImage = make_shared<monero_key_image>();
-      keyImages.push_back(keyImage);
-      keyImage->hex = epee::string_tools::pod_to_hex(ski.second[n].first);
-      keyImage->signature = epee::string_tools::pod_to_hex(ski.second[n].second);
+      shared_ptr<monero_key_image> key_image = make_shared<monero_key_image>();
+      keyImages.push_back(key_image);
+      key_image->hex = epee::string_tools::pod_to_hex(ski.second[n].first);
+      key_image->signature = epee::string_tools::pod_to_hex(ski.second[n].second);
     }
     return keyImages;
   }
@@ -1694,8 +1694,8 @@ namespace monero {
     // translate results
     shared_ptr<monero_key_image_import_result> result = make_shared<monero_key_image_import_result>();
     result->height = height;
-    result->spentAmount = spent;
-    result->unspentAmount = unspent;
+    result->spent_amount = spent;
+    result->unspent_amount = unspent;
     return result;
   }
 
@@ -1708,7 +1708,7 @@ namespace monero {
     epee::json_rpc::error err;
 
     // prepare parameters for wallet rpc's validate_transfer()
-    string paymentId = request.paymentId == boost::none ? string("") : request.paymentId.get();
+    string payment_id = request.payment_id == boost::none ? string("") : request.payment_id.get();
     list<tools::wallet_rpc::transfer_destination> trDestinations;
     for (const shared_ptr<monero_destination>& destination : request.destinations) {
       tools::wallet_rpc::transfer_destination trDestination;
@@ -1720,25 +1720,25 @@ namespace monero {
     // validate the requested txs and populate dsts & extra
     std::vector<cryptonote::tx_destination_entry> dsts;
     std::vector<uint8_t> extra;
-    if (!validate_transfer(wallet2.get(), trDestinations, paymentId, dsts, extra, true, err)) {
+    if (!validate_transfer(wallet2.get(), trDestinations, payment_id, dsts, extra, true, err)) {
       throw runtime_error("Need to handle send_split() validate_transfer error");  // TODO
     }
 
     // prepare parameters for wallet2's create_transactions_2()
     uint64_t mixin = wallet2->adjust_mixin(request.ringSize == boost::none ? 0 : request.ringSize.get() - 1);
     uint32_t priority = wallet2->adjust_priority(request.priority == boost::none ? 0 : request.priority.get());
-    uint64_t unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
-    if (request.accountIndex == boost::none) throw runtime_error("Must specify the account index to send from");
-    uint32_t accountIndex = request.accountIndex.get();
-    std::set<uint32_t> subaddressIndices;
-    for (const uint32_t& subaddressIdx : request.subaddressIndices) subaddressIndices.insert(subaddressIdx);
+    uint64_t unlock_time = request.unlock_time == boost::none ? 0 : request.unlock_time.get();
+    if (request.account_index == boost::none) throw runtime_error("Must specify the account index to send from");
+    uint32_t account_index = request.account_index.get();
+    std::set<uint32_t> subaddress_indices;
+    for (const uint32_t& subaddressIdx : request.subaddress_indices) subaddress_indices.insert(subaddressIdx);
 
     // prepare transactions
-    vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, unlockTime, priority, extra, accountIndex, subaddressIndices);
+    vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_2(dsts, mixin, unlock_time, priority, extra, account_index, subaddress_indices);
     if (ptx_vector.empty()) throw runtime_error("No transaction created");
 
     // check if request cannot be fulfilled due to splitting
-    if (request.canSplit != boost::none && request.canSplit.get() == false && ptx_vector.size() != 1) {
+    if (request.can_split != boost::none && request.can_split.get() == false && ptx_vector.size() != 1) {
       throw runtime_error("Transaction would be too large.  Try send_split()");
     }
 
@@ -1746,7 +1746,7 @@ namespace monero {
     bool getTxKeys = true;
     bool getTxHex = true;
     bool getTxMetadata = true;
-    bool doNotRelay = request.doNotRelay == boost::none ? false : request.doNotRelay.get();
+    bool do_not_relay = request.do_not_relay == boost::none ? false : request.do_not_relay.get();
 
     // commit txs (if relaying) and get response using wallet rpc's fill_response()
     list<string> txKeys;
@@ -1754,22 +1754,22 @@ namespace monero {
     list<uint64_t> txFees;
     string multisigTxSet;
     string unsignedTxSet;
-    list<string> txIds;
+    list<string> tx_ids;
     list<string> txBlobs;
     list<string> txMetadatas;
-    if (!fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, doNotRelay, txIds, getTxHex, txBlobs, getTxMetadata, txMetadatas, err)) {
+    if (!fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, do_not_relay, tx_ids, getTxHex, txBlobs, getTxMetadata, txMetadatas, err)) {
       throw runtime_error("need to handle error filling response!");  // TODO
     }
 
     // build sent txs from results  // TODO: break this into separate utility function
     vector<shared_ptr<monero_tx_wallet>> txs;
-    auto txIdsIter = txIds.begin();
+    auto txIdsIter = tx_ids.begin();
     auto txKeysIter = txKeys.begin();
     auto txAmountsIter = txAmounts.begin();
     auto txFeesIter = txFees.begin();
     auto txBlobsIter = txBlobs.begin();
     auto txMetadatasIter = txMetadatas.begin();
-    while (txIdsIter != txIds.end()) {
+    while (txIdsIter != tx_ids.end()) {
 
       // init tx with outgoing transfer from filled values
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
@@ -1777,27 +1777,27 @@ namespace monero {
       tx->id = *txIdsIter;
       tx->key = *txKeysIter;
       tx->fee = *txFeesIter;
-      tx->fullHex = *txBlobsIter;
+      tx->full_hex = *txBlobsIter;
       tx->metadata = *txMetadatasIter;
       shared_ptr<monero_outgoing_transfer> outTransfer = make_shared<monero_outgoing_transfer>();
-      tx->outgoingTransfer = outTransfer;
+      tx->outgoing_transfer = outTransfer;
       outTransfer->amount = *txAmountsIter;
 
       // init other known fields
-      tx->paymentId = request.paymentId;
-      tx->isConfirmed = false;
-      tx->isMinerTx = false;
-      tx->isFailed = false;   // TODO: test and handle if true
-      tx->doNotRelay = request.doNotRelay != boost::none && request.doNotRelay.get() == true;
-      tx->isRelayed = tx->doNotRelay.get() != true;
-      tx->inTxPool = !tx->doNotRelay.get();
-      if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpendSeen = false;  // TODO: test and handle if true
-      tx->numConfirmations = 0;
+      tx->payment_id = request.payment_id;
+      tx->is_confirmed = false;
+      tx->is_miner_tx = false;
+      tx->is_failed = false;   // TODO: test and handle if true
+      tx->do_not_relay = request.do_not_relay != boost::none && request.do_not_relay.get() == true;
+      tx->is_relayed = tx->do_not_relay.get() != true;
+      tx->in_tx_pool = !tx->do_not_relay.get();
+      if (!tx->is_failed.get() && tx->is_relayed.get()) tx->is_double_spend_seen = false;  // TODO: test and handle if true
+      tx->num_confirmations = 0;
       tx->mixin = request.mixin;
-      tx->unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
-      if (tx->isRelayed.get()) tx->lastRelayedTimestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
-      outTransfer->accountIndex = request.accountIndex;
-      if (request.subaddressIndices.size() == 1) outTransfer->subaddressIndices.push_back(request.subaddressIndices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
+      tx->unlock_time = request.unlock_time == boost::none ? 0 : request.unlock_time.get();
+      if (tx->is_relayed.get()) tx->last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
+      outTransfer->account_index = request.account_index;
+      if (request.subaddress_indices.size() == 1) outTransfer->subaddress_indices.push_back(request.subaddress_indices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
       outTransfer->destinations = request.destinations;
 
       // iterate to next element
@@ -1816,11 +1816,11 @@ namespace monero {
     MTRACE("monero_send_request: " << request.serialize());
 
     // validate input request
-    if (request.keyImage == boost::none || request.keyImage.get().empty()) throw runtime_error("Must provide key image of output to sweep");
+    if (request.key_image == boost::none || request.key_image.get().empty()) throw runtime_error("Must provide key image of output to sweep");
     if (request.destinations.size() != 1 || request.destinations[0]->address == boost::none || request.destinations[0]->address.get().empty()) throw runtime_error("Must provide exactly one destination to sweep output to");
 
     // validate the transfer requested and populate dsts & extra
-    string paymentId = request.paymentId == boost::none ? string("") : request.paymentId.get();
+    string payment_id = request.payment_id == boost::none ? string("") : request.payment_id.get();
     std::vector<cryptonote::tx_destination_entry> dsts;
     std::vector<uint8_t> extra;
     std::list<wallet_rpc::transfer_destination> destination;
@@ -1828,22 +1828,22 @@ namespace monero {
     destination.back().amount = 0;
     destination.back().address = request.destinations[0]->address.get();
     epee::json_rpc::error er;
-    if (!validate_transfer(wallet2.get(), destination, paymentId, dsts, extra, true, er)) {
+    if (!validate_transfer(wallet2.get(), destination, payment_id, dsts, extra, true, er)) {
       //throw runtime_error(er);  // TODO
       throw runtime_error("Handle validate_transfer error!");
     }
 
     // validate key image
     crypto::key_image ki;
-    if (!epee::string_tools::hex_to_pod(request.keyImage.get(), ki)) {
+    if (!epee::string_tools::hex_to_pod(request.key_image.get(), ki)) {
       throw runtime_error("failed to parse key image");
     }
 
     // create transaction
     uint64_t mixin = wallet2->adjust_mixin(request.ringSize == boost::none ? 0 : request.ringSize.get() - 1);
     uint32_t priority = wallet2->adjust_priority(request.priority == boost::none ? 0 : request.priority.get());
-    uint64_t unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
-    std::vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_single(ki, dsts[0].addr, dsts[0].is_subaddress, 1, mixin, unlockTime, priority, extra);
+    uint64_t unlock_time = request.unlock_time == boost::none ? 0 : request.unlock_time.get();
+    std::vector<wallet2::pending_tx> ptx_vector = wallet2->create_transactions_single(ki, dsts[0].addr, dsts[0].is_subaddress, 1, mixin, unlock_time, priority, extra);
 
     // validate created transaction
     if (ptx_vector.empty()) throw runtime_error("No outputs found");
@@ -1855,7 +1855,7 @@ namespace monero {
     bool getTxKeys = true;
     bool getTxHex = true;
     bool getTxMetadata = true;
-    bool doNotRelay = request.doNotRelay == boost::none ? false : request.doNotRelay.get();
+    bool do_not_relay = request.do_not_relay == boost::none ? false : request.do_not_relay.get();
 
     // commit txs (if relaying) and get response using wallet rpc's fill_response()
     list<string> txKeys;
@@ -1863,22 +1863,22 @@ namespace monero {
     list<uint64_t> txFees;
     string multisigTxSet;
     string unsignedTxSet;
-    list<string> txIds;
+    list<string> tx_ids;
     list<string> txBlobs;
     list<string> txMetadatas;
-    if (!fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, doNotRelay, txIds, getTxHex, txBlobs, getTxMetadata, txMetadatas, er)) {
+    if (!fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, do_not_relay, tx_ids, getTxHex, txBlobs, getTxMetadata, txMetadatas, er)) {
       throw runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
     // build sent txs from results  // TODO: use common utility with send_split() to avoid code duplication
     vector<shared_ptr<monero_tx_wallet>> txs;
-    auto txIdsIter = txIds.begin();
+    auto txIdsIter = tx_ids.begin();
     auto txKeysIter = txKeys.begin();
     auto txAmountsIter = txAmounts.begin();
     auto txFeesIter = txFees.begin();
     auto txBlobsIter = txBlobs.begin();
     auto txMetadatasIter = txMetadatas.begin();
-    while (txIdsIter != txIds.end()) {
+    while (txIdsIter != tx_ids.end()) {
 
       // init tx with outgoing transfer from filled values
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
@@ -1886,27 +1886,27 @@ namespace monero {
       tx->id = *txIdsIter;
       tx->key = *txKeysIter;
       tx->fee = *txFeesIter;
-      tx->fullHex = *txBlobsIter;
+      tx->full_hex = *txBlobsIter;
       tx->metadata = *txMetadatasIter;
       shared_ptr<monero_outgoing_transfer> outTransfer = make_shared<monero_outgoing_transfer>();
-      tx->outgoingTransfer = outTransfer;
+      tx->outgoing_transfer = outTransfer;
       outTransfer->amount = *txAmountsIter;
 
       // init other known fields
-      tx->paymentId = request.paymentId;
-      tx->isConfirmed = false;
-      tx->isMinerTx = false;
-      tx->isFailed = false;   // TODO: test and handle if true
-      tx->doNotRelay = request.doNotRelay != boost::none && request.doNotRelay.get() == true;
-      tx->isRelayed = tx->doNotRelay.get() != true;
-      tx->inTxPool = !tx->doNotRelay.get();
-      if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpendSeen = false;  // TODO: test and handle if true
-      tx->numConfirmations = 0;
+      tx->payment_id = request.payment_id;
+      tx->is_confirmed = false;
+      tx->is_miner_tx = false;
+      tx->is_failed = false;   // TODO: test and handle if true
+      tx->do_not_relay = request.do_not_relay != boost::none && request.do_not_relay.get() == true;
+      tx->is_relayed = tx->do_not_relay.get() != true;
+      tx->in_tx_pool = !tx->do_not_relay.get();
+      if (!tx->is_failed.get() && tx->is_relayed.get()) tx->is_double_spend_seen = false;  // TODO: test and handle if true
+      tx->num_confirmations = 0;
       tx->mixin = request.mixin;
-      tx->unlockTime = request.unlockTime == boost::none ? 0 : request.unlockTime.get();
-      if (tx->isRelayed.get()) tx->lastRelayedTimestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
-      outTransfer->accountIndex = request.accountIndex;
-      if (request.subaddressIndices.size() == 1) outTransfer->subaddressIndices.push_back(request.subaddressIndices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
+      tx->unlock_time = request.unlock_time == boost::none ? 0 : request.unlock_time.get();
+      if (tx->is_relayed.get()) tx->last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
+      outTransfer->account_index = request.account_index;
+      if (request.subaddress_indices.size() == 1) outTransfer->subaddress_indices.push_back(request.subaddress_indices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
       outTransfer->destinations = request.destinations;
       outTransfer->destinations[0]->amount = *txAmountsIter;
 
@@ -1924,7 +1924,7 @@ namespace monero {
     return txs[0];
   }
 
-  vector<shared_ptr<monero_tx_wallet>> monero_wallet::sweep_dust(bool doNotRelay) {
+  vector<shared_ptr<monero_tx_wallet>> monero_wallet::sweep_dust(bool do_not_relay) {
     MTRACE("monero_wallet::sweep_dust()");
 
     // create transaction to fill
@@ -1941,23 +1941,23 @@ namespace monero {
     list<uint64_t> txFees;
     string multisigTxSet;
     string unsignedTxSet;
-    list<string> txIds;
+    list<string> tx_ids;
     list<string> txBlobs;
     list<string> txMetadatas;
     epee::json_rpc::error er;
-    if (!fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, doNotRelay, txIds, getTxHex, txBlobs, getTxMetadata, txMetadatas, er)) {
+    if (!fill_response(wallet2.get(), ptx_vector, getTxKeys, txKeys, txAmounts, txFees, multisigTxSet, unsignedTxSet, do_not_relay, tx_ids, getTxHex, txBlobs, getTxMetadata, txMetadatas, er)) {
       throw runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
     // build sent txs from results  // TODO: use common utility with send_split() to avoid code duplication
     vector<shared_ptr<monero_tx_wallet>> txs;
-    auto txIdsIter = txIds.begin();
+    auto txIdsIter = tx_ids.begin();
     auto txKeysIter = txKeys.begin();
     auto txAmountsIter = txAmounts.begin();
     auto txFeesIter = txFees.begin();
     auto txBlobsIter = txBlobs.begin();
     auto txMetadatasIter = txMetadatas.begin();
-    while (txIdsIter != txIds.end()) {
+    while (txIdsIter != tx_ids.end()) {
 
       // init tx with outgoing transfer from filled values
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
@@ -1965,24 +1965,24 @@ namespace monero {
       tx->id = *txIdsIter;
       tx->key = *txKeysIter;
       tx->fee = *txFeesIter;
-      tx->fullHex = *txBlobsIter;
+      tx->full_hex = *txBlobsIter;
       tx->metadata = *txMetadatasIter;
       shared_ptr<monero_outgoing_transfer> outTransfer = make_shared<monero_outgoing_transfer>();
-      tx->outgoingTransfer = outTransfer;
+      tx->outgoing_transfer = outTransfer;
       outTransfer->amount = *txAmountsIter;
 
       // init other known fields
-      tx->isConfirmed = false;
-      tx->isMinerTx = false;
-      tx->isFailed = false;   // TODO: test and handle if true
-      tx->doNotRelay = doNotRelay;
-      tx->isRelayed = tx->doNotRelay.get() != true;
-      tx->inTxPool = !tx->doNotRelay.get();
-      if (!tx->isFailed.get() && tx->isRelayed.get()) tx->isDoubleSpendSeen = false;  // TODO: test and handle if true
-      tx->numConfirmations = 0;
+      tx->is_confirmed = false;
+      tx->is_miner_tx = false;
+      tx->is_failed = false;   // TODO: test and handle if true
+      tx->do_not_relay = do_not_relay;
+      tx->is_relayed = tx->do_not_relay.get() != true;
+      tx->in_tx_pool = !tx->do_not_relay.get();
+      if (!tx->is_failed.get() && tx->is_relayed.get()) tx->is_double_spend_seen = false;  // TODO: test and handle if true
+      tx->num_confirmations = 0;
       //tx->mixin = request.mixin;  // TODO: how to get?
-      tx->unlockTime = 0;
-      if (tx->isRelayed.get()) tx->lastRelayedTimestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
+      tx->unlock_time = 0;
+      if (tx->is_relayed.get()) tx->last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
       outTransfer->destinations[0]->amount = *txAmountsIter;
 
       // iterate to next element
@@ -2001,7 +2001,7 @@ namespace monero {
     MTRACE("relay_txs()");
 
     // relay each metadata as a tx
-    vector<string> txIds;
+    vector<string> tx_ids;
     for (const auto& txMetadata : txMetadatas) {
 
       // parse tx metadata hex
@@ -2028,11 +2028,11 @@ namespace monero {
       }
 
       // collect resulting id
-      txIds.push_back(epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(ptx.tx)));
+      tx_ids.push_back(epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(ptx.tx)));
     }
 
     // return relayed tx ids
-    return txIds;
+    return tx_ids;
   }
 
   string monero_wallet::get_tx_note(const string& txId) const {
@@ -2045,10 +2045,10 @@ namespace monero {
     return wallet2->get_tx_note(txHash);
   }
 
-  vector<string> monero_wallet::get_tx_notes(const vector<string>& txIds) const {
+  vector<string> monero_wallet::get_tx_notes(const vector<string>& tx_ids) const {
     MTRACE("monero_wallet::get_tx_notes()");
     vector<string> txNotes;
-    for (const auto& txId : txIds) txNotes.push_back(get_tx_note(txId));
+    for (const auto& txId : tx_ids) txNotes.push_back(get_tx_note(txId));
     return txNotes;
   }
 
@@ -2062,11 +2062,11 @@ namespace monero {
     wallet2->set_tx_note(txHash, note);
   }
 
-  void monero_wallet::set_tx_notes(const vector<string>& txIds, const vector<string>& txNotes) {
+  void monero_wallet::set_tx_notes(const vector<string>& tx_ids, const vector<string>& txNotes) {
     MTRACE("monero_wallet::set_tx_notes()");
-    if (txIds.size() != txNotes.size()) throw runtime_error("Different amount of txids and notes");
-    for (int i = 0; i < txIds.size(); i++) {
-      set_tx_note(txIds[i], txNotes[i]);
+    if (tx_ids.size() != txNotes.size()) throw runtime_error("Different amount of txids and notes");
+    for (int i = 0; i < tx_ids.size(); i++) {
+      set_tx_note(tx_ids[i], txNotes[i]);
     }
   }
 
@@ -2162,15 +2162,15 @@ namespace monero {
     }
 
     // initialize and return tx check using wallet2
-    uint64_t receivedAmount;
-    bool inTxPool;
-    uint64_t numConfirmations;
-    wallet2->check_tx_key(txHash, tx_key, additionalTxKeys, info.address, receivedAmount, inTxPool, numConfirmations);
+    uint64_t received_amount;
+    bool in_tx_pool;
+    uint64_t num_confirmations;
+    wallet2->check_tx_key(txHash, tx_key, additionalTxKeys, info.address, received_amount, in_tx_pool, num_confirmations);
     shared_ptr<monero_check_tx> checkTx = make_shared<monero_check_tx>();
-    checkTx->isGood = true; // check is good if we get this far
-    checkTx->receivedAmount = receivedAmount;
-    checkTx->inTxPool = inTxPool;
-    checkTx->numConfirmations = numConfirmations;
+    checkTx->is_good = true; // check is good if we get this far
+    checkTx->received_amount = received_amount;
+    checkTx->in_tx_pool = in_tx_pool;
+    checkTx->num_confirmations = num_confirmations;
     return checkTx;
   }
 
@@ -2209,14 +2209,14 @@ namespace monero {
 
     // initialize and return tx check using wallet2
     shared_ptr<monero_check_tx> checkTx = make_shared<monero_check_tx>();
-    uint64_t receivedAmount;
-    bool inTxPool;
-    uint64_t numConfirmations;
-    checkTx->isGood = wallet2->check_tx_proof(txHash, info.address, info.is_subaddress, message, signature, receivedAmount, inTxPool, numConfirmations);
-    if (checkTx->isGood) {
-      checkTx->receivedAmount = receivedAmount;
-      checkTx->inTxPool = inTxPool;
-      checkTx->numConfirmations = numConfirmations;
+    uint64_t received_amount;
+    bool in_tx_pool;
+    uint64_t num_confirmations;
+    checkTx->is_good = wallet2->check_tx_proof(txHash, info.address, info.is_subaddress, message, signature, received_amount, in_tx_pool, num_confirmations);
+    if (checkTx->is_good) {
+      checkTx->received_amount = received_amount;
+      checkTx->in_tx_pool = in_tx_pool;
+      checkTx->num_confirmations = num_confirmations;
     }
     return checkTx;
   }
@@ -2271,12 +2271,12 @@ namespace monero {
 
     // initialize check reserve using wallet2
     shared_ptr<monero_check_reserve> checkReserve = make_shared<monero_check_reserve>();
-    uint64_t totalAmount;
-    uint64_t unconfirmedSpentAmount;
-    checkReserve->isGood = wallet2->check_reserve_proof(info.address, message, signature, totalAmount, unconfirmedSpentAmount);
-    if (checkReserve->isGood) {
-      checkReserve->totalAmount = totalAmount;
-      checkReserve->unconfirmedSpentAmount = unconfirmedSpentAmount;
+    uint64_t total_amount;
+    uint64_t unconfirmed_spent_amount;
+    checkReserve->is_good = wallet2->check_reserve_proof(info.address, message, signature, total_amount, unconfirmed_spent_amount);
+    if (checkReserve->is_good) {
+      checkReserve->total_amount = total_amount;
+      checkReserve->unconfirmed_spent_amount = unconfirmed_spent_amount;
     }
     return checkReserve;
   }
@@ -2291,14 +2291,14 @@ namespace monero {
 
     // prepare wallet2 params
     string address = request.destinations.at(0)->address.get();
-    string paymentId = request.paymentId == boost::none ? "" : request.paymentId.get();
+    string payment_id = request.payment_id == boost::none ? "" : request.payment_id.get();
     uint64_t amount = request.destinations.at(0)->amount.get();
     string note = request.note == boost::none ? "" : request.note.get();
-    string recipientName = request.recipientName == boost::none ? "" : request.recipientName.get();
+    string receipient_name = request.receipient_name == boost::none ? "" : request.receipient_name.get();
 
     // make uri using wallet2
     std::string error;
-    string uri = wallet2->make_uri(address, paymentId, amount, note, recipientName, error);
+    string uri = wallet2->make_uri(address, payment_id, amount, note, receipient_name, error);
     if (uri.empty()) throw runtime_error("Cannot make URI from supplied parameters: " + error);
     return uri;
   }
@@ -2308,13 +2308,13 @@ namespace monero {
 
     // decode uri to parameters
     string address;
-    string paymentId;
+    string payment_id;
     uint64_t amount = 0;
     string note;
-    string recipientName;
+    string receipient_name;
     vector<string> unknownParameters;
     string error;
-    if (!wallet2->parse_uri(uri, address, paymentId, amount, note, recipientName, unknownParameters, error)) {
+    if (!wallet2->parse_uri(uri, address, payment_id, amount, note, receipient_name, unknownParameters, error)) {
       throw runtime_error("Error parsing URI: " + error);
     }
 
@@ -2324,9 +2324,9 @@ namespace monero {
     sendRequest->destinations.push_back(destination);
     if (!address.empty()) destination->address = address;
     destination->amount = amount;
-    if (!paymentId.empty()) sendRequest->paymentId = paymentId;
+    if (!payment_id.empty()) sendRequest->payment_id = payment_id;
     if (!note.empty()) sendRequest->note = note;
-    if (!recipientName.empty()) sendRequest->recipientName = recipientName;
+    if (!receipient_name.empty()) sendRequest->receipient_name = receipient_name;
     if (!unknownParameters.empty()) MWARNING("WARNING in monero_wallet::parse_payment_uri: URI contains unknown parameters which are discarded"); // TODO: return unknown parameters?
     return sendRequest;
   }
@@ -2438,8 +2438,8 @@ namespace monero {
     bool rescan = rescanOnSync.exchange(false);
     boost::lock_guard<boost::mutex> guarg(syncMutex); // synchronize sync() and syncAsync()
     monero_sync_result result;
-    result.numBlocksFetched = 0;
-    result.receivedMoney = false;
+    result.num_blocks_fetched = 0;
+    result.received_money = false;
     do {
       // skip if daemon is not connected or synced
       if (isConnected && get_is_daemon_synced()) {
@@ -2467,14 +2467,14 @@ namespace monero {
     // sync wallet and return result
     wallet2Listener->onSyncStart(syncStartHeight, listener);
     monero_sync_result result;
-    wallet2->refresh(wallet2->is_trusted_daemon(), syncStartHeight, result.numBlocksFetched, result.receivedMoney, true);
+    wallet2->refresh(wallet2->is_trusted_daemon(), syncStartHeight, result.num_blocks_fetched, result.received_money, true);
     if (!isSynced) isSynced = true;
     wallet2Listener->onSyncEnd();
     return result;
   }
 
   // private helper to initialize subaddresses using transfer details
-  vector<monero_subaddress> monero_wallet::getSubaddressesAux(const uint32_t accountIdx, const vector<uint32_t>& subaddressIndices, const vector<tools::wallet2::transfer_details>& transfers) const {
+  vector<monero_subaddress> monero_wallet::getSubaddressesAux(const uint32_t accountIdx, const vector<uint32_t>& subaddress_indices, const vector<tools::wallet2::transfer_details>& transfers) const {
     vector<monero_subaddress> subaddresses;
 
     // get balances per subaddress as maps
@@ -2483,18 +2483,18 @@ namespace monero {
 
     // get all indices if no indices given
     vector<uint32_t> subaddressIndicesReq;
-    if (subaddressIndices.empty()) {
+    if (subaddress_indices.empty()) {
       for (uint32_t subaddressIdx = 0; subaddressIdx < wallet2->get_num_subaddresses(accountIdx); subaddressIdx++) {
         subaddressIndicesReq.push_back(subaddressIdx);
       }
     } else {
-      subaddressIndicesReq = subaddressIndices;
+      subaddressIndicesReq = subaddress_indices;
     }
 
     // initialize subaddresses at indices
     for (uint32_t subaddressIndicesIdx = 0; subaddressIndicesIdx < subaddressIndicesReq.size(); subaddressIndicesIdx++) {
       monero_subaddress subaddress;
-      subaddress.accountIndex = accountIdx;
+      subaddress.account_index = accountIdx;
       uint32_t subaddressIdx = subaddressIndicesReq.at(subaddressIndicesIdx);
       subaddress.index = subaddressIdx;
       subaddress.address = get_address(accountIdx, subaddressIdx);
@@ -2502,11 +2502,11 @@ namespace monero {
       auto iter1 = balancePerSubaddress.find(subaddressIdx);
       subaddress.balance = iter1 == balancePerSubaddress.end() ? 0 : iter1->second;
       auto iter2 = unlockedBalancePerSubaddress.find(subaddressIdx);
-      subaddress.unlockedBalance = iter2 == unlockedBalancePerSubaddress.end() ? 0 : iter2->second.first;
+      subaddress.unlocked_balance = iter2 == unlockedBalancePerSubaddress.end() ? 0 : iter2->second.first;
       cryptonote::subaddress_index index = {accountIdx, subaddressIdx};
-      subaddress.numUnspentOutputs = count_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return !td.m_spent && td.m_subaddr_index == index; });
-      subaddress.isUsed = find_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return td.m_subaddr_index == index; }) != transfers.end();
-      subaddress.numBlocksToUnlock = iter1 == balancePerSubaddress.end() ? 0 : iter2->second.second;
+      subaddress.num_unspent_outputs = count_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return !td.m_spent && td.m_subaddr_index == index; });
+      subaddress.is_used = find_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return td.m_subaddr_index == index; }) != transfers.end();
+      subaddress.num_blocks_to_unlock = iter1 == balancePerSubaddress.end() ? 0 : iter2->second.second;
       subaddresses.push_back(subaddress);
     }
 
