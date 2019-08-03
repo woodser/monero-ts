@@ -65,7 +65,7 @@ namespace monero {
   /**
    * Base struct which can be serialized.
    */
-  struct SerializableStruct {
+  struct serializable_struct {
 
     /**
      * Serializes the struct to a json string.
@@ -79,7 +79,7 @@ namespace monero {
      *
      * @return the converted property tree
      */
-    virtual boost::property_tree::ptree toPropertyTree() const = 0;
+    virtual boost::property_tree::ptree to_property_tree() const = 0;
   };
 
   /**
@@ -96,23 +96,23 @@ namespace monero {
    *
    * TODO: switch to boost::optional<string>
    */
-  struct MoneroRpcConnection {
+  struct monero_rpc_connection {
     string uri;
     boost::optional<string> username;
     boost::optional<string> password;
-    MoneroRpcConnection(const string& uri = "", const boost::optional<string>& username = boost::none, const boost::optional<string>& password = boost::none) : uri(uri), username(username), password(password) {}
+    monero_rpc_connection(const string& uri = "", const boost::optional<string>& username = boost::none, const boost::optional<string>& password = boost::none) : uri(uri), username(username), password(password) {}
   };
 
   // forward declarations
-  struct MoneroTx;
-  struct MoneroOutput;
+  struct monero_tx;
+  struct monero_output;
 
   /**
    * Models a Monero block header which contains information about the block.
    *
    * TODO: a header that is transmitted may have fewer fields like cryptonote::block_header; separate?
    */
-  struct MoneroBlockHeader : public SerializableStruct {
+  struct monero_block_header : public serializable_struct {
     boost::optional<string> id;
     boost::optional<uint64_t> height;
     boost::optional<uint64_t> timestamp;
@@ -132,30 +132,30 @@ namespace monero {
     boost::optional<uint64_t> reward;
     boost::optional<string> powHash;
 
-    boost::property_tree::ptree toPropertyTree() const;
-    virtual void merge(const shared_ptr<MoneroBlockHeader>& self, const shared_ptr<MoneroBlockHeader>& other);
+    boost::property_tree::ptree to_property_tree() const;
+    virtual void merge(const shared_ptr<monero_block_header>& self, const shared_ptr<monero_block_header>& other);
   };
 
   /**
    * Models a Monero block in the blockchain.
    */
-  struct MoneroBlock : public MoneroBlockHeader {
+  struct monero_block : public monero_block_header {
     boost::optional<string> hex;
-    boost::optional<shared_ptr<MoneroTx>> minerTx;
-    vector<shared_ptr<MoneroTx>> txs;
+    boost::optional<shared_ptr<monero_tx>> minerTx;
+    vector<shared_ptr<monero_tx>> txs;
     vector<string> txIds;
 
-    boost::property_tree::ptree toPropertyTree() const;
-    void merge(const shared_ptr<MoneroBlockHeader>& self, const shared_ptr<MoneroBlockHeader>& other);
-    void merge(const shared_ptr<MoneroBlock>& self, const shared_ptr<MoneroBlock>& other);
+    boost::property_tree::ptree to_property_tree() const;
+    void merge(const shared_ptr<monero_block_header>& self, const shared_ptr<monero_block_header>& other);
+    void merge(const shared_ptr<monero_block>& self, const shared_ptr<monero_block>& other);
   };
 
   /**
    * Models a Monero transaction on the blockchain.
    */
-  struct MoneroTx : public SerializableStruct {
+  struct monero_tx : public serializable_struct {
     static const string DEFAULT_PAYMENT_ID;  // default payment id "0000000000000000"
-    boost::optional<shared_ptr<MoneroBlock>> block;
+    boost::optional<shared_ptr<monero_block>> block;
     boost::optional<string> id;
     boost::optional<uint32_t> version;
     boost::optional<bool> isMinerTx;
@@ -178,8 +178,8 @@ namespace monero {
     boost::optional<string> prunableHash;
     boost::optional<uint32_t> size;
     boost::optional<uint32_t> weight;
-    vector<shared_ptr<MoneroOutput>> vins;
-    vector<shared_ptr<MoneroOutput>> vouts;
+    vector<shared_ptr<monero_output>> vins;
+    vector<shared_ptr<monero_output>> vouts;
     vector<uint32_t> outputIndices;
     boost::optional<string> metadata;
     boost::optional<string> commonTxSets;
@@ -194,37 +194,37 @@ namespace monero {
     boost::optional<string> maxUsedBlockId;
     vector<string> signatures;
 
-    shared_ptr<MoneroTx> copy(const shared_ptr<MoneroTx>& src, const shared_ptr<MoneroTx>& tgt) const;
-    boost::property_tree::ptree toPropertyTree() const;
-    virtual void merge(const shared_ptr<MoneroTx>& self, const shared_ptr<MoneroTx>& other);
-    boost::optional<uint64_t> getHeight() const;
+    shared_ptr<monero_tx> copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const;
+    boost::property_tree::ptree to_property_tree() const;
+    virtual void merge(const shared_ptr<monero_tx>& self, const shared_ptr<monero_tx>& other);
+    boost::optional<uint64_t> get_height() const;
   };
 
   /**
    * Models a Monero key image.
    */
-  struct MoneroKeyImage : public SerializableStruct {
+  struct monero_key_image : public serializable_struct {
     boost::optional<string> hex;
     boost::optional<string> signature;
 
-    shared_ptr<MoneroKeyImage> copy(const shared_ptr<MoneroKeyImage>& src, const shared_ptr<MoneroKeyImage>& tgt) const;
-    boost::property_tree::ptree toPropertyTree() const;
-    void merge(const shared_ptr<MoneroKeyImage>& self, const shared_ptr<MoneroKeyImage>& other);
+    shared_ptr<monero_key_image> copy(const shared_ptr<monero_key_image>& src, const shared_ptr<monero_key_image>& tgt) const;
+    boost::property_tree::ptree to_property_tree() const;
+    void merge(const shared_ptr<monero_key_image>& self, const shared_ptr<monero_key_image>& other);
   };
 
   /**
    * Models a Monero transaction output.
    */
-  struct MoneroOutput : public SerializableStruct {
-    shared_ptr<MoneroTx> tx;
-    boost::optional<shared_ptr<MoneroKeyImage>> keyImage;
+  struct monero_output : public serializable_struct {
+    shared_ptr<monero_tx> tx;
+    boost::optional<shared_ptr<monero_key_image>> keyImage;
     boost::optional<uint64_t> amount;
     boost::optional<uint64_t> index;
     vector<uint64_t> ringOutputIndices;
     boost::optional<string> stealthPublicKey;
 
-    shared_ptr<MoneroOutput> copy(const shared_ptr<MoneroOutput>& src, const shared_ptr<MoneroOutput>& tgt) const;
-    boost::property_tree::ptree toPropertyTree() const;
-    virtual void merge(const shared_ptr<MoneroOutput>& self, const shared_ptr<MoneroOutput>& other);
+    shared_ptr<monero_output> copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const;
+    boost::property_tree::ptree to_property_tree() const;
+    virtual void merge(const shared_ptr<monero_output>& self, const shared_ptr<monero_output>& other);
   };
 }

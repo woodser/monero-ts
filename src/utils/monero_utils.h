@@ -53,7 +53,7 @@
 #ifndef MoneroUtils_h
 #define MoneroUtils_h
 
-#include "wallet/MoneroWallet.h"
+#include "wallet/monero_wallet.h"
 #include "cryptonote_basic/cryptonote_basic.h"
 #include "serialization/keyvalue_serialization.h"	// TODO: consolidate with other binary deps?
 #include "storages/portable_storage.h"
@@ -61,7 +61,7 @@
 /**
  * Collection of utilities for working with Monero's binary portable storage format.
  */
-namespace MoneroUtils
+namespace monero_utils
 {
   using namespace std;
   using namespace cryptonote;
@@ -72,15 +72,15 @@ namespace MoneroUtils
 
   void binaryBlocksToJson(const std::string &bin, std::string &json);
 
-  shared_ptr<MoneroTxRequest> deserializeTxRequest(const string& txRequestStr);
+  shared_ptr<monero_tx_request> deserializeTxRequest(const string& txRequestStr);
 
-  shared_ptr<MoneroTransferRequest> deserializeTransferRequest(const string& transferRequestStr);
+  shared_ptr<monero_transfer_request> deserializeTransferRequest(const string& transferRequestStr);
 
-  shared_ptr<MoneroOutputRequest> deserializeOutputRequest(const string& outputRequestStr);
+  shared_ptr<monero_output_request> deserializeOutputRequest(const string& outputRequestStr);
 
-  shared_ptr<MoneroSendRequest> deserializeSendRequest(const string& sendRequestStr);
+  shared_ptr<monero_send_request> deserializeSendRequest(const string& sendRequestStr);
 
-  vector<shared_ptr<MoneroKeyImage>> deserializeKeyImages(const string& keyImagesJson);
+  vector<shared_ptr<monero_key_image>> deserializeKeyImages(const string& keyImagesJson);
 
   string serialize(const boost::property_tree::ptree& node);
 
@@ -90,7 +90,7 @@ namespace MoneroUtils
    * @param cnBlock is the Core block to convert
    * @return a block in this library's native model
    */
-  shared_ptr<MoneroBlock> cnBlockToBlock(const cryptonote::block& cnBlock);
+  shared_ptr<monero_block> cnBlockToBlock(const cryptonote::block& cnBlock);
 
 
   /**
@@ -98,9 +98,9 @@ namespace MoneroUtils
    * native model.
    *
    * @param cnTx is the Core transaction to convert
-   * @param initAsTxWallet specifies if a MoneroTx xor MoneroTxWallet should be initialized
+   * @param initAsTxWallet specifies if a monero_tx xor monero_tx_wallet should be initialized
    */
-  shared_ptr<MoneroTx> cnTxToTx(const cryptonote::transaction& cnTx, bool initAsTxWallet = false);
+  shared_ptr<monero_tx> cnTxToTx(const cryptonote::transaction& cnTx, bool initAsTxWallet = false);
 
   /**
    * Modified from core_rpc_server.cpp to return a string.
@@ -118,28 +118,28 @@ namespace MoneroUtils
 
   // ----------------------------- PROPERTY TREE ------------------------------
 
-  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-  template <class T> boost::property_tree::ptree toPropertyTree(const vector<shared_ptr<T>>& types) {
+  // TODO: template implementation here, could move to monero_utils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
+  template <class T> boost::property_tree::ptree to_property_tree(const vector<shared_ptr<T>>& types) {
     boost::property_tree::ptree typeNodes;
     for (const auto& type : types)  {
-      typeNodes.push_back(std::make_pair("", type->toPropertyTree()));
+      typeNodes.push_back(std::make_pair("", type->to_property_tree()));
     }
     return typeNodes;
   }
 
-  // TODO: template implementation here, could move to MoneroUtils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-  template <class T> boost::property_tree::ptree toPropertyTree(const vector<T>& types) {
+  // TODO: template implementation here, could move to monero_utils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
+  template <class T> boost::property_tree::ptree to_property_tree(const vector<T>& types) {
     boost::property_tree::ptree typeNodes;
     for (const auto& type : types)  {
-      typeNodes.push_back(std::make_pair("", type.toPropertyTree()));
+      typeNodes.push_back(std::make_pair("", type.to_property_tree()));
     }
     return typeNodes;
   }
 
-  boost::property_tree::ptree toPropertyTree(const vector<string>& strs);
-  boost::property_tree::ptree toPropertyTree(const vector<uint8_t>& nums);
-  boost::property_tree::ptree toPropertyTree(const vector<uint32_t>& nums);
-  boost::property_tree::ptree toPropertyTree(const vector<uint64_t>& nums);
+  boost::property_tree::ptree to_property_tree(const vector<string>& strs);
+  boost::property_tree::ptree to_property_tree(const vector<uint8_t>& nums);
+  boost::property_tree::ptree to_property_tree(const vector<uint32_t>& nums);
+  boost::property_tree::ptree to_property_tree(const vector<uint64_t>& nums);
 
   // ------------------------- VALUE RECONCILATION- ---------------------------
 

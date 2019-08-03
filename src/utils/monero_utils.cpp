@@ -50,18 +50,18 @@
  * Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
  */
 
-#include "MoneroUtils.h"
+#include "monero_utils.h"
 #include "rpc/core_rpc_server_commands_defs.h"
 #include "storages/portable_storage_template_helper.h"
 #include "cryptonote_basic/cryptonote_format_utils.h"
 
 using namespace std;
 using namespace cryptonote;
-using namespace MoneroUtils;
+using namespace monero_utils;
 
 // ------------------------------- INNER HELPERS ------------------------------
 
-void nodeToTransfer(const boost::property_tree::ptree& node, shared_ptr<MoneroTransfer> transfer) {
+void nodeToTransfer(const boost::property_tree::ptree& node, shared_ptr<monero_transfer> transfer) {
 
   // initialize transfer from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
@@ -70,8 +70,8 @@ void nodeToTransfer(const boost::property_tree::ptree& node, shared_ptr<MoneroTr
   }
 }
 
-shared_ptr<MoneroTransferRequest> nodeToTransferRequest(const boost::property_tree::ptree& node) {
-  shared_ptr<MoneroTransferRequest> transferRequest = make_shared<MoneroTransferRequest>();
+shared_ptr<monero_transfer_request> nodeToTransferRequest(const boost::property_tree::ptree& node) {
+  shared_ptr<monero_transfer_request> transferRequest = make_shared<monero_transfer_request>();
   nodeToTransfer(node, transferRequest);
 
   // initialize request from node
@@ -94,10 +94,10 @@ shared_ptr<MoneroTransferRequest> nodeToTransferRequest(const boost::property_tr
   return transferRequest;
 }
 
-shared_ptr<MoneroKeyImage> nodeToKeyImage(const boost::property_tree::ptree& node) {
+shared_ptr<monero_key_image> nodeToKeyImage(const boost::property_tree::ptree& node) {
 
   // initialize key image from node
-  shared_ptr<MoneroKeyImage> keyImage = make_shared<MoneroKeyImage>();
+  shared_ptr<monero_key_image> keyImage = make_shared<monero_key_image>();
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
     if (key == string("hex")) keyImage->hex = it->second.data();
@@ -107,7 +107,7 @@ shared_ptr<MoneroKeyImage> nodeToKeyImage(const boost::property_tree::ptree& nod
   return keyImage;
 }
 
-void nodeToOutput(const boost::property_tree::ptree& node, shared_ptr<MoneroOutput> output) {
+void nodeToOutput(const boost::property_tree::ptree& node, shared_ptr<monero_output> output) {
 
   // initialize output from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
@@ -120,7 +120,7 @@ void nodeToOutput(const boost::property_tree::ptree& node, shared_ptr<MoneroOutp
   }
 }
 
-void nodeToOutputWallet(const boost::property_tree::ptree& node, shared_ptr<MoneroOutputWallet> outputWallet) {
+void nodeToOutputWallet(const boost::property_tree::ptree& node, shared_ptr<monero_output_wallet> outputWallet) {
   nodeToOutput(node, outputWallet);
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
@@ -132,8 +132,8 @@ void nodeToOutputWallet(const boost::property_tree::ptree& node, shared_ptr<Mone
   }
 }
 
-shared_ptr<MoneroOutputRequest> nodeToOutputRequest(const boost::property_tree::ptree& node) {
-  shared_ptr<MoneroOutputRequest> outputRequest = make_shared<MoneroOutputRequest>();
+shared_ptr<monero_output_request> nodeToOutputRequest(const boost::property_tree::ptree& node) {
+  shared_ptr<monero_output_request> outputRequest = make_shared<monero_output_request>();
   nodeToOutputWallet(node, outputRequest);
 
   // initialize request from node
@@ -146,7 +146,7 @@ shared_ptr<MoneroOutputRequest> nodeToOutputRequest(const boost::property_tree::
   return outputRequest;
 }
 
-void nodeToTx(const boost::property_tree::ptree& node, shared_ptr<MoneroTx> tx) {
+void nodeToTx(const boost::property_tree::ptree& node, shared_ptr<monero_tx> tx) {
 
   // initialize tx from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
@@ -192,7 +192,7 @@ void nodeToTx(const boost::property_tree::ptree& node, shared_ptr<MoneroTx> tx) 
 }
 
 // TODO: fill this out
-void nodeToTxWallet(const boost::property_tree::ptree& node, shared_ptr<MoneroTxWallet> txWallet) {
+void nodeToTxWallet(const boost::property_tree::ptree& node, shared_ptr<monero_tx_wallet> txWallet) {
   nodeToTx(node, txWallet);
 
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
@@ -201,8 +201,8 @@ void nodeToTxWallet(const boost::property_tree::ptree& node, shared_ptr<MoneroTx
   }
 }
 
-shared_ptr<MoneroTxRequest> nodeToTxRequest(const boost::property_tree::ptree& node) {
-  shared_ptr<MoneroTxRequest> txRequest = make_shared<MoneroTxRequest>();
+shared_ptr<monero_tx_request> nodeToTxRequest(const boost::property_tree::ptree& node) {
+  shared_ptr<monero_tx_request> txRequest = make_shared<monero_tx_request>();
   nodeToTxWallet(node, txRequest);
 
   // initialize request from node
@@ -224,8 +224,8 @@ shared_ptr<MoneroTxRequest> nodeToTxRequest(const boost::property_tree::ptree& n
   return txRequest;
 }
 
-shared_ptr<MoneroBlock> nodeToBlockRequest(const boost::property_tree::ptree& node) {
-  shared_ptr<MoneroBlock> block = make_shared<MoneroBlock>();
+shared_ptr<monero_block> nodeToBlockRequest(const boost::property_tree::ptree& node) {
+  shared_ptr<monero_block> block = make_shared<monero_block>();
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
     if (key == string("txs")) {
@@ -238,8 +238,8 @@ shared_ptr<MoneroBlock> nodeToBlockRequest(const boost::property_tree::ptree& no
   return block;
 }
 
-shared_ptr<MoneroDestination> nodeToDestination(const boost::property_tree::ptree& node) {
-  shared_ptr<MoneroDestination> destination = make_shared<MoneroDestination>();
+shared_ptr<monero_destination> nodeToDestination(const boost::property_tree::ptree& node) {
+  shared_ptr<monero_destination> destination = make_shared<monero_destination>();
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
     if (key == string("address")) destination->address = it->second.data();
@@ -250,19 +250,19 @@ shared_ptr<MoneroDestination> nodeToDestination(const boost::property_tree::ptre
 
 // ------------------------- PUBLIC STATIC UTILITIES --------------------------
 
-void MoneroUtils::jsonToBinary(const std::string &json, std::string &bin) {
+void monero_utils::jsonToBinary(const std::string &json, std::string &bin) {
   epee::serialization::portable_storage ps;
   ps.load_from_json(json);
   ps.store_to_binary(bin);
 }
 
-void MoneroUtils::binaryToJson(const std::string &bin, std::string &json) {
+void monero_utils::binaryToJson(const std::string &bin, std::string &json) {
   epee::serialization::portable_storage ps;
   ps.load_from_binary(bin);
   ps.dump_as_json(json);
 }
 
-void MoneroUtils::binaryBlocksToJson(const std::string &bin, std::string &json) {
+void monero_utils::binaryBlocksToJson(const std::string &bin, std::string &json) {
 
   // load binary rpc response to struct
   cryptonote::COMMAND_RPC_GET_BLOCKS_BY_HEIGHT::response resp_struct;
@@ -294,8 +294,8 @@ void MoneroUtils::binaryBlocksToJson(const std::string &bin, std::string &json) 
 
         // add tx node to txs node
         boost::property_tree::ptree txNode;
-        MTRACE("PRUNED:\n" << MoneroUtils::get_pruned_tx_json(tx));
-        txNode.put("", MoneroUtils::get_pruned_tx_json(tx));	// TODO: no pretty print
+        MTRACE("PRUNED:\n" << monero_utils::get_pruned_tx_json(tx));
+        txNode.put("", monero_utils::get_pruned_tx_json(tx));	// TODO: no pretty print
         txsNode.push_back(std::make_pair("", txNode));
       } else {
 	      throw std::runtime_error("failed to parse tx blob at index " + std::to_string(txIdx));
@@ -314,7 +314,7 @@ void MoneroUtils::binaryBlocksToJson(const std::string &bin, std::string &json) 
   json = ss.str();
 }
 
-shared_ptr<MoneroTxRequest> MoneroUtils::deserializeTxRequest(const string& txRequestStr) {
+shared_ptr<monero_tx_request> monero_utils::deserializeTxRequest(const string& txRequestStr) {
 
   // deserialize tx request string to property rooted at block
   std::istringstream iss = txRequestStr.empty() ? std::istringstream() : std::istringstream(txRequestStr);
@@ -322,16 +322,16 @@ shared_ptr<MoneroTxRequest> MoneroUtils::deserializeTxRequest(const string& txRe
   boost::property_tree::read_json(iss, blockNode);
 
   // convert request property tree to block
-  shared_ptr<MoneroBlock> block = nodeToBlockRequest(blockNode);
+  shared_ptr<monero_block> block = nodeToBlockRequest(blockNode);
 
   // get tx request
-  shared_ptr<MoneroTxRequest> txRequest = static_pointer_cast<MoneroTxRequest>(block->txs[0]);
+  shared_ptr<monero_tx_request> txRequest = static_pointer_cast<monero_tx_request>(block->txs[0]);
 
   // return deserialized request
   return txRequest;
 }
 
-shared_ptr<MoneroTransferRequest> MoneroUtils::deserializeTransferRequest(const string& transferRequestStr) {
+shared_ptr<monero_transfer_request> monero_utils::deserializeTransferRequest(const string& transferRequestStr) {
 
   // deserialize transfer request string to property rooted at block
   std::istringstream iss = transferRequestStr.empty() ? std::istringstream() : std::istringstream(transferRequestStr);
@@ -339,16 +339,16 @@ shared_ptr<MoneroTransferRequest> MoneroUtils::deserializeTransferRequest(const 
   boost::property_tree::read_json(iss, blockNode);
 
   // convert request property tree to block
-  shared_ptr<MoneroBlock> block = nodeToBlockRequest(blockNode);
+  shared_ptr<monero_block> block = nodeToBlockRequest(blockNode);
 
   // return mpty request if no txs
-  if (block->txs.empty()) return make_shared<MoneroTransferRequest>();
+  if (block->txs.empty()) return make_shared<monero_transfer_request>();
 
   // get tx request
-  shared_ptr<MoneroTxRequest> txRequest = static_pointer_cast<MoneroTxRequest>(block->txs[0]);
+  shared_ptr<monero_tx_request> txRequest = static_pointer_cast<monero_tx_request>(block->txs[0]);
 
   // get / create transfer request
-  shared_ptr<MoneroTransferRequest> transferRequest = txRequest->transferRequest == boost::none ? make_shared<MoneroTransferRequest>() : *txRequest->transferRequest;
+  shared_ptr<monero_transfer_request> transferRequest = txRequest->transferRequest == boost::none ? make_shared<monero_transfer_request>() : *txRequest->transferRequest;
 
   // transfer request references tx request but not the other way around to avoid circular loop // TODO: could add check within meetsCriterias()
   transferRequest->txRequest = txRequest;
@@ -358,7 +358,7 @@ shared_ptr<MoneroTransferRequest> MoneroUtils::deserializeTransferRequest(const 
   return transferRequest;
 }
 
-shared_ptr<MoneroOutputRequest> MoneroUtils::deserializeOutputRequest(const string& outputRequestStr) {
+shared_ptr<monero_output_request> monero_utils::deserializeOutputRequest(const string& outputRequestStr) {
 
   // deserialize output request string to property rooted at block
   std::istringstream iss = outputRequestStr.empty() ? std::istringstream() : std::istringstream(outputRequestStr);
@@ -366,16 +366,16 @@ shared_ptr<MoneroOutputRequest> MoneroUtils::deserializeOutputRequest(const stri
   boost::property_tree::read_json(iss, blockNode);
 
   // convert request property tree to block
-  shared_ptr<MoneroBlock> block = nodeToBlockRequest(blockNode);
+  shared_ptr<monero_block> block = nodeToBlockRequest(blockNode);
 
   // empty request if no txs
-  if (block->txs.empty()) return make_shared<MoneroOutputRequest>();
+  if (block->txs.empty()) return make_shared<monero_output_request>();
 
   // get tx request
-  shared_ptr<MoneroTxRequest> txRequest = static_pointer_cast<MoneroTxRequest>(block->txs[0]);
+  shared_ptr<monero_tx_request> txRequest = static_pointer_cast<monero_tx_request>(block->txs[0]);
 
   // get / create output request
-  shared_ptr<MoneroOutputRequest> outputRequest = txRequest->outputRequest == boost::none ? make_shared<MoneroOutputRequest>() : *txRequest->outputRequest;
+  shared_ptr<monero_output_request> outputRequest = txRequest->outputRequest == boost::none ? make_shared<monero_output_request>() : *txRequest->outputRequest;
 
   // output request references tx request but not the other way around to avoid circular loop // TODO: could add check within meetsCriterias()
   outputRequest->txRequest = txRequest;
@@ -385,15 +385,15 @@ shared_ptr<MoneroOutputRequest> MoneroUtils::deserializeOutputRequest(const stri
   return outputRequest;
 }
 
-shared_ptr<MoneroSendRequest> MoneroUtils::deserializeSendRequest(const string& sendRequestStr) {
+shared_ptr<monero_send_request> monero_utils::deserializeSendRequest(const string& sendRequestStr) {
 
   // deserialize send request json to property node
   std::istringstream iss = sendRequestStr.empty() ? std::istringstream() : std::istringstream(sendRequestStr);
   boost::property_tree::ptree node;
   boost::property_tree::read_json(iss, node);
 
-  // convert request property tree to MoneroSendRequest
-  shared_ptr<MoneroSendRequest> sendRequest = make_shared<MoneroSendRequest>();
+  // convert request property tree to monero_send_request
+  shared_ptr<monero_send_request> sendRequest = make_shared<monero_send_request>();
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
     if (key == string("destinations")) {
@@ -422,7 +422,7 @@ shared_ptr<MoneroSendRequest> MoneroUtils::deserializeSendRequest(const string& 
   return sendRequest;
 }
 
-vector<shared_ptr<MoneroKeyImage>> MoneroUtils::deserializeKeyImages(const string& keyImagesJson) {
+vector<shared_ptr<monero_key_image>> monero_utils::deserializeKeyImages(const string& keyImagesJson) {
 
   // deserialize json to property node
   std::istringstream iss = keyImagesJson.empty() ? std::istringstream() : std::istringstream(keyImagesJson);
@@ -430,7 +430,7 @@ vector<shared_ptr<MoneroKeyImage>> MoneroUtils::deserializeKeyImages(const strin
   boost::property_tree::read_json(iss, node);
 
   // convert property tree to key images
-  vector<shared_ptr<MoneroKeyImage>> keyImages;
+  vector<shared_ptr<monero_key_image>> keyImages;
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
     if (key == string("keyImages")) {
@@ -443,14 +443,14 @@ vector<shared_ptr<MoneroKeyImage>> MoneroUtils::deserializeKeyImages(const strin
   return keyImages;
 }
 
-string MoneroUtils::serialize(const boost::property_tree::ptree& node) {
+string monero_utils::serialize(const boost::property_tree::ptree& node) {
   std::stringstream ss;
   boost::property_tree::write_json(ss, node, false);
   string str = ss.str();
   return str.substr(0, str.size() - 1); // strip newline
 }
 
-boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<string>& strs) {
+boost::property_tree::ptree monero_utils::to_property_tree(const vector<string>& strs) {
   boost::property_tree::ptree strsNode;
   for (const auto& str : strs)  {
     boost::property_tree::ptree strNode;
@@ -460,7 +460,7 @@ boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<string>& st
   return strsNode;
 }
 
-boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<uint8_t>& nums) {
+boost::property_tree::ptree monero_utils::to_property_tree(const vector<uint8_t>& nums) {
   boost::property_tree::ptree numsNode;
   for (const auto& num : nums)  {
     boost::property_tree::ptree numNode;
@@ -471,7 +471,7 @@ boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<uint8_t>& n
 }
 
 // TODO: remove these redundant implementations for different sizes?
-boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<uint32_t>& nums) {
+boost::property_tree::ptree monero_utils::to_property_tree(const vector<uint32_t>& nums) {
   boost::property_tree::ptree numsNode;
   for (const auto& num : nums)  {
     boost::property_tree::ptree numNode;
@@ -481,7 +481,7 @@ boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<uint32_t>& 
   return numsNode;
 }
 
-boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<uint64_t>& nums) {
+boost::property_tree::ptree monero_utils::to_property_tree(const vector<uint64_t>& nums) {
   boost::property_tree::ptree numsNode;
   for (const auto& num : nums)  {
     boost::property_tree::ptree numNode;
@@ -491,24 +491,24 @@ boost::property_tree::ptree MoneroUtils::toPropertyTree(const vector<uint64_t>& 
   return numsNode;
 }
 
-shared_ptr<MoneroBlock> MoneroUtils::cnBlockToBlock(const cryptonote::block& cnBlock) {
+shared_ptr<monero_block> monero_utils::cnBlockToBlock(const cryptonote::block& cnBlock) {
   cryptonote::block temp = cnBlock;
   cout << cryptonote::obj_to_json_str(temp) << endl;
-  shared_ptr<MoneroBlock> block = make_shared<MoneroBlock>();
+  shared_ptr<monero_block> block = make_shared<monero_block>();
   block->majorVersion = cnBlock.major_version;
   block->minorVersion = cnBlock.minor_version;
   block->timestamp = cnBlock.timestamp;
   block->prevId = epee::string_tools::pod_to_hex(cnBlock.prev_id);
   block->nonce = cnBlock.nonce;
-  block->minerTx = MoneroUtils::cnTxToTx(cnBlock.miner_tx);
+  block->minerTx = monero_utils::cnTxToTx(cnBlock.miner_tx);
   for (const crypto::hash& txHash : cnBlock.tx_hashes) {
     block->txIds.push_back(epee::string_tools::pod_to_hex(txHash));
   }
   return block;
 }
 
-shared_ptr<MoneroTx> MoneroUtils::cnTxToTx(const cryptonote::transaction& cnTx, bool initAsTxWallet) {
-  shared_ptr<MoneroTx> tx = initAsTxWallet ? make_shared<MoneroTxWallet>() : make_shared<MoneroTx>();
+shared_ptr<monero_tx> monero_utils::cnTxToTx(const cryptonote::transaction& cnTx, bool initAsTxWallet) {
+  shared_ptr<monero_tx> tx = initAsTxWallet ? make_shared<monero_tx_wallet>() : make_shared<monero_tx>();
   tx->version = cnTx.version;
   tx->unlockTime = cnTx.unlock_time;
   tx->id = epee::string_tools::pod_to_hex(cnTx.hash);
@@ -519,20 +519,20 @@ shared_ptr<MoneroTx> MoneroUtils::cnTxToTx(const cryptonote::transaction& cnTx, 
     if (cnVin.which() != 0 && cnVin.which() != 3) throw runtime_error("Unsupported variant type");
     if (tx->isMinerTx == boost::none) tx->isMinerTx = cnVin.which() == 0;
     if (cnVin.which() != 3) continue; // only process txin_to_key of variant  TODO: support other types, like 0 "gen" which is miner tx?
-    shared_ptr<MoneroOutput> vin = initAsTxWallet ? make_shared<MoneroOutputWallet>() : make_shared<MoneroOutput>();
+    shared_ptr<monero_output> vin = initAsTxWallet ? make_shared<monero_output_wallet>() : make_shared<monero_output>();
     vin->tx = tx;
     tx->vins.push_back(vin);
     const txin_to_key& txin = boost::get<txin_to_key>(cnVin);
     vin->amount = txin.amount;
     vin->ringOutputIndices = txin.key_offsets;
     crypto::key_image cnKeyImage = txin.k_image;
-    vin->keyImage = make_shared<MoneroKeyImage>();
+    vin->keyImage = make_shared<monero_key_image>();
     vin->keyImage.get()->hex = epee::string_tools::pod_to_hex(cnKeyImage);
   }
 
   // init vouts
   for (const tx_out& cnVout : cnTx.vout) {
-    shared_ptr<MoneroOutput> vout = initAsTxWallet ? make_shared<MoneroOutputWallet>() : make_shared<MoneroOutput>();
+    shared_ptr<monero_output> vout = initAsTxWallet ? make_shared<monero_output_wallet>() : make_shared<monero_output>();
     vout->tx = tx;
     tx->vouts.push_back(vout);
     vout->amount = cnVout.amount;

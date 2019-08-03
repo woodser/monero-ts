@@ -52,7 +52,7 @@
 
 #pragma once
 
-#include "daemon/MoneroDaemonModel.h"
+#include "daemon/monero_daemon_model.h"
 
 using namespace std;
 using namespace monero;
@@ -65,17 +65,17 @@ namespace monero {
   /**
    * Models a result of syncing a wallet.
    */
-  struct MoneroSyncResult {
+  struct monero_sync_result {
     uint64_t numBlocksFetched;
     bool receivedMoney;
-    MoneroSyncResult() {}
-    MoneroSyncResult(const uint64_t numBlocksFetched, const bool receivedMoney) : numBlocksFetched(numBlocksFetched), receivedMoney(receivedMoney) {}
+    monero_sync_result() {}
+    monero_sync_result(const uint64_t numBlocksFetched, const bool receivedMoney) : numBlocksFetched(numBlocksFetched), receivedMoney(receivedMoney) {}
   };
 
   /**
    * Models a Monero subaddress.
    */
-  struct MoneroSubaddress : public SerializableStruct {
+  struct monero_subaddress : public serializable_struct {
     boost::optional<uint32_t> accountIndex;
     boost::optional<uint32_t> index;
     boost::optional<string> address;
@@ -97,20 +97,20 @@ namespace monero {
 //      KV_SERIALIZE(numBlocksToUnlock)
 //    END_KV_SERIALIZE_MAP()
 
-    boost::property_tree::ptree toPropertyTree() const;
-    //void merge(const shared_ptr<MoneroSubaddress>& self, const shared_ptr<MoneroSubaddress>& other);
+    boost::property_tree::ptree to_property_tree() const;
+    //void merge(const shared_ptr<monero_subaddress>& self, const shared_ptr<monero_subaddress>& other);
   };
 
   /**
    * Models a Monero account.
    */
-  struct MoneroAccount : public SerializableStruct {
+  struct monero_account : public serializable_struct {
     boost::optional<uint32_t> index;
     boost::optional<string> primaryAddress;
     boost::optional<uint64_t> balance;
     boost::optional<uint64_t> unlockedBalance;
     boost::optional<string> tag;
-    vector<MoneroSubaddress> subaddresses;
+    vector<monero_subaddress> subaddresses;
 //    BEGIN_KV_SERIALIZE_MAP()
 //      KV_SERIALIZE(index)
 //      KV_SERIALIZE(primaryAddress)
@@ -121,72 +121,72 @@ namespace monero {
 //      KV_SERIALIZE(subaddresses)
 //    END_KV_SERIALIZE_MAP()
 
-    boost::property_tree::ptree toPropertyTree() const;
+    boost::property_tree::ptree to_property_tree() const;
   };
 
   // forward declarations
-  struct MoneroTxWallet;
-  struct MoneroTxRequest;
+  struct monero_tx_wallet;
+  struct monero_tx_request;
 
   /**
    * Models an outgoing transfer destination.
    */
-  struct MoneroDestination {
+  struct monero_destination {
     boost::optional<string> address;
     boost::optional<uint64_t> amount;
 
-    shared_ptr<MoneroDestination> copy(const shared_ptr<MoneroDestination>& src, const shared_ptr<MoneroDestination>& tgt) const;
-    boost::property_tree::ptree toPropertyTree() const;
+    shared_ptr<monero_destination> copy(const shared_ptr<monero_destination>& src, const shared_ptr<monero_destination>& tgt) const;
+    boost::property_tree::ptree to_property_tree() const;
   };
 
   /**
    * Models a base transfer of funds to or from the wallet.
    */
-  struct MoneroTransfer : SerializableStruct {
-    shared_ptr<MoneroTxWallet> tx;
+  struct monero_transfer : serializable_struct {
+    shared_ptr<monero_tx_wallet> tx;
     boost::optional<uint64_t> amount;
     boost::optional<uint32_t> accountIndex;
     boost::optional<uint32_t> numSuggestedConfirmations;
 
     virtual boost::optional<bool> getIsIncoming() const = 0;  // derived class must implement
-    shared_ptr<MoneroTransfer> copy(const shared_ptr<MoneroTransfer>& src, const shared_ptr<MoneroTransfer>& tgt) const;
+    shared_ptr<monero_transfer> copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt) const;
     boost::optional<bool> getIsOutgoing() const {
 			if (getIsIncoming() == boost::none) return boost::none;
       return !(*getIsIncoming());
     }
-    boost::property_tree::ptree toPropertyTree() const;
-    void merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other);
+    boost::property_tree::ptree to_property_tree() const;
+    void merge(const shared_ptr<monero_transfer>& self, const shared_ptr<monero_transfer>& other);
   };
 
   /**
    * Models an incoming transfer of funds to the wallet.
    */
-  struct MoneroIncomingTransfer : public MoneroTransfer {
+  struct monero_incoming_transfer : public monero_transfer {
     boost::optional<uint32_t> subaddressIndex;
     boost::optional<string> address;
 
-    shared_ptr<MoneroIncomingTransfer> copy(const shared_ptr<MoneroTransfer>& src, const shared_ptr<MoneroTransfer>& tgt) const;
-    shared_ptr<MoneroIncomingTransfer> copy(const shared_ptr<MoneroIncomingTransfer>& src, const shared_ptr<MoneroIncomingTransfer>& tgt) const;
+    shared_ptr<monero_incoming_transfer> copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt) const;
+    shared_ptr<monero_incoming_transfer> copy(const shared_ptr<monero_incoming_transfer>& src, const shared_ptr<monero_incoming_transfer>& tgt) const;
     boost::optional<bool> getIsIncoming() const;
-    boost::property_tree::ptree toPropertyTree() const;
-    void merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other);
-    void merge(const shared_ptr<MoneroIncomingTransfer>& self, const shared_ptr<MoneroIncomingTransfer>& other);
+    boost::property_tree::ptree to_property_tree() const;
+    void merge(const shared_ptr<monero_transfer>& self, const shared_ptr<monero_transfer>& other);
+    void merge(const shared_ptr<monero_incoming_transfer>& self, const shared_ptr<monero_incoming_transfer>& other);
   };
 
   /**
    * Models an outgoing transfer of funds from the wallet.
    */
-  struct MoneroOutgoingTransfer : public MoneroTransfer {
+  struct monero_outgoing_transfer : public monero_transfer {
     vector<uint32_t> subaddressIndices;
     vector<string> addresses;
-    vector<shared_ptr<MoneroDestination>> destinations;
+    vector<shared_ptr<monero_destination>> destinations;
 
-    shared_ptr<MoneroOutgoingTransfer> copy(const shared_ptr<MoneroTransfer>& src, const shared_ptr<MoneroTransfer>& tgt) const;
-    shared_ptr<MoneroOutgoingTransfer> copy(const shared_ptr<MoneroOutgoingTransfer>& src, const shared_ptr<MoneroOutgoingTransfer>& tgt) const;
+    shared_ptr<monero_outgoing_transfer> copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt) const;
+    shared_ptr<monero_outgoing_transfer> copy(const shared_ptr<monero_outgoing_transfer>& src, const shared_ptr<monero_outgoing_transfer>& tgt) const;
     boost::optional<bool> getIsIncoming() const;
-    boost::property_tree::ptree toPropertyTree() const;
-    void merge(const shared_ptr<MoneroTransfer>& self, const shared_ptr<MoneroTransfer>& other);
-    void merge(const shared_ptr<MoneroOutgoingTransfer>& self, const shared_ptr<MoneroOutgoingTransfer>& other);
+    boost::property_tree::ptree to_property_tree() const;
+    void merge(const shared_ptr<monero_transfer>& self, const shared_ptr<monero_transfer>& other);
+    void merge(const shared_ptr<monero_outgoing_transfer>& self, const shared_ptr<monero_outgoing_transfer>& other);
   };
 
   /**
@@ -194,38 +194,38 @@ namespace monero {
    *
    * All transfers are returned except those that do not meet the criteria defined in this request.
    */
-  struct MoneroTransferRequest : public MoneroTransfer {
+  struct monero_transfer_request : public monero_transfer {
     boost::optional<bool> isIncoming;
     boost::optional<string> address;
     vector<string> addresses;
     boost::optional<uint32_t> subaddressIndex;
     vector<uint32_t> subaddressIndices;
-    vector<shared_ptr<MoneroDestination>> destinations;
+    vector<shared_ptr<monero_destination>> destinations;
     boost::optional<bool> hasDestinations;
-    boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
+    boost::optional<shared_ptr<monero_tx_request>> txRequest;
 
-    shared_ptr<MoneroTransferRequest> copy(const shared_ptr<MoneroTransfer>& src, const shared_ptr<MoneroTransfer>& tgt) const;
-    shared_ptr<MoneroTransferRequest> copy(const shared_ptr<MoneroTransferRequest>& src, const shared_ptr<MoneroTransferRequest>& tgt) const;
+    shared_ptr<monero_transfer_request> copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt) const;
+    shared_ptr<monero_transfer_request> copy(const shared_ptr<monero_transfer_request>& src, const shared_ptr<monero_transfer_request>& tgt) const;
     boost::optional<bool> getIsIncoming() const;
-    boost::property_tree::ptree toPropertyTree() const;
-    bool meetsCriteria(MoneroTransfer* transfer) const;
+    boost::property_tree::ptree to_property_tree() const;
+    bool meetsCriteria(monero_transfer* transfer) const;
   };
 
   /**
    * Models a Monero output with wallet extensions.
    */
-  struct MoneroOutputWallet : public MoneroOutput {
+  struct monero_output_wallet : public monero_output {
     boost::optional<uint32_t> accountIndex;
     boost::optional<uint32_t> subaddressIndex;
     boost::optional<bool> isSpent;
     boost::optional<bool> isUnlocked;
     boost::optional<bool> isFrozen;
 
-    shared_ptr<MoneroOutputWallet> copy(const shared_ptr<MoneroOutput>& src, const shared_ptr<MoneroOutput>& tgt) const;
-    shared_ptr<MoneroOutputWallet> copy(const shared_ptr<MoneroOutputWallet>& src, const shared_ptr<MoneroOutputWallet>& tgt) const;
-    boost::property_tree::ptree toPropertyTree() const;
-    void merge(const shared_ptr<MoneroOutput>& self, const shared_ptr<MoneroOutput>& other);
-    void merge(const shared_ptr<MoneroOutputWallet>& self, const shared_ptr<MoneroOutputWallet>& other);
+    shared_ptr<monero_output_wallet> copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const;
+    shared_ptr<monero_output_wallet> copy(const shared_ptr<monero_output_wallet>& src, const shared_ptr<monero_output_wallet>& tgt) const;
+    boost::property_tree::ptree to_property_tree() const;
+    void merge(const shared_ptr<monero_output>& self, const shared_ptr<monero_output>& other);
+    void merge(const shared_ptr<monero_output_wallet>& self, const shared_ptr<monero_output_wallet>& other);
   };
 
   /**
@@ -234,33 +234,33 @@ namespace monero {
    *
    * All outputs are returned except those that do not meet the criteria defined in this request.
    */
-  struct MoneroOutputRequest : public MoneroOutputWallet {
+  struct monero_output_request : public monero_output_wallet {
     vector<uint32_t> subaddressIndices;
-    boost::optional<shared_ptr<MoneroTxRequest>> txRequest;
+    boost::optional<shared_ptr<monero_tx_request>> txRequest;
 
     // TODO: necessary to override all super classes?
-    shared_ptr<MoneroOutputRequest> copy(const shared_ptr<MoneroOutput>& src, const shared_ptr<MoneroOutput>& tgt) const;
-    shared_ptr<MoneroOutputRequest> copy(const shared_ptr<MoneroOutputWallet>& src, const shared_ptr<MoneroOutputWallet>& tgt) const;
-    shared_ptr<MoneroOutputRequest> copy(const shared_ptr<MoneroOutputRequest>& src, const shared_ptr<MoneroOutputRequest>& tgt) const;
-    boost::property_tree::ptree toPropertyTree() const;
-    bool meetsCriteria(MoneroOutputWallet* output) const;
+    shared_ptr<monero_output_request> copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const;
+    shared_ptr<monero_output_request> copy(const shared_ptr<monero_output_wallet>& src, const shared_ptr<monero_output_wallet>& tgt) const;
+    shared_ptr<monero_output_request> copy(const shared_ptr<monero_output_request>& src, const shared_ptr<monero_output_request>& tgt) const;
+    boost::property_tree::ptree to_property_tree() const;
+    bool meetsCriteria(monero_output_wallet* output) const;
   };
 
   /**
    * Models a Monero transaction in the context of a wallet.
    */
-  struct MoneroTxWallet : public MoneroTx {
-    vector<shared_ptr<MoneroIncomingTransfer>> incomingTransfers;
-    boost::optional<shared_ptr<MoneroOutgoingTransfer>> outgoingTransfer;
+  struct monero_tx_wallet : public monero_tx {
+    vector<shared_ptr<monero_incoming_transfer>> incomingTransfers;
+    boost::optional<shared_ptr<monero_outgoing_transfer>> outgoingTransfer;
     boost::optional<string> note;
 
-    shared_ptr<MoneroTxWallet> copy(const shared_ptr<MoneroTx>& src, const shared_ptr<MoneroTx>& tgt) const;
-    shared_ptr<MoneroTxWallet> copy(const shared_ptr<MoneroTxWallet>& src, const shared_ptr<MoneroTxWallet>& tgt) const;
+    shared_ptr<monero_tx_wallet> copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const;
+    shared_ptr<monero_tx_wallet> copy(const shared_ptr<monero_tx_wallet>& src, const shared_ptr<monero_tx_wallet>& tgt) const;
     bool getIsIncoming() const;
     bool getIsOutgoing() const;
-    boost::property_tree::ptree toPropertyTree() const;
-    void merge(const shared_ptr<MoneroTx>& self, const shared_ptr<MoneroTx>& other);
-    void merge(const shared_ptr<MoneroTxWallet>& self, const shared_ptr<MoneroTxWallet>& other);
+    boost::property_tree::ptree to_property_tree() const;
+    void merge(const shared_ptr<monero_tx>& self, const shared_ptr<monero_tx>& other);
+    void merge(const shared_ptr<monero_tx_wallet>& self, const shared_ptr<monero_tx_wallet>& other);
   };
 
   /**
@@ -268,7 +268,7 @@ namespace monero {
    *
    * All transactions are returned except those that do not meet the criteria defined in this request.
    */
-  struct MoneroTxRequest : public MoneroTxWallet {
+  struct monero_tx_request : public monero_tx_wallet {
     boost::optional<bool> isOutgoing;
     boost::optional<bool> isIncoming;
     vector<string> txIds;
@@ -278,32 +278,32 @@ namespace monero {
     boost::optional<uint64_t> minHeight;
     boost::optional<uint64_t> maxHeight;
     boost::optional<uint64_t> includeOutputs;
-    boost::optional<shared_ptr<MoneroTransferRequest>> transferRequest;
-    boost::optional<shared_ptr<MoneroOutputRequest>> outputRequest;
+    boost::optional<shared_ptr<monero_transfer_request>> transferRequest;
+    boost::optional<shared_ptr<monero_output_request>> outputRequest;
 
     // TODO: necessary to override all super classes?
-    shared_ptr<MoneroTxRequest> copy(const shared_ptr<MoneroTx>& src, const shared_ptr<MoneroTx>& tgt) const;
-    shared_ptr<MoneroTxRequest> copy(const shared_ptr<MoneroTxWallet>& src, const shared_ptr<MoneroTxWallet>& tgt) const;
-    shared_ptr<MoneroTxRequest> copy(const shared_ptr<MoneroTxRequest>& src, const shared_ptr<MoneroTxRequest>& tgt) const;
-    boost::property_tree::ptree toPropertyTree() const;
-    bool meetsCriteria(MoneroTxWallet* tx) const;
+    shared_ptr<monero_tx_request> copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const;
+    shared_ptr<monero_tx_request> copy(const shared_ptr<monero_tx_wallet>& src, const shared_ptr<monero_tx_wallet>& tgt) const;
+    shared_ptr<monero_tx_request> copy(const shared_ptr<monero_tx_request>& src, const shared_ptr<monero_tx_request>& tgt) const;
+    boost::property_tree::ptree to_property_tree() const;
+    bool meetsCriteria(monero_tx_wallet* tx) const;
   };
 
   /**
    * Monero integrated address model.
    */
-  struct MoneroIntegratedAddress : public SerializableStruct {
+  struct monero_integrated_address : public serializable_struct {
     string standardAddress;
     string paymentId;
     string integratedAddress;
 
-    boost::property_tree::ptree toPropertyTree() const;
+    boost::property_tree::ptree to_property_tree() const;
   };
 
   /**
    * Enumerates Monero network types.
    */
-  enum MoneroSendPriority : uint8_t {
+  enum monero_send_priority : uint8_t {
     DEFAULT = 0,
     UNIMPORTANT,
     NORMAL,
@@ -313,10 +313,10 @@ namespace monero {
   /**
    * Configures a request to send/sweep funds or create a payment URI.
    */
-  struct MoneroSendRequest : public SerializableStruct {
-    vector<shared_ptr<MoneroDestination>> destinations;
+  struct monero_send_request : public serializable_struct {
+    vector<shared_ptr<monero_destination>> destinations;
     boost::optional<string> paymentId;
-    boost::optional<MoneroSendPriority> priority;
+    boost::optional<monero_send_priority> priority;
     boost::optional<uint32_t> mixin;
     boost::optional<uint32_t> ringSize;
     boost::optional<uint64_t> fee;
@@ -331,47 +331,47 @@ namespace monero {
     boost::optional<bool> sweepEachSubaddress;
     boost::optional<string> keyImage;
 
-    boost::property_tree::ptree toPropertyTree() const;
+    boost::property_tree::ptree to_property_tree() const;
   };
 
   /**
    * Models results from importing key images.
    */
-  struct MoneroKeyImageImportResult : public SerializableStruct {
+  struct monero_key_image_import_result : public serializable_struct {
     boost::optional<uint64_t> height;
     boost::optional<uint64_t> spentAmount;
     boost::optional<uint64_t> unspentAmount;
 
-    boost::property_tree::ptree toPropertyTree() const;
+    boost::property_tree::ptree to_property_tree() const;
   };
 
   /**
    * Base class for results from checking a transaction or reserve proof.
    */
-  struct MoneroCheck : public SerializableStruct {
+  struct monero_check : public serializable_struct {
     bool isGood;
 
-    boost::property_tree::ptree toPropertyTree() const;
+    boost::property_tree::ptree to_property_tree() const;
   };
 
   /**
    * Results from checking a transaction key.
    */
-  struct MoneroCheckTx : public MoneroCheck {
+  struct monero_check_tx : public monero_check {
     boost::optional<bool> inTxPool;
     boost::optional<uint64_t> numConfirmations;
     boost::optional<uint64_t> receivedAmount;
 
-    boost::property_tree::ptree toPropertyTree() const;
+    boost::property_tree::ptree to_property_tree() const;
   };
 
   /**
    * Results from checking a reserve proof.
    */
-  struct MoneroCheckReserve : public MoneroCheck  {
+  struct monero_check_reserve : public monero_check  {
     boost::optional<uint64_t> totalAmount;
     boost::optional<uint64_t> unconfirmedSpentAmount;
 
-    boost::property_tree::ptree toPropertyTree() const;
+    boost::property_tree::ptree to_property_tree() const;
   };
 }

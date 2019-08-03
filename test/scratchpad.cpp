@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include "wallet2.h"
-#include "wallet/MoneroWallet.h"
+#include "wallet/monero_wallet.h"
 //#include <boost/stacktrace.hpp>
 using namespace std;
 
@@ -13,14 +13,14 @@ bool walletExists(string path) {
   return wallet_file_exists;
 }
 
-void openWallet(string path, string password, int networkType) {
-  cout << "openWallet(" << path << ", " << password << ", " << networkType << ")" << endl;
+void open_wallet(string path, string password, int networkType) {
+  cout << "open_wallet(" << path << ", " << password << ", " << networkType << ")" << endl;
   std::unique_ptr<tools::wallet2> wallet;
   wallet.reset(new tools::wallet2(cryptonote::network_type::STAGENET, 1, true));
   throw runtime_error("Not implemented");
 }
 
-void createWalletRandom(string language, int networkType) {
+void create_wallet_random(string language, int networkType) {
   tools::wallet2* wallet = new tools::wallet2(static_cast<cryptonote::network_type>(networkType), 1, true);
   wallet->set_seed_language(language);
   crypto::secret_key recovery_val, secret_key;
@@ -57,57 +57,57 @@ int main(int argc, const char* argv[]) {
 
   MINFO("Wallet exists: " << walletExists(path));
 
-//  openWallet(path, password, networkType);
-//  createWalletRandom(language, networkType);
+//  open_wallet(path, password, networkType);
+//  create_wallet_random(language, networkType);
 
 //  // create wallet
-//  MoneroWallet* wallet = new MoneroWallet();
+//  monero_wallet* wallet = new monero_wallet();
 //
 //  // get the mnemonic
 //  epee::wipeable_string mnemonic;
-//  wallet->getMnemonic(mnemonic);
+//  wallet->get_mnemonic(mnemonic);
 //  cout << "Mnemonic: " << string(mnemonic.data(), mnemonic.size()) << endl;
 
 
   // load wallet
-  MoneroWallet* wallet = MoneroWallet::openWallet("../../test_wallets/test_wallet_1", "supersecretpassword123", MoneroNetworkType::STAGENET);
-  wallet->setDaemonConnection("http://localhost:38081", "", "");
+  monero_wallet* wallet = monero_wallet::open_wallet("../../test_wallets/test_wallet_1", "supersecretpassword123", MoneroNetworkType::STAGENET);
+  wallet->set_daemon_connection("http://localhost:38081", "", "");
 
   // fetch txs
-  vector<shared_ptr<MoneroTxWallet>> txs = wallet->getTxs();
+  vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs();
   MINFO("Wallet has " << txs.size() << " txs.  Printing some.");
   for (int i = 0; i < txs.size() && i < 10; i++) {
     MINFO(txs[i]->serialize());
   }
 
-//  shared_ptr<MoneroTransferRequest> transferRequest = shared_ptr<MoneroTransferRequest>(new MoneroTransferRequest());
+//  shared_ptr<monero_transfer_request> transferRequest = shared_ptr<monero_transfer_request>(new monero_transfer_request());
 //  transferRequest->accountIndex = 0;
-//  shared_ptr<MoneroTxRequest> txRequest = shared_ptr<MoneroTxRequest>(new MoneroTxRequest());
+//  shared_ptr<monero_tx_request> txRequest = shared_ptr<monero_tx_request>(new monero_tx_request());
 //  txRequest->isConfirmed = true;
 //  transferRequest->txRequest = txRequest;
 //  //txRequest->transferRequest = transferRequest;
-//  vector<shared_ptr<MoneroTransfer>> transfers = wallet->getTransfers(*transferRequest);
+//  vector<shared_ptr<monero_transfer>> transfers = wallet->get_transfers(*transferRequest);
 //  if (transfers.empty()) throw runtime_error("Transfers should not be empty");
-//  for (const shared_ptr<MoneroTransfer>& transfer : transfers) {
+//  for (const shared_ptr<monero_transfer>& transfer : transfers) {
 //    if (*transfer->accountIndex != 0) throw runtime_error("Account should be 0");
 //    if (!*transfer->tx->isConfirmed) throw runtime_error("Transfer should be confirmed");
 //  }
 
-//  shared_ptr<MoneroTxRequest> txRequest = shared_ptr<MoneroTxRequest>(new MoneroTxRequest());
+//  shared_ptr<monero_tx_request> txRequest = shared_ptr<monero_tx_request>(new monero_tx_request());
 //  txRequest->isConfirmed = true;
-//  vector<shared_ptr<MoneroTxWallet>> txs = wallet->getTxs(*txRequest);
+//  vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs(*txRequest);
 //  if (txs.empty()) throw runtime_error("Txs should not be empty");
-//  for (const shared_ptr<MoneroTxWallet>& tx : txs) {
+//  for (const shared_ptr<monero_tx_wallet>& tx : txs) {
 //    if (!*tx->isConfirmed) throw runtime_error("Tx should be confirmed");
 //  }
 
 
 //  // debug simple block merging
-//  vector<shared_ptr<MoneroTxWallet>> txs = wallet->getTxs();
+//  vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs();
 //  if (txs.empty()) throw runtime_error("Txs should not be empty");
-//  shared_ptr<MoneroBlock> block = nullptr;
-//  for (const shared_ptr<MoneroTxWallet>& tx : txs) {
-//    if (tx->getHeight().get() != 360559l) throw runtime_error("Anything other than 360559l should be filtered");
+//  shared_ptr<monero_block> block = nullptr;
+//  for (const shared_ptr<monero_tx_wallet>& tx : txs) {
+//    if (tx->get_height().get() != 360559l) throw runtime_error("Anything other than 360559l should be filtered");
 //    cout << "We have one!!!" << endl;
 //    if (block == nullptr) block = tx->block.get();
 //    else {
