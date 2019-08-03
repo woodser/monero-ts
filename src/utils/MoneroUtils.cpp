@@ -153,7 +153,7 @@ void nodeToTx(const boost::property_tree::ptree& node, shared_ptr<MoneroTx> tx) 
     string key = it->first;
     if (key == string("id")) tx->id = it->second.data();
     else if (key == string("version")) throw runtime_error("version deserializationn not implemented");
-    else if (key == string("isCoinbase")) tx->isCoinbase = it->second.get_value<bool>();
+    else if (key == string("isMinerTx")) tx->isMinerTx = it->second.get_value<bool>();
     else if (key == string("paymentId")) throw runtime_error("paymentId deserializationn not implemented");
     else if (key == string("fee")) throw runtime_error("fee deserialization not implemented");
     else if (key == string("mixin")) throw runtime_error("mixin deserialization not implemented");
@@ -500,7 +500,7 @@ shared_ptr<MoneroBlock> MoneroUtils::cnBlockToBlock(const cryptonote::block& cnB
   block->timestamp = cnBlock.timestamp;
   block->prevId = epee::string_tools::pod_to_hex(cnBlock.prev_id);
   block->nonce = cnBlock.nonce;
-  block->coinbaseTx = MoneroUtils::cnTxToTx(cnBlock.miner_tx);
+  block->minerTx = MoneroUtils::cnTxToTx(cnBlock.miner_tx);
   for (const crypto::hash& txHash : cnBlock.tx_hashes) {
     block->txIds.push_back(epee::string_tools::pod_to_hex(txHash));
   }
@@ -517,7 +517,7 @@ shared_ptr<MoneroTx> MoneroUtils::cnTxToTx(const cryptonote::transaction& cnTx, 
   // init vins
   for (const txin_v& cnVin : cnTx.vin) {
     if (cnVin.which() != 0 && cnVin.which() != 3) throw runtime_error("Unsupported variant type");
-    if (tx->isCoinbase == boost::none) tx->isCoinbase = cnVin.which() == 0;
+    if (tx->isMinerTx == boost::none) tx->isMinerTx = cnVin.which() == 0;
     if (cnVin.which() != 3) continue; // only process txin_to_key of variant  TODO: support other types, like 0 "gen" which is miner tx?
     shared_ptr<MoneroOutput> vin = initAsTxWallet ? make_shared<MoneroOutputWallet>() : make_shared<MoneroOutput>();
     vin->tx = tx;

@@ -105,7 +105,7 @@ namespace monero {
     tx->fee = pd.m_fee;
     tx->note = wallet2.get_tx_note(pd.m_tx_hash);
     if (tx->note->empty()) tx->note = boost::none; // clear empty note
-    tx->isCoinbase = pd.m_coinbase ? true : false;
+    tx->isMinerTx = pd.m_coinbase ? true : false;
     tx->isConfirmed = true;
     tx->isFailed = false;
     tx->isRelayed = true;
@@ -156,7 +156,7 @@ namespace monero {
     tx->fee = pd.m_amount_in - pd.m_amount_out;
     tx->note = wallet2.get_tx_note(txid);
     if (tx->note->empty()) tx->note = boost::none; // clear empty note
-    tx->isCoinbase = false;
+    tx->isMinerTx = false;
     tx->isConfirmed = true;
     tx->isFailed = false;
     tx->isRelayed = true;
@@ -222,7 +222,7 @@ namespace monero {
     tx->fee = pd.m_fee;
     tx->note = wallet2.get_tx_note(pd.m_tx_hash);
     if (tx->note->empty()) tx->note = boost::none; // clear empty note
-    tx->isCoinbase = false;
+    tx->isMinerTx = false;
     tx->isConfirmed = false;
     tx->isFailed = false;
     tx->isRelayed = true;
@@ -262,7 +262,7 @@ namespace monero {
     tx->fee = pd.m_amount_in - pd.m_amount_out;
     tx->note = wallet2.get_tx_note(txid);
     if (tx->note->empty()) tx->note = boost::none; // clear empty note
-    tx->isCoinbase = false;
+    tx->isMinerTx = false;
     tx->isConfirmed = false;
     tx->isRelayed = !tx->isFailed.get();
     tx->inTxPool = !tx->isFailed.get();
@@ -1786,7 +1786,7 @@ namespace monero {
       // init other known fields
       tx->paymentId = request.paymentId;
       tx->isConfirmed = false;
-      tx->isCoinbase = false;
+      tx->isMinerTx = false;
       tx->isFailed = false;   // TODO: test and handle if true
       tx->doNotRelay = request.doNotRelay != boost::none && request.doNotRelay.get() == true;
       tx->isRelayed = tx->doNotRelay.get() != true;
@@ -1895,7 +1895,7 @@ namespace monero {
       // init other known fields
       tx->paymentId = request.paymentId;
       tx->isConfirmed = false;
-      tx->isCoinbase = false;
+      tx->isMinerTx = false;
       tx->isFailed = false;   // TODO: test and handle if true
       tx->doNotRelay = request.doNotRelay != boost::none && request.doNotRelay.get() == true;
       tx->isRelayed = tx->doNotRelay.get() != true;
@@ -1973,7 +1973,7 @@ namespace monero {
 
       // init other known fields
       tx->isConfirmed = false;
-      tx->isCoinbase = false;
+      tx->isMinerTx = false;
       tx->isFailed = false;   // TODO: test and handle if true
       tx->doNotRelay = doNotRelay;
       tx->isRelayed = tx->doNotRelay.get() != true;

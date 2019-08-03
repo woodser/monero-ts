@@ -239,7 +239,7 @@ namespace monero {
     if (inTxPool != boost::none && inTxPool != tx->inTxPool) return false;
     if (doNotRelay != boost::none && doNotRelay != tx->doNotRelay) return false;
     if (isFailed != boost::none && isFailed != tx->isFailed) return false;
-    if (isCoinbase != boost::none && isCoinbase != tx->isCoinbase) return false;
+    if (isMinerTx != boost::none && isMinerTx != tx->isMinerTx) return false;
 
     // at least one transfer must meet transfer request if defined
     if (transferRequest != boost::none) {

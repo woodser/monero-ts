@@ -125,7 +125,7 @@ namespace monero {
     boost::optional<uint32_t> majorVersion;
     boost::optional<uint32_t> minorVersion;
     boost::optional<uint64_t> nonce;
-    boost::optional<string> coinbaseTxId;
+    boost::optional<string> minerTxId;
     boost::optional<uint32_t> numTxs;
     boost::optional<bool> orphanStatus;
     boost::optional<string> prevId;
@@ -141,7 +141,7 @@ namespace monero {
    */
   struct MoneroBlock : public MoneroBlockHeader {
     boost::optional<string> hex;
-    boost::optional<shared_ptr<MoneroTx>> coinbaseTx;
+    boost::optional<shared_ptr<MoneroTx>> minerTx;
     vector<shared_ptr<MoneroTx>> txs;
     vector<string> txIds;
 
@@ -158,7 +158,7 @@ namespace monero {
     boost::optional<shared_ptr<MoneroBlock>> block;
     boost::optional<string> id;
     boost::optional<uint32_t> version;
-    boost::optional<bool> isCoinbase;
+    boost::optional<bool> isMinerTx;
     boost::optional<string> paymentId;
     boost::optional<uint64_t> fee;
     boost::optional<uint32_t> mixin;

@@ -99,7 +99,7 @@ namespace monero {
     if (majorVersion != boost::none) node.put("majorVersion", *majorVersion);
     if (minorVersion != boost::none) node.put("minorVersion", *minorVersion);
     if (nonce != boost::none) node.put("nonce", *nonce);
-    if (coinbaseTxId != boost::none) node.put("coinbaseTxId", *coinbaseTxId);
+    if (minerTxId != boost::none) node.put("minerTxId", *minerTxId);
     if (numTxs != boost::none) node.put("numTxs", *numTxs);
     if (orphanStatus != boost::none) node.put("orphanStatus", *orphanStatus);
     if (prevId != boost::none) node.put("prevId", *prevId);
@@ -123,7 +123,7 @@ namespace monero {
     majorVersion = MoneroUtils::reconcile(majorVersion, other->majorVersion, "majorVersion");
     minorVersion = MoneroUtils::reconcile(minorVersion, other->minorVersion, "minorVersion");
     nonce = MoneroUtils::reconcile(nonce, other->nonce, "nonce");
-    coinbaseTxId = MoneroUtils::reconcile(coinbaseTxId, other->coinbaseTxId);
+    minerTxId = MoneroUtils::reconcile(minerTxId, other->minerTxId);
     numTxs = MoneroUtils::reconcile(numTxs, other->numTxs, "block header numTxs");
     orphanStatus = MoneroUtils::reconcile(orphanStatus, other->orphanStatus);
     prevId = MoneroUtils::reconcile(prevId, other->prevId);
@@ -136,7 +136,7 @@ namespace monero {
   boost::property_tree::ptree MoneroBlock::toPropertyTree() const {
     boost::property_tree::ptree node = MoneroBlockHeader::toPropertyTree();
     if (hex != boost::none) node.put("hex", *hex);
-    if (coinbaseTx != boost::none) node.add_child("coinbaseTx", (*coinbaseTx)->toPropertyTree());
+    if (minerTx != boost::none) node.add_child("minerTx", (*minerTx)->toPropertyTree());
     if (!txs.empty()) node.add_child("txs", MoneroUtils::toPropertyTree(txs));
     if (!txIds.empty()) node.add_child("txIds", MoneroUtils::toPropertyTree(txIds));
     return node;
@@ -157,14 +157,14 @@ namespace monero {
     hex = MoneroUtils::reconcile(hex, other->hex);
     txIds = MoneroUtils::reconcile(txIds, other->txIds);
 
-    // merge coinbase tx
-    if (coinbaseTx == boost::none) coinbaseTx = other->coinbaseTx;
-    if (other->coinbaseTx != boost::none) {
-      other->coinbaseTx.get()->block = self;
-      coinbaseTx.get()->merge(coinbaseTx.get(), other->coinbaseTx.get());
+    // merge miner tx
+    if (minerTx == boost::none) minerTx = other->minerTx;
+    if (other->minerTx != boost::none) {
+      other->minerTx.get()->block = self;
+      minerTx.get()->merge(minerTx.get(), other->minerTx.get());
     }
 
-    // merge non-coinbase txs
+    // merge non-miner txs
     if (!other->txs.empty()) {
       for (const shared_ptr<MoneroTx> otherTx : other->txs) { // NOTE: not using reference so shared_ptr is not deleted when block is dereferenced
         otherTx->block = self;
@@ -179,7 +179,7 @@ namespace monero {
     MTRACE("MoneroTx::copy(const shared_ptr<MoneroTx>& src, const shared_ptr<MoneroTx>& tgt)");
     tgt->id = src->id;
     tgt->version = src->version;
-    tgt->isCoinbase = src->isCoinbase;
+    tgt->isMinerTx = src->isMinerTx;
     tgt->paymentId = src->paymentId;
     tgt->fee = src->fee;
     tgt->mixin = src->mixin;
@@ -235,7 +235,7 @@ namespace monero {
     boost::property_tree::ptree node;
     if (id != boost::none) node.put("id", *id);
     if (version != boost::none) node.put("version", *version);
-    if (isCoinbase != boost::none) node.put("isCoinbase", *isCoinbase);
+    if (isMinerTx != boost::none) node.put("isMinerTx", *isMinerTx);
     if (paymentId != boost::none) node.put("paymentId", *paymentId);
     if (fee != boost::none) node.put("fee", *fee);
     if (mixin != boost::none) node.put("mixin", *mixin);
