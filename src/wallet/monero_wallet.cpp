@@ -66,7 +66,6 @@
 #endif
 
 using namespace std;
-using namespace cryptonote;
 using namespace epee;
 using namespace tools;
 
@@ -791,10 +790,10 @@ namespace monero {
     return wallet_file_exists;
   }
 
-  monero_wallet* monero_wallet::open_wallet(const string& path, const string& password, const monero_network_type nettype) {
-    MTRACE("open_wallet(" << path << ", " << password << ", " << nettype << ")");
+  monero_wallet* monero_wallet::open_wallet(const string& path, const string& password, const monero_network_type network_type) {
+    MTRACE("open_wallet(" << path << ", " << password << ", " << network_type << ")");
     monero_wallet* wallet = new monero_wallet();
-    wallet->w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(nettype), 1, true));
+    wallet->w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     wallet->w2->load(path, password);
     wallet->w2->init("");
     wallet->init_common();
@@ -806,10 +805,10 @@ namespace monero {
     throw runtime_error("Not implemented");
   }
 
-  monero_wallet* monero_wallet::create_wallet_random(const string& path, const string& password, const monero_network_type nettype, const monero_rpc_connection& daemon_connection, const string& language) {
-    MTRACE("create_wallet_random(path, password, nettype, daemon_connection, language)");
+  monero_wallet* monero_wallet::create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const string& language) {
+    MTRACE("create_wallet_random(path, password, network_type, daemon_connection, language)");
     monero_wallet* wallet = new monero_wallet();
-    wallet->w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<network_type>(nettype), 1, true));
+    wallet->w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     wallet->set_daemon_connection(daemon_connection);
     wallet->w2->set_seed_language(language);
     crypto::secret_key secret_key;
@@ -818,13 +817,13 @@ namespace monero {
     return wallet;
   }
 
-  monero_wallet* monero_wallet::create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type nettype, const string& mnemonic) {
-    MTRACE("create_wallet_from_mnemonic(path, password, nettype, mnemonic)");
+  monero_wallet* monero_wallet::create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic) {
+    MTRACE("create_wallet_from_mnemonic(path, password, network_type, mnemonic)");
     throw runtime_error("Not implemented");
   }
 
-  monero_wallet* monero_wallet::create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type nettype, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height) {
-    MTRACE("create_wallet_from_mnemonic(path, password, mnemonic, nettype, daemon_connection, restore_height)");
+  monero_wallet* monero_wallet::create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height) {
+    MTRACE("create_wallet_from_mnemonic(path, password, mnemonic, network_type, daemon_connection, restore_height)");
     monero_wallet* wallet = new monero_wallet();
 
     // validate mnemonic and get recovery key and language
@@ -835,7 +834,7 @@ namespace monero {
     if (language == crypto::ElectrumWords::old_language_name) language = Language::English().get_language_name();
 
     // initialize wallet
-    wallet->w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(nettype), 1, true));
+    wallet->w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     wallet->set_daemon_connection(daemon_connection);
     wallet->w2->set_seed_language(language);
     wallet->w2->generate(path, password, recoveryKey, true, false);
@@ -844,23 +843,23 @@ namespace monero {
     return wallet;
   }
 
-  monero_wallet* monero_wallet::create_wallet_from_keys(const string& path, const string& password, const monero_network_type nettype, const string& address, const string& view_key, const string& spend_key) {
-    MTRACE("create_wallet_from_keys(path, password, address, view_key, spend_key, nettype)");
+  monero_wallet* monero_wallet::create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key) {
+    MTRACE("create_wallet_from_keys(path, password, address, view_key, spend_key, network_type)");
     throw runtime_error("Not implemented");
   }
 
-  monero_wallet* monero_wallet::create_wallet_from_keys(const string& path, const string& password, const monero_network_type nettype, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height) {
-    MTRACE("create_wallet_from_keys(path, password, address, view_key, spend_key, nettype, daemon_connection, restore_height)");
+  monero_wallet* monero_wallet::create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height) {
+    MTRACE("create_wallet_from_keys(path, password, address, view_key, spend_key, network_type, daemon_connection, restore_height)");
     throw runtime_error("Not implemented");
   }
 
-  monero_wallet* monero_wallet::create_wallet_from_keys(const string& path, const string& password, const monero_network_type nettype, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& language) {
-    MTRACE("create_wallet_from_keys(path, password, address, view_key, spend_key, nettype, daemon_connection, restore_height, language)");
+  monero_wallet* monero_wallet::create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& language) {
+    MTRACE("create_wallet_from_keys(path, password, address, view_key, spend_key, network_type, daemon_connection, restore_height, language)");
     monero_wallet* wallet = new monero_wallet();
 
     // validate and parse address
     cryptonote::address_parse_info info;
-    if (!get_account_address_from_str(info, static_cast<cryptonote::network_type>(nettype), address)) throw runtime_error("failed to parse address");
+    if (!get_account_address_from_str(info, static_cast<cryptonote::network_type>(network_type), address)) throw runtime_error("failed to parse address");
 
     // validate and parse optional private spend key
     crypto::secret_key spend_key_sk;
@@ -901,7 +900,7 @@ namespace monero {
     }
 
     // initialize wallet
-    wallet->w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(nettype), 1, true));
+    wallet->w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     if (has_spend_key && has_view_key) wallet->w2->generate(path, password, info.address, spend_key_sk, view_key_sk);
     if (!has_spend_key && has_view_key) wallet->w2->generate(path, password, info.address, view_key_sk);
     if (has_spend_key && !has_view_key) wallet->w2->generate(path, password, spend_key_sk, true, false);
