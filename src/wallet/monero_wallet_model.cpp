@@ -139,7 +139,7 @@ namespace monero {
   boost::property_tree::ptree monero_tx_wallet::to_property_tree() const {
     boost::property_tree::ptree node = monero_tx::to_property_tree();
     if (!incoming_transfers.empty()) node.add_child("incomingTransfers", monero_utils::to_property_tree(incoming_transfers));
-    if (outgoing_transfer != boost::none) node.add_child("outgoingTransfers", (*outgoing_transfer)->to_property_tree());
+    if (outgoing_transfer != boost::none) node.add_child("outgoingTransfer", (*outgoing_transfer)->to_property_tree());
     if (note != boost::none) node.put("note", *note);
     return node;
   }
