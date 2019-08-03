@@ -141,41 +141,41 @@ namespace monero {
      *
      * @param path is the path to the wallet file to open
      * @param password is the password of the wallet file to open
-     * @param net_type is the wallet's network type
+     * @param nettype is the wallet's network type
      */
-    static monero_wallet* open_wallet(const string& path, const string& password, const monero_network_type net_type);
+    static monero_wallet* open_wallet(const string& path, const string& password, const monero_network_type nettype);
 
     /**
      * Create a new wallet with a randomly generated seed.
      *
      * @param path is the path to create the wallet
      * @param password is the password encrypt the wallet
-     * @param net_type is the wallet's network type (default = monero_network_type.MAINNET)
+     * @param nettype is the wallet's network type (default = monero_network_type.MAINNET)
      * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
     static monero_wallet* create_wallet_random(const string& path, const string& password);
-    static monero_wallet* create_wallet_random(const string& path, const string& password, const monero_network_type net_type, const monero_rpc_connection& daemon_connection, const string& language);
+    static monero_wallet* create_wallet_random(const string& path, const string& password, const monero_network_type nettype, const monero_rpc_connection& daemon_connection, const string& language);
 
     /**
      * Create a wallet from an existing mnemonic phrase.
      *
      * @param path is the path to create the wallet
      * @param password is the password encrypt the wallet
-     * @param net_type is the wallet's network type
+     * @param nettype is the wallet's network type
      * @param mnemonic is the mnemonic of the wallet to construct
      * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
      * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
      */
-    static monero_wallet* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type net_type, const string& mnemonic);
-    static monero_wallet* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type net_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height);
+    static monero_wallet* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type nettype, const string& mnemonic);
+    static monero_wallet* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type nettype, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height);
 
     /**
      * Create a wallet from an address, view key, and spend key.
      *
      * @param path is the path to create the wallet
      * @param password is the password encrypt the wallet
-     * @param net_type is the wallet's network type
+     * @param nettype is the wallet's network type
      * @param address is the address of the wallet to construct
      * @param view_key is the view key of the wallet to construct
      * @param spend_key is the spend key of the wallet to construct
@@ -183,9 +183,9 @@ namespace monero {
      * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    static monero_wallet* create_wallet_from_keys(const string& path, const string& password, const monero_network_type net_type, const string& address, const string& view_key, const string& spend_key);
-    static monero_wallet* create_wallet_from_keys(const string& path, const string& password, const monero_network_type net_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height);
-    static monero_wallet* create_wallet_from_keys(const string& path, const string& password, const monero_network_type net_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& language);
+    static monero_wallet* create_wallet_from_keys(const string& path, const string& password, const monero_network_type nettype, const string& address, const string& view_key, const string& spend_key);
+    static monero_wallet* create_wallet_from_keys(const string& path, const string& password, const monero_network_type nettype, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height);
+    static monero_wallet* create_wallet_from_keys(const string& path, const string& password, const monero_network_type nettype, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& language);
 
     /**
      * Deconstruct the wallet.
