@@ -661,7 +661,7 @@ namespace monero {
 
   boost::property_tree::ptree monero_check::to_property_tree() const {
     boost::property_tree::ptree node;
-    node.put("is_good", is_good);
+    node.put("isGood", is_good);
     return node;
   }
 
