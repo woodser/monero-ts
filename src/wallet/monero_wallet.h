@@ -72,6 +72,8 @@ namespace monero {
 
   /**
    * Receives progress notifications as a wallet is synchronized.
+   *
+   * TODO: make these interfaces and provide default implementation
    */
   class monero_sync_listener {
   public:
