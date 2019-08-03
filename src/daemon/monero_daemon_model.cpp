@@ -92,19 +92,19 @@ namespace monero {
     if (timestamp != boost::none) node.put("timestamp", *timestamp);
     if (size != boost::none) node.put("size", *size);
     if (weight != boost::none) node.put("weight", *weight);
-    if (long_term_weight != boost::none) node.put("long_term_weight", *long_term_weight);
+    if (long_term_weight != boost::none) node.put("longTermWeight", *long_term_weight);
     if (depth != boost::none) node.put("depth", *depth);
     if (difficulty != boost::none) node.put("difficulty", *difficulty);
-    if (cumulative_difficulty != boost::none) node.put("cumulative_difficulty", *height);
-    if (major_version != boost::none) node.put("major_version", *major_version);
-    if (minor_version != boost::none) node.put("minor_version", *minor_version);
+    if (cumulative_difficulty != boost::none) node.put("cumulativeDifficulty", *height);
+    if (major_version != boost::none) node.put("majorVersion", *major_version);
+    if (minor_version != boost::none) node.put("minorVersion", *minor_version);
     if (nonce != boost::none) node.put("nonce", *nonce);
-    if (miner_tx_id != boost::none) node.put("miner_tx_id", *miner_tx_id);
-    if (num_txs != boost::none) node.put("num_txs", *num_txs);
-    if (orphan_status != boost::none) node.put("orphan_status", *orphan_status);
-    if (prev_id != boost::none) node.put("prev_id", *prev_id);
+    if (miner_tx_id != boost::none) node.put("minerTxId", *miner_tx_id);
+    if (num_txs != boost::none) node.put("numTxs", *num_txs);
+    if (orphan_status != boost::none) node.put("orphanStatus", *orphan_status);
+    if (prev_id != boost::none) node.put("prevId", *prev_id);
     if (reward != boost::none) node.put("reward", *reward);
-    if (pow_hash != boost::none) node.put("pow_hash", *pow_hash);
+    if (pow_hash != boost::none) node.put("powHash", *pow_hash);
     return node;
   }
 
@@ -136,9 +136,9 @@ namespace monero {
   boost::property_tree::ptree monero_block::to_property_tree() const {
     boost::property_tree::ptree node = monero_block_header::to_property_tree();
     if (hex != boost::none) node.put("hex", *hex);
-    if (miner_tx != boost::none) node.add_child("miner_tx", (*miner_tx)->to_property_tree());
+    if (miner_tx != boost::none) node.add_child("minerTx", (*miner_tx)->to_property_tree());
     if (!txs.empty()) node.add_child("txs", monero_utils::to_property_tree(txs));
-    if (!tx_ids.empty()) node.add_child("tx_ids", monero_utils::to_property_tree(tx_ids));
+    if (!tx_ids.empty()) node.add_child("txIds", monero_utils::to_property_tree(tx_ids));
     return node;
   }
 
@@ -235,24 +235,24 @@ namespace monero {
     boost::property_tree::ptree node;
     if (id != boost::none) node.put("id", *id);
     if (version != boost::none) node.put("version", *version);
-    if (is_miner_tx != boost::none) node.put("is_miner_tx", *is_miner_tx);
-    if (payment_id != boost::none) node.put("payment_id", *payment_id);
+    if (is_miner_tx != boost::none) node.put("isMinerTx", *is_miner_tx);
+    if (payment_id != boost::none) node.put("paymentId", *payment_id);
     if (fee != boost::none) node.put("fee", *fee);
     if (mixin != boost::none) node.put("mixin", *mixin);
-    if (do_not_relay != boost::none) node.put("do_not_relay", *do_not_relay);
-    if (is_relayed != boost::none) node.put("is_relayed", *is_relayed);
-    if (is_confirmed != boost::none) node.put("is_confirmed", *is_confirmed);
-    if (in_tx_pool != boost::none) node.put("in_tx_pool", *in_tx_pool);
-    if (num_confirmations != boost::none) node.put("num_confirmations", *num_confirmations);
-    if (unlock_time != boost::none) node.put("unlock_time", *unlock_time);
-    if (last_relayed_timestamp != boost::none) node.put("last_relayed_timestamp", *last_relayed_timestamp);
-    if (received_timestamp != boost::none) node.put("received_timestamp", *received_timestamp);
-    if (is_double_spend_seen != boost::none) node.put("is_double_spend_seen", *is_double_spend_seen);
+    if (do_not_relay != boost::none) node.put("doNotRelay", *do_not_relay);
+    if (is_relayed != boost::none) node.put("isRelayed", *is_relayed);
+    if (is_confirmed != boost::none) node.put("isConfirmed", *is_confirmed);
+    if (in_tx_pool != boost::none) node.put("inTxPool", *in_tx_pool);
+    if (num_confirmations != boost::none) node.put("numConfirmations", *num_confirmations);
+    if (unlock_time != boost::none) node.put("unlockTime", *unlock_time);
+    if (last_relayed_timestamp != boost::none) node.put("lastRelayedTimestamp", *last_relayed_timestamp);
+    if (received_timestamp != boost::none) node.put("receivedTimestamp", *received_timestamp);
+    if (is_double_spend_seen != boost::none) node.put("isDoubleSpendSeen", *is_double_spend_seen);
     if (key != boost::none) node.put("key", *key);
-    if (full_hex != boost::none) node.put("full_hex", *full_hex);
-    if (pruned_hex != boost::none) node.put("pruned_hex", *pruned_hex);
-    if (prunable_hex != boost::none) node.put("prunable_hex", *prunable_hex);
-    if (prunable_hash != boost::none) node.put("prunable_hash", *prunable_hash);
+    if (full_hex != boost::none) node.put("fullHex", *full_hex);
+    if (pruned_hex != boost::none) node.put("prunedHex", *pruned_hex);
+    if (prunable_hex != boost::none) node.put("prunableHex", *prunable_hex);
+    if (prunable_hash != boost::none) node.put("prunableHash", *prunable_hash);
     if (size != boost::none) node.put("size", *size);
     if (weight != boost::none) node.put("weight", *weight);
     if (!vins.empty()) node.add_child("vins", monero_utils::to_property_tree(vins));
@@ -263,12 +263,12 @@ namespace monero {
     if (!extra.empty()) node.add_child("extra", monero_utils::to_property_tree(extra));
     if (rct_signatures != boost::none) throw runtime_error("rct_signatures not implemented");
     if (rct_sig_prunable != boost::none) throw runtime_error("rct_sig_prunable not implemented");
-    if (is_kept_by_block != boost::none) node.put("is_kept_by_block", *is_kept_by_block);
+    if (is_kept_by_block != boost::none) node.put("isKeptByBlock", *is_kept_by_block);
     if (is_failed != boost::none) node.put("is_failed", *is_failed);
-    if (last_failed_height != boost::none) node.put("last_failed_height", *last_failed_height);
-    if (last_failed_id != boost::none) node.put("last_failed_id", *last_failed_id);
-    if (max_used_block_height != boost::none) node.put("max_used_block_height", *max_used_block_height);
-    if (max_used_block_id != boost::none) node.put("max_used_block_id", *max_used_block_id);
+    if (last_failed_height != boost::none) node.put("lastFailedHeight", *last_failed_height);
+    if (last_failed_id != boost::none) node.put("lastFailedId", *last_failed_id);
+    if (max_used_block_height != boost::none) node.put("maxUsedBlockHeight", *max_used_block_height);
+    if (max_used_block_id != boost::none) node.put("maxUsedBlockId", *max_used_block_id);
     if (!signatures.empty()) throw runtime_error("signatures not implemented");
     return node;
   }
@@ -442,11 +442,11 @@ namespace monero {
 
   boost::property_tree::ptree monero_output::to_property_tree() const {
     boost::property_tree::ptree node;
-    if (key_image != boost::none) node.add_child("key_image", (*key_image)->to_property_tree());
+    if (key_image != boost::none) node.add_child("keyImage", (*key_image)->to_property_tree());
     if (amount != boost::none) node.put("amount", *amount);
     if (index != boost::none) node.put("index", *index);
-    if (!ring_output_indices.empty()) node.add_child("ring_output_indices", monero_utils::to_property_tree(ring_output_indices));
-    if (stealth_public_key != boost::none) node.put("stealth_public_key", *stealth_public_key);
+    if (!ring_output_indices.empty()) node.add_child("ringOutputIndices", monero_utils::to_property_tree(ring_output_indices));
+    if (stealth_public_key != boost::none) node.put("stealthPublicKey", *stealth_public_key);
     return node;
   }
 

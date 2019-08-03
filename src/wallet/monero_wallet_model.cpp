@@ -80,9 +80,9 @@ namespace monero {
   boost::property_tree::ptree monero_account::to_property_tree() const {
     boost::property_tree::ptree node;
     if (index != boost::none) node.put("index", *index);
-    if (primary_address != boost::none) node.put("primary_address", *primary_address);
+    if (primary_address != boost::none) node.put("primaryAddress", *primary_address);
     if (balance != boost::none) node.put("balance", *balance);
-    if (unlocked_balance != boost::none) node.put("unlocked_balance", *unlocked_balance);
+    if (unlocked_balance != boost::none) node.put("unlockedBalance", *unlocked_balance);
     if (!subaddresses.empty()) node.add_child("subaddresses", monero_utils::to_property_tree(subaddresses));
     return node;
   }
@@ -91,15 +91,15 @@ namespace monero {
 
   boost::property_tree::ptree monero_subaddress::to_property_tree() const {
     boost::property_tree::ptree node;
-    if (account_index != boost::none) node.put("account_index", *account_index);
+    if (account_index != boost::none) node.put("accountIndex", *account_index);
     if (index != boost::none) node.put("index", *index);
     if (address != boost::none) node.put("address", *address);
     if (label != boost::none) node.put("label", *label);
     if (balance != boost::none) node.put("balance", *balance);
-    if (unlocked_balance != boost::none) node.put("unlocked_balance", *unlocked_balance);
-    if (num_unspent_outputs != boost::none) node.put("num_unspent_outputs", *num_unspent_outputs);
+    if (unlocked_balance != boost::none) node.put("unlockedBalance", *unlocked_balance);
+    if (num_unspent_outputs != boost::none) node.put("numUnspentOutputs", *num_unspent_outputs);
     if (is_used != boost::none) node.put("is_used", *is_used);
-    if (num_blocks_to_unlock != boost::none) node.put("num_blocks_to_unlock", *num_blocks_to_unlock);
+    if (num_blocks_to_unlock != boost::none) node.put("numBlocksToUnlock", *num_blocks_to_unlock);
     return node;
   }
 
@@ -138,8 +138,8 @@ namespace monero {
 
   boost::property_tree::ptree monero_tx_wallet::to_property_tree() const {
     boost::property_tree::ptree node = monero_tx::to_property_tree();
-    if (!incoming_transfers.empty()) node.add_child("incoming_transfers", monero_utils::to_property_tree(incoming_transfers));
-    if (outgoing_transfer != boost::none) node.add_child("outgoing_transfer", (*outgoing_transfer)->to_property_tree());
+    if (!incoming_transfers.empty()) node.add_child("incomingTransfers", monero_utils::to_property_tree(incoming_transfers));
+    if (outgoing_transfer != boost::none) node.add_child("outgoingTransfers", (*outgoing_transfer)->to_property_tree());
     if (note != boost::none) node.put("note", *note);
     return node;
   }
@@ -216,16 +216,16 @@ namespace monero {
 
   boost::property_tree::ptree monero_tx_request::to_property_tree() const {
     boost::property_tree::ptree node = monero_tx_wallet::to_property_tree();
-    if (is_outgoing != boost::none) node.put("is_outgoing", *is_outgoing);
-    if (is_incoming != boost::none) node.put("is_incoming", *is_incoming);
-    if (!tx_ids.empty()) node.add_child("tx_ids", monero_utils::to_property_tree(tx_ids));
-    if (has_payment_id != boost::none) node.put("has_payment_id", *has_payment_id);
-    if (!payment_ids.empty()) node.add_child("payment_ids", monero_utils::to_property_tree(payment_ids));
+    if (is_outgoing != boost::none) node.put("isOutgoing", *is_outgoing);
+    if (is_incoming != boost::none) node.put("isIncoming", *is_incoming);
+    if (!tx_ids.empty()) node.add_child("txIds", monero_utils::to_property_tree(tx_ids));
+    if (has_payment_id != boost::none) node.put("hasPaymentId", *has_payment_id);
+    if (!payment_ids.empty()) node.add_child("paymentIds", monero_utils::to_property_tree(payment_ids));
     if (height != boost::none) node.put("height", *height);
-    if (min_height != boost::none) node.put("min_height", *min_height);
-    if (max_height != boost::none) node.put("max_height", *max_height);
-    if (include_outputs != boost::none) node.put("include_outputs", *include_outputs);
-    if (transfer_request != boost::none) node.add_child("transfer_request", (*transfer_request)->to_property_tree());
+    if (min_height != boost::none) node.put("minHeight", *min_height);
+    if (max_height != boost::none) node.put("maxHeight", *max_height);
+    if (include_outputs != boost::none) node.put("includeOutputs", *include_outputs);
+    if (transfer_request != boost::none) node.add_child("transferRequest", (*transfer_request)->to_property_tree());
     return node;
   }
 
@@ -311,8 +311,8 @@ namespace monero {
   boost::property_tree::ptree monero_transfer::to_property_tree() const {
     boost::property_tree::ptree node;
     if (amount != boost::none) node.put("amount", *amount);
-    if (account_index != boost::none) node.put("account_index", *account_index);
-    if (num_suggested_confirmations != boost::none) node.put("num_suggested_confirmations", *num_suggested_confirmations);
+    if (account_index != boost::none) node.put("accountIndex", *account_index);
+    if (num_suggested_confirmations != boost::none) node.put("numSuggestedConfirmations", *num_suggested_confirmations);
     return node;
   }
 
@@ -357,7 +357,7 @@ namespace monero {
 
   boost::property_tree::ptree monero_incoming_transfer::to_property_tree() const {
     boost::property_tree::ptree node = monero_transfer::to_property_tree();
-    if (subaddress_index != boost::none) node.put("subaddress_index", *subaddress_index);
+    if (subaddress_index != boost::none) node.put("subaddressIndex", *subaddress_index);
     if (address != boost::none) node.put("address", *address);
     return node;
   }
@@ -387,7 +387,7 @@ namespace monero {
 
   boost::property_tree::ptree monero_outgoing_transfer::to_property_tree() const {
     boost::property_tree::ptree node = monero_transfer::to_property_tree();
-    if (!subaddress_indices.empty()) node.add_child("subaddress_indices", monero_utils::to_property_tree(subaddress_indices));
+    if (!subaddress_indices.empty()) node.add_child("subaddressIndices", monero_utils::to_property_tree(subaddress_indices));
     if (!addresses.empty()) node.add_child("addresses", monero_utils::to_property_tree(addresses));
     if (!destinations.empty()) node.add_child("destinations", monero_utils::to_property_tree(destinations));
     return node;
@@ -438,11 +438,11 @@ namespace monero {
 
   boost::property_tree::ptree monero_transfer_request::to_property_tree() const {
     boost::property_tree::ptree node = monero_transfer::to_property_tree();
-    if (getIsIncoming() != boost::none) node.put("is_incoming", *getIsIncoming());
+    if (getIsIncoming() != boost::none) node.put("isIncoming", *getIsIncoming());
     if (address != boost::none) node.put("address", *address);
-    if (subaddress_index != boost::none) node.put("subaddress_index", *subaddress_index);
-    if (has_destinations != boost::none) node.put("has_destinations", *has_destinations);
-    if (!subaddress_indices.empty()) node.add_child("subaddress_indices", monero_utils::to_property_tree(subaddress_indices));
+    if (subaddress_index != boost::none) node.put("subaddressIndex", *subaddress_index);
+    if (has_destinations != boost::none) node.put("hasDestinations", *has_destinations);
+    if (!subaddress_indices.empty()) node.add_child("subaddressIndices", monero_utils::to_property_tree(subaddress_indices));
     if (!addresses.empty()) node.add_child("addresses", monero_utils::to_property_tree(addresses));
     if (!destinations.empty()) node.add_child("destinations", monero_utils::to_property_tree(destinations));
     return node;
@@ -545,11 +545,11 @@ namespace monero {
 
   boost::property_tree::ptree monero_output_wallet::to_property_tree() const {
     boost::property_tree::ptree node = monero_output::to_property_tree();
-    if (account_index != boost::none) node.put("account_index", *account_index);
-    if (subaddress_index != boost::none) node.put("subaddress_index", *subaddress_index);
-    if (is_spent != boost::none) node.put("is_spent", *is_spent);
-    if (is_unlocked != boost::none) node.put("is_unlocked", *is_unlocked);
-    if (is_frozen != boost::none) node.put("is_frozen", *is_frozen);
+    if (account_index != boost::none) node.put("accountIndex", *account_index);
+    if (subaddress_index != boost::none) node.put("subaddressIndex", *subaddress_index);
+    if (is_spent != boost::none) node.put("isSpent", *is_spent);
+    if (is_unlocked != boost::none) node.put("isUnlocked", *is_unlocked);
+    if (is_frozen != boost::none) node.put("isFrozen", *is_frozen);
     return node;
   }
 
@@ -585,7 +585,7 @@ namespace monero {
 
   boost::property_tree::ptree monero_output_request::to_property_tree() const {
     boost::property_tree::ptree node = monero_output_wallet::to_property_tree();
-    if (!subaddress_indices.empty()) node.add_child("subaddress_indices", monero_utils::to_property_tree(subaddress_indices));
+    if (!subaddress_indices.empty()) node.add_child("subaddressIndices", monero_utils::to_property_tree(subaddress_indices));
     return node;
   }
 
@@ -620,20 +620,20 @@ namespace monero {
   boost::property_tree::ptree monero_send_request::to_property_tree() const {
     boost::property_tree::ptree node;
     if (!destinations.empty()) node.add_child("destinations", monero_utils::to_property_tree(destinations));
-    if (payment_id != boost::none) node.put("payment_id", *payment_id);
+    if (payment_id != boost::none) node.put("paymentId", *payment_id);
     if (priority != boost::none) node.put("priority", *priority);
     if (mixin != boost::none) node.put("mixin", *mixin);
-    if (ring_size != boost::none) node.put("ring_size", *ring_size);
-    if (account_index != boost::none) node.put("account_index", *account_index);
-    if (!subaddress_indices.empty()) node.add_child("subaddress_indices", monero_utils::to_property_tree(subaddress_indices));
-    if (unlock_time != boost::none) node.put("unlock_time", *unlock_time);
-    if (can_split != boost::none) node.put("can_split", *can_split);
-    if (do_not_relay != boost::none) node.put("do_not_relay", *do_not_relay);
+    if (ring_size != boost::none) node.put("ringSize", *ring_size);
+    if (account_index != boost::none) node.put("accountIndex", *account_index);
+    if (!subaddress_indices.empty()) node.add_child("subaddressIndices", monero_utils::to_property_tree(subaddress_indices));
+    if (unlock_time != boost::none) node.put("unlockTime", *unlock_time);
+    if (can_split != boost::none) node.put("canSplit", *can_split);
+    if (do_not_relay != boost::none) node.put("doNotRelay", *do_not_relay);
     if (note != boost::none) node.put("note", *note);
-    if (recipient_name != boost::none) node.put("recipient_name", *recipient_name);
-    if (below_amount != boost::none) node.put("below_amount", *below_amount);
-    if (sweep_each_subaddress != boost::none) node.put("sweep_each_subaddress", *sweep_each_subaddress);
-    if (key_image != boost::none) node.put("key_image", *key_image);
+    if (recipient_name != boost::none) node.put("recipientName", *recipient_name);
+    if (below_amount != boost::none) node.put("belowAmount", *below_amount);
+    if (sweep_each_subaddress != boost::none) node.put("sweepEachSubaddress", *sweep_each_subaddress);
+    if (key_image != boost::none) node.put("keyImage", *key_image);
     return node;
   }
 
@@ -641,9 +641,9 @@ namespace monero {
 
   boost::property_tree::ptree monero_integrated_address::to_property_tree() const {
     boost::property_tree::ptree node;
-    node.put("standard_address", standard_address);
-    node.put("payment_id", payment_id);
-    node.put("integrated_address", integrated_address);
+    node.put("standardAddress", standard_address);
+    node.put("paymentId", payment_id);
+    node.put("integratedAddress", integrated_address);
     return node;
   }
 
@@ -652,8 +652,8 @@ namespace monero {
   boost::property_tree::ptree monero_key_image_import_result::to_property_tree() const {
     boost::property_tree::ptree node;
     if (height != boost::none) node.put("height", *height);
-    if (spent_amount != boost::none) node.put("spent_amount", *spent_amount);
-    if (unspent_amount != boost::none) node.put("unspent_amount", *unspent_amount);
+    if (spent_amount != boost::none) node.put("spentAmount", *spent_amount);
+    if (unspent_amount != boost::none) node.put("unspentAmount", *unspent_amount);
     return node;
   }
 
@@ -669,9 +669,9 @@ namespace monero {
 
   boost::property_tree::ptree monero_check_tx::to_property_tree() const {
     boost::property_tree::ptree node = monero_check::to_property_tree();;
-    if (in_tx_pool != boost::none) node.put("in_tx_pool", *in_tx_pool);
-    if (num_confirmations != boost::none) node.put("num_confirmations", *num_confirmations);
-    if (received_amount != boost::none) node.put("received_amount", *received_amount);
+    if (in_tx_pool != boost::none) node.put("inTxPool", *in_tx_pool);
+    if (num_confirmations != boost::none) node.put("numConfirmations", *num_confirmations);
+    if (received_amount != boost::none) node.put("receivedAmount", *received_amount);
     return node;
   }
 
@@ -679,8 +679,8 @@ namespace monero {
 
   boost::property_tree::ptree monero_check_reserve::to_property_tree() const {
     boost::property_tree::ptree node = monero_check::to_property_tree();
-    if (total_amount != boost::none) node.put("total_amount", *total_amount);
-    if (unconfirmed_spent_amount != boost::none) node.put("unconfirmed_spent_amount", *unconfirmed_spent_amount);
+    if (total_amount != boost::none) node.put("totalAmount", *total_amount);
+    if (unconfirmed_spent_amount != boost::none) node.put("unconfirmedSpentAmount", *unconfirmed_spent_amount);
     return node;
   }
 }
