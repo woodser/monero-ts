@@ -66,7 +66,7 @@ void node_to_transfer(const boost::property_tree::ptree& node, shared_ptr<monero
   // initialize transfer from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("account_index")) transfer->account_index = it->second.get_value<uint32_t>();
+    if (key == string("accountIndex")) transfer->account_index = it->second.get_value<uint32_t>();
   }
 }
 
@@ -77,7 +77,7 @@ shared_ptr<monero_transfer_request> node_to_transfer_request(const boost::proper
   // initialize request from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("is_incoming")) transfer_request->is_incoming = it->second.get_value<bool>();
+    if (key == string("isIncoming")) transfer_request->is_incoming = it->second.get_value<bool>();
     else if (key == string("address")) transfer_request->address = it->second.data();
     else if (key == string("addresses")) throw runtime_error("addresses not implemented");
     else if (key == string("subadressIndex")) transfer_request->subaddress_index = it->second.get_value<uint32_t>();
@@ -112,7 +112,7 @@ void node_to_output(const boost::property_tree::ptree& node, shared_ptr<monero_o
   // initialize output from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("key_image")) output->key_image = node_to_key_image(it->second);
+    if (key == string("keyImage")) output->key_image = node_to_key_image(it->second);
     else if (key == string("amount")) output->amount = it->second.get_value<uint64_t>();
     else if (key == string("index")) output->index = it->second.get_value<uint32_t>();
     else if (key == string("ringOutputIndices")) throw runtime_error("node_to_tx() deserialize ringOutputIndices not implemented");
