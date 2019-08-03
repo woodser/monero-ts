@@ -85,7 +85,7 @@ namespace monero {
   /**
    * Enumerates Monero network types.
    */
-  enum MoneroNetworkType : uint8_t {
+  enum monero_network_type : uint8_t {
       MAINNET = 0,
       TESTNET,
       STAGENET

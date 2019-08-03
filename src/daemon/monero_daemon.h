@@ -61,5 +61,4 @@ using namespace std;
  */
 namespace monero {
 
-  // TODO: MoneroDaemon class definition
 }

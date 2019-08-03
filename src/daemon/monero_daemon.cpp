@@ -50,12 +50,11 @@
  * Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
  */
 
-#include "MoneroDaemon.h"
+#include "monero_daemon.h"
 
 /**
  * Public library intereface.
  */
 namespace monero {
 
-  // TODO: MoneroDaemon class implementation
 }

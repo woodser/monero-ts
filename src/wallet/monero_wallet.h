@@ -70,33 +70,6 @@ namespace monero {
 
   // --------------------------------- LISTENERS ------------------------------
 
-  // TODO: this is here for reference to complete the wallet listener
-  //  class i_wallet2_callback
-  //    {
-  //    public:
-  //      // Full wallet callbacks
-  //      virtual void on_new_block(uint64_t height, const cryptonote::block& block) {}
-  //      virtual void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index) {}
-  //      virtual void on_unconfirmed_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index) {}
-  //      virtual void on_money_spent(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& in_tx, uint64_t amount, const cryptonote::transaction& spend_tx, const cryptonote::subaddress_index& subaddr_index) {}
-  //      virtual void on_skip_transaction(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& tx) {}
-  //      virtual boost::optional<epee::wipeable_string> on_get_password(const char *reason) { return boost::none; }
-  //      // Light wallet callbacks
-  //      virtual void on_lw_new_block(uint64_t height) {}
-  //      virtual void on_lw_money_received(uint64_t height, const crypto::hash &txid, uint64_t amount) {}
-  //      virtual void on_lw_unconfirmed_money_received(uint64_t height, const crypto::hash &txid, uint64_t amount) {}
-  //      virtual void on_lw_money_spent(uint64_t height, const crypto::hash &txid, uint64_t amount) {}
-  //      // Device callbacks
-  //      virtual void on_device_button_request(uint64_t code) {}
-  //      virtual void on_device_button_pressed() {}
-  //      virtual boost::optional<epee::wipeable_string> on_device_pin_request() { return boost::none; }
-  //      virtual boost::optional<epee::wipeable_string> on_device_passphrase_request(bool on_device) { return boost::none; }
-  //      virtual void on_device_progress(const hw::device_progress& event) {};
-  //      // Common callbacks
-  //      virtual void on_pool_tx_removed(const crypto::hash &txid) {}
-  //      virtual ~i_wallet2_callback() {}
-  //    };
-
   /**
    * Receives progress notifications as a wallet is synchronized.
    */
@@ -107,18 +80,18 @@ namespace monero {
      * Invoked when sync progress is made.
      *
      * @param height is the height of the synced block
-     * @param startHeight is the starting height of the sync request
-     * @param endHeight is the ending height of the sync request
-     * @param percentDone is the sync progress as a percentage
+     * @param start_height is the starting height of the sync request
+     * @param end_height is the ending height of the sync request
+     * @param percent_done is the sync progress as a percentage
      * @param message is a human-readable description of the current progress
      */
-    virtual void on_sync_progress(uint64_t height, uint64_t startHeight, uint64_t endHeight, double percentDone, const string& message) {}
+    virtual void on_sync_progress(uint64_t height, uint64_t start_height, uint64_t end_height, double percent_done, const string& message) {}
   };
 
   /**
    * Receives notifications as a wallet is updated.
    */
-  class MoneroWalletListener : public monero_sync_listener {
+  class monero_wallet_listener : public monero_sync_listener {
   public:
 
     /**
@@ -144,7 +117,7 @@ namespace monero {
   };
 
   // forward declaration of internal wallet2 listener
-  struct Wallet2Listener;
+  struct wallet2_listener;
 
   // ---------------------------- WALLET INTERFACE ----------------------------
 
@@ -161,58 +134,58 @@ namespace monero {
      * @param path is the path to check for a wallet
      * @return true if a wallet exists at the given path, false otherwise
      */
-    static bool walletExists(const string& path);
+    static bool wallet_exists(const string& path);
 
     /**
      * Open an existing wallet.
      *
      * @param path is the path to the wallet file to open
      * @param password is the password of the wallet file to open
-     * @param networkType is the wallet's network type
+     * @param network_type is the wallet's network type
      */
-    static monero_wallet* open_wallet(const string& path, const string& password, const MoneroNetworkType networkType);
+    static monero_wallet* open_wallet(const string& path, const string& password, const monero_network_type network_type);
 
     /**
      * Create a new wallet with a randomly generated seed.
      *
      * @param path is the path to create the wallet
      * @param password is the password encrypt the wallet
-     * @param networkType is the wallet's network type (default = MoneroNetworkType.MAINNET)
-     * @param daemonConnection is connection information to a daemon (default = an unconnected wallet)
+     * @param network_type is the wallet's network type (default = monero_network_type.MAINNET)
+     * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
     static monero_wallet* create_wallet_random(const string& path, const string& password);
-    static monero_wallet* create_wallet_random(const string& path, const string& password, const MoneroNetworkType networkType, const monero_rpc_connection& daemonConnection, const string& language);
+    static monero_wallet* create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const string& language);
 
     /**
      * Create a wallet from an existing mnemonic phrase.
      *
      * @param path is the path to create the wallet
      * @param password is the password encrypt the wallet
-     * @param networkType is the wallet's network type
+     * @param network_type is the wallet's network type
      * @param mnemonic is the mnemonic of the wallet to construct
-     * @param daemonConnection is connection information to a daemon (default = an unconnected wallet)
-     * @param restoreHeight is the block height to restore (i.e. scan the chain) from (default = 0)
+     * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
+     * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
      */
-    static monero_wallet* create_wallet_from_mnemonic(const string& path, const string& password, const MoneroNetworkType networkType, const string& mnemonic);
-    static monero_wallet* create_wallet_from_mnemonic(const string& path, const string& password, const MoneroNetworkType networkType, const string& mnemonic, const monero_rpc_connection& daemonConnection, uint64_t restoreHeight);
+    static monero_wallet* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic);
+    static monero_wallet* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height);
 
     /**
      * Create a wallet from an address, view key, and spend key.
      *
      * @param path is the path to create the wallet
      * @param password is the password encrypt the wallet
-     * @param networkType is the wallet's network type
+     * @param network_type is the wallet's network type
      * @param address is the address of the wallet to construct
-     * @param viewKey is the view key of the wallet to construct
-     * @param spendKey is the spend key of the wallet to construct
-     * @param daemonConnection is connection information to a daemon (default = an unconnected wallet)
-     * @param restoreHeight is the block height to restore (i.e. scan the chain) from (default = 0)
+     * @param view_key is the view key of the wallet to construct
+     * @param spend_key is the spend key of the wallet to construct
+     * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
+     * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    static monero_wallet* create_wallet_from_keys(const string& path, const string& password, const MoneroNetworkType networkType, const string& address, const string& viewKey, const string& spendKey);
-    static monero_wallet* create_wallet_from_keys(const string& path, const string& password, const MoneroNetworkType networkType, const string& address, const string& viewKey, const string& spendKey, const monero_rpc_connection& daemonConnection, uint64_t restoreHeight);
-    static monero_wallet* create_wallet_from_keys(const string& path, const string& password, const MoneroNetworkType networkType, const string& address, const string& viewKey, const string& spendKey, const monero_rpc_connection& daemonConnection, uint64_t restoreHeight, const string& language);
+    static monero_wallet* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key);
+    static monero_wallet* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height);
+    static monero_wallet* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& language);
 
     /**
      * Deconstruct the wallet.
@@ -289,7 +262,7 @@ namespace monero {
      *
      * @return the wallet's network type
      */
-    MoneroNetworkType get_network_type() const;
+    monero_network_type get_network_type() const;
 
     /**
      * Get the wallet's seed.
@@ -357,11 +330,11 @@ namespace monero {
     /**
      * Get the address of a specific subaddress.
      *
-     * @param accountIdx specifies the account index of the address's subaddress
-     * @param subaddressIdx specifies the subaddress index within the account
+     * @param account_idx specifies the account index of the address's subaddress
+     * @param subaddress_idx specifies the subaddress index within the account
      * @return the receive address of the specified subaddress
      */
-    string get_address(const uint32_t accountIdx, const uint32_t subaddressIdx) const;
+    string get_address(const uint32_t account_idx, const uint32_t subaddress_idx) const;
 
     /**
      * Get the account and subaddress index of the given address.
@@ -394,7 +367,7 @@ namespace monero {
      *
      * @param listener is the listener to receive wallet notifications
      */
-    void set_listener(boost::optional<MoneroWalletListener&> listener);
+    void set_listener(boost::optional<monero_wallet_listener&> listener);
 
     /**
      * Synchronize the wallet with the daemon as a one-time synchronous process.
@@ -414,19 +387,19 @@ namespace monero {
     /**
      * Synchronize the wallet with the daemon as a one-time synchronous process.
      *
-     * @param startHeight is the start height to sync from (ignored if less than last processed block)
+     * @param start_height is the start height to sync from (ignored if less than last processed block)
      * @return the sync result
      */
-    monero_sync_result sync(uint64_t startHeight);
+    monero_sync_result sync(uint64_t start_height);
 
     /**
      * Synchronizes the wallet with the blockchain.
      *
-     * @param startHeight is the start height to sync from (ignored if less than last processed block)
+     * @param start_height is the start height to sync from (ignored if less than last processed block)
      * @param listener is invoked as sync progress is made
      * @return the sync result
      */
-    monero_sync_result sync(uint64_t startHeight, monero_sync_listener& listener);
+    monero_sync_result sync(uint64_t start_height, monero_sync_listener& listener);
 
     /**
      * Start an asynchronous thread to continuously synchronize the wallet with the daemon.
@@ -459,7 +432,7 @@ namespace monero {
      *
      * @return the blockchain's height
      */
-    uint64_t getChainHeight() const;
+    uint64_t get_chain_height() const;
 
     /**
      * Get the height of the first block that the wallet scans.
@@ -471,9 +444,9 @@ namespace monero {
     /**
      * Set the height of the first block that the wallet scans.
      *
-     * @param restoreHeight is the height of the first block that the wallet scans
+     * @param restore_height is the height of the first block that the wallet scans
      */
-    void set_restore_height(uint64_t restoreHeight);
+    void set_restore_height(uint64_t restore_height);
 
 //    /**
 //     * Indicates if importing multisig data is needed for returning a correct balance.
@@ -492,19 +465,19 @@ namespace monero {
     /**
      * Get an account's balance.
      *
-     * @param accountIdx is the index of the account to get the balance of
+     * @param account_idx is the index of the account to get the balance of
      * @return the account's balance
      */
-    uint64_t get_balance(uint32_t accountIdx) const;
+    uint64_t get_balance(uint32_t account_idx) const;
 
     /**
      * Get a subaddress's balance.
      *
-     * @param accountIdx is the index of the subaddress's account to get the balance of
-     * @param subaddressIdx is the index of the subaddress to get the balance of
+     * @param account_idx is the index of the subaddress's account to get the balance of
+     * @param subaddress_idx is the index of the subaddress to get the balance of
      * @return the subaddress's balance
      */
-    uint64_t get_balance(uint32_t accountIdx, uint32_t subaddressIdx) const;
+    uint64_t get_balance(uint32_t account_idx, uint32_t subaddress_idx) const;
 
     /**
      * Get the wallet's unlocked balance.
@@ -516,19 +489,19 @@ namespace monero {
     /**
      * Get an account's unlocked balance.
      *
-     * @param accountIdx is the index of the account to get the unlocked balance of
+     * @param account_idx is the index of the account to get the unlocked balance of
      * @return the account's unlocked balance
      */
-    uint64_t get_unlocked_balance(uint32_t accountIdx) const;
+    uint64_t get_unlocked_balance(uint32_t account_idx) const;
 
     /**
      * Get a subaddress's unlocked balance.
      *
-     * @param accountIdx is the index of the subaddress's account to get the unlocked balance of
-     * @param subaddressIdx is the index of the subaddress to get the unlocked balance of
+     * @param account_idx is the index of the subaddress's account to get the unlocked balance of
+     * @param subaddress_idx is the index of the subaddress to get the unlocked balance of
      * @return the subaddress's balance
      */
-    uint64_t get_unlocked_balance(uint32_t accountIdx, uint32_t subaddressIdx) const;
+    uint64_t get_unlocked_balance(uint32_t account_idx, uint32_t subaddress_idx) const;
 
     /**
      * Get all accounts.
@@ -540,10 +513,10 @@ namespace monero {
     /**
      * Get all accounts.
      *
-     * @param includeSubaddresses specifies if subaddresses should be included
+     * @param include_subaddresses specifies if subaddresses should be included
      * @return List<monero_account> are all accounts
      */
-    vector<monero_account> get_accounts(bool includeSubaddresses) const;
+    vector<monero_account> get_accounts(bool include_subaddresses) const;
 
     /**
      * Get accounts with a given tag.
@@ -556,28 +529,28 @@ namespace monero {
     /**
      * Get accounts with a given tag.
      *
-     * @param includeSubaddresses specifies if subaddresses should be included
+     * @param include_subaddresses specifies if subaddresses should be included
      * @param tag is the tag for filtering accounts, all accounts if null
      * @return List<monero_account> are all accounts for the wallet with the given tag
      */
-    vector<monero_account> get_accounts(bool includeSubaddresses, const string& tag) const;
+    vector<monero_account> get_accounts(bool include_subaddresses, const string& tag) const;
 
     /**
      * Get an account without subaddress information.
      *
-     * @param accountIdx specifies the account to get
+     * @param account_idx specifies the account to get
      * @return the retrieved account
      */
-    monero_account get_account(uint32_t accountIdx) const;
+    monero_account get_account(uint32_t account_idx) const;
 
     /**
      * Get an account.
      *
-     * @param accountIdx specifies the account to get
-     * @param includeSubaddresses specifies if subaddresses should be included
+     * @param account_idx specifies the account to get
+     * @param include_subaddresses specifies if subaddresses should be included
      * @return the retrieved account
      */
-    monero_account get_account(const uint32_t accountIdx, bool includeSubaddresses) const;
+    monero_account get_account(const uint32_t account_idx, bool include_subaddresses) const;
 
     /**
      * Create a new account with a label for the first subaddress.
@@ -590,45 +563,45 @@ namespace monero {
     /**
      * Get all subaddresses in an account.
      *
-     * @param accountIdx specifies the account to get subaddresses within
+     * @param account_idx specifies the account to get subaddresses within
      * @return List<monero_subaddress> are the retrieved subaddresses
      */
-    vector<monero_subaddress> get_subaddresses(const uint32_t accountIdx) const;
+    vector<monero_subaddress> get_subaddresses(const uint32_t account_idx) const;
 
     /**
      * Get subaddresses in an account.
      *
-     * @param accountIdx specifies the account to get subaddresses within
+     * @param account_idx specifies the account to get subaddresses within
      * @param subaddress_indices are specific subaddresses to get (optional)
      * @return the retrieved subaddresses
      */
-    vector<monero_subaddress> get_subaddresses(const uint32_t accountIdx, const vector<uint32_t>& subaddress_indices) const;
+    vector<monero_subaddress> get_subaddresses(const uint32_t account_idx, const vector<uint32_t>& subaddress_indices) const;
 
     /**
      * Get a subaddress.
      *
-     * @param accountIdx specifies the index of the subaddress's account
-     * @param subaddressIdx specifies index of the subaddress within the account
+     * @param account_idx specifies the index of the subaddress's account
+     * @param subaddress_idx specifies index of the subaddress within the account
      * @return the retrieved subaddress
      */
-    monero_subaddress getSubaddress(const uint32_t accountIdx, const uint32_t subaddressIdx) const;
+    monero_subaddress getSubaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const;
 
     /**
      * Create a subaddress within an account.
      *
-     * @param accountIdx specifies the index of the account to create the subaddress within
+     * @param account_idx specifies the index of the account to create the subaddress within
      * @param label specifies the the label for the subaddress (defaults to empty string)
      * @return the created subaddress
      */
-    monero_subaddress create_subaddress(uint32_t accountIdx, const string& label = "");
+    monero_subaddress create_subaddress(uint32_t account_idx, const string& label = "");
 
 //    /**
 //     * Get a wallet transaction by id.
 //     *
-//     * @param txId is an id of a transaction to get
+//     * @param tx_id is an id of a transaction to get
 //     * @return monero_tx_wallet is the identified transactions
 //     */
-//    public monero_tx_wallet getTx(string txId);
+//    public monero_tx_wallet getTx(string tx_id);
 
     /**
      * Get all wallet transactions.  Wallet transactions contain one or more
@@ -680,10 +653,10 @@ namespace monero {
 //     * a subaddress within an account.  Transfers belong to transactions which
 //     * are stored on the blockchain.
 //     *
-//     * @param accountIdx is the index of the account to get transfers from
+//     * @param account_idx is the index of the account to get transfers from
 //     * @return transfers to/from the account
 //     */
-//    public List<monero_transfer> get_transfers(int accountIdx);
+//    public List<monero_transfer> get_transfers(int account_idx);
 //
 //    /**
 //     * Get incoming and outgoing transfers to and from a subaddress.  An outgoing
@@ -693,11 +666,11 @@ namespace monero {
 //     * a subaddress within an account.  Transfers belong to transactions which
 //     * are stored on the blockchain.
 //     *
-//     * @param accountIdx is the index of the account to get transfers from
-//     * @param subaddressIdx is the index of the subaddress to get transfers from
+//     * @param account_idx is the index of the account to get transfers from
+//     * @param subaddress_idx is the index of the subaddress to get transfers from
 //     * @return transfers to/from the subaddress
 //     */
-//    public List<monero_transfer> get_transfers(int accountIdx, int subaddressIdx);
+//    public List<monero_transfer> get_transfers(int account_idx, int subaddress_idx);
 
     /**
      * Get incoming and outgoing transfers to and from this wallet.  An outgoing
@@ -750,10 +723,10 @@ namespace monero {
     /**
      * Import outputs in hex format.
      *
-     * @param outputsHex are outputs in hex format
+     * @param outputs_hex are outputs in hex format
      * @return the number of outputs imported
      */
-    int import_outputs_hex(const string& outputsHex);
+    int import_outputs_hex(const string& outputs_hex);
 
     /**
      * Get all signed key images.
@@ -765,10 +738,10 @@ namespace monero {
     /**
      * Import signed key images and verify their spent status.
      *
-     * @param keyImages are key images to import and verify (requires hex and signature)
+     * @param key_images are key images to import and verify (requires hex and signature)
      * @return results of the import
      */
-    shared_ptr<monero_key_image_import_result> import_key_images(const vector<shared_ptr<monero_key_image>>& keyImages);
+    shared_ptr<monero_key_image_import_result> import_key_images(const vector<shared_ptr<monero_key_image>>& key_images);
 
 //    /**
 //     * Get new key images from the last imported outputs.
@@ -872,21 +845,21 @@ namespace monero {
 //    /**
 //     * Sweep a subaddress's unlocked funds to an address.
 //     *
-//     * @param accountIdx is the index of the account
-//     * @param subaddressIdx is the index of the subaddress
+//     * @param account_idx is the index of the account
+//     * @param subaddress_idx is the index of the subaddress
 //     * @param address is the address to sweep the subaddress's funds to
 //     * @return the resulting transactions
 //     */
-//    public List<monero_tx_wallet> sweepSubaddress(int accountIdx, int subaddressIdx, string address);
+//    public List<monero_tx_wallet> sweepSubaddress(int account_idx, int subaddress_idx, string address);
 //
 //    /**
 //     * Sweep an acount's unlocked funds to an address.
 //     *
-//     * @param accountIdx is the index of the account
+//     * @param account_idx is the index of the account
 //     * @param address is the address to sweep the account's funds to
 //     * @return the resulting transactions
 //     */
-//    public List<monero_tx_wallet> sweepAccount(int accountIdx, string address);
+//    public List<monero_tx_wallet> sweepAccount(int account_idx, string address);
 //
 //    /**
 //     * Sweep the wallet's unlocked funds to an address.
@@ -932,18 +905,18 @@ namespace monero {
     /**
      * Relay transactions previously created without relaying.
      *
-     * @param txMetadatas are transaction metadata previously created without relaying
+     * @param tx_metadatas are transaction metadata previously created without relaying
      * @return the ids of the relayed txs
      */
-    vector<string> relay_txs(const vector<string>& txMetadatas);
+    vector<string> relay_txs(const vector<string>& tx_metadatas);
 
     /**
      * Get a transaction note.
      *
-     * @param txId specifies the transaction to get the note of
+     * @param tx_id specifies the transaction to get the note of
      * @return the tx note
      */
-    string get_tx_note(const string& txId) const;
+    string get_tx_note(const string& tx_id) const;
 
     /**
      * Get notes for multiple transactions.
@@ -956,10 +929,10 @@ namespace monero {
     /**
      * Set a note for a specific transaction.
      *
-     * @param txId specifies the transaction
+     * @param tx_id specifies the transaction
      * @param note specifies the note
      */
-    void set_tx_note(const string& txId, const string& note);
+    void set_tx_note(const string& tx_id, const string& note);
 
     /**
      * Set notes for multiple transactions.
@@ -990,77 +963,77 @@ namespace monero {
     /**
      * Get a transaction's secret key from its id.
      *
-     * @param txId is the transaction's id
+     * @param tx_id is the transaction's id
      * @return is the transaction's secret key
      */
-    string get_tx_key(const string& txId) const;
+    string get_tx_key(const string& tx_id) const;
 
     /**
      * Check a transaction in the blockchain with its secret key.
      *
-     * @param txId specifies the transaction to check
+     * @param tx_id specifies the transaction to check
      * @param txKey is the transaction's secret key
      * @param address is the destination public address of the transaction
      * @return the result of the check
      */
-    shared_ptr<monero_check_tx> check_tx_key(const string& txId, const string& txKey, const string& address) const;
+    shared_ptr<monero_check_tx> check_tx_key(const string& tx_id, const string& txKey, const string& address) const;
 
 //    /**
 //     * Get a transaction signature to prove it.
 //     *
-//     * @param txId specifies the transaction to prove
+//     * @param tx_id specifies the transaction to prove
 //     * @param address is the destination public address of the transaction
 //     * @return the transaction signature
 //     */
-//    string get_tx_proof(const string& txId, const string& address) const;
+//    string get_tx_proof(const string& tx_id, const string& address) const;
 
     /**
      * Get a transaction signature to prove it.
      *
-     * @param txId specifies the transaction to prove
+     * @param tx_id specifies the transaction to prove
      * @param address is the destination public address of the transaction
      * @param message is a message to include with the signature to further authenticate the proof (optional)
      * @return the transaction signature
      */
-    string get_tx_proof(const string& txId, const string& address, const string& message) const;
+    string get_tx_proof(const string& tx_id, const string& address, const string& message) const;
 
     /**
      * Prove a transaction by checking its signature.
      *
-     * @param txId specifies the transaction to prove
+     * @param tx_id specifies the transaction to prove
      * @param address is the destination public address of the transaction
      * @param message is a message included with the signature to further authenticate the proof (optional)
      * @param signature is the transaction signature to confirm
      * @return the result of the check
      */
-    shared_ptr<monero_check_tx> check_tx_proof(const string& txId, const string& address, const string& message, const string& signature) const;
+    shared_ptr<monero_check_tx> check_tx_proof(const string& tx_id, const string& address, const string& message, const string& signature) const;
 
 //    /**
 //     * Generate a signature to prove a spend. Unlike proving a transaction, it does not require the destination public address.
 //     *
-//     * @param txId specifies the transaction to prove
+//     * @param tx_id specifies the transaction to prove
 //     * @return the transaction signature
 //     */
-//    string get_spend_proof(const string& txId) const;
+//    string get_spend_proof(const string& tx_id) const;
 
     /**
      * Generate a signature to prove a spend. Unlike proving a transaction, it does not require the destination public address.
      *
-     * @param txId specifies the transaction to prove
+     * @param tx_id specifies the transaction to prove
      * @param message is a message to include with the signature to further authenticate the proof (optional)
      * @return the transaction signature
      */
-    string get_spend_proof(const string& txId, const string& message) const;
+    string get_spend_proof(const string& tx_id, const string& message) const;
 
     /**
      * Prove a spend using a signature. Unlike proving a transaction, it does not require the destination public address.
      *
-     * @param txId specifies the transaction to prove
+     * @param tx_id specifies the transaction to prove
      * @param message is a message included with the signature to further authenticate the proof (optional)
      * @param signature is the transaction signature to confirm
      * @return true if the signature is good, false otherwise
      */
-    bool check_spend_proof(const string& txId, const string& message, const string& signature) const;
+    bool check_spend_proof(const string& tx_id, const string& message, const string& signature) const;
 
     /**
      * Generate a signature to prove the entire balance of the wallet.
@@ -1073,12 +1046,12 @@ namespace monero {
     /**
      * Generate a signature to prove an available amount in an account.
      *
-     * @param accountIdx specifies the account to prove ownership of the amount
+     * @param account_idx specifies the account to prove ownership of the amount
      * @param amount is the minimum amount to prove as available in the account
      * @param message is a message to include with the signature to further authenticate the proof (optional)
      * @return the reserve proof signature
      */
-    string get_reserve_proof_account(uint32_t accountIdx, uint64_t amount, const string& message) const;
+    string get_reserve_proof_account(uint32_t account_idx, uint64_t amount, const string& message) const;
 
     /**
      * Proves a wallet has a disposable reserve using a signature.
@@ -1196,11 +1169,11 @@ namespace monero {
     /**
      * Start mining.
      *
-     * @param numThreads is the number of threads created for mining (optional)
-     * @param backgroundMining specifies if mining should occur in the background (optional)
-     * @param ignoreBattery specifies if the battery should be ignored for mining (optional)
+     * @param num_threads is the number of threads created for mining (optional)
+     * @param background_mining specifies if mining should occur in the background (optional)
+     * @param ignore_battery specifies if the battery should be ignored for mining (optional)
      */
-    void start_mining(boost::optional<uint64_t> numThreads, boost::optional<bool> backgroundMining, boost::optional<bool> ignoreBattery);
+    void start_mining(boost::optional<uint64_t> num_threads, boost::optional<bool> background_mining, boost::optional<bool> ignore_battery);
 
     /**
      * Stop mining.
@@ -1228,27 +1201,27 @@ namespace monero {
     // --------------------------------- PRIVATE --------------------------------
 
   private:
-    friend struct Wallet2Listener;
-    unique_ptr<tools::wallet2> wallet2;               // internal wallet implementation
-    unique_ptr<Wallet2Listener> wallet2Listener;	    // listener for internal wallet implementation
-    boost::optional<MoneroWalletListener&> listener = boost::none;  // wallet's external listener
+    friend struct wallet2_listener;
+    unique_ptr<tools::wallet2> wallet2;             // internal wallet implementation
+    unique_ptr<wallet2_listener> wallet2_listener;  // listener for internal wallet implementation
+    boost::optional<monero_wallet_listener&> listener = boost::none;  // wallet's external listener
 
-    void initCommon();
-    vector<monero_subaddress> getSubaddressesAux(uint32_t accountIdx, const vector<uint32_t>& subaddress_indices, const vector<tools::wallet2::transfer_details>& transfers) const;
+    void init_common();
+    vector<monero_subaddress> get_subaddresses_aux(uint32_t account_idx, const vector<uint32_t>& subaddress_indices, const vector<tools::wallet2::transfer_details>& transfers) const;
 
     // blockchain sync management
-    mutable std::atomic<bool> isSynced;       // whether or not wallet is synced
-    mutable std::atomic<bool> isConnected;    // cache connection status to avoid unecessary RPC calls
-    boost::condition_variable syncCV;         // to awaken sync threads
-    boost::mutex syncMutex;                   // synchronize sync() and syncAsync() requests
-    std::atomic<bool> rescanOnSync;           // whether or not to rescan on sync
-    std::atomic<bool> syncingEnabled;         // whether or not auto sync is enabled
-    std::atomic<int> syncingInterval;         // auto sync loop interval in milliseconds
-    boost::thread syncingThread;              // thread for auto sync loop
-    boost::mutex syncingMutex;                // synchronize auto sync loop
-    std::atomic<bool> syncingThreadDone;      // whether or not the syncing thread is shut down
-    void syncingThreadFunc();                 // function to run thread with syncing loop
-    monero_sync_result lockAndSync(boost::optional<uint64_t> startHeight = boost::none, boost::optional<monero_sync_listener&> listener = boost::none); // internal function to synchronize request to sync and rescan
-    monero_sync_result syncAux(boost::optional<uint64_t> startHeight = boost::none, boost::optional<monero_sync_listener&> listener = boost::none);     // internal function to immediately block, sync, and report progress
+    mutable std::atomic<bool> is_synced;       // whether or not wallet is synced
+    mutable std::atomic<bool> is_connected;    // cache connection status to avoid unecessary RPC calls
+    boost::condition_variable sync_cv;         // to awaken sync threads
+    boost::mutex sync_mutex;                   // synchronize sync() and syncAsync() requests
+    std::atomic<bool> rescan_on_sync;           // whether or not to rescan on sync
+    std::atomic<bool> syncing_enabled;         // whether or not auto sync is enabled
+    std::atomic<int> syncing_interval;         // auto sync loop interval in milliseconds
+    boost::thread syncing_thread;              // thread for auto sync loop
+    boost::mutex syncing_mutex;                // synchronize auto sync loop
+    std::atomic<bool> syncing_thread_done;      // whether or not the syncing thread is shut down
+    void sync_thread_func();                 // function to run thread with syncing loop
+    monero_sync_result lock_and_sync(boost::optional<uint64_t> start_height = boost::none, boost::optional<monero_sync_listener&> listener = boost::none); // internal function to synchronize request to sync and rescan
+    monero_sync_result sync_aux(boost::optional<uint64_t> start_height = boost::none, boost::optional<monero_sync_listener&> listener = boost::none);     // internal function to immediately block, sync, and report progress
   };
 }

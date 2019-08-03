@@ -208,7 +208,7 @@ namespace monero {
     shared_ptr<monero_transfer_request> copy(const shared_ptr<monero_transfer_request>& src, const shared_ptr<monero_transfer_request>& tgt) const;
     boost::optional<bool> getIsIncoming() const;
     boost::property_tree::ptree to_property_tree() const;
-    bool meetsCriteria(monero_transfer* transfer) const;
+    bool meets_criteria(monero_transfer* transfer) const;
   };
 
   /**
@@ -243,7 +243,7 @@ namespace monero {
     shared_ptr<monero_output_request> copy(const shared_ptr<monero_output_wallet>& src, const shared_ptr<monero_output_wallet>& tgt) const;
     shared_ptr<monero_output_request> copy(const shared_ptr<monero_output_request>& src, const shared_ptr<monero_output_request>& tgt) const;
     boost::property_tree::ptree to_property_tree() const;
-    bool meetsCriteria(monero_output_wallet* output) const;
+    bool meets_criteria(monero_output_wallet* output) const;
   };
 
   /**
@@ -286,7 +286,7 @@ namespace monero {
     shared_ptr<monero_tx_request> copy(const shared_ptr<monero_tx_wallet>& src, const shared_ptr<monero_tx_wallet>& tgt) const;
     shared_ptr<monero_tx_request> copy(const shared_ptr<monero_tx_request>& src, const shared_ptr<monero_tx_request>& tgt) const;
     boost::property_tree::ptree to_property_tree() const;
-    bool meetsCriteria(monero_tx_wallet* tx) const;
+    bool meets_criteria(monero_tx_wallet* tx) const;
   };
 
   /**
@@ -318,7 +318,7 @@ namespace monero {
     boost::optional<string> payment_id;
     boost::optional<monero_send_priority> priority;
     boost::optional<uint32_t> mixin;
-    boost::optional<uint32_t> ringSize;
+    boost::optional<uint32_t> ring_size;
     boost::optional<uint64_t> fee;
     boost::optional<uint32_t> account_index;
     vector<uint32_t> subaddress_indices;
@@ -326,7 +326,7 @@ namespace monero {
     boost::optional<bool> can_split;
     boost::optional<bool> do_not_relay;
     boost::optional<string> note;
-    boost::optional<string> receipient_name;
+    boost::optional<string> recipient_name;
     boost::optional<uint64_t> below_amount;
     boost::optional<bool> sweep_each_subaddress;
     boost::optional<string> key_image;

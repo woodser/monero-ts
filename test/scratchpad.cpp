@@ -5,7 +5,7 @@
 //#include <boost/stacktrace.hpp>
 using namespace std;
 
-bool walletExists(string path) {
+bool wallet_exists(string path) {
   //std::cout << boost::stacktrace::stacktrace();
   bool keys_file_exists;
   bool wallet_file_exists;
@@ -13,15 +13,15 @@ bool walletExists(string path) {
   return wallet_file_exists;
 }
 
-void open_wallet(string path, string password, int networkType) {
-  cout << "open_wallet(" << path << ", " << password << ", " << networkType << ")" << endl;
+void open_wallet(string path, string password, int network_type) {
+  cout << "open_wallet(" << path << ", " << password << ", " << network_type << ")" << endl;
   std::unique_ptr<tools::wallet2> wallet;
   wallet.reset(new tools::wallet2(cryptonote::network_type::STAGENET, 1, true));
   throw runtime_error("Not implemented");
 }
 
-void create_wallet_random(string language, int networkType) {
-  tools::wallet2* wallet = new tools::wallet2(static_cast<cryptonote::network_type>(networkType), 1, true);
+void create_wallet_random(string language, int network_type) {
+  tools::wallet2* wallet = new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true);
   wallet->set_seed_language(language);
   crypto::secret_key recovery_val, secret_key;
   wallet->generate(string(""), string(""), secret_key, false, false);
@@ -53,12 +53,12 @@ int main(int argc, const char* argv[]) {
   string path = "test_wallet_1";
   string password = "supersecretpassword123";
   string language = "English";
-  int networkType = 2;
+  int network_type = 2;
 
-  MINFO("Wallet exists: " << walletExists(path));
+  MINFO("Wallet exists: " << wallet_exists(path));
 
-//  open_wallet(path, password, networkType);
-//  create_wallet_random(language, networkType);
+//  open_wallet(path, password, network_type);
+//  create_wallet_random(language, network_type);
 
 //  // create wallet
 //  monero_wallet* wallet = new monero_wallet();
@@ -70,7 +70,7 @@ int main(int argc, const char* argv[]) {
 
 
   // load wallet
-  monero_wallet* wallet = monero_wallet::open_wallet("../../test_wallets/test_wallet_1", "supersecretpassword123", MoneroNetworkType::STAGENET);
+  monero_wallet* wallet = monero_wallet::open_wallet("../../test_wallets/test_wallet_1", "supersecretpassword123", monero_network_type::STAGENET);
   wallet->set_daemon_connection("http://localhost:38081", "", "");
 
   // fetch txs

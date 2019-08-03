@@ -393,33 +393,33 @@ shared_ptr<monero_send_request> monero_utils::deserialize_send_request(const str
   boost::property_tree::read_json(iss, node);
 
   // convert request property tree to monero_send_request
-  shared_ptr<monero_send_request> sendRequest = make_shared<monero_send_request>();
+  shared_ptr<monero_send_request> send_request = make_shared<monero_send_request>();
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
     if (key == string("destinations")) {
       boost::property_tree::ptree destinationsNode = it->second;
       for (boost::property_tree::ptree::const_iterator it2 = destinationsNode.begin(); it2 != destinationsNode.end(); ++it2) {
-        sendRequest->destinations.push_back(node_to_destination(it2->second));
+        send_request->destinations.push_back(node_to_destination(it2->second));
       }
     }
-    else if (key == string("payment_id")) sendRequest->payment_id = it->second.data();
+    else if (key == string("payment_id")) send_request->payment_id = it->second.data();
     else if (key == string("priority")) throw runtime_error("deserialize_send_request() payment_id not implemented");
-    else if (key == string("mixin")) sendRequest->mixin = it->second.get_value<uint32_t>();
-    else if (key == string("ringSize")) sendRequest->ringSize = it->second.get_value<uint32_t>();
-    else if (key == string("fee")) sendRequest->fee = it->second.get_value<uint64_t>();
-    else if (key == string("account_index")) sendRequest->account_index = it->second.get_value<uint32_t>();
-    else if (key == string("subaddress_indices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) sendRequest->subaddress_indices.push_back(it2->second.get_value<uint32_t>());
-    else if (key == string("unlock_time")) sendRequest->unlock_time = it->second.get_value<uint64_t>();
-    else if (key == string("can_split")) sendRequest->can_split = it->second.get_value<bool>();
-    else if (key == string("do_not_relay")) sendRequest->do_not_relay = it->second.get_value<bool>();
-    else if (key == string("note")) sendRequest->note = it->second.data();
-    else if (key == string("receipient_name")) sendRequest->receipient_name = it->second.data();
-    else if (key == string("below_amount")) sendRequest->below_amount = it->second.get_value<uint64_t>();
-    else if (key == string("sweep_each_subaddress")) sendRequest->sweep_each_subaddress = it->second.get_value<bool>();
-    else if (key == string("key_image")) sendRequest->key_image = it->second.data();
+    else if (key == string("mixin")) send_request->mixin = it->second.get_value<uint32_t>();
+    else if (key == string("ring_size")) send_request->ring_size = it->second.get_value<uint32_t>();
+    else if (key == string("fee")) send_request->fee = it->second.get_value<uint64_t>();
+    else if (key == string("account_index")) send_request->account_index = it->second.get_value<uint32_t>();
+    else if (key == string("subaddress_indices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) send_request->subaddress_indices.push_back(it2->second.get_value<uint32_t>());
+    else if (key == string("unlock_time")) send_request->unlock_time = it->second.get_value<uint64_t>();
+    else if (key == string("can_split")) send_request->can_split = it->second.get_value<bool>();
+    else if (key == string("do_not_relay")) send_request->do_not_relay = it->second.get_value<bool>();
+    else if (key == string("note")) send_request->note = it->second.data();
+    else if (key == string("recipient_name")) send_request->recipient_name = it->second.data();
+    else if (key == string("below_amount")) send_request->below_amount = it->second.get_value<uint64_t>();
+    else if (key == string("sweep_each_subaddress")) send_request->sweep_each_subaddress = it->second.get_value<bool>();
+    else if (key == string("key_image")) send_request->key_image = it->second.data();
   }
 
-  return sendRequest;
+  return send_request;
 }
 
 vector<shared_ptr<monero_key_image>> monero_utils::deserialize_key_images(const string& key_images_json) {
@@ -430,17 +430,17 @@ vector<shared_ptr<monero_key_image>> monero_utils::deserialize_key_images(const 
   boost::property_tree::read_json(iss, node);
 
   // convert property tree to key images
-  vector<shared_ptr<monero_key_image>> keyImages;
+  vector<shared_ptr<monero_key_image>> key_images;
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("keyImages")) {
+    if (key == string("key_images")) {
       for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
-        keyImages.push_back(node_to_key_image(it2->second));
+        key_images.push_back(node_to_key_image(it2->second));
       }
     }
     else MWARNING("WARNING MoneroWalletJni::deserialize_key_images() unrecognized key: " << key);
   }
-  return keyImages;
+  return key_images;
 }
 
 string monero_utils::serialize(const boost::property_tree::ptree& node) {
@@ -501,8 +501,8 @@ shared_ptr<monero_block> monero_utils::cn_block_to_block(const cryptonote::block
   block->prev_id = epee::string_tools::pod_to_hex(cn_block.prev_id);
   block->nonce = cn_block.nonce;
   block->miner_tx = monero_utils::cn_tx_to_tx(cn_block.miner_tx);
-  for (const crypto::hash& txHash : cn_block.tx_hashes) {
-    block->tx_ids.push_back(epee::string_tools::pod_to_hex(txHash));
+  for (const crypto::hash& tx_hash : cn_block.tx_hashes) {
+    block->tx_ids.push_back(epee::string_tools::pod_to_hex(tx_hash));
   }
   return block;
 }
