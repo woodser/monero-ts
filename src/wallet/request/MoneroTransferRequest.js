@@ -109,7 +109,7 @@ class MoneroTransferRequest extends MoneroTransfer {
   }
   
   meetsCriteria(transfer) {
-    if (transfer === undefined) return false;
+    assert(transfer !== null, "transfer is null");
     assert(transfer instanceof MoneroTransfer);
     
     // filter on common fields

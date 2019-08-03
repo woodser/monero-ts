@@ -542,7 +542,7 @@ class MoneroWalletRpc extends MoneroWallet {
       });
       
       // collect outgoing transfer, erase if filtered
-      if (request.meetsCriteria(tx.getOutgoingTransfer())) transfers.push(tx.getOutgoingTransfer());
+      if (tx.getOutgoingTransfer() !== undefined && request.meetsCriteria(tx.getOutgoingTransfer())) transfers.push(tx.getOutgoingTransfer());
       else tx.setOutgoingTransfer(undefined);
       
       // collect incoming transfers, erase if filtered

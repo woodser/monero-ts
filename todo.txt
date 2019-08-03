@@ -1,3 +1,5 @@
+move submodules to different directory
+
 port incoming transfer duplicate resolution from java/cpp
 port ground truth test from java
 
