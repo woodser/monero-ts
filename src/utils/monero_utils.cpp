@@ -80,8 +80,8 @@ shared_ptr<monero_transfer_request> node_to_transfer_request(const boost::proper
     if (key == string("isIncoming")) transfer_request->is_incoming = it->second.get_value<bool>();
     else if (key == string("address")) transfer_request->address = it->second.data();
     else if (key == string("addresses")) throw runtime_error("addresses not implemented");
-    else if (key == string("subadressIndex")) transfer_request->subaddress_index = it->second.get_value<uint32_t>();
-    else if (key == string("subaddresIndices")) {
+    else if (key == string("subaddressIndex")) transfer_request->subaddress_index = it->second.get_value<uint32_t>();
+    else if (key == string("subaddressIndices")) {
       vector<uint32_t> subaddress_indices;
       for (const auto& child : it->second) subaddress_indices.push_back(child.second.get_value<uint32_t>());
       transfer_request->subaddress_indices = subaddress_indices;
@@ -201,7 +201,7 @@ void node_to_tx_wallet(const boost::property_tree::ptree& node, shared_ptr<moner
   }
 }
 
-shared_ptr<monero_tx_request> nodeToTxRequest(const boost::property_tree::ptree& node) {
+shared_ptr<monero_tx_request> node_to_tx_request(const boost::property_tree::ptree& node) {
   shared_ptr<monero_tx_request> tx_request = make_shared<monero_tx_request>();
   node_to_tx_wallet(node, tx_request);
 
@@ -231,7 +231,7 @@ shared_ptr<monero_block> node_to_block_request(const boost::property_tree::ptree
     if (key == string("txs")) {
       boost::property_tree::ptree txsNode = it->second;
       for (boost::property_tree::ptree::const_iterator it2 = txsNode.begin(); it2 != txsNode.end(); ++it2) {
-        block->txs.push_back(nodeToTxRequest(it2->second));
+        block->txs.push_back(node_to_tx_request(it2->second));
       }
     }
   }
