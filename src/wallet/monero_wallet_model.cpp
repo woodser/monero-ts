@@ -98,7 +98,7 @@ namespace monero {
     if (balance != boost::none) node.put("balance", *balance);
     if (unlocked_balance != boost::none) node.put("unlockedBalance", *unlocked_balance);
     if (num_unspent_outputs != boost::none) node.put("numUnspentOutputs", *num_unspent_outputs);
-    if (is_used != boost::none) node.put("is_used", *is_used);
+    if (is_used != boost::none) node.put("isUsed", *is_used);
     if (num_blocks_to_unlock != boost::none) node.put("numBlocksToUnlock", *num_blocks_to_unlock);
     return node;
   }

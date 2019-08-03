@@ -264,7 +264,7 @@ namespace monero {
     if (rct_signatures != boost::none) throw runtime_error("rct_signatures not implemented");
     if (rct_sig_prunable != boost::none) throw runtime_error("rct_sig_prunable not implemented");
     if (is_kept_by_block != boost::none) node.put("isKeptByBlock", *is_kept_by_block);
-    if (is_failed != boost::none) node.put("is_failed", *is_failed);
+    if (is_failed != boost::none) node.put("isFailed", *is_failed);
     if (last_failed_height != boost::none) node.put("lastFailedHeight", *last_failed_height);
     if (last_failed_id != boost::none) node.put("lastFailedId", *last_failed_id);
     if (max_used_block_height != boost::none) node.put("maxUsedBlockHeight", *max_used_block_height);
