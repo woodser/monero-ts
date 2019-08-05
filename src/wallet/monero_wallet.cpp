@@ -85,7 +85,7 @@ namespace monero {
     return opt_val == boost::none ? false : val == *opt_val;
   }
 
-  shared_ptr<monero_tx_wallet> build_tx_with_incoming_transfer(const tools::wallet2& w2, uint64_t height, const crypto::hash &m_payment_id, const tools::wallet2::payment_details &pd) {
+  shared_ptr<monero_tx_wallet> build_tx_with_incoming_transfer(const tools::wallet2& w2, uint64_t height, const crypto::hash &payment_id, const tools::wallet2::payment_details &pd) {
 
     // construct block
     shared_ptr<monero_block> block = make_shared<monero_block>();
@@ -97,7 +97,7 @@ namespace monero {
     tx->m_block = block;
     block->m_txs.push_back(tx);
     tx->m_id = string_tools::pod_to_hex(pd.m_tx_hash);
-    tx->m_payment_id = string_tools::pod_to_hex(m_payment_id);
+    tx->m_payment_id = string_tools::pod_to_hex(payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_time = pd.m_unlock_time;
@@ -168,53 +168,53 @@ namespace monero {
     else tx->m_num_confirmations = height - *block->m_height;
 
     // construct transfer
-    shared_ptr<monero_outgoing_transfer> m_outgoing_transfer = make_shared<monero_outgoing_transfer>();
-    m_outgoing_transfer->m_tx = tx;
-    tx->m_outgoing_transfer = m_outgoing_transfer;
+    shared_ptr<monero_outgoing_transfer> outgoing_transfer = make_shared<monero_outgoing_transfer>();
+    outgoing_transfer->m_tx = tx;
+    tx->m_outgoing_transfer = outgoing_transfer;
     uint64_t change = pd.m_change == (uint64_t)-1 ? 0 : pd.m_change; // change may not be known
-    m_outgoing_transfer->m_amount = pd.m_amount_in - change - *tx->m_fee;
-    m_outgoing_transfer->m_account_index = pd.m_subaddr_account;
-    vector<uint32_t> m_subaddress_indices;
+    outgoing_transfer->m_amount = pd.m_amount_in - change - *tx->m_fee;
+    outgoing_transfer->m_account_index = pd.m_subaddr_account;
+    vector<uint32_t> subaddress_indices;
     vector<string> addresses;
     for (uint32_t i: pd.m_subaddr_indices) {
-      m_subaddress_indices.push_back(i);
+      subaddress_indices.push_back(i);
       addresses.push_back(w2.get_subaddress_as_str({pd.m_subaddr_account, i}));
     }
-    m_outgoing_transfer->m_subaddress_indices = m_subaddress_indices;
-    m_outgoing_transfer->m_addresses = addresses;
+    outgoing_transfer->m_subaddress_indices = subaddress_indices;
+    outgoing_transfer->m_addresses = addresses;
 
     // initialize destinations
     for (const auto &d: pd.m_dests) {
       shared_ptr<monero_destination> destination = make_shared<monero_destination>();
       destination->m_amount = d.amount;
       destination->m_address = d.original.empty() ? cryptonote::get_account_address_as_str(w2.nettype(), d.is_subaddress, d.addr) : d.original;
-      m_outgoing_transfer->m_destinations.push_back(destination);
+      outgoing_transfer->m_destinations.push_back(destination);
     }
 
     // replace transfer amount with destination sum
     // TODO monero core: confirmed tx from/to same account has amount 0 but cached transfer destinations
-    if (*m_outgoing_transfer->m_amount == 0 && !m_outgoing_transfer->m_destinations.empty()) {
+    if (*outgoing_transfer->m_amount == 0 && !outgoing_transfer->m_destinations.empty()) {
       uint64_t amount = 0;
-      for (const shared_ptr<monero_destination>& destination : m_outgoing_transfer->m_destinations) amount += *destination->m_amount;
-      m_outgoing_transfer->m_amount = amount;
+      for (const shared_ptr<monero_destination>& destination : outgoing_transfer->m_destinations) amount += *destination->m_amount;
+      outgoing_transfer->m_amount = amount;
     }
 
     // compute m_num_suggested_confirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
     uint64_t block_reward = w2.get_last_block_reward();
-    if (block_reward == 0) m_outgoing_transfer->m_num_suggested_confirmations = 0;
-    else m_outgoing_transfer->m_num_suggested_confirmations = (*m_outgoing_transfer->m_amount + block_reward - 1) / block_reward;
+    if (block_reward == 0) outgoing_transfer->m_num_suggested_confirmations = 0;
+    else outgoing_transfer->m_num_suggested_confirmations = (*outgoing_transfer->m_amount + block_reward - 1) / block_reward;
 
     // return pointer to new tx
     return tx;
   }
 
-  shared_ptr<monero_tx_wallet> build_tx_with_incoming_transfer_unconfirmed(const tools::wallet2& w2, const crypto::hash &m_payment_id, const tools::wallet2::pool_payment_details &ppd) {
+  shared_ptr<monero_tx_wallet> build_tx_with_incoming_transfer_unconfirmed(const tools::wallet2& w2, const crypto::hash &payment_id, const tools::wallet2::pool_payment_details &ppd) {
 
     // construct tx
     const tools::wallet2::payment_details &pd = ppd.m_pd;
     shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
     tx->m_id = string_tools::pod_to_hex(pd.m_tx_hash);
-    tx->m_payment_id = string_tools::pod_to_hex(m_payment_id);
+    tx->m_payment_id = string_tools::pod_to_hex(payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_time = pd.m_unlock_time;
@@ -270,40 +270,40 @@ namespace monero {
     tx->m_num_confirmations = 0;
 
     // construct transfer
-    shared_ptr<monero_outgoing_transfer> m_outgoing_transfer = make_shared<monero_outgoing_transfer>();
-    m_outgoing_transfer->m_tx = tx;
-    tx->m_outgoing_transfer = m_outgoing_transfer;
-    m_outgoing_transfer->m_amount = pd.m_amount_in - pd.m_change - tx->m_fee.get();
-    m_outgoing_transfer->m_account_index = pd.m_subaddr_account;
-    vector<uint32_t> m_subaddress_indices;
+    shared_ptr<monero_outgoing_transfer> outgoing_transfer = make_shared<monero_outgoing_transfer>();
+    outgoing_transfer->m_tx = tx;
+    tx->m_outgoing_transfer = outgoing_transfer;
+    outgoing_transfer->m_amount = pd.m_amount_in - pd.m_change - tx->m_fee.get();
+    outgoing_transfer->m_account_index = pd.m_subaddr_account;
+    vector<uint32_t> subaddress_indices;
     vector<string> addresses;
     for (uint32_t i: pd.m_subaddr_indices) {
-      m_subaddress_indices.push_back(i);
+      subaddress_indices.push_back(i);
       addresses.push_back(w2.get_subaddress_as_str({pd.m_subaddr_account, i}));
     }
-    m_outgoing_transfer->m_subaddress_indices = m_subaddress_indices;
-    m_outgoing_transfer->m_addresses = addresses;
+    outgoing_transfer->m_subaddress_indices = subaddress_indices;
+    outgoing_transfer->m_addresses = addresses;
 
     // initialize destinations
     for (const auto &d: pd.m_dests) {
       shared_ptr<monero_destination> destination = make_shared<monero_destination>();
       destination->m_amount = d.amount;
       destination->m_address = d.original.empty() ? cryptonote::get_account_address_as_str(w2.nettype(), d.is_subaddress, d.addr) : d.original;
-      m_outgoing_transfer->m_destinations.push_back(destination);
+      outgoing_transfer->m_destinations.push_back(destination);
     }
 
     // replace transfer amount with destination sum
     // TODO monero core: confirmed tx from/to same account has amount 0 but cached transfer destinations
-    if (*m_outgoing_transfer->m_amount == 0 && !m_outgoing_transfer->m_destinations.empty()) {
+    if (*outgoing_transfer->m_amount == 0 && !outgoing_transfer->m_destinations.empty()) {
       uint64_t amount = 0;
-      for (const shared_ptr<monero_destination>& destination : m_outgoing_transfer->m_destinations) amount += *destination->m_amount;
-      m_outgoing_transfer->m_amount = amount;
+      for (const shared_ptr<monero_destination>& destination : outgoing_transfer->m_destinations) amount += *destination->m_amount;
+      outgoing_transfer->m_amount = amount;
     }
 
-    // compute m_num_suggested_confirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
+    // compute num_suggested_confirmations  TODO monero core: this logic is based on wallet_rpc_server.cpp:87 but it should be encapsulated in wallet2
     uint64_t block_reward = w2.get_last_block_reward();
-    if (block_reward == 0) m_outgoing_transfer->m_num_suggested_confirmations = 0;
-    else m_outgoing_transfer->m_num_suggested_confirmations = (*m_outgoing_transfer->m_amount + block_reward - 1) / block_reward;
+    if (block_reward == 0) outgoing_transfer->m_num_suggested_confirmations = 0;
+    else outgoing_transfer->m_num_suggested_confirmations = (*outgoing_transfer->m_amount + block_reward - 1) / block_reward;
 
     // return pointer to new tx
     return tx;
