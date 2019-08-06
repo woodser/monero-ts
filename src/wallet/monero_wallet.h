@@ -222,7 +222,7 @@ namespace monero {
      *
      * @return true if the wallet is connected to a daemon, false otherwise
      */
-    bool get_is_connected() const;
+    bool is_connected() const;
 
     /**
      * Get the height that the wallet's daemon is synced to.
@@ -243,14 +243,14 @@ namespace monero {
      *
      * @return true if the daemon is synced with the network, false otherwise
      */
-    bool get_is_daemon_synced() const;
+    bool is_daemon_synced() const;
 
     /**
      * Indicates if the wallet is synced with the daemon.
      *
      * @return true if the wallet is synced with the daemon, false otherwise
      */
-    bool get_is_synced() const;
+    bool is_synced() const;
 
     /**
      * Get the path of this wallet's file on disk.
@@ -1212,18 +1212,18 @@ namespace monero {
     vector<monero_subaddress> get_subaddresses_aux(uint32_t account_idx, const vector<uint32_t>& subaddress_indices, const vector<tools::wallet2::transfer_details>& transfers) const;
 
     // blockchain sync management
-    mutable std::atomic<bool> is_synced;       // whether or not wallet is synced
-    mutable std::atomic<bool> is_connected;    // cache connection status to avoid unecessary RPC calls
-    boost::condition_variable sync_cv;         // to awaken sync threads
-    boost::mutex sync_mutex;                   // synchronize sync() and syncAsync() requests
-    std::atomic<bool> rescan_on_sync;           // whether or not to rescan on sync
-    std::atomic<bool> syncing_enabled;         // whether or not auto sync is enabled
-    std::atomic<int> syncing_interval;         // auto sync loop interval in milliseconds
-    boost::thread syncing_thread;              // thread for auto sync loop
-    boost::mutex syncing_mutex;                // synchronize auto sync loop
-    std::atomic<bool> syncing_thread_done;      // whether or not the syncing thread is shut down
-    void sync_thread_func();                 // function to run thread with syncing loop
-    monero_sync_result lock_and_sync(boost::optional<uint64_t> start_height = boost::none, boost::optional<monero_sync_listener&> listener = boost::none); // internal function to synchronize request to sync and rescan
-    monero_sync_result sync_aux(boost::optional<uint64_t> start_height = boost::none, boost::optional<monero_sync_listener&> listener = boost::none);     // internal function to immediately block, sync, and report progress
+    mutable std::atomic<bool> m_is_synced;       // whether or not wallet is synced
+    mutable std::atomic<bool> m_is_connected;    // cache connection status to avoid unecessary RPC calls
+    boost::condition_variable m_sync_cv;         // to make sync threads woke
+    boost::mutex m_sync_mutex;                   // synchronize sync() and syncAsync() requests
+    std::atomic<bool> m_rescan_on_sync;          // whether or not to rescan on sync
+    std::atomic<bool> m_syncing_enabled;         // whether or not auto sync is enabled
+    std::atomic<int> m_syncing_interval;         // auto sync loop interval in milliseconds
+    boost::thread m_syncing_thread;              // thread for auto sync loop
+    boost::mutex m_syncing_mutex;                // synchronize auto sync loop
+    std::atomic<bool> m_syncing_thread_done;     // whether or not the syncing thread is shut down
+    void sync_thread_func();                     // function to run thread with syncing loop
+    monero_sync_result lock_and_sync(boost::optional<uint64_t> start_height = boost::none, boost::optional<monero_sync_listener&> listener = boost::none);  // internal function to synchronize request to sync and rescan
+    monero_sync_result sync_aux(boost::optional<uint64_t> start_height = boost::none, boost::optional<monero_sync_listener&> listener = boost::none);       // internal function to immediately block, sync, and report progress
   };
 }

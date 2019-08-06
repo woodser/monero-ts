@@ -144,11 +144,11 @@ namespace monero {
     return node;
   }
 
-  bool monero_tx_wallet::getIsOutgoing() const {
+  bool monero_tx_wallet::is_outgoing() const {
     return m_outgoing_transfer != boost::none;
   }
 
-  bool monero_tx_wallet::getIsIncoming() const {
+  bool monero_tx_wallet::is_incoming() const {
     return !m_incoming_transfers.empty();
   }
 
@@ -263,10 +263,10 @@ namespace monero {
     }
 
     // filter on incoming
-    if (m_is_incoming != boost::none && m_is_incoming != tx->getIsIncoming()) return false;
+    if (m_is_incoming != boost::none && m_is_incoming != tx->is_incoming()) return false;
 
     // filter on outgoing
-    if (m_is_outgoing != boost::none && m_is_outgoing != tx->getIsOutgoing()) return false;
+    if (m_is_outgoing != boost::none && m_is_outgoing != tx->is_outgoing()) return false;
 
     // filter on remaining fields
     boost::optional<uint64_t> txHeight = tx->get_height();
@@ -353,7 +353,7 @@ namespace monero {
     throw runtime_error("monero_incoming_transfer::copy(inTransfer) not implemented");
   };
 
-  boost::optional<bool> monero_incoming_transfer::getIsIncoming() const { return true; }
+  boost::optional<bool> monero_incoming_transfer::is_incoming() const { return true; }
 
   boost::property_tree::ptree monero_incoming_transfer::to_property_tree() const {
     boost::property_tree::ptree node = monero_transfer::to_property_tree();
@@ -383,7 +383,7 @@ namespace monero {
     throw runtime_error("monero_outgoing_transfer::copy(out_transfer) not implemented");
   };
 
-  boost::optional<bool> monero_outgoing_transfer::getIsIncoming() const { return false; }
+  boost::optional<bool> monero_outgoing_transfer::is_incoming() const { return false; }
 
   boost::property_tree::ptree monero_outgoing_transfer::to_property_tree() const {
     boost::property_tree::ptree node = monero_transfer::to_property_tree();
@@ -434,11 +434,11 @@ namespace monero {
     return tgt;
   };
 
-  boost::optional<bool> monero_transfer_request::getIsIncoming() const { return m_is_incoming; }
+  boost::optional<bool> monero_transfer_request::is_incoming() const { return m_is_incoming; }
 
   boost::property_tree::ptree monero_transfer_request::to_property_tree() const {
     boost::property_tree::ptree node = monero_transfer::to_property_tree();
-    if (getIsIncoming() != boost::none) node.put("isIncoming", *getIsIncoming());
+    if (is_incoming() != boost::none) node.put("isIncoming", *is_incoming());
     if (m_address != boost::none) node.put("address", *m_address);
     if (m_subaddress_index != boost::none) node.put("subaddressIndex", *m_subaddress_index);
     if (m_has_destinations != boost::none) node.put("hasDestinations", *m_has_destinations);
@@ -453,8 +453,8 @@ namespace monero {
     if (m_tx_request != boost::none && (*m_tx_request)->m_transfer_request != boost::none) throw runtime_error("Transfer request's tx request cannot have a circular transfer request");   // TODO: could auto detect and handle this.  port to java/js
 
     // filter on common fields
-    if (getIsIncoming() != boost::none && *getIsIncoming() != *transfer->getIsIncoming()) return false;
-    if (getIsOutgoing() != boost::none && getIsOutgoing() != transfer->getIsOutgoing()) return false;
+    if (is_incoming() != boost::none && *is_incoming() != *transfer->is_incoming()) return false;
+    if (is_outgoing() != boost::none && is_outgoing() != transfer->is_outgoing()) return false;
     if (m_amount != boost::none && *m_amount != *transfer->m_amount) return false;
     if (m_account_index != boost::none && *m_account_index != *transfer->m_account_index) return false;
 

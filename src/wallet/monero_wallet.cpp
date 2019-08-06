@@ -930,7 +930,7 @@ namespace monero {
 
     // init wallet2 and set daemon connection
     if (!w2->init(uri, login)) throw runtime_error("Failed to initialize wallet with daemon connection");
-    get_is_connected(); // update is_connected cache // TODO: better naming?
+    is_connected(); // update m_is_connected cache // TODO: better naming?
   }
 
   void monero_wallet::set_daemon_connection(const monero_rpc_connection& connection) {
@@ -952,16 +952,16 @@ namespace monero {
   }
 
   // TODO: could return Wallet::ConnectionStatus_Disconnected, Wallet::ConnectionStatus_WrongVersion, Wallet::ConnectionStatus_Connected like wallet.cpp::connected()
-  bool monero_wallet::get_is_connected() const {
+  bool monero_wallet::is_connected() const {
     uint32_t version = 0;
-    is_connected = w2->check_connection(&version, NULL, DEFAULT_CONNECTION_TIMEOUT_MILLIS); // TODO: should this be updated elsewhere?
-    if (!is_connected) return false;
-    if (!w2->light_wallet() && (version >> 16) != CORE_RPC_VERSION_MAJOR) is_connected = false;  // wrong network type
-    return is_connected;
+    m_is_connected = w2->check_connection(&version, NULL, DEFAULT_CONNECTION_TIMEOUT_MILLIS); // TODO: should this be updated elsewhere?
+    if (!m_is_connected) return false;
+    if (!w2->light_wallet() && (version >> 16) != CORE_RPC_VERSION_MAJOR) m_is_connected = false;  // wrong network type
+    return m_is_connected;
   }
 
   uint64_t monero_wallet::get_daemon_height() const {
-    if (!is_connected) throw runtime_error("wallet is not connected to daemon");
+    if (!m_is_connected) throw runtime_error("wallet is not connected to daemon");
     std::string err;
     uint64_t result = w2->get_daemon_blockchain_height(err);
     if (!err.empty()) throw runtime_error(err);
@@ -969,7 +969,7 @@ namespace monero {
   }
 
   uint64_t monero_wallet::get_daemon_target_height() const {
-    if (!is_connected) throw runtime_error("wallet is not connected to daemon");
+    if (!m_is_connected) throw runtime_error("wallet is not connected to daemon");
     std::string err;
     uint64_t result = w2->get_daemon_blockchain_target_height(err);
     if (!err.empty()) throw runtime_error(err);
@@ -977,14 +977,14 @@ namespace monero {
     return result;
   }
 
-  bool monero_wallet::get_is_daemon_synced() const {
-    if (!is_connected) throw runtime_error("wallet is not connected to daemon");
+  bool monero_wallet::is_daemon_synced() const {
+    if (!m_is_connected) throw runtime_error("wallet is not connected to daemon");
     uint64_t daemonHeight = get_daemon_height();
     return daemonHeight >= get_daemon_target_height() && daemonHeight > 1;
   }
 
-  bool monero_wallet::get_is_synced() const {
-    return is_synced;
+  bool monero_wallet::is_synced() const {
+    return m_is_synced;
   }
 
   string monero_wallet::get_path() const {
@@ -1111,25 +1111,25 @@ namespace monero {
 
   monero_sync_result monero_wallet::sync() {
     MTRACE("sync()");
-    if (!is_connected) throw runtime_error("No connection to daemon");
+    if (!m_is_connected) throw runtime_error("No connection to daemon");
     return lock_and_sync();
   }
 
   monero_sync_result monero_wallet::sync(monero_sync_listener& listener) {
     MTRACE("sync(listener)");
-    if (!is_connected) throw runtime_error("No connection to daemon");
+    if (!m_is_connected) throw runtime_error("No connection to daemon");
     return lock_and_sync(boost::none, listener);
   }
 
   monero_sync_result monero_wallet::sync(uint64_t start_height) {
     MTRACE("sync(" << start_height << ")");
-    if (!is_connected) throw runtime_error("No connection to daemon");
+    if (!m_is_connected) throw runtime_error("No connection to daemon");
     return lock_and_sync(start_height);
   }
 
   monero_sync_result monero_wallet::sync(uint64_t start_height, monero_sync_listener& listener) {
     MTRACE("sync(" << start_height << ", listener)");
-    if (!is_connected) throw runtime_error("No connection to daemon");
+    if (!m_is_connected) throw runtime_error("No connection to daemon");
     return lock_and_sync(start_height, listener);
   }
 
@@ -1137,9 +1137,9 @@ namespace monero {
    * Start automatic syncing as its own thread.
    */
   void monero_wallet::start_syncing() {
-    if (!syncing_enabled) {
-      syncing_enabled = true;
-      sync_cv.notify_one();
+    if (!m_syncing_enabled) {
+      m_syncing_enabled = true;
+      m_sync_cv.notify_one();
     }
   }
 
@@ -1147,16 +1147,16 @@ namespace monero {
    * Stop automatic syncing as its own thread.
    */
   void monero_wallet::stop_syncing() {
-    if (!syncing_thread_done) {
-      syncing_enabled = false;
+    if (!m_syncing_thread_done) {
+      m_syncing_enabled = false;
     }
   }
 
   // TODO: support arguments bool hard, bool refresh = true, bool keep_key_images = false
   void monero_wallet::rescan_blockchain() {
     MTRACE("rescan_blockchain()");
-    if (!is_connected) throw runtime_error("No connection to daemon");
-    rescan_on_sync = true;
+    if (!m_is_connected) throw runtime_error("No connection to daemon");
+    m_rescan_on_sync = true;
     lock_and_sync();
   }
 
@@ -1168,7 +1168,7 @@ namespace monero {
 
   uint64_t monero_wallet::get_chain_height() const {
     string err;
-    if (!is_connected) throw runtime_error("No connection to daemon");
+    if (!m_is_connected) throw runtime_error("No connection to daemon");
     uint64_t chain_height = w2->get_daemon_blockchain_height(err);
     if (!err.empty()) throw runtime_error(err);
     return chain_height;
@@ -1473,8 +1473,8 @@ namespace monero {
     // translate from monero_tx_request to in, out, pending, pool, failed terminology used by monero-wallet-rpc
     bool can_be_confirmed = !bool_equals(false, tx_req->m_is_confirmed) && !bool_equals(true, tx_req->m_in_tx_pool) && !bool_equals(true, tx_req->m_is_failed) && !bool_equals(false, tx_req->m_is_relayed);
     bool can_be_in_tx_pool = !bool_equals(true, tx_req->m_is_confirmed) && !bool_equals(false, tx_req->m_in_tx_pool) && !bool_equals(true, tx_req->m_is_failed) && !bool_equals(false, tx_req->m_is_relayed) && tx_req->get_height() == boost::none && tx_req->m_min_height == boost::none;
-    bool can_be_incoming = !bool_equals(false, req->m_is_incoming) && !bool_equals(true, req->getIsOutgoing()) && !bool_equals(true, req->m_has_destinations);
-    bool can_be_outgoing = !bool_equals(false, req->getIsOutgoing()) && !bool_equals(true, req->m_is_incoming);
+    bool can_be_incoming = !bool_equals(false, req->m_is_incoming) && !bool_equals(true, req->is_outgoing()) && !bool_equals(true, req->m_has_destinations);
+    bool can_be_outgoing = !bool_equals(false, req->is_outgoing()) && !bool_equals(true, req->m_is_incoming);
     bool is_in = can_be_incoming && can_be_confirmed;
     bool is_out = can_be_outgoing && can_be_confirmed;
     bool is_pending = can_be_outgoing && can_be_in_tx_pool;
@@ -2390,10 +2390,10 @@ namespace monero {
 
   void monero_wallet::close() {
     MTRACE("close()");
-    syncing_enabled = false;
-    syncing_thread_done = true;
-    sync_cv.notify_one();
-    syncing_thread.join();
+    m_syncing_enabled = false;
+    m_syncing_thread_done = true;
+    m_sync_cv.notify_one();
+    m_syncing_thread.join();
     w2->stop();
     w2->deinit();
   }
@@ -2403,15 +2403,15 @@ namespace monero {
   void monero_wallet::init_common() {
     MTRACE("monero_wallet.cpp init_common()");
     w2_listener = unique_ptr<wallet2_listener>(new wallet2_listener(*this, *w2));
-    if (get_daemon_connection() == nullptr) is_connected = false;
-    is_synced = false;
-    rescan_on_sync = false;
-    syncing_enabled = false;
-    syncing_thread_done = false;
-    syncing_interval = DEFAULT_SYNC_INTERVAL_MILLIS;
+    if (get_daemon_connection() == nullptr) m_is_connected = false;
+    m_is_synced = false;
+    m_rescan_on_sync = false;
+    m_syncing_enabled = false;
+    m_syncing_thread_done = false;
+    m_syncing_interval = DEFAULT_SYNC_INTERVAL_MILLIS;
 
     // start auto sync loop
-    syncing_thread = boost::thread([this]() {
+    m_syncing_thread = boost::thread([this]() {
       this->sync_thread_func();
     });
   }
@@ -2419,29 +2419,29 @@ namespace monero {
   void monero_wallet::sync_thread_func() {
     MTRACE("sync_thread_func()");
     while (true) {
-      boost::mutex::scoped_lock lock(syncing_mutex);
-      if (syncing_thread_done) break;
-      if (syncing_enabled) {
-        boost::posix_time::milliseconds wait_for_ms(syncing_interval.load());
-        sync_cv.timed_wait(lock, wait_for_ms);
+      boost::mutex::scoped_lock lock(m_syncing_mutex);
+      if (m_syncing_thread_done) break;
+      if (m_syncing_enabled) {
+        boost::posix_time::milliseconds wait_for_ms(m_syncing_interval.load());
+        m_sync_cv.timed_wait(lock, wait_for_ms);
       } else {
-        sync_cv.wait(lock);
+        m_sync_cv.wait(lock);
       }
-      if (syncing_enabled) {
+      if (m_syncing_enabled) {
         lock_and_sync();
       }
     }
   }
 
   monero_sync_result monero_wallet::lock_and_sync(boost::optional<uint64_t> start_height, boost::optional<monero_sync_listener&> listener) {
-    bool rescan = rescan_on_sync.exchange(false);
-    boost::lock_guard<boost::mutex> guarg(sync_mutex); // synchronize sync() and syncAsync()
+    bool rescan = m_rescan_on_sync.exchange(false);
+    boost::lock_guard<boost::mutex> guarg(m_sync_mutex); // synchronize sync() and syncAsync()
     monero_sync_result result;
     result.m_num_blocks_fetched = 0;
     result.m_received_money = false;
     do {
       // skip if daemon is not connected or synced
-      if (is_connected && get_is_daemon_synced()) {
+      if (m_is_connected && is_daemon_synced()) {
 
         // rescan blockchain if requested
         if (rescan) w2->rescan_blockchain(false);
@@ -2452,7 +2452,7 @@ namespace monero {
         // find and save rings
         w2->find_and_save_rings(false);
       }
-    } while (!rescan && (rescan = rescan_on_sync.exchange(false))); // repeat if not rescanned and rescan was requested
+    } while (!rescan && (rescan = m_rescan_on_sync.exchange(false))); // repeat if not rescanned and rescan was requested
     return result;
   }
 
@@ -2467,7 +2467,7 @@ namespace monero {
     w2_listener->on_sync_start(sync_start_height, listener);
     monero_sync_result result;
     w2->refresh(w2->is_trusted_daemon(), sync_start_height, result.m_num_blocks_fetched, result.m_received_money, true);
-    if (!is_synced) is_synced = true;
+    if (!m_is_synced) m_is_synced = true;
     w2_listener->on_sync_end();
     return result;
   }
