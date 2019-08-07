@@ -12,7 +12,7 @@ project(MoneroCppLibrary)
 # System
 #############
 
-set(MONERO_CORE "submodules/monero-core")
+set(MONERO_CORE "external/monero-core")
 set(MONERO_CORE_SRC "${MONERO_CORE}/src")
 
 # header includes
