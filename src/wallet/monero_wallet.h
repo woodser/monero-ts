@@ -633,7 +633,7 @@ namespace monero {
      * @param request filters query results (optional)
      * @return wallet transactions per the request
      */
-    vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_request& request) const;
+    vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& request) const;
 
 //    /**
 //     * Get all incoming and outgoing transfers to and from this wallet.  An
@@ -682,7 +682,7 @@ namespace monero {
      * a subaddress within an account.  Transfers belong to transactions which
      * are stored on the blockchain.
      *
-     * Query results can be filtered by passing in a monero_transfer_request.
+     * Query results can be filtered by passing in a monero_transfer_query.
      * Transfers must meet every criteria defined in the request in order to be
      * returned.  All filtering is optional and no filtering is applied when not
      * defined.
@@ -690,7 +690,7 @@ namespace monero {
      * @param request filters query results (optional)
      * @return wallet transfers per the request
      */
-    vector<shared_ptr<monero_transfer>> get_transfers(const monero_transfer_request& request) const;
+    vector<shared_ptr<monero_transfer>> get_transfers(const monero_transfer_query& request) const;
 
 //    /**
 //     * Get outputs created from previous transactions that belong to the wallet
@@ -706,14 +706,14 @@ namespace monero {
      * (i.e. that the wallet can spend one time).  Outputs are part of
      * transactions which are stored in blocks on the blockchain.
      *
-     * Results can be configured by passing a monero_output_request.  Outputs must
+     * Results can be configured by passing a monero_output_query.  Outputs must
      * meet every criteria defined in the request in order to be returned.  All
      * filtering is optional and no filtering is applied when not defined.
      *
      * @param request specifies request options (optional)
      * @return List<monero_output_wallet> are wallet outputs per the request
      */
-    vector<shared_ptr<monero_output_wallet>> get_outputs(const monero_output_request& request) const;
+    vector<shared_ptr<monero_output_wallet>> get_outputs(const monero_output_query& request) const;
 
     /**
      * Export all outputs in hex format.
@@ -1204,9 +1204,9 @@ namespace monero {
 
   private:
     friend struct wallet2_listener;
-    unique_ptr<tools::wallet2> w2;             // internal wallet implementation
-    unique_ptr<wallet2_listener> w2_listener;  // listener for internal wallet implementation
-    boost::optional<monero_wallet_listener&> listener = boost::none;  // wallet's external listener
+    unique_ptr<tools::wallet2> m_w2;             // internal wallet implementation
+    unique_ptr<wallet2_listener> m_w2_listener;  // listener for internal wallet implementation
+    boost::optional<monero_wallet_listener&> m_listener = boost::none;  // wallet's external listener
 
     void init_common();
     vector<monero_subaddress> get_subaddresses_aux(uint32_t account_idx, const vector<uint32_t>& subaddress_indices, const vector<tools::wallet2::transfer_details>& transfers) const;

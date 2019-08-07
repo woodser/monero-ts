@@ -238,7 +238,7 @@ namespace monero {
     if (m_is_miner_tx != boost::none) node.put("isMinerTx", *m_is_miner_tx);
     if (m_payment_id != boost::none) node.put("paymentId", *m_payment_id);
     if (m_fee != boost::none) node.put("fee", *m_fee);
-    if (m_mixin != boost::none) node.put("m_mixin", *m_mixin);
+    if (m_mixin != boost::none) node.put("mixin", *m_mixin);
     if (m_do_not_relay != boost::none) node.put("doNotRelay", *m_do_not_relay);
     if (m_is_relayed != boost::none) node.put("isRelayed", *m_is_relayed);
     if (m_is_confirmed != boost::none) node.put("isConfirmed", *m_is_confirmed);

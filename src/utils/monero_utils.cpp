@@ -70,28 +70,28 @@ void node_to_transfer(const boost::property_tree::ptree& node, shared_ptr<monero
   }
 }
 
-shared_ptr<monero_transfer_request> node_to_transfer_request(const boost::property_tree::ptree& node) {
-  shared_ptr<monero_transfer_request> m_transfer_request = make_shared<monero_transfer_request>();
-  node_to_transfer(node, m_transfer_request);
+shared_ptr<monero_transfer_query> node_to_transfer_query(const boost::property_tree::ptree& node) {
+  shared_ptr<monero_transfer_query> m_transfer_query = make_shared<monero_transfer_query>();
+  node_to_transfer(node, m_transfer_query);
 
-  // initialize request from node
+  // initialize query from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("isIncoming")) m_transfer_request->m_is_incoming = it->second.get_value<bool>();
-    else if (key == string("address")) m_transfer_request->m_address = it->second.data();
+    if (key == string("isIncoming")) m_transfer_query->m_is_incoming = it->second.get_value<bool>();
+    else if (key == string("address")) m_transfer_query->m_address = it->second.data();
     else if (key == string("addresses")) throw runtime_error("addresses not implemented");
-    else if (key == string("subaddressIndex")) m_transfer_request->m_subaddress_index = it->second.get_value<uint32_t>();
+    else if (key == string("subaddressIndex")) m_transfer_query->m_subaddress_index = it->second.get_value<uint32_t>();
     else if (key == string("subaddressIndices")) {
       vector<uint32_t> m_subaddress_indices;
       for (const auto& child : it->second) m_subaddress_indices.push_back(child.second.get_value<uint32_t>());
-      m_transfer_request->m_subaddress_indices = m_subaddress_indices;
+      m_transfer_query->m_subaddress_indices = m_subaddress_indices;
     }
     else if (key == string("destinations")) throw runtime_error("destinations not implemented");
-    else if (key == string("hasDestinations")) m_transfer_request->m_has_destinations = it->second.get_value<bool>();
-    else if (key == string("txRequest")) throw runtime_error("txRequest not implemented");
+    else if (key == string("hasDestinations")) m_transfer_query->m_has_destinations = it->second.get_value<bool>();
+    else if (key == string("txQuery")) throw runtime_error("txQuery not implemented");
   }
 
-  return m_transfer_request;
+  return m_transfer_query;
 }
 
 shared_ptr<monero_key_image> node_to_key_image(const boost::property_tree::ptree& node) {
@@ -132,18 +132,18 @@ void node_to_output_wallet(const boost::property_tree::ptree& node, shared_ptr<m
   }
 }
 
-shared_ptr<monero_output_request> node_to_output_request(const boost::property_tree::ptree& node) {
-  shared_ptr<monero_output_request> m_output_request = make_shared<monero_output_request>();
-  node_to_output_wallet(node, m_output_request);
+shared_ptr<monero_output_query> node_to_output_query(const boost::property_tree::ptree& node) {
+  shared_ptr<monero_output_query> m_output_query = make_shared<monero_output_query>();
+  node_to_output_wallet(node, m_output_query);
 
-  // initialize request from node
+  // initialize query from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) m_output_request->m_subaddress_indices.push_back(it2->second.get_value<uint32_t>());
-    else if (key == string("txRequest")) {} // ignored
+    if (key == string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) m_output_query->m_subaddress_indices.push_back(it2->second.get_value<uint32_t>());
+    else if (key == string("txQuery")) {} // ignored
   }
 
-  return m_output_request;
+  return m_output_query;
 }
 
 void node_to_tx(const boost::property_tree::ptree& node, shared_ptr<monero_tx> tx) {
@@ -201,37 +201,37 @@ void node_to_tx_wallet(const boost::property_tree::ptree& node, shared_ptr<moner
   }
 }
 
-shared_ptr<monero_tx_request> node_to_tx_request(const boost::property_tree::ptree& node) {
-  shared_ptr<monero_tx_request> m_tx_request = make_shared<monero_tx_request>();
-  node_to_tx_wallet(node, m_tx_request);
+shared_ptr<monero_tx_query> node_to_tx_query(const boost::property_tree::ptree& node) {
+  shared_ptr<monero_tx_query> m_tx_query = make_shared<monero_tx_query>();
+  node_to_tx_wallet(node, m_tx_query);
 
-  // initialize request from node
+  // initialize query from node
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
-    if (key == string("isOutgoing")) m_tx_request->m_is_outgoing = it->second.get_value<bool>();
-    else if (key == string("isIncoming")) m_tx_request->m_is_incoming = it->second.get_value<bool>();
-    else if (key == string("txIds")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) m_tx_request->m_tx_ids.push_back(it2->second.data());
-    else if (key == string("hasPaymentId")) m_tx_request->m_has_payment_id = it->second.get_value<bool>();
-    else if (key == string("paymentIds")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) m_tx_request->m_payment_ids.push_back(it2->second.data());
-    else if (key == string("height")) m_tx_request->m_height = it->second.get_value<uint64_t>();
-    else if (key == string("minHeight")) m_tx_request->m_min_height = it->second.get_value<uint64_t>();
-    else if (key == string("maxHeight")) m_tx_request->m_max_height = it->second.get_value<uint64_t>();
-    else if (key == string("includeOutputs")) m_tx_request->m_include_outputs = it->second.get_value<bool>();
-    else if (key == string("transferRequest")) m_tx_request->m_transfer_request = node_to_transfer_request(it->second);
-    else if (key == string("outputRequest")) m_tx_request->m_output_request = node_to_output_request(it->second);
+    if (key == string("isOutgoing")) m_tx_query->m_is_outgoing = it->second.get_value<bool>();
+    else if (key == string("isIncoming")) m_tx_query->m_is_incoming = it->second.get_value<bool>();
+    else if (key == string("txIds")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) m_tx_query->m_tx_ids.push_back(it2->second.data());
+    else if (key == string("hasPaymentId")) m_tx_query->m_has_payment_id = it->second.get_value<bool>();
+    else if (key == string("paymentIds")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) m_tx_query->m_payment_ids.push_back(it2->second.data());
+    else if (key == string("height")) m_tx_query->m_height = it->second.get_value<uint64_t>();
+    else if (key == string("minHeight")) m_tx_query->m_min_height = it->second.get_value<uint64_t>();
+    else if (key == string("maxHeight")) m_tx_query->m_max_height = it->second.get_value<uint64_t>();
+    else if (key == string("includeOutputs")) m_tx_query->m_include_outputs = it->second.get_value<bool>();
+    else if (key == string("transferQuery")) m_tx_query->m_transfer_query = node_to_transfer_query(it->second);
+    else if (key == string("outputQuery")) m_tx_query->m_output_query = node_to_output_query(it->second);
   }
 
-  return m_tx_request;
+  return m_tx_query;
 }
 
-shared_ptr<monero_block> node_to_block_request(const boost::property_tree::ptree& node) {
+shared_ptr<monero_block> node_to_blockquery(const boost::property_tree::ptree& node) {
   shared_ptr<monero_block> block = make_shared<monero_block>();
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
     if (key == string("txs")) {
       boost::property_tree::ptree txsNode = it->second;
       for (boost::property_tree::ptree::const_iterator it2 = txsNode.begin(); it2 != txsNode.end(); ++it2) {
-        block->m_txs.push_back(node_to_tx_request(it2->second));
+        block->m_txs.push_back(node_to_tx_query(it2->second));
       }
     }
   }
@@ -314,75 +314,75 @@ void monero_utils::binary_blocks_to_json(const std::string &bin, std::string &js
   json = ss.str();
 }
 
-shared_ptr<monero_tx_request> monero_utils::deserialize_tx_request(const string& txRequestStr) {
+shared_ptr<monero_tx_query> monero_utils::deserialize_tx_query(const string& tx_query_str) {
 
-  // deserialize tx request string to property rooted at block
-  std::istringstream iss = txRequestStr.empty() ? std::istringstream() : std::istringstream(txRequestStr);
-  boost::property_tree::ptree blockNode;
-  boost::property_tree::read_json(iss, blockNode);
+  // deserialize tx query string to property rooted at block
+  std::istringstream iss = tx_query_str.empty() ? std::istringstream() : std::istringstream(tx_query_str);
+  boost::property_tree::ptree block_node;
+  boost::property_tree::read_json(iss, block_node);
 
-  // convert request property tree to block
-  shared_ptr<monero_block> block = node_to_block_request(blockNode);
+  // convert query property tree to block
+  shared_ptr<monero_block> block = node_to_blockquery(block_node);
 
-  // get tx request
-  shared_ptr<monero_tx_request> tx_request = static_pointer_cast<monero_tx_request>(block->m_txs[0]);
+  // get tx query
+  shared_ptr<monero_tx_query> tx_query = static_pointer_cast<monero_tx_query>(block->m_txs[0]);
 
-  // return deserialized request
-  return tx_request;
+  // return deserialized query
+  return tx_query;
 }
 
-shared_ptr<monero_transfer_request> monero_utils::deserialize_transfer_request(const string& transfer_request_str) {
+shared_ptr<monero_transfer_query> monero_utils::deserialize_transfer_query(const string& transfer_query_str) {
 
-  // deserialize transfer request string to property rooted at block
-  std::istringstream iss = transfer_request_str.empty() ? std::istringstream() : std::istringstream(transfer_request_str);
+  // deserialize transfer query string to property rooted at block
+  std::istringstream iss = transfer_query_str.empty() ? std::istringstream() : std::istringstream(transfer_query_str);
   boost::property_tree::ptree blockNode;
   boost::property_tree::read_json(iss, blockNode);
 
-  // convert request property tree to block
-  shared_ptr<monero_block> block = node_to_block_request(blockNode);
+  // convert query property tree to block
+  shared_ptr<monero_block> block = node_to_blockquery(blockNode);
 
-  // return mpty request if no txs
-  if (block->m_txs.empty()) return make_shared<monero_transfer_request>();
+  // return mpty query if no txs
+  if (block->m_txs.empty()) return make_shared<monero_transfer_query>();
 
-  // get tx request
-  shared_ptr<monero_tx_request> tx_request = static_pointer_cast<monero_tx_request>(block->m_txs[0]);
+  // get tx query
+  shared_ptr<monero_tx_query> tx_query = static_pointer_cast<monero_tx_query>(block->m_txs[0]);
 
-  // get / create transfer request
-  shared_ptr<monero_transfer_request> transfer_request = tx_request->m_transfer_request == boost::none ? make_shared<monero_transfer_request>() : *tx_request->m_transfer_request;
+  // get / create transfer query
+  shared_ptr<monero_transfer_query> transfer_query = tx_query->m_transfer_query == boost::none ? make_shared<monero_transfer_query>() : *tx_query->m_transfer_query;
 
-  // transfer request references tx request but not the other way around to avoid circular loop // TODO: could add check within meetsCriterias()
-  transfer_request->m_tx_request = tx_request;
-  tx_request->m_transfer_request = boost::none;
+  // transfer query references tx query but not the other way around to avoid circular loop // TODO: could add check within meetsCriterias()
+  transfer_query->m_tx_query = tx_query;
+  tx_query->m_transfer_query = boost::none;
 
-  // return deserialized request
-  return transfer_request;
+  // return deserialized query
+  return transfer_query;
 }
 
-shared_ptr<monero_output_request> monero_utils::deserialize_output_request(const string& output_request_str) {
+shared_ptr<monero_output_query> monero_utils::deserialize_output_query(const string& output_query_str) {
 
-  // deserialize output request string to property rooted at block
-  std::istringstream iss = output_request_str.empty() ? std::istringstream() : std::istringstream(output_request_str);
+  // deserialize output query string to property rooted at block
+  std::istringstream iss = output_query_str.empty() ? std::istringstream() : std::istringstream(output_query_str);
   boost::property_tree::ptree blockNode;
   boost::property_tree::read_json(iss, blockNode);
 
-  // convert request property tree to block
-  shared_ptr<monero_block> block = node_to_block_request(blockNode);
+  // convert query property tree to block
+  shared_ptr<monero_block> block = node_to_blockquery(blockNode);
 
-  // empty request if no txs
-  if (block->m_txs.empty()) return make_shared<monero_output_request>();
+  // empty query if no txs
+  if (block->m_txs.empty()) return make_shared<monero_output_query>();
 
-  // get tx request
-  shared_ptr<monero_tx_request> tx_request = static_pointer_cast<monero_tx_request>(block->m_txs[0]);
+  // get tx query
+  shared_ptr<monero_tx_query> tx_query = static_pointer_cast<monero_tx_query>(block->m_txs[0]);
 
-  // get / create output request
-  shared_ptr<monero_output_request> output_request = tx_request->m_output_request == boost::none ? make_shared<monero_output_request>() : *tx_request->m_output_request;
+  // get / create output query
+  shared_ptr<monero_output_query> output_query = tx_query->m_output_query == boost::none ? make_shared<monero_output_query>() : *tx_query->m_output_query;
 
-  // output request references tx request but not the other way around to avoid circular loop // TODO: could add check within meetsCriterias()
-  output_request->m_tx_request = tx_request;
-  tx_request->m_output_request = boost::none;
+  // output query references tx query but not the other way around to avoid circular loop // TODO: could add check within meetsCriterias(), TODO: move this temp hack to the caller
+  output_query->m_tx_query = tx_query;
+  tx_query->m_output_query = boost::none;
 
-  // return deserialized request
-  return output_request;
+  // return deserialized query
+  return output_query;
 }
 
 shared_ptr<monero_send_request> monero_utils::deserialize_send_request(const string& send_request_str) {

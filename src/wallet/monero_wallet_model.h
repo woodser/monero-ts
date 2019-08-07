@@ -126,7 +126,7 @@ namespace monero {
 
   // forward declarations
   struct monero_tx_wallet;
-  struct monero_tx_request;
+  struct monero_tx_query;
 
   /**
    * Models an outgoing transfer destination.
@@ -190,11 +190,11 @@ namespace monero {
   };
 
   /**
-   * Configures a request to retrieve transfers.
+   * Configures a query to retrieve transfers.
    *
-   * All transfers are returned except those that do not meet the criteria defined in this request.
+   * All transfers are returned except those that do not meet the criteria defined in this query.
    */
-  struct monero_transfer_request : public monero_transfer {
+  struct monero_transfer_query : public monero_transfer {
     boost::optional<bool> m_is_incoming;
     boost::optional<string> m_address;
     vector<string> m_addresses;
@@ -202,10 +202,10 @@ namespace monero {
     vector<uint32_t> m_subaddress_indices;
     vector<shared_ptr<monero_destination>> m_destinations;
     boost::optional<bool> m_has_destinations;
-    boost::optional<shared_ptr<monero_tx_request>> m_tx_request;
+    boost::optional<shared_ptr<monero_tx_query>> m_tx_query;
 
-    shared_ptr<monero_transfer_request> copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt) const;
-    shared_ptr<monero_transfer_request> copy(const shared_ptr<monero_transfer_request>& src, const shared_ptr<monero_transfer_request>& tgt) const;
+    shared_ptr<monero_transfer_query> copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt) const;
+    shared_ptr<monero_transfer_query> copy(const shared_ptr<monero_transfer_query>& src, const shared_ptr<monero_transfer_query>& tgt) const;
     boost::optional<bool> is_incoming() const;
     boost::property_tree::ptree to_property_tree() const;
     bool meets_criteria(monero_transfer* transfer) const;
@@ -229,19 +229,19 @@ namespace monero {
   };
 
   /**
-   * Configures a request to retrieve wallet outputs (i.e. outputs that the wallet has or had the
+   * Configures a query to retrieve wallet outputs (i.e. outputs that the wallet has or had the
    * ability to spend).
    *
-   * All outputs are returned except those that do not meet the criteria defined in this request.
+   * All outputs are returned except those that do not meet the criteria defined in this query.
    */
-  struct monero_output_request : public monero_output_wallet {
+  struct monero_output_query : public monero_output_wallet {
     vector<uint32_t> m_subaddress_indices;
-    boost::optional<shared_ptr<monero_tx_request>> m_tx_request;
+    boost::optional<shared_ptr<monero_tx_query>> m_tx_query;
 
     // TODO: necessary to override all super classes?
-    shared_ptr<monero_output_request> copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const;
-    shared_ptr<monero_output_request> copy(const shared_ptr<monero_output_wallet>& src, const shared_ptr<monero_output_wallet>& tgt) const;
-    shared_ptr<monero_output_request> copy(const shared_ptr<monero_output_request>& src, const shared_ptr<monero_output_request>& tgt) const;
+    shared_ptr<monero_output_query> copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const;
+    shared_ptr<monero_output_query> copy(const shared_ptr<monero_output_wallet>& src, const shared_ptr<monero_output_wallet>& tgt) const;
+    shared_ptr<monero_output_query> copy(const shared_ptr<monero_output_query>& src, const shared_ptr<monero_output_query>& tgt) const;
     boost::property_tree::ptree to_property_tree() const;
     bool meets_criteria(monero_output_wallet* output) const;
   };
@@ -264,11 +264,11 @@ namespace monero {
   };
 
   /**
-   * Configures a request to retrieve transactions.
+   * Configures a query to retrieve transactions.
    *
-   * All transactions are returned except those that do not meet the criteria defined in this request.
+   * All transactions are returned except those that do not meet the criteria defined in this query.
    */
-  struct monero_tx_request : public monero_tx_wallet {
+  struct monero_tx_query : public monero_tx_wallet {
     boost::optional<bool> m_is_outgoing;
     boost::optional<bool> m_is_incoming;
     vector<string> m_tx_ids;
@@ -278,13 +278,13 @@ namespace monero {
     boost::optional<uint64_t> m_min_height;
     boost::optional<uint64_t> m_max_height;
     boost::optional<uint64_t> m_include_outputs;
-    boost::optional<shared_ptr<monero_transfer_request>> m_transfer_request;
-    boost::optional<shared_ptr<monero_output_request>> m_output_request;
+    boost::optional<shared_ptr<monero_transfer_query>> m_transfer_query;
+    boost::optional<shared_ptr<monero_output_query>> m_output_query;
 
     // TODO: necessary to override all super classes?
-    shared_ptr<monero_tx_request> copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const;
-    shared_ptr<monero_tx_request> copy(const shared_ptr<monero_tx_wallet>& src, const shared_ptr<monero_tx_wallet>& tgt) const;
-    shared_ptr<monero_tx_request> copy(const shared_ptr<monero_tx_request>& src, const shared_ptr<monero_tx_request>& tgt) const;
+    shared_ptr<monero_tx_query> copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const;
+    shared_ptr<monero_tx_query> copy(const shared_ptr<monero_tx_wallet>& src, const shared_ptr<monero_tx_wallet>& tgt) const;
+    shared_ptr<monero_tx_query> copy(const shared_ptr<monero_tx_query>& src, const shared_ptr<monero_tx_query>& tgt) const;
     boost::property_tree::ptree to_property_tree() const;
     bool meets_criteria(monero_tx_wallet* tx) const;
   };
