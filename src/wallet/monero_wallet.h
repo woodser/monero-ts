@@ -195,6 +195,41 @@ namespace monero {
     ~monero_wallet();
 
     /**
+     * Get the height of the last block processed by the wallet (its index + 1).
+     *
+     * @return the height of the last block processed by the wallet
+     */
+    uint64_t get_height() const;
+
+    /**
+     * Get the height of the first block that the wallet scans.
+     *
+     * @return the height of the first block that the wallet scans
+     */
+    uint64_t get_restore_height() const;
+
+    /**
+     * Set the height of the first block that the wallet scans.
+     *
+     * @param restore_height is the height of the first block that the wallet scans
+     */
+    void set_restore_height(uint64_t restore_height);
+
+    /**
+     * Get the height that the wallet's daemon is synced to.
+     *
+     * @return the height that the wallet's daemon is synced to
+     */
+    uint64_t get_daemon_height() const;
+
+    /**
+     * Get the maximum height of the peers the wallet's daemon is connected to.
+     *
+     * @return the maximum height of the peers the wallet's daemon is connected to
+     */
+    uint64_t get_daemon_max_peer_height() const;
+
+    /**
      * Set the wallet's daemon connection.
      *
      * @param uri is the daemon's URI
@@ -223,20 +258,6 @@ namespace monero {
      * @return true if the wallet is connected to a daemon, false otherwise
      */
     bool is_connected() const;
-
-    /**
-     * Get the height that the wallet's daemon is synced to.
-     *
-     * @return the height that the wallet's daemon is synced to
-     */
-    uint64_t get_daemon_height() const;
-
-    /**
-     * Get the height of the next block in the chain.
-     *
-     * @return the height of the next block in the chain
-     */
-    uint64_t get_daemon_target_height() const;
 
     /**
      * Indicates if the wallet's daemon is synced with the network.
@@ -421,34 +442,6 @@ namespace monero {
      * tx notes, etc.
      */
     void rescan_blockchain();
-
-    /**
-     * Get the height of the last block processed by the wallet (its index + 1).
-     *
-     * @return the height of the last block processed by the wallet
-     */
-    uint64_t get_height() const;
-
-    /**
-     * Get the blockchain's height.
-     *
-     * @return the blockchain's height
-     */
-    uint64_t get_chain_height() const;
-
-    /**
-     * Get the height of the first block that the wallet scans.
-     *
-     * @return the height of the first block that the wallet scans
-     */
-    uint64_t get_restore_height() const;
-
-    /**
-     * Set the height of the first block that the wallet scans.
-     *
-     * @param restore_height is the height of the first block that the wallet scans
-     */
-    void set_restore_height(uint64_t restore_height);
 
 //    /**
 //     * Indicates if importing multisig data is needed for returning a correct balance.

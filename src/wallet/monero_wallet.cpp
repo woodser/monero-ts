@@ -683,7 +683,7 @@ namespace monero {
     void on_sync_start(uint64_t start_height, boost::optional<monero_sync_listener&> sync_listener) {
       if (m_sync_start_height != boost::none || m_sync_end_height != boost::none) throw runtime_error("Sync start or end height should not already be allocated, is previous sync in progress?");
       m_sync_start_height = start_height;
-      m_sync_end_height = m_wallet.get_chain_height();
+      m_sync_end_height = m_wallet.get_daemon_height();
       this->m_sync_listener = sync_listener;
       update_listening();
     }
@@ -918,6 +918,35 @@ namespace monero {
 
   // ----------------------------- WALLET METHODS -----------------------------
 
+  uint64_t monero_wallet::get_height() const {
+    return m_w2->get_blockchain_current_height();
+  }
+
+  uint64_t monero_wallet::get_restore_height() const {
+    return m_w2->get_refresh_from_block_height();
+  }
+
+  void monero_wallet::set_restore_height(uint64_t restore_height) {
+    m_w2->set_refresh_from_block_height(restore_height);
+  }
+
+  uint64_t monero_wallet::get_daemon_height() const {
+    if (!m_is_connected) throw runtime_error("wallet is not connected to daemon");
+    std::string err;
+    uint64_t result = m_w2->get_daemon_blockchain_height(err);
+    if (!err.empty()) throw runtime_error(err);
+    return result;
+  }
+
+  uint64_t monero_wallet::get_daemon_max_peer_height() const {
+    if (!m_is_connected) throw runtime_error("wallet is not connected to daemon");
+    std::string err;
+    uint64_t result = m_w2->get_daemon_blockchain_target_height(err);
+    if (!err.empty()) throw runtime_error(err);
+    if (result == 0) result = get_daemon_height();  // TODO monero core: target height can be 0 when daemon is synced.  Use blockchain height instead
+    return result;
+  }
+
   void monero_wallet::set_daemon_connection(const string& uri, const string& username, const string& password) {
     MTRACE("set_daemon_connection(" << uri << ", " << username << ", " << password << ")");
 
@@ -960,27 +989,10 @@ namespace monero {
     return m_is_connected;
   }
 
-  uint64_t monero_wallet::get_daemon_height() const {
-    if (!m_is_connected) throw runtime_error("wallet is not connected to daemon");
-    std::string err;
-    uint64_t result = m_w2->get_daemon_blockchain_height(err);
-    if (!err.empty()) throw runtime_error(err);
-    return result;
-  }
-
-  uint64_t monero_wallet::get_daemon_target_height() const {
-    if (!m_is_connected) throw runtime_error("wallet is not connected to daemon");
-    std::string err;
-    uint64_t result = m_w2->get_daemon_blockchain_target_height(err);
-    if (!err.empty()) throw runtime_error(err);
-    if (result == 0) result = get_daemon_height();  // TODO monero core: target height can be 0 when daemon is synced.  Use blockchain height instead
-    return result;
-  }
-
   bool monero_wallet::is_daemon_synced() const {
     if (!m_is_connected) throw runtime_error("wallet is not connected to daemon");
     uint64_t daemonHeight = get_daemon_height();
-    return daemonHeight >= get_daemon_target_height() && daemonHeight > 1;
+    return daemonHeight >= get_daemon_max_peer_height() && daemonHeight > 1;
   }
 
   bool monero_wallet::is_synced() const {
@@ -1161,26 +1173,6 @@ namespace monero {
   }
 
   // isMultisigImportNeeded
-
-  uint64_t monero_wallet::get_height() const {
-    return m_w2->get_blockchain_current_height();
-  }
-
-  uint64_t monero_wallet::get_chain_height() const {
-    string err;
-    if (!m_is_connected) throw runtime_error("No connection to daemon");
-    uint64_t chain_height = m_w2->get_daemon_blockchain_height(err);
-    if (!err.empty()) throw runtime_error(err);
-    return chain_height;
-  }
-
-  uint64_t monero_wallet::get_restore_height() const {
-    return m_w2->get_refresh_from_block_height();
-  }
-
-  void monero_wallet::set_restore_height(uint64_t restore_height) {
-    m_w2->set_refresh_from_block_height(restore_height);
-  }
 
   uint64_t monero_wallet::get_balance() const {
     return m_w2->balance_all();
