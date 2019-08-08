@@ -1,10 +1,8 @@
-move submodules to different directory
-
+move submodules to external directory
+update js from java/c++: createTx(), createTxs(), relayTx(), relayTxs(), send(), sendSplit(), get is/has/in, isDoubleSpend -> isDoubleSpendSeen, startSyncing(), stopSyncing(), coinbaseTx->minerTx, request copying from ~jni93, request -> query, height methods + ordering
 port incoming transfer duplicate resolution from java/cpp
 port ground truth test from java
-
 MoneroRpc -> MoneroRpcConnection
-move submodules to ./external
 move tests to src/
 
 model rct_signatures and rct_prunable
