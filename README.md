@@ -16,7 +16,7 @@ Main Features
 - Extensive test suite (130+ passing tests)
 - Fetch and process binary data from the daemon in JavaScript using client-side crypto
 
-A quick reference of the wallet and daemon data models can be found [here](monero-model.pdf).
+A quick reference of the wallet and daemon data models can be found [here](https://github.com/monero-ecosystem/monero-java/blob/master/monero-spec.pdf).
 
 ## Wallet Sample Code
 
@@ -165,7 +165,7 @@ Note: some tests are failing as not all functionality is implemented.
 
 ## API Documentation
 
-This library follows the wallet and daemon interfaces and models defined [here](https://github.com/monero-ecosystem/monero-javascript/blob/master/monero-model.pdf).
+This library follows the wallet and daemon interfaces and models defined [here](https://github.com/monero-ecosystem/monero-java/blob/master/monero-spec.pdf).
 
 Jsdoc is provided in the [jsdoc](jsdoc) folder (best viewed opening [jsdoc/index.html](jsdoc/index.html) in a browser).
 
