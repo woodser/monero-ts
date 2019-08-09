@@ -2,6 +2,7 @@ HIGH PRIORITY
 ensure model toPropertyTrees(), etc are not unecessarily copying return objects
 gen documentation
 sample code including readme
+monero_wallet_listener should be a class?
 
 MEDIUM PRIORITY
 should not need wallet.h / wallet.cpp as dependency, why are GUI deps needed?

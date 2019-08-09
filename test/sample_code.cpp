@@ -73,7 +73,7 @@ int main(int argc, const char* argv[]) {
   bool is_synced = wallet_random->is_synced();
 
   // be notified when the wallet receives funds
-  class : monero_wallet_listener {
+  struct : monero_wallet_listener {
     void on_output_received(const monero_output_wallet& output) {
       cout << "Wallet received funds!" << endl;
       int account_index = output.m_account_index.get();
@@ -81,7 +81,7 @@ int main(int argc, const char* argv[]) {
       shared_ptr<monero_key_image> key_image = output.m_key_image.get();
     }
   } my_listener;
-  //wallet_random->set_listener(&my_listener);
+  wallet_random->set_listener(my_listener);
 
   // TODO: define wallet send convenience methods
 //  // send funds from the restored wallet to the random wallet
