@@ -1694,11 +1694,11 @@ namespace monero {
     return result;
   }
 
-  shared_ptr<monero_tx_wallet> monero_wallet::create_tx(uint32_t account_index, String address, uint64_t amount) {
+  shared_ptr<monero_tx_wallet> monero_wallet::create_tx(uint32_t account_index, string address, uint64_t amount) {
     throw new runtime_error("create_tx not implemented");
   }
 
-  shared_ptr<monero_tx_wallet> monero_wallet::create_tx(int account_index, String address, uint64_t amount, monero_send_priority priority) {
+  shared_ptr<monero_tx_wallet> monero_wallet::create_tx(int account_index, string address, uint64_t amount, monero_send_priority priority) {
     throw new runtime_error("create_tx not implemented");
   }
 
