@@ -15,7 +15,7 @@ This library may be used to build Monero-related applications, such as GUIs, lib
 
 ## Sample Code
 
-This code introduces the API.  See the [specification PDF](monero-spec.pdf) for full details.
+This code introduces the API.  See the [specification PDF](https://github.com/monero-ecosystem/monero-java/blob/master/monero-spec.pdf) for full details.
 
 ```c++
 // create a wallet from a mnemonic phrase
@@ -148,7 +148,7 @@ These build steps aspire to be automated further.
 
 ## See Also
 
-These libraries conform to the same [API specification](monero-spec.pdf).
+These libraries conform to the same [API specification](https://github.com/monero-ecosystem/monero-java/blob/master/monero-spec.pdf).
 
 [Java reference implementation](https://github.com/monero-ecosystem/monero-java-rpc)
 
