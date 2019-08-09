@@ -1,18 +1,27 @@
 # Monero C++ Library
 
-This project is a lightweight wrapper of [Monero Core's](https://github.com/monero-project/monero) C++ wallet, [wallet2](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h), which conforms to the specification defined [here](https://github.com/monero-ecosystem/monero-javascript/blob/master/monero-model.pdf).
+This project is a library for working with Monero wallets in C++ by wrapping [Monero Core's](https://github.com/monero-project/monero) C++ wallet, [wallet2](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h).
 
-The purpose of this library is to define common daemon and wallet types for a general-purpose Monero API which focuses on ease-of-use.  
+In addition, this project conforms to an [API specification](https://github.com/monero-ecosystem/monero-java/blob/master/monero-spec.pdf) intended to be intuitive, robust, and for long-term use in the Monero project.
 
-This library may be used to build Monero-related GUI applications, libraries in other languages (e.g. [monero-java](https://github.com/monero-ecosystem/monero-java-rpc)), or a conformant REST/JSON-RPC API.
+This library may be used to build Monero-related GUI applications, libraries in other languages (e.g. [monero-java](https://github.com/monero-ecosystem/monero-java-rpc)), or a compliant REST/JSON-RPC API.
+
+## Main Features
+
+- Manage a Monero wallet
+- Object-oriented model with rigorous focus on ease-of-use
+- Query wallet transactions, transfers, and outputs by their many attributes
+- Receive notifications as a wallet is synchronized, when blocks are added to the chain, or when the wallet sends or receives transfers
+
+## Sample Code
+
+TODO
 
 ## Building a Dynamic / Shared Library
 
 The source code in this project may be built as a dynamic or "shared" library for use on a target platform (e.g. Linux, Mac, Windows, etc).  For example, the associated [Java library](https://github.com/monero-ecosystem/monero-java-rpc) depends on a dynamic library built from this project to support a wallet using JNI.
 
 ### Build Steps
-
-These build steps aspire to be automated further.
 
 1. Setup Boost
     1. Download and extract the boost 1.69.0 source code zip from https://www.boost.org/users/download/ to ./external/boost-sdk/.
@@ -41,6 +50,8 @@ These build steps aspire to be automated further.
     2. Copy libsodium.a to ./external-libs/libsodium.<br>
        Mac: installed through homebrew at /usr/local/Cellar/libsodium/1.0.17/lib/libsodium.a
 6. Build libmonero-cpp.dylib to ./build: `./bin/build-libmonero-cpp.sh`.
+
+These build steps aspire to be automated further.
 
 ## See Also
 
