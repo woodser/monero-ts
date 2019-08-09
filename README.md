@@ -148,6 +148,8 @@ These build steps aspire to be automated further.
 
 ## See Also
 
+These libraries conform to the same [API specification](monero-spec.pdf).
+
 [Java reference implementation](https://github.com/monero-ecosystem/monero-java-rpc)
 
 [JavaScript reference implementation](https://github.com/monero-ecosystem/monero-javascript)
