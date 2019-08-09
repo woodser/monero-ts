@@ -26,12 +26,12 @@ int main(int argc, const char* argv[]) {
 
   // sync the wallet
   wallet_restored->sync();          // one time synchronous sync
-  wallet_restored->start_syncing();  // continuously sync as an asynchronous thread in the background
+  wallet_restored->start_syncing(); // continuously sync as an asynchronous thread in the background
 
   // get balance, account, subaddresses
   string primary_address = wallet_restored->get_primary_address();
   uint64_t balance = wallet_restored->get_balance();    // can specify account and subaddress indices
-  monero_account account = wallet_restored->get_account(1, true);     // get account with subaddresses
+  monero_account account = wallet_restored->get_account(1, true);       // get account with subaddresses
   uint64_t unlocked_account_balance = account.m_unlocked_balance.get(); // get boost::optional value
 
   // query a transaction by id
@@ -101,6 +101,6 @@ int main(int argc, const char* argv[]) {
 
   // create the transaction, confirm with the user, and relay to the network
   shared_ptr<monero_tx_wallet> created_tx = wallet_restored->create_tx(send_request);
-  uint64_t fee = created_tx->m_fee.get();   // "Are you sure you want to send ...?"
-  wallet_restored->relay_tx(*created_tx);  // submit the transaction to the Monero network which will notify the recipient wallet
+  uint64_t fee = created_tx->m_fee.get(); // "Are you sure you want to send ...?"
+  wallet_restored->relay_tx(*created_tx); // submit the transaction to the Monero network which will notify the recipient wallet
 }
