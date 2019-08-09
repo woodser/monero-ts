@@ -135,6 +135,8 @@ namespace monero {
     boost::optional<string> m_address;
     boost::optional<uint64_t> m_amount;
 
+    monero_destination() {}
+    monero_destination(const string& address, uint64_t amount) : m_address(address), m_amount(amount) {}
     shared_ptr<monero_destination> copy(const shared_ptr<monero_destination>& src, const shared_ptr<monero_destination>& tgt) const;
     boost::property_tree::ptree to_property_tree() const;
   };

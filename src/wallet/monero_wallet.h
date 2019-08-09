@@ -746,6 +746,15 @@ namespace monero {
 //    public List<monero_key_image> getNewKeyImagesFromLastImport();
 
     /**
+     * Create a transaction to transfer funds from this wallet according to the
+     * given request.  The transaction may be relayed later.
+     *
+     * @param request configures the transaction to create
+     * @return the created transaction
+     */
+    shared_ptr<monero_tx_wallet> create_tx(monero_send_request& request);
+
+    /**
      * Create a transaction to transfers funds from this wallet to a destination address.
      * The transaction may be relayed later.
      *
@@ -769,13 +778,13 @@ namespace monero {
     shared_ptr<monero_tx_wallet> create_tx(int account_index, string address, uint64_t amount, monero_send_priority priority);
 
     /**
-     * Create a transaction to transfer funds from this wallet according to the
-     * given request.  The transaction may be relayed later.
+     * Create one or more transactions to transfer funds from this wallet
+     * according to the given request.  The transactions may later be relayed.
      *
-     * @param request configures the transaction to create
-     * @return the created transaction
+     * @param request configures the transactions to create
+     * @return the created transactions
      */
-    shared_ptr<monero_tx_wallet> create_tx(const monero_send_request& request);
+    vector<shared_ptr<monero_tx_wallet>> create_txs(const monero_send_request& request);
 
     /**
      * Relay a transaction previously created without relaying.
@@ -808,6 +817,15 @@ namespace monero {
      * @return the ids of the relayed txs
      */
     vector<string> relay_txs(const vector<monero_tx_wallet>& txs);
+
+    /**
+     * Create and relay a transaction to transfer funds from this wallet
+     * according to the given request.
+     *
+     * @param request configures the transaction
+     * @return the resulting transaction
+     */
+    shared_ptr<monero_tx_wallet> send(monero_send_request& request);
 
     /**
      * Create and relay a transaction to transfers funds from this wallet to

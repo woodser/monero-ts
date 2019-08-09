@@ -95,8 +95,8 @@ int main(int argc, const char* argv[]) {
   send_request.m_subaddress_indices.push_back(1);  // withdraw funds from these subaddresses within the account
   send_request.m_priority = monero_send_priority::UNIMPORTANT;  // no rush
   vector<shared_ptr<monero_destination>> destinations;  // specify the recipients and their amounts
-//  destinations.push_back(make_shared<monero_destination>(wallet_random->get_address(1, 0), 50000)); // TODO: destination constructor
-//  destinations.push_back(make_shared<monero_destination>(wallet_random->get_address(2, 0), 50000));
+  destinations.push_back(make_shared<monero_destination>(wallet_random->get_address(1, 0), 50000));
+  destinations.push_back(make_shared<monero_destination>(wallet_random->get_address(2, 0), 50000));
   send_request.m_destinations = destinations;
 
   // create the transaction, confirm with the user, and relay to the network

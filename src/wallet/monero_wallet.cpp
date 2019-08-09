@@ -1694,24 +1694,36 @@ namespace monero {
     return result;
   }
 
+  shared_ptr<monero_tx_wallet> monero_wallet::create_tx(monero_send_request& request) {
+    if (request.m_can_split != boost::none && request.m_can_split.get()) throw runtime_error("Cannot request split transactions with create_tx() which prevents splitting; use create_txs() instead");
+    request.m_can_split = false;
+    return create_txs(request)[0];
+  }
+
   shared_ptr<monero_tx_wallet> monero_wallet::create_tx(uint32_t account_index, string address, uint64_t amount) {
-    throw new runtime_error("create_tx not implemented");
+    return create_tx(account_index, address, amount, monero_send_priority::NORMAL);
   }
 
   shared_ptr<monero_tx_wallet> monero_wallet::create_tx(int account_index, string address, uint64_t amount, monero_send_priority priority) {
-    throw new runtime_error("create_tx not implemented");
+    monero_send_request req;
+    req.m_account_index = account_index;
+    req.m_destinations.push_back(make_shared<monero_destination>(address, amount));
+    req.m_priority = priority;
+    return create_tx(req);
   }
 
-  shared_ptr<monero_tx_wallet> monero_wallet::create_tx(const monero_send_request& request) {
-    throw new runtime_error("create_tx not implemented");
+  vector<shared_ptr<monero_tx_wallet>> monero_wallet::create_txs(const monero_send_request& request) {
+    throw new runtime_error("not implemented");
   }
 
   string monero_wallet::relay_tx(const string& tx_metadata) {
-    throw new runtime_error("relay_tx not implemented");
+    vector<string> tx_metadatas;
+    tx_metadatas.push_back(tx_metadata);
+    return relay_txs(tx_metadatas)[0];
   }
 
   string monero_wallet::relay_tx(const monero_tx_wallet& tx) {
-    throw new runtime_error("relay_tx not implemented");
+    return relay_tx(tx.m_metadata.get());
   }
 
   vector<string> monero_wallet::relay_txs(const vector<string>& tx_metadatas) {
@@ -1754,6 +1766,10 @@ namespace monero {
 
   vector<string> monero_wallet::relay_txs(const vector<monero_tx_wallet>& txs) {
     throw new runtime_error("relay_txs not implemented");
+  }
+
+  shared_ptr<monero_tx_wallet> monero_wallet::send(monero_send_request& request) {
+    throw new runtime_error("send not implemented");
   }
 
   shared_ptr<monero_tx_wallet> monero_wallet::send(uint32_t account_index, string address, uint64_t amount) {
