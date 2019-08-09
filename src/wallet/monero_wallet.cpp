@@ -1712,8 +1712,21 @@ namespace monero {
     return create_tx(req);
   }
 
-  vector<shared_ptr<monero_tx_wallet>> monero_wallet::create_txs(const monero_send_request& request) {
-    throw new runtime_error("not implemented");
+  vector<shared_ptr<monero_tx_wallet>> monero_wallet::create_txs(monero_send_request& request) {
+
+    // modify request to not relay
+    boost::optional<bool> requested_do_not_relay = request.m_do_not_relay;
+    request.m_do_not_relay = true;
+
+    // invoke common method which doesn't relay
+    vector<shared_ptr<monero_tx_wallet>> created_txs = send_split(request);
+
+    // restore doNotRelay of request and txs
+    request.m_do_not_relay = requested_do_not_relay;
+    for (const shared_ptr<monero_tx_wallet>& tx : created_txs) tx->m_do_not_relay = requested_do_not_relay;
+
+    // return results
+    return created_txs;
   }
 
   string monero_wallet::relay_tx(const string& tx_metadata) {
@@ -1764,20 +1777,28 @@ namespace monero {
     return m_tx_ids;
   }
 
-  vector<string> monero_wallet::relay_txs(const vector<monero_tx_wallet>& txs) {
-    throw new runtime_error("relay_txs not implemented");
+  vector<string> monero_wallet::relay_txs(const vector<shared_ptr<monero_tx_wallet>>& txs) {
+    vector<string> tx_hexes;
+    for (const shared_ptr<monero_tx_wallet>& tx : txs) tx_hexes.push_back(tx->m_metadata.get());
+    return relay_txs(tx_hexes);
   }
 
   shared_ptr<monero_tx_wallet> monero_wallet::send(monero_send_request& request) {
-    throw new runtime_error("send not implemented");
+    if (request.m_can_split != boost::none && request.m_can_split.get()) throw runtime_error("Cannot request split transactions with send() which prevents splitting; use sendSplit() instead");
+    request.m_can_split = false;
+    return send_split(request)[0];
   }
 
   shared_ptr<monero_tx_wallet> monero_wallet::send(uint32_t account_index, string address, uint64_t amount) {
-    throw new runtime_error("send not implemented");
+    return send(account_index, address, amount, monero_send_priority::NORMAL);
   }
 
   shared_ptr<monero_tx_wallet> monero_wallet::send(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority) {
-    throw new runtime_error("send not implemented");
+    monero_send_request req;
+    req.m_account_index = account_index;
+    req.m_destinations.push_back(make_shared<monero_destination>(address, amount));
+    req.m_priority = priority;
+    return send(req);
   }
 
   vector<shared_ptr<monero_tx_wallet>> monero_wallet::send_split(const monero_send_request& request) {

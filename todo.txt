@@ -5,6 +5,7 @@ sample code including readme
 monero_wallet_listener should be a class?
 
 MEDIUM PRIORITY
+separate wallet default impl from must impl
 create_tx and send_tx request arg should be const; need to copy
 should not need wallet.h / wallet.cpp as dependency, why are GUI deps needed?
 make model fields private and use accessors / mutators?

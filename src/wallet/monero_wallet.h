@@ -784,7 +784,7 @@ namespace monero {
      * @param request configures the transactions to create
      * @return the created transactions
      */
-    vector<shared_ptr<monero_tx_wallet>> create_txs(const monero_send_request& request);
+    vector<shared_ptr<monero_tx_wallet>> create_txs(monero_send_request& request);
 
     /**
      * Relay a transaction previously created without relaying.
@@ -816,7 +816,7 @@ namespace monero {
      * @param txs are the transactions to relay
      * @return the ids of the relayed txs
      */
-    vector<string> relay_txs(const vector<monero_tx_wallet>& txs);
+    vector<string> relay_txs(const vector<shared_ptr<monero_tx_wallet>>& txs);
 
     /**
      * Create and relay a transaction to transfer funds from this wallet
