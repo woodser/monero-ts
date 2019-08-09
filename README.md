@@ -4,12 +4,11 @@ This project is a library for working with Monero wallets in C++ by wrapping [Mo
 
 In addition, this project conforms to an [API specification](https://github.com/monero-ecosystem/monero-java/blob/master/monero-spec.pdf) intended to be intuitive, robust, and for long-term use in the Monero project.
 
-This library may be used to build Monero-related GUI applications, libraries in other languages (e.g. [monero-java](https://github.com/monero-ecosystem/monero-java-rpc)), or a compliant REST/JSON-RPC API.
+This library may be used to build Monero-related applications, such as GUIs, libraries in other languages (e.g. [monero-java](https://github.com/monero-ecosystem/monero-java-rpc)), or a compliant REST/JSON-RPC API.
 
 ## Main Features
 
-- Manage a Monero wallet
-- Object-oriented model with rigorous focus on ease-of-use
+- Manage Monero wallets which connect to a daemon
 - Query wallet transactions, transfers, and outputs by their many attributes
 - Receive notifications as a wallet is synchronized, when blocks are added to the chain, or when the wallet sends or receives transfers
 
@@ -19,7 +18,7 @@ TODO
 
 ## Building a Dynamic / Shared Library
 
-The source code in this project may be built as a dynamic or "shared" library for use on a target platform (e.g. Linux, Mac, Windows, etc).  For example, the associated [Java library](https://github.com/monero-ecosystem/monero-java-rpc) depends on a dynamic library built from this project to support a wallet using JNI.
+The source code in this project may be built as a dynamic or shared library for use on a target platform (e.g. Linux, Mac, Windows, etc).  For example, the associated [Java library](https://github.com/monero-ecosystem/monero-java-rpc) depends on a dynamic library built from this project to support a wallet using Java JNI.
 
 ### Build Steps
 
@@ -65,7 +64,7 @@ This project is licensed under MIT.
 
 ## Donate
 
-Please consider donating if you want to support this project.  Thank you!
+Donations are gratefully accepted.  Thank you for your support!
 
 <p align="center">
 	<img src="donate.png" width="150" height="150"/>
