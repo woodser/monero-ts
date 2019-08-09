@@ -9,8 +9,9 @@ This library may be used to build Monero-related applications, such as GUIs, lib
 ## Main Features
 
 - Manage Monero wallets which connect to a daemon
+- Cohesive APIs and models with rigorous focus on ease-of-use
 - Query wallet transactions, transfers, and outputs by their many attributes
-- Receive notifications as a wallet is synchronized, when blocks are added to the chain, or when the wallet sends or receives transfers
+- Be notified when blocks are added to the chain, as the wallet synchronizes, or when the wallet sends or receives funds
 
 ## Sample Code
 
