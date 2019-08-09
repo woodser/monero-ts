@@ -83,10 +83,9 @@ int main(int argc, const char* argv[]) {
   } my_listener;
   wallet_random->set_listener(my_listener);
 
-  // TODO: define wallet send convenience methods
-//  // send funds from the restored wallet to the random wallet
-//  monero_tx_wallet sent_tx = wallet_restored->send(0, wallet_random->get_address(1, 0), 50000);
-//  boolean in_pool = sent_tx.in_tx_pool();  // true
+  // send funds from the restored wallet to the random wallet
+  shared_ptr<monero_tx_wallet> sent_tx = wallet_restored->send(0, wallet_random->get_address(1, 0), 50000);
+  bool in_pool = sent_tx->m_in_tx_pool.get();  // true
 
   // create a request to send funds to multiple destinations in the random wallet
   monero_send_request send_request = monero_send_request();
@@ -100,9 +99,8 @@ int main(int argc, const char* argv[]) {
 //  destinations.push_back(make_shared<monero_destination>(wallet_random->get_address(2, 0), 50000));
   send_request.m_destinations = destinations;
 
-  // TODO: define wallet send convenience methods
-//  // create the transaction, confirm with the user, and relay to the network
-//  shared_ptr<monero_tx_wallet> created_tx = wallet_restored->create_tx(send_request);
-//  uint64_t fee = created_tx->fee.get();   // "Are you sure you want to send ...?"
-//  wallet_restored->relay_tx(created_tx);  // submit the transaction to the Monero network which will notify the recipient wallet
+  // create the transaction, confirm with the user, and relay to the network
+  shared_ptr<monero_tx_wallet> created_tx = wallet_restored->create_tx(send_request);
+  uint64_t fee = created_tx->m_fee.get();   // "Are you sure you want to send ...?"
+  wallet_restored->relay_tx(*created_tx);  // submit the transaction to the Monero network which will notify the recipient wallet
 }

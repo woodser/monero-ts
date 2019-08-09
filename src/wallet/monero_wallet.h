@@ -746,6 +746,93 @@ namespace monero {
 //    public List<monero_key_image> getNewKeyImagesFromLastImport();
 
     /**
+     * Create a transaction to transfers funds from this wallet to a destination address.
+     * The transaction may be relayed later.
+     *
+     * @param accountIndex is the index of the account to withdraw funds from
+     * @param address is the destination address to send funds to
+     * @param amount is the amount being sent
+     * @return the resulting transaction
+     */
+    shared_ptr<monero_tx_wallet> create_tx(uint32_t account_index, string address, uint64_t amount);
+
+    /**
+     * Create a transaction to transfers funds from this wallet to a destination address.
+     * The transaction may be relayed later.
+     *
+     * @param accountIndex is the index of the account to withdraw funds from
+     * @param address is the destination address to send funds to
+     * @param amount is the amount being sent
+     * @param priority is the send priority (default normal)
+     * @return the resulting transaction
+     */
+    shared_ptr<monero_tx_wallet> create_tx(int account_index, string address, uint64_t amount, monero_send_priority priority);
+
+    /**
+     * Create a transaction to transfer funds from this wallet according to the
+     * given request.  The transaction may be relayed later.
+     *
+     * @param request configures the transaction to create
+     * @return the created transaction
+     */
+    shared_ptr<monero_tx_wallet> create_tx(const monero_send_request& request);
+
+    /**
+     * Relay a transaction previously created without relaying.
+     *
+     * @param txMetadata is transaction metadata previously created without relaying
+     * @return string is the id of the relayed tx
+     */
+    string relay_tx(const string& tx_metadata);
+
+    /**
+     * Relay a previously created transaction.
+     *
+     * @param tx is the transaction to relay
+     * @return the id of the relayed tx
+     */
+    string relay_tx(const monero_tx_wallet& tx);
+
+    /**
+     * Relay transactions previously created without relaying.
+     *
+     * @param tx_metadatas are transaction metadata previously created without relaying
+     * @return the ids of the relayed txs
+     */
+    vector<string> relay_txs(const vector<string>& tx_metadatas);
+
+    /**
+     * Relay previously created transactions.
+     *
+     * @param txs are the transactions to relay
+     * @return the ids of the relayed txs
+     */
+    vector<string> relay_txs(const vector<monero_tx_wallet>& txs);
+
+    /**
+     * Create and relay a transaction to transfers funds from this wallet to
+     * a destination address.
+     *
+     * @param account_index is the index of the account to withdraw funds from
+     * @param address is the destination address to send funds to
+     * @param amount is the amount being sent
+     * @return the resulting transaction
+     */
+    shared_ptr<monero_tx_wallet> send(uint32_t account_index, string address, uint64_t amount);
+
+    /**
+     * Create and relay a transaction to transfers funds from this wallet to
+     * a destination address.
+     *
+     * @param account_index is the index of the account to withdraw funds from
+     * @param address is the destination address to send funds to
+     * @param amount is the amount being sent
+     * @param priority is the send priority (default normal)
+     * @return the resulting transaction
+     */
+    shared_ptr<monero_tx_wallet> send(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority);
+
+    /**
      * Create one or more transactions which transfer funds from this wallet to
      * one or more destinations depending on the given configuration.
      *
@@ -888,22 +975,6 @@ namespace monero {
      * @return the resulting transactions from sweeping dust
      */
     vector<shared_ptr<monero_tx_wallet>> sweep_dust(bool do_not_relay = false);
-//
-//    /**
-//     * Relay a transaction previously created without relaying.
-//     *
-//     * @param txMetadata is transaction metadata previously created without relaying
-//     * @return string is the id of the relayed tx
-//     */
-//    public string relayTx(string txMetadata);
-
-    /**
-     * Relay transactions previously created without relaying.
-     *
-     * @param tx_metadatas are transaction metadata previously created without relaying
-     * @return the ids of the relayed txs
-     */
-    vector<string> relay_txs(const vector<string>& tx_metadatas);
 
     /**
      * Get a transaction note.

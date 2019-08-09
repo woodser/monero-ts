@@ -1694,6 +1694,76 @@ namespace monero {
     return result;
   }
 
+  shared_ptr<monero_tx_wallet> monero_wallet::create_tx(uint32_t account_index, String address, uint64_t amount) {
+    throw new runtime_error("create_tx not implemented");
+  }
+
+  shared_ptr<monero_tx_wallet> monero_wallet::create_tx(int account_index, String address, uint64_t amount, monero_send_priority priority) {
+    throw new runtime_error("create_tx not implemented");
+  }
+
+  shared_ptr<monero_tx_wallet> monero_wallet::create_tx(const monero_send_request& request) {
+    throw new runtime_error("create_tx not implemented");
+  }
+
+  string monero_wallet::relay_tx(const string& tx_metadata) {
+    throw new runtime_error("relay_tx not implemented");
+  }
+
+  string monero_wallet::relay_tx(const monero_tx_wallet& tx) {
+    throw new runtime_error("relay_tx not implemented");
+  }
+
+  vector<string> monero_wallet::relay_txs(const vector<string>& tx_metadatas) {
+    MTRACE("relay_txs()");
+
+    // relay each metadata as a tx
+    vector<string> m_tx_ids;
+    for (const auto& txMetadata : tx_metadatas) {
+
+      // parse tx metadata hex
+      cryptonote::blobdata blob;
+      if (!epee::string_tools::parse_hexstr_to_binbuff(txMetadata, blob)) {
+        throw runtime_error("Failed to parse hex.");
+      }
+
+      // deserialize tx
+      tools::wallet2::pending_tx ptx;
+      try {
+        std::istringstream iss(blob);
+        boost::archive::portable_binary_iarchive ar(iss);
+        ar >> ptx;
+      } catch (...) {
+        throw runtime_error("Failed to parse tx metadata.");
+      }
+
+      // commit tx
+      try {
+        m_w2->commit_tx(ptx);
+      } catch (const std::exception& e) {
+        throw runtime_error("Failed to commit tx.");
+      }
+
+      // collect resulting id
+      m_tx_ids.push_back(epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(ptx.tx)));
+    }
+
+    // return relayed tx ids
+    return m_tx_ids;
+  }
+
+  vector<string> monero_wallet::relay_txs(const vector<monero_tx_wallet>& txs) {
+    throw new runtime_error("relay_txs not implemented");
+  }
+
+  shared_ptr<monero_tx_wallet> monero_wallet::send(uint32_t account_index, string address, uint64_t amount) {
+    throw new runtime_error("send not implemented");
+  }
+
+  shared_ptr<monero_tx_wallet> monero_wallet::send(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority) {
+    throw new runtime_error("send not implemented");
+  }
+
   vector<shared_ptr<monero_tx_wallet>> monero_wallet::send_split(const monero_send_request& request) {
     MTRACE("monero_wallet::send_split(request)");
     MTRACE("monero_send_request: " << request.serialize());
@@ -1990,44 +2060,6 @@ namespace monero {
     }
 
     return txs;
-  }
-
-  vector<string> monero_wallet::relay_txs(const vector<string>& tx_metadatas) {
-    MTRACE("relay_txs()");
-
-    // relay each metadata as a tx
-    vector<string> m_tx_ids;
-    for (const auto& txMetadata : tx_metadatas) {
-
-      // parse tx metadata hex
-      cryptonote::blobdata blob;
-      if (!epee::string_tools::parse_hexstr_to_binbuff(txMetadata, blob)) {
-        throw runtime_error("Failed to parse hex.");
-      }
-
-      // deserialize tx
-      tools::wallet2::pending_tx ptx;
-      try {
-        std::istringstream iss(blob);
-        boost::archive::portable_binary_iarchive ar(iss);
-        ar >> ptx;
-      } catch (...) {
-        throw runtime_error("Failed to parse tx metadata.");
-      }
-
-      // commit tx
-      try {
-        m_w2->commit_tx(ptx);
-      } catch (const std::exception& e) {
-        throw runtime_error("Failed to commit tx.");
-      }
-
-      // collect resulting id
-      m_tx_ids.push_back(epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(ptx.tx)));
-    }
-
-    // return relayed tx ids
-    return m_tx_ids;
   }
 
   string monero_wallet::get_tx_note(const string& tx_id) const {
