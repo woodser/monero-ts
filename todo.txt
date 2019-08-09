@@ -4,6 +4,8 @@ gen documentation
 sample code including readme
 
 MEDIUM PRIORITY
+should not need wallet.h / wallet.cpp as dependency, why are GUI deps needed?
+make model fields private and use accessors / mutators?
 remove jstring2string, be consistent with other string inits
 number of mining threads should be uint32_t instead of uint64_t
 getReserveProofAccount() jni seg fault

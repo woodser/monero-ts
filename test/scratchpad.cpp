@@ -2,35 +2,8 @@
 #include <iostream>
 #include "wallet2.h"
 #include "wallet/monero_wallet.h"
-//#include <boost/stacktrace.hpp>
+
 using namespace std;
-
-bool wallet_exists(string path) {
-  //std::cout << boost::stacktrace::stacktrace();
-  bool keys_file_exists;
-  bool wallet_file_exists;
-  tools::wallet2::wallet_exists(path, keys_file_exists, wallet_file_exists);
-  return wallet_file_exists;
-}
-
-void open_wallet(string path, string password, int network_type) {
-  cout << "open_wallet(" << path << ", " << password << ", " << network_type << ")" << endl;
-  std::unique_ptr<tools::wallet2> wallet;
-  wallet.reset(new tools::wallet2(cryptonote::network_type::STAGENET, 1, true));
-  throw runtime_error("Not implemented");
-}
-
-void create_wallet_random(string language, int network_type) {
-  tools::wallet2* wallet = new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true);
-  wallet->set_seed_language(language);
-  crypto::secret_key recovery_val, secret_key;
-  wallet->generate(string(""), string(""), secret_key, false, false);
-
-  // print the mnemonic
-  epee::wipeable_string mnemonic;
-  wallet->get_seed(mnemonic);
-  cout << "Mnemonic: " << string(mnemonic.data(), mnemonic.size()) << endl;
-}
 
 /**
  * Scratchpad main entry point.
@@ -54,20 +27,6 @@ int main(int argc, const char* argv[]) {
   string password = "supersecretpassword123";
   string language = "English";
   int network_type = 2;
-
-  MINFO("Wallet exists: " << wallet_exists(path));
-
-//  open_wallet(path, password, network_type);
-//  create_wallet_random(language, network_type);
-
-//  // create wallet
-//  monero_wallet* wallet = new monero_wallet();
-//
-//  // get the mnemonic
-//  epee::wipeable_string mnemonic;
-//  wallet->get_mnemonic(mnemonic);
-//  cout << "Mnemonic: " << string(mnemonic.data(), mnemonic.size()) << endl;
-
 
   // load wallet
   monero_wallet* wallet = monero_wallet::open_wallet("../../test_wallets/test_wallet_1", "supersecretpassword123", monero_network_type::STAGENET);
@@ -99,24 +58,5 @@ int main(int argc, const char* argv[]) {
 //  if (txs.empty()) throw runtime_error("Txs should not be empty");
 //  for (const shared_ptr<monero_tx_wallet>& tx : txs) {
 //    if (!*tx->is_confirmed) throw runtime_error("Tx should be confirmed");
-//  }
-
-
-//  // debug simple block merging
-//  vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs();
-//  if (txs.empty()) throw runtime_error("Txs should not be empty");
-//  shared_ptr<monero_block> block = nullptr;
-//  for (const shared_ptr<monero_tx_wallet>& tx : txs) {
-//    if (tx->get_height().get() != 360559l) throw runtime_error("Anything other than 360559l should be filtered");
-//    cout << "We have one!!!" << endl;
-//    if (block == nullptr) block = tx->block.get();
-//    else {
-//      if (block != tx->block.get()) {
-//        cout << "BOOM" << endl;
-//        cout << block->serialize();
-//        cout << "--- VS ---" << endl;
-//        cout << tx->block.get()->serialize();
-//      }
-//    }
 //  }
 }

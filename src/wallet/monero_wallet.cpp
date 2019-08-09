@@ -1116,6 +1116,11 @@ namespace monero {
     return epee::string_tools::pod_to_hex(m_w2->get_account().get_keys().m_spend_secret_key);
   }
 
+  string monero_wallet::get_primary_address() const {
+    MTRACE("get_primary_address()");
+    return get_address(0, 0);
+  }
+
   void monero_wallet::set_listener(const boost::optional<monero_wallet_listener&> listener) {
     MTRACE("set_listener()");
     m_w2_listener->set_wallet_listener(listener);

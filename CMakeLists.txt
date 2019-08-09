@@ -282,6 +282,65 @@ target_link_libraries(monero-cpp
 )
 
 ########################
+# Build C++ Sample Code
+########################
+
+###[[	--- START BLOCK COMMENT ---
+
+set(
+    SAMPLE_CODE_SRC_FILES
+    test/sample_code.cpp
+)
+
+add_executable(sample_code ${SAMPLE_CODE_SRC_FILES} ${LIBRARY_SRC_FILES})
+
+target_link_libraries(sample_code
+
+	hidapi
+	
+	boost_chrono
+	boost_date_time
+	boost_filesystem
+	boost_program_options
+	boost_regex
+	boost_serialization
+	boost_wserialization
+	boost_system
+	boost_thread
+	
+	ssl
+	crypto
+	
+	wallet_merged
+	#wallet_api
+	wallet
+	lmdb
+	epee
+	unbound
+	sodium
+	easylogging
+	
+	cryptonote_core
+	cryptonote_basic
+	mnemonics
+	ringct
+	ringct_basic
+	common
+	cncrypto
+	blockchain_db
+	blocks
+	checkpoints
+	device
+	device_trezor
+	multisig
+	version
+	
+	${EXTRA_LIBRARIES}
+)
+
+###]]	# --- END BLOCK COMMENT ---
+
+########################
 # Build C++ scratchpad
 ########################
 
