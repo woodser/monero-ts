@@ -674,7 +674,7 @@ namespace monero {
     }
 
     void update_listening() {
-      //m_w2.callback(m_wallet.get_listeners().empty() ? nullptr : this);
+      m_w2.callback(m_wallet.get_listeners().empty() ? nullptr : this);
     }
 
     void on_sync_start(uint64_t start_height) {
@@ -1140,6 +1140,9 @@ namespace monero {
   monero_sync_result monero_wallet::sync(monero_sync_listener& listener) {
     MTRACE("sync(listener)");
     if (!m_is_connected) throw runtime_error("Wallet is not connected to daemon");
+
+    // TODO: register, sync unregister
+
     return lock_and_sync(boost::none);
   }
 
