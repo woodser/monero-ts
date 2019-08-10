@@ -88,7 +88,7 @@ int main(int argc, const char* argv[]) {
       shared_ptr<monero_key_image> key_image = output.m_key_image.get();
     }
   } my_listener;
-  wallet_random->set_listener(my_listener);
+  wallet_random->add_listener(my_listener);
 
   // send funds from the restored wallet to the random wallet
   shared_ptr<monero_tx_wallet> sent_tx = wallet_restored->send(0, wallet_random->get_address(1, 0), 50000);

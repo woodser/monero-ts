@@ -652,7 +652,7 @@ namespace monero {
   // ----------------------------- WALLET LISTENER ----------------------------
 
   /**
-   * Listens to wallet2 notifications in order to facilitate external wallet notifications.
+   * Listens to wallet2 notifications in order to notify external wallet listeners.
    */
   struct wallet2_listener : public tools::i_wallet2_callback {
 
@@ -661,58 +661,53 @@ namespace monero {
     /**
      * Constructs the listener.
      *
-     * @param wallet provides context to inform external notifications
+     * @param wallet provides context to notify external listeners
      * @param wallet2 provides source notifications which this listener propagates to external listeners
      */
     wallet2_listener(monero_wallet& wallet, tools::wallet2& m_w2) : m_wallet(wallet), m_w2(m_w2) {
-      this->m_listener = boost::none;
       this->m_sync_start_height = boost::none;
       this->m_sync_end_height = boost::none;
-      this->m_sync_listener = boost::none;
     }
 
     ~wallet2_listener() {
       MTRACE("~wallet2_listener()");
     }
 
-    void set_wallet_listener(boost::optional<monero_wallet_listener&> listener) {
-      this->m_listener = listener;
-      update_listening();
+    void update_listening() {
+      //m_w2.callback(m_wallet.get_listeners().empty() ? nullptr : this);
     }
 
-    void on_sync_start(uint64_t start_height, boost::optional<monero_sync_listener&> sync_listener) {
+    void on_sync_start(uint64_t start_height) {
       if (m_sync_start_height != boost::none || m_sync_end_height != boost::none) throw runtime_error("Sync start or end height should not already be allocated, is previous sync in progress?");
       m_sync_start_height = start_height;
       m_sync_end_height = m_wallet.get_daemon_height();
-      this->m_sync_listener = sync_listener;
-      update_listening();
     }
 
     void on_sync_end() {
       m_sync_start_height = boost::none;
       m_sync_end_height = boost::none;
-      m_sync_listener = boost::none;
-      update_listening();
     }
 
     virtual void on_new_block(uint64_t height, const cryptonote::block& cn_block) {
 
-      // notify listener of block
-      if (m_listener != boost::none) m_listener->on_new_block(height);
+      // notify listeners of block
+      for (monero_wallet_listener* listener : m_wallet.get_listeners()) {
+        listener->on_new_block(height);
+      }
 
       // notify listeners of sync progress
       if (m_sync_start_height != boost::none && height >= *m_sync_start_height) {
         if (height >= *m_sync_end_height) m_sync_end_height = height + 1;	// increase end height if necessary
         double percent_done = (double) (height - *m_sync_start_height + 1) / (double) (*m_sync_end_height - *m_sync_start_height);
         string message = string("Synchronizing");
-        if (m_listener != boost::none) m_listener.get().on_sync_progress(height, *m_sync_start_height, *m_sync_end_height, percent_done, message);
-        if (m_sync_listener != boost::none) m_sync_listener.get().on_sync_progress(height, *m_sync_start_height, *m_sync_end_height, percent_done, message);
+        for (monero_wallet_listener* listener : m_wallet.get_listeners()) {
+          listener->on_sync_progress(height, *m_sync_start_height, *m_sync_end_height, percent_done, message);
+        }
       }
     }
 
     virtual void on_money_received(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cn_tx, uint64_t amount, const cryptonote::subaddress_index& subaddr_index, uint64_t unlock_time) {
       MTRACE("wallet2_listener::on_money_received()");
-      if (m_listener == boost::none) return;
 
       // create native library tx
       shared_ptr<monero_block> block = make_shared<monero_block>();
@@ -729,8 +724,10 @@ namespace monero {
       output->m_account_index = subaddr_index.major;
       output->m_subaddress_index = subaddr_index.minor;
 
-      // notify listener of output
-      m_listener->on_output_received(*output);
+      // notify listeners of output
+      for (monero_wallet_listener* listener : m_wallet.get_listeners()) {
+        listener->on_output_received(*output);
+      }
     }
 
     virtual void on_money_spent(uint64_t height, const crypto::hash &txid, const cryptonote::transaction& cn_tx_in, uint64_t amount, const cryptonote::transaction& cn_tx_out, const cryptonote::subaddress_index& subaddr_index) {
@@ -751,8 +748,10 @@ namespace monero {
       output->m_account_index = subaddr_index.major;
       output->m_subaddress_index = subaddr_index.minor;
 
-      // notify listener of output
-      m_listener->on_output_spent(*output);
+      // notify listeners of output
+      for (monero_wallet_listener* listener : m_wallet.get_listeners()) {
+        listener->on_output_spent(*output);
+      }
 
       // TODO **: to notify or not to notify?
 //        std::string tx_hash = epee::string_tools::pod_to_hex(txid);
@@ -770,14 +769,8 @@ namespace monero {
   private:
     monero_wallet& m_wallet;  // wallet to provide context for notifications
     tools::wallet2& m_w2;     // internal wallet implementation to listen to
-    boost::optional<monero_wallet_listener&> m_listener; // target listener to invoke with notifications
-    boost::optional<monero_sync_listener&> m_sync_listener;
     boost::optional<uint64_t> m_sync_start_height;
     boost::optional<uint64_t> m_sync_end_height;
-
-    void update_listening() {
-      m_w2.callback(m_listener == boost::none && m_sync_listener == boost::none ? nullptr : this);
-    }
   };
 
   // ---------------------------- WALLET MANAGEMENT ---------------------------
@@ -1121,9 +1114,21 @@ namespace monero {
     return get_address(0, 0);
   }
 
-  void monero_wallet::set_listener(const boost::optional<monero_wallet_listener&> listener) {
-    MTRACE("set_listener()");
-    m_w2_listener->set_wallet_listener(listener);
+  void monero_wallet::add_listener(monero_wallet_listener& listener) {
+    MTRACE("add_listener()");
+    m_listeners.push_back(&listener);
+    m_w2_listener->update_listening();
+  }
+
+  void monero_wallet::remove_listener(monero_wallet_listener& listener) {
+    MTRACE("remove_listener()");
+    m_listeners.erase(remove(m_listeners.begin(), m_listeners.end(), &listener), m_listeners.end());
+    m_w2_listener->update_listening();
+  }
+
+  vector<monero_wallet_listener*> monero_wallet::get_listeners() {
+    MTRACE("get_listeners()");
+    return m_listeners;
   }
 
   monero_sync_result monero_wallet::sync() {
@@ -1135,7 +1140,7 @@ namespace monero {
   monero_sync_result monero_wallet::sync(monero_sync_listener& listener) {
     MTRACE("sync(listener)");
     if (!m_is_connected) throw runtime_error("Wallet is not connected to daemon");
-    return lock_and_sync(boost::none, listener);
+    return lock_and_sync(boost::none);
   }
 
   monero_sync_result monero_wallet::sync(uint64_t start_height) {
@@ -1147,7 +1152,7 @@ namespace monero {
   monero_sync_result monero_wallet::sync(uint64_t start_height, monero_sync_listener& listener) {
     MTRACE("sync(" << start_height << ", listener)");
     if (!m_is_connected) throw runtime_error("Wallet is not connected to daemon");
-    return lock_and_sync(start_height, listener);
+    return lock_and_sync(start_height);
   }
 
   /**
@@ -2498,7 +2503,7 @@ namespace monero {
     }
   }
 
-  monero_sync_result monero_wallet::lock_and_sync(boost::optional<uint64_t> start_height, boost::optional<monero_sync_listener&> listener) {
+  monero_sync_result monero_wallet::lock_and_sync(boost::optional<uint64_t> start_height) {
     bool rescan = m_rescan_on_sync.exchange(false);
     boost::lock_guard<boost::mutex> guarg(m_sync_mutex); // synchronize sync() and syncAsync()
     monero_sync_result result;
@@ -2512,7 +2517,7 @@ namespace monero {
         if (rescan) m_w2->rescan_blockchain(false);
 
         // sync wallet
-        result = sync_aux(start_height, listener);
+        result = sync_aux(start_height);
 
         // find and save rings
         m_w2->find_and_save_rings(false);
@@ -2521,7 +2526,7 @@ namespace monero {
     return result;
   }
 
-  monero_sync_result monero_wallet::sync_aux(boost::optional<uint64_t> start_height, boost::optional<monero_sync_listener&> listener) {
+  monero_sync_result monero_wallet::sync_aux(boost::optional<uint64_t> start_height) {
     MTRACE("sync_aux()");
 
     // determine sync start height
@@ -2529,7 +2534,7 @@ namespace monero {
     if (sync_start_height < get_restore_height()) set_restore_height(sync_start_height); // TODO monero core: start height processed > requested start height unless restore height manually set
 
     // sync wallet and return result
-    m_w2_listener->on_sync_start(sync_start_height, listener);
+    m_w2_listener->on_sync_start(sync_start_height);
     monero_sync_result result;
     m_w2->refresh(m_w2->is_trusted_daemon(), sync_start_height, result.m_num_blocks_fetched, result.m_received_money, true);
     if (!m_is_synced) m_is_synced = true;

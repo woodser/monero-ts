@@ -386,11 +386,23 @@ namespace monero {
     monero_integrated_address decode_integrated_address(const string& integrated_address) const;
 
     /**
-     * Set the wallet's listener to receive wallet notifications.
+     * Register a listener receive wallet notifications.
      *
      * @param listener is the listener to receive wallet notifications
      */
-    void set_listener(boost::optional<monero_wallet_listener&> listener);
+    void add_listener(monero_wallet_listener& listener);
+
+    /**
+     * Unregister a listener to receive wallet notifications.
+     *
+     * @param listener is the listener to unregister
+     */
+    void remove_listener(monero_wallet_listener& listener);
+
+    /**
+     * Get the listeners registered with the wallet.
+     */
+    vector<monero_wallet_listener*> get_listeners();
 
     /**
      * Synchronize the wallet with the daemon as a one-time synchronous process.
@@ -1286,9 +1298,9 @@ namespace monero {
 
   private:
     friend struct wallet2_listener;
-    unique_ptr<tools::wallet2> m_w2;             // internal wallet implementation
-    unique_ptr<wallet2_listener> m_w2_listener;  // listener for internal wallet implementation
-    boost::optional<monero_wallet_listener&> m_listener = boost::none;  // wallet's external listener
+    unique_ptr<tools::wallet2> m_w2;              // internal wallet implementation
+    unique_ptr<wallet2_listener> m_w2_listener;   // internal wallet implementation listener
+    vector<monero_wallet_listener*> m_listeners;  // external wallet listeners
 
     void init_common();
     vector<monero_subaddress> get_subaddresses_aux(uint32_t account_idx, const vector<uint32_t>& subaddress_indices, const vector<tools::wallet2::transfer_details>& transfers) const;
@@ -1305,7 +1317,7 @@ namespace monero {
     boost::mutex m_syncing_mutex;                // synchronize auto sync loop
     std::atomic<bool> m_syncing_thread_done;     // whether or not the syncing thread is shut down
     void sync_thread_func();                     // function to run thread with syncing loop
-    monero_sync_result lock_and_sync(boost::optional<uint64_t> start_height = boost::none, boost::optional<monero_sync_listener&> listener = boost::none);  // internal function to synchronize request to sync and rescan
-    monero_sync_result sync_aux(boost::optional<uint64_t> start_height = boost::none, boost::optional<monero_sync_listener&> listener = boost::none);       // internal function to immediately block, sync, and report progress
+    monero_sync_result lock_and_sync(boost::optional<uint64_t> start_height = boost::none);  // internal function to synchronize request to sync and rescan
+    monero_sync_result sync_aux(boost::optional<uint64_t> start_height = boost::none);       // internal function to immediately block, sync, and report progress
   };
 }
