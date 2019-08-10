@@ -24,12 +24,19 @@ int main(int argc, const char* argv[]) {
       380104                                            // restore height
   );
 
-  // sync the wallet
-  wallet_restored->sync();          // one time synchronous sync
-  wallet_restored->start_syncing(); // continuously sync as an asynchronous thread in the background
+  // synchronize the wallet and receive progress notifications
+  struct : monero_sync_listener {
+    void on_sync_progress(uint64_t height, uint64_t start_height, uint64_t end_height, double percent_done, const string& message) {
+      cout << "onSyncProgress(" << height << ", " << start_height << ", " << end_height << ", " << percent_done << ", " << message << ")" << endl;
+    }
+  } my_sync_listener;
+  wallet_restored->sync(my_sync_listener);
+
+  // start syncing the wallet continuously in the background
+  wallet_restored->start_syncing();
 
   // get balance, account, subaddresses
-  string primary_address = wallet_restored->get_primary_address();
+  string restored_primary = wallet_restored->get_primary_address();
   uint64_t balance = wallet_restored->get_balance();    // can specify account and subaddress indices
   monero_account account = wallet_restored->get_account(1, true);       // get account with subaddresses
   uint64_t unlocked_account_balance = account.m_unlocked_balance.get(); // get boost::optional value
@@ -68,9 +75,9 @@ int main(int argc, const char* argv[]) {
 
   // get wallet info
   string random_mnemonic = wallet_random->get_mnemonic();
-  string address = wallet_random->get_primary_address();
-  uint64_t height = wallet_random->get_height();
-  bool is_synced = wallet_random->is_synced();
+  string random_primary = wallet_random->get_primary_address();
+  uint64_t random_height = wallet_random->get_height();
+  bool random_is_synced = wallet_random->is_synced();
 
   // be notified when the wallet receives funds
   struct : monero_wallet_listener {
@@ -86,6 +93,19 @@ int main(int argc, const char* argv[]) {
   // send funds from the restored wallet to the random wallet
   shared_ptr<monero_tx_wallet> sent_tx = wallet_restored->send(0, wallet_random->get_address(1, 0), 50000);
   bool in_pool = sent_tx->m_in_tx_pool.get();  // true
+
+  // mine with 7 threads to push the network along
+  int num_threads = 7;
+  bool is_background = false;
+  bool ignore_battery = false;
+  wallet_restored->start_mining(num_threads, is_background, ignore_battery);
+
+//  // wait for the next block to be added to the chain
+//  MoneroBlockHeader nextBlockHeader = daemon.getNextBlockHeader();
+//  long nextNumTxs = nextBlockHeader.getNumTxs();
+
+  // stop mining
+  wallet_restored->stop_mining();
 
   // create a request to send funds to multiple destinations in the random wallet
   monero_send_request send_request = monero_send_request();
@@ -103,4 +123,8 @@ int main(int argc, const char* argv[]) {
   shared_ptr<monero_tx_wallet> created_tx = wallet_restored->create_tx(send_request);
   uint64_t fee = created_tx->m_fee.get(); // "Are you sure you want to send ...?"
   wallet_restored->relay_tx(*created_tx); // submit the transaction to the Monero network which will notify the recipient wallet
+
+  // random wallet will receive notification of incoming output after a moment
+  //TimeUnit.SECONDS.sleep(10);
+  //assertTrue(JNI_OUTPUT_RECEIVED);
 }
