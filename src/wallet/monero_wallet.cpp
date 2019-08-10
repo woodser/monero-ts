@@ -1116,17 +1116,17 @@ namespace monero {
 
   void monero_wallet::add_listener(monero_wallet_listener& listener) {
     MTRACE("add_listener()");
-    m_listeners.push_back(&listener);
+    m_listeners.insert(&listener);
     m_w2_listener->update_listening();
   }
 
   void monero_wallet::remove_listener(monero_wallet_listener& listener) {
     MTRACE("remove_listener()");
-    m_listeners.erase(remove(m_listeners.begin(), m_listeners.end(), &listener), m_listeners.end());
+    m_listeners.erase(&listener);
     m_w2_listener->update_listening();
   }
 
-  vector<monero_wallet_listener*> monero_wallet::get_listeners() {
+  set<monero_wallet_listener*> monero_wallet::get_listeners() {
     MTRACE("get_listeners()");
     return m_listeners;
   }

@@ -402,7 +402,7 @@ namespace monero {
     /**
      * Get the listeners registered with the wallet.
      */
-    vector<monero_wallet_listener*> get_listeners();
+    set<monero_wallet_listener*> get_listeners();
 
     /**
      * Synchronize the wallet with the daemon as a one-time synchronous process.
@@ -1300,7 +1300,7 @@ namespace monero {
     friend struct wallet2_listener;
     unique_ptr<tools::wallet2> m_w2;              // internal wallet implementation
     unique_ptr<wallet2_listener> m_w2_listener;   // internal wallet implementation listener
-    vector<monero_wallet_listener*> m_listeners;  // external wallet listeners
+    set<monero_wallet_listener*> m_listeners;  // external wallet listeners
 
     void init_common();
     vector<monero_subaddress> get_subaddresses_aux(uint32_t account_idx, const vector<uint32_t>& subaddress_indices, const vector<tools::wallet2::transfer_details>& transfers) const;
