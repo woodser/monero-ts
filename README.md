@@ -29,19 +29,26 @@ monero_wallet* wallet_restored = monero_wallet::create_wallet_from_mnemonic(
     380104                                            // restore height
 );
 
-// sync the wallet
-wallet_restored->sync();          // one time synchronous sync
-wallet_restored->start_syncing(); // continuously sync as an asynchronous thread in the background
+// synchronize the wallet and receive progress notifications
+struct : monero_sync_listener {
+  void on_sync_progress(uint64_t height, uint64_t start_height, uint64_t end_height, double percent_done, const string& message) {
+    cout << "onSyncProgress(" << height << ", " << start_height << ", " << end_height << ", " << percent_done << ", " << message << ")" << endl;
+  }
+} my_sync_listener;
+wallet_restored->sync(my_sync_listener);
+
+// start syncing the wallet continuously in the background
+wallet_restored->start_syncing();
 
 // get balance, account, subaddresses
-string primary_address = wallet_restored->get_primary_address();
+string restored_primary = wallet_restored->get_primary_address();
 uint64_t balance = wallet_restored->get_balance();    // can specify account and subaddress indices
 monero_account account = wallet_restored->get_account(1, true);       // get account with subaddresses
 uint64_t unlocked_account_balance = account.m_unlocked_balance.get(); // get boost::optional value
 
 // query a transaction by id
 monero_tx_query tx_query;
-tx_query.m_id = "3276252c5a545b90c8e147fcde45d3e1917726470a8f7d4c8977b527a44dfd15";
+tx_query.m_id = "314a0f1375db31cea4dac4e0a51514a6282b43792269b3660166d4d2b46437ca";
 shared_ptr<monero_tx_wallet> tx = wallet_restored->get_txs(tx_query)[0];
 for (const shared_ptr<monero_incoming_transfer> in_transfer : tx->m_incoming_transfers) {
   uint64_t in_amount = in_transfer->m_amount.get();
@@ -59,7 +66,7 @@ monero_output_query output_query;
 output_query.m_is_spent = false;
 vector<shared_ptr<monero_output_wallet>> outputs = wallet_restored->get_outputs(output_query);
 
-// create a new wallet with a random mnemonic phrase
+// create and sync a new wallet with a random mnemonic phrase
 monero_wallet* wallet_random = monero_wallet::create_wallet_random(
     "MyWalletRandom",                                 // wallet path and name
     "supersecretpassword123",                         // wallet password
@@ -67,30 +74,44 @@ monero_wallet* wallet_random = monero_wallet::create_wallet_random(
     monero_rpc_connection("http://localhost:38081"),  // daemon connection
     "English"
 );
+wallet_random->sync();
 
-// continuously synchronize the wallet
+// continuously synchronize the wallet in the background
 wallet_random->start_syncing();
 
 // get wallet info
 string random_mnemonic = wallet_random->get_mnemonic();
-string address = wallet_random->get_primary_address();
-uint64_t height = wallet_random->get_height();
-bool is_synced = wallet_random->is_synced();
+string random_primary = wallet_random->get_primary_address();
+uint64_t random_height = wallet_random->get_height();
+bool random_is_synced = wallet_random->is_synced();
 
 // be notified when the wallet receives funds
 struct : monero_wallet_listener {
   void on_output_received(const monero_output_wallet& output) {
     cout << "Wallet received funds!" << endl;
+    string tx_id = output.m_tx->m_id.get();
     int account_index = output.m_account_index.get();
     int subaddress_index = output.m_subaddress_index.get();
-    shared_ptr<monero_key_image> key_image = output.m_key_image.get();
+    OUTPUT_RECEIVED = true;
   }
 } my_listener;
-wallet_random->set_listener(my_listener);
+wallet_random->add_listener(my_listener);
 
 // send funds from the restored wallet to the random wallet
 shared_ptr<monero_tx_wallet> sent_tx = wallet_restored->send(0, wallet_random->get_address(1, 0), 50000);
 bool in_pool = sent_tx->m_in_tx_pool.get();  // true
+
+// mine with 7 threads to push the network along
+int num_threads = 7;
+bool is_background = false;
+bool ignore_battery = false;
+wallet_restored->start_mining(num_threads, is_background, ignore_battery);
+
+// wait for the next block to be added to the chain
+uint64_t next_height = wallet_random->wait_for_next_block();
+
+// stop mining
+wallet_restored->stop_mining();
 
 // create a request to send funds to multiple destinations in the random wallet
 monero_send_request send_request = monero_send_request();
@@ -104,7 +125,7 @@ destinations.push_back(make_shared<monero_destination>(wallet_random->get_addres
 destinations.push_back(make_shared<monero_destination>(wallet_random->get_address(2, 0), 50000));
 send_request.m_destinations = destinations;
 
-// create the transaction, confirm with the user, and relay to the network
+// create the transaction, confirm with the user, and relay to the network which notifies the recipient wallet
 shared_ptr<monero_tx_wallet> created_tx = wallet_restored->create_tx(send_request);
 uint64_t fee = created_tx->m_fee.get(); // "Are you sure you want to send ...?"
 wallet_restored->relay_tx(*created_tx); // submit the transaction to the Monero network which will notify the recipient wallet

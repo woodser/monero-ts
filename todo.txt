@@ -1,7 +1,6 @@
 HIGH PRIORITY
 cv(cv) in constructor is short hand to invoke copy constructor
 gen documentation
-sample code including readme
 
 MEDIUM PRIORITY
 polish model: no boost::optional<shared_ptr>? no boost::optional<string>? etc
