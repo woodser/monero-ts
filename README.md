@@ -167,7 +167,7 @@ The source code in this project may be built as a dynamic or shared library for 
        Mac: installed through homebrew at /usr/local/Cellar/libsodium/1.0.17/lib/libsodium.a
 6. Build libmonero-cpp.dylib to ./build: `./bin/build-libmonero-cpp.sh`.
 
-These build steps aspire to be automated further.
+These build steps aspire to be automated further and any help would be greatly appreciated.
 
 ## See Also
 
