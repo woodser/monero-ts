@@ -1196,6 +1196,7 @@ namespace monero {
    * Start automatic syncing as its own thread.
    */
   void monero_wallet::start_syncing() {
+    if (!m_is_connected) throw runtime_error("Wallet is not connected to daemon");
     if (!m_syncing_enabled) {
       m_syncing_enabled = true;
       m_sync_cv.notify_one();
