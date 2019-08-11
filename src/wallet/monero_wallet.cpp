@@ -2504,10 +2504,10 @@ namespace monero {
     struct block_notifier : monero_wallet_listener {
       boost::mutex* temp;
       boost::condition_variable* cv;
+      uint64_t last_height;
       block_notifier(boost::mutex* temp, boost::condition_variable* cv) { this->temp = temp; this->cv = cv; }
       void on_new_block(uint64_t height) {
-        cout << "ON NEW BLOCK!!!! " << height << endl;
-        //boost::lock_guard<boost::mutex> guarg(*temp);
+        last_height = height;
         cv->notify_one();
       }
     } block_listener(&temp, &cv);
@@ -2522,8 +2522,8 @@ namespace monero {
     // unregister the listener
     remove_listener(block_listener);
 
-    // return notified height
-    return 0; // TODO
+    // return last height
+    return block_listener.last_height;
   }
 
   void monero_wallet::move_to(string path, string password) {
