@@ -10,8 +10,8 @@ bool OUTPUT_RECEIVED = false;
 /**
  * This code introduces the API.
  *
- * NOTE: depending on feedback, fields might become private and accessible only
- * through public acessors/mutators for pure object-oriented.
+ * NOTE: depending on feedback, fields might change to become private and accessible only
+ * through public acessors/mutators for pure object-oriented, etc.
  */
 int main(int argc, const char* argv[]) {
 
@@ -67,7 +67,7 @@ int main(int argc, const char* argv[]) {
   output_query.m_is_spent = false;
   vector<shared_ptr<monero_output_wallet>> outputs = wallet_restored->get_outputs(output_query);
 
-  // create a new wallet with a random mnemonic phrase
+  // create and sync a new wallet with a random mnemonic phrase
   monero_wallet* wallet_random = monero_wallet::create_wallet_random(
       "MyWalletRandom",                                 // wallet path and name
       "supersecretpassword123",                         // wallet password
@@ -75,9 +75,9 @@ int main(int argc, const char* argv[]) {
       monero_rpc_connection("http://localhost:38081"),  // daemon connection
       "English"
   );
+  wallet_random->sync();
 
-  // continuously synchronize the wallet
-  wallet_random->sync();  // TODO: is this necessary here to be synced? random wallet should be synced if created with rpc connection
+  // continuously synchronize the wallet in the background
   wallet_random->start_syncing();
 
   // get wallet info
@@ -131,7 +131,7 @@ int main(int argc, const char* argv[]) {
   uint64_t fee = created_tx->m_fee.get(); // "Are you sure you want to send ...?"
   wallet_restored->relay_tx(*created_tx); // submit the transaction to the Monero network which will notify the recipient wallet
 
-  // random wallet has received notification of incoming output
+  // the recipient wallet will be notified
   if (OUTPUT_RECEIVED) cout << "Sample code completed successfully" << endl;
   else throw runtime_error("Output should have been received");
 }
