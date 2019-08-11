@@ -1,5 +1,4 @@
 HIGH PRIORITY
-cv(cv) in constructor is short hand to invoke copy constructor
 gen documentation
 
 MEDIUM PRIORITY
