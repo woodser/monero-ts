@@ -1,6 +1,6 @@
 # Monero C++ Library
 
-This project is a library for working with Monero wallets in C++ by wrapping [Monero Core's](https://github.com/monero-project/monero) C++ wallet, [wallet2](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h).
+This project is a library for using Monero wallets in C++ by wrapping [Monero Core's](https://github.com/monero-project/monero) C++ wallet, [wallet2](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h).
 
 In addition, this project conforms to an [API specification](https://github.com/monero-ecosystem/monero-java/blob/master/monero-spec.pdf) intended to be intuitive, robust, and for long-term use in the Monero project.
 
