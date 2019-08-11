@@ -17,6 +17,8 @@ This library may be used to build Monero-related applications, such as GUIs, lib
 
 This code introduces the API.  See the [specification PDF](https://github.com/monero-ecosystem/monero-java/blob/master/monero-spec.pdf) for full details.
 
+NOTE: This API might change depending on feedback, such as using pure object-oriented accessors and mutators, not using boost::optional with shared_ptrs, etc.
+
 ```c++
 // create a wallet from a mnemonic phrase
 string mnemonic = "hefty value later extra artistic firm radar yodel talent future fungal nutshell because sanity awesome nail unjustly rage unafraid cedar delayed thumbs comb custom sanity";
