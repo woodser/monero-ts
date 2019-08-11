@@ -34,7 +34,7 @@ monero_wallet* wallet_restored = monero_wallet::create_wallet_from_mnemonic(
 // synchronize the wallet and receive progress notifications
 struct : monero_sync_listener {
   void on_sync_progress(uint64_t height, uint64_t start_height, uint64_t end_height, double percent_done, const string& message) {
-    cout << "onSyncProgress(" << height << ", " << start_height << ", " << end_height << ", " << percent_done << ", " << message << ")" << endl;
+    // feed a progress bar?
   }
 } my_sync_listener;
 wallet_restored->sync(my_sync_listener);
