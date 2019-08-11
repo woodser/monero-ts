@@ -773,6 +773,19 @@ namespace monero {
     boost::optional<uint64_t> m_sync_end_height;
   };
 
+  /**
+   * Wraps a sync listener as a general wallet listener.
+   */
+  struct sync_listener_wrapper : public monero_wallet_listener {
+  public:
+    sync_listener_wrapper(monero_sync_listener& listener) : listener(listener) { }
+    virtual void on_sync_progress(uint64_t height, uint64_t start_height, uint64_t end_height, double percent_done, const string& message) {
+      listener.on_sync_progress(height, start_height, end_height, percent_done, message);
+    }
+  private:
+    monero_sync_listener& listener;
+  };
+
   // ---------------------------- WALLET MANAGEMENT ---------------------------
 
   bool monero_wallet::wallet_exists(const string& path) {
@@ -1141,9 +1154,18 @@ namespace monero {
     MTRACE("sync(listener)");
     if (!m_is_connected) throw runtime_error("Wallet is not connected to daemon");
 
-    // TODO: register, sync unregister
+    // wrap and register sync listener as wallet listener
+    sync_listener_wrapper listener_wrapped = sync_listener_wrapper(listener);
+    add_listener(listener_wrapped);
 
-    return lock_and_sync(boost::none);
+    // sync wallet
+    monero_sync_result result = lock_and_sync(boost::none);
+
+    // unregister sync listener
+    remove_listener(listener_wrapped);
+
+    // return sync result
+    return result;
   }
 
   monero_sync_result monero_wallet::sync(uint64_t start_height) {
@@ -1155,7 +1177,19 @@ namespace monero {
   monero_sync_result monero_wallet::sync(uint64_t start_height, monero_sync_listener& listener) {
     MTRACE("sync(" << start_height << ", listener)");
     if (!m_is_connected) throw runtime_error("Wallet is not connected to daemon");
-    return lock_and_sync(start_height);
+
+    // wrap and register sync listener as wallet listener
+    sync_listener_wrapper listener_wrapped = sync_listener_wrapper(listener);
+    add_listener(listener_wrapped);
+
+    // sync wallet
+    monero_sync_result result = lock_and_sync(start_height);
+
+    // unregister sync listener
+    remove_listener(listener_wrapped);
+
+    // return sync result
+    return result;
   }
 
   /**
