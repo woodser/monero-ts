@@ -15,7 +15,7 @@ This library may be used to build Monero-related applications, such as GUIs, lib
 
 ## Sample Code
 
-This code introduces the API.  See the [specification PDF](https://github.com/monero-ecosystem/monero-java/blob/master/monero-spec.pdf) for full details.
+This code introduces the API.  See the [documentation](https://woodser.github.io/monero-cpp-library/annotated.html) or [specification PDF](https://github.com/monero-ecosystem/monero-java/blob/master/monero-spec.pdf) for full details.
 
 Note: This API might change depending on feedback, such as changing structs to classes, using pure object-oriented accessors and mutators, not using boost::optional with shared_ptrs, etc.  Feedback is welcome.
 
