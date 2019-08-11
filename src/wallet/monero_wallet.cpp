@@ -1481,15 +1481,17 @@ namespace monero {
 
     // copy and normalize query
     shared_ptr<monero_transfer_query> _query;
-    if (query.m_tx_query == boost::none) _query = query.copy(make_shared<monero_transfer_query>(query), make_shared<monero_transfer_query>());
-    else {
+    if (query.m_tx_query == boost::none) {
+      shared_ptr<monero_transfer_query> query_ptr = make_shared<monero_transfer_query>(query); // convert to shared pointer for copy  // TODO: does this copy unecessarily? copy constructor is not defined
+      _query = query_ptr->copy(query_ptr, make_shared<monero_transfer_query>());
+    } else {
       shared_ptr<monero_tx_query> tx_query = query.m_tx_query.get()->copy(query.m_tx_query.get(), make_shared<monero_tx_query>());
       if (query.m_tx_query.get()->m_transfer_query != boost::none && query.m_tx_query.get()->m_transfer_query.get().get() == &query) {
         _query = tx_query->m_transfer_query.get();
       } else {
         if (query.m_tx_query.get()->m_transfer_query != boost::none) throw new runtime_error("Transfer query's tx query must be a circular reference or null");
-        shared_ptr<monero_transfer_query> querySp = make_shared<monero_transfer_query>(query);  // convert query to shared pointer for copy
-        _query = querySp->copy(querySp, make_shared<monero_transfer_query>());
+        shared_ptr<monero_transfer_query> query_ptr = make_shared<monero_transfer_query>(query);  // convert query to shared pointer for copy
+        _query = query_ptr->copy(query_ptr, make_shared<monero_transfer_query>());
         _query->m_tx_query = tx_query;
       }
     }
@@ -1617,8 +1619,10 @@ namespace monero {
 
     // copy and normalize query
     shared_ptr<monero_output_query> _query;
-    if (query.m_tx_query == boost::none) _query = query.copy(make_shared<monero_output_query>(query), make_shared<monero_output_query>());
-    else {
+    if (query.m_tx_query == boost::none) {
+      shared_ptr<monero_output_query> query_ptr = make_shared<monero_output_query>(query); // convert to shared pointer for copy
+      _query = query_ptr->copy(query_ptr, make_shared<monero_output_query>());
+    } else {
       shared_ptr<monero_tx_query> tx_query = query.m_tx_query.get()->copy(query.m_tx_query.get(), make_shared<monero_tx_query>());
       if (query.m_tx_query.get()->m_output_query != boost::none && query.m_tx_query.get()->m_output_query.get().get() == &query) {
         _query = tx_query->m_output_query.get();
@@ -2488,6 +2492,38 @@ namespace monero {
   void monero_wallet::save() {
     MTRACE("save()");
     m_w2->store();
+  }
+
+  uint64_t monero_wallet::wait_for_next_block() {
+
+    // use mutex and condition variable to wait for block
+    boost::mutex temp;
+    boost::condition_variable cv;
+
+    // create listener which notifies condition variable when block is added
+    struct block_notifier : monero_wallet_listener {
+      boost::mutex* temp;
+      boost::condition_variable* cv;
+      block_notifier(boost::mutex* temp, boost::condition_variable* cv) { this->temp = temp; this->cv = cv; }
+      void on_new_block(uint64_t height) {
+        cout << "ON NEW BLOCK!!!! " << height << endl;
+        //boost::lock_guard<boost::mutex> guarg(*temp);
+        cv->notify_one();
+      }
+    } block_listener(&temp, &cv);
+
+    // register the listener
+    add_listener(block_listener);
+
+    // wait until condition variable is notified
+    boost::mutex::scoped_lock lock(temp);
+    cv.wait(lock);
+
+    // unregister the listener
+    remove_listener(block_listener);
+
+    // return notified height
+    return 0; // TODO
   }
 
   void monero_wallet::move_to(string path, string password) {

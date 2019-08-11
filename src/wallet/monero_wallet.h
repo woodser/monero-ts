@@ -1277,6 +1277,13 @@ namespace monero {
     void stop_mining();
 
     /**
+     * Wait for the next block to be added to the chain.
+     *
+     * @return the height of the next block when it is added to the chain
+     */
+    uint64_t wait_for_next_block();
+
+    /**
      * Save the wallet at its current path.
      */
     void save();

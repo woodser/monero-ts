@@ -1,10 +1,13 @@
 HIGH PRIORITY
-ensure model toPropertyTrees(), etc are not unecessarily copying return objects
+cv(cv) in constructor is short hand to invoke copy constructor
 gen documentation
 sample code including readme
-monero_wallet_listener should be a class?
 
 MEDIUM PRIORITY
+polish model: no boost::optional<shared_ptr>? no boost::optional<string>? etc
+ensure model toPropertyTrees(), etc are not unecessarily copying return objects
+monero_wallet_listener should be a class?
+way to use copy constructors instead of query copy(sp, sp) methods?
 separate wallet default impl from must impl
 create_tx and send_tx request arg should be const; need to copy
 should not need wallet.h / wallet.cpp as dependency, why are GUI deps needed?
