@@ -100,7 +100,8 @@ int main(int argc, const char* argv[]) {
   bool ignore_battery = false;
   wallet_restored->start_mining(num_threads, is_background, ignore_battery);
 
-//  // wait for the next block to be added to the chain
+  // wait for the next block to be added to the chain
+//  uint64_t next_height = wallet_random->wait_for_next_block();
 //  MoneroBlockHeader nextBlockHeader = daemon.getNextBlockHeader();
 //  long nextNumTxs = nextBlockHeader.getNumTxs();
 
