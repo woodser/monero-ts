@@ -1301,6 +1301,8 @@ namespace monero {
      */
     void close();
 
+    // bool is_multisig()
+
     /**
      * Get multisig info about this wallet.
      *

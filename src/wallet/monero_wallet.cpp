@@ -2547,11 +2547,18 @@ namespace monero {
   }
 
   string monero_wallet::prepare_multisig() {
-    throw runtime_error("prepare_multisig not implemented");
+    if (m_w2->multisig()) throw runtime_error("wallet is already multisig");
+    if (m_w2->watch_only()) throw runtime_error("wallet is watch-only and cannot be made multisig");
+    return m_w2->get_multisig_info();
   }
 
   monero_multisig_init_result monero_wallet::make_multisig(const vector<string>& multisig_hexes, int threshold, const string& password) {
-    throw runtime_error("make_multisig not implemented");
+    if (m_w2->multisig()) throw runtime_error("wallet is already multisig");
+    if (m_w2->watch_only()) throw runtime_error("wallet is watch-only and cannot be made multisig");
+    monero_multisig_init_result result;
+    result.m_address = m_w2->make_multisig(password, multisig_hexes, threshold);
+    result.m_multisig_hex = m_w2->get_account().get_public_address_str(m_w2->nettype());
+    return result;
   }
 
   string monero_wallet::finalize_multisig(const vector<string>& multisig_hexes, const string& password) {
