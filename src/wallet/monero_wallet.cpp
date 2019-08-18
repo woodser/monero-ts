@@ -2626,16 +2626,16 @@ namespace monero {
     if (multisig_hexes.size() < threshold - 1) throw runtime_error("Needs multisig export info from more participants");
 
     // validate and parse each peer multisig hex
-    std::vector<cryptonote::blobdata> multisig_hex_blobs;
-    multisig_hex_blobs.resize(multisig_hexes.size());
+    std::vector<cryptonote::blobdata> multisig_blobs;
+    multisig_blobs.resize(multisig_hexes.size());
     for (size_t n = 0; n < multisig_hexes.size(); ++n) {
-      if (!epee::string_tools::parse_hexstr_to_binbuff(multisig_hexes[n], multisig_hex_blobs[n])) {
+      if (!epee::string_tools::parse_hexstr_to_binbuff(multisig_hexes[n], multisig_blobs[n])) {
         throw runtime_error("Failed to parse hex.");
       }
     }
 
     // import peer multisig hex
-    int num_outputs = m_w2->import_multisig(multisig_hex_blobs);
+    int num_outputs = m_w2->import_multisig(multisig_blobs);
 
     // if daemon is trusted, rescan spent
     if (is_daemon_trusted()) rescan_spent();
@@ -2645,11 +2645,87 @@ namespace monero {
   }
 
   monero_multisig_sign_result monero_wallet::sign_multisig_tx_hex(const string& multisig_tx_hex) {
-    throw runtime_error("sign_multisig_tx_hex not implemented");
+
+    // validate state and args
+    bool ready;
+    uint32_t threshold, total;
+    if (!m_w2->multisig(&ready, &threshold, &total)) throw runtime_error("This wallet is not multisig");
+    if (!ready) throw runtime_error("This wallet is multisig, but not yet finalized");
+
+    // validate and parse multisig tx hex as blob
+    cryptonote::blobdata multisig_tx_blob;
+    if (!epee::string_tools::parse_hexstr_to_binbuff(multisig_tx_hex, multisig_tx_blob)) {
+      throw runtime_error("Failed to parse hex");
+    }
+
+    // validate and parse blob as multisig_tx_set
+    tools::wallet2::multisig_tx_set ms_tx_set;
+    if (!m_w2->load_multisig_tx(multisig_tx_blob, ms_tx_set, NULL)) {
+      throw runtime_error("Failed to parse multisig tx data");
+    }
+
+    // sign multisig txs
+    bool success = false;
+    vector<crypto::hash> tx_hashes;
+    try {
+      success = m_w2->sign_multisig_tx(ms_tx_set, tx_hashes);
+    } catch (const std::exception& e) {
+      string msg = string("Failed to sign multisig tx: ") + e.what();
+      throw runtime_error(msg);
+    }
+    if (!success) throw runtime_error("Failed to sign multisig tx");
+
+    // save multisig txs
+    string signed_multisig_tx_hex = epee::string_tools::buff_to_hex_nodelimer(m_w2->save_multisig_tx(ms_tx_set));
+
+    // build sign result
+    monero_multisig_sign_result result;
+    result.m_signed_multisig_tx_hex = signed_multisig_tx_hex;
+    for (const crypto::hash& tx_hash : tx_hashes) {
+      result.m_tx_ids.push_back(epee::string_tools::pod_to_hex(tx_hash));
+    }
+    return result;
   }
 
   vector<string> monero_wallet::submit_multisig_tx_hex(const string& signed_multisig_tx_hex) {
-    throw runtime_error("submit_multisig_tx_hex not implemented");
+
+    // validate state and args
+    bool ready;
+    uint32_t threshold, total;
+    if (!m_w2->multisig(&ready, &threshold, &total)) throw runtime_error("This wallet is not multisig");
+    if (!ready) throw runtime_error("This wallet is multisig, but not yet finalized");
+
+    // validate signed multisig tx hex as blob
+    cryptonote::blobdata signed_multisig_tx_blob;
+    if (!epee::string_tools::parse_hexstr_to_binbuff(signed_multisig_tx_hex, signed_multisig_tx_blob)) {
+      throw runtime_error("Failed to parse hex");
+    }
+
+    // validate and parse blob as multisig_tx_set
+    tools::wallet2::multisig_tx_set signed_multisig_tx_set;
+    if (!m_w2->load_multisig_tx(signed_multisig_tx_blob, signed_multisig_tx_set, NULL)) {
+      throw runtime_error("Failed to parse multisig tx data");
+    }
+
+    // ensure sufficient number of participants have signed
+    if (signed_multisig_tx_set.m_signers.size() < threshold) {
+      throw runtime_error("Not enough signers signed this transaction");
+    }
+
+    // commit the transactions
+    vector<string> tx_ids;
+    try {
+      for (auto& pending_tx : signed_multisig_tx_set.m_ptx) {
+        m_w2->commit_tx(pending_tx);
+        tx_ids.push_back(epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(pending_tx.tx)));
+      }
+    } catch (const std::exception& e) {
+      string msg = string("Failed to submit multisig tx: ") + e.what();
+      throw runtime_error(msg);
+    }
+
+    // return the resulting tx ids
+    return tx_ids;
   }
 
   // ------------------------------- PRIVATE HELPERS ----------------------------
