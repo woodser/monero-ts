@@ -1319,6 +1319,13 @@ namespace monero {
      */
     void close();
 
+    /**
+     * Indicates if importing multisig data is needed for returning a correct balance.
+     *
+     * @return true if importing multisig data is needed for returning a correct balance, false otherwise
+     */
+    bool is_multisig_import_needed() const;
+
     // bool is_multisig()
 
     /**

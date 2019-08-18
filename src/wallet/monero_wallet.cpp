@@ -2554,8 +2554,14 @@ namespace monero {
     m_w2->deinit();
   }
 
+  bool monero_wallet::is_multisig_import_needed() const {
+    return m_w2->multisig() && m_w2->has_multisig_partial_key_images();
+  }
+
   monero_multisig_info monero_wallet::get_multisig_info() {
-    throw runtime_error("get_multisig_info not implemented");
+    monero_multisig_info info;
+    info.m_is_multisig = m_w2->multisig(&info.m_is_ready, &info.m_threshold, &info.m_num_participants);
+    return info;
   }
 
   string monero_wallet::prepare_multisig() {
