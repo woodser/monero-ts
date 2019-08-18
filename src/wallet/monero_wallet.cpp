@@ -2547,14 +2547,14 @@ namespace monero {
   }
 
   string monero_wallet::prepare_multisig() {
-    if (m_w2->multisig()) throw runtime_error("wallet is already multisig");
-    if (m_w2->watch_only()) throw runtime_error("wallet is watch-only and cannot be made multisig");
+    if (m_w2->multisig()) throw runtime_error("This wallet is already multisig");
+    if (m_w2->watch_only()) throw runtime_error("This wallet is watch-only and cannot be made multisig");
     return m_w2->get_multisig_info();
   }
 
   monero_multisig_init_result monero_wallet::make_multisig(const vector<string>& multisig_hexes, int threshold, const string& password) {
-    if (m_w2->multisig()) throw runtime_error("wallet is already multisig");
-    if (m_w2->watch_only()) throw runtime_error("wallet is watch-only and cannot be made multisig");
+    if (m_w2->multisig()) throw runtime_error("This wallet is already multisig");
+    if (m_w2->watch_only()) throw runtime_error("This wallet is watch-only and cannot be made multisig");
     monero_multisig_init_result result;
     result.m_address = m_w2->make_multisig(password, multisig_hexes, threshold);
     result.m_multisig_hex = m_w2->get_account().get_public_address_str(m_w2->nettype());
@@ -2562,11 +2562,39 @@ namespace monero {
   }
 
   string monero_wallet::finalize_multisig(const vector<string>& multisig_hexes, const string& password) {
-    throw runtime_error("finalize_multisig not implemented");
+
+    // validate state and request
+    bool ready;
+    uint32_t threshold, total;
+    if (!m_w2->multisig(&ready, &threshold, &total)) throw new runtime_error("This wallet is not multisig");
+    if (ready) throw runtime_error("This wallet is multisig, and already finalized");
+    if (multisig_hexes.size() < 1 || multisig_hexes.size() > total) throw runtime_error("Needs multisig info from more participants");
+
+    // finalize multisig
+    bool success = m_w2->finalize_multisig(password, multisig_hexes);
+    if (!success) throw runtime_error("Error calling finalize_multisig");
+
+    // return the multisig wallet's primary address
+    return m_w2->get_account().get_public_address_str(m_w2->nettype());
   }
 
   monero_multisig_init_result monero_wallet::exchange_multisig_keys(const vector<string>& multisig_hexes, const string& password) {
-    throw runtime_error("exchange_multisig_keys not implemented");
+
+    // validate state and request
+    bool ready;
+    uint32_t threshold, total;
+    if (!m_w2->multisig(&ready, &threshold, &total)) throw new runtime_error("This wallet is not multisig");
+    if (ready) throw runtime_error("This wallet is multisig, and already finalized");
+    if (multisig_hexes.size() < 1 || multisig_hexes.size() > total) throw runtime_error("Needs multisig info from more participants");
+
+    // import peer multisig keys and get multisig hex to be shared next round
+    string multisig_hex = m_w2->exchange_multisig_keys(password, multisig_hexes);
+
+    // build and return the exchange result
+    monero_multisig_init_result result;
+    if (!multisig_hex.empty()) result.m_multisig_hex = multisig_hex;
+    else result.m_address = m_w2->get_account().get_public_address_str(m_w2->nettype());  // only return address on completion
+    return result;
   }
 
   string monero_wallet::get_multisig_hex() {
