@@ -2568,17 +2568,12 @@ namespace monero {
     if (m_w2->multisig()) throw runtime_error("This wallet is already multisig");
     if (m_w2->watch_only()) throw runtime_error("This wallet is watch-only and cannot be made multisig");
     monero_multisig_init_result result;
-    result.m_multisig_hex = m_w2->make_multisig(password, multisig_hexes, threshold);
+    result.m_multisig_hex = m_w2->make_multisig(epee::wipeable_string(password), multisig_hexes, threshold);
     result.m_address = m_w2->get_account().get_public_address_str(m_w2->nettype());
     return result;
   }
 
   string monero_wallet::finalize_multisig(const vector<string>& multisig_hexes, const string& password) {
-
-    cout << "FINALIZING" << endl;
-    for (string str : multisig_hexes) {
-        cout << "String: " << str << endl;
-    }
 
     // validate state and request
     bool ready;
@@ -2588,7 +2583,7 @@ namespace monero {
     if (multisig_hexes.size() < 1 || multisig_hexes.size() > total) throw runtime_error("Needs multisig info from more participants");
 
     // finalize multisig
-    bool success = m_w2->finalize_multisig(password, multisig_hexes);
+    bool success = m_w2->finalize_multisig(epee::wipeable_string(password), multisig_hexes);
     if (!success) throw runtime_error("Error calling finalize_multisig");
 
     // return the multisig wallet's primary address
@@ -2605,7 +2600,7 @@ namespace monero {
     if (multisig_hexes.size() < 1 || multisig_hexes.size() > total) throw runtime_error("Needs multisig info from more participants");
 
     // import peer multisig keys and get multisig hex to be shared next round
-    string multisig_hex = m_w2->exchange_multisig_keys(password, multisig_hexes);
+    string multisig_hex = m_w2->exchange_multisig_keys(epee::wipeable_string(password), multisig_hexes);
 
     // build and return the exchange result
     monero_multisig_init_result result;
