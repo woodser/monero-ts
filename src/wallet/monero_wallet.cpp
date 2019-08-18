@@ -1001,6 +1001,11 @@ namespace monero {
     return daemonHeight >= get_daemon_max_peer_height() && daemonHeight > 1;
   }
 
+  bool monero_wallet::is_daemon_trusted() const {
+    if (!m_is_connected) throw runtime_error("Wallet is not connected to daemon");
+    return m_w2->is_trusted_daemon();
+  }
+
   bool monero_wallet::is_synced() const {
     return m_is_synced;
   }
@@ -1210,6 +1215,13 @@ namespace monero {
     if (!m_syncing_thread_done) {
       m_syncing_enabled = false;
     }
+  }
+
+  void monero_wallet::rescan_spent() {
+    MTRACE("rescan_spent()");
+    if (!m_is_connected) throw runtime_error("Wallet is not connected to daemon");
+    if (!is_daemon_trusted()) throw runtime_error("Rescan spent can only be used with a trusted daemon");
+    m_w2->rescan_spent();
   }
 
   // TODO: support arguments bool hard, bool refresh = true, bool keep_key_images = false
@@ -2580,7 +2592,7 @@ namespace monero {
 
   monero_multisig_init_result monero_wallet::exchange_multisig_keys(const vector<string>& multisig_hexes, const string& password) {
 
-    // validate state and request
+    // validate state and args
     bool ready;
     uint32_t threshold, total;
     if (!m_w2->multisig(&ready, &threshold, &total)) throw new runtime_error("This wallet is not multisig");
@@ -2598,11 +2610,38 @@ namespace monero {
   }
 
   string monero_wallet::get_multisig_hex() {
-    throw runtime_error("get_multisig_hex not implemented");
+    bool ready;
+    if (!m_w2->multisig(&ready)) throw runtime_error("This wallet is not multisig");
+    if (!ready) throw runtime_error("This wallet is multisig, but not yet finalized");
+    return epee::string_tools::buff_to_hex_nodelimer(m_w2->export_multisig());
   }
 
   int monero_wallet::import_multisig_hex(const vector<string>& multisig_hexes) {
-    throw runtime_error("import_multisig_hex not implemented");
+
+    // validate state and args
+    bool ready;
+    uint32_t threshold, total;
+    if (!m_w2->multisig(&ready, &threshold, &total)) throw runtime_error("This wallet is not multisig");
+    if (!ready) throw runtime_error("This wallet is multisig, but not yet finalized");
+    if (multisig_hexes.size() < threshold - 1) throw runtime_error("Needs multisig export info from more participants");
+
+    // validate and parse each peer multisig hex
+    std::vector<cryptonote::blobdata> multisig_hex_blobs;
+    multisig_hex_blobs.resize(multisig_hexes.size());
+    for (size_t n = 0; n < multisig_hexes.size(); ++n) {
+      if (!epee::string_tools::parse_hexstr_to_binbuff(multisig_hexes[n], multisig_hex_blobs[n])) {
+        throw runtime_error("Failed to parse hex.");
+      }
+    }
+
+    // import peer multisig hex
+    int num_outputs = m_w2->import_multisig(multisig_hex_blobs);
+
+    // if daemon is trusted, rescan spent
+    if (is_daemon_trusted()) rescan_spent();
+
+    // return the number of outputs signed by the given multisig hex
+    return num_outputs;
   }
 
   monero_multisig_sign_result monero_wallet::sign_multisig_tx_hex(const string& multisig_tx_hex) {

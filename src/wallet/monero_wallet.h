@@ -267,6 +267,13 @@ namespace monero {
     bool is_daemon_synced() const;
 
     /**
+     * Indicates if the daemon is trusted or untrusted.
+     *
+     * @return true if the daemon is trusted, false otherwise
+     */
+    bool is_daemon_trusted() const;
+
+    /**
      * Indicates if the wallet is synced with the daemon.
      *
      * @return true if the wallet is synced with the daemon, false otherwise
@@ -445,6 +452,17 @@ namespace monero {
      * Stop the asynchronous thread to continuously synchronize the wallet with the daemon.
      */
     void stop_syncing();
+
+    /**
+     * Rescan the blockchain for spent outputs.
+     *
+     * Note: this can only be called with a trusted daemon.
+     *
+     * Example use case: peer multisig hex is import when connected to an untrusted daemon,
+     * so the wallet will not rescan spent outputs.  Then the wallet connects to a trusted
+     * daemon.  This method should be manually invoked to rescan outputs.
+     */
+    void rescan_spent();
 
     /**
      * Rescan the blockchain from scratch, losing any information which cannot be recovered from
@@ -1359,6 +1377,10 @@ namespace monero {
 
     /**
      * Import multisig info as hex from other participants.
+     *
+     * Note: If the daemon is not trusted, this method will not automatically
+     * update the spent status after importing peer multisig hex.  In that case,
+     * the
      *
      * @param multisig_hexes are multisig hex from each participant
      * @return the number of outputs signed with the given multisig hex
