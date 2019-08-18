@@ -888,39 +888,6 @@ namespace monero {
      * @return the resulting transaction
      */
     vector<shared_ptr<monero_tx_wallet>> send_split(const monero_send_request& request);
-
-//
-//    /**
-//     * Create and relay a transaction which transfers funds from this wallet to
-//     * a destination address.
-//     *
-//     * @param account_index is the index of the account to draw funds from
-//     * @param address is the destination address to send funds to
-//     * @param sendAmount is the amount being sent
-//     * @return the resulting transaction
-//     */
-//    public monero_tx_wallet send(int account_index, string address, BigInteger sendAmount);
-//
-//    /**
-//     * Create and relay a transaction which transfers funds from this wallet to
-//     * a destination address.
-//     *
-//     * @param account_index is the index of the account to draw funds from
-//     * @param address is the destination address to send funds to
-//     * @param sendAmount is the amount being sent
-//     * @param priority is the send priority (default normal)
-//     * @return the resulting transaction
-//     */
-//    public monero_tx_wallet send(int account_index, string address, BigInteger sendAmount, monero_send_priority priority);
-//
-//    /**
-//     * Create and relay (depending on configuration) one or more transactions
-//     * which transfer funds from this wallet to one or more destination.
-//     *
-//     * @param request configures the transactions
-//     * @return the resulting transactions
-//     */
-//    public List<monero_tx_wallet> send_split(monero_send_request request);
 //
 //    /**
 //     * Create and relay one or more transactions which transfer funds from this
