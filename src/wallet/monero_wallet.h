@@ -1301,6 +1301,84 @@ namespace monero {
      */
     void close();
 
+    /**
+     * Get multisig info about this wallet.
+     *
+     * @return multisig info about this wallet
+     */
+    monero_multisig_info get_multisig_info();
+
+    /**
+     * Get multisig info as hex to share with participants to begin creating a
+     * multisig wallet.
+     *
+     * @return this wallet's multisig hex to share with participants
+     */
+    string prepare_multisig();
+
+    /**
+     * Make this wallet multisig by importing multisig hex from participants.
+     *
+     * @param multisig_hexes are multisig hex from each participant
+     * @param threshold is the number of signatures needed to sign transfers
+     * @password is the wallet password
+     * @return the result which has the multisig's address xor this wallet's multisig hex to share with participants iff not N/N
+     */
+    monero_multisig_init_result make_multisig(const vector<string>& multisig_hexes, int threshold, const string& password);
+
+    /**
+     * Finalize a N-1/N multisig wallet.
+     *
+     * TODO monero core: this is a special case of exchangeMultisigKeys() for N-1/N multisig.  use that as the last step instead and remove this?  that would further generalize the process
+     *
+     * @param multisig_hexes are multisig hex from each participant
+     * @param password is the wallet's password // TODO monero core: redundant? wallet is created with password
+     * @return the multisig wallet's address
+     */
+    string finalize_multisig(const vector<string>& multisig_hexes, const string& password);
+
+    /**
+     * Exchange multisig hex with participants in a M/N multisig wallet.
+     *
+     * This process must be repeated with participants exactly N-M times.
+     *
+     * @param multisig_hexes are multisig hex from each participant
+     * @param password is the wallet's password // TODO monero core: redundant? wallet is created with password
+     * @return the result which has the multisig's address xor this wallet's multisig hex to share with participants iff not done
+     */
+    monero_multisig_init_result exchange_multisig_keys(const vector<string>& mutisig_hexes, const string& password);
+
+    /**
+     * Export this wallet's multisig info as hex for other participants.
+     *
+     * @return this wallet's multisig info as hex for other participants
+     */
+    string get_multisig_hex();
+
+    /**
+     * Import multisig info as hex from other participants.
+     *
+     * @param multisig_hexes are multisig hex from each participant
+     * @return the number of outputs signed with the given multisig hex
+     */
+    int import_multisig_hex(const vector<string>& multisig_hexes);
+
+    /**
+     * Sign previously created multisig transactions as represented by hex.
+     *
+     * @param multisig_tx_hex is the hex shared among the multisig transactions when they were created
+     * @return the result of signing the multisig transactions
+     */
+    monero_multisig_sign_result sign_multisig_tx_hex(const string& multisig_tx_hex);
+
+    /**
+     * Submit signed multisig transactions as represented by a hex string.
+     *
+     * @param signed_multisig_tx_hex is the signed multisig hex returned from signMultisigTxs()
+     * @return the resulting transaction ids
+     */
+    vector<string> submit_multisig_tx_hex(const string& signed_multisig_tx_hex);
+
     // --------------------------------- PRIVATE --------------------------------
 
   private:

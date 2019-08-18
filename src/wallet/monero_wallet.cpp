@@ -2542,6 +2542,42 @@ namespace monero {
     m_w2->deinit();
   }
 
+  monero_multisig_info monero_wallet::get_multisig_info() {
+    throw runtime_error("get_multisig_info not implemented");
+  }
+
+  string monero_wallet::prepare_multisig() {
+    throw runtime_error("prepare_multisig not implemented");
+  }
+
+  monero_multisig_init_result monero_wallet::make_multisig(const vector<string>& multisig_hexes, int threshold, const string& password) {
+    throw runtime_error("make_multisig not implemented");
+  }
+
+  string monero_wallet::finalize_multisig(const vector<string>& multisig_hexes, const string& password) {
+    throw runtime_error("finalize_multisig not implemented");
+  }
+
+  monero_multisig_init_result monero_wallet::exchange_multisig_keys(const vector<string>& multisig_hexes, const string& password) {
+    throw runtime_error("exchange_multisig_keys not implemented");
+  }
+
+  string monero_wallet::get_multisig_hex() {
+    throw runtime_error("get_multisig_hex not implemented");
+  }
+
+  int monero_wallet::import_multisig_hex(const vector<string>& multisig_hexes) {
+    throw runtime_error("import_multisig_hex not implemented");
+  }
+
+  monero_multisig_sign_result monero_wallet::sign_multisig_tx_hex(const string& multisig_tx_hex) {
+    throw runtime_error("sign_multisig_tx_hex not implemented");
+  }
+
+  vector<string> monero_wallet::submit_multisig_tx_hex(const string& signed_multisig_tx_hex) {
+    throw runtime_error("submit_multisig_tx_hex not implemented");
+  }
+
   // ------------------------------- PRIVATE HELPERS ----------------------------
 
   void monero_wallet::init_common() {

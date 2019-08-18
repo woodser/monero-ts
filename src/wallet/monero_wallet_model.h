@@ -376,4 +376,39 @@ namespace monero {
 
     boost::property_tree::ptree to_property_tree() const;
   };
+
+  /**
+   * Models the result of initializing a multisig wallet which results in the
+   * multisig wallet's address xor another multisig hex to share with
+   * participants to create the wallet.
+   */
+  struct monero_multisig_init_result : serializable_struct {
+    boost::optional<string> m_address;
+    boost::optional<string> m_multisig_hex;
+
+    boost::property_tree::ptree to_property_tree() const;
+  };
+
+  /**
+   * Models information about a multisig wallet.
+   */
+  struct monero_multisig_info : serializable_struct {
+    bool m_is_multisig;
+    bool m_is_ready;
+    uint32_t m_threshold;
+    uint32_t m_num_participants;
+
+    boost::property_tree::ptree to_property_tree() const;
+  };
+
+  /**
+   * Models the result of signing multisig tx hex.
+   */
+  struct monero_multisig_sign_result : serializable_struct {
+    boost::optional<string> m_signed_multisig_tx_hex;
+    vector<string> m_tx_ids;
+
+    boost::property_tree::ptree to_property_tree() const;
+  };
+
 }
