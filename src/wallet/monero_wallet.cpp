@@ -2158,41 +2158,6 @@ namespace monero {
     return txs;
   }
 
-  string monero_wallet::get_tx_note(const string& tx_id) const {
-    MTRACE("monero_wallet::get_tx_note()");
-    cryptonote::blobdata tx_blob;
-    if (!epee::string_tools::parse_hexstr_to_binbuff(tx_id, tx_blob) || tx_blob.size() != sizeof(crypto::hash)) {
-      throw runtime_error("TX ID has invalid format");
-    }
-    crypto::hash tx_hash = *reinterpret_cast<const crypto::hash*>(tx_blob.data());
-    return m_w2->get_tx_note(tx_hash);
-  }
-
-  vector<string> monero_wallet::get_tx_notes(const vector<string>& m_tx_ids) const {
-    MTRACE("monero_wallet::get_tx_notes()");
-    vector<string> notes;
-    for (const auto& tx_id : m_tx_ids) notes.push_back(get_tx_note(tx_id));
-    return notes;
-  }
-
-  void monero_wallet::set_tx_note(const string& tx_id, const string& note) {
-    MTRACE("monero_wallet::set_tx_note()");
-    cryptonote::blobdata tx_blob;
-    if (!epee::string_tools::parse_hexstr_to_binbuff(tx_id, tx_blob) || tx_blob.size() != sizeof(crypto::hash)) {
-      throw runtime_error("TX ID has invalid format");
-    }
-    crypto::hash tx_hash = *reinterpret_cast<const crypto::hash*>(tx_blob.data());
-    m_w2->set_tx_note(tx_hash, note);
-  }
-
-  void monero_wallet::set_tx_notes(const vector<string>& m_tx_ids, const vector<string>& notes) {
-    MTRACE("monero_wallet::set_tx_notes()");
-    if (m_tx_ids.size() != notes.size()) throw runtime_error("Different amount of txids and notes");
-    for (int i = 0; i < m_tx_ids.size(); i++) {
-      set_tx_note(m_tx_ids[i], notes[i]);
-    }
-  }
-
   string monero_wallet::sign(const string& msg) const {
     return m_w2->sign(msg);
   }
@@ -2402,6 +2367,41 @@ namespace monero {
       checkReserve->m_unconfirmed_spent_amount = unconfirmed_spent_amount;
     }
     return checkReserve;
+  }
+
+  string monero_wallet::get_tx_note(const string& tx_id) const {
+    MTRACE("monero_wallet::get_tx_note()");
+    cryptonote::blobdata tx_blob;
+    if (!epee::string_tools::parse_hexstr_to_binbuff(tx_id, tx_blob) || tx_blob.size() != sizeof(crypto::hash)) {
+      throw runtime_error("TX ID has invalid format");
+    }
+    crypto::hash tx_hash = *reinterpret_cast<const crypto::hash*>(tx_blob.data());
+    return m_w2->get_tx_note(tx_hash);
+  }
+
+  vector<string> monero_wallet::get_tx_notes(const vector<string>& m_tx_ids) const {
+    MTRACE("monero_wallet::get_tx_notes()");
+    vector<string> notes;
+    for (const auto& tx_id : m_tx_ids) notes.push_back(get_tx_note(tx_id));
+    return notes;
+  }
+
+  void monero_wallet::set_tx_note(const string& tx_id, const string& note) {
+    MTRACE("monero_wallet::set_tx_note()");
+    cryptonote::blobdata tx_blob;
+    if (!epee::string_tools::parse_hexstr_to_binbuff(tx_id, tx_blob) || tx_blob.size() != sizeof(crypto::hash)) {
+      throw runtime_error("TX ID has invalid format");
+    }
+    crypto::hash tx_hash = *reinterpret_cast<const crypto::hash*>(tx_blob.data());
+    m_w2->set_tx_note(tx_hash, note);
+  }
+
+  void monero_wallet::set_tx_notes(const vector<string>& m_tx_ids, const vector<string>& notes) {
+    MTRACE("monero_wallet::set_tx_notes()");
+    if (m_tx_ids.size() != notes.size()) throw runtime_error("Different amount of txids and notes");
+    for (int i = 0; i < m_tx_ids.size(); i++) {
+      set_tx_note(m_tx_ids[i], notes[i]);
+    }
   }
 
   string monero_wallet::create_payment_uri(const monero_send_request& request) const {

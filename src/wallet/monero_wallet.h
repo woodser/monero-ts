@@ -992,38 +992,6 @@ namespace monero {
     vector<shared_ptr<monero_tx_wallet>> sweep_dust(bool do_not_relay = false);
 
     /**
-     * Get a transaction note.
-     *
-     * @param tx_id specifies the transaction to get the note of
-     * @return the tx note
-     */
-    string get_tx_note(const string& tx_id) const;
-
-    /**
-     * Get notes for multiple transactions.
-     *
-     * @param tx_ids identify the transactions to get notes for
-     * @preturns notes for the transactions
-     */
-    vector<string> get_tx_notes(const vector<string>& tx_ids) const;
-
-    /**
-     * Set a note for a specific transaction.
-     *
-     * @param tx_id specifies the transaction
-     * @param note specifies the note
-     */
-    void set_tx_note(const string& tx_id, const string& note);
-
-    /**
-     * Set notes for multiple transactions.
-     *
-     * @param tx_ids specify the transactions to set notes for
-     * @param notes are the notes to set for the transactions
-     */
-    void set_tx_notes(const vector<string>& tx_ids, const vector<string>& notes);
-
-    /**
      * Sign a message.
      *
      * @param msg is the message to sign
@@ -1143,6 +1111,38 @@ namespace monero {
      * @return the result of checking the signature proof
      */
     shared_ptr<monero_check_reserve> check_reserve_proof(const string& address, const string& message, const string& signature) const;
+
+    /**
+     * Get a transaction note.
+     *
+     * @param tx_id specifies the transaction to get the note of
+     * @return the tx note
+     */
+    string get_tx_note(const string& tx_id) const;
+
+    /**
+     * Get notes for multiple transactions.
+     *
+     * @param tx_ids identify the transactions to get notes for
+     * @preturns notes for the transactions
+     */
+    vector<string> get_tx_notes(const vector<string>& tx_ids) const;
+
+    /**
+     * Set a note for a specific transaction.
+     *
+     * @param tx_id specifies the transaction
+     * @param note specifies the note
+     */
+    void set_tx_note(const string& tx_id, const string& note);
+
+    /**
+     * Set notes for multiple transactions.
+     *
+     * @param tx_ids specify the transactions to set notes for
+     * @param notes are the notes to set for the transactions
+     */
+    void set_tx_notes(const vector<string>& tx_ids, const vector<string>& notes);
 
 //    /**
 //     * Get all address book entries.
