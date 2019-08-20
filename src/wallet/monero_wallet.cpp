@@ -1572,7 +1572,7 @@ namespace monero {
 
     // get unconfirmed incoming transfers
     if (is_pool) {
-      m_w2->update_pool_state(); // TODO monero-core: this should be encapsulated in wallet when unconfirmed transfers queryed
+      m_w2->update_pool_state(); // TODO monero-core: this should be encapsulated in wallet when unconfirmed transfers queried
       std::list<std::pair<crypto::hash, tools::wallet2::pool_payment_details>> payments;
       m_w2->get_unconfirmed_payments(payments, account_index, subaddress_indices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::pool_payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
@@ -1704,7 +1704,7 @@ namespace monero {
     // validate and parse hex data
     cryptonote::blobdata blob;
     if (!epee::string_tools::parse_hexstr_to_binbuff(outputs_hex, blob)) {
-      throw runtime_error("Failed to parse hex.");
+      throw runtime_error("Failed to parse hex");
     }
 
     // import hex and return result
@@ -1808,7 +1808,7 @@ namespace monero {
       // parse tx metadata hex
       cryptonote::blobdata blob;
       if (!epee::string_tools::parse_hexstr_to_binbuff(txMetadata, blob)) {
-        throw runtime_error("Failed to parse hex.");
+        throw runtime_error("Failed to parse hex");
       }
 
       // deserialize tx
@@ -1818,14 +1818,14 @@ namespace monero {
         boost::archive::portable_binary_iarchive ar(iss);
         ar >> ptx;
       } catch (...) {
-        throw runtime_error("Failed to parse tx metadata.");
+        throw runtime_error("Failed to parse tx metadata");
       }
 
       // commit tx
       try {
         m_w2->commit_tx(ptx);
       } catch (const std::exception& e) {
-        throw runtime_error("Failed to commit tx.");
+        throw runtime_error("Failed to commit tx");
       }
 
       // collect resulting id
@@ -1864,9 +1864,8 @@ namespace monero {
     MTRACE("monero_wallet::send_split(request)");
     MTRACE("monero_send_request: " << request.serialize());
 
-    wallet_rpc::COMMAND_RPC_TRANSFER::request req;
-    wallet_rpc::COMMAND_RPC_TRANSFER::response res;
-    epee::json_rpc::error err;
+    // validate request
+    if (request.m_account_index == boost::none) throw runtime_error("Must specify account index to sweep from");
 
     // prepare parameters for wallet rpc's validate_transfer()
     string payment_id = request.m_payment_id == boost::none ? string("") : request.m_payment_id.get();
@@ -1881,21 +1880,21 @@ namespace monero {
     // validate the requested txs and populate dsts & extra
     std::vector<cryptonote::tx_destination_entry> dsts;
     std::vector<uint8_t> extra;
+    epee::json_rpc::error err;
     if (!validate_transfer(m_w2.get(), tr_destinations, payment_id, dsts, extra, true, err)) {
       throw runtime_error("Need to handle send_split() validate_transfer error");  // TODO
     }
 
     // prepare parameters for wallet2's create_transactions_2()
-    uint64_t m_mixin = m_w2->adjust_mixin(request.m_ring_size == boost::none ? 0 : request.m_ring_size.get() - 1);
+    uint64_t mixin = m_w2->adjust_mixin(request.m_ring_size == boost::none ? 0 : request.m_ring_size.get() - 1);
     uint32_t priority = m_w2->adjust_priority(request.m_priority == boost::none ? 0 : request.m_priority.get());
-    uint64_t m_unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
-    if (request.m_account_index == boost::none) throw runtime_error("Must specify the account index to send from");
-    uint32_t m_account_index = request.m_account_index.get();
-    std::set<uint32_t> m_subaddress_indices;
-    for (const uint32_t& subaddress_idx : request.m_subaddress_indices) m_subaddress_indices.insert(subaddress_idx);
+    uint64_t unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
+    uint32_t account_index = request.m_account_index.get();
+    std::set<uint32_t> subaddress_indices;
+    for (const uint32_t& subaddress_idx : request.m_subaddress_indices) subaddress_indices.insert(subaddress_idx);
 
     // prepare transactions
-    vector<wallet2::pending_tx> ptx_vector = m_w2->create_transactions_2(dsts, m_mixin, m_unlock_time, priority, extra, m_account_index, m_subaddress_indices);
+    vector<wallet2::pending_tx> ptx_vector = m_w2->create_transactions_2(dsts, mixin, unlock_time, priority, extra, account_index, subaddress_indices);
     if (ptx_vector.empty()) throw runtime_error("No transaction created");
 
     // check if request cannot be fulfilled due to splitting
@@ -1978,15 +1977,131 @@ namespace monero {
     return tx_set;
   }
 
+  monero_tx_set monero_wallet::sweep_unlocked(const monero_send_request& request) {
+    throw runtime_error("sweep_unlocked not implemented");
+  }
+
+  monero_tx_set monero_wallet::sweep_account(const monero_send_request& request) {
+
+    // validate request
+    if (request.m_account_index == boost::none) throw runtime_error("Must specify account index to sweep from");
+    if (request.m_destinations.size() != 1 || request.m_destinations[0]->m_address == boost::none || request.m_destinations[0]->m_address.get().empty()) throw runtime_error("Must provide exactly one destination address to sweep output to");
+    if (request.m_destinations[0]->m_amount != boost::none) throw runtime_error("Cannot specify destination amount to sweep");
+    if (request.m_key_image != boost::none) throw runtime_error("Key image defined; use sweep_output() to sweep an output by its key image");
+    if (request.m_sweep_each_subaddress != boost::none && request.m_sweep_each_subaddress.get() == true) throw runtime_error("Cannot sweep each subaddress individually with sweep_account");
+
+    // validate the transfer requested and populate dsts & extra
+    std::list<wallet_rpc::transfer_destination> destination;
+    destination.push_back(wallet_rpc::transfer_destination());
+    destination.back().amount = 0;
+    destination.back().address = request.m_destinations[0]->m_address.get();
+    string payment_id = request.m_payment_id == boost::none ? string("") : request.m_payment_id.get();
+    std::vector<cryptonote::tx_destination_entry> dsts;
+    std::vector<uint8_t> extra;
+    epee::json_rpc::error err;
+    if (!validate_transfer(m_w2.get(), destination, payment_id, dsts, extra, true, err)) {
+      throw runtime_error("Failed to validate sweep_account transfer request");
+    }
+
+    // TODO monero-core: this is default `outputs` in COMMAND_RPC_SWEEP_ALL which is not documented
+    uint64_t num_outputs = 1;
+
+    // prepare parameters for wallet2's create_transactions_all()
+    uint64_t below_amount = request.m_below_amount == boost::none ? 0 : request.m_below_amount.get();
+    uint64_t mixin = m_w2->adjust_mixin(request.m_ring_size == boost::none ? 0 : request.m_ring_size.get() - 1);
+    uint32_t priority = m_w2->adjust_priority(request.m_priority == boost::none ? 0 : request.m_priority.get());
+    uint64_t unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
+    uint32_t account_index = request.m_account_index.get();
+    std::set<uint32_t> subaddress_indices;
+    for (const uint32_t& subaddress_idx : request.m_subaddress_indices) subaddress_indices.insert(subaddress_idx);
+
+    // prepare transactions
+    std::vector<wallet2::pending_tx> ptx_vector = m_w2->create_transactions_all(below_amount, dsts[0].addr, dsts[0].is_subaddress, num_outputs, mixin, unlock_time, priority, extra, account_index, subaddress_indices);
+
+    // config for fill_response()
+    bool get_tx_keys = true;
+    bool get_tx_hex = true;
+    bool get_tx_metadata = true;
+    bool m_do_not_relay = request.m_do_not_relay == boost::none ? false : request.m_do_not_relay.get();
+
+    // commit txs (if relaying) and get response using wallet rpc's fill_response()
+    list<string> tx_keys;
+    list<uint64_t> tx_amounts;
+    list<uint64_t> tx_fees;
+    string multisig_tx_hex;
+    string unsigned_tx_hex;
+    list<string> m_tx_ids;
+    list<string> tx_blobs;
+    list<string> tx_metadatas;
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, m_tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
+      throw runtime_error("need to handle error filling response!");  // TODO
+    }
+
+    // build sent txs from results  // TODO: break this into separate utility function
+    vector<shared_ptr<monero_tx_wallet>> txs;
+    auto tx_ids_iter = m_tx_ids.begin();
+    auto tx_keys_iter = tx_keys.begin();
+    auto tx_amounts_iter = tx_amounts.begin();
+    auto tx_fees_iter = tx_fees.begin();
+    auto tx_blobs_iter = tx_blobs.begin();
+    auto tx_metadatas_iter = tx_metadatas.begin();
+    while (tx_ids_iter != m_tx_ids.end()) {
+
+      // init tx with outgoing transfer from filled values
+      shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
+      txs.push_back(tx);
+      tx->m_id = *tx_ids_iter;
+      tx->m_key = *tx_keys_iter;
+      tx->m_fee = *tx_fees_iter;
+      tx->m_full_hex = *tx_blobs_iter;
+      tx->m_metadata = *tx_metadatas_iter;
+      shared_ptr<monero_outgoing_transfer> out_transfer = make_shared<monero_outgoing_transfer>();
+      tx->m_outgoing_transfer = out_transfer;
+      out_transfer->m_amount = *tx_amounts_iter;
+
+      // init other known fields
+      tx->m_payment_id = request.m_payment_id;
+      tx->m_is_confirmed = false;
+      tx->m_is_miner_tx = false;
+      tx->m_is_failed = false;   // TODO: test and handle if true
+      tx->m_do_not_relay = request.m_do_not_relay != boost::none && request.m_do_not_relay.get() == true;
+      tx->m_is_relayed = tx->m_do_not_relay.get() != true;
+      tx->m_in_tx_pool = !tx->m_do_not_relay.get();
+      if (!tx->m_is_failed.get() && tx->m_is_relayed.get()) tx->m_is_double_spend_seen = false;  // TODO: test and handle if true
+      tx->m_num_confirmations = 0;
+      tx->m_mixin = request.m_mixin;
+      tx->m_unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
+      if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
+      out_transfer->m_account_index = request.m_account_index;
+      if (request.m_subaddress_indices.size() == 1) out_transfer->m_subaddress_indices.push_back(request.m_subaddress_indices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
+      out_transfer->m_destinations = request.m_destinations;
+
+      // iterate to next element
+      tx_keys_iter++;
+      tx_amounts_iter++;
+      tx_fees_iter++;
+      tx_ids_iter++;
+      tx_blobs_iter++;
+      tx_metadatas_iter++;
+    }
+
+    // build and return tx set
+    monero_tx_set tx_set;
+    tx_set.m_txs = txs;
+    tx_set.m_multisig_tx_hex = multisig_tx_hex;
+    tx_set.m_unsigned_tx_hex = unsigned_tx_hex;
+    return tx_set;
+  }
+
   monero_tx_set monero_wallet::sweep_output(const monero_send_request& request)  {
     MTRACE("sweep_output()");
     MTRACE("monero_send_request: " << request.serialize());
 
     // validate input request
     if (request.m_key_image == boost::none || request.m_key_image.get().empty()) throw runtime_error("Must provide key image of output to sweep");
-    if (request.m_destinations.size() != 1 || request.m_destinations[0]->m_address == boost::none || request.m_destinations[0]->m_address.get().empty()) throw runtime_error("Must provide exactly one destination to sweep output to");
+    if (request.m_destinations.size() != 1 || request.m_destinations[0]->m_address == boost::none || request.m_destinations[0]->m_address.get().empty()) throw runtime_error("Must provide exactly one destination address to sweep output to");
 
-    // validate the transfer queryed and populate dsts & extra
+    // validate the transfer queried and populate dsts & extra
     string m_payment_id = request.m_payment_id == boost::none ? string("") : request.m_payment_id.get();
     std::vector<cryptonote::tx_destination_entry> dsts;
     std::vector<uint8_t> extra;
@@ -1994,8 +2109,8 @@ namespace monero {
     destination.push_back(wallet_rpc::transfer_destination());
     destination.back().amount = 0;
     destination.back().address = request.m_destinations[0]->m_address.get();
-    epee::json_rpc::error er;
-    if (!validate_transfer(m_w2.get(), destination, m_payment_id, dsts, extra, true, er)) {
+    epee::json_rpc::error err;
+    if (!validate_transfer(m_w2.get(), destination, m_payment_id, dsts, extra, true, err)) {
       //throw runtime_error(er);  // TODO
       throw runtime_error("Handle validate_transfer error!");
     }
@@ -2033,7 +2148,7 @@ namespace monero {
     list<string> m_tx_ids;
     list<string> tx_blobs;
     list<string> tx_metadatas;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, m_tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, er)) {
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, m_tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
       throw runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
@@ -2653,7 +2768,7 @@ namespace monero {
     multisig_blobs.resize(multisig_hexes.size());
     for (size_t n = 0; n < multisig_hexes.size(); ++n) {
       if (!epee::string_tools::parse_hexstr_to_binbuff(multisig_hexes[n], multisig_blobs[n])) {
-        throw runtime_error("Failed to parse hex.");
+        throw runtime_error("Failed to parse hex");
       }
     }
 

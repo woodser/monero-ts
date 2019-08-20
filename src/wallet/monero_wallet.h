@@ -889,28 +889,44 @@ namespace monero {
      */
     monero_tx_set send_split(const monero_send_request& request);
 
-//    /**
-//     * Create and relay one or more transactions which transfer funds from this
-//     * wallet to one or more destination.
-//     *
-//     * @param account_index is the index of the account to draw funds from
-//     * @param address is the destination address to send funds to
-//     * @param sendAmount is the amount being sent
-//     * @return the resulting transactions
-//     */
-//    public List<monero_tx_wallet> send_split(int account_index, string address, BigInteger sendAmount);
-//
-//    /**
-//     * Create and relay one or more transactions which transfer funds from this
-//     * wallet to one or more destination.
-//     *
-//     * @param account_index is the index of the account to draw funds from
-//     * @param address is the destination address to send funds to
-//     * @param sendAmount is the amount being sent
-//     * @param priority is the send priority (default normal)
-//     * @return the resulting transactions
-//     */
-//    public List<monero_tx_wallet> send_split(int account_index, string address, BigInteger sendAmount, monero_send_priority priority);
+    //    /**
+    //     * Create and relay one or more transactions which transfer funds from this
+    //     * wallet to one or more destination.
+    //     *
+    //     * @param account_index is the index of the account to draw funds from
+    //     * @param address is the destination address to send funds to
+    //     * @param sendAmount is the amount being sent
+    //     * @return the resulting transactions
+    //     */
+    //    public List<monero_tx_wallet> send_split(int account_index, string address, BigInteger sendAmount);
+    //
+    //    /**
+    //     * Create and relay one or more transactions which transfer funds from this
+    //     * wallet to one or more destination.
+    //     *
+    //     * @param account_index is the index of the account to draw funds from
+    //     * @param address is the destination address to send funds to
+    //     * @param sendAmount is the amount being sent
+    //     * @param priority is the send priority (default normal)
+    //     * @return the resulting transactions
+    //     */
+    //    public List<monero_tx_wallet> send_split(int account_index, string address, BigInteger sendAmount, monero_send_priority priority);
+
+    /**
+     * Sweep unlocked funds according to the given request.
+     *
+     * @param request is the sweep configuration
+     * @return the tx sets with the requested transactions
+     */
+    monero_tx_set sweep_unlocked(const monero_send_request& request);
+
+    /**
+     * Sweep unlocked funds within an account.
+     *
+     * @param request configures the sweep request
+     * @return the resulting set of txs
+     */
+    monero_tx_set sweep_account(const monero_send_request& request);
 
     /**
      * Sweep an output with a given key image.
