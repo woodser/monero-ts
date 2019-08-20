@@ -431,6 +431,19 @@ namespace monero {
     return false;
   }
 
+  std::string get_default_ringdb_path(cryptonote::network_type nettype)
+  {
+    boost::filesystem::path dir = tools::get_default_data_dir();
+    // remove .bitmonero, replace with .shared-ringdb
+    dir = dir.remove_filename();
+    dir /= ".shared-ringdb";
+    if (nettype == cryptonote::TESTNET)
+      dir /= "testnet";
+    else if (nettype == cryptonote::STAGENET)
+      dir /= "stagenet";
+    return dir.string();
+  }
+
   /**
    * ---------------- DUPLICATED WALLET RPC TRANSFER CODE ---------------------
    *
@@ -671,6 +684,7 @@ namespace monero {
 
     ~wallet2_listener() {
       MTRACE("~wallet2_listener()");
+      m_w2.callback(nullptr);
     }
 
     void update_listening() {
@@ -802,6 +816,7 @@ namespace monero {
     wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     wallet->m_w2->load(path, password);
     wallet->m_w2->init("");
+    wallet->m_w2->set_ring_database(get_default_ringdb_path(wallet->m_w2->nettype()));
     wallet->init_common();
     return wallet;
   }
@@ -811,6 +826,7 @@ namespace monero {
     throw runtime_error("Not implemented");
   }
 
+  // TODO: ensure that wallet does not already exist
   monero_wallet* monero_wallet::create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const string& language) {
     MTRACE("create_wallet_random(path, password, network_type, daemon_connection, language)");
     monero_wallet* wallet = new monero_wallet();
@@ -820,6 +836,7 @@ namespace monero {
     crypto::secret_key secret_key;
     wallet->m_w2->generate(path, password, secret_key, false, false);
     wallet->init_common();
+    wallet->m_w2->set_refresh_from_block_height(wallet->get_daemon_height()); // TODO: necessary? test
     return wallet;
   }
 
@@ -2675,7 +2692,7 @@ namespace monero {
     daemon_req.miner_address = m_w2->get_account().get_public_address_str(m_w2->nettype());
     daemon_req.threads_count = num_threads.get();
     daemon_req.do_background_mining = background_mining.get();
-    daemon_req.ignore_battery       = ignore_battery.get();
+    daemon_req.ignore_battery = ignore_battery.get();
     cryptonote::COMMAND_RPC_START_MINING::response daemon_res;
     bool r = m_w2->invoke_http_json("/start_mining", daemon_req, daemon_res);
     if (!r || daemon_res.status != CORE_RPC_STATUS_OK) {
@@ -2737,12 +2754,15 @@ namespace monero {
 
   void monero_wallet::close() {
     MTRACE("close()");
-    m_syncing_enabled = false;
-    m_syncing_thread_done = true;
-    m_sync_cv.notify_one();
-    m_syncing_thread.join();
+    stop_syncing(); // prevent sync thread from starting again
     m_w2->stop();
     m_w2->deinit();
+    if (!m_syncing_thread_done) {
+      m_syncing_enabled = false;
+      m_syncing_thread_done = true;
+      m_sync_cv.notify_one();
+      m_syncing_thread.join();
+    }
   }
 
   bool monero_wallet::is_multisig_import_needed() const {
