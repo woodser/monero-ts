@@ -297,6 +297,17 @@ namespace monero {
     return node;
   }
 
+  // ----------------------------- MONERO TX SET ------------------------------
+
+  boost::property_tree::ptree monero_tx_set::to_property_tree() const {
+    boost::property_tree::ptree node;
+    if (!m_txs.empty()) node.add_child("txs", monero_utils::to_property_tree(m_txs));
+    if (m_multisig_tx_hex != boost::none) node.put("multisigTxHex", *m_multisig_tx_hex);
+    if (m_unsigned_tx_hex != boost::none) node.put("unsignedTxHex", *m_unsigned_tx_hex);
+    if (m_signed_tx_hex != boost::none) node.put("signedTxHex", *m_signed_tx_hex);
+    return node;
+  }
+
   // ---------------------------- MONERO TRANSFER -----------------------------
 
   shared_ptr<monero_transfer> monero_transfer::copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt) const {

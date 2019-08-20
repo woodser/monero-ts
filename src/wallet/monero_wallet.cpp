@@ -1753,17 +1753,17 @@ namespace monero {
     return result;
   }
 
-  shared_ptr<monero_tx_wallet> monero_wallet::create_tx(monero_send_request& request) {
+  monero_tx_set monero_wallet::create_tx(monero_send_request& request) {
     if (request.m_can_split != boost::none && request.m_can_split.get()) throw runtime_error("Cannot request split transactions with create_tx() which prevents splitting; use create_txs() instead");
     request.m_can_split = false;
-    return create_txs(request)[0];
+    return create_txs(request);
   }
 
-  shared_ptr<monero_tx_wallet> monero_wallet::create_tx(uint32_t account_index, string address, uint64_t amount) {
+  monero_tx_set monero_wallet::create_tx(uint32_t account_index, string address, uint64_t amount) {
     return create_tx(account_index, address, amount, monero_send_priority::NORMAL);
   }
 
-  shared_ptr<monero_tx_wallet> monero_wallet::create_tx(int account_index, string address, uint64_t amount, monero_send_priority priority) {
+  monero_tx_set monero_wallet::create_tx(int account_index, string address, uint64_t amount, monero_send_priority priority) {
     monero_send_request req;
     req.m_account_index = account_index;
     req.m_destinations.push_back(make_shared<monero_destination>(address, amount));
@@ -1771,21 +1771,21 @@ namespace monero {
     return create_tx(req);
   }
 
-  vector<shared_ptr<monero_tx_wallet>> monero_wallet::create_txs(monero_send_request& request) {
+  monero_tx_set monero_wallet::create_txs(monero_send_request& request) {
 
     // modify request to not relay
     boost::optional<bool> requested_do_not_relay = request.m_do_not_relay;
     request.m_do_not_relay = true;
 
     // invoke common method which doesn't relay
-    vector<shared_ptr<monero_tx_wallet>> created_txs = send_split(request);
+    monero_tx_set tx_set = send_split(request);
 
     // restore doNotRelay of request and txs
     request.m_do_not_relay = requested_do_not_relay;
-    for (const shared_ptr<monero_tx_wallet>& tx : created_txs) tx->m_do_not_relay = requested_do_not_relay;
+    for (const shared_ptr<monero_tx_wallet>& tx : tx_set.m_txs) tx->m_do_not_relay = requested_do_not_relay;
 
     // return results
-    return created_txs;
+    return tx_set;
   }
 
   string monero_wallet::relay_tx(const string& tx_metadata) {
@@ -1842,17 +1842,17 @@ namespace monero {
     return relay_txs(tx_hexes);
   }
 
-  shared_ptr<monero_tx_wallet> monero_wallet::send(monero_send_request& request) {
+  monero_tx_set monero_wallet::send(monero_send_request& request) {
     if (request.m_can_split != boost::none && request.m_can_split.get()) throw runtime_error("Cannot request split transactions with send() which prevents splitting; use sendSplit() instead");
     request.m_can_split = false;
-    return send_split(request)[0];
+    return send_split(request);
   }
 
-  shared_ptr<monero_tx_wallet> monero_wallet::send(uint32_t account_index, string address, uint64_t amount) {
+  monero_tx_set monero_wallet::send(uint32_t account_index, string address, uint64_t amount) {
     return send(account_index, address, amount, monero_send_priority::NORMAL);
   }
 
-  shared_ptr<monero_tx_wallet> monero_wallet::send(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority) {
+  monero_tx_set monero_wallet::send(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority) {
     monero_send_request req;
     req.m_account_index = account_index;
     req.m_destinations.push_back(make_shared<monero_destination>(address, amount));
@@ -1860,7 +1860,7 @@ namespace monero {
     return send(req);
   }
 
-  vector<shared_ptr<monero_tx_wallet>> monero_wallet::send_split(const monero_send_request& request) {
+  monero_tx_set monero_wallet::send_split(const monero_send_request& request) {
     MTRACE("monero_wallet::send_split(request)");
     MTRACE("monero_send_request: " << request.serialize());
 
@@ -1913,12 +1913,12 @@ namespace monero {
     list<string> tx_keys;
     list<uint64_t> tx_amounts;
     list<uint64_t> tx_fees;
-    string multisig_tx_set;
-    string unsigned_tx_set;
+    string multisig_tx_hex;
+    string unsigned_tx_hex;
     list<string> m_tx_ids;
     list<string> tx_blobs;
     list<string> tx_metadatas;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_set, unsigned_tx_set, m_do_not_relay, m_tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, m_tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
       throw runtime_error("need to handle error filling response!");  // TODO
     }
 
@@ -1969,10 +1969,16 @@ namespace monero {
       tx_blobs_iter++;
       tx_metadatas_iter++;
     }
-    return txs;
+
+    // build and return tx set
+    monero_tx_set tx_set;
+    tx_set.m_txs = txs;
+    tx_set.m_multisig_tx_hex = multisig_tx_hex;
+    tx_set.m_unsigned_tx_hex = unsigned_tx_hex;
+    return tx_set;
   }
 
-  shared_ptr<monero_tx_wallet> monero_wallet::sweep_output(const monero_send_request& request) const  {
+  monero_tx_set monero_wallet::sweep_output(const monero_send_request& request)  {
     MTRACE("sweep_output()");
     MTRACE("monero_send_request: " << request.serialize());
 
@@ -2022,12 +2028,12 @@ namespace monero {
     list<string> tx_keys;
     list<uint64_t> tx_amounts;
     list<uint64_t> tx_fees;
-    string multisig_tx_set;
-    string unsigned_tx_set;
+    string multisig_tx_hex;
+    string unsigned_tx_hex;
     list<string> m_tx_ids;
     list<string> tx_blobs;
     list<string> tx_metadatas;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_set, unsigned_tx_set, m_do_not_relay, m_tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, er)) {
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, m_tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, er)) {
       throw runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
@@ -2080,12 +2086,18 @@ namespace monero {
       tx_metadatas_iter++;
     }
 
-    // return tx
+    // validate one transaction
     if (txs.size() != 1) throw runtime_error("Expected 1 transaction but was " + boost::lexical_cast<std::string>(txs.size()));
-    return txs[0];
+
+    // build and return tx set
+    monero_tx_set tx_set;
+    tx_set.m_txs = txs;
+    tx_set.m_multisig_tx_hex = multisig_tx_hex;
+    tx_set.m_unsigned_tx_hex = unsigned_tx_hex;
+    return tx_set;
   }
 
-  vector<shared_ptr<monero_tx_wallet>> monero_wallet::sweep_dust(bool do_not_relay) {
+  monero_tx_set monero_wallet::sweep_dust(bool do_not_relay) {
     MTRACE("monero_wallet::sweep_dust()");
 
     // create transaction to fill
@@ -2100,13 +2112,13 @@ namespace monero {
     list<string> tx_keys;
     list<uint64_t> tx_amounts;
     list<uint64_t> tx_fees;
-    string multisig_tx_set;
-    string unsigned_tx_set;
+    string multisig_tx_hex;
+    string unsigned_tx_hex;
     list<string> m_tx_ids;
     list<string> tx_blobs;
     list<string> tx_metadatas;
     epee::json_rpc::error er;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_set, unsigned_tx_set, do_not_relay, m_tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, er)) {
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, do_not_relay, m_tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, er)) {
       throw runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
@@ -2155,7 +2167,12 @@ namespace monero {
       tx_metadatas_iter++;
     }
 
-    return txs;
+    // build and return tx set
+    monero_tx_set tx_set;
+    tx_set.m_txs = txs;
+    tx_set.m_multisig_tx_hex = multisig_tx_hex;
+    tx_set.m_unsigned_tx_hex = unsigned_tx_hex;
+    return tx_set;
   }
 
   string monero_wallet::sign(const string& msg) const {

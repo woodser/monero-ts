@@ -780,9 +780,9 @@ namespace monero {
      * given request.  The transaction may be relayed later.
      *
      * @param request configures the transaction to create
-     * @return the created transaction
+     * @return a tx set for the requested transaction if possible
      */
-    shared_ptr<monero_tx_wallet> create_tx(monero_send_request& request);
+    monero_tx_set create_tx(monero_send_request& request);
 
     /**
      * Create a transaction to transfers funds from this wallet to a destination address.
@@ -791,9 +791,9 @@ namespace monero {
      * @param accountIndex is the index of the account to withdraw funds from
      * @param address is the destination address to send funds to
      * @param amount is the amount being sent
-     * @return the resulting transaction
+     * @return a tx set for the requested transaction if possible
      */
-    shared_ptr<monero_tx_wallet> create_tx(uint32_t account_index, string address, uint64_t amount);
+    monero_tx_set create_tx(uint32_t account_index, string address, uint64_t amount);
 
     /**
      * Create a transaction to transfers funds from this wallet to a destination address.
@@ -803,18 +803,18 @@ namespace monero {
      * @param address is the destination address to send funds to
      * @param amount is the amount being sent
      * @param priority is the send priority (default normal)
-     * @return the resulting transaction
+     * @return a tx set for the requested transaction if possible
      */
-    shared_ptr<monero_tx_wallet> create_tx(int account_index, string address, uint64_t amount, monero_send_priority priority);
+    monero_tx_set create_tx(int account_index, string address, uint64_t amount, monero_send_priority priority);
 
     /**
      * Create one or more transactions to transfer funds from this wallet
      * according to the given request.  The transactions may later be relayed.
      *
      * @param request configures the transactions to create
-     * @return the created transactions
+     * @return a tx set for the requested transactions if possible
      */
-    vector<shared_ptr<monero_tx_wallet>> create_txs(monero_send_request& request);
+    monero_tx_set create_txs(monero_send_request& request);
 
     /**
      * Relay a transaction previously created without relaying.
@@ -853,9 +853,9 @@ namespace monero {
      * according to the given request.
      *
      * @param request configures the transaction
-     * @return the resulting transaction
+     * @return a tx set with the requested transaction if possible
      */
-    shared_ptr<monero_tx_wallet> send(monero_send_request& request);
+    monero_tx_set send(monero_send_request& request);
 
     /**
      * Create and relay a transaction to transfers funds from this wallet to
@@ -864,9 +864,9 @@ namespace monero {
      * @param account_index is the index of the account to withdraw funds from
      * @param address is the destination address to send funds to
      * @param amount is the amount being sent
-     * @return the resulting transaction
+     * @return a tx set with the requested transaction if possible
      */
-    shared_ptr<monero_tx_wallet> send(uint32_t account_index, string address, uint64_t amount);
+    monero_tx_set send(uint32_t account_index, string address, uint64_t amount);
 
     /**
      * Create and relay a transaction to transfers funds from this wallet to
@@ -876,19 +876,19 @@ namespace monero {
      * @param address is the destination address to send funds to
      * @param amount is the amount being sent
      * @param priority is the send priority (default normal)
-     * @return the resulting transaction
+     * @return a tx set with the requested transaction if possible
      */
-    shared_ptr<monero_tx_wallet> send(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority);
+    monero_tx_set send(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority);
 
     /**
      * Create one or more transactions which transfer funds from this wallet to
      * one or more destinations depending on the given configuration.
      *
      * @param request configures the transaction
-     * @return the resulting transaction
+     * @return a tx set with the requested transactions if possible
      */
-    vector<shared_ptr<monero_tx_wallet>> send_split(const monero_send_request& request);
-//
+    monero_tx_set send_split(const monero_send_request& request);
+
 //    /**
 //     * Create and relay one or more transactions which transfer funds from this
 //     * wallet to one or more destination.
@@ -916,9 +916,9 @@ namespace monero {
      * Sweep an output with a given key image.
      *
      * @param request configures the sweep transaction
-     * @return the resulting transaction from sweeping an output
+     * @return a tx set with the requested transaction if possible
      */
-    shared_ptr<monero_tx_wallet> sweep_output(const monero_send_request& request) const;
+    monero_tx_set sweep_output(const monero_send_request& request);
 
 //    /**
 //     * Sweep an output with a given key image.
@@ -987,9 +987,9 @@ namespace monero {
      * Sweep all unmixable dust outputs back to the wallet to make them easier to spend and mix.
      *
      * @param do_not_relay specifies if the resulting transaction should not be relayed (defaults to false i.e. relayed)
-     * @return the resulting transactions from sweeping dust
+     * @return a tx set with the requested transactions if possible
      */
-    vector<shared_ptr<monero_tx_wallet>> sweep_dust(bool do_not_relay = false);
+    monero_tx_set sweep_dust(bool do_not_relay = false);
 
     /**
      * Sign a message.

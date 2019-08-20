@@ -124,10 +124,6 @@ namespace monero {
     boost::property_tree::ptree to_property_tree() const;
   };
 
-  // forward declarations
-  struct monero_tx_wallet;
-  struct monero_tx_query;
-
   /**
    * Models an outgoing transfer destination.
    */
@@ -140,6 +136,11 @@ namespace monero {
     shared_ptr<monero_destination> copy(const shared_ptr<monero_destination>& src, const shared_ptr<monero_destination>& tgt) const;
     boost::property_tree::ptree to_property_tree() const;
   };
+
+  // forward declarations
+  struct monero_tx_wallet;
+  struct monero_tx_query;
+  struct monero_tx_set;
 
   /**
    * Models a base transfer of funds to or from the wallet.
@@ -248,10 +249,12 @@ namespace monero {
     bool meets_criteria(monero_output_wallet* output) const;
   };
 
+
   /**
    * Models a Monero transaction in the context of a wallet.
    */
   struct monero_tx_wallet : public monero_tx {
+    boost::optional<shared_ptr<monero_tx_set>> m_tx_set;
     vector<shared_ptr<monero_incoming_transfer>> m_incoming_transfers;
     boost::optional<shared_ptr<monero_outgoing_transfer>> m_outgoing_transfer;
     boost::optional<string> m_note;
@@ -289,6 +292,23 @@ namespace monero {
     shared_ptr<monero_tx_query> copy(const shared_ptr<monero_tx_query>& src, const shared_ptr<monero_tx_query>& tgt) const;
     boost::property_tree::ptree to_property_tree() const;
     bool meets_criteria(monero_tx_wallet* tx) const;
+  };
+
+  /**
+   * Groups transactions who share common hex data which is needed in order to
+   * sign and submit the transactions.
+   *
+   * For example, multisig transactions created from send_split() share a common
+   * hex string which is needed in order to sign and submit the multisig
+   * transactions.
+   */
+  struct monero_tx_set : serializable_struct {
+    vector<shared_ptr<monero_tx_wallet>> m_txs;
+    boost::optional<string> m_signed_tx_hex;
+    boost::optional<string> m_unsigned_tx_hex;
+    boost::optional<string> m_multisig_tx_hex;
+
+    boost::property_tree::ptree to_property_tree() const;
   };
 
   /**

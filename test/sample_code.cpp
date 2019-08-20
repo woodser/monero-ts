@@ -99,7 +99,7 @@ int main(int argc, const char* argv[]) {
   wallet_random->add_listener(my_listener);
 
   // send funds from the restored wallet to the random wallet
-  shared_ptr<monero_tx_wallet> sent_tx = wallet_restored->send(0, wallet_random->get_address(1, 0), 50000);
+  shared_ptr<monero_tx_wallet> sent_tx = wallet_restored->send(0, wallet_random->get_address(1, 0), 50000).m_txs[0];
   bool in_pool = sent_tx->m_in_tx_pool.get();  // true
 
   // mine with 7 threads to push the network along
@@ -127,7 +127,7 @@ int main(int argc, const char* argv[]) {
   send_request.m_destinations = destinations;
 
   // create the transaction, confirm with the user, and relay to the network
-  shared_ptr<monero_tx_wallet> created_tx = wallet_restored->create_tx(send_request);
+  shared_ptr<monero_tx_wallet> created_tx = wallet_restored->create_tx(send_request).m_txs[0];
   uint64_t fee = created_tx->m_fee.get(); // "Are you sure you want to send ...?"
   wallet_restored->relay_tx(*created_tx); // submit the transaction to the Monero network which will notify the recipient wallet
 
