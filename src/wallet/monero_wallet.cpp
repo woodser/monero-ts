@@ -836,7 +836,7 @@ namespace monero {
     crypto::secret_key secret_key;
     wallet->m_w2->generate(path, password, secret_key, false, false);
     wallet->init_common();
-    wallet->m_w2->set_refresh_from_block_height(wallet->get_daemon_height()); // TODO: necessary? test
+    if (wallet->is_connected()) wallet->m_w2->set_refresh_from_block_height(wallet->get_daemon_height()); // TODO: necessary? test
     return wallet;
   }
 
@@ -3014,6 +3014,7 @@ namespace monero {
     m_w2_listener->on_sync_start(sync_start_height);
     monero_sync_result result;
     m_w2->refresh(m_w2->is_trusted_daemon(), sync_start_height, result.m_num_blocks_fetched, result.m_received_money, true);
+    m_w2->find_and_save_rings(false);
     if (!m_is_synced) m_is_synced = true;
     m_w2_listener->on_sync_end();
     return result;
