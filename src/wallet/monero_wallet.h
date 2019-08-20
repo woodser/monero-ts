@@ -855,7 +855,7 @@ namespace monero {
      * @param request configures the transaction
      * @return a tx set with the requested transaction if possible
      */
-    monero_tx_set send(monero_send_request& request);
+    monero_tx_set send(const monero_send_request& request);
 
     /**
      * Create and relay a transaction to transfers funds from this wallet to

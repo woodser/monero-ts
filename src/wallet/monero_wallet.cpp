@@ -1842,10 +1842,11 @@ namespace monero {
     return relay_txs(tx_hexes);
   }
 
-  monero_tx_set monero_wallet::send(monero_send_request& request) {
+  monero_tx_set monero_wallet::send(const monero_send_request& request) {
     if (request.m_can_split != boost::none && request.m_can_split.get()) throw runtime_error("Cannot request split transactions with send() which prevents splitting; use sendSplit() instead");
-    request.m_can_split = false;
-    return send_split(request);
+    monero_send_request copy = request.copy();
+    copy.m_can_split = false;
+    return send_split(copy);
   }
 
   monero_tx_set monero_wallet::send(uint32_t account_index, string address, uint64_t amount) {
