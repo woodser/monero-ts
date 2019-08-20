@@ -353,6 +353,7 @@ namespace monero {
     boost::optional<bool> m_sweep_each_subaddress;
     boost::optional<string> m_key_image;
 
+    monero_send_request copy() const;
     boost::property_tree::ptree to_property_tree() const;
   };
 

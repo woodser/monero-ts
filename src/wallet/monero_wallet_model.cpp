@@ -628,6 +628,10 @@ namespace monero {
 
   // ------------------------- MONERO SEND REQUEST ----------------------------
 
+  monero_send_request monero_send_request::copy() const {
+    throw runtime_error("not implemented!");
+  }
+
   boost::property_tree::ptree monero_send_request::to_property_tree() const {
     boost::property_tree::ptree node;
     if (!m_destinations.empty()) node.add_child("destinations", monero_utils::to_property_tree(m_destinations));

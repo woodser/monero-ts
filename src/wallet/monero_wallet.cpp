@@ -379,8 +379,8 @@ namespace monero {
 
     // if confirmed, merge tx's block
     if (tx->get_height() != boost::none) {
-      map<uint64_t, shared_ptr<monero_block>>::const_iterator blockIter = block_map.find(tx->get_height().get());
-      if (blockIter == block_map.end()) {
+      map<uint64_t, shared_ptr<monero_block>>::const_iterator block_iter = block_map.find(tx->get_height().get());
+      if (block_iter == block_map.end()) {
         block_map[tx->get_height().get()] = tx->m_block.get();
       } else {
         shared_ptr<monero_block>& a_block = block_map[tx->get_height().get()];
@@ -1243,9 +1243,9 @@ namespace monero {
   }
 
   uint64_t monero_wallet::get_balance(uint32_t account_idx, uint32_t subaddress_idx) const {
-    map<uint32_t, uint64_t> balancePerSubaddress = m_w2->balance_per_subaddress(account_idx);
-    auto iter = balancePerSubaddress.find(subaddress_idx);
-    return iter == balancePerSubaddress.end() ? 0 : iter->second;
+    map<uint32_t, uint64_t> balance_per_subaddress = m_w2->balance_per_subaddress(account_idx);
+    auto iter = balance_per_subaddress.find(subaddress_idx);
+    return iter == balance_per_subaddress.end() ? 0 : iter->second;
   }
 
   uint64_t monero_wallet::get_unlocked_balance() const {
@@ -1257,9 +1257,9 @@ namespace monero {
   }
 
   uint64_t monero_wallet::get_unlocked_balance(uint32_t account_idx, uint32_t subaddress_idx) const {
-    map<uint32_t, std::pair<uint64_t, uint64_t>> unlockedBalancePerSubaddress = m_w2->unlocked_balance_per_subaddress(account_idx);
-    auto iter = unlockedBalancePerSubaddress.find(subaddress_idx);
-    return iter == unlockedBalancePerSubaddress.end() ? 0 : iter->second.first;
+    map<uint32_t, std::pair<uint64_t, uint64_t>> unlocked_balance_per_subaddress = m_w2->unlocked_balance_per_subaddress(account_idx);
+    auto iter = unlocked_balance_per_subaddress.find(subaddress_idx);
+    return iter == unlocked_balance_per_subaddress.end() ? 0 : iter->second.first;
   }
 
   vector<monero_account> monero_wallet::get_accounts() const {
@@ -1978,7 +1978,66 @@ namespace monero {
   }
 
   vector<monero_tx_set> monero_wallet::sweep_unlocked(const monero_send_request& request) {
-    throw runtime_error("sweep_unlocked not implemented");
+
+    // validate request
+    if (request.m_destinations.size() != 1) throw runtime_error("Must specify exactly one destination to sweep to");
+    if (request.m_destinations[0]->m_address == boost::none) throw runtime_error("Must specify destination address to sweep to");
+    if (request.m_account_index == boost::none && request.m_subaddress_indices.size() != 0) throw runtime_error("Must specify account index if subaddress indices are specified");
+
+    // determine account and subaddress indices to sweep; default to all with unlocked balance if not specified
+    std::map<uint32_t, vector<uint32_t>> indices;
+    if (request.m_account_index != boost::none) {
+      if (request.m_subaddress_indices.size() != 0) {
+        indices[request.m_account_index.get()] = request.m_subaddress_indices;
+      } else {
+        vector<uint32_t> subaddress_indices;
+        for (const monero_subaddress& subaddress : get_subaddresses(request.m_account_index.get())) {
+          if (subaddress.m_unlocked_balance.get() > 0) subaddress_indices.push_back(subaddress.m_index.get());
+        }
+        indices[request.m_account_index.get()] = subaddress_indices;
+      }
+    } else {
+      vector<monero_account> accounts = get_accounts(true);
+      for (const monero_account& account : accounts) {
+        if (account.m_unlocked_balance.get() > 0) {
+          vector<uint32_t> subaddress_indices;
+          for (const monero_subaddress& subaddress : account.m_subaddresses) {
+            if (subaddress.m_unlocked_balance.get() > 0) subaddress_indices.push_back(subaddress.m_index.get());
+          }
+          indices[account.m_index.get()] = subaddress_indices;
+        }
+      }
+    }
+
+    // sweep from each account and collect resulting tx sets
+    vector<monero_tx_set> tx_sets;
+    for (pair<uint32_t, vector<uint32_t>> subaddress_indices_pair : indices) {
+
+      // copy the request to not modify the original
+      monero_send_request copy = request.copy();
+
+      // set the account to sweep from
+      copy.m_account_index = subaddress_indices_pair.first;
+
+      // sweep all subaddresses together  // TODO monero core: can this reveal outputs belong to the same wallet?
+      if (copy.m_sweep_each_subaddress == boost::none || copy.m_sweep_each_subaddress.get() != true) {
+        copy.m_subaddress_indices = subaddress_indices_pair.second;
+        tx_sets.push_back(sweep_account(copy));
+      }
+
+      // otherwise sweep each subaddress individually
+      else {
+        for (uint32_t subaddress_index : subaddress_indices_pair.second) {
+          vector<uint32_t> subaddress_indices;
+          subaddress_indices.push_back(subaddress_index);
+          copy.m_subaddress_indices = subaddress_indices;
+          tx_sets.push_back(sweep_account(copy));
+        }
+      }
+    }
+
+    // return resulting tx sets
+    return tx_sets;
   }
 
   monero_tx_set monero_wallet::sweep_account(const monero_send_request& request) {
@@ -2945,8 +3004,8 @@ namespace monero {
     vector<monero_subaddress> subaddresses;
 
     // get balances per subaddress as maps
-    map<uint32_t, uint64_t> balancePerSubaddress = m_w2->balance_per_subaddress(account_idx);
-    map<uint32_t, std::pair<uint64_t, uint64_t>> unlockedBalancePerSubaddress = m_w2->unlocked_balance_per_subaddress(account_idx);
+    map<uint32_t, uint64_t> balance_per_subaddress = m_w2->balance_per_subaddress(account_idx);
+    map<uint32_t, std::pair<uint64_t, uint64_t>> unlocked_balance_per_subaddress = m_w2->unlocked_balance_per_subaddress(account_idx);
 
     // get all indices if no indices given
     vector<uint32_t> subaddress_indices_req;
@@ -2966,14 +3025,14 @@ namespace monero {
       subaddress.m_index = subaddress_idx;
       subaddress.m_address = get_address(account_idx, subaddress_idx);
       subaddress.m_label = m_w2->get_subaddress_label({account_idx, subaddress_idx});
-      auto iter1 = balancePerSubaddress.find(subaddress_idx);
-      subaddress.m_balance = iter1 == balancePerSubaddress.end() ? 0 : iter1->second;
-      auto iter2 = unlockedBalancePerSubaddress.find(subaddress_idx);
-      subaddress.m_unlocked_balance = iter2 == unlockedBalancePerSubaddress.end() ? 0 : iter2->second.first;
+      auto iter1 = balance_per_subaddress.find(subaddress_idx);
+      subaddress.m_balance = iter1 == balance_per_subaddress.end() ? 0 : iter1->second;
+      auto iter2 = unlocked_balance_per_subaddress.find(subaddress_idx);
+      subaddress.m_unlocked_balance = iter2 == unlocked_balance_per_subaddress.end() ? 0 : iter2->second.first;
       cryptonote::subaddress_index index = {account_idx, subaddress_idx};
       subaddress.m_num_unspent_outputs = count_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return !td.m_spent && td.m_subaddr_index == index; });
       subaddress.m_is_used = find_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return td.m_subaddr_index == index; }) != transfers.end();
-      subaddress.m_num_blocks_to_unlock = iter1 == balancePerSubaddress.end() ? 0 : iter2->second.second;
+      subaddress.m_num_blocks_to_unlock = iter1 == balance_per_subaddress.end() ? 0 : iter2->second.second;
       subaddresses.push_back(subaddress);
     }
 
