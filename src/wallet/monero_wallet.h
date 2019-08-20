@@ -1389,9 +1389,9 @@ namespace monero {
 
   private:
     friend struct wallet2_listener;
-    unique_ptr<tools::wallet2> m_w2;              // internal wallet implementation
-    unique_ptr<wallet2_listener> m_w2_listener;   // internal wallet implementation listener
-    set<monero_wallet_listener*> m_listeners;  // external wallet listeners
+    unique_ptr<tools::wallet2> m_w2;            // internal wallet implementation
+    unique_ptr<wallet2_listener> m_w2_listener; // internal wallet implementation listener
+    set<monero_wallet_listener*> m_listeners;   // external wallet listeners
 
     void init_common();
     vector<monero_subaddress> get_subaddresses_aux(uint32_t account_idx, const vector<uint32_t>& subaddress_indices, const vector<tools::wallet2::transfer_details>& transfers) const;
