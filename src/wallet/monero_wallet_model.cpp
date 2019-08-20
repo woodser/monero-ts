@@ -628,8 +628,31 @@ namespace monero {
 
   // ------------------------- MONERO SEND REQUEST ----------------------------
 
+  monero_send_request::monero_send_request(const monero_send_request& request) {
+    if (request.m_destinations.size() > 0) {
+      for (const shared_ptr<monero_destination>& destination : request.m_destinations) {
+        m_destinations.push_back(destination->copy(destination, make_shared<monero_destination>()));
+      }
+    }
+    m_payment_id = request.m_payment_id;
+    m_priority = request.m_priority;
+    m_mixin = request.m_mixin;
+    m_ring_size = request.m_ring_size;
+    m_fee = request.m_fee;
+    m_account_index = request.m_account_index;
+    m_subaddress_indices = request.m_subaddress_indices;
+    m_unlock_time = request.m_unlock_time;
+    m_can_split = request.m_can_split;
+    m_do_not_relay = request.m_do_not_relay;
+    m_note = request.m_note;
+    m_recipient_name = request.m_recipient_name;
+    m_below_amount = request.m_below_amount;
+    m_sweep_each_subaddress = request.m_sweep_each_subaddress;
+    m_key_image = request.m_key_image;
+  }
+
   monero_send_request monero_send_request::copy() const {
-    throw runtime_error("not implemented!");
+    return monero_send_request(*this);
   }
 
   boost::property_tree::ptree monero_send_request::to_property_tree() const {
