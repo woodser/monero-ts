@@ -1269,12 +1269,12 @@ namespace monero {
 
   vector<monero_account> monero_wallet::get_accounts(bool include_subaddresses) const {
     MTRACE("get_accounts(" << include_subaddresses << ")");
-    throw runtime_error("Not implemented");
+    return get_accounts(include_subaddresses, "");
   }
 
   vector<monero_account> monero_wallet::get_accounts(const string& tag) const {
     MTRACE("get_accounts(" << tag << ")");
-    throw runtime_error("Not implemented");
+    return get_accounts(false, tag);
   }
 
   vector<monero_account> monero_wallet::get_accounts(bool include_subaddresses, const string& tag) const {
@@ -2014,11 +2014,10 @@ namespace monero {
     vector<monero_tx_set> tx_sets;
     for (pair<uint32_t, vector<uint32_t>> subaddress_indices_pair : indices) {
 
-      // copy the request to not modify the original
+      // copy and modify the original request
       monero_send_request copy = request.copy();
-
-      // set the account to sweep from
       copy.m_account_index = subaddress_indices_pair.first;
+      copy.m_sweep_each_subaddress = false;
 
       // sweep all subaddresses together  // TODO monero core: can this reveal outputs belong to the same wallet?
       if (copy.m_sweep_each_subaddress == boost::none || copy.m_sweep_each_subaddress.get() != true) {
