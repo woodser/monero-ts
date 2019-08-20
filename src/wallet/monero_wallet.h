@@ -918,15 +918,7 @@ namespace monero {
      * @param request is the sweep configuration
      * @return the tx sets with the requested transactions
      */
-    monero_tx_set sweep_unlocked(const monero_send_request& request);
-
-    /**
-     * Sweep unlocked funds within an account.
-     *
-     * @param request configures the sweep request
-     * @return the resulting set of txs
-     */
-    monero_tx_set sweep_account(const monero_send_request& request);
+    vector<monero_tx_set> sweep_unlocked(const monero_send_request& request);
 
     /**
      * Sweep an output with a given key image.
@@ -1403,6 +1395,7 @@ namespace monero {
 
     void init_common();
     vector<monero_subaddress> get_subaddresses_aux(uint32_t account_idx, const vector<uint32_t>& subaddress_indices, const vector<tools::wallet2::transfer_details>& transfers) const;
+    monero_tx_set sweep_account(const monero_send_request& request);  // sweeps unlocked funds within an account; private helper to sweep_unlocked()
 
     // blockchain sync management
     mutable std::atomic<bool> m_is_synced;       // whether or not wallet is synced

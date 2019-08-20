@@ -1977,7 +1977,7 @@ namespace monero {
     return tx_set;
   }
 
-  monero_tx_set monero_wallet::sweep_unlocked(const monero_send_request& request) {
+  vector<monero_tx_set> monero_wallet::sweep_unlocked(const monero_send_request& request) {
     throw runtime_error("sweep_unlocked not implemented");
   }
 
@@ -1987,7 +1987,7 @@ namespace monero {
     if (request.m_account_index == boost::none) throw runtime_error("Must specify account index to sweep from");
     if (request.m_destinations.size() != 1 || request.m_destinations[0]->m_address == boost::none || request.m_destinations[0]->m_address.get().empty()) throw runtime_error("Must provide exactly one destination address to sweep output to");
     if (request.m_destinations[0]->m_amount != boost::none) throw runtime_error("Cannot specify destination amount to sweep");
-    if (request.m_key_image != boost::none) throw runtime_error("Key image defined; use sweep_output() to sweep an output by its key image");
+    if (request.m_key_image != boost::none) throw runtime_error("Cannot define key image in sweep_account(); use sweep_output() to sweep an output by its key image");
     if (request.m_sweep_each_subaddress != boost::none && request.m_sweep_each_subaddress.get() == true) throw runtime_error("Cannot sweep each subaddress individually with sweep_account");
 
     // validate the transfer requested and populate dsts & extra
