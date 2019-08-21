@@ -1912,7 +1912,7 @@ namespace monero {
 
     // prepare transactions
     vector<wallet2::pending_tx> ptx_vector = m_w2->create_transactions_2(dsts, mixin, unlock_time, priority, extra, account_index, subaddress_indices);
-    if (ptx_vector.empty()) throw runtime_error("No transaction created");
+    if (ptx_vector.empty()) throw runtime_error("No transactions created");
 
     // check if request cannot be fulfilled due to splitting
     if (request.m_can_split != boost::none && request.m_can_split.get() == false && ptx_vector.size() != 1) {
