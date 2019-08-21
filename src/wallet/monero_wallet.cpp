@@ -813,8 +813,6 @@ namespace monero {
   monero_wallet* monero_wallet::open_wallet(const string& path, const string& password, const monero_network_type network_type) {
     MTRACE("open_wallet(" << path << ", " << password << ", " << network_type << ")");
     monero_wallet* wallet = new monero_wallet();
-    MTRACE("open_wallet(" << path << ", " << password << ", " << network_type << ")");
-    monero_wallet* wallet = new monero_wallet();
     wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     wallet->m_w2->load(path, password);
     wallet->m_w2->init("");
@@ -2804,16 +2802,7 @@ namespace monero {
     if (multisig_hexes.size() < 1 || multisig_hexes.size() > total) throw runtime_error("Needs multisig info from more participants");
 
     // finalize multisig
-    cout << "Finalizing multisig() " << endl;
-    cout << "Password: " << password << endl;
-    cout << "Multisig hexes: " << endl;
-    for (const string& multisig_hex : multisig_hexes) {
-      cout << "\tHex: " << multisig_hex << endl;
-    }
-
-    cout << "Start" << endl;
     bool success = m_w2->finalize_multisig(epee::wipeable_string(password), multisig_hexes);
-    cout << "Success? " << success << endl;
     if (!success) throw runtime_error("Error calling finalize_multisig");
 
     // return the multisig wallet's primary address

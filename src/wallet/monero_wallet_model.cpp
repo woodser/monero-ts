@@ -735,14 +735,14 @@ namespace monero {
 
   boost::property_tree::ptree monero_multisig_init_result::to_property_tree() const {
     boost::property_tree::ptree node;
-    node.put("address", *m_address);
-    node.put("multisigHex", *m_multisig_hex);
+    if (m_address != boost::none) node.put("address", *m_address);
+    if (m_multisig_hex != boost::none) node.put("multisigHex", *m_multisig_hex);
     return node;
   }
 
   boost::property_tree::ptree monero_multisig_sign_result::to_property_tree() const {
     boost::property_tree::ptree node;
-    node.put("signedMultisigTxHex", *m_signed_multisig_tx_hex);
+    if (m_signed_multisig_tx_hex != boost::none) node.put("signedMultisigTxHex", *m_signed_multisig_tx_hex);
     if (!m_tx_ids.empty()) node.add_child("txIds", monero_utils::to_property_tree(m_tx_ids));
     return node;
   }
