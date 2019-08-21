@@ -724,13 +724,6 @@ namespace monero {
 
   // --------------------------- MONERO MULTISIG ------------------------------
 
-  boost::property_tree::ptree monero_multisig_init_result::to_property_tree() const {
-    boost::property_tree::ptree node;
-    node.put("address", m_address);
-    node.put("multisigHex", m_multisig_hex);
-    return node;
-  }
-
   boost::property_tree::ptree monero_multisig_info::to_property_tree() const {
     boost::property_tree::ptree node;
     node.put("isMultisig", m_is_multisig);
@@ -740,9 +733,16 @@ namespace monero {
     return node;
   }
 
+  boost::property_tree::ptree monero_multisig_init_result::to_property_tree() const {
+    boost::property_tree::ptree node;
+    node.put("address", *m_address);
+    node.put("multisigHex", *m_multisig_hex);
+    return node;
+  }
+
   boost::property_tree::ptree monero_multisig_sign_result::to_property_tree() const {
     boost::property_tree::ptree node;
-    node.put("signedMultisigTxHex", m_signed_multisig_tx_hex);
+    node.put("signedMultisigTxHex", *m_signed_multisig_tx_hex);
     if (!m_tx_ids.empty()) node.add_child("txIds", monero_utils::to_property_tree(m_tx_ids));
     return node;
   }

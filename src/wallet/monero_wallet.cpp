@@ -813,10 +813,107 @@ namespace monero {
   monero_wallet* monero_wallet::open_wallet(const string& path, const string& password, const monero_network_type network_type) {
     MTRACE("open_wallet(" << path << ", " << password << ", " << network_type << ")");
     monero_wallet* wallet = new monero_wallet();
-    wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
-    wallet->m_w2->load(path, password);
-    wallet->m_w2->init("");
-    wallet->m_w2->set_ring_database(get_default_ringdb_path(wallet->m_w2->nettype()));
+
+
+
+    cout << "1" << endl;
+
+
+//    const boost::program_options::variables_map *m_vm;
+
+//    po::options_description desc_params(wallet_args::tr("Wallet options"));
+//    tools::wallet2::init_options(desc_params);
+
+
+//    po::options_description desc_params(wallet_args::tr("Wallet options"));
+//    tools::wallet2::init_options(desc_params);
+//    command_line::add_arg(desc_params, arg_rpc_bind_port);
+//    command_line::add_arg(desc_params, arg_disable_rpc_login);
+//    command_line::add_arg(desc_params, arg_restricted);
+//    cryptonote::rpc_args::init_options(desc_params);
+//    command_line::add_arg(desc_params, arg_wallet_file);
+//    command_line::add_arg(desc_params, arg_from_json);
+//    command_line::add_arg(desc_params, arg_wallet_dir);
+//    command_line::add_arg(desc_params, arg_prompt_for_password);
+
+    const boost::program_options::variables_map vm;
+
+    cout << "2" << endl;
+
+    namespace po = boost::program_options;
+    cout << "3" << endl;
+    po::variables_map vm2;
+    cout << "4" << endl;
+//    const char *ptr = strchr(path.c_str(), '/');
+//#ifdef _WIN32
+//    if (!ptr)
+//      ptr = strchr(req.filename.c_str(), '\\');
+//    if (!ptr)
+//      ptr = strchr(req.filename.c_str(), ':');
+//#endif
+//    if (ptr)
+//    {
+//      throw runtime_error("Invalid filename");
+//    }
+    {
+      po::options_description desc("dummy");
+      tools::wallet2::init_options(desc);
+//      const command_line::arg_descriptor<std::string, true> arg_password = {"password", "password!"};
+//      command_line::add_arg(desc, arg_password);
+//      const command_line::arg_descriptor<bool> arg_stagenet = {"stagenet", "stagenet!"};
+//      command_line::add_arg(desc, arg_stagenet);
+//      const command_line::arg_descriptor<bool> arg_testnet = {"testnet", "testnet!"};
+//      command_line::add_arg(desc, arg_testnet);
+      cout << "6" << endl;
+
+      const char *argv[5];
+      cout << "7" << endl;
+      int argc = 5;
+      cout << "8" << endl;
+      argv[0] = "wallet-rpc";
+      cout << "9" << endl;
+      argv[1] = "--password";
+      cout << "10" << endl;
+      argv[2] = password.c_str();
+      cout << "11" << endl;
+      argv[3] = network_type == monero_network_type::STAGENET ? "--stagenet" : network_type == monero_network_type::TESTNET ? "--testnet" : "";
+      cout << "12" << endl;
+      //argv[4] = "--daemon-address";
+      //argv[5] = "";
+      argv[4] = "";
+      cout << "13" << endl;
+      vm2 = vm;
+      cout << "14" << endl;
+
+      po::store(po::parse_command_line(argc, argv, desc), vm2);
+
+      cout << "15" << endl;
+
+      bool has_stagenet = tools::wallet2::has_stagenet_option(vm2);
+      cout << "Has stagenet: " << has_stagenet << endl;
+    }
+
+    wallet->m_w2 = nullptr;
+    try {
+      string path_copy = path;
+      cout << "Opening path: " << path_copy << endl;
+      wallet->m_w2 = tools::wallet2::make_from_file(vm2, true, path_copy, nullptr).first;
+    }
+    catch (const std::exception& e)
+    {
+      throw runtime_error(string("Error making wallet from file: ") + e.what());
+    }
+    if (!wallet->m_w2)
+    {
+      throw runtime_error("Failed to open wallet");
+    }
+
+
+
+    //wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
+    //wallet->m_w2->load(path, password);
+    //wallet->m_w2->init("");
+    //wallet->m_w2->set_ring_database(get_default_ringdb_path(wallet->m_w2->nettype()));
     wallet->init_common();
     return wallet;
   }
@@ -2803,7 +2900,16 @@ namespace monero {
     if (multisig_hexes.size() < 1 || multisig_hexes.size() > total) throw runtime_error("Needs multisig info from more participants");
 
     // finalize multisig
+    cout << "Finalizing multisig() " << endl;
+    cout << "Password: " << password << endl;
+    cout << "Multisig hexes: " << endl;
+    for (const string& multisig_hex : multisig_hexes) {
+      cout << "\tHex: " << multisig_hex << endl;
+    }
+
+    cout << "Start" << endl;
     bool success = m_w2->finalize_multisig(epee::wipeable_string(password), multisig_hexes);
+    cout << "Success? " << success << endl;
     if (!success) throw runtime_error("Error calling finalize_multisig");
 
     // return the multisig wallet's primary address
