@@ -2358,11 +2358,14 @@ namespace monero {
       tx_metadatas_iter++;
     }
 
+    // throw exception if no dust to sweep (dust only exists pre-rct)
+    if (txs.empty() && multisig_tx_hex.empty() && unsigned_tx_hex.empty()) throw runtime_error("No dust to sweep");
+
     // build and return tx set
     monero_tx_set tx_set;
     tx_set.m_txs = txs;
-    tx_set.m_multisig_tx_hex = multisig_tx_hex;
-    tx_set.m_unsigned_tx_hex = unsigned_tx_hex;
+    if (!multisig_tx_hex.empty()) tx_set.m_multisig_tx_hex = multisig_tx_hex;
+    if (!unsigned_tx_hex.empty()) tx_set.m_unsigned_tx_hex = unsigned_tx_hex;
     return tx_set;
   }
 
