@@ -285,7 +285,7 @@ target_link_libraries(monero-cpp
 # Build C++ Sample Code
 ########################
 
-###[[	--- START BLOCK COMMENT ---
+#[[	--- START BLOCK COMMENT ---
 
 set(
     SAMPLE_CODE_SRC_FILES
@@ -338,7 +338,7 @@ target_link_libraries(sample_code
 	${EXTRA_LIBRARIES}
 )
 
-###]]	# --- END BLOCK COMMENT ---
+#]]	# --- END BLOCK COMMENT ---
 
 ########################
 # Build C++ scratchpad
