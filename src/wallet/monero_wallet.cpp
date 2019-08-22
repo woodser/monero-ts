@@ -2973,6 +2973,46 @@ namespace monero {
     });
   }
 
+  // private helper to initialize subaddresses using transfer details
+  vector<monero_subaddress> monero_wallet::get_subaddresses_aux(const uint32_t account_idx, const vector<uint32_t>& subaddress_indices, const vector<tools::wallet2::transfer_details>& transfers) const {
+    vector<monero_subaddress> subaddresses;
+
+    // get balances per subaddress as maps
+    map<uint32_t, uint64_t> balance_per_subaddress = m_w2->balance_per_subaddress(account_idx);
+    map<uint32_t, std::pair<uint64_t, uint64_t>> unlocked_balance_per_subaddress = m_w2->unlocked_balance_per_subaddress(account_idx);
+
+    // get all indices if no indices given
+    vector<uint32_t> subaddress_indices_req;
+    if (subaddress_indices.empty()) {
+      for (uint32_t subaddress_idx = 0; subaddress_idx < m_w2->get_num_subaddresses(account_idx); subaddress_idx++) {
+        subaddress_indices_req.push_back(subaddress_idx);
+      }
+    } else {
+      subaddress_indices_req = subaddress_indices;
+    }
+
+    // initialize subaddresses at indices
+    for (uint32_t subaddressIndicesIdx = 0; subaddressIndicesIdx < subaddress_indices_req.size(); subaddressIndicesIdx++) {
+      monero_subaddress subaddress;
+      subaddress.m_account_index = account_idx;
+      uint32_t subaddress_idx = subaddress_indices_req.at(subaddressIndicesIdx);
+      subaddress.m_index = subaddress_idx;
+      subaddress.m_address = get_address(account_idx, subaddress_idx);
+      subaddress.m_label = m_w2->get_subaddress_label({account_idx, subaddress_idx});
+      auto iter1 = balance_per_subaddress.find(subaddress_idx);
+      subaddress.m_balance = iter1 == balance_per_subaddress.end() ? 0 : iter1->second;
+      auto iter2 = unlocked_balance_per_subaddress.find(subaddress_idx);
+      subaddress.m_unlocked_balance = iter2 == unlocked_balance_per_subaddress.end() ? 0 : iter2->second.first;
+      cryptonote::subaddress_index index = {account_idx, subaddress_idx};
+      subaddress.m_num_unspent_outputs = count_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return !td.m_spent && td.m_subaddr_index == index; });
+      subaddress.m_is_used = find_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return td.m_subaddr_index == index; }) != transfers.end();
+      subaddress.m_num_blocks_to_unlock = iter1 == balance_per_subaddress.end() ? 0 : iter2->second.second;
+      subaddresses.push_back(subaddress);
+    }
+
+    return subaddresses;
+  }
+
   void monero_wallet::sync_thread_func() {
     MTRACE("sync_thread_func()");
     while (true) {
@@ -3036,45 +3076,5 @@ namespace monero {
     // signal end of sync to registered listeners
     m_w2_listener->on_sync_end();
     return result;
-  }
-
-  // private helper to initialize subaddresses using transfer details
-  vector<monero_subaddress> monero_wallet::get_subaddresses_aux(const uint32_t account_idx, const vector<uint32_t>& subaddress_indices, const vector<tools::wallet2::transfer_details>& transfers) const {
-    vector<monero_subaddress> subaddresses;
-
-    // get balances per subaddress as maps
-    map<uint32_t, uint64_t> balance_per_subaddress = m_w2->balance_per_subaddress(account_idx);
-    map<uint32_t, std::pair<uint64_t, uint64_t>> unlocked_balance_per_subaddress = m_w2->unlocked_balance_per_subaddress(account_idx);
-
-    // get all indices if no indices given
-    vector<uint32_t> subaddress_indices_req;
-    if (subaddress_indices.empty()) {
-      for (uint32_t subaddress_idx = 0; subaddress_idx < m_w2->get_num_subaddresses(account_idx); subaddress_idx++) {
-        subaddress_indices_req.push_back(subaddress_idx);
-      }
-    } else {
-      subaddress_indices_req = subaddress_indices;
-    }
-
-    // initialize subaddresses at indices
-    for (uint32_t subaddressIndicesIdx = 0; subaddressIndicesIdx < subaddress_indices_req.size(); subaddressIndicesIdx++) {
-      monero_subaddress subaddress;
-      subaddress.m_account_index = account_idx;
-      uint32_t subaddress_idx = subaddress_indices_req.at(subaddressIndicesIdx);
-      subaddress.m_index = subaddress_idx;
-      subaddress.m_address = get_address(account_idx, subaddress_idx);
-      subaddress.m_label = m_w2->get_subaddress_label({account_idx, subaddress_idx});
-      auto iter1 = balance_per_subaddress.find(subaddress_idx);
-      subaddress.m_balance = iter1 == balance_per_subaddress.end() ? 0 : iter1->second;
-      auto iter2 = unlocked_balance_per_subaddress.find(subaddress_idx);
-      subaddress.m_unlocked_balance = iter2 == unlocked_balance_per_subaddress.end() ? 0 : iter2->second.first;
-      cryptonote::subaddress_index index = {account_idx, subaddress_idx};
-      subaddress.m_num_unspent_outputs = count_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return !td.m_spent && td.m_subaddr_index == index; });
-      subaddress.m_is_used = find_if(transfers.begin(), transfers.end(), [&](const tools::wallet2::transfer_details& td) { return td.m_subaddr_index == index; }) != transfers.end();
-      subaddress.m_num_blocks_to_unlock = iter1 == balance_per_subaddress.end() ? 0 : iter2->second.second;
-      subaddresses.push_back(subaddress);
-    }
-
-    return subaddresses;
   }
 }
