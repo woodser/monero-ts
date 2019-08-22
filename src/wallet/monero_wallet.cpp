@@ -3044,7 +3044,7 @@ namespace monero {
         if (rescan) m_w2->rescan_blockchain(false);
 
         // sync wallet
-        if (m_syncing_enabled) result = sync_aux(start_height); // lock is lost on is_daemon_synced() so syncing could be disabled
+        if (!m_syncing_thread_done) result = sync_aux(start_height); // lock is lost on is_daemon_synced() so syncing could be disabled
       }
     } while (!rescan && (rescan = m_rescan_on_sync.exchange(false))); // repeat if not rescanned and rescan was requested
     return result;
