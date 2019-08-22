@@ -358,9 +358,6 @@ namespace monero {
   }
 
   shared_ptr<monero_incoming_transfer> monero_incoming_transfer::copy(const shared_ptr<monero_incoming_transfer>& src, const shared_ptr<monero_incoming_transfer>& tgt) const {
-
-
-
     throw runtime_error("monero_incoming_transfer::copy(inTransfer) not implemented");
   };
 
@@ -569,7 +566,17 @@ namespace monero {
   }
 
   void monero_output_wallet::merge(const shared_ptr<monero_output_wallet>& self, const shared_ptr<monero_output_wallet>& other) {
-    throw runtime_error("monero_output_wallet::merge(self, other) not implemented");
+    MTRACE("monero_output_wallet::merge(self, other)");
+    if (this != self.get()) throw runtime_error("this != self");
+    if (self == other) return;
+
+    // merge base classes
+    monero_output::merge(self, other);
+
+    // merge output wallet extensions
+    m_account_index = monero_utils::reconcile(m_account_index, other->m_account_index);
+    m_subaddress_index = monero_utils::reconcile(m_subaddress_index, other->m_subaddress_index);
+    m_is_spent = monero_utils::reconcile(m_is_spent, other->m_is_spent);
   }
 
   // ------------------------ MONERO OUTPUT REQUEST ---------------------------
