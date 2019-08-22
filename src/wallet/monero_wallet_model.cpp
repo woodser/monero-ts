@@ -566,7 +566,6 @@ namespace monero {
   }
 
   void monero_output_wallet::merge(const shared_ptr<monero_output_wallet>& self, const shared_ptr<monero_output_wallet>& other) {
-    throw runtime_error("monero_output_wallet:merge() not implemented");
     MTRACE("monero_output_wallet::merge(self, other)");
     if (this != self.get()) throw runtime_error("this != self");
     if (self == other) return;

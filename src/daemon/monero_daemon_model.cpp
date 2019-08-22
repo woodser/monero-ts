@@ -353,43 +353,68 @@ namespace monero {
       if (m_vouts.empty()) m_vouts = other->m_vouts;
       else {
 
-        // determine if key images present
-        int numKeyImages = 0;
-        for (const shared_ptr<monero_output> vout : m_vouts) {
-          if (vout->m_key_image != boost::none) {
-            if ((*vout->m_key_image)->m_hex == boost::none) throw runtime_error("Key image hex cannot be null");
-            numKeyImages++;
-          }
+        // validate output indices if present
+        int num_indices = 0;
+        for (const shared_ptr<monero_output>& vout : this->m_vouts) if (vout->m_index != boost::none) num_indices++;
+        for (const shared_ptr<monero_output>& vout : other->m_vouts) if (vout->m_index != boost::none) num_indices++;
+        if (num_indices != 0 && this->m_vouts.size() + other->m_vouts.size() != num_indices) {
+          throw runtime_error("Some vouts have an output index and some do not");
         }
-        for (const shared_ptr<monero_output>& vout : other->m_vouts) {
-          if (vout->m_key_image != boost::none) {
-            if ((*vout->m_key_image)->m_hex == boost::none) throw runtime_error("Key image hex cannot be null");
-            numKeyImages++;
-          }
-        }
-        if (numKeyImages != 0 && m_vouts.size() + other->m_vouts.size() != numKeyImages) throw runtime_error("Some vouts have a key image and some do not");
 
-        // merge by key images
-        if (numKeyImages > 0) {
+        // merge by output indices if present
+        if (num_indices > 0) {
           for (const shared_ptr<monero_output>& merger : other->m_vouts) {
             bool merged = false;
             merger->m_tx = self;
-            for (const shared_ptr<monero_output>& mergee : m_vouts) {
-              if ((*mergee->m_key_image)->m_hex == (*merger->m_key_image)->m_hex) {
+            for (const shared_ptr<monero_output>& mergee : this->m_vouts) {
+              if (mergee->m_index.get() == merger->m_index.get()) {
                 mergee->merge(mergee, merger);
                 merged = true;
                 break;
               }
             }
-            if (!merged) m_vouts.push_back(merger);
+            if (!merged) this->m_vouts.push_back(merger);
           }
-        }
+        } else {
 
-        // merge by position
-        else {
-          if (m_vouts.size() != other->m_vouts.size()) throw runtime_error("Vout sizes are different");
-          for (int i = 0; i < other->m_vouts.size(); i++) {
-            m_vouts.at(i)->merge(m_vouts.at(i), other->m_vouts.at(i));
+          // determine if key images present
+          int numKeyImages = 0;
+          for (const shared_ptr<monero_output> vout : m_vouts) {
+            if (vout->m_key_image != boost::none) {
+              if ((*vout->m_key_image)->m_hex == boost::none) throw runtime_error("Key image hex cannot be null");
+              numKeyImages++;
+            }
+          }
+          for (const shared_ptr<monero_output>& vout : other->m_vouts) {
+            if (vout->m_key_image != boost::none) {
+              if ((*vout->m_key_image)->m_hex == boost::none) throw runtime_error("Key image hex cannot be null");
+              numKeyImages++;
+            }
+          }
+          if (numKeyImages != 0 && m_vouts.size() + other->m_vouts.size() != numKeyImages) throw runtime_error("Some vouts have a key image and some do not");
+
+          // merge by key images
+          if (numKeyImages > 0) {
+            for (const shared_ptr<monero_output>& merger : other->m_vouts) {
+              bool merged = false;
+              merger->m_tx = self;
+              for (const shared_ptr<monero_output>& mergee : m_vouts) {
+                if ((*mergee->m_key_image)->m_hex == (*merger->m_key_image)->m_hex) {
+                  mergee->merge(mergee, merger);
+                  merged = true;
+                  break;
+                }
+              }
+              if (!merged) m_vouts.push_back(merger);
+            }
+          }
+
+          // merge by position
+          else {
+            if (m_vouts.size() != other->m_vouts.size()) throw runtime_error("Vout sizes are different");
+            for (int i = 0; i < other->m_vouts.size(); i++) {
+              m_vouts.at(i)->merge(m_vouts.at(i), other->m_vouts.at(i));
+            }
           }
         }
       }
