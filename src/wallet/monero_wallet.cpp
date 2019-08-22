@@ -2756,6 +2756,7 @@ namespace monero {
 
   void monero_wallet::close() {
     MTRACE("close()");
+    m_w2->callback(NULL);
     stop_syncing(); // prevent sync thread from starting again
     m_w2->stop();
     m_w2->deinit();
@@ -2786,6 +2787,7 @@ namespace monero {
   monero_multisig_init_result monero_wallet::make_multisig(const vector<string>& multisig_hexes, int threshold, const string& password) {
     if (m_w2->multisig()) throw runtime_error("This wallet is already multisig");
     if (m_w2->watch_only()) throw runtime_error("This wallet is watch-only and cannot be made multisig");
+    boost::lock_guard<boost::mutex> guarg(m_sync_mutex);  // do not refresh while making multisig
     monero_multisig_init_result result;
     result.m_multisig_hex = m_w2->make_multisig(epee::wipeable_string(password), multisig_hexes, threshold);
     result.m_address = m_w2->get_account().get_public_address_str(m_w2->nettype());
@@ -2800,6 +2802,9 @@ namespace monero {
     if (!m_w2->multisig(&ready, &threshold, &total)) throw new runtime_error("This wallet is not multisig");
     if (ready) throw runtime_error("This wallet is multisig, and already finalized");
     if (multisig_hexes.size() < 1 || multisig_hexes.size() > total) throw runtime_error("Needs multisig info from more participants");
+
+    // do not refresh while finalizing multisig
+    boost::lock_guard<boost::mutex> guarg(m_sync_mutex);
 
     // finalize multisig
     bool success = m_w2->finalize_multisig(epee::wipeable_string(password), multisig_hexes);
@@ -2817,6 +2822,9 @@ namespace monero {
     if (!m_w2->multisig(&ready, &threshold, &total)) throw new runtime_error("This wallet is not multisig");
     if (ready) throw runtime_error("This wallet is multisig, and already finalized");
     if (multisig_hexes.size() < 1 || multisig_hexes.size() > total) throw runtime_error("Needs multisig info from more participants");
+
+    // do not refresh while exchanging multisig keys
+    boost::lock_guard<boost::mutex> guarg(m_sync_mutex);
 
     // import peer multisig keys and get multisig hex to be shared next round
     string multisig_hex = m_w2->exchange_multisig_keys(epee::wipeable_string(password), multisig_hexes);
@@ -2996,10 +3004,7 @@ namespace monero {
         if (rescan) m_w2->rescan_blockchain(false);
 
         // sync wallet
-        result = sync_aux(start_height);
-
-        // find and save rings
-        m_w2->find_and_save_rings(false);
+        if (m_syncing_enabled) result = sync_aux(start_height); // lock is lost on is_daemon_synced() so syncing could be disabled
       }
     } while (!rescan && (rescan = m_rescan_on_sync.exchange(false))); // repeat if not rescanned and rescan was requested
     return result;
@@ -3012,12 +3017,23 @@ namespace monero {
     uint64_t sync_start_height = start_height == boost::none ? max(get_height(), get_restore_height()) : *start_height;
     if (sync_start_height < get_restore_height()) set_restore_height(sync_start_height); // TODO monero core: start height processed > requested start height unless restore height manually set
 
-    // sync wallet and return result
+    // signal start of sync to registered listeners
     m_w2_listener->on_sync_start(sync_start_height);
     monero_sync_result result;
-    m_w2->refresh(m_w2->is_trusted_daemon(), sync_start_height, result.m_num_blocks_fetched, result.m_received_money, true);
+
+    // attempt to refresh wallet2 which may throw exception
+    try {
+      m_w2->refresh(m_w2->is_trusted_daemon(), sync_start_height, result.m_num_blocks_fetched, result.m_received_money, true);
+      if (!m_is_synced) m_is_synced = true;
+    } catch (const exception& e) {
+      MERROR("Caught error refreshing m_w2: " << e.what());
+      cout << "ERROR: caught error refreshing m_w2: " << e.what() << endl;
+    }
+
+    // find and save rings
     m_w2->find_and_save_rings(false);
-    if (!m_is_synced) m_is_synced = true;
+
+    // signal end of sync to registered listeners
     m_w2_listener->on_sync_end();
     return result;
   }
