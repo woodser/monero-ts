@@ -1,4 +1,5 @@
 TODO
+update readme: "Tested by over 100 passing JUnit tests using a Java JNI library."
 monero_wallet.cpp move utilities in monero_namespace to be private
 polish model: no boost::optional<shared_ptr>? no boost::optional<string>? etc
 ensure model toPropertyTrees(), etc are not unecessarily copying return objects
