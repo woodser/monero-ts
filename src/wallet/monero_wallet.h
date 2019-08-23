@@ -1240,20 +1240,20 @@ namespace monero {
     shared_ptr<monero_send_request> parse_payment_uri(const string& uri) const;
 
     /**
-     * Set an arbitrary attribute.
-     *
-     * @param key is the attribute key
-     * @param val is the attribute value
-     */
-    void set_attribute(const string& key, const string& val);
-
-    /**
      * Get an attribute.
      *
      * @param key is the attribute to get the value of
      * @return the attribute's value
      */
     string get_attribute(const string& key) const;
+
+    /**
+     * Set an arbitrary attribute.
+     *
+     * @param key is the attribute key
+     * @param val is the attribute value
+     */
+    void set_attribute(const string& key, const string& val);
 
     /**
      * Start mining.
@@ -1275,24 +1275,6 @@ namespace monero {
      * @return the height of the next block when it is added to the chain
      */
     uint64_t wait_for_next_block();
-
-    /**
-     * Save the wallet at its current path.
-     */
-    void save();
-
-    /**
-     * Move the wallet from its current path to the given path.
-     *
-     * @param path is the new wallet's path
-     * @param password is the new wallet's password
-     */
-    void move_to(string path, string password);
-
-    /**
-     * Close the wallet.
-     */
-    void close();
 
     /**
      * Indicates if importing multisig data is needed for returning a correct balance.
@@ -1384,6 +1366,26 @@ namespace monero {
      * @return the resulting transaction ids
      */
     vector<string> submit_multisig_tx_hex(const string& signed_multisig_tx_hex);
+
+    /**
+     * Save the wallet at its current path.
+     */
+    void save();
+
+    /**
+     * Move the wallet from its current path to the given path.
+     *
+     * @param path is the new wallet's path
+     * @param password is the new wallet's password
+     */
+    void move_to(string path, string password);
+
+    /**
+     * Optionally save then close the wallet.
+     *
+     * @param save specifies if the wallet should be saved before being closed (default true)
+     */
+    void close(bool save = true);
 
     // --------------------------------- PRIVATE --------------------------------
 

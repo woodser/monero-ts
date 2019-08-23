@@ -2664,12 +2664,12 @@ namespace monero {
     return send_request;
   }
 
-  void monero_wallet::set_attribute(const string& key, const string& val) {
-    m_w2->set_attribute(key, val);
-  }
-
   string monero_wallet::get_attribute(const string& key) const {
     return m_w2->get_attribute(key);
+  }
+
+  void monero_wallet::set_attribute(const string& key, const string& val) {
+    m_w2->set_attribute(key, val);
   }
 
   void monero_wallet::start_mining(boost::optional<uint64_t> num_threads, boost::optional<bool> background_mining, boost::optional<bool> ignore_battery) {
@@ -2712,11 +2712,6 @@ namespace monero {
     }
   }
 
-  void monero_wallet::save() {
-    MTRACE("save()");
-    m_w2->store();
-  }
-
   uint64_t monero_wallet::wait_for_next_block() {
 
     // use mutex and condition variable to wait for block
@@ -2747,25 +2742,6 @@ namespace monero {
 
     // return last height
     return block_listener.last_height;
-  }
-
-  void monero_wallet::move_to(string path, string password) {
-    MTRACE("move_to(" << path << ", " << password << ")");
-    m_w2->store_to(path, password);
-  }
-
-  void monero_wallet::close() {
-    MTRACE("close()");
-    m_w2->callback(NULL);
-    stop_syncing(); // prevent sync thread from starting again
-    m_w2->stop();
-    m_w2->deinit();
-    if (!m_syncing_thread_done) {
-      m_syncing_enabled = false;
-      m_syncing_thread_done = true;
-      m_sync_cv.notify_one();
-      m_syncing_thread.join();
-    }
   }
 
   bool monero_wallet::is_multisig_import_needed() const {
@@ -2953,6 +2929,31 @@ namespace monero {
 
     // return the resulting tx ids
     return tx_ids;
+  }
+
+  void monero_wallet::save() {
+    MTRACE("save()");
+    m_w2->store();
+  }
+
+  void monero_wallet::move_to(string path, string password) {
+    MTRACE("move_to(" << path << ", " << password << ")");
+    m_w2->store_to(path, password);
+  }
+
+  void monero_wallet::close(bool save) {
+    MTRACE("close()");
+    if (save) save();
+    m_w2->callback(NULL);
+    stop_syncing(); // prevent sync thread from starting again
+    m_w2->stop();
+    m_w2->deinit();
+    if (!m_syncing_thread_done) {
+      m_syncing_enabled = false;
+      m_syncing_thread_done = true;
+      m_sync_cv.notify_one();
+      m_syncing_thread.join();
+    }
   }
 
   // ------------------------------- PRIVATE HELPERS ----------------------------
