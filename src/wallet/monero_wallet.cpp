@@ -935,7 +935,7 @@ namespace monero {
 
   monero_wallet::~monero_wallet() {
     MTRACE("~monero_wallet()");
-    close();
+    close(false);
   }
 
   // ----------------------------- WALLET METHODS -----------------------------
