@@ -2943,7 +2943,7 @@ namespace monero {
 
   void monero_wallet::close(bool save) {
     MTRACE("close()");
-    if (save) save();
+    if (save) this->save();
     m_w2->callback(NULL);
     stop_syncing(); // prevent sync thread from starting again
     m_w2->stop();
