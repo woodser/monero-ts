@@ -1383,7 +1383,7 @@ namespace monero {
     /**
      * Optionally save then close the wallet.
      *
-     * @param save specifies if the wallet should be saved before being closed (default true)
+     * @param save specifies if the wallet should be saved before being closed (default false)
      */
     void close(bool save = false);
 
