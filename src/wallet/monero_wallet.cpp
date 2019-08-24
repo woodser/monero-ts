@@ -1989,8 +1989,8 @@ namespace monero {
     // build and return tx set
     monero_tx_set tx_set;
     tx_set.m_txs = txs;
-    tx_set.m_multisig_tx_hex = multisig_tx_hex;
-    tx_set.m_unsigned_tx_hex = unsigned_tx_hex;
+    if (!multisig_tx_hex.empty()) tx_set.m_multisig_tx_hex = multisig_tx_hex;
+    if (!unsigned_tx_hex.empty()) tx_set.m_unsigned_tx_hex = unsigned_tx_hex;
     return tx_set;
   }
 
@@ -2163,8 +2163,8 @@ namespace monero {
     // build and return tx set
     monero_tx_set tx_set;
     tx_set.m_txs = txs;
-    tx_set.m_multisig_tx_hex = multisig_tx_hex;
-    tx_set.m_unsigned_tx_hex = unsigned_tx_hex;
+    if (!multisig_tx_hex.empty()) tx_set.m_multisig_tx_hex = multisig_tx_hex;
+    if (!unsigned_tx_hex.empty()) tx_set.m_unsigned_tx_hex = unsigned_tx_hex;
     return tx_set;
   }
 
@@ -2282,8 +2282,8 @@ namespace monero {
     // build and return tx set
     monero_tx_set tx_set;
     tx_set.m_txs = txs;
-    tx_set.m_multisig_tx_hex = multisig_tx_hex;
-    tx_set.m_unsigned_tx_hex = unsigned_tx_hex;
+    if (!multisig_tx_hex.empty()) tx_set.m_multisig_tx_hex = multisig_tx_hex;
+    if (!unsigned_tx_hex.empty()) tx_set.m_unsigned_tx_hex = unsigned_tx_hex;
     return tx_set;
   }
 
