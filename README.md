@@ -4,7 +4,7 @@ This project is a library for using Monero wallets in C++ by wrapping [Monero Co
 
 In addition, this project conforms to an [API specification](https://github.com/monero-ecosystem/monero-java/blob/master/monero-spec.pdf) intended to be intuitive, robust, and for long-term use in the Monero project.
 
-This library may be used to build Monero-related applications, such as GUIs, libraries in other languages (e.g. [monero-java](https://github.com/monero-ecosystem/monero-java-rpc)), or a compliant REST/JSON-RPC API.
+This library may be used to build Monero-related applications, such as GUIs, libraries in other languages (e.g. [monero-java](https://github.com/monero-ecosystem/monero-java)), or a compliant REST/JSON-RPC API.
 
 ## Main Features
 
@@ -12,6 +12,8 @@ This library may be used to build Monero-related applications, such as GUIs, lib
 - Cohesive APIs and models with rigorous focus on ease-of-use
 - Query wallet transactions, transfers, and outputs by their many attributes
 - Be notified when blocks are added to the chain, as the wallet synchronizes, or when the wallet sends or receives funds
+- Supports multisig
+- Tested by over 100 JUnit tests in [native Java library](https://github.com/monero-ecosystem/monero-java)
 
 ## Sample Code
 
@@ -186,7 +188,7 @@ This project is licensed under MIT.
 Donations are gratefully accepted.  Thank you for your support!
 
 <p align="center">
-	<img src="donate.png" width="150" height="150"/>
+	<img src="donate.png" width="120" height="120"/>
 </p>
 
 `46FR1GKVqFNQnDiFkH7AuzbUBrGQwz2VdaXTDD4jcjRE8YkkoTYTmZ2Vohsz9gLSqkj5EM6ai9Q7sBoX4FPPYJdGKQQXPVz`
