@@ -1,8 +1,12 @@
 var searchData=
 [
-  ['on_5fnew_5fblock',['on_new_block',['../classmonero_1_1monero__wallet__listener.html#a0276dc5dbe62b7df42e3eab1b5967895',1,'monero::monero_wallet_listener']]],
-  ['on_5foutput_5freceived',['on_output_received',['../classmonero_1_1monero__wallet__listener.html#a858412263ef3d02da6453334abacff18',1,'monero::monero_wallet_listener']]],
-  ['on_5foutput_5fspent',['on_output_spent',['../classmonero_1_1monero__wallet__listener.html#a3938fd913222b0f107d5b133d1afd439',1,'monero::monero_wallet_listener']]],
-  ['on_5fsync_5fprogress',['on_sync_progress',['../structmonero_1_1sync__listener__wrapper.html#ae75957bcc79bf9ed187910da973cb940',1,'monero::sync_listener_wrapper::on_sync_progress()'],['../classmonero_1_1monero__sync__listener.html#aa2c6e4a08d25e47d8a59ca2b3f2b0f40',1,'monero::monero_sync_listener::on_sync_progress()']]],
-  ['open_5fwallet',['open_wallet',['../classmonero_1_1monero__wallet.html#ab335a7f7451123e79012062ee03ca4c7',1,'monero::monero_wallet']]]
+  ['import_5fkey_5fimages',['import_key_images',['../classmonero_1_1monero__wallet.html#afe813a85b4e8aa065f56c92b593f4071',1,'monero::monero_wallet']]],
+  ['import_5fmultisig_5fhex',['import_multisig_hex',['../classmonero_1_1monero__wallet.html#a1c5e86a918e7545b51511e4049ee6521',1,'monero::monero_wallet']]],
+  ['import_5foutputs_5fhex',['import_outputs_hex',['../classmonero_1_1monero__wallet.html#ac4f59053112ec076d830681b281d0746',1,'monero::monero_wallet']]],
+  ['incoming_5ftransfer_5fbefore',['incoming_transfer_before',['../namespacemonero.html#a289e7d9a279044252e447d725b2360b3',1,'monero']]],
+  ['is_5fconnected',['is_connected',['../classmonero_1_1monero__wallet.html#a0a20d8f73b00266e2d575cfc48fecfb6',1,'monero::monero_wallet']]],
+  ['is_5fdaemon_5fsynced',['is_daemon_synced',['../classmonero_1_1monero__wallet.html#a3bf1d352a15ab92ffddafca3c9583b9a',1,'monero::monero_wallet']]],
+  ['is_5fdaemon_5ftrusted',['is_daemon_trusted',['../classmonero_1_1monero__wallet.html#a2504e931a916cd08d95640899b47a6e8',1,'monero::monero_wallet']]],
+  ['is_5fmultisig_5fimport_5fneeded',['is_multisig_import_needed',['../classmonero_1_1monero__wallet.html#ade4e3ab41c3d093dcce10f5d85e56bc9',1,'monero::monero_wallet']]],
+  ['is_5fsynced',['is_synced',['../classmonero_1_1monero__wallet.html#adf218034ab5b4098b749d3f7ae83208c',1,'monero::monero_wallet']]]
 ];

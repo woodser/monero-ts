@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.15"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>monero-cpp-library: monero Namespace Reference</title>
+<title>Monero C++ Library: monero Namespace Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">monero-cpp-library
+   <div id="projectname">Monero C++ Library
    </div>
   </td>
  </tr>
@@ -94,6 +94,12 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__key__image__import__result.html">monero_key_image_import_result</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__multisig__info.html">monero_multisig_info</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__multisig__init__result.html">monero_multisig_init_result</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__multisig__sign__result.html">monero_multisig_sign_result</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__outgoing__transfer.html">monero_outgoing_transfer</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__output.html">monero_output</a></td></tr>
@@ -119,6 +125,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__tx__query.html">monero_tx_query</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__tx__set.html">monero_tx_set</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -178,6 +186,9 @@ shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">mone
 <tr class="separator:a289e7d9a279044252e447d725b2360b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad88e2b182344e1c169cd028ad8366359"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#ad88e2b182344e1c169cd028ad8366359">vout_before</a> (const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__output.html">monero_output</a> &gt; &amp;o1, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__output.html">monero_output</a> &gt; &amp;o2)</td></tr>
 <tr class="separator:ad88e2b182344e1c169cd028ad8366359"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab39fad177c2dd5acb39537280278043"><td class="memItemLeft" align="right" valign="top"><a id="aab39fad177c2dd5acb39537280278043"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_default_ringdb_path</b> (cryptonote::network_type nettype)</td></tr>
+<tr class="separator:aab39fad177c2dd5acb39537280278043"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a11ef2da5190ff16e820b26ada8cfd943"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemonero.html#a11ef2da5190ff16e820b26ada8cfd943">validate_transfer</a> (wallet2 *m_w2, const std::list&lt; wallet_rpc::transfer_destination &gt; &amp;destinations, const std::string &amp;payment_id, std::vector&lt; cryptonote::tx_destination_entry &gt; &amp;dsts, std::vector&lt; uint8_t &gt; &amp;extra, bool at_least_one_destination, epee::json_rpc::error &amp;er)</td></tr>
 <tr class="separator:a11ef2da5190ff16e820b26ada8cfd943"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a85ad4bc6a98437b114bc85e57c12a567"><td class="memTemplParams" colspan="2"><a id="a85ad4bc6a98437b114bc85e57c12a567"></a>

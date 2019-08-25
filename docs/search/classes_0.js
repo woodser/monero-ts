@@ -11,6 +11,9 @@ var searchData=
   ['monero_5fintegrated_5faddress',['monero_integrated_address',['../structmonero_1_1monero__integrated__address.html',1,'monero']]],
   ['monero_5fkey_5fimage',['monero_key_image',['../structmonero_1_1monero__key__image.html',1,'monero']]],
   ['monero_5fkey_5fimage_5fimport_5fresult',['monero_key_image_import_result',['../structmonero_1_1monero__key__image__import__result.html',1,'monero']]],
+  ['monero_5fmultisig_5finfo',['monero_multisig_info',['../structmonero_1_1monero__multisig__info.html',1,'monero']]],
+  ['monero_5fmultisig_5finit_5fresult',['monero_multisig_init_result',['../structmonero_1_1monero__multisig__init__result.html',1,'monero']]],
+  ['monero_5fmultisig_5fsign_5fresult',['monero_multisig_sign_result',['../structmonero_1_1monero__multisig__sign__result.html',1,'monero']]],
   ['monero_5foutgoing_5ftransfer',['monero_outgoing_transfer',['../structmonero_1_1monero__outgoing__transfer.html',1,'monero']]],
   ['monero_5foutput',['monero_output',['../structmonero_1_1monero__output.html',1,'monero']]],
   ['monero_5foutput_5fquery',['monero_output_query',['../structmonero_1_1monero__output__query.html',1,'monero']]],
@@ -24,6 +27,7 @@ var searchData=
   ['monero_5ftransfer_5fquery',['monero_transfer_query',['../structmonero_1_1monero__transfer__query.html',1,'monero']]],
   ['monero_5ftx',['monero_tx',['../structmonero_1_1monero__tx.html',1,'monero']]],
   ['monero_5ftx_5fquery',['monero_tx_query',['../structmonero_1_1monero__tx__query.html',1,'monero']]],
+  ['monero_5ftx_5fset',['monero_tx_set',['../structmonero_1_1monero__tx__set.html',1,'monero']]],
   ['monero_5ftx_5fwallet',['monero_tx_wallet',['../structmonero_1_1monero__tx__wallet.html',1,'monero']]],
   ['monero_5fwallet',['monero_wallet',['../classmonero_1_1monero__wallet.html',1,'monero']]],
   ['monero_5fwallet_5flistener',['monero_wallet_listener',['../classmonero_1_1monero__wallet__listener.html',1,'monero']]]

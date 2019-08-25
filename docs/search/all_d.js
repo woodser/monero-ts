@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['_7emonero_5fwallet',['~monero_wallet',['../classmonero_1_1monero__wallet.html#a8b434916e7815fcfe4dee23a3086def1',1,'monero::monero_wallet']]]
+  ['validate_5ftransfer',['validate_transfer',['../namespacemonero.html#a11ef2da5190ff16e820b26ada8cfd943',1,'monero']]],
+  ['verify',['verify',['../classmonero_1_1monero__wallet.html#a9c7792c67874bdc4e1229f8efc28b0ec',1,'monero::monero_wallet']]],
+  ['vout_5fbefore',['vout_before',['../namespacemonero.html#ad88e2b182344e1c169cd028ad8366359',1,'monero']]]
 ];
