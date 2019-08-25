@@ -2133,6 +2133,8 @@ namespace monero {
       shared_ptr<monero_outgoing_transfer> out_transfer = make_shared<monero_outgoing_transfer>();
       tx->m_outgoing_transfer = out_transfer;
       out_transfer->m_amount = *tx_amounts_iter;
+      shared_ptr<monero_destination> destination = make_shared<monero_destination>(request.m_destinations[0]->m_address.get(), out_transfer->m_amount.get());
+      out_transfer->m_destinations.push_back(destination);
 
       // init other known fields
       tx->m_payment_id = request.m_payment_id;
@@ -2149,7 +2151,6 @@ namespace monero {
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
       out_transfer->m_account_index = request.m_account_index;
       if (request.m_subaddress_indices.size() == 1) out_transfer->m_subaddress_indices.push_back(request.m_subaddress_indices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
-      out_transfer->m_destinations = request.m_destinations;
 
       // iterate to next element
       tx_keys_iter++;
