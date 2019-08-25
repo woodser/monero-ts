@@ -1,3 +1,3 @@
-[submodule "src/submodules/mymonero-core-js"]
-	path = src/submodules/mymonero-core-js
+[submodule "external/mymonero-core-js"]
+	path = external/mymonero-core-js
 	url = https://github.com/woodser/mymonero-core-js

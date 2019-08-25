@@ -1,5 +1,5 @@
 const assert = require("assert");
-const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const BigInteger = require("../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const TestMoneroDaemonRpc = require("./TestMoneroDaemonRpc");
 const TestMoneroWalletRpc = require("./TestMoneroWalletRpc")
 const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")

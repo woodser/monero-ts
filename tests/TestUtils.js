@@ -3,7 +3,7 @@ const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
 const MoneroWalletRpc = require("../src/wallet/MoneroWalletRpc");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
 const MoneroRpcError = require("../src/rpc/MoneroRpcError");
-const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const BigInteger = require("../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
  * Collection of test utilities and configurations.

@@ -11,7 +11,7 @@ describe("Test Sample Code", function() {
   it("Can demonstrate the wallet with sample code", async function() {
     
     // imports
-    const BigInteger = require("../src/submodules/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+    const BigInteger = require("../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
     const MoneroWalletRpc = require("../src/wallet/MoneroWalletRpc");
     const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
     const MoneroSendPriority = require("../src/wallet/model/MoneroSendPriority");
