@@ -2,7 +2,7 @@
 
 This project is a library for using Monero wallets in C++ by wrapping [Monero Core's](https://github.com/monero-project/monero) C++ wallet, [wallet2](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h).
 
-In addition, this project conforms to an [API specification](https://github.com/monero-ecosystem/monero-java/blob/master/monero-spec.pdf) intended to be intuitive, robust, and for long-term use in the Monero project.
+In addition, this project conforms to an [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and for long-term use in the Monero project.
 
 This library may be used to build Monero-related applications, such as GUIs, libraries in other languages (e.g. [monero-java](https://github.com/monero-ecosystem/monero-java)), or a compliant REST/JSON-RPC API.
 
@@ -17,7 +17,7 @@ This library may be used to build Monero-related applications, such as GUIs, lib
 
 ## Sample Code
 
-This code introduces the API.  See the [documentation](https://woodser.github.io/monero-cpp-library/annotated.html) or [specification PDF](https://github.com/monero-ecosystem/monero-java/blob/master/monero-spec.pdf) for more details.
+This code introduces the API.  See the [documentation](https://woodser.github.io/monero-cpp-library/annotated.html) or [specification PDF](http://moneroecosystem.org/monero-java/monero-spec.pdf) for more details.
 
 Note: This API might change depending on feedback, such as changing structs to classes, using pure object-oriented accessors and mutators, not using boost::optional with shared_ptrs, etc.  Feedback is welcome.
 
@@ -173,7 +173,7 @@ These build steps aspire to be automated further and [any help would be greatly 
 
 ## See Also
 
-These libraries conform to the same [API specification](https://github.com/monero-ecosystem/monero-java/blob/master/monero-spec.pdf).
+These libraries conform to the same [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf).
 
 [Java reference implementation](https://github.com/monero-ecosystem/monero-java-rpc)
 
