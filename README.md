@@ -12,8 +12,8 @@ This library may be used to build Monero-related applications, such as GUIs, lib
 - Cohesive APIs and models with rigorous focus on ease-of-use
 - Query wallet transactions, transfers, and outputs by their many attributes
 - Be notified when blocks are added to the chain, as the wallet synchronizes, or when the wallet sends or receives funds
-- Supports multisig
-- Tested by over 100 JUnit tests in [native Java library](https://github.com/monero-ecosystem/monero-java)
+- Full multisig support
+- Tested by over 100 JUnit tests using a [native Java library](https://github.com/monero-ecosystem/monero-java)
 
 ## Sample Code
 
@@ -102,7 +102,7 @@ struct : monero_wallet_listener {
 wallet_random->add_listener(my_listener);
 
 // send funds from the restored wallet to the random wallet
-shared_ptr<monero_tx_wallet> sent_tx = wallet_restored->send(0, wallet_random->get_address(1, 0), 50000);
+shared_ptr<monero_tx_wallet> sent_tx = wallet_restored->send(0, wallet_random->get_address(1, 0), 50000).m_txs[0];
 bool in_pool = sent_tx->m_in_tx_pool.get();  // true
 
 // mine with 7 threads to push the network along
@@ -129,8 +129,8 @@ destinations.push_back(make_shared<monero_destination>(wallet_random->get_addres
 destinations.push_back(make_shared<monero_destination>(wallet_random->get_address(2, 0), 50000));
 send_request.m_destinations = destinations;
 
-// create the transaction, confirm with the user, and relay to the network which notifies the recipient wallet
-shared_ptr<monero_tx_wallet> created_tx = wallet_restored->create_tx(send_request);
+// create the transaction, confirm with the user, and relay to the network
+shared_ptr<monero_tx_wallet> created_tx = wallet_restored->create_tx(send_request).m_txs[0];
 uint64_t fee = created_tx->m_fee.get(); // "Are you sure you want to send ...?"
 wallet_restored->relay_tx(*created_tx); // submit the transaction to the Monero network which will notify the recipient wallet
 ```
@@ -188,7 +188,7 @@ This project is licensed under MIT.
 Donations are gratefully accepted.  Thank you for your support!
 
 <p align="center">
-	<img src="donate.png" width="120" height="120"/>
+	<img src="donate.png" width="115" height="115"/>
 </p>
 
 `46FR1GKVqFNQnDiFkH7AuzbUBrGQwz2VdaXTDD4jcjRE8YkkoTYTmZ2Vohsz9gLSqkj5EM6ai9Q7sBoX4FPPYJdGKQQXPVz`
