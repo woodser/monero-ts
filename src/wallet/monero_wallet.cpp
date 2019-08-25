@@ -1818,7 +1818,7 @@ namespace monero {
     MTRACE("relay_txs()");
 
     // relay each metadata as a tx
-    vector<string> m_tx_ids;
+    vector<string> tx_ids;
     for (const auto& txMetadata : tx_metadatas) {
 
       // parse tx metadata hex
@@ -1845,11 +1845,11 @@ namespace monero {
       }
 
       // collect resulting id
-      m_tx_ids.push_back(epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(ptx.tx)));
+      tx_ids.push_back(epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(ptx.tx)));
     }
 
     // return relayed tx ids
-    return m_tx_ids;
+    return tx_ids;
   }
 
   vector<string> monero_wallet::relay_txs(const vector<shared_ptr<monero_tx_wallet>>& txs) {
@@ -1931,22 +1931,22 @@ namespace monero {
     list<uint64_t> tx_fees;
     string multisig_tx_hex;
     string unsigned_tx_hex;
-    list<string> m_tx_ids;
+    list<string> tx_ids;
     list<string> tx_blobs;
     list<string> tx_metadatas;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, m_tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
       throw runtime_error("need to handle error filling response!");  // TODO
     }
 
     // build sent txs from results  // TODO: break this into separate utility function
     vector<shared_ptr<monero_tx_wallet>> txs;
-    auto tx_ids_iter = m_tx_ids.begin();
+    auto tx_ids_iter = tx_ids.begin();
     auto tx_keys_iter = tx_keys.begin();
     auto tx_amounts_iter = tx_amounts.begin();
     auto tx_fees_iter = tx_fees.begin();
     auto tx_blobs_iter = tx_blobs.begin();
     auto tx_metadatas_iter = tx_metadatas.begin();
-    while (tx_ids_iter != m_tx_ids.end()) {
+    while (tx_fees_iter != tx_fees.end()) {
 
       // init tx with outgoing transfer from filled values
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
@@ -2105,22 +2105,22 @@ namespace monero {
     list<uint64_t> tx_fees;
     string multisig_tx_hex;
     string unsigned_tx_hex;
-    list<string> m_tx_ids;
+    list<string> tx_ids;
     list<string> tx_blobs;
     list<string> tx_metadatas;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, m_tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
       throw runtime_error("need to handle error filling response!");  // TODO
     }
 
     // build sent txs from results  // TODO: break this into separate utility function
     vector<shared_ptr<monero_tx_wallet>> txs;
-    auto tx_ids_iter = m_tx_ids.begin();
+    auto tx_ids_iter = tx_ids.begin();
     auto tx_keys_iter = tx_keys.begin();
     auto tx_amounts_iter = tx_amounts.begin();
     auto tx_fees_iter = tx_fees.begin();
     auto tx_blobs_iter = tx_blobs.begin();
     auto tx_metadatas_iter = tx_metadatas.begin();
-    while (tx_ids_iter != m_tx_ids.end()) {
+    while (tx_fees_iter != tx_fees.end()) {
 
       // init tx with outgoing transfer from filled values
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
@@ -2220,22 +2220,22 @@ namespace monero {
     list<uint64_t> tx_fees;
     string multisig_tx_hex;
     string unsigned_tx_hex;
-    list<string> m_tx_ids;
+    list<string> tx_ids;
     list<string> tx_blobs;
     list<string> tx_metadatas;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, m_tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
       throw runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
     // build sent txs from results  // TODO: use common utility with send_split() to avoid code duplication
     vector<shared_ptr<monero_tx_wallet>> txs;
-    auto tx_ids_iter = m_tx_ids.begin();
+    auto tx_ids_iter = tx_ids.begin();
     auto tx_keys_iter = tx_keys.begin();
     auto tx_amounts_iter = tx_amounts.begin();
     auto tx_fees_iter = tx_fees.begin();
     auto tx_blobs_iter = tx_blobs.begin();
     auto tx_metadatas_iter = tx_metadatas.begin();
-    while (tx_ids_iter != m_tx_ids.end()) {
+    while (tx_fees_iter != tx_fees.end()) {
 
       // init tx with outgoing transfer from filled values
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
@@ -2304,23 +2304,23 @@ namespace monero {
     list<uint64_t> tx_fees;
     string multisig_tx_hex;
     string unsigned_tx_hex;
-    list<string> m_tx_ids;
+    list<string> tx_ids;
     list<string> tx_blobs;
     list<string> tx_metadatas;
     epee::json_rpc::error er;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, do_not_relay, m_tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, er)) {
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, do_not_relay, tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, er)) {
       throw runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
     // build sent txs from results  // TODO: use common utility with send_split() to avoid code duplication
     vector<shared_ptr<monero_tx_wallet>> txs;
-    auto tx_ids_iter = m_tx_ids.begin();
+    auto tx_ids_iter = tx_ids.begin();
     auto tx_keys_iter = tx_keys.begin();
     auto tx_amounts_iter = tx_amounts.begin();
     auto tx_fees_iter = tx_fees.begin();
     auto tx_blobs_iter = tx_blobs.begin();
     auto tx_metadatas_iter = tx_metadatas.begin();
-    while (tx_ids_iter != m_tx_ids.end()) {
+    while (tx_fees_iter != tx_fees.end()) {
 
       // init tx with outgoing transfer from filled values
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
@@ -2589,10 +2589,10 @@ namespace monero {
     return m_w2->get_tx_note(tx_hash);
   }
 
-  vector<string> monero_wallet::get_tx_notes(const vector<string>& m_tx_ids) const {
+  vector<string> monero_wallet::get_tx_notes(const vector<string>& tx_ids) const {
     MTRACE("monero_wallet::get_tx_notes()");
     vector<string> notes;
-    for (const auto& tx_id : m_tx_ids) notes.push_back(get_tx_note(tx_id));
+    for (const auto& tx_id : tx_ids) notes.push_back(get_tx_note(tx_id));
     return notes;
   }
 
@@ -2606,11 +2606,11 @@ namespace monero {
     m_w2->set_tx_note(tx_hash, note);
   }
 
-  void monero_wallet::set_tx_notes(const vector<string>& m_tx_ids, const vector<string>& notes) {
+  void monero_wallet::set_tx_notes(const vector<string>& tx_ids, const vector<string>& notes) {
     MTRACE("monero_wallet::set_tx_notes()");
-    if (m_tx_ids.size() != notes.size()) throw runtime_error("Different amount of txids and notes");
-    for (int i = 0; i < m_tx_ids.size(); i++) {
-      set_tx_note(m_tx_ids[i], notes[i]);
+    if (tx_ids.size() != notes.size()) throw runtime_error("Different amount of txids and notes");
+    for (int i = 0; i < tx_ids.size(); i++) {
+      set_tx_note(tx_ids[i], notes[i]);
     }
   }
 
