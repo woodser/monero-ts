@@ -202,4 +202,6 @@ class MoneroUtils {
 
 MoneroUtils.NUM_MNEMONIC_WORDS = 25;
 
+MoneroUtils.WALLET_REFRESH_RATE = 10000;  // 10 seconds
+
 module.exports = MoneroUtils;

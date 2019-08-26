@@ -98,10 +98,7 @@ class TxPoolWalletTracker {
       }
       
       // sleep for a moment
-      // TODO: port this to JS
-      throw new Error("Wait for some time");
-      //try { TimeUnit.MILLISECONDS.sleep(MoneroUtils.WALLET2_REFRESH_INTERVAL); }
-      //catch (InterruptedException e) {  throw new RuntimeException(e); } 
+      await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
     }
     
     // stop mining at end of test
