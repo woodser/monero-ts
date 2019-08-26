@@ -4,31 +4,35 @@ const MoneroCheck = require("./MoneroCheck");
  * Results from checking a transaction key.
  */
 class MoneroCheckTx extends MoneroCheck {
+  
+  constructor() {
+    this.state.state = {};
+  }
 
   getInTxPool() {
-    return this.inTxPool;
+    return this.state.inTxPool;
   }
   
   setInTxPool(inTxPool) {
-    this.inTxPool = inTxPool;
+    this.state.inTxPool = inTxPool;
     return this;
   }
   
   getNumConfirmations() {
-    return this.numConfirmations;
+    return this.state.numConfirmations;
   }
   
   setNumConfirmations(numConfirmations) {
-    this.numConfirmations = numConfirmations;
+    this.state.numConfirmations = numConfirmations;
     return this;
   }
   
   getReceivedAmount() {
-    return this.receivedAmount;
+    return this.state.receivedAmount;
   }
   
   setReceivedAmount(receivedAmount) {
-    this.receivedAmount = receivedAmount;
+    this.state.receivedAmount = receivedAmount;
     return this;
   }
 }

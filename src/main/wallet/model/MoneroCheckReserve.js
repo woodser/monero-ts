@@ -5,21 +5,25 @@ const MoneroCheck = require("./MoneroCheck");
  */
 class MoneroCheckReserve extends MoneroCheck {
   
+  constructor() {
+    super();
+  }
+  
   getTotalAmount() {
-    return this.totalAmount;
+    return this.state.totalAmount;
   }
 
   setTotalAmount(totalAmount) {
-    this.totalAmount = totalAmount;
+    this.state.totalAmount = totalAmount;
     return this;
   }
   
   getUnconfirmedSpentAmount() {
-    return this.unconfirmedSpentAmount;
+    return this.state.unconfirmedSpentAmount;
   }
 
   setUnconfirmedSpentAmount(unconfirmedSpentAmount) {
-    this.unconfirmedSpentAmount = unconfirmedSpentAmount;
+    this.state.unconfirmedSpentAmount = unconfirmedSpentAmount;
     return this;
   }
 }
