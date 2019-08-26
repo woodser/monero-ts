@@ -1593,6 +1593,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (false)  // TODO monero core: importing key images can cause erasure of incoming transfers per wallet2.cpp:11957
       it("Can import key images", async function() {
         let images = await wallet.getKeyImages();
         assert(Array.isArray(images));
@@ -1635,6 +1636,9 @@ class TestMoneroWalletCommon {
         for (let key of Object.keys(attrs)) {
           assert.equal(attrs[key], await wallet.getAttribute(key));
         }
+        
+        // get an undefined attribute
+        assert.equal(await wallet.getAttribute("unset_key"), undefined);
       });
       
       it("Can convert between a tx send request and payment URI", async function() {
@@ -1872,6 +1876,25 @@ class TestMoneroWalletCommon {
     let daemon = this.daemon;
     
     describe("Test Sends", function() {
+      
+      it("Can send to external address", async function() {
+        
+        // collect balances before
+        let balance1 = await wallet.getBalance();
+        let unlockedBalance1 = await wallet.getUnlockedBalance();
+        
+        // send funds to external address
+        let tx = (await wallet.send(0, await TestUtils.getRandomWalletAddress(), TestUtils.MAX_FEE.multiply(new BigInteger(3)))).getTxs()[0];
+        
+        // collect balances after
+        let balance2 = await wallet.getBalance();
+        let unlockedBalance2 = await wallet.getUnlockedBalance();
+        
+        // test balances
+        assert(unlockedBalance2.compare(unlockedBalance1) < 0); // unlocked balance should decrease
+        let expectedBalance = balance1.subtract(tx.getOutgoingAmount().subtract(tx.getFee()));
+        assert.equal(balance2, expectedBalance, "Balance after send was not balance before - net tx amount - fee (5 - 1 != 4 test)");
+      });
       
       it("Can send from multiple subaddresses in a single transaction", async function() {
         await testSendFromMultiple();

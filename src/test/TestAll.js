@@ -20,8 +20,8 @@ require("./TestMoneroCppUtils");
 new TestMoneroWalletRpc().runTests({
   liteMode: false, // skips some lengthy but detailed tests
   testNonSends: true,
+  testSends: true,
   testNotifications: false,
-  testSends: false,
   testResets: false
 });
 
