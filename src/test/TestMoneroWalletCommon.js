@@ -1905,6 +1905,7 @@ class TestMoneroWalletCommon {
       });
       
       async function testSendFromMultiple(request) {
+      	await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         if (!request) request = new MoneroSendRequest();
         
         let NUM_SUBADDRESSES = 2; // number of subaddresses to send from
@@ -1949,12 +1950,14 @@ class TestMoneroWalletCommon {
         request.setAccountIndex(srcAccount.getIndex());
         request.setSubaddressIndices(fromSubaddressIndices);
         let txs = [];
-        if (request.getCanSplit()) {
-          let sendTxs = await wallet.sendSplit(request);
-          for (let tx of sendTxs) txs.push(tx);
+        if (request.getCanSplit() !== false) {
+          let txSet = await wallet.sendSplit(request);
+          for (let tx of txSet.getTxs()) txs.push(tx);
         } else {
-          txs.push(await wallet.send(request));
+          let txSet = await wallet.send(request);
+          for (let tx of txSet.getTxs()) txs.push(tx);
         }
+        if (request.getCanSplit() === false) assert.equal(txs.length, 1);  // must have exactly one tx if no split
         
         // test that balances of intended subaddresses decreased
         let accountsAfter = await wallet.getAccounts(true);
@@ -2022,6 +2025,7 @@ class TestMoneroWalletCommon {
       });
       
       async function testSendToSingle(request) {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         if (!request) request = new MoneroSendRequest();
         
         // find a non-primary subaddress to send from
@@ -2057,12 +2061,15 @@ class TestMoneroWalletCommon {
         request.setSubaddressIndices([fromSubaddress.getIndex()]);
         
         // send to self
-        if (request.getCanSplit()) {
-          let sendTxs = await wallet.sendSplit(request);
-          for (let tx of sendTxs) txs.push(tx);
+        // can use create() or send() because request's doNotRelay is used, but exercise both calls
+        if (request.getCanSplit() !== false) {
+          let txSet = await request.getDoNotRelay() ? wallet.createTxs(request) : wallet.sendSplit(request);
+          for (let tx of txSet.getTxs()) txs.push(tx);
         } else {
-          txs.push(await wallet.send(request));
+          let txSet = await request.getDoNotRelay() ? wallet.createTx(request) : wallet.send(request);
+          for (let tx of txSet.getTxs()) txs.push(tx);
         }
+        if (request.getCanSplit() === false) assert.equal(txs.length, 1);  // must have exactly one tx if no split
         
         // handle non-relayed transaction
         if (request.getDoNotRelay()) {
@@ -2073,10 +2080,21 @@ class TestMoneroWalletCommon {
             await testTxWallet(tx, {wallet: wallet, sendRequest: request, isSendResponse: true});
           }
           
+          // txs are not in the pool
+          for (let txCreated of txs) {
+            for (let txPool of await daemon.getTxPool()) {
+              assertFalse(txPool.getId() === txCreated.getId(), "Created tx should not be in the pool");
+            }
+          }
+          
           // relay txs
           let txIds;
-          if (request.getCanSplit() !== true) txIds = [await wallet.relayTx(txs[0].getMetadata())]; // test relayTx() with single transaction
-          else txIds = await wallet.relayTxs(txs.map(tx => tx.getMetadata()));                    // test relayTxs() with potentially multiple transactions
+          if (request.getCanSplit() !== true) txIds = [await wallet.relayTx(txs[0])]; // test relayTx() with single transaction
+          else {
+            let txMetadatas = [];
+            for (let tx of txs) txMetadatas.push(tx.getMetadata());
+            txIds = await wallet.relayTxs(txMetadatas); // test relayTxs() with potentially multiple transactions
+          }  
           for (let txId of txIds) assert(typeof txId === "string" && txId.length === 64);
           
           // fetch txs for testing
@@ -2108,7 +2126,14 @@ class TestMoneroWalletCommon {
             }
           }
         }
+        
+        // test common tx set among txs
         testCommonTxSets(txs, false, false, false);
+        
+        // if tx was relayed, all wallets will need to wait for tx to confirm in order to reliably sync
+        if (request.getDoNotRelay() === true) {
+          await TestUtils.TX_POOL_WALLET_TRACKER.reset(); // TODO: resetExcept(wallet), or does this test wallet also need to be waited on?
+        }
       }
       
       it("Can send to multiple addresses in a single transaction", async function() {
@@ -2138,6 +2163,7 @@ class TestMoneroWalletCommon {
        * @param useJsConfig specifies if the api should be invoked with a JS object instead of a MoneroSendRequest
        */
       async function testSendToMultiple(numAccounts, numSubaddressesPerAccount, canSplit, sendAmountPerSubaddress, useJsConfig) {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         
         // compute the minimum account unlocked balance needed in order to fulfill the request
         let minAccountAmount;
