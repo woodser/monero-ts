@@ -3,7 +3,7 @@ const BigInteger = require("../external/mymonero-core-js/cryptonote_utils/bigint
 const GenUtils = require("../src/utils/GenUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const MoneroError = require("../src/utils/MoneroError");
-const TestUtils = require("./TestUtils");
+const TestUtils = require("./utils/TestUtils");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
 const MoneroSendRequest = require("../src/wallet/model/MoneroSendRequest");
 const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
@@ -556,7 +556,7 @@ class TestMoneroDaemonRpc {
       });
       
       it("Can flush transactions from the pool by ids", async function() {
-        TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         
         // preserve original transactions in the pool
         let txPoolBefore = await daemon.getTxPool();

@@ -264,7 +264,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     else assert(height >= 0, "Height must be an integer >= 0");
     if (numBlocks === undefined) numBlocks = await this.getHeight();
     else assert(numBlocks >= 0, "Count must be an integer >= 0");
-    let resp = await this.config.rpc.sendJsonRequest("get_miner_tx_sum", {height: height, count: numBlocks});
+    let resp = await this.config.rpc.sendJsonRequest("get_coinbase_tx_sum", {height: height, count: numBlocks});
     MoneroDaemonRpc._checkResponseStatus(resp.result);
     let txSum = new MoneroMinerTxSum();
     txSum.setEmissionSum(new BigInteger(resp.result.emission_amount));

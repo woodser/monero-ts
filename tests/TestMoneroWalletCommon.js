@@ -1,5 +1,5 @@
 const assert = require("assert");
-const TestUtils = require("./TestUtils");
+const TestUtils = require("./utils/TestUtils");
 const Filter = require("../src/utils/Filter");
 const GenUtils = require("../src/utils/GenUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");

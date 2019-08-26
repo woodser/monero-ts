@@ -1,7 +1,7 @@
 const assert = require("assert");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const GenUtils = require("../src/utils/GenUtils");
-const TestUtils = require("./TestUtils");
+const TestUtils = require("./utils/TestUtils");
 
 /**
  * Test bridged C++ utilities.

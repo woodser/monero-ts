@@ -1,5 +1,5 @@
 const assert = require("assert");
-const TestUtils = require("./TestUtils");
+const TestUtils = require("./utils/TestUtils");
 const MoneroTxRequest = require("../src/wallet/model/MoneroTxRequest");
 const MoneroTransferRequest = require("../src/wallet/model/MoneroTransferRequest");
 

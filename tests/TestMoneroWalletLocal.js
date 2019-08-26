@@ -1,5 +1,5 @@
 const assert = require("assert");
-const TestUtils = require("./TestUtils");
+const TestUtils = require("./utils/TestUtils");
 const MoneroUtils = require("../src/utils/MoneroUtils");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
