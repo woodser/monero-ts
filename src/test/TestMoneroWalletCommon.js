@@ -1691,6 +1691,36 @@ class TestMoneroWalletCommon {
         await wallet.startMining(2, false, true);
         await wallet.stopMining();
       });
+      
+      it("Can save and close the wallet in a single call", async function() {
+        
+        // create a random wallet
+        let wallet = await createRandomWallet();
+        let path = await wallet.getPath();
+                
+        // set an attribute
+        let uuid = GenUtils.uuidv4();
+        await wallet.setAttribute("id", uuid);
+        
+        // close the wallet without saving
+        await wallet.close();
+        
+        // re-open the wallet and ensure attribute was not saved
+        wallet = await openWallet(path);
+        assert.equal(wallet.getAttribute("id"), undefined);
+        
+        // set the attribute and close with saving
+        await wallet.setAttribute("id", uuid);
+        await wallet.close(true);
+        
+        // re-open the wallet and ensure attribute was saved
+        wallet = await openWallet(path);
+        assert.equal(wallet.getAttribute("id"), uuid);
+        
+        // re-open main test wallet
+        await wallet.close(); // defaults to not saving
+        this.wallet = getTestWallet();
+      });
     });
   }
   
@@ -1758,12 +1788,11 @@ class TestMoneroWalletCommon {
        * @param request is the send configuration to send and test
        */
       async function testSendAndUpdateTxs(request) {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         if (!request) request = new MoneroSendRequest();
         
         // send transactions
-        let sentTxs;
-        if (request.getCanSplit()) sentTxs = await wallet.sendSplit(request);
-        else sentTxs = [await wallet.send(request)];
+        let sentTxs = (await request.getCanSplit() ? wallet.sendSplit(request) : wallet.send(request)).getTxs();
         
         // test sent transactions
         for (let tx of sentTxs) {
@@ -1785,7 +1814,7 @@ class TestMoneroWalletCommon {
           console.log("*** Block " + header.getHeight() + " added to chain ***");
           
           // give wallet time to catch up, otherwise incoming tx may not appear
-          await new Promise(function(resolve) { setTimeout(resolve, 5000); });  // TODO: this lets new block slip, okay?
+          await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // TODO: this lets block slip, okay?
           
           // get incoming/outgoing txs with sent ids
           let txQuery = new MoneroTxQuery();
@@ -2412,6 +2441,7 @@ class TestMoneroWalletCommon {
     describe("Test Resets", function() {
       
       it("Can sweep subaddresses", async function() {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         
         const NUM_SUBADDRESSES_TO_SWEEP = 2;
         
@@ -2420,6 +2450,7 @@ class TestMoneroWalletCommon {
         let subaddressesBalance = [];
         let subaddressesUnlocked = [];
         for (let account of await wallet.getAccounts(true)) {
+          if (account.getIndex() === 0) continue;  // skip default account
           for (let subaddress of account.getSubaddresses()) {
             subaddresses.push(subaddress);
             if (subaddress.getBalance().compare(new BigInteger(0)) > 0) subaddressesBalance.push(subaddress);
@@ -2428,7 +2459,7 @@ class TestMoneroWalletCommon {
         }
         
         // test requires at least one more subaddresses than the number being swept to verify it does not change
-        assert(subaddressesBalance.length >= NUM_SUBADDRESSES_TO_SWEEP + 1, "Test requires balance in at least " + (NUM_SUBADDRESSES_TO_SWEEP + 1) + " subaddresses; run send-to-multiple tests");
+        assert(subaddressesBalance.length >= NUM_SUBADDRESSES_TO_SWEEP + 1, "Test requires balance in at least " + (NUM_SUBADDRESSES_TO_SWEEP + 1) + " subaddresses from non-default acccount; run send-to-multiple tests");
         assert(subaddressesUnlocked.length >= NUM_SUBADDRESSES_TO_SWEEP + 1, "Wallet is waiting on unlocked funds");
         
         // sweep from first unlocked subaddresses
@@ -2436,11 +2467,13 @@ class TestMoneroWalletCommon {
           
           // sweep unlocked account
           let unlockedSubaddress = subaddressesUnlocked[i];
-          let txs = await wallet.sweepSubaddress(unlockedSubaddress.getAccountIndex(), unlockedSubaddress.getIndex(), await wallet.getPrimaryAddress());
+          let txSet = await wallet.sweepSubaddress(unlockedSubaddress.getAccountIndex(), unlockedSubaddress.getIndex(), await wallet.getPrimaryAddress());
           
           // test transactions
+          let txs = txSet.getTxs();
           assert(txs.length > 0);
           for (let tx of txs) {
+            assert(txSet === tx.getTxSet());
             let request = new MoneroSendRequest(await wallet.getPrimaryAddress());
             request.setAccountIndex(unlockedSubaddress.getAccountIndex());
             request.setSubaddressIndices([unlockedSubaddress.getIndex()]);
@@ -2455,6 +2488,7 @@ class TestMoneroWalletCommon {
         // test subaddresses after sweeping
         let subaddressesAfter = [];
         for (let account of await wallet.getAccounts(true)) {
+          if (account.getIndex() === 0) continue;  // skip default account
           for (let subaddress of account.getSubaddresses()) {
             subaddressesAfter.push(subaddress);
           }
@@ -2483,6 +2517,7 @@ class TestMoneroWalletCommon {
       });
       
       it("Can sweep accounts", async function() {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         const NUM_ACCOUNTS_TO_SWEEP = 1;
         
         // collect accounts with sufficient balance and unlocked balance to cover the fee
@@ -2495,7 +2530,7 @@ class TestMoneroWalletCommon {
         }
         
         // test requires at least one more accounts than the number being swept to verify it does not change
-        assert(accountsBalance.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Test requires balance greater than the fee in at least " + (NUM_ACCOUNTS_TO_SWEEP + 1) + " accounts; run send-to-multiple tests");
+        assert(accountsBalance.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Test requires balance greater than the fee in at least " + (NUM_ACCOUNTS_TO_SWEEP + 1) + " non-default accounts; run send-to-multiple tests");
         assert(accountsUnlocked.length >= NUM_ACCOUNTS_TO_SWEEP + 1, "Wallet is waiting on unlocked funds");
         
         // sweep from first unlocked accounts
@@ -2503,7 +2538,7 @@ class TestMoneroWalletCommon {
           
           // sweep unlocked account
           let accountUnlocked = accountsUnlocked[i];
-          let txs = await wallet.sweepAccount(accountUnlocked.getIndex(), await wallet.getPrimaryAddress());
+          let txs = (await wallet.sweepAccount(accountUnlocked.getIndex(), await wallet.getPrimaryAddress())).getTxs();
           
           // test transactions
           assert(txs.length > 0);
@@ -2521,7 +2556,7 @@ class TestMoneroWalletCommon {
         // test accounts after sweeping
         let accountsAfter = await wallet.getAccounts(true);
         assert.equal(accountsAfter.length, accounts.length);
-        for (let i = 0; i < accounts.length; i++) {
+        for (let i = 1; i < accounts.length; i++) {
           let accountBefore = accounts[i];
           let accountAfter = accountsAfter[i];
           
@@ -2554,6 +2589,7 @@ class TestMoneroWalletCommon {
       });
       
       async function _testSweepWallet(sweepEachSubaddress) {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         
         // verify 2 subaddresses with enough unlocked balance to cover the fee
         let subaddressesBalance = [];
@@ -2570,7 +2606,14 @@ class TestMoneroWalletCommon {
         // sweep
         let destination = await wallet.getPrimaryAddress();
         let req = new MoneroSendRequest(destination).setSweepEachSubaddress(sweepEachSubaddress);
-        let txs = await wallet.sweepAllUnlocked(req);
+        let txSets = await wallet.sweepUnlocked(req);
+        let txs = [];
+        for (let txSet of txSets) {
+          assert.equal(txSet.getMultisigTxHex(), undefined);
+          assert.equal(txSet.getSignedTxHex(), undefined);
+          assert.equal(txSet.getUnsignedTxHex(), undefined);
+          for (let tx of txSet.getTxs()) txs.push(tx);
+        }
         assert(txs.length > 0);
         for (let tx of txs) {
           let request = new MoneroSendRequest(destination);
