@@ -10,9 +10,9 @@ const MoneroSyncResult = require("../main/wallet/model/MoneroSyncResult");
 const MoneroDaemon = require("../main/daemon/MoneroDaemon");
 const MoneroTx = require("../main/daemon/model/MoneroTx");
 const MoneroTxWallet = require("../main/wallet/model/MoneroTxWallet");
-const MoneroTxRequest = require("../main/wallet/model/MoneroTxRequest");
-const MoneroOutputRequest = require("../main/wallet/model/MoneroOutputRequest");
-const MoneroTransferRequest = require("../main/wallet/model/MoneroTransferRequest");
+const MoneroTxQuery = require("../main/wallet/model/MoneroTxQuery");
+const MoneroOutputQuery = require("../main/wallet/model/MoneroOutputQuery");
+const MoneroTransferQuery = require("../main/wallet/model/MoneroTransferQuery");
 const MoneroSendRequest = require("../main/wallet/model/MoneroSendRequest");
 const MoneroSendPriority = require("../main/wallet/model/MoneroSendPriority");
 const MoneroTransfer = require("../main/wallet/model/MoneroTransfer");
@@ -577,7 +577,7 @@ class TestMoneroWalletCommon {
         
         // get transactions associated with an account
         let accountIdx = 1;
-        txs = await wallet.getTxs({transferRequest: {accountIndex: accountIdx}});
+        txs = await wallet.getTxs({transferQuery: {accountIndex: accountIdx}});
         for (let tx of txs) {
           let found = false;
           if (tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getAccountIndex() === accountIdx) found = true;
@@ -593,7 +593,7 @@ class TestMoneroWalletCommon {
         }
         
         // get transactions with incoming transfers to an account
-        txs = await wallet.getTxs({transferRequest: {isIncoming: true, accountIndex: accountIdx}});
+        txs = await wallet.getTxs({transferQuery: {isIncoming: true, accountIndex: accountIdx}});
         for (let tx of txs) {
           assert(tx.getIncomingTransfers().length > 0);
           let found = false;
@@ -606,11 +606,11 @@ class TestMoneroWalletCommon {
           assert(found, "No incoming transfers to account " + accountIdx + " found:\n" + tx.toString());
         }
         
-        // get txs with manually built request that are confirmed and have an outgoing transfer from account 0
-        let txRequest = new MoneroTxRequest();
-        txRequest.setIsConfirmed(true);
-        txRequest.setTransferRequest(new MoneroTransferRequest().setAccountIndex(0).setIsOutgoing(true));
-        txs = await getAndTestTxs(wallet, txRequest, true);
+        // get txs with manually built query that are confirmed and have an outgoing transfer from account 0
+        let txQuery = new MoneroTxQuery();
+        txQuery.setIsConfirmed(true);
+        txQuery.setTransferQuery(new MoneroTransferQuery().setAccountIndex(0).setIsOutgoing(true));
+        txs = await getAndTestTxs(wallet, txQuery, true);
         for (let tx of txs) {
           if (!tx.isConfirmed()) console.log(tx.toString());
           assert.equal(tx.isConfirmed(), true);
@@ -619,7 +619,7 @@ class TestMoneroWalletCommon {
         }
         
         // get txs with outgoing transfers that have destinations to account 1
-        txs = await getAndTestTxs(wallet, {transferRequest: {hasDestinations: true, accountIndex: 0}});
+        txs = await getAndTestTxs(wallet, {transferQuery: {hasDestinations: true, accountIndex: 0}});
         for (let tx of txs) {
           assert(tx.getOutgoingTransfer());
           assert(tx.getOutgoingTransfer().getDestinations().length > 0);
@@ -642,7 +642,7 @@ class TestMoneroWalletCommon {
       it("Can get transactions by height", async function() {
         
         // get all confirmed txs for testing
-        let txs = await getAndTestTxs(wallet, new MoneroTxRequest().setIsConfirmed(true));
+        let txs = await getAndTestTxs(wallet, new MoneroTxQuery().setIsConfirmed(true));
         assert(txs.length > 0, "Wallet has no confirmed txs; run send tests");
         
         // collect all tx heights
@@ -655,16 +655,16 @@ class TestMoneroWalletCommon {
         let modeHeight = heightModes.values().next().value;
         
         // fetch txs at mode height
-        let modeTxs = await getAndTestTxs(wallet, new MoneroTxRequest().setHeight(modeHeight));
+        let modeTxs = await getAndTestTxs(wallet, new MoneroTxQuery().setHeight(modeHeight));
         assert.equal(modeTxs.length, heightCounts.get(modeHeight));
         
         // fetch txs at mode height by range
-        let modeTxsByRange = await getAndTestTxs(wallet, new MoneroTxRequest().setMinHeight(modeHeight).setMaxHeight(modeHeight));
+        let modeTxsByRange = await getAndTestTxs(wallet, new MoneroTxQuery().setMinHeight(modeHeight).setMaxHeight(modeHeight));
         assert.equal(modeTxsByRange.length, modeTxs.length);
         assert.deepEqual(modeTxsByRange, modeTxs);
         
         // fetch all txs by range
-        let fetched = await getAndTestTxs(wallet, new MoneroTxRequest().setMinHeight(txs[0].getHeight()).setMaxHeight(txs[txs.length - 1].getHeight()));
+        let fetched = await getAndTestTxs(wallet, new MoneroTxQuery().setMinHeight(txs[0].getHeight()).setMaxHeight(txs[txs.length - 1].getHeight()));
         assert.deepEqual(txs, fetched);
         
         // test some filtered by range
@@ -739,8 +739,8 @@ class TestMoneroWalletCommon {
             if (transfer.getAccountIndex() === tx.getOutgoingTransfer().getAccountIndex()) continue;
             
             // fetch tx with filtering
-            let filteredTxs = await wallet.getTxs({transferRequest: {isIncoming: true, accountIndex: transfer.getAccountIndex()}});
-            let filteredTx = Filter.apply(new MoneroTxRequest().setTxIds([tx.getId()]), filteredTxs)[0];
+            let filteredTxs = await wallet.getTxs({transferQuery: {isIncoming: true, accountIndex: transfer.getAccountIndex()}});
+            let filteredTx = Filter.apply(new MoneroTxQuery().setTxIds([tx.getId()]), filteredTxs)[0];
             
             // txs should be the same (mergeable)
             assert.equal(filteredTx.getId(), tx.getId());
@@ -775,9 +775,9 @@ class TestMoneroWalletCommon {
           assert.equal(e.getDescription(), "Tx not found in wallet: " + unknownId1);
         }
         
-        // fetch unknown tx id using request
+        // fetch unknown tx id using query
         try {
-          await wallet.getTxs(new MoneroTxRequest().setTxId(unknownId1));
+          await wallet.getTxs(new MoneroTxQuery().setTxId(unknownId1));
           throw new Error("Should have thrown error getting tx id unknown to wallet");
         } catch (e) {
           assert.equal(e.getDescription(), "Tx not found in wallet: " + unknownId1);
@@ -879,7 +879,7 @@ class TestMoneroWalletCommon {
           }
           
           // get and test transfers by subaddress indices
-          let transfers = await getAndTestTransfers(wallet, new MoneroTransferRequest().setAccountIndex(account.getIndex()).setSubaddressIndices(Array.from(subaddressIndices)), undefined, undefined);
+          let transfers = await getAndTestTransfers(wallet, new MoneroTransferQuery().setAccountIndex(account.getIndex()).setSubaddressIndices(Array.from(subaddressIndices)), undefined, undefined);
           //if (transfers.length !== subaddressTransfers.length) console.log("WARNING: outgoing transfers always from subaddress 0 (monero-wallet-rpc #5171)");
           assert.equal(transfers.length, subaddressTransfers.length); // TODO monero-wallet-rpc: these may not be equal because outgoing transfers are always from subaddress 0 (#5171) and/or incoming transfers from/to same account are occluded (#4500)
           for (let transfer of transfers) {
@@ -956,12 +956,12 @@ class TestMoneroWalletCommon {
         
         // TODO: test transfers destinations
         
-        // get transfers with pre-built request that are confirmed and have outgoing destinations
-        let transferRequest = new MoneroTransferRequest();
-        transferRequest.setIsOutgoing(true);
-        transferRequest.setHasDestinations(true);
-        transferRequest.setTxRequest(new MoneroTxRequest().setIsConfirmed(true));
-        transfers = await getAndTestTransfers(wallet, transferRequest);
+        // get transfers with pre-built query that are confirmed and have outgoing destinations
+        let transferQuery = new MoneroTransferQuery();
+        transferQuery.setIsOutgoing(true);
+        transferQuery.setHasDestinations(true);
+        transferQuery.setTxQuery(new MoneroTxQuery().setIsConfirmed(true));
+        transfers = await getAndTestTransfers(wallet, transferQuery);
         for (let transfer of transfers) {
           assert.equal(transfer.isOutgoing(), true);
           assert(transfer.getDestinations().length > 0);
@@ -1073,13 +1073,13 @@ class TestMoneroWalletCommon {
         outputs = await getAndTestOutputs(wallet, {txIds: txIds}, true);
         for (let output of outputs) assert(txIds.includes(output.getTx().getId()));
         
-        // get confirmed outputs to specific subaddress with pre-built request
+        // get confirmed outputs to specific subaddress with pre-built query
         let accountIdx = 0;
         let subaddressIdx = 1;
-        let request = new MoneroOutputRequest();
-        request.setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx);
-        request.setTxRequest(new MoneroTxRequest().setIsConfirmed(true));
-        outputs = await getAndTestOutputs(wallet, request, true);
+        let query = new MoneroOutputQuery();
+        query.setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx);
+        query.setTxQuery(new MoneroTxQuery().setIsConfirmed(true));
+        outputs = await getAndTestOutputs(wallet, query, true);
         for (let output of outputs) {
           assert.equal(output.getAccountIndex(), accountIdx);
           assert.equal(output.getSubaddressIndex(), subaddressIdx);
@@ -1088,7 +1088,7 @@ class TestMoneroWalletCommon {
         
         // get output by key image
         let keyImage = outputs[0].getKeyImage().getHex();
-        outputs = await wallet.getOutputs(new MoneroOutputRequest().setKeyImage(new MoneroKeyImage(keyImage)));
+        outputs = await wallet.getOutputs(new MoneroOutputQuery().setKeyImage(new MoneroKeyImage(keyImage)));
         assert.equal(outputs.length, 1);
         assert.equal(outputs[0].getKeyImage().getHex(), keyImage);
       });
@@ -1167,7 +1167,7 @@ class TestMoneroWalletCommon {
 //          if (account.getIndex() !== 1) continue; // find 1
 //          outgoingSum = new BigInteger(0);
 //          incomingSum = new BigInteger(0);
-//          let filter = new MoneroTxRequest();
+//          let filter = new MoneroTxQuery();
 //          filter.setAccountIndex(account.getIndex());
 //          for (let tx of txs.filter(tx => filter.meetsCriteria(tx))) { // normally we'd call wallet.getTxs(filter) but we're using pre-fetched txs
 //            if (tx.getId() === "8d3919d98dd5a734da8c52eddc558db3fbf059ad55d432f0052ecd59ef122ecb") console.log(tx.toString(0));
@@ -1250,7 +1250,7 @@ class TestMoneroWalletCommon {
         // get random txs that are confirmed and have outgoing destinations
         let txs;
         try {
-          txs = await getRandomTransactions(wallet, {isConfirmed: true, isOutgoing: true, transferRequest: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
+          txs = await getRandomTransactions(wallet, {isConfirmed: true, isOutgoing: true, transferQuery: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
         } catch (e) {
           if (e.message.indexOf("found with")) throw new Error("No txs with outgoing destinations found; run send tests")
           throw e;
@@ -1333,7 +1333,7 @@ class TestMoneroWalletCommon {
         // get random txs that are confirmed and have outgoing destinations
         let txs;
         try {
-          txs = await getRandomTransactions(wallet, {isConfirmed: true, isOutgoing: true, transferRequest: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
+          txs = await getRandomTransactions(wallet, {isConfirmed: true, isOutgoing: true, transferQuery: {hasDestinations: true}}, 1, MAX_TX_PROOFS);
         } catch (e) {
           if (e.message.indexOf("found with")) throw new Error("No txs with outgoing destinations found; run send tests")
           throw e;
@@ -1601,7 +1601,7 @@ class TestMoneroWalletCommon {
         assert(result.getHeight() > 0);
         
         // determine if non-zero spent and unspent amounts are expected
-        let txs = await wallet.getTxs({isConfirmed: true, transferRequest: {isOutgoing: true}});
+        let txs = await wallet.getTxs({isConfirmed: true, transferQuery: {isOutgoing: true}});
         let balance = await wallet.getBalance();
         let hasSpent = txs.length > 0;
         let hasUnspent = balance.toJSValue() > 0;
@@ -1784,9 +1784,9 @@ class TestMoneroWalletCommon {
           await new Promise(function(resolve) { setTimeout(resolve, 5000); });  // TODO: this lets new block slip, okay?
           
           // get incoming/outgoing txs with sent ids
-          let request = new MoneroTxRequest();
-          request.setTxIds(sentTxs.map(sentTx => sentTx.getId())); // TODO: convenience methods wallet.getTxById(), getTxsById()?
-          let fetchedTxs = await getAndTestTxs(wallet, request, true);
+          let txQuery = new MoneroTxQuery();
+          txQuery.setTxIds(sentTxs.map(sentTx => sentTx.getId())); // TODO: convenience methods wallet.getTxById(), getTxsById()?
+          let fetchedTxs = await getAndTestTxs(wallet, txQuery, true);
           assert(fetchedTxs.length > 0);
           
           // test fetched txs
@@ -2226,7 +2226,7 @@ class TestMoneroWalletCommon {
         let numOutputs = 3;
         
         // get outputs to sweep (not spent, unlocked, and amount >= fee)
-        let spendableUnlockedOutputs = await wallet.getOutputs(new MoneroOutputRequest().setIsSpent(false).setIsUnlocked(true));
+        let spendableUnlockedOutputs = await wallet.getOutputs(new MoneroOutputQuery().setIsSpent(false).setIsUnlocked(true));
         let outputsToSweep = [];
         for (let i = 0; i < spendableUnlockedOutputs.length && outputsToSweep.length < numOutputs; i++) {
           if (spendableUnlockedOutputs[i].getAmount().compare(TestUtils.MAX_FEE) > 0) outputsToSweep.push(spendableUnlockedOutputs[i]);  // output cannot be swept if amount does not cover fee
@@ -2286,7 +2286,7 @@ class TestMoneroWalletCommon {
         for (let txId of txIds) assert.equal(txId.length, 64);
         
         // fetch and test txs
-        txs = wallet.getTxs(new MoneroTxRequest().setTxIds(txIds));
+        txs = wallet.getTxs(new MoneroTxQuery().setTxIds(txIds));
         ctx.sendRequest.setDoNotRelay(false);
         for (let tx of txs) {
           await testTxWallet(tx, ctx);
@@ -2480,7 +2480,7 @@ class TestMoneroWalletCommon {
         }
         
         // all unspent, unlocked outputs must be less than fee
-        let spendableOutputs = await wallet.getOutputs(new MoneroOutputRequest().setIsSpent(false).setIsUnlocked(true));
+        let spendableOutputs = await wallet.getOutputs(new MoneroOutputQuery().setIsSpent(false).setIsUnlocked(true));
         for (let spendableOutput of spendableOutputs) {
           assert(spendableOutput.getAmount().compare(TestUtils.MAX_FEE) < 0, "Unspent output should have been swept\n" + spendableOutput.toString());
         }
@@ -2571,37 +2571,37 @@ function testSubaddress(subaddress) {
 }
 
 /**
- * Fetches and tests transactions according to the given request.
+ * Fetches and tests transactions according to the given query.
  * 
- * TODO: convert request to request object and ensure each tx passes filter, same with testGetTransfer and getAndTestOutputs
+ * TODO: convert query to query object and ensure each tx passes filter, same with testGetTransfer and getAndTestOutputs
  */
-async function getAndTestTxs(wallet, request, isExpected) {
-  let txs = await wallet.getTxs(request);
+async function getAndTestTxs(wallet, query, isExpected) {
+  let txs = await wallet.getTxs(query);
   assert(Array.isArray(txs));
   if (isExpected === false) assert.equal(txs.length, 0);
   if (isExpected === true) assert(txs.length > 0);
-  for (let tx of txs) await testTxWallet(tx, Object.assign({wallet: wallet}, request));
-  testGetTxsStructure(txs, request);
+  for (let tx of txs) await testTxWallet(tx, Object.assign({wallet: wallet}, query));
+  testGetTxsStructure(txs, query);
   return txs;
 }
 
 /**
- * Fetches and tests transfers according to the given request.
+ * Fetches and tests transfers according to the given query.
  */
-async function getAndTestTransfers(wallet, request, isExpected) {
-  let transfers = await wallet.getTransfers(request);
+async function getAndTestTransfers(wallet, query, isExpected) {
+  let transfers = await wallet.getTransfers(query);
   assert(Array.isArray(transfers));
   if (isExpected === false) assert.equal(transfers.length, 0);
   if (isExpected === true) assert(transfers.length > 0, "Transactions were expected but not found; run send tests?");
-  for (let transfer of transfers) await testTxWallet(transfer.getTx(), Object.assign({wallet: wallet}, request));
+  for (let transfer of transfers) await testTxWallet(transfer.getTx(), Object.assign({wallet: wallet}, query));
   return transfers;
 }
 
 /**
- * Fetches and tests outputs according to the given request.
+ * Fetches and tests outputs according to the given query.
  */
-async function getAndTestOutputs(wallet, request, isExpected) {
-  let outputs = await wallet.getOutputs(request);
+async function getAndTestOutputs(wallet, query, isExpected) {
+  let outputs = await wallet.getOutputs(query);
   assert(Array.isArray(outputs));
   if (isExpected === false) assert.equal(outputs.length, 0);
   if (isExpected === true) assert(outputs.length > 0, "Outputs were expected but not found; run send tests?");
@@ -2613,14 +2613,14 @@ async function getAndTestOutputs(wallet, request, isExpected) {
  * Gets random transactions.
  * 
  * @param wallet is the wallet to query for transactions
- * @param request configures the transactions to retrieve
+ * @param query configures the transactions to retrieve
  * @param minTxs specifies the minimum number of transactions (undefined for no minimum)
  * @param maxTxs specifies the maximum number of transactions (undefined for all filtered transactions)
  * @return {MoneroTxWallet[]} are the random transactions
  */
-async function getRandomTransactions(wallet, request, minTxs, maxTxs) {
-  let txs = await wallet.getTxs(request);
-  if (minTxs !== undefined) assert(txs.length >= minTxs, txs.length + "/" + minTxs + " transactions found with request: " + JSON.stringify(request));
+async function getRandomTransactions(wallet, query, minTxs, maxTxs) {
+  let txs = await wallet.getTxs(query);
+  if (minTxs !== undefined) assert(txs.length >= minTxs, txs.length + "/" + minTxs + " transactions found with query: " + JSON.stringify(query));
   GenUtils.shuffle(txs);
   if (maxTxs === undefined) return txs;
   else return txs.slice(0, Math.min(maxTxs, txs.length));
@@ -3055,11 +3055,11 @@ function testCheckReserve(check) {
  * Tests the integrity of the full structure in the given txs from the block down
  * to transfers / destinations.
  */
-function testGetTxsStructure(txs, request = undefined) {
+function testGetTxsStructure(txs, query = undefined) {
   
-  // normalize request
-  if (request === undefined) request = new MoneroTxRequest();
-  if (!(request instanceof MoneroTxRequest)) request = new MoneroTxRequest(request);
+  // normalize query
+  if (query === undefined) query = new MoneroTxQuery();
+  if (!(query instanceof MoneroTxQuery)) query = new MoneroTxQuery(query);
   
   // collect unique blocks in order (using set and list instead of TreeSet for direct portability to other languages)
   let seenBlocks = new Set();
@@ -3077,10 +3077,10 @@ function testGetTxsStructure(txs, request = undefined) {
   }
   
   // tx ids must be in order if requested
-  if (request.getTxIds() !== undefined) {
-    assert.equal(txs.length, request.getTxIds().length);
-    for (let i = 0; i < request.getTxIds().length; i++) {
-      assert.equal(txs[i].getId(), request.getTxIds()[i]);
+  if (query.getTxIds() !== undefined) {
+    assert.equal(txs.length, query.getTxIds().length);
+    for (let i = 0; i < query.getTxIds().length; i++) {
+      assert.equal(txs[i].getId(), query.getTxIds()[i]);
     }
   }
   
@@ -3089,10 +3089,10 @@ function testGetTxsStructure(txs, request = undefined) {
   let prevBlockHeight = undefined;
   for (let block of blocks) {
     if (prevBlockHeight === undefined) prevBlockHeight = block.getHeight();
-    else if (request.getTxIds() === undefined) assert(block.getHeight() > prevBlockHeight, "Blocks are not in order of heights: " + prevBlockHeight + " vs " + block.getHeight());
+    else if (query.getTxIds() === undefined) assert(block.getHeight() > prevBlockHeight, "Blocks are not in order of heights: " + prevBlockHeight + " vs " + block.getHeight());
     for (let tx of block.getTxs()) {
       assert(tx.getBlock() === block);
-      if (request.getTxIds() === undefined) { 
+      if (query.getTxIds() === undefined) { 
         assert.equal(tx.getId(), txs[index].getId()); // verify tx order is self-consistent with blocks unless txs manually re-ordered by requesting by id
         assert(tx === txs[index]);
       }

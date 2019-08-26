@@ -1,7 +1,7 @@
 const assert = require("assert");
 const TestUtils = require("./utils/TestUtils");
-const MoneroTxRequest = require("../main/wallet/model/MoneroTxRequest");
-const MoneroTransferRequest = require("../main/wallet/model/MoneroTransferRequest");
+const MoneroTxQuery = require("../main/wallet/model/MoneroTxQuery");
+const MoneroTransferQuery = require("../main/wallet/model/MoneroTransferQuery");
 
 /**
  * Test the sample code in README.md.
@@ -46,7 +46,7 @@ describe("Test Sample Code", function() {
     }
     
     // get incoming transfers to account 0
-    transfers = await wallet.getTransfers(new MoneroTransferRequest().setAccountIndex(0).setIsIncoming(true));
+    transfers = await wallet.getTransfers(new MoneroTransferQuery().setAccountIndex(0).setIsIncoming(true));
     for (let transfer of transfers) {
       assert(transfer.isIncoming());
       assert.equal(transfer.getAccountIndex(), 0);
@@ -70,7 +70,7 @@ describe("Test Sample Code", function() {
     });
     
     // get all confirmed wallet transactions
-    for (let tx of await wallet.getTxs(new MoneroTxRequest().setIsConfirmed(true))) {
+    for (let tx of await wallet.getTxs(new MoneroTxQuery().setIsConfirmed(true))) {
       let txId = tx.getId();                  // e.g. f8b2f0baa80bf6b...
       let txFee = tx.getFee();                // e.g. 750000
       let isConfirmed = tx.isConfirmed();  // e.g. true

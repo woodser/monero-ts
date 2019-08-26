@@ -1,17 +1,17 @@
 const assert = require("assert");
 const Filter = require("../../utils/Filter");
 const MoneroTxWallet = require("../model/MoneroTxWallet");
-const MoneroTransferRequest = require("./MoneroTransferRequest"); // TODO: combine request file so these can import each other?
+const MoneroTransferQuery = require("./MoneroTransferQuery"); // TODO: combine query file so these can import each other?
 
 /**
- * Configures a request to retrieve transactions.
+ * Configures a query to retrieve transactions.
  * 
- * All transactions are returned except those that do not meet the criteria defined in this request.
+ * All transactions are returned except those that do not meet the criteria defined in this query.
  */
-class MoneroTxRequest extends MoneroTxWallet {
+class MoneroTxQuery extends MoneroTxWallet {
   
   /**
-   * Constructs the request.
+   * Constructs the query.
    * 
    * @param state is model state or json to initialize from (optional)
    */
@@ -19,7 +19,7 @@ class MoneroTxRequest extends MoneroTxWallet {
     super(state);
     
     // deserialize if necessary
-    if (this.state.transferRequest && !(this.state.transferRequest instanceof MoneroTransferRequest)) this.state.transferRequest = new MoneroTransferRequest(this.state.transferRequest);
+    if (this.state.transferQuery && !(this.state.transferQuery instanceof MoneroTransferQuery)) this.state.transferQuery = new MoneroTransferQuery(this.state.transferQuery);
     
     // alias 'txId' to txIds
     if (this.state.txId) {
@@ -121,12 +121,12 @@ class MoneroTxRequest extends MoneroTxWallet {
     return this;
   }
   
-  getTransferRequest() {
-    return this.state.transferRequest;
+  getTransferQuery() {
+    return this.state.transferQuery;
   }
   
-  setTransferRequest(transferRequest) {
-    this.state.transferRequest = transferRequest;
+  setTransferQuery(transferQuery) {
+    this.state.transferQuery = transferQuery;
     return this;
   }
   
@@ -145,12 +145,12 @@ class MoneroTxRequest extends MoneroTxWallet {
     if (this.isMiner() !== undefined && this.isMiner() !== tx.isMiner()) return false;
     
     // at least one transfer must meet transfer filter if defined
-    if (this.getTransferRequest()) {
+    if (this.getTransferQuery()) {
       let matchFound = false;
-      if (tx.getOutgoingTransfer() && this.getTransferRequest().meetsCriteria(tx.getOutgoingTransfer())) matchFound = true;
+      if (tx.getOutgoingTransfer() && this.getTransferQuery().meetsCriteria(tx.getOutgoingTransfer())) matchFound = true;
       else if (tx.getIncomingTransfers()) {
         for (let incomingTransfer of tx.getIncomingTransfers()) {
-          if (this.getTransferRequest().meetsCriteria(incomingTransfer)) {
+          if (this.getTransferQuery().meetsCriteria(incomingTransfer)) {
             matchFound = true;
             break;
           }
@@ -190,4 +190,4 @@ class MoneroTxRequest extends MoneroTxWallet {
   }
 }
 
-module.exports = MoneroTxRequest;
+module.exports = MoneroTxQuery;

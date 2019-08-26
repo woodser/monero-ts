@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-const MoneroTxRequest = require("./model/MoneroTxRequest");
+const MoneroTxQuery = require("./model/MoneroTxQuery");
 const MoneroSendRequest = require("./model/MoneroSendRequest");
 const MoneroError = require("../utils/MoneroError");
 
@@ -283,15 +283,15 @@ class MoneroWallet {
    * Get wallet transactions.  Wallet transactions contain one or more
    * transfers that are either incoming or outgoing to the wallet.
    * 
-   * Query results can be filtered by passing in a transaction request.
-   * Transactions must meet every criteria defined in the request in order to
+   * Query results can be filtered by passing in a transaction query.
+   * Transactions must meet every criteria defined in the query in order to
    * be returned.  All filtering is optional and no filtering is applied when
    * not defined.
    * 
-   * Transactions can be fetched by a MoneroTxRequest, equivalent js object, or
+   * Transactions can be fetched by a MoneroTxQuery, equivalent js object, or
    * array of tx ids.
    * 
-   * @param {(MoneroTxRequest|string[]|object)} config configures the query (optional)
+   * @param {(MoneroTxQuery|string[]|object)} config configures the query (optional)
    * @param {boolean} config.isConfirmed gets txs that are confirmed or not (optional)
    * @param {boolean} config.inTxPool get txs that are in the tx pool or not (optional)
    * @param {boolean} config.isRelayed gets txs that are relayed or not (optional)
@@ -307,7 +307,7 @@ class MoneroWallet {
    * @param {int} config.maxHeight gets txs with height <= the given height (optional)
    * @param {boolean} config.isOutgoing gets txs with an outgoing transfer or not (optional)
    * @param {boolean} config.isIncoming gets txs with an incoming transfer or not (optional)
-   * @param {MoneroTransferRequest} config.transferRequest gets txs that have a transfer that meets this request (optional)
+   * @param {MoneroTransferQuery} config.transferQuery gets txs that have a transfer that meets this query (optional)
    * @param {boolean} config.includeOutputs specifies that tx vouts should be returned with tx results (optional)
    * @return {MoneroTxWallet[]} are wallet transactions per the configuration
    */
@@ -328,7 +328,7 @@ class MoneroWallet {
    * to be returned.  All configuration is optional and no filtering is applied
    * when not defined.
    * 
-   * @param {(MoneroTransferRequest|object)} config configures the query (optional)
+   * @param {(MoneroTransferQuery|object)} config configures the query (optional)
    * @param {boolean} config.isOutgoing gets transfers that are outgoing or not (optional)
    * @param {boolean} config.isIncoming gets transfers that are incoming or not (optional)
    * @param {string} config.address is the wallet's address that a transfer either originated from (if outgoing) or is destined for (if incoming) (optional)
@@ -338,7 +338,7 @@ class MoneroWallet {
    * @param {BigInteger} config.amount is the amount being transferred (optional)
    * @param {MoneroDestination[]} config.destinations are individual destinations of an outgoing transfer, which is local wallet data and NOT recoverable from the blockchain (optional)
    * @param {boolean} config.hasDestinations gets transfers that have destinations or not (optional)
-   * @param {MoneroTxRequest} config.txRequest gets transfers whose transaction meets this request (optional)
+   * @param {MoneroTxQuery} config.txQuery gets transfers whose transaction meets this query (optional)
    * @return {MoneroTransfer[]} are wallet transfers per the configuration
    */
   async getTransfers(config) {
@@ -350,20 +350,20 @@ class MoneroWallet {
    * (i.e. that the wallet can spend one time).  Outputs are part of
    * transactions which are stored in blocks on the blockchain.
    * 
-   * Results can be configured by passing a MoneroOutputRequest.  Outputs must
-   * meet every criteria defined in the request in order to be returned.  All
+   * Results can be configured by passing a MoneroOutputQuery.  Outputs must
+   * meet every criteria defined in the query in order to be returned.  All
    * filtering is optional and no filtering is applied when not defined.
    * 
-   * TODO: add additional filtering in MoneroOutputRequest.js meetsCriteria()
+   * TODO: add additional filtering in MoneroOutputQuery.js meetsCriteria()
    * 
-   * @param {(MoneroOutputRequest|object)} config configures the query (optional)
+   * @param {(MoneroOutputQuery|object)} config configures the query (optional)
    * @param {int} config.accountIndex gets outputs associated with a specific account index
    * @param {int} config.subaddressIndex gets outputs associated with a specific subaddress index
    * @param {int[]} config.subaddressIndices gets outputs associated with specific subaddress indices
    * @param {BigInteger} config.amount gets outputs with a specific amount
    * @param {boolean} config.isSpent gets outputs that are spent or not
    * @param {MoneroKeyImage} config.keyImage is a key image whose defined fields filter outputs to get
-   * @param {MoneroTxRequest} config.txRequest gets outputs whose transaction meets this filter (optional)
+   * @param {MoneroTxQuery} config.txQuery gets outputs whose transaction meets this filter (optional)
    * @return {MoneroOutputWallet[]} are wallet outputs per the configuration
    */
   async getOutputs(config) {

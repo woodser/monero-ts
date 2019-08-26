@@ -2,15 +2,15 @@ const Filter = require("../../utils/Filter");
 const MoneroOutputWallet = require("../model/MoneroOutputWallet");
 
 /**
- * Configures a request to retrieve wallet outputs (i.e. outputs that the wallet has or had the
+ * Configures a query to retrieve wallet outputs (i.e. outputs that the wallet has or had the
  * ability to spend).
  * 
- * All outputs are returned except those that do not meet the criteria defined in this request.
+ * All outputs are returned except those that do not meet the criteria defined in this query.
  */
-class MoneroOutputRequest extends MoneroOutputWallet {
+class MoneroOutputQuery extends MoneroOutputWallet {
   
   /**
-   * Constructs the request.
+   * Constructs the query.
    * 
    * @param state is model state or json to initialize from (optional)
    */
@@ -18,7 +18,7 @@ class MoneroOutputRequest extends MoneroOutputWallet {
     super(state);
     
     // deserialize if necessary
-    if (this.state.txRequest && !(this.state.txRequest instanceof MoneroTxRequest)) this.state.txRequest = new MoneroTxRequest(this.state.transferRequest);
+    if (this.state.txQuery && !(this.state.txQuery instanceof MoneroTxQuery)) this.state.txQuery = new MoneroTxQuery(this.state.transferQuery);
   }
   
   getSubaddressIndices() {
@@ -30,12 +30,12 @@ class MoneroOutputRequest extends MoneroOutputWallet {
     return this;
   }
   
-  getTxRequest() {
-    return this.state.txRequest;
+  getTxQuery() {
+    return this.state.txQuery;
   }
   
-  setTxRequest(txRequest) {
-    this.state.txRequest = txRequest;
+  setTxQuery(txQuery) {
+    this.state.txQuery = txQuery;
     return this;
   }
   
@@ -59,12 +59,12 @@ class MoneroOutputRequest extends MoneroOutputWallet {
     // filter on extensions
     if (this.getSubaddressIndices() !== undefined && !this.getSubaddressIndices().includes(output.getSubaddressIndex())) return false;
     
-    // filter with tx request
-    if (this.getTxRequest() && !this.getTxRequest().meetsCriteria(output.getTx())) return false;
+    // filter with tx query
+    if (this.getTxQuery() && !this.getTxQuery().meetsCriteria(output.getTx())) return false;
     
-    // output meets request
+    // output meets query
     return true;
   }
 }
 
-module.exports = MoneroOutputRequest;
+module.exports = MoneroOutputQuery;
