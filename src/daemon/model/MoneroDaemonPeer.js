@@ -3,48 +3,52 @@
  */
 class MoneroDaemonPeer {
   
+  constructor() {
+    this.state = {};
+  }
+  
   getId() {
-    return this.id;
+    return this.state.id;
   }
 
   setId(id) {
-    this.id = id;
+    this.state.id = id;
     return this;
   }
 
   getAddress() {
-    return this.address;
+    return this.state.address;
   }
 
   setAddress(address) {
-    this.address = address;
+    this.state.address = address;
     return this;
   }
 
   getHost() {
-    return this.host;
+    return this.state.host;
   }
 
   setHost(host) {
-    this.host = host;
+    this.state.host = host;
     return this;
   }
 
   getPort() {
-    return this.port;
+    return this.state.port;
   }
 
   setPort(port) {
-    this.port = port;
+    this.state.port = port;
     return this;
   }
   
   getRpcPort() {
-    return this.rpcPort;
+    return this.state.rpcPort;
   }
 
   setRpcPort(rpcPort) {
-    this.rpcPort = rpcPort;
+    this.state.rpcPort = rpcPort;
     return this;
   }
   
@@ -55,29 +59,29 @@ class MoneroDaemonPeer {
    * @return {boolean} true if peer was online when last checked, false otherwise
    */
   isOnline() {
-    return this.isOnline;
+    return this.state.isOnline;
   }
   
   setIsOnline(isOnline) {
-    this.isOnline = isOnline;
+    this.state.isOnline = isOnline;
     return this;
   }
   
   getLastSeenTimestamp() {
-    return this.lastSeenTimestamp;
+    return this.state.lastSeenTimestamp;
   }
   
   setLastSeenTimestamp(lastSeenTimestamp) {
-    this.lastSeenTimestamp = lastSeenTimestamp;
+    this.state.lastSeenTimestamp = lastSeenTimestamp;
     return this;
   }
   
   getPruningSeed() {
-    return this.pruningSeed;
+    return this.state.pruningSeed;
   }
   
   setPruningSeed(pruningSeed) {
-    this.pruningSeed = pruningSeed;
+    this.state.pruningSeed = pruningSeed;
     return this;
   }
 }

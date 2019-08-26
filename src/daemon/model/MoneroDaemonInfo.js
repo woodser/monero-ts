@@ -3,255 +3,259 @@
  */
 class MoneroDaemonInfo {
   
+  constructor() {
+    this.state = {};
+  }
+  
   getVersion() {
-    return this.version;
+    return this.state.version;
   }
   
   setVersion(version) {
-    this.version = version;
+    this.state.version = version;
     return this;
   }
   
   getNumAltBlocks() {
-    return this.numAltBlocks;
+    return this.state.numAltBlocks;
   }
   
   setNumAltBlocks(numAltBlocks) {
-    this.numAltBlocks = numAltBlocks;
+    this.state.numAltBlocks = numAltBlocks;
     return this;
   }
   
   getBlockSizeLimit() {
-    return this.blockSizeLimit;
+    return this.state.blockSizeLimit;
   }
   
   setBlockSizeLimit(blockSizeLimit) {
-    this.blockSizeLimit = blockSizeLimit;
+    this.state.blockSizeLimit = blockSizeLimit;
     return this;
   }
   
   getBlockSizeMedian() {
-    return this.blockSizeMedian;
+    return this.state.blockSizeMedian;
   }
   
   setBlockSizeMedian(blockSizeMedian) {
-    this.blockSizeMedian = blockSizeMedian;
+    this.state.blockSizeMedian = blockSizeMedian;
     return this;
   }
   
   getBlockWeightLimit() {
-    return this.blockWeightLimit;
+    return this.state.blockWeightLimit;
   }
   
   setBlockWeightLimit(blockWeightLimit) {
-    this.blockWeightLimit = blockWeightLimit;
+    this.state.blockWeightLimit = blockWeightLimit;
     return this;
   }
   
   getBlockWeightMedian() {
-    return this.blockWeightMedian;
+    return this.state.blockWeightMedian;
   }
   
   setBlockWeightMedian(blockWeightMedian) {
-    this.blockWeightMedian = blockWeightMedian;
+    this.state.blockWeightMedian = blockWeightMedian;
     return this;
   }
   
   getBootstrapDaemonAddress() {
-    return this.bootstrapDaemonAddress;
+    return this.state.bootstrapDaemonAddress;
   }
   
   setBootstrapDaemonAddress(bootstrapDaemonAddress) {
-    this.bootstrapDaemonAddress = bootstrapDaemonAddress;
+    this.state.bootstrapDaemonAddress = bootstrapDaemonAddress;
     return this;
   }
   
   getDifficulty() {
-    return this.difficulty;
+    return this.state.difficulty;
   }
   
   setDifficulty(difficulty) {
-    this.difficulty = difficulty;
+    this.state.difficulty = difficulty;
     return this;
   }
   
   getCumulativeDifficulty() {
-    return this.cumulativeDifficulty;
+    return this.state.cumulativeDifficulty;
   }
   
   setCumulativeDifficulty(cumulativeDifficulty) {
-    this.cumulativeDifficulty = cumulativeDifficulty;
+    this.state.cumulativeDifficulty = cumulativeDifficulty;
     return this;
   }
   
   getFreeSpace() {
-    return this.freeSpace;
+    return this.state.freeSpace;
   }
   
   setFreeSpace(freeSpace) {
-    this.freeSpace = freeSpace;
+    this.state.freeSpace = freeSpace;
     return this;
   }
   
   getNumOfflinePeers() {
-    return this.numOfflinePeers;
+    return this.state.numOfflinePeers;
   }
   
   setNumOfflinePeers(numOfflinePeers) {
-    this.numOfflinePeers = numOfflinePeers;
+    this.state.numOfflinePeers = numOfflinePeers;
     return this;
   }
   
   getNumOnlinePeers() {
-    return this.numOnlinePeers;
+    return this.state.numOnlinePeers;
   }
   
   setNumOnlinePeers(numOnlinePeers) {
-    this.numOnlinePeers = numOnlinePeers;
+    this.state.numOnlinePeers = numOnlinePeers;
     return this;
   }
   
   getHeight() {
-    return this.height;
+    return this.state.height;
   }
   
   setHeight(height) {
-    this.height = height;
+    this.state.height = height;
     return this;
   }
   
   getHeightWithoutBootstrap() {
-    return this.heightWithoutBootstrap;
+    return this.state.heightWithoutBootstrap;
   }
   
   setHeightWithoutBootstrap(heightWithoutBootstrap) {
-    this.heightWithoutBootstrap = heightWithoutBootstrap;
+    this.state.heightWithoutBootstrap = heightWithoutBootstrap;
     return this;
   }
   
   getNetworkType() {
-    return this.networkType;
+    return this.state.networkType;
   }
 
   setNetworkType(networkType) {
-    this.networkType = networkType;
+    this.state.networkType = networkType;
     return this;
   }
 
   isOffline() {
-    return this.isOffline;
+    return this.state.isOffline;
   }
   
   setIsOffline(isOffline) {
-    this.isOffline = isOffline;
+    this.state.isOffline = isOffline;
     return this;
   }
   
   getNumIncomingConnections() {
-    return this.numIncomingConnections;
+    return this.state.numIncomingConnections;
   }
   
   setNumIncomingConnections(numIncomingConnections) {
-    this.numIncomingConnections = numIncomingConnections;
+    this.state.numIncomingConnections = numIncomingConnections;
     return this;
   }
   
   getNumOutgoingConnections() {
-    return this.numOutgoingConnections;
+    return this.state.numOutgoingConnections;
   }
   
   setNumOutgoingConnections(numOutgoingConnections) {
-    this.numOutgoingConnections = numOutgoingConnections;
+    this.state.numOutgoingConnections = numOutgoingConnections;
     return this;
   }
   
   getNumRpcConnections() {
-    return this.numRpcConnections;
+    return this.state.numRpcConnections;
   }
   
   setNumRpcConnections(numRpcConnections) {
-    this.numRpcConnections = numRpcConnections;
+    this.state.numRpcConnections = numRpcConnections;
     return this;
   }
   
   getStartTimestamp() {
-    return this.startTimestamp;
+    return this.state.startTimestamp;
   }
   
   setStartTimestamp(startTimestamp) {
-    this.startTimestamp = startTimestamp;
+    this.state.startTimestamp = startTimestamp;
     return this;
   }
   
   getTarget() {
-    return this.target;
+    return this.state.target;
   }
   
   setTarget(target) {
-    this.target = target;
+    this.state.target = target;
     return this;
   }
   
   getTargetHeight() {
-    return this.targetHeight;
+    return this.state.targetHeight;
   }
   
   setTargetHeight(targetHeight) {
-    this.targetHeight = targetHeight;
+    this.state.targetHeight = targetHeight;
     return this;
   }
   
   getTopBlockId() {
-    return this.topBlockId;
+    return this.state.topBlockId;
   }
   
   setTopBlockId(topBlockId) {
-    this.topBlockId = topBlockId;
+    this.state.topBlockId = topBlockId;
     return this;
   }
   
   getNumTxs() {
-    return this.numTxs;
+    return this.state.numTxs;
   }
   
   setNumTxs(numTxs) {
-    this.numTxs = numTxs;
+    this.state.numTxs = numTxs;
     return this;
   }
   
   getNumTxsPool() {
-    return this.numTxsPool;
+    return this.state.numTxsPool;
   }
   
   setNumTxsPool(numTxsPool) {
-    this.numTxsPool = numTxsPool;
+    this.state.numTxsPool = numTxsPool;
     return this;
   }
   
   getWasBootstrapEverUsed() {
-    return this.wasBootstrapEverUsed;
+    return this.state.wasBootstrapEverUsed;
   }
   
   setWasBootstrapEverUsed(wasBootstrapEverUsed) {
-    this.wasBootstrapEverUsed = wasBootstrapEverUsed;
+    this.state.wasBootstrapEverUsed = wasBootstrapEverUsed;
     return this;
   }
   
   getDatabaseSize() {
-    return this.databaseSize;
+    return this.state.databaseSize;
   }
   
   setDatabaseSize(databaseSize) {
-    this.databaseSize = databaseSize;
+    this.state.databaseSize = databaseSize;
     return this;
   }
   
   getUpdateAvailable() {
-    return this.updateAvailable;
+    return this.state.updateAvailable;
   }
   
   setUpdateAvailable(updateAvailable) {
-    this.updateAvailable = updateAvailable;
+    this.state.updateAvailable = updateAvailable;
     return this;
   }
 }

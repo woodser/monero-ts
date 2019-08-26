@@ -3,156 +3,160 @@
  */
 class MoneroDaemonConnection {
   
+  constructor() {
+    this.state = {};
+  }
+  
   getPeer() {
-    return this.peer;
+    return this.state.peer;
   }
 
   setPeer(peer) {
-    this.peer = peer;
+    this.state.peer = peer;
     return this;
   }
   
   getId() {
-    return this.id;
+    return this.state.id;
   }
 
   setId(id) {
-    this.id = id;
+    this.state.id = id;
     return this;
   }
 
   getAvgDownload() {
-    return this.avgDownload;
+    return this.state.avgDownload;
   }
 
   setAvgDownload(avgDownload) {
-    this.avgDownload = avgDownload;
+    this.state.avgDownload = avgDownload;
     return this;
   }
 
   getAvgUpload() {
-    return this.avgUpload;
+    return this.state.avgUpload;
   }
 
   setAvgUpload(avgUpload) {
-    this.avgUpload = avgUpload;
+    this.state.avgUpload = avgUpload;
     return this;
   }
 
   getCurrentDownload() {
-    return this.currentDownload;
+    return this.state.currentDownload;
   }
 
   setCurrentDownload(currentDownload) {
-    this.currentDownload = currentDownload;
+    this.state.currentDownload = currentDownload;
     return this;
   }
 
   getCurrentUpload() {
-    return this.currentUpload;
+    return this.state.currentUpload;
   }
 
   setCurrentUpload(currentUpload) {
-    this.currentUpload = currentUpload;
+    this.state.currentUpload = currentUpload;
     return this;
   }
 
   getHeight() {
-    return this.height;
+    return this.state.height;
   }
 
   setHeight(height) {
-    this.height = height;
+    this.state.height = height;
     return this;
   }
 
   isIncoming() {
-    return this.isIncoming;
+    return this.state.isIncoming;
   }
 
   setIsIncoming(isIncoming) {
-    this.isIncoming = isIncoming;
+    this.state.isIncoming = isIncoming;
     return this;
   }
 
   getLiveTime() {
-    return this.liveTime;
+    return this.state.liveTime;
   }
 
   setLiveTime(liveTime) {
-    this.liveTime = liveTime;
+    this.state.liveTime = liveTime;
     return this;
   }
 
   isLocalIp() {
-    return this.isLocalIp;
+    return this.state.isLocalIp;
   }
 
   setIsLocalIp(isLocalIp) {
-    this.isLocalIp = isLocalIp;
+    this.state.isLocalIp = isLocalIp;
     return this;
   }
 
   isLocalHost() {
-    return this.isLocalHost;
+    return this.state.isLocalHost;
   }
 
   setIsLocalHost(isLocalHost) {
-    this.isLocalHost = isLocalHost;
+    this.state.isLocalHost = isLocalHost;
     return this;
   }
 
   getNumReceives() {
-    return this.numReceives;
+    return this.state.numReceives;
   }
 
   setNumReceives(numReceives) {
-    this.numReceives = numReceives;
+    this.state.numReceives = numReceives;
     return this;
   }
 
   getNumSends() {
-    return this.numSends;
+    return this.state.numSends;
   }
 
   setNumSends(numSends) {
-    this.numSends = numSends;
+    this.state.numSends = numSends;
     return this;
   }
 
   getReceiveIdleTime() {
-    return this.receiveIdleTime;
+    return this.state.receiveIdleTime;
   }
 
   setReceiveIdleTime(receiveIdleTime) {
-    this.receiveIdleTime = receiveIdleTime;
+    this.state.receiveIdleTime = receiveIdleTime;
     return this;
   }
 
   getSendIdleTime() {
-    return this.sendIdleTime;
+    return this.state.sendIdleTime;
   }
 
   setSendIdleTime(sendIdleTime) {
-    this.sendIdleTime = sendIdleTime;
+    this.state.sendIdleTime = sendIdleTime;
     return this;
   }
 
   getState() {
-    return this.state;
+    return this.state.state;
   }
 
   setState(state) {
-    this.state = state;
+    this.state.state = state;
     return this;
   }
 
   getNumSupportFlags() {
-    return this.numSupportFlags;
+    return this.state.numSupportFlags;
   }
 
   setNumSupportFlags(numSupportFlags) {
-    this.numSupportFlags = numSupportFlags;
+    this.state.numSupportFlags = numSupportFlags;
     return this;
   }
 }

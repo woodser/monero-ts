@@ -3,57 +3,61 @@
  */
 class MoneroDaemonSyncInfo {
   
+  constructor() {
+    this.state = {};
+  }
+  
   getHeight() {
-    return this.height;
+    return this.state.height;
   }
   
   setHeight(height) {
-    this.height = height;
+    this.state.height = height;
     return this;
   }
   
   getConnections() {
-    return this.peers;
+    return this.state.peers;
   }
   
   setConnections(peers) {
-    this.peers = peers;
+    this.state.peers = peers;
     return this;
   }
   
   getSpans() {
-    return this.spans;
+    return this.state.spans;
   }
   
   setSpans(spans) {
-    this.spans = spans;
+    this.state.spans = spans;
     return this;
   }
   
   getTargetHeight() {
-    return this.targetHeight;
+    return this.state.targetHeight;
   }
   
   setTargetHeight(targetHeight) {
-    this.targetHeight = targetHeight;
+    this.state.targetHeight = targetHeight;
     return this;
   }
   
   getNextNeededPruningSeed() {
-    return this.nextNeededPruningSeed;
+    return this.state.nextNeededPruningSeed;
   }
   
   setNextNeededPruningSeed(nextNeededPruningSeed) {
-    this.nextNeededPruningSeed = nextNeededPruningSeed;
+    this.state.nextNeededPruningSeed = nextNeededPruningSeed;
     return this;
   }
   
   getOverview() {
-    return this.overview;
+    return this.state.overview;
   }
   
   setOverview(overview) {
-    this.overview = overview;
+    this.state.overview = overview;
     return this;
   }
 }

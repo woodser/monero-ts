@@ -3,48 +3,52 @@
  */
 class MoneroAltChain {
   
+  constructor() {
+    this.state = {};
+  }
+  
   getBlockIds(blockIds) {
-    return this.blockIds;
+    return this.state.blockIds;
   }
   
   setBlockIds(blockIds) {
-    this.blockIds = blockIds;
+    this.state.blockIds = blockIds;
     return this;
   }
   
   getDifficulty() {
-    return this.difficulty;
+    return this.state.difficulty;
   }
   
   setDifficulty(difficulty) {
-    this.difficulty = difficulty;
+    this.state.difficulty = difficulty;
     return this;
   }
   
   getHeight() {
-    return this.height;
+    return this.state.height;
   }
   
   setHeight(height) {
-    this.height = height;
+    this.state.height = height;
     return this;
   }
   
   getLength() {
-    return this.length;
+    return this.state.length;
   }
   
   setLength(length) {
-    this.length = length;
+    this.state.length = length;
     return this;
   }
   
   getMainChainParentBlockId() {
-    return this.mainChainParentBlockId;
+    return this.state.mainChainParentBlockId;
   }
   
   setMainChainParentBlockId(mainChainParentBlockId) {
-    this.mainChainParentBlockId = mainChainParentBlockId;
+    this.state.mainChainParentBlockId = mainChainParentBlockId;
     return this;
   }
 }

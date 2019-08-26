@@ -3,66 +3,70 @@
  */
 class MoneroBlockTemplate {
   
+  constructor() {
+    this.state = {};
+  }
+  
   getBlockTemplateBlob() {
-    return this.blockTemplateBlob;
+    return this.state.blockTemplateBlob;
   }
   
   setBlockTemplateBlob(blockTemplateBlob) {
-    this.blockTemplateBlob = blockTemplateBlob;
+    this.state.blockTemplateBlob = blockTemplateBlob;
     return this;
   }
   
   getBlockHashingBlob() {
-    return this.blockHashingBlob;
+    return this.state.blockHashingBlob;
   }
   
   setBlockHashingBlob(blockHashingBlob) {
-    this.blockHashingBlob = blockHashingBlob;
+    this.state.blockHashingBlob = blockHashingBlob;
     return this;
   }
   
   getDifficulty() {
-    return this.difficulty;
+    return this.state.difficulty;
   }
   
   setDifficulty(difficulty) {
-    this.difficulty = difficulty;
+    this.state.difficulty = difficulty;
     return this;
   }
   
   getExpectedReward() {
-    return this.expectedReward;
+    return this.state.expectedReward;
   }
   
   setExpectedReward(expectedReward) {
-    this.expectedReward = expectedReward;
+    this.state.expectedReward = expectedReward;
     return this;
   }
   
   getHeight() {
-    return this.height;
+    return this.state.height;
   }
   
   setHeight(height) {
-    this.height = height;
+    this.state.height = height;
     return this;
   }
   
   getPrevId() {
-    return this.prevId;
+    return this.state.prevId;
   }
   
   setPrevId(prevId) {
-    this.prevId = prevId;
+    this.state.prevId = prevId;
     return this;
   }
   
   getReservedOffset() {
-    return this.reservedOffset;
+    return this.state.reservedOffset;
   }
   
   setReservedOffset(reservedOffset) {
-    this.reservedOffset = reservedOffset;
+    this.state.reservedOffset = reservedOffset;
     return this;
   }
 }

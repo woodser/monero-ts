@@ -61,7 +61,7 @@ class MoneroTxRequest extends MoneroTxWallet {
     return this.setTxIds([txId]);
   }
   
-  getHasPaymentId() {
+  hasPaymentId() {
     return this.state.hasPaymentId;
   }
   
@@ -160,9 +160,9 @@ class MoneroTxRequest extends MoneroTxWallet {
     }
     
     // filter on having a payment id
-    if (this.getHasPaymentId() !== undefined) {
-      if (this.getHasPaymentId() && tx.getPaymentId() === undefined) return false;
-      if (!this.getHasPaymentId() && tx.getPaymentId() !== undefined) return false;
+    if (this.hasPaymentId() !== undefined) {
+      if (this.hasPaymentId() && tx.getPaymentId() === undefined) return false;
+      if (!this.hasPaymentId() && tx.getPaymentId() !== undefined) return false;
     }
     
     // filter on incoming

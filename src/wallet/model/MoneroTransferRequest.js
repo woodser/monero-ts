@@ -90,7 +90,7 @@ class MoneroTransferRequest extends MoneroTransfer {
     return this;
   }
   
-  getHasDestinations() {
+  hasDestinations() {
     return this.state.hasDestinations;
   }
   
@@ -120,7 +120,7 @@ class MoneroTransferRequest extends MoneroTransfer {
     
     // filter on incoming fields
     if (transfer instanceof MoneroIncomingTransfer) {
-      if (this.getHasDestinations()) return false;
+      if (this.hasDestinations()) return false;
       if (this.getAddress() !== undefined && this.getAddress() !== transfer.getAddress()) return false;
       if (this.getAddresses() !== undefined && !this.getAddresses().includes(transfer.getAddress())) return false;
       if (this.getSubaddressIndex() !== undefined && this.getSubaddressIndex() !== transfer.getSubaddressIndex()) return false;
@@ -145,9 +145,9 @@ class MoneroTransferRequest extends MoneroTransfer {
       }
       
       // filter on having destinations
-      if (this.getHasDestinations() !== undefined) {
-        if (this.getHasDestinations() && transfer.getDestinations() === undefined) return false;
-        if (!this.getHasDestinations() && transfer.getDestinations() !== undefined) return false;
+      if (this.hasDestinations() !== undefined) {
+        if (this.hasDestinations() && transfer.getDestinations() === undefined) return false;
+        if (!this.hasDestinations() && transfer.getDestinations() !== undefined) return false;
       }
       
       // filter on destinations TODO: start with test for this

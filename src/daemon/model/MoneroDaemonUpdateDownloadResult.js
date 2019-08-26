@@ -20,11 +20,11 @@ class MoneroDaemonUpdateDownloadResult extends MoneroDaemonUpdateCheckResult {
    * @return {string} is the path the update was downloaded to
    */
   getDownloadPath() {
-    return this.downloadPath;
+    return this.state.downloadPath;
   }
   
   setDownloadPath(downloadPath) {
-    this.downloadPath = downloadPath;
+    this.state.downloadPath = downloadPath;
     return this;
   }
 }

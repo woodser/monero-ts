@@ -11,6 +11,7 @@ class MoneroDaemonUpdateCheckResult {
    * @param {MoneroDaemonUpdateCheckResult} is an existing result to deep copy from
    */
   constructor(result) {
+    this.state = {};
     if (result !== undefined) {
       assert(result instanceof MoneroDaemonUpdateCheckResult);
       this.setIsUpdateAvailable(result.isUpdateAvailable());
@@ -27,11 +28,11 @@ class MoneroDaemonUpdateCheckResult {
    * @return {boolean} true if an update is available, false otherwise
    */
   isUpdateAvailable() {
-    return this.isUpdateAvailable;
+    return this.state.isUpdateAvailable;
   }
   
   setIsUpdateAvailable(isUpdateAvailable) {
-    this.isUpdateAvailable = isUpdateAvailable;
+    this.state.isUpdateAvailable = isUpdateAvailable;
     return this;
   }
   
@@ -41,11 +42,11 @@ class MoneroDaemonUpdateCheckResult {
    * @return {string} is the update's version
    */
   getVersion() {
-    return this.version;
+    return this.state.version;
   }
   
   setVersion(version) {
-    this.version = version;
+    this.state.version = version;
     return this;
   }
   
@@ -55,11 +56,11 @@ class MoneroDaemonUpdateCheckResult {
    * @return {string} is the update's hash
    */
   getHash() {
-    return this.hash;
+    return this.state.hash;
   }
   
   setHash(hash) {
-    this.hash = hash;
+    this.state.hash = hash;
     return this;
   }
   
@@ -69,11 +70,11 @@ class MoneroDaemonUpdateCheckResult {
    * @return {string} is the uri to automatically download the update
    */
   getAutoUri() {
-    return this.autoUri;
+    return this.state.autoUri;
   }
   
   setAutoUri(autoUri) {
-    this.autoUri = autoUri;
+    this.state.autoUri = autoUri;
     return this;
   }
   
@@ -83,11 +84,11 @@ class MoneroDaemonUpdateCheckResult {
    * @return {string} is the uri to manually download the update
    */
   getUserUri() {
-    return this.userUri;
+    return this.state.userUri;
   }
   
   setUserUri(userUri) {
-    this.userUri = userUri;
+    this.state.userUri = userUri;
     return this;
   }
 }

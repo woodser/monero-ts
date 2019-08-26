@@ -3,21 +3,25 @@
  */
 class MoneroMinerTxSum {
   
+  constructor() {
+    this.state = {};
+  }
+  
   getEmissionSum() {
-    return this.emissionSum;
+    return this.state.emissionSum;
   }
   
   setEmissionSum(emissionSum) {
-    this.emissionSum = emissionSum;
+    this.state.emissionSum = emissionSum;
     return this;
   }
   
   getFeeSum() {
-    return this.feeSum;
+    return this.state.feeSum;
   }
   
   setFeeSum(feeSum) {
-    this.feeSum = feeSum;
+    this.state.feeSum = feeSum;
     return this;
   }
 }

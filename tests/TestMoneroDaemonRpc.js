@@ -359,7 +359,7 @@ class TestMoneroDaemonRpc {
         }
         
         // clear txs from pool
-        await daemon.flushTxPoolByIds(txIds);
+        await daemon.flushTxPool(txIds);
         await wallet.sync();
       });
       
@@ -485,7 +485,7 @@ class TestMoneroDaemonRpc {
             assert(stats.getNumTxs() > i);
             testTxPoolStats(stats);
           } finally {
-            await daemon.flushTxPoolById(tx.getId());
+            await daemon.flushTxPool(tx.getId());
             await wallet.sync();
           }
         }
@@ -516,7 +516,7 @@ class TestMoneroDaemonRpc {
         }
         
         // pool is back to original state
-        assert.equal(daemon.getTxPool().length, txPoolBefore.length);
+        assert.equal((await daemon.getTxPool()).length, txPoolBefore.length);
         
         // sync wallet for next test
         await wallet.sync();
@@ -534,7 +534,7 @@ class TestMoneroDaemonRpc {
           let tx = await getUnrelayedTx(wallet, i);
           let result = await daemon.submitTxHex(tx.getFullHex(), true);
           assert.equal(result.isGood(), true);
-          txs.add(tx);
+          txs.push(tx);
         }
 
         // remove each tx from the pool by id and test
@@ -568,7 +568,7 @@ class TestMoneroDaemonRpc {
           let result = await daemon.submitTxHex(tx.getFullHex(), true);
           assert.equal(result.isDoubleSpend(), false);
           assert.equal(result.isGood(), true);
-          txIds.add(tx.getId());
+          txIds.push(tx.getId());
         }
         assert.equal((await daemon.getTxPool()).length, txPoolBefore.length + txIds.length);
         
@@ -617,7 +617,7 @@ class TestMoneroDaemonRpc {
         await testSpentStatuses(keyImages, MoneroKeyImageSpentStatus.CONFIRMED);
         
         // flush this test's txs from pool
-        await daemon.flushTxPoolByIds(txIds);
+        await daemon.flushTxPool(txIds);
         
         // helper function to check the spent status of a key image or array of key images
         async function testSpentStatuses(keyImages, expectedStatus) {
@@ -1475,8 +1475,8 @@ function testSubmitTxResultGood(result) {
   assert.equal(result.isDoubleSpend(), false);
   assert.equal(result.isFeeTooLow(), false);
   assert.equal(result.isMixinTooLow(), false);
-  assert.equal(result.getHasInvalidInput(), false);
-  assert.equal(result.getHasInvalidOutput(), false);
+  assert.equal(result.hasInvalidInput(), false);
+  assert.equal(result.hasInvalidOutput(), false);
   assert.equal(result.isRct(), true);
   assert.equal(result.isOverspend(), false);
   assert.equal(result.isTooBig(), false);
@@ -1489,8 +1489,8 @@ function testSubmitTxResultDoubleSpend(result) {
   assert.equal(result.isDoubleSpend(), true);
   assert.equal(result.isFeeTooLow(), false);
   assert.equal(result.isMixinTooLow(), false);
-  assert.equal(result.getHasInvalidInput(), false);
-  assert.equal(result.getHasInvalidOutput(), false);
+  assert.equal(result.hasInvalidInput(), false);
+  assert.equal(result.hasInvalidOutput(), false);
   assert.equal(result.isRct(), true);
   assert.equal(result.isOverspend(), false);
   assert.equal(result.isTooBig(), false);
@@ -1502,8 +1502,8 @@ function testSubmitTxResultCommon(result) {
   assert.equal(typeof result.isDoubleSpend(), "boolean");
   assert.equal(typeof result.isFeeTooLow(), "boolean");
   assert.equal(typeof result.isMixinTooLow(), "boolean");
-  assert.equal(typeof result.getHasInvalidInput(), "boolean");
-  assert.equal(typeof result.getHasInvalidOutput(), "boolean");
+  assert.equal(typeof result.hasInvalidInput(), "boolean");
+  assert.equal(typeof result.hasInvalidOutput(), "boolean");
   assert.equal(typeof result.isRct(), "boolean");
   assert.equal(typeof result.isOverspend(), "boolean");
   assert.equal(typeof result.isTooBig(), "boolean");

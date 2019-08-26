@@ -3,75 +3,79 @@
  */
 class MoneroHardForkInfo {
   
+  constructor() {
+    this.state = {};
+  }
+  
   getEarliestHeight() {
-    return this.earliestHeight;
+    return this.state.earliestHeight;
   }
 
   setEarliestHeight(earliestHeight) {
-    this.earliestHeight = earliestHeight;
+    this.state.earliestHeight = earliestHeight;
     return this;
   }
 
   isEnabled() {
-    return this.isEnabled;
+    return this.state.isEnabled;
   }
 
   setIsEnabled(isEnabled) {
-    this.isEnabled = isEnabled;
+    this.state.isEnabled = isEnabled;
     return this;
   }
 
   getState() {
-    return this.state;
+    return this.state.state;
   }
 
   setState(state) {
-    this.state = state;
+    this.state.state = state;
     return this;
   }
 
   getThreshold() {
-    return this.threshold;
+    return this.state.threshold;
   }
 
   setThreshold(threshold) {
-    this.threshold = threshold;
+    this.state.threshold = threshold;
     return this;
   }
 
   getVersion() {
-    return this.version;
+    return this.state.version;
   }
 
   setVersion(version) {
-    this.version = version;
+    this.state.version = version;
     return this;
   }
 
   getNumVotes() {
-    return this.numVotes;
+    return this.state.numVotes;
   }
 
   setNumVotes(numVotes) {
-    this.numVotes = numVotes;
+    this.state.numVotes = numVotes;
     return this;
   }
 
   getWindow() {
-    return this.window;
+    return this.state.window;
   }
 
   setWindow(window) {
-    this.window = window;
+    this.state.window = window;
     return this;
   }
 
   getVoting() {
-    return this.voting;
+    return this.state.voting;
   }
 
   setVoting(voting) {
-    this.voting = voting;
+    this.state.voting = voting;
     return this;
   }
 }

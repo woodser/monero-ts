@@ -3,39 +3,43 @@
  */
 class MoneroOutputHistogramEntry {
   
+  constructor() {
+    this.state = {};
+  }
+  
   getAmount() {
-    return this.amount;
+    return this.state.amount;
   }
   
   setAmount(amount) {
-    this.amount = amount;
+    this.state.amount = amount;
     return this;
   }
 
   getNumInstances() {
-    return this.numInstances;
+    return this.state.numInstances;
   }
 
   setNumInstances(numInstances) {
-    this.numInstances = numInstances;
+    this.state.numInstances = numInstances;
     return this;
   }
 
   getNumUnlockedInstances() {
-    return this.numUnlockedInstances;
+    return this.state.numUnlockedInstances;
   }
 
   setNumUnlockedInstances(numUnlockedInstances) {
-    this.numUnlockedInstances = numUnlockedInstances;
+    this.state.numUnlockedInstances = numUnlockedInstances;
     return this;
   }
 
   getNumRecentInstances() {
-    return this.numRecentInstances;
+    return this.state.numRecentInstances;
   }
 
   setNumRecentInstances(numRecentInstances) {
-    this.numRecentInstances = numRecentInstances;
+    this.state.numRecentInstances = numRecentInstances;
     return this;
   }
 }

@@ -3,6 +3,10 @@
  */
 class MoneroSubmitTxResult {
   
+  constructor() {
+    this.state = {};
+  }
+  
   isGood() {
     return this.state.isGood;
   }
@@ -48,7 +52,7 @@ class MoneroSubmitTxResult {
     return this;
   }
   
-  getHasInvalidInput() {
+  hasInvalidInput() {
     return this.state.hasInvalidInput;
   }
   
@@ -57,7 +61,7 @@ class MoneroSubmitTxResult {
     return this;
   }
   
-  getHasInvalidOutput() {
+  hasInvalidOutput() {
     return this.state.hasInvalidOutput;
   }
   

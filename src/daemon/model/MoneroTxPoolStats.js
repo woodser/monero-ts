@@ -3,121 +3,125 @@
  */
 class MoneroTxPoolStats {
   
+  constructor() {
+    this.state = {};
+  }
+  
   getNumTxs() {
-    return this.numTxs;
+    return this.state.numTxs;
   }
   
   setNumTxs(numTxs) {
-    this.numTxs = numTxs;
+    this.state.numTxs = numTxs;
     return this;
   }
   
   getNumNotRelayed() {
-    return this.numNotRelayed;
+    return this.state.numNotRelayed;
   }
   
   setNumNotRelayed(numNotRelayed) {
-    this.numNotRelayed = numNotRelayed;
+    this.state.numNotRelayed = numNotRelayed;
     return this;
   }
   
   getNumFailing() {
-    return this.numFailing;
+    return this.state.numFailing;
   }
   
   setNumFailing(numFailing) {
-    this.numFailing = numFailing;
+    this.state.numFailing = numFailing;
     return this;
   }
   
   getNumDoubleSpends() {
-    return this.numDoubleSpends;
+    return this.state.numDoubleSpends;
   }
   
   setNumDoubleSpends(numDoubleSpends) {
-    this.numDoubleSpends = numDoubleSpends;
+    this.state.numDoubleSpends = numDoubleSpends;
     return this;
   }
   
   getNum10m() {
-    return this.num10m;
+    return this.state.num10m;
   }
   
   setNum10m(num10m) {
-    this.num10m = num10m;
+    this.state.num10m = num10m;
     return this;
   }
   
   getFeeTotal() {
-    return this.feeTotal;
+    return this.state.feeTotal;
   }
   
   setFeeTotal(feeTotal) {
-    this.feeTotal = feeTotal;
+    this.state.feeTotal = feeTotal;
     return this;
   }
   
   getBytesMax() {
-    return this.bytesMax;
+    return this.state.bytesMax;
   }
   
   setBytesMax(bytesMax) {
-    this.bytesMax = bytesMax;
+    this.state.bytesMax = bytesMax;
     return this;
   }
   
   getBytesMed() {
-    return this.bytesMed;
+    return this.state.bytesMed;
   }
   
   setBytesMed(bytesMed) {
-    this.bytesMed = bytesMed;
+    this.state.bytesMed = bytesMed;
     return this;
   }
   
   getBytesMin() {
-    return this.bytesMin;
+    return this.state.bytesMin;
   }
   
   setBytesMin(bytesMin) {
-    this.bytesMin = bytesMin;
+    this.state.bytesMin = bytesMin;
     return this;
   }
   
   getBytesTotal() {
-    return this.bytesTotal;
+    return this.state.bytesTotal;
   }
   
   setBytesTotal(bytesTotal) {
-    this.bytesTotal = bytesTotal;
+    this.state.bytesTotal = bytesTotal;
     return this;
   }
   
   // TODO: histo... what?
   getHisto() {
-    return this.histo;
+    return this.state.histo;
   }
   
   setHisto(histo) {
-    this.histo = histo;
+    this.state.histo = histo;
     return this;
   }
   
   getHisto98pc() {
-    return this.histo98pc;
+    return this.state.histo98pc;
   }
   
   setHisto98pc(histo98pc) {
-    this.histo98pc = histo98pc;
+    this.state.histo98pc = histo98pc;
     return this;
   }
   
   getOldestTimestamp() {
-    return this.oldestTimestamp;
+    return this.state.oldestTimestamp;
   }
   
   setOldestTimestamp(oldestTimestamp) {
-    this.oldestTimestamp = oldestTimestamp;
+    this.state.oldestTimestamp = oldestTimestamp;
     return this;
   }
 }

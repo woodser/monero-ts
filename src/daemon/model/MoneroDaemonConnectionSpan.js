@@ -3,66 +3,70 @@
  */
 class MoneroDaemonConnectionSpan {
   
+  constructor() {
+    this.state = {};
+  }
+  
   getConnectionId() {
-    return this.connectionId;
+    return this.state.connectionId;
   }
 
   setConnectionId(connectionId) {
-    this.connectionId = connectionId;
+    this.state.connectionId = connectionId;
     return this;
   }
   
   getNumBlocks() {
-    return this.numBlocks;
+    return this.state.numBlocks;
   }
 
   setNumBlocks(numBlocks) {
-    this.numBlocks = numBlocks;
+    this.state.numBlocks = numBlocks;
     return this;
   }
   
   getRemoteAddress() {
-    return this.remoteAddress;
+    return this.state.remoteAddress;
   }
 
   setRemoteAddress(remoteAddress) {
-    this.remoteAddress = remoteAddress;
+    this.state.remoteAddress = remoteAddress;
     return this;
   }
   
   getRate() {
-    return this.rate;
+    return this.state.rate;
   }
 
   setRate(rate) {
-    this.rate = rate;
+    this.state.rate = rate;
     return this;
   }
   
   getSpeed() {
-    return this.speed;
+    return this.state.speed;
   }
 
   setSpeed(speed) {
-    this.speed = speed;
+    this.state.speed = speed;
     return this;
   }
   
   getSize() {
-    return this.size;
+    return this.state.size;
   }
   
   setSize(size) {
-    this.size = size;
+    this.state.size = size;
     return this;
   }
   
   getStartBlockHeight() {
-    return this.startBlockHeight;
+    return this.state.startBlockHeight;
   }
   
   setStartBlockHeight(startBlockHeight) {
-    this.startBlockHeight = startBlockHeight;
+    this.state.startBlockHeight = startBlockHeight;
     return this;
   }
 }

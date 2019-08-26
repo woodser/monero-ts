@@ -3,39 +3,43 @@
  */
 class MoneroBan {
   
+  constructor() {
+    this.state = {};
+  }
+  
   getHost() {
-    return this.host;
+    return this.state.host;
   }
   
   setHost(host) {
-    this.host = host;
+    this.state.host = host;
     return this;
   }
   
   getIp() {
-    return this.ip;
+    return this.state.ip;
   }
   
   setIp(ip) {
-    this.ip = ip;
+    this.state.ip = ip;
     return this;
   }
   
   isBanned() {
-    return this.isBanned;
+    return this.state.isBanned;
   }
   
   setIsBanned(isBanned) {
-    this.isBanned = isBanned;
+    this.state.isBanned = isBanned;
     return this;
   }
   
   getSeconds() {
-    return this.seconds;
+    return this.state.seconds;
   }
   
   setSeconds(seconds) {
-    this.seconds = seconds;
+    this.state.seconds = seconds;
     return this;
   }
 }
