@@ -628,7 +628,7 @@ class TestMoneroDaemonRpc {
           }
           
           // test array of images
-          let statuses = await daemon.getKeyImageSpentStatuses(keyImages);
+          let statuses = keyImages.length == 0 ? [] : await daemon.getKeyImageSpentStatuses(keyImages);
           assert(Array.isArray(statuses));
           assert.equal(statuses.length, keyImages.length);
           for (let status of statuses) assert.equal(status, expectedStatus);
@@ -949,24 +949,27 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      // test is disabled to not interfere with other tests
-//      it("Can be stopped", async function() {
-//        
-//        // stop the daemon
-//        await daemon.stop();
-//        
-//        // give the daemon 10 seconds to shut down
-//        await new Promise(function(resolve) { setTimeout(resolve, 10000); }); 
-//        
-//        // try to interact with the daemon
-//        try {
-//          await daemon.getHeight();
-//          throw new Error("Should have thrown error");
-//        } catch(e) {
-//          console.log(e);
-//          assert.notEqual("Should have thrown error", e.message);
-//        }
-//      });
+      it("Can be stopped", async function() {
+        return; // test is disabled to not interfere with other tests
+        
+        // give the daemon time to shut down
+        await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
+        
+        // stop the daemon
+        await daemon.stop();
+        
+        // give the daemon 10 seconds to shut down
+        await new Promise(function(resolve) { setTimeout(resolve, 10000); }); 
+        
+        // try to interact with the daemon
+        try {
+          await daemon.getHeight();
+          throw new Error("Should have thrown error");
+        } catch(e) {
+          console.log(e);
+          assert.notEqual("Should have thrown error", e.message);
+        }
+      });
     });
   }
   
@@ -981,9 +984,12 @@ class TestMoneroDaemonRpc {
       
       it("Can submit a tx in hex format to the pool and relay in one call", async function() {
         
+        // wait one time for wallet txs in the pool to clear
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
+        
         // create 2 txs, the second will double spend outputs of first
-        let tx1 = await getUnrelayedTx(wallet, 0);
-        let tx2 = await getUnrelayedTx(wallet, 0);
+        let tx1 = await getUnrelayedTx(wallet, 2);  // TODO: this test requires tx to be from/to different accounts else the occlusion issue (#4500) causes the tx to not be recognized by the wallet at all
+        let tx2 = await getUnrelayedTx(wallet, 2);
         
         // submit and relay tx1
         let result = await daemon.submitTxHex(tx1.getFullHex());
@@ -1002,6 +1008,10 @@ class TestMoneroDaemonRpc {
         }
         assert(found, "Tx1 was not found after being submitted to the daemon's tx pool");
         
+        // tx1 is recognized by the wallet
+        await wallet.sync();
+        await wallet.getTx(tx1.getId());
+        
         // submit and relay tx2 hex which double spends tx1
         result = await daemon.submitTxHex(tx2.getFullHex());
         assert.equal(result.isRelayed(), true);
@@ -1017,14 +1027,21 @@ class TestMoneroDaemonRpc {
           }
         }
         assert(!found, "Tx2 should not be in the pool because it double spends tx1 which is in the pool");
+        
+        // all wallets will need to wait for tx to confirm in order to properly sync
+        TestUtils.TX_POOL_WALLET_TRACKER.reset();
       });
       
+      if (!liteMode)
       it("Can submit a tx in hex format to the pool then relay", async function() {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         let tx = await getUnrelayedTx(wallet, 1);
         await testSubmitThenRelay([tx]);
       });
       
+      if (!liteMode)
       it("Can submit txs in hex format to the pool then relay", async function() {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         let txs = [];
         txs.push(await getUnrelayedTx(wallet, 2));
         txs.push(await getUnrelayedTx(wallet, 3));  // TODO: accounts cannot be re-used across send tests else isRelayed is true; wallet needs to update?
@@ -1074,6 +1091,9 @@ class TestMoneroDaemonRpc {
           }
           assert(found, "Tx was not found after being submitted to the daemon's tx pool");
         }
+        
+        // wallets will need to wait for tx to confirm in order to properly sync
+        TestUtils.TX_POOL_WALLET_TRACKER.reset();
       }
     });
   }
@@ -1302,11 +1322,12 @@ function testTx(tx, ctx) {
   }
   
   // test relayed tx
-  if (tx.isRelayed()) assert.equal(tx.getDoNotRelay(), false);
-  if (tx.getDoNotRelay()) {
-    assert(!tx.isRelayed());
-    assert(!tx.isConfirmed());
-  }
+  // this is not strictly correct because a tx can be submitted then relayed
+//  if (tx.isRelayed()) assert.equal(tx.getDoNotRelay(), false);
+//  if (tx.getDoNotRelay()) {
+//    assert(!tx.isRelayed());
+//    assert(!tx.isConfirmed());
+//  }
   
   // test vins and vouts
   assert(tx.getVins() && Array.isArray(tx.getVins()) && tx.getVins().length >= 0);
@@ -1471,16 +1492,21 @@ function testOutputDistributionEntry(entry) {
 
 function testSubmitTxResultGood(result) {
   testSubmitTxResultCommon(result);
-  assert.equal(result.isGood(), true);
-  assert.equal(result.isDoubleSpend(), false);
-  assert.equal(result.isFeeTooLow(), false);
-  assert.equal(result.isMixinTooLow(), false);
-  assert.equal(result.hasInvalidInput(), false);
-  assert.equal(result.hasInvalidOutput(), false);
-  assert.equal(result.isRct(), true);
-  assert.equal(result.isOverspend(), false);
-  assert.equal(result.isTooBig(), false);
-  assert.equal(result.getSanityCheckFailed(), false);
+  try {
+    assert.equal(result.isGood(), true);
+    assert.equal(result.isDoubleSpend(), false);
+    assert.equal(result.isFeeTooLow(), false);
+    assert.equal(result.isMixinTooLow(), false);
+    assert.equal(result.hasInvalidInput(), false);
+    assert.equal(result.hasInvalidOutput(), false);
+    assert.equal(result.isRct(), true);
+    assert.equal(result.isOverspend(), false);
+    assert.equal(result.isTooBig(), false);
+    assert.equal(result.getSanityCheckFailed(), false);
+  } catch (e) {
+    console.log("Submit result is not good: " + JSON.stringify(result));
+    throw e;
+  }
 }
 
 function testSubmitTxResultDoubleSpend(result) {
@@ -1549,7 +1575,7 @@ function testTxPoolStats(stats) {
 async function getUnrelayedTx(wallet, accountIdx) {
   let request = new MoneroSendRequest(accountIdx, await wallet.getPrimaryAddress(), TestUtils.MAX_FEE); 
   request.setDoNotRelay(true);
-  let tx = await wallet.send(request);
+  let tx = (await wallet.send(request)).getTxs()[0];
   assert(tx.getFullHex());
   assert.equal(tx.getDoNotRelay(), true);
   return tx;
@@ -1642,7 +1668,10 @@ function testKnownPeer(peer, fromConnection) {
   assert(peer.getRpcPort() >= 0);
   assert.equal(typeof peer.isOnline(), "boolean");
   if (fromConnection) assert.equal(undefined, peer.getLastSeenTimestamp());
-  else assert(peer.getLastSeenTimestamp() >= 0);  // TODO monero-wallet-rpc: what does last seen 0 mean?
+  else {
+    if (peer.getLastSeenTimestamp() < 0) console("Last seen timestamp is invalid: " + peer.getLastSeenTimestamp());
+    assert(peer.getLastSeenTimestamp() >= 0);
+  }
   assert(peer.getPruningSeed() >= 0);
 }
 
