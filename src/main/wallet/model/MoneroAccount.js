@@ -6,7 +6,7 @@ const assert = require("assert");
 class MoneroAccount {
   
   constructor(index, primaryAddress, balance, unlockedBalance, subaddresses) {
-    this.json = {};
+    this.state = {};
     this.setIndex(index);
     this.setPrimaryAddress(primaryAddress);
     this.setBalance(balance);
@@ -15,60 +15,60 @@ class MoneroAccount {
   }
   
   getIndex() {
-    return this.json.index;
+    return this.state.index;
   }
   
   setIndex(index) {
-    this.json.index = index;
+    this.state.index = index;
     return this;
   }
   
   getPrimaryAddress() {
-    return this.json.primaryAddress;
+    return this.state.primaryAddress;
   }
 
   setPrimaryAddress(primaryAddress) {
-    this.json.primaryAddress = primaryAddress;
+    this.state.primaryAddress = primaryAddress;
     return this;
   }
   
   getBalance() {
-    return this.json.balance;
+    return this.state.balance;
   }
   
   setBalance(balance) {
-    this.json.balance = balance;
+    this.state.balance = balance;
     return this;
   }
   
   getUnlockedBalance() {
-    return this.json.unlockedBalance;
+    return this.state.unlockedBalance;
   }
   
   setUnlockedBalance(unlockedBalance) {
-    this.json.unlockedBalance = unlockedBalance;
+    this.state.unlockedBalance = unlockedBalance;
     return this;
   }
   
   getTag() {
-    return this.json.tag;
+    return this.state.tag;
   }
   
   setTag(tag) {
-    this.json.tag = tag;
+    this.state.tag = tag;
     return this;
   }
   
   getSubaddresses() {
-    return this.json.subaddresses;
+    return this.state.subaddresses;
   }
   
   setSubaddresses(subaddresses) {
     assert(subaddresses === undefined || Array.isArray(subaddresses), "Given subaddresses must be undefined or an array of subaddresses");
-    this.json.subaddresses = subaddresses;
+    this.state.subaddresses = subaddresses;
     if (subaddresses != null) {
       for (let subaddress of subaddresses) {
-        subaddress.setAccountIndex(this.json.index);
+        subaddress.setAccountIndex(this.state.index);
       }
     }
     return this;

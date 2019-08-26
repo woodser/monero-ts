@@ -148,7 +148,7 @@ class TestUtils {
     
     // create rpc wallet file if necessary
     try {
-      await this.walletRpc.createWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1, "English");
+      await this.walletRpc.createWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD, "English");
     } catch (e) {
       if (!(e instanceof MoneroRpcError)) throw e;
       assert.equal(e.getCode(), -21); // exception is ok if wallet already created
@@ -156,7 +156,7 @@ class TestUtils {
     
     // open rpc wallet file
     try {
-      await this.walletRpc.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_RPC_PW_1);
+      await this.walletRpc.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
     } catch (e) {
       if (!(e instanceof MoneroRpcError)) throw e;
       assert.equal(e.getCode(), -1); // TODO (monero-wallet-rpc): -1: Failed to open wallet if wallet is already open; better code and message
@@ -210,8 +210,7 @@ TestUtils.FIRST_RECEIVE_HEIGHT = 383338;
 //wallet rpc test wallet filenames and passwords
 TestUtils.WALLET_RPC_NAME_1 = "test_wallet_1";
 TestUtils.WALLET_RPC_NAME_2 = "test_wallet_2";
-TestUtils.WALLET_RPC_PW_1 = "supersecretpassword123"
-TestUtils.WALLET_RPC_PW_2 = "supersecretpassword123"
+TestUtils.WALLET_PASSWORD = "supersecretpassword123";
 
 // wallet RPC config
 TestUtils.WALLET_RPC_CONFIG = {

@@ -1695,7 +1695,7 @@ class TestMoneroWalletCommon {
       it("Can save and close the wallet in a single call", async function() {
         
         // create a random wallet
-        let wallet = await createRandomWallet();
+        let wallet = await that.createRandomWallet();
         let path = await wallet.getPath();
                 
         // set an attribute

@@ -81,27 +81,27 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           
           // create random wallet with defaults
           let path = GenUtils.uuidv4();
-          await this.wallet.createWalletRandom(path, TestUtils.WALLET_PASSWORD);
-          let mnemonic = await this.wallet.getMnemonic();
+          await that.wallet.createWalletRandom(path, TestUtils.WALLET_PASSWORD);
+          let mnemonic = await that.wallet.getMnemonic();
           MoneroUtils.validateMnemonic(mnemonic);
           assert.notEqual(mnemonic, TestUtils.MNEMONIC);
-          MoneroUtils.validateAddress(await this.wallet.getPrimaryAddress());
-          assert.equal(await this.wallet.getHeight(), 1); // TODO monero core: why does height of new unsynced wallet start at 1?
-          await this.wallet.sync();  // very quick because restore height is chain height
-          await this.wallet.close();
+          MoneroUtils.validateAddress(await that.wallet.getPrimaryAddress());
+          assert.equal(await that.wallet.getHeight(), 1); // TODO monero core: why does height of new unsynced wallet start at 1?
+          await that.wallet.sync();  // very quick because restore height is chain height
+          await that.wallet.close();
 
           // create random wallet with non defaults
           path = GenUtils.uuidv4();
-          await this.wallet.createWalletRandom(path, TestUtils.WALLET_PASSWORD, "Spanish");
-          MoneroUtils.validateMnemonic(await this.wallet.getMnemonic());
-          assert.notEqual(await this.wallet.getMnemonic(), mnemonic);
-          MoneroUtils.validateAddress(await this.wallet.getPrimaryAddress());
-          assert.equal(await this.wallet.getHeight(), 1); // TODO monero core: why is height of unsynced wallet 1?
-          await this.wallet.close();
+          await that.wallet.createWalletRandom(path, TestUtils.WALLET_PASSWORD, "Spanish");
+          MoneroUtils.validateMnemonic(await that.wallet.getMnemonic());
+          assert.notEqual(await that.wallet.getMnemonic(), mnemonic);
+          MoneroUtils.validateAddress(await that.wallet.getPrimaryAddress());
+          assert.equal(await that.wallet.getHeight(), 1); // TODO monero core: why is height of unsynced wallet 1?
+          await that.wallet.close();
           
           // attempt to create wallet which already exists
           try {
-            await this.wallet.createWalletRandom(path, TestUtils.WALLET_PASSWORD, "Spanish");
+            await that.wallet.createWalletRandom(path, TestUtils.WALLET_PASSWORD, "Spanish");
           } catch (e) {
             assert.equal(e.getCode(), -21);
           }
@@ -110,7 +110,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         }
           
         // open main test wallet for other tests
-        await this.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+        await that.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
         
         // throw error if there was one
         if (err) throw err;
@@ -122,33 +122,33 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           
           // create wallet with mnemonic and defaults
           let path = GenUtils.uuidv4();
-          await this.wallet.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
-          assert.equal(await this.wallet.getMnemonic(), TestUtils.MNEMONIC);
-          assert.equal(await this.wallet.getPrimaryAddress(), TestUtils.ADDRESS);
-          assert.equal(await this.wallet.getHeight(), 1);      // TODO monero-core: sometimes wallet is synced after fresh creation here, but not if run alone
-          assert.equal(await this.wallet.getTxs().size(), 0);  // wallet is not synced
-          await this.wallet.sync();
-          assert.equal(await this.wallet.getHeight(), daemon.getHeight());
-          let txs = await this.wallet.getTxs();
+          await that.wallet.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
+          assert.equal(await that.wallet.getMnemonic(), TestUtils.MNEMONIC);
+          assert.equal(await that.wallet.getPrimaryAddress(), TestUtils.ADDRESS);
+          assert.equal(await that.wallet.getHeight(), 1);      // TODO monero-core: sometimes wallet is synced after fresh creation here, but not if run alone
+          assert.equal(await that.wallet.getTxs().size(), 0);  // wallet is not synced
+          await that.wallet.sync();
+          assert.equal(await that.wallet.getHeight(), daemon.getHeight());
+          let txs = await that.wallet.getTxs();
           assert(txs.length > 0); // wallet is used
           assert.equal(txs[0].getHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
-          await this.wallet.close();
+          await that.wallet.close();
           
           // create wallet with non-defaults
           path = GenUtils.uuidv4();
-          await this.wallet.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT, "German", "my offset!", false);
-          MoneroUtils.validateMnemonic(await this.wallet.getMnemonic());
-          assert.notEqual(await this.wallet.getMnemonic(), TestUtils.MNEMONIC);  // mnemonic is different because of offset
-          assert.notEqual(await this.wallet.getPrimaryAddress(), TestUtils.ADDRESS);
-          assert.equal(await this.wallet.getHeight(), 1);
-          await this.wallet.close();
+          await that.wallet.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT, "German", "my offset!", false);
+          MoneroUtils.validateMnemonic(await that.wallet.getMnemonic());
+          assert.notEqual(await that.wallet.getMnemonic(), TestUtils.MNEMONIC);  // mnemonic is different because of offset
+          assert.notEqual(await that.wallet.getPrimaryAddress(), TestUtils.ADDRESS);
+          assert.equal(await that.wallet.getHeight(), 1);
+          await that.wallet.close();
           
         } catch (e) {
           err = e;
         }
         
         // open main test wallet for other tests
-        await this.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+        await that.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
         
         // throw error if there was one
         if (err) throw err;
@@ -166,28 +166,28 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           // create test wallets
           let mnemonics = [];
           for (let name of names) {
-            await this.wallet.createWalletRandom(name, TestUtils.WALLET_PASSWORD);
-            mnemonics.add(await this.wallet.getMnemonic());
-            await this.wallet.close();
+            await that.wallet.createWalletRandom(name, TestUtils.WALLET_PASSWORD);
+            mnemonics.add(await that.wallet.getMnemonic());
+            await that.wallet.close();
           }
           
           // open test wallets
           for (let i = 0; i < numTestWallets; i++) {
-            await this.wallet.openWallet(names[i], TestUtils.WALLET_PASSWORD);
-            assert.equal(await this.wallet.getMnemonic(), mnemonics[i]);
-            await this.wallet.close();
+            await that.wallet.openWallet(names[i], TestUtils.WALLET_PASSWORD);
+            assert.equal(await that.wallet.getMnemonic(), mnemonics[i]);
+            await that.wallet.close();
           }
           
           // attempt to re-open already opened wallet
           try {
-            await this.wallet.openWallet(names.get(numTestWallets - 1), TestUtils.WALLET_PASSWORD);
+            await that.wallet.openWallet(names.get(numTestWallets - 1), TestUtils.WALLET_PASSWORD);
           } catch (e) {
             assert.equal(e.getCode(), -1);
           }
           
           // attempt to open non-existent
           try {
-            await this.wallet.openWallet("btc_integrity", TestUtils.WALLET_PASSWORD);
+            await that.wallet.openWallet("btc_integrity", TestUtils.WALLET_PASSWORD);
           } catch (e) {
             assert.equal( e.getCode(), -1);  // -1 indicates wallet does not exist (or is open by another app)
           }
@@ -197,7 +197,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         
         // open main test wallet for other tests
         try {
-          await this.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+          await that.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
         } catch (e) {
           assert.equal(e.getCode(), -1); // ok if wallet is already open
         }
