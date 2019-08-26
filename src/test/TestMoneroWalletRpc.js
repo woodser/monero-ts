@@ -25,12 +25,12 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   }
   
   async createRandomWallet() {
-    await wallet.createWalletRandom(GenUtils.uuidv(), TestUtils.PASSWORD);
+    await this.wallet.createWalletRandom(GenUtils.uuidv4(), TestUtils.PASSWORD);
     return wallet;
   }
   
   async openWallet(path) {
-    await wallet.openWallet(path, TestUtils.PASSWORD);
+    await this.wallet.openWallet(path, TestUtils.PASSWORD);
     return wallet;
   }
   
