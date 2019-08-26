@@ -55,11 +55,10 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   
   // rpc-specific tx test
   async _testTxWallet(tx, ctx) {
-    console.log("***** THIS IS BEING CALLED **********"); // TODO: remove when confirmed
-    ctx = new TestContext(ctx);
+    ctx = Object.assign({}, ctx);
     
     // run common tests
-    super.testTxWallet(tx, ctx);
+    super._testTxWallet(tx, ctx);
     
     // test tx results from send or relay
     if (ctx.isSendResponse === true) {
