@@ -296,7 +296,7 @@ class MoneroWallet {
    * @param {boolean} config.inTxPool get txs that are in the tx pool or not (optional)
    * @param {boolean} config.isRelayed gets txs that are relayed or not (optional)
    * @param {boolean} config.isFailed gets txs that are failed or not (optional)
-   * @param {boolean} config.isCoinbase gets coinbase txs or not (optional)
+   * @param {boolean} config.isMiner gets miner txs or not (optional)
    * @param {string} config.id gets a tx with the id (optional)
    * @param {string} config.txId gets a tx with the id (alias of id) (optional)
    * @param {string[]} config.txIds gets txs with the ids (optional)

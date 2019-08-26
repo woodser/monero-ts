@@ -77,12 +77,12 @@ class MoneroTx {
     return this;
   }
   
-  getIsCoinbase() {
-    return this.state.isCoinbase;
+  getIsMiner() {
+    return this.state.isMiner;
   }
   
-  setIsCoinbase(coinbase) {
-    this.state.isCoinbase = coinbase;
+  setIsMiner(miner) {
+    this.state.isMiner = miner;
     return this;
   }
   
@@ -575,7 +575,7 @@ class MoneroTx {
     str += MoneroUtils.kvLine("Tx ID: ", this.getId(), indent);
     str += MoneroUtils.kvLine("Height: ", this.getHeight(), indent);
     str += MoneroUtils.kvLine("Version", this.getVersion(), indent);
-    str += MoneroUtils.kvLine("Is coinbase", this.getIsCoinbase(), indent);
+    str += MoneroUtils.kvLine("Is miner", this.getIsMiner(), indent);
     str += MoneroUtils.kvLine("Payment ID", this.getPaymentId(), indent);
     str += MoneroUtils.kvLine("Fee", this.getFee(), indent);
     str += MoneroUtils.kvLine("Mixin", this.getMixin(), indent);

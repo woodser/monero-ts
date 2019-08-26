@@ -28,7 +28,7 @@ class MoneroWalletLocal extends MoneroWallet {
    * @param config.numHeadersPerRequest specifies the number of headers to fetch when populating the header cache (defaults to 750)
    * @param config.maxReqSize specifies maximum total block size per blocks request (defaults to 4000000)
    * @param config.maxConcurrency specifies maximum concurrency for block requests; maximum memory = this * maxReqSize (defaults to 5)
-   * @param config.skipCoinbaseTxs skips processing miner txs to speed up scan time (defaults to false)
+   * @param config.skipMinerTxs skips processing miner txs to speed up scan time (defaults to false)
    */
   constructor(config) {
     super();
@@ -432,7 +432,7 @@ MoneroWalletLocal.DEFAULT_CONFIG = {
     numHeadersPerRequest: 750,  // number of headers per headers fetch request 
     maxReqSize: 3000000,        // maximum size of any request to make
     maxConcurrency: 5,          // maximum concurrency when processing; maximum memory = this * maxReqSize
-    skipCoinbaseTxs: false,     // instructs the wallet to skip processing miner txs
+    skipMinerTxs: false,     // instructs the wallet to skip processing miner txs
 }
 
 module.exports = MoneroWalletLocal;

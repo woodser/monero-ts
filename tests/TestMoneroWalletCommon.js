@@ -2623,8 +2623,8 @@ async function testTxWallet(tx, ctx) {
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
   }
   
-  // test coinbase tx
-  if (tx.getIsCoinbase()) {
+  // test miner tx
+  if (tx.getIsMiner()) {
     assert.equal(tx.getFee().compare(new BigInteger(0)), 0);
     assert(tx.getIncomingTransfers().length > 0);
   }
@@ -2781,7 +2781,7 @@ async function testTxWallet(tx, ctx) {
 function testTxWalletTypes(tx) {
   assert.equal(typeof tx.getId(), "string");
   assert.equal(typeof tx.getIsConfirmed(), "boolean");
-  assert.equal(typeof tx.getIsCoinbase(), "boolean");
+  assert.equal(typeof tx.getIsMiner(), "boolean");
   assert.equal(typeof tx.getIsFailed(), "boolean");
   assert.equal(typeof tx.getIsRelayed(), "boolean");
   assert.equal(typeof tx.getInTxPool(), "boolean");

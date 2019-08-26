@@ -142,7 +142,7 @@ class MoneroTxRequest extends MoneroTxWallet {
     if (this.getDoNotRelay() !== undefined && this.getDoNotRelay() !== tx.getDoNotRelay()) return false;
     if (this.getIsRelayed() !== undefined && this.getIsRelayed() !== tx.getIsRelayed()) return false;
     if (this.getIsFailed() !== undefined && this.getIsFailed() !== tx.getIsFailed()) return false;
-    if (this.getIsCoinbase() !== undefined && this.getIsCoinbase() !== tx.getIsCoinbase()) return false;
+    if (this.getIsMiner() !== undefined && this.getIsMiner() !== tx.getIsMiner()) return false;
     
     // at least one transfer must meet transfer filter if defined
     if (this.getTransferRequest()) {

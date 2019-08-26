@@ -59,7 +59,7 @@ class MoneroDaemon {
   /**
    * Get a block template for mining a new block.
    * 
-   * @param {string} walletAddress is the address of the wallet to receive coinbase transactions if block is successfully mined
+   * @param {string} walletAddress is the address of the wallet to receive miner transactions if block is successfully mined
    * @param {int} reserveSize is the reserve size (optional)
    * @return {MoneroBlockTemplate} is a block template for mining a new block
    */
@@ -235,11 +235,11 @@ class MoneroDaemon {
   /**
    * Gets the total emissions and fees from the genesis block to the current height.
    * 
-   * @param {int} height is the height to start computing the coinbase sum
+   * @param {int} height is the height to start computing the miner sum
    * @param {int} numBlocks are the number of blocks to include in the sum
-   * @return {MoneroCoinbaseTxSum} encapsulates the total emissions and fees since the genesis block
+   * @return {MoneroMinerTxSum} encapsulates the total emissions and fees since the genesis block
    */
-  async getCoinbaseTxSum(height, numBlocks) {
+  async getMinerTxSum(height, numBlocks) {
     throw new MoneroError("Subclass must implement");
   }
   

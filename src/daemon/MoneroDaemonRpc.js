@@ -17,7 +17,7 @@ const MoneroHardForkInfo = require("./model/MoneroHardForkInfo");
 const MoneroBan = require("./model/MoneroBan");
 const MoneroDaemonConnection = require("./model/MoneroDaemonConnection");
 const MoneroDaemonConnectionSpan = require("./model/MoneroDaemonConnectionSpan");
-const MoneroCoinbaseTxSum = require("./model/MoneroCoinbaseTxSum");
+const MoneroMinerTxSum = require("./model/MoneroMinerTxSum");
 const MoneroOutputHistogramEntry = require("./model/MoneroOutputHistogramEntry");
 const MoneroKeyImage = require("./model/MoneroKeyImage");
 const MoneroSubmitTxResult = require("./model/MoneroSubmitTxResult");
@@ -170,7 +170,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.setId(rpcBlocks.blocks[blockIdx].tx_hashes[txIdx]);
         tx.setIsConfirmed(true);
         tx.setInTxPool(false);
-        tx.setIsCoinbase(false);
+        tx.setIsMiner(false);
         tx.setDoNotRelay(false);
         tx.setIsRelayed(true);
         tx.setIsFailed(false);
@@ -236,7 +236,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (resp.txs) {
       for (let txIdx = 0; txIdx < resp.txs.length; txIdx++) {
         let tx = new MoneroTx();
-        tx.setIsCoinbase(false);
+        tx.setIsMiner(false);
         txs.push(MoneroDaemonRpc._convertRpcTx(resp.txs[txIdx], tx));
       }
     }
@@ -259,14 +259,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return hexes;
   }
   
-  async getCoinbaseTxSum(height, numBlocks) {
+  async getMinerTxSum(height, numBlocks) {
     if (height === undefined) height = 0;
     else assert(height >= 0, "Height must be an integer >= 0");
     if (numBlocks === undefined) numBlocks = await this.getHeight();
     else assert(numBlocks >= 0, "Count must be an integer >= 0");
-    let resp = await this.config.rpc.sendJsonRequest("get_coinbase_tx_sum", {height: height, count: numBlocks});
+    let resp = await this.config.rpc.sendJsonRequest("get_miner_tx_sum", {height: height, count: numBlocks});
     MoneroDaemonRpc._checkResponseStatus(resp.result);
-    let txSum = new MoneroCoinbaseTxSum();
+    let txSum = new MoneroMinerTxSum();
     txSum.setEmissionSum(new BigInteger(resp.result.emission_amount));
     txSum.setFeeSum(new BigInteger(resp.result.fee_amount));
     return txSum;
@@ -310,7 +310,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         let tx = new MoneroTx();
         txs.push(tx);
         tx.setIsConfirmed(false);
-        tx.setIsCoinbase(false);
+        tx.setIsMiner(false);
         tx.setInTxPool(true);
         tx.setNumConfirmations(0);
         MoneroDaemonRpc._convertRpcTx(rpcTx, tx);
@@ -791,7 +791,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "pow_hash") MoneroUtils.safeSet(header, header.getPowHash, header.setPowHash, val === "" ? undefined : val);
       else if (key === "tx_hashes") {}  // used in block model, not header model
       else if (key === "miner_tx") {}   // used in block model, not header model
-      else if (key === "miner_tx_hash") header.setCoinbaseTxId(val);
+      else if (key === "miner_tx_hash") header.setMinerTxId(val);
       else console.log("WARNING: ignoring unexpected block header field: '" + key + "': " + val);
     }
     return header;
@@ -804,13 +804,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
     block.setHex(rpcBlock.blob);
     block.setTxIds(rpcBlock.tx_hashes === undefined ? [] : rpcBlock.tx_hashes);
     
-    // build coinbase tx
-    let rpcCoinbaseTx = rpcBlock.json ? JSON.parse(rpcBlock.json).miner_tx : rpcBlock.miner_tx;  // may need to be parsed from json
-    let coinbaseTx = new MoneroTx();
-    block.setCoinbaseTx(coinbaseTx);
-    coinbaseTx.setIsConfirmed(true);
-    coinbaseTx.setIsCoinbase(true);
-    MoneroDaemonRpc._convertRpcTx(rpcCoinbaseTx, coinbaseTx);
+    // build miner tx
+    let rpcMinerTx = rpcBlock.json ? JSON.parse(rpcBlock.json).miner_tx : rpcBlock.miner_tx;  // may need to be parsed from json
+    let minerTx = new MoneroTx();
+    block.setMinerTx(minerTx);
+    minerTx.setIsConfirmed(true);
+    minerTx.setIsMiner(true);
+    MoneroDaemonRpc._convertRpcTx(rpcMinerTx, minerTx);
     
     return block;
   }
@@ -855,7 +855,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "version") MoneroUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);
       else if (key === "extra") MoneroUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
       else if (key === "vin") {
-        if (val.length !== 1 || !val[0].gen) {  // ignore coinbase vin TODO: why?
+        if (val.length !== 1 || !val[0].gen) {  // ignore miner vin TODO: why?
           tx.setVins(val.map(rpcVin => MoneroDaemonRpc._convertRpcOutput(rpcVin, tx)));
         }
       }
@@ -932,7 +932,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     output.setTx(tx);
     for (let key of Object.keys(rpcOutput)) {
       let val = rpcOutput[key];
-      if (key === "gen") throw new MoneroError("Output with 'gen' from daemon rpc is coinbase tx which we ignore (i.e. each coinbase vin is undefined)");
+      if (key === "gen") throw new MoneroError("Output with 'gen' from daemon rpc is miner tx which we ignore (i.e. each miner vin is undefined)");
       else if (key === "key") {
         MoneroUtils.safeSet(output, output.getAmount, output.setAmount, new BigInteger(val.amount));
         MoneroUtils.safeSet(output, output.getKeyImage, output.setKeyImage, new MoneroKeyImage(val.k_image));

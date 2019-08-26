@@ -146,12 +146,12 @@ class MoneroBlockHeader {
     return this;
   }
   
-  getCoinbaseTxId() {
-    return this.state.coinbaseTxId;
+  getMinerTxId() {
+    return this.state.minerTxId;
   }
   
-  setCoinbaseTxId(coinbaseTxId) {
-    this.state.coinbaseTxId = coinbaseTxId;
+  setMinerTxId(minerTxId) {
+    this.state.minerTxId = minerTxId;
     return this;
   }
   
@@ -226,7 +226,7 @@ class MoneroBlockHeader {
     this.setMajorVersion(MoneroUtils.reconcile(this.getMajorVersion(), header.getMajorVersion()));
     this.setMinorVersion(MoneroUtils.reconcile(this.getMinorVersion(), header.getMinorVersion()));
     this.setNonce(MoneroUtils.reconcile(this.getNonce(), header.getNonce()));
-    this.setCoinbaseTxId(MoneroUtils.reconcile(this.getCoinbaseTxId(), header.getCoinbaseTxId()));
+    this.setMinerTxId(MoneroUtils.reconcile(this.getMinerTxId(), header.getMinerTxId()));
     this.setNumTxs(MoneroUtils.reconcile(this.getNumTxs(), header.getNumTxs()));
     this.setOrphanStatus(MoneroUtils.reconcile(this.getOrphanStatus(), header.getOrphanStatus()));
     this.setPrevId(MoneroUtils.reconcile(this.getPrevId(), header.getPrevId()));
@@ -248,7 +248,7 @@ class MoneroBlockHeader {
     str += MoneroUtils.kvLine("Major version", this.getMajorVersion(), indent);
     str += MoneroUtils.kvLine("Minor version", this.getMinorVersion(), indent);
     str += MoneroUtils.kvLine("Nonce", this.getNonce(), indent);
-    str += MoneroUtils.kvLine("Coinbase tx id", this.getCoinbaseTxId(), indent);
+    str += MoneroUtils.kvLine("Miner tx id", this.getMinerTxId(), indent);
     str += MoneroUtils.kvLine("Num txs", this.getNumTxs(), indent);
     str += MoneroUtils.kvLine("Orphan status", this.getOrphanStatus(), indent);
     str += MoneroUtils.kvLine("Prev id", this.getPrevId(), indent);

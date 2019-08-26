@@ -1,7 +1,7 @@
 /**
- * Model for the summation of coinbase emissions and fees.
+ * Model for the summation of miner emissions and fees.
  */
-class MoneroCoinbaseTxSum {
+class MoneroMinerTxSum {
   
   getEmissionSum() {
     return this.emissionSum;
@@ -22,4 +22,4 @@ class MoneroCoinbaseTxSum {
   }
 }
 
-module.exports = MoneroCoinbaseTxSum;
+module.exports = MoneroMinerTxSum;

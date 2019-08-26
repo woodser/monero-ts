@@ -416,9 +416,9 @@ class TestMoneroDaemonRpc {
         }
       });
       
-      it("Can get the coinbase transaction sum", async function() {
-        let sum = await daemon.getCoinbaseTxSum(0, 50000);
-        testCoinbaseTxSum(sum);
+      it("Can get the miner transaction sum", async function() {
+        let sum = await daemon.getMinerTxSum(0, 50000);
+        testMinerTxSum(sum);
       });
       
       it("Can get a fee estimate", async function() {
@@ -1086,7 +1086,7 @@ function testBlockHeader(header, isFull) {
   assert(!isFull ? undefined === header.getDifficulty() : header.getDifficulty().toJSValue() > 0);
   assert(!isFull ? undefined === header.getCumulativeDifficulty() : header.getCumulativeDifficulty().toJSValue() > 0);
   assert(!isFull ? undefined === header.getId() : header.getId().length === 64);
-  assert(!isFull ? undefined === header.getCoinbaseTxId() : header.getCoinbaseTxId().length === 64);
+  assert(!isFull ? undefined === header.getMinerTxId() : header.getMinerTxId().length === 64);
   assert(!isFull ? undefined === header.getNumTxs() : header.getNumTxs() >= 0);
   assert(!isFull ? undefined === header.getOrphanStatus() : typeof header.getOrphanStatus() === "boolean");
   assert(!isFull ? undefined === header.getReward() : header.getReward());
@@ -1106,7 +1106,7 @@ function testBlock(block, ctx) {
   assert(block);
   assert(Array.isArray(block.getTxIds())); // TODO: tx hashes probably part of tx
   assert(block.getTxIds().length >= 0);
-  testCoinbaseTx(block.getCoinbaseTx());   // TODO: coinbase tx doesn't have as much stuff, can't call testTx?
+  testMinerTx(block.getMinerTx());   // TODO: miner tx doesn't have as much stuff, can't call testTx?
   testBlockHeader(block, ctx.headerIsFull);
   
   if (ctx.hasHex) {
@@ -1129,24 +1129,24 @@ function testBlock(block, ctx) {
   }
 }
 
-function testCoinbaseTx(coinbaseTx) {
-  assert(coinbaseTx);
-  assert(coinbaseTx instanceof MoneroTx);
-  assert.equal(typeof coinbaseTx.getIsCoinbase(), "boolean");
-  assert(coinbaseTx.getIsCoinbase());
+function testMinerTx(minerTx) {
+  assert(minerTx);
+  assert(minerTx instanceof MoneroTx);
+  assert.equal(typeof minerTx.getIsMiner(), "boolean");
+  assert(minerTx.getIsMiner());
   
-  assert(coinbaseTx.getVersion() >= 0);
-  assert(Array.isArray(coinbaseTx.getExtra()));
-  assert(coinbaseTx.getExtra().length > 0);
-  assert(coinbaseTx.getUnlockTime() >= 0);
+  assert(minerTx.getVersion() >= 0);
+  assert(Array.isArray(minerTx.getExtra()));
+  assert(minerTx.getExtra().length > 0);
+  assert(minerTx.getUnlockTime() >= 0);
 
-  // TODO: coinbase tx does not have ids in binary requests so this will fail, need to derive using prunable data
-//  testTx(coinbaseTx, {
+  // TODO: miner tx does not have ids in binary requests so this will fail, need to derive using prunable data
+//  testTx(minerTx, {
 //    hasJson: false,
 //    isPruned: true,
 //    isFull: false,
 //    isConfirmed: true,
-//    isCoinbase: true,
+//    isMiner: true,
 //    fromGetTxPool: false,
 //  })
 }
@@ -1167,7 +1167,7 @@ function testTx(tx, ctx) {
   else assert.equal(typeof tx.getIsRelayed(), "boolean");
   assert.equal(typeof tx.getIsConfirmed(), "boolean");
   assert.equal(typeof tx.getInTxPool(), "boolean");
-  assert.equal(typeof tx.getIsCoinbase(), "boolean");
+  assert.equal(typeof tx.getIsMiner(), "boolean");
   assert.equal(typeof tx.getIsDoubleSpend(), "boolean");
   assert(tx.getVersion() >= 0);
   assert(tx.getUnlockTime() >= 0);
@@ -1177,7 +1177,7 @@ function testTx(tx, ctx) {
   
   // test presence of output indices
   // TODO: change this over to vouts only
-  if (tx.getIsCoinbase()) assert.equal(tx.getOutputIndices(), undefined); // TODO: how to get output indices for coinbase transactions?
+  if (tx.getIsMiner()) assert.equal(tx.getOutputIndices(), undefined); // TODO: how to get output indices for miner transactions?
   if (tx.getInTxPool() || ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(tx.getOutputIndices(), undefined);
   else assert(tx.getOutputIndices());
   if (tx.getOutputIndices()) assert(tx.getOutputIndices().length > 0);
@@ -1221,8 +1221,8 @@ function testTx(tx, ctx) {
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
   }
   
-  // test coinbase tx
-  if (tx.getIsCoinbase()) {
+  // test miner tx
+  if (tx.getIsMiner()) {
     assert.equal(tx.getFee().compare(new BigInteger(0)), 0);
     assert(tx.getIncomingTransfers().length > 0); // TODO: MoneroTx does not have getIncomingTransfers() but this doesn't fail?
     assert.equal(tx.getVins(), undefined);
@@ -1262,7 +1262,7 @@ function testTx(tx, ctx) {
   // test vins and vouts
   assert(tx.getVins() && Array.isArray(tx.getVins()) && tx.getVins().length >= 0);
   assert(tx.getVouts() && Array.isArray(tx.getVouts()) && tx.getVouts().length >= 0);
-  if (!tx.getIsCoinbase()) assert(tx.getVins().length > 0);
+  if (!tx.getIsMiner()) assert(tx.getVins().length > 0);
   for (let vin of tx.getVins()) {
     assert(tx === vin.getTx());
     testVin(vin, ctx);
@@ -1401,7 +1401,7 @@ function testMoneroBan(ban) {
   assert.notEqual(ban.getSeconds(), undefined);
 }
 
-function testCoinbaseTxSum(txSum) {
+function testMinerTxSum(txSum) {
   TestUtils.testUnsignedBigInteger(txSum.getEmissionSum(), true);
   TestUtils.testUnsignedBigInteger(txSum.getFeeSum(), true);
 }

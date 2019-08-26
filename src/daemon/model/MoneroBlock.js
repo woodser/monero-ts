@@ -17,10 +17,10 @@ class MoneroBlock extends MoneroBlockHeader {
     super(state);
     state = this.state;
     
-    // deserialize coinbase tx
-    if (state.coinbaseTx && !(state.coinbaseTx instanceof MoneroTx)) state.coinbaseTx = new MoneroTx(state.coinbaseTx).setBlock(this);
+    // deserialize miner tx
+    if (state.minerTx && !(state.minerTx instanceof MoneroTx)) state.minerTx = new MoneroTx(state.minerTx).setBlock(this);
     
-    // deserialize non-coinbase txs
+    // deserialize non-miner txs
     if (state.txs) {
       for (let i = 0; i < state.txs.length; i++) {
         if (!(state.txs[i] instanceof MoneroTx)) state.txs[i] = new MoneroTx(state.txs[i]).setBlock(this);
@@ -37,12 +37,12 @@ class MoneroBlock extends MoneroBlockHeader {
     return this;
   }
   
-  getCoinbaseTx() {
-    return this.state.coinbaseTx;
+  getMinerTx() {
+    return this.state.minerTx;
   }
   
-  setCoinbaseTx(coinbaseTx) {
-    this.state.coinbaseTx = coinbaseTx;
+  setMinerTx(minerTx) {
+    this.state.minerTx = minerTx;
     return this;
   }
   
@@ -70,7 +70,7 @@ class MoneroBlock extends MoneroBlockHeader {
   
   toJson() {
     let json = super.toJson();
-    if (this.getCoinbaseTx()) json.coinbaseTx = this.getCoinbaseTx().toJson();
+    if (this.getMinerTx()) json.minerTx = this.getMinerTx().toJson();
     if (this.getTxs()) {
       json.txs = [];
       for (let tx of this.getTxs()) json.txs.push(tx.toJson());
@@ -89,14 +89,14 @@ class MoneroBlock extends MoneroBlockHeader {
     this.setHex(MoneroUtils.reconcile(this.getHex(), block.getHex()));
     this.setTxIds(MoneroUtils.reconcile(this.getTxIds(), block.getTxIds()));
     
-    // merge coinbase tx
-    if (this.getCoinbaseTx() === undefined) this.setCoinbaseTx(block.getCoinbaseTx());
-    if (block.getCoinbaseTx() !== undefined) {
-      block.getCoinbaseTx().setBlock(this);
-      coinbaseTx.merge(block.getCoinbaseTx());
+    // merge miner tx
+    if (this.getMinerTx() === undefined) this.setMinerTx(block.getMinerTx());
+    if (block.getMinerTx() !== undefined) {
+      block.getMinerTx().setBlock(this);
+      minerTx.merge(block.getMinerTx());
     }
     
-    // merge non-coinbase txs
+    // merge non-miner txs
     if (block.getTxs() !== undefined) {
       for (let tx of block.getTxs()) {
         tx.setBlock(this);
@@ -109,9 +109,9 @@ class MoneroBlock extends MoneroBlockHeader {
   
   toString(indent = 0) {
     let str = super.toString(indent) + "\n";
-    if (this.getCoinbaseTx()) {
-      str += MoneroUtils.kvLine("Coinbase tx", "", indent);
-      str += this.getCoinbaseTx().toString(indent + 1) + "\n";
+    if (this.getMinerTx()) {
+      str += MoneroUtils.kvLine("Miner tx", "", indent);
+      str += this.getMinerTx().toString(indent + 1) + "\n";
     }
     str += MoneroUtils.kvLine("Hex", this.getHex(), indent);
     if (this.getTxs()) {
