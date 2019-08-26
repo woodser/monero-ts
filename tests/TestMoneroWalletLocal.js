@@ -41,7 +41,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         
         // test configuration
         let config = {
-            mnemonic: TestUtils.TEST_MNEMONIC,
+            mnemonic: TestUtils.MNEMONIC,
             blockHeights: [197148, 199930, 209120, 209121], // known block heights (optional)
             startHeight: 192000,                            // start of range to scan (ignored if block heights given)
         }
@@ -116,7 +116,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         
         // create wallet with a start height 50 blocks ago
         let numBlocks = 200;
-        wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: TestUtils.TEST_MNEMONIC, startHeight: await daemon.getHeight() - numBlocks});
+        wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: TestUtils.MNEMONIC, startHeight: await daemon.getHeight() - numBlocks});
         
         // sync the wallet 
         let progressTester = new SyncProgressTester(wallet, await wallet.getChainHeight() - numBlocks, await wallet.getChainHeight() - 1, null);

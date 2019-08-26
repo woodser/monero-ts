@@ -20,6 +20,20 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     super(TestUtils.getWalletRpc(), TestUtils.getDaemonRpc());
   }
   
+  getTestWallet() {
+    return TestUtils.getWalletRpc();
+  }
+  
+  async createRandomWallet() {
+    await wallet.createWalletRandom(GenUtils.uuidv(), TestUtils.PASSWORD);
+    return wallet;
+  }
+  
+  async openWallet(path) {
+    await wallet.openWallet(path, TestUtils.PASSWORD);
+    return wallet;
+  }
+  
   runTests(config) {
     let that = this;
     describe("TEST MONERO WALLET RPC", function() {

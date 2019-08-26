@@ -1,12 +1,11 @@
-description consistent with other libraries; reference api
-
-move submodules to external directory
+move tests to src/
 update js from java/c++: createTx(), createTxs(), relayTx(), relayTxs(), send(), sendSplit(), get is/has/in, isDoubleSpend -> isDoubleSpendSeen, startSyncing(), stopSyncing(), coinbaseTx->minerTx, request copying from ~jni93, request -> query, height methods + ordering
 port incoming transfer duplicate resolution from java/cpp
 port ground truth test from java
 MoneroRpc -> MoneroRpcConnection
-move tests to src/
 getBlocksByRange() end should be exclusive
+
+readme: description consistent with other libraries, reference api
 
 model rct_signatures and rct_prunable
 mms

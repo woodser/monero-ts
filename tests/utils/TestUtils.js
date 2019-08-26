@@ -203,9 +203,9 @@ class TestUtils {
 TestUtils.MAX_FEE = new BigInteger(7500000).multiply(new BigInteger(10000));
 
 // default keypair to test
-TestUtils.TEST_MNEMONIC = "hefty value later extra artistic firm radar yodel talent future fungal nutshell because sanity awesome nail unjustly rage unafraid cedar delayed thumbs comb custom sanity";
+TestUtils.MNEMONIC = "hefty value later extra artistic firm radar yodel talent future fungal nutshell because sanity awesome nail unjustly rage unafraid cedar delayed thumbs comb custom sanity";
 TestUtils.ADDRESS = "528qdm2pXnYYesCy5VdmBneWeaSZutEijFVAKjpVHeVd4unsCSM55CjgViQsK9WFNHK1eZgcCuZ3fRqYpzKDokqSKp4yp38";
-TestUtils.TEST_RESTORE_HEIGHT = 383338;
+TestUtils.FIRST_RECEIVE_HEIGHT = 383338;
 
 //wallet rpc test wallet filenames and passwords
 TestUtils.WALLET_RPC_NAME_1 = "test_wallet_1";
@@ -232,7 +232,7 @@ TestUtils.DAEMON_RPC_CONFIG = {
 // local wallet config
 TestUtils.WALLET_LOCAL_CONFIG = {
   daemon: TestUtils.getDaemonRpc(),
-  mnemonic: TestUtils.TEST_MNEMONIC
+  mnemonic: TestUtils.MNEMONIC
 }
 
 // used to track which wallets are in sync with pool so associated txs in the pool do not need to be waited on

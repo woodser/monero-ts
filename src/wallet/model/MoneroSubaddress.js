@@ -6,105 +6,106 @@ const MoneroUtils = require("../../utils/MoneroUtils");
 class MoneroSubaddress {
   
   constructor(address) {
+    this.state = {};
     this.setAddress(address);
   }
   
   getAccountIndex() {
-    return this.accountIndex;
+    return this.state.accountIndex;
   }
 
   setAccountIndex(accountIndex) {
-    this.accountIndex = accountIndex;
+    this.state.accountIndex = accountIndex;
     return this;
   }
 
   getIndex() {
-    return this.index;
+    return this.state.index;
   }
 
   setIndex(index) {
-    this.index = index;
+    this.state.index = index;
     return this;
   }
   
   getAddress() {
-    return this.address;
+    return this.state.address;
   }
 
   setAddress(address) {
-    this.address = address;
+    this.state.address = address;
     return this;
   }
 
   getLabel() {
-    return this.label;
+    return this.state.label;
   }
 
   setLabel(label) {
-    this.label = label;
+    this.state.label = label;
     return this;
   }
 
   getBalance() {
-    return this.balance;
+    return this.state.balance;
   }
 
   setBalance(balance) {
-    this.balance = balance;
+    this.state.balance = balance;
     return this;
   }
 
   getUnlockedBalance() {
-    return this.unlockedBalance;
+    return this.state.unlockedBalance;
   }
 
   setUnlockedBalance(unlockedBalance) {
-    this.unlockedBalance = unlockedBalance;
+    this.state.unlockedBalance = unlockedBalance;
     return this;
   }
 
   getNumUnspentOutputs() {
-    return this.numUnspentOutputs;
+    return this.state.numUnspentOutputs;
   }
 
   setNumUnspentOutputs(numUnspentOutputs) {
-    this.numUnspentOutputs = numUnspentOutputs;
+    this.state.numUnspentOutputs = numUnspentOutputs;
     return this;
   }
 
   isUsed() {
-    return this.isUsed;
+    return this.state.isUsed;
   }
 
   setIsUsed(isUsed) {
-    this.isUsed = isUsed;
+    this.state.isUsed = isUsed;
     return this;
   }
 
   toString() {
-    return this.toString(0);
+    return this.state.toString(0);
   }
   
   getNumBlocksToUnlock() {
-    return this.numBlocksToUnlock;
+    return this.state.numBlocksToUnlock;
   }
 
   setNumBlocksToUnlock(numBlocksToUnlock) {
-    this.numBlocksToUnlock = numBlocksToUnlock;
+    this.state.numBlocksToUnlock = numBlocksToUnlock;
     return this;
   }
   
   toString(indent) {
     let str = "";
-    str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
-    str += MoneroUtils.kvLine("Subaddress index", this.getIndex(), indent);
-    str += MoneroUtils.kvLine("Address", this.getAddress(), indent);
-    str += MoneroUtils.kvLine("Label", this.getLabel(), indent);
-    str += MoneroUtils.kvLine("Balance", this.getBalance(), indent);
-    str += MoneroUtils.kvLine("Unlocked balance", this.getUnlockedBalance(), indent);
-    str += MoneroUtils.kvLine("Num unspent outputs", this.getNumUnspentOutputs(), indent);
-    str += MoneroUtils.kvLine("Is used", this.isUsed(), indent);
-    str += MoneroUtils.kvLine("Num blocks to unlock", this.isUsed(), indent);
+    str += MoneroUtils.kvLine("Account index", this.state.getAccountIndex(), indent);
+    str += MoneroUtils.kvLine("Subaddress index", this.state.getIndex(), indent);
+    str += MoneroUtils.kvLine("Address", this.state.getAddress(), indent);
+    str += MoneroUtils.kvLine("Label", this.state.getLabel(), indent);
+    str += MoneroUtils.kvLine("Balance", this.state.getBalance(), indent);
+    str += MoneroUtils.kvLine("Unlocked balance", this.state.getUnlockedBalance(), indent);
+    str += MoneroUtils.kvLine("Num unspent outputs", this.state.getNumUnspentOutputs(), indent);
+    str += MoneroUtils.kvLine("Is used", this.state.isUsed(), indent);
+    str += MoneroUtils.kvLine("Num blocks to unlock", this.state.isUsed(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }

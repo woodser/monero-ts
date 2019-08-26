@@ -44,6 +44,44 @@ class TestMoneroWalletCommon {
     assert(daemon instanceof MoneroDaemon);
     this.wallet = wallet;
     this.daemon = daemon;
+    TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
+  }
+  
+  /**
+   * Get the daemon to test.
+   * 
+   * @return the daemon to test
+   */
+  getTestDaemon() {
+    return TestUtils.getDaemonRpc();
+  }
+  
+  /**
+   * Get the main wallet to test.
+   * 
+   * @return the wallet to test
+   */
+  getTestWallet() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Create and open a random test wallet.
+   * 
+   * @return the random test wallet
+   */
+  createRandomWallet() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Open a test wallet.
+   * 
+   * @param path identifies the test wallet to open
+   * @return MoneroWallet returns a reference to the opened wallet
+   */
+  openWallet(path) {
+    throw new Error("Subclass must implement");
   }
   
   runCommonTests(config) {
@@ -77,10 +115,34 @@ class TestMoneroWalletCommon {
         return txCache;
       }
       
+      it("Can get the wallet's path", async function() {
+        
+        // create a random wallet
+        let wallet = await createRandomWallet();
+        
+        // set a random attribute
+        let uuid = GenUtils.uuidv4();
+        await wallet.setAttribute("uuid", uuid);
+        
+        // record the wallet's path then save and close
+        let path = await wallet.getPath();
+        await wallet.close(true);
+        
+        // re-open the wallet using its path
+        wallet = await openWallet(path);
+        
+        // test the attribute
+        assert.equal(await wallet.getAttribute("uuid"), uuid);
+        
+        // re-open main test wallet
+        await wallet.close();
+        this.wallet = await getTestWallet();
+      });
+      
       it("Can get the mnemonic phrase derived from the seed", async function() {
         let mnemonic = await wallet.getMnemonic();
         MoneroUtils.validateMnemonic(mnemonic);
-        assert.equal(mnemonic, TestUtils.TEST_MNEMONIC);
+        assert.equal(mnemonic, TestUtils.MNEMONIC);
       });
       
       it("Can get a list of supported languages for the mnemonic phrase", async function() {
@@ -113,13 +175,15 @@ class TestMoneroWalletCommon {
             assert.equal(await wallet.getAddress(account.getIndex(), subaddress.getIndex()), subaddress.getAddress());
           }
         }
-        
-        // test out of range indices
+      });
+      
+      it("Can get addresses out of range of used accounts and subaddresses", async function() {
         let accounts = await wallet.getAccounts(true);
         let accountIdx = accounts.length - 1;
         let subaddressIdx = accounts[accountIdx].getSubaddresses().length;
         let address = await wallet.getAddress(accountIdx, subaddressIdx);
-        assert.equal(address, undefined);
+        assert.notEqual(address, undefined);
+        assert(address.length > 0);
       });
       
       it("Can get the account and subaddress indices of an address", async function() {
@@ -395,7 +459,7 @@ class TestMoneroWalletCommon {
         let txs1 = await getCachedTxs();
         let txs2 = await getAndTestTxs(wallet, undefined, true);
         assert.equal(txs2.length, txs1.length);
-        assert.equal(txs1[0].getHeight(), TestUtils.TEST_RESTORE_HEIGHT, "First tx's restore height must match the restore height in TestUtils");
+        assert.equal(txs1[0].getHeight(), TestUtils.FIRST_RECEIVE_HEIGHT, "First tx's restore height must match the restore height in TestUtils");
         
         // test each tranasction
         let blocksPerHeight = {};
