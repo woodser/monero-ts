@@ -1,6 +1,6 @@
 const assert = require("assert");
 const MoneroUtils = require("../../utils/MoneroUtils");
-const BigInteger = require("../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const BigInteger = require("../../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
  * Models a Monero block header which contains information about the block.

@@ -8,7 +8,7 @@
   "main": "todo",
   "scripts": {
     "start": "todo",
-    "test": "mocha 'tests/TestAll' --timeout 2000000"
+    "test": "mocha 'src/test/TestAll' --timeout 2000000"
   },
   "build": {
     "publish": [

@@ -1,6 +1,6 @@
 const assert = require("assert");
 const GenUtils = require("./GenUtils");
-const BigInteger = require("../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const BigInteger = require("../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 
 /**
  * Collection of Monero utilitlies.
@@ -11,7 +11,7 @@ class MoneroUtils {
    * Get Monero Core utils for client-side crypto and binary requests.
    */
   static async getCoreUtils() {
-    if (MoneroUtils.coreUtils === undefined) MoneroUtils.coreUtils = await require('../../external/mymonero-core-js/monero_utils/MyMoneroCoreBridge')();
+    if (MoneroUtils.coreUtils === undefined) MoneroUtils.coreUtils = await require('../../../external/mymonero-core-js/monero_utils/MyMoneroCoreBridge')();
     return MoneroUtils.coreUtils;
   }
   

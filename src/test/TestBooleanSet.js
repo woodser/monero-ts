@@ -1,6 +1,6 @@
 const assert = require("assert");
-const GenUtils = require("../src/utils/GenUtils");
-const BooleanSet = require("../src/utils/BooleanSet");
+const GenUtils = require("../main/utils/GenUtils");
+const BooleanSet = require("../main/utils/BooleanSet");
 
 const MAX_INDEX = 10000;       // maximum index to set
 const NUM_SETS = 5000;         // number of sets within the maximum index

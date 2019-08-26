@@ -1,6 +1,6 @@
 const assert = require("assert");
 const TestUtils = require("./utils/TestUtils");
-const MoneroUtils = require("../src/utils/MoneroUtils");
+const MoneroUtils = require("../main/utils/MoneroUtils");
 
 /**
  * Compares two wallets for equality.

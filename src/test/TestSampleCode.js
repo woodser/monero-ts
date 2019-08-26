@@ -1,7 +1,7 @@
 const assert = require("assert");
 const TestUtils = require("./utils/TestUtils");
-const MoneroTxRequest = require("../src/wallet/model/MoneroTxRequest");
-const MoneroTransferRequest = require("../src/wallet/model/MoneroTransferRequest");
+const MoneroTxRequest = require("../main/wallet/model/MoneroTxRequest");
+const MoneroTransferRequest = require("../main/wallet/model/MoneroTransferRequest");
 
 /**
  * Test the sample code in README.md.
@@ -11,12 +11,12 @@ describe("Test Sample Code", function() {
   it("Can demonstrate the wallet with sample code", async function() {
     
     // imports
-    const BigInteger = require("../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
-    const MoneroWalletRpc = require("../src/wallet/MoneroWalletRpc");
-    const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
-    const MoneroSendPriority = require("../src/wallet/model/MoneroSendPriority");
-    const MoneroDestination = require("../src/wallet/model/MoneroDestination");
-    const MoneroSendRequest = require("../src/wallet/model/MoneroSendRequest");
+    const BigInteger = require("../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+    const MoneroWalletRpc = require("../main/wallet/MoneroWalletRpc");
+    const MoneroTransfer = require("../main/wallet/model/MoneroTransfer");
+    const MoneroSendPriority = require("../main/wallet/model/MoneroSendPriority");
+    const MoneroDestination = require("../main/wallet/model/MoneroDestination");
+    const MoneroSendRequest = require("../main/wallet/model/MoneroSendRequest");
     
     // create a wallet that uses a monero-wallet-rpc endpoint with authentication
     let wallet = new MoneroWalletRpc({
@@ -86,7 +86,7 @@ describe("Test Sample Code", function() {
   it("Can demonstrate the daemon with sample code", async function() {
       
       // imports
-      const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
+      const MoneroDaemonRpc = require("../main/daemon/MoneroDaemonRpc");
       
       // create a daemon that uses a monero-daemon-rpc endpoint
       let daemon = new MoneroDaemonRpc({uri: "http://localhost:38081"});

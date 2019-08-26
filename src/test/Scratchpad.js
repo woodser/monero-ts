@@ -1,18 +1,18 @@
 const assert = require("assert");
-const BigInteger = require("../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const BigInteger = require("../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const TestMoneroDaemonRpc = require("./TestMoneroDaemonRpc");
 const TestMoneroWalletRpc = require("./TestMoneroWalletRpc")
 const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 const TestUtils = require("./utils/TestUtils");
-const MoneroRpc = require("../src/rpc/MoneroRpc");
-const MoneroKeyImage = require("../src/daemon/model/MoneroKeyImage");
-const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
-const MoneroTxRequest = require("../src/wallet/model/MoneroTxRequest");
-const MoneroTxWallet = require("../src/wallet/model/MoneroTxWallet");
-const MoneroSendRequest = require("../src/wallet/model/MoneroSendRequest");
-const MoneroTransferRequest = require("../src/wallet/model/MoneroTransferRequest");
-const MoneroDestination = require("../src/wallet/model/MoneroDestination");
-const MoneroOutputWallet = require("../src/wallet/model/MoneroOutputWallet");
+const MoneroRpc = require("../main/rpc/MoneroRpc");
+const MoneroKeyImage = require("../main/daemon/model/MoneroKeyImage");
+const MoneroTransfer = require("../main/wallet/model/MoneroTransfer");
+const MoneroTxRequest = require("../main/wallet/model/MoneroTxRequest");
+const MoneroTxWallet = require("../main/wallet/model/MoneroTxWallet");
+const MoneroSendRequest = require("../main/wallet/model/MoneroSendRequest");
+const MoneroTransferRequest = require("../main/wallet/model/MoneroTransferRequest");
+const MoneroDestination = require("../main/wallet/model/MoneroDestination");
+const MoneroOutputWallet = require("../main/wallet/model/MoneroOutputWallet");
 
 describe("Scratchpad", function() {
   

@@ -1,11 +1,11 @@
 const assert = require("assert");
-const MoneroDaemonRpc = require("../../src/daemon/MoneroDaemonRpc");
-const MoneroWalletRpc = require("../../src/wallet/MoneroWalletRpc");
-const MoneroWalletLocal = require("../../src/wallet/MoneroWalletLocal");
-const MoneroRpcError = require("../../src/rpc/MoneroRpcError");
-const BigInteger = require("../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const MoneroDaemonRpc = require("../../main/daemon/MoneroDaemonRpc");
+const MoneroWalletRpc = require("../../main/wallet/MoneroWalletRpc");
+const MoneroWalletLocal = require("../../main/wallet/MoneroWalletLocal");
+const MoneroRpcError = require("../../main/rpc/MoneroRpcError");
+const BigInteger = require("../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const StartMining = require("./StartMining");
-const GenUtils = require("../../src/utils/GenUtils");
+const GenUtils = require("../../main/utils/GenUtils");
 
 /**
  * Tracks wallets which are in sync with the tx pool and therefore whose txs in the pool

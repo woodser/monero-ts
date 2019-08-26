@@ -1,6 +1,6 @@
 const assert = require("assert");
-const MoneroUtils = require("../src/utils/MoneroUtils");
-const GenUtils = require("../src/utils/GenUtils");
+const MoneroUtils = require("../main/utils/MoneroUtils");
+const GenUtils = require("../main/utils/GenUtils");
 const TestUtils = require("./utils/TestUtils");
 
 /**
