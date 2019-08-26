@@ -2,6 +2,7 @@ update js from java/c++: createTx(), createTxs(), relayTx(), relayTxs(), send(),
 port incoming transfer duplicate resolution from java/cpp
 port ground truth test from java
 port pool relay tests from java TestMoneroWalletCommon.java
+some tests are both notifications and relays; flatten and use config booleans like java?
 MoneroRpc -> MoneroRpcConnection
 getBlocksByRange() end should be exclusive
 
