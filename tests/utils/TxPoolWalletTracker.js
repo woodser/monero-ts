@@ -1,6 +1,7 @@
 const assert = require("assert");
 const GenUtils = require("../../src/utils/GenUtils");
 const StartMining = require("./StartMining");
+const TestUtils = require("../TestUtils");
 
 /**
  * Tracks wallets which are in sync with the tx pool and therefore whose txs in the pool

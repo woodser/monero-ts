@@ -337,12 +337,15 @@ class TestMoneroDaemonRpc {
       });
       
       it("Can get transactions by ids that are in the transaction pool", async function() {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet); // wait for wallet's txs in the pool to clear to ensure reliable sync
         
         // submit txs to the pool but don't relay
         let txIds = [];
-        for (let i = 0; i < 3; i++) {
+        for (let i = 1; i < 3; i++) {
           let tx = await getUnrelayedTx(wallet, i);
-          await daemon.submitTxHex(tx.getFullHex(), true);
+          let result = await daemon.submitTxHex(tx.getFullHex(), true);
+          assert.equal(result.isGood(), true);
+          assert.equal(result.isRelayed(), false);
           txIds.push(tx.getId());
         }
         
@@ -354,6 +357,10 @@ class TestMoneroDaemonRpc {
         for (let tx of txs) {
           testTx(tx, {isConfirmed: false, fromGetTxPool: false, isPruned: false});
         }
+        
+        // clear txs from pool
+        await daemon.flushTxPoolByIds(txIds);
+        await wallet.sync();
       });
       
       it("Can get a transaction hex by id with and without pruning", async function() {
@@ -428,10 +435,13 @@ class TestMoneroDaemonRpc {
       });
       
       it("Can get all transactions in the transaction pool", async function() {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         
         // submit tx to pool but don't relay
         let tx = await getUnrelayedTx(wallet, 0);
-        await daemon.submitTxHex(tx.getFullHex(), true);
+        let result = await daemon.submitTxHex(tx.getFullHex(), true);
+        assert.equal(result.isGood(), true);
+        assert.equal(result.isRelayed(), false);
         
         // fetch txs in pool
         let txs = await daemon.getTxPool();
@@ -445,6 +455,7 @@ class TestMoneroDaemonRpc {
         
         // flush the tx from the pool, gg
         await daemon.flushTxPool(tx.getId());
+        await wallet.sync();
       });
       
       it("Can get ids of transactions in the transaction pool (binary)", async function() {
@@ -458,54 +469,74 @@ class TestMoneroDaemonRpc {
       });
       
       it("Can get transaction pool statistics (binary)", async function() {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         
         // submit txs to the pool but don't relay (multiple txs result in binary `histo` field)
         for (let i = 0; i < 2; i++) {
           
           // submit tx hex
           let tx = await getUnrelayedTx(wallet, i);
-          await daemon.submitTxHex(tx.getFullHex(), true);
+          let result = await daemon.submitTxHex(tx.getFullHex(), true);
+          assert.equal(result.isGood(), true);
           
           // test stats
-          stats = await daemon.getTxPoolStats();
-          assert(stats.getNumTxs() > i);
-          testTxPoolStats(stats);
+          try {
+            stats = await daemon.getTxPoolStats();
+            assert(stats.getNumTxs() > i);
+            testTxPoolStats(stats);
+          } finally {
+            await daemon.flushTxPoolById(tx.getId());
+            await wallet.sync();
+          }
         }
       });
       
       it("Can flush all transactions from the pool", async function() {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         
-        // pool starts flushed for each test
-        let txs = await daemon.getTxPool();
-        assert.equal(txs.length, 0);
+        // preserve original transactions in the pool
+        let txPoolBefore = await daemon.getTxPool();
         
         // submit txs to the pool but don't relay
         for (let i = 0; i < 2; i++) {
           let tx = await getUnrelayedTx(wallet, i);
-          await daemon.submitTxHex(tx.getFullHex(), true);
+          let result = await daemon.submitTxHex(tx.getFullHex(), true);
+          assert.equal(result.isGood(), true);
         }
-        
-        // txs are in pool
-        txs = await daemon.getTxPool();
-        assert(txs.length >= 2);
+        assert.equal((await daemon.getTxPool()).length, txPoolBefore.length + 2);
         
         // flush tx pool
-        let resp = await daemon.flushTxPool();
-        assert.equal(resp, undefined);
-        txs = await daemon.getTxPool();
-        assert(txs.length === 0);
+        await daemon.flushTxPool();
+        assert.equal((await daemon.getTxPool()).length, 0);
+        
+        // re-submit original transactions
+        for (let tx of txPoolBefore) {
+          let result = await daemon.submitTxHex(tx.getFullHex(), tx.isRelayed());
+          assert.equal(result.isGood(), true);
+        }
+        
+        // pool is back to original state
+        assert.equal(daemon.getTxPool().length, txPoolBefore.length);
+        
+        // sync wallet for next test
+        await wallet.sync();
       });
       
       it("Can flush a transaction from the pool by id", async function() {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
+        
+        // preserve original transactions in the pool
+        let txPoolBefore = await daemon.getTxPool();
         
         // submit txs to the pool but don't relay
         let txs = [];
-        for (let i = 0; i < 3; i++) {
+        for (let i = 1; i < 3; i++) {
           let tx = await getUnrelayedTx(wallet, i);
-          await daemon.submitTxHex(tx.getFullHex(), true);
-          txs.push(tx);
+          let result = await daemon.submitTxHex(tx.getFullHex(), true);
+          assert.equal(result.isGood(), true);
+          txs.add(tx);
         }
-        
+
         // remove each tx from the pool by id and test
         for (let i = 0; i < txs.length; i++) {
           
@@ -516,31 +547,45 @@ class TestMoneroDaemonRpc {
           let poolTxs = await daemon.getTxPool();
           assert.equal(poolTxs.length, txs.length - i - 1);
         }
+        
+        // pool is back to original state
+        assert.equal((await daemon.getTxPool()).length, txPoolBefore.length);
+        
+        // sync wallet for next test
+        await wallet.sync();
       });
       
       it("Can flush transactions from the pool by ids", async function() {
+        TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
+        
+        // preserve original transactions in the pool
+        let txPoolBefore = await daemon.getTxPool();
         
         // submit txs to the pool but don't relay
         let txIds = [];
-        for (let i = 0; i < 3; i++) {
+        for (let i = 1; i < 3; i++) {
           let tx = await getUnrelayedTx(wallet, i);
-          await daemon.submitTxHex(tx.getFullHex(), true);
-          txIds.push(tx.getId());
+          let result = await daemon.submitTxHex(tx.getFullHex(), true);
+          assert.equal(result.isDoubleSpend(), false);
+          assert.equal(result.isGood(), true);
+          txIds.add(tx.getId());
         }
+        assert.equal((await daemon.getTxPool()).length, txPoolBefore.length + txIds.length);
         
         // remove all txs by ids
         await daemon.flushTxPool(txIds);
         
-        // test tx pool
-        let txs = await daemon.getTxPool();
-        assert.equal(txs.length, 0);
+        // pool is back to original state
+        assert.equal((await daemon.getTxPool()).length, txPoolBefore.length);
+        await wallet.sync();
       });
       
       it("Can get the spent status of key images", async function() {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         
-        // submit txs to the pool to collect key images then flush
+        // submit txs to the pool to collect key images then flush them
         let txs = [];
-        for (let i = 0; i < 3; i++) {
+        for (let i = 1; i < 3; i++) {
           let tx = await getUnrelayedTx(wallet, i);
           await daemon.submitTxHex(tx.getFullHex(), true);
           txs.push(tx);
@@ -570,6 +615,9 @@ class TestMoneroDaemonRpc {
         
         // key images are all spent
         await testSpentStatuses(keyImages, MoneroKeyImageSpentStatus.CONFIRMED);
+        
+        // flush this test's txs from pool
+        await daemon.flushTxPoolByIds(txIds);
         
         // helper function to check the spent status of a key image or array of key images
         async function testSpentStatuses(keyImages, expectedStatus) {
