@@ -8,13 +8,13 @@ const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 //test core utils
 require("./TestMoneroCppUtils");
 
-// test daemon rpc
-new TestMoneroDaemonRpc().runTests({
-  liteMode: false,  // skips some lengthy but detailed tests
-  testNonRelays: true,
-  testRelays: false, // creates and relays outgoing txs
-  testNotifications: false
-});
+//// test daemon rpc
+//new TestMoneroDaemonRpc().runTests({
+//  liteMode: false,  // skips some lengthy but detailed tests
+//  testNonRelays: true,
+//  testRelays: false, // creates and relays outgoing txs
+//  testNotifications: false
+//});
 
 // test wallet rpc
 new TestMoneroWalletRpc().runTests({

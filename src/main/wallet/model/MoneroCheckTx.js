@@ -6,7 +6,7 @@ const MoneroCheck = require("./MoneroCheck");
 class MoneroCheckTx extends MoneroCheck {
   
   constructor() {
-    this.state.state = {};
+    super();
   }
 
   getInTxPool() {
