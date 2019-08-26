@@ -33,6 +33,7 @@ class TestMoneroDaemonRpc {
   constructor() {
     this.daemon = TestUtils.getDaemonRpc();
     this.wallet = TestUtils.getWalletRpc();
+    TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
   }
   
   /**
@@ -86,7 +87,7 @@ class TestMoneroDaemonRpc {
       });
       
       it("Can get a block template", async function() {
-        let template = await daemon.getBlockTemplate(TestUtils.TEST_ADDRESS, 2);
+        let template = await daemon.getBlockTemplate(TestUtils.ADDRESS, 2);
         testBlockTemplate(template);
       });
 
@@ -858,7 +859,7 @@ class TestMoneroDaemonRpc {
       it("Can submit a mined block to the network", async function() {
         
         // get template to mine on
-        let template = await daemon.getBlockTemplate(TestUtils.TEST_ADDRESS);
+        let template = await daemon.getBlockTemplate(TestUtils.ADDRESS);
         
         // TODO monero rpc: way to get mining nonce when found in order to submit?
         

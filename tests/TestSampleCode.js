@@ -106,7 +106,7 @@ describe("Test Sample Code", function() {
       }
       
       // start mining to an address with 4 threads, not in the background, and ignoring the battery
-      let address = TestUtils.TEST_ADDRESS;
+      let address = TestUtils.ADDRESS;
       //let address = "74oAtjgE2dfD1bJBo4DWW3E6qXCAwUDMgNqUurnX9b2xUvDTwMwExiXDkZskg7Vct37tRGjzHRqL4gH4H3oag3YyMYJzrNp";
       let numThreads = 4;
       let isBackground = false;

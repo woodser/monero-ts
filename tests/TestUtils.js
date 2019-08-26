@@ -4,6 +4,7 @@ const MoneroWalletRpc = require("../src/wallet/MoneroWalletRpc");
 const MoneroWalletLocal = require("../src/wallet/MoneroWalletLocal");
 const MoneroRpcError = require("../src/rpc/MoneroRpcError");
 const BigInteger = require("../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const TxPoolWalletTracker = require("./utils/TxPoolWalletTracker");
 
 /**
  * Collection of test utilities and configurations.
@@ -91,7 +92,7 @@ TestUtils.MAX_FEE = new BigInteger(7500000).multiply(new BigInteger(10000));
 
 // default keypair to test
 TestUtils.TEST_MNEMONIC = "hefty value later extra artistic firm radar yodel talent future fungal nutshell because sanity awesome nail unjustly rage unafraid cedar delayed thumbs comb custom sanity";
-TestUtils.TEST_ADDRESS = "528qdm2pXnYYesCy5VdmBneWeaSZutEijFVAKjpVHeVd4unsCSM55CjgViQsK9WFNHK1eZgcCuZ3fRqYpzKDokqSKp4yp38";
+TestUtils.ADDRESS = "528qdm2pXnYYesCy5VdmBneWeaSZutEijFVAKjpVHeVd4unsCSM55CjgViQsK9WFNHK1eZgcCuZ3fRqYpzKDokqSKp4yp38";
 TestUtils.TEST_RESTORE_HEIGHT = 383338;
 
 //wallet rpc test wallet filenames and passwords
@@ -121,6 +122,9 @@ TestUtils.WALLET_LOCAL_CONFIG = {
   daemon: TestUtils.getDaemonRpc(),
   mnemonic: TestUtils.TEST_MNEMONIC
 }
+
+// used to track which wallets are in sync with pool so associated txs in the pool do not need to be waited on
+TestUtils.TX_POOL_WALLET_TRACKER = new TxPoolWalletTracker();
 
 //TestUtils.DAEMON_RPC_CONFIG = {
 //  uri: "http://node.xmrbackb.one:28081",
