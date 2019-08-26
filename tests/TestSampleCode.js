@@ -39,7 +39,7 @@ describe("Test Sample Code", function() {
     // get incoming and outgoing transfers
     let transfers = await wallet.getTransfers();
     for (let transfer of transfers) {
-      let isIncoming = transfer.getIsIncoming();
+      let isIncoming = transfer.isIncoming();
       let amount = transfer.getAmount();
       let accountIdx = transfer.getAccountIndex();
       let height = transfer.getTx().getHeight();  // will be undefined if unconfirmed
@@ -48,7 +48,7 @@ describe("Test Sample Code", function() {
     // get incoming transfers to account 0
     transfers = await wallet.getTransfers(new MoneroTransferRequest().setAccountIndex(0).setIsIncoming(true));
     for (let transfer of transfers) {
-      assert(transfer.getIsIncoming());
+      assert(transfer.isIncoming());
       assert.equal(transfer.getAccountIndex(), 0);
       let amount = transfer.getAmount();
       let height = transfer.getTx().getHeight();  // will be undefined if unconfirmed
@@ -73,14 +73,14 @@ describe("Test Sample Code", function() {
     for (let tx of await wallet.getTxs(new MoneroTxRequest().setIsConfirmed(true))) {
       let txId = tx.getId();                  // e.g. f8b2f0baa80bf6b...
       let txFee = tx.getFee();                // e.g. 750000
-      let isConfirmed = tx.getIsConfirmed();  // e.g. true
+      let isConfirmed = tx.isConfirmed();  // e.g. true
     }
     
     // get a wallet transaction by id
     let tx = await wallet.getTx("69a0d27a3e019526cb5a969ce9f65f1433b8069b68b3ff3c6a5b992a2983f7a2");
     let txId = tx.getId();                  // e.g. 69a0d27a3e019526c...
     let txFee = tx.getFee();                // e.g. 750000
-    let isConfirmed = tx.getIsConfirmed();  // e.g. true
+    let isConfirmed = tx.isConfirmed();  // e.g. true
   });
 
   it("Can demonstrate the daemon with sample code", async function() {

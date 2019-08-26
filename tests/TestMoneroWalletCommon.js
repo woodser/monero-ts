@@ -407,8 +407,8 @@ class TestMoneroWalletCommon {
           // test merging equivalent txs
           let copy1 = txs1[i].copy();
           let copy2 = txs2[i].copy();
-          if (copy1.getIsConfirmed()) copy1.setBlock(txs1[i].getBlock().copy().setTxs([copy1]));
-          if (copy2.getIsConfirmed()) copy2.setBlock(txs2[i].getBlock().copy().setTxs([copy2]));
+          if (copy1.isConfirmed()) copy1.setBlock(txs1[i].getBlock().copy().setTxs([copy1]));
+          if (copy2.isConfirmed()) copy2.setBlock(txs2[i].getBlock().copy().setTxs([copy2]));
           let merged = copy1.merge(copy2);
           await testTxWallet(merged, {wallet: wallet});
           
@@ -420,7 +420,7 @@ class TestMoneroWalletCommon {
           }
           
           // ensure unique block reference per height
-          if (txs2[i].getIsConfirmed()) {
+          if (txs2[i].isConfirmed()) {
             let block = blocksPerHeight[txs2[i].getHeight()];
             if (block === undefined) blocksPerHeight[txs2[i].getHeight()] = txs2[i].getBlock();
             else assert(block === txs2[i].getBlock(), "Block references for same height must be same");
@@ -489,7 +489,7 @@ class TestMoneroWalletCommon {
         // get transactions with an outgoing transfer
         txs = await getAndTestTxs(wallet, {isOutgoing: true}, true);
         for (let tx of txs) {
-          assert(tx.getIsOutgoing());
+          assert(tx.isOutgoing());
           assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
           testTransfer(tx.getOutgoingTransfer());
         }
@@ -546,8 +546,8 @@ class TestMoneroWalletCommon {
         txRequest.setTransferRequest(new MoneroTransferRequest().setAccountIndex(0).setIsOutgoing(true));
         txs = await getAndTestTxs(wallet, txRequest, true);
         for (let tx of txs) {
-          if (!tx.getIsConfirmed()) console.log(tx.toString());
-          assert.equal(tx.getIsConfirmed(), true);
+          if (!tx.isConfirmed()) console.log(tx.toString());
+          assert.equal(tx.isConfirmed(), true);
           assert(tx.getOutgoingTransfer());
           assert.equal(tx.getOutgoingTransfer().getAccountIndex(), 0);
         }
@@ -567,7 +567,7 @@ class TestMoneroWalletCommon {
             assert(tx.getVouts().length > 0);
             found = true;
           } else {
-            assert(tx.getIsOutgoing() || (tx.getIsIncoming() && !tx.getIsConfirmed())); // TODO: monero-wallet-rpc: return vouts for unconfirmed txs
+            assert(tx.isOutgoing() || (tx.isIncoming() && !tx.isConfirmed())); // TODO: monero-wallet-rpc: return vouts for unconfirmed txs
           }
         }
         assert(found, "No vouts found in txs");
@@ -777,7 +777,7 @@ class TestMoneroWalletCommon {
               
               // test account and subaddress indices
               assert.equal(transfer.getAccountIndex(), subaddress.getAccountIndex());
-              if (transfer.getIsIncoming()) {
+              if (transfer.isIncoming()) {
                 assert.equal(transfer.getSubaddressIndex(), subaddress.getIndex());
                 if (transfer.getAccountIndex() !== 0 && transfer.getSubaddressIndex() !== 0) nonDefaultIncoming = true;
               } else {
@@ -808,7 +808,7 @@ class TestMoneroWalletCommon {
           // collect unique subaddress indices
           let subaddressIndices = new Set();
           for (let transfer of subaddressTransfers) {
-            if (transfer.getIsIncoming()) subaddressIndices.add(transfer.getSubaddressIndex());
+            if (transfer.isIncoming()) subaddressIndices.add(transfer.getSubaddressIndex());
             else for (let subaddressIdx of transfer.getSubaddressIndices()) subaddressIndices.add(subaddressIdx);
           }
           
@@ -818,7 +818,7 @@ class TestMoneroWalletCommon {
           assert.equal(transfers.length, subaddressTransfers.length); // TODO monero-wallet-rpc: these may not be equal because outgoing transfers are always from subaddress 0 (#5171) and/or incoming transfers from/to same account are occluded (#4500)
           for (let transfer of transfers) {
             assert.equal(account.getIndex(), transfer.getAccountIndex());
-            if (transfer.getIsIncoming()) assert(subaddressIndices.has(transfer.getSubaddressIndex()));
+            if (transfer.isIncoming()) assert(subaddressIndices.has(transfer.getSubaddressIndex()));
             else {
               let overlaps = false;
               for (let subaddressIdx of subaddressIndices) {
@@ -843,26 +843,26 @@ class TestMoneroWalletCommon {
         
         // get incoming transfers
         let transfers = await getAndTestTransfers(wallet, {isIncoming: true}, true);
-        for (let transfer of transfers) assert(transfer.getIsIncoming());
+        for (let transfer of transfers) assert(transfer.isIncoming());
         
         // get outgoing transfers
         transfers = await getAndTestTransfers(wallet, {isOutgoing: true}, true);
-        for (let transfer of transfers) assert(transfer.getIsOutgoing());
+        for (let transfer of transfers) assert(transfer.isOutgoing());
         
         // get confirmed transfers to account 0
         transfers = await getAndTestTransfers(wallet, {accountIndex: 0, isConfirmed: true}, true);
         for (let transfer of transfers) {
           assert.equal(transfer.getAccountIndex(), 0);
-          assert(transfer.getTx().getIsConfirmed());
+          assert(transfer.getTx().isConfirmed());
         }
         
         // get confirmed transfers to [1, 2]
         transfers = await getAndTestTransfers(wallet, {accountIndex: 1, subaddressIndex: 2, isConfirmed: true}, true);
         for (let transfer of transfers) {
           assert.equal(transfer.getAccountIndex(), 1);
-          if (transfer.getIsIncoming()) assert.equal(transfer.getSubaddressIndex(), 2);
+          if (transfer.isIncoming()) assert.equal(transfer.getSubaddressIndex(), 2);
           else assert(transfer.getSubaddressIndices().includes(2));
-          assert(transfer.getTx().getIsConfirmed());
+          assert(transfer.getTx().isConfirmed());
         }
         
         // get transfers in the tx pool
@@ -897,9 +897,9 @@ class TestMoneroWalletCommon {
         transferRequest.setTxRequest(new MoneroTxRequest().setIsConfirmed(true));
         transfers = await getAndTestTransfers(wallet, transferRequest);
         for (let transfer of transfers) {
-          assert.equal(transfer.getIsOutgoing(), true);
+          assert.equal(transfer.isOutgoing(), true);
           assert(transfer.getDestinations().length > 0);
-          assert.equal(transfer.getTx().getIsConfirmed(), true);
+          assert.equal(transfer.getTx().isConfirmed(), true);
         }
       });
       
@@ -942,7 +942,7 @@ class TestMoneroWalletCommon {
           
           // determine if account is used
           let isUsed = false;
-          for (let subaddress of account.getSubaddresses()) if (subaddress.getIsUsed()) isUsed = true;
+          for (let subaddress of account.getSubaddresses()) if (subaddress.isUsed()) isUsed = true;
           
           // get outputs by account index
           let accountOutputs = await getAndTestOutputs(wallet, {accountIndex: account.getIndex()}, isUsed);
@@ -951,7 +951,7 @@ class TestMoneroWalletCommon {
           // get outputs by subaddress index
           let subaddressOutputs = [];
           for (let subaddress of account.getSubaddresses()) {
-            let outputs = await getAndTestOutputs(wallet, {accountIndex: account.getIndex(), subaddressIndex: subaddress.getIndex()}, subaddress.getIsUsed());
+            let outputs = await getAndTestOutputs(wallet, {accountIndex: account.getIndex(), subaddressIndex: subaddress.getIndex()}, subaddress.isUsed());
             for (let output of outputs) {
               assert.equal(output.getAccountIndex(), subaddress.getAccountIndex());
               assert.equal(output.getSubaddressIndex(), subaddress.getIndex());
@@ -982,14 +982,14 @@ class TestMoneroWalletCommon {
         let outputs = await getAndTestOutputs(wallet, {accountIndex: 0, isSpent: false});
         for (let output of outputs) {
           assert.equal(output.getAccountIndex(), 0);
-          assert.equal(output.getIsSpent(), false);
+          assert.equal(output.isSpent(), false);
         }
         
         // get spent outputs to account 1
         outputs = await getAndTestOutputs(wallet, {accountIndex: 1, isSpent: true}, true);
         for (let output of outputs) {
           assert.equal(output.getAccountIndex(), 1);
-          assert.equal(output.getIsSpent(), true);
+          assert.equal(output.isSpent(), true);
         }
         
         // get random transactions
@@ -1017,7 +1017,7 @@ class TestMoneroWalletCommon {
         for (let output of outputs) {
           assert.equal(output.getAccountIndex(), accountIdx);
           assert.equal(output.getSubaddressIndex(), subaddressIdx);
-          assert.equal(output.getTx().getIsConfirmed(), true);
+          assert.equal(output.getTx().isConfirmed(), true);
         }
         
         // get output by key image
@@ -1257,7 +1257,7 @@ class TestMoneroWalletCommon {
         }
         assert(differentAddress, "Could not get a different outgoing address to test; run send tests");
         let check = await wallet.checkTxKey(tx.getId(), key, differentAddress);
-        assert(check.getIsGood());
+        assert(check.isGood());
         assert(check.getReceivedAmount().compare(new BigInteger(0)) >= 0);
         testCheckTx(tx, check);
       });
@@ -1316,14 +1316,14 @@ class TestMoneroWalletCommon {
         // test check with wrong message
         signature = await wallet.getTxProof(tx.getId(), destination.getAddress(), "This is the right message");
         check = await wallet.checkTxProof(tx.getId(), destination.getAddress(), "This is the wrong message", signature);
-        assert.equal(check.getIsGood(), false);
+        assert.equal(check.isGood(), false);
         testCheckTx(tx, check);
         
         // test check with wrong signature
         let wrongSignature = await wallet.getTxProof(txs[1].getId(), txs[1].getOutgoingTransfer().getDestinations()[0].getAddress(), "This is the right message");
         try {
           check = await wallet.checkTxProof(tx.getId(), destination.getAddress(), "This is the right message", wrongSignature);  
-          assert.equal(check.getIsGood(), false);
+          assert.equal(check.isGood(), false);
         } catch (e) {
           assert.equal(e.getCode(), -1); // TODO: sometimes comes back bad, sometimes throws exception.  ensure txs come from different addresses?
         }
@@ -1334,7 +1334,7 @@ class TestMoneroWalletCommon {
         // get random confirmed outgoing txs
         let txs = await getRandomTransactions(wallet, {isIncoming: false, inTxPool: false, isFailed: false}, 2, MAX_TX_PROOFS);
         for (let tx of txs) {
-          assert.equal(tx.getIsConfirmed(), true);
+          assert.equal(tx.isConfirmed(), true);
           assert.equal(tx.getIncomingTransfers(), undefined);
           assert(tx.getOutgoingTransfer());
         }
@@ -1382,7 +1382,7 @@ class TestMoneroWalletCommon {
         
         // check proof of entire wallet
         let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Test message", signature);
-        assert(check.getIsGood());
+        assert(check.isGood());
         testCheckReserve(check);
         let balance = await wallet.getBalance();
         if (balance.compare(check.getTotalAmount()) !== 0) {  // TODO monero-wallet-rpc: this check fails with unconfirmed txs
@@ -1410,7 +1410,7 @@ class TestMoneroWalletCommon {
         
         // test wrong message
         check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Wrong message", signature);
-        assert.equal(check.getIsGood(), false);  // TODO: specifically test reserve checks, probably separate objects
+        assert.equal(check.isGood(), false);  // TODO: specifically test reserve checks, probably separate objects
         testCheckReserve(check);
         
         // test wrong signature
@@ -1435,7 +1435,7 @@ class TestMoneroWalletCommon {
 //            let checkAmount = (await account.getBalance()).divide(new BigInteger(2));
 //            signature = await wallet.getReserveProofAccount(account.getIndex(), checkAmount, msg);
 //            let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), msg, signature);
-//            assert(check.getIsGood());
+//            assert(check.isGood());
 //            testCheckReserve(check);
 //            assert(check.getTotalAmount().compare(checkAmount) >= 0);
 //            numNonZeroTests++;
@@ -1483,7 +1483,7 @@ class TestMoneroWalletCommon {
 //        
 //        // test wrong message
 //        let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Wrong message", signature);
-//        assert.equal(check.getIsGood(), false); // TODO: specifically test reserve checks, probably separate objects
+//        assert.equal(check.isGood(), false); // TODO: specifically test reserve checks, probably separate objects
 //        testCheckReserve(check);
 //        
 //        // test wrong signature
@@ -1617,7 +1617,7 @@ class TestMoneroWalletCommon {
       
       it("Can start and stop mining", async function() {
         let status = await daemon.getMiningStatus();
-        if (status.getIsActive()) await wallet.stopMining();
+        if (status.isActive()) await wallet.stopMining();
         await wallet.startMining(2, false, true);
         await wallet.stopMining();
       });
@@ -1698,7 +1698,7 @@ class TestMoneroWalletCommon {
         // test sent transactions
         for (let tx of sentTxs) {
           await testTxWallet(tx, {wallet: wallet, sendRequest: request, isSendResponse: true});
-          assert.equal(tx.getIsConfirmed(), false);
+          assert.equal(tx.isConfirmed(), false);
           assert.equal(tx.getInTxPool(), true);
         }
         
@@ -1786,7 +1786,7 @@ class TestMoneroWalletCommon {
       }
       
       async function testOutInPair(txOut, txIn) {
-        assert.equal(txIn.getIsConfirmed(), txOut.getIsConfirmed());
+        assert.equal(txIn.isConfirmed(), txOut.isConfirmed());
         assert.equal(txOut.getOutgoingAmount().compare(txIn.getIncomingAmount()), 0);
       }
       
@@ -2171,8 +2171,8 @@ class TestMoneroWalletCommon {
         let useParams = true; // for loop flips in order to alternate test
         for (let output of outputsToSweep) {
           testOutputWallet(output);
-          assert(!output.getIsSpent());
-          assert(output.getIsUnlocked());
+          assert(!output.isSpent());
+          assert(output.isUnlocked());
           if (output.getAmount().compare(TestUtils.MAX_FEE) <= 0) continue;
           
           // sweep output to address
@@ -2194,7 +2194,7 @@ class TestMoneroWalletCommon {
         for (let afterOutput of afterOutputs) {
           for (let output of outputsToSweep) {
             if (output.getKeyImage().getHex() === afterOutput.getKeyImage().getHex()) {
-              assert(afterOutput.getIsSpent(), "Output should be spent");
+              assert(afterOutput.isSpent(), "Output should be spent");
             }
           }
         }
@@ -2499,8 +2499,8 @@ function testSubaddress(subaddress) {
   TestUtils.testUnsignedBigInteger(subaddress.getBalance());
   TestUtils.testUnsignedBigInteger(subaddress.getUnlockedBalance());
   assert(subaddress.getNumUnspentOutputs() >= 0);
-  assert(typeof subaddress.getIsUsed() === "boolean");
-  if (subaddress.getBalance().compare(new BigInteger(0)) > 0) assert(subaddress.getIsUsed());
+  assert(typeof subaddress.isUsed() === "boolean");
+  if (subaddress.getBalance().compare(new BigInteger(0)) > 0) assert(subaddress.isUsed());
   assert(subaddress.getNumBlocksToUnlock() >= 0);
 }
 
@@ -2592,16 +2592,16 @@ async function testTxWallet(tx, ctx) {
   testTxWalletTypes(tx);
   
   // test confirmed
-  if (tx.getIsConfirmed()) {
+  if (tx.isConfirmed()) {
     assert(tx.getBlock());
     assert(tx.getBlock().getTxs().includes(tx));
     assert(tx.getBlock().getHeight() > 0);
     assert(tx.getBlock().getTimestamp() > 0);
-    assert.equal(tx.getIsRelayed(), true);
-    assert.equal(tx.getIsFailed(), false);
+    assert.equal(tx.isRelayed(), true);
+    assert.equal(tx.isFailed(), false);
     assert.equal(tx.getInTxPool(), false);
     assert.equal(tx.getDoNotRelay(), false);
-    assert.equal(tx.getIsDoubleSpend(), false);
+    assert.equal(tx.isDoubleSpend(), false);
     assert(tx.getNumConfirmations() > 0);
   } else {
     assert.equal(tx.getBlock(), undefined);
@@ -2610,10 +2610,10 @@ async function testTxWallet(tx, ctx) {
   
   // test in tx pool
   if (tx.getInTxPool()) {
-    assert.equal(tx.getIsConfirmed(), false);
+    assert.equal(tx.isConfirmed(), false);
     assert.equal(tx.getDoNotRelay(), false);
-    assert.equal(tx.getIsRelayed(), true);
-    assert.equal(tx.getIsDoubleSpend(), false); // TODO: test double spend attempt
+    assert.equal(tx.isRelayed(), true);
+    assert.equal(tx.isDoubleSpend(), false); // TODO: test double spend attempt
     
     // these should be initialized unless a response from sending
     if (!ctx.isSendResponse) {
@@ -2624,21 +2624,21 @@ async function testTxWallet(tx, ctx) {
   }
   
   // test miner tx
-  if (tx.getIsMiner()) {
+  if (tx.isMiner()) {
     assert.equal(tx.getFee().compare(new BigInteger(0)), 0);
     assert(tx.getIncomingTransfers().length > 0);
   }
   
   // test failed  // TODO: what else to test associated with failed
-  if (tx.getIsFailed()) {
+  if (tx.isFailed()) {
     assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
     //assert(tx.getReceivedTimestamp() > 0);    // TODO: re-enable when received timestamp returned in wallet rpc
   } else {
-    if (tx.getIsRelayed()) assert.equal(tx.getIsDoubleSpend(), false);
+    if (tx.isRelayed()) assert.equal(tx.isDoubleSpend(), false);
     else {
-      assert.equal(tx.getIsRelayed(), false);
+      assert.equal(tx.isRelayed(), false);
       assert.equal(tx.getDoNotRelay(), true);
-      assert.equal(tx.getIsDoubleSpend(), undefined);
+      assert.equal(tx.isDoubleSpend(), undefined);
     }
   }
   assert.equal(tx.getLastFailedHeight(), undefined);
@@ -2646,12 +2646,12 @@ async function testTxWallet(tx, ctx) {
   
   // received time only for tx pool or failed txs
   if (tx.getReceivedTimestamp() !== undefined) {
-    assert(tx.getInTxPool() || tx.getIsFailed());
+    assert(tx.getInTxPool() || tx.isFailed());
   }
   
   // test relayed tx
-  if (tx.getIsRelayed()) assert.equal(tx.getDoNotRelay(), false);
-  if (tx.getDoNotRelay()) assert(!tx.getIsRelayed());
+  if (tx.isRelayed()) assert.equal(tx.getDoNotRelay(), false);
+  if (tx.getDoNotRelay()) assert(!tx.isRelayed());
   
   // test outgoing transfer per configuration
   if (ctx.isOutgoing === false) assert(tx.getOutgoingTransfer() === undefined);
@@ -2659,7 +2659,7 @@ async function testTxWallet(tx, ctx) {
   
   // test outgoing transfer
   if (tx.getOutgoingTransfer()) {
-    assert(tx.getIsOutgoing());
+    assert(tx.isOutgoing());
     testTransfer(tx.getOutgoingTransfer(), ctx);
     if (ctx.isSweepResponse) assert.equal(tx.getOutgoingTransfer().getDestinations().length, 1);
     
@@ -2676,10 +2676,10 @@ async function testTxWallet(tx, ctx) {
   
   // test incoming transfers
   if (tx.getIncomingTransfers()) {
-    assert(tx.getIsIncoming());
+    assert(tx.isIncoming());
     assert(tx.getIncomingTransfers().length > 0);
     TestUtils.testUnsignedBigInteger(tx.getIncomingAmount());      
-    assert.equal(tx.getIsFailed(), false);
+    assert.equal(tx.isFailed(), false);
     
     // test each transfer and collect transfer sum
     let transferSum = new BigInteger(0);
@@ -2704,7 +2704,7 @@ async function testTxWallet(tx, ctx) {
     
     // test common attributes
     let request = ctx.sendRequest;
-    assert.equal(tx.getIsConfirmed(), false);
+    assert.equal(tx.isConfirmed(), false);
     testTransfer(tx.getOutgoingTransfer(), ctx);
     assert.equal(tx.getMixin(), request.getMixin());
     assert.equal(tx.getUnlockTime(), request.getUnlockTime() ? request.getUnlockTime() : 0);
@@ -2733,18 +2733,18 @@ async function testTxWallet(tx, ctx) {
     if (!request.getDoNotRelay()) {
       assert.equal(tx.getInTxPool(), true);
       assert.equal(tx.getDoNotRelay(), false);
-      assert.equal(tx.getIsRelayed(), true);
+      assert.equal(tx.isRelayed(), true);
       assert(tx.getLastRelayedTimestamp() > 0);
-      assert.equal(tx.getIsDoubleSpend(), false);
+      assert.equal(tx.isDoubleSpend(), false);
     }
     
     // test non-relayed txs
     else {
       assert.equal(tx.getInTxPool(), false);
       assert.equal(tx.getDoNotRelay(), true);
-      assert.equal(tx.getIsRelayed(), false);
+      assert.equal(tx.isRelayed(), false);
       assert.equal(tx.getLastRelayedTimestamp(), undefined);
-      assert.equal(tx.getIsDoubleSpend(), undefined);
+      assert.equal(tx.isDoubleSpend(), undefined);
     }
   }
   
@@ -2759,7 +2759,7 @@ async function testTxWallet(tx, ctx) {
   
   // test vouts
   if (tx.getIncomingTransfers() && ctx.includeOutputs) {
-    if (tx.getIsConfirmed()) {
+    if (tx.isConfirmed()) {
       assert(tx.getVouts() !== undefined);
       assert(tx.getVouts().length > 0);
     } else {
@@ -2780,10 +2780,10 @@ async function testTxWallet(tx, ctx) {
  */
 function testTxWalletTypes(tx) {
   assert.equal(typeof tx.getId(), "string");
-  assert.equal(typeof tx.getIsConfirmed(), "boolean");
-  assert.equal(typeof tx.getIsMiner(), "boolean");
-  assert.equal(typeof tx.getIsFailed(), "boolean");
-  assert.equal(typeof tx.getIsRelayed(), "boolean");
+  assert.equal(typeof tx.isConfirmed(), "boolean");
+  assert.equal(typeof tx.isMiner(), "boolean");
+  assert.equal(typeof tx.isFailed(), "boolean");
+  assert.equal(typeof tx.isRelayed(), "boolean");
   assert.equal(typeof tx.getInTxPool(), "boolean");
   TestUtils.testUnsignedBigInteger(tx.getFee());
   assert.equal(tx.getVins(), undefined);  // TODO no way to expose vins?
@@ -2849,7 +2849,7 @@ function testTransfer(transfer, ctx) {
   TestUtils.testUnsignedBigInteger(transfer.getAmount());
   if (!ctx.isSweepOutputResponse) assert(transfer.getAccountIndex() >= 0);
   if (!ctx.isSendResponse) assert(transfer.getNumSuggestedConfirmations() >= 0); // TODO monero-wallet-rpc: some outgoing transfers have suggested_confirmations_threshold = 0
-  if (transfer.getIsIncoming()) testIncomingTransfer(transfer);
+  if (transfer.isIncoming()) testIncomingTransfer(transfer);
   else testOutgoingTransfer(transfer, ctx);
   
   // transfer and tx reference each other
@@ -2861,16 +2861,16 @@ function testTransfer(transfer, ctx) {
 }
 
 function testIncomingTransfer(transfer) {
-  assert(transfer.getIsIncoming());
-  assert(!transfer.getIsOutgoing());
+  assert(transfer.isIncoming());
+  assert(!transfer.isOutgoing());
   assert(transfer.getAddress());
   assert(transfer.getSubaddressIndex() >= 0);
   assert(transfer.getNumSuggestedConfirmations() > 0);
 }
 
 function testOutgoingTransfer(transfer, ctx) {
-  assert(!transfer.getIsIncoming());
-  assert(transfer.getIsOutgoing());
+  assert(!transfer.isIncoming());
+  assert(transfer.isOutgoing());
   if (!ctx.isSendResponse) assert(transfer.getSubaddressIndices());
   if (transfer.getSubaddressIndices()) {
     assert(transfer.getSubaddressIndices().length >= 1);
@@ -2901,9 +2901,9 @@ function testOutputWallet(output) {
   assert(output.getAccountIndex() >= 0);
   assert(output.getSubaddressIndex() >= 0);
   assert(output.getIndex() >= 0);
-  assert.equal(typeof output.getIsSpent(), "boolean");
-  assert.equal(typeof output.getIsUnlocked(), "boolean");
-  assert.equal(typeof output.getIsFrozen(), "boolean");
+  assert.equal(typeof output.isSpent(), "boolean");
+  assert.equal(typeof output.isUnlocked(), "boolean");
+  assert.equal(typeof output.isFrozen(), "boolean");
   assert(output.getKeyImage());
   assert(output.getKeyImage() instanceof MoneroKeyImage);
   assert(output.getKeyImage().getHex());
@@ -2915,9 +2915,9 @@ function testOutputWallet(output) {
   assert(tx instanceof MoneroTxWallet);
   assert(tx.getVouts().includes(output));
   assert(tx.getId());
-  assert.equal(tx.getIsConfirmed(), true);  // TODO monero-wallet-rpc: possible to get unconfirmed vouts?
-  assert.equal(tx.getIsRelayed(), true);
-  assert.equal(tx.getIsFailed(), false);
+  assert.equal(tx.isConfirmed(), true);  // TODO monero-wallet-rpc: possible to get unconfirmed vouts?
+  assert.equal(tx.isRelayed(), true);
+  assert.equal(tx.isFailed(), false);
   assert(tx.getHeight() > 0);
   
   // test copying
@@ -2958,8 +2958,8 @@ function testCommonTxSets(txs, hasSigned, hasUnsigned, hasMultisig) {
 }
 
 function testCheckTx(tx, check) {
-  assert.equal(typeof check.getIsGood(), "boolean");
-  if (check.getIsGood()) {
+  assert.equal(typeof check.isGood(), "boolean");
+  if (check.isGood()) {
     assert(check.getNumConfirmations() >= 0);
     assert.equal(typeof check.getInTxPool(), "boolean");
     TestUtils.testUnsignedBigInteger(check.getReceivedAmount());
@@ -2973,8 +2973,8 @@ function testCheckTx(tx, check) {
 }
 
 function testCheckReserve(check) {
-  assert.equal(typeof check.getIsGood(), "boolean");
-  if (check.getIsGood()) {
+  assert.equal(typeof check.isGood(), "boolean");
+  if (check.isGood()) {
     TestUtils.testUnsignedBigInteger(check.getTotalAmount());
     assert(check.getTotalAmount().compare(new BigInteger(0)) >= 0);
     TestUtils.testUnsignedBigInteger(check.getUnconfirmedSpentAmount());

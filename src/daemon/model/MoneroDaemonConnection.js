@@ -66,7 +66,7 @@ class MoneroDaemonConnection {
     return this;
   }
 
-  getIsIncoming() {
+  isIncoming() {
     return this.isIncoming;
   }
 
@@ -84,7 +84,7 @@ class MoneroDaemonConnection {
     return this;
   }
 
-  getIsLocalIp() {
+  isLocalIp() {
     return this.isLocalIp;
   }
 
@@ -93,7 +93,7 @@ class MoneroDaemonConnection {
     return this;
   }
 
-  getIsLocalHost() {
+  isLocalHost() {
     return this.isLocalHost;
   }
 

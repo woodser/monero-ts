@@ -36,13 +36,13 @@ class MoneroTransfer {
     return this;
   }
   
-  getIsOutgoing() {
-    let isIncoming = this.getIsIncoming();
+  isOutgoing() {
+    let isIncoming = this.isIncoming();
     assert(typeof isIncoming === "boolean");
     return !isIncoming;
   }
   
-  getIsIncoming() {
+  isIncoming() {
     throw new Error("Subclass must implement");
   }
 
@@ -120,7 +120,7 @@ class MoneroTransfer {
   
   toString(indent = 0) {
     let str = "";
-    str += MoneroUtils.kvLine("Is outgoing", this.getIsOutgoing(), indent);
+    str += MoneroUtils.kvLine("Is outgoing", this.isOutgoing(), indent);
     str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
     str += MoneroUtils.kvLine("Amount", this.getAmount() ? this.getAmount().toString() : undefined, indent);
     str += MoneroUtils.kvLine("Num suggested confirmations", this.getNumSuggestedConfirmations(), indent);

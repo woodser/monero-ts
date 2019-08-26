@@ -3,7 +3,7 @@
  */
 class MoneroCheck {
 
-  getIsGood() {
+  isGood() {
     return this.isGood;
   }
 

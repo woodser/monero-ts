@@ -69,7 +69,7 @@ class TestMoneroDaemonRpc {
       });
       
       it("Can indicate if it's trusted", async function() {
-        let isTrusted = await daemon.getIsTrusted();
+        let isTrusted = await daemon.isTrusted();
         assert.equal(typeof isTrusted, "boolean");
       });
       
@@ -877,11 +877,11 @@ class TestMoneroDaemonRpc {
           
           // test status without mining
           let status = await daemon.getMiningStatus();
-          assert.equal(status.getIsActive(), false);
+          assert.equal(status.isActive(), false);
           assert.equal(status.getAddress(), undefined);
           assert.equal(status.getSpeed(), 0);
           assert.equal(status.getNumThreads(), 0);
-          assert.equal(status.getIsBackground(), undefined);
+          assert.equal(status.isBackground(), undefined);
           
           // test status with mining
           let address = await wallet.getPrimaryAddress();
@@ -889,11 +889,11 @@ class TestMoneroDaemonRpc {
           let isBackground = false;
           await daemon.startMining(address, threadCount, isBackground, true);
           status = await daemon.getMiningStatus();
-          assert.equal(status.getIsActive(), true);
+          assert.equal(status.isActive(), true);
           assert.equal(status.getAddress(), address);
           assert(status.getSpeed() >= 0);
           assert.equal(status.getNumThreads(), threadCount);
-          assert.equal(status.getIsBackground(), isBackground);
+          assert.equal(status.isBackground(), isBackground);
         } catch(e) {
           throw e;
         } finally {
@@ -938,7 +938,7 @@ class TestMoneroDaemonRpc {
         testUpdateDownloadResult(result, path);
         
         // test invalid path
-        if (result.getIsUpdateAvailable()) {
+        if (result.isUpdateAvailable()) {
           try {
             result = await daemon.downloadUpdate("./ohhai/there");
             throw new Error("Should have thrown error");
@@ -987,7 +987,7 @@ class TestMoneroDaemonRpc {
         
         // submit and relay tx1
         let result = await daemon.submitTxHex(tx1.getFullHex());
-        assert.equal(result.getIsRelayed(), true);
+        assert.equal(result.isRelayed(), true);
         testSubmitTxResultGood(result);
         
         // tx1 is in the pool
@@ -995,7 +995,7 @@ class TestMoneroDaemonRpc {
         let found = false;
         for (let aTx of txs) {
           if (aTx.getId() === tx1.getId()) {
-            assert.equal(aTx.getIsRelayed(), true);
+            assert.equal(aTx.isRelayed(), true);
             found = true;
             break;
           }
@@ -1004,7 +1004,7 @@ class TestMoneroDaemonRpc {
         
         // submit and relay tx2 hex which double spends tx1
         result = await daemon.submitTxHex(tx2.getFullHex());
-        assert.equal(result.getIsRelayed(), true);
+        assert.equal(result.isRelayed(), true);
         testSubmitTxResultDoubleSpend(result);
         
         // tx2 is in not the pool
@@ -1039,14 +1039,14 @@ class TestMoneroDaemonRpc {
           txIds.push(tx.getId());
           let result = await daemon.submitTxHex(tx.getFullHex(), true);
           testSubmitTxResultGood(result);
-          assert.equal(result.getIsRelayed(), false);
+          assert.equal(result.isRelayed(), false);
           
           // ensure tx is in pool
           let poolTxs = await daemon.getTxPool();
           let found = false;
           for (let aTx of poolTxs) {
             if (aTx.getId() === tx.getId()) {
-              assert.equal(aTx.getIsRelayed(), false);
+              assert.equal(aTx.isRelayed(), false);
               found = true;
               break;
             }
@@ -1055,7 +1055,7 @@ class TestMoneroDaemonRpc {
           
           // fetch tx by id and ensure not relayed
           let fetchedTx = await daemon.getTx(tx.getId());
-          assert.equal(fetchedTx.getIsRelayed(), false);
+          assert.equal(fetchedTx.isRelayed(), false);
         }
         
         // relay the txs
@@ -1067,7 +1067,7 @@ class TestMoneroDaemonRpc {
           let found = false;
           for (let aTx of poolTxs) {
             if (aTx.getId() === tx.getId()) {
-              assert.equal(aTx.getIsRelayed(), true);
+              assert.equal(aTx.isRelayed(), true);
               found = true;
               break;
             }
@@ -1181,8 +1181,8 @@ function testBlock(block, ctx) {
 function testMinerTx(minerTx) {
   assert(minerTx);
   assert(minerTx instanceof MoneroTx);
-  assert.equal(typeof minerTx.getIsMiner(), "boolean");
-  assert(minerTx.getIsMiner());
+  assert.equal(typeof minerTx.isMiner(), "boolean");
+  assert(minerTx.isMiner());
   
   assert(minerTx.getVersion() >= 0);
   assert(Array.isArray(minerTx.getExtra()));
@@ -1212,12 +1212,12 @@ function testTx(tx, ctx) {
   
   // standard across all txs
   assert(tx.getId().length === 64);
-  if (tx.getIsRelayed() === undefined) assert(tx.getInTxPool());  // TODO monero-daemon-rpc: add relayed to get_transactions
-  else assert.equal(typeof tx.getIsRelayed(), "boolean");
-  assert.equal(typeof tx.getIsConfirmed(), "boolean");
+  if (tx.isRelayed() === undefined) assert(tx.getInTxPool());  // TODO monero-daemon-rpc: add relayed to get_transactions
+  else assert.equal(typeof tx.isRelayed(), "boolean");
+  assert.equal(typeof tx.isConfirmed(), "boolean");
   assert.equal(typeof tx.getInTxPool(), "boolean");
-  assert.equal(typeof tx.getIsMiner(), "boolean");
-  assert.equal(typeof tx.getIsDoubleSpend(), "boolean");
+  assert.equal(typeof tx.isMiner(), "boolean");
+  assert.equal(typeof tx.isDoubleSpend(), "boolean");
   assert(tx.getVersion() >= 0);
   assert(tx.getUnlockTime() >= 0);
   assert(tx.getVins());
@@ -1226,26 +1226,26 @@ function testTx(tx, ctx) {
   
   // test presence of output indices
   // TODO: change this over to vouts only
-  if (tx.getIsMiner()) assert.equal(tx.getOutputIndices(), undefined); // TODO: how to get output indices for miner transactions?
+  if (tx.isMiner()) assert.equal(tx.getOutputIndices(), undefined); // TODO: how to get output indices for miner transactions?
   if (tx.getInTxPool() || ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(tx.getOutputIndices(), undefined);
   else assert(tx.getOutputIndices());
   if (tx.getOutputIndices()) assert(tx.getOutputIndices().length > 0);
   
   // test confirmed ctx
-  if (ctx.isConfirmed === true) assert.equal(tx.getIsConfirmed(), true);
-  if (ctx.isConfirmed === false) assert.equal(tx.getIsConfirmed(), false);
+  if (ctx.isConfirmed === true) assert.equal(tx.isConfirmed(), true);
+  if (ctx.isConfirmed === false) assert.equal(tx.isConfirmed(), false);
   
   // test confirmed
-  if (tx.getIsConfirmed()) {
+  if (tx.isConfirmed()) {
     assert(tx.getBlock());
     assert(tx.getBlock().getTxs().includes(tx));
     assert(tx.getBlock().getHeight() > 0);
     assert(tx.getBlock().getTimestamp() > 0);
-    assert.equal(tx.getIsRelayed(), true);
-    assert.equal(tx.getIsFailed(), false);
+    assert.equal(tx.isRelayed(), true);
+    assert.equal(tx.isFailed(), false);
     assert.equal(tx.getInTxPool(), false);
     assert.equal(tx.getDoNotRelay(), false);
-    assert.equal(tx.getIsDoubleSpend(), false);
+    assert.equal(tx.isDoubleSpend(), false);
     assert.equal(tx.getNumConfirmations(), undefined); // client must compute
   } else {
     assert.equal(tx.getBlock(), undefined);
@@ -1254,14 +1254,14 @@ function testTx(tx, ctx) {
   
   // test in tx pool
   if (tx.getInTxPool()) {
-    assert.equal(tx.getIsConfirmed(), false);
-    assert.equal(tx.getIsDoubleSpend(), false);
+    assert.equal(tx.isConfirmed(), false);
+    assert.equal(tx.isDoubleSpend(), false);
     assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedId(), undefined);
     assert(tx.getReceivedTimestamp() > 0);
     assert(tx.getSize() > 0);
     assert(tx.getWeight() > 0);
-    assert.equal(typeof tx.getIsKeptByBlock(), "boolean");
+    assert.equal(typeof tx.isKeptByBlock(), "boolean");
     assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedId(), undefined);
     assert(tx.getMaxUsedBlockHeight() >= 0);
@@ -1271,7 +1271,7 @@ function testTx(tx, ctx) {
   }
   
   // test miner tx
-  if (tx.getIsMiner()) {
+  if (tx.isMiner()) {
     assert.equal(tx.getFee().compare(new BigInteger(0)), 0);
     assert(tx.getIncomingTransfers().length > 0); // TODO: MoneroTx does not have getIncomingTransfers() but this doesn't fail?
     assert.equal(tx.getVins(), undefined);
@@ -1281,16 +1281,16 @@ function testTx(tx, ctx) {
   }
   
   // test failed  // TODO: what else to test associated with failed
-  if (tx.getIsFailed()) {
+  if (tx.isFailed()) {
     assert(tx.getOutgoingTransfer() instanceof MoneroTransfer); // TODO: MoneroTx does not have getOutgoingTransfer() but this doesn't fail?
     assert(tx.getReceivedTimestamp() > 0)
   } else {
-    if (tx.getIsRelayed() === undefined) assert.equal(tx.getDoNotRelay(), undefined); // TODO monero-daemon-rpc: add relayed to get_transactions
-    else if (tx.getIsRelayed()) assert.equal(tx.getIsDoubleSpend(), false);
+    if (tx.isRelayed() === undefined) assert.equal(tx.getDoNotRelay(), undefined); // TODO monero-daemon-rpc: add relayed to get_transactions
+    else if (tx.isRelayed()) assert.equal(tx.isDoubleSpend(), false);
     else {
-      assert.equal(tx.getIsRelayed(), false);
+      assert.equal(tx.isRelayed(), false);
       assert.equal(tx.getDoNotRelay(), true);
-      assert.equal(typeof tx.getIsDoubleSpend(), "boolean");
+      assert.equal(typeof tx.isDoubleSpend(), "boolean");
     }
   }
   assert.equal(tx.getLastFailedHeight(), undefined);
@@ -1298,20 +1298,20 @@ function testTx(tx, ctx) {
   
   // received time only for tx pool or failed txs
   if (tx.getReceivedTimestamp() !== undefined) {
-    assert(tx.getInTxPool() || tx.getIsFailed());
+    assert(tx.getInTxPool() || tx.isFailed());
   }
   
   // test relayed tx
-  if (tx.getIsRelayed()) assert.equal(tx.getDoNotRelay(), false);
+  if (tx.isRelayed()) assert.equal(tx.getDoNotRelay(), false);
   if (tx.getDoNotRelay()) {
-    assert(!tx.getIsRelayed());
-    assert(!tx.getIsConfirmed());
+    assert(!tx.isRelayed());
+    assert(!tx.isConfirmed());
   }
   
   // test vins and vouts
   assert(tx.getVins() && Array.isArray(tx.getVins()) && tx.getVins().length >= 0);
   assert(tx.getVouts() && Array.isArray(tx.getVouts()) && tx.getVouts().length >= 0);
-  if (!tx.getIsMiner()) assert(tx.getVins().length > 0);
+  if (!tx.isMiner()) assert(tx.getVins().length > 0);
   for (let vin of tx.getVins()) {
     assert(tx === vin.getTx());
     testVin(vin, ctx);
@@ -1341,18 +1341,18 @@ function testTx(tx, ctx) {
     else assert(tx.getFullHex().length > 0);
     if (ctx.fromBinaryBlock) assert.equal(tx.getRctSigPrunable(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
     //else assert.equal(typeof tx.getRctSigPrunable().nbp, "number");
-    assert.equal(tx.getIsDoubleSpend(), false);
-    if (tx.getIsConfirmed()) {
+    assert.equal(tx.isDoubleSpend(), false);
+    if (tx.isConfirmed()) {
       assert.equal(tx.getLastRelayedTimestamp(), undefined);
       assert.equal(tx.getReceivedTimestamp(), undefined);
     } else {
-      if (tx.getIsRelayed()) assert(tx.getLastRelayedTimestamp() > 0);
+      if (tx.isRelayed()) assert(tx.getLastRelayedTimestamp() > 0);
       else assert.equal(tx.getLastRelayedTimestamp(), undefined);
       assert(tx.getReceivedTimestamp() > 0);
     }
   }
   
-  if (tx.getIsFailed()) {
+  if (tx.isFailed()) {
     // TODO: implement this
   }
   
@@ -1387,7 +1387,7 @@ function testInfo(info) {
   assert(info.getHeightWithoutBootstrap());
   assert(info.getNumIncomingConnections() >= 0);
   assert(info.getNetworkType());
-  assert(typeof info.getIsOffline() === "boolean");
+  assert(typeof info.isOffline() === "boolean");
   assert(info.getNumOutgoingConnections() >= 0);
   assert(info.getNumRpcConnections() >= 0);
   assert(info.getStartTimestamp());
@@ -1435,7 +1435,7 @@ function testDaemonConnectionSpan(span) {
 
 function testHardForkInfo(hardForkInfo) {
   assert.notEqual(hardForkInfo.getEarliestHeight(), undefined);
-  assert.notEqual(hardForkInfo.getIsEnabled(), undefined);
+  assert.notEqual(hardForkInfo.isEnabled(), undefined);
   assert.notEqual(hardForkInfo.getState(), undefined);
   assert.notEqual(hardForkInfo.getThreshold(), undefined);
   assert.notEqual(hardForkInfo.getVersion(), undefined);
@@ -1471,42 +1471,42 @@ function testOutputDistributionEntry(entry) {
 
 function testSubmitTxResultGood(result) {
   testSubmitTxResultCommon(result);
-  assert.equal(result.getIsGood(), true);
-  assert.equal(result.getIsDoubleSpend(), false);
-  assert.equal(result.getIsFeeTooLow(), false);
-  assert.equal(result.getIsMixinTooLow(), false);
+  assert.equal(result.isGood(), true);
+  assert.equal(result.isDoubleSpend(), false);
+  assert.equal(result.isFeeTooLow(), false);
+  assert.equal(result.isMixinTooLow(), false);
   assert.equal(result.getHasInvalidInput(), false);
   assert.equal(result.getHasInvalidOutput(), false);
-  assert.equal(result.getIsRct(), true);
-  assert.equal(result.getIsOverspend(), false);
-  assert.equal(result.getIsTooBig(), false);
+  assert.equal(result.isRct(), true);
+  assert.equal(result.isOverspend(), false);
+  assert.equal(result.isTooBig(), false);
   assert.equal(result.getSanityCheckFailed(), false);
 }
 
 function testSubmitTxResultDoubleSpend(result) {
   testSubmitTxResultCommon(result);
-  assert.equal(result.getIsGood(), false);
-  assert.equal(result.getIsDoubleSpend(), true);
-  assert.equal(result.getIsFeeTooLow(), false);
-  assert.equal(result.getIsMixinTooLow(), false);
+  assert.equal(result.isGood(), false);
+  assert.equal(result.isDoubleSpend(), true);
+  assert.equal(result.isFeeTooLow(), false);
+  assert.equal(result.isMixinTooLow(), false);
   assert.equal(result.getHasInvalidInput(), false);
   assert.equal(result.getHasInvalidOutput(), false);
-  assert.equal(result.getIsRct(), true);
-  assert.equal(result.getIsOverspend(), false);
-  assert.equal(result.getIsTooBig(), false);
+  assert.equal(result.isRct(), true);
+  assert.equal(result.isOverspend(), false);
+  assert.equal(result.isTooBig(), false);
 }
 
 function testSubmitTxResultCommon(result) {
-  assert.equal(typeof result.getIsGood(), "boolean");
-  assert.equal(typeof result.getIsRelayed(), "boolean");
-  assert.equal(typeof result.getIsDoubleSpend(), "boolean");
-  assert.equal(typeof result.getIsFeeTooLow(), "boolean");
-  assert.equal(typeof result.getIsMixinTooLow(), "boolean");
+  assert.equal(typeof result.isGood(), "boolean");
+  assert.equal(typeof result.isRelayed(), "boolean");
+  assert.equal(typeof result.isDoubleSpend(), "boolean");
+  assert.equal(typeof result.isFeeTooLow(), "boolean");
+  assert.equal(typeof result.isMixinTooLow(), "boolean");
   assert.equal(typeof result.getHasInvalidInput(), "boolean");
   assert.equal(typeof result.getHasInvalidOutput(), "boolean");
-  assert.equal(typeof result.getIsRct(), "boolean");
-  assert.equal(typeof result.getIsOverspend(), "boolean");
-  assert.equal(typeof result.getIsTooBig(), "boolean");
+  assert.equal(typeof result.isRct(), "boolean");
+  assert.equal(typeof result.isOverspend(), "boolean");
+  assert.equal(typeof result.isTooBig(), "boolean");
   assert.equal(typeof result.getSanityCheckFailed(), "boolean");
   assert(result.getReason() === undefined || result.getReason().length > 0);
 }
@@ -1622,8 +1622,8 @@ function testDaemonConnection(connection) {
   assert(connection.getCurrentUpload() >= 0);
   assert(connection.getHeight() >= 0);
   assert(connection.getLiveTime() >= 0);
-  assert.equal(typeof connection.getIsLocalIp(), "boolean");
-  assert.equal(typeof connection.getIsLocalHost(), "boolean");
+  assert.equal(typeof connection.isLocalIp(), "boolean");
+  assert.equal(typeof connection.isLocalHost(), "boolean");
   assert(connection.getNumReceives() >= 0);
   assert(connection.getReceiveIdleTime() >= 0);
   assert(connection.getNumSends() >= 0);
@@ -1640,7 +1640,7 @@ function testKnownPeer(peer, fromConnection) {
   assert(peer.getPort() > 0);
   assert(typeof peer.getRpcPort() === "number");
   assert(peer.getRpcPort() >= 0);
-  assert.equal(typeof peer.getIsOnline(), "boolean");
+  assert.equal(typeof peer.isOnline(), "boolean");
   if (fromConnection) assert.equal(undefined, peer.getLastSeenTimestamp());
   else assert(peer.getLastSeenTimestamp() >= 0);  // TODO monero-wallet-rpc: what does last seen 0 mean?
   assert(peer.getPruningSeed() >= 0);
@@ -1648,8 +1648,8 @@ function testKnownPeer(peer, fromConnection) {
 
 function testUpdateCheckResult(result) {
   assert(result instanceof MoneroDaemonUpdateCheckResult);
-  assert.equal(typeof result.getIsUpdateAvailable(), "boolean");
-  if (result.getIsUpdateAvailable()) {
+  assert.equal(typeof result.isUpdateAvailable(), "boolean");
+  if (result.isUpdateAvailable()) {
     assert(result.getAutoUri(), "No auto uri; is daemon online?");
     assert(result.getUserUri());
     assert.equal(typeof result.getVersion(), "string");
@@ -1665,7 +1665,7 @@ function testUpdateCheckResult(result) {
 
 function testUpdateDownloadResult(result, path) {
   testUpdateCheckResult(result);
-  if (result.getIsUpdateAvailable()) {
+  if (result.isUpdateAvailable()) {
     if (path) assert.equal(result.getDownloadPath(), path);
     else assert(result.getDownloadPath());
   } else {

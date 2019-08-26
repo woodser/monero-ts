@@ -45,11 +45,11 @@ class MoneroTxWallet extends MoneroTx {
     }
   }
   
-  getIsOutgoing() {
+  isOutgoing() {
     return this.getOutgoingTransfer() !== undefined;
   }
   
-  getIsIncoming() {
+  isIncoming() {
     return this.getIncomingTransfers() != undefined && this.getIncomingTransfers().length > 0;
   }
   
@@ -163,8 +163,8 @@ class MoneroTxWallet extends MoneroTx {
     // TODO: proper csv export
     if (oneLine) {
       str += this.getId() + ", ";
-      str += (this.getIsConfirmed() ? this.getBlock().getTimestamp() : this.getReceivedTimestamp()) + ", ";
-      str += this.getIsConfirmed() + ", ";
+      str += (this.isConfirmed() ? this.getBlock().getTimestamp() : this.getReceivedTimestamp()) + ", ";
+      str += this.isConfirmed() + ", ";
       str += (this.getOutgoingAmount() ? this.getOutgoingAmount().toString() : "") + ", ";
       str += this.getIncomingAmount() ? this.getIncomingAmount().toString() : "";
       return str;
@@ -172,7 +172,7 @@ class MoneroTxWallet extends MoneroTx {
     
     // otherwise stringify all fields
     str += super.toString(indent) + "\n";
-    str += MoneroUtils.kvLine("Is incoming", this.getIsIncoming(), indent);
+    str += MoneroUtils.kvLine("Is incoming", this.isIncoming(), indent);
     str += MoneroUtils.kvLine("Incoming amount", this.getIncomingAmount(), indent);
     if (this.getIncomingTransfers()) {
       str += MoneroUtils.kvLine("Incoming transfers", "", indent);
@@ -181,7 +181,7 @@ class MoneroTxWallet extends MoneroTx {
         str += this.getIncomingTransfers()[i].toString(indent + 2) + "\n";
       }
     }
-    str += MoneroUtils.kvLine("Is outgoing", this.getIsOutgoing(), indent);
+    str += MoneroUtils.kvLine("Is outgoing", this.isOutgoing(), indent);
     str += MoneroUtils.kvLine("Outgoing amount", this.getOutgoingAmount(), indent);
     if (this.getOutgoingTransfer()) {
       str += MoneroUtils.kvLine("Outgoing transfer", "", indent);

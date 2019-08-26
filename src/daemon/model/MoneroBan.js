@@ -21,7 +21,7 @@ class MoneroBan {
     return this;
   }
   
-  getIsBanned() {
+  isBanned() {
     return this.isBanned;
   }
   

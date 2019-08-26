@@ -3,111 +3,111 @@
  */
 class MoneroSubmitTxResult {
   
-  getIsGood() {
-    return this.isGood;
+  isGood() {
+    return this.state.isGood;
   }
   
   setIsGood(isGood) {
-    this.isGood = isGood;
+    this.state.isGood = isGood;
     return this;
   }
   
-  getIsRelayed() {
-    return this.isRelayed;
+  isRelayed() {
+    return this.state.isRelayed;
   }
   
   setIsRelayed(isRelayed) {
-    this.isRelayed = isRelayed;
+    this.state.isRelayed = isRelayed;
     return this;
   }
   
-  getIsDoubleSpend() {
-    return this.isDoubleSpend;
+  isDoubleSpend() {
+    return this.state.isDoubleSpend;
   }
   
   setIsDoubleSpend(isDoubleSpend) {
-    this.isDoubleSpend = isDoubleSpend
+    this.state.isDoubleSpend = isDoubleSpend
     return this;
   }
   
-  getIsFeeTooLow() {
-    return this.isFeeTooLow;
+  isFeeTooLow() {
+    return this.state.isFeeTooLow;
   }
   
   setIsFeeTooLow(isFeeTooLow) {
-    this.isFeeTooLow = isFeeTooLow;
+    this.state.isFeeTooLow = isFeeTooLow;
     return this;
   }
   
-  getIsMixinTooLow() {
-    return this.isMixinTooLow;
+  isMixinTooLow() {
+    return this.state.isMixinTooLow;
   }
   
   setIsMixinTooLow(isMixinTooLow) {
-    this.isMixinTooLow = isMixinTooLow;
+    this.state.isMixinTooLow = isMixinTooLow;
     return this;
   }
   
   getHasInvalidInput() {
-    return this.hasInvalidInput;
+    return this.state.hasInvalidInput;
   }
   
   setHasInvalidInput(hasInvalidInput) {
-    this.hasInvalidInput = hasInvalidInput;
+    this.state.hasInvalidInput = hasInvalidInput;
     return this;
   }
   
   getHasInvalidOutput() {
-    return this.hasInvalidOutput;
+    return this.state.hasInvalidOutput;
   }
   
   setHasInvalidOutput(hasInvalidOutput) {
-    this.hasInvalidOutput = hasInvalidOutput;
+    this.state.hasInvalidOutput = hasInvalidOutput;
     return this;
   }
   
-  getIsRct() {
-    return this.isRct;
+  isRct() {
+    return this.state.isRct;
   }
   
   setIsRct(isRct) {
-    this.isRct = isRct;
+    this.state.isRct = isRct;
     return this;
   }
   
-  getIsOverspend() {
-    return this.isOverspend;
+  isOverspend() {
+    return this.state.isOverspend;
   }
   
   setIsOverspend(isOverspend) {
-    this.isOverspend = isOverspend;
+    this.state.isOverspend = isOverspend;
     return this;
   }
   
   getReason() {
-    return this.reason;
+    return this.state.reason;
   }
   
   setReason(reason) {
-    this.reason = reason;
+    this.state.reason = reason;
     return this;
   }
   
-  getIsTooBig() {
-    return this.isTooBig;
+  isTooBig() {
+    return this.state.isTooBig;
   }
   
   setIsTooBig(isTooBig) {
-    this.isTooBig = isTooBig;
+    this.state.isTooBig = isTooBig;
     return this;
   }
   
   getSanityCheckFailed() {
-    return this.sanityCheckFailed;
+    return this.state.sanityCheckFailed;
   }
   
   setSanityCheckFailed(sanityCheckFailed) {
-    this.sanityCheckFailed = sanityCheckFailed;
+    this.state.sanityCheckFailed = sanityCheckFailed;
     return this;
   }
 }

@@ -72,7 +72,7 @@ class MoneroSubaddress {
     return this;
   }
 
-  getIsUsed() {
+  isUsed() {
     return this.isUsed;
   }
 
@@ -103,8 +103,8 @@ class MoneroSubaddress {
     str += MoneroUtils.kvLine("Balance", this.getBalance(), indent);
     str += MoneroUtils.kvLine("Unlocked balance", this.getUnlockedBalance(), indent);
     str += MoneroUtils.kvLine("Num unspent outputs", this.getNumUnspentOutputs(), indent);
-    str += MoneroUtils.kvLine("Is used", this.getIsUsed(), indent);
-    str += MoneroUtils.kvLine("Num blocks to unlock", this.getIsUsed(), indent);
+    str += MoneroUtils.kvLine("Is used", this.isUsed(), indent);
+    str += MoneroUtils.kvLine("Num blocks to unlock", this.isUsed(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }

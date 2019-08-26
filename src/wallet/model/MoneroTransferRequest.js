@@ -27,7 +27,7 @@ class MoneroTransferRequest extends MoneroTransfer {
     if (state.isOutgoing !== undefined) state.isIncoming = !state.isOutgoing;
   }
   
-  getIsIncoming() {
+  isIncoming() {
     return this.state.isIncoming;
   }
 
@@ -36,7 +36,7 @@ class MoneroTransferRequest extends MoneroTransfer {
     return this;
   }
   
-  getIsOutgoing() {
+  isOutgoing() {
     return this.state.isIncoming === undefined ? undefined : !this.state.isIncoming;
   }
   
@@ -113,8 +113,8 @@ class MoneroTransferRequest extends MoneroTransfer {
     assert(transfer instanceof MoneroTransfer);
     
     // filter on common fields
-    if (this.getIsIncoming() !== undefined && this.getIsIncoming() !== transfer.getIsIncoming()) return false;
-    if (this.getIsOutgoing() !== undefined && this.getIsOutgoing() !== transfer.getIsOutgoing()) return false;
+    if (this.isIncoming() !== undefined && this.isIncoming() !== transfer.isIncoming()) return false;
+    if (this.isOutgoing() !== undefined && this.isOutgoing() !== transfer.isOutgoing()) return false;
     if (this.getAmount() !== undefined && this.getAmount().compare(transfer.getAmount()) !== 0) return false;
     if (this.getAccountIndex() !== undefined && this.getAccountIndex() !== transfer.getAccountIndex()) return false;
     

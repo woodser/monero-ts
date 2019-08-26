@@ -54,7 +54,7 @@ class MoneroDaemonPeer {
    * 
    * @return {boolean} true if peer was online when last checked, false otherwise
    */
-  getIsOnline() {
+  isOnline() {
     return this.isOnline;
   }
   

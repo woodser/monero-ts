@@ -25,7 +25,7 @@ class MoneroOutgoingTransfer extends MoneroTransfer {
     }
   }
   
-  getIsIncoming() {
+  isIncoming() {
     return false;
   }
   

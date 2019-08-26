@@ -12,7 +12,7 @@ class MoneroHardForkInfo {
     return this;
   }
 
-  getIsEnabled() {
+  isEnabled() {
     return this.isEnabled;
   }
 

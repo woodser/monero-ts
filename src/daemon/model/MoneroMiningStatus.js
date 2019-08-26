@@ -3,48 +3,52 @@
  */
 class MoneroMiningStatus {
   
-  getIsActive() {
-    return this.isActive;
+  constructor() {
+    this.state = {};
+  }
+  
+  isActive() {
+    return this.state.isActive;
   }
   
   setIsActive(isActive) {
-    this.isActive = isActive;
+    this.state.isActive = isActive;
     return this;
   }
   
   getAddress() {
-    return this.address;
+    return this.state.address;
   }
   
   setAddress(address) {
-    this.address = address;
+    this.state.address = address;
     return this;
   }
   
   getSpeed() {
-    return this.speed;
+    return this.state.speed;
   }
   
   setSpeed(speed) {
-    this.speed = speed;
+    this.state.speed = speed;
     return this;
   }
   
   getNumThreads() {
-    return this.numThreads;
+    return this.state.numThreads;
   }
   
   setNumThreads(numThreads) {
-    this.numThreads = numThreads;
+    this.state.numThreads = numThreads;
     return this;
   }
   
-  getIsBackground() {
-    return this.isBackground;
+  isBackground() {
+    return this.state.isBackground;
   }
   
   setIsBackground(isBackground) {
-    this.isBackground = isBackground;
+    this.state.isBackground = isBackground;
     return this;
   }
 }

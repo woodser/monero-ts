@@ -35,7 +35,7 @@ class MoneroOutputWallet extends MoneroOutput {
     return this;
   }
   
-  getIsSpent() {
+  isSpent() {
     return this.state.isSpent;
   }
 
@@ -44,7 +44,7 @@ class MoneroOutputWallet extends MoneroOutput {
     return this;
   }
   
-  getIsUnlocked() {
+  isUnlocked() {
     return this.state.isUnlocked;
   }
 
@@ -59,7 +59,7 @@ class MoneroOutputWallet extends MoneroOutput {
    * 
    * @return Boolean is whether or not this output is frozen
    */
-  getIsFrozen() {
+  isFrozen() {
     return this.state.isFrozen;
   }
 
@@ -93,7 +93,7 @@ class MoneroOutputWallet extends MoneroOutput {
     super.merge(output);
     this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), output.getAccountIndex()));
     this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), output.getSubaddressIndex()));
-    this.setIsSpent(MoneroUtils.reconcile(this.getIsSpent(), output.getIsSpent(), {resolveTrue: true})); // output can become spent
+    this.setIsSpent(MoneroUtils.reconcile(this.isSpent(), output.isSpent(), {resolveTrue: true})); // output can become spent
     return this;
   }
   
@@ -101,9 +101,9 @@ class MoneroOutputWallet extends MoneroOutput {
     let str = super.toString(indent) + "\n"
     str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
     str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
-    str += MoneroUtils.kvLine("Is spent", this.getIsSpent(), indent);
-    str += MoneroUtils.kvLine("Is unlocked", this.getIsUnlocked(), indent);
-    str += MoneroUtils.kvLine("Is frozen", this.getIsFrozen(), indent);
+    str += MoneroUtils.kvLine("Is spent", this.isSpent(), indent);
+    str += MoneroUtils.kvLine("Is unlocked", this.isUnlocked(), indent);
+    str += MoneroUtils.kvLine("Is frozen", this.isFrozen(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }

@@ -13,7 +13,7 @@ class MoneroDaemonUpdateCheckResult {
   constructor(result) {
     if (result !== undefined) {
       assert(result instanceof MoneroDaemonUpdateCheckResult);
-      this.setIsUpdateAvailable(result.getIsUpdateAvailable());
+      this.setIsUpdateAvailable(result.isUpdateAvailable());
       this.setVersion(result.getVersion());
       this.setHash(result.getHash());
       this.setAutoUri(result.getAutoUri());
@@ -26,7 +26,7 @@ class MoneroDaemonUpdateCheckResult {
    * 
    * @return {boolean} true if an update is available, false otherwise
    */
-  getIsUpdateAvailable() {
+  isUpdateAvailable() {
     return this.isUpdateAvailable;
   }
   

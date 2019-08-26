@@ -79,7 +79,7 @@ class TxPoolWalletTracker {
       
     // attempt to start mining to push the network along
     let startedMining = false;
-    let miningStatus = daemon.getMiningStatus();
+    let miningStatus = await daemon.getMiningStatus();
     if (!miningStatus.isActive()) {
       try {
         await StartMining.startMining();

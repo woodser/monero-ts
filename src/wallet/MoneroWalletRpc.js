@@ -438,7 +438,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // special case: re-fetch txs if inconsistency caused by needing to make multiple rpc calls
     for (let tx of txs) {
-      if (tx.getIsConfirmed() && tx.getBlock() === undefined) return this.getTxs(request);
+      if (tx.isConfirmed() && tx.getBlock() === undefined) return this.getTxs(request);
     }
     
     // otherwise order txs if tx ids given then return
@@ -465,15 +465,15 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // build params for get_transfers rpc call
     let params = {};
-    let canBeConfirmed = txRequest.getIsConfirmed() !== false && txRequest.getInTxPool() !== true && txRequest.getIsFailed() !== true && txRequest.getIsRelayed() !== false;
-    let canBeInTxPool = txRequest.getIsConfirmed() !== true && txRequest.getInTxPool() !== false && txRequest.getIsFailed() !== true && txRequest.getIsRelayed() !== false && txRequest.getHeight() === undefined && txRequest.getMinHeight() === undefined && txRequest.getMaxHeight() === undefined;
-    let canBeIncoming = request.getIsIncoming() !== false && request.getIsOutgoing() !== true && request.getHasDestinations() !== true;
-    let canBeOutgoing = request.getIsOutgoing() !== false && request.getIsIncoming() !== true;
+    let canBeConfirmed = txRequest.isConfirmed() !== false && txRequest.getInTxPool() !== true && txRequest.isFailed() !== true && txRequest.isRelayed() !== false;
+    let canBeInTxPool = txRequest.isConfirmed() !== true && txRequest.getInTxPool() !== false && txRequest.isFailed() !== true && txRequest.isRelayed() !== false && txRequest.getHeight() === undefined && txRequest.getMinHeight() === undefined && txRequest.getMaxHeight() === undefined;
+    let canBeIncoming = request.isIncoming() !== false && request.isOutgoing() !== true && request.getHasDestinations() !== true;
+    let canBeOutgoing = request.isOutgoing() !== false && request.isIncoming() !== true;
     params.in = canBeIncoming && canBeConfirmed;
     params.out = canBeOutgoing && canBeConfirmed;
     params.pool = canBeIncoming && canBeInTxPool;
     params.pending = canBeOutgoing && canBeInTxPool;
-    params.failed = txRequest.getIsFailed() !== false && txRequest.getIsConfirmed() !== true && txRequest.getInTxPool() != true;
+    params.failed = txRequest.isFailed() !== false && txRequest.isConfirmed() !== true && txRequest.getInTxPool() != true;
     if (txRequest.getMinHeight() !== undefined) {
       if (txRequest.getMinHeight() > 0) params.min_height = txRequest.getMinHeight() - 1; // TODO monero core: wallet2::get_payments() min_height is exclusive, so manually offset to match intended range (issues #5751, #5598)
       else params.min_height = txRequest.getMinHeight();
@@ -506,7 +506,7 @@ class MoneroWalletRpc extends MoneroWallet {
         
         // replace transfer amount with destination sum
         // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached transfers
-        if (tx.getOutgoingTransfer() !== undefined && tx.getIsRelayed() && !tx.getIsFailed() &&
+        if (tx.getOutgoingTransfer() !== undefined && tx.isRelayed() && !tx.isFailed() &&
             tx.getOutgoingTransfer().getDestinations() && tx.getOutgoingAmount().compare(new BigInteger(0)) === 0) {
           let outgoingTransfer = tx.getOutgoingTransfer();
           let transferTotal = new BigInteger(0);
@@ -607,7 +607,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // collect txs with vouts for each indicated account using `incoming_transfers` rpc call
     let params = {};
-    params.transfer_type = request.getIsSpent() === true ? "unavailable" : request.getIsSpent() === false ? "available" : "all";
+    params.transfer_type = request.isSpent() === true ? "unavailable" : request.isSpent() === false ? "available" : "all";
     params.verbose = true;
     for (let accountIdx of indices.keys()) {
     
@@ -811,7 +811,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let txs = MoneroWalletRpc._convertRpcSentTxWallets(result, undefined);
     for (let tx of txs) {
       tx.setIsRelayed(!doNotRelay);
-      tx.setInTxPool(tx.getIsRelayed());
+      tx.setInTxPool(tx.isRelayed());
     }
     return txs;
   }
@@ -1212,7 +1212,7 @@ class MoneroWalletRpc extends MoneroWallet {
       if (tx.getUnlockTime() === undefined) tx.setUnlockTime(request.getUnlockTime() === undefined ? 0 : request.getUnlockTime());
       if (!tx.getDoNotRelay()) {
         if (tx.getLastRelayedTimestamp() === undefined) tx.setLastRelayedTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
-        if (tx.getIsDoubleSpend() === undefined) tx.setIsDoubleSpend(false);
+        if (tx.isDoubleSpend() === undefined) tx.setIsDoubleSpend(false);
       }
     }
     return txs;
@@ -1270,10 +1270,10 @@ class MoneroWalletRpc extends MoneroWallet {
     if (rpcTx.type !== undefined) isOutgoing = MoneroWalletRpc._decodeRpcType(rpcTx.type, tx);
     else {
       assert.equal(typeof isOutgoing, "boolean", "Must indicate if tx is outgoing (true) xor incoming (false) since unknown");
-      assert.equal(typeof tx.getIsConfirmed(), "boolean");
+      assert.equal(typeof tx.isConfirmed(), "boolean");
       assert.equal(typeof tx.getInTxPool(), "boolean");
-      assert.equal(typeof tx.getIsMiner(), "boolean");
-      assert.equal(typeof tx.getIsFailed(), "boolean");
+      assert.equal(typeof tx.isMiner(), "boolean");
+      assert.equal(typeof tx.isFailed(), "boolean");
       assert.equal(typeof tx.getDoNotRelay(), "boolean");
     }
     
@@ -1295,13 +1295,13 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "tx_metadata") tx.setMetadata(val);
       else if (key === "double_spend_seen") tx.setIsDoubleSpend(val);
       else if (key === "block_height" || key === "height") {
-        if (tx.getIsConfirmed()) {
+        if (tx.isConfirmed()) {
           if (!header) header = new MoneroBlockHeader();
           header.setHeight(val);
         }
       }
       else if (key === "timestamp") {
-        if (tx.getIsConfirmed()) {
+        if (tx.isConfirmed()) {
           if (!header) header = new MoneroBlockHeader();
           header.setTimestamp(val);
         } else {
@@ -1309,7 +1309,7 @@ class MoneroWalletRpc extends MoneroWallet {
         }
       }
       else if (key === "confirmations") {
-        if (!tx.getIsConfirmed()) tx.setNumConfirmations(0);
+        if (!tx.isConfirmed()) tx.setNumConfirmations(0);
         else tx.setNumConfirmations(val);
       }
       else if (key === "suggested_confirmations_threshold") {
@@ -1439,7 +1439,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (tx.getUnlockTime() === undefined) tx.setUnlockTime(request.getUnlockTime() === undefined ? 0 : request.getUnlockTime());
     if (!tx.getDoNotRelay()) {
       if (tx.getLastRelayedTimestamp() === undefined) tx.setLastRelayedTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
-      if (tx.getIsDoubleSpend() === undefined) tx.setIsDoubleSpend(false);
+      if (tx.isDoubleSpend() === undefined) tx.setIsDoubleSpend(false);
     }
     return tx;
   }

@@ -138,7 +138,7 @@ class MoneroDaemonInfo {
     return this;
   }
 
-  getIsOffline() {
+  isOffline() {
     return this.isOffline;
   }
   

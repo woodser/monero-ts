@@ -16,7 +16,7 @@ class MoneroIncomingTransfer extends MoneroTransfer {
     super(state);
   }
   
-  getIsIncoming() {
+  isIncoming() {
     return true;
   }
   

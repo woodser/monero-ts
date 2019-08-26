@@ -28,7 +28,7 @@ class MoneroTxRequest extends MoneroTxWallet {
     }
   }
   
-  getIsIncoming() {
+  isIncoming() {
     return this.state.isIncoming;
   }
   
@@ -37,7 +37,7 @@ class MoneroTxRequest extends MoneroTxWallet {
     return this;
   }
   
-  getIsOutgoing() {
+  isOutgoing() {
     return this.state.isOutgoing;
   }
   
@@ -137,12 +137,12 @@ class MoneroTxRequest extends MoneroTxWallet {
     // filter on tx
     if (this.getId() !== undefined && this.getId() !== tx.getId()) return false;
     if (this.getPaymentId() !== undefined && this.getPaymentId() !== tx.getPaymentId()) return false;
-    if (this.getIsConfirmed() !== undefined && this.getIsConfirmed() !== tx.getIsConfirmed()) return false;
+    if (this.isConfirmed() !== undefined && this.isConfirmed() !== tx.isConfirmed()) return false;
     if (this.getInTxPool() !== undefined && this.getInTxPool() !== tx.getInTxPool()) return false;
     if (this.getDoNotRelay() !== undefined && this.getDoNotRelay() !== tx.getDoNotRelay()) return false;
-    if (this.getIsRelayed() !== undefined && this.getIsRelayed() !== tx.getIsRelayed()) return false;
-    if (this.getIsFailed() !== undefined && this.getIsFailed() !== tx.getIsFailed()) return false;
-    if (this.getIsMiner() !== undefined && this.getIsMiner() !== tx.getIsMiner()) return false;
+    if (this.isRelayed() !== undefined && this.isRelayed() !== tx.isRelayed()) return false;
+    if (this.isFailed() !== undefined && this.isFailed() !== tx.isFailed()) return false;
+    if (this.isMiner() !== undefined && this.isMiner() !== tx.isMiner()) return false;
     
     // at least one transfer must meet transfer filter if defined
     if (this.getTransferRequest()) {
@@ -166,15 +166,15 @@ class MoneroTxRequest extends MoneroTxWallet {
     }
     
     // filter on incoming
-    if (this.getIsIncoming() !== undefined) {
-      if (this.getIsIncoming() && !tx.getIsIncoming()) return false;
-      if (!this.getIsIncoming() && tx.getIsIncoming()) return false;
+    if (this.isIncoming() !== undefined) {
+      if (this.isIncoming() && !tx.isIncoming()) return false;
+      if (!this.isIncoming() && tx.isIncoming()) return false;
     }
     
     // filter on outgoing
-    if (this.getIsOutgoing() !== undefined) {
-      if (this.getIsOutgoing() && !tx.getIsOutgoing()) return false;
-      if (!this.getIsOutgoing() && tx.getIsOutgoing()) return false;
+    if (this.isOutgoing() !== undefined) {
+      if (this.isOutgoing() && !tx.isOutgoing()) return false;
+      if (!this.isOutgoing() && tx.isOutgoing()) return false;
     }
     
     // filter on remaining fields

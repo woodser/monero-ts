@@ -61,7 +61,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     this.initPromise = this._initOneTime();
   }
   
-  async getIsTrusted() {
+  async isTrusted() {
     await this._initOneTime();
     let resp = await this.config.rpc.sendPathRequest("get_height");
     MoneroDaemonRpc._checkResponseStatus(resp);
@@ -848,10 +848,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "last_relayed_time") MoneroUtils.safeSet(tx, tx.getLastRelayedTimestamp, tx.setLastRelayedTimestamp, val);
       else if (key === "receive_time") MoneroUtils.safeSet(tx, tx.getReceivedTimestamp, tx.setReceivedTimestamp, val);
       else if (key === "in_pool") {
-        MoneroUtils.safeSet(tx, tx.getIsConfirmed, tx.setIsConfirmed, !val);
+        MoneroUtils.safeSet(tx, tx.isConfirmed, tx.setIsConfirmed, !val);
         MoneroUtils.safeSet(tx, tx.getInTxPool, tx.setInTxPool, val);
       }
-      else if (key === "double_spend_seen") MoneroUtils.safeSet(tx, tx.getIsDoubleSpend, tx.setIsDoubleSpend, val);
+      else if (key === "double_spend_seen") MoneroUtils.safeSet(tx, tx.isDoubleSpend, tx.setIsDoubleSpend, val);
       else if (key === "version") MoneroUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);
       else if (key === "extra") MoneroUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
       else if (key === "vin") {
@@ -868,22 +868,22 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "blob_size") MoneroUtils.safeSet(tx, tx.getSize, tx.setSize, val);
       else if (key === "weight") MoneroUtils.safeSet(tx, tx.getWeight, tx.setWeight, val);
       else if (key === "fee") MoneroUtils.safeSet(tx, tx.getFee, tx.setFee, new BigInteger(val));
-      else if (key === "relayed") MoneroUtils.safeSet(tx, tx.getIsRelayed, tx.setIsRelayed, val);
+      else if (key === "relayed") MoneroUtils.safeSet(tx, tx.isRelayed, tx.setIsRelayed, val);
       else if (key === "output_indices") MoneroUtils.safeSet(tx, tx.getOutputIndices, tx.setOutputIndices, val);
       else if (key === "do_not_relay") MoneroUtils.safeSet(tx, tx.getDoNotRelay, tx.setDoNotRelay, val);
-      else if (key === "kept_by_block") MoneroUtils.safeSet(tx, tx.getIsKeptByBlock, tx.setIsKeptByBlock, val);
+      else if (key === "kept_by_block") MoneroUtils.safeSet(tx, tx.isKeptByBlock, tx.setIsKeptByBlock, val);
       else if (key === "signatures") MoneroUtils.safeSet(tx, tx.getSignatures, tx.setSignatures, val);
       else if (key === "last_failed_height") {
-        if (val === 0) MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed, false);
+        if (val === 0) MoneroUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, false);
         else {
-          MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed, true);
+          MoneroUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, true);
           MoneroUtils.safeSet(tx, tx.getLastFailedHeight, tx.setLastFailedHeight, val);
         }
       }
       else if (key === "last_failed_id_hash") {
-        if (val === MoneroDaemonRpc.DEFAULT_ID) MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed, false);
+        if (val === MoneroDaemonRpc.DEFAULT_ID) MoneroUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, false);
         else {
-          MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed, true);
+          MoneroUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, true);
           MoneroUtils.safeSet(tx, tx.getLastFailedId, tx.setLastFailedId, val);
         }
       }
@@ -905,14 +905,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
     }
     
     // initialize remaining known fields
-    if (tx.getIsConfirmed()) {
-      MoneroUtils.safeSet(tx, tx.getIsRelayed, tx.setIsRelayed, true);
+    if (tx.isConfirmed()) {
+      MoneroUtils.safeSet(tx, tx.isRelayed, tx.setIsRelayed, true);
       MoneroUtils.safeSet(tx, tx.getDoNotRelay, tx.setDoNotRelay, false);
-      MoneroUtils.safeSet(tx, tx.getIsFailed, tx.setIsFailed, false);
+      MoneroUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, false);
     } else {
       tx.setNumConfirmations(0);
     }
-    if (tx.getIsFailed() === undefined) tx.setIsFailed(false);
+    if (tx.isFailed() === undefined) tx.setIsFailed(false);
     if (tx.getOutputIndices() && tx.getVouts())  {
       assert.equal(tx.getVouts().length, tx.getOutputIndices().length);
       for (let i = 0; i < tx.getVouts().length; i++) {
@@ -921,7 +921,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     }
     if (rpcTx.as_json) MoneroDaemonRpc._convertRpcTx(JSON.parse(rpcTx.as_json), tx);
     if (rpcTx.tx_json) MoneroDaemonRpc._convertRpcTx(JSON.parse(rpcTx.tx_json), tx);
-    if (!tx.getIsRelayed()) tx.setLastRelayedTimestamp(undefined);  // TODO monero-daemon-rpc: returns last_relayed_timestamp despite relayed: false, self inconsistent
+    if (!tx.isRelayed()) tx.setLastRelayedTimestamp(undefined);  // TODO monero-daemon-rpc: returns last_relayed_timestamp despite relayed: false, self inconsistent
     
     // return built transaction
     return tx;
@@ -1221,7 +1221,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let rpcBan = {};
     rpcBan.host = ban.getHost();
     rpcBan.ip = ban.getIp();
-    rpcBan.ban = ban.getIsBanned();
+    rpcBan.ban = ban.isBanned();
     rpcBan.seconds = ban.getSeconds();
     return rpcBan;
   }
