@@ -1,7 +1,7 @@
 const assert = require("assert");
 const TestUtils = require("./TestUtils");
-const MoneroTxRequest = require("../src/wallet/request/MoneroTxRequest");
-const MoneroTransferRequest = require("../src/wallet/request/MoneroTransferRequest");
+const MoneroTxRequest = require("../src/wallet/model/MoneroTxRequest");
+const MoneroTransferRequest = require("../src/wallet/model/MoneroTransferRequest");
 
 /**
  * Test the sample code in README.md.
@@ -16,7 +16,7 @@ describe("Test Sample Code", function() {
     const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
     const MoneroSendPriority = require("../src/wallet/model/MoneroSendPriority");
     const MoneroDestination = require("../src/wallet/model/MoneroDestination");
-    const MoneroSendRequest = require("../src/wallet/request/MoneroSendRequest");
+    const MoneroSendRequest = require("../src/wallet/model/MoneroSendRequest");
     
     // create a wallet that uses a monero-wallet-rpc endpoint with authentication
     let wallet = new MoneroWalletRpc({

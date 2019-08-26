@@ -7,10 +7,10 @@ const TestUtils = require("./TestUtils");
 const MoneroRpc = require("../src/rpc/MoneroRpc");
 const MoneroKeyImage = require("../src/daemon/model/MoneroKeyImage");
 const MoneroTransfer = require("../src/wallet/model/MoneroTransfer");
-const MoneroTxRequest = require("../src/wallet/request/MoneroTxRequest");
+const MoneroTxRequest = require("../src/wallet/model/MoneroTxRequest");
 const MoneroTxWallet = require("../src/wallet/model/MoneroTxWallet");
-const MoneroSendRequest = require("../src/wallet/request/MoneroSendRequest");
-const MoneroTransferRequest = require("../src/wallet/request/MoneroTransferRequest");
+const MoneroSendRequest = require("../src/wallet/model/MoneroSendRequest");
+const MoneroTransferRequest = require("../src/wallet/model/MoneroTransferRequest");
 const MoneroDestination = require("../src/wallet/model/MoneroDestination");
 const MoneroOutputWallet = require("../src/wallet/model/MoneroOutputWallet");
 

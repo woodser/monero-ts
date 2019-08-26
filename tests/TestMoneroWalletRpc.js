@@ -7,9 +7,9 @@ const MoneroAccountTag = require("../src/wallet/model/MoneroAccountTag");
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
 const MoneroIncomingTransfer = require("../src/wallet/model/MoneroIncomingTransfer");
 const MoneroOutgoingTransfer = require("../src/wallet/model/MoneroOutgoingTransfer");
-const MoneroTxRequest = require("../src/wallet/request/MoneroTxRequest");
-const MoneroTransferRequest = require("../src/wallet/request/MoneroTransferRequest");
-const MoneroOutputRequest = require("../src/wallet/request/MoneroOutputRequest");
+const MoneroTxRequest = require("../src/wallet/model/MoneroTxRequest");
+const MoneroTransferRequest = require("../src/wallet/model/MoneroTransferRequest");
+const MoneroOutputRequest = require("../src/wallet/model/MoneroOutputRequest");
 
 /**
  * Tests the Monero Wallet RPC client and server.
