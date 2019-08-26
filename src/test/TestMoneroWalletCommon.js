@@ -2236,10 +2236,11 @@ class TestMoneroWalletCommon {
         // send tx(s) with request xor js object
         let txs = [];
         if (canSplit) {
-          let sendTxs = await wallet.sendSplit(useJsConfig ? jsConfig : request);
-          for (let tx of sendTxs) txs.push(tx);
+          let txSet = await wallet.sendSplit(useJsConfig ? jsConfig : request);
+          for (let tx of txSet.getTxs()) txs.push(tx);
         } else {
-          txs.push(await wallet.send(useJsConfig ? jsConfig : request));
+          let txSet = await wallet.send(useJsConfig ? jsConfig : request)
+          for (let tx of txSet.getTxs()) txs.push(tx);
         }
         
         // test that wallet balance decreased
@@ -2270,6 +2271,7 @@ class TestMoneroWalletCommon {
       }
       
       it("Can sweep individual outputs identified by their key images", async function() {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         
         // test config
         let numOutputs = 3;
@@ -2316,10 +2318,16 @@ class TestMoneroWalletCommon {
       });
       
       it("Can sweep dust without relaying", async function() {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         
         // generate non-relayed transactions to sweep dust
-        let txs = await wallet.sweepDust(true);
-        if (txs.length === 0) return;  // dust does not exist after rct
+        let txs;
+        try {
+          txs = (await wallet.sweepDust(true)).getTxs();
+        } catch (e) {
+          assert.equal(e.getMessage(), "No dust to sweep");
+          return;
+        }
         
         // test txs
         let ctx = {sendRequest: new MoneroSendRequest().setDoNotRelay(true), isSendResponse: true, isSweepResponse: true};
@@ -2343,13 +2351,37 @@ class TestMoneroWalletCommon {
       });
       
       it("Can sweep dust", async function() {
-        let txs = await wallet.sweepDust();
-        if (txs.length === 0) return;  // dust does not exist after rct
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
+        
+        // sweep dust which will throw exception if no dust to sweep (dust does not exist after rct) 
+        let txs;
+        try {
+          txs = (await wallet.sweepDust()).getTxs();
+        } catch (e) {
+          assert.equal(e.getMessage(), "No dust to sweep");
+          return;
+        }
+        
+        // if dust swept, test txs
         let ctx = {wallet: wallet, isSendResponse: true, isSweepResponse: true};
+        assert(txs.length > 0);
         for (let tx of txs) {
           await testTxWallet(tx, ctx);
         }
       });
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
     });
   }
   
