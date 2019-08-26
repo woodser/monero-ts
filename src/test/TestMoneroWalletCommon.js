@@ -346,6 +346,7 @@ class TestMoneroWalletCommon {
         let accountsBefore = await wallet.getAccounts();
         let createdAccount = await wallet.createAccount();
         testAccount(createdAccount);
+        assert.equal(undefined, createdAccount.getLabel());
         assert.equal((await wallet.getAccounts()).length - 1, accountsBefore.length);
       });
       
@@ -459,6 +460,7 @@ class TestMoneroWalletCommon {
         let txs1 = await getCachedTxs();
         let txs2 = await getAndTestTxs(wallet, undefined, true);
         assert.equal(txs2.length, txs1.length);
+        assert(txs1.length > 0, "Wallet has no txs to test");
         assert.equal(txs1[0].getHeight(), TestUtils.FIRST_RECEIVE_HEIGHT, "First tx's restore height must match the restore height in TestUtils");
         
         // test each tranasction
