@@ -427,7 +427,7 @@ class MoneroWalletRpc extends MoneroWallet {
     query.setTransferQuery(undefined);
     
     // fetch all transfers that meet tx query
-    let transfers = await getTransfers(new MoneroTransferQuery().setTxQuery(query));
+    let transfers = await this.getTransfers(new MoneroTransferQuery().setTxQuery(query));
     
     // collect unique txs from transfers while retaining order
     let txs = [];
@@ -637,13 +637,22 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getOutputs(query) {
     
-    // normalize output query
-    if (query instanceof MoneroOutputQuery) { }
+    // copy and normalize query up to block
+    if (query === undefined) query = new MoneroOutputQuery();
     else {
-      query = Object.assign({}, query);
-      query = new MoneroOutputQuery(query).setTxQuery(new MoneroTxQuery(query));
+      if (query.getTxQuery() === undefined) query = query.copy();
+      else {
+        let txQuery = query.getTxQuery().copy();
+        if (query.getTxQuery().getOutputQuery() === query) query = txQuery.getOutputQuery();
+        else {
+          assert.equal(query.getTxQuery().getOutputQuery(), undefined, "Transfer request's tx request must be circular reference or null");
+          query = query.copy();
+          query.setTxQuery(txQuery);
+        }
+      }
     }
-    if (!query.getTxQuery()) query.setTxQuery(new MoneroTxQuery());
+    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
+    let txQuery = query.getTxQuery();
     
     // determine account and subaddress indices to be queried
     let indices = new Map();
