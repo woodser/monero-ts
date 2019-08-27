@@ -605,10 +605,10 @@ class MoneroWallet {
   /**
    * Relay previously created transactions.
    * 
-   * @param {(MoneroTxWallet[]|string[])} txOrMetadatas are transactions or their metadata to relay
+   * @param {(MoneroTxWallet[]|string[])} txsOrMetadatas are transactions or their metadata to relay
    * @return {string[]} the ids of the relayed txs
    */
-  async relayTxs(txOrMetadatas) {
+  async relayTxs(txsOrMetadatas) {
     throw new MoneroError("Subclass must implement");
   }
 
