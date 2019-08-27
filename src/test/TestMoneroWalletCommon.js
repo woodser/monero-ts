@@ -1792,7 +1792,7 @@ class TestMoneroWalletCommon {
         if (!request) request = new MoneroSendRequest();
         
         // send transactions
-        let sentTxs = (await request.getCanSplit() ? wallet.sendSplit(request) : wallet.send(request)).getTxs();
+        let sentTxs = (await (request.getCanSplit() ? wallet.sendSplit(request) : wallet.send(request))).getTxs();
         
         // test sent transactions
         for (let tx of sentTxs) {
@@ -2093,10 +2093,10 @@ class TestMoneroWalletCommon {
         // send to self
         // can use create() or send() because request's doNotRelay is used, but exercise both calls
         if (request.getCanSplit() !== false) {
-          let txSet = await request.getDoNotRelay() ? wallet.createTxs(request) : wallet.sendSplit(request);
+          let txSet = await (request.getDoNotRelay() ? wallet.createTxs(request) : wallet.sendSplit(request));
           for (let tx of txSet.getTxs()) txs.push(tx);
         } else {
-          let txSet = await request.getDoNotRelay() ? wallet.createTx(request) : wallet.send(request);
+          let txSet = await (request.getDoNotRelay() ? wallet.createTx(request) : wallet.send(request));
           for (let tx of txSet.getTxs()) txs.push(tx);
         }
         if (request.getCanSplit() === false) assert.equal(txs.length, 1);  // must have exactly one tx if no split
