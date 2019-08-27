@@ -576,7 +576,10 @@ class MoneroWallet {
    * @return {MoneroTxSet} a tx set for the requested transaction if possible
    */
   async createTx(requestOrAccountIndex, address, amount, priority) {
-    throw new MoneroError("Subclass must implement");
+    let request = MoneroWallet._normalizeSendRequest(requestOrAccountIndex, address, amount, priority);
+    if (request.getCanSplit() === true) throw new MoneroException("Cannot request split transactions with createTx() which prevents splitting; use createTxs() instead");
+    request.setCanSplit(false);
+    return await createTxs(request);
   }
   
   /**
@@ -589,7 +592,25 @@ class MoneroWallet {
    * @return {MoneroTxSet} a tx set with the requested transactions
    */
   async createTxs(requestOrAccountIndex, address, amount, priority) {
-    throw new MoneroError("Subclass must implement");
+    
+    // normalize send request
+    let request = MoneroWallet._normalizeSendRequest(requestOrAccountIndex, address, amount, priority);
+    
+    // modify request to not relay
+    let requestedDoNotRelay = request.getDoNotRelay();
+    request.setDoNotRelay(true);
+    
+    // invoke common method which doesn't relay
+    let txSet = await sendSplit(request);
+    
+    // restore doNotRelay of request and txs
+    request.setDoNotRelay(requestedDoNotRelay);
+    if (txSet.getTxs() !== undefined) {
+      for (let tx of txSet.getTxs()) tx.setDoNotRelay(requestedDoNotRelay);
+    }
+    
+    // return results
+    return txSet;
   }
   
   /**
@@ -768,17 +789,6 @@ class MoneroWallet {
    * 
    * @param {string} txId specifies the transaction to prove
    * @param {string} address is the destination public address of the transaction
-   * @return {string} the transaction signature
-   */
-  async getTxProof(txId, address) {
-    throw new MoneroError("Subclass must implement");
-  }
-  
-  /**
-   * Get a transaction signature to prove it.
-   * 
-   * @param {string} txId specifies the transaction to prove
-   * @param {string} address is the destination public address of the transaction
    * @param {string} message is a message to include with the signature to further authenticate the proof (optional)
    * @return {string} the transaction signature
    */
@@ -796,16 +806,6 @@ class MoneroWallet {
    * @return {MoneroCheckTx} the result of the check
    */
   async checkTxProof(txId, address, message, signature) {
-    throw new MoneroError("Subclass must implement");
-  }
-  
-  /**
-   * Generate a signature to prove a spend. Unlike proving a transaction, it does not require the destination public address.
-   * 
-   * @param {string} txId specifies the transaction to prove
-   * @return {string} the transaction signature
-   */
-  async getSpendProof(txId) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -1180,6 +1180,21 @@ class MoneroWallet {
    */
   async close(save) {
     throw new MoneroError("Subclass must implement");
+  }
+  
+  // -------------------------------- PRIVATE ---------------------------------
+  
+  static _normalizeSendRequest(requestOrAccountIndex, address, amount, priority) {
+    if (requestOrAccountIndex === undefined) throw new MoneroError("First argument cannot be undefined");
+    let request;
+    if (requestOrAccountIndex instanceof MoneroSendRequest) {
+      request = requestOrAccountIndex;
+    } else if (typeof requestOrAccountIndex === "number") {
+      request = new MoneroSendRequest().setAccountIndex(requestOrAccountIndex).setAddress(address).setAmount(amount).setPriority(priority);
+    } else {
+      throw new MoneroException("First argument is invalid: " + requestOrAccountIndex);
+    }
+    return request;
   }
 }
 
