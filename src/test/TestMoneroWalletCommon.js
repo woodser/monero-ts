@@ -1775,7 +1775,7 @@ class TestMoneroWalletCommon {
       });
       
       /**
-       * Tests sending a tx with an unlockTime then tracking and updating it as
+       * Tests sending a tx with an unlock time then tracking and updating it as
        * blocks are added to the chain.
        * 
        * TODO: test wallet accounting throughout this; dedicated method? probably.
