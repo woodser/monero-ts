@@ -155,7 +155,7 @@ class TestMoneroWalletCommon {
       it("Can get the private view key", async function() {
         let privateViewKey = await wallet.getPrivateViewKey()
         MoneroUtils.validatePrivateViewKey(privateViewKey);
-      });
+l      });
       
       it("Can get the private spend key", async function() {
         let privateSpendKey = await wallet.getPrivateSpendKey()
@@ -182,7 +182,7 @@ class TestMoneroWalletCommon {
         let accountIdx = accounts.length - 1;
         let subaddressIdx = accounts[accountIdx].getSubaddresses().length;
         let address = await wallet.getAddress(accountIdx, subaddressIdx);
-        assert.notEqual(address, undefined);
+        assert.notEqual(address, undefined);  // TODO: override this in subclass
         assert(address.length > 0);
       });
       

@@ -723,6 +723,17 @@ class MoneroWalletRpc extends MoneroWallet {
     return await this._rpcExportKeyImages(false);
   }
   
+  async relayTxs(txsOrMetadata) {
+    assert(Array.isArray(txsOrMetadata), "Must provide an array of txs or their metadata to relay");
+    let txIds = [];
+    for (let txOrMetadata of txsOrMetadatas) {
+      let metadata = txOrMetadata instanceof MoneroTxWallet ? txOrMetadata.getMetadata() : txOrMetadata;
+      let resp = await this.config.rpc.sendJsonRequest("relay_tx", { hex: metadata });
+      txIds.push(resp.result.tx_hash);
+    }
+    return txIds;
+  }
+  
   async send(requestOrAccountIndex, address, amount, priority) {
     let args = [].slice.call(arguments);
     args.splice(0, 0, false);  // specify splitting
@@ -857,16 +868,6 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setInTxPool(tx.isRelayed());
     }
     return txs;
-  }
-  
-  async relayTxs(txMetadatas) {
-    assert(Array.isArray(txMetadatas), "Must provide an array of tx metadata to relay");
-    let txIds = [];
-    for (let txMetadata of txMetadatas) {
-      let resp = await this.config.rpc.sendJsonRequest("relay_tx", { hex: txMetadata });
-      txIds.push(resp.result.tx_hash);
-    }
-    return txIds;
   }
   
   async getTxNote(txId) {

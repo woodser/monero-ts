@@ -126,7 +126,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           assert.equal(await that.wallet.getMnemonic(), TestUtils.MNEMONIC);
           assert.equal(await that.wallet.getPrimaryAddress(), TestUtils.ADDRESS);
           assert.equal(await that.wallet.getHeight(), 1);      // TODO monero-core: sometimes wallet is synced after fresh creation here, but not if run alone
-          assert.equal(await that.wallet.getTxs().size(), 0);  // wallet is not synced
+          assert.equal(await that.wallet.getTxs().length, 0);  // wallet is not synced
           await that.wallet.sync();
           assert.equal(await that.wallet.getHeight(), daemon.getHeight());
           let txs = await that.wallet.getTxs();
@@ -180,7 +180,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           
           // attempt to re-open already opened wallet
           try {
-            await that.wallet.openWallet(names.get(numTestWallets - 1), TestUtils.WALLET_PASSWORD);
+            await that.wallet.openWallet(names[numTestWallets - 1], TestUtils.WALLET_PASSWORD);
           } catch (e) {
             assert.equal(e.getCode(), -1);
           }
@@ -269,10 +269,10 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
       });
       
       it("Can get addresses out of range of used accounts and subaddresses", async function() {
-        let accounts = await this.wallet.getAccounts(true);
-        let accountIdx = accounts.size() - 1;
-        let subaddressIdx = accounts.get(accountIdx).getSubaddresses().size();
-        let address = await this.wallet.getAddress(accountIdx, subaddressIdx);
+        let accounts = await wallet.getAccounts(true);
+        let accountIdx = accounts.length - 1;
+        let subaddressIdx = accounts[accountIdx].getSubaddresses().length;
+        let address = await wallet.getAddress(accountIdx, subaddressIdx);
         assert.equal(address, undefined);
       });
       
