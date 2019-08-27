@@ -677,7 +677,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.verbose = true;
     for (let accountIdx of indices.keys()) {
     
-      // send query
+      // send request
       params.account_index = accountIdx;
       params.subaddr_indices = indices.get(accountIdx);
       let resp = await this.config.rpc.sendJsonRequest("incoming_transfers", params);
@@ -689,10 +689,20 @@ class MoneroWalletRpc extends MoneroWallet {
         MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
       }
     }
+
+    // TODO
+//    // sort txs by block height
+//    List<MoneroTxWallet> txs = new ArrayList<MoneroTxWallet>(txMap.values()); // TODO
+//    Collections.sort(txs, new TxHeightComparator());  // TODO
     
-    // collect requested vouts
+    // collect queried vouts
     let vouts = [];
-    for (let tx of Object.values(txMap)) {
+    for (let tx of txs) {
+      
+      // sort vouts
+      //if (tx.getVouts() !== undefined) Collections.sort(tx.getVouts(), new VoutComparator()); // TODO
+      
+      // collect queried vouts
       let toRemoves = [];
       for (let vout of tx.getVouts()) {
         if (query.meetsCriteria(vout)) vouts.push(vout);
@@ -700,17 +710,36 @@ class MoneroWalletRpc extends MoneroWallet {
       }
       
       // remove excluded vouts
-      tx.setVouts(tx.getVouts().filter(function(vout) {
-        return !toRemoves.includes(vout);
-      }));
-      if (tx.getVouts().length === 0) tx.setVouts(undefined);   
+      tx.setVouts(tx.getVouts().filter(function(vout) { return !toRemoves.includes(vout); }))
       
-      // remove txs without requested vout
-      if (tx.getBlock() !== undefined && tx.getVouts() === undefined) {
+      // remove excluded txs from block
+      if ((tx.getVouts() === undefined || tx.getVouts().length === 0) && tx.getBlock() !== undefined) {
         tx.getBlock().getTxs().splice(tx.getBlock().getTxs().indexOf(tx), 1);
       }
     }
     return vouts;
+    
+//    // collect queried vouts
+//    let vouts = [];
+//    for (let tx of Object.values(txMap)) {
+//      let toRemoves = [];
+//      for (let vout of tx.getVouts()) {
+//        if (query.meetsCriteria(vout)) vouts.push(vout);
+//        else toRemoves.push(vout);
+//      }
+//      
+//      // remove excluded vouts
+//      tx.setVouts(tx.getVouts().filter(function(vout) {
+//        return !toRemoves.includes(vout);
+//      }));
+//      if (tx.getVouts().length === 0) tx.setVouts(undefined);   
+//      
+//      // remove txs without requested vout
+//      if (tx.getBlock() !== undefined && tx.getVouts() === undefined) {
+//        tx.getBlock().getTxs().splice(tx.getBlock().getTxs().indexOf(tx), 1);
+//      }
+//    }
+//    return vouts;
   }
   
   async getOutputsHex() {
