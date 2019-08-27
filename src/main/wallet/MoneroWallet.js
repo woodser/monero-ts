@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-const MoneroTxQuery = require("./model/MoneroTxQuery");
+const MoneroTxQuery = require("./model/MoneroQueries").MoneroTxQuery;
 const MoneroSendRequest = require("./model/MoneroSendRequest");
 const MoneroError = require("../utils/MoneroError");
 

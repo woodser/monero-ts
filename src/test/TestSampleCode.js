@@ -1,7 +1,7 @@
 const assert = require("assert");
 const TestUtils = require("./utils/TestUtils");
-const MoneroTxQuery = require("../main/wallet/model/MoneroTxQuery");
-const MoneroTransferQuery = require("../main/wallet/model/MoneroTransferQuery");
+const MoneroTxQuery = require("../main/wallet/model/MoneroQueries").MoneroTxQuery;
+const MoneroTransferQuery = require("../main/wallet/model/MoneroQueries").MoneroTransferQuery;
 
 /**
  * Test the sample code in README.md.
