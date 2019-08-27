@@ -88,12 +88,8 @@ class MoneroOutgoingTransfer extends MoneroTransfer {
     this.setDestinations(MoneroUtils.reconcile(this.getDestinations(), transfer.getDestinations()));
     return this;
   }
-  
-  toString() {
-    return toString(0);
-  }
-  
-  toString(indent) {
+
+  toString(indent = 0) {
     let str = super.toString(indent) + "\n";
     str += MoneroUtils.kvLine("Subaddress indices", this.getSubaddressIndices(), indent);
     str += MoneroUtils.kvLine("Addresses", this.getAddresses(), indent);

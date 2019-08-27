@@ -106,13 +106,22 @@ class MoneroTransfer {
     if (this === transfer) return this;
     
     // merge transactions if they're different which comes back to merging transfers
-    if (this.getTx() !== transfer.getTx()) this.getTx().merge(transfer.getTx());
+    if (this.getTx() !== transfer.getTx()) {
+      this.getTx().merge(transfer.getTx());
+      return this;
+    }
     
     // otherwise merge transfer fields
-    else {
-      this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), transfer.getAccountIndex()));
+    this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), transfer.getAccountIndex()));
+    
+    // TODO monero core: failed tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount/numSuggestedConfirmations of 0
+    if (this.getAmount() !== undefined && transfer.getAmount() !== undefined && this.getAmount().compare(transfer.getAmount()) !== 0 && (this.getAmount().compare(new BigInteger(0)) === 0 || transfer.getAmount().compare(new BigInteger(0)) === 0)) {
+      this.setAmount(MoneroUtils.reconcile(this.getAmount(), transfer.getAmount(), {resolveMax: true}));
+      this.setNumSuggestedConfirmations(MoneroUtils.reconcile(this.getNumSuggestedConfirmations(), transfer.getNumSuggestedConfirmations(), {resolveMax: true}));
+      console.log("WARNING: failed tx in pool causes non-originating wallets to return duplicate incoming transfers but with one amount/numSuggestedConfirmations of 0");
+    } else {
       this.setAmount(MoneroUtils.reconcile(this.getAmount(), transfer.getAmount()));
-      this.setNumSuggestedConfirmations(MoneroUtils.reconcile(this.getNumSuggestedConfirmations(), transfer.getNumSuggestedConfirmations(), {resolveMax: false}));
+      this.setNumSuggestedConfirmations(MoneroUtils.reconcile(this.getNumSuggestedConfirmations(), transfer.getNumSuggestedConfirmations(), {resolveMax: false}));  // TODO monero-wallet-rpc: outgoing txs become 0 when confirmed
     }
     
     return this;
@@ -124,7 +133,7 @@ class MoneroTransfer {
     str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
     str += MoneroUtils.kvLine("Amount", this.getAmount() ? this.getAmount().toString() : undefined, indent);
     str += MoneroUtils.kvLine("Num suggested confirmations", this.getNumSuggestedConfirmations(), indent);
-    return str.slice(0, str.length - 1);  // strip last newline
+    return str === "" ? str :  str.slice(0, str.length - 1);  // strip last newline
   }
 }
 

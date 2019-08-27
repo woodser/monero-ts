@@ -45,6 +45,15 @@ class MoneroTxWallet extends MoneroTx {
     }
   }
   
+  getTxSet() {
+    return this.state.txSet;
+  }
+  
+  setTxSet(txSet) {
+    this.state.txSet = txSet;
+    return this;
+  }
+  
   isOutgoing() {
     return this.getOutgoingTransfer() !== undefined;
   }
@@ -134,8 +143,17 @@ class MoneroTxWallet extends MoneroTx {
     // merge base classes
     super.merge(tx);
     
-    // merge wallet extensions
-    this.setNote(MoneroUtils.reconcile(this.getNote(), tx.getNote()));
+    // merge tx set if they're different which comes back to merging txs
+    if (this.getTxSet() !== tx.getTxSet()) {
+      if (this.getTxSet() == undefined) {
+        this.setTxSet(new MoneroTxSet().setTxs([this]));
+      }
+      if (tx.getTxSet() === undefined) {
+        tx.setTxSet(new MoneroTxSet().setTxs([tx]));
+      }
+      txSet.merge(tx.getTxSet());
+      return this;
+    }
     
     // merge incoming transfers
     if (tx.getIncomingTransfers()) {
@@ -152,6 +170,9 @@ class MoneroTxWallet extends MoneroTx {
       if (this.getOutgoingTransfer() === undefined) this.setOutgoingTransfer(tx.getOutgoingTransfer());
       else this.getOutgoingTransfer().merge(tx.getOutgoingTransfer());
     }
+    
+    // merge simple extensions
+    this.setNote(MoneroUtils.reconcile(this.getNote(), tx.getNote()));
     
     return this;  // for chaining
   }
