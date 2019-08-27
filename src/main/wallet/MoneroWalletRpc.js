@@ -501,14 +501,23 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTransfers(query) {
     
-    // normalize transfer query
-    if (query instanceof MoneroTransferQuery) { }
+    // copy and normalize query up to block
+    if (query === undefined) query = new MoneroTransferQuery();
     else {
-      query = Object.assign({}, query);
-      query = new MoneroTransferQuery(query).setTxQuery(new MoneroTxQuery(query));
+      if (query.getTxQuery() === undefined) query = query.copy();
+      else {
+        let txQuery = query.getTxQuery().copy();
+        if (query.getTxQuery().getTransferQuery() === query) query = txQuery.getTransferQuery();
+        else {
+          assert.equal(query.getTxQuery().getTransferQuery(), undefined, "Transfer query's tx query must be circular reference or null");
+          query = query.copy();
+          query.setTxQuery(txQuery);
+        }
+      }
     }
-    if (!query.getTxQuery()) query.setTxQuery(new MoneroTxQuery());
+    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
     let txQuery = query.getTxQuery();
+    txQuery.setTransferQuery(undefined); // break circular link for meetsCriteria()
     
     // build params for get_transfers rpc call
     let params = {};
@@ -548,8 +557,9 @@ class MoneroWalletRpc extends MoneroWallet {
     let resp = await this.config.rpc.sendJsonRequest("get_transfers", params);
     for (let key of Object.keys(resp.result)) {
       for (let rpcTx of resp.result[key]) {
-        if (rpcTx.txid === query.debugTxId) console.log(rpcTx);
+        //if (rpcTx.txid === query.debugTxId) console.log(rpcTx);
         let tx = MoneroWalletRpc._convertRpcTxWalletWithTransfer(rpcTx);
+        if (tx.isConfirmed()) assert(tx.getBlock().getTxs().has(tx));
         
         // replace transfer amount with destination sum
         // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached transfers
