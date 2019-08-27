@@ -146,30 +146,35 @@ class TestUtils {
     // initialize cached wallet
     TestUtils.getWalletRpc();
     
-    // create rpc wallet file if necessary
-    try {
-      await this.walletRpc.createWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD, "English");
-    } catch (e) {
-      if (!(e instanceof MoneroRpcError)) throw e;
-      assert.equal(e.getCode(), -21); // exception is ok if wallet already created
-    }
-    
-    // open rpc wallet file
+    // attempt to open test wallet
     try {
       await this.walletRpc.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
     } catch (e) {
-      if (!(e instanceof MoneroRpcError)) throw e;
-      assert.equal(e.getCode(), -1); // TODO (monero-wallet-rpc): -1: Failed to open wallet if wallet is already open; better code and message
+      
+      console.log(e.message);
+      console.log(e);
+      
+      
+      // -1 returned when the wallet does not exist or it's open by another application
+      if (e.getCode() === -1) {
+        
+        // create wallet
+        await walletRpc.createWalletFromMnemonic(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
+      } else {
+        throw e;
+      }
     }
     
-    // refresh wallet
-    try {
-      await this.walletRpc.rescanSpent();
-    } catch (e) {
-      console.log(e);
-      assert.equal(e.getCode(), -38);  // TODO: (monero-wallet-rpc) sometimes getting -38: no connection to daemon on rescan call (after above calls) which causes mocha "before all" hook problem
-      console.log("WARNING: received -38: no connection to daemon on rescan call after create/open, ignoring...");
-    }
+    // ensure we're testing the right wallet
+    assert.equal(await this.walletRpc.getMnemonic(), TestUtils.MNEMONIC);
+    assert.equal(await this.walletRpc.getPrimaryAddress(), TestUtils.ADDRESS);
+    
+    // sync and save the wallet
+    await this.walletRpc.sync();
+    await this.walletRpc.save();
+    
+    // return cached wallet rpc
+    return this.walletRpc;
   }
   
   /**

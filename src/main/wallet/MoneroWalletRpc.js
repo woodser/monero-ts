@@ -26,7 +26,7 @@ const BigInteger = require("../../../external/mymonero-core-js/cryptonote_utils/
 const GenUtils = require("../utils/GenUtils");
 const MoneroUtils = require("../utils/MoneroUtils");
 const MoneroError = require("../utils/MoneroError");
-const MoneroRpc = require("../rpc/MoneroRpc");
+const MoneroRpc = require("../rpc/MoneroRpcConnection");
 const MoneroBlock = require("../daemon/model/MoneroBlock");
 const MoneroBlockHeader = require("../daemon/model/MoneroBlockHeader");
 const MoneroWallet = require("./MoneroWallet");
@@ -83,64 +83,73 @@ class MoneroWalletRpc extends MoneroWallet {
   
   // --------------------------- RPC WALLET METHODS ---------------------------
   
-  getRpc() {
+  /**
+   * Get the wallet's RPC connection.
+   * 
+   * @return {MoneroWalletRpcthe wallet's rpc connection
+   */
+  getRpcConnection() {
     return this.config.rpc;
   }
-
+  
   /**
-   * Rescan the blockchain for spent outputs.
+   * Open an existing wallet on the RPC server.
+   * 
+   * @param {string} name is the name of the wallet file to open
+   * @param {string} password is the password to decrypt the wallet file
    */
-  async rescanSpent() {
-    await this.config.rpc.sendJsonRequest("rescan_spent");
+  async openWallet(name, password) {
+    if (!name) throw new MoneroError("Filename is not initialized");
+    if (!password) throw new MoneroError("Password is not initialized");
+    await this.config.rpc.sendJsonRequest("open_wallet", {filename: name, password: password});
+    delete this.addressCache;
+    this.addressCache = {};
+    this.path = name;
   }
   
   /**
-   * Create a new wallet file at the remote endpoint.
+   * Create and open a new wallet with a randomly generated seed on the RPC server.
    * 
-   * @param {string} filename is the name of the wallet file to create
-   * @param {string} password is the password to decrypt the wallet file
+   * @param {string} name is the name of the wallet file to create
+   * @param {string} password is the wallet's password
    * @param {string} language is the language for the wallet's mnemonic seed
    */
-  async createWallet(filename, password, language) {
-    if (!filename) throw new MoneroError("Filename is not initialized");
+  async createWalletRandom(name, password, language) {
+    if (!name) throw new MoneroError("Name is not initialized");
     if (!password) throw new MoneroError("Password is not initialized");
     if (!language) throw new MoneroError("Language is not initialized");
-    let params = { filename: filename, password: password, language: language };
+    let params = { filename: name, password: password, language: language };
     await this.config.rpc.sendJsonRequest("create_wallet", params);
+    this.addressCache = {};
+    this.path = name;
   }
   
   /**
-   * Open a wallet file at the remote endpoint.
+   * Create and open a wallet from an existing mnemonic phrase on the RPC server,
+   * closing the currently open wallet if applicable.
    * 
-   * @param {string} filename is the name of the wallet file to open
-   * @param {string} password is the password to decrypt the wallet file
+   * @param {string} name is the name of the wallet to create on the RPC server
+   * @param {string} password is the wallet's password
+   * @param {string} mnemonic is the mnemonic of the wallet to construct
+   * @param {int} restoreHeight is the block height to restore from (default = 0)
+   * @param {string} language is the language of the mnemonic in case the old language is invalid
+   * @param {int} offset is the offset for restoring from mnemonic
+   * @param {boolean} saveCurrent specifies if the current RPC wallet should be saved before being closed
    */
-  async openWallet(filename, password) {
-    if (!filename) throw new MoneroError("Filename is not initialized");
-    if (!password) throw new MoneroError("Password is not initialized");
-    await this.config.rpc.sendJsonRequest("open_wallet", {filename: filename, password: password});
-    delete this.addressCache;
-    this.addressCache = {};
-  }
-  
-  /**
-   * Save the currently open wallet file at the remote endpoint.
-   */
-  async save() {
-    await this.config.rpc.sendJsonRequest("store");
-  }
-  
-  /**
-   * Close the wallet at the remote endpoint, saving the current state.
-   */
-  async close() {
-    await this.config.rpc.sendJsonRequest("stop_wallet");
-    delete this.addressCache;
-    this.addressCache = {};
+  async createWalletFromMnemonic(name, password, mnemonic, restoreHeight, language, offset, saveCurrent) {
+    throw new MoneroError("Not implemented"); // TODO
   }
   
   // -------------------------- COMMON WALLET METHODS -------------------------
   
+  async getPath() {
+    return this.path;
+  }
+  
+  async getSeed() {
+    throw new MoneroError("monero-wallet-rpc does not support getting the wallet seed");
+  }
+
   async getMnemonic() {
     let resp = await this.config.rpc.sendJsonRequest("query_key", { key_type: "mnemonic" });
     return resp.result.key;
@@ -214,17 +223,24 @@ class MoneroWalletRpc extends MoneroWallet {
     return new MoneroSyncResult(resp.result.blocks_fetched, resp.result.received_money);
   }
   
-  async rescanBlockchain() {
-    await this.config.rpc.sendJsonRequest("rescan_blockchain");
+  async startSyncing() {
+    // nothing to do because wallet rpc syncs automatically
   }
   
   async getHeight() {
     return (await this.config.rpc.sendJsonRequest("get_height")).result.height;
   }
   
-  async isMultisigImportNeeded() {
-    let resp = await this.config.rpc.sendJsonRequest("get_balance");
-    return resp.result.multisig_import_needed === true;
+  async getDaemonHeight() {
+    throw new MoneroError("monero-wallet-rpc does not support getting the chain height");
+  }
+  
+  async rescanSpent() {
+    await this.config.rpc.sendJsonRequest("rescan_spent");
+  }
+  
+  async rescanBlockchain() {
+    await this.config.rpc.sendJsonRequest("rescan_blockchain");
   }
   
   async getBalance(accountIdx, subaddressIdx) {
@@ -233,6 +249,11 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getUnlockedBalance(accountIdx, subaddressIdx) {
     return (await this._getBalances(accountIdx, subaddressIdx))[1];
+  }
+  
+  async isMultisigImportNeeded() {
+    let resp = await this.config.rpc.sendJsonRequest("get_balance");
+    return resp.result.multisig_import_needed === true;
   }
   
   async getAccounts(includeSubaddresses, tag, skipBalances) {
@@ -1057,6 +1078,16 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async stopMining() {
     await this.config.rpc.sendJsonRequest("stop_mining");
+  }
+  
+  async save() {
+    await this.config.rpc.sendJsonRequest("store");
+  }
+  
+  async close() {
+    await this.config.rpc.sendJsonRequest("stop_wallet");
+    delete this.addressCache;
+    this.addressCache = {};
   }
   
   // --------------------------------  PRIVATE --------------------------------
