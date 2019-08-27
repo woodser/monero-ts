@@ -137,7 +137,16 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {boolean} saveCurrent specifies if the current RPC wallet should be saved before being closed
    */
   async createWalletFromMnemonic(name, password, mnemonic, restoreHeight, language, offset, saveCurrent) {
-    throw new MoneroError("Not implemented"); // TODO
+    this.config.rpc.sendJsonRequest("restore_deterministic_wallet", {
+      filename: name,
+      password: password,
+      seed: mnemonic,
+      seed_offset: offset,
+      restore_height: restoreHeight,
+      language: language,
+      autosave_current: saveCurrent
+    })
+    this.path = name;
   }
   
   // -------------------------- COMMON WALLET METHODS -------------------------
@@ -409,21 +418,16 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTxs(query) {
     
-    // normalize tx query
-    if (query instanceof MoneroTxQuery) { }
-    else if (Array.isArray(query)) query = new MoneroTxQuery().setTxIds(query);
-    else {
-      query = Object.assign({}, query);
-      query = new MoneroTxQuery(query);
-    }
-    if (!query.getTransferQuery()) query.setTransferQuery(new MoneroTransferQuery());
+    // copy and normalize tx query
+    query = query === undefined ? new MoneroTxQuery() : query.copy();
+    if (query.getTransferQuery() === undefined) query.setTransferQuery(new MoneroTransferQuery());
     let transferQuery = query.getTransferQuery();
     
     // temporarily disable transfer query
     query.setTransferQuery(undefined);
     
     // fetch all transfers that meet tx query
-    let transfers = await this.getTransfers(new MoneroTransferQuery().setTxQuery(query));  // TODO: {query: query} instead, need to resolve circular query imports, also pass debugTxId here
+    let transfers = await getTransfers(new MoneroTransferQuery().setTxQuery(query));
     
     // collect unique txs from transfers while retaining order
     let txs = [];
@@ -436,8 +440,8 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // cache types into maps for merging and lookup
-    let txMap = {};
-    let blockMap = {}
+    let txMap = new Map();
+    let blockMap = new Map();
     for (let tx of txs) {
       MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
     }
@@ -484,12 +488,12 @@ class MoneroWalletRpc extends MoneroWallet {
       if (tx.isConfirmed() && tx.getBlock() === undefined) return this.getTxs(query);
     }
     
-    // otherwise order txs if tx ids given then return
-    if (query.getTxIds()) {
-      let txsById = {}  // store txs in temporary map for sorting
-      for (let tx of txs) txsById[tx.getId()] = tx;
+    // order txs if tx ids given then return
+    if (query.getTxIds() && query.getTxIds().length > 0) {
+      let txsById = new Map()  // store txs in temporary map for sorting
+      for (let tx of txs) txsById.set(tx.getId(), tx);
       let orderedTxs = [];
-      for (let txId of query.getTxIds()) if (txsById[txId]) orderedTxs.push(txsById[txId]);
+      for (let txId of query.getTxIds()) if (txsById.get(txId)) orderedTxs.push(txsById.get(txId));
       txs = orderedTxs;
     }
     return txs;
