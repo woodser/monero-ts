@@ -73,6 +73,41 @@ class MoneroAccount {
     }
     return this;
   }
+  
+  toString(indent = 0) {
+    let str = "";
+    str += MoneroUtils.kvLine("Index", this.getIndex(), indent);
+    str += (MoneroUtils.kvLine("Primary address", this.getPrimaryAddress(), indent);
+    str += MoneroUtils.kvLine("Balance", this.getBalance(), indent);
+    str += MoneroUtils.kvLine("Unlocked balance", this.getUnlockedBalance(), indent);
+    str += MoneroUtils.kvLine("Tag", this.getTag(), indent);
+    if (this.getSubaddresses() != null) {
+      sb += MoneroUtils.kvLine("Subaddresses", "", indent)
+      for (let i = 0; i < this.getSubaddresses().size(); i++) {
+        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
+        str += this.getSubaddresses()[i].toString(indent + 2) + "\n";
+      }
+    }
+    return str.slice(0, str.length - 1);  // strip last newline
+  }
+  
+  public String toString(int indent) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(MoneroUtils.kvLine("Index", this.getIndex(), indent));
+    sb.append(MoneroUtils.kvLine("Primary address", this.getPrimaryAddress(), indent));
+    sb.append(MoneroUtils.kvLine("Balance", this.getBalance(), indent));
+    sb.append(MoneroUtils.kvLine("Unlocked balance", this.getUnlockedBalance(), indent));
+    sb.append(MoneroUtils.kvLine("Tag", this.getTag(), indent));
+    if (this.getSubaddresses() != null) {
+      sb.append(MoneroUtils.kvLine("Subaddresses", "", indent));
+      for (int i = 0; i < this.getSubaddresses().size(); i++) {
+        sb.append(MoneroUtils.kvLine(i + 1, "", indent + 1));
+        sb.append(this.getSubaddresses().get(i).toString(indent + 2) + "\n");
+      }
+    }
+    String str = sb.toString();
+    return str.substring(0, str.length() - 1);  // strip last newline
+  }
 }
 
 module.exports = MoneroAccount;
