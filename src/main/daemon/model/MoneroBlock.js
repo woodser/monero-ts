@@ -109,16 +109,16 @@ class MoneroBlock extends MoneroBlockHeader {
   
   toString(indent = 0) {
     let str = super.toString(indent) + "\n";
-    if (this.getMinerTx()) {
-      str += MoneroUtils.kvLine("Miner tx", "", indent);
-      str += this.getMinerTx().toString(indent + 1) + "\n";
-    }
     str += MoneroUtils.kvLine("Hex", this.getHex(), indent);
     if (this.getTxs()) {
       str += MoneroUtils.kvLine("Txs", "", indent);
       for (let tx of this.getTxs()) {
         str += tx.toString(indent + 1) + "\n";
       }
+    }
+    if (this.getMinerTx()) {
+      str += MoneroUtils.kvLine("Miner tx", "", indent);
+      str += this.getMinerTx().toString(indent + 1) + "\n";
     }
     str += MoneroUtils.kvLine("Txs ids", this.getTxIds(), indent);
     return str[str.length - 1] === "\n" ? str.slice(0, str.length - 1) : str  // strip last newline
