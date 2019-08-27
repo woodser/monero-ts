@@ -2355,7 +2355,7 @@ class TestMoneroWalletCommon {
         try {
           txs = (await wallet.sweepDust(true)).getTxs();
         } catch (e) {
-          assert.equal(e.getMessage(), "No dust to sweep");
+          assert.equal(e.message, "No dust to sweep");
           return;
         }
         
@@ -2388,7 +2388,7 @@ class TestMoneroWalletCommon {
         try {
           txs = (await wallet.sweepDust()).getTxs();
         } catch (e) {
-          assert.equal(e.getMessage(), "No dust to sweep");
+          assert.equal(e.message, "No dust to sweep");
           return;
         }
         
@@ -2739,7 +2739,7 @@ class TestMoneroWalletCommon {
       assert.equal(tx.isFailed(), false);
       assert.equal(tx.getInTxPool(), false);
       assert.equal(tx.getDoNotRelay(), false);
-      assert.equal(tx.isDoubleSpend(), false);
+      assert.equal(tx.isDoubleSpendSeen(), false);
       assert(tx.getNumConfirmations() > 0);
     } else {
       assert.equal(tx.getBlock(), undefined);
@@ -2751,7 +2751,7 @@ class TestMoneroWalletCommon {
       assert.equal(tx.isConfirmed(), false);
       assert.equal(tx.getDoNotRelay(), false);
       assert.equal(tx.isRelayed(), true);
-      assert.equal(tx.isDoubleSpend(), false); // TODO: test double spend attempt
+      assert.equal(tx.isDoubleSpendSeen(), false); // TODO: test double spend attempt
       
       // these should be initialized unless a response from sending
       if (!ctx.isSendResponse) {
@@ -2772,11 +2772,11 @@ class TestMoneroWalletCommon {
       assert(tx.getOutgoingTransfer() instanceof MoneroTransfer);
       //assert(tx.getReceivedTimestamp() > 0);    // TODO: re-enable when received timestamp returned in wallet rpc
     } else {
-      if (tx.isRelayed()) assert.equal(tx.isDoubleSpend(), false);
+      if (tx.isRelayed()) assert.equal(tx.isDoubleSpendSeen(), false);
       else {
         assert.equal(tx.isRelayed(), false);
         assert.equal(tx.getDoNotRelay(), true);
-        assert.equal(tx.isDoubleSpend(), undefined);
+        assert.equal(tx.isDoubleSpendSeen(), undefined);
       }
     }
     assert.equal(tx.getLastFailedHeight(), undefined);
@@ -2873,7 +2873,7 @@ class TestMoneroWalletCommon {
         assert.equal(tx.getDoNotRelay(), false);
         assert.equal(tx.isRelayed(), true);
         assert(tx.getLastRelayedTimestamp() > 0);
-        assert.equal(tx.isDoubleSpend(), false);
+        assert.equal(tx.isDoubleSpendSeen(), false);
       }
       
       // test non-relayed txs
@@ -2882,7 +2882,7 @@ class TestMoneroWalletCommon {
         assert.equal(tx.getDoNotRelay(), true);
         assert.equal(tx.isRelayed(), false);
         assert.equal(tx.getLastRelayedTimestamp(), undefined);
-        assert.equal(tx.isDoubleSpend(), undefined);
+        assert.equal(tx.isDoubleSpendSeen(), undefined);
       }
     }
     
@@ -3175,8 +3175,8 @@ class TestMoneroWalletCommon {
         console.log("WARNING: wallet returned a tx set from sendSplit() even though it has not been synchronized with participants, expected exception: " + JsonUtils.serialize(txSet));  // TODO monero core: wallet_rpc_server.cpp:995 should throw if no txs created
         //throw new RuntimeException("Should have failed sending funds without synchronizing with peers");
       } catch (e) {
-        if (!e.getMessage().contains("Should have failed")) { // TODO: remove this check when wallet rpc throws exception as expected
-          assertEquals("No transaction created", e.getMessage());
+        if (!e.message.contains("Should have failed")) { // TODO: remove this check when wallet rpc throws exception as expected
+          assertEquals("No transaction created", e.message);
         }
       }
       

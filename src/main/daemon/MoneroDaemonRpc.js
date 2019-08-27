@@ -851,7 +851,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         MoneroUtils.safeSet(tx, tx.isConfirmed, tx.setIsConfirmed, !val);
         MoneroUtils.safeSet(tx, tx.getInTxPool, tx.setInTxPool, val);
       }
-      else if (key === "double_spend_seen") MoneroUtils.safeSet(tx, tx.isDoubleSpend, tx.setIsDoubleSpend, val);
+      else if (key === "double_spend_seen") MoneroUtils.safeSet(tx, tx.isDoubleSpendSeen, tx.setIsDoubleSpend, val);
       else if (key === "version") MoneroUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);
       else if (key === "extra") MoneroUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
       else if (key === "vin") {

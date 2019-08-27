@@ -25,12 +25,12 @@ class MoneroSubmitTxResult {
     return this;
   }
   
-  isDoubleSpend() {
-    return this.state.isDoubleSpend;
+  isDoubleSpendSeen() {
+    return this.state.isDoubleSpendSeen;
   }
   
-  setIsDoubleSpend(isDoubleSpend) {
-    this.state.isDoubleSpend = isDoubleSpend
+  setIsDoubleSpend(isDoubleSpendSeen) {
+    this.state.isDoubleSpendSeen = isDoubleSpendSeen
     return this;
   }
   

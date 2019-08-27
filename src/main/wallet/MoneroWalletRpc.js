@@ -1212,7 +1212,7 @@ class MoneroWalletRpc extends MoneroWallet {
       if (tx.getUnlockTime() === undefined) tx.setUnlockTime(request.getUnlockTime() === undefined ? 0 : request.getUnlockTime());
       if (!tx.getDoNotRelay()) {
         if (tx.getLastRelayedTimestamp() === undefined) tx.setLastRelayedTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
-        if (tx.isDoubleSpend() === undefined) tx.setIsDoubleSpend(false);
+        if (tx.isDoubleSpendSeen() === undefined) tx.setIsDoubleSpend(false);
       }
     }
     return txs;
@@ -1439,7 +1439,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (tx.getUnlockTime() === undefined) tx.setUnlockTime(request.getUnlockTime() === undefined ? 0 : request.getUnlockTime());
     if (!tx.getDoNotRelay()) {
       if (tx.getLastRelayedTimestamp() === undefined) tx.setLastRelayedTimestamp(+new Date().getTime());  // TODO (monero-wallet-rpc): provide timestamp on response; unconfirmed timestamps vary
-      if (tx.isDoubleSpend() === undefined) tx.setIsDoubleSpend(false);
+      if (tx.isDoubleSpendSeen() === undefined) tx.setIsDoubleSpend(false);
     }
     return tx;
   }

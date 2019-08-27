@@ -185,12 +185,12 @@ class MoneroTx {
     return this;
   }
   
-  isDoubleSpend() {
-    return this.state.isDoubleSpend;
+  isDoubleSpendSeen() {
+    return this.state.isDoubleSpendSeen;
   }
   
-  setIsDoubleSpend(isDoubleSpend) {
-    this.state.isDoubleSpend = isDoubleSpend;
+  setIsDoubleSpend(isDoubleSpendSeen) {
+    this.state.isDoubleSpendSeen = isDoubleSpendSeen;
     return this;
   }
   
@@ -306,15 +306,6 @@ class MoneroTx {
   
   setMetadata(metadata) {
     this.state.metadata = metadata;
-    return this;
-  }
-  
-  getCommonTxSets() {
-    return this.state.commonTxSets;
-  }
-  
-  setCommonTxSets(commonTxSets) {
-    this.state.commonTxSets = commonTxSets;
     return this;
   }
   
@@ -465,7 +456,7 @@ class MoneroTx {
     this.setIsConfirmed(MoneroUtils.reconcile(this.isConfirmed(), tx.isConfirmed(), {resolveTrue: true}));
     this.setDoNotRelay(MoneroUtils.reconcile(this.getDoNotRelay(), tx.getDoNotRelay(), {resolveTrue: false}));  // tx can become relayed
     this.setIsRelayed(MoneroUtils.reconcile(this.isRelayed(), tx.isRelayed(), {resolveTrue: true}));      // tx can become relayed
-    this.setIsDoubleSpend(MoneroUtils.reconcile(this.isDoubleSpend(), tx.isDoubleSpend()));
+    this.setIsDoubleSpend(MoneroUtils.reconcile(this.isDoubleSpendSeen(), tx.isDoubleSpendSeen()));
     this.setKey(MoneroUtils.reconcile(this.getKey(), tx.getKey()));
     this.setFullHex(MoneroUtils.reconcile(this.getFullHex(), tx.getFullHex()));
     this.setPrunedHex(MoneroUtils.reconcile(this.getPrunedHex(), tx.getPrunedHex()));
@@ -475,7 +466,6 @@ class MoneroTx {
     this.setWeight(MoneroUtils.reconcile(this.getWeight(), tx.getWeight()));
     this.setOutputIndices(MoneroUtils.reconcile(this.getOutputIndices(), tx.getOutputIndices()));
     this.setMetadata(MoneroUtils.reconcile(this.getMetadata(), tx.getMetadata()));
-    this.setCommonTxSets(MoneroUtils.reconcile(this.getCommonTxSets(), tx.getCommonTxSets()));
     this.setExtra(MoneroUtils.reconcile(this.getExtra(), tx.getExtra()));
     this.setRctSignatures(MoneroUtils.reconcile(this.getRctSignatures(), tx.getRctSignatures()));
     this.setRctSigPrunable(MoneroUtils.reconcile(this.getRctSigPrunable(), tx.getRctSigPrunable()));
@@ -503,6 +493,79 @@ class MoneroTx {
           }
         }
         if (!merged) this.getVins().push(merger);
+      }
+    }
+    
+    // merge vouts
+    if (tx.getVouts()) {
+      for (let vout of tx.getVouts()) vout.setTx(this);
+      if (this.getVouts() === undefined) this.setVouts(tx.getVouts());
+      else {
+        
+        // validate output indices if present
+        let numIndices = 0;
+        for (let vout of this.getVouts()) if (vout.getIndex() !== undefined) numIndices++;
+        for (let vout of tx.getVouts()) if (vout.getIndex() !== undefined) numIndices++;
+        assert(numIndices === 0 || this.getVouts().length + tx.getVouts().length == numIndices, "Some vouts have an output index and some do not");
+        
+        // merge by output indices if present
+        if (numIndices > 0) {
+          for (let merger of tx.getVouts()) {
+            let merged = false;
+            merger.setTx(this);
+            if (this.getVouts() === undefined) this.setVouts([]);
+            for (let mergee of this.getVouts()) {
+              if (mergee.getIndex() === merger.getIndex()) {
+                mergee.merge(merger);
+                merged = true;
+                break;
+              }
+            }
+            if (!merged) this.getVouts().push(merger);
+          }
+        } else {
+          
+          // determine if key images present
+          let numKeyImages = 0;
+          for (let vout of this.getVouts()) {
+            if (vout.getKeyImage() !== undefined) {
+              assert.notEqual(vout.getKeyImage().getHex(), undefined);
+              numKeyImages++;
+            }
+          }
+          for (let vout of tx.getVouts()) {
+            if (vout.getKeyImage() !== undefined) {
+              assert.notEqual(vout.getKeyImage().getHex(), undefined);
+              numKeyImages++;
+            }
+          }
+          assert("Some vouts have a key image and some do not", numKeyImages === 0 || this.getVouts().length + tx.getVouts().length === numKeyImages);
+          
+          // merge by key images if present
+          if (numKeyImages > 0) {
+            for (let merger of tx.getVouts()) {
+              let merged = false;
+              merger.setTx(this);
+              if (this.getVouts() === undefined) this.setVouts([]);
+              for (let mergee of this.getVouts()) {
+                if (mergee.getKeyImage().getHex() === merger.getKeyImage().getHex()) {
+                  mergee.merge(merger);
+                  merged = true;
+                  break;
+                }
+              }
+              if (!merged) this.getVouts().push(merger);
+            }
+          }
+
+          // otherwise merge by position
+          else {
+            assert.equal(tx.getVouts().length, this.getVouts().length);
+            for (let i = 0; i < tx.getVouts().length; i++) {
+              this.getVouts()[i].merge(tx.getVouts()[i]);
+            }
+          }
+        }
       }
     }
     
@@ -587,7 +650,7 @@ class MoneroTx {
     str += MoneroUtils.kvLine("Unlock time", this.getUnlockTime(), indent);
     str += MoneroUtils.kvLine("Last relayed time", this.getLastRelayedTimestamp(), indent);
     str += MoneroUtils.kvLine("Received time", this.getReceivedTimestamp(), indent);
-    str += MoneroUtils.kvLine("Is double spend", this.isDoubleSpend(), indent);
+    str += MoneroUtils.kvLine("Is double spend", this.isDoubleSpendSeen(), indent);
     str += MoneroUtils.kvLine("Key", this.getKey(), indent);
     str += MoneroUtils.kvLine("Full hex", this.getFullHex(), indent);
     str += MoneroUtils.kvLine("Pruned hex", this.getPrunedHex(), indent);
@@ -597,7 +660,6 @@ class MoneroTx {
     str += MoneroUtils.kvLine("Weight", this.getWeight(), indent);
     str += MoneroUtils.kvLine("Output indices", this.getOutputIndices(), indent);
     str += MoneroUtils.kvLine("Metadata", this.getMetadata(), indent);
-    str += MoneroUtils.kvLine("Common tx sets", this.getCommonTxSets(), indent);
     str += MoneroUtils.kvLine("Extra", this.getExtra(), indent);
     str += MoneroUtils.kvLine("RCT signatures", this.getRctSignatures(), indent);
     str += MoneroUtils.kvLine("RCT sig prunable", this.getRctSigPrunable(), indent);

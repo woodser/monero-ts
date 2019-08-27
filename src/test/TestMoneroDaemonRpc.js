@@ -566,7 +566,7 @@ class TestMoneroDaemonRpc {
         for (let i = 1; i < 3; i++) {
           let tx = await getUnrelayedTx(wallet, i);
           let result = await daemon.submitTxHex(tx.getFullHex(), true);
-          assert.equal(result.isDoubleSpend(), false);
+          assert.equal(result.isDoubleSpendSeen(), false);
           assert.equal(result.isGood(), true);
           txIds.push(tx.getId());
         }
@@ -1237,7 +1237,7 @@ function testTx(tx, ctx) {
   assert.equal(typeof tx.isConfirmed(), "boolean");
   assert.equal(typeof tx.getInTxPool(), "boolean");
   assert.equal(typeof tx.isMiner(), "boolean");
-  assert.equal(typeof tx.isDoubleSpend(), "boolean");
+  assert.equal(typeof tx.isDoubleSpendSeen(), "boolean");
   assert(tx.getVersion() >= 0);
   assert(tx.getUnlockTime() >= 0);
   assert(tx.getVins());
@@ -1265,7 +1265,7 @@ function testTx(tx, ctx) {
     assert.equal(tx.isFailed(), false);
     assert.equal(tx.getInTxPool(), false);
     assert.equal(tx.getDoNotRelay(), false);
-    assert.equal(tx.isDoubleSpend(), false);
+    assert.equal(tx.isDoubleSpendSeen(), false);
     assert.equal(tx.getNumConfirmations(), undefined); // client must compute
   } else {
     assert.equal(tx.getBlock(), undefined);
@@ -1275,7 +1275,7 @@ function testTx(tx, ctx) {
   // test in tx pool
   if (tx.getInTxPool()) {
     assert.equal(tx.isConfirmed(), false);
-    assert.equal(tx.isDoubleSpend(), false);
+    assert.equal(tx.isDoubleSpendSeen(), false);
     assert.equal(tx.getLastFailedHeight(), undefined);
     assert.equal(tx.getLastFailedId(), undefined);
     assert(tx.getReceivedTimestamp() > 0);
@@ -1306,11 +1306,11 @@ function testTx(tx, ctx) {
     assert(tx.getReceivedTimestamp() > 0)
   } else {
     if (tx.isRelayed() === undefined) assert.equal(tx.getDoNotRelay(), undefined); // TODO monero-daemon-rpc: add relayed to get_transactions
-    else if (tx.isRelayed()) assert.equal(tx.isDoubleSpend(), false);
+    else if (tx.isRelayed()) assert.equal(tx.isDoubleSpendSeen(), false);
     else {
       assert.equal(tx.isRelayed(), false);
       assert.equal(tx.getDoNotRelay(), true);
-      assert.equal(typeof tx.isDoubleSpend(), "boolean");
+      assert.equal(typeof tx.isDoubleSpendSeen(), "boolean");
     }
   }
   assert.equal(tx.getLastFailedHeight(), undefined);
@@ -1362,7 +1362,7 @@ function testTx(tx, ctx) {
     else assert(tx.getFullHex().length > 0);
     if (ctx.fromBinaryBlock) assert.equal(tx.getRctSigPrunable(), undefined);  // TODO: getBlocksByHeight() has inconsistent client-side pruning
     //else assert.equal(typeof tx.getRctSigPrunable().nbp, "number");
-    assert.equal(tx.isDoubleSpend(), false);
+    assert.equal(tx.isDoubleSpendSeen(), false);
     if (tx.isConfirmed()) {
       assert.equal(tx.getLastRelayedTimestamp(), undefined);
       assert.equal(tx.getReceivedTimestamp(), undefined);
@@ -1494,7 +1494,7 @@ function testSubmitTxResultGood(result) {
   testSubmitTxResultCommon(result);
   try {
     assert.equal(result.isGood(), true);
-    assert.equal(result.isDoubleSpend(), false);
+    assert.equal(result.isDoubleSpendSeen(), false);
     assert.equal(result.isFeeTooLow(), false);
     assert.equal(result.isMixinTooLow(), false);
     assert.equal(result.hasInvalidInput(), false);
@@ -1512,7 +1512,7 @@ function testSubmitTxResultGood(result) {
 function testSubmitTxResultDoubleSpend(result) {
   testSubmitTxResultCommon(result);
   assert.equal(result.isGood(), false);
-  assert.equal(result.isDoubleSpend(), true);
+  assert.equal(result.isDoubleSpendSeen(), true);
   assert.equal(result.isFeeTooLow(), false);
   assert.equal(result.isMixinTooLow(), false);
   assert.equal(result.hasInvalidInput(), false);
@@ -1525,7 +1525,7 @@ function testSubmitTxResultDoubleSpend(result) {
 function testSubmitTxResultCommon(result) {
   assert.equal(typeof result.isGood(), "boolean");
   assert.equal(typeof result.isRelayed(), "boolean");
-  assert.equal(typeof result.isDoubleSpend(), "boolean");
+  assert.equal(typeof result.isDoubleSpendSeen(), "boolean");
   assert.equal(typeof result.isFeeTooLow(), "boolean");
   assert.equal(typeof result.isMixinTooLow(), "boolean");
   assert.equal(typeof result.hasInvalidInput(), "boolean");
