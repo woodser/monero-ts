@@ -875,7 +875,7 @@ class MoneroWallet {
    * @return {string} the tx note
    */
   async getTxNote(txId) {
-    throw new MoneroError("Subclass must implement");
+    return (await this.getTxNotes([txId]))[0];
   }
   
   /**
@@ -885,6 +885,7 @@ class MoneroWallet {
    * @param {string} note specifies the note
    */
   async setTxNote(txId, note) {
+    await this.setTxNotes([txId], [note]);
     throw new MoneroError("Subclass must implement");
   }
   

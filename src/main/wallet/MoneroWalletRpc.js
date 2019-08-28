@@ -883,22 +883,6 @@ class MoneroWalletRpc extends MoneroWallet {
     return txSet;
   }
   
-  async getTxNote(txId) {
-    return (await this.getTxNotes([txId]))[0];
-  }
-
-  async setTxNote(txId, note) {
-    await this.setTxNotes([txId], [note]);
-  }
-  
-  async getTxNotes(txIds) {
-    return (await this.config.rpc.sendJsonRequest("get_tx_notes", {txids: txIds})).result.notes;
-  }
-  
-  async setTxNotes(txIds, notes) {
-    await this.config.rpc.sendJsonRequest("set_tx_notes", {txids: txIds, notes: notes});
-  }
-  
   async sign(msg) {
     let resp = await this.config.rpc.sendJsonRequest("sign", {data: msg});
     return resp.result.signature;
@@ -1005,6 +989,14 @@ class MoneroWalletRpc extends MoneroWallet {
     return check;
   }
   
+  async getTxNotes(txIds) {
+    return (await this.config.rpc.sendJsonRequest("get_tx_notes", {txids: txIds})).result.notes;
+  }
+  
+  async setTxNotes(txIds, notes) {
+    await this.config.rpc.sendJsonRequest("set_tx_notes", {txids: txIds, notes: notes});
+  }
+  
   async getAddressBookEntries(entryIndices) {
     let resp = await this.config.rpc.sendJsonRequest("get_address_book", {entries: entryIndices});
     if (!resp.result.entries) return [];
@@ -1073,13 +1065,13 @@ class MoneroWalletRpc extends MoneroWallet {
     return request;
   }
   
-  async setAttribute(key, val) {
-    await this.config.rpc.sendJsonRequest("set_attribute", {key: key, value: val});
-  }
-  
   async getAttribute(key) {
     let resp = await this.config.rpc.sendJsonRequest("get_attribute", {key: key});
-    return resp.result.value;
+    return resp.result.value === "" ? undefined : resp.result.value;
+  }
+  
+  async setAttribute(key, val) {
+    await this.config.rpc.sendJsonRequest("set_attribute", {key: key, value: val});
   }
   
   async startMining(numThreads, backgroundMining, ignoreBattery) {
