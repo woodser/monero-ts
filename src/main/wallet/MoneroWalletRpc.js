@@ -804,7 +804,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return txSet;
   }
   
-  async sweepAllUnlocked(request) {
+  async sweepUnlocked(request) {
     
     // validate request
     if (request === undefined) throw new MoneroError("Must specify sweep request");
@@ -813,7 +813,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (request.getDestinations()[0].getAmount() !== undefined) throw new MoneroError("Cannot specify amount in sweep request");
     if (request.getKeyImage() !== undefined) throw new MoneroError("Key image defined; use sweepOutput() to sweep an output by its key image");
     if (request.getSubaddressIndices() !== undefined && request.getSubaddressIndices().length === 0) request.setSubaddressIndices(undefined);
-    if (request.getAccountIndex() === undefined && request.getSubaddressIndices() !== undefined) throw new MoneroError("Must specify account index with subaddress indicies");
+    if (request.getAccountIndex() === undefined && request.getSubaddressIndices() !== undefined) throw new MoneroError("Must specify account index if subaddress indices are specified);
     
     // determine account and subaddress indices to sweep; default to all with unlocked balance if not specified
     let indices = new Map();  // maps each account index to subaddress indices to sweep
@@ -840,36 +840,32 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
     
-    // sweep from each account and collect unique transactions
-    let txs = [];
-    for (let accountIdx of indices.keys()) {
-      request.setAccountIndex(accountIdx);  // TODO: this modifies original request param; deep copy with new MoneroSendRequest(request)
+    // sweep from each account and collect resulting tx sets
+    let txSets = [];
+    for (let accountIdx of Object.keys(indices)) {
       
-      // sweep all subaddresses together  // TODO monero-wallet-rpc: doesn't this reveal outputs belong to same wallet?
-      if (request.getSweepEachSubaddress() !== true) {
-        request.setSubaddressIndices(indices.get(accountIdx));
-        try {
-          for (let tx of await this._rpcSweepAll(request)) txs.push(tx);
-        } catch (e) {
-          // account cannot be swept  // TODO: confirm error code and message indicate not enough unlocked balance to cover fee
-        }
+      // copy and modify the original request
+      let copy = request.copy();
+      copy.setAccountIndex(accountIdx);
+      copy.setSweepEachSubaddress(false);
+      
+      // sweep all subaddresses together  // TODO monero core: can this reveal outputs belong to the same wallet?
+      if (copy.getSweepEachSubaddress() !== true) {
+        copy.setSubaddressIndices(indices.get(accountIdx));
+        txSets.push(await rpcSweepAcount(copy));
       }
       
-      // sweep each subaddress individually
+      // otherwise sweep each subaddress individually
       else {
         for (let subaddressIdx of indices.get(accountIdx)) {
-          request.setSubaddressIndices([subaddressIdx]);
-          try {
-            for (let tx of await this._rpcSweepAll(request)) txs.push(tx);
-          } catch (e) {
-            // subaddress cannot be swept
-          }
+          copy.setSubaddressIndices([subaddressIdx]);
+          txSets.push(await rpcSweepAccount(copy));
         }
       }
     }
     
-    // return sweep transactions
-    return txs;
+    // return resulting tx sets
+    return txSets;
   }
   
   async sweepDust(doNotRelay) {
