@@ -870,13 +870,17 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async sweepDust(doNotRelay) {
     let resp = await this.config.rpc.sendJsonRequest("sweep_dust", {do_not_relay: doNotRelay});
-    if (!resp.result.tx_hash_list) return [];
-    let txs = MoneroWalletRpc._convertRpcSentTxWallets(result, undefined);
-    for (let tx of txs) {
-      tx.setIsRelayed(!doNotRelay);
-      tx.setInTxPool(tx.isRelayed());
+    let result = resp.result;
+    let txSet = convertRpcSentTxsToTxSet(result);
+    if (txSet.getTxs() !== undefined) {
+      for (let tx of txSet.getTxs()) {
+        tx.setIsRelayed(!doNotRelay);
+        tx.setInTxPool(tx.isRelayed());
+      }
+    } else if (txSet.getMultisigTxHex() === undefined && txSet.getSignedTxHex() === undefined && txSet.getUnsignedTxHex() === undefined) {
+      throw new MoneroException("No dust to sweep");
     }
-    return txs;
+    return txSet;
   }
   
   async getTxNote(txId) {
