@@ -578,25 +578,14 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // sort txs by block height
     let txs = Object.values(txMap);
-    txs.sort((tx1, tx2) => {
-      if (tx1.getHeight() === undefined && tx2.getHeight() === undefined) return 0; // both unconfirmed
-      else if (tx1.getHeight() === undefined) return 1;   // tx1 is unconfirmed
-      else if (tx2.getHeight() === undefined) return -1;  // tx2 is unconfirmed
-      let diff = tx1.getHeight() - tx2.getHeight();
-      if (diff !== 0) return diff;
-      return tx1.getBlock().getTxs().indexOf(tx1) - tx2.getBlock().getTxs().indexOf(tx2); // txs are in the same block so retain their original order
-    });
+    txs.sort(MoneroWalletRpc._compareTxsByHeight);
     
     // filter and return transfers
     let transfers = [];
     for (let tx of txs) {
       
       // sort transfers
-      if (tx.getIncomingTransfers() !== undefined) tx.getIncomingTransfers().sort((t1, t2) => {
-        if (t1.getAccountIndex() < t2.getAccountIndex()) return -1;
-        else if (t1.getAccountIndex() === t2.getAccountIndex()) return t1.getSubaddressIndex() - t2.getSubaddressIndex();
-        return 1;
-      });
+      if (tx.getIncomingTransfers() !== undefined) tx.getIncomingTransfers().sort(MoneroWalletRpc._compareIncomingTransfers);
       
       // collect outgoing transfer, erase if filtered
       if (tx.getOutgoingTransfer() !== undefined && query.meetsCriteria(tx.getOutgoingTransfer())) transfers.push(tx.getOutgoingTransfer());
@@ -689,18 +678,17 @@ class MoneroWalletRpc extends MoneroWallet {
         MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
       }
     }
-
-    // TODO
-//    // sort txs by block height
-//    List<MoneroTxWallet> txs = new ArrayList<MoneroTxWallet>(txMap.values()); // TODO
-//    Collections.sort(txs, new TxHeightComparator());  // TODO
+    
+    // sort txs by block height
+    let txs = Object.values(txMap);
+    txs.sort(MoneroWalletRpc._compareTxsByHeight);
     
     // collect queried vouts
     let vouts = [];
     for (let tx of txs) {
       
       // sort vouts
-      //if (tx.getVouts() !== undefined) Collections.sort(tx.getVouts(), new VoutComparator()); // TODO
+      if (tx.getVouts() !== undefined) tx.getVouts().sort(MoneroWalletRpc._compareVouts);
       
       // collect queried vouts
       let toRemoves = [];
@@ -718,28 +706,6 @@ class MoneroWalletRpc extends MoneroWallet {
       }
     }
     return vouts;
-    
-//    // collect queried vouts
-//    let vouts = [];
-//    for (let tx of Object.values(txMap)) {
-//      let toRemoves = [];
-//      for (let vout of tx.getVouts()) {
-//        if (query.meetsCriteria(vout)) vouts.push(vout);
-//        else toRemoves.push(vout);
-//      }
-//      
-//      // remove excluded vouts
-//      tx.setVouts(tx.getVouts().filter(function(vout) {
-//        return !toRemoves.includes(vout);
-//      }));
-//      if (tx.getVouts().length === 0) tx.setVouts(undefined);   
-//      
-//      // remove txs without requested vout
-//      if (tx.getBlock() !== undefined && tx.getVouts() === undefined) {
-//        tx.getBlock().getTxs().splice(tx.getBlock().getTxs().indexOf(tx), 1);
-//      }
-//    }
-//    return vouts;
   }
   
   async getOutputsHex() {
@@ -1696,6 +1662,46 @@ class MoneroWalletRpc extends MoneroWallet {
         aBlock.merge(tx.getBlock());
       }
     }
+  }
+  
+  /**
+   * Compares two transactions by their height.
+   */
+  static _compareTxsByHeight(tx1, tx2) {
+    if (tx1.getHeight() === undefined && tx2.getHeight() === undefined) return 0; // both unconfirmed
+    else if (tx1.getHeight() === undefined) return 1;   // tx1 is unconfirmed
+    else if (tx2.getHeight() === undefined) return -1;  // tx2 is unconfirmed
+    let diff = tx1.getHeight() - tx2.getHeight();
+    if (diff !== 0) return diff;
+    return tx1.getBlock().getTxs().indexOf(tx1) - tx2.getBlock().getTxs().indexOf(tx2); // txs are in the same block so retain their original order
+  }
+  
+  /**
+   * Compares two transfers by ascending account and subaddress indices.
+   */
+  static _compareIncomingTransfers(t1, t2) {
+    if (t1.getAccountIndex() < t2.getAccountIndex()) return -1;
+    else if (t1.getAccountIndex() === t2.getAccountIndex()) return t1.getSubaddressIndex() - t2.getSubaddressIndex();
+    return 1;
+  }
+  
+  /**
+   * Compares two vouts by ascending account and subaddress indices.
+   */
+  static _compareVouts(o1, o2) {
+    
+    // compare by height
+    let heightComparison = MoneroWalletRpc._compareTxsByHeight(o1.getTx(), o2.getTx());
+    if (heightComparison !== 0) return heightComparison;
+    
+    // compare by account index, subaddress index, and output
+    if (o1.getAccountIndex() < o2.getAccountIndex()) return -1;
+    else if (o1.getAccountIndex() === o2.getAccountIndex()) {
+      let compare = o1.getSubaddressIndex() - o2.getSubaddressIndex();
+      if (compare !== 0) return compare;
+      return o1.getIndex() - o2.getIndex();
+    }
+    return 1;
   }
 }
 
