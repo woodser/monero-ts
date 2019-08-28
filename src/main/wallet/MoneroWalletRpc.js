@@ -795,12 +795,13 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // send request
     let resp = await this.config.rpc.sendJsonRequest("sweep_single", params);
-
+    let result = resp.result;
+    
     // build and return tx response
-    let tx = MoneroWalletRpc._initSentTxWallet(request);
-    MoneroWalletRpc._convertRpcTxWalletWithTransfer(resp.result, tx, true);
-    tx.getOutgoingTransfer().getDestinations()[0].setAmount(new BigInteger(tx.getOutgoingTransfer().getAmount()));  // initialize destination amount
-    return tx;
+    let tx = MoneroWalletRpc._initSentTxWallet(request, null);
+    let txSet = MoneroWalletRpc._convertRpcTxToTxSet(result, tx, true);
+    tx.getOutgoingTransfer().getDestinations()[0].setAmount(tx.getOutgoingTransfer().getAmount());  // initialize destination amount
+    return txSet;
   }
   
   async sweepAllUnlocked(request) {
