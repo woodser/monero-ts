@@ -643,7 +643,9 @@ class MoneroWallet {
    * @return {MoneroTxSet} a tx set with the requested transactions
    */
   async send(requestOrAccountIndex, address, amount, priority) {
-    throw new MoneroError("Subclass must implement");
+    let args = [].slice.call(arguments);
+    args.splice(0, 0, false);  // specify splitting
+    return await this._send.apply(this, args);
   }
   
   /**
