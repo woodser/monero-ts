@@ -1,17 +1,3 @@
-package monero.wallet.model;
-
-import static org.junit.Assert.assertNotNull;
-
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import common.utils.GenUtils;
-import monero.daemon.model.MoneroTx;
-import monero.utils.MoneroUtils;
-
 /**
  * Groups transactions who share common hex data which is needed in order to
  * sign and submit the transactions.
@@ -21,6 +7,10 @@ import monero.utils.MoneroUtils;
  * transactions.
  */
 class MoneroTxSet {
+  
+  constructor() {
+    this.state = {};
+  }
 
   getTxs() {
     return this.state.txs;
@@ -92,3 +82,5 @@ class MoneroTxSet {
     return str;
   }
 }
+
+module.exports = MoneroTxSet;

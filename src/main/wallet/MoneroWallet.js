@@ -601,7 +601,7 @@ class MoneroWallet {
     request.setDoNotRelay(true);
     
     // invoke common method which doesn't relay
-    let txSet = await sendSplit(request);
+    let txSet = await this.sendSplit(request);
     
     // restore doNotRelay of request and txs
     request.setDoNotRelay(requestedDoNotRelay);

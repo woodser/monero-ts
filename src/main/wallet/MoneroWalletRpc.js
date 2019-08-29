@@ -35,6 +35,7 @@ const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
 const MoneroAccount = require("./model/MoneroAccount");
 const MoneroSubaddress = require("./model/MoneroSubaddress");
 const MoneroTxWallet = require("./model/MoneroTxWallet");
+const MoneroTxSet = require("./model/MoneroTxSet");
 const MoneroTransfer = require("./model/MoneroTransfer");
 const MoneroIncomingTransfer = require("./model/MoneroIncomingTransfer");
 const MoneroOutgoingTransfer = require("./model/MoneroOutgoingTransfer");
@@ -558,7 +559,7 @@ class MoneroWalletRpc extends MoneroWallet {
     for (let key of Object.keys(resp.result)) {
       for (let rpcTx of resp.result[key]) {
         //if (rpcTx.txid === query.debugTxId) console.log(rpcTx);
-        let tx = MoneroWalletRpc._convertRpcTxWalletWithTransfer(rpcTx);
+        let tx = MoneroWalletRpc._convertRpcTxWithTransfer(rpcTx);
         if (tx.isConfirmed()) assert(tx.getBlock().getTxs().indexOf(tx) > -1);
         
         // replace transfer amount with destination sum
@@ -878,7 +879,7 @@ class MoneroWalletRpc extends MoneroWallet {
         tx.setInTxPool(tx.isRelayed());
       }
     } else if (txSet.getMultisigTxHex() === undefined && txSet.getSignedTxHex() === undefined && txSet.getUnsignedTxHex() === undefined) {
-      throw new MoneroException("No dust to sweep");
+      throw new MoneroError("No dust to sweep");
     }
     return txSet;
   }
@@ -1179,7 +1180,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // pre-initialize txs iff present.  multisig and watch-only wallets will have tx set without transactions
     let txs;
-    let numTxs = request.getCanSplit() ? (result.fee_list !== undefined ? result.fee_list.length : 0) : (result.fee ? 1 : 0);
+    let numTxs = request.getCanSplit() ? (result.fee_list !== undefined ? result.fee_list.length : 0) : (result.fee !== undefined ? 1 : 0);
     if (numTxs > 0) txs = [];
     for (let i = 0; i < numTxs; i++) {
       let tx = new MoneroTxWallet();
@@ -1216,7 +1217,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (request.getDestinations()[0].getAmount() !== undefined) throw new MoneroError("Cannot specify amount in sweep request");
     if (request.getKeyImage() !== undefined) throw new MoneroError("Key image defined; use sweepOutput() to sweep an output by its key image");
     if (request.getSubaddressIndices() !== undefined && request.getSubaddressIndices().length === 0) request.setSubaddressIndices(undefined);
-    if (request.getSweepEachSubaddress()) throw new MoneroException("Cannot sweep each subaddress with RPC `sweep_all`");
+    if (request.getSweepEachSubaddress()) throw new MoneroError("Cannot sweep each subaddress with RPC `sweep_all`");
     
     // sweep from all subaddresses if not otherwise defined
     if (request.getSubaddressIndices() === undefined) {
@@ -1397,9 +1398,9 @@ class MoneroWalletRpc extends MoneroWallet {
     if (keys !== undefined) sizes.add(keys.length);
     if (blobs !== undefined) sizes.add(blobs.length);
     if (metadatas !== undefined) sizes.add(metadatas.length);
-    if (fees !== undefined) sizes.add(fees.lenght);
+    if (fees !== undefined) sizes.add(fees.length);
     if (amounts !== undefined) sizes.add(amounts.length);
-    assertEquals("RPC lists are different sizes", 1, sizes.length);
+    assert.equal(sizes.size, 1, "RPC lists are different sizes");
     
     // pre-initialize txs if none given
     if (txs !== undefined) txSet.setTxs(txs);
@@ -1435,7 +1436,7 @@ class MoneroWalletRpc extends MoneroWallet {
    */
   static _convertRpcTxToTxSet(rpcTx, tx, isOutgoing) {
     let txSet = MoneroWalletRpc._convertRpcMapToTxSet(rpcTx);
-    txSet.setTxs(MoneroWalletRpc._convertRpcTxWithTransfer(rpcTx, tx, isOutgoing).setTxSet(txSet));
+    txSet.setTxs([MoneroWalletRpc._convertRpcTxWithTransfer(rpcTx, tx, isOutgoing).setTxSet(txSet)]);
     return txSet;
   }
   
@@ -1447,7 +1448,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param isOutgoing specifies if the tx is outgoing if true, incoming if false, or decodes from type if undefined
    * @returns {MoneroTxWallet} is the initialized tx
    */
-  static _convertRpcTxWalletWithTransfer(rpcTx, tx, isOutgoing) {  // TODO: change everything to safe set
+  static _convertRpcTxWithTransfer(rpcTx, tx, isOutgoing) {  // TODO: change everything to safe set
         
     // initialize tx to return
     if (!tx) tx = new MoneroTxWallet();
