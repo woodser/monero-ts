@@ -559,7 +559,7 @@ class MoneroWalletRpc extends MoneroWallet {
       for (let rpcTx of resp.result[key]) {
         //if (rpcTx.txid === query.debugTxId) console.log(rpcTx);
         let tx = MoneroWalletRpc._convertRpcTxWalletWithTransfer(rpcTx);
-        if (tx.isConfirmed()) assert(tx.getBlock().getTxs().has(tx));
+        if (tx.isConfirmed()) assert(tx.getBlock().getTxs().indexOf(tx) > -1);
         
         // replace transfer amount with destination sum
         // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached transfers
@@ -813,7 +813,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (request.getDestinations()[0].getAmount() !== undefined) throw new MoneroError("Cannot specify amount in sweep request");
     if (request.getKeyImage() !== undefined) throw new MoneroError("Key image defined; use sweepOutput() to sweep an output by its key image");
     if (request.getSubaddressIndices() !== undefined && request.getSubaddressIndices().length === 0) request.setSubaddressIndices(undefined);
-    if (request.getAccountIndex() === undefined && request.getSubaddressIndices() !== undefined) throw new MoneroError("Must specify account index if subaddress indices are specified);
+    if (request.getAccountIndex() === undefined && request.getSubaddressIndices() !== undefined) throw new MoneroError("Must specify account index if subaddress indices are specified");
     
     // determine account and subaddress indices to sweep; default to all with unlocked balance if not specified
     let indices = new Map();  // maps each account index to subaddress indices to sweep
@@ -1435,7 +1435,7 @@ class MoneroWalletRpc extends MoneroWallet {
    */
   static _convertRpcTxToTxSet(rpcTx, tx, isOutgoing) {
     let txSet = MoneroWalletRpc._convertRpcMapToTxSet(rpcTx);
-    txSet.setTxs(MoneroWalletRpc._convertRpcTxWithTransfer(rpcTx, tx, isOutgoing).setTxSet(txSet)));
+    txSet.setTxs(MoneroWalletRpc._convertRpcTxWithTransfer(rpcTx, tx, isOutgoing).setTxSet(txSet));
     return txSet;
   }
   
