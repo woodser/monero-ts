@@ -17,7 +17,6 @@ class MoneroRpcError extends MoneroError {
     super(rpcDescription, rpcCode);
     this.rpcMethod = rpcMethod;
     this.rpcParams = rpcParams;
-    this.message = this.toString(); // overwrite error message
   }
   
   getRpcMethod() {

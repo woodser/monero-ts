@@ -118,7 +118,7 @@ class MoneroWalletRpc extends MoneroWallet {
   async createWalletRandom(name, password, language) {
     if (!name) throw new MoneroError("Name is not initialized");
     if (!password) throw new MoneroError("Password is not initialized");
-    if (!language) throw new MoneroError("Language is not initialized");
+    if (!language) language = MoneroWallet.DEFAULT_LANGUAGE;
     let params = { filename: name, password: password, language: language };
     await this.config.rpc.sendJsonRequest("create_wallet", params);
     this.addressCache = {};
@@ -148,6 +148,16 @@ class MoneroWalletRpc extends MoneroWallet {
       autosave_current: saveCurrent
     })
     this.path = name;
+  }
+  
+  /**
+   * Save and close the current wallet and stop the RPC server.
+   */
+  async stop() {
+    delete this.addressCache;
+    this.addressCache = {};
+    this.path = undefined;
+    await this.config.rpc.sendJsonRequest("stop_wallet");
   }
   
   // -------------------------- COMMON WALLET METHODS -------------------------
@@ -419,8 +429,13 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTxs(query) {
     
-    // copy and normalize tx query
-    query = query === undefined ? new MoneroTxQuery() : query.copy();
+    // normalize tx query
+    if (query instanceof MoneroTxQuery) query = query.copy();
+    else if (Array.isArray(query)) query = new MoneroTxQuery().setTxIds(query);
+    else {
+      query = Object.assign({}, query);
+      query = new MoneroTxQuery(query);
+    }
     if (query.getTransferQuery() === undefined) query.setTransferQuery(new MoneroTransferQuery());
     let transferQuery = query.getTransferQuery();
     
@@ -1148,10 +1163,11 @@ class MoneroWalletRpc extends MoneroWallet {
     await this.config.rpc.sendJsonRequest("store");
   }
   
-  async close() {
-    await this.config.rpc.sendJsonRequest("stop_wallet");
+  async close(save) {
     delete this.addressCache;
     this.addressCache = {};
+    this.path = undefined;
+    await this.config.rpc.sendJsonRequest("close_wallet", {autosave_current: save});
   }
   
   // --------------------------------  PRIVATE --------------------------------

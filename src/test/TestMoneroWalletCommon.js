@@ -118,7 +118,7 @@ class TestMoneroWalletCommon {
       it("Can get the wallet's path", async function() {
         
         // create a random wallet
-        let wallet = await createRandomWallet();
+        let wallet = await that.createRandomWallet();
         
         // set a random attribute
         let uuid = GenUtils.uuidv4();
@@ -129,14 +129,14 @@ class TestMoneroWalletCommon {
         await wallet.close(true);
         
         // re-open the wallet using its path
-        wallet = await openWallet(path);
+        wallet = await that.openWallet(path);
         
         // test the attribute
         assert.equal(await wallet.getAttribute("uuid"), uuid);
         
         // re-open main test wallet
         await wallet.close();
-        this.wallet = await getTestWallet();
+        wallet = await that.getTestWallet();
       });
       
       it("Can get the mnemonic phrase derived from the seed", async function() {
@@ -155,7 +155,7 @@ class TestMoneroWalletCommon {
       it("Can get the private view key", async function() {
         let privateViewKey = await wallet.getPrivateViewKey()
         MoneroUtils.validatePrivateViewKey(privateViewKey);
-l      });
+      });
       
       it("Can get the private spend key", async function() {
         let privateSpendKey = await wallet.getPrivateSpendKey()
@@ -237,7 +237,7 @@ l      });
           throw new Error("Getting integrated address with invalid payment id " + invalidPaymentId + " should have thrown a RPC exception");
         } catch (e) {
           //assert.equal(e.getCode(), -5);  // TODO: error codes part of rpc only?
-          assert.equal(e.getDescription(), "Invalid payment ID: " + invalidPaymentId);
+          assert.equal(e.message, "Invalid payment ID: " + invalidPaymentId);
         }
         
         // test undefined payment id which generates a new one
@@ -346,7 +346,6 @@ l      });
         let accountsBefore = await wallet.getAccounts();
         let createdAccount = await wallet.createAccount();
         testAccount(createdAccount);
-        assert.equal(undefined, createdAccount.getLabel());
         assert.equal((await wallet.getAccounts()).length - 1, accountsBefore.length);
       });
       
@@ -772,7 +771,7 @@ l      });
           await wallet.getTx(unknownId1);
           throw new Error("Should have thrown error getting tx id unknown to wallet");
         } catch (e) {
-          assert.equal(e.getDescription(), "Tx not found in wallet: " + unknownId1);
+          assert.equal(e.message, "Tx not found in wallet: " + unknownId1);
         }
         
         // fetch unknown tx id using query
@@ -780,7 +779,7 @@ l      });
           await wallet.getTxs(new MoneroTxQuery().setTxId(unknownId1));
           throw new Error("Should have thrown error getting tx id unknown to wallet");
         } catch (e) {
-          assert.equal(e.getDescription(), "Tx not found in wallet: " + unknownId1);
+          assert.equal(e.message, "Tx not found in wallet: " + unknownId1);
         }
         
         // fetch unknown tx id in collection
@@ -788,7 +787,7 @@ l      });
           await wallet.getTxs([txId, unknownId1]);
           throw new Error("Should have thrown error getting tx id unknown to wallet");
         } catch (e) {
-          assert.equal(e.getDescription(), "Tx not found in wallet: " + unknownId1);
+          assert.equal(e.message, "Tx not found in wallet: " + unknownId1);
         }
         
         // fetch unknown tx ids in collection
@@ -796,7 +795,7 @@ l      });
           await wallet.getTxs([txId, unknownId1, unknownId2]);
           throw new Error("Should have thrown error getting tx id unknown to wallet");
         } catch (e) {
-          assert.equal(e.getDescription(), "Tx not found in wallet: " + unknownId1); // TODO: list all invalid ids in error description?
+          assert.equal(e.message, "Tx not found in wallet: " + unknownId1); // TODO: list all invalid ids in error description?
         }
         
         // fetch invalid id
@@ -804,7 +803,7 @@ l      });
           await wallet.getTx(invalidId);
           throw new Error("Should have thrown error getting tx id unknown to wallet");
         } catch (e) {
-          assert.equal(e.getDescription(), "Tx not found in wallet: " + invalidId);
+          assert.equal(e.message, "Tx not found in wallet: " + invalidId);
         }
         
         // fetch invalid id collection
@@ -812,7 +811,7 @@ l      });
           await wallet.getTxs([txId, invalidId]);
           throw new Error("Should have thrown error getting tx id unknown to wallet");
         } catch (e) {
-          assert.equal(e.getDescription(), "Tx not found in wallet: " + invalidId);
+          assert.equal(e.message, "Tx not found in wallet: " + invalidId);
         }
         
         // fetch invalid ids in collection
@@ -820,7 +819,7 @@ l      });
           await wallet.getTxs([txId, invalidId, "invalid_id_2"]);
           throw new Error("Should have thrown error getting tx id unknown to wallet");
         } catch (e) {
-          assert.equal(e.getDescription(), "Tx not found in wallet: " + invalidId);
+          assert.equal(e.message, "Tx not found in wallet: " + invalidId);
         }
       });
 
@@ -1670,7 +1669,7 @@ l      });
           fail("Should have thrown RPC exception with invalid parameters");
         } catch (e) {
           assert.equal(e.getCode(), -11);
-          assert(e.getDescription().indexOf("Cannot make URI from supplied parameters") >= 0);
+          assert(e.message.indexOf("Cannot make URI from supplied parameters") >= 0);
         }
         request1.getDestinations()[0].setAddress(address);
         
@@ -1681,7 +1680,7 @@ l      });
           fail("Should have thrown RPC exception with invalid parameters");
         } catch (e) {
           assert.equal(e.getCode(), -11);
-          assert(e.getDescription().indexOf("Cannot make URI from supplied parameters") >= 0);
+          assert(e.message.indexOf("Cannot make URI from supplied parameters") >= 0);
         }
       });
       

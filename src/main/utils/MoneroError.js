@@ -6,18 +6,12 @@ class MoneroError extends Error {
   /**
    * Constructs the error.
    * 
-   * @param {string} description is a human-readable description of the error
+   * @param {string} message is a human-readable message of the error
    * @param {int} code is the error code (optional)
    */
-  constructor(description, code) {
-    super();
-    this.description = description;
+  constructor(message, code) {
+    super(message);
     this.code = code;
-    this.message = this.toString();  // overwrite error message
-  }
-  
-  getDescription() {
-    return this.description;
   }
   
   getCode() {
@@ -25,10 +19,10 @@ class MoneroError extends Error {
   }
   
   toString() {
-    if (this.getDescription() === undefined && this.getCode() === undefined) return super.message;
+    if (this.message === undefined && this.getCode() === undefined) return super.message;
     let str = "";
     if (this.getCode() !== undefined) str += this.getCode() + ": ";
-    str += this.getDescription();
+    str += this.message;
     return str;
   }
 }

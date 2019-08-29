@@ -25,13 +25,13 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   }
   
   async createRandomWallet() {
-    await this.wallet.createWalletRandom(GenUtils.uuidv4(), TestUtils.PASSWORD);
-    return wallet;
+    await this.wallet.createWalletRandom(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD);
+    return this.wallet;
   }
   
   async openWallet(path) {
-    await this.wallet.openWallet(path, TestUtils.PASSWORD);
-    return wallet;
+    await this.wallet.openWallet(path, TestUtils.WALLET_PASSWORD);
+    return this.wallet;
   }
   
   runTests(config) {
@@ -110,7 +110,10 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         }
           
         // open main test wallet for other tests
+        console.log("OPENING MAIN WALLET!!!");
         await that.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+        console.log("DONE");
+        console.log("Path: " + await wallet.getPath());
         
         // throw error if there was one
         if (err) throw err;
@@ -122,36 +125,42 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           
           // create wallet with mnemonic and defaults
           let path = GenUtils.uuidv4();
-          await that.wallet.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
-          assert.equal(await that.wallet.getMnemonic(), TestUtils.MNEMONIC);
-          assert.equal(await that.wallet.getPrimaryAddress(), TestUtils.ADDRESS);
-          assert.equal(await that.wallet.getHeight(), 1);      // TODO monero-core: sometimes wallet is synced after fresh creation here, but not if run alone
-          assert.equal(await that.wallet.getTxs().length, 0);  // wallet is not synced
-          await that.wallet.sync();
-          assert.equal(await that.wallet.getHeight(), daemon.getHeight());
-          let txs = await that.wallet.getTxs();
+          await wallet.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
+          assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
+          assert.equal(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
+          assert.equal(await wallet.getHeight(), 1);       // TODO monero-core: sometimes wallet is synced after fresh creation here, but not if run alone
+          assert.equal((await wallet.getTxs()).length, 0); // wallet is not synced
+          await wallet.sync();
+          assert.equal(await wallet.getHeight(), await daemon.getHeight());
+          let txs = await wallet.getTxs();
           assert(txs.length > 0); // wallet is used
           assert.equal(txs[0].getHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
-          await that.wallet.close();
+          await wallet.close();
           
           // create wallet with non-defaults
           path = GenUtils.uuidv4();
-          await that.wallet.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT, "German", "my offset!", false);
-          MoneroUtils.validateMnemonic(await that.wallet.getMnemonic());
-          assert.notEqual(await that.wallet.getMnemonic(), TestUtils.MNEMONIC);  // mnemonic is different because of offset
-          assert.notEqual(await that.wallet.getPrimaryAddress(), TestUtils.ADDRESS);
-          assert.equal(await that.wallet.getHeight(), 1);
-          await that.wallet.close();
+          await wallet.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT, "German", "my offset!", false);
+          MoneroUtils.validateMnemonic(await wallet.getMnemonic());
+          assert.notEqual(await wallet.getMnemonic(), TestUtils.MNEMONIC);  // mnemonic is different because of offset
+          assert.notEqual(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
+          assert.equal(await wallet.getHeight(), 1);
+          await wallet.close();
           
         } catch (e) {
+          console.log("Caught error so will call open!");
           err = e;
         }
         
         // open main test wallet for other tests
-        await that.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+        console.log("Opening wallet...");
+        await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+        console.log("Done!");
         
         // throw error if there was one
-        if (err) throw err;
+        if (err) {
+          console.log("throwing error!");
+          throw err;
+        }
       });
       
       it("Can open wallets", async function() {
@@ -385,43 +394,43 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         
         // create a test wallet
         let path = GenUtils.uuidv4();
-        await this.wallet.createWalletRandom(path, TestUtils.WALLET_RPC_PASSWORD);
-        await this.wallet.sync();
-        assert((await this.wallet.getHeight()) > 1);
+        await wallet.createWalletRandom(path, TestUtils.WALLET_PASSWORD);
+        await wallet.sync();
+        assert((await wallet.getHeight()) > 1);
         
         // close the wallet
-        await this.wallet.close();
+        await wallet.close();
         
         // attempt to interact with the wallet
         try {
-          await this.wallet.getHeight();
+          await wallet.getHeight();
         } catch (e) {
           assert.equal(e.getCode(), -13);
-          assert.equal(e.getMessage(), "No wallet file");
+          assert.equal(e.message, "No wallet file");
         }
         try {
-          await this.wallet.getMnemonic();
+          await wallet.getMnemonic();
         } catch (e) {
           assert.equal(e.getCode(), -13);
-          assert.equal(e.getMessage(), "No wallet file");
+          assert.equal(e.message, "No wallet file");
         }
         try {
-          await this.wallet.sync();
+          await wallet.sync();
         } catch (e) {
           assert.equal(e.getCode(), -13);
-          assert.equal(e.getMessage(), "No wallet file");
+          assert.equal(e.message, "No wallet file");
         }
         
         // re-open the wallet
-        await this.wallet.openWallet(path, TestUtils.WALLET_RPC_PASSWORD);
-        await this.wallet.sync();
-        assert.equal(await this.wallet.getHeight(), daemon.getHeight());
+        await wallet.openWallet(path, TestUtils.WALLET_PASSWORD);
+        await wallet.sync();
+        assert.equal(await wallet.getHeight(), await daemon.getHeight());
         
         // close the wallet
-        await this.wallet.close();
+        await wallet.close();
         
         // re-open main test wallet for other tests
-        await this.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+        await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
       });
       
       if (false)  // disabled so server not actually stopped

@@ -917,7 +917,7 @@ class TestMoneroDaemonRpc {
           fail("Should have thrown error");
         } catch (e) {
           assert.equal(e.getCode(), -7);
-          assert.equal(e.getDescription(), "Block not accepted");
+          assert.equal(e.message, "Block not accepted");
         }
       });
       
