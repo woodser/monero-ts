@@ -798,12 +798,10 @@ class MoneroWalletRpc extends MoneroWallet {
     // send request
     let resp = await this.config.rpc.sendJsonRequest(request.getCanSplit() ? "transfer_split" : "transfer", params);
     let result = resp.result;
-    console.log(result);
     
     // pre-initialize txs iff present.  multisig and watch-only wallets will have tx set without transactions
     let txs;
     let numTxs = request.getCanSplit() ? (result.fee_list !== undefined ? result.fee_list.length : 0) : (result.fee !== undefined ? 1 : 0);
-    console.log("Num txs: " + numTxs);
     if (numTxs > 0) txs = [];
     for (let i = 0; i < numTxs; i++) {
       let tx = new MoneroTxWallet();

@@ -35,6 +35,10 @@ class MoneroTxQuery extends MoneroTxWallet {
     }
   }
   
+  copy() {
+    return new MoneroTxQuery(this);
+  }
+  
   isIncoming() {
     return this.state.isIncoming;
   }
@@ -137,10 +141,6 @@ class MoneroTxQuery extends MoneroTxWallet {
     return this;
   }
   
-  copy() {
-    return new MoneroTxQuery(this);
-  }
-  
   // TODO: this filtering is not complete
   meetsCriteria(tx) {
     if (!(tx instanceof MoneroTxWallet)) return false;
@@ -224,6 +224,10 @@ class MoneroTransferQuery extends MoneroTransfer {
     if (state.isOutgoing !== undefined) state.isIncoming = !state.isOutgoing;
   }
   
+  copy() {
+    return new MoneroTransferQuery(this);
+  }
+  
   isIncoming() {
     return this.state.isIncoming;
   }
@@ -305,10 +309,6 @@ class MoneroTransferQuery extends MoneroTransfer {
     return this;
   }
   
-  copy() {
-    return new MoneroTransferQuery(this);
-  }
-  
   meetsCriteria(transfer) {
     assert(transfer !== null, "transfer is null");
     assert(transfer instanceof MoneroTransfer);
@@ -382,6 +382,10 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     
     // deserialize if necessary
     if (this.state.txQuery && !(this.state.txQuery instanceof MoneroTxQuery)) this.state.txQuery = new MoneroTxQuery(this.state.transferQuery);
+  }
+  
+  copy() {
+    return new MoneroOutputQuery(this);
   }
   
   getSubaddressIndices() {

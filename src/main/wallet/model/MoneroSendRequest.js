@@ -126,6 +126,10 @@ class MoneroSendRequest {
     }
   }
   
+  copy() {
+    return new MoneroSendRequest(this.state);
+  }
+  
   getDestinations() {
     return this.state.destinations;
   }

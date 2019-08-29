@@ -2028,18 +2028,18 @@ l      });
       }
       
       it("Can send to an address in a single transaction.", async function() {
-        await testSendToSingle();
+        await testSendToSingle(new MoneroSendRequest().setCanSplit(false));
       });
       
       // NOTE: this test will be invalid when payment ids are fully removed
       it("Can send to an address in a single transaction with a payment id.", async function() {
         let integratedAddress = await wallet.getIntegratedAddress();
         let paymentId = integratedAddress.getPaymentId();
-        await testSendToSingle(new MoneroSendRequest().setPaymentId(paymentId + paymentId + paymentId + paymentId));  // 64 character payment id
+        await testSendToSingle(new MoneroSendRequest().setCanSplit(false).setPaymentId(paymentId + paymentId + paymentId + paymentId));  // 64 character payment id
       });
       
       it("Can send to an address in a single transaction with a ring size", async function() {
-        await testSendToSingle(new MoneroSendRequest().setRingSize(8)); // TODO monero-wallet-rpc: wallet rpc transfer and sweep calls are not rejecting low ring sizes, like 8.  should they?
+        await testSendToSingle(new MoneroSendRequest().setCanSplit(false).setRingSize(8)); // TODO monero-wallet-rpc: wallet rpc transfer and sweep calls are not rejecting low ring sizes, like 8.  should they?
       });
       
       it("Can send to an address with split transactions", async function() {
@@ -2047,7 +2047,7 @@ l      });
       });
       
       it("Can create then relay a transaction to send to a single address", async function() {
-        await testSendToSingle(new MoneroSendRequest().setDoNotRelay(true));
+        await testSendToSingle(new MoneroSendRequest().setCanSplit(false).setDoNotRelay(true));
       });
       
       it("Can create then relay split transactions to send to a single address", async function() {
