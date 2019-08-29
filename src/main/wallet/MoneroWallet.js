@@ -643,9 +643,23 @@ class MoneroWallet {
    * @return {MoneroTxSet} a tx set with the requested transactions
    */
   async send(requestOrAccountIndex, address, amount, priority) {
-    let args = [].slice.call(arguments);
-    args.splice(0, 0, false);  // specify splitting
-    return await this._send.apply(this, args);
+
+    // normalize and validate request
+    let request;
+    if (requestOrAccountIndex instanceof MoneroSendRequest) {
+      assert.equal(arguments.length, 1, "Sending requires a send request or parameters but not both");
+      request = requestOrAccountIndex;
+    } else {
+      if (requestOrAccountIndex instanceof Object) request = new MoneroSendRequest(requestOrAccountIndex);
+      else request = new MoneroSendRequest(requestOrAccountIndex, address, amount, priority);
+    }
+    if (request.getCanSplit() !== undefined) assert.equal(request.getCanSplit(), false, "Cannot request split transactions with send() which prevents splitting; use sendSplit() instead");
+    
+    // copy request and specify splitting
+    request = request.copy().setCanSplit(false);
+    
+    // call common send function
+    return await this.sendSplit(request);
   }
   
   /**

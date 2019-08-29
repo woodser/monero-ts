@@ -2027,12 +2027,12 @@ l      });
         }
       }
       
-      it("Can send to an address in a single transaction", async function() {
+      it("Can send to an address in a single transaction.", async function() {
         await testSendToSingle();
       });
       
       // NOTE: this test will be invalid when payment ids are fully removed
-      it("Can send to an address in a single transaction with a payment id", async function() {
+      it("Can send to an address in a single transaction with a payment id.", async function() {
         let integratedAddress = await wallet.getIntegratedAddress();
         let paymentId = integratedAddress.getPaymentId();
         await testSendToSingle(new MoneroSendRequest().setPaymentId(paymentId + paymentId + paymentId + paymentId));  // 64 character payment id
@@ -2840,6 +2840,18 @@ l      });
     // test tx results from send or relay
     if (ctx.isSendResponse) {
       
+      // test tx set
+      assert.notEqual(tx.getTxSet(), undefined);
+      let found = false;
+      for (let aTx of tx.getTxSet().getTxs()) {
+        if (aTx === tx) {
+          found = true;
+          break;
+        }
+      }
+      if (ctx.isCopy) assert(!found); // copy will not have back reference from tx set
+      else assert(found);
+      
       // test common attributes
       let request = ctx.sendRequest;
       assert.equal(tx.isConfirmed(), false);
@@ -2888,6 +2900,7 @@ l      });
     
     // test tx result query
     else {
+      assert.equal(tx.getTxSet(), undefined);  // tx set only initialized on send responses
       assert.equal(tx.getMixin(), undefined);
       assert.equal(tx.getKey(), undefined);
       assert.equal(tx.getFullHex(), undefined);
@@ -2908,7 +2921,7 @@ l      });
     if (tx.getVouts()) for (let vout of tx.getVouts()) testOutputWallet(vout);
     
     // test deep copy
-    if (!ctx.doNotTestCopy) await this._testTxWalletCopy(tx, ctx);
+    if (!ctx.isCopy) await this._testTxWalletCopy(tx, ctx);
   }
   
   async _testTxWalletCopy(tx, ctx) {
@@ -2950,7 +2963,7 @@ l      });
     
     // test copied tx
     ctx = Object.assign({}, ctx);
-    ctx.doNotTestCopy = true;
+    ctx.isCopy = true;
     if (tx.getBlock()) copy.setBlock(tx.getBlock().copy().setTxs([copy])); // copy block for testing
     await this._testTxWallet(copy, ctx);
     
@@ -3514,29 +3527,26 @@ function testCommonTxSets(txs, hasSigned, hasUnsigned, hasMultisig) {
   assert(txs.length > 0);
   
   // assert that all sets are same reference
-  let sets;
+  let set;
   for (let i = 0; i < txs.length; i++) {
     assert(txs[i] instanceof MoneroTx);
-    if (i === 0) sets = txs[i].getCommonTxSets();
-    else assert(txs[i].getCommonTxSets() === sets);
+    if (i === 0) set = txs[i].getTxSet();
+    else assert(txs[i].getTxSet() === set);
   }
   
   // test expected set
-  if (!hasSigned && !hasUnsigned && !hasMultisig) assert.equal(sets, undefined);
-  else {
-    assert(sets);
-    if (hasSigned) {
-      assert(sets.getSignedTxSet());
-      assert(sets.getSignedTxSet().length > 0);
-    }
-    if (hasUnsigned) {
-      assert(sets.getUnsignedTxSet());
-      assert(sets.getUnsignedTxSet().length > 0);
-    }
-    if (hasMultisig) {
-      assert(sets.getMultisigTxSet());
-      assert(sets.getMultisigTxSet().length > 0);
-    }
+  assert(set);
+  if (hasSigned) {
+    assert(set.getSignedTxSet());
+    assert(set.getSignedTxSet().length > 0);
+  }
+  if (hasUnsigned) {
+    assert(set.getUnsignedTxSet());
+    assert(set.getUnsignedTxSet().length > 0);
+  }
+  if (hasMultisig) {
+    assert(set.getMultisigTxSet());
+    assert(set.getMultisigTxSet().length > 0);
   }
 }
 

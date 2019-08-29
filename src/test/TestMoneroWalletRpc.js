@@ -58,7 +58,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     ctx = Object.assign({}, ctx);
     
     // run common tests
-    super._testTxWallet(tx, ctx);
+    await super._testTxWallet(tx, ctx);
     
     // test tx results from send or relay
     if (ctx.isSendResponse === true) {
