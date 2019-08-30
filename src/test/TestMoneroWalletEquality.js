@@ -7,18 +7,17 @@ const MoneroUtils = require("../main/utils/MoneroUtils");
  */
 describe("TEST WALLETS EQUALITY", function() {
   let that = this;
-  let wallet1;
-  let wallet2 = TestUtils.getWalletLocal();
   
   // setup before tests run
   before(async function() {
     that.wallet1 = await TestUtils.getWalletRpc();
+    that.wallet2 = TestUtils.getWalletLocal();
   });
   
   it("Have the same keys", async function() {
-    assert.equal(await wallet2.getMnemonic(), await wallet1.getMnemonic());
-    assert.equal(await wallet2.getPrimaryAddress(), await wallet1.getPrimaryAddress());
-    assert.equal(await wallet2.getPrivateViewKey(), await wallet1.getPrivateViewKey());
+    assert.equal(await that.wallet2.getMnemonic(), await that.wallet1.getMnemonic());
+    assert.equal(await that.wallet2.getPrimaryAddress(), await that.wallet1.getPrimaryAddress());
+    assert.equal(await that.wallet2.getPrivateViewKey(), await that.wallet1.getPrivateViewKey());
   });
   
   it("Provide the same integrated address given a payment id", async function() {
@@ -26,20 +25,20 @@ describe("TEST WALLETS EQUALITY", function() {
   });
   
   it("Have the same accounts", async function() {
-    assert.deepEqual(await wallet2.getAccounts(), await wallet1.getAccounts());
+    assert.deepEqual(await that.wallet2.getAccounts(), await that.wallet1.getAccounts());
   });
   
   it("Have the same accounts and subaddresses", async function() {
-    assert.deepEqual(await wallet2.getAccounts(true), await wallet1.getAccounts(true));
+    assert.deepEqual(await that.wallet2.getAccounts(true), await that.wallet1.getAccounts(true));
   });
   
   it("Have the same outputs", async function() {
-    assert.deepEqual(await wallet2.getOutputs(), await wallet1.getOutputs());
+    assert.deepEqual(await that.wallet2.getOutputs(), await that.wallet1.getOutputs());
   });
   
   it("Have the same wallet transactions", async function() {
-    let txs1 = await wallet1.getTxs();
-    let txs2 = await wallet2.getTxs();
+    let txs1 = await that.wallet1.getTxs();
+    let txs2 = await that.wallet2.getTxs();
     assert.deepEqual(txs2, txs1);
   });
   
