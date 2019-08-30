@@ -621,7 +621,7 @@ class MoneroWallet {
    * @return {string} the id of the relayed tx
    */
   async relayTx(txOrMetadata) {
-    return (await this.relayTxs([txMetadata]))[0];
+    return (await this.relayTxs([txOrMetadata]))[0];
   }
   
   /**

@@ -806,8 +806,8 @@ class MoneroWalletRpc extends MoneroWallet {
     return await this._rpcExportKeyImages(false);
   }
   
-  async relayTxs(txsOrMetadata) {
-    assert(Array.isArray(txsOrMetadata), "Must provide an array of txs or their metadata to relay");
+  async relayTxs(txsOrMetadatas) {
+    assert(Array.isArray(txsOrMetadatas), "Must provide an array of txs or their metadata to relay");
     let txIds = [];
     for (let txOrMetadata of txsOrMetadatas) {
       let metadata = txOrMetadata instanceof MoneroTxWallet ? txOrMetadata.getMetadata() : txOrMetadata;

@@ -1,3 +1,6 @@
+const assert = require("assert");
+const MoneroUtils = require("../../utils/MoneroUtils");
+
 /**
  * Groups transactions who share common hex data which is needed in order to
  * sign and submit the transactions.
@@ -61,7 +64,7 @@ class MoneroTxSet {
     if (txSet.getTxs() !== undefined) {
       for (let tx of txSet.getTxs()) {
         tx.setTxSet(this);
-        MoneroUtils.mergeTx(txs, tx);
+        MoneroUtils.mergeTx(this.getTxs(), tx);
       }
     }
 

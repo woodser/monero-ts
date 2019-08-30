@@ -6,6 +6,7 @@ const MoneroTx = require("../../daemon/model/MoneroTx");
 const MoneroIncomingTransfer = require("./MoneroIncomingTransfer");
 const MoneroOutgoingTransfer = require("./MoneroOutgoingTransfer");
 const MoneroOutputWallet = require("./MoneroOutputWallet");
+const MoneroTxSet = require("./MoneroTxSet");
 
 /**
  * Models a Monero transaction with wallet extensions.
@@ -151,7 +152,7 @@ class MoneroTxWallet extends MoneroTx {
       if (tx.getTxSet() === undefined) {
         tx.setTxSet(new MoneroTxSet().setTxs([tx]));
       }
-      txSet.merge(tx.getTxSet());
+      this.getTxSet().merge(tx.getTxSet());
       return this;
     }
     

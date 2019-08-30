@@ -168,12 +168,7 @@ class TestMoneroWalletCommon {
       
       if (config.testNonRelays)
       it("Can get addresses out of range of used accounts and subaddresses", async function() {
-        let accounts = await that.wallet.getAccounts(true);
-        let accountIdx = accounts.length - 1;
-        let subaddressIdx = accounts[accountIdx].getSubaddresses().length;
-        let address = await that.wallet.getAddress(accountIdx, subaddressIdx);
-        assert.notEqual(address, undefined);  // TODO: override this in subclass
-        assert(address.length > 0);
+        await that._testGetSubaddressAddressOutOfRange();
       });
       
       if (config.testNonRelays)
@@ -1785,14 +1780,12 @@ class TestMoneroWalletCommon {
       // TODO: incorporate mining into testSendAndUpdateTxs()
 //      // start mining if possible to help push the network along
 //      before(async function() {
-//        try { await that.wallet.startMining(8, false, true); }
-//        catch (e) { }
+
 //      });
 //      
 //      // stop mining
 //      after(async function() {
-//        try { await that.wallet.stopMining(); }
-//        catch (e) { }
+
 //      });
       
       /**
@@ -1812,69 +1805,87 @@ class TestMoneroWalletCommon {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         if (!request) request = new MoneroSendRequest();
         
-        // send transactions
-        let sentTxs = (await (request.getCanSplit() ? wallet.sendSplit(request) : wallet.send(request))).getTxs();
-        
-        // test sent transactions
-        for (let tx of sentTxs) {
-          await that._testTxWallet(tx, {wallet: that.wallet, sendRequest: request, isSendResponse: true});
-          assert.equal(tx.isConfirmed(), false);
-          assert.equal(tx.getInTxPool(), true);
-        }
-        
-        // track resulting outgoing and incoming txs as blocks are added to the chain
-        let updatedTxs;
-        
-        // loop to update txs through confirmations
-        let numConfirmations = 0;
-        const numConfirmationsTotal = 2; // number of confirmations to test
-        while (numConfirmations < numConfirmationsTotal) {
+        // this test starts and stops mining, so it's wrapped in order to stop mining if anything fails
+        let err;
+        try {
           
-          // wait for a block
-          let header = await daemon.getNextBlockHeader();
-          console.log("*** Block " + header.getHeight() + " added to chain ***");
+          // send transactions
+          let sentTxs = (await (request.getCanSplit() ? that.wallet.sendSplit(request) : that.wallet.send(request))).getTxs();
           
-          // give wallet time to catch up, otherwise incoming tx may not appear
-          await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // TODO: this lets block slip, okay?
+          // test sent transactions
+          for (let tx of sentTxs) {
+            await that._testTxWallet(tx, {wallet: that.wallet, sendRequest: request, isSendResponse: true});
+            assert.equal(tx.isConfirmed(), false);
+            assert.equal(tx.getInTxPool(), true);
+          }
           
-          // get incoming/outgoing txs with sent ids
-          let txQuery = new MoneroTxQuery();
-          txQuery.setTxIds(sentTxs.map(sentTx => sentTx.getId())); // TODO: convenience methods wallet.getTxById(), getTxsById()?
-          let fetchedTxs = await that._getAndTestTxs(that.wallet, txQuery, true);
-          assert(fetchedTxs.length > 0);
+          // track resulting outgoing and incoming txs as blocks are added to the chain
+          let updatedTxs;
           
-          // test fetched txs
-          await testOutInPairs(that.wallet, fetchedTxs, request, false);
-
-          // merge fetched txs into updated txs and original sent txs
-          for (let fetchedTx of fetchedTxs) {
+          // start mining
+          try { await that.wallet.startMining(8, false, true); }
+          catch (e) { } // no problem
+          
+          // loop to update txs through confirmations
+          let numConfirmations = 0;
+          const numConfirmationsTotal = 2; // number of confirmations to test
+          while (numConfirmations < numConfirmationsTotal) {
             
-            // merge with updated txs
-            if (updatedTxs === undefined) updatedTxs = fetchedTxs;
-            else {
-              for (let updatedTx of updatedTxs) {
-                if (fetchedTx.getId() !== updatedTx.getId()) continue;
-                if (!!fetchedTx.getOutgoingTransfer() !== !!updatedTx.getOutgoingTransfer()) continue;  // skip if directions are different
-                updatedTx.merge(fetchedTx.copy());
-                if (!updatedTx.getBlock() && fetchedTx.getBlock()) updatedTx.setBlock(fetchedTx.getBlock().copy().setTxs([updatedTx]));  // copy block for testing
+            // wait for a block
+            let header = await daemon.getNextBlockHeader();
+            console.log("*** Block " + header.getHeight() + " added to chain ***");
+            
+            // give wallet time to catch up, otherwise incoming tx may not appear
+            await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // TODO: this lets block slip, okay?
+            
+            // get incoming/outgoing txs with sent ids
+            let txQuery = new MoneroTxQuery();
+            txQuery.setTxIds(sentTxs.map(sentTx => sentTx.getId())); // TODO: convenience methods wallet.getTxById(), getTxsById()?
+            let fetchedTxs = await that._getAndTestTxs(that.wallet, txQuery, true);
+            assert(fetchedTxs.length > 0);
+            
+            // test fetched txs
+            await testOutInPairs(that.wallet, fetchedTxs, request, false);
+
+            // merge fetched txs into updated txs and original sent txs
+            for (let fetchedTx of fetchedTxs) {
+              
+              // merge with updated txs
+              if (updatedTxs === undefined) updatedTxs = fetchedTxs;
+              else {
+                for (let updatedTx of updatedTxs) {
+                  if (fetchedTx.getId() !== updatedTx.getId()) continue;
+                  if (!!fetchedTx.getOutgoingTransfer() !== !!updatedTx.getOutgoingTransfer()) continue;  // skip if directions are different
+                  updatedTx.merge(fetchedTx.copy());
+                  if (!updatedTx.getBlock() && fetchedTx.getBlock()) updatedTx.setBlock(fetchedTx.getBlock().copy().setTxs([updatedTx]));  // copy block for testing
+                }
+              }
+              
+              // merge with original sent txs
+              for (let sentTx of sentTxs) {
+                if (fetchedTx.getId() !== sentTx.getId()) continue;
+                if (!!fetchedTx.getOutgoingTransfer() !== !!sentTx.getOutgoingTransfer()) continue; // skip if directions are different
+                sentTx.merge(fetchedTx.copy());  // TODO: it's mergeable but tests don't account for extra info from send (e.g. hex) so not tested; could specify in test context
               }
             }
             
-            // merge with original sent txs
-            for (let sentTx of sentTxs) {
-              if (fetchedTx.getId() !== sentTx.getId()) continue;
-              if (!!fetchedTx.getOutgoingTransfer() !== !!sentTx.getOutgoingTransfer()) continue; // skip if directions are different
-              sentTx.merge(fetchedTx.copy());  // TODO: it's mergeable but tests don't account for extra info from send (e.g. hex) so not tested; could specify in test context
-            }
+            // test updated txs
+            testGetTxsStructure(updatedTxs, request);
+            await testOutInPairs(that.wallet, updatedTxs, request, false);
+            
+            // update confirmations in order to exit loop
+            numConfirmations = fetchedTxs[0].getNumConfirmations();
           }
-          
-          // test updated txs
-          testGetTxsStructure(updatedTxs, request);
-          await testOutInPairs(that.wallet, updatedTxs, request, false);
-          
-          // update confirmations in order to exit loop
-          numConfirmations = fetchedTxs[0].getNumConfirmations();
+        } catch (e) {
+          err = e;
         }
+        
+        // stop mining
+        try { await that.wallet.stopMining(); }
+        catch (e) { }
+        
+        // throw error if there was one
+        if (err) throw err;
       }
       
       async function testOutInPairs(wallet, txs, request, isSendResponse) {
@@ -2124,11 +2135,13 @@ class TestMoneroWalletCommon {
         }
         if (request.getCanSplit() === false) assert.equal(txs.length, 1);  // must have exactly one tx if no split
         
+        // test common tx set among txs
+        testCommonTxSets(txs, false, false, false);
+        
         // handle non-relayed transaction
         if (request.getDoNotRelay()) {
           
           // test transactions
-          testCommonTxSets(txs, false, false, false);
           for (let tx of txs) {
             await that._testTxWallet(tx, {wallet: that.wallet, sendRequest: request, isSendResponse: true});
           }
@@ -2179,9 +2192,6 @@ class TestMoneroWalletCommon {
             }
           }
         }
-        
-        // test common tx set among txs
-        testCommonTxSets(txs, false, false, false);
         
         // if tx was relayed, all wallets will need to wait for tx to confirm in order to reliably sync
         if (request.getDoNotRelay() === true) {
@@ -2697,6 +2707,15 @@ class TestMoneroWalletCommon {
       }
     }
     return subaddresses;
+  }
+  
+  async _testGetSubaddressAddressOutOfRange() {
+    let accounts = await that.wallet.getAccounts(true);
+    let accountIdx = accounts.length - 1;
+    let subaddressIdx = accounts[accountIdx].getSubaddresses().length;
+    let address = await that.wallet.getAddress(accountIdx, subaddressIdx);
+    assert.notEqual(address, undefined);  // subclass my override with custom behavior (e.g. jni returns subaddress but wallet rpc does not)
+    assert(address.length > 0);
   }
   
   /**

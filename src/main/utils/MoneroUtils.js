@@ -198,6 +198,22 @@ class MoneroUtils {
     }
     return true;
   }
+  
+  /**
+   * Merges a transaction into a list of existing transactions.
+   * 
+   * @param txs are existing transactions to merge into
+   * @param tx is the transaction to merge into the list
+   */
+  static mergeTx(txs, tx) {
+    for (let aTx of txs) {
+      if (aTx.getId() === tx.getId()) {
+        aTx.merge(tx);
+        return;
+      }
+    }
+    txs.push(tx);
+  }
 }
 
 MoneroUtils.NUM_MNEMONIC_WORDS = 25;

@@ -67,6 +67,15 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     }
   }
   
+  // rpc-specific out-of-range subaddress test
+  async _testGetSubaddressAddressOutOfRange() {
+    let accounts = await this.wallet.getAccounts(true);
+    let accountIdx = accounts.length - 1;
+    let subaddressIdx = accounts[accountIdx].getSubaddresses().length;
+    let address = await this.wallet.getAddress(accountIdx, subaddressIdx);
+    assert.equal(address, undefined);
+  }
+  
   _testWalletRpc(config) {
     let that = this;
     let daemon = this.daemon;
@@ -274,14 +283,6 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         } catch (e) {
           assert.equal(e.getCode(), -1);
         }
-      });
-      
-      it("Can get addresses out of range of used accounts and subaddresses", async function() {
-        let accounts = await that.wallet.getAccounts(true);
-        let accountIdx = accounts.length - 1;
-        let subaddressIdx = accounts[accountIdx].getSubaddresses().length;
-        let address = await that.wallet.getAddress(accountIdx, subaddressIdx);
-        assert.equal(address, undefined);
       });
       
       it("Can fetch accounts and subaddresses without balance info because this is another RPC call", async function() {
