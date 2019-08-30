@@ -299,6 +299,4 @@ TestUtils.TX_POOL_WALLET_TRACKER = new TxPoolWalletTracker();
 //  maxRequestsPerSecond: 1
 //};
 
-module.exports = StartMining;
-module.exports = TxPoolWalletTracker;
-module.exports = TestUtils;
+module.exports = { TxPoolWalletTracker, StartMining, TestUtils };

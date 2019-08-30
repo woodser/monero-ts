@@ -1,6 +1,6 @@
 const assert = require("assert");
 const GenUtils = require("../main/utils/GenUtils");
-const TestUtils = require("./utils/TestUtils");
+const TestUtils = require("./utils/TestUtils").TestUtils;
 const MoneroUtils = require("../main/utils/MoneroUtils");
 const MoneroRpcError = require("../main/rpc/MoneroRpcError");
 const MoneroAccountTag = require("../main/wallet/model/MoneroAccountTag");

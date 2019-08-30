@@ -1,5 +1,6 @@
 const assert = require("assert");
-const TestUtils = require("./utils/TestUtils");
+const TestUtils = require("./utils/TestUtils").TestUtils;
+const StartMining = require("./utils/TestUtils").StartMining;
 const Filter = require("../main/utils/Filter");
 const GenUtils = require("../main/utils/GenUtils");
 const MoneroUtils = require("../main/utils/MoneroUtils");
@@ -3183,9 +3184,8 @@ class TestMoneroWalletCommon {
       
       console.log("Starting mining");
       
-      // attempt to start mining
-      try { await TestUtils.StartMining.startMining(); }
-      catch (e) { console.log(e); }
+      // start mining to push the network along
+      await StartMining.startMining();
       
       // wait for the multisig wallet's funds to unlock // TODO: could replace with condition_variable and notify
       let lastNumConfirmations = undefined;

@@ -1,5 +1,5 @@
 const assert = require("assert");
-const TestUtils = require("./utils/TestUtils");
+const TestUtils = require("./utils/TestUtils").TestUtils;
 const MoneroUtils = require("../main/utils/MoneroUtils");
 
 /**
