@@ -647,7 +647,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // copy and normalize query up to block
     if (query === undefined) query = new MoneroOutputQuery();
-    else if (query instanceof MoneroTransferQuery) {
+    else if (query instanceof MoneroOutputQuery) {
       if (query.getTxQuery() === undefined) query = query.copy();
       else {
         let txQuery = query.getTxQuery().copy();
