@@ -6,6 +6,8 @@ port pool relay tests from java TestMoneroWalletCommon.java
 some tests are both notifications and relays; flatten and use config booleans like java?
 MoneroRpc -> MoneroRpcConnection
 getBlocksByRange() end should be exclusive
+test that deep requests / queries are preserved after being used
+update local wallet
 
 readme: description consistent with other libraries, reference api
 
@@ -35,6 +37,8 @@ sweepDust()
 multisig
 pruning
 
+NEXT
+release node module
 one call per get/set bandwidth limits?
 daemon.getBlocksById(), default implementations
 daemon test failed txs more

@@ -2026,7 +2026,7 @@ class TestMoneroWalletCommon {
             let subaddressBefore = accounts[i].getSubaddresses()[j];
             let subaddressAfter = accountsAfter[i].getSubaddresses()[j];
             if (i === srcAccount.getIndex() && fromSubaddressIndices.includes(j)) {
-              assert(subaddressAfter.getUnlockedBalance().compare(subaddressBefore.getUnlockedBalance()) < 0, "Subaddress [" + i + "," + j + "] unlocked balance should have decreased but changed from " + subaddressBefore.getUnlockedBalance().toString() + " to " + subaddressAfter.getUnlockedBalance().toString()); // TODO: Subaddress [0,1] unlocked balance should have decreased          
+              assert(subaddressAfter.getUnlockedBalance().compare(subaddressBefore.getUnlockedBalance()) < 0, "Subaddress [" + i + "," + j + "] unlocked balance should have decreased but started at " + subaddressBefore.getUnlockedBalance().toString() + " and ended at " + subaddressAfter.getUnlockedBalance().toString()); // TODO: Subaddress [0,1] unlocked balance should have decreased          
             } else {
               assert(subaddressAfter.getUnlockedBalance().compare(subaddressBefore.getUnlockedBalance()) === 0, "Subaddress [" + i + "," + j + "] unlocked balance should not have changed");          
             }
@@ -2363,12 +2363,13 @@ class TestMoneroWalletCommon {
           // sweep output to address
           let address = await that.wallet.getAddress(output.getAccountIndex(), output.getSubaddressIndex());
           let request = new MoneroSendRequest(address).setKeyImage(output.getKeyImage().getHex());
-          let tx;
-          if (useParams) tx = await that.wallet.sweepOutput(address, output.getKeyImage().getHex(), undefined); // test params
-          else tx = await that.wallet.sweepOutput(request);  // test request
+          let txSet;
+          if (useParams) txSet = await that.wallet.sweepOutput(address, output.getKeyImage().getHex(), undefined); // test params
+          else txSet = await that.wallet.sweepOutput(request);  // test request
           
           // test resulting tx
-          await that._testTxWallet(tx, {wallet: that.wallet, sendRequest: request, isSendResponse: true, isSweepResponse: true, isSweepOutputResponse: true});
+          assert.equal(txSet.getTxs().length, 1);
+          await that._testTxWallet(txSet.getTxs()[0], {wallet: that.wallet, sendRequest: request, isSendResponse: true, isSweepResponse: true, isSweepOutputResponse: true});
           useParams = !useParams;
         }
         
@@ -2456,7 +2457,7 @@ class TestMoneroWalletCommon {
           //_testMultisig(5, 6, false);
           
           // test m/n
-          await that._testMultisig(2, 4, false);  // TODO: enable tx test
+          await that._testMultisig(2, 4, true);
           //_testMultisig(3, 5, false);
           //_testMultisig(3, 7, false);
         } catch (e) {
@@ -3167,8 +3168,8 @@ class TestMoneroWalletCommon {
       
       // send funds from the main test wallet to destinations in the first multisig wallet
       curWallet = await this.getTestWallet();  // get / open the main test wallet
-      assertEquals(BEGIN_MULTISIG_NAME, await curWallet.getAttribute("name"));
-      assert(await curWallet.getBalance().compare(new BigInteger(0)) > 0);
+      assert.equal(await curWallet.getAttribute("name"), BEGIN_MULTISIG_NAME);
+      assert((await curWallet.getBalance()).compare(new BigInteger(0)) > 0);
       await curWallet.send(new MoneroSendRequest().setAccountIndex(0).setDestinations(destinations));
       let returnAddress = await curWallet.getPrimaryAddress(); // funds will be returned to this address from the multisig wallet
       
@@ -3176,8 +3177,8 @@ class TestMoneroWalletCommon {
       
       // open the first multisig participants
       curWallet = await this.openWallet(walletIds[0]);
-      assertEquals(walletIds[0], await curWallet.getAttribute("name"));
-      testMultisigInfo(await curWallet.getMultisigInfo(), m, n);
+      assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
+      that._testMultisigInfo(await curWallet.getMultisigInfo(), m, n);
       await curWallet.startSyncing();
       
       console.log("Starting mining");
@@ -3218,7 +3219,7 @@ class TestMoneroWalletCommon {
       // multisig wallet should have unlocked balance in account 1 subaddresses 0-3
       assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
       for (let i = 0; i < 3; i++) {
-        assert(await curWallet.getUnlockedBalance(1, i).compare(new BigInteger(0)) > 0);
+        assert((await curWallet.getUnlockedBalance(1, i)).compare(new BigInteger(0)) > 0);
       }
       let outputs = await this.wallet.getOutputs(new MoneroOutputQuery().setAccountIndex(1));
       assert(outputs.length > 0);
@@ -3242,7 +3243,7 @@ class TestMoneroWalletCommon {
       
       // synchronize the multisig participants since receiving outputs
       console.log("Synchronizing participants");
-      curWallet = await synchronizeMultisigParticipants(curWallet, walletIds);
+      curWallet = await _synchronizeMultisigParticipants(curWallet, walletIds);
       assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
       
       // send funds from a subaddress in the multisig wallet
@@ -3273,7 +3274,7 @@ class TestMoneroWalletCommon {
       
       // synchronize the multisig participants since spending outputs
       console.log("Synchronizing participants");
-      curWallet = await synchronizeMultisigParticipants(curWallet, walletIds);
+      curWallet = await _synchronizeMultisigParticipants(curWallet, walletIds);
       
       // fetch the wallet's multisig txs
       let multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxIds(txIds));
@@ -3307,7 +3308,7 @@ class TestMoneroWalletCommon {
       
       // synchronize the multisig participants since spending outputs
       console.log("Synchronizing participants");
-      curWallet = await synchronizeMultisigParticipants(curWallet, walletIds);
+      curWallet = await _synchronizeMultisigParticipants(curWallet, walletIds);
       
       // fetch the wallet's multisig txs
       multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxIds(txIds));
@@ -3341,7 +3342,7 @@ class TestMoneroWalletCommon {
       
       // synchronize the multisig participants since spending outputs
       console.log("Synchronizing participants");
-      curWallet = await synchronizeMultisigParticipants(curWallet, walletIds);
+      curWallet = await _synchronizeMultisigParticipants(curWallet, walletIds);
       
       // fetch the wallet's multisig txs
       multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxIds(txIds));
@@ -3355,7 +3356,7 @@ class TestMoneroWalletCommon {
     assert.equal(await this.wallet.getAttribute("name"), BEGIN_MULTISIG_NAME);
   }
   
-  async synchronizeMultisigParticipants(currentWallet, walletIds) {
+  async _synchronizeMultisigParticipants(currentWallet, walletIds) {
     
     // close the current wallet
     let path = currentWallet.getPath();
@@ -3386,7 +3387,7 @@ class TestMoneroWalletCommon {
     return endWallet;
   }
   
-  async testMultisigInfo(info, m, n) {
+  async _testMultisigInfo(info, m, n) {
     assert(info.isMultisig());
     assert(info.isReady());
     assert.equal(info.getThreshold(), m);
