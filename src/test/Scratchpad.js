@@ -21,7 +21,6 @@ describe("Scratchpad", function() {
     // initialize daemon, wallet, and direct rpc interface
     let daemon = TestUtils.getDaemonRpc();
     let wallet = TestUtils.getWalletRpc();
-    await TestUtils.initWalletRpc();
     let rpc = new MoneroRpc(TestUtils.WALLET_RPC_CONFIG);
     
 //  try { await wallet.startMining(8, false, true); }

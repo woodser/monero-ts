@@ -6,12 +6,13 @@ const MoneroUtils = require("../main/utils/MoneroUtils");
  * Compares two wallets for equality.
  */
 describe("TEST WALLETS EQUALITY", function() {
-  let wallet1 = TestUtils.getWalletRpc();
+  let that = this;
+  let wallet1;
   let wallet2 = TestUtils.getWalletLocal();
   
   // setup before tests run
   before(async function() {
-    await TestUtils.initWalletRpc();
+    that.wallet1 = await TestUtils.getWalletRpc();
   });
   
   it("Have the same keys", async function() {

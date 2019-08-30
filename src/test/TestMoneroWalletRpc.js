@@ -17,10 +17,10 @@ const MoneroOutputQuery = require("../main/wallet/model/MoneroQueries").MoneroOu
 class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   
   constructor() {
-    super(TestUtils.getWalletRpc(), TestUtils.getDaemonRpc());
+    super(TestUtils.getDaemonRpc());
   }
   
-  getTestWallet() {
+  async getTestWallet() {
     return TestUtils.getWalletRpc();
   }
   
@@ -40,7 +40,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
       
       // initialize wallet
       before(async function() {
-        await TestUtils.initWalletRpc();
+        that.wallet = await TestUtils.getWalletRpc();
       });
       
       // run tests specific to wallet rpc

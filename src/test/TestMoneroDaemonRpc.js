@@ -32,7 +32,6 @@ class TestMoneroDaemonRpc {
   
   constructor() {
     this.daemon = TestUtils.getDaemonRpc();
-    this.wallet = TestUtils.getWalletRpc();
     TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
   }
   
@@ -45,7 +44,7 @@ class TestMoneroDaemonRpc {
       
       // initialize wallet before all tests
       before(async function() {
-        await TestUtils.initWalletRpc();
+        that.wallet = await TestUtils.getWalletRpc();
       });
       
       if (config.testNonRelays) that._testNonRelays(config.liteMode);
@@ -59,9 +58,14 @@ class TestMoneroDaemonRpc {
    */
   _testNonRelays(liteMode) {
     let daemon = this.daemon;
-    let wallet = this.wallet;
+    let wallet;
     
     describe("Test Non-Relays", function() {
+      
+      // initialize wallet before all tests // TODO: place this in other groups / merge groups
+      before(async function() {
+        wallet = await TestUtils.getWalletRpc();
+      });
       
       // flush tx pool before each test
       beforeEach(async function() {

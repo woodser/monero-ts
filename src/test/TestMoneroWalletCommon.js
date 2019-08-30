@@ -39,10 +39,8 @@ class TestMoneroWalletCommon {
    * @param wallet is the wallet to test
    * @param daemon informs some tests
    */
-  constructor(wallet, daemon) {
-    assert(wallet instanceof MoneroWallet);
+  constructor(daemon) {
     assert(daemon instanceof MoneroDaemon);
-    this.wallet = wallet;
     this.daemon = daemon;
     TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
   }
@@ -61,7 +59,7 @@ class TestMoneroWalletCommon {
    * 
    * @return the wallet to test
    */
-  getTestWallet() {
+  async getTestWallet() {
     throw new Error("Subclass must implement");
   }
   
@@ -1718,7 +1716,7 @@ class TestMoneroWalletCommon {
         
         // re-open main test wallet
         await wallet.close(); // defaults to not saving
-        this.wallet = getTestWallet();
+        this.wallet = await getTestWallet();
       });
     });
   }
@@ -3118,7 +3116,7 @@ class TestMoneroWalletCommon {
       console.log("Sending funds from main wallet");
       
       // send funds from the main test wallet to destinations in the first multisig wallet
-      curWallet = this.getTestWallet();  // get / open the main test wallet
+      curWallet = await this.getTestWallet();  // get / open the main test wallet
       assertEquals(BEGIN_MULTISIG_NAME, await curWallet.getAttribute("name"));
       assert(await curWallet.getBalance().compare(new BigInteger(0)) > 0);
       await curWallet.send(new MoneroSendRequest().setAccountIndex(0).setDestinations(destinations));
@@ -3303,7 +3301,7 @@ class TestMoneroWalletCommon {
     }
     
     // re-open main test wallet
-    wallet = this.getTestWallet();
+    wallet = await this.getTestWallet();
     assert.equal(await this.wallet.getAttribute("name"), BEGIN_MULTISIG_NAME);
   }
   

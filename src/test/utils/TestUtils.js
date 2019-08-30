@@ -2,6 +2,7 @@ const assert = require("assert");
 const MoneroDaemonRpc = require("../../main/daemon/MoneroDaemonRpc");
 const MoneroWalletRpc = require("../../main/wallet/MoneroWalletRpc");
 const MoneroWalletLocal = require("../../main/wallet/MoneroWalletLocal");
+const MoneroRpcConnection = require("../../main/rpc/MoneroRpcConnection");
 const MoneroRpcError = require("../../main/rpc/MoneroRpcError");
 const BigInteger = require("../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const StartMining = require("./StartMining");
@@ -134,39 +135,32 @@ class TestUtils {
   }
   
   /**
-   * Get a wallet RPC singleton instance shared among tests.
+   * Get a singleton instance of a wallet supported by RPC.
    */
-  static getWalletRpc() {
-    if (this.walletRpc === undefined) this.walletRpc = new MoneroWalletRpc(TestUtils.WALLET_RPC_CONFIG);
-    return this.walletRpc;
-  }
-  
-  static async initWalletRpc() {
-    
-    // initialize cached wallet
-    TestUtils.getWalletRpc();
+  static async getWalletRpc() {
+    if (this.walletRpc === undefined) {
+      
+      // construct wallet rpc instance with daemon connection
+      this.walletRpc = new MoneroWalletRpc(TestUtils.WALLET_RPC_CONFIG);
+    }
     
     // attempt to open test wallet
     try {
       await this.walletRpc.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
     } catch (e) {
       
-      console.log(e.message);
-      console.log(e);
-      
-      
       // -1 returned when the wallet does not exist or it's open by another application
       if (e.getCode() === -1) {
         
         // create wallet
-        await walletRpc.createWalletFromMnemonic(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
+        await this.walletRpc.createWalletFromMnemonic(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
       } else {
         throw e;
       }
     }
     
     // ensure we're testing the right wallet
-    assert.equal(await this.walletRpc.getMnemonic(), TestUtils.MNEMONIC);
+    assert.equal(await this.walletRpc.getMnemonic(), await TestUtils.MNEMONIC);
     assert.equal(await this.walletRpc.getPrimaryAddress(), TestUtils.ADDRESS);
     
     // sync and save the wallet
@@ -176,6 +170,50 @@ class TestUtils {
     // return cached wallet rpc
     return this.walletRpc;
   }
+  
+//  /**
+//   * Get a wallet RPC singleton instance shared among tests.
+//   */
+//  static getWalletRpc() {
+//    if (this.walletRpc === undefined) this.walletRpc = new MoneroWalletRpc(TestUtils.WALLET_RPC_CONFIG);
+//    return this.walletRpc;
+//  }
+//  
+//  static async initWalletRpc() {
+//    
+//    // initialize cached wallet
+//    TestUtils.getWalletRpc();
+//    
+//    // attempt to open test wallet
+//    try {
+//      await this.walletRpc.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+//    } catch (e) {
+//      
+//      console.log(e.message);
+//      console.log(e);
+//      
+//      
+//      // -1 returned when the wallet does not exist or it's open by another application
+//      if (e.getCode() === -1) {
+//        
+//        // create wallet
+//        await walletRpc.createWalletFromMnemonic(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
+//      } else {
+//        throw e;
+//      }
+//    }
+//    
+//    // ensure we're testing the right wallet
+//    assert.equal(await this.walletRpc.getMnemonic(), TestUtils.MNEMONIC);
+//    assert.equal(await this.walletRpc.getPrimaryAddress(), TestUtils.ADDRESS);
+//    
+//    // sync and save the wallet
+//    await this.walletRpc.sync();
+//    await this.walletRpc.save();
+//    
+//    // return cached wallet rpc
+//    return this.walletRpc;
+//  }
   
   /**
    * Get a local wallet singleton instance shared among tests.
