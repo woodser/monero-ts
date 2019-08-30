@@ -138,7 +138,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {boolean} saveCurrent specifies if the current RPC wallet should be saved before being closed
    */
   async createWalletFromMnemonic(name, password, mnemonic, restoreHeight, language, offset, saveCurrent) {
-    this.config.rpc.sendJsonRequest("restore_deterministic_wallet", {
+    await this.config.rpc.sendJsonRequest("restore_deterministic_wallet", {
       filename: name,
       password: password,
       seed: mnemonic,
@@ -211,7 +211,7 @@ class MoneroWalletRpc extends MoneroWallet {
     try {
       resp = await this.config.rpc.sendJsonRequest("get_address_index", {address: address});
     } catch (e) {
-      if (e.getCode() === -2) throw new MoneroError(e.getDescription());
+      if (e.getCode() === -2) throw new MoneroError(e.message);
       throw e;
     }
     
@@ -519,7 +519,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // copy and normalize query up to block
     if (query === undefined) query = new MoneroTransferQuery();
-    else {
+    else if (query instanceof MoneroTransferQuery) {
       if (query.getTxQuery() === undefined) query = query.copy();
       else {
         let txQuery = query.getTxQuery().copy();
@@ -530,6 +530,9 @@ class MoneroWalletRpc extends MoneroWallet {
           query.setTxQuery(txQuery);
         }
       }
+    } else {
+      query = Object.assign({}, query);
+      query = new MoneroTransferQuery(query).setTxQuery(new MoneroTxQuery(query));
     }
     if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
     let txQuery = query.getTxQuery();
@@ -644,20 +647,66 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // copy and normalize query up to block
     if (query === undefined) query = new MoneroOutputQuery();
-    else {
+    else if (query instanceof MoneroTransferQuery) {
       if (query.getTxQuery() === undefined) query = query.copy();
       else {
         let txQuery = query.getTxQuery().copy();
         if (query.getTxQuery().getOutputQuery() === query) query = txQuery.getOutputQuery();
         else {
-          assert.equal(query.getTxQuery().getOutputQuery(), undefined, "Transfer request's tx request must be circular reference or null");
+          assert.equal(query.getTxQuery().getOutputQuery(), undefined, "Output query's tx query must be circular reference or null");
           query = query.copy();
           query.setTxQuery(txQuery);
         }
       }
+    } else {
+      query = Object.assign({}, query);
+      query = new MoneroOutputQuery(query).setTxQuery(new MoneroTxQuery(query));
     }
     if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
     let txQuery = query.getTxQuery();
+    txQuery.setOutputQuery(undefined); // break circular link for meetsCriteria()
+    
+//    // normalize output request
+//    if (request instanceof MoneroOutputRequest) { }
+//    else {
+//      request = Object.assign({}, request);
+//      request = new MoneroOutputRequest(request).setTxRequest(new MoneroTxRequest(request));
+//    }
+//    if (!request.getTxRequest()) request.setTxRequest(new MoneroTxRequest());
+//    
+//    // copy and normalize query up to block
+//    if (query === undefined) query = new MoneroOutputQuery();
+//    else {
+//      if (query.getTxQuery() === undefined) query = query.copy();
+//      else {
+//        let txQuery = query.getTxQuery().copy();
+//        if (query.getTxQuery().getOutputQuery() === query) query = txQuery.getOutputQuery();
+//        else {
+//          assert.equal(query.getTxQuery().getOutputQuery(), undefined, "Transfer request's tx request must be circular reference or null");
+//          query = query.copy();
+//          query.setTxQuery(txQuery);
+//        }
+//      }
+//    }
+//    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
+//    let txQuery = query.getTxQuery();
+//    
+//    // copy and normalize query up to block
+//    if (query === undefined) query = new MoneroOutputQuery();
+//    else {
+//      if (query.getTxQuery() === undefined) query = query.copy();
+//      else {
+//        let txQuery = query.getTxQuery().copy();
+//        if (query.getTxQuery().getOutputQuery() === query) query = txQuery.getOutputQuery();
+//        else {
+//          assert.equal(query.getTxQuery().getOutputQuery(), undefined, "Transfer request's tx request must be circular reference or null");
+//          query = query.copy();
+//          query.setTxQuery(txQuery);
+//        }
+//      }
+//    }
+//    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
+//    let txQuery = query.getTxQuery();
     
     // determine account and subaddress indices to be queried
     let indices = new Map();
@@ -1164,6 +1213,7 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async close(save) {
+    if (save === undefined) save = false;
     delete this.addressCache;
     this.addressCache = {};
     this.path = undefined;

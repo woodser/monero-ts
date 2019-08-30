@@ -1,11 +1,11 @@
 const assert = require("assert");
+const MoneroUtils = require("../../main/utils/MoneroUtils");
 const MoneroDaemonRpc = require("../../main/daemon/MoneroDaemonRpc");
 const MoneroWalletRpc = require("../../main/wallet/MoneroWalletRpc");
 const MoneroWalletLocal = require("../../main/wallet/MoneroWalletLocal");
 const MoneroRpcConnection = require("../../main/rpc/MoneroRpcConnection");
 const MoneroRpcError = require("../../main/rpc/MoneroRpcError");
 const BigInteger = require("../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
-const StartMining = require("./StartMining");
 const GenUtils = require("../../main/utils/GenUtils");
 
 /**
@@ -65,7 +65,7 @@ class TxPoolWalletTracker {
     for (let txIdPool of txIdsPool) {
       if (txIdsWallet.has(txIdPool)) txIdsIntersection.add(txIdPool);
     }
-    await TxPoolWalletTracker.waitForTxsToClearPool(txIdsIntersection);
+    await TxPoolWalletTracker.waitForTxsToClearPool(Array.from(txIdsIntersection));
     
     // sync wallets with the pool
     for (let wallet of wallets) {
@@ -116,6 +116,18 @@ class TxPoolWalletTracker {
       }
     }
     return false;
+  }
+}
+
+/**
+ * Utility class to start mining.
+ */
+class StartMining {
+  
+  static async startMining() {
+    let numThreads = 6;
+    //TestUtils.getWalletRpc().startMining(numThreads, false, true);
+    await TestUtils.getDaemonRpc().startMining("56SWsnhejUTbgNs2EgyXdfNXUawymMMuAC9voZZSQrHzJHNxGsAvMnoUja7JcKVtPwNc1oKAkoAt1cv6EmtKRQ22U37B7cT", numThreads, false, false);  // random subaddress
   }
 }
 
@@ -287,5 +299,6 @@ TestUtils.TX_POOL_WALLET_TRACKER = new TxPoolWalletTracker();
 //  maxRequestsPerSecond: 1
 //};
 
+module.exports = StartMining;
 module.exports = TxPoolWalletTracker;
 module.exports = TestUtils;

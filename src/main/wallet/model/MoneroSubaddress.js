@@ -97,15 +97,15 @@ class MoneroSubaddress {
   
   toString(indent) {
     let str = "";
-    str += MoneroUtils.kvLine("Account index", this.state.getAccountIndex(), indent);
-    str += MoneroUtils.kvLine("Subaddress index", this.state.getIndex(), indent);
-    str += MoneroUtils.kvLine("Address", this.state.getAddress(), indent);
-    str += MoneroUtils.kvLine("Label", this.state.getLabel(), indent);
-    str += MoneroUtils.kvLine("Balance", this.state.getBalance(), indent);
-    str += MoneroUtils.kvLine("Unlocked balance", this.state.getUnlockedBalance(), indent);
-    str += MoneroUtils.kvLine("Num unspent outputs", this.state.getNumUnspentOutputs(), indent);
-    str += MoneroUtils.kvLine("Is used", this.state.isUsed(), indent);
-    str += MoneroUtils.kvLine("Num blocks to unlock", this.state.isUsed(), indent);
+    str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
+    str += MoneroUtils.kvLine("Subaddress index", this.getIndex(), indent);
+    str += MoneroUtils.kvLine("Address", this.getAddress(), indent);
+    str += MoneroUtils.kvLine("Label", this.getLabel(), indent);
+    str += MoneroUtils.kvLine("Balance", this.getBalance(), indent);
+    str += MoneroUtils.kvLine("Unlocked balance", this.getUnlockedBalance(), indent);
+    str += MoneroUtils.kvLine("Num unspent outputs", this.getNumUnspentOutputs(), indent);
+    str += MoneroUtils.kvLine("Is used", this.isUsed(), indent);
+    str += MoneroUtils.kvLine("Num blocks to unlock", this.isUsed(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }

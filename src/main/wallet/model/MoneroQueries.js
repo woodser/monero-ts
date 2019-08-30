@@ -141,6 +141,15 @@ class MoneroTxQuery extends MoneroTxWallet {
     return this;
   }
   
+  getOutputQuery() {
+    return this.state.outputQuery;
+  }
+  
+  setOutputQuery(outputQuery) {
+    this.state.outputQuery = outputQuery;
+    return this;
+  }
+  
   // TODO: this filtering is not complete
   meetsCriteria(tx) {
     if (!(tx instanceof MoneroTxWallet)) return false;

@@ -405,7 +405,7 @@ class MoneroWallet {
    * @return {MoneroTxWallet} the identified transactions
    */
   async getTx(txId) {
-    throw new MoneroError("Subclass must implement");
+    return (await this.getTxs([txId]))[0];
   }
   
   /**
@@ -580,7 +580,7 @@ class MoneroWallet {
     let request = MoneroWallet._normalizeSendRequest(requestOrAccountIndex, address, amount, priority);
     if (request.getCanSplit() === true) throw new MoneroException("Cannot request split transactions with createTx() which prevents splitting; use createTxs() instead");
     request.setCanSplit(false);
-    return await createTxs(request);
+    return await this.createTxs(request);
   }
   
   /**
@@ -901,7 +901,6 @@ class MoneroWallet {
    */
   async setTxNote(txId, note) {
     await this.setTxNotes([txId], [note]);
-    throw new MoneroError("Subclass must implement");
   }
   
   /**

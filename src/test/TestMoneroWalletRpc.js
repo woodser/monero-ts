@@ -41,6 +41,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
       // initialize wallet
       before(async function() {
         that.wallet = await TestUtils.getWalletRpc();
+        TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
       });
       
       // run tests specific to wallet rpc
@@ -123,26 +124,26 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           
           // create wallet with mnemonic and defaults
           let path = GenUtils.uuidv4();
-          await wallet.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
-          assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
-          assert.equal(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
-          assert.equal(await wallet.getHeight(), 1);       // TODO monero-core: sometimes wallet is synced after fresh creation here, but not if run alone
-          assert.equal((await wallet.getTxs()).length, 0); // wallet is not synced
-          await wallet.sync();
-          assert.equal(await wallet.getHeight(), await daemon.getHeight());
-          let txs = await wallet.getTxs();
+          await that.wallet.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
+          assert.equal(await that.wallet.getMnemonic(), TestUtils.MNEMONIC);
+          assert.equal(await that.wallet.getPrimaryAddress(), TestUtils.ADDRESS);
+          assert.equal(await that.wallet.getHeight(), 1);       // TODO monero-core: sometimes wallet is synced after fresh creation here, but not if run alone
+          assert.equal((await that.wallet.getTxs()).length, 0); // wallet is not synced
+          await that.wallet.sync();
+          assert.equal(await that.wallet.getHeight(), await daemon.getHeight());
+          let txs = await that.wallet.getTxs();
           assert(txs.length > 0); // wallet is used
           assert.equal(txs[0].getHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
-          await wallet.close();
+          await that.wallet.close();
           
           // create wallet with non-defaults
           path = GenUtils.uuidv4();
-          await wallet.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT, "German", "my offset!", false);
-          MoneroUtils.validateMnemonic(await wallet.getMnemonic());
-          assert.notEqual(await wallet.getMnemonic(), TestUtils.MNEMONIC);  // mnemonic is different because of offset
-          assert.notEqual(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
-          assert.equal(await wallet.getHeight(), 1);
-          await wallet.close();
+          await that.wallet.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT, "German", "my offset!", false);
+          MoneroUtils.validateMnemonic(await that.wallet.getMnemonic());
+          assert.notEqual(await that.wallet.getMnemonic(), TestUtils.MNEMONIC);  // mnemonic is different because of offset
+          assert.notEqual(await that.wallet.getPrimaryAddress(), TestUtils.ADDRESS);
+          assert.equal(await that.wallet.getHeight(), 1);
+          await that.wallet.close();
           
         } catch (e) {
           console.log("Caught error so will call open!");
@@ -151,7 +152,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         
         // open main test wallet for other tests
         console.log("Opening wallet...");
-        await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+        await that.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
         console.log("Done!");
         
         // throw error if there was one
@@ -214,21 +215,21 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
       });
       
       it("Can indicate if multisig import is needed for correct balance information", async function() {
-        assert.equal(await wallet.isMultisigImportNeeded(), false); // TODO: test with multisig wallet
+        assert.equal(await that.wallet.isMultisigImportNeeded(), false); // TODO: test with multisig wallet
       });
 
       it("Can tag accounts and query accounts by tag", async function() {
         
         // get accounts
-        let accounts = await wallet.getAccounts();
+        let accounts = await that.wallet.getAccounts();
         assert(accounts.length >= 3, "Not enough accounts to test; run create account test");
         
         // tag some of the accounts
         let tag = new MoneroAccountTag("my_tag_" + GenUtils.uuidv4(), "my tag label", [0, 1]);
-        await wallet.tagAccounts(tag.getTag(), tag.getAccountIndices());
+        await that.wallet.tagAccounts(tag.getTag(), tag.getAccountIndices());
         
         // query accounts by tag
-        let taggedAccounts = await wallet.getAccounts(undefined, tag.getTag());
+        let taggedAccounts = await that.wallet.getAccounts(undefined, tag.getTag());
         assert.equal(taggedAccounts.length, 2);
         assert.equal(taggedAccounts[0].getIndex(), 0);
         assert.equal(taggedAccounts[0].getTag(), tag.getTag());
@@ -236,31 +237,31 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         assert.equal(taggedAccounts[1].getTag(), tag.getTag());
 
         // set tag label
-        await wallet.setAccountTagLabel(tag.getTag(), tag.getLabel());
+        await that.wallet.setAccountTagLabel(tag.getTag(), tag.getLabel());
         
         // fetch tags and ensure new tag is contained
-        let tags = await wallet.getAccountTags();
+        let tags = await that.wallet.getAccountTags();
         assert(GenUtils.arrayContains(tags, tag));
         
         // re-tag an account
         let tag2 = new MoneroAccountTag("my_tag_" + GenUtils.uuidv4(), "my tag label 2", [1]);
-        await wallet.tagAccounts(tag2.getTag(), tag2.getAccountIndices());
-        let taggedAccounts2 = await wallet.getAccounts(undefined, tag2.getTag())
+        await that.wallet.tagAccounts(tag2.getTag(), tag2.getAccountIndices());
+        let taggedAccounts2 = await that.wallet.getAccounts(undefined, tag2.getTag())
         assert.equal(taggedAccounts2.length, 1);
         assert.equal(taggedAccounts2[0].getIndex(), 1);
         assert.equal(taggedAccounts2[0].getTag(), tag2.getTag());
         
         // re-query original tag which only applies to one account now
-        taggedAccounts = await wallet.getAccounts(undefined, tag.getTag());
+        taggedAccounts = await that.wallet.getAccounts(undefined, tag.getTag());
         assert.equal(taggedAccounts.length, 1);
         assert.equal(taggedAccounts[0].getIndex(), 0);
         assert.equal(taggedAccounts[0].getTag(), tag.getTag());
         
         // untag and query accounts
-        await wallet.untagAccounts([0, 1]);
-        assert.equal((await wallet.getAccountTags()).length, 0);
+        await that.wallet.untagAccounts([0, 1]);
+        assert.equal((await that.wallet.getAccountTags()).length, 0);
         try {
-          await wallet.getAccounts(undefined, tag.getTag());
+          await that.wallet.getAccounts(undefined, tag.getTag());
           fail("Should have thrown exception with unregistered tag");
         } catch (e) {
           assert.equal(e.getCode(), -1);
@@ -268,7 +269,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         
         // test that non-existing tag returns no accounts
         try {
-          await wallet.getAccounts(undefined, "non_existing_tag");
+          await that.wallet.getAccounts(undefined, "non_existing_tag");
           fail("Should have thrown exception with unregistered tag");
         } catch (e) {
           assert.equal(e.getCode(), -1);
@@ -276,15 +277,15 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
       });
       
       it("Can get addresses out of range of used accounts and subaddresses", async function() {
-        let accounts = await wallet.getAccounts(true);
+        let accounts = await that.wallet.getAccounts(true);
         let accountIdx = accounts.length - 1;
         let subaddressIdx = accounts[accountIdx].getSubaddresses().length;
-        let address = await wallet.getAddress(accountIdx, subaddressIdx);
+        let address = await that.wallet.getAddress(accountIdx, subaddressIdx);
         assert.equal(address, undefined);
       });
       
       it("Can fetch accounts and subaddresses without balance info because this is another RPC call", async function() {
-        let accounts = await wallet.getAccounts(true, undefined, true);
+        let accounts = await that.wallet.getAccounts(true, undefined, true);
         assert(accounts.length > 0);
         for (let account of accounts) {
           assert(account.getSubaddresses().length > 0);
@@ -306,18 +307,18 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
       it("Has an address book", async function() {
         
         // initial state
-        let entries = await wallet.getAddressBookEntries();
+        let entries = await that.wallet.getAddressBookEntries();
         let numEntriesStart = entries.length
         for (let entry of entries) testAddressBookEntry(entry);
         
         // test adding standard addresses
         const NUM_ENTRIES = 5;
-        let address = (await wallet.getSubaddress(0, 0)).getAddress();
+        let address = (await that.wallet.getSubaddress(0, 0)).getAddress();
         let indices = [];
         for (let i = 0; i < NUM_ENTRIES; i++) {
-          indices.push(await wallet.addAddressBookEntry(address, "hi there!"));
+          indices.push(await that.wallet.addAddressBookEntry(address, "hi there!"));
         }
-        entries = await wallet.getAddressBookEntries();
+        entries = await that.wallet.getAddressBookEntries();
         assert.equal(entries.length, numEntriesStart + NUM_ENTRIES);
         for (let idx of indices) {
           let found = false;
@@ -336,9 +337,9 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         // delete entries at starting index
         let deleteIdx = indices[0];
         for (let i = 0; i < indices.length; i++) {
-          await wallet.deleteAddressBookEntry(deleteIdx);
+          await that.wallet.deleteAddressBookEntry(deleteIdx);
         }
-        entries = await wallet.getAddressBookEntries();
+        entries = await that.wallet.getAddressBookEntries();
         assert.equal(entries.length, numEntriesStart);
         
         // test adding integrated addresses
@@ -347,14 +348,14 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         let integratedAddresses = {};
         let integratedDescriptions = {};
         for (let i = 0; i < NUM_ENTRIES; i++) {
-          let integratedAddress = await wallet.getIntegratedAddress(paymentId + i); // create unique integrated address
+          let integratedAddress = await that.wallet.getIntegratedAddress(paymentId + i); // create unique integrated address
           let uuid = GenUtils.uuidv4();
-          let idx = await wallet.addAddressBookEntry(integratedAddress.toString(), uuid);
+          let idx = await that.wallet.addAddressBookEntry(integratedAddress.toString(), uuid);
           indices.push(idx);
           integratedAddresses[idx] = integratedAddress;
           integratedDescriptions[idx] = uuid;
         }
-        entries = await wallet.getAddressBookEntries();
+        entries = await that.wallet.getAddressBookEntries();
         assert.equal(entries.length, numEntriesStart + NUM_ENTRIES);
         for (let idx of indices) {
           let found = false;
@@ -374,66 +375,66 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         // delete entries at starting index
         deleteIdx = indices[0];
         for (let i = 0; i < indices.length; i++) {
-          await wallet.deleteAddressBookEntry(deleteIdx);
+          await that.wallet.deleteAddressBookEntry(deleteIdx);
         }
-        entries = await wallet.getAddressBookEntries();
+        entries = await that.wallet.getAddressBookEntries();
         assert.equal(entries.length, numEntriesStart);
       });
       
       it("Can rescan spent", async function() {
-        await wallet.rescanSpent();
+        await that.wallet.rescanSpent();
       });
       
       it("Can save the wallet file", async function() {
-        await wallet.save();
+        await that.wallet.save();
       });
       
       it("Can close a wallet", async function() {
         
         // create a test wallet
         let path = GenUtils.uuidv4();
-        await wallet.createWalletRandom(path, TestUtils.WALLET_PASSWORD);
-        await wallet.sync();
-        assert((await wallet.getHeight()) > 1);
+        await that.wallet.createWalletRandom(path, TestUtils.WALLET_PASSWORD);
+        await that.wallet.sync();
+        assert((await that.wallet.getHeight()) > 1);
         
         // close the wallet
-        await wallet.close();
+        await that.wallet.close();
         
         // attempt to interact with the wallet
         try {
-          await wallet.getHeight();
+          await that.wallet.getHeight();
         } catch (e) {
           assert.equal(e.getCode(), -13);
           assert.equal(e.message, "No wallet file");
         }
         try {
-          await wallet.getMnemonic();
+          await that.wallet.getMnemonic();
         } catch (e) {
           assert.equal(e.getCode(), -13);
           assert.equal(e.message, "No wallet file");
         }
         try {
-          await wallet.sync();
+          await that.wallet.sync();
         } catch (e) {
           assert.equal(e.getCode(), -13);
           assert.equal(e.message, "No wallet file");
         }
         
         // re-open the wallet
-        await wallet.openWallet(path, TestUtils.WALLET_PASSWORD);
-        await wallet.sync();
-        assert.equal(await wallet.getHeight(), await daemon.getHeight());
+        await that.wallet.openWallet(path, TestUtils.WALLET_PASSWORD);
+        await that.wallet.sync();
+        assert.equal(await that.wallet.getHeight(), await daemon.getHeight());
         
         // close the wallet
-        await wallet.close();
+        await that.wallet.close();
         
         // re-open main test wallet for other tests
-        await wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+        await that.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
       });
       
       if (false)  // disabled so server not actually stopped
       it("Can stop the RPC server", async function() {
-        await this.wallet.stop();
+        await that.wallet.stop();
       });
     });
   }
