@@ -11,7 +11,7 @@ class MoneroMultisigInfo {
     return this.state.isMultisig;
   }
   
-  setIsMultisig(isMultsig) {
+  setIsMultisig(isMultisig) {
     this.state.isMultisig = isMultisig;
     return this;
   }

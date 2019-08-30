@@ -3178,14 +3178,14 @@ class TestMoneroWalletCommon {
       // open the first multisig participants
       curWallet = await this.openWallet(walletIds[0]);
       assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
-      that._testMultisigInfo(await curWallet.getMultisigInfo(), m, n);
+      this._testMultisigInfo(await curWallet.getMultisigInfo(), m, n);
       await curWallet.startSyncing();
       
       console.log("Starting mining");
       
       // attempt to start mining
-      try { await StartMining.startMining(); }
-      catch (e) { }
+      try { await TestUtils.StartMining.startMining(); }
+      catch (e) { console.log(e); }
       
       // wait for the multisig wallet's funds to unlock // TODO: could replace with condition_variable and notify
       let lastNumConfirmations = undefined;
@@ -3197,7 +3197,7 @@ class TestMoneroWalletCommon {
         // fetch and test outputs
         let outputs = await curWallet.getOutputs();
         if (outputs.length === 0) console.log("No outputs reported yet");
-        else{
+        else {
           
           // print num confirmations
           let height = await this.daemon.getHeight();
