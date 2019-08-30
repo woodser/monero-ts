@@ -28,7 +28,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     await this.wallet.createWalletRandom(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD);
     return this.wallet;
   }
-  
+
   async openWallet(path) {
     await this.wallet.openWallet(path, TestUtils.WALLET_PASSWORD);
     return this.wallet;
@@ -67,10 +67,8 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   }
   
   _testWalletRpc(config) {
-    let wallet = this.wallet;
-    let daemon = this.daemon;
     let that = this;
-    
+    let daemon = this.daemon;
     describe("Tests specific to RPC wallet", function() {
       
       // ---------------------------- BEGIN TESTS ---------------------------------
@@ -113,7 +111,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         console.log("OPENING MAIN WALLET!!!");
         await that.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
         console.log("DONE");
-        console.log("Path: " + await wallet.getPath());
+        console.log("Path: " + await that.wallet.getPath());
         
         // throw error if there was one
         if (err) throw err;

@@ -84,27 +84,12 @@ class TestMoneroWalletCommon {
   
   runCommonTests(config) {
     let that = this;
-    describe("Common Wallet Tests" + (config.liteMode ? " (lite mode)" : ""), function() {
-      if (config.testNonSends) that._testNonSends(config.liteMode);
-      if (config.testNotifications) that._testNotifications(config.liteMode);
-      if (config.testSends) that._testSends(config.liteMode);
-      if (config.testResets) that._testResets(config.liteMode);
-    });
-  }
-  
-  /**
-   * Runs all tests that do not initiate transactions on the blockchain or destroy wallet state.
-   * 
-   * @param liteMode specifies if some heavy tests should be skipped (convenience for dev)
-   */
-  _testNonSends(liteMode) {
-    let wallet = this.wallet;
     let daemon = this.daemon;
-    let that = this;
-    
-    describe("Test Non-Sends", function() {
-
-      // local tx cache for tests
+    describe("Common Wallet Tests" + (config.liteMode ? " (lite mode)" : ""), function() {
+      
+      //  --------------------------- TEST NON RELAYS -------------------------
+      
+   		// local tx cache for tests
       let txCache;
       async function getCachedTxs() {
         if (txCache !== undefined) return txCache;
@@ -137,12 +122,14 @@ class TestMoneroWalletCommon {
         wallet = await that.getTestWallet();
       });
       
+      if (config.testNonRelays)
       it("Can get the mnemonic phrase derived from the seed", async function() {
         let mnemonic = await wallet.getMnemonic();
         MoneroUtils.validateMnemonic(mnemonic);
         assert.equal(mnemonic, TestUtils.MNEMONIC);
       });
       
+      if (config.testNonRelays)
       it("Can get a list of supported languages for the mnemonic phrase", async function() {
         let languages = await wallet.getLanguages();
         assert(Array.isArray(languages));
@@ -150,22 +137,26 @@ class TestMoneroWalletCommon {
         for (let language of languages) assert(language);
       });
       
+      if (config.testNonRelays)
       it("Can get the private view key", async function() {
         let privateViewKey = await wallet.getPrivateViewKey()
         MoneroUtils.validatePrivateViewKey(privateViewKey);
       });
       
+      if (config.testNonRelays)
       it("Can get the private spend key", async function() {
         let privateSpendKey = await wallet.getPrivateSpendKey()
         MoneroUtils.validatePrivateSpendKey(privateSpendKey);
       });
       
+      if (config.testNonRelays)
       it("Can get the primary address", async function() {
         let primaryAddress = await wallet.getPrimaryAddress();
         MoneroUtils.validateAddress(primaryAddress);
         assert.equal(primaryAddress, (await wallet.getSubaddress(0, 0)).getAddress());
       });
       
+      if (config.testNonRelays)
       it("Can get the address of a subaddress at a specified account and subaddress index", async function() {
         assert.equal((await wallet.getSubaddress(0, 0)).getAddress(), await wallet.getPrimaryAddress());
         for (let account of await wallet.getAccounts(true)) {
@@ -175,6 +166,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testNonRelays)
       it("Can get addresses out of range of used accounts and subaddresses", async function() {
         let accounts = await wallet.getAccounts(true);
         let accountIdx = accounts.length - 1;
@@ -184,6 +176,7 @@ class TestMoneroWalletCommon {
         assert(address.length > 0);
       });
       
+      if (config.testNonRelays)
       it("Can get the account and subaddress indices of an address", async function() {
         
         // get last subaddress to test
@@ -217,6 +210,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testNonRelays)
       it("Can get an integrated address given a payment id", async function() {
         
         // save address for later comparison
@@ -251,6 +245,7 @@ class TestMoneroWalletCommon {
       });
       
       // TODO: test syncing from start height
+      if (config.testNonRelays)
       it("Can sync (without progress)", async function() {
         let numBlocks = 100;
         let chainHeight = await daemon.getHeight();
@@ -261,11 +256,13 @@ class TestMoneroWalletCommon {
         assert.equal(typeof result.getReceivedMoney(), "boolean");
       });
       
+      if (config.testNonRelays)
       it("Can get the current height that the wallet is synchronized to", async function() {
         let height = await wallet.getHeight();
         assert(height >= 0);
       });
       
+      if (config.testNonRelays)
       it("Can get the locked and unlocked balances of the wallet, accounts, and subaddresses", async function() {
         
         // fetch accounts with all info as reference
@@ -306,6 +303,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testNonRelays)
       it("Can get accounts without subaddresses", async function() {
         let accounts = await wallet.getAccounts();
         assert(accounts.length > 0);
@@ -315,6 +313,7 @@ class TestMoneroWalletCommon {
         });
       });
       
+      if (config.testNonRelays)
       it("Can get accounts with subaddresses", async function() {
         let accounts = await wallet.getAccounts(true);
         assert(accounts.length > 0);
@@ -324,6 +323,7 @@ class TestMoneroWalletCommon {
         });
       });
       
+      if (config.testNonRelays)
       it("Can get an account at a specified index", async function() {
         let accounts = await wallet.getAccounts();
         assert(accounts.length > 0);
@@ -340,6 +340,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testNonRelays)
       it("Can create a new account without a label", async function() {
         let accountsBefore = await wallet.getAccounts();
         let createdAccount = await wallet.createAccount();
@@ -347,6 +348,7 @@ class TestMoneroWalletCommon {
         assert.equal((await wallet.getAccounts()).length - 1, accountsBefore.length);
       });
       
+      if (config.testNonRelays)
       it("Can create a new account with a label", async function() {
         
         // create account with label
@@ -372,6 +374,7 @@ class TestMoneroWalletCommon {
         testAccount(createdAccount);
       });
       
+      if (config.testNonRelays)
       it("Can get subaddresses at a specified account index", async function() {
         let accounts = await wallet.getAccounts();
         assert(accounts.length > 0);
@@ -385,6 +388,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testNonRelays)
       it("Can get subaddresses at specified account and subaddress indices", async function() {
         let accounts = await wallet.getAccounts();
         assert(accounts.length > 0);
@@ -409,6 +413,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testNonRelays)
       it("Can get a subaddress at a specified account and subaddress index", async function() {
         let accounts = await wallet.getAccounts();
         assert(accounts.length > 0);
@@ -422,6 +427,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testNonRelays)
       it("Can create a subaddress with and without a label", async function() {
         
         // create subaddresses across accounts
@@ -452,6 +458,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testNonRelays)
       it("Can get transactions in the wallet", async function() {
         let nonDefaultIncoming = false;
         let txs1 = await getCachedTxs();
@@ -494,6 +501,7 @@ class TestMoneroWalletCommon {
         assert(nonDefaultIncoming, "No incoming transfers found to non-default account and subaddress; run send-to-multiple tests first");
       });
       
+      if (config.testNonRelays)
       it("Can get transactions by id", async function() {
         
         let maxNumTxs = 10;  // max number of txs to test
@@ -527,7 +535,7 @@ class TestMoneroWalletCommon {
         }
       });
       
-      if (!liteMode)
+      if (config.testNonRelays && !config.liteMode)
       it("Can get transactions with additional configuration", async function() {
         
         // get random transactions for testing
@@ -636,6 +644,7 @@ class TestMoneroWalletCommon {
         assert(found, "No vouts found in txs");
       });
       
+      if (config.testNonRelays)
       it("Can get transactions by height", async function() {
         
         // get all confirmed txs for testing
@@ -699,6 +708,7 @@ class TestMoneroWalletCommon {
       });
       
       // NOTE: payment ids are deprecated so this test will require an old wallet to pass
+      if (config.testNonRelays)
       it("Can get transactions by payment ids", async function() {
         
         // get random transactions with payment ids for testing
@@ -724,6 +734,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testNonRelays)
       it("Returns all known fields of txs regardless of filtering", async function() {
         
         // fetch wallet txs
@@ -752,7 +763,7 @@ class TestMoneroWalletCommon {
         throw new Error("Test requires tx sent from/to different accounts of same wallet but none found; run send tests");
       });
       
-      if (!liteMode)
+      if (config.testNonRelays && !config.liteMode)
       it("Validates inputs when getting transactions", async function() {
         
         // fetch random txs for testing
@@ -821,6 +832,7 @@ class TestMoneroWalletCommon {
         }
       });
 
+      if (config.testNonRelays)
       it("Can get transfers in the wallet, accounts, and subaddresses", async function() {
         
         // get all transfers
@@ -901,7 +913,7 @@ class TestMoneroWalletCommon {
         assert(nonDefaultIncoming, "No transfers found in non-default account and subaddress; run send-to-multiple tests");
       });
       
-      if (!liteMode)
+      if (config.testNonRelays && !config.liteMode)
       it("Can get transfers with additional configuration", async function() {
         
         // get incoming transfers
@@ -966,7 +978,7 @@ class TestMoneroWalletCommon {
         }
       });
       
-      if (!liteMode)
+      if (config.testNonRelays && !config.liteMode)
       it("Validates inputs when getting transfers", async function() {
         
         // test with invalid id
@@ -993,6 +1005,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testNonRelays)
       it("Can get outputs in the wallet, accounts, and subaddresses", async function() {
 
         // get all outputs
@@ -1037,8 +1050,8 @@ class TestMoneroWalletCommon {
         // ensure output found with non-zero account and subaddress indices
         assert(nonDefaultIncoming, "No outputs found in non-default account and subaddress; run send-to-multiple tests");
       });
-      
-      if (!liteMode)
+
+      if (config.testNonRelays && !config.liteMode)
       it("Can get outputs with additional configuration", async function() {
         
         // get unspent outputs to account 0
@@ -1090,7 +1103,7 @@ class TestMoneroWalletCommon {
         assert.equal(outputs[0].getKeyImage().getHex(), keyImage);
       });
       
-      if (!liteMode)
+      if (config.testNonRelays && !config.liteMode)
       it("Validates inputs when getting outputs", async function() {
         
         // test with invalid id
@@ -1106,12 +1119,14 @@ class TestMoneroWalletCommon {
         for (let output of outputs) assert(tx === output.getTx());
       });
       
+      if (config.testNonRelays)
       it("Can get outputs in hex format", async function() {
         let outputsHex = await wallet.getOutputsHex();
         assert.equal(typeof outputsHex, "string");  // TODO: this will fail if wallet has no outputs; run these tests on new wallet
         assert(outputsHex.length > 0);
       });
       
+      if (config.testNonRelays)
       it("Can import outputs in hex format", async function() {
         
         // get outputs hex
@@ -1124,6 +1139,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testNonRelays)
       it("Has correct accounting across accounts, subaddresses, txs, transfers, and outputs", async function() {
         
         // pre-fetch wallet balances, accounts, subaddresses, and txs
@@ -1203,6 +1219,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testNonRelays)
       it("Can get and set a transaction note", async function() {
         let txs = await getRandomTransactions(wallet, undefined, 1, 5);
         
@@ -1219,6 +1236,7 @@ class TestMoneroWalletCommon {
       });
       
       // TODO: why does getting cached txs take 2 seconds when should already be cached?
+      if (config.testNonRelays)
       it("Can get and set multiple transaction notes", async function() {
         
         // set tx notes
@@ -1242,6 +1260,7 @@ class TestMoneroWalletCommon {
         // TODO: test that get transaction has note
       });
       
+      if (config.testNonRelays)
       it("Can check a transfer using the transaction's secret key and the destination", async function() {
         
         // get random txs that are confirmed and have outgoing destinations
@@ -1325,6 +1344,7 @@ class TestMoneroWalletCommon {
         testCheckTx(tx, check);
       });
       
+      if (config.testNonRelays)
       it("Can prove a transaction by getting its signature", async function() {
         
         // get random txs that are confirmed and have outgoing destinations
@@ -1392,6 +1412,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testNonRelays)
       it("Can prove a spend using a generated signature and no destination public address", async function() {
         
         // get random confirmed outgoing txs
@@ -1438,6 +1459,7 @@ class TestMoneroWalletCommon {
         assert.equal(await wallet.checkSpendProof(tx.getId(), "This is the right message", signature), false);
       });
       
+      if (config.testNonRelays)
       it("Can prove reserves in the wallet", async function() {
         
         // get proof of entire wallet
@@ -1485,79 +1507,80 @@ class TestMoneroWalletCommon {
         }
       });
       
-      // TODO: re-enable this after 14.x point release which fixes this
-//      it("Can prove reserves in an account", async function() {
-//        
-//        // test proofs of accounts
-//        let numNonZeroTests = 0;
-//        let msg = "Test message";
-//        let accounts = await wallet.getAccounts();
-//        let signature;
-//        for (let account of accounts) {
-//          if (account.getBalance().compare(new BigInteger(0)) > 0) {
-//            let checkAmount = (await account.getBalance()).divide(new BigInteger(2));
-//            signature = await wallet.getReserveProofAccount(account.getIndex(), checkAmount, msg);
-//            let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), msg, signature);
-//            assert(check.isGood());
-//            testCheckReserve(check);
-//            assert(check.getTotalAmount().compare(checkAmount) >= 0);
-//            numNonZeroTests++;
-//          } else {
-//            try {
-//              await wallet.getReserveProofAccount(account.getIndex(), account.getBalance(), msg);
-//              throw new Error("Should have thrown exception");
-//            } catch (e) {
-//              assert.equal(e.getCode(), -1);
-//              try {
-//                await wallet.getReserveProofAccount(account.getIndex(), TestUtils.MAX_FEE, msg);
-//                throw new Error("Should have thrown exception");
-//              } catch (e2) {
-//                assert.equal(e2.getCode(), -1);
-//              }
-//            }
-//          }
-//        }
-//        assert(numNonZeroTests > 1, "Must have more than one account with non-zero balance; run send-to-multiple tests");
-//        
-//        // test error when not enough balance for requested minimum reserve amount
-//        try {
-//          await wallet.getReserveProofAccount(0, accounts[0].getBalance().add(TestUtils.MAX_FEE), "Test message");
-//          throw new Error("Should have thrown exception");
-//        } catch (e) {
-//          assert.equal(e.getCode(), -1);
-//        }
-//        
-//        // test different wallet address
-//        let differentAddress = await TestUtils.getRandomWalletAddress();
-//        try {
-//          await wallet.checkReserveProof(differentAddress, "Test message", signature);
-//          throw new Error("Should have thrown exception");
-//        } catch (e) {
-//          assert.equal(e.getCode(), -1);
-//        }
-//        
-//        // test subaddress
-//        try {
-//          await wallet.checkReserveProof((await wallet.getSubaddress(0, 1)).getAddress(), "Test message", signature);
-//          throw new Error("Should have thrown exception");
-//        } catch (e) {
-//          assert.equal(e.getCode(), -1);
-//        }
-//        
-//        // test wrong message
-//        let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Wrong message", signature);
-//        assert.equal(check.isGood(), false); // TODO: specifically test reserve checks, probably separate objects
-//        testCheckReserve(check);
-//        
-//        // test wrong signature
-//        try {
-//          await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Test message", "wrong signature");
-//          throw new Error("Should have thrown exception");
-//        } catch (e) {
-//          assert.equal(e.getCode(), -1);
-//        }
-//      });
+      if (config.testNonRelays && false)  // TODO: re-enable this after 14.x point release which fixes this
+      it("Can prove reserves in an account", async function() {
+        
+        // test proofs of accounts
+        let numNonZeroTests = 0;
+        let msg = "Test message";
+        let accounts = await wallet.getAccounts();
+        let signature;
+        for (let account of accounts) {
+          if (account.getBalance().compare(new BigInteger(0)) > 0) {
+            let checkAmount = (await account.getBalance()).divide(new BigInteger(2));
+            signature = await wallet.getReserveProofAccount(account.getIndex(), checkAmount, msg);
+            let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), msg, signature);
+            assert(check.isGood());
+            testCheckReserve(check);
+            assert(check.getTotalAmount().compare(checkAmount) >= 0);
+            numNonZeroTests++;
+          } else {
+            try {
+              await wallet.getReserveProofAccount(account.getIndex(), account.getBalance(), msg);
+              throw new Error("Should have thrown exception");
+            } catch (e) {
+              assert.equal(e.getCode(), -1);
+              try {
+                await wallet.getReserveProofAccount(account.getIndex(), TestUtils.MAX_FEE, msg);
+                throw new Error("Should have thrown exception");
+              } catch (e2) {
+                assert.equal(e2.getCode(), -1);
+              }
+            }
+          }
+        }
+        assert(numNonZeroTests > 1, "Must have more than one account with non-zero balance; run send-to-multiple tests");
+        
+        // test error when not enough balance for requested minimum reserve amount
+        try {
+          await wallet.getReserveProofAccount(0, accounts[0].getBalance().add(TestUtils.MAX_FEE), "Test message");
+          throw new Error("Should have thrown exception");
+        } catch (e) {
+          assert.equal(e.getCode(), -1);
+        }
+        
+        // test different wallet address
+        let differentAddress = await TestUtils.getRandomWalletAddress();
+        try {
+          await wallet.checkReserveProof(differentAddress, "Test message", signature);
+          throw new Error("Should have thrown exception");
+        } catch (e) {
+          assert.equal(e.getCode(), -1);
+        }
+        
+        // test subaddress
+        try {
+          await wallet.checkReserveProof((await wallet.getSubaddress(0, 1)).getAddress(), "Test message", signature);
+          throw new Error("Should have thrown exception");
+        } catch (e) {
+          assert.equal(e.getCode(), -1);
+        }
+        
+        // test wrong message
+        let check = await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Wrong message", signature);
+        assert.equal(check.isGood(), false); // TODO: specifically test reserve checks, probably separate objects
+        testCheckReserve(check);
+        
+        // test wrong signature
+        try {
+          await wallet.checkReserveProof(await wallet.getPrimaryAddress(), "Test message", "wrong signature");
+          throw new Error("Should have thrown exception");
+        } catch (e) {
+          assert.equal(e.getCode(), -1);
+        }
+      });
       
+      if (config.testNonRelays)
       it("Can get signed key images", async function() {
         let images = await wallet.getKeyImages();
         assert(Array.isArray(images));
@@ -1569,6 +1592,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testNonRelays)
       it("Can get new key images from the last import", async function() {
         
         // get outputs hex
@@ -1590,7 +1614,7 @@ class TestMoneroWalletCommon {
         }
       });
       
-      if (false)  // TODO monero core: importing key images can cause erasure of incoming transfers per wallet2.cpp:11957
+      if (config.testNonRelays && false)  // TODO monero core: importing key images can cause erasure of incoming transfers per wallet2.cpp:11957
       it("Can import key images", async function() {
         let images = await wallet.getKeyImages();
         assert(Array.isArray(images));
@@ -1609,6 +1633,7 @@ class TestMoneroWalletCommon {
         TestUtils.testUnsignedBigInteger(result.getUnspentAmount(), hasUnspent);
       });
       
+      if (config.testNonRelays)
       it("Can sign and verify messages", async function() {
         let msg = "This is a super important message which needs to be signed and verified.";
         let signature = await wallet.sign(msg);
@@ -1618,6 +1643,7 @@ class TestMoneroWalletCommon {
         assert.equal(verified, false);
       });
       
+      if (config.testNonRelays)
       it("Can get and set arbitrary key/value attributes", async function() {
         
         // set attributes
@@ -1638,6 +1664,7 @@ class TestMoneroWalletCommon {
         assert.equal(await wallet.getAttribute("unset_key"), undefined);
       });
       
+      if (config.testNonRelays)
       it("Can convert between a tx send request and payment URI", async function() {
         
         // test with address and amount
@@ -1682,6 +1709,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testNonRelays)
       it("Can start and stop mining", async function() {
         let status = await daemon.getMiningStatus();
         if (status.isActive()) await wallet.stopMining();
@@ -1689,6 +1717,7 @@ class TestMoneroWalletCommon {
         await wallet.stopMining();
       });
       
+      if (config.testNonRelays)
       it("Can save and close the wallet in a single call", async function() {
         
         // create a random wallet
@@ -1718,30 +1747,12 @@ class TestMoneroWalletCommon {
         await wallet.close(); // defaults to not saving
         this.wallet = await getTestWallet();
       });
-    });
-  }
-  
-  _testNotifications(liteMode) {
-    let wallet = this.wallet;
-    let daemon = this.daemon;
-    let that = this;
-    
-    describe("Test Notifications", function() {
       
-      // start mining if possible to help push the network along
-      before(async function() {
-        try { await wallet.startMining(8, false, true); }
-        catch (e) { }
-      });
-      
-      // stop mining
-      after(async function() {
-        try { await wallet.stopMining(); }
-        catch (e) { }
-      });
+      // ------------------------ TEST NOTIFICATIONS --------------------------
       
       // TODO: test sending to multiple accounts
       
+      if (config.testNotifications)
       it("Can update a locked tx sent from/to the same account as blocks are added to the chain", async function() {
         let request = new MoneroSendRequest(0, await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
@@ -1749,7 +1760,7 @@ class TestMoneroWalletCommon {
         await testSendAndUpdateTxs(request);
       });
       
-      if (!liteMode)
+      if (config.testNotifications && !config.liteMode)
       it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
         let request = new MoneroSendRequest(0, await wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
@@ -1757,19 +1768,32 @@ class TestMoneroWalletCommon {
         await testSendAndUpdateTxs(request);
       });
       
-      if (!liteMode)
+      if (config.testNotifications && !config.liteMode)
       it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
         let request = new MoneroSendRequest(0, (await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
         await testSendAndUpdateTxs(request);
       });
       
-      if (!liteMode)
+      if (config.testNotifications && !config.liteMode)
       it("Can update locked, split txs sent from/to different accounts as blocks are added to the chain", async function() {
         let request = new MoneroSendRequest(0, (await wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
         await testSendAndUpdateTxs(request);
       });
+      
+      // TODO: incorporate mining into testSendAndUpdateTxs()
+//      // start mining if possible to help push the network along
+//      before(async function() {
+//        try { await wallet.startMining(8, false, true); }
+//        catch (e) { }
+//      });
+//      
+//      // stop mining
+//      after(async function() {
+//        try { await wallet.stopMining(); }
+//        catch (e) { }
+//      });
       
       /**
        * Tests sending a tx with an unlock time then tracking and updating it as
@@ -1894,16 +1918,10 @@ class TestMoneroWalletCommon {
           throw e;
         }
       }
-    });
-  }
-  
-  _testSends(liteMode) {
-    let wallet = this.wallet;
-    let daemon = this.daemon;
-    let that = this;
-    
-    describe("Test Sends", function() {
       
+      //  ----------------------------- TEST RELAYS ---------------------------
+      
+      if (config.testRelays)
       it("Can send to external address", async function() {
         
         // collect balances before
@@ -1923,16 +1941,18 @@ class TestMoneroWalletCommon {
         assert.equal(balance2, expectedBalance, "Balance after send was not balance before - net tx amount - fee (5 - 1 != 4 test)");
       });
       
+      if (config.testRelays)
       it("Can send from multiple subaddresses in a single transaction", async function() {
         await testSendFromMultiple();
       });
       
+      if (config.testRelays)
       it("Can send from multiple subaddresses in split transactions", async function() {
         await testSendFromMultiple(new MoneroSendRequest().setCanSplit(true));
       });
       
       async function testSendFromMultiple(request) {
-      	await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         if (!request) request = new MoneroSendRequest();
         
         let NUM_SUBADDRESSES = 2; // number of subaddresses to send from
@@ -2035,18 +2055,22 @@ class TestMoneroWalletCommon {
         await testSendToSingle(new MoneroSendRequest().setCanSplit(false).setPaymentId(paymentId + paymentId + paymentId + paymentId));  // 64 character payment id
       });
       
+      if (config.testRelays)
       it("Can send to an address in a single transaction with a ring size", async function() {
         await testSendToSingle(new MoneroSendRequest().setCanSplit(false).setRingSize(8)); // TODO monero-wallet-rpc: wallet rpc transfer and sweep calls are not rejecting low ring sizes, like 8.  should they?
       });
       
+      if (config.testRelays)
       it("Can send to an address with split transactions", async function() {
         await testSendToSingle(new MoneroSendRequest().setCanSplit(true));
       });
       
+      if (config.testRelays)
       it("Can create then relay a transaction to send to a single address", async function() {
         await testSendToSingle(new MoneroSendRequest().setCanSplit(false).setDoNotRelay(true));
       });
       
+      if (config.testRelays)
       it("Can create then relay split transactions to send to a single address", async function() {
         await testSendToSingle(new MoneroSendRequest().setCanSplit(true).setDoNotRelay(true));
       });
@@ -2163,18 +2187,22 @@ class TestMoneroWalletCommon {
         }
       }
       
+      if (config.testRelays)
       it("Can send to multiple addresses in a single transaction", async function() {
         await testSendToMultiple(5, 3, false);
       });
       
+      if (config.testRelays)
       it("Can send to multiple addresses in split transactions", async function() {
         await testSendToMultiple(3, 5, true);
       });
       
+      if (config.testRelays)
       it("Can send to multiple addresses in split transactions using a JavaScript object for configuration", async function() {
         await testSendToMultiple(1, 15, true, undefined, true);
       });
       
+      if (config.testRelays)
       it("Can send dust to multiple addresses in split transactions", async function() {
         let dustAmt = (await daemon.getFeeEstimate()).divide(new BigInteger(2));
         await testSendToMultiple(5, 3, true, dustAmt);
@@ -2297,6 +2325,7 @@ class TestMoneroWalletCommon {
         }
       }
       
+      if (config.testRelays)
       it("Can sweep individual outputs identified by their key images", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         
@@ -2344,6 +2373,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testRelays)
       it("Can sweep dust without relaying", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         
@@ -2377,6 +2407,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testRelays)
       it("Can sweep dust", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         
@@ -2397,7 +2428,7 @@ class TestMoneroWalletCommon {
         }
       });
       
-      if (!liteMode)
+      if (config.testRelays && !config.liteMode)
       it("Supports multisig wallets", async function() {
         let err;
         try {
@@ -2427,16 +2458,10 @@ class TestMoneroWalletCommon {
         // throw error if there was one
         if (err) throw err;
       });
-    });
-  }
-  
-  _testResets() {
-    let wallet = this.wallet;
-    let daemon = this.daemon;
-    let that = this;
-    
-    describe("Test Resets", function() {
       
+      // ---------------------------- TEST RESETS -----------------------------
+      
+      if (config.testResets)
       it("Can sweep subaddresses", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         
@@ -2513,6 +2538,7 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testResets)
       it("Can sweep accounts", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(wallet);
         const NUM_ACCOUNTS_TO_SWEEP = 1;
@@ -2575,11 +2601,13 @@ class TestMoneroWalletCommon {
         }
       });
       
+      if (config.testResets)
       it("Can sweep the whole wallet by accounts", async function() {
         assert(false, "Are you sure you want to sweep the whole wallet?");
         await _testSweepWallet();
       });
       
+      if (config.testResets)
       it("Can sweep the whole wallet by subaddresses", async function() {
         assert(false, "Are you sure you want to sweep the whole wallet?");
         await _testSweepWallet(true);
@@ -2636,6 +2664,7 @@ class TestMoneroWalletCommon {
       }
       
       // disabled so tests don't delete local cache
+      if (config.testResets)
       it("Can rescan the blockchain", async function() {
         assert(false, "Are you sure you want to discard local wallet data and rescan the blockchain?");
         await wallet.rescanBlockchain();
