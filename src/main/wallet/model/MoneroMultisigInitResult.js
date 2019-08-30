@@ -1,11 +1,9 @@
-package monero.wallet.model;
-
 /**
  * Models the result of initializing a multisig wallet which results in the
  * multisig wallet's address xor another multisig hex to share with
  * participants to create the wallet.
  */
-public class MoneroMultisigInitResult {
+class MoneroMultisigInitResult {
 
   constructor() {
     this.state = {};
@@ -15,7 +13,7 @@ public class MoneroMultisigInitResult {
     return this.state.address;
   }
   
-  setAddress(String address) {
+  setAddress(address) {
     this.state.address = address;
     return this;
   }

@@ -1,11 +1,7 @@
-package monero.wallet.model;
-
-import java.util.List;
-
 /**
  * Models the result of signing multisig tx hex.
  */
-public class MoneroMultisigSignResult {
+class MoneroMultisigSignResult {
   
   constructor() {
     this.state = {};
@@ -28,4 +24,4 @@ public class MoneroMultisigSignResult {
   }
 }
 
-module.exports = MoneroMultisigInitResult;
+module.exports = MoneroMultisigSignResult;

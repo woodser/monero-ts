@@ -51,6 +51,9 @@ const MoneroAccountTag = require("./model/MoneroAccountTag");
 const MoneroAddressBookEntry = require("./model/MoneroAddressBookEntry");
 const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
 const MoneroKeyImageImportResult = require("./model/MoneroKeyImageImportResult");
+const MoneroMultisigInfo = require("./model/MoneroMultisigInfo");
+const MoneroMultisigInitResult = require("./model/MoneroMultisigInitResult");
+const MoneroMultisigSignResult = require("./model/MoneroMultisigSignResult");
 
 /**
  * Implements a Monero wallet using monero-wallet-rpc.
@@ -269,11 +272,6 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getUnlockedBalance(accountIdx, subaddressIdx) {
     return (await this._getBalances(accountIdx, subaddressIdx))[1];
-  }
-  
-  async isMultisigImportNeeded() {
-    let resp = await this.config.rpc.sendJsonRequest("get_balance");
-    return resp.result.multisig_import_needed === true;
   }
   
   async getAccounts(includeSubaddresses, tag, skipBalances) {
@@ -1206,6 +1204,83 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async stopMining() {
     await this.config.rpc.sendJsonRequest("stop_mining");
+  }
+  
+  async isMultisigImportNeeded() {
+    let resp = await this.config.rpc.sendJsonRequest("get_balance");
+    return resp.result.multisig_import_needed === true;
+  }
+  
+  async getMultisigInfo() {
+    let resp = await this.config.rpc.sendJsonRequest("is_multisig");
+    let result = resp.result;
+    let info = new MoneroMultisigInfo();
+    info.setIsMultisig(result.multisig);
+    info.setIsReady(result.ready);
+    info.setThreshold(result.threshold);
+    info.setNumParticipants(result.total);
+    return info;
+  }
+  
+  async prepareMultisig() {
+    let resp = await this.config.rpc.sendJsonRequest("prepare_multisig");
+    let result = resp.result;
+    return result.multisig_info;
+  }
+  
+  async makeMultisig(multisigHexes, threshold, password) {
+    let resp = await this.config.rpc.sendJsonRequest("make_multisig", {
+      multisig_info: multisigHexes,
+      threshold: threshold,
+      password: password
+    });
+    let result = resp.result;
+    let msResult = new MoneroMultisigInitResult();
+    msResult.setAddress(result.address);
+    msResult.setMultisigHex(result.multisig_info);
+    if (msResult.getAddress().length === 0) msResult.setAddress(undefined);
+    if (msResult.getMultisigHex().length === 0) msResult.setMultisigHex(undefined);
+    return msResult;
+  }
+  
+  async finalizeMultisig(multisigHexes, password) {
+    let resp = await this.config.rpc.sendJsonRequest("finalize_multisig", {multisig_info: multisigHexes, password: password});
+    let address = resp.result.address;
+    return address.length === 0 ? undefined : address;
+  }
+  
+  async exchangeMultisigKeys(multisigHexes, password) {
+    let resp = await this.config.rpc.sendJsonRequest("exchange_multisig_keys", {multisig_info: multisigHexes, password: password});
+    let msResult = new MoneroMultisigInitResult();
+    msResult.setAddress(resp.result.address);
+    msResult.setMultisigHex(resp.result.multisig_info);
+    if (msResult.getAddress().length === 0) msResult.setAddress(undefined);
+    if (msResult.getMultisigHex().length === 0) msResult.setMultisigHex(undefined);
+    return msResult;
+  }
+  
+  async getMultisigHex() {
+    let resp = await this.config.rpc.sendJsonRequest("export_multisig_info");
+    return resp.result.info;
+  }
+
+  async importMultisigHex(multisigHexes) {
+    let resp = await this.config.rpc.sendJsonRequest("import_multisig_info", {info: multisigHexes});
+    return resp.result.n_outputs;
+  }
+
+  async signMultisigTxHex(multisigTxHex) {
+    let resp = await this.config.rpc.sendJsonRequest("sign_multisig", {tx_data_hex: multisigTxHex});
+    let result = resp.result;
+    let signResult = new MoneroMultisigSignResult();
+    signResult.setSignedMultisigTxHex(result.tx_data_hex);
+    signResult.setTxIds(result.tx_hash_list);
+    return signResult;
+  }
+
+  async submitMultisigTxHex(signedMultisigTxHex) {
+    let resp = await this.config.rpc.sendJsonRequest("submit_multisig", {tx_data_hex: signedMultisigTxHex});
+    return resp.result.tx_hash_list;
   }
   
   async save() {

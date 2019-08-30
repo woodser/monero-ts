@@ -1,5 +1,3 @@
-package monero.wallet.model;
-
 /**
  * Models information about a multisig wallet.
  */
