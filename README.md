@@ -1,26 +1,22 @@
-# Monero JavaScript API
+# Monero JavaScript Library
 
-**Compatible with Monero Core v14.1.0**
+This project is a library for using a Monero wallet and daemon in JavaScript using RPC bindings to [monero-wallet-rpc](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [monero-daemon-rpc](https://getmonero.org/resources/developer-guides/daemon-rpc.html).
 
-## Introduction
+In addition, this project conforms to an [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and for long-term use in the Monero project.
 
-This project provides a modern JavaScript API for a Monero wallet and daemon.
+## Main Features
 
-The API currently relies on running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon RPC](https://getmonero.org/resources/developer-guides/daemon-rpc.html).  Primary goals of this project are to support a local wallet with client-side crypto and a MyMonero wallet which shares the view key with a 3rd party to scan the blockchain.
+- Manage a Monero wallet and daemon using RPC
+- Cohesive APIs with rigorous focus on ease-of-use
+- Fetch and process binary data from the daemon (e.g. raw blocks)
+- Query wallet transactions, transfers, and outputs by their many attributes
+- Be notified when blocks are added to the chain
+- Full multisig support
+- Over 130 passing Mocha tests
 
-Main Features
+## Sample Code
 
-- General-purpose library with focus on ease-of-use
-- Clear object-oriented models to formalize Monero types and their relationships to each other
-- Powerful API to query transactions, transfers, and vouts by their attributes
-- Extensive test suite (130+ passing tests)
-- Fetch and process binary data from the daemon in JavaScript using client-side crypto
-
-A quick reference of the wallet and daemon data models can be found [here](monero-model.pdf).
-
-## Wallet Sample Code
-
-See [tests](tests) for the most complete examples of using this library.
+This code introduces the API.  See the [jsdoc](https://moneroecosystem.org/monero-javascript/), [specification PDF](http://moneroecosystem.org/monero-java/monero-spec.pdf), or [Mocha tests](src/test/) for more details.
 
 ```js
 // create a wallet that uses a monero-wallet-rpc endpoint
@@ -133,52 +129,30 @@ for (let tx of await wallet.getTxs({isConfirmed: true})) {
   await daemon.stopMining();
 ```
 
-## Running Tests
+## How to Use This Library
 
-1. Set up running instances of [Monero Wallet RPC](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [Monero Daemon RPC](https://getmonero.org/resources/developer-guides/daemon-rpc.html) with two test wallets named `test_wallet_1` and `test_wallet_2`.  The mnemonic phrase and public address of `test_wallet_1` must match `TestUtils.TEST_MNEMONIC` and `TestUtils.TEST_ADDRESS`, respectively.  Both wallets must be encrypted with a password which matches `TestUtils.WALLET_RPC_PW` ("supersecretpassword123").  See [Monero RPC Setup](#monero-rpc-setup).
-2. `git clone --recurse-submodules https://github.com/woodser/monero-javascript.git`
-3. `npm install`
-4. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](tests/TestUtils.js).
-5. `npm test`
+1. Clone the JavaScript repository: `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-javascript.git`
+2. Install dependencies using Node Package Manager: `npm install`
 
-Note: some tests are failing as not all functionality is implemented.
+You are now ready to use this library with [monero-daemon-rpc](https://getmonero.org/resources/developer-guides/daemon-rpc.html) and [monero-wallet-rpc](https://getmonero.org/resources/developer-guides/wallet-rpc.html) endpoints.
 
-## Monero RPC Setup
+## How to Set Up Monero RPC
 
 1. Download and extract the latest [Monero CLI](https://getmonero.org/downloads/) for your platform.
 2. Start Monero daemon locally: `./monerod --stagenet` (or use a remote daemon).
-3. Create a wallet file if one does not exist.  This is only necessary one time.
+3. Create a wallet file if one does not exist.
 	- Create new / open existing: `./monero-wallet-cli --daemon-address http://localhost:38081 --stagenet`
 	- Restore from mnemonic seed: `./monero-wallet-cli --daemon-address http://localhost:38081 --stagenet --restore-deterministic-wallet`
 4. Start monero-wallet-rpc (requires --wallet-dir to run tests):
 	
-	e.g. For wallet name `test_wallet_1`, user `rpc_user`, password `abc123`, stagenet: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir /Applications/monero-v0.13.0.2`
+	e.g. For wallet name `test_wallet_1`, user `rpc_user`, password `abc123`, stagenet: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir /Applications/monero-v0.14.0.3`
 
-## Interfaces and Types
+## How to Run Tests
 
-- [Monero daemon (MoneroDaemon.js)](src/daemon/MoneroDaemon.js)
-- [Monero daemon rpc implementation](src/daemon/MoneroDaemonRpc.js)
-- [Monero daemon models](src/daemon/model)
-- [Monero wallet (MoneroWallet.js)](src/wallet/MoneroWallet.js)
-- [Monero wallet rpc implementation](src/wallet/MoneroWalletRpc.js)
-- [Monero wallet models](src/wallet/model)
-
-## API Documentation
-
-This library follows the wallet and daemon interfaces and models defined [here](https://github.com/monero-ecosystem/monero-javascript/blob/master/monero-model.pdf).
-
-Jsdoc is provided in the [jsdoc](jsdoc) folder (best viewed opening [jsdoc/index.html](jsdoc/index.html) in a browser).
-
-The main interfaces are [MoneroWallet.js](src/wallet/MoneroWallet.js) and [MoneroDaemon.js](src/daemon/MoneroDaemon.js).
-
-Here is the source code to the main interfaces, implementations, and models:
-
-- [Monero daemon (MoneroDaemon.js)](src/daemon/MoneroDaemon.js)
-- [Monero daemon rpc implementation](src/daemon/MoneroDaemonRpc.js)
-- [Monero daemon models](src/daemon/model)
-- [Monero wallet (MoneroWallet.js)](src/wallet/MoneroWallet.js)
-- [Monero wallet rpc implementation](src/wallet/MoneroWalletRpc.js)
-- [Monero wallet models](src/wallet/model)
+1. Download this project and install its dependenices.  See [How to Use This Library](#how-to-use-this-library).
+2. Run [monero-wallet-rpc](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [monero-daemon-rpc](https://getmonero.org/resources/developer-guides/daemon-rpc.html).  See [How to Set Up Monero RPC](#how-to-set-up-monero-rpc).
+3. Configure the desired RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/TestUtils.js).
+4. Run all tests: `npm test` or run tests by their description: `node_modules/mocha/bin/mocha src/test/TestAll --grep "Can get transactions by id" --timeout 2000000`
 
 ## Project Goals
 
@@ -188,7 +162,9 @@ Here is the source code to the main interfaces, implementations, and models:
 
 ## See Also
 
-[Java reference implementation](https://github.com/monero-ecosystem/monero-java-rpc)
+These libraries conform to the same [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf).
+
+[Java reference implementation](https://github.com/monero-ecosystem/monero-java)
 
 [C++ reference implementation](https://github.com/woodser/monero-cpp-library)
 
@@ -198,10 +174,10 @@ This project is licensed under MIT.
 
 ## Donate
 
-Please consider donating if you want to support this project.  Thank you!
+Donations are gratefully accepted.  Thank you for your support!
 
 <p align="center">
-	<img src="donate.png" width="150" height="150"/>
+	<img src="donate.png" width="115" height="115"/>
 </p>
 
 `46FR1GKVqFNQnDiFkH7AuzbUBrGQwz2VdaXTDD4jcjRE8YkkoTYTmZ2Vohsz9gLSqkj5EM6ai9Q7sBoX4FPPYJdGKQQXPVz`
