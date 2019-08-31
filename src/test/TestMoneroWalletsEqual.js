@@ -1,5 +1,5 @@
 const assert = require("assert");
-const TestUtils = require("./utils/TestUtils").TestUtils;
+const TestUtils = require("./TestUtils").TestUtils;
 
 /**
  * Compares two wallets for equality using only on-chain data.

@@ -1,5 +1,4 @@
 HIGH
-move TestUtils up a level
 update local wallet
 ground truth comparison test
 enable sample code

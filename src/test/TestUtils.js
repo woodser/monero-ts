@@ -1,12 +1,12 @@
 const assert = require("assert");
-const MoneroUtils = require("../../main/utils/MoneroUtils");
-const MoneroDaemonRpc = require("../../main/daemon/MoneroDaemonRpc");
-const MoneroWalletRpc = require("../../main/wallet/MoneroWalletRpc");
-const MoneroWalletLocal = require("../../main/wallet/MoneroWalletLocal");
-const MoneroRpcConnection = require("../../main/rpc/MoneroRpcConnection");
-const MoneroRpcError = require("../../main/rpc/MoneroRpcError");
-const BigInteger = require("../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
-const GenUtils = require("../../main/utils/GenUtils");
+const MoneroUtils = require("../main/utils/MoneroUtils");
+const MoneroDaemonRpc = require("../main/daemon/MoneroDaemonRpc");
+const MoneroWalletRpc = require("../main/wallet/MoneroWalletRpc");
+const MoneroWalletLocal = require("../main/wallet/MoneroWalletLocal");
+const MoneroRpcConnection = require("../main/rpc/MoneroRpcConnection");
+const MoneroRpcError = require("../main/rpc/MoneroRpcError");
+const BigInteger = require("../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const GenUtils = require("../main/utils/GenUtils");
 
 /**
  * Tracks wallets which are in sync with the tx pool and therefore whose txs in the pool
