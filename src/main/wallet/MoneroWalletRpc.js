@@ -1680,8 +1680,8 @@ class MoneroWalletRpc extends MoneroWallet {
         if (transfer === undefined) transfer = new MoneroOutgoingTransfer({tx: tx});
         transfer.setDestinations(destinations);
       }
-      else if (key === "multisig_txset" && val) {} // handled elsewhere; this method only builds a tx wallet
-      else if (key === "unsigned_txset" && val) {} // handled elsewhere; this method only builds a tx wallet
+      else if (key === "multisig_txset" && val !== undefined) {} // handled elsewhere; this method only builds a tx wallet
+      else if (key === "unsigned_txset" && val !== undefined) {} // handled elsewhere; this method only builds a tx wallet
       else console.log("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
     }
     
