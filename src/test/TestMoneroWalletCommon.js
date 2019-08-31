@@ -3236,8 +3236,8 @@ class TestMoneroWalletCommon {
         console.log("WARNING: wallet returned a tx set from sendSplit() even though it has not been synchronized with participants, expected exception: " + JsonUtils.serialize(txSet));  // TODO monero core: wallet_rpc_server.cpp:995 should throw if no txs created
         //throw new RuntimeException("Should have failed sending funds without synchronizing with peers");
       } catch (e) {
-        if (!e.message.contains("Should have failed")) { // TODO: remove this check when wallet rpc throws exception as expected
-          assertEquals("No transaction created", e.message);
+        if (e.message.indexOf("Should have failed") < 0) { // TODO: remove this check when wallet rpc throws exception as expected
+          assert.equal(e.message, "No transaction created");
         }
       }
       
