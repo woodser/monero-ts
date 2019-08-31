@@ -1,18 +1,20 @@
-copy todos
-test account toString()
-port incoming transfer duplicate resolution from java/cpp
-port ground truth test from java
-port pool relay tests from java TestMoneroWalletCommon.java
-some tests are both notifications and relays; flatten and use config booleans like java?
-MoneroRpc -> MoneroRpcConnection
-getBlocksByRange() end should be exclusive
-test that deep requests / queries are preserved after being used
+HIGH
 update local wallet
+ground truth comparison test
+MoneroOutputQuery wasn't in MoneroTxQuery?
+re-enable prove reserves in account
+test that queries and requests are unchanged when used (toJson() for deep copy, todos in code)
+test account toString()
+open issue: release as node module
+update readme: refer to nodejs, description consistent with other libraries, reference api
+port pool relay tests from java TestMoneroWalletCommon.java
 
-readme: description consistent with other libraries, reference api
-
-model rct_signatures and rct_prunable
+MEDIUM
+release node module
+pruning
 mms
+getBlocksByRange() end should be exclusive
+model rct_signatures and rct_prunable
 what happens if sweep_all is not given account_index.  if it sweeps wallet, replace sweepWallet() impl
 bundle up dependencies into a single monero.js
 test filtering on hasDestinations
@@ -26,19 +28,10 @@ sendSingle() : MoneroTx, send() : List<MoneroTx> ?
 send priority has no default, must pick one
 wallet.close() is common?
 MoneroSyncResult received_money -> received_amount for consistency
-don't differntiate in spec uint vs long, BigInteger?
+don't differentiate in spec uint vs long, BigInteger? or specify detailed types (uint64)
 class diagram query txs, transfers, vouts
 checkTxProof(signature, ...)?
-monero daemon connection span model
-rct sig prunable model
 consider how api should generate subaddresses client side
-sweepDust()
-
-multisig
-pruning
-
-NEXT
-release node module
 one call per get/set bandwidth limits?
 daemon.getBlocksById(), default implementations
 daemon test failed txs more
@@ -53,8 +46,6 @@ daemon binary tests
 daemon notification test needs to test tx merging
 multisig
 pruning
-common tx tests need cleanup
-support and test unlock time unlocks
 merge asserts type
 how to handle 'confirmations' block height to add the tx to the chain if unconfirmed? corallary of unlock time?
 handle excess undefineds and enable deepEqual() in testWalletTxCopy()
