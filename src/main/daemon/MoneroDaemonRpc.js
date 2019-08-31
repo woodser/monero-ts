@@ -192,7 +192,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         tx.setId(rpcBlocks.blocks[blockIdx].tx_hashes[txIdx]);
         tx.setIsConfirmed(true);
         tx.setInTxPool(false);
-        tx.setIsMiner(false);
+        tx.setIsMinerTx(false);
         tx.setDoNotRelay(false);
         tx.setIsRelayed(true);
         tx.setIsFailed(false);
@@ -258,7 +258,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (resp.txs) {
       for (let txIdx = 0; txIdx < resp.txs.length; txIdx++) {
         let tx = new MoneroTx();
-        tx.setIsMiner(false);
+        tx.setIsMinerTx(false);
         txs.push(MoneroDaemonRpc._convertRpcTx(resp.txs[txIdx], tx));
       }
     }
@@ -332,7 +332,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         let tx = new MoneroTx();
         txs.push(tx);
         tx.setIsConfirmed(false);
-        tx.setIsMiner(false);
+        tx.setIsMinerTx(false);
         tx.setInTxPool(true);
         tx.setNumConfirmations(0);
         MoneroDaemonRpc._convertRpcTx(rpcTx, tx);
@@ -831,7 +831,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let minerTx = new MoneroTx();
     block.setMinerTx(minerTx);
     minerTx.setIsConfirmed(true);
-    minerTx.setIsMiner(true);
+    minerTx.setIsMinerTx(true);
     MoneroDaemonRpc._convertRpcTx(rpcMinerTx, minerTx);
     
     return block;
