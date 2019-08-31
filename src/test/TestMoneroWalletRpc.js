@@ -118,10 +118,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         }
           
         // open main test wallet for other tests
-        console.log("OPENING MAIN WALLET!!!");
         await that.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
-        console.log("DONE");
-        console.log("Path: " + await that.wallet.getPath());
         
         // throw error if there was one
         if (err) throw err;
@@ -160,15 +157,10 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         }
         
         // open main test wallet for other tests
-        console.log("Opening wallet...");
         await that.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
-        console.log("Done!");
         
         // throw error if there was one
-        if (err) {
-          console.log("throwing error!");
-          throw err;
-        }
+        if (err) throw err;
       });
       
       it("Can open wallets", async function() {
