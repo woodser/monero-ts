@@ -1,12 +1,16 @@
 HIGH
+move TestUtils up a level
 update local wallet
 ground truth comparison test
+enable sample code
+test sweeps
 MoneroOutputQuery wasn't in MoneroTxQuery?
 re-enable prove reserves in account
 test that queries and requests are unchanged when used (toJson() for deep copy, todos in code)
 test account toString()
 open issue: release as node module
 update readme: refer to nodejs, description consistent with other libraries, reference api
+deploy docs page
 port pool relay tests from java TestMoneroWalletCommon.java
 
 MEDIUM
