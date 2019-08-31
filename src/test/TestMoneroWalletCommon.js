@@ -2811,7 +2811,7 @@ class TestMoneroWalletCommon {
     }
     
     // test miner tx
-    if (tx.isMiner()) {
+    if (tx.isMinerTx()) {
       assert.equal(tx.getFee().compare(new BigInteger(0)), 0);
       assert(tx.getIncomingTransfers().length > 0);
     }
@@ -3233,7 +3233,7 @@ class TestMoneroWalletCommon {
       // attempt creating and relaying transaction without synchronizing with participants
       try {
         let txSet = await curWallet.sendSplit(1, returnAddress, TestUtils.MAX_FEE.multiply(new BigInteger(3)));
-        console.log("WARNING: wallet returned a tx set from sendSplit() even though it has not been synchronized with participants, expected exception: " + JsonUtils.serialize(txSet));  // TODO monero core: wallet_rpc_server.cpp:995 should throw if no txs created
+        console.log("WARNING: wallet returned a tx set from sendSplit() even though it has not been synchronized with participants, expected exception: " + JSON.stringify(txSet));  // TODO monero core: wallet_rpc_server.cpp:995 should throw if no txs created
         //throw new RuntimeException("Should have failed sending funds without synchronizing with peers");
       } catch (e) {
         if (e.message.indexOf("Should have failed") < 0) { // TODO: remove this check when wallet rpc throws exception as expected
@@ -3243,7 +3243,7 @@ class TestMoneroWalletCommon {
       
       // synchronize the multisig participants since receiving outputs
       console.log("Synchronizing participants");
-      curWallet = await _synchronizeMultisigParticipants(curWallet, walletIds);
+      curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
       assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
       
       // send funds from a subaddress in the multisig wallet
@@ -3274,7 +3274,7 @@ class TestMoneroWalletCommon {
       
       // synchronize the multisig participants since spending outputs
       console.log("Synchronizing participants");
-      curWallet = await _synchronizeMultisigParticipants(curWallet, walletIds);
+      curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
       
       // fetch the wallet's multisig txs
       let multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxIds(txIds));
@@ -3308,7 +3308,7 @@ class TestMoneroWalletCommon {
       
       // synchronize the multisig participants since spending outputs
       console.log("Synchronizing participants");
-      curWallet = await _synchronizeMultisigParticipants(curWallet, walletIds);
+      curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
       
       // fetch the wallet's multisig txs
       multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxIds(txIds));
@@ -3342,7 +3342,7 @@ class TestMoneroWalletCommon {
       
       // synchronize the multisig participants since spending outputs
       console.log("Synchronizing participants");
-      curWallet = await _synchronizeMultisigParticipants(curWallet, walletIds);
+      curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
       
       // fetch the wallet's multisig txs
       multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxIds(txIds));
@@ -3359,8 +3359,8 @@ class TestMoneroWalletCommon {
   async _synchronizeMultisigParticipants(currentWallet, walletIds) {
     
     // close the current wallet
-    let path = currentWallet.getPath();
-    currentWallet.close();
+    let path = await currentWallet.getPath();
+    await currentWallet.close();
 
     // collect multisig hex of all participants to synchronize
     let multisigHexes = [];
@@ -3383,7 +3383,7 @@ class TestMoneroWalletCommon {
     
     // re-open current wallet and return
     let endWallet = await this.openWallet(path);
-    endWallet.sync();
+    await endWallet.sync();
     return endWallet;
   }
   
@@ -3473,7 +3473,7 @@ async function getRandomTransactions(wallet, query, minTxs, maxTxs) {
 function testTxWalletTypes(tx) {
   assert.equal(typeof tx.getId(), "string");
   assert.equal(typeof tx.isConfirmed(), "boolean");
-  assert.equal(typeof tx.isMiner(), "boolean");
+  assert.equal(typeof tx.isMinerTx(), "boolean");
   assert.equal(typeof tx.isFailed(), "boolean");
   assert.equal(typeof tx.isRelayed(), "boolean");
   assert.equal(typeof tx.getInTxPool(), "boolean");

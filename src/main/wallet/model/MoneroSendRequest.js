@@ -193,6 +193,11 @@ class MoneroSendRequest {
     return this;
   }
   
+  setSubaddressIndex(subaddressIndex) {
+    this.setSubaddressIndices([subaddressIndex]);
+    return this;
+  }
+  
   getSubaddressIndices() {
     return this.state.subaddressIndices;
   }

@@ -1,3 +1,4 @@
+
 const assert = require("assert");
 const GenUtils = require("../../utils/GenUtils");
 const BigInteger = require("../../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
@@ -77,12 +78,12 @@ class MoneroTx {
     return this;
   }
   
-  isMiner() {
-    return this.state.isMiner;
+  isMinerTx() {
+    return this.state.isMinerTx;
   }
   
-  setIsMiner(miner) {
-    this.state.isMiner = miner;
+  setIsMinerTx(miner) {
+    this.state.isMinerTx = miner;
     return this;
   }
   
@@ -662,7 +663,7 @@ class MoneroTx {
     str += MoneroUtils.kvLine("Tx ID: ", this.getId(), indent);
     str += MoneroUtils.kvLine("Height: ", this.getHeight(), indent);
     str += MoneroUtils.kvLine("Version", this.getVersion(), indent);
-    str += MoneroUtils.kvLine("Is miner", this.isMiner(), indent);
+    str += MoneroUtils.kvLine("Is miner tx", this.isMinerTx(), indent);
     str += MoneroUtils.kvLine("Payment ID", this.getPaymentId(), indent);
     str += MoneroUtils.kvLine("Fee", this.getFee(), indent);
     str += MoneroUtils.kvLine("Mixin", this.getMixin(), indent);

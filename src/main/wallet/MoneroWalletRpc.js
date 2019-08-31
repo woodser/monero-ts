@@ -962,7 +962,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // sweep from each account and collect resulting tx sets
     let txSets = [];
-    for (let accountIdx of Object.keys(indices)) {
+    for (let accountIdx of indices.keys()) {
       
       // copy and modify the original request
       let copy = request.copy();
@@ -972,14 +972,14 @@ class MoneroWalletRpc extends MoneroWallet {
       // sweep all subaddresses together  // TODO monero core: can this reveal outputs belong to the same wallet?
       if (copy.getSweepEachSubaddress() !== true) {
         copy.setSubaddressIndices(indices.get(accountIdx));
-        txSets.push(await rpcSweepAcount(copy));
+        txSets.push(await this._rpcSweepAccount(copy));
       }
       
       // otherwise sweep each subaddress individually
       else {
         for (let subaddressIdx of indices.get(accountIdx)) {
           copy.setSubaddressIndices([subaddressIdx]);
-          txSets.push(await _rpcSweepAccount(copy));
+          txSets.push(await this._rpcSweepAccount(copy));
         }
       }
     }
@@ -1465,7 +1465,7 @@ class MoneroWalletRpc extends MoneroWallet {
     tx.setInTxPool(request.getDoNotRelay() ? false : true);
     tx.setDoNotRelay(request.getDoNotRelay() ? true : false);
     tx.setIsRelayed(!tx.getDoNotRelay());
-    tx.setIsMiner(false);
+    tx.setIsMinerTx(false);
     tx.setIsFailed(false);
     tx.setMixin(request.getMixin());
     let transfer = new MoneroOutgoingTransfer().setTx(tx);
@@ -1495,9 +1495,9 @@ class MoneroWalletRpc extends MoneroWallet {
     txSet.setMultisigTxHex(rpcMap.multisig_txset);
     txSet.setUnsignedTxHex(rpcMap.unsigned_txset);
     txSet.setSignedTxHex(rpcMap.signed_txset);
-    if (txSet.getMultisigTxHex() != undefined && txSet.getMultisigTxHex().length === 0) txSet.setMultisigTxHex(undefined);
-    if (txSet.getUnsignedTxHex() != undefined && txSet.getUnsignedTxHex().length === 0) txSet.setUnsignedTxHex(undefined);
-    if (txSet.getSignedTxHex() != undefined && txSet.getSignedTxHex().length === 0) txSet.setSignedTxHex(undefined);
+    if (txSet.getMultisigTxHex() !== undefined && txSet.getMultisigTxHex().length === 0) txSet.setMultisigTxHex(undefined);
+    if (txSet.getUnsignedTxHex() !== undefined && txSet.getUnsignedTxHex().length === 0) txSet.setUnsignedTxHex(undefined);
+    if (txSet.getSignedTxHex() !== undefined && txSet.getSignedTxHex().length === 0) txSet.setSignedTxHex(undefined);
     return txSet;
   }
   
@@ -1594,7 +1594,7 @@ class MoneroWalletRpc extends MoneroWallet {
       assert.equal(typeof isOutgoing, "boolean", "Must indicate if tx is outgoing (true) xor incoming (false) since unknown");
       assert.equal(typeof tx.isConfirmed(), "boolean");
       assert.equal(typeof tx.getInTxPool(), "boolean");
-      assert.equal(typeof tx.isMiner(), "boolean");
+      assert.equal(typeof tx.isMinerTx(), "boolean");
       assert.equal(typeof tx.isFailed(), "boolean");
       assert.equal(typeof tx.getDoNotRelay(), "boolean");
     }
@@ -1680,8 +1680,8 @@ class MoneroWalletRpc extends MoneroWallet {
         if (transfer === undefined) transfer = new MoneroOutgoingTransfer({tx: tx});
         transfer.setDestinations(destinations);
       }
-      else if (key === "multisig_txset" && !val) {} // handled elsewhere; this method only builds a tx wallet
-      else if (key === "unsigned_txset" && !val) {} // handled elsewhere; this method only builds a tx wallet
+      else if (key === "multisig_txset" && val) {} // handled elsewhere; this method only builds a tx wallet
+      else if (key === "unsigned_txset" && val) {} // handled elsewhere; this method only builds a tx wallet
       else console.log("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
     }
     
@@ -1753,7 +1753,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsRelayed(true);
       tx.setDoNotRelay(false);
       tx.setIsFailed(false);
-      tx.setIsMiner(false);
+      tx.setIsMinerTx(false);
     } else if (rpcType === "out") {
     	isOutgoing = true;
       tx.setIsConfirmed(true);
@@ -1761,7 +1761,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsRelayed(true);
       tx.setDoNotRelay(false);
       tx.setIsFailed(false);
-      tx.setIsMiner(false);
+      tx.setIsMinerTx(false);
     } else if (rpcType === "pool") {
     	isOutgoing = false;
       tx.setIsConfirmed(false);
@@ -1769,7 +1769,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsRelayed(true);
       tx.setDoNotRelay(false);
       tx.setIsFailed(false);
-      tx.setIsMiner(false);  // TODO: but could it be?
+      tx.setIsMinerTx(false);  // TODO: but could it be?
     } else if (rpcType === "pending") {
     	isOutgoing = true;
       tx.setIsConfirmed(false);
@@ -1777,7 +1777,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsRelayed(true);
       tx.setDoNotRelay(false);
       tx.setIsFailed(false);
-      tx.setIsMiner(false);
+      tx.setIsMinerTx(false);
     } else if (rpcType === "block") {
     	isOutgoing = false;
       tx.setIsConfirmed(true);
@@ -1785,7 +1785,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsRelayed(true);
       tx.setDoNotRelay(false);
       tx.setIsFailed(false);
-      tx.setIsMiner(true);
+      tx.setIsMinerTx(true);
     } else if (rpcType === "failed") {
     	isOutgoing = true;
       tx.setIsConfirmed(false);
@@ -1793,7 +1793,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsRelayed(true);
       tx.setDoNotRelay(false);
       tx.setIsFailed(true);
-      tx.setIsMiner(false);
+      tx.setIsMinerTx(false);
     } else {
       throw new MoneroError("Unrecognized transfer type: " + rpcType);
     }

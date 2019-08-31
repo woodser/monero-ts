@@ -1229,8 +1229,8 @@ function testBlock(block, ctx) {
 function testMinerTx(minerTx) {
   assert(minerTx);
   assert(minerTx instanceof MoneroTx);
-  assert.equal(typeof minerTx.isMiner(), "boolean");
-  assert(minerTx.isMiner());
+  assert.equal(typeof minerTx.isMinerTx(), "boolean");
+  assert(minerTx.isMinerTx());
   
   assert(minerTx.getVersion() >= 0);
   assert(Array.isArray(minerTx.getExtra()));
@@ -1243,7 +1243,7 @@ function testMinerTx(minerTx) {
 //    isPruned: true,
 //    isFull: false,
 //    isConfirmed: true,
-//    isMiner: true,
+//    isMinerTx: true,
 //    fromGetTxPool: false,
 //  })
 }
@@ -1264,7 +1264,7 @@ function testTx(tx, ctx) {
   else assert.equal(typeof tx.isRelayed(), "boolean");
   assert.equal(typeof tx.isConfirmed(), "boolean");
   assert.equal(typeof tx.getInTxPool(), "boolean");
-  assert.equal(typeof tx.isMiner(), "boolean");
+  assert.equal(typeof tx.isMinerTx(), "boolean");
   assert.equal(typeof tx.isDoubleSpendSeen(), "boolean");
   assert(tx.getVersion() >= 0);
   assert(tx.getUnlockTime() >= 0);
@@ -1274,7 +1274,7 @@ function testTx(tx, ctx) {
   
   // test presence of output indices
   // TODO: change this over to vouts only
-  if (tx.isMiner()) assert.equal(tx.getOutputIndices(), undefined); // TODO: how to get output indices for miner transactions?
+  if (tx.isMinerTx()) assert.equal(tx.getOutputIndices(), undefined); // TODO: how to get output indices for miner transactions?
   if (tx.getInTxPool() || ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(tx.getOutputIndices(), undefined);
   else assert(tx.getOutputIndices());
   if (tx.getOutputIndices()) assert(tx.getOutputIndices().length > 0);
@@ -1319,7 +1319,7 @@ function testTx(tx, ctx) {
   }
   
   // test miner tx
-  if (tx.isMiner()) {
+  if (tx.isMinerTx()) {
     assert.equal(tx.getFee().compare(new BigInteger(0)), 0);
     assert(tx.getIncomingTransfers().length > 0); // TODO: MoneroTx does not have getIncomingTransfers() but this doesn't fail?
     assert.equal(tx.getVins(), undefined);
@@ -1360,7 +1360,7 @@ function testTx(tx, ctx) {
   // test vins and vouts
   assert(tx.getVins() && Array.isArray(tx.getVins()) && tx.getVins().length >= 0);
   assert(tx.getVouts() && Array.isArray(tx.getVouts()) && tx.getVouts().length >= 0);
-  if (!tx.isMiner()) assert(tx.getVins().length > 0);
+  if (!tx.isMinerTx()) assert(tx.getVins().length > 0);
   for (let vin of tx.getVins()) {
     assert(tx === vin.getTx());
     testVin(vin, ctx);
