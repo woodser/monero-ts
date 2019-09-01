@@ -86,7 +86,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         
         // sync entire wallet and print progress
         await that.wallet.sync(await daemon.getHeight() - 720, function(progress) {
-          console.log("Progress: " + progress.percent + ", done blocks: " + progress.doneBlocks + ", total blocks: " + progress.totalBlocks + ", message: " + progress.message);
+          //console.log("Progress: " + progress.percent + ", done blocks: " + progress.doneBlocks + ", total blocks: " + progress.totalBlocks + ", message: " + progress.message);
         });
       });
       
