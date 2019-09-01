@@ -12,7 +12,6 @@ const MoneroTx = require("../main/daemon/model/MoneroTx");
 const MoneroKeyImage = require("../main/daemon/model/MoneroKeyImage");
 
 const MoneroWallet = require("../main/wallet/MoneroWallet");
-require("../main/wallet/model/MoneroWalletModel");
 
 //const MoneroSyncResult = require("../main/wallet/model/MoneroSyncResult");
 //const MoneroTxWallet = require("../main/wallet/model/MoneroTxWallet");

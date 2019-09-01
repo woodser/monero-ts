@@ -23,7 +23,8 @@
 const assert = require("assert");
 const MoneroSendRequest = require("./model/MoneroSendRequest");
 const MoneroError = require("../utils/MoneroError");
-require("./model/MoneroWalletModel");
+
+require("./model/MoneroWalletModel")();
 
 /**
  * Monero wallet interface and default implementations.

@@ -34,8 +34,6 @@ const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
 
 const MoneroWallet = require("./MoneroWallet");
 
-require("./model/MoneroWalletModel")();
-
 //const MoneroSyncResult = require('./model/MoneroSyncResult');
 //const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
 //const MoneroAccount = require("./model/MoneroAccount");

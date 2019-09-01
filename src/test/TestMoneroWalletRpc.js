@@ -6,8 +6,6 @@ const MoneroRpcError = require("../main/rpc/MoneroRpcError");
 
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
 
-require("../main/wallet/model/MoneroWalletModel");
-
 //const MoneroAccountTag = require("../main/wallet/model/MoneroAccountTag");
 //const MoneroIncomingTransfer = require("../main/wallet/model/MoneroIncomingTransfer");
 //const MoneroOutgoingTransfer = require("../main/wallet/model/MoneroOutgoingTransfer");
