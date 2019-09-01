@@ -1431,6 +1431,7 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "label") { } // label belongs to first subaddress
       else console.log("WARNING: ignoring unexpected account field: " + key + ": " + val);
     }
+    if ("" === account.getTag()) account.setTag(undefined);
     return account;
   }
   

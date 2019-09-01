@@ -1,4 +1,5 @@
 const assert = require("assert");
+const MoneroUtils = require("../../utils/MoneroUtils");
 
 /**
  * Monero account model.

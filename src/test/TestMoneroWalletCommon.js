@@ -3418,6 +3418,10 @@ function testAccount(account) {
     assert(account.getBalance().compare(balance) === 0, "Subaddress balances " + balance.toString() + " does not equal account " + account.getIndex() + " balance " + account.getBalance().toString());
     assert(account.getUnlockedBalance().compare(unlockedBalance) === 0, "Subaddress unlocked balances " + unlockedBalance.toString() + " does not equal account " + account.getIndex() + " unlocked balance " + account.getUnlockedBalance().toString());
   }
+  
+  // tag must be undefined or non-empty
+  let tag = account.getTag();
+  assert(tag === undefined || tag.length > 0);
 }
 
 function testSubaddress(subaddress) {

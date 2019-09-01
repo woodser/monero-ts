@@ -4,12 +4,11 @@ bundle model dependencies
 port sample code
 MoneroOutputQuery wasn't in MoneroTxQuery?
 test that queries and requests are unchanged when used (toJson() for deep copy, todos in code)
-test account toString()
-open issue: release as node module
-update readme: refer to nodejs, description consistent with other libraries, reference api
-deploy docs page
 test sweeps
 
+update readme: refer to nodejs, description consistent with other libraries, reference api
+open issue: release as node module
+deploy docs page
 
 MEDIUM
 jni compare ground truth test sometimes shows gt output not unlocked but jni is unlocked
@@ -53,8 +52,6 @@ test every block of the chain
 not directly testing sweepUnlocked()
 daemon binary tests
 daemon notification test needs to test tx merging
-multisig
-pruning
 merge asserts type
 how to handle 'confirmations' block height to add the tx to the chain if unconfirmed? corallary of unlock time?
 handle excess undefineds and enable deepEqual() in testWalletTxCopy()
