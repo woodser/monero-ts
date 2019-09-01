@@ -8,6 +8,11 @@ const MoneroTransferQuery = require("../main/wallet/model/MoneroQueries").Monero
  */
 describe("Test Sample Code", function() {
   
+  it("Can be demonstrated with sample code", async function() {
+    throw new Error("Not implemented");
+  });
+  
+  if (false)  // TODO: deprecated
   it("Can demonstrate the wallet with sample code", async function() {
     
     // imports
@@ -83,6 +88,7 @@ describe("Test Sample Code", function() {
     let isConfirmed = tx.isConfirmed();  // e.g. true
   });
 
+  if (false)  // TODO: deprecated
   it("Can demonstrate the daemon with sample code", async function() {
       
       // imports
