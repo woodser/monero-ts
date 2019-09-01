@@ -1475,6 +1475,7 @@ function testDaemonConnectionSpan(span) {
   assert.notEqual(span, undefined);
   assert.notEqual(span.getConnectionId(), undefined);
   assert(span.getConnectionId().length > 0);
+  assert(span.getStartHeight() > 0);
   assert(span.getNumBlocks() > 0);
   assert(span.getRemoteAddress() === undefined || span.getRemoteAddress().length > 0);
   assert(span.getRate() > 0);
