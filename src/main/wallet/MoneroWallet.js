@@ -83,24 +83,6 @@ class MoneroWallet {
   async getPrivateSpendKey() {
     throw new MoneroError("Subclass must implement");
   }
-  
-  /**
-   * Get the height of the last block processed by the wallet (its index + 1).  // TODO **: should be the height of the last block processed + 1, which is the height of the next block to process
-   * 
-   * @return {int} the height of the last block processed by the wallet
-   */
-  async getHeight() {
-    throw new MoneroError("Subclass must implement");
-  }
-  
-  /**
-   * Get the blockchain's height.
-   * 
-   * @return {int} the blockchain's height
-   */
-  async getDaemonHeight() {
-    throw new MoneroError("Subclass must implement");
-  }
     
   /**
    * Get the wallet's primary address.
@@ -161,6 +143,24 @@ class MoneroWallet {
    * @return {MoneroIntegratedAddress} the decoded integrated address including standard address and payment id
    */
   async decodeIntegratedAddress(integratedAddress) {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
+   * Get the height of the last block processed by the wallet (its index + 1).  // TODO **: should be the height of the last block processed + 1, which is the height of the next block to process
+   * 
+   * @return {int} the height of the last block processed by the wallet
+   */
+  async getHeight() {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
+   * Get the blockchain's height.
+   * 
+   * @return {int} the blockchain's height
+   */
+  async getDaemonHeight() {
     throw new MoneroError("Subclass must implement");
   }
   

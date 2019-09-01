@@ -240,6 +240,14 @@ class MoneroWalletRpc extends MoneroWallet {
     return new MoneroIntegratedAddress(resp.result.standard_address, resp.result.payment_id, integratedAddress);
   }
   
+  async getHeight() {
+    return (await this.config.rpc.sendJsonRequest("get_height")).result.height;
+  }
+  
+  async getDaemonHeight() {
+    throw new MoneroError("monero-wallet-rpc does not support getting the chain height");
+  }
+  
   async sync(startHeight, onProgress) {
     assert(onProgress === undefined, "Monero Wallet RPC does not support reporting sync progress");
     let resp = await this.config.rpc.sendJsonRequest("refresh", {start_height: startHeight});
@@ -248,14 +256,6 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async startSyncing() {
     // nothing to do because wallet rpc syncs automatically
-  }
-  
-  async getHeight() {
-    return (await this.config.rpc.sendJsonRequest("get_height")).result.height;
-  }
-  
-  async getDaemonHeight() {
-    throw new MoneroError("monero-wallet-rpc does not support getting the chain height");
   }
   
   async rescanSpent() {
