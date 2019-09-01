@@ -2,6 +2,7 @@ HIGH
 port sample code
 must queries be grouped in one file? or collapse all models?
 test sweeps
+bundle model dependencies
 MoneroOutputQuery wasn't in MoneroTxQuery?
 test that queries and requests are unchanged when used (toJson() for deep copy, todos in code)
 test account toString()
