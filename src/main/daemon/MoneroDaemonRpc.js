@@ -25,7 +25,7 @@ const GenUtils = require("../utils/GenUtils");
 const BigInteger = require("../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroUtils = require("../utils/MoneroUtils");
 const MoneroError = require("../utils/MoneroError");
-const MoneroRpc = require("../rpc/MoneroRpcConnection")
+const MoneroRpcConnection = require("../rpc/MoneroRpcConnection")
 const MoneroDaemon = require("./MoneroDaemon");
 const MoneroNetworkType = require("./model/MoneroNetworkType");
 const MoneroBlockHeader = require("./model/MoneroBlockHeader");
@@ -71,11 +71,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
   constructor(config) {
     super();
     
-    // assign config with defaults
-    this.config = Object.assign({pollInterval: 5000}, config);
+    // normalize config
+    if (typeof config === "string") this.config = {uri: config};
+    else this.config = Object.assign({}, config);
     
-    // initialize rpc if not given
-    if (!this.config.rpc) this.config.rpc = new MoneroRpc(config);
+    // assign defaults
+    if (this.config.pollInterval === undefined) this.config.pollInterval = 5000;
+    if (!this.config.rpc) this.config.rpc = new MoneroRpcConnection(config);
     
     // one time initialization
     this.listeners = [];  // block listeners
@@ -871,7 +873,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "receive_time") MoneroUtils.safeSet(tx, tx.getReceivedTimestamp, tx.setReceivedTimestamp, val);
       else if (key === "in_pool") {
         MoneroUtils.safeSet(tx, tx.isConfirmed, tx.setIsConfirmed, !val);
-        MoneroUtils.safeSet(tx, tx.getInTxPool, tx.setInTxPool, val);
+        MoneroUtils.safeSet(tx, tx.inTxPool, tx.setInTxPool, val);
       }
       else if (key === "double_spend_seen") MoneroUtils.safeSet(tx, tx.isDoubleSpendSeen, tx.setIsDoubleSpend, val);
       else if (key === "version") MoneroUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);

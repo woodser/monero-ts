@@ -9,7 +9,7 @@ class MoneroCheckTx extends MoneroCheck {
     super();
   }
 
-  getInTxPool() {
+  inTxPool() {
     return this.state.inTxPool;
   }
   

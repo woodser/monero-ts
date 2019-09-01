@@ -939,7 +939,7 @@ class TestMoneroWalletCommon {
         // get transfers in the tx pool
         transfers = await that._getAndTestTransfers(that.wallet, {inTxPool: true});
         for (let transfer of transfers) {
-          assert.equal(transfer.getTx().getInTxPool(), true);
+          assert.equal(transfer.getTx().inTxPool(), true);
         }
         
         // get random transactions
@@ -1191,7 +1191,7 @@ class TestMoneroWalletCommon {
         // balance may not equal sum of unspent outputs if unconfirmed txs
         // TODO monero-wallet-rpc: reason not to return unspent outputs on unconfirmed txs? then this isn't necessary
         let hasUnconfirmedTx = false;
-        for (let tx of txs) if (tx.getInTxPool()) hasUnconfirmedTx = true;
+        for (let tx of txs) if (tx.inTxPool()) hasUnconfirmedTx = true;
         
         // wallet balance is sum of all unspent outputs
         let walletSum = new BigInteger(0);
@@ -1817,7 +1817,7 @@ class TestMoneroWalletCommon {
           for (let tx of sentTxs) {
             await that._testTxWallet(tx, {wallet: that.wallet, sendRequest: request, isSendResponse: true});
             assert.equal(tx.isConfirmed(), false);
-            assert.equal(tx.getInTxPool(), true);
+            assert.equal(tx.inTxPool(), true);
           }
           
           // track resulting outgoing and incoming txs as blocks are added to the chain
@@ -2786,7 +2786,7 @@ class TestMoneroWalletCommon {
       assert(tx.getBlock().getTimestamp() > 0);
       assert.equal(tx.isRelayed(), true);
       assert.equal(tx.isFailed(), false);
-      assert.equal(tx.getInTxPool(), false);
+      assert.equal(tx.inTxPool(), false);
       assert.equal(tx.getDoNotRelay(), false);
       assert.equal(tx.isDoubleSpendSeen(), false);
       assert(tx.getNumConfirmations() > 0);
@@ -2796,7 +2796,7 @@ class TestMoneroWalletCommon {
     }
     
     // test in tx pool
-    if (tx.getInTxPool()) {
+    if (tx.inTxPool()) {
       assert.equal(tx.isConfirmed(), false);
       assert.equal(tx.getDoNotRelay(), false);
       assert.equal(tx.isRelayed(), true);
@@ -2833,7 +2833,7 @@ class TestMoneroWalletCommon {
     
     // received time only for tx pool or failed txs
     if (tx.getReceivedTimestamp() !== undefined) {
-      assert(tx.getInTxPool() || tx.isFailed());
+      assert(tx.inTxPool() || tx.isFailed());
     }
     
     // test relayed tx
@@ -2930,7 +2930,7 @@ class TestMoneroWalletCommon {
       
       // test relayed txs
       if (!request.getDoNotRelay()) {
-        assert.equal(tx.getInTxPool(), true);
+        assert.equal(tx.inTxPool(), true);
         assert.equal(tx.getDoNotRelay(), false);
         assert.equal(tx.isRelayed(), true);
         assert(tx.getLastRelayedTimestamp() > 0);
@@ -2939,7 +2939,7 @@ class TestMoneroWalletCommon {
       
       // test non-relayed txs
       else {
-        assert.equal(tx.getInTxPool(), false);
+        assert.equal(tx.inTxPool(), false);
         assert.equal(tx.getDoNotRelay(), true);
         assert.equal(tx.isRelayed(), false);
         assert.equal(tx.getLastRelayedTimestamp(), undefined);
@@ -3474,7 +3474,7 @@ function testTxWalletTypes(tx) {
   assert.equal(typeof tx.isMinerTx(), "boolean");
   assert.equal(typeof tx.isFailed(), "boolean");
   assert.equal(typeof tx.isRelayed(), "boolean");
-  assert.equal(typeof tx.getInTxPool(), "boolean");
+  assert.equal(typeof tx.inTxPool(), "boolean");
   TestUtils.testUnsignedBigInteger(tx.getFee());
   assert.equal(tx.getVins(), undefined);  // TODO no way to expose vins?
   if (tx.getPaymentId()) assert.notEqual(tx.getPaymentId(), MoneroTx.DEFAULT_PAYMENT_ID); // default payment id converted to undefined
@@ -3600,13 +3600,13 @@ function testCheckTx(tx, check) {
   assert.equal(typeof check.isGood(), "boolean");
   if (check.isGood()) {
     assert(check.getNumConfirmations() >= 0);
-    assert.equal(typeof check.getInTxPool(), "boolean");
+    assert.equal(typeof check.inTxPool(), "boolean");
     TestUtils.testUnsignedBigInteger(check.getReceivedAmount());
-    if (check.getInTxPool()) assert.equal(0, check.getNumConfirmations());
+    if (check.inTxPool()) assert.equal(0, check.getNumConfirmations());
     else assert(check.getNumConfirmations() > 0); // TODO (monero-wall-rpc) this fails (confirmations is 0) for (at least one) transaction that has 1 confirmation on testCheckTxKey()
   } else {
     assert.equal(check.getNumConfirmations(), undefined);
-    assert.equal(check.getInTxPool(), undefined);
+    assert.equal(check.inTxPool(), undefined);
     assert.equal(check.getReceivedAmount(), undefined);
   }
 }

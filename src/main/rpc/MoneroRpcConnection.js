@@ -8,19 +8,19 @@ const MoneroRpcError = require("./MoneroRpcError");
  * Default RPC configuration.
  */
 const MoneroRpcConfigDefault = {
-    uri: null,
+    uri: undefined,
     protocol: "http",
     host: "localhost",
     port: 18081,
-    user: null,
-    pass: null,
+    user: undefined,
+    pass: undefined,
     maxRequestsPerSecond: 50
 }
 
 /**
  * Maintains a connection and sends requests to a Monero RPC API.
  */
-class MoneroRpc {
+class MoneroRpcConnection {
   
   /**
    * Constructs a RPC connection using the given config.
@@ -36,8 +36,19 @@ class MoneroRpc {
    */
   constructor(config) {
     
+    // normalize config
+    if (typeof config === "string") this.config = {uri: config};
+    else this.config = Object.assign({}, config);
+    
     // merge config with defaults
-    this.config = Object.assign({}, MoneroRpcConfigDefault, config);
+    this.config = Object.assign({}, MoneroRpcConfigDefault, this.config);
+    
+    // delete host and port if uri given
+    if (this.config.uri) {
+      delete this.config.protocol;
+      delete this.config.host;
+      delete this.config.port;
+    }
     
     // standardize uri
     if (this.config.uri) {
@@ -178,4 +189,4 @@ class MoneroRpc {
   }
 }
 
-module.exports = MoneroRpc;
+module.exports = MoneroRpcConnection;

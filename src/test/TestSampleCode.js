@@ -1,15 +1,112 @@
 const assert = require("assert");
 const TestUtils = require("./TestUtils").TestUtils;
-const MoneroTxQuery = require("../main/wallet/model/MoneroQueries").MoneroTxQuery;
-const MoneroTransferQuery = require("../main/wallet/model/MoneroQueries").MoneroTransferQuery;
+const BigInteger = require("../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const MoneroWalletLocal = require("../main/wallet/MoneroWalletLocal");
 
 /**
  * Test the sample code in README.md.
  */
 describe("Test Sample Code", function() {
+  let that = this;
+  
+  // initialize wallet
+  before(async function() {
+    that.wallet = TestUtils.getWalletLocal();
+    TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
+  });
   
   it("Can be demonstrated with sample code", async function() {
-    throw new Error("Not implemented");
+    
+    // imports
+    const MoneroDaemonRpc = require("../main/daemon/MoneroDaemonRpc");
+    const MoneroWalletRpc = require("../main/wallet/MoneroWalletRpc");
+    const MoneroTxQuery = require("../main/wallet/model/MoneroQueries").MoneroTxQuery;
+    const MoneroTransferQuery = require("../main/wallet/model/MoneroQueries").MoneroTransferQuery;
+    const MoneroOutputQuery = require("../main/wallet/model/MoneroQueries").MoneroOutputQuery;
+    const MoneroSendRequest = require("../main/wallet/model/MoneroSendRequest");
+    const MoneroDestination = require("../main/wallet/model/MoneroDestination");
+    
+    // connect to a daemon
+    let daemon = new MoneroDaemonRpc("http://localhost:38081");
+    let height = await daemon.getHeight();           // 1523651
+    let feeEstimate = await daemon.getFeeEstimate(); // 1014313512
+    
+    // get transactions in the pool
+    let txsInPool = await daemon.getTxPool();
+    for (let tx of txsInPool) {
+      let id = tx.getId();
+      let fee = tx.getFee();
+      let isDoubleSpendSeen = tx.isDoubleSpendSeen();
+    }
+    
+    // get last 100 blocks as a binary request
+    let blocks = await daemon.getBlocksByRange(height - 100, height - 1);
+    for (let block of blocks) {
+      let numTxs = block.getTxs().length;
+    }
+    
+    // create a wallet that uses a monero-wallet-rpc endpoint with authentication
+    let walletRPC = new MoneroWalletRpc({
+      uri: "http://localhost:38083",
+      user: "rpc_user",
+      pass: "abc123"
+    });
+    let primaryAddress = await walletRPC.getPrimaryAddress(); // 59aZULsUF3YNSKGiHz4J...
+    let balance = await walletRPC.getBalance();               // 533648366742
+    let subaddress = await walletRPC.getSubaddress(1, 0);
+    let subaddressBalance = subaddress.getBalance();
+    
+    // query a transaction by id
+    let tx = await walletRPC.getTx((await walletRPC.getTxs(new MoneroTxQuery().setIsOutgoing(true)))[0].getId()); // *** REMOVE FROM README SAMPLE ***
+    //let tx = walletRPC.getTx("314a0f1375db31cea4dac4e0a51514a6282b43792269b3660166d4d2b46437ca");
+    let txHeight = tx.getHeight();
+    let incomingTransfers = tx.getIncomingTransfers();
+    let destinations = tx.getOutgoingTransfer().getDestinations();
+    
+    // query incoming transfers to account 1
+    let transferQuery = new MoneroTransferQuery().setIsIncoming(true).setAccountIndex(1);
+    let transfers = await walletRPC.getTransfers(transferQuery);
+    
+    // query unspent outputs
+    let outputQuery = new MoneroOutputQuery().setIsSpent(false);
+    let outputs = await walletRPC.getOutputs(outputQuery);
+    
+    // send funds from the RPC wallet
+    await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(walletRPC); // wait for txs to clear pool *** REMOVE FROM README SAMPLE ***
+    let txSet = await walletRPC.send(0, "79fgaPL8we44uPA5SBzB7ABvxR1CrU6gteRfny1eXc2RVQk7Jhk5oR5YQnQZuorP3kEVXxewi2CG5CfUBfmRqTvy49UvYkG", new BigInteger("50000"));
+    let sentTx = txSet.getTxs()[0];  // send methods return tx set(s) which contain sent txs unless further steps needed in a multisig or watch-only wallet
+    assert(sentTx.inTxPool());
+    
+    // create a request to send funds from the RPC wallet to multiple destinations
+    let request = new MoneroSendRequest()
+            .setAccountIndex(1)                           // send from account 1
+            .setSubaddressIndices([0, 1])                 // send from subaddreses in account 1
+            .setPriority(MoneroSendPriority.UNIMPORTANT)  // no rush
+            .setDestinations([
+                    new MoneroDestination("79LS7Vq214d6tXRdAoosz9Qifbg2qTNrZfWziwLZc8ih3GRjxN1dWZNTYmr7HAmVKLd5NsCfJRucJH4xPF326HdeVhngHyj", new BigInteger("50000")),
+                    new MoneroDestination("74YpXA1GvZeJHQtdRCByB2PzEfGzQSpniDr6yier8UrKhXU4YAp8QVDFSKd4XAMsj4HYcE9ibW3JzKVSXEDoE4xkMSFvHAe", new BigInteger("50000"))]);
+    
+    // create the transaction, confirm with the user, and relay to the network
+    let createdTx = (await walletRPC.createTx(request)).getTxs()[0];
+    let fee = createdTx.getFee();       // "Are you sure you want to send ...?"
+    await walletRPC.relayTx(createdTx); // submit the transaction which will notify the JNI wallet
+    
+    // mine with 7 threads to push the network along
+    let numThreads = 7;
+    let isBackground = false;
+    let ignoreBattery = false;
+    await walletRPC.startMining(numThreads, isBackground, ignoreBattery);
+    
+    // wait for the next block to be added to the chain
+    let nextBlockHeader = await daemon.getNextBlockHeader();
+    let nextNumTxs = nextBlockHeader.getNumTxs();
+    
+    // stop mining
+    await walletRPC.stopMining();
+    
+    // the transaction is (probably) confirmed
+    await new Promise(function(resolve) { setTimeout(resolve, 10000); }); // wait for refresh
+    let isConfirmed = (await walletRPC.getTx(createdTx.getId())).isConfirmed();
   });
   
   if (false)  // TODO: deprecated

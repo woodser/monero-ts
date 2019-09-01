@@ -4,7 +4,7 @@ const TestMoneroDaemonRpc = require("./TestMoneroDaemonRpc");
 const TestMoneroWalletRpc = require("./TestMoneroWalletRpc")
 const TestMoneroWalletLocal = require("./TestMoneroWalletLocal")
 const TestUtils = require("./TestUtils").TestUtils;
-const MoneroRpc = require("../main/rpc/MoneroRpcConnection");
+const MoneroRpcConnection = require("../main/rpc/MoneroRpcConnection");
 const MoneroKeyImage = require("../main/daemon/model/MoneroKeyImage");
 const MoneroTransfer = require("../main/wallet/model/MoneroTransfer");
 const MoneroTxQuery = require("../main/wallet/model/MoneroQueries").MoneroTxQuery;
@@ -22,7 +22,7 @@ describe("Scratchpad", function() {
     // initialize daemon, wallet, and direct rpc interface
     let daemon = TestUtils.getDaemonRpc();
     let wallet = await TestUtils.getWalletRpc();
-    let rpc = new MoneroRpc(TestUtils.WALLET_RPC_CONFIG);
+    let rpc = new MoneroRpcConnection(TestUtils.WALLET_RPC_CONFIG);
     
 //  try { await wallet.startMining(8, false, true); }
 //  catch (e) { }

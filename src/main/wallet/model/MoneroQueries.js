@@ -158,7 +158,7 @@ class MoneroTxQuery extends MoneroTxWallet {
     if (this.getId() !== undefined && this.getId() !== tx.getId()) return false;
     if (this.getPaymentId() !== undefined && this.getPaymentId() !== tx.getPaymentId()) return false;
     if (this.isConfirmed() !== undefined && this.isConfirmed() !== tx.isConfirmed()) return false;
-    if (this.getInTxPool() !== undefined && this.getInTxPool() !== tx.getInTxPool()) return false;
+    if (this.inTxPool() !== undefined && this.inTxPool() !== tx.inTxPool()) return false;
     if (this.getDoNotRelay() !== undefined && this.getDoNotRelay() !== tx.getDoNotRelay()) return false;
     if (this.isRelayed() !== undefined && this.isRelayed() !== tx.isRelayed()) return false;
     if (this.isFailed() !== undefined && this.isFailed() !== tx.isFailed()) return false;

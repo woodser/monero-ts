@@ -1,5 +1,6 @@
 HIGH
 port sample code
+must queries be grouped in one file? or collapse all models?
 test sweeps
 MoneroOutputQuery wasn't in MoneroTxQuery?
 test that queries and requests are unchanged when used (toJson() for deep copy, todos in code)
@@ -10,6 +11,8 @@ deploy docs page
 port pool relay tests from java TestMoneroWalletCommon.java
 
 MEDIUM
+jni compare ground truth test sometimes shows gt output not unlocked but jni is unlocked
+new rpc wallet created from mnemonic sometimes synced at height and with txs
 ground truth comparison test
 release node module
 local wallet cleanup (offline key generation, query subaddresses, etc)

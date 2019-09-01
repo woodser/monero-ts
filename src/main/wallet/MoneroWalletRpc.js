@@ -26,7 +26,7 @@ const BigInteger = require("../../../external/mymonero-core-js/cryptonote_utils/
 const GenUtils = require("../utils/GenUtils");
 const MoneroUtils = require("../utils/MoneroUtils");
 const MoneroError = require("../utils/MoneroError");
-const MoneroRpc = require("../rpc/MoneroRpcConnection");
+const MoneroRpcConnection = require("../rpc/MoneroRpcConnection");
 const MoneroBlock = require("../daemon/model/MoneroBlock");
 const MoneroBlockHeader = require("../daemon/model/MoneroBlockHeader");
 const MoneroWallet = require("./MoneroWallet");
@@ -75,11 +75,12 @@ class MoneroWalletRpc extends MoneroWallet {
   constructor(config) {
     super();
     
-    // assign config
+    // normalize config
+    if (typeof config === "string") this.config = {uri: config}
     this.config = Object.assign({}, config);
     
     // initialize rpc instance if not given
-    if (!this.config.rpc) this.config.rpc = new MoneroRpc(config);
+    if (!this.config.rpc) this.config.rpc = new MoneroRpcConnection(config);
     
     // initialize address cache to avoid unecessary requests for addresses
     this.addressCache = {};
@@ -538,15 +539,15 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // build params for get_transfers rpc call
     let params = {};
-    let canBeConfirmed = txQuery.isConfirmed() !== false && txQuery.getInTxPool() !== true && txQuery.isFailed() !== true && txQuery.isRelayed() !== false;
-    let canBeInTxPool = txQuery.isConfirmed() !== true && txQuery.getInTxPool() !== false && txQuery.isFailed() !== true && txQuery.isRelayed() !== false && txQuery.getHeight() === undefined && txQuery.getMinHeight() === undefined && txQuery.getMaxHeight() === undefined;
+    let canBeConfirmed = txQuery.isConfirmed() !== false && txQuery.inTxPool() !== true && txQuery.isFailed() !== true && txQuery.isRelayed() !== false;
+    let canBeInTxPool = txQuery.isConfirmed() !== true && txQuery.inTxPool() !== false && txQuery.isFailed() !== true && txQuery.isRelayed() !== false && txQuery.getHeight() === undefined && txQuery.getMinHeight() === undefined && txQuery.getMaxHeight() === undefined;
     let canBeIncoming = query.isIncoming() !== false && query.isOutgoing() !== true && query.hasDestinations() !== true;
     let canBeOutgoing = query.isOutgoing() !== false && query.isIncoming() !== true;
     params.in = canBeIncoming && canBeConfirmed;
     params.out = canBeOutgoing && canBeConfirmed;
     params.pool = canBeIncoming && canBeInTxPool;
     params.pending = canBeOutgoing && canBeInTxPool;
-    params.failed = txQuery.isFailed() !== false && txQuery.isConfirmed() !== true && txQuery.getInTxPool() != true;
+    params.failed = txQuery.isFailed() !== false && txQuery.isConfirmed() !== true && txQuery.inTxPool() != true;
     if (txQuery.getMinHeight() !== undefined) {
       if (txQuery.getMinHeight() > 0) params.min_height = txQuery.getMinHeight() - 1; // TODO monero core: wallet2::get_payments() min_height is exclusive, so manually offset to match intended range (issues #5751, #5598)
       else params.min_height = txQuery.getMinHeight();
@@ -1593,7 +1594,7 @@ class MoneroWalletRpc extends MoneroWallet {
     else {
       assert.equal(typeof isOutgoing, "boolean", "Must indicate if tx is outgoing (true) xor incoming (false) since unknown");
       assert.equal(typeof tx.isConfirmed(), "boolean");
-      assert.equal(typeof tx.getInTxPool(), "boolean");
+      assert.equal(typeof tx.inTxPool(), "boolean");
       assert.equal(typeof tx.isMinerTx(), "boolean");
       assert.equal(typeof tx.isFailed(), "boolean");
       assert.equal(typeof tx.getDoNotRelay(), "boolean");

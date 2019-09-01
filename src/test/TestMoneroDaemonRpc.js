@@ -1260,10 +1260,10 @@ function testTx(tx, ctx) {
   
   // standard across all txs
   assert(tx.getId().length === 64);
-  if (tx.isRelayed() === undefined) assert(tx.getInTxPool());  // TODO monero-daemon-rpc: add relayed to get_transactions
+  if (tx.isRelayed() === undefined) assert(tx.inTxPool());  // TODO monero-daemon-rpc: add relayed to get_transactions
   else assert.equal(typeof tx.isRelayed(), "boolean");
   assert.equal(typeof tx.isConfirmed(), "boolean");
-  assert.equal(typeof tx.getInTxPool(), "boolean");
+  assert.equal(typeof tx.inTxPool(), "boolean");
   assert.equal(typeof tx.isMinerTx(), "boolean");
   assert.equal(typeof tx.isDoubleSpendSeen(), "boolean");
   assert(tx.getVersion() >= 0);
@@ -1275,7 +1275,7 @@ function testTx(tx, ctx) {
   // test presence of output indices
   // TODO: change this over to vouts only
   if (tx.isMinerTx()) assert.equal(tx.getOutputIndices(), undefined); // TODO: how to get output indices for miner transactions?
-  if (tx.getInTxPool() || ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(tx.getOutputIndices(), undefined);
+  if (tx.inTxPool() || ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(tx.getOutputIndices(), undefined);
   else assert(tx.getOutputIndices());
   if (tx.getOutputIndices()) assert(tx.getOutputIndices().length > 0);
   
@@ -1291,7 +1291,7 @@ function testTx(tx, ctx) {
     assert(tx.getBlock().getTimestamp() > 0);
     assert.equal(tx.isRelayed(), true);
     assert.equal(tx.isFailed(), false);
-    assert.equal(tx.getInTxPool(), false);
+    assert.equal(tx.inTxPool(), false);
     assert.equal(tx.getDoNotRelay(), false);
     assert.equal(tx.isDoubleSpendSeen(), false);
     assert.equal(tx.getNumConfirmations(), undefined); // client must compute
@@ -1301,7 +1301,7 @@ function testTx(tx, ctx) {
   }
   
   // test in tx pool
-  if (tx.getInTxPool()) {
+  if (tx.inTxPool()) {
     assert.equal(tx.isConfirmed(), false);
     assert.equal(tx.isDoubleSpendSeen(), false);
     assert.equal(tx.getLastFailedHeight(), undefined);
@@ -1346,7 +1346,7 @@ function testTx(tx, ctx) {
   
   // received time only for tx pool or failed txs
   if (tx.getReceivedTimestamp() !== undefined) {
-    assert(tx.getInTxPool() || tx.isFailed());
+    assert(tx.inTxPool() || tx.isFailed());
   }
   
   // test relayed tx
@@ -1631,7 +1631,7 @@ function testKeyImage(image, ctx) {
 
 function testVout(vout, ctx) {
   testOutput(vout);
-  if (vout.getTx().getInTxPool() || ctx && ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(vout.getIndex(), undefined); // TODO: get_blocks_by_height.bin (#5127), get_transaction_pool, and tx pool txs do not return output indices 
+  if (vout.getTx().inTxPool() || ctx && ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(vout.getIndex(), undefined); // TODO: get_blocks_by_height.bin (#5127), get_transaction_pool, and tx pool txs do not return output indices 
   else assert(vout.getIndex() >= 0);
   assert(vout.getStealthPublicKey() && vout.getStealthPublicKey().length === 64);
 }
