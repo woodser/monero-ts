@@ -1,8 +1,9 @@
 module.exports = function() {
-  this.assert = require("assert");
-  this.Filter = require("../../utils/Filter");
-  this.MoneroUtils = require("../../utils/MoneroUtils");
-
+  
+  // import daemon models
+  require("../../daemon/model/MoneroDaemonModel")();
+  
+  // import wallet models
   this.MoneroAccount = require("./MoneroAccount");
   this.MoneroAccountTag = require("./MoneroAccountTag");
   this.MoneroAddressBookEntry = require("./MoneroAddressBookEntry");

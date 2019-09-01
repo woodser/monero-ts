@@ -20,10 +20,7 @@
  * SOFTWARE.
  */
 
-const assert = require("assert");
-const MoneroSendRequest = require("./model/MoneroSendRequest");
-const MoneroError = require("../utils/MoneroError");
-
+// import wallet models
 require("./model/MoneroWalletModel")();
 
 /**

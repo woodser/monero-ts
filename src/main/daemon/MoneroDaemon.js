@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
-const assert = require("assert");
-const MoneroNetworkType = require("./model/MoneroNetworkType");
+// import daemon models
+require("./model/MoneroDaemonModel")();
 
 /**
  * Monero daemon interface and default implementations.
