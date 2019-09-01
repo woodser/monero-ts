@@ -3174,8 +3174,6 @@ class TestMoneroWalletCommon {
       await curWallet.send(new MoneroSendRequest().setAccountIndex(0).setDestinations(destinations));
       let returnAddress = await curWallet.getPrimaryAddress(); // funds will be returned to this address from the multisig wallet
       
-      console.log("opening first multisig participant");
-      
       // open the first multisig participants
       curWallet = await this.openWallet(walletIds[0]);
       assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
