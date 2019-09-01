@@ -940,35 +940,6 @@ namespace monero {
 
   // ----------------------------- WALLET METHODS -----------------------------
 
-  uint64_t monero_wallet::get_height() const {
-    return m_w2->get_blockchain_current_height();
-  }
-
-  uint64_t monero_wallet::get_restore_height() const {
-    return m_w2->get_refresh_from_block_height();
-  }
-
-  void monero_wallet::set_restore_height(uint64_t restore_height) {
-    m_w2->set_refresh_from_block_height(restore_height);
-  }
-
-  uint64_t monero_wallet::get_daemon_height() const {
-    if (!m_is_connected) throw runtime_error("Wallet is not connected to daemon");
-    std::string err;
-    uint64_t result = m_w2->get_daemon_blockchain_height(err);
-    if (!err.empty()) throw runtime_error(err);
-    return result;
-  }
-
-  uint64_t monero_wallet::get_daemon_max_peer_height() const {
-    if (!m_is_connected) throw runtime_error("Wallet is not connected to daemon");
-    std::string err;
-    uint64_t result = m_w2->get_daemon_blockchain_target_height(err);
-    if (!err.empty()) throw runtime_error(err);
-    if (result == 0) result = get_daemon_height();  // TODO monero core: target height can be 0 when daemon is synced.  Use blockchain height instead
-    return result;
-  }
-
   void monero_wallet::set_daemon_connection(const string& uri, const string& username, const string& password) {
     MTRACE("set_daemon_connection(" << uri << ", " << username << ", " << password << ")");
 
@@ -1044,7 +1015,36 @@ namespace monero {
     return languages;
   }
 
-  // get primary address (default impl?)
+  string monero_wallet::get_mnemonic() const {
+    epee::wipeable_string wipeablePassword;
+    m_w2->get_seed(wipeablePassword);
+    return string(wipeablePassword.data(), wipeablePassword.size());
+  }
+
+  string monero_wallet::get_public_view_key() const {
+    MTRACE("get_private_view_key()");
+    return epee::string_tools::pod_to_hex(m_w2->get_account().get_keys().m_account_address.m_view_public_key);
+  }
+
+  string monero_wallet::get_private_view_key() const {
+    MTRACE("get_private_view_key()");
+    return epee::string_tools::pod_to_hex(m_w2->get_account().get_keys().m_view_secret_key);
+  }
+
+  string monero_wallet::get_public_spend_key() const {
+    MTRACE("get_private_spend_key()");
+    return epee::string_tools::pod_to_hex(m_w2->get_account().get_keys().m_account_address.m_spend_public_key);
+  }
+
+  string monero_wallet::get_private_spend_key() const {
+    MTRACE("get_private_spend_key()");
+    return epee::string_tools::pod_to_hex(m_w2->get_account().get_keys().m_spend_secret_key);
+  }
+
+  string monero_wallet::get_primary_address() const {
+    MTRACE("get_primary_address()");
+    return get_address(0, 0);
+  }
 
   string monero_wallet::get_address(uint32_t account_idx, uint32_t subaddress_idx) const {
     return m_w2->get_subaddress_as_str({account_idx, subaddress_idx});
@@ -1117,35 +1117,33 @@ namespace monero {
     return result;
   }
 
-  string monero_wallet::get_mnemonic() const {
-    epee::wipeable_string wipeablePassword;
-    m_w2->get_seed(wipeablePassword);
-    return string(wipeablePassword.data(), wipeablePassword.size());
+  uint64_t monero_wallet::get_height() const {
+    return m_w2->get_blockchain_current_height();
   }
 
-  string monero_wallet::get_public_view_key() const {
-    MTRACE("get_private_view_key()");
-    return epee::string_tools::pod_to_hex(m_w2->get_account().get_keys().m_account_address.m_view_public_key);
+  uint64_t monero_wallet::get_restore_height() const {
+    return m_w2->get_refresh_from_block_height();
   }
 
-  string monero_wallet::get_private_view_key() const {
-    MTRACE("get_private_view_key()");
-    return epee::string_tools::pod_to_hex(m_w2->get_account().get_keys().m_view_secret_key);
+  void monero_wallet::set_restore_height(uint64_t restore_height) {
+    m_w2->set_refresh_from_block_height(restore_height);
   }
 
-  string monero_wallet::get_public_spend_key() const {
-    MTRACE("get_private_spend_key()");
-    return epee::string_tools::pod_to_hex(m_w2->get_account().get_keys().m_account_address.m_spend_public_key);
+  uint64_t monero_wallet::get_daemon_height() const {
+    if (!m_is_connected) throw runtime_error("Wallet is not connected to daemon");
+    std::string err;
+    uint64_t result = m_w2->get_daemon_blockchain_height(err);
+    if (!err.empty()) throw runtime_error(err);
+    return result;
   }
 
-  string monero_wallet::get_private_spend_key() const {
-    MTRACE("get_private_spend_key()");
-    return epee::string_tools::pod_to_hex(m_w2->get_account().get_keys().m_spend_secret_key);
-  }
-
-  string monero_wallet::get_primary_address() const {
-    MTRACE("get_primary_address()");
-    return get_address(0, 0);
+  uint64_t monero_wallet::get_daemon_max_peer_height() const {
+    if (!m_is_connected) throw runtime_error("Wallet is not connected to daemon");
+    std::string err;
+    uint64_t result = m_w2->get_daemon_blockchain_target_height(err);
+    if (!err.empty()) throw runtime_error(err);
+    if (result == 0) result = get_daemon_height();  // TODO monero core: target height can be 0 when daemon is synced.  Use blockchain height instead
+    return result;
   }
 
   void monero_wallet::add_listener(monero_wallet_listener& listener) {
