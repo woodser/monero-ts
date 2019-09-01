@@ -1,7 +1,6 @@
 HIGH
-update local wallet
+port sample code
 ground truth comparison test
-enable sample code
 test sweeps
 MoneroOutputQuery wasn't in MoneroTxQuery?
 re-enable prove reserves in account
