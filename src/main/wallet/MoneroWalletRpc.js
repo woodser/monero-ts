@@ -27,33 +27,38 @@ const GenUtils = require("../utils/GenUtils");
 const MoneroUtils = require("../utils/MoneroUtils");
 const MoneroError = require("../utils/MoneroError");
 const MoneroRpcConnection = require("../rpc/MoneroRpcConnection");
+
 const MoneroBlock = require("../daemon/model/MoneroBlock");
 const MoneroBlockHeader = require("../daemon/model/MoneroBlockHeader");
-const MoneroWallet = require("./MoneroWallet");
-const MoneroSyncResult = require('./model/MoneroSyncResult');
-const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
-const MoneroAccount = require("./model/MoneroAccount");
-const MoneroSubaddress = require("./model/MoneroSubaddress");
-const MoneroTxWallet = require("./model/MoneroTxWallet");
-const MoneroTxSet = require("./model/MoneroTxSet");
-const MoneroTransfer = require("./model/MoneroTransfer");
-const MoneroIncomingTransfer = require("./model/MoneroIncomingTransfer");
-const MoneroOutgoingTransfer = require("./model/MoneroOutgoingTransfer");
-const MoneroDestination = require("./model/MoneroDestination");
-const MoneroOutputWallet = require("./model/MoneroOutputWallet");
-const MoneroSendRequest = require("./model/MoneroSendRequest");
-const MoneroCheckTx = require("./model/MoneroCheckTx");
-const MoneroCheckReserve = require("./model/MoneroCheckReserve");
-const MoneroTxQuery = require("./model/MoneroQueries").MoneroTxQuery;
-const MoneroTransferQuery = require("./model/MoneroQueries").MoneroTransferQuery;
-const MoneroOutputQuery = require("./model/MoneroQueries").MoneroOutputQuery;
-const MoneroAccountTag = require("./model/MoneroAccountTag");
-const MoneroAddressBookEntry = require("./model/MoneroAddressBookEntry");
 const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
-const MoneroKeyImageImportResult = require("./model/MoneroKeyImageImportResult");
-const MoneroMultisigInfo = require("./model/MoneroMultisigInfo");
-const MoneroMultisigInitResult = require("./model/MoneroMultisigInitResult");
-const MoneroMultisigSignResult = require("./model/MoneroMultisigSignResult");
+
+const MoneroWallet = require("./MoneroWallet");
+
+require("./model/MoneroWalletModel")();
+
+//const MoneroSyncResult = require('./model/MoneroSyncResult');
+//const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
+//const MoneroAccount = require("./model/MoneroAccount");
+//const MoneroSubaddress = require("./model/MoneroSubaddress");
+//const MoneroTxWallet = require("./model/MoneroTxWallet");
+//const MoneroTxSet = require("./model/MoneroTxSet");
+//const MoneroTransfer = require("./model/MoneroTransfer");
+//const MoneroIncomingTransfer = require("./model/MoneroIncomingTransfer");
+//const MoneroOutgoingTransfer = require("./model/MoneroOutgoingTransfer");
+//const MoneroDestination = require("./model/MoneroDestination");
+//const MoneroOutputWallet = require("./model/MoneroOutputWallet");
+//const MoneroSendRequest = require("./model/MoneroSendRequest");
+//const MoneroCheckTx = require("./model/MoneroCheckTx");
+//const MoneroCheckReserve = require("./model/MoneroCheckReserve");
+//const MoneroTxQuery = require("./model/MoneroQueries").MoneroTxQuery;
+//const MoneroTransferQuery = require("./model/MoneroQueries").MoneroTransferQuery;
+//const MoneroOutputQuery = require("./model/MoneroQueries").MoneroOutputQuery;
+//const MoneroAccountTag = require("./model/MoneroAccountTag");
+//const MoneroAddressBookEntry = require("./model/MoneroAddressBookEntry");
+//const MoneroKeyImageImportResult = require("./model/MoneroKeyImageImportResult");
+//const MoneroMultisigInfo = require("./model/MoneroMultisigInfo");
+//const MoneroMultisigInitResult = require("./model/MoneroMultisigInitResult");
+//const MoneroMultisigSignResult = require("./model/MoneroMultisigSignResult");
 
 /**
  * Implements a Monero wallet using monero-wallet-rpc.

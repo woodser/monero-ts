@@ -6,20 +6,24 @@ const GenUtils = require("../main/utils/GenUtils");
 const MoneroUtils = require("../main/utils/MoneroUtils");
 const MoneroError = require("../main/utils/MoneroError");
 const BigInteger = require("../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
-const MoneroWallet = require("../main/wallet/MoneroWallet");
-const MoneroSyncResult = require("../main/wallet/model/MoneroSyncResult");
+
 const MoneroDaemon = require("../main/daemon/MoneroDaemon");
 const MoneroTx = require("../main/daemon/model/MoneroTx");
-const MoneroTxWallet = require("../main/wallet/model/MoneroTxWallet");
-const MoneroTxQuery = require("../main/wallet/model/MoneroQueries").MoneroTxQuery;
-const MoneroOutputQuery = require("../main/wallet/model/MoneroQueries").MoneroOutputQuery;
-const MoneroTransferQuery = require("../main/wallet/model/MoneroQueries").MoneroTransferQuery;
-const MoneroSendRequest = require("../main/wallet/model/MoneroSendRequest");
-const MoneroSendPriority = require("../main/wallet/model/MoneroSendPriority");
-const MoneroTransfer = require("../main/wallet/model/MoneroTransfer");
-const MoneroDestination = require("../main/wallet/model/MoneroDestination");
-const MoneroOutputWallet = require("../main/wallet/model/MoneroOutputWallet");
 const MoneroKeyImage = require("../main/daemon/model/MoneroKeyImage");
+
+const MoneroWallet = require("../main/wallet/MoneroWallet");
+require("../main/wallet/model/MoneroWalletModel");
+
+//const MoneroSyncResult = require("../main/wallet/model/MoneroSyncResult");
+//const MoneroTxWallet = require("../main/wallet/model/MoneroTxWallet");
+//const MoneroTxQuery = require("../main/wallet/model/MoneroQueries").MoneroTxQuery;
+//const MoneroOutputQuery = require("../main/wallet/model/MoneroQueries").MoneroOutputQuery;
+//const MoneroTransferQuery = require("../main/wallet/model/MoneroQueries").MoneroTransferQuery;
+//const MoneroSendRequest = require("../main/wallet/model/MoneroSendRequest");
+//const MoneroSendPriority = require("../main/wallet/model/MoneroSendPriority");
+//const MoneroTransfer = require("../main/wallet/model/MoneroTransfer");
+//const MoneroDestination = require("../main/wallet/model/MoneroDestination");
+//const MoneroOutputWallet = require("../main/wallet/model/MoneroOutputWallet");
 
 // test constants
 const MIXIN = 11;

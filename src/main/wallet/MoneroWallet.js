@@ -21,9 +21,9 @@
  */
 
 const assert = require("assert");
-const MoneroTxQuery = require("./model/MoneroQueries").MoneroTxQuery;
 const MoneroSendRequest = require("./model/MoneroSendRequest");
 const MoneroError = require("../utils/MoneroError");
+require("./model/MoneroWalletModel");
 
 /**
  * Monero wallet interface and default implementations.

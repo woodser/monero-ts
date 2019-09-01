@@ -3,13 +3,17 @@ const GenUtils = require("../main/utils/GenUtils");
 const TestUtils = require("./TestUtils").TestUtils;
 const MoneroUtils = require("../main/utils/MoneroUtils");
 const MoneroRpcError = require("../main/rpc/MoneroRpcError");
-const MoneroAccountTag = require("../main/wallet/model/MoneroAccountTag");
+
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
-const MoneroIncomingTransfer = require("../main/wallet/model/MoneroIncomingTransfer");
-const MoneroOutgoingTransfer = require("../main/wallet/model/MoneroOutgoingTransfer");
-const MoneroTxQuery = require("../main/wallet/model/MoneroQueries").MoneroTxQuery;
-const MoneroTransferQuery = require("../main/wallet/model/MoneroQueries").MoneroTransferQuery;
-const MoneroOutputQuery = require("../main/wallet/model/MoneroQueries").MoneroOutputQuery;
+
+require("../main/wallet/model/MoneroWalletModel");
+
+//const MoneroAccountTag = require("../main/wallet/model/MoneroAccountTag");
+//const MoneroIncomingTransfer = require("../main/wallet/model/MoneroIncomingTransfer");
+//const MoneroOutgoingTransfer = require("../main/wallet/model/MoneroOutgoingTransfer");
+//const MoneroTxQuery = require("../main/wallet/model/MoneroQueries").MoneroTxQuery;
+//const MoneroTransferQuery = require("../main/wallet/model/MoneroQueries").MoneroTransferQuery;
+//const MoneroOutputQuery = require("../main/wallet/model/MoneroQueries").MoneroOutputQuery;
 
 /**
  * Tests the Monero Wallet RPC client and server.
