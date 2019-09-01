@@ -1,21 +1,22 @@
 HIGH
-port sample code
 must queries be grouped in one file? or collapse all models?
-test sweeps
 bundle model dependencies
+port sample code
 MoneroOutputQuery wasn't in MoneroTxQuery?
 test that queries and requests are unchanged when used (toJson() for deep copy, todos in code)
 test account toString()
 open issue: release as node module
 update readme: refer to nodejs, description consistent with other libraries, reference api
 deploy docs page
-port pool relay tests from java TestMoneroWalletCommon.java
+test sweeps
+
 
 MEDIUM
 jni compare ground truth test sometimes shows gt output not unlocked but jni is unlocked
 new rpc wallet created from mnemonic sometimes synced at height and with txs
+port ground truth comparison tests from java
+port pool relay tests from java TestMoneroWalletCommon.java
 drop support for {} params and use OO only?
-ground truth comparison test
 release node module
 local wallet cleanup (offline key generation, query subaddresses, etc)
 pruning
