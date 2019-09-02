@@ -12,7 +12,7 @@ In addition, this project conforms to an [API specification](http://moneroecosys
 - Query wallet transactions, transfers, and outputs by their many attributes
 - Be notified when blocks are added to the chain
 - Full multisig support
-- Over 130 passing Mocha tests
+- Over 150 passing Mocha tests
 
 ## Sample Code
 
