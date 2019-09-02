@@ -11,6 +11,8 @@ In addition, this project conforms to an [API specification](http://moneroecosys
 - Fetch and process binary data from the daemon (e.g. raw blocks)
 - Query wallet transactions, transfers, and outputs by their many attributes
 - Be notified when blocks are added to the chain
+- Build web applications which use a Monero wallet and daemon
+- Generate wallet keys offline and locally using WebAssembly bindings to core utilities
 - Full multisig support
 - Over 150 passing Mocha tests
 
