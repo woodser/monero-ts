@@ -4,7 +4,7 @@ MoneroOutputQuery wasn't in MoneroTxQuery?
 test that queries and requests are unchanged when used (toJson() for deep copy, todos in code)
 
 test sweeps
-update readme: refer to nodejs, description consistent with other libraries, reference api
+update readme: document local wallet, refer to nodejs, description consistent with other libraries, reference api
 open issue: release as node module
 deploy docs page
 
