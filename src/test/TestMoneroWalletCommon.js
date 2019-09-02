@@ -1988,6 +1988,7 @@ class TestMoneroWalletCommon {
         request.setDestinations([new MoneroDestination(address, sendAmount)]);
         request.setAccountIndex(srcAccount.getIndex());
         request.setSubaddressIndices(fromSubaddressIndices);
+        let reqCopy = request.copy();
         let txs = [];
         if (request.getCanSplit() !== false) {
           let txSet = await that.wallet.sendSplit(request);
@@ -1997,6 +1998,10 @@ class TestMoneroWalletCommon {
           for (let tx of txSet.getTxs()) txs.push(tx);
         }
         if (request.getCanSplit() === false) assert.equal(txs.length, 1);  // must have exactly one tx if no split
+        
+        // test that request is unchanged
+        assert(reqCopy !== request);
+        assert.deepEqual(request, reqCopy);
         
         // test that balances of intended subaddresses decreased
         let accountsAfter = await that.wallet.getAccounts(true);
@@ -2104,6 +2109,7 @@ class TestMoneroWalletCommon {
         request.setDestinations([new MoneroDestination(address, sendAmount)]);
         request.setAccountIndex(fromAccount.getIndex());
         request.setSubaddressIndices([fromSubaddress.getIndex()]);
+        let reqCopy = request.copy();
         
         // send to self
         // can use create() or send() because request's doNotRelay is used, but exercise both calls
@@ -2115,6 +2121,10 @@ class TestMoneroWalletCommon {
           for (let tx of txSet.getTxs()) txs.push(tx);
         }
         if (request.getCanSplit() === false) assert.equal(txs.length, 1);  // must have exactly one tx if no split
+        
+        // test that request is unchanged
+        assert(reqCopy !== request);
+        assert.deepEqual(request, reqCopy);
         
         // test common tx set among txs
         testCommonTxSets(txs, false, false, false);
@@ -2268,6 +2278,7 @@ class TestMoneroWalletCommon {
         for (let i = 0; i < destinationAddresses.length; i++) {
           request.getDestinations().push(new MoneroDestination(destinationAddresses[i], sendAmountPerSubaddress));
         }
+        let reqCopy = request.copy();
         
         // build send request with JS object
         let jsConfig;
@@ -2290,6 +2301,10 @@ class TestMoneroWalletCommon {
           let txSet = await that.wallet.send(useJsConfig ? jsConfig : request)
           for (let tx of txSet.getTxs()) txs.push(tx);
         }
+        
+        // test that request is unchanged
+        assert(reqCopy !== request);
+        assert.deepEqual(request, reqCopy);
         
         // test that wallet balance decreased
         let account = await that.wallet.getAccount(srcAccount.getIndex());

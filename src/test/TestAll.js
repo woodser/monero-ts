@@ -30,7 +30,7 @@ new TestMoneroWalletRpc().runTests({
 new TestMoneroWalletLocal().runTests({
   liteMode: true,
   testNonRelays: true,
-  testRelays: true,
+  testRelays: false,
   testResets: false,
   testNotifications: false
 });
