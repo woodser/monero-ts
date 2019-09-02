@@ -16,7 +16,7 @@ describe("Test Sample Code", function() {
   
   it("Can be demonstrated with sample code", async function() {
     
-    // imports
+    // import daemon and rpc wallet
     const MoneroDaemonRpc = require("../main/daemon/MoneroDaemonRpc");
     const MoneroWalletRpc = require("../main/wallet/MoneroWalletRpc");
     
@@ -99,7 +99,7 @@ describe("Test Sample Code", function() {
     await walletRpc.stopMining();
     
     // the transaction is (probably) confirmed
-    await new Promise(function(resolve) { setTimeout(resolve, 10000); }); // wait for refresh
+    await new Promise(function(resolve) { setTimeout(resolve, 10000); }); // wait 10s for auto refresh
     let isConfirmed = (await walletRpc.getTx(createdTx.getId())).isConfirmed();
   });
   
