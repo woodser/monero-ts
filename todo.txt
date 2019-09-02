@@ -10,6 +10,7 @@ open issue: release as node module
 deploy docs page
 
 MEDIUM
+automate browser app build by copying index.html and asm files from monero_utils
 jni compare ground truth test sometimes shows gt output not unlocked but jni is unlocked
 new rpc wallet created from mnemonic sometimes synced at height and with txs
 port ground truth comparison tests from java

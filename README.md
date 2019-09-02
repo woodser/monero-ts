@@ -103,44 +103,6 @@ await new Promise(function(resolve) { setTimeout(resolve, 10000); }); // wait 10
 let isConfirmed = (await walletRpc.getTx(createdTx.getId())).isConfirmed();
 ```
 
-## Daemon Sample Code
-
-```js
-  // imports
-  const MoneroDaemonRpc = require("../src/daemon/MoneroDaemonRpc");
-  
-  // create a daemon that uses a monero-daemon-rpc endpoint
-  let daemon = new MoneroDaemonRpc({uri: "http://localhost:38081"});
-  
-  // get daemon info
-  let height = await daemon.getHeight();           // e.g. 1523651
-  let feeEstimate = await daemon.getFeeEstimate(); // e.g. 750000
-  
-  // get first 100 blocks as a binary request
-  let blocks = await daemon.getBlocksByRange(0, 100);
-  
-  // get block info
-  for (let block of blocks) {
-    let blockHeight = block.getHeight();
-    let blockId = block.getId();
-    let txCount = block.getTxs().length;
-  }
-  
-  // start mining to an address with 4 threads, not in the background, and ignoring the battery
-  let address = "74oAtjgE2dfD1bJBo4DWW3E6qXCAwUDMgNqUurnX9b2xUvDTwMwExiXDkZskg7Vct37tRGjzHRqL4gH4H3oag3YyMYJzrNp";
-  let numThreads = 4;
-  let isBackground = false;
-  let ignoreBattery = false;
-  await daemon.startMining(address, numThreads, isBackground, ignoreBattery);
-  
-  // wait for the header of the next block added to the chain
-  let nextBlockHeader = await daemon.getNextBlockHeader();
-  let nextNumTxs = nextBlockHeader.getNumTxs();
-  
-  // stop mining
-  await daemon.stopMining();
-```
-
 ## How to Run This Library
 
 1. Clone the JavaScript repository: `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-javascript.git`
@@ -159,12 +121,23 @@ You are now ready to use this library with [monero-daemon-rpc](https://getmonero
 	
 	e.g. For wallet name `test_wallet_1`, user `rpc_user`, password `abc123`, stagenet: `./monero-wallet-rpc --daemon-address http://localhost:38081 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --wallet-dir /Applications/monero-v0.14.0.3`
 
-## How to Run Tests
+## How to Run Mocha Tests
 
 1. Download this project and install its dependenices.  See [How to Use This Library](#how-to-run-this-library).
 2. Run [monero-wallet-rpc](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [monero-daemon-rpc](https://getmonero.org/resources/developer-guides/daemon-rpc.html).  See [How to Set Up Monero RPC](#how-to-set-up-monero-rpc).
 3. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/TestUtils.js).
 4. Run all tests: `npm test` or run tests by their description: `node_modules/mocha/bin/mocha src/test/TestAll --grep "Can get transactions by id" --timeout 2000000`
+
+## How to Run Sample Browser Application
+
+A simple web application is included to demonstrate using this library in a browser.
+
+1. Start monero-daemon-rpc with authentication and CORS access.  For example: `./monerod --stagenet --rpc-login superuser:abctesting123 --rpc-access-control-origins http://localhost:9100`
+2. Start monero-wallet-rpc with authentication and CORS access.  For example: `./monero-wallet-rpc --daemon-address http://localhost:38081 --daemon-login superuser:abctesting123 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --rpc-access-control-origins http://localhost:9100 --wallet-dir ./`
+3. Build the web app for the browser: `./bin/start_dev_browser`
+5. Manually copy ./browser_app/index.html to ./browser_build/index.html
+6. Manually copy the 4 asm files from ./external/mymonero-core-js/monero_utils to ./browser_build/submodules/mymonero-core-js/monero_utils/
+7. Access the application using a web browser.  For example, open http://localhost:9100.
 
 ## Project Goals
 
