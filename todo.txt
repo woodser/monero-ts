@@ -1,5 +1,4 @@
 HIGH
-instructions on how to run as nodejs module vs in the browser
 MoneroWalletRpc() initialized with 3 strings just like Java, no more {}?
 MoneroOutputQuery wasn't in MoneroTxQuery?
 test that queries and requests are unchanged when used (toJson() for deep copy, todos in code)
