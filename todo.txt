@@ -5,6 +5,7 @@ port sample code
 remove filter which should be unused
 MoneroOutputQuery wasn't in MoneroTxQuery?
 test that queries and requests are unchanged when used (toJson() for deep copy, todos in code)
+instructions on how to run as nodejs module vs in the browser
 
 test sweeps
 update readme: refer to nodejs, description consistent with other libraries, reference api
