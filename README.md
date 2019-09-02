@@ -130,7 +130,7 @@ You are now ready to use this library with [monero-daemon-rpc](https://getmonero
 
 ## How to Run the Sample Browser Application
 
-A simple web application is included to demonstrate using this library in a browser.
+A simple web application is included in `./browser_app` to demonstrate using this library in a browser.
 
 1. Start monero-daemon-rpc with authentication and CORS access.  For example: `./monerod --stagenet --rpc-login superuser:abctesting123 --rpc-access-control-origins http://localhost:9100`
 2. Start monero-wallet-rpc with authentication and CORS access.  For example: `./monero-wallet-rpc --daemon-address http://localhost:38081 --daemon-login superuser:abctesting123 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --rpc-access-control-origins http://localhost:9100 --wallet-dir ./`
