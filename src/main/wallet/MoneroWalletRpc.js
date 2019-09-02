@@ -809,7 +809,7 @@ class MoneroWalletRpc extends MoneroWallet {
 
   async sendSplit(requestOrAccountIndex, address, amount, priority) {
     
-    // normalize and validate request
+    // validate, copy, and sanitize request
     let request;
     if (requestOrAccountIndex instanceof MoneroSendRequest) {
       assert.equal(arguments.length, 1, "Sending requires a send request or parameters but not both");
@@ -819,9 +819,12 @@ class MoneroWalletRpc extends MoneroWallet {
       else request = new MoneroSendRequest(requestOrAccountIndex, address, amount, priority);
     }
     assert.notEqual(request.getDestinations(), undefined, "Must specify destinations");
-    if (request.getCanSplit() === undefined) request.setCanSplit(true);
     assert.equal(request.getSweepEachSubaddress(), undefined);
     assert.equal(request.getBelowAmount(), undefined);
+    if (request.getCanSplit() === undefined) {
+      request = request.copy();
+      request.setCanSplit(true);
+    }
 
     // determine account and subaddresses to send from
     let accountIdx = request.getAccountIndex();

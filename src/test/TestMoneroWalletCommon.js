@@ -2721,14 +2721,18 @@ class TestMoneroWalletCommon {
    * TODO: convert query to query object and ensure each tx passes filter, same with getAndTestTransfer, getAndTestOutputs
    */
   async _getAndTestTxs(wallet, query, isExpected) {
-    let copy = query.copy();
+    let copy;
+    if (query !== undefined) {
+      if (query instanceof MoneroTxQuery) copy = query.copy();
+      else copy = Object.assign({}, query);
+    }
     let txs = await wallet.getTxs(query);
-    assert.deepEqual(query, copy);
     assert(Array.isArray(txs));
     if (isExpected === false) assert.equal(txs.length, 0);
     if (isExpected === true) assert(txs.length > 0);
     for (let tx of txs) await this._testTxWallet(tx, Object.assign({wallet: wallet}, query));
     testGetTxsStructure(txs, query);
+    if (query !== undefined) assert.deepEqual(query, copy);
     return txs;
   }
 
@@ -2736,13 +2740,17 @@ class TestMoneroWalletCommon {
    * Fetches and tests transfers according to the given query.
    */
   async _getAndTestTransfers(wallet, query, isExpected) {
-    let copy = query.copy();
+    let copy;
+    if (query !== undefined) {
+      if (query instanceof MoneroTransferQuery) copy = query.copy();
+      else copy = Object.assign({}, query);
+    }
     let transfers = await wallet.getTransfers(query);
-    assert.deepEqual(query, copy);
     assert(Array.isArray(transfers));
     if (isExpected === false) assert.equal(transfers.length, 0);
     if (isExpected === true) assert(transfers.length > 0, "Transactions were expected but not found; run send tests?");
     for (let transfer of transfers) await this._testTxWallet(transfer.getTx(), Object.assign({wallet: wallet}, query));
+    if (query !== undefined) assert.deepEqual(query, copy);
     return transfers;
   }
   
@@ -2750,13 +2758,17 @@ class TestMoneroWalletCommon {
    * Fetches and tests outputs according to the given query.
    */
   async _getAndTestOutputs(wallet, query, isExpected) {
-    let copy = query.copy();
+    let copy;
+    if (query !== undefined) {
+      if (query instanceof MoneroOutputQuery) copy = query.copy();
+      else copy = Object.assign({}, query);
+    }
     let outputs = await wallet.getOutputs(query);
-    assert.deepEqual(query, copy);
     assert(Array.isArray(outputs));
     if (isExpected === false) assert.equal(outputs.length, 0);
     if (isExpected === true) assert(outputs.length > 0, "Outputs were expected but not found; run send tests?");
     for (let output of outputs) testOutputWallet(output);
+    if (query !== undefined) assert.deepEqual(query, copy);
     return outputs;
   }
   

@@ -1203,7 +1203,7 @@ class MoneroWallet {
     if (requestOrAccountIndex === undefined) throw new MoneroError("First argument cannot be undefined");
     let request;
     if (requestOrAccountIndex instanceof MoneroSendRequest) {
-      request = requestOrAccountIndex;
+      request = requestOrAccountIndex.copy();
     } else if (typeof requestOrAccountIndex === "number") {
       request = new MoneroSendRequest().setAccountIndex(requestOrAccountIndex).setAddress(address).setAmount(amount).setPriority(priority);
     } else {
