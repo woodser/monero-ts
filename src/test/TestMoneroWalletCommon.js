@@ -985,7 +985,7 @@ class TestMoneroWalletCommon {
       it("Can get outputs in the wallet, accounts, and subaddresses", async function() {
 
         // get all outputs
-        await getAndTestOutputs(that.wallet, undefined, true);
+        await that._getAndTestOutputs(that.wallet, undefined, true);
         
         // get outputs for each account
         let nonDefaultIncoming = false;
@@ -997,13 +997,13 @@ class TestMoneroWalletCommon {
           for (let subaddress of account.getSubaddresses()) if (subaddress.isUsed()) isUsed = true;
           
           // get outputs by account index
-          let accountOutputs = await getAndTestOutputs(that.wallet, {accountIndex: account.getIndex()}, isUsed);
+          let accountOutputs = await that._getAndTestOutputs(that.wallet, {accountIndex: account.getIndex()}, isUsed);
           for (let output of accountOutputs) assert.equal(output.getAccountIndex(), account.getIndex());
           
           // get outputs by subaddress index
           let subaddressOutputs = [];
           for (let subaddress of account.getSubaddresses()) {
-            let outputs = await getAndTestOutputs(that.wallet, {accountIndex: account.getIndex(), subaddressIndex: subaddress.getIndex()}, subaddress.isUsed());
+            let outputs = await that._getAndTestOutputs(that.wallet, {accountIndex: account.getIndex(), subaddressIndex: subaddress.getIndex()}, subaddress.isUsed());
             for (let output of outputs) {
               assert.equal(output.getAccountIndex(), subaddress.getAccountIndex());
               assert.equal(output.getSubaddressIndex(), subaddress.getIndex());
@@ -1015,7 +1015,7 @@ class TestMoneroWalletCommon {
           
           // get outputs by subaddress indices
           let subaddressIndices = Array.from(new Set(subaddressOutputs.map(output => output.getSubaddressIndex())));
-          let outputs = await getAndTestOutputs(that.wallet, {accountIndex: account.getIndex(), subaddressIndices: subaddressIndices}, isUsed);
+          let outputs = await that._getAndTestOutputs(that.wallet, {accountIndex: account.getIndex(), subaddressIndices: subaddressIndices}, isUsed);
           assert.equal(outputs.length, subaddressOutputs.length);
           for (let output of outputs) {
             assert.equal(output.getAccountIndex(), account.getIndex());
@@ -1031,14 +1031,14 @@ class TestMoneroWalletCommon {
       it("Can get outputs with additional configuration", async function() {
         
         // get unspent outputs to account 0
-        let outputs = await getAndTestOutputs(that.wallet, {accountIndex: 0, isSpent: false});
+        let outputs = await that._getAndTestOutputs(that.wallet, {accountIndex: 0, isSpent: false});
         for (let output of outputs) {
           assert.equal(output.getAccountIndex(), 0);
           assert.equal(output.isSpent(), false);
         }
         
         // get spent outputs to account 1
-        outputs = await getAndTestOutputs(that.wallet, {accountIndex: 1, isSpent: true}, true);
+        outputs = await that._getAndTestOutputs(that.wallet, {accountIndex: 1, isSpent: true}, true);
         for (let output of outputs) {
           assert.equal(output.getAccountIndex(), 1);
           assert.equal(output.isSpent(), true);
@@ -1051,12 +1051,12 @@ class TestMoneroWalletCommon {
         let txIds = [];
         for (let tx of txs) {
           txIds.push(tx.getId());
-          outputs = await getAndTestOutputs(that.wallet, {txId: tx.getId()}, true);
+          outputs = await that._getAndTestOutputs(that.wallet, {txId: tx.getId()}, true);
           for (let output of outputs) assert.equal(output.getTx().getId(), tx.getId());
         }
         
         // get outputs with tx ids
-        outputs = await getAndTestOutputs(that.wallet, {txIds: txIds}, true);
+        outputs = await that._getAndTestOutputs(that.wallet, {txIds: txIds}, true);
         for (let output of outputs) assert(txIds.includes(output.getTx().getId()));
         
         // get confirmed outputs to specific subaddress with pre-built query
@@ -1065,7 +1065,7 @@ class TestMoneroWalletCommon {
         let query = new MoneroOutputQuery();
         query.setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx);
         query.setTxQuery(new MoneroTxQuery().setIsConfirmed(true));
-        outputs = await getAndTestOutputs(that.wallet, query, true);
+        outputs = await that._getAndTestOutputs(that.wallet, query, true);
         for (let output of outputs) {
           assert.equal(output.getAccountIndex(), accountIdx);
           assert.equal(output.getSubaddressIndex(), subaddressIdx);
@@ -2718,10 +2718,12 @@ class TestMoneroWalletCommon {
   /**
    * Fetches and tests transactions according to the given query.
    * 
-   * TODO: convert query to query object and ensure each tx passes filter, same with testGetTransfer and getAndTestOutputs
+   * TODO: convert query to query object and ensure each tx passes filter, same with getAndTestTransfer, getAndTestOutputs
    */
   async _getAndTestTxs(wallet, query, isExpected) {
+    let copy = query.copy();
     let txs = await wallet.getTxs(query);
+    assert.deepEqual(query, copy);
     assert(Array.isArray(txs));
     if (isExpected === false) assert.equal(txs.length, 0);
     if (isExpected === true) assert(txs.length > 0);
@@ -2734,12 +2736,28 @@ class TestMoneroWalletCommon {
    * Fetches and tests transfers according to the given query.
    */
   async _getAndTestTransfers(wallet, query, isExpected) {
+    let copy = query.copy();
     let transfers = await wallet.getTransfers(query);
+    assert.deepEqual(query, copy);
     assert(Array.isArray(transfers));
     if (isExpected === false) assert.equal(transfers.length, 0);
     if (isExpected === true) assert(transfers.length > 0, "Transactions were expected but not found; run send tests?");
     for (let transfer of transfers) await this._testTxWallet(transfer.getTx(), Object.assign({wallet: wallet}, query));
     return transfers;
+  }
+  
+  /**
+   * Fetches and tests outputs according to the given query.
+   */
+  async _getAndTestOutputs(wallet, query, isExpected) {
+    let copy = query.copy();
+    let outputs = await wallet.getOutputs(query);
+    assert.deepEqual(query, copy);
+    assert(Array.isArray(outputs));
+    if (isExpected === false) assert.equal(outputs.length, 0);
+    if (isExpected === true) assert(outputs.length > 0, "Outputs were expected but not found; run send tests?");
+    for (let output of outputs) testOutputWallet(output);
+    return outputs;
   }
   
   /**
@@ -3431,18 +3449,6 @@ function testSubaddress(subaddress) {
   assert(typeof subaddress.isUsed() === "boolean");
   if (subaddress.getBalance().compare(new BigInteger(0)) > 0) assert(subaddress.isUsed());
   assert(subaddress.getNumBlocksToUnlock() >= 0);
-}
-
-/**
- * Fetches and tests outputs according to the given query.
- */
-async function getAndTestOutputs(wallet, query, isExpected) {
-  let outputs = await wallet.getOutputs(query);
-  assert(Array.isArray(outputs));
-  if (isExpected === false) assert.equal(outputs.length, 0);
-  if (isExpected === true) assert(outputs.length > 0, "Outputs were expected but not found; run send tests?");
-  for (let output of outputs) testOutputWallet(output);
-  return outputs;
 }
 
 /**

@@ -18,7 +18,7 @@ allowing invoking e.g. "start mining" as if running test, add TestScripts.js?
 port pool relay tests from java TestMoneroWalletCommon.java
 drop support for {} params and use OO only?
 release node module
-local wallet cleanup (offline key generation, query subaddresses, etc)
+local wallet cleanup (offline key generation, query subaddresses, etc)s
 pruning
 mms
 re-enable prove reserves in account when fixed
