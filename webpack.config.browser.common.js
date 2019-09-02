@@ -6,10 +6,10 @@ module.exports =
 {
 	devtool: "source-map",
 	context: __dirname,
-	entry: "./src/main/index.js",
+	entry: "./browser_app/index.js",
 	output: {
 		path: path.resolve(__dirname, "browser_build"),
-		filename: "main/monero-javascript-bundle.js"
+		filename: "monero-javascript-bundle.js"
 	},
 	cache: false,
 	resolve: {

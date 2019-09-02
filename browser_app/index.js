@@ -1,26 +1,31 @@
+/**
+ * Sample browser application which uses a JavaScript library to interact
+ * with a Monero daemon using RPC and a Monero wallet using RPC and WASM
+ * bindings.
+ */
+
 "use strict"
 
-const MoneroDaemonRpc = require("./daemon/MoneroDaemonRpc");
-const MoneroWalletRpc = require("./wallet/MoneroWalletRpc");
-const MoneroWalletLocal = require("./wallet/MoneroWalletLocal");
+// import what you want to use
+const MoneroDaemonRpc = require("../src/main/daemon/MoneroDaemonRpc");
+const MoneroWalletRpc = require("../src/main/wallet/MoneroWalletRpc");
+const MoneroWalletLocal = require("../src/main/wallet/MoneroWalletLocal");
 
+// start the application
 startApp();
 async function startApp() {
   console.log("Starting app...");
   
-  // create daemon to support wallet
+  // connect to monero-daemon-rpc
   let daemon = new MoneroDaemonRpc({uri: "http://localhost:38081", user: "superuser", pass: "abctesting123"});
   console.log("Daemon height: " + await daemon.getHeight());
   
-  let walletRpc = new MoneroWalletRpc({
-    uri: "http://localhost:38083",
-    user: "rpc_user",
-    pass: "abc123"
-  });
+  // connect to monero-wallet-rpc
+  let walletRpc = new MoneroWalletRpc({uri: "http://localhost:38083", user: "rpc_user", pass: "abc123"});
   console.log("Wallet rpc mnemonic: " + await walletRpc.getMnemonic());
   console.log("Wallet rpc balance: " + await walletRpc.getBalance());
   
-  // create wallet with known mnemonic
+  // create a wallet from mnemonic using local wasm bindings
   let mnemonic = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
   let primaryAddress = "59aZULsUF3YNSKGiHz4JPMfjGYkm1S4TB3sPsTr3j85HhXb9crZqGa7jJ8cA87U48kT5wzi2VzGZnN2PKojEwoyaHqtpeZh";  // just for reference
   let walletLocal = new MoneroWalletLocal({daemon: daemon, mnemonic: mnemonic});
