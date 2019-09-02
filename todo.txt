@@ -15,6 +15,7 @@ MEDIUM
 jni compare ground truth test sometimes shows gt output not unlocked but jni is unlocked
 new rpc wallet created from mnemonic sometimes synced at height and with txs
 port ground truth comparison tests from java
+instructions to run library in browser
 allowing invoking e.g. "start mining" as if running test, add TestScripts.js?
 port pool relay tests from java TestMoneroWalletCommon.java
 drop support for {} params and use OO only?
