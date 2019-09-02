@@ -20,35 +20,7 @@
  * SOFTWARE.
  */
 
-const assert = require("assert");
-const GenUtils = require("../utils/GenUtils");
-const BigInteger = require("../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
-const MoneroUtils = require("../utils/MoneroUtils");
-const MoneroError = require("../utils/MoneroError");
-const MoneroRpcConnection = require("../rpc/MoneroRpcConnection")
 const MoneroDaemon = require("./MoneroDaemon");
-const MoneroNetworkType = require("./model/MoneroNetworkType");
-const MoneroBlockHeader = require("./model/MoneroBlockHeader");
-const MoneroBlock = require("./model/MoneroBlock");
-const MoneroTx = require("./model/MoneroTx");
-const MoneroOutput = require("./model/MoneroOutput");
-const MoneroBlockTemplate = require("./model/MoneroBlockTemplate");
-const MoneroDaemonInfo = require("./model/MoneroDaemonInfo");
-const MoneroDaemonSyncInfo = require("./model/MoneroDaemonSyncInfo");
-const MoneroHardForkInfo = require("./model/MoneroHardForkInfo");
-const MoneroBan = require("./model/MoneroBan");
-const MoneroDaemonConnection = require("./model/MoneroDaemonConnection");
-const MoneroDaemonConnectionSpan = require("./model/MoneroDaemonConnectionSpan");
-const MoneroMinerTxSum = require("./model/MoneroMinerTxSum");
-const MoneroOutputHistogramEntry = require("./model/MoneroOutputHistogramEntry");
-const MoneroKeyImage = require("./model/MoneroKeyImage");
-const MoneroSubmitTxResult = require("./model/MoneroSubmitTxResult");
-const MoneroTxPoolStats = require("./model/MoneroTxPoolStats");
-const MoneroAltChain = require("./model/MoneroAltChain");
-const MoneroDaemonPeer = require("./model/MoneroDaemonPeer");
-const MoneroMiningStatus = require("./model/MoneroMiningStatus");
-const MoneroDaemonUpdateCheckResult = require("./model/MoneroDaemonUpdateCheckResult");
-const MoneroDaemonUpdateDownloadResult = require("./model/MoneroDaemonUpdateDownloadResult");
 
 /**
  * Implements a Monero daemon using monero-daemon-rpc.

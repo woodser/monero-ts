@@ -1,6 +1,3 @@
-const assert = require("assert");
-const MoneroUtils = require("../../utils/MoneroUtils");
-const MoneroTx = require("./MoneroTx");
 const MoneroBlockHeader = require("./MoneroBlockHeader");
 
 /**

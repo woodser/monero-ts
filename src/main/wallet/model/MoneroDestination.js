@@ -1,7 +1,3 @@
-const BigInteger = require("../../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
-const MoneroUtils = require("../../utils/MoneroUtils");
-const MoneroError = require("../../utils/MoneroError");
-
 /**
  * Models an outgoing transfer destination.
  */

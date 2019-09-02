@@ -1,7 +1,5 @@
-const assert = require("assert");
-const MoneroWallet = require("./MoneroWallet");
-const MoneroUtils = require("../utils/MoneroUtils");
 const MoneroDaemon = require("../daemon/MoneroDaemon");
+const MoneroWallet = require("./MoneroWallet");
 const BooleanSet = require("../utils/BooleanSet");
 
 /**

@@ -10,7 +10,7 @@ require("./TestMoneroCppUtils");
 
 // test daemon rpc
 new TestMoneroDaemonRpc().runTests({
-  liteMode: true,  // skips some thorough but lengthy tests
+  liteMode: false,  // skips some thorough but lengthy tests
   testNonRelays: true,
   testRelays: true, // creates and relays outgoing txs
   testNotifications: true
@@ -18,7 +18,7 @@ new TestMoneroDaemonRpc().runTests({
 
 // test wallet rpc
 new TestMoneroWalletRpc().runTests({
-  liteMode: true, // skips some lengthy but detailed tests
+  liteMode: false, // skips some lengthy but detailed tests
   testNonRelays: true,
   testRelays: true,
   testNotifications: true,
@@ -27,7 +27,7 @@ new TestMoneroWalletRpc().runTests({
 
 // test wallet local
 new TestMoneroWalletLocal().runTests({
-  liteMode: true,
+  liteMode: false,
   testNonRelays: true,
   testRelays: true,
   testResets: false,

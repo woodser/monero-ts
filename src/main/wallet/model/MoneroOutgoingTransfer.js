@@ -1,7 +1,4 @@
-const assert = require("assert");
-const MoneroUtils = require("../../utils/MoneroUtils");
 const MoneroTransfer = require("./MoneroTransfer");
-const MoneroDestination = require("./MoneroDestination");
 
 /**
  * Models an outgoing transfer of funds from the wallet.

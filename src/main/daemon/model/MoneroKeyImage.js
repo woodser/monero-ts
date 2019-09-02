@@ -1,7 +1,3 @@
-const assert = require("assert");
-const MoneroUtils = require("../../utils/MoneroUtils");
-const MoneroError = require("../../utils/MoneroError");
-
 /**
  * Models a Monero key image.
  */

@@ -20,18 +20,6 @@
  * SOFTWARE.
  */
 
-const assert = require("assert");
-const Filter = require("../utils/Filter");
-const BigInteger = require("../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
-const GenUtils = require("../utils/GenUtils");
-const MoneroUtils = require("../utils/MoneroUtils");
-const MoneroError = require("../utils/MoneroError");
-const MoneroRpcConnection = require("../rpc/MoneroRpcConnection");
-
-const MoneroBlock = require("../daemon/model/MoneroBlock");
-const MoneroBlockHeader = require("../daemon/model/MoneroBlockHeader");
-const MoneroKeyImage = require("../daemon/model/MoneroKeyImage");
-
 const MoneroWallet = require("./MoneroWallet");
 
 //const MoneroSyncResult = require('./model/MoneroSyncResult');

@@ -1,5 +1,3 @@
-const assert = require("assert");
-
 /**
  * Models the result of checking for a daemon update.
  */

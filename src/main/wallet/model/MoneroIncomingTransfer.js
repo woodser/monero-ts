@@ -1,5 +1,3 @@
-const assert = require("assert");
-const MoneroUtils = require("../../utils/MoneroUtils");
 const MoneroTransfer = require("./MoneroTransfer");
 
 /**

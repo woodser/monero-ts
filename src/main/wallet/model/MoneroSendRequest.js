@@ -1,9 +1,3 @@
-const assert = require("assert");
-const BigInteger = require("../../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
-const MoneroUtils = require("../../utils/MoneroUtils");
-const MoneroTransfer = require("../model/MoneroTransfer");
-const MoneroDestination = require("../model/MoneroDestination");
-
 /**
  * Configures a request to send/sweep funds or create a payment URI.
  * 

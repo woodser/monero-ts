@@ -1,6 +1,4 @@
-const assert = require("assert");
 const TestUtils = require("./TestUtils").TestUtils;
-const BigInteger = require("../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
 const MoneroWalletLocal = require("../main/wallet/MoneroWalletLocal");
 
 /**
@@ -20,11 +18,6 @@ describe("Test Sample Code", function() {
     // imports
     const MoneroDaemonRpc = require("../main/daemon/MoneroDaemonRpc");
     const MoneroWalletRpc = require("../main/wallet/MoneroWalletRpc");
-    const MoneroTxQuery = require("../main/wallet/model/MoneroQueries").MoneroTxQuery;
-    const MoneroTransferQuery = require("../main/wallet/model/MoneroQueries").MoneroTransferQuery;
-    const MoneroOutputQuery = require("../main/wallet/model/MoneroQueries").MoneroOutputQuery;
-    const MoneroSendRequest = require("../main/wallet/model/MoneroSendRequest");
-    const MoneroDestination = require("../main/wallet/model/MoneroDestination");
     
     // connect to a daemon
     let daemon = new MoneroDaemonRpc("http://localhost:38081");

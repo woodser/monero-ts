@@ -1,5 +1,3 @@
-const MoneroUtils = require("../../utils/MoneroUtils");
-
 /**
  * Monero subaddress model.
  */

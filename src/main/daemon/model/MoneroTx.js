@@ -1,11 +1,3 @@
-
-const assert = require("assert");
-const GenUtils = require("../../utils/GenUtils");
-const BigInteger = require("../../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
-const MoneroUtils = require("../../utils/MoneroUtils");
-const MoneroError = require("../../utils/MoneroError");
-const MoneroOutput = require("./MoneroOutput");
-
 /**
  * Represents a transaction on the Monero network.
  */
