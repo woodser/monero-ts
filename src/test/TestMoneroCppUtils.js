@@ -1,8 +1,3 @@
-const assert = require("assert");
-const MoneroUtils = require("../main/utils/MoneroUtils");
-const GenUtils = require("../main/utils/GenUtils");
-const TestUtils = require("./TestUtils").TestUtils;
-
 /**
  * Test bridged C++ utilities.
  */

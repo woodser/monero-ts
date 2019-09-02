@@ -1,7 +1,3 @@
-const assert = require("assert");
-const TestUtils = require("./TestUtils").TestUtils;
-const MoneroUtils = require("../main/utils/MoneroUtils");
-
 /**
  * Compares two wallets for equality.
  */

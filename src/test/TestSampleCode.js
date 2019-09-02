@@ -1,4 +1,4 @@
-const TestUtils = require("./TestUtils").TestUtils;
+const MoneroWalletRpc = require("../main/wallet/MoneroWalletRpc");
 const MoneroWalletLocal = require("../main/wallet/MoneroWalletLocal");
 
 /**
@@ -9,8 +9,12 @@ describe("Test Sample Code", function() {
   
   // initialize wallet
   before(async function() {
-    that.wallet = TestUtils.getWalletLocal();
-    TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
+    try {
+      that.wallet = TestUtils.getWalletLocal();
+      TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
+    } catch (e) {
+      console.log(e);
+    }
   });
   
   it("Can be demonstrated with sample code", async function() {

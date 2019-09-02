@@ -1,17 +1,5 @@
-const assert = require("assert");
-const GenUtils = require("../main/utils/GenUtils");
-const TestUtils = require("./TestUtils").TestUtils;
-const MoneroUtils = require("../main/utils/MoneroUtils");
-const MoneroRpcError = require("../main/rpc/MoneroRpcError");
-
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
-
-//const MoneroAccountTag = require("../main/wallet/model/MoneroAccountTag");
-//const MoneroIncomingTransfer = require("../main/wallet/model/MoneroIncomingTransfer");
-//const MoneroOutgoingTransfer = require("../main/wallet/model/MoneroOutgoingTransfer");
-//const MoneroTxQuery = require("../main/wallet/model/MoneroQueries").MoneroTxQuery;
-//const MoneroTransferQuery = require("../main/wallet/model/MoneroQueries").MoneroTransferQuery;
-//const MoneroOutputQuery = require("../main/wallet/model/MoneroQueries").MoneroOutputQuery;
+const MoneroWalletRpc = require("../main/wallet/MoneroWalletRpc");
 
 /**
  * Tests the Monero Wallet RPC client and server.

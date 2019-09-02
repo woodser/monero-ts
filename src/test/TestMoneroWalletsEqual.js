@@ -1,5 +1,4 @@
-const assert = require("assert");
-const TestUtils = require("./TestUtils").TestUtils;
+const MoneroWallet = require("../main/wallet/MoneroWallet");
 
 /**
  * Compares two wallets for equality using only on-chain data.

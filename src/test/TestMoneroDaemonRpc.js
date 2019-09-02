@@ -1,24 +1,5 @@
-const assert = require("assert");
-const BigInteger = require("../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
-const GenUtils = require("../main/utils/GenUtils");
-const MoneroUtils = require("../main/utils/MoneroUtils");
-const MoneroError = require("../main/utils/MoneroError");
-const TestUtils = require("./TestUtils").TestUtils;
-const MoneroWalletLocal = require("../main/wallet/MoneroWalletLocal");
-const MoneroSendRequest = require("../main/wallet/model/MoneroSendRequest");
 const MoneroDaemonRpc = require("../main/daemon/MoneroDaemonRpc");
-const MoneroBan = require("../main/daemon/model/MoneroBan");
-const MoneroBlock = require("../main/daemon/model/MoneroBlock");
-const MoneroTx = require("../main/daemon/model/MoneroTx");
-const MoneroOutput = require("../main/daemon/model/MoneroOutput");
-const MoneroKeyImage = require("../main/daemon/model/MoneroKeyImage")
-const MoneroKeyImageSpentStatus = require("../main/daemon/model/MoneroKeyImageSpentStatus");
-const MoneroAltChain = require("../main/daemon/model/MoneroAltChain");
-const MoneroDaemonSyncInfo = require("../main/daemon/model/MoneroDaemonSyncInfo");
-const MoneroDaemonPeer = require("../main/daemon/model/MoneroDaemonPeer");
-const MoneroDaemonConnection = require("../main/daemon/model/MoneroDaemonConnection");
-const MoneroDaemonConnectionSpan = require("../main/daemon/model/MoneroDaemonConnectionSpan");
-const MoneroDaemonUpdateCheckResult = require("../main/daemon/model/MoneroDaemonUpdateCheckResult");
+const MoneroWalletLocal = require("../main/wallet/MoneroWalletLocal");
 
 // context for testing binary blocks
 // TODO: binary blocks have inconsistent client-side pruning

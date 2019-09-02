@@ -1,18 +1,3 @@
-const assert = require("assert");
-const TestUtils = require("./TestUtils").TestUtils;
-const MoneroRpcConnection = require("../main/rpc/MoneroRpcConnection");
-const MoneroKeyImage = require("../main/daemon/model/MoneroKeyImage");
-
-//require("../main/wallet/model/MoneroWalletModel");
-//const MoneroTransfer = require("../main/wallet/model/MoneroTransfer");
-//const MoneroTxQuery = require("../main/wallet/model/MoneroQueries").MoneroTxQuery;
-//const MoneroTransferQuery = require("../main/wallet/model/MoneroQueries").MoneroTransferQuery;
-//const MoneroOutputQuery = require("../main/wallet/model/MoneroQueries").MoneroOutputQuery;
-//const MoneroTxWallet = require("../main/wallet/model/MoneroTxWallet");
-//const MoneroSendRequest = require("../main/wallet/model/MoneroSendRequest");
-//const MoneroDestination = require("../main/wallet/model/MoneroDestination");
-//const MoneroOutputWallet = require("../main/wallet/model/MoneroOutputWallet");
-
 describe("Scratchpad", function() {
   
   it("Can be scripted easily", async function() {
