@@ -93,14 +93,14 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getBlockHeaderById(blockId) {
     await this._initOneTime();
-    let resp = await this.config.rpc.sendJsonRequest("get_block_header_by_hash", {hash: blockId} );
+    let resp = await this.config.rpc.sendJsonRequest("get_block_header_by_hash", {hash: blockId});
     MoneroDaemonRpc._checkResponseStatus(resp.result);
     return MoneroDaemonRpc._convertRpcBlockHeader(resp.result.block_header);
   }
   
   async getBlockHeaderByHeight(height) {
     await this._initOneTime();
-    let resp = await this.config.rpc.sendJsonRequest("get_block_header_by_height", {height: height} );
+    let resp = await this.config.rpc.sendJsonRequest("get_block_header_by_height", {height: height});
     MoneroDaemonRpc._checkResponseStatus(resp.result);
     return MoneroDaemonRpc._convertRpcBlockHeader(resp.result.block_header);
   }

@@ -42,12 +42,11 @@ for (let block of blocks) {
   let numTxs = block.getTxs().length;
 }
 
-// create a wallet that uses a monero-wallet-rpc endpoint with authentication
-let walletRpc = new MoneroWalletRpc({
-  uri: "http://localhost:38083",
-  user: "rpc_user",
-  pass: "abc123"
-});
+// connect to a monero-wallet-rpc endpoint with authentication
+let walletRpc = new MoneroWalletRpc({uri: "http://localhost:38083", user: "rpc_user", pass: "abc123"});
+
+// open a wallet on the server
+await walletRpc.openWallet("test_wallet_1", "supersecretpassword123");
 let primaryAddress = await walletRpc.getPrimaryAddress(); // 59aZULsUF3YNSKGiHz4J...
 let balance = await walletRpc.getBalance();               // 533648366742
 let subaddress = await walletRpc.getSubaddress(1, 0);
