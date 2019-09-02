@@ -53,7 +53,7 @@ let subaddress = await walletRpc.getSubaddress(1, 0);
 let subaddressBalance = subaddress.getBalance();
 
 // query a transaction by id
-let tx = walletRpc.getTx("314a0f1375db31cea4dac4e0a51514a6282b43792269b3660166d4d2b46437ca");
+let tx = await walletRpc.getTx("314a0f1375db31cea4dac4e0a51514a6282b43792269b3660166d4d2b46437ca");
 let txHeight = tx.getHeight();
 let incomingTransfers = tx.getIncomingTransfers();
 let destinations = tx.getOutgoingTransfer().getDestinations();

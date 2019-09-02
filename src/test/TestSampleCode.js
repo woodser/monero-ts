@@ -51,7 +51,7 @@ describe("Test Sample Code", function() {
     
     // query a transaction by id
     let tx = await walletRpc.getTx((await walletRpc.getTxs(new MoneroTxQuery().setIsOutgoing(true)))[0].getId()); // *** REMOVE FROM README SAMPLE ***
-    //let tx = walletRpc.getTx("314a0f1375db31cea4dac4e0a51514a6282b43792269b3660166d4d2b46437ca");
+    //let tx = await walletRpc.getTx("314a0f1375db31cea4dac4e0a51514a6282b43792269b3660166d4d2b46437ca");
     let txHeight = tx.getHeight();
     let incomingTransfers = tx.getIncomingTransfers();
     let destinations = tx.getOutgoingTransfer().getDestinations();
