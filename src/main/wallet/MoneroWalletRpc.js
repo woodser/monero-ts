@@ -546,7 +546,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (txQuery.getMaxHeight() !== undefined) params.max_height = txQuery.getMaxHeight();
     params.filter_by_height = txQuery.getMinHeight() !== undefined || txQuery.getMaxHeight() !== undefined;
     if (query.getAccountIndex() === undefined) {
-      assert(query.getSubaddressIndex() === undefined && query.getSubaddressIndices() === undefined, "Filter specifies a subaddress index but not an account index");
+      assert(query.getSubaddressIndex() === undefined && query.getSubaddressIndices() === undefined, "Query specifies a subaddress index but not an account index");
       params.all_accounts = true;
     } else {
       params.account_index = query.getAccountIndex();
@@ -706,8 +706,8 @@ class MoneroWalletRpc extends MoneroWallet {
       if (query.getSubaddressIndices() !== undefined) query.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
       indices.set(query.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : undefined);  // undefined will fetch from all subaddresses
     } else {
-      assert.equal(query.getSubaddressIndex(), undefined, "Filter specifies a subaddress index but not an account index")
-      assert(query.getSubaddressIndices() === undefined || query.getSubaddressIndices().length === 0, "Filter specifies subaddress indices but not an account index");
+      assert.equal(query.getSubaddressIndex(), undefined, "Query specifies a subaddress index but not an account index")
+      assert(query.getSubaddressIndices() === undefined || query.getSubaddressIndices().length === 0, "Query specifies subaddress indices but not an account index");
       indices = await this._getAccountIndices();  // fetch all account indices without subaddresses
     }
     
