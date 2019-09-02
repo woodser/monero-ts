@@ -1,6 +1,3 @@
-const MoneroWalletRpc = require("../main/wallet/MoneroWalletRpc");
-const MoneroWalletLocal = require("../main/wallet/MoneroWalletLocal");
-
 /**
  * Test the sample code in README.md.
  */
