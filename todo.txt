@@ -1,9 +1,9 @@
 HIGH
-MoneroWalletRpc() initialized with 3 strings just like Java, no more {}?
+MoneroWalletRpc() initialized with 3 strings just like Java
+remove support for {} and use pure OO?
 MoneroOutputQuery wasn't in MoneroTxQuery?
-
 test sweeps
-update readme: document local wallet, refer to nodejs, description consistent with other libraries, reference api
+update readme: document local wallet, refer to nodejs
 open issue: release as node module
 deploy docs page
 
