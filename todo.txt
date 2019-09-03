@@ -1,5 +1,4 @@
 HIGH
-MoneroWalletRpc() initialized with 3 strings just like Java
 MoneroOutputQuery wasn't in MoneroTxQuery?
 wallet interface jsdoc is missing
 test sweeps

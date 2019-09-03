@@ -36,7 +36,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * @param {string}  config.host is the host of the rpc endpoint
    * @param {int}     config.port is the port of the rpc endpoint
    * @param {string}  config.user is a username to authenticate with the rpc endpoint
-   * @param {string}  config.password is a password to authenticate with the rpc endpoint
+   * @param {string}  config.pass is a password to authenticate with the rpc endpoint
    * @param {string}  config.maxRequestsPerSecond is the maximum requests per second to allow
    * @param {int}     config.pollInterval is the poll interval to check for updates in ms (default 5000)
    */

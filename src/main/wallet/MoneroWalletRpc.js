@@ -22,30 +22,6 @@
 
 const MoneroWallet = require("./MoneroWallet");
 
-//const MoneroSyncResult = require('./model/MoneroSyncResult');
-//const MoneroIntegratedAddress = require("./model/MoneroIntegratedAddress");
-//const MoneroAccount = require("./model/MoneroAccount");
-//const MoneroSubaddress = require("./model/MoneroSubaddress");
-//const MoneroTxWallet = require("./model/MoneroTxWallet");
-//const MoneroTxSet = require("./model/MoneroTxSet");
-//const MoneroTransfer = require("./model/MoneroTransfer");
-//const MoneroIncomingTransfer = require("./model/MoneroIncomingTransfer");
-//const MoneroOutgoingTransfer = require("./model/MoneroOutgoingTransfer");
-//const MoneroDestination = require("./model/MoneroDestination");
-//const MoneroOutputWallet = require("./model/MoneroOutputWallet");
-//const MoneroSendRequest = require("./model/MoneroSendRequest");
-//const MoneroCheckTx = require("./model/MoneroCheckTx");
-//const MoneroCheckReserve = require("./model/MoneroCheckReserve");
-//const MoneroTxQuery = require("./model/MoneroQueries").MoneroTxQuery;
-//const MoneroTransferQuery = require("./model/MoneroQueries").MoneroTransferQuery;
-//const MoneroOutputQuery = require("./model/MoneroQueries").MoneroOutputQuery;
-//const MoneroAccountTag = require("./model/MoneroAccountTag");
-//const MoneroAddressBookEntry = require("./model/MoneroAddressBookEntry");
-//const MoneroKeyImageImportResult = require("./model/MoneroKeyImageImportResult");
-//const MoneroMultisigInfo = require("./model/MoneroMultisigInfo");
-//const MoneroMultisigInitResult = require("./model/MoneroMultisigInitResult");
-//const MoneroMultisigSignResult = require("./model/MoneroMultisigSignResult");
-
 /**
  * Implements a Monero wallet using monero-wallet-rpc.
  */
@@ -60,14 +36,16 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {string} config.host is the host of the rpc endpoint
    * @param {int}    config.port is the port of the rpc endpoint
    * @param {string} config.user is a username to authenticate with the rpc endpoint
-   * @param {string} config.password is a password to authenticate with the rpc endpoint
+   * @param {string} config.pass is a password to authenticate with the rpc endpoint
    * @param {string} config.maxRequestsPerSecond is the maximum requests per second to allow
+   * @param {string} param2 is the username to authenticate with (optional)
+   * @param {string} param3 is the password to authenticate with (optional)
    */
-  constructor(config) {
+  constructor(config, param2, param3) {
     super();
     
     // normalize config
-    if (typeof config === "string") this.config = {uri: config}
+    if (typeof config === "string") config = {uri: config, user: param2, pass: param3};
     this.config = Object.assign({}, config);
     
     // initialize rpc instance if not given
