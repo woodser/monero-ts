@@ -141,7 +141,7 @@ A simple web application is included in `./browser_app` to demonstrate using thi
 6. Manually copy the 4 asm files from ./external/mymonero-core-js/monero_utils to ./browser_build/submodules/mymonero-core-js/monero_utils/
 7. Access the application using a web browser.  For example, open http://localhost:9100.
 
-Note: SimpleHTTPServer incorrectly serves WASM files with content-type "octet-stream" which fails in Firefox.  This issue can be resolved by using a different HTTP server or browser.
+Note: The server used in these steps, SimpleHTTPServer, incorrectly serves WASM files with content-type "octet-stream" which fails in Firefox.  This issue can be resolved by using a different HTTP server or browser.
 
 ## Project Goals
 
