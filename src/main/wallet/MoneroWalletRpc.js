@@ -405,10 +405,13 @@ class MoneroWalletRpc extends MoneroWallet {
       query = new MoneroTxQuery(query);
     }
     if (query.getTransferQuery() === undefined) query.setTransferQuery(new MoneroTransferQuery());
-    let transferQuery = query.getTransferQuery();
+    if (query.getOutputQuery() === undefined) query.setOutputQuery(new MoneroOutputQuery());
     
-    // temporarily disable transfer query
+    // temporarily disable transfer and output queries in order to collect all tx information
+    let transferQuery = query.getTransferQuery();
+    let outputQuery = query.getOutputQuery();
     query.setTransferQuery(undefined);
+    query.setOutputQuery(undefined);
     
     // fetch all transfers that meet tx query
     let transfers = await this.getTransfers(new MoneroTransferQuery().setTxQuery(query));
@@ -437,12 +440,16 @@ class MoneroWalletRpc extends MoneroWallet {
       // merge output txs one time while retaining order
       let outputTxs = [];
       for (let output of outputs) {
-        if (!outputTxs.includes(output.getTx())){
+        if (!outputTxs.includes(output.getTx())) {
           MoneroWalletRpc._mergeTx(output.getTx(), txMap, blockMap, true);
           outputTxs.push(output.getTx());
         }
       }
     }
+    
+    // restore transfer and output queries
+    query.setTransferQuery(transferQuery);
+    query.setOutputQuery(outputQuery);
     
     // filter txs that don't meet transfer query
     query.setTransferQuery(transferQuery);

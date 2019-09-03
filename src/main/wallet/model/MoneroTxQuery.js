@@ -169,6 +169,19 @@ class MoneroTxQuery extends MoneroTxWallet {
       if (!matchFound) return false;
     }
     
+    // at least one output must meet output query if defined
+    if (this.getOutputQuery() !== undefined && !this.getOutputQuery().isDefault()) {
+      if (tx.getVouts() === undefined || tx.getVouts().length === 0) return false;
+      let matchFound = false;
+      for (let vout of tx.getVouts()) {
+        if (this.getOutputQuery().meetsCriteria(vout)) {
+          matchFound = true;
+          break;
+        }
+      }
+      if (!matchFound) return false;
+    }
+    
     // filter on having a payment id
     if (this.hasPaymentId() !== undefined) {
       if (this.hasPaymentId() && tx.getPaymentId() === undefined) return false;

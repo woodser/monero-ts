@@ -618,6 +618,22 @@ class TestMoneroWalletCommon {
           }
         }
         assert(found, "No vouts found in txs");
+        
+        // get txs with output query
+        let outputQuery = new MoneroOutputQuery().setIsSpent(false).setAccountIndex(1).setSubaddressIndex(2);
+        txs = await that.wallet.getTxs(new MoneroTxQuery().setIncludeOutputs(true).setOutputQuery(outputQuery));
+        assert(txs.length > 0);
+        for (let tx of txs) {
+          assert(tx.getVouts().length > 0);
+          found = false;
+          for (let vout of tx.getVouts()) {
+            if (vout.isSpent() === false && vout.getAccountIndex() === 1 && vout.getSubaddressIndex() === 2) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) throw new Error("Tx does not contain specified vout");
+        }
       });
       
       if (config.testNonRelays)

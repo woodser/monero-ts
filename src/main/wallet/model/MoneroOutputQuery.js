@@ -68,6 +68,12 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     // output meets query
     return true;
   }
+  
+  isDefault() {
+    return this.meetsCriteria(MoneroOutputQuery._EMPTY_OUTPUT);
+  }
 }
+
+MoneroOutputQuery._EMPTY_OUTPUT = new MoneroOutputWallet();
 
 module.exports = MoneroOutputQuery;
