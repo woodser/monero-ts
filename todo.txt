@@ -1,13 +1,13 @@
 HIGH
 MoneroWalletRpc() initialized with 3 strings just like Java
-remove support for {} and use pure OO?
 MoneroOutputQuery wasn't in MoneroTxQuery?
 test sweeps
-update readme: document local wallet, refer to nodejs
+update readme: refer to nodejs
 open issue: release as node module
 deploy docs page
 
 MEDIUM
+remove support for {} and use pure OO?
 automate browser app build by copying index.html and asm files from monero_utils
 jni compare ground truth test sometimes shows gt output not unlocked but jni is unlocked
 new rpc wallet created from mnemonic sometimes synced at height and with txs

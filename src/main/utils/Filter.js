@@ -19,7 +19,7 @@ class Filter {
    * 
    * @param filter implements meetsCriteria(elem) to filter the given array
    * @param array is the array to apply the filter to
-   * @return {[]} is the new array of filtered elements
+   * @return the new array of filtered elements
    */
   static apply(filter, array) {
     return array.filter(elem => filter.meetsCriteria(elem));

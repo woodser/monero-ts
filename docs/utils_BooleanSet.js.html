@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: utils/BooleanSet.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: utils/BooleanSet.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const assert = require("assert");
+const GenUtils = require("../utils/GenUtils");
+
+/**
+ * Allows an infinite array of booleans to be set to true or false using ranges
+ * to efficiently compress consecutive values.
+ * 
+ * TODO: maximize compatibility with existing apis, might want end indices to be exclusive
+ * TODO: optimize ranges using arrays and single numbers
+ * TODO: don't set flipped by default
+ * TODO: split this off as its own project, submodule?
+ */
+class BooleanSet {
+
+  /**
+   * Constructs a BooleanSet.
+   * 
+   * @param stateOrObj is a state to initialize by reference, an existing
+   *        BooleanSet to deep copy, or defaults to a cleared state
+   */
+  constructor(stateOrObj) {
+    
+    // deep copy state object if BooleanSet given
+    if (stateOrObj instanceof BooleanSet) {
+      this._setState(GenUtils.copyProperties(stateOrObj.getState()));
+    }
+    
+    // set state directly by reference if internal state object given
+    else if (stateOrObj) {
+      this._setState(stateOrObj);
+    }
+    
+    // otherwise start new
+    else {
+      this.state = {};
+      this.state.flipped = false;
+      this.state.ranges = [];
+    }
+  }
+  
+  /**
+   * Returns the internal state of this set.
+   * 
+   * @returns {Object} with internal state.
+   */
+  getState() {
+    return this.state;
+  }
+  
+  /**
+   * Sets all booleans to false.
+   * 
+   * @returns {BooleanSet} is this instance
+   */
+  clear() {
+    return this.set(false);
+  }
+  
+  /**
+   * Copies this BooleanSet to a new one.
+   * 
+   * @returns {BooleanSet} is a copy of this instance
+   */
+  copy() {
+    return new BooleanSet(this);
+  }
+  
+  /**
+   * Sets one or all booleans.
+   * 
+   * @param {boolean} val is the boolean value to set
+   * @param {number} idx is the index of the value to set, sets all if not provided
+   * @returns {BooleanSet} is this instance
+   */
+  set(val, idx, param) {
+    
+    // validate val and no extra param
+    assert(typeof val === "boolean", "Value to set must be a boolean");
+    assert(param === undefined, "3rd parameter must be undefined but was " + param);
+    
+    // set all
+    if (idx === undefined || idx === null) {
+      this.state.flipped = val;
+      this.state.ranges.length = 0;
+      return this;
+    }
+    
+    // validate index
+    assert(GenUtils.isInt(idx) &amp;&amp; idx >= 0, "Index must be an integer >= 0 but was " + idx);
+    
+    // done if no change
+    if (val === this.get(idx)) return;
+    
+    // find indices of previous, current, and next ranges relative to idx
+    let prevRangeIdx, curRangeIdx, nextRangeIdx;
+    for (let rangeIdx = 0; rangeIdx &lt; this.state.ranges.length; rangeIdx++) {
+      let range = this.state.ranges[rangeIdx];
+      if (range.end &lt; idx) prevRangeIdx = rangeIdx;
+      else if (range.start &lt;= idx &amp;&amp; range.end >= idx) curRangeIdx = rangeIdx;
+      else if (nextRangeIdx === undefined &amp;&amp; range.start > idx) {
+        nextRangeIdx = rangeIdx;
+        break;
+      }
+    }
+    
+    // handle change in a range
+    if (curRangeIdx !== undefined) {
+      let range = this.state.ranges[curRangeIdx];
+      if (range.start === idx) {
+        if (range.end === idx) this.state.ranges.splice(curRangeIdx, 1);                // remove range
+        else range.start++;                                                             // increment start
+      } else if (range.end === idx) {
+        range.end--;                                                                    // decrement end
+      } else {
+        this.state.ranges.splice(curRangeIdx + 1, 0, {start: idx + 1, end: range.end}); // add range
+        range.end = idx - 1;
+      }
+    }
+    
+    // handle change not in a range
+    else {
+      
+      // track whether or not idx is incorporated into existing range
+      let incorporated = false;
+      
+      // incorporate idx into previous range if applicable
+      if (prevRangeIdx !== undefined) {
+        let prevRange = this.state.ranges[prevRangeIdx];
+        if (prevRange.end === idx - 1) {
+          prevRange.end++;
+          incorporated = true;
+        }
+      }
+      
+      // incorporate idx into next range if applicable
+      if (nextRangeIdx !== undefined) {
+        let nextRange = this.state.ranges[nextRangeIdx];
+        if (nextRange.start === idx + 1) {
+          nextRange.start--;
+          incorporated = true;
+        }
+      }
+      
+      // merge previous and next ranges if applicable
+      if (incorporated &amp;&amp; prevRangeIdx !== undefined &amp;&amp; nextRangeIdx !== undefined) {
+        let prevRange = this.state.ranges[prevRangeIdx];
+        let nextRange = this.state.ranges[nextRangeIdx];
+        if (prevRange.end === nextRange.start) {
+          prevRange.end = nextRange.end;
+          this.state.ranges.splice(nextRangeIdx, 1);
+        }
+      }
+      
+      // start new range if not incorporated
+      if (!incorporated) {
+        let rangeIdx = prevRangeIdx === undefined ? 0 : prevRangeIdx + 1;
+        this.state.ranges.splice(rangeIdx, 0, {start: idx, end: idx});
+      }
+    }
+    
+    return this;
+  }
+  
+  /**
+   * Sets booleans in a range.
+   * 
+   * @param {boolean} val is the boolean value to set in the range
+   * @param {number} start is the start of the range (defaults to 0)
+   * @param {number} end is the end of the range (defaults to infinity)
+   * @returns {BooleanSet} is this instance
+   */
+  setRange(val, start, end) {
+    
+    // validate and sanitize inputs
+    assert(typeof val === "boolean", "Value to set must be a boolean");
+    if (start === undefined || start === null) start = 0;
+    if (end === null) end = undefined;
+    assert(GenUtils.isInt(start) &amp;&amp; start >= 0, "Start must be an integer >= 0 but was " + start);
+    if (end !== undefined) assert(GenUtils.isInt(end) &amp;&amp; end >= start, "End must be an integer >= start (" + start + ") but was " + end);
+    
+    // set bounded range
+    // TODO: can be more efficient than setting each index
+    if (end !== undefined) {
+      for (let i = start; i &lt;= end; i++) {
+        this.set(val, i);
+      }
+    }
+    
+    // set unbounded range
+    else {
+      
+      // remove from ranges that which touches the unbounded range
+      let rangeIdx;
+      for (rangeIdx = 0; rangeIdx &lt; this.state.ranges.length; rangeIdx++) {
+        let range = this.state.ranges[rangeIdx];
+        if (range.end &lt; start) continue;  // range is before given range
+        if (range.start &lt; start) {        // range is cut by given range
+          range.end = start - 1;
+          rangeIdx++;
+        }
+        break;  // delete remaining ranges
+      }
+      if (this.state.ranges.length) this.state.ranges.splice(rangeIdx);
+      
+      // flip infinity if necessary
+      if (val !== this.state.flipped) {
+        this.state.flipped = !this.state.flipped;
+        
+        // replace ranges with ranges between current ranges
+        let ranges = [];
+        let lastEndIdx = 0;
+        for (let range of this.state.ranges) {
+          if (range.start !== 0) ranges.push({start: lastEndIdx, end: range.start - 1});
+          lastEndIdx = range.end + 1;
+        }
+        if (lastEndIdx &lt; start) ranges.push({start: lastEndIdx, end: start - 1});
+        this.state.ranges = ranges;
+      }
+    }
+    
+    return this;
+  }
+  
+  /**
+   * Flips one or all booleans.
+   * 
+   * @param {number} idx is the index to flip, flips all if not provided
+   * @returns {BooleanSet} is this instance
+   */
+  flip(idx) {
+    
+    // flip index
+    if (idx !== null &amp;&amp; idx !== undefined) {
+      this.set(!this.get(idx), idx);
+    }
+    
+    // flip all
+    else {
+      this.state.flipped = !this.state.flipped;
+    }
+    
+    // return instance
+    return this;
+  }
+  
+  /**
+   * Flips booleans in a range.
+   * 
+   * @param start is the start of the range (defaults to 0)
+   * @param end is the end of the range (defaults to infinit)
+   * @returns {BooleanSet} is this instance
+   */
+  flipRange(start, end) {
+    
+    // validate and sanitize inputs
+    if (start === undefined || start === null) start = 0;
+    if (end === null) end = undefined;
+    assert(GenUtils.isInt(start) &amp;&amp; start >= 0, "Start must be an integer >= 0 but was " + start);
+    if (end !== undefined) assert(GenUtils.isInt(end) &amp;&amp; end >= start, "End must be an integer >= start (" + start + ") but was " + end);
+    
+    // flip bounded range
+    // TODO: can be more efficient than setting each index
+    if (end !== undefined) {
+      for (let i = start; i &lt;= end; i++) {
+        this.set(!this.get(i), i);
+      }
+    }
+    
+    // flip unbounded range
+    else {
+      
+      // flip infinity
+      this.state.flipped = !this.state.flipped;
+      
+      // flip before unbouned range starts
+      if (start > 0) this.flipRange(0, start - 1);
+    }
+    
+    // return instance
+    return this;
+  }
+  
+  /**
+   * Gets the boolean value at a given index.
+   * 
+   * @param {number} idx is the index of the value to get
+   * @returns {boolean} the value at the index
+   */
+  get(idx) {
+    
+    // validate input
+    assert(GenUtils.isInt(idx) &amp;&amp; idx >= 0, "Index must be an integer >= 0 but was " + idx);
+    
+    // determine if idx is in range
+    let inRange = false;
+    for (let range of this.state.ranges) {
+      if (range.start &lt;= idx &amp;&amp; range.end >= idx) {
+        inRange = true;
+        break;
+      }
+    }
+    
+    // apply inversion if applicable
+    return inRange ? !this.state.flipped : !!this.state.flipped;
+  }
+  
+  /**
+   * Gets the first index in a range with the given value.
+   * 
+   * @param {boolean} val is the value to get the first index of
+   * @param start is the start of the range, inclusive (defaults to 0)
+   * @param end is the end of the range, inclusive (defaults to infinity)
+   * @returns {number} is the first index in the range with the value, null if none found
+   */
+  getFirst(val, start, end) {
+    
+    // validate and sanitize inputs
+    assert(typeof val === "boolean", "Value to get must be a boolean");
+    if (start === undefined || start === null) start = 0;
+    if (end === null) end = undefined;
+    assert(GenUtils.isInt(start) &amp;&amp; start >= 0, "Start must be an integer >= 0 but was " + start);
+    if (end !== undefined) assert(GenUtils.isInt(end) &amp;&amp; end >= start, "End must be an integer >= start " + start + " but was " + end);
+
+    // get first range that touches search bounds
+    let firstRange;
+    for (let range of this.state.ranges) {
+      
+      // handle bounded range
+      if (end !== undefined) {
+        if (this._overlaps(range.start, range.end, start, end)) {
+          firstRange = range;
+          break;
+        }
+      }
+      
+      // handle unbounded range
+      else if (range.end >= start) {
+        firstRange = range;
+        break;
+      }
+    }
+    
+    // if a suitable range is not found, everything in the given range is the same
+    if (firstRange === undefined) return this.get(start) === val ? start : null;
+    
+    // if found, return first index in bounds
+    if (this.get(firstRange.start) === val) return Math.max(start, firstRange.start);
+    
+    // otherwise return first index outside of range
+    if (start &lt; firstRange.start) return start;
+    return firstRange.end + 1 > end ? null : firstRange.end + 1;
+  }
+  
+  /**
+   * Gets the last index in a range with the given value.
+   * 
+   * @param {boolean} val is the value to get the last index of
+   * @param start is the start of the range, inclusive (defaults to 0)
+   * @param end is the end of the range, inclusive (defaults to infinity)
+   * @returns {number} is the last index in the range with the value, null if none found, undefined if infinity
+   */
+  getLast(val, start, end) {
+    
+    // validate and sanitize inputs
+    assert(typeof val === "boolean", "Value to get must be a boolean");
+    if (start === undefined || start === null) start = 0;
+    if (end === null) end = undefined;
+    assert(GenUtils.isInt(start) &amp;&amp; start >= 0, "Start must be an integer >= 0 but was " + start);
+    if (end !== undefined) assert(GenUtils.isInt(end) &amp;&amp; end >= start, "End must be an integer >= start (" + start + ") but was " + end);
+
+    // get last range that touches search bounds
+    let lastRange;
+    for (let rangeIdx = this.state.ranges.length - 1; rangeIdx >= 0; rangeIdx--) {
+      let range = this.state.ranges[rangeIdx];
+      
+      // handle bounded range
+      if (end !== undefined) {
+        if (this._overlaps(range.start, range.end, start, end)) {
+          lastRange = range;
+          break;
+        }
+      }
+      
+      // handle unbounded range (only need to check one)
+      else {
+        if (range.end >= start) lastRange = range;
+        break;
+      }
+    }
+    
+    // if a suitable range is not found, everything in the given range is the same
+    if (lastRange === undefined) return this.get(start) === val ? end : null;
+    
+    // if found, return last index in bounds
+    if (this.get(lastRange.start) === val) return end === undefined ? lastRange.end : Math.min(end, lastRange.end);
+    
+    // otherwise return last index outside of range
+    if (end === undefined || end > lastRange.end) return end;
+    return lastRange.start - 1 &lt; 0 ? null : lastRange.start - 1;
+  }
+  
+  /**
+   * Indicates if all booleans in a range are set to a given value.
+   * 
+   * @param {boolean} val is the value to test in the range
+   * @param {number} start is the start of the range, inclusive (defaults to 0)
+   * @param {number} end is the end of the range, inclusive (defaults to infinity)
+   * @returns {boolean} is true if all booleans in the range are the given value, false otherwise
+   */
+  allSet(val, start, end) {
+    assert(typeof val === "boolean", "Value to check must be a boolean");
+    return this.getFirst(!val, start, end) === null;
+  }
+  
+  /**
+   * Indicates if any booleans in a range are set to a given value.
+   * 
+   * @param {boolean} val is the value to test in the range
+   * @param {number} start is the start of the range, inclusive (defaults to 0)
+   * @param {number} end is the end of the range, inclusive (defaults to infinity)
+   * @returns {boolean} is true if any booleans in the range are the given value, false otherwise
+   */
+  anySet(val, start, end) {
+    assert(typeof val === "boolean", "Value to check must be a boolean");
+    return this.getFirst(val, start, end) !== null;
+  }
+  
+  /**
+   * Converts the given range to an array.
+   * 
+   * @param {number} start is the start index of the range, inclusive (defaults to 0)
+   * @param {number} is the end index of the range, exclusive (defaults to length())
+   * @returns {boolean[]} is an array representation of the given range
+   */
+  toArray(start, end) {
+    if (start === undefined || start === null) start = 0;
+    if (end === undefined || end === null) end = this.length();
+    let arr = [];
+    for (let i = start; i &lt; end; i++) arr.push(this.get(i));
+    return arr;
+  }
+  
+  /**
+   * Returns the index of the first boolean that is the same as infinity.
+   * 
+   * Returns the index of the last boolean before all remaining booleans are infinitely false
+   * or true (depending on if flip() was called which flips infinity).
+   * 
+   * @returns {number} is the last set boolean before the remaining are infinitely true or false
+   */
+  length() {
+    return 1 + (this.state.flipped ? this.getLast(false) : this.getLast(true));
+  }
+  
+  // ---------------------------------- PRIVATE -------------------------------
+  
+  _setState(state) {
+    BooleanSet._validateState(state);
+    delete this.state;
+    this.state = state;
+    return this;
+  }
+  
+  static _validateState(state) {
+    assert(state);
+    assert(state instanceof Object)
+    assert (typeof state.flipped === "boolean");
+    assert(state.ranges !== undefined);
+    assert(Array.isArray(state.ranges));
+    for (let range of state.ranges) {
+      assert(range.start >= 0);
+      assert(range.end >= 0);
+    }
+  }
+  
+  _overlaps(start1, end1, start2, end2) {
+    if (end1 &lt; start2) return false;
+    if (end2 &lt; start1) return false;
+    return true;
+  }
+}
+
+module.exports = BooleanSet;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BooleanSet.html">BooleanSet</a></li><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="global.html#MoneroDaemon">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonConnectionSpan.html">MoneroDaemonConnectionSpan</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMinerTxSum.html">MoneroMinerTxSum</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroMultisigInfo.html">MoneroMultisigInfo</a></li><li><a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a></li><li><a href="MoneroMultisigSignResult.html">MoneroMultisigSignResult</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputQuery.html">MoneroOutputQuery</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendRequest.html">MoneroSendRequest</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroTxQuery.html">MoneroTxQuery</a></li><li><a href="MoneroTxSet.html">MoneroTxSet</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="global.html#MoneroWallet">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li></ul><h3>Global</h3><ul><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Sep 02 2019 22:22:23 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

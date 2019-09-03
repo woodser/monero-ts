@@ -1,4 +1,32 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: utils/GenUtils.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: utils/GenUtils.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * MIT License
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -55,7 +83,7 @@ class GenUtils {
    * @returns true if the given arg is initialized, false otherwise
    */
   static isInitialized(arg) {
-    return arg !== undefined && arg !== null;
+    return arg !== undefined &amp;&amp; arg !== null;
   }
 
   /**
@@ -76,7 +104,7 @@ class GenUtils {
    * @returns true if the argument is a number, false otherwise
    */
   static isNumber(arg) {
-    return !isNaN(parseFloat(arg)) && isFinite(arg);
+    return !isNaN(parseFloat(arg)) &amp;&amp; isFinite(arg);
   }
 
   /**
@@ -86,7 +114,7 @@ class GenUtils {
    * @returns true if the given argument is an integer, false otherwise
    */
   static isInt(arg) {
-    return arg === parseInt(Number(arg)) && !isNaN(arg) && !isNaN(parseInt(arg, 10));
+    return arg === parseInt(Number(arg)) &amp;&amp; !isNaN(arg) &amp;&amp; !isNaN(parseInt(arg, 10));
   }
 
   /**
@@ -141,7 +169,7 @@ class GenUtils {
   static isObject(arg, obj) {
     if (!arg) return false;
     if (typeof arg !== 'object') return false;
-    if (obj && !(arg instanceof obj)) return false;
+    if (obj &amp;&amp; !(arg instanceof obj)) return false;
     return true;
   }
 
@@ -451,8 +479,8 @@ class GenUtils {
   static invoke() {
     let fns = arguments[0];
     let args = [];
-    for (let i = 1; i < arguments.length; i++) args.push(arguments[i]);
-    for (let i = 0; i < fns.length; i++) {
+    for (let i = 1; i &lt; arguments.length; i++) args.push(arguments[i]);
+    for (let i = 0; i &lt; fns.length; i++) {
       assertFunction(fns[i], "Functions[" + i + "] is not a static");
       fns[i].apply(null, args);
     }
@@ -472,14 +500,14 @@ class GenUtils {
         }
         return;
       }
-      for (let j = 0; j < src.length; j++) {
+      for (let j = 0; j &lt; src.length; j++) {
         fn(n - 1, src.slice(j + 1), got.concat([ src[j] ]), all);
       }
       return;
     }
     let all = [];
     all.push([]);
-    for (let i = 0; i < arr.length; i++) {
+    for (let i = 0; i &lt; arr.length; i++) {
       fn(i, arr, [], all);
     }
     all.push(arr);
@@ -499,7 +527,7 @@ class GenUtils {
     assertTrue(size >= 1);
     let powerSet = getPowerSet(arr);
     let powerSetOfLength = [];
-    for (let i = 0; i < powerSet.length; i++) {
+    for (let i = 0; i &lt; powerSet.length; i++) {
       if (powerSet[i].length === size) {
         powerSetOfLength.push(powerSet[i]);
       }
@@ -515,7 +543,7 @@ class GenUtils {
    */
   static getIndices(size) {
     let indices = [];
-    for (let i = 0; i < size; i++) {
+    for (let i = 0; i &lt; size; i++) {
       indices.push(i);
     }
     return indices;
@@ -542,7 +570,7 @@ class GenUtils {
   static copyArray(arr) {
     GenUtils.assertArray(arr);
     let copy = [];
-    for (let i = 0; i < arr.length; i++) copy.push(arr[i]);
+    for (let i = 0; i &lt; arr.length; i++) copy.push(arr[i]);
     return copy;
   }
   
@@ -573,7 +601,7 @@ class GenUtils {
    */
   static toLowerCaseArray(arr) {
     let arr2 = [];
-    for (let i = 0; i < arr.length; i++) {
+    for (let i = 0; i &lt; arr.length; i++) {
       arr2.push(arr[i].toLowerCase());
     }
     return arr2;
@@ -598,7 +626,7 @@ class GenUtils {
    */
   static arrayContains(arr, obj) {
     GenUtils.assertTrue(GenUtils.isArray(arr));
-    for (let i = 0; i < arr.length; i++) {
+    for (let i = 0; i &lt; arr.length; i++) {
       if (GenUtils.equals(arr[i], obj)) return true;
     }
     return false;
@@ -624,14 +652,14 @@ class GenUtils {
    */
   static arraysEqual(arr1, arr2) {
     if (arr1 === arr2) return true;
-    if (arr1 == null && arr2 == null) return true;
+    if (arr1 == null &amp;&amp; arr2 == null) return true;
     if (arr1 == null || arr2 == null) return false;
-    if (typeof arr1 === 'undefined' && typeof arr2 === 'undefined') return true;
+    if (typeof arr1 === 'undefined' &amp;&amp; typeof arr2 === 'undefined') return true;
     if (typeof arr1 === 'undefined' || typeof arr2 === 'undefined') return false;
     if (!GenUtils.isArray(arr1)) throw new Error("First argument is not an array");
     if (!GenUtils.isArray(arr2)) throw new Error("Second argument is not an array");
     if (arr1.length != arr2.length) return false;
-    for (let i = 0; i < arr1.length; ++i) {
+    for (let i = 0; i &lt; arr1.length; ++i) {
       if (!GenUtils.equals(arr1[i], arr2[i])) return false;
     }
     return true;
@@ -645,8 +673,8 @@ class GenUtils {
    * @returns true if the arguments are deep equals, false otherwise
    */
   static equals(arg1, arg2) {
-    if (GenUtils.isArray(arg1) && GenUtils.isArray(arg2)) return GenUtils.arraysEqual(arg1, arg2);
-    if (GenUtils.isObject(arg1) && GenUtils.isObject(arg2)) return GenUtils.objectsEqual(arg1, arg2);
+    if (GenUtils.isArray(arg1) &amp;&amp; GenUtils.isArray(arg2)) return GenUtils.arraysEqual(arg1, arg2);
+    if (GenUtils.isObject(arg1) &amp;&amp; GenUtils.isObject(arg2)) return GenUtils.objectsEqual(arg1, arg2);
     return arg1 === arg2;
   }
 
@@ -660,7 +688,7 @@ class GenUtils {
   static objectsEqual(map1, map2) {
     let keys1 = Object.keys(map1);
     if (keys1.length !== Object.keys(map2).length) return false;
-    for (let i = 0; i < keys1.length; i++) {
+    for (let i = 0; i &lt; keys1.length; i++) {
       let key = Object.keys(map1)[i];
       if (!GenUtils.equals(map1[key], map2[key])) return false;
     }
@@ -696,14 +724,14 @@ class GenUtils {
     
     // collect combinations from each combination of array indices
     let combinations = [];
-    for (let indexCombinationsIdx = 0; indexCombinationsIdx < indexCombinations.length; indexCombinationsIdx++) {
+    for (let indexCombinationsIdx = 0; indexCombinationsIdx &lt; indexCombinations.length; indexCombinationsIdx++) {
       
       // get combination of array indices
       let indexCombination = indexCombinations[indexCombinationsIdx];
       
       // build combination from array
       let combination = [];
-      for (let indexCombinationIdx = 0; indexCombinationIdx < indexCombination.length; indexCombinationIdx++) {
+      for (let indexCombinationIdx = 0; indexCombinationIdx &lt; indexCombination.length; indexCombinationIdx++) {
         combination.push(arr[indexCombination[indexCombinationIdx]]);
       }
       
@@ -737,7 +765,7 @@ class GenUtils {
    * @returns the outer HTML of the given node
    */
   static getOuterHtml(node) {
-    return $('<div>').append($(node).clone()).html();
+    return $('&lt;div>').append($(node).clone()).html();
   }
 
   /**
@@ -758,7 +786,7 @@ class GenUtils {
   static deleteProperties(obj) {
     let props = [];
     for (let prop in obj) props.push(prop); // TODO: if (obj.hasOwnProperty(prop)) { ...
-    for (i = 0; i < props.length; i++) delete obj[props[i].toString()];
+    for (i = 0; i &lt; props.length; i++) delete obj[props[i].toString()];
   }
 
   /**
@@ -819,7 +847,7 @@ class GenUtils {
    */
   static countNonWhitespaceCharacters(str) {
     let count = 0;
-    for (let i = 0; i < str.length; i++) {
+    for (let i = 0; i &lt; str.length; i++) {
       if (!isWhitespace(str.charAt(i))) count++;
     }
     return count;
@@ -851,7 +879,7 @@ class GenUtils {
    * @returns StyleSheet is the internal stylesheet
    */
   static getInternalStyleSheet() {
-    for (let i = 0; i < document.styleSheets.length; i++) {
+    for (let i = 0; i &lt; document.styleSheets.length; i++) {
       let styleSheet = document.styleSheets[i];
       if (!styleSheet.href) return styleSheet;
     }
@@ -867,7 +895,7 @@ class GenUtils {
     let internalCss = "";
     let internalStyleSheet = getInternalStyleSheet();
     if (!internalStyleSheet) return null;
-    for (let i = 0; i < internalStyleSheet.cssRules.length; i++) {
+    for (let i = 0; i &lt; internalStyleSheet.cssRules.length; i++) {
       internalCss += internalStyleSheet.cssRules[i].cssText + "\n";
     }
     return internalCss;
@@ -885,13 +913,13 @@ class GenUtils {
    * @returns str is the document string
    */
   static buildHtmlDocument(content) {
-    let str = "<!DOCTYPE HTML>";
-    str += "<html><head>";
+    let str = "&lt;!DOCTYPE HTML>";
+    str += "&lt;html>&lt;head>";
     
     // add metas
     if (content.metas) {
       let metas = listify(content.metas);
-      for (let i = 0; i < metas.length; i++) {
+      for (let i = 0; i &lt; metas.length; i++) {
         let meta = metas[i];
         let elem = document.createElement("meta");
         for (let prop in meta) {
@@ -904,23 +932,23 @@ class GenUtils {
     }
     
     // add title and internal css
-    str += content.title ? "<title>" + content.title + "</title>" : "";
-    str += content.internalCss ? "<style>" + content.internalCss + "</style>" : "";
+    str += content.title ? "&lt;title>" + content.title + "&lt;/title>" : "";
+    str += content.internalCss ? "&lt;style>" + content.internalCss + "&lt;/style>" : "";
     
     // add dependency paths
     if (content.dependencyPaths) {
       let dependencyPaths = listify(content.dependencyPaths);
-      for (let i = 0; i < dependencyPaths.length; i++) {
+      for (let i = 0; i &lt; dependencyPaths.length; i++) {
         let dependencyPath = dependencyPaths[i];
-        if (dependencyPath.endsWith(".js")) str += "<script src='" + dependencyPath + "'></script>";
-        else if (dependencyPath.endsWith(".css")) str += "<link rel='stylesheet' type='text/css' href='" + dependencyPath + "'/>";
-        else if (dependencyPath.endsWith(".png") || dependencyPath.endsWith(".img"))  str += "<img src='" + dependencyPath + "'>";
+        if (dependencyPath.endsWith(".js")) str += "&lt;script src='" + dependencyPath + "'>&lt;/script>";
+        else if (dependencyPath.endsWith(".css")) str += "&lt;link rel='stylesheet' type='text/css' href='" + dependencyPath + "'/>";
+        else if (dependencyPath.endsWith(".png") || dependencyPath.endsWith(".img"))  str += "&lt;img src='" + dependencyPath + "'>";
         else throw new Error("Unrecognized dependency path extension: " + dependencyPath);      
       }
     }
-    str += "</head><body>";
-    if (content.div) str += $("<div>").append(content.div.clone()).html();  // add cloned div as string
-    str += "</body></html>";
+    str += "&lt;/head>&lt;body>";
+    if (content.div) str += $("&lt;div>").append(content.div.clone()).html();  // add cloned div as string
+    str += "&lt;/body>&lt;/html>";
     return str;
   }
 
@@ -1070,7 +1098,7 @@ class GenUtils {
     
     // collect functions to fetch images
     let funcs = [];
-    for (let i = 0; i < paths.length; i++) {
+    for (let i = 0; i &lt; paths.length; i++) {
       funcs.push(loadFunc(paths[i]));
     }
     
@@ -1096,7 +1124,7 @@ class GenUtils {
    */
   static getIndent(length) {
     let str = "";
-    for (let i = 0; i < length; i++) str += '  '; // two spaces
+    for (let i = 0; i &lt; length; i++) str += '  '; // two spaces
     return str;
   }
   
@@ -1115,7 +1143,7 @@ class GenUtils {
 
           let to = Object(target);
 
-          for (let index = 1; index < arguments.length; index++) {
+          for (let index = 1; index &lt; arguments.length; index++) {
             let nextSource = arguments[index];
 
             if (nextSource != null) { // Skip over if undefined or null
@@ -1156,7 +1184,7 @@ class GenUtils {
      * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith#Polyfill
      */
     String.prototype.endsWith = function(searchString, position) {
-      if (!(position < this.length)) position = this.length;  // works better than >= because it compensates for NaN
+      if (!(position &lt; this.length)) position = this.length;  // works better than >= because it compensates for NaN
       else position |= 0; // round position
       return this.substr(position - searchString.length, searchString.length) === searchString;
     }
@@ -1168,7 +1196,7 @@ class GenUtils {
      */
     Array.prototype.removeVal = function(val) {
       var found = false;
-      for (var i = 0; i < this.length; i++) {
+      for (var i = 0; i &lt; this.length; i++) {
         if (this[i] == val) {    
           found = true;
           this.splice(i, 1);
@@ -1186,7 +1214,7 @@ class GenUtils {
    */
   static uuidv4() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r &amp; 0x3 | 0x8);
       return v.toString(16);
     });
   }
@@ -1235,8 +1263,8 @@ class GenUtils {
    */
   static getParameterByName(name, url) {
     if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, "\\$&");
-    let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"), results = regex.exec(url);
+    name = name.replace(/[\[\]]/g, "\\$&amp;");
+    let regex = new RegExp("[?&amp;]" + name + "(=([^&amp;#]*)|&amp;|#|$)"), results = regex.exec(url);
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
@@ -1266,7 +1294,7 @@ class GenUtils {
   static getRandomInts(min, max, count) {
     GenUtils.assertTrue(typeof count === "number");
     let ints = [];
-    for (let i = 0; i < count; i++) ints.push(GenUtils.getRandomInt(min, max));
+    for (let i = 0; i &lt; count; i++) ints.push(GenUtils.getRandomInt(min, max));
     return ints;
   }
   
@@ -1281,7 +1309,7 @@ class GenUtils {
     let ints = [];
     GenUtils.assertTrue(count >= 0);
     GenUtils.assertTrue(max - min + 1 >= count);
-    while (ints.length < count) {
+    while (ints.length &lt; count) {
       let randomInt = GenUtils.getRandomInt(min, max);
       if (!ints.includes(randomInt)) ints.push(randomInt);
     }
@@ -1312,4 +1340,26 @@ class GenUtils {
   }
 }
 
-module.exports = GenUtils;
+module.exports = GenUtils;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BooleanSet.html">BooleanSet</a></li><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="global.html#MoneroDaemon">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonConnectionSpan.html">MoneroDaemonConnectionSpan</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMinerTxSum.html">MoneroMinerTxSum</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroMultisigInfo.html">MoneroMultisigInfo</a></li><li><a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a></li><li><a href="MoneroMultisigSignResult.html">MoneroMultisigSignResult</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputQuery.html">MoneroOutputQuery</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendRequest.html">MoneroSendRequest</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroTxQuery.html">MoneroTxQuery</a></li><li><a href="MoneroTxSet.html">MoneroTxSet</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="global.html#MoneroWallet">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li></ul><h3>Global</h3><ul><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Sep 02 2019 22:22:23 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
