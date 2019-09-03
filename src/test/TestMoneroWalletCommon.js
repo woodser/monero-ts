@@ -2707,10 +2707,10 @@ class TestMoneroWalletCommon {
   }
   
   async _testGetSubaddressAddressOutOfRange() {
-    let accounts = await that.wallet.getAccounts(true);
+    let accounts = await this.wallet.getAccounts(true);
     let accountIdx = accounts.length - 1;
     let subaddressIdx = accounts[accountIdx].getSubaddresses().length;
-    let address = await that.wallet.getAddress(accountIdx, subaddressIdx);
+    let address = await this.wallet.getAddress(accountIdx, subaddressIdx);
     assert.notEqual(address, undefined);  // subclass my override with custom behavior (e.g. jni returns subaddress but wallet rpc does not)
     assert(address.length > 0);
   }
@@ -2933,8 +2933,8 @@ class TestMoneroWalletCommon {
       assert.equal(tx.getMixin(), request.getMixin());
       assert.equal(tx.getUnlockTime(), request.getUnlockTime() ? request.getUnlockTime() : 0);
       assert.equal(tx.getBlock(), undefined);
-      if (request.getCanSplit()) assert.equal(tx.getKey(), undefined); // tx key unknown if from split response
-      else assert(tx.getKey().length > 0);
+      if (request.getCanSplit() === false) assert(tx.getKey().length > 0);
+      else assert.equal(tx.getKey(), undefined); // tx key unknown if from split response
       assert.equal(typeof tx.getFullHex(), "string");
       assert(tx.getFullHex().length > 0);
       assert(tx.getMetadata());
