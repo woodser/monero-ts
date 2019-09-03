@@ -1,7 +1,6 @@
 HIGH
 MoneroWalletRpc() initialized with 3 strings just like Java, no more {}?
 MoneroOutputQuery wasn't in MoneroTxQuery?
-test that queries and requests are unchanged when used (toJson() for deep copy, todos in code)
 
 test sweeps
 update readme: document local wallet, refer to nodejs, description consistent with other libraries, reference api
