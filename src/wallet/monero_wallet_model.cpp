@@ -244,13 +244,27 @@ namespace monero {
     // at least one transfer must meet transfer query if defined
     if (m_transfer_query != boost::none) {
       bool matchFound = false;
-      if (tx->m_outgoing_transfer != boost::none && (*m_transfer_query)->meets_criteria((*tx->m_outgoing_transfer).get())) matchFound = true;
+      if (tx->m_outgoing_transfer != boost::none && m_transfer_query.get()->meets_criteria(tx->m_outgoing_transfer.get().get())) matchFound = true;
       else if (!tx->m_incoming_transfers.empty()) {
-        for (const shared_ptr<monero_incoming_transfer>& incomingTransfer : tx->m_incoming_transfers) {
-          if ((*m_transfer_query)->meets_criteria(incomingTransfer.get())) {
+        for (const shared_ptr<monero_incoming_transfer>& incoming_transfer : tx->m_incoming_transfers) {
+          if (m_transfer_query.get()->meets_criteria(incoming_transfer.get())) {
             matchFound = true;
             break;
           }
+        }
+      }
+      if (!matchFound) return false;
+    }
+
+    // at least one output must meet output query if defined
+    if (m_output_query != boost::none && !m_output_query.get()->is_default()) {
+      if (tx->m_vouts.empty()) return false;
+      bool matchFound = false;
+      for (const shared_ptr<monero_output>& vout : tx->m_vouts) {
+        shared_ptr<monero_output_wallet> vout_wallet = static_pointer_cast<monero_output_wallet>(vout);
+        if (m_output_query.get()->meets_criteria(vout_wallet.get())) {
+          matchFound = true;
+          break;
         }
       }
       if (!matchFound) return false;
@@ -581,6 +595,12 @@ namespace monero {
 
   // ------------------------ MONERO OUTPUT REQUEST ---------------------------
 
+  // initialize static empty output for is_default() check
+  const unique_ptr<monero_output_wallet> monero_output_query::M_EMPTY_OUTPUT = unique_ptr<monero_output_wallet>(new monero_output_wallet());
+  bool monero_output_query::is_default() const {
+    return meets_criteria(monero_output_query::M_EMPTY_OUTPUT.get());
+  }
+
   shared_ptr<monero_output_query> monero_output_query::copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const {
     return monero_output_query::copy(static_pointer_cast<monero_output_query>(src), static_pointer_cast<monero_output_query>(tgt));
   };
@@ -610,11 +630,11 @@ namespace monero {
   bool monero_output_query::meets_criteria(monero_output_wallet* output) const {
 
     // filter on output
-    if (m_account_index != boost::none && *m_account_index != *output->m_account_index) return false;
-    if (m_subaddress_index != boost::none && *m_subaddress_index != *output->m_subaddress_index) return false;
-    if (m_amount != boost::none && *m_amount != *output->m_amount) return false;
-    if (m_is_spent != boost::none && *m_is_spent != *output->m_is_spent) return false;
-    if (m_is_unlocked != boost::none && *m_is_unlocked != *output->m_is_unlocked) return false;
+    if (m_account_index != boost::none && (output->m_account_index == boost::none || *m_account_index != *output->m_account_index)) return false;
+    if (m_subaddress_index != boost::none && (output->m_subaddress_index == boost::none || *m_subaddress_index != *output->m_subaddress_index)) return false;
+    if (m_amount != boost::none && (output->m_amount == boost::none || *m_amount != *output->m_amount)) return false;
+    if (m_is_spent != boost::none && (output->m_is_spent == boost::none || *m_is_spent != *output->m_is_spent)) return false;
+    if (m_is_unlocked != boost::none && (output->m_is_unlocked == boost::none || *m_is_unlocked != *output->m_is_unlocked)) return false;
 
     // filter on output key image
     if (m_key_image != boost::none) {

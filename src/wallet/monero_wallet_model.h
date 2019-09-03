@@ -242,13 +242,16 @@ namespace monero {
     boost::optional<shared_ptr<monero_tx_query>> m_tx_query;
 
     // TODO: necessary to override all super classes?
+    bool is_default() const;
     shared_ptr<monero_output_query> copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const;
     shared_ptr<monero_output_query> copy(const shared_ptr<monero_output_wallet>& src, const shared_ptr<monero_output_wallet>& tgt) const;
     shared_ptr<monero_output_query> copy(const shared_ptr<monero_output_query>& src, const shared_ptr<monero_output_query>& tgt) const;
     boost::property_tree::ptree to_property_tree() const;
     bool meets_criteria(monero_output_wallet* output) const;
-  };
 
+  private:
+    static const unique_ptr<monero_output_wallet> M_EMPTY_OUTPUT;
+  };
 
   /**
    * Models a Monero transaction in the context of a wallet.

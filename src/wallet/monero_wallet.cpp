@@ -1399,14 +1399,17 @@ namespace monero {
     shared_ptr<monero_tx_query> query_ptr = make_shared<monero_tx_query>(query); // convert to shared pointer for copy
     shared_ptr<monero_tx_query> _query = query_ptr->copy(query_ptr, make_shared<monero_tx_query>()); // deep copy
     if (_query->m_transfer_query == boost::none) _query->m_transfer_query = make_shared<monero_transfer_query>();
-    shared_ptr<monero_transfer_query> transfer_query = _query->m_transfer_query.get();
+    if (_query->m_output_query == boost::none) _query->m_output_query = make_shared<monero_output_query>();
 
     // print query
     if (_query->m_block != boost::none) MTRACE("Tx query's rooted at [block]: " << _query->m_block.get()->serialize());
     else MTRACE("Tx _query: " << _query->serialize());
-    
-    // temporarily disable transfer query
+
+    // temporarily disable transfer and output queries in order to collect all tx information
+    shared_ptr<monero_transfer_query> transfer_query = _query->m_transfer_query.get();
+    shared_ptr<monero_output_query> output_query = _query->m_output_query.get();
     _query->m_transfer_query = boost::none;
+    _query->m_output_query = boost::none;
 
     // fetch all transfers that meet tx query
     monero_transfer_query temp_transfer_query;
@@ -1449,8 +1452,11 @@ namespace monero {
       }
     }
 
-    // filter txs that don't meet transfer query  // TODO: port this updated version to js
+    // restore transfer and output queries
     _query->m_transfer_query = transfer_query;
+    _query->m_output_query = output_query;
+
+    // filter txs that don't meet transfer query
     vector<shared_ptr<monero_tx_wallet>> queried_txs;
     vector<shared_ptr<monero_tx_wallet>>::iterator tx_iter = txs.begin();
     while (tx_iter != txs.end()) {
