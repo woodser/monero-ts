@@ -3107,32 +3107,8 @@ class TestMoneroWalletCommon {
       await this.wallet.close();
     }
     
-    // handle (n-1)/n which uses finalize
-    if (m === n - 1) {
-      address = undefined;
-      for (let i = 0; i < walletIds.length; i++) {
-        
-        // open the wallet
-        let wallet = await this.openWallet(walletIds[i]);
-        assert.equal(await this.wallet.getAttribute("name"), walletIds[i]);
-        
-        // collect made multisig hexes from wallet's peers
-        let peerMultisigHexes = [];
-        for (let j = 0; j < walletIds.length; j++) if (j !== i) peerMultisigHexes.push(madeMultisigHexes[j]);
-        
-        // finalize the multisig wallet
-        let walletAddress = await this.wallet.finalizeMultisig(peerMultisigHexes, TestUtils.WALLET_PASSWORD);
-        //console.log("Finalized address: " + walletAddress);
-        if (address === undefined) address = walletAddress;
-        else assert.equal(walletAddress, address);
-        
-//        await this.wallet.sync();
-        await this.wallet.close();
-      }
-    }
-    
-    // otherwise handle m/n which exchanges keys n - m times
-    else if (m !== n) {
+    // handle m/n which exchanges keys n - m times
+    if (m !== n) {
       address = undefined;
       
       // exchange keys n - m times

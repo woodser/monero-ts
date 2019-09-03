@@ -1223,12 +1223,6 @@ class MoneroWalletRpc extends MoneroWallet {
     return msResult;
   }
   
-  async finalizeMultisig(multisigHexes, password) {
-    let resp = await this.config.rpc.sendJsonRequest("finalize_multisig", {multisig_info: multisigHexes, password: password});
-    let address = resp.result.address;
-    return address.length === 0 ? undefined : address;
-  }
-  
   async exchangeMultisigKeys(multisigHexes, password) {
     let resp = await this.config.rpc.sendJsonRequest("exchange_multisig_keys", {multisig_info: multisigHexes, password: password});
     let msResult = new MoneroMultisigInitResult();

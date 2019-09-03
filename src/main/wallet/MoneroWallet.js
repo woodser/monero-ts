@@ -1117,19 +1117,6 @@ class MoneroWallet {
   }
   
   /**
-   * Finalize a N-1/N multisig wallet.
-   * 
-   * TODO monero core: this is a special case of exchangeMultisigKeys() for N-1/N multisig.  use that as the last step instead and remove this?  that would further generalize the process
-   * 
-   * @param {string[]} multisigHexes are multisig hex from each participant
-   * @param {string} password is the wallet's password // TODO monero core: redundant? wallet is created with password
-   * @return {string} the multisig wallet's address
-   */
-  async finalizeMultisig(multisigHexes, password) {
-    throw new MoneroError("Subclass must implement");
-  }
-  
-  /**
    * Exchange multisig hex with participants in a M/N multisig wallet.
    * 
    * This process must be repeated with participants exactly N-M times.
