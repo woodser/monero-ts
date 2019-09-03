@@ -1311,17 +1311,6 @@ namespace monero {
     monero_multisig_init_result make_multisig(const vector<string>& multisig_hexes, int threshold, const string& password);
 
     /**
-     * Finalize a N-1/N multisig wallet.
-     *
-     * TODO monero core: this is a special case of exchangeMultisigKeys() for N-1/N multisig.  use that as the last step instead and remove this?  that would further generalize the process
-     *
-     * @param multisig_hexes are multisig hex from each participant
-     * @param password is the wallet's password // TODO monero core: redundant? wallet is created with password
-     * @return the multisig wallet's address
-     */
-    string finalize_multisig(const vector<string>& multisig_hexes, const string& password);
-
-    /**
      * Exchange multisig hex with participants in a M/N multisig wallet.
      *
      * This process must be repeated with participants exactly N-M times.

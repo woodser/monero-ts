@@ -2775,26 +2775,6 @@ namespace monero {
     return result;
   }
 
-  string monero_wallet::finalize_multisig(const vector<string>& multisig_hexes, const string& password) {
-
-    // validate state and request
-    bool ready;
-    uint32_t threshold, total;
-    if (!m_w2->multisig(&ready, &threshold, &total)) throw new runtime_error("This wallet is not multisig");
-    if (ready) throw runtime_error("This wallet is multisig, and already finalized");
-    if (multisig_hexes.size() < 1 || multisig_hexes.size() > total) throw runtime_error("Needs multisig info from more participants");
-
-    // do not refresh while finalizing multisig
-    boost::lock_guard<boost::mutex> guarg(m_sync_mutex);
-
-    // finalize multisig
-    bool success = m_w2->finalize_multisig(epee::wipeable_string(password), multisig_hexes);
-    if (!success) throw runtime_error("Error calling finalize_multisig");
-
-    // return the multisig wallet's primary address
-    return m_w2->get_account().get_public_address_str(m_w2->nettype());
-  }
-
   monero_multisig_init_result monero_wallet::exchange_multisig_keys(const vector<string>& multisig_hexes, const string& password) {
 
     // validate state and args
