@@ -2,7 +2,6 @@ HIGH
 MoneroWalletRpc() initialized with 3 strings just like Java
 MoneroOutputQuery wasn't in MoneroTxQuery?
 test sweeps
-update readme: refer to nodejs
 open issue: release as node module
 deploy docs page
 
