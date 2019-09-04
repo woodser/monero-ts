@@ -82,7 +82,7 @@ namespace monero {
     boost::optional<string> m_label;
     boost::optional<uint64_t> m_balance;
     boost::optional<uint64_t> m_unlocked_balance;
-    boost::optional<uint32_t> m_num_unspent_outputs;
+    boost::optional<uint64_t> m_num_unspent_outputs;
     boost::optional<bool> m_is_used;
     boost::optional<uint64_t> m_num_blocks_to_unlock;
 //    BEGIN_KV_SERIALIZE_MAP()
