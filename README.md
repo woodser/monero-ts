@@ -13,7 +13,7 @@ This library may be used to build Monero-related applications, such as GUIs, lib
 - Query wallet transactions, transfers, and outputs by their many attributes
 - Be notified when blocks are added to the chain, as the wallet synchronizes, or when the wallet sends or receives funds
 - Full multisig support
-- Tested by over 100 JUnit tests using a [native Java library](https://github.com/monero-ecosystem/monero-java)
+- Tested by over 100 JUnit test cases using a [native Java library](https://github.com/monero-ecosystem/monero-java)
 
 ## Sample Code
 
