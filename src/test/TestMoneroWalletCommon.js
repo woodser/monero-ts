@@ -1764,6 +1764,7 @@ class TestMoneroWalletCommon {
       it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
         let request = new MoneroSendRequest(0, (await that.wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
+        request.setCanSplit(false);
         await testSendAndUpdateTxs(request);
       });
       
@@ -1807,7 +1808,7 @@ class TestMoneroWalletCommon {
         try {
           
           // send transactions
-          let sentTxs = (await (request.getCanSplit() ? that.wallet.sendSplit(request) : that.wallet.send(request))).getTxs();
+          let sentTxs = (await (request.getCanSplit() !== false ? that.wallet.sendSplit(request) : that.wallet.send(request))).getTxs();
           
           // test sent transactions
           for (let tx of sentTxs) {
