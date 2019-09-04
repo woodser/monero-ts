@@ -1,4 +1,5 @@
 TODO
+add to ecosystem?
 monero_wallet.cpp move utilities in monero_namespace to be private
 polish model: no boost::optional<shared_ptr>? no boost::optional<string>? etc
 ensure model toPropertyTrees(), etc are not unecessarily copying return objects
