@@ -124,7 +124,7 @@ namespace monero {
     boost::optional<uint64_t> m_cumulative_difficulty;
     boost::optional<uint32_t> m_major_version;
     boost::optional<uint32_t> m_minor_version;
-    boost::optional<uint64_t> m_nonce;
+    boost::optional<uint32_t> m_nonce;
     boost::optional<string> m_miner_tx_id;
     boost::optional<uint32_t> m_num_txs;
     boost::optional<bool> m_orphan_status;
@@ -176,8 +176,8 @@ namespace monero {
     boost::optional<string> m_pruned_hex;
     boost::optional<string> m_prunable_hex;
     boost::optional<string> m_prunable_hash;
-    boost::optional<uint32_t> m_size;
-    boost::optional<uint32_t> m_weight;
+    boost::optional<uint64_t> m_size;
+    boost::optional<uint64_t> m_weight;
     vector<shared_ptr<monero_output>> m_vins;
     vector<shared_ptr<monero_output>> m_vouts;
     vector<uint32_t> m_output_indices;
@@ -188,9 +188,9 @@ namespace monero {
     boost::optional<string> m_rct_sig_prunable;  // TODO: implement
     boost::optional<bool> m_is_kept_by_block;
     boost::optional<bool> m_is_failed;
-    boost::optional<uint32_t> m_last_failed_height;
+    boost::optional<uint64_t> m_last_failed_height;
     boost::optional<string> m_last_failed_id;
-    boost::optional<uint32_t> m_max_used_block_height;
+    boost::optional<uint64_t> m_max_used_block_height;
     boost::optional<string> m_max_used_block_id;
     vector<string> m_signatures;
 

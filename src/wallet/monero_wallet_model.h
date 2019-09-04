@@ -84,7 +84,7 @@ namespace monero {
     boost::optional<uint64_t> m_unlocked_balance;
     boost::optional<uint32_t> m_num_unspent_outputs;
     boost::optional<bool> m_is_used;
-    boost::optional<uint32_t> m_num_blocks_to_unlock;
+    boost::optional<uint64_t> m_num_blocks_to_unlock;
 //    BEGIN_KV_SERIALIZE_MAP()
 //      KV_SERIALIZE(m_account_index)
 //      KV_SERIALIZE(index)
@@ -149,7 +149,7 @@ namespace monero {
     shared_ptr<monero_tx_wallet> m_tx;
     boost::optional<uint64_t> m_amount;
     boost::optional<uint32_t> m_account_index;
-    boost::optional<uint32_t> m_num_suggested_confirmations;
+    boost::optional<uint64_t> m_num_suggested_confirmations;
 
     virtual boost::optional<bool> is_incoming() const = 0;  // derived class must implement
     shared_ptr<monero_transfer> copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt) const;
