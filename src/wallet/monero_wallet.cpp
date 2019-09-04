@@ -1436,7 +1436,7 @@ namespace monero {
     // fetch and merge outputs if requested
     monero_output_query temp_output_query;
     temp_output_query.m_tx_query = make_shared<monero_tx_query>(*_query);
-    if (_query->m_include_outputs != boost::none && *_query->m_include_outputs) {
+    if ((_query->m_include_outputs != boost::none && *_query->m_include_outputs) || !output_query->is_default()) {
 
       // fetch outputs
       vector<shared_ptr<monero_output_wallet>> outputs = get_outputs(temp_output_query);
