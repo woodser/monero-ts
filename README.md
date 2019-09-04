@@ -14,7 +14,7 @@ In addition, this project conforms to an [API specification](http://moneroecosys
 - Build web applications which use a Monero wallet and daemon
 - Generate wallet keys offline and locally using WebAssembly bindings to core utilities
 - Full multisig support
-- Over 150 passing Mocha tests
+- Over 150 passing Mocha test cases
 
 ## Sample Code
 
