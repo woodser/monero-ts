@@ -761,7 +761,7 @@ class MoneroWallet {
    * @param {string} msg is the message to sign
    * @return {string} the signature
    */
-  async sign(msg) {
+  async sign(message) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -773,7 +773,7 @@ class MoneroWallet {
    * @param {string} signature is the signature
    * @return {boolean} true if the signature is good, false otherwise
    */
-  async verify(msg, address, signature) {
+  async verify(message, address, signature) {
     throw new MoneroError("Subclass must implement");
   }
   

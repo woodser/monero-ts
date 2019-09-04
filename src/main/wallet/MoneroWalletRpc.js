@@ -983,13 +983,13 @@ class MoneroWalletRpc extends MoneroWallet {
     return txSet;
   }
   
-  async sign(msg) {
-    let resp = await this.config.rpc.sendJsonRequest("sign", {data: msg});
+  async sign(message) {
+    let resp = await this.config.rpc.sendJsonRequest("sign", {data: message});
     return resp.result.signature;
   }
   
-  async verify(msg, address, signature) {
-    let resp = await this.config.rpc.sendJsonRequest("verify", {data: msg, address: address, signature: signature});
+  async verify(message, address, signature) {
+    let resp = await this.config.rpc.sendJsonRequest("verify", {data: message, address: address, signature: signature});
     return resp.result.good;
   }
   
