@@ -892,16 +892,6 @@ class MoneroWallet {
   }
   
   /**
-   * Set a note for a specific transaction.
-   * 
-   * @param {string} txId specifies the transaction
-   * @param {string} note specifies the note
-   */
-  async setTxNote(txId, note) {
-    await this.setTxNotes([txId], [note]);
-  }
-  
-  /**
    * Get notes for multiple transactions.
    * 
    * @param {string[]} txIds identify the transactions to get notes for
@@ -909,6 +899,16 @@ class MoneroWallet {
    */
   async getTxNotes(txIds) {
     throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
+   * Set a note for a specific transaction.
+   * 
+   * @param {string} txId specifies the transaction
+   * @param {string} note specifies the note
+   */
+  async setTxNote(txId, note) {
+    await this.setTxNotes([txId], [note]);
   }
   
   /**
