@@ -125,7 +125,7 @@ You are now ready to use this library with [monero-daemon-rpc](https://getmonero
 
 ## How to Run Mocha Tests
 
-1. Download this project and install its dependenices.  See [How to Use This Library](#how-to-run-this-library).
+1. Download this project and install its dependenices.  See [How to Run This Library](#how-to-run-this-library).
 2. Run [monero-wallet-rpc](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [monero-daemon-rpc](https://getmonero.org/resources/developer-guides/daemon-rpc.html).  See [How to Set Up Monero RPC](#how-to-set-up-monero-rpc).
 3. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/TestUtils.js).
 4. Run all tests: `npm test` or run tests by their description, e.g.: `node_modules/mocha/bin/mocha src/test/TestAll --grep "Can get transactions by id" --timeout 2000000`
