@@ -1,8 +1,8 @@
 HIGH
 wallet interface jsdoc is missing
 test sweeps
-open issue: release as node module
 deploy docs page
+open issue: release as node module
 
 MEDIUM
 remove support for {} and use pure OO?
