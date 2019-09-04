@@ -434,7 +434,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // fetch and merge outputs if requested
-    if (query.getIncludeOutputs()) {
+    if (query.getIncludeOutputs() || !outputQuery.isDefault()) {
       let outputs = await this.getOutputs(new MoneroOutputQuery().setTxQuery(query));
       
       // merge output txs one time while retaining order

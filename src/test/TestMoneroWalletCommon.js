@@ -621,7 +621,7 @@ class TestMoneroWalletCommon {
         
         // get txs with output query
         let outputQuery = new MoneroOutputQuery().setIsSpent(false).setAccountIndex(1).setSubaddressIndex(2);
-        txs = await that.wallet.getTxs(new MoneroTxQuery().setIncludeOutputs(true).setOutputQuery(outputQuery));
+        txs = await that.wallet.getTxs(new MoneroTxQuery().setOutputQuery(outputQuery));
         assert(txs.length > 0);
         for (let tx of txs) {
           assert(tx.getVouts().length > 0);
@@ -665,7 +665,7 @@ class TestMoneroWalletCommon {
         let fetched = await that._getAndTestTxs(that.wallet, new MoneroTxQuery().setMinHeight(txs[0].getHeight()).setMaxHeight(txs[txs.length - 1].getHeight()));
         assert.deepEqual(txs, fetched);
         
-        // test some filtered by range
+        // test some filtered by range  // TODO: these are separated in Java?
         {
           txs = await that.wallet.getTxs({isConfirmed: true});
           assert(txs.length > 0, "No transactions; run send to multiple test");

@@ -1,6 +1,5 @@
 HIGH
 wallet interface jsdoc is missing
-
 test sweeps
 open issue: release as node module
 deploy docs page
