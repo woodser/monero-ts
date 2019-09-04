@@ -2381,6 +2381,7 @@ class TestMoneroWalletCommon {
           
           // test resulting tx
           assert.equal(txSet.getTxs().length, 1);
+          request.setCanSplit(false);
           await that._testTxWallet(txSet.getTxs()[0], {wallet: that.wallet, sendRequest: request, isSendResponse: true, isSweepResponse: true, isSweepOutputResponse: true});
           useParams = !useParams;
         }
@@ -2950,7 +2951,6 @@ class TestMoneroWalletCommon {
       assert.equal(tx.getUnlockTime(), request.getUnlockTime() ? request.getUnlockTime() : 0);
       assert.equal(tx.getBlock(), undefined);
       if (request.getCanSplit() === false) assert(tx.getKey().length > 0);
-      else assert.equal(tx.getKey(), undefined); // tx key unknown if from split response
       assert.equal(typeof tx.getFullHex(), "string");
       assert(tx.getFullHex().length > 0);
       assert(tx.getMetadata());

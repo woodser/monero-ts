@@ -53,7 +53,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     
     // test tx results from send or relay
     if (ctx.isSendResponse === true) {
-      if (ctx.sendRequest.getCanSplit() === true) assert.equal(tx.getKey(), undefined);  // TODO monero-wallet-rpc: tx key is not returned from transfer_split
+      if (ctx.sendRequest.getCanSplit() !== false) assert.equal(tx.getKey(), undefined);  // TODO monero-wallet-rpc: tx key is not returned from transfer_split
     }
   }
   
@@ -84,7 +84,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           MoneroUtils.validateMnemonic(mnemonic);
           assert.notEqual(mnemonic, TestUtils.MNEMONIC);
           MoneroUtils.validateAddress(await that.wallet.getPrimaryAddress());
-          assert.equal(await that.wallet.getHeight(), 1); // TODO monero core: why does height of new unsynced wallet start at 1?
+          assert.equal(await that.wallet.getHeight(), 1); // TODO monero core: why does height of new unsynced wallet start at 1?, TODO: this is sometimes current height?
           await that.wallet.sync();  // very quick because restore height is chain height
           await that.wallet.close();
 
