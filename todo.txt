@@ -1,8 +1,5 @@
 HIGH
-wallet interface jsdoc is missing
-deploy docs page
 test sweeps
-open issue: release as node module
 
 MEDIUM
 remove support for {} and use pure OO?
