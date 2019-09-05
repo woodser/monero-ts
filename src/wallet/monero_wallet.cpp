@@ -2101,7 +2101,7 @@ namespace monero {
     bool get_tx_keys = true;
     bool get_tx_hex = true;
     bool get_tx_metadata = true;
-    bool m_do_not_relay = request.m_do_not_relay == boost::none ? false : request.m_do_not_relay.get();
+    bool do_not_relay = request.m_do_not_relay != boost::none && request.m_do_not_relay.get();
 
     // commit txs (if relaying) and get response using wallet rpc's fill_response()
     list<string> tx_keys;
@@ -2112,7 +2112,7 @@ namespace monero {
     list<string> tx_ids;
     list<string> tx_blobs;
     list<string> tx_metadatas;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, do_not_relay, tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
       throw runtime_error("need to handle error filling response!");  // TODO
     }
 
@@ -2145,9 +2145,9 @@ namespace monero {
       tx->m_is_confirmed = false;
       tx->m_is_miner_tx = false;
       tx->m_is_failed = false;   // TODO: test and handle if true
-      tx->m_do_not_relay = request.m_do_not_relay != boost::none && request.m_do_not_relay.get() == true;
-      tx->m_is_relayed = tx->m_do_not_relay.get() != true;
-      tx->m_in_tx_pool = !tx->m_do_not_relay.get();
+      tx->m_do_not_relay = do_not_relay;
+      tx->m_is_relayed = !do_not_relay;
+      tx->m_in_tx_pool = !do_not_relay;
       if (!tx->m_is_failed.get() && tx->m_is_relayed.get()) tx->m_is_double_spend_seen = false;  // TODO: test and handle if true
       tx->m_num_confirmations = 0;
       tx->m_mixin = request.m_mixin;
