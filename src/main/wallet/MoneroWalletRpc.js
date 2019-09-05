@@ -833,9 +833,10 @@ class MoneroWalletRpc extends MoneroWallet {
     params.do_not_relay = request.getDoNotRelay();
     assert(request.getPriority() === undefined || request.getPriority() >= 0 && request.getPriority() <= 3);
     params.priority = request.getPriority();
-    params.get_tx_keys = true;
     params.get_tx_hex = true;
     params.get_tx_metadata = true;
+    if (request.getCanSplit()) params.get_tx_keys = true; // param to get tx key(s) depends if split
+    else params.get_tx_key = true;
     
     // send request
     let resp = await this.config.rpc.sendJsonRequest(request.getCanSplit() ? "transfer_split" : "transfer", params);
