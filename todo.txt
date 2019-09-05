@@ -1,7 +1,7 @@
 HIGH
 wallet interface jsdoc is missing
-test sweeps
 deploy docs page
+test sweeps
 open issue: release as node module
 
 MEDIUM
