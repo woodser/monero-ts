@@ -1,0 +1,12 @@
+'use strict';
+exports.handlers = {
+
+    symbolFound:function(e) {
+        if(e.astnode.type === "FunctionDeclaration" ) {
+            if( (e.comment==="@undocumented")){
+              console.log("HELLO?");
+                e.comment = '/** undocumented */';
+            }
+        }
+    }
+};
