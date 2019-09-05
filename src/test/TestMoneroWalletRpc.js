@@ -50,11 +50,6 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     
     // run common tests
     await super._testTxWallet(tx, ctx);
-    
-    // test tx results from send or relay
-    if (ctx.isSendResponse === true) {
-      if (ctx.sendRequest.getCanSplit() !== false) assert.equal(tx.getKey(), undefined);  // TODO monero-wallet-rpc: tx key is not returned from transfer_split
-    }
   }
   
   // rpc-specific out-of-range subaddress test

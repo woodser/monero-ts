@@ -833,7 +833,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.do_not_relay = request.getDoNotRelay();
     assert(request.getPriority() === undefined || request.getPriority() >= 0 && request.getPriority() <= 3);
     params.priority = request.getPriority();
-    params.get_tx_key = true;
+    params.get_tx_keys = true;
     params.get_tx_hex = true;
     params.get_tx_metadata = true;
     
@@ -1365,8 +1365,8 @@ class MoneroWalletRpc extends MoneroWallet {
     for (let tx of txSet.getTxs()) {
       tx.setIsConfirmed(false);
       tx.setNumConfirmations(0);
-      tx.setInTxPool(!request.getDoNotRelay());
-      tx.setDoNotRelay(request.getDoNotRelay());
+      tx.setInTxPool(request.getDoNotRelay() === true ? false : true);
+      tx.setDoNotRelay(request.getDoNotRelay() === true ? true : false);
       tx.setIsRelayed(!tx.getDoNotRelay());
       tx.setIsMinerTx(false);
       tx.setIsFailed(false);

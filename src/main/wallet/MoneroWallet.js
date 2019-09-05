@@ -698,7 +698,8 @@ class MoneroWallet {
     let request = new MoneroSendRequest(address);
     request.setAccountIndex(accountIdx);
     request.setSubaddressIndices([subaddressIdx]);
-    return this.sweepAllUnlocked(request);
+    let txSets = await this.sweepUnlocked(request);
+    return txSets[0];
   }
   
   /**
@@ -711,7 +712,8 @@ class MoneroWallet {
   async sweepAccount(accountIdx, address) {
     let request = new MoneroSendRequest(address);
     request.setAccountIndex(accountIdx);
-    return this.sweepAllUnlocked(request);
+    let txSets = await this.sweepUnlocked(request);
+    return txSets[0]
   }
   
   /**
@@ -721,7 +723,7 @@ class MoneroWallet {
    * @return {MoneroTxSet[]} the tx sets with the transactions which sweep the wallet
    */
   async sweepWallet(address) {
-    return this.sweepAllUnlocked(new MoneroSendRequest(address));
+    return await this.sweepUnlocked(new MoneroSendRequest(address));
   }
 
   /**

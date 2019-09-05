@@ -45,7 +45,7 @@ class TestUtils {
     }
     
     // ensure we're testing the right wallet
-    assert.equal(await this.walletRpc.getMnemonic(), await TestUtils.MNEMONIC);
+    assert.equal(await this.walletRpc.getMnemonic(), TestUtils.MNEMONIC);
     assert.equal(await this.walletRpc.getPrimaryAddress(), TestUtils.ADDRESS);
     
     // sync and save the wallet
