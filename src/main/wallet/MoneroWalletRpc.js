@@ -1339,6 +1339,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // common request params
     let params = {};
+    let doNotRelay = request.getDoNotRelay() !== undefined && request.getDoNotRelay();
     params.account_index = request.getAccountIndex();
     params.subaddr_indices = request.getSubaddressIndices();
     params.address = request.getDestinations()[0].getAddress();
@@ -1348,7 +1349,7 @@ class MoneroWalletRpc extends MoneroWallet {
     params.ring_size = request.getRingSize();
     params.unlock_time = request.getUnlockTime();
     params.payment_id = request.getPaymentId();
-    params.do_not_relay = request.getDoNotRelay();
+    params.do_not_relay = doNotRelay;
     params.below_amount = request.getBelowAmount();
     params.get_tx_keys = true;
     params.get_tx_hex = true;
@@ -1365,9 +1366,9 @@ class MoneroWalletRpc extends MoneroWallet {
     for (let tx of txSet.getTxs()) {
       tx.setIsConfirmed(false);
       tx.setNumConfirmations(0);
-      tx.setInTxPool(request.getDoNotRelay() === true ? false : true);
-      tx.setDoNotRelay(request.getDoNotRelay() === true ? true : false);
-      tx.setIsRelayed(!tx.getDoNotRelay());
+      tx.setDoNotRelay(doNotRelay);
+      tx.setInTxPool(!doNotRelay);
+      tx.setIsRelayed(!doNotRelay);
       tx.setIsMinerTx(false);
       tx.setIsFailed(false);
       tx.setMixin(request.getMixin());
