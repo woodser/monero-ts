@@ -2575,6 +2575,7 @@ class TestMoneroWalletCommon {
         let accountsBalance = [];
         let accountsUnlocked = [];
         for (let account of accounts) {
+          if (account.getIndex() === 0) continue; // skip default account
           if (account.getBalance().compare(TestUtils.MAX_FEE) > 0) accountsBalance.push(account);
           if (account.getUnlockedBalance().compare(TestUtils.MAX_FEE) > 0) accountsUnlocked.push(account);
         }
@@ -2606,7 +2607,7 @@ class TestMoneroWalletCommon {
         // test accounts after sweeping
         let accountsAfter = await that.wallet.getAccounts(true);
         assert.equal(accountsAfter.length, accounts.length);
-        for (let i = 1; i < accounts.length; i++) {
+        for (let i = 0; i < accounts.length; i++) {
           let accountBefore = accounts[i];
           let accountAfter = accountsAfter[i];
           
