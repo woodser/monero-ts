@@ -5,51 +5,6 @@
  */
 class MoneroSendRequest {
   
-//  /**
-//   * Construct the request.
-//   * 
-//   * TODO: alias subaddressIndex to subaddressIndices
-//   * 
-//   * @param {object|string} jsonOrAddress is existing configuration or a destination address (optional)
-//   * @param {BigInteger} amount is the amount to send (optional)
-//   * @param {string} paymentId is the payment id (optional)
-//   * @param {MoneroSendPriority} priority is the transaction priority (optional)
-//   * @param {int} mixin is the number of outputs from the blockchain to mix with (optional)
-//   * @param {BigInteger} fee is the requested tx fee (optional)
-//   */
-//  constructor(jsonOrAddress, amount, priority, mixin, fee) {
-//    if (jsonOrAddress instanceof Object) {
-//      this.state = Object.assign({}, jsonOrAddress);
-//      assert.equal(arguments.length, 1, "Send configuration must be constructed with either an existing configuration or individual arguments but not both");
-//      
-//      // deserialize if necessary
-//      if (this.state.destinations) {
-//        assert(this.state.address === undefined && this.state.amount === undefined, "Send configuration may specify destinations or an address/amount but not both");
-//        this.setDestinations(this.state.destinations.map(destination => destination instanceof MoneroDestination ? destination : new MoneroDestination(destination)));
-//      }
-//      
-//      // alias 'address' and 'amount' to single destination to support e.g. send({address: "..."})
-//      if (this.state.address || this.state.amount) {
-//        assert(!this.state.destinations, "Send configuration may specify destinations or an address/amount but not both");
-//        this.setDestinations([new MoneroDestination(this.state.address, this.state.amount)]);
-//        delete this.state.address;
-//        delete this.state.amount;
-//      }
-//      
-//      // alias 'subaddressIndex' to subaddress indices
-//      if (this.state.subaddressIndex !== undefined) {
-//        this.setSubaddressIndices([this.state.subaddressIndex]);
-//        delete this.state.subaddressIndex;
-//      }
-//    } else {
-//      this.state = {};
-//      if (typeof jsonOrAddress === "string") this.setDestinations([new MoneroDestination(jsonOrAddress, amount)]);
-//      this.setPriority(priority);
-//      this.setMixin(mixin);
-//      this.setFee(fee);
-//    }
-//  }
-  
   /**
    * Construct the request.
    * 
