@@ -107,7 +107,9 @@ let isConfirmed = (await walletRpc.getTx(createdTx.getId())).isConfirmed();
 
 ## How to Run This Library
 
-1. Clone the JavaScript repository: `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-javascript.git`
+1. `npm install monero-javascript`
+
+    Or clone teh JavaScript repisitory: `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-javascript.git`
 2. Install dependencies using Node Package Manager: `npm install`
 
 You are now ready to use this library with [monero-daemon-rpc](https://getmonero.org/resources/developer-guides/daemon-rpc.html) and [monero-wallet-rpc](https://getmonero.org/resources/developer-guides/wallet-rpc.html) endpoints.
