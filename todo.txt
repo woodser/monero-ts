@@ -1,4 +1,5 @@
 HIGH
+automate node module tests
 remove support for {} and use pure OO?
 automate browser app build by copying index.html and asm files from monero_utils
 jni compare ground truth test sometimes shows gt output not unlocked but jni is unlocked
