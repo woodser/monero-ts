@@ -1,9 +1,9 @@
 {
-  "name": "MoneroJavaScript",
-  "description": "Monero daemon client and full wallet implemented in JavaScript",
-  "version": "0.0.1",
+  "name": "monero-javascript",
+  "description": "A JavaScript library for using Monero",
+  "version": "0.1.0",
   "license": "MIT License",
-  "repository": "https://github.com/woodser/monero-javascript",
+  "repository": "https://github.com/monero-ecosystem/monero-javascript",
   "private": false,
   "main": "todo",
   "scripts": {
