@@ -107,9 +107,10 @@ let isConfirmed = (await walletRpc.getTx(createdTx.getId())).isConfirmed();
 
 ## How to Run This Library
 
-Option 1: `npm install monero-javascript`
+`npm install monero-javascript`
 
-Option 2:
+Or
+
 1. Clone this repository: `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-javascript.git`
 2. Install dependencies using Node Package Manager: `npm install`
 
