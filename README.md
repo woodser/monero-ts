@@ -116,7 +116,7 @@ Or
 
 You are now ready to use this library with [monero-daemon-rpc](https://getmonero.org/resources/developer-guides/daemon-rpc.html) and [monero-wallet-rpc](https://getmonero.org/resources/developer-guides/wallet-rpc.html) endpoints.
 
-## How to Set Up Monero RPC
+## How to Run Monero RPC
 
 1. Download and extract the latest [Monero CLI](https://getmonero.org/downloads/) for your platform.
 2. Start Monero daemon locally: `./monerod --stagenet` (or use a remote daemon).
@@ -130,7 +130,7 @@ You are now ready to use this library with [monero-daemon-rpc](https://getmonero
 ## How to Run Mocha Tests
 
 1. Download this project and install its dependenices.  See [How to Run This Library](#how-to-run-this-library).
-2. Run [monero-wallet-rpc](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [monero-daemon-rpc](https://getmonero.org/resources/developer-guides/daemon-rpc.html).  See [How to Set Up Monero RPC](#how-to-set-up-monero-rpc).
+2. Run monero-wallet-rpc and monero-daemon-rpc.  See [How to Run Monero RPC](#how-to-run-monero-rpc). 
 3. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/TestUtils.js).
 4. Run all tests: `npm test` or run tests by their description, e.g.: `node_modules/mocha/bin/mocha src/test/TestAll --grep "Can get transactions by id" --timeout 2000000`
 
@@ -139,7 +139,7 @@ You are now ready to use this library with [monero-daemon-rpc](https://getmonero
 A simple web application is included in `./browser_app` to demonstrate using this library in a browser.
 
 1. Download this library and install its dependenices.  See [How to Run This Library](#how-to-run-this-library).
-2. Run [monero-wallet-rpc](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [monero-daemon-rpc](https://getmonero.org/resources/developer-guides/daemon-rpc.html).  See [How to Set Up Monero RPC](#how-to-set-up-monero-rpc).
+2. Run monero-wallet-rpc and monero-daemon-rpc.  See [How to Run Monero RPC](#how-to-run-monero-rpc).
 3. Start monero-daemon-rpc with authentication and CORS access.  For example: `./monerod --stagenet --rpc-login superuser:abctesting123 --rpc-access-control-origins http://localhost:9100`
 4. Start monero-wallet-rpc with authentication and CORS access.  For example: `./monero-wallet-rpc --daemon-address http://localhost:38081 --daemon-login superuser:abctesting123 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --rpc-access-control-origins http://localhost:9100 --wallet-dir ./`
 5. Build the web app for the browser: `./bin/start_dev_browser`
