@@ -2,7 +2,7 @@
   "name": "monero-javascript",
   "description": "A JavaScript library for using Monero",
   "version": "0.1.0",
-  "license": "MIT License",
+  "license": "MIT",
   "repository": "https://github.com/monero-ecosystem/monero-javascript",
   "private": false,
   "main": "todo",
