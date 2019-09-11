@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": "https://github.com/monero-ecosystem/monero-javascript",
   "private": false,
-  "main": "todo",
+  "main": "src/main/index.js",
   "scripts": {
     "start": "todo",
     "test": "mocha 'src/test/TestAll' --timeout 2000000"
