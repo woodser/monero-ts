@@ -978,7 +978,7 @@ namespace monero {
     uint32_t version = 0;
     m_is_connected = m_w2->check_connection(&version, NULL, DEFAULT_CONNECTION_TIMEOUT_MILLIS); // TODO: should this be updated elsewhere?
     if (!m_is_connected) return false;
-    if (!m_w2->light_wallet() && (version >> 16) != CORE_RPC_VERSION_MAJOR) m_is_connected = false;  // wrong network type
+    //if (!m_w2->light_wallet() && (version >> 16) != CORE_RPC_VERSION_MAJOR) m_is_connected = false;  // wrong network type  // TODO: disallow rpc version mismatch by configuration
     return m_is_connected;
   }
 
