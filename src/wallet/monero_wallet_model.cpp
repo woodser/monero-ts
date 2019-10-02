@@ -52,6 +52,7 @@
 
 #include "monero_wallet.h"
 
+#include "utils/gen_utils.h"
 #include "utils/monero_utils.h"
 #include <stdio.h>
 #include <iostream>
@@ -164,7 +165,7 @@ namespace monero {
     monero_tx::merge(self, other);
 
     // merge wallet extensions
-    m_note = monero_utils::reconcile(m_note, other->m_note);
+    m_note = gen_utils::reconcile(m_note, other->m_note);
 
     // merge incoming transfers
     if (!other->m_incoming_transfers.empty()) {
@@ -352,16 +353,16 @@ namespace monero {
     }
 
     // otherwise merge transfer fields
-    m_account_index = monero_utils::reconcile(m_account_index, other->m_account_index, "acountIndex");
+    m_account_index = gen_utils::reconcile(m_account_index, other->m_account_index, "acountIndex");
 
     // TODO monero core: failed m_tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount/m_num_suggested_confirmations of 0
     if (m_amount != boost::none && other->m_amount != boost::none && *m_amount != *other->m_amount && (*m_amount == 0 || *other->m_amount == 0)) {
-      m_account_index = monero_utils::reconcile(m_account_index, other->m_account_index, boost::none, boost::none, true, "acountIndex");
-      m_num_suggested_confirmations = monero_utils::reconcile(m_num_suggested_confirmations, other->m_num_suggested_confirmations, boost::none, boost::none, true, "m_num_suggested_confirmations");
+      m_account_index = gen_utils::reconcile(m_account_index, other->m_account_index, boost::none, boost::none, true, "acountIndex");
+      m_num_suggested_confirmations = gen_utils::reconcile(m_num_suggested_confirmations, other->m_num_suggested_confirmations, boost::none, boost::none, true, "m_num_suggested_confirmations");
       MWARNING("WARNING: failed tx in pool causes non-originating wallets to return duplicate incoming transfers but with one amount/m_num_suggested_confirmations of 0");
     } else {
-      m_amount = monero_utils::reconcile(m_amount, other->m_amount, "transfer amount");
-      m_num_suggested_confirmations = monero_utils::reconcile(m_num_suggested_confirmations, other->m_num_suggested_confirmations, boost::none, boost::none, false, "m_num_suggested_confirmations");
+      m_amount = gen_utils::reconcile(m_amount, other->m_amount, "transfer amount");
+      m_num_suggested_confirmations = gen_utils::reconcile(m_num_suggested_confirmations, other->m_num_suggested_confirmations, boost::none, boost::none, false, "m_num_suggested_confirmations");
     }
   }
 
@@ -391,8 +392,8 @@ namespace monero {
   void monero_incoming_transfer::merge(const shared_ptr<monero_incoming_transfer>& self, const shared_ptr<monero_incoming_transfer>& other) {
     if (self == other) return;
     monero_transfer::merge(self, other);
-    m_subaddress_index = monero_utils::reconcile(m_subaddress_index, other->m_subaddress_index, "incoming transfer m_subaddress_index");
-    m_address = monero_utils::reconcile(m_address, other->m_address);
+    m_subaddress_index = gen_utils::reconcile(m_subaddress_index, other->m_subaddress_index, "incoming transfer m_subaddress_index");
+    m_address = gen_utils::reconcile(m_address, other->m_address);
   }
 
   // ----------------------- MONERO OUTGOING TRANSFER -------------------------
@@ -422,9 +423,9 @@ namespace monero {
   void monero_outgoing_transfer::merge(const shared_ptr<monero_outgoing_transfer>& self, const shared_ptr<monero_outgoing_transfer>& other) {
     if (self == other) return;
     monero_transfer::merge(self, other);
-    m_subaddress_indices = monero_utils::reconcile(m_subaddress_indices, other->m_subaddress_indices);
-    m_addresses = monero_utils::reconcile(m_addresses, other->m_addresses);
-    m_destinations = monero_utils::reconcile(m_destinations, other->m_destinations);
+    m_subaddress_indices = gen_utils::reconcile(m_subaddress_indices, other->m_subaddress_indices);
+    m_addresses = gen_utils::reconcile(m_addresses, other->m_addresses);
+    m_destinations = gen_utils::reconcile(m_destinations, other->m_destinations);
   }
 
   // ----------------------- MONERO TRANSFER REQUEST --------------------------
@@ -588,9 +589,9 @@ namespace monero {
     monero_output::merge(self, other);
 
     // merge output wallet extensions
-    m_account_index = monero_utils::reconcile(m_account_index, other->m_account_index);
-    m_subaddress_index = monero_utils::reconcile(m_subaddress_index, other->m_subaddress_index);
-    m_is_spent = monero_utils::reconcile(m_is_spent, other->m_is_spent);
+    m_account_index = gen_utils::reconcile(m_account_index, other->m_account_index);
+    m_subaddress_index = gen_utils::reconcile(m_subaddress_index, other->m_subaddress_index);
+    m_is_spent = gen_utils::reconcile(m_is_spent, other->m_is_spent);
   }
 
   // ------------------------ MONERO OUTPUT REQUEST ---------------------------

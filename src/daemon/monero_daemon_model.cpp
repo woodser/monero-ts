@@ -52,6 +52,7 @@
 
 #include "monero_daemon_model.h"
 
+#include "utils/gen_utils.h"
 #include "utils/monero_utils.h"
 #include "include_base_utils.h"
 #include "common/util.h"
@@ -111,24 +112,24 @@ namespace monero {
   void monero_block_header::merge(const shared_ptr<monero_block_header>& self, const shared_ptr<monero_block_header>& other) {
     if (this != self.get()) throw runtime_error("this != self");
     if (self == other) return;
-    m_id = monero_utils::reconcile(m_id, other->m_id);
-    m_height = monero_utils::reconcile(m_height, other->m_height, boost::none, boost::none, true, "block height"); // height can increase
-    m_timestamp = monero_utils::reconcile(m_timestamp, other->m_timestamp, boost::none, boost::none, true, "block header timestamp");  // timestamp can increase
-    m_size = monero_utils::reconcile(m_size, other->m_size, "block header size");
-    m_weight = monero_utils::reconcile(m_weight, other->m_weight, "block header weight");
-    m_long_term_weight = monero_utils::reconcile(m_long_term_weight, other->m_long_term_weight, "block header long term weight");
-    m_depth = monero_utils::reconcile(m_depth, other->m_depth, "block header depth");
-    m_difficulty = monero_utils::reconcile(m_difficulty, other->m_difficulty, "difficulty");
-    m_cumulative_difficulty = monero_utils::reconcile(m_cumulative_difficulty, other->m_cumulative_difficulty, "m_cumulative_difficulty");
-    m_major_version = monero_utils::reconcile(m_major_version, other->m_major_version, "m_major_version");
-    m_minor_version = monero_utils::reconcile(m_minor_version, other->m_minor_version, "m_minor_version");
-    m_nonce = monero_utils::reconcile(m_nonce, other->m_nonce, "m_nonce");
-    m_miner_tx_id = monero_utils::reconcile(m_miner_tx_id, other->m_miner_tx_id);
-    m_num_txs = monero_utils::reconcile(m_num_txs, other->m_num_txs, "block header m_num_txs");
-    m_orphan_status = monero_utils::reconcile(m_orphan_status, other->m_orphan_status);
-    m_prev_id = monero_utils::reconcile(m_prev_id, other->m_prev_id);
-    m_reward = monero_utils::reconcile(m_reward, other->m_reward, "block header m_reward");
-    m_pow_hash = monero_utils::reconcile(m_pow_hash, other->m_pow_hash);
+    m_id = gen_utils::reconcile(m_id, other->m_id);
+    m_height = gen_utils::reconcile(m_height, other->m_height, boost::none, boost::none, true, "block height"); // height can increase
+    m_timestamp = gen_utils::reconcile(m_timestamp, other->m_timestamp, boost::none, boost::none, true, "block header timestamp");  // timestamp can increase
+    m_size = gen_utils::reconcile(m_size, other->m_size, "block header size");
+    m_weight = gen_utils::reconcile(m_weight, other->m_weight, "block header weight");
+    m_long_term_weight = gen_utils::reconcile(m_long_term_weight, other->m_long_term_weight, "block header long term weight");
+    m_depth = gen_utils::reconcile(m_depth, other->m_depth, "block header depth");
+    m_difficulty = gen_utils::reconcile(m_difficulty, other->m_difficulty, "difficulty");
+    m_cumulative_difficulty = gen_utils::reconcile(m_cumulative_difficulty, other->m_cumulative_difficulty, "m_cumulative_difficulty");
+    m_major_version = gen_utils::reconcile(m_major_version, other->m_major_version, "m_major_version");
+    m_minor_version = gen_utils::reconcile(m_minor_version, other->m_minor_version, "m_minor_version");
+    m_nonce = gen_utils::reconcile(m_nonce, other->m_nonce, "m_nonce");
+    m_miner_tx_id = gen_utils::reconcile(m_miner_tx_id, other->m_miner_tx_id);
+    m_num_txs = gen_utils::reconcile(m_num_txs, other->m_num_txs, "block header m_num_txs");
+    m_orphan_status = gen_utils::reconcile(m_orphan_status, other->m_orphan_status);
+    m_prev_id = gen_utils::reconcile(m_prev_id, other->m_prev_id);
+    m_reward = gen_utils::reconcile(m_reward, other->m_reward, "block header m_reward");
+    m_pow_hash = gen_utils::reconcile(m_pow_hash, other->m_pow_hash);
   }
 
   // ----------------------------- MONERO BLOCK -------------------------------
@@ -154,8 +155,8 @@ namespace monero {
     monero_block_header::merge(self, other);
 
     // merge reconcilable block extensions
-    m_hex = monero_utils::reconcile(m_hex, other->m_hex);
-    m_tx_ids = monero_utils::reconcile(m_tx_ids, other->m_tx_ids);
+    m_hex = gen_utils::reconcile(m_hex, other->m_hex);
+    m_tx_ids = gen_utils::reconcile(m_tx_ids, other->m_tx_ids);
 
     // merge miner tx
     if (m_miner_tx == boost::none) m_miner_tx = other->m_miner_tx;
@@ -299,37 +300,37 @@ namespace monero {
     }
 
     // otherwise merge tx fields
-    m_id = monero_utils::reconcile(m_id, other->m_id);
-    m_version = monero_utils::reconcile(m_version, other->m_version);
-    m_payment_id = monero_utils::reconcile(m_payment_id, other->m_payment_id);
-    m_fee = monero_utils::reconcile(m_fee, other->m_fee, "tx fee");
-    m_mixin = monero_utils::reconcile(m_mixin, other->m_mixin, "tx m_mixin");
-    m_is_confirmed = monero_utils::reconcile(m_is_confirmed, other->m_is_confirmed);
-    m_do_not_relay = monero_utils::reconcile(m_do_not_relay, other->m_do_not_relay);
-    m_is_relayed = monero_utils::reconcile(m_is_relayed, other->m_is_relayed);
-    m_is_double_spend_seen = monero_utils::reconcile(m_is_double_spend_seen, other->m_is_double_spend_seen);
-    m_key = monero_utils::reconcile(m_key, other->m_key);
-    m_full_hex = monero_utils::reconcile(m_full_hex, other->m_full_hex);
-    m_pruned_hex = monero_utils::reconcile(m_pruned_hex, other->m_pruned_hex);
-    m_prunable_hex = monero_utils::reconcile(m_prunable_hex, other->m_prunable_hex);
-    m_prunable_hash = monero_utils::reconcile(m_prunable_hash, other->m_prunable_hash);
-    m_size = monero_utils::reconcile(m_size, other->m_size, "tx size");
-    m_weight = monero_utils::reconcile(m_weight, other->m_weight, "tx weight");
-    //m_output_indices = monero_utils::reconcile(m_output_indices, other->m_output_indices);  // TODO
-    m_metadata = monero_utils::reconcile(m_metadata, other->m_metadata);
-    m_common_tx_sets = monero_utils::reconcile(m_common_tx_sets, other->m_common_tx_sets);
-    //m_extra = monero_utils::reconcile(m_extra, other->m_extra);  // TODO
-    m_rct_signatures = monero_utils::reconcile(m_rct_signatures, other->m_rct_signatures);
-    m_rct_sig_prunable = monero_utils::reconcile(m_rct_sig_prunable, other->m_rct_sig_prunable);
-    m_is_kept_by_block = monero_utils::reconcile(m_is_kept_by_block, other->m_is_kept_by_block);
-    m_is_failed = monero_utils::reconcile(m_is_failed, other->m_is_failed);
-    m_last_failed_height = monero_utils::reconcile(m_last_failed_height, other->m_last_failed_height, "m_last_failed_height");
-    m_last_failed_id = monero_utils::reconcile(m_last_failed_id, other->m_last_failed_id);
-    m_max_used_block_height = monero_utils::reconcile(m_max_used_block_height, other->m_max_used_block_height, "max_used_block_height");
-    m_max_used_block_id = monero_utils::reconcile(m_max_used_block_id, other->m_max_used_block_id);
-    //m_signatures = monero_utils::reconcile(m_signatures, other->m_signatures); // TODO
-    m_unlock_time = monero_utils::reconcile(m_unlock_time, other->m_unlock_time, "m_unlock_time");
-    m_num_confirmations = monero_utils::reconcile(m_num_confirmations, other->m_num_confirmations, "m_num_confirmations");
+    m_id = gen_utils::reconcile(m_id, other->m_id);
+    m_version = gen_utils::reconcile(m_version, other->m_version);
+    m_payment_id = gen_utils::reconcile(m_payment_id, other->m_payment_id);
+    m_fee = gen_utils::reconcile(m_fee, other->m_fee, "tx fee");
+    m_mixin = gen_utils::reconcile(m_mixin, other->m_mixin, "tx m_mixin");
+    m_is_confirmed = gen_utils::reconcile(m_is_confirmed, other->m_is_confirmed);
+    m_do_not_relay = gen_utils::reconcile(m_do_not_relay, other->m_do_not_relay);
+    m_is_relayed = gen_utils::reconcile(m_is_relayed, other->m_is_relayed);
+    m_is_double_spend_seen = gen_utils::reconcile(m_is_double_spend_seen, other->m_is_double_spend_seen);
+    m_key = gen_utils::reconcile(m_key, other->m_key);
+    m_full_hex = gen_utils::reconcile(m_full_hex, other->m_full_hex);
+    m_pruned_hex = gen_utils::reconcile(m_pruned_hex, other->m_pruned_hex);
+    m_prunable_hex = gen_utils::reconcile(m_prunable_hex, other->m_prunable_hex);
+    m_prunable_hash = gen_utils::reconcile(m_prunable_hash, other->m_prunable_hash);
+    m_size = gen_utils::reconcile(m_size, other->m_size, "tx size");
+    m_weight = gen_utils::reconcile(m_weight, other->m_weight, "tx weight");
+    //m_output_indices = gen_utils::reconcile(m_output_indices, other->m_output_indices);  // TODO
+    m_metadata = gen_utils::reconcile(m_metadata, other->m_metadata);
+    m_common_tx_sets = gen_utils::reconcile(m_common_tx_sets, other->m_common_tx_sets);
+    //m_extra = gen_utils::reconcile(m_extra, other->m_extra);  // TODO
+    m_rct_signatures = gen_utils::reconcile(m_rct_signatures, other->m_rct_signatures);
+    m_rct_sig_prunable = gen_utils::reconcile(m_rct_sig_prunable, other->m_rct_sig_prunable);
+    m_is_kept_by_block = gen_utils::reconcile(m_is_kept_by_block, other->m_is_kept_by_block);
+    m_is_failed = gen_utils::reconcile(m_is_failed, other->m_is_failed);
+    m_last_failed_height = gen_utils::reconcile(m_last_failed_height, other->m_last_failed_height, "m_last_failed_height");
+    m_last_failed_id = gen_utils::reconcile(m_last_failed_id, other->m_last_failed_id);
+    m_max_used_block_height = gen_utils::reconcile(m_max_used_block_height, other->m_max_used_block_height, "max_used_block_height");
+    m_max_used_block_id = gen_utils::reconcile(m_max_used_block_id, other->m_max_used_block_id);
+    //m_signatures = gen_utils::reconcile(m_signatures, other->m_signatures); // TODO
+    m_unlock_time = gen_utils::reconcile(m_unlock_time, other->m_unlock_time, "m_unlock_time");
+    m_num_confirmations = gen_utils::reconcile(m_num_confirmations, other->m_num_confirmations, "m_num_confirmations");
 
     // merge vins
     if (!other->m_vins.empty()) {
@@ -426,9 +427,9 @@ namespace monero {
       m_received_timestamp = boost::none;
       m_last_relayed_timestamp = boost::none;
     } else {
-      m_in_tx_pool = monero_utils::reconcile(m_in_tx_pool, other->m_in_tx_pool, boost::none, true, boost::none); // unrelayed -> tx pool
-      m_received_timestamp = monero_utils::reconcile(m_received_timestamp, other->m_received_timestamp, boost::none, boost::none, false, "m_received_timestamp"); // take earliest receive time
-      m_last_relayed_timestamp = monero_utils::reconcile(m_last_relayed_timestamp, other->m_last_relayed_timestamp, boost::none, boost::none, true, "m_last_relayed_timestamp"); // take latest relay time
+      m_in_tx_pool = gen_utils::reconcile(m_in_tx_pool, other->m_in_tx_pool, boost::none, true, boost::none); // unrelayed -> tx pool
+      m_received_timestamp = gen_utils::reconcile(m_received_timestamp, other->m_received_timestamp, boost::none, boost::none, false, "m_received_timestamp"); // take earliest receive time
+      m_last_relayed_timestamp = gen_utils::reconcile(m_last_relayed_timestamp, other->m_last_relayed_timestamp, boost::none, boost::none, true, "m_last_relayed_timestamp"); // take latest relay time
     }
   }
 
@@ -488,7 +489,7 @@ namespace monero {
     // otherwise merge output fields
     if (m_key_image == boost::none) m_key_image = other->m_key_image;
     else if (other->m_key_image != boost::none) m_key_image.get()->merge(m_key_image.get(), other->m_key_image.get());
-    m_amount = monero_utils::reconcile(m_amount, other->m_amount, "output amount");
-    m_index = monero_utils::reconcile(m_index, other->m_index, "output index");
+    m_amount = gen_utils::reconcile(m_amount, other->m_amount, "output amount");
+    m_index = gen_utils::reconcile(m_index, other->m_index, "output index");
   }
 }

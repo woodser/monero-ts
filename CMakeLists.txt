@@ -228,6 +228,7 @@ set_target_properties(version PROPERTIES IMPORTED_LOCATION
 
 set(
     LIBRARY_SRC_FILES
+    src/utils/gen_utils.cpp
     src/utils/monero_utils.cpp
     src/daemon/monero_daemon_model.cpp
     src/daemon/monero_daemon.cpp
