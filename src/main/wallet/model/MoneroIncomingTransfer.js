@@ -53,8 +53,8 @@ class MoneroIncomingTransfer extends MoneroTransfer {
     super.merge(transfer);
     assert(transfer instanceof MoneroIncomingTransfer);
     if (this === transfer) return this;
-    this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), transfer.getSubaddressIndex()));
-    this.setAddress(MoneroUtils.reconcile(this.getAddress(), transfer.getAddress()));
+    this.setSubaddressIndex(GenUtils.reconcile(this.getSubaddressIndex(), transfer.getSubaddressIndex()));
+    this.setAddress(GenUtils.reconcile(this.getAddress(), transfer.getAddress()));
     return this;
   }
   
@@ -64,8 +64,8 @@ class MoneroIncomingTransfer extends MoneroTransfer {
   
   toString(indent) {
     let str = super.toString(indent) + "\n";
-    str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
-    str += MoneroUtils.kvLine("Address", this.getAddress(), indent);
+    str += GenUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
+    str += GenUtils.kvLine("Address", this.getAddress(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }

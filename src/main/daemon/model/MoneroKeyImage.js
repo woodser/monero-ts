@@ -51,15 +51,15 @@ class MoneroKeyImage {
   merge(keyImage) {
     assert(keyImage instanceof MoneroKeyImage);
     if (keyImage === this) return this;
-    this.setHex(MoneroUtils.reconcile(this.getHex(), keyImage.getHex()));
-    this.setSignature(MoneroUtils.reconcile(this.getSignature(), keyImage.getSignature()));
+    this.setHex(GenUtils.reconcile(this.getHex(), keyImage.getHex()));
+    this.setSignature(GenUtils.reconcile(this.getSignature(), keyImage.getSignature()));
     return this;
   }
   
   toString(indent = 0) {
     let str = "";
-    str += MoneroUtils.kvLine("Hex", this.getHex(), indent);
-    str += MoneroUtils.kvLine("Signature", this.getSignature(), indent);
+    str += GenUtils.kvLine("Hex", this.getHex(), indent);
+    str += GenUtils.kvLine("Signature", this.getSignature(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }

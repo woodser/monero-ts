@@ -74,15 +74,15 @@ class MoneroAccount {
   
   toString(indent = 0) {
     let str = "";
-    str += MoneroUtils.kvLine("Index", this.getIndex(), indent);
-    str += MoneroUtils.kvLine("Primary address", this.getPrimaryAddress(), indent);
-    str += MoneroUtils.kvLine("Balance", this.getBalance(), indent);
-    str += MoneroUtils.kvLine("Unlocked balance", this.getUnlockedBalance(), indent);
-    str += MoneroUtils.kvLine("Tag", this.getTag(), indent);
+    str += GenUtils.kvLine("Index", this.getIndex(), indent);
+    str += GenUtils.kvLine("Primary address", this.getPrimaryAddress(), indent);
+    str += GenUtils.kvLine("Balance", this.getBalance(), indent);
+    str += GenUtils.kvLine("Unlocked balance", this.getUnlockedBalance(), indent);
+    str += GenUtils.kvLine("Tag", this.getTag(), indent);
     if (this.getSubaddresses() != null) {
-      sb += MoneroUtils.kvLine("Subaddresses", "", indent)
+      sb += GenUtils.kvLine("Subaddresses", "", indent)
       for (let i = 0; i < this.getSubaddresses().size(); i++) {
-        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
+        str += GenUtils.kvLine(i + 1, "", indent + 1);
         str += this.getSubaddresses()[i].toString(indent + 2) + "\n";
       }
     }

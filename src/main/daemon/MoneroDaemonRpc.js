@@ -764,27 +764,27 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let header = new MoneroBlockHeader();
     for (let key of Object.keys(rpcHeader)) {
       let val = rpcHeader[key];
-      if (key === "block_size") MoneroUtils.safeSet(header, header.getSize, header.setSize, val);
-      else if (key === "depth") MoneroUtils.safeSet(header, header.getDepth, header.setDepth, val);
+      if (key === "block_size") GenUtils.safeSet(header, header.getSize, header.setSize, val);
+      else if (key === "depth") GenUtils.safeSet(header, header.getDepth, header.setDepth, val);
       else if (key === "difficulty") { }  // handled by wide_difficulty
       else if (key === "cumulative_difficulty") { } // handled by wide_cumulative_difficulty
       else if (key === "difficulty_top64") { }  // handled by wide_difficulty
       else if (key === "cumulative_difficulty_top64") { } // handled by wide_cumulative_difficulty
-      else if (key === "wide_difficulty") header.setDifficulty(MoneroUtils.reconcile(header.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
-      else if (key === "wide_cumulative_difficulty") header.setCumulativeDifficulty(MoneroUtils.reconcile(header.getCumulativeDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
-      else if (key === "hash") MoneroUtils.safeSet(header, header.getId, header.setId, val);
-      else if (key === "height") MoneroUtils.safeSet(header, header.getHeight, header.setHeight, val);
-      else if (key === "major_version") MoneroUtils.safeSet(header, header.getMajorVersion, header.setMajorVersion, val);
-      else if (key === "minor_version") MoneroUtils.safeSet(header, header.getMinorVersion, header.setMinorVersion, val);
-      else if (key === "nonce") MoneroUtils.safeSet(header, header.getNonce, header.setNonce, val);
-      else if (key === "num_txes") MoneroUtils.safeSet(header, header.getNumTxs, header.setNumTxs, val);
-      else if (key === "orphan_status") MoneroUtils.safeSet(header, header.getOrphanStatus, header.setOrphanStatus, val);
-      else if (key === "prev_hash" || key === "prev_id") MoneroUtils.safeSet(header, header.getPrevId, header.setPrevId, val);
-      else if (key === "reward") MoneroUtils.safeSet(header, header.getReward, header.setReward, new BigInteger(val));
-      else if (key === "timestamp") MoneroUtils.safeSet(header, header.getTimestamp, header.setTimestamp, val);
-      else if (key === "block_weight") MoneroUtils.safeSet(header, header.getWeight, header.setWeight, val);
-      else if (key === "long_term_weight") MoneroUtils.safeSet(header, header.getLongTermWeight, header.setLongTermWeight, val);
-      else if (key === "pow_hash") MoneroUtils.safeSet(header, header.getPowHash, header.setPowHash, val === "" ? undefined : val);
+      else if (key === "wide_difficulty") header.setDifficulty(GenUtils.reconcile(header.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
+      else if (key === "wide_cumulative_difficulty") header.setCumulativeDifficulty(GenUtils.reconcile(header.getCumulativeDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
+      else if (key === "hash") GenUtils.safeSet(header, header.getId, header.setId, val);
+      else if (key === "height") GenUtils.safeSet(header, header.getHeight, header.setHeight, val);
+      else if (key === "major_version") GenUtils.safeSet(header, header.getMajorVersion, header.setMajorVersion, val);
+      else if (key === "minor_version") GenUtils.safeSet(header, header.getMinorVersion, header.setMinorVersion, val);
+      else if (key === "nonce") GenUtils.safeSet(header, header.getNonce, header.setNonce, val);
+      else if (key === "num_txes") GenUtils.safeSet(header, header.getNumTxs, header.setNumTxs, val);
+      else if (key === "orphan_status") GenUtils.safeSet(header, header.getOrphanStatus, header.setOrphanStatus, val);
+      else if (key === "prev_hash" || key === "prev_id") GenUtils.safeSet(header, header.getPrevId, header.setPrevId, val);
+      else if (key === "reward") GenUtils.safeSet(header, header.getReward, header.setReward, new BigInteger(val));
+      else if (key === "timestamp") GenUtils.safeSet(header, header.getTimestamp, header.setTimestamp, val);
+      else if (key === "block_weight") GenUtils.safeSet(header, header.getWeight, header.setWeight, val);
+      else if (key === "long_term_weight") GenUtils.safeSet(header, header.getLongTermWeight, header.setLongTermWeight, val);
+      else if (key === "pow_hash") GenUtils.safeSet(header, header.getPowHash, header.setPowHash, val === "" ? undefined : val);
       else if (key === "tx_hashes") {}  // used in block model, not header model
       else if (key === "miner_tx") {}   // used in block model, not header model
       else if (key === "miner_tx_hash") header.setMinerTxId(val);
@@ -832,62 +832,62 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let header;
     for (let key of Object.keys(rpcTx)) {
       let val = rpcTx[key];
-      if (key === "tx_hash" || key === "id_hash") MoneroUtils.safeSet(tx, tx.getId, tx.setId, val);
+      if (key === "tx_hash" || key === "id_hash") GenUtils.safeSet(tx, tx.getId, tx.setId, val);
       else if (key === "block_timestamp") {
         if (!header) header = new MoneroBlockHeader();
-        MoneroUtils.safeSet(header, header.getTimestamp, header.setTimestamp, val);
+        GenUtils.safeSet(header, header.getTimestamp, header.setTimestamp, val);
       }
       else if (key === "block_height") {
         if (!header) header = new MoneroBlockHeader();
-        MoneroUtils.safeSet(header, header.getHeight, header.setHeight, val);
+        GenUtils.safeSet(header, header.getHeight, header.setHeight, val);
       }
-      else if (key === "last_relayed_time") MoneroUtils.safeSet(tx, tx.getLastRelayedTimestamp, tx.setLastRelayedTimestamp, val);
-      else if (key === "receive_time") MoneroUtils.safeSet(tx, tx.getReceivedTimestamp, tx.setReceivedTimestamp, val);
+      else if (key === "last_relayed_time") GenUtils.safeSet(tx, tx.getLastRelayedTimestamp, tx.setLastRelayedTimestamp, val);
+      else if (key === "receive_time") GenUtils.safeSet(tx, tx.getReceivedTimestamp, tx.setReceivedTimestamp, val);
       else if (key === "in_pool") {
-        MoneroUtils.safeSet(tx, tx.isConfirmed, tx.setIsConfirmed, !val);
-        MoneroUtils.safeSet(tx, tx.inTxPool, tx.setInTxPool, val);
+        GenUtils.safeSet(tx, tx.isConfirmed, tx.setIsConfirmed, !val);
+        GenUtils.safeSet(tx, tx.inTxPool, tx.setInTxPool, val);
       }
-      else if (key === "double_spend_seen") MoneroUtils.safeSet(tx, tx.isDoubleSpendSeen, tx.setIsDoubleSpend, val);
-      else if (key === "version") MoneroUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);
-      else if (key === "extra") MoneroUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
+      else if (key === "double_spend_seen") GenUtils.safeSet(tx, tx.isDoubleSpendSeen, tx.setIsDoubleSpend, val);
+      else if (key === "version") GenUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);
+      else if (key === "extra") GenUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
       else if (key === "vin") {
         if (val.length !== 1 || !val[0].gen) {  // ignore miner vin TODO: why?
           tx.setVins(val.map(rpcVin => MoneroDaemonRpc._convertRpcOutput(rpcVin, tx)));
         }
       }
       else if (key === "vout") tx.setVouts(val.map(rpcVout => MoneroDaemonRpc._convertRpcOutput(rpcVout, tx)));
-      else if (key === "rct_signatures") MoneroUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, val);
-      else if (key === "rctsig_prunable") MoneroUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
-      else if (key === "unlock_time") MoneroUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, val);
+      else if (key === "rct_signatures") GenUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, val);
+      else if (key === "rctsig_prunable") GenUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
+      else if (key === "unlock_time") GenUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, val);
       else if (key === "as_json" || key === "tx_json") { }  // handled last so tx is as initialized as possible
-      else if (key === "as_hex" || key === "tx_blob") MoneroUtils.safeSet(tx, tx.getFullHex, tx.setFullHex, val ? val : undefined);
-      else if (key === "blob_size") MoneroUtils.safeSet(tx, tx.getSize, tx.setSize, val);
-      else if (key === "weight") MoneroUtils.safeSet(tx, tx.getWeight, tx.setWeight, val);
-      else if (key === "fee") MoneroUtils.safeSet(tx, tx.getFee, tx.setFee, new BigInteger(val));
-      else if (key === "relayed") MoneroUtils.safeSet(tx, tx.isRelayed, tx.setIsRelayed, val);
-      else if (key === "output_indices") MoneroUtils.safeSet(tx, tx.getOutputIndices, tx.setOutputIndices, val);
-      else if (key === "do_not_relay") MoneroUtils.safeSet(tx, tx.getDoNotRelay, tx.setDoNotRelay, val);
-      else if (key === "kept_by_block") MoneroUtils.safeSet(tx, tx.isKeptByBlock, tx.setIsKeptByBlock, val);
-      else if (key === "signatures") MoneroUtils.safeSet(tx, tx.getSignatures, tx.setSignatures, val);
+      else if (key === "as_hex" || key === "tx_blob") GenUtils.safeSet(tx, tx.getFullHex, tx.setFullHex, val ? val : undefined);
+      else if (key === "blob_size") GenUtils.safeSet(tx, tx.getSize, tx.setSize, val);
+      else if (key === "weight") GenUtils.safeSet(tx, tx.getWeight, tx.setWeight, val);
+      else if (key === "fee") GenUtils.safeSet(tx, tx.getFee, tx.setFee, new BigInteger(val));
+      else if (key === "relayed") GenUtils.safeSet(tx, tx.isRelayed, tx.setIsRelayed, val);
+      else if (key === "output_indices") GenUtils.safeSet(tx, tx.getOutputIndices, tx.setOutputIndices, val);
+      else if (key === "do_not_relay") GenUtils.safeSet(tx, tx.getDoNotRelay, tx.setDoNotRelay, val);
+      else if (key === "kept_by_block") GenUtils.safeSet(tx, tx.isKeptByBlock, tx.setIsKeptByBlock, val);
+      else if (key === "signatures") GenUtils.safeSet(tx, tx.getSignatures, tx.setSignatures, val);
       else if (key === "last_failed_height") {
-        if (val === 0) MoneroUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, false);
+        if (val === 0) GenUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, false);
         else {
-          MoneroUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, true);
-          MoneroUtils.safeSet(tx, tx.getLastFailedHeight, tx.setLastFailedHeight, val);
+          GenUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, true);
+          GenUtils.safeSet(tx, tx.getLastFailedHeight, tx.setLastFailedHeight, val);
         }
       }
       else if (key === "last_failed_id_hash") {
-        if (val === MoneroDaemonRpc.DEFAULT_ID) MoneroUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, false);
+        if (val === MoneroDaemonRpc.DEFAULT_ID) GenUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, false);
         else {
-          MoneroUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, true);
-          MoneroUtils.safeSet(tx, tx.getLastFailedId, tx.setLastFailedId, val);
+          GenUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, true);
+          GenUtils.safeSet(tx, tx.getLastFailedId, tx.setLastFailedId, val);
         }
       }
-      else if (key === "max_used_block_height") MoneroUtils.safeSet(tx, tx.getMaxUsedBlockHeight, tx.setMaxUsedBlockHeight, val);
-      else if (key === "max_used_block_id_hash") MoneroUtils.safeSet(tx, tx.getMaxUsedBlockId, tx.setMaxUsedBlockId, val);
-      else if (key === "prunable_hash") MoneroUtils.safeSet(tx, tx.getPrunableHash, tx.setPrunableHash, val ? val : undefined);
-      else if (key === "prunable_as_hex") MoneroUtils.safeSet(tx, tx.getPrunableHex, tx.setPrunableHex, val ? val : undefined);
-      else if (key === "pruned_as_hex") MoneroUtils.safeSet(tx, tx.getPrunedHex, tx.setPrunedHex, val ? val : undefined);
+      else if (key === "max_used_block_height") GenUtils.safeSet(tx, tx.getMaxUsedBlockHeight, tx.setMaxUsedBlockHeight, val);
+      else if (key === "max_used_block_id_hash") GenUtils.safeSet(tx, tx.getMaxUsedBlockId, tx.setMaxUsedBlockId, val);
+      else if (key === "prunable_hash") GenUtils.safeSet(tx, tx.getPrunableHash, tx.setPrunableHash, val ? val : undefined);
+      else if (key === "prunable_as_hex") GenUtils.safeSet(tx, tx.getPrunableHex, tx.setPrunableHex, val ? val : undefined);
+      else if (key === "pruned_as_hex") GenUtils.safeSet(tx, tx.getPrunedHex, tx.setPrunedHex, val ? val : undefined);
       else console.log("WARNING: ignoring unexpected field in rpc tx: " + key + ": " + val);
     }
     
@@ -902,9 +902,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
     
     // initialize remaining known fields
     if (tx.isConfirmed()) {
-      MoneroUtils.safeSet(tx, tx.isRelayed, tx.setIsRelayed, true);
-      MoneroUtils.safeSet(tx, tx.getDoNotRelay, tx.setDoNotRelay, false);
-      MoneroUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, false);
+      GenUtils.safeSet(tx, tx.isRelayed, tx.setIsRelayed, true);
+      GenUtils.safeSet(tx, tx.getDoNotRelay, tx.setDoNotRelay, false);
+      GenUtils.safeSet(tx, tx.isFailed, tx.setIsFailed, false);
     } else {
       tx.setNumConfirmations(0);
     }
@@ -930,12 +930,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
       let val = rpcOutput[key];
       if (key === "gen") throw new MoneroError("Output with 'gen' from daemon rpc is miner tx which we ignore (i.e. each miner vin is undefined)");
       else if (key === "key") {
-        MoneroUtils.safeSet(output, output.getAmount, output.setAmount, new BigInteger(val.amount));
-        MoneroUtils.safeSet(output, output.getKeyImage, output.setKeyImage, new MoneroKeyImage(val.k_image));
-        MoneroUtils.safeSet(output, output.getRingOutputIndices, output.setRingOutputIndices, val.key_offsets);
+        GenUtils.safeSet(output, output.getAmount, output.setAmount, new BigInteger(val.amount));
+        GenUtils.safeSet(output, output.getKeyImage, output.setKeyImage, new MoneroKeyImage(val.k_image));
+        GenUtils.safeSet(output, output.getRingOutputIndices, output.setRingOutputIndices, val.key_offsets);
       }
-      else if (key === "amount") MoneroUtils.safeSet(output, output.getAmount, output.setAmount, new BigInteger(val));
-      else if (key === "target") MoneroUtils.safeSet(output, output.getStealthPublicKey, output.setStealthPublicKey, val.key);
+      else if (key === "amount") GenUtils.safeSet(output, output.getAmount, output.setAmount, new BigInteger(val));
+      else if (key === "target") GenUtils.safeSet(output, output.getStealthPublicKey, output.setStealthPublicKey, val.key);
       else console.log("WARNING: ignoring unexpected field output: " + key + ": " + val);
     }
     return output;
@@ -951,7 +951,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "expected_reward") template.setExpectedReward(val);
       else if (key === "difficulty") { }  // handled by wide_difficulty
       else if (key === "difficulty_top64") { }  // handled by wide_difficulty
-      else if (key === "wide_difficulty") template.setDifficulty(MoneroUtils.reconcile(template.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
+      else if (key === "wide_difficulty") template.setDifficulty(GenUtils.reconcile(template.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
       else if (key === "height") template.setHeight(val);
       else if (key === "prev_hash") template.setPrevId(val);
       else if (key === "reserved_offset") template.setReservedOffset(val);
@@ -978,8 +978,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "cumulative_difficulty") { } // handled by wide_cumulative_difficulty
       else if (key === "difficulty_top64") { }  // handled by wide_difficulty
       else if (key === "cumulative_difficulty_top64") { } // handled by wide_cumulative_difficulty
-      else if (key === "wide_difficulty") info.setDifficulty(MoneroUtils.reconcile(info.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
-      else if (key === "wide_cumulative_difficulty") info.setCumulativeDifficulty(MoneroUtils.reconcile(info.getCumulativeDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
+      else if (key === "wide_difficulty") info.setDifficulty(GenUtils.reconcile(info.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
+      else if (key === "wide_cumulative_difficulty") info.setCumulativeDifficulty(GenUtils.reconcile(info.getCumulativeDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
       else if (key === "free_space") info.setFreeSpace(new BigInteger(val));
       else if (key === "database_size") info.setDatabaseSize(val);
       else if (key === "grey_peerlist_size") info.setNumOfflinePeers(val);
@@ -1000,10 +1000,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "was_bootstrap_ever_used") info.setWasBootstrapEverUsed(val);
       else if (key === "white_peerlist_size") info.setNumOnlinePeers(val);
       else if (key === "update_available") info.setUpdateAvailable(val);
-      else if (key === "nettype") MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroDaemon.parseNetworkType(val));
-      else if (key === "mainnet") { if (val) MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.MAINNET); }
-      else if (key === "testnet") { if (val) MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.TESTNET); }
-      else if (key === "stagenet") { if (val) MoneroUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.STAGENET); }
+      else if (key === "nettype") GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroDaemon.parseNetworkType(val));
+      else if (key === "mainnet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.MAINNET); }
+      else if (key === "testnet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.TESTNET); }
+      else if (key === "stagenet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.STAGENET); }
       else console.log("WARNING: Ignoring unexpected info field: " + key + ": " + val);
     }
     return info;
@@ -1151,7 +1151,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       if (key === "block_hash") {}  // using block_hashes instead
       else if (key === "difficulty") { } // handled by wide_difficulty
       else if (key === "difficulty_top64") { }  // handled by wide_difficulty
-      else if (key === "wide_difficulty") chain.setDifficulty(MoneroUtils.reconcile(chain.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
+      else if (key === "wide_difficulty") chain.setDifficulty(GenUtils.reconcile(chain.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
       else if (key === "height") chain.setHeight(val);
       else if (key === "length") chain.setLength(val);
       else if (key === "block_hashes") chain.setBlockIds(val);

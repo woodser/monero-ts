@@ -80,20 +80,20 @@ class MoneroOutgoingTransfer extends MoneroTransfer {
     super.merge(transfer);
     assert(transfer instanceof MoneroOutgoingTransfer);
     if (this === transfer) return this;
-    this.setSubaddressIndices(MoneroUtils.reconcile(this.getSubaddressIndices(), transfer.getSubaddressIndices()));
-    this.setAddresses(MoneroUtils.reconcile(this.getAddresses(), transfer.getAddresses()));
-    this.setDestinations(MoneroUtils.reconcile(this.getDestinations(), transfer.getDestinations()));
+    this.setSubaddressIndices(GenUtils.reconcile(this.getSubaddressIndices(), transfer.getSubaddressIndices()));
+    this.setAddresses(GenUtils.reconcile(this.getAddresses(), transfer.getAddresses()));
+    this.setDestinations(GenUtils.reconcile(this.getDestinations(), transfer.getDestinations()));
     return this;
   }
 
   toString(indent = 0) {
     let str = super.toString(indent) + "\n";
-    str += MoneroUtils.kvLine("Subaddress indices", this.getSubaddressIndices(), indent);
-    str += MoneroUtils.kvLine("Addresses", this.getAddresses(), indent);
+    str += GenUtils.kvLine("Subaddress indices", this.getSubaddressIndices(), indent);
+    str += GenUtils.kvLine("Addresses", this.getAddresses(), indent);
     if (this.getDestinations()) {
-      str += MoneroUtils.kvLine("Destinations", "", indent);
+      str += GenUtils.kvLine("Destinations", "", indent);
       for (let i = 0; i < this.getDestinations().length; i++) {
-        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
+        str += GenUtils.kvLine(i + 1, "", indent + 1);
         str += this.getDestinations()[i].toString(indent + 2) + "\n";
       }
     }

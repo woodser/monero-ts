@@ -88,19 +88,19 @@ class MoneroOutputWallet extends MoneroOutput {
     assert(output instanceof MoneroOutputWallet);
     if (this === output) return;
     super.merge(output);
-    this.setAccountIndex(MoneroUtils.reconcile(this.getAccountIndex(), output.getAccountIndex()));
-    this.setSubaddressIndex(MoneroUtils.reconcile(this.getSubaddressIndex(), output.getSubaddressIndex()));
-    this.setIsSpent(MoneroUtils.reconcile(this.isSpent(), output.isSpent(), {resolveTrue: true})); // output can become spent
+    this.setAccountIndex(GenUtils.reconcile(this.getAccountIndex(), output.getAccountIndex()));
+    this.setSubaddressIndex(GenUtils.reconcile(this.getSubaddressIndex(), output.getSubaddressIndex()));
+    this.setIsSpent(GenUtils.reconcile(this.isSpent(), output.isSpent(), {resolveTrue: true})); // output can become spent
     return this;
   }
   
   toString(indent) {
     let str = super.toString(indent) + "\n"
-    str += MoneroUtils.kvLine("Account index", this.getAccountIndex(), indent);
-    str += MoneroUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
-    str += MoneroUtils.kvLine("Is spent", this.isSpent(), indent);
-    str += MoneroUtils.kvLine("Is unlocked", this.isUnlocked(), indent);
-    str += MoneroUtils.kvLine("Is frozen", this.isFrozen(), indent);
+    str += GenUtils.kvLine("Account index", this.getAccountIndex(), indent);
+    str += GenUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
+    str += GenUtils.kvLine("Is spent", this.isSpent(), indent);
+    str += GenUtils.kvLine("Is unlocked", this.isUnlocked(), indent);
+    str += GenUtils.kvLine("Is frozen", this.isFrozen(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }

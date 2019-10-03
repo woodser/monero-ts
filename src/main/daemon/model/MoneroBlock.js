@@ -83,8 +83,8 @@ class MoneroBlock extends MoneroBlockHeader {
     super.merge(block);
     
     // merge reconcilable block extensions
-    this.setHex(MoneroUtils.reconcile(this.getHex(), block.getHex()));
-    this.setTxIds(MoneroUtils.reconcile(this.getTxIds(), block.getTxIds()));
+    this.setHex(GenUtils.reconcile(this.getHex(), block.getHex()));
+    this.setTxIds(GenUtils.reconcile(this.getTxIds(), block.getTxIds()));
     
     // merge miner tx
     if (this.getMinerTx() === undefined) this.setMinerTx(block.getMinerTx());
@@ -106,18 +106,18 @@ class MoneroBlock extends MoneroBlockHeader {
   
   toString(indent = 0) {
     let str = super.toString(indent) + "\n";
-    str += MoneroUtils.kvLine("Hex", this.getHex(), indent);
+    str += GenUtils.kvLine("Hex", this.getHex(), indent);
     if (this.getTxs()) {
-      str += MoneroUtils.kvLine("Txs", "", indent);
+      str += GenUtils.kvLine("Txs", "", indent);
       for (let tx of this.getTxs()) {
         str += tx.toString(indent + 1) + "\n";
       }
     }
     if (this.getMinerTx()) {
-      str += MoneroUtils.kvLine("Miner tx", "", indent);
+      str += GenUtils.kvLine("Miner tx", "", indent);
       str += this.getMinerTx().toString(indent + 1) + "\n";
     }
-    str += MoneroUtils.kvLine("Txs ids", this.getTxIds(), indent);
+    str += GenUtils.kvLine("Txs ids", this.getTxIds(), indent);
     return str[str.length - 1] === "\n" ? str.slice(0, str.length - 1) : str  // strip last newline
   }
   

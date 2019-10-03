@@ -55,8 +55,8 @@ class MoneroDestination {
   }
   
   toString(indent = 0) {
-    let str = MoneroUtils.kvLine("Address", this.getAddress(), indent);
-    str += MoneroUtils.kvLine("Amount", this.getAmount() ? this.getAmount().toString() : undefined, indent);
+    let str = GenUtils.kvLine("Address", this.getAddress(), indent);
+    str += GenUtils.kvLine("Amount", this.getAmount() ? this.getAmount().toString() : undefined, indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
 }

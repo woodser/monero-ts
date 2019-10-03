@@ -211,45 +211,45 @@ class MoneroBlockHeader {
   merge(header) {
     assert(header instanceof MoneroBlockHeader);
     if (this === header) return this;
-    this.setId(MoneroUtils.reconcile(this.getId(), header.getId()));
-    this.setHeight(MoneroUtils.reconcile(this.getHeight(), header.getHeight(), {resolveMax: true}));  // height can increase
-    this.setTimestamp(MoneroUtils.reconcile(this.getTimestamp(), header.getTimestamp(), {resolveMax: true}));  // block timestamp can increase
-    this.setSize(MoneroUtils.reconcile(this.getSize(), header.getSize()));
-    this.setWeight(MoneroUtils.reconcile(this.getWeight(), header.getWeight()));
-    this.setDepth(MoneroUtils.reconcile(this.getDepth(), header.getDepth()));
-    this.setDifficulty(MoneroUtils.reconcile(this.getDifficulty(), header.getDifficulty()));
-    this.setCumulativeDifficulty(MoneroUtils.reconcile(this.getCumulativeDifficulty(), header.getCumulativeDifficulty()));
-    this.setMajorVersion(MoneroUtils.reconcile(this.getMajorVersion(), header.getMajorVersion()));
-    this.setMinorVersion(MoneroUtils.reconcile(this.getMinorVersion(), header.getMinorVersion()));
-    this.setNonce(MoneroUtils.reconcile(this.getNonce(), header.getNonce()));
-    this.setMinerTxId(MoneroUtils.reconcile(this.getMinerTxId(), header.getMinerTxId()));
-    this.setNumTxs(MoneroUtils.reconcile(this.getNumTxs(), header.getNumTxs()));
-    this.setOrphanStatus(MoneroUtils.reconcile(this.getOrphanStatus(), header.getOrphanStatus()));
-    this.setPrevId(MoneroUtils.reconcile(this.getPrevId(), header.getPrevId()));
-    this.setReward(MoneroUtils.reconcile(this.getReward(), header.getReward()));
-    this.setPowHash(MoneroUtils.reconcile(this.getPowHash(), header.getPowHash()));
+    this.setId(GenUtils.reconcile(this.getId(), header.getId()));
+    this.setHeight(GenUtils.reconcile(this.getHeight(), header.getHeight(), {resolveMax: true}));  // height can increase
+    this.setTimestamp(GenUtils.reconcile(this.getTimestamp(), header.getTimestamp(), {resolveMax: true}));  // block timestamp can increase
+    this.setSize(GenUtils.reconcile(this.getSize(), header.getSize()));
+    this.setWeight(GenUtils.reconcile(this.getWeight(), header.getWeight()));
+    this.setDepth(GenUtils.reconcile(this.getDepth(), header.getDepth()));
+    this.setDifficulty(GenUtils.reconcile(this.getDifficulty(), header.getDifficulty()));
+    this.setCumulativeDifficulty(GenUtils.reconcile(this.getCumulativeDifficulty(), header.getCumulativeDifficulty()));
+    this.setMajorVersion(GenUtils.reconcile(this.getMajorVersion(), header.getMajorVersion()));
+    this.setMinorVersion(GenUtils.reconcile(this.getMinorVersion(), header.getMinorVersion()));
+    this.setNonce(GenUtils.reconcile(this.getNonce(), header.getNonce()));
+    this.setMinerTxId(GenUtils.reconcile(this.getMinerTxId(), header.getMinerTxId()));
+    this.setNumTxs(GenUtils.reconcile(this.getNumTxs(), header.getNumTxs()));
+    this.setOrphanStatus(GenUtils.reconcile(this.getOrphanStatus(), header.getOrphanStatus()));
+    this.setPrevId(GenUtils.reconcile(this.getPrevId(), header.getPrevId()));
+    this.setReward(GenUtils.reconcile(this.getReward(), header.getReward()));
+    this.setPowHash(GenUtils.reconcile(this.getPowHash(), header.getPowHash()));
     return this;
   }
   
   toString(indent = 0) {
     let str = "";
-    str += MoneroUtils.kvLine("Id", this.getId(), indent);
-    str += MoneroUtils.kvLine("Height", this.getHeight(), indent);
-    str += MoneroUtils.kvLine("Timestamp", this.getTimestamp(), indent);
-    str += MoneroUtils.kvLine("Size", this.getSize(), indent);
-    str += MoneroUtils.kvLine("Weight", this.getWeight(), indent);
-    str += MoneroUtils.kvLine("Depth", this.getDepth(), indent);
-    str += MoneroUtils.kvLine("Difficulty", this.getDifficulty(), indent);
-    str += MoneroUtils.kvLine("Cumulative difficulty", this.getCumulativeDifficulty(), indent);
-    str += MoneroUtils.kvLine("Major version", this.getMajorVersion(), indent);
-    str += MoneroUtils.kvLine("Minor version", this.getMinorVersion(), indent);
-    str += MoneroUtils.kvLine("Nonce", this.getNonce(), indent);
-    str += MoneroUtils.kvLine("Miner tx id", this.getMinerTxId(), indent);
-    str += MoneroUtils.kvLine("Num txs", this.getNumTxs(), indent);
-    str += MoneroUtils.kvLine("Orphan status", this.getOrphanStatus(), indent);
-    str += MoneroUtils.kvLine("Prev id", this.getPrevId(), indent);
-    str += MoneroUtils.kvLine("Reward", this.getReward(), indent);
-    str += MoneroUtils.kvLine("Pow hash", this.getPowHash(), indent);
+    str += GenUtils.kvLine("Id", this.getId(), indent);
+    str += GenUtils.kvLine("Height", this.getHeight(), indent);
+    str += GenUtils.kvLine("Timestamp", this.getTimestamp(), indent);
+    str += GenUtils.kvLine("Size", this.getSize(), indent);
+    str += GenUtils.kvLine("Weight", this.getWeight(), indent);
+    str += GenUtils.kvLine("Depth", this.getDepth(), indent);
+    str += GenUtils.kvLine("Difficulty", this.getDifficulty(), indent);
+    str += GenUtils.kvLine("Cumulative difficulty", this.getCumulativeDifficulty(), indent);
+    str += GenUtils.kvLine("Major version", this.getMajorVersion(), indent);
+    str += GenUtils.kvLine("Minor version", this.getMinorVersion(), indent);
+    str += GenUtils.kvLine("Nonce", this.getNonce(), indent);
+    str += GenUtils.kvLine("Miner tx id", this.getMinerTxId(), indent);
+    str += GenUtils.kvLine("Num txs", this.getNumTxs(), indent);
+    str += GenUtils.kvLine("Orphan status", this.getOrphanStatus(), indent);
+    str += GenUtils.kvLine("Prev id", this.getPrevId(), indent);
+    str += GenUtils.kvLine("Reward", this.getReward(), indent);
+    str += GenUtils.kvLine("Pow hash", this.getPowHash(), indent);
     return str[str.length - 1] === "\n" ? str.slice(0, str.length - 1) : str  // strip last newline
   }
 }

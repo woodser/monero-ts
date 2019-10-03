@@ -189,7 +189,7 @@ class TestMoneroWalletsEqual {
     else {
       tgt.getOutgoingTransfer().setDestinations(src.getOutgoingTransfer().getDestinations());
       tgt.getOutgoingTransfer().setAmount(src.getOutgoingTransfer().getAmount());
-      tgt.getOutgoingTransfer().setNumSuggestedConfirmations(MoneroUtils.reconcile(src.getOutgoingTransfer().getNumSuggestedConfirmations(), tgt.getOutgoingTransfer().getNumSuggestedConfirmations(), undefined, undefined, true));  // suggested confirmations can grow with amount
+      tgt.getOutgoingTransfer().setNumSuggestedConfirmations(GenUtils.reconcile(src.getOutgoingTransfer().getNumSuggestedConfirmations(), tgt.getOutgoingTransfer().getNumSuggestedConfirmations(), undefined, undefined, true));  // suggested confirmations can grow with amount
     }
   }
   

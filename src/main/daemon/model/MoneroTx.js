@@ -441,36 +441,36 @@ class MoneroTx {
     }
     
     // otherwise merge tx fields
-    this.setId(MoneroUtils.reconcile(this.getId(), tx.getId()));
-    this.setVersion(MoneroUtils.reconcile(this.getVersion(), tx.getVersion()));
-    this.setPaymentId(MoneroUtils.reconcile(this.getPaymentId(), tx.getPaymentId()));
-    this.setFee(MoneroUtils.reconcile(this.getFee(), tx.getFee()));
-    this.setMixin(MoneroUtils.reconcile(this.getMixin(), tx.getMixin()));
-    this.setIsConfirmed(MoneroUtils.reconcile(this.isConfirmed(), tx.isConfirmed(), {resolveTrue: true}));
-    this.setDoNotRelay(MoneroUtils.reconcile(this.getDoNotRelay(), tx.getDoNotRelay(), {resolveTrue: false}));  // tx can become relayed
-    this.setIsRelayed(MoneroUtils.reconcile(this.isRelayed(), tx.isRelayed(), {resolveTrue: true}));      // tx can become relayed
-    this.setIsDoubleSpend(MoneroUtils.reconcile(this.isDoubleSpendSeen(), tx.isDoubleSpendSeen()));
-    this.setKey(MoneroUtils.reconcile(this.getKey(), tx.getKey()));
-    this.setFullHex(MoneroUtils.reconcile(this.getFullHex(), tx.getFullHex()));
-    this.setPrunedHex(MoneroUtils.reconcile(this.getPrunedHex(), tx.getPrunedHex()));
-    this.setPrunableHex(MoneroUtils.reconcile(this.getPrunableHex(), tx.getPrunableHex()));
-    this.setPrunableHash(MoneroUtils.reconcile(this.getPrunableHash(), tx.getPrunableHash()));
-    this.setSize(MoneroUtils.reconcile(this.getSize(), tx.getSize()));
-    this.setWeight(MoneroUtils.reconcile(this.getWeight(), tx.getWeight()));
-    this.setOutputIndices(MoneroUtils.reconcile(this.getOutputIndices(), tx.getOutputIndices()));
-    this.setMetadata(MoneroUtils.reconcile(this.getMetadata(), tx.getMetadata()));
-    this.setExtra(MoneroUtils.reconcile(this.getExtra(), tx.getExtra()));
-    this.setRctSignatures(MoneroUtils.reconcile(this.getRctSignatures(), tx.getRctSignatures()));
-    this.setRctSigPrunable(MoneroUtils.reconcile(this.getRctSigPrunable(), tx.getRctSigPrunable()));
-    this.setIsKeptByBlock(MoneroUtils.reconcile(this.isKeptByBlock(), tx.isKeptByBlock()));
-    this.setIsFailed(MoneroUtils.reconcile(this.isFailed(), tx.isFailed()));
-    this.setLastFailedHeight(MoneroUtils.reconcile(this.getLastFailedHeight(), tx.getLastFailedHeight()));
-    this.setLastFailedId(MoneroUtils.reconcile(this.getLastFailedId(), tx.getLastFailedId()));
-    this.setMaxUsedBlockHeight(MoneroUtils.reconcile(this.getMaxUsedBlockHeight(), tx.getMaxUsedBlockHeight()));
-    this.setMaxUsedBlockId(MoneroUtils.reconcile(this.getMaxUsedBlockId(), tx.getMaxUsedBlockId()));
-    this.setSignatures(MoneroUtils.reconcile(this.getSignatures(), tx.getSignatures()));
-    this.setUnlockTime(MoneroUtils.reconcile(this.getUnlockTime(), tx.getUnlockTime()));
-    this.setNumConfirmations(MoneroUtils.reconcile(this.getNumConfirmations(), tx.getNumConfirmations(), {resolveMax: true})); // num confirmations can increase
+    this.setId(GenUtils.reconcile(this.getId(), tx.getId()));
+    this.setVersion(GenUtils.reconcile(this.getVersion(), tx.getVersion()));
+    this.setPaymentId(GenUtils.reconcile(this.getPaymentId(), tx.getPaymentId()));
+    this.setFee(GenUtils.reconcile(this.getFee(), tx.getFee()));
+    this.setMixin(GenUtils.reconcile(this.getMixin(), tx.getMixin()));
+    this.setIsConfirmed(GenUtils.reconcile(this.isConfirmed(), tx.isConfirmed(), {resolveTrue: true}));
+    this.setDoNotRelay(GenUtils.reconcile(this.getDoNotRelay(), tx.getDoNotRelay(), {resolveTrue: false}));  // tx can become relayed
+    this.setIsRelayed(GenUtils.reconcile(this.isRelayed(), tx.isRelayed(), {resolveTrue: true}));      // tx can become relayed
+    this.setIsDoubleSpend(GenUtils.reconcile(this.isDoubleSpendSeen(), tx.isDoubleSpendSeen()));
+    this.setKey(GenUtils.reconcile(this.getKey(), tx.getKey()));
+    this.setFullHex(GenUtils.reconcile(this.getFullHex(), tx.getFullHex()));
+    this.setPrunedHex(GenUtils.reconcile(this.getPrunedHex(), tx.getPrunedHex()));
+    this.setPrunableHex(GenUtils.reconcile(this.getPrunableHex(), tx.getPrunableHex()));
+    this.setPrunableHash(GenUtils.reconcile(this.getPrunableHash(), tx.getPrunableHash()));
+    this.setSize(GenUtils.reconcile(this.getSize(), tx.getSize()));
+    this.setWeight(GenUtils.reconcile(this.getWeight(), tx.getWeight()));
+    this.setOutputIndices(GenUtils.reconcile(this.getOutputIndices(), tx.getOutputIndices()));
+    this.setMetadata(GenUtils.reconcile(this.getMetadata(), tx.getMetadata()));
+    this.setExtra(GenUtils.reconcile(this.getExtra(), tx.getExtra()));
+    this.setRctSignatures(GenUtils.reconcile(this.getRctSignatures(), tx.getRctSignatures()));
+    this.setRctSigPrunable(GenUtils.reconcile(this.getRctSigPrunable(), tx.getRctSigPrunable()));
+    this.setIsKeptByBlock(GenUtils.reconcile(this.isKeptByBlock(), tx.isKeptByBlock()));
+    this.setIsFailed(GenUtils.reconcile(this.isFailed(), tx.isFailed()));
+    this.setLastFailedHeight(GenUtils.reconcile(this.getLastFailedHeight(), tx.getLastFailedHeight()));
+    this.setLastFailedId(GenUtils.reconcile(this.getLastFailedId(), tx.getLastFailedId()));
+    this.setMaxUsedBlockHeight(GenUtils.reconcile(this.getMaxUsedBlockHeight(), tx.getMaxUsedBlockHeight()));
+    this.setMaxUsedBlockId(GenUtils.reconcile(this.getMaxUsedBlockId(), tx.getMaxUsedBlockId()));
+    this.setSignatures(GenUtils.reconcile(this.getSignatures(), tx.getSignatures()));
+    this.setUnlockTime(GenUtils.reconcile(this.getUnlockTime(), tx.getUnlockTime()));
+    this.setNumConfirmations(GenUtils.reconcile(this.getNumConfirmations(), tx.getNumConfirmations(), {resolveMax: true})); // num confirmations can increase
     
     // merge vins
     if (tx.getVins()) {
@@ -641,9 +641,9 @@ class MoneroTx {
       this.setReceivedTimestamp(undefined);
       this.setLastRelayedTimestamp(undefined);
     } else {
-      this.setInTxPool(MoneroUtils.reconcile(this.inTxPool(), tx.inTxPool(), {resolveTrue: true})); // unrelayed -> tx pool
-      this.setReceivedTimestamp(MoneroUtils.reconcile(this.getReceivedTimestamp(), tx.getReceivedTimestamp(), {resolveMax: false})); // take earliest receive time
-      this.setLastRelayedTimestamp(MoneroUtils.reconcile(this.getLastRelayedTimestamp(), tx.getLastRelayedTimestamp(), {resolveMax: true}));  // take latest relay time
+      this.setInTxPool(GenUtils.reconcile(this.inTxPool(), tx.inTxPool(), {resolveTrue: true})); // unrelayed -> tx pool
+      this.setReceivedTimestamp(GenUtils.reconcile(this.getReceivedTimestamp(), tx.getReceivedTimestamp(), {resolveMax: false})); // take earliest receive time
+      this.setLastRelayedTimestamp(GenUtils.reconcile(this.getLastRelayedTimestamp(), tx.getLastRelayedTimestamp(), {resolveMax: true}));  // take latest relay time
     }
     
     return this;  // for chaining
@@ -652,53 +652,53 @@ class MoneroTx {
   toString(indent = 0) {
     let str = "";
     str += GenUtils.getIndent(indent) + "=== TX ===\n";
-    str += MoneroUtils.kvLine("Tx ID: ", this.getId(), indent);
-    str += MoneroUtils.kvLine("Height: ", this.getHeight(), indent);
-    str += MoneroUtils.kvLine("Version", this.getVersion(), indent);
-    str += MoneroUtils.kvLine("Is miner tx", this.isMinerTx(), indent);
-    str += MoneroUtils.kvLine("Payment ID", this.getPaymentId(), indent);
-    str += MoneroUtils.kvLine("Fee", this.getFee(), indent);
-    str += MoneroUtils.kvLine("Mixin", this.getMixin(), indent);
-    str += MoneroUtils.kvLine("Do not relay", this.getDoNotRelay(), indent);
-    str += MoneroUtils.kvLine("Is relayed", this.isRelayed(), indent);
-    str += MoneroUtils.kvLine("Is confirmed", this.isConfirmed(), indent);
-    str += MoneroUtils.kvLine("In tx pool", this.inTxPool(), indent);
-    str += MoneroUtils.kvLine("Num confirmations", this.getNumConfirmations(), indent);
-    str += MoneroUtils.kvLine("Unlock time", this.getUnlockTime(), indent);
-    str += MoneroUtils.kvLine("Last relayed time", this.getLastRelayedTimestamp(), indent);
-    str += MoneroUtils.kvLine("Received time", this.getReceivedTimestamp(), indent);
-    str += MoneroUtils.kvLine("Is double spend", this.isDoubleSpendSeen(), indent);
-    str += MoneroUtils.kvLine("Key", this.getKey(), indent);
-    str += MoneroUtils.kvLine("Full hex", this.getFullHex(), indent);
-    str += MoneroUtils.kvLine("Pruned hex", this.getPrunedHex(), indent);
-    str += MoneroUtils.kvLine("Prunable hex", this.getPrunableHex(), indent);
-    str += MoneroUtils.kvLine("Prunable hash", this.getPrunableHash(), indent);
-    str += MoneroUtils.kvLine("Size", this.getSize(), indent);
-    str += MoneroUtils.kvLine("Weight", this.getWeight(), indent);
-    str += MoneroUtils.kvLine("Output indices", this.getOutputIndices(), indent);
-    str += MoneroUtils.kvLine("Metadata", this.getMetadata(), indent);
-    str += MoneroUtils.kvLine("Extra", this.getExtra(), indent);
-    str += MoneroUtils.kvLine("RCT signatures", this.getRctSignatures(), indent);
-    str += MoneroUtils.kvLine("RCT sig prunable", this.getRctSigPrunable(), indent);
-    str += MoneroUtils.kvLine("Kept by block", this.isKeptByBlock(), indent);
-    str += MoneroUtils.kvLine("Is failed", this.isFailed(), indent);
-    str += MoneroUtils.kvLine("Last failed height", this.getLastFailedHeight(), indent);
-    str += MoneroUtils.kvLine("Last failed id", this.getLastFailedId(), indent);
-    str += MoneroUtils.kvLine("Max used block height", this.getMaxUsedBlockHeight(), indent);
-    str += MoneroUtils.kvLine("Max used block id", this.getMaxUsedBlockId(), indent);
-    str += MoneroUtils.kvLine("Signatures", this.getSignatures(), indent);
+    str += GenUtils.kvLine("Tx ID: ", this.getId(), indent);
+    str += GenUtils.kvLine("Height: ", this.getHeight(), indent);
+    str += GenUtils.kvLine("Version", this.getVersion(), indent);
+    str += GenUtils.kvLine("Is miner tx", this.isMinerTx(), indent);
+    str += GenUtils.kvLine("Payment ID", this.getPaymentId(), indent);
+    str += GenUtils.kvLine("Fee", this.getFee(), indent);
+    str += GenUtils.kvLine("Mixin", this.getMixin(), indent);
+    str += GenUtils.kvLine("Do not relay", this.getDoNotRelay(), indent);
+    str += GenUtils.kvLine("Is relayed", this.isRelayed(), indent);
+    str += GenUtils.kvLine("Is confirmed", this.isConfirmed(), indent);
+    str += GenUtils.kvLine("In tx pool", this.inTxPool(), indent);
+    str += GenUtils.kvLine("Num confirmations", this.getNumConfirmations(), indent);
+    str += GenUtils.kvLine("Unlock time", this.getUnlockTime(), indent);
+    str += GenUtils.kvLine("Last relayed time", this.getLastRelayedTimestamp(), indent);
+    str += GenUtils.kvLine("Received time", this.getReceivedTimestamp(), indent);
+    str += GenUtils.kvLine("Is double spend", this.isDoubleSpendSeen(), indent);
+    str += GenUtils.kvLine("Key", this.getKey(), indent);
+    str += GenUtils.kvLine("Full hex", this.getFullHex(), indent);
+    str += GenUtils.kvLine("Pruned hex", this.getPrunedHex(), indent);
+    str += GenUtils.kvLine("Prunable hex", this.getPrunableHex(), indent);
+    str += GenUtils.kvLine("Prunable hash", this.getPrunableHash(), indent);
+    str += GenUtils.kvLine("Size", this.getSize(), indent);
+    str += GenUtils.kvLine("Weight", this.getWeight(), indent);
+    str += GenUtils.kvLine("Output indices", this.getOutputIndices(), indent);
+    str += GenUtils.kvLine("Metadata", this.getMetadata(), indent);
+    str += GenUtils.kvLine("Extra", this.getExtra(), indent);
+    str += GenUtils.kvLine("RCT signatures", this.getRctSignatures(), indent);
+    str += GenUtils.kvLine("RCT sig prunable", this.getRctSigPrunable(), indent);
+    str += GenUtils.kvLine("Kept by block", this.isKeptByBlock(), indent);
+    str += GenUtils.kvLine("Is failed", this.isFailed(), indent);
+    str += GenUtils.kvLine("Last failed height", this.getLastFailedHeight(), indent);
+    str += GenUtils.kvLine("Last failed id", this.getLastFailedId(), indent);
+    str += GenUtils.kvLine("Max used block height", this.getMaxUsedBlockHeight(), indent);
+    str += GenUtils.kvLine("Max used block id", this.getMaxUsedBlockId(), indent);
+    str += GenUtils.kvLine("Signatures", this.getSignatures(), indent);
     if (this.getVins()) {
-      str += MoneroUtils.kvLine("Vins", "", indent);
+      str += GenUtils.kvLine("Vins", "", indent);
       for (let i = 0; i < this.getVins().length; i++) {
-        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
+        str += GenUtils.kvLine(i + 1, "", indent + 1);
         str += this.getVins()[i].toString(indent + 2);
         str += '\n'
       }
     }
     if (this.getVouts()) {
-      str += MoneroUtils.kvLine("Vouts", "", indent);
+      str += GenUtils.kvLine("Vouts", "", indent);
       for (let i = 0; i < this.getVouts().length; i++) {
-        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
+        str += GenUtils.kvLine(i + 1, "", indent + 1);
         str += this.getVouts()[i].toString(indent + 2);
         str += '\n'
       }

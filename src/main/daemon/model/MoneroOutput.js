@@ -99,8 +99,8 @@ class MoneroOutput {
     else {
       if (this.getKeyImage() === undefined) this.setKeyImage(output.getKeyImage());
       else if (output.getKeyImage() !== undefined) this.getKeyImage().merge(output.getKeyImage());
-      this.setAmount(MoneroUtils.reconcile(this.getAmount(), output.getAmount()));
-      this.setIndex(MoneroUtils.reconcile(this.getIndex(), output.getIndex()));
+      this.setAmount(GenUtils.reconcile(this.getAmount(), output.getAmount()));
+      this.setIndex(GenUtils.reconcile(this.getIndex(), output.getIndex()));
     }
 
     return this;
@@ -109,13 +109,13 @@ class MoneroOutput {
   toString(indent = 0) {
     let str = "";
     if (this.getKeyImage()) {
-      str += MoneroUtils.kvLine("Key image", "", indent);
+      str += GenUtils.kvLine("Key image", "", indent);
       str += this.getKeyImage().toString(indent + 1) + "\n";
     }
-    str += MoneroUtils.kvLine("Amount", this.getAmount(), indent);
-    str += MoneroUtils.kvLine("Index", this.getIndex(), indent);
-    str += MoneroUtils.kvLine("Ring output indices", this.getRingOutputIndices(), indent);
-    str += MoneroUtils.kvLine("Stealth public key", this.getStealthPublicKey(), indent);
+    str += GenUtils.kvLine("Amount", this.getAmount(), indent);
+    str += GenUtils.kvLine("Index", this.getIndex(), indent);
+    str += GenUtils.kvLine("Ring output indices", this.getRingOutputIndices(), indent);
+    str += GenUtils.kvLine("Stealth public key", this.getStealthPublicKey(), indent);
     str === "" ? str : str.slice(0, str.length - 1);  // strip last newline
   }
 }

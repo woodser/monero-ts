@@ -165,7 +165,7 @@ class MoneroTxWallet extends MoneroTx {
     }
     
     // merge simple extensions
-    this.setNote(MoneroUtils.reconcile(this.getNote(), tx.getNote()));
+    this.setNote(GenUtils.reconcile(this.getNote(), tx.getNote()));
     
     return this;  // for chaining
   }
@@ -186,22 +186,22 @@ class MoneroTxWallet extends MoneroTx {
     
     // otherwise stringify all fields
     str += super.toString(indent) + "\n";
-    str += MoneroUtils.kvLine("Is incoming", this.isIncoming(), indent);
-    str += MoneroUtils.kvLine("Incoming amount", this.getIncomingAmount(), indent);
+    str += GenUtils.kvLine("Is incoming", this.isIncoming(), indent);
+    str += GenUtils.kvLine("Incoming amount", this.getIncomingAmount(), indent);
     if (this.getIncomingTransfers()) {
-      str += MoneroUtils.kvLine("Incoming transfers", "", indent);
+      str += GenUtils.kvLine("Incoming transfers", "", indent);
       for (let i = 0; i < this.getIncomingTransfers().length; i++) {
-        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
+        str += GenUtils.kvLine(i + 1, "", indent + 1);
         str += this.getIncomingTransfers()[i].toString(indent + 2) + "\n";
       }
     }
-    str += MoneroUtils.kvLine("Is outgoing", this.isOutgoing(), indent);
-    str += MoneroUtils.kvLine("Outgoing amount", this.getOutgoingAmount(), indent);
+    str += GenUtils.kvLine("Is outgoing", this.isOutgoing(), indent);
+    str += GenUtils.kvLine("Outgoing amount", this.getOutgoingAmount(), indent);
     if (this.getOutgoingTransfer()) {
-      str += MoneroUtils.kvLine("Outgoing transfer", "", indent);
+      str += GenUtils.kvLine("Outgoing transfer", "", indent);
       str += this.getOutgoingTransfer().toString(indent + 1) + "\n";
     }
-    str += MoneroUtils.kvLine("Note: ", this.getNote(), indent);
+    str += GenUtils.kvLine("Note: ", this.getNote(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
   

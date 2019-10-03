@@ -53,9 +53,9 @@ class MoneroTxSet {
     if (this === txSet) return this;
     
     // merge sets
-    this.setMultisigTxHex(MoneroUtils.reconcile(this.getMultisigTxHex(), txSet.getMultisigTxHex()));
-    this.setUnsignedTxHex(MoneroUtils.reconcile(this.getUnsignedTxHex(), txSet.getUnsignedTxHex()));
-    this.setSignedTxHex(MoneroUtils.reconcile(this.getSignedTxHex(), txSet.getSignedTxHex()));
+    this.setMultisigTxHex(GenUtils.reconcile(this.getMultisigTxHex(), txSet.getMultisigTxHex()));
+    this.setUnsignedTxHex(GenUtils.reconcile(this.getUnsignedTxHex(), txSet.getUnsignedTxHex()));
+    this.setSignedTxHex(GenUtils.reconcile(this.getSignedTxHex(), txSet.getSignedTxHex()));
     
     // merge txs
     if (txSet.getTxs() !== undefined) {
@@ -70,11 +70,11 @@ class MoneroTxSet {
   
   toString(indent = 0) {
     let str = "";
-    str += MoneroUtils.kvLine("Multisig tx hex: ", getMultisigTxHex(), indent);
-    str += MoneroUtils.kvLine("Unsigned tx hex: ", getUnsignedTxHex(), indent);
-    str += MoneroUtils.kvLine("Signed tx hex: ", getSignedTxHex(), indent);
+    str += GenUtils.kvLine("Multisig tx hex: ", getMultisigTxHex(), indent);
+    str += GenUtils.kvLine("Unsigned tx hex: ", getUnsignedTxHex(), indent);
+    str += GenUtils.kvLine("Signed tx hex: ", getSignedTxHex(), indent);
     if (getTxs() !== undefined) {
-      str += MoneroUtils.kvLine("Txs", "", indent);
+      str += GenUtils.kvLine("Txs", "", indent);
       for (let tx of getTxs()) {
         str += tx.toString(indent + 1) + "\n";
       }
