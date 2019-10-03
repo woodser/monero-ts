@@ -1,4 +1,5 @@
 TODO
+gen_utils.h and monero_utils.h should not depend on monero_wallet.h
 add to ecosystem?
 monero_wallet.cpp move utilities in monero_namespace to be private
 polish model: no boost::optional<shared_ptr>? no boost::optional<string>? etc
