@@ -1,5 +1,5 @@
-const MoneroDaemon = require("../main/daemon/MoneroDaemon");
-const MoneroWallet = require("../main/wallet/MoneroWallet")
+const MoneroDaemon = require("../main/js/daemon/MoneroDaemon");
+const MoneroWallet = require("../main/js/wallet/MoneroWallet")
 
 // test constants
 const MIXIN = 11;

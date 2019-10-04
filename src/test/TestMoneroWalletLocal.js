@@ -1,4 +1,4 @@
-const MoneroWalletLocal = require("../main/wallet/MoneroWalletLocal");
+const MoneroWalletLocal = require("../main/js/wallet/MoneroWalletLocal");
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
 
 /**

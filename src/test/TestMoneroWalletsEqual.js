@@ -1,4 +1,4 @@
-const MoneroWallet = require("../main/wallet/MoneroWallet");
+const MoneroWallet = require("../main/js/wallet/MoneroWallet");
 
 /**
  * Compares two wallets for equality using only on-chain data.

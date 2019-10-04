@@ -1,6 +1,6 @@
-const MoneroWalletLocal = require("../../main/wallet/MoneroWalletLocal");
-const MoneroWalletRpc = require("../../main/wallet/MoneroWalletRpc");
-const MoneroDaemonRpc = require("../../main/daemon/MoneroDaemonRpc");
+const MoneroWalletLocal = require("../../main/js/wallet/MoneroWalletLocal");
+const MoneroWalletRpc = require("../../main/js/wallet/MoneroWalletRpc");
+const MoneroDaemonRpc = require("../../main/js/daemon/MoneroDaemonRpc");
 
 const TxPoolWalletTracker = require("./TxPoolWalletTracker");
 

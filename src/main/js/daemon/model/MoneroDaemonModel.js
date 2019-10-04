@@ -1,7 +1,7 @@
 module.exports = function() {
   this.assert = require("assert");
   this.GenUtils = require("../../utils/GenUtils");
-  this.BigInteger = require("../../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+  this.BigInteger = require("../../../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
   this.Filter = require("../../utils/Filter");
   this.MoneroError = require("../../utils/MoneroError");
   this.MoneroUtils = require("../../utils/MoneroUtils");

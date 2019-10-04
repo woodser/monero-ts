@@ -1,4 +1,4 @@
-const BooleanSet = require("../main/utils/BooleanSet");
+const BooleanSet = require("../main/js/utils/BooleanSet");
 
 const MAX_INDEX = 10000;       // maximum index to set
 const NUM_SETS = 5000;         // number of sets within the maximum index

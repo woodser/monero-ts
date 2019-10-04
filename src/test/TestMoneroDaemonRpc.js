@@ -1,5 +1,5 @@
-const MoneroDaemonRpc = require("../main/daemon/MoneroDaemonRpc");
-const MoneroWalletLocal = require("../main/wallet/MoneroWalletLocal");
+const MoneroDaemonRpc = require("../main/js/daemon/MoneroDaemonRpc");
+const MoneroWalletLocal = require("../main/js/wallet/MoneroWalletLocal");
 
 // context for testing binary blocks
 // TODO: binary blocks have inconsistent client-side pruning

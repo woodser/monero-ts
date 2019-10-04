@@ -1,5 +1,5 @@
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
-const MoneroWalletRpc = require("../main/wallet/MoneroWalletRpc");
+const MoneroWalletRpc = require("../main/js/wallet/MoneroWalletRpc");
 
 /**
  * Tests the Monero Wallet RPC client and server.
