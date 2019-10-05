@@ -1,6 +1,6 @@
 
 /**
- * Implements a Monero wallet using WebAssembly to the Monero C++ library.
+ * Implements a Monero wallet using WebAssembly to bridge to a C++ wallet.
  */
 class MoneroWalletWasm {
   
