@@ -1,6 +1,6 @@
 #include <iostream>
 #include "monero_wallet_wasm_bridge.h"
-#include "monero_wallet_dummy.h"
+#include "wallet/monero_wallet_dummy.h"
 
 using namespace std;
 using namespace monero_wallet_wasm_bridge;

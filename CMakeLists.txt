@@ -5,6 +5,8 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 project(monero-cpp-library-wasm)
 
 include_directories("src/cpp")
+set(MONERO_CPP_LIBRARY "external/monero-cpp-library")
+include_directories("${MONERO_CPP_LIBRARY}/src")
 
 set(
     SRC_FILES
@@ -12,7 +14,8 @@ set(
     src/main/cpp/index.cpp
     #
     src/main/cpp/monero_wallet_wasm_bridge.cpp
-    src/main/cpp/monero_wallet_dummy.cpp
+    #
+    external/monero-cpp-library/src/wallet/monero_wallet_dummy.cpp
 )
 
 set (
