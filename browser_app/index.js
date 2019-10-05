@@ -7,9 +7,9 @@
 "use strict"
 
 // import what you want to use
-const MoneroDaemonRpc = require("../src/main/daemon/MoneroDaemonRpc");
-const MoneroWalletRpc = require("../src/main/wallet/MoneroWalletRpc");
-const MoneroWalletLocal = require("../src/main/wallet/MoneroWalletLocal");
+const MoneroDaemonRpc = require("../src/main/js/daemon/MoneroDaemonRpc");
+const MoneroWalletRpc = require("../src/main/js/wallet/MoneroWalletRpc");
+const MoneroWalletLocal = require("../src/main/js/wallet/MoneroWalletLocal");
 
 // start the application
 startApp();
