@@ -4,9 +4,38 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 project(monero-cpp-library-wasm)
 
+#############
+# System
+#############
+
 include_directories("src/cpp")
 set(MONERO_CPP_LIBRARY "external/monero-cpp-library")
 include_directories("${MONERO_CPP_LIBRARY}/src")
+
+set(MONERO_CPP "external/monero-cpp-library")
+set(MONERO_CPP_SRC "${MONERO_CPP}/src")
+set(MONERO_CORE ${MONERO_CPP}/external/monero-core)
+set(MONERO_CORE_SRC "${MONERO_CORE}/src")
+set(BOOST ${MONERO_CPP}/external/boost-sdk)
+
+# header includes
+#include_directories("$ENV{JAVA_HOME}")
+#include_directories("$ENV{JAVA_HOME}/include")
+#include_directories("$ENV{JAVA_HOME}/include/darwin")
+include_directories("${MONERO_CPP}/external/libsodium/include/sodium")
+include_directories("${MONERO_CPP}/external/openssl-sdk/include")
+include_directories("${MONERO_CPP_SRC}/")
+include_directories("${MONERO_CORE}/contrib/epee/include")
+include_directories("${MONERO_CORE}/external/")
+include_directories("${MONERO_CORE}/external/easylogging++")
+include_directories("${MONERO_CORE_SRC}/")
+include_directories("${MONERO_CORE_SRC}/wallet")
+include_directories("${MONERO_CORE_SRC}/wallet/api")
+include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")
+include_directories(${BOOST})
+
+set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/external-libs)
+message(STATUS EXTERNAL_LIBS_DIR : ${EXTERNAL_LIBS_DIR})
 
 set(
     SRC_FILES
@@ -15,6 +44,7 @@ set(
     #
     src/main/cpp/monero_wallet_wasm_bridge.cpp
     #
+    #external/monero-cpp-library/src/wallet/monero_wallet.cpp
     external/monero-cpp-library/src/wallet/monero_wallet_dummy.cpp
 )
 
@@ -25,7 +55,7 @@ set (
     # TODO? does EXPORT_NAME need to be the same for both targets? (or should it be set per-target with …_WASM, …_ASMJS?)
     "-Wall -std=c++11 \
 --bind -s MODULARIZE=1 \
--s 'EXPORT_NAME=\"WasmSample\"' \
+-s 'EXPORT_NAME=\"monero-cpp-library\"' \
 --llvm-lto 1 \
 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 -s ASSERTIONS=2 \
@@ -78,14 +108,32 @@ set(
 message(STATUS "EMCC_LINKER_FLAGS__WASM ${EMCC_LINKER_FLAGS__WASM}")
 message(STATUS "EMCC_LINKER_FLAGS__ASMJS ${EMCC_LINKER_FLAGS__ASMJS}")
 #
+
+#add_library(ssl STATIC IMPORTED)
+#set_target_properties(ssl PROPERTIES IMPORTED_LOCATION
+#    ${MONERO_CORE}/external-libs/openssl/libssl.a)
+
+######################
+# monero-cpp
+######################
+
+##include_directories(${BOOST})
+#add_library(monero-cpp STATIC IMPORTED)
+#set_target_properties(monero-cpp PROPERTIES IMPORTED_LOCATION
+#        ${EXTERNAL_LIBS_DIR}/libmonero-cpp.a)
+
 add_executable(monero_cpp_library_WASM ${SRC_FILES})
 #add_executable(monero_cpp_library_ASMJS ${SRC_FILES})
 #
+
+#SET(CMAKE_EXECUTABLE_SUFFIX ".bc")
+
 set_target_properties(monero_cpp_library_WASM PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__WASM}")
 #set_target_properties(monero_cpp_library_ASMJS PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__ASMJS}")
 
 target_link_libraries(
     monero_cpp_library_WASM
+    #monero-cpp
 )
 #target_link_libraries(
 #    monero_cpp_library_ASMJS
