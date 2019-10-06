@@ -16,12 +16,15 @@ startApp();
 async function startApp() {
   console.log("Starting app...");
   
-  // import wasm wallet
+  // import wasm wallet which exports a promise in order to load the WebAssembly module
   const MoneroWalletWasm = await require("../src/main/js/wallet/MoneroWalletWasm")();
   
   // demonstrate wasm wallet
-  let wallet = new MoneroWalletWasm();
-  wallet.dummyMethod();
+  let walletWasm = MoneroWalletWasm.createWalletRandom("tempPath", "supersecretpassword123", 0, "http://localhost:38081", "superuser", "abctesting123", "English");  // TODO: proper network type
+  walletWasm.dummyMethod();
+  
+//  let wallet = new MoneroWalletWasm();
+//  wallet.dummyMethod();
   
   // connect to monero-daemon-rpc
   let daemon = new MoneroDaemonRpc({uri: "http://localhost:38081", user: "superuser", pass: "abctesting123"});

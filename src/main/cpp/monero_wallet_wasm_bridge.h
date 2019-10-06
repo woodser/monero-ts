@@ -10,7 +10,9 @@ using namespace std;
 
 namespace monero_wallet_wasm_bridge
 {
-  int new_monero_wallet_dummy();
+
+  int create_wallet_random(const string& path, const string& password, int network_type, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& language);
+  int create_wallet_dummy();
   void dummy_method(int handle);
 }
 
