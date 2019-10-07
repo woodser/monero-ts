@@ -19,7 +19,7 @@ set(MONERO_CPP_SRC "${MONERO_CPP}/src")
 # headers
 include_directories("${MONERO_CPP}/external/libsodium/include/sodium")
 include_directories("${MONERO_CPP}/external/openssl-sdk/include")
-include_directories("${MONERO_CPP_SRC}/")
+include_directories("${MONERO_CPP_SRC}")
 
 #############
 # Boost
@@ -74,7 +74,7 @@ set(
     #
     src/main/cpp/monero_wallet_wasm_bridge.cpp
     #
-    #external/monero-cpp-library/src/wallet/monero_wallet.cpp
+    external/monero-cpp-library/src/wallet/monero_wallet.cpp
     external/monero-cpp-library/src/wallet/monero_wallet_dummy.cpp
 )
 
