@@ -5,18 +5,41 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 project(monero-cpp-library-wasm)
 
 #############
+# Boost
+#############
+
+set(BOOST ${CMAKE_SOURCE_DIR}/build/boost)
+include_directories("${BOOST}")
+include_directories("${BOOST}/include") # must exist already - run bin/build-boost-emscripten.sh
+
+add_library(boost_chrono STATIC IMPORTED)
+set_target_properties(
+    boost_chrono PROPERTIES IMPORTED_LOCATION
+    ${BOOST}/lib/libboost_chrono.a
+)
+
+add_library(boost_system STATIC IMPORTED)
+set_target_properties(
+    boost_system PROPERTIES IMPORTED_LOCATION
+    ${BOOST}/lib/libboost_system.a
+)
+
+add_library(boost_thread STATIC IMPORTED)
+set_target_properties(
+    boost_thread PROPERTIES IMPORTED_LOCATION
+    ${BOOST}/lib/libboost_thread.a
+)
+
+#############
 # System
 #############
 
 include_directories("src/cpp")
-
 set(MONERO_CPP "external/monero-cpp-library")
 set(MONERO_CPP_SRC "${MONERO_CPP}/src")
 
 set(MONERO_CORE ${MONERO_CPP}/external/monero-core)
 set(MONERO_CORE_SRC "${MONERO_CORE}/src")
-
-set(BOOST ${MONERO_CPP}/external/boost-sdk)
 
 # header includes
 include_directories("${MONERO_CPP}/external/libsodium/include/sodium")
@@ -29,7 +52,6 @@ include_directories("${MONERO_CORE_SRC}/")
 include_directories("${MONERO_CORE_SRC}/wallet")
 include_directories("${MONERO_CORE_SRC}/wallet/api")
 include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")
-include_directories(${BOOST})
 
 set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/external-libs)
 message(STATUS EXTERNAL_LIBS_DIR : ${EXTERNAL_LIBS_DIR})
@@ -130,7 +152,10 @@ set_target_properties(monero_cpp_library_WASM PROPERTIES LINK_FLAGS "${EMCC_LINK
 
 target_link_libraries(
     monero_cpp_library_WASM
-    #monero-cpp
+    #
+    boost_chrono
+    boost_system
+    boost_thread
 )
 #target_link_libraries(
 #    monero_cpp_library_ASMJS
