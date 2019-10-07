@@ -9,19 +9,16 @@ project(monero-cpp-library-wasm)
 #############
 
 include_directories("src/cpp")
-set(MONERO_CPP_LIBRARY "external/monero-cpp-library")
-include_directories("${MONERO_CPP_LIBRARY}/src")
 
 set(MONERO_CPP "external/monero-cpp-library")
 set(MONERO_CPP_SRC "${MONERO_CPP}/src")
+
 set(MONERO_CORE ${MONERO_CPP}/external/monero-core)
 set(MONERO_CORE_SRC "${MONERO_CORE}/src")
+
 set(BOOST ${MONERO_CPP}/external/boost-sdk)
 
 # header includes
-#include_directories("$ENV{JAVA_HOME}")
-#include_directories("$ENV{JAVA_HOME}/include")
-#include_directories("$ENV{JAVA_HOME}/include/darwin")
 include_directories("${MONERO_CPP}/external/libsodium/include/sodium")
 include_directories("${MONERO_CPP}/external/openssl-sdk/include")
 include_directories("${MONERO_CPP_SRC}/")
@@ -55,7 +52,7 @@ set (
     # TODO? does EXPORT_NAME need to be the same for both targets? (or should it be set per-target with …_WASM, …_ASMJS?)
     "-Wall -std=c++11 \
 --bind -s MODULARIZE=1 \
--s 'EXPORT_NAME=\"monero-cpp-library\"' \
+-s 'EXPORT_NAME=\"monero_cpp_library\"' \
 --llvm-lto 1 \
 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 -s ASSERTIONS=2 \
