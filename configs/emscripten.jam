@@ -1,0 +1,24 @@
+#
+# REFERENCES:
+#
+# 1) https://groups.google.com/forum/#!topic/emscripten-discuss/7934m6EY3Bk
+# 2) http://border-town.com/blog.php?id=2013-08-11_23_45_43
+#
+
+import os ;
+local EMSCRIPTEN = [ os.environ EMSCRIPTEN ] ;
+
+using clang : emscripten
+:
+	emcc -v -s USE_ZLIB=1
+:
+	<root>$(EMSCRIPTEN)
+	<archiver>$(EMSCRIPTEN)/emar
+	<ranlib>$(EMSCRIPTEN)/emranlib
+	<linker>$(EMSCRIPTEN)/emlink
+	<cxxflags>-std=c++11
+;
+
+
+import type : change-generated-target-suffix ;
+type.change-generated-target-suffix EXE : <toolset-clang:version>emscripten : js ;
