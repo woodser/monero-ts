@@ -4,6 +4,23 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 project(monero-cpp-library-wasm)
 
+##############
+# C++ bridge
+##############
+include_directories("src/cpp")
+
+#####################
+# monero-cpp-library
+#####################
+
+set(MONERO_CPP "external/monero-cpp-library")
+set(MONERO_CPP_SRC "${MONERO_CPP}/src")
+
+# headers
+include_directories("${MONERO_CPP}/external/libsodium/include/sodium")
+include_directories("${MONERO_CPP}/external/openssl-sdk/include")
+include_directories("${MONERO_CPP_SRC}/")
+
 #############
 # Boost
 #############
@@ -30,21 +47,14 @@ set_target_properties(
     ${BOOST}/lib/libboost_thread.a
 )
 
-#############
-# System
-#############
-
-include_directories("src/cpp")
-set(MONERO_CPP "external/monero-cpp-library")
-set(MONERO_CPP_SRC "${MONERO_CPP}/src")
+##################
+# monero-project
+##################
 
 set(MONERO_CORE ${MONERO_CPP}/external/monero-core)
 set(MONERO_CORE_SRC "${MONERO_CORE}/src")
 
-# header includes
-include_directories("${MONERO_CPP}/external/libsodium/include/sodium")
-include_directories("${MONERO_CPP}/external/openssl-sdk/include")
-include_directories("${MONERO_CPP_SRC}/")
+# headers
 include_directories("${MONERO_CORE}/contrib/epee/include")
 include_directories("${MONERO_CORE}/external/")
 include_directories("${MONERO_CORE}/external/easylogging++")
@@ -53,8 +63,9 @@ include_directories("${MONERO_CORE_SRC}/wallet")
 include_directories("${MONERO_CORE_SRC}/wallet/api")
 include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")
 
-set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/external-libs)
-message(STATUS EXTERNAL_LIBS_DIR : ${EXTERNAL_LIBS_DIR})
+####################
+# Source files
+####################
 
 set(
     SRC_FILES
@@ -67,6 +78,9 @@ set(
     external/monero-cpp-library/src/wallet/monero_wallet_dummy.cpp
 )
 
+####################
+# Build parameters
+####################
 set (
     EMCC_LINKER_FLAGS___BASE
     #unsure if the -I...boost..include is necessary here due to include above
@@ -132,24 +146,13 @@ message(STATUS "EMCC_LINKER_FLAGS__ASMJS ${EMCC_LINKER_FLAGS__ASMJS}")
 #set_target_properties(ssl PROPERTIES IMPORTED_LOCATION
 #    ${MONERO_CORE}/external-libs/openssl/libssl.a)
 
-######################
-# monero-cpp
-######################
+####################
+# Build targets
+####################
 
-##include_directories(${BOOST})
-#add_library(monero-cpp STATIC IMPORTED)
-#set_target_properties(monero-cpp PROPERTIES IMPORTED_LOCATION
-#        ${EXTERNAL_LIBS_DIR}/libmonero-cpp.a)
-
+# WASM
 add_executable(monero_cpp_library_WASM ${SRC_FILES})
-#add_executable(monero_cpp_library_ASMJS ${SRC_FILES})
-#
-
-#SET(CMAKE_EXECUTABLE_SUFFIX ".bc")
-
 set_target_properties(monero_cpp_library_WASM PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__WASM}")
-#set_target_properties(monero_cpp_library_ASMJS PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__ASMJS}")
-
 target_link_libraries(
     monero_cpp_library_WASM
     #
@@ -157,6 +160,13 @@ target_link_libraries(
     boost_system
     boost_thread
 )
+
+# ASMJS
+#add_executable(monero_cpp_library_ASMJS ${SRC_FILES})
+#set_target_properties(monero_cpp_library_ASMJS PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__ASMJS}")
 #target_link_libraries(
 #    monero_cpp_library_ASMJS
 #)
+
+# build to bitcode instead of wasm
+#SET(CMAKE_EXECUTABLE_SUFFIX ".bc")	
