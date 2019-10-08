@@ -18,9 +18,9 @@ fi
 cd "$SRC_PATH"
 
 #linux-generic32 \
+#darwin64-x86_64-cc \
 
-emconfigure ./Configure \
-	linux-generic32 \
+emconfigure ./config \
 	-no-asm no-ssl2 no-ssl3 no-comp no-engine no-deprecated shared no-dso \
 	--prefix="$INSTALL_PATH" \
 	--openssldir="$INSTALL_PATH" \
@@ -34,6 +34,11 @@ fi
 # now must manually tweak the Makefile as I'm not sure how to do this via ./Configure
 to_cross_compile_line='CROSS_COMPILE='
 sed -i.bak 's/^CROSS_COMPILE=\/.*$/'"$to_cross_compile_line"'/' Makefile #must match whole line with start char or we might do it repeatedly .. though this particular one would be idempotent anyway
+# ^-- not 'g' b/c we only expect one
+
+# manually remove 'CNF_CFLAGS=-arch x86_64' property
+to_cnf_cflags_line='CNF_CFLAGS='
+sed -i.bak 's/^CNF_CFLAGS=-arch x86_64/'"$to_cnf_cflags_line"'/' Makefile #must match whole line with start char or we might do it repeatedly .. though this particular one would be idempotent anyway
 # ^-- not 'g' b/c we only expect one
 
 to_defined_atomics_line='\&\& !defined(__STDC_NO_ATOMICS__) \&\& !defined(__EMSCRIPTEN__)'
