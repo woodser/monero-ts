@@ -452,11 +452,13 @@ string monero_utils::serialize(const boost::property_tree::ptree& node) {
 }
 
 // TODO: switch deserializes in this utils class to use this deserialize util
-boost::property_tree::ptree monero_utils::deserialize(const string& json) {
+void monero_utils::deserialize(const string& json, boost::property_tree::ptree& root) {
   std::istringstream iss = json.empty() ? std::istringstream() : std::istringstream(json);
-  boost::property_tree::ptree node;
-  boost::property_tree::read_json(iss, node);
-  return node;
+  try {
+    boost::property_tree::read_json(iss, root);
+  } catch (std::exception const& e) {
+    throw runtime_error("Invalid JSON");
+  }
 }
 
 boost::property_tree::ptree monero_utils::to_property_tree(const vector<string>& strs) {
