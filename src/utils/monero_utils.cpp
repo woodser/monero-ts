@@ -54,6 +54,7 @@
 #include "rpc/core_rpc_server_commands_defs.h"
 #include "storages/portable_storage_template_helper.h"
 #include "cryptonote_basic/cryptonote_format_utils.h"
+#include "string_tools.h"
 
 using namespace std;
 using namespace cryptonote;
