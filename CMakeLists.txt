@@ -71,12 +71,56 @@ set(
     SRC_FILES
     #
     src/main/cpp/index.cpp
-    #
     src/main/cpp/monero_wallet_wasm_bridge.cpp
     src/main/cpp/monero_utils_wasm_bridge.cpp
     #
-    #external/monero-cpp-library/src/wallet/monero_wallet.cpp
-    external/monero-cpp-library/src/wallet/monero_wallet_dummy.cpp
+    ${MONERO_CPP_SRC}/utils/monero_utils.cpp
+    ${MONERO_CPP_SRC}/wallet/monero_wallet_dummy.cpp
+    #${MONERO_CPP_SRC}/wallet/monero_wallet.cpp
+    #
+    ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
+    ${MONERO_CORE_SRC}/cryptonote_basic/account.cpp
+    ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
+    ${MONERO_CORE_SRC}/crypto/crypto.cpp
+    ${MONERO_CORE_SRC}/crypto/hash.c
+    ${MONERO_CORE_SRC}/crypto/slow-hash.c
+    ${MONERO_CORE_SRC}/crypto/oaes_lib.c
+    ${MONERO_CORE_SRC}/crypto/crypto-ops.c
+    ${MONERO_CORE_SRC}/crypto/crypto-ops-data.c
+    ${MONERO_CORE_SRC}/crypto/keccak.c
+    ${MONERO_CORE_SRC}/crypto/chacha.c
+    ${MONERO_CORE_SRC}/crypto/random.c
+    ${MONERO_CORE_SRC}/crypto/aesb.c
+    ${MONERO_CORE_SRC}/crypto/tree-hash.c
+    ${MONERO_CORE_SRC}/crypto/hash-extra-blake.c
+    ${MONERO_CORE_SRC}/crypto/blake256.c
+    ${MONERO_CORE_SRC}/crypto/hash-extra-groestl.c
+    ${MONERO_CORE_SRC}/crypto/hash-extra-jh.c
+    ${MONERO_CORE_SRC}/crypto/hash-extra-skein.c
+    ${MONERO_CORE_SRC}/crypto/groestl.c
+    ${MONERO_CORE_SRC}/crypto/jh.c
+    ${MONERO_CORE_SRC}/crypto/skein.c
+    ${MONERO_CORE_SRC}/cryptonote_core/cryptonote_tx_utils.cpp
+    ${MONERO_CORE_SRC}/common/base58.cpp
+    ${MONERO_CORE_SRC}/common/threadpool.cpp
+    ${MONERO_CORE_SRC}/common/aligned.c
+    #${MONERO_CORE_SRC}/common/util.cpp
+    ${MONERO_CORE}/contrib/epee/src/hex.cpp
+    ${MONERO_CORE}/contrib/epee/src/string_tools.cpp
+    ${MONERO_CORE}/contrib/epee/src/memwipe.c
+    ${MONERO_CORE}/contrib/epee/src/mlocker.cpp
+    ${MONERO_CORE}/contrib/epee/src/wipeable_string.cpp
+    ${MONERO_CORE_SRC}/device/device.cpp
+    ${MONERO_CORE_SRC}/device/device_default.cpp
+    ${MONERO_CORE_SRC}/ringct/rctOps.cpp
+    ${MONERO_CORE_SRC}/ringct/rctTypes.cpp
+    ${MONERO_CORE_SRC}/ringct/rctCryptoOps.c
+    ${MONERO_CORE_SRC}/ringct/rctSigs.cpp
+    ${MONERO_CORE_SRC}/ringct/bulletproofs.cc
+    ${MONERO_CORE_SRC}/ringct/multiexp.cc
+    ${MONERO_CORE_SRC}/mnemonics/electrum-words.cpp
+    ${MONERO_CORE_SRC}/vtlogger/logger.cpp
+    #${MONERO_CORE}/contrib/libsodium/src/crypto_verify/verify.c
 )
 
 ####################
