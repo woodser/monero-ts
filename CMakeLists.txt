@@ -73,8 +73,9 @@ set(
     src/main/cpp/index.cpp
     #
     src/main/cpp/monero_wallet_wasm_bridge.cpp
+    src/main/cpp/monero_utils_wasm_bridge.cpp
     #
-    external/monero-cpp-library/src/wallet/monero_wallet.cpp
+    #external/monero-cpp-library/src/wallet/monero_wallet.cpp
     external/monero-cpp-library/src/wallet/monero_wallet_dummy.cpp
 )
 

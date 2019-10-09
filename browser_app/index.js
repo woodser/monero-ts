@@ -23,8 +23,9 @@ async function startApp() {
   let walletWasm = MoneroWalletWasm.createWalletRandom("tempPath", "supersecretpassword123", 0, "http://localhost:38081", "superuser", "abctesting123", "English");  // TODO: proper network type
   walletWasm.dummyMethod();
   
-//  let wallet = new MoneroWalletWasm();
-//  wallet.dummyMethod();
+  // demonstrate using core utilities through web assembly
+  const MoneroUtilsWasm = await require("../src/main/js/utils/MoneroUtilsWasm")();
+  MoneroUtilsWasm.dummyMethod();
   
   // connect to monero-daemon-rpc
   let daemon = new MoneroDaemonRpc({uri: "http://localhost:38081", user: "superuser", pass: "abctesting123"});
