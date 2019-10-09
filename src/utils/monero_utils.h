@@ -84,6 +84,8 @@ namespace monero_utils
 
   string serialize(const boost::property_tree::ptree& node);
 
+  boost::property_tree::ptree deserialize(const string& json);
+
   /**
    * Convert a Monero Core cryptonote::block to a block in this library's native model.
    *

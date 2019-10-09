@@ -451,6 +451,13 @@ string monero_utils::serialize(const boost::property_tree::ptree& node) {
   return str.substr(0, str.size() - 1); // strip newline
 }
 
+boost::property_tree::ptree monero_utils::deserialize(const string& json) {
+  std::istringstream iss = json.empty() ? std::istringstream() : std::istringstream(json);
+  boost::property_tree::ptree node;
+  boost::property_tree::read_json(iss, node);
+  return node;
+}
+
 boost::property_tree::ptree monero_utils::to_property_tree(const vector<string>& strs) {
   boost::property_tree::ptree strsNode;
   for (const auto& str : strs)  {
