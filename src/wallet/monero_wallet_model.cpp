@@ -50,7 +50,7 @@
  * Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
  */
 
-#include "monero_wallet.h"
+#include "monero_wallet_model.h"
 
 #include "utils/gen_utils.h"
 #include "utils/monero_utils.h"
