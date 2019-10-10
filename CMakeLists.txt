@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.4.1)
 
+project(monero-cpp-library-wasm CXX)
+
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-project(monero-cpp-library-wasm)
+#find_package(Threads)
+#find_package(Backtrace)
 
 ##############
 # C++ bridge
@@ -55,9 +58,24 @@ set(MONERO_CORE ${MONERO_CPP}/external/monero-core)
 set(MONERO_CORE_SRC "${MONERO_CORE}/src")
 
 # headers
+include_directories("${MONERO_CORE_SRC}/common")
+include_directories("${MONERO_CORE_SRC}/vtlogger")
+include_directories("${MONERO_CORE_SRC}/crypto")
+include_directories("${MONERO_CORE_SRC}/cryptonote_basic")
+include_directories("${MONERO_CORE_SRC}/multisig")
+include_directories("${MONERO_CORE_SRC}/cryptonote_core")
+include_directories("${MONERO_CORE_SRC}/cryptonote_protocol")
+include_directories("${MONERO_CORE_SRC}/wallet")
+include_directories("${MONERO_CORE_SRC}/rpc")
+include_directories("${MONERO_CORE_SRC}/mnemonics")
+include_directories("${MONERO_CORE_SRC}/contrib/libsodium/include") # support sodium/… paths
+include_directories("${MONERO_CORE_SRC}/contrib/libsodium/include/sodium")
+
+
 include_directories("${MONERO_CORE}/contrib/epee/include")
 include_directories("${MONERO_CORE}/external/")
-include_directories("${MONERO_CORE}/external/easylogging++")
+#include_directories("${MONERO_CORE}/external/easylogging++")
+include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 include_directories("${MONERO_CORE_SRC}/")
 include_directories("${MONERO_CORE_SRC}/wallet")
 include_directories("${MONERO_CORE_SRC}/wallet/api")
@@ -78,7 +96,10 @@ set(
     ${MONERO_CPP_SRC}/wallet/monero_wallet_dummy.cpp
     #${MONERO_CPP_SRC}/wallet/monero_wallet.cpp
     #
-    #[[	--- START BLOCK COMMENT ---
+    #${MONERO_CORE}/external/easylogging++/easylogging++.cc
+    ${MONERO_CORE_SRC}/vtlogger/logger.cpp
+    #
+    ###[[	--- START BLOCK COMMENT ---
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/account.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
@@ -107,7 +128,7 @@ set(
     ${MONERO_CORE_SRC}/common/aligned.c
     #${MONERO_CORE_SRC}/common/util.cpp
     ${MONERO_CORE}/contrib/epee/src/hex.cpp
-    ${MONERO_CORE}/contrib/epee/src/string_tools.cpp
+    #${MONERO_CORE}/contrib/epee/src/string_tools.cpp
     ${MONERO_CORE}/contrib/epee/src/memwipe.c
     ${MONERO_CORE}/contrib/epee/src/mlocker.cpp
     ${MONERO_CORE}/contrib/epee/src/wipeable_string.cpp
@@ -120,9 +141,8 @@ set(
     ${MONERO_CORE_SRC}/ringct/bulletproofs.cc
     ${MONERO_CORE_SRC}/ringct/multiexp.cc
     ${MONERO_CORE_SRC}/mnemonics/electrum-words.cpp
-    ${MONERO_CORE_SRC}/vtlogger/logger.cpp
     #${MONERO_CORE}/contrib/libsodium/src/crypto_verify/verify.c
-    #]]	# --- END BLOCK COMMENT ---
+    ###]]	# --- END BLOCK COMMENT ---
 )
 
 ####################
