@@ -21,8 +21,8 @@ set(MONERO_CPP "external/monero-cpp-library")
 set(MONERO_CPP_SRC "${MONERO_CPP}/src")
 
 # headers
-include_directories("${MONERO_CPP}/external/libsodium/include/sodium")
-include_directories("${MONERO_CPP}/external/openssl-sdk/include")
+#include_directories("${MONERO_CPP}/external/libsodium/include/sodium")
+#include_directories("${MONERO_CPP}/external/openssl-sdk/include")
 include_directories("${MONERO_CPP_SRC}")
 
 #############
@@ -76,7 +76,7 @@ include_directories("${MONERO_CORE}/contrib/epee/include")
 include_directories("${MONERO_CORE}/external/")
 #include_directories("${MONERO_CORE}/external/unbound/libunbound")
 #include_directories("${MONERO_CORE}/external/easylogging++")
-include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+#include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 include_directories("${MONERO_CORE_SRC}/")
 include_directories("${MONERO_CORE_SRC}/wallet")
 include_directories("${MONERO_CORE_SRC}/wallet/api")
