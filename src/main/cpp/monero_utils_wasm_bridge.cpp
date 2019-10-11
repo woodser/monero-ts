@@ -23,7 +23,7 @@ string monero_utils_wasm_bridge::malloc_binary_from_json(const std::string &buff
   root.put("ptr", reinterpret_cast<intptr_t>(ptr->c_str()));
   root.put("length", ptr->length());
 
-  // serlialize memory info to json str
+  // serialize memory info to json str
   return monero_utils::serialize(root); // TODO: move this utility to gen_utils?
 }
 
