@@ -10,7 +10,7 @@ using namespace std;
 
 namespace monero_utils_wasm_bridge
 {
-  void utils_dummy_method();
+  void utils_dummy_method(const string& args_string);
   string malloc_binary_from_json(const string &args_string);
   string binary_to_json(const string &args_string);
   string binary_blocks_to_json(const string &args_string);
