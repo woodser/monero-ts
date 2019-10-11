@@ -40,10 +40,11 @@ async function startApp() {
       'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + 
       'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n'};
   MoneroUtilsWasm.dummyMethod(JSON.stringify(json));
-//  let binary = MoneroUtilsWasm.jsonToBinary(json);
-//  assert(binary);
-//  let json2 = MoneroUtilsWasm.binaryToJson(binary);
-//  assert.deepEqual(json2, json);
+  let binary = MoneroUtilsWasm.jsonToBinary(json);
+  assert(binary);
+  let json2 = MoneroUtilsWasm.binaryToJson(binary);
+  assert.deepEqual(json2, json);
+  console.log("Yep they were equal.");
   
   // connect to monero-daemon-rpc
   let daemon = new MoneroDaemonRpc({uri: "http://localhost:38081", user: "superuser", pass: "abctesting123"});
