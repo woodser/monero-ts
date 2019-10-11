@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-project(monero-cpp-library-wasm CXX)
+project(monero-cpp-library-wasm)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -71,7 +71,6 @@ include_directories("${MONERO_CORE_SRC}/mnemonics")
 include_directories("${MONERO_CORE_SRC}/contrib/libsodium/include") # support sodium/… paths
 include_directories("${MONERO_CORE_SRC}/contrib/libsodium/include/sodium")
 
-
 include_directories("${MONERO_CORE}/contrib/epee/include")
 include_directories("${MONERO_CORE}/external/")
 #include_directories("${MONERO_CORE}/external/easylogging++")
@@ -92,7 +91,7 @@ set(
     src/main/cpp/monero_wallet_wasm_bridge.cpp
     src/main/cpp/monero_utils_wasm_bridge.cpp
     #
-    #${MONERO_CPP_SRC}/utils/monero_utils.cpp
+    ${MONERO_CPP_SRC}/utils/monero_utils.cpp
     ${MONERO_CPP_SRC}/wallet/monero_wallet_dummy.cpp
     #${MONERO_CPP_SRC}/wallet/monero_wallet.cpp
     #
@@ -128,7 +127,7 @@ set(
     ${MONERO_CORE_SRC}/common/aligned.c
     #${MONERO_CORE_SRC}/common/util.cpp
     ${MONERO_CORE}/contrib/epee/src/hex.cpp
-    #${MONERO_CORE}/contrib/epee/src/string_tools.cpp
+    ${MONERO_CORE}/contrib/epee/src/string_tools.cpp
     ${MONERO_CORE}/contrib/epee/src/memwipe.c
     ${MONERO_CORE}/contrib/epee/src/mlocker.cpp
     ${MONERO_CORE}/contrib/epee/src/wipeable_string.cpp
@@ -226,13 +225,17 @@ target_link_libraries(
     boost_chrono
     boost_system
     boost_thread
+    #
+    ${log-lib}
 )
 
 # ASMJS
 #add_executable(monero_cpp_library_ASMJS ${SRC_FILES})
 #set_target_properties(monero_cpp_library_ASMJS PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__ASMJS}")
 #target_link_libraries(
-#    monero_cpp_library_ASMJS
+	#monero_cpp_library_ASMJS
+    ##
+    #${log-lib}
 #)
 
 # build to bitcode instead of wasm
