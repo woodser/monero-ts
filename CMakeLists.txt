@@ -96,7 +96,6 @@ set(
     ${MONERO_CPP_SRC}/wallet/monero_wallet_dummy.cpp
     #${MONERO_CPP_SRC}/wallet/monero_wallet.cpp
     #
-    #${MONERO_CORE}/external/easylogging++/easylogging++.cc
     ${MONERO_CORE_SRC}/vtlogger/logger.cpp
     #
     ###[[	--- START BLOCK COMMENT ---
