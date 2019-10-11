@@ -10,6 +10,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ##############
 # C++ bridge
 ##############
+
 include_directories("src/cpp")
 
 #####################
