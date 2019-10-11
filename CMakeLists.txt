@@ -69,11 +69,12 @@ include_directories("${MONERO_CORE_SRC}/cryptonote_protocol")
 include_directories("${MONERO_CORE_SRC}/wallet")
 include_directories("${MONERO_CORE_SRC}/rpc")
 include_directories("${MONERO_CORE_SRC}/mnemonics")
-include_directories("${MONERO_CORE_SRC}/contrib/libsodium/include") # support sodium/… paths
-include_directories("${MONERO_CORE_SRC}/contrib/libsodium/include/sodium")
+include_directories("${MONERO_CORE}/contrib/libsodium/include") # support sodium/… paths
+include_directories("${MONERO_CORE}/contrib/libsodium/include/sodium")
 
 include_directories("${MONERO_CORE}/contrib/epee/include")
 include_directories("${MONERO_CORE}/external/")
+#include_directories("${MONERO_CORE}/external/unbound/libunbound")
 #include_directories("${MONERO_CORE}/external/easylogging++")
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 include_directories("${MONERO_CORE_SRC}/")
@@ -95,8 +96,6 @@ set(
     ${MONERO_CPP_SRC}/utils/monero_utils.cpp
     ${MONERO_CPP_SRC}/wallet/monero_wallet_dummy.cpp
     #${MONERO_CPP_SRC}/wallet/monero_wallet.cpp
-    #
-    ${MONERO_CORE_SRC}/vtlogger/logger.cpp
     #
     ###[[	--- START BLOCK COMMENT ---
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
@@ -125,7 +124,7 @@ set(
     ${MONERO_CORE_SRC}/common/base58.cpp
     ${MONERO_CORE_SRC}/common/threadpool.cpp
     ${MONERO_CORE_SRC}/common/aligned.c
-    #${MONERO_CORE_SRC}/common/util.cpp
+    ${MONERO_CORE_SRC}/common/util.cpp
     ${MONERO_CORE}/contrib/epee/src/hex.cpp
     ${MONERO_CORE}/contrib/epee/src/string_tools.cpp
     ${MONERO_CORE}/contrib/epee/src/memwipe.c
@@ -140,7 +139,8 @@ set(
     ${MONERO_CORE_SRC}/ringct/bulletproofs.cc
     ${MONERO_CORE_SRC}/ringct/multiexp.cc
     ${MONERO_CORE_SRC}/mnemonics/electrum-words.cpp
-    #${MONERO_CORE}/contrib/libsodium/src/crypto_verify/verify.c
+    ${MONERO_CORE_SRC}/vtlogger/logger.cpp
+    ${MONERO_CORE}/contrib/libsodium/src/crypto_verify/verify.c
     ###]]	# --- END BLOCK COMMENT ---
 )
 
