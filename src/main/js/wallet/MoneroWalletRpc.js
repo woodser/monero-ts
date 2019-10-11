@@ -1167,8 +1167,13 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getAttribute(key) {
-    let resp = await this.config.rpc.sendJsonRequest("get_attribute", {key: key});
-    return resp.result.value === "" ? undefined : resp.result.value;
+    try {
+      let resp = await this.config.rpc.sendJsonRequest("get_attribute", {key: key});
+      return resp.result.value === "" ? undefined : resp.result.value;
+    } catch (e) {
+      if (e instanceof MoneroRpcError && e.getCode() === -45) return undefined;
+      throw e;
+    }
   }
   
   async setAttribute(key, val) {
@@ -1659,6 +1664,7 @@ class MoneroWalletRpc extends MoneroWallet {
       }
       else if (key === "multisig_txset" && val !== undefined) {} // handled elsewhere; this method only builds a tx wallet
       else if (key === "unsigned_txset" && val !== undefined) {} // handled elsewhere; this method only builds a tx wallet
+      else if (key === "locked" && val !== undefined) {}  // TODO: handle 'locked' field
       else console.log("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
     }
     
