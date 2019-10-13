@@ -144,7 +144,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let respBin = await this.config.rpc.sendBinaryRequest("get_blocks_by_height.bin", {heights: heights});
     
     // convert binary blocks to json
-    let rpcBlocks = this.MyMoneroUtils.binary_blocks_to_json(respBin);
+    let rpcBlocks = this.CppUtils.binaryBlocksToJson(respBin);
     MoneroDaemonRpc._checkResponseStatus(rpcBlocks);
     //console.log(JSON.stringify(rpcBlocks));
     
@@ -677,7 +677,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (this.initPromise) return this.initPromise;
     
     // get core utils
-    this.MyMoneroUtils = await MoneroUtils.getMyMoneroUtils();
+    this.CppUtils = await MoneroUtils.getCppUtils();
   }
   
   async _getBandwidthLimits() {

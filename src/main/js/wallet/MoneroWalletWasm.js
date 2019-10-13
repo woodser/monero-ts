@@ -40,6 +40,10 @@ class MoneroWalletWasm {
   }
 }
 
+/**
+ * Exports a promise which resolves with a wallet class which uses a
+ * WebAssembly module .
+ */
 module.exports = async function() {
   return new Promise(function(resolve, reject) {
     require("../../../monero_cpp_library_WASM")().ready.then(function(module) {

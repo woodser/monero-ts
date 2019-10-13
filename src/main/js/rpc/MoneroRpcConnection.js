@@ -153,10 +153,10 @@ class MoneroRpcConnection {
     //console.log("sendBinaryRequest(" + path + ", " + JSON.stringify(params) + ")");
     
     // get core utils to serialize and deserialize binary requests
-    let MyMoneroUtils = await MoneroUtils.getMyMoneroUtils();
+    let MoneroCppUtils = await MoneroUtils.getCppUtils();
     
     // serialize params
-    let paramsBin = MyMoneroUtils.json_to_binary(params);
+    let paramsBin = MoneroCppUtils.jsonToBinary(params);
     
     // build request
     let opts = {

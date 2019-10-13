@@ -1,4 +1,6 @@
 HIGH
+switch biginteger from mymonero submodule
+
 automate node module tests
 remove support for {} and use pure OO?
 automate browser app build by copying index.html and asm files from monero_utils

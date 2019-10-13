@@ -1,11 +1,10 @@
-
 /**
- * Collection of Monero utilies implemented in C++ and accessed through WebAssembly.
+ * Collection of utilities from monero-cpp-library accessed using WebAssembly.
  */
-class MoneroUtilsWasm {
+class MoneroCppUtils {
 
   static dummyMethod(str) {
-    MoneroUtilsWasm.WASM_MODULE.utils_dummy_method(str);
+    MoneroCppUtils.WASM_MODULE.utils_dummy_method(str);
   }
   
   /**
@@ -17,7 +16,7 @@ class MoneroUtilsWasm {
   static jsonToBinary(json) {
     
     // serialize json to binary which is stored in c++ heap
-    let binMemInfoStr = MoneroUtilsWasm.WASM_MODULE.malloc_binary_from_json(JSON.stringify(json));
+    let binMemInfoStr = MoneroCppUtils.WASM_MODULE.malloc_binary_from_json(JSON.stringify(json));
     
     // sanitize binary memory address info
     let binMemInfo = JSON.parse(binMemInfoStr);
@@ -27,11 +26,11 @@ class MoneroUtilsWasm {
     // read binary data from heap to Uin8Array
     let view = new Uint8Array(binMemInfo.length);
     for (let i = 0; i < binMemInfo.length; i++) {
-      view[i] = MoneroUtilsWasm.WASM_MODULE.HEAPU8[binMemInfo.ptr / Uint8Array.BYTES_PER_ELEMENT + i];
+      view[i] = MoneroCppUtils.WASM_MODULE.HEAPU8[binMemInfo.ptr / Uint8Array.BYTES_PER_ELEMENT + i];
     }
     
     // free binary on heap
-    MoneroUtilsWasm.WASM_MODULE._free(binMemInfo.ptr);
+    MoneroCppUtils.WASM_MODULE._free(binMemInfo.ptr);
     
     // return json from binary data
     return view;
@@ -46,8 +45,8 @@ class MoneroUtilsWasm {
   static binaryToJson(uint8arr) {
     
     // allocate space in c++ heap for binary
-    let ptr = MoneroUtilsWasm.WASM_MODULE._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
-    let heap = new Uint8Array(MoneroUtilsWasm.WASM_MODULE.HEAPU8.buffer, ptr, uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
+    let ptr = MoneroCppUtils.WASM_MODULE._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
+    let heap = new Uint8Array(MoneroCppUtils.WASM_MODULE.HEAPU8.buffer, ptr, uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
     
     // write binary to heap
     heap.set(new Uint8Array(uint8arr.buffer));
@@ -56,11 +55,11 @@ class MoneroUtilsWasm {
     let binMemInfo = { ptr: ptr, length: uint8arr.length  }
 
     // convert binary to json str
-    const ret_string = MoneroUtilsWasm.WASM_MODULE.binary_to_json(JSON.stringify(binMemInfo));
+    const ret_string = MoneroCppUtils.WASM_MODULE.binary_to_json(JSON.stringify(binMemInfo));
     
     // free binary on heap
-    MoneroUtilsWasm.WASM_MODULE._free(heap.byteOffset);
-    MoneroUtilsWasm.WASM_MODULE._free(ptr);
+    MoneroCppUtils.WASM_MODULE._free(heap.byteOffset);
+    MoneroCppUtils.WASM_MODULE._free(ptr);
     
     // parse and return json
     return JSON.parse(ret_string);
@@ -77,8 +76,8 @@ class MoneroUtilsWasm {
     //let startTime = +new Date();
     
     // allocate space in c++ heap for binary
-    let ptr = MoneroUtilsWasm.WASM_MODULE._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);  // TODO: this needs deleted
-    let heap = new Uint8Array(MoneroUtilsWasm.WASM_MODULE.HEAPU8.buffer, ptr, uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
+    let ptr = MoneroCppUtils.WASM_MODULE._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);  // TODO: this needs deleted
+    let heap = new Uint8Array(MoneroCppUtils.WASM_MODULE.HEAPU8.buffer, ptr, uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
     
     // write binary to heap
     heap.set(new Uint8Array(uint8arr.buffer));
@@ -87,11 +86,11 @@ class MoneroUtilsWasm {
     let binMemInfo = { ptr: ptr, length: uint8arr.length  }
 
     // convert binary to json str
-    const json_str = MoneroUtilsWasm.WASM_MODULE.binary_blocks_to_json(JSON.stringify(binMemInfo));
+    const json_str = MoneroCppUtils.WASM_MODULE.binary_blocks_to_json(JSON.stringify(binMemInfo));
     
     // free memory
-    MoneroUtilsWasm.WASM_MODULE._free(heap.byteOffset);
-    MoneroUtilsWasm.WASM_MODULE._free(ptr);
+    MoneroCppUtils.WASM_MODULE._free(heap.byteOffset);
+    MoneroCppUtils.WASM_MODULE._free(ptr);
     
     // parse result to json
     let json = JSON.parse(json_str);                                          // parsing json gives arrays of block and tx strings
@@ -101,11 +100,17 @@ class MoneroUtilsWasm {
   }
 }
 
+/**
+ * Exports a promise which resolves with a utility class which uses a
+ * WebAssembly module in order to access utilities from monero-cpp-library.
+ * 
+ * @returns {Promise} resolves with an initialized MoneroCoreUtils class
+ */
 module.exports = async function() {
   return new Promise(function(resolve, reject) {
     require("../../../monero_cpp_library_WASM")().ready.then(function(module) {
-      MoneroUtilsWasm.WASM_MODULE = module;
-      resolve(MoneroUtilsWasm);
+      MoneroCppUtils.WASM_MODULE = module;
+      resolve(MoneroCppUtils);
     }).catch(function(e) {
       console.log("Error loading monero_cpp_library_WASM:", e);
       reject(e);

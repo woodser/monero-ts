@@ -8,7 +8,15 @@ const BigInteger = require("../../../../external/mymonero-core-js/cryptonote_uti
 class MoneroUtils {
   
   /**
-   * Get Monero Core utils for client-side crypto and binary requests.
+   * Get a utility class which uses WebAssembly to access C++ utilities in the monero-cpp-library submodule.
+   */
+  static async getCppUtils() {
+    if (MoneroUtils.MoneroCppUtils === undefined) MoneroUtils.MoneroCppUtils = await require('./MoneroCppUtils')();
+    return MoneroUtils.MoneroCppUtils;
+  }
+  
+  /**
+   * Get a utility class which uses WebAssembly to access C++ utilities in the mymonero-core-js submodule.
    */
   static async getMyMoneroUtils() {
     if (MoneroUtils.MyMoneroUtils === undefined) MoneroUtils.MyMoneroUtils = await require('../../../../external/mymonero-core-js/monero_utils/MyMoneroCoreBridge')();
