@@ -10,9 +10,9 @@ class MoneroUtils {
   /**
    * Get Monero Core utils for client-side crypto and binary requests.
    */
-  static async getCoreUtils() {
-    if (MoneroUtils.coreUtils === undefined) MoneroUtils.coreUtils = await require('../../../../external/mymonero-core-js/monero_utils/MyMoneroCoreBridge')();
-    return MoneroUtils.coreUtils;
+  static async getMyMoneroUtils() {
+    if (MoneroUtils.MyMoneroUtils === undefined) MoneroUtils.MyMoneroUtils = await require('../../../../external/mymonero-core-js/monero_utils/MyMoneroCoreBridge')();
+    return MoneroUtils.MyMoneroUtils;
   }
   
   // TODO: beef this up

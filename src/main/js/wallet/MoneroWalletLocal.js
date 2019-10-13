@@ -65,9 +65,9 @@ class MoneroWalletLocal extends MoneroWallet {
     return this.store;
   }
   
-  async getCoreUtils() {
+  async getMyMoneroUtils() {
     await this._initOneTime();
-    return this.cache.coreUtils;
+    return this.cache.MyMoneroUtils;
   }
   
   async getSeed() {
@@ -332,8 +332,8 @@ class MoneroWalletLocal extends MoneroWallet {
       
       // process outputs
       for (let outIdx = 0; outIdx < tx.getVouts().length; outIdx++) {
-        let derivation = this.cache.coreUtils.generate_key_derivation(lastPubKey, this.cache.prvViewKey);
-        let pubKeyDerived = this.cache.coreUtils.derive_public_key(derivation, outIdx, this.cache.pubSpendKey);
+        let derivation = this.cache.MyMoneroUtils.generate_key_derivation(lastPubKey, this.cache.prvViewKey);
+        let pubKeyDerived = this.cache.MyMoneroUtils.derive_public_key(derivation, outIdx, this.cache.pubSpendKey);
         
         // check if wallet owns output
         if (tx.getVouts()[outIdx].getStealthPublicKey() === pubKeyDerived) {
@@ -357,7 +357,7 @@ class MoneroWalletLocal extends MoneroWallet {
     // initialize working cache
     let info = await this.config.daemon.getInfo();
     this.cache = {};
-    this.cache.coreUtils = await MoneroUtils.getCoreUtils();
+    this.cache.MyMoneroUtils = await MoneroUtils.getMyMoneroUtils();
     this.cache.network = info.getNetworkType();
     this.cache.chainHeight = info.getHeight();
     this.cache.headers = {};
@@ -371,10 +371,10 @@ class MoneroWalletLocal extends MoneroWallet {
       // initialize keys from core utils
       let keys;
       if (this.config.mnemonic === undefined) {
-        keys = this.cache.coreUtils.newly_created_wallet(this.config.mnemonicLanguage, this.store.network); // randomly generate keys
+        keys = this.cache.MyMoneroUtils.newly_created_wallet(this.config.mnemonicLanguage, this.store.network); // randomly generate keys
         this.store.startHeight = this.cache.chainHeight;
       } else {
-        keys = this.cache.coreUtils.seed_and_keys_from_mnemonic(this.config.mnemonic, this.store.network);  // initialize keys from mnemonic
+        keys = this.cache.MyMoneroUtils.seed_and_keys_from_mnemonic(this.config.mnemonic, this.store.network);  // initialize keys from mnemonic
         keys.mnemonic_string = this.config.mnemonic;
         keys.mnemonic_language = this.config.mnemonicLanguage
         this.store.startHeight = this.config.startHeight;
@@ -405,7 +405,7 @@ class MoneroWalletLocal extends MoneroWallet {
       this.cache.processed = new BooleanSet(this.store.processedState);
       
       // create keys from seed
-      let keys = this.cache.coreUtils.address_and_keys_from_seed(this.store.seed, this.store.network);
+      let keys = this.cache.MyMoneroUtils.address_and_keys_from_seed(this.store.seed, this.store.network);
       this.cache.mnemonic = keys.mnemonic_string;
       this.cache.mnemonicLanguage = keys.mnemonic_language;
       this.cache.pubViewKey = keys.pub_viewKey_string;
