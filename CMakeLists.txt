@@ -25,6 +25,35 @@ set(MONERO_CPP_SRC "${MONERO_CPP}/src")
 #include_directories("${MONERO_CPP}/external/openssl-sdk/include")
 include_directories("${MONERO_CPP_SRC}")
 
+##################
+# monero-project
+##################
+
+set(MONERO_CORE ${MONERO_CPP}/external/monero-core)
+set(MONERO_CORE_SRC "${MONERO_CORE}/src")
+
+# headers
+include_directories("${MONERO_CORE}/contrib/epee/include")
+include_directories("${MONERO_CORE_SRC}/common")
+include_directories("${MONERO_CORE_SRC}/vtlogger")
+include_directories("${MONERO_CORE_SRC}/crypto")
+include_directories("${MONERO_CORE_SRC}/cryptonote_basic")
+include_directories("${MONERO_CORE_SRC}/multisig")
+include_directories("${MONERO_CORE_SRC}/cryptonote_core")
+include_directories("${MONERO_CORE_SRC}/cryptonote_protocol")
+include_directories("${MONERO_CORE_SRC}/wallet")
+include_directories("${MONERO_CORE_SRC}/rpc")
+include_directories("${MONERO_CORE_SRC}/mnemonics")
+include_directories("${MONERO_CORE}/contrib/libsodium/include") # support sodium/… paths
+include_directories("${MONERO_CORE}/contrib/libsodium/include/sodium")
+include_directories("${MONERO_CORE}/external/")
+
+#include_directories("${MONERO_CORE}/external/unbound/libunbound")
+#include_directories("${MONERO_CORE}/external/easylogging++")
+#include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+#include_directories("${MONERO_CORE_SRC}/wallet/api")
+#include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")
+
 #############
 # Boost
 #############
@@ -50,36 +79,6 @@ set_target_properties(
     boost_thread PROPERTIES IMPORTED_LOCATION
     ${BOOST}/lib/libboost_thread.a
 )
-
-##################
-# monero-project
-##################
-
-set(MONERO_CORE ${MONERO_CPP}/external/monero-core)
-set(MONERO_CORE_SRC "${MONERO_CORE}/src")
-
-# headers
-include_directories(${MONERO_CORE_SRC})
-include_directories("${MONERO_CORE}/contrib/epee/include")
-include_directories("${MONERO_CORE_SRC}/common")
-include_directories("${MONERO_CORE_SRC}/vtlogger")
-include_directories("${MONERO_CORE_SRC}/crypto")
-include_directories("${MONERO_CORE_SRC}/cryptonote_basic")
-include_directories("${MONERO_CORE_SRC}/multisig")
-include_directories("${MONERO_CORE_SRC}/cryptonote_core")
-include_directories("${MONERO_CORE_SRC}/cryptonote_protocol")
-include_directories("${MONERO_CORE_SRC}/wallet")
-include_directories("${MONERO_CORE_SRC}/rpc")
-include_directories("${MONERO_CORE_SRC}/mnemonics")
-include_directories("${MONERO_CORE}/contrib/libsodium/include") # support sodium/… paths
-include_directories("${MONERO_CORE}/contrib/libsodium/include/sodium")
-
-#include_directories("${MONERO_CORE}/external/")
-#include_directories("${MONERO_CORE}/external/unbound/libunbound")
-#include_directories("${MONERO_CORE}/external/easylogging++")
-#include_directories("${CMAKE_CURRENT_BINARY_DIR}")
-#include_directories("${MONERO_CORE_SRC}/wallet/api")
-#include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")
 
 ####################
 # Source files
