@@ -24,7 +24,7 @@ async function startApp() {
   walletWasm.dummyMethod();
   
   // demonstrate using core utilities through web assembly
-  const MoneroUtilsWasm = await require("../src/main/js/utils/MoneroUtilsWasm")();
+  const MoneroCppUtils = await require("../src/main/js/utils/MoneroCppUtils")();
   let json = { msg: 'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' +
       'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + 
       'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + 
@@ -39,10 +39,10 @@ async function startApp() {
       'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + 
       'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + 
       'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n'};
-  MoneroUtilsWasm.dummyMethod(JSON.stringify(json));
-  let binary = MoneroUtilsWasm.jsonToBinary(json);
+  MoneroCppUtils.dummyMethod(JSON.stringify(json));
+  let binary = MoneroCppUtils.jsonToBinary(json);
   assert(binary);
-  let json2 = MoneroUtilsWasm.binaryToJson(binary);
+  let json2 = MoneroCppUtils.binaryToJson(binary);
   assert.deepEqual(json2, json);
   console.log("Yep they were equal.");
   
