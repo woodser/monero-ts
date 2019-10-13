@@ -29,11 +29,12 @@ include_directories("${MONERO_CPP_SRC}")
 # monero-project
 ##################
 
-set(MONERO_CORE ${MONERO_CPP}/external/monero-core)
+set(MONERO_CORE "${MONERO_CPP}/external/monero-core")
 set(MONERO_CORE_SRC "${MONERO_CORE}/src")
 
 # headers
 include_directories("${MONERO_CORE}/contrib/epee/include")
+include_directories("${MONERO_CORE_SRC}/")
 include_directories("${MONERO_CORE_SRC}/common")
 include_directories("${MONERO_CORE_SRC}/vtlogger")
 include_directories("${MONERO_CORE_SRC}/crypto")
