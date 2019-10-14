@@ -21,9 +21,10 @@ set(MONERO_CPP "external/monero-cpp-library")
 set(MONERO_CPP_SRC "${MONERO_CPP}/src")
 
 # headers
-#include_directories("${MONERO_CPP}/external/libsodium/include/sodium")
-#include_directories("${MONERO_CPP}/external/openssl-sdk/include")
 include_directories("${MONERO_CPP_SRC}")
+#include_directories("${MONERO_CPP}/external/libsodium/include/sodium")
+#include_directories("${MONERO_CPP}/external/openssl/include")	# TODO: openssl should not be needed
+#include_directories("${MONERO_CPP}/external/openssl/include/openssl")
 
 ##################
 # monero-project
