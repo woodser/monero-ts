@@ -49,6 +49,7 @@ include_directories("${MONERO_CORE_SRC}/mnemonics")
 include_directories("${MONERO_CORE}/contrib/libsodium/include") # support sodium/… paths
 include_directories("${MONERO_CORE}/contrib/libsodium/include/sodium")
 include_directories("${MONERO_CORE}/external/")
+include_directories("${MONERO_CORE}/external/rapidjson/include")
 
 #include_directories("${MONERO_CORE}/external/unbound/libunbound")
 #include_directories("${MONERO_CORE}/external/easylogging++")
@@ -96,6 +97,8 @@ set(
     ${MONERO_CPP_SRC}/utils/monero_utils.cpp
     ${MONERO_CPP_SRC}/wallet/monero_wallet_dummy.cpp
     #${MONERO_CPP_SRC}/wallet/monero_wallet.cpp
+    #
+    ${MONERO_CORE_SRC}/wallet/wallet2_base.cpp
     #
     ###[[	--- START BLOCK COMMENT ---
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
