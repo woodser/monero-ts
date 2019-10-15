@@ -50,6 +50,7 @@ include_directories("${MONERO_CORE}/contrib/libsodium/include") # support sodium
 include_directories("${MONERO_CORE}/contrib/libsodium/include/sodium")
 include_directories("${MONERO_CORE}/external/")
 include_directories("${MONERO_CORE}/external/rapidjson/include")
+include_directories("${MONERO_CORE}/external/db_drivers/liblmdb")
 
 #include_directories("${MONERO_CORE}/external/unbound/libunbound")
 #include_directories("${MONERO_CORE}/external/easylogging++")
