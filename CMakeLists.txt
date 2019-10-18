@@ -99,7 +99,7 @@ set(
     ${MONERO_CPP_SRC}/wallet/monero_wallet_dummy.cpp
     #${MONERO_CPP_SRC}/wallet/monero_wallet.cpp
     #
-    ${MONERO_CORE_SRC}/wallet/wallet2_base.cpp
+    #${MONERO_CORE_SRC}/wallet/wallet2_base.cpp
     #
     ###[[	--- START BLOCK COMMENT ---
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
