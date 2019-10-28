@@ -123,6 +123,9 @@ set(
     #${MONERO_CPP_SRC}/wallet/monero_wallet.cpp
     #
     ${MONERO_CORE_SRC}/wallet/wallet2_base.cpp
+    ${MONERO_CORE_SRC}/wallet/message_store.cpp
+    ${MONERO_CORE_SRC}/wallet/message_transporter.cpp
+    ${MONERO_CORE_SRC}/wallet/node_rpc_proxy.cpp
     #
     ###[[	--- START BLOCK COMMENT ---
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
