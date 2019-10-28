@@ -37,6 +37,7 @@ set(MONERO_CORE_SRC "${MONERO_CORE}/src")
 include_directories("${MONERO_CORE}/contrib/epee/include")
 include_directories("${MONERO_CORE}/contrib/epee/include/net")
 include_directories("${MONERO_CORE_SRC}/")
+include_directories("${MONERO_CORE_SRC}/checkpoints")
 include_directories("${MONERO_CORE_SRC}/common")
 include_directories("${MONERO_CORE_SRC}/vtlogger")
 include_directories("${MONERO_CORE_SRC}/crypto")
@@ -127,6 +128,7 @@ set(
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/account.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
+    ${MONERO_CORE_SRC}/checkpoints/checkpoints.cpp
     ${MONERO_CORE_SRC}/crypto/crypto.cpp
     ${MONERO_CORE_SRC}/crypto/hash.c
     ${MONERO_CORE_SRC}/crypto/slow-hash.c
