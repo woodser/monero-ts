@@ -35,6 +35,7 @@ set(MONERO_CORE_SRC "${MONERO_CORE}/src")
 
 # headers
 include_directories("${MONERO_CORE}/contrib/epee/include")
+include_directories("${MONERO_CORE}/contrib/epee/include/net")
 include_directories("${MONERO_CORE_SRC}/")
 include_directories("${MONERO_CORE_SRC}/common")
 include_directories("${MONERO_CORE_SRC}/vtlogger")
@@ -100,6 +101,7 @@ set(
     src/main/cpp/index.cpp
     src/main/cpp/monero_wallet_wasm_bridge.cpp
     src/main/cpp/monero_utils_wasm_bridge.cpp
+    src/main/cpp/http_client_wasm.cpp
     #
     ${MONERO_CPP_SRC}/utils/monero_utils.cpp
     ${MONERO_CPP_SRC}/wallet/monero_wallet_dummy.cpp
