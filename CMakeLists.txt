@@ -142,6 +142,9 @@ set(
     ${MONERO_CORE_SRC}/wallet/node_rpc_proxy.cpp
     #
     ###[[	--- START BLOCK COMMENT ---
+    ${MONERO_CORE}/external/db_drivers/liblmdb/mdb.c
+    ${MONERO_CORE}/external/db_drivers/liblmdb/midl.c
+    #${MONERO_CORE_SRC}/blockchain_db/lmdb/db_lmdb.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/account.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
