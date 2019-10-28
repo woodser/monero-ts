@@ -62,8 +62,6 @@ include_directories("${MONERO_CORE}/external/db_drivers/liblmdb")
 
 include_directories("${MONERO_CORE}/build/release/translations")
 
-#translation_files.h
-
 #############
 # MyMonero
 #############
@@ -147,6 +145,7 @@ set(
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/account.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
+    ${MONERO_CORE_SRC}/cryptonote_basic/miner.cpp
     ${MONERO_CORE_SRC}/checkpoints/checkpoints.cpp
     ${MONERO_CORE_SRC}/crypto/crypto.cpp
     ${MONERO_CORE_SRC}/crypto/hash.c
