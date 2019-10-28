@@ -19,8 +19,8 @@ int monero_wallet_wasm_bridge::create_wallet_random(const string& path, const st
     cout << "Seed language: " << w2_base->get_seed_language() << endl;
     crypto::secret_key secret_key;
     w2_base->generate(path, password, secret_key, false, false);
-    std::string err;
-    if (http_client.is_connected()) w2_base->set_refresh_from_block_height(w2_base->get_daemon_blockchain_height(err));
+//    std::string err;
+//    if (http_client.is_connected()) w2_base->set_refresh_from_block_height(w2_base->get_daemon_blockchain_height(err));
     return (int) w2_base;
 
 //    monero_wallet_dummy* wallet = new monero_wallet_dummy();
