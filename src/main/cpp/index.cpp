@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <emscripten/bind.h>
+//#include <emscripten.h>
 
 #include "monero_wallet_wasm_bridge.h"
 #include "monero_utils_wasm_bridge.h"
