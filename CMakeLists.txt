@@ -22,7 +22,7 @@ set(MONERO_CPP_SRC "${MONERO_CPP}/src")
 
 # headers
 include_directories("${MONERO_CPP_SRC}")
-#include_directories("${MONERO_CPP}/external/libsodium/include/sodium")
+#include_directories("${MONERO_CPP}/external/libsodium/include/sodium")	# TODO: delete this?
 #include_directories("${MONERO_CPP}/external/openssl/include")	# TODO: openssl should not be needed
 #include_directories("${MONERO_CPP}/external/openssl/include/openssl")
 
@@ -40,6 +40,7 @@ include_directories("${MONERO_CORE_SRC}/")
 include_directories("${MONERO_CORE_SRC}/common")
 include_directories("${MONERO_CORE_SRC}/vtlogger")
 include_directories("${MONERO_CORE_SRC}/crypto")
+#include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")
 include_directories("${MONERO_CORE_SRC}/cryptonote_basic")
 include_directories("${MONERO_CORE_SRC}/multisig")
 include_directories("${MONERO_CORE_SRC}/cryptonote_core")
@@ -57,7 +58,20 @@ include_directories("${MONERO_CORE}/external/db_drivers/liblmdb")
 #include_directories("${MONERO_CORE}/external/easylogging++")
 #include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 #include_directories("${MONERO_CORE_SRC}/wallet/api")
-#include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")
+
+#############
+# MyMonero
+#############
+
+#set(MYMONERO_JS "external/mymonero-core-js")
+#set(MYMONERO_JS_SRC "${MYMONERO_JS}/src")
+#set(MYMONERO_CPP "${MYMONERO_JS_SRC}/submodules/mymonero-core-cpp")
+#set(MYMONERO_CPP_SRC "${MYMONERO_CPP}/src")
+#set(MYMONERO_CORE "${MYMONERO_CPP}/contrib/monero-core-custom")
+#set(MYMONERO_CORE_SRC "${MYMONERO_CORE}/src")
+
+#include_directories("${MYMONERO_JS_SRC}")
+#include_directories("${MYMONERO_CPP_SRC}")
 
 #############
 # Boost
@@ -113,9 +127,10 @@ set(
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/account.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
-    #${MONERO_CORE_SRC}/crypto/crypto.cpp
+    ${MONERO_CORE_SRC}/crypto/crypto.cpp
     ${MONERO_CORE_SRC}/crypto/hash.c
     ${MONERO_CORE_SRC}/crypto/slow-hash.c
+    #${MONERO_CORE_SRC}/crypto/slow-hash-dummied.cpp
     ${MONERO_CORE_SRC}/crypto/oaes_lib.c
     ${MONERO_CORE_SRC}/crypto/crypto-ops.c
     ${MONERO_CORE_SRC}/crypto/crypto-ops-data.c
@@ -149,11 +164,87 @@ set(
     ${MONERO_CORE_SRC}/ringct/rctCryptoOps.c
     ${MONERO_CORE_SRC}/ringct/rctSigs.cpp
     ${MONERO_CORE_SRC}/ringct/bulletproofs.cc
-    #${MONERO_CORE_SRC}/ringct/multiexp.cc
+    ${MONERO_CORE_SRC}/ringct/multiexp.cc
     ${MONERO_CORE_SRC}/mnemonics/electrum-words.cpp
     ${MONERO_CORE_SRC}/vtlogger/logger.cpp
     ${MONERO_CORE}/contrib/libsodium/src/crypto_verify/verify.c
     ###]]	# --- END BLOCK COMMENT ---
+    
+    #[[	--- START BLOCK COMMENT ---
+    #
+    ${MYMONERO_JS_SRC}/index.cpp
+    ${MYMONERO_JS_SRC}/emscr_async_send_bridge.hpp
+    ${MYMONERO_JS_SRC}/emscr_async_send_bridge.cpp
+    #
+    ${MYMONERO_CPP_SRC}/monero_address_utils.hpp
+    ${MYMONERO_CPP_SRC}/monero_address_utils.cpp
+    ${MYMONERO_CPP_SRC}/monero_paymentID_utils.hpp
+    ${MYMONERO_CPP_SRC}/monero_paymentID_utils.cpp
+    ${MYMONERO_CPP_SRC}/monero_key_image_utils.hpp
+    ${MYMONERO_CPP_SRC}/monero_key_image_utils.cpp
+    ${MYMONERO_CPP_SRC}/monero_fee_utils.hpp
+    ${MYMONERO_CPP_SRC}/monero_fee_utils.cpp
+    ${MYMONERO_CPP_SRC}/monero_transfer_utils.hpp
+    ${MYMONERO_CPP_SRC}/monero_transfer_utils.cpp
+    ${MYMONERO_CPP_SRC}/monero_fork_rules.hpp
+    ${MYMONERO_CPP_SRC}/monero_fork_rules.cpp
+    ${MYMONERO_CPP_SRC}/monero_wallet_utils.hpp
+    ${MYMONERO_CPP_SRC}/monero_wallet_utils.cpp
+    ${MYMONERO_CPP_SRC}/serial_bridge_index.hpp
+    ${MYMONERO_CPP_SRC}/serial_bridge_index.cpp
+    ${MYMONERO_CPP_SRC}/monero_send_routine.hpp
+    ${MYMONERO_CPP_SRC}/monero_send_routine.cpp
+    ${MYMONERO_CPP_SRC}/serial_bridge_utils.hpp
+    ${MYMONERO_CPP_SRC}/serial_bridge_utils.cpp
+    ${MYMONERO_CPP_SRC}/tools__ret_vals.hpp
+    ${MYMONERO_CPP_SRC}/tools__ret_vals.cpp
+    ${MYMONERO_CPP_SRC}/monero_binary_utils.hpp
+    ${MYMONERO_CPP_SRC}/monero_binary_utils.cpp
+    #
+    ${MYMONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
+    ${MYMONERO_CORE_SRC}/cryptonote_basic/account.cpp
+    ${MYMONERO_CORE_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
+    ${MYMONERO_CORE_SRC}/crypto/crypto.cpp
+    ${MYMONERO_CORE_SRC}/crypto/hash.c
+    ${MYMONERO_CORE_SRC}/crypto/slow-hash-dummied.cpp
+    ${MYMONERO_CORE_SRC}/crypto/oaes_lib.c
+    ${MYMONERO_CORE_SRC}/crypto/crypto-ops.c
+    ${MYMONERO_CORE_SRC}/crypto/crypto-ops-data.c
+    ${MYMONERO_CORE_SRC}/crypto/keccak.c
+    ${MYMONERO_CORE_SRC}/crypto/chacha.c
+    ${MYMONERO_CORE_SRC}/crypto/random.c
+    ${MYMONERO_CORE_SRC}/crypto/aesb.c
+    ${MYMONERO_CORE_SRC}/crypto/tree-hash.c
+    ${MYMONERO_CORE_SRC}/crypto/hash-extra-blake.c
+    ${MYMONERO_CORE_SRC}/crypto/blake256.c
+    ${MYMONERO_CORE_SRC}/crypto/hash-extra-groestl.c
+    ${MYMONERO_CORE_SRC}/crypto/hash-extra-jh.c
+    ${MYMONERO_CORE_SRC}/crypto/hash-extra-skein.c
+    ${MYMONERO_CORE_SRC}/crypto/groestl.c
+    ${MYMONERO_CORE_SRC}/crypto/jh.c
+    ${MYMONERO_CORE_SRC}/crypto/skein.c
+    ${MYMONERO_CORE_SRC}/cryptonote_core/cryptonote_tx_utils.cpp
+    ${MYMONERO_CORE_SRC}/common/base58.cpp
+    ${MYMONERO_CORE_SRC}/common/threadpool.cpp
+    ${MYMONERO_CORE_SRC}/common/aligned.c
+    ${MYMONERO_CORE_SRC}/common/util.cpp
+    ${MYMONERO_CORE_SRC}/epee/src/hex.cpp
+    ${MYMONERO_CORE_SRC}/epee/src/string_tools.cpp
+    ${MYMONERO_CORE_SRC}/epee/src/memwipe.c
+    ${MYMONERO_CORE_SRC}/epee/src/mlocker.cpp
+    ${MYMONERO_CORE_SRC}/epee/src/wipeable_string.cpp
+    ${MYMONERO_CORE_SRC}/device/device.cpp
+    ${MYMONERO_CORE_SRC}/device/device_default.cpp
+    ${MYMONERO_CORE_SRC}/ringct/rctOps.cpp
+    ${MYMONERO_CORE_SRC}/ringct/rctTypes.cpp
+    ${MYMONERO_CORE_SRC}/ringct/rctCryptoOps.c
+    ${MYMONERO_CORE_SRC}/ringct/rctSigs.cpp
+    ${MYMONERO_CORE_SRC}/ringct/bulletproofs.cc
+    ${MYMONERO_CORE_SRC}/ringct/multiexp.cc
+    ${MYMONERO_CORE_SRC}/mnemonics/electrum-words.cpp
+    ${MYMONERO_CORE_SRC}/vtlogger/logger.cpp
+    ${MYMONERO_CORE_SRC}/contrib/libsodium/src/crypto_verify/verify.c
+    #]]	# --- END BLOCK COMMENT ---
 )
 
 ####################
