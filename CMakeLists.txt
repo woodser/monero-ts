@@ -60,6 +60,10 @@ include_directories("${MONERO_CORE}/external/db_drivers/liblmdb")
 #include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 #include_directories("${MONERO_CORE_SRC}/wallet/api")
 
+include_directories("${MONERO_CORE}/build/release/translations")
+
+#translation_files.h
+
 #############
 # MyMonero
 #############
@@ -169,6 +173,7 @@ set(
     ${MONERO_CORE_SRC}/common/threadpool.cpp
     ${MONERO_CORE_SRC}/common/aligned.c
     ${MONERO_CORE_SRC}/common/util.cpp
+    ${MONERO_CORE_SRC}/common/i18n.cpp
     ${MONERO_CORE}/contrib/epee/src/hex.cpp
     ${MONERO_CORE}/contrib/epee/src/string_tools.cpp
     ${MONERO_CORE}/contrib/epee/src/memwipe.c
