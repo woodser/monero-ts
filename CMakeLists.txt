@@ -84,6 +84,12 @@ set_target_properties(
     ${BOOST}/lib/libboost_thread.a
 )
 
+add_library(boost_serialization STATIC IMPORTED)
+set_target_properties(
+    boost_serialization PROPERTIES IMPORTED_LOCATION
+    ${BOOST}/lib/libboost_serialization.a
+)
+
 ####################
 # Source files
 ####################
@@ -99,7 +105,7 @@ set(
     ${MONERO_CPP_SRC}/wallet/monero_wallet_dummy.cpp
     #${MONERO_CPP_SRC}/wallet/monero_wallet.cpp
     #
-    #${MONERO_CORE_SRC}/wallet/wallet2_base.cpp
+    ${MONERO_CORE_SRC}/wallet/wallet2_base.cpp
     #
     ###[[	--- START BLOCK COMMENT ---
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
@@ -229,6 +235,7 @@ target_link_libraries(
     boost_chrono
     boost_system
     boost_thread
+    boost_serialization
     #
     ${log-lib}
 )
