@@ -29,7 +29,7 @@ bool http_client_wasm::is_connected(bool *ssl) {
 }
 
 bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
-  cout << "invoke()" << endl;
+  cout << "invoke(" << uri << ", " << method << ", " << body << ")" << endl;
   throw runtime_error("http_client_wasm::invoke() not implemented");
 }
 
