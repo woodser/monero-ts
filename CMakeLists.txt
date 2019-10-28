@@ -106,6 +106,18 @@ set_target_properties(
     ${BOOST}/lib/libboost_serialization.a
 )
 
+add_library(boost_filesystem STATIC IMPORTED)
+set_target_properties(
+    boost_filesystem PROPERTIES IMPORTED_LOCATION
+    ${BOOST}/lib/libboost_filesystem.a
+)
+
+add_library(boost_regex STATIC IMPORTED)
+set_target_properties(
+    boost_regex PROPERTIES IMPORTED_LOCATION
+    ${BOOST}/lib/libboost_regex.a
+)
+
 ####################
 # Source files
 ####################
@@ -335,6 +347,8 @@ target_link_libraries(
     boost_system
     boost_thread
     boost_serialization
+    boost_filesystem
+    boost_regex
     #
     ${log-lib}
 )
