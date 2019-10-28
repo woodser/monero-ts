@@ -16,6 +16,7 @@ int monero_wallet_wasm_bridge::create_wallet_random(const string& path, const st
     http_client_wasm http_client;
     tools::wallet2_base* w2_base = new tools::wallet2_base(http_client, static_cast<cryptonote::network_type>(network_type), 1, true);
     w2_base->set_seed_language(language);
+    cout << "Seed language: " << w2_base->get_seed_language();
     return (int) w2_base;
 
 //    monero_wallet_dummy* wallet = new monero_wallet_dummy();
