@@ -170,6 +170,7 @@ set(
     ${MONERO_CORE_SRC}/mnemonics/electrum-words.cpp
     ${MONERO_CORE_SRC}/vtlogger/logger.cpp
     ${MONERO_CORE}/contrib/libsodium/src/crypto_verify/verify.c
+    ${MONERO_CORE_SRC}/wallet/ringdb.cpp
     ###]]	# --- END BLOCK COMMENT ---
     
     #[[	--- START BLOCK COMMENT ---
