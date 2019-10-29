@@ -1,7 +1,11 @@
-HIGH
-switch biginteger from mymonero submodule
+HIGH (WASM)
+dummy method being called immediately after await MoneroWalletWasm.createWalletRandom() (MoneroWalletWasm.js:15?)
+include source file for v4_generate_JIT_code
+experiment removing most recently added source files to reduce wasm size
+optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
 
 automate node module tests
+switch biginteger from mymonero submodule
 remove support for {} and use pure OO?
 automate browser app build by copying index.html and asm files from monero_utils
 jni compare ground truth test sometimes shows gt output not unlocked but jni is unlocked
