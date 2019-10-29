@@ -1,5 +1,6 @@
 #include <iostream>
 #include "http_client_wasm.h"
+#include <emscripten.h>
 
 using namespace std;
 
@@ -28,8 +29,46 @@ bool http_client_wasm::is_connected(bool *ssl) {
   throw runtime_error("http_client_wasm::is_connected() not implemented");
 }
 
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
+//extern void testExternalJSMethod();
+//#ifdef __cplusplus
+//}
+//#endif
+
+EM_JS(void, call_alert, (), {
+  console.log("call_alert()");
+
+  let config = {
+      protocol: "http",
+      host: "localhost",
+      port: 38081,
+      user: "superuser",
+      pass: "abctesting123",
+      maxRequestsPerSecond: 50
+  };
+  let rpc = new MoneroRpcConnection(config);
+
+  Asyncify.handleSleep(function(wakeUp) {
+    console.log("waiting for a fetch");
+    rpc.sendJsonRequest("get_info").then(resp => {
+      console.log("Got response");
+      console.log(resp);
+      alert('hello world!');
+      wakeUp(resp);
+    });
+  });
+
+  //let resp = await rpc.sendJsonRequest("get_info");
+  //console.log(resp);
+  //MoneroDaemonRpc._checkResponseStatus(resp.result);
+  //return MoneroDaemonRpc._convertRpcInfo(resp.result);
+});
+
 bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
   cout << "invoke(" << uri << ", " << method << ", " << body << ")" << endl;
+  call_alert();
   throw runtime_error("http_client_wasm::invoke() not implemented");
 }
 
