@@ -30,7 +30,7 @@ bool http_client_wasm::is_connected(bool *ssl) {
 }
 
 EM_JS(int, do_fetch, (), {
-  console.log("call_alert()");
+  console.log("do_fetch()");
 
   let config = {
       protocol: "http",
