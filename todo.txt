@@ -1,4 +1,5 @@
 HIGH (WASM)
+js async workaround: MoneroWalletWasm:createWalletRandom() gets wallet address synchronously then loops until wallet is generated
 dummy method being called immediately after await MoneroWalletWasm.createWalletRandom() (MoneroWalletWasm.js:15?)
 include source file for v4_generate_JIT_code
 experiment removing most recently added source files to reduce wasm size
