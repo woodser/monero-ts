@@ -29,14 +29,6 @@ bool http_client_wasm::is_connected(bool *ssl) {
   throw runtime_error("http_client_wasm::is_connected() not implemented");
 }
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
-//extern void testExternalJSMethod();
-//#ifdef __cplusplus
-//}
-//#endif
-
 EM_JS(void, call_alert, (), {
   console.log("call_alert()");
 
@@ -59,11 +51,6 @@ EM_JS(void, call_alert, (), {
       wakeUp(resp);
     });
   });
-
-  //let resp = await rpc.sendJsonRequest("get_info");
-  //console.log(resp);
-  //MoneroDaemonRpc._checkResponseStatus(resp.result);
-  //return MoneroDaemonRpc._convertRpcInfo(resp.result);
 });
 
 bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
