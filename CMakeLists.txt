@@ -120,6 +120,12 @@ set_target_properties(
     ${BOOST}/lib/libboost_regex.a
 )
 
+#add_library(boost_atomic STATIC IMPORTED)
+#set_target_properties(
+    #boost_atomic PROPERTIES IMPORTED_LOCATION
+    #${BOOST}/lib/libboost_atomic.a
+#)
+
 ####################
 # Source files
 ####################
@@ -281,13 +287,14 @@ set (
     # TODO? does EXPORT_NAME need to be the same for both targets? (or should it be set per-target with …_WASM, …_ASMJS?)
     "-Wall -std=c++11 \
 --bind -s MODULARIZE=1 \
+-Oz \
 -s 'EXPORT_NAME=\"monero_cpp_library\"' \
 --llvm-lto 1 \
 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 -s ASSERTIONS=2 \
 -s EXIT_RUNTIME=0 \
 -s ASYNCIFY=1 \
--s 'ASYNCIFY_IMPORTS=[\"do_fetch\"]' \
+-s 'ASYNCIFY_IMPORTS=[\"do_fetch\",\"emscripten_sleep\"]' \
 -s PRECISE_F32=1 \
 -s DISABLE_EXCEPTION_CATCHING=0 \
 -s EXCEPTION_DEBUG=1 \
@@ -322,7 +329,6 @@ set(
     EMCC_LINKER_FLAGS__WASM
     "${EMCC_LINKER_FLAGS___BASE} \
 -s WASM=1 \
--Oz \
 -s ALLOW_MEMORY_GROWTH=1 \
 --post-js ${CMAKE_CURRENT_LIST_DIR}/src/module-post.js \
 "
@@ -356,6 +362,7 @@ target_link_libraries(
     boost_serialization
     boost_filesystem
     boost_regex
+    #boost_atomic
     #
     ${log-lib}
 )

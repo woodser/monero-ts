@@ -15,12 +15,14 @@ int monero_wallet_wasm_bridge::create_wallet_random(const string& path, const st
 
     http_client_wasm http_client;
     tools::wallet2_base* w2_base = new tools::wallet2_base(http_client, static_cast<cryptonote::network_type>(network_type), 1, true);
+    cout << "Created wallet2_base with address: " << ((int) w2_base) << endl;
     w2_base->set_seed_language(language);
     cout << "Seed language: " << w2_base->get_seed_language() << endl;
     crypto::secret_key secret_key;
     w2_base->generate(path, password, secret_key, false, false);
 //    std::string err;
 //    if (http_client.is_connected()) w2_base->set_refresh_from_block_height(w2_base->get_daemon_blockchain_height(err));
+    cout << "Returning new w2_base: " << ((int) w2_base) << endl;
     return (int) w2_base;
 
 //    monero_wallet_dummy* wallet = new monero_wallet_dummy();

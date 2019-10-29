@@ -5,7 +5,7 @@
 #include "monero_wallet_wasm_bridge.h"
 #include "monero_utils_wasm_bridge.h"
 
-// register bindings from C++ to JS using emscripten
+// register bindings from JS to C++ using emscripten
 EMSCRIPTEN_BINDINGS(module)
 {
   // register utility bindings
