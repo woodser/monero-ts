@@ -20,7 +20,7 @@ async function startApp() {
   const MoneroWalletWasm = await require("../src/main/js/wallet/MoneroWalletWasm")();
   
   // demonstrate wasm wallet
-  let walletWasm = MoneroWalletWasm.createWalletRandom("tempPath", "supersecretpassword123", 0, "http://localhost:38081", "superuser", "abctesting123", "English");  // TODO: proper network type
+  let walletWasm = await MoneroWalletWasm.createWalletRandom("tempPath", "supersecretpassword123", 0, "http://localhost:38081", "superuser", "abctesting123", "English");  // TODO: proper network type
   walletWasm.dummyMethod();
   
   // demonstrate using core utilities through web assembly

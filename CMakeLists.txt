@@ -287,7 +287,7 @@ set (
 -s ASSERTIONS=2 \
 -s EXIT_RUNTIME=0 \
 -s ASYNCIFY=1 \
--s 'ASYNCIFY_IMPORTS=[\"call_alert\"]' \
+-s 'ASYNCIFY_IMPORTS=[\"do_fetch\"]' \
 -s PRECISE_F32=1 \
 -s DISABLE_EXCEPTION_CATCHING=0 \
 -s EXCEPTION_DEBUG=1 \

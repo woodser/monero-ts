@@ -12,10 +12,9 @@ class MoneroWalletWasm {
     return new MoneroWalletWasm(cppAddress);
   }
   
-  static createWalletRandom(path, password, networkType, daemonUri, daemonUsername, daemonPassword, language) {
+  static async createWalletRandom(path, password, networkType, daemonUri, daemonUsername, daemonPassword, language) {
     console.log("MoneroWalletWasm.js::createWalletRandom(" + path + ", " + password + ", " + networkType + ", " + daemonUsername + ", " + daemonPassword + ", " + language + ")");
     let cppAddress = MoneroWalletWasm.WASM_MODULE.create_wallet_random(path, password, networkType, daemonUri, daemonUsername, daemonPassword, language);
-    cppAddress = MoneroWalletWasm.WASM_MODULE.create_wallet_dummy();  // TODO: remove
     return new MoneroWalletWasm(cppAddress);
   }
   
