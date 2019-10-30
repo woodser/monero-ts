@@ -189,6 +189,7 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
   response->m_response_code = respCode;
   response->m_response_comment = respMsg;
   response->m_body = respBody;
+  response->m_mime_tipe = "text/plain";
   //response->m_additional_fields
   //response->m_header_info
   //response->m_mime_tipe
@@ -200,6 +201,7 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
     cout << (*ppresponse_info)->m_response_code << endl;
     cout << (*ppresponse_info)->m_response_comment << endl;
     cout << (*ppresponse_info)->m_body << endl;
+    cout << (*ppresponse_info)->m_mime_tipe << endl;
   }
 
   return true;
