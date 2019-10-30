@@ -2,6 +2,8 @@
 #include <emscripten/fetch.h>
 #include <iostream>
 #include "http_client_wasm.h"
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 using namespace std;
 
@@ -125,9 +127,18 @@ EM_JS(const char*, do_fetch, (const char* uri, const char* method, const char* b
       //console.log(JSON.stringify(resp));
 
       // replace 16 or more digits with strings and parse
-      //resp = JSON.parse(resp.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // TODO: get this to compile in C++ or move to JS file
+      //resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // TODO: get this to compile in C++ or move to JS file
 
-      let respStr = JSON.stringify(resp.body);
+      // build response container
+      let respContainer = {
+        code: resp.statusCode,
+        message: resp.statusMessage,
+        body: resp.body,
+        headers: resp.headers
+      };
+
+      // serialize response container to heap // TODO: more efficient way?
+      let respStr = JSON.stringify(respContainer);
       let lengthBytes = Module.lengthBytesUTF8(respStr) + 1;
       let ptr = Module._malloc(lengthBytes);
       Module.stringToUTF8(respStr, ptr, lengthBytes);
@@ -153,10 +164,18 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
 
   //const char* myStr = "hello there";
 
+  // make network request and retrieve response from heap
   const char* respStr = do_fetch(uri.data(), method.data(), body.data(), timeout);
-  //int resp = do_fetch(myStr);
   cout << "Received response from do_fetch():\n" << respStr << endl;
-  if (respStr != 0) free((char*) respStr);
+
+  // deserialize response to property tree
+  std::istringstream iss = std::istringstream(std::string(respStr));
+  boost::property_tree::ptree resp_node;
+  boost::property_tree::read_json(iss, resp_node);
+  cout << "Done reading response to property tree" << endl;
+
+  // free response from heap
+  free((char*) respStr);
 
   // build http response
   http_response_info* response = new http_response_info;
