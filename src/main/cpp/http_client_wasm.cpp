@@ -66,6 +66,7 @@ EM_JS(const char*, do_fetch, (const char* uri, const char* method, const char* b
 
     // send throttled request
     console.log("fetching");
+    let wakeUpCalled = false;
     _throttledRequest(opts).then(resp => {
       console.log("GOT RESPONSE!!!");
       console.log(resp);
@@ -87,8 +88,10 @@ EM_JS(const char*, do_fetch, (const char* uri, const char* method, const char* b
       let lengthBytes = Module.lengthBytesUTF8(respStr) + 1;
       let ptr = Module._malloc(lengthBytes);
       Module.stringToUTF8(respStr, ptr, lengthBytes);
+      wakeUpCalled = true;
       wakeUp(ptr);
     }).catch(err => {
+       if (wakeUpCalled) throw Error("Error caught in JS after previously calling wakeUp(): " + err);
        console.log("ERROR!!!");
        console.log(err);
        let str = err.message ? err.message : ("" + err);
