@@ -7,62 +7,6 @@
 
 using namespace std;
 
-void http_client_wasm::set_server(std::string host, std::string port, boost::optional<login> user) {
-  cout << "set_server()" << endl;
-  throw runtime_error("http_client_wasm::set_server() not implemented");
-}
-
-void http_client_wasm::set_auto_connect(bool auto_connect) {
-  cout << "set_auto_connect()" << endl;
-  throw runtime_error("http_client_wasm::set_auto_connect() not implemented");
-}
-
-bool http_client_wasm::connect(std::chrono::milliseconds timeout) {
-  cout << "connect()" << endl;
-  throw runtime_error("http_client_wasm::connect() not implemented");
-}
-
-bool http_client_wasm::disconnect() {
-  cout << "disconnect()" << endl;
-  throw runtime_error("http_client_wasm::disconnect() not implemented");
-}
-
-bool http_client_wasm::is_connected(bool *ssl) {
-  cout << "is_connected()" << endl;
-  throw runtime_error("http_client_wasm::is_connected() not implemented");
-}
-
-//EM_JS(const char*, do_fetch, (const char* str), {
-//  const text = UTF8ToString(str);
-//
-//  return Asyncify.handleSleep(function(wakeUp) {
-//    console.log("do_fetch(" + text + ")");
-//
-//    let config = {
-//        protocol: "http",
-//        host: "localhost",
-//        port: 38081,
-//        user: "superuser",
-//        pass: "abctesting123",
-//        maxRequestsPerSecond: 50
-//    };
-//    let rpc = new MoneroRpcConnection(config);
-//
-//    console.log("fetching");
-//    rpc.sendJsonRequest("get_info").then(resp => {
-//      console.log("Got response");
-//      console.log(resp);
-//      console.log(JSON.stringify(resp));
-//
-//      let respStr = JSON.stringify(resp);
-//      let lengthBytes = Module.lengthBytesUTF8(respStr) + 1;
-//      let ptr = Module._malloc(lengthBytes);
-//      Module.stringToUTF8(respStr, ptr, lengthBytes);
-//      wakeUp(ptr);
-//    });
-//  });
-//});
-
 EM_JS(const char*, do_fetch, (const char* uri, const char* method, const char* body, std::chrono::milliseconds timeout), {
 
   // use asyncify to synchronously return to C++
@@ -90,7 +34,8 @@ EM_JS(const char*, do_fetch, (const char* uri, const char* method, const char* b
 
     // build request which gets json response as text
     let opts = {
-      method: UTF8ToString(method), // TODO: invoke() is passed "GET" which in incompatible with json_rpc?
+      //method: UTF8ToString(method),
+      method: "POST",  // TODO: invoke() is passed "GET" which in incompatible with json_rpc?
       uri: fullUri,
       body: UTF8ToString(body),
       agent: agent,
@@ -155,6 +100,36 @@ EM_JS(const char*, do_fetch, (const char* uri, const char* method, const char* b
   });
 });
 
+void http_client_wasm::set_server(std::string host, std::string port, boost::optional<login> login) {
+  cout << "set_server(" << host << ", " << port << ", <login>)" << endl;
+  m_host = host;
+  m_port = port;
+  m_login = login;
+}
+
+void http_client_wasm::set_auto_connect(bool auto_connect) {
+  cout << "set_auto_connect()" << endl;
+  throw runtime_error("http_client_wasm::set_auto_connect() not implemented");
+}
+
+bool http_client_wasm::connect(std::chrono::milliseconds timeout) {
+  cout << "connect()" << endl;
+  m_is_connected = true;    // TODO: do something!
+  return true;
+  //throw runtime_error("http_client_wasm::connect() not implemented");
+}
+
+bool http_client_wasm::disconnect() {
+  cout << "disconnect()" << endl;
+  m_is_connected = false;
+  return true;
+}
+
+bool http_client_wasm::is_connected(bool *ssl) {
+  cout << "is_connected()" << endl;
+  return m_is_connected;
+}
+
 bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
   cout << "invoke(" << uri << ", " << method << ", " << body << ")" << endl;
 
@@ -188,6 +163,7 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
 //  cout << "Got code from property tree: " << respCode << endl;
 
   // build http response
+  m_response_info.clear();  // TODO: use this instead
   http_response_info* response = new http_response_info;  // TODO: ensure erased
   response->m_response_code = respCode;
   response->m_response_comment = respMsg;
@@ -242,12 +218,12 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
 
 bool http_client_wasm::invoke_get(const boost::string_ref uri, std::chrono::milliseconds timeout, const std::string& body, const http_response_info** ppresponse_info, const fields_list& additional_params) {
   cout << "invoke_get()" << endl;
-  throw runtime_error("http_client_wasm::invoke_get() not implemented");
+  return http_client_wasm::invoke(uri, "GET", body, timeout, ppresponse_info, additional_params);
 }
 
 bool http_client_wasm::invoke_post(const boost::string_ref uri, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
   cout << "invoke_post()" << endl;
-  throw runtime_error("http_client_wasm::invoke_post() not implemented");
+  return http_client_wasm::invoke(uri, "POST", body, timeout, ppresponse_info, additional_params);
 }
 
 uint64_t http_client_wasm::get_bytes_sent() const {
