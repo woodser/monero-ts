@@ -45,7 +45,8 @@ EM_JS(const char*, do_fetch, (const char* str), {
         maxRequestsPerSecond: 50
     };
     let rpc = new MoneroRpcConnection(config);
-    console.log("waiting for a fetch");
+
+    console.log("fetching");
     rpc.sendJsonRequest("get_info").then(resp => {
       console.log("Got response");
       console.log(resp);
@@ -56,43 +57,9 @@ EM_JS(const char*, do_fetch, (const char* str), {
       let ptr = Module._malloc(lengthBytes);
       Module.stringToUTF8(respStr, ptr, lengthBytes);
       wakeUp(ptr);
-
-
-//      let size = resp.length * 8;
-//      let ptr = Module._malloc(size);
-//      let heap = new Uint8Array(Module.HEAPU8.buffer, ptr, size);
-
-//      var jsString = 'Hello with some exotic Unicode characters: Tässä on yksi lumiukko: ☃, ole hyvä.';
-//            // 'jsString.length' would return the length of the string as UTF-16
-//            // units, but Emscripten C strings operate as UTF-8.
-//            var lengthBytes = lengthBytesUTF8(jsString)+1;
-//            var stringOnWasmHeap = _malloc(lengthBytes);
-//            stringToUTF8(jsString, stringOnWasmHeap, lengthBytes+1);
-//            return stringOnWasmHeap;
-      // write binary to heap
-//          heap.set(new Uint8Array(uint8arr.buffer));
-//      console.log("POINTER WORKED: " + ptr);
-//
-//
-//      // write binary to heap
-//      heap.set(new Uint8Array(uint8arr.buffer));
-//
-//
-//      wakeUp(2);
     });
   });
 });
-
-void downloadSucceeded(emscripten_fetch_t *fetch) {
-  printf("Finished downloading %llu bytes from URL %s.\n", fetch->numBytes, fetch->url);
-  // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
-  emscripten_fetch_close(fetch); // Free data associated with the fetch.
-}
-
-void downloadFailed(emscripten_fetch_t *fetch) {
-  printf("Downloading %s failed, HTTP failure status code: %d.\n", fetch->url, fetch->status);
-  emscripten_fetch_close(fetch); // Also free data on failure.
-}
 
 bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
   cout << "invoke(" << uri << ", " << method << ", " << body << ")" << endl;
