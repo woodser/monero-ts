@@ -178,23 +178,29 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
   free((char*) respStr);
 
   string respMsg = resp_node.get<string>("message");
-  cout << "Got message from property tree: " << respMsg << endl;
   string respBody = resp_node.get<string>("body");
-  cout << "Got body from property tree: " << respBody << endl;
   int respCode = resp_node.get<int>("code");
-  cout << "Got code from property tree: " << respCode << endl;
+//  cout << "Got message from property tree: " << respMsg << endl;
+//  cout << "Got body from property tree: " << respBody << endl;
+//  cout << "Got code from property tree: " << respCode << endl;
 
   // build http response
   http_response_info* response = new http_response_info;
-  response->m_response_code = 320;
-  response->m_response_comment = "my response comment";
-  response->m_body = "my response body";
+  response->m_response_code = respCode;
+  response->m_response_comment = respMsg;
+  response->m_body = respBody;
   //response->m_additional_fields
   //response->m_header_info
   //response->m_mime_tipe
   response->m_http_ver_hi = 0;
   response->m_http_ver_lo = 0;
-  if (ppresponse_info && response->m_response_code != 401) *ppresponse_info = response;
+  if (ppresponse_info && response->m_response_code != 401) {
+    *ppresponse_info = response;
+    cout << "Response info set!!!" << endl;
+    cout << (*ppresponse_info)->m_response_code << endl;
+    cout << (*ppresponse_info)->m_response_comment << endl;
+    cout << (*ppresponse_info)->m_body << endl;
+  }
 
   return true;
 }
