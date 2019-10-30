@@ -30,11 +30,49 @@ bool http_client_wasm::is_connected(bool *ssl) {
   throw runtime_error("http_client_wasm::is_connected() not implemented");
 }
 
-EM_JS(const char*, do_fetch, (const char* str), {
-  const text = UTF8ToString(str);
+//EM_JS(const char*, do_fetch, (const char* str), {
+//  const text = UTF8ToString(str);
+//
+//  return Asyncify.handleSleep(function(wakeUp) {
+//    console.log("do_fetch(" + text + ")");
+//
+//    let config = {
+//        protocol: "http",
+//        host: "localhost",
+//        port: 38081,
+//        user: "superuser",
+//        pass: "abctesting123",
+//        maxRequestsPerSecond: 50
+//    };
+//    let rpc = new MoneroRpcConnection(config);
+//
+//    console.log("fetching");
+//    rpc.sendJsonRequest("get_info").then(resp => {
+//      console.log("Got response");
+//      console.log(resp);
+//      console.log(JSON.stringify(resp));
+//
+//      let respStr = JSON.stringify(resp);
+//      let lengthBytes = Module.lengthBytesUTF8(respStr) + 1;
+//      let ptr = Module._malloc(lengthBytes);
+//      Module.stringToUTF8(respStr, ptr, lengthBytes);
+//      wakeUp(ptr);
+//    });
+//  });
+//});
 
+EM_JS(const char*, do_fetch, (const char* uri, const char* method, const char* body, std::chrono::milliseconds timeout), {
+
+
+
+  // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
-    console.log("do_fetch(" + text + ")");
+
+    console.log("JS do_fetch(...):");
+    console.log("URI: " + UTF8ToString(uri));
+    console.log("Method: " + UTF8ToString(method));
+    console.log("Body: " + UTF8ToString(body));
+    console.log("Timeout: " + timeout);
 
     let config = {
         protocol: "http",
@@ -68,9 +106,9 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
   emscripten_sleep(5000);
   cout << "Done sleeping" << endl;
 
-  const char* myStr = "hello there";
+  //const char* myStr = "hello there";
 
-  const char* respStr = do_fetch(myStr);
+  const char* respStr = do_fetch(uri.data(), method.data(), body.data(), timeout);
   //int resp = do_fetch(myStr);
   printf("UTF8 string says: %s\n", respStr);
   cout << "Received response from do_fetch():\n" << respStr << endl;
