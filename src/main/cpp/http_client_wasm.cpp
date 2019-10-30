@@ -88,7 +88,7 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
 //  emscripten_fetch_t *fetch = emscripten_fetch(&attr, "http://localhost:38081/json_rpc");
 //  cout << "returned from emscripten fetch" << endl;
 
-  cout << "Starting sleep" << endl;
+  cout << "HTTP client starting sleep" << endl;
   emscripten_sleep(5000);
   cout << "Done sleeping" << endl;
 
