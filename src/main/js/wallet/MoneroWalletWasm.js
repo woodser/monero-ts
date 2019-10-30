@@ -14,22 +14,22 @@ class MoneroWalletWasm {
   
   static async createWalletRandom(path, password, networkType, daemonUri, daemonUsername, daemonPassword, language) {
     console.log("MoneroWalletWasm.js::createWalletRandom(" + path + ", " + password + ", " + networkType + ", " + daemonUsername + ", " + daemonPassword + ", " + language + ")");
-    console.log(MoneroWalletWasm.WASM_MODULE);
     
-//    // Invoke external methods on the WASM using the `.call(name, ...args, cb)` method.
-//    MoneroWalletWasm.WASM_MODULE.call('create_wallet_random', path, password, networkType, daemonUri, daemonUsername, daemonPassword, language, function (err, val) {
-//      console.log('done', err, val)
-//      aw.destroy()
-//    });
-    
-    
-    let cppAddress = MoneroWalletWasm.WASM_MODULE.create_wallet_random(path, password, networkType, daemonUri, daemonUsername, daemonPassword, language);
-    console.log("Received initialized wallet cppAddress: " + cppAddress);
-    return new MoneroWalletWasm(cppAddress);
+    // return promise which is resolved on callback
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(cppAddress) {
+        console.log("Received callback argument!!! " + cppAddress);
+        resolve(new MoneroWalletWasm(cppAddress));
+      };
+      
+      // create wallet in wasm and invoke callback when done
+      MoneroWalletWasm.WASM_MODULE.create_wallet_random(path, password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);
+    });
   }
   
   // --------------------------- INSTANCE METHODS -----------------------------
-  
   
   /**
    * Internal constructor which is given the memory address of a C++ wallet
