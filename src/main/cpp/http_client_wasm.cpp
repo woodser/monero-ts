@@ -102,6 +102,7 @@ EM_JS(const char*, do_fetch, (const char* uri, const char* method, const char* b
 
 void http_client_wasm::set_server(std::string host, std::string port, boost::optional<login> login) {
   cout << "set_server(" << host << ", " << port << ", <login>)" << endl;
+  disconnect();
   m_host = host;
   m_port = port;
   m_login = login;
