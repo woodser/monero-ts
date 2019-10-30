@@ -162,7 +162,10 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
 //  emscripten_sleep(5000);
 //  cout << "Done sleeping" << endl;
 
-  //const char* myStr = "hello there";
+  // TODO: use additional params in request
+//  http::fields_list additional_params;
+//  additional_params.push_back(std::make_pair("Content-Type","application/json; charset=utf-8"));  // TODO: populate?
+//  response->m_additional_params = additional_params;
 
   // make network request and retrieve response from heap
   const char* respStr = do_fetch(uri.data(), method.data(), body.data(), timeout);
@@ -222,13 +225,6 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
   }
   response->m_header_info = header_info;  // TODO: erased after stack?
 
-
-  //else if (key == string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) send_request->m_subaddress_indices.push_back(it2->second.get_value<uint32_t>());
-
-
-  //response->m_additional_fields
-  //response->m_header_info
-  //response->m_mime_tipe
   response->m_http_ver_hi = 0;
   response->m_http_ver_lo = 0;
   if (ppresponse_info && response->m_response_code != 401) {
