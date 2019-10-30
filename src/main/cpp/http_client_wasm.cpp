@@ -63,38 +63,83 @@ bool http_client_wasm::is_connected(bool *ssl) {
 
 EM_JS(const char*, do_fetch, (const char* uri, const char* method, const char* body, std::chrono::milliseconds timeout), {
 
-
-
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
 
-    console.log("JS do_fetch(...):");
-    console.log("URI: " + UTF8ToString(uri));
-    console.log("Method: " + UTF8ToString(method));
-    console.log("Body: " + UTF8ToString(body));
-    console.log("Timeout: " + timeout);
+    const Http = require('http');
+    const Request = require("request-promise");
+    const PromiseThrottle = require("promise-throttle");
 
-    let config = {
-        protocol: "http",
-        host: "localhost",
-        port: 38081,
-        user: "superuser",
-        pass: "abctesting123",
-        maxRequestsPerSecond: 50
+    // initialize promise throttler // TODO: use common
+    this.promiseThrottle = new PromiseThrottle({
+      requestsPerSecond: 500,
+      promiseImplementation: Promise
+    });
+
+    // initialize http agent  // TODO: use common
+    let agent = new Http.Agent({keepAlive: true, maxSockets: 1});
+
+    // initialize request config // TODO: use set_server config
+    this.config = {};
+    this.config.user = "superuser";
+    this.config.pass = "abctesting123";
+    let fullUri = "http://localhost:38081" + UTF8ToString(uri);
+    console.log("Full URI: " + fullUri);
+
+    // build request which gets json response as text
+    let opts = {
+      method: "POST", // TODO: invoke() is passed "GET" which in incompatible with json_rpc?
+      uri: fullUri,
+      body: UTF8ToString(body),
+      agent: agent,
+      resolveWithFullResponse: true
     };
-    let rpc = new MoneroRpcConnection(config);
+    if (this.config.user) {
+      opts.forever = true;
+      opts.auth = {
+        user: this.config.user,
+        pass: this.config.pass,
+        sendImmediately: false
+      }
+    }
 
+    console.log("Sending request with opts:");
+    console.log(opts);
+
+    console.log("Timeout: " + timeout); // TODO: use timeout
+
+    /**
+     * Makes a throttled request.
+     *
+     * TODO: move to common
+     */
+    function _throttledRequest(opts) {
+      return this.promiseThrottle.add(function(opts) { return Request(opts); }.bind(this, opts));
+    }
+
+    // send throttled request
     console.log("fetching");
-    rpc.sendJsonRequest("get_info").then(resp => {
-      console.log("Got response");
+    _throttledRequest(opts).then(resp => {
+      console.log("GOT RESPONSE!!!");
       console.log(resp);
-      console.log(JSON.stringify(resp));
+      //console.log(JSON.stringify(resp));
 
-      let respStr = JSON.stringify(resp);
+      // replace 16 or more digits with strings and parse
+      //resp = JSON.parse(resp.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // TODO: get this to compile in C++ or move to JS file
+
+      let respStr = JSON.stringify(resp.body);
       let lengthBytes = Module.lengthBytesUTF8(respStr) + 1;
       let ptr = Module._malloc(lengthBytes);
       Module.stringToUTF8(respStr, ptr, lengthBytes);
       wakeUp(ptr);
+    }).catch(err => {
+       console.log("ERROR!!!");
+       console.log(err);
+       let str = err.message;
+       let lengthBytes = Module.lengthBytesUTF8(str) + 1;
+       let ptr = Module._malloc(lengthBytes);
+       Module.stringToUTF8(str, ptr, lengthBytes);
+       wakeUp(ptr);
     });
   });
 });
@@ -102,17 +147,16 @@ EM_JS(const char*, do_fetch, (const char* uri, const char* method, const char* b
 bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
   cout << "invoke(" << uri << ", " << method << ", " << body << ")" << endl;
 
-  cout << "HTTP client starting sleep" << endl;
-  emscripten_sleep(5000);
-  cout << "Done sleeping" << endl;
+//  cout << "HTTP client starting sleep" << endl;
+//  emscripten_sleep(5000);
+//  cout << "Done sleeping" << endl;
 
   //const char* myStr = "hello there";
 
   const char* respStr = do_fetch(uri.data(), method.data(), body.data(), timeout);
   //int resp = do_fetch(myStr);
-  printf("UTF8 string says: %s\n", respStr);
   cout << "Received response from do_fetch():\n" << respStr << endl;
-  free((char*) respStr);
+  if (respStr != 0) free((char*) respStr);
 
   // build http response
   http_response_info* response = new http_response_info;

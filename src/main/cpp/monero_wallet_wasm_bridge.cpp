@@ -27,10 +27,10 @@ void monero_wallet_wasm_bridge::create_wallet_random(const string& path, const s
     cout << "Seed language: " << w2_base->get_seed_language() << endl;
     crypto::secret_key secret_key;
 
-    // simulate doing async work
-    cout << "Starting sleep" << endl;
-    emscripten_sleep(5000);
-    cout << "Done sleeping" << endl;
+//    // simulate doing async work
+//    cout << "Starting sleep" << endl;
+//    emscripten_sleep(5000);
+//    cout << "Done sleeping" << endl;
 
     w2_base->generate(path, password, secret_key, false, false);
 //    std::string err;
