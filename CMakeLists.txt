@@ -301,7 +301,7 @@ set (
 -s DEMANGLE_SUPPORT=1 \
 -s NO_DYNAMIC_EXECUTION=1 \
 -s NODEJS_CATCH_EXIT=0 \
--s EXTRA_EXPORTED_RUNTIME_METHODS='[\"UTF8ToString\"]' \
+-s EXTRA_EXPORTED_RUNTIME_METHODS='[\"UTF8ToString\",\"stringToUTF8\",\"lengthBytesUTF8\"]' \
 "
     # • Disabling exception catching does not introduce silent failures 
     # • Probably don't need PRECISE_F32 but wouldn't want to not use it
