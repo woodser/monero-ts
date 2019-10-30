@@ -177,6 +177,13 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
   // free response from heap
   free((char*) respStr);
 
+  string respMsg = resp_node.get<string>("message");
+  cout << "Got message from property tree: " << respMsg << endl;
+  string respBody = resp_node.get<string>("body");
+  cout << "Got body from property tree: " << respBody << endl;
+  int respCode = resp_node.get<int>("code");
+  cout << "Got code from property tree: " << respCode << endl;
+
   // build http response
   http_response_info* response = new http_response_info;
   response->m_response_code = 320;
