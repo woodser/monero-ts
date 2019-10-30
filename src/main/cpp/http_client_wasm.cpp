@@ -195,35 +195,35 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
   response->m_mime_tipe = "text/plain";
 
   // translate headers
-  http_header_info header_info;
+  http_header_info* header_info = new http_header_info;
   boost::property_tree::ptree headers_node = resp_node.get_child("headers");
   for (const auto& header : headers_node) {
     string key = header.first;
     string value = header.second.data();
     if (!string_tools::compare_no_case(key, "Connection"))
-      header_info.m_connection = value;
+      header_info->m_connection = value;
     else if(!string_tools::compare_no_case(key, "Referrer"))
-      header_info.m_referer = value;
+      header_info->m_referer = value;
     else if(!string_tools::compare_no_case(key, "Content-Length"))
-      header_info.m_content_length = value;
+      header_info->m_content_length = value;
     else if(!string_tools::compare_no_case(key, "Content-Type"))
-      header_info.m_content_type = value;
+      header_info->m_content_type = value;
     else if(!string_tools::compare_no_case(key, "Transfer-Encoding"))
-      header_info.m_transfer_encoding = value;
+      header_info->m_transfer_encoding = value;
     else if(!string_tools::compare_no_case(key, "Content-Encoding"))
-      header_info.m_content_encoding = value;
+      header_info->m_content_encoding = value;
     else if(!string_tools::compare_no_case(key, "Host"))
-      header_info.m_host = value;
+      header_info->m_host = value;
     else if(!string_tools::compare_no_case(key, "Cookie"))
-      header_info.m_cookie = value;
+      header_info->m_cookie = value;
     else if(!string_tools::compare_no_case(key, "User-Agent"))
-      header_info.m_user_agent = value;
+      header_info->m_user_agent = value;
     else if(!string_tools::compare_no_case(key, "Origin"))
-      header_info.m_origin = value;
+      header_info->m_origin = value;
     else
-      header_info.m_etc_fields.emplace_back(key, value);
+      header_info->m_etc_fields.emplace_back(key, value);
   }
-  response->m_header_info = header_info;  // TODO: erased after stack?
+  response->m_header_info = *header_info;  // TODO: erase
 
   response->m_http_ver_hi = 0;
   response->m_http_ver_lo = 0;
