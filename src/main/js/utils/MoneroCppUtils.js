@@ -23,7 +23,7 @@ class MoneroCppUtils {
     binMemInfo.ptr = parseInt(binMemInfo.ptr);
     binMemInfo.length = parseInt(binMemInfo.length);
     
-    // read binary data from heap to Uin8Array
+    // read binary data from heap to Uint8Array
     let view = new Uint8Array(binMemInfo.length);
     for (let i = 0; i < binMemInfo.length; i++) {
       view[i] = MoneroCppUtils.WASM_MODULE.HEAPU8[binMemInfo.ptr / Uint8Array.BYTES_PER_ELEMENT + i];
