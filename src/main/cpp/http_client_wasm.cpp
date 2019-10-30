@@ -30,7 +30,7 @@ bool http_client_wasm::is_connected(bool *ssl) {
   throw runtime_error("http_client_wasm::is_connected() not implemented");
 }
 
-EM_JS(int, do_fetch, (const char* str), {
+EM_JS(const char*, do_fetch, (const char* str), {
   const text = UTF8ToString(str);
 
   return Asyncify.handleSleep(function(wakeUp) {
@@ -45,13 +45,40 @@ EM_JS(int, do_fetch, (const char* str), {
         maxRequestsPerSecond: 50
     };
     let rpc = new MoneroRpcConnection(config);
-
     console.log("waiting for a fetch");
     rpc.sendJsonRequest("get_info").then(resp => {
       console.log("Got response");
       console.log(resp);
       console.log(JSON.stringify(resp));
-      wakeUp(2);
+
+      let respStr = JSON.stringify(resp);
+      let lengthBytes = Module.lengthBytesUTF8(respStr) + 1;
+      let ptr = Module._malloc(lengthBytes);
+      Module.stringToUTF8(respStr, ptr, lengthBytes);
+      wakeUp(ptr);
+
+
+//      let size = resp.length * 8;
+//      let ptr = Module._malloc(size);
+//      let heap = new Uint8Array(Module.HEAPU8.buffer, ptr, size);
+
+//      var jsString = 'Hello with some exotic Unicode characters: Tässä on yksi lumiukko: ☃, ole hyvä.';
+//            // 'jsString.length' would return the length of the string as UTF-16
+//            // units, but Emscripten C strings operate as UTF-8.
+//            var lengthBytes = lengthBytesUTF8(jsString)+1;
+//            var stringOnWasmHeap = _malloc(lengthBytes);
+//            stringToUTF8(jsString, stringOnWasmHeap, lengthBytes+1);
+//            return stringOnWasmHeap;
+      // write binary to heap
+//          heap.set(new Uint8Array(uint8arr.buffer));
+//      console.log("POINTER WORKED: " + ptr);
+//
+//
+//      // write binary to heap
+//      heap.set(new Uint8Array(uint8arr.buffer));
+//
+//
+//      wakeUp(2);
     });
   });
 });
@@ -70,50 +97,31 @@ void downloadFailed(emscripten_fetch_t *fetch) {
 bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
   cout << "invoke(" << uri << ", " << method << ", " << body << ")" << endl;
 
-//  emscripten_fetch_attr_t attr;
-//  emscripten_fetch_attr_init(&attr);
-//  strcpy(attr.requestMethod, "POST");
-//  const char * headers[] = {"Content-Type", "application/json", 0};
-//  attr.requestHeaders = headers;
-//  attr.requestData = "key1=var1&key2=var2&key3=var3";
-//  attr.requestDataSize = strlen(attr.requestData);
-//  attr.withCredentials = true;
-//  attr.userName = "superuser";
-//  attr.password = "abctesting123";
-//  //attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
-//  //attr.attributes = EMSCRIPTEN_FETCH_SYNCHRONOUS | EMSCRIPTEN_FETCH_REPLACE;
-//  attr.onsuccess = downloadSucceeded;
-//  attr.onerror = downloadFailed;
-//  cout << "sending emscripten fetch" << endl;
-//  emscripten_fetch_t *fetch = emscripten_fetch(&attr, "http://localhost:38081/json_rpc");
-//  cout << "returned from emscripten fetch" << endl;
-
   cout << "HTTP client starting sleep" << endl;
   emscripten_sleep(5000);
   cout << "Done sleeping" << endl;
 
-
-//  EMSCRIPTEN_RESULT ret = EMSCRIPTEN_RESULT_TIMED_OUT;
-//    while(ret == EMSCRIPTEN_RESULT_TIMED_OUT) {
-//      /* possibly do some other work; */
-//      ret = emscripten_fetch_wait(fetch, 0/*milliseconds to wait, 0 to just poll, INFINITY=wait until completion*/);
-//    }
-
-//  if (fetch->status == 200) {
-//    printf("Finished downloading %llu bytes from URL %s.\n", fetch->numBytes, fetch->url);
-//    // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
-//  } else {
-//    printf("Downloading %s failed ... HTTP failure status code: %d.\n", fetch->url, fetch->status);
-//  }
-//  emscripten_fetch_close(fetch);
-//  cout << "Done closing fetch" << endl;
-//
-//  cout << "Done invoking emscripten fetch?" << endl;
-
   const char* myStr = "hello there";
-  int resp = do_fetch(myStr);
-  cout << "Received response from do_fetch():\n" << resp << endl;
-  throw runtime_error("http_client_wasm::invoke() not implemented");
+
+  const char* respStr = do_fetch(myStr);
+  //int resp = do_fetch(myStr);
+  printf("UTF8 string says: %s\n", respStr);
+  cout << "Received response from do_fetch():\n" << respStr << endl;
+  free((char*) respStr);
+
+  // build http response
+  http_response_info* response = new http_response_info;
+  response->m_response_code = 320;
+  response->m_response_comment = "my response comment";
+  response->m_body = "my response body";
+  //response->m_additional_fields
+  //response->m_header_info
+  //response->m_mime_tipe
+  response->m_http_ver_hi = 0;
+  response->m_http_ver_lo = 0;
+  if (ppresponse_info && response->m_response_code != 401) *ppresponse_info = response;
+
+  return true;
 }
 
 bool http_client_wasm::invoke_get(const boost::string_ref uri, std::chrono::milliseconds timeout, const std::string& body, const http_response_info** ppresponse_info, const fields_list& additional_params) {
