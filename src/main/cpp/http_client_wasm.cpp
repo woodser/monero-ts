@@ -90,7 +90,7 @@ EM_JS(const char*, do_fetch, (const char* uri, const char* method, const char* b
 
     // build request which gets json response as text
     let opts = {
-      method: "POST", // TODO: invoke() is passed "GET" which in incompatible with json_rpc?
+      method: UTF8ToString(method), // TODO: invoke() is passed "GET" which in incompatible with json_rpc?
       uri: fullUri,
       body: UTF8ToString(body),
       agent: agent,
