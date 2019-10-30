@@ -185,11 +185,47 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
 //  cout << "Got code from property tree: " << respCode << endl;
 
   // build http response
-  http_response_info* response = new http_response_info;
+  http_response_info* response = new http_response_info;  // TODO: ensure erased
   response->m_response_code = respCode;
   response->m_response_comment = respMsg;
   response->m_body = respBody;
   response->m_mime_tipe = "text/plain";
+
+  // translate headers
+  http_header_info header_info;
+  boost::property_tree::ptree headers_node = resp_node.get_child("headers");
+  for (const auto& header : headers_node) {
+    string key = header.first;
+    string value = header.second.data();
+    if (!string_tools::compare_no_case(key, "Connection"))
+      header_info.m_connection = value;
+    else if(!string_tools::compare_no_case(key, "Referrer"))
+      header_info.m_referer = value;
+    else if(!string_tools::compare_no_case(key, "Content-Length"))
+      header_info.m_content_length = value;
+    else if(!string_tools::compare_no_case(key, "Content-Type"))
+      header_info.m_content_type = value;
+    else if(!string_tools::compare_no_case(key, "Transfer-Encoding"))
+      header_info.m_transfer_encoding = value;
+    else if(!string_tools::compare_no_case(key, "Content-Encoding"))
+      header_info.m_content_encoding = value;
+    else if(!string_tools::compare_no_case(key, "Host"))
+      header_info.m_host = value;
+    else if(!string_tools::compare_no_case(key, "Cookie"))
+      header_info.m_cookie = value;
+    else if(!string_tools::compare_no_case(key, "User-Agent"))
+      header_info.m_user_agent = value;
+    else if(!string_tools::compare_no_case(key, "Origin"))
+      header_info.m_origin = value;
+    else
+      header_info.m_etc_fields.emplace_back(key, value);
+  }
+  response->m_header_info = header_info;  // TODO: erased after stack?
+
+
+  //else if (key == string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) send_request->m_subaddress_indices.push_back(it2->second.get_value<uint32_t>());
+
+
   //response->m_additional_fields
   //response->m_header_info
   //response->m_mime_tipe
@@ -202,6 +238,7 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
     cout << (*ppresponse_info)->m_response_comment << endl;
     cout << (*ppresponse_info)->m_body << endl;
     cout << (*ppresponse_info)->m_mime_tipe << endl;
+    cout << "Content type header: " << (*ppresponse_info)->m_header_info.m_content_type << endl;
   }
 
   return true;
