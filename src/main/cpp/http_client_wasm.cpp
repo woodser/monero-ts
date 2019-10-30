@@ -146,7 +146,7 @@ EM_JS(const char*, do_fetch, (const char* uri, const char* method, const char* b
     }).catch(err => {
        console.log("ERROR!!!");
        console.log(err);
-       let str = err.message;
+       let str = err.message ? err.message : ("" + err);
        let lengthBytes = Module.lengthBytesUTF8(str) + 1;
        let ptr = Module._malloc(lengthBytes);
        Module.stringToUTF8(str, ptr, lengthBytes);
