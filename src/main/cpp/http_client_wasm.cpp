@@ -313,18 +313,26 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
 //  additional_params.push_back(std::make_pair("Content-Type","application/json; charset=utf-8"));  // TODO: populate?
 //  response->m_additional_params = additional_params;
 
+  // build response object
+  http_response_info* response = new http_response_info;  // TODO: ensure erased
+
   // make network request and retrieve response from heap
   const char* resp_str = 0;
   string uri_str = uri.data();
-  if (0 == uri_str.compare(uri_str.length() - 4, 4, string(".bin"))) {
+
+  bool is_binary = (0 == uri_str.compare(uri_str.length() - 4, 4, string(".bin")));
+
+  if (is_binary) {
     cout << "Calling binary request with body: " << endl;
     cout << body.data() << endl;
     resp_str = js_send_binary_request(uri.data(), method.data(), body.data(), body.length(), timeout);
     cout << "Received response from js_send_binary_request():\n" << resp_str << endl;
+    response->m_mime_tipe = "application/octet-stream";
   } else {
     cout << "Calling json request" << endl;
     resp_str = js_send_json_request(uri.data(), method.data(), body.data(), timeout);
     cout << "Received response from js_send_json_request():\n" << resp_str << endl;
+    response->m_mime_tipe = "application/json";
   }
 
   // deserialize response to property tree
@@ -337,7 +345,6 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
   free((char*) resp_str);
 
   string respMsg = resp_node.get<string>("message");
-  string respBody = resp_node.get<string>("body");
   int respCode = resp_node.get<int>("code");
 //  cout << "Got message from property tree: " << respMsg << endl;
 //  cout << "Got body from property tree: " << respBody << endl;
@@ -345,11 +352,16 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
 
   // build http response
   m_response_info.clear();  // TODO: use this instead
-  http_response_info* response = new http_response_info;  // TODO: ensure erased
   response->m_response_code = respCode;
   response->m_response_comment = respMsg;
-  response->m_body = respBody;
-  response->m_mime_tipe = "application/json";
+
+  if (is_binary) {
+      boost::property_tree::ptree body_node = resp_node.get_child("body");
+      response->m_body = body_node.get<string>("data");
+  } else {
+      string respBody = resp_node.get<string>("body");
+      response->m_body = respBody;
+  }
 
   // translate headers
   http_header_info* header_info = new http_header_info;
