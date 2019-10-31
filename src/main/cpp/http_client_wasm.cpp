@@ -7,7 +7,9 @@
 
 using namespace std;
 
-EM_JS(const char*, do_fetch, (const char* uri, const char* method, const char* body, std::chrono::milliseconds timeout), {
+// TODO: factor js code to js file, possible use by MoneroRpcConnection, or change MoneroRpcConnection interface
+
+EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, const char* body, std::chrono::milliseconds timeout), {
 
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
@@ -91,15 +93,173 @@ EM_JS(const char*, do_fetch, (const char* uri, const char* method, const char* b
       wakeUpCalled = true;
       wakeUp(ptr);
     }).catch(err => {
-       if (wakeUpCalled) throw Error("Error caught in JS after previously calling wakeUp(): " + err);
-       console.log("ERROR!!!");
-       console.log(err);
-       let str = err.message ? err.message : ("" + err);
-       let lengthBytes = Module.lengthBytesUTF8(str) + 1;
-       let ptr = Module._malloc(lengthBytes);
-       Module.stringToUTF8(str, ptr, lengthBytes);
-       wakeUp(ptr);
+      if (wakeUpCalled) throw Error("Error caught in JS after previously calling wakeUp(): " + err);
+      console.log("ERROR!!!");
+      console.log(err);
+      let str = err.message ? err.message : ("" + err);
+      let lengthBytes = Module.lengthBytesUTF8(str) + 1;
+      let ptr = Module._malloc(lengthBytes);
+      Module.stringToUTF8(str, ptr, lengthBytes);
+      wakeUp(ptr);
     });
+  });
+});
+
+EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method, const char* body, std::chrono::milliseconds timeout), {
+
+  // use asyncify to synchronously return to C++
+  return Asyncify.handleSleep(function(wakeUp) {
+
+    const Http = require('http');
+    const Request = require("request-promise");
+    const PromiseThrottle = require("promise-throttle");
+
+    // initialize promise throttler // TODO: use common
+    this.promiseThrottle = new PromiseThrottle({
+      requestsPerSecond: 500,
+      promiseImplementation: Promise
+    });
+
+    // initialize http agent  // TODO: use common
+    let agent = new Http.Agent({keepAlive: true, maxSockets: 1});
+
+    // initialize request config // TODO: use set_server config
+    this.config = {};
+    this.config.user = "superuser";
+    this.config.pass = "abctesting123";
+    let fullUri = "http://localhost:38081" + UTF8ToString(uri);
+    console.log("Full URI: " + fullUri);
+
+    // fetch MoneroCppUtils to convert from json to binary
+    MoneroUtils.getCppUtils().then(MoneroCppUtils => {
+
+      console.log("Retrieved MoneroCppUtils");
+
+      let testJson = {
+          hello: "there",
+          how: "are you?"
+      };
+      //let testStr = JSON.stringify(testJson);
+      let testBin = MoneroCppUtils.jsonToBinary(testJson);
+      console.log("Converted to binary:");
+      console.log(testBin);
+
+      console.log("Back to JSON:");
+      let testJson2 = MoneroCppUtils.binaryToJson(testBin);
+      console.log(testJson2);
+
+
+      let ptr = body;
+      console.log("Ptr: ");
+      console.log(ptr);
+      let length = Module.UTF8ToString(body).length + 1; // TODO: better way to get string length than allocating new string
+      console.log("Length: " + length);
+
+      // read binary data from heap to Uint8Array
+      let view = new Uint8Array(length);
+      for (let i = 0; i < length; i++) {
+        view[i] = Module.HEAPU8[ptr / Uint8Array.BYTES_PER_ELEMENT + i];
+      }
+      console.log("Created view: ");
+      console.log(view);
+
+      console.log("View to JSON:");
+      let viewJson = MoneroCppUtils.binaryToJson(view);
+      console.log(viewJson);
+
+
+//      let temp = MoneroCppUtils.binaryToJson(view);
+//      console.log("Binary to JSON: ");
+//      console.log(temp);
+//
+//      let bodyBin = view;
+
+
+//      // serialize params
+//      //let bodyBin = UTF8ToString(body);
+//      let bodyBin = intArrayToString(body);
+//      console.log("bodyBin:");
+//      console.log(bodyBin);
+      //console.log("Converting JSON body to binary: " + bodyStr);
+
+      //console.log("Done converting to binary");
+
+      // build request which gets json response as text
+      let opts = {
+        method: UTF8ToString(method),
+        uri: fullUri,
+        body: view,
+        agent: agent,
+        resolveWithFullResponse: true,
+        encoding: null
+      };
+      if (this.config.user) {
+        opts.forever = true;
+        opts.auth = {
+          user: this.config.user,
+          pass: this.config.pass,
+          sendImmediately: false
+        }
+      }
+
+      console.log("Sending request with opts:");
+      console.log(opts);
+
+      console.log("Timeout: " + timeout); // TODO: use timeout
+
+      /**
+       * Makes a throttled request.
+       *
+       * TODO: move to common
+       */
+      function _throttledRequest(opts) {
+        return this.promiseThrottle.add(function(opts) { return Request(opts); }.bind(this, opts));
+      }
+
+
+      // send throttled request
+      console.log("fetching");
+      let wakeUpCalled = false;
+      _throttledRequest(opts).then(resp => {
+        console.log("GOT RESPONSE!!!");
+        console.log(resp);
+        //console.log(JSON.stringify(resp));
+
+        // TODO: return this
+        //return new Uint8Array(resp, 0, resp.length);
+
+        // replace 16 or more digits with strings and parse
+        //resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // TODO: get this to compile in C++ or move to JS file
+
+        // build response container
+        let respContainer = {
+          code: resp.statusCode,
+          message: resp.statusMessage,
+          body: resp.body,
+          headers: resp.headers
+        };
+
+        // serialize response container to heap // TODO: more efficient way?
+        let respStr = JSON.stringify(respContainer);
+        let lengthBytes = Module.lengthBytesUTF8(respStr) + 1;
+        let ptr = Module._malloc(lengthBytes);
+        Module.stringToUTF8(respStr, ptr, lengthBytes);
+        wakeUpCalled = true;
+        wakeUp(ptr);
+      }).catch(err => {
+        if (wakeUpCalled) throw Error("Error caught in JS after previously calling wakeUp(): " + err);
+        console.log("ERROR!!!");
+        console.log(err);
+        let str = err.message ? err.message : ("" + err);
+        let lengthBytes = Module.lengthBytesUTF8(str) + 1;
+        let ptr = Module._malloc(lengthBytes);
+        Module.stringToUTF8(str, ptr, lengthBytes);
+        wakeUp(ptr);
+      });
+    });
+
+//    // get core utils to serialize and deserialize binary requests
+//    let MoneroCppUtils = await MoneroUtils.getCppUtils();
   });
 });
 
@@ -152,17 +312,27 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
 //  response->m_additional_params = additional_params;
 
   // make network request and retrieve response from heap
-  const char* respStr = do_fetch(uri.data(), method.data(), body.data(), timeout);
-  cout << "Received response from do_fetch():\n" << respStr << endl;
+  const char* resp_str = 0;
+  string uri_str = uri.data();
+  if (0 == uri_str.compare(uri_str.length() - 4, 4, string(".bin"))) {
+    cout << "Calling binary request with body: " << endl;
+    cout << body.data() << endl;
+    resp_str = js_send_binary_request(uri.data(), method.data(), body.data(), timeout);
+    cout << "Received response from js_send_binary_request():\n" << resp_str << endl;
+  } else {
+    cout << "Calling json request" << endl;
+    resp_str = js_send_json_request(uri.data(), method.data(), body.data(), timeout);
+    cout << "Received response from js_send_json_request():\n" << resp_str << endl;
+  }
 
   // deserialize response to property tree
-  std::istringstream iss = std::istringstream(std::string(respStr));
+  std::istringstream iss = std::istringstream(std::string(resp_str));
   boost::property_tree::ptree resp_node;
   boost::property_tree::read_json(iss, resp_node);
   cout << "Done reading response to property tree" << endl;
 
   // free response from heap
-  free((char*) respStr);
+  free((char*) resp_str);
 
   string respMsg = resp_node.get<string>("message");
   string respBody = resp_node.get<string>("body");
