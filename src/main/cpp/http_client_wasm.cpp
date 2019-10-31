@@ -233,21 +233,35 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
         // replace 16 or more digits with strings and parse
         //resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // TODO: get this to compile in C++ or move to JS file
 
+        // allocate space in c++ heap for binary
+        console.log("Response body length: " + resp.body.length);
+        console.log("Response body BYTES_PER_ELEMENT: " + resp.body.BYTES_PER_ELEMENT);
+
+        // write binary body to heap and pass back pointer
+        let bodyPtr = Module._malloc(resp.body.length * resp.body.BYTES_PER_ELEMENT);
+        let heap = new Uint8Array(Module.HEAPU8.buffer, bodyPtr, resp.body.length * resp.body.BYTES_PER_ELEMENT);
+        heap.set(new Uint8Array(resp.body.buffer));
+
+//        // create object with binary memory address info
+//        let binMemInfo = { ptr: ptr, length: uint8arr.length  }
+
         // build response container
         let respContainer = {
           code: resp.statusCode,
           message: resp.statusMessage,
-          body: resp.body,
-          headers: resp.headers
+          //body: new Uint8Array(resp.body, 0, resp.body.length),
+          headers: resp.headers,
+          bodyPtr: bodyPtr,
+          bodyLength: resp.body.length
         };
 
         // serialize response container to heap // TODO: more efficient way?
         let respStr = JSON.stringify(respContainer);
         let lengthBytes = Module.lengthBytesUTF8(respStr) + 1;
-        let ptr = Module._malloc(lengthBytes);
-        Module.stringToUTF8(respStr, ptr, lengthBytes);
+        let respPtr = Module._malloc(lengthBytes);
+        Module.stringToUTF8(respStr, respPtr, lengthBytes);
         wakeUpCalled = true;
-        wakeUp(ptr);
+        wakeUp(respPtr);
       }).catch(err => {
         if (wakeUpCalled) throw Error("Error caught in JS after previously calling wakeUp(): " + err);
         console.log("ERROR!!!");
@@ -326,12 +340,12 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
     cout << "Calling binary request with body: " << endl;
     cout << body.data() << endl;
     resp_str = js_send_binary_request(uri.data(), method.data(), body.data(), body.length(), timeout);
-    cout << "Received response from js_send_binary_request():\n" << resp_str << endl;
+    //cout << "Received response from js_send_binary_request():\n" << resp_str << endl;
     response->m_mime_tipe = "application/octet-stream";
   } else {
     cout << "Calling json request" << endl;
     resp_str = js_send_json_request(uri.data(), method.data(), body.data(), timeout);
-    cout << "Received response from js_send_json_request():\n" << resp_str << endl;
+    //cout << "Received response from js_send_json_request():\n" << resp_str << endl;
     response->m_mime_tipe = "application/json";
   }
 
@@ -356,8 +370,12 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
   response->m_response_comment = respMsg;
 
   if (is_binary) {
-      boost::property_tree::ptree body_node = resp_node.get_child("body");
-      response->m_body = body_node.get<string>("data");
+      cout << "Reading body" << endl;
+      int body_ptr = resp_node.get<int>("bodyPtr");
+      int body_length = resp_node.get<int>("bodyLength");
+      cout << "Body ptr: " << body_ptr << endl;
+      cout << "Body length: " << body_length << endl;
+      response->m_body = string((char*) body_ptr, body_length);
   } else {
       string respBody = resp_node.get<string>("body");
       response->m_body = respBody;
@@ -401,7 +419,7 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
     cout << "Response info set!!!" << endl;
     cout << (*ppresponse_info)->m_response_code << endl;
     cout << (*ppresponse_info)->m_response_comment << endl;
-    cout << (*ppresponse_info)->m_body << endl;
+    //cout << (*ppresponse_info)->m_body << endl;
     cout << (*ppresponse_info)->m_mime_tipe << endl;
     cout << "Content type header: " << (*ppresponse_info)->m_header_info.m_content_type << endl;
   }
