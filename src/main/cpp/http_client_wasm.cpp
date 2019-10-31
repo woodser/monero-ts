@@ -163,10 +163,11 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
       console.log("Created view: ");
       console.log(view);
 
-      console.log("View to JSON:");
-      let viewJson = MoneroCppUtils.binaryToJson(view);
-      console.log("(done converting)");
-      console.log(viewJson);
+      // TODO: cannot convert binary to json because json str has binary field (need to solve for all libraries)
+//      console.log("View to JSON:");
+//      let viewJson = MoneroCppUtils.binaryToJson(view);
+//      console.log("(done converting)");
+//      console.log(viewJson);
 
 
 //      let temp = MoneroCppUtils.binaryToJson(view);
