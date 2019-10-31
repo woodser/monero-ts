@@ -1,4 +1,5 @@
 HIGH (WASM)
+what in upstream core causes json_rpc requests to be POST? submit issue to default to POST
 resolve undefined v4_generate_JIT_code
 automate browser build
 js async workaround: MoneroWalletWasm:createWalletRandom() gets wallet address synchronously then loops until wallet is generated

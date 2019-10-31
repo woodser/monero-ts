@@ -34,8 +34,8 @@ EM_JS(const char*, do_fetch, (const char* uri, const char* method, const char* b
 
     // build request which gets json response as text
     let opts = {
-      //method: UTF8ToString(method),
-      method: "POST",  // TODO: invoke() is passed "GET" which in incompatible with json_rpc?
+      method: UTF8ToString(method),
+      //method: "POST",  // TODO: invoke() is passed "GET" which in incompatible with json_rpc?
       uri: fullUri,
       body: UTF8ToString(body),
       agent: agent,
@@ -177,7 +177,7 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
   response->m_response_code = respCode;
   response->m_response_comment = respMsg;
   response->m_body = respBody;
-  response->m_mime_tipe = "text/plain";
+  response->m_mime_tipe = "application/json";
 
   // translate headers
   http_header_info* header_info = new http_header_info;
@@ -222,6 +222,7 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
     cout << "Content type header: " << (*ppresponse_info)->m_header_info.m_content_type << endl;
   }
 
+  if (respCode != 200) return false;
   return true;
 }
 
