@@ -105,7 +105,7 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, c
   });
 });
 
-EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method, const char* body, std::chrono::milliseconds timeout), {
+EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method, const char* body, int body_length, std::chrono::milliseconds timeout), {
 
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
@@ -152,7 +152,7 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
       let ptr = body;
       console.log("Ptr: ");
       console.log(ptr);
-      let length = Module.UTF8ToString(body).length + 1; // TODO: better way to get string length than allocating new string
+      let length = body_length;
       console.log("Length: " + length);
 
       // read binary data from heap to Uint8Array
@@ -165,6 +165,7 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
 
       console.log("View to JSON:");
       let viewJson = MoneroCppUtils.binaryToJson(view);
+      console.log("(done converting)");
       console.log(viewJson);
 
 
@@ -317,7 +318,7 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
   if (0 == uri_str.compare(uri_str.length() - 4, 4, string(".bin"))) {
     cout << "Calling binary request with body: " << endl;
     cout << body.data() << endl;
-    resp_str = js_send_binary_request(uri.data(), method.data(), body.data(), timeout);
+    resp_str = js_send_binary_request(uri.data(), method.data(), body.data(), body.length(), timeout);
     cout << "Received response from js_send_binary_request():\n" << resp_str << endl;
   } else {
     cout << "Calling json request" << endl;
