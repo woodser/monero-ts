@@ -54,8 +54,8 @@ void monero_wallet_wasm_bridge::create_wallet_random(const string& path, const s
 //    cout << "Done sleeping" << endl;
 
     w2_base->generate(path, password, secret_key, false, false);
-//    std::string err;
-//    if (http_client.is_connected()) w2_base->set_refresh_from_block_height(w2_base->get_daemon_blockchain_height(err));
+    std::string err;
+    if (http_client.is_connected()) w2_base->set_refresh_from_block_height(w2_base->get_daemon_blockchain_height(err));
 
     cout << "Calling callback" << endl;
     cb((int) w2_base);
