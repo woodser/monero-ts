@@ -19,9 +19,13 @@ async function startApp() {
   // import wasm wallet which exports a promise in order to load the WebAssembly module
   const MoneroWalletWasm = await require("../src/main/js/wallet/MoneroWalletWasm")();
   
+  let mnemonic = "hefty value later extra artistic firm radar yodel talent future fungal nutshell because sanity awesome nail unjustly rage unafraid cedar delayed thumbs comb custom sanity";
+  let firstReceiveHeight = 383338;
+  
   // demonstrate wasm wallet
-  let walletWasm = await MoneroWalletWasm.createWalletRandom("", "supersecretpassword123", 2, "http://localhost:38081", "superuser", "abctesting123", "English");  // TODO: proper network type
-  console.log("WASM wallet created, calling dummy method");
+  //let walletWasm = await MoneroWalletWasm.createWalletRandom("", "supersecretpassword123", 2, "http://localhost:38081", "superuser", "abctesting123", "English");  // TODO: proper network type
+  let walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("", "supersecretpassword123", 2, mnemonic, "http://localhost:38081", "superuser", "abctesting123", firstReceiveHeight);  // TODO: proper network type
+  console.log("WASM wallet created");
   walletWasm.dummyMethod();
   
   // demonstrate using core utilities through web assembly
@@ -56,13 +60,13 @@ async function startApp() {
   console.log("Wallet rpc mnemonic: " + await walletRpc.getMnemonic());
   console.log("Wallet rpc balance: " + await walletRpc.getBalance());
   
-  // create a wallet from mnemonic using local wasm bindings
-  let mnemonic = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
-  let primaryAddress = "59aZULsUF3YNSKGiHz4JPMfjGYkm1S4TB3sPsTr3j85HhXb9crZqGa7jJ8cA87U48kT5wzi2VzGZnN2PKojEwoyaHqtpeZh";  // just for reference
-  let walletLocal = new MoneroWalletLocal({daemon: daemon, mnemonic: mnemonic});
-  console.log("Local wallet address: " + await walletLocal.getPrimaryAddress());
-  console.log("Local wallet height: " + await walletLocal.getHeight());
-  if (primaryAddress !== await walletLocal.getPrimaryAddress()) throw "Addresses do not match";
+//  // create a wallet from mnemonic using local wasm bindings
+//  let mnemonic = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
+//  let primaryAddress = "59aZULsUF3YNSKGiHz4JPMfjGYkm1S4TB3sPsTr3j85HhXb9crZqGa7jJ8cA87U48kT5wzi2VzGZnN2PKojEwoyaHqtpeZh";  // just for reference
+//  let walletLocal = new MoneroWalletLocal({daemon: daemon, mnemonic: mnemonic});
+//  console.log("Local wallet address: " + await walletLocal.getPrimaryAddress());
+//  console.log("Local wallet height: " + await walletLocal.getHeight());
+//  if (primaryAddress !== await walletLocal.getPrimaryAddress()) throw "Addresses do not match";
   
   // sync the wallet
 //  await wallet.sync(undefined, function(progress) {

@@ -16,6 +16,7 @@ EMSCRIPTEN_BINDINGS(module)
 
   // register wallet bindings
   emscripten::function("create_wallet_random", &monero_wallet_wasm_bridge::create_wallet_random);
+  emscripten::function("create_wallet_from_mnemonic", &monero_wallet_wasm_bridge::create_wallet_from_mnemonic);
   emscripten::function("create_wallet_dummy", &monero_wallet_wasm_bridge::create_wallet_dummy);
   emscripten::function("dummy_method", &monero_wallet_wasm_bridge::dummy_method);
 }
