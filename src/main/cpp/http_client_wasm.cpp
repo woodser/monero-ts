@@ -310,122 +310,153 @@ bool http_client_wasm::is_connected(bool *ssl) {
   return m_is_connected;
 }
 
-bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
-  cout << "invoke(" << uri << ", " << method << ", " << body << ")" << endl;
-
-  if (!is_connected()) {
-    cout << "invoke() called but client is not connected so returning false" << endl;
-    return false;
+void build_http_header_info(const boost::property_tree::ptree& headers_node, http_header_info& header_info) {
+  for (const auto& header : headers_node) {
+    string key = header.first;
+    string value = header.second.data();
+    if (!epee::string_tools::compare_no_case(key, "Connection"))
+      header_info.m_connection = value;
+    else if(!epee::string_tools::compare_no_case(key, "Referrer"))
+      header_info.m_referer = value;
+    else if(!epee::string_tools::compare_no_case(key, "Content-Length"))
+      header_info.m_content_length = value;
+    else if(!epee::string_tools::compare_no_case(key, "Content-Type"))
+      header_info.m_content_type = value;
+    else if(!epee::string_tools::compare_no_case(key, "Transfer-Encoding"))
+      header_info.m_transfer_encoding = value;
+    else if(!epee::string_tools::compare_no_case(key, "Content-Encoding"))
+      header_info.m_content_encoding = value;
+    else if(!epee::string_tools::compare_no_case(key, "Host"))
+      header_info.m_host = value;
+    else if(!epee::string_tools::compare_no_case(key, "Cookie"))
+      header_info.m_cookie = value;
+    else if(!epee::string_tools::compare_no_case(key, "User-Agent"))
+      header_info.m_user_agent = value;
+    else if(!epee::string_tools::compare_no_case(key, "Origin"))
+      header_info.m_origin = value;
+    else
+      header_info.m_etc_fields.emplace_back(key, value);
   }
+}
 
-//  cout << "HTTP client starting sleep" << endl;
-//  emscripten_sleep(5000);
-//  cout << "Done sleeping" << endl;
+bool http_client_wasm::invoke_json(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
 
-  // TODO: use additional params in request
-//  http::fields_list additional_params;
-//  additional_params.push_back(std::make_pair("Content-Type","application/json; charset=utf-8"));  // TODO: populate?
-//  response->m_additional_params = additional_params;
-
-  // build response object
-  http_response_info* response = new http_response_info;  // TODO: ensure erased
-
-  // make network request and retrieve response from heap
-  const char* resp_str = 0;
-  string uri_str = uri.data();
-
-  bool is_binary = (0 == uri_str.compare(uri_str.length() - 4, 4, string(".bin")));
-
-  if (is_binary) {
-    cout << "Calling binary request with body: " << endl;
-    cout << body.data() << endl;
-    resp_str = js_send_binary_request(uri.data(), method.data(), body.data(), body.length(), timeout);
-    //cout << "Received response from js_send_binary_request():\n" << resp_str << endl;
-    response->m_mime_tipe = "application/octet-stream";
-  } else {
-    cout << "Calling json request" << endl;
-    resp_str = js_send_json_request(uri.data(), method.data(), body.data(), timeout);
-    //cout << "Received response from js_send_json_request():\n" << resp_str << endl;
-    response->m_mime_tipe = "application/json";
-  }
+  // make json request through javascript
+  const char* resp_str = js_send_json_request(uri.data(), method.data(), body.data(), timeout);
 
   // deserialize response to property tree
   std::istringstream iss = std::istringstream(std::string(resp_str));
   boost::property_tree::ptree resp_node;
   boost::property_tree::read_json(iss, resp_node);
-  cout << "Done reading response to property tree" << endl;
 
-  // free response from heap
-  free((char*) resp_str);
+  // build response object
+  m_response_info.clear();
+  m_response_info.m_mime_tipe = "application/json";
+  m_response_info.m_response_comment = resp_node.get<string>("message");
+  m_response_info.m_response_code = resp_node.get<int>("code");
+  m_response_info.m_http_ver_hi = 0;
+  m_response_info.m_http_ver_lo = 0;
+  build_http_header_info(resp_node.get_child("headers"), m_response_info.m_header_info);
+  m_response_info.m_body = resp_node.get<string>("body");
 
-  string respMsg = resp_node.get<string>("message");
-  int respCode = resp_node.get<int>("code");
-//  cout << "Got message from property tree: " << respMsg << endl;
-//  cout << "Got body from property tree: " << respBody << endl;
-//  cout << "Got code from property tree: " << respCode << endl;
-
-  // build http response
-  m_response_info.clear();  // TODO: use this instead
-  response->m_response_code = respCode;
-  response->m_response_comment = respMsg;
-
-  if (is_binary) {
-      cout << "Reading body" << endl;
-      int body_ptr = resp_node.get<int>("bodyPtr");
-      int body_length = resp_node.get<int>("bodyLength");
-      cout << "Body ptr: " << body_ptr << endl;
-      cout << "Body length: " << body_length << endl;
-      response->m_body = string((char*) body_ptr, body_length);
-  } else {
-      string respBody = resp_node.get<string>("body");
-      response->m_body = respBody;
-  }
-
-  // translate headers
-  http_header_info* header_info = new http_header_info;
-  boost::property_tree::ptree headers_node = resp_node.get_child("headers");
-  for (const auto& header : headers_node) {
-    string key = header.first;
-    string value = header.second.data();
-    if (!string_tools::compare_no_case(key, "Connection"))
-      header_info->m_connection = value;
-    else if(!string_tools::compare_no_case(key, "Referrer"))
-      header_info->m_referer = value;
-    else if(!string_tools::compare_no_case(key, "Content-Length"))
-      header_info->m_content_length = value;
-    else if(!string_tools::compare_no_case(key, "Content-Type"))
-      header_info->m_content_type = value;
-    else if(!string_tools::compare_no_case(key, "Transfer-Encoding"))
-      header_info->m_transfer_encoding = value;
-    else if(!string_tools::compare_no_case(key, "Content-Encoding"))
-      header_info->m_content_encoding = value;
-    else if(!string_tools::compare_no_case(key, "Host"))
-      header_info->m_host = value;
-    else if(!string_tools::compare_no_case(key, "Cookie"))
-      header_info->m_cookie = value;
-    else if(!string_tools::compare_no_case(key, "User-Agent"))
-      header_info->m_user_agent = value;
-    else if(!string_tools::compare_no_case(key, "Origin"))
-      header_info->m_origin = value;
-    else
-      header_info->m_etc_fields.emplace_back(key, value);
-  }
-  response->m_header_info = *header_info;  // TODO: erase
-
-  response->m_http_ver_hi = 0;
-  response->m_http_ver_lo = 0;
-  if (ppresponse_info && response->m_response_code != 401) {
-    *ppresponse_info = response;
-    cout << "Response info set!!!" << endl;
+  // set response argument
+  if (ppresponse_info && m_response_info.m_response_code != 401) {
+    *ppresponse_info = std::addressof(m_response_info);
+    cout << "Set resopnse info!!!" << endl;
     cout << (*ppresponse_info)->m_response_code << endl;
     cout << (*ppresponse_info)->m_response_comment << endl;
-    //cout << (*ppresponse_info)->m_body << endl;
     cout << (*ppresponse_info)->m_mime_tipe << endl;
     cout << "Content type header: " << (*ppresponse_info)->m_header_info.m_content_type << endl;
   }
 
-  if (respCode != 200) return false;
-  return true;
+  // free response string from heap
+  free((char*) resp_str);
+
+  // return true iff 200
+  return m_response_info.m_response_code == 200;
+}
+
+bool http_client_wasm::invoke_binary(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
+
+  // make binary request through javascript
+  const char* resp_str = js_send_binary_request(uri.data(), method.data(), body.data(), body.length(), timeout);
+
+  // deserialize response to property tree
+  std::istringstream iss = std::istringstream(std::string(resp_str));
+  boost::property_tree::ptree resp_node;
+  boost::property_tree::read_json(iss, resp_node);
+
+  // build response object
+  m_response_info.clear();
+  m_response_info.m_mime_tipe = "application/octet_stream";
+  m_response_info.m_response_comment = resp_node.get<string>("message");
+  m_response_info.m_response_code = resp_node.get<int>("code");
+  m_response_info.m_http_ver_hi = 0;
+  m_response_info.m_http_ver_lo = 0;
+  build_http_header_info(resp_node.get_child("headers"), m_response_info.m_header_info);
+
+  // read binary body from response pointer
+  int body_ptr = resp_node.get<int>("bodyPtr");
+  int body_length = resp_node.get<int>("bodyLength");
+  m_response_info.m_body = string((char*) body_ptr, body_length);
+
+  // set response argument
+  if (ppresponse_info && m_response_info.m_response_code != 401) {
+    *ppresponse_info = std::addressof(m_response_info);
+    cout << "Set resopnse info!!!" << endl;
+    cout << (*ppresponse_info)->m_response_code << endl;
+    cout << (*ppresponse_info)->m_response_comment << endl;
+    cout << (*ppresponse_info)->m_mime_tipe << endl;
+    cout << "Content type header: " << (*ppresponse_info)->m_header_info.m_content_type << endl;
+  }
+
+  // free response string and binary from heap
+  free((char*) resp_str);
+  free((char*) body_ptr);
+
+  // return true iff 200
+  return m_response_info.m_response_code == 200;
+
+  // TODO: return true/false according to these rules
+  //  if (m_response_info.m_response_code != 401)
+  //  {
+  //    if(ppresponse_info)
+  //      *ppresponse_info = std::addressof(m_response_info);
+  //    return true;
+  //  }
+  //
+  //  switch (m_auth.handle_401(m_response_info))
+  //  {
+  //  case http_client_auth::kSuccess:
+  //    break;
+  //  case http_client_auth::kBadPassword:
+  //                                        sends = 2;
+  //    break;
+  //  default:
+  //  case http_client_auth::kParseFailure:
+  //    LOG_ERROR("Bad server response for authentication");
+  //    return false;
+  //  }
+  //  req_buff.resize(initial_size); // rollback for new auth generation
+  //}
+  //LOG_ERROR("Client has incorrect username/password for server requiring authentication");
+  //return false;
+}
+
+bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
+  cout << "invoke(" << uri << ", " << method << ", ...)" << endl;
+
+  // return false if unconnected
+  if (!is_connected()) {
+    cout << "invoke() called but client is not connected so returning false" << endl;
+    return false;
+  }
+
+  // invoke http call
+  string uri_str = uri.data();
+  bool is_binary = (0 == uri_str.compare(uri_str.length() - 4, 4, string(".bin")));
+  if (is_binary) return invoke_binary(uri, method, body, timeout, ppresponse_info, additional_params);
+  else return invoke_json(uri, method, body, timeout, ppresponse_info, additional_params);
 }
 
 bool http_client_wasm::invoke_get(const boost::string_ref uri, std::chrono::milliseconds timeout, const std::string& body, const http_response_info** ppresponse_info, const fields_list& additional_params) {
