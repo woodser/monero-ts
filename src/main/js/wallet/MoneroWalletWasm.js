@@ -12,6 +12,7 @@ class MoneroWalletWasm {
     return new MoneroWalletWasm(cppAddress);
   }
   
+  // TODO: use daemon rpc connection instead of individual daemon uri, usernmae, password
   static async createWalletRandom(path, password, networkType, daemonUri, daemonUsername, daemonPassword, language) {
     console.log("MoneroWalletWasm.js::createWalletRandom(" + path + ", " + password + ", " + networkType + ", " + daemonUsername + ", " + daemonPassword + ", " + language + ")");
     
@@ -26,6 +27,23 @@ class MoneroWalletWasm {
       
       // create wallet in wasm and invoke callback when done
       MoneroWalletWasm.WASM_MODULE.create_wallet_random(path, password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);
+    });
+  }
+  
+  static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight) {
+    console.log("MoneroWalletWasm.js::createWalletFromMnemonic(" + path + ", " + password + ", " + networkType + ", " + mnemonic + ", " + daemonUri + ", " + daemonUsername + ", " + daemonPassword + ", " + restoreHeight + ")");
+    
+    // return promise which is resolved on callback
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(cppAddress) {
+        console.log("Received callback argument!!! " + cppAddress);
+        resolve(new MoneroWalletWasm(cppAddress));
+      };
+      
+      // create wallet in wasm and invoke callback when done
+      MoneroWalletWasm.WASM_MODULE.create_wallet_from_mnemonic(path, password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, callbackFn);
     });
   }
   

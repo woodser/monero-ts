@@ -4,7 +4,10 @@
 #include "wallet/wallet2_base.h"
 #include "http_client_wasm.h"
 
-#include <emscripten.h> // TODO: remove
+ // TODO: remove
+#include "mnemonics/electrum-words.h"
+#include "mnemonics/english.h"
+#include <emscripten.h>
 
 using namespace std;
 using namespace monero_wallet_wasm_bridge;
@@ -72,6 +75,52 @@ void monero_wallet_wasm_bridge::create_wallet_random(const string& path, const s
     cout << "Done calling callback" << endl;
 }
 
+void monero_wallet_wasm_bridge::create_wallet_from_mnemonic(const string& path, const string& password, int network_type, const string& mnemonic, const string& daemon_uri, const string& daemon_username, const string& daemon_password, long restore_height, emscripten::val cb) {
+  cout << "create_wallet_from_mnemonic()" << endl;
+//  throw runtime_error("Not implemented");
+
+  http_client_wasm http_client;
+  tools::wallet2_base* w2_base = new tools::wallet2_base(http_client, static_cast<cryptonote::network_type>(network_type), 1, true);
+  cout << "Created wallet2_base with address: " << ((int) w2_base) << endl;
+
+  // prepare uri, login, and is_trusted for wallet2
+  boost::optional<epee::net_utils::http::login> login{};
+  login.emplace(daemon_username, daemon_password);
+  bool is_trusted = true; // TODO: trusted iff local, but common/util is_local_address() uses boost asio
+
+  cout << "Created login" << endl;
+
+  // init wallet2 and set daemon connection
+  if (!w2_base->init(daemon_uri, login)) {
+    cout << "!!! FAILED TO INITIALIZE WALLET WITH DAEMON CONNECTION" << endl;
+    throw runtime_error("Failed to initialize wallet with daemon connection");
+  }
+  uint32_t version = 0;
+  w2_base->check_connection(&version, NULL, DEFAULT_CONNECTION_TIMEOUT_MILLIS);
+
+  // validate mnemonic and get recovery key and language
+  crypto::secret_key recoveryKey;
+  std::string language;
+  bool is_valid = crypto::ElectrumWords::words_to_bytes(mnemonic, recoveryKey, language);
+  if (!is_valid) throw runtime_error("Invalid mnemonic");
+  if (language == crypto::ElectrumWords::old_language_name) language = Language::English().get_language_name();
+
+  // initialize wallet
+  w2_base->set_seed_language(language);
+  w2_base->generate(path, password, recoveryKey, true, false);
+  w2_base->set_refresh_from_block_height((uint64_t) restore_height);
+
+  w2_base->set_seed_language(language);
+  cout << "Seed language: " << w2_base->get_seed_language() << endl;
+  crypto::secret_key secret_key;
+
+  w2_base->refresh(true);
+  cout << "Wallet balance: " << w2_base->balance(0, false) << endl;
+
+  cout << "Calling callback" << endl;
+  cb((int) w2_base);
+  cout << "Done calling callback" << endl;
+}
 
 int monero_wallet_wasm_bridge::create_wallet_dummy() {
   monero_wallet_dummy* wallet = new monero_wallet_dummy();

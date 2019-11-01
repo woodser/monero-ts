@@ -13,6 +13,7 @@ using namespace emscripten;
 namespace monero_wallet_wasm_bridge
 {
   void create_wallet_random(const string& path, const string& password, int network_type, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& language, emscripten::val cb);
+  void create_wallet_from_mnemonic(const string& path, const string& password, int network_type, const string& mnemonic, const string& daemon_uri, const string& daemon_username, const string& daemon_password, long restore_height, emscripten::val cb);
   int create_wallet_dummy();
   void dummy_method(int handle);
 }
