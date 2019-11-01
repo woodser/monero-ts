@@ -132,22 +132,25 @@ set_target_properties(
 
 set(
     SRC_FILES
-    #
+    
+    # monero-javascript WASM bridge
     src/main/cpp/index.cpp
     src/main/cpp/monero_wallet_wasm_bridge.cpp
     src/main/cpp/monero_utils_wasm_bridge.cpp
     src/main/cpp/http_client_wasm.cpp
-    #
+    
+    # monero-cpp-library (modified for WASM)
+    ${MONERO_CPP_SRC}/daemon/monero_daemon_model.cpp
+    ${MONERO_CPP_SRC}/wallet/monero_wallet_model.cpp
     ${MONERO_CPP_SRC}/utils/monero_utils.cpp
     ${MONERO_CPP_SRC}/wallet/monero_wallet_dummy.cpp
-    #${MONERO_CPP_SRC}/wallet/monero_wallet.cpp
-    #
+    ${MONERO_CPP_SRC}/wallet/monero_wallet_base.cpp
+    
+    # monero-project (modified for WASM)
     ${MONERO_CORE_SRC}/wallet/wallet2_base.cpp
     ${MONERO_CORE_SRC}/wallet/message_store.cpp
     ${MONERO_CORE_SRC}/wallet/message_transporter.cpp
     ${MONERO_CORE_SRC}/wallet/node_rpc_proxy.cpp
-    #
-    ###[[	--- START BLOCK COMMENT ---
     ${MONERO_CORE}/external/db_drivers/liblmdb/mdb.c
     ${MONERO_CORE}/external/db_drivers/liblmdb/midl.c
     #${MONERO_CORE_SRC}/blockchain_db/lmdb/db_lmdb.cpp
@@ -199,7 +202,6 @@ set(
     ${MONERO_CORE_SRC}/vtlogger/logger.cpp
     ${MONERO_CORE}/contrib/libsodium/src/crypto_verify/verify.c
     ${MONERO_CORE_SRC}/wallet/ringdb.cpp
-    ###]]	# --- END BLOCK COMMENT ---
     
     #[[	--- START BLOCK COMMENT ---
     #
