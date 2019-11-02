@@ -62,21 +62,39 @@ class MoneroWalletWasm {
     this.cppAddress = cppAddress;
   }
   
-  async sync() {
+  async getHeight() {
+    let cppAddress = this.cppAddress;
     
-    // return promise which is resolved on callback
-    let that = this;
+    // return promise which resolves on callback
     return new Promise(function(resolve, reject) {
       
-      let callbackFn = function(syncResp) {
+      // define callback for wasm
+      let callbackFn = function(resp) {
+        console.log("Received response from get_height!");
+        console.log("height: " + resp);
+        resolve(resp);
+      }
+      
+      // sync wallet in wasm and invoke callback when done
+      MoneroWalletWasm.WASM_MODULE.get_height(cppAddress, callbackFn);
+    });
+  }
+  
+  async sync() {
+    let cppAddress = this.cppAddress;
+    
+    // return promise which resolves on callback
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(resp) {
         console.log("Received response from synchronizing!");
-        console.log(syncResp);
+        console.log(resp);
         resolve("...wait for it...");
       }
       
       // sync wallet in wasm and invoke callback when done
-      console.log("calling sync wiht address: " + that.cppAddress);
-      MoneroWalletWasm.WASM_MODULE.sync(that.cppAddress, callbackFn);
+      MoneroWalletWasm.WASM_MODULE.sync(cppAddress, callbackFn);
     });
   }
   

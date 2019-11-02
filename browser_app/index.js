@@ -20,13 +20,17 @@ async function startApp() {
   const MoneroWalletWasm = await require("../src/main/js/wallet/MoneroWalletWasm")();
   
   let mnemonic = "hefty value later extra artistic firm radar yodel talent future fungal nutshell because sanity awesome nail unjustly rage unafraid cedar delayed thumbs comb custom sanity";
-  let firstReceiveHeight = 383338;
+  //let firstReceiveHeight = 383338;
+  let firstReceiveHeight = 440000;
   
   // demonstrate wasm wallet
   //let walletWasm = await MoneroWalletWasm.createWalletRandom("", "supersecretpassword123", 2, "http://localhost:38081", "superuser", "abctesting123", "English");  // TODO: proper network type
   let walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("", "supersecretpassword123", 2, mnemonic, "http://localhost:38081", "superuser", "abctesting123", firstReceiveHeight);  // TODO: proper network type
   let result = await walletWasm.sync();
   console.log("index.js received sync result");
+  console.log(result);
+  let height = await walletWasm.getHeight();
+  console.log("index.js received height result");
   console.log(result);
   console.log("WASM wallet created");
   walletWasm.dummyMethod();

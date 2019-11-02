@@ -68,7 +68,12 @@ void monero_wallet_wasm_bridge::create_wallet_from_mnemonic(const string& path, 
 //  string get_address_index(int handle, const string& address) const;
 //  string get_integrated_address(int handle, const string& standard_address = "", const string& payment_id = "") const;
 //  string decode_integrated_address(int handle, const string& integrated_address) const;
-//  long get_height(int handle) const;
+
+   void monero_wallet_wasm_bridge::get_height(int handle, emscripten::val callback) {
+     monero_wallet_base* wallet = (monero_wallet_base*) handle;
+     callback(wallet->get_height());
+   }
+
 //  long get_restore_height(int handle) const;
 //  void set_restore_height(int handle, long restore_height);
 //  long get_daemon_height(int handle) const;
@@ -80,4 +85,5 @@ void monero_wallet_wasm_bridge::create_wallet_from_mnemonic(const string& path, 
   void monero_wallet_wasm_bridge::sync(int handle, emscripten::val callback) {
     monero_wallet_base* wallet = (monero_wallet_base*) handle;
     wallet->sync();
+    callback(string("{my_serialized_sync_result}"));
   }
