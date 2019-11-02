@@ -12,8 +12,6 @@ using namespace emscripten;
 
 namespace monero_wallet_wasm_bridge
 {
-  http_client_wasm http_client; // use one http client for wallets
-
   int create_wallet_dummy();
   void dummy_method(int handle);
 
@@ -40,7 +38,7 @@ namespace monero_wallet_wasm_bridge
 //  string get_address_index(int handle, const string& address) const;
 //  string get_integrated_address(int handle, const string& standard_address = "", const string& payment_id = "") const;
 //  string decode_integrated_address(int handle, const string& integrated_address) const;
-//  long get_height(int handle) const;
+  void get_height(int handle, emscripten::val callback);
 //  long get_restore_height(int handle) const;
 //  void set_restore_height(int handle, long restore_height);
 //  long get_daemon_height(int handle) const;
