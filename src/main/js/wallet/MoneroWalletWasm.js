@@ -62,6 +62,24 @@ class MoneroWalletWasm {
     this.cppAddress = cppAddress;
   }
   
+  async sync() {
+    
+    // return promise which is resolved on callback
+    let that = this;
+    return new Promise(function(resolve, reject) {
+      
+      let callbackFn = function(syncResp) {
+        console.log("Received response from synchronizing!");
+        console.log(syncResp);
+        resolve("...wait for it...");
+      }
+      
+      // sync wallet in wasm and invoke callback when done
+      console.log("calling sync wiht address: " + that.cppAddress);
+      MoneroWalletWasm.WASM_MODULE.sync(that.cppAddress, callbackFn);
+    });
+  }
+  
   dummyMethod() {
     return MoneroWalletWasm.WASM_MODULE.dummy_method(this.cppAddress);
   }
