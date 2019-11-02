@@ -67,6 +67,18 @@ class MoneroRpcConnection {
     this.agent = new Http.Agent({keepAlive: true, maxSockets: 1});
   }
   
+  getUri() {
+    return this.config.uri;
+  }
+  
+  getUsername() {
+    return this.config.user;
+  }
+  
+  getPassword() {
+    return this.config.pass;
+  }
+  
   /**
    * Sends a JSON RPC request.
    * 
