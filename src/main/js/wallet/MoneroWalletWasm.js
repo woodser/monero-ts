@@ -63,6 +63,7 @@ class MoneroWalletWasm {
   }
   
   async getHeight() {
+    console.log("MoneorWalletWasm.getHeight()");
     let cppAddress = this.cppAddress;
     
     // return promise which resolves on callback
