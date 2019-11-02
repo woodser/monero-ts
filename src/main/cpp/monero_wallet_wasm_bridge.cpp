@@ -70,8 +70,11 @@ void monero_wallet_wasm_bridge::create_wallet_from_mnemonic(const string& path, 
 //  string decode_integrated_address(int handle, const string& integrated_address) const;
 
    void monero_wallet_wasm_bridge::get_height(int handle, emscripten::val callback) {
+     cout << "monero_wallet_wasm_bridge::get_height()" << endl;
      monero_wallet_base* wallet = (monero_wallet_base*) handle;
-     callback(wallet->get_height());
+     uint64_t height = wallet->get_height();
+     cout << "CPP got height: " << height << endl;
+     callback((long) height);
    }
 
 //  long get_restore_height(int handle) const;
