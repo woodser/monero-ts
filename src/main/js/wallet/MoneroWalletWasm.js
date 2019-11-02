@@ -27,11 +27,6 @@ class MoneroWalletWasm {
       let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
       let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
       let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
-      console.log("Path: " + path);
-      console.log("Password: " + password);
-      console.log("Username: " + daemonUsername);
-      console.log("Daemon password: " + daemonPassword);
-      console.log("Daemon uri: " + daemonUri);
       MoneroWalletWasm.WASM_MODULE.create_wallet_random(path, password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);
     });
   }

@@ -1,5 +1,5 @@
-const MoneroWalletLocal = require("../../main/js/wallet/MoneroWalletLocal");
 const MoneroWalletRpc = require("../../main/js/wallet/MoneroWalletRpc");
+const MoneroWalletLocal = require("../../main/js/wallet/MoneroWalletLocal");
 const MoneroDaemonRpc = require("../../main/js/daemon/MoneroDaemonRpc");
 
 const TxPoolWalletTracker = require("./TxPoolWalletTracker");
@@ -58,6 +58,27 @@ class TestUtils {
   }
   
   /**
+   * Get a singleton instance of a wallet supported by WASM.
+   */
+  static async getWalletWasm() {
+    if (this.walletWasm === undefined) {
+      
+      // import wasm wallet module
+      const MoneroWalletWasm = await require("../../../src/main/js/wallet/MoneroWalletWasm")();
+      
+      // construct wallet wasm instance with daemon connection
+      this.walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("", TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, await TestUtils.getDaemonRpc().getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT); // TODO: no path?
+      //assert.equal(await walletJni.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT); // TODO
+      await this.walletWasm.sync();
+      
+      // ensure we're testing the right wallet
+      assert.equal(await this.walletWasm.getMnemonic(), TestUtils.MNEMONIC);
+      assert.equal(await this.walletWasm.getPrimaryAddress(), TestUtils.ADDRESS);
+    }
+    return this.walletWasm;
+  }
+  
+  /**
    * Get a local wallet singleton instance shared among tests.
    */
   static getWalletLocal() {
@@ -86,6 +107,7 @@ class TestUtils {
 // TODO: in properties, define {network: stagnet, network_configs: { stagnet: { daemonRpc: { host: _, port: _ ... etc
 
 TestUtils.MAX_FEE = new BigInteger(7500000).multiply(new BigInteger(10000));
+TestUtils.NETWORK_TYPE = MoneroNetworkType.STAGENET;
 
 // default keypair to test
 TestUtils.MNEMONIC = "hefty value later extra artistic firm radar yodel talent future fungal nutshell because sanity awesome nail unjustly rage unafraid cedar delayed thumbs comb custom sanity";
