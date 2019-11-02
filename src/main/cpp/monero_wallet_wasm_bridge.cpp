@@ -1,7 +1,7 @@
 #include <iostream>
 #include "monero_wallet_wasm_bridge.h"
 #include "wallet/monero_wallet_dummy.h"
-#include "wallet/wallet2_base.h"
+#include "wallet/monero_wallet_base.h"
 #include "http_client_wasm.h"
 
  // TODO: remove
@@ -22,106 +22,6 @@ void my_int_func(int x)
 static const int DEFAULT_SYNC_INTERVAL_MILLIS = 1000 * 10;   // default refresh interval 10 sec
 static const int DEFAULT_CONNECTION_TIMEOUT_MILLIS = 1000 * 30; // default connection timeout 30 sec
 
-void monero_wallet_wasm_bridge::create_wallet_random(const string& path, const string& password, int network_type, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& language, emscripten::val cb) {
-    cout << "create_wallet_random() called!!!" << endl;
-//  monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
-//  monero_wallet* wallet = monero_wallet::create_wallet_random(path, password, static_cast<monero_network_type>(network_type), daemon_connection, language);
-//  return (int) wallet;
-
-    http_client_wasm http_client;
-    tools::wallet2_base* w2_base = new tools::wallet2_base(http_client, static_cast<cryptonote::network_type>(network_type), 1, true);
-    cout << "Created wallet2_base with address: " << ((int) w2_base) << endl;
-
-    // prepare uri, login, and is_trusted for wallet2
-    boost::optional<epee::net_utils::http::login> login{};
-    login.emplace(daemon_username, daemon_password);
-    bool is_trusted = true; // TODO: trusted iff local, but common/util is_local_address() uses boost asio
-
-    cout << "Created login" << endl;
-
-    // init wallet2 and set daemon connection
-    if (!w2_base->init(daemon_uri, login)) {
-      cout << "!!! FAILED TO INITIALIZE WALLET WITH DAEMON CONNECTION" << endl;
-      throw runtime_error("Failed to initialize wallet with daemon connection");
-    }
-    uint32_t version = 0;
-    w2_base->check_connection(&version, NULL, DEFAULT_CONNECTION_TIMEOUT_MILLIS);
-
-    w2_base->set_seed_language(language);
-    cout << "Seed language: " << w2_base->get_seed_language() << endl;
-    crypto::secret_key secret_key;
-
-//    // simulate doing async work
-//    cout << "Starting sleep" << endl;
-//    emscripten_sleep(5000);
-//    cout << "Done sleeping" << endl;
-
-    // generate wallet
-    w2_base->generate(path, password, secret_key, false, false);
-    std::string err;
-    if (http_client.is_connected()) {
-      cout << "Setting refresh from block height" << endl;
-      w2_base->set_refresh_from_block_height(w2_base->get_daemon_blockchain_height(err));
-      cout << "Done setting refresh from block height" << endl;
-    } else {
-      cout << "Http client is not connected" << endl;
-    }
-
-    w2_base->refresh(true);
-    cout << "Wallet balance: " << w2_base->balance(0, false) << endl;
-
-    cout << "Calling callback" << endl;
-    cb((int) w2_base);
-    cout << "Done calling callback" << endl;
-}
-
-void monero_wallet_wasm_bridge::create_wallet_from_mnemonic(const string& path, const string& password, int network_type, const string& mnemonic, const string& daemon_uri, const string& daemon_username, const string& daemon_password, long restore_height, emscripten::val cb) {
-  cout << "create_wallet_from_mnemonic()" << endl;
-//  throw runtime_error("Not implemented");
-
-  http_client_wasm http_client;
-  tools::wallet2_base* w2_base = new tools::wallet2_base(http_client, static_cast<cryptonote::network_type>(network_type), 1, true);
-  cout << "Created wallet2_base with address: " << ((int) w2_base) << endl;
-
-  // prepare uri, login, and is_trusted for wallet2
-  boost::optional<epee::net_utils::http::login> login{};
-  login.emplace(daemon_username, daemon_password);
-  bool is_trusted = true; // TODO: trusted iff local, but common/util is_local_address() uses boost asio
-
-  cout << "Created login" << endl;
-
-  // init wallet2 and set daemon connection
-  if (!w2_base->init(daemon_uri, login)) {
-    cout << "!!! FAILED TO INITIALIZE WALLET WITH DAEMON CONNECTION" << endl;
-    throw runtime_error("Failed to initialize wallet with daemon connection");
-  }
-  uint32_t version = 0;
-  w2_base->check_connection(&version, NULL, DEFAULT_CONNECTION_TIMEOUT_MILLIS);
-
-  // validate mnemonic and get recovery key and language
-  crypto::secret_key recoveryKey;
-  std::string language;
-  bool is_valid = crypto::ElectrumWords::words_to_bytes(mnemonic, recoveryKey, language);
-  if (!is_valid) throw runtime_error("Invalid mnemonic");
-  if (language == crypto::ElectrumWords::old_language_name) language = Language::English().get_language_name();
-
-  // initialize wallet
-  w2_base->set_seed_language(language);
-  w2_base->generate(path, password, recoveryKey, true, false);
-  w2_base->set_refresh_from_block_height((uint64_t) restore_height);
-
-  w2_base->set_seed_language(language);
-  cout << "Seed language: " << w2_base->get_seed_language() << endl;
-  crypto::secret_key secret_key;
-
-  w2_base->refresh(true);
-  cout << "Wallet balance: " << w2_base->balance(0, false) << endl;
-
-  cout << "Calling callback" << endl;
-  cb((int) w2_base);
-  cout << "Done calling callback" << endl;
-}
-
 int monero_wallet_wasm_bridge::create_wallet_dummy() {
   monero_wallet_dummy* wallet = new monero_wallet_dummy();
   return (int) wallet;
@@ -131,3 +31,53 @@ void monero_wallet_wasm_bridge::dummy_method(int handle) {
   monero_wallet_dummy* wallet = (monero_wallet_dummy*) handle;
   wallet->dummy_method();
 }
+
+void monero_wallet_wasm_bridge::create_wallet_random(const string& path, const string& password, int network_type, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& language, emscripten::val callback) {
+    cout << "create_wallet_random() called!!!" << endl;
+    http_client_wasm* http_client = new http_client_wasm(); // TODO: this needs deleted after use
+    monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
+    monero_wallet_base* wallet = monero_wallet_base::create_wallet_random(*http_client, path, password, static_cast<monero_network_type>(network_type), daemon_connection, language);
+    callback((int) wallet); // invoke callback with wallet address
+}
+
+void monero_wallet_wasm_bridge::create_wallet_from_mnemonic(const string& path, const string& password, int network_type, const string& mnemonic, const string& daemon_uri, const string& daemon_username, const string& daemon_password, long restore_height, emscripten::val callback) {
+  cout << "create_wallet_from_mnemonic() called!!!" << endl;
+  http_client_wasm* http_client = new http_client_wasm(); // TODO: this needs deleted after use
+  monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
+  monero_wallet_base* wallet = monero_wallet_base::create_wallet_from_mnemonic(*http_client, path, password, static_cast<monero_network_type>(network_type), mnemonic, daemon_connection, restore_height);
+  callback((int) wallet); // invoke callback with wallet address
+}
+
+//  void set_daemon_connection(int handle, const string& uri, const string& username = "", const string& password = "");
+//  string get_daemon_connection(int handle) const;
+//  bool is_connected(int handle) const;
+//  bool is_daemon_synced(int handle) const;
+//  bool is_daemon_trusted(int handle) const;
+//  bool is_synced(int handle) const;
+//  int get_network_type(int handle) const;
+//  string get_seed(int handle) const;
+//  string get_mnemonic(int handle) const;
+//  string get_language(int handle) const;
+//  vector<string> get_languages() const;
+//  string get_public_view_key(int handle) const;
+//  string get_private_view_key(int handle) const;
+//  string get_public_spend_key(int handle) const;
+//  string get_private_spend_key(int handle) const;
+//  string get_primary_address(int handle) const;
+//  string get_address(int handle, const uint32_t account_idx, const uint32_t subaddress_idx) const;
+//  string get_address_index(int handle, const string& address) const;
+//  string get_integrated_address(int handle, const string& standard_address = "", const string& payment_id = "") const;
+//  string decode_integrated_address(int handle, const string& integrated_address) const;
+//  long get_height(int handle) const;
+//  long get_restore_height(int handle) const;
+//  void set_restore_height(int handle, long restore_height);
+//  long get_daemon_height(int handle) const;
+//  long get_daemon_max_peer_height(int handle) const;
+  //void add_listener(int handle, monero_wallet_listener& listener);
+  //void remove_listener(int handle, monero_wallet_listener& listener);
+  //set<monero_wallet_listener*> get_listeners(int handle);
+
+  void monero_wallet_wasm_bridge::sync(int handle, emscripten::val callback) {
+    monero_wallet_base* wallet = (monero_wallet_base*) handle;
+    wallet->sync();
+  }

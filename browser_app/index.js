@@ -25,6 +25,9 @@ async function startApp() {
   // demonstrate wasm wallet
   //let walletWasm = await MoneroWalletWasm.createWalletRandom("", "supersecretpassword123", 2, "http://localhost:38081", "superuser", "abctesting123", "English");  // TODO: proper network type
   let walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("", "supersecretpassword123", 2, mnemonic, "http://localhost:38081", "superuser", "abctesting123", firstReceiveHeight);  // TODO: proper network type
+  let result = await walletWasm.sync();
+  console.log("index.js received sync result");
+  console.log(result);
   console.log("WASM wallet created");
   walletWasm.dummyMethod();
   
