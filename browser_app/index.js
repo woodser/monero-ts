@@ -23,9 +23,11 @@ async function startApp() {
   //let firstReceiveHeight = 383338;
   let firstReceiveHeight = 440000;
   
+  
   // demonstrate wasm wallet
-  //let walletWasm = await MoneroWalletWasm.createWalletRandom("", "supersecretpassword123", 2, "http://localhost:38081", "superuser", "abctesting123", "English");  // TODO: proper network type
-  let walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("", "supersecretpassword123", 2, mnemonic, "http://localhost:38081", "superuser", "abctesting123", firstReceiveHeight);  // TODO: proper network type
+  let daemonConnection = new MoneroRpcConnection({uri: "http://localhost:38081", user: "superuser", pass: "abctesting123"});  // TODO: support 3 strings, "pass" should probably be renamed to "password" 
+  let walletWasm = await MoneroWalletWasm.createWalletRandom("", "supersecretpassword123", MoneroNetworkType.STAGENET, daemonConnection, "English");
+  walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("", "supersecretpassword123", MoneroNetworkType.STAGENET, mnemonic, daemonConnection, firstReceiveHeight);
   let result = await walletWasm.sync();
   console.log("index.js received sync result");
   console.log(result);
