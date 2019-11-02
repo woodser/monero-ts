@@ -1,4 +1,5 @@
 HIGH (WASM)
+profile sync performance, probably switch to emscripten_fetch
 resolve undefined v4_generate_JIT_code
 automate browser build
 what in upstream core causes json_rpc requests to be POST? submit issue to default to POST in http_abstract_invoke and wallet2_base.h
