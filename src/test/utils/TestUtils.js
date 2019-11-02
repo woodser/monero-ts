@@ -59,6 +59,8 @@ class TestUtils {
   
   /**
    * Get a singleton instance of a wallet supported by WASM.
+   * 
+   * TODO: this creates and syncs new wallet every time; need to save and restore json
    */
   static async getWalletWasm() {
     if (this.walletWasm === undefined) {
