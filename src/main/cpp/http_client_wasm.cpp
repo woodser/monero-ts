@@ -52,9 +52,6 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, c
       }
     }
 
-    console.log("Sending request with opts:");
-    console.log(opts);
-
     console.log("Timeout: " + timeout); // TODO: use timeout
 
     /**
@@ -71,7 +68,6 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, c
     let wakeUpCalled = false;
     _throttledRequest(opts).then(resp => {
       console.log("GOT RESPONSE!!!");
-      console.log(resp);
       //console.log(JSON.stringify(resp));
 
       // replace 16 or more digits with strings and parse
@@ -135,20 +131,6 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
 
       console.log("Retrieved MoneroCppUtils");
 
-      let testJson = {
-          hello: "there",
-          how: "are you?"
-      };
-      //let testStr = JSON.stringify(testJson);
-      let testBin = MoneroCppUtils.jsonToBinary(testJson);
-      console.log("Converted to binary:");
-      console.log(testBin);
-
-      console.log("Back to JSON:");
-      let testJson2 = MoneroCppUtils.binaryToJson(testBin);
-      console.log(testJson2);
-
-
       let ptr = body;
       console.log("Ptr: ");
       console.log(ptr);
@@ -160,31 +142,6 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
       for (let i = 0; i < length; i++) {
         view[i] = Module.HEAPU8[ptr / Uint8Array.BYTES_PER_ELEMENT + i];
       }
-      console.log("Created view: ");
-      console.log(view);
-
-      // TODO: cannot convert binary to json because json str has binary field (need to solve for all libraries)
-//      console.log("View to JSON:");
-//      let viewJson = MoneroCppUtils.binaryToJson(view);
-//      console.log("(done converting)");
-//      console.log(viewJson);
-
-
-//      let temp = MoneroCppUtils.binaryToJson(view);
-//      console.log("Binary to JSON: ");
-//      console.log(temp);
-//
-//      let bodyBin = view;
-
-
-//      // serialize params
-//      //let bodyBin = UTF8ToString(body);
-//      let bodyBin = intArrayToString(body);
-//      console.log("bodyBin:");
-//      console.log(bodyBin);
-      //console.log("Converting JSON body to binary: " + bodyStr);
-
-      //console.log("Done converting to binary");
 
       // build request which gets json response as text
       let opts = {
@@ -204,9 +161,6 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
         }
       }
 
-      console.log("Sending request with opts:");
-      console.log(opts);
-
       console.log("Timeout: " + timeout); // TODO: use timeout
 
       /**
@@ -224,8 +178,6 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
       let wakeUpCalled = false;
       _throttledRequest(opts).then(resp => {
         console.log("GOT RESPONSE!!!");
-        console.log(resp);
-        //console.log(JSON.stringify(resp));
 
         // TODO: return this
         //return new Uint8Array(resp, 0, resp.length);

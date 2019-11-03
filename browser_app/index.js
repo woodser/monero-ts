@@ -20,8 +20,8 @@ async function startApp() {
   const MoneroWalletWasm = await require("../src/main/js/wallet/MoneroWalletWasm")();
   
   let mnemonic = "hefty value later extra artistic firm radar yodel talent future fungal nutshell because sanity awesome nail unjustly rage unafraid cedar delayed thumbs comb custom sanity";
-  //let firstReceiveHeight = 383338;
-  let firstReceiveHeight = 440000;
+  let firstReceiveHeight = 383338;
+  //let firstReceiveHeight = 440000;
   
   
   // demonstrate wasm wallet
