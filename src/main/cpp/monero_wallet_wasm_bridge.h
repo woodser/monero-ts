@@ -47,7 +47,7 @@ namespace monero_wallet_wasm_bridge
   //void remove_listener(int handle, monero_wallet_listener& listener);
   //set<monero_wallet_listener*> get_listeners(int handle);
   void sync(int handle, emscripten::val callback);
-  void to_json(int handle, emscripten::val callback);
+  void get_encrypted_text(int handle, emscripten::val callback);
 }
 
 #endif /* monero_wallet_wasm_bridge_h */

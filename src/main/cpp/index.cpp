@@ -21,7 +21,7 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("create_wallet_from_mnemonic", &monero_wallet_wasm_bridge::create_wallet_from_mnemonic);
   emscripten::function("get_height", &monero_wallet_wasm_bridge::get_height);
   emscripten::function("sync", &monero_wallet_wasm_bridge::sync);
-  emscripten::function("to_json", &monero_wallet_wasm_bridge::to_json);
+  emscripten::function("get_encrypted_text", &monero_wallet_wasm_bridge::get_encrypted_text);
 }
 extern "C"
 {
