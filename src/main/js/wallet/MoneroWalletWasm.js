@@ -96,20 +96,28 @@ class MoneroWalletWasm {
     throw new MoneroError("Not implemented");
   }
   
+  async getPublicViewKey() {
+    return MoneroWalletWasm.WASM_MODULE.get_public_view_key(this.cppAddress);
+  }
+  
   async getPrivateViewKey() {
-    throw new MoneroError("Not implemented");
+    return MoneroWalletWasm.WASM_MODULE.get_private_view_key(this.cppAddress);
+  }
+  
+  async getPublicSpendKey() {
+    return MoneroWalletWasm.WASM_MODULE.get_public_spend_key(this.cppAddress);
   }
   
   async getPrivateSpendKey() {
-    throw new MoneroError("Not implemented");
+    return MoneroWalletWasm.WASM_MODULE.get_private_spend_key(this.cppAddress);
   }
   
   async getAddress(accountIdx, subaddressIdx) {
-    throw new MoneroError("Not implemented");
+    return MoneroWalletWasm.WASM_MODULE.get_address(this.cppAddress, accountIdx, subaddressIdx);
   }
   
   async getAddressIndex(address) {
-    throw new MoneroError("Not implemented");
+    return MoneroWalletWasm.WASM_MODULE.get_address_index(this.cppAddress, address);
   }
   
   async getHeight() {
