@@ -1,4 +1,5 @@
 HIGH (WASM)
+move store_keys(), load_keys() from wallet2_base to wallet2
 debug firefox exception
 profile sync performance, probably switch to emscripten_fetch
 resolve undefined v4_generate_JIT_code
