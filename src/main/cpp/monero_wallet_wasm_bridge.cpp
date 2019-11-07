@@ -90,3 +90,8 @@ void monero_wallet_wasm_bridge::create_wallet_from_mnemonic(const string& path, 
     wallet->sync();
     callback(string("{my_serialized_sync_result}"));
   }
+
+  void monero_wallet_wasm_bridge::to_json(int handle, emscripten::val callback) {
+    monero_wallet_base* wallet = (monero_wallet_base*) handle;
+    callback(wallet->to_json());
+  }

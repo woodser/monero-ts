@@ -68,15 +68,37 @@ class TestUtils {
       // import wasm wallet module
       const MoneroWalletWasm = await require("../../../src/main/js/wallet/MoneroWalletWasm")();
       
-      // construct wallet wasm instance with daemon connection
-      this.walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("", TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, await TestUtils.getDaemonRpc().getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT); // TODO: no path?
-      //assert.equal(await walletJni.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT); // TODO
-      await this.walletWasm.sync();
+      // create wallet from mnemonic phrase if it doesn't exist
+      if (!await MoneroWalletWasm.walletExists(TestUtils.WALLET_WASM_PATH_1)) {
+        let daemonConnection = new MoneroRpcConnection(TestUtils.DAEMON_RPC_URI, TestUtils.DAEMON_RPC_USERNAME, TestUtils.DAEMON_RPC_PASSWORD);
+        this.walletWasm = await MoneroWalletWasm.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT);
+        //assert.equal(await this.walletWasm.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
+        //await this.walletWasm.sync(new WalletSyncPrinter());  // TODO
+        await this.walletWasm.sync();
+        await this.walletWasm.save(); // save progress
+        //await this.walletWasm.startSyncing();               // TODO
+      }
       
-      // ensure we're testing the right wallet
-      assert.equal(await this.walletWasm.getMnemonic(), TestUtils.MNEMONIC);
-      assert.equal(await this.walletWasm.getPrimaryAddress(), TestUtils.ADDRESS);
+      // otherwise open existing wallet and update daemon connection
+      else {
+        this.walletWasm = await MoneroWalletWasm.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE);
+        await this.walletWasm.setDaemonConnection((await TestUtils.getDaemonRpc()).getRpcConnection());
+        await this.walletWasm.sync(new WalletSyncPrinter());
+        await this.walletWasm.startSyncing();
+      }
+      
+      // TODO: hook to save on shutdown?
+//      // Save and close the JNI wallet when the runtime is shutting down in order
+//      // to preserve local wallet data (e.g. destination addresses and amounts).
+//      // This is not necessary in the rpc wallet which saves automatically.
+//      Runtime.getRuntime().addShutdownHook(new Thread() {
+//        public void run() {
+//          walletJni.close(true);
+//        }
+//      });
     }
+    
+    // return cached wasm wallet
     return this.walletWasm;
   }
   
@@ -108,13 +130,22 @@ class TestUtils {
 // TODO: export these to key/value properties file for tests
 // TODO: in properties, define {network: stagnet, network_configs: { stagnet: { daemonRpc: { host: _, port: _ ... etc
 
+// monero daemon rpc endpoint configuration (adjust per your configuration)
+TestUtils.DAEMON_RPC_URI = "http://localhost:38081";
+TestUtils.DAEMON_RPC_USERNAME = undefined;
+TestUtils.DAEMON_RPC_PASSWORD = undefined;
+
+TestUtils.TEST_WALLETS_DIR = "./test_wallets";
+TestUtils.WALLET_WASM_PATH_1 = TestUtils.TEST_WALLETS_DIR + "/test_wallet_1";
+
 TestUtils.MAX_FEE = new BigInteger(7500000).multiply(new BigInteger(10000));
 TestUtils.NETWORK_TYPE = MoneroNetworkType.STAGENET;
 
 // default keypair to test
 TestUtils.MNEMONIC = "hefty value later extra artistic firm radar yodel talent future fungal nutshell because sanity awesome nail unjustly rage unafraid cedar delayed thumbs comb custom sanity";
 TestUtils.ADDRESS = "528qdm2pXnYYesCy5VdmBneWeaSZutEijFVAKjpVHeVd4unsCSM55CjgViQsK9WFNHK1eZgcCuZ3fRqYpzKDokqSKp4yp38";
-TestUtils.FIRST_RECEIVE_HEIGHT = 383338;
+//TestUtils.FIRST_RECEIVE_HEIGHT = 383338;
+TestUtils.FIRST_RECEIVE_HEIGHT = 445000;
 
 //wallet rpc test wallet filenames and passwords
 TestUtils.WALLET_RPC_NAME_1 = "test_wallet_1";
