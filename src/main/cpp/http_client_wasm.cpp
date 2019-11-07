@@ -190,9 +190,10 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
         console.log("Response body BYTES_PER_ELEMENT: " + resp.body.BYTES_PER_ELEMENT);
 
         // write binary body to heap and pass back pointer
-        let bodyPtr = Module._malloc(resp.body.length * resp.body.BYTES_PER_ELEMENT);
-        let heap = new Uint8Array(Module.HEAPU8.buffer, bodyPtr, resp.body.length * resp.body.BYTES_PER_ELEMENT);
-        heap.set(new Uint8Array(resp.body.buffer));
+        let nDataBytes = resp.body.length * resp.body.BYTES_PER_ELEMENT;
+        let bodyPtr = Module._malloc(nDataBytes);
+        let heap = new Uint8Array(Module.HEAPU8.buffer, bodyPtr, nDataBytes);
+        heap.set(new Uint8Array(resp.body.buffer, resp.body.byteOffset, nDataBytes));
 
 //        // create object with binary memory address info
 //        let binMemInfo = { ptr: ptr, length: uint8arr.length  }
