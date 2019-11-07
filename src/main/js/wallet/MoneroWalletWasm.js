@@ -131,12 +131,12 @@ class MoneroWalletWasm {
       }
       
       // sync wallet in wasm and invoke callback when done
-      MoneroWalletWasm.WASM_MODULE.to_encrypted_text(that.cppAddress, callbackFn);
+      MoneroWalletWasm.WASM_MODULE.get_encrypted_text(that.cppAddress, callbackFn);
     });
   }
   
   async save() {
-    let encryptedText = await getEncryptedText();
+    let encryptedText = await this.getEncryptedText();
     console.log("Saving encrypted text: " + encryptedText);
     throw Error("Save to disk not implemented");
   }
