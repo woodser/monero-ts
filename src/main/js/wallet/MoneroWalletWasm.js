@@ -136,9 +136,10 @@ class MoneroWalletWasm {
   }
   
   async save() {
-    let encryptedText = await this.getEncryptedText();
-    console.log("Saving encrypted text: " + encryptedText);
-    throw Error("Save to disk not implemented");
+    // TODO
+//    let encryptedText = await this.getEncryptedText();
+//    console.log("Saving encrypted text: " + encryptedText);
+//    throw Error("Save to disk not implemented");
   }
   
   dummyMethod() {

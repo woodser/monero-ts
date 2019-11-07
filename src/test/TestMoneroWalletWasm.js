@@ -1,5 +1,5 @@
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
-const MoneroWalletRpc = require("../main/js/wallet/MoneroWalletWasm");
+let MoneroWalletWasm;	// async import before tests run
 
 /**
  * Tests a Monero wallet using WebAssembly to bridge to monero-project's wallet2.
@@ -15,7 +15,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
   }
   
   async createRandomWallet() {
-    let wallet = MoneroWalletWasm.createWalletRandom("", TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc());
+    let wallet = await MoneroWalletWasm.createWalletRandom("", TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc());
     //await wallet.startSyncing();  // TODO
     return wallet;
   }
@@ -32,7 +32,8 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       
       // initialize wallet
       before(async function() {
-        that.wallet = await that.getTestWallet(); // TODO: update in TestMoneroWalletRpc.js
+        MoneroWalletWasm = await require("../main/js/wallet/MoneroWalletWasm")();
+        that.wallet = await that.getTestWallet(); // TODO: update in TestMoneroWalletWasm.js
         TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
       });
       
