@@ -117,12 +117,7 @@ class MoneroWalletWasm {
     });
   }
   
-  async toJson() {
-    return {testing: 123};
-  }
-  
-  async save() {
-    console.log("Saving to " + this.path + " with password " + this.password);
+  async getEncryptedText() {
     
     // return promise which resolves on callback
     let that = this;
@@ -130,14 +125,20 @@ class MoneroWalletWasm {
       
       // define callback for wasm
       let callbackFn = function(resp) {
-        console.log("Received response from to_json()!");
+        console.log("Received response from to_encrypted_text()!");
         console.log(resp);
-        resolve();
+        resolve(resp);
       }
       
       // sync wallet in wasm and invoke callback when done
-      MoneroWalletWasm.WASM_MODULE.to_json(that.cppAddress, callbackFn);
+      MoneroWalletWasm.WASM_MODULE.to_encrypted_text(that.cppAddress, callbackFn);
     });
+  }
+  
+  async save() {
+    let encryptedText = await getEncryptedText();
+    console.log("Saving encrypted text: " + encryptedText);
+    throw Error("Save to disk not implemented");
   }
   
   dummyMethod() {
