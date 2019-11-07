@@ -25,8 +25,8 @@ namespace monero_wallet_wasm_bridge
 //  bool is_daemon_trusted(int handle) const;
 //  bool is_synced(int handle) const;
 //  int get_network_type(int handle) const;
-//  string get_seed(int handle) const;
-//  string get_mnemonic(int handle) const;
+  string get_seed(int handle);
+  string get_mnemonic(int handle);
 //  string get_language(int handle) const;
 //  vector<string> get_languages() const;
 //  string get_public_view_key(int handle) const;
