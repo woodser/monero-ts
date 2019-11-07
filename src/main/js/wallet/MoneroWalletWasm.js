@@ -80,6 +80,38 @@ class MoneroWalletWasm {
     this.password = password;
   }
   
+  async getPath() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getSeed() {
+    return MoneroWalletWasm.WASM_MODULE.get_seed(this.cppAddress);
+  }
+  
+  async getMnemonic() {
+    return MoneroWalletWasm.WASM_MODULE.get_mnemonic(this.cppAddress);
+  }
+  
+  async getLanguages() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getPrivateViewKey() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getPrivateSpendKey() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getAddress(accountIdx, subaddressIdx) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getAddressIndex(address) {
+    throw new MoneroError("Not implemented");
+  }
+  
   async getHeight() {
     console.log("MoneorWalletWasm.getHeight()");
     let cppAddress = this.cppAddress;

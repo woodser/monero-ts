@@ -55,8 +55,17 @@ void monero_wallet_wasm_bridge::create_wallet_from_mnemonic(const string& path, 
 //  bool is_daemon_trusted(int handle) const;
 //  bool is_synced(int handle) const;
 //  int get_network_type(int handle) const;
-//  string get_seed(int handle) const;
-//  string get_mnemonic(int handle) const;
+
+string monero_wallet_wasm_bridge::get_seed(int handle) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  return wallet->get_seed();
+}
+
+string monero_wallet_wasm_bridge::get_mnemonic(int handle) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  return wallet->get_mnemonic();
+}
+
 //  string get_language(int handle) const;
 //  vector<string> get_languages() const;
 //  string get_public_view_key(int handle) const;
@@ -69,13 +78,13 @@ void monero_wallet_wasm_bridge::create_wallet_from_mnemonic(const string& path, 
 //  string get_integrated_address(int handle, const string& standard_address = "", const string& payment_id = "") const;
 //  string decode_integrated_address(int handle, const string& integrated_address) const;
 
-   void monero_wallet_wasm_bridge::get_height(int handle, emscripten::val callback) {
-     cout << "monero_wallet_wasm_bridge::get_height()" << endl;
-     monero_wallet_base* wallet = (monero_wallet_base*) handle;
-     uint64_t height = wallet->get_height();
-     cout << "CPP got height: " << height << endl;
-     callback((long) height);
-   }
+void monero_wallet_wasm_bridge::get_height(int handle, emscripten::val callback) {
+  cout << "monero_wallet_wasm_bridge::get_height()" << endl;
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  uint64_t height = wallet->get_height();
+  cout << "CPP got height: " << height << endl;
+  callback((long) height);
+}
 
 //  long get_restore_height(int handle) const;
 //  void set_restore_height(int handle, long restore_height);
@@ -85,13 +94,13 @@ void monero_wallet_wasm_bridge::create_wallet_from_mnemonic(const string& path, 
   //void remove_listener(int handle, monero_wallet_listener& listener);
   //set<monero_wallet_listener*> get_listeners(int handle);
 
-  void monero_wallet_wasm_bridge::sync(int handle, emscripten::val callback) {
-    monero_wallet_base* wallet = (monero_wallet_base*) handle;
-    wallet->sync();
-    callback(string("{my_serialized_sync_result}"));
-  }
+void monero_wallet_wasm_bridge::sync(int handle, emscripten::val callback) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  wallet->sync();
+  callback(string("{my_serialized_sync_result}"));
+}
 
-  void monero_wallet_wasm_bridge::get_encrypted_text(int handle, emscripten::val callback) {
-    monero_wallet_base* wallet = (monero_wallet_base*) handle;
-    callback(wallet->get_encrypted_text());
-  }
+void monero_wallet_wasm_bridge::get_encrypted_text(int handle, emscripten::val callback) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  callback(wallet->get_encrypted_text());
+}
