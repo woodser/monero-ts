@@ -66,17 +66,55 @@ string monero_wallet_wasm_bridge::get_mnemonic(int handle) {
   return wallet->get_mnemonic();
 }
 
-//  string get_language(int handle) const;
-//  vector<string> get_languages() const;
-//  string get_public_view_key(int handle) const;
-//  string get_private_view_key(int handle) const;
-//  string get_public_spend_key(int handle) const;
-//  string get_private_spend_key(int handle) const;
-//  string get_primary_address(int handle) const;
-//  string get_address(int handle, const uint32_t account_idx, const uint32_t subaddress_idx) const;
-//  string get_address_index(int handle, const string& address) const;
-//  string get_integrated_address(int handle, const string& standard_address = "", const string& payment_id = "") const;
-//  string decode_integrated_address(int handle, const string& integrated_address) const;
+string monero_wallet_wasm_bridge::get_language(int handle) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  return wallet->get_language();
+}
+
+//vector<string> monero_wallet_wasm_bridge::get_languages() {
+//  cout << "monero_wallet_wasm_bridge::get_languages()" << endl;
+//  throw runtime_error("not implemented");
+//}
+
+string monero_wallet_wasm_bridge::get_public_view_key(int handle) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  return wallet->get_public_view_key();
+}
+
+string monero_wallet_wasm_bridge::get_private_view_key(int handle) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  return wallet->get_private_view_key();
+}
+
+string monero_wallet_wasm_bridge::get_public_spend_key(int handle) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  return wallet->get_public_spend_key();
+}
+
+string monero_wallet_wasm_bridge::get_private_spend_key(int handle) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  return wallet->get_private_spend_key();
+}
+
+string monero_wallet_wasm_bridge::get_address(int handle, const uint32_t account_idx, const uint32_t subaddress_idx) {
+  cout << "monero_wallet_wasm_bridge::get_address()" << endl;
+  throw runtime_error("not implemented");
+}
+
+string monero_wallet_wasm_bridge::get_address_index(int handle, const string& address) {
+  cout << "monero_wallet_wasm_bridge::get_address_index()" << endl;
+  throw runtime_error("not implemented");
+}
+
+string monero_wallet_wasm_bridge::get_integrated_address(int handle, const string& standard_address, const string& payment_id) {
+  cout << "monero_wallet_wasm_bridge::get_integrated_address()" << endl;
+  throw runtime_error("not implemented");
+}
+
+string monero_wallet_wasm_bridge::decode_integrated_address(int handle, const string& integrated_address) {
+  cout << "monero_wallet_wasm_bridge::decode_integrated_address()" << endl;
+  throw runtime_error("not implemented");
+}
 
 void monero_wallet_wasm_bridge::get_height(int handle, emscripten::val callback) {
   cout << "monero_wallet_wasm_bridge::get_height()" << endl;

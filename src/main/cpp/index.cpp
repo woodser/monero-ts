@@ -21,6 +21,16 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("create_wallet_from_mnemonic", &monero_wallet_wasm_bridge::create_wallet_from_mnemonic);
   emscripten::function("get_seed", &monero_wallet_wasm_bridge::get_seed);
   emscripten::function("get_mnemonic", &monero_wallet_wasm_bridge::get_mnemonic);
+  emscripten::function("get_language", &monero_wallet_wasm_bridge::get_language);
+  //emscripten::function("get_languages", &monero_wallet_wasm_bridge::get_languages);
+  emscripten::function("get_public_view_key", &monero_wallet_wasm_bridge::get_public_view_key);
+  emscripten::function("get_private_view_key", &monero_wallet_wasm_bridge::get_private_view_key);
+  emscripten::function("get_public_spend_key", &monero_wallet_wasm_bridge::get_public_spend_key);
+  emscripten::function("get_private_spend_key", &monero_wallet_wasm_bridge::get_private_spend_key);
+  emscripten::function("get_address", &monero_wallet_wasm_bridge::get_address);
+  emscripten::function("get_address_index", &monero_wallet_wasm_bridge::get_address_index);
+  emscripten::function("get_integrated_address", &monero_wallet_wasm_bridge::get_integrated_address);
+  emscripten::function("decode_integrated_address", &monero_wallet_wasm_bridge::decode_integrated_address);
   emscripten::function("get_height", &monero_wallet_wasm_bridge::get_height);
   emscripten::function("sync", &monero_wallet_wasm_bridge::sync);
   emscripten::function("get_encrypted_text", &monero_wallet_wasm_bridge::get_encrypted_text);
