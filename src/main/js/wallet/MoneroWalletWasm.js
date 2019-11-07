@@ -1,3 +1,4 @@
+const FS = require('fs'); 
 
 /**
  * Implements a Monero wallet using WebAssembly to bridge to monero-project's wallet2.
@@ -12,22 +13,30 @@ class MoneroWalletWasm {
     return new MoneroWalletWasm(cppAddress);
   }
   
+  static async walletExists(path) {
+    let temp = FS.existsSync(path);
+    console.log("Wallet exists at " + path + ": " + temp);
+    return FS.existsSync(path);
+  }
+  
   static async createWalletRandom(path, password, networkType, daemonConnection, language) {
     
     // return promise which is resolved on callback
     return new Promise(function(resolve, reject) {
       
       // define callback for wasm
-      let callbackFn = function(cppAddress) {
+      let callbackFn = async function(cppAddress) {
         console.log("Received callback argument!!! " + cppAddress);
-        resolve(new MoneroWalletWasm(cppAddress));
+        let wallet = new MoneroWalletWasm(cppAddress, path, password);
+        //await wallet.save();
+        resolve(wallet);
       };
       
       // create wallet in wasm and invoke callback when done
       let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
       let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
       let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
-      MoneroWalletWasm.WASM_MODULE.create_wallet_random(path, password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);
+      MoneroWalletWasm.WASM_MODULE.create_wallet_random("", password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);    // empty path is provided so disk writes only happen from JS
     });
   }
   
@@ -37,16 +46,18 @@ class MoneroWalletWasm {
     return new Promise(function(resolve, reject) {
       
       // define callback for wasm
-      let callbackFn = function(cppAddress) {
+      let callbackFn = async function(cppAddress) {
         console.log("Received callback argument!!! " + cppAddress);
-        resolve(new MoneroWalletWasm(cppAddress));
+        let wallet = new MoneroWalletWasm(cppAddress, path, password);
+        //await wallet.save();
+        resolve(wallet);
       };
       
       // create wallet in wasm and invoke callback when done
       let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
       let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
       let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
-      MoneroWalletWasm.WASM_MODULE.create_wallet_from_mnemonic(path, password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, callbackFn);
+      MoneroWalletWasm.WASM_MODULE.create_wallet_from_mnemonic("", password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, callbackFn);  // empty path is provided so disk writes only happen from JS
     });
   }
   
@@ -60,9 +71,13 @@ class MoneroWalletWasm {
    * static wallet creation utilities in this class.
    * 
    * @param {int} cppAddress is the address of the wallet instance in C++
+   * @param {string} path is the path of the wallet instance
+   * @param {string} password is the password of the wallet instance
    */
-  constructor(cppAddress) {
+  constructor(cppAddress, path, password) {
     this.cppAddress = cppAddress;
+    this.path = path;
+    this.password = password;
   }
   
   async getHeight() {
@@ -99,6 +114,29 @@ class MoneroWalletWasm {
       
       // sync wallet in wasm and invoke callback when done
       MoneroWalletWasm.WASM_MODULE.sync(cppAddress, callbackFn);
+    });
+  }
+  
+  async toJson() {
+    return {testing: 123};
+  }
+  
+  async save() {
+    console.log("Saving to " + this.path + " with password " + this.password);
+    
+    // return promise which resolves on callback
+    let that = this;
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(resp) {
+        console.log("Received response from to_json()!");
+        console.log(resp);
+        resolve();
+      }
+      
+      // sync wallet in wasm and invoke callback when done
+      MoneroWalletWasm.WASM_MODULE.to_json(that.cppAddress, callbackFn);
     });
   }
   
