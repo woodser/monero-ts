@@ -3,6 +3,7 @@
 #include "wallet/monero_wallet_dummy.h"
 #include "wallet/monero_wallet_base.h"
 #include "http_client_wasm.h"
+#include "utils/monero_utils.h"
 
  // TODO: remove
 #include "mnemonics/electrum-words.h"
@@ -15,6 +16,10 @@ using namespace monero_wallet_wasm_bridge;
 void my_int_func(int x)
 {
     printf( "%d\n", x );
+}
+
+string strip_last_char(const string& str) {
+  return str.substr(0, str.size() - 1);
 }
 
 // ------------------------- INITIALIZE CONSTANTS ---------------------------
@@ -97,8 +102,8 @@ string monero_wallet_wasm_bridge::get_private_spend_key(int handle) {
 }
 
 string monero_wallet_wasm_bridge::get_address(int handle, const uint32_t account_idx, const uint32_t subaddress_idx) {
-  cout << "monero_wallet_wasm_bridge::get_address()" << endl;
-  throw runtime_error("not implemented");
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  return wallet->get_address(account_idx, subaddress_idx);
 }
 
 string monero_wallet_wasm_bridge::get_address_index(int handle, const string& address) {
@@ -117,10 +122,8 @@ string monero_wallet_wasm_bridge::decode_integrated_address(int handle, const st
 }
 
 void monero_wallet_wasm_bridge::get_height(int handle, emscripten::val callback) {
-  cout << "monero_wallet_wasm_bridge::get_height()" << endl;
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
   uint64_t height = wallet->get_height();
-  cout << "CPP got height: " << height << endl;
   callback((long) height);
 }
 
@@ -136,6 +139,34 @@ void monero_wallet_wasm_bridge::sync(int handle, emscripten::val callback) {
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
   wallet->sync();
   callback(string("{my_serialized_sync_result}"));
+}
+
+string monero_wallet_wasm_bridge::get_subaddresses(int handle, const string& args) {
+
+  // deserialize args to property tree
+  std::istringstream iss = std::istringstream(args);
+  boost::property_tree::ptree node;
+  boost::property_tree::read_json(iss, node);
+
+  // get account index argument
+  uint32_t account_idx = node.get_child("accountIdx").get_value<uint32_t>();
+
+  // get subaddresses indices argument
+  vector<uint32_t> subaddress_indices;
+  for (const auto& item : node.get_child("subaddressIndices")) {
+    subaddress_indices.push_back(item.second.get_value<uint32_t>());
+  }
+
+  // get subaddresses
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  vector<monero_subaddress> subaddresses = wallet->get_subaddresses(account_idx, subaddress_indices);
+
+  // wrap and serialize subaddresses
+  std::stringstream ss;
+  boost::property_tree::ptree container;
+  if (!subaddresses.empty()) container.add_child("subaddresses", monero_utils::to_property_tree(subaddresses));
+  boost::property_tree::write_json(ss, container, false);
+  return strip_last_char(ss.str());
 }
 
 void monero_wallet_wasm_bridge::get_encrypted_text(int handle, emscripten::val callback) {

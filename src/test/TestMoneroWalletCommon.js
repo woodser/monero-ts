@@ -134,6 +134,7 @@ class TestMoneroWalletCommon {
       it("Can get the primary address", async function() {
         let primaryAddress = await that.wallet.getPrimaryAddress();
         MoneroUtils.validateAddress(primaryAddress);
+        let subaddress = (await that.wallet.getSubaddress(0, 0));
         assert.equal(primaryAddress, (await that.wallet.getSubaddress(0, 0)).getAddress());
       });
       

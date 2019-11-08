@@ -3,9 +3,13 @@
  */
 class MoneroSubaddress {
   
-  constructor(address) {
-    this.state = {};
-    this.setAddress(address);
+  constructor(stateOrAddress) {
+    if (typeof stateOrAddress === "string") {
+      this.state = {};
+      this.setAddress(stateOrAddress);
+    } else {
+      this.state = stateOrAddress;
+    }
   }
   
   getAccountIndex() {

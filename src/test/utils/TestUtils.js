@@ -145,7 +145,7 @@ TestUtils.NETWORK_TYPE = MoneroNetworkType.STAGENET;
 TestUtils.MNEMONIC = "hefty value later extra artistic firm radar yodel talent future fungal nutshell because sanity awesome nail unjustly rage unafraid cedar delayed thumbs comb custom sanity";
 TestUtils.ADDRESS = "528qdm2pXnYYesCy5VdmBneWeaSZutEijFVAKjpVHeVd4unsCSM55CjgViQsK9WFNHK1eZgcCuZ3fRqYpzKDokqSKp4yp38";
 //TestUtils.FIRST_RECEIVE_HEIGHT = 383338;
-TestUtils.FIRST_RECEIVE_HEIGHT = 445000;
+TestUtils.FIRST_RECEIVE_HEIGHT = 447000;
 
 //wallet rpc test wallet filenames and passwords
 TestUtils.WALLET_RPC_NAME_1 = "test_wallet_1";

@@ -1,9 +1,10 @@
+const MoneroWallet = require("./MoneroWallet");
 const FS = require('fs'); 
 
 /**
  * Implements a Monero wallet using WebAssembly to bridge to monero-project's wallet2.
  */
-class MoneroWalletWasm {
+class MoneroWalletWasm extends MoneroWallet {
   
   // --------------------------- STATIC UTILITIES -----------------------------
   
@@ -75,6 +76,7 @@ class MoneroWalletWasm {
    * @param {string} password is the password of the wallet instance
    */
   constructor(cppAddress, path, password) {
+    super();
     this.cppAddress = cppAddress;
     this.path = path;
     this.password = password;
@@ -113,6 +115,7 @@ class MoneroWalletWasm {
   }
   
   async getAddress(accountIdx, subaddressIdx) {
+    console.log("MoneroWalletWasm.getAddress(" + accountIdx + ", " + subaddressIdx + ")");
     return MoneroWalletWasm.WASM_MODULE.get_address(this.cppAddress, accountIdx, subaddressIdx);
   }
   
@@ -155,6 +158,14 @@ class MoneroWalletWasm {
       // sync wallet in wasm and invoke callback when done
       MoneroWalletWasm.WASM_MODULE.sync(cppAddress, callbackFn);
     });
+  }
+  
+  async getSubaddresses(accountIdx, subaddressIndices) {
+    let argsStr = JSON.stringify({accountIdx: accountIdx, subaddressIndices: GenUtils.listify(subaddressIndices)});
+    let subaddressesJson = JSON.parse(MoneroWalletWasm.WASM_MODULE.get_subaddresses(this.cppAddress, argsStr)).subaddresses;
+    let subaddresses = [];
+    for (let subaddressJson of subaddressesJson) subaddresses.push(new MoneroSubaddress(subaddressJson));
+    return subaddresses;
   }
   
   async getEncryptedText() {
