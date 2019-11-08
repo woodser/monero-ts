@@ -46,6 +46,8 @@ namespace monero_wallet_wasm_bridge
   //void remove_listener(int handle, monero_wallet_listener& listener);
   //set<monero_wallet_listener*> get_listeners(int handle);
   void sync(int handle, emscripten::val callback);
+  string get_accounts(int handle, bool include_subaddresses = false, const string& tag = "");
+  string get_account(int handle, uint32_t account_idx, bool include_subaddresses = false);
   string get_subaddresses(int handle, const string& args);
   void get_encrypted_text(int handle, emscripten::val callback);
 }

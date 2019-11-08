@@ -32,7 +32,7 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, c
     this.config.user = "superuser";
     this.config.pass = "abctesting123";
     let fullUri = "http://localhost:38081" + UTF8ToString(uri);
-    console.log("Full URI: " + fullUri);
+    //console.log("Full URI: " + fullUri);
 
     // build request which gets json response as text
     let opts = {
@@ -52,7 +52,7 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, c
       }
     }
 
-    console.log("Timeout: " + timeout); // TODO: use timeout
+    //console.log("Timeout: " + timeout); // TODO: use timeout
 
     /**
      * Makes a throttled request.
@@ -64,10 +64,8 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, c
     }
 
     // send throttled request
-    console.log("fetching");
     let wakeUpCalled = false;
     _throttledRequest(opts).then(resp => {
-      console.log("GOT RESPONSE!!!");
       //console.log(JSON.stringify(resp));
 
       // replace 16 or more digits with strings and parse
@@ -124,18 +122,12 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
     this.config.user = "superuser";
     this.config.pass = "abctesting123";
     let fullUri = "http://localhost:38081" + UTF8ToString(uri);
-    console.log("Full URI: " + fullUri);
 
     // fetch MoneroCppUtils to convert from json to binary
     MoneroUtils.getCppUtils().then(MoneroCppUtils => {
 
-      console.log("Retrieved MoneroCppUtils");
-
       let ptr = body;
-      console.log("Ptr: ");
-      console.log(ptr);
       let length = body_length;
-      console.log("Length: " + length);
 
       // read binary data from heap to Uint8Array
       let view = new Uint8Array(length);
@@ -161,7 +153,7 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
         }
       }
 
-      console.log("Timeout: " + timeout); // TODO: use timeout
+      //console.log("Timeout: " + timeout); // TODO: use timeout
 
       /**
        * Makes a throttled request.
@@ -174,10 +166,8 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
 
 
       // send throttled request
-      console.log("fetching");
       let wakeUpCalled = false;
       _throttledRequest(opts).then(resp => {
-        console.log("GOT RESPONSE!!!");
 
         // TODO: return this
         //return new Uint8Array(resp, 0, resp.length);
@@ -186,8 +176,8 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
         //resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // TODO: get this to compile in C++ or move to JS file
 
         // allocate space in c++ heap for binary
-        console.log("Response body length: " + resp.body.length);
-        console.log("Response body BYTES_PER_ELEMENT: " + resp.body.BYTES_PER_ELEMENT);
+        //console.log("Response body length: " + resp.body.length);
+        //console.log("Response body BYTES_PER_ELEMENT: " + resp.body.BYTES_PER_ELEMENT);
 
         // write binary body to heap and pass back pointer
         let nDataBytes = resp.body.length * resp.body.BYTES_PER_ELEMENT;
@@ -356,11 +346,11 @@ bool http_client_wasm::invoke_binary(const boost::string_ref uri, const boost::s
   // set response argument
   if (ppresponse_info && m_response_info.m_response_code != 401) {
     *ppresponse_info = std::addressof(m_response_info);
-    cout << "Set resopnse info!!!" << endl;
-    cout << (*ppresponse_info)->m_response_code << endl;
-    cout << (*ppresponse_info)->m_response_comment << endl;
-    cout << (*ppresponse_info)->m_mime_tipe << endl;
-    cout << "Content type header: " << (*ppresponse_info)->m_header_info.m_content_type << endl;
+    //cout << "Set resopnse info!!!" << endl;
+    //cout << (*ppresponse_info)->m_response_code << endl;
+    //cout << (*ppresponse_info)->m_response_comment << endl;
+    //cout << (*ppresponse_info)->m_mime_tipe << endl;
+    //cout << "Content type header: " << (*ppresponse_info)->m_header_info.m_content_type << endl;
   }
 
   // free response string and binary from heap
