@@ -273,6 +273,8 @@ class MoneroWallet {
     throw new MoneroError("Subclass must implement");
   }
   
+  // TODO: overloaded getAccounts() probably are not needed, only one is used in RPC and WASM implementations
+  
   /**
    * Get all accounts.
    * 

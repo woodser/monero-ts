@@ -114,8 +114,32 @@ class MoneroWalletWasm extends MoneroWallet {
     return MoneroWalletWasm.WASM_MODULE.get_private_spend_key(this.cppAddress);
   }
   
+  async getAccounts(includeSubaddresses, tag) {
+    let accountsStr = MoneroWalletWasm.WASM_MODULE.get_accounts(this.cppAddress, includeSubaddresses ? true : false, tag ? tag : "");
+    let accounts = [];
+    for (let accountJson of JSON.parse(accountsStr).accounts) {
+      let subaddresses = undefined;
+      if (accountJson.subaddresses) {
+        subaddresses = [];
+        for (let subaddressJson of accountJson.subaddresses) subaddresses.push(new MoneroSubaddress(subaddressJson));
+      }
+      accounts.push(new MoneroAccount(parseInt(accountJson.index), accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses));
+    }
+    return accounts;
+  }
+  
+  async getAccount(accountIdx, includeSubaddresses) {
+    let accountStr = MoneroWalletWasm.WASM_MODULE.get_account(this.cppAddress, accountIdx, includeSubaddresses ? true : false);
+    let accountJson = JSON.parse(accountStr);
+    let subaddresses = undefined;
+    if (accountJson.subaddresses) {
+      subaddresses = [];
+      for (let subaddressJson of accountJson.subaddresses) subaddresses.push(new MoneroSubaddress(subaddressJson));
+    }
+    return new MoneroAccount(parseInt(accountJson.index), accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses);
+  }
+  
   async getAddress(accountIdx, subaddressIdx) {
-    console.log("MoneroWalletWasm.getAddress(" + accountIdx + ", " + subaddressIdx + ")");
     return MoneroWalletWasm.WASM_MODULE.get_address(this.cppAddress, accountIdx, subaddressIdx);
   }
   

@@ -141,6 +141,26 @@ void monero_wallet_wasm_bridge::sync(int handle, emscripten::val callback) {
   callback(string("{my_serialized_sync_result}"));
 }
 
+string monero_wallet_wasm_bridge::get_accounts(int handle, bool include_subaddresses, const string& tag) {
+
+  // get accounts
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  vector<monero_account> accounts = wallet->get_accounts(include_subaddresses, tag);
+
+  // wrap and serialize accounts
+  std::stringstream ss;
+  boost::property_tree::ptree container;
+  if (!accounts.empty()) container.add_child("accounts", monero_utils::to_property_tree(accounts));
+  boost::property_tree::write_json(ss, container, false);
+  return strip_last_char(ss.str());
+}
+
+string monero_wallet_wasm_bridge::get_account(int handle, uint32_t account_idx, bool include_subaddresses) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  monero_account account = wallet->get_account(account_idx, include_subaddresses);
+  return account.serialize();
+}
+
 string monero_wallet_wasm_bridge::get_subaddresses(int handle, const string& args) {
 
   // deserialize args to property tree
