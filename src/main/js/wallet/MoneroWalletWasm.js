@@ -140,6 +140,7 @@ class MoneroWalletWasm extends MoneroWallet {
   }
   
   async getAddress(accountIdx, subaddressIdx) {
+    assert(typeof accountIdx === "number");
     return MoneroWalletWasm.WASM_MODULE.get_address(this.cppAddress, accountIdx, subaddressIdx);
   }
   
