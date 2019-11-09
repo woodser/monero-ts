@@ -123,7 +123,7 @@ class MoneroWalletWasm extends MoneroWallet {
         subaddresses = [];
         for (let subaddressJson of accountJson.subaddresses) subaddresses.push(new MoneroSubaddress(subaddressJson));
       }
-      accounts.push(new MoneroAccount(parseInt(accountJson.index), accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses));
+      accounts.push(new MoneroAccount(accountJson.index, accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses));
     }
     return accounts;
   }
@@ -136,7 +136,7 @@ class MoneroWalletWasm extends MoneroWallet {
       subaddresses = [];
       for (let subaddressJson of accountJson.subaddresses) subaddresses.push(new MoneroSubaddress(subaddressJson));
     }
-    return new MoneroAccount(parseInt(accountJson.index), accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses);
+    return new MoneroAccount(accountJson.index, accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses);
   }
   
   async getAddress(accountIdx, subaddressIdx) {
