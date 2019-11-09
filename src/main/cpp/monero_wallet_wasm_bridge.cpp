@@ -77,7 +77,6 @@ string monero_wallet_wasm_bridge::get_language(int handle) {
 }
 
 string monero_wallet_wasm_bridge::get_languages(int handle) {
-  cout << "monero_wallet_wasm_bridge::get_languages()" << endl;
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
   vector<string> languages = wallet->get_languages();
 
@@ -115,8 +114,17 @@ string monero_wallet_wasm_bridge::get_address(int handle, const uint32_t account
 }
 
 string monero_wallet_wasm_bridge::get_address_index(int handle, const string& address) {
-  cout << "monero_wallet_wasm_bridge::get_address_index()" << endl;
-  throw runtime_error("not implemented");
+  cout << "monero_wallet_wasm_bridge::get_address_index(" << address << ")" << endl;
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  try {
+    cout << "get_address_index 1" << endl;
+    monero_subaddress subaddress = wallet->get_address_index(address);
+    cout << "get_address_index 2" << endl;
+    return subaddress.serialize();
+  } catch (...) { // TODO: could replace with std::exception const& e
+    cout << "CAUGHT EXCEPTION" << endl;
+    return "BAD ADDRESS";
+  }
 }
 
 string monero_wallet_wasm_bridge::get_integrated_address(int handle, const string& standard_address, const string& payment_id) {

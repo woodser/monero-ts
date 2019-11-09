@@ -235,8 +235,8 @@ void http_client_wasm::set_auto_connect(bool auto_connect) {
   throw runtime_error("http_client_wasm::set_auto_connect() not implemented");
 }
 
+// TODO: this method gets called repeatedly, so need to cache
 bool http_client_wasm::connect(std::chrono::milliseconds timeout) {
-  cout << "connect()" << endl;
   m_is_connected = true;    // TODO: do something!
   return true;
   //throw runtime_error("http_client_wasm::connect() not implemented");
@@ -387,7 +387,7 @@ bool http_client_wasm::invoke_binary(const boost::string_ref uri, const boost::s
 }
 
 bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
-  cout << "invoke(" << uri << ", " << method << ", ...)" << endl;
+  //cout << "invoke(" << uri << ", " << method << ", ...)" << endl;
 
   // return false if unconnected
   if (!is_connected()) {
