@@ -148,11 +148,10 @@ string monero_wallet_wasm_bridge::get_accounts(int handle, bool include_subaddre
   vector<monero_account> accounts = wallet->get_accounts(include_subaddresses, tag);
 
   // wrap and serialize accounts
-  std::stringstream ss;
-  boost::property_tree::ptree container;
-  if (!accounts.empty()) container.add_child("accounts", monero_utils::to_property_tree(accounts));
-  boost::property_tree::write_json(ss, container, false);
-  return strip_last_char(ss.str());
+  rapidjson::Document doc;
+  doc.SetObject();
+  doc.AddMember("accounts", monero_utils::to_json_val(doc.GetAllocator(), accounts), doc.GetAllocator());
+  return monero_utils::serialize(doc);
 }
 
 string monero_wallet_wasm_bridge::get_account(int handle, uint32_t account_idx, bool include_subaddresses) {
@@ -182,11 +181,10 @@ string monero_wallet_wasm_bridge::get_subaddresses(int handle, const string& arg
   vector<monero_subaddress> subaddresses = wallet->get_subaddresses(account_idx, subaddress_indices);
 
   // wrap and serialize subaddresses
-  std::stringstream ss;
-  boost::property_tree::ptree container;
-  if (!subaddresses.empty()) container.add_child("subaddresses", monero_utils::to_property_tree(subaddresses));
-  boost::property_tree::write_json(ss, container, false);
-  return strip_last_char(ss.str());
+  rapidjson::Document doc;
+  doc.SetObject();
+  doc.AddMember("subaddresses", monero_utils::to_json_val(doc.GetAllocator(), subaddresses), doc.GetAllocator());
+  return monero_utils::serialize(doc);
 }
 
 void monero_wallet_wasm_bridge::get_encrypted_text(int handle, emscripten::val callback) {
