@@ -158,13 +158,7 @@ string monero_wallet_wasm_bridge::get_accounts(int handle, bool include_subaddre
 string monero_wallet_wasm_bridge::get_account(int handle, uint32_t account_idx, bool include_subaddresses) {
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
   monero_account account = wallet->get_account(account_idx, include_subaddresses);
-
-  cout << "Attempting to serialize using RAPIDJSON" << endl;
-  rapidjson::Document doc = account.to_rapid_json();
-  string temp = monero_utils::serialize(doc);
-  cout << "RAPIDJSON SERIALIZED ACCOUNT: " << temp << endl;
-
-  return account.serialize();
+  return account.serialize_doc(); // TODO: replace with serialize() when property tree replaced
 }
 
 string monero_wallet_wasm_bridge::get_subaddresses(int handle, const string& args) {
