@@ -95,7 +95,7 @@ class MoneroWalletWasm extends MoneroWallet {
   }
   
   async getLanguages() {
-    throw new MoneroError("Not implemented");
+    return JSON.parse(MoneroWalletWasm.WASM_MODULE.get_languages(this.cppAddress));
   }
   
   async getPublicViewKey() {

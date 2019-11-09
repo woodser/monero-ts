@@ -76,10 +76,18 @@ string monero_wallet_wasm_bridge::get_language(int handle) {
   return wallet->get_language();
 }
 
-//vector<string> monero_wallet_wasm_bridge::get_languages() {
-//  cout << "monero_wallet_wasm_bridge::get_languages()" << endl;
-//  throw runtime_error("not implemented");
-//}
+string monero_wallet_wasm_bridge::get_languages(int handle) {
+  cout << "monero_wallet_wasm_bridge::get_languages()" << endl;
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  vector<string> languages = wallet->get_languages();
+
+  // serialize languages as json string array
+  rapidjson::Document doc;
+  doc.SetObject();
+  rapidjson::Value val = monero_utils::to_json_val(doc.GetAllocator(), languages);
+  val.Swap(doc);
+  return monero_utils::serialize(doc);
+}
 
 string monero_wallet_wasm_bridge::get_public_view_key(int handle) {
   monero_wallet_base* wallet = (monero_wallet_base*) handle;

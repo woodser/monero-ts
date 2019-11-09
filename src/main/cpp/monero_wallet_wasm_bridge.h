@@ -28,7 +28,7 @@ namespace monero_wallet_wasm_bridge
   string get_seed(int handle);
   string get_mnemonic(int handle);
   string get_language(int handle);
-  //vector<string> get_languages();
+  string get_languages(int handle);
   string get_public_view_key(int handle);
   string get_private_view_key(int handle);
   string get_public_spend_key(int handle);
