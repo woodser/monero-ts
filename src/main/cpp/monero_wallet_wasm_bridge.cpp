@@ -157,7 +157,7 @@ string monero_wallet_wasm_bridge::get_accounts(int handle, bool include_subaddre
 string monero_wallet_wasm_bridge::get_account(int handle, uint32_t account_idx, bool include_subaddresses) {
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
   monero_account account = wallet->get_account(account_idx, include_subaddresses);
-  return account.serialize_doc(); // TODO: replace with serialize() when property tree replaced
+  return account.serialize();
 }
 
 string monero_wallet_wasm_bridge::get_subaddresses(int handle, const string& args) {
