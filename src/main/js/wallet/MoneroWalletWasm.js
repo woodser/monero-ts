@@ -114,6 +114,69 @@ class MoneroWalletWasm extends MoneroWallet {
     return MoneroWalletWasm.WASM_MODULE.get_private_spend_key(this.cppAddress);
   }
   
+  async getAddress(accountIdx, subaddressIdx) {
+    assert(typeof accountIdx === "number");
+    return MoneroWalletWasm.WASM_MODULE.get_address(this.cppAddress, accountIdx, subaddressIdx);
+  }
+  
+  async getAddressIndex(address) {
+    let subaddressJson = JSON.parse(MoneroWalletWasm.WASM_MODULE.get_address_index(this.cppAddress, address));
+    return new MoneroSubaddress(subaddressJson);
+  }
+  
+  // getIntegratedAddress(paymentId)
+  // decodeIntegratedAddress
+  
+  async getHeight() {
+    let cppAddress = this.cppAddress;
+    
+    // return promise which resolves on callback
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(resp) {
+        console.log("Received response from get_height!");
+        console.log("height: " + resp);
+        resolve(resp);
+      }
+      
+      // sync wallet in wasm and invoke callback when done
+      MoneroWalletWasm.WASM_MODULE.get_height(cppAddress, callbackFn);
+    });
+  }
+  
+  // getDaemonHeight
+  
+  async sync() {
+    let cppAddress = this.cppAddress;
+    
+    // return promise which resolves on callback
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(resp) {
+        console.log("Received response from synchronizing!");
+        console.log(resp);
+        resolve("...wait for it...");
+      }
+      
+      // sync wallet in wasm and invoke callback when done
+      MoneroWalletWasm.WASM_MODULE.sync(cppAddress, callbackFn);
+    });
+  }
+  
+  // startSyncing
+  // rescanSpent
+  // rescanBlockchain
+  
+  async getBalance(accountIdx, subaddressIdx) {
+    throw new Error("getBalance() not implemented");
+  }
+  
+  async getUnlockedBalance(accountIdx, subaddressIdx) {
+    throw new Error("getUnlockedBalance() not implemented");
+  }
+  
   async getAccounts(includeSubaddresses, tag) {
     let accountsStr = MoneroWalletWasm.WASM_MODULE.get_accounts(this.cppAddress, includeSubaddresses ? true : false, tag ? tag : "");
     let accounts = [];
@@ -137,52 +200,6 @@ class MoneroWalletWasm extends MoneroWallet {
       for (let subaddressJson of accountJson.subaddresses) subaddresses.push(new MoneroSubaddress(subaddressJson));
     }
     return new MoneroAccount(accountJson.index, accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses);
-  }
-  
-  async getAddress(accountIdx, subaddressIdx) {
-    assert(typeof accountIdx === "number");
-    return MoneroWalletWasm.WASM_MODULE.get_address(this.cppAddress, accountIdx, subaddressIdx);
-  }
-  
-  async getAddressIndex(address) {
-    return MoneroWalletWasm.WASM_MODULE.get_address_index(this.cppAddress, address);
-  }
-  
-  async getHeight() {
-    console.log("MoneorWalletWasm.getHeight()");
-    let cppAddress = this.cppAddress;
-    
-    // return promise which resolves on callback
-    return new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = function(resp) {
-        console.log("Received response from get_height!");
-        console.log("height: " + resp);
-        resolve(resp);
-      }
-      
-      // sync wallet in wasm and invoke callback when done
-      MoneroWalletWasm.WASM_MODULE.get_height(cppAddress, callbackFn);
-    });
-  }
-  
-  async sync() {
-    let cppAddress = this.cppAddress;
-    
-    // return promise which resolves on callback
-    return new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = function(resp) {
-        console.log("Received response from synchronizing!");
-        console.log(resp);
-        resolve("...wait for it...");
-      }
-      
-      // sync wallet in wasm and invoke callback when done
-      MoneroWalletWasm.WASM_MODULE.sync(cppAddress, callbackFn);
-    });
   }
   
   async getSubaddresses(accountIdx, subaddressIndices) {
