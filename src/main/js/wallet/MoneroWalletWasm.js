@@ -155,9 +155,9 @@ class MoneroWalletWasm extends MoneroWallet {
       
       // define callback for wasm
       let callbackFn = function(resp) {
-        console.log("Received response from synchronizing!");
-        console.log(resp);
-        resolve("...wait for it...");
+        let respJson = JSON.parse(resp);
+        let result = new MoneroSyncResult(respJson.numBlocksFetched, respJson.receivedMoney);
+        resolve(result);
       }
       
       // sync wallet in wasm and invoke callback when done
