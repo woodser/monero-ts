@@ -21,7 +21,7 @@ async function startApp() {
   
   let mnemonic = "hefty value later extra artistic firm radar yodel talent future fungal nutshell because sanity awesome nail unjustly rage unafraid cedar delayed thumbs comb custom sanity";
   //let firstReceiveHeight = 383338;
-  let firstReceiveHeight = 440000;
+  let firstReceiveHeight = 447000;
   
   // demonstrate wasm wallet
   let daemonConnection = new MoneroRpcConnection({uri: "http://localhost:38081", user: "superuser", pass: "abctesting123"});  // TODO: support 3 strings, "pass" should probably be renamed to "password" 

@@ -153,8 +153,8 @@ void monero_wallet_wasm_bridge::get_height(int handle, emscripten::val callback)
 
 void monero_wallet_wasm_bridge::sync(int handle, emscripten::val callback) {
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
-  wallet->sync();
-  callback(string("{my_serialized_sync_result}"));
+  monero_sync_result result = wallet->sync();
+  callback(result.serialize());
 }
 
 unsigned long monero_wallet_wasm_bridge::get_balance_wallet(int handle) {
