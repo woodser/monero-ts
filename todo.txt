@@ -4,6 +4,7 @@ wallet/subaddress balance mismatch in test
 debug firefox and chrome exceptions, compare to wasm42
 emscripten bind can return native vectors, see https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
 move store_keys(), load_keys() from wallet2_base to wallet2
+merge wallet_base and wallet using conditional header imports
 profile sync performance, probably switch to emscripten_fetch
 resolve undefined v4_generate_JIT_code
 automate browser build
