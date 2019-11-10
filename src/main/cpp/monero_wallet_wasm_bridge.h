@@ -46,7 +46,9 @@ namespace monero_wallet_wasm_bridge
   //void remove_listener(int handle, monero_wallet_listener& listener);
   //set<monero_wallet_listener*> get_listeners(int handle);
   void sync(int handle, emscripten::val callback);
-
+  //  emscripten::function("start_syncing", &monero_wallet_wasm_bridge::start_syncing);
+  //  emscripten::function("rescan_spent", &monero_wallet_wasm_bridge::rescan_spent);
+  //  emscripten::function("rescan_blockchain", &monero_wallet_wasm_bridge::rescan_blockchain);
   unsigned long get_balance_wallet(int handle);
   unsigned long get_balance_account(int handle, const uint32_t account_idx);
   unsigned long get_balance_subaddress(int handle, const uint32_t account_idx, const uint32_t subaddress_idx);
