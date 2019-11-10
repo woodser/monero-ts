@@ -216,7 +216,11 @@ class MoneroWalletWasm extends MoneroWallet {
       let subaddresses = undefined;
       if (accountJson.subaddresses) {
         subaddresses = [];
-        for (let subaddressJson of accountJson.subaddresses) subaddresses.push(new MoneroSubaddress(subaddressJson));
+        for (let subaddressJson of accountJson.subaddresses) {
+          subaddressJson.balance = new BigInteger(subaddressJson.balance);  // TODO: can this lose precision?
+          subaddressJson.unlockedBalance = new BigInteger(subaddressJson.unlockedBalance);
+          subaddresses.push(new MoneroSubaddress(subaddressJson));
+        }
       }
       accounts.push(new MoneroAccount(accountJson.index, accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses));
     }
