@@ -157,6 +157,36 @@ void monero_wallet_wasm_bridge::sync(int handle, emscripten::val callback) {
   callback(string("{my_serialized_sync_result}"));
 }
 
+unsigned long long monero_wallet_wasm_bridge::get_balance_wallet(int handle) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  return wallet->get_balance();
+}
+
+unsigned long long monero_wallet_wasm_bridge::get_balance_account(int handle, const uint32_t account_idx) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  return wallet->get_balance(account_idx);
+}
+
+unsigned long long monero_wallet_wasm_bridge::get_balance_subaddress(int handle, const uint32_t account_idx, const uint32_t subaddress_idx) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  return wallet->get_balance(account_idx, subaddress_idx);
+}
+
+unsigned long long monero_wallet_wasm_bridge::get_unlocked_balance_wallet(int handle) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  return wallet->get_unlocked_balance();
+}
+
+unsigned long long monero_wallet_wasm_bridge::get_unlocked_balance_account(int handle, const uint32_t account_idx) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  return wallet->get_unlocked_balance(account_idx);
+}
+
+unsigned long long monero_wallet_wasm_bridge::get_unlocked_balance_subaddress(int handle, const uint32_t account_idx, const uint32_t subaddress_idx) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  return wallet->get_unlocked_balance(account_idx, subaddress_idx);
+}
+
 string monero_wallet_wasm_bridge::get_accounts(int handle, bool include_subaddresses, const string& tag) {
 
   // get accounts
