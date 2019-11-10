@@ -157,6 +157,10 @@ void monero_wallet_wasm_bridge::sync(int handle, emscripten::val callback) {
   callback(result.serialize());
 }
 
+//  emscripten::function("start_syncing", &monero_wallet_wasm_bridge::start_syncing);
+//  emscripten::function("rescan_spent", &monero_wallet_wasm_bridge::rescan_spent);
+//  emscripten::function("rescan_blockchain", &monero_wallet_wasm_bridge::rescan_blockchain);
+
 unsigned long monero_wallet_wasm_bridge::get_balance_wallet(int handle) {
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
   return wallet->get_balance();
