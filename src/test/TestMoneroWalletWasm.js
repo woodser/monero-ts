@@ -15,7 +15,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
   }
   
   async createRandomWallet() {
-    let wallet = await MoneroWalletWasm.createWalletRandom("", TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc());
+    let wallet = await MoneroWalletWasm.createWalletRandom("", TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection());
     //await wallet.startSyncing();  // TODO
     return wallet;
   }

@@ -75,7 +75,7 @@ class TestUtils {
         //assert.equal(await this.walletWasm.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
         //await this.walletWasm.sync(new WalletSyncPrinter());  // TODO
         await this.walletWasm.sync();
-        await this.walletWasm.save(); // save progress
+        //await this.walletWasm.save(); // save progress      // TODO
         //await this.walletWasm.startSyncing();               // TODO
       }
       
