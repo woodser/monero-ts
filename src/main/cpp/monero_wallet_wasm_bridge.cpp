@@ -38,7 +38,6 @@ void monero_wallet_wasm_bridge::dummy_method(int handle) {
 }
 
 void monero_wallet_wasm_bridge::create_wallet_random(const string& path, const string& password, int network_type, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& language, emscripten::val callback) {
-    cout << "create_wallet_random() called!!!" << endl;
     http_client_wasm* http_client = new http_client_wasm(); // TODO: this needs deleted after use
     monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
     monero_wallet_base* wallet = monero_wallet_base::create_wallet_random(*http_client, path, password, static_cast<monero_network_type>(network_type), daemon_connection, language);
@@ -46,7 +45,6 @@ void monero_wallet_wasm_bridge::create_wallet_random(const string& path, const s
 }
 
 void monero_wallet_wasm_bridge::create_wallet_from_mnemonic(const string& path, const string& password, int network_type, const string& mnemonic, const string& daemon_uri, const string& daemon_username, const string& daemon_password, long restore_height, emscripten::val callback) {
-  cout << "create_wallet_from_mnemonic() called!!!" << endl;
   http_client_wasm* http_client = new http_client_wasm(); // TODO: this needs deleted after use
   monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
   monero_wallet_base* wallet = monero_wallet_base::create_wallet_from_mnemonic(*http_client, path, password, static_cast<monero_network_type>(network_type), mnemonic, daemon_connection, restore_height);
@@ -280,7 +278,6 @@ string monero_wallet_wasm_bridge::get_subaddresses(int handle, const string& arg
 //  emscripten::function("get_attribute", &monero_wallet_wasm_bridge::get_attribute);
 
   void monero_wallet_wasm_bridge::set_attribute(int handle, const string& key, const string& val) {
-    cout << "set_attribute(key, val)" << endl;
     monero_wallet_base* wallet = (monero_wallet_base*) handle;
     wallet->set_attribute(key, val);
   }

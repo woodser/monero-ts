@@ -73,10 +73,11 @@ class TestUtils {
         let daemonConnection = new MoneroRpcConnection(TestUtils.DAEMON_RPC_URI, TestUtils.DAEMON_RPC_USERNAME, TestUtils.DAEMON_RPC_PASSWORD);
         this.walletWasm = await MoneroWalletWasm.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT);
         //assert.equal(await this.walletWasm.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
-        //await this.walletWasm.sync(new WalletSyncPrinter());  // TODO
+        console.log("Synchronizing test wallet...");
         await this.walletWasm.sync();
-        //await this.walletWasm.save(); // save progress      // TODO
-        //await this.walletWasm.startSyncing();               // TODO
+        //await this.walletWasm.sync(new WalletSyncPrinter());  // TODO
+        //await this.walletWasm.save(); // save progress        // TODO
+        //await this.walletWasm.startSyncing();                 // TODO
       }
       
       // otherwise open existing wallet and update daemon connection

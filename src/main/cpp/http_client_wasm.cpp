@@ -223,7 +223,6 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
 });
 
 void http_client_wasm::set_server(std::string host, std::string port, boost::optional<login> login) {
-  cout << "set_server(" << host << ", " << port << ", <login>)" << endl;
   disconnect();
   m_host = host;
   m_port = port;
@@ -243,13 +242,11 @@ bool http_client_wasm::connect(std::chrono::milliseconds timeout) {
 }
 
 bool http_client_wasm::disconnect() {
-  cout << "disconnect()" << endl;
   m_is_connected = false;
   return true;
 }
 
 bool http_client_wasm::is_connected(bool *ssl) {
-  cout << "is_connected()" << endl;
   return m_is_connected;
 }
 
@@ -305,11 +302,11 @@ bool http_client_wasm::invoke_json(const boost::string_ref uri, const boost::str
   // set response argument
   if (ppresponse_info && m_response_info.m_response_code != 401) {
     *ppresponse_info = std::addressof(m_response_info);
-    cout << "Set resopnse info!!!" << endl;
-    cout << (*ppresponse_info)->m_response_code << endl;
-    cout << (*ppresponse_info)->m_response_comment << endl;
-    cout << (*ppresponse_info)->m_mime_tipe << endl;
-    cout << "Content type header: " << (*ppresponse_info)->m_header_info.m_content_type << endl;
+//    cout << "Set response info!!!" << endl;
+//    cout << (*ppresponse_info)->m_response_code << endl;
+//    cout << (*ppresponse_info)->m_response_comment << endl;
+//    cout << (*ppresponse_info)->m_mime_tipe << endl;
+//    cout << "Content type header: " << (*ppresponse_info)->m_header_info.m_content_type << endl;
   }
 
   // free response string from heap
