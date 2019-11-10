@@ -51,7 +51,6 @@ class MoneroWalletWasm extends MoneroWallet {
       
       // define callback for wasm
       let callbackFn = async function(cppAddress) {
-        console.log("Received callback argument!!! " + cppAddress);
         let wallet = new MoneroWalletWasm(cppAddress, path, password);
         //await wallet.save();  // TODO
         resolve(wallet);
@@ -138,8 +137,6 @@ class MoneroWalletWasm extends MoneroWallet {
       
       // define callback for wasm
       let callbackFn = function(resp) {
-        console.log("Received response from get_height!");
-        console.log("height: " + resp);
         resolve(resp);
       }
       
