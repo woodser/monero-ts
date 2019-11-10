@@ -33,6 +33,15 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("decode_integrated_address", &monero_wallet_wasm_bridge::decode_integrated_address);
   emscripten::function("get_height", &monero_wallet_wasm_bridge::get_height);
   emscripten::function("sync", &monero_wallet_wasm_bridge::sync);
+  // startSyncing
+  // rescanSpent
+  // rescanBlockchain
+  emscripten::function("get_balance_wallet", &monero_wallet_wasm_bridge::get_balance_wallet);
+  emscripten::function("get_balance_account", &monero_wallet_wasm_bridge::get_balance_account);
+  emscripten::function("get_balance_subaddress", &monero_wallet_wasm_bridge::get_balance_subaddress);
+  emscripten::function("get_unlocked_balance_wallet", &monero_wallet_wasm_bridge::get_unlocked_balance_wallet);
+  emscripten::function("get_unlocked_balance_account", &monero_wallet_wasm_bridge::get_unlocked_balance_account);
+  emscripten::function("get_unlocked_balance_subaddress", &monero_wallet_wasm_bridge::get_unlocked_balance_subaddress);
   emscripten::function("get_accounts", &monero_wallet_wasm_bridge::get_accounts);
   emscripten::function("get_account", &monero_wallet_wasm_bridge::get_account);
   emscripten::function("get_subaddresses", &monero_wallet_wasm_bridge::get_subaddresses);

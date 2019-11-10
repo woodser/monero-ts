@@ -170,11 +170,43 @@ class MoneroWalletWasm extends MoneroWallet {
   // rescanBlockchain
   
   async getBalance(accountIdx, subaddressIdx) {
-    throw new Error("getBalance() not implemented");
+    
+    // get low bits of balance
+    let lowBits;
+    if (accountIdx === undefined) {
+      assert(subaddressIdx === undefined, "Subaddress index must be undefined if account index is undefined");
+      lowBits = MoneroWalletWasm.WASM_MODULE.get_balance_wallet(this.cppAddress);
+    } else if (subaddressIdx === undefined) {
+      lowBits = MoneroWalletWasm.WASM_MODULE.get_balance_account(this.cppAddress, accountIdx);
+    } else {
+      lowBits = MoneroWalletWasm.WASM_MODULE.get_balance_subaddress(this.cppAddress, accountIdx, subaddressIdx);
+    }
+    
+    // emscripten returns high bits separately
+    let highBits = MoneroWalletWasm.WASM_MODULE.getTempRet0();
+    
+    // return big integer from low and high bits
+    return MoneroWalletWasm.WASM_MODULE.makeBigInt(lowBits, highBits, true);
   }
   
   async getUnlockedBalance(accountIdx, subaddressIdx) {
-    throw new Error("getUnlockedBalance() not implemented");
+    
+    // get low bits of unlocked balance
+    let lowBits;
+    if (accountIdx === undefined) {
+      assert(subaddressIdx === undefined, "Subaddress index must be undefined if account index is undefined");
+      lowBits = MoneroWalletWasm.WASM_MODULE.get_unlocked_balance_wallet(this.cppAddress);
+    } else if (subaddressIdx === undefined) {
+      lowBits = MoneroWalletWasm.WASM_MODULE.get_unlocked_balance_account(this.cppAddress, accountIdx);
+    } else {
+      lowBits = MoneroWalletWasm.WASM_MODULE.get_unlocked_balance_subaddress(this.cppAddress, accountIdx, subaddressIdx);
+    }
+    
+    // emscripten returns high bits separately
+    let highBits = MoneroWalletWasm.WASM_MODULE.getTempRet0();
+    
+    // return big integer from low and high bits
+    return MoneroWalletWasm.WASM_MODULE.makeBigInt(lowBits, highBits, true);
   }
   
   async getAccounts(includeSubaddresses, tag) {
