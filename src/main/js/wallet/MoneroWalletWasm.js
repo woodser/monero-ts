@@ -97,7 +97,7 @@ class MoneroWalletWasm extends MoneroWallet {
   }
   
   async getLanguages() {
-    return JSON.parse(MoneroWalletWasm.WASM_MODULE.get_languages(this.cppAddress));
+    return JSON.parse(MoneroWalletWasm.WASM_MODULE.get_languages(this.cppAddress)); // TODO: return native vector<string> in c++
   }
   
   async getPublicViewKey() {
@@ -185,7 +185,7 @@ class MoneroWalletWasm extends MoneroWallet {
     // emscripten returns high bits separately
     let highBits = MoneroWalletWasm.WASM_MODULE.getTempRet0();
     
-    // return big integer from low and high bits
+    // return unsigned big integer from low and high bits
     return MoneroWalletWasm.WASM_MODULE.makeBigInt(lowBits, highBits, true);
   }
   
