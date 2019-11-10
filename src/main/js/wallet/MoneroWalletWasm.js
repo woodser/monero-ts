@@ -22,22 +22,25 @@ class MoneroWalletWasm extends MoneroWallet {
   
   static async createWalletRandom(path, password, networkType, daemonConnection, language) {
     
+    // validate and sanitize params
+    MoneroNetworkType.validateNetworkType(networkType);
+    if (language === undefined) language = "English";
+    let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
+    let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
+    let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
+    
     // return promise which is resolved on callback
     return new Promise(function(resolve, reject) {
       
       // define callback for wasm
       let callbackFn = async function(cppAddress) {
-        console.log("Received callback argument!!! " + cppAddress);
         let wallet = new MoneroWalletWasm(cppAddress, path, password);
-        //await wallet.save();
+        //await wallet.save();  // TODO
         resolve(wallet);
       };
       
       // create wallet in wasm and invoke callback when done
-      let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
-      let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
-      let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
-      MoneroWalletWasm.WASM_MODULE.create_wallet_random("", password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);    // empty path is provided so disk writes only happen from JS
+      MoneroWalletWasm.WASM_MODULE.create_wallet_random("", password === undefined ? "" : password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);    // empty path is provided so disk writes only happen from JS
     });
   }
   
@@ -50,7 +53,7 @@ class MoneroWalletWasm extends MoneroWallet {
       let callbackFn = async function(cppAddress) {
         console.log("Received callback argument!!! " + cppAddress);
         let wallet = new MoneroWalletWasm(cppAddress, path, password);
-        //await wallet.save();
+        //await wallet.save();  // TODO
         resolve(wallet);
       };
       
@@ -83,7 +86,7 @@ class MoneroWalletWasm extends MoneroWallet {
   }
   
   async getPath() {
-    throw new MoneroError("Not implemented");
+    return this.path;
   }
   
   async getSeed() {
@@ -238,6 +241,10 @@ class MoneroWalletWasm extends MoneroWallet {
     return new MoneroAccount(accountJson.index, accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses);
   }
   
+  async createAccount(label) {
+    throw new MoneroError("Not implemented");
+  }
+  
   async getSubaddresses(accountIdx, subaddressIndices) {
     let argsStr = JSON.stringify({accountIdx: accountIdx, subaddressIndices: GenUtils.listify(subaddressIndices)});
     let subaddressesJson = JSON.parse(MoneroWalletWasm.WASM_MODULE.get_subaddresses(this.cppAddress, argsStr)).subaddresses;
@@ -246,6 +253,236 @@ class MoneroWalletWasm extends MoneroWallet {
     return subaddresses;
   }
   
+  async createSubaddress(accountIdx, label) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getTxs(config) {
+    throw new MoneroError("Not implemented");
+  }
+
+  async getTransfers(config) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getIncomingTransfers(config) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getOutgoingTransfers(config) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getOutputs(config) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getOutputsHex() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async importOutputsHex(outputsHex) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getKeyImages() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async importKeyImages(keyImages) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getNewKeyImagesFromLastImport() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async relayTxs(txsOrMetadatas) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async sendSplit(requestOrAccountIndex, address, amount, priority) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async sweepOutput(requestOrAddress, keyImage, priority) {
+    throw new MoneroError("Not implemented");
+  }
+
+  async sweepUnlocked(request) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async sweepDust() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async sweepDust(doNotRelay) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async sign(message) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async verify(message, address, signature) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getTxKey(txId) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async checkTxKey(txId, txKey, address) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getTxProof(txId, address, message) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async checkTxProof(txId, address, message, signature) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getSpendProof(txId, message) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async checkSpendProof(txId, message, signature) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getReserveProofWallet(message) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getReserveProofAccount(accountIdx, amount, message) {
+    throw new MoneroError("Not implemented");
+  }
+
+  async checkReserveProof(address, message, signature) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getTxNotes(txIds) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async setTxNotes(txIds, notes) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getAddressBookEntries() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getAddressBookEntries(entryIndices) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async addAddressBookEntry(address, description) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async addAddressBookEntry(address, description, paymentId) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async deleteAddressBookEntry(entryIdx) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async tagAccounts(tag, accountIndices) {
+    throw new MoneroError("Not implemented");
+  }
+
+  async untagAccounts(accountIndices) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getAccountTags() {
+    throw new MoneroError("Not implemented");
+  }
+
+  async setAccountTagLabel(tag, label) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async createPaymentUri(request) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async parsePaymentUri(uri) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getAttribute(key) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async setAttribute(key, val) {
+    assert(typeof key === "string", "Attribute key must be a string");
+    assert(typeof val === "string", "Attribute value must be a string");
+    MoneroWalletWasm.WASM_MODULE.set_attribute(this.cppAddress, key, val);
+  }
+  
+  async startMining(numThreads, backgroundMining, ignoreBattery) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async stopMining() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async isMultisigImportNeeded() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async isMultisig() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getMultisigInfo() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async prepareMultisig() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async makeMultisig(multisigHexes, threshold, password) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async exchangeMultisigKeys(multisigHexes, password) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async getMultisigHex() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async importMultisigHex(multisigHexes) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async signMultisigTxHex(multisigTxHex) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async submitMultisigTxHex(signedMultisigTxHex) {
+    throw new MoneroError("Not implemented");
+  }
+
+  save() {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async close(save) {
+    throw new MoneroError("Not implemented");
+  }
+
   async getEncryptedText() {
     
     // return promise which resolves on callback
@@ -262,13 +499,6 @@ class MoneroWalletWasm extends MoneroWallet {
       // sync wallet in wasm and invoke callback when done
       MoneroWalletWasm.WASM_MODULE.get_encrypted_text(that.cppAddress, callbackFn);
     });
-  }
-  
-  async save() {
-    // TODO
-//    let encryptedText = await this.getEncryptedText();
-//    console.log("Saving encrypted text: " + encryptedText);
-//    throw Error("Save to disk not implemented");
   }
   
   dummyMethod() {

@@ -33,9 +33,9 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("decode_integrated_address", &monero_wallet_wasm_bridge::decode_integrated_address);
   emscripten::function("get_height", &monero_wallet_wasm_bridge::get_height);
   emscripten::function("sync", &monero_wallet_wasm_bridge::sync);
-  // startSyncing
-  // rescanSpent
-  // rescanBlockchain
+//  emscripten::function("start_syncing", &monero_wallet_wasm_bridge::start_syncing);
+//  emscripten::function("rescan_spent", &monero_wallet_wasm_bridge::rescan_spent);
+//  emscripten::function("rescan_blockchain", &monero_wallet_wasm_bridge::rescan_blockchain);
   emscripten::function("get_balance_wallet", &monero_wallet_wasm_bridge::get_balance_wallet);
   emscripten::function("get_balance_account", &monero_wallet_wasm_bridge::get_balance_account);
   emscripten::function("get_balance_subaddress", &monero_wallet_wasm_bridge::get_balance_subaddress);
@@ -44,7 +44,62 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("get_unlocked_balance_subaddress", &monero_wallet_wasm_bridge::get_unlocked_balance_subaddress);
   emscripten::function("get_accounts", &monero_wallet_wasm_bridge::get_accounts);
   emscripten::function("get_account", &monero_wallet_wasm_bridge::get_account);
+//  emscripten::function("create_account", &monero_wallet_wasm_bridge::create_account);
   emscripten::function("get_subaddresses", &monero_wallet_wasm_bridge::get_subaddresses);
+//  emscripten::function("create_subaddress", &monero_wallet_wasm_bridge::create_subaddress);
+//  emscripten::function("get_txs", &monero_wallet_wasm_bridge::get_txs);
+//  emscripten::function("get_transfers", &monero_wallet_wasm_bridge::get_transfers);
+//  emscripten::function("get_incoming_transfers", &monero_wallet_wasm_bridge::get_incoming_transfers);
+//  emscripten::function("get_outgoing_transfers", &monero_wallet_wasm_bridge::get_outgoing_transfers);
+//  emscripten::function("get_outputs", &monero_wallet_wasm_bridge::get_outputs);
+//  emscripten::function("get_outputs_hex", &monero_wallet_wasm_bridge::get_outputs_hex);
+//  emscripten::function("import_outputs_hex", &monero_wallet_wasm_bridge::import_outputs_hex);
+//  emscripten::function("get_key_images", &monero_wallet_wasm_bridge::get_key_images);
+//  emscripten::function("import_key_images", &monero_wallet_wasm_bridge::import_key_images);
+//  emscripten::function("get_new_key_images_from_last_import", &monero_wallet_wasm_bridge::get_new_key_images_from_last_import);
+//  emscripten::function("relay_txs", &monero_wallet_wasm_bridge::relay_txs);
+//  emscripten::function("send_split", &monero_wallet_wasm_bridge::send_split);
+//  emscripten::function("sweep_output", &monero_wallet_wasm_bridge::sweep_output);
+//  emscripten::function("sweep_unlocked", &monero_wallet_wasm_bridge::sweep_unlocked);
+//  emscripten::function("sweep_dust", &monero_wallet_wasm_bridge::sweep_dust);
+//  emscripten::function("sign", &monero_wallet_wasm_bridge::sign);
+//  emscripten::function("verify", &monero_wallet_wasm_bridge::verify);
+//  emscripten::function("get_tx_key", &monero_wallet_wasm_bridge::get_tx_key);
+//  emscripten::function("check_tx_key", &monero_wallet_wasm_bridge::check_tx_key);
+//  emscripten::function("get_tx_proof", &monero_wallet_wasm_bridge::get_tx_proof);
+//  emscripten::function("check_tx_proof", &monero_wallet_wasm_bridge::check_tx_proof);
+//  emscripten::function("get_spend_proof", &monero_wallet_wasm_bridge::get_spend_proof);
+//  emscripten::function("check_spend_proof", &monero_wallet_wasm_bridge::check_spend_proof);
+//  emscripten::function("get_reserve_proof_wallet", &monero_wallet_wasm_bridge::get_reserve_proof_wallet);
+//  emscripten::function("get_reserve_proof_account", &monero_wallet_wasm_bridge::get_reserve_proof_account);
+//  emscripten::function("check_reserve_proof", &monero_wallet_wasm_bridge::check_reserve_proof);
+//  emscripten::function("get_tx_notes", &monero_wallet_wasm_bridge::get_tx_notes);
+//  emscripten::function("set_tx_notes", &monero_wallet_wasm_bridge::set_tx_notes);
+//  emscripten::function("get_address_book_entries", &monero_wallet_wasm_bridge::get_address_book_entries);
+//  emscripten::function("add_address_book_entry", &monero_wallet_wasm_bridge::add_address_book_entry);
+//  emscripten::function("delete_address_book_entry", &monero_wallet_wasm_bridge::delete_address_book_entry);
+//  emscripten::function("tag_accounts", &monero_wallet_wasm_bridge::tag_accounts);
+//  emscripten::function("untag_accounts", &monero_wallet_wasm_bridge::untag_accounts);
+//  emscripten::function("get_account_tags", &monero_wallet_wasm_bridge::get_account_tags);
+//  emscripten::function("set_account_tag_label", &monero_wallet_wasm_bridge::set_account_tag_label);
+//  emscripten::function("create_payment_uri", &monero_wallet_wasm_bridge::create_payment_uri);
+//  emscripten::function("parse_payment_uri", &monero_wallet_wasm_bridge::parse_payment_uri);
+//  emscripten::function("get_attribute", &monero_wallet_wasm_bridge::get_attribute);
+  emscripten::function("set_attribute", &monero_wallet_wasm_bridge::set_attribute);
+//  emscripten::function("start_mining", &monero_wallet_wasm_bridge::start_mining);
+//  emscripten::function("stop_mining", &monero_wallet_wasm_bridge::stop_mining);
+//  emscripten::function("is_multisig_import_needed", &monero_wallet_wasm_bridge::is_multisig_import_needed);
+//  emscripten::function("is_multisig", &monero_wallet_wasm_bridge::is_multisig);
+//  emscripten::function("get_multisig_info", &monero_wallet_wasm_bridge::get_multisig_info);
+//  emscripten::function("prepare_multisig", &monero_wallet_wasm_bridge::prepare_multisig);
+//  emscripten::function("make_multisig", &monero_wallet_wasm_bridge::make_multisig);
+//  emscripten::function("exchange_multisig_keys", &monero_wallet_wasm_bridge::exchange_multisig_keys);
+//  emscripten::function("get_multisig_hex", &monero_wallet_wasm_bridge::get_multisig_hex);
+//  emscripten::function("import_multisig_hex", &monero_wallet_wasm_bridge::import_multisig_hex);
+//  emscripten::function("sign_multisig_tx_hex", &monero_wallet_wasm_bridge::sign_multisig_tx_hex);
+//  emscripten::function("submit_multisig_tx_hex", &monero_wallet_wasm_bridge::submit_multisig_tx_hex);
+//  emscripten::function("save", &monero_wallet_wasm_bridge::save);
+//  emscripten::function("close", &monero_wallet_wasm_bridge::close);
   emscripten::function("get_encrypted_text", &monero_wallet_wasm_bridge::get_encrypted_text);
 }
 extern "C"
