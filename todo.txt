@@ -1,5 +1,5 @@
 HIGH (WASM)
-emscripten bind can return native vectors
+emscripten bind can return native vectors, see https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
 move store_keys(), load_keys() from wallet2_base to wallet2
 debug firefox exception
 profile sync performance, probably switch to emscripten_fetch
