@@ -473,29 +473,17 @@ class MoneroWalletWasm extends MoneroWallet {
   }
 
   save() {
+    let addressData = MoneroWalletWasm.WASM_MODULE.get_address_file_data(this.cppAddress);
+    console.log("Save address data: " + addressData);
+    let keysData = MoneroWalletWasm.WASM_MODULE.get_keys_file_data(this.cppAddress, this.password);
+    console.log("Save keys data: " + keysData);
+    let cacheData = MoneroWalletWasm.WASM_MODULE.get_cache_file_data(this.cppAddress, this.password);
+    console.log("Save cache data: " + cacheData);
     throw new MoneroError("Not implemented");
   }
   
   async close(save) {
     throw new MoneroError("Not implemented");
-  }
-
-  async getEncryptedText() {
-    
-    // return promise which resolves on callback
-    let that = this;
-    return new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = function(resp) {
-        console.log("Received response from to_encrypted_text()!");
-        console.log(resp);
-        resolve(resp);
-      }
-      
-      // sync wallet in wasm and invoke callback when done
-      MoneroWalletWasm.WASM_MODULE.get_encrypted_text(that.cppAddress, callbackFn);
-    });
   }
   
   dummyMethod() {
