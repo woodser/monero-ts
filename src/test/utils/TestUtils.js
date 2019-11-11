@@ -76,7 +76,7 @@ class TestUtils {
         console.log("Synchronizing test wallet...");
         await this.walletWasm.sync();
         //await this.walletWasm.sync(new WalletSyncPrinter());  // TODO
-        //await this.walletWasm.save(); // save progress        // TODO
+        await this.walletWasm.save(); // save progress        // TODO
         //await this.walletWasm.startSyncing();                 // TODO
       }
       

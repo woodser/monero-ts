@@ -98,7 +98,7 @@ namespace monero_wallet_wasm_bridge
   //  emscripten::function("create_payment_uri", &monero_wallet_wasm_bridge::create_payment_uri);
   //  emscripten::function("parse_payment_uri", &monero_wallet_wasm_bridge::parse_payment_uri);
   //  emscripten::function("get_attribute", &monero_wallet_wasm_bridge::get_attribute);
-    void set_attribute(int handle, const string& key, const string& val);
+  void set_attribute(int handle, const string& key, const string& val);
   //  emscripten::function("start_mining", &monero_wallet_wasm_bridge::start_mining);
   //  emscripten::function("stop_mining", &monero_wallet_wasm_bridge::stop_mining);
   //  emscripten::function("is_multisig_import_needed", &monero_wallet_wasm_bridge::is_multisig_import_needed);
@@ -113,8 +113,10 @@ namespace monero_wallet_wasm_bridge
   //  emscripten::function("submit_multisig_tx_hex", &monero_wallet_wasm_bridge::submit_multisig_tx_hex);
   //  emscripten::function("save", &monero_wallet_wasm_bridge::save);
   //  emscripten::function("close", &monero_wallet_wasm_bridge::close);
-
-  void get_encrypted_text(int handle, emscripten::val callback);
+  string get_address_file_data(int handle);
+  string get_keys_file_data(int handle, string password);
+  string get_cache_file_data(int handle, string password);
+  void load_wallet_data(int handle, string password, string keys_data, string cache_data);
 }
 
 #endif /* monero_wallet_wasm_bridge_h */

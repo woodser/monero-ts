@@ -100,7 +100,11 @@ EMSCRIPTEN_BINDINGS(module)
 //  emscripten::function("submit_multisig_tx_hex", &monero_wallet_wasm_bridge::submit_multisig_tx_hex);
 //  emscripten::function("save", &monero_wallet_wasm_bridge::save);
 //  emscripten::function("close", &monero_wallet_wasm_bridge::close);
-  emscripten::function("get_encrypted_text", &monero_wallet_wasm_bridge::get_encrypted_text);
+
+  emscripten::function("get_address_file_data", &monero_wallet_wasm_bridge::get_address_file_data);
+  emscripten::function("get_keys_file_data", &monero_wallet_wasm_bridge::get_keys_file_data);
+  emscripten::function("get_cache_file_data", &monero_wallet_wasm_bridge::get_cache_file_data);
+  emscripten::function("load_wallet_data", &monero_wallet_wasm_bridge::load_wallet_data);
 }
 extern "C"
 {
