@@ -8,3 +8,4 @@ browser_build
 test_products
 **/tests_config.js
 /build/
+/test_wallets/
