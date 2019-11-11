@@ -307,13 +307,13 @@ string monero_wallet_wasm_bridge::get_subaddresses(int handle, const string& arg
 
 string monero_wallet_wasm_bridge::get_address_file_data(int handle) {
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
-  return wallet->get_address_file_data();
+  return wallet->get_address_file_buffer();
 }
 string monero_wallet_wasm_bridge::get_keys_file_data(int handle, string password, bool watch_only) {
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
-  return wallet->get_keys_file_data(password, watch_only);
+  return wallet->get_keys_file_buffer(password, watch_only);
 }
 string monero_wallet_wasm_bridge::get_cache_file_data(int handle, string password) {
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
-  return wallet->get_cache_file_data(password);
+  return wallet->get_cache_file_buffer(password);
 }
