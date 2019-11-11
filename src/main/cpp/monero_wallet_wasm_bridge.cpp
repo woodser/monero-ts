@@ -310,10 +310,44 @@ string monero_wallet_wasm_bridge::get_address_file_buffer(int handle) {
   return wallet->get_address_file_buffer();
 }
 string monero_wallet_wasm_bridge::get_keys_file_buffer(int handle, string password, bool watch_only) {
+
+  // get wallet
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
-  return wallet->get_keys_file_buffer(password, watch_only);
+
+  // get keys buffer
+  string keys_buf = wallet->get_keys_file_buffer(password, watch_only);
+
+  // copy keys buffer to heap and keep pointer
+  std::string* keys_buf_ptr = new std::string(keys_buf.c_str(), keys_buf.length());
+
+  cout << "Copied keys buffer to heap at " << reinterpret_cast<intptr_t>(keys_buf_ptr->c_str()) << " and with length " << keys_buf_ptr->length() << endl;
+
+  // serialize buffer's pointer and length
+  rapidjson::Document doc;
+  doc.SetObject();
+  rapidjson::Value value;
+  doc.AddMember("pointer", rapidjson::Value().SetInt(reinterpret_cast<long>(keys_buf_ptr->c_str())), doc.GetAllocator());
+  doc.AddMember("length", rapidjson::Value().SetInt(keys_buf_ptr->length()), doc.GetAllocator());
+  return monero_utils::serialize(doc);
 }
 string monero_wallet_wasm_bridge::get_cache_file_buffer(int handle, string password) {
+
+  // get wallet
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
-  return wallet->get_cache_file_buffer(password);
+
+  // get cache buffer
+  string cache_buf = wallet->get_cache_file_buffer(password);
+
+  // copy cache buffer to heap and keep pointer
+  std::string* cache_buf_ptr = new std::string(cache_buf.c_str(), cache_buf.length());
+
+  cout << "Copied cache buffer to heap at " << reinterpret_cast<intptr_t>(cache_buf_ptr->c_str()) << " and with length " << cache_buf_ptr->length() << endl;
+
+  // serialize buffer's pointer and length
+  rapidjson::Document doc;
+  doc.SetObject();
+  rapidjson::Value value;
+  doc.AddMember("pointer", rapidjson::Value().SetInt(reinterpret_cast<long>(cache_buf_ptr->c_str())), doc.GetAllocator());
+  doc.AddMember("length", rapidjson::Value().SetInt(cache_buf_ptr->length()), doc.GetAllocator());
+  return monero_utils::serialize(doc);
 }
