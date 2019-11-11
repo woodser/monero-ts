@@ -15,6 +15,8 @@ namespace monero_wallet_wasm_bridge
   int create_wallet_dummy();
   void dummy_method(int handle);
 
+  // TODO: remove path from these, they're not used
+  void open_wallet(const string& path, const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, emscripten::val callback);
   void create_wallet_random(const string& path, const string& password, int network_type, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& language, emscripten::val callback);
   void create_wallet_from_mnemonic(const string& path, const string& password, int network_type, const string& mnemonic, const string& daemon_uri, const string& daemon_username, const string& daemon_password, long restore_height, emscripten::val callback);
 
@@ -116,7 +118,6 @@ namespace monero_wallet_wasm_bridge
   string get_address_file_data(int handle);
   string get_keys_file_data(int handle, string password, bool watch_only);
   string get_cache_file_data(int handle, string password);
-  void load_wallet_data(int handle, string password, string keys_data, string cache_data);
 }
 
 #endif /* monero_wallet_wasm_bridge_h */

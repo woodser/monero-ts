@@ -37,6 +37,14 @@ void monero_wallet_wasm_bridge::dummy_method(int handle) {
   wallet->dummy_method();
 }
 
+void monero_wallet_wasm_bridge::open_wallet(const string& path, const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, emscripten::val callback) {
+  cout << "monero_wallet_wasm_bridge::open_wallet(...)" << endl;
+  http_client_wasm* http_client = new http_client_wasm(); // TODO: this needs deleted after use
+  monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
+  monero_wallet_base* wallet = monero_wallet_base::open_wallet(*http_client, password, static_cast<monero_network_type>(network_type), keys_data, cache_data, daemon_connection);
+  callback((int) wallet); // invoke callback with wallet address
+}
+
 void monero_wallet_wasm_bridge::create_wallet_random(const string& path, const string& password, int network_type, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& language, emscripten::val callback) {
     http_client_wasm* http_client = new http_client_wasm(); // TODO: this needs deleted after use
     monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
@@ -308,8 +316,4 @@ string monero_wallet_wasm_bridge::get_keys_file_data(int handle, string password
 string monero_wallet_wasm_bridge::get_cache_file_data(int handle, string password) {
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
   return wallet->get_cache_file_data(password);
-}
-void monero_wallet_wasm_bridge::load_wallet_data(int handle, string password, string keys_data, string cache_data) {
-  monero_wallet_base* wallet = (monero_wallet_base*) handle;
-  wallet->load_wallet_data(password, keys_data, cache_data);
 }
