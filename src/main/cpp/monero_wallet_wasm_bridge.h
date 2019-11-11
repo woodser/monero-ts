@@ -51,12 +51,12 @@ namespace monero_wallet_wasm_bridge
   //  emscripten::function("start_syncing", &monero_wallet_wasm_bridge::start_syncing);
   //  emscripten::function("rescan_spent", &monero_wallet_wasm_bridge::rescan_spent);
   //  emscripten::function("rescan_blockchain", &monero_wallet_wasm_bridge::rescan_blockchain);
-  unsigned long get_balance_wallet(int handle);
-  unsigned long get_balance_account(int handle, const uint32_t account_idx);
-  unsigned long get_balance_subaddress(int handle, const uint32_t account_idx, const uint32_t subaddress_idx);
-  unsigned long get_unlocked_balance_wallet(int handle);
-  unsigned long get_unlocked_balance_account(int handle, const uint32_t account_idx);
-  unsigned long get_unlocked_balance_subaddress(int handle, const uint32_t account_idx, const uint32_t subaddress_idx);
+  string get_balance_wallet(int handle);
+  string get_balance_account(int handle, const uint32_t account_idx);
+  string get_balance_subaddress(int handle, const uint32_t account_idx, const uint32_t subaddress_idx);
+  string get_unlocked_balance_wallet(int handle);
+  string get_unlocked_balance_account(int handle, const uint32_t account_idx);
+  string get_unlocked_balance_subaddress(int handle, const uint32_t account_idx, const uint32_t subaddress_idx);
   string get_accounts(int handle, bool include_subaddresses = false, const string& tag = "");
   string get_account(int handle, uint32_t account_idx, bool include_subaddresses = false);
   //  emscripten::function("create_account", &monero_wallet_wasm_bridge::create_account);
