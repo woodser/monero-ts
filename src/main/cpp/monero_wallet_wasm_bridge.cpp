@@ -329,8 +329,6 @@ string monero_wallet_wasm_bridge::get_keys_file_buffer(int handle, string passwo
   // copy keys buffer to heap and keep pointer
   std::string* keys_buf_ptr = new std::string(keys_buf.c_str(), keys_buf.length());
 
-  cout << "Copied keys buffer to heap at " << reinterpret_cast<intptr_t>(keys_buf_ptr->c_str()) << " and with length " << keys_buf_ptr->length() << endl;
-
   // serialize buffer's pointer and length
   rapidjson::Document doc;
   doc.SetObject();
@@ -349,8 +347,6 @@ string monero_wallet_wasm_bridge::get_cache_file_buffer(int handle, string passw
 
   // copy cache buffer to heap and keep pointer
   std::string* cache_buf_ptr = new std::string(cache_buf.c_str(), cache_buf.length());
-
-  cout << "Copied cache buffer to heap at " << reinterpret_cast<intptr_t>(cache_buf_ptr->c_str()) << " and with length " << cache_buf_ptr->length() << endl;
 
   // serialize buffer's pointer and length
   rapidjson::Document doc;

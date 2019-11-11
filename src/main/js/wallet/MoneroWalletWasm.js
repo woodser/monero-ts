@@ -42,7 +42,6 @@ class MoneroWalletWasm extends MoneroWallet {
       
       // define callback for wasm
       let callbackFn = async function(cppAddress) {
-        console.log(cppAddress);
         let wallet = new MoneroWalletWasm(cppAddress, path, password);
         resolve(wallet);
       };
