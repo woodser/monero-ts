@@ -115,9 +115,9 @@ namespace monero_wallet_wasm_bridge
   //  emscripten::function("submit_multisig_tx_hex", &monero_wallet_wasm_bridge::submit_multisig_tx_hex);
   //  emscripten::function("save", &monero_wallet_wasm_bridge::save);
   //  emscripten::function("close", &monero_wallet_wasm_bridge::close);
-  string get_address_file_data(int handle);
-  string get_keys_file_data(int handle, string password, bool watch_only);
-  string get_cache_file_data(int handle, string password);
+  string get_address_file_buffer(int handle);
+  string get_keys_file_buffer(int handle, string password, bool watch_only);
+  string get_cache_file_buffer(int handle, string password);
 }
 
 #endif /* monero_wallet_wasm_bridge_h */

@@ -534,9 +534,9 @@ class MoneroWalletWasm extends MoneroWallet {
     if (path === "") throw new MoneroError("Wallet path is not set");
     
     // get and write each file
-    FS.writeFileSync(path + "_address.txt", MoneroWalletWasm.WASM_MODULE.get_address_file_data(this.cppAddress));
-    FS.writeFileSync(path + ".keys", MoneroWalletWasm.WASM_MODULE.get_keys_file_data(this.cppAddress, this.password, false)); // TODO: watch only
-    FS.writeFileSync(path, MoneroWalletWasm.WASM_MODULE.get_cache_file_data(this.cppAddress, this.password)); // TODO: read from heap
+    FS.writeFileSync(path + "_address.txt", MoneroWalletWasm.WASM_MODULE.get_address_file_buffer(this.cppAddress));
+    FS.writeFileSync(path + ".keys", MoneroWalletWasm.WASM_MODULE.get_keys_file_buffer(this.cppAddress, this.password, false)); // TODO: watch only
+    FS.writeFileSync(path, MoneroWalletWasm.WASM_MODULE.get_cache_file_buffer(this.cppAddress, this.password)); // TODO: read from heap
   }
   
   async close(save) {

@@ -305,15 +305,15 @@ string monero_wallet_wasm_bridge::get_subaddresses(int handle, const string& arg
 //  emscripten::function("save", &monero_wallet_wasm_bridge::save);
 //  emscripten::function("close", &monero_wallet_wasm_bridge::close);
 
-string monero_wallet_wasm_bridge::get_address_file_data(int handle) {
+string monero_wallet_wasm_bridge::get_address_file_buffer(int handle) {
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
   return wallet->get_address_file_buffer();
 }
-string monero_wallet_wasm_bridge::get_keys_file_data(int handle, string password, bool watch_only) {
+string monero_wallet_wasm_bridge::get_keys_file_buffer(int handle, string password, bool watch_only) {
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
   return wallet->get_keys_file_buffer(password, watch_only);
 }
-string monero_wallet_wasm_bridge::get_cache_file_data(int handle, string password) {
+string monero_wallet_wasm_bridge::get_cache_file_buffer(int handle, string password) {
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
   return wallet->get_cache_file_buffer(password);
 }
