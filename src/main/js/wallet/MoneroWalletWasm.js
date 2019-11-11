@@ -33,9 +33,9 @@ class MoneroWalletWasm extends MoneroWallet {
     let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
     let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
     
-    // read wallet files and initialize
-    let keysData = "KEYS DATA TODO";  // TODO
-    let cacheData = "CACHE DATA TODO";
+    // read wallet files
+    let keysData = FS.readFileSync(path + ".keys");
+    let cacheData = FS.readFileSync(path);
     
     // return promise which is resolved on callback
     return new Promise(function(resolve, reject) {
