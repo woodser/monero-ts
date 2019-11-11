@@ -86,21 +86,21 @@ class TestMoneroWalletCommon {
         
         // set a random attribute
         let uuid = GenUtils.uuidv4();
-        await that.wallet.setAttribute("uuid", uuid);
+        await wallet.setAttribute("uuid", uuid);
         
         // record the wallet's path then save and close
-        let path = await that.wallet.getPath();
-        await that.wallet.close(true);
+        let path = await wallet.getPath();
+        await wallet.close(true);
         
         // re-open the wallet using its path
         wallet = await that.openWallet(path);
         
         // test the attribute
-        assert.equal(await that.wallet.getAttribute("uuid"), uuid);
+        assert.equal(await wallet.getAttribute("uuid"), uuid);
         
         // re-open main test wallet
-        await that.wallet.close();
-        await that.getTestWallet();
+        await wallet.close();
+        that.wallet = await that.getTestWallet();
       });
       
       if (config.testNonRelays)

@@ -28,7 +28,7 @@ class MoneroWalletWasm extends MoneroWallet {
     if (!(await MoneroWalletWasm.walletExists(path))) throw new MoneroError("Wallet does not exist at path: " + path);
     if (networkType === undefined) throw new MoneroError("Must provide a network type");
     MoneroNetworkType.validateNetworkType(networkType);
-    let daemonConnection = daemonUriOrConnection ? (typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonConnection) : undefined;
+    let daemonConnection = daemonUriOrConnection ? (typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection) : undefined;
     let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
     let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
     let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
@@ -42,7 +42,6 @@ class MoneroWalletWasm extends MoneroWallet {
       
       // define callback for wasm
       let callbackFn = async function(cppAddress) {
-        console.log("RECEIVED CALLBACK FROM open_wallet WASM CALL");
         console.log(cppAddress);
         let wallet = new MoneroWalletWasm(cppAddress, path, password);
         resolve(wallet);
@@ -52,26 +51,6 @@ class MoneroWalletWasm extends MoneroWallet {
       MoneroWalletWasm.WASM_MODULE.open_wallet("", password === undefined ? "" : password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, callbackFn);    // empty path is provided so disk writes only happen from JS
     });
   }
-  
-//  /**
-//   * Open an existing wallet.
-//   * 
-//   * @param path is the path to the wallet file to open
-//   * @param password is the password of the wallet file to open
-//   * @param networkType is the wallet's network type
-//   * @param daemonConnection is connection configuration to a daemon (default = an unconnected wallet)
-//   * @return the opened wallet
-//   */
-//  public static MoneroWalletJni openWallet(String path, String password, MoneroNetworkType networkType) { return openWallet(path, password, networkType, (MoneroRpcConnection) null); }
-//  public static MoneroWalletJni openWallet(String path, String password, MoneroNetworkType networkType, String daemonUri) { return openWallet(path, password, networkType, daemonUri == null ? null : new MoneroRpcConnection(daemonUri)); }
-//  public static MoneroWalletJni openWallet(String path, String password, MoneroNetworkType networkType, MoneroRpcConnection daemonConnection) {
-//    if (!walletExistsJni(path)) throw new MoneroException("Wallet does not exist at path: " + path);
-//    if (networkType == null) throw new MoneroException("Must provide a network type");
-//    long jniWalletHandle = openWalletJni(path, password, networkType.ordinal());
-//    MoneroWalletJni wallet = new MoneroWalletJni(jniWalletHandle);
-//    if (daemonConnection != null) wallet.setDaemonConnection(daemonConnection);
-//    return wallet;
-//  }
   
   static async createWalletRandom(path, password, networkType, daemonConnection, language) {
     
@@ -470,7 +449,8 @@ class MoneroWalletWasm extends MoneroWallet {
   }
   
   async getAttribute(key) {
-    throw new MoneroError("Not implemented");
+    assert(typeof key === "string", "Attribute key must be a string");
+    return MoneroWalletWasm.WASM_MODULE.get_attribute(this.cppAddress, key);
   }
   
   async setAttribute(key, val) {
@@ -568,7 +548,11 @@ class MoneroWalletWasm extends MoneroWallet {
   }
   
   async close(save) {
-    throw new MoneroError("Not implemented");
+    if (save) await this.save();
+    delete this.path;
+    delete this.password;
+    MoneroWalletWasm.WASM_MODULE.close(this.cppAddress);
+    delete this.cppAddress;
   }
   
   dummyMethod() {

@@ -99,7 +99,7 @@ namespace monero_wallet_wasm_bridge
   //  emscripten::function("set_account_tag_label", &monero_wallet_wasm_bridge::set_account_tag_label);
   //  emscripten::function("create_payment_uri", &monero_wallet_wasm_bridge::create_payment_uri);
   //  emscripten::function("parse_payment_uri", &monero_wallet_wasm_bridge::parse_payment_uri);
-  //  emscripten::function("get_attribute", &monero_wallet_wasm_bridge::get_attribute);
+  string get_attribute(int handle, const string& key);
   void set_attribute(int handle, const string& key, const string& val);
   //  emscripten::function("start_mining", &monero_wallet_wasm_bridge::start_mining);
   //  emscripten::function("stop_mining", &monero_wallet_wasm_bridge::stop_mining);
@@ -114,7 +114,7 @@ namespace monero_wallet_wasm_bridge
   //  emscripten::function("sign_multisig_tx_hex", &monero_wallet_wasm_bridge::sign_multisig_tx_hex);
   //  emscripten::function("submit_multisig_tx_hex", &monero_wallet_wasm_bridge::submit_multisig_tx_hex);
   //  emscripten::function("save", &monero_wallet_wasm_bridge::save);
-  //  emscripten::function("close", &monero_wallet_wasm_bridge::close);
+  void close(int handle);
   string get_address_file_buffer(int handle);
   string get_keys_file_buffer(int handle, string password, bool watch_only);
   string get_cache_file_buffer(int handle, string password);
