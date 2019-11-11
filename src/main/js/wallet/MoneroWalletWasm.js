@@ -20,6 +20,59 @@ class MoneroWalletWasm extends MoneroWallet {
     return FS.existsSync(path);
   }
   
+  // TODO: openWith(<file/zip buffers>)
+  
+  static async openWallet(path, password, networkType, daemonUriOrConnection) {
+    
+    // validate and sanitize parameters
+    if (!(await MoneroWalletWasm.walletExists(path))) throw new MoneroError("Wallet does not exist at path: " + path);
+    if (networkType === undefined) throw new MoneroError("Must provide a network type");
+    MoneroNetworkType.validateNetworkType(networkType);
+    let daemonConnection = daemonUriOrConnection ? (typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonConnection) : undefined;
+    let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
+    let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
+    let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
+    
+    // read wallet files and initialize
+    let keysData = "KEYS DATA TODO";  // TODO
+    let cacheData = "CACHE DATA TODO";
+    
+    // return promise which is resolved on callback
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = async function(cppAddress) {
+        console.log("RECEIVED CALLBACK FROM open_wallet WASM CALL");
+        console.log(cppAddress);
+        let wallet = new MoneroWalletWasm(cppAddress, path, password);
+        resolve(wallet);
+      };
+      
+      // create wallet in wasm and invoke callback when done
+      MoneroWalletWasm.WASM_MODULE.open_wallet("", password === undefined ? "" : password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, callbackFn);    // empty path is provided so disk writes only happen from JS
+    });
+  }
+  
+//  /**
+//   * Open an existing wallet.
+//   * 
+//   * @param path is the path to the wallet file to open
+//   * @param password is the password of the wallet file to open
+//   * @param networkType is the wallet's network type
+//   * @param daemonConnection is connection configuration to a daemon (default = an unconnected wallet)
+//   * @return the opened wallet
+//   */
+//  public static MoneroWalletJni openWallet(String path, String password, MoneroNetworkType networkType) { return openWallet(path, password, networkType, (MoneroRpcConnection) null); }
+//  public static MoneroWalletJni openWallet(String path, String password, MoneroNetworkType networkType, String daemonUri) { return openWallet(path, password, networkType, daemonUri == null ? null : new MoneroRpcConnection(daemonUri)); }
+//  public static MoneroWalletJni openWallet(String path, String password, MoneroNetworkType networkType, MoneroRpcConnection daemonConnection) {
+//    if (!walletExistsJni(path)) throw new MoneroException("Wallet does not exist at path: " + path);
+//    if (networkType == null) throw new MoneroException("Must provide a network type");
+//    long jniWalletHandle = openWalletJni(path, password, networkType.ordinal());
+//    MoneroWalletJni wallet = new MoneroWalletJni(jniWalletHandle);
+//    if (daemonConnection != null) wallet.setDaemonConnection(daemonConnection);
+//    return wallet;
+//  }
+  
   static async createWalletRandom(path, password, networkType, daemonConnection, language) {
     
     // validate and sanitize params
@@ -45,6 +98,7 @@ class MoneroWalletWasm extends MoneroWallet {
     });
   }
   
+  // TODO: update to be consistent with createWalletRandom()
   static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonConnection, restoreHeight) {
     
     // return promise which is resolved on callback

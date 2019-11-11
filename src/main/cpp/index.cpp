@@ -17,6 +17,7 @@ EMSCRIPTEN_BINDINGS(module)
   // register wallet bindings
   emscripten::function("create_wallet_dummy", &monero_wallet_wasm_bridge::create_wallet_dummy);
   emscripten::function("dummy_method", &monero_wallet_wasm_bridge::dummy_method);
+  emscripten::function("open_wallet", &monero_wallet_wasm_bridge::open_wallet);
   emscripten::function("create_wallet_random", &monero_wallet_wasm_bridge::create_wallet_random);
   emscripten::function("create_wallet_from_mnemonic", &monero_wallet_wasm_bridge::create_wallet_from_mnemonic);
   emscripten::function("get_seed", &monero_wallet_wasm_bridge::get_seed);
@@ -100,11 +101,9 @@ EMSCRIPTEN_BINDINGS(module)
 //  emscripten::function("submit_multisig_tx_hex", &monero_wallet_wasm_bridge::submit_multisig_tx_hex);
 //  emscripten::function("save", &monero_wallet_wasm_bridge::save);
 //  emscripten::function("close", &monero_wallet_wasm_bridge::close);
-
   emscripten::function("get_address_file_data", &monero_wallet_wasm_bridge::get_address_file_data);
   emscripten::function("get_keys_file_data", &monero_wallet_wasm_bridge::get_keys_file_data);
   emscripten::function("get_cache_file_data", &monero_wallet_wasm_bridge::get_cache_file_data);
-  emscripten::function("load_wallet_data", &monero_wallet_wasm_bridge::load_wallet_data);
 }
 extern "C"
 {
