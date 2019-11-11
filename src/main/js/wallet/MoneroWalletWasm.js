@@ -533,10 +533,38 @@ class MoneroWalletWasm extends MoneroWallet {
     let path = await this.getPath();
     if (path === "") throw new MoneroError("Wallet path is not set");
     
-    // get and write each file
+    // write address file
     FS.writeFileSync(path + "_address.txt", MoneroWalletWasm.WASM_MODULE.get_address_file_buffer(this.cppAddress));
-    FS.writeFileSync(path + ".keys", MoneroWalletWasm.WASM_MODULE.get_keys_file_buffer(this.cppAddress, this.password, false)); // TODO: watch only
-    FS.writeFileSync(path, MoneroWalletWasm.WASM_MODULE.get_cache_file_buffer(this.cppAddress, this.password)); // TODO: read from heap
+    
+    // malloc keys buffer and get buffer location in c++ heap
+    let keysBufferLoc = JSON.parse(MoneroWalletWasm.WASM_MODULE.get_keys_file_buffer(this.cppAddress, this.password, false));
+    
+    // read binary data from heap to DataView
+    let view = new DataView(new ArrayBuffer(keysBufferLoc.length)); // TODO: improve performance using DataView instead of Uint8Array?, TODO: rename to length
+    for (let i = 0; i < keysBufferLoc.length; i++) {
+      view.setInt8(i, MoneroWalletWasm.WASM_MODULE.HEAPU8[keysBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
+    }
+    
+    // free binary on heap
+    MoneroWalletWasm.WASM_MODULE._free(keysBufferLoc.pointer);
+    
+    // write keys file
+    FS.writeFileSync(path + ".keys", view, "binary"); // TODO: make async with callback?
+    
+    // malloc cache buffer and get buffer location in c++ heap
+    let cacheBufferLoc = JSON.parse(MoneroWalletWasm.WASM_MODULE.get_cache_file_buffer(this.cppAddress, this.password));
+    
+    // read binary data from heap to DataView
+    view = new DataView(new ArrayBuffer(cacheBufferLoc.length));
+    for (let i = 0; i < cacheBufferLoc.length; i++) {
+      view.setInt8(i, MoneroWalletWasm.WASM_MODULE.HEAPU8[cacheBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
+    }
+    
+    // free binary on heap
+    MoneroWalletWasm.WASM_MODULE._free(cacheBufferLoc.pointer);
+    
+    // write cache file
+    FS.writeFileSync(path, view, "binary");
   }
   
   async close(save) {
