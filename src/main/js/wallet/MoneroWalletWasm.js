@@ -255,6 +255,10 @@ class MoneroWalletWasm extends MoneroWallet {
           subaddresses.push(new MoneroSubaddress(subaddressJson));
         }
       }
+//      console.log("Account balance: " + accountJson.balance);
+//      console.log("Account unlocked balance: " + accountJson.unlockedBalance);
+//      console.log("Account balance BI: " + new BigInteger(accountJson.balance));
+//      console.log("Account unlocked balance BI: " + new BigInteger(accountJson.unlockedBalance));
       accounts.push(MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson.index, accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses)));
     }
     return accounts;
@@ -279,7 +283,7 @@ class MoneroWalletWasm extends MoneroWallet {
     let argsStr = JSON.stringify({accountIdx: accountIdx, subaddressIndices: GenUtils.listify(subaddressIndices)});
     let subaddressesJson = JSON.parse(MoneroWalletWasm.WASM_MODULE.get_subaddresses(this.cppAddress, argsStr)).subaddresses;
     let subaddresses = [];
-    for (let subaddressJson of subaddressesJson) subaddresses.push(new MoneroSubaddress(subaddressJson));
+    for (let subaddressJson of subaddressesJson) subaddresses.push(MoneroWalletWasm._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
     return subaddresses;
   }
   
