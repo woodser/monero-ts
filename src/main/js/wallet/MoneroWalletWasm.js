@@ -255,7 +255,7 @@ class MoneroWalletWasm extends MoneroWallet {
           subaddresses.push(new MoneroSubaddress(subaddressJson));
         }
       }
-      accounts.push(new MoneroAccount(accountJson.index, accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses));
+      accounts.push(MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson.index, accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses)));
     }
     return accounts;
   }
@@ -268,7 +268,7 @@ class MoneroWalletWasm extends MoneroWallet {
       subaddresses = [];
       for (let subaddressJson of accountJson.subaddresses) subaddresses.push(new MoneroSubaddress(subaddressJson));
     }
-    return new MoneroAccount(accountJson.index, accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses);
+    return MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson.index, accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses));
   }
   
   async createAccount(label) {
@@ -556,6 +556,20 @@ class MoneroWalletWasm extends MoneroWallet {
   
   dummyMethod() {
     return MoneroWalletWasm.WASM_MODULE.dummy_method(this.cppAddress);
+  }
+  
+  // ---------------------------- PRIVATE HELPERS ----------------------------
+  
+  static _sanitizeAccount(account) {
+    if (account.getSubaddresses()) {
+      for (let subaddress of account.getSubaddresses()) MoneroWalletWasm._sanitizeSubaddress(subaddress);
+    }
+    return account;
+  }
+  
+  static _sanitizeSubaddress(subaddress) {
+    if (subaddress.getLabel() === "") subaddress.setLabel(undefined);
+    return subaddress
   }
 }
 
