@@ -475,7 +475,7 @@ class MoneroWalletWasm extends MoneroWallet {
   save() {
     let addressData = MoneroWalletWasm.WASM_MODULE.get_address_file_data(this.cppAddress);
     console.log("Save address data: " + addressData);
-    let keysData = MoneroWalletWasm.WASM_MODULE.get_keys_file_data(this.cppAddress, this.password);
+    let keysData = MoneroWalletWasm.WASM_MODULE.get_keys_file_data(this.cppAddress, this.password, false);  // TODO: watch only
     console.log("Save keys data: " + keysData);
     let cacheData = MoneroWalletWasm.WASM_MODULE.get_cache_file_data(this.cppAddress, this.password);
     console.log("Save cache data: " + cacheData);

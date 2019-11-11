@@ -114,7 +114,7 @@ namespace monero_wallet_wasm_bridge
   //  emscripten::function("save", &monero_wallet_wasm_bridge::save);
   //  emscripten::function("close", &monero_wallet_wasm_bridge::close);
   string get_address_file_data(int handle);
-  string get_keys_file_data(int handle, string password);
+  string get_keys_file_data(int handle, string password, bool watch_only);
   string get_cache_file_data(int handle, string password);
   void load_wallet_data(int handle, string password, string keys_data, string cache_data);
 }
