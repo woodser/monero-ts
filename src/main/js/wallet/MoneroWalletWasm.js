@@ -23,6 +23,7 @@ class MoneroWalletWasm extends MoneroWallet {
   static async createWalletRandom(path, password, networkType, daemonConnection, language) {
     
     // validate and sanitize params
+    if (path === undefined) path = "";
     MoneroNetworkType.validateNetworkType(networkType);
     if (language === undefined) language = "English";
     let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
@@ -472,14 +473,16 @@ class MoneroWalletWasm extends MoneroWallet {
     throw new MoneroError("Not implemented");
   }
 
-  save() {
-    let addressData = MoneroWalletWasm.WASM_MODULE.get_address_file_data(this.cppAddress);
-    console.log("Save address data: " + addressData);
-    let keysData = MoneroWalletWasm.WASM_MODULE.get_keys_file_data(this.cppAddress, this.password, false);  // TODO: watch only
-    console.log("Save keys data: " + keysData);
-    let cacheData = MoneroWalletWasm.WASM_MODULE.get_cache_file_data(this.cppAddress, this.password);
-    console.log("Save cache data: " + cacheData);
-    throw new MoneroError("Not implemented");
+  async save() {
+    
+    // path must be set
+    let path = await this.getPath();
+    if (path === "") throw new MoneroError("Wallet path is not set");
+    
+    // get and write each file
+    FS.writeFileSync(path + "_address.txt", MoneroWalletWasm.WASM_MODULE.get_address_file_data(this.cppAddress));
+    FS.writeFileSync(path + ".keys", MoneroWalletWasm.WASM_MODULE.get_keys_file_data(this.cppAddress, this.password, false)); // TODO: watch only
+    FS.writeFileSync(path, MoneroWalletWasm.WASM_MODULE.get_cache_file_data(this.cppAddress, this.password)); // TODO: read from heap
   }
   
   async close(save) {
@@ -493,7 +496,7 @@ class MoneroWalletWasm extends MoneroWallet {
 
 /**
  * Exports a promise which resolves with a wallet class which uses a
- * WebAssembly module .
+ * WebAssembly module.
  */
 module.exports = async function() {
   return new Promise(function(resolve, reject) {
