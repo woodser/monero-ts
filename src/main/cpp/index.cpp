@@ -85,7 +85,7 @@ EMSCRIPTEN_BINDINGS(module)
 //  emscripten::function("set_account_tag_label", &monero_wallet_wasm_bridge::set_account_tag_label);
 //  emscripten::function("create_payment_uri", &monero_wallet_wasm_bridge::create_payment_uri);
 //  emscripten::function("parse_payment_uri", &monero_wallet_wasm_bridge::parse_payment_uri);
-//  emscripten::function("get_attribute", &monero_wallet_wasm_bridge::get_attribute);
+  emscripten::function("get_attribute", &monero_wallet_wasm_bridge::get_attribute);
   emscripten::function("set_attribute", &monero_wallet_wasm_bridge::set_attribute);
 //  emscripten::function("start_mining", &monero_wallet_wasm_bridge::start_mining);
 //  emscripten::function("stop_mining", &monero_wallet_wasm_bridge::stop_mining);
@@ -100,7 +100,7 @@ EMSCRIPTEN_BINDINGS(module)
 //  emscripten::function("sign_multisig_tx_hex", &monero_wallet_wasm_bridge::sign_multisig_tx_hex);
 //  emscripten::function("submit_multisig_tx_hex", &monero_wallet_wasm_bridge::submit_multisig_tx_hex);
 //  emscripten::function("save", &monero_wallet_wasm_bridge::save);
-//  emscripten::function("close", &monero_wallet_wasm_bridge::close);
+  emscripten::function("close", &monero_wallet_wasm_bridge::close);
   emscripten::function("get_address_file_buffer", &monero_wallet_wasm_bridge::get_address_file_buffer);
   emscripten::function("get_keys_file_buffer", &monero_wallet_wasm_bridge::get_keys_file_buffer);
   emscripten::function("get_cache_file_buffer", &monero_wallet_wasm_bridge::get_cache_file_buffer);

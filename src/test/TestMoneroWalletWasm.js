@@ -15,15 +15,14 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
   }
   
   async createRandomWallet() {
-    let wallet = await MoneroWalletWasm.createWalletRandom("", TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection());
+    let wallet = await MoneroWalletWasm.createWalletRandom(TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection());
     //await wallet.startSyncing();  // TODO
     return wallet;
   }
   
   async openWallet(path) {
-    throw new Error("openWallet(" + path + ") not implemented");
-    //await this.wallet.openWallet(path, TestUtils.WALLET_PASSWORD);
-    //return this.wallet;
+    let wallet = await MoneroWalletWasm.openWallet(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection());
+    return wallet;
   }
   
   runTests(config) {

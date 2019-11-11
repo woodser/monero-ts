@@ -285,6 +285,11 @@ string monero_wallet_wasm_bridge::get_subaddresses(int handle, const string& arg
 //  emscripten::function("parse_payment_uri", &monero_wallet_wasm_bridge::parse_payment_uri);
 //  emscripten::function("get_attribute", &monero_wallet_wasm_bridge::get_attribute);
 
+  string monero_wallet_wasm_bridge::get_attribute(int handle, const string& key) {
+    monero_wallet_base* wallet = (monero_wallet_base*) handle;
+    return wallet->get_attribute(key);
+  }
+
   void monero_wallet_wasm_bridge::set_attribute(int handle, const string& key, const string& val) {
     monero_wallet_base* wallet = (monero_wallet_base*) handle;
     wallet->set_attribute(key, val);
@@ -303,7 +308,11 @@ string monero_wallet_wasm_bridge::get_subaddresses(int handle, const string& arg
 //  emscripten::function("sign_multisig_tx_hex", &monero_wallet_wasm_bridge::sign_multisig_tx_hex);
 //  emscripten::function("submit_multisig_tx_hex", &monero_wallet_wasm_bridge::submit_multisig_tx_hex);
 //  emscripten::function("save", &monero_wallet_wasm_bridge::save);
-//  emscripten::function("close", &monero_wallet_wasm_bridge::close);
+
+void monero_wallet_wasm_bridge::close(int handle) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  return wallet->close();
+}
 
 string monero_wallet_wasm_bridge::get_address_file_buffer(int handle) {
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
