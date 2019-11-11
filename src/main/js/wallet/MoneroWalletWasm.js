@@ -204,42 +204,36 @@ class MoneroWalletWasm extends MoneroWallet {
   
   async getBalance(accountIdx, subaddressIdx) {
     
-    // get low bits of balance
-    let lowBits;
+    // get balance encoded in json string
+    let balanceStr;
     if (accountIdx === undefined) {
       assert(subaddressIdx === undefined, "Subaddress index must be undefined if account index is undefined");
-      lowBits = MoneroWalletWasm.WASM_MODULE.get_balance_wallet(this.cppAddress);
+      balanceStr = MoneroWalletWasm.WASM_MODULE.get_balance_wallet(this.cppAddress);
     } else if (subaddressIdx === undefined) {
-      lowBits = MoneroWalletWasm.WASM_MODULE.get_balance_account(this.cppAddress, accountIdx);
+      balanceStr = MoneroWalletWasm.WASM_MODULE.get_balance_account(this.cppAddress, accountIdx);
     } else {
-      lowBits = MoneroWalletWasm.WASM_MODULE.get_balance_subaddress(this.cppAddress, accountIdx, subaddressIdx);
+      balanceStr = MoneroWalletWasm.WASM_MODULE.get_balance_subaddress(this.cppAddress, accountIdx, subaddressIdx);
     }
     
-    // emscripten returns high bits separately
-    let highBits = MoneroWalletWasm.WASM_MODULE.getTempRet0();
-    
-    // return unsigned big integer from low and high bits
-    return MoneroWalletWasm.WASM_MODULE.makeBigInt(lowBits, highBits, true);
+    // parse json string to BigInteger
+    return new BigInteger(JSON.parse(balanceStr).balance);
   }
   
   async getUnlockedBalance(accountIdx, subaddressIdx) {
     
-    // get low bits of unlocked balance
-    let lowBits;
+    // get balance encoded in json string
+    let unlockedBalanceStr;
     if (accountIdx === undefined) {
       assert(subaddressIdx === undefined, "Subaddress index must be undefined if account index is undefined");
-      lowBits = MoneroWalletWasm.WASM_MODULE.get_unlocked_balance_wallet(this.cppAddress);
+      unlockedBalanceStr = MoneroWalletWasm.WASM_MODULE.get_unlocked_balance_wallet(this.cppAddress);
     } else if (subaddressIdx === undefined) {
-      lowBits = MoneroWalletWasm.WASM_MODULE.get_unlocked_balance_account(this.cppAddress, accountIdx);
+      unlockedBalanceStr = MoneroWalletWasm.WASM_MODULE.get_unlocked_balance_account(this.cppAddress, accountIdx);
     } else {
-      lowBits = MoneroWalletWasm.WASM_MODULE.get_unlocked_balance_subaddress(this.cppAddress, accountIdx, subaddressIdx);
+      unlockedBalanceStr = MoneroWalletWasm.WASM_MODULE.get_unlocked_balance_subaddress(this.cppAddress, accountIdx, subaddressIdx);
     }
     
-    // emscripten returns high bits separately
-    let highBits = MoneroWalletWasm.WASM_MODULE.getTempRet0();
-    
-    // return big integer from low and high bits
-    return MoneroWalletWasm.WASM_MODULE.makeBigInt(lowBits, highBits, true);
+    // parse json string to BigInteger
+    return new BigInteger(JSON.parse(unlockedBalanceStr).unlockedBalance);
   }
   
   async getAccounts(includeSubaddresses, tag) {
