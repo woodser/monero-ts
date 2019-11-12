@@ -24,6 +24,12 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     return new MoneroOutputQuery(this);
   }
   
+  toJson() {
+    let json = Object.assign({}, this.state, super.toJson());
+    delete json.txQuery;
+    return json;
+  }
+  
   getSubaddressIndices() {
     return this.state.subaddressIndices;
   }
