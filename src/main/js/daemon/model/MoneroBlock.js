@@ -10,7 +10,7 @@ class MoneroBlock extends MoneroBlockHeader {
    * 
    * @param {MoneroBlock|MoneroBlockHeader|object} state is existing state to initialize from (optional)
    */
-  constructor(state) {
+  constructor(state, useWalletTypes) {
     super(state);
     state = this.state;
     
@@ -20,7 +20,11 @@ class MoneroBlock extends MoneroBlockHeader {
     // deserialize non-miner txs
     if (state.txs) {
       for (let i = 0; i < state.txs.length; i++) {
-        if (!(state.txs[i] instanceof MoneroTx)) state.txs[i] = new MoneroTx(state.txs[i]).setBlock(this);
+        if (useWalletTypes) {
+          if (!(state.txs[i] instanceof MoneroTxWallet)) state.txs[i] = new MoneroTxWallet(state.txs[i]).setBlock(this);
+        } else {
+          if (!(state.txs[i] instanceof MoneroTx)) state.txs[i] = new MoneroTx(state.txs[i]).setBlock(this);
+        }
       }
     }
   }
