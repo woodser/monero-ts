@@ -312,7 +312,7 @@ void monero_wallet_wasm_bridge::get_txs(int handle, const string& tx_query_str, 
       blocks.push_back(tx->m_block.get());
     }
   }
-  cout << "Returning " << blocks.size() << " blocks";
+  cout << "Returning " << blocks.size() << " blocks" << endl;
 
   // return wrapped and serialized blocks
   rapidjson::Document doc;
