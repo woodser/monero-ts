@@ -28,6 +28,8 @@ class MoneroTxWallet extends MoneroTx {
       this.setOutgoingTransfer(new MoneroOutgoingTransfer(Object.assign(state.outgoingTransfer, {tx: this})));
     }
     
+    // TODO: deserialize vins
+    
     // deserialize vouts
     if (state.vouts) {
       for (let i = 0; i < state.vouts.length; i++) {
