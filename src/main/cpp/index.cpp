@@ -48,7 +48,7 @@ EMSCRIPTEN_BINDINGS(module)
 //  emscripten::function("create_account", &monero_wallet_wasm_bridge::create_account);
   emscripten::function("get_subaddresses", &monero_wallet_wasm_bridge::get_subaddresses);
 //  emscripten::function("create_subaddress", &monero_wallet_wasm_bridge::create_subaddress);
-//  emscripten::function("get_txs", &monero_wallet_wasm_bridge::get_txs);
+  emscripten::function("get_txs", &monero_wallet_wasm_bridge::get_txs);
 //  emscripten::function("get_transfers", &monero_wallet_wasm_bridge::get_transfers);
 //  emscripten::function("get_incoming_transfers", &monero_wallet_wasm_bridge::get_incoming_transfers);
 //  emscripten::function("get_outgoing_transfers", &monero_wallet_wasm_bridge::get_outgoing_transfers);

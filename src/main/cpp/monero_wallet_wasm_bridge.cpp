@@ -255,6 +255,7 @@ string monero_wallet_wasm_bridge::get_account(int handle, uint32_t account_idx, 
 //  emscripten::function("create_account", &monero_wallet_wasm_bridge::create_account);
 
 string monero_wallet_wasm_bridge::get_subaddresses(int handle, const string& args) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
 
   // deserialize args to property tree
   std::istringstream iss = std::istringstream(args);
@@ -271,7 +272,6 @@ string monero_wallet_wasm_bridge::get_subaddresses(int handle, const string& arg
   }
 
   // get subaddresses
-  monero_wallet_base* wallet = (monero_wallet_base*) handle;
   vector<monero_subaddress> subaddresses = wallet->get_subaddresses(account_idx, subaddress_indices);
 
   // wrap and serialize subaddresses
@@ -282,6 +282,44 @@ string monero_wallet_wasm_bridge::get_subaddresses(int handle, const string& arg
 }
 
 //  emscripten::function("create_subaddress", &monero_wallet_wasm_bridge::create_subaddress);
+
+string monero_wallet_wasm_bridge::get_txs(int handle, const string& tx_query_str) {
+  cout << "monero_wallet_wasm_bridge::get_txs()" << endl;
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+
+  // deserialize tx query string
+  shared_ptr<monero_tx_query> tx_query = monero_utils::deserialize_tx_query(tx_query_str);
+  cout << "Fetching tx with query: " << tx_query->serialize();
+
+  // get txs
+  vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs(*tx_query);
+  cout << "Got " << txs.size() << " txs" << endl;
+
+  // collect unique blocks to preserve model relationships as tree
+  shared_ptr<monero_block> unconfirmed_block = nullptr; // placeholder to store unconfirmed txs in return json
+  vector<shared_ptr<monero_block>> blocks;
+  unordered_set<shared_ptr<monero_block>> seen_block_ptrs;
+  for (const shared_ptr<monero_tx_wallet>& tx : txs) {
+    if (tx->m_block == boost::none) {
+      if (unconfirmed_block == nullptr) unconfirmed_block = shared_ptr<monero_block>(new monero_block());
+      tx->m_block = unconfirmed_block;
+      unconfirmed_block->m_txs.push_back(tx);
+    }
+    unordered_set<shared_ptr<monero_block>>::const_iterator got = seen_block_ptrs.find(tx->m_block.get());
+    if (got == seen_block_ptrs.end()) {
+      seen_block_ptrs.insert(tx->m_block.get());
+      blocks.push_back(tx->m_block.get());
+    }
+  }
+  cout << "Returning " << blocks.size() << " blocks";
+
+  // return wrapped and serialized blocks
+  rapidjson::Document doc;
+  doc.SetObject();
+  doc.AddMember("blocks", monero_utils::to_json_val(doc.GetAllocator(), blocks), doc.GetAllocator());
+  return monero_utils::serialize(doc);
+}
+
 //  emscripten::function("get_txs", &monero_wallet_wasm_bridge::get_txs);
 //  emscripten::function("get_transfers", &monero_wallet_wasm_bridge::get_transfers);
 //  emscripten::function("get_incoming_transfers", &monero_wallet_wasm_bridge::TODO);

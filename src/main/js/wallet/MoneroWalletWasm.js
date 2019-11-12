@@ -3,6 +3,8 @@ const FS = require('fs');
 
 /**
  * Implements a Monero wallet using WebAssembly to bridge to monero-project's wallet2.
+ * 
+ * TODO: add assertNotClosed() per JNI
  */
 class MoneroWalletWasm extends MoneroWallet {
   
@@ -285,9 +287,209 @@ class MoneroWalletWasm extends MoneroWallet {
     throw new MoneroError("Not implemented");
   }
   
-  async getTxs(config) {
-    throw new MoneroError("Not implemented");
+  async getTxs(query) {
+    
+    // copy and normalize tx query up to block
+    if (query instanceof MoneroTxQuery) query = query.copy();
+    else if (Array.isArray(query)) query = new MoneroTxQuery().setTxIds(query);
+    else {
+      query = Object.assign({}, query);
+      query = new MoneroTxQuery(query);
+    }
+    if (query.getBlock() === undefined) query.setBlock(new MoneroBlock().setTxs([query]));
+    if (query.getTransferQuery() === undefined) query.setTransferQuery(new MoneroTransferQuery());
+    if (query.getOutputQuery() === undefined) query.setOutputQuery(new MoneroOutputQuery());
+    
+    console.log("Calling get txs with query:");
+    console.log(JSON.stringify(query.getBlock().toJson()));
+    
+    // fetch txs from wasm using query serialized from block
+    let blocksJsonStr;
+    try {
+      blocksJsonStr = MoneroWalletWasm.WASM_MODULE.get_txs(this.cppAddress, JSON.stringify(query.getBlock().toJson()));
+    } catch (e) {
+      throw e;
+    }
+    
+    // deserialize blocks
+    let blocksJson = JSON.parse(blocksJsonStr);
+    console.log("Deserialized blocks");
+    console.log(blocksJson);
+    
+    // collect txs
+    throw new Error("Not implemented!");
+//    
+//    
+//    
+//    
+//    
+//    
+//    // deserialize blocks
+//    List<MoneroBlock> blocks = deserializeBlocks(blocksJson);
+//    
+//    // collect txs
+//    List<MoneroTxWallet> txs = new ArrayList<MoneroTxWallet>();
+//    for (MoneroBlock block : blocks) {
+//      sanitizeBlock(block);
+//      for (MoneroTx tx : block.getTxs()) {
+//        if (block.getHeight() == null) tx.setBlock(null); // dereference placeholder block for unconfirmed txs
+//        txs.add((MoneroTxWallet) tx);
+//      }
+//    }
+//    
+//    // re-sort txs which is lost over jni serialization
+//    if (query.getTxIds() != null) {
+//      Map<String, MoneroTxWallet> txMap = new HashMap<String, MoneroTxWallet>();
+//      for (MoneroTxWallet tx : txs) txMap.put(tx.getId(), tx);
+//      List<MoneroTxWallet> txsSorted = new ArrayList<MoneroTxWallet>();
+//      for (String txId : query.getTxIds()) txsSorted.add(txMap.get(txId));
+//      txs = txsSorted;
+//    }
+//    LOGGER.fine("getTxs() returning " + txs.size() + " transactions");
+//    return txs;
+//    
+//    
+//    throw new MoneroError("Not implemented");
   }
+  
+//  ////////////////////
+//  async getTxs(query) {
+//    
+//    // copy and normalize tx query up to block
+//    if (query instanceof MoneroTxQuery) query = query.copy();
+//    else if (Array.isArray(query)) query = new MoneroTxQuery().setTxIds(query);
+//    else {
+//      query = Object.assign({}, query);
+//      query = new MoneroTxQuery(query);
+//    }
+//    if (query.getBlock() === undefined) query.setBlock(new MoneroBlock().setTxs([query]));
+//    if (query.getTransferQuery() === undefined) query.setTransferQuery(new MoneroTransferQuery());
+//    if (query.getOutputQuery() === undefined) query.setOutputQuery(new MoneroOutputQuery());
+//    
+//    // temporarily disable transfer and output queries in order to collect all tx information
+//    let transferQuery = query.getTransferQuery();
+//    let outputQuery = query.getOutputQuery();
+//    query.setTransferQuery(undefined);
+//    query.setOutputQuery(undefined);
+//    
+//    // fetch all transfers that meet tx query
+//    let transfers = await this.getTransfers(new MoneroTransferQuery().setTxQuery(query));
+//    
+//    // collect unique txs from transfers while retaining order
+//    let txs = [];
+//    let txsSet = new Set();
+//    for (let transfer of transfers) {
+//      if (!txsSet.has(transfer.getTx())) {
+//        txs.push(transfer.getTx());
+//        txsSet.add(transfer.getTx());
+//      }
+//    }
+//    
+//    // cache types into maps for merging and lookup
+//    let txMap = new Map();
+//    let blockMap = new Map();
+//    for (let tx of txs) {
+//      MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
+//    }
+//    
+//    // fetch and merge outputs if requested
+//    if (query.getIncludeOutputs() || !outputQuery.isDefault()) {
+//      let outputs = await this.getOutputs(new MoneroOutputQuery().setTxQuery(query));
+//      
+//      // merge output txs one time while retaining order
+//      let outputTxs = [];
+//      for (let output of outputs) {
+//        if (!outputTxs.includes(output.getTx())) {
+//          MoneroWalletRpc._mergeTx(output.getTx(), txMap, blockMap, true);
+//          outputTxs.push(output.getTx());
+//        }
+//      }
+//    }
+//    
+//    // restore transfer and output queries
+//    query.setTransferQuery(transferQuery);
+//    query.setOutputQuery(outputQuery);
+//    
+//    // filter txs that don't meet transfer query
+//    query.setTransferQuery(transferQuery);
+//    let txsQueried = [];
+//    for (let tx of txs) {
+//      if (query.meetsCriteria(tx)) txsQueried.push(tx);
+//      else if (tx.getBlock() !== undefined) tx.getBlock().getTxs().splice(tx.getBlock().getTxs().indexOf(tx), 1);
+//    }
+//    txs = txsQueried;
+//    
+//    // verify all specified tx ids found
+//    if (query.getTxIds()) {
+//      for (let txId of query.getTxIds()) {
+//        let found = false;
+//        for (let tx of txs) {
+//          if (txId === tx.getId()) {
+//            found = true;
+//            break;
+//          }
+//        }
+//        if (!found) throw new MoneroError("Tx not found in wallet: " + txId);
+//      }
+//    }
+//    
+//    // special case: re-fetch txs if inconsistency caused by needing to make multiple rpc calls
+//    for (let tx of txs) {
+//      if (tx.isConfirmed() && tx.getBlock() === undefined) return this.getTxs(query);
+//    }
+//    
+//    // order txs if tx ids given then return
+//    if (query.getTxIds() && query.getTxIds().length > 0) {
+//      let txsById = new Map()  // store txs in temporary map for sorting
+//      for (let tx of txs) txsById.set(tx.getId(), tx);
+//      let orderedTxs = [];
+//      for (let txId of query.getTxIds()) if (txsById.get(txId)) orderedTxs.push(txsById.get(txId));
+//      txs = orderedTxs;
+//    }
+//    return txs;
+//  }
+//  
+//  
+//  @Override
+//  public List<MoneroTxWallet> getTxs(MoneroTxQuery query) {
+//    assertNotClosed();
+//    
+//    // copy and normalize tx query up to block
+//    query = query == null ? new MoneroTxQuery() : query.copy();
+//    if (query.getBlock() == null) query.setBlock(new MoneroBlock().setTxs(query));
+//    
+//    // serialize query from block and fetch txs from jni
+//    String blocksJson;
+//    try {
+//      blocksJson = getTxsJni(JsonUtils.serialize(query.getBlock()));
+//    } catch (Exception e) {
+//      throw new MoneroException(e.getMessage());
+//    }
+//    
+//    // deserialize blocks
+//    List<MoneroBlock> blocks = deserializeBlocks(blocksJson);
+//    
+//    // collect txs
+//    List<MoneroTxWallet> txs = new ArrayList<MoneroTxWallet>();
+//    for (MoneroBlock block : blocks) {
+//      sanitizeBlock(block);
+//      for (MoneroTx tx : block.getTxs()) {
+//        if (block.getHeight() == null) tx.setBlock(null); // dereference placeholder block for unconfirmed txs
+//        txs.add((MoneroTxWallet) tx);
+//      }
+//    }
+//    
+//    // re-sort txs which is lost over jni serialization
+//    if (query.getTxIds() != null) {
+//      Map<String, MoneroTxWallet> txMap = new HashMap<String, MoneroTxWallet>();
+//      for (MoneroTxWallet tx : txs) txMap.put(tx.getId(), tx);
+//      List<MoneroTxWallet> txsSorted = new ArrayList<MoneroTxWallet>();
+//      for (String txId : query.getTxIds()) txsSorted.add(txMap.get(txId));
+//      txs = txsSorted;
+//    }
+//    LOGGER.fine("getTxs() returning " + txs.size() + " transactions");
+//    return txs;
+//  }
 
   async getTransfers(config) {
     throw new MoneroError("Not implemented");

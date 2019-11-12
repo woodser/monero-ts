@@ -29,6 +29,14 @@ class MoneroTxQuery extends MoneroTxWallet {
     return new MoneroTxQuery(this);
   }
   
+  toJson() {
+    let json = Object.assign({}, this.state, super.toJson()); // merge json onto inherited state
+    if (this.getTransferQuery()) json.transferQuery = this.getTransferQuery().toJson();
+    if (this.getOutputQuery()) json.outputQuery = this.getOutputQuery().toJson();
+    delete json.block;  // do not serialize parent block
+    return json;
+  }
+  
   isIncoming() {
     return this.state.isIncoming;
   }

@@ -1,6 +1,4 @@
 HIGH (WASM)
-support save()
-wallet/subaddress balance mismatch in test
 debug firefox and chrome exceptions, compare to wasm42
 emscripten bind can return native vectors, see https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
 move store_keys(), load_keys() from wallet2_base to wallet2
