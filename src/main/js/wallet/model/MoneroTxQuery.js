@@ -17,6 +17,7 @@ class MoneroTxQuery extends MoneroTxWallet {
     
     // deserialize if necessary
     if (this.state.transferQuery && !(this.state.transferQuery instanceof MoneroTransferQuery)) this.state.transferQuery = new MoneroTransferQuery(this.state.transferQuery);
+    if (this.state.outputQuery && !(this.state.outputQuery instanceof MoneroOutputQuery)) this.state.outputQuery = new MoneroOutputQuery(this.state.outputQuery);
     
     // alias 'txId' to txIds
     if (this.state.txId) {

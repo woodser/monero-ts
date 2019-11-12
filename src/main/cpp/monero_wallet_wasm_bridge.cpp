@@ -290,7 +290,14 @@ void monero_wallet_wasm_bridge::get_txs(int handle, const string& tx_query_str, 
   shared_ptr<monero_tx_query> tx_query = monero_utils::deserialize_tx_query(tx_query_str);
 
   // get txs
-  vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs(*tx_query);
+  vector<string> missing_tx_ids;
+  vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs(*tx_query, missing_tx_ids);
+
+  // return error as string if missing requested tx ids
+  if (!missing_tx_ids.empty()) {
+    callback("Tx not found in wallet: " + missing_tx_ids[0]);
+    return;
+  }
 
   // collect unique blocks to preserve model relationships as tree
   shared_ptr<monero_block> unconfirmed_block = nullptr; // placeholder to store unconfirmed txs in return json

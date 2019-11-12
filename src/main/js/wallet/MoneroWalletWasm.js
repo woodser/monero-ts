@@ -310,6 +310,12 @@ class MoneroWalletWasm extends MoneroWallet {
       // define callback for wasm
       let callbackFn = function(blocksJsonStr) {
         
+        // check for error  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
+        if (blocksJsonStr.charAt(0) !== "{") {
+          reject(new MoneroError(blocksJsonStr));
+          return;
+        }
+        
         // deserialize blocks
         let blocks = MoneroWalletWasm._deserializeBlocks(blocksJsonStr);
         

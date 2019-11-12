@@ -27,6 +27,12 @@ class MoneroTransferQuery extends MoneroTransfer {
     return new MoneroTransferQuery(this);
   }
   
+  toJson() {
+    let json = Object.assign({}, this.state, super.toJson());
+    delete json.txQuery;
+    return json;
+  }
+  
   isIncoming() {
     return this.state.isIncoming;
   }
