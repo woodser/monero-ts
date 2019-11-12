@@ -303,21 +303,26 @@ class MoneroWalletWasm extends MoneroWallet {
     console.log("Calling get txs with query:");
     console.log(JSON.stringify(query.getBlock().toJson()));
     
-    // fetch txs from wasm using query serialized from block
-    let blocksJsonStr;
-    try {
-      blocksJsonStr = MoneroWalletWasm.WASM_MODULE.get_txs(this.cppAddress, JSON.stringify(query.getBlock().toJson()));
-    } catch (e) {
-      throw e;
-    }
+    let cppAddress = this.cppAddress;
     
-    // deserialize blocks
-    let blocksJson = JSON.parse(blocksJsonStr);
-    console.log("Deserialized blocks");
-    console.log(blocksJson);
+    // return promise which resolves on callback
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(blocksJsonStr) {
+        let blocksJson = JSON.parse(blocksJsonStr);
+        
+        console.log("Deserialized blocks");
+        console.log(blocksJson);
+        
+        // collect txs
+        throw new Error("Not implemented!");
+      }
+      
+      // sync wallet in wasm and invoke callback when done
+      MoneroWalletWasm.WASM_MODULE.get_txs(cppAddress, JSON.stringify(query.getBlock().toJson()), callbackFn);
+    });
     
-    // collect txs
-    throw new Error("Not implemented!");
 //    
 //    
 //    
