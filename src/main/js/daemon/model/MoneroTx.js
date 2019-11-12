@@ -18,7 +18,7 @@ class MoneroTx {
     this.state = state;
     
     // deserialize fee
-    if (state.fee && !(state.fee instanceof BigInteger)) state.fee = BigInteger.parse(state.fee);
+    if (state.fee !== undefined && !(state.fee instanceof BigInteger)) state.fee = BigInteger.parse(state.fee);
     
     // deserialize vins
     if (state.vins) {
