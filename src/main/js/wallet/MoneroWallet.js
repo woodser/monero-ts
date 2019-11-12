@@ -423,27 +423,27 @@ class MoneroWallet {
    * Transactions can be fetched by a MoneroTxQuery, equivalent js object, or
    * array of tx ids.
    * 
-   * @param {(MoneroTxQuery|string[]|object)} config configures the query (optional)
-   * @param {boolean} config.isConfirmed gets txs that are confirmed or not (optional)
-   * @param {boolean} config.inTxPool get txs that are in the tx pool or not (optional)
-   * @param {boolean} config.isRelayed gets txs that are relayed or not (optional)
-   * @param {boolean} config.isFailed gets txs that are failed or not (optional)
-   * @param {boolean} config.isMinerTx gets miner txs or not (optional)
-   * @param {string} config.id gets a tx with the id (optional)
-   * @param {string} config.txId gets a tx with the id (alias of id) (optional)
-   * @param {string[]} config.txIds gets txs with the ids (optional)
-   * @param {string} config.paymentId gets transactions with the payment id (optional)
-   * @param {string[]} config.paymentIds gets transactions with the payment ids (optional)
-   * @param {boolean} config.hasPaymentId gets transactions with a payment id or not (optional)
-   * @param {int} config.minHeight gets txs with height >= the given height (optional)
-   * @param {int} config.maxHeight gets txs with height <= the given height (optional)
-   * @param {boolean} config.isOutgoing gets txs with an outgoing transfer or not (optional)
-   * @param {boolean} config.isIncoming gets txs with an incoming transfer or not (optional)
-   * @param {MoneroTransferQuery} config.transferQuery gets txs that have a transfer that meets this query (optional)
-   * @param {boolean} config.includeOutputs specifies that tx vouts should be returned with tx results (optional)
+   * @param {(MoneroTxQuery|string[]|object)} query configures the query (optional)
+   * @param {boolean} query.isConfirmed gets txs that are confirmed or not (optional)
+   * @param {boolean} query.inTxPool get txs that are in the tx pool or not (optional)
+   * @param {boolean} query.isRelayed gets txs that are relayed or not (optional)
+   * @param {boolean} query.isFailed gets txs that are failed or not (optional)
+   * @param {boolean} query.isMinerTx gets miner txs or not (optional)
+   * @param {string} query.id gets a tx with the id (optional)
+   * @param {string} query.txId gets a tx with the id (alias of id) (optional)
+   * @param {string[]} query.txIds gets txs with the ids (optional)
+   * @param {string} query.paymentId gets transactions with the payment id (optional)
+   * @param {string[]} query.paymentIds gets transactions with the payment ids (optional)
+   * @param {boolean} query.hasPaymentId gets transactions with a payment id or not (optional)
+   * @param {int} query.minHeight gets txs with height >= the given height (optional)
+   * @param {int} query.maxHeight gets txs with height <= the given height (optional)
+   * @param {boolean} query.isOutgoing gets txs with an outgoing transfer or not (optional)
+   * @param {boolean} query.isIncoming gets txs with an incoming transfer or not (optional)
+   * @param {MoneroTransferQuery} query.transferQuery gets txs that have a transfer that meets this query (optional)
+   * @param {boolean} query.includeOutputs specifies that tx vouts should be returned with tx results (optional)
    * @return {MoneroTxWallet[]} are wallet transactions per the configuration
    */
-  async getTxs(config) {
+  async getTxs(query) {
     throw new MoneroError("Subclass must implement");
   }
 
@@ -460,40 +460,40 @@ class MoneroWallet {
    * to be returned.  All configuration is optional and no filtering is applied
    * when not defined.
    * 
-   * @param {(MoneroTransferQuery|object)} config configures the query (optional)
-   * @param {boolean} config.isOutgoing gets transfers that are outgoing or not (optional)
-   * @param {boolean} config.isIncoming gets transfers that are incoming or not (optional)
-   * @param {string} config.address is the wallet's address that a transfer either originated from (if outgoing) or is destined for (if incoming) (optional)
-   * @param {int} config.accountIndex gets transfers that either originated from (if outgoing) or are destined for (if incoming) a specific account index (optional)
-   * @param {int} config.subaddressIndex gets transfers that either originated from (if outgoing) or are destined for (if incoming) a specific subaddress index (optional)
-   * @param {int[]} config.subaddressIndices gets transfers that either originated from (if outgoing) or are destined for (if incoming) specific subaddress indices (optional)
-   * @param {BigInteger} config.amount is the amount being transferred (optional)
-   * @param {MoneroDestination[]} config.destinations are individual destinations of an outgoing transfer, which is local wallet data and NOT recoverable from the blockchain (optional)
-   * @param {boolean} config.hasDestinations gets transfers that have destinations or not (optional)
-   * @param {MoneroTxQuery} config.txQuery gets transfers whose transaction meets this query (optional)
+   * @param {(MoneroTransferQuery|object)} query configures the query (optional)
+   * @param {boolean} query.isOutgoing gets transfers that are outgoing or not (optional)
+   * @param {boolean} query.isIncoming gets transfers that are incoming or not (optional)
+   * @param {string} query.address is the wallet's address that a transfer either originated from (if outgoing) or is destined for (if incoming) (optional)
+   * @param {int} query.accountIndex gets transfers that either originated from (if outgoing) or are destined for (if incoming) a specific account index (optional)
+   * @param {int} query.subaddressIndex gets transfers that either originated from (if outgoing) or are destined for (if incoming) a specific subaddress index (optional)
+   * @param {int[]} query.subaddressIndices gets transfers that either originated from (if outgoing) or are destined for (if incoming) specific subaddress indices (optional)
+   * @param {BigInteger} query.amount is the amount being transferred (optional)
+   * @param {MoneroDestination[]} query.destinations are individual destinations of an outgoing transfer, which is local wallet data and NOT recoverable from the blockchain (optional)
+   * @param {boolean} query.hasDestinations gets transfers that have destinations or not (optional)
+   * @param {MoneroTxQuery} query.txQuery gets transfers whose transaction meets this query (optional)
    * @return {MoneroTransfer[]} are wallet transfers per the configuration
    */
-  async getTransfers(config) {
+  async getTransfers(query) {
     throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Get all of the wallet's incoming transfers.
    * 
-   * @param config is passed to getTransfers() with isIncoming=true
+   * @param query is passed to getTransfers() with isIncoming=true
    * @return {MoneroIncomingTransfer[]} the wallet's incoming transfers
    */
-  async getIncomingTransfers(config) {
+  async getIncomingTransfers(query) {
     throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Get all of the wallet's outgoing transfers.
    * 
-   * @param config is passed to getTransfers() with isOutgoing=true
+   * @param query is passed to getTransfers() with isOutgoing=true
    * @return {MoneroOutgoingTransfer[]} the wallet's outgoing transfers
    */
-  async getOutgoingTransfers(config) {
+  async getOutgoingTransfers(query) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -508,17 +508,17 @@ class MoneroWallet {
    * 
    * TODO: add additional filtering in MoneroOutputQuery.js meetsCriteria()
    * 
-   * @param {(MoneroOutputQuery|object)} config configures the query (optional)
-   * @param {int} config.accountIndex gets outputs associated with a specific account index
-   * @param {int} config.subaddressIndex gets outputs associated with a specific subaddress index
-   * @param {int[]} config.subaddressIndices gets outputs associated with specific subaddress indices
-   * @param {BigInteger} config.amount gets outputs with a specific amount
-   * @param {boolean} config.isSpent gets outputs that are spent or not
-   * @param {MoneroKeyImage} config.keyImage is a key image whose defined fields filter outputs to get
-   * @param {MoneroTxQuery} config.txQuery gets outputs whose transaction meets this filter (optional)
+   * @param {(MoneroOutputQuery|object)} query configures the query (optional)
+   * @param {int} query.accountIndex gets outputs associated with a specific account index
+   * @param {int} query.subaddressIndex gets outputs associated with a specific subaddress index
+   * @param {int[]} query.subaddressIndices gets outputs associated with specific subaddress indices
+   * @param {BigInteger} query.amount gets outputs with a specific amount
+   * @param {boolean} query.isSpent gets outputs that are spent or not
+   * @param {MoneroKeyImage} query.keyImage is a key image whose defined fields filter outputs to get
+   * @param {MoneroTxQuery} query.txQuery gets outputs whose transaction meets this filter (optional)
    * @return {MoneroOutputWallet[]} are wallet outputs per the configuration
    */
-  async getOutputs(config) {
+  async getOutputs(query) {
     throw new MoneroError("Subclass must implement");
   }
   
