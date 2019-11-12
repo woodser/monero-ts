@@ -310,51 +310,36 @@ class MoneroWalletWasm extends MoneroWallet {
       
       // define callback for wasm
       let callbackFn = function(blocksJsonStr) {
-        let blocksJson = JSON.parse(blocksJsonStr);
         
-        console.log("Deserialized blocks");
-        console.log(blocksJson);
+        // deserialize blocks
+        let blocks = MoneroWalletWasm._deserializeBlocks(blocksJsonStr);
         
         // collect txs
-        throw new Error("Not implemented!");
+        let txs = [];
+        for (let block of blocks) {
+            MoneroWalletWasm._sanitizeBlock(block); // TODO: this should be part of deserializeBlocks()
+            for (let tx of block.getTxs()) {
+            if (block.getHeight() === undefined) tx.setBlock(undefined); // dereference placeholder block for unconfirmed txs
+            txs.push(tx);
+          }
+        }
+      
+        // re-sort txs which is lost over wasm serialization
+        if (query.getTxIds() !== undefined) {
+          let txMap = new Map();
+          for (let tx of txs) txMap[tx.getId()] = tx;
+          let txsSorted = [];
+          for (let txId of query.getTxIds()) txsSorted.push(txMap[txId]);
+          txs = txsSorted;
+        }
+        
+        // resolve promise with txs
+        resolve(txs);
       }
       
       // sync wallet in wasm and invoke callback when done
       MoneroWalletWasm.WASM_MODULE.get_txs(cppAddress, JSON.stringify(query.getBlock().toJson()), callbackFn);
     });
-    
-//    
-//    
-//    
-//    
-//    
-//    
-//    // deserialize blocks
-//    List<MoneroBlock> blocks = deserializeBlocks(blocksJson);
-//    
-//    // collect txs
-//    List<MoneroTxWallet> txs = new ArrayList<MoneroTxWallet>();
-//    for (MoneroBlock block : blocks) {
-//      sanitizeBlock(block);
-//      for (MoneroTx tx : block.getTxs()) {
-//        if (block.getHeight() == null) tx.setBlock(null); // dereference placeholder block for unconfirmed txs
-//        txs.add((MoneroTxWallet) tx);
-//      }
-//    }
-//    
-//    // re-sort txs which is lost over jni serialization
-//    if (query.getTxIds() != null) {
-//      Map<String, MoneroTxWallet> txMap = new HashMap<String, MoneroTxWallet>();
-//      for (MoneroTxWallet tx : txs) txMap.put(tx.getId(), tx);
-//      List<MoneroTxWallet> txsSorted = new ArrayList<MoneroTxWallet>();
-//      for (String txId : query.getTxIds()) txsSorted.add(txMap.get(txId));
-//      txs = txsSorted;
-//    }
-//    LOGGER.fine("getTxs() returning " + txs.size() + " transactions");
-//    return txs;
-//    
-//    
-//    throw new MoneroError("Not implemented");
   }
   
 //  ////////////////////
@@ -765,6 +750,11 @@ class MoneroWalletWasm extends MoneroWallet {
   
   // ---------------------------- PRIVATE HELPERS ----------------------------
   
+  static _sanitizeBlock(block) {
+    console.log("_sanitizeBlock(...)");
+    throw new Error("Not implemented");
+  }
+  
   static _sanitizeAccount(account) {
     if (account.getSubaddresses()) {
       for (let subaddress of account.getSubaddresses()) MoneroWalletWasm._sanitizeSubaddress(subaddress);
@@ -775,6 +765,11 @@ class MoneroWalletWasm extends MoneroWallet {
   static _sanitizeSubaddress(subaddress) {
     if (subaddress.getLabel() === "") subaddress.setLabel(undefined);
     return subaddress
+  }
+  
+  static _deserializeBlocks(blocksJsonStr) {
+    console.log("_deserializeBlocks(...)");
+    throw new Error("Not implemented");
   }
 }
 
