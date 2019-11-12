@@ -62,7 +62,7 @@ namespace monero_wallet_wasm_bridge
   //  emscripten::function("create_account", &monero_wallet_wasm_bridge::create_account);
   string get_subaddresses(int handle, const string& args);
   //  emscripten::function("create_subaddress", &monero_wallet_wasm_bridge::create_subaddress);
-  string get_txs(int handle, const string& tx_query_str);
+  void get_txs(int handle, const string& tx_query_str, emscripten::val callback);
   //  emscripten::function("get_txs", &monero_wallet_wasm_bridge::get_txs);
   //  emscripten::function("get_transfers", &monero_wallet_wasm_bridge::get_transfers);
   //  emscripten::function("get_incoming_transfers", &monero_wallet_wasm_bridge::TODO);

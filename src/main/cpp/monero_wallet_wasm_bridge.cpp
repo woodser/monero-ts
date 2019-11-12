@@ -283,7 +283,7 @@ string monero_wallet_wasm_bridge::get_subaddresses(int handle, const string& arg
 
 //  emscripten::function("create_subaddress", &monero_wallet_wasm_bridge::create_subaddress);
 
-string monero_wallet_wasm_bridge::get_txs(int handle, const string& tx_query_str) {
+void monero_wallet_wasm_bridge::get_txs(int handle, const string& tx_query_str, emscripten::val callback) {
   cout << "monero_wallet_wasm_bridge::get_txs()" << endl;
   monero_wallet_base* wallet = (monero_wallet_base*) handle;
 
@@ -292,6 +292,7 @@ string monero_wallet_wasm_bridge::get_txs(int handle, const string& tx_query_str
   cout << "Fetching tx with query: " << tx_query->serialize();
 
   // get txs
+  cout << "FETCHING TXS" << endl;
   vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs(*tx_query);
   cout << "Got " << txs.size() << " txs" << endl;
 
@@ -317,7 +318,7 @@ string monero_wallet_wasm_bridge::get_txs(int handle, const string& tx_query_str
   rapidjson::Document doc;
   doc.SetObject();
   doc.AddMember("blocks", monero_utils::to_json_val(doc.GetAllocator(), blocks), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  callback(monero_utils::serialize(doc));
 }
 
 //  emscripten::function("get_txs", &monero_wallet_wasm_bridge::get_txs);
