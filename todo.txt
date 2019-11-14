@@ -1,4 +1,5 @@
 HIGH (WASM)
+remove the plugins dir
 test "Can get transactions by id" passes tx query where txs is array of characters
 C++ MTRACE statements execute argument which could be major performance hit
 debug firefox and chrome exceptions, compare to wasm42
