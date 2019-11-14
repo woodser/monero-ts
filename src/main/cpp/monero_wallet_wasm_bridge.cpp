@@ -351,7 +351,6 @@ void monero_wallet_wasm_bridge::send_split(int handle, const string& send_reques
 
   cout << "Returned from send_split(), calling tx_set serialize()" << endl;
 
-
   // serialize and return tx set
   callback(tx_set.serialize());
 }
