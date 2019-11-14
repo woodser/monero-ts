@@ -8,8 +8,21 @@
  */
 class MoneroTxSet {
   
-  constructor() {
-    this.state = {};
+  constructor(state) {
+    
+    // initialize internal state
+    if (!state) state = {};
+    else if (typeof state === "object") state = Object.assign({}, state);
+    else throw new MoneroError("state must be JavaScript object");
+    this.state = state;
+    
+    // deserialize txs
+    if (state.txs) {
+      for (let i = 0; i < state.txs.length; i++) {
+        if (!(state.txs[i] instanceof MoneroTxWallet)) state.txs[i] = new MoneroTxWallet(state.txs[i]);
+        state.txs[i].setTxSet(this);
+      }
+    }
   }
 
   getTxs() {

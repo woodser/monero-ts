@@ -242,20 +242,11 @@ class MoneroWalletWasm extends MoneroWallet {
     let accountsStr = MoneroWalletWasm.WASM_MODULE.get_accounts(this.cppAddress, includeSubaddresses ? true : false, tag ? tag : "");
     let accounts = [];
     for (let accountJson of JSON.parse(accountsStr).accounts) {
-      let subaddresses = undefined;
-      if (accountJson.subaddresses) {
-        subaddresses = [];
-        for (let subaddressJson of accountJson.subaddresses) {
-          subaddressJson.balance = new BigInteger(subaddressJson.balance);  // TODO: can this lose precision?
-          subaddressJson.unlockedBalance = new BigInteger(subaddressJson.unlockedBalance);
-          subaddresses.push(new MoneroSubaddress(subaddressJson));
-        }
-      }
+      accounts.push(MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson)));
 //      console.log("Account balance: " + accountJson.balance);
 //      console.log("Account unlocked balance: " + accountJson.unlockedBalance);
 //      console.log("Account balance BI: " + new BigInteger(accountJson.balance));
 //      console.log("Account unlocked balance BI: " + new BigInteger(accountJson.unlockedBalance));
-      accounts.push(MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson.index, accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses)));
     }
     return accounts;
   }
@@ -263,12 +254,7 @@ class MoneroWalletWasm extends MoneroWallet {
   async getAccount(accountIdx, includeSubaddresses) {
     let accountStr = MoneroWalletWasm.WASM_MODULE.get_account(this.cppAddress, accountIdx, includeSubaddresses ? true : false);
     let accountJson = JSON.parse(accountStr);
-    let subaddresses = undefined;
-    if (accountJson.subaddresses) {
-      subaddresses = [];
-      for (let subaddressJson of accountJson.subaddresses) subaddresses.push(new MoneroSubaddress(subaddressJson));
-    }
-    return MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson.index, accountJson.primaryAddress, new BigInteger(accountJson.balance), new BigInteger(accountJson.unlockedBalance), subaddresses));
+    return MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson));
   }
   
   async createAccount(label) {
@@ -276,8 +262,8 @@ class MoneroWalletWasm extends MoneroWallet {
   }
   
   async getSubaddresses(accountIdx, subaddressIndices) {
-    let argsStr = JSON.stringify({accountIdx: accountIdx, subaddressIndices: GenUtils.listify(subaddressIndices)});
-    let subaddressesJson = JSON.parse(MoneroWalletWasm.WASM_MODULE.get_subaddresses(this.cppAddress, argsStr)).subaddresses;
+    let args = {accountIdx: accountIdx, subaddressIndices: subaddressIndices === undefined ? [] : GenUtils.listify(subaddressIndices)};
+    let subaddressesJson = JSON.parse(MoneroWalletWasm.WASM_MODULE.get_subaddresses(this.cppAddress, JSON.stringify(args))).subaddresses;
     let subaddresses = [];
     for (let subaddressJson of subaddressesJson) subaddresses.push(MoneroWalletWasm._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
     return subaddresses;
@@ -388,7 +374,42 @@ class MoneroWalletWasm extends MoneroWallet {
   }
   
   async sendSplit(requestOrAccountIndex, address, amount, priority) {
-    throw new MoneroError("Not implemented");
+    
+    // validate, copy, and normalize request  // TODO: this is copied from MoneroWalletRpc.sendSplit(), factor to super class which calls this with normalized request?
+    let request;
+    if (requestOrAccountIndex instanceof MoneroSendRequest) {
+      assert.equal(arguments.length, 1, "Sending requires a send request or parameters but not both");
+      request = requestOrAccountIndex;
+    } else {
+      if (requestOrAccountIndex instanceof Object) request = new MoneroSendRequest(requestOrAccountIndex);
+      else request = new MoneroSendRequest(requestOrAccountIndex, address, amount, priority);
+    }
+    assert.notEqual(request.getDestinations(), undefined, "Must specify destinations");
+    assert.equal(request.getSweepEachSubaddress(), undefined);
+    assert.equal(request.getBelowAmount(), undefined);
+    if (request.getCanSplit() === undefined) {
+      request = request.copy();
+      request.setCanSplit(true);
+    }
+    
+    // return promise which resolves on callback
+    let cppAddress = this.cppAddress;
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(txSetJsonStr) {
+        
+        // json string expected // TODO: use error handling when supported in wasm
+        if (txSetJsonStr.charAt(0) !== '{') throw new Error(txSetJsonStr);
+        
+        // deserialize tx set
+        let txSet = new MoneroTxSet(JSON.parse(txSetJsonStr));
+        resolve(txSet);
+      }
+      
+      // sync wallet in wasm and invoke callback when done
+      MoneroWalletWasm.WASM_MODULE.send_split(cppAddress, JSON.stringify(request.toJson()), callbackFn);
+    });
   }
   
   async sweepOutput(requestOrAddress, keyImage, priority) {
@@ -505,7 +526,8 @@ class MoneroWalletWasm extends MoneroWallet {
   
   async getAttribute(key) {
     assert(typeof key === "string", "Attribute key must be a string");
-    return MoneroWalletWasm.WASM_MODULE.get_attribute(this.cppAddress, key);
+    let value = MoneroWalletWasm.WASM_MODULE.get_attribute(this.cppAddress, key);
+    return value === "" ? undefined : value;
   }
   
   async setAttribute(key, val) {

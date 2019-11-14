@@ -794,7 +794,7 @@ class MoneroWalletRpc extends MoneroWallet {
 
   async sendSplit(requestOrAccountIndex, address, amount, priority) {
     
-    // validate, copy, and sanitize request
+    // validate, copy, and normalize request
     let request;
     if (requestOrAccountIndex instanceof MoneroSendRequest) {
       assert.equal(arguments.length, 1, "Sending requires a send request or parameters but not both");

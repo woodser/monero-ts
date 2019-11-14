@@ -80,10 +80,11 @@ class TestUtils {
         //await this.walletWasm.startSyncing();                 // TODO
       }
       
-      // otherwise open existing wallet and update daemon connection
+      // otherwise open existing wallet
       else {
         this.walletWasm = await MoneroWalletWasm.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, (await TestUtils.getDaemonRpc()).getRpcConnection());
         await this.walletWasm.sync();
+        //await this.walletWasm.save();
         //await this.walletWasm.sync(new WalletSyncPrinter());  // TODO
         //await this.walletWasm.startSyncing();                 // TODO
       }

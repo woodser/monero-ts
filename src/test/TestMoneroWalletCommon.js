@@ -398,6 +398,7 @@ class TestMoneroWalletCommon {
           let subaddresses = await that.wallet.getSubaddresses(account.getIndex());
           assert(subaddresses.length > 0);
           for (let subaddress of subaddresses) {
+            testSubaddress(subaddress);
             assert.deepEqual(await that.wallet.getSubaddress(account.getIndex(), subaddress.getIndex()), subaddress);
             assert.deepEqual((await that.wallet.getSubaddresses(account.getIndex(), subaddress.getIndex()))[0], subaddress); // test plural call with single subaddr number
           }
@@ -1725,7 +1726,7 @@ class TestMoneroWalletCommon {
         await that.wallet.close();
         
         // re-open the wallet and ensure attribute was not saved
-        wallet = await that.openWallet(path);
+        that.wallet = await that.openWallet(path);
         assert.equal(await that.wallet.getAttribute("id"), undefined);
         
         // set the attribute and close with saving

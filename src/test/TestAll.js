@@ -34,7 +34,7 @@ const TestMoneroWalletLocal = require("./TestMoneroWalletLocal");
 new TestMoneroWalletWasm().runTests({
   liteMode: false,
   testNonRelays: true,
-  testRelays: false,
+  testRelays: true,
   testResets: false,
   testNotifications: false
 });
@@ -54,5 +54,5 @@ new TestMoneroWalletWasm().runTests({
 //// test boolean set (data structure used by wallet to track progress)
 //require("./TestBooleanSet");
 //
-//// test scratchpad
-//require("./Scratchpad");
+// test scratchpad
+require("./Scratchpad");

@@ -3,13 +3,35 @@
  */
 class MoneroAccount {
   
-  constructor(index, primaryAddress, balance, unlockedBalance, subaddresses) {
-    this.state = {};
-    this.setIndex(index);
-    this.setPrimaryAddress(primaryAddress);
-    this.setBalance(balance);
-    this.setUnlockedBalance(unlockedBalance);
-    this.setSubaddresses(subaddresses);
+  constructor(stateOrIndex, primaryAddress, balance, unlockedBalance, subaddresses) {
+    
+    // construct from json
+    if (typeof stateOrIndex === "object") {
+      this.state = stateOrIndex;
+      
+      // deserialize balances
+      if (this.state.balance !== undefined && !(this.state.balance instanceof BigInteger)) this.state.balance = BigInteger.parse(this.state.balance);
+      if (this.state.unlockedBalance !== undefined && !(this.state.unlockedBalance instanceof BigInteger)) this.state.unlockedBalance = BigInteger.parse(this.state.unlockedBalance);
+      
+      // deserialize subaddresses
+      if (this.state.subaddresses) {
+        for (let i = 0; i < this.state.subaddresses.length; i++) {
+          if (!(this.state.subaddresses[i] instanceof MoneroSubaddress)) {
+            this.state.subaddresses[i] = new MoneroSubaddress(this.state.subaddresses[i]);
+          }
+        }
+      }
+    }
+    
+    // construct from individual params
+    else {
+      this.state = {};
+      this.setIndex(stateOrIndex);
+      this.setPrimaryAddress(primaryAddress);
+      this.setBalance(balance);
+      this.setUnlockedBalance(unlockedBalance);
+      this.setSubaddresses(subaddresses);
+    }
   }
   
   getIndex() {
