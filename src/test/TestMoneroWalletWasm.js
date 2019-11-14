@@ -36,6 +36,12 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
       });
       
+      // save wallet after tests
+      after(async function() {
+        console.log("Saving wallet on shut down");
+        await that.wallet.save();
+      });
+      
       // run tests specific to wallet wasm
       that._testWalletWasm(config);
       

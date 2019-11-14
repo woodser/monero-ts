@@ -59,7 +59,7 @@ EMSCRIPTEN_BINDINGS(module)
 //  emscripten::function("import_key_images", &monero_wallet_wasm_bridge::import_key_images);
 //  emscripten::function("get_new_key_images_from_last_import", &monero_wallet_wasm_bridge::get_new_key_images_from_last_import);
 //  emscripten::function("relay_txs", &monero_wallet_wasm_bridge::relay_txs);
-//  emscripten::function("send_split", &monero_wallet_wasm_bridge::send_split);
+  emscripten::function("send_split", &monero_wallet_wasm_bridge::send_split);
 //  emscripten::function("sweep_output", &monero_wallet_wasm_bridge::sweep_output);
 //  emscripten::function("sweep_unlocked", &monero_wallet_wasm_bridge::sweep_unlocked);
 //  emscripten::function("sweep_dust", &monero_wallet_wasm_bridge::sweep_dust);

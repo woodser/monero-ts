@@ -334,7 +334,28 @@ void monero_wallet_wasm_bridge::get_txs(int handle, const string& tx_query_str, 
 //  emscripten::function("import_key_images", &monero_wallet_wasm_bridge::import_key_images);
 //  emscripten::function("get_new_key_images_from_last_import", &monero_wallet_wasm_bridge::get_new_key_images_from_last_import);
 //  emscripten::function("relay_txs", &monero_wallet_wasm_bridge::relay_txs);
-//  emscripten::function("send_split", &monero_wallet_wasm_bridge::send_split);
+
+void monero_wallet_wasm_bridge::send_split(int handle, const string& send_request_json, emscripten::val callback) {
+  monero_wallet_base* wallet = (monero_wallet_base*) handle;
+  cout << "monero_wallet_wasm_bridge::send_split()" << endl;
+  cout << send_request_json << endl;
+
+  // deserialize send request
+  shared_ptr<monero_send_request> send_request = monero_utils::deserialize_send_request(send_request_json);
+  cout << "Deserialized send request, re-serialized: " << send_request->serialize() << endl;
+
+  cout << "Calling send_split() " << endl;
+
+  // submit send request
+  monero_tx_set tx_set = wallet->send_split(*send_request);
+
+  cout << "Returned from send_split(), calling tx_set serialize()" << endl;
+
+
+  // serialize and return tx set
+  callback(tx_set.serialize());
+}
+
 //  emscripten::function("sweep_output", &monero_wallet_wasm_bridge::sweep_output);
 //  emscripten::function("sweep_unlocked", &monero_wallet_wasm_bridge::sweep_unlocked);
 //  emscripten::function("sweep_dust", &monero_wallet_wasm_bridge::sweep_dust);

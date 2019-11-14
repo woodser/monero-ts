@@ -2,6 +2,8 @@ HIGH (WASM)
 test "Can get transactions by id" passes tx query where txs is array of characters
 C++ MTRACE statements execute argument which could be major performance hit
 debug firefox and chrome exceptions, compare to wasm42
+http_client_wasm should use configurable host, user, password
+factor common js in http_client_wasm
 emscripten bind can return native vectors, see https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
 move store_keys(), load_keys() from wallet2_base to wallet2
 merge wallet_base and wallet using conditional header imports
