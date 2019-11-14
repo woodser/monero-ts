@@ -1720,25 +1720,25 @@ class TestMoneroWalletCommon {
                 
         // set an attribute
         let uuid = GenUtils.uuidv4();
-        await that.wallet.setAttribute("id", uuid);
+        await wallet.setAttribute("id", uuid);
         
         // close the wallet without saving
-        await that.wallet.close();
+        await wallet.close();
         
         // re-open the wallet and ensure attribute was not saved
-        that.wallet = await that.openWallet(path);
-        assert.equal(await that.wallet.getAttribute("id"), undefined);
+        wallet = await that.openWallet(path);
+        assert.equal(await wallet.getAttribute("id"), undefined);
         
         // set the attribute and close with saving
-        await that.wallet.setAttribute("id", uuid);
-        await that.wallet.close(true);
+        await wallet.setAttribute("id", uuid);
+        await wallet.close(true);
         
         // re-open the wallet and ensure attribute was saved
         wallet = await that.openWallet(path);
-        assert.equal(await that.wallet.getAttribute("id"), uuid);
+        assert.equal(await wallet.getAttribute("id"), uuid);
         
         // re-open main test wallet
-        await that.wallet.close(); // defaults to not saving
+        await wallet.close(); // defaults to not saving
         this.wallet = await that.getTestWallet();
       });
       
