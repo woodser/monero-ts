@@ -34,7 +34,7 @@ const TestMoneroWalletLocal = require("./TestMoneroWalletLocal");
 new TestMoneroWalletWasm().runTests({
   liteMode: false,
   testNonRelays: true,
-  testRelays: false,
+  testRelays: true,
   testResets: false,
   testNotifications: false
 });
