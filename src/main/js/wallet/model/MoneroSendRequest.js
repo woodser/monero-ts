@@ -27,7 +27,7 @@ class MoneroSendRequest {
   constructor(param1, param2, param3, param4) {
     
     // handle if first parameter is json
-    if (param1 instanceof Object) {
+    if (typeof param1 === "object") {
       this.state = Object.assign({}, param1);
       assert.equal(arguments.length, 1, "Send request must be constructed with json or parameters but not both");
       
