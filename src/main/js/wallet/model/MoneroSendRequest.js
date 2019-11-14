@@ -81,7 +81,10 @@ class MoneroSendRequest {
   
   toJson() {
     let json = Object.assign({}, this.state); // copy state
-    if (this.getDestinations()) for (let i = 0; i < this.getDestinations().length; i++) json.destinations[i] = this.getDestinations()[i].toJson();
+    if (this.getDestinations()) {
+      json.destinations = [];
+      for (let destination of this.getDestinations()) json.destinations.push(destination.toJson());
+    }
     if (this.getFee()) json.fee = this.getFee().toString();
     if (this.getBelowAmount()) json.belowAmount = this.getBelowAmount().toString();
     return json;
