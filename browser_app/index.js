@@ -19,14 +19,15 @@ async function startApp() {
   // import wasm wallet which exports a promise in order to load the WebAssembly module
   const MoneroWalletWasm = await require("../src/main/js/wallet/MoneroWalletWasm")();
   
-  let mnemonic = "hefty value later extra artistic firm radar yodel talent future fungal nutshell because sanity awesome nail unjustly rage unafraid cedar delayed thumbs comb custom sanity";
-  //let firstReceiveHeight = 383338;
-  let firstReceiveHeight = 447000;
+  let mnemonic = "megabyte ghetto syllabus opposite firm january velvet kennel often bugs luggage nucleus volcano fainted ripped biology firm sushi putty swagger dove obedient unnoticed washing swagger";
+  let firstReceiveHeight = 453289;
   
   // demonstrate wasm wallet
   let daemonConnection = new MoneroRpcConnection({uri: "http://localhost:38081", user: "superuser", pass: "abctesting123"});  // TODO: support 3 strings, "pass" should probably be renamed to "password" 
   let walletWasm = await MoneroWalletWasm.createWalletRandom("", "supersecretpassword123", MoneroNetworkType.STAGENET, daemonConnection, "English");
+  console.log("Created random wallet!");
   walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("", "supersecretpassword123", MoneroNetworkType.STAGENET, mnemonic, daemonConnection, firstReceiveHeight);
+  console.log("Restored wallet from seed!");
   let result = await walletWasm.sync();
   console.log("index.js received sync result");
   console.log(result);
