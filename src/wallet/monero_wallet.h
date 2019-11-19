@@ -1243,9 +1243,10 @@ namespace monero {
      * Get an attribute.
      *
      * @param key is the attribute to get the value of
-     * @return the attribute's value
+     * @param value is set to the key's value if set
+     * @return true if the key's value has been set, false otherwise
      */
-    string get_attribute(const string& key) const;
+    bool get_attribute(const string& key, string& value) const;
 
     /**
      * Set an arbitrary attribute.

@@ -221,6 +221,10 @@ set_target_properties(multisig PROPERTIES IMPORTED_LOCATION
 add_library(version STATIC IMPORTED)
 set_target_properties(version PROPERTIES IMPORTED_LOCATION
     ${EXTERNAL_LIBS_DIR}/monero-core/libversion.a)
+    
+add_library(randomx STATIC IMPORTED)
+set_target_properties(randomx PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/monero-core/librandomx.a)
 
 ########################
 # Build c++ library
@@ -278,6 +282,7 @@ target_link_libraries(monero-cpp
 	device_trezor
 	multisig
 	version
+	randomx
 	
 	${EXTRA_LIBRARIES}
 )
@@ -335,6 +340,7 @@ target_link_libraries(sample_code
 	device_trezor
 	multisig
 	version
+	randomx
 	
 	${EXTRA_LIBRARIES}
 )
@@ -394,6 +400,7 @@ target_link_libraries(scratchpad
 	device_trezor
 	multisig
 	version
+	randomx
 	
 	${EXTRA_LIBRARIES}
 )

@@ -78,6 +78,7 @@ namespace monero {
 
   static const int DEFAULT_SYNC_INTERVAL_MILLIS = 1000 * 10;   // default refresh interval 10 sec
   static const int DEFAULT_CONNECTION_TIMEOUT_MILLIS = 1000 * 30; // default connection timeout 30 sec
+  static const bool STRICT = false; // relies exclusively on blockchain data if true, includes local wallet data if false TODO: good use case to expose externally?
 
   // ----------------------- INTERNAL PRIVATE HELPERS -----------------------
 
@@ -1249,29 +1250,29 @@ namespace monero {
   // isMultisigImportNeeded
 
   uint64_t monero_wallet::get_balance() const {
-    return m_w2->balance_all();
+    return m_w2->balance_all(STRICT);
   }
 
   uint64_t monero_wallet::get_balance(uint32_t account_idx) const {
-    return m_w2->balance(account_idx);
+    return m_w2->balance(account_idx, STRICT);
   }
 
   uint64_t monero_wallet::get_balance(uint32_t account_idx, uint32_t subaddress_idx) const {
-    map<uint32_t, uint64_t> balance_per_subaddress = m_w2->balance_per_subaddress(account_idx);
+    map<uint32_t, uint64_t> balance_per_subaddress = m_w2->balance_per_subaddress(account_idx, STRICT);
     auto iter = balance_per_subaddress.find(subaddress_idx);
     return iter == balance_per_subaddress.end() ? 0 : iter->second;
   }
 
   uint64_t monero_wallet::get_unlocked_balance() const {
-    return m_w2->unlocked_balance_all();
+    return m_w2->unlocked_balance_all(STRICT);
   }
 
   uint64_t monero_wallet::get_unlocked_balance(uint32_t account_idx) const {
-    return m_w2->unlocked_balance(account_idx);
+    return m_w2->unlocked_balance(account_idx, STRICT);
   }
 
   uint64_t monero_wallet::get_unlocked_balance(uint32_t account_idx, uint32_t subaddress_idx) const {
-    map<uint32_t, std::pair<uint64_t, uint64_t>> unlocked_balance_per_subaddress = m_w2->unlocked_balance_per_subaddress(account_idx);
+    map<uint32_t, std::pair<uint64_t, uint64_t>> unlocked_balance_per_subaddress = m_w2->unlocked_balance_per_subaddress(account_idx, STRICT);
     auto iter = unlocked_balance_per_subaddress.find(subaddress_idx);
     return iter == unlocked_balance_per_subaddress.end() ? 0 : iter->second.first;
   }
@@ -1304,8 +1305,8 @@ namespace monero {
       monero_account account;
       account.m_index = account_idx;
       account.m_primary_address = get_address(account_idx, 0);
-      account.m_balance = m_w2->balance(account_idx);
-      account.m_unlocked_balance = m_w2->unlocked_balance(account_idx);
+      account.m_balance = m_w2->balance(account_idx, STRICT);
+      account.m_unlocked_balance = m_w2->unlocked_balance(account_idx, STRICT);
       if (include_subaddresses) account.m_subaddresses = get_subaddresses_aux(account_idx, vector<uint32_t>(), transfers);
       accounts.push_back(account);
     }
@@ -1328,8 +1329,8 @@ namespace monero {
     monero_account account;
     account.m_index = account_idx;
     account.m_primary_address = get_address(account_idx, 0);
-    account.m_balance = m_w2->balance(account_idx);
-    account.m_unlocked_balance = m_w2->unlocked_balance(account_idx);
+    account.m_balance = m_w2->balance(account_idx, STRICT);
+    account.m_unlocked_balance = m_w2->unlocked_balance(account_idx, STRICT);
     if (include_subaddresses) account.m_subaddresses = get_subaddresses_aux(account_idx, vector<uint32_t>(), transfers);
     return account;
   }
@@ -1592,7 +1593,12 @@ namespace monero {
 
     // get unconfirmed incoming transfers
     if (is_pool) {
-      m_w2->update_pool_state(); // TODO monero-core: this should be encapsulated in wallet when unconfirmed transfers queried
+
+      // update pool state TODO monero-core: this should be encapsulated in wallet when unconfirmed transfers queried
+      std::vector<std::pair<cryptonote::transaction, bool>> process_txs;
+      m_w2->update_pool_state(process_txs);
+      if (!process_txs.empty()) m_w2->process_pool_state(process_txs);
+
       std::list<std::pair<crypto::hash, tools::wallet2::pool_payment_details>> payments;
       m_w2->get_unconfirmed_payments(payments, account_index, subaddress_indices);
       for (std::list<std::pair<crypto::hash, tools::wallet2::pool_payment_details>>::const_iterator i = payments.begin(); i != payments.end(); ++i) {
@@ -2669,8 +2675,8 @@ namespace monero {
     return send_request;
   }
 
-  string monero_wallet::get_attribute(const string& key) const {
-    return m_w2->get_attribute(key);
+  bool monero_wallet::get_attribute(const string& key, string& value) const {
+    return m_w2->get_attribute(key, value);
   }
 
   void monero_wallet::set_attribute(const string& key, const string& val) {
@@ -2964,8 +2970,8 @@ namespace monero {
     vector<monero_subaddress> subaddresses;
 
     // get balances per subaddress as maps
-    map<uint32_t, uint64_t> balance_per_subaddress = m_w2->balance_per_subaddress(account_idx);
-    map<uint32_t, std::pair<uint64_t, uint64_t>> unlocked_balance_per_subaddress = m_w2->unlocked_balance_per_subaddress(account_idx);
+    map<uint32_t, uint64_t> balance_per_subaddress = m_w2->balance_per_subaddress(account_idx, STRICT);
+    map<uint32_t, std::pair<uint64_t, uint64_t>> unlocked_balance_per_subaddress = m_w2->unlocked_balance_per_subaddress(account_idx, STRICT);
 
     // get all indices if no indices given
     vector<uint32_t> subaddress_indices_req;

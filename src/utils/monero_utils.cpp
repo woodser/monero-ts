@@ -290,7 +290,7 @@ void monero_utils::binary_blocks_to_json(const std::string &bin, std::string &js
     boost::property_tree::ptree txsNode;
     for (int txIdx = 0; txIdx < resp_struct.blocks[blockIdx].txs.size(); txIdx++) {
       cryptonote::transaction tx;
-      if (cryptonote::parse_and_validate_tx_from_blob(resp_struct.blocks[blockIdx].txs[txIdx], tx)) {
+      if (cryptonote::parse_and_validate_tx_from_blob(resp_struct.blocks[blockIdx].txs[txIdx].blob, tx)) {
 
         // add tx node to txs node
         boost::property_tree::ptree txNode;
