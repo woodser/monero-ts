@@ -102,6 +102,7 @@ namespace monero {
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_time = pd.m_unlock_time;
+    tx->m_is_unlocked = m_w2.is_transfer_unlocked(pd.m_unlock_time, pd.m_block_height);
     tx->m_fee = pd.m_fee;
     tx->m_note = m_w2.get_tx_note(pd.m_tx_hash);
     if (tx->m_note->empty()) tx->m_note = boost::none; // clear empty note
@@ -153,6 +154,7 @@ namespace monero {
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_time = pd.m_unlock_time;
+    tx->m_is_unlocked = m_w2.is_transfer_unlocked(pd.m_unlock_time, pd.m_block_height);
     tx->m_fee = pd.m_amount_in - pd.m_amount_out;
     tx->m_note = m_w2.get_tx_note(txid);
     if (tx->m_note->empty()) tx->m_note = boost::none; // clear empty note
@@ -219,6 +221,7 @@ namespace monero {
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_time = pd.m_unlock_time;
+    tx->m_is_unlocked = false;
     tx->m_fee = pd.m_fee;
     tx->m_note = m_w2.get_tx_note(pd.m_tx_hash);
     if (tx->m_note->empty()) tx->m_note = boost::none; // clear empty note
@@ -259,6 +262,7 @@ namespace monero {
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_time = pd.m_tx.unlock_time;
+    tx->m_is_unlocked = false;
     tx->m_fee = pd.m_amount_in - pd.m_amount_out;
     tx->m_note = m_w2.get_tx_note(txid);
     if (tx->m_note->empty()) tx->m_note = boost::none; // clear empty note

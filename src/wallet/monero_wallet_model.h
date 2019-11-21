@@ -261,6 +261,7 @@ namespace monero {
     vector<shared_ptr<monero_incoming_transfer>> m_incoming_transfers;
     boost::optional<shared_ptr<monero_outgoing_transfer>> m_outgoing_transfer;
     boost::optional<string> m_note;
+    boost::optional<bool> m_is_unlocked;
 
     shared_ptr<monero_tx_wallet> copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const;
     shared_ptr<monero_tx_wallet> copy(const shared_ptr<monero_tx_wallet>& src, const shared_ptr<monero_tx_wallet>& tgt) const;
