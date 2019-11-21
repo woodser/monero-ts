@@ -190,7 +190,7 @@ namespace monero {
     for (const auto &d: pd.m_dests) {
       shared_ptr<monero_destination> destination = make_shared<monero_destination>();
       destination->m_amount = d.amount;
-      destination->m_address = d.original.empty() ? cryptonote::get_account_address_as_str(m_w2.nettype(), d.is_subaddress, d.addr) : d.original;
+      destination->m_address = d.address(m_w2.nettype(), pd.m_payment_id);
       outgoing_transfer->m_destinations.push_back(destination);
     }
 
@@ -293,7 +293,7 @@ namespace monero {
     for (const auto &d: pd.m_dests) {
       shared_ptr<monero_destination> destination = make_shared<monero_destination>();
       destination->m_amount = d.amount;
-      destination->m_address = d.original.empty() ? cryptonote::get_account_address_as_str(m_w2.nettype(), d.is_subaddress, d.addr) : d.original;
+      destination->m_address = d.address(m_w2.nettype(), pd.m_payment_id);
       outgoing_transfer->m_destinations.push_back(destination);
     }
 
@@ -538,30 +538,9 @@ namespace monero {
 
     if (!payment_id.empty())
     {
-
-      /* Just to clarify */
-      const std::string& payment_id_str = payment_id;
-
-      crypto::hash long_payment_id;
-      crypto::hash8 short_payment_id;
-
-      /* Parse payment ID */
-      if (wallet2::parse_long_payment_id(payment_id_str, long_payment_id)) {
-        cryptonote::set_payment_id_to_tx_extra_nonce(extra_nonce, long_payment_id);
-      }
-      else {
-        er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
-        er.message = "Payment id has invalid format: \"" + payment_id_str + "\", expected 64 character string";
-        return false;
-      }
-
-      /* Append Payment ID data into extra */
-      if (!cryptonote::add_extra_nonce_to_tx_extra(extra, extra_nonce)) {
-        er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
-        er.message = "Something went wrong with payment_id. Please check its format: \"" + payment_id_str + "\", expected 64-character string";
-        return false;
-      }
-
+      er.code = WALLET_RPC_ERROR_CODE_WRONG_PAYMENT_ID;
+      er.message = "Standalone payment IDs are obsolete. Use subaddresses or integrated addresses instead";
+      return false;
     }
     return true;
   }
@@ -1986,6 +1965,7 @@ namespace monero {
       tx->m_num_confirmations = 0;
       tx->m_mixin = request.m_mixin;
       tx->m_unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
+      tx->m_is_unlocked = false;
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
       out_transfer->m_account_index = request.m_account_index;
       if (request.m_subaddress_indices.size() == 1) out_transfer->m_subaddress_indices.push_back(request.m_subaddress_indices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
@@ -2276,6 +2256,7 @@ namespace monero {
       tx->m_num_confirmations = 0;
       tx->m_mixin = request.m_mixin;
       tx->m_unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
+      tx->m_is_unlocked = false;
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
       out_transfer->m_account_index = request.m_account_index;
       if (request.m_subaddress_indices.size() == 1) out_transfer->m_subaddress_indices.push_back(request.m_subaddress_indices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here

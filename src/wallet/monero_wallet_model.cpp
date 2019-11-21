@@ -142,6 +142,7 @@ namespace monero {
     if (!m_incoming_transfers.empty()) node.add_child("incomingTransfers", monero_utils::to_property_tree(m_incoming_transfers));
     if (m_outgoing_transfer != boost::none) node.add_child("outgoingTransfer", (*m_outgoing_transfer)->to_property_tree());
     if (m_note != boost::none) node.put("note", *m_note);
+    if (m_is_unlocked != boost::none) node.put("isUnlocked", *m_is_unlocked);
     return node;
   }
 
