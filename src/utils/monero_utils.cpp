@@ -198,6 +198,8 @@ void node_to_tx_wallet(const boost::property_tree::ptree& node, shared_ptr<moner
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
     //if (key == string("id")) tx->m_id = it->second.data();
+    if (key == string("isUnlocked")) tx_wallet->m_is_unlocked = it->second.get_value<bool>();
+    // TODO: deserialize other fields
   }
 }
 
@@ -224,7 +226,7 @@ shared_ptr<monero_tx_query> node_to_tx_query(const boost::property_tree::ptree& 
   return m_tx_query;
 }
 
-shared_ptr<monero_block> node_to_blockquery(const boost::property_tree::ptree& node) {
+shared_ptr<monero_block> node_to_block_query(const boost::property_tree::ptree& node) {
   shared_ptr<monero_block> block = make_shared<monero_block>();
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
@@ -322,7 +324,7 @@ shared_ptr<monero_tx_query> monero_utils::deserialize_tx_query(const string& tx_
   boost::property_tree::read_json(iss, block_node);
 
   // convert query property tree to block
-  shared_ptr<monero_block> block = node_to_blockquery(block_node);
+  shared_ptr<monero_block> block = node_to_block_query(block_node);
 
   // get tx query
   shared_ptr<monero_tx_query> tx_query = static_pointer_cast<monero_tx_query>(block->m_txs[0]);
@@ -339,7 +341,7 @@ shared_ptr<monero_transfer_query> monero_utils::deserialize_transfer_query(const
   boost::property_tree::read_json(iss, blockNode);
 
   // convert query property tree to block
-  shared_ptr<monero_block> block = node_to_blockquery(blockNode);
+  shared_ptr<monero_block> block = node_to_block_query(blockNode);
 
   // return mpty query if no txs
   if (block->m_txs.empty()) return make_shared<monero_transfer_query>();
@@ -366,7 +368,7 @@ shared_ptr<monero_output_query> monero_utils::deserialize_output_query(const str
   boost::property_tree::read_json(iss, blockNode);
 
   // convert query property tree to block
-  shared_ptr<monero_block> block = node_to_blockquery(blockNode);
+  shared_ptr<monero_block> block = node_to_block_query(blockNode);
 
   // empty query if no txs
   if (block->m_txs.empty()) return make_shared<monero_output_query>();

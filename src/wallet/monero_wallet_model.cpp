@@ -133,6 +133,7 @@ namespace monero {
       tgt->m_outgoing_transfer = transferCopy;
     }
     tgt->m_note = src->m_note;
+    tgt->m_is_unlocked = src->m_is_unlocked;
 
     return tgt;
   };
@@ -242,6 +243,7 @@ namespace monero {
     if (m_do_not_relay != boost::none && m_do_not_relay != tx->m_do_not_relay) return false;
     if (m_is_failed != boost::none && m_is_failed != tx->m_is_failed) return false;
     if (m_is_miner_tx != boost::none && m_is_miner_tx != tx->m_is_miner_tx) return false;
+    if (m_is_unlocked != boost::none && m_is_unlocked != tx->m_is_unlocked) return false;
 
     // at least one transfer must meet transfer query if defined
     if (m_transfer_query != boost::none) {
