@@ -1892,7 +1892,7 @@ namespace monero {
     std::vector<uint8_t> extra;
     epee::json_rpc::error err;
     if (!validate_transfer(m_w2.get(), tr_destinations, payment_id, dsts, extra, true, err)) {
-      throw runtime_error("Need to handle send_split() validate_transfer error");  // TODO
+      throw runtime_error(err.message);
     }
 
     // prepare parameters for wallet2's create_transactions_2()
