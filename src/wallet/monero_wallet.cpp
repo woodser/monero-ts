@@ -981,6 +981,10 @@ namespace monero {
     return m_is_synced;
   }
 
+  monero_version monero_wallet::get_version() const {
+    throw runtime_error("Not implemented");
+  }
+
   string monero_wallet::get_path() const {
     return m_w2->path();
   }

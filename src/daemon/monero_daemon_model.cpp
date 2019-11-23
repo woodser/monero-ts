@@ -84,6 +84,15 @@ namespace monero {
     return monero_utils::serialize(to_property_tree());
   }
 
+  // ----------------------------- MONERO VERSION -----------------------------
+
+  boost::property_tree::ptree monero_version::to_property_tree() const {
+    boost::property_tree::ptree node;
+    if (m_version_number != boost::none) node.put("versionNumber", *m_version_number);
+    if (m_is_release != boost::none) node.put("isRelease", *m_is_release);
+    return node;
+  }
+
   // ------------------------- MONERO BLOCK HEADER ----------------------------
 
   boost::property_tree::ptree monero_block_header::to_property_tree() const {

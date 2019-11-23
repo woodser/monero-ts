@@ -92,6 +92,15 @@ namespace monero {
   };
 
   /**
+   * Models a Monero version.
+   */
+  struct monero_version : public serializable_struct {
+    boost::optional<uint32_t> m_version_number;
+    boost::optional<bool> m_is_release;
+    boost::property_tree::ptree to_property_tree() const;
+  };
+
+  /**
    * Models a connection to a daemon.
    *
    * TODO: switch to boost::optional<string>

@@ -246,6 +246,13 @@ namespace monero {
     bool is_synced() const;
 
     /**
+     * Get the wallet's version.
+     *
+     * @return the wallet's version
+     */
+    monero_version get_version() const;
+
+    /**
      * Get the path of this wallet's file on disk.
      *
      * @return the path of this wallet's file on disk
