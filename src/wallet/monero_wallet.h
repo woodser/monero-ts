@@ -1007,6 +1007,14 @@ namespace monero {
     monero_tx_set sweep_dust(bool do_not_relay = false);
 
     /**
+     * Parses a tx set containing unsigned or multisig tx hex to a new tx set containing structured transactions.
+     *
+     * @param tx_set is a tx set containing unsigned or multisig tx hex
+     * @return the parsed tx set containing structured transactions
+     */
+    monero_tx_set parse_tx_set(const monero_tx_set& tx_set);
+
+    /**
      * Sign a message.
      *
      * @param msg is the message to sign

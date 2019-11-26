@@ -1510,7 +1510,7 @@ namespace monero {
       if (query.m_tx_query.get()->m_transfer_query != boost::none && query.m_tx_query.get()->m_transfer_query.get().get() == &query) {
         _query = tx_query->m_transfer_query.get();
       } else {
-        if (query.m_tx_query.get()->m_transfer_query != boost::none) throw new runtime_error("Transfer query's tx query must be a circular reference or null");
+        if (query.m_tx_query.get()->m_transfer_query != boost::none) throw runtime_error("Transfer query's tx query must be a circular reference or null");
         shared_ptr<monero_transfer_query> query_ptr = make_shared<monero_transfer_query>(query);  // convert query to shared pointer for copy
         _query = query_ptr->copy(query_ptr, make_shared<monero_transfer_query>());
         _query->m_tx_query = tx_query;
@@ -1653,7 +1653,7 @@ namespace monero {
       if (query.m_tx_query.get()->m_output_query != boost::none && query.m_tx_query.get()->m_output_query.get().get() == &query) {
         _query = tx_query->m_output_query.get();
       } else {
-        if (query.m_tx_query.get()->m_output_query != boost::none) throw new runtime_error("Output query's tx query must be a circular reference or null");
+        if (query.m_tx_query.get()->m_output_query != boost::none) throw runtime_error("Output query's tx query must be a circular reference or null");
         shared_ptr<monero_output_query> query_ptr = make_shared<monero_output_query>(query);  // convert query to shared pointer for copy
         _query = query_ptr->copy(query_ptr, make_shared<monero_output_query>());
         _query->m_tx_query = tx_query;
@@ -2368,6 +2368,10 @@ namespace monero {
     return tx_set;
   }
 
+  monero_tx_set monero_wallet::parse_tx_set(const monero_tx_set& tx_set) {
+    throw runtime_error("Not implemented");
+  }
+
   string monero_wallet::sign(const string& msg) const {
     return m_w2->sign(msg);
   }
@@ -2775,7 +2779,7 @@ namespace monero {
     // validate state and args
     bool ready;
     uint32_t threshold, total;
-    if (!m_w2->multisig(&ready, &threshold, &total)) throw new runtime_error("This wallet is not multisig");
+    if (!m_w2->multisig(&ready, &threshold, &total)) throw runtime_error("This wallet is not multisig");
     if (ready) throw runtime_error("This wallet is multisig, and already finalized");
     if (multisig_hexes.size() < 1 || multisig_hexes.size() > total) throw runtime_error("Needs multisig info from more participants");
 

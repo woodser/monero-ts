@@ -72,6 +72,8 @@ namespace monero_utils
 
   void binary_blocks_to_json(const std::string &bin, std::string &json);
 
+  monero_tx_set deserialize_tx_set(const string& tx_set_str);
+
   shared_ptr<monero_tx_query> deserialize_tx_query(const string& txQueryStr);
 
   shared_ptr<monero_transfer_query> deserialize_transfer_query(const string& transfer_query_str);
