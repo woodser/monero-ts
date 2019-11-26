@@ -176,12 +176,7 @@ void node_to_tx(const boost::property_tree::ptree& node, shared_ptr<monero_tx> t
     else if (key == string("vins")) throw runtime_error("vins deserializationn not implemented");
     else if (key == string("vouts")) throw runtime_error("vouts deserializationn not implemented");
     else if (key == string("outputIndices")) throw runtime_error("m_output_indices deserialization not implemented");
-    else if (key == string("metadata")) {
-        cout << "Assigning metadata" << endl;
-        tx->m_metadata = it->second.data();
-        cout << "DONE ASSIGNING METADATA!" << endl;
-        //throw runtime_error("metadata deserialization not implemented");
-    }
+    else if (key == string("metadata")) tx->m_metadata = it->second.data();
     else if (key == string("commonTxSets")) throw runtime_error("commonTxSets deserialization not implemented");
     else if (key == string("extra")) throw runtime_error("extra deserialization not implemented");
     else if (key == string("rctSignatures")) throw runtime_error("rctSignatures deserialization not implemented");
