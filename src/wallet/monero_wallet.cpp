@@ -882,7 +882,7 @@ namespace monero {
     // validate and parse private view key
     bool has_view_key = true;
     crypto::secret_key view_key_sk;
-    if (!view_key.empty()) {
+    if (view_key.empty()) {
       if (has_spend_key) has_view_key = false;
       else throw runtime_error("Neither view key nor spend key supplied, cancelled");
     }
