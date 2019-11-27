@@ -2133,6 +2133,7 @@ namespace monero {
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
       txs.push_back(tx);
       tx->m_id = *tx_ids_iter;
+      tx->m_is_outgoing = true;
       tx->m_key = *tx_keys_iter;
       tx->m_fee = *tx_fees_iter;
       tx->m_full_hex = *tx_blobs_iter;
@@ -2249,6 +2250,7 @@ namespace monero {
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
       txs.push_back(tx);
       tx->m_id = *tx_ids_iter;
+      tx->m_is_outgoing = true;
       tx->m_key = *tx_keys_iter;
       tx->m_fee = *tx_fees_iter;
       tx->m_full_hex = *tx_blobs_iter;
@@ -2335,6 +2337,7 @@ namespace monero {
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
       txs.push_back(tx);
       tx->m_id = *tx_ids_iter;
+      tx->m_is_outgoing = true;
       tx->m_key = *tx_keys_iter;
       tx->m_fee = *tx_fees_iter;
       tx->m_full_hex = *tx_blobs_iter;
