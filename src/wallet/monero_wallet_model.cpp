@@ -191,6 +191,8 @@ namespace monero {
     }
 
     // merge simple extensions
+    m_is_incoming = gen_utils::reconcile(m_is_incoming, other->m_is_incoming);
+    m_is_outgoing = gen_utils::reconcile(m_is_outgoing, other->m_is_outgoing);
     m_note = gen_utils::reconcile(m_note, other->m_note);
     m_is_unlocked = gen_utils::reconcile(m_is_unlocked, other->m_is_unlocked);
     m_input_sum = gen_utils::reconcile(m_input_sum, other->m_input_sum);

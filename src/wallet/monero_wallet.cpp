@@ -98,6 +98,7 @@ namespace monero {
     tx->m_block = block;
     block->m_txs.push_back(tx);
     tx->m_id = string_tools::pod_to_hex(pd.m_tx_hash);
+    tx->m_is_incoming = true;
     tx->m_payment_id = string_tools::pod_to_hex(payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
@@ -150,6 +151,7 @@ namespace monero {
     tx->m_block = block;
     block->m_txs.push_back(tx);
     tx->m_id = string_tools::pod_to_hex(txid);
+    tx->m_is_outgoing = true;
     tx->m_payment_id = string_tools::pod_to_hex(pd.m_payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
@@ -217,6 +219,7 @@ namespace monero {
     const tools::wallet2::payment_details &pd = ppd.m_pd;
     shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
     tx->m_id = string_tools::pod_to_hex(pd.m_tx_hash);
+    tx->m_is_incoming = true;
     tx->m_payment_id = string_tools::pod_to_hex(payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
@@ -258,6 +261,7 @@ namespace monero {
     shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
     tx->m_is_failed = pd.m_state == tools::wallet2::unconfirmed_transfer_details::failed;
     tx->m_id = string_tools::pod_to_hex(txid);
+    tx->m_is_outgoing = true;
     tx->m_payment_id = string_tools::pod_to_hex(pd.m_payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
@@ -1604,6 +1608,10 @@ namespace monero {
     // filter and return transfers
     vector<shared_ptr<monero_transfer>> transfers;
     for (const shared_ptr<monero_tx_wallet>& tx : txs) {
+
+      // tx is not incoming/outgoing unless already set
+      if (tx->m_is_incoming == boost::none) tx->m_is_incoming = false;
+      if (tx->m_is_outgoing == boost::none) tx->m_is_outgoing = false;
 
       // sort transfers
       sort(tx->m_incoming_transfers.begin(), tx->m_incoming_transfers.end(), incoming_transfer_before);
