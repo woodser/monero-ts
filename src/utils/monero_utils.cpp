@@ -317,8 +317,6 @@ void monero_utils::binary_blocks_to_json(const std::string &bin, std::string &js
 }
 
 monero_tx_set monero_utils::deserialize_tx_set(const string& tx_set_str) {
-  cout << "monero_utils::deserialize_tx_set(...)" << endl;
-  cout << tx_set_str;
 
   // deserialize tx set to property
   std::istringstream iss = tx_set_str.empty() ? std::istringstream() : std::istringstream(tx_set_str);

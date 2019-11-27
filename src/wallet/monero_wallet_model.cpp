@@ -119,6 +119,9 @@ namespace monero {
     monero_tx::copy(static_pointer_cast<monero_tx>(src), static_pointer_cast<monero_tx>(tgt));
 
     // copy wallet extensions
+    tgt->m_tx_set = src->m_tx_set;
+    tgt->m_is_incoming = src->m_is_incoming;
+    tgt->m_is_outgoing = src->m_is_outgoing;
     if (!src->m_incoming_transfers.empty()) {
       tgt->m_incoming_transfers = vector<shared_ptr<monero_incoming_transfer>>();
       for (const shared_ptr<monero_incoming_transfer>& transfer : src->m_incoming_transfers) {
@@ -134,25 +137,31 @@ namespace monero {
     }
     tgt->m_note = src->m_note;
     tgt->m_is_unlocked = src->m_is_unlocked;
+    tgt->m_input_sum = src->m_input_sum;
+    tgt->m_output_sum = src->m_output_sum;
+    tgt->m_change_address = src->m_change_address;
+    tgt->m_change_amount = src->m_change_amount;
+    tgt->m_num_dummy_outputs = src->m_num_dummy_outputs;
+    tgt->m_extra_hex = src->m_extra_hex;
 
     return tgt;
   };
 
   boost::property_tree::ptree monero_tx_wallet::to_property_tree() const {
     boost::property_tree::ptree node = monero_tx::to_property_tree();
+    if (m_is_incoming != boost::none) node.put("isIncoming", *m_is_incoming);
+    if (m_is_outgoing != boost::none) node.put("isOutgoing", *m_is_outgoing);
     if (!m_incoming_transfers.empty()) node.add_child("incomingTransfers", monero_utils::to_property_tree(m_incoming_transfers));
     if (m_outgoing_transfer != boost::none) node.add_child("outgoingTransfer", (*m_outgoing_transfer)->to_property_tree());
     if (m_note != boost::none) node.put("note", *m_note);
     if (m_is_unlocked != boost::none) node.put("isUnlocked", *m_is_unlocked);
+    if (m_input_sum != boost::none) node.put("inputSum", *m_input_sum);
+    if (m_output_sum != boost::none) node.put("outputSum", *m_output_sum);
+    if (m_change_address != boost::none) node.put("changeAddress", *m_change_address);
+    if (m_change_amount != boost::none) node.put("changeAmount", *m_change_amount);
+    if (m_num_dummy_outputs != boost::none) node.put("numDummyOutputs", *m_num_dummy_outputs);
+    if (m_extra_hex != boost::none) node.put("extraHex", *m_extra_hex);
     return node;
-  }
-
-  bool monero_tx_wallet::is_outgoing() const {
-    return m_outgoing_transfer != boost::none;
-  }
-
-  bool monero_tx_wallet::is_incoming() const {
-    return !m_incoming_transfers.empty();
   }
 
   void monero_tx_wallet::merge(const shared_ptr<monero_tx>& self, const shared_ptr<monero_tx>& other) {
@@ -165,9 +174,6 @@ namespace monero {
 
     // merge base classes
     monero_tx::merge(self, other);
-
-    // merge wallet extensions
-    m_note = gen_utils::reconcile(m_note, other->m_note);
 
     // merge incoming transfers
     if (!other->m_incoming_transfers.empty()) {
@@ -183,6 +189,16 @@ namespace monero {
       if (self->m_outgoing_transfer == boost::none) self->m_outgoing_transfer = other->m_outgoing_transfer;
       else self->m_outgoing_transfer.get()->merge(self->m_outgoing_transfer.get(), other->m_outgoing_transfer.get());
     }
+
+    // merge simple extensions
+    m_note = gen_utils::reconcile(m_note, other->m_note);
+    m_is_unlocked = gen_utils::reconcile(m_is_unlocked, other->m_is_unlocked);
+    m_input_sum = gen_utils::reconcile(m_input_sum, other->m_input_sum);
+    m_output_sum = gen_utils::reconcile(m_output_sum, other->m_output_sum);
+    m_change_address = gen_utils::reconcile(m_change_address, other->m_change_address);
+    m_change_amount = gen_utils::reconcile(m_change_amount, other->m_change_amount);
+    m_num_dummy_outputs = gen_utils::reconcile(m_num_dummy_outputs, other->m_num_dummy_outputs);
+    m_extra_hex = gen_utils::reconcile(m_extra_hex, other->m_extra_hex);
   }
 
   // -------------------------- MONERO TX REQUEST -----------------------------
@@ -281,10 +297,10 @@ namespace monero {
     }
 
     // filter on incoming
-    if (m_is_incoming != boost::none && m_is_incoming != tx->is_incoming()) return false;
+    if (m_is_incoming != boost::none && m_is_incoming != tx->m_is_incoming) return false;
 
     // filter on outgoing
-    if (m_is_outgoing != boost::none && m_is_outgoing != tx->is_outgoing()) return false;
+    if (m_is_outgoing != boost::none && m_is_outgoing != tx->m_is_outgoing) return false;
 
     // filter on remaining fields
     boost::optional<uint64_t> txHeight = tx->get_height();

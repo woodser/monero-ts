@@ -258,15 +258,21 @@ namespace monero {
    */
   struct monero_tx_wallet : public monero_tx {
     boost::optional<shared_ptr<monero_tx_set>> m_tx_set;
+    boost::optional<bool> m_is_incoming;
+    boost::optional<bool> m_is_outgoing;
     vector<shared_ptr<monero_incoming_transfer>> m_incoming_transfers;
     boost::optional<shared_ptr<monero_outgoing_transfer>> m_outgoing_transfer;
     boost::optional<string> m_note;
     boost::optional<bool> m_is_unlocked;
+    boost::optional<uint64_t> m_input_sum;
+    boost::optional<uint64_t> m_output_sum;
+    boost::optional<string> m_change_address;
+    boost::optional<uint64_t> m_change_amount;
+    boost::optional<uint32_t> m_num_dummy_outputs;
+    boost::optional<string> m_extra_hex;
 
     shared_ptr<monero_tx_wallet> copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const;
     shared_ptr<monero_tx_wallet> copy(const shared_ptr<monero_tx_wallet>& src, const shared_ptr<monero_tx_wallet>& tgt) const;
-    bool is_incoming() const;
-    bool is_outgoing() const;
     boost::property_tree::ptree to_property_tree() const;
     void merge(const shared_ptr<monero_tx>& self, const shared_ptr<monero_tx>& other);
     void merge(const shared_ptr<monero_tx_wallet>& self, const shared_ptr<monero_tx_wallet>& other);

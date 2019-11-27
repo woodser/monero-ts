@@ -1958,6 +1958,7 @@ namespace monero {
       out_transfer->m_amount = *tx_amounts_iter;
 
       // init other known fields
+      tx->m_is_outgoing = true;
       tx->m_payment_id = request.m_payment_id;
       tx->m_is_confirmed = false;
       tx->m_is_miner_tx = false;
@@ -2369,7 +2370,162 @@ namespace monero {
   }
 
   monero_tx_set monero_wallet::parse_tx_set(const monero_tx_set& tx_set) {
-    throw runtime_error("Not implemented");
+
+    // get unsigned and multisig tx sets
+    string unsigned_tx_hex = tx_set.m_unsigned_tx_hex == boost::none ? "" : tx_set.m_unsigned_tx_hex.get();
+    string multisig_tx_hex = tx_set.m_multisig_tx_hex == boost::none ? "" : tx_set.m_multisig_tx_hex.get();
+
+    // validate request
+    if (m_w2->key_on_device()) throw runtime_error("command not supported by HW wallet");
+    if (m_w2->watch_only()) throw runtime_error("command not supported by watch-only wallet");
+    if (unsigned_tx_hex.empty() && multisig_tx_hex.empty()) throw runtime_error("no txset provided");
+
+    std::vector <wallet2::tx_construction_data> tx_constructions;
+    if (!unsigned_tx_hex.empty()) {
+      try {
+        tools::wallet2::unsigned_tx_set exported_txs;
+        cryptonote::blobdata blob;
+        if (!epee::string_tools::parse_hexstr_to_binbuff(unsigned_tx_hex, blob)) throw runtime_error("Failed to parse hex.");
+        if (!m_w2->parse_unsigned_tx_from_str(blob, exported_txs)) throw runtime_error("cannot load unsigned_txset");
+        tx_constructions = exported_txs.txes;
+      }
+      catch (const std::exception &e) {
+        throw runtime_error("failed to parse unsigned transfers: " + std::string(e.what()));
+      }
+    } else if (!multisig_tx_hex.empty()) {
+      try {
+        tools::wallet2::multisig_tx_set exported_txs;
+        cryptonote::blobdata blob;
+        if (!epee::string_tools::parse_hexstr_to_binbuff(multisig_tx_hex, blob)) throw runtime_error("Failed to parse hex.");
+        if (!m_w2->parse_multisig_tx_from_str(blob, exported_txs)) throw runtime_error("cannot load multisig_txset");
+        for (size_t n = 0; n < exported_txs.m_ptx.size(); ++n) {
+          tx_constructions.push_back(exported_txs.m_ptx[n].construction_data);
+        }
+      }
+      catch (const std::exception &e) {
+        throw runtime_error("failed to parse multisig transfers: " + std::string(e.what()));
+      }
+    }
+
+    std::vector<tools::wallet2::pending_tx> ptx;  // TODO wallet_rpc_server: unused variable
+    try
+    {
+
+      // gather info for each tx
+      vector<shared_ptr<monero_tx_wallet>> txs;
+      std::unordered_map<cryptonote::account_public_address, std::pair<std::string, uint64_t>> dests;
+      int first_known_non_zero_change_index = -1;
+      for (size_t n = 0; n < tx_constructions.size(); ++n)
+      {
+        // pre-initialize tx
+        shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
+        tx->m_is_outgoing = true;
+        tx->m_input_sum = 0;
+        tx->m_output_sum = 0;
+        tx->m_change_amount = 0;
+        tx->m_num_dummy_outputs = 0;
+        tx->m_mixin = std::numeric_limits<uint32_t>::max() - 1; // smaller ring sizes will overwrite  // TODO: remove - 1 when switched to ring size
+
+        const tools::wallet2::tx_construction_data &cd = tx_constructions[n];
+        std::vector<cryptonote::tx_extra_field> tx_extra_fields;
+        bool has_encrypted_payment_id = false;
+        crypto::hash8 payment_id8 = crypto::null_hash8;
+        if (cryptonote::parse_tx_extra(cd.extra, tx_extra_fields))
+        {
+          cryptonote::tx_extra_nonce extra_nonce;
+          if (find_tx_extra_field_by_type(tx_extra_fields, extra_nonce))
+          {
+            crypto::hash payment_id;
+            if(cryptonote::get_encrypted_payment_id_from_tx_extra_nonce(extra_nonce.nonce, payment_id8))
+            {
+              if (payment_id8 != crypto::null_hash8)
+              {
+                tx->m_payment_id = epee::string_tools::pod_to_hex(payment_id8);
+                has_encrypted_payment_id = true;
+              }
+            }
+            else if (cryptonote::get_payment_id_from_tx_extra_nonce(extra_nonce.nonce, payment_id))
+            {
+              tx->m_payment_id = epee::string_tools::pod_to_hex(payment_id);
+            }
+          }
+        }
+
+        for (size_t s = 0; s < cd.sources.size(); ++s)
+        {
+          tx->m_input_sum = tx->m_input_sum.get() + cd.sources[s].amount;
+          size_t ring_size = cd.sources[s].outputs.size();
+          if (ring_size < tx->m_mixin.get() + 1)
+            tx->m_mixin = ring_size - 1; // TODO: switch to m_ring_size
+        }
+        for (size_t d = 0; d < cd.splitted_dsts.size(); ++d)
+        {
+          const cryptonote::tx_destination_entry &entry = cd.splitted_dsts[d];
+          std::string address = cryptonote::get_account_address_as_str(m_w2->nettype(), entry.is_subaddress, entry.addr);
+          if (has_encrypted_payment_id && !entry.is_subaddress && address != entry.original)
+            address = cryptonote::get_account_integrated_address_as_str(m_w2->nettype(), entry.addr, payment_id8);
+          auto i = dests.find(entry.addr);
+          if (i == dests.end())
+            dests.insert(std::make_pair(entry.addr, std::make_pair(address, entry.amount)));
+          else
+            i->second.second += entry.amount;
+          tx->m_output_sum = tx->m_output_sum.get() + entry.amount;
+        }
+        if (cd.change_dts.amount > 0)
+        {
+          auto it = dests.find(cd.change_dts.addr);
+          if (it == dests.end()) throw runtime_error("Claimed change does not go to a paid address");
+          if (it->second.second < cd.change_dts.amount) throw runtime_error("Claimed change is larger than payment to the change address");
+          if (cd.change_dts.amount > 0)
+          {
+            if (first_known_non_zero_change_index == -1)
+              first_known_non_zero_change_index = n;
+            const tools::wallet2::tx_construction_data &cdn = tx_constructions[first_known_non_zero_change_index];
+            if (memcmp(&cd.change_dts.addr, &cdn.change_dts.addr, sizeof(cd.change_dts.addr))) throw runtime_error("Change goes to more than one address");
+          }
+          tx->m_change_amount = tx->m_change_amount.get() + cd.change_dts.amount;
+          it->second.second -= cd.change_dts.amount;
+          if (it->second.second == 0)
+            dests.erase(cd.change_dts.addr);
+        }
+
+        tx->m_outgoing_transfer = make_shared<monero_outgoing_transfer>();
+        size_t n_dummy_outputs = 0;
+        for (auto i = dests.begin(); i != dests.end(); )
+        {
+          if (i->second.second > 0)
+          {
+            shared_ptr<monero_destination> destination = make_shared<monero_destination>();
+            destination->m_address = i->second.first;
+            destination->m_amount = i->second.second;
+            tx->m_outgoing_transfer.get()->m_destinations.push_back(destination);
+          }
+          else
+            tx->m_num_dummy_outputs = tx->m_num_dummy_outputs.get() + 1;
+          ++i;
+        }
+
+        if (tx->m_change_amount.get() > 0)
+        {
+          const tools::wallet2::tx_construction_data &cd0 = tx_constructions[0];
+          tx->m_change_address = get_account_address_as_str(m_w2->nettype(), cd0.subaddr_account > 0, cd0.change_dts.addr);
+        }
+
+        tx->m_fee = tx->m_input_sum.get() - tx->m_output_sum.get();
+        tx->m_unlock_time = cd.unlock_time;
+        tx->m_extra_hex = epee::to_hex::string({cd.extra.data(), cd.extra.size()});
+        txs.push_back(tx);
+      }
+
+      // build and return tx set
+      monero_tx_set tx_set;
+      tx_set.m_txs = txs;
+      return tx_set;
+    }
+    catch (const std::exception &e)
+    {
+      throw runtime_error("failed to parse unsigned transfers");
+    }
   }
 
   string monero_wallet::sign(const string& msg) const {
