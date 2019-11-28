@@ -1175,21 +1175,34 @@ namespace monero {
      */
     vector<monero_address_book_entry> get_address_book_entries(const vector<uint32_t>& indices) const;
 
-//    /**
-//     * Add an address book entry.
-//     *
-//     * @param address is the entry address
-//     * @param description is the entry description (optional)
-//     * @return the index of the added entry
-//     */
-//    uint32_t add_address_book_entry(const string& address, const string& description);
-//
-//    /**
-//     * Delete an address book entry.
-//     *
-//     * @param entryIdx is the index of the entry to delete
-//     */
-//    public void deleteAddressBookEntry(int entryIdx);
+    /**
+     * Add an address book entry.
+     *
+     * @param address is the entry address
+     * @param description is the entry description (optional)
+     * @return the index of the added entry
+     */
+    uint32_t add_address_book_entry(const string& address, boost::optional<string> description = boost::none, boost::optional<string> payment_id = boost::none);
+
+    /**
+     * Edit an address book entry.
+     *
+     * @param index is the index of the address book entry to edit
+     * @param set_address specifies if the address should be updated
+     * @param address is the updated address
+     * @param set_description specifies if the description should be updated
+     * @param description is the updated description
+     * @param set_payment_id specifies if the payment id should be updated
+     * @param payment_id is the updated payment id
+     */
+    void edit_address_book_entry(uint32_t index, bool set_address, boost::optional<string> address, bool set_description, boost::optional<string> description, bool set_paymenet_id, boost::optional<string> payment_id);
+
+    /**
+     * Delete an address book entry.
+     *
+     * @param entry_idx is the index of the entry to delete
+     */
+    void delete_address_book_entry(uint32_t entry_idx);
 
 //    /**
 //     * Tag accounts.

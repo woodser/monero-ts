@@ -2794,6 +2794,18 @@ namespace monero {
     throw runtime_error("get_address_book_entries() not implemented");
   }
 
+  uint32_t monero_wallet::add_address_book_entry(const string& address, boost::optional<string> description, boost::optional<string> payment_id) {
+    throw runtime_error("add_address_book_entry() not implemented");
+  }
+
+  void monero_wallet::edit_address_book_entry(uint32_t index, bool set_address, boost::optional<string> address, bool set_description, boost::optional<string> description, bool set_paymenet_id, boost::optional<string> payment_id) {
+    throw runtime_error("edit_address_book_entry() not implemented");
+  }
+
+  void monero_wallet::delete_address_book_entry(uint32_t entry_idx) {
+    throw runtime_error("delete_address_book_entry() not implemented");
+  }
+
   string monero_wallet::create_payment_uri(const monero_send_request& request) const {
     MTRACE("create_payment_uri()");
 
