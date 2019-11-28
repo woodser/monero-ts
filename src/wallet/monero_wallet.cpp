@@ -335,6 +335,7 @@ namespace monero {
     tx->m_in_tx_pool = false;
     tx->m_do_not_relay = false;
     tx->m_is_double_spend_seen = false;
+    tx->m_is_unlocked = m_w2.is_transfer_unlocked(td);
 
     // construct vout
     shared_ptr<monero_output_wallet> vout = make_shared<monero_output_wallet>();
@@ -345,7 +346,7 @@ namespace monero {
     vout->m_account_index = td.m_subaddr_index.major;
     vout->m_subaddress_index = td.m_subaddr_index.minor;
     vout->m_is_spent = td.m_spent;
-    vout->m_is_unlocked = m_w2.is_transfer_unlocked(td);
+    vout->m_is_unlocked = m_w2.is_transfer_unlocked(td);  // TODO: this is redundant with tx
     vout->m_is_frozen = td.m_frozen;
     if (td.m_key_image_known) {
       vout->m_key_image = make_shared<monero_key_image>();
@@ -2133,6 +2134,7 @@ namespace monero {
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
       txs.push_back(tx);
       tx->m_id = *tx_ids_iter;
+      tx->m_is_unlocked = false;
       tx->m_is_outgoing = true;
       tx->m_key = *tx_keys_iter;
       tx->m_fee = *tx_fees_iter;
