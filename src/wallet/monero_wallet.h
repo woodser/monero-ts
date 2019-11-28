@@ -1170,17 +1170,10 @@ namespace monero {
 //    /**
 //     * Get all address book entries.
 //     *
+//     * @param indices are indices of the entries to get
 //     * @return the address book entries
 //     */
-//    public List<MoneroAddressBookEntry> getAddressBookEntries();
-//
-//    /**
-//     * Get address book entries.
-//     *
-//     * @param entryIndices are indices of the entries to get
-//     * @return the address book entries
-//     */
-//    public List<MoneroAddressBookEntry> getAddressBookEntries(Collection<Integer> entryIndices);
+//    vector<monero_address_book_entry> get_address_book_entries(const vector<uint32_t>& indices) const;
 //
 //    /**
 //     * Add an address book entry.
@@ -1189,17 +1182,7 @@ namespace monero {
 //     * @param description is the entry description (optional)
 //     * @return the index of the added entry
 //     */
-//    public int addAddressBookEntry(string address, string description);
-//
-//    /**
-//     * Add an address book entry.
-//     *
-//     * @param address is the entry address
-//     * @param description is the entry description (optional)
-//     * @param payment_id is the entry paymet id (optional)
-//     * @return the index of the added entry
-//     */
-//    public int addAddressBookEntry(string address, string description, string payment_id);
+//    uint32_t add_address_book_entry(const string& address, const string& description);
 //
 //    /**
 //     * Delete an address book entry.
@@ -1207,7 +1190,7 @@ namespace monero {
 //     * @param entryIdx is the index of the entry to delete
 //     */
 //    public void deleteAddressBookEntry(int entryIdx);
-//
+
 //    /**
 //     * Tag accounts.
 //     *
