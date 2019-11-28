@@ -2798,11 +2798,11 @@ namespace monero {
     throw runtime_error("add_address_book_entry() not implemented");
   }
 
-  void monero_wallet::edit_address_book_entry(uint32_t index, bool set_address, boost::optional<string> address, bool set_description, boost::optional<string> description, bool set_paymenet_id, boost::optional<string> payment_id) {
+  void monero_wallet::edit_address_book_entry(uint32_t index, bool set_address, boost::optional<string> address, bool set_description, boost::optional<string> description, bool set_payment_id, boost::optional<string> payment_id) {
     throw runtime_error("edit_address_book_entry() not implemented");
   }
 
-  void monero_wallet::delete_address_book_entry(uint32_t entry_idx) {
+  void monero_wallet::delete_address_book_entry(uint32_t index) {
     throw runtime_error("delete_address_book_entry() not implemented");
   }
 

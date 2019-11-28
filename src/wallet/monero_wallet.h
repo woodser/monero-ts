@@ -1195,14 +1195,14 @@ namespace monero {
      * @param set_payment_id specifies if the payment id should be updated
      * @param payment_id is the updated payment id
      */
-    void edit_address_book_entry(uint32_t index, bool set_address, boost::optional<string> address, bool set_description, boost::optional<string> description, bool set_paymenet_id, boost::optional<string> payment_id);
+    void edit_address_book_entry(uint32_t index, bool set_address, boost::optional<string> address, bool set_description, boost::optional<string> description, bool set_payment_id, boost::optional<string> payment_id);
 
     /**
      * Delete an address book entry.
      *
-     * @param entry_idx is the index of the entry to delete
+     * @param index is the index of the entry to delete
      */
-    void delete_address_book_entry(uint32_t entry_idx);
+    void delete_address_book_entry(uint32_t index);
 
 //    /**
 //     * Tag accounts.
