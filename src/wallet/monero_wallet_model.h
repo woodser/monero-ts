@@ -443,4 +443,16 @@ namespace monero {
 
     boost::property_tree::ptree to_property_tree() const;
   };
+
+  /**
+   * Monero address book entry model.
+   */
+  struct monero_address_book_entry : serializable_struct {
+    boost::optional<uint32_t> m_index;
+    boost::optional<string> m_address;
+    boost::optional<string> m_description;
+    boost::optional<string> m_payment_id;
+
+    boost::property_tree::ptree to_property_tree() const;
+  };
 }

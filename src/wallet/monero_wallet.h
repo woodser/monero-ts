@@ -1167,14 +1167,14 @@ namespace monero {
      */
     void set_tx_notes(const vector<string>& tx_ids, const vector<string>& notes);
 
-//    /**
-//     * Get all address book entries.
-//     *
-//     * @param indices are indices of the entries to get
-//     * @return the address book entries
-//     */
-//    vector<monero_address_book_entry> get_address_book_entries(const vector<uint32_t>& indices) const;
-//
+    /**
+     * Get all address book entries.
+     *
+     * @param indices are indices of the entries to get
+     * @return the address book entries
+     */
+    vector<monero_address_book_entry> get_address_book_entries(const vector<uint32_t>& indices) const;
+
 //    /**
 //     * Add an address book entry.
 //     *

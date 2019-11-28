@@ -795,4 +795,15 @@ namespace monero {
     if (!m_tx_ids.empty()) node.add_child("txIds", monero_utils::to_property_tree(m_tx_ids));
     return node;
   }
+
+  // -------------------------- MONERO ADDRESS BOOK ---------------------------
+
+  boost::property_tree::ptree monero_address_book_entry::to_property_tree() const {
+    boost::property_tree::ptree node;
+    if (m_index != boost::none) node.put("index", *m_index);
+    if (m_address != boost::none) node.put("address", *m_address);
+    if (m_description != boost::none) node.put("description", *m_description);
+    if (m_payment_id != boost::none) node.put("paymentId", *m_payment_id);
+    return node;
+  }
 }

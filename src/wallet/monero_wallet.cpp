@@ -2790,6 +2790,10 @@ namespace monero {
     }
   }
 
+  vector<monero_address_book_entry> monero_wallet::get_address_book_entries(const vector<uint32_t>& indices) const {
+    throw runtime_error("get_address_book_entries() not implemented");
+  }
+
   string monero_wallet::create_payment_uri(const monero_send_request& request) const {
     MTRACE("create_payment_uri()");
 
