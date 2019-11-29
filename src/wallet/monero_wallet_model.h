@@ -348,7 +348,6 @@ namespace monero {
     vector<shared_ptr<monero_destination>> m_destinations;
     boost::optional<string> m_payment_id;
     boost::optional<monero_send_priority> m_priority;
-    boost::optional<uint32_t> m_mixin;
     boost::optional<uint32_t> m_ring_size;
     boost::optional<uint64_t> m_fee;
     boost::optional<uint32_t> m_account_index;

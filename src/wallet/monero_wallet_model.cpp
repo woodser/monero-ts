@@ -683,7 +683,6 @@ namespace monero {
     }
     m_payment_id = request.m_payment_id;
     m_priority = request.m_priority;
-    m_mixin = request.m_mixin;
     m_ring_size = request.m_ring_size;
     m_fee = request.m_fee;
     m_account_index = request.m_account_index;
@@ -707,7 +706,6 @@ namespace monero {
     if (!m_destinations.empty()) node.add_child("destinations", monero_utils::to_property_tree(m_destinations));
     if (m_payment_id != boost::none) node.put("paymentId", *m_payment_id);
     if (m_priority != boost::none) node.put("priority", *m_priority);
-    if (m_mixin != boost::none) node.put("mixin", *m_mixin);
     if (m_ring_size != boost::none) node.put("ringSize", *m_ring_size);
     if (m_account_index != boost::none) node.put("accountIndex", *m_account_index);
     if (!m_subaddress_indices.empty()) node.add_child("subaddressIndices", monero_utils::to_property_tree(m_subaddress_indices));

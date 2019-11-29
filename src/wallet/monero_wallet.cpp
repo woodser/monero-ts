@@ -1979,7 +1979,7 @@ namespace monero {
       tx->m_in_tx_pool = !tx->m_do_not_relay.get();
       if (!tx->m_is_failed.get() && tx->m_is_relayed.get()) tx->m_is_double_spend_seen = false;  // TODO: test and handle if true
       tx->m_num_confirmations = 0;
-      tx->m_mixin = request.m_mixin;
+      tx->m_ring_size = request.m_ring_size;
       tx->m_unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
       tx->m_is_locked = true;
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
@@ -2158,7 +2158,7 @@ namespace monero {
       tx->m_in_tx_pool = !do_not_relay;
       if (!tx->m_is_failed.get() && tx->m_is_relayed.get()) tx->m_is_double_spend_seen = false;  // TODO: test and handle if true
       tx->m_num_confirmations = 0;
-      tx->m_mixin = request.m_mixin;
+      tx->m_ring_size = request.m_ring_size;
       tx->m_unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
       out_transfer->m_account_index = request.m_account_index;
@@ -2210,10 +2210,10 @@ namespace monero {
     }
 
     // create transaction
-    uint64_t m_mixin = m_w2->adjust_mixin(request.m_ring_size == boost::none ? 0 : request.m_ring_size.get() - 1);
+    uint64_t mixin = m_w2->adjust_mixin(request.m_ring_size == boost::none ? 0 : request.m_ring_size.get() - 1);
     uint32_t priority = m_w2->adjust_priority(request.m_priority == boost::none ? 0 : request.m_priority.get());
-    uint64_t m_unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
-    std::vector<wallet2::pending_tx> ptx_vector = m_w2->create_transactions_single(ki, dsts[0].addr, dsts[0].is_subaddress, 1, m_mixin, m_unlock_time, priority, extra);
+    uint64_t unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
+    std::vector<wallet2::pending_tx> ptx_vector = m_w2->create_transactions_single(ki, dsts[0].addr, dsts[0].is_subaddress, 1, mixin, unlock_time, priority, extra);
 
     // validate created transaction
     if (ptx_vector.empty()) throw runtime_error("No outputs found");
@@ -2273,7 +2273,7 @@ namespace monero {
       tx->m_in_tx_pool = !tx->m_do_not_relay.get();
       if (!tx->m_is_failed.get() && tx->m_is_relayed.get()) tx->m_is_double_spend_seen = false;  // TODO: test and handle if true
       tx->m_num_confirmations = 0;
-      tx->m_mixin = request.m_mixin;
+      tx->m_ring_size = request.m_ring_size;
       tx->m_unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
       tx->m_is_locked = true;
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
@@ -2359,7 +2359,7 @@ namespace monero {
       tx->m_in_tx_pool = !tx->m_do_not_relay.get();
       if (!tx->m_is_failed.get() && tx->m_is_relayed.get()) tx->m_is_double_spend_seen = false;  // TODO: test and handle if true
       tx->m_num_confirmations = 0;
-      //tx->m_mixin = request.m_mixin;  // TODO: how to get?
+      //tx->m_ring_size = request.m_ring_size;  // TODO: how to get?
       tx->m_unlock_time = 0;
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
       out_transfer->m_destinations[0]->m_amount = *tx_amounts_iter;
@@ -2439,7 +2439,7 @@ namespace monero {
         tx->m_output_sum = 0;
         tx->m_change_amount = 0;
         tx->m_num_dummy_outputs = 0;
-        tx->m_mixin = std::numeric_limits<uint32_t>::max() - 1; // smaller ring sizes will overwrite  // TODO: remove - 1 when switched to ring size
+        tx->m_ring_size = std::numeric_limits<uint32_t>::max(); // smaller ring sizes will overwrite
 
         const tools::wallet2::tx_construction_data &cd = tx_constructions[n];
         std::vector<cryptonote::tx_extra_field> tx_extra_fields;
@@ -2470,8 +2470,8 @@ namespace monero {
         {
           tx->m_input_sum = tx->m_input_sum.get() + cd.sources[s].amount;
           size_t ring_size = cd.sources[s].outputs.size();
-          if (ring_size < tx->m_mixin.get() + 1)
-            tx->m_mixin = ring_size - 1; // TODO: switch to m_ring_size
+          if (ring_size < tx->m_ring_size.get())
+            tx->m_ring_size = ring_size;
         }
         for (size_t d = 0; d < cd.splitted_dsts.size(); ++d)
         {

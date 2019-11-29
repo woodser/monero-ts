@@ -192,7 +192,7 @@ namespace monero {
     tgt->m_is_miner_tx = src->m_is_miner_tx;
     tgt->m_payment_id = src->m_payment_id;
     tgt->m_fee = src->m_fee;
-    tgt->m_mixin = src->m_mixin;
+    tgt->m_ring_size = src->m_ring_size;
     tgt->m_do_not_relay = src->m_do_not_relay;
     tgt->m_is_relayed = src->m_is_relayed;
     tgt->m_is_confirmed = src->m_is_confirmed;
@@ -248,7 +248,7 @@ namespace monero {
     if (m_is_miner_tx != boost::none) node.put("isMinerTx", *m_is_miner_tx);
     if (m_payment_id != boost::none) node.put("paymentId", *m_payment_id);
     if (m_fee != boost::none) node.put("fee", *m_fee);
-    if (m_mixin != boost::none) node.put("mixin", *m_mixin);
+    if (m_ring_size != boost::none) node.put("ringSize", *m_ring_size);
     if (m_do_not_relay != boost::none) node.put("doNotRelay", *m_do_not_relay);
     if (m_is_relayed != boost::none) node.put("isRelayed", *m_is_relayed);
     if (m_is_confirmed != boost::none) node.put("isConfirmed", *m_is_confirmed);
@@ -313,7 +313,7 @@ namespace monero {
     m_version = gen_utils::reconcile(m_version, other->m_version);
     m_payment_id = gen_utils::reconcile(m_payment_id, other->m_payment_id);
     m_fee = gen_utils::reconcile(m_fee, other->m_fee, "tx fee");
-    m_mixin = gen_utils::reconcile(m_mixin, other->m_mixin, "tx m_mixin");
+    m_ring_size = gen_utils::reconcile(m_ring_size, other->m_ring_size, "tx m_ring_size");
     m_is_confirmed = gen_utils::reconcile(m_is_confirmed, other->m_is_confirmed);
     m_do_not_relay = gen_utils::reconcile(m_do_not_relay, other->m_do_not_relay);
     m_is_relayed = gen_utils::reconcile(m_is_relayed, other->m_is_relayed);

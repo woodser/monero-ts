@@ -435,7 +435,6 @@ shared_ptr<monero_send_request> monero_utils::deserialize_send_request(const str
     }
     else if (key == string("paymentId")) send_request->m_payment_id = it->second.data();
     else if (key == string("priority")) throw runtime_error("deserialize_send_request() priority not implemented");
-    else if (key == string("mixin")) send_request->m_mixin = it->second.get_value<uint32_t>();
     else if (key == string("ringSize")) send_request->m_ring_size = it->second.get_value<uint32_t>();
     else if (key == string("fee")) send_request->m_fee = it->second.get_value<uint64_t>();
     else if (key == string("accountIndex")) send_request->m_account_index = it->second.get_value<uint32_t>();
