@@ -2790,7 +2790,7 @@ namespace monero {
     }
   }
 
-  vector<monero_address_book_entry> monero_wallet::get_address_book_entries(const vector<uint32_t>& indices) const {
+  vector<monero_address_book_entry> monero_wallet::get_address_book_entries(const vector<uint64_t>& indices) const {
     MTRACE("monero_wallet::get_address_book_entries()");
 
     // get wallet2 address book entries
@@ -2816,12 +2816,85 @@ namespace monero {
     return entries;
   }
 
-  uint32_t monero_wallet::add_address_book_entry(const string& address, boost::optional<string> description, boost::optional<string> payment_id) {
-    throw runtime_error("add_address_book_entry() not implemented");
+  uint64_t monero_wallet::add_address_book_entry(const string& address, const string& description, const string& payment_id) {
+    MTRACE("add_address_book_entry()");
+    cryptonote::address_parse_info info;
+    crypto::hash payment_id_hash = crypto::null_hash;
+    epee::json_rpc::error er;
+    if(!get_account_address_from_str_or_url(info, m_w2->nettype(), address,
+      [&er](const std::string &url, const std::vector<std::string> &addresses, bool dnssec_valid)->std::string {
+        if (!dnssec_valid) throw runtime_error(std::string("Invalid DNSSEC for ") + url);
+        if (addresses.empty()) throw runtime_error(std::string("No Monero address found at ") + url);
+        return addresses[0];
+      }))
+    {
+      throw runtime_error(std::string("WALLET_RPC_ERROR_CODE_WRONG_ADDRESS: ") + address);
+    }
+    if (info.has_payment_id) {
+      memcpy(payment_id_hash.data, info.payment_id.data, 8);
+      memset(payment_id_hash.data + 8, 0, 24);
+    }
+    if (!payment_id.empty()) {
+      if (info.has_payment_id) throw runtime_error("Separate payment ID given with integrated address");
+      crypto::hash long_payment_id;
+      if (!wallet2::parse_long_payment_id(payment_id, payment_id_hash)) {
+        if (!wallet2::parse_short_payment_id(payment_id, info.payment_id)) throw runtime_error("Payment id has invalid format: \"" + payment_id + "\", expected 64 character string");
+        else throw runtime_error("Payment id has invalid format: standalone short payment IDs are forbidden, they must be part of an integrated address");
+      }
+    }
+    if (!m_w2->add_address_book_row(info.address, payment_id_hash, description, info.is_subaddress)) throw runtime_error("Failed to add address book entry");
+    return m_w2->get_address_book().size() - 1;
   }
 
-  void monero_wallet::edit_address_book_entry(uint64_t index, bool set_address, boost::optional<string> address, bool set_description, boost::optional<string> description, bool set_payment_id, boost::optional<string> payment_id) {
-    throw runtime_error("edit_address_book_entry() not implemented");
+  void monero_wallet::edit_address_book_entry(uint64_t index, bool set_address, const string& address, bool set_description, const string& description, bool set_payment_id, const string& payment_id) {
+    MTRACE("edit_address_book_entry()");
+
+    const auto ab = m_w2->get_address_book();
+    if (index >= ab.size()) throw runtime_error("Index out of range: " + std::to_string(index));
+
+    tools::wallet2::address_book_row entry = ab[index];
+
+    cryptonote::address_parse_info info;
+    crypto::hash payment_id_hash = crypto::null_hash;
+    epee::json_rpc::error er;
+    if (set_address) {
+      er.message = "";
+      if(!get_account_address_from_str_or_url(info, m_w2->nettype(), address,
+        [&er](const std::string &url, const std::vector<std::string> &addresses, bool dnssec_valid)->std::string {
+          if (!dnssec_valid) throw runtime_error(std::string("Invalid DNSSEC for ") + url);
+          if (addresses.empty()) throw runtime_error(std::string("No Monero address found at ") + url);
+          return addresses[0];
+        }))
+      {
+        throw runtime_error("WALLET_RPC_ERROR_CODE_WRONG_ADDRESS: " + address);
+      }
+      entry.m_address = info.address;
+      entry.m_is_subaddress = info.is_subaddress;
+      if (info.has_payment_id) {
+        memcpy(entry.m_payment_id.data, info.payment_id.data, 8);
+        memset(entry.m_payment_id.data + 8, 0, 24);
+      }
+    }
+
+    if (set_payment_id) {
+      if (payment_id.empty()) {
+        payment_id_hash = crypto::null_hash;
+      } else {
+        if (set_address && info.has_payment_id) throw runtime_error("Separate payment ID given with integrated address");
+        if (!wallet2::parse_long_payment_id(payment_id, payment_id_hash)) {
+          crypto::hash8 spid;
+          if (!wallet2::parse_short_payment_id(payment_id, spid)) throw runtime_error("Payment id has invalid format: \"" + payment_id + "\", expected 64 character string");
+          else throw runtime_error("Payment id has invalid format: standalone short payment IDs are forbidden, they must be part of an integrated address");
+        }
+      }
+      entry.m_payment_id = payment_id_hash;
+    }
+
+    if (set_description) entry.m_description = description;
+
+    if (!m_w2->set_address_book_row(index, entry.m_address, entry.m_payment_id, entry.m_description, entry.m_is_subaddress)) {
+      throw runtime_error("Failed to edit address book entry");
+    }
   }
 
   void monero_wallet::delete_address_book_entry(uint64_t index) {

@@ -1173,7 +1173,7 @@ namespace monero {
      * @param indices are indices of the entries to get
      * @return the address book entries
      */
-    vector<monero_address_book_entry> get_address_book_entries(const vector<uint32_t>& indices) const;
+    vector<monero_address_book_entry> get_address_book_entries(const vector<uint64_t>& indices) const;
 
     /**
      * Add an address book entry.
@@ -1182,7 +1182,7 @@ namespace monero {
      * @param description is the entry description (optional)
      * @return the index of the added entry
      */
-    uint32_t add_address_book_entry(const string& address, boost::optional<string> description = boost::none, boost::optional<string> payment_id = boost::none);
+    uint64_t add_address_book_entry(const string& address, const string& description, const string& payment_id = "");
 
     /**
      * Edit an address book entry.
@@ -1195,7 +1195,7 @@ namespace monero {
      * @param set_payment_id specifies if the payment id should be updated
      * @param payment_id is the updated payment id
      */
-    void edit_address_book_entry(uint64_t index, bool set_address, boost::optional<string> address, bool set_description, boost::optional<string> description, bool set_payment_id, boost::optional<string> payment_id);
+    void edit_address_book_entry(uint64_t index, bool set_address, const string& address, bool set_description, const string& description, bool set_payment_id = false, const string& payment_id = "");
 
     /**
      * Delete an address book entry.
