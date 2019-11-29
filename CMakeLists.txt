@@ -8,18 +8,19 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11 -F/Library/Frameworks -
 
 project(MoneroCppLibrary)
 
-#############
-# System
-#############
+###################
+# monero-project
+###################
 
 set(MONERO_CORE "external/monero-core")
 set(MONERO_CORE_SRC "${MONERO_CORE}/src")
 
 # header includes
 include_directories(src/)
-include_directories(${MONERO_CORE}/contrib/epee/include)
-include_directories(${MONERO_CORE}/external/)
-include_directories(${MONERO_CORE}/external/easylogging++)
+include_directories("${MONERO_CORE}/contrib/epee/include")
+include_directories("${MONERO_CORE}/external/")
+include_directories("${MONERO_CORE}/external/easylogging++")
+include_directories("${MONERO_CORE}/external/rapidjson/include")
 include_directories("${MONERO_CORE_SRC}/")
 include_directories("${MONERO_CORE_SRC}/wallet")
 include_directories("${MONERO_CORE_SRC}/wallet/api")

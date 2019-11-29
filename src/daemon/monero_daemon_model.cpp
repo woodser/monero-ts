@@ -1,3 +1,55 @@
+//SERIALIZATION TEMPLATE
+//    // create root
+//    rapidjson::Value root(rapidjson::kObjectType);
+
+//    // serialize root from superclass
+//    rapidjson::Value root = superclass::to_json_val(allocator);
+//
+//    // set num values
+//    rapidjson::Value value_num(rapidjson::kNumberType);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("todo", m_todo.get(), allocator, root, value_num);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("todo", m_todo.get(), allocator, root, value_num);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("todo", m_todo.get(), allocator, root, value_num);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("todo", m_todo.get(), allocator, root, value_num);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("todo", m_todo.get(), allocator, root, value_num);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("todo", m_todo.get(), allocator, root, value_num);
+//
+//    // set string values
+//    rapidjson::Value value_str(rapidjson::kStringType);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("todo", m_todo.get(), allocator, root, value_str);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("todo", m_todo.get(), allocator, root, value_str);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("todo", m_todo.get(), allocator, root, value_str);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("todo", m_todo.get(), allocator, root, value_str);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("todo", m_todo.get(), allocator, root, value_str);
+//
+//    // set bool values
+//    if (m_todo != boost::none) monero_utils::addJsonMember("m_todo", m_todo.get(), allocator, root);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("m_todo", m_todo.get(), allocator, root);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("m_todo", m_todo.get(), allocator, root);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("m_todo", m_todo.get(), allocator, root);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("m_todo", m_todo.get(), allocator, root);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("m_todo", m_todo.get(), allocator, root);
+//    if (m_todo != boost::none) monero_utils::addJsonMember("m_todo", m_todo.get(), allocator, root);
+//
+//    // set sub-arrays
+//    if (!m_todos.empty()) root.AddMember("todos", monero_utils::to_json_val(allocator, m_todos), allocator);
+//    if (!m_todos.empty()) root.AddMember("todos", monero_utils::to_json_val(allocator, m_todos), allocator);
+//    if (!m_todos.empty()) root.AddMember("todos", monero_utils::to_json_val(allocator, m_todos), allocator);
+//    if (!m_todos.empty()) root.AddMember("todos", monero_utils::to_json_val(allocator, m_todos), allocator);
+//    if (!m_todos.empty()) root.AddMember("todos", monero_utils::to_json_val(allocator, m_todos), allocator);
+//
+//    // set sub-objects
+//    if (m_todo != boost::none) root.AddMember("todo", m_todo.get()->to_json_val(allocator), allocator);
+//    if (m_todo != boost::none) root.AddMember("todo", m_todo.get()->to_json_val(allocator), allocator);
+//    if (m_todo != boost::none) root.AddMember("todo", m_todo.get()->to_json_val(allocator), allocator);
+//    if (m_todo != boost::none) root.AddMember("todo", m_todo.get()->to_json_val(allocator), allocator);
+//    if (m_todo != boost::none) root.AddMember("todo", m_todo.get()->to_json_val(allocator), allocator);
+//    if (m_todo != boost::none) root.AddMember("todo", m_todo.get()->to_json_val(allocator), allocator);
+//
+//    // return root
+//    return root;
+
+
 /**
  * Copyright (c) 2017-2019 woodser
  *
@@ -81,41 +133,96 @@ namespace monero {
   // ------------------------- SERIALIZABLE STRUCT ----------------------------
 
   string serializable_struct::serialize() const {
-    return monero_utils::serialize(to_property_tree());
+    rapidjson::Document doc;
+    doc.SetObject();
+    rapidjson::Value val = to_json_val(doc.GetAllocator());
+    val.Swap(doc);
+    return monero_utils::serialize(doc);
   }
 
   // ----------------------------- MONERO VERSION -----------------------------
 
-  boost::property_tree::ptree monero_version::to_property_tree() const {
-    boost::property_tree::ptree node;
-    if (m_version_number != boost::none) node.put("versionNumber", *m_version_number);
-    if (m_is_release != boost::none) node.put("isRelease", *m_is_release);
-    return node;
+//  boost::property_tree::ptree monero_version::to_property_tree() const {
+//    boost::property_tree::ptree node;
+//    if (m_version_number != boost::none) node.put("versionNumber", *m_version_number);
+//    if (m_is_release != boost::none) node.put("isRelease", *m_is_release);
+//    return node;
+//  }
+
+  rapidjson::Value monero_version::to_json_val(rapidjson::Document::AllocatorType& allocator) const {
+
+    // create root
+    rapidjson::Value root(rapidjson::kObjectType);
+
+    // set num values
+    rapidjson::Value value_num(rapidjson::kNumberType);
+    if (m_version_number != boost::none) monero_utils::addJsonMember("versionNumber", m_version_number.get(), allocator, root, value_num);
+
+    // set bool values
+    if (m_is_release != boost::none) monero_utils::addJsonMember("isRelease", m_is_release.get(), allocator, root);
+
+    // return root
+    return root;
   }
 
   // ------------------------- MONERO BLOCK HEADER ----------------------------
 
-  boost::property_tree::ptree monero_block_header::to_property_tree() const {
-    boost::property_tree::ptree node;
-    if (m_id != boost::none) node.put("id", *m_id);
-    if (m_height != boost::none) node.put("height", *m_height);
-    if (m_timestamp != boost::none) node.put("timestamp", *m_timestamp);
-    if (m_size != boost::none) node.put("size", *m_size);
-    if (m_weight != boost::none) node.put("weight", *m_weight);
-    if (m_long_term_weight != boost::none) node.put("longTermWeight", *m_long_term_weight);
-    if (m_depth != boost::none) node.put("depth", *m_depth);
-    if (m_difficulty != boost::none) node.put("difficulty", *m_difficulty);
-    if (m_cumulative_difficulty != boost::none) node.put("cumulativeDifficulty", *m_cumulative_difficulty);
-    if (m_major_version != boost::none) node.put("majorVersion", *m_major_version);
-    if (m_minor_version != boost::none) node.put("minorVersion", *m_minor_version);
-    if (m_nonce != boost::none) node.put("m_nonce", *m_nonce);
-    if (m_miner_tx_id != boost::none) node.put("minerTxId", *m_miner_tx_id);
-    if (m_num_txs != boost::none) node.put("numTxs", *m_num_txs);
-    if (m_orphan_status != boost::none) node.put("orphanStatus", *m_orphan_status);
-    if (m_prev_id != boost::none) node.put("prevId", *m_prev_id);
-    if (m_reward != boost::none) node.put("m_reward", *m_reward);
-    if (m_pow_hash != boost::none) node.put("powHash", *m_pow_hash);
-    return node;
+//  boost::property_tree::ptree monero_block_header::to_property_tree() const {
+//    boost::property_tree::ptree node;
+//    if (m_id != boost::none) node.put("id", *m_id);
+//    if (m_height != boost::none) node.put("height", *m_height);
+//    if (m_timestamp != boost::none) node.put("timestamp", *m_timestamp);
+//    if (m_size != boost::none) node.put("size", *m_size);
+//    if (m_weight != boost::none) node.put("weight", *m_weight);
+//    if (m_long_term_weight != boost::none) node.put("longTermWeight", *m_long_term_weight);
+//    if (m_depth != boost::none) node.put("depth", *m_depth);
+//    if (m_difficulty != boost::none) node.put("difficulty", *m_difficulty);
+//    if (m_cumulative_difficulty != boost::none) node.put("cumulativeDifficulty", *m_cumulative_difficulty);
+//    if (m_major_version != boost::none) node.put("majorVersion", *m_major_version);
+//    if (m_minor_version != boost::none) node.put("minorVersion", *m_minor_version);
+//    if (m_nonce != boost::none) node.put("m_nonce", *m_nonce);
+//    if (m_miner_tx_id != boost::none) node.put("minerTxId", *m_miner_tx_id);
+//    if (m_num_txs != boost::none) node.put("numTxs", *m_num_txs);
+//    if (m_orphan_status != boost::none) node.put("orphanStatus", *m_orphan_status);
+//    if (m_prev_id != boost::none) node.put("prevId", *m_prev_id);
+//    if (m_reward != boost::none) node.put("m_reward", *m_reward);
+//    if (m_pow_hash != boost::none) node.put("powHash", *m_pow_hash);
+//    return node;
+//  }
+
+  rapidjson::Value monero_block_header::to_json_val(rapidjson::Document::AllocatorType& allocator) const {
+
+    // create root
+    rapidjson::Value root(rapidjson::kObjectType);
+
+    // set num values
+    rapidjson::Value value_num(rapidjson::kNumberType);
+    if (m_height != boost::none) monero_utils::addJsonMember("height", m_height.get(), allocator, root, value_num);
+    if (m_timestamp != boost::none) monero_utils::addJsonMember("timestamp", m_timestamp.get(), allocator, root, value_num);
+    if (m_size != boost::none) monero_utils::addJsonMember("size", m_size.get(), allocator, root, value_num);
+    if (m_weight != boost::none) monero_utils::addJsonMember("weight", m_weight.get(), allocator, root, value_num);
+    if (m_long_term_weight != boost::none) monero_utils::addJsonMember("longTermWeight", m_long_term_weight.get(), allocator, root, value_num);
+    if (m_depth != boost::none) monero_utils::addJsonMember("depth", m_depth.get(), allocator, root, value_num);
+    if (m_difficulty != boost::none) monero_utils::addJsonMember("difficulty", m_difficulty.get(), allocator, root, value_num);
+    if (m_cumulative_difficulty != boost::none) monero_utils::addJsonMember("cumulativeDifficulty", m_cumulative_difficulty.get(), allocator, root, value_num);
+    if (m_major_version != boost::none) monero_utils::addJsonMember("majorVersion", m_major_version.get(), allocator, root, value_num);
+    if (m_minor_version != boost::none) monero_utils::addJsonMember("minorVersion", m_minor_version.get(), allocator, root, value_num);
+    if (m_nonce != boost::none) monero_utils::addJsonMember("nonce", m_nonce.get(), allocator, root, value_num);
+    if (m_miner_tx_id != boost::none) monero_utils::addJsonMember("minerTxId", m_miner_tx_id.get(), allocator, root, value_num);
+    if (m_num_txs != boost::none) monero_utils::addJsonMember("numTxs", m_num_txs.get(), allocator, root, value_num);
+    if (m_reward != boost::none) monero_utils::addJsonMember("reward", m_reward.get(), allocator, root, value_num);
+
+    // set string values
+    rapidjson::Value value_str(rapidjson::kStringType);
+    if (m_id != boost::none) monero_utils::addJsonMember("id", m_id.get(), allocator, root, value_str);
+    if (m_prev_id != boost::none) monero_utils::addJsonMember("prevId", m_prev_id.get(), allocator, root, value_str);
+    if (m_pow_hash != boost::none) monero_utils::addJsonMember("powHash", m_pow_hash.get(), allocator, root, value_str);
+
+    // set bool values
+    if (m_orphan_status != boost::none) monero_utils::addJsonMember("orphanStatus", m_orphan_status.get(), allocator, root);
+
+    // return root
+    return root;
   }
 
   void monero_block_header::merge(const shared_ptr<monero_block_header>& self, const shared_ptr<monero_block_header>& other) {
@@ -143,13 +250,33 @@ namespace monero {
 
   // ----------------------------- MONERO BLOCK -------------------------------
 
-  boost::property_tree::ptree monero_block::to_property_tree() const {
-    boost::property_tree::ptree node = monero_block_header::to_property_tree();
-    if (m_hex != boost::none) node.put("hex", *m_hex);
-    if (m_miner_tx != boost::none) node.add_child("minerTx", (*m_miner_tx)->to_property_tree());
-    if (!m_txs.empty()) node.add_child("txs", monero_utils::to_property_tree(m_txs));
-    if (!m_tx_ids.empty()) node.add_child("txIds", monero_utils::to_property_tree(m_tx_ids));
-    return node;
+//  boost::property_tree::ptree monero_block::to_property_tree() const {
+//    boost::property_tree::ptree node = monero_block_header::to_property_tree();
+//    if (m_hex != boost::none) node.put("hex", *m_hex);
+//    if (m_miner_tx != boost::none) node.add_child("minerTx", (*m_miner_tx)->to_property_tree());
+//    if (!m_txs.empty()) node.add_child("txs", monero_utils::to_property_tree(m_txs));
+//    if (!m_tx_ids.empty()) node.add_child("txIds", monero_utils::to_property_tree(m_tx_ids));
+//    return node;
+//  }
+
+  rapidjson::Value monero_block::to_json_val(rapidjson::Document::AllocatorType& allocator) const {
+
+    // serialize root from superclass
+    rapidjson::Value root = monero_block_header::to_json_val(allocator);
+
+    // set string values
+    rapidjson::Value value_str(rapidjson::kStringType);
+    if (m_hex != boost::none) monero_utils::addJsonMember("hex", m_hex.get(), allocator, root, value_str);
+
+    // set sub-arrays
+    if (!m_txs.empty()) root.AddMember("txs", monero_utils::to_json_val(allocator, m_txs), allocator);
+    if (!m_tx_ids.empty()) root.AddMember("txIds", monero_utils::to_json_val(allocator, m_tx_ids), allocator);
+
+    // set sub-objects
+    if (m_miner_tx != boost::none) root.AddMember("minerTx", m_miner_tx.get()->to_json_val(allocator), allocator);
+
+    // return root
+    return root;
   }
 
   void monero_block::merge(const shared_ptr<monero_block_header>& self, const shared_ptr<monero_block_header>& other) {
@@ -241,46 +368,102 @@ namespace monero {
     return tgt;
   }
 
-  boost::property_tree::ptree monero_tx::to_property_tree() const {
-    boost::property_tree::ptree node;
-    if (m_id != boost::none) node.put("id", *m_id);
-    if (m_version != boost::none) node.put("version", *m_version);
-    if (m_is_miner_tx != boost::none) node.put("isMinerTx", *m_is_miner_tx);
-    if (m_payment_id != boost::none) node.put("paymentId", *m_payment_id);
-    if (m_fee != boost::none) node.put("fee", *m_fee);
-    if (m_ring_size != boost::none) node.put("ringSize", *m_ring_size);
-    if (m_do_not_relay != boost::none) node.put("doNotRelay", *m_do_not_relay);
-    if (m_is_relayed != boost::none) node.put("isRelayed", *m_is_relayed);
-    if (m_is_confirmed != boost::none) node.put("isConfirmed", *m_is_confirmed);
-    if (m_in_tx_pool != boost::none) node.put("inTxPool", *m_in_tx_pool);
-    if (m_num_confirmations != boost::none) node.put("numConfirmations", *m_num_confirmations);
-    if (m_unlock_time != boost::none) node.put("unlockTime", *m_unlock_time);
-    if (m_last_relayed_timestamp != boost::none) node.put("lastRelayedTimestamp", *m_last_relayed_timestamp);
-    if (m_received_timestamp != boost::none) node.put("receivedTimestamp", *m_received_timestamp);
-    if (m_is_double_spend_seen != boost::none) node.put("isDoubleSpendSeen", *m_is_double_spend_seen);
-    if (m_key != boost::none) node.put("key", *m_key);
-    if (m_full_hex != boost::none) node.put("fullHex", *m_full_hex);
-    if (m_pruned_hex != boost::none) node.put("prunedHex", *m_pruned_hex);
-    if (m_prunable_hex != boost::none) node.put("prunableHex", *m_prunable_hex);
-    if (m_prunable_hash != boost::none) node.put("prunableHash", *m_prunable_hash);
-    if (m_size != boost::none) node.put("size", *m_size);
-    if (m_weight != boost::none) node.put("weight", *m_weight);
-    if (!m_vins.empty()) node.add_child("vins", monero_utils::to_property_tree(m_vins));
-    if (!m_vouts.empty()) node.add_child("vouts", monero_utils::to_property_tree(m_vouts));
-    if (!m_output_indices.empty()) throw runtime_error("m_output_indices not implemented");
-    if (m_metadata != boost::none) node.put("metadata", *m_metadata);
-    if (m_common_tx_sets != boost::none) throw runtime_error("m_common_tx_sets not implemented");
-    if (!m_extra.empty()) node.add_child("extra", monero_utils::to_property_tree(m_extra));
-    if (m_rct_signatures != boost::none) throw runtime_error("m_rct_signatures not implemented");
-    if (m_rct_sig_prunable != boost::none) throw runtime_error("m_rct_sig_prunable not implemented");
-    if (m_is_kept_by_block != boost::none) node.put("isKeptByBlock", *m_is_kept_by_block);
-    if (m_is_failed != boost::none) node.put("isFailed", *m_is_failed);
-    if (m_last_failed_height != boost::none) node.put("lastFailedHeight", *m_last_failed_height);
-    if (m_last_failed_id != boost::none) node.put("lastFailedId", *m_last_failed_id);
-    if (m_max_used_block_height != boost::none) node.put("maxUsedBlockHeight", *m_max_used_block_height);
-    if (m_max_used_block_id != boost::none) node.put("maxUsedBlockId", *m_max_used_block_id);
-    if (!m_signatures.empty()) throw runtime_error("m_signatures not implemented");
-    return node;
+//  boost::property_tree::ptree monero_tx::to_property_tree() const {
+//    boost::property_tree::ptree node;
+//    if (m_id != boost::none) node.put("id", *m_id);
+//    if (m_version != boost::none) node.put("version", *m_version);
+//    if (m_is_miner_tx != boost::none) node.put("isMinerTx", *m_is_miner_tx);
+//    if (m_payment_id != boost::none) node.put("paymentId", *m_payment_id);
+//    if (m_fee != boost::none) node.put("fee", *m_fee);
+//    if (m_ring_size != boost::none) node.put("ringSize", *m_ring_size);
+//    if (m_do_not_relay != boost::none) node.put("doNotRelay", *m_do_not_relay);
+//    if (m_is_relayed != boost::none) node.put("isRelayed", *m_is_relayed);
+//    if (m_is_confirmed != boost::none) node.put("isConfirmed", *m_is_confirmed);
+//    if (m_in_tx_pool != boost::none) node.put("inTxPool", *m_in_tx_pool);
+//    if (m_num_confirmations != boost::none) node.put("numConfirmations", *m_num_confirmations);
+//    if (m_unlock_time != boost::none) node.put("unlockTime", *m_unlock_time);
+//    if (m_last_relayed_timestamp != boost::none) node.put("lastRelayedTimestamp", *m_last_relayed_timestamp);
+//    if (m_received_timestamp != boost::none) node.put("receivedTimestamp", *m_received_timestamp);
+//    if (m_is_double_spend_seen != boost::none) node.put("isDoubleSpendSeen", *m_is_double_spend_seen);
+//    if (m_key != boost::none) node.put("key", *m_key);
+//    if (m_full_hex != boost::none) node.put("fullHex", *m_full_hex);
+//    if (m_pruned_hex != boost::none) node.put("prunedHex", *m_pruned_hex);
+//    if (m_prunable_hex != boost::none) node.put("prunableHex", *m_prunable_hex);
+//    if (m_prunable_hash != boost::none) node.put("prunableHash", *m_prunable_hash);
+//    if (m_size != boost::none) node.put("size", *m_size);
+//    if (m_weight != boost::none) node.put("weight", *m_weight);
+//    if (!m_vins.empty()) node.add_child("vins", monero_utils::to_property_tree(m_vins));
+//    if (!m_vouts.empty()) node.add_child("vouts", monero_utils::to_property_tree(m_vouts));
+//    if (!m_output_indices.empty()) throw runtime_error("m_output_indices not implemented");
+//    if (m_metadata != boost::none) node.put("metadata", *m_metadata);
+//    if (m_common_tx_sets != boost::none) throw runtime_error("m_common_tx_sets not implemented");
+//    if (!m_extra.empty()) node.add_child("extra", monero_utils::to_property_tree(m_extra));
+//    if (m_rct_signatures != boost::none) throw runtime_error("m_rct_signatures not implemented");
+//    if (m_rct_sig_prunable != boost::none) throw runtime_error("m_rct_sig_prunable not implemented");
+//    if (m_is_kept_by_block != boost::none) node.put("isKeptByBlock", *m_is_kept_by_block);
+//    if (m_is_failed != boost::none) node.put("isFailed", *m_is_failed);
+//    if (m_last_failed_height != boost::none) node.put("lastFailedHeight", *m_last_failed_height);
+//    if (m_last_failed_id != boost::none) node.put("lastFailedId", *m_last_failed_id);
+//    if (m_max_used_block_height != boost::none) node.put("maxUsedBlockHeight", *m_max_used_block_height);
+//    if (m_max_used_block_id != boost::none) node.put("maxUsedBlockId", *m_max_used_block_id);
+//    if (!m_signatures.empty()) throw runtime_error("m_signatures not implemented");
+//    return node;
+//  }
+
+  rapidjson::Value monero_tx::to_json_val(rapidjson::Document::AllocatorType& allocator) const {
+
+    // create root
+    rapidjson::Value root(rapidjson::kObjectType);
+
+    // set num values
+    rapidjson::Value value_num(rapidjson::kNumberType);
+    if (m_version != boost::none) monero_utils::addJsonMember("version", m_version.get(), allocator, root, value_num);
+    if (m_fee != boost::none) monero_utils::addJsonMember("fee", m_fee.get(), allocator, root, value_num);
+    if (m_ring_size != boost::none) monero_utils::addJsonMember("ringSize", m_ring_size.get(), allocator, root, value_num);
+    if (m_num_confirmations != boost::none) monero_utils::addJsonMember("numConfirmations", m_num_confirmations.get(), allocator, root, value_num);
+    if (m_unlock_time != boost::none) monero_utils::addJsonMember("unlockTime", m_unlock_time.get(), allocator, root, value_num);
+    if (m_last_relayed_timestamp != boost::none) monero_utils::addJsonMember("lastRelayedTimestamp", m_last_relayed_timestamp.get(), allocator, root, value_num);
+    if (m_received_timestamp != boost::none) monero_utils::addJsonMember("receivedTimestamp", m_received_timestamp.get(), allocator, root, value_num);
+    if (m_size != boost::none) monero_utils::addJsonMember("size", m_size.get(), allocator, root, value_num);
+    if (m_weight != boost::none) monero_utils::addJsonMember("weight", m_weight.get(), allocator, root, value_num);
+    if (m_last_failed_height != boost::none) monero_utils::addJsonMember("lastFailedHeight", m_last_failed_height.get(), allocator, root, value_num);
+    if (m_max_used_block_height != boost::none) monero_utils::addJsonMember("maxUsedBlockHeight", m_max_used_block_height.get(), allocator, root, value_num);
+
+    // set string values
+    rapidjson::Value value_str(rapidjson::kStringType);
+    if (m_id != boost::none) monero_utils::addJsonMember("id", m_id.get(), allocator, root, value_str);
+    if (m_payment_id != boost::none) monero_utils::addJsonMember("paymentId", m_payment_id.get(), allocator, root, value_str);
+    if (m_key != boost::none) monero_utils::addJsonMember("key", m_key.get(), allocator, root, value_str);
+    if (m_full_hex != boost::none) monero_utils::addJsonMember("fullHex", m_full_hex.get(), allocator, root, value_str);
+    if (m_pruned_hex != boost::none) monero_utils::addJsonMember("prunedHex", m_pruned_hex.get(), allocator, root, value_str);
+    if (m_prunable_hex != boost::none) monero_utils::addJsonMember("prunableHex", m_prunable_hex.get(), allocator, root, value_str);
+    if (m_prunable_hash != boost::none) monero_utils::addJsonMember("prunableHash", m_prunable_hash.get(), allocator, root, value_str);
+    if (m_metadata != boost::none) monero_utils::addJsonMember("metadata", m_metadata.get(), allocator, root, value_str);
+    if (m_common_tx_sets != boost::none) monero_utils::addJsonMember("commonTxSets", m_common_tx_sets.get(), allocator, root, value_str);
+    if (m_rct_signatures != boost::none) monero_utils::addJsonMember("rctSignatures", m_rct_signatures.get(), allocator, root, value_str);
+    if (m_rct_sig_prunable != boost::none) monero_utils::addJsonMember("rctSigPrunable", m_rct_sig_prunable.get(), allocator, root, value_str);
+    if (m_last_failed_id != boost::none) monero_utils::addJsonMember("lastFailedId", m_last_failed_id.get(), allocator, root, value_str);
+    if (m_max_used_block_id != boost::none) monero_utils::addJsonMember("maxUsedBlockId", m_max_used_block_id.get(), allocator, root, value_str);
+
+    // set bool values
+    if (m_is_miner_tx != boost::none) monero_utils::addJsonMember("isMinerTx", m_is_miner_tx.get(), allocator, root);
+    if (m_do_not_relay != boost::none) monero_utils::addJsonMember("doNotRelay", m_do_not_relay.get(), allocator, root);
+    if (m_is_relayed != boost::none) monero_utils::addJsonMember("isRelayed", m_is_relayed.get(), allocator, root);
+    if (m_is_confirmed != boost::none) monero_utils::addJsonMember("isConfirmed", m_is_confirmed.get(), allocator, root);
+    if (m_in_tx_pool != boost::none) monero_utils::addJsonMember("inTxPool", m_in_tx_pool.get(), allocator, root);
+    if (m_is_double_spend_seen != boost::none) monero_utils::addJsonMember("isDoubleSpendSeen", m_is_double_spend_seen.get(), allocator, root);
+    if (m_is_kept_by_block != boost::none) monero_utils::addJsonMember("isKeptByBlock", m_is_kept_by_block.get(), allocator, root);
+    if (m_is_failed != boost::none) monero_utils::addJsonMember("isFailed", m_is_failed.get(), allocator, root);
+
+    // set sub-arrays
+    if (!m_vins.empty()) root.AddMember("vins", monero_utils::to_json_val(allocator, m_vins), allocator);
+    if (!m_vouts.empty()) root.AddMember("vouts", monero_utils::to_json_val(allocator, m_vouts), allocator);
+    if (!m_output_indices.empty()) root.AddMember("outputIndices", monero_utils::to_json_val(allocator, m_output_indices), allocator);
+    if (!m_extra.empty()) root.AddMember("extra", monero_utils::to_json_val(allocator, m_extra), allocator);  // TODO
+    if (!m_signatures.empty()) root.AddMember("signatures", monero_utils::to_json_val(allocator, m_signatures), allocator);
+
+    // return root
+    return root;
   }
 
   boost::optional<uint64_t> monero_tx::get_height() const {
@@ -451,11 +634,25 @@ namespace monero {
     return tgt;
   }
 
-  boost::property_tree::ptree monero_key_image::to_property_tree() const {
-    boost::property_tree::ptree node;
-    if (m_hex != boost::none) node.put("hex", *m_hex);
-    if (m_signature != boost::none) node.put("signature", *m_signature);
-    return node;
+//  boost::property_tree::ptree monero_key_image::to_property_tree() const {
+//    boost::property_tree::ptree node;
+//    if (m_hex != boost::none) node.put("hex", *m_hex);
+//    if (m_signature != boost::none) node.put("signature", *m_signature);
+//    return node;
+//  }
+
+  rapidjson::Value monero_key_image::to_json_val(rapidjson::Document::AllocatorType& allocator) const {
+
+    // create root
+    rapidjson::Value root(rapidjson::kObjectType);
+
+    // set string values
+    rapidjson::Value value_str(rapidjson::kStringType);
+    if (m_hex != boost::none) monero_utils::addJsonMember("hex", m_hex.get(), allocator, root, value_str);
+    if (m_signature != boost::none) monero_utils::addJsonMember("signature", m_signature.get(), allocator, root, value_str);
+
+    // return root
+    return root;
   }
 
   void monero_key_image::merge(const shared_ptr<monero_key_image>& self, const shared_ptr<monero_key_image>& other) {
@@ -475,14 +672,35 @@ namespace monero {
     return tgt;
   }
 
-  boost::property_tree::ptree monero_output::to_property_tree() const {
-    boost::property_tree::ptree node;
-    if (m_key_image != boost::none) node.add_child("keyImage", (*m_key_image)->to_property_tree());
-    if (m_amount != boost::none) node.put("amount", *m_amount);
-    if (m_index != boost::none) node.put("index", *m_index);
-    if (!m_ring_output_indices.empty()) node.add_child("ringOutputIndices", monero_utils::to_property_tree(m_ring_output_indices));
-    if (m_stealth_public_key != boost::none) node.put("stealthPublicKey", *m_stealth_public_key);
-    return node;
+//  boost::property_tree::ptree monero_output::to_property_tree() const {
+//    boost::property_tree::ptree node;
+//    if (m_key_image != boost::none) node.add_child("keyImage", (*m_key_image)->to_property_tree());
+//    if (m_amount != boost::none) node.put("amount", *m_amount);
+//    if (m_index != boost::none) node.put("index", *m_index);
+//    if (!m_ring_output_indices.empty()) node.add_child("ringOutputIndices", monero_utils::to_property_tree(m_ring_output_indices));
+//    if (m_stealth_public_key != boost::none) node.put("stealthPublicKey", *m_stealth_public_key);
+//    return node;
+//  }
+
+  rapidjson::Value monero_output::to_json_val(rapidjson::Document::AllocatorType& allocator) const {
+
+    // create root
+    rapidjson::Value root(rapidjson::kObjectType);
+
+    // set num values
+    rapidjson::Value value_num(rapidjson::kNumberType);
+    if (m_amount != boost::none) monero_utils::addJsonMember("amount", m_amount.get(), allocator, root, value_num);
+    if (m_index != boost::none) monero_utils::addJsonMember("index", m_index.get(), allocator, root, value_num);
+    if (m_stealth_public_key != boost::none) monero_utils::addJsonMember("stealthPublicKey", m_stealth_public_key.get(), allocator, root, value_num);
+
+    // set sub-arrays
+    if (!m_ring_output_indices.empty()) root.AddMember("ringOutputIndices", monero_utils::to_json_val(allocator, m_ring_output_indices), allocator);
+
+    // set sub-objects
+    if (m_key_image != boost::none) root.AddMember("keyImage", m_key_image.get()->to_json_val(allocator), allocator);
+
+    // return root
+    return root;
   }
 
   void monero_output::merge(const shared_ptr<monero_output>& self, const shared_ptr<monero_output>& other) {

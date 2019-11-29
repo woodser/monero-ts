@@ -54,6 +54,7 @@
 #include "rpc/core_rpc_server_commands_defs.h"
 #include "storages/portable_storage_template_helper.h"
 #include "cryptonote_basic/cryptonote_format_utils.h"
+#include "string_tools.h"
 
 using namespace std;
 using namespace cryptonote;
@@ -148,6 +149,7 @@ shared_ptr<monero_output_query> node_to_output_query(const boost::property_tree:
   return m_output_query;
 }
 
+// TODO: finish deserialization implementation, uses tests
 void node_to_tx(const boost::property_tree::ptree& node, shared_ptr<monero_tx> tx) {
 
   // initialize tx from node
@@ -156,7 +158,7 @@ void node_to_tx(const boost::property_tree::ptree& node, shared_ptr<monero_tx> t
     if (key == string("id")) tx->m_id = it->second.data();
     else if (key == string("version")) throw runtime_error("version deserializationn not implemented");
     else if (key == string("isMinerTx")) tx->m_is_miner_tx = it->second.get_value<bool>();
-    else if (key == string("paymentId")) throw runtime_error("paymentId deserializationn not implemented");
+    else if (key == string("paymentId")) tx->m_payment_id = it->second.data(); // TODO: this threw runtime_error, how is "Can get transactions by payment ids" test passing in Java?
     else if (key == string("fee")) tx->m_fee = it->second.get_value<uint64_t>();
     else if (key == string("mixin")) throw runtime_error("mixin deserialization not implemented");
     else if (key == string("doNotRelay")) tx->m_do_not_relay = it->second.get_value<bool>();
@@ -252,7 +254,7 @@ shared_ptr<monero_destination> node_to_destination(const boost::property_tree::p
   return destination;
 }
 
-// ------------------------- PUBLIC STATIC UTILITIES --------------------------
+// -------------------------- BINARY SERIALIZATION ----------------------------
 
 void monero_utils::json_to_binary(const std::string &json, std::string &bin) {
   epee::serialization::portable_storage ps;
@@ -344,6 +346,93 @@ monero_tx_set monero_utils::deserialize_tx_set(const string& tx_set_str) {
 
   return tx_set;
 }
+
+// ------------------------------- RAPIDJSON ----------------------------------
+
+string monero_utils::serialize(const rapidjson::Document& doc) {
+  rapidjson::StringBuffer buffer;
+  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+  doc.Accept(writer);
+  return buffer.GetString();
+}
+
+void monero_utils::addJsonMember(string key, uint8_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
+  rapidjson::Value field_key(key.c_str(), key.size(), allocator);
+  field.SetInt(val);
+  root.AddMember(field_key, field, allocator);
+}
+
+void monero_utils::addJsonMember(string key, uint32_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
+  rapidjson::Value field_key(key.c_str(), key.size(), allocator);
+  field.SetUint64(val);
+  root.AddMember(field_key, field, allocator);
+}
+
+void monero_utils::addJsonMember(string key, uint64_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
+  rapidjson::Value field_key(key.c_str(), key.size(), allocator);
+  field.SetUint64(val);
+  root.AddMember(field_key, field, allocator);
+}
+
+void monero_utils::addJsonMember(string key, string val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field) {
+  rapidjson::Value field_key(key.c_str(), key.size(), allocator);
+  field.SetString(val.c_str(), val.size(), allocator);
+  root.AddMember(field_key, field, allocator);
+}
+
+void monero_utils::addJsonMember(string key, bool val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root) {
+  rapidjson::Value field_key(key.c_str(), key.size(), allocator);
+  if (val) {
+    rapidjson::Value field_val(rapidjson::kTrueType);
+    root.AddMember(field_key, field_val, allocator);
+  } else {
+    rapidjson::Value field_val(rapidjson::kFalseType);
+    root.AddMember(field_key, field_val, allocator);
+  }
+}
+
+rapidjson::Value monero_utils::to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<string>& strs) {
+  rapidjson::Value value_arr(rapidjson::kArrayType);
+  rapidjson::Value value_str(rapidjson::kStringType);
+  for (const string& str : strs) {
+    value_str.SetString(str.c_str(), str.size(), allocator);
+    value_arr.PushBack(value_str, allocator);
+  }
+  return value_arr;
+}
+
+rapidjson::Value monero_utils::to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<uint8_t>& nums) {
+  rapidjson::Value value_arr(rapidjson::kArrayType);
+  rapidjson::Value value_num(rapidjson::kNumberType);
+  for (const auto& num : nums) {
+    value_num.SetInt(num);
+    value_arr.PushBack(value_num, allocator);
+  }
+  return value_arr;
+}
+
+// TODO: remove these redundant implementations for different sizes?
+rapidjson::Value monero_utils::to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<uint32_t>& nums) {
+  rapidjson::Value value_arr(rapidjson::kArrayType);
+  rapidjson::Value value_num(rapidjson::kNumberType);
+  for (const auto& num : nums) {
+    value_num.SetUint64(num);
+    value_arr.PushBack(value_num, allocator);
+  }
+  return value_arr;
+}
+
+rapidjson::Value monero_utils::to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<uint64_t>& nums) {
+  rapidjson::Value value_arr(rapidjson::kArrayType);
+  rapidjson::Value value_num(rapidjson::kNumberType);
+  for (const auto& num : nums) {
+    value_num.SetUint64(num);
+    value_arr.PushBack(value_num, allocator);
+  }
+  return value_arr;
+}
+
+// -------------------------- MODEL DESERIALIZATION ---------------------------
 
 shared_ptr<monero_tx_query> monero_utils::deserialize_tx_query(const string& tx_query_str) {
 
@@ -473,6 +562,10 @@ vector<shared_ptr<monero_key_image>> monero_utils::deserialize_key_images(const 
   return key_images;
 }
 
+// ------------------------ PROPERTY TREES ---------------------------
+
+// TODO: fully switch to rapidjson
+
 string monero_utils::serialize(const boost::property_tree::ptree& node) {
   std::stringstream ss;
   boost::property_tree::write_json(ss, node, false);
@@ -480,47 +573,60 @@ string monero_utils::serialize(const boost::property_tree::ptree& node) {
   return str.substr(0, str.size() - 1); // strip newline
 }
 
-boost::property_tree::ptree monero_utils::to_property_tree(const vector<string>& strs) {
-  boost::property_tree::ptree strsNode;
-  for (const auto& str : strs)  {
-    boost::property_tree::ptree strNode;
-    strNode.put("", str);
-    strsNode.push_back(std::make_pair("", strNode));
+// TODO: switch deserializes in this utils class to use this deserialize util
+void monero_utils::deserialize(const string& json, boost::property_tree::ptree& root) {
+  std::istringstream iss = json.empty() ? std::istringstream() : std::istringstream(json);
+  try {
+    boost::property_tree::read_json(iss, root);
+  } catch (std::exception const& e) {
+    throw runtime_error("Invalid JSON");
   }
-  return strsNode;
 }
 
-boost::property_tree::ptree monero_utils::to_property_tree(const vector<uint8_t>& nums) {
-  boost::property_tree::ptree numsNode;
-  for (const auto& num : nums)  {
-    boost::property_tree::ptree numNode;
-    numNode.put("", num);
-    numsNode.push_back(std::make_pair("", numNode));
-  }
-  return numsNode;
-}
+//boost::property_tree::ptree monero_utils::to_property_tree(const vector<string>& strs) {
+//  boost::property_tree::ptree strsNode;
+//  for (const auto& str : strs)  {
+//    boost::property_tree::ptree strNode;
+//    strNode.put("", str);
+//    strsNode.push_back(std::make_pair("", strNode));
+//  }
+//  return strsNode;
+//}
+//
+//boost::property_tree::ptree monero_utils::to_property_tree(const vector<uint8_t>& nums) {
+//  boost::property_tree::ptree numsNode;
+//  for (const auto& num : nums)  {
+//    boost::property_tree::ptree numNode;
+//    numNode.put("", num);
+//    numsNode.push_back(std::make_pair("", numNode));
+//  }
+//  return numsNode;
+//}
+//
+//// TODO: remove these redundant implementations for different sizes?
+//boost::property_tree::ptree monero_utils::to_property_tree(const vector<uint32_t>& nums) {
+//  boost::property_tree::ptree numsNode;
+//  for (const auto& num : nums)  {
+//    boost::property_tree::ptree numNode;
+//    numNode.put("", num);
+//    numsNode.push_back(std::make_pair("", numNode));
+//  }
+//  return numsNode;
+//}
+//
+//boost::property_tree::ptree monero_utils::to_property_tree(const vector<uint64_t>& nums) {
+//  boost::property_tree::ptree numsNode;
+//  for (const auto& num : nums)  {
+//    boost::property_tree::ptree numNode;
+//    numNode.put("", num);
+//    numsNode.push_back(std::make_pair("", numNode));
+//  }
+//  return numsNode;
+//}
 
-// TODO: remove these redundant implementations for different sizes?
-boost::property_tree::ptree monero_utils::to_property_tree(const vector<uint32_t>& nums) {
-  boost::property_tree::ptree numsNode;
-  for (const auto& num : nums)  {
-    boost::property_tree::ptree numNode;
-    numNode.put("", num);
-    numsNode.push_back(std::make_pair("", numNode));
-  }
-  return numsNode;
-}
+// ----------------------------------------------------------------------------
 
-boost::property_tree::ptree monero_utils::to_property_tree(const vector<uint64_t>& nums) {
-  boost::property_tree::ptree numsNode;
-  for (const auto& num : nums)  {
-    boost::property_tree::ptree numNode;
-    numNode.put("", num);
-    numsNode.push_back(std::make_pair("", numNode));
-  }
-  return numsNode;
-}
-
+// TODO: is this unused?
 shared_ptr<monero_block> monero_utils::cn_block_to_block(const cryptonote::block& cn_block) {
   cryptonote::block temp = cn_block;
   cout << cryptonote::obj_to_json_str(temp) << endl;

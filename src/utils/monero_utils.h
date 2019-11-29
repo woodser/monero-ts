@@ -53,38 +53,103 @@
 #ifndef monero_utils_h
 #define monero_utils_h
 
-#include "wallet/monero_wallet.h"
+#include "wallet/monero_wallet_model.h"
 #include "cryptonote_basic/cryptonote_basic.h"
 #include "serialization/keyvalue_serialization.h"	// TODO: consolidate with other binary deps?
 #include "storages/portable_storage.h"
 
 /**
- * Collection of utilities for working with Monero's binary portable storage format.
+ * Collection of utilities for the Monero library.
  */
 namespace monero_utils
 {
   using namespace std;
   using namespace cryptonote;
 
+  void dummy_method(const string& str); // TODO: remove this
+
+  // ------------------------ BINARY SERIALIZATION ----------------------------
+
   void json_to_binary(const std::string &json, std::string &bin);
-
   void binary_to_json(const std::string &bin, std::string &json);
-
   void binary_blocks_to_json(const std::string &bin, std::string &json);
 
-  monero_tx_set deserialize_tx_set(const string& tx_set_str);
+  // ------------------------------ RAPIDJSON ---------------------------------
+
+  string serialize(const rapidjson::Document& doc);
+
+  void addJsonMember(string key, uint8_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
+  void addJsonMember(string key, uint32_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
+  void addJsonMember(string key, uint64_t val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
+  void addJsonMember(string key, string val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root, rapidjson::Value& field);
+  void addJsonMember(string key, bool val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root);
+
+  // TODO: template implementation here, could move to monero_utils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
+  template <class T> rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<shared_ptr<T>>& vals) {
+    rapidjson::Value value_arr(rapidjson::kArrayType);
+    for (const auto& val : vals) {
+      value_arr.PushBack(val->to_json_val(allocator), allocator);
+    }
+    return value_arr;
+  }
+
+  // TODO: template implementation here, could move to monero_utils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
+  template <class T> rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<T>& vals) {
+    rapidjson::Value value_arr(rapidjson::kArrayType);
+    for (const auto& val : vals) {
+      value_arr.PushBack(val.to_json_val(allocator), allocator);
+    }
+    return value_arr;
+  }
+
+  rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<string>& strs);
+  rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<uint8_t>& nums);
+  rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<uint32_t>& nums);
+  rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<uint64_t>& nums);
+
+  // ------------------------ MODEL DESERIALIZATION ---------------------------
+
+  // TODO: move deserialization to static utilities on class
 
   shared_ptr<monero_tx_query> deserialize_tx_query(const string& txQueryStr);
-
   shared_ptr<monero_transfer_query> deserialize_transfer_query(const string& transfer_query_str);
-
   shared_ptr<monero_output_query> deserialize_output_query(const string& output_query_str);
-
   shared_ptr<monero_send_request> deserialize_send_request(const string& send_request_str);
-
   vector<shared_ptr<monero_key_image>> deserialize_key_images(const string& key_images_json);
+  monero_tx_set deserialize_tx_set(const string& tx_set_str);
+
+  // ------------------------ PROPERTY TREES ---------------------------
+
+  // TODO: fully switch from property trees to rapidjson
 
   string serialize(const boost::property_tree::ptree& node);
+  void deserialize(const string& json, boost::property_tree::ptree& root);
+
+  //
+  //  // TODO: template implementation here, could move to monero_utils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
+  //  template <class T> boost::property_tree::ptree to_property_tree(const vector<shared_ptr<T>>& types) {
+  //    boost::property_tree::ptree typeNodes;
+  //    for (const auto& type : types)  {
+  //      typeNodes.push_back(std::make_pair("", type->to_property_tree()));
+  //    }
+  //    return typeNodes;
+  //  }
+  //
+  //  // TODO: template implementation here, could move to monero_utils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
+  //  template <class T> boost::property_tree::ptree to_property_tree(const vector<T>& types) {
+  //    boost::property_tree::ptree typeNodes;
+  //    for (const auto& type : types)  {
+  //      typeNodes.push_back(std::make_pair("", type.to_property_tree()));
+  //    }
+  //    return typeNodes;
+  //  }
+  //
+  //  boost::property_tree::ptree to_property_tree(const vector<string>& strs);
+  //  boost::property_tree::ptree to_property_tree(const vector<uint8_t>& nums);
+  //  boost::property_tree::ptree to_property_tree(const vector<uint32_t>& nums);
+  //  boost::property_tree::ptree to_property_tree(const vector<uint64_t>& nums);
+
+  // --------------------------------------------------------------------------
 
   /**
    * Convert a Monero Core cryptonote::block to a block in this library's native model.
@@ -116,30 +181,5 @@ namespace monero_utils
     CHECK_AND_ASSERT_MES(r, std::string(), "Failed to serialize rct signatures base");
     return ss.str();
   }
-
-  // ----------------------------- PROPERTY TREE ------------------------------
-
-  // TODO: template implementation here, could move to monero_utils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-  template <class T> boost::property_tree::ptree to_property_tree(const vector<shared_ptr<T>>& types) {
-    boost::property_tree::ptree typeNodes;
-    for (const auto& type : types)  {
-      typeNodes.push_back(std::make_pair("", type->to_property_tree()));
-    }
-    return typeNodes;
-  }
-
-  // TODO: template implementation here, could move to monero_utils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-  template <class T> boost::property_tree::ptree to_property_tree(const vector<T>& types) {
-    boost::property_tree::ptree typeNodes;
-    for (const auto& type : types)  {
-      typeNodes.push_back(std::make_pair("", type.to_property_tree()));
-    }
-    return typeNodes;
-  }
-
-  boost::property_tree::ptree to_property_tree(const vector<string>& strs);
-  boost::property_tree::ptree to_property_tree(const vector<uint8_t>& nums);
-  boost::property_tree::ptree to_property_tree(const vector<uint32_t>& nums);
-  boost::property_tree::ptree to_property_tree(const vector<uint64_t>& nums);
 }
 #endif /* monero_utils_h */
