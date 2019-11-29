@@ -6,6 +6,8 @@ In addition, this project conforms to an [API specification](http://moneroecosys
 
 This library may be used to build Monero-related applications, such as GUIs, libraries in other languages (e.g. [monero-java](https://github.com/monero-ecosystem/monero-java)), or a compliant REST/JSON-RPC API.
 
+This library is compatible with [Monero Core v0.15.0.1 Carbon Chamaeleon](https://github.com/monero-project/monero/tree/v0.15.0.1).
+
 ## Main Features
 
 - Manage Monero wallets which connect to a daemon
