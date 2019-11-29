@@ -448,11 +448,13 @@ namespace monero {
    * Monero address book entry model.
    */
   struct monero_address_book_entry : serializable_struct {
-    boost::optional<uint32_t> m_index;
+    boost::optional<uint64_t> m_index;  // TODO: not boost::optional
     boost::optional<string> m_address;
     boost::optional<string> m_description;
     boost::optional<string> m_payment_id;
 
+    monero_address_book_entry() {}
+    monero_address_book_entry(uint64_t index, const string& address, const string& description, const string& payment_id) : m_index(index), m_address(address), m_description(description), m_payment_id(payment_id) {}
     boost::property_tree::ptree to_property_tree() const;
   };
 }

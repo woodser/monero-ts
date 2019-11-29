@@ -2791,19 +2791,43 @@ namespace monero {
   }
 
   vector<monero_address_book_entry> monero_wallet::get_address_book_entries(const vector<uint32_t>& indices) const {
-    throw runtime_error("get_address_book_entries() not implemented");
+    MTRACE("monero_wallet::get_address_book_entries()");
+
+    // get wallet2 address book entries
+    const auto w2_entries = m_w2->get_address_book();
+
+    // build entries from wallet2 types
+    vector<monero_address_book_entry> entries;
+    if (indices.empty()) {
+      uint64_t idx = 0;
+      for (const auto &w2_entry: w2_entries) {
+        monero_address_book_entry entry(idx++, cryptonote::get_account_address_as_str(m_w2->nettype(), w2_entry.m_is_subaddress, w2_entry.m_address), w2_entry.m_description, epee::string_tools::pod_to_hex(w2_entry.m_payment_id));
+        entries.push_back(entry);
+      }
+    } else {
+      for (uint64_t idx : indices) {
+        if (idx >= w2_entries.size()) throw runtime_error("Index out of range: " + std::to_string(idx));
+        const auto &w2_entry = w2_entries[idx];
+        monero_address_book_entry entry(idx++, cryptonote::get_account_address_as_str(m_w2->nettype(), w2_entry.m_is_subaddress, w2_entry.m_address), w2_entry.m_description, epee::string_tools::pod_to_hex(w2_entry.m_payment_id));
+        entries.push_back(entry);
+      }
+    }
+
+    return entries;
   }
 
   uint32_t monero_wallet::add_address_book_entry(const string& address, boost::optional<string> description, boost::optional<string> payment_id) {
     throw runtime_error("add_address_book_entry() not implemented");
   }
 
-  void monero_wallet::edit_address_book_entry(uint32_t index, bool set_address, boost::optional<string> address, bool set_description, boost::optional<string> description, bool set_payment_id, boost::optional<string> payment_id) {
+  void monero_wallet::edit_address_book_entry(uint64_t index, bool set_address, boost::optional<string> address, bool set_description, boost::optional<string> description, bool set_payment_id, boost::optional<string> payment_id) {
     throw runtime_error("edit_address_book_entry() not implemented");
   }
 
-  void monero_wallet::delete_address_book_entry(uint32_t index) {
-    throw runtime_error("delete_address_book_entry() not implemented");
+  void monero_wallet::delete_address_book_entry(uint64_t index) {
+    const auto w2_entries = m_w2->get_address_book();
+    if (index >= w2_entries.size()) throw runtime_error("Index out of range: " + std::to_string(index));
+    if (!m_w2->delete_address_book_row(index)) throw runtime_error("Failed to delete address book entry");
   }
 
   string monero_wallet::create_payment_uri(const monero_send_request& request) const {
