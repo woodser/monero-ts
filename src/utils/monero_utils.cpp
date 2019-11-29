@@ -127,7 +127,7 @@ void node_to_output_wallet(const boost::property_tree::ptree& node, shared_ptr<m
     if (key == string("accountIndex")) output_wallet->m_account_index = it->second.get_value<uint32_t>();
     else if (key == string("subaddressIndex")) output_wallet->m_subaddress_index = it->second.get_value<uint32_t>();
     else if (key == string("isSpent")) output_wallet->m_is_spent = it->second.get_value<bool>();
-    else if (key == string("isUnlocked")) output_wallet->m_is_unlocked = it->second.get_value<bool>();
+    else if (key == string("isLocked")) output_wallet->m_is_locked = it->second.get_value<bool>();
     else if (key == string("isFrozen")) output_wallet->m_is_frozen = it->second.get_value<bool>();
   }
 }
@@ -198,7 +198,7 @@ void node_to_tx_wallet(const boost::property_tree::ptree& node, shared_ptr<moner
   for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
     string key = it->first;
     //if (key == string("id")) tx->m_id = it->second.data();
-    if (key == string("isUnlocked")) tx_wallet->m_is_unlocked = it->second.get_value<bool>();
+    if (key == string("isLocked")) tx_wallet->m_is_locked = it->second.get_value<bool>();
     // TODO: deserialize other fields
   }
 }

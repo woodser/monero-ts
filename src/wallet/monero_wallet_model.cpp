@@ -136,7 +136,7 @@ namespace monero {
       tgt->m_outgoing_transfer = transferCopy;
     }
     tgt->m_note = src->m_note;
-    tgt->m_is_unlocked = src->m_is_unlocked;
+    tgt->m_is_locked = src->m_is_locked;
     tgt->m_input_sum = src->m_input_sum;
     tgt->m_output_sum = src->m_output_sum;
     tgt->m_change_address = src->m_change_address;
@@ -154,7 +154,7 @@ namespace monero {
     if (!m_incoming_transfers.empty()) node.add_child("incomingTransfers", monero_utils::to_property_tree(m_incoming_transfers));
     if (m_outgoing_transfer != boost::none) node.add_child("outgoingTransfer", (*m_outgoing_transfer)->to_property_tree());
     if (m_note != boost::none) node.put("note", *m_note);
-    if (m_is_unlocked != boost::none) node.put("isUnlocked", *m_is_unlocked);
+    if (m_is_locked != boost::none) node.put("isLocked", *m_is_locked);
     if (m_input_sum != boost::none) node.put("inputSum", *m_input_sum);
     if (m_output_sum != boost::none) node.put("outputSum", *m_output_sum);
     if (m_change_address != boost::none) node.put("changeAddress", *m_change_address);
@@ -194,7 +194,7 @@ namespace monero {
     m_is_incoming = gen_utils::reconcile(m_is_incoming, other->m_is_incoming);
     m_is_outgoing = gen_utils::reconcile(m_is_outgoing, other->m_is_outgoing);
     m_note = gen_utils::reconcile(m_note, other->m_note);
-    m_is_unlocked = gen_utils::reconcile(m_is_unlocked, other->m_is_unlocked);
+    m_is_locked = gen_utils::reconcile(m_is_locked, other->m_is_locked);
     m_input_sum = gen_utils::reconcile(m_input_sum, other->m_input_sum);
     m_output_sum = gen_utils::reconcile(m_output_sum, other->m_output_sum);
     m_change_address = gen_utils::reconcile(m_change_address, other->m_change_address);
@@ -261,7 +261,7 @@ namespace monero {
     if (m_do_not_relay != boost::none && m_do_not_relay != tx->m_do_not_relay) return false;
     if (m_is_failed != boost::none && m_is_failed != tx->m_is_failed) return false;
     if (m_is_miner_tx != boost::none && m_is_miner_tx != tx->m_is_miner_tx) return false;
-    if (m_is_unlocked != boost::none && m_is_unlocked != tx->m_is_unlocked) return false;
+    if (m_is_locked != boost::none && m_is_locked != tx->m_is_locked) return false;
 
     // at least one transfer must meet transfer query if defined
     if (m_transfer_query != boost::none) {
@@ -582,7 +582,7 @@ namespace monero {
     tgt->m_account_index = src->m_account_index;
     tgt->m_subaddress_index = src->m_subaddress_index;
     tgt->m_is_spent = src->m_is_spent;
-    tgt->m_is_unlocked = src->m_is_unlocked;
+    tgt->m_is_locked = src->m_is_locked;
     tgt->m_is_frozen = src->m_is_frozen;
     return tgt;
   };
@@ -592,7 +592,7 @@ namespace monero {
     if (m_account_index != boost::none) node.put("accountIndex", *m_account_index);
     if (m_subaddress_index != boost::none) node.put("subaddressIndex", *m_subaddress_index);
     if (m_is_spent != boost::none) node.put("isSpent", *m_is_spent);
-    if (m_is_unlocked != boost::none) node.put("isUnlocked", *m_is_unlocked);
+    if (m_is_locked != boost::none) node.put("isUnlocked", *m_is_locked);
     if (m_is_frozen != boost::none) node.put("isFrozen", *m_is_frozen);
     return node;
   }
@@ -656,7 +656,7 @@ namespace monero {
     if (m_subaddress_index != boost::none && (output->m_subaddress_index == boost::none || *m_subaddress_index != *output->m_subaddress_index)) return false;
     if (m_amount != boost::none && (output->m_amount == boost::none || *m_amount != *output->m_amount)) return false;
     if (m_is_spent != boost::none && (output->m_is_spent == boost::none || *m_is_spent != *output->m_is_spent)) return false;
-    if (m_is_unlocked != boost::none && (output->m_is_unlocked == boost::none || *m_is_unlocked != *output->m_is_unlocked)) return false;
+    if (m_is_locked != boost::none && (output->m_is_locked == boost::none || *m_is_locked != *output->m_is_locked)) return false;
 
     // filter on output key image
     if (m_key_image != boost::none) {

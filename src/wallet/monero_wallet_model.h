@@ -221,7 +221,7 @@ namespace monero {
     boost::optional<uint32_t> m_account_index;
     boost::optional<uint32_t> m_subaddress_index;
     boost::optional<bool> m_is_spent;
-    boost::optional<bool> m_is_unlocked;
+    boost::optional<bool> m_is_locked;
     boost::optional<bool> m_is_frozen;
 
     shared_ptr<monero_output_wallet> copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const;
@@ -263,7 +263,7 @@ namespace monero {
     vector<shared_ptr<monero_incoming_transfer>> m_incoming_transfers;
     boost::optional<shared_ptr<monero_outgoing_transfer>> m_outgoing_transfer;
     boost::optional<string> m_note;
-    boost::optional<bool> m_is_unlocked;
+    boost::optional<bool> m_is_locked;
     boost::optional<uint64_t> m_input_sum;
     boost::optional<uint64_t> m_output_sum;
     boost::optional<string> m_change_address;

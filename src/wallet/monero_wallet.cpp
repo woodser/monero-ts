@@ -103,7 +103,7 @@ namespace monero {
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_time = pd.m_unlock_time;
-    tx->m_is_unlocked = m_w2.is_transfer_unlocked(pd.m_unlock_time, pd.m_block_height);
+    tx->m_is_locked = !m_w2.is_transfer_unlocked(pd.m_unlock_time, pd.m_block_height);
     tx->m_fee = pd.m_fee;
     tx->m_note = m_w2.get_tx_note(pd.m_tx_hash);
     if (tx->m_note->empty()) tx->m_note = boost::none; // clear empty note
@@ -156,7 +156,7 @@ namespace monero {
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_time = pd.m_unlock_time;
-    tx->m_is_unlocked = m_w2.is_transfer_unlocked(pd.m_unlock_time, pd.m_block_height);
+    tx->m_is_locked = !m_w2.is_transfer_unlocked(pd.m_unlock_time, pd.m_block_height);
     tx->m_fee = pd.m_amount_in - pd.m_amount_out;
     tx->m_note = m_w2.get_tx_note(txid);
     if (tx->m_note->empty()) tx->m_note = boost::none; // clear empty note
@@ -224,7 +224,7 @@ namespace monero {
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_time = pd.m_unlock_time;
-    tx->m_is_unlocked = false;
+    tx->m_is_locked = true;
     tx->m_fee = pd.m_fee;
     tx->m_note = m_w2.get_tx_note(pd.m_tx_hash);
     if (tx->m_note->empty()) tx->m_note = boost::none; // clear empty note
@@ -266,7 +266,7 @@ namespace monero {
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_time = pd.m_tx.unlock_time;
-    tx->m_is_unlocked = false;
+    tx->m_is_locked = true;
     tx->m_fee = pd.m_amount_in - pd.m_amount_out;
     tx->m_note = m_w2.get_tx_note(txid);
     if (tx->m_note->empty()) tx->m_note = boost::none; // clear empty note
@@ -335,7 +335,7 @@ namespace monero {
     tx->m_in_tx_pool = false;
     tx->m_do_not_relay = false;
     tx->m_is_double_spend_seen = false;
-    tx->m_is_unlocked = m_w2.is_transfer_unlocked(td);
+    tx->m_is_locked = !m_w2.is_transfer_unlocked(td);
 
     // construct vout
     shared_ptr<monero_output_wallet> vout = make_shared<monero_output_wallet>();
@@ -346,7 +346,7 @@ namespace monero {
     vout->m_account_index = td.m_subaddr_index.major;
     vout->m_subaddress_index = td.m_subaddr_index.minor;
     vout->m_is_spent = td.m_spent;
-    vout->m_is_unlocked = m_w2.is_transfer_unlocked(td);  // TODO: this is redundant with tx
+    vout->m_is_locked = !m_w2.is_transfer_unlocked(td);  // TODO: this is redundant with tx
     vout->m_is_frozen = td.m_frozen;
     if (td.m_key_image_known) {
       vout->m_key_image = make_shared<monero_key_image>();
@@ -1982,7 +1982,7 @@ namespace monero {
       tx->m_num_confirmations = 0;
       tx->m_mixin = request.m_mixin;
       tx->m_unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
-      tx->m_is_unlocked = false;
+      tx->m_is_locked = true;
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
       out_transfer->m_account_index = request.m_account_index;
       if (request.m_subaddress_indices.size() == 1) out_transfer->m_subaddress_indices.push_back(request.m_subaddress_indices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
@@ -2137,7 +2137,7 @@ namespace monero {
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
       txs.push_back(tx);
       tx->m_id = *tx_ids_iter;
-      tx->m_is_unlocked = false;
+      tx->m_is_locked = true;
       tx->m_is_outgoing = true;
       tx->m_key = *tx_keys_iter;
       tx->m_fee = *tx_fees_iter;
@@ -2276,7 +2276,7 @@ namespace monero {
       tx->m_num_confirmations = 0;
       tx->m_mixin = request.m_mixin;
       tx->m_unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
-      tx->m_is_unlocked = false;
+      tx->m_is_locked = true;
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
       out_transfer->m_account_index = request.m_account_index;
       if (request.m_subaddress_indices.size() == 1) out_transfer->m_subaddress_indices.push_back(request.m_subaddress_indices[0]);  // subaddress index is known iff 1 requested  // TODO: get all known subaddress indices here
