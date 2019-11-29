@@ -346,7 +346,6 @@ namespace monero {
     vout->m_account_index = td.m_subaddr_index.major;
     vout->m_subaddress_index = td.m_subaddr_index.minor;
     vout->m_is_spent = td.m_spent;
-    vout->m_is_locked = !m_w2.is_transfer_unlocked(td);  // TODO: this is redundant with tx
     vout->m_is_frozen = td.m_frozen;
     if (td.m_key_image_known) {
       vout->m_key_image = make_shared<monero_key_image>();

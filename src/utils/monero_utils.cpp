@@ -117,6 +117,7 @@ void node_to_output(const boost::property_tree::ptree& node, shared_ptr<monero_o
     else if (key == string("index")) output->m_index = it->second.get_value<uint32_t>();
     else if (key == string("ringOutputIndices")) throw runtime_error("node_to_tx() deserialize ringOutputIndices not implemented");
     else if (key == string("stealthPublicKey")) throw runtime_error("node_to_tx() deserialize stealthPublicKey not implemented");
+    else cout << "WARNING: unrecognized field deserializing node to output: " << key << endl;
   }
 }
 
@@ -127,8 +128,8 @@ void node_to_output_wallet(const boost::property_tree::ptree& node, shared_ptr<m
     if (key == string("accountIndex")) output_wallet->m_account_index = it->second.get_value<uint32_t>();
     else if (key == string("subaddressIndex")) output_wallet->m_subaddress_index = it->second.get_value<uint32_t>();
     else if (key == string("isSpent")) output_wallet->m_is_spent = it->second.get_value<bool>();
-    else if (key == string("isLocked")) output_wallet->m_is_locked = it->second.get_value<bool>();
     else if (key == string("isFrozen")) output_wallet->m_is_frozen = it->second.get_value<bool>();
+    else cout << "WARNING: unrecognized field deserializing node to output wallet: " << key << endl;
   }
 }
 
@@ -141,6 +142,7 @@ shared_ptr<monero_output_query> node_to_output_query(const boost::property_tree:
     string key = it->first;
     if (key == string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) m_output_query->m_subaddress_indices.push_back(it2->second.get_value<uint32_t>());
     else if (key == string("txQuery")) {} // ignored
+    else cout << "WARNING: unrecognized field deserializing node to output query: " << key << endl;
   }
 
   return m_output_query;

@@ -582,7 +582,6 @@ namespace monero {
     tgt->m_account_index = src->m_account_index;
     tgt->m_subaddress_index = src->m_subaddress_index;
     tgt->m_is_spent = src->m_is_spent;
-    tgt->m_is_locked = src->m_is_locked;
     tgt->m_is_frozen = src->m_is_frozen;
     return tgt;
   };
@@ -592,7 +591,6 @@ namespace monero {
     if (m_account_index != boost::none) node.put("accountIndex", *m_account_index);
     if (m_subaddress_index != boost::none) node.put("subaddressIndex", *m_subaddress_index);
     if (m_is_spent != boost::none) node.put("isSpent", *m_is_spent);
-    if (m_is_locked != boost::none) node.put("isLocked", *m_is_locked);
     if (m_is_frozen != boost::none) node.put("isFrozen", *m_is_frozen);
     return node;
   }
@@ -613,6 +611,7 @@ namespace monero {
     m_account_index = gen_utils::reconcile(m_account_index, other->m_account_index);
     m_subaddress_index = gen_utils::reconcile(m_subaddress_index, other->m_subaddress_index);
     m_is_spent = gen_utils::reconcile(m_is_spent, other->m_is_spent);
+    m_is_frozen = gen_utils::reconcile(m_is_frozen, other->m_is_frozen);
   }
 
   // ------------------------ MONERO OUTPUT REQUEST ---------------------------
@@ -656,7 +655,6 @@ namespace monero {
     if (m_subaddress_index != boost::none && (output->m_subaddress_index == boost::none || *m_subaddress_index != *output->m_subaddress_index)) return false;
     if (m_amount != boost::none && (output->m_amount == boost::none || *m_amount != *output->m_amount)) return false;
     if (m_is_spent != boost::none && (output->m_is_spent == boost::none || *m_is_spent != *output->m_is_spent)) return false;
-    if (m_is_locked != boost::none && (output->m_is_locked == boost::none || *m_is_locked != *output->m_is_locked)) return false;
 
     // filter on output key image
     if (m_key_image != boost::none) {
