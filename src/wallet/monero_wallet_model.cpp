@@ -1033,8 +1033,18 @@ namespace monero {
 //  }
 
   rapidjson::Value monero_integrated_address::to_json_val(rapidjson::Document::AllocatorType& allocator) const {
-    cout << "monero_integrated_address::to_json_val()" << endl;
-    throw runtime_error("monero_integrated_address::to_json_val() not implemented");
+
+    // create root
+    rapidjson::Value root(rapidjson::kObjectType);
+
+    // set string values
+    rapidjson::Value value_str(rapidjson::kStringType);
+    monero_utils::addJsonMember("standardAddress", m_standard_address, allocator, root, value_str);
+    monero_utils::addJsonMember("paymentId", m_payment_id, allocator, root, value_str);
+    monero_utils::addJsonMember("integratedAddress", m_integrated_address, allocator, root, value_str);
+
+    // return root
+    return root;
   }
 
   // -------------------- MONERO KEY IMAGE IMPORT RESULT ----------------------
@@ -1048,8 +1058,18 @@ namespace monero {
 //  }
 
   rapidjson::Value monero_key_image_import_result::to_json_val(rapidjson::Document::AllocatorType& allocator) const {
-    cout << "monero_key_image_import_result::to_json_val()" << endl;
-    throw runtime_error("monero_key_image_import_result::to_json_val() not implemented");
+
+    // create root
+    rapidjson::Value root(rapidjson::kObjectType);
+
+    // set num values
+    rapidjson::Value value_num(rapidjson::kNumberType);
+    if (m_height != boost::none) monero_utils::addJsonMember("height", m_height.get(), allocator, root, value_num);
+    if (m_spent_amount != boost::none) monero_utils::addJsonMember("spentAmount", m_spent_amount.get(), allocator, root, value_num);
+    if (m_unspent_amount != boost::none) monero_utils::addJsonMember("unspentAmount", m_unspent_amount.get(), allocator, root, value_num);
+
+    // return root
+    return root;
   }
 
   // ----------------------------- MONERO CHECK -------------------------------
@@ -1061,8 +1081,15 @@ namespace monero {
 //  }
 
   rapidjson::Value monero_check::to_json_val(rapidjson::Document::AllocatorType& allocator) const {
-    cout << "monero_check::to_json_val()" << endl;
-    throw runtime_error("monero_check::to_json_val() not implemented");
+
+    // create root
+    rapidjson::Value root(rapidjson::kObjectType);
+
+    // set bool values
+    monero_utils::addJsonMember("isGood", m_is_good, allocator, root);
+
+    // return root
+    return root;
   }
 
   // --------------------------- MONERO CHECK TX ------------------------------
@@ -1076,8 +1103,20 @@ namespace monero {
 //  }
 
   rapidjson::Value monero_check_tx::to_json_val(rapidjson::Document::AllocatorType& allocator) const {
-    cout << "monero_check_tx::to_json_val()" << endl;
-    throw runtime_error("monero_check_tx::to_json_val() not implemented");
+
+    // serialize root from superclass
+    rapidjson::Value root = monero_check::to_json_val(allocator);
+
+    // set num values
+    rapidjson::Value value_num(rapidjson::kNumberType);
+    if (m_num_confirmations != boost::none) monero_utils::addJsonMember("numConfirmations", m_num_confirmations.get(), allocator, root, value_num);
+    if (m_received_amount != boost::none) monero_utils::addJsonMember("receivedAmount", m_received_amount.get(), allocator, root, value_num);
+
+    // set bool values
+    if (m_in_tx_pool != boost::none) monero_utils::addJsonMember("inTxPool", m_in_tx_pool.get(), allocator, root);
+
+    // return root
+    return root;
   }
 
   // ------------------------ MONERO CHECK RESERVE ----------------------------
@@ -1090,8 +1129,17 @@ namespace monero {
 //  }
 
   rapidjson::Value monero_check_reserve::to_json_val(rapidjson::Document::AllocatorType& allocator) const {
-    cout << "monero_check_reserve::to_json_val()" << endl;
-    throw runtime_error("monero_check_reserve::to_json_val() not implemented");
+
+    // serialize root from superclass
+    rapidjson::Value root = monero_check::to_json_val(allocator);
+
+    // set num values
+    rapidjson::Value value_num(rapidjson::kNumberType);
+    if (m_total_amount != boost::none) monero_utils::addJsonMember("totalAmount", m_total_amount.get(), allocator, root, value_num);
+    if (m_unconfirmed_spent_amount != boost::none) monero_utils::addJsonMember("unconfirmedSpentAmount", m_unconfirmed_spent_amount.get(), allocator, root, value_num);
+
+    // return root
+    return root;
   }
 
   // --------------------------- MONERO MULTISIG ------------------------------
@@ -1106,8 +1154,21 @@ namespace monero {
 //  }
 
   rapidjson::Value monero_multisig_info::to_json_val(rapidjson::Document::AllocatorType& allocator) const {
-    cout << "monero_multisig_info::to_json_val()" << endl;
-    throw runtime_error("monero_multisig_info::to_json_val() not implemented");
+
+    // create root
+    rapidjson::Value root(rapidjson::kObjectType);
+
+    // set num values
+    rapidjson::Value value_num(rapidjson::kNumberType);
+    monero_utils::addJsonMember("threshold", m_threshold, allocator, root, value_num);
+    monero_utils::addJsonMember("numParticipants", m_num_participants, allocator, root, value_num);
+
+    // set bool values
+    monero_utils::addJsonMember("isMultisig", m_is_multisig, allocator, root);
+    monero_utils::addJsonMember("isReady", m_is_ready, allocator, root);
+
+    // return root
+    return root;
   }
 
 //  boost::property_tree::ptree monero_multisig_init_result::to_property_tree() const {
@@ -1118,8 +1179,17 @@ namespace monero {
 //  }
 
   rapidjson::Value monero_multisig_init_result::to_json_val(rapidjson::Document::AllocatorType& allocator) const {
-    cout << "monero_multisig_init_result::to_json_val()" << endl;
-    throw runtime_error("monero_multisig_init_result::to_json_val() not implemented");
+
+    // create root
+    rapidjson::Value root(rapidjson::kObjectType);
+
+    // set string values
+    rapidjson::Value value_str(rapidjson::kStringType);
+    if (m_address != boost::none) monero_utils::addJsonMember("address", m_address.get(), allocator, root, value_str);
+    if (m_multisig_hex != boost::none) monero_utils::addJsonMember("multisigHex", m_multisig_hex.get(), allocator, root, value_str);
+
+    // return root
+    return root;
   }
 
 //  boost::property_tree::ptree monero_multisig_sign_result::to_property_tree() const {
@@ -1130,8 +1200,18 @@ namespace monero {
 //  }
 
   rapidjson::Value monero_multisig_sign_result::to_json_val(rapidjson::Document::AllocatorType& allocator) const {
-    cout << "monero_multisig_sign_result::to_json_val()" << endl;
-    throw runtime_error("monero_multisig_sign_result::to_json_val() not implemented");
+    // create root
+    rapidjson::Value root(rapidjson::kObjectType);
+
+    // set string values
+    rapidjson::Value value_str(rapidjson::kStringType);
+    if (m_signed_multisig_tx_hex != boost::none) monero_utils::addJsonMember("signedMultisigTxHex", m_signed_multisig_tx_hex.get(), allocator, root, value_str);
+
+    // set sub-arrays
+    if (!m_tx_ids.empty()) root.AddMember("txIds", monero_utils::to_json_val(allocator, m_tx_ids), allocator);
+
+    // return root
+    return root;
   }
 
   // -------------------------- MONERO ADDRESS BOOK ---------------------------
