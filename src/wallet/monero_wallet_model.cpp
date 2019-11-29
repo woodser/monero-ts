@@ -592,7 +592,7 @@ namespace monero {
     if (m_account_index != boost::none) node.put("accountIndex", *m_account_index);
     if (m_subaddress_index != boost::none) node.put("subaddressIndex", *m_subaddress_index);
     if (m_is_spent != boost::none) node.put("isSpent", *m_is_spent);
-    if (m_is_locked != boost::none) node.put("isUnlocked", *m_is_locked);
+    if (m_is_locked != boost::none) node.put("isLocked", *m_is_locked);
     if (m_is_frozen != boost::none) node.put("isFrozen", *m_is_frozen);
     return node;
   }
