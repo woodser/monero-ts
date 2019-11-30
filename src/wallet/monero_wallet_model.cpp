@@ -345,7 +345,7 @@ namespace monero {
     }
   }
 
-  shared_ptr<monero_tx_query> monero_tx_query::deserialize(const string& tx_query_json) {
+  shared_ptr<monero_tx_query> monero_tx_query::deserialize_from_block(const string& tx_query_json) {
 
     // deserialize tx query string to property rooted at block
     std::istringstream iss = tx_query_json.empty() ? std::istringstream() : std::istringstream(tx_query_json);
@@ -728,7 +728,7 @@ namespace monero {
     }
   }
 
-  shared_ptr<monero_transfer_query> monero_transfer_query::deserialize(const string& transfer_query_json) {
+  shared_ptr<monero_transfer_query> monero_transfer_query::deserialize_from_block(const string& transfer_query_json) {
 
     // deserialize transfer query string to property rooted at block
     std::istringstream iss = transfer_query_json.empty() ? std::istringstream() : std::istringstream(transfer_query_json);
@@ -951,7 +951,7 @@ namespace monero {
     }
   }
 
-  shared_ptr<monero_output_query> monero_output_query::deserialize(const string& output_query_json) {
+  shared_ptr<monero_output_query> monero_output_query::deserialize_from_block(const string& output_query_json) {
 
     // deserialize output query string to property rooted at block
     std::istringstream iss = output_query_json.empty() ? std::istringstream() : std::istringstream(output_query_json);

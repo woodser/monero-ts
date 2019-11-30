@@ -192,7 +192,7 @@ namespace monero {
 
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
     static void from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_transfer_query>& transfer_query);
-    static shared_ptr<monero_transfer_query> deserialize(const string& transfer_query_json);
+    static shared_ptr<monero_transfer_query> deserialize_from_block(const string& transfer_query_json);
     shared_ptr<monero_transfer_query> copy(const shared_ptr<monero_transfer>& src, const shared_ptr<monero_transfer>& tgt) const;
     shared_ptr<monero_transfer_query> copy(const shared_ptr<monero_transfer_query>& src, const shared_ptr<monero_transfer_query>& tgt) const;
     boost::optional<bool> is_incoming() const;
@@ -229,7 +229,7 @@ namespace monero {
     //boost::property_tree::ptree to_property_tree() const;
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
     static void from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_output_query>& output_query);
-    static shared_ptr<monero_output_query> deserialize(const string& output_query_json);
+    static shared_ptr<monero_output_query> deserialize_from_block(const string& output_query_json);
     bool is_default() const;
     shared_ptr<monero_output_query> copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const;
     shared_ptr<monero_output_query> copy(const shared_ptr<monero_output_wallet>& src, const shared_ptr<monero_output_wallet>& tgt) const; // TODO: necessary to override all super classes?
@@ -286,7 +286,7 @@ namespace monero {
 
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
     static void from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_tx_query>& tx_query);
-    static shared_ptr<monero_tx_query> deserialize(const string& tx_query_json);
+    static shared_ptr<monero_tx_query> deserialize_from_block(const string& tx_query_json);
     shared_ptr<monero_tx_query> copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const;
     shared_ptr<monero_tx_query> copy(const shared_ptr<monero_tx_wallet>& src, const shared_ptr<monero_tx_wallet>& tgt) const; // TODO: necessary to override all super classes?
     shared_ptr<monero_tx_query> copy(const shared_ptr<monero_tx_query>& src, const shared_ptr<monero_tx_query>& tgt) const;
