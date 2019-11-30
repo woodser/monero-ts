@@ -884,7 +884,6 @@ namespace monero {
       else if (key == string("subaddressIndex")) output_wallet->m_subaddress_index = it->second.get_value<uint32_t>();
       else if (key == string("isSpent")) output_wallet->m_is_spent = it->second.get_value<bool>();
       else if (key == string("isFrozen")) output_wallet->m_is_frozen = it->second.get_value<bool>();
-      else cout << "WARNING: unrecognized field deserializing node to output wallet: " << key << endl;
     }
   }
 
@@ -949,7 +948,6 @@ namespace monero {
       string key = it->first;
       if (key == string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) output_query->m_subaddress_indices.push_back(it2->second.get_value<uint32_t>());
       else if (key == string("txQuery")) {} // ignored
-      else cout << "WARNING: unrecognized field deserializing node to output query: " << key << endl;
     }
   }
 

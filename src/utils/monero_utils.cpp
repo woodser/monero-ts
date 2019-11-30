@@ -213,8 +213,6 @@ rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorTy
 
 // ------------------------ PROPERTY TREES ---------------------------
 
-// TODO: switch to rapidjson
-
 string monero_utils::serialize(const boost::property_tree::ptree& node) {
   std::stringstream ss;
   boost::property_tree::write_json(ss, node, false);
