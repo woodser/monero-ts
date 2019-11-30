@@ -270,7 +270,7 @@ namespace monero {
     if (!m_vins.empty()) root.AddMember("vins", monero_utils::to_rapidjson_val(allocator, m_vins), allocator);
     if (!m_vouts.empty()) root.AddMember("vouts", monero_utils::to_rapidjson_val(allocator, m_vouts), allocator);
     if (!m_output_indices.empty()) root.AddMember("outputIndices", monero_utils::to_rapidjson_val(allocator, m_output_indices), allocator);
-    if (!m_extra.empty()) root.AddMember("extra", monero_utils::to_rapidjson_val(allocator, m_extra), allocator);  // TODO
+    if (!m_extra.empty()) root.AddMember("extra", monero_utils::to_rapidjson_val(allocator, m_extra), allocator);
     if (!m_signatures.empty()) root.AddMember("signatures", monero_utils::to_rapidjson_val(allocator, m_signatures), allocator);
 
     // return root
