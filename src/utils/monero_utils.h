@@ -66,8 +66,6 @@ namespace monero_utils
   using namespace std;
   using namespace cryptonote;
 
-  void dummy_method(const string& str); // TODO: remove this
-
   // ------------------------ BINARY SERIALIZATION ----------------------------
 
   void json_to_binary(const std::string &json, std::string &bin);
@@ -85,27 +83,27 @@ namespace monero_utils
   void addJsonMember(string key, bool val, rapidjson::Document::AllocatorType& allocator, rapidjson::Value& root);
 
   // TODO: template implementation here, could move to monero_utils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-  template <class T> rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<shared_ptr<T>>& vals) {
+  template <class T> rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<shared_ptr<T>>& vals) {
     rapidjson::Value value_arr(rapidjson::kArrayType);
     for (const auto& val : vals) {
-      value_arr.PushBack(val->to_json_val(allocator), allocator);
+      value_arr.PushBack(val->to_rapidjson_val(allocator), allocator);
     }
     return value_arr;
   }
 
   // TODO: template implementation here, could move to monero_utils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-  template <class T> rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<T>& vals) {
+  template <class T> rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<T>& vals) {
     rapidjson::Value value_arr(rapidjson::kArrayType);
     for (const auto& val : vals) {
-      value_arr.PushBack(val.to_json_val(allocator), allocator);
+      value_arr.PushBack(val.to_rapidjson_val(allocator), allocator);
     }
     return value_arr;
   }
 
-  rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<string>& strs);
-  rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<uint8_t>& nums);
-  rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<uint32_t>& nums);
-  rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<uint64_t>& nums);
+  rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<string>& strs);
+  rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<uint8_t>& nums);
+  rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<uint32_t>& nums);
+  rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<uint64_t>& nums);
 
   // ------------------------ PROPERTY TREES ---------------------------
 
@@ -113,30 +111,6 @@ namespace monero_utils
 
   string serialize(const boost::property_tree::ptree& node);
   void deserialize(const string& json, boost::property_tree::ptree& root);
-
-  //
-  //  // TODO: template implementation here, could move to monero_utils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-  //  template <class T> boost::property_tree::ptree to_property_tree(const vector<shared_ptr<T>>& types) {
-  //    boost::property_tree::ptree typeNodes;
-  //    for (const auto& type : types)  {
-  //      typeNodes.push_back(std::make_pair("", type->to_property_tree()));
-  //    }
-  //    return typeNodes;
-  //  }
-  //
-  //  // TODO: template implementation here, could move to monero_utils.hpp per https://stackoverflow.com/questions/3040480/c-template-function-compiles-in-header-but-not-implementation
-  //  template <class T> boost::property_tree::ptree to_property_tree(const vector<T>& types) {
-  //    boost::property_tree::ptree typeNodes;
-  //    for (const auto& type : types)  {
-  //      typeNodes.push_back(std::make_pair("", type.to_property_tree()));
-  //    }
-  //    return typeNodes;
-  //  }
-  //
-  //  boost::property_tree::ptree to_property_tree(const vector<string>& strs);
-  //  boost::property_tree::ptree to_property_tree(const vector<uint8_t>& nums);
-  //  boost::property_tree::ptree to_property_tree(const vector<uint32_t>& nums);
-  //  boost::property_tree::ptree to_property_tree(const vector<uint64_t>& nums);
 
   // --------------------------------------------------------------------------
 

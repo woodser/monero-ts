@@ -170,7 +170,7 @@ void monero_utils::addJsonMember(string key, bool val, rapidjson::Document::Allo
   }
 }
 
-rapidjson::Value monero_utils::to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<string>& strs) {
+rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<string>& strs) {
   rapidjson::Value value_arr(rapidjson::kArrayType);
   rapidjson::Value value_str(rapidjson::kStringType);
   for (const string& str : strs) {
@@ -180,7 +180,7 @@ rapidjson::Value monero_utils::to_json_val(rapidjson::Document::AllocatorType& a
   return value_arr;
 }
 
-rapidjson::Value monero_utils::to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<uint8_t>& nums) {
+rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<uint8_t>& nums) {
   rapidjson::Value value_arr(rapidjson::kArrayType);
   rapidjson::Value value_num(rapidjson::kNumberType);
   for (const auto& num : nums) {
@@ -191,7 +191,7 @@ rapidjson::Value monero_utils::to_json_val(rapidjson::Document::AllocatorType& a
 }
 
 // TODO: remove these redundant implementations for different sizes?
-rapidjson::Value monero_utils::to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<uint32_t>& nums) {
+rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<uint32_t>& nums) {
   rapidjson::Value value_arr(rapidjson::kArrayType);
   rapidjson::Value value_num(rapidjson::kNumberType);
   for (const auto& num : nums) {
@@ -201,7 +201,7 @@ rapidjson::Value monero_utils::to_json_val(rapidjson::Document::AllocatorType& a
   return value_arr;
 }
 
-rapidjson::Value monero_utils::to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<uint64_t>& nums) {
+rapidjson::Value monero_utils::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator, const vector<uint64_t>& nums) {
   rapidjson::Value value_arr(rapidjson::kArrayType);
   rapidjson::Value value_num(rapidjson::kNumberType);
   for (const auto& num : nums) {
@@ -213,7 +213,7 @@ rapidjson::Value monero_utils::to_json_val(rapidjson::Document::AllocatorType& a
 
 // ------------------------ PROPERTY TREES ---------------------------
 
-// TODO: fully switch to rapidjson
+// TODO: switch to rapidjson
 
 string monero_utils::serialize(const boost::property_tree::ptree& node) {
   std::stringstream ss;
@@ -222,7 +222,6 @@ string monero_utils::serialize(const boost::property_tree::ptree& node) {
   return str.substr(0, str.size() - 1); // strip newline
 }
 
-// TODO: switch deserializes in this utils class to use this deserialize util
 void monero_utils::deserialize(const string& json, boost::property_tree::ptree& root) {
   std::istringstream iss = json.empty() ? std::istringstream() : std::istringstream(json);
   try {
@@ -232,50 +231,10 @@ void monero_utils::deserialize(const string& json, boost::property_tree::ptree& 
   }
 }
 
-//boost::property_tree::ptree monero_utils::to_property_tree(const vector<string>& strs) {
-//  boost::property_tree::ptree strsNode;
-//  for (const auto& str : strs)  {
-//    boost::property_tree::ptree strNode;
-//    strNode.put("", str);
-//    strsNode.push_back(std::make_pair("", strNode));
-//  }
-//  return strsNode;
-//}
-//
-//boost::property_tree::ptree monero_utils::to_property_tree(const vector<uint8_t>& nums) {
-//  boost::property_tree::ptree numsNode;
-//  for (const auto& num : nums)  {
-//    boost::property_tree::ptree numNode;
-//    numNode.put("", num);
-//    numsNode.push_back(std::make_pair("", numNode));
-//  }
-//  return numsNode;
-//}
-//
-//// TODO: remove these redundant implementations for different sizes?
-//boost::property_tree::ptree monero_utils::to_property_tree(const vector<uint32_t>& nums) {
-//  boost::property_tree::ptree numsNode;
-//  for (const auto& num : nums)  {
-//    boost::property_tree::ptree numNode;
-//    numNode.put("", num);
-//    numsNode.push_back(std::make_pair("", numNode));
-//  }
-//  return numsNode;
-//}
-//
-//boost::property_tree::ptree monero_utils::to_property_tree(const vector<uint64_t>& nums) {
-//  boost::property_tree::ptree numsNode;
-//  for (const auto& num : nums)  {
-//    boost::property_tree::ptree numNode;
-//    numNode.put("", num);
-//    numsNode.push_back(std::make_pair("", numNode));
-//  }
-//  return numsNode;
-//}
-
 // ----------------------------------------------------------------------------
 
-// TODO: is this unused?
+// TODO: this is unused
+
 shared_ptr<monero_block> monero_utils::cn_block_to_block(const cryptonote::block& cn_block) {
   cryptonote::block temp = cn_block;
   cout << cryptonote::obj_to_json_str(temp) << endl;
