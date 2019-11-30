@@ -170,6 +170,7 @@ namespace monero {
 
     //boost::property_tree::ptree to_property_tree() const;
     rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator) const;
+
     void merge(const shared_ptr<monero_block_header>& self, const shared_ptr<monero_block_header>& other);
     void merge(const shared_ptr<monero_block>& self, const shared_ptr<monero_block>& other);
   };
@@ -218,9 +219,10 @@ namespace monero {
     boost::optional<string> m_max_used_block_id;
     vector<string> m_signatures;
 
-    shared_ptr<monero_tx> copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const;
     //boost::property_tree::ptree to_property_tree() const;
     rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator) const;
+    static void from_property_tree(const boost::property_tree::ptree& node, shared_ptr<monero_tx> tx);
+    shared_ptr<monero_tx> copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const;
     virtual void merge(const shared_ptr<monero_tx>& self, const shared_ptr<monero_tx>& other);
     boost::optional<uint64_t> get_height() const;
   };
@@ -232,9 +234,11 @@ namespace monero {
     boost::optional<string> m_hex;
     boost::optional<string> m_signature;
 
-    shared_ptr<monero_key_image> copy(const shared_ptr<monero_key_image>& src, const shared_ptr<monero_key_image>& tgt) const;
     //boost::property_tree::ptree to_property_tree() const;
     rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator) const;
+    static void from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_key_image>& key_image);
+    static vector<shared_ptr<monero_key_image>> deserialize_key_images(const string& key_images_json);  // TODO: remove this specialty util used once
+    shared_ptr<monero_key_image> copy(const shared_ptr<monero_key_image>& src, const shared_ptr<monero_key_image>& tgt) const;
     void merge(const shared_ptr<monero_key_image>& self, const shared_ptr<monero_key_image>& other);
   };
 
@@ -249,9 +253,10 @@ namespace monero {
     vector<uint64_t> m_ring_output_indices;
     boost::optional<string> m_stealth_public_key;
 
-    shared_ptr<monero_output> copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const;
     //boost::property_tree::ptree to_property_tree() const;
     rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator) const;
+    static void from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_output>& output);
+    shared_ptr<monero_output> copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const;
     virtual void merge(const shared_ptr<monero_output>& self, const shared_ptr<monero_output>& other);
   };
 }

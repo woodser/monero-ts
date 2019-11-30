@@ -107,17 +107,6 @@ namespace monero_utils
   rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<uint32_t>& nums);
   rapidjson::Value to_json_val(rapidjson::Document::AllocatorType& allocator, const vector<uint64_t>& nums);
 
-  // ------------------------ MODEL DESERIALIZATION ---------------------------
-
-  // TODO: move deserialization to static utilities on class
-
-  shared_ptr<monero_tx_query> deserialize_tx_query(const string& txQueryStr);
-  shared_ptr<monero_transfer_query> deserialize_transfer_query(const string& transfer_query_str);
-  shared_ptr<monero_output_query> deserialize_output_query(const string& output_query_str);
-  shared_ptr<monero_send_request> deserialize_send_request(const string& send_request_str);
-  vector<shared_ptr<monero_key_image>> deserialize_key_images(const string& key_images_json);
-  monero_tx_set deserialize_tx_set(const string& tx_set_str);
-
   // ------------------------ PROPERTY TREES ---------------------------
 
   // TODO: fully switch from property trees to rapidjson
