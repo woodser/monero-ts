@@ -54,6 +54,9 @@
 #ifndef gen_utils_h
 #define gen_utils_h
 
+#include "include_base_utils.h"
+#include "common/util.h"
+
 /**
  * Collection of utilities for working with Monero's binary portable storage format.
  */
