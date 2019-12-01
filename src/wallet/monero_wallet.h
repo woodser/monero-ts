@@ -655,15 +655,15 @@ namespace monero {
      * Get wallet transactions.  Wallet transactions contain one or more
      * transfers that are either incoming or outgoing to the wallet.
      *
-     * Query results can be filtered by passing in a transaction request.
-     * Transactions must meet every criteria defined in the request in order to
+     * Query results can be filtered by passing in a transaction query.
+     * Transactions must meet every criteria defined in the query in order to
      * be returned.  All filtering is optional and no filtering is applied when
      * not defined.
      *
-     * @param request filters query results (optional)
-     * @return wallet transactions per the request
+     * @param query filters query results (optional)
+     * @return wallet transactions per the query
      */
-    vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& request) const;
+    vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& query) const;
 
 //    /**
 //     * Get all incoming and outgoing transfers to and from this wallet.  An
@@ -713,14 +713,14 @@ namespace monero {
      * are stored on the blockchain.
      *
      * Query results can be filtered by passing in a monero_transfer_query.
-     * Transfers must meet every criteria defined in the request in order to be
+     * Transfers must meet every criteria defined in the query in order to be
      * returned.  All filtering is optional and no filtering is applied when not
      * defined.
      *
-     * @param request filters query results (optional)
-     * @return wallet transfers per the request
+     * @param query filters query results (optional)
+     * @return wallet transfers per the query
      */
-    vector<shared_ptr<monero_transfer>> get_transfers(const monero_transfer_query& request) const;
+    vector<shared_ptr<monero_transfer>> get_transfers(const monero_transfer_query& query) const;
 
 //    /**
 //     * Get outputs created from previous transactions that belong to the wallet
@@ -737,13 +737,13 @@ namespace monero {
      * transactions which are stored in blocks on the blockchain.
      *
      * Results can be configured by passing a monero_output_query.  Outputs must
-     * meet every criteria defined in the request in order to be returned.  All
+     * meet every criteria defined in the query in order to be returned.  All
      * filtering is optional and no filtering is applied when not defined.
      *
-     * @param request specifies request options (optional)
-     * @return List<monero_output_wallet> are wallet outputs per the request
+     * @param query specifies query options (optional)
+     * @return wallet outputs per the query
      */
-    vector<shared_ptr<monero_output_wallet>> get_outputs(const monero_output_query& request) const;
+    vector<shared_ptr<monero_output_wallet>> get_outputs(const monero_output_query& query) const;
 
     /**
      * Export all outputs in hex format.

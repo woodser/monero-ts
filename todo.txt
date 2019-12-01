@@ -1,10 +1,7 @@
 TODO
-monero_wallet.h request -> query
 preserve rpc error codes, just throwing runtime_error now
-gen_utils.h and monero_utils.h should not depend on monero_wallet.h
-add to ecosystem?
 monero_wallet.cpp move utilities in monero_namespace to be private
-polish model: no boost::optional<shared_ptr>? no boost::optional<string>? etc
+polish model: remove all boost::optional from model to be consistent with core?
 ensure model toPropertyTrees(), etc are not unecessarily copying return objects
 monero_wallet_listener should be a class?
 way to use copy constructors instead of query copy(sp, sp) methods?
