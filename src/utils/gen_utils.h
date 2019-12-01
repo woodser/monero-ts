@@ -54,8 +54,6 @@
 #ifndef gen_utils_h
 #define gen_utils_h
 
-#include "wallet/monero_wallet.h"
-
 /**
  * Collection of utilities for working with Monero's binary portable storage format.
  */
