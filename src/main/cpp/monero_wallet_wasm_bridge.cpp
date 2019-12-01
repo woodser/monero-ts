@@ -316,7 +316,7 @@ void monero_wallet_wasm_bridge::get_txs(int handle, const string& tx_query_str, 
     }
   }
 
-  // return wrapped and serialized blocks
+  // wrap and serialize blocks
   rapidjson::Document doc;
   doc.SetObject();
   doc.AddMember("blocks", monero_utils::to_json_val(doc.GetAllocator(), blocks), doc.GetAllocator());
