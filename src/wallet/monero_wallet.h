@@ -246,6 +246,13 @@ namespace monero {
     bool is_synced() const;
 
     /**
+     * Get the wallet's version.
+     *
+     * @return the wallet's version
+     */
+    monero_version get_version() const;
+
+    /**
      * Get the path of this wallet's file on disk.
      *
      * @return the path of this wallet's file on disk
@@ -648,15 +655,15 @@ namespace monero {
      * Get wallet transactions.  Wallet transactions contain one or more
      * transfers that are either incoming or outgoing to the wallet.
      *
-     * Query results can be filtered by passing in a transaction request.
-     * Transactions must meet every criteria defined in the request in order to
+     * Query results can be filtered by passing in a transaction query.
+     * Transactions must meet every criteria defined in the query in order to
      * be returned.  All filtering is optional and no filtering is applied when
      * not defined.
      *
-     * @param request filters query results (optional)
-     * @return wallet transactions per the request
+     * @param query filters query results (optional)
+     * @return wallet transactions per the query
      */
-    vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& request) const;
+    vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& query) const;
 
 //    /**
 //     * Get all incoming and outgoing transfers to and from this wallet.  An
@@ -706,14 +713,14 @@ namespace monero {
      * are stored on the blockchain.
      *
      * Query results can be filtered by passing in a monero_transfer_query.
-     * Transfers must meet every criteria defined in the request in order to be
+     * Transfers must meet every criteria defined in the query in order to be
      * returned.  All filtering is optional and no filtering is applied when not
      * defined.
      *
-     * @param request filters query results (optional)
-     * @return wallet transfers per the request
+     * @param query filters query results (optional)
+     * @return wallet transfers per the query
      */
-    vector<shared_ptr<monero_transfer>> get_transfers(const monero_transfer_query& request) const;
+    vector<shared_ptr<monero_transfer>> get_transfers(const monero_transfer_query& query) const;
 
 //    /**
 //     * Get outputs created from previous transactions that belong to the wallet
@@ -730,13 +737,13 @@ namespace monero {
      * transactions which are stored in blocks on the blockchain.
      *
      * Results can be configured by passing a monero_output_query.  Outputs must
-     * meet every criteria defined in the request in order to be returned.  All
+     * meet every criteria defined in the query in order to be returned.  All
      * filtering is optional and no filtering is applied when not defined.
      *
-     * @param request specifies request options (optional)
-     * @return List<monero_output_wallet> are wallet outputs per the request
+     * @param query specifies query options (optional)
+     * @return wallet outputs per the query
      */
-    vector<shared_ptr<monero_output_wallet>> get_outputs(const monero_output_query& request) const;
+    vector<shared_ptr<monero_output_wallet>> get_outputs(const monero_output_query& query) const;
 
     /**
      * Export all outputs in hex format.
@@ -1000,6 +1007,14 @@ namespace monero {
     monero_tx_set sweep_dust(bool do_not_relay = false);
 
     /**
+     * Parses a tx set containing unsigned or multisig tx hex to a new tx set containing structured transactions.
+     *
+     * @param tx_set is a tx set containing unsigned or multisig tx hex
+     * @return the parsed tx set containing structured transactions
+     */
+    monero_tx_set parse_tx_set(const monero_tx_set& tx_set);
+
+    /**
      * Sign a message.
      *
      * @param msg is the message to sign
@@ -1152,47 +1167,43 @@ namespace monero {
      */
     void set_tx_notes(const vector<string>& tx_ids, const vector<string>& notes);
 
-//    /**
-//     * Get all address book entries.
-//     *
-//     * @return the address book entries
-//     */
-//    public List<MoneroAddressBookEntry> getAddressBookEntries();
-//
-//    /**
-//     * Get address book entries.
-//     *
-//     * @param entryIndices are indices of the entries to get
-//     * @return the address book entries
-//     */
-//    public List<MoneroAddressBookEntry> getAddressBookEntries(Collection<Integer> entryIndices);
-//
-//    /**
-//     * Add an address book entry.
-//     *
-//     * @param address is the entry address
-//     * @param description is the entry description (optional)
-//     * @return the index of the added entry
-//     */
-//    public int addAddressBookEntry(string address, string description);
-//
-//    /**
-//     * Add an address book entry.
-//     *
-//     * @param address is the entry address
-//     * @param description is the entry description (optional)
-//     * @param payment_id is the entry paymet id (optional)
-//     * @return the index of the added entry
-//     */
-//    public int addAddressBookEntry(string address, string description, string payment_id);
-//
-//    /**
-//     * Delete an address book entry.
-//     *
-//     * @param entryIdx is the index of the entry to delete
-//     */
-//    public void deleteAddressBookEntry(int entryIdx);
-//
+    /**
+     * Get all address book entries.
+     *
+     * @param indices are indices of the entries to get
+     * @return the address book entries
+     */
+    vector<monero_address_book_entry> get_address_book_entries(const vector<uint64_t>& indices) const;
+
+    /**
+     * Add an address book entry.
+     *
+     * @param address is the entry address
+     * @param description is the entry description (optional)
+     * @return the index of the added entry
+     */
+    uint64_t add_address_book_entry(const string& address, const string& description, const string& payment_id = "");
+
+    /**
+     * Edit an address book entry.
+     *
+     * @param index is the index of the address book entry to edit
+     * @param set_address specifies if the address should be updated
+     * @param address is the updated address
+     * @param set_description specifies if the description should be updated
+     * @param description is the updated description
+     * @param set_payment_id specifies if the payment id should be updated
+     * @param payment_id is the updated payment id
+     */
+    void edit_address_book_entry(uint64_t index, bool set_address, const string& address, bool set_description, const string& description, bool set_payment_id = false, const string& payment_id = "");
+
+    /**
+     * Delete an address book entry.
+     *
+     * @param index is the index of the entry to delete
+     */
+    void delete_address_book_entry(uint64_t index);
+
 //    /**
 //     * Tag accounts.
 //     *
@@ -1243,9 +1254,10 @@ namespace monero {
      * Get an attribute.
      *
      * @param key is the attribute to get the value of
-     * @return the attribute's value
+     * @param value is set to the key's value if set
+     * @return true if the key's value has been set, false otherwise
      */
-    string get_attribute(const string& key) const;
+    bool get_attribute(const string& key, string& value) const;
 
     /**
      * Set an arbitrary attribute.

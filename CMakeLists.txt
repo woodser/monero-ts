@@ -8,18 +8,19 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11 -F/Library/Frameworks -
 
 project(MoneroCppLibrary)
 
-#############
-# System
-#############
+###################
+# monero-project
+###################
 
 set(MONERO_CORE "external/monero-core")
 set(MONERO_CORE_SRC "${MONERO_CORE}/src")
 
 # header includes
 include_directories(src/)
-include_directories(${MONERO_CORE}/contrib/epee/include)
-include_directories(${MONERO_CORE}/external/)
-include_directories(${MONERO_CORE}/external/easylogging++)
+include_directories("${MONERO_CORE}/contrib/epee/include")
+include_directories("${MONERO_CORE}/external/")
+include_directories("${MONERO_CORE}/external/easylogging++")
+include_directories("${MONERO_CORE}/external/rapidjson/include")
 include_directories("${MONERO_CORE_SRC}/")
 include_directories("${MONERO_CORE_SRC}/wallet")
 include_directories("${MONERO_CORE_SRC}/wallet/api")
@@ -221,6 +222,10 @@ set_target_properties(multisig PROPERTIES IMPORTED_LOCATION
 add_library(version STATIC IMPORTED)
 set_target_properties(version PROPERTIES IMPORTED_LOCATION
     ${EXTERNAL_LIBS_DIR}/monero-core/libversion.a)
+    
+add_library(randomx STATIC IMPORTED)
+set_target_properties(randomx PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/monero-core/librandomx.a)
 
 ########################
 # Build c++ library
@@ -278,6 +283,7 @@ target_link_libraries(monero-cpp
 	device_trezor
 	multisig
 	version
+	randomx
 	
 	${EXTRA_LIBRARIES}
 )
@@ -335,6 +341,7 @@ target_link_libraries(sample_code
 	device_trezor
 	multisig
 	version
+	randomx
 	
 	${EXTRA_LIBRARIES}
 )
@@ -394,6 +401,7 @@ target_link_libraries(scratchpad
 	device_trezor
 	multisig
 	version
+	randomx
 	
 	${EXTRA_LIBRARIES}
 )

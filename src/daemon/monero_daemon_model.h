@@ -54,6 +54,9 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 
 using namespace std;
 
@@ -75,11 +78,12 @@ namespace monero {
     string serialize() const;
 
     /**
-     * Convert the struct to a property tree.
+     * Converts the struct to a rapidjson Value.
      *
-     * @return the converted property tree
+     * @param allocator is the rapidjson document allocator
+     * @return the struct as a rapidjson Value
      */
-    virtual boost::property_tree::ptree to_property_tree() const = 0;
+    virtual rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const = 0;
   };
 
   /**
@@ -89,6 +93,16 @@ namespace monero {
       MAINNET = 0,
       TESTNET,
       STAGENET
+  };
+
+  /**
+   * Models a Monero version.
+   */
+  struct monero_version : public serializable_struct {
+    boost::optional<uint32_t> m_version_number;
+    boost::optional<bool> m_is_release;
+
+    rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
   };
 
   /**
@@ -132,7 +146,7 @@ namespace monero {
     boost::optional<uint64_t> m_reward;
     boost::optional<string> m_pow_hash;
 
-    boost::property_tree::ptree to_property_tree() const;
+    rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
     virtual void merge(const shared_ptr<monero_block_header>& self, const shared_ptr<monero_block_header>& other);
   };
 
@@ -145,7 +159,7 @@ namespace monero {
     vector<shared_ptr<monero_tx>> m_txs;
     vector<string> m_tx_ids;
 
-    boost::property_tree::ptree to_property_tree() const;
+    rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
     void merge(const shared_ptr<monero_block_header>& self, const shared_ptr<monero_block_header>& other);
     void merge(const shared_ptr<monero_block>& self, const shared_ptr<monero_block>& other);
   };
@@ -161,7 +175,7 @@ namespace monero {
     boost::optional<bool> m_is_miner_tx;
     boost::optional<string> m_payment_id;
     boost::optional<uint64_t> m_fee;
-    boost::optional<uint32_t> m_mixin;
+    boost::optional<uint32_t> m_ring_size;
     boost::optional<bool> m_do_not_relay;
     boost::optional<bool> m_is_relayed;
     boost::optional<bool> m_is_confirmed;
@@ -194,8 +208,9 @@ namespace monero {
     boost::optional<string> m_max_used_block_id;
     vector<string> m_signatures;
 
+    rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
+    static void from_property_tree(const boost::property_tree::ptree& node, shared_ptr<monero_tx> tx);
     shared_ptr<monero_tx> copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const;
-    boost::property_tree::ptree to_property_tree() const;
     virtual void merge(const shared_ptr<monero_tx>& self, const shared_ptr<monero_tx>& other);
     boost::optional<uint64_t> get_height() const;
   };
@@ -207,8 +222,10 @@ namespace monero {
     boost::optional<string> m_hex;
     boost::optional<string> m_signature;
 
+    rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
+    static void from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_key_image>& key_image);
+    static vector<shared_ptr<monero_key_image>> deserialize_key_images(const string& key_images_json);  // TODO: remove this specialty util used once
     shared_ptr<monero_key_image> copy(const shared_ptr<monero_key_image>& src, const shared_ptr<monero_key_image>& tgt) const;
-    boost::property_tree::ptree to_property_tree() const;
     void merge(const shared_ptr<monero_key_image>& self, const shared_ptr<monero_key_image>& other);
   };
 
@@ -223,8 +240,9 @@ namespace monero {
     vector<uint64_t> m_ring_output_indices;
     boost::optional<string> m_stealth_public_key;
 
+    rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
+    static void from_property_tree(const boost::property_tree::ptree& node, const shared_ptr<monero_output>& output);
     shared_ptr<monero_output> copy(const shared_ptr<monero_output>& src, const shared_ptr<monero_output>& tgt) const;
-    boost::property_tree::ptree to_property_tree() const;
     virtual void merge(const shared_ptr<monero_output>& self, const shared_ptr<monero_output>& other);
   };
 }
