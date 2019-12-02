@@ -331,6 +331,7 @@ class TestMoneroDaemonRpc {
         for (let i = 1; i < 3; i++) {
           let tx = await getUnrelayedTx(that.wallet, i);
           let result = await daemon.submitTxHex(tx.getFullHex(), true);
+          testSubmitTxResultGood(result);
           assert.equal(result.isGood(), true);
           assert.equal(result.isRelayed(), false);
           txIds.push(tx.getId());
