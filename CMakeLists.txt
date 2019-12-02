@@ -254,8 +254,6 @@ set (
 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 -s ASSERTIONS=2 \
 -s EXIT_RUNTIME=0 \
--s ASYNCIFY=1 \
--s 'ASYNCIFY_IMPORTS=[\"js_send_json_request\",\"js_send_binary_request\",\"emscripten_sleep\"]' \
 -s PRECISE_F32=1 \
 -s DISABLE_EXCEPTION_CATCHING=0 \
 -s EXCEPTION_DEBUG=1 \

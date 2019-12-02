@@ -1,3 +1,7 @@
+V15
+port updates from java
+switch MoneroWalletLocal from mymonero to cpp library
+
 HIGH (WASM)
 remove the plugins dir
 test "Can get transactions by id" passes tx query where txs is array of characters
