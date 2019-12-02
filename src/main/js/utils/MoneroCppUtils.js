@@ -62,7 +62,6 @@ class MoneroCppUtils {
     MoneroCppUtils.WASM_MODULE._free(ptr);
     
     // parse and return json
-    console.log("MoneroCppUtils.binaryToJson() parsing return string: " + ret_string);
     return JSON.parse(ret_string);
   }
   

@@ -5,11 +5,6 @@
 using namespace std;
 using namespace monero_utils_wasm_bridge;
 
-void monero_utils_wasm_bridge::utils_dummy_method(const string& str) {
-  cout << "monero_utils_wasm_bridge::utils_dummy_method()" << endl;
-  monero_utils::dummy_method(str);
-}
-
 string monero_utils_wasm_bridge::malloc_binary_from_json(const std::string &buff_json)
 {
   // convert json to binary string

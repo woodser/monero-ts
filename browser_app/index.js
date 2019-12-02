@@ -16,26 +16,26 @@ startApp();
 async function startApp() {
   console.log("Starting app...");
   
-  // import wasm wallet which exports a promise in order to load the WebAssembly module
-  const MoneroWalletWasm = await require("../src/main/js/wallet/MoneroWalletWasm")();
-  
-  let mnemonic = "megabyte ghetto syllabus opposite firm january velvet kennel often bugs luggage nucleus volcano fainted ripped biology firm sushi putty swagger dove obedient unnoticed washing swagger";
-  let firstReceiveHeight = 453289;
-  
-  // demonstrate wasm wallet
-  let daemonConnection = new MoneroRpcConnection({uri: "http://localhost:38081", user: "superuser", pass: "abctesting123"});  // TODO: support 3 strings, "pass" should probably be renamed to "password" 
-  let walletWasm = await MoneroWalletWasm.createWalletRandom("", "supersecretpassword123", MoneroNetworkType.STAGENET, daemonConnection, "English");
-  console.log("Created random wallet!");
-  walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("", "supersecretpassword123", MoneroNetworkType.STAGENET, mnemonic, daemonConnection, firstReceiveHeight);
-  console.log("Restored wallet from seed!");
-  let result = await walletWasm.sync();
-  console.log("index.js received sync result");
-  console.log(result);
-  let height = await walletWasm.getHeight();
-  console.log("index.js received height result");
-  console.log(result);
-  console.log("WASM wallet created");
-  walletWasm.dummyMethod();
+//  // import wasm wallet which exports a promise in order to load the WebAssembly module
+//  const MoneroWalletWasm = await require("../src/main/js/wallet/MoneroWalletWasm")();
+//  
+//  let mnemonic = "megabyte ghetto syllabus opposite firm january velvet kennel often bugs luggage nucleus volcano fainted ripped biology firm sushi putty swagger dove obedient unnoticed washing swagger";
+//  let firstReceiveHeight = 453289;
+//  
+//  // demonstrate wasm wallet
+//  let daemonConnection = new MoneroRpcConnection({uri: "http://localhost:38081", user: "superuser", pass: "abctesting123"});  // TODO: support 3 strings, "pass" should probably be renamed to "password" 
+//  let walletWasm = await MoneroWalletWasm.createWalletRandom("", "supersecretpassword123", MoneroNetworkType.STAGENET, daemonConnection, "English");
+//  console.log("Created random wallet!");
+//  walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("", "supersecretpassword123", MoneroNetworkType.STAGENET, mnemonic, daemonConnection, firstReceiveHeight);
+//  console.log("Restored wallet from seed!");
+//  let result = await walletWasm.sync();
+//  console.log("index.js received sync result");
+//  console.log(result);
+//  let height = await walletWasm.getHeight();
+//  console.log("index.js received height result");
+//  console.log(result);
+//  console.log("WASM wallet created");
+//  walletWasm.dummyMethod();
   
   // demonstrate using core utilities through web assembly
   const MoneroCppUtils = await require("../src/main/js/utils/MoneroCppUtils")();
@@ -53,7 +53,6 @@ async function startApp() {
       'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + 
       'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + 
       'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n'};
-  MoneroCppUtils.dummyMethod(JSON.stringify(json));
   let binary = MoneroCppUtils.jsonToBinary(json);
   assert(binary);
   let json2 = MoneroCppUtils.binaryToJson(binary);
