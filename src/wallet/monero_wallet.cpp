@@ -1027,13 +1027,15 @@ namespace monero {
   }
 
   string monero_wallet::get_public_spend_key() const {
-    MTRACE("get_private_spend_key()");
+    MTRACE("get_public_spend_key()");
     return epee::string_tools::pod_to_hex(m_w2->get_account().get_keys().m_account_address.m_spend_public_key);
   }
 
   string monero_wallet::get_private_spend_key() const {
     MTRACE("get_private_spend_key()");
-    return epee::string_tools::pod_to_hex(m_w2->get_account().get_keys().m_spend_secret_key);
+    string spend_key = epee::string_tools::pod_to_hex(m_w2->get_account().get_keys().m_spend_secret_key);
+    if (spend_key == "0000000000000000000000000000000000000000000000000000000000000000") spend_key = "";
+    return spend_key;
   }
 
   string monero_wallet::get_primary_address() const {
