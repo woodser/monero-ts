@@ -60,6 +60,24 @@ class MoneroDaemonSyncInfo {
     this.state.overview = overview;
     return this;
   }
+  
+  getCredits() {
+    return this.state.credits;
+  }
+  
+  setCredits(credits) {
+    this.state.credits = credits;
+    return this;
+  }
+  
+  getTopBlockHash() {
+    return this.state.topBlockHash;
+  }
+  
+  setTopBlockHash(topBlockHash) {
+    this.state.topBlockHash = topBlockHash;
+    return this;
+  }
 }
 
 module.exports = MoneroDaemonSyncInfo;

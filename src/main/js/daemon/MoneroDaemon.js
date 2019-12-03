@@ -29,6 +29,15 @@ require("./model/MoneroDaemonModel")();
 class MoneroDaemon {
   
   /**
+   * Gets the version of the daemon.
+   * 
+   * @return {MoneroVersion} the version of the daemon
+   */
+  async getVersion() {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
    * Indicates if the daemon is trusted xor untrusted.
    * 
    * @return {boolean} true if the daemon is trusted, false otherwise

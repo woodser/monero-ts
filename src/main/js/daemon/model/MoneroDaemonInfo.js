@@ -258,6 +258,15 @@ class MoneroDaemonInfo {
     this.state.updateAvailable = updateAvailable;
     return this;
   }
+  
+  getCredits() {
+    return this.state.credits;
+  }
+  
+  setCredits(credits) {
+    this.state.credits = credits;
+    return this;
+  }
 }
 
 module.exports = MoneroDaemonInfo;

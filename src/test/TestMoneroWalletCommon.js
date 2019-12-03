@@ -45,6 +45,16 @@ class TestMoneroWalletCommon {
   }
   
   /**
+   * Open a test wallet.
+   * 
+   * @param path identifies the test wallet to open
+   * @return MoneroWallet returns a reference to the opened wallet
+   */
+  async openWallet(path) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Create and open a random test wallet.
    * 
    * @return the random test wallet
@@ -54,14 +64,13 @@ class TestMoneroWalletCommon {
   }
   
   /**
-   * Open a test wallet.
-   * 
-   * @param path identifies the test wallet to open
-   * @return MoneroWallet returns a reference to the opened wallet
+   * Creates a wallet from keys.
    */
-  async openWallet(path) {
+  async createWalletFromKeys(password, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
     throw new Error("Subclass must implement");
   }
+  
+  // ------------------------------ BEGIN TESTS -------------------------------
   
   runCommonTests(config) {
     let that = this;
@@ -78,6 +87,74 @@ class TestMoneroWalletCommon {
         testGetTxsStructure(txCache);
         return txCache;
       }
+      
+      it("Can create a wallet from keys", async function() {
+        let e1 = undefined;
+        try {
+          
+          //let mnemonic = await that.wallet.getMnemonic(); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
+          let primaryAddress = await that.wallet.getPrimaryAddress();
+          let privateViewKey = await that.wallet.getPrivateViewKey();
+          let privateSpendKey = await that.wallet.getPrivateSpendKey();
+          
+          // recreate test wallet from keys
+          that.wallet = await that.createWalletFromKeys(TestUtils.WALLET_PASSWORD, primaryAddress, privateViewKey, privateSpendKey, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+          let e2 = undefined;
+          try {
+            //assert.equal(await that.wallet.getMnemonic(), mnemonic);
+            assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
+            assert.equal(await that.wallet.getPrivateViewKey(), privateViewKey);
+            assert.equal(await that.wallet.getPrivateSpendKey(), privateSpendKey);
+          } catch (e) {
+            e2 = e;
+          }
+          await that.wallet.close();
+          if (e2 !== undefined) throw e2;
+        } catch (e) {
+          e1 = e;
+        }
+        
+        // open main test wallet for other tests
+        that.wallet = await that.getTestWallet();
+        if (e1 !== undefined) throw e1;
+      });
+      
+      it("Can create a watch-only wallet", async function() {
+        let e1 = undefined;
+        try {
+          
+          //let mnemonic = await that.wallet.getMnemonic(); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
+          let primaryAddress = await that.wallet.getPrimaryAddress();
+          let privateViewKey = await that.wallet.getPrivateViewKey();
+
+          // create watch-only wallet by witholding spend key
+          that.wallet = await that.createWalletFromKeys(TestUtils.WALLET_PASSWORD, primaryAddress, privateViewKey, undefined, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+          let e2 = undefined;
+          try {
+            //assert.equal(await that.wallet.getMnemonic(), mnemonic);
+            assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
+            assert.equal(await that.wallet.getPrivateViewKey(), privateViewKey);
+            assert.equal(await that.wallet.getPrivateSpendKey(), undefined);
+          } catch (e) {
+            e2 = e;
+          }
+          await that.wallet.close();
+          if (e2 !== undefined) throw e2;
+        } catch (e) {
+          e1 = e;
+        }
+        
+        // open main test wallet for other tests
+        this.wallet = await that.getTestWallet();
+        if (e1 !== undefined) throw e1;
+      });
+      
+      it("Can get the wallet's version", async function() {
+        let version = await that.wallet.getVersion();
+        assert.equal(typeof version.getVersionNumber(), "number");
+        assert(version.getVersionNumber() > 0);
+        assert.equal(typeof version.isRelease(), "boolean");
+      });
       
       it("Can get the wallet's path", async function() {
         
@@ -635,6 +712,13 @@ class TestMoneroWalletCommon {
             }
           }
           if (!found) throw new Error("Tx does not contain specified vout");
+        }
+        
+        // get unlocked txs
+        txs = await that.wallet.getTxs(new MoneroTxQuery().setIsLocked(false));
+        assert(txs.length > 0);
+        for (let tx of txs) {
+          assert.equal(tx.isLocked(), false);
         }
       });
       
@@ -1628,6 +1712,44 @@ class TestMoneroWalletCommon {
       });
       
       if (config.testNonRelays)
+      it("Can parse a tx set hex returned from sending transfers", async function() {
+        try {
+
+          // create watch-only wallet by witholding spend key
+          that.wallet = await createWalletFromKeys(TestUtils.WALLET_PASSWORD, await that.wallet.getPrimaryAddress(), await that.wallet.getPrivateViewKey(), undefined, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+          that.wallet.sync();  
+          
+          try {
+          
+            // create unsigned transactions to send funds
+            let tx = (await wallet.createTx(0, TestUtils.getRandomWalletAddress(), TestUtils.MAX_FEE.multiply(new BigInteger(3)))).getTxs()[0];
+            
+            // test resulting tx set
+            let txSet = tx.getTxSet();
+            assert.equal(typeof txSet.getUnsignedTxHex(), "string")
+            assert(txSet.getUnsignedTxHex());
+            
+            // switch to main test wallet
+            await that.wallet.close();
+            that.wallet = await getTestWallet();
+            
+            // parse the tx set
+            parsedTxSet = await that.wallet.parseTxSet(txSet);
+            
+            // test the parsed tx set
+            testParsedTxSet(parsedTxSet);
+          } catch (e) {
+            await that.wallet.close();
+          }
+
+        } catch (e2) {
+          
+          // open main test wallet for other tests
+          that.wallet = await getTestWallet();
+        }
+      });
+      
+      if (config.testNonRelays)
       it("Can sign and verify messages", async function() {
         let msg = "This is a super important message which needs to be signed and verified.";
         let signature = await that.wallet.sign(msg);
@@ -1635,6 +1757,92 @@ class TestMoneroWalletCommon {
         assert.equal(verified, true);
         verified = await that.wallet.verify(msg, await TestUtils.getRandomWalletAddress(), signature);
         assert.equal(verified, false);
+      });
+      
+      it("Has an address book", async function() {
+        
+        // initial state
+        let entries = await that.wallet.getAddressBookEntries();
+        let numEntriesStart = entries.length
+        for (let entry of entries) testAddressBookEntry(entry);
+        
+        // test adding standard addresses
+        const NUM_ENTRIES = 5;
+        let address = (await that.wallet.getSubaddress(0, 0)).getAddress();
+        let indices = [];
+        for (let i = 0; i < NUM_ENTRIES; i++) {
+          indices.push(await that.wallet.addAddressBookEntry(address, "hi there!"));
+        }
+        entries = await that.wallet.getAddressBookEntries();
+        assert.equal(entries.length, numEntriesStart + NUM_ENTRIES);
+        for (let idx of indices) {
+          let found = false;
+          for (let entry of entries) {
+            if (idx === entry.getIndex()) {
+              testAddressBookEntry(entry);
+              assert.equal(entry.getAddress(), address);
+              assert.equal(entry.getDescription(), "hi there!");
+              found = true;
+              break;
+            }
+          }
+          assert(found, "Index " + idx + " not found in address book indices");
+        }
+        
+        // edit each address book entry
+        for (let idx of indices) {
+          await wallet.editAddressBookEntry(idx, false, undefined, true, "hello there!!", false, undefined);
+        }
+        entries = await wallet.getAddressBookEntries(indices);
+        for (let entry of entries) {
+          assert.equal(entry.getDesription(), "hello there!!");
+        }
+        
+        // delete entries at starting index
+        let deleteIdx = indices[0];
+        for (let i = 0; i < indices.length; i++) {
+          await that.wallet.deleteAddressBookEntry(deleteIdx);
+        }
+        entries = await that.wallet.getAddressBookEntries();
+        assert.equal(entries.length, numEntriesStart);
+        
+        // test adding integrated addresses
+        indices = [];
+        let paymentId = "03284e41c342f03"; // payment id less one character
+        let integratedAddresses = {};
+        let integratedDescriptions = {};
+        for (let i = 0; i < NUM_ENTRIES; i++) {
+          let integratedAddress = await that.wallet.getIntegratedAddress(paymentId + i); // create unique integrated address
+          let uuid = GenUtils.uuidv4();
+          let idx = await that.wallet.addAddressBookEntry(integratedAddress.toString(), uuid);
+          indices.push(idx);
+          integratedAddresses[idx] = integratedAddress;
+          integratedDescriptions[idx] = uuid;
+        }
+        entries = await that.wallet.getAddressBookEntries();
+        assert.equal(entries.length, numEntriesStart + NUM_ENTRIES);
+        for (let idx of indices) {
+          let found = false;
+          for (let entry of entries) {
+            if (idx === entry.getIndex()) {
+              testAddressBookEntry(entry);
+              assert.equal(entry.getDescription(), integratedDescriptions[idx]);
+              assert.equal(entry.getAddress(), integratedAddresses[idx].getStandardAddress());
+              assert(MoneroUtils.paymentIdsEqual(integratedAddresses[idx].getPaymentId(), entry.getPaymentId()));
+              found = true;
+              break;
+            }
+          }
+          assert(found, "Index " + idx + " not found in address book indices");
+        }
+        
+        // delete entries at starting index
+        deleteIdx = indices[0];
+        for (let i = 0; i < indices.length; i++) {
+          await that.wallet.deleteAddressBookEntry(deleteIdx);
+        }
+        entries = await that.wallet.getAddressBookEntries();
+        assert.equal(entries.length, numEntriesStart);
       });
       
       if (config.testNonRelays)
@@ -2047,6 +2255,7 @@ class TestMoneroWalletCommon {
           if (tx.getOutgoingTransfer() !== undefined && tx.getOutgoingTransfer().getDestinations()) {
             let destinationSum = new BigInteger(0);
             for (let destination of tx.getOutgoingTransfer().getDestinations()) {
+              testDestination(destination);
               assert.equal(destination.getAddress(), address);
               destinationSum = destinationSum.add(destination.getAmount());
             }
@@ -2070,7 +2279,11 @@ class TestMoneroWalletCommon {
       it("Can send to an address in a single transaction with a payment id.", async function() {
         let integratedAddress = await that.wallet.getIntegratedAddress();
         let paymentId = integratedAddress.getPaymentId();
-        await testSendToSingle(new MoneroSendRequest().setCanSplit(false).setPaymentId(paymentId + paymentId + paymentId + paymentId));  // 64 character payment id
+        try {
+          await testSendToSingle(new MoneroSendRequest().setCanSplit(false).setPaymentId(paymentId + paymentId + paymentId + paymentId));  // 64 character payment id
+        } catch (e) {
+          assert.equal(e.message, "Standalone payment IDs are obsolete. Use subaddresses or integrated addresses instead");
+        }
       });
       
       if (config.testRelays)
@@ -2183,6 +2396,10 @@ class TestMoneroWalletCommon {
         assert(subaddress.getBalance().compare(balanceBefore) < 0);
         assert(subaddress.getUnlockedBalance().compare(unlockedBalanceBefore) < 0);
         
+        // query locked txs
+        let lockedTxs = await getAndTestTxs(wallet, new MoneroTxQuery().setIsLocked(true), undefined, true);
+        for (let lockedTx of lockedTxs) assert.equal(lockedTx.isLocked(), true);
+        
         // test transactions
         assert(txs.length > 0);
         for (let tx of txs) {
@@ -2197,11 +2414,22 @@ class TestMoneroWalletCommon {
           if (tx.getOutgoingTransfer() && tx.getOutgoingTransfer().getDestinations()) {
             assert.equal(tx.getOutgoingTransfer().getDestinations().length, 1);
             for (let destination of tx.getOutgoingTransfer().getDestinations()) {
+              testDestination(destination);
               assert.equal(destination.getAddress(), address);
               assert(sendAmount.compare(destination.getAmount()) === 0);
             }
           }
         }
+        
+        // tx is among locked txs
+        let found = false;
+        for (let locked of lockedTxs) {
+          if (locked.getId() === tx.getId()) {
+            found = true;
+            break;
+          }
+        }
+        assert(found, "Created txs should be among locked txs");
         
         // if tx was relayed, all wallets will need to wait for tx to confirm in order to reliably sync
         if (request.getDoNotRelay() === true) {
@@ -2290,7 +2518,7 @@ class TestMoneroWalletCommon {
         
         // build send request using MoneroSendRequest
         let request = new MoneroSendRequest();
-        request.setMixin(TestUtils.MIXIN);
+        request.setRingSize(TestUtils.RING_SIZE);
         request.setAccountIndex(srcAccount.getIndex());
         request.setDestinations([]);
         request.setCanSplit(canSplit);
@@ -2339,6 +2567,7 @@ class TestMoneroWalletCommon {
           if (tx.getOutgoingTransfer() !== undefined && tx.getOutgoingTransfer().getDestinations()) {
             let destinationSum = new BigInteger(0);
             for (let destination of tx.getOutgoingTransfer().getDestinations()) {
+              testDestination(destination);
               assert(destinationAddresses.includes(destination.getAddress()));
               destinationSum = destinationSum.add(destination.getAmount());
             }
@@ -2371,8 +2600,8 @@ class TestMoneroWalletCommon {
         let useParams = true; // for loop flips in order to alternate test
         for (let output of outputsToSweep) {
           testOutputWallet(output);
-          assert(!output.isSpent());
-          assert(output.isUnlocked());
+          assert.equal(output.isSpent(), false);
+          assert.equal(output.isLocked(), false);
           if (output.getAmount().compare(TestUtils.MAX_FEE) <= 0) continue;
           
           // sweep output to address
@@ -2678,7 +2907,7 @@ class TestMoneroWalletCommon {
         }
         
         // all unspent, unlocked outputs must be less than fee
-        let spendableOutputs = await that.wallet.getOutputs(new MoneroOutputQuery().setIsSpent(false).setIsUnlocked(true));
+        let spendableOutputs = await that.wallet.getOutputs(new MoneroOutputQuery().setIsSpent(false).setIsLocked(false));
         for (let spendableOutput of spendableOutputs) {
           assert(spendableOutput.getAmount().compare(TestUtils.MAX_FEE) < 0, "Unspent output should have been swept\n" + spendableOutput.toString());
         }
@@ -2847,6 +3076,7 @@ class TestMoneroWalletCommon {
       assert.equal(tx.getDoNotRelay(), false);
       assert.equal(tx.isRelayed(), true);
       assert.equal(tx.isDoubleSpendSeen(), false); // TODO: test double spend attempt
+      assert.equal(tx.isLocked(), true);
       
       // these should be initialized unless a response from sending
       if (!ctx.isSendResponse) {
@@ -2901,7 +3131,7 @@ class TestMoneroWalletCommon {
       assert(tx.getIncomingTransfers().length > 0);
       assert.equal(tx.getOutgoingAmount(), undefined);
       assert.equal(tx.getOutgoingTransfer(), undefined);
-      assert.equal(tx.getMixin(), undefined);
+      assert.equal(tx.getRingSize(), undefined);
       assert.equal(tx.getFullHex(), undefined);
       assert.equal(tx.getMetadata(), undefined);
       assert.equal(tx.getKey(), undefined);
@@ -2951,7 +3181,7 @@ class TestMoneroWalletCommon {
       let request = ctx.sendRequest;
       assert.equal(tx.isConfirmed(), false);
       testTransfer(tx.getOutgoingTransfer(), ctx);
-      assert.equal(tx.getMixin(), request.getMixin());
+      assert.equal(tx.getRingSize(), request.getRingSize());
       assert.equal(tx.getUnlockTime(), request.getUnlockTime() ? request.getUnlockTime() : 0);
       assert.equal(tx.getBlock(), undefined);
       assert(tx.getKey().length > 0);
@@ -2959,6 +3189,16 @@ class TestMoneroWalletCommon {
       assert(tx.getFullHex().length > 0);
       assert(tx.getMetadata());
       assert.equal(tx.getReceivedTimestamp(), undefined);
+      assert.equal(tx.isLocked(), true);
+      
+      // test locked state
+      if (tx.getUnlockTime() === 0) assert.equal(!tx.isLocked(), tx.isConfirmed());
+      else assert.equal(tx.isLocked(), true);
+      if (tx.getVouts() !== undefined) {
+        for (let vout of tx.getVouts()) {
+          assert.equal(vout.isLocked(), tx.isLocked());
+        }
+      }
       
       // test destinations of sent tx
       assert.equal(tx.getOutgoingTransfer().getDestinations().length, request.getDestinations().length);
@@ -2995,7 +3235,7 @@ class TestMoneroWalletCommon {
     // test tx result query
     else {
       assert.equal(tx.getTxSet(), undefined);  // tx set only initialized on send responses
-      assert.equal(tx.getMixin(), undefined);
+      assert.equal(tx.getRingSize(), undefined);
       assert.equal(tx.getKey(), undefined);
       assert.equal(tx.getFullHex(), undefined);
       assert.equal(tx.getMetadata(), undefined);
@@ -3003,7 +3243,7 @@ class TestMoneroWalletCommon {
     }
     
     // test vouts
-    if (tx.getIncomingTransfers() && ctx.includeOutputs) {
+    if (tx.isIncoming() && ctx.includeOutputs) {
       if (tx.isConfirmed()) {
         assert(tx.getVouts() !== undefined);
         assert(tx.getVouts().length > 0);
@@ -3195,7 +3435,7 @@ class TestMoneroWalletCommon {
       await curWallet.send(new MoneroSendRequest().setAccountIndex(0).setDestinations(destinations));
       let returnAddress = await curWallet.getPrimaryAddress(); // funds will be returned to this address from the multisig wallet
       
-      // open the first multisig participants
+      // open the first multisig participant
       curWallet = await this.openWallet(walletIds[0]);
       assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
       this._testMultisigInfo(await curWallet.getMultisigInfo(), m, n);
@@ -3228,7 +3468,7 @@ class TestMoneroWalletCommon {
           for (let output of outputs) assert(output.isSpent() === false);
           
           // break if output is unlocked
-          if (outputs[0].isUnlocked()) break;
+          if (!outputs[0].isLocked()) break;
         }
       }
         
@@ -3244,7 +3484,7 @@ class TestMoneroWalletCommon {
       assert(outputs.length > 0);
       if (outputs.length < 3) console.log("WARNING: not one output per subaddress?");
       //assert(outputs.length >= 3);  // TODO
-      for (let output of outputs) assert(output.isUnlocked());
+      for (let output of outputs) assert.equal(output.isLocked(), false);
       
       // wallet requires importing multisig to be reliable
       assert(await curWallet.isMultisigImportNeeded());
@@ -3272,6 +3512,9 @@ class TestMoneroWalletCommon {
       assert.equal(txSet.getSignedTxHex(), undefined);
       assert.equal(txSet.getUnsignedTxHex(), undefined);
       assert(txSet.getTxs().length > 0);
+      
+      // parse multisig tx hex and test
+      testParsedTxSet(await curWallet.parseTxSet(txSet));
       
       // sign the tx with participants 1 through m - 1 to meet threshold
       let multisigTxHex = txSet.getMultisigTxHex();
@@ -3342,6 +3585,11 @@ class TestMoneroWalletCommon {
       assert.equal(txSet.getSignedTxHex(), undefined);
       assert.equal(txSet.getUnsignedTxHex(), undefined);
       assert(txSet.getTxs().length > 0);
+      
+      // parse each multisig tx hex and test
+      for (let sweepTxSet of txSets) {
+        testParsedTxSet(await curWallet.parseTxSet(sweepTxSet));
+      }
       
       // sign the tx with participants 1 through m - 1 to meet threshold
       multisigTxHex = txSet.getMultisigTxHex();
@@ -3488,6 +3736,7 @@ function testTxWalletTypes(tx) {
   assert.equal(typeof tx.isFailed(), "boolean");
   assert.equal(typeof tx.isRelayed(), "boolean");
   assert.equal(typeof tx.inTxPool(), "boolean");
+  assert.equal(typeof tx.isLocked(), "boolean");
   TestUtils.testUnsignedBigInteger(tx.getFee());
   assert.equal(tx.getVins(), undefined);  // TODO no way to expose vins?
   if (tx.getPaymentId()) assert.notEqual(tx.getPaymentId(), MoneroTx.DEFAULT_PAYMENT_ID); // default payment id converted to undefined
@@ -3541,7 +3790,7 @@ function testOutgoingTransfer(transfer, ctx) {
     assert(transfer.getDestinations().length > 0);
     let sum = new BigInteger(0);
     for (let destination of transfer.getDestinations()) {
-      assert(destination.getAddress());
+      testDestination(destination);
       TestUtils.testUnsignedBigInteger(destination.getAmount(), true);
       sum = sum.add(destination.getAmount());
     }
@@ -3557,7 +3806,7 @@ function testOutputWallet(output) {
   assert(output.getSubaddressIndex() >= 0);
   assert(output.getIndex() >= 0);
   assert.equal(typeof output.isSpent(), "boolean");
-  assert.equal(typeof output.isUnlocked(), "boolean");
+  assert.equal(typeof output.isLocked(), "boolean");
   assert.equal(typeof output.isFrozen(), "boolean");
   assert(output.getKeyImage());
   assert(output.getKeyImage() instanceof MoneroKeyImage);
@@ -3570,6 +3819,7 @@ function testOutputWallet(output) {
   assert(tx instanceof MoneroTxWallet);
   assert(tx.getVouts().includes(output));
   assert(tx.getId());
+  assert.equal(typeof tx.isLocked(), "boolean");
   assert.equal(tx.isConfirmed(), true);  // TODO monero-wallet-rpc: possible to get unconfirmed vouts?
   assert.equal(tx.isRelayed(), true);
   assert.equal(tx.isFailed(), false);
@@ -3635,6 +3885,44 @@ function testCheckReserve(check) {
     assert.equal(check.getTotalAmount(), undefined);
     assert.equal(check.getUnconfirmedSpentAmount(), undefined);
   }
+}
+
+function testParsedTxSet(parsedTxSet) {
+  assert.notEqual(parsedTxSet, undefined);
+  assert(parsedTxSet.getTxs().length > 0);
+  assert.equal(parsedTxSet.getSignedTxHex(), undefined);
+  assert.equal(parsedTxSet.getUnsignedTxHex(), undefined);
+  
+  // test each transaction        
+  // TODO: use common tx wallet test?
+  assert.equal(parsedTxSet.getMultisigTxHex(), undefined);
+  for (let parsedTx of parsedTxSet.getTxs()) {
+    TestUtils.testUnsignedBigInteger(parsedTx.getInputSum(), true);
+    TestUtils.testUnsignedBigInteger(parsedTx.getOutputSum(), true);
+    TestUtils.testUnsignedBigInteger(parsedTx.getFee());
+    TestUtils.testUnsignedBigInteger(parsedTx.getChangeAmount());
+    if (parsedTx.getChangeAmount().compare(new BigInteger(0)) === 0) assert.equal(parsedTx.getChangeAddress(), undefined);
+    else MoneroUtils.validateAddress(parsedTx.getChangeAddress(), TestUtils.NETWORK_TYPE);
+    assert(parsedTx.getRingSize() > 1);
+    assert(parsedTx.getUnlockTime() >= 0);
+    assert(parsedTx.getNumDummyOutputs() >= 0);
+    assert(parsedTx.getExtraHex());
+    assert(parsedTx.getPaymentId() === undefined || parsedTx.getPaymentId().length > 0);
+    assert(parsedTx.isOutgoing());
+    assert.notEqual(parsedTx.getOutgoingTransfer(), undefined);
+    assert.notEqual(parsedTx.getOutgoingTransfer().getDestinations(), undefined);
+    assert(parsedTx.getOutgoingTransfer().getDestinations().length > 0);
+    assert.equal(parsedTx.isIncoming(), undefined);
+    for (let destination of parsedTx.getOutgoingTransfer().getDestinations()) {
+      testDestination(destination);
+    }
+  }
+}
+
+function testAddressBookEntry(entry) {
+  assert(entry.getIndex() >= 0);
+  MoneroUtils.validateAddress(entry.getAddress(), TestUtils.NETWORK_TYPE);
+  assert.equal(typeof entry.getDescription() === "string");
 }
 
 /**

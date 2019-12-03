@@ -117,15 +117,6 @@ class MoneroSendRequest {
     return this;
   }
   
-  getMixin() {
-    return this.state.mixin;
-  }
-  
-  setMixin(mixin) {
-    this.state.mixin = mixin;
-    return this;
-  }
-  
   getRingSize() {
     return this.state.ringSize;
   }

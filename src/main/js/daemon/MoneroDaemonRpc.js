@@ -66,6 +66,13 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return this.config.rpc;
   }
   
+  async getVersion() {
+    await this._initOneTime();
+    let resp = await this.config.rpc.sendJsonRequest("get_version");
+    MoneroDaemonRpc._checkResponseStatus(resp);
+    return new MoneroVersion(resp.result.version, resp.result.release);
+  }
+  
   async isTrusted() {
     await this._initOneTime();
     let resp = await this.config.rpc.sendPathRequest("get_height");
@@ -966,8 +973,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "reserved_offset") template.setReservedOffset(val);
       else if (key === "status") {}  // handled elsewhere
       else if (key === "untrusted") {}  // handled elsewhere
+      else if (key === "seed_height") template.setSeedHeight(val);
+      else if (key === "seed_hash") template.setSeedHash(val);
+      else if (key === "next_seed_hash") template.setNextSeedHash(val);
       else console.log("WARNING: ignoring unexpected field in block template: " + key + ": " + val);
     }
+    if ("" === template.getNextSeedHash()) template.setNextSeedHash(undefined);
     return template;
   }
   
@@ -1013,6 +1024,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "mainnet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.MAINNET); }
       else if (key === "testnet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.TESTNET); }
       else if (key === "stagenet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.STAGENET); }
+      else if (key === "credits") info.setCredits(new BigInteger(val));
+      else if (key === "top_block_hash" || key === "top_hash") info.setTopBlockHash(GenUtils.reconcile(info.getTopBlockHash(), "" === val ? undefined : val))
       else console.log("WARNING: Ignoring unexpected info field: " + key + ": " + val);
     }
     return info;
@@ -1054,6 +1067,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
           console.log("WARNING: failed to parse 'overview' field: " + overview + ": " + e.message);
         }
       }
+      else if (key === "credits") syncInfo.setCredits(new BigInteger(val));
+      else if (key === "top_hash") syncInfo.setTopBlockHash("" === val ? undefined : val);
+      else if (key === "untrusted") {}  // handled elsewhere
       else console.log("WARNING: ignoring unexpected field in sync info: " + key + ": " + val);
     }
     return syncInfo;
@@ -1073,6 +1089,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "votes") info.setNumVotes(val);
       else if (key === "voting") info.setVoting(val);
       else if (key === "window") info.setWindow(val);
+      else if (key === "credits") info.setCredits(new BigInteger(val));
+      else if (key === "top_hash") info.setTopBlockHash("" === val ? undefined : val);
       else console.log("WARNING: ignoring unexpected field in hard fork info: " + key + ": " + val);
     }
     return info;
@@ -1116,6 +1134,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "fee_too_low") result.setIsFeeTooLow(val);
       else if (key === "invalid_input") result.setHasInvalidInput(val);
       else if (key === "invalid_output") result.setHasInvalidOutput(val);
+      else if (key === "too_few_outputs") result.setHasTooFewOutputs(val);
       else if (key === "low_mixin") result.setIsMixinTooLow(val);
       else if (key === "not_rct") result.setIsRct(!val);
       else if (key === "not_relayed") result.setIsRelayed(!val);
@@ -1123,7 +1142,9 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "reason") result.setReason(val === "" ? undefined : val);
       else if (key === "too_big") result.setIsTooBig(val);
       else if (key === "sanity_check_failed") result.setSanityCheckFailed(val);
+      else if (key === "credits") result.setCredits(new BigInteger(val))
       else if (key === "status" || key === "untrusted") {}  // handled elsewhere
+      else if (key === "top_hash") result.setTopBlockHash("" === val ? undefined : val);
       else console.log("WARNING: ignoring unexpected field in submit tx hex result: " + key + ": " + val);
     }
     return result;
@@ -1182,6 +1203,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "port") peer.setPort(val);
       else if (key === "rpc_port") peer.setRpcPort(val);
       else if (key === "pruning_seed") peer.setPruningSeed(val);
+      else if (key === "rpc_credits_per_hash") peer.setRpcCreditsPerHash(new BigInteger(val));
       else console.log("WARNING: ignoring unexpected field in rpc peer: " + key + ": " + val);
     }
     return peer;
@@ -1217,6 +1239,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "state") connection.setState(val);
       else if (key === "support_flags") connection.setNumSupportFlags(val);
       else if (key === "pruning_seed") peer.setPruningSeed(val);
+      else if (key === "rpc_credits_per_hash") peer.setRpcCreditsPerHash(new BigInteger(val));
+      else if (key === "address_type") connection.setType(val);
       else console.log("WARNING: ignoring unexpected field in connection: " + key + ": " + val);
     }
     return connection;
@@ -1255,6 +1279,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "update") result.setIsUpdateAvailable(val);
       else if (key === "user_uri") result.setUserUri(val);
       else if (key === "version") result.setVersion(val);
+      else if (key === "untrusted") {} // handled elsewhere
       else console.log("WARNING: ignoring unexpected field in rpc check update result: " + key + ": " + val);
     }
     if (result.getAutoUri() === "") result.setAutoUri(undefined);

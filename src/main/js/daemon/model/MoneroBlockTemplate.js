@@ -69,6 +69,33 @@ class MoneroBlockTemplate {
     this.state.reservedOffset = reservedOffset;
     return this;
   }
+  
+  getSeedHeight() {
+    return this.state.height;
+  }
+  
+  setSeedHeight(seedHeight) {
+    this.state.seedHeight = seedHeight;
+    return this;
+  }
+  
+  getSeedHash() {
+    return this.state.hash;
+  }
+  
+  setSeedHash(seedHash) {
+    this.state.seedHash = seedHash;
+    return this;
+  }
+  
+  getNextSeedHash() {
+    return this.state.nextSeedHash
+  }
+  
+  setNextSeedHash(nextSeedHash) {
+    this.state.nextSeedHash = nextSeedHash;
+    return this;s
+  }
 }
 
 module.exports = MoneroBlockTemplate;

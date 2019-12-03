@@ -43,15 +43,6 @@ class MoneroDaemonPeer {
     return this;
   }
   
-  getRpcPort() {
-    return this.state.rpcPort;
-  }
-
-  setRpcPort(rpcPort) {
-    this.state.rpcPort = rpcPort;
-    return this;
-  }
-  
   /**
    * Indicates if the peer was online when last checked (aka "white listed" as
    * opposed to "gray listed").
@@ -82,6 +73,24 @@ class MoneroDaemonPeer {
   
   setPruningSeed(pruningSeed) {
     this.state.pruningSeed = pruningSeed;
+    return this;
+  }
+  
+  getRpcPort() {
+    return this.state.rpcPort;
+  }
+
+  setRpcPort(rpcPort) {
+    this.state.rpcPort = rpcPort;
+    return this;
+  }
+  
+  getRpcCreditsPerHash() {
+    return this.state.rpcCreditsPerHash;
+  }
+  
+  setRpcCreditsPerHash(rpcCreditsPerHash) {
+    this.state.rpcCreditsPerHash = rpcCreditsPerHash;
     return this;
   }
 }

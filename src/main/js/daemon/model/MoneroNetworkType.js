@@ -13,7 +13,7 @@ MoneroNetworkType = {
     /**
      * Asserts that the given network type is valid.
      */
-    validateNetworkType: function(networkType) {
+    validate: function(networkType) {
       assert(networkType === 0 || networkType === 1 || networkType === 2, "Network type is invalid: " + networkType);
     },
     

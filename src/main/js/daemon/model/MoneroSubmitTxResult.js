@@ -70,6 +70,15 @@ class MoneroSubmitTxResult {
     return this;
   }
   
+  hasTooFewOutputs() {
+    return this.state.hasTooFewOutputs;
+  }
+  
+  setHasTooFewOutputs(hasTooFewOutputs) {
+    this.state.hasTooFewOutputs = hasTooFewOutputs;
+    return this;
+  }
+  
   isRct() {
     return this.state.isRct;
   }
@@ -112,6 +121,24 @@ class MoneroSubmitTxResult {
   
   setSanityCheckFailed(sanityCheckFailed) {
     this.state.sanityCheckFailed = sanityCheckFailed;
+    return this;
+  }
+  
+  getCredits() {
+    return this.state.credits;
+  }
+  
+  setCredits(credits) {
+    this.state.credits = credits;
+    return this;
+  }
+  
+  getTopBlockHash() {
+    return this.state.topBlockHash;
+  }
+  
+  setTopBlockHash(topBlockHash) {
+    this.state.topBlockHash = topBlockHash;
     return this;
   }
 }

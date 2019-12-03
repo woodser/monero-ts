@@ -3,11 +3,11 @@
  */
 class MoneroAddressBookEntry {
   
-  constructor(index, address, paymentId, description) {
+  constructor(index, address, description, paymentId) {
     this.index = index;
     this.address = address;
-    this.paymentId = paymentId;
     this.description = description;
+    this.paymentId = paymentId;
   }
   
   getIndex() {
@@ -28,15 +28,6 @@ class MoneroAddressBookEntry {
     return this;
   }
   
-  getPaymentId() {
-    return this.paymentId;
-  }
-  
-  setPaymentId(paymentId) {
-    this.paymentId = paymentId;
-    return this;
-  }
-  
   getDescription() {
     return this.description;
   }
@@ -46,6 +37,14 @@ class MoneroAddressBookEntry {
     return this;
   }
   
+  getPaymentId() {
+    return this.paymentId;
+  }
+  
+  setPaymentId(paymentId) {
+    this.paymentId = paymentId;
+    return this;
+  }
 }
 
 module.exports = MoneroAddressBookEntry;
