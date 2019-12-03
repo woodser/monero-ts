@@ -41,15 +41,6 @@ class MoneroOutputWallet extends MoneroOutput {
     return this;
   }
   
-  isUnlocked() {
-    return this.state.isUnlocked;
-  }
-
-  setIsUnlocked(isUnlocked) {
-    this.state.isUnlocked = isUnlocked;
-    return this;
-  }
-  
   /**
    * Indicates if this output has been deemed 'malicious' and will therefore
    * not be spent by the wallet.
@@ -91,6 +82,7 @@ class MoneroOutputWallet extends MoneroOutput {
     this.setAccountIndex(GenUtils.reconcile(this.getAccountIndex(), output.getAccountIndex()));
     this.setSubaddressIndex(GenUtils.reconcile(this.getSubaddressIndex(), output.getSubaddressIndex()));
     this.setIsSpent(GenUtils.reconcile(this.isSpent(), output.isSpent(), {resolveTrue: true})); // output can become spent
+    this.setIsFrozen(GenUtils.reconcile(this.isFrozen(), output.isFrozen()));
     return this;
   }
   
@@ -99,7 +91,6 @@ class MoneroOutputWallet extends MoneroOutput {
     str += GenUtils.kvLine("Account index", this.getAccountIndex(), indent);
     str += GenUtils.kvLine("Subaddress index", this.getSubaddressIndex(), indent);
     str += GenUtils.kvLine("Is spent", this.isSpent(), indent);
-    str += GenUtils.kvLine("Is unlocked", this.isUnlocked(), indent);
     str += GenUtils.kvLine("Is frozen", this.isFrozen(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }

@@ -30,6 +30,15 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     return json;
   }
   
+  getTxQuery() {
+    return this.state.txQuery;
+  }
+  
+  setTxQuery(txQuery) {
+    this.state.txQuery = txQuery;
+    return this;
+  }
+  
   getSubaddressIndices() {
     return this.state.subaddressIndices;
   }
@@ -39,12 +48,25 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     return this;
   }
   
-  getTxQuery() {
-    return this.state.txQuery;
+  /**
+   * Indicates if the this query will fetch locked outputs, unlocked outputs, or both (null).
+   * 
+   * @return true if locked outputs queried, false of unlocked outputs queried, undefined if both
+   */
+  isLocked() {
+    if (this.state.txQuery === undefined) return undefined;
+    return txQuery.isLocked();
   }
   
-  setTxQuery(txQuery) {
-    this.state.txQuery = txQuery;
+  /**
+   * Convenience method to query outputs by the locked state of their tx.
+   * 
+   * @param isLocked specifies if the output's tx must be locked or unlocked (optional)
+   * @return {MoneroOutputQuery} this query for chaining
+   */
+  setIsLocked(isLocked) {
+    if (this.state.txQuery === undefined) this.state.txQuery = new MoneroTxQuery();
+    txQuery.setIsLocked(isLocked);
     return this;
   }
   
@@ -56,7 +78,6 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     if (this.getSubaddressIndex() !== undefined && this.getSubaddressIndex() !== output.getSubaddressIndex()) return false;
     if (this.getAmount() !== undefined && this.getAmount().compare(output.getAmount()) !== 0) return false;
     if (this.isSpent() != undefined && this.isSpent() !== output.isSpent()) return false;
-    if (this.isUnlocked() !== undefined && this.isUnlocked() !== output.isUnlocked()) return false;
     
     // filter on output's key image
     if (this.getKeyImage() !== undefined) {

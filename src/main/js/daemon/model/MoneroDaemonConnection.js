@@ -159,6 +159,15 @@ class MoneroDaemonConnection {
     this.state.numSupportFlags = numSupportFlags;
     return this;
   }
+  
+  getType() {
+    return this.state.type;
+  }
+  
+  setType(type) {
+    this.state.type = type;
+    return this;
+  }
 }
 
 module.exports = MoneroDaemonConnection;

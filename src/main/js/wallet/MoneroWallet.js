@@ -29,6 +29,15 @@ require("./model/MoneroWalletModel")();
 class MoneroWallet {
   
   /**
+   * Gets the version of the wallet.
+   * 
+   * @return {MoneroVersion} the version of the wallet
+   */
+  async getVersion() {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
    * Get the wallet's path.
    * 
    * @return {string} the path the wallet can be opened with
@@ -763,6 +772,16 @@ class MoneroWallet {
   }
   
   /**
+   * Parses a tx set containing unsigned or multisig tx hex to a new tx set containing structured transactions.
+   * 
+   * @param txSet is a tx set containing unsigned or multisig tx hex
+   * @return {MoneroTxSet} the parsed tx set containing structured transactions
+   */
+  async parseTxSet(txSet) {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
    * Sign a message.
    * 
    * @param {string} msg is the message to sign
@@ -955,6 +974,21 @@ class MoneroWallet {
    * @return {int} the index of the added entry
    */
   async addAddressBookEntry(address, description) {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
+   * Edit an address book entry.
+   * 
+   * @param index is the index of the address book entry to edit
+   * @param setAddress specifies if the address should be updated
+   * @param address is the updated address
+   * @param setDescription specifies if the description should be updated
+   * @param description is the updated description
+   * @param setPaymentId specifies if the payment id should be updated
+   * @param paymentId is the updated payment id
+   */
+  async editAddressBookEntry(index, setAddress, address, setDescription, description, setPaymentId, paymentId) {
     throw new MoneroError("Subclass must implement");
   }
   

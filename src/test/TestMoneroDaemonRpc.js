@@ -38,6 +38,13 @@ class TestMoneroDaemonRpc {
       // -------------------------- TEST NON RELAYS ---------------------------
       
       if (config.testNonRelays)
+      it("Can get the daemon's version", async function() {
+        let version = await daemon.getVersion();
+        assert(version.getVersionNumber() > 0);
+        assert.equal(typeof version.isRelease(), "boolean");
+      });
+      
+      if (config.testNonRelays)
       it("Can indicate if it's trusted", async function() {
         let isTrusted = await daemon.isTrusted();
         assert.equal(typeof isTrusted, "boolean");
@@ -332,7 +339,6 @@ class TestMoneroDaemonRpc {
           let tx = await getUnrelayedTx(that.wallet, i);
           let result = await daemon.submitTxHex(tx.getFullHex(), true);
           testSubmitTxResultGood(result);
-          assert.equal(result.isGood(), true);
           assert.equal(result.isRelayed(), false);
           txIds.push(tx.getId());
         }
@@ -433,7 +439,7 @@ class TestMoneroDaemonRpc {
         // submit tx to pool but don't relay
         let tx = await getUnrelayedTx(that.wallet, 0);
         let result = await daemon.submitTxHex(tx.getFullHex(), true);
-        assert.equal(result.isGood(), true);
+        testSubmitTxResultGood(result);
         assert.equal(result.isRelayed(), false);
         
         // fetch txs in pool
@@ -498,7 +504,7 @@ class TestMoneroDaemonRpc {
         for (let i = 0; i < 2; i++) {
           let tx = await getUnrelayedTx(that.wallet, i);
           let result = await daemon.submitTxHex(tx.getFullHex(), true);
-          assert.equal(result.isGood(), true);
+          testSubmitTxResultGood(result);
         }
         assert.equal((await daemon.getTxPool()).length, txPoolBefore.length + 2);
         
@@ -509,7 +515,7 @@ class TestMoneroDaemonRpc {
         // re-submit original transactions
         for (let tx of txPoolBefore) {
           let result = await daemon.submitTxHex(tx.getFullHex(), tx.isRelayed());
-          assert.equal(result.isGood(), true);
+          testSubmitTxResultGood(result);
         }
         
         // pool is back to original state
@@ -531,7 +537,7 @@ class TestMoneroDaemonRpc {
         for (let i = 1; i < 3; i++) {
           let tx = await getUnrelayedTx(that.wallet, i);
           let result = await daemon.submitTxHex(tx.getFullHex(), true);
-          assert.equal(result.isGood(), true);
+          testSubmitTxResultGood(result);
           txs.push(tx);
         }
 
@@ -565,8 +571,7 @@ class TestMoneroDaemonRpc {
         for (let i = 1; i < 3; i++) {
           let tx = await getUnrelayedTx(that.wallet, i);
           let result = await daemon.submitTxHex(tx.getFullHex(), true);
-          assert.equal(result.isDoubleSpendSeen(), false);
-          assert.equal(result.isGood(), true);
+          testSubmitTxResultGood(result);
           txIds.push(tx.getId());
         }
         assert.equal((await daemon.getTxPool()).length, txPoolBefore.length + txIds.length);
@@ -1113,7 +1118,7 @@ class TestMoneroDaemonRpc {
       
       // ------------------------ TEST NOTIFICATIONS --------------------------
       
-      if (config.testNotifications)
+      if (!config.liteMode && config.testNotifications)
       it("Can notify listeners when a new block is added to the chain", async function() {
         try {
           
@@ -1401,6 +1406,11 @@ function testBlockTemplate(template) {
   assert(template.getHeight());
   assert(template.getPrevId());
   assert(template.getReservedOffset());
+  assert.equal(typeof template.getSeedHeight(), "number");
+  assert(template.getSeedHeight() > 0);
+  assert.equal(typeof template.getSeedHash(), "string")
+  assert(template.getSeedHash());
+  assert.equal(template.getNextSeedHash(), undefined);
 }
 
 function testInfo(info) {
@@ -1424,7 +1434,6 @@ function testInfo(info) {
   assert(info.getStartTimestamp());
   assert(info.getTarget());
   assert(info.getTargetHeight() >= 0);
-  assert(info.getTopBlockId());
   assert(info.getNumTxs() >= 0);
   assert(info.getNumTxsPool() >= 0);
   assert(typeof info.getWasBootstrapEverUsed() === "boolean");
@@ -1432,6 +1441,9 @@ function testInfo(info) {
   assert(info.getBlockWeightMedian());
   assert(info.getDatabaseSize() > 0);
   assert(typeof info.getUpdateAvailable() === "boolean");
+  TestUtils.testUnsignedBigInteger(info.getCredits(), false);
+  assert.equal(typeof info.getTopBlockHash(), "string");
+  assert(info.getTopBlockHash());
 }
 
 function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
@@ -1451,6 +1463,8 @@ function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
   }
   assert(syncInfo.getNextNeededPruningSeed() >= 0);
   assert.equal(syncInfo.getOverview(), undefined);
+  TestUtils.testUnsignedBigInteger(info.getCredits(), false);
+  assert.equal(info.getTopBlockHash(), undefined);
 }
 
 function testDaemonConnectionSpan(span) {
@@ -1474,6 +1488,8 @@ function testHardForkInfo(hardForkInfo) {
   assert.notEqual(hardForkInfo.getNumVotes(), undefined);
   assert.notEqual(hardForkInfo.getVoting(), undefined);
   assert.notEqual(hardForkInfo.getWindow(), undefined);
+  TestUtils.testUnsignedBigInteger(info.getCredits(), false);
+  assert.equal(info.getTopBlockHash(), undefined);
 }
 
 function testMoneroBan(ban) {
@@ -1504,16 +1520,19 @@ function testOutputDistributionEntry(entry) {
 function testSubmitTxResultGood(result) {
   testSubmitTxResultCommon(result);
   try {
-    assert.equal(result.isGood(), true);
     assert.equal(result.isDoubleSpendSeen(), false);
     assert.equal(result.isFeeTooLow(), false);
     assert.equal(result.isMixinTooLow(), false);
     assert.equal(result.hasInvalidInput(), false);
     assert.equal(result.hasInvalidOutput(), false);
+    assert.equal(result.hasTooFewOutputs(), false);
     assert.equal(result.isRct(), true);
     assert.equal(result.isOverspend(), false);
     assert.equal(result.isTooBig(), false);
     assert.equal(result.getSanityCheckFailed(), false);
+    TestUtils.testUnsignedBigInteger(result.getCredits(), false); // 0 credits
+    assert.equal(result.getTopBlockHash(), undefined);
+    assert.equal(result.isGood(), true);
   } catch (e) {
     console.log("Submit result is not good: " + JSON.stringify(result));
     throw e;
@@ -1666,7 +1685,8 @@ function testDaemonConnection(connection) {
   assert(connection.getNumSends() >= 0);
   assert(connection.getSendIdleTime() >= 0);
   assert(connection.getState());
-  assert(connection.getNumSupportFlags() >= 0); 
+  assert(connection.getNumSupportFlags() >= 0);
+  ConnectionType.validate(connection.getType());
 }
 
 function testKnownPeer(peer, fromConnection) {
@@ -1678,6 +1698,7 @@ function testKnownPeer(peer, fromConnection) {
   assert(typeof peer.getRpcPort() === "number");
   assert(peer.getRpcPort() >= 0);
   assert.equal(typeof peer.isOnline(), "boolean");
+  TestUtils.testUnsignedBigInteger(peer.getRpcCreditsPerHash());
   if (fromConnection) assert.equal(undefined, peer.getLastSeenTimestamp());
   else {
     if (peer.getLastSeenTimestamp() < 0) console("Last seen timestamp is invalid: " + peer.getLastSeenTimestamp());

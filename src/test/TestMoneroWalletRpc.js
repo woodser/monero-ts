@@ -14,16 +14,21 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     return TestUtils.getWalletRpc();
   }
   
-  async createRandomWallet() {
-    await this.wallet.createWalletRandom(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD);
-    return this.wallet;
-  }
-
   async openWallet(path) {
     await this.wallet.openWallet(path, TestUtils.WALLET_PASSWORD);
     return this.wallet;
   }
   
+  async createRandomWallet() {
+    await this.wallet.createWalletRandom(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD);
+    return this.wallet;
+  }
+  
+  async createWalletFromKeys(password, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
+    await this.wallet.createWalletFromKeys(GenUtils.uuidv4(), password, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language);
+    return this.wallet;
+  } 
+
   runTests(config) {
     let that = this;
     describe("TEST MONERO WALLET RPC", function() {
@@ -282,83 +287,6 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
             assert.equal(subaddress.getUnlockedBalance(), undefined);
           }
         }
-      });
-      
-      it("Has an address book", async function() {
-        
-        // initial state
-        let entries = await that.wallet.getAddressBookEntries();
-        let numEntriesStart = entries.length
-        for (let entry of entries) testAddressBookEntry(entry);
-        
-        // test adding standard addresses
-        const NUM_ENTRIES = 5;
-        let address = (await that.wallet.getSubaddress(0, 0)).getAddress();
-        let indices = [];
-        for (let i = 0; i < NUM_ENTRIES; i++) {
-          indices.push(await that.wallet.addAddressBookEntry(address, "hi there!"));
-        }
-        entries = await that.wallet.getAddressBookEntries();
-        assert.equal(entries.length, numEntriesStart + NUM_ENTRIES);
-        for (let idx of indices) {
-          let found = false;
-          for (let entry of entries) {
-            if (idx === entry.getIndex()) {
-              testAddressBookEntry(entry);
-              assert.equal(entry.getAddress(), address);
-              assert.equal(entry.getDescription(), "hi there!");
-              found = true;
-              break;
-            }
-          }
-          assert(found, "Index " + idx + " not found in address book indices");
-        }
-        
-        // delete entries at starting index
-        let deleteIdx = indices[0];
-        for (let i = 0; i < indices.length; i++) {
-          await that.wallet.deleteAddressBookEntry(deleteIdx);
-        }
-        entries = await that.wallet.getAddressBookEntries();
-        assert.equal(entries.length, numEntriesStart);
-        
-        // test adding integrated addresses
-        indices = [];
-        let paymentId = "03284e41c342f03"; // payment id less one character
-        let integratedAddresses = {};
-        let integratedDescriptions = {};
-        for (let i = 0; i < NUM_ENTRIES; i++) {
-          let integratedAddress = await that.wallet.getIntegratedAddress(paymentId + i); // create unique integrated address
-          let uuid = GenUtils.uuidv4();
-          let idx = await that.wallet.addAddressBookEntry(integratedAddress.toString(), uuid);
-          indices.push(idx);
-          integratedAddresses[idx] = integratedAddress;
-          integratedDescriptions[idx] = uuid;
-        }
-        entries = await that.wallet.getAddressBookEntries();
-        assert.equal(entries.length, numEntriesStart + NUM_ENTRIES);
-        for (let idx of indices) {
-          let found = false;
-          for (let entry of entries) {
-            if (idx === entry.getIndex()) {
-              testAddressBookEntry(entry);
-              assert.equal(entry.getDescription(), integratedDescriptions[idx]);
-              assert.equal(entry.getAddress(), integratedAddresses[idx].getStandardAddress());
-              assert(MoneroUtils.paymentIdsEqual(integratedAddresses[idx].getPaymentId(), entry.getPaymentId()));
-              found = true;
-              break;
-            }
-          }
-          assert(found, "Index " + idx + " not found in address book indices");
-        }
-        
-        // delete entries at starting index
-        deleteIdx = indices[0];
-        for (let i = 0; i < indices.length; i++) {
-          await that.wallet.deleteAddressBookEntry(deleteIdx);
-        }
-        entries = await that.wallet.getAddressBookEntries();
-        assert.equal(entries.length, numEntriesStart);
       });
       
       it("Can rescan spent", async function() {

@@ -49,12 +49,22 @@ class MoneroTxWallet extends MoneroTx {
     return this;
   }
   
-  isOutgoing() {
-    return this.getOutgoingTransfer() !== undefined;
+  isIncoming() {
+    return this.state.isIncoming;
   }
   
-  isIncoming() {
-    return this.getIncomingTransfers() != undefined && this.getIncomingTransfers().length > 0;
+  setIsIncoming(isIncoming) {
+    this.state.isIncoming = isIncoming;
+    return this;
+  }
+  
+  isOutgoing() {
+    return this.state.isOutgoing;
+  }
+  
+  setIsOutgoing(isOutgoing) {
+    this.state.isOutgoing = isOutgoing;
+    return this;
   }
   
   getIncomingAmount() {
@@ -104,6 +114,68 @@ class MoneroTxWallet extends MoneroTx {
   
   setNote(note) {
     this.state.note = note;
+    return this;
+  }
+  
+  isLocked() {
+    return this.state.isLocked;
+  }
+  
+  setIsLocked(isLocked) {
+    this.state.isLocked = isLocked;
+  }
+  
+  getInputSum() {
+    return this.state.inputSum;
+  }
+  
+  setInputSum(inputSum) {
+    this.state.inputSum = inputSum;
+    return this;
+  }
+  
+  getOutputSum() {
+    return this.state.outputSum;
+  }
+  
+  setOutputSum(outputSum) {
+    this.state.outputSum = outputSum;
+    return this;
+  }
+  
+  getChangeAddress() {
+    return this.state.changeAddress;
+  }
+  
+  setChangeAddress(changeAddress) {
+    this.state.changeAddress = changeAddress;
+    return this;
+  }
+  
+  getChangeAmount() {
+    return this.state.changeAmount;
+  }
+  
+  setChangeAmount(changeAmount) {
+    this.state.changeAmount = changeAmount;
+    return this;
+  }
+  
+  getNumDummyOutputs() {
+    return this.state.numDummyOutputs;
+  }
+  
+  setNumDummyOutputs(numDummyOutputs) {
+    this.state.numDummyOutputs = numDummyOutputs;
+    return this;
+  }
+  
+  getExtraHex() {
+    return this.state.extraHex;
+  }
+  
+  setExtraHex(extraHex) {
+    this.state.extraHex;
     return this;
   }
   
@@ -167,7 +239,16 @@ class MoneroTxWallet extends MoneroTx {
     }
     
     // merge simple extensions
+    this.setIsIncoming(GenUtils.reconcile(this.isIncoming(), tx.isIncoming()));
+    this.setIsOutgoing(GenUtils.reconcile(this.isOutgoing(), tx.isOutgoing()));
     this.setNote(GenUtils.reconcile(this.getNote(), tx.getNote()));
+    this.setIsLocked(GenUtils.reconcile(this.isLocked(), tx.isLocked()));
+    this.setInputSum(GenUtils.reconcile(this.getInputSum(), tx.getInputSum()));
+    this.setOutputSum(GenUtils.reconcile(this.getOutputSum(), tx.getOutputSum()));
+    this.setChangeAddress(GenUtils.reconcile(this.getChangeAddress(), tx.getChangeAddress()));
+    this.setChangeAmount(GenUtils.reconcile(this.getChangeAmount(), tx.getChangeAmount()));
+    this.setNumDummyOutputs(GenUtils.reconcile(this.getNumDummyOutputs(), tx.getNumDummyOutputs()));
+    this.setExtraHex(GenUtils.reconcile(this.getExtraHex(), tx.getExtraHex()));
     
     return this;  // for chaining
   }
@@ -204,6 +285,13 @@ class MoneroTxWallet extends MoneroTx {
       str += this.getOutgoingTransfer().toString(indent + 1) + "\n";
     }
     str += GenUtils.kvLine("Note: ", this.getNote(), indent);
+    str += GenUtils.kvLine("Is locked: ", this.isLocked(), indent);
+    str += GenUtils.kvLine("Input sum: ", this.getInputSum(), indent);
+    str += GenUtils.kvLine("Output sum: ", this.getOutputSum(), indent);
+    str += GenUtils.kvLine("Change address: ", this.getChangeAddress(), indent);
+    str += GenUtils.kvLine("Change amount: ", this.getChangeAmount(), indent);
+    str += GenUtils.kvLine("Num dummy outputs: ", this.getNumDummyOutputs(), indent);
+    str += GenUtils.kvLine("Extra hex: ", this.getExtraHex(), indent);
     return str.slice(0, str.length - 1);  // strip last newline
   }
   

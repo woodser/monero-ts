@@ -124,6 +124,34 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   /**
+   * Create a wallet on the RPC server from an address, view key, and (optionally) spend key.
+   * 
+   * @param name is the name of the wallet to create on the RPC server
+   * @param password is the password encrypt the wallet
+   * @param networkType is the wallet's network type
+   * @param address is the address of the wallet to construct
+   * @param viewKey is the view key of the wallet to construct
+   * @param spendKey is the spend key of the wallet to construct or null to create a view-only wallet
+   * @param daemonConnection is connection configuration to a daemon (default = an unconnected wallet)
+   * @param restoreHeight is the block height to restore (i.e. scan the chain) from (default = 0)
+   * @param language is the wallet and mnemonic's language (default = "English")
+   */
+  async createWalletFromKeys(name, password, address, viewKey, spendKey, daemonConnection, restoreHeight, language, saveCurrent) {
+    if (restoreHeight === undefined) restoreHeight = 0;
+    if (language === undefined) language = MoneroWallet.DEFAULT_LANGUAGE;
+    await this.config.rpc.sendJsonRequest("generate_from_keys", {
+      filename: name,
+      password: password,
+      address: address,
+      viewkey: viewKey,
+      spendkey: spendKey,
+      restore_height: restoreHeight,
+      autosave_current: saveCurrent
+    });
+    this.path = name;
+  }
+  
+  /**
    * Save and close the current wallet and stop the RPC server.
    */
   async stop() {
@@ -134,6 +162,11 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   // -------------------------- COMMON WALLET METHODS -------------------------
+  
+  async getVersion() {
+    let resp = await this.config.rpc.sendJsonRequest("get_version");
+    return new MoneroVersion(resp.result.version, resp.result.release);
+  }
   
   async getPath() {
     return this.path;
@@ -827,7 +860,6 @@ class MoneroWalletRpc extends MoneroWallet {
     params.account_index = accountIdx;
     params.subaddr_indices = subaddressIndices;
     params.payment_id = request.getPaymentId();
-    params.mixin = request.getMixin();
     params.ring_size = request.getRingSize();
     params.unlock_time = request.getUnlockTime();
     params.do_not_relay = request.getDoNotRelay();
@@ -1103,7 +1135,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (!resp.result.entries) return [];
     let entries = [];
     for (let rpcEntry of resp.result.entries) {
-      entries.push(new MoneroAddressBookEntry(rpcEntry.index, rpcEntry.address, rpcEntry.payment_id, rpcEntry.description));
+      entries.push(new MoneroAddressBookEntry(rpcEntry.index, rpcEntry.address, rpcEntry.description, rpcEntry.payment_id));
     }
     return entries;
   }
@@ -1449,7 +1481,7 @@ class MoneroWalletRpc extends MoneroWallet {
     tx.setIsRelayed(!tx.getDoNotRelay());
     tx.setIsMinerTx(false);
     tx.setIsFailed(false);
-    tx.setMixin(request.getMixin());
+    tx.setRingSize(request.getRingSize());
     let transfer = new MoneroOutgoingTransfer().setTx(tx);
     if (request.getSubaddressIndices() && request.getSubaddressIndices().length === 1) transfer.setSubaddressIndices(request.getSubaddressIndices().slice(0)); // we know src subaddress indices iff request specifies 1
     let destCopies = [];

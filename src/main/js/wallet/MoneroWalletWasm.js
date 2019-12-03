@@ -29,7 +29,7 @@ class MoneroWalletWasm extends MoneroWallet {
     // validate and sanitize parameters
     if (!(await MoneroWalletWasm.walletExists(path))) throw new MoneroError("Wallet does not exist at path: " + path);
     if (networkType === undefined) throw new MoneroError("Must provide a network type");
-    MoneroNetworkType.validateNetworkType(networkType);
+    MoneroNetworkType.validate(networkType);
     let daemonConnection = daemonUriOrConnection ? (typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection) : undefined;
     let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
     let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
@@ -57,7 +57,7 @@ class MoneroWalletWasm extends MoneroWallet {
     
     // validate and sanitize params
     if (path === undefined) path = "";
-    MoneroNetworkType.validateNetworkType(networkType);
+    MoneroNetworkType.validate(networkType);
     if (language === undefined) language = "English";
     let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
     let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";

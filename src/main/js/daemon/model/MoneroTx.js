@@ -97,12 +97,12 @@ class MoneroTx {
     return this;
   }
   
-  getMixin() {
-    return this.state.mixin;
+  getRingSize() {
+    return this.state.ringSize;
   }
   
-  setMixin(mixin) {
-    this.state.mixin = mixin;
+  setRingSize(ringSize) {
+    this.state.ringSize = ringSize;
     return this;
   }
   
@@ -445,7 +445,7 @@ class MoneroTx {
     this.setVersion(GenUtils.reconcile(this.getVersion(), tx.getVersion()));
     this.setPaymentId(GenUtils.reconcile(this.getPaymentId(), tx.getPaymentId()));
     this.setFee(GenUtils.reconcile(this.getFee(), tx.getFee()));
-    this.setMixin(GenUtils.reconcile(this.getMixin(), tx.getMixin()));
+    this.setRingSize(GenUtils.reconcile(this.getRingSize(), tx.getRingSize()));
     this.setIsConfirmed(GenUtils.reconcile(this.isConfirmed(), tx.isConfirmed(), {resolveTrue: true}));
     this.setDoNotRelay(GenUtils.reconcile(this.getDoNotRelay(), tx.getDoNotRelay(), {resolveTrue: false}));  // tx can become relayed
     this.setIsRelayed(GenUtils.reconcile(this.isRelayed(), tx.isRelayed(), {resolveTrue: true}));      // tx can become relayed
@@ -658,7 +658,7 @@ class MoneroTx {
     str += GenUtils.kvLine("Is miner tx", this.isMinerTx(), indent);
     str += GenUtils.kvLine("Payment ID", this.getPaymentId(), indent);
     str += GenUtils.kvLine("Fee", this.getFee(), indent);
-    str += GenUtils.kvLine("Mixin", this.getMixin(), indent);
+    str += GenUtils.kvLine("Ring size", this.getRingSize(), indent);
     str += GenUtils.kvLine("Do not relay", this.getDoNotRelay(), indent);
     str += GenUtils.kvLine("Is relayed", this.isRelayed(), indent);
     str += GenUtils.kvLine("Is confirmed", this.isConfirmed(), indent);
