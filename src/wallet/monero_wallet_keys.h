@@ -53,10 +53,8 @@
 #pragma once
 
 #include "monero_wallet.h"
-#include "wallet/wallet2.h"
 
 using namespace std;
-using namespace crypto;
 using namespace monero;
 
 /**
@@ -80,8 +78,8 @@ namespace monero {
      * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    static monero_wallet_w2* create_wallet_random(const string& path, const string& password);
-    static monero_wallet_w2* create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const string& language);
+    static monero_wallet_keys* create_wallet_random(const string& path, const string& password);
+    static monero_wallet_keys* create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const string& language);
 
     /**
      * Create a wallet from an existing mnemonic phrase.
@@ -93,8 +91,8 @@ namespace monero {
      * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
      * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
      */
-    static monero_wallet_w2* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic);
-    static monero_wallet_w2* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height);
+    static monero_wallet_keys* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic);
+    static monero_wallet_keys* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height);
 
     /**
      * Create a wallet from an address, view key, and spend key.
@@ -109,9 +107,9 @@ namespace monero {
      * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    static monero_wallet_w2* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key);
-    static monero_wallet_w2* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height);
-    static monero_wallet_w2* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& language);
+    static monero_wallet_keys* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key);
+    static monero_wallet_keys* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height);
+    static monero_wallet_keys* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& language);
 
     /**
      * Destruct the wallet.

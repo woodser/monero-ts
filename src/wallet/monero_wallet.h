@@ -53,10 +53,8 @@
 #pragma once
 
 #include "monero_wallet_model.h"
-#include "wallet/wallet2.h"
 
 using namespace std;
-using namespace crypto;
 using namespace monero;
 
 /**
