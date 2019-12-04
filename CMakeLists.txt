@@ -159,6 +159,12 @@ set(
     ${MONERO_CORE_SRC}/ringct/rctSigs.cpp
     ${MONERO_CORE_SRC}/ringct/bulletproofs.cc
     ${MONERO_CORE_SRC}/ringct/multiexp.cc
+    ${MONERO_CORE_SRC}/mnemonics/electrum-words.cpp
+    ${MONERO_CORE}/contrib/epee/src/hex.cpp
+    ${MONERO_CORE}/contrib/epee/src/string_tools.cpp
+    ${MONERO_CORE}/contrib/epee/src/memwipe.c
+    ${MONERO_CORE}/contrib/epee/src/mlocker.cpp
+    ${MONERO_CORE}/contrib/epee/src/wipeable_string.cpp
     #${MONERO_CORE}/contrib/libsodium/src/crypto_verify/verify.c
 )
 
@@ -239,9 +245,9 @@ set_target_properties(monero_cpp_library_WASM PROPERTIES LINK_FLAGS "${EMCC_LINK
 target_link_libraries(
     monero_cpp_library_WASM
     #
-    #boost_chrono
-    #boost_system
-    #boost_thread
+    boost_chrono
+    boost_system
+    boost_thread
     #boost_serialization
     #boost_filesystem
     #boost_regex
