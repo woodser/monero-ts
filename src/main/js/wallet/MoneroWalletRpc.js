@@ -135,6 +135,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param daemonConnection is connection configuration to a daemon (default = an unconnected wallet)
    * @param restoreHeight is the block height to restore (i.e. scan the chain) from (default = 0)
    * @param language is the wallet and mnemonic's language (default = "English")
+   * @return {MoneroWalletRpc} a reference to this class for convenience
    */
   async createWalletFromKeys(name, password, address, viewKey, spendKey, daemonConnection, restoreHeight, language, saveCurrent) {
     if (restoreHeight === undefined) restoreHeight = 0;
@@ -149,6 +150,7 @@ class MoneroWalletRpc extends MoneroWallet {
       autosave_current: saveCurrent
     });
     this.path = name;
+    return this;
   }
   
   /**
