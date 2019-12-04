@@ -137,9 +137,10 @@ set(
     src/main/cpp/monero_wasm_bridge.cpp
     
     # monero-cpp-library (modified for WASM)
+    ${MONERO_CPP_SRC}/utils/monero_utils.cpp
     ${MONERO_CPP_SRC}/daemon/monero_daemon_model.cpp
     ${MONERO_CPP_SRC}/wallet/monero_wallet_model.cpp
-    ${MONERO_CPP_SRC}/utils/monero_utils.cpp
+    ${MONERO_CPP_SRC}/wallet/monero_wallet_keys.cpp
     
     # monero-project (modified for WASM)
     #${MONERO_CORE_SRC}/cryptonote_core/cryptonote_tx_utils.cpp
