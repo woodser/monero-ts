@@ -127,9 +127,9 @@ namespace monero {
   public:
 
     /**
-     * Pure virtual destructor.
+     * Virtual destructor.
      */
-    virtual ~monero_wallet() = 0;
+    virtual ~monero_wallet() {}
 
     /**
      * Set the wallet's daemon connection.
@@ -138,7 +138,7 @@ namespace monero {
      * @param username is the username to authenticate with the daemon (optional)
      * @param password is the password to authenticate with the daemon (optional)
      */
-    void set_daemon_connection(const string& uri, const string& username = "", const string& password = "") {
+    virtual void set_daemon_connection(const string& uri, const string& username = "", const string& password = "") {
       throw runtime_error("set_daemon_connection() not implemented");
     }
 
@@ -147,7 +147,7 @@ namespace monero {
      *
      * @param connection is the connection to set
      */
-    void set_daemon_connection(const monero_rpc_connection& connection) {
+    virtual void set_daemon_connection(const monero_rpc_connection& connection) {
       throw runtime_error("set_daemon_connection() not implemented");
     }
 
@@ -156,7 +156,7 @@ namespace monero {
      *
      * @return the wallet's daemon connection
      */
-    shared_ptr<monero_rpc_connection> get_daemon_connection() const {
+    virtual shared_ptr<monero_rpc_connection> get_daemon_connection() const {
       throw runtime_error("get_daemon_connection() not implemented");
     }
 
@@ -165,7 +165,7 @@ namespace monero {
      *
      * @return true if the wallet is connected to a daemon, false otherwise
      */
-    bool is_connected() const {
+    virtual bool is_connected() const {
       throw runtime_error("is_connected() not implemented");
     }
 
@@ -174,7 +174,7 @@ namespace monero {
      *
      * @return true if the daemon is synced with the network, false otherwise
      */
-    bool is_daemon_synced() const {
+    virtual bool is_daemon_synced() const {
       throw runtime_error("is_daemon_synced() not implemented");
     }
 
@@ -183,7 +183,7 @@ namespace monero {
      *
      * @return true if the daemon is trusted, false otherwise
      */
-    bool is_daemon_trusted() const {
+    virtual bool is_daemon_trusted() const {
       throw runtime_error("is_daemon_trusted() not implemented");
     }
 
@@ -201,7 +201,7 @@ namespace monero {
      *
      * @return the wallet's version
      */
-    monero_version get_version() const {
+    virtual monero_version get_version() const {
       throw runtime_error("get_version() not implemented");
     }
 
@@ -210,7 +210,7 @@ namespace monero {
      *
      * @return the path of this wallet's file on disk
      */
-    string get_path() const {
+    virtual string get_path() const {
       throw runtime_error("get_path() not implemented");
     }
 
@@ -219,7 +219,7 @@ namespace monero {
      *
      * @return the wallet's network type
      */
-    monero_network_type get_network_type() const {
+    virtual monero_network_type get_network_type() const {
       throw runtime_error("get_network_type() not implemented");
     }
 
@@ -228,7 +228,7 @@ namespace monero {
      *
      * @return the wallet's seed
      */
-    string get_seed() const {
+    virtual string get_seed() const {
       throw runtime_error("get_seed() not implemented");
     }
 
@@ -237,7 +237,7 @@ namespace monero {
      *
      * @param mnemonic is assigned the wallet's mnemonic phrase
      */
-    string get_mnemonic() const {
+    virtual string get_mnemonic() const {
       throw runtime_error("get_mnemonic() not implemented");
     }
 
@@ -246,7 +246,7 @@ namespace monero {
      *
      * @return the language of the wallet's mnemonic phrase
      */
-    string get_language() const {
+    virtual string get_language() const {
       throw runtime_error("get_language() not implemented");
     }
 
@@ -255,7 +255,7 @@ namespace monero {
      *
      * @return the available languages for the wallet's mnemonic phrase
      */
-    vector<string> get_languages() const {
+    virtual vector<string> get_languages() const {
       throw runtime_error("get_languages() not implemented");
     }
 
@@ -264,7 +264,7 @@ namespace monero {
      *
      * @return the wallet's public view key
      */
-    string get_public_view_key() const {
+    virtual string get_public_view_key() const {
       throw runtime_error("get_public_view_key() not implemented");
     }
 
@@ -273,7 +273,7 @@ namespace monero {
      *
      * @return the wallet's private view key
      */
-    string get_private_view_key() const {
+    virtual string get_private_view_key() const {
       throw runtime_error("get_private_view_key() not implemented");
     }
 
@@ -282,7 +282,7 @@ namespace monero {
      *
      * @return the wallet's public spend key
      */
-    string get_public_spend_key() const {
+    virtual string get_public_spend_key() const {
       throw runtime_error("get_public_spend_key() not implemented");
     }
 
@@ -291,7 +291,7 @@ namespace monero {
      *
      * @return the wallet's private spend key
      */
-    string get_private_spend_key() const {
+    virtual string get_private_spend_key() const {
       throw runtime_error("get_private_spend_key() not implemented");
     }
 
@@ -300,7 +300,7 @@ namespace monero {
      *
      * @return the wallet's primary address
      */
-    string get_primary_address() const {
+    virtual string get_primary_address() const {
       throw runtime_error("get_primary_address() not implemented");
     }
 
@@ -311,7 +311,7 @@ namespace monero {
      * @param subaddress_idx specifies the subaddress index within the account
      * @return the receive address of the specified subaddress
      */
-    string get_address(const uint32_t account_idx, const uint32_t subaddress_idx) const {
+    virtual string get_address(const uint32_t account_idx, const uint32_t subaddress_idx) const {
       throw runtime_error("get_address() not implemented");
     }
 
@@ -322,7 +322,7 @@ namespace monero {
      * @return the account and subaddress indices
      * @throws exception if address is not a wallet address
      */
-    monero_subaddress get_address_index(const string& address) const {
+    virtual monero_subaddress get_address_index(const string& address) const {
       throw runtime_error("get_address_index() not implemented");
     }
 
@@ -333,7 +333,7 @@ namespace monero {
      * @param payment_id is the integrated addresse's payment id (defaults to randomly generating new payment id)
      * @return the integrated address
      */
-    monero_integrated_address get_integrated_address(const string& standard_address = "", const string& payment_id = "") const {
+    virtual monero_integrated_address get_integrated_address(const string& standard_address = "", const string& payment_id = "") const {
       throw runtime_error("get_integrated_address() not implemented");
     }
 
@@ -343,7 +343,7 @@ namespace monero {
      * @param integrated_address is an integrated address to decode
      * @return the decoded integrated address including standard address and payment id
      */
-    monero_integrated_address decode_integrated_address(const string& integrated_address) const {
+    virtual monero_integrated_address decode_integrated_address(const string& integrated_address) const {
       throw runtime_error("decode_integrated_address() not implemented");
     }
 
@@ -352,7 +352,7 @@ namespace monero {
      *
      * @return the height of the last block processed by the wallet
      */
-    uint64_t get_height() const {
+    virtual uint64_t get_height() const {
       throw runtime_error("get_height() not implemented");
     }
 
@@ -361,7 +361,7 @@ namespace monero {
      *
      * @return the height of the first block that the wallet scans
      */
-    uint64_t get_restore_height() const {
+    virtual uint64_t get_restore_height() const {
       throw runtime_error("get_restore_height() not implemented");
     }
 
@@ -370,7 +370,7 @@ namespace monero {
      *
      * @param restore_height is the height of the first block that the wallet scans
      */
-    void set_restore_height(uint64_t restore_height) {
+    virtual void set_restore_height(uint64_t restore_height) {
       throw runtime_error("set_restore_height() not implemented");
     }
 
@@ -379,7 +379,7 @@ namespace monero {
      *
      * @return the height that the wallet's daemon is synced to
      */
-    uint64_t get_daemon_height() const {
+    virtual uint64_t get_daemon_height() const {
       throw runtime_error("get_daemon_height() not implemented");
     }
 
@@ -388,7 +388,7 @@ namespace monero {
      *
      * @return the maximum height of the peers the wallet's daemon is connected to
      */
-    uint64_t get_daemon_max_peer_height() const {
+    virtual uint64_t get_daemon_max_peer_height() const {
       throw runtime_error("get_daemon_max_peer_height() not implemented");
     }
 
@@ -397,7 +397,7 @@ namespace monero {
      *
      * @param listener is the listener to receive wallet notifications
      */
-    void add_listener(monero_wallet_listener& listener) {
+    virtual void add_listener(monero_wallet_listener& listener) {
       throw runtime_error("add_listener() not implemented");
     }
 
@@ -406,14 +406,14 @@ namespace monero {
      *
      * @param listener is the listener to unregister
      */
-    void remove_listener(monero_wallet_listener& listener) {
+    virtual void remove_listener(monero_wallet_listener& listener) {
       throw runtime_error("remove_listener() not implemented");
     }
 
     /**
      * Get the listeners registered with the wallet.
      */
-    set<monero_wallet_listener*> get_listeners() {
+    virtual set<monero_wallet_listener*> get_listeners() {
       throw runtime_error("get_listeners() not implemented");
     }
 
@@ -422,7 +422,7 @@ namespace monero {
      *
      * @return the sync result
      */
-    monero_sync_result sync() {
+    virtual monero_sync_result sync() {
       throw runtime_error("sync() not implemented");
     }
 
@@ -432,7 +432,7 @@ namespace monero {
      * @param listener is invoked as sync progress is made
      * @return the sync result
      */
-    monero_sync_result sync(monero_sync_listener& listener) {
+    virtual monero_sync_result sync(monero_sync_listener& listener) {
       throw runtime_error("sync() not implemented");
     }
 
@@ -442,7 +442,7 @@ namespace monero {
      * @param start_height is the start height to sync from (ignored if less than last processed block)
      * @return the sync result
      */
-    monero_sync_result sync(uint64_t start_height) {
+    virtual monero_sync_result sync(uint64_t start_height) {
       throw runtime_error("sync() not implemented");
     }
 
@@ -453,21 +453,21 @@ namespace monero {
      * @param listener is invoked as sync progress is made
      * @return the sync result
      */
-    monero_sync_result sync(uint64_t start_height, monero_sync_listener& listener) {
+    virtual monero_sync_result sync(uint64_t start_height, monero_sync_listener& listener) {
       throw runtime_error("sync() not implemented");
     }
 
     /**
      * Start an asynchronous thread to continuously synchronize the wallet with the daemon.
      */
-    void start_syncing() {
+    virtual void start_syncing() {
       throw runtime_error("start_syncing() not implemented");
     }
 
     /**
      * Stop the asynchronous thread to continuously synchronize the wallet with the daemon.
      */
-    void stop_syncing() {
+    virtual void stop_syncing() {
       throw runtime_error("stop_syncing() not implemented");
     }
 
@@ -480,7 +480,7 @@ namespace monero {
      * so the wallet will not rescan spent outputs.  Then the wallet connects to a trusted
      * daemon.  This method should be manually invoked to rescan outputs.
      */
-    void rescan_spent() {
+    virtual void rescan_spent() {
       throw runtime_error("rescan_spent() not implemented");
     }
 
@@ -491,7 +491,7 @@ namespace monero {
      * WARNING: This method discards local wallet data like destination addresses, tx secret keys,
      * tx notes, etc.
      */
-    void rescan_blockchain() {
+    virtual void rescan_blockchain() {
       throw runtime_error("rescan_blockchain() not implemented");
     }
 
@@ -507,7 +507,7 @@ namespace monero {
      *
      * @return the wallet's balance
      */
-    uint64_t get_balance() const {
+    virtual uint64_t get_balance() const {
       throw runtime_error("get_balance() not implemented");
     }
 
@@ -517,7 +517,7 @@ namespace monero {
      * @param account_idx is the index of the account to get the balance of
      * @return the account's balance
      */
-    uint64_t get_balance(uint32_t account_idx) const {
+    virtual uint64_t get_balance(uint32_t account_idx) const {
       throw runtime_error("get_balance() not implemented");
     }
 
@@ -528,7 +528,7 @@ namespace monero {
      * @param subaddress_idx is the index of the subaddress to get the balance of
      * @return the subaddress's balance
      */
-    uint64_t get_balance(uint32_t account_idx, uint32_t subaddress_idx) const {
+    virtual uint64_t get_balance(uint32_t account_idx, uint32_t subaddress_idx) const {
       throw runtime_error("get_balance() not implemented");
     }
 
@@ -537,7 +537,7 @@ namespace monero {
      *
      * @return the wallet's unlocked balance
      */
-    uint64_t get_unlocked_balance() const {
+    virtual uint64_t get_unlocked_balance() const {
       throw runtime_error("get_unlocked_balance() not implemented");
     }
 
@@ -547,7 +547,7 @@ namespace monero {
      * @param account_idx is the index of the account to get the unlocked balance of
      * @return the account's unlocked balance
      */
-    uint64_t get_unlocked_balance(uint32_t account_idx) const {
+    virtual uint64_t get_unlocked_balance(uint32_t account_idx) const {
       throw runtime_error("get_unlocked_balance() not implemented");
     }
 
@@ -558,7 +558,7 @@ namespace monero {
      * @param subaddress_idx is the index of the subaddress to get the unlocked balance of
      * @return the subaddress's balance
      */
-    uint64_t get_unlocked_balance(uint32_t account_idx, uint32_t subaddress_idx) const {
+    virtual uint64_t get_unlocked_balance(uint32_t account_idx, uint32_t subaddress_idx) const {
       throw runtime_error("get_unlocked_balance() not implemented");
     }
 
@@ -567,7 +567,7 @@ namespace monero {
      *
      * @return List<monero_account> are all accounts within the wallet
      */
-    vector<monero_account> get_accounts() const {
+    virtual vector<monero_account> get_accounts() const {
       throw runtime_error("get_accounts() not implemented");
     }
 
@@ -577,7 +577,7 @@ namespace monero {
      * @param include_subaddresses specifies if subaddresses should be included
      * @return List<monero_account> are all accounts
      */
-    vector<monero_account> get_accounts(bool include_subaddresses) const {
+    virtual vector<monero_account> get_accounts(bool include_subaddresses) const {
       throw runtime_error("get_accounts() not implemented");
     }
 
@@ -587,7 +587,7 @@ namespace monero {
      * @param tag is the tag for filtering accounts, all accounts if null
      * @return List<monero_account> are all accounts for the wallet with the given tag
      */
-    vector<monero_account> get_accounts(const string& tag) const {
+    virtual vector<monero_account> get_accounts(const string& tag) const {
       throw runtime_error("get_accounts() not implemented");
     }
 
@@ -598,7 +598,7 @@ namespace monero {
      * @param tag is the tag for filtering accounts, all accounts if null
      * @return List<monero_account> are all accounts for the wallet with the given tag
      */
-    vector<monero_account> get_accounts(bool include_subaddresses, const string& tag) const {
+    virtual vector<monero_account> get_accounts(bool include_subaddresses, const string& tag) const {
       throw runtime_error("get_accounts() not implemented");
     }
 
@@ -608,7 +608,7 @@ namespace monero {
      * @param account_idx specifies the account to get
      * @return the retrieved account
      */
-    monero_account get_account(uint32_t account_idx) const {
+    virtual monero_account get_account(uint32_t account_idx) const {
       throw runtime_error("get_account() not implemented");
     }
 
@@ -619,7 +619,7 @@ namespace monero {
      * @param include_subaddresses specifies if subaddresses should be included
      * @return the retrieved account
      */
-    monero_account get_account(const uint32_t account_idx, bool include_subaddresses) const {
+    virtual monero_account get_account(const uint32_t account_idx, bool include_subaddresses) const {
       throw runtime_error("get_account() not implemented");
     }
 
@@ -629,7 +629,7 @@ namespace monero {
      * @param label specifies the label for the account's first subaddress (optional)
      * @return the created account
      */
-    monero_account create_account(const string& label = "") {
+    virtual monero_account create_account(const string& label = "") {
       throw runtime_error("create_account() not implemented");
     }
 
@@ -639,7 +639,7 @@ namespace monero {
      * @param account_idx specifies the account to get subaddresses within
      * @return List<monero_subaddress> are the retrieved subaddresses
      */
-    vector<monero_subaddress> get_subaddresses(const uint32_t account_idx) const {
+    virtual vector<monero_subaddress> get_subaddresses(const uint32_t account_idx) const {
       throw runtime_error("get_subaddresses() not implemented");
     }
 
@@ -650,7 +650,7 @@ namespace monero {
      * @param subaddress_indices are specific subaddresses to get (optional)
      * @return the retrieved subaddresses
      */
-    vector<monero_subaddress> get_subaddresses(const uint32_t account_idx, const vector<uint32_t>& subaddress_indices) const {
+    virtual vector<monero_subaddress> get_subaddresses(const uint32_t account_idx, const vector<uint32_t>& subaddress_indices) const {
       throw runtime_error("get_subaddresses() not implemented");
     }
 
@@ -661,7 +661,7 @@ namespace monero {
      * @param subaddress_idx specifies index of the subaddress within the account
      * @return the retrieved subaddress
      */
-    monero_subaddress getSubaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const {
+    virtual monero_subaddress getSubaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const {
       throw runtime_error("getSubaddress() not implemented");
     }
 
@@ -672,7 +672,7 @@ namespace monero {
      * @param label specifies the the label for the subaddress (defaults to empty string)
      * @return the created subaddress
      */
-    monero_subaddress create_subaddress(uint32_t account_idx, const string& label = "") {
+    virtual monero_subaddress create_subaddress(uint32_t account_idx, const string& label = "") {
       throw runtime_error("create_subaddress() not implemented");
     }
 
@@ -690,7 +690,7 @@ namespace monero {
      *
      * @return all wallet transactions
      */
-    vector<shared_ptr<monero_tx_wallet>> get_txs() const {
+    virtual vector<shared_ptr<monero_tx_wallet>> get_txs() const {
       throw runtime_error("set_daemon_connection() not implemented");
     }
 
@@ -714,7 +714,7 @@ namespace monero {
      * @param query filters query results (optional)
      * @return wallet transactions per the query
      */
-    vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& query) const {
+    virtual vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& query) const {
       throw runtime_error("get_txs() not implemented");
     }
 
@@ -773,7 +773,7 @@ namespace monero {
      * @param query filters query results (optional)
      * @return wallet transfers per the query
      */
-    vector<shared_ptr<monero_transfer>> get_transfers(const monero_transfer_query& query) const {
+    virtual vector<shared_ptr<monero_transfer>> get_transfers(const monero_transfer_query& query) const {
       throw runtime_error("get_transfers() not implemented");
     }
 
@@ -798,7 +798,7 @@ namespace monero {
      * @param query specifies query options (optional)
      * @return wallet outputs per the query
      */
-    vector<shared_ptr<monero_output_wallet>> get_outputs(const monero_output_query& query) const {
+    virtual vector<shared_ptr<monero_output_wallet>> get_outputs(const monero_output_query& query) const {
       throw runtime_error("get_outputs() not implemented");
     }
 
@@ -807,7 +807,7 @@ namespace monero {
      *
      * @return all outputs in hex format, empty string if no outputs
      */
-    string get_outputs_hex() const {
+    virtual string get_outputs_hex() const {
       throw runtime_error("get_outputs_hex() not implemented");
     }
 
@@ -817,7 +817,7 @@ namespace monero {
      * @param outputs_hex are outputs in hex format
      * @return the number of outputs imported
      */
-    int import_outputs_hex(const string& outputs_hex) {
+    virtual int import_outputs_hex(const string& outputs_hex) {
       throw runtime_error("import_outputs_hex() not implemented");
     }
 
@@ -826,7 +826,7 @@ namespace monero {
      *
      * @return the wallet's signed key images
      */
-    vector<shared_ptr<monero_key_image>> get_key_images() const {
+    virtual vector<shared_ptr<monero_key_image>> get_key_images() const {
       throw runtime_error("get_key_images() not implemented");
     }
 
@@ -836,7 +836,7 @@ namespace monero {
      * @param key_images are key images to import and verify (requires hex and signature)
      * @return results of the import
      */
-    shared_ptr<monero_key_image_import_result> import_key_images(const vector<shared_ptr<monero_key_image>>& key_images) {
+    virtual shared_ptr<monero_key_image_import_result> import_key_images(const vector<shared_ptr<monero_key_image>>& key_images) {
       throw runtime_error("import_key_images() not implemented");
     }
 
@@ -854,7 +854,7 @@ namespace monero {
      * @param request configures the transaction to create
      * @return a tx set for the requested transaction if possible
      */
-    monero_tx_set create_tx(monero_send_request& request) {
+    virtual monero_tx_set create_tx(monero_send_request& request) {
       throw runtime_error("create_tx() not implemented");
     }
 
@@ -867,7 +867,7 @@ namespace monero {
      * @param amount is the amount being sent
      * @return a tx set for the requested transaction if possible
      */
-    monero_tx_set create_tx(uint32_t account_index, string address, uint64_t amount) {
+    virtual monero_tx_set create_tx(uint32_t account_index, string address, uint64_t amount) {
       throw runtime_error("create_tx() not implemented");
     }
 
@@ -881,7 +881,7 @@ namespace monero {
      * @param priority is the send priority (default normal)
      * @return a tx set for the requested transaction if possible
      */
-    monero_tx_set create_tx(int account_index, string address, uint64_t amount, monero_send_priority priority) {
+    virtual monero_tx_set create_tx(int account_index, string address, uint64_t amount, monero_send_priority priority) {
       throw runtime_error("create_tx() not implemented");
     }
 
@@ -892,7 +892,7 @@ namespace monero {
      * @param request configures the transactions to create
      * @return a tx set for the requested transactions if possible
      */
-    monero_tx_set create_txs(monero_send_request& request) {
+    virtual monero_tx_set create_txs(monero_send_request& request) {
       throw runtime_error("create_txs() not implemented");
     }
 
@@ -902,7 +902,7 @@ namespace monero {
      * @param txMetadata is transaction metadata previously created without relaying
      * @return string is the id of the relayed tx
      */
-    string relay_tx(const string& tx_metadata) {
+    virtual string relay_tx(const string& tx_metadata) {
       throw runtime_error("relay_tx() not implemented");
     }
 
@@ -912,7 +912,7 @@ namespace monero {
      * @param tx is the transaction to relay
      * @return the id of the relayed tx
      */
-    string relay_tx(const monero_tx_wallet& tx) {
+    virtual string relay_tx(const monero_tx_wallet& tx) {
       throw runtime_error("relay_tx() not implemented");
     }
 
@@ -922,7 +922,7 @@ namespace monero {
      * @param tx_metadatas are transaction metadata previously created without relaying
      * @return the ids of the relayed txs
      */
-    vector<string> relay_txs(const vector<string>& tx_metadatas) {
+    virtual vector<string> relay_txs(const vector<string>& tx_metadatas) {
       throw runtime_error("relay_txs() not implemented");
     }
 
@@ -932,7 +932,7 @@ namespace monero {
      * @param txs are the transactions to relay
      * @return the ids of the relayed txs
      */
-    vector<string> relay_txs(const vector<shared_ptr<monero_tx_wallet>>& txs) {
+    virtual vector<string> relay_txs(const vector<shared_ptr<monero_tx_wallet>>& txs) {
       throw runtime_error("relay_txs() not implemented");
     }
 
@@ -943,7 +943,7 @@ namespace monero {
      * @param request configures the transaction
      * @return a tx set with the requested transaction if possible
      */
-    monero_tx_set send(const monero_send_request& request) {
+    virtual monero_tx_set send(const monero_send_request& request) {
       throw runtime_error("send() not implemented");
     }
 
@@ -956,7 +956,7 @@ namespace monero {
      * @param amount is the amount being sent
      * @return a tx set with the requested transaction if possible
      */
-    monero_tx_set send(uint32_t account_index, string address, uint64_t amount) {
+    virtual monero_tx_set send(uint32_t account_index, string address, uint64_t amount) {
       throw runtime_error("send() not implemented");
     }
 
@@ -970,7 +970,7 @@ namespace monero {
      * @param priority is the send priority (default normal)
      * @return a tx set with the requested transaction if possible
      */
-    monero_tx_set send(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority) {
+    virtual monero_tx_set send(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority) {
       throw runtime_error("send() not implemented");
     }
 
@@ -981,7 +981,7 @@ namespace monero {
      * @param request configures the transaction
      * @return a tx set with the requested transactions if possible
      */
-    monero_tx_set send_split(const monero_send_request& request) {
+    virtual monero_tx_set send_split(const monero_send_request& request) {
       throw runtime_error("send_split() not implemented");
     }
 
@@ -1014,7 +1014,7 @@ namespace monero {
      * @param request is the sweep configuration
      * @return the tx sets with the requested transactions
      */
-    vector<monero_tx_set> sweep_unlocked(const monero_send_request& request) {
+    virtual vector<monero_tx_set> sweep_unlocked(const monero_send_request& request) {
       throw runtime_error("sweep_unlocked() not implemented");
     }
 
@@ -1024,7 +1024,7 @@ namespace monero {
      * @param request configures the sweep transaction
      * @return a tx set with the requested transaction if possible
      */
-    monero_tx_set sweep_output(const monero_send_request& request) {
+    virtual monero_tx_set sweep_output(const monero_send_request& request) {
       throw runtime_error("sweep_output() not implemented");
     }
 
@@ -1097,7 +1097,7 @@ namespace monero {
      * @param do_not_relay specifies if the resulting transaction should not be relayed (defaults to false i.e. relayed)
      * @return a tx set with the requested transactions if possible
      */
-    monero_tx_set sweep_dust(bool do_not_relay = false) {
+    virtual monero_tx_set sweep_dust(bool do_not_relay = false) {
       throw runtime_error("sweep_dust() not implemented");
     }
 
@@ -1107,7 +1107,7 @@ namespace monero {
      * @param tx_set is a tx set containing unsigned or multisig tx hex
      * @return the parsed tx set containing structured transactions
      */
-    monero_tx_set parse_tx_set(const monero_tx_set& tx_set) {
+    virtual monero_tx_set parse_tx_set(const monero_tx_set& tx_set) {
       throw runtime_error("parse_tx_set() not implemented");
     }
 
@@ -1117,7 +1117,7 @@ namespace monero {
      * @param msg is the message to sign
      * @return the signature
      */
-    string sign(const string& msg) const {
+    virtual string sign(const string& msg) const {
       throw runtime_error("sign() not implemented");
     }
 
@@ -1129,7 +1129,7 @@ namespace monero {
      * @param signature is the signature
      * @return true if the signature is good, false otherwise
      */
-    bool verify(const string& msg, const string& address, const string& signature) const {
+    virtual bool verify(const string& msg, const string& address, const string& signature) const {
       throw runtime_error("verify() not implemented");
     }
 
@@ -1139,7 +1139,7 @@ namespace monero {
      * @param tx_id is the transaction's id
      * @return is the transaction's secret key
      */
-    string get_tx_key(const string& tx_id) const {
+    virtual string get_tx_key(const string& tx_id) const {
       throw runtime_error("get_tx_key() not implemented");
     }
 
@@ -1151,7 +1151,7 @@ namespace monero {
      * @param address is the destination public address of the transaction
      * @return the result of the check
      */
-    shared_ptr<monero_check_tx> check_tx_key(const string& tx_id, const string& txKey, const string& address) const {
+    virtual shared_ptr<monero_check_tx> check_tx_key(const string& tx_id, const string& txKey, const string& address) const {
       throw runtime_error("check_tx_key() not implemented");
     }
 
@@ -1172,7 +1172,7 @@ namespace monero {
      * @param message is a message to include with the signature to further authenticate the proof (optional)
      * @return the transaction signature
      */
-    string get_tx_proof(const string& tx_id, const string& address, const string& message) const {
+    virtual string get_tx_proof(const string& tx_id, const string& address, const string& message) const {
       throw runtime_error("get_tx_proof() not implemented");
     }
 
@@ -1185,7 +1185,7 @@ namespace monero {
      * @param signature is the transaction signature to confirm
      * @return the result of the check
      */
-    shared_ptr<monero_check_tx> check_tx_proof(const string& tx_id, const string& address, const string& message, const string& signature) const {
+    virtual shared_ptr<monero_check_tx> check_tx_proof(const string& tx_id, const string& address, const string& message, const string& signature) const {
       throw runtime_error("check_tx_proof() not implemented");
     }
 
@@ -1204,7 +1204,7 @@ namespace monero {
      * @param message is a message to include with the signature to further authenticate the proof (optional)
      * @return the transaction signature
      */
-    string get_spend_proof(const string& tx_id, const string& message) const {
+    virtual string get_spend_proof(const string& tx_id, const string& message) const {
       throw runtime_error("get_spend_proof() not implemented");
     }
 
@@ -1216,7 +1216,7 @@ namespace monero {
      * @param signature is the transaction signature to confirm
      * @return true if the signature is good, false otherwise
      */
-    bool check_spend_proof(const string& tx_id, const string& message, const string& signature) const {
+    virtual bool check_spend_proof(const string& tx_id, const string& message, const string& signature) const {
       throw runtime_error("check_spend_proof() not implemented");
     }
 
@@ -1226,7 +1226,7 @@ namespace monero {
      * @param message is a message included with the signature to further authenticate the proof (optional)
      * @return the reserve proof signature
      */
-    string get_reserve_proof_wallet(const string& message) const {
+    virtual string get_reserve_proof_wallet(const string& message) const {
       throw runtime_error("get_reserve_proof_wallet() not implemented");
     }
 
@@ -1238,7 +1238,7 @@ namespace monero {
      * @param message is a message to include with the signature to further authenticate the proof (optional)
      * @return the reserve proof signature
      */
-    string get_reserve_proof_account(uint32_t account_idx, uint64_t amount, const string& message) const {
+    virtual string get_reserve_proof_account(uint32_t account_idx, uint64_t amount, const string& message) const {
       throw runtime_error("get_reserve_proof_account() not implemented");
     }
 
@@ -1250,7 +1250,7 @@ namespace monero {
      * @param signature is the reserve proof signature to check
      * @return the result of checking the signature proof
      */
-    shared_ptr<monero_check_reserve> check_reserve_proof(const string& address, const string& message, const string& signature) const {
+    virtual shared_ptr<monero_check_reserve> check_reserve_proof(const string& address, const string& message, const string& signature) const {
       throw runtime_error("check_reserve_proof() not implemented");
     }
 
@@ -1260,7 +1260,7 @@ namespace monero {
      * @param tx_id specifies the transaction to get the note of
      * @return the tx note
      */
-    string get_tx_note(const string& tx_id) const {
+    virtual string get_tx_note(const string& tx_id) const {
       throw runtime_error("get_tx_note() not implemented");
     }
 
@@ -1270,7 +1270,7 @@ namespace monero {
      * @param tx_ids identify the transactions to get notes for
      * @preturns notes for the transactions
      */
-    vector<string> get_tx_notes(const vector<string>& tx_ids) const {
+    virtual vector<string> get_tx_notes(const vector<string>& tx_ids) const {
       throw runtime_error("get_tx_notes() not implemented");
     }
 
@@ -1280,7 +1280,7 @@ namespace monero {
      * @param tx_id specifies the transaction
      * @param note specifies the note
      */
-    void set_tx_note(const string& tx_id, const string& note) {
+    virtual void set_tx_note(const string& tx_id, const string& note) {
       throw runtime_error("set_tx_note() not implemented");
     }
 
@@ -1290,7 +1290,7 @@ namespace monero {
      * @param tx_ids specify the transactions to set notes for
      * @param notes are the notes to set for the transactions
      */
-    void set_tx_notes(const vector<string>& tx_ids, const vector<string>& notes) {
+    virtual void set_tx_notes(const vector<string>& tx_ids, const vector<string>& notes) {
       throw runtime_error("set_tx_notes() not implemented");
     }
 
@@ -1300,7 +1300,7 @@ namespace monero {
      * @param indices are indices of the entries to get
      * @return the address book entries
      */
-    vector<monero_address_book_entry> get_address_book_entries(const vector<uint64_t>& indices) const {
+    virtual vector<monero_address_book_entry> get_address_book_entries(const vector<uint64_t>& indices) const {
       throw runtime_error("get_address_book_entries() not implemented");
     }
 
@@ -1311,7 +1311,7 @@ namespace monero {
      * @param description is the entry description (optional)
      * @return the index of the added entry
      */
-    uint64_t add_address_book_entry(const string& address, const string& description, const string& payment_id = "") {
+    virtual uint64_t add_address_book_entry(const string& address, const string& description, const string& payment_id = "") {
       throw runtime_error("add_address_book_entry() not implemented");
     }
 
@@ -1326,7 +1326,7 @@ namespace monero {
      * @param set_payment_id specifies if the payment id should be updated
      * @param payment_id is the updated payment id
      */
-    void edit_address_book_entry(uint64_t index, bool set_address, const string& address, bool set_description, const string& description, bool set_payment_id = false, const string& payment_id = "") {
+    virtual void edit_address_book_entry(uint64_t index, bool set_address, const string& address, bool set_description, const string& description, bool set_payment_id = false, const string& payment_id = "") {
       throw runtime_error("edit_address_book_entry() not implemented");
     }
 
@@ -1335,7 +1335,7 @@ namespace monero {
      *
      * @param index is the index of the entry to delete
      */
-    void delete_address_book_entry(uint64_t index) {
+    virtual void delete_address_book_entry(uint64_t index) {
       throw runtime_error("delete_address_book_entry() not implemented");
     }
 
@@ -1375,7 +1375,7 @@ namespace monero {
      * @param request specifies configuration for a potential tx
      * @return is the payment uri
      */
-    string create_payment_uri(const monero_send_request& request) const {
+    virtual string create_payment_uri(const monero_send_request& request) const {
       throw runtime_error("create_payment_uri() not implemented");
     }
 
@@ -1385,7 +1385,7 @@ namespace monero {
      * @param uri is the payment uri to parse
      * @return the send request parsed from the uri
      */
-    shared_ptr<monero_send_request> parse_payment_uri(const string& uri) const {
+    virtual shared_ptr<monero_send_request> parse_payment_uri(const string& uri) const {
       throw runtime_error("parse_payment_uri() not implemented");
     }
 
@@ -1396,7 +1396,7 @@ namespace monero {
      * @param value is set to the key's value if set
      * @return true if the key's value has been set, false otherwise
      */
-    bool get_attribute(const string& key, string& value) const {
+    virtual bool get_attribute(const string& key, string& value) const {
       throw runtime_error("get_attribute() not implemented");
     }
 
@@ -1406,7 +1406,7 @@ namespace monero {
      * @param key is the attribute key
      * @param val is the attribute value
      */
-    void set_attribute(const string& key, const string& val) {
+    virtual void set_attribute(const string& key, const string& val) {
       throw runtime_error("set_attribute() not implemented");
     }
 
@@ -1417,14 +1417,14 @@ namespace monero {
      * @param background_mining specifies if mining should occur in the background (optional)
      * @param ignore_battery specifies if the battery should be ignored for mining (optional)
      */
-    void start_mining(boost::optional<uint64_t> num_threads, boost::optional<bool> background_mining, boost::optional<bool> ignore_battery) {
+    virtual void start_mining(boost::optional<uint64_t> num_threads, boost::optional<bool> background_mining, boost::optional<bool> ignore_battery) {
       throw runtime_error("start_mining() not implemented");
     }
 
     /**
      * Stop mining.
      */
-    void stop_mining() {
+    virtual void stop_mining() {
       throw runtime_error("stop_mining() not implemented");
     }
 
@@ -1433,7 +1433,7 @@ namespace monero {
      *
      * @return the height of the next block when it is added to the chain
      */
-    uint64_t wait_for_next_block() {
+    virtual uint64_t wait_for_next_block() {
       throw runtime_error("wait_for_next_block() not implemented");
     }
 
@@ -1442,7 +1442,7 @@ namespace monero {
      *
      * @return true if importing multisig data is needed for returning a correct balance, false otherwise
      */
-    bool is_multisig_import_needed() const {
+    virtual bool is_multisig_import_needed() const {
       throw runtime_error("is_multisig_import_needed() not implemented");
     }
 
@@ -1453,7 +1453,7 @@ namespace monero {
      *
      * @return multisig info about this wallet
      */
-    monero_multisig_info get_multisig_info() {
+    virtual monero_multisig_info get_multisig_info() {
       throw runtime_error("get_multisig_info() not implemented");
     }
 
@@ -1463,7 +1463,7 @@ namespace monero {
      *
      * @return this wallet's multisig hex to share with participants
      */
-    string prepare_multisig() {
+    virtual string prepare_multisig() {
       throw runtime_error("prepare_multisig() not implemented");
     }
 
@@ -1475,7 +1475,7 @@ namespace monero {
      * @password is the wallet password
      * @return the result which has the multisig's address xor this wallet's multisig hex to share with participants iff not N/N
      */
-    monero_multisig_init_result make_multisig(const vector<string>& multisig_hexes, int threshold, const string& password) {
+    virtual monero_multisig_init_result make_multisig(const vector<string>& multisig_hexes, int threshold, const string& password) {
       throw runtime_error("make_multisig() not implemented");
     }
 
@@ -1488,7 +1488,7 @@ namespace monero {
      * @param password is the wallet's password // TODO monero core: redundant? wallet is created with password
      * @return the result which has the multisig's address xor this wallet's multisig hex to share with participants iff not done
      */
-    monero_multisig_init_result exchange_multisig_keys(const vector<string>& mutisig_hexes, const string& password) {
+    virtual  monero_multisig_init_result exchange_multisig_keys(const vector<string>& mutisig_hexes, const string& password) {
       throw runtime_error("exchange_multisig_keys() not implemented");
     }
 
@@ -1497,7 +1497,7 @@ namespace monero {
      *
      * @return this wallet's multisig info as hex for other participants
      */
-    string get_multisig_hex() {
+    virtual string get_multisig_hex() {
       throw runtime_error("get_multisig_hex() not implemented");
     }
 
@@ -1511,7 +1511,7 @@ namespace monero {
      * @param multisig_hexes are multisig hex from each participant
      * @return the number of outputs signed with the given multisig hex
      */
-    int import_multisig_hex(const vector<string>& multisig_hexes) {
+    virtual int import_multisig_hex(const vector<string>& multisig_hexes) {
       throw runtime_error("import_multisig_hex() not implemented");
     }
 
@@ -1521,7 +1521,7 @@ namespace monero {
      * @param multisig_tx_hex is the hex shared among the multisig transactions when they were created
      * @return the result of signing the multisig transactions
      */
-    monero_multisig_sign_result sign_multisig_tx_hex(const string& multisig_tx_hex) {
+    virtual monero_multisig_sign_result sign_multisig_tx_hex(const string& multisig_tx_hex) {
       throw runtime_error("monero_multisig_sign_result() not implemented");
     }
 
@@ -1531,14 +1531,14 @@ namespace monero {
      * @param signed_multisig_tx_hex is the signed multisig hex returned from signMultisigTxs()
      * @return the resulting transaction ids
      */
-    vector<string> submit_multisig_tx_hex(const string& signed_multisig_tx_hex) {
+    virtual vector<string> submit_multisig_tx_hex(const string& signed_multisig_tx_hex) {
       throw runtime_error("submit_multisig_tx_hex() not implemented");
     }
 
     /**
      * Save the wallet at its current path.
      */
-    void save() {
+    virtual void save() {
       throw runtime_error("save() not implemented");
     }
 
@@ -1548,7 +1548,7 @@ namespace monero {
      * @param path is the new wallet's path
      * @param password is the new wallet's password
      */
-    void move_to(string path, string password) {
+    virtual void move_to(string path, string password) {
       throw runtime_error("move_to() not implemented");
     }
 
@@ -1557,7 +1557,7 @@ namespace monero {
      *
      * @param save specifies if the wallet should be saved before being closed (default false)
      */
-    void close(bool save = false) {
+    virtual void close(bool save = false) {
       throw runtime_error("close() not implemented");
     }
   };
