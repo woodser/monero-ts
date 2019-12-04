@@ -6,21 +6,21 @@ class MoneroVersion {
   /**
    * Construct the model.
    * 
-   * @param versionNumber is the version number
+   * @param number is the version number
    * @param isRelease indicates if this version is a release
    */
-  constructor(versionNumber, isRelease) {
+  constructor(number, isRelease) {
     this.state = {};
-    this.state.versionNumber = versionNumber;
+    this.state.number = number;
     this.state.isRelease = isRelease;
   }
 
-  getVersionNumber() {
-    return this.state.versionNumber;
+  getNumber() {
+    return this.state.number;
   }
 
-  setVersionNumber(versionNumber) {
-    this.state.versionNumber = versionNumber;
+  setNumber(number) {
+    this.state.number = number;
     return this;
   }
 
