@@ -1,39 +1,42 @@
-const MoneroWalletLocal = require("../main/js/wallet/MoneroWalletLocal");
+const MoneroWalletKeys = require("../main/js/wallet/MoneroWalletKeys");
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
 
 /**
  * Tests the fully client-side Monero wallet.
  */
-class TestMoneroWalletLocal extends TestMoneroWalletCommon {
+class TestMoneroWalletKeys extends TestMoneroWalletCommon {
   
   constructor() {
     super(TestUtils.getDaemonRpc());
   }
   
   async getTestWallet() {
-    return TestUtils.getWalletLocal();
+    return TestUtils.getWalletKeys();
+  }
+  
+  async openWallet(path) {
+    throw new Error("TestMoneroWalletKeys.openWallet(path) not supported");
   }
   
   async createRandomWallet() {
-    return new MoneroWalletLocal({daemon: TestUtils.getDaemonRpc()});
+    return await MoneroWalletKeys.createWalletRandom(TestUtils.NETWORK_TYPE);
   }
-
-  async openWallet(path) {
-    throw new Error("local wallet openWallet(path) not implemented"); // TODO: path can be mnemonic for unique identifier?
+  
+  async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
+    return await MoneroWalletKeys.createWalletFromKeys(address, privateViewKey, privateSpendKey, language);
   }
   
   runTests(config) {
     let that = this;
-    describe("TEST MONERO WALLET LOCAL", function() {
+    describe("TEST MONERO WALLET KEYS ONLY", function() {
       
       // initialize wallet
       before(async function() {
-        that.wallet = TestUtils.getWalletLocal();
-        TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
+        that.wallet = await TestUtils.getWalletKeys();
       });
       
-      // run tests specific to local wallet
-      that._testWalletLocal(config);
+      // run tests specific to keys wallet
+      that._testWalletKeys(config);
       
       // run common tests
       that.runCommonTests(config);
@@ -42,11 +45,11 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
   
   // ---------------------------------- PRIVATE -------------------------------
   
-  _testWalletLocal(config) {
+  _testWalletKeys(config) {
     let that = this;
     let daemon = this.daemon;
     
-    describe("Tests specific to local wallet", function() {
+    describe("Tests specific to keys wallet", function() {
       
 //      // NOTE: this test will only be good until the next time stagenet is reset (today's date: 2018/12/07)
 //      it("Can run precise tests on wallet with address 55AepZu...", async function() {
@@ -59,7 +62,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
 //        }
 //        
 //        // create the wallet
-//        let wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: config.mnemonic});
+//        let wallet = new MoneroWalletKeys({daemon: daemon, mnemonic: config.mnemonic});
 //        
 //        // scan specific blocks
 //        if (config.blockHeights && config.blockHeights.length > 0) {
@@ -110,7 +113,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
       it("Can be created and synced without a seed", async function() {
         
         // wallet starts at the daemon's height by default
-        let wallet = new MoneroWalletLocal(daemon);
+        let wallet = new MoneroWalletKeys(daemon);
         assert.equal(await wallet.getHeight(), await daemon.getHeight());
         
         // sync the wallet
@@ -128,7 +131,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         
         // create wallet with a start height 50 blocks ago
         let numBlocks = 200;
-        let wallet = new MoneroWalletLocal({daemon: daemon, mnemonic: TestUtils.MNEMONIC, startHeight: (await daemon.getHeight()) - numBlocks});
+        let wallet = new MoneroWalletKeys({daemon: daemon, mnemonic: TestUtils.MNEMONIC, startHeight: (await daemon.getHeight()) - numBlocks});
         
         // sync the wallet 
         let progressTester = new SyncProgressTester(wallet, await wallet.getChainHeight() - numBlocks, await wallet.getChainHeight() - 1, undefined);
@@ -141,7 +144,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
       
       it("Does not allow a start height to be specified if a new seed is being created", async function() {
         try {
-          let wallet = new MoneroWalletLocal({daemon: daemon, startHeight: 0});
+          let wallet = new MoneroWalletKeys({daemon: daemon, startHeight: 0});
           fail("Should have failed");
         } catch (e) { }
       });
@@ -149,7 +152,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
       it("Can be exported/imported to/from a JSON object", async function() {
         
         // create a new wallet initialized from a seed
-        let wallet = new MoneroWalletLocal(TestUtils.WALLET_LOCAL_CONFIG);
+        let wallet = new MoneroWalletKeys(TestUtils.WALLET_LOCAL_CONFIG);
         assert.equal(await wallet.getHeight(), 0);
         
         // sync some blocks
@@ -161,7 +164,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         let store = await wallet.getStore();
         
         // recreate the wallet
-        let wallet2 = new MoneroWalletLocal({daemon: daemon, store: store});
+        let wallet2 = new MoneroWalletKeys({daemon: daemon, store: store});
         assert.deepEqual(wallet2.getStore(), wallet.getStore());
         assert.equal(await wallet2.getHeight(), await wallet.getHeight());
         
@@ -175,7 +178,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
         
         // create a new wallet
         let chainHeight = await daemon.getHeight();
-        let wallet = new MoneroWalletLocal(daemon);
+        let wallet = new MoneroWalletKeys(daemon);
         assert.equal(await wallet.getHeight(), chainHeight);
         
         // heights must be less than chain height
@@ -189,7 +192,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
       });
       
       it("Reports progress while it's syncing", async function() {
-        let wallet = new MoneroWalletLocal(TestUtils.WALLET_LOCAL_CONFIG);
+        let wallet = new MoneroWalletKeys(TestUtils.WALLET_LOCAL_CONFIG);
         let numBlocks = 100;
         let startHeight = await wallet.getChainHeight() - numBlocks
         let endHeight = await wallet.getChainHeight() - 1;
@@ -205,7 +208,7 @@ class TestMoneroWalletLocal extends TestMoneroWalletCommon {
 //        
 //        // create a new wallet
 //        let chainHeight = await daemon.getHeight();
-//        let wallet = new MoneroWalletLocal(daemon);
+//        let wallet = new MoneroWalletKeys(daemon);
 //        assert.equal(await that.wallet.getHeight(), chainHeight);
 //        
 //        // scan a few ranges
@@ -298,4 +301,4 @@ class SyncProgressTester {
   }
 }
 
-module.exports = TestMoneroWalletLocal
+module.exports = TestMoneroWalletKeys

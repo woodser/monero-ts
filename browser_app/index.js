@@ -9,35 +9,14 @@
 // import what you want to use
 const MoneroDaemonRpc = require("../src/main/js/daemon/MoneroDaemonRpc");
 const MoneroWalletRpc = require("../src/main/js/wallet/MoneroWalletRpc");
-const MoneroWalletLocal = require("../src/main/js/wallet/MoneroWalletLocal");
+const MoneroWalletKeys = require("../src/main/js/wallet/MoneroWalletKeys");
 
 // start the application
 startApp();
 async function startApp() {
   console.log("Starting app...");
   
-//  // import wasm wallet which exports a promise in order to load the WebAssembly module
-//  const MoneroWalletWasm = await require("../src/main/js/wallet/MoneroWalletWasm")();
-//  
-//  let mnemonic = "megabyte ghetto syllabus opposite firm january velvet kennel often bugs luggage nucleus volcano fainted ripped biology firm sushi putty swagger dove obedient unnoticed washing swagger";
-//  let firstReceiveHeight = 453289;
-//  
-//  // demonstrate wasm wallet
-//  let daemonConnection = new MoneroRpcConnection({uri: "http://localhost:38081", user: "superuser", pass: "abctesting123"});  // TODO: support 3 strings, "pass" should probably be renamed to "password" 
-//  let walletWasm = await MoneroWalletWasm.createWalletRandom("", "supersecretpassword123", MoneroNetworkType.STAGENET, daemonConnection, "English");
-//  console.log("Created random wallet!");
-//  walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("", "supersecretpassword123", MoneroNetworkType.STAGENET, mnemonic, daemonConnection, firstReceiveHeight);
-//  console.log("Restored wallet from seed!");
-//  let result = await walletWasm.sync();
-//  console.log("index.js received sync result");
-//  console.log(result);
-//  let height = await walletWasm.getHeight();
-//  console.log("index.js received height result");
-//  console.log(result);
-//  console.log("WASM wallet created");
-//  walletWasm.dummyMethod();
-  
-  // demonstrate using core utilities through web assembly
+  // demonstrate using c++ utilities through webassembly
   const MoneroCppUtils = await require("../src/main/js/utils/MoneroCppUtils")();
   let json = { msg: 'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' +
       'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + 
@@ -59,6 +38,38 @@ async function startApp() {
   assert.deepEqual(json2, json);
   console.log("Yep they were equal.");
   
+  
+  // import keys-only wallet which exports a promise in order to load the WebAssembly module
+  const MoneroWalletKeys = await require("../src/main/js/wallet/MoneroWalletKeys")();
+  
+  // demonstrate keys-only wallet
+  let walletKeys = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");
+  console.log("Keys wallet random mnemonic: " + walletKeys.getMnemonic());
+  let mnemonic = "megabyte ghetto syllabus opposite firm january velvet kennel often bugs luggage nucleus volcano fainted ripped biology firm sushi putty swagger dove obedient unnoticed washing swagger";
+  walletKeys = await MoneroWalletKeys.createWalletFromMnemonic(MoneroNetworkType.STAGENET, mnemonic);
+  console.log("Keys wallet restored from mnemonic: " + walletKeys.getMnemonic());
+  console.log("Keys wallet restored address: " + keysWallet.getPrimaryAddress());
+  
+//  // import wasm wallet which exports a promise in order to load the WebAssembly module
+//  const MoneroWalletWasm = await require("../src/main/js/wallet/MoneroWalletWasm")();
+//  
+//  let firstReceiveHeight = 453289;
+//  
+//  // demonstrate wasm wallet
+//  let daemonConnection = new MoneroRpcConnection({uri: "http://localhost:38081", user: "superuser", pass: "abctesting123"});  // TODO: support 3 strings, "pass" should probably be renamed to "password" 
+//  let walletWasm = await MoneroWalletWasm.createWalletRandom("", "supersecretpassword123", MoneroNetworkType.STAGENET, daemonConnection, "English");
+//  console.log("Created random wallet!");
+//  walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("", "supersecretpassword123", MoneroNetworkType.STAGENET, mnemonic, daemonConnection, firstReceiveHeight);
+//  console.log("Restored wallet from seed!");
+//  let result = await walletWasm.sync();
+//  console.log("index.js received sync result");
+//  console.log(result);
+//  let height = await walletWasm.getHeight();
+//  console.log("index.js received height result");
+//  console.log(result);
+//  console.log("WASM wallet created");
+//  walletWasm.dummyMethod();
+  
   // connect to monero-daemon-rpc
   let daemon = new MoneroDaemonRpc({uri: "http://localhost:38081", user: "superuser", pass: "abctesting123"});
   console.log("Daemon height: " + await daemon.getHeight());
@@ -67,14 +78,6 @@ async function startApp() {
   let walletRpc = new MoneroWalletRpc({uri: "http://localhost:38083", user: "rpc_user", pass: "abc123"});
   console.log("Wallet rpc mnemonic: " + await walletRpc.getMnemonic());
   console.log("Wallet rpc balance: " + await walletRpc.getBalance());
-  
-//  // create a wallet from mnemonic using local wasm bindings
-//  let mnemonic = "nagged giddy virtual bias spying arsenic fowls hexagon oars frying lava dialect copy gasp utensils muffin tattoo ritual exotic inmate kisses either sprig sunken sprig";
-//  let primaryAddress = "59aZULsUF3YNSKGiHz4JPMfjGYkm1S4TB3sPsTr3j85HhXb9crZqGa7jJ8cA87U48kT5wzi2VzGZnN2PKojEwoyaHqtpeZh";  // just for reference
-//  let walletLocal = new MoneroWalletLocal({daemon: daemon, mnemonic: mnemonic});
-//  console.log("Local wallet address: " + await walletLocal.getPrimaryAddress());
-//  console.log("Local wallet height: " + await walletLocal.getHeight());
-//  if (primaryAddress !== await walletLocal.getPrimaryAddress()) throw "Addresses do not match";
   
   // sync the wallet
 //  await wallet.sync(undefined, function(progress) {

@@ -1,5 +1,4 @@
 const MoneroWalletRpc = require("../../main/js/wallet/MoneroWalletRpc");
-const MoneroWalletLocal = require("../../main/js/wallet/MoneroWalletLocal");
 const MoneroDaemonRpc = require("../../main/js/daemon/MoneroDaemonRpc");
 
 const TxPoolWalletTracker = require("./TxPoolWalletTracker");
@@ -58,6 +57,21 @@ class TestUtils {
   }
   
   /**
+   * Get singleton instance of a keys-only wallet shared among tests.
+   */
+  static async getWalletKeys() {
+    if (this.walletKeys === undefined) {
+      
+      // import keys-only wallet module
+      const MoneroWalletKeys = await require("../../../src/main/js/wallet/MoneroWalletKeys")();
+      
+      // create wallet from mnemonic
+      this.walletKeys = MoneroWalletKeys.createWalletFromMnemonic(TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC);
+    }
+    return this.walletKeys;
+  }
+  
+  /**
    * Get a singleton instance of a wallet supported by WASM.
    * 
    * TODO: this creates and syncs new wallet every time; need to save and restore json
@@ -102,14 +116,6 @@ class TestUtils {
     
     // return cached wasm wallet
     return this.walletWasm;
-  }
-  
-  /**
-   * Get a local wallet singleton instance shared among tests.
-   */
-  static getWalletLocal() {
-    if (this.walletLocal === undefined) this.walletLocal = new MoneroWalletLocal(TestUtils.WALLET_LOCAL_CONFIG);
-    return this.walletLocal;
   }
   
   static testUnsignedBigInteger(num, nonZero) {
@@ -168,12 +174,6 @@ TestUtils.DAEMON_RPC_CONFIG = {
   pass: "abctesting123",
   maxRequestsPerSecond: 500
 };
-
-// local wallet config
-TestUtils.WALLET_LOCAL_CONFIG = {
-  daemon: TestUtils.getDaemonRpc(),
-  mnemonic: TestUtils.MNEMONIC
-}
 
 // used to track which wallets are in sync with pool so associated txs in the pool do not need to be waited on
 TestUtils.TX_POOL_WALLET_TRACKER = new TxPoolWalletTracker();
