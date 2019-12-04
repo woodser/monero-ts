@@ -371,4 +371,65 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
   }
 }
 
+///**
+// * Internal class to test progress updates.
+// */
+//class SyncProgressTester {
+//  
+//  constructor(wallet, startHeight, endHeight, noMidway, noProgress) {
+//    assert(wallet);
+//    assert(startHeight >= 0);
+//    assert(endHeight >= 0);
+//    this.wallet = wallet;
+//    this.startHeight = startHeight;
+//    this.endHeight = endHeight;
+//    this.noMidway = noMidway;
+//    this.noProgress = noProgress;
+//    this.firstProgress = undefined;
+//    this.lastProgress = undefined;
+//    this.midwayFound = false;
+//  }
+//  
+//  onProgress(progress) {
+//    assert(!this.noProgress, "Should not call progress");
+//    assert.equal(progress.totalBlocks, this.endHeight - this.startHeight + 1);
+//    assert(progress.doneBlocks >= 0 && progress.doneBlocks <= progress.totalBlocks);
+//    if (this.noMidway) assert(progress.percent === 0 || progress.percent === 1);
+//    if (progress.percent > 0 && progress.percent < 1) this.midwayFound = true;
+//    assert(progress.message);
+//    if (this.firstProgress == undefined) {
+//      this.firstProgress = progress;
+//      assert(progress.percent === 0);
+//      assert(progress.doneBlocks === 0);
+//    } else {
+//      assert(progress.percent > this.lastProgress.percent);
+//      assert(progress.doneBlocks >= this.lastProgress.doneBlocks && progress.doneBlocks <= progress.totalBlocks);
+//    }
+//    this.lastProgress = progress;
+//  }
+//  
+//  testDone() {
+//    
+//    // nothing to test if no progress called
+//    if (this.noProgress) {
+//      assert(!this.firstProgress);
+//      return;
+//    }
+//    
+//    // test first progress
+//    assert(this.firstProgress, "Progress was never updated");
+//    assert.equal(this.firstProgress.percent, 0);
+//    assert.equal(this.firstProgress.doneBlocks, 0);
+//    
+//    // test midway progress
+//    if (this.endHeight > this.startHeight && !this.noMidway) assert(this.midwayFound, "No midway progress reported but it should have been");
+//    else assert(!this.midwayFound, "No midway progress should have been reported but it was");
+//    
+//    // test last progress
+//    assert.equal(this.lastProgress.percent, 1);
+//    assert.equal(this.lastProgress.doneBlocks, this.endHeight - this.startHeight + 1);
+//    assert.equal(this.lastProgress.totalBlocks, this.lastProgress.doneBlocks);
+//  }
+//}
+
 module.exports = TestMoneroWalletWasm;

@@ -74,6 +74,10 @@ class MoneroWalletKeys extends MoneroWallet {
     return MoneroWalletKeys.WASM_MODULE.get_mnemonic(this.cppAddress);
   }
   
+  async getLanguage() {
+    return MoneroWalletKeys.WASM_MODULE.get_language(this.cppAddress);
+  }
+  
   async getLanguages() {
     return JSON.parse(MoneroWalletKeys.WASM_MODULE.get_languages(this.cppAddress)); // TODO: return native vector<string> in c++
   }
