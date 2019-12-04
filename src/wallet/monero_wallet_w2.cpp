@@ -838,7 +838,7 @@ namespace monero {
 
     // validate mnemonic and get recovery key and language
     crypto::secret_key recoveryKey;
-    std::string language;
+    string language;
     bool is_valid = crypto::ElectrumWords::words_to_bytes(mnemonic, recoveryKey, language);
     if (!is_valid) throw runtime_error("Invalid mnemonic");
     if (language == crypto::ElectrumWords::old_language_name) language = Language::English().get_language_name();

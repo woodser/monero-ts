@@ -71,11 +71,6 @@ namespace monero {
 
   // ---------------------------- WALLET MANAGEMENT ---------------------------
 
-  monero_wallet_keys* monero_wallet_keys::create_wallet_random() {
-    cout << "monero_wallet_keys::create_wallet_random()" << endl;
-    throw runtime_error("create_wallet_random() not implemented");
-  }
-
   monero_wallet_keys* monero_wallet_keys::create_wallet_random(const monero_network_type network_type, const string& language) {
     cout << "monero_wallet_keys::create_wallet_random(...)" << endl;
     throw runtime_error("create_wallet_random(...) not implemented");
@@ -83,12 +78,17 @@ namespace monero {
 
   monero_wallet_keys* monero_wallet_keys::create_wallet_from_mnemonic(const monero_network_type network_type, const string& mnemonic) {
     cout << "monero_wallet_keys::create_wallet_from_mnemonic()" << endl;
-    throw runtime_error("create_wallet_from_mnemonic() not implemented");
-  }
 
-  monero_wallet_keys* monero_wallet_keys::create_wallet_from_keys(const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key) {
-    cout << "monero_wallet_keys::create_wallet_from_keys()" << endl;
-    throw runtime_error("create_wallet_from_keys() not implemented");
+    // validate mnemonic and get recovery key and language
+    crypto::secret_key recoveryKey;
+    string language;
+    bool is_valid = crypto::ElectrumWords::words_to_bytes(mnemonic, recoveryKey, language);
+    if (!is_valid) throw runtime_error("Invalid mnemonic");
+    if (language == crypto::ElectrumWords::old_language_name) language = Language::English().get_language_name();
+
+    cout << "MNEMONIC VALIDATED" << endl;
+
+    throw runtime_error("create_wallet_from_mnemonic() not implemented");
   }
 
   monero_wallet_keys* monero_wallet_keys::create_wallet_from_keys(const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const string& language) {

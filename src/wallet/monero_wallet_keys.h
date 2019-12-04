@@ -75,7 +75,6 @@ namespace monero {
      * @param network_type is the wallet's network type (default = monero_network_type.MAINNET)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    static monero_wallet_keys* create_wallet_random();
     static monero_wallet_keys* create_wallet_random(const monero_network_type network_type, const string& language);
 
     /**
@@ -95,8 +94,7 @@ namespace monero {
      * @param spend_key is the spend key of the wallet to construct
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    static monero_wallet_keys* create_wallet_from_keys(const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key);
-    static monero_wallet_keys* create_wallet_from_keys(const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const string& language);
+    static monero_wallet_keys* create_wallet_from_keys(const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const string& language = "English");
 
     /**
      * Destruct the wallet.
@@ -132,6 +130,13 @@ namespace monero {
     // --------------------------------- PRIVATE --------------------------------
 
   private:
-
+    string seed;
+    string mnemonic;
+    string language;
+    string pub_view_key;
+    string prv_view_key;
+    string pub_spend_key;
+    string prv_spend_key;
+    string primary_address;
   };
 }
