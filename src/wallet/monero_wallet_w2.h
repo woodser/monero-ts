@@ -166,7 +166,6 @@ namespace monero {
     string get_private_view_key() const;
     string get_public_spend_key() const;
     string get_private_spend_key() const;
-    string get_primary_address() const;
     string get_address(const uint32_t account_idx, const uint32_t subaddress_idx) const;
     monero_subaddress get_address_index(const string& address) const;
     monero_integrated_address get_integrated_address(const string& standard_address = "", const string& payment_id = "") const;
@@ -193,16 +192,11 @@ namespace monero {
     uint64_t get_unlocked_balance() const;
     uint64_t get_unlocked_balance(uint32_t account_idx) const;
     uint64_t get_unlocked_balance(uint32_t account_idx, uint32_t subaddress_idx) const;
-    vector<monero_account> get_accounts() const;
-    vector<monero_account> get_accounts(bool include_subaddresses) const;
-    vector<monero_account> get_accounts(const string& tag) const;
     vector<monero_account> get_accounts(bool include_subaddresses, const string& tag) const;
-    monero_account get_account(uint32_t account_idx) const;
     monero_account get_account(const uint32_t account_idx, bool include_subaddresses) const;
     monero_account create_account(const string& label = "");
-    vector<monero_subaddress> get_subaddresses(const uint32_t account_idx) const;
     vector<monero_subaddress> get_subaddresses(const uint32_t account_idx, const vector<uint32_t>& subaddress_indices) const;
-    monero_subaddress getSubaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const;
+    monero_subaddress get_subaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const;
     monero_subaddress create_subaddress(uint32_t account_idx, const string& label = "");
     vector<shared_ptr<monero_tx_wallet>> get_txs() const;
     vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& query) const;

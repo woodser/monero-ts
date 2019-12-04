@@ -1038,11 +1038,6 @@ namespace monero {
     return spend_key;
   }
 
-  string monero_wallet_w2::get_primary_address() const {
-    MTRACE("get_primary_address()");
-    return get_address(0, 0);
-  }
-
   string monero_wallet_w2::get_address(uint32_t account_idx, uint32_t subaddress_idx) const {
     return m_w2->get_subaddress_as_str({account_idx, subaddress_idx});
   }
@@ -1273,21 +1268,6 @@ namespace monero {
     return iter == unlocked_balance_per_subaddress.end() ? 0 : iter->second.first;
   }
 
-  vector<monero_account> monero_wallet_w2::get_accounts() const {
-    MTRACE("get_accounts()");
-    return get_accounts(false, string(""));
-  }
-
-  vector<monero_account> monero_wallet_w2::get_accounts(bool include_subaddresses) const {
-    MTRACE("get_accounts(" << include_subaddresses << ")");
-    return get_accounts(include_subaddresses, "");
-  }
-
-  vector<monero_account> monero_wallet_w2::get_accounts(const string& tag) const {
-    MTRACE("get_accounts(" << tag << ")");
-    return get_accounts(false, tag);
-  }
-
   vector<monero_account> monero_wallet_w2::get_accounts(bool include_subaddresses, const string& tag) const {
     MTRACE("get_accounts(" << include_subaddresses << ", " << tag << ")");
 
@@ -1308,10 +1288,6 @@ namespace monero {
     }
 
     return accounts;
-  }
-
-  monero_account monero_wallet_w2::get_account(const uint32_t account_idx) const {
-    return get_account(account_idx, false);
   }
 
   monero_account monero_wallet_w2::get_account(uint32_t account_idx, bool include_subaddresses) const {
@@ -1346,10 +1322,6 @@ namespace monero {
     return account;
   }
 
-  vector<monero_subaddress> monero_wallet_w2::get_subaddresses(const uint32_t account_idx) const {
-    return get_subaddresses(account_idx, vector<uint32_t>());
-  }
-
   vector<monero_subaddress> monero_wallet_w2::get_subaddresses(const uint32_t account_idx, const vector<uint32_t>& subaddress_indices) const {
     MTRACE("get_subaddresses(" << account_idx << ", ...)");
     MTRACE("Subaddress indices size: " << subaddress_indices.size());
@@ -1359,7 +1331,7 @@ namespace monero {
     return get_subaddresses_aux(account_idx, subaddress_indices, transfers);
   }
 
-  monero_subaddress monero_wallet_w2::getSubaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const {
+  monero_subaddress monero_wallet_w2::get_subaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const {
     throw runtime_error("Not implemented");
   }
 
@@ -2020,13 +1992,13 @@ namespace monero {
         indices[request.m_account_index.get()] = request.m_subaddress_indices;
       } else {
         vector<uint32_t> subaddress_indices;
-        for (const monero_subaddress& subaddress : get_subaddresses(request.m_account_index.get())) {
+        for (const monero_subaddress& subaddress : monero_wallet::get_subaddresses(request.m_account_index.get())) {
           if (subaddress.m_unlocked_balance.get() > 0) subaddress_indices.push_back(subaddress.m_index.get());
         }
         indices[request.m_account_index.get()] = subaddress_indices;
       }
     } else {
-      vector<monero_account> accounts = get_accounts(true);
+      vector<monero_account> accounts = monero_wallet::get_accounts(true);
       for (const monero_account& account : accounts) {
         if (account.m_unlocked_balance.get() > 0) {
           vector<uint32_t> subaddress_indices;

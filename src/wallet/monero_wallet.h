@@ -301,7 +301,7 @@ namespace monero {
      * @return the wallet's primary address
      */
     virtual string get_primary_address() const {
-      throw runtime_error("get_primary_address() not implemented");
+      return get_address(0, 0);
     }
 
     /**
@@ -568,7 +568,7 @@ namespace monero {
      * @return List<monero_account> are all accounts within the wallet
      */
     virtual vector<monero_account> get_accounts() const {
-      throw runtime_error("get_accounts() not implemented");
+      return get_accounts(false, string(""));
     }
 
     /**
@@ -578,7 +578,7 @@ namespace monero {
      * @return List<monero_account> are all accounts
      */
     virtual vector<monero_account> get_accounts(bool include_subaddresses) const {
-      throw runtime_error("get_accounts() not implemented");
+      return get_accounts(include_subaddresses, "");
     }
 
     /**
@@ -588,7 +588,7 @@ namespace monero {
      * @return List<monero_account> are all accounts for the wallet with the given tag
      */
     virtual vector<monero_account> get_accounts(const string& tag) const {
-      throw runtime_error("get_accounts() not implemented");
+      return get_accounts(false, tag);
     }
 
     /**
@@ -609,7 +609,7 @@ namespace monero {
      * @return the retrieved account
      */
     virtual monero_account get_account(uint32_t account_idx) const {
-      throw runtime_error("get_account() not implemented");
+      return get_account(account_idx, false);
     }
 
     /**
@@ -640,7 +640,7 @@ namespace monero {
      * @return List<monero_subaddress> are the retrieved subaddresses
      */
     virtual vector<monero_subaddress> get_subaddresses(const uint32_t account_idx) const {
-      throw runtime_error("get_subaddresses() not implemented");
+      return get_subaddresses(account_idx, vector<uint32_t>());
     }
 
     /**
@@ -661,7 +661,7 @@ namespace monero {
      * @param subaddress_idx specifies index of the subaddress within the account
      * @return the retrieved subaddress
      */
-    virtual monero_subaddress getSubaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const {
+    virtual monero_subaddress get_subaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const {
       throw runtime_error("getSubaddress() not implemented");
     }
 
