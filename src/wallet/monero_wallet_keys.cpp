@@ -127,77 +127,90 @@ namespace monero {
   }
 
   monero_network_type monero_wallet_keys::get_network_type() const {
+    cout << "monero_wallet_keys::get_network_type()" << endl;
     throw runtime_error("monero_wallet_keys::get_network_type() not implemented");
   }
 
   string monero_wallet_keys::get_language() const {
-    throw runtime_error("monero_wallet_keys::get_subaddresses() not implemented");
+    return m_language;
   }
 
   vector<string> monero_wallet_keys::get_languages() const {
+    cout << "monero_wallet_keys::get_languages()" << endl;
     throw runtime_error("monero_wallet_keys::get_languages() not implemented");
   }
 
   string monero_wallet_keys::get_mnemonic() const {
-    throw runtime_error("monero_wallet_keys::get_mnemonic() not implemented");
+    return m_mnemonic;
   }
 
   string monero_wallet_keys::get_public_view_key() const {
-    throw runtime_error("monero_wallet_keys::get_public_view_key() not implemented");
+    return m_pub_view_key;
   }
 
   string monero_wallet_keys::get_private_view_key() const {
-    throw runtime_error("monero_wallet_keys::get_private_view_key() not implemented");
+    return m_prv_view_key;
   }
 
   string monero_wallet_keys::get_public_spend_key() const {
-    throw runtime_error("monero_wallet_keys::get_public_spend_key() not implemented");
+    return m_pub_spend_key;
   }
 
   string monero_wallet_keys::get_private_spend_key() const {
-    throw runtime_error("monero_wallet_keys::get_private_spend_key() not implemented");
+    return m_prv_spend_key;
   }
 
   string monero_wallet_keys::get_address(uint32_t account_idx, uint32_t subaddress_idx) const {
+    cout << "monero_wallet_keys::get_address()" << endl;
     throw runtime_error("monero_wallet_keys::get_address() not implemented");
   }
 
   monero_subaddress monero_wallet_keys::get_address_index(const string& address) const {
+    cout << "monero_wallet_keys::get_address_index()" << endl;
     throw runtime_error("monero_wallet_keys::get_address_index() not implemented");
   }
 
   monero_integrated_address monero_wallet_keys::get_integrated_address(const string& standard_address, const string& payment_id) const {
+    cout << "monero_wallet_keys::get_integrated_address()" << endl;
     throw runtime_error("monero_wallet_keys::get_integrated_address() not implemented");
   }
 
   monero_integrated_address monero_wallet_keys::decode_integrated_address(const string& integrated_address) const {
+    cout << "monero_wallet_keys::decode_integrated_address()" << endl;
     throw runtime_error("monero_wallet_keys::decode_integrated_address() not implemented");
   }
 
   vector<monero_account> monero_wallet_keys::get_accounts(bool include_subaddresses, const string& tag) const {
+    cout << "monero_wallet_keys::get_accounts()" << endl;
     throw runtime_error("monero_wallet_keys::get_accounts() not implemented");
   }
 
   monero_account monero_wallet_keys::get_account(uint32_t account_idx, bool include_subaddresses) const {
+    cout << "monero_wallet_keys::get_account()" << endl;
     throw runtime_error("monero_wallet_keys::get_subaddresses() not implemented");
   }
 
   monero_account monero_wallet_keys::create_account(const string& label) {
+    cout << "monero_wallet_keys::create_account()" << endl;
     throw runtime_error("monero_wallet_keys::get_account() not implemented");
   }
 
   vector<monero_subaddress> monero_wallet_keys::get_subaddresses(const uint32_t account_idx, const vector<uint32_t>& subaddress_indices) const {
+    cout << "monero_wallet_keys::get_subaddresses()" << endl;
     throw runtime_error("monero_wallet_keys::get_subaddresses() not implemented");
   }
 
   monero_subaddress monero_wallet_keys::get_subaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const {
+    cout << "monero_wallet_keys::get_subaddress()" << endl;
     throw runtime_error("monero_wallet_keys::get_subaddress() not implemented");
   }
 
   monero_subaddress monero_wallet_keys::create_subaddress(const uint32_t account_idx, const string& label) {
+    cout << "monero_wallet_keys::create_subaddress()" << endl;
     throw runtime_error("monero_wallet_keys::create_subaddress() not implemented");
   }
   void monero_wallet_keys::close() {
+    cout << "monero_wallet_keys::close()" << endl;
     throw runtime_error("monero_wallet_keys::close() not implemented");
   }
 
