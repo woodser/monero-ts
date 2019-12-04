@@ -24,7 +24,7 @@ set(MONERO_CPP_SRC "${MONERO_CPP}/src")
 
 # headers
 include_directories("${MONERO_CPP_SRC}")
-#include_directories("${MONERO_CPP}/external/libsodium/include")
+include_directories("${MONERO_CPP}/external/libsodium/include")
 include_directories("${MONERO_CPP}/external/libsodium/include/sodium")
 
 ##################
@@ -39,8 +39,8 @@ include_directories("${MONERO_CORE_SRC}/")
 #include_directories("${MONERO_CORE_SRC}/checkpoints")
 #include_directories("${MONERO_CORE_SRC}/common")
 #include_directories("${MONERO_CORE_SRC}/crypto")
-include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")	# DISABLED?
-include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/sodium")	# DISABLED?
+#include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")	# DISABLED?
+#include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/sodium")	# DISABLED?
 include_directories("${MONERO_CORE_SRC}/cryptonote_basic")
 #include_directories("${MONERO_CORE_SRC}/multisig")
 #include_directories("${MONERO_CORE_SRC}/cryptonote_core")
@@ -144,11 +144,11 @@ set(
     
     # monero-project (modified for WASM)
     #${MONERO_CORE_SRC}/cryptonote_core/cryptonote_tx_utils.cpp
-    #${MONERO_CORE}/contrib/epee/src/string_tools.cpp
-    #${MONERO_CORE}/contrib/epee/src/wipeable_string.cpp
+    ${MONERO_CORE}/contrib/epee/src/string_tools.cpp
+    ${MONERO_CORE}/contrib/epee/src/wipeable_string.cpp
     ${MONERO_CORE}/external/easylogging++/easylogging++.cc
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
-    #${MONERO_CORE_SRC}/cryptonote_basic/account.cpp
+    ${MONERO_CORE_SRC}/cryptonote_basic/account.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
     #${MONERO_CORE_SRC}/crypto/crypto.cpp
     ${MONERO_CORE_SRC}/crypto/crypto-ops.c
@@ -165,7 +165,10 @@ set(
     ${MONERO_CORE}/contrib/epee/src/memwipe.c
     ${MONERO_CORE}/contrib/epee/src/mlocker.cpp
     ${MONERO_CORE}/contrib/epee/src/wipeable_string.cpp
-    #${MONERO_CORE}/contrib/libsodium/src/crypto_verify/verify.c
+    ${MONERO_CORE_SRC}/device/device.cpp
+    ${MONERO_CORE_SRC}/device/device_default.cpp
+    ${MONERO_CORE_SRC}/crypto/crypto-ops.c
+    ${MONERO_CORE_SRC}/crypto/crypto-ops-data.c
 )
 
 ####################
