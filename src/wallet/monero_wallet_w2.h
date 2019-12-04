@@ -159,7 +159,6 @@ namespace monero {
     monero_version get_version() const;
     string get_path() const;
     monero_network_type get_network_type() const;
-    string get_seed() const;
     string get_mnemonic() const;
     string get_language() const;
     vector<string> get_languages() const;
