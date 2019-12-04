@@ -72,44 +72,31 @@ namespace monero {
     /**
      * Create a new wallet with a randomly generated seed.
      *
-     * @param path is the path to create the wallet
-     * @param password is the password encrypt the wallet
      * @param network_type is the wallet's network type (default = monero_network_type.MAINNET)
-     * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    static monero_wallet_keys* create_wallet_random(const string& path, const string& password);
-    static monero_wallet_keys* create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const string& language);
+    static monero_wallet_keys* create_wallet_random();
+    static monero_wallet_keys* create_wallet_random(const monero_network_type network_type, const string& language);
 
     /**
      * Create a wallet from an existing mnemonic phrase.
      *
-     * @param path is the path to create the wallet
-     * @param password is the password encrypt the wallet
      * @param network_type is the wallet's network type
      * @param mnemonic is the mnemonic of the wallet to construct
-     * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
-     * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
      */
-    static monero_wallet_keys* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic);
-    static monero_wallet_keys* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height);
+    static monero_wallet_keys* create_wallet_from_mnemonic(const monero_network_type network_type, const string& mnemonic);
 
     /**
      * Create a wallet from an address, view key, and spend key.
      *
-     * @param path is the path to create the wallet
-     * @param password is the password encrypt the wallet
      * @param network_type is the wallet's network type
      * @param address is the address of the wallet to construct
      * @param view_key is the view key of the wallet to construct
      * @param spend_key is the spend key of the wallet to construct
-     * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
-     * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    static monero_wallet_keys* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key);
-    static monero_wallet_keys* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height);
-    static monero_wallet_keys* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& language);
+    static monero_wallet_keys* create_wallet_from_keys(const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key);
+    static monero_wallet_keys* create_wallet_from_keys(const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const string& language);
 
     /**
      * Destruct the wallet.
@@ -136,7 +123,7 @@ namespace monero {
     monero_account get_account(const uint32_t account_idx, bool include_subaddresses) const;
     monero_account create_account(const string& label = "");
     vector<monero_subaddress> get_subaddresses(const uint32_t account_idx, const vector<uint32_t>& subaddress_indices) const;
-    monero_subaddress getSubaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const;
+    monero_subaddress get_subaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const;
     monero_subaddress create_subaddress(uint32_t account_idx, const string& label = "");
     string sign(const string& msg) const;
     bool verify(const string& msg, const string& address, const string& signature) const;
