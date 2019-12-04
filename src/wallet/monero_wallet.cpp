@@ -987,7 +987,7 @@ namespace monero {
 
   monero_version monero_wallet::get_version() const {
     monero_version version;
-    version.m_version_number = 65552; // same as monero-wallet-rpc v0.15.0.1 release
+    version.m_number = 65552; // same as monero-wallet-rpc v0.15.0.1 release
     version.m_is_release = false;     // TODO: could pull from MONERO_VERSION_IS_RELEASE in version.cpp
     return version;
   }

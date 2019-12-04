@@ -97,7 +97,7 @@ namespace monero {
 
     // set num values
     rapidjson::Value value_num(rapidjson::kNumberType);
-    if (m_version_number != boost::none) monero_utils::addJsonMember("versionNumber", m_version_number.get(), allocator, root, value_num);
+    if (m_number != boost::none) monero_utils::addJsonMember("versionNumber", m_number.get(), allocator, root, value_num);
 
     // set bool values
     if (m_is_release != boost::none) monero_utils::addJsonMember("isRelease", m_is_release.get(), allocator, root);

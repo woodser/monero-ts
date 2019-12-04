@@ -99,7 +99,7 @@ namespace monero {
    * Models a Monero version.
    */
   struct monero_version : public serializable_struct {
-    boost::optional<uint32_t> m_version_number;
+    boost::optional<uint32_t> m_number;
     boost::optional<bool> m_is_release;
 
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
