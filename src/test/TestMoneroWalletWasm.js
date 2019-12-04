@@ -58,10 +58,6 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     describe("Tests specific to WASM wallet", function() {
       
       // ---------------------------- BEGIN TESTS ---------------------------------
-      
-      it("Can run a dummy WASM test", async function() {  // TODO: delete
-        
-      });
 
       // TODO
 //      it("Can create a wallet from a mnemonic phrase", async function() {

@@ -15,18 +15,15 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   }
   
   async openWallet(path) {
-    await this.wallet.openWallet(path, TestUtils.WALLET_PASSWORD);
-    return this.wallet;
+    return await this.wallet.openWallet(path, TestUtils.WALLET_PASSWORD);
   }
   
   async createRandomWallet() {
-    await this.wallet.createWalletRandom(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD);
-    return this.wallet;
+    return await this.wallet.createWalletRandom(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD);
   }
   
-  async createWalletFromKeys(password, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
-    await this.wallet.createWalletFromKeys(GenUtils.uuidv4(), password, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language);
-    return this.wallet;
+  async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
+    return await this.wallet.createWalletFromKeys(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language);
   } 
 
   runTests(config) {

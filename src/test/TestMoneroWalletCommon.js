@@ -66,7 +66,7 @@ class TestMoneroWalletCommon {
   /**
    * Creates a wallet from keys.
    */
-  async createWalletFromKeys(password, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
+  async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
     throw new Error("Subclass must implement");
   }
   
@@ -98,7 +98,7 @@ class TestMoneroWalletCommon {
           let privateSpendKey = await that.wallet.getPrivateSpendKey();
           
           // recreate test wallet from keys
-          that.wallet = await that.createWalletFromKeys(TestUtils.WALLET_PASSWORD, primaryAddress, privateViewKey, privateSpendKey, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+          that.wallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, privateSpendKey, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
           let e2 = undefined;
           try {
             //assert.equal(await that.wallet.getMnemonic(), mnemonic);
@@ -128,7 +128,7 @@ class TestMoneroWalletCommon {
           let privateViewKey = await that.wallet.getPrivateViewKey();
 
           // create watch-only wallet by witholding spend key
-          that.wallet = await that.createWalletFromKeys(TestUtils.WALLET_PASSWORD, primaryAddress, privateViewKey, undefined, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+          that.wallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, undefined, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
           let e2 = undefined;
           try {
             //assert.equal(await that.wallet.getMnemonic(), mnemonic);
@@ -1716,7 +1716,7 @@ class TestMoneroWalletCommon {
         try {
 
           // create watch-only wallet by witholding spend key
-          that.wallet = await createWalletFromKeys(TestUtils.WALLET_PASSWORD, await that.wallet.getPrimaryAddress(), await that.wallet.getPrivateViewKey(), undefined, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+          that.wallet = await createWalletFromKeys(await that.wallet.getPrimaryAddress(), await that.wallet.getPrivateViewKey(), undefined, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
           that.wallet.sync();  
           
           try {
