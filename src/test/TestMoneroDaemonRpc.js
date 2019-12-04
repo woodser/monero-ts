@@ -1408,7 +1408,7 @@ function testBlockTemplate(template) {
   assert(template.getReservedOffset());
   assert.equal(typeof template.getSeedHeight(), "number");
   assert(template.getSeedHeight() > 0);
-  assert.equal(typeof template.getSeedHash(), "string")
+  assert.equal(typeof template.getSeedHash(), "string");
   assert(template.getSeedHash());
   assert.equal(template.getNextSeedHash(), undefined);
 }
@@ -1442,8 +1442,8 @@ function testInfo(info) {
   assert(info.getDatabaseSize() > 0);
   assert(typeof info.getUpdateAvailable() === "boolean");
   TestUtils.testUnsignedBigInteger(info.getCredits(), false);
-  assert.equal(typeof info.getTopBlockHash(), "string");
-  assert(info.getTopBlockHash());
+  assert.equal(typeof info.getTopBlockId(), "string");
+  assert(info.getTopBlockId());
 }
 
 function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
@@ -1463,8 +1463,8 @@ function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
   }
   assert(syncInfo.getNextNeededPruningSeed() >= 0);
   assert.equal(syncInfo.getOverview(), undefined);
-  TestUtils.testUnsignedBigInteger(info.getCredits(), false);
-  assert.equal(info.getTopBlockHash(), undefined);
+  TestUtils.testUnsignedBigInteger(syncInfo.getCredits(), false);
+  assert.equal(syncInfo.getTopBlockHash(), undefined);
 }
 
 function testDaemonConnectionSpan(span) {
@@ -1488,8 +1488,8 @@ function testHardForkInfo(hardForkInfo) {
   assert.notEqual(hardForkInfo.getNumVotes(), undefined);
   assert.notEqual(hardForkInfo.getVoting(), undefined);
   assert.notEqual(hardForkInfo.getWindow(), undefined);
-  TestUtils.testUnsignedBigInteger(info.getCredits(), false);
-  assert.equal(info.getTopBlockHash(), undefined);
+  TestUtils.testUnsignedBigInteger(hardForkInfo.getCredits(), false);
+  assert.equal(hardForkInfo.getTopBlockHash(), undefined);
 }
 
 function testMoneroBan(ban) {

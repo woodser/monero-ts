@@ -17,7 +17,7 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     super(state);
     
     // deserialize if necessary
-    if (this.state.txQuery && !(this.state.txQuery instanceof MoneroTxQuery)) this.state.txQuery = new MoneroTxQuery(this.state.transferQuery);
+    if (this.state.txQuery && !(this.state.txQuery instanceof MoneroTxQuery)) this.state.txQuery = new MoneroTxQuery(this.state.outputQuery);
   }
   
   copy() {
@@ -66,7 +66,7 @@ class MoneroOutputQuery extends MoneroOutputWallet {
    */
   setIsLocked(isLocked) {
     if (this.state.txQuery === undefined) this.state.txQuery = new MoneroTxQuery();
-    txQuery.setIsLocked(isLocked);
+    this.state.txQuery.setIsLocked(isLocked);
     return this;
   }
   

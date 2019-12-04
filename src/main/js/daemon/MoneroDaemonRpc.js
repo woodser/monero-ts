@@ -69,7 +69,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
   async getVersion() {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_version");
-    MoneroDaemonRpc._checkResponseStatus(resp);
+    MoneroDaemonRpc._checkResponseStatus(resp.result);
     return new MoneroVersion(resp.result.version, resp.result.release);
   }
   
@@ -1025,7 +1025,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "testnet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.TESTNET); }
       else if (key === "stagenet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.STAGENET); }
       else if (key === "credits") info.setCredits(new BigInteger(val));
-      else if (key === "top_block_hash" || key === "top_hash") info.setTopBlockHash(GenUtils.reconcile(info.getTopBlockHash(), "" === val ? undefined : val))
+      else if (key === "top_block_hash" || key === "top_hash") info.setTopBlockId(GenUtils.reconcile(info.getTopBlockId(), "" === val ? undefined : val))
       else console.log("WARNING: Ignoring unexpected info field: " + key + ": " + val);
     }
     return info;

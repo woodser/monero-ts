@@ -3,7 +3,7 @@
  * 
  * Based on enums.h in monero-project.
  */
-MoneroConnectionType = {
+ConnectionType = {
     
     /**
      * Enumerates the network types.
@@ -12,7 +12,7 @@ MoneroConnectionType = {
     IPV4: 1,
     IPV6: 2,
     TOR: 3,
-    I2P: 4
+    I2P: 4,
     
     /**
      * Asserts that the given connection type is valid.
@@ -29,4 +29,4 @@ MoneroConnectionType = {
     }
 }
 
-module.exports = MoneroConnectionType;
+module.exports = ConnectionType;

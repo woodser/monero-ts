@@ -11,8 +11,8 @@ class MoneroVersion {
    */
   constructor(versionNumber, isRelease) {
     this.state = {};
-    this.versionNumber = versionNumber;
-    this.isRelease = isRelease;
+    this.state.versionNumber = versionNumber;
+    this.state.isRelease = isRelease;
   }
 
   getVersionNumber() {
