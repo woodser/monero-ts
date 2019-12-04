@@ -58,11 +58,15 @@
 #include <iostream>
 #include "mnemonics/electrum-words.h"
 #include "mnemonics/english.h"
-#include "wallet/wallet_rpc_server_commands_defs.h"
+#include "cryptonote_basic.h"
+#include "cryptonote_basic/account.h"
+#include "string_tools.h"
+#include "device/device.hpp"
 
 using namespace std;
 using namespace epee;
 using namespace tools;
+using namespace crypto;
 
 /**
  * Public library interface.
@@ -80,15 +84,28 @@ namespace monero {
     cout << "monero_wallet_keys::create_wallet_from_mnemonic()" << endl;
 
     // validate mnemonic and get recovery key and language
-    crypto::secret_key recoveryKey;
+    crypto::secret_key recovery_key;
     string language;
-    bool is_valid = crypto::ElectrumWords::words_to_bytes(mnemonic, recoveryKey, language);
+    bool is_valid = crypto::ElectrumWords::words_to_bytes(mnemonic, recovery_key, language);
     if (!is_valid) throw runtime_error("Invalid mnemonic");
     if (language == crypto::ElectrumWords::old_language_name) language = Language::English().get_language_name();
 
-    cout << "MNEMONIC VALIDATED" << endl;
+    // initialize keys
+    cryptonote::account_base account{};
+    account.generate(recovery_key, true, false);
+    const cryptonote::account_keys& keys = account.get_keys();
 
-    throw runtime_error("create_wallet_from_mnemonic() not implemented");
+    // initialize wallet
+    monero_wallet_keys* wallet = new monero_wallet_keys();
+    wallet->m_seed = epee::string_tools::pod_to_hex(recovery_key);
+    wallet->m_mnemonic = mnemonic;
+    wallet->m_primary_address = account.get_public_address_str(static_cast<cryptonote::network_type>(network_type));
+    wallet->m_language = language;
+    wallet->m_pub_view_key = epee::string_tools::pod_to_hex(keys.m_account_address.m_view_public_key);
+    wallet->m_prv_view_key = epee::string_tools::pod_to_hex(keys.m_view_secret_key);
+    wallet->m_pub_spend_key = epee::string_tools::pod_to_hex(keys.m_account_address.m_spend_public_key);
+    wallet->m_prv_spend_key = epee::string_tools::pod_to_hex(keys.m_spend_secret_key);
+    return wallet;
   }
 
   monero_wallet_keys* monero_wallet_keys::create_wallet_from_keys(const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const string& language) {

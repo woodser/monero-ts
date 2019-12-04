@@ -130,13 +130,13 @@ namespace monero {
     // --------------------------------- PRIVATE --------------------------------
 
   private:
-    string seed;
-    string mnemonic;
-    string language;
-    string pub_view_key;
-    string prv_view_key;
-    string pub_spend_key;
-    string prv_spend_key;
-    string primary_address;
+    string m_seed;
+    string m_mnemonic;
+    string m_language;
+    string m_pub_view_key;
+    string m_prv_view_key;
+    string m_pub_spend_key;
+    string m_prv_spend_key;
+    string m_primary_address;
   };
 }
