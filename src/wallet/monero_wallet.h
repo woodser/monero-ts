@@ -660,7 +660,7 @@ namespace monero {
      * @return the retrieved subaddress
      */
     virtual monero_subaddress get_subaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const {
-      throw runtime_error("getSubaddress() not implemented");
+      throw runtime_error("get_subaddress() not implemented");
     }
 
     /**
@@ -689,7 +689,7 @@ namespace monero {
      * @return all wallet transactions
      */
     virtual vector<shared_ptr<monero_tx_wallet>> get_txs() const {
-      throw runtime_error("set_daemon_connection() not implemented");
+      throw runtime_error("get_txs() not implemented");
     }
 
 //    /**
@@ -713,7 +713,19 @@ namespace monero {
      * @return wallet transactions per the query
      */
     virtual vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& query) const {
-      throw runtime_error("get_txs() not implemented");
+      throw runtime_error("get_txs(query) not implemented");
+    }
+
+    /**
+     * Same as get_txs(request) but collects missing tx ids instead of throwing an error.
+     * This method is separated because WebAssembly does not support exception handling.
+     *
+     * @param request filters query results (optional)
+     * @param missing_tx_ids are populated with requested tx ids that are not part of the wallet
+     * @return wallet transactions per the request
+     */
+    virtual vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& query, vector<string>& missing_tx_ids) const {
+      throw runtime_error("get_txs(query, missing_tx_ids) not implemented");
     }
 
 //    /**
