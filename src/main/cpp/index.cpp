@@ -18,6 +18,11 @@ EMSCRIPTEN_BINDINGS(module)
 //  emscripten::function("open_wallet", &monero_wasm_bridge::open_wallet);
 //  emscripten::function("create_wallet_random", &monero_wasm_bridge::create_wallet_random);
 //  emscripten::function("create_wallet_from_mnemonic", &monero_wasm_bridge::create_wallet_from_mnemonic);
+//  emscripten::function("create_wallet_from_keys", &monero_wasm_bridge::create_wallet_from_keys);
+
+    emscripten::function("create_keys_wallet_random", &monero_wasm_bridge::create_keys_wallet_random);
+    emscripten::function("create_keys_wallet_from_mnemonic", &monero_wasm_bridge::create_keys_wallet_from_mnemonic);
+//    emscripten::function("create_keys_wallet_from_keys", &monero_wasm_bridge::create_keys_wallet_from_keys);
 
   // ----------------------- WALLET INSTANCE METHODS --------------------------
 

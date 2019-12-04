@@ -1,5 +1,6 @@
 V15
 port updates from java
+./bin/build-and-install-emcpp.sh
 switch MoneroWalletLocal from mymonero to cpp library
 
 HIGH (WASM)

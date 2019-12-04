@@ -109,6 +109,16 @@ string monero_wasm_bridge::binary_blocks_to_json(const std::string &bin_mem_info
 //  callback((int) wallet); // invoke callback with wallet address
 //}
 
+void monero_wasm_bridge::create_keys_wallet_random(int network_type, const string& language, emscripten::val callback) {
+  monero_wallet* wallet = monero_wallet_keys::create_wallet_random(static_cast<monero_network_type>(network_type), language);
+  callback((int) wallet); // callback with wallet address
+}
+
+void monero_wasm_bridge::create_keys_wallet_from_mnemonic(int network_type, const string& mnemonic, emscripten::val callback) {
+  monero_wallet* wallet = monero_wallet_keys::create_wallet_from_mnemonic(static_cast<monero_network_type>(network_type), mnemonic);
+  callback((int) wallet); // callback with wallet address
+}
+
 // ------------------------ WALLET INSTANCE METHODS ---------------------------
 
 //  void set_daemon_connection(int handle, const string& uri, const string& username = "", const string& password = "");
