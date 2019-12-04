@@ -151,8 +151,8 @@ class TestMoneroWalletCommon {
       
       it("Can get the wallet's version", async function() {
         let version = await that.wallet.getVersion();
-        assert.equal(typeof version.getVersionNumber(), "number");
-        assert(version.getVersionNumber() > 0);
+        assert.equal(typeof version.getNumber(), "number");
+        assert(version.getNumber() > 0);
         assert.equal(typeof version.isRelease(), "boolean");
       });
       
