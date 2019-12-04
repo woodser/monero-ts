@@ -1745,7 +1745,7 @@ class TestMoneroWalletCommon {
         } catch (e2) {
           
           // open main test wallet for other tests
-          that.wallet = await getTestWallet();
+          that.wallet = await that.getTestWallet();
         }
       });
       
@@ -1791,11 +1791,11 @@ class TestMoneroWalletCommon {
         
         // edit each address book entry
         for (let idx of indices) {
-          await wallet.editAddressBookEntry(idx, false, undefined, true, "hello there!!", false, undefined);
+          await that.wallet.editAddressBookEntry(idx, false, undefined, true, "hello there!!", false, undefined);
         }
-        entries = await wallet.getAddressBookEntries(indices);
+        entries = await that.wallet.getAddressBookEntries(indices);
         for (let entry of entries) {
-          assert.equal(entry.getDesription(), "hello there!!");
+          assert.equal(entry.getDescription(), "hello there!!");
         }
         
         // delete entries at starting index
@@ -2397,7 +2397,7 @@ class TestMoneroWalletCommon {
         assert(subaddress.getUnlockedBalance().compare(unlockedBalanceBefore) < 0);
         
         // query locked txs
-        let lockedTxs = await getAndTestTxs(wallet, new MoneroTxQuery().setIsLocked(true), undefined, true);
+        let lockedTxs = await that._getAndTestTxs(that.wallet, new MoneroTxQuery().setIsLocked(true), undefined, true);
         for (let lockedTx of lockedTxs) assert.equal(lockedTx.isLocked(), true);
         
         // test transactions
@@ -2419,17 +2419,17 @@ class TestMoneroWalletCommon {
               assert(sendAmount.compare(destination.getAmount()) === 0);
             }
           }
-        }
-        
-        // tx is among locked txs
-        let found = false;
-        for (let locked of lockedTxs) {
-          if (locked.getId() === tx.getId()) {
-            found = true;
-            break;
+          
+          // tx is among locked txs
+          let found = false;
+          for (let lockedTx of lockedTxs) {
+            if (lockedTx.getId() === tx.getId()) {
+              found = true;
+              break;
+            }
           }
+          assert(found, "Created txs should be among locked txs");
         }
-        assert(found, "Created txs should be among locked txs");
         
         // if tx was relayed, all wallets will need to wait for tx to confirm in order to reliably sync
         if (request.getDoNotRelay() === true) {
@@ -2531,7 +2531,7 @@ class TestMoneroWalletCommon {
         let jsConfig;
         if (useJsConfig) {
           jsConfig = {};
-          jsConfig.mixin = TestUtils.MIXIN;
+          jsConfig.ringSize = TestUtils.RING_SIZE;
           jsConfig.accountIndex = srcAccount.getIndex();
           jsConfig.destinations = [];
           for (let i = 0; i < destinationAddresses.length; i++) {
@@ -2589,7 +2589,7 @@ class TestMoneroWalletCommon {
         let numOutputs = 3;
         
         // get outputs to sweep (not spent, unlocked, and amount >= fee)
-        let spendableUnlockedOutputs = await that.wallet.getOutputs(new MoneroOutputQuery().setIsSpent(false).setIsUnlocked(true));
+        let spendableUnlockedOutputs = await that.wallet.getOutputs(new MoneroOutputQuery().setIsSpent(false).setIsLocked(false));
         let outputsToSweep = [];
         for (let i = 0; i < spendableUnlockedOutputs.length && outputsToSweep.length < numOutputs; i++) {
           if (spendableUnlockedOutputs[i].getAmount().compare(TestUtils.MAX_FEE) > 0) outputsToSweep.push(spendableUnlockedOutputs[i]);  // output cannot be swept if amount does not cover fee
@@ -3000,7 +3000,10 @@ class TestMoneroWalletCommon {
     if (isExpected === false) assert.equal(transfers.length, 0);
     if (isExpected === true) assert(transfers.length > 0, "Transactions were expected but not found; run send tests?");
     for (let transfer of transfers) await this._testTxWallet(transfer.getTx(), Object.assign({wallet: wallet}, query));
-    if (query !== undefined) assert.deepEqual(query, copy);
+    if (query !== undefined) {
+      if (query instanceof MoneroTransferQuery) assert.deepEqual(query.toJson(), copy.toJson());
+      else assert.deepEqual(query, copy);
+    }
     return transfers;
   }
   
@@ -3018,7 +3021,10 @@ class TestMoneroWalletCommon {
     if (isExpected === false) assert.equal(outputs.length, 0);
     if (isExpected === true) assert(outputs.length > 0, "Outputs were expected but not found; run send tests?");
     for (let output of outputs) testOutputWallet(output);
-    if (query !== undefined) assert.deepEqual(query, copy);
+    if (query !== undefined) {
+      if (query instanceof MoneroOutputQuery) assert.deepEqual(query.toJson(), copy.toJson());
+      else assert.deepEqual(query, copy);
+    }
     return outputs;
   }
   
@@ -3799,6 +3805,11 @@ function testOutgoingTransfer(transfer, ctx) {
   }
 }
 
+function testDestination(destination) {
+  MoneroUtils.validateAddress(destination.getAddress(), TestUtils.NETWORK_TYPE);
+  TestUtils.testUnsignedBigInteger(destination.getAmount(), true);
+}
+
 function testOutputWallet(output) {
   assert(output);
   assert(output instanceof MoneroOutputWallet);
@@ -3922,7 +3933,7 @@ function testParsedTxSet(parsedTxSet) {
 function testAddressBookEntry(entry) {
   assert(entry.getIndex() >= 0);
   MoneroUtils.validateAddress(entry.getAddress(), TestUtils.NETWORK_TYPE);
-  assert.equal(typeof entry.getDescription() === "string");
+  assert.equal(typeof entry.getDescription(), "string");
 }
 
 /**

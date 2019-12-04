@@ -80,7 +80,7 @@ class MoneroBlockTemplate {
   }
   
   getSeedHash() {
-    return this.state.hash;
+    return this.state.seedHash;
   }
   
   setSeedHash(seedHash) {

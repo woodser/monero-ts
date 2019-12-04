@@ -114,6 +114,18 @@ class MoneroTransferQuery extends MoneroTransfer {
     return this;
   }
   
+  /**
+   * Convenience method to query outputs by the locked state of their tx.
+   * 
+   * @param isLocked specifies if the output's tx must be locked or unlocked (optional)
+   * @return {MoneroOutputQuery} this query for chaining
+   */
+  setIsLocked(isLocked) {
+    if (this.state.txQuery === undefined) this.state.txQuery = new MoneroTxQuery();
+    this.state.txQuery.setIsLocked(isLocked);
+    return this;
+  }
+  
   meetsCriteria(transfer) {
     assert(transfer !== null, "transfer is null");
     assert(transfer instanceof MoneroTransfer);

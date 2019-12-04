@@ -3,11 +3,12 @@ module.exports = function() {
   this.GenUtils = require("../../utils/GenUtils");
   this.BigInteger = require("../../../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
   this.Filter = require("../../utils/Filter");
+  this.ConnectionType = require("./ConnectionType");
   this.MoneroError = require("../../utils/MoneroError");
   this.MoneroUtils = require("../../utils/MoneroUtils");
   this.MoneroRpcConnection = require("../../rpc/MoneroRpcConnection");
   this.MoneroRpcError = require("../../rpc/MoneroRpcError");
-  
+ 
   this.MoneroAltChain = require("./MoneroAltChain");
   this.MoneroBan = require("./MoneroBan");
   this.MoneroBlock = require("./MoneroBlock");
@@ -16,7 +17,6 @@ module.exports = function() {
   this.MoneroDaemonConnection = require("./MoneroDaemonConnection");
   this.MoneroDaemonConnectionSpan = require("./MoneroDaemonConnectionSpan");
   this.MoneroDaemonInfo = require("./MoneroDaemonInfo");
-  this.MoneroDaemonModel = require("./MoneroDaemonModel");
   this.MoneroDaemonPeer = require("./MoneroDaemonPeer");
   this.MoneroDaemonSyncInfo = require("./MoneroDaemonSyncInfo");
   this.MoneroDaemonUpdateCheckResult = require("./MoneroDaemonUpdateCheckResult");
@@ -32,4 +32,5 @@ module.exports = function() {
   this.MoneroSubmitTxResult = require("./MoneroSubmitTxResult");
   this.MoneroTx = require("./MoneroTx");
   this.MoneroTxPoolStats = require("./MoneroTxPoolStats");
+  this.MoneroVersion = require("./MoneroVersion");
 }

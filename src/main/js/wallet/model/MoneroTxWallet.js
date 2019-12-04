@@ -123,6 +123,7 @@ class MoneroTxWallet extends MoneroTx {
   
   setIsLocked(isLocked) {
     this.state.isLocked = isLocked;
+    return this;
   }
   
   getInputSum() {
