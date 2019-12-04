@@ -238,7 +238,7 @@ set(
     src/daemon/monero_daemon_model.cpp
     src/daemon/monero_daemon.cpp
     src/wallet/monero_wallet_model.cpp
-    src/wallet/monero_wallet.cpp
+    src/wallet/monero_wallet_w2.cpp
 )
 
 add_library(monero-cpp SHARED ${LIBRARY_SRC_FILES})
