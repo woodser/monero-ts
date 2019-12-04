@@ -38,7 +38,7 @@ export NO_BZIP2=1 #bc it's supplied by emscripten but b2 will fail to find it
 
 
 ./bootstrap.sh \
-  --with-libraries=system,thread,chrono,serialization,filesystem,regex \
+  --with-libraries=system,thread,chrono \
 2>&1
 
 if [ $? != 0 ]; then
