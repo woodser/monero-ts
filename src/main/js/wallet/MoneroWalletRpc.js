@@ -871,8 +871,6 @@ class MoneroWalletRpc extends MoneroWallet {
     params.account_index = accountIdx;
     params.subaddr_indices = subaddressIndices;
     params.payment_id = request.getPaymentId();
-    params.mxin = request.getRingSize() === undefined ? undefined : request.getRingSize() - 1;
-    params.ring_size = request.getRingSize();
     params.unlock_time = request.getUnlockTime();
     params.do_not_relay = request.getDoNotRelay();
     assert(request.getPriority() === undefined || request.getPriority() >= 0 && request.getPriority() <= 3);
@@ -927,8 +925,6 @@ class MoneroWalletRpc extends MoneroWallet {
     params.account_index = request.getAccountIndex();
     params.subaddr_indices = request.getSubaddressIndices();
     params.key_image = request.getKeyImage();
-    params.mixin = request.getRingSize() === undefined ? undefined : request.getRingSize() - 1;
-    params.ring_size = request.getRingSize();
     params.unlock_time = request.getUnlockTime();
     params.do_not_relay = request.getDoNotRelay();
     assert(request.getPriority() === undefined || request.getPriority() >= 0 && request.getPriority() <= 3);
@@ -1415,8 +1411,6 @@ class MoneroWalletRpc extends MoneroWallet {
     params.address = request.getDestinations()[0].getAddress();
     assert(request.getPriority() === undefined || request.getPriority() >= 0 && request.getPriority() <= 3);
     params.priority = request.getPriority();
-    params.mixin = request.getRingSize() === undefined ? undefined : request.getRingSize() - 1;
-    params.ring_size = request.getRingSize();
     params.unlock_time = request.getUnlockTime();
     params.payment_id = request.getPaymentId();
     params.do_not_relay = doNotRelay;
@@ -1442,7 +1436,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsRelayed(!doNotRelay);
       tx.setIsMinerTx(false);
       tx.setIsFailed(false);
-      tx.setRingSize(request.getRingSize());
+      tx.setRingSize(MoneroUtils.RING_SIZE);
       let transfer = tx.getOutgoingTransfer();
       transfer.setAccountIndex(request.getAccountIndex());
       if (request.getSubaddressIndices().length === 1) transfer.setSubaddressIndices(request.getSubaddressIndices()); // TODO: deep copy
@@ -1516,7 +1510,7 @@ class MoneroWalletRpc extends MoneroWallet {
     tx.setIsMinerTx(false);
     tx.setIsFailed(false);
     tx.setIsLocked(true);
-    tx.setRingSize(request.getRingSize());
+    tx.setRingSize(MoneroUtils.RING_SIZE);
     let transfer = new MoneroOutgoingTransfer().setTx(tx);
     if (request.getSubaddressIndices() && request.getSubaddressIndices().length === 1) transfer.setSubaddressIndices(request.getSubaddressIndices().slice(0)); // we know src subaddress indices iff request specifies 1
     let destCopies = [];

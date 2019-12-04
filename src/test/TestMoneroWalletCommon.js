@@ -2141,7 +2141,7 @@ class TestMoneroWalletCommon {
       //  ----------------------------- TEST RELAYS ---------------------------
       
       if (config.testRelays)
-      it("Can send to external address", async function() {
+      it("Can send to an external address", async function() {
         
         // collect balances before
         let balance1 = await that.wallet.getBalance();
@@ -2284,11 +2284,6 @@ class TestMoneroWalletCommon {
         } catch (e) {
           assert.equal(e.message, "Standalone payment IDs are obsolete. Use subaddresses or integrated addresses instead");
         }
-      });
-      
-      if (config.testRelays)
-      it("Can send to an address in a single transaction with a ring size", async function() {
-        await testSendToSingle(new MoneroSendRequest().setCanSplit(false).setRingSize(8)); // TODO monero-wallet-rpc: wallet rpc transfer and sweep calls are not rejecting low ring sizes, like 8.  should they?
       });
       
       if (config.testRelays)
@@ -2518,7 +2513,6 @@ class TestMoneroWalletCommon {
         
         // build send request using MoneroSendRequest
         let request = new MoneroSendRequest();
-        request.setRingSize(TestUtils.RING_SIZE);
         request.setAccountIndex(srcAccount.getIndex());
         request.setDestinations([]);
         request.setCanSplit(canSplit);
@@ -2531,7 +2525,7 @@ class TestMoneroWalletCommon {
         let jsConfig;
         if (useJsConfig) {
           jsConfig = {};
-          jsConfig.ringSize = TestUtils.RING_SIZE;
+          jsConfig.ringSize = MoneroUtils.RING_SIZE;
           jsConfig.accountIndex = srcAccount.getIndex();
           jsConfig.destinations = [];
           for (let i = 0; i < destinationAddresses.length; i++) {
@@ -3187,7 +3181,7 @@ class TestMoneroWalletCommon {
       let request = ctx.sendRequest;
       assert.equal(tx.isConfirmed(), false);
       testTransfer(tx.getOutgoingTransfer(), ctx);
-      assert.equal(tx.getRingSize(), request.getRingSize());
+      assert.equal(tx.getRingSize(), MoneroUtils.RING_SIZE);
       assert.equal(tx.getUnlockTime(), request.getUnlockTime() ? request.getUnlockTime() : 0);
       assert.equal(tx.getBlock(), undefined);
       assert(tx.getKey().length > 0);
