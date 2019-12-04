@@ -1,6 +1,7 @@
 V15
 port updates from java
 mymonero monero_wallet_utils.cpp 182 mnemonic sanitation
+fix test parse tx set to be like java's version with finally
 switch MoneroWalletLocal from mymonero to cpp library
 
 HIGH (WASM)
