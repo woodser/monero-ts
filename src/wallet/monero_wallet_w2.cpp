@@ -54,7 +54,6 @@
 
 #include "utils/monero_utils.h"
 #include <chrono>
-#include <stdio.h>
 #include <iostream>
 #include "mnemonics/electrum-words.h"
 #include "mnemonics/english.h"
