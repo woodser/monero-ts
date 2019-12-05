@@ -49,6 +49,9 @@ class MoneroWalletKeys extends MoneroWallet {
     
     // validate and sanitize params
     MoneroNetworkType.validate(networkType);
+    if (address === undefined) address = "";
+    if (privateViewKey === undefined) privateViewKey = "";
+    if (privateSpendKey === undefined) privateSpendKey = "";
     if (language === undefined) language = "English";
     
     // return promise which is resolved on callback
@@ -81,10 +84,6 @@ class MoneroWalletKeys extends MoneroWallet {
     this.cppAddress = cppAddress;
   }
   
-  async getSeed() {
-    return MoneroWalletKeys.WASM_MODULE.get_seed(this.cppAddress);
-  }
-  
   async getMnemonic() {
     return MoneroWalletKeys.WASM_MODULE.get_mnemonic(this.cppAddress);
   }
@@ -110,7 +109,8 @@ class MoneroWalletKeys extends MoneroWallet {
   }
   
   async getPrivateSpendKey() {
-    return MoneroWalletKeys.WASM_MODULE.get_private_spend_key(this.cppAddress);
+    let privateSpendKey = MoneroWalletKeys.WASM_MODULE.get_private_spend_key(this.cppAddress);
+    return privateSpendKey ? privateSpendKey : undefined;
   }
   
   async getAddress(accountIdx, subaddressIdx) {

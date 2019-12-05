@@ -134,11 +134,6 @@ void monero_wasm_bridge::create_keys_wallet_from_keys(int network_type, const st
 //  bool is_synced(int handle) const;
 //  int get_network_type(int handle) const;
 
-string monero_wasm_bridge::get_seed(int handle) {
-  monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->get_seed();
-}
-
 string monero_wasm_bridge::get_mnemonic(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
   return wallet->get_mnemonic();
