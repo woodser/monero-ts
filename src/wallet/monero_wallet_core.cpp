@@ -1330,10 +1330,6 @@ namespace monero {
     return get_subaddresses_aux(account_idx, subaddress_indices, transfers);
   }
 
-  monero_subaddress monero_wallet_w2::get_subaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const {
-    throw runtime_error("Not implemented");
-  }
-
   // get_subaddresses
 
   monero_subaddress monero_wallet_w2::create_subaddress(const uint32_t account_idx, const string& label) {

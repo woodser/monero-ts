@@ -197,11 +197,6 @@ namespace monero {
     return cryptonote::get_account_address_as_str(static_cast<cryptonote::network_type>(m_network_type), !index.is_zero(), address);
   }
 
-  monero_subaddress monero_wallet_keys::get_address_index(const string& address) const {
-    cout << "monero_wallet_keys::get_address_index()" << endl;
-    throw runtime_error("monero_wallet_keys::get_address_index() not implemented");
-  }
-
   monero_integrated_address monero_wallet_keys::get_integrated_address(const string& standard_address, const string& payment_id) const {
     cout << "monero_wallet_keys::get_integrated_address()" << endl;
     throw runtime_error("monero_wallet_keys::get_integrated_address() not implemented");
@@ -212,38 +207,46 @@ namespace monero {
     throw runtime_error("monero_wallet_keys::decode_integrated_address() not implemented");
   }
 
-  vector<monero_account> monero_wallet_keys::get_accounts(bool include_subaddresses, const string& tag) const {
-    cout << "monero_wallet_keys::get_accounts()" << endl;
-    throw runtime_error("monero_wallet_keys::get_accounts() not implemented");
-  }
-
   monero_account monero_wallet_keys::get_account(uint32_t account_idx, bool include_subaddresses) const {
     cout << "monero_wallet_keys::get_account()" << endl;
-    throw runtime_error("monero_wallet_keys::get_subaddresses() not implemented");
-  }
 
-  monero_account monero_wallet_keys::create_account(const string& label) {
-    cout << "monero_wallet_keys::create_account()" << endl;
-    throw runtime_error("monero_wallet_keys::get_account() not implemented");
+    if (include_subaddresses) {
+      string err = "monero_wallet_keys::get_account(account_idx, include_subaddresses) include_subaddresses must be false";
+      cout << err << endl;
+      throw runtime_error(err);
+    }
+
+    // build and return account
+    monero_account account;
+    account.m_index = account_idx;
+    account.m_primary_address = get_address(account_idx, 0);
+    return account;
   }
 
   vector<monero_subaddress> monero_wallet_keys::get_subaddresses(const uint32_t account_idx, const vector<uint32_t>& subaddress_indices) const {
-    cout << "monero_wallet_keys::get_subaddresses()" << endl;
-    throw runtime_error("monero_wallet_keys::get_subaddresses() not implemented");
-  }
 
-  monero_subaddress monero_wallet_keys::get_subaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const {
-    cout << "monero_wallet_keys::get_subaddress()" << endl;
-    throw runtime_error("monero_wallet_keys::get_subaddress() not implemented");
-  }
+    // must provide subaddress indices
+    if (subaddress_indices.empty()) {
+      string err = "Keys-only wallet does not have enumerable set of subaddresses; specific specific subaddresses";
+      cout << err << endl;
+      throw runtime_error(err);
+    }
 
-  monero_subaddress monero_wallet_keys::create_subaddress(const uint32_t account_idx, const string& label) {
-    cout << "monero_wallet_keys::create_subaddress()" << endl;
-    throw runtime_error("monero_wallet_keys::create_subaddress() not implemented");
+    // initialize subaddresses at indices
+    vector<monero_subaddress> subaddresses;
+    for (uint32_t subaddressIndicesIdx = 0; subaddressIndicesIdx < subaddress_indices.size(); subaddressIndicesIdx++) {
+      monero_subaddress subaddress;
+      subaddress.m_account_index = account_idx;
+      uint32_t subaddress_idx = subaddress_indices.at(subaddressIndicesIdx);
+      subaddress.m_index = subaddress_idx;
+      subaddress.m_address = get_address(account_idx, subaddress_idx);
+      subaddresses.push_back(subaddress);
+    }
+
+    return subaddresses;
   }
 
   void monero_wallet_keys::close(bool save) {
-    cout << "monero_wallet_keys::close()" << endl;
     if (save) throw runtime_error("MoneroWalletKeys does not support saving");
     // no pointers to destroy
   }

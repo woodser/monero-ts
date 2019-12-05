@@ -116,15 +116,11 @@ namespace monero {
     string get_public_spend_key() const { return m_pub_spend_key; }
     string get_primary_address() const { return m_primary_address; }
     string get_address(const uint32_t account_idx, const uint32_t subaddress_idx) const;
-    monero_subaddress get_address_index(const string& address) const;
     monero_integrated_address get_integrated_address(const string& standard_address = "", const string& payment_id = "") const;
     monero_integrated_address decode_integrated_address(const string& integrated_address) const;
-    vector<monero_account> get_accounts(bool include_subaddresses, const string& tag) const;
     monero_account get_account(const uint32_t account_idx, bool include_subaddresses) const;
-    monero_account create_account(const string& label = "");
     vector<monero_subaddress> get_subaddresses(const uint32_t account_idx, const vector<uint32_t>& subaddress_indices) const;
     monero_subaddress get_subaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const;
-    monero_subaddress create_subaddress(uint32_t account_idx, const string& label = "");
     string sign(const string& msg) const;
     bool verify(const string& msg, const string& address, const string& signature) const;
     void close(bool save = false);
