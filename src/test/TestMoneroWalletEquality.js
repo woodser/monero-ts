@@ -7,7 +7,7 @@ describe("TEST WALLETS EQUALITY", function() {
   // setup before tests run
   before(async function() {
     that.wallet1 = await TestUtils.getWalletRpc();
-    that.wallet2 = TestUtils.getWalletLocal();
+    that.wallet2 = await TestUtils.getWalletKeys();
   });
   
   it("Have the same keys", async function() {

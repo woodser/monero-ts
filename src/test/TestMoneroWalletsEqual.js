@@ -34,7 +34,7 @@ class TestMoneroWalletsEqual {
     
     // default to rpc and jni wallets
     if (this.w1 === undefined) this.w1 = await TestUtils.getWalletRpc();
-    if (this.w2 === undefined) this.w2 = TestUtils.getWalletLocal();
+    if (this.w2 === undefined) this.w2 = await TestUtils.getWalletKeys();
     
     // wait for relayed txs associated with wallets to clear pool
     TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool([this.w1, this.w2]);
