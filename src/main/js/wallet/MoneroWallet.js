@@ -108,7 +108,6 @@ class MoneroWallet {
    * @return {string} the receive address of the specified subaddress
    */
   async getAddress(accountIdx, subaddressIdx) {
-    console.log("MoneroWallet.getAddress(" + acountIdx + ", " + subaddressIdx + ")");
     throw new MoneroError("Subclass must implement");
   }
   
