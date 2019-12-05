@@ -18,11 +18,15 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
     throw new Error("TestMoneroWalletKeys.openWallet(path) not supported");
   }
   
-  async createRandomWallet() {
+  async createWalletRandom() {
     return await MoneroWalletKeys.createWalletRandom(TestUtils.NETWORK_TYPE);
   }
   
-  async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
+  async createWalletFromMnemonic(mnemonic, restoreHeight) {
+    return await MoneroWalletKeys.createWalletFromMnemonic(TestUtils.NETWORK_TYPE, mnemonic, restoreHeight, undefined);
+  }
+  
+  async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {  // TODO: daemonConnection placeholder not applicable for this method, use wallet creation config?
     return await MoneroWalletKeys.createWalletFromKeys(TestUtils.NETWORK_TYPE, address, privateViewKey, privateSpendKey, language);
   }
   

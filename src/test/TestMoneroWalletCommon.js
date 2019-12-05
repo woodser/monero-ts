@@ -1,5 +1,6 @@
 const MoneroDaemon = require("../main/js/daemon/MoneroDaemon");
 const MoneroWallet = require("../main/js/wallet/MoneroWallet")
+const MoneroWalletRpc = require("../main/js/wallet/MoneroWalletRpc")
 
 // test constants
 const MIXIN = 11;
@@ -59,7 +60,7 @@ class TestMoneroWalletCommon {
    * 
    * @return the random test wallet
    */
-  async createRandomWallet() {
+  async createWalletRandom() {
     throw new Error("Subclass must implement");
   }
   
@@ -88,11 +89,66 @@ class TestMoneroWalletCommon {
         return txCache;
       }
       
+      it("Can create a random wallet", async function() {
+        let e1 = undefined;
+        try {
+          that.wallet = await that.createWalletRandom();
+          let e2 = undefined;
+          try {
+            MoneroUtils.validateAddress(await that.wallet.getPrimaryAddress());
+            MoneroUtils.validatePrivateViewKey(await that.wallet.getPrivateViewKey());
+            MoneroUtils.validatePrivateSpendKey(await that.wallet.getPrivateSpendKey());
+            if (!(that.wallet instanceof MoneroWalletRpc)) MoneroUtils.validateMnemonic(await that.wallet.getMnemonic()); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
+          } catch (e) {
+            e2 = e;
+          }
+          await that.wallet.close();
+          if (e2 !== undefined) throw e2;
+        } catch (e) {
+          e1 = e;
+        }
+        
+        // open main test wallet for other tests
+        that.wallet = await that.getTestWallet();
+        if (e1 !== undefined) throw e1;
+      });
+      
+      it("Can create a wallet from a mnemonic", async function() {
+        let e1 = undefined;
+        try {
+          
+          // save for comparison
+          let primaryAddress = await that.wallet.getPrimaryAddress();
+          let privateViewKey = await that.wallet.getPrivateViewKey();
+          let privateSpendKey = await that.wallet.getPrivateSpendKey();
+          
+          // recreate test wallet from mnemonic
+          that.wallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
+          let e2 = undefined;
+          try {
+            assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
+            assert.equal(await that.wallet.getPrivateViewKey(), privateViewKey);
+            assert.equal(await that.wallet.getPrivateSpendKey(), privateSpendKey);
+            if (!(that.wallet instanceof MoneroWalletRpc)) assert.equal(await that.wallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
+          } catch (e) {
+            e2 = e;
+          }
+          await that.wallet.close();
+          if (e2 !== undefined) throw e2;
+        } catch (e) {
+          e1 = e;
+        }
+        
+        // open main test wallet for other tests
+        that.wallet = await that.getTestWallet();
+        if (e1 !== undefined) throw e1;
+      });
+      
       it("Can create a wallet from keys", async function() {
         let e1 = undefined;
         try {
           
-          //let mnemonic = await that.wallet.getMnemonic(); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
+          // save for comparison
           let primaryAddress = await that.wallet.getPrimaryAddress();
           let privateViewKey = await that.wallet.getPrivateViewKey();
           let privateSpendKey = await that.wallet.getPrivateSpendKey();
@@ -101,10 +157,10 @@ class TestMoneroWalletCommon {
           that.wallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, privateSpendKey, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
           let e2 = undefined;
           try {
-            //assert.equal(await that.wallet.getMnemonic(), mnemonic);
             assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
             assert.equal(await that.wallet.getPrivateViewKey(), privateViewKey);
             assert.equal(await that.wallet.getPrivateSpendKey(), privateSpendKey);
+            if (!(that.wallet instanceof MoneroWalletRpc)) assert.equal(await that.wallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
           } catch (e) {
             e2 = e;
           }
@@ -157,7 +213,7 @@ class TestMoneroWalletCommon {
       it("Can get the wallet's path", async function() {
         
         // create a random wallet
-        let wallet = await that.createRandomWallet();
+        let wallet = await that.createWalletRandom();
         
         // set a random attribute
         let uuid = GenUtils.uuidv4();
@@ -1936,7 +1992,7 @@ class TestMoneroWalletCommon {
       it("Can save and close the wallet in a single call", async function() {
         
         // create a random wallet
-        let wallet = await that.createRandomWallet();
+        let wallet = await that.createWalletRandom();
         let path = await that.wallet.getPath();
                 
         // set an attribute
@@ -3332,7 +3388,7 @@ class TestMoneroWalletCommon {
     let preparedMultisigHexes = [];
     let walletIds = [];
     for (let i = 0; i < n; i++) {
-      let wallet = await this.createRandomWallet();
+      let wallet = await this.createWalletRandom();
       walletIds.push(await this.wallet.getPath());
       await this.wallet.setAttribute("name", await this.wallet.getPath());  // set the name of each wallet as an attribute
       preparedMultisigHexes.push(await this.wallet.prepareMultisig());
