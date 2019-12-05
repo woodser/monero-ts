@@ -6,9 +6,6 @@ const TestMoneroWalletKeys = require("./TestMoneroWalletKeys");
 
 //// test sample code for readme
 //require("./TestSampleCode");
-//
-//// test MyMonero utils
-//require("./TestMyMoneroUtils");
 
 // test C++ utils from monero-cpp-library using WebAssembly
 require("./TestMoneroCppUtils");

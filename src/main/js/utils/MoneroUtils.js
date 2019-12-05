@@ -1,6 +1,6 @@
 const assert = require("assert");
 const GenUtils = require("./GenUtils");
-const BigInteger = require("../../../../external/mymonero-core-js/cryptonote_utils/biginteger").BigInteger;
+const BigInteger = require("./biginteger").BigInteger;
 
 /**
  * Collection of Monero utilities.
