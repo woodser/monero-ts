@@ -75,12 +75,25 @@ namespace monero {
   // ---------------------------- WALLET MANAGEMENT ---------------------------
 
   monero_wallet_keys* monero_wallet_keys::create_wallet_random(const monero_network_type network_type, const string& language) {
-    cout << "monero_wallet_keys::create_wallet_random(...)" << endl;
-    throw runtime_error("create_wallet_random(...) not implemented");
+
+    // initialize random wallet account
+    monero_wallet_keys* wallet = new monero_wallet_keys();
+    crypto::secret_key spend_key_sk = wallet->m_account.generate();
+
+    // initialize remaining wallet
+    wallet->m_network_type = network_type;
+    wallet->m_language = language;
+    epee::wipeable_string wipeable_mnemonic;
+    if (!crypto::ElectrumWords::bytes_to_words(spend_key_sk, wipeable_mnemonic, wallet->m_language)) {
+      throw runtime_error("Failed to create mnemonic from private spend key for language: " + string(wallet->m_language));
+    }
+    wallet->m_mnemonic = string(wipeable_mnemonic.data(), wipeable_mnemonic.size());
+    wallet->init_common();
+
+    return wallet;
   }
 
   monero_wallet_keys* monero_wallet_keys::create_wallet_from_mnemonic(const monero_network_type network_type, const string& mnemonic) {
-    cout << "monero_wallet_keys::create_wallet_from_mnemonic()" << endl;
 
     // validate mnemonic and get recovery key and language
     crypto::secret_key recovery_key;
@@ -104,7 +117,6 @@ namespace monero {
   }
 
   monero_wallet_keys* monero_wallet_keys::create_wallet_from_keys(const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const string& language) {
-    cout << "monero_wallet_keys::create_wallet_from_keys(...)" << endl;
 
     // validate and parse address
     cryptonote::address_parse_info info;
