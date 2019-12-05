@@ -1,10 +1,10 @@
-const MoneroWallet = require("./MoneroWallet");
+const MoneroWalletWasmBase = require("./MoneroWalletWasmBase");
 const FS = require('fs'); 
 
 /**
- * Implements a Monero wallet which only manages keys using WebAssembly.
+ * Implements a MoneroWallet which only manages keys using WebAssembly.
  */
-class MoneroWalletKeys extends MoneroWallet {
+class MoneroWalletKeys extends MoneroWalletWasmBase {
   
   // --------------------------- STATIC UTILITIES -----------------------------
   
@@ -80,112 +80,7 @@ class MoneroWalletKeys extends MoneroWallet {
    * @param {int} cppAddress is the address of the wallet instance in C++
    */
   constructor(cppAddress) {
-    super();
-    this.cppAddress = cppAddress;
-  }
-  
-  async getMnemonic() {
-    return MoneroWalletKeys.WASM_MODULE.get_mnemonic(this.cppAddress);
-  }
-  
-  async getLanguage() {
-    return MoneroWalletKeys.WASM_MODULE.get_language(this.cppAddress);
-  }
-  
-  async getLanguages() {
-    return JSON.parse(MoneroWalletKeys.WASM_MODULE.get_languages(this.cppAddress)); // TODO: return native vector<string> in c++
-  }
-  
-  async getPublicViewKey() {
-    return MoneroWalletKeys.WASM_MODULE.get_public_view_key(this.cppAddress);
-  }
-  
-  async getPrivateViewKey() {
-    return MoneroWalletKeys.WASM_MODULE.get_private_view_key(this.cppAddress);
-  }
-  
-  async getPublicSpendKey() {
-    return MoneroWalletKeys.WASM_MODULE.get_public_spend_key(this.cppAddress);
-  }
-  
-  async getPrivateSpendKey() {
-    let privateSpendKey = MoneroWalletKeys.WASM_MODULE.get_private_spend_key(this.cppAddress);
-    return privateSpendKey ? privateSpendKey : undefined;
-  }
-  
-  async getAddress(accountIdx, subaddressIdx) {
-    assert(typeof accountIdx === "number");
-    return MoneroWalletKeys.WASM_MODULE.get_address(this.cppAddress, accountIdx, subaddressIdx);
-  }
-  
-  async getAddressIndex(address) {
-    let subaddressJson = JSON.parse(MoneroWalletKeys.WASM_MODULE.get_address_index(this.cppAddress, address));
-    return new MoneroSubaddress(subaddressJson);
-  }
-  
-  // getIntegratedAddress(paymentId)
-  // decodeIntegratedAddress
-  
-  async getAccounts(includeSubaddresses, tag) {
-    let accountsStr = MoneroWalletKeys.WASM_MODULE.get_accounts(this.cppAddress, includeSubaddresses ? true : false, tag ? tag : "");
-    let accounts = [];
-    for (let accountJson of JSON.parse(accountsStr).accounts) {
-      accounts.push(MoneroWalletKeys._sanitizeAccount(new MoneroAccount(accountJson)));
-//      console.log("Account balance: " + accountJson.balance);
-//      console.log("Account unlocked balance: " + accountJson.unlockedBalance);
-//      console.log("Account balance BI: " + new BigInteger(accountJson.balance));
-//      console.log("Account unlocked balance BI: " + new BigInteger(accountJson.unlockedBalance));
-    }
-    return accounts;
-  }
-  
-  async getAccount(accountIdx, includeSubaddresses) {
-    let accountStr = MoneroWalletKeys.WASM_MODULE.get_account(this.cppAddress, accountIdx, includeSubaddresses ? true : false);
-    let accountJson = JSON.parse(accountStr);
-    return MoneroWalletKeys._sanitizeAccount(new MoneroAccount(accountJson));
-  }
-  
-  async createAccount(label) {
-    throw new MoneroError("Not implemented");
-  }
-  
-  async getSubaddresses(accountIdx, subaddressIndices) {
-    let args = {accountIdx: accountIdx, subaddressIndices: subaddressIndices === undefined ? [] : GenUtils.listify(subaddressIndices)};
-    let subaddressesJson = JSON.parse(MoneroWalletKeys.WASM_MODULE.get_subaddresses(this.cppAddress, JSON.stringify(args))).subaddresses;
-    let subaddresses = [];
-    for (let subaddressJson of subaddressesJson) subaddresses.push(MoneroWalletKeys._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
-    return subaddresses;
-  }
-  
-  async createSubaddress(accountIdx, label) {
-    throw new MoneroError("Not implemented");
-  }
-  
-  async sign(message) {
-    throw new MoneroError("Not implemented");
-  }
-  
-  async verify(message, address, signature) {
-    throw new MoneroError("Not implemented");
-  }
-
-  async close(save) {
-    MoneroWalletKeys.WASM_MODULE.close(this.cppAddress);
-    delete this.cppAddress;
-  }
-  
-  // ---------------------------- PRIVATE HELPERS ----------------------------
-  
-  static _sanitizeAccount(account) {
-    if (account.getSubaddresses()) {
-      for (let subaddress of account.getSubaddresses()) MoneroWalletKeys._sanitizeSubaddress(subaddress);
-    }
-    return account;
-  }
-  
-  static _sanitizeSubaddress(subaddress) {
-    if (subaddress.getLabel() === "") subaddress.setLabel(undefined);
-    return subaddress
+    super(MoneroWalletKeys.WASM_MODULE, cppAddress);
   }
 }
 

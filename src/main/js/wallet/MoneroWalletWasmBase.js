@@ -1,163 +1,55 @@
 const MoneroWallet = require("./MoneroWallet");
-const FS = require('fs'); 
 
 /**
- * Implements a Monero wallet using WebAssembly to bridge to monero-project's wallet2.
- * 
- * TODO: add assertNotClosed() per JNI
+ * Base implementation for implementations of MoneroWallet which use a WebAssembly binding.
  */
-class MoneroWalletWasm extends MoneroWallet {
-  
-  // --------------------------- STATIC UTILITIES -----------------------------
-  
-  static createWalletDummy() {
-    console.log("MoneroWalletWasm.js::createWalletDummy();");
-    let cppAddress = MoneroWalletWasm.WASM_MODULE.create_wallet_dummy();
-    return new MoneroWalletWasm(cppAddress);
-  }
-  
-  static async walletExists(path) {
-    let temp = FS.existsSync(path);
-    console.log("Wallet exists at " + path + ": " + temp);
-    return FS.existsSync(path);
-  }
-  
-  // TODO: openWith(<file/zip buffers>)
-  
-  static async openWallet(path, password, networkType, daemonUriOrConnection) {
-    
-    // validate and sanitize parameters
-    if (!(await MoneroWalletWasm.walletExists(path))) throw new MoneroError("Wallet does not exist at path: " + path);
-    if (networkType === undefined) throw new MoneroError("Must provide a network type");
-    MoneroNetworkType.validate(networkType);
-    let daemonConnection = daemonUriOrConnection ? (typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection) : undefined;
-    let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
-    let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
-    let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
-    
-    // read wallet files
-    let keysData = FS.readFileSync(path + ".keys");
-    let cacheData = FS.readFileSync(path);
-    
-    // return promise which is resolved on callback
-    return new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = async function(cppAddress) {
-        let wallet = new MoneroWalletWasm(cppAddress, path, password);
-        resolve(wallet);
-      };
-      
-      // create wallet in wasm and invoke callback when done
-      MoneroWalletWasm.WASM_MODULE.open_wallet("", password === undefined ? "" : password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, callbackFn);    // empty path is provided so disk writes only happen from JS
-    });
-  }
-  
-  static async createWalletRandom(path, password, networkType, daemonConnection, language) {
-    
-    // validate and sanitize params
-    if (path === undefined) path = "";
-    MoneroNetworkType.validate(networkType);
-    if (language === undefined) language = "English";
-    let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
-    let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
-    let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
-    
-    // return promise which is resolved on callback
-    return new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = async function(cppAddress) {
-        let wallet = new MoneroWalletWasm(cppAddress, path, password);
-        //await wallet.save();  // TODO
-        resolve(wallet);
-      };
-      
-      // create wallet in wasm and invoke callback when done
-      MoneroWalletWasm.WASM_MODULE.create_wallet_random("", password === undefined ? "" : password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);    // empty path is provided so disk writes only happen from JS
-    });
-  }
-  
-  // TODO: update to be consistent with createWalletRandom()
-  static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonConnection, restoreHeight) {
-    
-    // return promise which is resolved on callback
-    return new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = async function(cppAddress) {
-        let wallet = new MoneroWalletWasm(cppAddress, path, password);
-        //await wallet.save();  // TODO
-        resolve(wallet);
-      };
-      
-      // create wallet in wasm and invoke callback when done
-      let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
-      let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
-      let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
-      MoneroWalletWasm.WASM_MODULE.create_wallet_from_mnemonic("", password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, callbackFn);  // empty path is provided so disk writes only happen from JS
-    });
-  }
-  
-  // --------------------------- INSTANCE METHODS -----------------------------
+class MoneroWalletWasmBase extends MoneroWallet {
   
   /**
-   * Internal constructor which is given the memory address of a C++ wallet
-   * instance.
+   * Construct the base wallet with a WebAssembly module and memory address of
+   * the wallet instance in C++.
    * 
-   * This method should not be called externally but should be called through
-   * static wallet creation utilities in this class.
-   * 
+   * @param module is the webassembly module
    * @param {int} cppAddress is the address of the wallet instance in C++
-   * @param {string} path is the path of the wallet instance
-   * @param {string} password is the password of the wallet instance
    */
-  constructor(cppAddress, path, password) {
+  constructor(module, cppAddress) {
     super();
+    this.module = module;
     this.cppAddress = cppAddress;
-    this.path = path;
-    this.password = password;
-  }
-  
-  async getPath() {
-    return this.path;
-  }
-  
-  async getSeed() {
-    return MoneroWalletWasm.WASM_MODULE.get_seed(this.cppAddress);
   }
   
   async getMnemonic() {
-    return MoneroWalletWasm.WASM_MODULE.get_mnemonic(this.cppAddress);
+    return this.module.get_mnemonic(this.cppAddress);
   }
   
   async getLanguages() {
-    return JSON.parse(MoneroWalletWasm.WASM_MODULE.get_languages(this.cppAddress)); // TODO: return native vector<string> in c++
-  }
-  
-  async getPublicViewKey() {
-    return MoneroWalletWasm.WASM_MODULE.get_public_view_key(this.cppAddress);
-  }
-  
-  async getPrivateViewKey() {
-    return MoneroWalletWasm.WASM_MODULE.get_private_view_key(this.cppAddress);
-  }
-  
-  async getPublicSpendKey() {
-    return MoneroWalletWasm.WASM_MODULE.get_public_spend_key(this.cppAddress);
+    return JSON.parse(this.module.get_languages(this.cppAddress)); // TODO: return native vector<string> in c++
   }
   
   async getPrivateSpendKey() {
-    return MoneroWalletWasm.WASM_MODULE.get_private_spend_key(this.cppAddress);
+    let privateSpendKey = this.module.get_private_spend_key(this.cppAddress);
+    return privateSpendKey ? privateSpendKey : undefined;
+  }
+  
+  async getPrivateViewKey() {
+    return this.module.get_private_view_key(this.cppAddress);
+  }
+  
+  async getPublicViewKey() {
+    return this.module.get_public_view_key(this.cppAddress);
+  }
+  
+  async getPublicSpendKey() {
+    return this.module.get_public_spend_key(this.cppAddress);
   }
   
   async getAddress(accountIdx, subaddressIdx) {
     assert(typeof accountIdx === "number");
-    return MoneroWalletWasm.WASM_MODULE.get_address(this.cppAddress, accountIdx, subaddressIdx);
+    return this.module.get_address(this.cppAddress, accountIdx, subaddressIdx);
   }
   
   async getAddressIndex(address) {
-    let subaddressJson = JSON.parse(MoneroWalletWasm.WASM_MODULE.get_address_index(this.cppAddress, address));
+    let subaddressJson = JSON.parse(this.module.get_address_index(this.cppAddress, address));
     return new MoneroSubaddress(subaddressJson);
   }
   
@@ -176,7 +68,7 @@ class MoneroWalletWasm extends MoneroWallet {
       }
       
       // sync wallet in wasm and invoke callback when done
-      MoneroWalletWasm.WASM_MODULE.get_height(cppAddress, callbackFn);
+      this.module.get_height(cppAddress, callbackFn);
     });
   }
   
@@ -196,7 +88,7 @@ class MoneroWalletWasm extends MoneroWallet {
       }
       
       // sync wallet in wasm and invoke callback when done
-      MoneroWalletWasm.WASM_MODULE.sync(cppAddress, callbackFn);
+      this.module.sync(cppAddress, callbackFn);
     });
   }
   
@@ -210,11 +102,11 @@ class MoneroWalletWasm extends MoneroWallet {
     let balanceStr;
     if (accountIdx === undefined) {
       assert(subaddressIdx === undefined, "Subaddress index must be undefined if account index is undefined");
-      balanceStr = MoneroWalletWasm.WASM_MODULE.get_balance_wallet(this.cppAddress);
+      balanceStr = this.module.get_balance_wallet(this.cppAddress);
     } else if (subaddressIdx === undefined) {
-      balanceStr = MoneroWalletWasm.WASM_MODULE.get_balance_account(this.cppAddress, accountIdx);
+      balanceStr = this.module.get_balance_account(this.cppAddress, accountIdx);
     } else {
-      balanceStr = MoneroWalletWasm.WASM_MODULE.get_balance_subaddress(this.cppAddress, accountIdx, subaddressIdx);
+      balanceStr = this.module.get_balance_subaddress(this.cppAddress, accountIdx, subaddressIdx);
     }
     
     // parse json string to BigInteger
@@ -227,11 +119,11 @@ class MoneroWalletWasm extends MoneroWallet {
     let unlockedBalanceStr;
     if (accountIdx === undefined) {
       assert(subaddressIdx === undefined, "Subaddress index must be undefined if account index is undefined");
-      unlockedBalanceStr = MoneroWalletWasm.WASM_MODULE.get_unlocked_balance_wallet(this.cppAddress);
+      unlockedBalanceStr = this.module.get_unlocked_balance_wallet(this.cppAddress);
     } else if (subaddressIdx === undefined) {
-      unlockedBalanceStr = MoneroWalletWasm.WASM_MODULE.get_unlocked_balance_account(this.cppAddress, accountIdx);
+      unlockedBalanceStr = this.module.get_unlocked_balance_account(this.cppAddress, accountIdx);
     } else {
-      unlockedBalanceStr = MoneroWalletWasm.WASM_MODULE.get_unlocked_balance_subaddress(this.cppAddress, accountIdx, subaddressIdx);
+      unlockedBalanceStr = this.module.get_unlocked_balance_subaddress(this.cppAddress, accountIdx, subaddressIdx);
     }
     
     // parse json string to BigInteger
@@ -239,7 +131,7 @@ class MoneroWalletWasm extends MoneroWallet {
   }
   
   async getAccounts(includeSubaddresses, tag) {
-    let accountsStr = MoneroWalletWasm.WASM_MODULE.get_accounts(this.cppAddress, includeSubaddresses ? true : false, tag ? tag : "");
+    let accountsStr = this.module.get_accounts(this.cppAddress, includeSubaddresses ? true : false, tag ? tag : "");
     let accounts = [];
     for (let accountJson of JSON.parse(accountsStr).accounts) {
       accounts.push(MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson)));
@@ -252,7 +144,7 @@ class MoneroWalletWasm extends MoneroWallet {
   }
   
   async getAccount(accountIdx, includeSubaddresses) {
-    let accountStr = MoneroWalletWasm.WASM_MODULE.get_account(this.cppAddress, accountIdx, includeSubaddresses ? true : false);
+    let accountStr = this.module.get_account(this.cppAddress, accountIdx, includeSubaddresses ? true : false);
     let accountJson = JSON.parse(accountStr);
     return MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson));
   }
@@ -263,7 +155,7 @@ class MoneroWalletWasm extends MoneroWallet {
   
   async getSubaddresses(accountIdx, subaddressIndices) {
     let args = {accountIdx: accountIdx, subaddressIndices: subaddressIndices === undefined ? [] : GenUtils.listify(subaddressIndices)};
-    let subaddressesJson = JSON.parse(MoneroWalletWasm.WASM_MODULE.get_subaddresses(this.cppAddress, JSON.stringify(args))).subaddresses;
+    let subaddressesJson = JSON.parse(this.module.get_subaddresses(this.cppAddress, JSON.stringify(args))).subaddresses;
     let subaddresses = [];
     for (let subaddressJson of subaddressesJson) subaddresses.push(MoneroWalletWasm._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
     return subaddresses;
@@ -329,7 +221,7 @@ class MoneroWalletWasm extends MoneroWallet {
       }
       
       // sync wallet in wasm and invoke callback when done
-      MoneroWalletWasm.WASM_MODULE.get_txs(cppAddress, JSON.stringify(query.getBlock().toJson()), callbackFn);
+      this.module.get_txs(cppAddress, JSON.stringify(query.getBlock().toJson()), callbackFn);
     });
   }
   
@@ -408,7 +300,7 @@ class MoneroWalletWasm extends MoneroWallet {
       }
       
       // sync wallet in wasm and invoke callback when done
-      MoneroWalletWasm.WASM_MODULE.send_split(cppAddress, JSON.stringify(request.toJson()), callbackFn);
+      this.module.send_split(cppAddress, JSON.stringify(request.toJson()), callbackFn);
     });
   }
   
@@ -526,14 +418,14 @@ class MoneroWalletWasm extends MoneroWallet {
   
   async getAttribute(key) {
     assert(typeof key === "string", "Attribute key must be a string");
-    let value = MoneroWalletWasm.WASM_MODULE.get_attribute(this.cppAddress, key);
+    let value = this.module.get_attribute(this.cppAddress, key);
     return value === "" ? undefined : value;
   }
   
   async setAttribute(key, val) {
     assert(typeof key === "string", "Attribute key must be a string");
     assert(typeof val === "string", "Attribute value must be a string");
-    MoneroWalletWasm.WASM_MODULE.set_attribute(this.cppAddress, key, val);
+    this.module.set_attribute(this.cppAddress, key, val);
   }
   
   async startMining(numThreads, backgroundMining, ignoreBattery) {
@@ -591,34 +483,34 @@ class MoneroWalletWasm extends MoneroWallet {
     if (path === "") throw new MoneroError("Wallet path is not set");
     
     // write address file
-    FS.writeFileSync(path + "_address.txt", MoneroWalletWasm.WASM_MODULE.get_address_file_buffer(this.cppAddress));
+    FS.writeFileSync(path + "_address.txt", this.module.get_address_file_buffer(this.cppAddress));
     
     // malloc keys buffer and get buffer location in c++ heap
-    let keysBufferLoc = JSON.parse(MoneroWalletWasm.WASM_MODULE.get_keys_file_buffer(this.cppAddress, this.password, false));
+    let keysBufferLoc = JSON.parse(this.module.get_keys_file_buffer(this.cppAddress, this.password, false));
     
     // read binary data from heap to DataView
     let view = new DataView(new ArrayBuffer(keysBufferLoc.length)); // TODO: improve performance using DataView instead of Uint8Array?, TODO: rename to length
     for (let i = 0; i < keysBufferLoc.length; i++) {
-      view.setInt8(i, MoneroWalletWasm.WASM_MODULE.HEAPU8[keysBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
+      view.setInt8(i, this.module.HEAPU8[keysBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
     }
     
     // free binary on heap
-    MoneroWalletWasm.WASM_MODULE._free(keysBufferLoc.pointer);
+    this.module._free(keysBufferLoc.pointer);
     
     // write keys file
     FS.writeFileSync(path + ".keys", view, "binary"); // TODO: make async with callback?
     
     // malloc cache buffer and get buffer location in c++ heap
-    let cacheBufferLoc = JSON.parse(MoneroWalletWasm.WASM_MODULE.get_cache_file_buffer(this.cppAddress, this.password));
+    let cacheBufferLoc = JSON.parse(this.module.get_cache_file_buffer(this.cppAddress, this.password));
     
     // read binary data from heap to DataView
     view = new DataView(new ArrayBuffer(cacheBufferLoc.length));
     for (let i = 0; i < cacheBufferLoc.length; i++) {
-      view.setInt8(i, MoneroWalletWasm.WASM_MODULE.HEAPU8[cacheBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
+      view.setInt8(i, this.module.HEAPU8[cacheBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
     }
     
     // free binary on heap
-    MoneroWalletWasm.WASM_MODULE._free(cacheBufferLoc.pointer);
+    this.module._free(cacheBufferLoc.pointer);
     
     // write cache file
     FS.writeFileSync(path, view, "binary");
@@ -628,12 +520,8 @@ class MoneroWalletWasm extends MoneroWallet {
     if (save) await this.save();
     delete this.path;
     delete this.password;
-    MoneroWalletWasm.WASM_MODULE.close(this.cppAddress);
+    this.module.close(this.cppAddress);
     delete this.cppAddress;
-  }
-  
-  dummyMethod() {
-    return MoneroWalletWasm.WASM_MODULE.dummy_method(this.cppAddress);
   }
   
   // ---------------------------- PRIVATE HELPERS ----------------------------
@@ -674,18 +562,4 @@ class MoneroWalletWasm extends MoneroWallet {
   }
 }
 
-/**
- * Exports a promise which resolves with a wallet class which uses a
- * WebAssembly module.
- */
-module.exports = async function() {
-  return new Promise(function(resolve, reject) {
-    require("../../../monero_cpp_library_WASM")().ready.then(function(module) {
-      MoneroWalletWasm.WASM_MODULE = module;
-      resolve(MoneroWalletWasm);
-    }).catch(function(e) {
-      console.log("Error loading monero_cpp_library_WASM:", e);
-      reject(e);
-    });
-  });
-}
+module.exports = MoneroWalletWasmBase;
