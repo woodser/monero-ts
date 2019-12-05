@@ -83,8 +83,14 @@ class MoneroWalletKeys extends MoneroWalletWasmBase {
     super(MoneroWalletKeys.WASM_MODULE, cppAddress);
   }
   
+  // throw errors here because cannot catch WASM errors // TODO: catch WASM errors somehow
+
   getAccounts() {
-    throw new Error("Keys-only wallet does not have enumerable set of accounts; query specific accounts");
+    throw new Error("MoneroWalletKeys does not support getting an enumerable set of accounts; query specific accounts");
+  }
+  
+  getPath() {
+    throw new Error("MoneroWalletKeys does not support a persisted path");
   }
 }
 
