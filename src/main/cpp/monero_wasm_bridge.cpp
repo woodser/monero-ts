@@ -119,6 +119,11 @@ void monero_wasm_bridge::create_keys_wallet_from_mnemonic(int network_type, cons
   callback((int) wallet); // callback with wallet address
 }
 
+void monero_wasm_bridge::create_keys_wallet_from_keys(int network_type, const string& address, const string& view_key, const string& spend_key, const string& language, emscripten::val callback) {
+  monero_wallet* wallet = monero_wallet_keys::create_wallet_from_keys(static_cast<monero_network_type>(network_type), address, view_key, spend_key);
+  callback((int) wallet); // callback with wallet address
+}
+
 // ------------------------ WALLET INSTANCE METHODS ---------------------------
 
 //  void set_daemon_connection(int handle, const string& uri, const string& username = "", const string& password = "");

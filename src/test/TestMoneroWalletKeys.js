@@ -1,5 +1,5 @@
-const MoneroWalletKeys = require("../main/js/wallet/MoneroWalletKeys");
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
+let MoneroWalletKeys; // async import before tests run
 
 /**
  * Tests the fully client-side Monero wallet.
@@ -23,7 +23,7 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
   }
   
   async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
-    return await MoneroWalletKeys.createWalletFromKeys(address, privateViewKey, privateSpendKey, language);
+    return await MoneroWalletKeys.createWalletFromKeys(TestUtils.NETWORK_TYPE, address, privateViewKey, privateSpendKey, language);
   }
   
   runTests(config) {
@@ -32,6 +32,7 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
       
       // initialize wallet
       before(async function() {
+        MoneroWalletKeys = await require("../main/js/wallet/MoneroWalletKeys")();
         that.wallet = await TestUtils.getWalletKeys();
       });
       

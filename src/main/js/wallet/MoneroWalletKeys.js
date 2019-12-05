@@ -27,7 +27,6 @@ class MoneroWalletKeys extends MoneroWallet {
     });
   }
   
-  // TODO: update to be consistent with createWalletRandom()
   static async createWalletFromMnemonic(networkType, mnemonic) {
     
     // validate and sanitize params
@@ -46,8 +45,24 @@ class MoneroWalletKeys extends MoneroWallet {
     });
   }
   
-  static async createWalletFromKeys(address, privateViewKey, privateSpendKey, language) {
-    throw new Error("MoneroWalletKeys.createWalletFromKeys() not implemented");
+  static async createWalletFromKeys(networkType, address, privateViewKey, privateSpendKey, language) {
+    
+    // validate and sanitize params
+    MoneroNetworkType.validate(networkType);
+    if (language === undefined) language = "English";
+    
+    // return promise which is resolved on callback
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = async function(cppAddress) {
+        let wallet = new MoneroWalletKeys(cppAddress);
+        resolve(wallet);
+      };
+      
+      // create wallet in wasm and invoke callback when done
+      MoneroWalletKeys.WASM_MODULE.create_keys_wallet_from_keys(networkType, address, privateViewKey, privateSpendKey, language, callbackFn);
+    });
   }
   
   // --------------------------- INSTANCE METHODS -----------------------------
@@ -155,12 +170,8 @@ class MoneroWalletKeys extends MoneroWallet {
   }
 
   async close(save) {
-    throw new Error("Needs updated");
-//    if (save) await this.save();
-//    delete this.path;
-//    delete this.password;
-//    MoneroWalletKeys.WASM_MODULE.close(this.cppAddress);
-//    delete this.cppAddress;
+    MoneroWalletKeys.WASM_MODULE.close(this.cppAddress);
+    delete this.cppAddress;
   }
   
   // ---------------------------- PRIVATE HELPERS ----------------------------
