@@ -119,11 +119,10 @@ class TestMoneroWalletCommon {
         if (e1 !== undefined) throw e1;
       });
       
-      it("Can create a watch-only wallet", async function() {
+      it("Can create a wallet without the spend key", async function() {
         let e1 = undefined;
         try {
           
-          //let mnemonic = await that.wallet.getMnemonic(); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
           let primaryAddress = await that.wallet.getPrimaryAddress();
           let privateViewKey = await that.wallet.getPrivateViewKey();
 
@@ -131,7 +130,6 @@ class TestMoneroWalletCommon {
           that.wallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, undefined, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
           let e2 = undefined;
           try {
-            //assert.equal(await that.wallet.getMnemonic(), mnemonic);
             assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
             assert.equal(await that.wallet.getPrivateViewKey(), privateViewKey);
             assert.equal(await that.wallet.getPrivateSpendKey(), undefined);
