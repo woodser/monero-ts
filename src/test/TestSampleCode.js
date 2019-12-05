@@ -7,7 +7,7 @@ describe("Test Sample Code", function() {
   // initialize wallet
   before(async function() {
     try {
-      TestUtils.getWalletLocal();
+      await TestUtils.getWalletKeys();
       TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
     } catch (e) {
       console.log(e);
