@@ -211,11 +211,13 @@ class TestMoneroWalletCommon {
       });
       
       it("Can get the public view key", async function() {
-        throw new Error("Not implemented");
+        let publicViewKey = await that.wallet.getPublicViewKey()
+        MoneroUtils.validatePublicViewKey(publicViewKey);
       });
       
       it("Can get the public spend key", async function() {
-        throw new Error("Not implemented");
+        let publicSpendKey = await that.wallet.getPublicSpendKey()
+        MoneroUtils.validatePublicSpendKey(publicSpendKey);
       });
       
       if (config.testNonRelays)

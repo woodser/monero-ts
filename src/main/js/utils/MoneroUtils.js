@@ -48,6 +48,18 @@ class MoneroUtils {
     assert(privateSpendKey.length === 64);
   }
   
+  // TODO: beef this up
+  static validatePublicViewKey(publicViewKey) {
+    assert(typeof publicViewKey === "string");
+    assert(publicViewKey.length === 64);
+  }
+  
+  // TODO: beef this up
+  static validatePublicSpendKey(publicSpendKey) {
+    assert(typeof publicSpendKey === "string");
+    assert(publicSpendKey.length === 64);
+  }
+  
   // TODO: beef this up, will require knowing network type
   static validateAddress(address) {
     assert(address);

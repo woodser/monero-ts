@@ -82,6 +82,10 @@ class MoneroWalletKeys extends MoneroWalletWasmBase {
   constructor(cppAddress) {
     super(MoneroWalletKeys.WASM_MODULE, cppAddress);
   }
+  
+  getAccounts() {
+    throw new Error("Keys-only wallet does not have enumerable set of accounts; query specific accounts");
+  }
 }
 
 /**

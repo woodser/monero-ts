@@ -22,6 +22,10 @@ class MoneroWalletWasmBase extends MoneroWallet {
     return this.module.get_mnemonic(this.cppAddress);
   }
   
+  async getLanguage() {
+    return this.module.get_language(this.cppAddress);
+  }
+  
   async getLanguages() {
     return JSON.parse(this.module.get_languages(this.cppAddress)); // TODO: return native vector<string> in c++
   }
@@ -57,7 +61,7 @@ class MoneroWalletWasmBase extends MoneroWallet {
   // decodeIntegratedAddress
   
   async getHeight() {
-    let cppAddress = this.cppAddress;
+    let that = this;
     
     // return promise which resolves on callback
     return new Promise(function(resolve, reject) {
@@ -68,14 +72,14 @@ class MoneroWalletWasmBase extends MoneroWallet {
       }
       
       // sync wallet in wasm and invoke callback when done
-      this.module.get_height(cppAddress, callbackFn);
+      that.module.get_height(that.cppAddress, callbackFn);
     });
   }
   
   // getDaemonHeight
   
   async sync() {
-    let cppAddress = this.cppAddress;
+    let that = this;
     
     // return promise which resolves on callback
     return new Promise(function(resolve, reject) {
@@ -88,7 +92,7 @@ class MoneroWalletWasmBase extends MoneroWallet {
       }
       
       // sync wallet in wasm and invoke callback when done
-      this.module.sync(cppAddress, callbackFn);
+      that.module.sync(that.cppAddress, callbackFn);
     });
   }
   
@@ -134,7 +138,7 @@ class MoneroWalletWasmBase extends MoneroWallet {
     let accountsStr = this.module.get_accounts(this.cppAddress, includeSubaddresses ? true : false, tag ? tag : "");
     let accounts = [];
     for (let accountJson of JSON.parse(accountsStr).accounts) {
-      accounts.push(MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson)));
+      accounts.push(MoneroWalletWasmBase._sanitizeAccount(new MoneroAccount(accountJson)));
 //      console.log("Account balance: " + accountJson.balance);
 //      console.log("Account unlocked balance: " + accountJson.unlockedBalance);
 //      console.log("Account balance BI: " + new BigInteger(accountJson.balance));
@@ -146,7 +150,7 @@ class MoneroWalletWasmBase extends MoneroWallet {
   async getAccount(accountIdx, includeSubaddresses) {
     let accountStr = this.module.get_account(this.cppAddress, accountIdx, includeSubaddresses ? true : false);
     let accountJson = JSON.parse(accountStr);
-    return MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson));
+    return MoneroWalletWasmBase._sanitizeAccount(new MoneroAccount(accountJson));
   }
   
   async createAccount(label) {
@@ -157,7 +161,7 @@ class MoneroWalletWasmBase extends MoneroWallet {
     let args = {accountIdx: accountIdx, subaddressIndices: subaddressIndices === undefined ? [] : GenUtils.listify(subaddressIndices)};
     let subaddressesJson = JSON.parse(this.module.get_subaddresses(this.cppAddress, JSON.stringify(args))).subaddresses;
     let subaddresses = [];
-    for (let subaddressJson of subaddressesJson) subaddresses.push(MoneroWalletWasm._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
+    for (let subaddressJson of subaddressesJson) subaddresses.push(MoneroWalletWasmBase._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
     return subaddresses;
   }
   
@@ -178,11 +182,8 @@ class MoneroWalletWasmBase extends MoneroWallet {
     if (query.getTransferQuery() === undefined) query.setTransferQuery(new MoneroTransferQuery());
     if (query.getOutputQuery() === undefined) query.setOutputQuery(new MoneroOutputQuery());
     
-    console.log("Calling get txs with query:");
-    console.log(JSON.stringify(query.getBlock().toJson()));
-    
     // return promise which resolves on callback
-    let cppAddress = this.cppAddress;
+    let that = this;
     return new Promise(function(resolve, reject) {
       
       // define callback for wasm
@@ -195,12 +196,12 @@ class MoneroWalletWasmBase extends MoneroWallet {
         }
         
         // deserialize blocks
-        let blocks = MoneroWalletWasm._deserializeBlocks(blocksJsonStr);
+        let blocks = MoneroWalletWasmBase._deserializeBlocks(blocksJsonStr);
         
         // collect txs
         let txs = [];
         for (let block of blocks) {
-            MoneroWalletWasm._sanitizeBlock(block); // TODO: this should be part of deserializeBlocks()
+            MoneroWalletWasmBase._sanitizeBlock(block); // TODO: this should be part of deserializeBlocks()
             for (let tx of block.getTxs()) {
             if (block.getHeight() === undefined) tx.setBlock(undefined); // dereference placeholder block for unconfirmed txs
             txs.push(tx);
@@ -221,7 +222,7 @@ class MoneroWalletWasmBase extends MoneroWallet {
       }
       
       // sync wallet in wasm and invoke callback when done
-      this.module.get_txs(cppAddress, JSON.stringify(query.getBlock().toJson()), callbackFn);
+      that.module.get_txs(that.cppAddress, JSON.stringify(query.getBlock().toJson()), callbackFn);
     });
   }
   
@@ -285,7 +286,7 @@ class MoneroWalletWasmBase extends MoneroWallet {
     }
     
     // return promise which resolves on callback
-    let cppAddress = this.cppAddress;
+    let that = this;
     return new Promise(function(resolve, reject) {
       
       // define callback for wasm
@@ -300,7 +301,7 @@ class MoneroWalletWasmBase extends MoneroWallet {
       }
       
       // sync wallet in wasm and invoke callback when done
-      this.module.send_split(cppAddress, JSON.stringify(request.toJson()), callbackFn);
+      that.module.send_split(that.cppAddress, JSON.stringify(request.toJson()), callbackFn);
     });
   }
   
@@ -527,7 +528,7 @@ class MoneroWalletWasmBase extends MoneroWallet {
   // ---------------------------- PRIVATE HELPERS ----------------------------
   
   static _sanitizeBlock(block) {
-    for (let tx of block.getTxs()) MoneroWalletWasm._sanitizeTxWallet(tx);
+    for (let tx of block.getTxs()) MoneroWalletWasmBase._sanitizeTxWallet(tx);
     return block;
   }
   
@@ -538,7 +539,7 @@ class MoneroWalletWasmBase extends MoneroWallet {
   
   static _sanitizeAccount(account) {
     if (account.getSubaddresses()) {
-      for (let subaddress of account.getSubaddresses()) MoneroWalletWasm._sanitizeSubaddress(subaddress);
+      for (let subaddress of account.getSubaddresses()) MoneroWalletWasmBase._sanitizeSubaddress(subaddress);
     }
     return account;
   }
