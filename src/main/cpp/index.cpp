@@ -26,14 +26,13 @@ EMSCRIPTEN_BINDINGS(module)
 
   // ----------------------- WALLET INSTANCE METHODS --------------------------
 
-  emscripten::function("get_seed", &monero_wasm_bridge::get_seed);
   emscripten::function("get_mnemonic", &monero_wasm_bridge::get_mnemonic);
   emscripten::function("get_language", &monero_wasm_bridge::get_language);
   emscripten::function("get_languages", &monero_wasm_bridge::get_languages);
-  emscripten::function("get_public_view_key", &monero_wasm_bridge::get_public_view_key);
-  emscripten::function("get_private_view_key", &monero_wasm_bridge::get_private_view_key);
-  emscripten::function("get_public_spend_key", &monero_wasm_bridge::get_public_spend_key);
   emscripten::function("get_private_spend_key", &monero_wasm_bridge::get_private_spend_key);
+  emscripten::function("get_private_view_key", &monero_wasm_bridge::get_private_view_key);
+  emscripten::function("get_public_view_key", &monero_wasm_bridge::get_public_view_key);
+  emscripten::function("get_public_spend_key", &monero_wasm_bridge::get_public_spend_key);
   emscripten::function("get_address", &monero_wasm_bridge::get_address);
   emscripten::function("get_address_index", &monero_wasm_bridge::get_address_index);
   emscripten::function("get_integrated_address", &monero_wasm_bridge::get_integrated_address);

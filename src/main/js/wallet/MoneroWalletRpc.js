@@ -174,10 +174,6 @@ class MoneroWalletRpc extends MoneroWallet {
     return this.path;
   }
   
-  async getSeed() {
-    throw new MoneroError("monero-wallet-rpc does not support getting the wallet seed");
-  }
-
   async getMnemonic() {
     let resp = await this.config.rpc.sendJsonRequest("query_key", { key_type: "mnemonic" });
     return resp.result.key;
@@ -194,7 +190,7 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getPrivateSpendKey() {
     
-    // get private spend key which returns error if wallet is watch-only
+    // get private spend key which will throw error if wallet is watch-only
     try {
       let resp = await this.config.rpc.sendJsonRequest("query_key", { key_type: "spend_key" });
       return resp.result.key;

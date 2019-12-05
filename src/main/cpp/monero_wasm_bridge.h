@@ -39,7 +39,6 @@ namespace monero_wasm_bridge
 //  bool is_daemon_trusted(int handle);
 //  bool is_synced(int handle);
 //  int get_network_type(int handle);
-  string get_seed(int handle);
   string get_mnemonic(int handle);
   string get_language(int handle);
   string get_languages(int handle);

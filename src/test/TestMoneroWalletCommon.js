@@ -145,7 +145,7 @@ class TestMoneroWalletCommon {
         }
         
         // open main test wallet for other tests
-        this.wallet = await that.getTestWallet();
+        that.wallet = await that.getTestWallet();
         if (e1 !== undefined) throw e1;
       });
       
@@ -180,11 +180,6 @@ class TestMoneroWalletCommon {
         that.wallet = await that.getTestWallet();
       });
       
-      it("Can get the seed", async function() {
-        let seed = await that.wallet.getSeed();
-        MoneroUtils.validateSeed(seed);
-      });
-      
       if (config.testNonRelays)
       it("Can get the mnemonic phrase derived from the seed", async function() {
         let mnemonic = await that.wallet.getMnemonic();
@@ -195,14 +190,6 @@ class TestMoneroWalletCommon {
       it("Can get the language of the mnemonic phrase", async function() {
         let language = await that.wallet.getLanguage();
         assert.equal(language, "English");
-      });
-      
-      it("Can get the public view key", async function() {
-        throw new Error("Not implemented");
-      });
-      
-      it("Can get the public spend key", async function() {
-        throw new Error("Not implemented");
       });
       
       if (config.testNonRelays)
@@ -223,6 +210,14 @@ class TestMoneroWalletCommon {
       it("Can get the private spend key", async function() {
         let privateSpendKey = await that.wallet.getPrivateSpendKey()
         MoneroUtils.validatePrivateSpendKey(privateSpendKey);
+      });
+      
+      it("Can get the public view key", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can get the public spend key", async function() {
+        throw new Error("Not implemented");
       });
       
       if (config.testNonRelays)

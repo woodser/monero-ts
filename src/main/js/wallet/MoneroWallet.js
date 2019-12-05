@@ -47,15 +47,6 @@ class MoneroWallet {
   }
   
   /**
-   * Get the wallet's seed.
-   * 
-   * @return {string} the wallet's seed
-   */
-  async getSeed() {
-    throw new MoneroError("Subclass must implement");
-  }
-  
-  /**
    * Get the wallet's mnemonic phrase derived from the seed.
    * 
    * @return {string} the wallet's mnemonic phrase
