@@ -222,15 +222,6 @@ namespace monero {
     }
 
     /**
-     * Get the wallet's seed.
-     *
-     * @return the wallet's seed
-     */
-    virtual string get_seed() const {
-      throw runtime_error("get_seed() not implemented");
-    }
-
-    /**
      * Get the wallet's mnemonic phrase derived from the seed.
      *
      * @param mnemonic is assigned the wallet's mnemonic phrase

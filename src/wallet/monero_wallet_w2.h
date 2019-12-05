@@ -131,8 +131,8 @@ namespace monero {
      * @param password is the password encrypt the wallet
      * @param network_type is the wallet's network type
      * @param address is the address of the wallet to construct
-     * @param view_key is the view key of the wallet to construct
-     * @param spend_key is the spend key of the wallet to construct
+     * @param view_key is the private view key of the wallet to construct
+     * @param spend_key is the private spend key of the wallet to construct
      * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
      * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
      * @param language is the wallet and mnemonic's language (default = "English")

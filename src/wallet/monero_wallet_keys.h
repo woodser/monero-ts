@@ -53,6 +53,7 @@
 #pragma once
 
 #include "monero_wallet.h"
+#include "cryptonote_basic/account.h"
 
 using namespace std;
 using namespace monero;
@@ -90,8 +91,8 @@ namespace monero {
      *
      * @param network_type is the wallet's network type
      * @param address is the address of the wallet to construct
-     * @param view_key is the view key of the wallet to construct
-     * @param spend_key is the spend key of the wallet to construct
+     * @param view_key is the private view key of the wallet to construct
+     * @param spend_key is the private spend key of the wallet to construct
      * @param language is the wallet and mnemonic's language (default = "English")
      */
     static monero_wallet_keys* create_wallet_from_keys(const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const string& language = "English");
@@ -105,14 +106,15 @@ namespace monero {
      * Supported wallet methods.
      */
     monero_version get_version() const;
-    monero_network_type get_network_type() const;
-    string get_mnemonic() const;
-    string get_language() const;
+    monero_network_type get_network_type() const { return m_network_type; }
+    string get_mnemonic() const { return m_mnemonic; }
+    string get_language() const { return m_language; }
     vector<string> get_languages() const;
-    string get_public_view_key() const;
-    string get_private_view_key() const;
-    string get_public_spend_key() const;
-    string get_private_spend_key() const;
+    string get_private_view_key() const { return m_prv_view_key; }
+    string get_private_spend_key() const { return m_prv_spend_key; }
+    string get_public_view_key() const { return m_pub_view_key; }
+    string get_public_spend_key() const { return m_pub_spend_key; }
+    string get_primary_address() const { return m_primary_address; }
     string get_address(const uint32_t account_idx, const uint32_t subaddress_idx) const;
     monero_subaddress get_address_index(const string& address) const;
     monero_integrated_address get_integrated_address(const string& standard_address = "", const string& payment_id = "") const;
@@ -125,12 +127,13 @@ namespace monero {
     monero_subaddress create_subaddress(uint32_t account_idx, const string& label = "");
     string sign(const string& msg) const;
     bool verify(const string& msg, const string& address, const string& signature) const;
-    void close();
+    void close(bool save = false);
 
     // --------------------------------- PRIVATE --------------------------------
 
   private:
-    string m_seed;
+    monero_network_type m_network_type;
+    cryptonote::account_base m_account;
     string m_mnemonic;
     string m_language;
     string m_pub_view_key;
@@ -138,5 +141,7 @@ namespace monero {
     string m_pub_spend_key;
     string m_prv_spend_key;
     string m_primary_address;
+
+    void init_common();
   };
 }

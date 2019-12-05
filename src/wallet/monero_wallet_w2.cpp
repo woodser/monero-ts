@@ -911,8 +911,8 @@ namespace monero {
     // initialize wallet
     wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     if (has_spend_key && has_view_key) wallet->m_w2->generate(path, password, info.address, spend_key_sk, view_key_sk);
-    if (!has_spend_key && has_view_key) wallet->m_w2->generate(path, password, info.address, view_key_sk);
-    if (has_spend_key && !has_view_key) wallet->m_w2->generate(path, password, spend_key_sk, true, false);
+    else if (has_spend_key) wallet->m_w2->generate(path, password, spend_key_sk, true, false);
+    else wallet->m_w2->generate(path, password, info.address, view_key_sk);
     wallet->set_daemon_connection(daemon_connection);
     wallet->m_w2->set_refresh_from_block_height(restore_height);
     wallet->m_w2->set_seed_language(language);
@@ -1010,9 +1010,9 @@ namespace monero {
   }
 
   string monero_wallet_w2::get_mnemonic() const {
-    epee::wipeable_string wipeablePassword;
-    m_w2->get_seed(wipeablePassword);
-    return string(wipeablePassword.data(), wipeablePassword.size());
+    epee::wipeable_string wipeable_mnemonic;
+    m_w2->get_seed(wipeable_mnemonic);
+    return string(wipeable_mnemonic.data(), wipeable_mnemonic.size());
   }
 
   string monero_wallet_w2::get_public_view_key() const {
