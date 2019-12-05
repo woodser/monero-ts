@@ -2,7 +2,7 @@
 #include "monero_wasm_bridge.h"
 #include "wallet/monero_wallet_keys.h"
 #include "utils/monero_utils.h"
-//#include "wallet/monero_wallet_w2.h"
+//#include "wallet/monero_wallet_core.h"
 //#include "http_client_wasm.h"
 
  // TODO: remove
