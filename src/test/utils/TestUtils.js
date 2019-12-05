@@ -128,7 +128,8 @@ class TestUtils {
   }
   
   static async getRandomWalletAddress() {
-    let wallet = new MoneroWalletLocal({daemon: TestUtils.getDaemonRpc()});
+    const MoneroWalletKeys = await require("../../../src/main/js/wallet/MoneroWalletKeys")();
+    let wallet = await MoneroWalletKeys.createWalletRandom(TestUtils.NETWORK_TYPE);
     return await wallet.getPrimaryAddress();
   }
 }
