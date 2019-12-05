@@ -28,6 +28,7 @@ namespace monero_wasm_bridge
 
     void create_keys_wallet_random(int network_type, const string& language, emscripten::val callback);
     void create_keys_wallet_from_mnemonic(int network_type, const string& mnemonic, emscripten::val callback);
+    void create_keys_wallet_from_keys(int network_type, const string& address, const string& view_key, const string& spend_key, const string& language, emscripten::val callback);
 
   // ----------------------- WALLET INSTANCE METHODS --------------------------
 
