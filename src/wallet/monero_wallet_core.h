@@ -108,7 +108,7 @@ namespace monero {
      * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    static monero_wallet_core* create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection = monero_rpc_connection, const string& language = "English");
+    static monero_wallet_core* create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const string& language = "English");
 
     /**
      * Create a wallet from an existing mnemonic phrase.
@@ -195,7 +195,6 @@ namespace monero {
     monero_account get_account(const uint32_t account_idx, bool include_subaddresses) const;
     monero_account create_account(const string& label = "");
     vector<monero_subaddress> get_subaddresses(const uint32_t account_idx, const vector<uint32_t>& subaddress_indices) const;
-    monero_subaddress get_subaddress(const uint32_t account_idx, const uint32_t subaddress_idx) const;
     monero_subaddress create_subaddress(uint32_t account_idx, const string& label = "");
     vector<shared_ptr<monero_tx_wallet>> get_txs() const;
     vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& query) const;

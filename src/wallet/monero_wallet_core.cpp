@@ -1325,8 +1325,6 @@ namespace monero {
     return get_subaddresses_aux(account_idx, subaddress_indices, transfers);
   }
 
-  // get_subaddresses
-
   monero_subaddress monero_wallet_core::create_subaddress(const uint32_t account_idx, const string& label) {
     MTRACE("create_subaddress(" << account_idx << ", " << label << ")");
 
