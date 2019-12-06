@@ -104,11 +104,11 @@ namespace monero {
      *
      * @param path is the path to create the wallet
      * @param password is the password encrypt the wallet
-     * @param network_type is the wallet's network type (default = monero_network_type.MAINNET)
+     * @param network_type is the wallet's network type
      * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    static monero_wallet_core* create_wallet_random(const string& path, const string& password, const monero_network_type network_type = monero_network_type.MAINNET, const monero_rpc_connection& daemon_connection = monero_rpc_connection, const string& language = "English");
+    static monero_wallet_core* create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection = monero_rpc_connection, const string& language = "English");
 
     /**
      * Create a wallet from an existing mnemonic phrase.
