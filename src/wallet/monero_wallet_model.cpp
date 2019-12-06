@@ -54,7 +54,6 @@
 
 #include "utils/gen_utils.h"
 #include "utils/monero_utils.h"
-#include <stdio.h>
 #include <iostream>
 
 using namespace std;
