@@ -51,7 +51,7 @@ function assembleWith(
 	deleteAll_assembled_www_contents_exceptGitIgnore()
 	//
 	// II. 
-	enumerateAndRecursivelyCopyDirContents("", true)
+	//enumerateAndRecursivelyCopyDirContents("", true)
 	//
 	// III.
 	// bundleAndPackageJS() // NOTE: this is now handled on the command line

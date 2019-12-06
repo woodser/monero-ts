@@ -15,14 +15,6 @@ class MoneroUtils {
     return MoneroUtils.MoneroCppUtils;
   }
   
-  /**
-   * Get a utility class which uses WebAssembly to access C++ utilities in the mymonero-core-js submodule.
-   */
-  static async getMyMoneroUtils() {
-    if (MoneroUtils.MyMoneroUtils === undefined) MoneroUtils.MyMoneroUtils = await require('../../../../external/mymonero-core-js/monero_utils/MyMoneroCoreBridge')();
-    return MoneroUtils.MyMoneroUtils;
-  }
-  
   // TODO: beef this up
   static validateSeed(seed) {
     assert(typeof seed === "string");
