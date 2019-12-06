@@ -134,21 +134,6 @@ You are now ready to use this library with [monero-daemon-rpc](https://getmonero
 3. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/TestUtils.js).
 4. Run all tests: `npm test` or run tests by their description, e.g.: `node_modules/mocha/bin/mocha src/test/TestAll --grep "Can get transactions by id" --timeout 2000000`
 
-## How to Run the Sample Browser Application
-
-A simple web application is included in `./browser_app` to demonstrate using this library in a browser.
-
-1. Download this library and install its dependencies.  See [How to Run This Library](#how-to-run-this-library).
-2. Download and install [Monero CLI](https://getmonero.org/downloads/).
-3. Start monero-daemon-rpc with authentication and CORS access.  For example: `./monerod --stagenet --rpc-login superuser:abctesting123 --rpc-access-control-origins http://localhost:9100`
-4. Start monero-wallet-rpc with authentication and CORS access.  For example: `./monero-wallet-rpc --daemon-address http://localhost:38081 --daemon-login superuser:abctesting123 --stagenet --rpc-bind-port 38083 --rpc-login rpc_user:abc123 --rpc-access-control-origins http://localhost:9100 --wallet-dir ./`
-5. Build the web app for the browser: `./bin/start_dev_browser`
-6. Manually copy ./browser_app/index.html to ./browser_build/index.html
-7. Manually copy the 4 asm files from ./external/mymonero-core-js/monero_utils to ./browser_build/submodules/mymonero-core-js/monero_utils/
-8. Access the application using a web browser.  For example, open http://localhost:9100.
-
-Note: The server used in these steps, SimpleHTTPServer, incorrectly serves WASM files with content-type "octet-stream" which fails in Firefox.  This issue can be resolved by using a different HTTP server or browser.
-
 ## Project Goals
 
 - Offer consistent terminology and APIs for Monero's developer ecosystem
@@ -157,7 +142,9 @@ Note: The server used in these steps, SimpleHTTPServer, incorrectly serves WASM 
 
 ## See Also
 
-These libraries conform to the same [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf).
+[Sample browser application to demonstrate integration](https://github.com/woodser/xmr-sample-app)
+
+These libraries conform to the same [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf):
 
 [Java reference implementation](https://github.com/monero-ecosystem/monero-java)
 
