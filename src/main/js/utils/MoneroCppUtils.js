@@ -108,7 +108,7 @@ class MoneroCppUtils {
  */
 module.exports = async function() {
   return new Promise(function(resolve, reject) {
-    require("../../../monero_cpp_library_WASM")().ready.then(function(module) {
+    require("../../../../build/monero_cpp_library_WASM")().ready.then(function(module) {
       MoneroCppUtils.WASM_MODULE = module;
       resolve(MoneroCppUtils);
     }).catch(function(e) {
