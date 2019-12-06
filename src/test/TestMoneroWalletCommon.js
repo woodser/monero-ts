@@ -1782,16 +1782,18 @@ class TestMoneroWalletCommon {
       
       if (config.testNonRelays)
       it("Can parse a tx set hex returned from sending transfers", async function() {
+        let e1 = undefined;
         try {
 
           // create watch-only wallet by witholding spend key
-          that.wallet = await createWalletFromKeys(await that.wallet.getPrimaryAddress(), await that.wallet.getPrivateViewKey(), undefined, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
-          that.wallet.sync();  
+          that.wallet = await that.createWalletFromKeys(await that.wallet.getPrimaryAddress(), await that.wallet.getPrivateViewKey(), undefined, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+          await that.wallet.sync();
           
+          let e2 = undefined;
           try {
           
             // create unsigned transactions to send funds
-            let tx = (await wallet.createTx(0, TestUtils.getRandomWalletAddress(), TestUtils.MAX_FEE.multiply(new BigInteger(3)))).getTxs()[0];
+            let tx = (await that.wallet.createTx(0, await TestUtils.getRandomWalletAddress(), TestUtils.MAX_FEE.multiply(new BigInteger(3)))).getTxs()[0];
             
             // test resulting tx set
             let txSet = tx.getTxSet();
@@ -1808,14 +1810,17 @@ class TestMoneroWalletCommon {
             // test the parsed tx set
             testParsedTxSet(parsedTxSet);
           } catch (e) {
-            await that.wallet.close();
+            e2 = e;
           }
-
-        } catch (e2) {
-          
-          // open main test wallet for other tests
-          that.wallet = await that.getTestWallet();
+          await that.wallet.close();
+          if (e2 !== undefined) throw e2;
+        } catch (e) {
+          e1 = e;
         }
+        
+        // open main test wallet for other tests
+        that.wallet = await that.getTestWallet();
+        if (e1 !== undefined) throw e1;
       });
       
       if (config.testNonRelays)
