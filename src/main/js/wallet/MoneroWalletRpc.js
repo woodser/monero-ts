@@ -1720,7 +1720,7 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "unsigned_txset" && val !== undefined) {} // handled elsewhere; this method only builds a tx wallet
       else if (key === "amount_in") tx.setInputSum(new BigInteger(val));
       else if (key === "amount_out") tx.setOutputSum(new BigInteger(val));
-      else if (key === "change_address") tx.setChangeAddress(val);
+      else if (key === "change_address") tx.setChangeAddress(val === "" ? undefined : val);
       else if (key === "change_amount") tx.setChangeAmount(new BigInteger(val));
       else if (key === "dummy_outputs") tx.setNumDummyOutputs(val);
       else if (key === "extra") tx.setExtraHex(val);
