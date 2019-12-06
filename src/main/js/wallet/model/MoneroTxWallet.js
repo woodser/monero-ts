@@ -176,7 +176,7 @@ class MoneroTxWallet extends MoneroTx {
   }
   
   setExtraHex(extraHex) {
-    this.state.extraHex;
+    this.state.extraHex = extraHex;
     return this;
   }
   
