@@ -4,8 +4,8 @@ const TestMoneroWalletRpc = require("./TestMoneroWalletRpc");
 const TestMoneroWalletWasm = require("./TestMoneroWalletWasm");
 const TestMoneroWalletKeys = require("./TestMoneroWalletKeys");
 
-//// test sample code for readme
-//require("./TestSampleCode");
+// test sample code for readme
+require("./TestSampleCode");
 
 // test C++ utils from monero-cpp-library using WebAssembly
 require("./TestMoneroCppUtils");
@@ -18,14 +18,14 @@ new TestMoneroDaemonRpc().runTests({
   testNotifications: true
 });
 
-//// test wallet rpc
-//new TestMoneroWalletRpc().runTests({
-//  liteMode: false, // skips some lengthy but detailed tests
-//  testNonRelays: true,
-//  testRelays: true,
-//  testNotifications: true,
-//  testResets: false
-//});
+// test wallet rpc
+new TestMoneroWalletRpc().runTests({
+  liteMode: false, // skips some lengthy but detailed tests
+  testNonRelays: true,
+  testRelays: true,
+  testNotifications: true,
+  testResets: false
+});
 
 // test keys-only wallet
 new TestMoneroWalletKeys().runTests({
@@ -45,8 +45,8 @@ new TestMoneroWalletKeys().runTests({
 //  testNotifications: false
 //});
 
-//// test wallet equality
-//require("./TestMoneroWalletEquality");
+// test wallet equality
+require("./TestMoneroWalletEquality");
 
 //// test boolean set (data structure used by wallet to track progress)
 //require("./TestBooleanSet");

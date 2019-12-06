@@ -2,7 +2,7 @@ const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
 let MoneroWalletKeys; // async import before tests run
 
 /**
- * Tests the fully client-side Monero wallet.
+ * Tests the implementation of MoneroWallet which only manages keys using WebAssembly.
  */
 class TestMoneroWalletKeys extends TestMoneroWalletCommon {
   

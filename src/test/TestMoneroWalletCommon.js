@@ -3975,12 +3975,12 @@ function testParsedTxSet(parsedTxSet) {
     TestUtils.testUnsignedBigInteger(parsedTx.getOutputSum(), true);
     TestUtils.testUnsignedBigInteger(parsedTx.getFee());
     TestUtils.testUnsignedBigInteger(parsedTx.getChangeAmount());
-    if (parsedTx.getChangeAmount().compare(new BigInteger(0)) === 0) assert.equal(parsedTx.getChangeAddress(), undefined);
+    if (parsedTx.getChangeAmount().compare(new BigInteger(0)) === 0) assert.equal(parsedTx.getChangeAddress(), undefined);  // TODO: returning as ""
     else MoneroUtils.validateAddress(parsedTx.getChangeAddress(), TestUtils.NETWORK_TYPE);
     assert(parsedTx.getRingSize() > 1);
     assert(parsedTx.getUnlockTime() >= 0);
     assert(parsedTx.getNumDummyOutputs() >= 0);
-    assert(parsedTx.getExtraHex());
+    assert(parsedTx.getExtraHex()); // TODO: failing multisig
     assert(parsedTx.getPaymentId() === undefined || parsedTx.getPaymentId().length > 0);
     assert(parsedTx.isOutgoing());
     assert.notEqual(parsedTx.getOutgoingTransfer(), undefined);
