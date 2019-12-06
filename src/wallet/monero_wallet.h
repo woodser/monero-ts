@@ -190,7 +190,7 @@ namespace monero {
      *
      * @return true if the wallet is synced with the daemon, false otherwise
      */
-    bool is_synced() const {
+    virtual bool is_synced() const {
       throw runtime_error("is_synced() not supported");
     }
 
