@@ -693,7 +693,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (this.initPromise) return this.initPromise;
     
     // get core utils
-    this.CppUtils = await MoneroUtils.getCppUtils();
+    this.CppUtils = await MoneroUtils.getUtilsWasm();
   }
   
   async _getBandwidthLimits() {

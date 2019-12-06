@@ -10,9 +10,9 @@ class MoneroUtils {
   /**
    * Get a utility class which uses WebAssembly to access C++ utilities in the monero-cpp-library submodule.
    */
-  static async getCppUtils() {
-    if (MoneroUtils.MoneroCppUtils === undefined) MoneroUtils.MoneroCppUtils = await require('./MoneroCppUtils')();
-    return MoneroUtils.MoneroCppUtils;
+  static async getUtilsWasm() {
+    if (MoneroUtils.MoneroUtilsWasm === undefined) MoneroUtils.MoneroUtilsWasm = await require('./MoneroUtilsWasm')();
+    return MoneroUtils.MoneroUtilsWasm;
   }
   
   // TODO: beef this up
