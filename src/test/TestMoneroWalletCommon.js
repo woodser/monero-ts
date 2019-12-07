@@ -98,7 +98,8 @@ class TestMoneroWalletCommon {
             MoneroUtils.validateAddress(await that.wallet.getPrimaryAddress());
             MoneroUtils.validatePrivateViewKey(await that.wallet.getPrivateViewKey());
             MoneroUtils.validatePrivateSpendKey(await that.wallet.getPrivateSpendKey());
-            if (!(that.wallet instanceof MoneroWalletRpc)) MoneroUtils.validateMnemonic(await that.wallet.getMnemonic()); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
+            MoneroUtils.validateMnemonic(await that.wallet.getMnemonic());
+            if (!(that.wallet instanceof MoneroWalletRpc)) assert.equal(await that.wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);   // TODO monero-wallet-rpc: get mnemonic language
           } catch (e) {
             e2 = e;
           }
@@ -113,7 +114,7 @@ class TestMoneroWalletCommon {
         if (e1 !== undefined) throw e1;
       });
       
-      it("Can create a wallet from a mnemonic", async function() {
+      it("Can create a wallet from a mnemonic phrase", async function() {
         let e1 = undefined;
         try {
           
@@ -129,7 +130,10 @@ class TestMoneroWalletCommon {
             assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
             assert.equal(await that.wallet.getPrivateViewKey(), privateViewKey);
             assert.equal(await that.wallet.getPrivateSpendKey(), privateSpendKey);
-            if (!(that.wallet instanceof MoneroWalletRpc)) assert.equal(await that.wallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
+            if (!(that.wallet instanceof MoneroWalletRpc)) {
+              assert.equal(await that.wallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
+              assert.equal(await that.wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);
+            }
           } catch (e) {
             e2 = e;
           }
@@ -160,7 +164,10 @@ class TestMoneroWalletCommon {
             assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
             assert.equal(await that.wallet.getPrivateViewKey(), privateViewKey);
             assert.equal(await that.wallet.getPrivateSpendKey(), privateSpendKey);
-            if (!(that.wallet instanceof MoneroWalletRpc)) assert.equal(await that.wallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
+            if (!(that.wallet instanceof MoneroWalletRpc)) {
+              assert.equal(await that.wallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
+              assert.equal(await that.wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);
+            }
           } catch (e) {
             e2 = e;
           }
@@ -189,6 +196,22 @@ class TestMoneroWalletCommon {
             assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
             assert.equal(await that.wallet.getPrivateViewKey(), privateViewKey);
             assert.equal(await that.wallet.getPrivateSpendKey(), undefined);
+            
+            // cannot get mnemonic of watch-only wallet
+            try {
+              await that.wallet.getMnemonic();
+              throw Error("should have thrown error");
+            } catch (e) {
+              //assert.equal(e.message, "The wallet is watch-only. Cannot retrieve mmnemonic.");    // TODO: test error message?
+              if ("Should have thrown error" === e.message) throw e;
+            }
+            try {
+              await wallet.getMnemonicLanguage();
+              throw Error("should have thrown error");
+            } catch (e) {
+              //assert.equal(e.getMessage(), "The wallet is watch-only. Cannot retrieve mnemonic language.");
+              if ("Should have thrown error" === e.message) throw e;
+            }
           } catch (e) {
             e2 = e;
           }
@@ -3980,12 +4003,12 @@ function testParsedTxSet(parsedTxSet) {
     TestUtils.testUnsignedBigInteger(parsedTx.getOutputSum(), true);
     TestUtils.testUnsignedBigInteger(parsedTx.getFee());
     TestUtils.testUnsignedBigInteger(parsedTx.getChangeAmount());
-    if (parsedTx.getChangeAmount().compare(new BigInteger(0)) === 0) assert.equal(parsedTx.getChangeAddress(), undefined);  // TODO: returning as ""
+    if (parsedTx.getChangeAmount().compare(new BigInteger(0)) === 0) assert.equal(parsedTx.getChangeAddress(), undefined);
     else MoneroUtils.validateAddress(parsedTx.getChangeAddress(), TestUtils.NETWORK_TYPE);
     assert(parsedTx.getRingSize() > 1);
     assert(parsedTx.getUnlockTime() >= 0);
     assert(parsedTx.getNumDummyOutputs() >= 0);
-    assert(parsedTx.getExtraHex()); // TODO: failing multisig
+    assert(parsedTx.getExtraHex());
     assert(parsedTx.getPaymentId() === undefined || parsedTx.getPaymentId().length > 0);
     assert(parsedTx.isOutgoing());
     assert.notEqual(parsedTx.getOutgoingTransfer(), undefined);

@@ -78,7 +78,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
       
       // ---------------------------- BEGIN TESTS ---------------------------------
       
-      it("Can create a wallet with a randomly generated seed", async function() {
+      it("Can create a wallet with a randomly generated mnemonic", async function() {
         let err;
         try {
           
@@ -149,7 +149,6 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           await that.wallet.close();
           
         } catch (e) {
-          console.log("Caught error so will call open!");
           err = e;
         }
         
