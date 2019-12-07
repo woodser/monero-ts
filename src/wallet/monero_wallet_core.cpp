@@ -994,7 +994,15 @@ namespace monero {
     return static_cast<monero_network_type>(m_w2->nettype());
   }
 
+  string monero_wallet_core::get_mnemonic() const {
+    if (m_w2->watch_only()) throw runtime_error("The wallet is watch-only. Cannot retrieve mnemonic.");
+    epee::wipeable_string wipeable_mnemonic;
+    m_w2->get_seed(wipeable_mnemonic);
+    return string(wipeable_mnemonic.data(), wipeable_mnemonic.size());
+  }
+
   string monero_wallet_core::get_mnemonic_language() const {
+    if (m_w2->watch_only()) throw runtime_error("The wallet is watch-only. Cannot retrieve mnemonic language.");
     return m_w2->get_seed_language();
   }
 
@@ -1002,12 +1010,6 @@ namespace monero {
     vector<string> languages;
     crypto::ElectrumWords::get_language_list(languages, true);
     return languages;
-  }
-
-  string monero_wallet_core::get_mnemonic() const {
-    epee::wipeable_string wipeable_mnemonic;
-    m_w2->get_seed(wipeable_mnemonic);
-    return string(wipeable_mnemonic.data(), wipeable_mnemonic.size());
   }
 
   string monero_wallet_core::get_public_view_key() const {
