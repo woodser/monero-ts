@@ -22,8 +22,8 @@ class MoneroWalletWasmBase extends MoneroWallet {
     return this.module.get_mnemonic(this.cppAddress);
   }
   
-  async getLanguage() {
-    return this.module.get_language(this.cppAddress);
+  async getMnemonicLanguage() {
+    return this.module.get_mnemonic_language(this.cppAddress);
   }
   
   async getLanguages() {

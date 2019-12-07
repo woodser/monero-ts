@@ -242,7 +242,7 @@ class TestMoneroWalletCommon {
       });
       
       it("Can get the language of the mnemonic phrase", async function() {
-        let language = await that.wallet.getLanguage();
+        let language = await that.wallet.getMnemonicLanguage();
         assert.equal(language, "English");
       });
       
