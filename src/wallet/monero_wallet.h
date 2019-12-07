@@ -235,8 +235,8 @@ namespace monero {
      *
      * @return the language of the wallet's mnemonic phrase
      */
-    virtual string get_language() const {
-      throw runtime_error("get_language() not supported");
+    virtual string get_mnemonic_language() const {
+      throw runtime_error("get_mnemonic_language() not supported");
     }
 
     /**

@@ -108,7 +108,7 @@ namespace monero {
     monero_version get_version() const;
     monero_network_type get_network_type() const { return m_network_type; }
     string get_mnemonic() const { return m_mnemonic; }
-    string get_language() const { return m_language; }
+    string get_mnemonic_language() const { return m_language; }
     vector<string> get_languages() const;
     string get_private_view_key() const { return m_prv_view_key; }
     string get_private_spend_key() const { return m_prv_spend_key; }

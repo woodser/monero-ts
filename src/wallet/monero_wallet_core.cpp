@@ -994,7 +994,7 @@ namespace monero {
     return static_cast<monero_network_type>(m_w2->nettype());
   }
 
-  string monero_wallet_core::get_language() const {
+  string monero_wallet_core::get_mnemonic_language() const {
     return m_w2->get_seed_language();
   }
 
