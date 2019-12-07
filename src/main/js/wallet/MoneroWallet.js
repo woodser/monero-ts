@@ -60,7 +60,7 @@ class MoneroWallet {
    * 
    * @return {string} the language of the wallet's mnemonic phrase
    */
-  async getLanguage() {
+  async getMnemonicLanguage() {
     throw new MoneroError("Subclass must implement");
   }
   

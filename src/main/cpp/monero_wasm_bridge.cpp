@@ -139,9 +139,9 @@ string monero_wasm_bridge::get_mnemonic(int handle) {
   return wallet->get_mnemonic();
 }
 
-string monero_wasm_bridge::get_language(int handle) {
+string monero_wasm_bridge::get_mnemonic_language(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->get_language();
+  return wallet->get_mnemonic_language();
 }
 
 string monero_wasm_bridge::get_languages(int handle) {
