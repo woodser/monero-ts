@@ -173,7 +173,7 @@ class MoneroWalletWasmBase extends MoneroWallet {
     
     // copy and normalize tx query up to block
     if (query instanceof MoneroTxQuery) query = query.copy();
-    else if (Array.isArray(query)) query = new MoneroTxQuery().setTxIds(query);
+    else if (Array.isArray(query)) query = new MoneroTxQuery().setTxHashes(query);
     else {
       query = Object.assign({}, query);
       query = new MoneroTxQuery(query);
@@ -209,11 +209,11 @@ class MoneroWalletWasmBase extends MoneroWallet {
         }
       
         // re-sort txs which is lost over wasm serialization
-        if (query.getTxIds() !== undefined) {
+        if (query.getTxHashes() !== undefined) {
           let txMap = new Map();
-          for (let tx of txs) txMap[tx.getId()] = tx;
+          for (let tx of txs) txMap[tx.getHash()] = tx;
           let txsSorted = [];
-          for (let txId of query.getTxIds()) txsSorted.push(txMap[txId]);
+          for (let txHash of query.getTxHashes()) txsSorted.push(txMap[txHash]);
           txs = txsSorted;
         }
         
@@ -329,27 +329,27 @@ class MoneroWalletWasmBase extends MoneroWallet {
     throw new MoneroError("Not implemented");
   }
   
-  async getTxKey(txId) {
+  async getTxKey(txHash) {
     throw new MoneroError("Not implemented");
   }
   
-  async checkTxKey(txId, txKey, address) {
+  async checkTxKey(txHash, txKey, address) {
     throw new MoneroError("Not implemented");
   }
   
-  async getTxProof(txId, address, message) {
+  async getTxProof(txHash, address, message) {
     throw new MoneroError("Not implemented");
   }
   
-  async checkTxProof(txId, address, message, signature) {
+  async checkTxProof(txHash, address, message, signature) {
     throw new MoneroError("Not implemented");
   }
   
-  async getSpendProof(txId, message) {
+  async getSpendProof(txHash, message) {
     throw new MoneroError("Not implemented");
   }
   
-  async checkSpendProof(txId, message, signature) {
+  async checkSpendProof(txHash, message, signature) {
     throw new MoneroError("Not implemented");
   }
   
@@ -365,11 +365,11 @@ class MoneroWalletWasmBase extends MoneroWallet {
     throw new MoneroError("Not implemented");
   }
   
-  async getTxNotes(txIds) {
+  async getTxNotes(txHashes) {
     throw new MoneroError("Not implemented");
   }
   
-  async setTxNotes(txIds, notes) {
+  async setTxNotes(txHashes, notes) {
     throw new MoneroError("Not implemented");
   }
   

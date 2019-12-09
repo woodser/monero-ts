@@ -7,12 +7,12 @@ class MoneroAltChain {
     this.state = {};
   }
   
-  getBlockIds(blockIds) {
-    return this.state.blockIds;
+  getBlockHashes(blockHashes) {
+    return this.state.blockHashes;
   }
   
-  setBlockIds(blockIds) {
-    this.state.blockIds = blockIds;
+  setBlockHashes(blockHashes) {
+    this.state.blockHashes = blockHashes;
     return this;
   }
   
@@ -43,12 +43,12 @@ class MoneroAltChain {
     return this;
   }
   
-  getMainChainParentBlockId() {
-    return this.state.mainChainParentBlockId;
+  getMainChainParentBlockHash() {
+    return this.state.mainChainParentBlockHash;
   }
   
-  setMainChainParentBlockId(mainChainParentBlockId) {
-    this.state.mainChainParentBlockId = mainChainParentBlockId;
+  setMainChainParentBlockHash(mainChainParentBlockHash) {
+    this.state.mainChainParentBlockHash = mainChainParentBlockHash;
     return this;
   }
 }

@@ -58,11 +58,11 @@ class TestMoneroDaemonRpc {
       });
 
       if (config.testNonRelays)
-      it("Can get a block id by height", async function() {
+      it("Can get a block hash by height", async function() {
         let lastHeader = await daemon.getLastBlockHeader();
-        let id = await daemon.getBlockId(lastHeader.getHeight());
-        assert(id);
-        assert.equal(id.length, 64);
+        let hash = await daemon.getBlockHash(lastHeader.getHeight());
+        assert(hash);
+        assert.equal(hash.length, 64);
       });
       
       if (config.testNonRelays)
@@ -78,18 +78,18 @@ class TestMoneroDaemonRpc {
       });
       
       if (config.testNonRelays)
-      it("Can get a block header by id", async function() {
+      it("Can get a block header by hash", async function() {
         
-        // retrieve by id of last block
+        // retrieve by hash of last block
         let lastHeader = await daemon.getLastBlockHeader();
-        let id = await daemon.getBlockId(lastHeader.getHeight());
-        let header = await daemon.getBlockHeaderById(id);
+        let hash = await daemon.getBlockHash(lastHeader.getHeight());
+        let header = await daemon.getBlockHeaderByHash(hash);
         testBlockHeader(header, true);
         assert.deepEqual(header, lastHeader);
         
-        // retrieve by id of previous to last block
-        id = await daemon.getBlockId(lastHeader.getHeight() - 1);
-        header = await daemon.getBlockHeaderById(id);
+        // retrieve by hash of previous to last block
+        hash = await daemon.getBlockHash(lastHeader.getHeight() - 1);
+        header = await daemon.getBlockHeaderByHash(hash);
         testBlockHeader(header, true);
         assert.equal(header.getHeight(), lastHeader.getHeight() - 1);
       });
@@ -133,29 +133,29 @@ class TestMoneroDaemonRpc {
       });
       
       if (config.testNonRelays)
-      it("Can get a block by id", async function() {
+      it("Can get a block by hash", async function() {
         
         // context for testing blocks
         let testBlockCtx = { hasHex: true, headerIsFull: true, hasTxs: false };
         
-        // retrieve by id of last block
+        // retrieve by hash of last block
         let lastHeader = await daemon.getLastBlockHeader();
-        let id = await daemon.getBlockId(lastHeader.getHeight());
-        let block = await daemon.getBlockById(id);
+        let hash = await daemon.getBlockHash(lastHeader.getHeight());
+        let block = await daemon.getBlockByHash(hash);
         testBlock(block, testBlockCtx);
         assert.deepEqual(block, await daemon.getBlockByHeight(block.getHeight()));
         assert(block.getTxs() === undefined);
         
-        // retrieve by id of previous to last block
-        id = await daemon.getBlockId(lastHeader.getHeight() - 1);
-        block = await daemon.getBlockById(id);
+        // retrieve by hash of previous to last block
+        hash = await daemon.getBlockHash(lastHeader.getHeight() - 1);
+        block = await daemon.getBlockByHash(hash);
         testBlock(block, testBlockCtx);
         assert.deepEqual(block, await daemon.getBlockByHeight(lastHeader.getHeight() - 1));
         assert(block.getTxs() === undefined);
       });
       
       if (config.testNonRelays)
-      it("Can get blocks by id which includes transactions (binary)", async function() {
+      it("Can get blocks by hash which includes transactions (binary)", async function() {
         throw new Error("Not implemented");
       })
       
@@ -267,113 +267,113 @@ class TestMoneroDaemonRpc {
       }
       
       if (config.testNonRelays)
-      it("Can get block ids (binary)", async function() {
+      it("Can get block hashes (binary)", async function() {
         //get_hashes.bin
         throw new Error("Not implemented");
       });
       
       if (config.testNonRelays)
-      it("Can get a transaction by id with and without pruning", async function() {
+      it("Can get a transaction by hash with and without pruning", async function() {
         
-        // fetch transaction ids to test
-        let txIds = await getConfirmedTxIds(daemon);
+        // fetch transaction hashes to test
+        let txHashes = await getConfirmedTxIds(daemon);
         
-        // fetch each tx by id without pruning
-        for (let txId of txIds) {
-          let tx = await daemon.getTx(txId);
+        // fetch each tx by hash without pruning
+        for (let txHash of txHashes) {
+          let tx = await daemon.getTx(txHash);
           testTx(tx, {isPruned: false, isConfirmed: true, fromGetTxPool: false});
         }
         
-        // fetch each tx by id with pruning
-        for (let txId of txIds) {
-          let tx = await daemon.getTx(txId, true);
+        // fetch each tx by hash with pruning
+        for (let txHash of txHashes) {
+          let tx = await daemon.getTx(txHash, true);
           testTx(tx, {isPruned: true, isConfirmed: true, fromGetTxPool: false});
         }
         
-        // fetch invalid id
+        // fetch invalid hash
         try {
-          await daemon.getTx("invalid tx id");
+          await daemon.getTx("invalid tx hash");
           throw new Error("fail");
         } catch (e) {
-          assert.equal("Invalid transaction id", e.message);
+          assert.equal("Invalid transaction hash", e.message);
         }
       });
       
       if (config.testNonRelays)
-      it ("Can get transactions by ids with and without pruning", async function() {
+      it ("Can get transactions by hashes with and without pruning", async function() {
         
-        // fetch transaction ids to test
-        let txIds = await getConfirmedTxIds(daemon);
+        // fetch transaction hashes to test
+        let txHashes = await getConfirmedTxIds(daemon);
         
-        // fetch txs by id without pruning
-        let txs = await daemon.getTxs(txIds);
-        assert.equal(txs.length, txIds.length);
+        // fetch txs by hash without pruning
+        let txs = await daemon.getTxs(txHashes);
+        assert.equal(txs.length, txHashes.length);
         for (let tx of txs) {
           testTx(tx, {isPruned: false, isConfirmed: true, fromGetTxPool: false});
         }
         
-        // fetch txs by id with pruning
-        txs = await daemon.getTxs(txIds, true);
-        assert.equal(txs.length, txIds.length);
+        // fetch txs by hash with pruning
+        txs = await daemon.getTxs(txHashes, true);
+        assert.equal(txs.length, txHashes.length);
         for (let tx of txs) {
           testTx(tx, {isPruned: true, isConfirmed: true, fromGetTxPool: false});
         }
         
-        // fetch invalid id
-        txIds.push("invalid tx id");
+        // fetch invalid hash
+        txHashes.push("invalid tx hash");
         try {
-          await daemon.getTxs(txIds);
+          await daemon.getTxs(txHashes);
           throw new Error("fail");
         } catch (e) {
-          assert.equal("Invalid transaction id", e.message);
+          assert.equal("Invalid transaction hash", e.message);
         }
       });
       
       if (config.testNonRelays)
-      it("Can get transactions by ids that are in the transaction pool", async function() {
+      it("Can get transactions by hashes that are in the transaction pool", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet); // wait for wallet's txs in the pool to clear to ensure reliable sync
         
         // submit txs to the pool but don't relay
-        let txIds = [];
+        let txHashes = [];
         for (let i = 1; i < 3; i++) {
           let tx = await getUnrelayedTx(that.wallet, i);
           let result = await daemon.submitTxHex(tx.getFullHex(), true);
           testSubmitTxResultGood(result);
           assert.equal(result.isRelayed(), false);
-          txIds.push(tx.getId());
+          txHashes.push(tx.getHash());
         }
         
-        // fetch txs by id
-        let txs = await daemon.getTxs(txIds);
+        // fetch txs by hash
+        let txs = await daemon.getTxs(txHashes);
         
         // test fetched txs
-        assert.equal(txs.length, txIds.length);
+        assert.equal(txs.length, txHashes.length);
         for (let tx of txs) {
           testTx(tx, {isConfirmed: false, fromGetTxPool: false, isPruned: false});
         }
         
         // clear txs from pool
-        await daemon.flushTxPool(txIds);
+        await daemon.flushTxPool(txHashes);
         await that.wallet.sync();
       });
       
       if (config.testNonRelays)
-      it("Can get a transaction hex by id with and without pruning", async function() {
+      it("Can get a transaction hex by hash with and without pruning", async function() {
         
-        // fetch transaction ids to test
-        let txIds = await getConfirmedTxIds(daemon);
+        // fetch transaction hashes to test
+        let txHashes = await getConfirmedTxIds(daemon);
         
-        // fetch each tx hex by id with and without pruning
+        // fetch each tx hex by hash with and without pruning
         let hexes = []
         let hexesPruned = [];
-        for (let txId of txIds) {
-          hexes.push(await daemon.getTxHex(txId));
-          hexesPruned.push(await daemon.getTxHex(txId, true));
+        for (let txHash of txHashes) {
+          hexes.push(await daemon.getTxHex(txHash));
+          hexesPruned.push(await daemon.getTxHex(txHash, true));
         }
         
         // test results
-        assert.equal(hexes.length, txIds.length);
-        assert.equal(hexesPruned.length, txIds.length);
+        assert.equal(hexes.length, txHashes.length);
+        assert.equal(hexesPruned.length, txHashes.length);
         for (let i = 0; i < hexes.length; i++) {
           assert.equal(typeof hexes[i], "string");
           assert.equal(typeof hexesPruned[i], "string");
@@ -381,28 +381,28 @@ class TestMoneroDaemonRpc {
           assert(hexes[i].length > hexesPruned[i].length); // pruned hex is shorter
         }
         
-        // fetch invalid id
+        // fetch invalid hash
         try {
-          await daemon.getTxHex("invalid tx id");
+          await daemon.getTxHex("invalid tx hash");
           throw new Error("fail");
         } catch (e) {
-          assert.equal("Invalid transaction id", e.message);
+          assert.equal("Invalid transaction hash", e.message);
         }
       });
       
       if (config.testNonRelays)
-      it("Can get transaction hexes by ids with and without pruning", async function() {
+      it("Can get transaction hexes by hashes with and without pruning", async function() {
         
-        // fetch transaction ids to test
-        let txIds = await getConfirmedTxIds(daemon);
+        // fetch transaction hashes to test
+        let txHashes = await getConfirmedTxIds(daemon);
         
-        // fetch tx hexes by id with and without pruning
-        let hexes = await daemon.getTxHexes(txIds);
-        let hexesPruned = await daemon.getTxHexes(txIds, true);
+        // fetch tx hexes by hash with and without pruning
+        let hexes = await daemon.getTxHexes(txHashes);
+        let hexesPruned = await daemon.getTxHexes(txHashes, true);
         
         // test results
-        assert.equal(hexes.length, txIds.length);
-        assert.equal(hexesPruned.length, txIds.length);
+        assert.equal(hexes.length, txHashes.length);
+        assert.equal(hexesPruned.length, txHashes.length);
         for (let i = 0; i < hexes.length; i++) {
           assert.equal(typeof hexes[i], "string");
           assert.equal(typeof hexesPruned[i], "string");
@@ -410,13 +410,13 @@ class TestMoneroDaemonRpc {
           assert(hexes[i].length > hexesPruned[i].length); // pruned hex is shorter
         }
         
-        // fetch invalid id
-        txIds.push("invalid tx id");
+        // fetch invalid hash
+        txHashes.push("invalid tx hash");
         try {
-          await daemon.getTxHexes(txIds);
+          await daemon.getTxHexes(txHashes);
           throw new Error("fail");
         } catch (e) {
-          assert.equal("Invalid transaction id", e.message);
+          assert.equal("Invalid transaction hash", e.message);
         }
       });
       
@@ -453,12 +453,12 @@ class TestMoneroDaemonRpc {
         }
         
         // flush the tx from the pool, gg
-        await daemon.flushTxPool(tx.getId());
+        await daemon.flushTxPool(tx.getHash());
         await that.wallet.sync();
       });
       
       if (config.testNonRelays)
-      it("Can get ids of transactions in the transaction pool (binary)", async function() {
+      it("Can get hashes of transactions in the transaction pool (binary)", async function() {
         // TODO: get_transaction_pool_hashes.bin
         throw new Error("Not implemented");
       });
@@ -487,7 +487,7 @@ class TestMoneroDaemonRpc {
             assert(stats.getNumTxs() > i);
             testTxPoolStats(stats);
           } finally {
-            await daemon.flushTxPool(tx.getId());
+            await daemon.flushTxPool(tx.getHash());
             await that.wallet.sync();
           }
         }
@@ -526,7 +526,7 @@ class TestMoneroDaemonRpc {
       });
       
       if (config.testNonRelays)
-      it("Can flush a transaction from the pool by id", async function() {
+      it("Can flush a transaction from the pool by hash", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         
         // preserve original transactions in the pool
@@ -541,11 +541,11 @@ class TestMoneroDaemonRpc {
           txs.push(tx);
         }
 
-        // remove each tx from the pool by id and test
+        // remove each tx from the pool by hash and test
         for (let i = 0; i < txs.length; i++) {
           
           // flush tx from pool
-          await daemon.flushTxPool(txs[i].getId());
+          await daemon.flushTxPool(txs[i].getHash());
           
           // test tx pool
           let poolTxs = await daemon.getTxPool();
@@ -560,24 +560,24 @@ class TestMoneroDaemonRpc {
       });
       
       if (config.testNonRelays)
-      it("Can flush transactions from the pool by ids", async function() {
+      it("Can flush transactions from the pool by hashes", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         
         // preserve original transactions in the pool
         let txPoolBefore = await daemon.getTxPool();
         
         // submit txs to the pool but don't relay
-        let txIds = [];
+        let txHashes = [];
         for (let i = 1; i < 3; i++) {
           let tx = await getUnrelayedTx(that.wallet, i);
           let result = await daemon.submitTxHex(tx.getFullHex(), true);
           testSubmitTxResultGood(result);
-          txIds.push(tx.getId());
+          txHashes.push(tx.getHash());
         }
-        assert.equal((await daemon.getTxPool()).length, txPoolBefore.length + txIds.length);
+        assert.equal((await daemon.getTxPool()).length, txPoolBefore.length + txHashes.length);
         
-        // remove all txs by ids
-        await daemon.flushTxPool(txIds);
+        // remove all txs by hashes
+        await daemon.flushTxPool(txHashes);
         
         // pool is back to original state
         assert.equal((await daemon.getTxPool()).length, txPoolBefore.length);
@@ -596,11 +596,11 @@ class TestMoneroDaemonRpc {
           txs.push(tx);
         }
         let keyImages = [];
-        let txIds = txs.map(tx => tx.getId());
-        for (let tx of await daemon.getTxs(txIds)) {
+        let txHashes = txs.map(tx => tx.getHash());
+        for (let tx of await daemon.getTxs(txHashes)) {
           for (let vin of tx.getVins()) keyImages.push(vin.getKeyImage().getHex());
         }
-        await daemon.flushTxPool(txIds);
+        await daemon.flushTxPool(txHashes);
         
         // key images are not spent
         await testSpentStatuses(keyImages, MoneroKeyImageSpentStatus.NOT_SPENT);
@@ -622,7 +622,7 @@ class TestMoneroDaemonRpc {
         await testSpentStatuses(keyImages, MoneroKeyImageSpentStatus.CONFIRMED);
         
         // flush this test's txs from pool
-        await daemon.flushTxPool(txIds);
+        await daemon.flushTxPool(txHashes);
         
         // helper function to check the spent status of a key image or array of key images
         async function testSpentStatuses(keyImages, expectedStatus) {
@@ -641,7 +641,7 @@ class TestMoneroDaemonRpc {
       });
       
       if (config.testNonRelays)
-      it("Can get output indices given a list of transaction ids (binary)", async function() {
+      it("Can get output indices given a list of transaction hashes (binary)", async function() {
         throw new Error("Not implemented"); // get_o_indexes.bin
       });
       
@@ -705,7 +705,7 @@ class TestMoneroDaemonRpc {
       });
       
       if (config.testNonRelays)
-      it("Can get alternative block ids", async function() {
+      it("Can get alternative block hashes", async function() {
         let altBlockIds = await daemon.getAltBlockIds();
         assert(Array.isArray(altBlockIds) && altBlockIds.length >= 0);
         for (let altBlockId of altBlockIds) {
@@ -1020,7 +1020,7 @@ class TestMoneroDaemonRpc {
         let txs = await daemon.getTxPool();
         let found = false;
         for (let aTx of txs) {
-          if (aTx.getId() === tx1.getId()) {
+          if (aTx.getHash() === tx1.getHash()) {
             assert.equal(aTx.isRelayed(), true);
             found = true;
             break;
@@ -1030,7 +1030,7 @@ class TestMoneroDaemonRpc {
         
         // tx1 is recognized by the wallet
         await that.wallet.sync();
-        await that.wallet.getTx(tx1.getId());
+        await that.wallet.getTx(tx1.getHash());
         
         // submit and relay tx2 hex which double spends tx1
         result = await daemon.submitTxHex(tx2.getFullHex());
@@ -1041,7 +1041,7 @@ class TestMoneroDaemonRpc {
         txs = await daemon.getTxPool();
         found = false;
         for (let aTx of txs) {
-          if (aTx.getId() === tx2.getId()) {
+          if (aTx.getHash() === tx2.getHash()) {
             found = true;
             break;
           }
@@ -1071,9 +1071,9 @@ class TestMoneroDaemonRpc {
       async function testSubmitThenRelay(txs) {
         
         // submit txs hex but don't relay
-        let txIds = [];
+        let txHashes = [];
         for (let tx of txs) {
-          txIds.push(tx.getId());
+          txHashes.push(tx.getHash());
           let result = await daemon.submitTxHex(tx.getFullHex(), true);
           testSubmitTxResultGood(result);
           assert.equal(result.isRelayed(), false);
@@ -1082,7 +1082,7 @@ class TestMoneroDaemonRpc {
           let poolTxs = await daemon.getTxPool();
           let found = false;
           for (let aTx of poolTxs) {
-            if (aTx.getId() === tx.getId()) {
+            if (aTx.getHash() === tx.getHash()) {
               assert.equal(aTx.isRelayed(), false);
               found = true;
               break;
@@ -1090,20 +1090,20 @@ class TestMoneroDaemonRpc {
           }
           assert(found, "Tx was not found after being submitted to the daemon's tx pool");
           
-          // fetch tx by id and ensure not relayed
-          let fetchedTx = await daemon.getTx(tx.getId());
+          // fetch tx by hash and ensure not relayed
+          let fetchedTx = await daemon.getTx(tx.getHash());
           assert.equal(fetchedTx.isRelayed(), false);
         }
         
         // relay the txs
-        txIds.length === 1 ? await daemon.relayTxById(txIds[0]) : await daemon.relayTxsById(txIds);
+        txHashes.length === 1 ? await daemon.relayTxByHash(txHashes[0]) : await daemon.relayTxsByHash(txHashes);
         
         // ensure txs are relayed
         for (let tx of txs) {
           let poolTxs = await daemon.getTxPool();
           let found = false;
           for (let aTx of poolTxs) {
-            if (aTx.getId() === tx.getId()) {
+            if (aTx.getHash() === tx.getHash()) {
               assert.equal(aTx.isRelayed(), true);
               found = true;
               break;
@@ -1161,7 +1161,7 @@ function testBlockHeader(header, isFull) {
   assert(header.getMajorVersion() >= 0);
   assert(header.getMinorVersion() >= 0);
   assert(header.getTimestamp() >= 0);
-  assert(header.getPrevId());
+  assert(header.getPrevHash());
   assert(header.getNonce());
   assert.equal(typeof header.getNonce(), "number");
   assert(header.getPowHash() === undefined);  // never seen defined
@@ -1169,8 +1169,8 @@ function testBlockHeader(header, isFull) {
   assert(!isFull ? undefined === header.getDepth() : header.getDepth() >= 0);
   assert(!isFull ? undefined === header.getDifficulty() : header.getDifficulty().toJSValue() > 0);
   assert(!isFull ? undefined === header.getCumulativeDifficulty() : header.getCumulativeDifficulty().toJSValue() > 0);
-  assert(!isFull ? undefined === header.getId() : header.getId().length === 64);
-  assert(!isFull ? undefined === header.getMinerTxId() : header.getMinerTxId().length === 64);
+  assert(!isFull ? undefined === header.getHash() : header.getHash().length === 64);
+  assert(!isFull ? undefined === header.getMinerTxHash() : header.getMinerTxHash().length === 64);
   assert(!isFull ? undefined === header.getNumTxs() : header.getNumTxs() >= 0);
   assert(!isFull ? undefined === header.getOrphanStatus() : typeof header.getOrphanStatus() === "boolean");
   assert(!isFull ? undefined === header.getReward() : header.getReward());
@@ -1188,8 +1188,8 @@ function testBlock(block, ctx) {
   
   // test required fields
   assert(block);
-  assert(Array.isArray(block.getTxIds())); // TODO: tx hashes probably part of tx
-  assert(block.getTxIds().length >= 0);
+  assert(Array.isArray(block.getTxHashes())); // TODO: tx hashes probably part of tx
+  assert(block.getTxHashes().length >= 0);
   testMinerTx(block.getMinerTx());   // TODO: miner tx doesn't have as much stuff, can't call testTx?
   testBlockHeader(block, ctx.headerIsFull);
   
@@ -1224,7 +1224,7 @@ function testMinerTx(minerTx) {
   assert(minerTx.getExtra().length > 0);
   assert(minerTx.getUnlockTime() >= 0);
 
-  // TODO: miner tx does not have ids in binary requests so this will fail, need to derive using prunable data
+  // TODO: miner tx does not have hashes in binary requests so this will fail, need to derive using prunable data
 //  testTx(minerTx, {
 //    hasJson: false,
 //    isPruned: true,
@@ -1246,7 +1246,7 @@ function testTx(tx, ctx) {
   assert.equal(typeof ctx.fromGetTxPool, "boolean");
   
   // standard across all txs
-  assert(tx.getId().length === 64);
+  assert(tx.getHash().length === 64);
   if (tx.isRelayed() === undefined) assert(tx.inTxPool());  // TODO monero-daemon-rpc: add relayed to get_transactions
   else assert.equal(typeof tx.isRelayed(), "boolean");
   assert.equal(typeof tx.isConfirmed(), "boolean");
@@ -1292,15 +1292,15 @@ function testTx(tx, ctx) {
     assert.equal(tx.isConfirmed(), false);
     assert.equal(tx.isDoubleSpendSeen(), false);
     assert.equal(tx.getLastFailedHeight(), undefined);
-    assert.equal(tx.getLastFailedId(), undefined);
+    assert.equal(tx.getLastFailedHash(), undefined);
     assert(tx.getReceivedTimestamp() > 0);
     assert(tx.getSize() > 0);
     assert(tx.getWeight() > 0);
     assert.equal(typeof tx.isKeptByBlock(), "boolean");
     assert.equal(tx.getLastFailedHeight(), undefined);
-    assert.equal(tx.getLastFailedId(), undefined);
+    assert.equal(tx.getLastFailedHash(), undefined);
     assert(tx.getMaxUsedBlockHeight() >= 0);
-    assert(tx.getMaxUsedBlockId());
+    assert(tx.getMaxUsedBlockHash());
   } else {
     assert.equal(tx.getLastRelayedTimestamp(), undefined);
   }
@@ -1329,7 +1329,7 @@ function testTx(tx, ctx) {
     }
   }
   assert.equal(tx.getLastFailedHeight(), undefined);
-  assert.equal(tx.getLastFailedId(), undefined);
+  assert.equal(tx.getLastFailedHash(), undefined);
   
   // received time only for tx pool or failed txs
   if (tx.getReceivedTimestamp() !== undefined) {
@@ -1404,7 +1404,7 @@ function testBlockTemplate(template) {
   assert(template.getDifficulty() instanceof BigInteger);
   assert(template.getExpectedReward());
   assert(template.getHeight());
-  assert(template.getPrevId());
+  assert(template.getPrevHash());
   assert(template.getReservedOffset());
   assert.equal(typeof template.getSeedHeight(), "number");
   assert(template.getSeedHeight() > 0);
@@ -1442,8 +1442,8 @@ function testInfo(info) {
   assert(info.getDatabaseSize() > 0);
   assert(typeof info.getUpdateAvailable() === "boolean");
   TestUtils.testUnsignedBigInteger(info.getCredits(), false);
-  assert.equal(typeof info.getTopBlockId(), "string");
-  assert(info.getTopBlockId());
+  assert.equal(typeof info.getTopBlockHash(), "string");
+  assert(info.getTopBlockHash());
 }
 
 function testSyncInfo(syncInfo) { // TODO: consistent naming, daemon in name?
@@ -1660,11 +1660,11 @@ async function getConfirmedTxs(daemon, numTxs) {
 
 function testAltChain(altChain) {
   assert(altChain instanceof MoneroAltChain);
-  assert(Array.isArray(altChain.getBlockIds()) && altChain.getBlockIds().length > 0);
+  assert(Array.isArray(altChain.getBlockHashes()) && altChain.getBlockHashes().length > 0);
   TestUtils.testUnsignedBigInteger(altChain.getDifficulty(), true);
   assert(altChain.getHeight() > 0);
   assert(altChain.getLength() > 0);
-  assert(altChain.getMainChainParentBlockId().length === 64);
+  assert(altChain.getMainChainParentBlockHash().length === 64);
 }
 
 function testDaemonConnection(connection) {
@@ -1749,10 +1749,10 @@ async function getConfirmedTxIds(daemon) {
   // get blocks
   let blocks = await daemon.getBlocksByRange(startHeight, endHeight);
   
-  // collect tx ids
-  let txIds = blocks.map(block => block.getTxIds()).reduce((a, b) => { a.push.apply(a, b); return a; });
-  assert(txIds.length > 0, "No transactions found in the range [" + startHeight + ", " + endHeight + "]");  // TODO: this fails if no txs in last 100 blocks
-  return txIds;
+  // collect tx hashes
+  let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; });
+  assert(txHashes.length > 0, "No transactions found in the range [" + startHeight + ", " + endHeight + "]");  // TODO: this fails if no txs in last 100 blocks
+  return txHashes;
 }
 
 function testTxCopy(tx, ctx) {

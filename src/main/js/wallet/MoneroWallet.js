@@ -410,13 +410,13 @@ class MoneroWallet {
   }
   
   /**
-   * Get a wallet transaction by id.
+   * Get a wallet transaction by hash.
    * 
-   * @param {string} txId is an id of a transaction to get
+   * @param {string} txHash is an hash of a transaction to get
    * @return {MoneroTxWallet} the identified transactions
    */
-  async getTx(txId) {
-    return (await this.getTxs([txId]))[0];
+  async getTx(txHash) {
+    return (await this.getTxs([txHash]))[0];
   }
   
   /**
@@ -429,7 +429,7 @@ class MoneroWallet {
    * not defined.
    * 
    * Transactions can be fetched by a MoneroTxQuery, equivalent js object, or
-   * array of tx ids.
+   * array of tx hashes.
    * 
    * @param {(MoneroTxQuery|string[]|object)} query configures the query (optional)
    * @param {boolean} query.isConfirmed gets txs that are confirmed or not (optional)
@@ -437,9 +437,9 @@ class MoneroWallet {
    * @param {boolean} query.isRelayed gets txs that are relayed or not (optional)
    * @param {boolean} query.isFailed gets txs that are failed or not (optional)
    * @param {boolean} query.isMinerTx gets miner txs or not (optional)
-   * @param {string} query.id gets a tx with the id (optional)
-   * @param {string} query.txId gets a tx with the id (alias of id) (optional)
-   * @param {string[]} query.txIds gets txs with the ids (optional)
+   * @param {string} query.hash gets a tx with the hash (optional)
+   * @param {string} query.txHash gets a tx with the hash (alias of hash) (optional)
+   * @param {string[]} query.txHashes gets txs with the hashes (optional)
    * @param {string} query.paymentId gets transactions with the payment id (optional)
    * @param {string[]} query.paymentIds gets transactions with the payment ids (optional)
    * @param {boolean} query.hasPaymentId gets transactions with a payment id or not (optional)
@@ -629,7 +629,7 @@ class MoneroWallet {
    * Relay a previously created transaction.
    * 
    * @param {(MoneroTxWallet|string)} txOrMetadata is a transaction or its metadata to relay
-   * @return {string} the id of the relayed tx
+   * @return {string} the hash of the relayed tx
    */
   async relayTx(txOrMetadata) {
     return (await this.relayTxs([txOrMetadata]))[0];
@@ -639,7 +639,7 @@ class MoneroWallet {
    * Relay previously created transactions.
    * 
    * @param {(MoneroTxWallet[]|string[])} txsOrMetadatas are transactions or their metadata to relay
-   * @return {string[]} the ids of the relayed txs
+   * @return {string[]} the hashes of the relayed txs
    */
   async relayTxs(txsOrMetadatas) {
     throw new MoneroError("Subclass must implement");
@@ -803,72 +803,72 @@ class MoneroWallet {
   }
   
   /**
-   * Get a transaction's secret key from its id.
+   * Get a transaction's secret key from its hash.
    * 
-   * @param {string} txId is the transaction's id
+   * @param {string} txHash is the transaction's hash
    * @return {string} is the transaction's secret key
    */
-  async getTxKey(txId) {
+  async getTxKey(txHash) {
     throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Check a transaction in the blockchain with its secret key.
    * 
-   * @param {string} txId specifies the transaction to check
+   * @param {string} txHash specifies the transaction to check
    * @param {string} txKey is the transaction's secret key
    * @param {string} address is the destination public address of the transaction
    * @return {MoneroCheckTx} the result of the check
    */
-  async checkTxKey(txId, txKey, address) {
+  async checkTxKey(txHash, txKey, address) {
     throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Get a transaction signature to prove it.
    * 
-   * @param {string} txId specifies the transaction to prove
+   * @param {string} txHash specifies the transaction to prove
    * @param {string} address is the destination public address of the transaction
    * @param {string} message is a message to include with the signature to further authenticate the proof (optional)
    * @return {string} the transaction signature
    */
-  async getTxProof(txId, address, message) {
+  async getTxProof(txHash, address, message) {
     throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Prove a transaction by checking its signature.
    * 
-   * @param {string} txId specifies the transaction to prove
+   * @param {string} txHash specifies the transaction to prove
    * @param {string} address is the destination public address of the transaction
    * @param {string} message is a message included with the signature to further authenticate the proof (optional)
    * @param {string} signature is the transaction signature to confirm
    * @return {MoneroCheckTx} the result of the check
    */
-  async checkTxProof(txId, address, message, signature) {
+  async checkTxProof(txHash, address, message, signature) {
     throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Generate a signature to prove a spend. Unlike proving a transaction, it does not require the destination public address.
    * 
-   * @param {string} txId specifies the transaction to prove
+   * @param {string} txHash specifies the transaction to prove
    * @param {string} message is a message to include with the signature to further authenticate the proof (optional)
    * @return {string} the transaction signature
    */
-  async getSpendProof(txId, message) {
+  async getSpendProof(txHash, message) {
     throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Prove a spend using a signature. Unlike proving a transaction, it does not require the destination public address.
    * 
-   * @param {string} txId specifies the transaction to prove
+   * @param {string} txHash specifies the transaction to prove
    * @param {string} message is a message included with the signature to further authenticate the proof (optional)
    * @param {string} signature is the transaction signature to confirm
    * @return {boolean} true if the signature is good, false otherwise
    */
-  async checkSpendProof(txId, message, signature) {
+  async checkSpendProof(txHash, message, signature) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -909,40 +909,40 @@ class MoneroWallet {
   /**
    * Get a transaction note.
    * 
-   * @param {string} txId specifies the transaction to get the note of
+   * @param {string} txHash specifies the transaction to get the note of
    * @return {string} the tx note
    */
-  async getTxNote(txId) {
-    return (await this.getTxNotes([txId]))[0];
+  async getTxNote(txHash) {
+    return (await this.getTxNotes([txHash]))[0];
   }
   
   /**
    * Get notes for multiple transactions.
    * 
-   * @param {string[]} txIds identify the transactions to get notes for
+   * @param {string[]} txHashes identify the transactions to get notes for
    * @return {string[]} notes for the transactions
    */
-  async getTxNotes(txIds) {
+  async getTxNotes(txHashes) {
     throw new MoneroError("Subclass must implement");
   }
   
   /**
    * Set a note for a specific transaction.
    * 
-   * @param {string} txId specifies the transaction
+   * @param {string} txHash specifies the transaction
    * @param {string} note specifies the note
    */
-  async setTxNote(txId, note) {
-    await this.setTxNotes([txId], [note]);
+  async setTxNote(txHash, note) {
+    await this.setTxNotes([txHash], [note]);
   }
   
   /**
    * Set notes for multiple transactions.
    * 
-   * @param {string[]} txIds specify the transactions to set notes for
+   * @param {string[]} txHashes specify the transactions to set notes for
    * @param {string[]} notes are the notes to set for the transactions
    */
-  async setTxNotes(txIds, notes) {
+  async setTxNotes(txHashes, notes) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -1202,7 +1202,7 @@ class MoneroWallet {
    * Submit signed multisig transactions as represented by a hex string.
    * 
    * @param {string} signedMultisigTxHex is the signed multisig hex returned from signMultisigTxs()
-   * @return {string[]} the resulting transaction ids
+   * @return {string[]} the resulting transaction hashes
    */
   async submitMultisigTxHex(signedMultisigTxHex) {
     throw new MoneroError("Subclass must implement");

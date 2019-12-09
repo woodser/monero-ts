@@ -439,7 +439,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // normalize tx query
     if (query instanceof MoneroTxQuery) query = query.copy();
-    else if (Array.isArray(query)) query = new MoneroTxQuery().setTxIds(query);
+    else if (Array.isArray(query)) query = new MoneroTxQuery().setTxHashes(query);
     else {
       query = Object.assign({}, query);
       query = new MoneroTxQuery(query);
@@ -500,17 +500,17 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     txs = txsQueried;
     
-    // verify all specified tx ids found
-    if (query.getTxIds()) {
-      for (let txId of query.getTxIds()) {
+    // verify all specified tx hashes found
+    if (query.getTxHashes()) {
+      for (let txHash of query.getTxHashes()) {
         let found = false;
         for (let tx of txs) {
-          if (txId === tx.getId()) {
+          if (txHash === tx.getHash()) {
             found = true;
             break;
           }
         }
-        if (!found) throw new MoneroError("Tx not found in wallet: " + txId);
+        if (!found) throw new MoneroError("Tx not found in wallet: " + txHash);
       }
     }
     
@@ -519,12 +519,12 @@ class MoneroWalletRpc extends MoneroWallet {
       if (tx.isConfirmed() && tx.getBlock() === undefined) return this.getTxs(query);
     }
     
-    // order txs if tx ids given then return
-    if (query.getTxIds() && query.getTxIds().length > 0) {
+    // order txs if tx hashes given then return
+    if (query.getTxHashes() && query.getTxHashes().length > 0) {
       let txsById = new Map()  // store txs in temporary map for sorting
-      for (let tx of txs) txsById.set(tx.getId(), tx);
+      for (let tx of txs) txsById.set(tx.getHash(), tx);
       let orderedTxs = [];
-      for (let txId of query.getTxIds()) if (txsById.get(txId)) orderedTxs.push(txsById.get(txId));
+      for (let txHash of query.getTxHashes()) if (txsById.get(txHash)) orderedTxs.push(txsById.get(txHash));
       txs = orderedTxs;
     }
     return txs;
@@ -827,13 +827,13 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async relayTxs(txsOrMetadatas) {
     assert(Array.isArray(txsOrMetadatas), "Must provide an array of txs or their metadata to relay");
-    let txIds = [];
+    let txHashes = [];
     for (let txOrMetadata of txsOrMetadatas) {
       let metadata = txOrMetadata instanceof MoneroTxWallet ? txOrMetadata.getMetadata() : txOrMetadata;
       let resp = await this.config.rpc.sendJsonRequest("relay_tx", { hex: metadata });
-      txIds.push(resp.result.tx_hash);
+      txHashes.push(resp.result.tx_hash);
     }
-    return txIds;
+    return txHashes;
   }
 
   async sendSplit(requestOrAccountIndex, address, amount, priority) {
@@ -1042,14 +1042,14 @@ class MoneroWalletRpc extends MoneroWallet {
     return resp.result.good;
   }
   
-  async getTxKey(txId) {
-    return (await this.config.rpc.sendJsonRequest("get_tx_key", {txid: txId})).result.tx_key;
+  async getTxKey(txHash) {
+    return (await this.config.rpc.sendJsonRequest("get_tx_key", {txid: txHash})).result.tx_key;
   }
   
-  async checkTxKey(txId, txKey, address) {
+  async checkTxKey(txHash, txKey, address) {
     
     // send request
-    let resp = await this.config.rpc.sendJsonRequest("check_tx_key", {txid: txId, tx_key: txKey, address: address});
+    let resp = await this.config.rpc.sendJsonRequest("check_tx_key", {txid: txHash, tx_key: txKey, address: address});
     
     // interpret result
     let check = new MoneroCheckTx();
@@ -1060,16 +1060,16 @@ class MoneroWalletRpc extends MoneroWallet {
     return check;
   }
   
-  async getTxProof(txId, address, message) {
-    let resp = await this.config.rpc.sendJsonRequest("get_tx_proof", {txid: txId, address: address, message: message});
+  async getTxProof(txHash, address, message) {
+    let resp = await this.config.rpc.sendJsonRequest("get_tx_proof", {txid: txHash, address: address, message: message});
     return resp.result.signature;
   }
   
-  async checkTxProof(txId, address, message, signature) {
+  async checkTxProof(txHash, address, message, signature) {
     
     // send request
     let resp = await this.config.rpc.sendJsonRequest("check_tx_proof", {
-      txid: txId,
+      txid: txHash,
       address: address,
       message: message,
       signature: signature
@@ -1087,14 +1087,14 @@ class MoneroWalletRpc extends MoneroWallet {
     return check;
   }
   
-  async getSpendProof(txId, message) {
-    let resp = await this.config.rpc.sendJsonRequest("get_spend_proof", {txid: txId, message: message});
+  async getSpendProof(txHash, message) {
+    let resp = await this.config.rpc.sendJsonRequest("get_spend_proof", {txid: txHash, message: message});
     return resp.result.signature;
   }
   
-  async checkSpendProof(txId, message, signature) {
+  async checkSpendProof(txHash, message, signature) {
     let resp = await this.config.rpc.sendJsonRequest("check_spend_proof", {
-      txid: txId,
+      txid: txHash,
       message: message,
       signature: signature
     });
@@ -1138,12 +1138,12 @@ class MoneroWalletRpc extends MoneroWallet {
     return check;
   }
   
-  async getTxNotes(txIds) {
-    return (await this.config.rpc.sendJsonRequest("get_tx_notes", {txids: txIds})).result.notes;
+  async getTxNotes(txHashes) {
+    return (await this.config.rpc.sendJsonRequest("get_tx_notes", {txids: txHashes})).result.notes;
   }
   
-  async setTxNotes(txIds, notes) {
-    await this.config.rpc.sendJsonRequest("set_tx_notes", {txids: txIds, notes: notes});
+  async setTxNotes(txHashes, notes) {
+    await this.config.rpc.sendJsonRequest("set_tx_notes", {txids: txHashes, notes: notes});
   }
   
   async getAddressBookEntries(entryIndices) {
@@ -1314,7 +1314,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let result = resp.result;
     let signResult = new MoneroMultisigSignResult();
     signResult.setSignedMultisigTxHex(result.tx_data_hex);
-    signResult.setTxIds(result.tx_hash_list);
+    signResult.setTxHashes(result.tx_hash_list);
     return signResult;
   }
 
@@ -1563,7 +1563,7 @@ class MoneroWalletRpc extends MoneroWallet {
     }
     
     // get lists
-    let ids = rpcTxs.tx_hash_list;
+    let hashes = rpcTxs.tx_hash_list;
     let keys = rpcTxs.tx_key_list;
     let blobs = rpcTxs.tx_blob_list;
     let metadatas = rpcTxs.tx_metadata_list;
@@ -1572,7 +1572,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // ensure all lists are the same size
     let sizes = new Set();
-    if (ids !== undefined) sizes.add(ids.length);
+    if (hashes !== undefined) sizes.add(hashes.length);
     if (keys !== undefined) sizes.add(keys.length);
     if (blobs !== undefined) sizes.add(blobs.length);
     if (metadatas !== undefined) sizes.add(metadatas.length);
@@ -1591,7 +1591,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // build transactions
     for (let i = 0; i < fees.length; i++) {
       let tx = txs[i];
-      if (ids !== undefined) tx.setId(ids[i]);
+      if (hashes !== undefined) tx.setHash(hashes[i]);
       if (keys !== undefined) tx.setKey(keys[i]);
       if (blobs !== undefined) tx.setFullHex(blobs[i]);
       if (metadatas !== undefined) tx.setMetadata(metadatas[i]);
@@ -1642,8 +1642,8 @@ class MoneroWalletRpc extends MoneroWallet {
     let transfer;
     for (let key of Object.keys(rpcTx)) {
       let val = rpcTx[key];
-      if (key === "txid") tx.setId(val);
-      else if (key === "tx_hash") tx.setId(val);
+      if (key === "txid") tx.setHash(val);
+      else if (key === "tx_hash") tx.setHash(val);
       else if (key === "fee") tx.setFee(new BigInteger(val));
       else if (key === "note") { if (val) tx.setNote(val); }
       else if (key === "tx_key") tx.setKey(val);
@@ -1765,7 +1765,7 @@ class MoneroWalletRpc extends MoneroWallet {
       else if (key === "spent") vout.setIsSpent(val);
       else if (key === "key_image") vout.setKeyImage(new MoneroKeyImage(val));
       else if (key === "global_index") vout.setIndex(val);
-      else if (key === "tx_hash") tx.setId(val);
+      else if (key === "tx_hash") tx.setHash(val);
       else if (key === "unlocked") tx.setIsLocked(!val);
       else if (key === "frozen") vout.setIsFrozen(val);
       else if (key === "subaddr_index") {
@@ -1870,18 +1870,18 @@ class MoneroWalletRpc extends MoneroWallet {
    * when sent from/to same account #4500
    *
    * @param tx is the transaction to merge into the existing txs
-   * @param txMap maps tx ids to txs
+   * @param txMap maps tx hashes to txs
    * @param blockMap maps block heights to blocks
    * @param skipIfAbsent specifies if the tx should not be added if it doesn't already exist
    */
   static _mergeTx(tx, txMap, blockMap, skipIfAbsent) {
-    assert(tx.getId() !== undefined);
+    assert(tx.getHash() !== undefined);
 
     // if tx doesn't exist, add it (unless skipped)
-    let aTx = txMap[tx.getId()];
+    let aTx = txMap[tx.getHash()];
     if (aTx === undefined) {
       if (!skipIfAbsent) {
-        txMap[tx.getId()] = tx;
+        txMap[tx.getHash()] = tx;
       } else {
         console.log("WARNING: tx does not already exist");
       }

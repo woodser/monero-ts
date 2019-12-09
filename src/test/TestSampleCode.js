@@ -28,7 +28,7 @@ describe("Test Sample Code", function() {
     // get transactions in the pool
     let txsInPool = await daemon.getTxPool();
     for (let tx of txsInPool) {
-      let id = tx.getId();
+      let hash = tx.getHash();
       let fee = tx.getFee();
       let isDoubleSpendSeen = tx.isDoubleSpendSeen();
     }
@@ -49,8 +49,8 @@ describe("Test Sample Code", function() {
     let subaddress = await walletRpc.getSubaddress(1, 0);
     let subaddressBalance = subaddress.getBalance();
     
-    // query a transaction by id
-    let tx = await walletRpc.getTx((await walletRpc.getTxs(new MoneroTxQuery().setIsOutgoing(true)))[0].getId()); // *** REMOVE FROM README SAMPLE ***
+    // query a transaction by hash
+    let tx = await walletRpc.getTx((await walletRpc.getTxs(new MoneroTxQuery().setIsOutgoing(true)))[0].getHash()); // *** REMOVE FROM README SAMPLE ***
     //let tx = await walletRpc.getTx("314a0f1375db31cea4dac4e0a51514a6282b43792269b3660166d4d2b46437ca");
     let txHeight = tx.getHeight();
     let incomingTransfers = tx.getIncomingTransfers();
@@ -99,7 +99,7 @@ describe("Test Sample Code", function() {
     
     // the transaction is (probably) confirmed
     await new Promise(function(resolve) { setTimeout(resolve, 10000); }); // wait 10s for auto refresh
-    let isConfirmed = (await walletRpc.getTx(createdTx.getId())).isConfirmed();
+    let isConfirmed = (await walletRpc.getTx(createdTx.getHash())).isConfirmed();
   });
   
   if (false)  // TODO: deprecated
@@ -166,14 +166,14 @@ describe("Test Sample Code", function() {
     
     // get all confirmed wallet transactions
     for (let tx of await wallet.getTxs(new MoneroTxQuery().setIsConfirmed(true))) {
-      let txId = tx.getId();                  // e.g. f8b2f0baa80bf6b...
+      let txHash = tx.getHash();                  // e.g. f8b2f0baa80bf6b...
       let txFee = tx.getFee();                // e.g. 750000
       let isConfirmed = tx.isConfirmed();  // e.g. true
     }
     
-    // get a wallet transaction by id
+    // get a wallet transaction by hash
     let tx = await wallet.getTx("69a0d27a3e019526cb5a969ce9f65f1433b8069b68b3ff3c6a5b992a2983f7a2");
-    let txId = tx.getId();                  // e.g. 69a0d27a3e019526c...
+    let txHash = tx.getHash();                  // e.g. 69a0d27a3e019526c...
     let txFee = tx.getFee();                // e.g. 750000
     let isConfirmed = tx.isConfirmed();  // e.g. true
   });
@@ -197,7 +197,7 @@ describe("Test Sample Code", function() {
       // get block info
       for (let block of blocks) {
         let blockHeight = block.getHeight();
-        let blockId = block.getId();
+        let blockHash = block.getHash();
         let txCount = block.getTxs().length;
       }
       

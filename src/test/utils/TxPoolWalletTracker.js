@@ -32,20 +32,20 @@ class TxPoolWalletTracker {
   async waitForWalletTxsToClearPool(wallets) {
     wallets = GenUtils.listify(wallets);
     
-    // get ids of txs in the pool
+    // get hashes of txs in the pool
     let txIdsPool = new Set();
     for (let tx of await TestUtils.getDaemonRpc().getTxPool()) {
       if (!tx.isRelayed() || tx.isFailed()) continue;
-      txIdsPool.add(tx.getId());
+      txIdsPool.add(tx.getHash());
     }
     
-    // get ids of txs from wallets to wait for
+    // get hashes of txs from wallets to wait for
     let txIdsWallet = new Set();
     for (let wallet of wallets) {
       if (!this.clearedWallets.has(wallet)) {
         await wallet.sync();
         for (let tx of await wallet.getTxs()) {
-          txIdsWallet.add(tx.getId());
+          txIdsWallet.add(tx.getHash());
         }
       }
     }
@@ -64,8 +64,8 @@ class TxPoolWalletTracker {
     }
   }
   
-  static async waitForTxsToClearPool(txIds) {
-    txIds = GenUtils.listify(txIds);
+  static async waitForTxsToClearPool(txHashes) {
+    txHashes = GenUtils.listify(txHashes);
     let daemon = TestUtils.getDaemonRpc(); 
       
     // attempt to start mining to push the network along
@@ -80,7 +80,7 @@ class TxPoolWalletTracker {
     
     // loop until txs are not in pool
     let isFirst = true;
-    while (await TxPoolWalletTracker._txsInPool(txIds)) {
+    while (await TxPoolWalletTracker._txsInPool(txHashes)) {
       
       // print debug messsage one time
       if (isFirst) {  
@@ -96,13 +96,13 @@ class TxPoolWalletTracker {
     if (startedMining) await daemon.stopMining();
   }
   
-  static async _txsInPool(txIds) {
-    txIds = GenUtils.listify(txIds);
+  static async _txsInPool(txHashes) {
+    txHashes = GenUtils.listify(txHashes);
     let daemon = TestUtils.getDaemonRpc();
     let txsPool = await daemon.getTxPool();
     for (let txPool of txsPool) {
-      for (let txId of txIds) {
-        if (txId === txPool.getId()) return true;
+      for (let txHash of txHashes) {
+        if (txHash === txPool.getHash()) return true;
       }
     }
     return false;

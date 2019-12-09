@@ -56,12 +56,12 @@ class MoneroDaemon {
   }
   
   /**
-   * Get a block's id by its height.
+   * Get a block's hash by its height.
    * 
-   * @param {int} height is the height of the block id to get
-   * @return {string} the block's id at the given height
+   * @param {int} height is the height of the block hash to get
+   * @return {string} the block's hash at the given height
    */
-  async getBlockId(height) {
+  async getBlockHash(height) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -86,12 +86,12 @@ class MoneroDaemon {
   }
   
   /**
-   * Get a block header by its id.
+   * Get a block header by its hash.
    * 
-   * @param {string} blockId is the id of the block to get the header of
+   * @param {string} blockHash is the hash of the block to get the header of
    * @return {MoneroBlockHeader} is the block's header
    */
-  async getBlockHeaderById(blockId) {
+  async getBlockHeaderByHash(blockHash) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -117,26 +117,26 @@ class MoneroDaemon {
   }
   
   /**
-   * Get a block by id.
+   * Get a block by hash.
    * 
-   * @param {string} blockId is the id of the block to get
-   * @return {MoneroBlock} with the given id
+   * @param {string} blockHash is the hash of the block to get
+   * @return {MoneroBlock} with the given hash
    */
-  async getBlockById(blockId) {
+  async getBlockByHash(blockHash) {
     throw new MoneroError("Subclass must implement");
   }
   
   /**
-   * Get blocks by id.
+   * Get blocks by hash.
    * 
-   * @param {string[]} blockIds are array of hashes; first 10 blocks id goes sequential,
+   * @param {string[]} blockHashes are array of hashes; first 10 blocks hashes goes sequential,
    *        next goes in pow(2,n) offset, like 2, 4, 8, 16, 32, 64 and so on,
    *        and the last one is always genesis block
-   * @param {int} startHeight is the start height to get blocks by id
+   * @param {int} startHeight is the start height to get blocks by hash
    * @param {boolean} prune specifies if returned blocks should be pruned (defaults to false)  // TODO: test default
    * @return {MoneroBlock[]} are the retrieved blocks
    */
-  async getBlocksById(blockIds, startHeight, prune) {
+  async getBlocksByHash(blockHashes, startHeight, prune) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -185,59 +185,59 @@ class MoneroDaemon {
   }
   
   /**
-   * Get block ids as a binary request to the daemon.
+   * Get block hashes as a binary request to the daemon.
    * 
-   * @param {string[]} blockIds specify block ids to fetch; first 10 blocks id goes
+   * @param {string[]} blockHashes specify block hashes to fetch; first 10 blocks hash goes
    *        sequential, next goes in pow(2,n) offset, like 2, 4, 8, 16, 32, 64
    *        and so on, and the last one is always genesis block
-   * @param {int} startHeight is the starting height of block ids to return
-   * @return {string[]} are the requested block ids     
+   * @param {int} startHeight is the starting height of block hashes to return
+   * @return {string[]} are the requested block hashes     
    */
-  async getBlockIds(blockIds, startHeight) {
+  async getBlockHashes(blockHashes, startHeight) {
     throw new MoneroError("Subclass must implement");
   }
   
   /**
-   * Get a transaction by id.
+   * Get a transaction by hash.
    * 
-   * @param {string} txId is the id of the transaction to get
+   * @param {string} txHash is the hash of the transaction to get
    * @param {boolean} prune specifies if the returned tx should be pruned (defaults to false)
-   * @return {MoneroTx} is the transaction with the given id
+   * @return {MoneroTx} is the transaction with the given hash
    */
-  async getTx(txId, prune = false) {
-    return (await this.getTxs([txId], prune))[0];
+  async getTx(txHash, prune = false) {
+    return (await this.getTxs([txHash], prune))[0];
   }
   
   /**
-   * Get transactions by ids.
+   * Get transactions by hashes.
    * 
-   * @param {string[]} txIds are ids of transactions to get
+   * @param {string[]} txHashes are hashes of transactions to get
    * @param {boolean} prune specifies if the returned txs should be pruned (defaults to false)
-   * @return {MoneroTx[]} are the transactions with the given ids
+   * @return {MoneroTx[]} are the transactions with the given hashes
    */
-  async getTxs(txIds, prune = false) {
+  async getTxs(txHashes, prune = false) {
     throw new MoneroError("Subclass must implement");
   }
   
   /**
-   * Get a transaction hex by id.
+   * Get a transaction hex by hash.
    * 
-   * @param {string} txId is the id of the transaction to get hex from
+   * @param {string} txHash is the hash of the transaction to get hex from
    * @param {boolean} prune specifies if the returned tx hex should be pruned (defaults to false)
-   * @return {string} is the tx hex with the given id
+   * @return {string} is the tx hex with the given hash
    */
-  async getTxHex(txId, prune = false) {
-    return (await this.getTxHexes([txId], prune))[0];
+  async getTxHex(txHash, prune = false) {
+    return (await this.getTxHexes([txHash], prune))[0];
   }
   
   /**
-   * Get transaction hexes by ids.
+   * Get transaction hexes by hashes.
    * 
-   * @param {string[]} txIds are ids of transactions to get hexes from
+   * @param {string[]} txHashes are hashes of transactions to get hexes from
    * @param {boolean} prune specifies if the returned tx hexes should be pruned (defaults to false)
    * @return {string[]} are the tx hexes
    */
-  async getTxHexes(txIds, prune = false) {
+  async getTxHexes(txHashes, prune = false) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -274,21 +274,21 @@ class MoneroDaemon {
   }
   
   /**
-   * Relays a transaction by id.
+   * Relays a transaction by hash.
    * 
-   * @param {string} txId identifies the transaction to relay
+   * @param {string} txHash identifies the transaction to relay
    */
-  async relayTxById(txId) {
-    assert.equal(typeof txId, "string", "Must provide a transaction id");
-    await this.relayTxsById([txId]);
+  async relayTxByHash(txHash) {
+    assert.equal(typeof txHash, "string", "Must provide a transaction hash");
+    await this.relayTxsByHash([txHash]);
   }
   
   /**
-   * Relays transactions by id.
+   * Relays transactions by hash.
    * 
-   * @param {string[]} txIds identify the transactions to relay
+   * @param {string[]} txHashes identify the transactions to relay
    */
-  async relayTxsById(txIds) {
+  async relayTxsByHash(txHashes) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -303,11 +303,11 @@ class MoneroDaemon {
   }
   
   /**
-   * Get ids of transactions in the transaction pool.
+   * Get hashes of transactions in the transaction pool.
    * 
-   * @return {string[]} are ids of transactions in the transaction pool
+   * @return {string[]} are hashes of transactions in the transaction pool
    */
-  async getTxPoolIds() {
+  async getTxPoolHashes() {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -332,9 +332,9 @@ class MoneroDaemon {
   /**
    * Flush transactions from the tx pool.
    * 
-   * @param {(string|string[])} ids are specific transactions to flush (defaults to all)
+   * @param {(string|string[])} hashes are specific transactions to flush (defaults to all)
    */
-  async flushTxPool(ids) {
+  async flushTxPool(hashes) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -435,9 +435,9 @@ class MoneroDaemon {
   }
   
   /**
-   * Get known block ids which are not on the main chain.
+   * Get known block hashes which are not on the main chain.
    * 
-   * @return {string[]} are the known block ids which are not on the main chain
+   * @return {string[]} are the known block hashes which are not on the main chain
    */
   async getAltBlockIds() {
     throw new MoneroError("Subclass must implement");

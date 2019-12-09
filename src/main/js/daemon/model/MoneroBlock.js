@@ -56,12 +56,12 @@ class MoneroBlock extends MoneroBlockHeader {
     return this;
   }
   
-  getTxIds() {
-    return this.state.txIds;
+  getTxHashes() {
+    return this.state.txHashes;
   }
   
-  setTxIds(txIds) {
-    this.state.txIds = txIds;
+  setTxHashes(txHashes) {
+    this.state.txHashes = txHashes;
     return this;
   }
   
@@ -88,7 +88,7 @@ class MoneroBlock extends MoneroBlockHeader {
     
     // merge reconcilable block extensions
     this.setHex(GenUtils.reconcile(this.getHex(), block.getHex()));
-    this.setTxIds(GenUtils.reconcile(this.getTxIds(), block.getTxIds()));
+    this.setTxHashes(GenUtils.reconcile(this.getTxHashes(), block.getTxHashes()));
     
     // merge miner tx
     if (this.getMinerTx() === undefined) this.setMinerTx(block.getMinerTx());
@@ -121,14 +121,14 @@ class MoneroBlock extends MoneroBlockHeader {
       str += GenUtils.kvLine("Miner tx", "", indent);
       str += this.getMinerTx().toString(indent + 1) + "\n";
     }
-    str += GenUtils.kvLine("Txs ids", this.getTxIds(), indent);
+    str += GenUtils.kvLine("Txs hashes", this.getTxHashes(), indent);
     return str[str.length - 1] === "\n" ? str.slice(0, str.length - 1) : str  // strip last newline
   }
   
   // private helper to merge txs
   static _mergeTx(txs, tx) {
     for (let aTx of txs) {
-      if (aTx.getId() === tx.getId()) {
+      if (aTx.getHash() === tx.getHash()) {
         aTx.merge(tx);
         return;
       }

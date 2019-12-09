@@ -52,12 +52,12 @@ class MoneroTx {
     return this.getBlock() === undefined ? undefined : this.getBlock().getHeight();
   }
   
-  getId() {
-    return this.state.id;
+  getHash() {
+    return this.state.hash;
   }
   
-  setId(id) {
-    this.state.id = id;
+  setHash(hash) {
+    this.state.hash = hash;
     return this;
   }
   
@@ -356,12 +356,12 @@ class MoneroTx {
     return this;
   }
   
-  getLastFailedId() {
-    return this.state.lastFailedId;
+  getLastFailedHash() {
+    return this.state.lastFailedHash;
   }
   
-  setLastFailedId(lastFailedId) {
-    this.state.lastFailedId = lastFailedId;
+  setLastFailedHash(lastFailedHash) {
+    this.state.lastFailedHash = lastFailedHash;
     return this;
   }
   
@@ -374,12 +374,12 @@ class MoneroTx {
     return this;
   }
   
-  getMaxUsedBlockId() {
-    return this.state.maxUsedBlockId;
+  getMaxUsedBlockHash() {
+    return this.state.maxUsedBlockHash;
   }
   
-  setMaxUsedBlockId(maxUsedBlockId) {
-    this.state.maxUsedBlockId = maxUsedBlockId;
+  setMaxUsedBlockHash(maxUsedBlockHash) {
+    this.state.maxUsedBlockHash = maxUsedBlockHash;
     return this;
   }
   
@@ -441,7 +441,7 @@ class MoneroTx {
     }
     
     // otherwise merge tx fields
-    this.setId(GenUtils.reconcile(this.getId(), tx.getId()));
+    this.setHash(GenUtils.reconcile(this.getHash(), tx.getHash()));
     this.setVersion(GenUtils.reconcile(this.getVersion(), tx.getVersion()));
     this.setPaymentId(GenUtils.reconcile(this.getPaymentId(), tx.getPaymentId()));
     this.setFee(GenUtils.reconcile(this.getFee(), tx.getFee()));
@@ -465,9 +465,9 @@ class MoneroTx {
     this.setIsKeptByBlock(GenUtils.reconcile(this.isKeptByBlock(), tx.isKeptByBlock()));
     this.setIsFailed(GenUtils.reconcile(this.isFailed(), tx.isFailed()));
     this.setLastFailedHeight(GenUtils.reconcile(this.getLastFailedHeight(), tx.getLastFailedHeight()));
-    this.setLastFailedId(GenUtils.reconcile(this.getLastFailedId(), tx.getLastFailedId()));
+    this.setLastFailedHash(GenUtils.reconcile(this.getLastFailedHash(), tx.getLastFailedHash()));
     this.setMaxUsedBlockHeight(GenUtils.reconcile(this.getMaxUsedBlockHeight(), tx.getMaxUsedBlockHeight()));
-    this.setMaxUsedBlockId(GenUtils.reconcile(this.getMaxUsedBlockId(), tx.getMaxUsedBlockId()));
+    this.setMaxUsedBlockHash(GenUtils.reconcile(this.getMaxUsedBlockHash(), tx.getMaxUsedBlockHash()));
     this.setSignatures(GenUtils.reconcile(this.getSignatures(), tx.getSignatures()));
     this.setUnlockTime(GenUtils.reconcile(this.getUnlockTime(), tx.getUnlockTime()));
     this.setNumConfirmations(GenUtils.reconcile(this.getNumConfirmations(), tx.getNumConfirmations(), {resolveMax: true})); // num confirmations can increase
@@ -652,7 +652,7 @@ class MoneroTx {
   toString(indent = 0) {
     let str = "";
     str += GenUtils.getIndent(indent) + "=== TX ===\n";
-    str += GenUtils.kvLine("Tx ID: ", this.getId(), indent);
+    str += GenUtils.kvLine("Tx hash: ", this.getHash(), indent);
     str += GenUtils.kvLine("Height: ", this.getHeight(), indent);
     str += GenUtils.kvLine("Version", this.getVersion(), indent);
     str += GenUtils.kvLine("Is miner tx", this.isMinerTx(), indent);
@@ -683,9 +683,9 @@ class MoneroTx {
     str += GenUtils.kvLine("Kept by block", this.isKeptByBlock(), indent);
     str += GenUtils.kvLine("Is failed", this.isFailed(), indent);
     str += GenUtils.kvLine("Last failed height", this.getLastFailedHeight(), indent);
-    str += GenUtils.kvLine("Last failed id", this.getLastFailedId(), indent);
+    str += GenUtils.kvLine("Last failed hash", this.getLastFailedHash(), indent);
     str += GenUtils.kvLine("Max used block height", this.getMaxUsedBlockHeight(), indent);
-    str += GenUtils.kvLine("Max used block id", this.getMaxUsedBlockId(), indent);
+    str += GenUtils.kvLine("Max used block hash", this.getMaxUsedBlockHash(), indent);
     str += GenUtils.kvLine("Signatures", this.getSignatures(), indent);
     if (this.getVins()) {
       str += GenUtils.kvLine("Vins", "", indent);

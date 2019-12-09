@@ -15,12 +15,12 @@ class MoneroMultisigSignResult {
     this.state.signedMultisigTxHex = signedTxMultisigHex;
   }
 
-  getTxIds() {
-    return this.state.txIds;
+  getTxHashes() {
+    return this.state.txHashes;
   }
 
-  setTxIds(txIds) {
-    this.state.txIds = txIds;
+  setTxHashes(txHashes) {
+    this.state.txHashes = txHashes;
   }
 }
 

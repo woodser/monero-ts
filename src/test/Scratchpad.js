@@ -18,7 +18,7 @@ describe("Scratchpad", function() {
     // common variables
     let txs;
     let transfers;
-    let txId;
+    let txHash;
     
     // -------------------------------- SCRATCHPAD ----------------------------
     

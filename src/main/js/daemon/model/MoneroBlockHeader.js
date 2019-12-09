@@ -23,12 +23,12 @@ class MoneroBlockHeader {
     if (state.reward !== undefined && !(state.reward instanceof BigInteger)) state.reward = BigInteger.parse(state.reward);
   }
   
-  getId() {
-    return this.state.id;
+  getHash() {
+    return this.state.hash;
   }
   
-  setId(id) {
-    this.state.id = id;
+  setHash(hash) {
+    this.state.hash = hash;
     return this;
   }
   
@@ -142,12 +142,12 @@ class MoneroBlockHeader {
     return this;
   }
   
-  getMinerTxId() {
-    return this.state.minerTxId;
+  getMinerTxHash() {
+    return this.state.minerTxHash;
   }
   
-  setMinerTxId(minerTxId) {
-    this.state.minerTxId = minerTxId;
+  setMinerTxHash(minerTxHash) {
+    this.state.minerTxHash = minerTxHash;
     return this;
   }
   
@@ -169,12 +169,12 @@ class MoneroBlockHeader {
     return this;
   }
   
-  getPrevId() {
-    return this.state.prevId;
+  getPrevHash() {
+    return this.state.prevHash;
   }
   
-  setPrevId(prevId) {
-    this.state.prevId = prevId;
+  setPrevHash(prevHash) {
+    this.state.prevHash = prevHash;
     return this;
   }
   
@@ -211,7 +211,7 @@ class MoneroBlockHeader {
   merge(header) {
     assert(header instanceof MoneroBlockHeader);
     if (this === header) return this;
-    this.setId(GenUtils.reconcile(this.getId(), header.getId()));
+    this.setHash(GenUtils.reconcile(this.getHash(), header.getHash()));
     this.setHeight(GenUtils.reconcile(this.getHeight(), header.getHeight(), {resolveMax: true}));  // height can increase
     this.setTimestamp(GenUtils.reconcile(this.getTimestamp(), header.getTimestamp(), {resolveMax: true}));  // block timestamp can increase
     this.setSize(GenUtils.reconcile(this.getSize(), header.getSize()));
@@ -222,10 +222,10 @@ class MoneroBlockHeader {
     this.setMajorVersion(GenUtils.reconcile(this.getMajorVersion(), header.getMajorVersion()));
     this.setMinorVersion(GenUtils.reconcile(this.getMinorVersion(), header.getMinorVersion()));
     this.setNonce(GenUtils.reconcile(this.getNonce(), header.getNonce()));
-    this.setMinerTxId(GenUtils.reconcile(this.getMinerTxId(), header.getMinerTxId()));
+    this.setMinerTxHash(GenUtils.reconcile(this.getMinerTxHash(), header.getMinerTxHash()));
     this.setNumTxs(GenUtils.reconcile(this.getNumTxs(), header.getNumTxs()));
     this.setOrphanStatus(GenUtils.reconcile(this.getOrphanStatus(), header.getOrphanStatus()));
-    this.setPrevId(GenUtils.reconcile(this.getPrevId(), header.getPrevId()));
+    this.setPrevHash(GenUtils.reconcile(this.getPrevHash(), header.getPrevHash()));
     this.setReward(GenUtils.reconcile(this.getReward(), header.getReward()));
     this.setPowHash(GenUtils.reconcile(this.getPowHash(), header.getPowHash()));
     return this;
@@ -233,7 +233,7 @@ class MoneroBlockHeader {
   
   toString(indent = 0) {
     let str = "";
-    str += GenUtils.kvLine("Id", this.getId(), indent);
+    str += GenUtils.kvLine("Hash", this.getHash(), indent);
     str += GenUtils.kvLine("Height", this.getHeight(), indent);
     str += GenUtils.kvLine("Timestamp", this.getTimestamp(), indent);
     str += GenUtils.kvLine("Size", this.getSize(), indent);
@@ -244,10 +244,10 @@ class MoneroBlockHeader {
     str += GenUtils.kvLine("Major version", this.getMajorVersion(), indent);
     str += GenUtils.kvLine("Minor version", this.getMinorVersion(), indent);
     str += GenUtils.kvLine("Nonce", this.getNonce(), indent);
-    str += GenUtils.kvLine("Miner tx id", this.getMinerTxId(), indent);
+    str += GenUtils.kvLine("Miner tx hash", this.getMinerTxHash(), indent);
     str += GenUtils.kvLine("Num txs", this.getNumTxs(), indent);
     str += GenUtils.kvLine("Orphan status", this.getOrphanStatus(), indent);
-    str += GenUtils.kvLine("Prev id", this.getPrevId(), indent);
+    str += GenUtils.kvLine("Prev hash", this.getPrevHash(), indent);
     str += GenUtils.kvLine("Reward", this.getReward(), indent);
     str += GenUtils.kvLine("Pow hash", this.getPowHash(), indent);
     return str[str.length - 1] === "\n" ? str.slice(0, str.length - 1) : str  // strip last newline

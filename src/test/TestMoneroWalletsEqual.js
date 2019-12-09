@@ -145,7 +145,7 @@ class TestMoneroWalletsEqual {
     for (let tx1 of txs1) {
       let found = false;
       for (let tx2 of txs2) {
-        if (tx1.getId() === tx2.getId()) {
+        if (tx1.getHash() === tx2.getHash()) {
           
           // transfer destination info if known for comparison
           if (tx1.getOutgoingTransfer() !== undefined && tx1.getOutgoingTransfer().getDestinations() !== undefined) {
@@ -215,35 +215,35 @@ class TestMoneroWalletsEqual {
       
       // transfers must be consecutive per transaction
       if (lastTx1 !== transfer1.getTx()) {
-        assert(!txsTransfers1.has(transfer1.getTx().getId()));  // cannot be seen before
+        assert(!txsTransfers1.has(transfer1.getTx().getHash()));  // cannot be seen before
         lastTx1 = transfer1.getTx();
       }
       if (lastTx2 !== transfer2.getTx()) {
-        assertFalse(txsTransfers2.has(transfer2.getTx().getId()));  // cannot be seen before
+        assertFalse(txsTransfers2.has(transfer2.getTx().getHash()));  // cannot be seen before
         lastTx2 = transfer2.getTx();
       }
       
       // collect tx1 transfer
-      List<MoneroTransfer> txTransfers1 = txsTransfers1.get(transfer1.getTx().getId());
+      List<MoneroTransfer> txTransfers1 = txsTransfers1.get(transfer1.getTx().getHash());
       if (txTransfers1 === undefined) {
         txTransfers1 = new ArrayList<MoneroTransfer>();
-        txsTransfers1.put(transfer1.getTx().getId(), txTransfers1);
+        txsTransfers1.put(transfer1.getTx().getHash(), txTransfers1);
       }
       txTransfers1.add(transfer1);
       
       // collect tx2 transfer
-      List<MoneroTransfer> txTransfers2 = txsTransfers2.get(transfer2.getTx().getId());
+      List<MoneroTransfer> txTransfers2 = txsTransfers2.get(transfer2.getTx().getHash());
       if (txTransfers2 === undefined) {
         txTransfers2 = new ArrayList<MoneroTransfer>();
-        txsTransfers2.put(transfer2.getTx().getId(), txTransfers2);
+        txsTransfers2.put(transfer2.getTx().getHash(), txTransfers2);
       }
       txTransfers2.add(transfer2);
     }
     
     // compare collected transfers per tx for equality
-    for (let txId : txsTransfers1.keySet()) {
-      List<MoneroTransfer> txTransfers1 = txsTransfers1.get(txId);
-      List<MoneroTransfer> txTransfers2 = txsTransfers2.get(txId);
+    for (let txHash : txsTransfers1.keySet()) {
+      List<MoneroTransfer> txTransfers1 = txsTransfers1.get(txHash);
+      List<MoneroTransfer> txTransfers2 = txsTransfers2.get(txHash);
       assert.equal(txTransfers1.length, txTransfers2.length);
       
       // normalize and compare transfers
@@ -304,42 +304,42 @@ class TestMoneroWalletsEqual {
       
       // outputs must be consecutive per transaction
       if (lastTx1 !== output1.getTx()) {
-        assert(!txsOutputs1.has(output1.getTx().getId()));  // cannot be seen before
+        assert(!txsOutputs1.has(output1.getTx().getHash()));  // cannot be seen before
         lastTx1 = output1.getTx();
       }
       if (lastTx2 !== output2.getTx()) {
-        assert(!txsOutputs2.has(output2.getTx().getId()));  // cannot be seen before
+        assert(!txsOutputs2.has(output2.getTx().getHash()));  // cannot be seen before
         lastTx2 = output2.getTx();
       }
       
       // collect tx1 output
-      let txOutputs1 = txsOutputs1.get(output1.getTx().getId());
+      let txOutputs1 = txsOutputs1.get(output1.getTx().getHash());
       if (txOutputs1 === undefined) {
         txOutputs1 = [];
-        txsOutputs1.put(output1.getTx().getId(), txOutputs1);
+        txsOutputs1.put(output1.getTx().getHash(), txOutputs1);
       }
       txOutputs1.add(output1);
       
       // collect tx2 output
-      List<MoneroOutputWallet> txOutputs2 = txsOutputs2.get(output2.getTx().getId());
+      List<MoneroOutputWallet> txOutputs2 = txsOutputs2.get(output2.getTx().getHash());
       if (txOutputs2 === undefined) {
         txOutputs2 = new ArrayList<MoneroOutputWallet>();
-        txsOutputs2.put(output2.getTx().getId(), txOutputs2);
+        txsOutputs2.put(output2.getTx().getHash(), txOutputs2);
       }
       txOutputs2.add(output2);
     }
     
     // compare collected outputs per tx for equality
-    for (let txId of txsOutputs1.keySet()) {
-      let txOutputs1 = txsOutputs1.get(txId);
-      let txOutputs2 = txsOutputs2.get(txId);
+    for (let txHash of txsOutputs1.keySet()) {
+      let txOutputs1 = txsOutputs1.get(txHash);
+      let txOutputs2 = txsOutputs2.get(txHash);
       assert.equal(txOutputs1.length, txOutputs2.length);
       
       // normalize and compare outputs
       for (let i = 0; i < txOutputs1.length; i++) {
         let output1 = txOutputs1[i];
         let output2 = txOutputs2[i];
-        assert.equal(output1.getTx().getId(), output2.getTx().getId());
+        assert.equal(output1.getTx().getHash(), output2.getTx().getHash());
         assert.equal(output1, output2);
       }
     }
