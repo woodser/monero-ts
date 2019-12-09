@@ -222,7 +222,7 @@ namespace monero {
     }
 
     /**
-     * Get the wallet's mnemonic phrase derived from the seed.
+     * Get the wallet's mnemonic phrase.
      *
      * @param mnemonic is assigned the wallet's mnemonic phrase
      */
