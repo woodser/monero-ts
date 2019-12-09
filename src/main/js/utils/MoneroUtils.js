@@ -124,7 +124,7 @@ class MoneroUtils {
    */
   static mergeTx(txs, tx) {
     for (let aTx of txs) {
-      if (aTx.getId() === tx.getId()) {
+      if (aTx.getHash() === tx.getHash()) {
         aTx.merge(tx);
         return;
       }

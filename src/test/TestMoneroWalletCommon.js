@@ -649,35 +649,35 @@ class TestMoneroWalletCommon {
       });
       
       if (config.testNonRelays)
-      it("Can get transactions by id", async function() {
+      it("Can get transactions by hash", async function() {
         
         let maxNumTxs = 10;  // max number of txs to test
         
         // fetch all txs for testing
         let txs = await that.wallet.getTxs();
-        assert(txs.length > 1, "Test requires at least 2 txs to fetch by id");
+        assert(txs.length > 1, "Test requires at least 2 txs to fetch by hash");
         
-        // randomly pick a few for fetching by id
+        // randomly pick a few for fetching by hash
         GenUtils.shuffle(txs);
         txs = txs.slice(0, Math.min(txs.length, maxNumTxs));
         
-        // test fetching by id
-        let fetchedTx = await that.wallet.getTx(txs[0].getId());
-        assert.equal(fetchedTx.getId(), txs[0].getId());
+        // test fetching by hash
+        let fetchedTx = await that.wallet.getTx(txs[0].getHash());
+        assert.equal(fetchedTx.getHash(), txs[0].getHash());
         await that._testTxWallet(fetchedTx);
         
-        // test fetching by ids
-        let txId1 = txs[0].getId();
-        let txId2 = txs[1].getId();
+        // test fetching by hashes
+        let txId1 = txs[0].getHash();
+        let txId2 = txs[1].getHash();
         let fetchedTxs = await that.wallet.getTxs(txId1, txId2);
         
-        // test fetching by ids as collection
-        let txIds = [];
-        for (let tx of txs) txIds.push(tx.getId());
-        fetchedTxs = await that.wallet.getTxs(txIds);
+        // test fetching by hashes as collection
+        let txHashes = [];
+        for (let tx of txs) txHashes.push(tx.getHash());
+        fetchedTxs = await that.wallet.getTxs(txHashes);
         assert.equal(fetchedTxs.length, txs.length);
         for (let i = 0; i < txs.length; i++) {
-          assert.equal(fetchedTxs[i].getId(), txs[i].getId());
+          assert.equal(fetchedTxs[i].getHash(), txs[i].getHash());
           await that._testTxWallet(fetchedTxs[i]);
         }
       });
@@ -689,20 +689,20 @@ class TestMoneroWalletCommon {
         let randomTxs = await getRandomTransactions(that.wallet, undefined, 3, 5);
         for (let randomTx of randomTxs) await that._testTxWallet(randomTx);
         
-        // get transactions by id
-        let txIds = [];
+        // get transactions by hash
+        let txHashes = [];
         for (let randomTx of randomTxs) {
-          txIds.push(randomTx.getId());
-          let txs = await that._getAndTestTxs(that.wallet, {txId: randomTx.getId()}, true);
+          txHashes.push(randomTx.getHash());
+          let txs = await that._getAndTestTxs(that.wallet, {txHash: randomTx.getHash()}, true);
           assert.equal(txs.length, 1);
           let merged = txs[0].merge(randomTx.copy()); // txs change with chain so check mergeability
           await that._testTxWallet(merged);
         }
         
-        // get transactions by ids
-        let txs = await that._getAndTestTxs(that.wallet, {txIds: txIds});
+        // get transactions by hashes
+        let txs = await that._getAndTestTxs(that.wallet, {txHashes: txHashes});
         assert.equal(txs.length, randomTxs.length);
-        for (let tx of txs) assert(txIds.includes(tx.getId()));
+        for (let tx of txs) assert(txHashes.includes(tx.getHash()));
         
         // get transactions with an outgoing transfer
         txs = await that._getAndTestTxs(that.wallet, {isOutgoing: true}, true);
@@ -877,11 +877,11 @@ class TestMoneroWalletCommon {
         }
       });
       
-      // NOTE: payment ids are deprecated so this test will require an old wallet to pass
+      // NOTE: payment hashes are deprecated so this test will require an old wallet to pass
       if (config.testNonRelays)
-      it("Can get transactions by payment ids", async function() {
+      it("Can get transactions by payment hashes", async function() {
         
-        // get random transactions with payment ids for testing
+        // get random transactions with payment hashes for testing
         let randomTxs = await getRandomTransactions(that.wallet, {hasPaymentId: true}, 3, 5);
         for (let randomTx of randomTxs) {
           assert(randomTx.getPaymentId());
@@ -897,7 +897,7 @@ class TestMoneroWalletCommon {
           MoneroUtils.validatePaymentId(txs[0].getPaymentId());
         }
         
-        // get transactions by payment ids
+        // get transactions by payment hashes
         let txs = await that._getAndTestTxs(that.wallet, {paymentIds: paymentIds});
         for (let tx of txs) {
           assert(paymentIds.includes(tx.getPaymentId()));
@@ -918,10 +918,10 @@ class TestMoneroWalletCommon {
             
             // fetch tx with filtering
             let filteredTxs = await that.wallet.getTxs({transferQuery: {isIncoming: true, accountIndex: transfer.getAccountIndex()}});
-            let filteredTx = Filter.apply(new MoneroTxQuery().setTxIds([tx.getId()]), filteredTxs)[0];
+            let filteredTx = Filter.apply(new MoneroTxQuery().setTxHashes([tx.getHash()]), filteredTxs)[0];
             
             // txs should be the same (mergeable)
-            assert.equal(filteredTx.getId(), tx.getId());
+            assert.equal(filteredTx.getHash(), tx.getHash());
             tx.merge(filteredTx);
             
             // test is done
@@ -939,64 +939,64 @@ class TestMoneroWalletCommon {
         // fetch random txs for testing
         let randomTxs = await getRandomTransactions(that.wallet, undefined, 3, 5);
         
-        // valid, invalid, and unknown tx ids for tests
-        let txId = randomTxs[0].getId();
+        // valid, invalid, and unknown tx hashes for tests
+        let txHash = randomTxs[0].getHash();
         let invalidId = "invalid_id";
         let unknownId1 = "6c4982f2499ece80e10b627083c4f9b992a00155e98bcba72a9588ccb91d0a61";
         let unknownId2 = "ff397104dd875882f5e7c66e4f852ee134f8cf45e21f0c40777c9188bc92e943";
         
-        // fetch unknown tx id
+        // fetch unknown tx hash
         try {
           await that.wallet.getTx(unknownId1);
-          throw new Error("Should have thrown error getting tx id unknown to wallet");
+          throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
           assert.equal(e.message, "Tx not found in wallet: " + unknownId1);
         }
         
-        // fetch unknown tx id using query
+        // fetch unknown tx hash using query
         try {
           await that.wallet.getTxs(new MoneroTxQuery().setTxId(unknownId1));
-          throw new Error("Should have thrown error getting tx id unknown to wallet");
+          throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
           assert.equal(e.message, "Tx not found in wallet: " + unknownId1);
         }
         
-        // fetch unknown tx id in collection
+        // fetch unknown tx hash in collection
         try {
-          await that.wallet.getTxs([txId, unknownId1]);
-          throw new Error("Should have thrown error getting tx id unknown to wallet");
+          await that.wallet.getTxs([txHash, unknownId1]);
+          throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
           assert.equal(e.message, "Tx not found in wallet: " + unknownId1);
         }
         
-        // fetch unknown tx ids in collection
+        // fetch unknown tx hashes in collection
         try {
-          await that.wallet.getTxs([txId, unknownId1, unknownId2]);
-          throw new Error("Should have thrown error getting tx id unknown to wallet");
+          await that.wallet.getTxs([txHash, unknownId1, unknownId2]);
+          throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
-          assert.equal(e.message, "Tx not found in wallet: " + unknownId1); // TODO: list all invalid ids in error description?
+          assert.equal(e.message, "Tx not found in wallet: " + unknownId1); // TODO: list all invalid hashes in error description?
         }
         
-        // fetch invalid id
+        // fetch invalid hash
         try {
           await that.wallet.getTx(invalidId);
-          throw new Error("Should have thrown error getting tx id unknown to wallet");
+          throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
           assert.equal(e.message, "Tx not found in wallet: " + invalidId);
         }
         
-        // fetch invalid id collection
+        // fetch invalid hash collection
         try {
-          await that.wallet.getTxs([txId, invalidId]);
-          throw new Error("Should have thrown error getting tx id unknown to wallet");
+          await that.wallet.getTxs([txHash, invalidId]);
+          throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
           assert.equal(e.message, "Tx not found in wallet: " + invalidId);
         }
         
-        // fetch invalid ids in collection
+        // fetch invalid hashes in collection
         try {
-          await that.wallet.getTxs([txId, invalidId, "invalid_id_2"]);
-          throw new Error("Should have thrown error getting tx id unknown to wallet");
+          await that.wallet.getTxs([txHash, invalidId, "invalid_id_2"]);
+          throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
           assert.equal(e.message, "Tx not found in wallet: " + invalidId);
         }
@@ -1040,7 +1040,7 @@ class TestMoneroWalletCommon {
               // don't add duplicates TODO monero-wallet-rpc: duplicate outgoing transfers returned for different subaddress indices, way to return outgoing subaddress indices?
               let found = false;
               for (let subaddressTransfer of subaddressTransfers) {
-                if (transfer.toString() === subaddressTransfer.toString() && transfer.getTx().getId() === subaddressTransfer.getTx().getId()) {
+                if (transfer.toString() === subaddressTransfer.toString() && transfer.getTx().getHash() === subaddressTransfer.getTx().getHash()) {
                   found = true;
                   break;
                 }
@@ -1119,19 +1119,19 @@ class TestMoneroWalletCommon {
         // get random transactions
         let txs = await getRandomTransactions(that.wallet, undefined, 3, 5);
         
-        // get transfers with a tx id
-        let txIds = [];
+        // get transfers with a tx hash
+        let txHashes = [];
         for (let tx of txs) {
-          txIds.push(tx.getId());
-          transfers = await that._getAndTestTransfers(that.wallet, {txId: tx.getId()}, true);
-          for (let transfer of transfers) assert.equal(transfer.getTx().getId(), tx.getId());
+          txHashes.push(tx.getHash());
+          transfers = await that._getAndTestTransfers(that.wallet, {txHash: tx.getHash()}, true);
+          for (let transfer of transfers) assert.equal(transfer.getTx().getHash(), tx.getHash());
         }
         
-        // get transfers with tx ids
-        transfers = await that._getAndTestTransfers(that.wallet, {txIds: txIds}, true);
-        for (let transfer of transfers) assert(txIds.includes(transfer.getTx().getId()));
+        // get transfers with tx hashes
+        transfers = await that._getAndTestTransfers(that.wallet, {txHashes: txHashes}, true);
+        for (let transfer of transfers) assert(txHashes.includes(transfer.getTx().getHash()));
         
-        // TODO: test that transfers with the same txId have the same tx reference
+        // TODO: test that transfers with the same txHash have the same tx reference
         
         // TODO: test transfers destinations
         
@@ -1151,13 +1151,13 @@ class TestMoneroWalletCommon {
       if (config.testNonRelays && !config.liteMode)
       it("Validates inputs when getting transfers", async function() {
         
-        // test with invalid id
-        let transfers = await that.wallet.getTransfers({txId: "invalid_id"});
+        // test with invalid hash
+        let transfers = await that.wallet.getTransfers({txHash: "invalid_id"});
         assert.equal(transfers.length, 0);
         
-        // test invalid id in collection
+        // test invalid hash in collection
         let randomTxs = await getRandomTransactions(that.wallet, undefined, 3, 5);
-        transfers = await that.wallet.getTransfers({txIds: [randomTxs[0].getId(), "invalid_id"]});
+        transfers = await that.wallet.getTransfers({txHashes: [randomTxs[0].getHash(), "invalid_id"]});
         assert(transfers.length > 0);
         let tx = transfers[0].getTx();
         for (let transfer of transfers) assert(tx === transfer.getTx());
@@ -1241,17 +1241,17 @@ class TestMoneroWalletCommon {
         // get random transactions
         let txs = await getRandomTransactions(that.wallet, {isConfirmed: true}, 3, 5);
         
-        // get outputs with a tx id
-        let txIds = [];
+        // get outputs with a tx hash
+        let txHashes = [];
         for (let tx of txs) {
-          txIds.push(tx.getId());
-          outputs = await that._getAndTestOutputs(that.wallet, {txId: tx.getId()}, true);
-          for (let output of outputs) assert.equal(output.getTx().getId(), tx.getId());
+          txHashes.push(tx.getHash());
+          outputs = await that._getAndTestOutputs(that.wallet, {txHash: tx.getHash()}, true);
+          for (let output of outputs) assert.equal(output.getTx().getHash(), tx.getHash());
         }
         
-        // get outputs with tx ids
-        outputs = await that._getAndTestOutputs(that.wallet, {txIds: txIds}, true);
-        for (let output of outputs) assert(txIds.includes(output.getTx().getId()));
+        // get outputs with tx hashes
+        outputs = await that._getAndTestOutputs(that.wallet, {txHashes: txHashes}, true);
+        for (let output of outputs) assert(txHashes.includes(output.getTx().getHash()));
         
         // get confirmed outputs to specific subaddress with pre-built query
         let accountIdx = 0;
@@ -1276,13 +1276,13 @@ class TestMoneroWalletCommon {
       if (config.testNonRelays && !config.liteMode)
       it("Validates inputs when getting outputs", async function() {
         
-        // test with invalid id
-        let outputs = await that.wallet.getOutputs({txId: "invalid_id"});
+        // test with invalid hash
+        let outputs = await that.wallet.getOutputs({txHash: "invalid_id"});
         assert.equal(outputs.length, 0);
         
-        // test invalid id in collection
+        // test invalid hash in collection
         let randomTxs = await getRandomTransactions(that.wallet, {isConfirmed: true, includeOutputs: true}, 3, 5);
-        outputs = await that.wallet.getOutputs({txIds: [randomTxs[0].getId(), "invalid_id"]});
+        outputs = await that.wallet.getOutputs({txHashes: [randomTxs[0].getHash(), "invalid_id"]});
         assert(outputs.length > 0);
         assert.equal(randomTxs[0].getVouts().length, outputs.length);
         let tx = outputs[0].getTx();
@@ -1353,7 +1353,7 @@ class TestMoneroWalletCommon {
 //          let filter = new MoneroTxQuery();
 //          filter.setAccountIndex(account.getIndex());
 //          for (let tx of txs.filter(tx => filter.meetsCriteria(tx))) { // normally we'd call wallet.getTxs(filter) but we're using pre-fetched txs
-//            if (tx.getId() === "8d3919d98dd5a734da8c52eddc558db3fbf059ad55d432f0052ecd59ef122ecb") console.log(tx.toString(0));
+//            if (tx.getHash() === "8d3919d98dd5a734da8c52eddc558db3fbf059ad55d432f0052ecd59ef122ecb") console.log(tx.toString(0));
 //            
 //            //console.log((tx.getOutgoingAmount() ? tx.getOutgoingAmount().toString() : "") + ", " + (tx.getIncomingAmount() ? tx.getIncomingAmount().toString() : ""));
 //            if (tx.getOutgoingAmount()) outgoingSum = outgoingSum.add(tx.getOutgoingAmount());
@@ -1396,12 +1396,12 @@ class TestMoneroWalletCommon {
         // set notes
         let uuid = GenUtils.uuidv4();
         for (let i = 0; i < txs.length; i++) {
-          await that.wallet.setTxNote(txs[i].getId(), uuid + i); // TODO: can we not iterate over awaits?
+          await that.wallet.setTxNote(txs[i].getHash(), uuid + i); // TODO: can we not iterate over awaits?
         }
         
         // get notes
         for (let i = 0; i < txs.length; i++) {
-          assert.equal(await that.wallet.getTxNote(txs[i].getId()), uuid + i);
+          assert.equal(await that.wallet.getTxNote(txs[i].getHash()), uuid + i);
         }
       });
       
@@ -1413,17 +1413,17 @@ class TestMoneroWalletCommon {
         let uuid = GenUtils.uuidv4();
         let txs = await getCachedTxs();
         assert(txs.length >= 3, "Test requires 3 or more wallet transactions; run send tests");
-        let txIds = [];
+        let txHashes = [];
         let txNotes = [];
-        for (let i = 0; i < txIds.length; i++) {
-          txIds.push(txs[i].getId());
+        for (let i = 0; i < txHashes.length; i++) {
+          txHashes.push(txs[i].getHash());
           txNotes.push(uuid + i);
         }
-        await that.wallet.setTxNotes(txIds, txNotes);
+        await that.wallet.setTxNotes(txHashes, txNotes);
         
         // get tx notes
-        txNotes = await that.wallet.getTxNotes(txIds);
-        for (let i = 0; i < txIds.length; i++) {
+        txNotes = await that.wallet.getTxNotes(txHashes);
+        for (let i = 0; i < txHashes.length; i++) {
           assert.equal(uuid + i, txNotes[i]);
         }
         
@@ -1445,15 +1445,15 @@ class TestMoneroWalletCommon {
         // test good checks
         assert(txs.length > 0, "No transactions found with outgoing destinations");
         for (let tx of txs) {
-          let key = await that.wallet.getTxKey(tx.getId());
+          let key = await that.wallet.getTxKey(tx.getHash());
           for (let destination of tx.getOutgoingTransfer().getDestinations()) {
-            let check = await that.wallet.checkTxKey(tx.getId(), key, destination.getAddress());
+            let check = await that.wallet.checkTxKey(tx.getHash(), key, destination.getAddress());
             if (destination.getAmount().compare(new BigInteger()) > 0) {
               // TODO monero-wallet-rpc: indicates amount received amount is 0 despite transaction with transfer to this address
               // TODO monero-wallet-rpc: returns 0-4 errors, not consistent
 //            assert(check.getReceivedAmount().compare(new BigInteger(0)) > 0);
               if (check.getReceivedAmount().compare(new BigInteger(0)) === 0) {
-                console.log("WARNING: key proof indicates no funds received despite transfer (txid=" + tx.getId() + ", key=" + key + ", address=" + destination.getAddress() + ", amount=" + destination.getAmount() + ")");
+                console.log("WARNING: key proof indicates no funds received despite transfer (txid=" + tx.getHash() + ", key=" + key + ", address=" + destination.getAddress() + ", amount=" + destination.getAmount() + ")");
               }
             }
             else assert(check.getReceivedAmount().compare(new BigInteger(0)) === 0);
@@ -1461,7 +1461,7 @@ class TestMoneroWalletCommon {
           }
         }
         
-        // test get tx key with invalid id
+        // test get tx key with invalid hash
         try {
           await that.wallet.getTxKey("invalid_tx_id");
           throw new Error("Should throw exception for invalid key");
@@ -1469,9 +1469,9 @@ class TestMoneroWalletCommon {
           assert.equal(e.getCode(), -8);
         }
         
-        // test check with invalid tx id
+        // test check with invalid tx hash
         let tx = txs[0];
-        let key = await that.wallet.getTxKey(tx.getId());
+        let key = await that.wallet.getTxKey(tx.getHash());
         let destination = tx.getOutgoingTransfer().getDestinations()[0];
         try {
           await that.wallet.checkTxKey("invalid_tx_id", key, destination.getAddress());
@@ -1482,7 +1482,7 @@ class TestMoneroWalletCommon {
         
         // test check with invalid key
         try {
-          await that.wallet.checkTxKey(tx.getId(), "invalid_tx_key", destination.getAddress());
+          await that.wallet.checkTxKey(tx.getHash(), "invalid_tx_key", destination.getAddress());
           throw new Error("Should have thrown exception");
         } catch (e) {
           assert.equal(e.getCode(), -25);
@@ -1490,7 +1490,7 @@ class TestMoneroWalletCommon {
         
         // test check with invalid address
         try {
-          await that.wallet.checkTxKey(tx.getId(), key, "invalid_tx_address");
+          await that.wallet.checkTxKey(tx.getHash(), key, "invalid_tx_address");
           throw new Error("Should have thrown exception");
         } catch (e) {
           assert.equal(e.getCode(), -2);
@@ -1508,7 +1508,7 @@ class TestMoneroWalletCommon {
           }
         }
         assert(differentAddress, "Could not get a different outgoing address to test; run send tests");
-        let check = await that.wallet.checkTxKey(tx.getId(), key, differentAddress);
+        let check = await that.wallet.checkTxKey(tx.getHash(), key, differentAddress);
         assert(check.isGood());
         assert(check.getReceivedAmount().compare(new BigInteger(0)) >= 0);
         testCheckTx(tx, check);
@@ -1529,8 +1529,8 @@ class TestMoneroWalletCommon {
         // test good checks with messages
         for (let tx of txs) {
           for (let destination of tx.getOutgoingTransfer().getDestinations()) {
-            let signature = await that.wallet.getTxProof(tx.getId(), destination.getAddress(), "This transaction definitely happened.");
-            let check = await that.wallet.checkTxProof(tx.getId(), destination.getAddress(), "This transaction definitely happened.", signature);
+            let signature = await that.wallet.getTxProof(tx.getHash(), destination.getAddress(), "This transaction definitely happened.");
+            let check = await that.wallet.checkTxProof(tx.getHash(), destination.getAddress(), "This transaction definitely happened.", signature);
             testCheckTx(tx, check);
           }
         }
@@ -1538,11 +1538,11 @@ class TestMoneroWalletCommon {
         // test good check without message
         let tx = txs[0];
         let destination = tx.getOutgoingTransfer().getDestinations()[0];
-        let signature = await that.wallet.getTxProof(tx.getId(), destination.getAddress());
-        let check = await that.wallet.checkTxProof(tx.getId(), destination.getAddress(), undefined, signature);
+        let signature = await that.wallet.getTxProof(tx.getHash(), destination.getAddress());
+        let check = await that.wallet.checkTxProof(tx.getHash(), destination.getAddress(), undefined, signature);
         testCheckTx(tx, check);
         
-        // test get proof with invalid id
+        // test get proof with invalid hash
         try {
           await that.wallet.getTxProof("invalid_tx_id", destination.getAddress());
           throw new Error("Should throw exception for invalid key");
@@ -1550,7 +1550,7 @@ class TestMoneroWalletCommon {
           assert.equal(e.getCode(), -8);
         }
         
-        // test check with invalid tx id
+        // test check with invalid tx hash
         try {
           await that.wallet.checkTxProof("invalid_tx_id", destination.getAddress(), undefined, signature);
           throw new Error("Should have thrown exception");
@@ -1560,22 +1560,22 @@ class TestMoneroWalletCommon {
         
         // test check with invalid address
         try {
-          await that.wallet.checkTxProof(tx.getId(), "invalid_tx_address", undefined, signature);
+          await that.wallet.checkTxProof(tx.getHash(), "invalid_tx_address", undefined, signature);
           throw new Error("Should have thrown exception");
         } catch (e) {
           assert.equal(e.getCode(), -2);
         }
         
         // test check with wrong message
-        signature = await that.wallet.getTxProof(tx.getId(), destination.getAddress(), "This is the right message");
-        check = await that.wallet.checkTxProof(tx.getId(), destination.getAddress(), "This is the wrong message", signature);
+        signature = await that.wallet.getTxProof(tx.getHash(), destination.getAddress(), "This is the right message");
+        check = await that.wallet.checkTxProof(tx.getHash(), destination.getAddress(), "This is the wrong message", signature);
         assert.equal(check.isGood(), false);
         testCheckTx(tx, check);
         
         // test check with wrong signature
-        let wrongSignature = await that.wallet.getTxProof(txs[1].getId(), txs[1].getOutgoingTransfer().getDestinations()[0].getAddress(), "This is the right message");
+        let wrongSignature = await that.wallet.getTxProof(txs[1].getHash(), txs[1].getOutgoingTransfer().getDestinations()[0].getAddress(), "This is the right message");
         try {
-          check = await that.wallet.checkTxProof(tx.getId(), destination.getAddress(), "This is the right message", wrongSignature);  
+          check = await that.wallet.checkTxProof(tx.getHash(), destination.getAddress(), "This is the right message", wrongSignature);  
           assert.equal(check.isGood(), false);
         } catch (e) {
           assert.equal(e.getCode(), -1); // TODO: sometimes comes back bad, sometimes throws exception.  ensure txs come from different addresses?
@@ -1595,16 +1595,16 @@ class TestMoneroWalletCommon {
         
         // test good checks with messages
         for (let tx of txs) {
-          let signature = await that.wallet.getSpendProof(tx.getId(), "I am a message.");
-          assert(await that.wallet.checkSpendProof(tx.getId(), "I am a message.", signature));
+          let signature = await that.wallet.getSpendProof(tx.getHash(), "I am a message.");
+          assert(await that.wallet.checkSpendProof(tx.getHash(), "I am a message.", signature));
         }
         
         // test good check without message
         let tx = txs[0];
-        let signature = await that.wallet.getSpendProof(tx.getId());
-        assert(await that.wallet.checkSpendProof(tx.getId(), undefined, signature));
+        let signature = await that.wallet.getSpendProof(tx.getHash());
+        assert(await that.wallet.checkSpendProof(tx.getHash(), undefined, signature));
         
-        // test get proof with invalid id
+        // test get proof with invalid hash
         try {
           await that.wallet.getSpendProof("invalid_tx_id");
           throw new Error("Should throw exception for invalid key");
@@ -1612,7 +1612,7 @@ class TestMoneroWalletCommon {
           assert.equal(e.getCode(), -8);
         }
         
-        // test check with invalid tx id
+        // test check with invalid tx hash
         try {
           await that.wallet.checkSpendProof("invalid_tx_id", undefined, signature);
           throw new Error("Should have thrown exception");
@@ -1621,12 +1621,12 @@ class TestMoneroWalletCommon {
         }
         
         // test check with invalid message
-        signature = await that.wallet.getSpendProof(tx.getId(), "This is the right message");
-        assert.equal(await that.wallet.checkSpendProof(tx.getId(), "This is the wrong message", signature), false);
+        signature = await that.wallet.getSpendProof(tx.getHash(), "This is the right message");
+        assert.equal(await that.wallet.checkSpendProof(tx.getHash(), "This is the wrong message", signature), false);
         
         // test check with wrong signature
-        signature = await that.wallet.getSpendProof(txs[1].getId(), "This is the right message");
-        assert.equal(await that.wallet.checkSpendProof(tx.getId(), "This is the right message", signature), false);
+        signature = await that.wallet.getSpendProof(txs[1].getHash(), "This is the right message");
+        assert.equal(await that.wallet.checkSpendProof(tx.getHash(), "This is the right message", signature), false);
       });
       
       if (config.testNonRelays)
@@ -2143,9 +2143,9 @@ class TestMoneroWalletCommon {
             // give wallet time to catch up, otherwise incoming tx may not appear
             await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // TODO: this lets block slip, okay?
             
-            // get incoming/outgoing txs with sent ids
+            // get incoming/outgoing txs with sent hashes
             let txQuery = new MoneroTxQuery();
-            txQuery.setTxIds(sentTxs.map(sentTx => sentTx.getId())); // TODO: convenience methods wallet.getTxById(), getTxsById()?
+            txQuery.setTxHashes(sentTxs.map(sentTx => sentTx.getHash())); // TODO: convenience methods wallet.getTxById(), getTxsById()?
             let fetchedTxs = await that._getAndTestTxs(that.wallet, txQuery, true);
             assert(fetchedTxs.length > 0);
             
@@ -2159,7 +2159,7 @@ class TestMoneroWalletCommon {
               if (updatedTxs === undefined) updatedTxs = fetchedTxs;
               else {
                 for (let updatedTx of updatedTxs) {
-                  if (fetchedTx.getId() !== updatedTx.getId()) continue;
+                  if (fetchedTx.getHash() !== updatedTx.getHash()) continue;
                   if (!!fetchedTx.getOutgoingTransfer() !== !!updatedTx.getOutgoingTransfer()) continue;  // skip if directions are different
                   updatedTx.merge(fetchedTx.copy());
                   if (!updatedTx.getBlock() && fetchedTx.getBlock()) updatedTx.setBlock(fetchedTx.getBlock().copy().setTxs([updatedTx]));  // copy block for testing
@@ -2168,7 +2168,7 @@ class TestMoneroWalletCommon {
               
               // merge with original sent txs
               for (let sentTx of sentTxs) {
-                if (fetchedTx.getId() !== sentTx.getId()) continue;
+                if (fetchedTx.getHash() !== sentTx.getHash()) continue;
                 if (!!fetchedTx.getOutgoingTransfer() !== !!sentTx.getOutgoingTransfer()) continue; // skip if directions are different
                 sentTx.merge(fetchedTx.copy());  // TODO: it's mergeable but tests don't account for extra info from send (e.g. hex) so not tested; could specify in test context
               }
@@ -2205,7 +2205,7 @@ class TestMoneroWalletCommon {
           // find incoming counterpart
           let txIn;
           for (let tx2 of txs) {
-            if (tx2.getIncomingTransfers() && tx.getId() === tx2.getId()) {
+            if (tx2.getIncomingTransfers() && tx.getHash() === tx2.getHash()) {
               txIn = tx2;
               break;
             }
@@ -2214,7 +2214,7 @@ class TestMoneroWalletCommon {
           // test out / in pair
           // TODO monero-wallet-rpc: incoming txs occluded by their outgoing counterpart #4500
           if (!txIn) {
-            console.log("WARNING: outgoing tx " + txOut.getId() + " missing incoming counterpart (issue #4500)");
+            console.log("WARNING: outgoing tx " + txOut.getHash() + " missing incoming counterpart (issue #4500)");
           } else {
             await testOutInPair(txOut, txIn);
           }
@@ -2464,22 +2464,22 @@ class TestMoneroWalletCommon {
           // txs are not in the pool
           for (let txCreated of txs) {
             for (let txPool of await daemon.getTxPool()) {
-              assert(txPool.getId() !== txCreated.getId(), "Created tx should not be in the pool");
+              assert(txPool.getHash() !== txCreated.getHash(), "Created tx should not be in the pool");
             }
           }
           
           // relay txs
-          let txIds;
-          if (request.getCanSplit() !== true) txIds = [await that.wallet.relayTx(txs[0])]; // test relayTx() with single transaction
+          let txHashes;
+          if (request.getCanSplit() !== true) txHashes = [await that.wallet.relayTx(txs[0])]; // test relayTx() with single transaction
           else {
             let txMetadatas = [];
             for (let tx of txs) txMetadatas.push(tx.getMetadata());
-            txIds = await that.wallet.relayTxs(txMetadatas); // test relayTxs() with potentially multiple transactions
+            txHashes = await that.wallet.relayTxs(txMetadatas); // test relayTxs() with potentially multiple transactions
           }  
-          for (let txId of txIds) assert(typeof txId === "string" && txId.length === 64);
+          for (let txHash of txHashes) assert(typeof txHash === "string" && txHash.length === 64);
           
           // fetch txs for testing
-          txs = await that.wallet.getTxs({txIds: txIds});
+          txs = await that.wallet.getTxs({txHashes: txHashes});
         }
         
         // test that balance and unlocked balance decreased
@@ -2515,7 +2515,7 @@ class TestMoneroWalletCommon {
           // tx is among locked txs
           let found = false;
           for (let lockedTx of lockedTxs) {
-            if (lockedTx.getId() === tx.getId()) {
+            if (lockedTx.getHash() === tx.getHash()) {
               found = true;
               break;
             }
@@ -2744,12 +2744,12 @@ class TestMoneroWalletCommon {
         // relay txs
         let metadatas = [];
         for (let tx of txs) metadatas.push(tx.getMetadata());
-        let txIds = await that.wallet.relayTxs(metadatas);
-        assert.equal(txs.length, txIds.length);
-        for (let txId of txIds) assert.equal(txId.length, 64);
+        let txHashes = await that.wallet.relayTxs(metadatas);
+        assert.equal(txs.length, txHashes.length);
+        for (let txHash of txHashes) assert.equal(txHash.length, 64);
         
         // fetch and test txs
-        txs = wallet.getTxs(new MoneroTxQuery().setTxIds(txIds));
+        txs = wallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
         ctx.sendRequest.setDoNotRelay(false);
         for (let tx of txs) {
           await that._testTxWallet(tx, ctx);
@@ -3202,7 +3202,7 @@ class TestMoneroWalletCommon {
       }
     }
     assert.equal(tx.getLastFailedHeight(), undefined);
-    assert.equal(tx.getLastFailedId(), undefined);
+    assert.equal(tx.getLastFailedHash(), undefined);
     
     // received time only for tx pool or failed txs
     if (tx.getReceivedTimestamp() !== undefined) {
@@ -3628,7 +3628,7 @@ class TestMoneroWalletCommon {
       // submit the signed multisig tx hex to the network
       console.log("Submitting");
       curWallet = await this.openWallet(walletIds[0]);
-      let txIds = await curWallet.submitMultisigTxHex(multisigTxHex);
+      let txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
       await curWallet.save();
       
       // synchronize the multisig participants since spending outputs
@@ -3636,8 +3636,8 @@ class TestMoneroWalletCommon {
       curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
       
       // fetch the wallet's multisig txs
-      let multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxIds(txIds));
-      assert.equal(txIds.length, multisigTxs.length);
+      let multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
+      assert.equal(txHashes.length, multisigTxs.length);
       
       // sweep an output from subaddress [1,1]
       outputs = await curWallet.getOutputs(new MoneroOutputQuery().setAccountIndex(1).setSubaddressIndex(1));
@@ -3662,7 +3662,7 @@ class TestMoneroWalletCommon {
       // submit the signed multisig tx hex to the network
       console.log("Submitting sweep output");
       curWallet = await this.openWallet(walletIds[0]);
-      txIds = await curWallet.submitMultisigTxHex(multisigTxHex);
+      txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
       await curWallet.save();
       
       // synchronize the multisig participants since spending outputs
@@ -3670,8 +3670,8 @@ class TestMoneroWalletCommon {
       curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
       
       // fetch the wallet's multisig txs
-      multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxIds(txIds));
-      assert.equal(txIds.length, multisigTxs.length);
+      multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
+      assert.equal(txHashes.length, multisigTxs.length);
       
       // sweep remaining balance
       console.log("Sweeping");
@@ -3701,7 +3701,7 @@ class TestMoneroWalletCommon {
       // submit the signed multisig tx hex to the network
       console.log("Submitting sweep");
       curWallet = await this.openWallet(walletIds[0]);
-      txIds = await curWallet.submitMultisigTxHex(multisigTxHex);
+      txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
       await curWallet.save();
       
       // synchronize the multisig participants since spending outputs
@@ -3709,8 +3709,8 @@ class TestMoneroWalletCommon {
       curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
       
       // fetch the wallet's multisig txs
-      multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxIds(txIds));
-      assert.equal(txIds.length, multisigTxs.length);
+      multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
+      assert.equal(txHashes.length, multisigTxs.length);
       
       await curWallet.close(true);
     }
@@ -3827,7 +3827,7 @@ async function getRandomTransactions(wallet, query, minTxs, maxTxs) {
  * @param tx is the tx to test
  */
 function testTxWalletTypes(tx) {
-  assert.equal(typeof tx.getId(), "string");
+  assert.equal(typeof tx.getHash(), "string");
   assert.equal(typeof tx.isConfirmed(), "boolean");
   assert.equal(typeof tx.isMinerTx(), "boolean");
   assert.equal(typeof tx.isFailed(), "boolean");
@@ -3920,7 +3920,7 @@ function testOutputWallet(output) {
   assert(tx);
   assert(tx instanceof MoneroTxWallet);
   assert(tx.getVouts().includes(output));
-  assert(tx.getId());
+  assert(tx.getHash());
   assert.equal(typeof tx.isLocked(), "boolean");
   assert.equal(tx.isConfirmed(), true);  // TODO monero-wallet-rpc: possible to get unconfirmed vouts?
   assert.equal(tx.isRelayed(), true);
@@ -4052,24 +4052,24 @@ function testGetTxsStructure(txs, query = undefined) {
     }
   }
   
-  // tx ids must be in order if requested
-  if (query.getTxIds() !== undefined) {
-    assert.equal(txs.length, query.getTxIds().length);
-    for (let i = 0; i < query.getTxIds().length; i++) {
-      assert.equal(txs[i].getId(), query.getTxIds()[i]);
+  // tx hashes must be in order if requested
+  if (query.getTxHashes() !== undefined) {
+    assert.equal(txs.length, query.getTxHashes().length);
+    for (let i = 0; i < query.getTxHashes().length; i++) {
+      assert.equal(txs[i].getHash(), query.getTxHashes()[i]);
     }
   }
   
-  // test that txs and blocks reference each other and blocks are in ascending order unless specific tx ids requested
+  // test that txs and blocks reference each other and blocks are in ascending order unless specific tx hashes requested
   let index = 0;
   let prevBlockHeight = undefined;
   for (let block of blocks) {
     if (prevBlockHeight === undefined) prevBlockHeight = block.getHeight();
-    else if (query.getTxIds() === undefined) assert(block.getHeight() > prevBlockHeight, "Blocks are not in order of heights: " + prevBlockHeight + " vs " + block.getHeight());
+    else if (query.getTxHashes() === undefined) assert(block.getHeight() > prevBlockHeight, "Blocks are not in order of heights: " + prevBlockHeight + " vs " + block.getHeight());
     for (let tx of block.getTxs()) {
       assert(tx.getBlock() === block);
-      if (query.getTxIds() === undefined) { 
-        assert.equal(tx.getId(), txs[index].getId()); // verify tx order is self-consistent with blocks unless txs manually re-ordered by requesting by id
+      if (query.getTxHashes() === undefined) { 
+        assert.equal(tx.getHash(), txs[index].getHash()); // verify tx order is self-consistent with blocks unless txs manually re-ordered by requesting by hash
         assert(tx === txs[index]);
       }
       index++;
@@ -4097,25 +4097,25 @@ function testGetTxsStructure(txs, query = undefined) {
   }
   
   // TODO monero core wallet2 does not provide ordered blocks or txs
-//  // collect given tx ids
-//  List<String> txIds = new ArrayList<String>();
-//  for (MoneroTx tx : txs) txIds.add(tx.getId());
+//  // collect given tx hashes
+//  List<String> txHashes = new ArrayList<String>();
+//  for (MoneroTx tx : txs) txHashes.add(tx.getHash());
 //  
 //  // fetch network blocks at tx heights
 //  List<Long> heights = new ArrayList<Long>();
 //  for (MoneroBlock block : blocks) heights.add(block.getHeight());
 //  List<MoneroBlock> networkBlocks = daemon.getBlocksByHeight(heights);
 //  
-//  // collect matching tx ids from network blocks in order
+//  // collect matching tx hashes from network blocks in order
 //  List<String> expectedTxIds = new ArrayList<String>();
 //  for (MoneroBlock networkBlock : networkBlocks) {
-//    for (String txId : networkBlock.getTxIds()) {
-//      if (!txIds.contains(txId)) expectedTxIds.add(txId);
+//    for (String txHash : networkBlock.getTxHashes()) {
+//      if (!txHashes.contains(txHash)) expectedTxIds.add(txHash);
 //    }
 //  }
 //  
-//  // order of ids must match
-//  assertEquals(expectedTxIds, txIds);
+//  // order of hashes must match
+//  assertEquals(expectedTxIds, txHashes);
 }
 
 function countNumInstances(instances) {

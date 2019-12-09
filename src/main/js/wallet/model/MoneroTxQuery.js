@@ -19,10 +19,10 @@ class MoneroTxQuery extends MoneroTxWallet {
     if (this.state.transferQuery && !(this.state.transferQuery instanceof MoneroTransferQuery)) this.state.transferQuery = new MoneroTransferQuery(this.state.transferQuery);
     if (this.state.outputQuery && !(this.state.outputQuery instanceof MoneroOutputQuery)) this.state.outputQuery = new MoneroOutputQuery(this.state.outputQuery);
     
-    // alias 'txId' to txIds
-    if (this.state.txId) {
-      this.setTxIds([this.state.txId]);
-      delete this.state.txId;
+    // alias 'txHash' to txHashes
+    if (this.state.txHash) {
+      this.setTxHashes([this.state.txHash]);
+      delete this.state.txHash;
     }
   }
   
@@ -56,19 +56,19 @@ class MoneroTxQuery extends MoneroTxWallet {
     return this;
   }
 
-  getTxIds() {
-    return this.state.txIds;
+  getTxHashes() {
+    return this.state.txHashes;
   }
 
-  setTxIds(txIds) {
-    this.state.txIds = txIds;
+  setTxHashes(txHashes) {
+    this.state.txHashes = txHashes;
     return this;
   }
   
-  setTxId(txId) {
-    if (txId === undefined) return this.setTxIds(undefined);
-    assert(typeof txId === "string");
-    return this.setTxIds([txId]);
+  setTxId(txHash) {
+    if (txHash === undefined) return this.setTxHashes(undefined);
+    assert(typeof txHash === "string");
+    return this.setTxHashes([txHash]);
   }
   
   hasPaymentId() {
@@ -154,7 +154,7 @@ class MoneroTxQuery extends MoneroTxWallet {
     if (!(tx instanceof MoneroTxWallet)) return false;
     
     // filter on tx
-    if (this.getId() !== undefined && this.getId() !== tx.getId()) return false;
+    if (this.getHash() !== undefined && this.getHash() !== tx.getHash()) return false;
     if (this.getPaymentId() !== undefined && this.getPaymentId() !== tx.getPaymentId()) return false;
     if (this.isConfirmed() !== undefined && this.isConfirmed() !== tx.isConfirmed()) return false;
     if (this.inTxPool() !== undefined && this.inTxPool() !== tx.inTxPool()) return false;
@@ -212,7 +212,7 @@ class MoneroTxQuery extends MoneroTxWallet {
     
     // filter on remaining fields
     let txHeight = tx.getBlock() === undefined ? undefined : tx.getBlock().getHeight();
-    if (this.getTxIds() !== undefined && !this.getTxIds().includes(tx.getId())) return false;
+    if (this.getTxHashes() !== undefined && !this.getTxHashes().includes(tx.getHash())) return false;
     if (this.getPaymentIds() !== undefined && !this.getPaymentIds().includes(tx.getPaymentId())) return false;
     if (this.getHeight() !== undefined && (txHeight === undefined || txHeight !== this.getHeight())) return false;
     if (this.getMinHeight() !== undefined && (txHeight === undefined || txHeight < this.getMinHeight())) return false;

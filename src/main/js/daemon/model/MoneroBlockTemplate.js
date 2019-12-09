@@ -52,11 +52,11 @@ class MoneroBlockTemplate {
     return this;
   }
   
-  getPrevId() {
+  getPrevHash() {
     return this.state.prevId;
   }
   
-  setPrevId(prevId) {
+  setPrevHash(prevId) {
     this.state.prevId = prevId;
     return this;
   }
