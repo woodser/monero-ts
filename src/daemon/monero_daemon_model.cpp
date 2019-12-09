@@ -179,7 +179,7 @@ namespace monero {
 
     // set sub-arrays
     if (!m_txs.empty()) root.AddMember("txs", monero_utils::to_rapidjson_val(allocator, m_txs), allocator);
-    if (!m_tx_hashes.empty()) root.AddMember("txIds", monero_utils::to_rapidjson_val(allocator, m_tx_hashes), allocator);
+    if (!m_tx_hashes.empty()) root.AddMember("txHashes", monero_utils::to_rapidjson_val(allocator, m_tx_hashes), allocator);
 
     // set sub-objects
     if (m_miner_tx != boost::none) root.AddMember("minerTx", m_miner_tx.get()->to_rapidjson_val(allocator), allocator);
