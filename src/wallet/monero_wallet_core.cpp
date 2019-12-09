@@ -787,7 +787,7 @@ namespace monero {
     monero_sync_listener& listener;
   };
 
-  // ---------------------------- WALLET MANAGEMENT ---------------------------
+  // --------------------------- STATIC WALLET UTILS --------------------------
 
   bool monero_wallet_core::wallet_exists(const string& path) {
     MTRACE("wallet_exists(" << path << ")");
@@ -915,12 +915,18 @@ namespace monero {
     return wallet;
   }
 
+  vector<string> monero_wallet_core::get_mnemonic_languages() {
+    vector<string> languages;
+    crypto::ElectrumWords::get_language_list(languages, true);
+    return languages;
+  }
+
+  // ----------------------------- WALLET METHODS -----------------------------
+
   monero_wallet_core::~monero_wallet_core() {
     MTRACE("~monero_wallet_core()");
     close(false);
   }
-
-  // ----------------------------- WALLET METHODS -----------------------------
 
   void monero_wallet_core::set_daemon_connection(const string& uri, const string& username, const string& password) {
     MTRACE("set_daemon_connection(" << uri << ", " << username << ", " << password << ")");
@@ -1004,12 +1010,6 @@ namespace monero {
   string monero_wallet_core::get_mnemonic_language() const {
     if (m_w2->watch_only()) throw runtime_error("The wallet is watch-only. Cannot retrieve mnemonic language.");
     return m_w2->get_seed_language();
-  }
-
-  vector<string> monero_wallet_core::get_languages() const {
-    vector<string> languages;
-    crypto::ElectrumWords::get_language_list(languages, true);
-    return languages;
   }
 
   string monero_wallet_core::get_public_view_key() const {

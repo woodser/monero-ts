@@ -70,6 +70,8 @@ namespace monero {
 
   public:
 
+    // --------------------------- STATIC WALLET UTILS --------------------------
+
     /**
      * Create a new wallet with a randomly generated seed.
      *
@@ -98,6 +100,15 @@ namespace monero {
     static monero_wallet_keys* create_wallet_from_keys(const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const string& language = "English");
 
     /**
+     * Get a list of available languages for the wallet's mnemonic phrase.
+     *
+     * @return the available languages for the wallet's mnemonic phrase
+     */
+    static vector<string> get_mnemonic_languages();
+
+    // ----------------------------- WALLET METHODS -----------------------------
+
+    /**
      * Destruct the wallet.
      */
     ~monero_wallet_keys();
@@ -109,7 +120,6 @@ namespace monero {
     monero_network_type get_network_type() const { return m_network_type; }
     string get_mnemonic() const { return m_mnemonic; }
     string get_mnemonic_language() const { return m_language; }
-    vector<string> get_languages() const;
     string get_private_view_key() const { return m_prv_view_key; }
     string get_private_spend_key() const { return m_prv_spend_key; }
     string get_public_view_key() const { return m_pub_view_key; }

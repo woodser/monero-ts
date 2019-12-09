@@ -115,7 +115,7 @@ namespace monero {
   // forward declaration of internal wallet2 listener
   struct wallet2_listener;
 
-  // ---------------------------- WALLET INTERFACE ----------------------------
+  // ----------------------------- WALLET METHODS -----------------------------
 
   /**
    * Base wallet with default implementations.
@@ -237,15 +237,6 @@ namespace monero {
      */
     virtual string get_mnemonic_language() const {
       throw runtime_error("get_mnemonic_language() not supported");
-    }
-
-    /**
-     * Get a list of available languages for the wallet's mnemonic phrase.
-     *
-     * @return the available languages for the wallet's mnemonic phrase
-     */
-    virtual vector<string> get_languages() const {
-      throw runtime_error("get_languages() not supported");
     }
 
     /**

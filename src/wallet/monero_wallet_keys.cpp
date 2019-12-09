@@ -183,6 +183,12 @@ namespace monero {
     return wallet;
   }
 
+  vector<string> monero_wallet_keys::get_mnemonic_languages() {
+    vector<string> languages;
+    crypto::ElectrumWords::get_language_list(languages, true);
+    return languages;
+  }
+
   // ----------------------------- WALLET METHODS -----------------------------
 
   monero_wallet_keys::~monero_wallet_keys() {
@@ -195,11 +201,6 @@ namespace monero {
     version.m_number = 65552; // same as monero-wallet-rpc v0.15.0.1 release
     version.m_is_release = false; // TODO: could pull from MONERO_VERSION_IS_RELEASE in version.cpp
     return version;
-  }
-
-  vector<string> monero_wallet_keys::get_languages() const {
-    cout << "monero_wallet_keys::get_languages()" << endl;
-    throw runtime_error("monero_wallet_keys::get_languages() not implemented");
   }
 
   string monero_wallet_keys::get_address(uint32_t account_idx, uint32_t subaddress_idx) const {

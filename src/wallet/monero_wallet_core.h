@@ -68,12 +68,12 @@ using namespace monero;
  */
 namespace monero {
 
-  // --------------------------------- LISTENERS ------------------------------
+  // -------------------------------- LISTENERS -------------------------------
 
   // forward declaration of internal wallet2 listener
   struct wallet2_listener;
 
-  // ---------------------------- WALLET INTERFACE ----------------------------
+  // --------------------------- STATIC WALLET UTILS --------------------------
 
   /**
    * Monero wallet implmentation which uses monero-project's wallet2.
@@ -141,6 +141,15 @@ namespace monero {
     static monero_wallet_core* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& language);
 
     /**
+     * Get a list of available languages for the wallet's mnemonic phrase.
+     *
+     * @return the available languages for the wallet's mnemonic phrase
+     */
+    static vector<string> get_mnemonic_languages();
+
+    // ----------------------------- WALLET METHODS -----------------------------
+
+    /**
      * Destruct the wallet.
      */
     ~monero_wallet_core();
@@ -160,7 +169,6 @@ namespace monero {
     monero_network_type get_network_type() const;
     string get_mnemonic() const;
     string get_mnemonic_language() const;
-    vector<string> get_languages() const;
     string get_public_view_key() const;
     string get_private_view_key() const;
     string get_public_spend_key() const;
