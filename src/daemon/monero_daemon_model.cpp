@@ -267,8 +267,8 @@ namespace monero {
     if (m_is_failed != boost::none) monero_utils::addJsonMember("isFailed", m_is_failed.get(), allocator, root);
 
     // set sub-arrays
-    if (!m_vins.empty()) root.AddMember("vins", monero_utils::to_rapidjson_val(allocator, m_vins), allocator);
-    if (!m_vouts.empty()) root.AddMember("vouts", monero_utils::to_rapidjson_val(allocator, m_vouts), allocator);
+    if (!m_inputs.empty()) root.AddMember("inputs", monero_utils::to_rapidjson_val(allocator, m_inputs), allocator);
+    if (!m_outputs.empty()) root.AddMember("outputs", monero_utils::to_rapidjson_val(allocator, m_outputs), allocator);
     if (!m_output_indices.empty()) root.AddMember("outputIndices", monero_utils::to_rapidjson_val(allocator, m_output_indices), allocator);
     if (!m_extra.empty()) root.AddMember("extra", monero_utils::to_rapidjson_val(allocator, m_extra), allocator);
     if (!m_signatures.empty()) root.AddMember("signatures", monero_utils::to_rapidjson_val(allocator, m_signatures), allocator);
@@ -304,8 +304,8 @@ namespace monero {
       else if (key == string("prunableHash")) tx->m_prunable_hash = it->second.data();
       else if (key == string("size")) throw runtime_error("size deserialization not implemented");
       else if (key == string("weight")) throw runtime_error("weight deserialization not implemented");
-      else if (key == string("vins")) throw runtime_error("vins deserializationn not implemented");
-      else if (key == string("vouts")) throw runtime_error("vouts deserializationn not implemented");
+      else if (key == string("inputs")) throw runtime_error("inputs deserializationn not implemented");
+      else if (key == string("outputs")) throw runtime_error("outputs deserializationn not implemented");
       else if (key == string("outputIndices")) throw runtime_error("m_output_indices deserialization not implemented");
       else if (key == string("metadata")) tx->m_metadata = it->second.data();
       else if (key == string("commonTxSets")) throw runtime_error("commonTxSets deserialization not implemented");
@@ -346,20 +346,20 @@ namespace monero {
     tgt->m_prunable_hash = src->m_prunable_hash;
     tgt->m_size = src->m_size;
     tgt->m_weight = src->m_weight;
-    if (!src->m_vins.empty()) {
-      tgt->m_vins = vector<shared_ptr<monero_output>>();
-      for (const shared_ptr<monero_output>& vin : src->m_vins) {
-        shared_ptr<monero_output> vinCopy = vin->copy(vin, make_shared<monero_output>());
-        vinCopy->m_tx = tgt;
-        tgt->m_vins.push_back(vinCopy);
+    if (!src->m_inputs.empty()) {
+      tgt->m_inputs = vector<shared_ptr<monero_output>>();
+      for (const shared_ptr<monero_output>& input : src->m_inputs) {
+        shared_ptr<monero_output> input_copy = input->copy(input, make_shared<monero_output>());
+        input_copy->m_tx = tgt;
+        tgt->m_inputs.push_back(input_copy);
       }
     }
-    if (!src->m_vouts.empty()) {
-      tgt->m_vouts = vector<shared_ptr<monero_output>>();
-      for (const shared_ptr<monero_output>& vout : src->m_vouts) {
-        shared_ptr<monero_output> voutCopy = vout->copy(vout, make_shared<monero_output>());
-        voutCopy->m_tx = tgt;
-        tgt->m_vouts.push_back(voutCopy);
+    if (!src->m_outputs.empty()) {
+      tgt->m_outputs = vector<shared_ptr<monero_output>>();
+      for (const shared_ptr<monero_output>& output : src->m_outputs) {
+        shared_ptr<monero_output> output_copy = output->copy(output, make_shared<monero_output>());
+        output_copy->m_tx = tgt;
+        tgt->m_outputs.push_back(output_copy);
       }
     }
     if (!src->m_output_indices.empty()) tgt->m_output_indices = vector<uint32_t>(src->m_output_indices);
@@ -436,89 +436,89 @@ namespace monero {
     m_unlock_time = gen_utils::reconcile(m_unlock_time, other->m_unlock_time, "m_unlock_time");
     m_num_confirmations = gen_utils::reconcile(m_num_confirmations, other->m_num_confirmations, "m_num_confirmations");
 
-    // merge vins
-    if (!other->m_vins.empty()) {
-      for (const shared_ptr<monero_output>& merger : other->m_vins) {
+    // merge inputs
+    if (!other->m_inputs.empty()) {
+      for (const shared_ptr<monero_output>& merger : other->m_inputs) {
         bool merged = false;
         merger->m_tx = self;
-        for (const shared_ptr<monero_output>& mergee : m_vins) {
+        for (const shared_ptr<monero_output>& mergee : m_inputs) {
           if ((*mergee->m_key_image)->m_hex == (*merger->m_key_image)->m_hex) {
             mergee->merge(mergee, merger);
             merged = true;
             break;
           }
         }
-        if (!merged) m_vins.push_back(merger);
+        if (!merged) m_inputs.push_back(merger);
       }
     }
 
-    // merge vouts
-    if (!other->m_vouts.empty()) {
-      for (const shared_ptr<monero_output>& vout : other->m_vouts) vout->m_tx = self;
-      if (m_vouts.empty()) m_vouts = other->m_vouts;
+    // merge outputs
+    if (!other->m_outputs.empty()) {
+      for (const shared_ptr<monero_output>& output : other->m_outputs) output->m_tx = self;
+      if (m_outputs.empty()) m_outputs = other->m_outputs;
       else {
 
         // validate output indices if present
         int num_indices = 0;
-        for (const shared_ptr<monero_output>& vout : this->m_vouts) if (vout->m_index != boost::none) num_indices++;
-        for (const shared_ptr<monero_output>& vout : other->m_vouts) if (vout->m_index != boost::none) num_indices++;
-        if (num_indices != 0 && this->m_vouts.size() + other->m_vouts.size() != num_indices) {
-          throw runtime_error("Some vouts have an output index and some do not");
+        for (const shared_ptr<monero_output>& output : this->m_outputs) if (output->m_index != boost::none) num_indices++;
+        for (const shared_ptr<monero_output>& output : other->m_outputs) if (output->m_index != boost::none) num_indices++;
+        if (num_indices != 0 && this->m_outputs.size() + other->m_outputs.size() != num_indices) {
+          throw runtime_error("Some outputs have an output index and some do not");
         }
 
         // merge by output indices if present
         if (num_indices > 0) {
-          for (const shared_ptr<monero_output>& merger : other->m_vouts) {
+          for (const shared_ptr<monero_output>& merger : other->m_outputs) {
             bool merged = false;
             merger->m_tx = self;
-            for (const shared_ptr<monero_output>& mergee : this->m_vouts) {
+            for (const shared_ptr<monero_output>& mergee : this->m_outputs) {
               if (mergee->m_index.get() == merger->m_index.get()) {
                 mergee->merge(mergee, merger);
                 merged = true;
                 break;
               }
             }
-            if (!merged) this->m_vouts.push_back(merger);
+            if (!merged) this->m_outputs.push_back(merger);
           }
         } else {
 
           // determine if key images present
           int numKeyImages = 0;
-          for (const shared_ptr<monero_output> vout : m_vouts) {
-            if (vout->m_key_image != boost::none) {
-              if ((*vout->m_key_image)->m_hex == boost::none) throw runtime_error("Key image hex cannot be null");
+          for (const shared_ptr<monero_output> output : m_outputs) {
+            if (output->m_key_image != boost::none) {
+              if ((*output->m_key_image)->m_hex == boost::none) throw runtime_error("Key image hex cannot be null");
               numKeyImages++;
             }
           }
-          for (const shared_ptr<monero_output>& vout : other->m_vouts) {
-            if (vout->m_key_image != boost::none) {
-              if ((*vout->m_key_image)->m_hex == boost::none) throw runtime_error("Key image hex cannot be null");
+          for (const shared_ptr<monero_output>& output : other->m_outputs) {
+            if (output->m_key_image != boost::none) {
+              if ((*output->m_key_image)->m_hex == boost::none) throw runtime_error("Key image hex cannot be null");
               numKeyImages++;
             }
           }
-          if (numKeyImages != 0 && m_vouts.size() + other->m_vouts.size() != numKeyImages) throw runtime_error("Some vouts have a key image and some do not");
+          if (numKeyImages != 0 && m_outputs.size() + other->m_outputs.size() != numKeyImages) throw runtime_error("Some outputs have a key image and some do not");
 
           // merge by key images
           if (numKeyImages > 0) {
-            for (const shared_ptr<monero_output>& merger : other->m_vouts) {
+            for (const shared_ptr<monero_output>& merger : other->m_outputs) {
               bool merged = false;
               merger->m_tx = self;
-              for (const shared_ptr<monero_output>& mergee : m_vouts) {
+              for (const shared_ptr<monero_output>& mergee : m_outputs) {
                 if ((*mergee->m_key_image)->m_hex == (*merger->m_key_image)->m_hex) {
                   mergee->merge(mergee, merger);
                   merged = true;
                   break;
                 }
               }
-              if (!merged) m_vouts.push_back(merger);
+              if (!merged) m_outputs.push_back(merger);
             }
           }
 
           // merge by position
           else {
-            if (m_vouts.size() != other->m_vouts.size()) throw runtime_error("Vout sizes are different");
-            for (int i = 0; i < other->m_vouts.size(); i++) {
-              m_vouts.at(i)->merge(m_vouts.at(i), other->m_vouts.at(i));
+            if (m_outputs.size() != other->m_outputs.size()) throw runtime_error("Vout sizes are different");
+            for (int i = 0; i < other->m_outputs.size(); i++) {
+              m_outputs.at(i)->merge(m_outputs.at(i), other->m_outputs.at(i));
             }
           }
         }

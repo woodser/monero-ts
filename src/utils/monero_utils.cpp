@@ -256,30 +256,30 @@ shared_ptr<monero_tx> monero_utils::cn_tx_to_tx(const cryptonote::transaction& c
   tx->m_hash = epee::string_tools::pod_to_hex(cn_tx.hash);
   tx->m_extra = cn_tx.extra;
 
-  // init vins
+  // init inputs
   for (const txin_v& cnVin : cn_tx.vin) {
     if (cnVin.which() != 0 && cnVin.which() != 3) throw runtime_error("Unsupported variant type");
     if (tx->m_is_miner_tx == boost::none) tx->m_is_miner_tx = cnVin.which() == 0;
     if (cnVin.which() != 3) continue; // only process txin_to_key of variant  TODO: support other types, like 0 "gen" which is miner tx?
-    shared_ptr<monero_output> vin = init_as_tx_wallet ? make_shared<monero_output_wallet>() : make_shared<monero_output>();
-    vin->m_tx = tx;
-    tx->m_vins.push_back(vin);
+    shared_ptr<monero_output> input = init_as_tx_wallet ? make_shared<monero_output_wallet>() : make_shared<monero_output>();
+    input->m_tx = tx;
+    tx->m_inputs.push_back(input);
     const txin_to_key& txin = boost::get<txin_to_key>(cnVin);
-    vin->m_amount = txin.amount;
-    vin->m_ring_output_indices = txin.key_offsets;
+    input->m_amount = txin.amount;
+    input->m_ring_output_indices = txin.key_offsets;
     crypto::key_image cnKeyImage = txin.k_image;
-    vin->m_key_image = make_shared<monero_key_image>();
-    vin->m_key_image.get()->m_hex = epee::string_tools::pod_to_hex(cnKeyImage);
+    input->m_key_image = make_shared<monero_key_image>();
+    input->m_key_image.get()->m_hex = epee::string_tools::pod_to_hex(cnKeyImage);
   }
 
-  // init vouts
+  // init outputs
   for (const tx_out& cnVout : cn_tx.vout) {
-    shared_ptr<monero_output> vout = init_as_tx_wallet ? make_shared<monero_output_wallet>() : make_shared<monero_output>();
-    vout->m_tx = tx;
-    tx->m_vouts.push_back(vout);
-    vout->m_amount = cnVout.amount;
+    shared_ptr<monero_output> output = init_as_tx_wallet ? make_shared<monero_output_wallet>() : make_shared<monero_output>();
+    output->m_tx = tx;
+    tx->m_outputs.push_back(output);
+    output->m_amount = cnVout.amount;
     const crypto::public_key& cnStealthPublicKey = boost::get<txout_to_key>(cnVout.target).key;
-    vout->m_stealth_public_key = epee::string_tools::pod_to_hex(cnStealthPublicKey);
+    output->m_stealth_public_key = epee::string_tools::pod_to_hex(cnStealthPublicKey);
   }
 
   return tx;

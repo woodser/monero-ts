@@ -336,19 +336,19 @@ namespace monero {
     tx->m_is_double_spend_seen = false;
     tx->m_is_locked = !m_w2.is_transfer_unlocked(td);
 
-    // construct vout
-    shared_ptr<monero_output_wallet> vout = make_shared<monero_output_wallet>();
-    vout->m_tx = tx;
-    tx->m_vouts.push_back(vout);
-    vout->m_amount = td.amount();
-    vout->m_index = td.m_global_output_index;
-    vout->m_account_index = td.m_subaddr_index.major;
-    vout->m_subaddress_index = td.m_subaddr_index.minor;
-    vout->m_is_spent = td.m_spent;
-    vout->m_is_frozen = td.m_frozen;
+    // construct output
+    shared_ptr<monero_output_wallet> output = make_shared<monero_output_wallet>();
+    output->m_tx = tx;
+    tx->m_outputs.push_back(output);
+    output->m_amount = td.amount();
+    output->m_index = td.m_global_output_index;
+    output->m_account_index = td.m_subaddr_index.major;
+    output->m_subaddress_index = td.m_subaddr_index.minor;
+    output->m_is_spent = td.m_spent;
+    output->m_is_frozen = td.m_frozen;
     if (td.m_key_image_known) {
-      vout->m_key_image = make_shared<monero_key_image>();
-      vout->m_key_image.get()->m_hex = epee::string_tools::pod_to_hex(td.m_key_image);
+      output->m_key_image = make_shared<monero_key_image>();
+      output->m_key_image.get()->m_hex = epee::string_tools::pod_to_hex(td.m_key_image);
     }
 
     // return pointer to new tx
@@ -719,7 +719,7 @@ namespace monero {
       tx->m_hash = epee::string_tools::pod_to_hex(txid);
       tx->m_unlock_time = unlock_time;
       shared_ptr<monero_output_wallet> output = make_shared<monero_output_wallet>();
-      tx->m_vouts.push_back(output);
+      tx->m_outputs.push_back(output);
       output->m_tx = tx;
       output->m_amount = amount;
       output->m_account_index = subaddr_index.major;
@@ -743,7 +743,7 @@ namespace monero {
       tx->m_block = block;
       tx->m_hash = epee::string_tools::pod_to_hex(txid);
       shared_ptr<monero_output_wallet> output = make_shared<monero_output_wallet>();
-      tx->m_vins.push_back(output);
+      tx->m_inputs.push_back(output);
       output->m_tx = tx;
       output->m_amount = amount;
       output->m_account_index = subaddr_index.major;
@@ -1659,28 +1659,28 @@ namespace monero {
     sort(txs.begin(), txs.end(), tx_height_less_than);
 
     // filter and return outputs
-    vector<shared_ptr<monero_output_wallet>> vouts;
+    vector<shared_ptr<monero_output_wallet>> outputs;
     for (const shared_ptr<monero_tx_wallet>& tx : txs) {
 
       // sort outputs
-      sort(tx->m_vouts.begin(), tx->m_vouts.end(), vout_before);
+      sort(tx->m_outputs.begin(), tx->m_outputs.end(), vout_before);
 
       // collect queried outputs, remove excluded outputs
-      vector<shared_ptr<monero_output>>::iterator voutIter = tx->m_vouts.begin();
-      while (voutIter != tx->m_vouts.end()) {
+      vector<shared_ptr<monero_output>>::iterator voutIter = tx->m_outputs.begin();
+      while (voutIter != tx->m_outputs.end()) {
         shared_ptr<monero_output_wallet> vout_wallet = static_pointer_cast<monero_output_wallet>(*voutIter);
         if (_query->meets_criteria(vout_wallet.get())) {
-          vouts.push_back(vout_wallet);
+          outputs.push_back(vout_wallet);
           voutIter++;
         } else {
-          voutIter = tx->m_vouts.erase(voutIter); // remove excluded vouts
+          voutIter = tx->m_outputs.erase(voutIter); // remove excluded outputs
         }
       }
 
-      // remove txs without vouts
-      if (tx->m_vouts.empty() && tx->m_block != boost::none) tx->m_block.get()->m_txs.erase(std::remove(tx->m_block.get()->m_txs.begin(), tx->m_block.get()->m_txs.end(), tx), tx->m_block.get()->m_txs.end()); // TODO, no way to use const_iterator?
+      // remove txs without outputs
+      if (tx->m_outputs.empty() && tx->m_block != boost::none) tx->m_block.get()->m_txs.erase(std::remove(tx->m_block.get()->m_txs.begin(), tx->m_block.get()->m_txs.end(), tx), tx->m_block.get()->m_txs.end()); // TODO, no way to use const_iterator?
     }
-    return vouts;
+    return outputs;
   }
 
   string monero_wallet_core::get_outputs_hex() const {

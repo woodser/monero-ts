@@ -192,8 +192,8 @@ namespace monero {
     boost::optional<string> m_prunable_hash;
     boost::optional<uint64_t> m_size;
     boost::optional<uint64_t> m_weight;
-    vector<shared_ptr<monero_output>> m_vins;
-    vector<shared_ptr<monero_output>> m_vouts;
+    vector<shared_ptr<monero_output>> m_inputs;
+    vector<shared_ptr<monero_output>> m_outputs;
     vector<uint32_t> m_output_indices;
     boost::optional<string> m_metadata;
     boost::optional<string> m_common_tx_sets;

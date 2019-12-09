@@ -421,10 +421,10 @@ namespace monero {
 
     // at least one output must meet output query if defined
     if (m_output_query != boost::none && !m_output_query.get()->is_default()) {
-      if (tx->m_vouts.empty()) return false;
+      if (tx->m_outputs.empty()) return false;
       bool matchFound = false;
-      for (const shared_ptr<monero_output>& vout : tx->m_vouts) {
-        shared_ptr<monero_output_wallet> vout_wallet = static_pointer_cast<monero_output_wallet>(vout);
+      for (const shared_ptr<monero_output>& output : tx->m_outputs) {
+        shared_ptr<monero_output_wallet> vout_wallet = static_pointer_cast<monero_output_wallet>(output);
         if (m_output_query.get()->meets_criteria(vout_wallet.get())) {
           matchFound = true;
           break;
