@@ -66,7 +66,7 @@ namespace monero {
 
   void merge_tx(vector<shared_ptr<monero_tx>>& txs, const shared_ptr<monero_tx>& tx) {
     for (const shared_ptr<monero_tx>& aTx : txs) {
-      if (aTx->m_id.get() == tx->m_id.get()) {
+      if (aTx->m_hash.get() == tx->m_hash.get()) {
         aTx->merge(aTx, tx);
         return;
       }
@@ -126,14 +126,14 @@ namespace monero {
     if (m_major_version != boost::none) monero_utils::addJsonMember("majorVersion", m_major_version.get(), allocator, root, value_num);
     if (m_minor_version != boost::none) monero_utils::addJsonMember("minorVersion", m_minor_version.get(), allocator, root, value_num);
     if (m_nonce != boost::none) monero_utils::addJsonMember("nonce", m_nonce.get(), allocator, root, value_num);
-    if (m_miner_tx_id != boost::none) monero_utils::addJsonMember("minerTxId", m_miner_tx_id.get(), allocator, root, value_num);
+    if (m_miner_tx_hash != boost::none) monero_utils::addJsonMember("minerTxHash", m_miner_tx_hash.get(), allocator, root, value_num);
     if (m_num_txs != boost::none) monero_utils::addJsonMember("numTxs", m_num_txs.get(), allocator, root, value_num);
     if (m_reward != boost::none) monero_utils::addJsonMember("reward", m_reward.get(), allocator, root, value_num);
 
     // set string values
     rapidjson::Value value_str(rapidjson::kStringType);
-    if (m_id != boost::none) monero_utils::addJsonMember("id", m_id.get(), allocator, root, value_str);
-    if (m_prev_id != boost::none) monero_utils::addJsonMember("prevId", m_prev_id.get(), allocator, root, value_str);
+    if (m_hash != boost::none) monero_utils::addJsonMember("hash", m_hash.get(), allocator, root, value_str);
+    if (m_prev_hash != boost::none) monero_utils::addJsonMember("prevHash", m_prev_hash.get(), allocator, root, value_str);
     if (m_pow_hash != boost::none) monero_utils::addJsonMember("powHash", m_pow_hash.get(), allocator, root, value_str);
 
     // set bool values
@@ -146,7 +146,7 @@ namespace monero {
   void monero_block_header::merge(const shared_ptr<monero_block_header>& self, const shared_ptr<monero_block_header>& other) {
     if (this != self.get()) throw runtime_error("this != self");
     if (self == other) return;
-    m_id = gen_utils::reconcile(m_id, other->m_id);
+    m_hash = gen_utils::reconcile(m_hash, other->m_hash);
     m_height = gen_utils::reconcile(m_height, other->m_height, boost::none, boost::none, true, "block height"); // height can increase
     m_timestamp = gen_utils::reconcile(m_timestamp, other->m_timestamp, boost::none, boost::none, true, "block header timestamp");  // timestamp can increase
     m_size = gen_utils::reconcile(m_size, other->m_size, "block header size");
@@ -158,10 +158,10 @@ namespace monero {
     m_major_version = gen_utils::reconcile(m_major_version, other->m_major_version, "m_major_version");
     m_minor_version = gen_utils::reconcile(m_minor_version, other->m_minor_version, "m_minor_version");
     m_nonce = gen_utils::reconcile(m_nonce, other->m_nonce, "m_nonce");
-    m_miner_tx_id = gen_utils::reconcile(m_miner_tx_id, other->m_miner_tx_id);
+    m_miner_tx_hash = gen_utils::reconcile(m_miner_tx_hash, other->m_miner_tx_hash);
     m_num_txs = gen_utils::reconcile(m_num_txs, other->m_num_txs, "block header m_num_txs");
     m_orphan_status = gen_utils::reconcile(m_orphan_status, other->m_orphan_status);
-    m_prev_id = gen_utils::reconcile(m_prev_id, other->m_prev_id);
+    m_prev_hash = gen_utils::reconcile(m_prev_hash, other->m_prev_hash);
     m_reward = gen_utils::reconcile(m_reward, other->m_reward, "block header m_reward");
     m_pow_hash = gen_utils::reconcile(m_pow_hash, other->m_pow_hash);
   }
@@ -179,7 +179,7 @@ namespace monero {
 
     // set sub-arrays
     if (!m_txs.empty()) root.AddMember("txs", monero_utils::to_rapidjson_val(allocator, m_txs), allocator);
-    if (!m_tx_ids.empty()) root.AddMember("txIds", monero_utils::to_rapidjson_val(allocator, m_tx_ids), allocator);
+    if (!m_tx_hashes.empty()) root.AddMember("txIds", monero_utils::to_rapidjson_val(allocator, m_tx_hashes), allocator);
 
     // set sub-objects
     if (m_miner_tx != boost::none) root.AddMember("minerTx", m_miner_tx.get()->to_rapidjson_val(allocator), allocator);
@@ -201,7 +201,7 @@ namespace monero {
 
     // merge reconcilable block extensions
     m_hex = gen_utils::reconcile(m_hex, other->m_hex);
-    m_tx_ids = gen_utils::reconcile(m_tx_ids, other->m_tx_ids);
+    m_tx_hashes = gen_utils::reconcile(m_tx_hashes, other->m_tx_hashes);
 
     // merge miner tx
     if (m_miner_tx == boost::none) m_miner_tx = other->m_miner_tx;
@@ -242,7 +242,7 @@ namespace monero {
 
     // set string values
     rapidjson::Value value_str(rapidjson::kStringType);
-    if (m_id != boost::none) monero_utils::addJsonMember("id", m_id.get(), allocator, root, value_str);
+    if (m_hash != boost::none) monero_utils::addJsonMember("hash", m_hash.get(), allocator, root, value_str);
     if (m_payment_id != boost::none) monero_utils::addJsonMember("paymentId", m_payment_id.get(), allocator, root, value_str);
     if (m_key != boost::none) monero_utils::addJsonMember("key", m_key.get(), allocator, root, value_str);
     if (m_full_hex != boost::none) monero_utils::addJsonMember("fullHex", m_full_hex.get(), allocator, root, value_str);
@@ -253,8 +253,8 @@ namespace monero {
     if (m_common_tx_sets != boost::none) monero_utils::addJsonMember("commonTxSets", m_common_tx_sets.get(), allocator, root, value_str);
     if (m_rct_signatures != boost::none) monero_utils::addJsonMember("rctSignatures", m_rct_signatures.get(), allocator, root, value_str);
     if (m_rct_sig_prunable != boost::none) monero_utils::addJsonMember("rctSigPrunable", m_rct_sig_prunable.get(), allocator, root, value_str);
-    if (m_last_failed_id != boost::none) monero_utils::addJsonMember("lastFailedId", m_last_failed_id.get(), allocator, root, value_str);
-    if (m_max_used_block_id != boost::none) monero_utils::addJsonMember("maxUsedBlockId", m_max_used_block_id.get(), allocator, root, value_str);
+    if (m_last_failed_hash != boost::none) monero_utils::addJsonMember("lastFailedHash", m_last_failed_hash.get(), allocator, root, value_str);
+    if (m_max_used_block_hash != boost::none) monero_utils::addJsonMember("maxUsedBlockHash", m_max_used_block_hash.get(), allocator, root, value_str);
 
     // set bool values
     if (m_is_miner_tx != boost::none) monero_utils::addJsonMember("isMinerTx", m_is_miner_tx.get(), allocator, root);
@@ -282,7 +282,7 @@ namespace monero {
     // initialize tx from node
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
       string key = it->first;
-      if (key == string("id")) tx->m_id = it->second.data();
+      if (key == string("hash")) tx->m_hash = it->second.data();
       else if (key == string("version")) throw runtime_error("version deserializationn not implemented");
       else if (key == string("isMinerTx")) tx->m_is_miner_tx = it->second.get_value<bool>();
       else if (key == string("paymentId")) tx->m_payment_id = it->second.data(); // TODO: this threw runtime_error, how is "Can get transactions by payment ids" test passing in Java?
@@ -315,16 +315,16 @@ namespace monero {
       else if (key == string("isKeptByBlock")) tx->m_is_kept_by_block = it->second.get_value<bool>();
       else if (key == string("isFailed")) tx->m_is_failed = it->second.get_value<bool>();
       else if (key == string("lastFailedHeight")) throw runtime_error("lastFailedHeight deserialization not implemented");
-      else if (key == string("lastFailedId")) tx->m_last_failed_id = it->second.data();
+      else if (key == string("lastFailedHash")) tx->m_last_failed_hash = it->second.data();
       else if (key == string("maxUsedBlockHeight")) throw runtime_error("maxUsedBlockHeight deserialization not implemented");
-      else if (key == string("maxUsedBlockId")) tx->m_max_used_block_id = it->second.data();
+      else if (key == string("maxUsedBlockHash")) tx->m_max_used_block_hash = it->second.data();
       else if (key == string("signatures")) throw runtime_error("signatures deserialization not implemented");
     }
   }
 
   shared_ptr<monero_tx> monero_tx::copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt) const {
     MTRACE("monero_tx::copy(const shared_ptr<monero_tx>& src, const shared_ptr<monero_tx>& tgt)");
-    tgt->m_id = src->m_id;
+    tgt->m_hash = src->m_hash;
     tgt->m_version = src->m_version;
     tgt->m_is_miner_tx = src->m_is_miner_tx;
     tgt->m_payment_id = src->m_payment_id;
@@ -371,9 +371,9 @@ namespace monero {
     tgt->m_is_kept_by_block = src->m_is_kept_by_block;
     tgt->m_is_failed = src->m_is_failed;
     tgt->m_last_failed_height = src->m_last_failed_height;
-    tgt->m_last_failed_id = src->m_last_failed_id;
+    tgt->m_last_failed_hash = src->m_last_failed_hash;
     tgt->m_max_used_block_height = src->m_max_used_block_height;
-    tgt->m_max_used_block_id = src->m_max_used_block_id;
+    tgt->m_max_used_block_hash = src->m_max_used_block_hash;
     if (!src->m_signatures.empty()) tgt->m_signatures = vector<string>(src->m_signatures);
     return tgt;
   }
@@ -404,7 +404,7 @@ namespace monero {
     }
 
     // otherwise merge tx fields
-    m_id = gen_utils::reconcile(m_id, other->m_id);
+    m_hash = gen_utils::reconcile(m_hash, other->m_hash);
     m_version = gen_utils::reconcile(m_version, other->m_version);
     m_payment_id = gen_utils::reconcile(m_payment_id, other->m_payment_id);
     m_fee = gen_utils::reconcile(m_fee, other->m_fee, "tx fee");
@@ -429,9 +429,9 @@ namespace monero {
     m_is_kept_by_block = gen_utils::reconcile(m_is_kept_by_block, other->m_is_kept_by_block);
     m_is_failed = gen_utils::reconcile(m_is_failed, other->m_is_failed);
     m_last_failed_height = gen_utils::reconcile(m_last_failed_height, other->m_last_failed_height, "m_last_failed_height");
-    m_last_failed_id = gen_utils::reconcile(m_last_failed_id, other->m_last_failed_id);
+    m_last_failed_hash = gen_utils::reconcile(m_last_failed_hash, other->m_last_failed_hash);
     m_max_used_block_height = gen_utils::reconcile(m_max_used_block_height, other->m_max_used_block_height, "max_used_block_height");
-    m_max_used_block_id = gen_utils::reconcile(m_max_used_block_id, other->m_max_used_block_id);
+    m_max_used_block_hash = gen_utils::reconcile(m_max_used_block_hash, other->m_max_used_block_hash);
     //m_signatures = gen_utils::reconcile(m_signatures, other->m_signatures); // TODO
     m_unlock_time = gen_utils::reconcile(m_unlock_time, other->m_unlock_time, "m_unlock_time");
     m_num_confirmations = gen_utils::reconcile(m_num_confirmations, other->m_num_confirmations, "m_num_confirmations");

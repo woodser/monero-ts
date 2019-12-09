@@ -240,11 +240,11 @@ shared_ptr<monero_block> monero_utils::cn_block_to_block(const cryptonote::block
   block->m_major_version = cn_block.major_version;
   block->m_minor_version = cn_block.minor_version;
   block->m_timestamp = cn_block.timestamp;
-  block->m_prev_id = epee::string_tools::pod_to_hex(cn_block.prev_id);
+  block->m_prev_hash = epee::string_tools::pod_to_hex(cn_block.prev_id);
   block->m_nonce = cn_block.nonce;
   block->m_miner_tx = monero_utils::cn_tx_to_tx(cn_block.miner_tx);
   for (const crypto::hash& tx_hash : cn_block.tx_hashes) {
-    block->m_tx_ids.push_back(epee::string_tools::pod_to_hex(tx_hash));
+    block->m_tx_hashes.push_back(epee::string_tools::pod_to_hex(tx_hash));
   }
   return block;
 }
@@ -253,7 +253,7 @@ shared_ptr<monero_tx> monero_utils::cn_tx_to_tx(const cryptonote::transaction& c
   shared_ptr<monero_tx> tx = init_as_tx_wallet ? make_shared<monero_tx_wallet>() : make_shared<monero_tx>();
   tx->m_version = cn_tx.version;
   tx->m_unlock_time = cn_tx.unlock_time;
-  tx->m_id = epee::string_tools::pod_to_hex(cn_tx.hash);
+  tx->m_hash = epee::string_tools::pod_to_hex(cn_tx.hash);
   tx->m_extra = cn_tx.extra;
 
   // init vins

@@ -127,7 +127,7 @@ namespace monero {
    * TODO: a header that is transmitted may have fewer fields like cryptonote::block_header; separate?
    */
   struct monero_block_header : public serializable_struct {
-    boost::optional<string> m_id;
+    boost::optional<string> m_hash;
     boost::optional<uint64_t> m_height;
     boost::optional<uint64_t> m_timestamp;
     boost::optional<uint64_t> m_size;
@@ -139,10 +139,10 @@ namespace monero {
     boost::optional<uint32_t> m_major_version;
     boost::optional<uint32_t> m_minor_version;
     boost::optional<uint32_t> m_nonce;
-    boost::optional<string> m_miner_tx_id;
+    boost::optional<string> m_miner_tx_hash;
     boost::optional<uint32_t> m_num_txs;
     boost::optional<bool> m_orphan_status;
-    boost::optional<string> m_prev_id;
+    boost::optional<string> m_prev_hash;
     boost::optional<uint64_t> m_reward;
     boost::optional<string> m_pow_hash;
 
@@ -157,7 +157,7 @@ namespace monero {
     boost::optional<string> m_hex;
     boost::optional<shared_ptr<monero_tx>> m_miner_tx;
     vector<shared_ptr<monero_tx>> m_txs;
-    vector<string> m_tx_ids;
+    vector<string> m_tx_hashes;
 
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
     void merge(const shared_ptr<monero_block_header>& self, const shared_ptr<monero_block_header>& other);
@@ -170,7 +170,7 @@ namespace monero {
   struct monero_tx : public serializable_struct {
     static const string DEFAULT_PAYMENT_ID;  // default payment id "0000000000000000"
     boost::optional<shared_ptr<monero_block>> m_block;
-    boost::optional<string> m_id;
+    boost::optional<string> m_hash;
     boost::optional<uint32_t> m_version;
     boost::optional<bool> m_is_miner_tx;
     boost::optional<string> m_payment_id;
@@ -203,9 +203,9 @@ namespace monero {
     boost::optional<bool> m_is_kept_by_block;
     boost::optional<bool> m_is_failed;
     boost::optional<uint64_t> m_last_failed_height;
-    boost::optional<string> m_last_failed_id;
+    boost::optional<string> m_last_failed_hash;
     boost::optional<uint64_t> m_max_used_block_height;
-    boost::optional<string> m_max_used_block_id;
+    boost::optional<string> m_max_used_block_hash;
     vector<string> m_signatures;
 
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;

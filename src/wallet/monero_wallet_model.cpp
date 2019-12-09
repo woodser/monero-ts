@@ -202,7 +202,7 @@ namespace monero {
 
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
       string key = it->first;
-      //if (key == string("id")) tx->m_id = it->second.data();
+      //if (key == string("id")) tx->m_hash = it->second.data();
       if (key == string("isLocked")) tx_wallet->m_is_locked = it->second.get_value<bool>();
       // TODO: deserialize other fields
     }
@@ -308,7 +308,7 @@ namespace monero {
     if (m_include_outputs != boost::none) monero_utils::addJsonMember("includeOutputs", m_include_outputs.get(), allocator, root);
 
     // set sub-arrays
-    if (!m_tx_ids.empty()) root.AddMember("txIds", monero_utils::to_rapidjson_val(allocator, m_tx_ids), allocator);
+    if (!m_tx_hashes.empty()) root.AddMember("txIds", monero_utils::to_rapidjson_val(allocator, m_tx_hashes), allocator);
     if (!m_payment_ids.empty()) root.AddMember("paymentIds", monero_utils::to_rapidjson_val(allocator, m_payment_ids), allocator);
 
     // set sub-objects
@@ -326,7 +326,7 @@ namespace monero {
       string key = it->first;
       if (key == string("isOutgoing")) tx_query->m_is_outgoing = it->second.get_value<bool>();
       else if (key == string("isIncoming")) tx_query->m_is_incoming = it->second.get_value<bool>();
-      else if (key == string("txIds")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) tx_query->m_tx_ids.push_back(it2->second.data());
+      else if (key == string("txIds")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) tx_query->m_tx_hashes.push_back(it2->second.data());
       else if (key == string("hasPaymentId")) tx_query->m_has_payment_id = it->second.get_value<bool>();
       else if (key == string("paymentIds")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) tx_query->m_payment_ids.push_back(it2->second.data());
       else if (key == string("height")) tx_query->m_height = it->second.get_value<uint64_t>();
@@ -379,7 +379,7 @@ namespace monero {
     // copy query extensions
     tgt->m_is_outgoing = src->m_is_outgoing;
     tgt->m_is_incoming = src->m_is_incoming;
-    if (!src->m_tx_ids.empty()) tgt->m_tx_ids = vector<string>(src->m_tx_ids);
+    if (!src->m_tx_hashes.empty()) tgt->m_tx_hashes = vector<string>(src->m_tx_hashes);
     tgt-> m_has_payment_id = src->m_has_payment_id;
     if (!src->m_payment_ids.empty()) tgt->m_payment_ids = vector<string>(src->m_payment_ids);
     tgt->m_height = src->m_height;
@@ -395,7 +395,7 @@ namespace monero {
     if (tx == nullptr) return false;
 
     // filter on tx
-    if (m_id != boost::none && m_id != tx->m_id) return false;
+    if (m_hash != boost::none && m_hash != tx->m_hash) return false;
     if (m_payment_id != boost::none && m_payment_id != tx->m_payment_id) return false;
     if (m_is_confirmed != boost::none && m_is_confirmed != tx->m_is_confirmed) return false;
     if (m_in_tx_pool != boost::none && m_in_tx_pool != tx->m_in_tx_pool) return false;
@@ -447,7 +447,7 @@ namespace monero {
 
     // filter on remaining fields
     boost::optional<uint64_t> txHeight = tx->get_height();
-    if (!m_tx_ids.empty() && find(m_tx_ids.begin(), m_tx_ids.end(), *tx->m_id) == m_tx_ids.end()) return false;
+    if (!m_tx_hashes.empty() && find(m_tx_hashes.begin(), m_tx_hashes.end(), *tx->m_hash) == m_tx_hashes.end()) return false;
     if (!m_payment_ids.empty() && (tx->m_payment_id == boost::none || find(m_payment_ids.begin(), m_payment_ids.end(), *tx->m_payment_id) == m_payment_ids.end())) return false;
     if (m_height != boost::none && (txHeight == boost::none || *txHeight != *m_height)) return false;
     if (m_min_height != boost::none && (txHeight == boost::none || *txHeight < *m_min_height)) return false;
@@ -1253,7 +1253,7 @@ namespace monero {
     if (m_signed_multisig_tx_hex != boost::none) monero_utils::addJsonMember("signedMultisigTxHex", m_signed_multisig_tx_hex.get(), allocator, root, value_str);
 
     // set sub-arrays
-    if (!m_tx_ids.empty()) root.AddMember("txIds", monero_utils::to_rapidjson_val(allocator, m_tx_ids), allocator);
+    if (!m_tx_hashes.empty()) root.AddMember("txIds", monero_utils::to_rapidjson_val(allocator, m_tx_hashes), allocator);
 
     // return root
     return root;

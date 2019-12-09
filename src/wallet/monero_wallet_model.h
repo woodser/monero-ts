@@ -274,7 +274,7 @@ namespace monero {
   struct monero_tx_query : public monero_tx_wallet {
     boost::optional<bool> m_is_outgoing;
     boost::optional<bool> m_is_incoming;
-    vector<string> m_tx_ids;
+    vector<string> m_tx_hashes;
     boost::optional<bool> m_has_payment_id;
     vector<string> m_payment_ids;
     boost::optional<uint64_t> m_height;
@@ -430,7 +430,7 @@ namespace monero {
    */
   struct monero_multisig_sign_result : serializable_struct {
     boost::optional<string> m_signed_multisig_tx_hex;
-    vector<string> m_tx_ids;
+    vector<string> m_tx_hashes;
 
     rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
   };

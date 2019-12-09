@@ -66,6 +66,10 @@ namespace monero_utils
   using namespace std;
   using namespace cryptonote;
 
+  // ------------------------ CONSTANTS ---------------------------
+
+  static const int RING_SIZE = 12;  // network-enforced ring size
+
   // ------------------------ BINARY SERIALIZATION ----------------------------
 
   void json_to_binary(const std::string &json, std::string &bin);

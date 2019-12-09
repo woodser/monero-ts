@@ -96,7 +96,7 @@ namespace monero {
     shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
     tx->m_block = block;
     block->m_txs.push_back(tx);
-    tx->m_id = string_tools::pod_to_hex(pd.m_tx_hash);
+    tx->m_hash = string_tools::pod_to_hex(pd.m_tx_hash);
     tx->m_is_incoming = true;
     tx->m_payment_id = string_tools::pod_to_hex(payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
@@ -149,7 +149,7 @@ namespace monero {
     shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
     tx->m_block = block;
     block->m_txs.push_back(tx);
-    tx->m_id = string_tools::pod_to_hex(txid);
+    tx->m_hash = string_tools::pod_to_hex(txid);
     tx->m_is_outgoing = true;
     tx->m_payment_id = string_tools::pod_to_hex(pd.m_payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
@@ -217,7 +217,7 @@ namespace monero {
     // construct tx
     const tools::wallet2::payment_details &pd = ppd.m_pd;
     shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
-    tx->m_id = string_tools::pod_to_hex(pd.m_tx_hash);
+    tx->m_hash = string_tools::pod_to_hex(pd.m_tx_hash);
     tx->m_is_incoming = true;
     tx->m_payment_id = string_tools::pod_to_hex(payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
@@ -259,7 +259,7 @@ namespace monero {
     // construct tx
     shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
     tx->m_is_failed = pd.m_state == tools::wallet2::unconfirmed_transfer_details::failed;
-    tx->m_id = string_tools::pod_to_hex(txid);
+    tx->m_hash = string_tools::pod_to_hex(txid);
     tx->m_is_outgoing = true;
     tx->m_payment_id = string_tools::pod_to_hex(pd.m_payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
@@ -327,7 +327,7 @@ namespace monero {
     shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
     tx->m_block = block;
     block->m_txs.push_back(tx);
-    tx->m_id = epee::string_tools::pod_to_hex(td.m_txid);
+    tx->m_hash = epee::string_tools::pod_to_hex(td.m_txid);
     tx->m_is_confirmed = true;
     tx->m_is_failed = false;
     tx->m_is_relayed = true;
@@ -367,13 +367,13 @@ namespace monero {
    * @param skip_if_absent specifies if the tx should not be added if it doesn't already exist
    */
   void merge_tx(const shared_ptr<monero_tx_wallet>& tx, map<string, shared_ptr<monero_tx_wallet>>& tx_map, map<uint64_t, shared_ptr<monero_block>>& block_map, bool skip_if_absent) {
-    if (tx->m_id == boost::none) throw runtime_error("Tx id is not initialized");
+    if (tx->m_hash == boost::none) throw runtime_error("Tx id is not initialized");
 
     // if tx doesn't exist, add it (unless skipped)
-    map<string, shared_ptr<monero_tx_wallet>>::const_iterator tx_iter = tx_map.find(*tx->m_id);
+    map<string, shared_ptr<monero_tx_wallet>>::const_iterator tx_iter = tx_map.find(*tx->m_hash);
     if (tx_iter == tx_map.end()) {
       if (!skip_if_absent) {
-        tx_map[*tx->m_id] = tx;
+        tx_map[*tx->m_hash] = tx;
       } else {
         MWARNING("WARNING: tx does not already exist");
       }
@@ -381,7 +381,7 @@ namespace monero {
 
     // otherwise merge with existing tx
     else {
-      shared_ptr<monero_tx_wallet>& a_tx = tx_map[*tx->m_id];
+      shared_ptr<monero_tx_wallet>& a_tx = tx_map[*tx->m_hash];
       a_tx->merge(a_tx, tx);
     }
 
@@ -716,7 +716,7 @@ namespace monero {
       shared_ptr<monero_tx_wallet> tx = static_pointer_cast<monero_tx_wallet>(monero_utils::cn_tx_to_tx(cn_tx, true));
       block->m_txs.push_back(tx);
       tx->m_block = block;
-      tx->m_id = epee::string_tools::pod_to_hex(txid);
+      tx->m_hash = epee::string_tools::pod_to_hex(txid);
       tx->m_unlock_time = unlock_time;
       shared_ptr<monero_output_wallet> output = make_shared<monero_output_wallet>();
       tx->m_vouts.push_back(output);
@@ -741,7 +741,7 @@ namespace monero {
       shared_ptr<monero_tx_wallet> tx = static_pointer_cast<monero_tx_wallet>(monero_utils::cn_tx_to_tx(cn_tx_in, true));
       block->m_txs.push_back(tx);
       tx->m_block = block;
-      tx->m_id = epee::string_tools::pod_to_hex(txid);
+      tx->m_hash = epee::string_tools::pod_to_hex(txid);
       shared_ptr<monero_output_wallet> output = make_shared<monero_output_wallet>();
       tx->m_vins.push_back(output);
       output->m_tx = tx;
@@ -1431,11 +1431,11 @@ namespace monero {
     txs = queried_txs;
 
     // verify all specified tx ids found
-    if (!_query->m_tx_ids.empty()) {
-      for (const string& tx_id : _query->m_tx_ids) {
+    if (!_query->m_tx_hashes.empty()) {
+      for (const string& tx_id : _query->m_tx_hashes) {
         bool found = false;
         for (const shared_ptr<monero_tx_wallet>& tx : txs) {
-          if (tx_id == *tx->m_id) {
+          if (tx_id == *tx->m_hash) {
             found = true;
             break;
           }
@@ -1451,9 +1451,9 @@ namespace monero {
     }
 
     // otherwise order txs if tx ids given then return
-    if (!_query->m_tx_ids.empty()) {
+    if (!_query->m_tx_hashes.empty()) {
       vector<shared_ptr<monero_tx_wallet>> ordered_txs;
-      for (const string& tx_id : _query->m_tx_ids) {
+      for (const string& tx_id : _query->m_tx_hashes) {
         map<string, shared_ptr<monero_tx_wallet>>::const_iterator tx_iter = tx_map.find(tx_id);
         ordered_txs.push_back(tx_iter->second);
       }
@@ -1875,7 +1875,7 @@ namespace monero {
     }
 
     // prepare parameters for wallet2's create_transactions_2()
-    uint64_t mixin = m_w2->adjust_mixin(request.m_ring_size == boost::none ? 0 : request.m_ring_size.get() - 1);
+    uint64_t mixin = m_w2->adjust_mixin(0); // get mixin for call to 'create_transactions_2'
     uint32_t priority = m_w2->adjust_priority(request.m_priority == boost::none ? 0 : request.m_priority.get());
     uint64_t unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
     uint32_t account_index = request.m_account_index.get();
@@ -1923,7 +1923,7 @@ namespace monero {
       // init tx with outgoing transfer from filled values
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
       txs.push_back(tx);
-      tx->m_id = *tx_ids_iter;
+      tx->m_hash = *tx_ids_iter;
       tx->m_key = *tx_keys_iter;
       tx->m_fee = *tx_fees_iter;
       tx->m_full_hex = *tx_blobs_iter;
@@ -1943,7 +1943,7 @@ namespace monero {
       tx->m_in_tx_pool = !tx->m_do_not_relay.get();
       if (!tx->m_is_failed.get() && tx->m_is_relayed.get()) tx->m_is_double_spend_seen = false;  // TODO: test and handle if true
       tx->m_num_confirmations = 0;
-      tx->m_ring_size = request.m_ring_size;
+      tx->m_ring_size = monero_utils::RING_SIZE;
       tx->m_unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
       tx->m_is_locked = true;
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
@@ -2057,7 +2057,7 @@ namespace monero {
 
     // prepare parameters for wallet2's create_transactions_all()
     uint64_t below_amount = request.m_below_amount == boost::none ? 0 : request.m_below_amount.get();
-    uint64_t mixin = m_w2->adjust_mixin(request.m_ring_size == boost::none ? 0 : request.m_ring_size.get() - 1);
+    uint64_t mixin = m_w2->adjust_mixin(0);
     uint32_t priority = m_w2->adjust_priority(request.m_priority == boost::none ? 0 : request.m_priority.get());
     uint64_t unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
     uint32_t account_index = request.m_account_index.get();
@@ -2099,7 +2099,7 @@ namespace monero {
       // init tx with outgoing transfer from filled values
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
       txs.push_back(tx);
-      tx->m_id = *tx_ids_iter;
+      tx->m_hash = *tx_ids_iter;
       tx->m_is_locked = true;
       tx->m_is_outgoing = true;
       tx->m_key = *tx_keys_iter;
@@ -2122,7 +2122,7 @@ namespace monero {
       tx->m_in_tx_pool = !do_not_relay;
       if (!tx->m_is_failed.get() && tx->m_is_relayed.get()) tx->m_is_double_spend_seen = false;  // TODO: test and handle if true
       tx->m_num_confirmations = 0;
-      tx->m_ring_size = request.m_ring_size;
+      tx->m_ring_size = monero_utils::RING_SIZE;
       tx->m_unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
       out_transfer->m_account_index = request.m_account_index;
@@ -2174,7 +2174,7 @@ namespace monero {
     }
 
     // create transaction
-    uint64_t mixin = m_w2->adjust_mixin(request.m_ring_size == boost::none ? 0 : request.m_ring_size.get() - 1);
+    uint64_t mixin = m_w2->adjust_mixin(0);
     uint32_t priority = m_w2->adjust_priority(request.m_priority == boost::none ? 0 : request.m_priority.get());
     uint64_t unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
     std::vector<wallet2::pending_tx> ptx_vector = m_w2->create_transactions_single(ki, dsts[0].addr, dsts[0].is_subaddress, 1, mixin, unlock_time, priority, extra);
@@ -2217,7 +2217,7 @@ namespace monero {
       // init tx with outgoing transfer from filled values
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
       txs.push_back(tx);
-      tx->m_id = *tx_ids_iter;
+      tx->m_hash = *tx_ids_iter;
       tx->m_is_outgoing = true;
       tx->m_key = *tx_keys_iter;
       tx->m_fee = *tx_fees_iter;
@@ -2237,7 +2237,7 @@ namespace monero {
       tx->m_in_tx_pool = !tx->m_do_not_relay.get();
       if (!tx->m_is_failed.get() && tx->m_is_relayed.get()) tx->m_is_double_spend_seen = false;  // TODO: test and handle if true
       tx->m_num_confirmations = 0;
-      tx->m_ring_size = request.m_ring_size;
+      tx->m_ring_size = monero_utils::RING_SIZE;
       tx->m_unlock_time = request.m_unlock_time == boost::none ? 0 : request.m_unlock_time.get();
       tx->m_is_locked = true;
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
@@ -2304,7 +2304,7 @@ namespace monero {
       // init tx with outgoing transfer from filled values
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
       txs.push_back(tx);
-      tx->m_id = *tx_ids_iter;
+      tx->m_hash = *tx_ids_iter;
       tx->m_is_outgoing = true;
       tx->m_key = *tx_keys_iter;
       tx->m_fee = *tx_fees_iter;
@@ -2323,7 +2323,7 @@ namespace monero {
       tx->m_in_tx_pool = !tx->m_do_not_relay.get();
       if (!tx->m_is_failed.get() && tx->m_is_relayed.get()) tx->m_is_double_spend_seen = false;  // TODO: test and handle if true
       tx->m_num_confirmations = 0;
-      //tx->m_ring_size = request.m_ring_size;  // TODO: how to get?
+      tx->m_ring_size = monero_utils::RING_SIZE;
       tx->m_unlock_time = 0;
       if (tx->m_is_relayed.get()) tx->m_last_relayed_timestamp = static_cast<uint64_t>(time(NULL));  // set last relayed timestamp to current time iff relayed  // TODO monero core: this should be encapsulated in wallet2
       out_transfer->m_destinations[0]->m_amount = *tx_amounts_iter;
@@ -3117,7 +3117,7 @@ namespace monero {
     monero_multisig_sign_result result;
     result.m_signed_multisig_tx_hex = signed_multisig_tx_hex;
     for (const crypto::hash& tx_hash : tx_hashes) {
-      result.m_tx_ids.push_back(epee::string_tools::pod_to_hex(tx_hash));
+      result.m_tx_hashes.push_back(epee::string_tools::pod_to_hex(tx_hash));
     }
     return result;
   }
