@@ -68,6 +68,10 @@ class MoneroWalletKeys extends MoneroWalletWasmBase {
     });
   }
   
+  static async getMnemonicLanguages() {
+    throw Error("MoneroWalletKeys.getMnemonicLanguages() not implemented");
+  }
+  
   // --------------------------- INSTANCE METHODS -----------------------------
   
   /**

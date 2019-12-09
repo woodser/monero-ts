@@ -65,15 +65,6 @@ class MoneroWallet {
   }
   
   /**
-   * Get a list of available languages for the wallet's mnemonic phrase.
-   * 
-   * @return {string[]} the available languages for the wallet's mnemonic phrase
-   */
-  async getLanguages() {
-    throw new MoneroError("Subclass must implement");
-  }
-  
-  /**
    * Get the wallet's private view key.
    * 
    * @return {string} the wallet's private view key

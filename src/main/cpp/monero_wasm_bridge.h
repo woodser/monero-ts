@@ -19,7 +19,7 @@ namespace monero_wasm_bridge
   string binary_to_json(const string &args_string);
   string binary_blocks_to_json(const string &args_string);
 
-  // --------------------------- WALLET CREATION ------------------------------
+  // ------------------------- STATIC WALLET UTILS ----------------------------
 
 //  // TODO: remove path from these, they're not used
 //  void open_wallet(const string& path, const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, emscripten::val callback);
@@ -29,6 +29,7 @@ namespace monero_wasm_bridge
     void create_keys_wallet_random(int network_type, const string& language, emscripten::val callback);
     void create_keys_wallet_from_mnemonic(int network_type, const string& mnemonic, emscripten::val callback);
     void create_keys_wallet_from_keys(int network_type, const string& address, const string& view_key, const string& spend_key, const string& language, emscripten::val callback);
+    vector<string> get_keys_wallet_mnemonic_languages();
 
   // ----------------------- WALLET INSTANCE METHODS --------------------------
 
@@ -41,7 +42,6 @@ namespace monero_wasm_bridge
 //  int get_network_type(int handle);
   string get_mnemonic(int handle);
   string get_mnemonic_language(int handle);
-  string get_languages(int handle);
   string get_public_view_key(int handle);
   string get_private_view_key(int handle);
   string get_public_spend_key(int handle);

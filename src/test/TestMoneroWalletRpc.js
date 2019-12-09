@@ -32,7 +32,11 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
     await this.wallet.createWalletFromKeys(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language);
     return this.wallet;
-  } 
+  }
+  
+  async getMnemonicLanguages() {
+    return await this.wallet.getMnemonicLanguages();
+  }
 
   runTests(config) {
     let that = this;
