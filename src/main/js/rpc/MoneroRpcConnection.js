@@ -111,15 +111,20 @@ class MoneroRpcConnection {
     }
     
     // send request and await response
-    let resp = await this._throttledRequest(opts);
-    resp = JSON.parse(resp.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
-    //console.log(JSON.stringify(resp));
-    if (resp.error) {
-      //console.error("Request failed: " + resp.error.code + ": " + resp.error.message);
-      //console.error(opts);
-      throw new MoneroRpcError(resp.error.message, resp.error.code, method, params);
+    try {
+      let resp = await this._throttledRequest(opts);
+      resp = JSON.parse(resp.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
+      //console.log(JSON.stringify(resp));
+      if (resp.error) {
+        //console.error("Request failed: " + resp.error.code + ": " + resp.error.message);
+        //console.error(opts);
+        throw new MoneroRpcError(resp.error.message, resp.error.code, method, params);
+      }
+      return resp;
+    } catch (e) {
+      if (e instanceof MoneroRpcError) throw e;
+      else throw new MoneroRpcError(e, undefined, method, params);
     }
-    return resp;
   }
   
   /**
@@ -147,11 +152,16 @@ class MoneroRpcConnection {
     }
     
     // send request and await response
-    let resp = await this._throttledRequest(opts);
-    resp = JSON.parse(resp.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
-    if (typeof resp === "string") resp = JSON.parse(resp);  // TODO: some responses returned as strings?
-    if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
-    return resp;
+    try {
+      let resp = await this._throttledRequest(opts);
+      resp = JSON.parse(resp.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
+      if (typeof resp === "string") resp = JSON.parse(resp);  // TODO: some responses returned as strings?
+      if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
+      return resp;
+    } catch (e) {
+      if (e instanceof MoneroRpcError) throw e;
+      else throw new MoneroRpcError(e, undefined, path, params);
+    }
   }
   
   /**
@@ -188,9 +198,14 @@ class MoneroRpcConnection {
     }
     
     // send request and store binary response as Uint8Array
-    let resp = await this._throttledRequest(opts);
-    if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
-    return new Uint8Array(resp, 0, resp.length);
+    try {
+      let resp = await this._throttledRequest(opts);
+      if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
+      return new Uint8Array(resp, 0, resp.length);
+    } catch (e) {
+      if (e instanceof MoneroRpcError) throw e;
+      else throw new MoneroRpcError(e, undefined, path, params);
+    }
   }
   
   /**
