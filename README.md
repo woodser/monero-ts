@@ -144,8 +144,6 @@ You are now ready to use this library with [monero-daemon-rpc](https://getmonero
 
 [Sample browser application to demonstrate integration](https://github.com/woodser/xmr-sample-app)
 
-These libraries conform to the same [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf):
-
 [Java reference implementation](https://github.com/monero-ecosystem/monero-java)
 
 [C++ reference implementation](https://github.com/woodser/monero-cpp-library)
