@@ -181,10 +181,10 @@ class MoneroTxQuery extends MoneroTxWallet {
     
     // at least one output must meet output query if defined
     if (this.getOutputQuery() !== undefined && !this.getOutputQuery().isDefault()) {
-      if (tx.getVouts() === undefined || tx.getVouts().length === 0) return false;
+      if (tx.getOutputs() === undefined || tx.getOutputs().length === 0) return false;
       let matchFound = false;
-      for (let vout of tx.getVouts()) {
-        if (this.getOutputQuery().meetsCriteria(vout)) {
+      for (let output of tx.getOutputs()) {
+        if (this.getOutputQuery().meetsCriteria(output)) {
           matchFound = true;
           break;
         }

@@ -791,29 +791,29 @@ class TestMoneroWalletCommon {
         txs = await that._getAndTestTxs(that.wallet, {includeOutputs: true}, true);
         let found = false;
         for (let tx of txs) {
-          if (tx.getVouts()) {
-            assert(tx.getVouts().length > 0);
+          if (tx.getOutputs()) {
+            assert(tx.getOutputs().length > 0);
             found = true;
           } else {
-            assert(tx.isOutgoing() || (tx.isIncoming() && !tx.isConfirmed())); // TODO: monero-wallet-rpc: return vouts for unconfirmed txs
+            assert(tx.isOutgoing() || (tx.isIncoming() && !tx.isConfirmed())); // TODO: monero-wallet-rpc: return outputs for unconfirmed txs
           }
         }
-        assert(found, "No vouts found in txs");
+        assert(found, "No outputs found in txs");
         
         // get txs with output query
         let outputQuery = new MoneroOutputQuery().setIsSpent(false).setAccountIndex(1).setSubaddressIndex(2);
         txs = await that.wallet.getTxs(new MoneroTxQuery().setOutputQuery(outputQuery));
         assert(txs.length > 0);
         for (let tx of txs) {
-          assert(tx.getVouts().length > 0);
+          assert(tx.getOutputs().length > 0);
           found = false;
-          for (let vout of tx.getVouts()) {
-            if (vout.isSpent() === false && vout.getAccountIndex() === 1 && vout.getSubaddressIndex() === 2) {
+          for (let output of tx.getOutputs()) {
+            if (output.isSpent() === false && output.getAccountIndex() === 1 && output.getSubaddressIndex() === 2) {
               found = true;
               break;
             }
           }
-          if (!found) throw new Error("Tx does not contain specified vout");
+          if (!found) throw new Error("Tx does not contain specified output");
         }
         
         // get unlocked txs
@@ -1294,7 +1294,7 @@ class TestMoneroWalletCommon {
         let randomTxs = await getRandomTransactions(that.wallet, {isConfirmed: true, includeOutputs: true}, 3, 5);
         outputs = await that.wallet.getOutputs({txHashes: [randomTxs[0].getHash(), "invalid_id"]});
         assert(outputs.length > 0);
-        assert.equal(randomTxs[0].getVouts().length, outputs.length);
+        assert.equal(randomTxs[0].getOutputs().length, outputs.length);
         let tx = outputs[0].getTx();
         for (let output of outputs) assert(tx === output.getTx());
       });
@@ -3301,9 +3301,9 @@ class TestMoneroWalletCommon {
       // test locked state
       if (tx.getUnlockTime() === 0) assert.equal(!tx.isLocked(), tx.isConfirmed());
       else assert.equal(tx.isLocked(), true);
-      if (tx.getVouts() !== undefined) {
-        for (let vout of tx.getVouts()) {
-          assert.equal(vout.isLocked(), tx.isLocked());
+      if (tx.getOutputs() !== undefined) {
+        for (let output of tx.getOutputs()) {
+          assert.equal(output.isLocked(), tx.isLocked());
         }
       }
       
@@ -3349,17 +3349,17 @@ class TestMoneroWalletCommon {
       assert.equal(tx.getLastRelayedTimestamp(), undefined);
     }
     
-    // test vouts
+    // test outputs
     if (tx.isIncoming() && ctx.includeOutputs) {
       if (tx.isConfirmed()) {
-        assert(tx.getVouts() !== undefined);
-        assert(tx.getVouts().length > 0);
+        assert(tx.getOutputs() !== undefined);
+        assert(tx.getOutputs().length > 0);
       } else {
-        assert(tx.getVouts() === undefined);
+        assert(tx.getOutputs() === undefined);
       }
 
     }
-    if (tx.getVouts()) for (let vout of tx.getVouts()) testOutputWallet(vout);
+    if (tx.getOutputs()) for (let output of tx.getOutputs()) testOutputWallet(output);
     
     // test deep copy
     if (!ctx.isCopy) await this._testTxWalletCopy(tx, ctx);
@@ -3394,11 +3394,11 @@ class TestMoneroWalletCommon {
         if (tx.getIncomingTransfers()[i].getAmount() == copy.getIncomingTransfers()[i].getAmount()) assert(tx.getIncomingTransfers()[i].getAmount().toJSValue() === 0);
       }
     }
-    if (tx.getVouts()) {
-      for (let i = 0; i < tx.getVouts().length; i++) {
-        assert.deepEqual(copy.getVouts()[i].toJson(), tx.getVouts()[i].toJson());
-        assert(tx.getVouts()[i] !== copy.getVouts()[i]);
-        if (tx.getVouts()[i].getAmount() == copy.getVouts()[i].getAmount()) assert(tx.getVouts()[i].getAmount().toJSValue() === 0);
+    if (tx.getOutputs()) {
+      for (let i = 0; i < tx.getOutputs().length; i++) {
+        assert.deepEqual(copy.getOutputs()[i].toJson(), tx.getOutputs()[i].toJson());
+        assert(tx.getOutputs()[i] !== copy.getOutputs()[i]);
+        if (tx.getOutputs()[i].getAmount() == copy.getOutputs()[i].getAmount()) assert(tx.getOutputs()[i].getAmount().toJSValue() === 0);
       }
     }
     
@@ -3845,7 +3845,7 @@ function testTxWalletTypes(tx) {
   assert.equal(typeof tx.inTxPool(), "boolean");
   assert.equal(typeof tx.isLocked(), "boolean");
   TestUtils.testUnsignedBigInteger(tx.getFee());
-  assert.equal(tx.getVins(), undefined);  // TODO no way to expose vins?
+  assert.equal(tx.getInputs(), undefined);  // TODO no way to expose inputs?
   if (tx.getPaymentId()) assert.notEqual(tx.getPaymentId(), MoneroTx.DEFAULT_PAYMENT_ID); // default payment id converted to undefined
   if (tx.getNote()) assert(tx.getNote().length > 0);  // empty notes converted to undefined
   assert(tx.getUnlockTime() >= 0);
@@ -3929,10 +3929,10 @@ function testOutputWallet(output) {
   let tx = output.getTx();
   assert(tx);
   assert(tx instanceof MoneroTxWallet);
-  assert(tx.getVouts().includes(output));
+  assert(tx.getOutputs().includes(output));
   assert(tx.getHash());
   assert.equal(typeof tx.isLocked(), "boolean");
-  assert.equal(tx.isConfirmed(), true);  // TODO monero-wallet-rpc: possible to get unconfirmed vouts?
+  assert.equal(tx.isConfirmed(), true);  // TODO monero-wallet-rpc: possible to get unconfirmed outputs?
   assert.equal(tx.isRelayed(), true);
   assert.equal(tx.isFailed(), false);
   assert(tx.getHeight() > 0);

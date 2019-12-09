@@ -28,13 +28,13 @@ class MoneroTxWallet extends MoneroTx {
       this.setOutgoingTransfer(new MoneroOutgoingTransfer(Object.assign(state.outgoingTransfer, {tx: this})));
     }
     
-    // TODO: deserialize vins
+    // TODO: deserialize inputs
     
-    // deserialize vouts
-    if (state.vouts) {
-      for (let i = 0; i < state.vouts.length; i++) {
-        if (!(state.vouts[i] instanceof MoneroOutputWallet)) {
-          state.vouts[i] = new MoneroOutputWallet(Object.assign(state.vouts[i].toJson(), {tx: this}));
+    // deserialize outputs
+    if (state.outputs) {
+      for (let i = 0; i < state.outputs.length; i++) {
+        if (!(state.outputs[i] instanceof MoneroOutputWallet)) {
+          state.outputs[i] = new MoneroOutputWallet(Object.assign(state.outputs[i].toJson(), {tx: this}));
         }
       }
     }
@@ -96,15 +96,15 @@ class MoneroTxWallet extends MoneroTx {
     return this;
   }
   
-  setVouts(vouts) {
+  setOutputs(outputs) {
     
-    // validate that all vouts are wallet outputs
-    if (vouts) {
-      for (let vout of vouts) {
-        if (!(vout instanceof MoneroOutputWallet)) throw new MoneroError("Wallet transaction vouts must be of type MoneroOutputWallet");
+    // validate that all outputs are wallet outputs
+    if (outputs) {
+      for (let output of outputs) {
+        if (!(output instanceof MoneroOutputWallet)) throw new MoneroError("Wallet transaction outputs must be of type MoneroOutputWallet");
       }
     }
-    super.setVouts(vouts);
+    super.setOutputs(outputs);
     return this;
   }
   
