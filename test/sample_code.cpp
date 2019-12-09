@@ -47,9 +47,9 @@ int main(int argc, const char* argv[]) {
   monero_account account = wallet_restored->get_account(1, true);       // get account with subaddresses
   uint64_t unlocked_account_balance = account.m_unlocked_balance.get(); // get boost::optional value
 
-  // query a transaction by id
+  // query a transaction by hash
   monero_tx_query tx_query;
-  tx_query.m_id = "314a0f1375db31cea4dac4e0a51514a6282b43792269b3660166d4d2b46437ca";
+  tx_query.m_hash = "314a0f1375db31cea4dac4e0a51514a6282b43792269b3660166d4d2b46437ca";
   shared_ptr<monero_tx_wallet> tx = wallet_restored->get_txs(tx_query)[0];
   for (const shared_ptr<monero_incoming_transfer> in_transfer : tx->m_incoming_transfers) {
     uint64_t in_amount = in_transfer->m_amount.get();
@@ -90,7 +90,7 @@ int main(int argc, const char* argv[]) {
   struct : monero_wallet_listener {
     void on_output_received(const monero_output_wallet& output) {
       cout << "Wallet received funds!" << endl;
-      string tx_id = output.m_tx->m_id.get();
+      string tx_hash = output.m_tx->m_hash.get();
       int account_index = output.m_account_index.get();
       int subaddress_index = output.m_subaddress_index.get();
       OUTPUT_RECEIVED = true;

@@ -202,7 +202,7 @@ namespace monero {
 
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
       string key = it->first;
-      //if (key == string("id")) tx->m_hash = it->second.data();
+      //if (key == string("hash")) tx->m_hash = it->second.data();
       if (key == string("isLocked")) tx_wallet->m_is_locked = it->second.get_value<bool>();
       // TODO: deserialize other fields
     }

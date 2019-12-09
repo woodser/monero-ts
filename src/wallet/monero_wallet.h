@@ -666,12 +666,12 @@ namespace monero {
     }
 
 //    /**
-//     * Get a wallet transaction by id.
+//     * Get a wallet transaction by hash.
 //     *
-//     * @param tx_id is an id of a transaction to get
+//     * @param tx_hash is a hash of a transaction to get
 //     * @return monero_tx_wallet is the identified transactions
 //     */
-//    public monero_tx_wallet getTx(string tx_id);
+//    public monero_tx_wallet getTx(string tx_hash);
 
     /**
      * Get all wallet transactions.  Wallet transactions contain one or more
@@ -684,12 +684,12 @@ namespace monero {
     }
 
 //    /**
-//     * Get wallet transactions by id.
+//     * Get wallet transactions by hash.
 //     *
-//     * @param tx_ids are ids of transactions to get
+//     * @param tx_hashes are hashes of transactions to get
 //     * @return the identified transactions
 //     */
-//    public List<monero_tx_wallet> get_txs(Collection<string> tx_ids);
+//    public List<monero_tx_wallet> get_txs(Collection<string> tx_hashes);
 
     /**
      * Get wallet transactions.  Wallet transactions contain one or more
@@ -708,15 +708,15 @@ namespace monero {
     }
 
     /**
-     * Same as get_txs(request) but collects missing tx ids instead of throwing an error.
+     * Same as get_txs(request) but collects missing tx hashes instead of throwing an error.
      * This method is separated because WebAssembly does not support exception handling.
      *
      * @param request filters query results (optional)
-     * @param missing_tx_ids are populated with requested tx ids that are not part of the wallet
+     * @param missing_tx_hashes are populated with requested tx hashes that are not part of the wallet
      * @return wallet transactions per the request
      */
-    virtual vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& query, vector<string>& missing_tx_ids) const {
-      throw runtime_error("get_txs(query, missing_tx_ids) not supported");
+    virtual vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& query, vector<string>& missing_tx_hashes) const {
+      throw runtime_error("get_txs(query, missing_tx_hashes) not supported");
     }
 
 //    /**
@@ -901,7 +901,7 @@ namespace monero {
      * Relay a transaction previously created without relaying.
      *
      * @param txMetadata is transaction metadata previously created without relaying
-     * @return string is the id of the relayed tx
+     * @return string is the hash of the relayed tx
      */
     virtual string relay_tx(const string& tx_metadata) {
       throw runtime_error("relay_tx() not supported");
@@ -911,7 +911,7 @@ namespace monero {
      * Relay a previously created transaction.
      *
      * @param tx is the transaction to relay
-     * @return the id of the relayed tx
+     * @return the hash of the relayed tx
      */
     virtual string relay_tx(const monero_tx_wallet& tx) {
       throw runtime_error("relay_tx() not supported");
@@ -921,7 +921,7 @@ namespace monero {
      * Relay transactions previously created without relaying.
      *
      * @param tx_metadatas are transaction metadata previously created without relaying
-     * @return the ids of the relayed txs
+     * @return the hashes of the relayed txs
      */
     virtual vector<string> relay_txs(const vector<string>& tx_metadatas) {
       throw runtime_error("relay_txs() not supported");
@@ -931,7 +931,7 @@ namespace monero {
      * Relay previously created transactions.
      *
      * @param txs are the transactions to relay
-     * @return the ids of the relayed txs
+     * @return the hashes of the relayed txs
      */
     virtual vector<string> relay_txs(const vector<shared_ptr<monero_tx_wallet>>& txs) {
       throw runtime_error("relay_txs() not supported");
@@ -1135,89 +1135,89 @@ namespace monero {
     }
 
     /**
-     * Get a transaction's secret key from its id.
+     * Get a transaction's secret key from its hash.
      *
-     * @param tx_id is the transaction's id
+     * @param tx_hash is the transaction's hash
      * @return is the transaction's secret key
      */
-    virtual string get_tx_key(const string& tx_id) const {
+    virtual string get_tx_key(const string& tx_hash) const {
       throw runtime_error("get_tx_key() not supported");
     }
 
     /**
      * Check a transaction in the blockchain with its secret key.
      *
-     * @param tx_id specifies the transaction to check
+     * @param tx_hash specifies the transaction to check
      * @param txKey is the transaction's secret key
      * @param address is the destination public address of the transaction
      * @return the result of the check
      */
-    virtual shared_ptr<monero_check_tx> check_tx_key(const string& tx_id, const string& txKey, const string& address) const {
+    virtual shared_ptr<monero_check_tx> check_tx_key(const string& tx_hash, const string& txKey, const string& address) const {
       throw runtime_error("check_tx_key() not supported");
     }
 
 //    /**
 //     * Get a transaction signature to prove it.
 //     *
-//     * @param tx_id specifies the transaction to prove
+//     * @param tx_hash specifies the transaction to prove
 //     * @param address is the destination public address of the transaction
 //     * @return the transaction signature
 //     */
-//    string get_tx_proof(const string& tx_id, const string& address) const;
+//    string get_tx_proof(const string& tx_hash, const string& address) const;
 
     /**
      * Get a transaction signature to prove it.
      *
-     * @param tx_id specifies the transaction to prove
+     * @param tx_hash specifies the transaction to prove
      * @param address is the destination public address of the transaction
      * @param message is a message to include with the signature to further authenticate the proof (optional)
      * @return the transaction signature
      */
-    virtual string get_tx_proof(const string& tx_id, const string& address, const string& message) const {
+    virtual string get_tx_proof(const string& tx_hash, const string& address, const string& message) const {
       throw runtime_error("get_tx_proof() not supported");
     }
 
     /**
      * Prove a transaction by checking its signature.
      *
-     * @param tx_id specifies the transaction to prove
+     * @param tx_hash specifies the transaction to prove
      * @param address is the destination public address of the transaction
      * @param message is a message included with the signature to further authenticate the proof (optional)
      * @param signature is the transaction signature to confirm
      * @return the result of the check
      */
-    virtual shared_ptr<monero_check_tx> check_tx_proof(const string& tx_id, const string& address, const string& message, const string& signature) const {
+    virtual shared_ptr<monero_check_tx> check_tx_proof(const string& tx_hash, const string& address, const string& message, const string& signature) const {
       throw runtime_error("check_tx_proof() not supported");
     }
 
 //    /**
 //     * Generate a signature to prove a spend. Unlike proving a transaction, it does not require the destination public address.
 //     *
-//     * @param tx_id specifies the transaction to prove
+//     * @param tx_hash specifies the transaction to prove
 //     * @return the transaction signature
 //     */
-//    string get_spend_proof(const string& tx_id) const;
+//    string get_spend_proof(const string& tx_hash) const;
 
     /**
      * Generate a signature to prove a spend. Unlike proving a transaction, it does not require the destination public address.
      *
-     * @param tx_id specifies the transaction to prove
+     * @param tx_hash specifies the transaction to prove
      * @param message is a message to include with the signature to further authenticate the proof (optional)
      * @return the transaction signature
      */
-    virtual string get_spend_proof(const string& tx_id, const string& message) const {
+    virtual string get_spend_proof(const string& tx_hash, const string& message) const {
       throw runtime_error("get_spend_proof() not supported");
     }
 
     /**
      * Prove a spend using a signature. Unlike proving a transaction, it does not require the destination public address.
      *
-     * @param tx_id specifies the transaction to prove
+     * @param tx_hash specifies the transaction to prove
      * @param message is a message included with the signature to further authenticate the proof (optional)
      * @param signature is the transaction signature to confirm
      * @return true if the signature is good, false otherwise
      */
-    virtual bool check_spend_proof(const string& tx_id, const string& message, const string& signature) const {
+    virtual bool check_spend_proof(const string& tx_hash, const string& message, const string& signature) const {
       throw runtime_error("check_spend_proof() not supported");
     }
 
@@ -1258,40 +1258,40 @@ namespace monero {
     /**
      * Get a transaction note.
      *
-     * @param tx_id specifies the transaction to get the note of
+     * @param tx_hash specifies the transaction to get the note of
      * @return the tx note
      */
-    virtual string get_tx_note(const string& tx_id) const {
+    virtual string get_tx_note(const string& tx_hash) const {
       throw runtime_error("get_tx_note() not supported");
     }
 
     /**
      * Get notes for multiple transactions.
      *
-     * @param tx_ids identify the transactions to get notes for
+     * @param tx_hashes identify the transactions to get notes for
      * @preturns notes for the transactions
      */
-    virtual vector<string> get_tx_notes(const vector<string>& tx_ids) const {
+    virtual vector<string> get_tx_notes(const vector<string>& tx_hashes) const {
       throw runtime_error("get_tx_notes() not supported");
     }
 
     /**
      * Set a note for a specific transaction.
      *
-     * @param tx_id specifies the transaction
+     * @param tx_hash specifies the transaction
      * @param note specifies the note
      */
-    virtual void set_tx_note(const string& tx_id, const string& note) {
+    virtual void set_tx_note(const string& tx_hash, const string& note) {
       throw runtime_error("set_tx_note() not supported");
     }
 
     /**
      * Set notes for multiple transactions.
      *
-     * @param tx_ids specify the transactions to set notes for
+     * @param tx_hashes specify the transactions to set notes for
      * @param notes are the notes to set for the transactions
      */
-    virtual void set_tx_notes(const vector<string>& tx_ids, const vector<string>& notes) {
+    virtual void set_tx_notes(const vector<string>& tx_hashes, const vector<string>& notes) {
       throw runtime_error("set_tx_notes() not supported");
     }
 
@@ -1530,7 +1530,7 @@ namespace monero {
      * Submit signed multisig transactions as represented by a hex string.
      *
      * @param signed_multisig_tx_hex is the signed multisig hex returned from signMultisigTxs()
-     * @return the resulting transaction ids
+     * @return the resulting transaction hashes
      */
     virtual vector<string> submit_multisig_tx_hex(const string& signed_multisig_tx_hex) {
       throw runtime_error("submit_multisig_tx_hex() not supported");

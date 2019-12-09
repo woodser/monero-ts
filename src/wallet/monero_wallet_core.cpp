@@ -362,12 +362,12 @@ namespace monero {
    * when sent from/to same account #4500
    *
    * @param tx is the transaction to merge into the existing txs
-   * @param tx_map maps tx ids to txs
+   * @param tx_map maps tx hashes to txs
    * @param block_map maps block heights to blocks
    * @param skip_if_absent specifies if the tx should not be added if it doesn't already exist
    */
   void merge_tx(const shared_ptr<monero_tx_wallet>& tx, map<string, shared_ptr<monero_tx_wallet>>& tx_map, map<uint64_t, shared_ptr<monero_block>>& block_map, bool skip_if_absent) {
-    if (tx->m_hash == boost::none) throw runtime_error("Tx id is not initialized");
+    if (tx->m_hash == boost::none) throw runtime_error("Tx hash is not initialized");
 
     // if tx doesn't exist, add it (unless skipped)
     map<string, shared_ptr<monero_tx_wallet>>::const_iterator tx_iter = tx_map.find(*tx->m_hash);
@@ -1430,17 +1430,17 @@ namespace monero {
     }
     txs = queried_txs;
 
-    // verify all specified tx ids found
+    // verify all specified tx hashes found
     if (!_query->m_tx_hashes.empty()) {
-      for (const string& tx_id : _query->m_tx_hashes) {
+      for (const string& tx_hash : _query->m_tx_hashes) {
         bool found = false;
         for (const shared_ptr<monero_tx_wallet>& tx : txs) {
-          if (tx_id == *tx->m_hash) {
+          if (tx_hash == *tx->m_hash) {
             found = true;
             break;
           }
         }
-        if (!found) throw runtime_error("Tx not found in wallet: " + tx_id);
+        if (!found) throw runtime_error("Tx not found in wallet: " + tx_hash);
       }
     }
 
@@ -1450,11 +1450,11 @@ namespace monero {
       if (*tx->m_is_confirmed && tx->m_block == boost::none) return get_txs(*_query);
     }
 
-    // otherwise order txs if tx ids given then return
+    // otherwise order txs if tx hashes given then return
     if (!_query->m_tx_hashes.empty()) {
       vector<shared_ptr<monero_tx_wallet>> ordered_txs;
-      for (const string& tx_id : _query->m_tx_hashes) {
-        map<string, shared_ptr<monero_tx_wallet>>::const_iterator tx_iter = tx_map.find(tx_id);
+      for (const string& tx_hash : _query->m_tx_hashes) {
+        map<string, shared_ptr<monero_tx_wallet>>::const_iterator tx_iter = tx_map.find(tx_hash);
         ordered_txs.push_back(tx_iter->second);
       }
       txs = ordered_txs;
@@ -1790,7 +1790,7 @@ namespace monero {
     MTRACE("relay_txs()");
 
     // relay each metadata as a tx
-    vector<string> tx_ids;
+    vector<string> tx_hashes;
     for (const auto& txMetadata : tx_metadatas) {
 
       // parse tx metadata hex
@@ -1816,12 +1816,12 @@ namespace monero {
         throw runtime_error("Failed to commit tx");
       }
 
-      // collect resulting id
-      tx_ids.push_back(epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(ptx.tx)));
+      // collect resulting hash
+      tx_hashes.push_back(epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(ptx.tx)));
     }
 
-    // return relayed tx ids
-    return tx_ids;
+    // return relayed tx hashes
+    return tx_hashes;
   }
 
   vector<string> monero_wallet_core::relay_txs(const vector<shared_ptr<monero_tx_wallet>>& txs) {
@@ -1903,16 +1903,16 @@ namespace monero {
     list<uint64_t> tx_fees;
     string multisig_tx_hex;
     string unsigned_tx_hex;
-    list<string> tx_ids;
+    list<string> tx_hashes;
     list<string> tx_blobs;
     list<string> tx_metadatas;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, tx_hashes, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
       throw runtime_error("need to handle error filling response!");  // TODO
     }
 
     // build sent txs from results  // TODO: break this into separate utility function
     vector<shared_ptr<monero_tx_wallet>> txs;
-    auto tx_ids_iter = tx_ids.begin();
+    auto tx_hashes_iter = tx_hashes.begin();
     auto tx_keys_iter = tx_keys.begin();
     auto tx_amounts_iter = tx_amounts.begin();
     auto tx_fees_iter = tx_fees.begin();
@@ -1923,7 +1923,7 @@ namespace monero {
       // init tx with outgoing transfer from filled values
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
       txs.push_back(tx);
-      tx->m_hash = *tx_ids_iter;
+      tx->m_hash = *tx_hashes_iter;
       tx->m_key = *tx_keys_iter;
       tx->m_fee = *tx_fees_iter;
       tx->m_full_hex = *tx_blobs_iter;
@@ -1955,7 +1955,7 @@ namespace monero {
       tx_keys_iter++;
       tx_amounts_iter++;
       tx_fees_iter++;
-      tx_ids_iter++;
+      tx_hashes_iter++;
       tx_blobs_iter++;
       tx_metadatas_iter++;
     }
@@ -2079,16 +2079,16 @@ namespace monero {
     list<uint64_t> tx_fees;
     string multisig_tx_hex;
     string unsigned_tx_hex;
-    list<string> tx_ids;
+    list<string> tx_hashes;
     list<string> tx_blobs;
     list<string> tx_metadatas;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, do_not_relay, tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, do_not_relay, tx_hashes, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
       throw runtime_error("need to handle error filling response!");  // TODO
     }
 
     // build sent txs from results  // TODO: break this into separate utility function
     vector<shared_ptr<monero_tx_wallet>> txs;
-    auto tx_ids_iter = tx_ids.begin();
+    auto tx_hashes_iter = tx_hashes.begin();
     auto tx_keys_iter = tx_keys.begin();
     auto tx_amounts_iter = tx_amounts.begin();
     auto tx_fees_iter = tx_fees.begin();
@@ -2099,7 +2099,7 @@ namespace monero {
       // init tx with outgoing transfer from filled values
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
       txs.push_back(tx);
-      tx->m_hash = *tx_ids_iter;
+      tx->m_hash = *tx_hashes_iter;
       tx->m_is_locked = true;
       tx->m_is_outgoing = true;
       tx->m_key = *tx_keys_iter;
@@ -2132,7 +2132,7 @@ namespace monero {
       tx_keys_iter++;
       tx_amounts_iter++;
       tx_fees_iter++;
-      tx_ids_iter++;
+      tx_hashes_iter++;
       tx_blobs_iter++;
       tx_metadatas_iter++;
     }
@@ -2197,16 +2197,16 @@ namespace monero {
     list<uint64_t> tx_fees;
     string multisig_tx_hex;
     string unsigned_tx_hex;
-    list<string> tx_ids;
+    list<string> tx_hashes;
     list<string> tx_blobs;
     list<string> tx_metadatas;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, m_do_not_relay, tx_hashes, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, err)) {
       throw runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
     // build sent txs from results  // TODO: use common utility with send_split() to avoid code duplication
     vector<shared_ptr<monero_tx_wallet>> txs;
-    auto tx_ids_iter = tx_ids.begin();
+    auto tx_hashes_iter = tx_hashes.begin();
     auto tx_keys_iter = tx_keys.begin();
     auto tx_amounts_iter = tx_amounts.begin();
     auto tx_fees_iter = tx_fees.begin();
@@ -2217,7 +2217,7 @@ namespace monero {
       // init tx with outgoing transfer from filled values
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
       txs.push_back(tx);
-      tx->m_hash = *tx_ids_iter;
+      tx->m_hash = *tx_hashes_iter;
       tx->m_is_outgoing = true;
       tx->m_key = *tx_keys_iter;
       tx->m_fee = *tx_fees_iter;
@@ -2250,7 +2250,7 @@ namespace monero {
       tx_keys_iter++;
       tx_amounts_iter++;
       tx_fees_iter++;
-      tx_ids_iter++;
+      tx_hashes_iter++;
       tx_blobs_iter++;
       tx_metadatas_iter++;
     }
@@ -2283,17 +2283,17 @@ namespace monero {
     list<uint64_t> tx_fees;
     string multisig_tx_hex;
     string unsigned_tx_hex;
-    list<string> tx_ids;
+    list<string> tx_hashes;
     list<string> tx_blobs;
     list<string> tx_metadatas;
     epee::json_rpc::error er;
-    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, do_not_relay, tx_ids, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, er)) {
+    if (!fill_response(m_w2.get(), ptx_vector, get_tx_keys, tx_keys, tx_amounts, tx_fees, multisig_tx_hex, unsigned_tx_hex, do_not_relay, tx_hashes, get_tx_hex, tx_blobs, get_tx_metadata, tx_metadatas, er)) {
       throw runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
     // build sent txs from results  // TODO: use common utility with send_split() to avoid code duplication
     vector<shared_ptr<monero_tx_wallet>> txs;
-    auto tx_ids_iter = tx_ids.begin();
+    auto tx_hashes_iter = tx_hashes.begin();
     auto tx_keys_iter = tx_keys.begin();
     auto tx_amounts_iter = tx_amounts.begin();
     auto tx_fees_iter = tx_fees.begin();
@@ -2304,7 +2304,7 @@ namespace monero {
       // init tx with outgoing transfer from filled values
       shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
       txs.push_back(tx);
-      tx->m_hash = *tx_ids_iter;
+      tx->m_hash = *tx_hashes_iter;
       tx->m_is_outgoing = true;
       tx->m_key = *tx_keys_iter;
       tx->m_fee = *tx_fees_iter;
@@ -2332,7 +2332,7 @@ namespace monero {
       tx_keys_iter++;
       tx_amounts_iter++;
       tx_fees_iter++;
-      tx_ids_iter++;
+      tx_hashes_iter++;
       tx_blobs_iter++;
       tx_metadatas_iter++;
     }
@@ -2536,48 +2536,48 @@ namespace monero {
     return m_w2->verify(msg, info.address, signature);
   }
 
-  string monero_wallet_core::get_tx_key(const string& tx_id) const {
+  string monero_wallet_core::get_tx_key(const string& tx_hash) const {
     MTRACE("monero_wallet_core::get_tx_key()");
 
-    // validate and parse tx id hash
-    crypto::hash tx_hash;
-    if (!epee::string_tools::hex_to_pod(tx_id, tx_hash)) {
-      throw runtime_error("TX ID has invalid format");
+    // validate and parse tx hash
+    crypto::hash _tx_hash;
+    if (!epee::string_tools::hex_to_pod(tx_hash, _tx_hash)) {
+      throw runtime_error("TX hash has invalid format");
     }
 
     // get tx key and additional keys
-    crypto::secret_key txKey;
+    crypto::secret_key _tx_key;
     std::vector<crypto::secret_key> additional_tx_keys;
-    if (!m_w2->get_tx_key(tx_hash, txKey, additional_tx_keys)) {
+    if (!m_w2->get_tx_key(_tx_hash, _tx_key, additional_tx_keys)) {
       throw runtime_error("No tx secret key is stored for this tx");
     }
 
     // build and return tx key with additional keys
     epee::wipeable_string s;
-    s += epee::to_hex::wipeable_string(txKey);
+    s += epee::to_hex::wipeable_string(_tx_key);
     for (size_t i = 0; i < additional_tx_keys.size(); ++i) {
       s += epee::to_hex::wipeable_string(additional_tx_keys[i]);
     }
     return std::string(s.data(), s.size());
   }
 
-  shared_ptr<monero_check_tx> monero_wallet_core::check_tx_key(const string& tx_id, const string& txKey, const string& address) const {
+  shared_ptr<monero_check_tx> monero_wallet_core::check_tx_key(const string& tx_hash, const string& tx_key, const string& address) const {
     MTRACE("monero_wallet_core::check_tx_key()");
 
-    // validate and parse tx id
-    crypto::hash tx_hash;
-    if (!epee::string_tools::hex_to_pod(tx_id, tx_hash)) {
-      throw runtime_error("TX ID has invalid format");
+    // validate and parse tx hash
+    crypto::hash _tx_hash;
+    if (!epee::string_tools::hex_to_pod(tx_hash, _tx_hash)) {
+      throw runtime_error("TX hash has invalid format");
     }
 
     // validate and parse tx key
-    epee::wipeable_string tx_key_str = txKey;
+    epee::wipeable_string tx_key_str = tx_key;
     if (tx_key_str.size() < 64 || tx_key_str.size() % 64) {
       throw runtime_error("Tx key has invalid format");
     }
     const char *data = tx_key_str.data();
-    crypto::secret_key tx_key;
-    if (!epee::wipeable_string(data, 64).hex_to_pod(unwrap(unwrap(tx_key)))) {
+    crypto::secret_key _tx_key;
+    if (!epee::wipeable_string(data, 64).hex_to_pod(unwrap(unwrap(_tx_key)))) {
       throw runtime_error("Tx key has invalid format");
     }
 
@@ -2602,7 +2602,7 @@ namespace monero {
     uint64_t received_amount;
     bool in_tx_pool;
     uint64_t num_confirmations;
-    m_w2->check_tx_key(tx_hash, tx_key, additional_tx_keys, info.address, received_amount, in_tx_pool, num_confirmations);
+    m_w2->check_tx_key(_tx_hash, _tx_key, additional_tx_keys, info.address, received_amount, in_tx_pool, num_confirmations);
     shared_ptr<monero_check_tx> checkTx = make_shared<monero_check_tx>();
     checkTx->m_is_good = true; // check is good if we get this far
     checkTx->m_received_amount = received_amount;
@@ -2611,12 +2611,12 @@ namespace monero {
     return checkTx;
   }
 
-  string monero_wallet_core::get_tx_proof(const string& tx_id, const string& address, const string& message) const {
+  string monero_wallet_core::get_tx_proof(const string& tx_hash, const string& address, const string& message) const {
 
-    // validate and parse tx id hash
-    crypto::hash tx_hash;
-    if (!epee::string_tools::hex_to_pod(tx_id, tx_hash)) {
-      throw runtime_error("TX ID has invalid format");
+    // validate and parse tx hash
+    crypto::hash _tx_hash;
+    if (!epee::string_tools::hex_to_pod(tx_hash, _tx_hash)) {
+      throw runtime_error("TX hash has invalid format");
     }
 
     // validate and parse address
@@ -2626,16 +2626,16 @@ namespace monero {
     }
 
     // get tx proof
-    return m_w2->get_tx_proof(tx_hash, info.address, info.is_subaddress, message);
+    return m_w2->get_tx_proof(_tx_hash, info.address, info.is_subaddress, message);
   }
 
-  shared_ptr<monero_check_tx> monero_wallet_core::check_tx_proof(const string& tx_id, const string& address, const string& message, const string& signature) const {
+  shared_ptr<monero_check_tx> monero_wallet_core::check_tx_proof(const string& tx_hash, const string& address, const string& message, const string& signature) const {
     MTRACE("monero_wallet_core::check_tx_proof()");
 
-    // validate and parse tx id
-    crypto::hash tx_hash;
-    if (!epee::string_tools::hex_to_pod(tx_id, tx_hash)) {
-      throw runtime_error("TX ID has invalid format");
+    // validate and parse tx hash
+    crypto::hash _tx_hash;
+    if (!epee::string_tools::hex_to_pod(tx_hash, _tx_hash)) {
+      throw runtime_error("TX hash has invalid format");
     }
 
     // validate and parse address
@@ -2649,7 +2649,7 @@ namespace monero {
     uint64_t received_amount;
     bool in_tx_pool;
     uint64_t num_confirmations;
-    checkTx->m_is_good = m_w2->check_tx_proof(tx_hash, info.address, info.is_subaddress, message, signature, received_amount, in_tx_pool, num_confirmations);
+    checkTx->m_is_good = m_w2->check_tx_proof(_tx_hash, info.address, info.is_subaddress, message, signature, received_amount, in_tx_pool, num_confirmations);
     if (checkTx->m_is_good) {
       checkTx->m_received_amount = received_amount;
       checkTx->m_in_tx_pool = in_tx_pool;
@@ -2658,30 +2658,30 @@ namespace monero {
     return checkTx;
   }
 
-  string monero_wallet_core::get_spend_proof(const string& tx_id, const string& message) const {
+  string monero_wallet_core::get_spend_proof(const string& tx_hash, const string& message) const {
     MTRACE("monero_wallet_core::get_spend_proof()");
 
-    // validate and parse tx id
-    crypto::hash tx_hash;
-    if (!epee::string_tools::hex_to_pod(tx_id, tx_hash)) {
-      throw runtime_error("TX ID has invalid format");
+    // validate and parse tx hash
+    crypto::hash _tx_hash;
+    if (!epee::string_tools::hex_to_pod(tx_hash, _tx_hash)) {
+      throw runtime_error("TX hash has invalid format");
     }
 
     // return spend proof signature
-    return m_w2->get_spend_proof(tx_hash, message);
+    return m_w2->get_spend_proof(_tx_hash, message);
   }
 
-  bool monero_wallet_core::check_spend_proof(const string& tx_id, const string& message, const string& signature) const {
+  bool monero_wallet_core::check_spend_proof(const string& tx_hash, const string& message, const string& signature) const {
     MTRACE("monero_wallet_core::check_spend_proof()");
 
-    // validate and parse tx id
-    crypto::hash tx_hash;
-    if (!epee::string_tools::hex_to_pod(tx_id, tx_hash)) {
-      throw runtime_error("TX ID has invalid format");
+    // validate and parse tx hash
+    crypto::hash _tx_hash;
+    if (!epee::string_tools::hex_to_pod(tx_hash, _tx_hash)) {
+      throw runtime_error("TX hash has invalid format");
     }
 
     // check spend proof
-    return m_w2->check_spend_proof(tx_hash, message, signature);
+    return m_w2->check_spend_proof(_tx_hash, message, signature);
   }
 
   string monero_wallet_core::get_reserve_proof_wallet(const string& message) const {
@@ -2718,38 +2718,38 @@ namespace monero {
     return checkReserve;
   }
 
-  string monero_wallet_core::get_tx_note(const string& tx_id) const {
+  string monero_wallet_core::get_tx_note(const string& tx_hash) const {
     MTRACE("monero_wallet_core::get_tx_note()");
     cryptonote::blobdata tx_blob;
-    if (!epee::string_tools::parse_hexstr_to_binbuff(tx_id, tx_blob) || tx_blob.size() != sizeof(crypto::hash)) {
-      throw runtime_error("TX ID has invalid format");
+    if (!epee::string_tools::parse_hexstr_to_binbuff(tx_hash, tx_blob) || tx_blob.size() != sizeof(crypto::hash)) {
+      throw runtime_error("TX hash has invalid format");
     }
-    crypto::hash tx_hash = *reinterpret_cast<const crypto::hash*>(tx_blob.data());
-    return m_w2->get_tx_note(tx_hash);
+    crypto::hash _tx_hash = *reinterpret_cast<const crypto::hash*>(tx_blob.data());
+    return m_w2->get_tx_note(_tx_hash);
   }
 
-  vector<string> monero_wallet_core::get_tx_notes(const vector<string>& tx_ids) const {
+  vector<string> monero_wallet_core::get_tx_notes(const vector<string>& tx_hashes) const {
     MTRACE("monero_wallet_core::get_tx_notes()");
     vector<string> notes;
-    for (const auto& tx_id : tx_ids) notes.push_back(get_tx_note(tx_id));
+    for (const auto& tx_hash : tx_hashes) notes.push_back(get_tx_note(tx_hash));
     return notes;
   }
 
-  void monero_wallet_core::set_tx_note(const string& tx_id, const string& note) {
+  void monero_wallet_core::set_tx_note(const string& tx_hash, const string& note) {
     MTRACE("monero_wallet_core::set_tx_note()");
     cryptonote::blobdata tx_blob;
-    if (!epee::string_tools::parse_hexstr_to_binbuff(tx_id, tx_blob) || tx_blob.size() != sizeof(crypto::hash)) {
-      throw runtime_error("TX ID has invalid format");
+    if (!epee::string_tools::parse_hexstr_to_binbuff(tx_hash, tx_blob) || tx_blob.size() != sizeof(crypto::hash)) {
+      throw runtime_error("TX hash has invalid format");
     }
-    crypto::hash tx_hash = *reinterpret_cast<const crypto::hash*>(tx_blob.data());
-    m_w2->set_tx_note(tx_hash, note);
+    crypto::hash _tx_hash = *reinterpret_cast<const crypto::hash*>(tx_blob.data());
+    m_w2->set_tx_note(_tx_hash, note);
   }
 
-  void monero_wallet_core::set_tx_notes(const vector<string>& tx_ids, const vector<string>& notes) {
+  void monero_wallet_core::set_tx_notes(const vector<string>& tx_hashes, const vector<string>& notes) {
     MTRACE("monero_wallet_core::set_tx_notes()");
-    if (tx_ids.size() != notes.size()) throw runtime_error("Different amount of txids and notes");
-    for (int i = 0; i < tx_ids.size(); i++) {
-      set_tx_note(tx_ids[i], notes[i]);
+    if (tx_hashes.size() != notes.size()) throw runtime_error("Different amount of txids and notes");
+    for (int i = 0; i < tx_hashes.size(); i++) {
+      set_tx_note(tx_hashes[i], notes[i]);
     }
   }
 
@@ -3148,19 +3148,19 @@ namespace monero {
     }
 
     // commit the transactions
-    vector<string> tx_ids;
+    vector<string> tx_hashes;
     try {
       for (auto& pending_tx : signed_multisig_tx_set.m_ptx) {
         m_w2->commit_tx(pending_tx);
-        tx_ids.push_back(epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(pending_tx.tx)));
+        tx_hashes.push_back(epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(pending_tx.tx)));
       }
     } catch (const std::exception& e) {
       string msg = string("Failed to submit multisig tx: ") + e.what();
       throw runtime_error(msg);
     }
 
-    // return the resulting tx ids
-    return tx_ids;
+    // return the resulting tx hashes
+    return tx_hashes;
   }
 
   void monero_wallet_core::save() {
