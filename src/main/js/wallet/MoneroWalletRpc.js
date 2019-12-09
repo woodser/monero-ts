@@ -86,7 +86,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * 
    * @param {string} name is the name of the wallet file to create
    * @param {string} password is the wallet's password
-   * @param {string} language is the language for the wallet's mnemonic seed
+   * @param {string} language is the language for the wallet's mnemonic phrase
    */
   async createWalletRandom(name, password, language) {
     if (!name) throw new MoneroError("Name is not initialized");

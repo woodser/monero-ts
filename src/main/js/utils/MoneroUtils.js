@@ -16,12 +16,6 @@ class MoneroUtils {
   }
   
   // TODO: beef this up
-  static validateSeed(seed) {
-    assert(typeof seed === "string");
-    assert(seed.length === 64);
-  }
-  
-  // TODO: beef this up
   static validateMnemonic(mnemonic) {
     assert(mnemonic, "Mnemonic phrase is not initialized");
     let words = mnemonic.split(" ");

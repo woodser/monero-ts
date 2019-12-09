@@ -258,7 +258,7 @@ class TestMoneroWalletCommon {
       });
       
       if (config.testNonRelays)
-      it("Can get the mnemonic phrase derived from the seed", async function() {
+      it("Can get the mnemonic phrase", async function() {
         let mnemonic = await that.wallet.getMnemonic();
         MoneroUtils.validateMnemonic(mnemonic);
         assert.equal(mnemonic, TestUtils.MNEMONIC);
