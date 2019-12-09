@@ -23,12 +23,12 @@ EMSCRIPTEN_BINDINGS(module)
     emscripten::function("create_keys_wallet_random", &monero_wasm_bridge::create_keys_wallet_random);
     emscripten::function("create_keys_wallet_from_mnemonic", &monero_wasm_bridge::create_keys_wallet_from_mnemonic);
     emscripten::function("create_keys_wallet_from_keys", &monero_wasm_bridge::create_keys_wallet_from_keys);
+    emscripten::function("get_keys_wallet_mnemonic_languages", &monero_wasm_bridge::get_keys_wallet_mnemonic_languages);
 
   // ----------------------- WALLET INSTANCE METHODS --------------------------
 
   emscripten::function("get_mnemonic", &monero_wasm_bridge::get_mnemonic);
   emscripten::function("get_mnemonic_language", &monero_wasm_bridge::get_mnemonic_language);
-  emscripten::function("get_languages", &monero_wasm_bridge::get_languages);
   emscripten::function("get_private_spend_key", &monero_wasm_bridge::get_private_spend_key);
   emscripten::function("get_private_view_key", &monero_wasm_bridge::get_private_view_key);
   emscripten::function("get_public_view_key", &monero_wasm_bridge::get_public_view_key);

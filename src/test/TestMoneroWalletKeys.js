@@ -30,6 +30,10 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
     return await MoneroWalletKeys.createWalletFromKeys(TestUtils.NETWORK_TYPE, address, privateViewKey, privateSpendKey, language);
   }
   
+  async getMnemonicLanguages() {
+    return await MoneroWalletKeys.getMnemonicLanguages();
+  }
+  
   runTests(config) {
     let that = this;
     describe("TEST MONERO WALLET KEYS", function() {

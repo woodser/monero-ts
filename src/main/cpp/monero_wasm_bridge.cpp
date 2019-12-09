@@ -18,11 +18,6 @@ using namespace monero_wasm_bridge;
 static const int DEFAULT_SYNC_INTERVAL_MILLIS = 1000 * 10;   // default refresh interval 10 sec
 static const int DEFAULT_CONNECTION_TIMEOUT_MILLIS = 1000 * 30; // default connection timeout 30 sec
 
-void my_int_func(int x)
-{
-    printf( "%d\n", x );
-}
-
 string strip_last_char(const string& str) {
   return str.substr(0, str.size() - 1);
 }
@@ -85,7 +80,7 @@ string monero_wasm_bridge::binary_blocks_to_json(const std::string &bin_mem_info
   return buff_json;
 }
 
-// ---------------------------- WALLET CREATION -------------------------------
+// -------------------------- STATIC WALLET UTILS -----------------------------
 
 //void monero_wasm_bridge::open_wallet(const string& path, const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, emscripten::val callback) {
 //  cout << "monero_wasm_bridge::open_wallet(...)" << endl;
@@ -124,6 +119,12 @@ void monero_wasm_bridge::create_keys_wallet_from_keys(int network_type, const st
   callback((int) wallet); // callback with wallet address
 }
 
+vector<string> monero_wasm_bridge::get_keys_wallet_mnemonic_languages() {
+  vector<string> languages = monero_wallet_keys::get_mnemonic_languages();
+  cout << "Got " << languages.size() << " languages for the mnemonic phrase";
+  return languages;
+}
+
 // ------------------------ WALLET INSTANCE METHODS ---------------------------
 
 //  void set_daemon_connection(int handle, const string& uri, const string& username = "", const string& password = "");
@@ -144,17 +145,17 @@ string monero_wasm_bridge::get_mnemonic_language(int handle) {
   return wallet->get_mnemonic_language();
 }
 
-string monero_wasm_bridge::get_languages(int handle) {
-  monero_wallet* wallet = (monero_wallet*) handle;
-  vector<string> languages = wallet->get_languages();
-
-  // serialize languages as json string array
-  rapidjson::Document doc;
-  doc.SetObject();
-  rapidjson::Value val = monero_utils::to_rapidjson_val(doc.GetAllocator(), languages);
-  val.Swap(doc);
-  return monero_utils::serialize(doc);
-}
+//string monero_wasm_bridge::get_mnemonic_languages(int handle) {
+//  monero_wallet* wallet = (monero_wallet*) handle;
+//  vector<string> languages = wallet->get_mnemonic_languages();
+//
+//  // serialize languages as json string array
+//  rapidjson::Document doc;
+//  doc.SetObject();
+//  rapidjson::Value val = monero_utils::to_rapidjson_val(doc.GetAllocator(), languages);
+//  val.Swap(doc);
+//  return monero_utils::serialize(doc);
+//}
 
 string monero_wasm_bridge::get_public_view_key(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;

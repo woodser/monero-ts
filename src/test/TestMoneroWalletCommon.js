@@ -71,6 +71,16 @@ class TestMoneroWalletCommon {
     throw new Error("Subclass must implement");
   }
   
+  /**
+   * Get the wallet's supported languages for the mnemonic phrase.  This is an
+   * instance method for wallet rpc and a static utility for other wallets.
+   * 
+   * @return {string[]} the wallet's supported languages
+   */
+  async getMnemonicLanguages() {
+    throw new Error("Subclass must implement");
+  }
+  
   // ------------------------------ BEGIN TESTS -------------------------------
   
   runCommonTests(config) {
@@ -271,7 +281,7 @@ class TestMoneroWalletCommon {
       
       if (config.testNonRelays)
       it("Can get a list of supported languages for the mnemonic phrase", async function() {
-        let languages = await that.wallet.getLanguages();
+        let languages = await that.getMnemonicLanguages();
         assert(Array.isArray(languages));
         assert(languages.length);
         for (let language of languages) assert(language);

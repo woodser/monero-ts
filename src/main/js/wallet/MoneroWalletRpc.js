@@ -55,8 +55,6 @@ class MoneroWalletRpc extends MoneroWallet {
     this.addressCache = {};
   }
   
-  // --------------------------- RPC WALLET METHODS ---------------------------
-  
   /**
    * Get the wallet's RPC connection.
    * 
@@ -151,18 +149,6 @@ class MoneroWalletRpc extends MoneroWallet {
     this.path = name;
   }
   
-  /**
-   * Save and close the current wallet and stop the RPC server.
-   */
-  async stop() {
-    delete this.addressCache;
-    this.addressCache = {};
-    this.path = undefined;
-    await this.config.rpc.sendJsonRequest("stop_wallet");
-  }
-  
-  // -------------------------- COMMON WALLET METHODS -------------------------
-  
   async getVersion() {
     let resp = await this.config.rpc.sendJsonRequest("get_version");
     return new MoneroVersion(resp.result.version, resp.result.release);
@@ -181,7 +167,12 @@ class MoneroWalletRpc extends MoneroWallet {
     throw new MoneroError("MoneroWalletRpc.getMnemonicLanguage() not supported");
   }
 
-  async getLanguages() {
+  /**
+   * Get a list of available languages for the wallet's mnemonic phrase.
+   * 
+   * @return {string[]} the available languages for the wallet's mnemonic phrase
+   */
+  async getMnemonicLanguages() {
     return (await this.config.rpc.sendJsonRequest("get_languages")).result.languages;
   }
   
@@ -1333,6 +1324,16 @@ class MoneroWalletRpc extends MoneroWallet {
     this.addressCache = {};
     this.path = undefined;
     await this.config.rpc.sendJsonRequest("close_wallet", {autosave_current: save});
+  }
+  
+  /**
+   * Save and close the current wallet and stop the RPC server.
+   */
+  async stop() {
+    delete this.addressCache;
+    this.addressCache = {};
+    this.path = undefined;
+    await this.config.rpc.sendJsonRequest("stop_wallet");
   }
   
   // --------------------------------  PRIVATE --------------------------------
