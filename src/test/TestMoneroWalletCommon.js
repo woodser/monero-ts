@@ -1825,10 +1825,10 @@ class TestMoneroWalletCommon {
             
             // switch to main test wallet
             await that.wallet.close();
-            that.wallet = await getTestWallet();
+            that.wallet = await that.getTestWallet();
             
             // parse the tx set
-            parsedTxSet = await that.wallet.parseTxSet(txSet);
+            let parsedTxSet = await that.wallet.parseTxSet(txSet);
             
             // test the parsed tx set
             testParsedTxSet(parsedTxSet);

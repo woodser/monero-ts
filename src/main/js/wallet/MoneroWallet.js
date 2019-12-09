@@ -1232,7 +1232,7 @@ class MoneroWallet {
     if (requestOrAccountIndex instanceof MoneroSendRequest) {
       request = requestOrAccountIndex.copy();
     } else if (typeof requestOrAccountIndex === "number") {
-      request = new MoneroSendRequest().setAccountIndex(requestOrAccountIndex).setAddress(address).setAmount(amount).setPriority(priority);
+      request = new MoneroSendRequest().setAccountIndex(requestOrAccountIndex).setDestinations([new MoneroDestination(address, amount)]).setPriority(priority);
     } else {
       throw new MoneroException("First argument is invalid: " + requestOrAccountIndex);
     }
