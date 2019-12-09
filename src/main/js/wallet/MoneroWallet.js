@@ -439,7 +439,7 @@ class MoneroWallet {
    * @param {boolean} query.isOutgoing gets txs with an outgoing transfer or not (optional)
    * @param {boolean} query.isIncoming gets txs with an incoming transfer or not (optional)
    * @param {MoneroTransferQuery} query.transferQuery gets txs that have a transfer that meets this query (optional)
-   * @param {boolean} query.includeOutputs specifies that tx vouts should be returned with tx results (optional)
+   * @param {boolean} query.includeOutputs specifies that tx outputs should be returned with tx results (optional)
    * @return {MoneroTxWallet[]} are wallet transactions per the configuration
    */
   async getTxs(query) {

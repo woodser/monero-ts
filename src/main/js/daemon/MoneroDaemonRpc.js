@@ -866,12 +866,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "double_spend_seen") GenUtils.safeSet(tx, tx.isDoubleSpendSeen, tx.setIsDoubleSpend, val);
       else if (key === "version") GenUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);
       else if (key === "extra") GenUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
-      else if (key === "vin") {
-        if (val.length !== 1 || !val[0].gen) {  // ignore miner vin TODO: why?
-          tx.setVins(val.map(rpcVin => MoneroDaemonRpc._convertRpcOutput(rpcVin, tx)));
+      else if (key === "input") {
+        if (val.length !== 1 || !val[0].gen) {  // ignore miner input TODO: why?
+          tx.setInputs(val.map(rpcVin => MoneroDaemonRpc._convertRpcOutput(rpcVin, tx)));
         }
       }
-      else if (key === "vout") tx.setVouts(val.map(rpcVout => MoneroDaemonRpc._convertRpcOutput(rpcVout, tx)));
+      else if (key === "output") tx.setOutputs(val.map(rpcVout => MoneroDaemonRpc._convertRpcOutput(rpcVout, tx)));
       else if (key === "rct_signatures") GenUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, val);
       else if (key === "rctsig_prunable") GenUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
       else if (key === "unlock_time") GenUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, val);
@@ -925,10 +925,10 @@ class MoneroDaemonRpc extends MoneroDaemon {
       tx.setNumConfirmations(0);
     }
     if (tx.isFailed() === undefined) tx.setIsFailed(false);
-    if (tx.getOutputIndices() && tx.getVouts())  {
-      assert.equal(tx.getVouts().length, tx.getOutputIndices().length);
-      for (let i = 0; i < tx.getVouts().length; i++) {
-        tx.getVouts()[i].setIndex(tx.getOutputIndices()[i]);  // transfer output indices to vouts
+    if (tx.getOutputIndices() && tx.getOutputs())  {
+      assert.equal(tx.getOutputs().length, tx.getOutputIndices().length);
+      for (let i = 0; i < tx.getOutputs().length; i++) {
+        tx.getOutputs()[i].setIndex(tx.getOutputIndices()[i]);  // transfer output indices to outputs
       }
     }
     if (rpcTx.as_json) MoneroDaemonRpc._convertRpcTx(JSON.parse(rpcTx.as_json), tx);
@@ -944,7 +944,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     output.setTx(tx);
     for (let key of Object.keys(rpcOutput)) {
       let val = rpcOutput[key];
-      if (key === "gen") throw new MoneroError("Output with 'gen' from daemon rpc is miner tx which we ignore (i.e. each miner vin is undefined)");
+      if (key === "gen") throw new MoneroError("Output with 'gen' from daemon rpc is miner tx which we ignore (i.e. each miner input is undefined)");
       else if (key === "key") {
         GenUtils.safeSet(output, output.getAmount, output.setAmount, new BigInteger(val.amount));
         GenUtils.safeSet(output, output.getKeyImage, output.setKeyImage, new MoneroKeyImage(val.k_image));

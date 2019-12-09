@@ -735,7 +735,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let txMap = {};
     let blockMap = {};
     
-    // collect txs with vouts for each indicated account using `incoming_transfers` rpc call
+    // collect txs with outputs for each indicated account using `incoming_transfers` rpc call
     let params = {};
     params.transfer_type = query.isSpent() === true ? "unavailable" : query.isSpent() === false ? "available" : "all";
     params.verbose = true;
@@ -746,7 +746,7 @@ class MoneroWalletRpc extends MoneroWallet {
       params.subaddr_indices = indices.get(accountIdx);
       let resp = await this.config.rpc.sendJsonRequest("incoming_transfers", params);
       
-      // convert response to txs with vouts and merge
+      // convert response to txs with outputs and merge
       if (resp.result.transfers === undefined) continue;
       for (let rpcVout of resp.result.transfers) {
         let tx = MoneroWalletRpc._convertRpcTxWalletWithVout(rpcVout);
@@ -758,29 +758,29 @@ class MoneroWalletRpc extends MoneroWallet {
     let txs = Object.values(txMap);
     txs.sort(MoneroWalletRpc._compareTxsByHeight);
     
-    // collect queried vouts
-    let vouts = [];
+    // collect queried outputs
+    let outputs = [];
     for (let tx of txs) {
       
-      // sort vouts
-      if (tx.getVouts() !== undefined) tx.getVouts().sort(MoneroWalletRpc._compareVouts);
+      // sort outputs
+      if (tx.getOutputs() !== undefined) tx.getOutputs().sort(MoneroWalletRpc._compareVouts);
       
-      // collect queried vouts
+      // collect queried outputs
       let toRemoves = [];
-      for (let vout of tx.getVouts()) {
-        if (query.meetsCriteria(vout)) vouts.push(vout);
-        else toRemoves.push(vout);
+      for (let output of tx.getOutputs()) {
+        if (query.meetsCriteria(output)) outputs.push(output);
+        else toRemoves.push(output);
       }
       
-      // remove excluded vouts
-      tx.setVouts(tx.getVouts().filter(function(vout) { return !toRemoves.includes(vout); }))
+      // remove excluded outputs
+      tx.setOutputs(tx.getOutputs().filter(function(output) { return !toRemoves.includes(output); }))
       
       // remove excluded txs from block
-      if ((tx.getVouts() === undefined || tx.getVouts().length === 0) && tx.getBlock() !== undefined) {
+      if ((tx.getOutputs() === undefined || tx.getOutputs().length === 0) && tx.getBlock() !== undefined) {
         tx.getBlock().getTxs().splice(tx.getBlock().getTxs().indexOf(tx), 1);
       }
     }
-    return vouts;
+    return outputs;
   }
   
   async getOutputsHex() {
@@ -1758,27 +1758,27 @@ class MoneroWalletRpc extends MoneroWallet {
     tx.setIsRelayed(true);
     tx.setIsFailed(false);
     
-    // initialize vout
-    let vout = new MoneroOutputWallet({tx: tx});
+    // initialize output
+    let output = new MoneroOutputWallet({tx: tx});
     for (let key of Object.keys(rpcVout)) {
       let val = rpcVout[key];
-      if (key === "amount") vout.setAmount(new BigInteger(val));
-      else if (key === "spent") vout.setIsSpent(val);
-      else if (key === "key_image") vout.setKeyImage(new MoneroKeyImage(val));
-      else if (key === "global_index") vout.setIndex(val);
+      if (key === "amount") output.setAmount(new BigInteger(val));
+      else if (key === "spent") output.setIsSpent(val);
+      else if (key === "key_image") output.setKeyImage(new MoneroKeyImage(val));
+      else if (key === "global_index") output.setIndex(val);
       else if (key === "tx_hash") tx.setHash(val);
       else if (key === "unlocked") tx.setIsLocked(!val);
-      else if (key === "frozen") vout.setIsFrozen(val);
+      else if (key === "frozen") output.setIsFrozen(val);
       else if (key === "subaddr_index") {
-        vout.setAccountIndex(val.major);
-        vout.setSubaddressIndex(val.minor);
+        output.setAccountIndex(val.major);
+        output.setSubaddressIndex(val.minor);
       }
       else if (key === "block_height") tx.setBlock(new MoneroBlock().setHeight(val).setTxs([tx]));
       else console.log("WARNING: ignoring unexpected transaction field: " + key + ": " + val);
     }
     
-    // initialize tx with vout
-    tx.setVouts([vout]);
+    // initialize tx with output
+    tx.setOutputs([output]);
     return tx;
   }
   
@@ -1926,7 +1926,7 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   /**
-   * Compares two vouts by ascending account and subaddress indices.
+   * Compares two outputs by ascending account and subaddress indices.
    */
   static _compareVouts(o1, o2) {
     

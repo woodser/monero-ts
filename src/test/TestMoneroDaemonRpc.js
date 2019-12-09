@@ -598,7 +598,7 @@ class TestMoneroDaemonRpc {
         let keyImages = [];
         let txHashes = txs.map(tx => tx.getHash());
         for (let tx of await daemon.getTxs(txHashes)) {
-          for (let vin of tx.getVins()) keyImages.push(vin.getKeyImage().getHex());
+          for (let input of tx.getInputs()) keyImages.push(input.getKeyImage().getHex());
         }
         await daemon.flushTxPool(txHashes);
         
@@ -615,7 +615,7 @@ class TestMoneroDaemonRpc {
         keyImages = [];
         txs = await getConfirmedTxs(daemon, 10);
         for (let tx of txs) {
-          for (let vin of tx.getVins()) keyImages.push(vin.getKeyImage().getHex());
+          for (let input of tx.getInputs()) keyImages.push(input.getKeyImage().getHex());
         }
         
         // key images are all spent
@@ -1255,12 +1255,12 @@ function testTx(tx, ctx) {
   assert.equal(typeof tx.isDoubleSpendSeen(), "boolean");
   assert(tx.getVersion() >= 0);
   assert(tx.getUnlockTime() >= 0);
-  assert(tx.getVins());
-  assert(tx.getVouts());
+  assert(tx.getInputs());
+  assert(tx.getOutputs());
   assert(tx.getExtra().length > 0);
   
   // test presence of output indices
-  // TODO: change this over to vouts only
+  // TODO: change this over to outputs only
   if (tx.isMinerTx()) assert.equal(tx.getOutputIndices(), undefined); // TODO: how to get output indices for miner transactions?
   if (tx.inTxPool() || ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(tx.getOutputIndices(), undefined);
   else assert(tx.getOutputIndices());
@@ -1309,7 +1309,7 @@ function testTx(tx, ctx) {
   if (tx.isMinerTx()) {
     assert.equal(tx.getFee().compare(new BigInteger(0)), 0);
     assert(tx.getIncomingTransfers().length > 0); // TODO: MoneroTx does not have getIncomingTransfers() but this doesn't fail?
-    assert.equal(tx.getVins(), undefined);
+    assert.equal(tx.getInputs(), undefined);
     assert.equal(tx.getSignatures(), undefined);
   } else {
     if (tx.getSignatures() !== undefined) assert(tx.getSignatures().length > 0)
@@ -1344,18 +1344,18 @@ function testTx(tx, ctx) {
 //    assert(!tx.isConfirmed());
 //  }
   
-  // test vins and vouts
-  assert(tx.getVins() && Array.isArray(tx.getVins()) && tx.getVins().length >= 0);
-  assert(tx.getVouts() && Array.isArray(tx.getVouts()) && tx.getVouts().length >= 0);
-  if (!tx.isMinerTx()) assert(tx.getVins().length > 0);
-  for (let vin of tx.getVins()) {
-    assert(tx === vin.getTx());
-    testVin(vin, ctx);
+  // test inputs and outputs
+  assert(tx.getInputs() && Array.isArray(tx.getInputs()) && tx.getInputs().length >= 0);
+  assert(tx.getOutputs() && Array.isArray(tx.getOutputs()) && tx.getOutputs().length >= 0);
+  if (!tx.isMinerTx()) assert(tx.getInputs().length > 0);
+  for (let input of tx.getInputs()) {
+    assert(tx === input.getTx());
+    testVin(input, ctx);
   }
-  assert(tx.getVouts().length > 0);
-  for (let vout of tx.getVouts()) {
-    assert(tx === vout.getTx());
-    testVout(vout, ctx);
+  assert(tx.getOutputs().length > 0);
+  for (let output of tx.getOutputs()) {
+    assert(tx === output.getTx());
+    testVout(output, ctx);
   }
   
   // test pruned vs not pruned
@@ -1611,11 +1611,11 @@ async function getUnrelayedTx(wallet, accountIdx) {
   return tx;
 }
 
-function testVin(vin, ctx) {
-  testOutput(vin);
-  testKeyImage(vin.getKeyImage(), ctx);
-  assert(vin.getRingOutputIndices() && Array.isArray(vin.getRingOutputIndices()) && vin.getRingOutputIndices().length > 0);
-  for (let index of vin.getRingOutputIndices()) {
+function testVin(input, ctx) {
+  testOutput(input);
+  testKeyImage(input.getKeyImage(), ctx);
+  assert(input.getRingOutputIndices() && Array.isArray(input.getRingOutputIndices()) && input.getRingOutputIndices().length > 0);
+  for (let index of input.getRingOutputIndices()) {
     assert.equal(typeof index, "number")
     assert(index >= 0);
   }
@@ -1630,11 +1630,11 @@ function testKeyImage(image, ctx) {
   }
 }
 
-function testVout(vout, ctx) {
-  testOutput(vout);
-  if (vout.getTx().inTxPool() || ctx && ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(vout.getIndex(), undefined); // TODO: get_blocks_by_height.bin (#5127), get_transaction_pool, and tx pool txs do not return output indices 
-  else assert(vout.getIndex() >= 0);
-  assert(vout.getStealthPublicKey() && vout.getStealthPublicKey().length === 64);
+function testVout(output, ctx) {
+  testOutput(output);
+  if (output.getTx().inTxPool() || ctx && ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(output.getIndex(), undefined); // TODO: get_blocks_by_height.bin (#5127), get_transaction_pool, and tx pool txs do not return output indices 
+  else assert(output.getIndex() >= 0);
+  assert(output.getStealthPublicKey() && output.getStealthPublicKey().length === 64);
 }
 
 function testOutput(output) { 
@@ -1764,21 +1764,21 @@ function testTxCopy(tx, ctx) {
   if (tx.getBlock()) copy.setBlock(tx.getBlock().copy().setTxs([copy]));  // copy block for testing equality
   assert.equal(copy.toString(), tx.toString());
   
-  // test different vin references
-  if (copy.getVins() === undefined) assert.equal(tx.getVins(), undefined);
+  // test different input references
+  if (copy.getInputs() === undefined) assert.equal(tx.getInputs(), undefined);
   else {
-    assert(copy.getVins() !== tx.getVins());
-    for (let i = 0; i < copy.getVins().length; i++) {
-      assert.equal(0, tx.getVins()[i].getAmount().compare(copy.getVins()[i].getAmount()));
+    assert(copy.getInputs() !== tx.getInputs());
+    for (let i = 0; i < copy.getInputs().length; i++) {
+      assert.equal(0, tx.getInputs()[i].getAmount().compare(copy.getInputs()[i].getAmount()));
     }
   }
   
-  // test different vout references
-  if (copy.getVouts() === undefined) assert.equal(tx.getVouts(), undefined);
+  // test different output references
+  if (copy.getOutputs() === undefined) assert.equal(tx.getOutputs(), undefined);
   else {
-    assert(copy.getVouts() !== tx.getVouts());
-    for (let i = 0; i < copy.getVouts().length; i++) {
-      assert.equal(0, tx.getVouts()[i].getAmount().compare(copy.getVouts()[i].getAmount()));
+    assert(copy.getOutputs() !== tx.getOutputs());
+    for (let i = 0; i < copy.getOutputs().length; i++) {
+      assert.equal(0, tx.getOutputs()[i].getAmount().compare(copy.getOutputs()[i].getAmount()));
     }
   }
   
