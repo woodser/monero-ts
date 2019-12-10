@@ -633,7 +633,6 @@ namespace monero {
       else if (key == string("index")) output->m_index = it->second.get_value<uint32_t>();
       else if (key == string("ringOutputIndices")) throw runtime_error("node_to_tx() deserialize ringOutputIndices not implemented");
       else if (key == string("stealthPublicKey")) throw runtime_error("node_to_tx() deserialize stealthPublicKey not implemented");
-      else cout << "WARNING: unrecognized field deserializing node to output: " << key << endl;
     }
   }
 
