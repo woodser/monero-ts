@@ -22,8 +22,8 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
     return await MoneroWalletKeys.createWalletRandom(TestUtils.NETWORK_TYPE);
   }
   
-  async createWalletFromMnemonic(mnemonic, restoreHeight) {
-    return await MoneroWalletKeys.createWalletFromMnemonic(TestUtils.NETWORK_TYPE, mnemonic, restoreHeight, undefined);
+  async createWalletFromMnemonic(mnemonic, restoreHeight, offset) {
+    return await MoneroWalletKeys.createWalletFromMnemonic(TestUtils.NETWORK_TYPE, mnemonic, offset);
   }
   
   async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {  // TODO: daemonConnection placeholder not applicable for this method, use wallet creation config?

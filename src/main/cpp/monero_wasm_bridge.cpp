@@ -109,8 +109,8 @@ void monero_wasm_bridge::create_keys_wallet_random(int network_type, const strin
   callback((int) wallet); // callback with wallet address
 }
 
-void monero_wasm_bridge::create_keys_wallet_from_mnemonic(int network_type, const string& mnemonic, emscripten::val callback) {
-  monero_wallet* wallet = monero_wallet_keys::create_wallet_from_mnemonic(static_cast<monero_network_type>(network_type), mnemonic);
+void monero_wasm_bridge::create_keys_wallet_from_mnemonic(int network_type, const string& mnemonic, const string& offset, emscripten::val callback) {
+  monero_wallet* wallet = monero_wallet_keys::create_wallet_from_mnemonic(static_cast<monero_network_type>(network_type), mnemonic, offset);
   callback((int) wallet); // callback with wallet address
 }
 
