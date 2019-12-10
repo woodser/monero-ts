@@ -93,7 +93,7 @@ namespace monero {
     return wallet;
   }
 
-  monero_wallet_keys* monero_wallet_keys::create_wallet_from_mnemonic(const monero_network_type network_type, const string& mnemonic) {
+  monero_wallet_keys* monero_wallet_keys::create_wallet_from_mnemonic(const monero_network_type network_type, const string& mnemonic, const string& offset) {
 
     // validate mnemonic and get recovery key and language
     crypto::secret_key recovery_key;
@@ -101,6 +101,9 @@ namespace monero {
     bool is_valid = crypto::ElectrumWords::words_to_bytes(mnemonic, recovery_key, language);
     if (!is_valid) throw runtime_error("Invalid mnemonic");
     if (language == crypto::ElectrumWords::old_language_name) language = Language::English().get_language_name();
+
+    // apply offset if given
+    if (!offset.empty()) recovery_key = cryptonote::decrypt_key(recovery_key, offset);
 
     // initialize wallet account
     monero_wallet_keys* wallet = new monero_wallet_keys();

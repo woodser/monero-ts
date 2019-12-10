@@ -120,8 +120,7 @@ namespace monero {
      * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
      * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
      */
-    static monero_wallet_core* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic);
-    static monero_wallet_core* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height);
+    static monero_wallet_core* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& offset);
 
     /**
      * Create a wallet from an address, view key, and spend key.
@@ -136,8 +135,6 @@ namespace monero {
      * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    static monero_wallet_core* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key);
-    static monero_wallet_core* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height);
     static monero_wallet_core* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& language);
 
     /**
