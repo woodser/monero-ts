@@ -1,5 +1,4 @@
 V15
-delete plugins folder
 monero_wallet_keys get_version()
 readme: new keys wallet
 
