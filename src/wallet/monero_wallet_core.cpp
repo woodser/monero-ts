@@ -1360,9 +1360,9 @@ namespace monero {
     if (_query->m_transfer_query == boost::none) _query->m_transfer_query = make_shared<monero_transfer_query>();
     if (_query->m_output_query == boost::none) _query->m_output_query = make_shared<monero_output_query>();
 
-    // print query
-    if (_query->m_block != boost::none) MTRACE("Tx query's rooted at [block]: " << _query->m_block.get()->serialize());
-    else MTRACE("Tx _query: " << _query->serialize());
+//    // log query
+//    if (_query->m_block != boost::none) MTRACE("Tx query's rooted at [block]: " << _query->m_block.get()->serialize());
+//    else MTRACE("Tx _query: " << _query->serialize());
 
     // temporarily disable transfer and output queries in order to collect all tx information
     shared_ptr<monero_transfer_query> transfer_query = _query->m_transfer_query.get();
@@ -1465,11 +1465,11 @@ namespace monero {
   vector<shared_ptr<monero_transfer>> monero_wallet_core::get_transfers(const monero_transfer_query& query) const {
     MTRACE("monero_wallet_core::get_transfers(query)");
 
-    // LOG query
-    if (query.m_tx_query != boost::none) {
-      if ((*query.m_tx_query)->m_block == boost::none) MTRACE("Transfer query's tx query rooted at [tx]:" << (*query.m_tx_query)->serialize());
-      else MTRACE("Transfer query's tx query rooted at [block]: " << (*(*query.m_tx_query)->m_block)->serialize());
-    }
+//    // log query
+//    if (query.m_tx_query != boost::none) {
+//      if ((*query.m_tx_query)->m_block == boost::none) MTRACE("Transfer query's tx query rooted at [tx]:" << (*query.m_tx_query)->serialize());
+//      else MTRACE("Transfer query's tx query rooted at [block]: " << (*(*query.m_tx_query)->m_block)->serialize());
+//    }
 
     // copy and normalize query
     shared_ptr<monero_transfer_query> _query;
@@ -1611,12 +1611,12 @@ namespace monero {
   vector<shared_ptr<monero_output_wallet>> monero_wallet_core::get_outputs(const monero_output_query& query) const {
     MTRACE("monero_wallet_core::get_outputs(query)");
 
-    // print query
-    MTRACE("Output query: " << query.serialize());
-    if (query.m_tx_query != boost::none) {
-      if ((*query.m_tx_query)->m_block == boost::none) MTRACE("Output query's tx query rooted at [tx]:" << (*query.m_tx_query)->serialize());
-      else MTRACE("Output query's tx query rooted at [block]: " << (*(*query.m_tx_query)->m_block)->serialize());
-    }
+//    // log query
+//    MTRACE("Output query: " << query.serialize());
+//    if (query.m_tx_query != boost::none) {
+//      if ((*query.m_tx_query)->m_block == boost::none) MTRACE("Output query's tx query rooted at [tx]:" << (*query.m_tx_query)->serialize());
+//      else MTRACE("Output query's tx query rooted at [block]: " << (*(*query.m_tx_query)->m_block)->serialize());
+//    }
 
     // copy and normalize query
     shared_ptr<monero_output_query> _query;

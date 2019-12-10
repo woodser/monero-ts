@@ -106,7 +106,7 @@ void monero_utils::binary_blocks_to_json(const std::string &bin, std::string &js
 
         // add tx node to txs node
         boost::property_tree::ptree txNode;
-        MTRACE("PRUNED:\n" << monero_utils::get_pruned_tx_json(tx));
+        //MTRACE("PRUNED:\n" << monero_utils::get_pruned_tx_json(tx));
         txNode.put("", monero_utils::get_pruned_tx_json(tx));	// TODO: no pretty print
         txs_node.push_back(std::make_pair("", txNode));
       } else {
