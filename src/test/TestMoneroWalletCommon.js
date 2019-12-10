@@ -65,6 +65,15 @@ class TestMoneroWalletCommon {
   }
   
   /**
+   * Create and open a test wallet from a mnemonic phrase.
+   * 
+   * @return the created test wallet
+   */
+  async createWalletFromMnemonic(mnemonic, restoreHeight, offset) {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
    * Creates a wallet from keys.
    */
   async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
@@ -140,10 +149,35 @@ class TestMoneroWalletCommon {
             assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
             assert.equal(await that.wallet.getPrivateViewKey(), privateViewKey);
             assert.equal(await that.wallet.getPrivateSpendKey(), privateSpendKey);
-            if (!(that.wallet instanceof MoneroWalletRpc)) {
-              assert.equal(await that.wallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
-              assert.equal(await that.wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);
-            }
+            if (!(that.wallet instanceof MoneroWalletRpc)) assert.equal(await that.wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);
+          } catch (e) {
+            e2 = e;
+          }
+          await that.wallet.close();
+          if (e2 !== undefined) throw e2;
+        } catch (e) {
+          e1 = e;
+        }
+        
+        // open main test wallet for other tests
+        that.wallet = await that.getTestWallet();
+        if (e1 !== undefined) throw e1;
+      });
+      
+      it("Can create a wallet from a mnemonic phrase with a secret offset", async function() {
+        let e1 = undefined;
+        try {
+          
+          // create test wallet with offset
+          await that.wallet.close();  // TODO: monero-wallet-rpc: if wallet is not closed, primary address will not change
+          that.wallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT, "my secret offset!");
+          let e2 = undefined;
+          try {
+            MoneroUtils.validateMnemonic(await that.wallet.getMnemonic());
+            assert.notEqual(await that.wallet.getMnemonic(), TestUtils.MNEMONIC);
+            MoneroUtils.validateAddress(await that.wallet.getPrimaryAddress(), TestUtils.NETWORK_TYPE);
+            assert.notEqual(await that.wallet.getPrimaryAddress(), TestUtils.ADDRESS);
+            if (!(that.wallet instanceof MoneroWalletRpc)) assert.equal(await that.wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);  // TODO monero-wallet-rpc: support
           } catch (e) {
             e2 = e;
           }

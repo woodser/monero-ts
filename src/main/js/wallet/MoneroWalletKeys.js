@@ -27,10 +27,12 @@ class MoneroWalletKeys extends MoneroWalletWasmBase {
     });
   }
   
-  static async createWalletFromMnemonic(networkType, mnemonic) {
+  static async createWalletFromMnemonic(networkType, mnemonic, offset) {
     
     // validate and sanitize params
     MoneroNetworkType.validate(networkType);
+    if (mnemonic === undefined) throw Error("Must define mnemonic phrase to create wallet from");
+    if (offset === undefined) offset = "";
     
     // return promise which is resolved on callback
     return new Promise(function(resolve, reject) {
@@ -41,7 +43,7 @@ class MoneroWalletKeys extends MoneroWalletWasmBase {
       };
       
       // create wallet in wasm and invoke callback when done
-      MoneroWalletKeys.WASM_MODULE.create_keys_wallet_from_mnemonic(networkType, mnemonic, callbackFn);
+      MoneroWalletKeys.WASM_MODULE.create_keys_wallet_from_mnemonic(networkType, mnemonic, offset, callbackFn);
     });
   }
   
