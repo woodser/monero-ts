@@ -748,8 +748,8 @@ class MoneroWalletRpc extends MoneroWallet {
       
       // convert response to txs with outputs and merge
       if (resp.result.transfers === undefined) continue;
-      for (let rpcVout of resp.result.transfers) {
-        let tx = MoneroWalletRpc._convertRpcTxWalletWithVout(rpcVout);
+      for (let rpcOutput of resp.result.transfers) {
+        let tx = MoneroWalletRpc._convertRpcTxWalletWithOutput(rpcOutput);
         MoneroWalletRpc._mergeTx(tx, txMap, blockMap, false);
       }
     }
@@ -763,7 +763,7 @@ class MoneroWalletRpc extends MoneroWallet {
     for (let tx of txs) {
       
       // sort outputs
-      if (tx.getOutputs() !== undefined) tx.getOutputs().sort(MoneroWalletRpc._compareVouts);
+      if (tx.getOutputs() !== undefined) tx.getOutputs().sort(MoneroWalletRpc._compareOutputs);
       
       // collect queried outputs
       let toRemoves = [];
@@ -1750,7 +1750,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return tx;
   }
   
-  static _convertRpcTxWalletWithVout(rpcVout) {
+  static _convertRpcTxWalletWithOutput(rpcOutput) {
     
     // initialize tx
     let tx = new MoneroTxWallet();
@@ -1760,8 +1760,8 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // initialize output
     let output = new MoneroOutputWallet({tx: tx});
-    for (let key of Object.keys(rpcVout)) {
-      let val = rpcVout[key];
+    for (let key of Object.keys(rpcOutput)) {
+      let val = rpcOutput[key];
       if (key === "amount") output.setAmount(new BigInteger(val));
       else if (key === "spent") output.setIsSpent(val);
       else if (key === "key_image") output.setKeyImage(new MoneroKeyImage(val));
@@ -1928,7 +1928,7 @@ class MoneroWalletRpc extends MoneroWallet {
   /**
    * Compares two outputs by ascending account and subaddress indices.
    */
-  static _compareVouts(o1, o2) {
+  static _compareOutputs(o1, o2) {
     
     // compare by height
     let heightComparison = MoneroWalletRpc._compareTxsByHeight(o1.getTx(), o2.getTx());

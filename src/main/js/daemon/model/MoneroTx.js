@@ -688,7 +688,7 @@ class MoneroTx {
     str += GenUtils.kvLine("Max used block hash", this.getMaxUsedBlockHash(), indent);
     str += GenUtils.kvLine("Signatures", this.getSignatures(), indent);
     if (this.getInputs()) {
-      str += GenUtils.kvLine("Vins", "", indent);
+      str += GenUtils.kvLine("Inputs", "", indent);
       for (let i = 0; i < this.getInputs().length; i++) {
         str += GenUtils.kvLine(i + 1, "", indent + 1);
         str += this.getInputs()[i].toString(indent + 2);
@@ -696,7 +696,7 @@ class MoneroTx {
       }
     }
     if (this.getOutputs()) {
-      str += GenUtils.kvLine("Vouts", "", indent);
+      str += GenUtils.kvLine("Outputs", "", indent);
       for (let i = 0; i < this.getOutputs().length; i++) {
         str += GenUtils.kvLine(i + 1, "", indent + 1);
         str += this.getOutputs()[i].toString(indent + 2);

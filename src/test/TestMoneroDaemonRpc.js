@@ -1355,7 +1355,7 @@ function testTx(tx, ctx) {
   assert(tx.getOutputs().length > 0);
   for (let output of tx.getOutputs()) {
     assert(tx === output.getTx());
-    testVout(output, ctx);
+    testOutput(output, ctx);
   }
   
   // test pruned vs not pruned
@@ -1630,7 +1630,7 @@ function testKeyImage(image, ctx) {
   }
 }
 
-function testVout(output, ctx) {
+function testOutput(output, ctx) {
   testOutput(output);
   if (output.getTx().inTxPool() || ctx && ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(output.getIndex(), undefined); // TODO: get_blocks_by_height.bin (#5127), get_transaction_pool, and tx pool txs do not return output indices 
   else assert(output.getIndex() >= 0);
