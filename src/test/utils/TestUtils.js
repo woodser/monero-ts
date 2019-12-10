@@ -32,7 +32,7 @@ class TestUtils {
     try {
       await this.walletRpc.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
     } catch (e) {
-      if (e.name === "RequestError") throw e;
+      if (!(e instanceof MoneroRpcError)) throw e;
       
       // -1 returned when the wallet does not exist or it's open by another application
       if (e.getCode() === -1) {

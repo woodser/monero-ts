@@ -74,8 +74,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (!name) throw new MoneroError("Filename is not initialized");
     if (!password) throw new MoneroError("Password is not initialized");
     await this.config.rpc.sendJsonRequest("open_wallet", {filename: name, password: password});
-    delete this.addressCache;
-    this.addressCache = {};
+    this._clear();
     this.path = name;
   }
   
@@ -92,7 +91,7 @@ class MoneroWalletRpc extends MoneroWallet {
     if (!language) language = MoneroWallet.DEFAULT_LANGUAGE;
     let params = { filename: name, password: password, language: language };
     await this.config.rpc.sendJsonRequest("create_wallet", params);
-    this.addressCache = {};
+    this._clear();
     this.path = name;
   }
   
@@ -117,7 +116,8 @@ class MoneroWalletRpc extends MoneroWallet {
       restore_height: restoreHeight,
       language: language,
       autosave_current: saveCurrent
-    })
+    });
+    this._clear();
     this.path = name;
   }
   
@@ -146,6 +146,7 @@ class MoneroWalletRpc extends MoneroWallet {
       restore_height: restoreHeight,
       autosave_current: saveCurrent
     });
+    this._clear();
     this.path = name;
   }
   
@@ -1320,9 +1321,7 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async close(save) {
     if (save === undefined) save = false;
-    delete this.addressCache;
-    this.addressCache = {};
-    this.path = undefined;
+    this._clear();
     await this.config.rpc.sendJsonRequest("close_wallet", {autosave_current: save});
   }
   
@@ -1330,13 +1329,17 @@ class MoneroWalletRpc extends MoneroWallet {
    * Save and close the current wallet and stop the RPC server.
    */
   async stop() {
-    delete this.addressCache;
-    this.addressCache = {};
-    this.path = undefined;
+    this._clear();
     await this.config.rpc.sendJsonRequest("stop_wallet");
   }
   
   // --------------------------------  PRIVATE --------------------------------
+  
+  async _clear() {
+    delete this.addressCache;
+    this.addressCache = {};
+    this.path = undefined;
+  }
   
   async _getBalances(accountIdx, subaddressIdx) {
     if (accountIdx === undefined) {

@@ -169,7 +169,6 @@ class TestMoneroWalletCommon {
         try {
           
           // create test wallet with offset
-          await that.wallet.close();  // TODO: monero-wallet-rpc: if wallet is not closed, primary address will not change
           that.wallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT, "my secret offset!");
           let e2 = undefined;
           try {
