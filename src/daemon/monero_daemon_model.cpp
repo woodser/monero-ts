@@ -285,7 +285,7 @@ namespace monero {
       if (key == string("hash")) tx->m_hash = it->second.data();
       else if (key == string("version")) throw runtime_error("version deserializationn not implemented");
       else if (key == string("isMinerTx")) tx->m_is_miner_tx = it->second.get_value<bool>();
-      else if (key == string("paymentId")) tx->m_payment_id = it->second.data(); // TODO: this threw runtime_error, how is "Can get transactions by payment ids" test passing in Java?
+      else if (key == string("paymentId")) tx->m_payment_id = it->second.data();
       else if (key == string("fee")) tx->m_fee = it->second.get_value<uint64_t>();
       else if (key == string("mixin")) throw runtime_error("mixin deserialization not implemented");
       else if (key == string("doNotRelay")) tx->m_do_not_relay = it->second.get_value<bool>();
