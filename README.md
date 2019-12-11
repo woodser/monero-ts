@@ -160,7 +160,7 @@ To build this project's WebAssembly files from source code:
 	3. `git checkout wasm_modifications`
 	4. `cd ../../../../`
 5. Build Boost using emscripten: `./bin/build-boost-emscripten.h`
-6. Build WebAssembly files to ./build/ `./bin/build-emcpp.sh`
+6. Build WebAssembly files to ./build/: `./bin/build-emcpp.sh`
 
 ## See Also
 
