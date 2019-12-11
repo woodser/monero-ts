@@ -14,14 +14,14 @@ This library is compatible with [Monero Core v0.15.0.1 Carbon Chamaeleon](https:
 
 - Manage Monero wallets which connect to a daemon
 - Cohesive APIs and models with rigorous focus on ease-of-use
-- Query wallet transactions, transfers, and outputs by their many attributes
+- Query wallet transactions, transfers, and outputs by their attributes
 - Be notified when blocks are added to the chain, as the wallet synchronizes, or when the wallet sends or receives funds
 - Full multisig support
 - Tested by over 100 JUnit test cases using a [native Java library](https://github.com/monero-ecosystem/monero-java)
 
 ## Sample Code
 
-This code introduces the API.  See the [documentation](https://woodser.github.io/monero-cpp-library/annotated.html) or [specification PDF](http://moneroecosystem.org/monero-java/monero-spec.pdf) for more details.
+This code demonstrates the API.  See the [documentation](https://woodser.github.io/monero-cpp-library/annotated.html) or [specification PDF](http://moneroecosystem.org/monero-java/monero-spec.pdf) for more details.
 
 Note: This API might change depending on feedback, such as changing structs to classes, using pure object-oriented accessors and mutators, not using boost::optional with shared_ptrs, etc.  Feedback is welcome.
 
@@ -180,9 +180,9 @@ These build steps aspire to be automated further and [any help is greatly apprec
 
 [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf)
 
-[Java reference implementation](https://github.com/monero-ecosystem/monero-java-rpc)
+[monero-java](https://github.com/monero-ecosystem/monero-java)
 
-[JavaScript reference implementation](https://github.com/monero-ecosystem/monero-javascript)
+[monero-javascript](https://github.com/monero-ecosystem/monero-javascript)
 
 ## License
 
