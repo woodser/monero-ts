@@ -10,4 +10,5 @@ test_products
 /test_wallets/
 
 /build/*
-!/build/monero_cpp_library_WASM.wasm
+!/build/monero-javascript.js
+!/build/monero-javascript.wasm

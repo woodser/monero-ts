@@ -106,11 +106,11 @@ class MoneroWalletKeys extends MoneroWalletWasmBase {
  */
 module.exports = async function() {
   return new Promise(function(resolve, reject) {
-    require("../../../../build/monero_cpp_library_WASM")().ready.then(function(module) {
+    require("../../../../build/monero-javascript")().ready.then(function(module) {
       MoneroWalletKeys.WASM_MODULE = module;
       resolve(MoneroWalletKeys);
     }).catch(function(e) {
-      console.log("Error loading monero_cpp_library_WASM:", e);
+      console.log("Error loading monero-javascript.wasm:", e);
       reject(e);
     });
   });
