@@ -18,6 +18,12 @@ class MoneroWalletWasmBase extends MoneroWallet {
     this.cppAddress = cppAddress;
   }
   
+  async getVersion() {
+    let versionStr = this.module.get_version(this.cppAddress);
+    let versionJson = JSON.parse(versionStr);
+    return new MoneroVersion(versionJson.number, versionJson.isRelease);
+  }
+  
   async getMnemonic() {
     return this.module.get_mnemonic(this.cppAddress);
   }

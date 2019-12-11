@@ -135,6 +135,12 @@ vector<string> monero_wasm_bridge::get_keys_wallet_mnemonic_languages() {
 //  bool is_synced(int handle) const;
 //  int get_network_type(int handle) const;
 
+string monero_wasm_bridge::get_version(int handle) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->get_version().serialize();
+  monero_version version = wallet->get_version();
+}
+
 string monero_wasm_bridge::get_mnemonic(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
   return wallet->get_mnemonic();

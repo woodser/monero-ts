@@ -27,6 +27,7 @@ EMSCRIPTEN_BINDINGS(module)
 
   // ----------------------- WALLET INSTANCE METHODS --------------------------
 
+  emscripten::function("get_version", &monero_wasm_bridge::get_version);
   emscripten::function("get_mnemonic", &monero_wasm_bridge::get_mnemonic);
   emscripten::function("get_mnemonic_language", &monero_wasm_bridge::get_mnemonic_language);
   emscripten::function("get_private_spend_key", &monero_wasm_bridge::get_private_spend_key);
