@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-project(monero-cpp-library-wasm)
+project(monero-javascript-wasm)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -198,7 +198,7 @@ set (
     "-Wall -std=c++11 \
 --bind -s MODULARIZE=1 \
 -Oz \
--s 'EXPORT_NAME=\"monero_cpp_library\"' \
+-s 'EXPORT_NAME=\"monero_javascript\"' \
 --llvm-lto 1 \
 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 -s ASSERTIONS=2 \
@@ -259,10 +259,10 @@ message(STATUS "EMCC_LINKER_FLAGS__ASMJS ${EMCC_LINKER_FLAGS__ASMJS}")
 ####################
 
 # WASM
-add_executable(monero_cpp_library_WASM ${SRC_FILES})
-set_target_properties(monero_cpp_library_WASM PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__WASM}")
+add_executable(monero-javascript ${SRC_FILES})
+set_target_properties(monero-javascript PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__WASM}")
 target_link_libraries(
-    monero_cpp_library_WASM
+    monero-javascript
     #
     boost_chrono
     boost_system
@@ -276,10 +276,10 @@ target_link_libraries(
 )
 
 # ASMJS
-#add_executable(monero_cpp_library_ASMJS ${SRC_FILES})
-#set_target_properties(monero_cpp_library_ASMJS PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__ASMJS}")
+#add_executable(monero-javascript_ASMJS ${SRC_FILES})
+#set_target_properties(monero-javascript_ASMJS PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__ASMJS}")
 #target_link_libraries(
-	#monero_cpp_library_ASMJS
+	#monero-javascript_ASMJS
     ##
     #${log-lib}
 #)
