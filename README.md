@@ -152,17 +152,10 @@ To build the WebAssembly file from source:
 	4. `./emsdk install latest`
 	5. `./emsdk activate latest`
 	6. `source ./emsdk_env.sh`
-2. Clone this project repository: `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-javascript.git` or update submodules if already downloaded: `./bin/update_submodules
-3. Build Boost using emscripten: `./bin/build-boost-emscripten.h`
-4. Build WebAssembly file to ./build/monero_cpp_library.wasm: `./bin/build-emcpp.sh`
-
-
-If you want to process binary data or use a Monero wallet using WebAssembly instead of RPC, a dynamic library must be built for your specific platform for this Java library to use.  This project uses a [C++ counterpart library](https://github.com/woodser/monero-cpp-library) to support JNI, which is included as a submodule in ./external/monero-cpp-library.
-
-1. `export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home/` (change as appropriate)
-2. `cd <project_root>`
-3. `./bin/build-libmonero-java.sh
-4. Run TestMoneroCppUtils.java JUnit tests to verify the dynamic library is working with Java JNI
+2. `cd <monero_javascript_root>`
+3. Update submodules: `./bin/update_submodules`
+4. Build Boost using emscripten: `./bin/build-boost-emscripten.h`
+5. Build WebAssembly file to ./build/monero_cpp_library.wasm: `./bin/build-emcpp.sh`
 
 ## Sample Web Application
 
