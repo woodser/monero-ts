@@ -161,7 +161,7 @@ To build the WebAssembly File from source:
 
 [Sample web application using this library](https://github.com/woodser/xmr-sample-app)
 
-[API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf).
+[API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf)
 
 [Java reference implementation](https://github.com/monero-ecosystem/monero-java)
 
