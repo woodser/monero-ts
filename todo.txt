@@ -1,7 +1,3 @@
-V15
-monero_wallet_keys get_version()
-readme: new keys wallet
-
 HIGH (WASM)
 port testSyncWithPoolSubmit from java
 libsodium dependency in monero-cpp-library, why doesn't monero-project's work?
