@@ -157,13 +157,11 @@ To build the WebAssembly File from source:
 4. Build Boost using emscripten: `./bin/build-boost-emscripten.h`
 5. Build WebAssembly file to ./build/monero_cpp_library.wasm: `./bin/build-emcpp.sh`
 
-## Sample Web Application
-
-A [sample web application](https://github.com/woodser/xmr-sample-app) demonstrates integration of this library in a web browser.
-
 ## See Also
 
-[Sample web application](https://github.com/woodser/xmr-sample-app)
+[Sample web application using this library](https://github.com/woodser/xmr-sample-app)
+
+[API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf).
 
 [Java reference implementation](https://github.com/monero-ecosystem/monero-java)
 
