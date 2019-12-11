@@ -1,6 +1,8 @@
+**Compatible with [Monero Core v0.15.0.1](https://web.getmonero.org/downloads/) Carbon Chameleon**
+
 # Monero JavaScript Library
 
-This project is a library for using a Monero wallet and daemon in JavaScript (NodeJS) using RPC bindings to [monero-wallet-rpc](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [monero-daemon-rpc](https://getmonero.org/resources/developer-guides/daemon-rpc.html).
+This project is a library for using a Monero wallet and daemon in JavaScript / NodeJS using RPC bindings to [monero-wallet-rpc](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [monero-daemon-rpc](https://getmonero.org/resources/developer-guides/daemon-rpc.html).
 
 In addition, this project conforms to an [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and suitable for long-term use in the Monero project.
 
@@ -111,7 +113,8 @@ let isConfirmed = (await walletRpc.getTx(createdTx.getId())).isConfirmed();
 
 Or
 
-1. Clone this repository: `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-javascript.git`
+1. Clone this repository: `git clone https://github.com/monero-ecosystem/monero-javascript.git`
+2. cd `monero-javascript`
 2. Install dependencies using Node Package Manager: `npm install`
 
 You are now ready to use this library with [monero-daemon-rpc](https://getmonero.org/resources/developer-guides/daemon-rpc.html) and [monero-wallet-rpc](https://getmonero.org/resources/developer-guides/wallet-rpc.html) endpoints.
@@ -134,15 +137,40 @@ You are now ready to use this library with [monero-daemon-rpc](https://getmonero
 3. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/TestUtils.js).
 4. Run all tests: `npm test` or run tests by their description, e.g.: `node_modules/mocha/bin/mocha src/test/TestAll --grep "Can get transactions by id" --timeout 2000000`
 
-## Project Goals
+## How to Build WebAssembly file from Source
 
-- Offer consistent terminology and APIs for Monero's developer ecosystem
-- Build a wallet adapter for a local wallet which uses client-side crypto and a daemon
-- Build a wallet adapter for a MyMonero wallet which shares the view key with a 3rd party to scan the blockchain
+This project uses WebAssembly to package and execute Monero Core source code.
+
+A pre-built WebAssembly file (monero_cpp_library.wasm) is committed to ./build/ for convenience, but this file can be built independently from source code.
+
+To build the WebAssembly file from source:
+
+1. Install and activate emscripten:
+	1. Download emscripten to a folder: `git clone https://github.com/emscripten-core/emsdk.git`
+	2. `cd emsdk`
+	3. `git pull`
+	4. `./emsdk install latest`
+	5. `./emsdk activate latest`
+	6. `source ./emsdk_env.sh`
+2. Clone this repository: `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-javascript.git`
+3. Build Boost using emscripten: `./bin/build-boost-emscripten.h`
+4. Build WebAssembly file to ./build/monero_cpp_library.wasm: `./bin/build-emcpp.sh`
+
+
+If you want to process binary data or use a Monero wallet using WebAssembly instead of RPC, a dynamic library must be built for your specific platform for this Java library to use.  This project uses a [C++ counterpart library](https://github.com/woodser/monero-cpp-library) to support JNI, which is included as a submodule in ./external/monero-cpp-library.
+
+1. `export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_66.jdk/Contents/Home/` (change as appropriate)
+2. `cd <project_root>`
+3. `./bin/build-libmonero-java.sh
+4. Run TestMoneroCppUtils.java JUnit tests to verify the dynamic library is working with Java JNI
+
+## Sample Web Application
+
+A [sample web application](https://github.com/woodser/xmr-sample-app) demonstrates integration of this library in a web browser.
 
 ## See Also
 
-[Sample browser application to demonstrate integration](https://github.com/woodser/xmr-sample-app)
+[Sample web application](https://github.com/woodser/xmr-sample-app)
 
 [Java reference implementation](https://github.com/monero-ecosystem/monero-java)
 
