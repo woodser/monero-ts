@@ -137,7 +137,7 @@ You are now ready to use this library with [monero-daemon-rpc](https://getmonero
 3. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/TestUtils.js).
 4. Run all tests: `npm test` or run tests by their description, e.g.: `node_modules/mocha/bin/mocha src/test/TestAll --grep "Can get transactions by id" --timeout 2000000`
 
-## How to Build the WebAssembly Files from Source
+## How to Build WebAssembly Files from Source
 
 This project uses WebAssembly to package and execute Monero Core source code for use in a browser or other WebAssembly-enabled environment.
 
@@ -155,10 +155,10 @@ To build this project's WebAssembly files from source code:
 2. `cd <monero_javascript_root>`
 3. Update submodules: `./bin/update_submodules`
 4. Checkout branch of Monero Core with [minor modifications](https://github.com/monero-project/monero/compare/master...woodser:wasm_modifications) for compatibility with emscripten:
-	1. cd ./external/monero-cpp-library/external/monero-core
-	2. git fetch
-	3. git checkout wasm_modifications
-	4. cd ../../../../
+	1. `cd ./external/monero-cpp-library/external/monero-core`
+	2. `git fetch`
+	3. `git checkout wasm_modifications`
+	4. `cd ../../../../`
 5. Build Boost using emscripten: `./bin/build-boost-emscripten.h`
 6. Build WebAssembly files to ./build/ `./bin/build-emcpp.sh`
 
