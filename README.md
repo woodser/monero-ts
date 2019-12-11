@@ -2,19 +2,19 @@
 
 # Monero JavaScript Library
 
-This project is a library for using a Monero wallet and daemon in JavaScript / NodeJS using RPC bindings to [monero-wallet-rpc](https://getmonero.org/resources/developer-guides/wallet-rpc.html) and [monero-daemon-rpc](https://getmonero.org/resources/developer-guides/daemon-rpc.html).
+This project is a library for using a Monero wallet and daemon in Java using RPC and WebAssembly bindings to [Monero Core](https://github.com/monero-project/monero).
 
 In addition, this project conforms to an [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and suitable for long-term use in the Monero project.
 
 ## Main Features
 
-- Manage a Monero wallet and daemon using RPC
 - Cohesive APIs with rigorous focus on ease-of-use
+- Manage a Monero wallet and daemon using RPC
+- Manage a keys-only wallet using WebAssembly bindings to Monero Core
 - Fetch and process binary data from the daemon (e.g. raw blocks)
 - Query wallet transactions, transfers, and outputs by their many attributes
 - Be notified when blocks are added to the chain
-- Build web applications which use a Monero wallet and daemon
-- Generate wallet keys offline and locally using WebAssembly bindings to core utilities
+- Build [web applications](https://github.com/woodser/xmr-sample-app) which use a Monero wallet and daemon
 - Full multisig support
 - Over 150 passing Mocha test cases
 
@@ -137,13 +137,13 @@ You are now ready to use this library with [monero-daemon-rpc](https://getmonero
 3. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/TestUtils.js).
 4. Run all tests: `npm test` or run tests by their description, e.g.: `node_modules/mocha/bin/mocha src/test/TestAll --grep "Can get transactions by id" --timeout 2000000`
 
-## How to Build WebAssembly File from Source
+## How to Build the WebAssembly File from Source
 
 This project uses WebAssembly to package and execute Monero Core source code.
 
-A pre-built WebAssembly file (monero_cpp_library.wasm) is committed to ./build/ for convenience, but this file can be built from source code.
+A pre-built WebAssembly file (monero_cpp_library.wasm) is committed to ./build/ for convenience, but this file can be built directly from source code.
 
-To build the WebAssembly File from source:
+To build the WebAssembly file from source:
 
 1. Install and activate emscripten:
 	1. Clone the emscripten project repository: `git clone https://github.com/emscripten-core/emsdk.git`
