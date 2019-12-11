@@ -1,3 +1,5 @@
+**Compatible with [Monero Core v0.15.0.1](https://web.getmonero.org/downloads/) Carbon Chameleon**
+
 # Monero C++ Library
 
 This project is a library for using Monero wallets in C++ by wrapping [Monero Core's](https://github.com/monero-project/monero) C++ wallet, [wallet2](https://github.com/monero-project/monero/blob/master/src/wallet/wallet2.h).
