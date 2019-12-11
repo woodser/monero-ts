@@ -2,25 +2,25 @@
 
 # Monero JavaScript Library
 
-This project is a library for using a Monero wallet and daemon in Java using RPC and WebAssembly bindings to [Monero Core](https://github.com/monero-project/monero).
+This project is a library for using a Monero wallet and daemon in JavaScript using RPC and WebAssembly bindings to [Monero Core](https://github.com/monero-project/monero).
 
 In addition, this project conforms to an [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and suitable for long-term use in the Monero project.
 
 ## Main Features
 
-- Cohesive APIs with rigorous focus on ease-of-use
+- Build NodeJS and [web applications](https://github.com/woodser/xmr-sample-app) using Monero
 - Manage a Monero wallet and daemon using RPC
 - Manage a keys-only wallet using WebAssembly bindings to Monero Core
+- Cohesive APIs with rigorous focus on ease-of-use
 - Fetch and process binary data from the daemon (e.g. raw blocks)
-- Query wallet transactions, transfers, and outputs by their many attributes
+- Query wallet transactions, transfers, and outputs by their attributes
 - Be notified when blocks are added to the chain
-- Build [web applications](https://github.com/woodser/xmr-sample-app) which use a Monero wallet and daemon
 - Full multisig support
 - Over 150 passing Mocha test cases
 
 ## Sample Code
 
-This code introduces the API.  See the [jsdoc](https://moneroecosystem.org/monero-javascript/), [specification PDF](http://moneroecosystem.org/monero-java/monero-spec.pdf), or [Mocha tests](src/test/) for more details.
+This code demonstrates the API.  See the [jsdoc](https://moneroecosystem.org/monero-javascript/), [specification PDF](http://moneroecosystem.org/monero-java/monero-spec.pdf), or [Mocha tests](src/test/) for more details.
 
 ```js
 // import daemon and rpc wallet
@@ -137,11 +137,11 @@ You are now ready to use this library with [monero-daemon-rpc](https://getmonero
 3. Configure the appropriate RPC endpoints and authentication by modifying `WALLET_RPC_CONFIG` and `DAEMON_RPC_CONFIG` in [TestUtils.js](src/test/TestUtils.js).
 4. Run all tests: `npm test` or run tests by their description, e.g.: `node_modules/mocha/bin/mocha src/test/TestAll --grep "Can get transactions by id" --timeout 2000000`
 
-## How to Build the WebAssembly File from Source
+## How to Build the WebAssembly File (.wasm) from Source
 
-This project uses WebAssembly to package and execute Monero Core source code.
+This project uses WebAssembly to package and execute Monero Core source code for use in a browser or other WebAssembly-enabled environment.
 
-A pre-built WebAssembly file (monero_cpp_library.wasm) is committed to ./build/ for convenience, but this file can be built directly from source code.
+A pre-built WebAssembly file built from this project's source code is committed to ./build/monero-javascript.wasm for convenience, but this file can be built independently from source code.
 
 To build the WebAssembly file from source:
 
@@ -155,17 +155,17 @@ To build the WebAssembly file from source:
 2. `cd <monero_javascript_root>`
 3. Update submodules: `./bin/update_submodules`
 4. Build Boost using emscripten: `./bin/build-boost-emscripten.h`
-5. Build WebAssembly file to ./build/monero_cpp_library.wasm: `./bin/build-emcpp.sh`
+5. Build WebAssembly file to ./build/monero-javascript.wasm: `./bin/build-emcpp.sh`
 
 ## See Also
 
-[Sample web application using this library](https://github.com/woodser/xmr-sample-app)
-
 [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf)
 
-[Java reference implementation](https://github.com/monero-ecosystem/monero-java)
+[monero-java](https://github.com/monero-ecosystem/monero-java)
 
-[C++ reference implementation](https://github.com/woodser/monero-cpp-library)
+[monero-cpp-library](https://github.com/woodser/monero-cpp-library)
+
+[Sample web application using monero-javascript](https://github.com/woodser/xmr-sample-app)
 
 ## License
 
