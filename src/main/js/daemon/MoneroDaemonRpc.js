@@ -866,12 +866,12 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "double_spend_seen") GenUtils.safeSet(tx, tx.isDoubleSpendSeen, tx.setIsDoubleSpend, val);
       else if (key === "version") GenUtils.safeSet(tx, tx.getVersion, tx.setVersion, val);
       else if (key === "extra") GenUtils.safeSet(tx, tx.getExtra, tx.setExtra, val);
-      else if (key === "input") {
+      else if (key === "vin") {
         if (val.length !== 1 || !val[0].gen) {  // ignore miner input TODO: why?
           tx.setInputs(val.map(rpcVin => MoneroDaemonRpc._convertRpcOutput(rpcVin, tx)));
         }
       }
-      else if (key === "output") tx.setOutputs(val.map(rpcOutput => MoneroDaemonRpc._convertRpcOutput(rpcOutput, tx)));
+      else if (key === "vout") tx.setOutputs(val.map(rpcOutput => MoneroDaemonRpc._convertRpcOutput(rpcOutput, tx)));
       else if (key === "rct_signatures") GenUtils.safeSet(tx, tx.getRctSignatures, tx.setRctSignatures, val);
       else if (key === "rctsig_prunable") GenUtils.safeSet(tx, tx.getRctSigPrunable, tx.setRctSigPrunable, val);
       else if (key === "unlock_time") GenUtils.safeSet(tx, tx.getUnlockTime, tx.setUnlockTime, val);
