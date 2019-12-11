@@ -178,7 +178,7 @@ These build steps aspire to be automated further and [any help is greatly apprec
 
 ## See Also
 
-These libraries conform to the same [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf).
+[API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf)
 
 [Java reference implementation](https://github.com/monero-ecosystem/monero-java-rpc)
 
