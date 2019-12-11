@@ -113,9 +113,9 @@ let isConfirmed = (await walletRpc.getTx(createdTx.getId())).isConfirmed();
 
 Or
 
-1. Clone this repository: `git clone https://github.com/monero-ecosystem/monero-javascript.git`
+1. Clone the project repository: `git clone https://github.com/monero-ecosystem/monero-javascript.git`
 2. cd `monero-javascript`
-2. Install dependencies using Node Package Manager: `npm install`
+3. Install dependencies using Node Package Manager: `npm install`
 
 You are now ready to use this library with [monero-daemon-rpc](https://getmonero.org/resources/developer-guides/daemon-rpc.html) and [monero-wallet-rpc](https://getmonero.org/resources/developer-guides/wallet-rpc.html) endpoints.
 
@@ -141,18 +141,18 @@ You are now ready to use this library with [monero-daemon-rpc](https://getmonero
 
 This project uses WebAssembly to package and execute Monero Core source code.
 
-A pre-built WebAssembly file (monero_cpp_library.wasm) is committed to ./build/ for convenience, but this file can be built independently from source code.
+A pre-built WebAssembly file (monero_cpp_library.wasm) is committed to ./build/ for convenience, but this file can be built from source code.
 
 To build the WebAssembly file from source:
 
 1. Install and activate emscripten:
-	1. Download emscripten to a folder: `git clone https://github.com/emscripten-core/emsdk.git`
+	1. Clone the emscripten project repository: `git clone https://github.com/emscripten-core/emsdk.git`
 	2. `cd emsdk`
 	3. `git pull`
 	4. `./emsdk install latest`
 	5. `./emsdk activate latest`
 	6. `source ./emsdk_env.sh`
-2. Clone this repository: `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-javascript.git`
+2. Clone this project repository: `git clone --recurse-submodules https://github.com/monero-ecosystem/monero-javascript.git` or update submodules if already downloaded: `./bin/update_submodules
 3. Build Boost using emscripten: `./bin/build-boost-emscripten.h`
 4. Build WebAssembly file to ./build/monero_cpp_library.wasm: `./bin/build-emcpp.sh`
 
