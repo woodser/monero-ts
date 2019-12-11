@@ -143,7 +143,7 @@ This project uses WebAssembly to package and execute Monero Core source code.
 
 A pre-built WebAssembly file (monero_cpp_library.wasm) is committed to ./build/ for convenience, but this file can be built from source code.
 
-To build the WebAssembly file from source:
+To build the WebAssembly File from source:
 
 1. Install and activate emscripten:
 	1. Clone the emscripten project repository: `git clone https://github.com/emscripten-core/emsdk.git`
