@@ -23,9 +23,11 @@ In addition, this project conforms to an [API specification](http://moneroecosys
 This code demonstrates the API.  See the [jsdoc](https://moneroecosystem.org/monero-javascript/), [specification PDF](http://moneroecosystem.org/monero-java/monero-spec.pdf), or [Mocha tests](src/test/) for more details.
 
 ```js
-// import daemon and rpc wallet
-const MoneroDaemonRpc = require("src/main/daemon/MoneroDaemonRpc");
-const MoneroWalletRpc = require("src/main/wallet/MoneroWalletRpc");
+// import daemon and wallets
+const MoneroJS = require("monero-javascript");
+const MoneroDaemonRpc = MoneroJS.MoneroDaemonRpc;
+const MoneroWalletRpc = MoneroJS.MoneroWalletRpc;
+const MoneroWalletKeys = await MoneroJS.getMoneroWalletKeys();  // exports promise
 
 // connect to a daemon
 let daemon = new MoneroDaemonRpc("http://localhost:38081");
@@ -45,6 +47,10 @@ let blocks = await daemon.getBlocksByRange(height - 100, height - 1);
 for (let block of blocks) {
   let numTxs = block.getTxs().length;
 }
+
+// create a keys-only wallet with a random mnemonic phrase
+let walletKeys = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");
+let mnemonic = await walletKeys.getMnemonic();  // megabyte ghetto syllabus ...
 
 // connect to a monero-wallet-rpc endpoint with authentication
 let walletRpc = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");

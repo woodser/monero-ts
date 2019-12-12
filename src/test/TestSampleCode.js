@@ -16,9 +16,18 @@ describe("Test Sample Code", function() {
   
   it("Can be demonstrated with sample code", async function() {
     
+    // *** REMOVE FROM README SAMPLE ***
     // import daemon and rpc wallet
     const MoneroDaemonRpc = require("../main/js/daemon/MoneroDaemonRpc");
     const MoneroWalletRpc = require("../main/js/wallet/MoneroWalletRpc");
+    const MoneroWalletKeys = await require("../main/js/wallet/MoneroWalletKeys")(); // exports promise
+    
+    // *** INCLUDE IN README SAMPLE ***
+//    // import daemon and wallets
+//    const MoneroJS = require("monero-javascript");
+//    const MoneroDaemonRpc = MoneroJS.MoneroDaemonRpc;
+//    const MoneroWalletRpc = MoneroJS.MoneroWalletRpc;
+//    const MoneroWalletKeys = await MoneroJS.getMoneroWalletKeys();  // exports promise
     
     // connect to a daemon
     let daemon = new MoneroDaemonRpc("http://localhost:38081");
@@ -41,6 +50,10 @@ describe("Test Sample Code", function() {
     
     // connect to a monero-wallet-rpc endpoint with authentication
     let walletRpc = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");
+    
+    // create a keys-only wallet with a random mnemonic phrase
+    let walletKeys = await MoneroWalletKeys.createWalletRandom(MoneroNetworkType.STAGENET, "English");
+    let mnemonic = await walletKeys.getMnemonic();  // megabyte ghetto syllabus ...
     
     // open a wallet on the server
     await walletRpc.openWallet("test_wallet_1", "supersecretpassword123");
