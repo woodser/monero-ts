@@ -24,8 +24,8 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     return this.wallet;
   }
   
-  async createWalletFromMnemonic(mnemonic, restoreHeight, offset) {
-    await this.wallet.createWalletFromMnemonic(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, mnemonic, restoreHeight, undefined, offset);
+  async createWalletFromMnemonic(mnemonic, restoreHeight, seedOffset) {
+    await this.wallet.createWalletFromMnemonic(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, mnemonic, restoreHeight, undefined, seedOffset);
     return this.wallet;
   }
   

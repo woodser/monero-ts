@@ -104,15 +104,15 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {string} mnemonic is the mnemonic of the wallet to construct
    * @param {int} restoreHeight is the block height to restore from (default = 0)
    * @param {string} language is the language of the mnemonic in case the old language is invalid
-   * @param {int} offset is the offset for restoring from mnemonic
+   * @param {int} seedOffset is a string used to derive a new mnemonic from the given mnemonic, allowing password-protected wallets to be recovered from a plain-text mnemonic
    * @param {boolean} saveCurrent specifies if the current RPC wallet should be saved before being closed
    */
-  async createWalletFromMnemonic(name, password, mnemonic, restoreHeight, language, offset, saveCurrent) {
+  async createWalletFromMnemonic(name, password, mnemonic, restoreHeight, language, seedOffset, saveCurrent) {
     await this.config.rpc.sendJsonRequest("restore_deterministic_wallet", {
       filename: name,
       password: password,
       seed: mnemonic,
-      seed_offset: offset,
+      seed_offset: seedOffset,
       restore_height: restoreHeight,
       language: language,
       autosave_current: saveCurrent
