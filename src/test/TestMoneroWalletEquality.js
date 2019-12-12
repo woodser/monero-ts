@@ -1,7 +1,7 @@
 /**
  * Compares two wallets for equality.
  */
-describe("TEST WALLETS EQUALITY", function() {
+describe("TEST WALLET EQUALITY", function() {
   let that = this;
   
   // setup before tests run
@@ -10,10 +10,16 @@ describe("TEST WALLETS EQUALITY", function() {
     that.wallet2 = await TestUtils.getWalletKeys();
   });
   
+  it("RPC and keys-only wallets are equal", async function() {
+    
+  });
+  
+  it("RPC and keys-only wallets with a seed offset are equal", async function() {
+    
+  });
+  
   it("Have the same keys", async function() {
-    assert.equal(await that.wallet2.getMnemonic(), await that.wallet1.getMnemonic());
-    assert.equal(await that.wallet2.getPrimaryAddress(), await that.wallet1.getPrimaryAddress());
-    assert.equal(await that.wallet2.getPrivateViewKey(), await that.wallet1.getPrivateViewKey());
+
   });
   
   it("Provide the same integrated address given a payment id", async function() {
@@ -46,3 +52,10 @@ describe("TEST WALLETS EQUALITY", function() {
     throw new Error("Not implemented");
   });
 });
+
+async testWalletEqualityKeys(w1, w2) {
+  assert.equal(await w2.getMnemonic(), await w1.getMnemonic());
+  assert.equal(await w2.getPrimaryAddress(), await w1.getPrimaryAddress());
+  assert.equal(await w2.getPrivateViewKey(), await w1.getPrivateViewKey());
+  throw runtime_error("testWalletEqualityKeys() not implemented");
+}

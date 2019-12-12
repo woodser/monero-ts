@@ -164,7 +164,7 @@ class TestMoneroWalletCommon {
         if (e1 !== undefined) throw e1;
       });
       
-      it("Can create a wallet from a mnemonic phrase with a secret offset", async function() {
+      it("Can create a wallet from a mnemonic phrase with a seed offset", async function() {
         let e1 = undefined;
         try {
           
