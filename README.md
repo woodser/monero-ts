@@ -170,13 +170,13 @@ To build this project's WebAssembly files from source code:
 
 ## See Also
 
+[Sample web application using monero-javascript](https://github.com/woodser/xmr-sample-app)
+
 [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf)
 
 [monero-java](https://github.com/monero-ecosystem/monero-java)
 
 [monero-cpp-library](https://github.com/woodser/monero-cpp-library)
-
-[Sample web application using monero-javascript](https://github.com/woodser/xmr-sample-app)
 
 ## License
 
