@@ -45,9 +45,6 @@ new TestMoneroWalletKeys().runTests({
 //  testNotifications: false
 //});
 
-// test wallet equality
-require("./TestMoneroWalletEquality");
-
 //// test boolean set (data structure used by wallet to track progress)
 //require("./TestBooleanSet");
 //

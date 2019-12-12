@@ -60,6 +60,28 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
     
     describe("Tests specific to keys wallet", function() {
       
+      it("Has the same keys as the RPC wallet", async function() {
+        await WalletEqualityUtils.testWalletEqualityKeys(await TestUtils.getWalletRpc(), await that.getTestWallet());
+      });
+      
+      it("Has the same keys as the RPC wallet with a seed offset", async function() {
+        
+        // use common offset to compare wallet implementations
+        let seedOffset = "my super secret offset!";
+        
+        // create rpc wallet with offset
+        let walletRpc = await TestUtils.getWalletRpc();
+        await walletRpc.createWalletFromMnemonic(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, await walletRpc.getMnemonic(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, seedOffset, undefined);
+        
+        // create keys-only wallet with offset
+        let walletKeys = await MoneroWalletKeys.createWalletFromMnemonic(
+            TestUtils.NETWORK_TYPE,
+            TestUtils.MNEMONIC,
+            seedOffset);
+        
+        // deep compare
+        await WalletEqualityUtils.testWalletEqualityKeys(walletRpc, walletKeys);
+      });
     });
   }
 }

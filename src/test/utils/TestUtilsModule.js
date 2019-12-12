@@ -8,4 +8,5 @@ module.exports = function() {
   this.TestUtils = require("./TestUtils");
   this.TxPoolWalletTracker = require("./TxPoolWalletTracker");
   this.StartMining = require("./StartMining");
+  this.WalletEqualityUtils = require("./WalletEqualityUtils");
 }
