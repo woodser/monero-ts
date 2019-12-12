@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include "wallet2.h"
-#include "wallet/monero_wallet.h"
+#include "wallet/monero_wallet_core.h"
 
 using namespace std;
 
@@ -21,13 +21,14 @@ int main(int argc, const char* argv[]) {
 
   // create a wallet from a mnemonic phrase
   string mnemonic = "hefty value later extra artistic firm radar yodel talent future fungal nutshell because sanity awesome nail unjustly rage unafraid cedar delayed thumbs comb custom sanity";
-  monero_wallet* wallet_restored = monero_wallet::create_wallet_from_mnemonic(
+  monero_wallet* wallet_restored = monero_wallet_core::create_wallet_from_mnemonic(
       "MyWalletRestored",                               // wallet path and name
       "supersecretpassword123",                         // wallet password
       monero_network_type::STAGENET,                    // network type
       mnemonic,                                         // mnemonic phrase
       monero_rpc_connection("http://localhost:38081"),  // daemon connection
-      380104                                            // restore height
+      380104,                                           // restore height
+      ""                                                // seed offset
   );
 
   // synchronize the wallet and receive progress notifications
@@ -68,7 +69,7 @@ int main(int argc, const char* argv[]) {
   vector<shared_ptr<monero_output_wallet>> outputs = wallet_restored->get_outputs(output_query);
 
   // create and sync a new wallet with a random mnemonic phrase
-  monero_wallet* wallet_random = monero_wallet::create_wallet_random(
+  monero_wallet* wallet_random = monero_wallet_core::create_wallet_random(
       "MyWalletRandom",                                 // wallet path and name
       "supersecretpassword123",                         // wallet password
       monero_network_type::STAGENET,                    // network type
