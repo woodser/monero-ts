@@ -96,24 +96,28 @@ namespace monero {
   monero_wallet_keys* monero_wallet_keys::create_wallet_from_mnemonic(const monero_network_type network_type, const string& mnemonic, const string& seed_offset) {
 
     // validate mnemonic and get recovery key and language
-    crypto::secret_key recovery_key;
+    crypto::secret_key spend_key_sk;
     string language;
-    bool is_valid = crypto::ElectrumWords::words_to_bytes(mnemonic, recovery_key, language);
+    bool is_valid = crypto::ElectrumWords::words_to_bytes(mnemonic, spend_key_sk, language);
     if (!is_valid) throw runtime_error("Invalid mnemonic");
     if (language == crypto::ElectrumWords::old_language_name) language = Language::English().get_language_name();
 
     // apply offset if given
-    if (!seed_offset.empty()) recovery_key = cryptonote::decrypt_key(recovery_key, seed_offset);
+    if (!seed_offset.empty()) spend_key_sk = cryptonote::decrypt_key(spend_key_sk, seed_offset);
 
     // initialize wallet account
     monero_wallet_keys* wallet = new monero_wallet_keys();
     wallet->m_account = cryptonote::account_base{};
-    wallet->m_account.generate(recovery_key, true, false);
+    wallet->m_account.generate(spend_key_sk, true, false);
 
     // initialize remaining wallet
     wallet->m_network_type = network_type;
-    wallet->m_mnemonic = mnemonic;
     wallet->m_language = language;
+    epee::wipeable_string wipeable_mnemonic;
+    if (!crypto::ElectrumWords::bytes_to_words(spend_key_sk, wipeable_mnemonic, wallet->m_language)) {
+      throw runtime_error("Failed to create mnemonic from private spend key for language: " + string(wallet->m_language));
+    }
+    wallet->m_mnemonic = string(wipeable_mnemonic.data(), wipeable_mnemonic.size());
     wallet->init_common();
 
     return wallet;
