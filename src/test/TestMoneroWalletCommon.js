@@ -69,7 +69,7 @@ class TestMoneroWalletCommon {
    * 
    * @return the created test wallet
    */
-  async createWalletFromMnemonic(mnemonic, restoreHeight, offset) {
+  async createWalletFromMnemonic(mnemonic, restoreHeight, seedOffset) {
     throw new Error("Subclass must implement");
   }
   
