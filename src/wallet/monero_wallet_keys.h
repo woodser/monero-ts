@@ -86,7 +86,7 @@ namespace monero {
      * @param network_type is the wallet's network type
      * @param mnemonic is the mnemonic of the wallet to construct
      */
-    static monero_wallet_keys* create_wallet_from_mnemonic(const monero_network_type network_type, const string& mnemonic, const string& offset);
+    static monero_wallet_keys* create_wallet_from_mnemonic(const monero_network_type network_type, const string& mnemonic, const string& seed_offset);
 
     /**
      * Create a wallet from an address, view key, and spend key.

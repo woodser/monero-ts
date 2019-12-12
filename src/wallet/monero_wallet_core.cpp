@@ -821,7 +821,7 @@ namespace monero {
     return wallet;
   }
 
-  monero_wallet_core* monero_wallet_core::create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& offset) {
+  monero_wallet_core* monero_wallet_core::create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& seed_offset) {
     MTRACE("create_wallet_from_mnemonic(path, password, mnemonic, network_type, daemon_connection, restore_height)");
     monero_wallet_core* wallet = new monero_wallet_core();
 
@@ -833,7 +833,7 @@ namespace monero {
     if (language == crypto::ElectrumWords::old_language_name) language = Language::English().get_language_name();
 
     // apply offset if given
-    if (!offset.empty()) recovery_key = cryptonote::decrypt_key(recovery_key, offset);
+    if (!seed_offset.empty()) recovery_key = cryptonote::decrypt_key(recovery_key, seed_offset);
 
     // initialize wallet
     wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));

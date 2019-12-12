@@ -119,8 +119,9 @@ namespace monero {
      * @param mnemonic is the mnemonic of the wallet to construct
      * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
      * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
+     * @param seed_offset is a string used to derive a new mnemonic from the given mnemonic, allowing password-protected wallets to be recovered from a plain-text mnemonic
      */
-    static monero_wallet_core* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& offset);
+    static monero_wallet_core* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& seed_offset);
 
     /**
      * Create a wallet from an address, view key, and spend key.
