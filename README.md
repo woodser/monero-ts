@@ -123,8 +123,6 @@ Or
 2. cd `monero-javascript`
 3. Install dependencies using Node Package Manager: `npm install`
 
-You are now ready to use this library with [monero-daemon-rpc](https://getmonero.org/resources/developer-guides/daemon-rpc.html) and [monero-wallet-rpc](https://getmonero.org/resources/developer-guides/wallet-rpc.html) endpoints.
-
 ## How to Run Monero RPC
 
 1. Download and extract the latest [Monero CLI](https://getmonero.org/downloads/) for your platform.
