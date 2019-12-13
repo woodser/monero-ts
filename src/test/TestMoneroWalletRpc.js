@@ -93,7 +93,6 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           MoneroUtils.validateMnemonic(mnemonic);
           assert.notEqual(mnemonic, TestUtils.MNEMONIC);
           MoneroUtils.validateAddress(await that.wallet.getPrimaryAddress());
-          assert.equal(await that.wallet.getHeight(), 1); // TODO monero core: why does height of new unsynced wallet start at 1?, TODO: this is sometimes current height?
           await that.wallet.sync();  // very quick because restore height is chain height
           await that.wallet.close();
 
@@ -103,7 +102,6 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           MoneroUtils.validateMnemonic(await that.wallet.getMnemonic());
           assert.notEqual(await that.wallet.getMnemonic(), mnemonic);
           MoneroUtils.validateAddress(await that.wallet.getPrimaryAddress());
-          assert.equal(await that.wallet.getHeight(), 1); // TODO monero core: why is height of unsynced wallet 1?
           await that.wallet.close();
           
           // attempt to create wallet which already exists
@@ -134,8 +132,6 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           assert.equal(await that.wallet.getPrimaryAddress(), TestUtils.ADDRESS);
           if (await that.wallet.getHeight() !== 1) console.log("WARNING: createWalletFromMnemonic() already has height as if synced");
           if ((await that.wallet.getTxs()).length !== 0) console.log("WARNING: createWalletFromMnemonic() already has txs as if synced");
-          //assert.equal(await that.wallet.getHeight(), 1);                               // TODO monero core: sometimes height is as if synced
-          //assert.equal((await that.wallet.getTxs()).length, 0); // wallet is not synced // TODO monero core: sometimes wallet has txs as if synced
           await that.wallet.sync();
           assert.equal(await that.wallet.getHeight(), await daemon.getHeight());
           let txs = await that.wallet.getTxs();
@@ -149,7 +145,6 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           MoneroUtils.validateMnemonic(await that.wallet.getMnemonic());
           assert.notEqual(await that.wallet.getMnemonic(), TestUtils.MNEMONIC);  // mnemonic is different because of offset
           assert.notEqual(await that.wallet.getPrimaryAddress(), TestUtils.ADDRESS);
-          assert.equal(await that.wallet.getHeight(), 1);
           await that.wallet.close();
           
         } catch (e) {
