@@ -70,7 +70,7 @@ class TxPoolWalletTracker {
       txHashesPool = txHashesIntersection;
       
       // break if no txs to wait for
-      if (txHashesPool.size() === 0) break;
+      if (txHashesPool.size === 0) break;
 
       // if first time waiting, log message and start mining
       if (isFirst) {
