@@ -102,7 +102,7 @@ class TxPoolWalletTracker {
     let txsPool = await daemon.getTxPool();
     for (let txPool of txsPool) {
       for (let txHash of txHashes) {
-        if (txHash === txPool.getHash()) return true;
+        if (txHash === txPool.getHash() && !txPool.isFailed()) return true;
       }
     }
     return false;
