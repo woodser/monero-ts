@@ -33,29 +33,29 @@ class TxPoolWalletTracker {
     wallets = GenUtils.listify(wallets);
     
     // get hashes of txs in the pool
-    let txIdsPool = new Set();
+    let txHashesPool = new Set();
     for (let tx of await TestUtils.getDaemonRpc().getTxPool()) {
       if (!tx.isRelayed() || tx.isFailed()) continue;
-      txIdsPool.add(tx.getHash());
+      txHashesPool.add(tx.getHash());
     }
     
     // get hashes of txs from wallets to wait for
-    let txIdsWallet = new Set();
+    let txHashesWallet = new Set();
     for (let wallet of wallets) {
       if (!this.clearedWallets.has(wallet)) {
         await wallet.sync();
         for (let tx of await wallet.getTxs()) {
-          txIdsWallet.add(tx.getHash());
+          txHashesWallet.add(tx.getHash());
         }
       }
     }
     
     // wait for txs to clear pool
-    let txIdsIntersection = new Set();
-    for (let txIdPool of txIdsPool) {
-      if (txIdsWallet.has(txIdPool)) txIdsIntersection.add(txIdPool);
+    let txHashesIntersection = new Set();
+    for (let txHashPool of txHashesPool) {
+      if (txHashesWallet.has(txHashPool)) txHashesIntersection.add(txHashPool);
     }
-    await TxPoolWalletTracker.waitForTxsToClearPool(Array.from(txIdsIntersection));
+    await TxPoolWalletTracker.waitForTxsToClearPool(Array.from(txHashesIntersection));
     
     // sync wallets with the pool
     for (let wallet of wallets) {
