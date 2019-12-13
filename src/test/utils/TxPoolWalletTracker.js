@@ -26,20 +26,18 @@ class TxPoolWalletTracker {
 //  resetExcept(sendingWallet) {
 //    let found = this.clearedWallets.has(sendingWallet);
 //    this.clearedWallets.clear();
-//    if (found) clearedWallets.add(sendingWallet);
+//    if (found) this.clearedWallets.add(sendingWallet);
 //  }
   
+  /**
+   * Waits for transactions in the pool belonging to the given wallets to clear.
+   * 
+   * @param wallets have transactions to wait on if in the pool
+   */
   async waitForWalletTxsToClearPool(wallets) {
     wallets = GenUtils.listify(wallets);
     
-    // get hashes of txs in the pool
-    let txHashesPool = new Set();
-    for (let tx of await TestUtils.getDaemonRpc().getTxPool()) {
-      if (!tx.isRelayed() || tx.isFailed()) continue;
-      txHashesPool.add(tx.getHash());
-    }
-    
-    // get hashes of txs from wallets to wait for
+    // get wallet tx hashes
     let txHashesWallet = new Set();
     for (let wallet of wallets) {
       if (!this.clearedWallets.has(wallet)) {
@@ -50,62 +48,55 @@ class TxPoolWalletTracker {
       }
     }
     
-    // wait for txs to clear pool
-    let txHashesIntersection = new Set();
-    for (let txHashPool of txHashesPool) {
-      if (txHashesWallet.has(txHashPool)) txHashesIntersection.add(txHashPool);
-    }
-    await TxPoolWalletTracker.waitForTxsToClearPool(Array.from(txHashesIntersection));
-    
-    // sync wallets with the pool
-    for (let wallet of wallets) {
-      await wallet.sync();
-      this.clearedWallets.add(wallet);
-    }
-  }
-  
-  static async waitForTxsToClearPool(txHashes) {
-    txHashes = GenUtils.listify(txHashes);
-    let daemon = TestUtils.getDaemonRpc(); 
-      
-    // attempt to start mining to push the network along
-    let startedMining = false;
-    let miningStatus = await daemon.getMiningStatus();
-    if (!miningStatus.isActive()) {
-      try {
-        await StartMining.startMining();
-        startedMining = true;
-      } catch (e) { } // no problem
-    }
-    
-    // loop until txs are not in pool
+    // loop until all wallet txs clear from pool
     let isFirst = true;
-    while (await TxPoolWalletTracker._txsInPool(txHashes)) {
+    let miningStarted = false;
+    let daemon = await TestUtils.getDaemonRpc();
+    while (true) {
       
-      // print debug messsage one time
-      if (isFirst) {  
-        console.log("Waiting for wallet txs to clear from the pool in order to fully sync and avoid double spend attempts (known issue)");
+      // get hashes of relayed, non-failed txs in the pool
+      let txHashesPool = new Set();
+      for (let tx of await daemon.getTxPool()) {
+        if (!tx.isRelayed()) continue;
+        else if (tx.isFailed()) await daemon.flushTxPool(tx.getHash());  // flush tx if failed
+        else txHashesPool.add(tx.getHash());
+      }
+      
+      // get hashes to wait for as intersection of wallet and pool txs
+      let txHashesIntersection = new Set();
+      for (let txHashPool of txHashesPool) {
+        if (txHashesWallet.has(txHashPool)) txHashesIntersection.add(txHashPool);
+      }
+      txHashesPool = txHashesIntersection;
+      
+      // break if no txs to wait for
+      if (txHashesPool.size() === 0) break;
+
+      // if first time waiting, log message and start mining
+      if (isFirst) {
         isFirst = false;
+        console.log("Waiting for wallet txs to clear from the pool in order to fully sync and avoid double spend attempts (known issue)");
+        let miningStatus = await daemon.getMiningStatus();
+        if (!miningStatus.isActive()) {
+          try {
+            await StartMining.startMining();
+            miningStarted = true;
+          } catch (e) { } // no problem
+        }
       }
       
       // sleep for a moment
       await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
     }
     
-    // stop mining at end of test
-    if (startedMining) await daemon.stopMining();
-  }
-  
-  static async _txsInPool(txHashes) {
-    txHashes = GenUtils.listify(txHashes);
-    let daemon = TestUtils.getDaemonRpc();
-    let txsPool = await daemon.getTxPool();
-    for (let txPool of txsPool) {
-      for (let txHash of txHashes) {
-        if (txHash === txPool.getHash() && !txPool.isFailed()) return true;
-      }
+    // stop mining if started mining
+    if (miningStarted) await daemon.stopMining();
+    
+    // sync wallets with the pool
+    for (let wallet of wallets) {
+      await wallet.sync();
+      this.clearedWallets.add(wallet);
     }
-    return false;
   }
 }
 
