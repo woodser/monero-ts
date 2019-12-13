@@ -1219,7 +1219,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       if (key === "address") peer.setAddress(val);
       else if (key === "avg_download") connection.setAvgDownload(val);
       else if (key === "avg_upload") connection.setAvgUpload(val);
-      else if (key === "connection_id") connection.setHash(val);
+      else if (key === "connection_id") connection.setId(val);
       else if (key === "current_download") connection.setCurrentDownload(val);
       else if (key === "current_upload") connection.setCurrentUpload(val);
       else if (key === "height") connection.setHeight(val);
@@ -1229,7 +1229,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "live_time") connection.setLiveTime(val);
       else if (key === "local_ip") connection.setIsLocalIp(val);
       else if (key === "localhost") connection.setIsLocalHost(val);
-      else if (key === "peer_id") peer.setHash(val);
+      else if (key === "peer_id") peer.setId(val);
       else if (key === "port") peer.setPort(parseInt(val));
       else if (key === "rpc_port") peer.setRpcPort(val);
       else if (key === "recv_count") connection.setNumReceives(val);
