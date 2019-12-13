@@ -1035,62 +1035,92 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getTxKey(txHash) {
-    return (await this.config.rpc.sendJsonRequest("get_tx_key", {txid: txHash})).result.tx_key;
+    try {
+      return (await this.config.rpc.sendJsonRequest("get_tx_key", {txid: txHash})).result.tx_key;
+    } catch (e) {
+      if (e instanceof MoneroRpcError && e.getCode() === -8 && e.message.includes("TX ID has invalid format")) e = new MoneroRpcError("TX hash has invalid format", e.getCode(), e.getRpcMethod(), e.getRpcParams());  // normalize error message
+      throw e;
+    }
   }
   
   async checkTxKey(txHash, txKey, address) {
-    
-    // send request
-    let resp = await this.config.rpc.sendJsonRequest("check_tx_key", {txid: txHash, tx_key: txKey, address: address});
-    
-    // interpret result
-    let check = new MoneroCheckTx();
-    check.setIsGood(true);
-    check.setNumConfirmations(resp.result.confirmations);
-    check.setInTxPool(resp.result.in_pool);
-    check.setReceivedAmount(new BigInteger(resp.result.received));
-    return check;
-  }
-  
-  async getTxProof(txHash, address, message) {
-    let resp = await this.config.rpc.sendJsonRequest("get_tx_proof", {txid: txHash, address: address, message: message});
-    return resp.result.signature;
-  }
-  
-  async checkTxProof(txHash, address, message, signature) {
-    
-    // send request
-    let resp = await this.config.rpc.sendJsonRequest("check_tx_proof", {
-      txid: txHash,
-      address: address,
-      message: message,
-      signature: signature
-    });
-    
-    // interpret response
-    let isGood = resp.result.good;
-    let check = new MoneroCheckTx();
-    check.setIsGood(isGood);
-    if (isGood) {
+    try {
+      
+      // send request
+      let resp = await this.config.rpc.sendJsonRequest("check_tx_key", {txid: txHash, tx_key: txKey, address: address});
+      
+      // interpret result
+      let check = new MoneroCheckTx();
+      check.setIsGood(true);
       check.setNumConfirmations(resp.result.confirmations);
       check.setInTxPool(resp.result.in_pool);
       check.setReceivedAmount(new BigInteger(resp.result.received));
+      return check;
+    } catch (e) {
+      if (e instanceof MoneroRpcError && e.getCode() === -8 && e.message.includes("TX ID has invalid format")) e = new MoneroRpcError("TX hash has invalid format", e.getCode(), e.getRpcMethod(), e.getRpcParams());  // normalize error message
+      throw e;
     }
-    return check;
+  }
+  
+  async getTxProof(txHash, address, message) {
+    try {
+      let resp = await this.config.rpc.sendJsonRequest("get_tx_proof", {txid: txHash, address: address, message: message});
+      return resp.result.signature;
+    } catch (e) {
+      if (e instanceof MoneroRpcError && e.getCode() === -8 && e.message.includes("TX ID has invalid format")) e = new MoneroRpcError("TX hash has invalid format", e.getCode(), e.getRpcMethod(), e.getRpcParams());  // normalize error message
+      throw e;
+    }
+  }
+  
+  async checkTxProof(txHash, address, message, signature) {
+    try {
+      
+      // send request
+      let resp = await this.config.rpc.sendJsonRequest("check_tx_proof", {
+        txid: txHash,
+        address: address,
+        message: message,
+        signature: signature
+      });
+      
+      // interpret response
+      let isGood = resp.result.good;
+      let check = new MoneroCheckTx();
+      check.setIsGood(isGood);
+      if (isGood) {
+        check.setNumConfirmations(resp.result.confirmations);
+        check.setInTxPool(resp.result.in_pool);
+        check.setReceivedAmount(new BigInteger(resp.result.received));
+      }
+      return check;
+    } catch (e) {
+      if (e instanceof MoneroRpcError && e.getCode() === -8 && e.message.includes("TX ID has invalid format")) e = new MoneroRpcError("TX hash has invalid format", e.getCode(), e.getRpcMethod(), e.getRpcParams());  // normalize error message
+      throw e;
+    }
   }
   
   async getSpendProof(txHash, message) {
-    let resp = await this.config.rpc.sendJsonRequest("get_spend_proof", {txid: txHash, message: message});
-    return resp.result.signature;
+    try {
+      let resp = await this.config.rpc.sendJsonRequest("get_spend_proof", {txid: txHash, message: message});
+      return resp.result.signature;
+    } catch (e) {
+      if (e instanceof MoneroRpcError && e.getCode() === -8 && e.message.includes("TX ID has invalid format")) e = new MoneroRpcError("TX hash has invalid format", e.getCode(), e.getRpcMethod(), e.getRpcParams());  // normalize error message
+      throw e;
+    }
   }
   
   async checkSpendProof(txHash, message, signature) {
-    let resp = await this.config.rpc.sendJsonRequest("check_spend_proof", {
-      txid: txHash,
-      message: message,
-      signature: signature
-    });
-    return resp.result.good;
+    try {
+      let resp = await this.config.rpc.sendJsonRequest("check_spend_proof", {
+        txid: txHash,
+        message: message,
+        signature: signature
+      });
+      return resp.result.good;
+    } catch (e) {
+      if (e instanceof MoneroRpcError && e.getCode() === -8 && e.message.includes("TX ID has invalid format")) e = new MoneroRpcError("TX hash has invalid format", e.getCode(), e.getRpcMethod(), e.getRpcParams());  // normalize error message
+      throw e;
+    }
   }
   
   async getReserveProofWallet(message) {
