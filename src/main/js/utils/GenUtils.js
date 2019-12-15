@@ -1344,8 +1344,7 @@ class GenUtils {
    *        config.resolveTrue uses true over false if true, false over true if false, must be equal if undefined
    *        config.resolveMax uses max over min if true, min over max if false, must be equal if undefined
    * @param errMsg is the error message to throw if the values cannot be reconciled (optional)
-   * @returns the reconciled value if reconcilable
-   * @throws {Error} if the values cannot be reconciled
+   * @returns the reconciled value if reconcilable, throws error otherwise
    */
   static reconcile(val1, val2, config, errMsg) {
     
