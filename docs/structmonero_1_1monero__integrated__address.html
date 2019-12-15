@@ -87,8 +87,8 @@ Inheritance diagram for monero::monero_integrated_address:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a22078831c51ef860868a1b6bfad2ea24"><td class="memItemLeft" align="right" valign="top">boost::property_tree::ptree&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__integrated__address.html#a22078831c51ef860868a1b6bfad2ea24">to_property_tree</a> () const</td></tr>
-<tr class="separator:a22078831c51ef860868a1b6bfad2ea24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab90b92ee287a2803a6d80742daddf6bd"><td class="memItemLeft" align="right" valign="top">rapidjson::Value&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__integrated__address.html#ab90b92ee287a2803a6d80742daddf6bd">to_rapidjson_val</a> (rapidjson::Document::AllocatorType &amp;allocator) const</td></tr>
+<tr class="separator:ab90b92ee287a2803a6d80742daddf6bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_structmonero_1_1serializable__struct"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structmonero_1_1serializable__struct')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structmonero_1_1serializable__struct.html">monero::serializable_struct</a></td></tr>
 <tr class="memitem:aff4103707ee262cc4bd15d8e789adddc inherit pub_methods_structmonero_1_1serializable__struct"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1serializable__struct.html#aff4103707ee262cc4bd15d8e789adddc">serialize</a> () const</td></tr>
 <tr class="separator:aff4103707ee262cc4bd15d8e789adddc inherit pub_methods_structmonero_1_1serializable__struct"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -108,8 +108,8 @@ string&#160;</td><td class="memItemRight" valign="bottom"><b>m_integrated_addres
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Monero integrated address model. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a22078831c51ef860868a1b6bfad2ea24"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a22078831c51ef860868a1b6bfad2ea24">&#9670;&nbsp;</a></span>to_property_tree()</h2>
+<a id="ab90b92ee287a2803a6d80742daddf6bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab90b92ee287a2803a6d80742daddf6bd">&#9670;&nbsp;</a></span>to_rapidjson_val()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -118,9 +118,10 @@ string&#160;</td><td class="memItemRight" valign="bottom"><b>m_integrated_addres
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">boost::property_tree::ptree monero::monero_integrated_address::to_property_tree </td>
+          <td class="memname">rapidjson::Value monero::monero_integrated_address::to_rapidjson_val </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">rapidjson::Document::AllocatorType &amp;&#160;</td>
+          <td class="paramname"><em>allocator</em></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
@@ -130,10 +131,16 @@ string&#160;</td><td class="memItemRight" valign="bottom"><b>m_integrated_addres
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Convert the struct to a property tree.</p>
-<dl class="section return"><dt>Returns</dt><dd>the converted property tree </dd></dl>
+<p>Converts the struct to a rapidjson Value.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">allocator</td><td>is the rapidjson document allocator </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the struct as a rapidjson Value </dd></dl>
 
-<p>Implements <a class="el" href="structmonero_1_1serializable__struct.html#a1674afdced731c1687d37c05f3e7a9be">monero::serializable_struct</a>.</p>
+<p>Implements <a class="el" href="structmonero_1_1serializable__struct.html#a3c53ab95b12f02db20cf20cd6d69ad4b">monero::serializable_struct</a>.</p>
 
 </div>
 </div>

@@ -67,6 +67,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="structmonero_1_1monero__tx__wallet-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -89,20 +90,14 @@ Inheritance diagram for monero::monero_tx_wallet:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:ab00bc1f8108ea8f863418ab1418bb801"><td class="memItemLeft" align="right" valign="top">rapidjson::Value&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__tx__wallet.html#ab00bc1f8108ea8f863418ab1418bb801">to_rapidjson_val</a> (rapidjson::Document::AllocatorType &amp;allocator) const</td></tr>
+<tr class="separator:ab00bc1f8108ea8f863418ab1418bb801"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74c63389458fc726eba5cce2e9eef088"><td class="memItemLeft" align="right" valign="top"><a id="a74c63389458fc726eba5cce2e9eef088"></a>
 shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>copy</b> (const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;src, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;tgt) const</td></tr>
 <tr class="separator:a74c63389458fc726eba5cce2e9eef088"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae08bae6ddbb19aa9d22aecd44d11b77e"><td class="memItemLeft" align="right" valign="top"><a id="ae08bae6ddbb19aa9d22aecd44d11b77e"></a>
 shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>copy</b> (const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt; &amp;src, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt; &amp;tgt) const</td></tr>
 <tr class="separator:ae08bae6ddbb19aa9d22aecd44d11b77e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf47009b0c3763350a4f3a7fc61841da"><td class="memItemLeft" align="right" valign="top"><a id="adf47009b0c3763350a4f3a7fc61841da"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_incoming</b> () const</td></tr>
-<tr class="separator:adf47009b0c3763350a4f3a7fc61841da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae5a8f88386af2da3cdad9f846a3936cc"><td class="memItemLeft" align="right" valign="top"><a id="ae5a8f88386af2da3cdad9f846a3936cc"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_outgoing</b> () const</td></tr>
-<tr class="separator:ae5a8f88386af2da3cdad9f846a3936cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a38332602a4ba4d43dc7b04f5f774a9f3"><td class="memItemLeft" align="right" valign="top">boost::property_tree::ptree&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__tx__wallet.html#a38332602a4ba4d43dc7b04f5f774a9f3">to_property_tree</a> () const</td></tr>
-<tr class="separator:a38332602a4ba4d43dc7b04f5f774a9f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab8d7115c394ba64a298e0e4b484ba7bc"><td class="memItemLeft" align="right" valign="top"><a id="ab8d7115c394ba64a298e0e4b484ba7bc"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>merge</b> (const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;self, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &amp;other)</td></tr>
 <tr class="separator:ab8d7115c394ba64a298e0e4b484ba7bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -120,11 +115,27 @@ boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bot
 <tr class="memitem:aff4103707ee262cc4bd15d8e789adddc inherit pub_methods_structmonero_1_1serializable__struct"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1serializable__struct.html#aff4103707ee262cc4bd15d8e789adddc">serialize</a> () const</td></tr>
 <tr class="separator:aff4103707ee262cc4bd15d8e789adddc inherit pub_methods_structmonero_1_1serializable__struct"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a4f81876448b2d37793824dbe694b17f8"><td class="memItemLeft" align="right" valign="top"><a id="a4f81876448b2d37793824dbe694b17f8"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>from_property_tree</b> (const boost::property_tree::ptree &amp;node, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a> &gt; &amp;tx_wallet)</td></tr>
+<tr class="separator:a4f81876448b2d37793824dbe694b17f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_static_methods_structmonero_1_1monero__tx"><td colspan="2" onclick="javascript:toggleInherit('pub_static_methods_structmonero_1_1monero__tx')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="structmonero_1_1monero__tx.html">monero::monero_tx</a></td></tr>
+<tr class="memitem:a9f9c30f0ebf9b971c9a6f807b0e15bfc inherit pub_static_methods_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a9f9c30f0ebf9b971c9a6f807b0e15bfc"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>from_property_tree</b> (const boost::property_tree::ptree &amp;node, shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; tx)</td></tr>
+<tr class="separator:a9f9c30f0ebf9b971c9a6f807b0e15bfc inherit pub_static_methods_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:ac6a25bf293cfed63682b54a590c96f3d"><td class="memItemLeft" align="right" valign="top"><a id="ac6a25bf293cfed63682b54a590c96f3d"></a>
 boost::optional&lt; shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx__set.html">monero_tx_set</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_tx_set</b></td></tr>
 <tr class="separator:ac6a25bf293cfed63682b54a590c96f3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7196d0896b81dda06cdcd85d64044ddd"><td class="memItemLeft" align="right" valign="top"><a id="a7196d0896b81dda06cdcd85d64044ddd"></a>
+boost::optional&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_is_incoming</b></td></tr>
+<tr class="separator:a7196d0896b81dda06cdcd85d64044ddd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b1a19bad6addadae32a296b1c66ce9c"><td class="memItemLeft" align="right" valign="top"><a id="a9b1a19bad6addadae32a296b1c66ce9c"></a>
+boost::optional&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_is_outgoing</b></td></tr>
+<tr class="separator:a9b1a19bad6addadae32a296b1c66ce9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acce4a27b6ab22e7a7756f89af8bc45a9"><td class="memItemLeft" align="right" valign="top"><a id="acce4a27b6ab22e7a7756f89af8bc45a9"></a>
 vector&lt; shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_incoming_transfers</b></td></tr>
 <tr class="separator:acce4a27b6ab22e7a7756f89af8bc45a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -134,13 +145,34 @@ boost::optional&lt; shared_ptr&lt; <a class="el" href="structmonero_1_1monero__o
 <tr class="memitem:a6b39db92af8a28d7041dda8d6b182a18"><td class="memItemLeft" align="right" valign="top"><a id="a6b39db92af8a28d7041dda8d6b182a18"></a>
 boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_note</b></td></tr>
 <tr class="separator:a6b39db92af8a28d7041dda8d6b182a18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a657e628368821979cb7b0afe985f82d3"><td class="memItemLeft" align="right" valign="top"><a id="a657e628368821979cb7b0afe985f82d3"></a>
+boost::optional&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_is_locked</b></td></tr>
+<tr class="separator:a657e628368821979cb7b0afe985f82d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa581e2647501af751212357abef8dd87"><td class="memItemLeft" align="right" valign="top"><a id="aa581e2647501af751212357abef8dd87"></a>
+boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_input_sum</b></td></tr>
+<tr class="separator:aa581e2647501af751212357abef8dd87"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa7627cfd139fad3d152e6c0167efb9c"><td class="memItemLeft" align="right" valign="top"><a id="afa7627cfd139fad3d152e6c0167efb9c"></a>
+boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_output_sum</b></td></tr>
+<tr class="separator:afa7627cfd139fad3d152e6c0167efb9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1eedec33570d065aecfef3cbc8577f88"><td class="memItemLeft" align="right" valign="top"><a id="a1eedec33570d065aecfef3cbc8577f88"></a>
+boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_change_address</b></td></tr>
+<tr class="separator:a1eedec33570d065aecfef3cbc8577f88"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0bbd9775ee75a70026b2117219d94a0a"><td class="memItemLeft" align="right" valign="top"><a id="a0bbd9775ee75a70026b2117219d94a0a"></a>
+boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_change_amount</b></td></tr>
+<tr class="separator:a0bbd9775ee75a70026b2117219d94a0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac60ae5e68b10d2a930fc4b89b94a55f9"><td class="memItemLeft" align="right" valign="top"><a id="ac60ae5e68b10d2a930fc4b89b94a55f9"></a>
+boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_num_dummy_outputs</b></td></tr>
+<tr class="separator:ac60ae5e68b10d2a930fc4b89b94a55f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c6ad1f643c748e10ddce3dc068e5666"><td class="memItemLeft" align="right" valign="top"><a id="a7c6ad1f643c748e10ddce3dc068e5666"></a>
+boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_extra_hex</b></td></tr>
+<tr class="separator:a7c6ad1f643c748e10ddce3dc068e5666"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_structmonero_1_1monero__tx"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_structmonero_1_1monero__tx')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="structmonero_1_1monero__tx.html">monero::monero_tx</a></td></tr>
 <tr class="memitem:a7531cbf29ab678699f9e0405c912b77e inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a7531cbf29ab678699f9e0405c912b77e"></a>
 boost::optional&lt; shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_block</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_block</b></td></tr>
 <tr class="separator:a7531cbf29ab678699f9e0405c912b77e inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:add26fb94e9f919301ec85950b55548be inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="add26fb94e9f919301ec85950b55548be"></a>
-boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_id</b></td></tr>
-<tr class="separator:add26fb94e9f919301ec85950b55548be inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a4dc0365a9368de2ded5d76a3237767 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a3a4dc0365a9368de2ded5d76a3237767"></a>
+boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_hash</b></td></tr>
+<tr class="separator:a3a4dc0365a9368de2ded5d76a3237767 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af9f86b2160ed5979796c0415bcb938eb inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="af9f86b2160ed5979796c0415bcb938eb"></a>
 boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_version</b></td></tr>
 <tr class="separator:af9f86b2160ed5979796c0415bcb938eb inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -153,9 +185,9 @@ boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a838257958c8e135f6e9bbd250fb3b0cf inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a838257958c8e135f6e9bbd250fb3b0cf"></a>
 boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_fee</b></td></tr>
 <tr class="separator:a838257958c8e135f6e9bbd250fb3b0cf inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab5e970dc2f1fc80117ab346b4b4850f0 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="ab5e970dc2f1fc80117ab346b4b4850f0"></a>
-boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_mixin</b></td></tr>
-<tr class="separator:ab5e970dc2f1fc80117ab346b4b4850f0 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07ec0f1c2d78058473e97098f98a56ab inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a07ec0f1c2d78058473e97098f98a56ab"></a>
+boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_ring_size</b></td></tr>
+<tr class="separator:a07ec0f1c2d78058473e97098f98a56ab inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2ee113720a02a0c7054ecdd57fd32755 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a2ee113720a02a0c7054ecdd57fd32755"></a>
 boost::optional&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_do_not_relay</b></td></tr>
 <tr class="separator:a2ee113720a02a0c7054ecdd57fd32755 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -198,18 +230,18 @@ boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a3326a3bd71a411f41946656d94203691 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a3326a3bd71a411f41946656d94203691"></a>
 boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_prunable_hash</b></td></tr>
 <tr class="separator:a3326a3bd71a411f41946656d94203691 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ba3123771332ce1c474fcc6084d7e1b inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a1ba3123771332ce1c474fcc6084d7e1b"></a>
-boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_size</b></td></tr>
-<tr class="separator:a1ba3123771332ce1c474fcc6084d7e1b inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae80257b87ae6a2e794fec6f796920013 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="ae80257b87ae6a2e794fec6f796920013"></a>
-boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_weight</b></td></tr>
-<tr class="separator:ae80257b87ae6a2e794fec6f796920013 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac0a58c355feecfebd428758a0a41368c inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="ac0a58c355feecfebd428758a0a41368c"></a>
-vector&lt; shared_ptr&lt; <a class="el" href="structmonero_1_1monero__output.html">monero_output</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_vins</b></td></tr>
-<tr class="separator:ac0a58c355feecfebd428758a0a41368c inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaaeb715fd14bb041e44512d7d63b43a8 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="aaaeb715fd14bb041e44512d7d63b43a8"></a>
-vector&lt; shared_ptr&lt; <a class="el" href="structmonero_1_1monero__output.html">monero_output</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_vouts</b></td></tr>
-<tr class="separator:aaaeb715fd14bb041e44512d7d63b43a8 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a51162d977c8ebb1b2c7eddfd4f831b36 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a51162d977c8ebb1b2c7eddfd4f831b36"></a>
+boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_size</b></td></tr>
+<tr class="separator:a51162d977c8ebb1b2c7eddfd4f831b36 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc27203e75e4105ba781aa6b34c0c9db inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="acc27203e75e4105ba781aa6b34c0c9db"></a>
+boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_weight</b></td></tr>
+<tr class="separator:acc27203e75e4105ba781aa6b34c0c9db inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20cae34d80e345edd0ea30f7cfceeb1f inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a20cae34d80e345edd0ea30f7cfceeb1f"></a>
+vector&lt; shared_ptr&lt; <a class="el" href="structmonero_1_1monero__output.html">monero_output</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_inputs</b></td></tr>
+<tr class="separator:a20cae34d80e345edd0ea30f7cfceeb1f inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d4ac7d9eeb3ede8c5bb54540ae5c804 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a7d4ac7d9eeb3ede8c5bb54540ae5c804"></a>
+vector&lt; shared_ptr&lt; <a class="el" href="structmonero_1_1monero__output.html">monero_output</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_outputs</b></td></tr>
+<tr class="separator:a7d4ac7d9eeb3ede8c5bb54540ae5c804 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2fe044d2e6213758aa252967db330dce inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a2fe044d2e6213758aa252967db330dce"></a>
 vector&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_output_indices</b></td></tr>
 <tr class="separator:a2fe044d2e6213758aa252967db330dce inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -234,18 +266,18 @@ boost::optional&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"
 <tr class="memitem:a4503ed5307419392f4ebb97337473c34 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a4503ed5307419392f4ebb97337473c34"></a>
 boost::optional&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_is_failed</b></td></tr>
 <tr class="separator:a4503ed5307419392f4ebb97337473c34 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7226eebf77c5c11fc30fba0c9a27db61 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a7226eebf77c5c11fc30fba0c9a27db61"></a>
-boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_last_failed_height</b></td></tr>
-<tr class="separator:a7226eebf77c5c11fc30fba0c9a27db61 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4da91018cf79ea9d652ebb345374bef4 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a4da91018cf79ea9d652ebb345374bef4"></a>
-boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_last_failed_id</b></td></tr>
-<tr class="separator:a4da91018cf79ea9d652ebb345374bef4 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a131b386fe391c52089089be618b7b6b1 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a131b386fe391c52089089be618b7b6b1"></a>
-boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_max_used_block_height</b></td></tr>
-<tr class="separator:a131b386fe391c52089089be618b7b6b1 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aea2559ef078aa5f9c634f888acc09425 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="aea2559ef078aa5f9c634f888acc09425"></a>
-boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_max_used_block_id</b></td></tr>
-<tr class="separator:aea2559ef078aa5f9c634f888acc09425 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae61222623d04a1f11eb7da147e0f8914 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="ae61222623d04a1f11eb7da147e0f8914"></a>
+boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_last_failed_height</b></td></tr>
+<tr class="separator:ae61222623d04a1f11eb7da147e0f8914 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4995fb8e86d13d7a35ae02134d4a2093 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a4995fb8e86d13d7a35ae02134d4a2093"></a>
+boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_last_failed_hash</b></td></tr>
+<tr class="separator:a4995fb8e86d13d7a35ae02134d4a2093 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaefd34bb219947b8979095df42d05271 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="aaefd34bb219947b8979095df42d05271"></a>
+boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_max_used_block_height</b></td></tr>
+<tr class="separator:aaefd34bb219947b8979095df42d05271 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d0b6bca705261299a35973e1bf673a4 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a0d0b6bca705261299a35973e1bf673a4"></a>
+boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_max_used_block_hash</b></td></tr>
+<tr class="separator:a0d0b6bca705261299a35973e1bf673a4 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09b1c549bbecf3ca3add968300ee5205 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memItemLeft" align="right" valign="top"><a id="a09b1c549bbecf3ca3add968300ee5205"></a>
 vector&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_signatures</b></td></tr>
 <tr class="separator:a09b1c549bbecf3ca3add968300ee5205 inherit pub_attribs_structmonero_1_1monero__tx"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -260,8 +292,8 @@ static const string&#160;</td><td class="memItemRight" valign="bottom"><b>DEFAUL
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Models a Monero transaction in the context of a wallet. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a38332602a4ba4d43dc7b04f5f774a9f3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a38332602a4ba4d43dc7b04f5f774a9f3">&#9670;&nbsp;</a></span>to_property_tree()</h2>
+<a id="ab00bc1f8108ea8f863418ab1418bb801"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab00bc1f8108ea8f863418ab1418bb801">&#9670;&nbsp;</a></span>to_rapidjson_val()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -270,9 +302,10 @@ static const string&#160;</td><td class="memItemRight" valign="bottom"><b>DEFAUL
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">boost::property_tree::ptree monero::monero_tx_wallet::to_property_tree </td>
+          <td class="memname">rapidjson::Value monero::monero_tx_wallet::to_rapidjson_val </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">rapidjson::Document::AllocatorType &amp;&#160;</td>
+          <td class="paramname"><em>allocator</em></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
@@ -282,12 +315,18 @@ static const string&#160;</td><td class="memItemRight" valign="bottom"><b>DEFAUL
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Convert the struct to a property tree.</p>
-<dl class="section return"><dt>Returns</dt><dd>the converted property tree </dd></dl>
+<p>Converts the struct to a rapidjson Value.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">allocator</td><td>is the rapidjson document allocator </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the struct as a rapidjson Value </dd></dl>
 
-<p>Reimplemented from <a class="el" href="structmonero_1_1monero__tx.html#a85861294812884fe5899bee3438f0049">monero::monero_tx</a>.</p>
+<p>Reimplemented from <a class="el" href="structmonero_1_1monero__tx.html#a17cef8cbfdb09e73ad48873db3095115">monero::monero_tx</a>.</p>
 
-<p>Reimplemented in <a class="el" href="structmonero_1_1monero__tx__query.html#acffeb6bf3c558fa6db8ba7cc3f5658c3">monero::monero_tx_query</a>.</p>
+<p>Reimplemented in <a class="el" href="structmonero_1_1monero__tx__query.html#a2355afaf070c49ae18fee757145e2391">monero::monero_tx_query</a>.</p>
 
 </div>
 </div>

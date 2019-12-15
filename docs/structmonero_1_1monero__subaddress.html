@@ -87,8 +87,8 @@ Inheritance diagram for monero::monero_subaddress:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:af083b578419da9d69bffb6b3bd3e1cda"><td class="memItemLeft" align="right" valign="top">boost::property_tree::ptree&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__subaddress.html#af083b578419da9d69bffb6b3bd3e1cda">to_property_tree</a> () const</td></tr>
-<tr class="separator:af083b578419da9d69bffb6b3bd3e1cda"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a481f939434c4a6cb631d3d27daf77db5"><td class="memItemLeft" align="right" valign="top">rapidjson::Value&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__subaddress.html#a481f939434c4a6cb631d3d27daf77db5">to_rapidjson_val</a> (rapidjson::Document::AllocatorType &amp;allocator) const</td></tr>
+<tr class="separator:a481f939434c4a6cb631d3d27daf77db5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_structmonero_1_1serializable__struct"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structmonero_1_1serializable__struct')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structmonero_1_1serializable__struct.html">monero::serializable_struct</a></td></tr>
 <tr class="memitem:aff4103707ee262cc4bd15d8e789adddc inherit pub_methods_structmonero_1_1serializable__struct"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1serializable__struct.html#aff4103707ee262cc4bd15d8e789adddc">serialize</a> () const</td></tr>
 <tr class="separator:aff4103707ee262cc4bd15d8e789adddc inherit pub_methods_structmonero_1_1serializable__struct"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -113,21 +113,21 @@ boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bot
 <tr class="memitem:a5552ce9454259ec9de0d4840b94d92a3"><td class="memItemLeft" align="right" valign="top"><a id="a5552ce9454259ec9de0d4840b94d92a3"></a>
 boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_unlocked_balance</b></td></tr>
 <tr class="separator:a5552ce9454259ec9de0d4840b94d92a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1f6a8c84645f39d950e73407031fcdb5"><td class="memItemLeft" align="right" valign="top"><a id="a1f6a8c84645f39d950e73407031fcdb5"></a>
-boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_num_unspent_outputs</b></td></tr>
-<tr class="separator:a1f6a8c84645f39d950e73407031fcdb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d50a8939af879f609301e2a1db05362"><td class="memItemLeft" align="right" valign="top"><a id="a5d50a8939af879f609301e2a1db05362"></a>
+boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_num_unspent_outputs</b></td></tr>
+<tr class="separator:a5d50a8939af879f609301e2a1db05362"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeca8eca820a9c865f6aea12251c894b3"><td class="memItemLeft" align="right" valign="top"><a id="aeca8eca820a9c865f6aea12251c894b3"></a>
 boost::optional&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_is_used</b></td></tr>
 <tr class="separator:aeca8eca820a9c865f6aea12251c894b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae2ef194561d4a947685e676e2a7f8d5c"><td class="memItemLeft" align="right" valign="top"><a id="ae2ef194561d4a947685e676e2a7f8d5c"></a>
-boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_num_blocks_to_unlock</b></td></tr>
-<tr class="separator:ae2ef194561d4a947685e676e2a7f8d5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2cf8b8b3db459387cd7e5df85437d79c"><td class="memItemLeft" align="right" valign="top"><a id="a2cf8b8b3db459387cd7e5df85437d79c"></a>
+boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_num_blocks_to_unlock</b></td></tr>
+<tr class="separator:a2cf8b8b3db459387cd7e5df85437d79c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Models a Monero subaddress. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="af083b578419da9d69bffb6b3bd3e1cda"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af083b578419da9d69bffb6b3bd3e1cda">&#9670;&nbsp;</a></span>to_property_tree()</h2>
+<a id="a481f939434c4a6cb631d3d27daf77db5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a481f939434c4a6cb631d3d27daf77db5">&#9670;&nbsp;</a></span>to_rapidjson_val()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -136,9 +136,10 @@ boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bot
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">boost::property_tree::ptree monero::monero_subaddress::to_property_tree </td>
+          <td class="memname">rapidjson::Value monero::monero_subaddress::to_rapidjson_val </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">rapidjson::Document::AllocatorType &amp;&#160;</td>
+          <td class="paramname"><em>allocator</em></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
@@ -148,10 +149,16 @@ boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bot
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Convert the struct to a property tree.</p>
-<dl class="section return"><dt>Returns</dt><dd>the converted property tree </dd></dl>
+<p>Converts the struct to a rapidjson Value.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">allocator</td><td>is the rapidjson document allocator </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the struct as a rapidjson Value </dd></dl>
 
-<p>Implements <a class="el" href="structmonero_1_1serializable__struct.html#a1674afdced731c1687d37c05f3e7a9be">monero::serializable_struct</a>.</p>
+<p>Implements <a class="el" href="structmonero_1_1serializable__struct.html#a3c53ab95b12f02db20cf20cd6d69ad4b">monero::serializable_struct</a>.</p>
 
 </div>
 </div>

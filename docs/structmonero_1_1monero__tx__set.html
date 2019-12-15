@@ -67,6 +67,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="structmonero_1_1monero__tx__set-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -87,11 +88,17 @@ Inheritance diagram for monero::monero_tx_set:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aa440129585740f3a2d3a6f5e3ab19913"><td class="memItemLeft" align="right" valign="top">boost::property_tree::ptree&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__tx__set.html#aa440129585740f3a2d3a6f5e3ab19913">to_property_tree</a> () const</td></tr>
-<tr class="separator:aa440129585740f3a2d3a6f5e3ab19913"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1790e49c74e30198cf1509be63ec7632"><td class="memItemLeft" align="right" valign="top">rapidjson::Value&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__tx__set.html#a1790e49c74e30198cf1509be63ec7632">to_rapidjson_val</a> (rapidjson::Document::AllocatorType &amp;allocator) const</td></tr>
+<tr class="separator:a1790e49c74e30198cf1509be63ec7632"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_structmonero_1_1serializable__struct"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structmonero_1_1serializable__struct')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structmonero_1_1serializable__struct.html">monero::serializable_struct</a></td></tr>
 <tr class="memitem:aff4103707ee262cc4bd15d8e789adddc inherit pub_methods_structmonero_1_1serializable__struct"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1serializable__struct.html#aff4103707ee262cc4bd15d8e789adddc">serialize</a> () const</td></tr>
 <tr class="separator:aff4103707ee262cc4bd15d8e789adddc inherit pub_methods_structmonero_1_1serializable__struct"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a967c1b9acb06e2ad8fefe9d2bf4aa76b"><td class="memItemLeft" align="right" valign="top"><a id="a967c1b9acb06e2ad8fefe9d2bf4aa76b"></a>
+static <a class="el" href="structmonero_1_1monero__tx__set.html">monero_tx_set</a>&#160;</td><td class="memItemRight" valign="bottom"><b>deserialize</b> (const string &amp;tx_set_json)</td></tr>
+<tr class="separator:a967c1b9acb06e2ad8fefe9d2bf4aa76b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -112,8 +119,8 @@ boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="botto
 <div class="textblock"><p>Groups transactions who share common hex data which is needed in order to sign and submit the transactions.</p>
 <p>For example, multisig transactions created from send_split() share a common hex string which is needed in order to sign and submit the multisig transactions. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="aa440129585740f3a2d3a6f5e3ab19913"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa440129585740f3a2d3a6f5e3ab19913">&#9670;&nbsp;</a></span>to_property_tree()</h2>
+<a id="a1790e49c74e30198cf1509be63ec7632"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1790e49c74e30198cf1509be63ec7632">&#9670;&nbsp;</a></span>to_rapidjson_val()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -122,9 +129,10 @@ boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="botto
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">boost::property_tree::ptree monero::monero_tx_set::to_property_tree </td>
+          <td class="memname">rapidjson::Value monero::monero_tx_set::to_rapidjson_val </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">rapidjson::Document::AllocatorType &amp;&#160;</td>
+          <td class="paramname"><em>allocator</em></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
@@ -134,10 +142,16 @@ boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="botto
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Convert the struct to a property tree.</p>
-<dl class="section return"><dt>Returns</dt><dd>the converted property tree </dd></dl>
+<p>Converts the struct to a rapidjson Value.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">allocator</td><td>is the rapidjson document allocator </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the struct as a rapidjson Value </dd></dl>
 
-<p>Implements <a class="el" href="structmonero_1_1serializable__struct.html#a1674afdced731c1687d37c05f3e7a9be">monero::serializable_struct</a>.</p>
+<p>Implements <a class="el" href="structmonero_1_1serializable__struct.html#a3c53ab95b12f02db20cf20cd6d69ad4b">monero::serializable_struct</a>.</p>
 
 </div>
 </div>

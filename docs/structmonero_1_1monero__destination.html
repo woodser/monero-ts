@@ -67,6 +67,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="structmonero_1_1monero__destination-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -81,12 +82,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a0843da9a2a4090cfca281f3cd31e7829"><td class="memItemLeft" align="right" valign="top"><a id="a0843da9a2a4090cfca281f3cd31e7829"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>monero_destination</b> (const string &amp;address, uint64_t amount)</td></tr>
 <tr class="separator:a0843da9a2a4090cfca281f3cd31e7829"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb8bdaa5255ebf44d13f78ad5f7acc4c"><td class="memItemLeft" align="right" valign="top"><a id="aeb8bdaa5255ebf44d13f78ad5f7acc4c"></a>
+rapidjson::Value&#160;</td><td class="memItemRight" valign="bottom"><b>to_rapidjson_val</b> (rapidjson::Document::AllocatorType &amp;allocator) const</td></tr>
+<tr class="separator:aeb8bdaa5255ebf44d13f78ad5f7acc4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abdbeceac326cdb17defc9306b7cd8f93"><td class="memItemLeft" align="right" valign="top"><a id="abdbeceac326cdb17defc9306b7cd8f93"></a>
 shared_ptr&lt; <a class="el" href="structmonero_1_1monero__destination.html">monero_destination</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>copy</b> (const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__destination.html">monero_destination</a> &gt; &amp;src, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__destination.html">monero_destination</a> &gt; &amp;tgt) const</td></tr>
 <tr class="separator:abdbeceac326cdb17defc9306b7cd8f93"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4398e13bace44b34bbbc450d8ce762c3"><td class="memItemLeft" align="right" valign="top"><a id="a4398e13bace44b34bbbc450d8ce762c3"></a>
-boost::property_tree::ptree&#160;</td><td class="memItemRight" valign="bottom"><b>to_property_tree</b> () const</td></tr>
-<tr class="separator:a4398e13bace44b34bbbc450d8ce762c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a472f7abb19fc3e8981e2d197907be6d6"><td class="memItemLeft" align="right" valign="top"><a id="a472f7abb19fc3e8981e2d197907be6d6"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>from_property_tree</b> (const boost::property_tree::ptree &amp;node, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__destination.html">monero_destination</a> &gt; &amp;destination)</td></tr>
+<tr class="separator:a472f7abb19fc3e8981e2d197907be6d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>

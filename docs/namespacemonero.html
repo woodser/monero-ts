@@ -74,6 +74,8 @@ $(function() {
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__account.html">monero_account</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__address__book__entry.html">monero_address_book_entry</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__block.html">monero_block</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__block__header.html">monero_block_header</a></td></tr>
@@ -130,7 +132,13 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__tx__wallet.html">monero_tx_wallet</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__version.html">monero_version</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet.html">monero_wallet</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet__core.html">monero_wallet_core</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet__keys.html">monero_wallet_keys</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmonero_1_1monero__wallet__listener.html">monero_wallet_listener</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -198,6 +206,9 @@ template&lt;typename Ts , typename Tu &gt; </td></tr>
 <tr class="memitem:a1bda6833d68c4d648a2ca8edbc8c6e2f"><td class="memItemLeft" align="right" valign="top"><a id="a1bda6833d68c4d648a2ca8edbc8c6e2f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>merge_incoming_transfer</b> (vector&lt; shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt;&gt; &amp;transfers, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt; &amp;transfer)</td></tr>
 <tr class="separator:a1bda6833d68c4d648a2ca8edbc8c6e2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0aec13aa4b46734649b1dbe45416d208"><td class="memItemLeft" align="right" valign="top"><a id="a0aec13aa4b46734649b1dbe45416d208"></a>
+shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block.html">monero_block</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>node_to_block_query</b> (const boost::property_tree::ptree &amp;node)</td></tr>
+<tr class="separator:a0aec13aa4b46734649b1dbe45416d208"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Copyright (c) 2017-2019 woodser</p>
@@ -333,7 +344,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>merge_incoming_transf
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">tx</td><td>is the transaction to merge into the existing txs </td></tr>
-    <tr><td class="paramname">tx_map</td><td>maps tx ids to txs </td></tr>
+    <tr><td class="paramname">tx_map</td><td>maps tx hashes to txs </td></tr>
     <tr><td class="paramname">block_map</td><td>maps block heights to blocks </td></tr>
     <tr><td class="paramname">skip_if_absent</td><td>specifies if the tx should not be added if it doesn't already exist </td></tr>
   </table>

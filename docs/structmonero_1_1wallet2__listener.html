@@ -81,8 +81,8 @@ Inheritance diagram for monero::wallet2_listener:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1eb81f32adeff8288598295c7f05b9b6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1wallet2__listener.html#a1eb81f32adeff8288598295c7f05b9b6">wallet2_listener</a> (<a class="el" href="classmonero_1_1monero__wallet.html">monero_wallet</a> &amp;wallet, tools::wallet2 &amp;m_w2)</td></tr>
-<tr class="separator:a1eb81f32adeff8288598295c7f05b9b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d6ed61247228a3ff7f676e3f58f6c89"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1wallet2__listener.html#a1d6ed61247228a3ff7f676e3f58f6c89">wallet2_listener</a> (<a class="el" href="classmonero_1_1monero__wallet__core.html">monero_wallet_core</a> &amp;wallet, tools::wallet2 &amp;m_w2)</td></tr>
+<tr class="separator:a1d6ed61247228a3ff7f676e3f58f6c89"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f11364138b0cc31ef414e4e82ca21cd"><td class="memItemLeft" align="right" valign="top"><a id="a0f11364138b0cc31ef414e4e82ca21cd"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>update_listening</b> ()</td></tr>
 <tr class="separator:a0f11364138b0cc31ef414e4e82ca21cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -92,21 +92,21 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>on_sync_start</b> (ui
 <tr class="memitem:aad9ba433b530ad165ad8d5f7e3569883"><td class="memItemLeft" align="right" valign="top"><a id="aad9ba433b530ad165ad8d5f7e3569883"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>on_sync_end</b> ()</td></tr>
 <tr class="separator:aad9ba433b530ad165ad8d5f7e3569883"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2d3cd37941b472fef62e4068690bd144"><td class="memItemLeft" align="right" valign="top"><a id="a2d3cd37941b472fef62e4068690bd144"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>on_new_block</b> (uint64_t height, const cryptonote::block &amp;cn_block)</td></tr>
-<tr class="separator:a2d3cd37941b472fef62e4068690bd144"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5c938254070274f006c10238c31dbab"><td class="memItemLeft" align="right" valign="top"><a id="ad5c938254070274f006c10238c31dbab"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>on_money_received</b> (uint64_t height, const crypto::hash &amp;txid, const cryptonote::transaction &amp;cn_tx, uint64_t amount, const cryptonote::subaddress_index &amp;subaddr_index, uint64_t unlock_time)</td></tr>
-<tr class="separator:ad5c938254070274f006c10238c31dbab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5e15ff16e70f927332c861efddc3887"><td class="memItemLeft" align="right" valign="top"><a id="aa5e15ff16e70f927332c861efddc3887"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>on_money_spent</b> (uint64_t height, const crypto::hash &amp;txid, const cryptonote::transaction &amp;cn_tx_in, uint64_t amount, const cryptonote::transaction &amp;cn_tx_out, const cryptonote::subaddress_index &amp;subaddr_index)</td></tr>
-<tr class="separator:aa5e15ff16e70f927332c861efddc3887"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b8d563e2f1695df2f799a671c69a95a"><td class="memItemLeft" align="right" valign="top"><a id="a2b8d563e2f1695df2f799a671c69a95a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>on_new_block</b> (uint64_t height, const cryptonote::block &amp;cn_block)</td></tr>
+<tr class="separator:a2b8d563e2f1695df2f799a671c69a95a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a956e4b003e0872bf4ffeaa7800d520f3"><td class="memItemLeft" align="right" valign="top"><a id="a956e4b003e0872bf4ffeaa7800d520f3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>on_money_received</b> (uint64_t height, const crypto::hash &amp;txid, const cryptonote::transaction &amp;cn_tx, uint64_t amount, const cryptonote::subaddress_index &amp;subaddr_index, uint64_t unlock_time)</td></tr>
+<tr class="separator:a956e4b003e0872bf4ffeaa7800d520f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ead16a5f407ea9bd60802a3c423e858"><td class="memItemLeft" align="right" valign="top"><a id="a3ead16a5f407ea9bd60802a3c423e858"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>on_money_spent</b> (uint64_t height, const crypto::hash &amp;txid, const cryptonote::transaction &amp;cn_tx_in, uint64_t amount, const cryptonote::transaction &amp;cn_tx_out, const cryptonote::subaddress_index &amp;subaddr_index)</td></tr>
+<tr class="separator:a3ead16a5f407ea9bd60802a3c423e858"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Listens to wallet2 notifications in order to notify external wallet listeners. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a1eb81f32adeff8288598295c7f05b9b6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1eb81f32adeff8288598295c7f05b9b6">&#9670;&nbsp;</a></span>wallet2_listener()</h2>
+<a id="a1d6ed61247228a3ff7f676e3f58f6c89"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d6ed61247228a3ff7f676e3f58f6c89">&#9670;&nbsp;</a></span>wallet2_listener()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -117,7 +117,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>on_money_spen
         <tr>
           <td class="memname">monero::wallet2_listener::wallet2_listener </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classmonero_1_1monero__wallet.html">monero_wallet</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classmonero_1_1monero__wallet__core.html">monero_wallet_core</a> &amp;&#160;</td>
           <td class="paramname"><em>wallet</em>, </td>
         </tr>
         <tr>
@@ -150,7 +150,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>on_money_spen
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>wallet/monero_wallet.cpp</li>
+<li>wallet/monero_wallet_core.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

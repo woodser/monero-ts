@@ -88,8 +88,8 @@ Inheritance diagram for monero::monero_block:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1210cc81324e8232e05893fcc8a38b09"><td class="memItemLeft" align="right" valign="top">boost::property_tree::ptree&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__block.html#a1210cc81324e8232e05893fcc8a38b09">to_property_tree</a> () const</td></tr>
-<tr class="separator:a1210cc81324e8232e05893fcc8a38b09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff7b5fbba400067c049aed9afaf8359b"><td class="memItemLeft" align="right" valign="top">rapidjson::Value&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__block.html#aff7b5fbba400067c049aed9afaf8359b">to_rapidjson_val</a> (rapidjson::Document::AllocatorType &amp;allocator) const</td></tr>
+<tr class="separator:aff7b5fbba400067c049aed9afaf8359b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a63eeb0f865023691b89d1b91fd8884b5"><td class="memItemLeft" align="right" valign="top"><a id="a63eeb0f865023691b89d1b91fd8884b5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>merge</b> (const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block__header.html">monero_block_header</a> &gt; &amp;self, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__block__header.html">monero_block_header</a> &gt; &amp;other)</td></tr>
 <tr class="separator:a63eeb0f865023691b89d1b91fd8884b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -111,13 +111,13 @@ boost::optional&lt; shared_ptr&lt; <a class="el" href="structmonero_1_1monero__t
 <tr class="memitem:abc65f05285145cd31339663447a50ac2"><td class="memItemLeft" align="right" valign="top"><a id="abc65f05285145cd31339663447a50ac2"></a>
 vector&lt; shared_ptr&lt; <a class="el" href="structmonero_1_1monero__tx.html">monero_tx</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_txs</b></td></tr>
 <tr class="separator:abc65f05285145cd31339663447a50ac2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad135e39138dcdbffd1fd6225cc44aca3"><td class="memItemLeft" align="right" valign="top"><a id="ad135e39138dcdbffd1fd6225cc44aca3"></a>
-vector&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_tx_ids</b></td></tr>
-<tr class="separator:ad135e39138dcdbffd1fd6225cc44aca3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad72a07431e5e36a12ccfdd6962a77e2c"><td class="memItemLeft" align="right" valign="top"><a id="ad72a07431e5e36a12ccfdd6962a77e2c"></a>
+vector&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_tx_hashes</b></td></tr>
+<tr class="separator:ad72a07431e5e36a12ccfdd6962a77e2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_structmonero_1_1monero__block__header"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_structmonero_1_1monero__block__header')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="structmonero_1_1monero__block__header.html">monero::monero_block_header</a></td></tr>
-<tr class="memitem:ae69e2321275b41be10ea43ba87d1a746 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memItemLeft" align="right" valign="top"><a id="ae69e2321275b41be10ea43ba87d1a746"></a>
-boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_id</b></td></tr>
-<tr class="separator:ae69e2321275b41be10ea43ba87d1a746 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc6577d18425be1058a5a3bd1caef2cf inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memItemLeft" align="right" valign="top"><a id="abc6577d18425be1058a5a3bd1caef2cf"></a>
+boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_hash</b></td></tr>
+<tr class="separator:abc6577d18425be1058a5a3bd1caef2cf inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a91782dd143527fc8439f8bbc6124b4cd inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memItemLeft" align="right" valign="top"><a id="a91782dd143527fc8439f8bbc6124b4cd"></a>
 boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_height</b></td></tr>
 <tr class="separator:a91782dd143527fc8439f8bbc6124b4cd inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -148,21 +148,21 @@ boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bot
 <tr class="memitem:ac7b98fe7c4f7add86c83243b1cdfe5a4 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memItemLeft" align="right" valign="top"><a id="ac7b98fe7c4f7add86c83243b1cdfe5a4"></a>
 boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_minor_version</b></td></tr>
 <tr class="separator:ac7b98fe7c4f7add86c83243b1cdfe5a4 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3274a36577d70fec626f2329e0cc0604 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memItemLeft" align="right" valign="top"><a id="a3274a36577d70fec626f2329e0cc0604"></a>
-boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_nonce</b></td></tr>
-<tr class="separator:a3274a36577d70fec626f2329e0cc0604 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7b41e02f05d906e98a59b1cc8c016e18 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memItemLeft" align="right" valign="top"><a id="a7b41e02f05d906e98a59b1cc8c016e18"></a>
-boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_miner_tx_id</b></td></tr>
-<tr class="separator:a7b41e02f05d906e98a59b1cc8c016e18 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f945866aeb2bd4a6d7a11991c334c27 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memItemLeft" align="right" valign="top"><a id="a1f945866aeb2bd4a6d7a11991c334c27"></a>
+boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_nonce</b></td></tr>
+<tr class="separator:a1f945866aeb2bd4a6d7a11991c334c27 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b519b2ad21a359a192a9fcad0041362 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memItemLeft" align="right" valign="top"><a id="a8b519b2ad21a359a192a9fcad0041362"></a>
+boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_miner_tx_hash</b></td></tr>
+<tr class="separator:a8b519b2ad21a359a192a9fcad0041362 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a40bee2187b299cfd8b36bdcca26aed95 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memItemLeft" align="right" valign="top"><a id="a40bee2187b299cfd8b36bdcca26aed95"></a>
 boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_num_txs</b></td></tr>
 <tr class="separator:a40bee2187b299cfd8b36bdcca26aed95 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae71d9ab765ceb0e42fbc56bd2b82fb87 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memItemLeft" align="right" valign="top"><a id="ae71d9ab765ceb0e42fbc56bd2b82fb87"></a>
 boost::optional&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_orphan_status</b></td></tr>
 <tr class="separator:ae71d9ab765ceb0e42fbc56bd2b82fb87 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abca1ec7333dac48051ca5643ff737513 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memItemLeft" align="right" valign="top"><a id="abca1ec7333dac48051ca5643ff737513"></a>
-boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_prev_id</b></td></tr>
-<tr class="separator:abca1ec7333dac48051ca5643ff737513 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11606387e12c8c5a41a0db52bc5931f9 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memItemLeft" align="right" valign="top"><a id="a11606387e12c8c5a41a0db52bc5931f9"></a>
+boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_prev_hash</b></td></tr>
+<tr class="separator:a11606387e12c8c5a41a0db52bc5931f9 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeadec8e3252a65c6b479bc1239a35e97 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memItemLeft" align="right" valign="top"><a id="aeadec8e3252a65c6b479bc1239a35e97"></a>
 boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_reward</b></td></tr>
 <tr class="separator:aeadec8e3252a65c6b479bc1239a35e97 inherit pub_attribs_structmonero_1_1monero__block__header"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -173,8 +173,8 @@ boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="botto
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Models a Monero block in the blockchain. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a1210cc81324e8232e05893fcc8a38b09"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1210cc81324e8232e05893fcc8a38b09">&#9670;&nbsp;</a></span>to_property_tree()</h2>
+<a id="aff7b5fbba400067c049aed9afaf8359b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff7b5fbba400067c049aed9afaf8359b">&#9670;&nbsp;</a></span>to_rapidjson_val()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -183,9 +183,10 @@ boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="botto
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">boost::property_tree::ptree monero::monero_block::to_property_tree </td>
+          <td class="memname">rapidjson::Value monero::monero_block::to_rapidjson_val </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">rapidjson::Document::AllocatorType &amp;&#160;</td>
+          <td class="paramname"><em>allocator</em></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
@@ -195,10 +196,16 @@ boost::optional&lt; string &gt;&#160;</td><td class="memItemRight" valign="botto
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Convert the struct to a property tree.</p>
-<dl class="section return"><dt>Returns</dt><dd>the converted property tree </dd></dl>
+<p>Converts the struct to a rapidjson Value.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">allocator</td><td>is the rapidjson document allocator </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the struct as a rapidjson Value </dd></dl>
 
-<p>Reimplemented from <a class="el" href="structmonero_1_1monero__block__header.html#abfb6486a0f190a2538c79a8cf63b8709">monero::monero_block_header</a>.</p>
+<p>Reimplemented from <a class="el" href="structmonero_1_1monero__block__header.html#a7d75c164db7b4b16c50bec984b32b134">monero::monero_block_header</a>.</p>
 
 </div>
 </div>

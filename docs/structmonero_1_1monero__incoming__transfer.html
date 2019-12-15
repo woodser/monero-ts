@@ -88,6 +88,8 @@ Inheritance diagram for monero::monero_incoming_transfer:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a085ed3aefec908c716f35ab4e1692708"><td class="memItemLeft" align="right" valign="top">rapidjson::Value&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__incoming__transfer.html#a085ed3aefec908c716f35ab4e1692708">to_rapidjson_val</a> (rapidjson::Document::AllocatorType &amp;allocator) const</td></tr>
+<tr class="separator:a085ed3aefec908c716f35ab4e1692708"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3984e6b7efa9fb9be390445f2e230211"><td class="memItemLeft" align="right" valign="top"><a id="a3984e6b7efa9fb9be390445f2e230211"></a>
 shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.html">monero_incoming_transfer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>copy</b> (const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__transfer.html">monero_transfer</a> &gt; &amp;src, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__transfer.html">monero_transfer</a> &gt; &amp;tgt) const</td></tr>
 <tr class="separator:a3984e6b7efa9fb9be390445f2e230211"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -97,8 +99,6 @@ shared_ptr&lt; <a class="el" href="structmonero_1_1monero__incoming__transfer.ht
 <tr class="memitem:a09344281c183994cc0b29cb3e9e239cb"><td class="memItemLeft" align="right" valign="top"><a id="a09344281c183994cc0b29cb3e9e239cb"></a>
 boost::optional&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>is_incoming</b> () const</td></tr>
 <tr class="separator:a09344281c183994cc0b29cb3e9e239cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acc3c15bfd199eb94591fb87cffa2359a"><td class="memItemLeft" align="right" valign="top">boost::property_tree::ptree&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmonero_1_1monero__incoming__transfer.html#acc3c15bfd199eb94591fb87cffa2359a">to_property_tree</a> () const</td></tr>
-<tr class="separator:acc3c15bfd199eb94591fb87cffa2359a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0884514e57cfabe721a4a473b9cbfa0"><td class="memItemLeft" align="right" valign="top"><a id="aa0884514e57cfabe721a4a473b9cbfa0"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>merge</b> (const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__transfer.html">monero_transfer</a> &gt; &amp;self, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__transfer.html">monero_transfer</a> &gt; &amp;other)</td></tr>
 <tr class="separator:aa0884514e57cfabe721a4a473b9cbfa0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -137,15 +137,22 @@ boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bot
 <tr class="memitem:a121fc549ccc450ae81c0e8626fa81565 inherit pub_attribs_structmonero_1_1monero__transfer"><td class="memItemLeft" align="right" valign="top"><a id="a121fc549ccc450ae81c0e8626fa81565"></a>
 boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_account_index</b></td></tr>
 <tr class="separator:a121fc549ccc450ae81c0e8626fa81565 inherit pub_attribs_structmonero_1_1monero__transfer"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a13d77a3e5a6fae70ff991cda18109a21 inherit pub_attribs_structmonero_1_1monero__transfer"><td class="memItemLeft" align="right" valign="top"><a id="a13d77a3e5a6fae70ff991cda18109a21"></a>
-boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_num_suggested_confirmations</b></td></tr>
-<tr class="separator:a13d77a3e5a6fae70ff991cda18109a21 inherit pub_attribs_structmonero_1_1monero__transfer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33b70ec4ef38105a1c5667bffee872d6 inherit pub_attribs_structmonero_1_1monero__transfer"><td class="memItemLeft" align="right" valign="top"><a id="a33b70ec4ef38105a1c5667bffee872d6"></a>
+boost::optional&lt; uint64_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_num_suggested_confirmations</b></td></tr>
+<tr class="separator:a33b70ec4ef38105a1c5667bffee872d6 inherit pub_attribs_structmonero_1_1monero__transfer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pub_static_methods_structmonero_1_1monero__transfer"><td colspan="2" onclick="javascript:toggleInherit('pub_static_methods_structmonero_1_1monero__transfer')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="structmonero_1_1monero__transfer.html">monero::monero_transfer</a></td></tr>
+<tr class="memitem:a50e1ae3315da471fb59160ddb3c5f514 inherit pub_static_methods_structmonero_1_1monero__transfer"><td class="memItemLeft" align="right" valign="top"><a id="a50e1ae3315da471fb59160ddb3c5f514"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>from_property_tree</b> (const boost::property_tree::ptree &amp;node, const shared_ptr&lt; <a class="el" href="structmonero_1_1monero__transfer.html">monero_transfer</a> &gt; &amp;transfer)</td></tr>
+<tr class="separator:a50e1ae3315da471fb59160ddb3c5f514 inherit pub_static_methods_structmonero_1_1monero__transfer"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Models an incoming transfer of funds to the wallet. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="acc3c15bfd199eb94591fb87cffa2359a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acc3c15bfd199eb94591fb87cffa2359a">&#9670;&nbsp;</a></span>to_property_tree()</h2>
+<a id="a085ed3aefec908c716f35ab4e1692708"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a085ed3aefec908c716f35ab4e1692708">&#9670;&nbsp;</a></span>to_rapidjson_val()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -154,9 +161,10 @@ boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bot
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">boost::property_tree::ptree monero::monero_incoming_transfer::to_property_tree </td>
+          <td class="memname">rapidjson::Value monero::monero_incoming_transfer::to_rapidjson_val </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">rapidjson::Document::AllocatorType &amp;&#160;</td>
+          <td class="paramname"><em>allocator</em></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
@@ -166,10 +174,16 @@ boost::optional&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bot
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Convert the struct to a property tree.</p>
-<dl class="section return"><dt>Returns</dt><dd>the converted property tree </dd></dl>
+<p>Converts the struct to a rapidjson Value.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">allocator</td><td>is the rapidjson document allocator </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the struct as a rapidjson Value </dd></dl>
 
-<p>Reimplemented from <a class="el" href="structmonero_1_1monero__transfer.html#aac19cca1774b0b46b1bd78336772dfa7">monero::monero_transfer</a>.</p>
+<p>Reimplemented from <a class="el" href="structmonero_1_1monero__transfer.html#ae34c855d2139c06df65ee46be86df9e6">monero::monero_transfer</a>.</p>
 
 </div>
 </div>
