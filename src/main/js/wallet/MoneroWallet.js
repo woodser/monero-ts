@@ -515,7 +515,7 @@ class MoneroWallet {
    * @param {boolean} query.isSpent gets outputs that are spent or not
    * @param {MoneroKeyImage} query.keyImage is a key image whose defined fields filter outputs to get
    * @param {MoneroTxQuery} query.txQuery gets outputs whose transaction meets this filter (optional)
-   * @return {MoneroOutputWallet[]} are wallet outputs per the configuration
+   * @return {MoneroOutputWallet[]} are queried outputs
    */
   async getOutputs(query) {
     throw new MoneroError("Subclass must implement");

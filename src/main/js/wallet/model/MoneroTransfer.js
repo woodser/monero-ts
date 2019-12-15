@@ -94,6 +94,7 @@ class MoneroTransfer {
    * should not be re-used or it should be copied before calling this method.
    * 
    * @param transfer is the transfer to merge into this one
+   * @return {MoneroTransfer} the merged transfer
    */
   merge(transfer) {
     assert(transfer instanceof MoneroTransfer);
