@@ -1,21 +1,18 @@
-'use strict';
-
 /**
- * Export all library types.
+ * Export all library models.
  */
 module.exports = function() {
   
+  // import utils
   this.assert = require("assert");
   this.GenUtils = require("./utils/GenUtils");
   this.BigInteger = require("./utils/biginteger").BigInteger;
   this.Filter = require("./utils/Filter");
-  this.ConnectionType = require("./daemon/model/ConnectionType");
   this.MoneroError = require("./utils/MoneroError");
   this.MoneroUtils = require("./utils/MoneroUtils");
-  this.MoneroRpcConnection = require("./rpc/MoneroRpcConnection");
-  this.MoneroRpcError = require("./rpc/MoneroRpcError");
- 
+  
   // export daemon models
+  this.ConnectionType = require("./daemon/model/ConnectionType");
   this.MoneroAltChain = require("./daemon/model/MoneroAltChain");
   this.MoneroBan = require("./daemon/model/MoneroBan");
   this.MoneroBlockHeader = require("./daemon/model/MoneroBlockHeader");
@@ -40,7 +37,7 @@ module.exports = function() {
   this.MoneroTx = require("./daemon/model/MoneroTx");
   this.MoneroTxPoolStats = require("./daemon/model/MoneroTxPoolStats");
   this.MoneroVersion = require("./daemon/model/MoneroVersion");
-  
+
   // export wallet models
   this.MoneroAccount = require("./wallet/model/MoneroAccount");
   this.MoneroAccountTag = require("./wallet/model/MoneroAccountTag");
@@ -68,12 +65,16 @@ module.exports = function() {
   this.MoneroTxWallet = require("./wallet/model/MoneroTxWallet");
   this.MoneroTxQuery = require("./wallet/model/MoneroTxQuery");
   
-  // export daemon, wallet, and util classes
+  // export rpc
+  this.MoneroRpcConnection = require("./rpc/MoneroRpcConnection");
+  this.MoneroRpcError = require("./rpc/MoneroRpcError");
+
+  // export daemon, wallet, and utils classes
   this.MoneroDaemon = require("./daemon/MoneroDaemon");
-  this.MoneroDaemonRpc = require("./daemon/MoneroDaemonRpc");
   this.MoneroWallet = require("./wallet/MoneroWallet");
-  this.MoneroWalletRpc = require("./wallet/MoneroWalletRpc");
   this.MoneroWalletWasmBase = require("./wallet/MoneroWalletWasmBase");
-  this.getMoneroWalletKeys = require("./wallet/MoneroWalletKeys");  // returns a promise
+  this.MoneroDaemonRpc = require("./daemon/MoneroDaemonRpc");
+  this.MoneroWalletRpc = require("./wallet/MoneroWalletRpc");
   this.getMoneroUtilsWasm = require("./utils/MoneroUtilsWasm");     // returns a promise
+  this.getMoneroWalletKeys = require("./wallet/MoneroWalletKeys");  // returns a promise
 }
