@@ -1,5 +1,3 @@
-const MoneroTransfer = require("./MoneroTransfer");
-
 /**
  * Models an incoming transfer of funds to the wallet.
  */

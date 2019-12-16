@@ -1,5 +1,3 @@
-const MoneroOutput = require("../../daemon/model/MoneroOutput");
-
 /**
  * Models a Monero output with wallet extensions.
  */

@@ -425,7 +425,6 @@ class MoneroTx {
     
     // merge blocks if they're different which comes back to merging txs
     if (this.getBlock() !== tx.getBlock()) {
-      const MoneroBlock = require("./MoneroBlock");
       if (this.getBlock() === undefined) {
         this.setBlock(new MoneroBlock());
         this.getBlock().setTxs([this]);

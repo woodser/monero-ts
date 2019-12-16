@@ -1,5 +1,3 @@
-const MoneroError = require("../utils/MoneroError");
-
 /**
  * Error when interacting with Monero RPC.
  */

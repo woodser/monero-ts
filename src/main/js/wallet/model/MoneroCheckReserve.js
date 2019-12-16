@@ -1,5 +1,3 @@
-const MoneroCheck = require("./MoneroCheck");
-
 /**
  * Results from checking a reserve proof.
  */

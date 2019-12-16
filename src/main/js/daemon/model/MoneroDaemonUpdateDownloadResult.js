@@ -1,5 +1,3 @@
-const MoneroDaemonUpdateCheckResult = require("./MoneroDaemonUpdateCheckResult");
-
 /**
  * Models the result of downloading an update.
  */

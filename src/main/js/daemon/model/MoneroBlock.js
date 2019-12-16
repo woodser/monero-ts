@@ -1,5 +1,3 @@
-const MoneroBlockHeader = require("./MoneroBlockHeader");
-
 /**
  * Models a Monero block in the blockchain.
  */

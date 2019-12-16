@@ -1,4 +1,3 @@
-const MoneroWalletWasmBase = require("./MoneroWalletWasmBase");
 const FS = require('fs'); 
 
 /**
