@@ -1,5 +1,5 @@
-// import library types
-require("../main/js/index")();
+// import library models
+require("../main/js/MoneroModel")();
 
 // import test types
 require("./utils/TestUtilsModule")();
