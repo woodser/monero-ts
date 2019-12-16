@@ -1,5 +1,3 @@
-const MoneroTxWallet = require("./MoneroTxWallet");
-
 /**
  * Configures a query to retrieve transactions.
  * 

@@ -1,7 +1,3 @@
-const assert = require("assert");
-const GenUtils = require("./GenUtils");
-const BigInteger = require("./biginteger").BigInteger;
-
 /**
  * Collection of Monero utilities.
  */

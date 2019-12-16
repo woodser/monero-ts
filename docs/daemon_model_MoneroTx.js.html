@@ -46,22 +46,22 @@ class MoneroTx {
     this.state = state;
     
     // deserialize fee
-    if (state.fee &amp;&amp; !(state.fee instanceof BigInteger)) state.fee = BigInteger.parse(state.fee);
+    if (state.fee !== undefined &amp;&amp; !(state.fee instanceof BigInteger)) state.fee = BigInteger.parse(state.fee);
     
-    // deserialize vins
-    if (state.vins) {
-      for (let i = 0; i &lt; state.vins.length; i++) {
-        if (!(state.vins[i] instanceof MoneroOutput)) {
-          state.vins[i] = new MoneroOutput(Object.assign(state.vins[i], {tx: this}));
+    // deserialize inputs
+    if (state.inputs) {
+      for (let i = 0; i &lt; state.inputs.length; i++) {
+        if (!(state.inputs[i] instanceof MoneroOutput)) {
+          state.inputs[i] = new MoneroOutput(Object.assign(state.inputs[i], {tx: this}));
         }
       }
     }
     
-    // deserialize vouts
-    if (state.vouts) {
-      for (let i = 0; i &lt; state.vouts.length; i++) {
-        if (!(state.vouts[i] instanceof MoneroOutput)) {
-          state.vouts[i] = new MoneroOutput(Object.assign(state.vouts[i], {tx: this}));
+    // deserialize outputs
+    if (state.outputs) {
+      for (let i = 0; i &lt; state.outputs.length; i++) {
+        if (!(state.outputs[i] instanceof MoneroOutput)) {
+          state.outputs[i] = new MoneroOutput(Object.assign(state.outputs[i], {tx: this}));
         }
       }
     }
@@ -80,12 +80,12 @@ class MoneroTx {
     return this.getBlock() === undefined ? undefined : this.getBlock().getHeight();
   }
   
-  getId() {
-    return this.state.id;
+  getHash() {
+    return this.state.hash;
   }
   
-  setId(id) {
-    this.state.id = id;
+  setHash(hash) {
+    this.state.hash = hash;
     return this;
   }
   
@@ -125,12 +125,12 @@ class MoneroTx {
     return this;
   }
   
-  getMixin() {
-    return this.state.mixin;
+  getRingSize() {
+    return this.state.ringSize;
   }
   
-  setMixin(mixin) {
-    this.state.mixin = mixin;
+  setRingSize(ringSize) {
+    this.state.ringSize = ringSize;
     return this;
   }
   
@@ -294,21 +294,21 @@ class MoneroTx {
     return this;
   }
   
-  getVins() {
-    return this.state.vins;
+  getInputs() {
+    return this.state.inputs;
   }
   
-  setVins(vins) {
-    this.state.vins = vins;
+  setInputs(inputs) {
+    this.state.inputs = inputs;
     return this;
   }
   
-  getVouts() {
-    return this.state.vouts;
+  getOutputs() {
+    return this.state.outputs;
   }
   
-  setVouts(vouts) {
-    this.state.vouts = vouts;
+  setOutputs(outputs) {
+    this.state.outputs = outputs;
     return this;
   }
   
@@ -384,12 +384,12 @@ class MoneroTx {
     return this;
   }
   
-  getLastFailedId() {
-    return this.state.lastFailedId;
+  getLastFailedHash() {
+    return this.state.lastFailedHash;
   }
   
-  setLastFailedId(lastFailedId) {
-    this.state.lastFailedId = lastFailedId;
+  setLastFailedHash(lastFailedHash) {
+    this.state.lastFailedHash = lastFailedHash;
     return this;
   }
   
@@ -402,12 +402,12 @@ class MoneroTx {
     return this;
   }
   
-  getMaxUsedBlockId() {
-    return this.state.maxUsedBlockId;
+  getMaxUsedBlockHash() {
+    return this.state.maxUsedBlockHash;
   }
   
-  setMaxUsedBlockId(maxUsedBlockId) {
-    this.state.maxUsedBlockId = maxUsedBlockId;
+  setMaxUsedBlockHash(maxUsedBlockHash) {
+    this.state.maxUsedBlockHash = maxUsedBlockHash;
     return this;
   }
   
@@ -427,13 +427,13 @@ class MoneroTx {
   toJson() {
     let json = Object.assign({}, this.state);
     if (this.getFee()) json.fee = this.getFee().toString();
-    if (this.getVins()) {
-      json.vins = [];
-      for (let vin of this.getVins()) json.vins.push(vin.toJson());
+    if (this.getInputs()) {
+      json.inputs = [];
+      for (let input of this.getInputs()) json.inputs.push(input.toJson());
     }
-    if (this.getVouts()) {
-      json.vouts = [];
-      for (let vout of this.getVouts()) json.vouts.push(vout.toJson());
+    if (this.getOutputs()) {
+      json.outputs = [];
+      for (let output of this.getOutputs()) json.outputs.push(output.toJson());
     }
     if (this.getExtra()) json.extra = this.getExtra().slice();
     delete json.block;  // do not serialize parent block
@@ -453,7 +453,6 @@ class MoneroTx {
     
     // merge blocks if they're different which comes back to merging txs
     if (this.getBlock() !== tx.getBlock()) {
-      const MoneroBlock = require("./MoneroBlock");
       if (this.getBlock() === undefined) {
         this.setBlock(new MoneroBlock());
         this.getBlock().setTxs([this]);
@@ -469,194 +468,194 @@ class MoneroTx {
     }
     
     // otherwise merge tx fields
-    this.setId(MoneroUtils.reconcile(this.getId(), tx.getId()));
-    this.setVersion(MoneroUtils.reconcile(this.getVersion(), tx.getVersion()));
-    this.setPaymentId(MoneroUtils.reconcile(this.getPaymentId(), tx.getPaymentId()));
-    this.setFee(MoneroUtils.reconcile(this.getFee(), tx.getFee()));
-    this.setMixin(MoneroUtils.reconcile(this.getMixin(), tx.getMixin()));
-    this.setIsConfirmed(MoneroUtils.reconcile(this.isConfirmed(), tx.isConfirmed(), {resolveTrue: true}));
-    this.setDoNotRelay(MoneroUtils.reconcile(this.getDoNotRelay(), tx.getDoNotRelay(), {resolveTrue: false}));  // tx can become relayed
-    this.setIsRelayed(MoneroUtils.reconcile(this.isRelayed(), tx.isRelayed(), {resolveTrue: true}));      // tx can become relayed
-    this.setIsDoubleSpend(MoneroUtils.reconcile(this.isDoubleSpendSeen(), tx.isDoubleSpendSeen()));
-    this.setKey(MoneroUtils.reconcile(this.getKey(), tx.getKey()));
-    this.setFullHex(MoneroUtils.reconcile(this.getFullHex(), tx.getFullHex()));
-    this.setPrunedHex(MoneroUtils.reconcile(this.getPrunedHex(), tx.getPrunedHex()));
-    this.setPrunableHex(MoneroUtils.reconcile(this.getPrunableHex(), tx.getPrunableHex()));
-    this.setPrunableHash(MoneroUtils.reconcile(this.getPrunableHash(), tx.getPrunableHash()));
-    this.setSize(MoneroUtils.reconcile(this.getSize(), tx.getSize()));
-    this.setWeight(MoneroUtils.reconcile(this.getWeight(), tx.getWeight()));
-    this.setOutputIndices(MoneroUtils.reconcile(this.getOutputIndices(), tx.getOutputIndices()));
-    this.setMetadata(MoneroUtils.reconcile(this.getMetadata(), tx.getMetadata()));
-    this.setExtra(MoneroUtils.reconcile(this.getExtra(), tx.getExtra()));
-    this.setRctSignatures(MoneroUtils.reconcile(this.getRctSignatures(), tx.getRctSignatures()));
-    this.setRctSigPrunable(MoneroUtils.reconcile(this.getRctSigPrunable(), tx.getRctSigPrunable()));
-    this.setIsKeptByBlock(MoneroUtils.reconcile(this.isKeptByBlock(), tx.isKeptByBlock()));
-    this.setIsFailed(MoneroUtils.reconcile(this.isFailed(), tx.isFailed()));
-    this.setLastFailedHeight(MoneroUtils.reconcile(this.getLastFailedHeight(), tx.getLastFailedHeight()));
-    this.setLastFailedId(MoneroUtils.reconcile(this.getLastFailedId(), tx.getLastFailedId()));
-    this.setMaxUsedBlockHeight(MoneroUtils.reconcile(this.getMaxUsedBlockHeight(), tx.getMaxUsedBlockHeight()));
-    this.setMaxUsedBlockId(MoneroUtils.reconcile(this.getMaxUsedBlockId(), tx.getMaxUsedBlockId()));
-    this.setSignatures(MoneroUtils.reconcile(this.getSignatures(), tx.getSignatures()));
-    this.setUnlockTime(MoneroUtils.reconcile(this.getUnlockTime(), tx.getUnlockTime()));
-    this.setNumConfirmations(MoneroUtils.reconcile(this.getNumConfirmations(), tx.getNumConfirmations(), {resolveMax: true})); // num confirmations can increase
+    this.setHash(GenUtils.reconcile(this.getHash(), tx.getHash()));
+    this.setVersion(GenUtils.reconcile(this.getVersion(), tx.getVersion()));
+    this.setPaymentId(GenUtils.reconcile(this.getPaymentId(), tx.getPaymentId()));
+    this.setFee(GenUtils.reconcile(this.getFee(), tx.getFee()));
+    this.setRingSize(GenUtils.reconcile(this.getRingSize(), tx.getRingSize()));
+    this.setIsConfirmed(GenUtils.reconcile(this.isConfirmed(), tx.isConfirmed(), {resolveTrue: true}));
+    this.setDoNotRelay(GenUtils.reconcile(this.getDoNotRelay(), tx.getDoNotRelay(), {resolveTrue: false}));  // tx can become relayed
+    this.setIsRelayed(GenUtils.reconcile(this.isRelayed(), tx.isRelayed(), {resolveTrue: true}));      // tx can become relayed
+    this.setIsDoubleSpend(GenUtils.reconcile(this.isDoubleSpendSeen(), tx.isDoubleSpendSeen()));
+    this.setKey(GenUtils.reconcile(this.getKey(), tx.getKey()));
+    this.setFullHex(GenUtils.reconcile(this.getFullHex(), tx.getFullHex()));
+    this.setPrunedHex(GenUtils.reconcile(this.getPrunedHex(), tx.getPrunedHex()));
+    this.setPrunableHex(GenUtils.reconcile(this.getPrunableHex(), tx.getPrunableHex()));
+    this.setPrunableHash(GenUtils.reconcile(this.getPrunableHash(), tx.getPrunableHash()));
+    this.setSize(GenUtils.reconcile(this.getSize(), tx.getSize()));
+    this.setWeight(GenUtils.reconcile(this.getWeight(), tx.getWeight()));
+    this.setOutputIndices(GenUtils.reconcile(this.getOutputIndices(), tx.getOutputIndices()));
+    this.setMetadata(GenUtils.reconcile(this.getMetadata(), tx.getMetadata()));
+    this.setExtra(GenUtils.reconcile(this.getExtra(), tx.getExtra()));
+    this.setRctSignatures(GenUtils.reconcile(this.getRctSignatures(), tx.getRctSignatures()));
+    this.setRctSigPrunable(GenUtils.reconcile(this.getRctSigPrunable(), tx.getRctSigPrunable()));
+    this.setIsKeptByBlock(GenUtils.reconcile(this.isKeptByBlock(), tx.isKeptByBlock()));
+    this.setIsFailed(GenUtils.reconcile(this.isFailed(), tx.isFailed()));
+    this.setLastFailedHeight(GenUtils.reconcile(this.getLastFailedHeight(), tx.getLastFailedHeight()));
+    this.setLastFailedHash(GenUtils.reconcile(this.getLastFailedHash(), tx.getLastFailedHash()));
+    this.setMaxUsedBlockHeight(GenUtils.reconcile(this.getMaxUsedBlockHeight(), tx.getMaxUsedBlockHeight()));
+    this.setMaxUsedBlockHash(GenUtils.reconcile(this.getMaxUsedBlockHash(), tx.getMaxUsedBlockHash()));
+    this.setSignatures(GenUtils.reconcile(this.getSignatures(), tx.getSignatures()));
+    this.setUnlockTime(GenUtils.reconcile(this.getUnlockTime(), tx.getUnlockTime()));
+    this.setNumConfirmations(GenUtils.reconcile(this.getNumConfirmations(), tx.getNumConfirmations(), {resolveMax: true})); // num confirmations can increase
     
-    // merge vins
-    if (tx.getVins()) {
-      for (let merger of tx.getVins()) {
+    // merge inputs
+    if (tx.getInputs()) {
+      for (let merger of tx.getInputs()) {
         let merged = false;
         merger.setTx(this);
-        if (!this.getVins()) this.setVins([]);
-        for (let mergee of this.getVins()) {
+        if (!this.getInputs()) this.setInputs([]);
+        for (let mergee of this.getInputs()) {
           if (mergee.getKeyImage().getHex() === merger.getKeyImage().getHex()) {
             mergee.merge(merger);
             merged = true;
             break;
           }
         }
-        if (!merged) this.getVins().push(merger);
+        if (!merged) this.getInputs().push(merger);
       }
     }
     
-    // merge vouts
-    if (tx.getVouts()) {
-      for (let vout of tx.getVouts()) vout.setTx(this);
-      if (this.getVouts() === undefined) this.setVouts(tx.getVouts());
+    // merge outputs
+    if (tx.getOutputs()) {
+      for (let output of tx.getOutputs()) output.setTx(this);
+      if (this.getOutputs() === undefined) this.setOutputs(tx.getOutputs());
       else {
         
         // validate output indices if present
         let numIndices = 0;
-        for (let vout of this.getVouts()) if (vout.getIndex() !== undefined) numIndices++;
-        for (let vout of tx.getVouts()) if (vout.getIndex() !== undefined) numIndices++;
-        assert(numIndices === 0 || this.getVouts().length + tx.getVouts().length == numIndices, "Some vouts have an output index and some do not");
+        for (let output of this.getOutputs()) if (output.getIndex() !== undefined) numIndices++;
+        for (let output of tx.getOutputs()) if (output.getIndex() !== undefined) numIndices++;
+        assert(numIndices === 0 || this.getOutputs().length + tx.getOutputs().length == numIndices, "Some outputs have an output index and some do not");
         
         // merge by output indices if present
         if (numIndices > 0) {
-          for (let merger of tx.getVouts()) {
+          for (let merger of tx.getOutputs()) {
             let merged = false;
             merger.setTx(this);
-            if (this.getVouts() === undefined) this.setVouts([]);
-            for (let mergee of this.getVouts()) {
+            if (this.getOutputs() === undefined) this.setOutputs([]);
+            for (let mergee of this.getOutputs()) {
               if (mergee.getIndex() === merger.getIndex()) {
                 mergee.merge(merger);
                 merged = true;
                 break;
               }
             }
-            if (!merged) this.getVouts().push(merger);
+            if (!merged) this.getOutputs().push(merger);
           }
         } else {
           
           // determine if key images present
           let numKeyImages = 0;
-          for (let vout of this.getVouts()) {
-            if (vout.getKeyImage() !== undefined) {
-              assert.notEqual(vout.getKeyImage().getHex(), undefined);
+          for (let output of this.getOutputs()) {
+            if (output.getKeyImage() !== undefined) {
+              assert.notEqual(output.getKeyImage().getHex(), undefined);
               numKeyImages++;
             }
           }
-          for (let vout of tx.getVouts()) {
-            if (vout.getKeyImage() !== undefined) {
-              assert.notEqual(vout.getKeyImage().getHex(), undefined);
+          for (let output of tx.getOutputs()) {
+            if (output.getKeyImage() !== undefined) {
+              assert.notEqual(output.getKeyImage().getHex(), undefined);
               numKeyImages++;
             }
           }
-          assert("Some vouts have a key image and some do not", numKeyImages === 0 || this.getVouts().length + tx.getVouts().length === numKeyImages);
+          assert("Some outputs have a key image and some do not", numKeyImages === 0 || this.getOutputs().length + tx.getOutputs().length === numKeyImages);
           
           // merge by key images if present
           if (numKeyImages > 0) {
-            for (let merger of tx.getVouts()) {
+            for (let merger of tx.getOutputs()) {
               let merged = false;
               merger.setTx(this);
-              if (this.getVouts() === undefined) this.setVouts([]);
-              for (let mergee of this.getVouts()) {
+              if (this.getOutputs() === undefined) this.setOutputs([]);
+              for (let mergee of this.getOutputs()) {
                 if (mergee.getKeyImage().getHex() === merger.getKeyImage().getHex()) {
                   mergee.merge(merger);
                   merged = true;
                   break;
                 }
               }
-              if (!merged) this.getVouts().push(merger);
+              if (!merged) this.getOutputs().push(merger);
             }
           }
 
           // otherwise merge by position
           else {
-            assert.equal(tx.getVouts().length, this.getVouts().length);
-            for (let i = 0; i &lt; tx.getVouts().length; i++) {
-              this.getVouts()[i].merge(tx.getVouts()[i]);
+            assert.equal(tx.getOutputs().length, this.getOutputs().length);
+            for (let i = 0; i &lt; tx.getOutputs().length; i++) {
+              this.getOutputs()[i].merge(tx.getOutputs()[i]);
             }
           }
         }
       }
     }
     
-    // merge vouts
-    if (tx.getVouts()) {
-      for (let vout of tx.getVouts()) vout.setTx(this);
-      if (this.getVouts() == null) this.setVouts(tx.getVouts());
+    // merge outputs
+    if (tx.getOutputs()) {
+      for (let output of tx.getOutputs()) output.setTx(this);
+      if (this.getOutputs() == null) this.setOutputs(tx.getOutputs());
       else {
         
         // validate output indices if present
         let numIndices = 0;
-        for (let vout of this.getVouts()) if (vout.getIndex() !== undefined) numIndices++;
-        for (let vout of tx.getVouts()) if (vout.getIndex() !== undefined) numIndices++;
-        assert(numIndices === 0 || this.getVouts().length + tx.getVouts().length === numIndices, "Some vouts have an output index and some do not");
+        for (let output of this.getOutputs()) if (output.getIndex() !== undefined) numIndices++;
+        for (let output of tx.getOutputs()) if (output.getIndex() !== undefined) numIndices++;
+        assert(numIndices === 0 || this.getOutputs().length + tx.getOutputs().length === numIndices, "Some outputs have an output index and some do not");
         
         // merge by output indices if present
         if (numIndices > 0) {
-          for (let merger of tx.getVouts()) {
+          for (let merger of tx.getOutputs()) {
             let merged = false;
             merger.setTx(this);
-            if (this.getVouts() === undefined) this.setVouts([]);
-            for (let mergee of this.getVouts()) {
+            if (this.getOutputs() === undefined) this.setOutputs([]);
+            for (let mergee of this.getOutputs()) {
               if (mergee.getIndex() === merger.getIndex()) {
                 mergee.merge(merger);
                 merged = true;
                 break;
               }
             }
-            if (!merged) this.getVouts().push(merger);
+            if (!merged) this.getOutputs().push(merger);
           }
         } else {
 
           // determine if key images present
           let numKeyImages = 0;
-          for (let vout of this.getVouts()) {
-            if (vout.getKeyImage()) {
-              assert(vout.getKeyImage().getHex());
+          for (let output of this.getOutputs()) {
+            if (output.getKeyImage()) {
+              assert(output.getKeyImage().getHex());
               numKeyImages++;
             }
           }
-          for (let vout of tx.getVouts()) {
-            if (vout.getKeyImage()) {
-              assert(vout.getKeyImage().getHex());
+          for (let output of tx.getOutputs()) {
+            if (output.getKeyImage()) {
+              assert(output.getKeyImage().getHex());
               numKeyImages++;
             }
           }
-          assert(numKeyImages === 0 || this.getVouts().length + tx.getVouts().length === numKeyImages, "Some vouts have a key image and some do not");
+          assert(numKeyImages === 0 || this.getOutputs().length + tx.getOutputs().length === numKeyImages, "Some outputs have a key image and some do not");
           
           // merge by key images
           if (numKeyImages > 0) {
-            for (let merger of tx.getVouts()) {
+            for (let merger of tx.getOutputs()) {
               let merged = false;
               merger.setTx(this);
-              if (this.getVouts() === undefined) this.setVouts([]);
-              for (let mergee of this.getVouts()) {
+              if (this.getOutputs() === undefined) this.setOutputs([]);
+              for (let mergee of this.getOutputs()) {
                 if (mergee.getKeyImage().getHex() === merger.getKeyImage().getHex()) {
                   mergee.merge(merger);
                   merged = true;
                   break;
                 }
               }
-              if (!merged) this.getVouts().push(merger);
+              if (!merged) this.getOutputs().push(merger);
             }
           }
           
           // merge by position
           else {
-            assert.equal(tx.getVouts().length, this.getVouts().length);
-            for (let i = 0; i &lt; tx.getVouts().length; i++) {
-              this.getVouts()[i].merge(tx.getVouts()[i]);
+            assert.equal(tx.getOutputs().length, this.getOutputs().length);
+            for (let i = 0; i &lt; tx.getOutputs().length; i++) {
+              this.getOutputs()[i].merge(tx.getOutputs()[i]);
             }
           }
         }
@@ -669,9 +668,9 @@ class MoneroTx {
       this.setReceivedTimestamp(undefined);
       this.setLastRelayedTimestamp(undefined);
     } else {
-      this.setInTxPool(MoneroUtils.reconcile(this.inTxPool(), tx.inTxPool(), {resolveTrue: true})); // unrelayed -> tx pool
-      this.setReceivedTimestamp(MoneroUtils.reconcile(this.getReceivedTimestamp(), tx.getReceivedTimestamp(), {resolveMax: false})); // take earliest receive time
-      this.setLastRelayedTimestamp(MoneroUtils.reconcile(this.getLastRelayedTimestamp(), tx.getLastRelayedTimestamp(), {resolveMax: true}));  // take latest relay time
+      this.setInTxPool(GenUtils.reconcile(this.inTxPool(), tx.inTxPool(), {resolveTrue: true})); // unrelayed -> tx pool
+      this.setReceivedTimestamp(GenUtils.reconcile(this.getReceivedTimestamp(), tx.getReceivedTimestamp(), {resolveMax: false})); // take earliest receive time
+      this.setLastRelayedTimestamp(GenUtils.reconcile(this.getLastRelayedTimestamp(), tx.getLastRelayedTimestamp(), {resolveMax: true}));  // take latest relay time
     }
     
     return this;  // for chaining
@@ -680,54 +679,54 @@ class MoneroTx {
   toString(indent = 0) {
     let str = "";
     str += GenUtils.getIndent(indent) + "=== TX ===\n";
-    str += MoneroUtils.kvLine("Tx ID: ", this.getId(), indent);
-    str += MoneroUtils.kvLine("Height: ", this.getHeight(), indent);
-    str += MoneroUtils.kvLine("Version", this.getVersion(), indent);
-    str += MoneroUtils.kvLine("Is miner tx", this.isMinerTx(), indent);
-    str += MoneroUtils.kvLine("Payment ID", this.getPaymentId(), indent);
-    str += MoneroUtils.kvLine("Fee", this.getFee(), indent);
-    str += MoneroUtils.kvLine("Mixin", this.getMixin(), indent);
-    str += MoneroUtils.kvLine("Do not relay", this.getDoNotRelay(), indent);
-    str += MoneroUtils.kvLine("Is relayed", this.isRelayed(), indent);
-    str += MoneroUtils.kvLine("Is confirmed", this.isConfirmed(), indent);
-    str += MoneroUtils.kvLine("In tx pool", this.inTxPool(), indent);
-    str += MoneroUtils.kvLine("Num confirmations", this.getNumConfirmations(), indent);
-    str += MoneroUtils.kvLine("Unlock time", this.getUnlockTime(), indent);
-    str += MoneroUtils.kvLine("Last relayed time", this.getLastRelayedTimestamp(), indent);
-    str += MoneroUtils.kvLine("Received time", this.getReceivedTimestamp(), indent);
-    str += MoneroUtils.kvLine("Is double spend", this.isDoubleSpendSeen(), indent);
-    str += MoneroUtils.kvLine("Key", this.getKey(), indent);
-    str += MoneroUtils.kvLine("Full hex", this.getFullHex(), indent);
-    str += MoneroUtils.kvLine("Pruned hex", this.getPrunedHex(), indent);
-    str += MoneroUtils.kvLine("Prunable hex", this.getPrunableHex(), indent);
-    str += MoneroUtils.kvLine("Prunable hash", this.getPrunableHash(), indent);
-    str += MoneroUtils.kvLine("Size", this.getSize(), indent);
-    str += MoneroUtils.kvLine("Weight", this.getWeight(), indent);
-    str += MoneroUtils.kvLine("Output indices", this.getOutputIndices(), indent);
-    str += MoneroUtils.kvLine("Metadata", this.getMetadata(), indent);
-    str += MoneroUtils.kvLine("Extra", this.getExtra(), indent);
-    str += MoneroUtils.kvLine("RCT signatures", this.getRctSignatures(), indent);
-    str += MoneroUtils.kvLine("RCT sig prunable", this.getRctSigPrunable(), indent);
-    str += MoneroUtils.kvLine("Kept by block", this.isKeptByBlock(), indent);
-    str += MoneroUtils.kvLine("Is failed", this.isFailed(), indent);
-    str += MoneroUtils.kvLine("Last failed height", this.getLastFailedHeight(), indent);
-    str += MoneroUtils.kvLine("Last failed id", this.getLastFailedId(), indent);
-    str += MoneroUtils.kvLine("Max used block height", this.getMaxUsedBlockHeight(), indent);
-    str += MoneroUtils.kvLine("Max used block id", this.getMaxUsedBlockId(), indent);
-    str += MoneroUtils.kvLine("Signatures", this.getSignatures(), indent);
-    if (this.getVins()) {
-      str += MoneroUtils.kvLine("Vins", "", indent);
-      for (let i = 0; i &lt; this.getVins().length; i++) {
-        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
-        str += this.getVins()[i].toString(indent + 2);
+    str += GenUtils.kvLine("Tx hash: ", this.getHash(), indent);
+    str += GenUtils.kvLine("Height: ", this.getHeight(), indent);
+    str += GenUtils.kvLine("Version", this.getVersion(), indent);
+    str += GenUtils.kvLine("Is miner tx", this.isMinerTx(), indent);
+    str += GenUtils.kvLine("Payment ID", this.getPaymentId(), indent);
+    str += GenUtils.kvLine("Fee", this.getFee(), indent);
+    str += GenUtils.kvLine("Ring size", this.getRingSize(), indent);
+    str += GenUtils.kvLine("Do not relay", this.getDoNotRelay(), indent);
+    str += GenUtils.kvLine("Is relayed", this.isRelayed(), indent);
+    str += GenUtils.kvLine("Is confirmed", this.isConfirmed(), indent);
+    str += GenUtils.kvLine("In tx pool", this.inTxPool(), indent);
+    str += GenUtils.kvLine("Num confirmations", this.getNumConfirmations(), indent);
+    str += GenUtils.kvLine("Unlock time", this.getUnlockTime(), indent);
+    str += GenUtils.kvLine("Last relayed time", this.getLastRelayedTimestamp(), indent);
+    str += GenUtils.kvLine("Received time", this.getReceivedTimestamp(), indent);
+    str += GenUtils.kvLine("Is double spend", this.isDoubleSpendSeen(), indent);
+    str += GenUtils.kvLine("Key", this.getKey(), indent);
+    str += GenUtils.kvLine("Full hex", this.getFullHex(), indent);
+    str += GenUtils.kvLine("Pruned hex", this.getPrunedHex(), indent);
+    str += GenUtils.kvLine("Prunable hex", this.getPrunableHex(), indent);
+    str += GenUtils.kvLine("Prunable hash", this.getPrunableHash(), indent);
+    str += GenUtils.kvLine("Size", this.getSize(), indent);
+    str += GenUtils.kvLine("Weight", this.getWeight(), indent);
+    str += GenUtils.kvLine("Output indices", this.getOutputIndices(), indent);
+    str += GenUtils.kvLine("Metadata", this.getMetadata(), indent);
+    str += GenUtils.kvLine("Extra", this.getExtra(), indent);
+    str += GenUtils.kvLine("RCT signatures", this.getRctSignatures(), indent);
+    str += GenUtils.kvLine("RCT sig prunable", this.getRctSigPrunable(), indent);
+    str += GenUtils.kvLine("Kept by block", this.isKeptByBlock(), indent);
+    str += GenUtils.kvLine("Is failed", this.isFailed(), indent);
+    str += GenUtils.kvLine("Last failed height", this.getLastFailedHeight(), indent);
+    str += GenUtils.kvLine("Last failed hash", this.getLastFailedHash(), indent);
+    str += GenUtils.kvLine("Max used block height", this.getMaxUsedBlockHeight(), indent);
+    str += GenUtils.kvLine("Max used block hash", this.getMaxUsedBlockHash(), indent);
+    str += GenUtils.kvLine("Signatures", this.getSignatures(), indent);
+    if (this.getInputs()) {
+      str += GenUtils.kvLine("Inputs", "", indent);
+      for (let i = 0; i &lt; this.getInputs().length; i++) {
+        str += GenUtils.kvLine(i + 1, "", indent + 1);
+        str += this.getInputs()[i].toString(indent + 2);
         str += '\n'
       }
     }
-    if (this.getVouts()) {
-      str += MoneroUtils.kvLine("Vouts", "", indent);
-      for (let i = 0; i &lt; this.getVouts().length; i++) {
-        str += MoneroUtils.kvLine(i + 1, "", indent + 1);
-        str += this.getVouts()[i].toString(indent + 2);
+    if (this.getOutputs()) {
+      str += GenUtils.kvLine("Outputs", "", indent);
+      for (let i = 0; i &lt; this.getOutputs().length; i++) {
+        str += GenUtils.kvLine(i + 1, "", indent + 1);
+        str += this.getOutputs()[i].toString(indent + 2);
         str += '\n'
       }
     }
@@ -748,13 +747,13 @@ module.exports = MoneroTx;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BooleanSet.html">BooleanSet</a></li><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonConnectionSpan.html">MoneroDaemonConnectionSpan</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMinerTxSum.html">MoneroMinerTxSum</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroMultisigInfo.html">MoneroMultisigInfo</a></li><li><a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a></li><li><a href="MoneroMultisigSignResult.html">MoneroMultisigSignResult</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputQuery.html">MoneroOutputQuery</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendRequest.html">MoneroSendRequest</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroTxQuery.html">MoneroTxQuery</a></li><li><a href="MoneroTxSet.html">MoneroTxSet</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletLocal.html">MoneroWalletLocal</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li></ul><h3>Global</h3><ul><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BooleanSet.html">BooleanSet</a></li><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonConnectionSpan.html">MoneroDaemonConnectionSpan</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMinerTxSum.html">MoneroMinerTxSum</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroMultisigInfo.html">MoneroMultisigInfo</a></li><li><a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a></li><li><a href="MoneroMultisigSignResult.html">MoneroMultisigSignResult</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputQuery.html">MoneroOutputQuery</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendRequest.html">MoneroSendRequest</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroTxQuery.html">MoneroTxQuery</a></li><li><a href="MoneroTxSet.html">MoneroTxSet</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroUtilsWasm.html">MoneroUtilsWasm</a></li><li><a href="MoneroVersion.html">MoneroVersion</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletCore.html">MoneroWalletCore</a></li><li><a href="MoneroWalletKeys.html">MoneroWalletKeys</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletWasmBase.html">MoneroWalletWasmBase</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ConnectionType">ConnectionType</a></li><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Sep 04 2019 21:51:31 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Dec 16 2019 13:57:36 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>

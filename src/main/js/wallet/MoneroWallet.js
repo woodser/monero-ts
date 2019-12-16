@@ -20,9 +20,6 @@
  * SOFTWARE.
  */
 
-// import wallet models
-require("./model/MoneroWalletModel")();
-
 /**
  * Monero wallet interface and default implementations.
  */

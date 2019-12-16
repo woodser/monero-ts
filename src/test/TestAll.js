@@ -1,3 +1,7 @@
+// import library types
+require("../main/js/index")();
+
+// import test types
 require("./utils/TestUtilsModule")();
 const TestMoneroDaemonRpc = require("./TestMoneroDaemonRpc");
 const TestMoneroWalletRpc = require("./TestMoneroWalletRpc");

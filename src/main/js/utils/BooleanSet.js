@@ -1,5 +1,4 @@
 const assert = require("assert");
-const GenUtils = require("../utils/GenUtils");
 
 /**
  * Allows an infinite array of booleans to be set to true or false using ranges

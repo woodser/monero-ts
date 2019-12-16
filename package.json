@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": "https://github.com/monero-ecosystem/monero-javascript",
   "private": false,
-  "main": "index.js",
+  "main": "src/main/js/index.js",
   "scripts": {
     "start": "todo",
     "test": "mocha 'src/test/TestAll' --timeout 2000000"
@@ -25,16 +25,18 @@
   "dependencies": {
     "ajv": "^6.10.2",
     "async": "2.6.1",
+    "esdoc": "^1.1.0",
+    "esdoc-standard-plugin": "^1.0.0",
     "html5-fs": "0.1.1",
     "mocha": "^5.2.0",
     "net": "^1.0.2",
     "promise-throttle": "^1.0.1",
     "request": "2.88.0",
     "request-promise": "^4.2.5",
+    "serialize-javascript": "^2.1.2",
     "text-encoding": "^0.7.0",
     "tls": "0.0.1",
-    "uuid": "3.3.2",
-    "serialize-javascript": ">=2.1.1"
+    "uuid": "3.3.2"
   },
   "devDependencies": {
     "babel-core": "6.26.3",

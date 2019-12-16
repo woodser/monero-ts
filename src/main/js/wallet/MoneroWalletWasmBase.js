@@ -1,5 +1,3 @@
-const MoneroWallet = require("./MoneroWallet");
-
 /**
  * Base implementation for implementations of MoneroWallet which use a WebAssembly binding.
  */

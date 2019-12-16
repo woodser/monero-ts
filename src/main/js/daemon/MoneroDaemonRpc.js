@@ -20,8 +20,6 @@
  * SOFTWARE.
  */
 
-const MoneroDaemon = require("./MoneroDaemon");
-
 /**
  * Implements a Monero daemon using monero-daemon-rpc.
  */

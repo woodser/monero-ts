@@ -1,5 +1,3 @@
-const MoneroTransfer = require("./MoneroTransfer");
-
 /**
  * Configures a query to retrieve transfers.
  * 

@@ -1,8 +1,6 @@
 const Http = require('http');
 const Request = require("request-promise");
 const PromiseThrottle = require("promise-throttle");
-const MoneroUtils = require("../utils/MoneroUtils.js");
-const MoneroRpcError = require("./MoneroRpcError");
 
 /**
  * Default RPC configuration.

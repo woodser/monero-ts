@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: wallet/MoneroWalletCore.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: wallet/MoneroWalletCore.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const FS = require('fs'); 
+
+/**
+ * Implements a MoneroWallet using WebAssembly to bridge to monero-project's wallet2.
+ * 
+ * TODO: add assertNotClosed() per JNI
+ */
+class MoneroWalletCore extends MoneroWalletWasmBase {
+  
+  // --------------------------- STATIC UTILITIES -----------------------------
+  
+  static async walletExists(path) {
+    let temp = FS.existsSync(path);
+    console.log("Wallet exists at " + path + ": " + temp);
+    return FS.existsSync(path);
+  }
+  
+  // TODO: openWith(&lt;file/zip buffers>)
+  
+  static async openWallet(path, password, networkType, daemonUriOrConnection) {
+    
+    // validate and sanitize parameters
+    if (!(await MoneroWalletWasm.walletExists(path))) throw new MoneroError("Wallet does not exist at path: " + path);
+    if (networkType === undefined) throw new MoneroError("Must provide a network type");
+    MoneroNetworkType.validate(networkType);
+    let daemonConnection = daemonUriOrConnection ? (typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection) : undefined;
+    let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
+    let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
+    let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
+    
+    // read wallet files
+    let keysData = FS.readFileSync(path + ".keys");
+    let cacheData = FS.readFileSync(path);
+    
+    // return promise which is resolved on callback
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = async function(cppAddress) {
+        let wallet = new MoneroWalletWasm(cppAddress, path, password);
+        resolve(wallet);
+      };
+      
+      // create wallet in wasm and invoke callback when done
+      MoneroWalletWasm.WASM_MODULE.open_wallet("", password === undefined ? "" : password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, callbackFn);    // empty path is provided so disk writes only happen from JS
+    });
+  }
+  
+  static async createWalletRandom(path, password, networkType, daemonConnection, language) {
+    
+    // validate and sanitize params
+    if (path === undefined) path = "";
+    MoneroNetworkType.validate(networkType);
+    if (language === undefined) language = "English";
+    let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
+    let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
+    let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
+    
+    // return promise which is resolved on callback
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = async function(cppAddress) {
+        let wallet = new MoneroWalletWasm(cppAddress, path, password);
+        //await wallet.save();  // TODO
+        resolve(wallet);
+      };
+      
+      // create wallet in wasm and invoke callback when done
+      MoneroWalletWasm.WASM_MODULE.create_wallet_random("", password === undefined ? "" : password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);    // empty path is provided so disk writes only happen from JS
+    });
+  }
+  
+  // TODO: update to be consistent with createWalletRandom()
+  static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonConnection, restoreHeight) {
+    
+    // return promise which is resolved on callback
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = async function(cppAddress) {
+        let wallet = new MoneroWalletWasm(cppAddress, path, password);
+        //await wallet.save();  // TODO
+        resolve(wallet);
+      };
+      
+      // create wallet in wasm and invoke callback when done
+      let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
+      let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
+      let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
+      MoneroWalletWasm.WASM_MODULE.create_wallet_from_mnemonic("", password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, callbackFn);  // empty path is provided so disk writes only happen from JS
+    });
+  }
+  
+  // --------------------------- INSTANCE METHODS -----------------------------
+  
+  /**
+   * Internal constructor which is given the memory address of a C++ wallet
+   * instance.
+   * 
+   * This method should not be called externally but should be called through
+   * static wallet creation utilities in this class.
+   * 
+   * @param {int} cppAddress is the address of the wallet instance in C++
+   * @param {string} path is the path of the wallet instance
+   * @param {string} password is the password of the wallet instance
+   */
+  constructor(cppAddress, path, password) {
+    super(MoneroWalletCore.WASM_MODULE, cppAddress);
+    this.path = path;
+    this.password = password;
+  }
+  
+  async getPath() {
+    return this.path;
+  }
+}
+
+/**
+ * Exports a promise which resolves with a wallet class which uses a
+ * WebAssembly module.
+ */
+module.exports = async function() {
+  return new Promise(function(resolve, reject) {
+    require("../../../../build/monero-javascript")().ready.then(function(module) {
+      MoneroWalletCore.WASM_MODULE = module;
+      resolve(MoneroWalletCore);
+    }).catch(function(e) {
+      console.log("Error loading monero-javascript.wasm:", e);
+      reject(e);
+    });
+  });
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BooleanSet.html">BooleanSet</a></li><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonConnectionSpan.html">MoneroDaemonConnectionSpan</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMinerTxSum.html">MoneroMinerTxSum</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroMultisigInfo.html">MoneroMultisigInfo</a></li><li><a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a></li><li><a href="MoneroMultisigSignResult.html">MoneroMultisigSignResult</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputQuery.html">MoneroOutputQuery</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendRequest.html">MoneroSendRequest</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroTxQuery.html">MoneroTxQuery</a></li><li><a href="MoneroTxSet.html">MoneroTxSet</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroUtilsWasm.html">MoneroUtilsWasm</a></li><li><a href="MoneroVersion.html">MoneroVersion</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletCore.html">MoneroWalletCore</a></li><li><a href="MoneroWalletKeys.html">MoneroWalletKeys</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletWasmBase.html">MoneroWalletWasmBase</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ConnectionType">ConnectionType</a></li><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Dec 16 2019 13:57:36 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

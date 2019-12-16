@@ -1,5 +1,3 @@
-const MoneroOutputWallet = require("./MoneroOutputWallet");
-
 /**
  * Configures a query to retrieve wallet outputs (i.e. outputs that the wallet has or had the
  * ability to spend).

@@ -20,9 +20,6 @@
  * SOFTWARE.
  */
 
-// import daemon models
-require("./model/MoneroDaemonModel")();
-
 /**
  * Monero daemon interface and default implementations.
  */

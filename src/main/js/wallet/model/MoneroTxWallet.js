@@ -1,5 +1,3 @@
-const MoneroTx = require("../../daemon/model/MoneroTx");
-
 /**
  * Models a Monero transaction with wallet extensions.
  */
