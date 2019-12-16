@@ -238,7 +238,7 @@ set(
     "${EMCC_LINKER_FLAGS___BASE} \
 -s WASM=1 \
 -s ALLOW_MEMORY_GROWTH=1 \
---post-js ${CMAKE_CURRENT_LIST_DIR}/src/module-post.js \
+--post-js ${CMAKE_CURRENT_LIST_DIR}/src/main/js/module-post.js \
 "
     # -g \
 )
