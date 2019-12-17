@@ -1,7 +1,7 @@
 {
   "name": "monero-javascript",
   "description": "A JavaScript library for using Monero",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "license": "MIT",
   "repository": "https://github.com/monero-ecosystem/monero-javascript",
   "private": false,
@@ -25,8 +25,6 @@
   "dependencies": {
     "ajv": "^6.10.2",
     "async": "2.6.1",
-    "esdoc": "^1.1.0",
-    "esdoc-standard-plugin": "^1.0.0",
     "html5-fs": "0.1.1",
     "mocha": "^5.2.0",
     "net": "^1.0.2",
@@ -43,8 +41,10 @@
     "babel-loader": "8.0.2",
     "babel-minify": "0.4.3",
     "electron": "3.0.3",
+    "esdoc": "^1.1.0",
+    "esdoc-standard-plugin": "^1.0.0",
     "eslint": "5.6.0",
-    "webpack": "4.19.1",
+    "webpack": "^4.41.3",
     "webpack-cli": "3.1.0",
     "webpack-merge": "4.1.4",
     "worker-loader": "2.0.0"
