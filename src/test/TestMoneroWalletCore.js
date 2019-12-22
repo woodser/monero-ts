@@ -1,27 +1,27 @@
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
-let MoneroWalletWasm;	// async import before tests run
+let MoneroWalletCore;	// async import before tests run
 
 /**
  * Tests a Monero wallet using WebAssembly to bridge to monero-project's wallet2.
  */
-class TestMoneroWalletWasm extends TestMoneroWalletCommon {
+class TestMoneroWalletCore extends TestMoneroWalletCommon {
   
   constructor() {
     super(TestUtils.getDaemonRpc());
   }
   
   async getTestWallet() {
-    return TestUtils.getWalletWasm();
+    return TestUtils.getWalletCore();
   }
   
   async createRandomWallet() {
-    let wallet = await MoneroWalletWasm.createWalletRandom(TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection());
+    let wallet = await MoneroWalletCore.createWalletRandom(TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection());
     //await wallet.startSyncing();  // TODO
     return wallet;
   }
   
   async openWallet(path) {
-    let wallet = await MoneroWalletWasm.openWallet(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection());
+    let wallet = await MoneroWalletCore.openWallet(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection());
     return wallet;
   }
   
@@ -31,15 +31,27 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       
       // initialize wallet
       before(async function() {
-        MoneroWalletWasm = await require("../main/js/wallet/MoneroWalletWasm")();
-        that.wallet = await that.getTestWallet(); // TODO: update in TestMoneroWalletWasm.js
+        MoneroWalletCore = await require("../main/js/wallet/MoneroWalletCore")();
+        try {
+          that.wallet = await that.getTestWallet(); // TODO: update in TestMoneroWalletWasm.js
+        } catch (e) {
+          console.log("ERROR before!!!");
+          console.log(e.message);
+          throw e;
+        }
         TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
       });
       
       // save wallet after tests
       after(async function() {
         console.log("Saving wallet on shut down");
-        await that.wallet.save();
+        try {
+          await that.wallet.save();
+        } catch (e) {
+          console.log("ERROR after!!!");
+          console.log(e.message);
+          throw e;
+        }
       });
       
       // run tests specific to wallet wasm
@@ -432,4 +444,4 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
 //  }
 //}
 
-module.exports = TestMoneroWalletWasm;
+module.exports = TestMoneroWalletCore;

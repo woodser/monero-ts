@@ -57,7 +57,7 @@ class TestUtils {
   }
   
   /**
-   * Get singleton instance of a keys-only wallet shared among tests.
+   * Get a singleton instance of a keys-only wallet shared among tests.
    */
   static async getWalletKeys() {
     if (this.walletKeys === undefined) {
@@ -72,35 +72,36 @@ class TestUtils {
   }
   
   /**
-   * Get a singleton instance of a wallet supported by WASM.
+   * Get a singleton instance of a core wallet shared among tests.
    * 
    * TODO: this creates and syncs new wallet every time; need to save and restore json
    */
-  static async getWalletWasm() {
-    if (this.walletWasm === undefined || await this.walletWasm.isClosed()) {
+  static async getWalletCore() {
+    console.log("enter getWalletCore()");
+    if (this.walletCore === undefined || await this.walletCore.isClosed()) {
       
       // import wasm wallet module
-      const MoneroWalletWasm = await require("../../../src/main/js/wallet/MoneroWalletWasm")();
+      const MoneroWalletCore = await require("../../../src/main/js/wallet/MoneroWalletCore")();
       
       // create wallet from mnemonic phrase if it doesn't exist
-      if (!await MoneroWalletWasm.walletExists(TestUtils.WALLET_WASM_PATH_1)) {
+      if (!await MoneroWalletCore.walletExists(TestUtils.WALLET_WASM_PATH_1)) {
         let daemonConnection = new MoneroRpcConnection(TestUtils.DAEMON_RPC_URI, TestUtils.DAEMON_RPC_USERNAME, TestUtils.DAEMON_RPC_PASSWORD);
-        this.walletWasm = await MoneroWalletWasm.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT);
-        //assert.equal(await this.walletWasm.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
+        this.walletCore = await MoneroWalletCore.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT);
+        //assert.equal(await this.walletCore.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
         console.log("Synchronizing test wallet...");
-        await this.walletWasm.sync();
-        //await this.walletWasm.sync(new WalletSyncPrinter());  // TODO
-        await this.walletWasm.save(); // save progress
-        //await this.walletWasm.startSyncing();                 // TODO
+        await this.walletCore.sync();
+        //await this.walletCore.sync(new WalletSyncPrinter());  // TODO
+        await this.walletCore.save(); // save progress
+        //await this.walletCore.startSyncing();                 // TODO
       }
       
       // otherwise open existing wallet
       else {
-        this.walletWasm = await MoneroWalletWasm.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, (await TestUtils.getDaemonRpc()).getRpcConnection());
-        await this.walletWasm.sync();
-        //await this.walletWasm.save();
-        //await this.walletWasm.sync(new WalletSyncPrinter());  // TODO
-        //await this.walletWasm.startSyncing();                 // TODO
+        this.walletCore = await MoneroWalletCore.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, (await TestUtils.getDaemonRpc()).getRpcConnection());
+        await this.walletCore.sync();
+        //await this.walletCore.save();
+        //await this.walletCore.sync(new WalletSyncPrinter());  // TODO
+        //await this.walletCore.startSyncing();                 // TODO
       }
       
       // TODO: hook to save on shutdown?
@@ -114,8 +115,8 @@ class TestUtils {
 //      });
     }
     
-    // return cached wasm wallet
-    return this.walletWasm;
+    // return cached core wallet
+    return this.walletCore;
   }
   
   static testUnsignedBigInteger(num, nonZero) {

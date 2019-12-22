@@ -20,7 +20,7 @@ class MoneroWalletCore extends MoneroWalletWasmBase {
   static async openWallet(path, password, networkType, daemonUriOrConnection) {
     
     // validate and sanitize parameters
-    if (!(await MoneroWalletWasm.walletExists(path))) throw new MoneroError("Wallet does not exist at path: " + path);
+    if (!(await MoneroWalletCore.walletExists(path))) throw new MoneroError("Wallet does not exist at path: " + path);
     if (networkType === undefined) throw new MoneroError("Must provide a network type");
     MoneroNetworkType.validate(networkType);
     let daemonConnection = daemonUriOrConnection ? (typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection) : undefined;
@@ -37,12 +37,12 @@ class MoneroWalletCore extends MoneroWalletWasmBase {
       
       // define callback for wasm
       let callbackFn = async function(cppAddress) {
-        let wallet = new MoneroWalletWasm(cppAddress, path, password);
+        let wallet = new MoneroWalletCore(cppAddress, path, password);
         resolve(wallet);
       };
       
       // create wallet in wasm and invoke callback when done
-      MoneroWalletWasm.WASM_MODULE.open_wallet("", password === undefined ? "" : password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, callbackFn);    // empty path is provided so disk writes only happen from JS
+      MoneroWalletCore.WASM_MODULE.open_wallet("", password === undefined ? "" : password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, callbackFn);    // empty path is provided so disk writes only happen from JS
     });
   }
   
@@ -61,13 +61,13 @@ class MoneroWalletCore extends MoneroWalletWasmBase {
       
       // define callback for wasm
       let callbackFn = async function(cppAddress) {
-        let wallet = new MoneroWalletWasm(cppAddress, path, password);
+        let wallet = new MoneroWalletCore(cppAddress, path, password);
         //await wallet.save();  // TODO
         resolve(wallet);
       };
       
       // create wallet in wasm and invoke callback when done
-      MoneroWalletWasm.WASM_MODULE.create_wallet_random("", password === undefined ? "" : password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);    // empty path is provided so disk writes only happen from JS
+      MoneroWalletCore.WASM_MODULE.create_wallet_random("", password === undefined ? "" : password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);    // empty path is provided so disk writes only happen from JS
     });
   }
   
@@ -79,7 +79,7 @@ class MoneroWalletCore extends MoneroWalletWasmBase {
       
       // define callback for wasm
       let callbackFn = async function(cppAddress) {
-        let wallet = new MoneroWalletWasm(cppAddress, path, password);
+        let wallet = new MoneroWalletCore(cppAddress, path, password);
         //await wallet.save();  // TODO
         resolve(wallet);
       };
@@ -88,7 +88,7 @@ class MoneroWalletCore extends MoneroWalletWasmBase {
       let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
       let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
       let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
-      MoneroWalletWasm.WASM_MODULE.create_wallet_from_mnemonic("", password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, callbackFn);  // empty path is provided so disk writes only happen from JS
+      MoneroWalletCore.WASM_MODULE.create_wallet_from_mnemonic("", password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, callbackFn);  // empty path is provided so disk writes only happen from JS
     });
   }
   
