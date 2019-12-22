@@ -64,7 +64,7 @@ using namespace crypto;
 using namespace monero;
 
 /**
- * Public library interface.
+ * Implements a monero_wallet.h by wrapping wallet2.h.
  */
 namespace monero {
 
