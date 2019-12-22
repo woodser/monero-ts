@@ -158,13 +158,14 @@ To build this project's WebAssembly files from source code:
 	6. `source ./emsdk_env.sh`
 2. `cd <monero_javascript_root>`
 3. Update submodules: `./bin/update_submodules`
-4. Checkout a branch of monero-project which has [minor modifications](https://github.com/monero-project/monero/compare/master...woodser:wasm_modifications) for compatibility with emscripten:
+4. Download Boost from https://www.boost.org/users/download/ to ./external/monero-cpp-library/external/boost-sdk/
+5. Checkout a branch of monero-project which has [minor modifications](https://github.com/monero-project/monero/compare/master...woodser:wasm_modifications) for compatibility with emscripten:
 	1. `cd ./external/monero-cpp-library/external/monero-core`
 	2. `git fetch`
 	3. `git checkout wasm_modifications`
 	4. `cd ../../../../`
-5. Build Boost using emscripten: `./bin/build-boost-emscripten.h`
-6. Build WebAssembly files to ./build/: `./bin/build-emcpp.sh`
+6. Build Boost using emscripten: `./bin/build-boost-emscripten.h`
+7. Build WebAssembly files to ./build/: `./bin/build-emcpp.sh`
 
 ## See Also
 
