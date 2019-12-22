@@ -42,7 +42,7 @@ class MoneroWalletCore extends MoneroWalletWasmBase {
       };
       
       // create wallet in wasm and invoke callback when done
-      MoneroWalletCore.WASM_MODULE.open_wallet("", password === undefined ? "" : password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, callbackFn);    // empty path is provided so disk writes only happen from JS
+      MoneroWalletCore.WASM_MODULE.open_core_wallet("", password === undefined ? "" : password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, callbackFn);    // empty path is provided so disk writes only happen from JS
     });
   }
   
@@ -67,7 +67,7 @@ class MoneroWalletCore extends MoneroWalletWasmBase {
       };
       
       // create wallet in wasm and invoke callback when done
-      MoneroWalletCore.WASM_MODULE.create_wallet_random("", password === undefined ? "" : password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);    // empty path is provided so disk writes only happen from JS
+      MoneroWalletCore.WASM_MODULE.create_core_wallet_random("", password === undefined ? "" : password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);    // empty path is provided so disk writes only happen from JS
     });
   }
   
@@ -88,7 +88,7 @@ class MoneroWalletCore extends MoneroWalletWasmBase {
       let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
       let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
       let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
-      MoneroWalletCore.WASM_MODULE.create_wallet_from_mnemonic("", password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, callbackFn);  // empty path is provided so disk writes only happen from JS
+      MoneroWalletCore.WASM_MODULE.create_core_wallet_from_mnemonic("", password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, callbackFn);  // empty path is provided so disk writes only happen from JS
     });
   }
   
