@@ -77,4 +77,5 @@ module.exports = function() {
   this.MoneroWalletRpc = require("./wallet/MoneroWalletRpc");
   this.getMoneroUtilsWasm = require("./utils/MoneroUtilsWasm");     // returns a promise
   this.getMoneroWalletKeys = require("./wallet/MoneroWalletKeys");  // returns a promise
+  this.getMoneroWalletCore = require("./wallet/MoneroWalletCore");  // returns a promise
 }
