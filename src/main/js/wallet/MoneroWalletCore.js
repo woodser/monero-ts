@@ -72,7 +72,7 @@ class MoneroWalletCore extends MoneroWalletWasmBase {
   }
   
   // TODO: update to be consistent with createWalletRandom()
-  static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonConnection, restoreHeight) {
+  static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset) {
     
     // return promise which is resolved on callback
     return new Promise(function(resolve, reject) {
@@ -88,7 +88,8 @@ class MoneroWalletCore extends MoneroWalletWasmBase {
       let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
       let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
       let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
-      MoneroWalletCore.WASM_MODULE.create_core_wallet_from_mnemonic("", password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, callbackFn);  // empty path is provided so disk writes only happen from JS
+      if (seedOffset === undefined) seedOffset = "";
+      MoneroWalletCore.WASM_MODULE.create_core_wallet_from_mnemonic("", password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, seedOffset, callbackFn);  // empty path is provided so disk writes only happen from JS
     });
   }
   
