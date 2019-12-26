@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.4.1)
 
 project(monero-javascript-wasm)
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 
 #find_package(Threads)
 #find_package(Backtrace)
@@ -225,6 +225,7 @@ set (
 --llvm-lto 1 \
 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 -s ASSERTIONS=2 \
+-s USE_PTHREADS=1 \
 -s EXIT_RUNTIME=0 \
 -s PRECISE_F32=1 \
 -s DISABLE_EXCEPTION_CATCHING=0 \
@@ -260,7 +261,7 @@ set(
     EMCC_LINKER_FLAGS__WASM
     "${EMCC_LINKER_FLAGS___BASE} \
 -s WASM=1 \
--s ALLOW_MEMORY_GROWTH=1 \
+-s ALLOW_MEMORY_GROWTH=0 \
 --post-js ${CMAKE_CURRENT_LIST_DIR}/src/main/js/module-post.js \
 "
     # -g \
