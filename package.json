@@ -8,7 +8,7 @@
   "main": "src/main/js/index.js",
   "scripts": {
     "start": "todo",
-    "test": "mocha 'src/test/TestAll' --timeout 2000000"
+    "test": "node --experimental-wasm-threads --experimental-wasm-bulk-memory node_modules/mocha/bin/_mocha 'src/test/TestAll' --timeout 2000000 --exit"
   },
   "build": {
     "publish": [
