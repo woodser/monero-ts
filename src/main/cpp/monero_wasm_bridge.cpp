@@ -100,7 +100,7 @@ void monero_wasm_bridge::create_core_wallet_random(const string& path, const str
 }
 
 void monero_wasm_bridge::create_core_wallet_from_mnemonic(const string& path, const string& password, int network_type, const string& mnemonic, const string& daemon_uri, const string& daemon_username, const string& daemon_password, long restore_height, emscripten::val callback) {
-  cout << "monero_wasm_bridge::create_core_wallet_from_keys()" << endl;
+  cout << "monero_wasm_bridge::create_core_wallet_from_mnemonic()" << endl;
   //http_client_wasm* http_client = new http_client_wasm(); // TODO: this needs deleted after use
   monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
   //monero_wallet* wallet = monero_wallet_core::create_wallet_from_mnemonic(path, password, static_cast<monero_network_type>(network_type), mnemonic, daemon_connection, restore_height); // TODO: how to handle cache data?
