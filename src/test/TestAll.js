@@ -30,18 +30,9 @@ require("./TestMoneroUtilsWasm");
 //  testNotifications: true,
 //  testResets: false
 //});
-//
-//// test keys-only wallet
-//new TestMoneroWalletKeys().runTests({
-//  liteMode: false,
-//  testNonRelays: true,
-//  testRelays: false,
-//  testResets: false,
-//  testNotifications: false
-//});
 
-// test core wallet
-new TestMoneroWalletCore().runTests({
+// test keys-only wallet
+new TestMoneroWalletKeys().runTests({
   liteMode: false,
   testNonRelays: true,
   testRelays: false,
@@ -49,8 +40,17 @@ new TestMoneroWalletCore().runTests({
   testNotifications: false
 });
 
+//// test core wallet
+//new TestMoneroWalletCore().runTests({
+//  liteMode: false,
+//  testNonRelays: true,
+//  testRelays: false,
+//  testResets: false,
+//  testNotifications: false
+//});
+
 // test boolean set (data structure used by wallet to track progress)
 require("./TestBooleanSet");
-
-// test scratchpad
-require("./Scratchpad");
+//
+//// test scratchpad
+//require("./Scratchpad");
