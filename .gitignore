@@ -12,3 +12,4 @@ test_products
 /build/*
 !/build/monero-javascript.js
 !/build/monero-javascript.wasm
+!/build/monero-javascript.worker.js
