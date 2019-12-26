@@ -37,7 +37,7 @@ set(MONERO_CORE_SRC "${MONERO_CORE}/src")
 # headers
 include_directories("${MONERO_CORE_SRC}/")
 #include_directories("${MONERO_CORE_SRC}/checkpoints")
-#include_directories("${MONERO_CORE_SRC}/common")
+include_directories("${MONERO_CORE_SRC}/common")
 #include_directories("${MONERO_CORE_SRC}/crypto")
 #include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")	# DISABLED?
 #include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/sodium")	# DISABLED?
@@ -52,7 +52,7 @@ include_directories("${MONERO_CORE}/external/")
 include_directories("${MONERO_CORE}/external/easylogging++")
 include_directories("${MONERO_CORE}/external/rapidjson/include")
 #include_directories("${MONERO_CORE}/external/unbound/libunbound")
-#include_directories("${MONERO_CORE}/external/db_drivers/liblmdb")
+include_directories("${MONERO_CORE}/external/db_drivers/liblmdb")
 include_directories("${MONERO_CORE}/contrib/epee/include")
 #include_directories("${MONERO_CORE}/contrib/epee/include/net")
 
@@ -164,9 +164,18 @@ set(
     ${MONERO_CPP_SRC}/daemon/monero_daemon_model.cpp
     ${MONERO_CPP_SRC}/wallet/monero_wallet_model.cpp
     ${MONERO_CPP_SRC}/wallet/monero_wallet_keys.cpp
+    ${MONERO_CPP_SRC}/wallet/monero_wallet_core.cpp
     ${MONERO_CPP}/external/libsodium/src/crypto_verify/verify.c
     
     # monero-project (modified for WASM)
+    ${MONERO_CORE_SRC}/wallet/wallet2.cpp
+#    ${MONERO_CORE_SRC}/wallet/message_store.cpp
+#    ${MONERO_CORE_SRC}/wallet/message_transporter.cpp
+#    ${MONERO_CORE_SRC}/wallet/node_rpc_proxy.cpp
+#    ${MONERO_CORE}/external/db_drivers/liblmdb/mdb.c
+#    ${MONERO_CORE}/external/db_drivers/liblmdb/midl.c
+#    #${MONERO_CORE_SRC}/blockchain_db/lmdb/db_lmdb.cpp
+    ${MONERO_CORE_SRC}/common/perf_timer.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/account.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
@@ -295,7 +304,7 @@ target_link_libraries(
     boost_chrono
     boost_system
     boost_thread
-    #boost_serialization
+    boost_serialization
     #boost_filesystem
     #boost_regex
     #boost_atomic
