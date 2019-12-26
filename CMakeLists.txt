@@ -76,6 +76,29 @@ include_directories("${MONERO_CORE}/build/release/translations")
 #include_directories("${MYMONERO_CPP_SRC}")
 
 #############
+# OpenSSL
+#############
+
+#find_package(OpenSSL REQUIRED)
+#message(STATUS "Using OpenSSL include dir at ${OPENSSL}")
+
+set(OPENSSL ${CMAKE_SOURCE_DIR}/build/openssl)
+include_directories("${OPENSSL}")
+include_directories("${OPENSSL}/include") # must exist already - run bin/build-openssl-emscripten.sh
+
+add_library(openssl_crypto STATIC IMPORTED)
+set_target_properties(
+    openssl_crypto PROPERTIES IMPORTED_LOCATION
+    ${OPENSSL}/lib/libcrypto.a
+)
+
+add_library(openssl_ssl STATIC IMPORTED)
+set_target_properties(
+    openssl_ssl PROPERTIES IMPORTED_LOCATION
+    ${OPENSSL}/lib/libssl.a
+)
+
+#############
 # Boost
 #############
 
@@ -263,6 +286,9 @@ add_executable(monero-javascript ${SRC_FILES})
 set_target_properties(monero-javascript PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__WASM}")
 target_link_libraries(
     monero-javascript
+    #
+    openssl_crypto
+    openssl_ssl
     #
     boost_chrono
     boost_system
