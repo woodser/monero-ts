@@ -1,4 +1,7 @@
 HIGH (WASM)
+delete http client after use in monero-core and bridge
+monero_wallet_core::set_daemon_connection is_local_address() uses common/util which requires libunbound
+
 port testSyncWithPoolSubmit from java
 libsodium dependency in monero-cpp-library, why doesn't monero-project's work?
 remove the plugins dir
