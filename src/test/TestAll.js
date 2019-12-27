@@ -11,8 +11,8 @@ const TestMoneroWalletCore = require("./TestMoneroWalletCore");
 //// test sample code for readme
 //require("./TestSampleCode");
 
-// test C++ utils from monero-cpp-library using WebAssembly
-require("./TestMoneroUtilsWasm");
+//// test C++ utils from monero-cpp-library using WebAssembly
+//require("./TestMoneroUtilsWasm");
 
 //// test daemon rpc
 //new TestMoneroDaemonRpc().runTests({
