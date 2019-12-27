@@ -821,8 +821,9 @@ namespace monero {
     return wallet;
   }
 
-  monero_wallet_core* monero_wallet_core::create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& seed_offset) {
+  monero_wallet_core* monero_wallet_core::create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& seed_offset, epee::net_utils::http::abstract_http_client *http_client) {
     MTRACE("create_wallet_from_mnemonic(path, password, mnemonic, network_type, daemon_connection, restore_height)");
+    cout << "create_wallet_from_mnemonic(path, password, mnemonic, network_type, daemon_connection, restore_height)" << endl;
     monero_wallet_core* wallet = new monero_wallet_core();
 
     // validate mnemonic and get recovery key and language
@@ -836,12 +837,20 @@ namespace monero {
     if (!seed_offset.empty()) recovery_key = cryptonote::decrypt_key(recovery_key, seed_offset);
 
     // initialize wallet
-    wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
+    cout << "1" << endl;
+    if (http_client == nullptr) wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
+    else wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true, http_client));
+    cout << "2" << endl;
     wallet->set_daemon_connection(daemon_connection);
+    cout << "3" << endl;
     wallet->m_w2->set_seed_language(language);
+    cout << "4" << endl;
     wallet->m_w2->generate(path, password, recovery_key, true, false);
+    cout << "5" << endl;
     wallet->m_w2->set_refresh_from_block_height(restore_height);
+    cout << "6" << endl;
     wallet->init_common();
+    cout << "7" << endl;
     return wallet;
   }
 
@@ -922,9 +931,12 @@ namespace monero {
     // prepare uri, login, and is_trusted for wallet2
     boost::optional<epee::net_utils::http::login> login{};
     login.emplace(username, password);
-    bool is_trusted = false;
-    try { is_trusted = tools::is_local_address(uri); }	// wallet is trusted iff local
-    catch (const exception &e) { }
+    bool is_trusted = true;
+
+    // TODO: is_local_address() uses common/util which requires libunbound
+//    bool is_trusted = false;
+//    try { is_trusted = tools::is_local_address(uri); }  // wallet is trusted iff local
+//    catch (const exception &e) { }
 
     // init wallet2 and set daemon connection
     if (!m_w2->init(uri, login)) throw runtime_error("Failed to initialize wallet with daemon connection");

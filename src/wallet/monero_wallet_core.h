@@ -121,7 +121,7 @@ namespace monero {
      * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
      * @param seed_offset is the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
      */
-    static monero_wallet_core* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& seed_offset);
+    static monero_wallet_core* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& seed_offset, epee::net_utils::http::abstract_http_client *http_client = nullptr);
 
     /**
      * Create a wallet from an address, view key, and spend key.
