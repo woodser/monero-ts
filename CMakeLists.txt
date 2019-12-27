@@ -36,7 +36,7 @@ set(MONERO_CORE_SRC "${MONERO_CORE}/src")
 
 # headers
 include_directories("${MONERO_CORE_SRC}/")
-#include_directories("${MONERO_CORE_SRC}/checkpoints")
+include_directories("${MONERO_CORE_SRC}/checkpoints")
 include_directories("${MONERO_CORE_SRC}/common")
 #include_directories("${MONERO_CORE_SRC}/crypto")
 #include_directories("${MONERO_CORE_SRC}/crypto/crypto_ops_builder/include/")	# DISABLED?
@@ -158,6 +158,7 @@ set(
     # monero-javascript WASM bridge
     src/main/cpp/index.cpp
     src/main/cpp/monero_wasm_bridge.cpp
+    src/main/cpp/http_client_wasm.cpp
     
     # monero-cpp-library (modified for WASM)
     ${MONERO_CPP_SRC}/utils/monero_utils.cpp
@@ -169,16 +170,16 @@ set(
     
     # monero-project (modified for WASM)
     ${MONERO_CORE_SRC}/wallet/wallet2.cpp
-#    ${MONERO_CORE_SRC}/wallet/message_store.cpp
-#    ${MONERO_CORE_SRC}/wallet/message_transporter.cpp
-#    ${MONERO_CORE_SRC}/wallet/node_rpc_proxy.cpp
-#    ${MONERO_CORE}/external/db_drivers/liblmdb/mdb.c
-#    ${MONERO_CORE}/external/db_drivers/liblmdb/midl.c
-#    #${MONERO_CORE_SRC}/blockchain_db/lmdb/db_lmdb.cpp
-    ${MONERO_CORE_SRC}/common/perf_timer.cpp
+    ${MONERO_CORE_SRC}/wallet/message_store.cpp
+    ${MONERO_CORE_SRC}/wallet/message_transporter.cpp
+    ${MONERO_CORE_SRC}/wallet/node_rpc_proxy.cpp
+    ${MONERO_CORE}/external/db_drivers/liblmdb/mdb.c
+    ${MONERO_CORE}/external/db_drivers/liblmdb/midl.c
+    #${MONERO_CORE_SRC}/blockchain_db/lmdb/db_lmdb.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/account.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
+    ${MONERO_CORE_SRC}/checkpoints/checkpoints.cpp
     ${MONERO_CORE_SRC}/crypto/crypto.cpp
     ${MONERO_CORE_SRC}/crypto/hash.c
     ${MONERO_CORE_SRC}/crypto/slow-hash.c
@@ -200,12 +201,17 @@ set(
     ${MONERO_CORE_SRC}/crypto/jh.c
     ${MONERO_CORE_SRC}/crypto/skein.c
     ${MONERO_CORE_SRC}/cryptonote_core/cryptonote_tx_utils.cpp
+    ${MONERO_CORE_SRC}/common/perf_timer.cpp
+    ${MONERO_CORE_SRC}/common/base58.cpp
+    ${MONERO_CORE_SRC}/common/threadpool.cpp
+    ${MONERO_CORE_SRC}/common/aligned.c
+    #${MONERO_CORE_SRC}/common/util.cpp
+    #${MONERO_CORE_SRC}/common/i18n.cpp
     ${MONERO_CORE}/contrib/epee/src/hex.cpp
     ${MONERO_CORE}/contrib/epee/src/string_tools.cpp
     ${MONERO_CORE}/contrib/epee/src/memwipe.c
     ${MONERO_CORE}/contrib/epee/src/mlocker.cpp
     ${MONERO_CORE}/contrib/epee/src/wipeable_string.cpp
-    ${MONERO_CORE_SRC}/common/base58.cpp
     ${MONERO_CORE_SRC}/device/device.cpp
     ${MONERO_CORE_SRC}/device/device_default.cpp
     ${MONERO_CORE_SRC}/multisig/multisig.cpp
@@ -217,6 +223,7 @@ set(
     ${MONERO_CORE_SRC}/ringct/multiexp.cc
     ${MONERO_CORE_SRC}/mnemonics/electrum-words.cpp
     ${MONERO_CORE}/external/easylogging++/easylogging++.cc
+    ${MONERO_CORE_SRC}/wallet/ringdb.cpp
 )
 
 ####################
@@ -298,15 +305,15 @@ set_target_properties(monero-javascript PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLA
 target_link_libraries(
     monero-javascript
     #
-    openssl_crypto
-    openssl_ssl
+    #openssl_ssl
+    #openssl_crypto
     #
     boost_chrono
     boost_system
     boost_thread
     boost_serialization
     #boost_filesystem
-    #boost_regex
+    boost_regex
     #boost_atomic
     #
     ${log-lib}
