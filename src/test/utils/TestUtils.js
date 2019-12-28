@@ -1,4 +1,5 @@
 const MoneroWalletRpc = require("../../main/js/wallet/MoneroWalletRpc");
+const MoneroWalletCore = require("../../main/js/wallet/MoneroWalletCore")
 const MoneroDaemonRpc = require("../../main/js/daemon/MoneroDaemonRpc");
 
 const TxPoolWalletTracker = require("./TxPoolWalletTracker");
@@ -79,9 +80,6 @@ class TestUtils {
   static async getWalletCore() {
     console.log("enter getWalletCore()");
     if (this.walletCore === undefined || await this.walletCore.isClosed()) {
-      
-      // import wasm wallet module
-      const MoneroWalletCore = await require("../../../src/main/js/wallet/MoneroWalletCore")();
       
       // create wallet from mnemonic phrase if it doesn't exist
       if (!await MoneroWalletCore.walletExists(TestUtils.WALLET_WASM_PATH_1)) {

@@ -72,10 +72,9 @@ module.exports = function() {
   // export daemon, wallet, and utils classes
   this.MoneroDaemon = require("./daemon/MoneroDaemon");
   this.MoneroWallet = require("./wallet/MoneroWallet");
-  this.MoneroWalletWasmBase = require("./wallet/MoneroWalletWasmBase");
   this.MoneroDaemonRpc = require("./daemon/MoneroDaemonRpc");
   this.MoneroWalletRpc = require("./wallet/MoneroWalletRpc");
-  this.getMoneroUtilsWasm = require("./utils/MoneroUtilsWasm");     // returns a promise
-  this.getMoneroWalletKeys = require("./wallet/MoneroWalletKeys");  // returns a promise
-  this.getMoneroWalletCore = require("./wallet/MoneroWalletCore");  // returns a promise
+  this.MoneroWalletKeys = require("./wallet/MoneroWalletKeys");
+  this.MoneroWalletCore = require("./wallet/MoneroWalletCore");
+  this.getMoneroUtilsWasm = require("./utils/MoneroUtilsWasm"); // returns a promise
 }
