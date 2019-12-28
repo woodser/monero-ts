@@ -119,8 +119,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
     super(cppAddress);
     this.path = path;
     this.password = password;
-    this.module = MoneroUtils.WASM_MODULE;
-    if (!this.module.create_core_wallet_from_mnemonic) throw new Error("WASM module not loaded - create wallet instance using static utilities");  // static utilites pre-load wasm module
   }
   
   async getPath() {
@@ -587,11 +585,9 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async close(save) {
-    if (save) await this.save();
+    await super.close(save);
     delete this.path;
     delete this.password;
-    this.module.close(this.cppAddress);
-    delete this.cppAddress;
   }
   
   // ---------------------------- PRIVATE HELPERS ----------------------------

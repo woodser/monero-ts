@@ -3,7 +3,7 @@ const FS = require('fs');
 /**
  * Implements a MoneroWallet which only manages keys using WebAssembly.
  */
-class MoneroWalletKeys {
+class MoneroWalletKeys extends MoneroWallet {
   
   // --------------------------- STATIC UTILITIES -----------------------------
   
@@ -12,6 +12,9 @@ class MoneroWalletKeys {
     // validate and sanitize params
     MoneroNetworkType.validate(networkType);
     if (language === undefined) language = "English";
+    
+    // load wasm module
+    let module = await MoneroUtils.getWasmModule();
     
     // return promise which is resolved on callback
     return new Promise(function(resolve, reject) {
@@ -22,7 +25,7 @@ class MoneroWalletKeys {
       };
       
       // create wallet in wasm and invoke callback when done
-      MoneroWalletKeys.WASM_MODULE.create_keys_wallet_random(networkType, language, callbackFn);
+      module.create_keys_wallet_random(networkType, language, callbackFn);
     });
   }
   
@@ -33,6 +36,9 @@ class MoneroWalletKeys {
     if (mnemonic === undefined) throw Error("Must define mnemonic phrase to create wallet from");
     if (seedOffset === undefined) seedOffset = "";
     
+    // load wasm module
+    let module = await MoneroUtils.getWasmModule();
+    
     // return promise which is resolved on callback
     return new Promise(function(resolve, reject) {
       
@@ -42,7 +48,7 @@ class MoneroWalletKeys {
       };
       
       // create wallet in wasm and invoke callback when done
-      MoneroWalletKeys.WASM_MODULE.create_keys_wallet_from_mnemonic(networkType, mnemonic, seedOffset, callbackFn);
+      module.create_keys_wallet_from_mnemonic(networkType, mnemonic, seedOffset, callbackFn);
     });
   }
   
@@ -55,6 +61,9 @@ class MoneroWalletKeys {
     if (privateSpendKey === undefined) privateSpendKey = "";
     if (language === undefined) language = "English";
     
+    // load wasm module
+    let module = await MoneroUtils.getWasmModule();
+    
     // return promise which is resolved on callback
     return new Promise(function(resolve, reject) {
       
@@ -65,7 +74,7 @@ class MoneroWalletKeys {
       };
       
       // create wallet in wasm and invoke callback when done
-      MoneroWalletKeys.WASM_MODULE.create_keys_wallet_from_keys(networkType, address, privateViewKey, privateSpendKey, language, callbackFn);
+      module.create_keys_wallet_from_keys(networkType, address, privateViewKey, privateSpendKey, language, callbackFn);
     });
   }
   
@@ -85,12 +94,10 @@ class MoneroWalletKeys {
    * @param {int} cppAddress is the address of the wallet instance in C++
    */
   constructor(cppAddress) {
+    super();
     this.cppAddress = cppAddress;
-  }
-  
-  async loadModule() {
-    if (MoneroWalletKeys.MODULE === undefined) MoneroWalletKeys.MODULE = await require("../../../../build/monero-javascript");
-    this.module = MoneroWalletKeys.MODULE;
+    this.module = MoneroUtils.WASM_MODULE;
+    if (!this.module.create_core_wallet_from_mnemonic) throw new Error("WASM module not loaded - create wallet instance using static utilities");  // static utilites pre-load wasm module
   }
   
   async getVersion() {
@@ -148,6 +155,12 @@ class MoneroWalletKeys {
   
   // getIntegratedAddress(paymentId)
   // decodeIntegratedAddress
+  
+  async close(save) {
+    if (save) await this.save();
+    this.module.close(this.cppAddress);
+    delete this.cppAddress;
+  }
 }
 
 module.exports = MoneroWalletKeys;

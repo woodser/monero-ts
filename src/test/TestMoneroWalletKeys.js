@@ -1,5 +1,5 @@
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
-let MoneroWalletKeys; // async import before tests run
+const MoneroWalletKeys = require("../main/js/wallet/MoneroWalletKeys");
 
 /**
  * Tests the implementation of MoneroWallet which only manages keys using WebAssembly.
@@ -40,7 +40,6 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
       
       // initialize wallet
       before(async function() {
-        MoneroWalletKeys = await require("../main/js/wallet/MoneroWalletKeys")();
         that.wallet = await TestUtils.getWalletKeys();
       });
       
