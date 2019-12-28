@@ -1,4 +1,5 @@
 HIGH (WASM)
+replace MoneroWalletWasmBase with MoneroWalletKeys?
 delete http client after use in monero-core and bridge
 monero_wallet_core::set_daemon_connection is_local_address() uses common/util which requires libunbound
 
