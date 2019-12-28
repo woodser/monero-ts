@@ -1,6 +1,7 @@
-const MoneroWalletRpc = require("../../main/js/wallet/MoneroWalletRpc");
-const MoneroWalletCore = require("../../main/js/wallet/MoneroWalletCore")
 const MoneroDaemonRpc = require("../../main/js/daemon/MoneroDaemonRpc");
+const MoneroWalletRpc = require("../../main/js/wallet/MoneroWalletRpc");
+const MoneroWalletKeys = require("../../main/js/wallet/MoneroWalletKeys");
+const MoneroWalletCore = require("../../main/js/wallet/MoneroWalletCore")
 
 const TxPoolWalletTracker = require("./TxPoolWalletTracker");
 
@@ -62,9 +63,6 @@ class TestUtils {
    */
   static async getWalletKeys() {
     if (this.walletKeys === undefined) {
-      
-      // import keys-only wallet module
-      const MoneroWalletKeys = await require("../../../src/main/js/wallet/MoneroWalletKeys")();
       
       // create wallet from mnemonic
       this.walletKeys = MoneroWalletKeys.createWalletFromMnemonic(TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC);
