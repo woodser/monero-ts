@@ -1,3 +1,5 @@
+const FS = require('fs'); 
+
 /**
  * Base implementation for implementations of MoneroWallet which use a WebAssembly binding.
  */
@@ -90,7 +92,7 @@ class MoneroWalletWasmBase extends MoneroWallet {
       
       // define callback for wasm
       let callbackFn = function(resp) {
-        console.log("MoneroWaleltWasmBase callback called!");
+        console.log("MoneroWalletWasmBase callback called!");
         console.log(resp);
         let respJson = JSON.parse(resp);
         let result = new MoneroSyncResult(respJson.numBlocksFetched, respJson.receivedMoney);
