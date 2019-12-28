@@ -23,10 +23,7 @@ namespace epee
       public:
         http_client_wasm() : m_user(boost::none), m_is_connected(false), m_response_info() {}
         ~http_client_wasm() {}
-        //bool set_server(const std::string& address, boost::optional<login> user, ssl_options_t ssl_options = ssl_support_t::e_ssl_support_autodetect) override;
         void set_server(std::string host, std::string port, boost::optional<login> user, ssl_options_t ssl_options = ssl_support_t::e_ssl_support_autodetect) override;
-        //void set_server(string host, string port, boost::optional<login> login) override;
-        //bool set_server(const std::string& address, boost::optional<login> user, ssl_options_t ssl_options = ssl_support_t::e_ssl_support_autodetect) override;
         void set_auto_connect(bool auto_connect) override;
         bool connect(std::chrono::milliseconds timeout) override;
         bool disconnect() override;

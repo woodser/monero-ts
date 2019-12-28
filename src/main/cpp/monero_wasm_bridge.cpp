@@ -106,7 +106,6 @@ void monero_wasm_bridge::create_core_wallet_from_mnemonic(const string& path, co
   monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
   monero_wallet* wallet = monero_wallet_core::create_wallet_from_mnemonic("", "", static_cast<monero_network_type>(network_type), mnemonic, daemon_connection, restore_height, seed_offset, http_client);
   callback((int) wallet); // invoke callback with wallet address
-  throw runtime_error("monero_wasm_bridge::create_core_wallet_from_mnemonic()");
 }
 
 void monero_wasm_bridge::create_core_wallet_from_keys(const string& path, const string& password, int network_type, const string& address, const string& view_key, const string& spend_key, const string& language, emscripten::val callback) {

@@ -51,10 +51,10 @@ include_directories("${MONERO_CORE_SRC}/cryptonote_basic")
 include_directories("${MONERO_CORE}/external/")
 include_directories("${MONERO_CORE}/external/easylogging++")
 include_directories("${MONERO_CORE}/external/rapidjson/include")
-#include_directories("${MONERO_CORE}/external/unbound/libunbound")
+include_directories("${MONERO_CORE}/external/unbound/libunbound")
 include_directories("${MONERO_CORE}/external/db_drivers/liblmdb")
 include_directories("${MONERO_CORE}/contrib/epee/include")
-#include_directories("${MONERO_CORE}/contrib/epee/include/net")
+include_directories("${MONERO_CORE}/contrib/epee/include/net")
 
 #include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 #include_directories("${MONERO_CORE_SRC}/wallet/api")
@@ -173,6 +173,7 @@ set(
     ${MONERO_CORE_SRC}/wallet/message_store.cpp
     ${MONERO_CORE_SRC}/wallet/message_transporter.cpp
     ${MONERO_CORE_SRC}/wallet/node_rpc_proxy.cpp
+    ${MONERO_CORE_SRC}/wallet/wallet_rpc_payments.cpp
     ${MONERO_CORE}/external/db_drivers/liblmdb/mdb.c
     ${MONERO_CORE}/external/db_drivers/liblmdb/midl.c
     #${MONERO_CORE_SRC}/blockchain_db/lmdb/db_lmdb.cpp
@@ -205,9 +206,10 @@ set(
     ${MONERO_CORE_SRC}/common/base58.cpp
     ${MONERO_CORE_SRC}/common/threadpool.cpp
     ${MONERO_CORE_SRC}/common/aligned.c
-    #${MONERO_CORE_SRC}/common/util.cpp
-    #${MONERO_CORE_SRC}/common/i18n.cpp
+    ${MONERO_CORE_SRC}/common/util.cpp
+    ${MONERO_CORE_SRC}/common/i18n.cpp
     ${MONERO_CORE}/contrib/epee/src/hex.cpp
+    #${MONERO_CORE}/contrib/epee/src/http_auth.cpp
     ${MONERO_CORE}/contrib/epee/src/string_tools.cpp
     ${MONERO_CORE}/contrib/epee/src/memwipe.c
     ${MONERO_CORE}/contrib/epee/src/mlocker.cpp
@@ -215,6 +217,7 @@ set(
     ${MONERO_CORE_SRC}/device/device.cpp
     ${MONERO_CORE_SRC}/device/device_default.cpp
     ${MONERO_CORE_SRC}/multisig/multisig.cpp
+    ${MONERO_CORE_SRC}/rpc/rpc_payment_signature.cpp
     ${MONERO_CORE_SRC}/ringct/rctOps.cpp
     ${MONERO_CORE_SRC}/ringct/rctTypes.cpp
     ${MONERO_CORE_SRC}/ringct/rctCryptoOps.c
@@ -268,7 +271,7 @@ set(
 -Os \
 --separate-asm \
 -s AGGRESSIVE_VARIABLE_ELIMINATION=1 \
--s ALLOW_MEMORY_GROWTH=0 \
+-s ALLOW_MEMORY_GROWTH=1 \
 --memory-init-file 0 \
 "
     # --memory-init-file is explicitly set to 0 because optimization level is Oz, and some clients like React Native have trouble loading .mem files
@@ -281,6 +284,7 @@ set(
     "${EMCC_LINKER_FLAGS___BASE} \
 -s WASM=1 \
 -s ALLOW_MEMORY_GROWTH=0 \
+-s TOTAL_MEMORY=512MB \
 --post-js ${CMAKE_CURRENT_LIST_DIR}/src/main/js/module-post.js \
 "
     # -g \

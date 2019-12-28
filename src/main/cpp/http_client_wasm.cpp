@@ -10,6 +10,7 @@ using namespace std;
 // TODO: factor js code to js file, possible use by MoneroRpcConnection, or change MoneroRpcConnection interface
 
 EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, const char* body, std::chrono::milliseconds timeout), {
+  //console.log("EM_JS js_send_json_request(" + UTF8ToString(uri) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
 
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
@@ -66,6 +67,7 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, c
     // send throttled request
     let wakeUpCalled = false;
     _throttledRequest(opts).then(resp => {
+      //console.log("RESPONSE:");
       //console.log(JSON.stringify(resp));
 
       // replace 16 or more digits with strings and parse
@@ -87,9 +89,9 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, c
       wakeUpCalled = true;
       wakeUp(ptr);
     }).catch(err => {
-      if (wakeUpCalled) throw Error("Error caught in JS after previously calling wakeUp(): " + err);
       console.log("ERROR!!!");
       console.log(err);
+      if (wakeUpCalled) throw Error("Error caught in JS after previously calling wakeUp(): " + err);
       let str = err.message ? err.message : ("" + err);
       let lengthBytes = Module.lengthBytesUTF8(str) + 1;
       let ptr = Module._malloc(lengthBytes);
@@ -100,6 +102,7 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, c
 });
 
 EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method, const char* body, int body_length, std::chrono::milliseconds timeout), {
+  //console.log("EM_JS js_send_binary_request(" + UTF8ToString(uri) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
 
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
@@ -124,7 +127,7 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
     let fullUri = "http://localhost:38081" + UTF8ToString(uri);
 
     // fetch MoneroCppUtils to convert from json to binary
-    MoneroUtils.getCppUtils().then(MoneroCppUtils => {
+    MoneroUtils.getUtilsWasm().then(MoneroUtilsWasm => {
 
       let ptr = body;
       let length = body_length;
@@ -222,9 +225,6 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
   });
 });
 
-//bool http_client_wasm::set_server(const std::string& address, boost::optional<login> user, ssl_options_t ssl_options) {
-//
-//}
 
 void http_client_wasm::set_server(std::string host, std::string port, boost::optional<login> user, ssl_options_t ssl_options) {
   disconnect();
@@ -388,7 +388,7 @@ bool http_client_wasm::invoke_binary(const boost::string_ref uri, const boost::s
 }
 
 bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
-  //cout << "invoke(" << uri << ", " << method << ", ...)" << endl;
+  cout << "invoke(" << uri << ", " << method << ", ...)" << endl;
 
   // return false if unconnected
   if (!is_connected()) {
