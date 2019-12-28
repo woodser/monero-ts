@@ -3187,6 +3187,19 @@ namespace monero {
     }
   }
 
+  /**
+   * Wallet import and export using buffers and not the file system.
+   */
+  std::string monero_wallet_core::get_address_file_buffer() {
+    return m_w2->get_address_file_buffer();
+  }
+  std::string monero_wallet_core::get_keys_file_buffer(const epee::wipeable_string& password, bool watch_only) {
+    return m_w2->get_keys_file_buffer(password, watch_only);
+  }
+  std::string monero_wallet_core::get_cache_file_buffer(const epee::wipeable_string& password) {
+    return m_w2->get_cache_file_buffer(password);
+  }
+
   // ------------------------------- PRIVATE HELPERS ----------------------------
 
   void monero_wallet_core::init_common() {

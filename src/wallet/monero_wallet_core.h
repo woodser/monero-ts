@@ -265,6 +265,13 @@ namespace monero {
     void move_to(string path, string password);
     void close(bool save = false);
 
+    /**
+     * Wallet import and export using buffers and not the file system.
+     */
+    std::string get_address_file_buffer();
+    std::string get_keys_file_buffer(const epee::wipeable_string& password, bool watch_only);
+    std::string get_cache_file_buffer(const epee::wipeable_string& password);
+
     // --------------------------------- PRIVATE --------------------------------
 
   private:
