@@ -49,8 +49,8 @@ new TestMoneroWalletCore().runTests({
   testNotifications: false
 });
 
-// test boolean set (data structure used by wallet to track progress)
-require("./TestBooleanSet");
+//// test boolean set (data structure used by wallet to track progress)
+//require("./TestBooleanSet");
 //
 //// test scratchpad
 //require("./Scratchpad");
