@@ -1,5 +1,5 @@
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
-let MoneroWalletCore;	// async import before tests run
+const MoneroWalletCore = require("../main/js/wallet/MoneroWalletCore");
 
 /**
  * Tests a Monero wallet using WebAssembly to bridge to monero-project's wallet2.
@@ -31,7 +31,6 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       
       // initialize wallet
       before(async function() {
-        MoneroWalletCore = await require("../main/js/wallet/MoneroWalletCore")();
         try {
           that.wallet = await that.getTestWallet(); // TODO: update in TestMoneroWalletWasm.js
         } catch (e) {

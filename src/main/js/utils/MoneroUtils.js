@@ -4,6 +4,14 @@
 class MoneroUtils {
   
   /**
+   * Loads the WebAssembly module one time.
+   */
+  static async getWasmModule() {
+    if (MoneroUtils.WASM_MODULE === undefined) MoneroUtils.WASM_MODULE = await require("../../../../build/monero-javascript")().ready;
+    return MoneroUtils.WASM_MODULE;
+  }
+  
+  /**
    * Get a utility class which uses WebAssembly to access C++ utilities in the monero-cpp-library submodule.
    */
   static async getUtilsWasm() {

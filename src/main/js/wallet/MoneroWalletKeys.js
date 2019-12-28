@@ -3,7 +3,7 @@ const FS = require('fs');
 /**
  * Implements a MoneroWallet which only manages keys using WebAssembly.
  */
-class MoneroWalletKeys extends MoneroWalletWasmBase {
+class MoneroWalletKeys {
   
   // --------------------------- STATIC UTILITIES -----------------------------
   
@@ -85,32 +85,69 @@ class MoneroWalletKeys extends MoneroWalletWasmBase {
    * @param {int} cppAddress is the address of the wallet instance in C++
    */
   constructor(cppAddress) {
-    super(MoneroWalletKeys.WASM_MODULE, cppAddress);
+    this.cppAddress = cppAddress;
   }
   
-  // throw errors here because cannot catch WASM errors // TODO: catch WASM errors somehow
-
-  getAccounts() {
-    throw new Error("MoneroWalletKeys does not support getting an enumerable set of accounts; query specific accounts");
+  async loadModule() {
+    if (MoneroWalletKeys.MODULE === undefined) MoneroWalletKeys.MODULE = await require("../../../../build/monero-javascript");
+    this.module = MoneroWalletKeys.MODULE;
+  }
+  
+  async getVersion() {
+    let versionStr = this.module.get_version(this.cppAddress);
+    let versionJson = JSON.parse(versionStr);
+    return new MoneroVersion(versionJson.number, versionJson.isRelease);
   }
   
   getPath() {
     throw new Error("MoneroWalletKeys does not support a persisted path");
   }
+  
+  async getMnemonic() {
+    return this.module.get_mnemonic(this.cppAddress);
+  }
+  
+  async getMnemonicLanguage() {
+    return this.module.get_mnemonic_language(this.cppAddress);
+  }
+  
+  async getMnemonicLanguages() {
+    return JSON.parse(this.module.get_mnemonic_languages(this.cppAddress)); // TODO: return native vector<string> in c++
+  }
+  
+  async getPrivateSpendKey() {
+    let privateSpendKey = this.module.get_private_spend_key(this.cppAddress);
+    return privateSpendKey ? privateSpendKey : undefined;
+  }
+  
+  async getPrivateViewKey() {
+    return this.module.get_private_view_key(this.cppAddress);
+  }
+  
+  async getPublicViewKey() {
+    return this.module.get_public_view_key(this.cppAddress);
+  }
+  
+  async getPublicSpendKey() {
+    return this.module.get_public_spend_key(this.cppAddress);
+  }
+  
+  async getAddress(accountIdx, subaddressIdx) {
+    assert(typeof accountIdx === "number");
+    return this.module.get_address(this.cppAddress, accountIdx, subaddressIdx);
+  }
+  
+  async getAddressIndex(address) {
+    let subaddressJson = JSON.parse(this.module.get_address_index(this.cppAddress, address));
+    return new MoneroSubaddress(subaddressJson);
+  }
+  
+  getAccounts() {
+    throw new Error("MoneroWalletKeys does not support getting an enumerable set of accounts; query specific accounts");
+  }
+  
+  // getIntegratedAddress(paymentId)
+  // decodeIntegratedAddress
 }
 
-/**
- * Exports a promise which resolves with a wallet class which uses a
- * WebAssembly module.
- */
-module.exports = async function() {
-  return new Promise(function(resolve, reject) {
-    require("../../../../build/monero-javascript")().ready.then(function(module) {
-      MoneroWalletKeys.WASM_MODULE = module;
-      resolve(MoneroWalletKeys);
-    }).catch(function(e) {
-      console.log("Error loading monero-javascript.wasm:", e);
-      reject(e);
-    });
-  });
-}
+module.exports = MoneroWalletKeys;
