@@ -492,47 +492,47 @@ void monero_wasm_bridge::close(int handle) {
   return wallet->close();
 }
 
-//string monero_wasm_bridge::get_address_file_buffer(int handle) {
-//  monero_wallet* wallet = (monero_wallet*) handle;
-//  return wallet->get_address_file_buffer();
-//}
-//
-//string monero_wasm_bridge::get_keys_file_buffer(int handle, string password, bool watch_only) {
-//
-//  // get wallet
-//  monero_wallet* wallet = (monero_wallet*) handle;
-//
-//  // get keys buffer
-//  string keys_buf = wallet->get_keys_file_buffer(password, watch_only);
-//
-//  // copy keys buffer to heap and keep pointer
-//  std::string* keys_buf_ptr = new std::string(keys_buf.c_str(), keys_buf.length());
-//
-//  // serialize buffer's pointer and length
-//  rapidjson::Document doc;
-//  doc.SetObject();
-//  rapidjson::Value value;
-//  doc.AddMember("pointer", rapidjson::Value().SetUint64(reinterpret_cast<long>(keys_buf_ptr->c_str())), doc.GetAllocator());
-//  doc.AddMember("length", rapidjson::Value().SetUint64(keys_buf_ptr->length()), doc.GetAllocator());
-//  return monero_utils::serialize(doc);
-//}
-//
-//string monero_wasm_bridge::get_cache_file_buffer(int handle, string password) {
-//
-//  // get wallet
-//  monero_wallet* wallet = (monero_wallet*) handle;
-//
-//  // get cache buffer
-//  string cache_buf = wallet->get_cache_file_buffer(password);
-//
-//  // copy cache buffer to heap and keep pointer
-//  std::string* cache_buf_ptr = new std::string(cache_buf.c_str(), cache_buf.length());
-//
-//  // serialize buffer's pointer and length
-//  rapidjson::Document doc;
-//  doc.SetObject();
-//  rapidjson::Value value;
-//  doc.AddMember("pointer", rapidjson::Value().SetUint64(reinterpret_cast<long>(cache_buf_ptr->c_str())), doc.GetAllocator());
-//  doc.AddMember("length", rapidjson::Value().SetUint64(cache_buf_ptr->length()), doc.GetAllocator());
-//  return monero_utils::serialize(doc);
-//}
+string monero_wasm_bridge::get_address_file_buffer(int handle) {
+  monero_wallet_core* wallet = (monero_wallet_core*) handle;
+  return wallet->get_address_file_buffer();
+}
+
+string monero_wasm_bridge::get_keys_file_buffer(int handle, string password, bool watch_only) {
+
+  // get wallet
+  monero_wallet_core* wallet = (monero_wallet_core*) handle;
+
+  // get keys buffer
+  string keys_buf = wallet->get_keys_file_buffer(password, watch_only);
+
+  // copy keys buffer to heap and keep pointer
+  std::string* keys_buf_ptr = new std::string(keys_buf.c_str(), keys_buf.length());
+
+  // serialize buffer's pointer and length
+  rapidjson::Document doc;
+  doc.SetObject();
+  rapidjson::Value value;
+  doc.AddMember("pointer", rapidjson::Value().SetUint64(reinterpret_cast<long>(keys_buf_ptr->c_str())), doc.GetAllocator());
+  doc.AddMember("length", rapidjson::Value().SetUint64(keys_buf_ptr->length()), doc.GetAllocator());
+  return monero_utils::serialize(doc);
+}
+
+string monero_wasm_bridge::get_cache_file_buffer(int handle, string password) {
+
+  // get wallet
+  monero_wallet_core* wallet = (monero_wallet_core*) handle;
+
+  // get cache buffer
+  string cache_buf = wallet->get_cache_file_buffer(password);
+
+  // copy cache buffer to heap and keep pointer
+  std::string* cache_buf_ptr = new std::string(cache_buf.c_str(), cache_buf.length());
+
+  // serialize buffer's pointer and length
+  rapidjson::Document doc;
+  doc.SetObject();
+  rapidjson::Value value;
+  doc.AddMember("pointer", rapidjson::Value().SetUint64(reinterpret_cast<long>(cache_buf_ptr->c_str())), doc.GetAllocator());
+  doc.AddMember("length", rapidjson::Value().SetUint64(cache_buf_ptr->length()), doc.GetAllocator());
+  return monero_utils::serialize(doc);
+}
