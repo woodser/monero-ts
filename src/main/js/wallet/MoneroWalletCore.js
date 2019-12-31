@@ -18,6 +18,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   // TODO: openWith(<file/zip buffers>)
   
   static async openWallet(path, password, networkType, daemonUriOrConnection) {
+    console.log("MoneroWalletCore.openWallet()");
     
     // validate and sanitize parameters
     if (!(await MoneroWalletCore.walletExists(path))) throw new MoneroError("Wallet does not exist at path: " + path);
@@ -98,7 +99,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
       let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
       if (seedOffset === undefined) seedOffset = "";
-      module.create_core_wallet_from_mnemonic("", password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, seedOffset, callbackFn);  // empty path is provided so disk writes only happen from JS
+      module.create_core_wallet_from_mnemonic("", password === undefined ? "" : password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, seedOffset, callbackFn);  // empty path is provided so disk writes only happen from JS
     });
   }
   
@@ -545,13 +546,13 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
 
   async save() {
-    
+        
     // path must be set
     let path = await this.getPath();
     if (path === "") throw new MoneroError("Wallet path is not set");
     
     // write address file
-    FS.writeFileSync(path + "_address.txt", this.module.get_address_file_buffer(this.cppAddress));
+    FS.writeFileSync(path + "_address.txt", await this.getPrimaryAddress());
     
     // malloc keys buffer and get buffer location in c++ heap
     let keysBufferLoc = JSON.parse(this.module.get_keys_file_buffer(this.cppAddress, this.password, false));
