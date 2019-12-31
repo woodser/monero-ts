@@ -58,6 +58,8 @@
 #include "mnemonics/electrum-words.h"
 #include "mnemonics/english.h"
 #include "wallet/wallet_rpc_server_commands_defs.h"
+#include "serialization/binary_utils.h"
+#include "serialization/string.h"
 
 #ifdef WIN32
 #include <boost/locale.hpp>
@@ -65,7 +67,6 @@
 #endif
 
 using namespace std;
-using namespace epee;
 using namespace tools;
 
 /**
@@ -96,9 +97,9 @@ namespace monero {
     shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
     tx->m_block = block;
     block->m_txs.push_back(tx);
-    tx->m_hash = string_tools::pod_to_hex(pd.m_tx_hash);
+    tx->m_hash = epee::string_tools::pod_to_hex(pd.m_tx_hash);
     tx->m_is_incoming = true;
-    tx->m_payment_id = string_tools::pod_to_hex(payment_id);
+    tx->m_payment_id = epee::string_tools::pod_to_hex(payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_time = pd.m_unlock_time;
@@ -149,9 +150,9 @@ namespace monero {
     shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
     tx->m_block = block;
     block->m_txs.push_back(tx);
-    tx->m_hash = string_tools::pod_to_hex(txid);
+    tx->m_hash = epee::string_tools::pod_to_hex(txid);
     tx->m_is_outgoing = true;
-    tx->m_payment_id = string_tools::pod_to_hex(pd.m_payment_id);
+    tx->m_payment_id = epee::string_tools::pod_to_hex(pd.m_payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_time = pd.m_unlock_time;
@@ -217,9 +218,9 @@ namespace monero {
     // construct tx
     const tools::wallet2::payment_details &pd = ppd.m_pd;
     shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
-    tx->m_hash = string_tools::pod_to_hex(pd.m_tx_hash);
+    tx->m_hash = epee::string_tools::pod_to_hex(pd.m_tx_hash);
     tx->m_is_incoming = true;
-    tx->m_payment_id = string_tools::pod_to_hex(payment_id);
+    tx->m_payment_id = epee::string_tools::pod_to_hex(payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_time = pd.m_unlock_time;
@@ -259,9 +260,9 @@ namespace monero {
     // construct tx
     shared_ptr<monero_tx_wallet> tx = make_shared<monero_tx_wallet>();
     tx->m_is_failed = pd.m_state == tools::wallet2::unconfirmed_transfer_details::failed;
-    tx->m_hash = string_tools::pod_to_hex(txid);
+    tx->m_hash = epee::string_tools::pod_to_hex(txid);
     tx->m_is_outgoing = true;
-    tx->m_payment_id = string_tools::pod_to_hex(pd.m_payment_id);
+    tx->m_payment_id = epee::string_tools::pod_to_hex(pd.m_payment_id);
     if (tx->m_payment_id->substr(16).find_first_not_of('0') == std::string::npos) tx->m_payment_id = tx->m_payment_id->substr(0, 16);  // TODO monero core: this should be part of core wallet
     if (tx->m_payment_id == monero_tx::DEFAULT_PAYMENT_ID) tx->m_payment_id = boost::none;  // clear default payment id
     tx->m_unlock_time = pd.m_tx.unlock_time;
@@ -807,11 +808,25 @@ namespace monero {
     return wallet;
   }
 
+  monero_wallet_core* monero_wallet_core::open_wallet(const string& password, const monero_network_type network_type, const string& keys_buffer, const string& cache_buffer, const monero_rpc_connection& daemon_connection, epee::net_utils::http::abstract_http_client* http_client) {
+    MTRACE("open_wallet(...buffers...)");
+    cout << "open_wallet(...buffers...)" << endl;
+    monero_wallet_core* wallet = new monero_wallet_core();
+    if (http_client == nullptr) wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
+    else wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true, http_client));
+    wallet->m_w2->load("", password, keys_buffer, cache_buffer);
+    wallet->m_w2->init("");
+    wallet->set_daemon_connection(daemon_connection);
+    wallet->init_common();
+    return wallet;
+  }
+
   // TODO: ensure that wallet does not already exist
-  monero_wallet_core* monero_wallet_core::create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const string& language) {
+  monero_wallet_core* monero_wallet_core::create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const string& language, epee::net_utils::http::abstract_http_client *http_client) {
     MTRACE("create_wallet_random(path, password, network_type, daemon_connection, language)");
     monero_wallet_core* wallet = new monero_wallet_core();
-    wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
+    if (http_client == nullptr) wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
+    else wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true, http_client));
     wallet->set_daemon_connection(daemon_connection);
     wallet->m_w2->set_seed_language(language);
     crypto::secret_key secret_key;
@@ -3172,6 +3187,22 @@ namespace monero {
     m_w2->store_to(path, password);
   }
 
+  std::string monero_wallet_core::get_keys_file_buffer(const epee::wipeable_string& password, bool watch_only) {
+    wallet2::keys_file_data keys_file_data = {};
+    bool r = m_w2->get_keys_file_data(password, watch_only, keys_file_data);
+    std::string buf;
+    ::serialization::dump_binary(keys_file_data, buf);
+    return buf;
+  }
+
+  std::string monero_wallet_core::get_cache_file_buffer(const epee::wipeable_string& password) {
+    wallet2::cache_file_data cache_file_data;
+    bool r = m_w2->get_cache_file_data(password, cache_file_data);
+    std::string buf;
+    ::serialization::dump_binary(cache_file_data, buf);
+    return buf;
+  }
+
   void monero_wallet_core::close(bool save) {
     MTRACE("close()");
     if (save) this->save();
@@ -3185,19 +3216,6 @@ namespace monero {
       m_sync_cv.notify_one();
       m_syncing_thread.join();
     }
-  }
-
-  /**
-   * Wallet import and export using buffers and not the file system.
-   */
-  std::string monero_wallet_core::get_address_file_buffer() {
-    return m_w2->get_address_file_buffer();
-  }
-  std::string monero_wallet_core::get_keys_file_buffer(const epee::wipeable_string& password, bool watch_only) {
-    return m_w2->get_keys_file_buffer(password, watch_only);
-  }
-  std::string monero_wallet_core::get_cache_file_buffer(const epee::wipeable_string& password) {
-    return m_w2->get_cache_file_buffer(password);
   }
 
   // ------------------------------- PRIVATE HELPERS ----------------------------

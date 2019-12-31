@@ -60,8 +60,6 @@
 #include <boost/thread/condition_variable.hpp>
 
 using namespace std;
-using namespace crypto;
-using namespace monero;
 
 /**
  * Implements a monero_wallet.h by wrapping wallet2.h.
@@ -100,6 +98,21 @@ namespace monero {
     static monero_wallet_core* open_wallet(const string& path, const string& password, const monero_network_type network_type);
 
     /**
+     * Open an existing wallet.
+     *
+     * TODO: combine into one open_wallet()?
+     *
+     * @param password is the password of the wallet file to open
+     * @param network_type is the wallet's network type
+     * @param keys_data contains the contents of the ".keys" file
+     * @param cache_data contains the contents of the wallet cache file (no extension)
+     * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
+     * @param http_client makes network requests
+     * @return a pointer to the opened wallet
+     */
+    static monero_wallet_core* open_wallet(const string& password, const monero_network_type, const string& keys_data, const string& cache_data, const monero_rpc_connection& daemon_connection, epee::net_utils::http::abstract_http_client* http_client = nullptr);
+
+    /**
      * Create a new wallet with a randomly generated seed.
      *
      * @param path is the path to create the wallet
@@ -108,7 +121,7 @@ namespace monero {
      * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
      * @param language is the wallet and mnemonic's language (default = "English")
      */
-    static monero_wallet_core* create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const string& language = "English");
+    static monero_wallet_core* create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const string& language = "English", epee::net_utils::http::abstract_http_client *http_client = nullptr);
 
     /**
      * Create a wallet from an existing mnemonic phrase.

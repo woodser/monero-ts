@@ -50,6 +50,8 @@
  * Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
  */
 
+#pragma once
+
 #ifndef monero_utils_h
 #define monero_utils_h
 
