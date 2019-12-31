@@ -106,10 +106,9 @@ EMSCRIPTEN_BINDINGS(module)
 //  emscripten::function("sign_multisig_tx_hex", &monero_wasm_bridge::sign_multisig_tx_hex);
 //  emscripten::function("submit_multisig_tx_hex", &monero_wasm_bridge::submit_multisig_tx_hex);
 //  emscripten::function("save", &monero_wasm_bridge::save);
-  emscripten::function("close", &monero_wasm_bridge::close);
-  emscripten::function("get_address_file_buffer", &monero_wasm_bridge::get_address_file_buffer);
   emscripten::function("get_keys_file_buffer", &monero_wasm_bridge::get_keys_file_buffer);
   emscripten::function("get_cache_file_buffer", &monero_wasm_bridge::get_cache_file_buffer);
+  emscripten::function("close", &monero_wasm_bridge::close);
 }
 extern "C"
 {
