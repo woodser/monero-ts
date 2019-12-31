@@ -152,8 +152,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
       
       // define callback for wasm
       let callbackFn = function(resp) {
-        console.log("MoneroWalletCore callback called!");
-        console.log(resp);
         let respJson = JSON.parse(resp);
         let result = new MoneroSyncResult(respJson.numBlocksFetched, respJson.receivedMoney);
         resolve(result);
