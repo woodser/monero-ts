@@ -119,7 +119,7 @@ set_target_properties(boost_thread PROPERTIES IMPORTED_LOCATION
 # OpenSSL
 ############
 
-include_directories(external/openssl-sdk/include)
+include_directories(./external/openssl-sdk/include)
 
 add_library(crypto STATIC IMPORTED)
 set_target_properties(crypto PROPERTIES IMPORTED_LOCATION
