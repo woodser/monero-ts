@@ -862,7 +862,7 @@ namespace monero {
     cout << "4" << endl;
     wallet->m_w2->generate(path, password, recovery_key, true, false);
     cout << "5" << endl;
-    wallet->m_w2->set_refresh_from_block_height(restore_height);
+    if (wallet->is_connected()) wallet->m_w2->set_refresh_from_block_height(restore_height);
     cout << "6" << endl;
     wallet->init_common();
     cout << "7" << endl;
@@ -3196,8 +3196,14 @@ namespace monero {
   }
 
   std::string monero_wallet_core::get_cache_file_buffer(const epee::wipeable_string& password) {
-    wallet2::cache_file_data cache_file_data;
+    wallet2::cache_file_data cache_file_data = {};
     bool r = m_w2->get_cache_file_data(password, cache_file_data);
+
+//    std::ostringstream oss;
+//    binary_archive<true> oar(oss);
+//    bool success = ::serialization::serialize(oar, cache_file_data);
+//    return oss.str();
+
     std::string buf;
     ::serialization::dump_binary(cache_file_data, buf);
     return buf;
