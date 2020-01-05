@@ -12,7 +12,7 @@ project(MoneroCppLibrary)
 # monero-project
 ###################
 
-set(MONERO_CORE "external/monero-core")
+set(MONERO_CORE "${CMAKE_SOURCE_DIR}/external/monero-core")
 set(MONERO_CORE_SRC "${MONERO_CORE}/src")
 
 # header includes
@@ -73,11 +73,12 @@ set_target_properties(hidapi PROPERTIES IMPORTED_LOCATION
 #SET(BOOST_SRC ${BOOST}/boost)
 #SET(BOOST_LIB ${BOOST}/stage/lib)
 
-SET(BOOST external/boost-sdk)
+set(Boost_USE_MULTITHREADED ON)
+SET(BOOST ${CMAKE_SOURCE_DIR}/external/boost-sdk)
 include_directories(${BOOST})
 link_directories(${EXTERNAL_LIBS_DIR}/boost)
 
-find_package(Boost 1.69 REQUIRED COMPONENTS chrono date_time filesystem program_options regex serialization wserialization system thread)
+find_package(Boost 1.72 REQUIRED COMPONENTS chrono date_time filesystem program_options regex serialization wserialization system thread)
 
 add_library(boost_chrono STATIC IMPORTED)
 set_target_properties(boost_chrono PROPERTIES IMPORTED_LOCATION
@@ -113,13 +114,13 @@ set_target_properties(boost_system PROPERTIES IMPORTED_LOCATION
 
 add_library(boost_thread STATIC IMPORTED)
 set_target_properties(boost_thread PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/boost/libboost_thread-mt.a)
+    ${EXTERNAL_LIBS_DIR}/boost/libboost_thread.a)
 
 ############
 # OpenSSL
 ############
 
-include_directories(external/openssl-sdk/include)
+include_directories(./external/openssl-sdk/include)
 
 add_library(crypto STATIC IMPORTED)
 set_target_properties(crypto PROPERTIES IMPORTED_LOCATION
@@ -143,89 +144,92 @@ set_target_properties(sodium PROPERTIES IMPORTED_LOCATION
 # Monero
 #############
 
+set(MONERO_CORE_BUILD "${MONERO_CORE}/build/release")
+message(STATUS MONERO_CORE_BUILD : ${MONERO_CORE_BUILD})
+
 add_library(wallet_merged STATIC IMPORTED)
 set_target_properties(wallet_merged PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libwallet_merged.a)
+    ${MONERO_CORE_BUILD}/lib/libwallet_merged.a)
 
 add_library(wallet STATIC IMPORTED)
 set_target_properties(wallet PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libwallet.a)
+    ${MONERO_CORE_BUILD}/lib/libwallet.a)
     
 add_library(lmdb STATIC IMPORTED)
 set_target_properties(lmdb PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/liblmdb.a)
+    ${MONERO_CORE_BUILD}/external/db_drivers/liblmdb/liblmdb.a)
     
 add_library(epee STATIC IMPORTED)
 set_target_properties(epee PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libepee.a)
+    ${MONERO_CORE_BUILD}/contrib/epee/src/libepee.a)
     
 add_library(unbound STATIC IMPORTED)
 set_target_properties(unbound PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libunbound.a)
+    ${MONERO_CORE_BUILD}/external/unbound/libunbound.a)
     
 add_library(easylogging STATIC IMPORTED)
 set_target_properties(easylogging PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libeasylogging.a)
+    ${MONERO_CORE_BUILD}/external/easylogging++/libeasylogging.a)
 
 add_library(cryptonote_core STATIC IMPORTED)
 set_target_properties(cryptonote_core PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libcryptonote_core.a)
+    ${MONERO_CORE_BUILD}/src/cryptonote_core/libcryptonote_core.a)
 
 add_library(cryptonote_basic STATIC IMPORTED)
 set_target_properties(cryptonote_basic PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libcryptonote_basic.a)
+    ${MONERO_CORE_BUILD}/src/cryptonote_basic/libcryptonote_basic.a)
 
 add_library(mnemonics STATIC IMPORTED)
 set_target_properties(mnemonics PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libmnemonics.a)
+    ${MONERO_CORE_BUILD}/src/mnemonics/libmnemonics.a)
 
 add_library(common STATIC IMPORTED)
 set_target_properties(common PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libcommon.a)
+    ${MONERO_CORE_BUILD}/src/common/libcommon.a)
 
 add_library(cncrypto STATIC IMPORTED)
 set_target_properties(cncrypto PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libcncrypto.a)
+    ${MONERO_CORE_BUILD}/src/crypto/libcncrypto.a)
 
 add_library(ringct STATIC IMPORTED)
 set_target_properties(ringct PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libringct.a)
+    ${MONERO_CORE_BUILD}/src/ringct/libringct.a)
 
 add_library(ringct_basic STATIC IMPORTED)
 set_target_properties(ringct_basic PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libringct_basic.a)
+    ${MONERO_CORE_BUILD}/src/ringct/libringct_basic.a)
 
 add_library(blockchain_db STATIC IMPORTED)
 set_target_properties(blockchain_db PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libblockchain_db.a)
+    ${MONERO_CORE_BUILD}/src/blockchain_db/libblockchain_db.a)
 
 add_library(blocks STATIC IMPORTED)
 set_target_properties(blocks PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libblocks.a)
+    ${MONERO_CORE_BUILD}/src/blocks/libblocks.a)
 
 add_library(checkpoints STATIC IMPORTED)
 set_target_properties(checkpoints PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libcheckpoints.a)
+    ${MONERO_CORE_BUILD}/src/checkpoints/libcheckpoints.a)
 
 add_library(device STATIC IMPORTED)
 set_target_properties(device PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libdevice.a)
+    ${MONERO_CORE_BUILD}/src/device/libdevice.a)
     
 add_library(device_trezor STATIC IMPORTED)
 set_target_properties(device_trezor PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libdevice_trezor.a)
+    ${MONERO_CORE_BUILD}/src/device_trezor/libdevice_trezor.a)
 
 add_library(multisig STATIC IMPORTED)
 set_target_properties(multisig PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libmultisig.a)
+    ${MONERO_CORE_BUILD}/src/multisig/libmultisig.a)
 
 add_library(version STATIC IMPORTED)
 set_target_properties(version PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/libversion.a)
+    ${MONERO_CORE_BUILD}/src/libversion.a)
     
 add_library(randomx STATIC IMPORTED)
 set_target_properties(randomx PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero-core/librandomx.a)
+    ${MONERO_CORE_BUILD}/external/randomx/librandomx.a)
 
 ########################
 # Build c++ library
