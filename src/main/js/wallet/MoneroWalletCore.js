@@ -130,7 +130,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @return the height of the first block that the wallet scans
    */
   async getRestoreHeight() {
-    throw Error("Not implemented");
+    return this.module.get_restore_height(this.cppAddress);
   }
   
   // -------------------------- COMMON WALLET METHODS -------------------------

@@ -53,8 +53,8 @@ namespace monero_wasm_bridge
   string get_integrated_address(int handle, const string& standard_address = "", const string& payment_id = "");
   string decode_integrated_address(int handle, const string& integrated_address);
   void get_height(int handle, emscripten::val callback);
-//  long get_restore_height(int handle);
-//  void set_restore_height(int handle, long restore_height);
+  long get_restore_height(int handle);
+  void set_restore_height(int handle, long restore_height);
 //  long get_daemon_height(int handle);
 //  long get_daemon_max_peer_height(int handle);
   //void add_listener(int handle, monero_wallet_listener& listener);
