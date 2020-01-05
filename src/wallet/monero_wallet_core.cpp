@@ -862,7 +862,7 @@ namespace monero {
     cout << "4" << endl;
     wallet->m_w2->generate(path, password, recovery_key, true, false);
     cout << "5" << endl;
-    if (wallet->is_connected()) wallet->m_w2->set_refresh_from_block_height(restore_height);
+    wallet->m_w2->set_refresh_from_block_height(restore_height);
     cout << "6" << endl;
     wallet->init_common();
     cout << "7" << endl;
