@@ -228,6 +228,16 @@ void monero_wasm_bridge::get_height(int handle, emscripten::val callback) {
   callback((long) height);
 }
 
+long monero_wasm_bridge::get_restore_height(int handle) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return (long) wallet->get_restore_height();
+}
+
+void monero_wasm_bridge::set_restore_height(int handle, long restore_height) {
+  cout << "monero_wasm_bridge::set_restore_height()" << endl;
+  throw runtime_error("not implemented");
+}
+
 //  long get_restore_height(int handle) const;
 //  void set_restore_height(int handle, long restore_height);
 //  long get_daemon_height(int handle) const;
