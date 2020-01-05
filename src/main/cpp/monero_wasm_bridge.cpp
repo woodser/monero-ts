@@ -461,17 +461,17 @@ void monero_wasm_bridge::send_split(int handle, const string& send_request_json,
 //  emscripten::function("parse_payment_uri", &monero_wasm_bridge::parse_payment_uri);
 //  emscripten::function("get_attribute", &monero_wasm_bridge::get_attribute);
 
-  string monero_wasm_bridge::get_attribute(int handle, const string& key) {
-    monero_wallet* wallet = (monero_wallet*) handle;
-    string value;
-    if (!wallet->get_attribute(key, value)) return "";
-    return value;
-  }
+string monero_wasm_bridge::get_attribute(int handle, const string& key) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  string value;
+  if (!wallet->get_attribute(key, value)) return "";
+  return value;
+}
 
-  void monero_wasm_bridge::set_attribute(int handle, const string& key, const string& val) {
-    monero_wallet* wallet = (monero_wallet*) handle;
-    wallet->set_attribute(key, val);
-  }
+void monero_wasm_bridge::set_attribute(int handle, const string& key, const string& val) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  wallet->set_attribute(key, val);
+}
 
 //  emscripten::function("start_mining", &monero_wasm_bridge::start_mining);
 //  emscripten::function("stop_mining", &monero_wasm_bridge::stop_mining);
@@ -490,11 +490,6 @@ void monero_wasm_bridge::send_split(int handle, const string& send_request_json,
 void monero_wasm_bridge::close(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
   return wallet->close();
-}
-
-string monero_wasm_bridge::get_address_file_buffer(int handle) {
-  monero_wallet_core* wallet = (monero_wallet_core*) handle;
-  return wallet->get_address_file_buffer();
 }
 
 string monero_wasm_bridge::get_keys_file_buffer(int handle, string password, bool watch_only) {

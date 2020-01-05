@@ -122,6 +122,19 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this.password = password;
   }
   
+  // ------------ WALLET METHODS SPECIFIC TO JNI IMPLEMENTATION ---------------
+  
+  /**
+   * Get the height of the first block that the wallet scans.
+   * 
+   * @return the height of the first block that the wallet scans
+   */
+  async getRestoreHeight() {
+    throw Error("Not implemented");
+  }
+  
+  // -------------------------- COMMON WALLET METHODS -------------------------
+  
   async getPath() {
     return this.path;
   }
@@ -550,28 +563,13 @@ class MoneroWalletCore extends MoneroWalletKeys {
     if (path === "") throw new MoneroError("Wallet path is not set");
     
     // write address file
-    FS.writeFileSync(path + "_address.txt", await this.getPrimaryAddress());
-    
-    // malloc keys buffer and get buffer location in c++ heap
-    let keysBufferLoc = JSON.parse(this.module.get_keys_file_buffer(this.cppAddress, this.password, false));
-    
-    // read binary data from heap to DataView
-    let view = new DataView(new ArrayBuffer(keysBufferLoc.length)); // TODO: improve performance using DataView instead of Uint8Array?, TODO: rename to length
-    for (let i = 0; i < keysBufferLoc.length; i++) {
-      view.setInt8(i, this.module.HEAPU8[keysBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
-    }
-    
-    // free binary on heap
-    this.module._free(keysBufferLoc.pointer);
-    
-    // write keys file
-    FS.writeFileSync(path + ".keys", view, "binary"); // TODO: make async with callback?
+    FS.writeFileSync(path + ".address.txt", await this.getPrimaryAddress());
     
     // malloc cache buffer and get buffer location in c++ heap
     let cacheBufferLoc = JSON.parse(this.module.get_cache_file_buffer(this.cppAddress, this.password));
     
     // read binary data from heap to DataView
-    view = new DataView(new ArrayBuffer(cacheBufferLoc.length));
+    let view = new DataView(new ArrayBuffer(cacheBufferLoc.length));
     for (let i = 0; i < cacheBufferLoc.length; i++) {
       view.setInt8(i, this.module.HEAPU8[cacheBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
     }
@@ -581,6 +579,21 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // write cache file
     FS.writeFileSync(path, view, "binary");
+    
+    // malloc keys buffer and get buffer location in c++ heap
+    let keysBufferLoc = JSON.parse(this.module.get_keys_file_buffer(this.cppAddress, this.password, false));
+    
+    // read binary data from heap to DataView
+    view = new DataView(new ArrayBuffer(keysBufferLoc.length)); // TODO: improve performance using DataView instead of Uint8Array?, TODO: rename to length
+    for (let i = 0; i < keysBufferLoc.length; i++) {
+      view.setInt8(i, this.module.HEAPU8[keysBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
+    }
+    
+    // free binary on heap
+    this.module._free(keysBufferLoc.pointer);
+    
+    // write keys file
+    FS.writeFileSync(path + ".keys", view, "binary"); // TODO: make async with callback?
   }
   
   async close(save) {
