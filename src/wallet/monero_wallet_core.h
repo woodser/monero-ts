@@ -281,12 +281,13 @@ namespace monero {
     /**
      * Wallet import and export using buffers and not the file system.
      */
-    std::string get_keys_file_buffer(const epee::wipeable_string& password, bool watch_only);
-    std::string get_cache_file_buffer(const epee::wipeable_string& password);
+    std::string get_keys_file_buffer(const epee::wipeable_string& password, bool watch_only) const;
+    std::string get_cache_file_buffer(const epee::wipeable_string& password) const;
 
     // --------------------------------- PRIVATE --------------------------------
 
   private:
+    epee::net_utils::http::abstract_http_client* temp_http_client;
     friend struct wallet2_listener;
     unique_ptr<tools::wallet2> m_w2;            // internal wallet implementation
     unique_ptr<wallet2_listener> m_w2_listener; // internal wallet implementation listener
