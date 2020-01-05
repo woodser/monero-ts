@@ -143,35 +143,33 @@ wallet_restored->relay_tx(*created_tx); // submit the transaction to the Monero 
 The following dependencies must be set up before running this project.
 
 1. Set up Boost
-    1. Download and extract the boost 1.69.0 source code zip from https://www.boost.org/users/download/ to ./external/boost-sdk/.
+    1. Download and extract the boost 1.72.0 source code zip from https://www.boost.org/users/download/ to ./external/boost-sdk/.
     2. `cd ./external/boost-sdk/`
-    3. `./bootstraph.sh`
+    3. `./bootstrap.sh`
     4. `./b2`
     5. Copy .a files from ./external/boost-sdk/bin.v2/libs/\*/link-static/\* to ./external-libs/boost according to CMakeLists.txt.
 2. Set up OpenSSL
     1. Download and extract the latest OpenSSL source code zip from https://github.com/openssl/openssl to ./external/openssl-sdk/.
     2. Build for your system.<br>
        Mac: installed through boost at /usr/local/opt/openssl/lib
-    3. Copy libcrypto.a and libssl.a ./external-libs/openssl.
-3. Set up Monero Core
-    1. Initialize submodules: `git submodule update --init --recursive`
-    2. cd ./submodules/monero-core
-    3. Modify CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`.
-    4. Build twice to create libwallet_merged.a in addition to other .a libraries: `make release-static -j8`.
-    5. Copy .a files from ./submodules/monero-core/build/release/* to ./external-libs/monero-core according to CMakeLists.txt.
-4. Set up hidapi
+    3. Copy libcrypto.a and libssl.a ./external-libs/openssl
+3. Set up hidapi
     1. Download the latest hidapi source code from https://github.com/signal11/hidapi.
     2. Build hidapi for your system.<br>
        Mac requires autoreconf: `brew install automake`
     3. Copy libhidapi.a to ./external-libs/hidapi.
-5. Set up libsodium
+4. Set up libsodium
     1. Build libsodium for your system.
     2. Copy libsodium.a to ./external-libs/libsodium.<br>
        Mac: installed through homebrew at /usr/local/Cellar/libsodium/1.0.17/lib/libsodium.a
+5. Set up Monero Core
+    1. Initialize submodules: `git submodule update --init --recursive`
+    2. cd ./submodules/monero-core
+    3. Modify CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`.
+    4. Build twice to create libwallet_merged.a in addition to other .a libraries: `make release-static -j8`.
+6. Build this project as a dynamic library at `./build/libmonero-cpp.dylib`: `./bin/build-libmonero-cpp.sh`.
        
-After the dependencies are set up, this project may be compiled as part of another application, as a dynamic library, or as a shared library.  For example, the associated [Java library](https://github.com/monero-ecosystem/monero-java-rpc) depends on a dynamic library built from this project to support a wallet using Java JNI.
-
-To build this project as a dynamic library at `./build/libmonero-cpp.dylib`, execute: `./bin/build-libmonero-cpp.sh`.
+This project may be compiled as part of another application, as a dynamic library, or as a shared library.  For example, the associated [Java library](https://github.com/monero-ecosystem/monero-java-rpc) depends on a dynamic library built from this project to support a wallet using Java JNI.
 
 These build steps aspire to be automated further and [any help is greatly appreciated](https://github.com/woodser/monero-cpp-library/issues/1).
 
