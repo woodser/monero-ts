@@ -1357,10 +1357,17 @@ namespace monero {
   vector<shared_ptr<monero_tx_wallet>> monero_wallet_core::get_txs() const {
     return get_txs(monero_tx_query());
   }
-
+  
   vector<shared_ptr<monero_tx_wallet>> monero_wallet_core::get_txs(const monero_tx_query& query) const {
+    vector<string> missing_tx_hashes;
+    vector<shared_ptr<monero_tx_wallet>> txs = monero_wallet_core::get_txs(query, missing_tx_hashes);
+    if (!missing_tx_hashes.empty()) throw runtime_error("Tx not found in wallet: " + missing_tx_hashes[0]);
+    return txs;
+  }
+
+  vector<shared_ptr<monero_tx_wallet>> monero_wallet_core::get_txs(const monero_tx_query& query, vector<string>& missing_tx_hashes) const {
     MTRACE("get_txs(query)");
-    
+
     // copy and normalize tx query
     shared_ptr<monero_tx_query> query_ptr = make_shared<monero_tx_query>(query); // convert to shared pointer for copy
     shared_ptr<monero_tx_query> _query = query_ptr->copy(query_ptr, make_shared<monero_tx_query>()); // deep copy
@@ -1447,7 +1454,7 @@ namespace monero {
             break;
           }
         }
-        if (!found) throw runtime_error("Tx not found in wallet: " + tx_hash);
+        if (!found) missing_tx_hashes.push_back(tx_hash);
       }
     }
 
@@ -1466,6 +1473,7 @@ namespace monero {
       }
       txs = ordered_txs;
     }
+
     return txs;
   }
 

@@ -217,6 +217,7 @@ namespace monero {
     monero_subaddress create_subaddress(uint32_t account_idx, const string& label = "");
     vector<shared_ptr<monero_tx_wallet>> get_txs() const;
     vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& query) const;
+    vector<shared_ptr<monero_tx_wallet>> get_txs(const monero_tx_query& query, vector<string>& missing_tx_hashes) const;
     vector<shared_ptr<monero_transfer>> get_transfers(const monero_transfer_query& query) const;
     vector<shared_ptr<monero_output_wallet>> get_outputs(const monero_output_query& query) const;
     string get_outputs_hex() const;
