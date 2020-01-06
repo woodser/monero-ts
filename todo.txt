@@ -1,4 +1,5 @@
 HIGH (WASM)
+throw error if not connected and attempt to sync
 call trim_hashchain() once when getting file buffers, so probably return stringp[]
 overload create_wallet_* instead of http_client=null?
 delete http client after use in monero_wallet_core and wallet2

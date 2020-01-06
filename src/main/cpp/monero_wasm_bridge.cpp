@@ -96,7 +96,7 @@ void monero_wasm_bridge::create_core_wallet_random(const string& path, const str
   cout << "monero_wasm_bridge::create_core_wallet_from_mnemonic()" << endl;
   http_client_wasm* http_client = new http_client_wasm(); // TODO: this needs deleted after use
   monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
-  monero_wallet* wallet = monero_wallet_core::create_wallet_random("", "", static_cast<monero_network_type>(network_type), daemon_connection, language, http_client);
+  monero_wallet* wallet = monero_wallet_core::create_wallet_random("", password, static_cast<monero_network_type>(network_type), daemon_connection, language, http_client);
   callback((int) wallet); // invoke callback with wallet address
 }
 
@@ -104,7 +104,7 @@ void monero_wasm_bridge::create_core_wallet_from_mnemonic(const string& path, co
   cout << "monero_wasm_bridge::create_core_wallet_from_mnemonic()" << endl;
   http_client_wasm* http_client = new http_client_wasm(); // TODO: this needs deleted after use
   monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
-  monero_wallet* wallet = monero_wallet_core::create_wallet_from_mnemonic("", "", static_cast<monero_network_type>(network_type), mnemonic, daemon_connection, restore_height, seed_offset, http_client);
+  monero_wallet* wallet = monero_wallet_core::create_wallet_from_mnemonic("", password, static_cast<monero_network_type>(network_type), mnemonic, daemon_connection, restore_height, seed_offset, http_client);
   callback((int) wallet); // invoke callback with wallet address
 }
 

@@ -1,3 +1,4 @@
+const FS = require("fs");
 const MoneroDaemonRpc = require("../../main/js/daemon/MoneroDaemonRpc");
 const MoneroWalletRpc = require("../../main/js/wallet/MoneroWalletRpc");
 const MoneroWalletKeys = require("../../main/js/wallet/MoneroWalletKeys");
@@ -77,13 +78,17 @@ class TestUtils {
    */
   static async getWalletCore() {
     console.log("enter getWalletCore()");
-    if (this.walletCore === undefined || await this.walletCore.isClosed()) {
+    if (this.walletCore === undefined) {  // TODO: || await this.walletCore.isClosed()
       
       // create wallet from mnemonic phrase if it doesn't exist
       if (!await MoneroWalletCore.walletExists(TestUtils.WALLET_WASM_PATH_1)) {
-        let daemonConnection = new MoneroRpcConnection(TestUtils.DAEMON_RPC_URI, TestUtils.DAEMON_RPC_USERNAME, TestUtils.DAEMON_RPC_PASSWORD);
+        
+        // create directory for test wallets if it doesn't exist
+        if (!FS.existsSync(TestUtils.TEST_WALLETS_DIR)) FS.mkdirSync(TestUtils.TEST_WALLETS_DIR);
+        
+        // create wallet iwth connection
         this.walletCore = await MoneroWalletCore.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT);
-        //assert.equal(await this.walletCore.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
+        assert.equal(await this.walletCore.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
         await this.walletCore.sync();
         //await this.walletCore.sync(new WalletSyncPrinter());  // TODO
         await this.walletCore.save(); // save progress
@@ -149,7 +154,7 @@ TestUtils.NETWORK_TYPE = MoneroNetworkType.STAGENET;
 // default keypair to test
 TestUtils.MNEMONIC = "megabyte ghetto syllabus opposite firm january velvet kennel often bugs luggage nucleus volcano fainted ripped biology firm sushi putty swagger dove obedient unnoticed washing swagger";
 TestUtils.ADDRESS = "58De3pTCy1CFkh2xwTDCPwiTzkby13CZfJ262vak9nmuSUAbayvYnXaJY7WNGJMJCMBdFn4opqYCrVP3rP3irUZyDMht94C";
-TestUtils.FIRST_RECEIVE_HEIGHT = 453289;   // NOTE: this value MUST be the height of the wallet's first tx for tests
+TestUtils.FIRST_RECEIVE_HEIGHT = 480000;   // NOTE: this value MUST be the height of the wallet's first tx for tests
 
 //wallet rpc test wallet filenames and passwords
 TestUtils.WALLET_RPC_NAME_1 = "test_wallet_1";
