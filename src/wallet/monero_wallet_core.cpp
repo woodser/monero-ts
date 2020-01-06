@@ -852,20 +852,13 @@ namespace monero {
     if (!seed_offset.empty()) recovery_key = cryptonote::decrypt_key(recovery_key, seed_offset);
 
     // initialize wallet
-    cout << "1" << endl;
     if (http_client == nullptr) wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     else wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true, http_client));
-    cout << "2" << endl;
     wallet->set_daemon_connection(daemon_connection);
-    cout << "3" << endl;
     wallet->m_w2->set_seed_language(language);
-    cout << "4" << endl;
     wallet->m_w2->generate(path, password, recovery_key, true, false);
-    cout << "5" << endl;
     wallet->m_w2->set_refresh_from_block_height(restore_height);
-    cout << "6" << endl;
     wallet->init_common();
-    cout << "7" << endl;
     return wallet;
   }
 
