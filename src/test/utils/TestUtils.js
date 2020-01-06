@@ -77,7 +77,6 @@ class TestUtils {
    * TODO: this creates and syncs new wallet every time; need to save and restore json
    */
   static async getWalletCore() {
-    console.log("enter getWalletCore()");
     if (this.walletCore === undefined) {  // TODO: || await this.walletCore.isClosed()
       
       // create wallet from mnemonic phrase if it doesn't exist
