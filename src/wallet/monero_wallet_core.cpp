@@ -812,7 +812,6 @@ namespace monero {
     MTRACE("open_wallet(...buffers...)");
     cout << "open_wallet(...buffers...)" << endl;
     monero_wallet_core* wallet = new monero_wallet_core();
-    wallet->temp_http_client = http_client;
     if (http_client == nullptr) wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     else wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true, http_client));
     wallet->m_w2->load("", password, keys_buffer, cache_buffer);
@@ -826,7 +825,6 @@ namespace monero {
   monero_wallet_core* monero_wallet_core::create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const string& language, epee::net_utils::http::abstract_http_client *http_client) {
     MTRACE("create_wallet_random(path, password, network_type, daemon_connection, language)");
     monero_wallet_core* wallet = new monero_wallet_core();
-    wallet->temp_http_client = http_client;
     if (http_client == nullptr) wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     else wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true, http_client));
     wallet->set_daemon_connection(daemon_connection);
@@ -842,8 +840,6 @@ namespace monero {
     MTRACE("create_wallet_from_mnemonic(path, password, mnemonic, network_type, daemon_connection, restore_height)");
     cout << "create_wallet_from_mnemonic(path, password, mnemonic, network_type, daemon_connection, restore_height)" << endl;
     monero_wallet_core* wallet = new monero_wallet_core();
-
-    wallet->temp_http_client = http_client;
 
     // validate mnemonic and get recovery key and language
     crypto::secret_key recovery_key;
@@ -1129,14 +1125,6 @@ namespace monero {
   }
 
   uint64_t monero_wallet_core::get_restore_height() const {
-
-    cout << "TESTING RE-OPEN WALLET IN GET_RESTORE_HEIGHT" << endl;
-    string cache_buffer = get_cache_file_buffer("supersecretpassword123");
-    string keys_buffer = get_keys_file_buffer("supersecretpassword123", false);
-    //http_client_wasm* http_client = new http_client_wasm();
-    monero_wallet_core* wallet = monero_wallet_core::open_wallet("supersecretpassword123", monero_network_type::STAGENET, keys_buffer, cache_buffer, *get_daemon_connection(), temp_http_client);
-    cout << "New wallet can be created from file data!!!" << endl;
-
     return m_w2->get_refresh_from_block_height();
   }
 

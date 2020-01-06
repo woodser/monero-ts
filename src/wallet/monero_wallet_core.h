@@ -287,7 +287,6 @@ namespace monero {
     // --------------------------------- PRIVATE --------------------------------
 
   private:
-    epee::net_utils::http::abstract_http_client* temp_http_client;
     friend struct wallet2_listener;
     unique_ptr<tools::wallet2> m_w2;            // internal wallet implementation
     unique_ptr<wallet2_listener> m_w2_listener; // internal wallet implementation listener
