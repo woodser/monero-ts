@@ -140,9 +140,9 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async getHeight() {
-    let that = this;
     
     // return promise which resolves on callback
+    let that = this;
     return new Promise(function(resolve, reject) {
       
       // define callback for wasm

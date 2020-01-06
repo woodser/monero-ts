@@ -497,9 +497,10 @@ void monero_wasm_bridge::set_attribute(int handle, const string& key, const stri
 //  emscripten::function("submit_multisig_tx_hex", &monero_wasm_bridge::submit_multisig_tx_hex);
 //  emscripten::function("save", &monero_wasm_bridge::save);
 
-void monero_wasm_bridge::close(int handle) {
+void monero_wasm_bridge::close(int handle, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->close();
+  wallet->close();
+  callback();
 }
 
 string monero_wasm_bridge::get_keys_file_buffer(int handle, string password, bool watch_only) {

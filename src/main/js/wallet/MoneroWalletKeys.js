@@ -157,9 +157,23 @@ class MoneroWalletKeys extends MoneroWallet {
   // decodeIntegratedAddress
   
   async close(save) {
+    
+    // save wallet if requested
     if (save) await this.save();
-    this.module.close(this.cppAddress);
-    delete this.cppAddress;
+    
+    // return promise which is resolved on callback
+    let that = this;
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = async function() {
+        delete that.cppAddress;
+        resolve();
+      };
+      
+      // close wallet in wasm and invoke callback when done
+      that.module.close(that.cppAddress, callbackFn);
+    });
   }
 }
 
