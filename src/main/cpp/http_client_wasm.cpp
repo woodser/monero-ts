@@ -10,7 +10,7 @@ using namespace std;
 // TODO: factor js code to js file, possible use by MoneroRpcConnection, or change MoneroRpcConnection interface
 
 EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, const char* body, std::chrono::milliseconds timeout), {
-  console.log("EM_JS js_send_json_request(" + UTF8ToString(uri) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
+  //console.log("EM_JS js_send_json_request(" + UTF8ToString(uri) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
 
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
@@ -67,8 +67,8 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, c
     // send throttled request
     let wakeUpCalled = false;
     _throttledRequest(opts).then(resp => {
-      console.log("RESPONSE:");
-      console.log(JSON.stringify(resp));
+      //console.log("RESPONSE:");
+      //console.log(JSON.stringify(resp));
 
       // replace 16 or more digits with strings and parse
       //resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // TODO: get this to compile in C++ or move to JS file
