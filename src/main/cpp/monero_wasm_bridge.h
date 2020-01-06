@@ -129,7 +129,7 @@ namespace monero_wasm_bridge
   //  emscripten::function("sign_multisig_tx_hex", &monero_wasm_bridge::sign_multisig_tx_hex);
   //  emscripten::function("submit_multisig_tx_hex", &monero_wasm_bridge::submit_multisig_tx_hex);
   //  emscripten::function("save", &monero_wasm_bridge::save);
-  void close(int handle);
+  void close(int handle, emscripten::val callback);
   string get_keys_file_buffer(int handle, string password, bool watch_only);
   string get_cache_file_buffer(int handle, string password);
 }
