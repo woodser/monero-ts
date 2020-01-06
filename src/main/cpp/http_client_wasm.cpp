@@ -10,7 +10,7 @@ using namespace std;
 // TODO: factor js code to js file, possible use by MoneroRpcConnection, or change MoneroRpcConnection interface
 
 EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, const char* body, std::chrono::milliseconds timeout), {
-  //console.log("EM_JS js_send_json_request(" + UTF8ToString(uri) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
+  console.log("EM_JS js_send_json_request(" + UTF8ToString(uri) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
 
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
@@ -67,8 +67,8 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, c
     // send throttled request
     let wakeUpCalled = false;
     _throttledRequest(opts).then(resp => {
-      //console.log("RESPONSE:");
-      //console.log(JSON.stringify(resp));
+      console.log("RESPONSE:");
+      console.log(JSON.stringify(resp));
 
       // replace 16 or more digits with strings and parse
       //resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // TODO: get this to compile in C++ or move to JS file
@@ -91,8 +91,12 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, c
     }).catch(err => {
       console.log("ERROR!!!");
       console.log(err);
-      if (wakeUpCalled) throw Error("Error caught in JS after previously calling wakeUp(): " + err);
-      let str = err.message ? err.message : ("" + err);
+      if (wakeUpCalled) {
+          console.log("Error caught in JS after previously calling wakeUp(): " + err);
+          throw Error("Error caught in JS after previously calling wakeUp(): " + err);
+      }
+      let str = err.message ? err.message : ("" + err); // get error message
+      str = JSON.stringify({error: str});               // wrap error in object
       let lengthBytes = Module.lengthBytesUTF8(str) + 1;
       let ptr = Module._malloc(lengthBytes);
       Module.stringToUTF8(str, ptr, lengthBytes);
@@ -209,10 +213,14 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
         wakeUpCalled = true;
         wakeUp(respPtr);
       }).catch(err => {
-        if (wakeUpCalled) throw Error("Error caught in JS after previously calling wakeUp(): " + err);
         console.log("ERROR!!!");
         console.log(err);
-        let str = err.message ? err.message : ("" + err);
+        if (wakeUpCalled) {
+            console.log("Error caught in JS after previously calling wakeUp(): " + err);
+            throw Error("Error caught in JS after previously calling wakeUp(): " + err);
+        }
+        let str = err.message ? err.message : ("" + err); // get error message
+        str = JSON.stringify({error: str});               // wrap error in object
         let lengthBytes = Module.lengthBytesUTF8(str) + 1;
         let ptr = Module._malloc(lengthBytes);
         Module.stringToUTF8(str, ptr, lengthBytes);
@@ -293,6 +301,10 @@ bool http_client_wasm::invoke_json(const boost::string_ref uri, const boost::str
   boost::property_tree::ptree resp_node;
   boost::property_tree::read_json(iss, resp_node);
 
+  // check for error
+  boost::optional<boost::property_tree::ptree&> error = resp_node.get_child_optional("error");
+  if (error) return false;
+
   // build response object
   m_response_info.clear();
   m_response_info.m_mime_tipe = "application/json";
@@ -329,6 +341,10 @@ bool http_client_wasm::invoke_binary(const boost::string_ref uri, const boost::s
   std::istringstream iss = std::istringstream(std::string(resp_str));
   boost::property_tree::ptree resp_node;
   boost::property_tree::read_json(iss, resp_node);
+
+  // check for error
+  boost::optional<boost::property_tree::ptree&> error = resp_node.get_child_optional("error");
+  if (error) return false;
 
   // build response object
   m_response_info.clear();
