@@ -14,16 +14,29 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
     return TestUtils.getWalletCore();
   }
   
-  async createRandomWallet() {
-    let wallet = await MoneroWalletCore.createWalletRandom(TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection());
+  async openWallet(path) {
+    let wallet = await MoneroWalletCore.openWallet(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection());
     //await wallet.startSyncing();  // TODO
     return wallet;
   }
   
-  async openWallet(path) {
-    let wallet = await MoneroWalletCore.openWallet(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection());
+//  async createWalletRandom() {
+//    let wallet = await MoneroWalletCore.createWalletRandom(TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection());
+//    //await wallet.startSyncing();  // TODO
+//    return wallet;
+//  }
+  
+  async createWalletFromMnemonic(mnemonic, restoreHeight, seedOffset) {
+    let wallet = await MoneroWalletCore.createWalletFromMnemonic(TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, mnemonic, TestUtils.getDaemonRpc().getRpcConnection(), restoreHeight, seedOffset);
+    //await wallet.startSyncing();  // TODO
     return wallet;
   }
+  
+//  async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
+//    let wallet = await MoneroWalletCore.createWalletFromKeys(TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, address, privateViewKey, privateSpendKey, daemonConnection, language);
+//    //await wallet.startSyncing();  // TODO
+//    return wallet;
+//  }
   
   runTests(config) {
     let that = this;
