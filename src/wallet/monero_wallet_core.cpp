@@ -825,28 +825,19 @@ namespace monero {
   monero_wallet_core* monero_wallet_core::create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const string& language, epee::net_utils::http::abstract_http_client *http_client) {
     MTRACE("create_wallet_random(path, password, network_type, daemon_connection, language)");
     monero_wallet_core* wallet = new monero_wallet_core();
-    cout << "1" << endl;
     if (http_client == nullptr) wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     else wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true, http_client));
-    cout << "2" << endl;
     wallet->set_daemon_connection(daemon_connection);
-    cout << "3" << endl;
     wallet->m_w2->set_seed_language(language);
-    cout << "4" << endl;
     crypto::secret_key secret_key;
-    cout << "5" << endl;
     wallet->m_w2->generate(path, password, secret_key, false, false);
-    cout << "6" << endl;
     wallet->init_common();
-    cout << "7" << endl;
     if (wallet->is_connected()) wallet->m_w2->set_refresh_from_block_height(wallet->get_daemon_height());
-    cout << "8" << endl;
     return wallet;
   }
 
   monero_wallet_core* monero_wallet_core::create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& seed_offset, epee::net_utils::http::abstract_http_client *http_client) {
     MTRACE("create_wallet_from_mnemonic(path, password, mnemonic, network_type, daemon_connection, restore_height)");
-    cout << "create_wallet_from_mnemonic(path, password, mnemonic, network_type, daemon_connection, restore_height)" << endl;
     monero_wallet_core* wallet = new monero_wallet_core();
 
     // validate mnemonic and get recovery key and language
@@ -860,20 +851,13 @@ namespace monero {
     if (!seed_offset.empty()) recovery_key = cryptonote::decrypt_key(recovery_key, seed_offset);
 
     // initialize wallet
-    cout << "1" << endl;
     if (http_client == nullptr) wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     else wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true, http_client));
-    cout << "2" << endl;
     wallet->set_daemon_connection(daemon_connection);
-    cout << "3" << endl;
     wallet->m_w2->set_seed_language(language);
-    cout << "4" << endl;
     wallet->m_w2->generate(path, password, recovery_key, true, false);
-    cout << "5" << endl;
     wallet->m_w2->set_refresh_from_block_height(restore_height);
-    cout << "6" << endl;
     wallet->init_common();
-    cout << "7" << endl;
     return wallet;
   }
 
@@ -3228,6 +3212,7 @@ namespace monero {
       m_syncing_enabled = false;
       m_syncing_thread_done = true;
       m_sync_cv.notify_one();
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));  // TODO: in emscripten, m_sync_cv.notify_one() returns without waiting, so sleep; bug in emscripten upstream llvm?
       m_syncing_thread.join();
     }
   }
