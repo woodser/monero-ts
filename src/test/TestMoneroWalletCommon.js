@@ -922,7 +922,7 @@ class TestMoneroWalletCommon {
       
       // NOTE: payment hashes are deprecated so this test will require an old wallet to pass
       if (config.testNonRelays)
-      it("Can get transactions by payment hashes", async function() {
+      it("Can get transactions by payment ids", async function() {
         
         // get random transactions with payment hashes for testing
         let randomTxs = await getRandomTransactions(that.wallet, {hasPaymentId: true}, 3, 5);
