@@ -229,6 +229,10 @@ set(
     ${MONERO_CORE_SRC}/wallet/ringdb.cpp
 )
 
+#-s USE_PTHREADS=1 \
+#-s PTHREAD_POOL_SIZE=2 \
+#-s PROXY_TO_PTHREAD \
+
 ####################
 # Build parameters
 ####################
@@ -244,9 +248,6 @@ set (
 --llvm-lto 1 \
 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 -s ASSERTIONS=2 \
--s USE_PTHREADS=1 \
--s PTHREAD_POOL_SIZE=2 \
--s PROXY_TO_PTHREAD \
 -s EXIT_RUNTIME=0 \
 -s ASYNCIFY=1 \
 -s 'ASYNCIFY_IMPORTS=[\"js_send_json_request\",\"js_send_binary_request\",\"emscripten_sleep\"]' \
