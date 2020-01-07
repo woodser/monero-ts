@@ -6,4 +6,4 @@ mkdir -p build &&
 cd build && 
 emconfigure cmake .. && 
 emmake cmake --build . && 
-emmake make .
+emmake make -j8 .
