@@ -1,4 +1,5 @@
 HIGH (WASM)
+load MoneroUtils like MoneroWalletKeys/Core
 throw error if not connected and attempt to sync
 call trim_hashchain() once when getting file buffers, so probably return stringp[]
 overload create_wallet_* instead of http_client=null?
@@ -6,6 +7,8 @@ delete http client after use in monero_wallet_core and wallet2
 monero_wallet_core::set_daemon_connection is_local_address() uses common/util which requires libunbound
 wallet2 get_address_file() etc refactored to not duplicate
 
+use PTHREAD_HINT_NUM_CORES to use max cores
+require("MoneroModel") in top-level index.js exports?
 port testSyncWithPoolSubmit from java
 libsodium dependency in monero-cpp-library, why doesn't monero-project's work?
 remove the plugins dir
