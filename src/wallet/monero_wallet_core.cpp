@@ -3237,10 +3237,10 @@ namespace monero {
     m_syncing_thread_done = false;
     m_syncing_interval = DEFAULT_SYNC_INTERVAL_MILLIS;
 
-    // start auto sync loop
-    m_syncing_thread = boost::thread([this]() {
-      this->sync_thread_func();
-    });
+//    // start auto sync loop
+//    m_syncing_thread = boost::thread([this]() {
+//      this->sync_thread_func();
+//    });
   }
 
   // private helper to initialize subaddresses using transfer details
