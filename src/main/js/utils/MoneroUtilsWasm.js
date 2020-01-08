@@ -108,7 +108,7 @@ class MoneroUtilsWasm {
  */
 module.exports = async function() {
   return new Promise(function(resolve, reject) {
-    require("../../../../build/monero-javascript")().ready.then(function(module) {
+    require("../../../../build/monero-javascript-wasm")().ready.then(function(module) {
       MoneroUtilsWasm.WASM_MODULE = module;
       resolve(MoneroUtilsWasm);
     }).catch(function(e) {

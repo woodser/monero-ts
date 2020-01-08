@@ -308,10 +308,10 @@ message(STATUS "EMCC_LINKER_FLAGS__ASMJS ${EMCC_LINKER_FLAGS__ASMJS}")
 ####################
 
 # WASM
-add_executable(monero-javascript ${SRC_FILES})
-set_target_properties(monero-javascript PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__WASM}")
+add_executable(monero-javascript-wasm ${SRC_FILES})
+set_target_properties(monero-javascript-wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__WASM}")
 target_link_libraries(
-    monero-javascript
+    monero-javascript-wasm
     #
     #openssl_ssl
     #openssl_crypto
