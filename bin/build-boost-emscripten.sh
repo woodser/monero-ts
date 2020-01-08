@@ -33,7 +33,6 @@ rm -rf bin.v2
 
 export NO_BZIP2=1 #bc it's supplied by emscripten but b2 will fail to find it
 
-
 #  --with-libraries=atomic,signals,timer,system,filesystem,thread,date_time,chrono,regex,serialization,program_options,locale \
 
 
@@ -60,7 +59,7 @@ HOST_NCORES=$(shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1
 # threading=single \
 ./b2 -q -a -j$HOST_NCORES    \
   toolset=clang-emscripten   \
-  threading=multi			 \
+  threading=single			 \
   link=static                \
   optimization=space         \
   variant=release            \

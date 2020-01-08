@@ -21,7 +21,7 @@ cd "$SRC_PATH"
 
 emconfigure ./Configure \
 	linux-generic32 \
-	-no-asm no-ssl2 no-ssl3 no-comp no-engine no-deprecated no-tests no-dso no-shared \
+	-no-asm no-ssl2 no-ssl3 no-comp no-engine no-deprecated no-tests no-dso no-shared no-threads disable-shared \
 	--prefix="$INSTALL_PATH" \
 	--openssldir="$INSTALL_PATH" \
 	2>&1
