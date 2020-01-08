@@ -7,7 +7,7 @@ class MoneroUtils {
    * Loads the WebAssembly module one time.
    */
   static async getWasmModule() {
-    if (MoneroUtils.WASM_MODULE === undefined) MoneroUtils.WASM_MODULE = await require("../../../../build/monero-javascript")().ready;
+    if (MoneroUtils.WASM_MODULE === undefined) MoneroUtils.WASM_MODULE = await require("../../../../build/monero-javascript-wasm")().ready;
     return MoneroUtils.WASM_MODULE;
   }
   
