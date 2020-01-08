@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.4.1)
 
 project(monero-javascript-wasm)
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 #find_package(Threads)
 #find_package(Backtrace)

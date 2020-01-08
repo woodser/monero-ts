@@ -2,6 +2,12 @@
 
 #EMCC_DEBUG=1 
 
+export BOOSTROOT="build/boost/lib"
+export BOOST_ROOT=$BOOSTROOT
+export BOOST_LIB=$BOOSTROOT/lib
+export BOOST_IGNORE_SYSTEM_PATHS=1
+export BOOST_LIBRARYDIR=$BOOSTROOT/lib
+
 mkdir -p build && 
 cd build && 
 emconfigure cmake .. && 
