@@ -3237,6 +3237,11 @@ namespace monero {
     m_syncing_thread_done = false;
     m_syncing_interval = DEFAULT_SYNC_INTERVAL_MILLIS;
 
+    // TODO: tools::get_max_concurrency() w/o pthreads correctly returns 1 on Safari but 8 on Chrome which fails in common/threadpool constructor
+    #ifndef __EMSCRIPTEN_PTHREADS__
+      tools::set_max_concurrency(1);
+    #endif
+
 //    // start auto sync loop
 //    m_syncing_thread = boost::thread([this]() {
 //      this->sync_thread_func();
