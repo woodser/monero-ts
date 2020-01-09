@@ -1,5 +1,7 @@
 HIGH (WASM)
 start wallet sync thread if pthreads enabled
+nginx monerod to support firefox
+MoneroWalletWebWorker.js for web apps
 update instructions to run library in browser
 load MoneroUtils like MoneroWalletKeys/Core
 override startSyncing() in MoneroWalletCore.js
