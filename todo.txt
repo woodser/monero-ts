@@ -1,48 +1,41 @@
 HIGH (WASM)
+update instructions to run library in browser
 load MoneroUtils like MoneroWalletKeys/Core
-throw error if not connected and attempt to sync
-call trim_hashchain() once when getting file buffers, so probably return stringp[]
+override startSyncing() in MoneroWalletCore.js
+hardcode block hash instead of miner::find_nonce
+update screenshots for wasm
 overload create_wallet_* instead of http_client=null?
 delete http client after use in monero_wallet_core and wallet2
 monero_wallet_core::set_daemon_connection is_local_address() uses common/util which requires libunbound
-wallet2 get_address_file() etc refactored to not duplicate
+http_client_wasm use configurable host, user, password
+http_client_wasm factor common js
+compare sync performance with multithreading vs singlethreading - build both?
+compare sync performance with emscripten_fetch
+what in upstream core causes json_rpc requests to be POST? submit issue to default to POST in http_abstract_invoke and wallet2.h
+remove dummy methods
+port ground truth comparison tests from java
+port pool relay tests from java TestMoneroWalletCommon.java
+core wallet sync progress notifications
+optimize wasm imports to minimize size
+cleanup core changes
+update to latest core
+submit core pr
 
+optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
 use PTHREAD_HINT_NUM_CORES to use max cores
 require("MoneroModel") in top-level index.js exports?
 port testSyncWithPoolSubmit from java
 libsodium dependency in monero-cpp-library, why doesn't monero-project's work?
-remove the plugins dir
 test "Can get transactions by id" passes tx query where txs is array of characters
 C++ MTRACE statements execute argument which could be major performance hit
 mymonero monero_wallet_utils.cpp 182 mnemonic sanitation
-debug firefox and chrome exceptions, compare to wasm42
-http_client_wasm should use configurable host, user, password
-factor common js in http_client_wasm
 emscripten bind can return native vectors, see https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
-move store_keys(), load_keys() from wallet2_base to wallet2
-merge wallet_base and wallet using conditional header imports
-profile sync performance, probably switch to emscripten_fetch
-resolve undefined v4_generate_JIT_code
-automate browser build
-what in upstream core causes json_rpc requests to be POST? submit issue to default to POST in http_abstract_invoke and wallet2_base.h
-js async workaround: MoneroWalletWasm:createWalletRandom() gets wallet address synchronously then loops until wallet is generated
-dummy method being called immediately after await MoneroWalletWasm.createWalletRandom() (MoneroWalletWasm.js:15?)
-experiment removing most recently added source files to reduce wasm size
-optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
 
-automate node module tests
-switch biginteger from mymonero submodule
 remove support for {} and use pure OO?
-automate browser app build by copying index.html and asm files from monero_utils
 jni compare ground truth test sometimes shows gt output not unlocked but jni is unlocked
-new rpc wallet created from mnemonic sometimes synced at height and with txs
-port ground truth comparison tests from java
-instructions to run library in browser
-allowing invoking e.g. "start mining" as if running test, add TestScripts.js?
-port pool relay tests from java TestMoneroWalletCommon.java
 drop support for {} params and use OO only?
 release node module
-local wallet cleanup (offline key generation, query subaddresses, etc)s
+query subaddresses in local wallet
 pruning
 mms
 re-enable prove reserves in account when fixed
@@ -90,6 +83,7 @@ support vout filter in tx filter?
 undefined amounts instead of 0 for rct amounts
 block comments in models
 support setting daemon log level
+split BooleanSet into new project
 
 JS now has native BigInt class which could be used instead of current BigInteger
 switch to jest?
@@ -100,25 +94,12 @@ refactor copying to not be downward of a tree rooted at tx but instead correct p
 add typescript?
 
 BIG PICTURE
-make javascript feature complete, including multisig
+support core wallet with webassembly
 report rpc issues
 fix transfers bug #4500 in wallet rpc
-data model outline
-mymonero javascript wallet
-local wallet / refactor wallet2.h
-
-port javascript to java
-implement java jni adapter
 integrate with bisq
-port javascript to go & implement jni binding to integrate with openbazaar
-
-LOCAL WALLET / BROWSER
-build process to not read mymonero-core-js build and contrib to browser build
-update on save B-)
-in wallet implementation: "prepend the last 3 blocks, should be enough to guard against a block or two's reorg" pull_and_parse_next_blocks
-binary_blocks_to_json property_tree conversion throws memory exception if too big
-split BooleanSet into new project
-package asm for browser build under different directory (MyMoneroCoreBridge.js:740)
+port javascript to go & implement binding to integrate with openbazaar
+mymonero javascript wallet
 
 RPC
 -1: Failed to get the right transaction from daemon
