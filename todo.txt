@@ -1,4 +1,5 @@
 HIGH (WASM)
+start wallet sync thread if pthreads enabled
 update instructions to run library in browser
 load MoneroUtils like MoneroWalletKeys/Core
 override startSyncing() in MoneroWalletCore.js
