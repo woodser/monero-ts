@@ -131,7 +131,7 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
     let fullUri = "http://localhost:38081" + UTF8ToString(uri);
 
     // load wasm module then convert from json to binary
-    MoneroUtils.loadWasmModule().then({
+    MoneroUtils.loadWasmModule().then(module => {
 
       let ptr = body;
       let length = body_length;
