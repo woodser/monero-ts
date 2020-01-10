@@ -172,11 +172,11 @@ class MoneroRpcConnection {
   async sendBinaryRequest(path, params) {
     //console.log("sendBinaryRequest(" + path + ", " + JSON.stringify(params) + ")");
     
-    // get core utils to serialize and deserialize binary requests
-    let MoneroUtilsWasm = await MoneroUtils.getUtilsWasm();
+    // load wasm module
+    await MoneroUtils.loadWasmModule();
     
     // serialize params
-    let paramsBin = MoneroUtilsWasm.jsonToBinary(params);
+    let paramsBin = MoneroUtils.jsonToBinary(params);
     
     // build request
     let opts = {

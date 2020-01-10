@@ -14,7 +14,7 @@ class MoneroWalletKeys extends MoneroWallet {
     if (language === undefined) language = "English";
     
     // load wasm module
-    let module = await MoneroUtils.getWasmModule();
+    let module = await MoneroUtils.loadWasmModule();
     
     // return promise which is resolved on callback
     return new Promise(function(resolve, reject) {
@@ -37,7 +37,7 @@ class MoneroWalletKeys extends MoneroWallet {
     if (seedOffset === undefined) seedOffset = "";
     
     // load wasm module
-    let module = await MoneroUtils.getWasmModule();
+    let module = await MoneroUtils.loadWasmModule();
     
     // return promise which is resolved on callback
     return new Promise(function(resolve, reject) {
@@ -62,7 +62,7 @@ class MoneroWalletKeys extends MoneroWallet {
     if (language === undefined) language = "English";
     
     // load wasm module
-    let module = await MoneroUtils.getWasmModule();
+    let module = await MoneroUtils.loadWasmModule();
     
     // return promise which is resolved on callback
     return new Promise(function(resolve, reject) {

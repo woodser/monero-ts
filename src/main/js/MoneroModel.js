@@ -1,5 +1,7 @@
 /**
  * Export all library models.
+ * 
+ * See the full model specification: http://moneroecosystem.org/monero-java/monero-spec.pdf
  */
 module.exports = function() {
   
@@ -9,7 +11,6 @@ module.exports = function() {
   this.BigInteger = require("./utils/biginteger").BigInteger;
   this.Filter = require("./utils/Filter");
   this.MoneroError = require("./utils/MoneroError");
-  this.MoneroUtils = require("./utils/MoneroUtils");
   
   // export daemon models
   this.ConnectionType = require("./daemon/model/ConnectionType");
@@ -70,11 +71,11 @@ module.exports = function() {
   this.MoneroRpcError = require("./rpc/MoneroRpcError");
 
   // export daemon, wallet, and utils classes
+  this.MoneroUtils = require("./utils/MoneroUtils");
   this.MoneroDaemon = require("./daemon/MoneroDaemon");
   this.MoneroWallet = require("./wallet/MoneroWallet");
   this.MoneroDaemonRpc = require("./daemon/MoneroDaemonRpc");
   this.MoneroWalletRpc = require("./wallet/MoneroWalletRpc");
   this.MoneroWalletKeys = require("./wallet/MoneroWalletKeys");
   this.MoneroWalletCore = require("./wallet/MoneroWalletCore");
-  this.getMoneroUtilsWasm = require("./utils/MoneroUtilsWasm"); // returns a promise
 }

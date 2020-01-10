@@ -16,18 +16,9 @@ describe("Test Sample Code", function() {
   
   it("Can be demonstrated with sample code", async function() {
     
-    // *** REMOVE FROM README SAMPLE ***
-    // import daemon and rpc wallet
-    const MoneroDaemonRpc = require("../main/js/daemon/MoneroDaemonRpc");
-    const MoneroWalletRpc = require("../main/js/wallet/MoneroWalletRpc");
-    const MoneroWalletKeys = await require("../main/js/wallet/MoneroWalletKeys")(); // exports promise
-    
-    // *** INCLUDE IN README SAMPLE ***
-//    // import daemon and wallets
-//    const MoneroJS = require("monero-javascript");
-//    const MoneroDaemonRpc = MoneroJS.MoneroDaemonRpc;
-//    const MoneroWalletRpc = MoneroJS.MoneroWalletRpc;
-//    const MoneroWalletKeys = await MoneroJS.getMoneroWalletKeys();  // exports promise
+    // import Monero types
+    require("../../index.js");
+    //require("monero-javascript"); // *** USE IN README SAMPLE ***
     
     // connect to a daemon
     let daemon = new MoneroDaemonRpc("http://localhost:38081");

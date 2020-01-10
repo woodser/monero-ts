@@ -1,6 +1,4 @@
 HIGH (WASM)
-load MoneroUtils like MoneroWalletKeys/Core
-require("MoneroModel") in top-level index.js exports?
 wallet core tests
 core wallet sync progress notifications
 override startSyncing() in MoneroWalletCore.js
@@ -27,6 +25,7 @@ what in upstream core causes json_rpc requests to be POST? submit issue to defau
 pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
 optimize wasm imports to minimize size
+update readme sample with MoneroUtils
 submit core pr
 
 libsodium dependency in monero-cpp-library, why doesn't monero-project's work?

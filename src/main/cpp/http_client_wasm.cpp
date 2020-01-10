@@ -130,8 +130,8 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
     this.config.pass = "abctesting123";
     let fullUri = "http://localhost:38081" + UTF8ToString(uri);
 
-    // fetch MoneroCppUtils to convert from json to binary
-    MoneroUtils.getUtilsWasm().then(MoneroUtilsWasm => {
+    // load wasm module then convert from json to binary
+    MoneroUtils.loadWasmModule().then({
 
       let ptr = body;
       let length = body_length;
