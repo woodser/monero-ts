@@ -6,17 +6,9 @@ class MoneroUtils {
   /**
    * Loads the WebAssembly module one time.
    */
-  static async getWasmModule() {
+  static async loadWasmModule() {
     if (MoneroUtils.WASM_MODULE === undefined) MoneroUtils.WASM_MODULE = await require("../../../../build/monero-javascript-wasm")().ready;
     return MoneroUtils.WASM_MODULE;
-  }
-  
-  /**
-   * Get a utility class which uses WebAssembly to access C++ utilities in the monero-cpp-library submodule.
-   */
-  static async getUtilsWasm() {
-    if (MoneroUtils.MoneroUtilsWasm === undefined) MoneroUtils.MoneroUtilsWasm = await require('./MoneroUtilsWasm')();
-    return MoneroUtils.MoneroUtilsWasm;
   }
   
   // TODO: beef this up
@@ -128,6 +120,105 @@ class MoneroUtils {
       }
     }
     txs.push(tx);
+  }
+  
+  /**
+   * Converts the given JSON to a binary Uint8Array using Monero's portable storage format.
+   * 
+   * @param json is the json to convert to binary
+   * @returns Uint8Array is the json converted to portable storage binary
+   */
+  static jsonToBinary(json) {
+    
+    // wasm module must be pre-loaded
+    if (MoneroUtils.WASM_MODULE === undefined) throw MoneroError("WASM module is not loaded; call 'await MoneroUtils.loadWasmModule()' to load");
+    
+    // serialize json to binary which is stored in c++ heap
+    let binMemInfoStr = MoneroUtils.WASM_MODULE.malloc_binary_from_json(JSON.stringify(json));
+    
+    // sanitize binary memory address info
+    let binMemInfo = JSON.parse(binMemInfoStr);
+    binMemInfo.ptr = parseInt(binMemInfo.ptr);
+    binMemInfo.length = parseInt(binMemInfo.length);
+    
+    // read binary data from heap to Uint8Array
+    let view = new Uint8Array(binMemInfo.length);
+    for (let i = 0; i < binMemInfo.length; i++) {
+      view[i] = MoneroUtils.WASM_MODULE.HEAPU8[binMemInfo.ptr / Uint8Array.BYTES_PER_ELEMENT + i];
+    }
+    
+    // free binary on heap
+    MoneroUtils.WASM_MODULE._free(binMemInfo.ptr);
+    
+    // return json from binary data
+    return view;
+  }
+  
+  /**
+   * Converts the given portable storage binary to JSON.
+   * 
+   * @param uint8arr is a Uint8Array with binary data in Monero's portable storage format
+   * @returns a JSON object converted from the binary data
+   */
+  static binaryToJson(uint8arr) {
+    
+    // wasm module must be pre-loaded
+    if (MoneroUtils.WASM_MODULE === undefined) throw MoneroError("WASM module is not loaded; call 'await MoneroUtils.loadWasmModule()' to load");
+    
+    // allocate space in c++ heap for binary
+    let ptr = MoneroUtils.WASM_MODULE._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
+    let heap = new Uint8Array(MoneroUtils.WASM_MODULE.HEAPU8.buffer, ptr, uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
+    
+    // write binary to heap
+    heap.set(new Uint8Array(uint8arr.buffer));
+    
+    // create object with binary memory address info
+    let binMemInfo = { ptr: ptr, length: uint8arr.length  }
+
+    // convert binary to json str
+    const ret_string = MoneroUtils.WASM_MODULE.binary_to_json(JSON.stringify(binMemInfo));
+    
+    // free binary on heap
+    MoneroUtils.WASM_MODULE._free(heap.byteOffset);
+    MoneroUtils.WASM_MODULE._free(ptr);
+    
+    // parse and return json
+    return JSON.parse(ret_string);
+  }
+  
+  /**
+   * Converts the binary response from daemon RPC block retrieval to JSON.
+   * 
+   * @param uint8arr is the binary response from daemon RPC when getting blocks
+   * @returns a JSON object with the blocks data
+   */
+  static binaryBlocksToJson(uint8arr) {
+    
+    // wasm module must be pre-loaded
+    if (MoneroUtils.WASM_MODULE === undefined) throw MoneroError("WASM module is not loaded; call 'await MoneroUtils.loadWasmModule()' to load");
+    
+    // allocate space in c++ heap for binary
+    let ptr = MoneroUtils.WASM_MODULE._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);  // TODO: this needs deleted
+    let heap = new Uint8Array(MoneroUtils.WASM_MODULE.HEAPU8.buffer, ptr, uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
+    
+    // write binary to heap
+    heap.set(new Uint8Array(uint8arr.buffer));
+    
+    // create object with binary memory address info
+    let binMemInfo = { ptr: ptr, length: uint8arr.length  }
+
+    // convert binary to json str
+    const json_str = MoneroUtils.WASM_MODULE.binary_blocks_to_json(JSON.stringify(binMemInfo));
+    
+    // free memory
+    MoneroUtils.WASM_MODULE._free(heap.byteOffset);
+    MoneroUtils.WASM_MODULE._free(ptr);
+    
+    // parse result to json
+    let json = JSON.parse(json_str);                                          // parsing json gives arrays of block and tx strings
+    json.blocks = json.blocks.map(blockStr => JSON.parse(blockStr));          // replace block strings with parsed blocks
+    json.txs = json.txs.map(txs => txs ? txs.map(tx => JSON.parse(tx.replace(",", "{") + "}")) : []); // modify tx string to proper json and parse // TODO: more efficient way than this json manipulation?
+    return json;
   }
 }
 

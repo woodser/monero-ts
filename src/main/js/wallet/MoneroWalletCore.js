@@ -34,7 +34,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     let cacheData = FS.readFileSync(path);
     
     // load wasm module
-    let module = await MoneroUtils.getWasmModule();
+    let module = await MoneroUtils.loadWasmModule();
     
     // return promise which is resolved on callback
     return new Promise(function(resolve, reject) {
@@ -61,7 +61,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
     
     // load wasm module
-    let module = await MoneroUtils.getWasmModule();
+    let module = await MoneroUtils.loadWasmModule();
     
     // return promise which is resolved on callback
     return new Promise(function(resolve, reject) {
@@ -82,7 +82,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset) {
     
     // load wasm module
-    let module = await MoneroUtils.getWasmModule();
+    let module = await MoneroUtils.loadWasmModule();
     
     // return promise which is resolved on callback
     return new Promise(function(resolve, reject) {

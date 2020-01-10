@@ -1,37 +1,36 @@
 /**
- * Test C++ utilities accessed through WebAssembly.
+ * Test utilities including those implemented in WebAssembly.
  */
-describe("TEST C++ UTILITIES", function() {
+describe("TEST MONERO UTILITIES", function() {
   
   // initialize utils to test
-  let MoneroUtilsWasm;
   before(async function() {
-    MoneroUtilsWasm = await MoneroUtils.getUtilsWasm();
+    await MoneroUtils.loadWasmModule();
   });
   
   describe("Binary Serialization", function() {
     
     it("Can serialize heights with small numbers", function() {
       let json = { heights: [111, 222, 333] };
-      let binary = MoneroUtilsWasm.jsonToBinary(json);
+      let binary = MoneroUtils.jsonToBinary(json);
       assert(binary);
-      let json2 = MoneroUtilsWasm.binaryToJson(binary);
+      let json2 = MoneroUtils.binaryToJson(binary);
       assert.deepEqual(json2, json);
     });
     
     it("Can serialize heights with big numbers", function() {
       let json = { heights: [123456, 1234567, 870987] };
-      let binary = MoneroUtilsWasm.jsonToBinary(json);
+      let binary = MoneroUtils.jsonToBinary(json);
       assert(binary);
-      let json2 = MoneroUtilsWasm.binaryToJson(binary);
+      let json2 = MoneroUtils.binaryToJson(binary);
       assert.deepEqual(json2, json);
     });
     
     it("Can serialize json with text", function() {
       let json = { msg: 'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' };
-      let binary = MoneroUtilsWasm.jsonToBinary(json);
+      let binary = MoneroUtils.jsonToBinary(json);
       assert(binary);
-      let json2 = MoneroUtilsWasm.binaryToJson(binary);
+      let json2 = MoneroUtils.binaryToJson(binary);
       assert.deepEqual(json2, json);
     });
     
@@ -50,9 +49,9 @@ describe("TEST C++ UTILITIES", function() {
           'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + 
           'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + 
           'Hello there my good man lets make a nice long text to test with lots of exclamation marks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n'};
-      let binary = MoneroUtilsWasm.jsonToBinary(json);
+      let binary = MoneroUtils.jsonToBinary(json);
       assert(binary);
-      let json2 = MoneroUtilsWasm.binaryToJson(binary);
+      let json2 = MoneroUtils.binaryToJson(binary);
       assert.deepEqual(json2, json);
     });
   });

@@ -1,15 +1,6 @@
 'use strict'
 
-// import all models
-require("./src/main/js/MoneroModel")();
-
 /**
- * External library exports.
+ * Load all models to "this".
  */
-module.exports = {
-  MoneroDaemonRpc: MoneroDaemonRpc,
-  MoneroWalletRpc: MoneroWalletRpc,
-  MoneroWalletKeys: MoneroWalletKeys,
-  MoneroWalletCore: MoneroWalletCore,
-  getMoneroUtilsWasm: getMoneroUtilsWasm   // returns a promise
-}
+require("./src/main/js/MoneroModel")();

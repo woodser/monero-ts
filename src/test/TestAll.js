@@ -1,5 +1,5 @@
 // import library models
-require("../main/js/MoneroModel")();
+require("../../index.js");
 
 // import test types
 require("./utils/TestUtilsModule")();
@@ -8,11 +8,11 @@ const TestMoneroWalletRpc = require("./TestMoneroWalletRpc");
 const TestMoneroWalletKeys = require("./TestMoneroWalletKeys");
 const TestMoneroWalletCore = require("./TestMoneroWalletCore");
 
-//// test sample code for readme
-//require("./TestSampleCode");
+// test sample code for readme
+require("./TestSampleCode");
 
-//// test C++ utils from monero-cpp-library using WebAssembly
-//require("./TestMoneroUtilsWasm");
+// test utilitiles
+require("./TestMoneroUtils");
 
 //// test daemon rpc
 //new TestMoneroDaemonRpc().runTests({
@@ -40,14 +40,14 @@ const TestMoneroWalletCore = require("./TestMoneroWalletCore");
 //  testNotifications: false
 //});
 
-// test core wallet
-new TestMoneroWalletCore().runTests({
-  liteMode: false,
-  testNonRelays: true,
-  testRelays: false,
-  testResets: false,
-  testNotifications: false
-});
+//// test core wallet
+//new TestMoneroWalletCore().runTests({
+//  liteMode: false,
+//  testNonRelays: true,
+//  testRelays: false,
+//  testResets: false,
+//  testNotifications: false
+//});
 
 //// test boolean set (data structure used by wallet to track progress)
 //require("./TestBooleanSet");
