@@ -3242,7 +3242,7 @@ namespace monero {
       m_syncing_thread = boost::thread([this]() {
         this->sync_thread_func();
       });
-    #elif
+    #else
       tools::set_max_concurrency(1);  // TODO: single-threaded emscripten tools::get_max_concurrency() correctly returns 1 on Safari but 8 on Chrome which fails in common/threadpool constructor
     #endif
   }
