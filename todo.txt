@@ -1,35 +1,34 @@
 HIGH (WASM)
-test latest branch with java
-monerod not returning cors header "Access-Control-Allow-Origin" when started with non-localhost
-pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm
-nginx monerod to support firefox
-MoneroWalletWebWorker.js for web apps
-update instructions to run library in browser
 load MoneroUtils like MoneroWalletKeys/Core
+require("MoneroModel") in top-level index.js exports?
+wallet core tests
+core wallet sync progress notifications
 override startSyncing() in MoneroWalletCore.js
-hardcode block hash instead of miner::find_nonce
-update screenshots for wasm
-overload create_wallet_* instead of http_client=null?
-delete http client after use in monero_wallet_core and wallet2
-monero_wallet_core::set_daemon_connection is_local_address() uses common/util which requires libunbound
+MoneroWalletWebWorker.js for web apps
+port ground truth comparison tests from java
+port pool relay tests from java TestMoneroWalletCommon.java
+port testSyncWithPoolSubmit from java
 http_client_wasm use configurable host, user, password
 http_client_wasm factor common js
+delete http client after use in monero_wallet_core and wallet2
+hardcode block hash instead of miner::find_nonce
+overload create_wallet_* instead of http_client=null?
+monero_wallet_core::set_daemon_connection is_local_address() uses common/util which requires libunbound
+remove dummy methods
+cleanup core changes
+update to latest core
+test latest branch with java
+nginx monerod to support firefox
+update instructions to run library in browser
+update screenshots for wasm
 compare sync performance with multithreading vs singlethreading - build both?
 compare sync performance with emscripten_fetch
 what in upstream core causes json_rpc requests to be POST? submit issue to default to POST in http_abstract_invoke and wallet2.h
-remove dummy methods
-port ground truth comparison tests from java
-port pool relay tests from java TestMoneroWalletCommon.java
-core wallet sync progress notifications
+pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm
+optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
 optimize wasm imports to minimize size
-cleanup core changes
-update to latest core
 submit core pr
 
-optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
-use PTHREAD_HINT_NUM_CORES to use max cores
-require("MoneroModel") in top-level index.js exports?
-port testSyncWithPoolSubmit from java
 libsodium dependency in monero-cpp-library, why doesn't monero-project's work?
 test "Can get transactions by id" passes tx query where txs is array of characters
 C++ MTRACE statements execute argument which could be major performance hit
