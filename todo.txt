@@ -1,5 +1,7 @@
 HIGH (WASM)
-start wallet sync thread if pthreads enabled
+test latest branch with java
+monerod not returning cors header "Access-Control-Allow-Origin" when started with non-localhost
+pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm
 nginx monerod to support firefox
 MoneroWalletWebWorker.js for web apps
 update instructions to run library in browser
