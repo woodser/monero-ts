@@ -89,67 +89,73 @@ namespace monero {
     static bool wallet_exists(const string& path);
 
     /**
-     * Open an existing wallet.
+     * Open an existing wallet from disk.
      *
+     * @param network_type is the wallet's network type
      * @param path is the path to the wallet file to open
      * @param password is the password of the wallet file to open
-     * @param network_type is the wallet's network type
+     * @return a pointer to the wallet instance
      */
-    static monero_wallet_core* open_wallet(const string& path, const string& password, const monero_network_type network_type);
+    static monero_wallet_core* open_wallet(const monero_network_type network_type, const string& path, const string& password);
 
     /**
-     * Open an existing wallet.
+     * Open an existing wallet from data buffers.
      *
-     * TODO: combine into one open_wallet()?
+     * TODO: support path = "" which autosaves?
      *
-     * @param password is the password of the wallet file to open
      * @param network_type is the wallet's network type
      * @param keys_data contains the contents of the ".keys" file
      * @param cache_data contains the contents of the wallet cache file (no extension)
+     * @param password is the password of the wallet file to open
      * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
-     * @param http_client makes network requests
-     * @return a pointer to the opened wallet
+     * @param http_client allows the http client to be overriden (defaults to monero-project's http_client.h)
+     * @return a pointer to the wallet instance
      */
-    static monero_wallet_core* open_wallet(const string& password, const monero_network_type, const string& keys_data, const string& cache_data, const monero_rpc_connection& daemon_connection, epee::net_utils::http::abstract_http_client* http_client = nullptr);
+    static monero_wallet_core* open_wallet(const monero_network_type, const string& keys_data, const string& cache_data, const string& password, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), shared_ptr<epee::net_utils::http::abstract_http_client> http_client = nullptr);
 
     /**
      * Create a new wallet with a randomly generated seed.
      *
-     * @param path is the path to create the wallet
+     * @param network_type is the wallet's network type's
      * @param password is the password encrypt the wallet
-     * @param network_type is the wallet's network type
-     * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
-     * @param language is the wallet and mnemonic's language (default = "English")
+     * @param path is the path to create the wallet (defaults to in-memory wallet with path "")
+     * @param daemon_connection is connection information to a daemon (defaults to an unconnected wallet)
+     * @param language is the wallet and mnemonic's language (defaults to "English")
+     * @param http_client allows the http client to be overriden (defaults to monero-project's http_client.h)
+     * @return a pointer to the wallet instance
      */
-    static monero_wallet_core* create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const string& language = "English", epee::net_utils::http::abstract_http_client *http_client = nullptr);
+    static monero_wallet_core* create_wallet_random(const monero_network_type network_type, const string& password, const string& path = "", const monero_rpc_connection& daemon_connection = monero_rpc_connection(), const string& language = "English", shared_ptr<epee::net_utils::http::abstract_http_client> http_client = nullptr);
 
     /**
      * Create a wallet from an existing mnemonic phrase.
      *
-     * @param path is the path to create the wallet
-     * @param password is the password encrypt the wallet
      * @param network_type is the wallet's network type
      * @param mnemonic is the mnemonic of the wallet to construct
-     * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
-     * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
-     * @param seed_offset is the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
+     * @param password is the password encrypt the wallet
+     * @param path is the path to create the wallet (defaults to in-memory wallet with path "")
+     * @param daemon_connection is connection information to a daemon (defaults to an unconnected wallet)
+     * @param restore_height is the block height to restore from (default = 0)
+     * @param seed_offset is the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase (default = "")
+     * @param http_client allows the http client to be overriden (defaults to monero-project's http_client.h)
+     * @return a pointer to the wallet instance
      */
-    static monero_wallet_core* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& seed_offset, epee::net_utils::http::abstract_http_client *http_client = nullptr);
+    static monero_wallet_core* create_wallet_from_mnemonic(const monero_network_type network_type, const string& mnemonic, const string& password, const string& path = "", const monero_rpc_connection& daemon_connection = monero_rpc_connection(), uint64_t restore_height = 0, const string& seed_offset = "", shared_ptr<epee::net_utils::http::abstract_http_client> http_client = nullptr);
 
     /**
      * Create a wallet from an address, view key, and spend key.
      *
-     * @param path is the path to create the wallet
-     * @param password is the password encrypt the wallet
      * @param network_type is the wallet's network type
      * @param address is the address of the wallet to construct
      * @param view_key is the private view key of the wallet to construct
      * @param spend_key is the private spend key of the wallet to construct
-     * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
+     * @param password is the password encrypt the wallet (defaults to in-memory wallet with password "")
+     * @param path is the path to create the wallet (defaults to in-memory wallet with path "")
+     * @param daemon_connection is connection information to a daemon (defaults to an unconnected wallet)
      * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
-     * @param language is the wallet and mnemonic's language (default = "English")
+     * @param language is the wallet and mnemonic's language (defaults to "English")
+     * @return a pointer to the wallet instance
      */
-    static monero_wallet_core* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& language);
+    static monero_wallet_core* create_wallet_from_keys(const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const string& password, const string& path = "", const monero_rpc_connection& daemon_connection = monero_rpc_connection(), uint64_t restore_height = 0, const string& language = "English");
 
     /**
      * Get a list of available languages for the wallet's mnemonic phrase.

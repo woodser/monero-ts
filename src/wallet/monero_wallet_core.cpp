@@ -798,7 +798,7 @@ namespace monero {
     return wallet_file_exists;
   }
 
-  monero_wallet_core* monero_wallet_core::open_wallet(const string& path, const string& password, const monero_network_type network_type) {
+  monero_wallet_core* monero_wallet_core::open_wallet(const monero_network_type network_type, const string& path, const string& password) {
     MTRACE("open_wallet(" << path << ", " << password << ", " << network_type << ")");
     monero_wallet_core* wallet = new monero_wallet_core();
     wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
@@ -808,21 +808,20 @@ namespace monero {
     return wallet;
   }
 
-  monero_wallet_core* monero_wallet_core::open_wallet(const string& password, const monero_network_type network_type, const string& keys_buffer, const string& cache_buffer, const monero_rpc_connection& daemon_connection, epee::net_utils::http::abstract_http_client* http_client) {
+  monero_wallet_core* monero_wallet_core::open_wallet(const monero_network_type network_type, const string& keys_data, const string& cache_data, const string& password, const monero_rpc_connection& daemon_connection, shared_ptr<epee::net_utils::http::abstract_http_client> http_client) {
     MTRACE("open_wallet(...buffers...)");
     cout << "open_wallet(...buffers...)" << endl;
     monero_wallet_core* wallet = new monero_wallet_core();
     if (http_client == nullptr) wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     else wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true, http_client));
-    wallet->m_w2->load("", password, keys_buffer, cache_buffer);
+    wallet->m_w2->load("", password, keys_data, cache_data);
     wallet->m_w2->init("");
     wallet->set_daemon_connection(daemon_connection);
     wallet->init_common();
     return wallet;
   }
 
-  // TODO: ensure that wallet does not already exist
-  monero_wallet_core* monero_wallet_core::create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection, const string& language, epee::net_utils::http::abstract_http_client *http_client) {
+  monero_wallet_core* monero_wallet_core::create_wallet_random(const monero_network_type network_type, const string& password, const string& path, const monero_rpc_connection& daemon_connection, const string& language, shared_ptr<epee::net_utils::http::abstract_http_client> http_client) {
     MTRACE("create_wallet_random(path, password, network_type, daemon_connection, language)");
     monero_wallet_core* wallet = new monero_wallet_core();
     if (http_client == nullptr) wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
@@ -836,7 +835,7 @@ namespace monero {
     return wallet;
   }
 
-  monero_wallet_core* monero_wallet_core::create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& seed_offset, epee::net_utils::http::abstract_http_client *http_client) {
+  monero_wallet_core* monero_wallet_core::create_wallet_from_mnemonic(const monero_network_type network_type, const string& mnemonic, const string& password, const string& path, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& seed_offset, shared_ptr<epee::net_utils::http::abstract_http_client> http_client) {
     MTRACE("create_wallet_from_mnemonic(path, password, mnemonic, network_type, daemon_connection, restore_height)");
     monero_wallet_core* wallet = new monero_wallet_core();
 
@@ -861,7 +860,7 @@ namespace monero {
     return wallet;
   }
 
-  monero_wallet_core* monero_wallet_core::create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& language) {
+  monero_wallet_core* monero_wallet_core::create_wallet_from_keys(const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const string& password, const string& path, const monero_rpc_connection& daemon_connection, uint64_t restore_height, const string& language) {
     MTRACE("create_wallet_from_keys(path, password, address, view_key, spend_key, network_type, daemon_connection, restore_height, language)");
     monero_wallet_core* wallet = new monero_wallet_core();
 
