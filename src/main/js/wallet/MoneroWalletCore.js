@@ -46,7 +46,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       };
       
       // create wallet in wasm and invoke callback when done
-      module.open_core_wallet("", password === undefined ? "" : password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, callbackFn);    // empty path is provided so disk writes only happen from JS
+      module.open_core_wallet(networkType, keysData, cacheData, password === undefined ? "" : password, daemonUri, daemonUsername, daemonPassword, callbackFn);    // empty path is provided so disk writes only happen from JS
     });
   }
   
@@ -74,7 +74,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       };
       
       // create wallet in wasm and invoke callback when done
-      module.create_core_wallet_random("", password === undefined ? "" : password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);    // empty path is provided so disk writes only happen from JS
+      module.create_core_wallet_random(networkType, password === undefined ? "" : password, daemonUri, daemonUsername, daemonPassword, language, callbackFn);    // empty path is provided so disk writes only happen from JS
     });
   }
   
@@ -99,7 +99,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
       let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
       if (seedOffset === undefined) seedOffset = "";
-      module.create_core_wallet_from_mnemonic("", password === undefined ? "" : password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, seedOffset, callbackFn);  // empty path is provided so disk writes only happen from JS
+      module.create_core_wallet_from_mnemonic(networkType, mnemonic, password === undefined ? "" : password, daemonUri, daemonUsername, daemonPassword, restoreHeight, seedOffset, callbackFn);  // empty path is provided so disk writes only happen from JS
     });
   }
   
