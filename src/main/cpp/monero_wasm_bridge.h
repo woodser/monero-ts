@@ -21,10 +21,10 @@ namespace monero_wasm_bridge
 
   // ------------------------- STATIC WALLET UTILS ----------------------------
 
-  void open_core_wallet(int network_type, const string& keys_data, const string& cache_data, const string& password, const string& daemon_uri, const string& daemon_username, const string& daemon_password, emscripten::val callback);
-  void create_core_wallet_random(int network_type, const string& password, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& language, emscripten::val callback);
-  void create_core_wallet_from_mnemonic(int network_type, const string& mnemonic, const string& password, const string& daemon_uri, const string& daemon_username, const string& daemon_password, long restore_height, const string& seed_offset, emscripten::val callback);
-  void create_core_wallet_from_keys(int network_type, const string& address, const string& view_key, const string& spend_key, const string& password, const string& language, emscripten::val callback);
+  void open_core_wallet(const string& password, int network_type, const string& keys_data, const string& cache_data, const string& daemon_uri, const string& daemon_username, const string& daemon_password, emscripten::val callback);
+  void create_core_wallet_random(const string& password, int network_type, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& language, emscripten::val callback);
+  void create_core_wallet_from_mnemonic(const string& password, int network_type, const string& mnemonic, const string& daemon_uri, const string& daemon_username, const string& daemon_password, long restore_height, const string& seed_offset, emscripten::val callback);
+  void create_core_wallet_from_keys(const string& password, int network_type, const string& address, const string& view_key, const string& spend_key, const string& language, emscripten::val callback);
 
   void create_keys_wallet_random(int network_type, const string& language, emscripten::val callback);
   void create_keys_wallet_from_mnemonic(int network_type, const string& mnemonic, const string& seed_offset, emscripten::val callback);
