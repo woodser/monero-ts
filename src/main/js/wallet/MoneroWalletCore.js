@@ -142,6 +142,11 @@ class MoneroWalletCore extends MoneroWalletKeys {
     });
   }
   
+  static async getMnemonicLanguages() {
+    let module = await MoneroUtils.loadWasmModule();  // load wasm module
+    return JSON.parse(module.get_keys_wallet_mnemonic_languages()).languages;
+  }
+  
   // --------------------------- INSTANCE METHODS -----------------------------
   
   /**

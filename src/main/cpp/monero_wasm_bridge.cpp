@@ -112,6 +112,13 @@ void monero_wasm_bridge::create_core_wallet_from_keys(const string& password, in
   callback((int) wallet); // callback with wallet memory address
 }
 
+string monero_wasm_bridge::get_core_wallet_mnemonic_languages() {
+  rapidjson::Document doc;
+  doc.SetObject();
+  doc.AddMember("languages", monero_utils::to_rapidjson_val(doc.GetAllocator(), monero_wallet_core::get_mnemonic_languages()), doc.GetAllocator());
+  return monero_utils::serialize(doc);
+}
+
 void monero_wasm_bridge::create_keys_wallet_random(int network_type, const string& language, emscripten::val callback) {
   monero_wallet* wallet = monero_wallet_keys::create_wallet_random(static_cast<monero_network_type>(network_type), language);
   callback((int) wallet); // callback with wallet memory address
@@ -127,10 +134,11 @@ void monero_wasm_bridge::create_keys_wallet_from_keys(int network_type, const st
   callback((int) wallet); // callback with wallet memory address
 }
 
-vector<string> monero_wasm_bridge::get_keys_wallet_mnemonic_languages() {
-  vector<string> languages = monero_wallet_keys::get_mnemonic_languages();
-  cout << "Got " << languages.size() << " languages for the mnemonic phrase";
-  return languages;
+string monero_wasm_bridge::get_keys_wallet_mnemonic_languages() {
+  rapidjson::Document doc;
+  doc.SetObject();
+  doc.AddMember("languages", monero_utils::to_rapidjson_val(doc.GetAllocator(), monero_wallet_keys::get_mnemonic_languages()), doc.GetAllocator());
+  return monero_utils::serialize(doc);
 }
 
 // ------------------------ WALLET INSTANCE METHODS ---------------------------

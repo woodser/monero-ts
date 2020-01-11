@@ -38,6 +38,10 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
     return wallet;
   }
   
+  async getMnemonicLanguages() {
+    return await MoneroWalletCore.getMnemonicLanguages();
+  }
+  
   runTests(config) {
     let that = this;
     describe("TEST MONERO WALLET WASM", function() {
