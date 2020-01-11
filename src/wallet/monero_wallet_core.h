@@ -154,7 +154,7 @@ namespace monero {
      * @param language is the wallet and mnemonic's language (defaults to "English")
      * @return a pointer to the wallet instance
      */
-    static monero_wallet_core* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), uint64_t restore_height = 0, const string& language = "English");
+    static monero_wallet_core* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), uint64_t restore_height = 0, const string& language = "English", shared_ptr<epee::net_utils::http::abstract_http_client> http_client = nullptr);
 
     /**
      * Get a list of available languages for the wallet's mnemonic phrase.
