@@ -88,41 +88,43 @@ void monero_wasm_bridge::open_core_wallet(const string& password, int network_ty
   cout << "monero_wasm_bridge::open_core_wallet(...)" << endl;
   monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
   monero_wallet* wallet = monero_wallet_core::open_wallet(password, static_cast<monero_network_type>(network_type), keys_data, cache_data, daemon_connection, make_shared<http_client_wasm>());
-  callback((int) wallet); // invoke callback with wallet memory address
+  callback((int) wallet); // callback with wallet memory address
 }
 
 void monero_wasm_bridge::create_core_wallet_random(const string& password, int network_type, const string& daemon_uri, const string& daemon_username, const string& daemon_password, const string& language, emscripten::val callback) {
   cout << "monero_wasm_bridge::create_core_wallet_random()" << endl;
   monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
   monero_wallet* wallet = monero_wallet_core::create_wallet_random("", password, static_cast<monero_network_type>(network_type), daemon_connection, language, make_shared<http_client_wasm>());
-  callback((int) wallet); // invoke callback with wallet memory address
+  callback((int) wallet); // callback with wallet memory address
 }
 
 void monero_wasm_bridge::create_core_wallet_from_mnemonic(const string& password, int network_type, const string& mnemonic, const string& daemon_uri, const string& daemon_username, const string& daemon_password, long restore_height, const string& seed_offset, emscripten::val callback) {
   cout << "monero_wasm_bridge::create_core_wallet_from_mnemonic()" << endl;
   monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
   monero_wallet* wallet = monero_wallet_core::create_wallet_from_mnemonic("", password, static_cast<monero_network_type>(network_type), mnemonic, daemon_connection, restore_height, seed_offset, make_shared<http_client_wasm>());
-  callback((int) wallet); // invoke callback with wallet memory address
+  callback((int) wallet); // callback with wallet memory address
 }
 
-void monero_wasm_bridge::create_core_wallet_from_keys(const string& password, int network_type, const string& address, const string& view_key, const string& spend_key, const string& language, emscripten::val callback) {
+void monero_wasm_bridge::create_core_wallet_from_keys(const string& password, int network_type, const string& address, const string& view_key, const string& spend_key, const string& daemon_uri, const string& daemon_username, const string& daemon_password, long restore_height, const string& language, emscripten::val callback) {
   cout << "monero_wasm_bridge::create_core_wallet_from_keys()" << endl;
-  throw runtime_error("monero_wasm_bridge::create_core_wallet_from_keys() not implemented");
+  monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
+  monero_wallet* wallet = monero_wallet_core::create_wallet_from_keys("", password, static_cast<monero_network_type>(network_type), address, view_key, spend_key, daemon_connection, restore_height, language, make_shared<http_client_wasm>());
+  callback((int) wallet); // callback with wallet memory address
 }
 
 void monero_wasm_bridge::create_keys_wallet_random(int network_type, const string& language, emscripten::val callback) {
   monero_wallet* wallet = monero_wallet_keys::create_wallet_random(static_cast<monero_network_type>(network_type), language);
-  callback((int) wallet); // callback with wallet address
+  callback((int) wallet); // callback with wallet memory address
 }
 
 void monero_wasm_bridge::create_keys_wallet_from_mnemonic(int network_type, const string& mnemonic, const string& seed_offset, emscripten::val callback) {
   monero_wallet* wallet = monero_wallet_keys::create_wallet_from_mnemonic(static_cast<monero_network_type>(network_type), mnemonic, seed_offset);
-  callback((int) wallet); // callback with wallet address
+  callback((int) wallet); // callback with wallet memory address
 }
 
 void monero_wasm_bridge::create_keys_wallet_from_keys(int network_type, const string& address, const string& view_key, const string& spend_key, const string& language, emscripten::val callback) {
   monero_wallet* wallet = monero_wallet_keys::create_wallet_from_keys(static_cast<monero_network_type>(network_type), address, view_key, spend_key);
-  callback((int) wallet); // callback with wallet address
+  callback((int) wallet); // callback with wallet memory address
 }
 
 vector<string> monero_wasm_bridge::get_keys_wallet_mnemonic_languages() {
