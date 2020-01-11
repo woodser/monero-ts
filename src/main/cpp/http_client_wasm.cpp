@@ -9,8 +9,8 @@ using namespace std;
 
 // TODO: factor js code to js file, possible use by MoneroRpcConnection, or change MoneroRpcConnection interface
 
-EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, const char* body, std::chrono::milliseconds timeout), {
-  //console.log("EM_JS js_send_json_request(" + UTF8ToString(uri) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
+EM_JS(const char*, js_send_json_request, (const char* path, const char* method, const char* body, std::chrono::milliseconds timeout), {
+  //console.log("EM_JS js_send_json_request(" + UTF8ToString(path) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
 
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
@@ -32,7 +32,7 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, c
     this.config = {};
     this.config.user = "superuser";
     this.config.pass = "abctesting123";
-    let fullUri = "http://localhost:38081" + UTF8ToString(uri);
+    let fullUri = "http://localhost:38081" + UTF8ToString(path);
     //console.log("Full URI: " + fullUri);
 
     // build request which gets json response as text
@@ -105,8 +105,8 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* method, c
   });
 });
 
-EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method, const char* body, int body_length, std::chrono::milliseconds timeout), {
-  //console.log("EM_JS js_send_binary_request(" + UTF8ToString(uri) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
+EM_JS(const char*, js_send_binary_request, (const char* path, const char* method, const char* body, int body_length, std::chrono::milliseconds timeout), {
+  //console.log("EM_JS js_send_binary_request(" + UTF8ToString(path) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
 
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
@@ -128,7 +128,7 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
     this.config = {};
     this.config.user = "superuser";
     this.config.pass = "abctesting123";
-    let fullUri = "http://localhost:38081" + UTF8ToString(uri);
+    let fullUri = "http://localhost:38081" + UTF8ToString(path);
 
     // load wasm module then convert from json to binary
     MoneroUtils.loadWasmModule().then(module => {
@@ -160,8 +160,6 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
         }
       }
 
-      //console.log("Timeout: " + timeout); // TODO: use timeout
-
       /**
        * Makes a throttled request.
        *
@@ -171,20 +169,9 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
         return this.promiseThrottle.add(function(opts) { return Request(opts); }.bind(this, opts));
       }
 
-
       // send throttled request
       let wakeUpCalled = false;
       _throttledRequest(opts).then(resp => {
-
-        // TODO: return this
-        //return new Uint8Array(resp, 0, resp.length);
-
-        // replace 16 or more digits with strings and parse
-        //resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // TODO: get this to compile in C++ or move to JS file
-
-        // allocate space in c++ heap for binary
-        //console.log("Response body length: " + resp.body.length);
-        //console.log("Response body BYTES_PER_ELEMENT: " + resp.body.BYTES_PER_ELEMENT);
 
         // write binary body to heap and pass back pointer
         let nDataBytes = resp.body.length * resp.body.BYTES_PER_ELEMENT;
@@ -192,14 +179,10 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
         let heap = new Uint8Array(Module.HEAPU8.buffer, bodyPtr, nDataBytes);
         heap.set(new Uint8Array(resp.body.buffer, resp.body.byteOffset, nDataBytes));
 
-//        // create object with binary memory address info
-//        let binMemInfo = { ptr: ptr, length: uint8arr.length  }
-
         // build response container
         let respContainer = {
           code: resp.statusCode,
           message: resp.statusMessage,
-          //body: new Uint8Array(resp.body, 0, resp.body.length),
           headers: resp.headers,
           bodyPtr: bodyPtr,
           bodyLength: resp.body.length
@@ -216,8 +199,8 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
         console.log("ERROR!!!");
         console.log(err);
         if (wakeUpCalled) {
-            console.log("Error caught in JS after previously calling wakeUp(): " + err);
-            throw Error("Error caught in JS after previously calling wakeUp(): " + err);
+          console.log("Error caught in JS after previously calling wakeUp(): " + err);
+          throw Error("Error caught in JS after previously calling wakeUp(): " + err);
         }
         let str = err.message ? err.message : ("" + err); // get error message
         str = JSON.stringify({error: str});               // wrap error in object
@@ -227,12 +210,8 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* method,
         wakeUp(ptr);
       });
     });
-
-//    // get core utils to serialize and deserialize binary requests
-//    let MoneroCppUtils = await MoneroUtils.getCppUtils();
   });
 });
-
 
 void http_client_wasm::set_server(std::string host, std::string port, boost::optional<login> user, ssl_options_t ssl_options) {
   disconnect();
@@ -291,10 +270,10 @@ void build_http_header_info(const boost::property_tree::ptree& headers_node, htt
   }
 }
 
-bool http_client_wasm::invoke_json(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
+bool http_client_wasm::invoke_json(const boost::string_ref path, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
 
   // make json request through javascript
-  const char* resp_str = js_send_json_request(uri.data(), method.data(), body.data(), timeout);
+  const char* resp_str = js_send_json_request(path.data(), method.data(), body.data(), timeout);
 
   // deserialize response to property tree
   std::istringstream iss = std::istringstream(std::string(resp_str));
@@ -318,11 +297,6 @@ bool http_client_wasm::invoke_json(const boost::string_ref uri, const boost::str
   // set response argument
   if (ppresponse_info && m_response_info.m_response_code != 401) {
     *ppresponse_info = std::addressof(m_response_info);
-//    cout << "Set response info!!!" << endl;
-//    cout << (*ppresponse_info)->m_response_code << endl;
-//    cout << (*ppresponse_info)->m_response_comment << endl;
-//    cout << (*ppresponse_info)->m_mime_tipe << endl;
-//    cout << "Content type header: " << (*ppresponse_info)->m_header_info.m_content_type << endl;
   }
 
   // free response string from heap
@@ -332,10 +306,10 @@ bool http_client_wasm::invoke_json(const boost::string_ref uri, const boost::str
   return m_response_info.m_response_code == 200;
 }
 
-bool http_client_wasm::invoke_binary(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
+bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
 
   // make binary request through javascript
-  const char* resp_str = js_send_binary_request(uri.data(), method.data(), body.data(), body.length(), timeout);
+  const char* resp_str = js_send_binary_request(path.data(), method.data(), body.data(), body.length(), timeout);
 
   // deserialize response to property tree
   std::istringstream iss = std::istringstream(std::string(resp_str));
@@ -363,11 +337,6 @@ bool http_client_wasm::invoke_binary(const boost::string_ref uri, const boost::s
   // set response argument
   if (ppresponse_info && m_response_info.m_response_code != 401) {
     *ppresponse_info = std::addressof(m_response_info);
-    //cout << "Set resopnse info!!!" << endl;
-    //cout << (*ppresponse_info)->m_response_code << endl;
-    //cout << (*ppresponse_info)->m_response_comment << endl;
-    //cout << (*ppresponse_info)->m_mime_tipe << endl;
-    //cout << "Content type header: " << (*ppresponse_info)->m_header_info.m_content_type << endl;
   }
 
   // free response string and binary from heap
@@ -376,35 +345,10 @@ bool http_client_wasm::invoke_binary(const boost::string_ref uri, const boost::s
 
   // return true iff 200
   return m_response_info.m_response_code == 200;
-
-  // TODO: return true/false according to these rules
-  //  if (m_response_info.m_response_code != 401)
-  //  {
-  //    if(ppresponse_info)
-  //      *ppresponse_info = std::addressof(m_response_info);
-  //    return true;
-  //  }
-  //
-  //  switch (m_auth.handle_401(m_response_info))
-  //  {
-  //  case http_client_auth::kSuccess:
-  //    break;
-  //  case http_client_auth::kBadPassword:
-  //                                        sends = 2;
-  //    break;
-  //  default:
-  //  case http_client_auth::kParseFailure:
-  //    LOG_ERROR("Bad server response for authentication");
-  //    return false;
-  //  }
-  //  req_buff.resize(initial_size); // rollback for new auth generation
-  //}
-  //LOG_ERROR("Client has incorrect username/password for server requiring authentication");
-  //return false;
 }
 
-bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
-  cout << "invoke(" << uri << ", " << method << ", ...)" << endl;
+bool http_client_wasm::invoke(const boost::string_ref path, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
+  cout << "invoke(" << path << ", " << method << ", ...)" << endl;
 
   // return false if unconnected
   if (!is_connected()) {
@@ -413,20 +357,20 @@ bool http_client_wasm::invoke(const boost::string_ref uri, const boost::string_r
   }
 
   // invoke http call
-  string uri_str = uri.data();
-  bool is_binary = (0 == uri_str.compare(uri_str.length() - 4, 4, string(".bin")));
-  if (is_binary) return invoke_binary(uri, method, body, timeout, ppresponse_info, additional_params);
-  else return invoke_json(uri, method, body, timeout, ppresponse_info, additional_params);
+  string path_str = path.data();
+  bool is_binary = (0 == path_str.compare(path_str.length() - 4, 4, string(".bin")));
+  if (is_binary) return invoke_binary(path, method, body, timeout, ppresponse_info, additional_params);
+  else return invoke_json(path, method, body, timeout, ppresponse_info, additional_params);
 }
 
-bool http_client_wasm::invoke_get(const boost::string_ref uri, std::chrono::milliseconds timeout, const std::string& body, const http_response_info** ppresponse_info, const fields_list& additional_params) {
+bool http_client_wasm::invoke_get(const boost::string_ref path, std::chrono::milliseconds timeout, const std::string& body, const http_response_info** ppresponse_info, const fields_list& additional_params) {
   cout << "invoke_get()" << endl;
-  return http_client_wasm::invoke(uri, "GET", body, timeout, ppresponse_info, additional_params);
+  return http_client_wasm::invoke(path, "GET", body, timeout, ppresponse_info, additional_params);
 }
 
-bool http_client_wasm::invoke_post(const boost::string_ref uri, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
+bool http_client_wasm::invoke_post(const boost::string_ref path, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
   cout << "invoke_post()" << endl;
-  return http_client_wasm::invoke(uri, "POST", body, timeout, ppresponse_info, additional_params);
+  return http_client_wasm::invoke(path, "POST", body, timeout, ppresponse_info, additional_params);
 }
 
 uint64_t http_client_wasm::get_bytes_sent() const {
