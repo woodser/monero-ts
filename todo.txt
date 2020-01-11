@@ -1,5 +1,6 @@
 HIGH (WASM)
 core wallet should auto save wallet if path given
+wallet2 password is required to create valid cache file on creation
 wallet core tests
 core wallet sync progress notifications
 override startSyncing() in MoneroWalletCore.js
