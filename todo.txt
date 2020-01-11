@@ -9,7 +9,6 @@ port pool relay tests from java TestMoneroWalletCommon.java
 port testSyncWithPoolSubmit from java
 http_client_wasm use configurable host, user, password
 http_client_wasm factor common js
-delete http client after use in monero_wallet_core and wallet2
 hardcode block hash instead of miner::find_nonce
 overload create_wallet_* instead of http_client=null?
 monero_wallet_core::set_daemon_connection is_local_address() uses common/util which requires libunbound
