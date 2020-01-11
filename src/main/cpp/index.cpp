@@ -7,6 +7,9 @@
 // register bindings from JS to C++ using emscripten
 EMSCRIPTEN_BINDINGS(module)
 {
+  // register bindings for std::vector<string>
+  register_vector<string>("vector<string>");
+
   // ------------------------------ UTILITIES ---------------------------------
 
   emscripten::function("malloc_binary_from_json", &monero_wasm_bridge::malloc_binary_from_json);
@@ -19,6 +22,7 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("create_core_wallet_random", &monero_wasm_bridge::create_core_wallet_random);
   emscripten::function("create_core_wallet_from_mnemonic", &monero_wasm_bridge::create_core_wallet_from_mnemonic);
   emscripten::function("create_core_wallet_from_keys", &monero_wasm_bridge::create_core_wallet_from_keys);
+  emscripten::function("get_core_wallet_mnemonic_languages", &monero_wasm_bridge::get_core_wallet_mnemonic_languages);
 
   emscripten::function("create_keys_wallet_random", &monero_wasm_bridge::create_keys_wallet_random);
   emscripten::function("create_keys_wallet_from_mnemonic", &monero_wasm_bridge::create_keys_wallet_from_mnemonic);
