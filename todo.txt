@@ -1,4 +1,5 @@
 HIGH (WASM)
+core wallet should auto save wallet if path given
 wallet core tests
 core wallet sync progress notifications
 override startSyncing() in MoneroWalletCore.js

@@ -110,7 +110,6 @@ void monero_wasm_bridge::create_core_wallet_from_keys(const string& password, in
   throw runtime_error("monero_wasm_bridge::create_core_wallet_from_keys() not implemented");
 }
 
-
 void monero_wasm_bridge::create_keys_wallet_random(int network_type, const string& language, emscripten::val callback) {
   monero_wallet* wallet = monero_wallet_keys::create_wallet_random(static_cast<monero_network_type>(network_type), language);
   callback((int) wallet); // callback with wallet address
