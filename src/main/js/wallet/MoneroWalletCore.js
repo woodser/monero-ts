@@ -54,6 +54,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // validate and sanitize params
     if (path === undefined) path = "";
+    if (password === undefined) password = "";
     MoneroNetworkType.validate(networkType);
     if (language === undefined) language = "English";
     let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
@@ -74,7 +75,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       };
       
       // create wallet in wasm and invoke callback when done
-      module.create_core_wallet_random(password === undefined ? "" : password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);    // empty path is provided so disk writes only happen from JS
+      module.create_core_wallet_random(password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);    // empty path is provided so disk writes only happen from JS
     });
   }
   
