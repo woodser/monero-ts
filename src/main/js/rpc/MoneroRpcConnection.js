@@ -1,4 +1,3 @@
-const Http = require('http');
 const Request = require("request-promise");
 const PromiseThrottle = require("promise-throttle");
 
@@ -12,7 +11,8 @@ const MoneroRpcConfigDefault = {
     port: 18081,
     user: undefined,
     pass: undefined,
-    maxRequestsPerSecond: 50
+    maxRequestsPerSecond: 50,
+    rejectUnauthorized: true  // reject self-signed certificates if true
 }
 
 /**
@@ -55,14 +55,20 @@ class MoneroRpcConnection {
       this.config.uri = this.config.protocol + "://" + this.config.host + ":" + this.config.port;
     }
     
+    // initialize http agent
+    if (this.config.uri.startsWith("https")) {
+      let https = require('https');
+      this.agent = new https.Agent({keepAlive: true, maxSockets: 1});
+    } else {
+      let http = require('http');
+      this.agent = new http.Agent({keepAlive: true, maxSockets: 1});
+    }
+    
     // initialize promise throttler
     this.promiseThrottle = new PromiseThrottle({
       requestsPerSecond: this.config.maxRequestsPerSecond,
       promiseImplementation: Promise
     });
-    
-    // initialize http agent
-    this.agent = new Http.Agent({keepAlive: true, maxSockets: 1});
   }
   
   getUri() {
@@ -98,6 +104,8 @@ class MoneroRpcConnection {
         params: params
       }),
       agent: this.agent,
+      rejectUnauthorized: this.config.rejectUnauthorized,
+      requestCert: true
     };
     if (this.config.user) {
       opts.forever = true;
@@ -137,8 +145,10 @@ class MoneroRpcConnection {
     let opts = {
       method: "POST",
       uri: this.config.uri + "/" + path,
+      body: JSON.stringify(params),
       agent: this.agent,
-      body: JSON.stringify(params)
+      rejectUnauthorized: this.config.rejectUnauthorized,
+      requestCert: true
     };
     if (this.config.user) {
       opts.forever = true;
@@ -184,7 +194,9 @@ class MoneroRpcConnection {
       uri: this.config.uri + "/" + path,
       agent: this.agent,
       encoding: null,
-      body: paramsBin
+      body: paramsBin,
+      rejectUnauthorized: this.config.rejectUnauthorized,
+      requestCert: true
     };
     if (this.config.user) {
       opts.forever = true;
