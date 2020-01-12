@@ -164,7 +164,8 @@ TestUtils.WALLET_RPC_CONFIG = {
   uri: "http://localhost:38083",
   user: "rpc_user",
   pass: "abc123",
-  maxRequestsPerSecond: 500
+  maxRequestsPerSecond: 500,
+  rejectUnauthorized: true // reject self-signed certificates if true
 };
 
 // daemon RPC config
@@ -172,7 +173,8 @@ TestUtils.DAEMON_RPC_CONFIG = {
   uri: "http://localhost:38081",
   user: "superuser",
   pass: "abctesting123",
-  maxRequestsPerSecond: 500
+  maxRequestsPerSecond: 500,
+  rejectUnauthorized: true // reject self-signed certificates if true
 };
 
 // used to track which wallets are in sync with pool so associated txs in the pool do not need to be waited on
