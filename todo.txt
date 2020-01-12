@@ -1,7 +1,7 @@
 HIGH (WASM)
+wallet core tests
 core wallet should auto save wallet if path given
 wallet2 password is required to create valid cache file on creation
-wallet core tests
 core wallet sync progress notifications
 override startSyncing() in MoneroWalletCore.js
 MoneroWalletWebWorker.js for web apps
@@ -17,6 +17,7 @@ monero_wallet_core::set_daemon_connection is_local_address() uses common/util wh
 remove dummy methods
 cleanup core changes
 update to latest core
+test performance of DISABLE_EXCEPTION_CATCHING
 test latest branch with java
 nginx monerod to support firefox
 update instructions to run library in browser
@@ -29,6 +30,7 @@ optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.h
 decref 0 warnings
 optimize wasm imports to minimize size
 update readme sample with MoneroUtils
+optimize file data read/write with different view
 submit core pr
 
 libsodium dependency in monero-cpp-library, why doesn't monero-project's work?
