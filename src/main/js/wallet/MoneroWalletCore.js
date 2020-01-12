@@ -22,6 +22,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // validate and sanitize parameters
     if (!(await MoneroWalletCore.walletExists(path))) throw new MoneroError("Wallet does not exist at path: " + path);
+    if (password === undefined) password = "";
     if (networkType === undefined) throw new MoneroError("Must provide a network type");
     MoneroNetworkType.validate(networkType);
     let daemonConnection = daemonUriOrConnection ? (typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection) : undefined;
@@ -46,7 +47,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       };
       
       // create wallet in wasm and invoke callback when done
-      module.open_core_wallet(password === undefined ? "" : password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, callbackFn);
+      module.open_core_wallet(password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, callbackFn);
     });
   }
   
@@ -166,18 +167,142 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this.password = password;
   }
   
-  // ------------ WALLET METHODS SPECIFIC TO JNI IMPLEMENTATION ---------------
+  // ------------ WALLET METHODS SPECIFIC TO WASM IMPLEMENTATION --------------
+  
+  /**
+   * Set the wallet's daemon connection.
+   * 
+   * @param {string|MoneroRpcConnection} uriOrRpcConnection is the daemon's URI or instance of MoneroRpcConnection
+   * @param {string} username is the username to authenticate with the daemon (optional)
+   * @param {string} password is the password to authenticate with the daemon (optional)
+   */
+  async setDaemonConnection(uriOrRpcConnection, username, password) {
+    throw new Error("Not implemented");
+  }
+  
+  /**
+   * Get the wallet's daemon connection.
+   * 
+   * @return {MoneroRpcConnection} the wallet's daemon connection
+   */
+  async getDaemonConnection() {
+    throw new Error("Not implemented");
+  }
+  
+  /**
+   * Indicates if the wallet is connected a daemon.
+   * 
+   * @return {boolean} true if the wallet is connected to a daemon, false otherwise
+   */
+  async isConnected() {
+    throw new Error("Not implemented");
+  }
+  
+  /**
+   * Get the maximum height of the peers the wallet's daemon is connected to.
+   *
+   * @return {number} the maximum height of the peers the wallet's daemon is connected to
+   */
+  async getDaemonMaxPeerHeight() {
+    throw new Error("Not implemented");
+  }
+  
+  /**
+   * Indicates if the wallet's daemon is synced with the network.
+   * 
+   * @return {boolean} true if the daemon is synced with the network, false otherwise
+   */
+  async isDaemonSynced() {
+    throw new Error("Not implemented");
+  }
+  
+  /**
+   * Indicates if the wallet is synced with the daemon.
+   * 
+   * @return {boolean} true if the wallet is synced with the daemon, false otherwise
+   */
+  async isSynced() {
+    throw new Error("Not implemented");
+  }
+  
+  /**
+   * Get the wallet's network type (mainnet, testnet, or stagenet).
+   * 
+   * @return {MoneroNetworkType} the wallet's network type
+   */
+  async getNetworkType() {
+    throw new Error("Not implemented");
+  }
   
   /**
    * Get the height of the first block that the wallet scans.
    * 
-   * @return the height of the first block that the wallet scans
+   * @return {number} the height of the first block that the wallet scans
    */
   async getRestoreHeight() {
     return this.module.get_restore_height(this.cppAddress);
   }
   
+  /**
+   * Set the height of the first block that the wallet scans.
+   * 
+   * @param {number} restoreHeight is the height of the first block that the wallet scans
+   */
+  async setRestoreHeight(restoreHeight) {
+    throw new Error("Not implemented");
+  }
+  
+  /**
+   * Register a listener receive wallet notifications.
+   * 
+   * @param {MoneroWalletListener} listener is the listener to receive wallet notifications
+   */
+  async addListener(listener) {
+    throw new Error("Not implemented");
+  }
+  
+  /**
+   * Unregister a listener to receive wallet notifications.
+   * 
+   * @param {MoneroWalletListener} listener is the listener to unregister
+   */
+  async removeListener(listener) {
+    throw new Error("Not implemented");
+  }
+  
+  /**
+   * Get the listeners registered with the wallet.
+   * 
+   * @return {MoneroWalletListener[]} the registered listeners
+   */
+  async getListeners() {
+    throw new Error("Not implemented");
+  }
+  
+  /**
+   * Move the wallet from its current path to the given path.
+   * 
+   * @param {string} path is the new wallet's path
+   * @param {string} password is the new wallet's password
+   */
+  async moveTo(path, password) {
+    throw new Error("Not implemented");
+  }
+  
+  /**
+   * Indicates if this wallet is closed or not.
+   * 
+   * @return {boolean} true if the wallet is closed, false otherwise
+   */
+  async isClosed() {
+    throw new Error("Not implemented");
+  }
+  
   // -------------------------- COMMON WALLET METHODS -------------------------
+  
+  async getVersion() {
+    throw new Error("Not implemented");
+  }
   
   async getPath() {
     return this.path;
