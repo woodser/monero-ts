@@ -98,11 +98,12 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         assert(height > 0);
       });
       
+      if (config.testNonRelays)
       it("Can set the daemon connection", async function() {
         
         // create random wallet with defaults
-        let path = await that._getRandomWalletPath();
-        let wallet = await MoneroWalletJni.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE);
+        let path = TestMoneroWalletCore._getRandomWalletPath();
+        let wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE);
         assert.equal(await that.wallet.getDaemonConnection(), undefined);
         
         // set daemon uri
@@ -539,6 +540,12 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
 //        await that.wallet.stop();
 //      });
     });
+  }
+  
+  //----------------------------- PRIVATE HELPERS -----------------------------
+
+  static _getRandomWalletPath() {
+    return TestUtils.TEST_WALLETS_DIR + "/test_wallet_" + GenUtils.uuidv4();
   }
 }
 
