@@ -36,6 +36,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {string} config.user is a username to authenticate with the rpc endpoint
    * @param {string} config.pass is a password to authenticate with the rpc endpoint
    * @param {string} config.maxRequestsPerSecond is the maximum requests per second to allow
+   * @param {string} config.rejectUnauthorized rejects unauthorized certificates if true
    * @param {string} param2 is the username to authenticate with (optional)
    * @param {string} param3 is the password to authenticate with (optional)
    */
