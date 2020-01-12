@@ -347,7 +347,11 @@ string monero_wasm_bridge::get_account(int handle, uint32_t account_idx, bool in
   return account.serialize();
 }
 
-//  emscripten::function("create_account", &monero_wasm_bridge::create_account);
+string monero_wasm_bridge::create_account(int handle, const string& label) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  monero_account account = wallet->create_account(label);
+  return account.serialize();
+}
 
 string monero_wasm_bridge::get_subaddresses(int handle, const string& args) {
   monero_wallet* wallet = (monero_wallet*) handle;
@@ -376,7 +380,11 @@ string monero_wasm_bridge::get_subaddresses(int handle, const string& args) {
   return monero_utils::serialize(doc);
 }
 
-//  emscripten::function("create_subaddress", &monero_wasm_bridge::create_subaddress);
+string monero_wasm_bridge::create_subaddress(int handle, const uint32_t account_idx, const string& label) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  monero_subaddress subaddress = wallet->create_subaddress(account_idx, label);
+  return subaddress.serialize();
+}
 
 void monero_wasm_bridge::get_txs(int handle, const string& tx_query_json, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;

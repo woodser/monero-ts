@@ -72,9 +72,9 @@ namespace monero_wasm_bridge
   string get_unlocked_balance_subaddress(int handle, const uint32_t account_idx, const uint32_t subaddress_idx);
   string get_accounts(int handle, bool include_subaddresses = false, const string& tag = "");
   string get_account(int handle, uint32_t account_idx, bool include_subaddresses = false);
-  //  emscripten::function("create_account", &monero_wasm_bridge::create_account);
+  string create_account(int handle, const string& label);
   string get_subaddresses(int handle, const string& args);
-  //  emscripten::function("create_subaddress", &monero_wasm_bridge::create_subaddress);
+  string create_subaddress(int handle, const uint32_t account_idx, const string& label);
   void get_txs(int handle, const string& tx_query_json, emscripten::val callback);
   //  emscripten::function("get_txs", &monero_wasm_bridge::get_txs);
   //  emscripten::function("get_transfers", &monero_wasm_bridge::get_transfers);

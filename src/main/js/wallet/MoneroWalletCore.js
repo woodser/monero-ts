@@ -277,7 +277,10 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async createAccount(label) {
-    throw new MoneroError("Not implemented");
+    if (label === undefined) label = "";
+    let accountStr = this.module.create_account(this.cppAddress, label);
+    let accountJson = JSON.parse(accountStr);
+    return MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson));
   }
   
   async getSubaddresses(accountIdx, subaddressIndices) {
@@ -289,7 +292,10 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async createSubaddress(accountIdx, label) {
-    throw new MoneroError("Not implemented");
+    if (label === undefined) label = "";
+    let subaddressStr = this.module.create_subaddress(this.cppAddress, accountIdx, label);
+    let subaddressJson = JSON.parse(subaddressStr);
+    return MoneroWalletCore._sanitizeSubaddress(new MoneroSubaddress(subaddressJson));
   }
   
   async getTxs(query) {
