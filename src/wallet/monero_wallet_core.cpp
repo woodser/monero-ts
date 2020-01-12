@@ -945,8 +945,11 @@ namespace monero {
 //    try { is_trusted = tools::is_local_address(uri); }  // wallet is trusted iff local
 //    catch (const exception &e) { }
 
-    // init wallet2 and set daemon connection
-    if (!m_w2->init(uri, login)) throw runtime_error("Failed to initialize wallet with daemon connection");
+    // manually set ssl by https prefix because http_client's if (ssl_options) set by wallet2 evaluates to true despite http  // TODO
+    epee::net_utils::ssl_options_t ssl_options = uri.rfind("https", 0) == 0 ? epee::net_utils::ssl_support_t::e_ssl_support_enabled : epee::net_utils::ssl_support_t::e_ssl_support_disabled;
+
+    // init wallet2 with daemon connection
+    if (!m_w2->init(uri, login, {}, 0, is_trusted, ssl_options)) throw runtime_error("Failed to initialize wallet with daemon connection");
     is_connected(); // update m_is_connected cache // TODO: better naming?
   }
 
