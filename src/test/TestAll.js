@@ -31,14 +31,14 @@ require("./TestMoneroUtils");
 //  testResets: false
 //});
 
-// test keys-only wallet
-new TestMoneroWalletKeys().runTests({
-  liteMode: false,
-  testNonRelays: true,
-  testRelays: false,
-  testResets: false,
-  testNotifications: false
-});
+//// test keys-only wallet
+//new TestMoneroWalletKeys().runTests({
+//  liteMode: false,
+//  testNonRelays: true,
+//  testRelays: false,
+//  testResets: false,
+//  testNotifications: false
+//});
 
 // test core wallet
 new TestMoneroWalletCore().runTests({

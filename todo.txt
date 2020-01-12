@@ -9,7 +9,7 @@ port ground truth comparison tests from java
 monero_wallet_core get_keys_file_buffer/get_cache_file_buffer use m_password instead of arg
 port pool relay tests from java TestMoneroWalletCommon.java
 port testSyncWithPoolSubmit from java
-http_client_wasm use configurable host, user, password
+http_client_wasm detect https
 test in-memory wallets
 http_client_wasm factor common js
 hardcode block hash instead of miner::find_nonce

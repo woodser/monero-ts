@@ -9,8 +9,8 @@ using namespace std;
 
 // TODO: factor js code to js file, possible use by MoneroRpcConnection, or change MoneroRpcConnection interface
 
-EM_JS(const char*, js_send_json_request, (const char* path, const char* method, const char* body, std::chrono::milliseconds timeout), {
-  //console.log("EM_JS js_send_json_request(" + UTF8ToString(path) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
+EM_JS(const char*, js_send_json_request, (const char* uri, const char* username, const char* password, const char* method, const char* body, std::chrono::milliseconds timeout), {
+  //console.log("EM_JS js_send_json_request(" + UTF8ToString(uri) + ", " + UTF8ToString(username) + ", " + UTF8ToString(password) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
 
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
@@ -28,18 +28,15 @@ EM_JS(const char*, js_send_json_request, (const char* path, const char* method, 
     // initialize http agent  // TODO: use common
     let agent = new Http.Agent({keepAlive: true, maxSockets: 1});
 
-    // initialize request config // TODO: use set_server config
+    // initialize request config
     this.config = {};
-    this.config.user = "superuser";
-    this.config.pass = "abctesting123";
-    let fullUri = "http://localhost:38081" + UTF8ToString(path);
-    //console.log("Full URI: " + fullUri);
+    this.config.user = UTF8ToString(username);
+    this.config.pass = UTF8ToString(password);
 
     // build request which gets json response as text
     let opts = {
       method: UTF8ToString(method),
-      //method: "POST",  // TODO: invoke() is passed "GET" which in incompatible with json_rpc?
-      uri: fullUri,
+      uri: UTF8ToString(uri),
       body: UTF8ToString(body),
       agent: agent,
       resolveWithFullResponse: true
@@ -105,8 +102,8 @@ EM_JS(const char*, js_send_json_request, (const char* path, const char* method, 
   });
 });
 
-EM_JS(const char*, js_send_binary_request, (const char* path, const char* method, const char* body, int body_length, std::chrono::milliseconds timeout), {
-  //console.log("EM_JS js_send_binary_request(" + UTF8ToString(path) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
+EM_JS(const char*, js_send_binary_request, (const char* uri, const char* username, const char* password, const char* method, const char* body, int body_length, std::chrono::milliseconds timeout), {
+  //console.log("EM_JS js_send_binary_request(" + UTF8ToString(uri) + ", " + UTF8ToString(username) + ", " + UTF8ToString(password) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
 
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
@@ -126,9 +123,8 @@ EM_JS(const char*, js_send_binary_request, (const char* path, const char* method
 
     // initialize request config // TODO: use set_server config
     this.config = {};
-    this.config.user = "superuser";
-    this.config.pass = "abctesting123";
-    let fullUri = "http://localhost:38081" + UTF8ToString(path);
+    this.config.user = UTF8ToString(username);
+    this.config.pass = UTF8ToString(password);
 
     // load wasm module then convert from json to binary
     MoneroUtils.loadWasmModule().then(module => {
@@ -145,7 +141,7 @@ EM_JS(const char*, js_send_binary_request, (const char* path, const char* method
       // build request which gets json response as text
       let opts = {
         method: UTF8ToString(method),
-        uri: fullUri,
+        uri: UTF8ToString(uri),
         body: view,
         agent: agent,
         resolveWithFullResponse: true,
@@ -214,11 +210,19 @@ EM_JS(const char*, js_send_binary_request, (const char* path, const char* method
 });
 
 void http_client_wasm::set_server(std::string host, std::string port, boost::optional<login> user, ssl_options_t ssl_options) {
-  disconnect();
   m_host = host;
   m_port = port;
   m_user = user;
+  m_ssl_enabled = ssl_options ? true : false;
 }
+
+//void http_client_wasm::set_server(std::string uri, std::string username, std::string password) {
+//  disconnect();
+//  m_uri = uri;
+//  m_user = epee::net_utils::http::login();
+//  m_user->username = username;
+//  m_user->password = password;
+//}
 
 void http_client_wasm::set_auto_connect(bool auto_connect) {
   cout << "set_auto_connect()" << endl;
@@ -229,7 +233,6 @@ void http_client_wasm::set_auto_connect(bool auto_connect) {
 bool http_client_wasm::connect(std::chrono::milliseconds timeout) {
   m_is_connected = true;    // TODO: do something!
   return true;
-  //throw runtime_error("http_client_wasm::connect() not implemented");
 }
 
 bool http_client_wasm::disconnect() {
@@ -273,7 +276,9 @@ void build_http_header_info(const boost::property_tree::ptree& headers_node, htt
 bool http_client_wasm::invoke_json(const boost::string_ref path, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
 
   // make json request through javascript
-  const char* resp_str = js_send_json_request(path.data(), method.data(), body.data(), timeout);
+  string uri = string(m_ssl_enabled ? "https" : "http") + "://" + m_host + ":" + m_port + string(path);
+  string password = string(m_user->password.data(), m_user->password.size());
+  const char* resp_str = js_send_json_request(uri.data(), m_user->username.data(), password.data(), method.data(), body.data(), timeout);
 
   // deserialize response to property tree
   std::istringstream iss = std::istringstream(std::string(resp_str));
@@ -309,7 +314,9 @@ bool http_client_wasm::invoke_json(const boost::string_ref path, const boost::st
 bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
 
   // make binary request through javascript
-  const char* resp_str = js_send_binary_request(path.data(), method.data(), body.data(), body.length(), timeout);
+  string uri = string(m_ssl_enabled ? "https" : "http") + "://" + m_host + ":" + m_port + string(path);
+  string password = string(m_user->password.data(), m_user->password.size());
+  const char* resp_str = js_send_binary_request(uri.data(), m_user->username.data(), password.data(), method.data(), body.data(), body.length(), timeout);
 
   // deserialize response to property tree
   std::istringstream iss = std::istringstream(std::string(resp_str));
@@ -348,7 +355,7 @@ bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::
 }
 
 bool http_client_wasm::invoke(const boost::string_ref path, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
-  cout << "invoke(" << path << ", " << method << ", ...)" << endl;
+  //cout << "invoke(" << path << ", " << method << ", ...)" << endl;
 
   // return false if unconnected
   if (!is_connected()) {

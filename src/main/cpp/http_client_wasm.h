@@ -38,6 +38,7 @@ namespace epee
         string m_host;
         string m_port;
         boost::optional<login> m_user;
+        bool m_ssl_enabled;
         bool m_is_connected;
         http_response_info m_response_info;
 
