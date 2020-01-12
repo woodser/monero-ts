@@ -42,9 +42,11 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
     return await MoneroWalletCore.getMnemonicLanguages();
   }
   
+  // ------------------------------- BEGIN TESTS ------------------------------
+  
   runTests(config) {
     let that = this;
-    describe("TEST MONERO WALLET WASM", function() {
+    describe("TEST MONERO WALLET CORE", function() {
       
       // initialize wallet
       before(async function() {
@@ -71,22 +73,115 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       });
       
       // run tests specific to wallet wasm
-      that._testWalletWasm(config);
+      that._testWalletCore(config);
       
       // run common tests
       that.runCommonTests(config);
     });
   }
   
-  // ---------------------------------- PRIVATE -------------------------------
-  
-  _testWalletWasm(config) {
+  _testWalletCore(config) {
     let that = this;
     let daemon = this.daemon;
-    describe("Tests specific to WASM wallet", function() {
+    describe("Tests specific to Core wallet", function() {
       
-      // ---------------------------- BEGIN TESTS ---------------------------------
-
+      it("Can get the daemon's height", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can get the daemon's max peer height", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can set the daemon connection", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can create a random core wallet", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can create a core wallet from mnemonic", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can create a core wallet from keys", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can re-sync an existing wallet from scratch", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can sync a wallet with a randomly generated seed", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can sync a wallet created from mnemonic from the genesis", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can sync a wallet created from mnemonic from a restore height", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can sync a wallet created from mnemonic from a start height", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can sync a wallet created from mnemonic from a start height less than the restore height", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can sync a wallet created from mnemonic from a start height greater than the restore height", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can sync a wallet created from keys", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      // TODO: test start syncing, notification of syncs happening, stop syncing, no notifications, etc
+      it("Can start and stop syncing", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Is equal to the RPC wallet", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Is equal to the RPC wallet with a seed offset", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can be saved", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can be moved", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can be closed", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Notification test #1: notifies listeners of outputs sent from/to the same account using local wallet data", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Notification test #2: notifies listeners of outputs sent from/to different accounts using local wallet data", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Can be created and receive funds", async function() {
+        throw new Error("Not implemented");
+      });
+      
+      it("Supports multisig sample code", async function() {
+        throw new Error("Not implemented");
+      });
+      
       // TODO
 //      it("Can create a wallet from a mnemonic phrase", async function() {
 //        let err;
