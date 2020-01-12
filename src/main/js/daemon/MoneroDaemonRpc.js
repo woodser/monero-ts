@@ -37,6 +37,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * @param {string}  config.pass is a password to authenticate with the rpc endpoint
    * @param {string}  config.maxRequestsPerSecond is the maximum requests per second to allow
    * @param {int}     config.pollInterval is the poll interval to check for updates in ms (default 5000)
+   * @param {string}  config.rejectUnauthorized rejects unauthorized certificates if true
    */
   constructor(config) {
     super();
