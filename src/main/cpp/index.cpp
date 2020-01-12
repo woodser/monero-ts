@@ -57,9 +57,9 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("get_unlocked_balance_subaddress", &monero_wasm_bridge::get_unlocked_balance_subaddress);
   emscripten::function("get_accounts", &monero_wasm_bridge::get_accounts);
   emscripten::function("get_account", &monero_wasm_bridge::get_account);
-//  emscripten::function("create_account", &monero_wasm_bridge::create_account);
+  emscripten::function("create_account", &monero_wasm_bridge::create_account);
   emscripten::function("get_subaddresses", &monero_wasm_bridge::get_subaddresses);
-//  emscripten::function("create_subaddress", &monero_wasm_bridge::create_subaddress);
+  emscripten::function("create_subaddress", &monero_wasm_bridge::create_subaddress);
   emscripten::function("get_txs", &monero_wasm_bridge::get_txs);
 //  emscripten::function("get_transfers", &monero_wasm_bridge::get_transfers);
 //  emscripten::function("get_incoming_transfers", &monero_wasm_bridge::get_incoming_transfers);
