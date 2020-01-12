@@ -232,6 +232,7 @@ set(
 #-s USE_PTHREADS=1 \
 #-s PTHREAD_POOL_SIZE=2 \
 #-s PROXY_TO_PTHREAD \
+#-s DISABLE_EXCEPTION_CATCHING=0 \
 
 ####################
 # Build parameters
@@ -252,7 +253,6 @@ set (
 -s ASYNCIFY=1 \
 -s 'ASYNCIFY_IMPORTS=[\"js_send_json_request\",\"js_send_binary_request\",\"emscripten_sleep\"]' \
 -s PRECISE_F32=1 \
--s DISABLE_EXCEPTION_CATCHING=0 \
 -s EXCEPTION_DEBUG=1 \
 -s DEMANGLE_SUPPORT=1 \
 -s NO_DYNAMIC_EXECUTION=1 \
