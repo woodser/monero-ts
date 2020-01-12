@@ -36,7 +36,8 @@ namespace monero_wasm_bridge
 
 //  void set_daemon_connection(int handle, const string& uri, const string& username = "", const string& password = "");
 //  string get_daemon_connection(int handle);
-//  bool is_connected(int handle);
+  void is_connected(int handle, emscripten::val callback);
+  void get_daemon_max_peer_height(int handle, emscripten::val callback);
 //  bool is_daemon_synced(int handle);
 //  bool is_daemon_trusted(int handle);
 //  bool is_synced(int handle);
@@ -53,6 +54,7 @@ namespace monero_wasm_bridge
   string get_integrated_address(int handle, const string& standard_address = "", const string& payment_id = "");
   string decode_integrated_address(int handle, const string& integrated_address);
   void get_height(int handle, emscripten::val callback);
+  void get_daemon_height(int handle, emscripten::val callback);
   long get_restore_height(int handle);
   void set_restore_height(int handle, long restore_height);
 //  long get_daemon_height(int handle);

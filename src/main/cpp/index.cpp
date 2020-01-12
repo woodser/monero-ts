@@ -31,6 +31,8 @@ EMSCRIPTEN_BINDINGS(module)
 
   // ----------------------- WALLET INSTANCE METHODS --------------------------
 
+  emscripten::function("is_connected", &monero_wasm_bridge::is_connected);
+  emscripten::function("get_daemon_max_peer_height", &monero_wasm_bridge::get_daemon_max_peer_height);
   emscripten::function("get_version", &monero_wasm_bridge::get_version);
   emscripten::function("get_mnemonic", &monero_wasm_bridge::get_mnemonic);
   emscripten::function("get_mnemonic_language", &monero_wasm_bridge::get_mnemonic_language);
@@ -43,6 +45,7 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("get_integrated_address", &monero_wasm_bridge::get_integrated_address);
   emscripten::function("decode_integrated_address", &monero_wasm_bridge::decode_integrated_address);
   emscripten::function("get_height", &monero_wasm_bridge::get_height);
+  emscripten::function("get_daemon_height", &monero_wasm_bridge::get_daemon_height);
   emscripten::function("get_restore_height", &monero_wasm_bridge::get_restore_height);
   emscripten::function("set_restore_height", &monero_wasm_bridge::set_restore_height);
   emscripten::function("sync", &monero_wasm_bridge::sync);

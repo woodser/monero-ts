@@ -195,7 +195,20 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @return {boolean} true if the wallet is connected to a daemon, false otherwise
    */
   async isConnected() {
-    throw new Error("Not implemented");
+    this._assertNotClosed();
+    
+    // return promise which resolves on callback
+    let that = this;
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(resp) {
+        resolve(resp);
+      }
+      
+      // sync wallet in wasm and invoke callback when done
+      that.module.is_connected(that.cppAddress, callbackFn);
+    });
   }
   
   /**
@@ -204,7 +217,20 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @return {number} the maximum height of the peers the wallet's daemon is connected to
    */
   async getDaemonMaxPeerHeight() {
-    throw new Error("Not implemented");
+    this._assertNotClosed();
+    
+    // return promise which resolves on callback
+    let that = this;
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(resp) {
+        resolve(resp);
+      }
+      
+      // sync wallet in wasm and invoke callback when done
+      that.module.get_daemon_max_peer_height(that.cppAddress, callbackFn);
+    });
   }
   
   /**
@@ -213,6 +239,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @return {boolean} true if the daemon is synced with the network, false otherwise
    */
   async isDaemonSynced() {
+    this._assertNotClosed();
     throw new Error("Not implemented");
   }
   
@@ -222,6 +249,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @return {boolean} true if the wallet is synced with the daemon, false otherwise
    */
   async isSynced() {
+    this._assertNotClosed();
     throw new Error("Not implemented");
   }
   
@@ -231,6 +259,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @return {MoneroNetworkType} the wallet's network type
    */
   async getNetworkType() {
+    this._assertNotClosed();
     throw new Error("Not implemented");
   }
   
@@ -240,6 +269,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @return {number} the height of the first block that the wallet scans
    */
   async getRestoreHeight() {
+    this._assertNotClosed();
     return this.module.get_restore_height(this.cppAddress);
   }
   
@@ -249,6 +279,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @param {number} restoreHeight is the height of the first block that the wallet scans
    */
   async setRestoreHeight(restoreHeight) {
+    this._assertNotClosed();
     throw new Error("Not implemented");
   }
   
@@ -258,6 +289,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @param {MoneroWalletListener} listener is the listener to receive wallet notifications
    */
   async addListener(listener) {
+    this._assertNotClosed();
     throw new Error("Not implemented");
   }
   
@@ -267,6 +299,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @param {MoneroWalletListener} listener is the listener to unregister
    */
   async removeListener(listener) {
+    this._assertNotClosed();
     throw new Error("Not implemented");
   }
   
@@ -276,6 +309,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @return {MoneroWalletListener[]} the registered listeners
    */
   async getListeners() {
+    this._assertNotClosed();
     throw new Error("Not implemented");
   }
   
@@ -286,6 +320,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @param {string} password is the new wallet's password
    */
   async moveTo(path, password) {
+    this._assertNotClosed();
     throw new Error("Not implemented");
   }
   
@@ -301,14 +336,17 @@ class MoneroWalletCore extends MoneroWalletKeys {
   // -------------------------- COMMON WALLET METHODS -------------------------
   
   async getVersion() {
+    this._assertNotClosed();
     throw new Error("Not implemented");
   }
   
   async getPath() {
+    this._assertNotClosed();
     return this.path;
   }
   
   async getHeight() {
+    this._assertNotClosed();
     
     // return promise which resolves on callback
     let that = this;
@@ -324,9 +362,25 @@ class MoneroWalletCore extends MoneroWalletKeys {
     });
   }
   
-  // getDaemonHeight
+  async getDaemonHeight() {
+    this._assertNotClosed();
+    
+    // return promise which resolves on callback
+    let that = this;
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(resp) {
+        resolve(resp);
+      }
+      
+      // sync wallet in wasm and invoke callback when done
+      that.module.get_daemon_height(that.cppAddress, callbackFn);
+    });
+  }
   
   async sync() {
+    this._assertNotClosed();
     let that = this;
     
     // return promise which resolves on callback
@@ -349,6 +403,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   // rescanBlockchain
   
   async getBalance(accountIdx, subaddressIdx) {
+    this._assertNotClosed();
     
     // get balance encoded in json string
     let balanceStr;
@@ -366,6 +421,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async getUnlockedBalance(accountIdx, subaddressIdx) {
+    this._assertNotClosed();
     
     // get balance encoded in json string
     let unlockedBalanceStr;
@@ -383,6 +439,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async getAccounts(includeSubaddresses, tag) {
+    this._assertNotClosed();
     let accountsStr = this.module.get_accounts(this.cppAddress, includeSubaddresses ? true : false, tag ? tag : "");
     let accounts = [];
     for (let accountJson of JSON.parse(accountsStr).accounts) {
@@ -396,12 +453,14 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async getAccount(accountIdx, includeSubaddresses) {
+    this._assertNotClosed();
     let accountStr = this.module.get_account(this.cppAddress, accountIdx, includeSubaddresses ? true : false);
     let accountJson = JSON.parse(accountStr);
     return MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson));
   }
   
   async createAccount(label) {
+    this._assertNotClosed();
     if (label === undefined) label = "";
     let accountStr = this.module.create_account(this.cppAddress, label);
     let accountJson = JSON.parse(accountStr);
@@ -409,6 +468,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async getSubaddresses(accountIdx, subaddressIndices) {
+    this._assertNotClosed();
     let args = {accountIdx: accountIdx, subaddressIndices: subaddressIndices === undefined ? [] : GenUtils.listify(subaddressIndices)};
     let subaddressesJson = JSON.parse(this.module.get_subaddresses(this.cppAddress, JSON.stringify(args))).subaddresses;
     let subaddresses = [];
@@ -417,6 +477,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async createSubaddress(accountIdx, label) {
+    this._assertNotClosed();
     if (label === undefined) label = "";
     let subaddressStr = this.module.create_subaddress(this.cppAddress, accountIdx, label);
     let subaddressJson = JSON.parse(subaddressStr);
@@ -424,6 +485,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async getTxs(query) {
+    this._assertNotClosed();
     
     // copy and normalize tx query up to block
     if (query instanceof MoneroTxQuery) query = query.copy();
@@ -481,46 +543,57 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async getTransfers(config) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getIncomingTransfers(config) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getOutgoingTransfers(config) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getOutputs(config) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getOutputsHex() {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async importOutputsHex(outputsHex) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getKeyImages() {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async importKeyImages(keyImages) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getNewKeyImagesFromLastImport() {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async relayTxs(txsOrMetadatas) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async sendSplit(requestOrAccountIndex, address, amount, priority) {
+    this._assertNotClosed();
     
     // validate, copy, and normalize request  // TODO: this is copied from MoneroWalletRpc.sendSplit(), factor to super class which calls this with normalized request?
     let request;
@@ -560,178 +633,221 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async sweepOutput(requestOrAddress, keyImage, priority) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
 
   async sweepUnlocked(request) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async sweepDust() {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async sweepDust(doNotRelay) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async sign(message) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async verify(message, address, signature) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getTxKey(txHash) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async checkTxKey(txHash, txKey, address) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getTxProof(txHash, address, message) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async checkTxProof(txHash, address, message, signature) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getSpendProof(txHash, message) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async checkSpendProof(txHash, message, signature) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getReserveProofWallet(message) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getReserveProofAccount(accountIdx, amount, message) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
 
   async checkReserveProof(address, message, signature) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getTxNotes(txHashes) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async setTxNotes(txHashes, notes) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getAddressBookEntries() {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getAddressBookEntries(entryIndices) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async addAddressBookEntry(address, description) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async addAddressBookEntry(address, description, paymentId) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async deleteAddressBookEntry(entryIdx) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async tagAccounts(tag, accountIndices) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
 
   async untagAccounts(accountIndices) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getAccountTags() {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
 
   async setAccountTagLabel(tag, label) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async createPaymentUri(request) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async parsePaymentUri(uri) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getAttribute(key) {
+    this._assertNotClosed();
     assert(typeof key === "string", "Attribute key must be a string");
     let value = this.module.get_attribute(this.cppAddress, key);
     return value === "" ? undefined : value;
   }
   
   async setAttribute(key, val) {
+    this._assertNotClosed();
     assert(typeof key === "string", "Attribute key must be a string");
     assert(typeof val === "string", "Attribute value must be a string");
     this.module.set_attribute(this.cppAddress, key, val);
   }
   
   async startMining(numThreads, backgroundMining, ignoreBattery) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async stopMining() {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async isMultisigImportNeeded() {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async isMultisig() {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getMultisigInfo() {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async prepareMultisig() {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async makeMultisig(multisigHexes, threshold, password) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async exchangeMultisigKeys(multisigHexes, password) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async getMultisigHex() {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async importMultisigHex(multisigHexes) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async signMultisigTxHex(multisigTxHex) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
   async submitMultisigTxHex(signedMultisigTxHex) {
+    this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
 
   async save() {
+    this._assertNotClosed();
         
     // path must be set
     let path = await this.getPath();
@@ -772,12 +888,17 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async close(save) {
+    if (this._isClosed) return; // closing a closed wallet has no effect
     await super.close(save);
     delete this.path;
     delete this.password;
   }
   
   // ---------------------------- PRIVATE HELPERS ----------------------------
+  
+  _assertNotClosed() {
+    if (this._isClosed) throw new MoneroError("Wallet is closed");
+  }
   
   static _sanitizeBlock(block) {
     for (let tx of block.getTxs()) MoneroWalletCore._sanitizeTxWallet(tx);
