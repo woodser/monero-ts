@@ -76,7 +76,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       that._testWalletCore(config);
       
       // run common tests
-      //that.runCommonTests(config);
+      that.runCommonTests(config);
     });
   }
   

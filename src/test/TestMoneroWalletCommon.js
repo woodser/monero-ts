@@ -1846,7 +1846,7 @@ class TestMoneroWalletCommon {
         TestUtils.testUnsignedBigInteger(result.getUnspentAmount(), hasUnspent);
       });
       
-      if (config.testNonRelays)
+      if (config.testNonRelays && !config.liteMode)
       it("Can parse a tx set hex returned from sending transfers", async function() {
         let e1 = undefined;
         try {

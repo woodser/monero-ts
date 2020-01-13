@@ -86,8 +86,8 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* username,
       wakeUpCalled = true;
       wakeUp(ptr);
     }).catch(err => {
-      console.log("ERROR!!!");
-      console.log(err);
+//      console.log("ERROR!!!");
+//      console.log(err);
       if (wakeUpCalled) {
           console.log("Error caught in JS after previously calling wakeUp(): " + err);
           throw Error("Error caught in JS after previously calling wakeUp(): " + err);
@@ -192,8 +192,8 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* usernam
         wakeUpCalled = true;
         wakeUp(respPtr);
       }).catch(err => {
-        console.log("ERROR!!!");
-        console.log(err);
+//        console.log("ERROR!!!");
+//        console.log(err);
         if (wakeUpCalled) {
           console.log("Error caught in JS after previously calling wakeUp(): " + err);
           throw Error("Error caught in JS after previously calling wakeUp(): " + err);
@@ -210,6 +210,7 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* usernam
 });
 
 void http_client_wasm::set_server(std::string host, std::string port, boost::optional<login> user, ssl_options_t ssl_options) {
+  disconnect();
   m_host = host;
   m_port = port;
   m_user = user;
