@@ -458,6 +458,12 @@ class MoneroWalletCore extends MoneroWalletKeys {
     });
   }
   
+  async startSyncing() {
+    this._assertNotClosed();
+    if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
+    throw new Error("Not implemented");
+  }
+  
   // startSyncing
   // rescanSpent
   // rescanBlockchain
