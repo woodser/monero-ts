@@ -83,6 +83,10 @@ class MoneroRpcConnection {
     return this.config.pass;
   }
   
+  getConfig() {
+    return this.config;
+  }
+  
   /**
    * Sends a JSON RPC request.
    * 

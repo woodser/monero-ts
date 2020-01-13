@@ -139,8 +139,18 @@ string monero_wasm_bridge::get_keys_wallet_mnemonic_languages() {
 
 // ------------------------ WALLET INSTANCE METHODS ---------------------------
 
-//  void set_daemon_connection(int handle, const string& uri, const string& username = "", const string& password = "");
-//  string get_daemon_connection(int handle) const;
+void monero_wasm_bridge::set_daemon_connection(int handle, const string& uri, const string& username, const string& password, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  wallet->set_daemon_connection(uri, username, password);
+  callback();
+}
+
+string monero_wasm_bridge::get_daemon_connection(int handle) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  boost::optional<monero_rpc_connection> daemon_connection = wallet->get_daemon_connection();
+  return daemon_connection == boost::none ? "" : daemon_connection.get().serialize();
+}
+
 void monero_wasm_bridge::is_connected(int handle, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   callback((bool) wallet->is_connected());

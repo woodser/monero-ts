@@ -11,7 +11,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   }
   
   async getTestWallet() {
-    return TestUtils.getWalletCore();
+    return await TestUtils.getWalletCore();
   }
   
   async openWallet(path) {
@@ -76,7 +76,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       that._testWalletCore(config);
       
       // run common tests
-      //that.runCommonTests(config);  // TODO re-enable
+      that.runCommonTests(config);  // TODO re-enable
     });
   }
   
@@ -104,24 +104,24 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         // create random wallet with defaults
         let path = TestMoneroWalletCore._getRandomWalletPath();
         let wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE);
-        assert.equal(await that.wallet.getDaemonConnection(), undefined);
+        assert.equal(await wallet.getDaemonConnection(), undefined);
         
         // set daemon uri
         await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_URI);
-        assert.equal(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_URI));
+        assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_URI).getConfig());
         assert(await daemon.isConnected());
         
         // nullify daemon connection
         await wallet.setDaemonConnection(undefined);
-        assert.equal(wallet.getDaemonConnection(), undefined);
+        assert.equal(await wallet.getDaemonConnection(), undefined);
         await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_URI);
-        assert.equal(await wallet.getDaemonConnection(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_URI));
+        assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_URI).getConfig());
         await wallet.setDaemonConnection(undefined);
         assert.equal(await wallet.getDaemonConnection(), undefined);
         
         // set daemon uri to non-daemon
         await wallet.setDaemonConnection("www.getmonero.org");
-        assert.equal(await wallet.getDaemonConnection(), new MoneroRpcConnection("www.getmonero.org"));
+        assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection("www.getmonero.org").getConfig());
         assert(!(await wallet.isConnected()));
         
         // set daemon to invalid uri
@@ -135,7 +135,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           throw new Error("Exception expected");
         } catch (e1) {
           try {
-            assert.equal(e.message, "Wallet is not connected to daemon");
+            assert.equal(e1.message, "Wallet is not connected to daemon");
           } catch (e2) {
             err = e2;
           }

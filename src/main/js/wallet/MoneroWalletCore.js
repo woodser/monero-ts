@@ -177,7 +177,33 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @param {string} password is the password to authenticate with the daemon (optional)
    */
   async setDaemonConnection(uriOrRpcConnection, username, password) {
-    throw new Error("Not implemented");
+    this._assertNotClosed();
+    
+    // normalize uri, username, and password
+    let uri;
+    if (typeof uriOrRpcConnection == "string") uri = uriOrRpcConnection;
+    else if (uriOrRpcConnection instanceof MoneroRpcConnection) {
+      if (username || password) throw new MoneroError("Cannot specify username or password if first arg is MoneroRpcConnection");
+      uri = uriOrRpcConnection.getUri();
+      username = uriOrRpcConnection.getUsername();
+      password = uriOrRpcConnection.getPassword();
+    }
+    if (!uri) uri = "";
+    if (!username) username = "";
+    if (!password) password = "";
+    
+    // return promise which resolves on callback
+    let that = this;
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(resp) {
+        resolve(resp);
+      }
+      
+      // sync wallet in wasm and invoke callback when done
+      that.module.set_daemon_connection(that.cppAddress, uri, username, password, callbackFn);
+    });
   }
   
   /**
@@ -186,7 +212,12 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @return {MoneroRpcConnection} the wallet's daemon connection
    */
   async getDaemonConnection() {
-    throw new Error("Not implemented");
+    this._assertNotClosed();
+    let connectionContainerStr = this.module.get_daemon_connection(this.cppAddress);
+    if (!connectionContainerStr) return undefined;
+    console.log(connectionContainerStr);
+    let connectionContainer = JSON.parse(connectionContainerStr);
+    return new MoneroRpcConnection(connectionContainer.uri, connectionContainer.username, connectionContainer.password);
   }
   
   /**
@@ -381,9 +412,10 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async sync() {
     this._assertNotClosed();
-    let that = this;
+    if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
     
     // return promise which resolves on callback
+    let that = this;
     return new Promise(function(resolve, reject) {
       
       // define callback for wasm

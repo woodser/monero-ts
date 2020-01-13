@@ -65,6 +65,20 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return this.config.rpc;
   }
   
+  /**
+   * Indicates if the client is connected to the daemon via RPC.
+   * 
+   * @return {boolean} true if the client is connected to the daemon, false otherwise
+   */
+  async isConnected() {
+    try {
+      await this.getHeight();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  
   async getVersion() {
     await this._initOneTime();
     let resp = await this.config.rpc.sendJsonRequest("get_version");
