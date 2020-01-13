@@ -64,7 +64,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       after(async function() {
         console.log("Saving wallet on shut down");
         try {
-          await that.wallet.save();
+          //await that.wallet.save();
         } catch (e) {
           console.log("ERROR after!!!");
           console.log(e.message);
@@ -76,7 +76,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       that._testWalletCore(config);
       
       // run common tests
-      that.runCommonTests(config);  // TODO re-enable
+      //that.runCommonTests(config);
     });
   }
   
@@ -147,7 +147,52 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       });
       
       it("Can create a random core wallet", async function() {
-        throw new Error("Not implemented");
+        
+        // create random wallet with defaults
+        let path = TestMoneroWalletCore._getRandomWalletPath();
+        let wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, MoneroNetworkType.MAINNET);
+        MoneroUtils.validateMnemonic(await wallet.getMnemonic());
+        MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), MoneroNetworkType.MAINNET);
+        assert.equal(await wallet.getNetworkType(), MoneroNetworkType.MAINNET);
+        assert.equal(await wallet.getDaemonConnection(), undefined);
+        assert(!(await wallet.isConnected()));
+        assert.equal(await wallet.getMnemonicLanguage(), "English");
+        assert.equal(await wallet.getPath(), path);
+        assert(!(await wallet.isSynced()));
+        assert.equal(await wallet.getHeight(), 1); // TODO monero core: why does height of new unsynced wallet start at 1?
+        assert(await wallet.getRestoreHeight() >= 0);
+        
+        // cannot get daemon chain height
+        try {
+          await wallet.getDaemonHeight();
+        } catch (e) {
+          assert.equal(e.message, "Wallet is not connected to daemon");
+        }
+        
+        // set daemon connection and check chain height
+        await wallet.setDaemonConnection(await daemon.getRpcConnection());
+        assert.equal(await wallet.getDaemonHeight(), await daemon.getHeight());
+        
+        // close wallet which releases resources
+        await wallet.close();
+
+        // create random wallet with non defaults
+        path = TestMoneroWalletCore._getRandomWalletPath();
+        wallet = await MoneroWalletJni.createWalletRandom(path, TestUtils.WALLET_PASSWORD, MoneroNetworkType.TESTNET, await daemon.getRpcConnection(), "Spanish");
+        MoneroUtils.validateMnemonic(await wallet.getMnemonic());
+        MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), MoneroNetworkType.TESTNET);
+        assert.equal(await MoneroNetworkType.TESTNET);
+        assert(await wallet.getDaemonConnection());
+        assert((await daemon.getRpcConnection()).getConfig() !== (await wallet.getDaemonConnection()).getConfig());         // not same reference
+        assert.deepEqual((await daemon.getRpcConnection()).getConfig(), (await wallet.getDaemonConnection()).getConfig());  // equal configs
+        assert(!(await wallet.isConnected()));
+        assert.equal(await wallet.getMnemonicLanguage(), "Spanish");
+        assert.equal(await wallet.getPath(), path);
+        assert(!(await wallet.isSynced()));
+        assert.equal(await wallet.getHeight(), 1); // TODO monero core: why is height of unsynced wallet 1?
+        if (await daemon.isConnected()) assert.equal(await wallet.getRestoreHeight(), await daemon.getHeight());
+        else assert(await wallet.getRestoreHeight() >= 0);
+        await wallet.close();
       });
       
       it("Can create a core wallet from mnemonic", async function() {
