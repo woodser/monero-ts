@@ -51,7 +51,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       // initialize wallet
       before(async function() {
         try {
-          that.wallet = await that.getTestWallet(); // TODO: update in TestMoneroWalletWasm.js
+          //that.wallet = await that.getTestWallet(); // TODO: update in TestMoneroWalletWasm.js
         } catch (e) {
           console.log("ERROR before!!!");
           console.log(e.message);
@@ -64,7 +64,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       after(async function() {
         console.log("Saving wallet on shut down");
         try {
-          await that.wallet.save();
+          //await that.wallet.save();
         } catch (e) {
           console.log("ERROR after!!!");
           console.log(e.message);
@@ -178,14 +178,16 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
 
         // create random wallet with non defaults
         path = TestMoneroWalletCore._getRandomWalletPath();
-        wallet = await MoneroWalletJni.createWalletRandom(path, TestUtils.WALLET_PASSWORD, MoneroNetworkType.TESTNET, await daemon.getRpcConnection(), "Spanish");
+        wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, MoneroNetworkType.TESTNET, await daemon.getRpcConnection(), "Spanish");
         MoneroUtils.validateMnemonic(await wallet.getMnemonic());
         MoneroUtils.validateAddress(await wallet.getPrimaryAddress(), MoneroNetworkType.TESTNET);
-        assert.equal(await MoneroNetworkType.TESTNET);
+        assert.equal(await wallet.getNetworkType(), await MoneroNetworkType.TESTNET);
         assert(await wallet.getDaemonConnection());
         assert((await daemon.getRpcConnection()).getConfig() !== (await wallet.getDaemonConnection()).getConfig());         // not same reference
-        assert.deepEqual((await daemon.getRpcConnection()).getConfig(), (await wallet.getDaemonConnection()).getConfig());  // equal configs
-        assert(!(await wallet.isConnected()));
+        assert.equal((await daemon.getRpcConnection()).getUri(), (await wallet.getDaemonConnection()).getUri());
+        assert.equal((await daemon.getRpcConnection()).getUsername(), (await wallet.getDaemonConnection()).getUsername());
+        assert.equal((await daemon.getRpcConnection()).getPassword(), (await wallet.getDaemonConnection()).getPassword());
+        assert(await wallet.isConnected());
         assert.equal(await wallet.getMnemonicLanguage(), "Spanish");
         assert.equal(await wallet.getPath(), path);
         assert(!(await wallet.isSynced()));

@@ -48,6 +48,9 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("decode_integrated_address", &monero_wasm_bridge::decode_integrated_address);
   emscripten::function("get_height", &monero_wasm_bridge::get_height);
   emscripten::function("get_daemon_height", &monero_wasm_bridge::get_daemon_height);
+  emscripten::function("is_daemon_synced", &monero_wasm_bridge::is_daemon_synced);
+  emscripten::function("is_synced", &monero_wasm_bridge::is_synced);
+  emscripten::function("get_network_type", &monero_wasm_bridge::get_network_type);
   emscripten::function("get_restore_height", &monero_wasm_bridge::get_restore_height);
   emscripten::function("set_restore_height", &monero_wasm_bridge::set_restore_height);
   emscripten::function("sync", &monero_wasm_bridge::sync);

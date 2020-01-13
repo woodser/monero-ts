@@ -164,9 +164,6 @@ void monero_wasm_bridge::get_daemon_max_peer_height(int handle, emscripten::val 
 //void add_listener(int handle, monero_wallet_listener& listener);
 //void remove_listener(int handle, monero_wallet_listener& listener);
 //set<monero_wallet_listener*> get_listeners(int handle);
-//  bool is_daemon_synced(int handle) const;
-//  bool is_daemon_trusted(int handle) const;
-//  bool is_synced(int handle) const;
 //  int get_network_type(int handle) const;
 
 string monero_wasm_bridge::get_version(int handle) {
@@ -255,14 +252,29 @@ void monero_wasm_bridge::get_daemon_height(int handle, emscripten::val callback)
   callback((long) wallet->get_daemon_height());
 }
 
+void monero_wasm_bridge::is_daemon_synced(int handle, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  callback(wallet->is_daemon_synced());
+}
+
+void monero_wasm_bridge::is_synced(int handle, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  callback(wallet->is_synced());
+}
+
+int monero_wasm_bridge::get_network_type(int handle) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return (int) wallet->get_network_type();
+}
+
 long monero_wasm_bridge::get_restore_height(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
   return (long) wallet->get_restore_height();
 }
 
 void monero_wasm_bridge::set_restore_height(int handle, long restore_height) {
-  cout << "monero_wasm_bridge::set_restore_height()" << endl;
-  throw runtime_error("not implemented");
+  monero_wallet* wallet = (monero_wallet*) handle;
+  wallet->set_restore_height(restore_height);
 }
 
 void monero_wasm_bridge::sync(int handle, emscripten::val callback) {
