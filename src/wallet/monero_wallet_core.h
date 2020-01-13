@@ -174,8 +174,8 @@ namespace monero {
      * Supported wallet methods.
      */
     void set_daemon_connection(const string& uri, const string& username = "", const string& password = "");
-    void set_daemon_connection(const monero_rpc_connection& connection);
-    shared_ptr<monero_rpc_connection> get_daemon_connection() const;
+    void set_daemon_connection(const boost::optional<monero_rpc_connection>& connection);
+    boost::optional<monero_rpc_connection> get_daemon_connection() const;
     bool is_connected() const;
     bool is_daemon_synced() const;
     bool is_daemon_trusted() const;

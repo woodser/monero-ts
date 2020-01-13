@@ -106,6 +106,23 @@ namespace monero {
     return root;
   }
 
+  // --------------------------- MONERO RPC VERSION ---------------------------
+
+  rapidjson::Value monero_rpc_connection::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const {
+
+    // create root
+    rapidjson::Value root(rapidjson::kObjectType);
+
+    // set string values
+    rapidjson::Value value_str(rapidjson::kStringType);
+    if (m_uri != boost::none) monero_utils::addJsonMember("uri", m_uri.get(), allocator, root, value_str);
+    if (m_username != boost::none) monero_utils::addJsonMember("username", m_username.get(), allocator, root, value_str);
+    if (m_password != boost::none) monero_utils::addJsonMember("password", m_password.get(), allocator, root, value_str);
+
+    // return root
+    return root;
+  }
+
   // ------------------------- MONERO BLOCK HEADER ----------------------------
 
   rapidjson::Value monero_block_header::to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const {

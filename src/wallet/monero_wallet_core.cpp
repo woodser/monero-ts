@@ -945,23 +945,24 @@ namespace monero {
 //    try { is_trusted = tools::is_local_address(uri); }  // wallet is trusted iff local
 //    catch (const exception &e) { }
 
-    // manually set ssl by https prefix because http_client's if (ssl_options) set by wallet2 evaluates to true despite http  // TODO
-    epee::net_utils::ssl_options_t ssl_options = uri.rfind("https", 0) == 0 ? epee::net_utils::ssl_support_t::e_ssl_support_enabled : epee::net_utils::ssl_support_t::e_ssl_support_disabled;
+    // detect ssl TODO: wallet2 does not detect ssl from uri
+    epee::net_utils::ssl_support_t ssl = uri.rfind("https", 0) == 0 ? epee::net_utils::ssl_support_t::e_ssl_support_enabled : epee::net_utils::ssl_support_t::e_ssl_support_disabled;
 
-    // init wallet2 with daemon connection
-    if (!m_w2->init(uri, login, {}, 0, is_trusted, ssl_options)) throw runtime_error("Failed to initialize wallet with daemon connection");
+    // init wallet2 and set daemon connection
+    if (!m_w2->init(uri, login, {}, 0, is_trusted, ssl)) throw runtime_error("Failed to initialize wallet with daemon connection");
     is_connected(); // update m_is_connected cache // TODO: better naming?
   }
 
-  void monero_wallet_core::set_daemon_connection(const monero_rpc_connection& connection) {
-    set_daemon_connection(connection.m_uri, connection.m_username == boost::none ? "" : connection.m_username.get(), connection.m_password == boost::none ? "" : connection.m_password.get());
+  void monero_wallet_core::set_daemon_connection(const boost::optional<monero_rpc_connection>& connection) {
+    if (connection == boost::none) set_daemon_connection("");
+    else set_daemon_connection(connection->m_uri == boost::none ? "" : connection->m_uri.get(), connection->m_username == boost::none ? "" : connection->m_username.get(), connection->m_password == boost::none ? "" : connection->m_password.get());
   }
 
-  shared_ptr<monero_rpc_connection> monero_wallet_core::get_daemon_connection() const {
+  boost::optional<monero_rpc_connection> monero_wallet_core::get_daemon_connection() const {
     MTRACE("monero_wallet_core::get_daemon_connection()");
-    if (m_w2->get_daemon_address().empty()) return nullptr;
-    shared_ptr<monero_rpc_connection> connection = make_shared<monero_rpc_connection>();
-    if (!m_w2->get_daemon_address().empty()) connection->m_uri = m_w2->get_daemon_address();
+    if (m_w2->get_daemon_address().empty()) return boost::none;
+    boost::optional<monero_rpc_connection> connection = monero_rpc_connection();
+    connection->m_uri = m_w2->get_daemon_address();
     if (m_w2->get_daemon_login()) {
       if (!m_w2->get_daemon_login()->username.empty()) connection->m_username = m_w2->get_daemon_login()->username;
       epee::wipeable_string wipeablePassword = m_w2->get_daemon_login()->password;
@@ -3233,7 +3234,7 @@ namespace monero {
   void monero_wallet_core::init_common() {
     MTRACE("monero_wallet_core.cpp init_common()");
     m_w2_listener = unique_ptr<wallet2_listener>(new wallet2_listener(*this, *m_w2));
-    if (get_daemon_connection() == nullptr) m_is_connected = false;
+    if (get_daemon_connection() == boost::none) m_is_connected = false;
     m_is_synced = false;
     m_rescan_on_sync = false;
     m_syncing_enabled = false;

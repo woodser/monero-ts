@@ -145,7 +145,7 @@ namespace monero {
      *
      * @param connection is the connection to set
      */
-    virtual void set_daemon_connection(const monero_rpc_connection& connection) {
+    virtual void set_daemon_connection(const boost::optional<monero_rpc_connection>& connection) {
       throw runtime_error("set_daemon_connection() not supported");
     }
 
@@ -154,7 +154,7 @@ namespace monero {
      *
      * @return the wallet's daemon connection
      */
-    virtual shared_ptr<monero_rpc_connection> get_daemon_connection() const {
+    virtual boost::optional<monero_rpc_connection> get_daemon_connection() const {
       throw runtime_error("get_daemon_connection() not supported");
     }
 

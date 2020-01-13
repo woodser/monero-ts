@@ -107,14 +107,14 @@ namespace monero {
 
   /**
    * Models a connection to a daemon.
-   *
-   * TODO: switch to boost::optional<string>
    */
-  struct monero_rpc_connection {
-    string m_uri;
+  struct monero_rpc_connection : public serializable_struct {
+    boost::optional<string> m_uri;
     boost::optional<string> m_username;
     boost::optional<string> m_password;
-    monero_rpc_connection(const string& uri = "", const boost::optional<string>& username = boost::none, const boost::optional<string>& password = boost::none) : m_uri(uri), m_username(username), m_password(password) {}
+
+    monero_rpc_connection(const boost::optional<string>& uri = boost::none, const boost::optional<string>& username = boost::none, const boost::optional<string>& password = boost::none) : m_uri(uri), m_username(username), m_password(password) {}
+    rapidjson::Value to_rapidjson_val(rapidjson::Document::AllocatorType& allocator) const;
   };
 
   // forward declarations
