@@ -215,7 +215,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     let connectionContainerStr = this.module.get_daemon_connection(this.cppAddress);
     if (!connectionContainerStr) return undefined;
-    console.log(connectionContainerStr);
     let connectionContainer = JSON.parse(connectionContainerStr);
     return new MoneroRpcConnection(connectionContainer.uri, connectionContainer.username, connectionContainer.password);
   }
@@ -361,7 +360,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @return {boolean} true if the wallet is closed, false otherwise
    */
   async isClosed() {
-    throw new Error("Not implemented");
+    return this._isClosed;
   }
   
   // -------------------------- COMMON WALLET METHODS -------------------------
@@ -924,6 +923,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     await super.close(save);
     delete this.path;
     delete this.password;
+    this._isClosed = true;
   }
   
   // ---------------------------- PRIVATE HELPERS ----------------------------
