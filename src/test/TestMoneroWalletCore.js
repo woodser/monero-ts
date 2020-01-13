@@ -64,7 +64,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       after(async function() {
         console.log("Saving wallet on shut down");
         try {
-          //await that.wallet.save();
+          await that.wallet.save();
         } catch (e) {
           console.log("ERROR after!!!");
           console.log(e.message);
