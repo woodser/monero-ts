@@ -51,7 +51,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       // initialize wallet
       before(async function() {
         try {
-          //that.wallet = await that.getTestWallet(); // TODO: update in TestMoneroWalletWasm.js
+          that.wallet = await that.getTestWallet(); // TODO: update in TestMoneroWalletWasm.js
         } catch (e) {
           console.log("ERROR before!!!");
           console.log(e.message);
@@ -76,7 +76,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       that._testWalletCore(config);
       
       // run common tests
-      that.runCommonTests(config);
+      //that.runCommonTests(config);
     });
   }
   
@@ -146,6 +146,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         if (err) throw err;
       });
       
+      if (config.testNonRelays)
       it("Can create a random core wallet", async function() {
         
         // create random wallet with defaults
@@ -197,12 +198,109 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         await wallet.close();
       });
       
+      if (config.testNonRelays)
       it("Can create a core wallet from mnemonic", async function() {
-        throw new Error("Not implemented");
+        
+        // create wallet with mnemonic and defaults
+        let path = TestMoneroWalletCore._getRandomWalletPath();
+        let wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC);
+        assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
+        assert.equal(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
+        assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
+        assert.equal(await wallet.getDaemonConnection(), undefined);
+        assert(!(await wallet.isConnected()));
+        assert.equal(await wallet.getMnemonicLanguage(), "English");
+        assert.equal(await wallet.getPath(), path);
+        assert(!(await wallet.isSynced()));
+        assert.equal(await wallet.getHeight(), 1);
+        assert.equal(await wallet.getRestoreHeight(), 0);
+        try { await wallet.startSyncing(); } catch (e) { assert.equal(e.message, "Wallet is not connected to daemon"); }
+        wallet.close();
+        
+        // create wallet without restore height
+        path = TestMoneroWalletCore._getRandomWalletPath();
+        wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, daemon.getRpcConnection());
+        assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
+        assert.equal(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
+        assert.equal(TestUtils.NETWORK_TYPE, await wallet.getNetworkType());
+        assert(await wallet.getDaemonConnection());
+        assert(await daemon.getRpcConnection() != await wallet.getDaemonConnection());
+        assert.equal((await daemon.getRpcConnection()).getUri(), (await wallet.getDaemonConnection()).getUri());
+        assert.equal((await daemon.getRpcConnection()).getUsername(), (await wallet.getDaemonConnection()).getUsername());
+        assert.equal((await daemon.getRpcConnection()).getPassword(), (await wallet.getDaemonConnection()).getPassword());
+        assert(await wallet.isConnected());
+        assert.equal(await wallet.getMnemonicLanguage(), "English");
+        assert.equal(await wallet.getPath(), path);
+        assert(!(await wallet.isSynced()));
+        assert.equal(await wallet.getHeight(), 1); // TODO monero core: why does height of new unsynced wallet start at 1?
+        assert.equal(await wallet.getRestoreHeight(), 0);
+        await wallet.close();
+        
+        // create wallet with mnemonic, no connection, and restore height
+        let restoreHeight = 10000;
+        path = TestMoneroWalletCore._getRandomWalletPath();
+        wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, undefined, restoreHeight);
+        assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
+        assert.equal(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
+        assert.equal(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
+        assert.equal(await wallet.getDaemonConnection(), undefined);
+        assert(!(await wallet.isConnected()));
+        assert.equal(await wallet.getMnemonicLanguage(), "English");
+        assert.equal(await wallet.getPath(), path);
+        assert.equal(await wallet.getHeight(), 1); // TODO monero core: why does height of new unsynced wallet start at 1?
+        assert.equal(await wallet.getRestoreHeight(), restoreHeight);
+        await wallet.save();
+        await wallet.close();
+        wallet = await MoneroWalletCore.openWallet(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE);
+        assert(!(await wallet.isConnected()));
+        assert(!(await wallet.isSynced()));
+        assert.equal(await wallet.getHeight(), 1);
+        assert.equal(await wallet.getRestoreHeight(), restoreHeight); // TODO: restore height is lost after closing in JNI?
+        await wallet.close();
+
+        // create wallet with mnemonic, connection, and restore height
+        path = TestMoneroWalletCore._getRandomWalletPath();
+        wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, daemon.getRpcConnection(), restoreHeight);
+        assert.equal(await wallet.getMnemonic(), TestUtils.MNEMONIC);
+        assert(await wallet.getPrimaryAddress(), TestUtils.ADDRESS);
+        assert(await wallet.getNetworkType(), TestUtils.NETWORK_TYPE);
+        assert(await wallet.getDaemonConnection());
+        assert(daemon.getRpcConnection() != wallet.getDaemonConnection());
+        assert.equal((await daemon.getRpcConnection()).getUri(), (await wallet.getDaemonConnection()).getUri());
+        assert.equal((await daemon.getRpcConnection()).getUsername(), (await wallet.getDaemonConnection()).getUsername());
+        assert.equal((await daemon.getRpcConnection()).getPassword(), (await wallet.getDaemonConnection()).getPassword());
+        assert(await wallet.isConnected());
+        assert.equal(await wallet.getMnemonicLanguage(), "English");
+        assert.equal(await wallet.getPath(), path);
+        assert(!(await wallet.isSynced()));
+        assert.equal(await wallet.getHeight(), 1); // TODO monero core: why does height of new unsynced wallet start at 1?
+        assert.equal(await wallet.getRestoreHeight(), restoreHeight);
+        await wallet.close();
       });
       
+      if (config.testNonRelays)
       it("Can create a core wallet from keys", async function() {
-        throw new Error("Not implemented");
+        
+        // recreate test wallet from keys
+        let wallet = that.wallet;
+        let path = TestMoneroWalletCore._getRandomWalletPath();
+        let walletKeys = await MoneroWalletCore.createWalletFromKeys(path, TestUtils.WALLET_PASSWORD, await wallet.getNetworkType(), await wallet.getPrimaryAddress(), await wallet.getPrivateViewKey(), await wallet.getPrivateSpendKey(), await wallet.getDaemonConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+        let err;
+        try {
+          assert.equal(await walletKeys.getMnemonic(), await wallet.getMnemonic());
+          assert.equal(await walletKeys.getPrimaryAddress(), await wallet.getPrimaryAddress());
+          assert.equal(await walletKeys.getPrivateViewKey(), await wallet.getPrivateViewKey());
+          assert.equal(await walletKeys.getPublicViewKey(), await wallet.getPublicViewKey());
+          assert.equal(await walletKeys.getPrivateSpendKey(), await wallet.getPrivateSpendKey());
+          assert.equal(await walletKeys.getPublicSpendKey(), await wallet.getPublicSpendKey());
+          assert.equal(await walletKeys.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
+          assert(await walletKeys.isConnected());
+          assert(!(await walletKeys.isSynced()));
+        } catch (e) {
+          err = e;
+        }
+        await walletKeys.close();
+        if (err) throw err;
       });
       
       it("Can re-sync an existing wallet from scratch", async function() {
