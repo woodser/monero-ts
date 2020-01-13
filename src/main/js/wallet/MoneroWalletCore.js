@@ -216,7 +216,11 @@ class MoneroWalletCore extends MoneroWalletKeys {
     let connectionContainerStr = this.module.get_daemon_connection(this.cppAddress);
     if (!connectionContainerStr) return undefined;
     let connectionContainer = JSON.parse(connectionContainerStr);
-    return new MoneroRpcConnection(connectionContainer.uri, connectionContainer.username, connectionContainer.password);
+    return new MoneroRpcConnection({  // TODO: reconcile username vs user, password vs pass, then can pass container directly to MoneroRpcConnection (breaking change)
+      uri: connectionContainer.uri,
+      user: connectionContainer.username,
+      pass: connectionContainer.password
+    });
   }
   
   /**
@@ -270,7 +274,19 @@ class MoneroWalletCore extends MoneroWalletKeys {
    */
   async isDaemonSynced() {
     this._assertNotClosed();
-    throw new Error("Not implemented");
+    
+    // return promise which resolves on callback
+    let that = this;
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(resp) {
+        resolve(resp);
+      }
+      
+      // sync wallet in wasm and invoke callback when done
+      that.module.is_daemon_synced(that.cppAddress, callbackFn);
+    });
   }
   
   /**
@@ -280,7 +296,19 @@ class MoneroWalletCore extends MoneroWalletKeys {
    */
   async isSynced() {
     this._assertNotClosed();
-    throw new Error("Not implemented");
+    
+    // return promise which resolves on callback
+    let that = this;
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(resp) {
+        resolve(resp);
+      }
+      
+      // sync wallet in wasm and invoke callback when done
+      that.module.is_synced(that.cppAddress, callbackFn);
+    });
   }
   
   /**
@@ -290,7 +318,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    */
   async getNetworkType() {
     this._assertNotClosed();
-    throw new Error("Not implemented");
+    return this.module.get_network_type(this.cppAddress);
   }
   
   /**
@@ -310,7 +338,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    */
   async setRestoreHeight(restoreHeight) {
     this._assertNotClosed();
-    throw new Error("Not implemented");
+    return this.module.get_restore_height(this.cppAddress);
   }
   
   /**
@@ -394,6 +422,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async getDaemonHeight() {
     this._assertNotClosed();
+    if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
     
     // return promise which resolves on callback
     let that = this;

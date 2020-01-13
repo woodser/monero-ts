@@ -38,10 +38,6 @@ namespace monero_wasm_bridge
   string get_daemon_connection(int handle);
   void is_connected(int handle, emscripten::val callback);
   void get_daemon_max_peer_height(int handle, emscripten::val callback);
-//  bool is_daemon_synced(int handle);
-//  bool is_daemon_trusted(int handle);
-//  bool is_synced(int handle);
-//  int get_network_type(int handle);
   string get_version(int handle);
   string get_mnemonic(int handle);
   string get_mnemonic_language(int handle);
@@ -55,6 +51,9 @@ namespace monero_wasm_bridge
   string decode_integrated_address(int handle, const string& integrated_address);
   void get_height(int handle, emscripten::val callback);
   void get_daemon_height(int handle, emscripten::val callback);
+  void is_daemon_synced(int handle, emscripten::val callback);
+  void is_synced(int handle, emscripten::val callback);
+  int get_network_type(int handle);
   long get_restore_height(int handle);
   void set_restore_height(int handle, long restore_height);
 //  long get_daemon_height(int handle);
