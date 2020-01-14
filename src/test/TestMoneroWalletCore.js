@@ -51,7 +51,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       // initialize wallet
       before(async function() {
         try {
-          //that.wallet = await that.getTestWallet(); // TODO: update in TestMoneroWalletWasm.js
+          that.wallet = await that.getTestWallet(); // TODO: update in TestMoneroWalletWasm.js
         } catch (e) {
           console.log("ERROR before!!!");
           console.log(e.message);
@@ -64,7 +64,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       after(async function() {
         console.log("Saving wallet on shut down");
         try {
-          //await that.wallet.save();
+          await that.wallet.save();
         } catch (e) {
           console.log("ERROR after!!!");
           console.log(e.message);
