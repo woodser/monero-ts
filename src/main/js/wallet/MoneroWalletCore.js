@@ -165,6 +165,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
     super(cppAddress);
     this.path = path;
     this.password = password;
+    this.listeners = [];
+    //this.wasmListener = new WalletWasmListener(); // receives notifications from wasm c++ // TODO
   }
   
   // ------------ WALLET METHODS SPECIFIC TO WASM IMPLEMENTATION --------------
@@ -348,7 +350,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
    */
   addListener(listener) {
     this._assertNotClosed();
-    throw new Error("Not implemented");
+    this.listeners.push(listener);
+    this.wasmListener.setIsListening(true);
   }
   
   /**
@@ -358,7 +361,10 @@ class MoneroWalletCore extends MoneroWalletKeys {
    */
   removeListener(listener) {
     this._assertNotClosed();
-    throw new Error("Not implemented");
+    let idx = this.listeners.indexOf(listener);
+    if (idx > -1) this.listeners.splice(idx, 1);
+    else throw new MoneroError("Listener is not registered to wallet");
+    if (this.listeners.length === 0) this.wasmListener.setIsListening(false);
   }
   
   /**
@@ -368,7 +374,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    */
   getListeners() {
     this._assertNotClosed();
-    throw new Error("Not implemented");
+    return this.listeners;
   }
   
   /**
@@ -1002,5 +1008,75 @@ class MoneroWalletCore extends MoneroWalletKeys {
     return blocks
   }
 }
+
+// ------------------------------- LISTENERS --------------------------------
+
+///**
+// * Receives notifications from wasm c++ and translates to registered listeners.
+// */
+//class WalletWasmListener {
+//  
+//  /**
+//   * Enables or disables listening in the c++ wallet.
+//   */
+//  public void setIsListening(boolean isEnabled) {
+//    jniListenerHandle = setListenerJni(isEnabled ? this : null);
+//  }
+//  
+//  public void onSyncProgress(long height, long startHeight, long endHeight, double percentDone, String message) {
+//    for (MoneroWalletListenerI listener : listeners) {
+//      listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
+//    }
+//  }
+//  
+//  public void onNewBlock(long height) {
+//    for (MoneroWalletListenerI listener : listeners) listener.onNewBlock(height);
+//  }
+//  
+//  public void onOutputReceived(long height, String txHash, String amountStr, int accountIdx, int subaddressIdx, int version, long unlockTime) {
+//    
+//    // build received output
+//    MoneroOutputWallet output = new MoneroOutputWallet();
+//    output.setAmount(new BigInteger(amountStr));
+//    output.setAccountIndex(accountIdx);
+//    output.setSubaddressIndex(subaddressIdx);
+//    MoneroTxWallet tx = new MoneroTxWallet();
+//    tx.setHash(txHash);
+//    tx.setVersion(version);
+//    tx.setUnlockTime(unlockTime);
+//    output.setTx(tx);
+//    tx.setOutputs(Arrays.asList(output));
+//    if (height > 0) {
+//      MoneroBlock block = new MoneroBlock().setHeight(height);
+//      block.setTxs(Arrays.asList(tx));
+//      tx.setBlock(block);
+//    }
+//    
+//    // announce output
+//    for (MoneroWalletListenerI listener : listeners) listener.onOutputReceived((MoneroOutputWallet) tx.getOutputs().get(0));
+//  }
+//  
+//  public void onOutputSpent(long height, String txHash, String amountStr, int accountIdx, int subaddressIdx, int version) {
+//    
+//    // build spent output
+//    MoneroOutputWallet output = new MoneroOutputWallet();
+//    output.setAmount(new BigInteger(amountStr));
+//    output.setAccountIndex(accountIdx);
+//    output.setSubaddressIndex(subaddressIdx);
+//    MoneroTxWallet tx = new MoneroTxWallet();
+//    tx.setHash(txHash);
+//    tx.setVersion(version);
+//    output.setTx(tx);
+//    tx.setInputs(Arrays.asList(output));
+//    if (height > 0) {
+//      MoneroBlock block = new MoneroBlock().setHeight(height);
+//      block.setTxs(Arrays.asList(tx));
+//      tx.setBlock(block);
+//    }
+//    
+//    // announce output
+//    for (MoneroWalletListenerI listener : listeners) listener.onOutputSpent((MoneroOutputWallet) tx.getInputs().get(0));
+//  }
+//}
 
 module.exports = MoneroWalletCore;
