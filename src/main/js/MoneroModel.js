@@ -65,6 +65,8 @@ module.exports = function() {
   this.MoneroTxSet = require("./wallet/model/MoneroTxSet");
   this.MoneroTxWallet = require("./wallet/model/MoneroTxWallet");
   this.MoneroTxQuery = require("./wallet/model/MoneroTxQuery");
+  this.MoneroSyncListener = require("./wallet/model/MoneroSyncListener");
+  this.MoneroWalletListener = require("./wallet/model/MoneroWalletListener");
   
   // export rpc
   this.MoneroRpcConnection = require("./rpc/MoneroRpcConnection");
