@@ -1,6 +1,7 @@
 HIGH (WASM)
 monero_wallet.h get_daemon_connection() should return boost::optional<monero_rpc_connection>? and it should be serializable
 wallet core tests
+do asynchronous work in test listeners
 core wallet should auto save wallet if path given
 wallet2 password is required to create valid cache file on creation
 core wallet sync progress notifications

@@ -51,7 +51,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       // initialize wallet
       before(async function() {
         try {
-          that.wallet = await that.getTestWallet(); // TODO: update in TestMoneroWalletWasm.js
+          //that.wallet = await that.getTestWallet(); // TODO: update in TestMoneroWalletWasm.js
         } catch (e) {
           console.log("ERROR before!!!");
           console.log(e.message);
@@ -64,7 +64,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       after(async function() {
         console.log("Saving wallet on shut down");
         try {
-          await that.wallet.save();
+          //await that.wallet.save();
         } catch (e) {
           console.log("ERROR after!!!");
           console.log(e.message);
@@ -317,7 +317,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         let progressTester = new SyncProgressTester(wallet, startHeight, await wallet.getDaemonHeight());
         await wallet.setRestoreHeight(1);
         let result = await wallet.sync(1, progressTester);
-        progressTester.onDone(await wallet.getDaemonHeight());
+        await progressTester.onDone(await wallet.getDaemonHeight());
         
         // test result after syncing
         assert(await wallet.isConnected());
@@ -350,7 +350,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         // sync the wallet
         let progressTester = new SyncProgressTester(wallet, await wallet.getRestoreHeight(), await wallet.getDaemonHeight());
         let result = await wallet.sync(undefined, progressTester);
-        progressTester.onDone(await wallet.getDaemonHeight());
+        await progressTester.onDone(await wallet.getDaemonHeight());
         
         // test result after syncing
         let walletGt = await TestUtils.createWalletGroundTruth(TestUtils.NETWORK_TYPE, wallet.getMnemonic(), restoreHeight);
@@ -422,8 +422,119 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         await _testSyncMnemonic(TestUtils.FIRST_RECEIVE_HEIGHT + 3, TestUtils.FIRST_RECEIVE_HEIGHT);
       });
       
-      async function _testSyncMnemonic() {
-        throw new Error("Not implemented");
+      async function _testSyncMnemonic(startHeight, restoreHeight, skipGtComparison, testPostSyncNotifications) {
+        assert(await daemon.isConnected(), "Not connected to daemon");
+        if (startHeight !== undefined && restoreHeight != undefined) assert(startHeight <= TestUtils.FIRST_RECEIVE_HEIGHT || restoreHeight <= TestUtils.FIRST_RECEIVE_HEIGHT);
+        
+        // create wallet from mnemonic
+        let wallet = await MoneroWalletCore.createWalletFromMnemonic(TestMoneroWalletCore._getRandomWalletPath(), TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, (await TestUtils.getDaemonRpc()).getRpcConnection(), restoreHeight, undefined);
+        
+        // sanitize expected sync bounds
+        if (restoreHeight === undefined) restoreHeight = 0;
+        let startHeightExpected = startHeight === undefined ? restoreHeight : startHeight;
+        if (startHeightExpected === 0) startHeightExpected = 1;
+        let endHeightExpected = await wallet.getDaemonMaxPeerHeight();
+        
+        // test wallet and close as final step
+        let walletGt = undefined;
+        let err = undefined;  // to permit final cleanup like Java's try...catch...finally
+        try {
+          
+          // test wallet's height before syncing
+          assert(await wallet.isConnected());
+          assert(!(await wallet.isSynced()));
+          assert.equal(await wallet.getHeight(), 1);
+          assert.equal(await wallet.getRestoreHeight(), restoreHeight);
+          
+          // register a wallet listener which tests notifications throughout the sync
+          let walletSyncTester = new WalletSyncTester(wallet, startHeightExpected, endHeightExpected);
+          wallet.addListener(walletSyncTester);
+          
+          // sync the wallet with a listener which tests sync notifications
+          let progressTester = new SyncProgressTester(wallet, startHeightExpected, endHeightExpected);
+          let result = await wallet.sync(startHeight, progressTester);
+          
+          // test completion of the wallet and sync listeners
+          await progressTester.onDone(await wallet.getDaemonHeight());
+          await walletSyncTester.onDone(await wallet.getDaemonHeight());
+          
+          // test result after syncing
+          assert(await wallet.isSynced());
+          assert.equal(result.getNumBlocksFetched(), await wallet.getDaemonHeight() - startHeightExpected);
+          assert(result.getReceivedMoney());
+          assert.equal(await wallet.getHeight(), await daemon.getHeight());
+          assert.equal(await wallet.getDaemonHeight(), await daemon.getHeight());
+          if (startHeightExpected > TestUtils.FIRST_RECEIVE_HEIGHT) assert((await wallet.getTxs())[0].getHeight() > TestUtils.FIRST_RECEIVE_HEIGHT);  // wallet is partially synced so first tx happens after true restore height
+          else assert.equal((await wallet.getTxs())[0].getHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);  // wallet should be fully synced so first tx happens on true restore height
+          
+          // sync the wallet with default params
+          result = await wallet.sync();
+          assert(await wallet.isSynced());
+          assert.equal(await wallet.getHeight(), await daemon.getHeight());
+          assert.equal(result.getNumBlocksFetched(), 0);
+          assert(!result.getReceivedMoney());
+          
+          // compare with ground truth
+          if (!skipGtComparison) {
+            walletGt = await TestUtils.createWalletGroundTruth(TestUtils.NETWORK_TYPE, await wallet.getMnemonic(), startHeightExpected);
+            TestMoneroWalletCore._testWalletEqualityOnChain(walletGt, wallet);
+          }
+          
+          // if testing post-sync notifications, wait for a block to be added to the chain
+          // then test that sync arg listener was not invoked and registered wallet listener was invoked
+          if (testPostSyncNotifications) {
+            
+            // start automatic syncing
+            await wallet.startSyncing();
+            
+            // attempt to start mining to push the network along  // TODO: TestUtils.tryStartMining() : reqId, TestUtils.tryStopMining(reqId)
+            let startedMining = false;
+            let miningStatus = await daemon.getMiningStatus();
+            if (!miningStatus.isActive()) {
+              try {
+                StartMining.startMining();
+                //await wallet.startMining(7, false, true); // TODO: support client-side mining?
+                startedMining = true;
+              } catch (e) {
+                // no problem
+              }
+            }
+            
+            try {
+              
+              // wait for block
+              console.log("Waiting for next block to test post sync notifications");
+              await daemon.getNextBlockHeader();
+              
+              // ensure wallet has time to detect new block
+              try {
+                await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // sleep for the wallet interval
+              } catch (e) {
+                throw new Error(e.message);
+              }
+              
+              // test that wallet listener's onSyncProgress() and onNewBlock() were invoked after previous completion
+              assert(walletSyncTester.getOnSyncProgressAfterDone());
+              assert(walletSyncTester.getOnNewBlockAfterDone());
+            } catch (e) {
+              err = e;
+            }
+            
+            // finally
+            if (startedMining) {
+              await daemon.stopMining();
+              //await wallet.stopMining();  // TODO: support client-side mining?
+            }
+            if (err) throw err;
+          }
+        } catch (e) {
+          err = e;
+        }
+        
+        // finally
+        if (walletGt !== undefined) await walletGt.close();
+        await wallet.close();
+        if (err) throw err;
       }
       
       it("Can sync a wallet created from keys", async function() {
@@ -837,7 +948,7 @@ class SyncProgressTester extends MoneroSyncListener {
     this.prevHeight = height;
   }
   
-  onDone(chainHeight) {
+  async onDone(chainHeight) {
     assert(!this.isDone);
     this.isDone = true;
     if (this.prevHeight === undefined) {
@@ -851,6 +962,97 @@ class SyncProgressTester extends MoneroSyncListener {
   
   getOnSyncProgressAfterDone() {
     return this.onSyncProgressAfterDone;
+  }
+}
+
+/**
+ * Internal class to test all wallet notifications on sync. 
+ */
+class WalletSyncTester extends SyncProgressTester {
+  
+  constructor(wallet, startHeight, endHeight) {
+    super(wallet, startHeight, endHeight);
+    assert(startHeight >= 0);
+    assert(endHeight >= 0);
+    this.incomingTotal = new BigInteger("0");
+    this.outgoingTotal = new BigInteger("0");
+  }
+  
+  onNewBlock(height) {
+    if (this.isDone) {
+      assert(this.wallet.getListeners().includes(this), "Listener has completed and is not registered so should not be called again");
+      this.onNewBlockAfterDone = true;
+    }
+    if (this.walletTesterPrevHeight !== undefined) assert.equal(height, walletTesterPrevHeight + 1);
+    this.walletTesterPrevHeight = height;
+  }
+
+  onOutputReceived(output) {
+    assert.notEqual(output, undefined);
+    this.prevOutputReceived = output;
+    
+    // test output
+    TestUtils.testUnsignedBigInteger(output.getAmount());
+    assert(output.getAccountIndex() >= 0);
+    assert(output.getSubaddressIndex() >= 0);
+    
+    // test output's tx
+    assert(output.getTx());
+    assert(output.getTx() instanceof MoneroTxWallet);
+    assert(output.getTx().getHash());
+    assert.equal(output.getTx().getHash().length(), 64);
+    assert(output.getTx().getVersion() >= 0);
+    assert(output.getTx().getUnlockTime() >= 0);
+    assert.equal(output.getTx().getInputs(), undefined);
+    assert.equal(output.getTx().getOutputs().length, 1);
+    assert(output.getTx().getOutputs()[0] === output);
+    
+    // extra is not sent over the wasm bridge
+    assert.equal(output.getTx().getExtra(), undefined);
+    
+    // add incoming amount to running total
+    this.incomingTotal = this.incomingTotal.add(output.getAmount());
+  }
+
+  onOutputSpent(output) {
+    assert.notEqual(output, undefined);
+    this.prevOutputSpent = output;
+    
+    // test output
+    TestUtils.testUnsignedBigInteger(output.getAmount());
+    assert(output.getAccountIndex() >= 0);
+    assert(output.getSubaddressIndex() >= 0);
+    
+    // test output's tx
+    assert(output.getTx());
+    assert(output.getTx() instanceof MoneroTxWallet);
+    assert(output.getTx().getHash());
+    assert.equal(output.getTx().getHash().length(), 64);
+    assert(output.getTx().getVersion() >= 0);
+    assert.equal(output.getTx().getUnlockTime(), undefined);
+    assert.equal(output.getTx().getInputs().length, 1);
+    assert(output.getTx().getInputs()[0] === output);
+    assert.equal(output.getTx().getOutputs(), undefined);
+    
+    // extra is not sent over the wasm bridge
+    assert.equal(output.getTx().getExtra(), undefined);
+    
+    // add outgoing amount to running total
+    this.outgoingTotal = this.outgoingTotal.add(output.getAmount());
+  }
+  
+  async onDone(chainHeight) {
+    await super.onDone(chainHeight);
+    assert.notEqual(this.walletTesterPrevHeight, undefined);
+    assert.notEqual(prevOutputReceived, undefined);
+    assert.notEqual(prevOutputSpent, undefined);
+    let balance = this.incomingTotal.subtract(this.outgoingTotal);
+    assert.equal(await this.wallet.getBalance(), balance);
+    this.onNewBlockAfterDone = false;  // test subsequent onNewBlock() calls
+  }
+  
+  getOnNewBlockAfterDone() {
+    return this.onNewBlockAfterDone;
   }
 }
 
