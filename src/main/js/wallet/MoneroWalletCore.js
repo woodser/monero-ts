@@ -346,7 +346,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * 
    * @param {MoneroWalletListener} listener is the listener to receive wallet notifications
    */
-  async addListener(listener) {
+  addListener(listener) {
     this._assertNotClosed();
     throw new Error("Not implemented");
   }
@@ -356,7 +356,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * 
    * @param {MoneroWalletListener} listener is the listener to unregister
    */
-  async removeListener(listener) {
+  removeListener(listener) {
     this._assertNotClosed();
     throw new Error("Not implemented");
   }
@@ -366,7 +366,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * 
    * @return {MoneroWalletListener[]} the registered listeners
    */
-  async getListeners() {
+  getListeners() {
     this._assertNotClosed();
     throw new Error("Not implemented");
   }
