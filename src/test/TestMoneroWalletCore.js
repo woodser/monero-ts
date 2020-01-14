@@ -303,8 +303,28 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         if (err) throw err;
       });
       
+      TestUtils.TEST_WALLETS_DIR = "./test_wallets";
+      TestUtils.WALLET_WASM_PATH_1 = TestUtils.TEST_WALLETS_DIR + "/test_wallet_1";
+      
+      if (config.testNonRelays && !config.liteMode)
       it("Can re-sync an existing wallet from scratch", async function() {
-        throw new Error("Not implemented");
+        assert(await MoneroWalletCore.walletExists(TestUtils.WALLET_WASM_PATH_1));
+        let wallet = await MoneroWalletCore.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, MoneroNetworkType.STAGENET);
+        await wallet.setDaemonConnection((await TestUtils.getDaemonRpc()).getRpcConnection());
+        //long startHeight = TestUtils.TEST_RESTORE_HEIGHT;
+        let startHeight = 0;
+        let progressTester = new SyncProgressTester(wallet, startHeight, await wallet.getDaemonHeight());
+        await wallet.setRestoreHeight(1);
+        let result = await wallet.sync(1, progressTester);
+        progressTester.onDone(await wallet.getDaemonHeight());
+        
+        // test result after syncing
+        assert(await wallet.isConnected());
+        assert(await wallet.isSynced());
+        assert.equal(result.getNumBlocksFetched(), await wallet.getDaemonHeight() - startHeight);
+        assert(result.getReceivedMoney());
+        assert.equal(await wallet.getHeight(), await daemon.getHeight());
+        await wallet.close(true);
       });
       
       it("Can sync a wallet with a randomly generated seed", async function() {
