@@ -7,9 +7,6 @@
 // register bindings from JS to C++ using emscripten
 EMSCRIPTEN_BINDINGS(module)
 {
-  // register bindings for std::vector<string>
-  register_vector<string>("vector<string>");
-
   // ------------------------------ UTILITIES ---------------------------------
 
   emscripten::function("malloc_binary_from_json", &monero_wasm_bridge::malloc_binary_from_json);
@@ -53,6 +50,7 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("get_network_type", &monero_wasm_bridge::get_network_type);
   emscripten::function("get_restore_height", &monero_wasm_bridge::get_restore_height);
   emscripten::function("set_restore_height", &monero_wasm_bridge::set_restore_height);
+  emscripten::function("set_listener", &monero_wasm_bridge::set_listener);
   emscripten::function("sync", &monero_wasm_bridge::sync);
 //  emscripten::function("start_syncing", &monero_wasm_bridge::start_syncing);
 //  emscripten::function("rescan_spent", &monero_wasm_bridge::rescan_spent);

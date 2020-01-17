@@ -166,7 +166,9 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this.path = path;
     this.password = password;
     this.listeners = [];
-    //this.wasmListener = new WalletWasmListener(); // receives notifications from wasm c++ // TODO
+    this.MY_TEST = 5;
+    this.wasmListener = new WalletWasmListener(this); // receives notifications from wasm c++
+    this.wasmListenerHandle = 0;                      // memory address of the wallet listener in c++
   }
   
   // ------------ WALLET METHODS SPECIFIC TO WASM IMPLEMENTATION --------------
@@ -351,7 +353,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   addListener(listener) {
     this._assertNotClosed();
     this.listeners.push(listener);
-    this.wasmListener.setIsListening(true);
+    this._setIsListening(true);
   }
   
   /**
@@ -364,7 +366,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     let idx = this.listeners.indexOf(listener);
     if (idx > -1) this.listeners.splice(idx, 1);
     else throw new MoneroError("Listener is not registered to wallet");
-    if (this.listeners.length === 0) this.wasmListener.setIsListening(false);
+    if (this.listeners.length === 0) this._setIsListening(false);
   }
   
   /**
@@ -969,6 +971,18 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   // ---------------------------- PRIVATE HELPERS ----------------------------
   
+  /**
+   * Enables or disables listening in the c++ wallet.
+   */
+  _setIsListening(isEnabled) {
+    console.log("setIsListening(" + isEnabled);
+    if (isEnabled) {
+      this.wasmListenerHandle = this.module.set_listener(this.cppAddress, this.wasmListenerHandle, this.wasmListener.onSyncProgressFn, this.wasmListener.onNewBlockFn, this.wasmListener.onOutputReceivedFn, this.wasmListener.onOutputSpentFn);
+    } else {
+      this.wasmListenerHandle = this.module.set_listener(this.cppAddress, this.wasmListenerHandle);
+    }
+  }
+  
   _assertNotClosed() {
     if (this._isClosed) throw new MoneroError("Wallet is closed");
   }
@@ -1011,72 +1025,139 @@ class MoneroWalletCore extends MoneroWalletKeys {
 
 // ------------------------------- LISTENERS --------------------------------
 
-///**
-// * Receives notifications from wasm c++ and translates to registered listeners.
-// */
-//class WalletWasmListener {
-//  
-//  /**
-//   * Enables or disables listening in the c++ wallet.
-//   */
-//  public void setIsListening(boolean isEnabled) {
-//    jniListenerHandle = setListenerJni(isEnabled ? this : null);
-//  }
-//  
-//  public void onSyncProgress(long height, long startHeight, long endHeight, double percentDone, String message) {
-//    for (MoneroWalletListenerI listener : listeners) {
+/**
+ * Receives notifications directly from wasm c++.
+ */
+class WalletWasmListener {
+  
+  constructor(wallet) {
+    this.wallet = wallet;
+    
+//    console.log(wallet);
+//    console.log(wallet.wasmListener);
+    
+    // register wasm callback functions with signatures
+    this.onSyncProgressFn = wallet.module.addFunction(this.onSyncProgress, "vii"); // accepts ptr and length of notification as json string on c++ heap
+    this.onNewBlockFn = wallet.module.addFunction(this.onNewBlock, "vii");
+    this.onOutputReceivedFn = wallet.module.addFunction(this.onOutputReceived, "vii");
+    this.onOutputSpentFn = wallet.module.addFunction(this.onOutputSpent, "vii");
+  }
+  
+  onSyncProgress(jsonPtr, jsonLength) {
+    console.log("WalletWasmListener.onSyncProgress(" + jsonPtr + ", " + jsonLength);
+    
+//    console.log(this.wallet);
+//    console.log(this.wallet.wasmListener);
+    
+    let json = Pointer_stringify(jsonPtr);
+    
+    // read json from heap
+    //let json = this.wallet.module.UTF8ToString(jsonPtr);
+    console.log("READ JSON: " + json);
+//    
+////    // read notification from c++ heap to Uint8Array
+////    let message = new Uint8Array(msgLength);
+////    for (let i = 0; i < msgLength; i++) {
+////      message[i] = wallet.module.WASM_MODULE.HEAPU8[msgPtr / Uint8Array.BYTES_PER_ELEMENT + i];
+////    }
+//    
+//    // free message on c++ heap
+//    wallet.module.WASM_MODULE._free(jsonPtr);
+//    
+//    let message = "todo";
+//    
+//    // notify wallet listeners
+//    for (let listener of wallet.getListeners()) {
 //      listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
 //    }
-//  }
-//  
-//  public void onNewBlock(long height) {
-//    for (MoneroWalletListenerI listener : listeners) listener.onNewBlock(height);
-//  }
-//  
-//  public void onOutputReceived(long height, String txHash, String amountStr, int accountIdx, int subaddressIdx, int version, long unlockTime) {
+  }
+
+  
+//  onSyncProgress(jsonPtr, jsonLength) {
 //    
+////    // read message from c++ heap to Uint8Array
+////    let message = new Uint8Array(msgLength);
+////    for (let i = 0; i < msgLength; i++) {
+////      message[i] = wallet.module.WASM_MODULE.HEAPU8[msgPtr / Uint8Array.BYTES_PER_ELEMENT + i];
+////    }
+////    
+////    // free message on c++ heap
+////    wallet.module.WASM_MODULE._free(msgPtr);
+////    
+////    // notify wallet listeners
+////    for (let listener of wallet.getListeners()) {
+////      listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
+////    }
+//  }
+//  
+  onNewBlock(jsonPtr, jsonLength) {
+    //console.log("WalletWasmListener.onNewBlock(" + jsonPtr + ", " + jsonLength + ")");
+    //for (let listener of wallet.getListeners()) listener.onNewBlock(height);
+  }
+  
+  
+  onOutputReceived(jsonPtr, jsonLength) {
+  //onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime) {
+    
 //    // build received output
-//    MoneroOutputWallet output = new MoneroOutputWallet();
+//    let output = new MoneroOutputWallet();
 //    output.setAmount(new BigInteger(amountStr));
 //    output.setAccountIndex(accountIdx);
 //    output.setSubaddressIndex(subaddressIdx);
-//    MoneroTxWallet tx = new MoneroTxWallet();
+//    let tx = new MoneroTxWallet();
 //    tx.setHash(txHash);
 //    tx.setVersion(version);
 //    tx.setUnlockTime(unlockTime);
 //    output.setTx(tx);
-//    tx.setOutputs(Arrays.asList(output));
+//    tx.setOutputs([output]);
 //    if (height > 0) {
-//      MoneroBlock block = new MoneroBlock().setHeight(height);
-//      block.setTxs(Arrays.asList(tx));
+//      let block = new MoneroBlock().setHeight(height);
+//      block.setTxs([tx]);
 //      tx.setBlock(block);
 //    }
 //    
-//    // announce output
-//    for (MoneroWalletListenerI listener : listeners) listener.onOutputReceived((MoneroOutputWallet) tx.getOutputs().get(0));
-//  }
-//  
-//  public void onOutputSpent(long height, String txHash, String amountStr, int accountIdx, int subaddressIdx, int version) {
-//    
+//    // notify wallet listeners
+//    for (let listener of wallet.getListeners()) listener.onOutputReceived(tx.getOutputs()[0]);
+  }
+  
+  onOutputSpent(jsonPtr, jsonLength) {
+//  onOutputSpent(height, txHash, amountStr, accountIdx, subaddressIdx, version) {
+    
 //    // build spent output
-//    MoneroOutputWallet output = new MoneroOutputWallet();
+//    let output = new MoneroOutputWallet();
 //    output.setAmount(new BigInteger(amountStr));
 //    output.setAccountIndex(accountIdx);
 //    output.setSubaddressIndex(subaddressIdx);
-//    MoneroTxWallet tx = new MoneroTxWallet();
+//    let tx = new MoneroTxWallet();
 //    tx.setHash(txHash);
 //    tx.setVersion(version);
 //    output.setTx(tx);
-//    tx.setInputs(Arrays.asList(output));
+//    tx.setInputs([output]);
 //    if (height > 0) {
-//      MoneroBlock block = new MoneroBlock().setHeight(height);
-//      block.setTxs(Arrays.asList(tx));
+//      let block = new MoneroBlock().setHeight(height);
+//      block.setTxs([tx]);
 //      tx.setBlock(block);
 //    }
 //    
-//    // announce output
-//    for (MoneroWalletListenerI listener : listeners) listener.onOutputSpent((MoneroOutputWallet) tx.getInputs().get(0));
-//  }
-//}
+//    // notify wallet listeners
+//    for (let listener of wallet.getListeners()) listener.onOutputSpent(tx.getInputs()[0]);
+  }
+}
+
+/**
+ * Wraps a sync listener as a general wallet listener.
+ * 
+ * TODO: is this type necessary in JS?
+ */
+class SyncListenerWrapper extends MoneroWalletListener {
+  
+  constructor(listener) {
+    this.listener = listener;
+  }
+  
+  onSyncProgress(height, startHeight, endHeight, percentDone, message) {
+    listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
+  }
+}
 
 module.exports = MoneroWalletCore;

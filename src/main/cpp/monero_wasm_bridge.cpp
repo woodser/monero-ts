@@ -22,6 +22,106 @@ string strip_last_char(const string& str) {
   return str.substr(0, str.size() - 1);
 }
 
+/**
+ * External JavaScript listener functions.  Every function accepts ptr and length of notification as json string on c++ heap.
+ */
+typedef void on_sync_progress_js(int json_ptr, int json_length);
+typedef void on_new_block_js(int json_ptr, int json_length);
+typedef void on_output_received_js(int json_ptr, int json_length);
+typedef void on_output_spent_js(int json_ptr, int json_length);
+
+/**
+ * Listens for wallet notifications and notifies the listener in JavaScript.
+ */
+struct wallet_wasm_listener : public monero_wallet_listener {
+
+  int m_on_sync_progress_fn;
+  int m_on_new_block_fn;
+  int m_on_output_received_fn;
+  int m_on_output_spent_fn;
+
+  wallet_wasm_listener(int on_sync_progress_fn, int on_new_block_fn, int on_output_received_fn, int on_output_spent_fn):
+    m_on_sync_progress_fn(on_sync_progress_fn),
+    m_on_new_block_fn(on_new_block_fn),
+    m_on_output_received_fn(on_output_received_fn),
+    m_on_output_spent_fn(on_output_spent_fn)
+  { }
+
+  ~wallet_wasm_listener() { };
+
+  void on_sync_progress(uint64_t height, uint64_t start_height, uint64_t end_height, double percent_done, const string& message) {
+    //cout << "wallet_wasm_listener::on_sync_progress()" << endl;
+
+    // convert notification to json string to preserve precision
+    rapidjson::Document doc;
+    doc.SetObject();
+    rapidjson::Value value;
+    doc.AddMember("height", rapidjson::Value().SetUint64(height), doc.GetAllocator());
+    doc.AddMember("start_height", rapidjson::Value().SetUint64(start_height), doc.GetAllocator());
+    doc.AddMember("end_height", rapidjson::Value().SetUint64(end_height), doc.GetAllocator());
+    doc.AddMember("percent_done", rapidjson::Value().SetDouble(percent_done), doc.GetAllocator());
+    doc.AddMember("message", rapidjson::Value().SetString(message.c_str(), message.size()), doc.GetAllocator());  // TODO: always set strings like this
+    string json = monero_utils::serialize(doc);
+
+    // copy json string to heap
+    std::string* ptr = new std::string(json.c_str(), json.length());
+
+    // call JS with json string's pointer and length on heap
+    ((on_sync_progress_js*) m_on_sync_progress_fn)(reinterpret_cast<intptr_t>(ptr->c_str()), ptr->length());
+  }
+
+  void on_new_block(uint64_t height) {
+    //cout << "wallet_wasm_listener::on_new_block()" << endl;
+
+    // convert notification to json string to preserve precision
+    rapidjson::Document doc;
+    doc.SetObject();
+    rapidjson::Value value;
+    doc.AddMember("height", rapidjson::Value().SetUint64(height), doc.GetAllocator());
+    string json = monero_utils::serialize(doc);
+
+    // copy json string to heap
+    std::string* ptr = new std::string(json.c_str(), json.length());
+
+    // call JS with json string's pointer and length on heap
+    ((on_new_block_js*) m_on_new_block_fn)(reinterpret_cast<intptr_t>(ptr->c_str()), ptr->length());
+  }
+
+  void on_output_received(const monero_output_wallet& output) {
+    //cout << "wallet_wasm_listener::on_output_received()" << endl;
+
+//    // convert notification to json string to preserve precision
+//    rapidjson::Document doc;
+//    doc.SetObject();
+//    rapidjson::Value value;
+//    doc.AddMember("height", rapidjson::Value().SetUint64(height));
+//    string json = monero_utils::serialize(doc);
+//
+//    // copy json string to heap
+//    std::string* ptr = new std::string(json.c_str(), json.length());
+//
+//    // call JS with json string's pointer and length on heap
+//    ((on_output_received*) on_output_received)(reinterpret_cast<intptr_t>(ptr->c_str()), ptr->length());
+  }
+
+  void on_output_spent(const monero_output_wallet& output) {
+    //cout << "wallet_wasm_listener::on_output_spent()" << endl;
+
+//    // convert notification to json string to preserve precision
+//    rapidjson::Document doc;
+//    doc.SetObject();
+//    rapidjson::Value value;
+//    doc.AddMember("height", rapidjson::Value().SetUint64(height));
+//    string json = monero_utils::serialize(doc);
+//
+//    // copy json string to heap
+//    std::string* ptr = new std::string(json.c_str(), json.length());
+//
+//    // call JS with json string's pointer and length on heap
+//    ((on_output_spent*) on_output_spent)(reinterpret_cast<intptr_t>(ptr->c_str()), ptr->length());
+  }
+};
+
 // ------------------------------- UTILITIES ----------------------------------
 
 string monero_wasm_bridge::malloc_binary_from_json(const std::string &buff_json)
@@ -34,6 +134,7 @@ string monero_wasm_bridge::malloc_binary_from_json(const std::string &buff_json)
   std::string* ptr = new std::string(buff_bin.c_str(), buff_bin.length());
 
   // create object with binary string memory address info
+  // TODO: switch to rapidjson
   boost::property_tree::ptree root;
   root.put("ptr", reinterpret_cast<intptr_t>(ptr->c_str()));
   root.put("length", ptr->length());
@@ -275,6 +376,24 @@ long monero_wasm_bridge::get_restore_height(int handle) {
 void monero_wasm_bridge::set_restore_height(int handle, long restore_height) {
   monero_wallet* wallet = (monero_wallet*) handle;
   wallet->set_restore_height(restore_height);
+}
+
+int monero_wasm_bridge::set_listener(int wallet_handle, int old_listener_handle, int on_sync_progress_fn, int on_new_block_fn, int on_output_received_fn, int on_output_spent_fn) {
+  cout << "monero_wasm_bridge::set_listener()" << endl;
+  monero_wallet* wallet = (monero_wallet*) wallet_handle;
+
+  // remove old listener
+  wallet_wasm_listener* old_listener = (wallet_wasm_listener*) old_listener_handle;
+  if (old_listener != nullptr) {
+    wallet->remove_listener(*old_listener);
+    delete old_listener;
+  }
+
+  // add new listener
+  if (on_sync_progress_fn == 0) return 0;
+  wallet_wasm_listener* listener = new wallet_wasm_listener(on_sync_progress_fn, on_new_block_fn, on_output_received_fn, on_output_spent_fn);
+  wallet->add_listener(*listener);
+  return (int) listener;
 }
 
 void monero_wasm_bridge::sync(int handle, emscripten::val callback) {
