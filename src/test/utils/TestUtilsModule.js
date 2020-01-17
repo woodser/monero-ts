@@ -9,4 +9,5 @@ module.exports = function() {
   this.TxPoolWalletTracker = require("./TxPoolWalletTracker");
   this.StartMining = require("./StartMining");
   this.WalletEqualityUtils = require("./WalletEqualityUtils");
+  this.WalletSyncPrinter = require("./WalletSyncPrinter");
 }

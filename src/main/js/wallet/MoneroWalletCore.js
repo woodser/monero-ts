@@ -466,6 +466,29 @@ class MoneroWalletCore extends MoneroWalletKeys {
     });
   }
   
+//  @Override
+//  public MoneroSyncResult sync(Long startHeight, MoneroSyncListener listener) {
+//    assertNotClosed();
+//    if (startHeight == null) startHeight = Math.max(getHeight(), getRestoreHeight());
+//    
+//    // wrap and register sync listener as wallet listener if given
+//    SyncListenerWrapper syncListenerWrapper = null;
+//    if (listener != null) {
+//      syncListenerWrapper = new SyncListenerWrapper(listener);
+//      addListener(syncListenerWrapper);
+//    }
+//    
+//    // sync wallet and handle exception
+//    try {
+//      Object[] results = syncJni(startHeight);
+//      return new MoneroSyncResult((long) results[0], (boolean) results[1]);
+//    } catch (Exception e) {
+//      throw new MoneroException(e.getMessage());
+//    } finally {
+//      if (syncListenerWrapper != null) removeListener(syncListenerWrapper); // unregister sync listener
+//    }
+//  }
+  
   async startSyncing() {
     this._assertNotClosed();
     if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");

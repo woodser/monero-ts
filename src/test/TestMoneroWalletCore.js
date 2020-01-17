@@ -51,7 +51,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       // initialize wallet
       before(async function() {
         try {
-          //that.wallet = await that.getTestWallet(); // TODO: update in TestMoneroWalletWasm.js
+          that.wallet = await that.getTestWallet();
         } catch (e) {
           console.log("ERROR before!!!");
           console.log(e.message);
@@ -64,7 +64,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       after(async function() {
         console.log("Saving wallet on shut down");
         try {
-          //await that.wallet.save();
+          await that.wallet.save();
         } catch (e) {
           console.log("ERROR after!!!");
           console.log(e.message);
@@ -477,7 +477,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           // compare with ground truth
           if (!skipGtComparison) {
             walletGt = await TestUtils.createWalletGroundTruth(TestUtils.NETWORK_TYPE, await wallet.getMnemonic(), startHeightExpected);
-            TestMoneroWalletCore._testWalletEqualityOnChain(walletGt, wallet);
+            await TestMoneroWalletCore._testWalletEqualityOnChain(walletGt, wallet);
           }
           
           // if testing post-sync notifications, wait for a block to be added to the chain
@@ -898,6 +898,16 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   static _getRandomWalletPath() {
     return TestUtils.TEST_WALLETS_DIR + "/test_wallet_" + GenUtils.uuidv4();
   }
+  
+  // possible configuration: on chain xor local wallet data ("strict"), txs ordered same way? TBD
+  static async _testWalletEqualityOnChain(wallet1, wallet2) {
+    await WalletEqualityUtils.testWalletEqualityOnChain(wallet1, wallet2);
+    assert.equal(await wallet2.getNetworkType(), await wallet1.getNetworkType());
+    //assert.equal(await wallet2.getRestoreHeight(), await wallet1.getRestoreHeight()); // TODO monero-core: restore height is lost after close
+    assert.equal(await wallet2.getDaemonConnection(), await wallet1.getDaemonConnection());
+    assert.equal(await wallet2.getMnemonicLanguage(), await wallet1.getMnemonicLanguage());
+    // TODO: more wasm-specific extensions
+  }
 }
 
 /**
@@ -922,7 +932,7 @@ class SyncProgressTester extends MoneroSyncListener {
     
     // registered wallet listeners will continue to get sync notifications after the wallet's initial sync
     if (this.isDone) {
-      assert(wallet.getListeners().includes(this), "Listener has completed and is not registered so should not be called again");
+      assert(this.wallet.getListeners().includes(this), "Listener has completed and is not registered so should not be called again");
       this.onSyncProgressAfterDone = true;
     }
     
