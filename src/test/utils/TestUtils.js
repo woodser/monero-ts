@@ -73,8 +73,6 @@ class TestUtils {
   
   /**
    * Get a singleton instance of a core wallet shared among tests.
-   * 
-   * TODO: this creates and syncs new wallet every time; need to save and restore json
    */
   static async getWalletCore() {
     if (this.walletCore === undefined || await this.walletCore.isClosed()) { 
@@ -102,20 +100,27 @@ class TestUtils {
         //await this.walletCore.sync(new WalletSyncPrinter());  // TODO
         //await this.walletCore.startSyncing();                 // TODO
       }
-      
-      // TODO: hook to save on shutdown?
-//      // Save and close the JNI wallet when the runtime is shutting down in order
-//      // to preserve local wallet data (e.g. destination addresses and amounts).
-//      // This is not necessary in the rpc wallet which saves automatically.
-//      Runtime.getRuntime().addShutdownHook(new Thread() {
-//        public void run() {
-//          walletJni.close(true);
-//        }
-//      });
     }
     
     // return cached core wallet
     return this.walletCore;
+  }
+  
+  /**
+   * Creates a new wallet considered to be "ground truth" (a freshly created wasm wallet).
+   * 
+   * @param networkType is the ground truth wallet's network type
+   * @param mnemonic is the ground truth wallet's mnemonic
+   * @param restoreHeight is the ground truth wallet's restore height
+   * @return the created wallet
+   */
+  static async createWalletGroundTruth(networkType, mnemonic, restoreHeight) {
+    let path = TestUtils.TEST_WALLETS_DIR + "/gt_wallet_" + GenUtils.uuidv4();
+    let gtWallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, networkType, mnemonic, (await TestUtils.getDaemonRpc()).getRpcConnection(), restoreHeight, undefined);
+    assert.equal(await gtWallet.getRestoreHeight(), restoreHeight === undefined ? 0 : restoreHeight);
+    await gtWallet.sync(new WalletSyncPrinter());
+    //await gtWallet.startSyncing();  // TODO
+    return gtWallet;
   }
   
   static testUnsignedBigInteger(num, nonZero) {
