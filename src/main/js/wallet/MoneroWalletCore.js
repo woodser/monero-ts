@@ -975,9 +975,16 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * Enables or disables listening in the c++ wallet.
    */
   _setIsListening(isEnabled) {
-    console.log("setIsListening(" + isEnabled);
+    console.log("setIsListening(" + isEnabled + ")");
     if (isEnabled) {
-      this.wasmListenerHandle = this.module.set_listener(this.cppAddress, this.wasmListenerHandle, this.wasmListener.onSyncProgressFn, this.wasmListener.onNewBlockFn, this.wasmListener.onOutputReceivedFn, this.wasmListener.onOutputSpentFn);
+      let that = this;
+      this.wasmListenerHandle = this.module.set_listener(
+          this.cppAddress,
+          this.wasmListenerHandle,
+          function(height, startHeight, endHeight, percentDone, message) { that.wasmListener.onSyncProgress(height, startHeight, endHeight, percentDone, message); },
+          function(height) { that.wasmListener.onNewBlock(height); },
+          function(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime) { that.wasmListener.onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime); },
+          function(height, txHash, amountStr, accountIdx, subaddressIdx, version) { that.wasmListener.onOutputSpent(height, txHash, amountStr, accountIdx, subaddressIdx, version); });
     } else {
       this.wasmListenerHandle = this.module.set_listener(this.cppAddress, this.wasmListenerHandle);
     }
@@ -1032,115 +1039,61 @@ class WalletWasmListener {
   
   constructor(wallet) {
     this.wallet = wallet;
-    
-//    console.log(wallet);
-//    console.log(wallet.wasmListener);
-    
-    // register wasm callback functions with signatures
-    this.onSyncProgressFn = wallet.module.addFunction(this.onSyncProgress, "vii"); // accepts ptr and length of notification as json string on c++ heap
-    this.onNewBlockFn = wallet.module.addFunction(this.onNewBlock, "vii");
-    this.onOutputReceivedFn = wallet.module.addFunction(this.onOutputReceived, "vii");
-    this.onOutputSpentFn = wallet.module.addFunction(this.onOutputSpent, "vii");
   }
   
-  onSyncProgress(jsonPtr, jsonLength) {
-    console.log("WalletWasmListener.onSyncProgress(" + jsonPtr + ", " + jsonLength);
-    
-//    console.log(this.wallet);
-//    console.log(this.wallet.wasmListener);
-    
-    let json = Pointer_stringify(jsonPtr);
-    
-    // read json from heap
-    //let json = this.wallet.module.UTF8ToString(jsonPtr);
-    console.log("READ JSON: " + json);
-//    
-////    // read notification from c++ heap to Uint8Array
-////    let message = new Uint8Array(msgLength);
-////    for (let i = 0; i < msgLength; i++) {
-////      message[i] = wallet.module.WASM_MODULE.HEAPU8[msgPtr / Uint8Array.BYTES_PER_ELEMENT + i];
-////    }
-//    
-//    // free message on c++ heap
-//    wallet.module.WASM_MODULE._free(jsonPtr);
-//    
-//    let message = "todo";
-//    
-//    // notify wallet listeners
-//    for (let listener of wallet.getListeners()) {
-//      listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
-//    }
-  }
-
-  
-//  onSyncProgress(jsonPtr, jsonLength) {
-//    
-////    // read message from c++ heap to Uint8Array
-////    let message = new Uint8Array(msgLength);
-////    for (let i = 0; i < msgLength; i++) {
-////      message[i] = wallet.module.WASM_MODULE.HEAPU8[msgPtr / Uint8Array.BYTES_PER_ELEMENT + i];
-////    }
-////    
-////    // free message on c++ heap
-////    wallet.module.WASM_MODULE._free(msgPtr);
-////    
-////    // notify wallet listeners
-////    for (let listener of wallet.getListeners()) {
-////      listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
-////    }
-//  }
-//  
-  onNewBlock(jsonPtr, jsonLength) {
-    //console.log("WalletWasmListener.onNewBlock(" + jsonPtr + ", " + jsonLength + ")");
-    //for (let listener of wallet.getListeners()) listener.onNewBlock(height);
+  onSyncProgress(height, startHeight, endHeight, percentDone, message) {
+    for (let listener of this.wallet.getListeners()) {
+      listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
+    }
   }
   
-  
-  onOutputReceived(jsonPtr, jsonLength) {
-  //onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime) {
-    
-//    // build received output
-//    let output = new MoneroOutputWallet();
-//    output.setAmount(new BigInteger(amountStr));
-//    output.setAccountIndex(accountIdx);
-//    output.setSubaddressIndex(subaddressIdx);
-//    let tx = new MoneroTxWallet();
-//    tx.setHash(txHash);
-//    tx.setVersion(version);
-//    tx.setUnlockTime(unlockTime);
-//    output.setTx(tx);
-//    tx.setOutputs([output]);
-//    if (height > 0) {
-//      let block = new MoneroBlock().setHeight(height);
-//      block.setTxs([tx]);
-//      tx.setBlock(block);
-//    }
-//    
-//    // notify wallet listeners
-//    for (let listener of wallet.getListeners()) listener.onOutputReceived(tx.getOutputs()[0]);
+  onNewBlock(height) {
+    for (let listener of this.wallet.getListeners()) listener.onNewBlock(height);
   }
   
-  onOutputSpent(jsonPtr, jsonLength) {
-//  onOutputSpent(height, txHash, amountStr, accountIdx, subaddressIdx, version) {
+  onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime) {
     
-//    // build spent output
-//    let output = new MoneroOutputWallet();
-//    output.setAmount(new BigInteger(amountStr));
-//    output.setAccountIndex(accountIdx);
-//    output.setSubaddressIndex(subaddressIdx);
-//    let tx = new MoneroTxWallet();
-//    tx.setHash(txHash);
-//    tx.setVersion(version);
-//    output.setTx(tx);
-//    tx.setInputs([output]);
-//    if (height > 0) {
-//      let block = new MoneroBlock().setHeight(height);
-//      block.setTxs([tx]);
-//      tx.setBlock(block);
-//    }
-//    
-//    // notify wallet listeners
-//    for (let listener of wallet.getListeners()) listener.onOutputSpent(tx.getInputs()[0]);
+    // build received output
+    let output = new MoneroOutputWallet();
+    output.setAmount(new BigInteger(amountStr));
+    output.setAccountIndex(accountIdx);
+    output.setSubaddressIndex(subaddressIdx);
+    let tx = new MoneroTxWallet();
+    tx.setHash(txHash);
+    tx.setVersion(version);
+    tx.setUnlockTime(unlockTime);
+    output.setTx(tx);
+    tx.setOutputs([output]);
+    if (height > 0) {
+      let block = new MoneroBlock().setHeight(height);
+      block.setTxs([tx]);
+      tx.setBlock(block);
+    }
+    
+    // notify wallet listeners
+    for (let listener of this.wallet.getListeners()) listener.onOutputReceived(tx.getOutputs()[0]);
+  }
+  
+  onOutputSpent(height, txHash, amountStr, accountIdx, subaddressIdx, version) {
+    
+    // build spent output
+    let output = new MoneroOutputWallet();
+    output.setAmount(new BigInteger(amountStr));
+    output.setAccountIndex(accountIdx);
+    output.setSubaddressIndex(subaddressIdx);
+    let tx = new MoneroTxWallet();
+    tx.setHash(txHash);
+    tx.setVersion(version);
+    output.setTx(tx);
+    tx.setInputs([output]);
+    if (height > 0) {
+      let block = new MoneroBlock().setHeight(height);
+      block.setTxs([tx]);
+      tx.setBlock(block);
+    }
+    
+    // notify wallet listeners
+    for (let listener of this.wallet.getListeners()) listener.onOutputSpent(tx.getInputs()[0]);
   }
 }
 

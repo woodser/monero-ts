@@ -983,7 +983,7 @@ class WalletSyncTester extends SyncProgressTester {
       assert(this.wallet.getListeners().includes(this), "Listener has completed and is not registered so should not be called again");
       this.onNewBlockAfterDone = true;
     }
-    if (this.walletTesterPrevHeight !== undefined) assert.equal(height, walletTesterPrevHeight + 1);
+    if (this.walletTesterPrevHeight !== undefined) assert.equal(height, this.walletTesterPrevHeight + 1);
     this.walletTesterPrevHeight = height;
   }
 
@@ -1000,7 +1000,7 @@ class WalletSyncTester extends SyncProgressTester {
     assert(output.getTx());
     assert(output.getTx() instanceof MoneroTxWallet);
     assert(output.getTx().getHash());
-    assert.equal(output.getTx().getHash().length(), 64);
+    assert.equal(output.getTx().getHash().length, 64);
     assert(output.getTx().getVersion() >= 0);
     assert(output.getTx().getUnlockTime() >= 0);
     assert.equal(output.getTx().getInputs(), undefined);
@@ -1027,7 +1027,7 @@ class WalletSyncTester extends SyncProgressTester {
     assert(output.getTx());
     assert(output.getTx() instanceof MoneroTxWallet);
     assert(output.getTx().getHash());
-    assert.equal(output.getTx().getHash().length(), 64);
+    assert.equal(output.getTx().getHash().length, 64);
     assert(output.getTx().getVersion() >= 0);
     assert.equal(output.getTx().getUnlockTime(), undefined);
     assert.equal(output.getTx().getInputs().length, 1);
@@ -1044,10 +1044,10 @@ class WalletSyncTester extends SyncProgressTester {
   async onDone(chainHeight) {
     await super.onDone(chainHeight);
     assert.notEqual(this.walletTesterPrevHeight, undefined);
-    assert.notEqual(prevOutputReceived, undefined);
-    assert.notEqual(prevOutputSpent, undefined);
+    assert.notEqual(this.prevOutputReceived, undefined);
+    assert.notEqual(this.prevOutputSpent, undefined);
     let balance = this.incomingTotal.subtract(this.outgoingTotal);
-    assert.equal(await this.wallet.getBalance(), balance);
+    assert.equal((await this.wallet.getBalance()).toString(), balance.toString());
     this.onNewBlockAfterDone = false;  // test subsequent onNewBlock() calls
   }
   
