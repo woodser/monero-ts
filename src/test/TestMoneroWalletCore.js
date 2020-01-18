@@ -455,7 +455,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           let result = await wallet.sync(startHeight, progressTester);
           
           // test completion of the wallet and sync listeners
-          await progressTester.onDone(await wallet.getDaemonHeight());
+          await progressTester.onDone(await wallet.getDaemonHeight());  // TODO: how is this passing? wallet.sync() does not handle progressTester arg
           await walletSyncTester.onDone(await wallet.getDaemonHeight());
           
           // test result after syncing
@@ -904,7 +904,9 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
     await WalletEqualityUtils.testWalletEqualityOnChain(wallet1, wallet2);
     assert.equal(await wallet2.getNetworkType(), await wallet1.getNetworkType());
     //assert.equal(await wallet2.getRestoreHeight(), await wallet1.getRestoreHeight()); // TODO monero-core: restore height is lost after close
-    assert.equal(await wallet2.getDaemonConnection(), await wallet1.getDaemonConnection());
+    assert.equal((await wallet2.getDaemonConnection()).getUri(), (await wallet1.getDaemonConnection()).getUri());
+    assert.equal((await wallet2.getDaemonConnection()).getUsername(), (await wallet1.getDaemonConnection()).getUsername());
+    assert.equal((await wallet2.getDaemonConnection()).getPassword(), (await wallet1.getDaemonConnection()).getPassword());
     assert.equal(await wallet2.getMnemonicLanguage(), await wallet1.getMnemonicLanguage());
     // TODO: more wasm-specific extensions
   }
