@@ -353,7 +353,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         await progressTester.onDone(await wallet.getDaemonHeight());
         
         // test result after syncing
-        let walletGt = await TestUtils.createWalletGroundTruth(TestUtils.NETWORK_TYPE,        wallet.getMnemonic(), restoreHeight);
+        let walletGt = await TestUtils.createWalletGroundTruth(TestUtils.NETWORK_TYPE, await wallet.getMnemonic(), restoreHeight);
         let err;
         try {
           assert(await wallet.isConnected());
@@ -965,7 +965,7 @@ class SyncProgressTester extends MoneroSyncListener {
     this.isDone = true;
     if (this.prevHeight === undefined) {
       assert.equal(this.prevCompleteHeight, undefined);
-      assert.equal(this.startHeight, chainHeight - 1);  // TODO: test and port to JNI
+      assert.equal(this.startHeight, chainHeight);
     } else {
       assert.equal(this.prevHeight, chainHeight - 1);  // otherwise last height is chain height - 1
       assert.equal(this.prevCompleteHeight, chainHeight);
