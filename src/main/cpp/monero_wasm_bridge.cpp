@@ -317,7 +317,6 @@ void monero_wasm_bridge::set_restore_height(int handle, long restore_height) {
 }
 
 int monero_wasm_bridge::set_listener(int wallet_handle, int old_listener_handle, emscripten::val on_sync_progress, emscripten::val on_new_block, emscripten::val on_output_received, emscripten::val on_output_spent) {
-  cout << "monero_wasm_bridge::set_listener()" << endl;
   monero_wallet* wallet = (monero_wallet*) wallet_handle;
 
   // remove old listener
