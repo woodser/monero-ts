@@ -162,10 +162,10 @@ class MoneroWallet {
   /**
    * Synchronize the wallet with the daemon as a one-time synchronous process.
    * 
-   * @param {int} startHeight is the start height to sync from, syncs from the last synced block by default
-   * @param {function} onProgress({percent: , message: , totalBlocks: , doneBlocks: }) is invoked as progress is made
+   * @param {number|MoneroSyncListener} startHeightOrListener is the start height to sync from or a sync listener (defaults to the last synced block height)
+   * @param {MoneroSyncListener} listener receives sync progress notifications if not provided in first arg (defaults to no listener)
    */
-  async sync(startHeight, onProgress) {
+  async sync(startHeightOrListener, listener) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -480,7 +480,7 @@ class MoneroWallet {
    * @return {MoneroIncomingTransfer[]} the wallet's incoming transfers
    */
   async getIncomingTransfers(query) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not implemented");
   }
   
   /**
@@ -490,7 +490,7 @@ class MoneroWallet {
    * @return {MoneroOutgoingTransfer[]} the wallet's outgoing transfers
    */
   async getOutgoingTransfers(query) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not implemented");
   }
   
   /**

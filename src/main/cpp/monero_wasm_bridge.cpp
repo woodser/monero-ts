@@ -508,6 +508,69 @@ void monero_wasm_bridge::get_txs(int handle, const string& tx_query_json, emscri
   callback(monero_utils::serialize(doc));
 }
 
+void monero_wasm_bridge::get_transfers(int handle, const string& transfer_query_json, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+
+  // deserialize transfer query
+  shared_ptr<monero_transfer_query> transfer_query = monero_transfer_query::deserialize_from_block(transfer_query_json);
+
+  // get transfers
+  vector<shared_ptr<monero_transfer>> transfers = wallet->get_transfers(*transfer_query);
+
+  // collect unique blocks to preserve model relationships as tree
+  shared_ptr<monero_block> unconfirmed_block = nullptr; // placeholder to store unconfirmed txs in return json
+  vector<shared_ptr<monero_block>> blocks;
+  unordered_set<shared_ptr<monero_block>> seen_block_ptrs;
+  for (auto const& transfer : transfers) {
+    shared_ptr<monero_tx_wallet> tx = transfer->m_tx;
+    if (tx->m_block == boost::none) {
+      if (unconfirmed_block == nullptr) unconfirmed_block = shared_ptr<monero_block>(new monero_block());
+      tx->m_block = unconfirmed_block;
+      unconfirmed_block->m_txs.push_back(tx);
+    }
+    unordered_set<shared_ptr<monero_block>>::const_iterator got = seen_block_ptrs.find(tx->m_block.get());
+    if (got == seen_block_ptrs.end()) {
+      seen_block_ptrs.insert(tx->m_block.get());
+      blocks.push_back(tx->m_block.get());
+    }
+  }
+
+  // wrap and serialize blocks
+  rapidjson::Document doc;
+  doc.SetObject();
+  doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
+  callback(monero_utils::serialize(doc));
+}
+
+void monero_wasm_bridge::get_outputs(int handle, const string& output_query_json, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+
+  // deserialize output query
+  shared_ptr<monero_output_query> output_query = monero_output_query::deserialize_from_block(output_query_json);
+
+  // get outputs
+  vector<shared_ptr<monero_output_wallet>> outputs = wallet->get_outputs(*output_query);
+
+  // collect unique blocks to preserve model relationships as tree
+  vector<monero_block> blocks;
+  unordered_set<shared_ptr<monero_block>> seen_block_ptrs;
+  for (auto const& output : outputs) {
+    shared_ptr<monero_tx_wallet> tx = static_pointer_cast<monero_tx_wallet>(output->m_tx);
+    if (tx->m_block == boost::none) throw runtime_error("Need to handle unconfirmed output");
+    unordered_set<shared_ptr<monero_block>>::const_iterator got = seen_block_ptrs.find(*tx->m_block);
+    if (got == seen_block_ptrs.end()) {
+      seen_block_ptrs.insert(*tx->m_block);
+      blocks.push_back(**tx->m_block);
+    }
+  }
+
+  // wrap and serialize blocks
+  rapidjson::Document doc;
+  doc.SetObject();
+  doc.AddMember("blocks", monero_utils::to_rapidjson_val(doc.GetAllocator(), blocks), doc.GetAllocator());
+  callback(monero_utils::serialize(doc));
+}
+
 //  emscripten::function("get_txs", &monero_wasm_bridge::get_txs);
 //  emscripten::function("get_transfers", &monero_wasm_bridge::get_transfers);
 //  emscripten::function("get_incoming_transfers", &monero_wasm_bridge::TODO);

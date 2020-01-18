@@ -78,11 +78,8 @@ namespace monero_wasm_bridge
   string get_subaddresses(int handle, const string& args);
   string create_subaddress(int handle, const uint32_t account_idx, const string& label);
   void get_txs(int handle, const string& tx_query_json, emscripten::val callback);
-  //  emscripten::function("get_txs", &monero_wasm_bridge::get_txs);
-  //  emscripten::function("get_transfers", &monero_wasm_bridge::get_transfers);
-  //  emscripten::function("get_incoming_transfers", &monero_wasm_bridge::TODO);
-  //  emscripten::function("get_outgoing_transfers", &monero_wasm_bridge::TODO);
-  //  emscripten::function("get_outputs", &monero_wasm_bridge::get_outputs);
+  void get_transfers(int handle, const string& transfer_query_json, emscripten::val callback);
+  void get_outputs(int handle, const string& output_query_json, emscripten::val callback);
   //  emscripten::function("get_outputs_hex", &monero_wasm_bridge::get_outputs_hex);
   //  emscripten::function("import_outputs_hex", &monero_wasm_bridge::import_outputs_hex);
   //  emscripten::function("get_key_images", &monero_wasm_bridge::get_key_images);

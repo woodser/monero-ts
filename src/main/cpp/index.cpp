@@ -67,10 +67,8 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("get_subaddresses", &monero_wasm_bridge::get_subaddresses);
   emscripten::function("create_subaddress", &monero_wasm_bridge::create_subaddress);
   emscripten::function("get_txs", &monero_wasm_bridge::get_txs);
-//  emscripten::function("get_transfers", &monero_wasm_bridge::get_transfers);
-//  emscripten::function("get_incoming_transfers", &monero_wasm_bridge::get_incoming_transfers);
-//  emscripten::function("get_outgoing_transfers", &monero_wasm_bridge::get_outgoing_transfers);
-//  emscripten::function("get_outputs", &monero_wasm_bridge::get_outputs);
+  emscripten::function("get_transfers", &monero_wasm_bridge::get_transfers);
+  emscripten::function("get_outputs", &monero_wasm_bridge::get_outputs);
 //  emscripten::function("get_outputs_hex", &monero_wasm_bridge::get_outputs_hex);
 //  emscripten::function("import_outputs_hex", &monero_wasm_bridge::import_outputs_hex);
 //  emscripten::function("get_key_images", &monero_wasm_bridge::get_key_images);
