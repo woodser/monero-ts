@@ -446,7 +446,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
     });
   }
   
-  async sync() {
+  // TODO: handle start height or listener
+  async sync(startHeightOrListener, listener) {
     this._assertNotClosed();
     if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
     
@@ -639,24 +640,125 @@ class MoneroWalletCore extends MoneroWalletKeys {
     });
   }
   
-  async getTransfers(config) {
+  async getTransfers(query) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    
+    // copy and normalize query up to block
+    if (query === undefined) query = new MoneroTransferQuery();
+    else if (query instanceof MoneroTransferQuery) {
+      if (query.getTxQuery() === undefined) query = query.copy();
+      else {
+        let txQuery = query.getTxQuery().copy();
+        if (query.getTxQuery().getTransferQuery() === query) query = txQuery.getTransferQuery();
+        else {
+          assert.equal(query.getTxQuery().getTransferQuery(), undefined, "Transfer query's tx query must be circular reference or null");
+          query = query.copy();
+          query.setTxQuery(txQuery);
+        }
+      }
+    } else {
+      query = Object.assign({}, query);
+      query = new MoneroTransferQuery(query).setTxQuery(new MoneroTxQuery(query));
+    }
+    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
+    query.getTxQuery().setTransferQuery(query);
+    if (query.getTxQuery().getBlock() === undefined) query.getTxQuery().setBlock(new MoneroBlock().setTxs([query.getTxQuery()]));
+    
+    // return promise which resolves on callback
+    let that = this;
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(blocksJsonStr) {
+        
+        // check for error  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
+        if (blocksJsonStr.charAt(0) !== "{") {
+          reject(new MoneroError(blocksJsonStr));
+          return;
+        }
+        
+        // deserialize blocks
+        let blocks = MoneroWalletCore._deserializeBlocks(blocksJsonStr);
+        
+        // collect transfers
+        let transfers = [];
+        for (let block of blocks) {
+          MoneroWalletCore._sanitizeBlock(block);
+          for (let tx of block.getTxs()) {
+            if (block.getHeight() === undefined) tx.setBlock(undefined); // dereference placeholder block for unconfirmed txs
+            if (tx.getOutgoingTransfer() !== undefined) transfers.push(tx.getOutgoingTransfer());
+            if (tx.getIncomingTransfers() !== undefined) {
+              for (let transfer of tx.getIncomingTransfers()) transfers.push(transfer);
+            }
+          }
+        }
+        
+        // resolve promise with transfers
+        resolve(transfers);
+      }
+      
+      // sync wallet in wasm and invoke callback when done
+      that.module.get_transfers(that.cppAddress, JSON.stringify(query.getTxQuery().getBlock().toJson()), callbackFn);
+    });
   }
   
-  async getIncomingTransfers(config) {
+  async getOutputs(query) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
-  }
-  
-  async getOutgoingTransfers(config) {
-    this._assertNotClosed();
-    throw new MoneroError("Not implemented");
-  }
-  
-  async getOutputs(config) {
-    this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    
+    // copy and normalize query up to block
+    if (query === undefined) query = new MoneroOutputQuery();
+    else if (query instanceof MoneroOutputQuery) {
+      if (query.getTxQuery() === undefined) query = query.copy();
+      else {
+        let txQuery = query.getTxQuery().copy();
+        if (query.getTxQuery().getOutputQuery() === query) query = txQuery.getOutputQuery();
+        else {
+          assert.equal(query.getTxQuery().getOutputQuery(), undefined, "Output query's tx query must be circular reference or null");
+          query = query.copy();
+          query.setTxQuery(txQuery);
+        }
+      }
+    } else {
+      query = Object.assign({}, query);
+      query = new MoneroOutputQuery(query).setTxQuery(new MoneroTxQuery(query));
+    }
+    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
+    query.getTxQuery().setOutputQuery(query);
+    if (query.getTxQuery().getBlock() === undefined) query.getTxQuery().setBlock(new MoneroBlock().setTxs([query.getTxQuery()]));
+    
+    // return promise which resolves on callback
+    let that = this;
+    return new Promise(function(resolve, reject) {
+      
+      // define callback for wasm
+      let callbackFn = function(blocksJsonStr) {
+        
+        // check for error  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
+        if (blocksJsonStr.charAt(0) !== "{") {
+          reject(new MoneroError(blocksJsonStr));
+          return;
+        }
+        
+        // deserialize blocks
+        let blocks = MoneroWalletCore._deserializeBlocks(blocksJsonStr);
+        
+        // collect outputs
+        let outputs = [];
+        for (let block of blocks) {
+          MoneroWalletCore._sanitizeBlock(block);
+          for (let tx of block.getTxs()) {
+            for (let output of tx.getOutputs()) outputs.push(output);
+            if (block.getHeight() === undefined) tx.setBlock(undefined); // dereference placeholder block for unconfirmed txs
+          }
+        }
+        
+        // resolve promise with transfers
+        resolve(outputs);
+      }
+      
+      // sync wallet in wasm and invoke callback when done
+      that.module.get_outputs(that.cppAddress, JSON.stringify(query.getTxQuery().getBlock().toJson()), callbackFn);
+    });
   }
   
   async getOutputsHex() {
