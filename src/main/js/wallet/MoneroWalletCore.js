@@ -446,10 +446,21 @@ class MoneroWalletCore extends MoneroWalletKeys {
     });
   }
   
-  // TODO: handle start height or listener
-  async sync(startHeightOrListener, listener) {
+  async sync(listenerOrStartHeight, startHeight) {
     this._assertNotClosed();
     if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
+    
+    // sanitize params
+    startHeight = listenerOrStartHeight instanceof MoneroSyncListener ? startHeight : listenerOrStartHeight;
+    let listener = listenerOrStartHeight instanceof MoneroSyncListener ? listenerOrStartHeight : undefined;
+    if (startHeight === undefined) startHeight = Math.max(await this.getHeight(), await this.getRestoreHeight());
+    
+    // wrap and register sync listener as wallet listener if given
+    let syncListenerWrapper = undefined;
+    if (listener !== undefined) {
+      syncListenerWrapper = new SyncListenerWrapper(listener);
+      this.addListener(syncListenerWrapper);
+    }
     
     // return promise which resolves on callback
     let that = this;
@@ -459,7 +470,20 @@ class MoneroWalletCore extends MoneroWalletKeys {
       let callbackFn = function(resp) {
         let respJson = JSON.parse(resp);
         let result = new MoneroSyncResult(respJson.numBlocksFetched, respJson.receivedMoney);
-        resolve(result);
+        let err;
+        try {
+          resolve(result);
+        } catch (e) {
+          err = e;
+        }
+        
+        // unregister sync listener wrapper
+        if (syncListenerWrapper !== undefined) {  // TODO: test that this is executed with error e.g. sync an unconnected wallet
+          that.removeListener(syncListenerWrapper); // unregister sync listener
+        }
+        
+        // invoke reject() if err
+        if (err) reject(err);
       }
       
       // sync wallet in wasm and invoke callback when done
@@ -467,36 +491,12 @@ class MoneroWalletCore extends MoneroWalletKeys {
     });
   }
   
-//  @Override
-//  public MoneroSyncResult sync(Long startHeight, MoneroSyncListener listener) {
-//    assertNotClosed();
-//    if (startHeight == null) startHeight = Math.max(getHeight(), getRestoreHeight());
-//    
-//    // wrap and register sync listener as wallet listener if given
-//    SyncListenerWrapper syncListenerWrapper = null;
-//    if (listener != null) {
-//      syncListenerWrapper = new SyncListenerWrapper(listener);
-//      addListener(syncListenerWrapper);
-//    }
-//    
-//    // sync wallet and handle exception
-//    try {
-//      Object[] results = syncJni(startHeight);
-//      return new MoneroSyncResult((long) results[0], (boolean) results[1]);
-//    } catch (Exception e) {
-//      throw new MoneroException(e.getMessage());
-//    } finally {
-//      if (syncListenerWrapper != null) removeListener(syncListenerWrapper); // unregister sync listener
-//    }
-//  }
-  
   async startSyncing() {
     this._assertNotClosed();
     if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
     throw new Error("Not implemented");
   }
   
-  // startSyncing
   // rescanSpent
   // rescanBlockchain
   
@@ -1111,7 +1111,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
           function(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime) { that.wasmListener.onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime); },
           function(height, txHash, amountStr, accountIdx, subaddressIdx, version) { that.wasmListener.onOutputSpent(height, txHash, amountStr, accountIdx, subaddressIdx, version); });
     } else {
-      this.wasmListenerHandle = this.module.set_listener(this.cppAddress, this.wasmListenerHandle);
+      this.wasmListenerHandle = this.module.set_listener(this.cppAddress, this.wasmListenerHandle, undefined, undefined, undefined, undefined);
     }
   }
   
@@ -1230,11 +1230,12 @@ class WalletWasmListener {
 class SyncListenerWrapper extends MoneroWalletListener {
   
   constructor(listener) {
+    super();
     this.listener = listener;
   }
   
   onSyncProgress(height, startHeight, endHeight, percentDone, message) {
-    listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
+    this.listener.onSyncProgress(height, startHeight, endHeight, percentDone, message);
   }
 }
 

@@ -162,10 +162,10 @@ class MoneroWallet {
   /**
    * Synchronize the wallet with the daemon as a one-time synchronous process.
    * 
-   * @param {number|MoneroSyncListener} startHeightOrListener is the start height to sync from or a sync listener (defaults to the last synced block height)
-   * @param {MoneroSyncListener} listener receives sync progress notifications if not provided in first arg (defaults to no listener)
+   * @param {MoneroSyncListener|number} is the sync listener xor start height (defaults to no sync listener, the last synced block)
+   * @param {number} startHeight is the startHeight if not given in first arg (defaults to last synced block)
    */
-  async sync(startHeightOrListener, listener) {
+  async sync(listenerOrStartHeight, startHeight) {
     throw new MoneroError("Subclass must implement");
   }
   

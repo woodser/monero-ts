@@ -64,7 +64,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       after(async function() {
         console.log("Saving wallet on shut down");
         try {
-          //await that.wallet.save();
+          await that.wallet.save();
         } catch (e) {
           console.log("ERROR after!!!");
           console.log(e.message);
@@ -316,7 +316,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         let startHeight = 0;
         let progressTester = new SyncProgressTester(wallet, startHeight, await wallet.getDaemonHeight());
         await wallet.setRestoreHeight(1);
-        let result = await wallet.sync(1, progressTester);
+        let result = await wallet.sync(progressTester, 1);
         await progressTester.onDone(await wallet.getDaemonHeight());
         
         // test result after syncing
@@ -349,11 +349,11 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
 
         // sync the wallet
         let progressTester = new SyncProgressTester(wallet, await wallet.getRestoreHeight(), await wallet.getDaemonHeight());
-        let result = await wallet.sync(undefined, progressTester);
+        let result = await wallet.sync(progressTester, undefined);
         await progressTester.onDone(await wallet.getDaemonHeight());
         
         // test result after syncing
-        let walletGt = await TestUtils.createWalletGroundTruth(TestUtils.NETWORK_TYPE, wallet.getMnemonic(), restoreHeight);
+        let walletGt = await TestUtils.createWalletGroundTruth(TestUtils.NETWORK_TYPE,        wallet.getMnemonic(), restoreHeight);
         let err;
         try {
           assert(await wallet.isConnected());
@@ -452,7 +452,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           
           // sync the wallet with a listener which tests sync notifications
           let progressTester = new SyncProgressTester(wallet, startHeightExpected, endHeightExpected);
-          let result = await wallet.sync(startHeight, progressTester);
+          let result = await wallet.sync(progressTester, startHeight);
           
           // test completion of the wallet and sync listeners
           await progressTester.onDone(await wallet.getDaemonHeight());  // TODO: how is this passing? wallet.sync() does not handle progressTester arg
@@ -965,6 +965,7 @@ class SyncProgressTester extends MoneroSyncListener {
     this.isDone = true;
     if (this.prevHeight === undefined) {
       assert.equal(this.prevCompleteHeight, undefined);
+      assert.equal(this.startHeight, chainHeight - 1);  // TODO: test and port to JNI
     } else {
       assert.equal(this.prevHeight, chainHeight - 1);  // otherwise last height is chain height - 1
       assert.equal(this.prevCompleteHeight, chainHeight);
