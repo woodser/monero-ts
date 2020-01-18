@@ -748,7 +748,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
           MoneroWalletCore._sanitizeBlock(block);
           for (let tx of block.getTxs()) {
             for (let output of tx.getOutputs()) outputs.push(output);
-            if (block.getHeight() === undefined) tx.setBlock(undefined); // dereference placeholder block for unconfirmed txs
           }
         }
         
