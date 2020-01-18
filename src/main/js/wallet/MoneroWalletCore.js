@@ -1100,7 +1100,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * Enables or disables listening in the c++ wallet.
    */
   _setIsListening(isEnabled) {
-    console.log("setIsListening(" + isEnabled + ")");
     if (isEnabled) {
       let that = this;
       this.wasmListenerHandle = this.module.set_listener(

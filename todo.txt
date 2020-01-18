@@ -1,9 +1,6 @@
 HIGH (WASM)
-WalletJniListener is embedded in MoneroWalletJni class and uses class's internals
-setListenerJni only permits one wallet to receive notifications? 
-listener should be associated with wallet; poc in jni first?
 compare sync speeds with and without notifications
-monero_wallet.h get_daemon_connection() should return boost::optional<monero_rpc_connection>? and it should be serializable
+compare performance with dynamic memory growth
 wallet core tests
 restore height is refresh height
 support MoneroWalletRpc(string uri, string username, string password) like java
