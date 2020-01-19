@@ -356,7 +356,7 @@ bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::
 }
 
 bool http_client_wasm::invoke(const boost::string_ref path, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
-  cout << "invoke(" << path << ", " << method << ", ...)" << endl;
+  //cout << "invoke(" << path << ", " << method << ", ...)" << endl;
 
   // return false if unconnected
   if (!is_connected()) {

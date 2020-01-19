@@ -337,25 +337,26 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         let wallet = await MoneroWalletCore.createWalletRandom(TestMoneroWalletCore._getRandomWalletPath(), TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, (await TestUtils.getDaemonRpc()).getRpcConnection(), undefined);
 
         // test wallet's height before syncing
-        assert.equal((await wallet.getDaemonConnection()).getUri(), (await daemon.getRpcConnection()).getUri());
-        assert.equal((await wallet.getDaemonConnection()).getUsername(), (await daemon.getRpcConnection()).getUsername());
-        assert.equal((await wallet.getDaemonConnection()).getPassword(), (await daemon.getRpcConnection()).getPassword());
-        assert.equal(await wallet.getDaemonHeight(), restoreHeight);
-        assert(await wallet.isConnected());
-        assert(!(await wallet.isSynced()));
-        assert.equal(await wallet.getHeight(), 1);
-        assert.equal(await wallet.getRestoreHeight(), restoreHeight);
-        assert.equal(await wallet.getDaemonHeight(), await daemon.getHeight());
-
-        // sync the wallet
-        let progressTester = new SyncProgressTester(wallet, await wallet.getRestoreHeight(), await wallet.getDaemonHeight());
-        let result = await wallet.sync(progressTester, undefined);
-        await progressTester.onDone(await wallet.getDaemonHeight());
-        
-        // test result after syncing
-        let walletGt = await TestUtils.createWalletGroundTruth(TestUtils.NETWORK_TYPE, await wallet.getMnemonic(), restoreHeight);
+        let walletGt;
         let err;
         try {
+          assert.equal((await wallet.getDaemonConnection()).getUri(), (await daemon.getRpcConnection()).getUri());
+          assert.equal((await wallet.getDaemonConnection()).getUsername(), (await daemon.getRpcConnection()).getUsername());
+          assert.equal((await wallet.getDaemonConnection()).getPassword(), (await daemon.getRpcConnection()).getPassword());
+          assert.equal(await wallet.getDaemonHeight(), restoreHeight);
+          assert(await wallet.isConnected());
+          assert(!(await wallet.isSynced()));
+          assert.equal(await wallet.getHeight(), 1);
+          assert.equal(await wallet.getRestoreHeight(), restoreHeight);
+          assert.equal(await wallet.getDaemonHeight(), await daemon.getHeight());
+  
+          // sync the wallet
+          let progressTester = new SyncProgressTester(wallet, await wallet.getRestoreHeight(), await wallet.getDaemonHeight());
+          let result = await wallet.sync(progressTester, undefined);
+          await progressTester.onDone(await wallet.getDaemonHeight());
+        
+          // test result after syncing
+          walletGt = await TestUtils.createWalletGroundTruth(TestUtils.NETWORK_TYPE, await wallet.getMnemonic(), restoreHeight);
           assert(await wallet.isConnected());
           assert(await wallet.isSynced());
           assert.equal(result.getNumBlocksFetched(), 0);
@@ -374,7 +375,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         }
         
         // finally 
-        await walletGt.close();
+        if (walletGt) await walletGt.close();
         await wallet.close();
         if (err) throw err;
         
@@ -455,7 +456,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           let result = await wallet.sync(progressTester, startHeight);
           
           // test completion of the wallet and sync listeners
-          await progressTester.onDone(await wallet.getDaemonHeight());  // TODO: how is this passing? wallet.sync() does not handle progressTester arg
+          await progressTester.onDone(await wallet.getDaemonHeight());
           await walletSyncTester.onDone(await wallet.getDaemonHeight());
           
           // test result after syncing
