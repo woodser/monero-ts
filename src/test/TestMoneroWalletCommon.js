@@ -314,6 +314,7 @@ class TestMoneroWalletCommon {
         assert.equal(mnemonic, TestUtils.MNEMONIC);
       });
       
+      if (config.testNonRelays)
       it("Can get the language of the mnemonic phrase", async function() {
         let language = await that.wallet.getMnemonicLanguage();
         assert.equal(language, "English");
@@ -339,11 +340,13 @@ class TestMoneroWalletCommon {
         MoneroUtils.validatePrivateSpendKey(privateSpendKey);
       });
       
+      if (config.testNonRelays)
       it("Can get the public view key", async function() {
         let publicViewKey = await that.wallet.getPublicViewKey()
         MoneroUtils.validatePublicViewKey(publicViewKey);
       });
       
+      if (config.testNonRelays)
       it("Can get the public spend key", async function() {
         let publicSpendKey = await that.wallet.getPublicSpendKey()
         MoneroUtils.validatePublicSpendKey(publicSpendKey);
@@ -434,6 +437,7 @@ class TestMoneroWalletCommon {
         assert(integratedAddress.getPaymentId().length);
       });
       
+      if (config.testNonRelays)
       it("Can decode an integrated address", async function() {
         let integratedAddress = await that.wallet.getIntegratedAddress("03284e41c342f036");
         let decodedAddress = await that.wallet.decodeIntegratedAddress(integratedAddress.toString());
@@ -1906,6 +1910,7 @@ class TestMoneroWalletCommon {
         assert.equal(verified, false);
       });
       
+      if (config.testNonRelays)
       it("Has an address book", async function() {
         
         // initial state
