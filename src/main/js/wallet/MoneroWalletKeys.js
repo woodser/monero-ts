@@ -173,7 +173,7 @@ class MoneroWalletKeys extends MoneroWallet {
       };
       
       // close wallet in wasm and invoke callback when done
-      that.module.close(that.cppAddress, callbackFn);
+      that.module.close(that.cppAddress, false, callbackFn);  // saving handled external to webassembly
     });
   }
 }

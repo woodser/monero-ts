@@ -88,7 +88,7 @@ class TestUtils {
         assert.equal(await this.walletCore.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
         await this.walletCore.sync();
         //await this.walletCore.sync(new WalletSyncPrinter());  // TODO
-        //await this.walletCore.save(); // save progress        // TODO: delete in TestUtils.java since saved on shutdown
+        await this.walletCore.save(); // save progress
         //await this.walletCore.startSyncing();                 // TODO
       }
       
@@ -118,7 +118,7 @@ class TestUtils {
     let path = TestUtils.TEST_WALLETS_DIR + "/gt_wallet_" + GenUtils.uuidv4();
     let gtWallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, networkType, mnemonic, (await TestUtils.getDaemonRpc()).getRpcConnection(), restoreHeight, undefined);
     assert.equal(await gtWallet.getRestoreHeight(), restoreHeight === undefined ? 0 : restoreHeight);
-    await gtWallet.sync(new WalletSyncPrinter());
+    await gtWallet.sync();
     //await gtWallet.startSyncing();  // TODO
     return gtWallet;
   }

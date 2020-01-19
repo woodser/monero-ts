@@ -34,7 +34,7 @@ compare sync performance with emscripten_fetch
 what in upstream core causes json_rpc requests to be POST? submit issue to default to POST in http_abstract_invoke and wallet2.h
 pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
-decref 0 warnings
+why does de-ref tx block in getOutputs() cause failure?
 optimize wasm imports to minimize size
 update readme sample with MoneroUtils
 optimize file data read/write with different view
