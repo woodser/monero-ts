@@ -351,6 +351,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    */
   addListener(listener) {
     this._assertNotClosed();
+    assert(listener instanceof MoneroWalletListener);
     this.listeners.push(listener);
     this._setIsListening(true);
   }
