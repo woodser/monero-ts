@@ -543,7 +543,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         
         // recreate test wallet from keys
         let path = TestMoneroWalletCore._getRandomWalletPath();
-        let walletKeys = await MoneroWalletCore.createWalletFromKeys(path, TestUtils.WALLET_PASSWORD,  await wallet.getNetworkType(), await wallet.getPrimaryAddress(), await wallet.getPrivateViewKey(), await wallet.getPrivateSpendKey(), await wallet.getDaemonConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+        let walletKeys = await MoneroWalletCore.createWalletFromKeys(path, TestUtils.WALLET_PASSWORD,  await that.wallet.getNetworkType(), await that.wallet.getPrimaryAddress(), await that.wallet.getPrivateViewKey(), await that.wallet.getPrivateSpendKey(), await that.wallet.getDaemonConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
         
         // create ground truth wallet for comparison
         let walletGt = await TestUtils.createWalletGroundTruth(TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
