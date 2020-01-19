@@ -489,7 +489,7 @@ void monero_wasm_bridge::get_txs(int handle, const string& tx_query_json, emscri
   unordered_set<shared_ptr<monero_block>> seen_block_ptrs;
   for (const shared_ptr<monero_tx_wallet>& tx : txs) {
     if (tx->m_block == boost::none) {
-      if (unconfirmed_block == nullptr) unconfirmed_block = shared_ptr<monero_block>(new monero_block());
+      if (unconfirmed_block == nullptr) unconfirmed_block = shared_ptr<monero_block>();
       tx->m_block = unconfirmed_block;
       unconfirmed_block->m_txs.push_back(tx);
     }
@@ -523,7 +523,7 @@ void monero_wasm_bridge::get_transfers(int handle, const string& transfer_query_
   for (auto const& transfer : transfers) {
     shared_ptr<monero_tx_wallet> tx = transfer->m_tx;
     if (tx->m_block == boost::none) {
-      if (unconfirmed_block == nullptr) unconfirmed_block = shared_ptr<monero_block>(new monero_block());
+      if (unconfirmed_block == nullptr) unconfirmed_block = shared_ptr<monero_block>();
       tx->m_block = unconfirmed_block;
       unconfirmed_block->m_txs.push_back(tx);
     }
@@ -655,9 +655,11 @@ void monero_wasm_bridge::set_attribute(int handle, const string& key, const stri
 //  emscripten::function("submit_multisig_tx_hex", &monero_wasm_bridge::submit_multisig_tx_hex);
 //  emscripten::function("save", &monero_wasm_bridge::save);
 
-void monero_wasm_bridge::close(int handle, emscripten::val callback) {
+void monero_wasm_bridge::close(int handle, bool save, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  wallet->close();
+  if (save) wallet->save();
+  delete wallet;
+  wallet = nullptr;
   callback();
 }
 

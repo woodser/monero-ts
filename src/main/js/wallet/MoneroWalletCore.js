@@ -166,7 +166,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this.path = path;
     this.password = password;
     this.listeners = [];
-    this.MY_TEST = 5;
     this.wasmListener = new WalletWasmListener(this); // receives notifications from wasm c++
     this.wasmListenerHandle = 0;                      // memory address of the wallet listener in c++
   }
@@ -1087,9 +1086,12 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async close(save) {
     if (this._isClosed) return; // closing a closed wallet has no effect
+    this._setIsListening(false);	// TODO: port to jni
     await super.close(save);
     delete this.path;
     delete this.password;
+    delete this.listeners;
+    delete this.wasmListener;
     this._isClosed = true;
   }
   
