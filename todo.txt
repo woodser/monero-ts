@@ -1,4 +1,5 @@
 HIGH (WASM)
+rename GenUtils.uuidv4() -> GenUtils.getUUID();
 compare sync speeds with and without notifications
 compare performance with dynamic memory growth
 wallet core tests
