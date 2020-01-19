@@ -107,7 +107,8 @@ class TestMoneroWalletCommon {
         testGetTxsStructure(txCache);
         return txCache;
       }
-      
+
+      if (config.testNonRelays)
       it("Can create a random wallet", async function() {
         let e1 = undefined;
         try {
@@ -133,6 +134,7 @@ class TestMoneroWalletCommon {
         if (e1 !== undefined) throw e1;
       });
       
+      if (config.testNonRelays)
       it("Can create a wallet from a mnemonic phrase", async function() {
         let e1 = undefined;
         try {
@@ -164,6 +166,7 @@ class TestMoneroWalletCommon {
         if (e1 !== undefined) throw e1;
       });
       
+      if (config.testNonRelays)
       it("Can create a wallet from a mnemonic phrase with a seed offset", async function() {
         let e1 = undefined;
         try {
@@ -191,6 +194,7 @@ class TestMoneroWalletCommon {
         if (e1 !== undefined) throw e1;
       });
       
+      if (config.testNonRelays)
       it("Can create a wallet from keys", async function() {
         let e1 = undefined;
         try {
@@ -225,6 +229,7 @@ class TestMoneroWalletCommon {
         if (e1 !== undefined) throw e1;
       });
       
+      if (config.testNonRelays)
       it("Can create a wallet without the spend key", async function() {
         let e1 = undefined;
         try {
@@ -269,6 +274,7 @@ class TestMoneroWalletCommon {
         if (e1 !== undefined) throw e1;
       });
       
+      if (config.testNonRelays)
       it("Can get the wallet's version", async function() {
         let version = await that.wallet.getVersion();
         assert.equal(typeof version.getNumber(), "number");
@@ -276,6 +282,7 @@ class TestMoneroWalletCommon {
         assert.equal(typeof version.isRelease(), "boolean");
       });
       
+      if (config.testNonRelays)
       it("Can get the wallet's path", async function() {
         
         // create a random wallet
