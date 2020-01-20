@@ -963,6 +963,9 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         let listener = new OutputNotificationCollector();
         wallet.addListener(listener);
         
+        // start syncing to test automatic notifications
+        await wallet.startSyncing();
+        
         // send tx
         let tx = (await wallet.send(request)).getTxs()[0];
         

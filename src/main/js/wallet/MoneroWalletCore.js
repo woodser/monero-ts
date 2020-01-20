@@ -20,15 +20,15 @@ class MoneroWalletCore extends MoneroWalletKeys {
   static async openWallet(path, password, networkType, daemonUriOrConnection) {
     console.log("MoneroWalletCore.openWallet()");
     
-    // validate and sanitize parameters
+    // validate and normalize parameters
     if (!(await MoneroWalletCore.walletExists(path))) throw new MoneroError("Wallet does not exist at path: " + path);
     if (password === undefined) password = "";
     if (networkType === undefined) throw new MoneroError("Must provide a network type");
     MoneroNetworkType.validate(networkType);
-    let daemonConnection = daemonUriOrConnection ? (typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection) : undefined;
-    let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
-    let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
-    let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
+    let daemonConnection = typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection;
+    let daemonUri = daemonConnection && daemonConnection.getUri() ? daemonConnection.getUri() : "";
+    let daemonUsername = daemonConnection && daemonConnection.getUsername() ? daemonConnection.getUsername() : "";
+    let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
     
     // read wallet files
     let keysData = FS.readFileSync(path + ".keys");
@@ -51,16 +51,17 @@ class MoneroWalletCore extends MoneroWalletKeys {
     });
   }
   
-  static async createWalletRandom(path, password, networkType, daemonConnection, language) {
+  static async createWalletRandom(path, password, networkType, daemonUriOrConnection, language) {
     
-    // validate and sanitize params
+    // validate and normalize params
     if (path === undefined) path = "";
     if (password === undefined) password = "";
     MoneroNetworkType.validate(networkType);
     if (language === undefined) language = "English";
-    let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
-    let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
-    let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
+    let daemonConnection = typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection;
+    let daemonUri = daemonConnection && daemonConnection.getUri() ? daemonConnection.getUri() : "";
+    let daemonUsername = daemonConnection && daemonConnection.getUsername() ? daemonConnection.getUsername() : "";
+    let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
     
     // load wasm module
     let module = await MoneroUtils.loadWasmModule();
@@ -71,7 +72,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       // define callback for wasm
       let callbackFn = async function(cppAddress) {
         let wallet = new MoneroWalletCore(cppAddress, path, password);
-        //await wallet.save();  // TODO
+        if (path) await wallet.save();
         resolve(wallet);
       };
       
@@ -80,15 +81,16 @@ class MoneroWalletCore extends MoneroWalletKeys {
     });
   }
   
-  static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset) {
+  static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset) {
     
-    // validate and sanitize params
+    // validate and normalize params
     if (path === undefined) path = "";
     if (password === undefined) password = "";
     MoneroNetworkType.validate(networkType);
-    let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
-    let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
-    let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
+    let daemonConnection = typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection;
+    let daemonUri = daemonConnection && daemonConnection.getUri() ? daemonConnection.getUri() : "";
+    let daemonUsername = daemonConnection && daemonConnection.getUsername() ? daemonConnection.getUsername() : "";
+    let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
     if (restoreHeight === undefined) restoreHeight = 0;
     if (seedOffset === undefined) seedOffset = "";
     
@@ -101,7 +103,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       // define callback for wasm
       let callbackFn = async function(cppAddress) {
         let wallet = new MoneroWalletCore(cppAddress, path, password);
-        //await wallet.save();  // TODO
+        if (path) await wallet.save();
         resolve(wallet);
       };
       
@@ -110,18 +112,19 @@ class MoneroWalletCore extends MoneroWalletKeys {
     });
   }
   
-  static async createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonConnection, restoreHeight, language) {
+  static async createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language) {
     
-    // validate and sanitize params
+    // validate and normalize params
     if (path === undefined) path = "";
     if (password === undefined) password = "";
     MoneroNetworkType.validate(networkType);
     if (address === undefined) address = "";
     if (viewKey === undefined) viewKey = "";
     if (spendKey === undefined) spendKey = "";
-    let daemonUri = daemonConnection ? daemonConnection.getUri() : "";
-    let daemonUsername = daemonConnection ? daemonConnection.getUsername() : "";
-    let daemonPassword = daemonConnection ? daemonConnection.getPassword() : "";
+    let daemonConnection = typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection;
+    let daemonUri = daemonConnection && daemonConnection.getUri() ? daemonConnection.getUri() : "";
+    let daemonUsername = daemonConnection && daemonConnection.getUsername() ? daemonConnection.getUsername() : "";
+    let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
     if (restoreHeight === undefined) restoreHeight = 0;
     if (language === undefined) language = "English";
     
@@ -134,7 +137,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       // define callback for wasm
       let callbackFn = async function(cppAddress) {
         let wallet = new MoneroWalletCore(cppAddress, path, password);
-        //await wallet.save();  // TODO
+        if (path) await wallet.save();
         resolve(wallet);
       };
       
@@ -494,6 +497,11 @@ class MoneroWalletCore extends MoneroWalletKeys {
   async startSyncing() {
     this._assertNotClosed();
     if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
+    throw new Error("Not implemented");
+  }
+  
+  async stopSyncing() {
+    this._assertNotClosed();
     throw new Error("Not implemented");
   }
   
@@ -1093,7 +1101,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
     delete this.password;
     delete this.listeners;
     delete this.wasmListener;
-    this._isClosed = true;
   }
   
   // ---------------------------- PRIVATE HELPERS ----------------------------
@@ -1114,10 +1121,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
     } else {
       this.wasmListenerHandle = this.module.set_listener(this.cppAddress, this.wasmListenerHandle, undefined, undefined, undefined, undefined);
     }
-  }
-  
-  _assertNotClosed() {
-    if (this._isClosed) throw new MoneroError("Wallet is closed");
   }
   
   static _sanitizeBlock(block) {

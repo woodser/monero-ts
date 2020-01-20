@@ -102,55 +102,67 @@ class MoneroWalletKeys extends MoneroWallet {
   }
   
   async getVersion() {
+    this._assertNotClosed();
     let versionStr = this.module.get_version(this.cppAddress);
     let versionJson = JSON.parse(versionStr);
     return new MoneroVersion(versionJson.number, versionJson.isRelease);
   }
   
   getPath() {
+    this._assertNotClosed();
     throw new Error("MoneroWalletKeys does not support a persisted path");
   }
   
   async getMnemonic() {
+    this._assertNotClosed();
     return this.module.get_mnemonic(this.cppAddress);
   }
   
   async getMnemonicLanguage() {
+    this._assertNotClosed();
     return this.module.get_mnemonic_language(this.cppAddress);
   }
   
   async getMnemonicLanguages() {
+    this._assertNotClosed();
     return JSON.parse(this.module.get_mnemonic_languages(this.cppAddress)); // TODO: return native vector<string> in c++
   }
   
   async getPrivateSpendKey() {
+    this._assertNotClosed();
     let privateSpendKey = this.module.get_private_spend_key(this.cppAddress);
     return privateSpendKey ? privateSpendKey : undefined;
   }
   
   async getPrivateViewKey() {
+    this._assertNotClosed();
     return this.module.get_private_view_key(this.cppAddress);
   }
   
   async getPublicViewKey() {
+    this._assertNotClosed();
     return this.module.get_public_view_key(this.cppAddress);
   }
   
   async getPublicSpendKey() {
+    this._assertNotClosed();
     return this.module.get_public_spend_key(this.cppAddress);
   }
   
   async getAddress(accountIdx, subaddressIdx) {
+    this._assertNotClosed();
     assert(typeof accountIdx === "number");
     return this.module.get_address(this.cppAddress, accountIdx, subaddressIdx);
   }
   
   async getAddressIndex(address) {
+    this._assertNotClosed();
     let subaddressJson = JSON.parse(this.module.get_address_index(this.cppAddress, address));
     return new MoneroSubaddress(subaddressJson);
   }
   
   getAccounts() {
+    this._assertNotClosed();
     throw new Error("MoneroWalletKeys does not support getting an enumerable set of accounts; query specific accounts");
   }
   
@@ -158,6 +170,7 @@ class MoneroWalletKeys extends MoneroWallet {
   // decodeIntegratedAddress
   
   async close(save) {
+    if (this._isClosed) return; // closing a closed wallet has no effect
     
     // save wallet if requested
     if (save) await this.save();
@@ -169,12 +182,19 @@ class MoneroWalletKeys extends MoneroWallet {
       // define callback for wasm
       let callbackFn = async function() {
         delete that.cppAddress;
+        that._isClosed = true;
         resolve();
       };
       
       // close wallet in wasm and invoke callback when done
       that.module.close(that.cppAddress, false, callbackFn);  // saving handled external to webassembly
     });
+  }
+  
+  // ----------------------------- PRIVATE HELPERS ----------------------------
+  
+  _assertNotClosed() {
+    if (this._isClosed) throw new MoneroError("Wallet is closed");
   }
 }
 
