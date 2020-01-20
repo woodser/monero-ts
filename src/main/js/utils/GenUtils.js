@@ -649,9 +649,11 @@ class GenUtils {
     if (GenUtils.isObject(arg1) && GenUtils.isObject(arg2)) return GenUtils.objectsEqual(arg1, arg2);
     return arg1 === arg2;
   }
-
+  
   /**
    * Determines if two objects are deep equal.
+   * 
+   * Undefined values are considered equal to non-existent keys.
    * 
    * @param map1 is a map to compare
    * @param map2 is a map to compare
@@ -659,12 +661,43 @@ class GenUtils {
    */
   static objectsEqual(map1, map2) {
     let keys1 = Object.keys(map1);
-    if (keys1.length !== Object.keys(map2).length) return false;
-    for (let i = 0; i < keys1.length; i++) {
-      let key = Object.keys(map1)[i];
-      if (!GenUtils.equals(map1[key], map2[key])) return false;
+    let keys2 = Object.keys(map2);
+    
+    // compare each key1 to keys2
+    for (let key1 of keys1) {
+      let found = false;
+      for (let key2 of keys2) {
+        if (key1 === key2) {
+          if (!GenUtils.equals(map1[key1], map2[key2])) return false;
+          found = true;
+          break;
+        }
+      }
+      if (!found && map1[key1] !== undefined) return false; // allows undefined values to equal non-existent keys
+    }
+    
+    // compare each key2 to keys1
+    for (let key2 of keys2) {
+      let found = false;
+      for (let key1 of keys1) {
+        if (key1 === key2) {
+          found = true; // no need to re-compare which was done earlier
+          break;
+        }
+      }
+      if (!found && map2[key2] !== undefined) return false; // allows undefined values to equal non-existent keys
     }
     return true;
+    
+    // TODO: support strict option?
+//    if (strict) {
+//      let keys1 = Object.keys(map1);
+//      if (keys1.length !== Object.keys(map2).length) return false;
+//      for (let i = 0; i < keys1.length; i++) {
+//        let key = Object.keys(map1)[i];
+//        if (!GenUtils.equals(map1[key], map2[key])) return false;
+//      }
+//    }
   }
   
   /**
