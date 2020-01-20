@@ -713,7 +713,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         await walletRpc.createWalletFromMnemonic(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, await walletRpc.getMnemonic(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, seedOffset, undefined);
         
         // create wasm wallet with offset
-        let walletJni = await MoneroWalletCore.createWalletFromMnemonic(
+        let walletCore = await MoneroWalletCore.createWalletFromMnemonic(
                 TestMoneroWalletCore._getRandomWalletPath(),
                 TestUtils.WALLET_PASSWORD,
                 TestUtils.NETWORK_TYPE,
@@ -723,7 +723,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
                 seedOffset);
         
         // deep compare
-        await WalletEqualityUtils.testWalletEqualityOnChain(walletRpc, walletJni);
+        await WalletEqualityUtils.testWalletEqualityOnChain(walletRpc, walletCore);
       });
       
       if (config.testNonRelays)
