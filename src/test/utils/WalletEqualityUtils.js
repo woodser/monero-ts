@@ -84,7 +84,7 @@ class WalletEqualityUtils {
     account2.setTag(undefined);
     
     // test account equality
-    assert.deepEqual(account2, account1);
+    assert(GenUtils.objectsEqual(account2, account1));
     await WalletEqualityUtils._testSubaddressesEqualOnChain(subaddresses1, subaddresses2);
   }
   
@@ -111,7 +111,7 @@ class WalletEqualityUtils {
   static async testSubaddressesEqualOnChain(subaddress1, subaddress2) {
     subaddress1.setLabel(undefined); // nullify off-chain data for comparison
     subaddress2.setLabel(undefined);
-    assert.deepEqual(subaddress2, subaddress1);
+    assert(GenUtils.objectsEqual(subaddress2, subaddress1));
   }
   
   static async _testTxWalletsEqualOnChain(txs1, txs2) {
@@ -142,7 +142,9 @@ class WalletEqualityUtils {
           }
           
           // test tx equality
-          assert.deepEqual(tx2, tx1);
+          
+          
+          assert(GenUtils.objectsEqual(tx2, tx1));  // TODO: this ignores differences undefined vs non-existent properties, desired?
           found = true;
           
           // test block equality except txs to ignore order
@@ -150,7 +152,7 @@ class WalletEqualityUtils {
           let blockTxs2 = tx2.getBlock().getTxs();
           tx1.getBlock().setTxs();
           tx2.getBlock().setTxs();
-          assert.deepEqual(tx2.getBlock(), tx1.getBlock());
+          assert(GenUtils.aobjectsEqual(tx2.getBlock(), tx1.getBlock()));
           tx1.getBlock().setTxs(blockTxs1);
           tx2.getBlock().setTxs(blockTxs2);
         }
@@ -265,7 +267,7 @@ class WalletEqualityUtils {
         }
         
         // compare transfer equality
-        assert.deepEqual(transfer2, transfer1);
+        assert(GenUtils.objectsEqual(transfer2, transfer1));
       }
     }
   }
@@ -328,7 +330,7 @@ class WalletEqualityUtils {
         let output1 = txOutputs1[i];
         let output2 = txOutputs2[i];
         assert.equal(output2.getTx().getHash(), output1.getTx().getHash());
-        assert.deepEqual(output2, output1);
+        assert(GenUtils.objectsEqual(output2, output1));
       }
     }
   }

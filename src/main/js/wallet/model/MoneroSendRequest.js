@@ -61,7 +61,7 @@ class MoneroSendRequest {
         assert(param3 === undefined || param3 instanceof BigInteger, "Third parameter must be the amount or undefined");
         assert(param4 === undefined || typeof param4 === "number", "Fourth parameter must the priority or undefined");
         this.setAccountIndex(param1);
-        this.setDestinations([new MoneroDestination(param2, param3)])
+        if (param2 !== undefined) this.setDestinations([new MoneroDestination(param2, param3)])
         this.setPriority(param4);
       } else if (typeof param1 === "string") {
         assert(param2 === undefined || param2 instanceof BigInteger, "Second parameter must be the amount or undefined");
@@ -88,6 +88,13 @@ class MoneroSendRequest {
     if (this.getFee()) json.fee = this.getFee().toString();
     if (this.getBelowAmount()) json.belowAmount = this.getBelowAmount().toString();
     return json;
+  }
+  
+  addDestination(destination) {
+    assert(destination instanceof MoneroDestination);
+    if (this.state.destinations === undefined) this.state.destinations = [];
+    this.state.destinations.push(destination);
+    return this;
   }
   
   getDestinations() {
