@@ -46,7 +46,7 @@ new TestMoneroWalletCore().runTests({
   testNonRelays: true,
   testRelays: false,
   testResets: false,
-  testNotifications: false
+  testNotifications: true
 });
 
 //// test boolean set (data structure used by wallet to track progress)

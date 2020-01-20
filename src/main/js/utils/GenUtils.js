@@ -668,7 +668,7 @@ class GenUtils {
   }
   
   /**
-   * Deletes properties from the object that undefined.
+   * Deletes properties from the object that are undefined.
    * 
    * @param obj is the object to delete undefined keys from
    */
