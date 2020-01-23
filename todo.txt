@@ -5,6 +5,7 @@ compare performance with dynamic memory growth
 wallet core tests
 long sync will give 100% notifications for blocks since sync started; re-compute based on daemon height toward end
 restore height is refresh height
+does not throw detectable error when send balance > available balance
 support MoneroWalletRpc(string uri, string username, string password) like java
 update assert.equal(BI, BI) -> assert.equal(BI.toString(), BI.toString()) in tests
 when will uint64_t -> long conversion lose precision? wasm bridge casts to long
