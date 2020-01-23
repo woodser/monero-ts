@@ -21,13 +21,13 @@ require("./TestMoneroUtils");
 //  testRelays: true, // creates and relays outgoing txs
 //  testNotifications: true
 //});
-//
+
 //// test wallet rpc
 //new TestMoneroWalletRpc().runTests({
-//  liteMode: false, // skips some lengthy but detailed tests
+//  liteMode: true, // skips some lengthy but detailed tests
 //  testNonRelays: true,
 //  testRelays: true,
-//  testNotifications: true,
+//  testNotifications: false,
 //  testResets: false
 //});
 //
@@ -42,15 +42,15 @@ require("./TestMoneroUtils");
 
 // test core wallet
 new TestMoneroWalletCore().runTests({
-  liteMode: true,
+  liteMode: false,
   testNonRelays: true,
   testRelays: false,
   testResets: false,
   testNotifications: true
 });
 
-//// test boolean set (data structure used by wallet to track progress)
-//require("./TestBooleanSet");
-//
 //// test scratchpad
 //require("./Scratchpad");
+
+////test boolean set (data structure used by wallet to track progress)
+//require("./TestBooleanSet");

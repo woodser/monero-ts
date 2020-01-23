@@ -453,7 +453,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
     
-    // sanitize params
+    // normalize params
     startHeight = listenerOrStartHeight instanceof MoneroSyncListener ? startHeight : listenerOrStartHeight;
     let listener = listenerOrStartHeight instanceof MoneroSyncListener ? listenerOrStartHeight : undefined;
     if (startHeight === undefined) startHeight = Math.max(await this.getHeight(), await this.getRestoreHeight());
@@ -486,7 +486,10 @@ class MoneroWalletCore extends MoneroWalletKeys {
         }
         
         // invoke reject() if err
-        if (err) reject(err);
+        if (err) {
+          console.log("Sync rejected!");
+          reject(err);
+        }
       }
       
       // sync wallet in wasm and invoke callback when done
@@ -498,13 +501,17 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
     throw new Error("Not implemented");
-    this._syncingEnabled = true;
-    if (!this._syncLoopStarted) this._startSyncLoop();  // start loop to auto-sync wallet when enabled
+    if (!this._syncingEnabled) {
+      this._syncingEnabled = true;
+      if (!this._syncLoopStarted) this._startSyncLoop();  // start loop to auto-sync wallet when enabled
+    }
   }
     
   async stopSyncing() {
     this._assertNotClosed();
-    this._syncingEnabled = false;
+    if (!this._syncingThreadDone) {
+      this._syncingEnabled = false;
+    }
   }
   
   // rescanSpent
@@ -1120,7 +1127,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._syncLoopStarted = true;
     while (true) {
       if (this._syncingThreadDone) break;
-      if (this._syncingEnabled) this.sync();  // do not wait for sync
+      if (this._syncingEnabled) await this.sync();  // do not wait for sync
       await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
     }
   }

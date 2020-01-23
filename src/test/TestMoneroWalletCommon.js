@@ -2183,8 +2183,8 @@ class TestMoneroWalletCommon {
           let updatedTxs;
           
           // start mining
-          try { await that.wallet.startMining(8, false, true); }
-          catch (e) { } // no problem
+          try { await StartMining.startMining(); }
+          catch (e) { console.log("Warning: could not start mining: " + e.message); } // not fatal
           
           // loop to update txs through confirmations
           let numConfirmations = 0;
