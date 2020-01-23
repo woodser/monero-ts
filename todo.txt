@@ -3,6 +3,7 @@ rename GenUtils.uuidv4() -> GenUtils.getUUID();
 compare sync speeds with and without notifications
 compare performance with dynamic memory growth
 wallet core tests
+long sync will give 100% notifications for blocks since sync started; re-compute based on daemon height toward end
 restore height is refresh height
 support MoneroWalletRpc(string uri, string username, string password) like java
 update assert.equal(BI, BI) -> assert.equal(BI.toString(), BI.toString()) in tests
