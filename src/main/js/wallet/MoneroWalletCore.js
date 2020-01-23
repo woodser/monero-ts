@@ -344,7 +344,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    */
   async setRestoreHeight(restoreHeight) {
     this._assertNotClosed();
-    return this.module.get_restore_height(this.cppAddress);
+    return this.module.set_restore_height(this.cppAddress, restoreHeight);
   }
   
   /**
@@ -490,7 +490,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       }
       
       // sync wallet in wasm and invoke callback when done
-      that.module.sync(that.cppAddress, callbackFn);
+      that.module.sync(that.cppAddress, startHeight, callbackFn);
     });
   }
   
@@ -498,11 +498,13 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
     throw new Error("Not implemented");
+    this._syncingEnabled = true;
+    if (!this._syncLoopStarted) this._startSyncLoop();  // start loop to auto-sync wallet when enabled
   }
-  
+    
   async stopSyncing() {
     this._assertNotClosed();
-    throw new Error("Not implemented");
+    this._syncingEnabled = false;
   }
   
   // rescanSpent
@@ -1095,15 +1097,33 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async close(save) {
     if (this._isClosed) return; // closing a closed wallet has no effect
-    this._setIsListening(false);	// TODO: port to jni
+    this._setIsListening(false);  // TODO: port to jni
+    this.stopSyncing();
     await super.close(save);
     delete this.path;
     delete this.password;
     delete this.listeners;
     delete this.wasmListener;
+    if (!this._syncingThreadDone) {
+      this._syncingEnabled = false;
+      this._syncingThreadDone = true;
+    }
   }
   
   // ---------------------------- PRIVATE HELPERS ----------------------------
+  
+  /**
+   * Loop until this._syncingThreadDone = true.
+   */
+  async _startSyncLoop() {
+    if (this._syncLoopStarted) return;
+    this._syncLoopStarted = true;
+    while (true) {
+      if (this._syncingThreadDone) break;
+      if (this._syncingEnabled) this.sync();  // do not wait for sync
+      await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
+    }
+  }
   
   /**
    * Enables or disables listening in the c++ wallet.
