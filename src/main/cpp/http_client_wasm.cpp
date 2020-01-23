@@ -26,7 +26,7 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* username,
     });
 
     // initialize http agent  // TODO: use common
-    let agent = new Http.Agent({keepAlive: true, maxSockets: 1});
+    let agent = new Http.Agent({keepAlive: false, maxSockets: 1});	// TODO: use one common connection and keep alive
 
     // initialize request config
     this.config = {};
@@ -119,7 +119,7 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* usernam
     });
 
     // initialize http agent  // TODO: use common
-    let agent = new Http.Agent({keepAlive: true, maxSockets: 1});
+    let agent = new Http.Agent({keepAlive: false, maxSockets: 1});
 
     // initialize request config // TODO: use set_server config
     this.config = {};
