@@ -86,19 +86,16 @@ class TestUtils {
         // create wallet iwth connection
         this.walletCore = await MoneroWalletCore.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT);
         assert.equal(await this.walletCore.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
-        await this.walletCore.sync();
-        //await this.walletCore.sync(new WalletSyncPrinter());  // TODO
-        await this.walletCore.save(); // save progress
-        //await this.walletCore.startSyncing();                 // TODO
+        await this.walletCore.sync(new WalletSyncPrinter());
+        //await this.walletCore.save();  // TODO: necessary for can start and stop syncing test?
+        //await this.walletCore.startSyncing();
       }
       
       // otherwise open existing wallet
       else {
         this.walletCore = await MoneroWalletCore.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, (await TestUtils.getDaemonRpc()).getRpcConnection());
-        await this.walletCore.sync();
-        //await this.walletCore.save();                         // TODO: delete in TestUtils.java since saved on shutdown
-        //await this.walletCore.sync(new WalletSyncPrinter());  // TODO
-        //await this.walletCore.startSyncing();                 // TODO
+        await this.walletCore.sync(new WalletSyncPrinter());
+        //await this.walletCore.startSyncing();
       }
     }
     
