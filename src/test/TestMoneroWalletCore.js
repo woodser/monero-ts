@@ -76,7 +76,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       that._testWalletCore(config);
       
       // run common tests
-      //that.runCommonTests(config);
+      that.runCommonTests(config);
     });
   }
   
@@ -407,7 +407,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         if (err) throw err;
       });
       
-      if (false && config.testNonRelays && !config.liteMode)  // TODO: re-enable
+      if (false && config.testNonRelays && !config.liteMode)  // TODO: enable
       it("Can sync a wallet created from mnemonic from the genesis", async function() {
         await _testSyncMnemonic(undefined, undefined, true, false);
       });
