@@ -2198,6 +2198,9 @@ class TestMoneroWalletCommon {
             // give wallet time to catch up, otherwise incoming tx may not appear
             await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // TODO: this lets block slip, okay?
             
+            // TODO: manually syncing because core wallet startSyncing() not implemented
+            await that.wallet.sync();
+            
             // get incoming/outgoing txs with sent hashes
             let txQuery = new MoneroTxQuery();
             txQuery.setTxHashes(sentTxs.map(sentTx => sentTx.getHash())); // TODO: convenience methods wallet.getTxById(), getTxsById()?
