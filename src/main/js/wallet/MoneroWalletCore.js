@@ -1127,8 +1127,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._syncLoopStarted = true;
     while (true) {
       if (this._syncingThreadDone) break;
-      if (this._syncingEnabled) await this.sync();  // do not wait for sync
       await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
+      if (this._syncingEnabled) this.sync();  // do not wait for sync
     }
   }
   
