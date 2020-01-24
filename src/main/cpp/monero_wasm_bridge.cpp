@@ -489,7 +489,7 @@ void monero_wasm_bridge::get_txs(int handle, const string& tx_query_json, emscri
   unordered_set<shared_ptr<monero_block>> seen_block_ptrs;
   for (const shared_ptr<monero_tx_wallet>& tx : txs) {
     if (tx->m_block == boost::none) {
-      if (unconfirmed_block == nullptr) unconfirmed_block = shared_ptr<monero_block>();
+      if (unconfirmed_block == nullptr) unconfirmed_block = make_shared<monero_block>();
       tx->m_block = unconfirmed_block;
       unconfirmed_block->m_txs.push_back(tx);
     }
@@ -523,7 +523,7 @@ void monero_wasm_bridge::get_transfers(int handle, const string& transfer_query_
   for (auto const& transfer : transfers) {
     shared_ptr<monero_tx_wallet> tx = transfer->m_tx;
     if (tx->m_block == boost::none) {
-      if (unconfirmed_block == nullptr) unconfirmed_block = shared_ptr<monero_block>();
+      if (unconfirmed_block == nullptr) unconfirmed_block = make_shared<monero_block>();
       tx->m_block = unconfirmed_block;
       unconfirmed_block->m_txs.push_back(tx);
     }
