@@ -1,8 +1,12 @@
 HIGH (WASM)
+monero_wallet_core takes const abstract_http_client& ref = 0, client is created on wallet creation and deleted on close in wasm bridge
 rename GenUtils.uuidv4() -> GenUtils.getUUID();
 compare sync speeds with and without notifications
 compare performance with dynamic memory growth
+rename that = this to self = this
 wallet core tests
+assert(!(await...) -> assert.equal(await ..., false) in tests, otherwise things like isClosed() with undefined pass
+deprecate .user, .pass with .username and .password and log error then eventually remove
 long sync will give 100% notifications for blocks since sync started; re-compute based on daemon height toward end
 restore height is refresh height
 does not throw detectable error when send balance > available balance

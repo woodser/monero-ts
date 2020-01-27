@@ -152,7 +152,15 @@ class MoneroWalletKeys extends MoneroWallet {
   async getAddress(accountIdx, subaddressIdx) {
     this._assertNotClosed();
     assert(typeof accountIdx === "number");
-    return this.module.get_address(this.cppAddress, accountIdx, subaddressIdx);
+//    console.log("*********** GET ADDRESS ****************");
+//    return this.module.get_address(this.cppAddress, accountIdx, subaddressIdx);
+    
+//    // schedule task
+//    throw new Error("WHO CALLED THIS");
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      resolve(that.module.get_address(that.cppAddress, accountIdx, subaddressIdx));
+    }));
   }
   
   async getAddressIndex(address) {
@@ -177,18 +185,19 @@ class MoneroWalletKeys extends MoneroWallet {
     
     // return promise which is resolved on callback
     let that = this;
-    return new Promise(function(resolve, reject) {
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
       
       // define callback for wasm
       let callbackFn = async function() {
         delete that.cppAddress;
         that._isClosed = true;
-        resolve();
+        console.log("MoneroWalletKeys resolving...");
+        resolve(null);  // TODO: promise resolves to no for falsy with undefined, is null returned or undefined? test
       };
       
       // close wallet in wasm and invoke callback when done
       that.module.close(that.cppAddress, false, callbackFn);  // saving handled external to webassembly
-    });
+    }));
   }
   
   // ----------------------------- PRIVATE HELPERS ----------------------------
