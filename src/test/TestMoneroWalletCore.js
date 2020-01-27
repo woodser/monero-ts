@@ -76,7 +76,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       that._testWalletCore(config);
       
       // run common tests
-      that.runCommonTests(config);
+      //that.runCommonTests(config);
     });
   }
   
@@ -109,48 +109,70 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       
       if (config.testNonRelays)
       it("Can set the daemon connection", async function() {
-        
-        // create random wallet with defaults
-        let path = TestMoneroWalletCore._getRandomWalletPath();
-        let wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE);
-        assert.equal(await wallet.getDaemonConnection(), undefined);
-        
-        // set daemon uri
-        await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_URI);
-        assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_URI).getConfig());
-        assert(await daemon.isConnected());
-        
-        // nullify daemon connection
-        await wallet.setDaemonConnection(undefined);
-        assert.equal(await wallet.getDaemonConnection(), undefined);
-        await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_URI);
-        assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_URI).getConfig());
-        await wallet.setDaemonConnection(undefined);
-        assert.equal(await wallet.getDaemonConnection(), undefined);
-        
-        // set daemon uri to non-daemon
-        await wallet.setDaemonConnection("www.getmonero.org");
-        assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection("www.getmonero.org").getConfig());
-        assert(!(await wallet.isConnected()));
-        
-        // set daemon to invalid uri
-        await wallet.setDaemonConnection("abc123");
-        assert(!(await wallet.isConnected()));
-        
-        // attempt to sync
         let err;
+        let wallet;
         try {
-          await wallet.sync();
-          throw new Error("Exception expected");
-        } catch (e1) {
+          
+          // create random wallet with defaults
+          console.log("Can set 1");
+          let path = TestMoneroWalletCore._getRandomWalletPath();
+          console.log("Can set 1");
+          wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE);
+          console.log("Can set 1");
+          assert.equal(await wallet.getDaemonConnection(), undefined);
+          console.log("Can set 1");
+          
+          // set daemon uri
+          await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_URI);
+          console.log("Can set 1");
+          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_URI).getConfig());
+          console.log("Can set 1");
+          assert(await daemon.isConnected());
+          console.log("Can set 1");
+          
+          // nullify daemon connection
+          await wallet.setDaemonConnection(undefined);
+          console.log("Can set 1");
+          assert.equal(await wallet.getDaemonConnection(), undefined);
+          console.log("Can set 1");
+          await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_URI);
+          console.log("Can set 1");
+          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_URI).getConfig());
+          console.log("Can set 1");
+          await wallet.setDaemonConnection(undefined);
+          console.log("Can set 1");
+          assert.equal(await wallet.getDaemonConnection(), undefined);
+          console.log("Can set 1");
+          
+          // set daemon uri to non-daemon
+          await wallet.setDaemonConnection("www.getmonero.org");
+          console.log("Can set 1");
+          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection("www.getmonero.org").getConfig());
+          console.log("Can set 1");
+          assert(!(await wallet.isConnected()));
+          console.log("Can set 1");
+          
+          // set daemon to invalid uri
+          await wallet.setDaemonConnection("abc123");
+          console.log("Can set 1");
+          assert(!(await wallet.isConnected()));
+          console.log("Can set 1");
+          
+          // attempt to sync
           try {
+            await wallet.sync();
+            console.log("Can set 1");
+            throw new Error("Exception expected");
+          } catch (e1) {
             assert.equal(e1.message, "Wallet is not connected to daemon");
-          } catch (e2) {
-            err = e2;
           }
+        } catch (e) {
+          err = e;
         }
         
         // close wallet and throw if error occurred
+        console.log("CLOSING WALLET!!!");
+        if (err) console.log(err);
         await wallet.close();
         if (err) throw err;
       });
@@ -573,12 +595,12 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           // sync the wallet
           let progressTester = new SyncProgressTester(walletKeys, TestUtils.FIRST_RECEIVE_HEIGHT, await walletKeys.getDaemonMaxPeerHeight());
           let result = await walletKeys.sync(progressTester);
-          await progressTester.onDone(walletKeys.getDaemonHeight());
+          await progressTester.onDone(await walletKeys.getDaemonHeight());
           
           // test result after syncing
           assert(await walletKeys.isSynced());
           assert.equal(result.getNumBlocksFetched(), await walletKeys.getDaemonHeight() - TestUtils.FIRST_RECEIVE_HEIGHT);
-          assert(result.getReceivedMoney());there
+          assert(result.getReceivedMoney());
           assert.equal(await walletKeys.getHeight(), await daemon.getHeight());
           assert.equal(await walletKeys.getDaemonHeight(), await daemon.getHeight());
           assert.equal((await walletKeys.getTxs())[0].getHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);  // wallet should be fully synced so first tx happens on true restore height
@@ -586,25 +608,36 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           // compare with ground truth
           await TestMoneroWalletCore._testWalletEqualityOnChain(walletGt, walletKeys);
         } catch (e) {
-          await walletGt.close();
-          await walletKeys.close();
           err = e;
         }
+        
+        // finally
+        await walletGt.close();
+        await walletKeys.close();
+        if (err) throw err;
       });
       
       // TODO: test start syncing, notification of syncs happening, stop syncing, no notifications, etc
       if (config.testNonRelays)
       it("Can start and stop syncing", async function() {
+        
+        console.log("TEST 1");
 
         // test unconnected wallet
         let err;  // used to emulate Java's try...catch...finally
         let path = TestMoneroWalletCore._getRandomWalletPath();
+        console.log("Path: " + path);
         let wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, undefined, undefined);
         try {
+          console.log("1");
           assert.notEqual(await wallet.getMnemonic(), undefined);
+          console.log("2");
           assert.equal(await wallet.getHeight(), 1);
+          console.log("3");
           assert.equal(await wallet.getBalance(), new BigInteger("0"));
+          console.log("4");
           await wallet.startSyncing();
+          console.log("5");
         } catch (e1) {  // first error is expected
           try {
             assert.equal(e1.message, "Wallet is not connected to daemon");
@@ -616,43 +649,23 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         // finally
         await wallet.close();
         if (err) throw err;
+        
+        console.log("TEST 2");
 
-        // test connected wallet
-        path = TestMoneroWalletCore._getRandomWalletPath();
-        wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, undefined, undefined);
-        try {
-          assert.notEqual(await wallet.getMnemonic(), undefined);
-          await wallet.setDaemonConnection(await daemon.getRpcConnection());
-          await wallet.startSyncing();
-          assert.equal(await wallet.getHeight(), 1);
-          let chainHeight = await wallet.getDaemonHeight();
-          assert(!(await wallet.isSynced()));
-          assert.equal(await wallet.getBalance(), new BigInteger("0"));
-          await wallet.setRestoreHeight(chainHeight - 3);
-          assert.equal(await wallet.getRestoreHeight(), chainHeight - 3);
-          assert.equal((await wallet.getDaemonConnection()).getUri(), (await daemon.getRpcConnection()).getUri());
-          assert.equal((await wallet.getDaemonConnection()).getUsername(), (await daemon.getRpcConnection()).getUsername());
-          assert.equal((await wallet.getDaemonConnection()).getPassword(), (await daemon.getRpcConnection()).getPassword());
-          await wallet.stopSyncing();
-          await wallet.sync();
-        } catch (e) {
-          err = e;
-        }
-                
-        // finally
-        await wallet.close();
-        if (err) throw err;
-                
         // test that sync starts automatically
         let restoreHeight = await daemon.getHeight() - 100;
         path = TestMoneroWalletCore._getRandomWalletPath();
+        console.log("Path: " + path);
         wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, await daemon.getRpcConnection(), restoreHeight, undefined);
         try {
           
           // start syncing
           assert.equal(await wallet.getRestoreHeight(), restoreHeight);
+          console.log("BEFORE START SYNCING!!!");
           await wallet.startSyncing();
+          console.log("AFTER START SYNCING!!!");
           assert.equal(await wallet.getHeight(), 1);
+          console.log("AFTER WALLET.GETHEIGHT()!!!");
           let chainHeight = await wallet.getDaemonHeight();
           assert(!(await wallet.isSynced()));
           assert.equal(await wallet.getBalance(), new BigInteger("0"));
@@ -685,6 +698,36 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         // finally
         await wallet.close();
         if (err) throw err;
+        
+        console.log("TEST 3");
+        
+        // test connected wallet
+        path = TestMoneroWalletCore._getRandomWalletPath();
+        console.log("Path: " + path);
+        wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, undefined, undefined);
+        console.log("after creating wallet3 ?!?!?");
+        try {
+          assert.notEqual(await wallet.getMnemonic(), undefined);
+          await wallet.setDaemonConnection(await daemon.getRpcConnection());
+          await wallet.startSyncing();
+          assert.equal(await wallet.getHeight(), 1);
+          let chainHeight = await wallet.getDaemonHeight();
+          assert(!(await wallet.isSynced()));
+          assert.equal(await wallet.getBalance(), new BigInteger("0"));
+          await wallet.setRestoreHeight(chainHeight - 3);
+          assert.equal(await wallet.getRestoreHeight(), chainHeight - 3);
+          assert.equal((await wallet.getDaemonConnection()).getUri(), (await daemon.getRpcConnection()).getUri());
+          assert.equal((await wallet.getDaemonConnection()).getUsername(), (await daemon.getRpcConnection()).getUsername());
+          assert.equal((await wallet.getDaemonConnection()).getPassword(), (await daemon.getRpcConnection()).getPassword());
+          await wallet.stopSyncing();
+          await wallet.sync();
+        } catch (e) {
+          err = e;
+        }
+                
+        // finally
+        await wallet.close();
+        if (err) throw err;
       });
       
       if (config.testNonRelays)
@@ -693,19 +736,32 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         // create 2 wallets with a recent restore height
         let height = await daemon.getHeight();
         let restoreHeight = height - 5;
+        console.log("interfere 1");
+        await that.wallet.isSynced();
+        console.log("interfere 1");
         let wallet1 = await MoneroWalletCore.createWalletFromMnemonic(TestMoneroWalletCore._getRandomWalletPath(), TestUtils.WALLET_PASSWORD, MoneroNetworkType.STAGENET, TestUtils.MNEMONIC, await daemon.getRpcConnection(), restoreHeight, undefined);
+        console.log("interfere 1");
         let wallet2 = await MoneroWalletCore.createWalletFromMnemonic(TestMoneroWalletCore._getRandomWalletPath(), TestUtils.WALLET_PASSWORD, MoneroNetworkType.STAGENET, TestUtils.MNEMONIC, await daemon.getRpcConnection(), restoreHeight, undefined);
+        console.log("interfere 1");
         
         // track notifications of each wallet
         let tester1 = new SyncProgressTester(wallet1, restoreHeight, height);
+        console.log("interfere 1");
         let tester2 = new SyncProgressTester(wallet2, restoreHeight, height);
+        console.log("interfere 1");
         wallet1.addListener(tester1);
+        console.log("interfere 1");
         wallet2.addListener(tester2);
+        console.log("interfere 1");
         
         // sync first wallet and test that 2nd is not notified
+        console.log("interfere 1");
         await wallet1.sync();
+        console.log("interfere 1");
         assert(tester1.isNotified());
+        console.log("interfere 1");
         assert(!tester2.isNotified());
+        console.log("interfere 1");
         
         // sync 2nd wallet and test that 1st is not notified
         let tester3 = new SyncProgressTester(wallet1, restoreHeight, height);
@@ -908,7 +964,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           await wallet.sync();
           assert(await wallet.getHeight() > 1);
           assert(await wallet.isSynced());
-          assert(!(await wallet.isClosed()));
+          assert.equal(await wallet.isClosed(), false);
           
           // close the wallet
           await wallet.close();
@@ -930,7 +986,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           wallet = await MoneroWalletCore.openWallet(path, TestUtils.WALLET_RPC_PASSWORD, TestUtils.NETWORK_TYPE, (await TestUtils.getDaemonRpc()).getRpcConnection());
           await wallet.sync();
           assert.equal(await wallet.getHeight(), await wallet.getDaemonHeight());
-          assert(!(await wallet.isClosed()));
+          assert.equal(await wallet.isClosed(), false);
         } catch (e) {
           err = e;
         }
@@ -956,7 +1012,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
        */
       
     if (config.testNotifications)
-      it("Notification test #1: notifies listeners of outputs sent from/to the same account using local wallet data", async function() {
+      it("TEST THIS Notification test #1: notifies listeners of outputs sent from/to the same account using local wallet data", async function() {
         let issues = await testOutputNotifications(true);
         if (issues === undefined) return;
         let msg = "testOutputNotificationsSameAccounts() generated " + issues.length + " issues:\n" + issuesToStr(issues);
@@ -965,7 +1021,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       });
       
     if (config.testNotifications)
-      it("Notification test #2: notifies listeners of outputs sent from/to different accounts using local wallet data", async function() {
+      it("TEST THIS Notification test #2: notifies listeners of outputs sent from/to different accounts using local wallet data", async function() {
         let issues = await testOutputNotifications(false);
         if (issues === undefined) return;
         let msg = "testOutputNotificationsDifferentAccounts() generated " + issues.length + " issues:\n" + issuesToStr(issues);
@@ -1057,7 +1113,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         // test wallet's balance
         balanceAfter = await wallet.getBalance();
         unlockedBalanceAfter = await wallet.getUnlockedBalance();
-        if (!balanceAfterExpected.equals(balanceAfter)) errors.push("WARNING: Wallet balance after confirmation expected to be " + balanceAfterExpected + " but was " + balanceAfter);
+        if (!balanceAfterExpected.compare(balanceAfter) === 0) errors.push("WARNING: Wallet balance after confirmation expected to be " + balanceAfterExpected + " but was " + balanceAfter);
         if (unlockedBalanceBefore.compare(unlockedBalanceAfter) <= 0 && unlockedBalanceBefore.compare(new BigInteger("0")) !== 0) errors.push("WARNING: Wallet unlocked balance immediately after send was expected to decrease but changed from " + unlockedBalanceBefore + " to " + unlockedBalanceAfter);
 
         // return all errors and warnings as single string
@@ -1082,36 +1138,54 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         return false;
       }
       
-      if (config.testNotifications)
-      it("Can be created and receive funds", async function() {
-        
-        // create a random stagenet wallet
-        let path = TestMoneroWalletCore._getRandomWalletPath();
-        let myWallet = await MoneroWalletCore.createWalletRandom(path, "mysupersecretpassword123", MoneroNetworkType.STAGENET, (await TestUtils.getDaemonRpc()).getRpcConnection());
-        await myWallet.startSyncing();
-        
-        // listen for received outputs
-        let myListener = new OutputNotificationCollector();
-        await myWallet.addListener(myListener);
-        
-        // send funds to the created wallet
-        let sentTx = (await that.wallet.send(0, await myWallet.getPrimaryAddress(), TestUtils.MAX_FEE)).getTxs()[0];
-        
-        // wait until block added to the chain
-        // TODO monero core: notify on refresh from pool instead instead of confirmation
-        try { await StartMining.startMining(); } catch (e) { }
-        await daemon.getNextBlockHeader();
-        try { await daemon.stopMining(); } catch (e) { }
-        
-        // give wallets time to observe block
-        await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // in ms
+      if (config.testNotifications)  // TODO: re-enable
+      it("TEST THIS Can be created and receive funds", async function() {
+        let err;
+        let myWallet;
+        try {
+          console.log("Can be created and receive funds 1");
+          
+          // create a random stagenet wallet
+          let path = TestMoneroWalletCore._getRandomWalletPath();
+          myWallet = await MoneroWalletCore.createWalletRandom(path, "mysupersecretpassword123", MoneroNetworkType.STAGENET, (await TestUtils.getDaemonRpc()).getRpcConnection());
+          await myWallet.startSyncing();
+          
+          console.log("Can be created and receive funds 2");
+          
+          // listen for received outputs
+          let myListener = new OutputNotificationCollector();
+          await myWallet.addListener(myListener);
+          
+          console.log("Can be created and receive funds 3");
+          
+          // send funds to the created wallet
+          let sentTx = (await that.wallet.send(0, await myWallet.getPrimaryAddress(), TestUtils.MAX_FEE)).getTxs()[0];
+          console.log("Can be created and receive funds 4");
+          
+          // wait until block added to the chain
+          // TODO monero core: notify on refresh from pool instead instead of confirmation
+          try { await StartMining.startMining(); } catch (e) { }
+          await daemon.getNextBlockHeader();
+          try { await daemon.stopMining(); } catch (e) { }
+          console.log("Can be created and receive funds 5");
+          
+          // give wallets time to observe block
+          await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // in ms
+          console.log("Can be created and receive funds 6");
 
-        // tx is now confirmed
-        assert((await that.wallet.getTx(sentTx.getHash())).isConfirmed()); // TODO: tx is not guaranteed to confirm, which can cause occasional test failure
+          // tx is now confirmed
+          assert((await that.wallet.getTx(sentTx.getHash())).isConfirmed()); // TODO: tx is not guaranteed to confirm, which can cause occasional test failure
+          console.log("Can be created and receive funds 7");
+          
+          // created wallet should have notified listeners of received outputs
+          assert(myListener.getOutputsReceived().length > 0);
+        } catch (e) {
+          err = e;
+        }
         
-        // created wallet should have notified listeners of received outputs
-        assert(myListener.getOutputsReceived().length > 0);
+        // close wallet
         await myWallet.close();
+        if (err) throw err;
       });
       
       it("Supports multisig sample code", async function() {

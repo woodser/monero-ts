@@ -657,6 +657,12 @@ void monero_wasm_bridge::set_attribute(int handle, const string& key, const stri
 
 void monero_wasm_bridge::close(int handle, bool save, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
+
+  // TODO: ensure http clients are being deleted
+//  // if core wallet, disconnect and delete http client
+//  monero_wallet_core* wallet_core = dynamic_cast<const monero_wallet_core*>(wallet);
+//  if (core_wallet != nullptr) delete wallet_core->m_http_client;
+
   if (save) wallet->save();
   delete wallet;
   wallet = nullptr;

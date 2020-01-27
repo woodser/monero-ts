@@ -7,7 +7,27 @@ class MoneroUtils {
    * Loads the WebAssembly module one time.
    */
   static async loadWasmModule() {
-    if (MoneroUtils.WASM_MODULE === undefined) MoneroUtils.WASM_MODULE = await require("../../../../build/monero-javascript-wasm")().ready;
+    if (MoneroUtils.WASM_MODULE === undefined) {
+      MoneroUtils.WASM_MODULE = await require("../../../../build/monero-javascript-wasm")().ready;
+      
+      // initialize promise queue to synchronize wasm requests
+      const async = require("async");
+      MoneroUtils.WASM_MODULE._promiseQueue = async.queue(function(promiseFn, callback) {  // TODO: change to promise instead of promiseFn?
+        promiseFn().then(resp => { callback(resp); }).catch(err => { callback(undefined, err) });
+      }, 1);
+      
+      // initialize method to synchronize wasm requests
+      MoneroUtils.WASM_MODULE._queuePromise = function(promise) { // TODO: promise could become function(resolve, reject)
+        return new Promise(function(resolve, reject) {
+          MoneroUtils.WASM_MODULE._promiseQueue.push(function() { // change from function to promise?
+            return promise;
+          }, function(resp, err) {
+            if (resp !== undefined) resolve(resp);
+            else reject(err);
+          });
+        });
+      }
+    }
     return MoneroUtils.WASM_MODULE;
   }
   

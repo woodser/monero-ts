@@ -21,8 +21,13 @@ namespace epee
       class http_client_wasm : public abstract_http_client
       {
       public:
-        http_client_wasm() : m_user(boost::none), m_is_connected(false), m_response_info() {}
-        ~http_client_wasm() {}
+        http_client_wasm() : m_user(boost::none), m_is_connected(false), m_response_info() {
+          std::cout << "Constructed http client with id: " << std::to_string((int) this) << std::endl;
+        }
+        ~http_client_wasm() {
+          std::cout << "Destructing http client with id: " << std::to_string((int) this) << std::endl;
+          disconnect();
+        }
         void set_server(std::string host, std::string port, boost::optional<login> user, ssl_options_t ssl_options = ssl_support_t::e_ssl_support_autodetect) override;
         void set_auto_connect(bool auto_connect) override;
         bool connect(std::chrono::milliseconds timeout) override;

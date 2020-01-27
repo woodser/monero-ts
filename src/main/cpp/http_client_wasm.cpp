@@ -9,8 +9,9 @@ using namespace std;
 
 // TODO: factor js code to js file, possible use by MoneroRpcConnection, or change MoneroRpcConnection interface
 
-EM_JS(const char*, js_send_json_request, (const char* uri, const char* username, const char* password, const char* method, const char* body, std::chrono::milliseconds timeout), {
-  //console.log("EM_JS js_send_json_request(" + UTF8ToString(uri) + ", " + UTF8ToString(username) + ", " + UTF8ToString(password) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
+EM_JS(const char*, js_send_json_request, (const char* http_client_id, const char* uri, const char* username, const char* password, const char* method, const char* body, std::chrono::milliseconds timeout), {
+  console.log("EM_JS js_send_json_request(" + UTF8ToString(http_client_id) + ", " + UTF8ToString(uri) + ", " + UTF8ToString(username) + ", " + UTF8ToString(password) + ", " + UTF8ToString(method) + ")");
+  const httpClientId = UTF8ToString(http_client_id);
 
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
@@ -26,7 +27,7 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* username,
     });
 
     // initialize http agent  // TODO: use common
-    let agent = new Http.Agent({keepAlive: false, maxSockets: 1});	// TODO: use one common connection and keep alive
+    let agent = new Http.Agent({keepAlive: false, maxSockets: 1});  // TODO: use one common connection and keep alive
 
     // initialize request config
     this.config = {};
@@ -83,27 +84,43 @@ EM_JS(const char*, js_send_json_request, (const char* uri, const char* username,
       let lengthBytes = Module.lengthBytesUTF8(respStr) + 1;
       let ptr = Module._malloc(lengthBytes);
       Module.stringToUTF8(respStr, ptr, lengthBytes);
-      wakeUpCalled = true;
-      wakeUp(ptr);
+      if (Module.http_clients[httpClientId]) {
+        wakeUpCalled = true;
+        wakeUp(ptr);
+      } else {
+          console.log("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 1 ***");
+          throw new Error("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 1 ***");
+          //wakeUp(0);
+      }
     }).catch(err => {
 //      console.log("ERROR!!!");
 //      console.log(err);
       if (wakeUpCalled) {
           console.log("Error caught in JS after previously calling wakeUp(): " + err);
-          throw Error("Error caught in JS after previously calling wakeUp(): " + err);
+          //throw Error("Error caught in JS after previously calling wakeUp(): " + err);
       }
       let str = err.message ? err.message : ("" + err); // get error message
       str = JSON.stringify({error: str});               // wrap error in object
       let lengthBytes = Module.lengthBytesUTF8(str) + 1;
       let ptr = Module._malloc(lengthBytes);
       Module.stringToUTF8(str, ptr, lengthBytes);
-      wakeUp(ptr);
+      console.log("Checking on http client id: " + httpClientId);
+      if (Module.http_clients[httpClientId]) {
+        console.log("*** HTTP CLIENT " + httpClientId + " IS STILL ACTIVE ***");
+        wakeUpCalled = true;
+        wakeUp(ptr);
+      } else {
+          console.log("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 2 ***");
+          throw new Error("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 2 ***");
+          //wakeUp(0);
+      }
     });
   });
 });
 
-EM_JS(const char*, js_send_binary_request, (const char* uri, const char* username, const char* password, const char* method, const char* body, int body_length, std::chrono::milliseconds timeout), {
-  //console.log("EM_JS js_send_binary_request(" + UTF8ToString(uri) + ", " + UTF8ToString(username) + ", " + UTF8ToString(password) + ", " + UTF8ToString(method) + ", " + UTF8ToString(body) + ")");
+EM_JS(const char*, js_send_binary_request, (const char* http_client_id, const char* uri, const char* username, const char* password, const char* method, const char* body, int body_length, std::chrono::milliseconds timeout), {
+  console.log("EM_JS js_send_binary_request(" + UTF8ToString(http_client_id) + ", " + UTF8ToString(uri) + ", " + UTF8ToString(username) + ", " + UTF8ToString(password) + ", " + UTF8ToString(method) + ")");
+  const httpClientId = UTF8ToString(http_client_id);
 
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
@@ -187,26 +204,57 @@ EM_JS(const char*, js_send_binary_request, (const char* uri, const char* usernam
         // serialize response container to heap // TODO: more efficient way?
         let respStr = JSON.stringify(respContainer);
         let lengthBytes = Module.lengthBytesUTF8(respStr) + 1;
-        let respPtr = Module._malloc(lengthBytes);
-        Module.stringToUTF8(respStr, respPtr, lengthBytes);
-        wakeUpCalled = true;
-        wakeUp(respPtr);
+        let ptr = Module._malloc(lengthBytes);
+        Module.stringToUTF8(respStr, ptr, lengthBytes);
+        console.log("MY TEST: " + Module.MY_TEST);
+        console.log("Checking on http client id: " + httpClientId);
+        if (Module.http_clients[httpClientId]) {
+          console.log("*** HTTP CLIENT " + httpClientId + " IS STILL ACTIVE ***");
+          wakeUpCalled = true;
+          wakeUp(ptr);
+        } else {
+            console.log("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 3 ***");
+            throw new Error("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 3 ***");
+            //wakeUp(0);
+        }
       }).catch(err => {
 //        console.log("ERROR!!!");
 //        console.log(err);
         if (wakeUpCalled) {
           console.log("Error caught in JS after previously calling wakeUp(): " + err);
-          throw Error("Error caught in JS after previously calling wakeUp(): " + err);
+          //throw Error("Error caught in JS after previously calling wakeUp(): " + err);
         }
         let str = err.message ? err.message : ("" + err); // get error message
         str = JSON.stringify({error: str});               // wrap error in object
         let lengthBytes = Module.lengthBytesUTF8(str) + 1;
         let ptr = Module._malloc(lengthBytes);
         Module.stringToUTF8(str, ptr, lengthBytes);
-        wakeUp(ptr);
+        if (Module.http_clients[httpClientId]) {
+          console.log("*** HTTP CLIENT " + httpClientId + " IS STILL ACTIVE ***");
+          wakeUpCalled = true;
+          wakeUp(ptr);
+        } else {
+            console.log("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 4 ***");
+            throw new Error("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 4 ***");
+            //wakeUp(0);
+        }
       });
     });
   });
+});
+
+EM_JS(void, js_disconnect, (const char* http_client_id), {
+  console.log("EM_JS js_disconnect(" + UTF8ToString(http_client_id) + ")");
+  if (Module.http_clients !== undefined) delete Module.http_clients[UTF8ToString(http_client_id)];
+});
+
+EM_JS(void, js_connect, (const char* http_client_id), {
+  console.log("EM_JS js_connect(" + UTF8ToString(http_client_id) + ")");
+  if (Module.http_clients === undefined) {
+      Module.http_clients = {};
+      console.log("INITIALIZED HTTP_CLIENTS BUCKET");
+  }
+  Module.http_clients[UTF8ToString(http_client_id)] = {};
 });
 
 void http_client_wasm::set_server(std::string host, std::string port, boost::optional<login> user, ssl_options_t ssl_options) {
@@ -217,14 +265,6 @@ void http_client_wasm::set_server(std::string host, std::string port, boost::opt
   m_ssl_enabled = ssl_options ? true : false;
 }
 
-//void http_client_wasm::set_server(std::string uri, std::string username, std::string password) {
-//  disconnect();
-//  m_uri = uri;
-//  m_user = epee::net_utils::http::login();
-//  m_user->username = username;
-//  m_user->password = password;
-//}
-
 void http_client_wasm::set_auto_connect(bool auto_connect) {
   cout << "set_auto_connect()" << endl;
   throw runtime_error("http_client_wasm::set_auto_connect() not implemented");
@@ -232,11 +272,15 @@ void http_client_wasm::set_auto_connect(bool auto_connect) {
 
 // TODO: this method gets called repeatedly, so need to cache
 bool http_client_wasm::connect(std::chrono::milliseconds timeout) {
+  cout << "HTTP CLIENT CONNECT" << endl;
+  js_connect(to_string((int) this).data());
   m_is_connected = true;    // TODO: do something!
   return true;
 }
 
 bool http_client_wasm::disconnect() {
+  cout << "HTTP CLIENT DISCONNECTING" << endl;
+  js_disconnect(to_string((int) this).data());
   m_is_connected = false;
   return true;
 }
@@ -279,7 +323,14 @@ bool http_client_wasm::invoke_json(const boost::string_ref path, const boost::st
   // make json request through javascript
   string uri = string(m_ssl_enabled ? "https" : "http") + "://" + m_host + ":" + m_port + string(path);
   string password = string(m_user->password.data(), m_user->password.size());
-  const char* resp_str = js_send_json_request(uri.data(), m_user->username.data(), password.data(), method.data(), body.data(), timeout);
+  const char* resp_str = js_send_json_request(to_string((int) this).data(), uri.data(), m_user->username.data(), password.data(), method.data(), body.data(), timeout);
+  cout << "C++ returned from js_send_json_request" << endl;
+  if (resp_str == nullptr) {
+      cout << "Aborting this op." << endl;
+      return false;
+  } else {
+      cout << "Deserializing response to property tree: " << resp_str << endl;
+  }
 
   // deserialize response to property tree
   std::istringstream iss = std::istringstream(std::string(resp_str));
@@ -317,7 +368,14 @@ bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::
   // make binary request through javascript
   string uri = string(m_ssl_enabled ? "https" : "http") + "://" + m_host + ":" + m_port + string(path);
   string password = string(m_user->password.data(), m_user->password.size());
-  const char* resp_str = js_send_binary_request(uri.data(), m_user->username.data(), password.data(), method.data(), body.data(), body.length(), timeout);
+  const char* resp_str = js_send_binary_request(to_string((int) this).data(), uri.data(), m_user->username.data(), password.data(), method.data(), body.data(), body.length(), timeout);
+  cout << "C++ returned from js_send_binary_request" << endl;
+  if (resp_str == nullptr) {
+      cout << "Aborting this op." << endl;
+      return false;
+  } else {
+      cout << "Deserializing response to property tree: " << resp_str << endl;
+  }
 
   // deserialize response to property tree
   std::istringstream iss = std::istringstream(std::string(resp_str));
@@ -352,6 +410,7 @@ bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::
   free((char*) body_ptr);
 
   // return true iff 200
+  cout << "Returnining response from invoke_binary()" << endl;
   return m_response_info.m_response_code == 200;
 }
 
