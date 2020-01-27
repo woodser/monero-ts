@@ -341,7 +341,6 @@ bool http_client_wasm::invoke_json(const boost::string_ref path, const boost::st
   boost::optional<boost::property_tree::ptree&> error = resp_node.get_child_optional("error");
   if (error) {
       cout << "error property exists, returning false" << endl;
-      cout <<
       return false;
   }
 
