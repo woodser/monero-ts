@@ -480,7 +480,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           
           // register a wallet listener which tests notifications throughout the sync
           let walletSyncTester = new WalletSyncTester(wallet, startHeightExpected, endHeightExpected);
-          wallet.addListener(walletSyncTester);
+          await wallet.addListener(walletSyncTester);
           
           // sync the wallet with a listener which tests sync notifications
           let progressTester = new SyncProgressTester(wallet, startHeightExpected, endHeightExpected);
@@ -749,9 +749,9 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         console.log("interfere 1");
         let tester2 = new SyncProgressTester(wallet2, restoreHeight, height);
         console.log("interfere 1");
-        wallet1.addListener(tester1);
+        await wallet1.addListener(tester1);
         console.log("interfere 1");
-        wallet2.addListener(tester2);
+        await wallet2.addListener(tester2);
         console.log("interfere 1");
         
         // sync first wallet and test that 2nd is not notified
@@ -765,10 +765,14 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         
         // sync 2nd wallet and test that 1st is not notified
         let tester3 = new SyncProgressTester(wallet1, restoreHeight, height);
-        wallet1.addListener(tester3);
+        await wallet1.addListener(tester3);
         await wallet2.sync();
         assert(tester2.isNotified());
         assert(!(tester3.isNotified()));
+        
+        // close wallets
+        await wallet1.close();
+        await wallet2.close();
       });
       
       if (config.testNonRelays)
@@ -1052,7 +1056,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         
         // register a listener to collect notifications
         let listener = new OutputNotificationCollector();
-        wallet.addListener(listener);
+        await wallet.addListener(listener);
         
         // start syncing to test automatic notifications
         await wallet.startSyncing();
@@ -1183,12 +1187,12 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           err = e;
         }
         
-        // close wallet
+        // final cleanup
         await myWallet.close();
         if (err) throw err;
       });
       
-      it("Supports multisig sample code", async function() {
+      it("TEST THIS Supports multisig sample code", async function() {
         await testCreateMultisigWallet(2, 2);
         await testCreateMultisigWallet(2, 3);
         await testCreateMultisigWallet(2, 4);

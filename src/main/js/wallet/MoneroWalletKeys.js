@@ -103,9 +103,12 @@ class MoneroWalletKeys extends MoneroWallet {
   
   async getVersion() {
     this._assertNotClosed();
-    let versionStr = this.module.get_version(this.cppAddress);
-    let versionJson = JSON.parse(versionStr);
-    return new MoneroVersion(versionJson.number, versionJson.isRelease);
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      let versionStr = that.module.get_version(that.cppAddress);
+      let versionJson = JSON.parse(versionStr);
+      resolve(new MoneroVersion(versionJson.number, versionJson.isRelease));
+    }));
   }
   
   getPath() {
@@ -115,48 +118,64 @@ class MoneroWalletKeys extends MoneroWallet {
   
   async getMnemonic() {
     this._assertNotClosed();
-    return this.module.get_mnemonic(this.cppAddress);
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      resolve(that.module.get_mnemonic(that.cppAddress));
+    }));
   }
   
   async getMnemonicLanguage() {
     this._assertNotClosed();
-    return this.module.get_mnemonic_language(this.cppAddress);
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      resolve(that.module.get_mnemonic_language(that.cppAddress));
+    }));
   }
   
   async getMnemonicLanguages() {
     this._assertNotClosed();
-    return JSON.parse(this.module.get_mnemonic_languages(this.cppAddress)); // TODO: return native vector<string> in c++
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      resolve(JSON.parse(that.module.get_mnemonic_languages(that.cppAddress))); // TODO: return native vector<string> in c++
+    }));
   }
   
   async getPrivateSpendKey() {
     this._assertNotClosed();
-    let privateSpendKey = this.module.get_private_spend_key(this.cppAddress);
-    return privateSpendKey ? privateSpendKey : undefined;
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      let privateSpendKey = that.module.get_private_spend_key(that.cppAddress);
+      resolve(privateSpendKey ? privateSpendKey : null);
+    }));
   }
   
   async getPrivateViewKey() {
     this._assertNotClosed();
-    return this.module.get_private_view_key(this.cppAddress);
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      resolve(that.module.get_private_view_key(that.cppAddress));
+    }));
   }
   
   async getPublicViewKey() {
     this._assertNotClosed();
-    return this.module.get_public_view_key(this.cppAddress);
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      resolve(that.module.get_public_view_key(that.cppAddress));
+    }));
   }
   
   async getPublicSpendKey() {
     this._assertNotClosed();
-    return this.module.get_public_spend_key(this.cppAddress);
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      resolve(that.module.get_public_spend_key(that.cppAddress));
+    }));
   }
   
   async getAddress(accountIdx, subaddressIdx) {
     this._assertNotClosed();
     assert(typeof accountIdx === "number");
-//    console.log("*********** GET ADDRESS ****************");
-//    return this.module.get_address(this.cppAddress, accountIdx, subaddressIdx);
-    
-//    // schedule task
-//    throw new Error("WHO CALLED THIS");
     let that = this;
     return that.module._queuePromise(new Promise(function(resolve, reject) {
       resolve(that.module.get_address(that.cppAddress, accountIdx, subaddressIdx));
@@ -165,8 +184,11 @@ class MoneroWalletKeys extends MoneroWallet {
   
   async getAddressIndex(address) {
     this._assertNotClosed();
-    let subaddressJson = JSON.parse(this.module.get_address_index(this.cppAddress, address));
-    return new MoneroSubaddress(subaddressJson);
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      let subaddressJson = JSON.parse(that.module.get_address_index(that.cppAddress, address));
+      resolve(new MoneroSubaddress(subaddressJson));
+    }));
   }
   
   getAccounts() {
@@ -192,7 +214,7 @@ class MoneroWalletKeys extends MoneroWallet {
         delete that.cppAddress;
         that._isClosed = true;
         console.log("MoneroWalletKeys resolving...");
-        resolve(null);  // TODO: promise resolves to no for falsy with undefined, is null returned or undefined? test
+        resolve(null);  // TODO: promise resolves to no or falsy with undefined, is null returned or undefined? test
       };
       
       // close wallet in wasm and invoke callback when done

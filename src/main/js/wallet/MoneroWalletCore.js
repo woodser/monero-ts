@@ -382,11 +382,11 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * 
    * @param {MoneroWalletListener} listener is the listener to receive wallet notifications
    */
-  addListener(listener) {
+  async addListener(listener) {
     this._assertNotClosed();
     assert(listener instanceof MoneroWalletListener);
     this.listeners.push(listener);
-    this._setIsListening(true);
+    await this._setIsListening(true);
   }
   
   /**
@@ -394,12 +394,12 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * 
    * @param {MoneroWalletListener} listener is the listener to unregister
    */
-  removeListener(listener) {
+  async removeListener(listener) {
     this._assertNotClosed();
     let idx = this.listeners.indexOf(listener);
     if (idx > -1) this.listeners.splice(idx, 1);
     else throw new MoneroError("Listener is not registered to wallet");
-    if (this.listeners.length === 0) this._setIsListening(false);
+    if (this.listeners.length === 0) await this._setIsListening(false);
   }
   
   /**
@@ -491,12 +491,12 @@ class MoneroWalletCore extends MoneroWalletKeys {
     let syncListenerWrapper = undefined;
     if (listener !== undefined) {
       syncListenerWrapper = new SyncListenerWrapper(listener);
-      this.addListener(syncListenerWrapper);
+      await this.addListener(syncListenerWrapper);
     }
     
-    // schedule task
+    // sync wallet
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    await that.module._queuePromise(new Promise(function(resolve, reject) {
       
       // define callback for wasm
       let callbackFn = async function(resp) {
@@ -509,20 +509,10 @@ class MoneroWalletCore extends MoneroWalletKeys {
         let err;
         try {
           console.log("Resolving sync with result");
+          console.log(result);
           resolve(result);
         } catch (e) {
-          err = e;
-        }
-        
-        // unregister sync listener wrapper
-        if (syncListenerWrapper !== undefined) {  // TODO: test that this is executed with error e.g. sync an unconnected wallet
-          that.removeListener(syncListenerWrapper); // unregister sync listener
-        }
-        
-        // invoke reject() if err
-        if (err) {
-          console.log("Sync rejected!");
-          reject(err);
+          reject(e);
         }
       }
       
@@ -530,6 +520,11 @@ class MoneroWalletCore extends MoneroWalletKeys {
       console.log("that.module.sync()...");
       that.module.sync(that.cppAddress, startHeight, callbackFn);
     }));
+    
+    // unregister sync listener wrapper
+    if (syncListenerWrapper !== undefined) {  // TODO: test that this is executed with error e.g. sync an unconnected wallet
+      await that.removeListener(syncListenerWrapper); // unregister sync listener
+    }
   }
   
   async startSyncing() {
@@ -604,48 +599,64 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async getAccounts(includeSubaddresses, tag) {
     this._assertNotClosed();
-    let accountsStr = this.module.get_accounts(this.cppAddress, includeSubaddresses ? true : false, tag ? tag : "");
-    let accounts = [];
-    for (let accountJson of JSON.parse(accountsStr).accounts) {
-      accounts.push(MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson)));
-//      console.log("Account balance: " + accountJson.balance);
-//      console.log("Account unlocked balance: " + accountJson.unlockedBalance);
-//      console.log("Account balance BI: " + new BigInteger(accountJson.balance));
-//      console.log("Account unlocked balance BI: " + new BigInteger(accountJson.unlockedBalance));
-    }
-    return accounts;
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      let accountsStr = that.module.get_accounts(that.cppAddress, includeSubaddresses ? true : false, tag ? tag : "");
+      let accounts = [];
+      for (let accountJson of JSON.parse(accountsStr).accounts) {
+        accounts.push(MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson)));
+//        console.log("Account balance: " + accountJson.balance);
+//        console.log("Account unlocked balance: " + accountJson.unlockedBalance);
+//        console.log("Account balance BI: " + new BigInteger(accountJson.balance));
+//        console.log("Account unlocked balance BI: " + new BigInteger(accountJson.unlockedBalance));
+      }
+      resolve(accounts);
+    }));
   }
   
   async getAccount(accountIdx, includeSubaddresses) {
     this._assertNotClosed();
-    let accountStr = this.module.get_account(this.cppAddress, accountIdx, includeSubaddresses ? true : false);
-    let accountJson = JSON.parse(accountStr);
-    return MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson));
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      let accountStr = that.module.get_account(that.cppAddress, accountIdx, includeSubaddresses ? true : false);
+      let accountJson = JSON.parse(accountStr);
+      resolve(MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson)));
+    }));
+
   }
   
   async createAccount(label) {
     this._assertNotClosed();
     if (label === undefined) label = "";
-    let accountStr = this.module.create_account(this.cppAddress, label);
-    let accountJson = JSON.parse(accountStr);
-    return MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson));
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      let accountStr = that.module.create_account(that.cppAddress, label);
+      let accountJson = JSON.parse(accountStr);
+      resolve(MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson)));
+    }));
   }
   
   async getSubaddresses(accountIdx, subaddressIndices) {
     this._assertNotClosed();
     let args = {accountIdx: accountIdx, subaddressIndices: subaddressIndices === undefined ? [] : GenUtils.listify(subaddressIndices)};
-    let subaddressesJson = JSON.parse(this.module.get_subaddresses(this.cppAddress, JSON.stringify(args))).subaddresses;
-    let subaddresses = [];
-    for (let subaddressJson of subaddressesJson) subaddresses.push(MoneroWalletCore._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
-    return subaddresses;
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      let subaddressesJson = JSON.parse(that.module.get_subaddresses(that.cppAddress, JSON.stringify(args))).subaddresses;
+      let subaddresses = [];
+      for (let subaddressJson of subaddressesJson) subaddresses.push(MoneroWalletCore._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
+      resolve(subaddresses);
+    }));
   }
   
   async createSubaddress(accountIdx, label) {
     this._assertNotClosed();
     if (label === undefined) label = "";
-    let subaddressStr = this.module.create_subaddress(this.cppAddress, accountIdx, label);
-    let subaddressJson = JSON.parse(subaddressStr);
-    return MoneroWalletCore._sanitizeSubaddress(new MoneroSubaddress(subaddressJson));
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      let subaddressStr = that.module.create_subaddress(that.cppAddress, accountIdx, label);
+      let subaddressJson = JSON.parse(subaddressStr);
+      resolve(MoneroWalletCore._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
+    }));
   }
   
   async getTxs(query) {
@@ -1039,15 +1050,22 @@ class MoneroWalletCore extends MoneroWalletKeys {
   async getAttribute(key) {
     this._assertNotClosed();
     assert(typeof key === "string", "Attribute key must be a string");
-    let value = this.module.get_attribute(this.cppAddress, key);
-    return value === "" ? undefined : value;
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      let value = that.module.get_attribute(that.cppAddress, key);
+      resolve(value === "" ? null : value);
+    }));
   }
   
   async setAttribute(key, val) {
     this._assertNotClosed();
     assert(typeof key === "string", "Attribute key must be a string");
     assert(typeof val === "string", "Attribute value must be a string");
-    this.module.set_attribute(this.cppAddress, key, val);
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      that.module.set_attribute(that.cppAddress, key, val);
+      resolve(null);
+    }));
   }
   
   async startMining(numThreads, backgroundMining, ignoreBattery) {
@@ -1122,41 +1140,47 @@ class MoneroWalletCore extends MoneroWalletKeys {
     FS.writeFileSync(path + ".address.txt", await this.getPrimaryAddress());
     console.log("GOT ADDRESS");
     
-    // malloc cache buffer and get buffer location in c++ heap
-    let cacheBufferLoc = JSON.parse(this.module.get_cache_file_buffer(this.cppAddress, this.password));
-    
-    // read binary data from heap to DataView
-    let view = new DataView(new ArrayBuffer(cacheBufferLoc.length));
-    for (let i = 0; i < cacheBufferLoc.length; i++) {
-      view.setInt8(i, this.module.HEAPU8[cacheBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
-    }
-    
-    // free binary on heap
-    this.module._free(cacheBufferLoc.pointer);
-    
-    // write cache file
-    FS.writeFileSync(path, view, "binary");
-    
-    // malloc keys buffer and get buffer location in c++ heap
-    let keysBufferLoc = JSON.parse(this.module.get_keys_file_buffer(this.cppAddress, this.password, false));
-    
-    // read binary data from heap to DataView
-    view = new DataView(new ArrayBuffer(keysBufferLoc.length)); // TODO: improve performance using DataView instead of Uint8Array?, TODO: rename to length
-    for (let i = 0; i < keysBufferLoc.length; i++) {
-      view.setInt8(i, this.module.HEAPU8[keysBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
-    }
-    
-    // free binary on heap
-    this.module._free(keysBufferLoc.pointer);
-    
-    // write keys file
-    FS.writeFileSync(path + ".keys", view, "binary"); // TODO: make async with callback?
+    // queue calls to wasm module
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      
+      // malloc cache buffer and get buffer location in c++ heap
+      let cacheBufferLoc = JSON.parse(that.module.get_cache_file_buffer(that.cppAddress, that.password));
+      
+      // read binary data from heap to DataView
+      let view = new DataView(new ArrayBuffer(cacheBufferLoc.length));
+      for (let i = 0; i < cacheBufferLoc.length; i++) {
+        view.setInt8(i, that.module.HEAPU8[cacheBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
+      }
+      
+      // free binary on heap
+      that.module._free(cacheBufferLoc.pointer);
+      
+      // write cache file
+      FS.writeFileSync(path, view, "binary");
+      
+      // malloc keys buffer and get buffer location in c++ heap
+      let keysBufferLoc = JSON.parse(that.module.get_keys_file_buffer(that.cppAddress, that.password, false));
+      
+      // read binary data from heap to DataView
+      view = new DataView(new ArrayBuffer(keysBufferLoc.length)); // TODO: improve performance using DataView instead of Uint8Array?, TODO: rename to length
+      for (let i = 0; i < keysBufferLoc.length; i++) {
+        view.setInt8(i, that.module.HEAPU8[keysBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
+      }
+      
+      // free binary on heap
+      that.module._free(keysBufferLoc.pointer);
+      
+      // write keys file
+      FS.writeFileSync(path + ".keys", view, "binary"); // TODO: make async with callback?
+      resolve(null);
+    }));
   }
   
   async close(save) {
     console.log("CLOSING WALLET " + await this.getPath());
     if (this._isClosed) return; // closing a closed wallet has no effect
-    this._setIsListening(false);  // TODO: port to jni
+    await this._setIsListening(false);  // TODO: port to jni
     this.module.MY_TEST = "4t3";  // TODO: testing
     await this.stopSyncing();
     console.log("Closing super...");
@@ -1198,19 +1222,22 @@ class MoneroWalletCore extends MoneroWalletKeys {
   /**
    * Enables or disables listening in the c++ wallet.
    */
-  _setIsListening(isEnabled) {
-    if (isEnabled) {
-      let that = this;
-      this.wasmListenerHandle = this.module.set_listener(
-          this.cppAddress,
-          this.wasmListenerHandle,
-          function(height, startHeight, endHeight, percentDone, message) { that.wasmListener.onSyncProgress(height, startHeight, endHeight, percentDone, message); },
-          function(height) { that.wasmListener.onNewBlock(height); },
-          function(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime) { that.wasmListener.onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime); },
-          function(height, txHash, amountStr, accountIdx, subaddressIdx, version) { that.wasmListener.onOutputSpent(height, txHash, amountStr, accountIdx, subaddressIdx, version); });
-    } else {
-      this.wasmListenerHandle = this.module.set_listener(this.cppAddress, this.wasmListenerHandle, undefined, undefined, undefined, undefined);
-    }
+  async _setIsListening(isEnabled) {
+    let that = this;
+    return that.module._queuePromise(new Promise(function(resolve, reject) {
+      if (isEnabled) {
+        that.wasmListenerHandle = that.module.set_listener(
+            that.cppAddress,
+            that.wasmListenerHandle,
+            function(height, startHeight, endHeight, percentDone, message) { that.wasmListener.onSyncProgress(height, startHeight, endHeight, percentDone, message); },
+            function(height) { that.wasmListener.onNewBlock(height); },
+            function(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime) { that.wasmListener.onOutputReceived(height, txHash, amountStr, accountIdx, subaddressIdx, version, unlockTime); },
+            function(height, txHash, amountStr, accountIdx, subaddressIdx, version) { that.wasmListener.onOutputSpent(height, txHash, amountStr, accountIdx, subaddressIdx, version); });
+      } else {
+        that.wasmListenerHandle = that.module.set_listener(that.cppAddress, that.wasmListenerHandle, undefined, undefined, undefined, undefined);
+      }
+      resolve(null);
+    }));
   }
   
   static _sanitizeBlock(block) {
