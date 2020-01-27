@@ -496,7 +496,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // sync wallet
     let that = this;
-    await that.module._queuePromise(new Promise(function(resolve, reject) {
+    let result = await that.module._queuePromise(new Promise(function(resolve, reject) {
       
       // define callback for wasm
       let callbackFn = async function(resp) {
@@ -525,6 +525,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
     if (syncListenerWrapper !== undefined) {  // TODO: test that this is executed with error e.g. sync an unconnected wallet
       await that.removeListener(syncListenerWrapper); // unregister sync listener
     }
+    
+    return result;
   }
   
   async startSyncing() {
