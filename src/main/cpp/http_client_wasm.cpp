@@ -324,12 +324,10 @@ bool http_client_wasm::invoke_json(const boost::string_ref path, const boost::st
   string uri = string(m_ssl_enabled ? "https" : "http") + "://" + m_host + ":" + m_port + string(path);
   string password = string(m_user->password.data(), m_user->password.size());
   const char* resp_str = js_send_json_request(to_string((int) this).data(), uri.data(), m_user->username.data(), password.data(), method.data(), body.data(), timeout);
-  cout << "C++ returned from js_send_json_request" << endl;
+  cout << "C++ returned from js_send_json_request" << resp_str << endl;
   if (resp_str == nullptr) {
       cout << "Aborting this op." << endl;
       return false;
-  } else {
-      cout << "Deserializing response to property tree: " << resp_str << endl;
   }
 
   // deserialize response to property tree
@@ -337,9 +335,15 @@ bool http_client_wasm::invoke_json(const boost::string_ref path, const boost::st
   boost::property_tree::ptree resp_node;
   boost::property_tree::read_json(iss, resp_node);
 
+  cout << "Done deserializing to property tree" << endl;
+
   // check for error
   boost::optional<boost::property_tree::ptree&> error = resp_node.get_child_optional("error");
-  if (error) return false;
+  if (error) {
+      cout << "error property exists, returning false" << endl;
+      cout <<
+      return false;
+  }
 
   // build response object
   m_response_info.clear();
@@ -360,6 +364,7 @@ bool http_client_wasm::invoke_json(const boost::string_ref path, const boost::st
   free((char*) resp_str);
 
   // return true iff 200
+  cout << "Returning from http_client_wasm::invoke_json(): " << (m_response_info.m_response_code == 200) << endl;
   return m_response_info.m_response_code == 200;
 }
 
@@ -381,10 +386,14 @@ bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::
   std::istringstream iss = std::istringstream(std::string(resp_str));
   boost::property_tree::ptree resp_node;
   boost::property_tree::read_json(iss, resp_node);
+  cout << "done deserializing response" << endl;
 
   // check for error
   boost::optional<boost::property_tree::ptree&> error = resp_node.get_child_optional("error");
-  if (error) return false;
+  if (error) {
+      cout << "error property exists, returning false" << endl;
+      return false;
+  }
 
   // build response object
   m_response_info.clear();
@@ -396,7 +405,9 @@ bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::
   build_http_header_info(resp_node.get_child("headers"), m_response_info.m_header_info);
 
   // read binary body from response pointer
+  cout << "reading bodyPtr" << endl;
   int body_ptr = resp_node.get<int>("bodyPtr");
+  cout << "done reading bodyPtr" << endl;
   int body_length = resp_node.get<int>("bodyLength");
   m_response_info.m_body = string((char*) body_ptr, body_length);
 
@@ -410,7 +421,7 @@ bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::
   free((char*) body_ptr);
 
   // return true iff 200
-  cout << "Returnining response from invoke_binary()" << endl;
+  cout << "Returning from http_client_wasm::invoke_binary(): " << (m_response_info.m_response_code == 200) << endl;
   return m_response_info.m_response_code == 200;
 }
 
