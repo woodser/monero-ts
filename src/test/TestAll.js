@@ -50,7 +50,7 @@ new TestMoneroWalletCore().runTests({
 });
 
 // test scratchpad
-require("./Scratchpad");
+//require("./Scratchpad");
 
 ////test boolean set (data structure used by wallet to track progress)
 //require("./TestBooleanSet");

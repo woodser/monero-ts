@@ -214,7 +214,6 @@ class MoneroWalletKeys extends MoneroWallet {
         let callbackFn = async function() {
           delete that.cppAddress;
           that._isClosed = true;
-          console.log("MoneroWalletKeys close() callback resolving");
           resolve();
         };
         

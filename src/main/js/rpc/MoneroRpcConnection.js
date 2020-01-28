@@ -36,7 +36,10 @@ class MoneroRpcConnection {
     
     // normalize config
     if (typeof config === "string") this.config = {uri: config};
-    else this.config = Object.assign({}, config);
+    else {
+      if (config.uri) assert(!config.host && !config.protocol && !config.port, "Can specify either uri or protocol, host, and port but not both");
+      this.config = Object.assign({}, config);
+    }
     
     // merge config with defaults
     this.config = Object.assign({}, MoneroRpcConfigDefault, this.config);
