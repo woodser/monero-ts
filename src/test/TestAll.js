@@ -30,24 +30,24 @@ require("./TestMoneroUtils");
 //  testNotifications: false,
 //  testResets: false
 //});
-//
-//// test keys-only wallet
-//new TestMoneroWalletKeys().runTests({
-//  liteMode: false,
-//  testNonRelays: true,
-//  testRelays: false,
-//  testResets: false,
-//  testNotifications: false
-//});
 
-// test core wallet
-new TestMoneroWalletCore().runTests({
-  liteMode: true,
+// test keys-only wallet
+new TestMoneroWalletKeys().runTests({
+  liteMode: false,
   testNonRelays: true,
-  testRelays: true,
+  testRelays: false,
   testResets: false,
-  testNotifications: true
+  testNotifications: false
 });
+
+//// test core wallet
+//new TestMoneroWalletCore().runTests({
+//  liteMode: true,
+//  testNonRelays: true,
+//  testRelays: true,
+//  testResets: false,
+//  testNotifications: true
+//});
 
 // test scratchpad
 //require("./Scratchpad");

@@ -16,16 +16,18 @@ class MoneroWalletKeys extends MoneroWallet {
     // load wasm module
     let module = await MoneroUtils.loadWasmModule();
     
-    // return promise which is resolved on callback
-    return new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = async function(cppAddress) {
-        resolve(new MoneroWalletKeys(cppAddress));
-      };
-      
-      // create wallet in wasm and invoke callback when done
-      module.create_keys_wallet_random(networkType, language, callbackFn);
+    // queue call to wasm module
+    return module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        
+        // define callback for wasm
+        let callbackFn = async function(cppAddress) {
+          resolve(new MoneroWalletKeys(cppAddress));
+        };
+        
+        // create wallet in wasm and invoke callback when done
+        module.create_keys_wallet_random(networkType, language, callbackFn);
+      });
     });
   }
   
@@ -39,16 +41,18 @@ class MoneroWalletKeys extends MoneroWallet {
     // load wasm module
     let module = await MoneroUtils.loadWasmModule();
     
-    // return promise which is resolved on callback
-    return new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = async function(cppAddress) {
-        resolve(new MoneroWalletKeys(cppAddress));
-      };
-      
-      // create wallet in wasm and invoke callback when done
-      module.create_keys_wallet_from_mnemonic(networkType, mnemonic, seedOffset, callbackFn);
+    // queue call to wasm module
+    return module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        
+        // define callback for wasm
+        let callbackFn = async function(cppAddress) {
+          resolve(new MoneroWalletKeys(cppAddress));
+        };
+        
+        // create wallet in wasm and invoke callback when done
+        module.create_keys_wallet_from_mnemonic(networkType, mnemonic, seedOffset, callbackFn);
+      });
     });
   }
   
@@ -64,23 +68,27 @@ class MoneroWalletKeys extends MoneroWallet {
     // load wasm module
     let module = await MoneroUtils.loadWasmModule();
     
-    // return promise which is resolved on callback
-    return new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = async function(cppAddress) {
-        let wallet = new MoneroWalletKeys(cppAddress);
-        resolve(wallet);
-      };
-      
-      // create wallet in wasm and invoke callback when done
-      module.create_keys_wallet_from_keys(networkType, address, privateViewKey, privateSpendKey, language, callbackFn);
+    // queue call to wasm module
+    return module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        
+        // define callback for wasm
+        let callbackFn = async function(cppAddress) {
+          let wallet = new MoneroWalletKeys(cppAddress);
+          resolve(wallet);
+        };
+        
+        // create wallet in wasm and invoke callback when done
+        module.create_keys_wallet_from_keys(networkType, address, privateViewKey, privateSpendKey, language, callbackFn);
+      });
     });
   }
   
   static async getMnemonicLanguages() {
     let module = await MoneroUtils.loadWasmModule();  // load wasm module
-    return JSON.parse(module.get_keys_wallet_mnemonic_languages()).languages;
+    return module.queueTask(async function() {
+      return JSON.parse(module.get_keys_wallet_mnemonic_languages()).languages;
+    });
   }
   
   // --------------------------- INSTANCE METHODS -----------------------------
