@@ -21,8 +21,8 @@ class MoneroUtils {
       MoneroUtils.WASM_MODULE.queueTask = async function(asyncFn) {  // taskFn is an async function to execute
         return new Promise(function(resolve, reject) {
           MoneroUtils.WASM_MODULE.taskQueue.push(asyncFn, function(resp, err) {
-            if (resp !== undefined) resolve(resp);
-            else reject(err);
+            if (err !== undefined) reject(err);
+            else resolve(resp);
           });
         });
       }

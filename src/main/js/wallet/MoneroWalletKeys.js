@@ -104,11 +104,11 @@ class MoneroWalletKeys extends MoneroWallet {
   async getVersion() {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
       let versionStr = that.module.get_version(that.cppAddress);
       let versionJson = JSON.parse(versionStr);
-      resolve(new MoneroVersion(versionJson.number, versionJson.isRelease));
-    }));
+      return new MoneroVersion(versionJson.number, versionJson.isRelease);
+    });
   }
   
   getPath() {
@@ -127,68 +127,68 @@ class MoneroWalletKeys extends MoneroWallet {
   async getMnemonicLanguage() {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      resolve(that.module.get_mnemonic_language(that.cppAddress));
-    }));
+    return that.module.queueTask(async function() {
+      return that.module.get_mnemonic_language(that.cppAddress);
+    });
   }
   
   async getMnemonicLanguages() {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      resolve(JSON.parse(that.module.get_mnemonic_languages(that.cppAddress))); // TODO: return native vector<string> in c++
-    }));
+    return that.module.queueTask(async function() {
+      return JSON.parse(that.module.get_mnemonic_languages(that.cppAddress)); // TODO: return native vector<string> in c++
+    });
   }
   
   async getPrivateSpendKey() {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
       let privateSpendKey = that.module.get_private_spend_key(that.cppAddress);
-      resolve(privateSpendKey ? privateSpendKey : null);
-    }));
+      return privateSpendKey ? privateSpendKey : undefined;
+    });
   }
   
   async getPrivateViewKey() {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      resolve(that.module.get_private_view_key(that.cppAddress));
-    }));
+    return that.module.queueTask(async function() {
+      return that.module.get_private_view_key(that.cppAddress);
+    });
   }
   
   async getPublicViewKey() {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      resolve(that.module.get_public_view_key(that.cppAddress));
-    }));
+    return that.module.queueTask(async function() {
+      return that.module.get_public_view_key(that.cppAddress);
+    });
   }
   
   async getPublicSpendKey() {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      resolve(that.module.get_public_spend_key(that.cppAddress));
-    }));
+    return that.module.queueTask(async function() {
+      return that.module.get_public_spend_key(that.cppAddress);
+    });
   }
   
   async getAddress(accountIdx, subaddressIdx) {
     this._assertNotClosed();
     assert(typeof accountIdx === "number");
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      resolve(that.module.get_address(that.cppAddress, accountIdx, subaddressIdx));
-    }));
+    return that.module.queueTask(async function() {
+      return that.module.get_address(that.cppAddress, accountIdx, subaddressIdx);
+    });
   }
   
   async getAddressIndex(address) {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
       let subaddressJson = JSON.parse(that.module.get_address_index(that.cppAddress, address));
-      resolve(new MoneroSubaddress(subaddressJson));
-    }));
+      return new MoneroSubaddress(subaddressJson);
+    });
   }
   
   getAccounts() {
@@ -205,21 +205,23 @@ class MoneroWalletKeys extends MoneroWallet {
     // save wallet if requested
     if (save) await this.save();
     
-    // return promise which is resolved on callback
+    // queue task to use wasm module
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = async function() {
-        delete that.cppAddress;
-        that._isClosed = true;
-        console.log("MoneroWalletKeys resolving...");
-        resolve(null);  // TODO: promise resolves to no or falsy with undefined, is null returned or undefined? test
-      };
-      
-      // close wallet in wasm and invoke callback when done
-      that.module.close(that.cppAddress, false, callbackFn);  // saving handled external to webassembly
-    }));
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        
+        // define callback for wasm
+        let callbackFn = async function() {
+          delete that.cppAddress;
+          that._isClosed = true;
+          console.log("MoneroWalletKeys close() callback resolving");
+          resolve();
+        };
+        
+        // close wallet in wasm and invoke callback when done
+        that.module.close(that.cppAddress, false, callbackFn);  // saving handled external to webassembly
+      });
+    });
   }
   
   // ----------------------------- PRIVATE HELPERS ----------------------------
