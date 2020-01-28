@@ -38,17 +38,19 @@ class MoneroWalletCore extends MoneroWalletKeys {
     let module = await MoneroUtils.loadWasmModule();
     
     // open wallet in queue
-    return module._queuePromise(new Promise(function(resolve, reject) {
+    return module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
       
-      // define callback for wasm
-      let callbackFn = async function(cppAddress) {
-        let wallet = new MoneroWalletCore(cppAddress, path, password);
-        resolve(wallet);
-      };
-      
-      // create wallet in wasm and invoke callback when done
-      module.open_core_wallet(password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, callbackFn);
-    }));
+        // define callback for wasm
+        let callbackFn = async function(cppAddress) {
+          let wallet = new MoneroWalletCore(cppAddress, path, password);
+          resolve(wallet);
+        };
+        
+        // create wallet in wasm and invoke callback when done
+        module.open_core_wallet(password, networkType, keysData, cacheData, daemonUri, daemonUsername, daemonPassword, callbackFn);
+      });
+    });
   }
   
   static async createWalletRandom(path, password, networkType, daemonUriOrConnection, language) {
@@ -66,20 +68,22 @@ class MoneroWalletCore extends MoneroWalletKeys {
     // load wasm module
     let module = await MoneroUtils.loadWasmModule();
     
-    // create wallet
-    let wallet = await module._queuePromise(new Promise(function(resolve, reject) {
+    // create wallet in queue
+    let wallet = await module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
       
-      // define callback for wasm
-      let callbackFn = async function(cppAddress) {
-        console.log("wasm create_core_wallet_random callback invoked");
-        let wallet = new MoneroWalletCore(cppAddress, path, password);
-        resolve(wallet);
-      };
-      
-      // create wallet in wasm and invoke callback when done
-      console.log("Calling wasm create_core_wallet_random...");
-      module.create_core_wallet_random(password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);
-    }));
+        // define callback for wasm
+        let callbackFn = async function(cppAddress) {
+          console.log("wasm create_core_wallet_random callback invoked");
+          let wallet = new MoneroWalletCore(cppAddress, path, password);
+          resolve(wallet);
+        };
+        
+        // create wallet in wasm and invoke callback when done
+        console.log("Calling wasm create_core_wallet_random...");
+        module.create_core_wallet_random(password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);
+      });
+    });
     
     // save wallet
     console.log("Saving wallet");
@@ -103,20 +107,22 @@ class MoneroWalletCore extends MoneroWalletKeys {
     // load wasm module
     let module = await MoneroUtils.loadWasmModule();
     
-    // create wallet
-    let wallet = await module._queuePromise(new Promise(function(resolve, reject) {
+    // create wallet in queue
+    let wallet = await module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
       
-      // define callback for wasm
-      let callbackFn = async function(cppAddress) {
-        console.log("Callback called!");
-        let wallet = new MoneroWalletCore(cppAddress, path, password);
-        resolve(wallet);
-      };
-      
-      // create wallet in wasm and invoke callback when done
-      console.log("Calling create_core_wallet_from_mnemonic");
-      module.create_core_wallet_from_mnemonic(password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, seedOffset, callbackFn);
-    }));
+        // define callback for wasm
+        let callbackFn = async function(cppAddress) {
+          console.log("Callback called!");
+          let wallet = new MoneroWalletCore(cppAddress, path, password);
+          resolve(wallet);
+        };
+        
+        // create wallet in wasm and invoke callback when done
+        console.log("Calling create_core_wallet_from_mnemonic");
+        module.create_core_wallet_from_mnemonic(password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, seedOffset, callbackFn);
+      });
+    });
     
     // save wallet
     if (path) await wallet.save();
@@ -142,18 +148,20 @@ class MoneroWalletCore extends MoneroWalletKeys {
     // load wasm module
     let module = await MoneroUtils.loadWasmModule();
     
-    // create wallet
-    let wallet = await module._queuePromise(new Promise(function(resolve, reject) {
+    // create wallet in queue
+    let wallet = await module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
       
-      // define callback for wasm
-      let callbackFn = async function(cppAddress) {
-        let wallet = new MoneroWalletCore(cppAddress, path, password);
-        resolve(wallet);
-      };
-      
-      // create wallet in wasm and invoke callback when done
-      module.create_core_wallet_from_keys(password, networkType, address, viewKey, spendKey, daemonUri, daemonUsername, daemonPassword, restoreHeight, language, callbackFn);
-    }));
+        // define callback for wasm
+        let callbackFn = async function(cppAddress) {
+          let wallet = new MoneroWalletCore(cppAddress, path, password);
+          resolve(wallet);
+        };
+        
+        // create wallet in wasm and invoke callback when done
+        module.create_core_wallet_from_keys(password, networkType, address, viewKey, spendKey, daemonUri, daemonUsername, daemonPassword, restoreHeight, language, callbackFn);
+      });
+    });
     
     // save wallet
     if (path) await wallet.save();
@@ -162,9 +170,9 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   static async getMnemonicLanguages() {
     let module = await MoneroUtils.loadWasmModule();  // load wasm module
-    return module._queuePromise(new Promise(function(resolve, reject) {
-      resolve(JSON.parse(module.get_keys_wallet_mnemonic_languages()).languages);
-    }));
+    return module.queueTask(async function() {
+      return JSON.parse(module.get_keys_wallet_mnemonic_languages()).languages;
+    });
   }
   
   // --------------------------- INSTANCE METHODS -----------------------------
@@ -215,18 +223,20 @@ class MoneroWalletCore extends MoneroWalletKeys {
     if (!username) username = "";
     if (!password) password = "";
     
-    // return promise which resolves on callback
+    // set connection in queue
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
       
-      // define callback for wasm
-      let callbackFn = function(resp) {
-        resolve(null);
-      }
-      
-      // sync wallet in wasm and invoke callback when done
-      that.module.set_daemon_connection(that.cppAddress, uri, username, password, callbackFn);
-    }));
+        // define callback for wasm
+        let callbackFn = function(resp) {
+          resolve();
+        }
+        
+        // sync wallet in wasm and invoke callback when done
+        that.module.set_daemon_connection(that.cppAddress, uri, username, password, callbackFn);
+      });
+    });
   }
   
   /**
@@ -237,20 +247,22 @@ class MoneroWalletCore extends MoneroWalletKeys {
   async getDaemonConnection() {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      let connectionContainerStr = that.module.get_daemon_connection(that.cppAddress);
-      if (!connectionContainerStr) {
-        console.log("RESOLVING WITH UNDEFINED!!!");
-        resolve(null);
-        return;
-      }
-      let connectionContainer = JSON.parse(connectionContainerStr);
-      resolve(new MoneroRpcConnection({  // TODO: reconcile username vs user, password vs pass, then can pass container directly to MoneroRpcConnection (breaking change)
-        uri: connectionContainer.uri,
-        user: connectionContainer.username,
-        pass: connectionContainer.password
-      }));
-    }));
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        let connectionContainerStr = that.module.get_daemon_connection(that.cppAddress);
+        if (!connectionContainerStr) {
+          console.log("RESOLVING WITH UNDEFINED!!!");
+          resolve();
+          return;
+        }
+        let connectionContainer = JSON.parse(connectionContainerStr);
+        resolve(new MoneroRpcConnection({  // TODO: reconcile username vs user, password vs pass, then can pass container directly to MoneroRpcConnection (breaking change)
+          uri: connectionContainer.uri,
+          user: connectionContainer.username,
+          pass: connectionContainer.password
+        }));
+      });
+    });
   }
   
   /**
@@ -261,16 +273,18 @@ class MoneroWalletCore extends MoneroWalletKeys {
   async isConnected() {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
       
-      // define callback for wasm
-      let callbackFn = function(resp) {
-        resolve(resp);
-      }
-      
-      // sync wallet in wasm and invoke callback when done
-      that.module.is_connected(that.cppAddress, callbackFn);
-    }));
+        // define callback for wasm
+        let callbackFn = function(resp) {
+          resolve(resp);
+        }
+        
+        // sync wallet in wasm and invoke callback when done
+        that.module.is_connected(that.cppAddress, callbackFn);
+      });
+    });
   }
   
   /**
@@ -283,16 +297,18 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // return promise which resolves on callback
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
       
-      // define callback for wasm
-      let callbackFn = function(resp) {
-        resolve(resp);
-      }
-      
-      // sync wallet in wasm and invoke callback when done
-      that.module.get_daemon_max_peer_height(that.cppAddress, callbackFn);
-    }));
+        // define callback for wasm
+        let callbackFn = function(resp) {
+          resolve(resp);
+        }
+        
+        // sync wallet in wasm and invoke callback when done
+        that.module.get_daemon_max_peer_height(that.cppAddress, callbackFn);
+      });
+    });
   }
   
   /**
@@ -305,16 +321,18 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // return promise which resolves on callback
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
       
-      // define callback for wasm
-      let callbackFn = function(resp) {
-        resolve(resp);
-      }
-      
-      // sync wallet in wasm and invoke callback when done
-      that.module.is_daemon_synced(that.cppAddress, callbackFn);
-    }));
+        // define callback for wasm
+        let callbackFn = function(resp) {
+          resolve(resp);
+        }
+        
+        // sync wallet in wasm and invoke callback when done
+        that.module.is_daemon_synced(that.cppAddress, callbackFn);
+      });
+    });
   }
   
   /**
@@ -327,16 +345,18 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // schedule task
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
       
-      // define callback for wasm
-      let callbackFn = function(resp) {
-        resolve(resp);
-      }
-      
-      // sync wallet in wasm and invoke callback when done
-      that.module.is_synced(that.cppAddress, callbackFn);
-    }));
+        // define callback for wasm
+        let callbackFn = function(resp) {
+          resolve(resp);
+        }
+        
+        // sync wallet in wasm and invoke callback when done
+        that.module.is_synced(that.cppAddress, callbackFn);
+      });
+    });
   }
   
   /**
@@ -347,9 +367,9 @@ class MoneroWalletCore extends MoneroWalletKeys {
   async getNetworkType() {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      resolve(that.module.get_network_type(that.cppAddress));
-    }));
+    return that.module.queueTask(async function() {
+      return that.module.get_network_type(that.cppAddress);
+    });
   }
   
   /**
@@ -360,9 +380,9 @@ class MoneroWalletCore extends MoneroWalletKeys {
   async getRestoreHeight() {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      resolve(that.module.get_restore_height(that.cppAddress));
-    }));
+    return that.module.queueTask(async function() {
+      return that.module.get_restore_height(that.cppAddress);
+    });
   }
   
   /**
@@ -373,9 +393,9 @@ class MoneroWalletCore extends MoneroWalletKeys {
   async setRestoreHeight(restoreHeight) {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      resolve(that.module.set_restore_height(that.cppAddress, restoreHeight));
-    }));
+    return that.module.queueTask(async function() {
+      return that.module.set_restore_height(that.cppAddress, restoreHeight);
+    });
   }
   
   /**
@@ -448,16 +468,18 @@ class MoneroWalletCore extends MoneroWalletKeys {
   async getHeight() {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = function(resp) {
-        resolve(resp);
-      }
-      
-      // sync wallet in wasm and invoke callback when done
-      that.module.get_height(that.cppAddress, callbackFn);
-    }));
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        
+        // define callback for wasm
+        let callbackFn = function(resp) {
+          resolve(resp);
+        }
+        
+        // sync wallet in wasm and invoke callback when done
+        that.module.get_height(that.cppAddress, callbackFn);
+      });
+    });
   }
   
   async getDaemonHeight() {
@@ -466,16 +488,18 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // schedule task
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = function(resp) {
-        resolve(resp);
-      }
-      
-      // sync wallet in wasm and invoke callback when done
-      that.module.get_daemon_height(that.cppAddress, callbackFn);
-    }));
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        
+        // define callback for wasm
+        let callbackFn = function(resp) {
+          resolve(resp);
+        }
+        
+        // sync wallet in wasm and invoke callback when done
+        that.module.get_daemon_height(that.cppAddress, callbackFn);
+      });
+    });
   }
   
   async sync(listenerOrStartHeight, startHeight) {
@@ -497,30 +521,32 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // sync wallet
     let that = this;
-    let result = await that.module._queuePromise(new Promise(function(resolve, reject) {
+    let result = await that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
       
-      // define callback for wasm
-      let callbackFn = async function(resp) {
-        
-        console.log("### SYNC RETURNED ###");
-        console.log("Wallet is closed? " + await that.isClosed());
-        
-        let respJson = JSON.parse(resp);
-        let result = new MoneroSyncResult(respJson.numBlocksFetched, respJson.receivedMoney);
-        let err;
-        try {
-          console.log("Resolving sync with result");
-          console.log(result);
-          resolve(result);
-        } catch (e) {
-          reject(e);
+        // define callback for wasm
+        let callbackFn = async function(resp) {
+          
+          console.log("### SYNC RETURNED ###");
+          console.log("Wallet is closed? " + await that.isClosed());
+          
+          let respJson = JSON.parse(resp);
+          let result = new MoneroSyncResult(respJson.numBlocksFetched, respJson.receivedMoney);
+          let err;
+          try {
+            console.log("Resolving sync with result");
+            console.log(result);
+            resolve(result);
+          } catch (e) {
+            reject(e);
+          }
         }
-      }
-      
-      // sync wallet in wasm and invoke callback when done
-      console.log("that.module.sync()...");
-      that.module.sync(that.cppAddress, startHeight, callbackFn);
-    }));
+        
+        // sync wallet in wasm and invoke callback when done
+        console.log("that.module.sync()...");
+        that.module.sync(that.cppAddress, startHeight, callbackFn);
+      });
+    });
     
     // unregister sync listener wrapper
     if (syncListenerWrapper !== undefined) {  // TODO: test that this is executed with error e.g. sync an unconnected wallet
@@ -559,7 +585,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // schedule task
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
       
       // get balance encoded in json string
       let balanceStr;
@@ -573,8 +599,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
       }
       
       // parse json string to BigInteger
-      resolve(new BigInteger(JSON.parse(balanceStr).balance));
-    }));
+      return new BigInteger(JSON.parse(balanceStr).balance);
+    });
   }
   
   async getUnlockedBalance(accountIdx, subaddressIdx) {
@@ -582,7 +608,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // schedule task
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
       
       // get balance encoded in json string
       let unlockedBalanceStr;
@@ -596,14 +622,14 @@ class MoneroWalletCore extends MoneroWalletKeys {
       }
       
       // parse json string to BigInteger
-      resolve(new BigInteger(JSON.parse(unlockedBalanceStr).unlockedBalance));
-    }));
+      return new BigInteger(JSON.parse(unlockedBalanceStr).unlockedBalance);
+    });
   }
   
   async getAccounts(includeSubaddresses, tag) {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
       let accountsStr = that.module.get_accounts(that.cppAddress, includeSubaddresses ? true : false, tag ? tag : "");
       let accounts = [];
       for (let accountJson of JSON.parse(accountsStr).accounts) {
@@ -613,18 +639,18 @@ class MoneroWalletCore extends MoneroWalletKeys {
 //        console.log("Account balance BI: " + new BigInteger(accountJson.balance));
 //        console.log("Account unlocked balance BI: " + new BigInteger(accountJson.unlockedBalance));
       }
-      resolve(accounts);
-    }));
+      return accounts;
+    });
   }
   
   async getAccount(accountIdx, includeSubaddresses) {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
       let accountStr = that.module.get_account(that.cppAddress, accountIdx, includeSubaddresses ? true : false);
       let accountJson = JSON.parse(accountStr);
-      resolve(MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson)));
-    }));
+      return MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson));
+    });
 
   }
   
@@ -632,34 +658,34 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     if (label === undefined) label = "";
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
       let accountStr = that.module.create_account(that.cppAddress, label);
       let accountJson = JSON.parse(accountStr);
-      resolve(MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson)));
-    }));
+      return MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson));
+    });
   }
   
   async getSubaddresses(accountIdx, subaddressIndices) {
     this._assertNotClosed();
     let args = {accountIdx: accountIdx, subaddressIndices: subaddressIndices === undefined ? [] : GenUtils.listify(subaddressIndices)};
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
       let subaddressesJson = JSON.parse(that.module.get_subaddresses(that.cppAddress, JSON.stringify(args))).subaddresses;
       let subaddresses = [];
       for (let subaddressJson of subaddressesJson) subaddresses.push(MoneroWalletCore._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
-      resolve(subaddresses);
-    }));
+      return subaddresses;
+    });
   }
   
   async createSubaddress(accountIdx, label) {
     this._assertNotClosed();
     if (label === undefined) label = "";
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
       let subaddressStr = that.module.create_subaddress(that.cppAddress, accountIdx, label);
       let subaddressJson = JSON.parse(subaddressStr);
-      resolve(MoneroWalletCore._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
-    }));
+      return MoneroWalletCore._sanitizeSubaddress(new MoneroSubaddress(subaddressJson));
+    });
   }
   
   async getTxs(query) {
@@ -678,46 +704,48 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // schedule task
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = function(blocksJsonStr) {
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
         
-        // check for error  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
-        if (blocksJsonStr.charAt(0) !== "{") {
-          reject(new MoneroError(blocksJsonStr));
-          return;
-        }
-        
-        // deserialize blocks
-        let blocks = MoneroWalletCore._deserializeBlocks(blocksJsonStr);
-        
-        // collect txs
-        let txs = [];
-        for (let block of blocks) {
-            MoneroWalletCore._sanitizeBlock(block); // TODO: this should be part of deserializeBlocks()
-            for (let tx of block.getTxs()) {
-            if (block.getHeight() === undefined) tx.setBlock(undefined); // dereference placeholder block for unconfirmed txs
-            txs.push(tx);
+        // define callback for wasm
+        let callbackFn = function(blocksJsonStr) {
+          
+          // check for error  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
+          if (blocksJsonStr.charAt(0) !== "{") {
+            reject(new MoneroError(blocksJsonStr));
+            return;
           }
-        }
-      
-        // re-sort txs which is lost over wasm serialization
-        if (query.getTxHashes() !== undefined) {
-          let txMap = new Map();
-          for (let tx of txs) txMap[tx.getHash()] = tx;
-          let txsSorted = [];
-          for (let txHash of query.getTxHashes()) txsSorted.push(txMap[txHash]);
-          txs = txsSorted;
+          
+          // deserialize blocks
+          let blocks = MoneroWalletCore._deserializeBlocks(blocksJsonStr);
+          
+          // collect txs
+          let txs = [];
+          for (let block of blocks) {
+              MoneroWalletCore._sanitizeBlock(block); // TODO: this should be part of deserializeBlocks()
+              for (let tx of block.getTxs()) {
+              if (block.getHeight() === undefined) tx.setBlock(undefined); // dereference placeholder block for unconfirmed txs
+              txs.push(tx);
+            }
+          }
+        
+          // re-sort txs which is lost over wasm serialization
+          if (query.getTxHashes() !== undefined) {
+            let txMap = new Map();
+            for (let tx of txs) txMap[tx.getHash()] = tx;
+            let txsSorted = [];
+            for (let txHash of query.getTxHashes()) txsSorted.push(txMap[txHash]);
+            txs = txsSorted;
+          }
+          
+          // resolve promise with txs
+          resolve(txs);
         }
         
-        // resolve promise with txs
-        resolve(txs);
-      }
-      
-      // sync wallet in wasm and invoke callback when done
-      that.module.get_txs(that.cppAddress, JSON.stringify(query.getBlock().toJson()), callbackFn);
-    }));
+        // sync wallet in wasm and invoke callback when done
+        that.module.get_txs(that.cppAddress, JSON.stringify(query.getBlock().toJson()), callbackFn);
+      });
+    });
   }
   
   async getTransfers(query) {
@@ -746,40 +774,42 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // return promise which resolves on callback
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = function(blocksJsonStr) {
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
         
-        // check for error  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
-        if (blocksJsonStr.charAt(0) !== "{") {
-          reject(new MoneroError(blocksJsonStr));
-          return;
-        }
-        
-        // deserialize blocks
-        let blocks = MoneroWalletCore._deserializeBlocks(blocksJsonStr);
-        
-        // collect transfers
-        let transfers = [];
-        for (let block of blocks) {
-          MoneroWalletCore._sanitizeBlock(block);
-          for (let tx of block.getTxs()) {
-            if (block.getHeight() === undefined) tx.setBlock(undefined); // dereference placeholder block for unconfirmed txs
-            if (tx.getOutgoingTransfer() !== undefined) transfers.push(tx.getOutgoingTransfer());
-            if (tx.getIncomingTransfers() !== undefined) {
-              for (let transfer of tx.getIncomingTransfers()) transfers.push(transfer);
+        // define callback for wasm
+        let callbackFn = function(blocksJsonStr) {
+          
+          // check for error  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
+          if (blocksJsonStr.charAt(0) !== "{") {
+            reject(new MoneroError(blocksJsonStr));
+            return;
+          }
+          
+          // deserialize blocks
+          let blocks = MoneroWalletCore._deserializeBlocks(blocksJsonStr);
+          
+          // collect transfers
+          let transfers = [];
+          for (let block of blocks) {
+            MoneroWalletCore._sanitizeBlock(block);
+            for (let tx of block.getTxs()) {
+              if (block.getHeight() === undefined) tx.setBlock(undefined); // dereference placeholder block for unconfirmed txs
+              if (tx.getOutgoingTransfer() !== undefined) transfers.push(tx.getOutgoingTransfer());
+              if (tx.getIncomingTransfers() !== undefined) {
+                for (let transfer of tx.getIncomingTransfers()) transfers.push(transfer);
+              }
             }
           }
+          
+          // resolve promise with transfers
+          resolve(transfers);
         }
         
-        // resolve promise with transfers
-        resolve(transfers);
-      }
-      
-      // sync wallet in wasm and invoke callback when done
-      that.module.get_transfers(that.cppAddress, JSON.stringify(query.getTxQuery().getBlock().toJson()), callbackFn);
-    }));
+        // sync wallet in wasm and invoke callback when done
+        that.module.get_transfers(that.cppAddress, JSON.stringify(query.getTxQuery().getBlock().toJson()), callbackFn);
+      });
+    });
   }
   
   async getOutputs(query) {
@@ -808,36 +838,38 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // return promise which resolves on callback
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = function(blocksJsonStr) {
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
         
-        // check for error  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
-        if (blocksJsonStr.charAt(0) !== "{") {
-          reject(new MoneroError(blocksJsonStr));
-          return;
-        }
-        
-        // deserialize blocks
-        let blocks = MoneroWalletCore._deserializeBlocks(blocksJsonStr);
-        
-        // collect outputs
-        let outputs = [];
-        for (let block of blocks) {
-          MoneroWalletCore._sanitizeBlock(block);
-          for (let tx of block.getTxs()) {
-            for (let output of tx.getOutputs()) outputs.push(output);
+        // define callback for wasm
+        let callbackFn = function(blocksJsonStr) {
+          
+          // check for error  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
+          if (blocksJsonStr.charAt(0) !== "{") {
+            reject(new MoneroError(blocksJsonStr));
+            return;
           }
+          
+          // deserialize blocks
+          let blocks = MoneroWalletCore._deserializeBlocks(blocksJsonStr);
+          
+          // collect outputs
+          let outputs = [];
+          for (let block of blocks) {
+            MoneroWalletCore._sanitizeBlock(block);
+            for (let tx of block.getTxs()) {
+              for (let output of tx.getOutputs()) outputs.push(output);
+            }
+          }
+          
+          // resolve promise with outputs
+          resolve(outputs);
         }
         
-        // resolve promise with transfers
-        resolve(outputs);
-      }
-      
-      // sync wallet in wasm and invoke callback when done
-      that.module.get_outputs(that.cppAddress, JSON.stringify(query.getTxQuery().getBlock().toJson()), callbackFn);
-    }));
+        // sync wallet in wasm and invoke callback when done
+        that.module.get_outputs(that.cppAddress, JSON.stringify(query.getTxQuery().getBlock().toJson()), callbackFn);
+      });
+    });
   }
   
   async getOutputsHex() {
@@ -892,22 +924,24 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // return promise which resolves on callback
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      
-      // define callback for wasm
-      let callbackFn = function(txSetJsonStr) {
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
         
-        // json string expected // TODO: use error handling when supported in wasm
-        if (txSetJsonStr.charAt(0) !== '{') throw new Error(txSetJsonStr);
+        // define callback for wasm
+        let callbackFn = function(txSetJsonStr) {
+          
+          // json string expected // TODO: use error handling when supported in wasm
+          if (txSetJsonStr.charAt(0) !== '{') throw new Error(txSetJsonStr);
+          
+          // deserialize tx set
+          let txSet = new MoneroTxSet(JSON.parse(txSetJsonStr));
+          resolve(txSet);
+        }
         
-        // deserialize tx set
-        let txSet = new MoneroTxSet(JSON.parse(txSetJsonStr));
-        resolve(txSet);
-      }
-      
-      // sync wallet in wasm and invoke callback when done
-      that.module.send_split(that.cppAddress, JSON.stringify(request.toJson()), callbackFn);
-    }));
+        // sync wallet in wasm and invoke callback when done
+        that.module.send_split(that.cppAddress, JSON.stringify(request.toJson()), callbackFn);
+      });
+    });
   }
   
   async sweepOutput(requestOrAddress, keyImage, priority) {
@@ -1054,10 +1088,10 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     assert(typeof key === "string", "Attribute key must be a string");
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
       let value = that.module.get_attribute(that.cppAddress, key);
-      resolve(value === "" ? null : value);
-    }));
+      return value === "" ? null : value;
+    });
   }
   
   async setAttribute(key, val) {
@@ -1065,10 +1099,9 @@ class MoneroWalletCore extends MoneroWalletKeys {
     assert(typeof key === "string", "Attribute key must be a string");
     assert(typeof val === "string", "Attribute value must be a string");
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
       that.module.set_attribute(that.cppAddress, key, val);
-      resolve(null);
-    }));
+    });
   }
   
   async startMining(numThreads, backgroundMining, ignoreBattery) {
@@ -1145,7 +1178,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // queue calls to wasm module
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
       
       // malloc cache buffer and get buffer location in c++ heap
       let cacheBufferLoc = JSON.parse(that.module.get_cache_file_buffer(that.cppAddress, that.password));
@@ -1176,8 +1209,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       
       // write keys file
       FS.writeFileSync(path + ".keys", view, "binary"); // TODO: make async with callback?
-      resolve(null);
-    }));
+    });
   }
   
   async close(save) {
@@ -1227,7 +1259,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
    */
   async _setIsListening(isEnabled) {
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
+    return that.module.queueTask(async function() {
       if (isEnabled) {
         that.wasmListenerHandle = that.module.set_listener(
             that.cppAddress,
@@ -1239,8 +1271,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       } else {
         that.wasmListenerHandle = that.module.set_listener(that.cppAddress, that.wasmListenerHandle, undefined, undefined, undefined, undefined);
       }
-      resolve(null);
-    }));
+    });
   }
   
   static _sanitizeBlock(block) {

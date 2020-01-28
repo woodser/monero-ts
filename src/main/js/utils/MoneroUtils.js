@@ -13,35 +13,35 @@ class MoneroUtils {
       // initialize promise queue to synchronize wasm requests
       const async = require("async");
       
-      MoneroUtils.WASM_MODULE.taskQueue = async.queue(function(promiseOrAsyncFn, callback) {
-        let promise = promiseOrAsyncFn.then ? promiseOrAsncFn : promiseOrAsyncFn();
-        promise.then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
-      }, 1);      
+      MoneroUtils.WASM_MODULE.taskQueue = async.queue(function(asyncFn, callback) {
+        if (asyncFn.then) throw new Error("Can only queue asynchronous functions");
+        asyncFn().then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
+      }, 1);
       
-      MoneroUtils.WASM_MODULE.queueTask = async function(promiseOrAsyncFn) {  // taskFn is an async function to execute
+      MoneroUtils.WASM_MODULE.queueTask = async function(asyncFn) {  // taskFn is an async function to execute
         return new Promise(function(resolve, reject) {
-          MoneroUtils.WASM_MODULE.taskQueue.push(promiseOrAsyncFn, function(resp, err) {
+          MoneroUtils.WASM_MODULE.taskQueue.push(asyncFn, function(resp, err) {
             if (err !== undefined) reject(err);
             else resolve(resp);
           });
         });
       }
       
-      MoneroUtils.WASM_MODULE._promiseQueue = async.queue(function(promiseFn, callback) {  // TODO: change to promise instead of promiseFn?
-        promiseFn().then(resp => { callback(resp); }).catch(err => { callback(undefined, err) });
-      }, 1);
-      
-      // initialize method to synchronize wasm requests
-      MoneroUtils.WASM_MODULE._queuePromise = function(promise) { // TODO: promise could become function(resolve, reject)
-        return new Promise(function(resolve, reject) {
-          MoneroUtils.WASM_MODULE._promiseQueue.push(function() { // change from function to promise?
-            return promise;
-          }, function(resp, err) {
-            if (resp !== undefined) resolve(resp);
-            else reject(err);
-          });
-        });
-      }
+//      MoneroUtils.WASM_MODULE._promiseQueue = async.queue(function(promiseFn, callback) {  // TODO: change to promise instead of promiseFn?
+//        promiseFn().then(resp => { callback(resp); }).catch(err => { callback(undefined, err) });
+//      }, 1);
+//      
+//      // initialize method to synchronize wasm requests
+//      MoneroUtils.WASM_MODULE._queuePromise = function(promise) { // TODO: promise could become function(resolve, reject)
+//        return new Promise(function(resolve, reject) {
+//          MoneroUtils.WASM_MODULE._promiseQueue.push(function() { // change from function to promise?
+//            return promise;
+//          }, function(resp, err) {
+//            if (resp !== undefined) resolve(resp);
+//            else reject(err);
+//          });
+//        });
+//      }
     }
     return MoneroUtils.WASM_MODULE;
   }
