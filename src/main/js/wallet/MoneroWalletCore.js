@@ -74,19 +74,16 @@ class MoneroWalletCore extends MoneroWalletKeys {
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          console.log("wasm create_core_wallet_random callback invoked");
           let wallet = new MoneroWalletCore(cppAddress, path, password);
           resolve(wallet);
         };
         
         // create wallet in wasm and invoke callback when done
-        console.log("Calling wasm create_core_wallet_random...");
         module.create_core_wallet_random(password, networkType, daemonUri, daemonUsername, daemonPassword, language, callbackFn);
       });
     });
     
     // save wallet
-    console.log("Saving wallet");
     if (path) await wallet.save();
     return wallet;
   }
@@ -113,13 +110,11 @@ class MoneroWalletCore extends MoneroWalletKeys {
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          console.log("Callback called!");
           let wallet = new MoneroWalletCore(cppAddress, path, password);
           resolve(wallet);
         };
         
         // create wallet in wasm and invoke callback when done
-        console.log("Calling create_core_wallet_from_mnemonic");
         module.create_core_wallet_from_mnemonic(password, networkType, mnemonic, daemonUri, daemonUsername, daemonPassword, restoreHeight, seedOffset, callbackFn);
       });
     });
@@ -251,9 +246,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
       return new Promise(function(resolve, reject) {
         let connectionContainerStr = that.module.get_daemon_connection(that.cppAddress);
         if (!connectionContainerStr) {
-          console.log("RESOLVING WITH UNDEFINED!!!");
           resolve();
-          return;
+          return; // TODO: switch to await new Promise
         }
         let connectionContainer = JSON.parse(connectionContainerStr);
         resolve(new MoneroRpcConnection({  // TODO: reconcile username vs user, password vs pass, then can pass container directly to MoneroRpcConnection (breaking change)
@@ -526,16 +520,10 @@ class MoneroWalletCore extends MoneroWalletKeys {
       
         // define callback for wasm
         let callbackFn = async function(resp) {
-          
-          console.log("### SYNC RETURNED ###");
-          console.log("Wallet is closed? " + await that.isClosed());
-          
           let respJson = JSON.parse(resp);
           let result = new MoneroSyncResult(respJson.numBlocksFetched, respJson.receivedMoney);
           let err;
           try {
-            console.log("Resolving sync with result");
-            console.log(result);
             resolve(result);
           } catch (e) {
             reject(e);
@@ -543,7 +531,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
         }
         
         // sync wallet in wasm and invoke callback when done
-        console.log("that.module.sync()...");
         that.module.sync(that.cppAddress, startHeight, callbackFn);
       });
     });
@@ -557,16 +544,11 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async startSyncing() {
-    console.log("startSyncing() 1");
     this._assertNotClosed();
-    console.log("startSyncing() 2");
     if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
-    console.log("startSyncing() 3");
     if (!this._syncingEnabled) {
       this._syncingEnabled = true;
-      console.log("startSyncing() 4");
       if (!this._syncLoopStarted) this._startSyncLoop();  // start loop to auto-sync wallet when enabled
-      console.log("startSyncing() 5");
     }
   }
     
@@ -1172,9 +1154,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     if (path === "") throw new MoneroError("Wallet path is not set");
     
     // write address file
-    console.log("Getting address...");
     FS.writeFileSync(path + ".address.txt", await this.getPrimaryAddress());
-    console.log("GOT ADDRESS");
     
     // queue calls to wasm module
     let that = this;
@@ -1213,12 +1193,9 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async close(save) {
-    console.log("CLOSING WALLET " + await this.getPath());
     if (this._isClosed) return; // closing a closed wallet has no effect
     await this._setIsListening(false);  // TODO: port to jni
-    this.module.MY_TEST = "4t3";  // TODO: testing
     await this.stopSyncing();
-    console.log("Closing super...");
     await super.close(save);
     delete this.path;
     delete this.password;
