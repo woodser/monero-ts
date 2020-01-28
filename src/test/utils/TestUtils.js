@@ -88,14 +88,14 @@ class TestUtils {
         assert.equal(await this.walletCore.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
         await this.walletCore.sync(new WalletSyncPrinter());
         //await this.walletCore.save();  // TODO: necessary for can start and stop syncing test?
-        //await this.walletCore.startSyncing();
+        await this.walletCore.startSyncing();
       }
       
       // otherwise open existing wallet
       else {
         this.walletCore = await MoneroWalletCore.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, (await TestUtils.getDaemonRpc()).getRpcConnection());
         await this.walletCore.sync(new WalletSyncPrinter());
-        //await this.walletCore.startSyncing();
+        await this.walletCore.startSyncing();
       }
     }
     

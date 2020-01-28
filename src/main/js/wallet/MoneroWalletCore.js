@@ -242,6 +242,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       if (!connectionContainerStr) {
         console.log("RESOLVING WITH UNDEFINED!!!");
         resolve(null);
+        return;
       }
       let connectionContainer = JSON.parse(connectionContainerStr);
       resolve(new MoneroRpcConnection({  // TODO: reconcile username vs user, password vs pass, then can pass container directly to MoneroRpcConnection (breaking change)
