@@ -143,9 +143,9 @@ Or
 
 ## How to Build WebAssembly Files from Source
 
-This project uses WebAssembly to package and execute Monero Core source code for use in a browser or other WebAssembly-enabled environment.
+This project uses WebAssembly to package and execute monero-project's source code for use in a browser or other WebAssembly-supported environment.
 
-Pre-built WebAssembly files for this project's source code is committed to ./build/ for convenience, but these files can be built independently from source code.
+For convenience, pre-built WebAssembly files for this project's source code are committed to ./build, but these files can be built independently from source code.
 
 To build this project's WebAssembly files from source code:
 
@@ -184,9 +184,9 @@ To build this project's WebAssembly files from source code:
 
 This project is licensed under MIT.
 
-## Donate
+## Donations
 
-Donations are gratefully accepted.  Thank you for your support!
+If you get value from this library, please consider donating.  Thank you.
 
 <p align="center">
 	<img src="donate.png" width="115" height="115"/>
