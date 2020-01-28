@@ -1,38 +1,35 @@
 HIGH (WASM)
-monero_wallet_core takes const abstract_http_client& ref = 0, client is created on wallet creation and deleted on close in wasm bridge
-rename GenUtils.uuidv4() -> GenUtils.getUUID();
-compare sync speeds with and without notifications
-compare performance with dynamic memory growth
-rename that = this to self = this
 wallet core tests
+MoneroWalletWebWorker.js for web apps
+keys-only vs full wallet build
+in-memory wallet; wallet2 password is required to create valid cache file on creation (start with tests)
+hardcode block hash instead of miner::find_nonce
+rebase, cleanup, and submit core pr
+
+update java
+http_client_wasm factor common js
 assert(!(await...) -> assert.equal(await ..., false) in tests, otherwise things like isClosed() with undefined pass
 deprecate .user, .pass with .username and .password and log error then eventually remove
+support MoneroWalletRpc(string uri, string username, string password) like java
+long sync() does not end at current daemon height but starting end height?
 long sync will give 100% notifications for blocks since sync started; re-compute based on daemon height toward end
+monero_wallet_core get_keys_file_buffer/get_cache_file_buffer use m_password instead of arg
+rename GenUtils.uuidv4() -> GenUtils.getUUID();
+overload create_wallet_* instead of http_client=null?
+monero_wallet_core takes const abstract_http_client& ref = 0, client is created on wallet creation and deleted on close in wasm bridge
+rename that = this to self = this
+compare sync speeds with and without notifications
+compare performance with dynamic memory growth
 restore height is refresh height
 does not throw detectable error when send balance > available balance
-support MoneroWalletRpc(string uri, string username, string password) like java
 update assert.equal(BI, BI) -> assert.equal(BI.toString(), BI.toString()) in tests
 when will uint64_t -> long conversion lose precision? wasm bridge casts to long
 do asynchronous work in test listeners
-core wallet should auto save wallet if path given
-wallet2 password is required to create valid cache file on creation
-core wallet sync progress notifications
-override startSyncing() in MoneroWalletCore.js
-MoneroWalletWebWorker.js for web apps
-port ground truth comparison tests from java
-monero_wallet_core get_keys_file_buffer/get_cache_file_buffer use m_password instead of arg
 port pool relay tests from java TestMoneroWalletCommon.java
 port testSyncWithPoolSubmit from java
-test in-memory wallets
-http_client_wasm factor common js
-hardcode block hash instead of miner::find_nonce
-overload create_wallet_* instead of http_client=null?
 monero_wallet_core::set_daemon_connection is_local_address() uses common/util which requires libunbound
 remove dummy methods
-cleanup core changes
-update to latest core
 test performance of DISABLE_EXCEPTION_CATCHING
-test latest branch with java
 nginx monerod to support firefox
 update instructions to run library in browser
 update screenshots for wasm
