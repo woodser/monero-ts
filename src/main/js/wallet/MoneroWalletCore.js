@@ -497,7 +497,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async sync(listenerOrStartHeight, startHeight) {
-    console.log("MoneroWalletCore.sync()");
     this._assertNotClosed();
     if (!(await this.isConnected())) throw new MoneroError("Wallet is not connected to daemon");
     
