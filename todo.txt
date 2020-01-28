@@ -1,19 +1,21 @@
 HIGH (WASM)
 wallet core tests
 MoneroWalletWebWorker.js for web apps
-keys-only vs full wallet build
+keys-only vs full wallet build and merge to master
 in-memory wallet; wallet2 password is required to create valid cache file on creation (start with tests)
 hardcode block hash instead of miner::find_nonce
 rebase, cleanup, and submit core pr
 
+test syncing from genesis
+todos throughout code
+long sync() does not end at current daemon height but starting end height?
+long sync will give 100% notifications for blocks since sync started; re-compute based on daemon height toward end
+monero_wallet_core get_keys_file_buffer/get_cache_file_buffer use m_password instead of arg
 update java
 http_client_wasm factor common js
 assert(!(await...) -> assert.equal(await ..., false) in tests, otherwise things like isClosed() with undefined pass
 deprecate .user, .pass with .username and .password and log error then eventually remove
 support MoneroWalletRpc(string uri, string username, string password) like java
-long sync() does not end at current daemon height but starting end height?
-long sync will give 100% notifications for blocks since sync started; re-compute based on daemon height toward end
-monero_wallet_core get_keys_file_buffer/get_cache_file_buffer use m_password instead of arg
 rename GenUtils.uuidv4() -> GenUtils.getUUID();
 overload create_wallet_* instead of http_client=null?
 monero_wallet_core takes const abstract_http_client& ref = 0, client is created on wallet creation and deleted on close in wasm bridge
@@ -32,7 +34,6 @@ remove dummy methods
 test performance of DISABLE_EXCEPTION_CATCHING
 nginx monerod to support firefox
 update instructions to run library in browser
-update screenshots for wasm
 compare sync performance with multithreading vs singlethreading - build both?
 compare sync performance with emscripten_fetch
 what in upstream core causes json_rpc requests to be POST? submit issue to default to POST in http_abstract_invoke and wallet2.h
