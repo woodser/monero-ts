@@ -119,9 +119,9 @@ class MoneroWalletKeys extends MoneroWallet {
   async getMnemonic() {
     this._assertNotClosed();
     let that = this;
-    return that.module._queuePromise(new Promise(function(resolve, reject) {
-      resolve(that.module.get_mnemonic(that.cppAddress));
-    }));
+    return that.module.queueTask(async function() {
+      return that.module.get_mnemonic(that.cppAddress);
+    });
   }
   
   async getMnemonicLanguage() {
