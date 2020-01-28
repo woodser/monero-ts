@@ -17,23 +17,23 @@ class TestUtils {
    * Get a daemon RPC singleton instance shared among tests.
    */
   static getDaemonRpc() {
-    if (this.daemonRpc === undefined) this.daemonRpc = new MoneroDaemonRpc(TestUtils.DAEMON_RPC_CONFIG);
-    return this.daemonRpc;
+    if (TestUtils.daemonRpc === undefined) TestUtils.daemonRpc = new MoneroDaemonRpc(TestUtils.DAEMON_RPC_CONFIG);
+    return TestUtils.daemonRpc;
   }
   
   /**
    * Get a singleton instance of a wallet supported by RPC.
    */
   static async getWalletRpc() {
-    if (this.walletRpc === undefined) {
+    if (TestUtils.walletRpc === undefined) {
       
       // construct wallet rpc instance with daemon connection
-      this.walletRpc = new MoneroWalletRpc(TestUtils.WALLET_RPC_CONFIG);
+      TestUtils.walletRpc = new MoneroWalletRpc(TestUtils.WALLET_RPC_CONFIG);
     }
     
     // attempt to open test wallet
     try {
-      await this.walletRpc.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+      await TestUtils.walletRpc.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
     } catch (e) {
       if (!(e instanceof MoneroRpcError)) throw e;
       
@@ -41,41 +41,41 @@ class TestUtils {
       if (e.getCode() === -1) {
         
         // create wallet
-        await this.walletRpc.createWalletFromMnemonic(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
+        await TestUtils.walletRpc.createWalletFromMnemonic(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
       } else {
         throw e;
       }
     }
     
     // ensure we're testing the right wallet
-    assert.equal(await this.walletRpc.getMnemonic(), TestUtils.MNEMONIC);
-    assert.equal(await this.walletRpc.getPrimaryAddress(), TestUtils.ADDRESS);
+    assert.equal(await TestUtils.walletRpc.getMnemonic(), TestUtils.MNEMONIC);
+    assert.equal(await TestUtils.walletRpc.getPrimaryAddress(), TestUtils.ADDRESS);
     
     // sync and save the wallet
-    await this.walletRpc.sync();
-    await this.walletRpc.save();
+    await TestUtils.walletRpc.sync();
+    await TestUtils.walletRpc.save();
     
     // return cached wallet rpc
-    return this.walletRpc;
+    return TestUtils.walletRpc;
   }
   
   /**
    * Get a singleton instance of a keys-only wallet shared among tests.
    */
   static async getWalletKeys() {
-    if (this.walletKeys === undefined) {
+    if (TestUtils.walletKeys === undefined) {
       
       // create wallet from mnemonic
-      this.walletKeys = MoneroWalletKeys.createWalletFromMnemonic(TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC);
+      TestUtils.walletKeys = MoneroWalletKeys.createWalletFromMnemonic(TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC);
     }
-    return this.walletKeys;
+    return TestUtils.walletKeys;
   }
   
   /**
    * Get a singleton instance of a core wallet shared among tests.
    */
   static async getWalletCore() {
-    if (this.walletCore === undefined || await this.walletCore.isClosed()) { 
+    if (TestUtils.walletCore === undefined || await TestUtils.walletCore.isClosed()) { 
       
       // create wallet from mnemonic phrase if it doesn't exist
       if (!await MoneroWalletCore.walletExists(TestUtils.WALLET_WASM_PATH_1)) {
@@ -84,23 +84,23 @@ class TestUtils {
         if (!FS.existsSync(TestUtils.TEST_WALLETS_DIR)) FS.mkdirSync(TestUtils.TEST_WALLETS_DIR);
         
         // create wallet iwth connection
-        this.walletCore = await MoneroWalletCore.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT);
-        assert.equal(await this.walletCore.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
-        await this.walletCore.sync(new WalletSyncPrinter());
-        //await this.walletCore.save();  // TODO: necessary for can start and stop syncing test?
-        await this.walletCore.startSyncing();
+        TestUtils.walletCore = await MoneroWalletCore.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT);
+        assert.equal(await TestUtils.walletCore.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
+        await TestUtils.walletCore.sync(new WalletSyncPrinter());
+        //await TestUtils.walletCore.save();  // TODO: necessary for can start and stop syncing test?
+        await TestUtils.walletCore.startSyncing();
       }
       
       // otherwise open existing wallet
       else {
-        this.walletCore = await MoneroWalletCore.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, (await TestUtils.getDaemonRpc()).getRpcConnection());
-        await this.walletCore.sync(new WalletSyncPrinter());
-        await this.walletCore.startSyncing();
+        TestUtils.walletCore = await MoneroWalletCore.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, (await TestUtils.getDaemonRpc()).getRpcConnection());
+        await TestUtils.walletCore.sync(new WalletSyncPrinter());
+        await TestUtils.walletCore.startSyncing();
       }
     }
     
     // return cached core wallet
-    return this.walletCore;
+    return TestUtils.walletCore;
   }
   
   /**
