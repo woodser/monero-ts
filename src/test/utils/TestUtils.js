@@ -87,7 +87,6 @@ class TestUtils {
         TestUtils.walletCore = await MoneroWalletCore.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT);
         assert.equal(await TestUtils.walletCore.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
         await TestUtils.walletCore.sync(new WalletSyncPrinter());
-        //await TestUtils.walletCore.save();  // TODO: necessary for can start and stop syncing test?
         await TestUtils.walletCore.startSyncing();
       }
       
