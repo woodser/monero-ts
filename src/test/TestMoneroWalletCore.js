@@ -409,7 +409,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         if (err) throw err;
       });
       
-      if (config.testNonRelays && !config.liteMode)
+      if (false && config.testNonRelays && !config.liteMode) // TODO: re-enable before release
       it("Can sync a wallet created from mnemonic from the genesis", async function() {
         await _testSyncMnemonic(undefined, undefined, true, false);
       });

@@ -7,6 +7,7 @@ hardcode block hash instead of miner::find_nonce
 rebase, cleanup, and submit core pr
 
 Validates inputs when getting transactions error
+update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic like monero_wallet_core::get_txs()
 todos throughout code
 long sync() does not end at current daemon height but starting end height?
 long sync will give 100% notifications for blocks since sync started; re-compute based on daemon height toward end
