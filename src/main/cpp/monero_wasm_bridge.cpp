@@ -584,18 +584,16 @@ void monero_wasm_bridge::get_outputs(int handle, const string& output_query_json
 
 void monero_wasm_bridge::send_split(int handle, const string& send_request_json, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  cout << "monero_wasm_bridge::send_split()" << endl;
-  cout << send_request_json << endl;
+//  cout << "monero_wasm_bridge::send_split()" << endl;
+//  cout << send_request_json << endl;
 
   // deserialize send request
   shared_ptr<monero_send_request> send_request = monero_send_request::deserialize(send_request_json);
-  cout << "Deserialized send request, re-serialized: " << send_request->serialize() << endl;
-
-  cout << "Calling send_split() " << endl;
+//  cout << "Deserialized send request, re-serialized: " << send_request->serialize() << endl;
 
   // submit send request
+  cout << "Calling send_split() " << endl;
   monero_tx_set tx_set = wallet->send_split(*send_request);
-
   cout << "Returned from send_split(), calling tx_set serialize()" << endl;
 
   // serialize and return tx set
