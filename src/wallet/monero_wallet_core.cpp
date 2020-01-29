@@ -1442,40 +1442,26 @@ namespace monero {
         queried_txs.push_back(tx);
         tx_iter++;
       } else {
+        tx_map.erase(tx->m_hash.get());
         tx_iter = txs.erase(tx_iter);
         if (tx->m_block != boost::none) tx->m_block.get()->m_txs.erase(std::remove(tx->m_block.get()->m_txs.begin(), tx->m_block.get()->m_txs.end(), tx), tx->m_block.get()->m_txs.end()); // TODO, no way to use tx_iter?
       }
     }
     txs = queried_txs;
 
-    // verify all specified tx hashes found
-    if (!_query->m_tx_hashes.empty()) {
-      for (const string& tx_hash : _query->m_tx_hashes) {
-        bool found = false;
-        for (const shared_ptr<monero_tx_wallet>& tx : txs) {
-          if (tx_hash == *tx->m_hash) {
-            found = true;
-            break;
-          }
-        }
-        if (!found) missing_tx_hashes.push_back(tx_hash);
-      }
-    }
-
-    // special case: re-fetch txs if inconsistency caused by needing to make multiple wallet calls
-    // TODO monero core: offer wallet.get_txs(...)
+    // special case: re-fetch txs if inconsistency caused by needing to make multiple wallet calls  // TODO monero core: offer wallet.get_txs(...)
     for (const shared_ptr<monero_tx_wallet>& tx : txs) {
-      if (*tx->m_is_confirmed && tx->m_block == boost::none) return get_txs(*_query);
+      if (*tx->m_is_confirmed && tx->m_block == boost::none) return get_txs(*_query, missing_tx_hashes);
     }
 
-    // otherwise order txs if tx hashes given then return
+    // if tx hashes requested, order txs and collect missing hashes
     if (!_query->m_tx_hashes.empty()) {
-      vector<shared_ptr<monero_tx_wallet>> ordered_txs;
+      txs.clear();
       for (const string& tx_hash : _query->m_tx_hashes) {
         map<string, shared_ptr<monero_tx_wallet>>::const_iterator tx_iter = tx_map.find(tx_hash);
-        ordered_txs.push_back(tx_iter->second);
+        if (tx_iter != tx_map.end()) txs.push_back(tx_iter->second);
+        else missing_tx_hashes.push_back(tx_hash);
       }
-      txs = ordered_txs;
     }
 
     return txs;
