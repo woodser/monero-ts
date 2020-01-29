@@ -6,7 +6,7 @@ in-memory wallet; wallet2 password is required to create valid cache file on cre
 hardcode block hash instead of miner::find_nonce
 rebase, cleanup, and submit core pr
 
-test syncing from genesis
+Validates inputs when getting transactions error
 todos throughout code
 long sync() does not end at current daemon height but starting end height?
 long sync will give 100% notifications for blocks since sync started; re-compute based on daemon height toward end
