@@ -474,12 +474,12 @@ void monero_wasm_bridge::get_txs(int handle, const string& tx_query_json, emscri
   shared_ptr<monero_tx_query> tx_query = monero_tx_query::deserialize_from_block(tx_query_json);
 
   // get txs
-  vector<string> missing_tx_ids;
-  vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs(*tx_query, missing_tx_ids);
+  vector<string> missing_tx_hashes;
+  vector<shared_ptr<monero_tx_wallet>> txs = wallet->get_txs(*tx_query, missing_tx_hashes);
 
   // return error as string if missing requested tx hashes
-  if (!missing_tx_ids.empty()) {
-    callback("Tx not found in wallet: " + missing_tx_ids[0]);
+  if (!missing_tx_hashes.empty()) {
+    callback("Tx not found in wallet: " + missing_tx_hashes[0]);
     return;
   }
 
