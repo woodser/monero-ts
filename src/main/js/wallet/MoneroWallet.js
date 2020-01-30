@@ -759,12 +759,32 @@ class MoneroWallet {
   }
   
   /**
-   * Parses a tx set containing unsigned or multisig tx hex to a new tx set containing structured transactions.
+   * Parse a tx set containing unsigned or multisig tx hex to a new tx set containing structured transactions.
    * 
-   * @param txSet is a tx set containing unsigned or multisig tx hex
+   * @param {MoneroTxSet} txSet is a tx set containing unsigned or multisig tx hex
    * @return {MoneroTxSet} the parsed tx set containing structured transactions
    */
   async parseTxSet(txSet) {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
+   * Sign an unsigned tx set from a watch-only wallet.
+   * 
+   * @param {MoneroTxSet} unsignedTxSet is the unsigned tx set to sign
+   * @return {MoneroTxSet} the signed tx set
+   */
+  async signTxSet(unsignedTxSet) {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
+   * Submit a previously signed tx set.
+   * 
+   * @param signedTxSet is a signed tx set to submit
+   * @return {string[]} are the resulting tx hashes
+   */
+  async submitSignedTxSet(signedTxSet) {
     throw new MoneroError("Subclass must implement");
   }
   
