@@ -1023,6 +1023,14 @@ class MoneroWalletRpc extends MoneroWallet {
     return MoneroWalletRpc._convertRpcDescribeTransfer(resp.result);
   }
   
+  async signTxSet(unsignedTxSet) {
+    throw new MoneroError("Not implemented");
+  }
+  
+  async submitSignedTxSet(signedTxSet) {
+    throw new MoneroError("Not implemented");
+  }
+  
   async sign(message) {
     let resp = await this.config.rpc.sendJsonRequest("sign", {data: message});
     return resp.result.signature;
