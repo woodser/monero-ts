@@ -782,7 +782,7 @@ class MoneroWallet {
    * Submit signed transactions from a watch-only wallet.
    * 
    * @param {string} signedTxHex is signed transaction hex from signTxs()
-   * @retur {string[]} the resulting transaction hashes
+   * @return {string[]} the resulting transaction hashes
    */
   async submitTxs(signedTxHex) {
     throw new MoneroError("Subclass must implement");
