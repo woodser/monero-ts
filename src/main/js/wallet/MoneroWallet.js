@@ -769,22 +769,22 @@ class MoneroWallet {
   }
   
   /**
-   * Sign an unsigned tx set from a watch-only wallet.
+   * Sign unsigned transactions from a watch-only wallet.
    * 
-   * @param {MoneroTxSet} unsignedTxSet is the unsigned tx set to sign
-   * @return {MoneroTxSet} the signed tx set
+   * @param {string} unsignedTxHex is unsigned transaction hex from when the transactions were created
+   * @return {string} the signed transaction hex
    */
-  async signTxSet(unsignedTxSet) {
+  async signTxs(unsignedTxHex) {
     throw new MoneroError("Subclass must implement");
   }
   
   /**
-   * Submit a previously signed tx set.
+   * Submit signed transactions from a watch-only wallet.
    * 
-   * @param signedTxSet is a signed tx set to submit
-   * @return {string[]} are the resulting tx hashes
+   * @param {string} signedTxHex is signed transaction hex from signTxs()
+   * @retur {string[]} are the resulting transaction hashes
    */
-  async submitSignedTxSet(signedTxSet) {
+  async submitTxs(signedTxHex) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -1197,9 +1197,9 @@ class MoneroWallet {
   }
   
   /**
-   * Sign previously created multisig transactions as represented by hex.
+   * Sign multisig transactions from a multisig wallet.
    * 
-   * @param {string} multisigTxHex is the hex shared among the multisig transactions when they were created
+   * @param {string} multisigTxHex represents unsigned multisig transactions as hex
    * @return {MoneroMultisigSignResult} the result of signing the multisig transactions
    */
   async signMultisigTxHex(multisigTxHex) {
@@ -1207,9 +1207,9 @@ class MoneroWallet {
   }
   
   /**
-   * Submit signed multisig transactions as represented by a hex string.
+   * Submit signed multisig transactions from a multisig wallet.
    * 
-   * @param {string} signedMultisigTxHex is the signed multisig hex returned from signMultisigTxs()
+   * @param {string} signedMultisigTxHex is signed multisig hex returned from signMultisigTxs()
    * @return {string[]} the resulting transaction hashes
    */
   async submitMultisigTxHex(signedMultisigTxHex) {
