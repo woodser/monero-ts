@@ -2686,7 +2686,6 @@ class TestMoneroWalletCommon {
 
           // create watch-only wallet by witholding spend key and importing key images
           that.wallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, undefined, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
-          let watchOnlyName = await that.wallet.getPath();
           
           // try...catch...finally to close watch-only wallet in case of error
           let e2 = undefined;
@@ -2703,6 +2702,24 @@ class TestMoneroWalletCommon {
             // test resulting tx set
             assert.equal(typeof unsignedTxSet.getUnsignedTxHex(), "string")
             assert(unsignedTxSet.getUnsignedTxHex());
+              
+            // switch to main online test wallet
+            that.wallet = await that.getTestWallet();
+            
+            // parse tx set
+            let parsedTxSet = await that.wallet.parseTxSet(unsignedTxSet);
+            testParsedTxSet(parsedTxSet);
+            
+            // sign tx set
+            let signedTxHex = await that.wallet.signTxs(unsignedTxSet.getUnsignedTxHex());
+            assert.equal(typeof signedTxHex, "string");
+            assert(signedTxHex);
+            
+            // submit signed tx set
+            let txHashes = await that.wallet.submitTxs(signedTxHex);
+            assert.equal(txHashes.length, 1);
+            assert(typeof txHashes[0] === "string");
+            assert(txHashes[0].length === 64);
           } catch (e) {
             e2 = e;
           }
@@ -2710,28 +2727,6 @@ class TestMoneroWalletCommon {
           // final cleanup
           await that.wallet.close();
           if (e2) throw e2;
-            
-          // switch to main online test wallet
-          that.wallet = await that.getTestWallet();
-          
-          // parse tx set
-          let parsedTxSet = await that.wallet.parseTxSet(unsignedTxSet);
-          testParsedTxSet(parsedTxSet);
-          
-          // sign tx set
-          let signedTxHex = await that.wallet.signTxs(unsignedTxSet.getUnsignedTxHex());
-          assert.equal(typeof signedTxHex, "string");
-          assert(signedTxHex);
-          
-//          // re-open watch-only wallet
-//          await that.wallet.close();
-//          that.wallet = await that.openWallet(watchOnlyName);
-          
-          // submit signed tx set
-          let txHashes = await that.wallet.submitTxs(signedTxHex);
-          assert.equal(txHashes.length, 1);
-          assert(typeof txHashes[0] === "string");
-          assert(txHashes[0].length === 64);
         } catch (e) {
           e1 = e;
         }

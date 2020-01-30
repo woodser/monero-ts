@@ -782,7 +782,7 @@ class MoneroWallet {
    * Submit signed transactions from a watch-only wallet.
    * 
    * @param {string} signedTxHex is signed transaction hex from signTxs()
-   * @retur {string[]} are the resulting transaction hashes
+   * @retur {string[]} the resulting transaction hashes
    */
   async submitTxs(signedTxHex) {
     throw new MoneroError("Subclass must implement");
@@ -1209,7 +1209,7 @@ class MoneroWallet {
   /**
    * Submit signed multisig transactions from a multisig wallet.
    * 
-   * @param {string} signedMultisigTxHex is signed multisig hex returned from signMultisigTxs()
+   * @param {string} signedMultisigTxHex is signed multisig hex returned from signMultisigTxHex()
    * @return {string[]} the resulting transaction hashes
    */
   async submitMultisigTxHex(signedMultisigTxHex) {
