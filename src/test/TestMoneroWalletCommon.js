@@ -2672,7 +2672,6 @@ class TestMoneroWalletCommon {
         }
       }
       
-      // TODO: update test in Java
       if (config.testNonRelays)
       it("Can parse, sign, and submit an unsigned tx set from a watch-only wallet", async function() {
         let e1 = undefined;
