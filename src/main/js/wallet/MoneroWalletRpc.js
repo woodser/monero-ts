@@ -1023,6 +1023,22 @@ class MoneroWalletRpc extends MoneroWallet {
     return MoneroWalletRpc._convertRpcDescribeTransfer(resp.result);
   }
   
+  async signTxs(unsignedTxHex) {
+    let resp = await this.config.rpc.sendJsonRequest("sign_transfer", {
+      unsigned_txset: unsignedTxHex,
+      export_raw: false
+    });
+    return resp.result.signed_txset
+  }
+  
+  async submitTxs(signedTxHex) {
+    let resp = await this.config.rpc.sendJsonRequest("submit_transfer", {
+      tx_data_hex: signedTxHex
+    });
+    return resp.result.tx_hash_list;
+  }
+  
+  // TODO: rename to signMessage(), verifyMessage()?
   async sign(message) {
     let resp = await this.config.rpc.sendJsonRequest("sign", {data: message});
     return resp.result.signature;

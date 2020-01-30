@@ -106,6 +106,10 @@ class MoneroSendRequest {
     return this;
   }
   
+  setDestination(destination) {
+    return this.setDestinations(destination ? [destination] : destination);
+  }
+  
   getPaymentId() {
     return this.state.paymentId;
   }

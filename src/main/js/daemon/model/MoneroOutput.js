@@ -36,6 +36,7 @@ class MoneroOutput {
   }
 
   setKeyImage(keyImage) {
+    assert(keyImage === undefined || keyImage instanceof MoneroKeyImage);
     this.state.keyImage = keyImage;
     return this;
   }
