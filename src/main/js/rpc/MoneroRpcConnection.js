@@ -53,8 +53,7 @@ class MoneroRpcConnection {
     
     // standardize uri
     if (this.config.uri) {
-      this.config.uri = this.config.uri.replace(/\/$/, ""); // One trailing slash
-//      this.config.uri = this.config.uri.replace(/\/+$/, ""); // All trailing slash
+      this.config.uri = this.config.uri.replace(/\/$/, ""); // strip trailing slash
     } else {
       this.config.uri = this.config.protocol + "://" + this.config.host + ":" + this.config.port;
     }
