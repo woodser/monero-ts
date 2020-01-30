@@ -1857,49 +1857,6 @@ class TestMoneroWalletCommon {
         TestUtils.testUnsignedBigInteger(result.getUnspentAmount(), hasUnspent);
       });
       
-      if (config.testNonRelays && !config.liteMode)
-      it("Can parse a tx set hex returned from sending transfers", async function() {
-        let e1 = undefined;
-        try {
-
-          // create watch-only wallet by witholding spend key
-          that.wallet = await that.createWalletFromKeys(await that.wallet.getPrimaryAddress(), await that.wallet.getPrivateViewKey(), undefined, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
-          await that.wallet.sync();
-          
-          let e2 = undefined;
-          try {
-          
-            // create unsigned transactions to send funds
-            let tx = (await that.wallet.createTx(0, await TestUtils.getRandomWalletAddress(), TestUtils.MAX_FEE.multiply(new BigInteger(3)))).getTxs()[0];
-            
-            // test resulting tx set
-            let txSet = tx.getTxSet();
-            assert.equal(typeof txSet.getUnsignedTxHex(), "string")
-            assert(txSet.getUnsignedTxHex());
-            
-            // switch to main test wallet
-            await that.wallet.close();
-            that.wallet = await that.getTestWallet();
-            
-            // parse the tx set
-            let parsedTxSet = await that.wallet.parseTxSet(txSet);
-            
-            // test the parsed tx set
-            testParsedTxSet(parsedTxSet);
-          } catch (e) {
-            e2 = e;
-          }
-          await that.wallet.close();
-          if (e2 !== undefined) throw e2;
-        } catch (e) {
-          e1 = e;
-        }
-        
-        // open main test wallet for other tests
-        that.wallet = await that.getTestWallet();
-        if (e1 !== undefined) throw e1;
-      });
-      
       if (config.testNonRelays)
       it("Can sign and verify messages", async function() {
         let msg = "This is a super important message which needs to be signed and verified.";
@@ -2729,6 +2686,69 @@ class TestMoneroWalletCommon {
           throw new Error("Actual send amount is too different from requested send amount: " + sendAmount + " - " + outgoingSum + " = " + sendAmount.subtract(outgoingSum));
         }
       }
+      
+      if (config.testNonRelays)
+      it("Can parse, sign, and submit an unsigned tx set from a watch-only wallet", async function() {
+        let e1 = undefined;
+        try {
+          
+          // collect info from main online test wallet and close
+          let keyImages = await that.wallet.getKeyImages();          
+          let primaryAddress = await that.wallet.getPrimaryAddress();
+          let privateViewKey = await that.wallet.getPrivateViewKey()
+          await that.wallet.close();
+
+          // create watch-only wallet by witholding spend key and importing key images
+          that.wallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, undefined, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+          
+          // try...catch...finally to close watch-only wallet in case of error
+          let e2 = undefined;
+          let unsignedTxSet = undefined;
+          try {
+            
+            // sync watch-only wallet and import key images
+            await that.wallet.sync();
+            await that.wallet.importKeyImages(keyImages);
+          
+            // create unsigned transaction
+            unsignedTxSet = await that.wallet.createTx(0, primaryAddress, TestUtils.MAX_FEE.multiply(new BigInteger(3)));
+            
+            // test resulting tx set
+            assert.equal(typeof unsignedTxSet.getUnsignedTxHex(), "string")
+            assert(unsignedTxSet.getUnsignedTxHex());
+              
+            // switch to main online test wallet
+            that.wallet = await that.getTestWallet();
+            
+            // parse tx set
+            let parsedTxSet = await that.wallet.parseTxSet(unsignedTxSet);
+            testParsedTxSet(parsedTxSet);
+            
+            // sign tx set
+            let signedTxHex = await that.wallet.signTxs(unsignedTxSet.getUnsignedTxHex());
+            assert.equal(typeof signedTxHex, "string");
+            assert(signedTxHex);
+            
+            // submit signed tx set
+            let txHashes = await that.wallet.submitTxs(signedTxHex);
+            assert.equal(txHashes.length, 1);
+            assert(typeof txHashes[0] === "string");
+            assert(txHashes[0].length === 64);
+          } catch (e) {
+            e2 = e;
+          }
+          
+          // final cleanup
+          await that.wallet.close();
+          if (e2) throw e2;
+        } catch (e) {
+          e1 = e;
+        }
+        
+        // open main test wallet for other tests
+        that.wallet = await that.getTestWallet();
+        if (e1) throw e1;
+      });
       
       if (config.testRelays)
       it("Can sweep individual outputs identified by their key images", async function() {

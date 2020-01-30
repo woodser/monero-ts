@@ -759,12 +759,32 @@ class MoneroWallet {
   }
   
   /**
-   * Parses a tx set containing unsigned or multisig tx hex to a new tx set containing structured transactions.
+   * Parse a tx set containing unsigned or multisig tx hex to a new tx set containing structured transactions.
    * 
-   * @param txSet is a tx set containing unsigned or multisig tx hex
+   * @param {MoneroTxSet} txSet is a tx set containing unsigned or multisig tx hex
    * @return {MoneroTxSet} the parsed tx set containing structured transactions
    */
   async parseTxSet(txSet) {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
+   * Sign unsigned transactions from a watch-only wallet.
+   * 
+   * @param {string} unsignedTxHex is unsigned transaction hex from when the transactions were created
+   * @return {string} the signed transaction hex
+   */
+  async signTxs(unsignedTxHex) {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
+   * Submit signed transactions from a watch-only wallet.
+   * 
+   * @param {string} signedTxHex is signed transaction hex from signTxs()
+   * @retur {string[]} the resulting transaction hashes
+   */
+  async submitTxs(signedTxHex) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -1177,9 +1197,9 @@ class MoneroWallet {
   }
   
   /**
-   * Sign previously created multisig transactions as represented by hex.
+   * Sign multisig transactions from a multisig wallet.
    * 
-   * @param {string} multisigTxHex is the hex shared among the multisig transactions when they were created
+   * @param {string} multisigTxHex represents unsigned multisig transactions as hex
    * @return {MoneroMultisigSignResult} the result of signing the multisig transactions
    */
   async signMultisigTxHex(multisigTxHex) {
@@ -1187,9 +1207,9 @@ class MoneroWallet {
   }
   
   /**
-   * Submit signed multisig transactions as represented by a hex string.
+   * Submit signed multisig transactions from a multisig wallet.
    * 
-   * @param {string} signedMultisigTxHex is the signed multisig hex returned from signMultisigTxs()
+   * @param {string} signedMultisigTxHex is signed multisig hex returned from signMultisigTxHex()
    * @return {string[]} the resulting transaction hashes
    */
   async submitMultisigTxHex(signedMultisigTxHex) {
