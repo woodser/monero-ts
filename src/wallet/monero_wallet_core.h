@@ -245,6 +245,8 @@ namespace monero {
     monero_tx_set sweep_output(const monero_send_request& request);
     monero_tx_set sweep_dust(bool do_not_relay = false);
     monero_tx_set parse_tx_set(const monero_tx_set& tx_set);
+    string sign_txs(const string& unsigned_tx_hex);
+    vector<string> submit_txs(const string& signed_tx_hex);
     string sign(const string& msg) const;
     bool verify(const string& msg, const string& address, const string& signature) const;
     string get_tx_key(const string& tx_hash) const;
