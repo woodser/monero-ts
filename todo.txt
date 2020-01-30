@@ -6,6 +6,7 @@ in-memory wallet; wallet2 password is required to create valid cache file on cre
 hardcode block hash instead of miner::find_nonce
 rebase, cleanup, and submit core pr
 
+master sort MoneroWallet.js with top level methods
 startSynchronizing() should use pre-started loop so it's a random start time like core
 update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic like monero_wallet_core::get_txs()
 todos throughout code
@@ -23,7 +24,7 @@ monero_wallet_core takes const abstract_http_client& ref = 0, client is created 
 rename that = this to self = this
 compare sync speeds with and without notifications
 compare performance with dynamic memory growth
-restore height is refresh height
+restore height is refresh height - getSyncHeight(), setSyncHeight()?
 does not throw detectable error when send balance > available balance
 update assert.equal(BI, BI) -> assert.equal(BI.toString(), BI.toString()) in tests
 when will uint64_t -> long conversion lose precision? wasm bridge casts to long
