@@ -2494,6 +2494,16 @@ namespace monero {
     }
   }
 
+  string monero_wallet_core::sign_txs(const string& unsigned_tx_hex) {
+    cout << "monero_wallet_core::sign_txs()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
+  vector<string> monero_wallet_core::submit_txs(const string& signed_tx_hex) {
+    cout << "monero_wallet_core::submit_txs()" << endl;
+    throw runtime_error("Not implemented");
+  }
+
   string monero_wallet_core::sign(const string& msg) const {
     return m_w2->sign(msg);
   }
