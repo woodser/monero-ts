@@ -692,19 +692,20 @@ namespace monero {
 
     void on_new_block(uint64_t height, const cryptonote::block& cn_block) {
 
+      // ignore notifications before sync start height, irrelevant to clients
+      if (m_sync_start_height == boost::none || height < *m_sync_start_height) return;
+
       // notify listeners of block
       for (monero_wallet_listener* listener : m_wallet.get_listeners()) {
         listener->on_new_block(height);
       }
 
       // notify listeners of sync progress
-      if (m_sync_start_height != boost::none && height >= *m_sync_start_height) {
-        if (height >= *m_sync_end_height) m_sync_end_height = height + 1;	// increase end height if necessary
-        double percent_done = (double) (height - *m_sync_start_height + 1) / (double) (*m_sync_end_height - *m_sync_start_height);
-        string message = string("Synchronizing");
-        for (monero_wallet_listener* listener : m_wallet.get_listeners()) {
-          listener->on_sync_progress(height, *m_sync_start_height, *m_sync_end_height, percent_done, message);
-        }
+      if (height >= *m_sync_end_height) m_sync_end_height = height + 1; // increase end height if necessary
+      double percent_done = (double) (height - *m_sync_start_height + 1) / (double) (*m_sync_end_height - *m_sync_start_height);
+      string message = string("Synchronizing");
+      for (monero_wallet_listener* listener : m_wallet.get_listeners()) {
+        listener->on_sync_progress(height, *m_sync_start_height, *m_sync_end_height, percent_done, message);
       }
     }
 

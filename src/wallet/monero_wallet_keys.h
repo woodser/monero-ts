@@ -64,7 +64,7 @@ using namespace monero;
 namespace monero {
 
   /**
-   * Monero wallet implementation to provide basic offline key management.
+   * Implements a Monero wallet to provide basic key management.
    */
   class monero_wallet_keys : public monero_wallet {
 
