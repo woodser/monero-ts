@@ -1104,6 +1104,26 @@ namespace monero {
     }
 
     /**
+     * Sign unsigned transactions from a watch-only wallet.
+     *
+     * @param unsigned_tx_hex is unsigned transaction hex from when the transactions were created
+     * @return the signed transaction hex
+     */
+    virtual string sign_txs(const string& unsigned_tx_hex) {
+      throw runtime_error("parse_tx_set() not supported");
+    }
+
+    /**
+     * Submit signed transactions from a watch-only wallet.
+     *
+     * @param signed_tx_hex is signed transaction hex from signTxs()
+     * @return the resulting transaction hashes
+     */
+    vector<string> submit_txs(const string& signed_tx_hex) {
+      throw runtime_error("parse_tx_set() not supported");
+    }
+
+    /**
      * Sign a message.
      *
      * @param msg is the message to sign
