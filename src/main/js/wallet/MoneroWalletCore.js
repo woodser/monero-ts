@@ -1239,7 +1239,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
     return subaddress
   }
   
-  static _deserializeBlocks(blocksJsonStr) {
+  static _deserializeBlocks(blocksJsonStr, txType) {
+    if (txType === undefined) txType = MoneroBlock.DeserializationType.TX_WALLET;
     
     // parse string to json
     let blocksJson = JSON.parse(blocksJsonStr);
@@ -1247,7 +1248,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     // initialize blocks
     let blocks = [];
     for (let blockJson of blocksJson.blocks) {
-      blocks.push(new MoneroBlock(blockJson, true));
+      blocks.push(new MoneroBlock(blockJson, txType));
     }
     return blocks
   }
