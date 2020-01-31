@@ -6,6 +6,7 @@ in-memory wallet; wallet2 password is required to create valid cache file on cre
 hardcode block hash instead of miner::find_nonce
 rebase, cleanup, and submit core pr
 
+recover from failed background syncing
 master sort MoneroWallet.js with top level methods
 startSynchronizing() should use pre-started loop so it's a random start time like core
 update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic like monero_wallet_core::get_txs()
