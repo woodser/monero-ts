@@ -1345,6 +1345,7 @@ class WalletSyncTester extends SyncProgressTester {
       this.onNewBlockAfterDone = true;
     }
     if (this.walletTesterPrevHeight !== undefined) assert.equal(height, this.walletTesterPrevHeight + 1);
+    assert(height >= this.startHeight);
     this.walletTesterPrevHeight = height;
   }
 
