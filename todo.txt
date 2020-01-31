@@ -7,6 +7,8 @@ hardcode block hash instead of miner::find_nonce
 rebase, cleanup, and submit core pr
 
 recover from failed background syncing
+run tests in browser?
+overload toJson() model protos and use JSON.stringify() instead of class toJsons()
 master sort MoneroWallet.js with top level methods
 startSynchronizing() should use pre-started loop so it's a random start time like core
 update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic like monero_wallet_core::get_txs()

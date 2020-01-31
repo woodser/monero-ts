@@ -672,16 +672,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
   async getTxs(query) {
     this._assertNotClosed();
     
-    // copy and normalize tx query up to block
-    if (query instanceof MoneroTxQuery) query = query.copy();
-    else if (Array.isArray(query)) query = new MoneroTxQuery().setTxHashes(query);
-    else {
-      query = Object.assign({}, query);
-      query = new MoneroTxQuery(query);
-    }
-    if (query.getBlock() === undefined) query.setBlock(new MoneroBlock().setTxs([query]));
-    if (query.getTransferQuery() === undefined) query.setTransferQuery(new MoneroTransferQuery());
-    if (query.getOutputQuery() === undefined) query.setOutputQuery(new MoneroOutputQuery());
+    // copy and normalize query up to block
+    query = MoneroWalletCore._normalizeTxQuery(query);
     
     // schedule task
     let that = this;
@@ -697,27 +689,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
             return;
           }
           
-          // deserialize blocks
-          let blocks = MoneroWalletCore._deserializeBlocks(blocksJsonStr);
-          
-          // collect txs
-          let txs = [];
-          for (let block of blocks) {
-              MoneroWalletCore._sanitizeBlock(block); // TODO: this should be part of deserializeBlocks()
-              for (let tx of block.getTxs()) {
-              if (block.getHeight() === undefined) tx.setBlock(undefined); // dereference placeholder block for unconfirmed txs
-              txs.push(tx);
-            }
-          }
-        
-          // re-sort txs which is lost over wasm serialization
-          if (query.getTxHashes() !== undefined) {
-            let txMap = new Map();
-            for (let tx of txs) txMap[tx.getHash()] = tx;
-            let txsSorted = [];
-            for (let txHash of query.getTxHashes()) txsSorted.push(txMap[txHash]);
-            txs = txsSorted;
-          }
+          // initialize txs from blocks json string
+          let txs = MoneroWalletCore._blocksJsonToTxs(query, blocksJsonStr);
           
           // resolve promise with txs
           resolve(txs);
@@ -889,7 +862,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     // validate, copy, and normalize request  // TODO: this is copied from MoneroWalletRpc.sendSplit(), factor to super class which calls this with normalized request?
     let request;
     if (requestOrAccountIndex instanceof MoneroSendRequest) {
-      assert.equal(arguments.length, 1, "Sending requires a send request or parameters but not both");
+      assert(address === undefined && amount === undefined && priority === undefined, "Sending requires a send request or parameters but not both");
       request = requestOrAccountIndex;
     } else {
       if (requestOrAccountIndex instanceof Object) request = new MoneroSendRequest(requestOrAccountIndex);
@@ -1277,6 +1250,46 @@ class MoneroWalletCore extends MoneroWalletKeys {
       blocks.push(new MoneroBlock(blockJson, true));
     }
     return blocks
+  }
+  
+  static _normalizeTxQuery(query) {
+    if (query instanceof MoneroTxQuery) query = query.copy();
+    else if (Array.isArray(query)) query = new MoneroTxQuery().setTxHashes(query);
+    else {
+      query = Object.assign({}, query);
+      query = new MoneroTxQuery(query);
+    }
+    if (query.getBlock() === undefined) query.setBlock(new MoneroBlock().setTxs([query]));
+    if (query.getTransferQuery() === undefined) query.setTransferQuery(new MoneroTransferQuery());
+    if (query.getOutputQuery() === undefined) query.setOutputQuery(new MoneroOutputQuery());
+    return query;
+  }
+  
+  static _blocksJsonToTxs(query, blocksJsonStr) {
+    
+    // deserialize blocks
+    let blocks = MoneroWalletCore._deserializeBlocks(blocksJsonStr);
+    
+    // collect txs
+    let txs = [];
+    for (let block of blocks) {
+        MoneroWalletCore._sanitizeBlock(block); // TODO: this should be part of deserializeBlocks()
+        for (let tx of block.getTxs()) {
+        if (block.getHeight() === undefined) tx.setBlock(undefined); // dereference placeholder block for unconfirmed txs
+        txs.push(tx);
+      }
+    }
+  
+    // re-sort txs which is lost over wasm serialization  // TODO: why would order be lost? confirm
+    if (query.getTxHashes() !== undefined) {
+      let txMap = new Map();
+      for (let tx of txs) txMap[tx.getHash()] = tx;
+      let txsSorted = [];
+      for (let txHash of query.getTxHashes()) txsSorted.push(txMap[txHash]);
+      txs = txsSorted;
+    }
+    
+    return txs;
   }
 }
 
