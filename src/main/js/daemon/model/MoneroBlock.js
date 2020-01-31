@@ -7,8 +7,9 @@ class MoneroBlock extends MoneroBlockHeader {
    * Construct the model.
    * 
    * @param {MoneroBlock|MoneroBlockHeader|object} state is existing state to initialize from (optional)
+   * @param {MoneroBlock.DeserializationType} txType informs the tx deserialization type (MoneroTx, MoneroTxWallet, MoneroTxQuery)
    */
-  constructor(state, useWalletTypes) {
+  constructor(state, txType) {
     super(state);
     state = this.state;
     
@@ -18,10 +19,14 @@ class MoneroBlock extends MoneroBlockHeader {
     // deserialize non-miner txs
     if (state.txs) {
       for (let i = 0; i < state.txs.length; i++) {
-        if (useWalletTypes) {
-          if (!(state.txs[i] instanceof MoneroTxWallet)) state.txs[i] = new MoneroTxWallet(state.txs[i]).setBlock(this);
-        } else {
+        if (txType === MoneroBlock.DeserializationType.TX || txType === undefined) {
           if (!(state.txs[i] instanceof MoneroTx)) state.txs[i] = new MoneroTx(state.txs[i]).setBlock(this);
+        } else if (txType === MoneroBlock.DeserializationType.TX_WALLET) {
+          if (!(state.txs[i] instanceof MoneroTxWallet)) state.txs[i] = new MoneroTxWallet(state.txs[i]).setBlock(this);
+        } else if (txType === MoneroBlock.DeserializationType.TX_QUERY) {
+          if (!(state.txs[i] instanceof MoneroTxQuery)) state.txs[i] = new MoneroTxQuery(state.txs[i]).setBlock(this);
+        } else {
+          throw new Error("Unrecognized tx deserialization type: " + txType);
         }
       }
     }
@@ -133,6 +138,12 @@ class MoneroBlock extends MoneroBlockHeader {
     }
     txs.push(tx);
   }
+}
+
+MoneroBlock.DeserializationType = {
+    TX: 0,
+    TX_WALLET: 1,
+    TX_QUERY: 2
 }
 
 module.exports = MoneroBlock;
