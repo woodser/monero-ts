@@ -24,6 +24,15 @@ class MoneroTxSet {
       }
     }
   }
+  
+  toJson() {
+    let json = Object.assign({}, this.state); // copy state
+    if (this.getTxs()) {
+      json.txs = [];
+      for (let tx of this.getTxs()) json.txs.push(tx.toJson());
+    }
+    return json;
+  }
 
   getTxs() {
     return this.state.txs;

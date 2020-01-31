@@ -832,7 +832,7 @@ class MoneroWalletRpc extends MoneroWallet {
     // validate, copy, and normalize request
     let request;
     if (requestOrAccountIndex instanceof MoneroSendRequest) {
-      assert.equal(arguments.length, 1, "Sending requires a send request or parameters but not both");
+      assert(address === undefined && amount === undefined && priority === undefined, "Sending requires a send request or parameters but not both");
       request = requestOrAccountIndex;
     } else {
       if (requestOrAccountIndex instanceof Object) request = new MoneroSendRequest(requestOrAccountIndex);

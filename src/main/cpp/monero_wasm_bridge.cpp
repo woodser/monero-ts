@@ -483,7 +483,7 @@ void monero_wasm_bridge::get_txs(int handle, const string& tx_query_json, emscri
     return;
   }
 
-  // collect unique blocks to preserve model relationships as tree
+  // collect unique blocks to preserve model relationships as trees
   shared_ptr<monero_block> unconfirmed_block = nullptr; // placeholder to store unconfirmed txs in return json
   vector<shared_ptr<monero_block>> blocks;
   unordered_set<shared_ptr<monero_block>> seen_block_ptrs;
