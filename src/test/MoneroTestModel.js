@@ -6,6 +6,6 @@ module.exports = function() {
   this.TestMoneroUtils = require("./TestMoneroUtils");
   this.TestMoneroDaemonRpc = require("./TestMoneroDaemonRpc");
   this.TestMoneroWalletRpc = require("./TestMoneroWalletRpc");
-  this.TestMoneroWalletKeys = require("./TestMoneroWalletRpc");
-  this.TestMoneroWalletCore = require("./TestMoneroWalletRpc");
+  this.TestMoneroWalletKeys = require("./TestMoneroWalletKeys");
+  this.TestMoneroWalletCore = require("./TestMoneroWalletCore");
 }
