@@ -1291,8 +1291,6 @@ class OutputNotificationCollector extends MoneroWalletListener {
  */
 class SyncProgressTester extends MoneroWalletListener {
   
-  static PRINT_INCREMENT = 2500;  // print every 2500 blocks
-  
   constructor(wallet, startHeight, endHeight) {
     super();
     this.wallet = wallet;
@@ -1355,6 +1353,7 @@ class SyncProgressTester extends MoneroWalletListener {
     return this.onSyncProgressAfterDone;
   }
 }
+SyncProgressTester.PRINT_INCREMENT = 2500;  // print every 2500 blocks
 
 /**
  * Internal class to test all wallet notifications on sync. 

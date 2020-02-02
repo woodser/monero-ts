@@ -80,4 +80,5 @@ module.exports = function() {
   this.MoneroWalletRpc = require("./wallet/MoneroWalletRpc");
   this.MoneroWalletKeys = require("./wallet/MoneroWalletKeys");
   this.MoneroWalletCore = require("./wallet/MoneroWalletCore");
+  this.MoneroWalletCoreProxy = require("./wallet/MoneroWalletCoreProxy");
 }
