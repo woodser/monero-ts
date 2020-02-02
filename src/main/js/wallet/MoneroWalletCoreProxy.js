@@ -302,7 +302,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   async startSyncing() {
     let that = this;
     return new Promise(function(resolve, reject) {
-      that.callbacks["onStartSyncing"] = function() { resolve(); }
+      that.callbacks["onStartSyncing"] = function(err) { err ? reject(err) : resolve(); }
       that.worker.postMessage(["startSyncing"]);
     });
   }

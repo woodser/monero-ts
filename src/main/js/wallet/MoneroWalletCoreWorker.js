@@ -108,7 +108,13 @@ self.sync = async function() {
 }
 
 self.startSyncing = async function() {
-  postMessage(["onStartSyncing", await self.wallet.startSyncing()]);
+  try {
+    await self.wallet.startSyncing()
+    postMessage(["onStartSyncing"]);
+  } catch (e) {
+    assert(e.message);
+    postMessage(["onStartSyncing", e.message]);
+  }
 }
 
 self.stopSyncing = async function() {
