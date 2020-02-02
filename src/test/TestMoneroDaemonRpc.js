@@ -1630,16 +1630,14 @@ function testKeyImage(image, ctx) {
   }
 }
 
-function testOutput(output, ctx) {
-  testOutput(output);
-  if (output.getTx().inTxPool() || ctx && ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(output.getIndex(), undefined); // TODO: get_blocks_by_height.bin (#5127), get_transaction_pool, and tx pool txs do not return output indices 
-  else assert(output.getIndex() >= 0);
-  assert(output.getStealthPublicKey() && output.getStealthPublicKey().length === 64);
-}
-
-function testOutput(output) { 
+function testOutput(output, ctx) { 
   assert(output instanceof MoneroOutput);
   TestUtils.testUnsignedBigInteger(output.getAmount());
+  if (ctx) {
+    if (output.getTx().inTxPool() || ctx.fromGetTxPool || ctx.hasOutputIndices === false) assert.equal(output.getIndex(), undefined); // TODO: get_blocks_by_height.bin (#5127), get_transaction_pool, and tx pool txs do not return output indices 
+    else assert(output.getIndex() >= 0);
+    assert(output.getStealthPublicKey() && output.getStealthPublicKey().length === 64);
+  }
 }
 
 async function getConfirmedTxs(daemon, numTxs) {
