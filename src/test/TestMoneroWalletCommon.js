@@ -74,10 +74,17 @@ class TestMoneroWalletCommon {
   }
   
   /**
-   * Creates a wallet from keys.
+   * Create a wallet from keys.
    */
   async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
     throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Save a wallet using a custom method to not assume a file system (e.g. a web wallet).
+   */
+  async saveWallet(wallet) {
+    await wallet.save();  // default implementation
   }
   
   /**
@@ -3487,7 +3494,7 @@ class TestMoneroWalletCommon {
     // set name attribute of test wallet at beginning of test
     let BEGIN_MULTISIG_NAME = "begin_multisig_wallet";
     await this.wallet.setAttribute("name", BEGIN_MULTISIG_NAME);
-    await this.wallet.save();
+    await that.saveWallet(this.wallet);
     //await this.wallet.close();
     
     // create n wallets and prepare multisig hexes
@@ -3567,7 +3574,7 @@ class TestMoneroWalletCommon {
             exchangeMultisigHexes.push(result.getMultisigHex());
           }
           
-          //await this.wallet.save();
+          //await that.saveWallet(this.wallet);
           await this.wallet.close();
         }
         
@@ -3707,7 +3714,7 @@ class TestMoneroWalletCommon {
       console.log("Submitting");
       curWallet = await this.openWallet(walletIds[0]);
       let txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
-      await curWallet.save();
+      await that.saveWallet(curWallet);
       
       // synchronize the multisig participants since spending outputs
       console.log("Synchronizing participants");
@@ -3741,7 +3748,7 @@ class TestMoneroWalletCommon {
       console.log("Submitting sweep output");
       curWallet = await this.openWallet(walletIds[0]);
       txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
-      await curWallet.save();
+      await that.saveWallet(curWallet);
       
       // synchronize the multisig participants since spending outputs
       console.log("Synchronizing participants");
@@ -3780,7 +3787,7 @@ class TestMoneroWalletCommon {
       console.log("Submitting sweep");
       curWallet = await this.openWallet(walletIds[0]);
       txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
-      await curWallet.save();
+      await that.saveWallet(curWallet);
       
       // synchronize the multisig participants since spending outputs
       console.log("Synchronizing participants");
