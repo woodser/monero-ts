@@ -7,7 +7,5 @@ require("./src/main/js/MoneroModel")();
 
 /**
  * Load test models to "this".
- * 
- * TODO: dynamically include this in dev build
  */
-require("./src/test/MoneroTestModel")();
+require("./src/test/MoneroTestModel")();  // TODO: dynamically include in dev build

@@ -83,7 +83,7 @@ class TestUtils {
         // create directory for test wallets if it doesn't exist
         if (!FS.existsSync(TestUtils.TEST_WALLETS_DIR)) FS.mkdirSync(TestUtils.TEST_WALLETS_DIR);
         
-        // create wallet iwth connection
+        // create wallet with connection
         TestUtils.walletCore = await MoneroWalletCore.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT);
         assert.equal(await TestUtils.walletCore.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
         await TestUtils.walletCore.sync(new WalletSyncPrinter());
