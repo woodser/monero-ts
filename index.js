@@ -1,6 +1,11 @@
 'use strict'
 
 /**
- * Load all models to "this".
+ * Load production models to "this".
  */
 require("./src/main/js/MoneroModel")();
+
+/**
+ * Load test models to "this".
+ */
+require("./src/test/MoneroTestModel")();

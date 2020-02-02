@@ -18,6 +18,7 @@ long sync will give 100% notifications for blocks since sync started; re-compute
 monero_wallet_core get_keys_file_buffer/get_cache_file_buffer use m_password instead of arg
 update java
 http_client_wasm factor common js
+production vs dev build to export tests, etc
 assert(!(await...) -> assert.equal(await ..., false) in tests, otherwise things like isClosed() with undefined pass
 deprecate .user, .pass with .username and .password and log error then eventually remove
 support MoneroWalletRpc(string uri, string username, string password) like java
