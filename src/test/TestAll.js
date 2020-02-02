@@ -9,10 +9,10 @@ const TestMoneroWalletKeys = require("./TestMoneroWalletKeys");
 const TestMoneroWalletCore = require("./TestMoneroWalletCore");
 
 //// test sample code for readme
-//require("./TestSampleCode");
+//new TestSampleCode().runTests();
 
 // test utilitiles
-require("./TestMoneroUtils");
+new TestMoneroUtils().runTests();
 
 // test daemon rpc
 new TestMoneroDaemonRpc().runTests({
@@ -30,7 +30,7 @@ new TestMoneroDaemonRpc().runTests({
 //  testNotifications: false,
 //  testResets: false
 //});
-//
+
 //// test keys-only wallet
 //new TestMoneroWalletKeys().runTests({
 //  liteMode: false,
