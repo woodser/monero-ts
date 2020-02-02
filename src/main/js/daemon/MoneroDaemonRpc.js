@@ -1210,7 +1210,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     for (let key of Object.keys(rpcPeer)) {
       let val = rpcPeer[key];
       if (key === "host") peer.setHost(val);
-      else if (key === "id") peer.setHash("" + val);  // TODO monero-wallet-rpc: peer id is big integer but string in `get_connections`
+      else if (key === "id") peer.setId("" + val);  // TODO monero-wallet-rpc: peer id is big integer but string in `get_connections`
       else if (key === "ip") {} // host used instead which is consistently a string
       else if (key === "last_seen") peer.setLastSeenTimestamp(val);
       else if (key === "port") peer.setPort(val);
