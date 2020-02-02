@@ -95,7 +95,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       if (config.testNonRelays && !config.liteMode)
       it("Can open, sync, and close wallets repeatedly", async function() {
         for (let i = 0; i < 6; i++) {
-          let wallet = await MoneroWalletCore.createWalletRandom(TestMoneroWalletCore._getRandomWalletPath(), TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, await daemon.getRpcConnection(), "Spanish");
+          let wallet = await that.createWalletRandom();
           await wallet.sync();
           await wallet.close();
         }
@@ -260,7 +260,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         assert.equal(await wallet.getPath(), path);
         assert.equal(await wallet.getHeight(), 1); // TODO monero core: why does height of new unsynced wallet start at 1?
         assert.equal(await wallet.getRestoreHeight(), restoreHeight);
-        await wallet.save();
+        await that.saveWallet(wallet.save);
         await wallet.close();
         wallet = await MoneroWalletCore.openWallet(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE);
         assert(!(await wallet.isConnected()));
@@ -818,7 +818,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           let prevHeight = await wallet.getHeight();
           
           // save and close the wallet
-          await wallet.save();
+          await that.saveWallet(wallet.save);
           await wallet.close();
           
           // re-open the wallet
@@ -865,7 +865,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, undefined, restoreHeight, undefined);
           let subaddressLabel = "Move test wallet subaddress!";
           let account = await wallet.createAccount(subaddressLabel);
-          await wallet.save();
+          await that.saveWallet(wallet.save);
           
           // wallet exists
           assert(await MoneroWalletCore.walletExists(path));
@@ -875,7 +875,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           await wallet.moveTo(movedPath, TestUtils.WALLET_PASSWORD);
           assert(!(await MoneroWalletCore.walletExists(path)));
           assert(!(await MoneroWalletCore.walletExists(movedPath))); // wallet does not exist until saved
-          await wallet.save();
+          await that.saveWallet(wallet.save);
           assert(!(await MoneroWalletCore.walletExists(path)));
           assert(await MoneroWalletCore.walletExists(movedPath));
           await wallet.close();
@@ -890,7 +890,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           await wallet.moveTo(path, TestUtils.WALLET_PASSWORD);
           assert(!(await MoneroWalletCore.walletExists(path)));  // wallet does not exist until saved
           assert(!(await MoneroWalletCore.walletExists(movedPath)));
-          await wallet.save();
+          await that.saveWallet(wallet.save);
           assert(await MoneroWalletCore.walletExists(path));
           assert(!(await MoneroWalletJni.walletExists(movedPath)));
           await wallet.close();
