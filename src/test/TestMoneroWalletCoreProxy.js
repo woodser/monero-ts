@@ -2,7 +2,7 @@ const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
 const MoneroWalletCoreProxy = require("../main/js/wallet/MoneroWalletCoreProxy");
 
 /**
- * Tests the proxy wrapper to a web worker running an instance of MoneroWalletCoreProxy.
+ * Tests the proxy wrapper to a web worker running MoneroWalletCore.
  */
 class TestMoneroWalletCoreProxy extends TestMoneroWalletCore {
   
@@ -18,6 +18,7 @@ class TestMoneroWalletCoreProxy extends TestMoneroWalletCore {
       assert.equal(await this.testWallet.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
       await this.testWallet.sync(new WalletSyncPrinter());
       await this.testWallet.startSyncing();
+      await this.saveWallet(this.testWallet);
     }
     
     // return cached wallet
@@ -25,11 +26,18 @@ class TestMoneroWalletCoreProxy extends TestMoneroWalletCore {
   }
   
   async openWallet(path) {
-    throw new Error("TetMoneroWalletCoreProxy.openWalletCustom() not implemented");
+    let walletData = this.savedWallets[path];
+    let wallet = await MoneroWalletCoreProxy.openWalletData(TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, walletData[0], walletData[1], await daemon.getRpcConnection());
+    //await wallet.startSyncing();  // TODO
+    return wallet;
   }
   
   async openWalletCustom(path, password, networkType, daemonConnection) {
-    throw new Error("TetMoneroWalletCoreProxy.openWalletCustom() not implemented");
+    // TODO: fetch wallet data from memory and open wallet
+    let walletData = this.savedWallets[path];
+    let wallet = await MoneroWalletCoreProxy.openWalletData(password, networkType, walletData[0], walletData[1], daemonConnection);
+    //await wallet.startSyncing();  // TODO
+    return wallet;
   }
   
   async createWalletRandom() {
@@ -88,7 +96,7 @@ class TestMoneroWalletCoreProxy extends TestMoneroWalletCore {
   }
   
   async getPath(wallet) {
-    throw new Error("TestMoneroWalletCoreProxy.getPath() not implemented");
+    return await wallet.getAttribute("id"); // use id as path
   }
   
   async getMnemonicLanguages() {

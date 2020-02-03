@@ -20,6 +20,12 @@ self.initOneTime = async function() {
   }
 }
 
+self.openWalletData = async function(password, networkType, keysData, cacheData, daemonUriOrConfig) {
+  let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
+  self.wallet = await MoneroWalletCore.openWalletData(password, networkType, keysData, cacheData, daemonConnection);
+  postMessage(["onOpenWalletData"]);
+}
+
 self.createWalletRandom = async function(password, networkType, daemonUriOrConfig, language) {
   let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
   self.wallet = await MoneroWalletCore.createWalletRandom("", password, networkType, daemonConnection, language);
@@ -30,6 +36,12 @@ self.createWalletFromMnemonic = async function(password, networkType, mnemonic, 
   let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
   self.wallet = await MoneroWalletCore.createWalletFromMnemonic("", password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset);
   postMessage(["onCreateWalletFromMnemonic"]);
+}
+
+self.createWalletFromKeys = async function(password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language) {
+  let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
+  self.wallet = await MoneroWalletCore.createWalletFromKeys("", password, networkType, address, viewKey, spendKey, daemonConnection, restoreHeight, language);
+  postMessage(["onCreateWalletFromKeys"]);
 }
 
 self.getNetworkType = async function() {

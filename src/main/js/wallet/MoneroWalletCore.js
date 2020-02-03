@@ -15,13 +15,25 @@ class MoneroWalletCore extends MoneroWalletKeys {
     return FS.existsSync(path);
   }
   
-  // TODO: openWith(<file/zip buffers>)
-  
   static async openWallet(path, password, networkType, daemonUriOrConnection) {
-    console.log("MoneroWalletCore.openWallet()");
+    
+    // read wallet files
+    let keysData = FS.readFileSync(path + ".keys");
+    let cacheData = FS.readFileSync(path);
+    
+    // open wallet data
+    return this._openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection);
+  }
+  
+  static async openWalletData(password, networkType, keysData, cacheData, daemonUriOrConnection) {
+    assert(password);
+    return MoneroWalletCore._openWalletData("", password, networkType, keysData, cacheData, daemonUriOrConnection);
+  }
+  
+  // private helper
+  static async _openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection) {
     
     // validate and normalize parameters
-    if (!(await MoneroWalletCore.walletExists(path))) throw new MoneroError("Wallet does not exist at path: " + path);
     if (password === undefined) password = "";
     if (networkType === undefined) throw new MoneroError("Must provide a network type");
     MoneroNetworkType.validate(networkType);
@@ -29,10 +41,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
     let daemonUri = daemonConnection && daemonConnection.getUri() ? daemonConnection.getUri() : "";
     let daemonUsername = daemonConnection && daemonConnection.getUsername() ? daemonConnection.getUsername() : "";
     let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
-    
-    // read wallet files
-    let keysData = FS.readFileSync(path + ".keys");
-    let cacheData = FS.readFileSync(path);
     
     // load wasm module
     let module = await MoneroUtils.loadWasmModule();
@@ -1135,6 +1143,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
       // malloc cache buffer and get buffer location in c++ heap
       let cacheBufferLoc = JSON.parse(that.module.get_cache_file_buffer(that.cppAddress, that.password));
       
+//      let view = new Uint8Array(that.module.HEAPU8.buffer, cacheBufferLoc.pointer, cacheBufferLoc.length);
+      
       // read binary data from heap to DataView
       let view = new DataView(new ArrayBuffer(cacheBufferLoc.length));
       for (let i = 0; i < cacheBufferLoc.length; i++) {
@@ -1145,10 +1155,12 @@ class MoneroWalletCore extends MoneroWalletKeys {
       that.module._free(cacheBufferLoc.pointer);
       
       // write cache file
-      views.push(view);
+      views.push(Buffer.from(view.buffer));
       
       // malloc keys buffer and get buffer location in c++ heap
       let keysBufferLoc = JSON.parse(that.module.get_keys_file_buffer(that.cppAddress, that.password, false));
+      
+//      view = new Uint8Array(that.module.HEAPU8.buffer, keysBufferLoc.pointer, keysBufferLoc.length);
       
       // read binary data from heap to DataView
       view = new DataView(new ArrayBuffer(keysBufferLoc.length)); // TODO: improve performance using DataView instead of Uint8Array?, TODO: rename to length
@@ -1160,7 +1172,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       that.module._free(keysBufferLoc.pointer);
       
       // prepend keys file
-      views.unshift(view);
+      views.unshift(Buffer.from(view.buffer));
       return views;
     });
   }

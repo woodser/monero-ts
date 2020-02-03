@@ -301,7 +301,8 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         assert.equal(await wallet.getMnemonicLanguage(), "English");
         assert.equal(await wallet.getHeight(), 1); // TODO monero core: why does height of new unsynced wallet start at 1?
         assert.equal(await wallet.getRestoreHeight(), restoreHeight);
-        let path = await that.saveWallet(wallet);
+        let path = await await that.getPath(wallet);
+        await that.saveWallet(wallet);
         await wallet.close();
         wallet = await that.openWalletCustom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE);
         assert(!(await wallet.isConnected()));
