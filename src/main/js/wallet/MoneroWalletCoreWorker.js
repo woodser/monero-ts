@@ -32,14 +32,14 @@ self.createWalletFromMnemonic = async function(password, networkType, mnemonic, 
   postMessage(["onCreateWalletFromMnemonic"]);
 }
 
-///**
-// * Get the wallet's network type (mainnet, testnet, or stagenet).
-// * 
-// * @return {MoneroNetworkType} the wallet's network type
-// */
-//async getNetworkType() {
-//  throw new Error("Not implemented");
-//}
+self.getNetworkType = async function() {
+  try {
+    postMessage(["onGetNetworkType", {result: await self.wallet.getNetworkType()}]);
+  } catch (e) {
+    postMessage(["onGetNetworkType", {error: e.message}]);
+  }
+}
+
 //
 //async getVersion() {
 //  throw new Error("Not implemented");
@@ -57,29 +57,53 @@ self.getMnemonic = async function() {
   }
 }
 
-//async getMnemonicLanguage() {
-//  throw new Error("Not implemented");
-//}
-//
-//async getMnemonicLanguages() {
-//  throw new Error("Not implemented");
-//}
-//
-//async getPrivateSpendKey() {
-//  throw new Error("Not implemented");
-//}
-//
-//async getPrivateViewKey() {
-//  throw new Error("Not implemented");
-//}
-//
-//async getPublicViewKey() {
-//  throw new Error("Not implemented");
-//}
-//
-//async getPublicSpendKey() {
-//  throw new Error("Not implemented");
-//}
+self.getMnemonicLanguage = async function() {
+  try {
+    postMessage(["onGetMnemonicLanguage", {result: await self.wallet.getMnemonicLanguage()}]);
+  } catch (e) {
+    postMessage(["onGetMnemonicLanguage", {error: e.message}]);
+  }
+}
+
+self.getMnemonicLanguages = async function() {
+  try {
+    postMessage(["onGetMnemonicLanguages", {result: await self.wallet.getMnemonicLanguages()}]);
+  } catch (e) {
+    postMessage(["onGetMnemonicLanguages", {error: e.message}]);
+  }
+}
+
+self.getPrivateSpendKey = async function() {
+  try {
+    postMessage(["onGetPrivateSpendKey", {result: await self.wallet.getPrivateSpendKey()}]);
+  } catch (e) {
+    postMessage(["onGetPrivateSpendKey", {error: e.message}]);
+  }
+}
+
+self.getPrivateViewKey = async function() {
+  try {
+    postMessage(["onGetPrivateViewKey", {result: await self.wallet.getPrivateViewKey()}]);
+  } catch (e) {
+    postMessage(["onGetPrivateViewKey", {error: e.message}]);
+  }
+}
+
+self.getPublicViewKey = async function() {
+  try {
+    postMessage(["onGetPublicViewKey", {result: await self.wallet.getPublicViewKey()}]);
+  } catch (e) {
+    postMessage(["onGetPublicViewKey", {error: e.message}]);
+  }
+}
+
+self.getPublicSpendKey = async function() {
+  try {
+    postMessage(["onGetPublicSpendKey", {result: await self.wallet.getPublicSpendKey()}]);
+  } catch (e) {
+    postMessage(["onGetPublicSpendKey", {error: e.message}]);
+  }
+}
 
 self.getAddress = async function(accountIdx, subaddressIdx) {
   try {
@@ -134,6 +158,14 @@ self.getRestoreHeight = async function() {
   }
 }
 
+self.setRestoreHeight = async function(restoreHeight) {
+  try {
+    postMessage(["onSetRestoreHeight", {result: await self.wallet.setRestoreHeight(restoreHeight)}]);
+  } catch (e) {
+    postMessage(["onSetRestoreHeight", {error: e.message}]);
+  }
+}
+
 self.getDaemonHeight = async function() {
   try {
     postMessage(["onGetDaemonHeight", {result: await self.wallet.getDaemonHeight()}]);
@@ -149,25 +181,6 @@ self.getDaemonMaxPeerHeight = async function() {
     postMessage(["onGetDaemonMaxPeerHeight", {error: e.message}]);
   }
 }
-
-///**
-// * Set the height of the first block that the wallet scans.
-// * 
-// * @param {number} restoreHeight is the height of the first block that the wallet scans
-// */
-//async setRestoreHeight(restoreHeight) {
-//  throw new Error("Not implemented");
-//}
-//
-///**
-// * Get the maximum height of the peers the wallet's daemon is connected to.
-// *
-// * @return {number} the maximum height of the peers the wallet's daemon is connected to
-// */
-//async getDaemonMaxPeerHeight() {
-//  throw new Error("Not implemented");
-//}
-//
 
 self.isDaemonSynced = async function() {
   try {
