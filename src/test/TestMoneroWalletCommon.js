@@ -301,7 +301,8 @@ class TestMoneroWalletCommon {
         
         // record the wallet's path then save and close
         let path = await wallet.getPath();
-        await wallet.close(true);
+        await that.saveWallet(wallet);
+        await that.wallet.close();
         
         // re-open the wallet using its path
         wallet = await that.openWallet(path);
@@ -2055,7 +2056,8 @@ class TestMoneroWalletCommon {
         
         // set the attribute and close with saving
         await wallet.setAttribute("id", uuid);
-        await wallet.close(true);
+        await that.saveWallet(wallet);
+        await wallet.close();
         
         // re-open the wallet and ensure attribute was saved
         wallet = await that.openWallet(path);
@@ -3507,7 +3509,8 @@ class TestMoneroWalletCommon {
       preparedMultisigHexes.push(await this.wallet.prepareMultisig());
       //console.log("PREPARED HEX: " + preparedMultisigHexes[preparedMultisigHexes.length - 1]);
       
-      await this.wallet.close(true);
+      await that.wallet.saveWallet(this.wallet);
+      await this.wallet.close();
     }
 
     // make wallets multisig
@@ -3797,7 +3800,8 @@ class TestMoneroWalletCommon {
       multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
       assert.equal(txHashes.length, multisigTxs.length);
       
-      await curWallet.close(true);
+      await that.saveWallet(curWallet);
+      await curWallet.close();
     }
     
     // re-open main test wallet
@@ -3817,7 +3821,8 @@ class TestMoneroWalletCommon {
       let wallet = await this.openWallet(walletId);
       await this.wallet.sync();
       multisigHexes.push(await this.wallet.getMultisigHex());
-      await this.wallet.close(true);
+      await that.saveWallet(this.wallet);
+      await this.wallet.close();
     }
     
     // import each wallet's peer multisig hexIt 
@@ -3827,7 +3832,8 @@ class TestMoneroWalletCommon {
       let wallet = await this.openWallet(walletIds[i]);
       await this.wallet.importMultisigHex(peerMultisigHexes);
       await this.wallet.sync();
-      await this.wallet.close(true);
+      await that.saveWallet(this.wallet);
+      await this.wallet.close();
     }
     
     // re-open current wallet and return

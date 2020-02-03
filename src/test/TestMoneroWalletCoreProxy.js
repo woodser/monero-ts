@@ -8,6 +8,7 @@ class TestMoneroWalletCoreProxy extends TestMoneroWalletCore {
   
   constructor() {
     super();
+    this.savedWallets = {};
   }
   
   async getTestWallet() {
@@ -75,11 +76,13 @@ class TestMoneroWalletCoreProxy extends TestMoneroWalletCore {
   }
   
   async saveWallet(wallet) {
-    throw new Error("TetMoneroWalletCoreProxy.saveWallet() not implemented");
+    throw new Error("TestMoneroWalletCoreProxy.saveWallet() not implemented");
+//    let id = await wallet.getId();
+//    this.savedWallets[id] = await wallet.getData();
   }
   
   async getPath(wallet) {
-    throw new Error("TetMoneroWalletCoreProxy.getPath() not implemented");
+    throw new Error("TestMoneroWalletCoreProxy.getPath() not implemented");
   }
   
   async getMnemonicLanguages() {

@@ -115,7 +115,8 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       after(async function() {
         console.log("Saving and closing wallet on shut down");
         try {
-          await that.wallet.close(true);
+          await that.saveWallet(that.wallet);
+          await that.wallet.close();
         } catch (e) {
           console.log("ERROR after!!!");
           console.log(e.message);
@@ -372,7 +373,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         assert.equal(result.getNumBlocksFetched(), await wallet.getDaemonHeight() - startHeight);
         assert(result.getReceivedMoney());
         assert.equal(await wallet.getHeight(), await daemon.getHeight());
-        await wallet.close(true);
+        await wallet.close();
       });
       
       if (config.testNonRelays)
@@ -1233,7 +1234,8 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           assert(info.isReady());
           assert.equal(info.getThreshold(), M);
           assertEquals(info.getNumParticipants(), N);
-          await wallet.close(true);
+          await that.saveWallet(wallet);
+          await wallet.close();
         }
       }
     });

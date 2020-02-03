@@ -5,6 +5,7 @@
  * TODO: sort these methods according to master sort in MoneroWallet.js
  * TODO: probably only allow one listener to web worker then propogate to registered listeners for performance
  * TODO: ability to recycle worker for use in another wallet
+ * TODO: factor all is*() to common method handler e.g. registerBoolFn("isSynced", "onIsSynced")
  */
 class MoneroWalletCoreProxy extends MoneroWallet {
   
@@ -160,7 +161,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {boolean} true if the wallet is connected to a daemon, false otherwise
    */
   async isConnected() {
-    throw new Error("Not implemented");
+    return await this._callIsFn("isConnected");
   }
   
   /**
@@ -204,7 +205,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {boolean} true if the daemon is synced with the network, false otherwise
    */
   async isDaemonSynced() {
-    throw new Error("Not implemented");
+    return await this._callIsFn("isDaemonSynced");
   }
   
   async getHeight() {
@@ -258,16 +259,11 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {MoneroWalletListener[]} the registered listeners
    */
   getListeners() {
-    throw new Error("Not implemented");
+    return this.wrappedListeners;
   }
   
-  /**
-   * Indicates if the wallet is synced with the daemon.
-   * 
-   * @return {boolean} true if the wallet is synced with the daemon, false otherwise
-   */
   async isSynced() {
-    throw new Error("Not implemented");
+    return await this._callIsFn("isSynced");
   }
   
   async sync(listenerOrStartHeight, startHeight) {
@@ -287,7 +283,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     // sync the wallet in worker
     let that = this;
     let result = await new Promise(function(resolve, reject) {
-      that.callbacks["onSync"] = function(result) { resolve(result); }
+      that.callbacks["onSync"] = function(resp) { resp.error ? reject(resp.error) : resolve(resp.result); }
       that.worker.postMessage(["sync"]);
     });
     
@@ -536,11 +532,11 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async isMultisigImportNeeded() {
-    throw new MoneroError("Not implemented");
+    return await this._callIsFn("isMultisigImportNeeded");
   }
   
   async isMultisig() {
-    throw new MoneroError("Not implemented");
+    return await this._callIsFn("isMultisig");
   }
   
   async getMultisigInfo() {
@@ -576,11 +572,28 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async isClosed() {
-    throw new Error("Not implemented");
+    return await this._callIsFn("isClosed");
   }
   
   async close() {
     throw new Error("Not implemented");
+  }
+  
+  // --------------------------- PRIVATE HELPERS ------------------------------
+  
+  /**
+   * Common handler for is* functions.
+   * 
+   * TODO: generalize this further, _getResult(fnName, args)
+   */
+  async _callIsFn(fnName) {
+    console.log("Calling _callIsFn(" + fnName + ")");
+    assert(fnName.length >= 2);
+    let that = this;
+    return new Promise(function(resolve, reject) {
+      that.callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) { resp.error ? reject(resp.error) : resolve(resp.result); }
+      that.worker.postMessage([fnName]);
+    });
   }
 }
 

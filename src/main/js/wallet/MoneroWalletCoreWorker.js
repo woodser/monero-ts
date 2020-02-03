@@ -5,6 +5,8 @@
  */
 onmessage = async function(e) {
   await self.initOneTime();
+  console.log("WORKER ON MESSAGE");
+  console.log(e);
   self[e.data[0]].apply(null, e.data.slice(1));
 }
 
@@ -31,16 +33,138 @@ self.createWalletFromMnemonic = async function(password, networkType, mnemonic, 
   postMessage(["onCreateWalletFromMnemonic"]);
 }
 
+///**
+// * Get the wallet's network type (mainnet, testnet, or stagenet).
+// * 
+// * @return {MoneroNetworkType} the wallet's network type
+// */
+//async getNetworkType() {
+//  throw new Error("Not implemented");
+//}
+//
+//async getVersion() {
+//  throw new Error("Not implemented");
+//}
+//
+//getPath() {
+//  throw new Error("Not implemented");
+//}
+
 self.getMnemonic = async function() {
   postMessage(["onGetMnemonic", await self.wallet.getMnemonic()]);
 }
+
+//async getMnemonicLanguage() {
+//  throw new Error("Not implemented");
+//}
+//
+//async getMnemonicLanguages() {
+//  throw new Error("Not implemented");
+//}
+//
+//async getPrivateSpendKey() {
+//  throw new Error("Not implemented");
+//}
+//
+//async getPrivateViewKey() {
+//  throw new Error("Not implemented");
+//}
+//
+//async getPublicViewKey() {
+//  throw new Error("Not implemented");
+//}
+//
+//async getPublicSpendKey() {
+//  throw new Error("Not implemented");
+//}
 
 self.getAddress = async function(accountIdx, subaddressIdx) {
   postMessage(["onGetAddress", await self.wallet.getAddress(accountIdx, subaddressIdx)]);
 }
 
+//async getAddressIndex(address) {
+//  throw new Error("Not implemented");
+//}
+//
+//getAccounts() {
+//  throw new Error("Not implemented");
+//}
+//
+//async setDaemonConnection(uriOrRpcConnection, username, password) {
+//  throw new Error("Not implemented");
+//}
+//
+///**
+// * Get the wallet's daemon connection.
+// * 
+// * @return {MoneroRpcConnection} the wallet's daemon connection
+// */
+//async getDaemonConnection() {
+//  throw new Error("Not implemented");
+//}
+//
+///**
+// * Indicates if the wallet is connected to daemon.
+// * 
+// * @return {boolean} true if the wallet is connected to a daemon, false otherwise
+// */
+//async isConnected() {
+//  throw new Error("Not implemented");
+//}
+
+self.isConnected = async function() {
+  try {
+    postMessage(["onIsConnected", {result: await self.wallet.isConnected()}]);
+  } catch (e) {
+    postMessage(["onIsConnected", {error: e.message}]);
+  }
+}
+
 self.getRestoreHeight = async function() {
   postMessage(["onGetRestoreHeight", await self.wallet.getRestoreHeight()]);
+}
+
+self.getDaemonHeight = async function() {
+  postMessage(["onGetDaemonHeight", await self.wallet.getDaemonHeight()]);
+}
+
+///**
+// * Set the height of the first block that the wallet scans.
+// * 
+// * @param {number} restoreHeight is the height of the first block that the wallet scans
+// */
+//async setRestoreHeight(restoreHeight) {
+//  throw new Error("Not implemented");
+//}
+//
+//async getDaemonHeight() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+///**
+// * Get the maximum height of the peers the wallet's daemon is connected to.
+// *
+// * @return {number} the maximum height of the peers the wallet's daemon is connected to
+// */
+//async getDaemonMaxPeerHeight() {
+//  throw new Error("Not implemented");
+//}
+//
+///**
+// * Indicates if the wallet's daemon is synced with the network.
+// * 
+// * @return {boolean} true if the daemon is synced with the network, false otherwise
+// */
+//async isDaemonSynced() {
+//  throw new Error("Not implemented");
+//}
+
+self.isDaemonSynced = async function() {
+  try {
+    postMessage(["onIsDaemonSynced", {result: await self.wallet.isDaemonSynced()}]);
+  } catch (e) {
+    postMessage(["onIsDaemonSynced", {error: e.message}]);
+  }
 }
 
 self.getHeight = async function() {
@@ -103,8 +227,19 @@ self.removeListener = async function(listenerId) {
   throw new MoneroError("Listener is not registered to wallet");
 }
 
+self.isSynced = async function() {
+  try {
+    postMessage(["onIsSynced", {result: await self.wallet.isSynced()}]);
+  } catch (e) {
+    postMessage(["onIsSynced", {error: e.message}]);
+  }
+}
+
 self.sync = async function() {
-  postMessage(["onSync", await self.wallet.sync()]);
+  try {
+    postMessage(["onSync", {result: await self.wallet.sync()}]);
+  } catch (e) {
+    postMessage(["onSync", {error: e.message}]);
 }
 
 self.startSyncing = async function() {
@@ -121,6 +256,9 @@ self.stopSyncing = async function() {
   postMessage(["onStopSyncing", await self.wallet.stopSyncing()]);
 }
 
+//// rescanSpent
+//// rescanBlockchain
+
 self.getBalance = async function() {
   postMessage(["onGetBalance", (await self.wallet.getBalance()).toString()]);
 }
@@ -128,6 +266,26 @@ self.getBalance = async function() {
 self.getUnlockedBalance = async function() {
   postMessage(["onGetUnlockedBalance", (await self.wallet.getUnlockedBalance()).toString()]);
 }
+
+//async getAccounts(includeSubaddresses, tag) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getAccount(accountIdx, includeSubaddresses) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async createAccount(label) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getSubaddresses(accountIdx, subaddressIndices) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async createSubaddress(accountIdx, label) {
+//  throw new MoneroError("Not implemented");
+//}
 
 // TODO: easier or more efficient way than serializing from root blocks?
 self.getTxs = async function(blockJsonQuery) {
@@ -157,7 +315,215 @@ self.getTxs = async function(blockJsonQuery) {
   postMessage(["onGetTxs", JSON.stringify({blocks: blocks})]);
 }
 
+//async getTransfers(query) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getOutputs(query) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getOutputsHex() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async importOutputsHex(outputsHex) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getKeyImages() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async importKeyImages(keyImages) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getNewKeyImagesFromLastImport() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async relayTxs(txsOrMetadatas) {
+//  throw new MoneroError("Not implemented");
+//}
+
 self.sendSplit = async function(requestOrAccountIndex, address, amount, priority) {
   if (typeof requestOrAccountIndex === "object") requestOrAccountIndex = new MoneroSendRequest(requestOrAccountIndex);
   postMessage(["onSendSplit", (await self.wallet.sendSplit(requestOrAccountIndex, address, amount, priority)).toJson()]);
 }
+
+//async sweepOutput(requestOrAddress, keyImage, priority) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async sweepUnlocked(request) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async sweepDust() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async sweepDust(doNotRelay) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async sign(message) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async verify(message, address, signature) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getTxKey(txHash) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async checkTxKey(txHash, txKey, address) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getTxProof(txHash, address, message) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async checkTxProof(txHash, address, message, signature) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getSpendProof(txHash, message) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async checkSpendProof(txHash, message, signature) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getReserveProofWallet(message) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getReserveProofAccount(accountIdx, amount, message) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async checkReserveProof(address, message, signature) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getTxNotes(txHashes) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async setTxNotes(txHashes, notes) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getAddressBookEntries() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getAddressBookEntries(entryIndices) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async addAddressBookEntry(address, description) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async addAddressBookEntry(address, description, paymentId) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async deleteAddressBookEntry(entryIdx) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async tagAccounts(tag, accountIndices) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async untagAccounts(accountIndices) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getAccountTags() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async setAccountTagLabel(tag, label) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async createPaymentUri(request) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async parsePaymentUri(uri) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getAttribute(key) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async setAttribute(key, val) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async startMining(numThreads, backgroundMining, ignoreBattery) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async stopMining() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async isMultisigImportNeeded() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async isMultisig() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getMultisigInfo() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async prepareMultisig() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async makeMultisig(multisigHexes, threshold, password) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async exchangeMultisigKeys(multisigHexes, password) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getMultisigHex() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async importMultisigHex(multisigHexes) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async signMultisigTxHex(multisigTxHex) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async submitMultisigTxHex(signedMultisigTxHex) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async isClosed() {
+//  throw new Error("Not implemented");
+//}
+//
+//async close() {
+//  throw new Error("Not implemented");
+//}
