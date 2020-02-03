@@ -144,8 +144,6 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   
   async getDaemonConnection() {
     let rpcConfig = await this._invokeWorker("getDaemonConnection");
-    console.log("Got this rpc config:");
-    console.log(rpcConfig);
     return rpcConfig ? new MoneroRpcConnection(rpcConfig) : undefined;
   }
   
@@ -173,7 +171,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @param {number} restoreHeight is the height of the first block that the wallet scans
    */
   async setRestoreHeight(restoreHeight) {
-    throw new Error("Not implemented");
+    return await this._invokeWorker("setRestoreHeight", [restoreHeight]);
   }
   
   async getDaemonHeight() {
