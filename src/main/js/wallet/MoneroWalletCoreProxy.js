@@ -9,6 +9,25 @@
  */
 class MoneroWalletCoreProxy extends MoneroWallet {
   
+  static async openWalletData(password, networkType, keysData, cacheData, daemonUriOrConnection) {
+    
+    // create a wallet worker
+    let worker = new Worker("MoneroWalletCoreWorker.js");
+    
+    // return promise which resolves when worker opens wallet
+    return new Promise(function(resolve, reject) {
+      
+      // be notified when worker opens wallet
+      worker.onmessage = function(e) {
+        if (e.data[0] === "onOpenWalletData") resolve(new MoneroWalletCoreProxy(worker));
+      }
+      
+      // create wallet in worker
+      let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
+      worker.postMessage(["openWalletData", password, networkType, keysData, cacheData, daemonUriOrConfig]);
+    });
+  }
+  
   static async createWalletRandom(password, networkType, daemonUriOrConnection, language) {
     
     // create a wallet worker
@@ -17,7 +36,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     // return promise which resolves when worker creates wallet
     return new Promise(function(resolve, reject) {
       
-      // listen worker to create wallet
+      // be notified when worker creates wallet
       worker.onmessage = function(e) {
         if (e.data[0] === "onCreateWalletRandom") resolve(new MoneroWalletCoreProxy(worker));
       }
@@ -44,6 +63,25 @@ class MoneroWalletCoreProxy extends MoneroWallet {
       // create wallet in worker
       let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.config : daemonUriOrConnection;
       worker.postMessage(["createWalletFromMnemonic", password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset]);
+    });
+  }
+  
+  static async createWalletFromKeys(password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language) {
+    
+    // create a wallet worker
+    let worker = new Worker("MoneroWalletCoreWorker.js");
+    
+    // return promise which resolves when worker creates wallet
+    return new Promise(function(resolve, reject) {
+      
+      // listen worker to create wallet
+      worker.onmessage = function(e) {
+        if (e.data[0] === "onCreateWalletFromKeys") resolve(new MoneroWalletCoreProxy(worker));
+      }
+      
+      // create wallet in worker
+      let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.config : daemonUriOrConnection;
+      worker.postMessage(["createWalletFromKeys", password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language]);
     });
   }
   
@@ -77,11 +115,6 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     }
   }
   
-  /**
-   * Get the wallet's network type (mainnet, testnet, or stagenet).
-   * 
-   * @return {MoneroNetworkType} the wallet's network type
-   */
   async getNetworkType() {
     return await this._invokeWorker("getNetworkType");
   }
@@ -147,29 +180,14 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     return rpcConfig ? new MoneroRpcConnection(rpcConfig) : undefined;
   }
   
-  /**
-   * Indicates if the wallet is connected to daemon.
-   * 
-   * @return {boolean} true if the wallet is connected to a daemon, false otherwise
-   */
   async isConnected() {
     return await this._invokeWorker("isConnected");
   }
   
-  /**
-   * Get the height of the first block that the wallet scans.
-   * 
-   * @return {number} the height of the first block that the wallet scans
-   */
   async getRestoreHeight() {
     return await this._invokeWorker("getRestoreHeight");
   }
   
-  /**
-   * Set the height of the first block that the wallet scans.
-   * 
-   * @param {number} restoreHeight is the height of the first block that the wallet scans
-   */
   async setRestoreHeight(restoreHeight) {
     return await this._invokeWorker("setRestoreHeight", [restoreHeight]);
   }
@@ -178,20 +196,10 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     return await this._invokeWorker("getDaemonHeight");
   }
   
-  /**
-   * Get the maximum height of the peers the wallet's daemon is connected to.
-   *
-   * @return {number} the maximum height of the peers the wallet's daemon is connected to
-   */
   async getDaemonMaxPeerHeight() {
     return await this._invokeWorker("getDaemonMaxPeerHeight");
   }
   
-  /**
-   * Indicates if the wallet's daemon is synced with the network.
-   * 
-   * @return {boolean} true if the daemon is synced with the network, false otherwise
-   */
   async isDaemonSynced() {
     return await this._invokeWorker("isDaemonSynced");
   }
@@ -200,11 +208,6 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     return await this._invokeWorker("getHeight");
   }
   
-  /**
-   * Register a listener receive wallet notifications.
-   * 
-   * @param {MoneroWalletListener} listener is the listener to receive wallet notifications
-   */
   async addListener(listener) {
     let wrappedListener = new WalletWorkerListener(listener);
     let listenerId = wrappedListener.getId();
@@ -216,11 +219,6 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     this.worker.postMessage(["addListener", listenerId]);
   }
   
-  /**
-   * Unregister a listener to receive wallet notifications.
-   * 
-   * @param {MoneroWalletListener} listener is the listener to unregister
-   */
   async removeListener(listener) {
     for (let i = 0; i < this.wrappedListeners.length; i++) {
       if (this.wrappedListeners[i].getListener() === listener) {
@@ -237,11 +235,6 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     throw new MoneroError("Listener is not registered to wallet");
   }
   
-  /**
-   * Get the listeners registered with the wallet.
-   * 
-   * @return {MoneroWalletListener[]} the registered listeners
-   */
   getListeners() {
     return this.wrappedListeners;
   }
@@ -547,13 +540,16 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async close(save) {
-    return await this._invokeWorker("close", Array.from(arguments));
+    await this._invokeWorker("close", save);
+    this.worker.terminate();
+    delete this.callbacks;
+    delete this.wrappedListeners;
   }
   
   // --------------------------- PRIVATE HELPERS ------------------------------
   
   /**
-   * Call a function and get a result from the worker with error handling.
+   * Invoke a wallet worker function and get the result with error handling.
    * 
    * @param {string} fnName is the name of the function
    * @param {[]} args are arguments to pass to the worker
@@ -562,8 +558,10 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     assert(fnName.length >= 2);
     let that = this;
     return new Promise(function(resolve, reject) {
-      that.callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) { resp.error ? reject(new MoneroError(resp.error)) : resolve(resp.result); }
-      that.worker.postMessage([fnName].concat(args ? args : []));
+      that.callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) {
+        resp.error ? reject(new MoneroError(resp.error)) : resolve(resp.result);
+      }
+      that.worker.postMessage([fnName].concat(args === undefined ? [] : GenUtils.listify(args)));
     });
   }
 }
