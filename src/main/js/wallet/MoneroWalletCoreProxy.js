@@ -83,7 +83,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {MoneroNetworkType} the wallet's network type
    */
   async getNetworkType() {
-    return await this._getResult("getNetworkType");
+    return await this._callFn("getNetworkType");
   }
   
   async getVersion() {
@@ -95,7 +95,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getMnemonic() {
-    return await this._getResult("getMnemonic");
+    return await this._callFn("getMnemonic");
   }
   
   async getMnemonicLanguage() {
@@ -123,7 +123,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getAddress(accountIdx, subaddressIdx) {
-    return await this._getResult("getAddress", arguments);
+    return await this._callFn("getAddress", Array.from(arguments));
   }
   
   async getAddressIndex(address) {
@@ -144,7 +144,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {MoneroRpcConnection} the wallet's daemon connection
    */
   async getDaemonConnection() {
-    let rpcConfig = await this._getResult("getDaemonConnection");
+    let rpcConfig = await this._callFn("getDaemonConnection");
     return new MoneroRpcConnection(rpcConfig);
   }
   
@@ -154,7 +154,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {boolean} true if the wallet is connected to a daemon, false otherwise
    */
   async isConnected() {
-    return await this._getResult("isConnected");
+    return await this._callFn("isConnected");
   }
   
   /**
@@ -163,7 +163,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {number} the height of the first block that the wallet scans
    */
   async getRestoreHeight() {
-    return await this._getResult("getRestoreHeight");
+    return await this._callFn("getRestoreHeight");
   }
   
   /**
@@ -176,7 +176,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getDaemonHeight() {
-    return await this._getResult("getDaemonHeight");
+    return await this._callFn("getDaemonHeight");
   }
   
   /**
@@ -185,7 +185,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {number} the maximum height of the peers the wallet's daemon is connected to
    */
   async getDaemonMaxPeerHeight() {
-    return await this._getResult("getDaemonMaxPeerHeight");
+    return await this._callFn("getDaemonMaxPeerHeight");
   }
   
   /**
@@ -194,11 +194,11 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {boolean} true if the daemon is synced with the network, false otherwise
    */
   async isDaemonSynced() {
-    return await this._getResult("isDaemonSynced");
+    return await this._callFn("isDaemonSynced");
   }
   
   async getHeight() {
-    return await this._getResult("getHeight");
+    return await this._callFn("getHeight");
   }
   
   /**
@@ -248,7 +248,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async isSynced() {
-    return await this._getResult("isSynced");
+    return await this._callFn("isSynced");
   }
   
   async sync(listenerOrStartHeight, startHeight) {
@@ -501,11 +501,11 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getAttribute(key) {
-    throw new MoneroError("Not implemented");
+    return await this._callFn("getAttribute", Array.from(arguments));
   }
   
   async setAttribute(key, val) {
-    throw new MoneroError("Not implemented");
+    return await this._callFn("setAttribute", Array.from(arguments));
   }
   
   async startMining(numThreads, backgroundMining, ignoreBattery) {
@@ -517,11 +517,11 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async isMultisigImportNeeded() {
-    return await this._getResult("isMultisigImportNeeded");
+    return await this._callFn("isMultisigImportNeeded");
   }
   
   async isMultisig() {
-    return await this._getResult("isMultisig");
+    return await this._callFn("isMultisig");
   }
   
   async getMultisigInfo() {
@@ -556,29 +556,32 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     throw new MoneroError("Not implemented");
   }
   
+  async getData() {
+    return await this._callFn("getData");
+  }
+  
   async isClosed() {
-    return await this._getResult("isClosed");
+    return await this._callFn("isClosed");
   }
   
   async close(save) {
-    return await this._getResult("isClosed", arguments);
+    return await this._callFn("close", Array.from(arguments));
   }
   
   // --------------------------- PRIVATE HELPERS ------------------------------
   
   /**
-   * Common handler to get a result from the worker with error handling.
+   * Call a function and get a result from the worker with error handling.
    * 
    * @param {string} fnName is the name of the function
-   * @param {var[]} args are arguments to pass to the worker
+   * @param {[]} args are arguments to pass to the worker
    */
-  async _getResult(fnName, args) {
+  async _callFn(fnName, args) {
     assert(fnName.length >= 2);
-    console.log("Calling _getWorkerResult(" + fnName + ")");
     let that = this;
     return new Promise(function(resolve, reject) {
       that.callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) { resp.error ? reject(resp.error) : resolve(resp.result); }
-      that.worker.postMessage([fnName].concat(args));
+      that.worker.postMessage([fnName].concat(args ? args : []));
     });
   }
 }
