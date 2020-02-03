@@ -23,7 +23,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
       }
       
       // create wallet in worker
-      let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.config : daemonUriOrConnection;
+      let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
       worker.postMessage(["createWalletRandom", password, networkType, daemonUriOrConfig, language]);
     });
   }
@@ -83,7 +83,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {MoneroNetworkType} the wallet's network type
    */
   async getNetworkType() {
-    return await this._callFn("getNetworkType");
+    return await this._invokeWorker("getNetworkType");
   }
   
   async getVersion() {
@@ -91,43 +91,43 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   getPath() {
-    throw new Error("Not implemented");
+    throw new Error("Proxied wallets in the browser have no path");
   }
   
   async getMnemonic() {
-    return await this._callFn("getMnemonic");
+    return await this._invokeWorker("getMnemonic");
   }
   
   async getMnemonicLanguage() {
-    throw new Error("Not implemented");
+    return await this._invokeWorker("getMnemonicLanguage");
   }
   
   async getMnemonicLanguages() {
-    throw new Error("Not implemented");
+    return await this._invokeWorker("getMnemonicLanguages");
   }
   
   async getPrivateSpendKey() {
-    throw new Error("Not implemented");
+    return await this._invokeWorker("getPrivateSpendKey");
   }
   
   async getPrivateViewKey() {
-    throw new Error("Not implemented");
+    return await this._invokeWorker("getPrivateViewKey");
   }
   
   async getPublicViewKey() {
-    throw new Error("Not implemented");
+    return await this._invokeWorker("getPublicViewKey");
   }
   
   async getPublicSpendKey() {
-    throw new Error("Not implemented");
+    return await this._invokeWorker("getPublicSpendKey");
   }
   
   async getAddress(accountIdx, subaddressIdx) {
-    return await this._callFn("getAddress", Array.from(arguments));
+    return await this._invokeWorker("getAddress", Array.from(arguments));
   }
   
   async getAddressIndex(address) {
-    throw new Error("Not implemented");
+    return await this._invokeWorker("getAddressIndex", Array.from(arguments));
   }
   
   getAccounts() {
@@ -135,17 +135,18 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async setDaemonConnection(uriOrRpcConnection, username, password) {
-    throw new Error("Not implemented");
+    if (!uriOrRpcConnection) await this._invokeWorker("setDaemonConnection");
+    else {
+      let connection = uriOrRpcConnection instanceof MoneroRpcConnection? uriOrRpcConnection : new MoneroRpcConnection({uri: uriOrRpcConnection, user: username, pass: password});
+      await this._invokeWorker("setDaemonConnection", connection.getConfig());
+    }
   }
   
-  /**
-   * Get the wallet's daemon connection.
-   * 
-   * @return {MoneroRpcConnection} the wallet's daemon connection
-   */
   async getDaemonConnection() {
-    let rpcConfig = await this._callFn("getDaemonConnection");
-    return new MoneroRpcConnection(rpcConfig);
+    let rpcConfig = await this._invokeWorker("getDaemonConnection");
+    console.log("Got this rpc config:");
+    console.log(rpcConfig);
+    return rpcConfig ? new MoneroRpcConnection(rpcConfig) : undefined;
   }
   
   /**
@@ -154,7 +155,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {boolean} true if the wallet is connected to a daemon, false otherwise
    */
   async isConnected() {
-    return await this._callFn("isConnected");
+    return await this._invokeWorker("isConnected");
   }
   
   /**
@@ -163,7 +164,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {number} the height of the first block that the wallet scans
    */
   async getRestoreHeight() {
-    return await this._callFn("getRestoreHeight");
+    return await this._invokeWorker("getRestoreHeight");
   }
   
   /**
@@ -176,7 +177,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getDaemonHeight() {
-    return await this._callFn("getDaemonHeight");
+    return await this._invokeWorker("getDaemonHeight");
   }
   
   /**
@@ -185,7 +186,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {number} the maximum height of the peers the wallet's daemon is connected to
    */
   async getDaemonMaxPeerHeight() {
-    return await this._callFn("getDaemonMaxPeerHeight");
+    return await this._invokeWorker("getDaemonMaxPeerHeight");
   }
   
   /**
@@ -194,11 +195,11 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {boolean} true if the daemon is synced with the network, false otherwise
    */
   async isDaemonSynced() {
-    return await this._callFn("isDaemonSynced");
+    return await this._invokeWorker("isDaemonSynced");
   }
   
   async getHeight() {
-    return await this._callFn("getHeight");
+    return await this._invokeWorker("getHeight");
   }
   
   /**
@@ -248,9 +249,10 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async isSynced() {
-    return await this._callFn("isSynced");
+    return await this._invokeWorker("isSynced");
   }
   
+  // TODO: handle startHeight
   async sync(listenerOrStartHeight, startHeight) {
     
     // normalize params
@@ -266,53 +268,35 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     }
     
     // sync the wallet in worker
-    let that = this;
-    let result = await new Promise(function(resolve, reject) {
-      that.callbacks["onSync"] = function(resp) { resp.error ? reject(resp.error) : resolve(resp.result); }
-      that.worker.postMessage(["sync"]);
-    });
+    let result = await this._invokeWorker("sync");
     
     // unregister sync listener wrapper
     if (syncListenerWrapper !== undefined) {  // TODO: test that this is executed with error e.g. sync an unconnected wallet
-      await that.removeListener(syncListenerWrapper); // unregister sync listener
+      await this.removeListener(syncListenerWrapper); // unregister sync listener
     }
     
     return result;
   }
   
   async startSyncing() {
-    let that = this;
-    return new Promise(function(resolve, reject) {
-      that.callbacks["onStartSyncing"] = function(err) { err ? reject(err) : resolve(); }
-      that.worker.postMessage(["startSyncing"]);
-    });
+    return await this._invokeWorker("startSyncing");  // TODO: don't need to await
   }
     
   async stopSyncing() {
-    let that = this;
-    return new Promise(function(resolve, reject) {
-      that.callbacks["onStopSyncing"] = function() { resolve(); }
-      that.worker.postMessage(["stopSyncing"]);
-    });
+    return await this._invokeWorker("stopSyncing");
   }
   
   // rescanSpent
   // rescanBlockchain
   
   async getBalance(accountIdx, subaddressIdx) {
-    let that = this;
-    return new Promise(function(resolve, reject) {
-      that.callbacks["onGetBalance"] = function(balance) { resolve(new BigInteger(balance)); }
-      that.worker.postMessage(["getBalance", accountIdx, subaddressIdx]);
-    });
+    let balanceStr = await this._invokeWorker("getBalance", Array.from(arguments));
+    return new BigInteger(balanceStr);
   }
   
   async getUnlockedBalance(accountIdx, subaddressIdx) {
-    let that = this;
-    return new Promise(function(resolve, reject) {
-      that.callbacks["onGetUnlockedBalance"] = function(unlockedBalance) { resolve(new BigInteger(unlockedBalance)); }
-      that.worker.postMessage(["getUnlockedBalance", accountIdx, subaddressIdx]);
-    });
+    let unlockedBalanceStr = await this._invokeWorker("getUnlockedBalance", Array.from(arguments));
+    return new BigInteger(unlockedBalanceStr);
   }
   
   async getAccounts(includeSubaddresses, tag) {
@@ -501,11 +485,11 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getAttribute(key) {
-    return await this._callFn("getAttribute", Array.from(arguments));
+    return await this._invokeWorker("getAttribute", Array.from(arguments));
   }
   
   async setAttribute(key, val) {
-    return await this._callFn("setAttribute", Array.from(arguments));
+    return await this._invokeWorker("setAttribute", Array.from(arguments));
   }
   
   async startMining(numThreads, backgroundMining, ignoreBattery) {
@@ -517,11 +501,11 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async isMultisigImportNeeded() {
-    return await this._callFn("isMultisigImportNeeded");
+    return await this._invokeWorker("isMultisigImportNeeded");
   }
   
   async isMultisig() {
-    return await this._callFn("isMultisig");
+    return await this._invokeWorker("isMultisig");
   }
   
   async getMultisigInfo() {
@@ -557,15 +541,15 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getData() {
-    return await this._callFn("getData");
+    return await this._invokeWorker("getData");
   }
   
   async isClosed() {
-    return await this._callFn("isClosed");
+    return await this._invokeWorker("isClosed");
   }
   
   async close(save) {
-    return await this._callFn("close", Array.from(arguments));
+    return await this._invokeWorker("close", Array.from(arguments));
   }
   
   // --------------------------- PRIVATE HELPERS ------------------------------
@@ -576,11 +560,11 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @param {string} fnName is the name of the function
    * @param {[]} args are arguments to pass to the worker
    */
-  async _callFn(fnName, args) {
+  async _invokeWorker(fnName, args) {
     assert(fnName.length >= 2);
     let that = this;
     return new Promise(function(resolve, reject) {
-      that.callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) { resp.error ? reject(resp.error) : resolve(resp.result); }
+      that.callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) { resp.error ? reject(new MoneroError(resp.error)) : resolve(resp.result); }
       that.worker.postMessage([fnName].concat(args ? args : []));
     });
   }
