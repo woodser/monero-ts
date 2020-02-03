@@ -40,14 +40,14 @@ new TestMoneroDaemonRpc().runTests({
 //  testNotifications: false
 //});
 
-//// test core wallet
-//new TestMoneroWalletCore().runTests({
-//  liteMode: true,
-//  testNonRelays: true,
-//  testRelays: true,
-//  testResets: false,
-//  testNotifications: false
-//});
+// test core wallet
+new TestMoneroWalletCore().runTests({
+  liteMode: false,
+  testNonRelays: true,
+  testRelays: true,
+  testResets: false,
+  testNotifications: false
+});
 
 // test scratchpad
 //require("./Scratchpad");
