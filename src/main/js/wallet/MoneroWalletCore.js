@@ -1117,7 +1117,55 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
+  
+  /**
+   * Get the wallet's keys and cache data.
+   * 
+   * @return {DataView[]} is the keys and cache data respectively
+   */
+  async getData() {
+    
+    // queue call to wasm module
+    let that = this;
+    return that.module.queueTask(async function() {
 
+      // store views in array
+      let views = [];
+      
+      // malloc cache buffer and get buffer location in c++ heap
+      let cacheBufferLoc = JSON.parse(that.module.get_cache_file_buffer(that.cppAddress, that.password));
+      
+      // read binary data from heap to DataView
+      let view = new DataView(new ArrayBuffer(cacheBufferLoc.length));
+      for (let i = 0; i < cacheBufferLoc.length; i++) {
+        view.setInt8(i, that.module.HEAPU8[cacheBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
+      }
+      
+      // free binary on heap
+      that.module._free(cacheBufferLoc.pointer);
+      
+      // write cache file
+      views.push(view);
+      
+      // malloc keys buffer and get buffer location in c++ heap
+      let keysBufferLoc = JSON.parse(that.module.get_keys_file_buffer(that.cppAddress, that.password, false));
+      
+      // read binary data from heap to DataView
+      view = new DataView(new ArrayBuffer(keysBufferLoc.length)); // TODO: improve performance using DataView instead of Uint8Array?, TODO: rename to length
+      for (let i = 0; i < keysBufferLoc.length; i++) {
+        view.setInt8(i, that.module.HEAPU8[keysBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
+      }
+      
+      // free binary on heap
+      that.module._free(keysBufferLoc.pointer);
+      
+      // prepend keys file
+      views.unshift(view);
+      return views;
+    });
+  }
+
+  // TODO: use getData()
   async save() {
     this._assertNotClosed();
         
@@ -1128,7 +1176,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     // write address file
     FS.writeFileSync(path + ".address.txt", await this.getPrimaryAddress());
     
-    // queue calls to wasm module
+    // queue call to wasm module
     let that = this;
     return that.module.queueTask(async function() {
       

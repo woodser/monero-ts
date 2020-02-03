@@ -100,15 +100,6 @@ self.getAddress = async function(accountIdx, subaddressIdx) {
 //async setDaemonConnection(uriOrRpcConnection, username, password) {
 //  throw new Error("Not implemented");
 //}
-//
-///**
-// * Get the wallet's daemon connection.
-// * 
-// * @return {MoneroRpcConnection} the wallet's daemon connection
-// */
-//async getDaemonConnection() {
-//  throw new Error("Not implemented");
-//}
 
 self.getDaemonConnection = async function() {
   try {
@@ -117,16 +108,6 @@ self.getDaemonConnection = async function() {
     postMessage(["onGetDaemonConnection", {error: e.message}]);
   }
 }
-
-//
-///**
-// * Indicates if the wallet is connected to daemon.
-// * 
-// * @return {boolean} true if the wallet is connected to a daemon, false otherwise
-// */
-//async isConnected() {
-//  throw new Error("Not implemented");
-//}
 
 self.isConnected = async function() {
   try {
@@ -178,14 +159,6 @@ self.getDaemonMaxPeerHeight = async function() {
 //  throw new Error("Not implemented");
 //}
 //
-///**
-// * Indicates if the wallet's daemon is synced with the network.
-// * 
-// * @return {boolean} true if the daemon is synced with the network, false otherwise
-// */
-//async isDaemonSynced() {
-//  throw new Error("Not implemented");
-//}
 
 self.isDaemonSynced = async function() {
   try {
@@ -496,6 +469,24 @@ self.sendSplit = async function(requestOrAccountIndex, address, amount, priority
 //async parsePaymentUri(uri) {
 //  throw new MoneroError("Not implemented");
 //}
+
+
+self.getAttribute = async function(key) {
+  try {
+    postMessage(["onGetAttribute", {result: await self.wallet.getAttribute(key)}]);
+  } catch (e) {
+    postMessage(["onGetAttribute", {error: e.message}]);
+  }
+}
+
+self.setAttribute = async function(key, value) {
+  try {
+    postMessage(["onSetAttribute", {result: await self.wallet.setAttribute(key, value)}]);
+  } catch (e) {
+    postMessage(["onSetAttribute", {error: e.message}]);
+  }
+}
+
 //
 //async getAttribute(key) {
 //  throw new MoneroError("Not implemented");
@@ -552,11 +543,27 @@ self.sendSplit = async function(requestOrAccountIndex, address, amount, priority
 //async submitMultisigTxHex(signedMultisigTxHex) {
 //  throw new MoneroError("Not implemented");
 //}
-//
-//async isClosed() {
-//  throw new Error("Not implemented");
-//}
-//
-//async close() {
-//  throw new Error("Not implemented");
-//}
+
+self.getData = async function() {
+  try {
+    postMessage(["onGetData", {result: await self.wallet.getData()}]);
+  } catch (e) {
+    postMessage(["onGetData", {error: e.message}]);
+  }
+}
+
+self.isClosed = async function() {
+  try {
+    postMessage(["onIsClosed", {result: await self.wallet.isClosed()}]);
+  } catch (e) {
+    postMessage(["onIsClosed", {error: e.message}]);
+  }
+}
+
+self.close = async function(save) {
+  try {
+    postMessage(["onClose", {result: await self.wallet.close(save)}]);
+  } catch (e) {
+    postMessage(["onClose", {error: e.message}]);
+  }
+}
