@@ -5,8 +5,7 @@
  */
 onmessage = async function(e) {
   await self.initOneTime();
-  console.log("WORKER ON MESSAGE");
-  console.log(e);
+  if (!self[e.data[0]]) throw new Error("Method '" + e.data[0] + "' is not registered with worker");
   self[e.data[0]].apply(null, e.data.slice(1));
 }
 
@@ -51,7 +50,11 @@ self.createWalletFromMnemonic = async function(password, networkType, mnemonic, 
 //}
 
 self.getMnemonic = async function() {
-  postMessage(["onGetMnemonic", await self.wallet.getMnemonic()]);
+  try {
+    postMessage(["onGetMnemonic", {result: await self.wallet.getMnemonic()}]);
+  } catch (e) {
+    postMessage(["onGetMnemonic", {error: e.message}]);
+  }
 }
 
 //async getMnemonicLanguage() {
@@ -79,7 +82,11 @@ self.getMnemonic = async function() {
 //}
 
 self.getAddress = async function(accountIdx, subaddressIdx) {
-  postMessage(["onGetAddress", await self.wallet.getAddress(accountIdx, subaddressIdx)]);
+  try {
+    postMessage(["onGetAddress", {result: await self.wallet.getAddress(accountIdx, subaddressIdx)}]);
+  } catch (e) {
+    postMessage(["onGetAddress", {error: e.message}]);
+  }
 }
 
 //async getAddressIndex(address) {
@@ -102,6 +109,15 @@ self.getAddress = async function(accountIdx, subaddressIdx) {
 //async getDaemonConnection() {
 //  throw new Error("Not implemented");
 //}
+
+self.getDaemonConnection = async function() {
+  try {
+    postMessage(["onGetDaemonConnection", {result: (await self.wallet.getDaemonConnection()).getConfig()}]);
+  } catch (e) {
+    postMessage(["onGetDaemonConnection", {error: e.message}]);
+  }
+}
+
 //
 ///**
 // * Indicates if the wallet is connected to daemon.
@@ -121,11 +137,27 @@ self.isConnected = async function() {
 }
 
 self.getRestoreHeight = async function() {
-  postMessage(["onGetRestoreHeight", await self.wallet.getRestoreHeight()]);
+  try {
+    postMessage(["onGetRestoreHeight", {result: await self.wallet.getRestoreHeight()}]);
+  } catch (e) {
+    postMessage(["onGetRestoreHeight", {error: e.message}]);
+  }
 }
 
 self.getDaemonHeight = async function() {
-  postMessage(["onGetDaemonHeight", await self.wallet.getDaemonHeight()]);
+  try {
+    postMessage(["onGetDaemonHeight", {result: await self.wallet.getDaemonHeight()}]);
+  } catch (e) {
+    postMessage(["onGetDaemonHeight", {error: e.message}]);
+  }
+}
+
+self.getDaemonMaxPeerHeight = async function() {
+  try {
+    postMessage(["onGetDaemonMaxPeerHeight", {result: await self.wallet.getDaemonMaxPeerHeight()}]);
+  } catch (e) {
+    postMessage(["onGetDaemonMaxPeerHeight", {error: e.message}]);
+  }
 }
 
 ///**
@@ -135,10 +167,6 @@ self.getDaemonHeight = async function() {
 // */
 //async setRestoreHeight(restoreHeight) {
 //  throw new Error("Not implemented");
-//}
-//
-//async getDaemonHeight() {
-//  throw new MoneroError("Not implemented");
 //}
 //
 ///**
@@ -168,7 +196,11 @@ self.isDaemonSynced = async function() {
 }
 
 self.getHeight = async function() {
-  postMessage(["onGetHeight", await self.wallet.getHeight()]);
+  try {
+    postMessage(["onGetHeight", {result: await self.wallet.getHeight()}]);
+  } catch (e) {
+    postMessage(["onGetHeight", {error: e.message}]);
+  }
 }
 
 self.addListener = async function(listenerId) {

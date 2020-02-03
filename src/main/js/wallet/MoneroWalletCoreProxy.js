@@ -83,7 +83,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {MoneroNetworkType} the wallet's network type
    */
   async getNetworkType() {
-    throw new Error("Not implemented");
+    return await this._getResult("getNetworkType");
   }
   
   async getVersion() {
@@ -95,11 +95,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getMnemonic() {
-    let that = this;
-    return new Promise(function(resolve, reject) {
-      that.callbacks["onGetMnemonic"] = function(mnemonic) { resolve(mnemonic); }
-      that.worker.postMessage(["getMnemonic"]);
-    });
+    return await this._getResult("getMnemonic");
   }
   
   async getMnemonicLanguage() {
@@ -127,11 +123,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getAddress(accountIdx, subaddressIdx) {
-    let that = this;
-    return new Promise(function(resolve, reject) {
-      that.callbacks["onGetAddress"] = function(address) { resolve(address); }
-      that.worker.postMessage(["getAddress", accountIdx, subaddressIdx]);
-    });
+    return await this._getResult("getAddress", arguments);
   }
   
   async getAddressIndex(address) {
@@ -152,7 +144,8 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {MoneroRpcConnection} the wallet's daemon connection
    */
   async getDaemonConnection() {
-    throw new Error("Not implemented");
+    let rpcConfig = await this._getResult("getDaemonConnection");
+    return new MoneroRpcConnection(rpcConfig);
   }
   
   /**
@@ -170,11 +163,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {number} the height of the first block that the wallet scans
    */
   async getRestoreHeight() {
-    let that = this;
-    return new Promise(function(resolve, reject) {
-      that.callbacks["onGetRestoreHeight"] = function(restoreHeight) { resolve(restoreHeight); }
-      that.worker.postMessage(["getRestoreHeight"]);
-    });
+    return await this._getResult("getRestoreHeight");
   }
   
   /**
@@ -187,7 +176,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getDaemonHeight() {
-    throw new MoneroError("Not implemented");
+    return await this._getResult("getDaemonHeight");
   }
   
   /**
@@ -196,7 +185,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {number} the maximum height of the peers the wallet's daemon is connected to
    */
   async getDaemonMaxPeerHeight() {
-    throw new Error("Not implemented");
+    return await this._getResult("getDaemonMaxPeerHeight");
   }
   
   /**
@@ -209,11 +198,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getHeight() {
-    let that = this;
-    return new Promise(function(resolve, reject) {
-      that.callbacks["onGetHeight"] = function(height) { resolve(height); }
-      that.worker.postMessage(["getHeight"]);
-    });
+    return await this._getResult("getHeight");
   }
   
   /**
@@ -575,8 +560,8 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     return await this._getResult("isClosed");
   }
   
-  async close() {
-    throw new Error("Not implemented");
+  async close(save) {
+    return await this._getResult("isClosed", arguments);
   }
   
   // --------------------------- PRIVATE HELPERS ------------------------------
@@ -590,11 +575,10 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   async _getResult(fnName, args) {
     assert(fnName.length >= 2);
     console.log("Calling _getWorkerResult(" + fnName + ")");
-    if (args) throw new Error("Arguments not supported");
     let that = this;
     return new Promise(function(resolve, reject) {
       that.callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) { resp.error ? reject(resp.error) : resolve(resp.result); }
-      that.worker.postMessage([fnName]);
+      that.worker.postMessage([fnName].concat(args));
     });
   }
 }
