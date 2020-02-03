@@ -21,13 +21,13 @@ self.initOneTime = async function() {
 }
 
 self.createWalletRandom = async function(password, networkType, daemonUriOrConfig, language) {
-  let daemonConnection = new MoneroRpcConnection(daemonUriOrConfig);
+  let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
   self.wallet = await MoneroWalletCore.createWalletRandom("", password, networkType, daemonConnection, language);
   postMessage(["onCreateWalletRandom"]);
 }
 
 self.createWalletFromMnemonic = async function(password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset) {
-  let daemonConnection = new MoneroRpcConnection(daemonUriOrConfig);
+  let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
   self.wallet = await MoneroWalletCore.createWalletFromMnemonic("", password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset);
   postMessage(["onCreateWalletFromMnemonic"]);
 }
@@ -101,9 +101,18 @@ self.getAddress = async function(accountIdx, subaddressIdx) {
 //  throw new Error("Not implemented");
 //}
 
+self.setDaemonConnection = async function(config) {
+  try {
+    postMessage(["onSetDaemonConnection", {result: await self.wallet.setDaemonConnection(config ? new MoneroRpcConnection(config) : undefined)}]);
+  } catch (e) {
+    postMessage(["onSetDaemonConnection", {error: e.message}]);
+  }
+}
+
 self.getDaemonConnection = async function() {
   try {
-    postMessage(["onGetDaemonConnection", {result: (await self.wallet.getDaemonConnection()).getConfig()}]);
+    let connection = await self.wallet.getDaemonConnection();
+    postMessage(["onGetDaemonConnection", {result: connection ? connection.getConfig() : undefined}]);
   } catch (e) {
     postMessage(["onGetDaemonConnection", {error: e.message}]);
   }
@@ -229,7 +238,7 @@ self.removeListener = async function(listenerId) {
     self.listeners.splice(i, 1);
     return;
   }
-  throw new MoneroError("Listener is not registered to wallet");
+  throw new MoneroError("Listener is not registered to wallet");  // TODO: call onAddListener, onRemoveListener which can catch exception
 }
 
 self.isSynced = async function() {
@@ -250,27 +259,37 @@ self.sync = async function() {
 
 self.startSyncing = async function() {
   try {
-    await self.wallet.startSyncing()
-    postMessage(["onStartSyncing"]);
+    postMessage(["onStartSyncing", {result: await self.wallet.startSyncing()}]);
   } catch (e) {
-    assert(e.message);
-    postMessage(["onStartSyncing", e.message]);
+    postMessage(["onStartSyncing", {error: e.message}]);
   }
 }
 
 self.stopSyncing = async function() {
-  postMessage(["onStopSyncing", await self.wallet.stopSyncing()]);
+  try {
+    postMessage(["onStopSyncing", {result: await self.wallet.stopSyncing()}]);
+  } catch (e) {
+    postMessage(["onStopSyncing", {error: e.message}]);
+  }
 }
 
 //// rescanSpent
 //// rescanBlockchain
 
-self.getBalance = async function() {
-  postMessage(["onGetBalance", (await self.wallet.getBalance()).toString()]);
+self.getBalance = async function(accountIdx, subaddressIdx) {
+  try {
+    postMessage(["onGetBalance", {result: (await self.wallet.getBalance(accountIdx, subaddressIdx)).toString()}]);
+  } catch (e) {
+    postMessage(["onGetBalance", {error: e.message}]);
+  }
 }
 
-self.getUnlockedBalance = async function() {
-  postMessage(["onGetUnlockedBalance", (await self.wallet.getUnlockedBalance()).toString()]);
+self.getUnlockedBalance = async function(accountIdx, subaddressIdx) {
+  try {
+    postMessage(["onGetUnlockedBalance", {result: (await self.wallet.getUnlockedBalance(accountIdx, subaddressIdx)).toString()}]);
+  } catch (e) {
+    postMessage(["onGetUnlockedBalance", {error: e.message}]);
+  }
 }
 
 //async getAccounts(includeSubaddresses, tag) {
