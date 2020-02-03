@@ -161,7 +161,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {boolean} true if the wallet is connected to a daemon, false otherwise
    */
   async isConnected() {
-    return await this._callIsFn("isConnected");
+    return await this._getResult("isConnected");
   }
   
   /**
@@ -205,7 +205,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    * @return {boolean} true if the daemon is synced with the network, false otherwise
    */
   async isDaemonSynced() {
-    return await this._callIsFn("isDaemonSynced");
+    return await this._getResult("isDaemonSynced");
   }
   
   async getHeight() {
@@ -263,7 +263,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async isSynced() {
-    return await this._callIsFn("isSynced");
+    return await this._getResult("isSynced");
   }
   
   async sync(listenerOrStartHeight, startHeight) {
@@ -532,11 +532,11 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async isMultisigImportNeeded() {
-    return await this._callIsFn("isMultisigImportNeeded");
+    return await this._getResult("isMultisigImportNeeded");
   }
   
   async isMultisig() {
-    return await this._callIsFn("isMultisig");
+    return await this._getResult("isMultisig");
   }
   
   async getMultisigInfo() {
@@ -572,7 +572,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async isClosed() {
-    return await this._callIsFn("isClosed");
+    return await this._getResult("isClosed");
   }
   
   async close() {
@@ -582,13 +582,15 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   // --------------------------- PRIVATE HELPERS ------------------------------
   
   /**
-   * Common handler for is* functions.
+   * Common handler to get a result from the worker with error handling.
    * 
-   * TODO: generalize this further, _getResult(fnName, args)
+   * @param {string} fnName is the name of the function
+   * @param {var[]} args are arguments to pass to the worker
    */
-  async _callIsFn(fnName) {
-    console.log("Calling _callIsFn(" + fnName + ")");
+  async _getResult(fnName, args) {
     assert(fnName.length >= 2);
+    console.log("Calling _getWorkerResult(" + fnName + ")");
+    if (args) throw new Error("Arguments not supported");
     let that = this;
     return new Promise(function(resolve, reject) {
       that.callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) { resp.error ? reject(resp.error) : resolve(resp.result); }

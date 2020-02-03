@@ -240,6 +240,7 @@ self.sync = async function() {
     postMessage(["onSync", {result: await self.wallet.sync()}]);
   } catch (e) {
     postMessage(["onSync", {error: e.message}]);
+  }
 }
 
 self.startSyncing = async function() {
