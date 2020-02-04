@@ -226,8 +226,8 @@ class MoneroWalletCoreProxy extends MoneroWallet {
         this.worker.postMessage(["removeListener", listenerId]);
         delete this.callbacks["onSyncProgress_" + listenerId];
         delete this.callbacks["onNewBlock_" + listenerId];
-        delete this.callbacks["onOutputSpent_" + listenerId];
         delete this.callbacks["onOutputReceived_" + listenerId];
+        delete this.callbacks["onOutputSpent_" + listenerId];
         this.wrappedListeners.splice(i, 1);
         return;
       }
@@ -259,7 +259,8 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     }
     
     // sync the wallet in worker
-    let result = await this._invokeWorker("sync");
+    let resultJson = await this._invokeWorker("sync");
+    let result = new MoneroSyncResult(resultJson.numBlocksFetched, resultJson.receivedMoney);
     
     // unregister sync listener wrapper
     if (syncListenerWrapper !== undefined) {  // TODO: test that this is executed with error e.g. sync an unconnected wallet
@@ -291,11 +292,16 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getAccounts(includeSubaddresses, tag) {
-    throw new MoneroError("Not implemented");
+    let accounts = [];
+    for (let accountJson of (await this._invokeWorker("getAccounts", Array.from(arguments)))) {
+      accounts.push(MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson)));
+    }
+    return accounts;
   }
   
   async getAccount(accountIdx, includeSubaddresses) {
-    throw new MoneroError("Not implemented");
+    let accountJson = await this._invokeWorker("getAccount", Array.from(arguments));
+    return MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson));
   }
   
   async createAccount(label) {
@@ -311,19 +317,15 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getTxs(query) {
-    let that = this;
     query = MoneroWalletCore._normalizeTxQuery(query);
-    return new Promise(function(resolve, reject) {
-      that.callbacks["onGetTxs"] = function(blocksJsonStr) {
-        let txs = MoneroWalletCore._blocksJsonToTxs(query, blocksJsonStr); // initialize txs from blocks json string // TODO: using internal private method, make public?
-        resolve(txs);
-      }
-      that.worker.postMessage(["getTxs", query.getBlock().toJson()]);
-    });
+    let blockJsons = await this._invokeWorker("getTxs", [query.getBlock().toJson()]);
+    return MoneroWalletCore._blocksJsonToTxs(query, JSON.stringify({blocks: blockJsons})); // initialize txs from blocks json string // TODO: using internal private method, make public? TODO: this stringifies then utility parses, fix
   }
   
   async getTransfers(query) {
-    throw new MoneroError("Not implemented");
+    query = MoneroWalletCore._normalizeTransferQuery(query);
+    let blockJsons = await this._invokeWorker("getTransfers", [query.getTxQuery().getBlock().toJson()]);
+    return MoneroWalletCore._blocksJsonToTransfers(query, JSON.stringify({blocks: blockJsons})); // initialize transfers from blocks json string // TODO: using internal private method, make public? TODO: this stringifies then utility parses, fix
   }
   
   async getOutputs(query) {
@@ -593,12 +595,12 @@ class WalletWorkerListener {
   }
 
   onOutputReceived(blockJson) {
-    let block = new MoneroBlock(blockJson);
+    let block = new MoneroBlock(blockJson, MoneroBlock.DeserializationType.TX_WALLET);
     this.listener.onOutputReceived(block.getTxs()[0].getOutputs()[0]);
   }
   
   onOutputSpent(blockJson) {
-    let block = new MoneroBlock(blockJson);
+    let block = new MoneroBlock(blockJson, MoneroBlock.DeserializationType.TX_WALLET);
     this.listener.onOutputSpent(block.getTxs()[0].getInputs()[0]);
   }
 }

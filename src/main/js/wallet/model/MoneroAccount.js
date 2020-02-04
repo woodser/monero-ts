@@ -34,6 +34,18 @@ class MoneroAccount {
     }
   }
   
+  toJson() {
+    let json = Object.assign({}, this.state);
+    if (json.balance) json.balance = json.balance.toString();
+    if (json.unlockedBalance) json.unlockedBalance = json.unlockedBalance.toString();
+    if (json.subaddresses) {
+      for (let i = 0; i < json.subaddresses.length; i++) {
+        json.subaddresses[i] = json.subaddresses[i].toJson();
+      }
+    }
+    return json;
+  }
+  
   getIndex() {
     return this.state.index;
   }
@@ -86,7 +98,7 @@ class MoneroAccount {
   setSubaddresses(subaddresses) {
     assert(subaddresses === undefined || Array.isArray(subaddresses), "Given subaddresses must be undefined or an array of subaddresses");
     this.state.subaddresses = subaddresses;
-    if (subaddresses != null) {
+    if (subaddresses) {
       for (let subaddress of subaddresses) {
         subaddress.setAccountIndex(this.state.index);
       }

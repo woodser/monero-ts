@@ -80,6 +80,15 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
     return wallet;
   }
   
+  async createWalletGroundTruth(networkType, mnemonic, restoreHeight) {
+    let path = TestUtils.TEST_WALLETS_DIR + "/gt_wallet_" + GenUtils.uuidv4();
+    let gtWallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, networkType, mnemonic, (await TestUtils.getDaemonRpc()).getRpcConnection(), restoreHeight, undefined);
+    assert.equal(await gtWallet.getRestoreHeight(), restoreHeight === undefined ? 0 : restoreHeight);
+    await gtWallet.sync();
+    //await gtWallet.startSyncing();  // TODO
+    return gtWallet;
+  }
+  
   async saveWallet(wallet) {
     await wallet.save();  // default implementation
     return await wallet.getPath();
@@ -405,7 +414,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           await progressTester.onDone(await wallet.getDaemonHeight());
         
           // test result after syncing
-          walletGt = await TestUtils.createWalletGroundTruth(TestUtils.NETWORK_TYPE, await wallet.getMnemonic(), restoreHeight);
+          walletGt = await that.createWalletGroundTruth(TestUtils.NETWORK_TYPE, await wallet.getMnemonic(), restoreHeight);
           assert(await wallet.isConnected());
           assert(await wallet.isSynced());
           assert.equal(result.getNumBlocksFetched(), 0);
@@ -526,7 +535,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           
           // compare with ground truth
           if (!skipGtComparison) {
-            walletGt = await TestUtils.createWalletGroundTruth(TestUtils.NETWORK_TYPE, await wallet.getMnemonic(), startHeightExpected);
+            walletGt = await that.createWalletGroundTruth(TestUtils.NETWORK_TYPE, await wallet.getMnemonic(), startHeightExpected);
             await TestMoneroWalletCore._testWalletEqualityOnChain(walletGt, wallet);
           }
           
@@ -594,7 +603,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         let walletKeys = await that.createWalletFromKeysCustom(TestUtils.WALLET_PASSWORD,  await that.wallet.getNetworkType(), await that.wallet.getPrimaryAddress(), await that.wallet.getPrivateViewKey(), await that.wallet.getPrivateSpendKey(), await that.wallet.getDaemonConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
         
         // create ground truth wallet for comparison
-        let walletGt = await TestUtils.createWalletGroundTruth(TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
+        let walletGt = await that.createWalletGroundTruth(TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
         
         // test wallet and close as final step
         let err;

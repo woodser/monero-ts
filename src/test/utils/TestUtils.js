@@ -102,23 +102,6 @@ class TestUtils {
     return TestUtils.walletCore;
   }
   
-  /**
-   * Creates a new wallet considered to be "ground truth" (a freshly created wasm wallet).
-   * 
-   * @param networkType is the ground truth wallet's network type
-   * @param mnemonic is the ground truth wallet's mnemonic
-   * @param restoreHeight is the ground truth wallet's restore height
-   * @return the created wallet
-   */
-  static async createWalletGroundTruth(networkType, mnemonic, restoreHeight) {
-    let path = TestUtils.TEST_WALLETS_DIR + "/gt_wallet_" + GenUtils.uuidv4();
-    let gtWallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, networkType, mnemonic, (await TestUtils.getDaemonRpc()).getRpcConnection(), restoreHeight, undefined);
-    assert.equal(await gtWallet.getRestoreHeight(), restoreHeight === undefined ? 0 : restoreHeight);
-    await gtWallet.sync();
-    //await gtWallet.startSyncing();  // TODO
-    return gtWallet;
-  }
-  
   static testUnsignedBigInteger(num, nonZero) {
     assert(num);
     assert(num instanceof BigInteger);

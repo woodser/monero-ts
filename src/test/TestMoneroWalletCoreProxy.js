@@ -90,6 +90,14 @@ class TestMoneroWalletCoreProxy extends TestMoneroWalletCore {
     return wallet;
   }
   
+  async createWalletGroundTruth(networkType, mnemonic, restoreHeight) {
+    let gtWallet = await MoneroWalletCoreProxy.createWalletFromMnemonic(TestUtils.WALLET_PASSWORD, networkType, mnemonic, (await TestUtils.getDaemonRpc()).getRpcConnection(), restoreHeight, undefined);
+    assert.equal(await gtWallet.getRestoreHeight(), restoreHeight === undefined ? 0 : restoreHeight);
+    await gtWallet.sync();
+    //await gtWallet.startSyncing();  // TODO
+    return gtWallet;
+  }
+  
   async saveWallet(wallet) {
     let id = await wallet.getAttribute("id");
     this.savedWallets[id] = await wallet.getData();
