@@ -2,15 +2,21 @@
  * Web worker to run a core wallet managed by messages.
  * 
  * This file must be copied to the web app root.
+ * 
+ * Required format for wallet instance methods: e.data[0] = walletId, e.data[1] = function name, e.data[2+] = function args
+ * 
+ * TODO: refactor try..catches to common method which takes function and args to execute
  */
 onmessage = async function(e) {
   await self.initOneTime();
-  if (!self[e.data[0]]) throw new Error("Method '" + e.data[0] + "' is not registered with worker");
-  self[e.data[0]].apply(null, e.data.slice(1));
+  if (!self[e.data[1]]) throw new Error("Method '" + e.data[1] + "' is not registered with worker");
+  let fnName = e.data.splice(1, 1);  // remove function name
+  self[fnName].apply(null, e.data);
 }
 
 self.initOneTime = async function() {
   if (!self.isInitialized) {
+    self.wallets = {};
     self.isInitialized = true;
     console.log("WORKER loading scripts and module");
     self.importScripts('monero-javascript-wasm.js');
@@ -20,35 +26,55 @@ self.initOneTime = async function() {
   }
 }
 
-self.openWalletData = async function(password, networkType, keysData, cacheData, daemonUriOrConfig) {
-  let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
-  self.wallet = await MoneroWalletCore.openWalletData(password, networkType, keysData, cacheData, daemonConnection);
-  postMessage(["onOpenWalletData"]);
-}
+//--------------------------- WALLET STATIC UTILS -----------------------------
 
-self.createWalletRandom = async function(password, networkType, daemonUriOrConfig, language) {
-  let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
-  self.wallet = await MoneroWalletCore.createWalletRandom("", password, networkType, daemonConnection, language);
-  postMessage(["onCreateWalletRandom"]);
-}
-
-self.createWalletFromMnemonic = async function(password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset) {
-  let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
-  self.wallet = await MoneroWalletCore.createWalletFromMnemonic("", password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset);
-  postMessage(["onCreateWalletFromMnemonic"]);
-}
-
-self.createWalletFromKeys = async function(password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language) {
-  let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
-  self.wallet = await MoneroWalletCore.createWalletFromKeys("", password, networkType, address, viewKey, spendKey, daemonConnection, restoreHeight, language);
-  postMessage(["onCreateWalletFromKeys"]);
-}
-
-self.getNetworkType = async function() {
+self.openWalletData = async function(walletId, password, networkType, keysData, cacheData, daemonUriOrConfig) {
   try {
-    postMessage(["onGetNetworkType", {result: await self.wallet.getNetworkType()}]);
+    let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
+    self.wallets[walletId] = await MoneroWalletCore.openWalletData(password, networkType, keysData, cacheData, daemonConnection);
+    postMessage([walletId, "onOpenWalletData"]);
   } catch (e) {
-    postMessage(["onGetNetworkType", {error: e.message}]);
+    postMessage([walletId, "onOpenWalletData", {error: e.message}]);
+  }
+}
+
+self.createWalletRandom = async function(walletId, password, networkType, daemonUriOrConfig, language) {
+  try {
+    let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
+    self.wallets[walletId] = await MoneroWalletCore.createWalletRandom("", password, networkType, daemonConnection, language);
+    postMessage([walletId, "onCreateWalletRandom"]);
+  } catch (e) {
+    postMessage([walletId, "onCreateWalletRandom", {error: e.message}]);
+  }
+}
+
+self.createWalletFromMnemonic = async function(walletId, password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset) {
+  try {
+    let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
+    self.wallets[walletId] = await MoneroWalletCore.createWalletFromMnemonic("", password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset);
+    postMessage([walletId, "onCreateWalletFromMnemonic"]);
+  } catch (e) {
+    postMessage([walletId, "onCreateWalletFromMnemonic", {error: e.message}]);
+  }
+}
+
+self.createWalletFromKeys = async function(walletId, password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language) {
+  try {
+    let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
+    self.wallets[walletId] = await MoneroWalletCore.createWalletFromKeys("", password, networkType, address, viewKey, spendKey, daemonConnection, restoreHeight, language);
+    postMessage([walletId, "onCreateWalletFromKeys"]);
+  } catch (e) {
+    postMessage([walletId, "onCreateWalletFromKeys", {error: e.message}]);
+  }
+}
+
+// ------------------------- WALLET INSTANCE METHODS --------------------------
+
+self.getNetworkType = async function(walletId) {
+  try {
+    postMessage([walletId, "onGetNetworkType", {result: await self.wallets[walletId].getNetworkType()}]);
+  } catch (e) {
+    postMessage([walletId, "onGetNetworkType", {error: e.message}]);
   }
 }
 
@@ -61,67 +87,67 @@ self.getNetworkType = async function() {
 //  throw new Error("Not implemented");
 //}
 
-self.getMnemonic = async function() {
+self.getMnemonic = async function(walletId) {
   try {
-    postMessage(["onGetMnemonic", {result: await self.wallet.getMnemonic()}]);
+    postMessage([walletId, "onGetMnemonic", {result: await self.wallets[walletId].getMnemonic()}]);
   } catch (e) {
-    postMessage(["onGetMnemonic", {error: e.message}]);
+    postMessage([walletId, "onGetMnemonic", {error: e.message}]);
   }
 }
 
-self.getMnemonicLanguage = async function() {
+self.getMnemonicLanguage = async function(walletId) {
   try {
-    postMessage(["onGetMnemonicLanguage", {result: await self.wallet.getMnemonicLanguage()}]);
+    postMessage([walletId, "onGetMnemonicLanguage", {result: await self.wallets[walletId].getMnemonicLanguage()}]);
   } catch (e) {
-    postMessage(["onGetMnemonicLanguage", {error: e.message}]);
+    postMessage([walletId, "onGetMnemonicLanguage", {error: e.message}]);
   }
 }
 
-self.getMnemonicLanguages = async function() {
+self.getMnemonicLanguages = async function(walletId) {
   try {
-    postMessage(["onGetMnemonicLanguages", {result: await self.wallet.getMnemonicLanguages()}]);
+    postMessage([walletId, "onGetMnemonicLanguages", {result: await self.wallets[walletId].getMnemonicLanguages()}]);
   } catch (e) {
-    postMessage(["onGetMnemonicLanguages", {error: e.message}]);
+    postMessage([walletId, "onGetMnemonicLanguages", {error: e.message}]);
   }
 }
 
-self.getPrivateSpendKey = async function() {
+self.getPrivateSpendKey = async function(walletId) {
   try {
-    postMessage(["onGetPrivateSpendKey", {result: await self.wallet.getPrivateSpendKey()}]);
+    postMessage([walletId, "onGetPrivateSpendKey", {result: await self.wallets[walletId].getPrivateSpendKey()}]);
   } catch (e) {
-    postMessage(["onGetPrivateSpendKey", {error: e.message}]);
+    postMessage([walletId, "onGetPrivateSpendKey", {error: e.message}]);
   }
 }
 
-self.getPrivateViewKey = async function() {
+self.getPrivateViewKey = async function(walletId) {
   try {
-    postMessage(["onGetPrivateViewKey", {result: await self.wallet.getPrivateViewKey()}]);
+    postMessage([walletId, "onGetPrivateViewKey", {result: await self.wallets[walletId].getPrivateViewKey()}]);
   } catch (e) {
-    postMessage(["onGetPrivateViewKey", {error: e.message}]);
+    postMessage([walletId, "onGetPrivateViewKey", {error: e.message}]);
   }
 }
 
-self.getPublicViewKey = async function() {
+self.getPublicViewKey = async function(walletId) {
   try {
-    postMessage(["onGetPublicViewKey", {result: await self.wallet.getPublicViewKey()}]);
+    postMessage([walletId, "onGetPublicViewKey", {result: await self.wallets[walletId].getPublicViewKey()}]);
   } catch (e) {
-    postMessage(["onGetPublicViewKey", {error: e.message}]);
+    postMessage([walletId, "onGetPublicViewKey", {error: e.message}]);
   }
 }
 
-self.getPublicSpendKey = async function() {
+self.getPublicSpendKey = async function(walletId) {
   try {
-    postMessage(["onGetPublicSpendKey", {result: await self.wallet.getPublicSpendKey()}]);
+    postMessage([walletId, "onGetPublicSpendKey", {result: await self.wallets[walletId].getPublicSpendKey()}]);
   } catch (e) {
-    postMessage(["onGetPublicSpendKey", {error: e.message}]);
+    postMessage([walletId, "onGetPublicSpendKey", {error: e.message}]);
   }
 }
 
-self.getAddress = async function(accountIdx, subaddressIdx) {
+self.getAddress = async function(walletId, accountIdx, subaddressIdx) {
   try {
-    postMessage(["onGetAddress", {result: await self.wallet.getAddress(accountIdx, subaddressIdx)}]);
+    postMessage([walletId, "onGetAddress", {result: await self.wallets[walletId].getAddress(accountIdx, subaddressIdx)}]);
   } catch (e) {
-    postMessage(["onGetAddress", {error: e.message}]);
+    postMessage([walletId, "onGetAddress", {error: e.message}]);
   }
 }
 
@@ -137,80 +163,80 @@ self.getAddress = async function(accountIdx, subaddressIdx) {
 //  throw new Error("Not implemented");
 //}
 
-self.setDaemonConnection = async function(config) {
+self.setDaemonConnection = async function(walletId, config) {
   try {
-    postMessage(["onSetDaemonConnection", {result: await self.wallet.setDaemonConnection(config ? new MoneroRpcConnection(config) : undefined)}]);
+    postMessage([walletId, "onSetDaemonConnection", {result: await self.wallets[walletId].setDaemonConnection(config ? new MoneroRpcConnection(config) : undefined)}]);
   } catch (e) {
-    postMessage(["onSetDaemonConnection", {error: e.message}]);
+    postMessage([walletId, "onSetDaemonConnection", {error: e.message}]);
   }
 }
 
-self.getDaemonConnection = async function() {
+self.getDaemonConnection = async function(walletId) {
   try {
-    let connection = await self.wallet.getDaemonConnection();
-    postMessage(["onGetDaemonConnection", {result: connection ? connection.getConfig() : undefined}]);
+    let connection = await self.wallets[walletId].getDaemonConnection();
+    postMessage([walletId, "onGetDaemonConnection", {result: connection ? connection.getConfig() : undefined}]);
   } catch (e) {
-    postMessage(["onGetDaemonConnection", {error: e.message}]);
+    postMessage([walletId, "onGetDaemonConnection", {error: e.message}]);
   }
 }
 
-self.isConnected = async function() {
+self.isConnected = async function(walletId) {
   try {
-    postMessage(["onIsConnected", {result: await self.wallet.isConnected()}]);
+    postMessage([walletId, "onIsConnected", {result: await self.wallets[walletId].isConnected()}]);
   } catch (e) {
-    postMessage(["onIsConnected", {error: e.message}]);
+    postMessage([walletId, "onIsConnected", {error: e.message}]);
   }
 }
 
-self.getRestoreHeight = async function() {
+self.getRestoreHeight = async function(walletId) {
   try {
-    postMessage(["onGetRestoreHeight", {result: await self.wallet.getRestoreHeight()}]);
+    postMessage([walletId, "onGetRestoreHeight", {result: await self.wallets[walletId].getRestoreHeight()}]);
   } catch (e) {
-    postMessage(["onGetRestoreHeight", {error: e.message}]);
+    postMessage([walletId, "onGetRestoreHeight", {error: e.message}]);
   }
 }
 
-self.setRestoreHeight = async function(restoreHeight) {
+self.setRestoreHeight = async function(walletId, restoreHeight) {
   try {
-    postMessage(["onSetRestoreHeight", {result: await self.wallet.setRestoreHeight(restoreHeight)}]);
+    postMessage([walletId, "onSetRestoreHeight", {result: await self.wallets[walletId].setRestoreHeight(restoreHeight)}]);
   } catch (e) {
-    postMessage(["onSetRestoreHeight", {error: e.message}]);
+    postMessage([walletId, "onSetRestoreHeight", {error: e.message}]);
   }
 }
 
-self.getDaemonHeight = async function() {
+self.getDaemonHeight = async function(walletId) {
   try {
-    postMessage(["onGetDaemonHeight", {result: await self.wallet.getDaemonHeight()}]);
+    postMessage([walletId, "onGetDaemonHeight", {result: await self.wallets[walletId].getDaemonHeight()}]);
   } catch (e) {
-    postMessage(["onGetDaemonHeight", {error: e.message}]);
+    postMessage([walletId, "onGetDaemonHeight", {error: e.message}]);
   }
 }
 
-self.getDaemonMaxPeerHeight = async function() {
+self.getDaemonMaxPeerHeight = async function(walletId) {
   try {
-    postMessage(["onGetDaemonMaxPeerHeight", {result: await self.wallet.getDaemonMaxPeerHeight()}]);
+    postMessage([walletId, "onGetDaemonMaxPeerHeight", {result: await self.wallets[walletId].getDaemonMaxPeerHeight()}]);
   } catch (e) {
-    postMessage(["onGetDaemonMaxPeerHeight", {error: e.message}]);
+    postMessage([walletId, "onGetDaemonMaxPeerHeight", {error: e.message}]);
   }
 }
 
-self.isDaemonSynced = async function() {
+self.isDaemonSynced = async function(walletId) {
   try {
-    postMessage(["onIsDaemonSynced", {result: await self.wallet.isDaemonSynced()}]);
+    postMessage([walletId, "onIsDaemonSynced", {result: await self.wallets[walletId].isDaemonSynced()}]);
   } catch (e) {
-    postMessage(["onIsDaemonSynced", {error: e.message}]);
+    postMessage([walletId, "onIsDaemonSynced", {error: e.message}]);
   }
 }
 
-self.getHeight = async function() {
+self.getHeight = async function(walletId) {
   try {
-    postMessage(["onGetHeight", {result: await self.wallet.getHeight()}]);
+    postMessage([walletId, "onGetHeight", {result: await self.wallets[walletId].getHeight()}]);
   } catch (e) {
-    postMessage(["onGetHeight", {error: e.message}]);
+    postMessage([walletId, "onGetHeight", {error: e.message}]);
   }
 }
 
-self.addListener = async function(listenerId) {
+self.addListener = async function(walletId, listenerId) {
   
   /**
    * Internal listener to bridge notifications to external listeners.
@@ -219,8 +245,9 @@ self.addListener = async function(listenerId) {
    */
   class WalletWorkerHelperListener extends MoneroWalletListener {
     
-    constructor(id, worker) {
+    constructor(walletId, id, worker) {
       super();
+      this.walletId = walletId;
       this.id = id;
       this.worker = worker;
     }
@@ -230,108 +257,108 @@ self.addListener = async function(listenerId) {
     }
     
     onSyncProgress(height, startHeight, endHeight, percentDone, message) {
-      this.worker.postMessage(["onSyncProgress_" + this.getId(), height, startHeight, endHeight, percentDone, message]);
+      this.worker.postMessage([this.walletId, "onSyncProgress_" + this.getId(), height, startHeight, endHeight, percentDone, message]);
     }
 
     onNewBlock(height) { 
-      this.worker.postMessage(["onNewBlock_" + this.getId(), height]);
+      this.worker.postMessage([this.walletId, "onNewBlock_" + this.getId(), height]);
     }
 
     onOutputReceived(output) {
       let block = output.getTx().getBlock();
       if (block === undefined) block = new MoneroBlock().setTxs([output.getTx()]);
-      this.worker.postMessage(["onOutputReceived_" + this.getId(), block.toJson()]);  // serialize from root block
+      this.worker.postMessage([this.walletId, "onOutputReceived_" + this.getId(), block.toJson()]);  // serialize from root block
     }
     
     onOutputSpent(output) {
       let block = output.getTx().getBlock();
       if (block === undefined) block = new MoneroBlock().setTxs([output.getTx()]);
-      this.worker.postMessage(["onOutputSpent_" + this.getId(), block.toJson()]);     // serialize from root block
+      this.worker.postMessage([this.walletId, "onOutputSpent_" + this.getId(), block.toJson()]);     // serialize from root block
     }
   }
   
-  let listener = new WalletWorkerHelperListener(listenerId, self);
+  let listener = new WalletWorkerHelperListener(walletId, listenerId, self);
   if (!self.listeners) self.listeners = [];
   self.listeners.push(listener);
-  await self.wallet.addListener(listener);
+  await self.wallets[walletId].addListener(listener);
 }
 
-self.removeListener = async function(listenerId) {
+self.removeListener = async function(walletId, listenerId) {
   for (let i = 0; i < self.listeners.length; i++) {
     if (self.listeners[i].getId() !== listenerId) continue;
-    await self.wallet.removeListener(self.listeners[i]);
+    await self.wallets[walletId].removeListener(self.listeners[i]);
     self.listeners.splice(i, 1);
     return;
   }
   throw new MoneroError("Listener is not registered to wallet");  // TODO: call onAddListener, onRemoveListener which can catch exception
 }
 
-self.isSynced = async function() {
+self.isSynced = async function(walletId) {
   try {
-    postMessage(["onIsSynced", {result: await self.wallet.isSynced()}]);
+    postMessage([walletId, "onIsSynced", {result: await self.wallets[walletId].isSynced()}]);
   } catch (e) {
-    postMessage(["onIsSynced", {error: e.message}]);
+    postMessage([walletId, "onIsSynced", {error: e.message}]);
   }
 }
 
-self.sync = async function() {
+self.sync = async function(walletId) {
   try {
-    postMessage(["onSync", {result: await self.wallet.sync()}]);
+    postMessage([walletId, "onSync", {result: await self.wallets[walletId].sync()}]);
   } catch (e) {
-    postMessage(["onSync", {error: e.message}]);
+    postMessage([walletId, "onSync", {error: e.message}]);
   }
 }
 
-self.startSyncing = async function() {
+self.startSyncing = async function(walletId) {
   try {
-    postMessage(["onStartSyncing", {result: await self.wallet.startSyncing()}]);
+    postMessage([walletId, "onStartSyncing", {result: await self.wallets[walletId].startSyncing()}]);
   } catch (e) {
-    postMessage(["onStartSyncing", {error: e.message}]);
+    postMessage([walletId, "onStartSyncing", {error: e.message}]);
   }
 }
 
-self.stopSyncing = async function() {
+self.stopSyncing = async function(walletId) {
   try {
-    postMessage(["onStopSyncing", {result: await self.wallet.stopSyncing()}]);
+    postMessage([walletId, "onStopSyncing", {result: await self.wallets[walletId].stopSyncing()}]);
   } catch (e) {
-    postMessage(["onStopSyncing", {error: e.message}]);
+    postMessage([walletId, "onStopSyncing", {error: e.message}]);
   }
 }
 
 //// rescanSpent
 //// rescanBlockchain
 
-self.getBalance = async function(accountIdx, subaddressIdx) {
+self.getBalance = async function(walletId, accountIdx, subaddressIdx) {
   try {
-    postMessage(["onGetBalance", {result: (await self.wallet.getBalance(accountIdx, subaddressIdx)).toString()}]);
+    postMessage([walletId, "onGetBalance", {result: (await self.wallets[walletId].getBalance(accountIdx, subaddressIdx)).toString()}]);
   } catch (e) {
-    postMessage(["onGetBalance", {error: e.message}]);
+    postMessage([walletId, "onGetBalance", {error: e.message}]);
   }
 }
 
-self.getUnlockedBalance = async function(accountIdx, subaddressIdx) {
+self.getUnlockedBalance = async function(walletId, accountIdx, subaddressIdx) {
   try {
-    postMessage(["onGetUnlockedBalance", {result: (await self.wallet.getUnlockedBalance(accountIdx, subaddressIdx)).toString()}]);
+    postMessage([walletId, "onGetUnlockedBalance", {result: (await self.wallets[walletId].getUnlockedBalance(accountIdx, subaddressIdx)).toString()}]);
   } catch (e) {
-    postMessage(["onGetUnlockedBalance", {error: e.message}]);
+    postMessage([walletId, "onGetUnlockedBalance", {error: e.message}]);
   }
 }
 
-self.getAccounts = async function(includeSubaddresses, tag) {
+self.getAccounts = async function(walletId, includeSubaddresses, tag) {
   try {
     let accountsJson = [];
-    for (let account of await self.wallet.getAccounts(includeSubaddresses, tag)) accountsJson.push(account.toJson());
-    postMessage(["onGetAccounts", {result: accountsJson}]);
+    for (let account of await self.wallets[walletId].getAccounts(includeSubaddresses, tag)) accountsJson.push(account.toJson());
+    postMessage([walletId, "onGetAccounts", {result: accountsJson}]);
   } catch (e) {
-    postMessage(["onGetAccounts", {error: e.message}]);
+    postMessage([walletId, "onGetAccounts", {error: e.message}]);
   }
 }
 
-self.getAccount = async function(accountIdx, includeSubaddresses) {
+self.getAccount = async function(walletId, accountIdx, includeSubaddresses) {
   try {
-    postMessage(["onGetAccount", {result: (await self.wallet.getAccount(accountIdx, includeSubaddresses)).toJson()}]);
+    postMessage([walletId, "onGetAccount", {result: (await self.wallets[walletId].getAccount(accountIdx, includeSubaddresses)).toJson()}]);
   } catch (e) {
-    postMessage(["onGetAccount", {error: e.message}]);
+    postMessage([walletId, "onGetAccount", {error: e.message}]);
   }
 }
 
@@ -349,14 +376,14 @@ self.getAccount = async function(accountIdx, includeSubaddresses) {
 //}
 
 // TODO: easier or more efficient way than serializing from root blocks?
-self.getTxs = async function(blockJsonQuery) {
+self.getTxs = async function(walletId, blockJsonQuery) {
   try {
     
     // deserialize query which is json string rooted at block
     let query = new MoneroBlock(blockJsonQuery, MoneroBlock.DeserializationType.TX_QUERY).getTxs()[0];
     
     // get txs
-    let txs = await self.wallet.getTxs(query);
+    let txs = await self.wallets[walletId].getTxs(query);
     
     // collect unique blocks to preserve model relationships as trees (based on monero_wasm_bridge.cpp::get_txs)
     let unconfirmedBlock = undefined;
@@ -378,20 +405,20 @@ self.getTxs = async function(blockJsonQuery) {
     for (let i = 0; i < blocks.length; i++) blocks[i] = blocks[i].toJson();
     
     // wrap and serialize response
-    postMessage(["onGetTxs", {result: blocks}]);
+    postMessage([walletId, "onGetTxs", {result: blocks}]);
   } catch (e) {
-    postMessage(["onGetTxs", {error: e.message}]);
+    postMessage([walletId, "onGetTxs", {error: e.message}]);
   }
 }
 
-self.getTransfers = async function(blockJsonQuery) {
+self.getTransfers = async function(walletId, blockJsonQuery) {
   try {
     
     // deserialize query which is json string rooted at block
     let query = new MoneroBlock(blockJsonQuery, MoneroBlock.DeserializationType.TX_QUERY).getTxs()[0].getTransferQuery();
     
     // get transfers
-    let transfers = await self.wallet.getTransfers(query);
+    let transfers = await self.wallets[walletId].getTransfers(query);
     
     // collect unique blocks to preserve model relationships as tree
     let unconfirmedBlock = undefined;
@@ -414,20 +441,20 @@ self.getTransfers = async function(blockJsonQuery) {
     for (let i = 0; i < blocks.length; i++) blocks[i] = blocks[i].toJson();
     
     // wrap and serialize response
-    postMessage(["onGetTransfers", {result: blocks}]);
+    postMessage([walletId, "onGetTransfers", {result: blocks}]);
   } catch (e) {
-    postMessage(["onGetTransfers", {error: e.message}]);
+    postMessage([walletId, "onGetTransfers", {error: e.message}]);
   }
 }
 
-self.getOutputs = async function(blockJsonQuery) {
+self.getOutputs = async function(walletId, blockJsonQuery) {
   try {
     
     // deserialize query which is json string rooted at block
     let query = new MoneroBlock(blockJsonQuery, MoneroBlock.DeserializationType.TX_QUERY).getTxs()[0].getOutputQuery();
     
     // get outputs
-    let outputs = await self.wallet.getOutputs(query);
+    let outputs = await self.wallets[walletId].getOutputs(query);
     
     // collect unique blocks to preserve model relationships as tree
     let unconfirmedBlock = undefined;
@@ -450,9 +477,9 @@ self.getOutputs = async function(blockJsonQuery) {
     for (let i = 0; i < blocks.length; i++) blocks[i] = blocks[i].toJson();
     
     // wrap and serialize response
-    postMessage(["onGetOutputs", {result: blocks}]);
+    postMessage([walletId, "onGetOutputs", {result: blocks}]);
   } catch (e) {
-    postMessage(["onGetOutputs", {error: e.message}]);
+    postMessage([walletId, "onGetOutputs", {error: e.message}]);
   }
 }
 
@@ -481,9 +508,13 @@ self.getOutputs = async function(blockJsonQuery) {
 //  throw new MoneroError("Not implemented");
 //}
 
-self.sendSplit = async function(requestOrAccountIndex, address, amount, priority) {
-  if (typeof requestOrAccountIndex === "object") requestOrAccountIndex = new MoneroSendRequest(requestOrAccountIndex);
-  postMessage(["onSendSplit", (await self.wallet.sendSplit(requestOrAccountIndex, address, amount, priority)).toJson()]);
+self.sendSplit = async function(walletId, requestOrAccountIndex, address, amount, priority) {
+  try {
+    if (typeof requestOrAccountIndex === "object") requestOrAccountIndex = new MoneroSendRequest(requestOrAccountIndex);
+    postMessage([walletId, "onSendSplit", {result: (await self.wallets[walletId].sendSplit(requestOrAccountIndex, address, amount, priority)).toJson()}]);
+  } catch (e) {
+    postMessage([walletId, "onSendSplit", {error: e.message}]);
+  }
 }
 
 //async sweepOutput(requestOrAddress, keyImage, priority) {
@@ -599,19 +630,19 @@ self.sendSplit = async function(requestOrAccountIndex, address, amount, priority
 //}
 
 
-self.getAttribute = async function(key) {
+self.getAttribute = async function(walletId, key) {
   try {
-    postMessage(["onGetAttribute", {result: await self.wallet.getAttribute(key)}]);
+    postMessage([walletId, "onGetAttribute", {result: await self.wallets[walletId].getAttribute(key)}]);
   } catch (e) {
-    postMessage(["onGetAttribute", {error: e.message}]);
+    postMessage([walletId, "onGetAttribute", {error: e.message}]);
   }
 }
 
-self.setAttribute = async function(key, value) {
+self.setAttribute = async function(walletId, key, value) {
   try {
-    postMessage(["onSetAttribute", {result: await self.wallet.setAttribute(key, value)}]);
+    postMessage([walletId, "onSetAttribute", {result: await self.wallets[walletId].setAttribute(key, value)}]);
   } catch (e) {
-    postMessage(["onSetAttribute", {error: e.message}]);
+    postMessage([walletId, "onSetAttribute", {error: e.message}]);
   }
 }
 
@@ -672,26 +703,26 @@ self.setAttribute = async function(key, value) {
 //  throw new MoneroError("Not implemented");
 //}
 
-self.getData = async function() {
+self.getData = async function(walletId) {
   try {
-    postMessage(["onGetData", {result: await self.wallet.getData()}]);
+    postMessage([walletId, "onGetData", {result: await self.wallets[walletId].getData()}]);
   } catch (e) {
-    postMessage(["onGetData", {error: e.message}]);
+    postMessage([walletId, "onGetData", {error: e.message}]);
   }
 }
 
-self.isClosed = async function() {
+self.isClosed = async function(walletId) {
   try {
-    postMessage(["onIsClosed", {result: await self.wallet.isClosed()}]);
+    postMessage([walletId, "onIsClosed", {result: await self.wallets[walletId].isClosed()}]);
   } catch (e) {
-    postMessage(["onIsClosed", {error: e.message}]);
+    postMessage([walletId, "onIsClosed", {error: e.message}]);
   }
 }
 
-self.close = async function(save) {
+self.close = async function(walletId, save) {
   try {
-    postMessage(["onClose", {result: await self.wallet.close(save)}]);
+    postMessage([walletId, "onClose", {result: await self.wallets[walletId].close(save)}]);
   } catch (e) {
-    postMessage(["onClose", {error: e.message}]);
+    postMessage([walletId, "onClose", {error: e.message}]);
   }
 }
