@@ -14,6 +14,13 @@ class MoneroSubaddress {
     }
   }
   
+  toJson() {
+    let json = Object.assign({}, this.state);
+    if (json.balance) json.balance = json.balance.toString();
+    if (json.unlockedBalance) json.unlockedBalance = json.unlockedBalance.toString();
+    return json;
+  }
+  
   getAccountIndex() {
     return this.state.accountIndex;
   }

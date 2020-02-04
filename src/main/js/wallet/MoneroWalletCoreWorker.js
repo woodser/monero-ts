@@ -317,13 +317,24 @@ self.getUnlockedBalance = async function(accountIdx, subaddressIdx) {
   }
 }
 
-//async getAccounts(includeSubaddresses, tag) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getAccount(accountIdx, includeSubaddresses) {
-//  throw new MoneroError("Not implemented");
-//}
+self.getAccounts = async function(includeSubaddresses, tag) {
+  try {
+    let accountsJson = [];
+    for (let account of await self.wallet.getAccounts(includeSubaddresses, tag)) accountsJson.push(account.toJson());
+    postMessage(["onGetAccounts", {result: accountsJson}]);
+  } catch (e) {
+    postMessage(["onGetAccounts", {error: e.message}]);
+  }
+}
+
+self.getAccount = async function(accountIdx, includeSubaddresses) {
+  try {
+    postMessage(["onGetAccount", {result: (await self.wallet.getAccount(accountIdx, includeSubaddresses)).toJson()}]);
+  } catch (e) {
+    postMessage(["onGetAccount", {error: e.message}]);
+  }
+}
+
 //
 //async createAccount(label) {
 //  throw new MoneroError("Not implemented");
@@ -339,30 +350,74 @@ self.getUnlockedBalance = async function(accountIdx, subaddressIdx) {
 
 // TODO: easier or more efficient way than serializing from root blocks?
 self.getTxs = async function(blockJsonQuery) {
-  let query = new MoneroBlock(blockJsonQuery, MoneroBlock.DeserializationType.TX_QUERY).getTxs()[0];
-  let txs = await self.wallet.getTxs(query);
-  
-  // collect unique blocks to preserve model relationships as trees (based on monero_wasm_bridge.cpp::get_txs)
-  let unconfirmedBlock = undefined;
-  let blocks = [];
-  let seenBlocks = new Set();
-  for (let tx of txs) {
-    if (!tx.getBlock()) {
-      if (!unconfirmedBlock) unconfirmedBlock = new MoneroBlock().setTxs([]);
-      tx.setBlock(unconfirmedBlock);
-      unconfirmedBlock.getTxs().push(tx);
+  try {
+    
+    // deserialize query which is json string rooted at block
+    let query = new MoneroBlock(blockJsonQuery, MoneroBlock.DeserializationType.TX_QUERY).getTxs()[0];
+    
+    // get txs
+    let txs = await self.wallet.getTxs(query);
+    
+    // collect unique blocks to preserve model relationships as trees (based on monero_wasm_bridge.cpp::get_txs)
+    let unconfirmedBlock = undefined;
+    let blocks = [];
+    let seenBlocks = new Set();
+    for (let tx of txs) {
+      if (!tx.getBlock()) {
+        if (!unconfirmedBlock) unconfirmedBlock = new MoneroBlock().setTxs([]);
+        tx.setBlock(unconfirmedBlock);
+        unconfirmedBlock.getTxs().push(tx);
+      }
+      if (!seenBlocks.has(tx.getBlock())) {
+        seenBlocks.add(tx.getBlock());
+        blocks.push(tx.getBlock());
+      }
     }
-    if (!seenBlocks.has(tx.getBlock())) {
-      seenBlocks.add(tx.getBlock());
-      blocks.push(tx.getBlock());
-    }
+    
+    // serialize blocks to json
+    for (let i = 0; i < blocks.length; i++) blocks[i] = blocks[i].toJson();
+    
+    // wrap and serialize response
+    postMessage(["onGetTxs", {result: blocks}]);
+  } catch (e) {
+    postMessage(["onGetTxs", {error: e.message}]);
   }
-  
-  // serialize blocks to json
-  for (let i = 0; i < blocks.length; i++) blocks[i] = blocks[i].toJson();
-  
-  // wrap and serialize response
-  postMessage(["onGetTxs", JSON.stringify({blocks: blocks})]);
+}
+
+self.getTransfers = async function(blockJsonQuery) {
+  try {
+    
+    // deserialize query which is json string rooted at block
+    let query = new MoneroBlock(blockJsonQuery, MoneroBlock.DeserializationType.TX_QUERY).getTxs()[0].getTransferQuery();
+    
+    // get transfers
+    let transfers = await self.wallet.getTransfers(query);
+    
+    // collect unique blocks to preserve model relationships as tree
+    let unconfirmedBlock = undefined;
+    let blocks = [];
+    let seenBlocks = new Set();
+    for (let transfer of transfers) {
+      let tx = transfer.getTx();
+      if (!tx.getBlock()) {
+        if (!unconfirmedBlock) unconfirmedBlock = new MoneroBlock().setTxs([]);
+        tx.setBlock(unconfirmedBlock);
+        unconfirmedBlock.getTxs().push(tx);
+      }
+      if (!seenBlocks.has(tx.getBlock())) {
+        seenBlocks.add(tx.gegtBlock());
+        blocks.push(tx.getBlock());
+      }
+    }
+    
+    // serialize blocks to json
+    for (let i = 0; i < blocks.length; i++) blocks[i] = blocks[i].toJson();
+    
+    // wrap and serialize response
+    postMessage(["onGetTransfers", {result: blocks}]);
+  } catch (e) {
+    postMessage(["onGetTransfers", {error: e.message}]);
+  }
 }
 
 //async getTransfers(query) {

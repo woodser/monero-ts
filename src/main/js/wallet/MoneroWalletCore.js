@@ -623,10 +623,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
       let accounts = [];
       for (let accountJson of JSON.parse(accountsStr).accounts) {
         accounts.push(MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson)));
-//        console.log("Account balance: " + accountJson.balance);
-//        console.log("Account unlocked balance: " + accountJson.unlockedBalance);
-//        console.log("Account balance BI: " + new BigInteger(accountJson.balance));
-//        console.log("Account unlocked balance BI: " + new BigInteger(accountJson.unlockedBalance));
       }
       return accounts;
     });
@@ -714,25 +710,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     
     // copy and normalize query up to block
-    if (query === undefined) query = new MoneroTransferQuery();
-    else if (query instanceof MoneroTransferQuery) {
-      if (query.getTxQuery() === undefined) query = query.copy();
-      else {
-        let txQuery = query.getTxQuery().copy();
-        if (query.getTxQuery().getTransferQuery() === query) query = txQuery.getTransferQuery();
-        else {
-          assert.equal(query.getTxQuery().getTransferQuery(), undefined, "Transfer query's tx query must be circular reference or null");
-          query = query.copy();
-          query.setTxQuery(txQuery);
-        }
-      }
-    } else {
-      query = Object.assign({}, query);
-      query = new MoneroTransferQuery(query).setTxQuery(new MoneroTxQuery(query));
-    }
-    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
-    query.getTxQuery().setTransferQuery(query);
-    if (query.getTxQuery().getBlock() === undefined) query.getTxQuery().setBlock(new MoneroBlock().setTxs([query.getTxQuery()]));
+    query = MoneroWalletCore._normalizeTransferQuery(query);
     
     // return promise which resolves on callback
     let that = this;
@@ -748,21 +726,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
             return;
           }
           
-          // deserialize blocks
-          let blocks = MoneroWalletCore._deserializeBlocks(blocksJsonStr);
-          
-          // collect transfers
-          let transfers = [];
-          for (let block of blocks) {
-            MoneroWalletCore._sanitizeBlock(block);
-            for (let tx of block.getTxs()) {
-              if (block.getHeight() === undefined) tx.setBlock(undefined); // dereference placeholder block for unconfirmed txs
-              if (tx.getOutgoingTransfer() !== undefined) transfers.push(tx.getOutgoingTransfer());
-              if (tx.getIncomingTransfers() !== undefined) {
-                for (let transfer of tx.getIncomingTransfers()) transfers.push(transfer);
-              }
-            }
-          }
+          // initialize transfers from blocks json string
+          let transfers = MoneroWalletCore._blocksJsonToTransfers(query, blocksJsonStr)
           
           // resolve promise with transfers
           resolve(transfers);
@@ -1326,6 +1291,29 @@ class MoneroWalletCore extends MoneroWalletKeys {
     return query;
   }
   
+  static _normalizeTransferQuery(query) {
+    if (query === undefined) query = new MoneroTransferQuery();
+    else if (query instanceof MoneroTransferQuery) {
+      if (query.getTxQuery() === undefined) query = query.copy();
+      else {
+        let txQuery = query.getTxQuery().copy();
+        if (query.getTxQuery().getTransferQuery() === query) query = txQuery.getTransferQuery();
+        else {
+          assert.equal(query.getTxQuery().getTransferQuery(), undefined, "Transfer query's tx query must be circular reference or null");
+          query = query.copy();
+          query.setTxQuery(txQuery);
+        }
+      }
+    } else {
+      query = Object.assign({}, query);
+      query = new MoneroTransferQuery(query).setTxQuery(new MoneroTxQuery(query));
+    }
+    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
+    query.getTxQuery().setTransferQuery(query);
+    if (query.getTxQuery().getBlock() === undefined) query.getTxQuery().setBlock(new MoneroBlock().setTxs([query.getTxQuery()]));
+    return query;
+  }
+  
   static _blocksJsonToTxs(query, blocksJsonStr) {
     
     // deserialize blocks
@@ -1351,6 +1339,27 @@ class MoneroWalletCore extends MoneroWalletKeys {
     }
     
     return txs;
+  }
+  
+  static _blocksJsonToTransfers(query, blocksJsonStr) {
+    
+    // deserialize blocks
+    let blocks = MoneroWalletCore._deserializeBlocks(blocksJsonStr);
+    
+    // collect transfers
+    let transfers = [];
+    for (let block of blocks) {
+      MoneroWalletCore._sanitizeBlock(block);
+      for (let tx of block.getTxs()) {
+        if (block.getHeight() === undefined) tx.setBlock(undefined); // dereference placeholder block for unconfirmed txs
+        if (tx.getOutgoingTransfer() !== undefined) transfers.push(tx.getOutgoingTransfer());
+        if (tx.getIncomingTransfers() !== undefined) {
+          for (let transfer of tx.getIncomingTransfers()) transfers.push(transfer);
+        }
+      }
+    }
+    
+    return transfers;
   }
 }
 
