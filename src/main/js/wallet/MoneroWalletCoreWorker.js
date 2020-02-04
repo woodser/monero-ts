@@ -405,7 +405,7 @@ self.getTransfers = async function(blockJsonQuery) {
         unconfirmedBlock.getTxs().push(tx);
       }
       if (!seenBlocks.has(tx.getBlock())) {
-        seenBlocks.add(tx.gegtBlock());
+        seenBlocks.add(tx.getBlock());
         blocks.push(tx.getBlock());
       }
     }
@@ -420,13 +420,42 @@ self.getTransfers = async function(blockJsonQuery) {
   }
 }
 
-//async getTransfers(query) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getOutputs(query) {
-//  throw new MoneroError("Not implemented");
-//}
+self.getOutputs = async function(blockJsonQuery) {
+  try {
+    
+    // deserialize query which is json string rooted at block
+    let query = new MoneroBlock(blockJsonQuery, MoneroBlock.DeserializationType.TX_QUERY).getTxs()[0].getOutputQuery();
+    
+    // get outputs
+    let outputs = await self.wallet.getOutputs(query);
+    
+    // collect unique blocks to preserve model relationships as tree
+    let unconfirmedBlock = undefined;
+    let blocks = [];
+    let seenBlocks = new Set();
+    for (let output of outputs) {
+      let tx = output.getTx();
+      if (!tx.getBlock()) {
+        if (!unconfirmedBlock) unconfirmedBlock = new MoneroBlock().setTxs([]);
+        tx.setBlock(unconfirmedBlock);
+        unconfirmedBlock.getTxs().push(tx);
+      }
+      if (!seenBlocks.has(tx.getBlock())) {
+        seenBlocks.add(tx.getBlock());
+        blocks.push(tx.getBlock());
+      }
+    }
+    
+    // serialize blocks to json
+    for (let i = 0; i < blocks.length; i++) blocks[i] = blocks[i].toJson();
+    
+    // wrap and serialize response
+    postMessage(["onGetOutputs", {result: blocks}]);
+  } catch (e) {
+    postMessage(["onGetOutputs", {error: e.message}]);
+  }
+}
+
 //
 //async getOutputsHex() {
 //  throw new MoneroError("Not implemented");
