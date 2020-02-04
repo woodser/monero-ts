@@ -1164,6 +1164,10 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async close(save) {
     if (this._isClosed) return; // closing a closed wallet has no effect
+    if (!this._syncingThreadDone) {
+      this._syncingEnabled = false;
+      this._syncingThreadDone = true;
+    }
     await this._setIsListening(false);  // TODO: port to jni
     await this.stopSyncing();
     await super.close(save);
@@ -1171,10 +1175,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
     delete this.password;
     delete this.listeners;
     delete this.wasmListener;
-    if (!this._syncingThreadDone) {
-      this._syncingEnabled = false;
-      this._syncingThreadDone = true;
-    }
   }
   
   // ---------------------------- PRIVATE HELPERS ----------------------------
