@@ -368,7 +368,7 @@ bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::
 
   // check for error
   boost::optional<boost::property_tree::ptree&> error = resp_node.get_child_optional("error");
-  if (error) cout << "error property exists, returning false" << endl;
+  if (error) return false;
 
   // build response object
   m_response_info.clear();
