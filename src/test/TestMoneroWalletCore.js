@@ -551,7 +551,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
             let miningStatus = await daemon.getMiningStatus();
             if (!miningStatus.isActive()) {
               try {
-                StartMining.startMining();
+                await StartMining.startMining();
                 //await wallet.startMining(7, false, true); // TODO: support client-side mining?
                 startedMining = true;
               } catch (e) {
