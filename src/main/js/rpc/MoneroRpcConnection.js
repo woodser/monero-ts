@@ -61,10 +61,10 @@ class MoneroRpcConnection {
     // initialize http agent
     if (this.config.uri.startsWith("https")) {
       let https = require('https');
-      this.agent = new https.Agent({keepAlive: true, maxSockets: 1});
+      this.agent = MoneroUtils.getHttpsAgent();
     } else {
       let http = require('http');
-      this.agent = new http.Agent({keepAlive: true, maxSockets: 1});
+      this.agent = MoneroUtils.getHttpAgent();
     }
     
     // initialize promise throttler

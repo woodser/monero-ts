@@ -9,6 +9,7 @@ class MoneroUtils {
   static async loadWasmModule() {
     if (MoneroUtils.WASM_MODULE === undefined) {
       MoneroUtils.WASM_MODULE = await require("../../../../build/monero-javascript-wasm")().ready;
+      MoneroUtils.WORKER_OBJECTS = {};  // store per object running in the worker
       
       // initialize data structure to synchronize access to wasm module
       const async = require("async");
@@ -28,6 +29,62 @@ class MoneroUtils {
       }
     }
     return MoneroUtils.WASM_MODULE;
+  }
+  
+  /**
+   * Get a singleton instance of a worker to share.
+   * 
+   * @return {Worker} a worker to share among wallet instances
+   */
+  static getWorker() {
+    
+    // one time initialization
+    if (!MoneroUtils.WORKER) {
+      MoneroUtils.WORKER = new Worker("MoneroWalletCoreWorker.js");
+      
+      // catch worker messages
+      MoneroUtils.WORKER.onmessage = function(e) {
+        
+        // lookup wallet id, callback function, and this arg
+        let thisArg = null;
+        let callbackFn = MoneroUtils.WORKER_OBJECTS[e.data[0]].callbacks[e.data[1]]; // look up by wallet id then by function name
+        if (callbackFn === undefined) throw new Error("No worker callback function defined for key '" + e.data[1] + "'");
+        if (callbackFn instanceof Array) {  // this arg may be stored with callback function
+          thisArg = callbackFn[1];
+          callbackFn = callbackFn[0];
+        }
+        
+        // invoke callback function with this arg and arguments
+        callbackFn.apply(thisArg, e.data.slice(2));
+      }
+    }
+    return MoneroUtils.WORKER;
+  }
+  
+  /**
+   * Get a singleton of an HTTP client to share among library instances.
+   * 
+   * @return {http.Agent} a shared agent for network requests among library instances
+   */
+  static async getHttpAgent() {
+    if (!MoneroUtils.HTTP_AGENT) {
+      let https = require('http');
+      MoneroUtils.HTTP_AGENT = new https.Agent({keepAlive: true});
+    }
+    return MoneroUtils.HTTP_CLIENT;
+  }
+  
+  /**
+   * Get a singleton of an HTTPS client to share among library instances.
+   * 
+   * @return {https.Agent} a shared agent for network requests among library instances
+   */
+  static async getHttpsAgent() {
+    if (!MoneroUtils.HTTPS_AGENT) {
+      let https = require('https');
+      MoneroUtils.HTTPS_AGENT = new https.Agent({keepAlive: true});
+    }
+    return MoneroUtils.HTTPS_AGENT;
   }
   
   // TODO: beef this up
