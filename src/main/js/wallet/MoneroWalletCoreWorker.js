@@ -663,22 +663,22 @@ self.setAttribute = async function(walletId, key, value) {
   }
 }
 
-//
-//async getAttribute(key) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async setAttribute(key, val) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async startMining(numThreads, backgroundMining, ignoreBattery) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async stopMining() {
-//  throw new MoneroError("Not implemented");
-//}
+self.startMining = async function(walletId, numThreads, backgroundMining, ignoreBattery) {
+  try {
+    postMessage([walletId, "onStartMining", {result: await self.wallets[walletId].startMining(numThreads, backgroundMining, ignoreBattery)}]);
+  } catch (e) {
+    postMessage([walletId, "onStartMining", {error: e.message}]);
+  }
+}
+
+self.stopMining = async function(walletId) {
+  try {
+    postMessage([walletId, "onStopMining", {result: await self.wallets[walletId].stopMining()}]);
+  } catch (e) {
+    postMessage([walletId, "onStopMining", {error: e.message}]);
+  }
+}
+
 //
 //async isMultisigImportNeeded() {
 //  throw new MoneroError("Not implemented");

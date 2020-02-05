@@ -11,36 +11,6 @@
 class MoneroWalletCoreProxy extends MoneroWallet {
   
   /**
-   * Get a singleton instance of a worker to share among wallet instances.
-   * 
-   * @return {Worker} a worker to share among wallet instances
-   */
-  static getWorker() {
-    
-    // one time initialization
-    if (!MoneroWalletCoreProxy.WORKER) {
-      MoneroWalletCoreProxy.WORKER = new Worker("MoneroWalletCoreWorker.js");
-      
-      // catch worker messages
-      MoneroWalletCoreProxy.WORKER.onmessage = function(e) {
-        
-        // lookup wallet id, callback function, and this arg
-        let thisArg = null;
-        let callbackFn = MoneroWalletCoreProxy.WALLETS[e.data[0]].callbacks[e.data[1]]; // look up by wallet id then by function name
-        if (callbackFn === undefined) throw new Error("No worker callback function defined for key '" + e.data[1] + "'");
-        if (callbackFn instanceof Array) {  // this arg may be stored with callback function
-          thisArg = callbackFn[1];
-          callbackFn = callbackFn[0];
-        }
-        
-        // invoke callback function with this arg and arguments
-        callbackFn.apply(thisArg, e.data.slice(2));
-      }
-    }
-    return MoneroWalletCoreProxy.WORKER;
-  }
-  
-  /**
    * Invoke a wallet worker function and get the result with error handling.
    * 
    * @param {string} fnName is the name of the function to invoke
@@ -48,13 +18,12 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    */
   static async _invokeWorker(walletId, fnName, args) {
     assert(fnName.length >= 2);
-    if (!MoneroWalletCoreProxy.WALLETS[walletId]) MoneroWalletCoreProxy.WALLETS[walletId] = {callbacks: {}};
-    let worker = MoneroWalletCoreProxy.getWorker();
+    if (!MoneroUtils.WORKER_OBJECTS[walletId]) MoneroUtils.WORKER_OBJECTS[walletId] = {callbacks: {}};
     return new Promise(function(resolve, reject) {
-      MoneroWalletCoreProxy.WALLETS[walletId].callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) {
+      MoneroUtils.WORKER_OBJECTS[walletId].callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) {
         resp ? (resp.error ? reject(new MoneroError(resp.error)) : resolve(resp.result)) : resolve();
       };
-      worker.postMessage([walletId, fnName].concat(args === undefined ? [] : GenUtils.listify(args)));
+      MoneroUtils.getWorker().postMessage([walletId, fnName].concat(args === undefined ? [] : GenUtils.listify(args)));
     });
   }
   
@@ -64,28 +33,28 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     let walletId = GenUtils.uuidv4();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await MoneroWalletCoreProxy._invokeWorker(walletId, "openWalletData", [password, networkType, keysData, cacheData, daemonUriOrConfig]);
-    return new MoneroWalletCoreProxy(walletId, MoneroWalletCoreProxy.getWorker());
+    return new MoneroWalletCoreProxy(walletId, MoneroUtils.getWorker());
   }
   
   static async createWalletRandom(password, networkType, daemonUriOrConnection, language) {
     let walletId = GenUtils.uuidv4();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await MoneroWalletCoreProxy._invokeWorker(walletId, "createWalletRandom", [password, networkType, daemonUriOrConfig, language]);
-    return new MoneroWalletCoreProxy(walletId, MoneroWalletCoreProxy.getWorker());
+    return new MoneroWalletCoreProxy(walletId, MoneroUtils.getWorker());
   }
   
   static async createWalletFromMnemonic(password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset) {
     let walletId = GenUtils.uuidv4();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await MoneroWalletCoreProxy._invokeWorker(walletId, "createWalletFromMnemonic", [password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset]);
-    return new MoneroWalletCoreProxy(walletId, MoneroWalletCoreProxy.getWorker());
+    return new MoneroWalletCoreProxy(walletId, MoneroUtils.getWorker());
   }
   
   static async createWalletFromKeys(password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language) {
     let walletId = GenUtils.uuidv4();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await MoneroWalletCoreProxy._invokeWorker(walletId, "createWalletFromKeys", [password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language]);
-    return new MoneroWalletCoreProxy(walletId, MoneroWalletCoreProxy.getWorker());
+    return new MoneroWalletCoreProxy(walletId, MoneroUtils.getWorker());
   }
   
   /**
@@ -201,10 +170,10 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   async addListener(listener) {
     let wrappedListener = new WalletWorkerListener(listener);
     let listenerId = wrappedListener.getId();
-    MoneroWalletCoreProxy.WALLETS[this.walletId].callbacks["onSyncProgress_" + listenerId] = [wrappedListener.onSyncProgress, wrappedListener];
-    MoneroWalletCoreProxy.WALLETS[this.walletId].callbacks["onNewBlock_" + listenerId] = [wrappedListener.onNewBlock, wrappedListener];
-    MoneroWalletCoreProxy.WALLETS[this.walletId].callbacks["onOutputReceived_" + listenerId] = [wrappedListener.onOutputReceived, wrappedListener];
-    MoneroWalletCoreProxy.WALLETS[this.walletId].callbacks["onOutputSpent_" + listenerId] = [wrappedListener.onOutputSpent, wrappedListener];
+    MoneroUtils.WORKER_OBJECTS[this.walletId].callbacks["onSyncProgress_" + listenerId] = [wrappedListener.onSyncProgress, wrappedListener];
+    MoneroUtils.WORKER_OBJECTS[this.walletId].callbacks["onNewBlock_" + listenerId] = [wrappedListener.onNewBlock, wrappedListener];
+    MoneroUtils.WORKER_OBJECTS[this.walletId].callbacks["onOutputReceived_" + listenerId] = [wrappedListener.onOutputReceived, wrappedListener];
+    MoneroUtils.WORKER_OBJECTS[this.walletId].callbacks["onOutputSpent_" + listenerId] = [wrappedListener.onOutputSpent, wrappedListener];
     this.wrappedListeners.push(wrappedListener);
     this.worker.postMessage([this.walletId, "addListener", listenerId]);
   }
@@ -214,10 +183,10 @@ class MoneroWalletCoreProxy extends MoneroWallet {
       if (this.wrappedListeners[i].getListener() === listener) {
         let listenerId = this.wrappedListeners[i].getId();
         this.worker.postMessage([this.walletId, "removeListener", listenerId]);
-        delete MoneroWalletCoreProxy.WALLETS[this.walletId].callbacks["onSyncProgress_" + listenerId];
-        delete MoneroWalletCoreProxy.WALLETS[this.walletId].callbacks["onNewBlock_" + listenerId];
-        delete MoneroWalletCoreProxy.WALLETS[this.walletId].callbacks["onOutputReceived_" + listenerId];
-        delete MoneroWalletCoreProxy.WALLETS[this.walletId].callbacks["onOutputSpent_" + listenerId];
+        delete MoneroUtils.WORKER_OBJECTS[this.walletId].callbacks["onSyncProgress_" + listenerId];
+        delete MoneroUtils.WORKER_OBJECTS[this.walletId].callbacks["onNewBlock_" + listenerId];
+        delete MoneroUtils.WORKER_OBJECTS[this.walletId].callbacks["onOutputReceived_" + listenerId];
+        delete MoneroUtils.WORKER_OBJECTS[this.walletId].callbacks["onOutputSpent_" + listenerId];
         this.wrappedListeners.splice(i, 1);
         return;
       }
@@ -483,11 +452,11 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async startMining(numThreads, backgroundMining, ignoreBattery) {
-    throw new MoneroError("Not implemented");
+    return await this._invokeWorker("startMining", Array.from(arguments));
   }
   
   async stopMining() {
-    throw new MoneroError("Not implemented");
+    return await this._invokeWorker("stopMining", Array.from(arguments));
   }
   
   async isMultisigImportNeeded() {
@@ -541,7 +510,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   async close(save) {
     await this._invokeWorker("close", save);
     delete this.wrappedListeners;
-    delete MoneroWalletCoreProxy.WALLETS[this.walletId];
+    delete MoneroUtils.WORKER_OBJECTS[this.walletId];
   }
   
   // --------------------------- PRIVATE HELPERS ------------------------------
@@ -550,9 +519,6 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     return MoneroWalletCoreProxy._invokeWorker(this.walletId, fnName, args);
   }
 }
-
-// store callbacks per wallet
-MoneroWalletCoreProxy.WALLETS = {};
 
 /**
  * Internal listener to bridge notifications to external listeners.
