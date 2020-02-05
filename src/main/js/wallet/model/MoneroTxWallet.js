@@ -26,7 +26,14 @@ class MoneroTxWallet extends MoneroTx {
       this.setOutgoingTransfer(new MoneroOutgoingTransfer(Object.assign(state.outgoingTransfer, {tx: this})));
     }
     
-    // TODO: deserialize inputs
+    // deserialize inputs
+    if (state.inputs) {
+      for (let i = 0; i < state.inputs.length; i++) {
+        if (!(state.inputs[i] instanceof MoneroOutputWallet)) {
+          state.inputs[i] = new MoneroOutputWallet(Object.assign(state.inputs[i].toJson(), {tx: this}));
+        }
+      }
+    }
     
     // deserialize outputs
     if (state.outputs) {
