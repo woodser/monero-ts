@@ -68,7 +68,7 @@ class TestMoneroWalletCoreProxy extends TestMoneroWalletCore {
    * Create a wallet from mnemonic with custom configuration using a method which subclasses may override.
    */
   async createWalletFromMnemonicCustom(password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset) {
-    let wallet = await MoneroWalletCoreProxy.createWalletFromMnemonic( password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset);
+    let wallet = await MoneroWalletCoreProxy.createWalletFromMnemonic(password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset);
     await wallet.setAttribute("id", GenUtils.uuidv4());  // assign id
     //await wallet.startSyncing();  // TODO
     return wallet;

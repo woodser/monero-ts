@@ -301,9 +301,9 @@ self.isSynced = async function(walletId) {
   }
 }
 
-self.sync = async function(walletId) {
+self.sync = async function(walletId, startHeight) {
   try {
-    postMessage([walletId, "onSync", {result: await self.wallets[walletId].sync()}]);
+    postMessage([walletId, "onSync", {result: await self.wallets[walletId].sync(startHeight)}]);
   } catch (e) {
     postMessage([walletId, "onSync", {error: e.message}]);
   }
