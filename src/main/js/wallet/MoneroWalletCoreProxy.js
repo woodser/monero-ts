@@ -58,7 +58,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     });
   }
   
-  // -------------------------- STATIC WALLET UTILS ---------------------------
+  // -------------------------- WALLET STATIC UTILS ---------------------------
   
   static async openWalletData(password, networkType, keysData, cacheData, daemonUriOrConnection) {
     let walletId = GenUtils.uuidv4();
@@ -249,7 +249,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     }
     
     // sync the wallet in worker
-    let resultJson = await this._invokeWorker("sync");
+    let resultJson = await this._invokeWorker("sync", [startHeight]);
     let result = new MoneroSyncResult(resultJson.numBlocksFetched, resultJson.receivedMoney);
     
     // unregister sync listener wrapper
