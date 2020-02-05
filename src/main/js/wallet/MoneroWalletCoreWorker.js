@@ -151,10 +151,14 @@ self.getAddress = async function(walletId, accountIdx, subaddressIdx) {
   }
 }
 
-//async getAddressIndex(address) {
-//  throw new Error("Not implemented");
-//}
-//
+self.getAddressIndex = async function(walletId, address) {
+  try {
+    postMessage([walletId, "onGetAddressIndex", {result: await self.wallets[walletId].getAddressIndex(address)}]);
+  } catch (e) {
+    postMessage([walletId, "onGetAddressIndex", {error: e.message}]);
+  }
+}
+
 //getAccounts() {
 //  throw new Error("Not implemented");
 //}
@@ -346,9 +350,9 @@ self.getUnlockedBalance = async function(walletId, accountIdx, subaddressIdx) {
 
 self.getAccounts = async function(walletId, includeSubaddresses, tag) {
   try {
-    let accountsJson = [];
-    for (let account of await self.wallets[walletId].getAccounts(includeSubaddresses, tag)) accountsJson.push(account.toJson());
-    postMessage([walletId, "onGetAccounts", {result: accountsJson}]);
+    let accountJsons = [];
+    for (let account of await self.wallets[walletId].getAccounts(includeSubaddresses, tag)) accountJsons.push(account.toJson());
+    postMessage([walletId, "onGetAccounts", {result: accountJsons}]);
   } catch (e) {
     postMessage([walletId, "onGetAccounts", {error: e.message}]);
   }
@@ -362,18 +366,31 @@ self.getAccount = async function(walletId, accountIdx, includeSubaddresses) {
   }
 }
 
-//
-//async createAccount(label) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getSubaddresses(accountIdx, subaddressIndices) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async createSubaddress(accountIdx, label) {
-//  throw new MoneroError("Not implemented");
-//}
+self.createAccount = async function(walletId, label) {
+  try {
+    postMessage([walletId, "onCreateAccount", {result: (await self.wallets[walletId].createAccount(label)).toJson()}]);
+  } catch (e) {
+    postMessage([walletId, "onCreateAccount", {error: e.message}]);
+  }
+}
+
+self.getSubaddresses = async function(walletId, accountIdx, subaddressIndices) {
+  try {
+    let subaddressJsons = [];
+    for (let subaddress of await self.wallets[walletId].getSubaddresses(accountIdx, subaddressIndices)) subaddressJsons.push(subaddress.toJson());
+    postMessage([walletId, "onGetSubaddresses", {result: subaddressJsons}]);
+  } catch (e) {
+    postMessage([walletId, "onGetSubaddresses", {error: e.message}]);
+  }
+}
+
+self.createSubaddress = async function(walletId, accountIdx, label) {
+  try {
+    postMessage([walletId, "onCreateSubaddress", {result: (await self.wallets[walletId].createSubaddress(accountIdx, label)).toJson()}]);
+  } catch (e) {
+    postMessage([walletId, "onCreateSubaddress", {error: e.message}]);
+  }
+}
 
 // TODO: easier or more efficient way than serializing from root blocks?
 self.getTxs = async function(walletId, blockJsonQuery) {

@@ -297,15 +297,21 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async createAccount(label) {
-    throw new MoneroError("Not implemented");
+    let accountJson = await this._invokeWorker("createAccount", Array.from(arguments));
+    return MoneroWalletCore._sanitizeAccount(new MoneroAccount(accountJson));
   }
   
   async getSubaddresses(accountIdx, subaddressIndices) {
-    throw new MoneroError("Not implemented");
+    let subaddresses = [];
+    for (let subaddressJson of (await this._invokeWorker("getSubaddresses", Array.from(arguments)))) {
+      subaddressJson.push(MoneroWalletCore._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
+    }
+    return subaddresses;
   }
   
   async createSubaddress(accountIdx, label) {
-    throw new MoneroError("Not implemented");
+    let subaddressJson = await this._invokeWorker("createSubaddress", Array.from(arguments));
+    return MoneroWalletCore._santiizeSubaddress(new MoneroSubaddress(subaddressJson));
   }
   
   async getTxs(query) {
