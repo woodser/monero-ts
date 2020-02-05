@@ -9,7 +9,6 @@ class MoneroUtils {
   static async loadWasmModule() {
     if (MoneroUtils.WASM_MODULE === undefined) {
       MoneroUtils.WASM_MODULE = await require("../../../../build/monero-javascript-wasm")().ready;
-      MoneroUtils.WORKER_OBJECTS = {};  // store per object running in the worker
       
       // initialize data structure to synchronize access to wasm module
       const async = require("async");
@@ -41,6 +40,7 @@ class MoneroUtils {
     // one time initialization
     if (!MoneroUtils.WORKER) {
       MoneroUtils.WORKER = new Worker("MoneroWalletCoreWorker.js");
+      MoneroUtils.WORKER_OBJECTS = {};  // store per object running in the worker
       
       // catch worker messages
       MoneroUtils.WORKER.onmessage = function(e) {
@@ -71,7 +71,7 @@ class MoneroUtils {
       let https = require('http');
       MoneroUtils.HTTP_AGENT = new https.Agent({keepAlive: true});
     }
-    return MoneroUtils.HTTP_CLIENT;
+    return MoneroUtils.HTTP_AGENT;
   }
   
   /**

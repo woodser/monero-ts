@@ -7,6 +7,7 @@
  * TODO: ability to recycle worker for use in another wallet
  * TODO: factor all is*() to common method handler e.g. registerBoolFn("isSynced", "onIsSynced")
  * TODO: on* callbacks only need to be defined once, instead they are defined once per call
+ * TODO: using MoneroUtils.WORKER_OBJECTS directly
  */
 class MoneroWalletCoreProxy extends MoneroWallet {
   
@@ -18,12 +19,13 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    */
   static async _invokeWorker(walletId, fnName, args) {
     assert(fnName.length >= 2);
+    let worker = MoneroUtils.getWorker();
     if (!MoneroUtils.WORKER_OBJECTS[walletId]) MoneroUtils.WORKER_OBJECTS[walletId] = {callbacks: {}};
     return new Promise(function(resolve, reject) {
       MoneroUtils.WORKER_OBJECTS[walletId].callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) {
         resp ? (resp.error ? reject(new MoneroError(resp.error)) : resolve(resp.result)) : resolve();
       };
-      MoneroUtils.getWorker().postMessage([walletId, fnName].concat(args === undefined ? [] : GenUtils.listify(args)));
+      worker.postMessage([walletId, fnName].concat(args === undefined ? [] : GenUtils.listify(args)));
     });
   }
   
@@ -273,14 +275,14 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   async getSubaddresses(accountIdx, subaddressIndices) {
     let subaddresses = [];
     for (let subaddressJson of (await this._invokeWorker("getSubaddresses", Array.from(arguments)))) {
-      subaddressJson.push(MoneroWalletCore._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
+      subaddresses.push(MoneroWalletCore._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
     }
     return subaddresses;
   }
   
   async createSubaddress(accountIdx, label) {
     let subaddressJson = await this._invokeWorker("createSubaddress", Array.from(arguments));
-    return MoneroWalletCore._santiizeSubaddress(new MoneroSubaddress(subaddressJson));
+    return MoneroWalletCore._santizeSubaddress(new MoneroSubaddress(subaddressJson));
   }
   
   async getTxs(query) {
