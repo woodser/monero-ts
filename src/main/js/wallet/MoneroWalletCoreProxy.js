@@ -226,7 +226,9 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   getListeners() {
-    return this.wrappedListeners;
+    let listeners = [];
+    for (let wrappedListener of this.wrappedListener) listeners.push(wrappedListener.getListener());
+    return listeners;
   }
   
   async isSynced() {

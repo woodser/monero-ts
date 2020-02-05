@@ -19,7 +19,7 @@ self.initOneTime = async function() {
     self.wallets = {};
     self.isInitialized = true;
     console.log("WORKER loading scripts and module");
-    self.importScripts('monero-javascript-wasm.js');
+    self.importScripts('monero-javascript-wasm.js');  // TODO: move to top?
     self.importScripts('worker_imports.js');
     await MoneroUtils.loadWasmModule();
     console.log("done loading scripts and module");
