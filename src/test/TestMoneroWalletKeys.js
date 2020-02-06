@@ -6,16 +6,20 @@ const MoneroWalletKeys = require("../main/js/wallet/MoneroWalletKeys");
  */
 class TestMoneroWalletKeys extends TestMoneroWalletCommon {
   
-  constructor() {
-    super(TestUtils.getDaemonRpc());
+  constructor(config) {
+    super(config);
   }
   
   async getTestWallet() {
     return TestUtils.getWalletKeys();
   }
   
+  async getTestDaemon() {
+    throw new Error("TestMoneroWalletKeys.getTestDaemon() not applicable");
+  }
+  
   async openWallet(path) {
-    throw new Error("TestMoneroWalletKeys.openWallet(path) not supported");
+    throw new Error("TestMoneroWalletKeys.openWallet(path) not applicable");
   }
   
   async createWalletRandom() {
@@ -34,27 +38,28 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
     return await MoneroWalletKeys.getMnemonicLanguages();
   }
   
-  runTests(config) {
+  runTests() {
     let that = this;
     describe("TEST MONERO WALLET KEYS", function() {
       
       // initialize wallet
       before(async function() {
-        that.wallet = await TestUtils.getWalletKeys();
+        that.wallet = await that.getTestWallet();
       });
       
       // run tests specific to keys wallet
-      that._testWalletKeys(config);
+      that._testWalletKeys();
       
       // run common tests
-      that.runCommonTests(config);
+      that.runCommonTests();
     });
   }
   
   // ---------------------------------- PRIVATE -------------------------------
   
-  _testWalletKeys(config) {
+  _testWalletKeys() {
     let that = this;
+    let config = this.config;
     let daemon = this.daemon;
     
     describe("Tests specific to keys wallet", function() {

@@ -263,7 +263,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   
   async createSubaddress(accountIdx, label) {
     let subaddressJson = await this._invokeWorker("createSubaddress", Array.from(arguments));
-    return MoneroWalletCore._santizeSubaddress(new MoneroSubaddress(subaddressJson));
+    return MoneroWalletCore._sanitizeSubaddress(new MoneroSubaddress(subaddressJson));
   }
   
   async getTxs(query) {

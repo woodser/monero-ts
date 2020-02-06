@@ -85,10 +85,10 @@ class MoneroUtils {
    * 
    * @return {http.Agent} a shared agent for network requests among library instances
    */
-  static async getHttpAgent() {
+  static getHttpAgent() {
     if (!MoneroUtils.HTTP_AGENT) {
-      let https = require('http');
-      MoneroUtils.HTTP_AGENT = new https.Agent({keepAlive: true});
+      let http = require('http');
+      MoneroUtils.HTTP_AGENT = new http.Agent({keepAlive: true});
     }
     return MoneroUtils.HTTP_AGENT;
   }
@@ -98,7 +98,7 @@ class MoneroUtils {
    * 
    * @return {https.Agent} a shared agent for network requests among library instances
    */
-  static async getHttpsAgent() {
+  static getHttpsAgent() {
     if (!MoneroUtils.HTTPS_AGENT) {
       let https = require('https');
       MoneroUtils.HTTPS_AGENT = new https.Agent({keepAlive: true});
