@@ -26,6 +26,15 @@
 class MoneroDaemon {
   
   /**
+   * Indicates if the client is connected to the daemon via RPC.
+   * 
+   * @return {boolean} true if the client is connected to the daemon, false otherwise
+   */
+  async isConnected() {
+    throw new MoneroError("Subclass must implement");
+  }
+  
+  /**
    * Gets the version of the daemon.
    * 
    * @return {MoneroVersion} the version of the daemon

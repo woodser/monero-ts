@@ -77,8 +77,9 @@ module.exports = function() {
   this.MoneroDaemon = require("./daemon/MoneroDaemon");
   this.MoneroWallet = require("./wallet/MoneroWallet");
   this.MoneroDaemonRpc = require("./daemon/MoneroDaemonRpc");
+  this.MoneroDaemonRpcProxy = require("./daemon/MoneroDaemonRpcProxy");   // TODO: collapse into MoneroDaemonRpc?
   this.MoneroWalletRpc = require("./wallet/MoneroWalletRpc");
   this.MoneroWalletKeys = require("./wallet/MoneroWalletKeys");
   this.MoneroWalletCore = require("./wallet/MoneroWalletCore");
-  this.MoneroWalletCoreProxy = require("./wallet/MoneroWalletCoreProxy");
+  this.MoneroWalletCoreProxy = require("./wallet/MoneroWalletCoreProxy"); // TODO: collapse into MoneroWalletCore?
 }

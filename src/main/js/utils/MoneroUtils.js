@@ -4,7 +4,7 @@
 class MoneroUtils {
   
   /**
-   * Loads the WebAssembly module one time.
+   * Load the WebAssembly module one time.
    */
   static async loadWasmModule() {
     if (MoneroUtils.WASM_MODULE === undefined) {
@@ -31,7 +31,7 @@ class MoneroUtils {
   }
   
   /**
-   * Get a singleton instance of a worker to share.
+   * Get a singleton instance of a web worker to share.
    * 
    * @return {Worker} a worker to share among wallet instances
    */
@@ -39,7 +39,7 @@ class MoneroUtils {
     
     // one time initialization
     if (!MoneroUtils.WORKER) {
-      MoneroUtils.WORKER = new Worker("MoneroWalletCoreWorker.js");
+      MoneroUtils.WORKER = new Worker("MoneroWebWorker.js");
       MoneroUtils.WORKER_OBJECTS = {};  // store per object running in the worker
       
       // catch worker messages
@@ -62,7 +62,26 @@ class MoneroUtils {
   }
   
   /**
-   * Get a singleton of an HTTP client to share among library instances.
+   * Invoke a web worker function and get the result with error handling.
+   * 
+   * @param {objectId} identifies the worker object to invoke
+   * @param {string} fnName is the name of the function to invoke
+   * @param {[]} args are function arguments to invoke with
+   */
+  static async invokeWorker(objectId, fnName, args) {
+    assert(fnName.length >= 2);
+    let worker = MoneroUtils.getWorker();
+    if (!MoneroUtils.WORKER_OBJECTS[objectId]) MoneroUtils.WORKER_OBJECTS[objectId] = {callbacks: {}};
+    return new Promise(function(resolve, reject) {
+      MoneroUtils.WORKER_OBJECTS[objectId].callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) {
+        resp ? (resp.error ? reject(new MoneroError(resp.error)) : resolve(resp.result)) : resolve();
+      };
+      worker.postMessage([objectId, fnName].concat(args === undefined ? [] : GenUtils.listify(args)));
+    });
+  }
+  
+  /**
+   * Get a singleton instancne of an HTTP client to share.
    * 
    * @return {http.Agent} a shared agent for network requests among library instances
    */
@@ -75,7 +94,7 @@ class MoneroUtils {
   }
   
   /**
-   * Get a singleton of an HTTPS client to share among library instances.
+   * Get a singleton instance of an HTTPS client to share.
    * 
    * @return {https.Agent} a shared agent for network requests among library instances
    */

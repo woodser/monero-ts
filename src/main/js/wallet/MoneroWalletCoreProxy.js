@@ -11,53 +11,38 @@
  */
 class MoneroWalletCoreProxy extends MoneroWallet {
   
-  /**
-   * Invoke a wallet worker function and get the result with error handling.
-   * 
-   * @param {string} fnName is the name of the function to invoke
-   * @param {[]} args are arguments to pass to the worker
-   */
-  static async _invokeWorker(walletId, fnName, args) {
-    assert(fnName.length >= 2);
-    let worker = MoneroUtils.getWorker();
-    if (!MoneroUtils.WORKER_OBJECTS[walletId]) MoneroUtils.WORKER_OBJECTS[walletId] = {callbacks: {}};
-    return new Promise(function(resolve, reject) {
-      MoneroUtils.WORKER_OBJECTS[walletId].callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) {
-        resp ? (resp.error ? reject(new MoneroError(resp.error)) : resolve(resp.result)) : resolve();
-      };
-      worker.postMessage([walletId, fnName].concat(args === undefined ? [] : GenUtils.listify(args)));
-    });
-  }
   
   // -------------------------- WALLET STATIC UTILS ---------------------------
   
   static async openWalletData(password, networkType, keysData, cacheData, daemonUriOrConnection) {
     let walletId = GenUtils.uuidv4();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
-    await MoneroWalletCoreProxy._invokeWorker(walletId, "openWalletData", [password, networkType, keysData, cacheData, daemonUriOrConfig]);
+    await MoneroUtils.invokeWorker(walletId, "openWalletData", [password, networkType, keysData, cacheData, daemonUriOrConfig]);
     return new MoneroWalletCoreProxy(walletId, MoneroUtils.getWorker());
   }
   
   static async createWalletRandom(password, networkType, daemonUriOrConnection, language) {
     let walletId = GenUtils.uuidv4();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
-    await MoneroWalletCoreProxy._invokeWorker(walletId, "createWalletRandom", [password, networkType, daemonUriOrConfig, language]);
+    await MoneroUtils.invokeWorker(walletId, "createWalletRandom", [password, networkType, daemonUriOrConfig, language]);
     return new MoneroWalletCoreProxy(walletId, MoneroUtils.getWorker());
   }
   
   static async createWalletFromMnemonic(password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset) {
     let walletId = GenUtils.uuidv4();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
-    await MoneroWalletCoreProxy._invokeWorker(walletId, "createWalletFromMnemonic", [password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset]);
+    await MoneroUtils.invokeWorker(walletId, "createWalletFromMnemonic", [password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset]);
     return new MoneroWalletCoreProxy(walletId, MoneroUtils.getWorker());
   }
   
   static async createWalletFromKeys(password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language) {
     let walletId = GenUtils.uuidv4();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
-    await MoneroWalletCoreProxy._invokeWorker(walletId, "createWalletFromKeys", [password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language]);
+    await MoneroUtils.invokeWorker(walletId, "createWalletFromKeys", [password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language]);
     return new MoneroWalletCoreProxy(walletId, MoneroUtils.getWorker());
   }
+  
+  // --------------------------- INSTANCE METHODS ----------------------------
   
   /**
    * Internal constructor which is given a worker to communicate with via messages.
@@ -70,8 +55,8 @@ class MoneroWalletCoreProxy extends MoneroWallet {
    */
   constructor(walletId, worker) {
     super();
-    this.worker = worker;
     this.walletId = walletId;
+    this.worker = worker;
     this.wrappedListeners = [];
     assert(walletId); // TODO: remove this (bad wallet ids will be part of error message)
   }
@@ -514,7 +499,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   // --------------------------- PRIVATE HELPERS ------------------------------
   
   async _invokeWorker(fnName, args) {
-    return MoneroWalletCoreProxy._invokeWorker(this.walletId, fnName, args);
+    return MoneroUtils.invokeWorker(this.walletId, fnName, args);
   }
 }
 
