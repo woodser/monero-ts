@@ -40,6 +40,11 @@ new TestMoneroUtils().runTests();
 //  testNotifications: false
 //}).runTests();
 
+//const memfs = require('memfs');
+//const Volume = memfs.Volume;
+//let vol = new Volume();
+//let fs = memfs.createFsFromVolume(vol);
+
 // test core wallet
 new TestMoneroWalletCore({
   liteMode: true,

@@ -117,7 +117,6 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       
       // initialize wallet
       before(async function() {
-        console.log("EXECUTING BEFORE");
         try {
           that.wallet = await that.getTestWallet();
           that.daemon = await that.getTestDaemon();
