@@ -7,6 +7,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   // --------------------------- STATIC UTILITIES -----------------------------
   
+  // TODO: look for keys file
   static async walletExists(path, fs) {
     assert(path, "Must specify path to test for existence");
     if (!fs) fs = require('fs');

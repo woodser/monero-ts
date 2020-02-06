@@ -46,7 +46,8 @@ new TestMoneroWalletCore({
   testNonRelays: true,
   testRelays: false,
   testResets: false,
-  testNotifications: false
+  testNotifications: false,
+  fs: require('memfs')
 }).runTests();
 
 // test scratchpad
