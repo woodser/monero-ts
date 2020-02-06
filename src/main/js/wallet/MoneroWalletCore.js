@@ -1,5 +1,3 @@
-const FS = require('fs'); 
-
 /**
  * Implements a MoneroWallet using WebAssembly to bridge to monero-project's wallet2.
  * 
@@ -9,13 +7,16 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   // --------------------------- STATIC UTILITIES -----------------------------
   
-  static async walletExists(path) {
-    let temp = FS.existsSync(path);
-    console.log("Wallet exists at " + path + ": " + temp);
-    return FS.existsSync(path);
+  static async walletExists(path, fs) {
+    assert(path, "Must specify path to test for existence");
+    if (!fs) fs = require('fs');
+    let exists = fs.existsSync(path);
+    console.log("Wallet exists at " + path + ": " + exists);
+    return exists;
   }
   
   static async openWallet(path, password, networkType, daemonUriOrConnection, proxyToWorker, fs) {
+    if (proxyToWorker) throw new Error("proxyToWorker not yet supported");
     
     // read wallet files
     if (path && !fs) fs = require('fs');
@@ -34,7 +35,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   // private helper
   static async _openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs) {
-    if (proxyToWorker || fs) throw new Error("proxyToWorker || fs not yet supported");
+    if (proxyToWorker) throw new Error("proxyToWorker not yet supported");
     
     // validate and normalize parameters
     if (password === undefined) password = "";
@@ -54,7 +55,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          let wallet = new MoneroWalletCore(cppAddress, path, password);
+          let wallet = new MoneroWalletCore(cppAddress, path, password, fs);
           resolve(wallet);
         };
         
@@ -65,9 +66,10 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   static async createWalletRandom(path, password, networkType, daemonUriOrConnection, language, proxyToWorker, fs) {
-    if (proxyToWorker || fs) throw new Error("proxyToWorker || fs not yet supported");
+    if (proxyToWorker) throw new Error("proxyToWorker not yet supported");
     
     // validate and normalize params
+    if (path && !fs) fs = require('fs');
     if (path === undefined) path = "";
     if (password === undefined) password = "";
     MoneroNetworkType.validate(networkType);
@@ -86,7 +88,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          let wallet = new MoneroWalletCore(cppAddress, path, password);
+          let wallet = new MoneroWalletCore(cppAddress, path, password, fs);
           resolve(wallet);
         };
         
@@ -101,7 +103,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, proxyToWorker, fs) {
-    if (proxyToWorker || fs) throw new Error("proxyToWorker || fs not yet supported");
+    if (proxyToWorker) throw new Error("proxyToWorker not yet supported");
     
     // validate and normalize params
     if (path === undefined) path = "";
@@ -123,7 +125,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          let wallet = new MoneroWalletCore(cppAddress, path, password);
+          let wallet = new MoneroWalletCore(cppAddress, path, password, fs);
           resolve(wallet);
         };
         
@@ -163,7 +165,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       
         // define callback for wasm
         let callbackFn = async function(cppAddress) {
-          let wallet = new MoneroWalletCore(cppAddress, path, password);
+          let wallet = new MoneroWalletCore(cppAddress, path, password, fs);
           resolve(wallet);
         };
         
@@ -196,13 +198,15 @@ class MoneroWalletCore extends MoneroWalletKeys {
    * @param {int} cppAddress is the address of the wallet instance in C++
    * @param {string} path is the path of the wallet instance
    * @param {string} password is the password of the wallet instance
+   * @param {FileSystem} fs provides a minimal file system interface (read, write, delete, exists) (defaults to require('fs'))
    */
-  constructor(cppAddress, path, password) {
+  constructor(cppAddress, path, password, fs) {
     super(cppAddress);
     this.path = path;
     this.password = password;
     this.listeners = [];
-    this._isClosed = false; // TODO: rename other member variables with "_*"
+    this.fs = fs ? fs : require('fs');
+    this._isClosed = false; // TODO: rename other member variables with "_*", be consistent
     this.wasmListener = new WalletWasmListener(this); // receives notifications from wasm c++
     this.wasmListenerHandle = 0;                      // memory address of the wallet listener in c++
   }
@@ -1132,7 +1136,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     if (path === "") throw new MoneroError("Wallet path is not set");
     
     // write address file
-    FS.writeFileSync(path + ".address.txt", await this.getPrimaryAddress());
+    this.fs.writeFileSync(path + ".address.txt", await this.getPrimaryAddress());
     
     // queue call to wasm module
     let that = this;
@@ -1151,7 +1155,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       that.module._free(cacheBufferLoc.pointer);
       
       // write cache file
-      FS.writeFileSync(path, view, "binary");
+      that.fs.writeFileSync(path, view, "binary");
       
       // malloc keys buffer and get buffer location in c++ heap
       let keysBufferLoc = JSON.parse(that.module.get_keys_file_buffer(that.cppAddress, that.password, false));
@@ -1166,7 +1170,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       that.module._free(keysBufferLoc.pointer);
       
       // write keys file
-      FS.writeFileSync(path + ".keys", view, "binary"); // TODO: make async with callback?
+      that.fs.writeFileSync(path + ".keys", view, "binary"); // TODO: make async with callback?
     });
   }
   

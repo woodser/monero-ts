@@ -15,7 +15,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   }
   
   async getTestDaemon() {
-    throw new Error("TestMoneroWalletRpc.getTestDaemon() not implemented");
+    return TestUtils.getDaemonRpc();
   }
   
   async openWallet(path) {
@@ -49,7 +49,8 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
       
       // initialize wallet
       before(async function() {
-        that.wallet = await TestUtils.getWalletRpc();
+        that.wallet = await that.getTestWallet();
+        that.daemon = await that.getTestDaemon();
         TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
       });
       
@@ -82,7 +83,6 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   
   _testWalletRpc(config) {
     let that = this;
-    let daemon = this.daemon;
     describe("Tests specific to RPC wallet", function() {
       
       // ---------------------------- BEGIN TESTS ---------------------------------
@@ -138,7 +138,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           if (await that.wallet.getHeight() !== 1) console.log("WARNING: createWalletFromMnemonic() already has height as if synced");
           if ((await that.wallet.getTxs()).length !== 0) console.log("WARNING: createWalletFromMnemonic() already has txs as if synced");
           await that.wallet.sync();
-          assert.equal(await that.wallet.getHeight(), await daemon.getHeight());
+          assert.equal(await that.wallet.getHeight(), await that.daemon.getHeight());
           let txs = await that.wallet.getTxs();
           assert(txs.length > 0); // wallet is used
           assert.equal(txs[0].getHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
@@ -339,7 +339,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         // re-open the wallet
         await that.wallet.openWallet(path, TestUtils.WALLET_PASSWORD);
         await that.wallet.sync();
-        assert.equal(await that.wallet.getHeight(), await daemon.getHeight());
+        assert.equal(await that.wallet.getHeight(), await that.daemon.getHeight());
         
         // close the wallet
         await that.wallet.close();
