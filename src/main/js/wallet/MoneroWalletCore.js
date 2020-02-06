@@ -1094,8 +1094,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
       // malloc cache buffer and get buffer location in c++ heap
       let cacheBufferLoc = JSON.parse(that.module.get_cache_file_buffer(that.cppAddress, that.password));
       
-//      let view = new Uint8Array(that.module.HEAPU8.buffer, cacheBufferLoc.pointer, cacheBufferLoc.length);
-      
       // read binary data from heap to DataView
       let view = new DataView(new ArrayBuffer(cacheBufferLoc.length));
       for (let i = 0; i < cacheBufferLoc.length; i++) {
@@ -1110,8 +1108,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
       
       // malloc keys buffer and get buffer location in c++ heap
       let keysBufferLoc = JSON.parse(that.module.get_keys_file_buffer(that.cppAddress, that.password, false));
-      
-//      view = new Uint8Array(that.module.HEAPU8.buffer, keysBufferLoc.pointer, keysBufferLoc.length);
       
       // read binary data from heap to DataView
       view = new DataView(new ArrayBuffer(keysBufferLoc.length)); // TODO: improve performance using DataView instead of Uint8Array?, TODO: rename to length
@@ -1128,7 +1124,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
     });
   }
 
-  // TODO: use getData()
   async save() {
     this._assertNotClosed();
         
@@ -1139,40 +1134,10 @@ class MoneroWalletCore extends MoneroWalletKeys {
     // write address file
     this.fs.writeFileSync(path + ".address.txt", await this.getPrimaryAddress());
     
-    // queue call to wasm module
-    let that = this;
-    return that.module.queueTask(async function() {
-      
-      // malloc cache buffer and get buffer location in c++ heap
-      let cacheBufferLoc = JSON.parse(that.module.get_cache_file_buffer(that.cppAddress, that.password));
-      
-      // read binary data from heap to DataView
-      let view = new DataView(new ArrayBuffer(cacheBufferLoc.length));
-      for (let i = 0; i < cacheBufferLoc.length; i++) {
-        view.setInt8(i, that.module.HEAPU8[cacheBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
-      }
-      
-      // free binary on heap
-      that.module._free(cacheBufferLoc.pointer);
-      
-      // write cache file
-      that.fs.writeFileSync(path, view, "binary");
-      
-      // malloc keys buffer and get buffer location in c++ heap
-      let keysBufferLoc = JSON.parse(that.module.get_keys_file_buffer(that.cppAddress, that.password, false));
-      
-      // read binary data from heap to DataView
-      view = new DataView(new ArrayBuffer(keysBufferLoc.length)); // TODO: improve performance using DataView instead of Uint8Array?, TODO: rename to length
-      for (let i = 0; i < keysBufferLoc.length; i++) {
-        view.setInt8(i, that.module.HEAPU8[keysBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
-      }
-      
-      // free binary on heap
-      that.module._free(keysBufferLoc.pointer);
-      
-      // write keys file
-      that.fs.writeFileSync(path + ".keys", view, "binary"); // TODO: make async with callback?
-    });
+    // write keys and cache data
+    let data = await this.getData();
+    this.fs.writeFileSync(path + ".keys", data[0], "binary");
+    this.fs.writeFileSync(path, data[1], "binary");
   }
   
   async close(save) {

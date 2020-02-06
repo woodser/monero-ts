@@ -1,5 +1,3 @@
-const FS = require('fs'); 
-
 /**
  * Implements a MoneroWallet which only manages keys using WebAssembly.
  */
