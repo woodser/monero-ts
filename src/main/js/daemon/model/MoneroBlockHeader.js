@@ -23,6 +23,18 @@ class MoneroBlockHeader {
     if (state.reward !== undefined && !(state.reward instanceof BigInteger)) state.reward = BigInteger.parse(state.reward);
   }
   
+  copy() {
+    return new MoneroBlockHeader(this);
+  }
+  
+  toJson() {
+    let json = Object.assign({}, this.state);
+    if (this.getDifficulty()) json.difficulty = this.getDifficulty().toString();
+    if (this.getCumulativeDifficulty()) json.cumulativeDifficulty = this.getCumulativeDifficulty().toString();
+    if (this.getReward()) json.reward = this.getReward().toString();
+    return json;
+  }
+  
   getHash() {
     return this.state.hash;
   }
@@ -194,18 +206,6 @@ class MoneroBlockHeader {
   setPowHash(powHash) {
     this.state.powHash = powHash;
     return this;
-  }
-  
-  copy() {
-    return new MoneroBlockHeader(this);
-  }
-  
-  toJson() {
-    let json = Object.assign({}, this.state);
-    if (this.getDifficulty()) json.difficulty = this.getDifficulty().toString();
-    if (this.getCumulativeDifficulty()) json.cumulativeDifficulty = this.getCumulativeDifficulty().toString();
-    if (this.getReward()) json.reward = this.getReward().toString();
-    return json;
   }
   
   merge(header) {

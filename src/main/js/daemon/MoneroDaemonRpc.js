@@ -28,6 +28,8 @@ class MoneroDaemonRpc extends MoneroDaemon {
   /**
    * Constructs the daemon.
    * 
+   * TODO: support config = MoneroRpcConnection with test
+   * 
    * @param {object}  config defines the rpc configuration as a map
    * @param {string}  config.uri is the uri of the rpc endpoint
    * @param {string}  config.protocol is the protocol of the rpc endpoint
@@ -65,11 +67,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return this.config.rpc;
   }
   
-  /**
-   * Indicates if the client is connected to the daemon via RPC.
-   * 
-   * @return {boolean} true if the client is connected to the daemon, false otherwise
-   */
   async isConnected() {
     try {
       await this.getHeight();

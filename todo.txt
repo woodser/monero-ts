@@ -2,6 +2,7 @@ HIGH (WASM)
 wallet core tests
 MoneroWalletWebWorker.js for web apps
 keys-only vs full wallet build and merge to master
+update documentation: daemon isConnected, other top level methods
 in-memory wallet; wallet2 password is required to create valid cache file on creation (start with tests)
 hardcode block hash instead of miner::find_nonce
 rebase, cleanup, and submit core pr
