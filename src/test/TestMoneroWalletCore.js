@@ -12,7 +12,8 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   }
   
   async getTestWallet() {
-    return await TestUtils.getWalletCore(this.config.proxyToWorker, this.config.fs);
+    if (!this.testWallet) this.testWallet = await TestUtils.getWalletCore(this.config.proxyToWorker, this.config.fs);
+    return this.testWallet;
   }
   
   async getTestDaemon() {
@@ -27,7 +28,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   }
   
   async openWalletCustom(path, password, networkType, daemonConnection) {
-    let wallet = await MoneroWalletCore.openWallet(path, password, networkType, daemonConnection, this.config.proxyToWorker);
+    let wallet = await MoneroWalletCore.openWallet(path, password, networkType, daemonConnection, this.config.proxyToWorker, this.config.fs);
     //await wallet.startSyncing();  // TODO
     return wallet;
   }
@@ -78,9 +79,9 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
     return wallet;
   }
   
-  async createWalletFromKeysCustom(password, networkType, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
+  async createWalletFromKeysCustom(password, networkType, address, privateViewKey, privateSpendKey, daemonConnection, restoreHeight, language) {
     let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4();
-    let wallet = await MoneroWalletCore.createWalletFromKeys(path, password, networkType, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language, this.config.proxyToWorker, this.config.fs);
+    let wallet = await MoneroWalletCore.createWalletFromKeys(path, password, networkType, address, privateViewKey, privateSpendKey, daemonConnection, restoreHeight, language, this.config.proxyToWorker, this.config.fs);
     assert.equal(await wallet.getPath(), path);
     //await wallet.startSyncing();  // TODO
     return wallet;
@@ -116,6 +117,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       
       // initialize wallet
       before(async function() {
+        console.log("EXECUTING BEFORE");
         try {
           that.wallet = await that.getTestWallet();
           that.daemon = await that.getTestDaemon();
