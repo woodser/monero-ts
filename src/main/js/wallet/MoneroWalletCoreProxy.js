@@ -124,10 +124,6 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     return await this._invokeWorker("getAddressIndex", Array.from(arguments));
   }
   
-  getAccounts() {
-    throw new Error("Not implemented");
-  }
-  
   async setDaemonConnection(uriOrRpcConnection, username, password) {
     if (!uriOrRpcConnection) await this._invokeWorker("setDaemonConnection");
     else {
