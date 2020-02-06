@@ -78,7 +78,7 @@ class TestUtils {
    * @param {FileSystem} fs is a file system to read/write the wallet (default = require('fs'))
    * @return {MoneroWalletCore} is the created or opened core wallet
    * 
-   * TODO: cache wallets per unique proxyToWorker/fs config?
+   * TODO: cache wallets per unique proxyToWorker/fs config? wallets can become unsynced if used at different spots and saved
    */
   static async getWalletCore(proxyToWorker, fs) {
     
