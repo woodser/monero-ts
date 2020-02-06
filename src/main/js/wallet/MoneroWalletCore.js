@@ -141,7 +141,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   static async createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, proxyToWorker, fs) {
-    if (proxyToWorker || fs) throw new Error("proxyToWorker || fs not yet supported");
+    if (proxyToWorker) throw new Error("proxyToWorker not yet supported");
     
     // validate and normalize params
     if (path === undefined) path = "";
