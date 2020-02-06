@@ -1006,12 +1006,14 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async startMining(numThreads, backgroundMining, ignoreBattery) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let daemon = new MoneroDaemonRpc((await this.getDaemonConnection()).getConfig()); // TODO: accept daemon connection
+    await daemon.startMining(await this.getPrimaryAddress(), numThreads, backgroundMining, ignoreBattery);
   }
   
   async stopMining() {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let daemon = new MoneroDaemonRpc((await this.getDaemonConnection()).getConfig()); // TODO: accept daemon connection
+    await daemon.stopMining();
   }
   
   async isMultisigImportNeeded() {
