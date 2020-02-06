@@ -9,7 +9,7 @@ const SEND_MAX_DIFF = 60;
 const MAX_TX_PROOFS = 25;   // maximum number of transactions to check for each proof, undefined to check all
 
 /**
- * Runs common tests that every Monero wallet implementation should support.
+ * Test a wallet for common functionality.
  * 
  * TODO: test filtering with not relayed
  */
@@ -18,12 +18,10 @@ class TestMoneroWalletCommon {
   /**
    * Constructs the tester.
    * 
-   * @param wallet is the wallet to test
-   * @param daemon informs some tests
+   * @param config is test configuration
    */
-  constructor(daemon) {
-    assert(daemon instanceof MoneroDaemon);
-    this.daemon = daemon;
+  constructor(config) {
+    this.config = config;
     TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
   }
   
@@ -42,6 +40,15 @@ class TestMoneroWalletCommon {
    * @return the wallet to test
    */
   async getTestWallet() {
+    throw new Error("Subclass must implement");
+  }
+  
+  /**
+   * Get the daemon being used during tests.
+   * 
+   * @return the daemon being used
+   */
+  async getTestDaemon() {
     throw new Error("Subclass must implement");
   }
   
@@ -99,10 +106,17 @@ class TestMoneroWalletCommon {
   
   // ------------------------------ BEGIN TESTS -------------------------------
   
-  runCommonTests(config) {
+  runCommonTests() {
     let that = this;
-    let daemon = this.daemon;
+    let config = this.config;
     describe("Common Wallet Tests" + (config.liteMode ? " (lite mode)" : ""), function() {
+      
+      // TODO: before and after?
+//    before(async function() {
+//    });
+//    
+//    after(async function() {
+//    });
       
       //  --------------------------- TEST NON RELAYS -------------------------
       
@@ -456,7 +470,7 @@ class TestMoneroWalletCommon {
       if (config.testNonRelays)
       it("Can sync (without progress)", async function() {
         let numBlocks = 100;
-        let chainHeight = await daemon.getHeight();
+        let chainHeight = await that.daemon.getHeight();
         assert(chainHeight >= numBlocks);
         let result = await that.wallet.sync(chainHeight - numBlocks);  // sync to end of chain
         assert(result instanceof MoneroSyncResult);
@@ -2030,7 +2044,7 @@ class TestMoneroWalletCommon {
       
       if (config.testNonRelays)
       it("Can start and stop mining", async function() {
-        let status = await daemon.getMiningStatus();
+        let status = await that.daemon.getMiningStatus();
         if (status.isActive()) await that.wallet.stopMining();
         await that.wallet.startMining(2, false, true);
         await that.wallet.stopMining();
@@ -2065,7 +2079,7 @@ class TestMoneroWalletCommon {
         
         // re-open main test wallet
         await wallet.close(); // defaults to not saving
-        this.wallet = await that.getTestWallet();
+        that.wallet = await that.getTestWallet();
       });
       
       // ------------------------ TEST NOTIFICATIONS --------------------------
@@ -2102,17 +2116,6 @@ class TestMoneroWalletCommon {
         request.setUnlockTime(3);
         await testSendAndUpdateTxs(request);
       });
-      
-      // TODO: incorporate mining into testSendAndUpdateTxs()
-//      // start mining if possible to help push the network along
-//      before(async function() {
-
-//      });
-//      
-//      // stop mining
-//      after(async function() {
-
-//      });
       
       /**
        * Tests sending a tx with an unlock time then tracking and updating it as
@@ -2158,7 +2161,7 @@ class TestMoneroWalletCommon {
           while (numConfirmations < numConfirmationsTotal) {
             
             // wait for a block
-            let header = await daemon.getNextBlockHeader();
+            let header = await that.daemon.getNextBlockHeader();
             console.log("*** Block " + header.getHeight() + " added to chain ***");
             
             // give wallet time to catch up, otherwise incoming tx may not appear
@@ -2487,7 +2490,7 @@ class TestMoneroWalletCommon {
           
           // txs are not in the pool
           for (let txCreated of txs) {
-            for (let txPool of await daemon.getTxPool()) {
+            for (let txPool of await that.daemon.getTxPool()) {
               assert(txPool.getHash() !== txCreated.getHash(), "Created tx should not be in the pool");
             }
           }
@@ -2570,7 +2573,7 @@ class TestMoneroWalletCommon {
       
       if (config.testRelays)
       it("Can send dust to multiple addresses in split transactions", async function() {
-        let dustAmt = (await daemon.getFeeEstimate()).divide(new BigInteger(2));
+        let dustAmt = (await that.daemon.getFeeEstimate()).divide(new BigInteger(2));
         await testSendToMultiple(5, 3, true, dustAmt);
       });
       
@@ -2888,7 +2891,7 @@ class TestMoneroWalletCommon {
         }
         
         // stop mining at end of test
-        try { await daemon.stopMining(); }
+        try { await that.daemon.stopMining(); }
         catch (e) { }
         
         // throw error if there was one
@@ -3644,7 +3647,7 @@ class TestMoneroWalletCommon {
         else {
           
           // print num confirmations
-          let height = await this.daemon.getHeight();
+          let height = await that.daemon.getHeight();
           let numConfirmations = height - outputs[0].getTx().getHeight();
           if (lastNumConfirmations === undefined || lastNumConfirmations !== numConfirmations) console.log("Output has " + (height - outputs[0].getTx().getHeight()) + " confirmations");
           lastNumConfirmations = numConfirmations;
@@ -3658,7 +3661,7 @@ class TestMoneroWalletCommon {
       }
         
       // stop mining
-      await this.daemon.stopMining();
+      await that.daemon.stopMining();
       
       // multisig wallet should have unlocked balance in account 1 subaddresses 0-3
       assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
@@ -4195,7 +4198,7 @@ function testGetTxsStructure(txs, query = undefined) {
 //  // fetch network blocks at tx heights
 //  List<Long> heights = new ArrayList<Long>();
 //  for (MoneroBlock block : blocks) heights.add(block.getHeight());
-//  List<MoneroBlock> networkBlocks = daemon.getBlocksByHeight(heights);
+//  List<MoneroBlock> networkBlocks = that.daemon.getBlocksByHeight(heights);
 //  
 //  // collect matching tx hashes from network blocks in order
 //  List<String> expectedTxIds = new ArrayList<String>();

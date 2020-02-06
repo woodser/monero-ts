@@ -6,12 +6,16 @@ const MoneroWalletRpc = require("../main/js/wallet/MoneroWalletRpc");
  */
 class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   
-  constructor() {
-    super(TestUtils.getDaemonRpc());
+  constructor(config) {
+    super(config);
   }
   
   async getTestWallet() {
     return TestUtils.getWalletRpc();
+  }
+  
+  async getTestDaemon() {
+    throw new Error("TestMoneroWalletRpc.getTestDaemon() not implemented");
   }
   
   async openWallet(path) {
@@ -38,8 +42,9 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     return await this.wallet.getMnemonicLanguages();
   }
 
-  runTests(config) {
+  runTests() {
     let that = this;
+    let config = this.config;
     describe("TEST MONERO WALLET RPC", function() {
       
       // initialize wallet

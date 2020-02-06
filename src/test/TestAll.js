@@ -15,39 +15,39 @@ const TestMoneroWalletCore = require("./TestMoneroWalletCore");
 new TestMoneroUtils().runTests();
 
 //// test daemon rpc
-//new TestMoneroDaemonRpc().runTests({
+//new TestMoneroDaemonRpc({
 //  liteMode: true,  // skips some thorough but lengthy tests
 //  testNonRelays: true,
 //  testRelays: false, // creates and relays outgoing txs
 //  testNotifications: false
-//});
+//}).runTests();
 
 //// test wallet rpc
-//new TestMoneroWalletRpc().runTests({
+//new TestMoneroWalletRpc({
 //  liteMode: true, // skips some lengthy but detailed tests
 //  testNonRelays: true,
 //  testRelays: true,
 //  testNotifications: false,
 //  testResets: false
-//});
+//}).runTests();
 
 //// test keys-only wallet
-//new TestMoneroWalletKeys().runTests({
+//new TestMoneroWalletKeys({
 //  liteMode: false,
 //  testNonRelays: true,
 //  testRelays: false,
 //  testResets: false,
 //  testNotifications: false
-//});
+//}).runTests();
 
 // test core wallet
-new TestMoneroWalletCore().runTests({
+new TestMoneroWalletCore({
   liteMode: true,
   testNonRelays: true,
   testRelays: false,
   testResets: false,
   testNotifications: false
-});
+}).runTests();
 
 // test scratchpad
 //require("./Scratchpad");

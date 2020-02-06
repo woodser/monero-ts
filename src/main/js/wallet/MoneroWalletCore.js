@@ -15,23 +15,26 @@ class MoneroWalletCore extends MoneroWalletKeys {
     return FS.existsSync(path);
   }
   
-  static async openWallet(path, password, networkType, daemonUriOrConnection) {
+  static async openWallet(path, password, networkType, daemonUriOrConnection, proxyToWorker, fs) {
     
     // read wallet files
-    let keysData = FS.readFileSync(path + ".keys");
-    let cacheData = FS.readFileSync(path);
+    if (path && !fs) fs = require('fs');
+    let keysData = fs.readFileSync(path + ".keys");
+    let cacheData = fs.readFileSync(path);
     
     // open wallet data
-    return this._openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection);
+    return this._openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs);
   }
   
-  static async openWalletData(password, networkType, keysData, cacheData, daemonUriOrConnection) {
+  // TODO: this should take path too probably?
+  static async openWalletData(password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs) {
     assert(password);
-    return MoneroWalletCore._openWalletData("", password, networkType, keysData, cacheData, daemonUriOrConnection);
+    return MoneroWalletCore._openWalletData("", password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs);
   }
   
   // private helper
-  static async _openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection) {
+  static async _openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs) {
+    if (proxyToWorker || fs) throw new Error("proxyToWorker || fs not yet supported");
     
     // validate and normalize parameters
     if (password === undefined) password = "";
@@ -61,7 +64,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
     });
   }
   
-  static async createWalletRandom(path, password, networkType, daemonUriOrConnection, language) {
+  static async createWalletRandom(path, password, networkType, daemonUriOrConnection, language, proxyToWorker, fs) {
+    if (proxyToWorker || fs) throw new Error("proxyToWorker || fs not yet supported");
     
     // validate and normalize params
     if (path === undefined) path = "";
@@ -96,7 +100,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
     return wallet;
   }
   
-  static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset) {
+  static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, proxyToWorker, fs) {
+    if (proxyToWorker || fs) throw new Error("proxyToWorker || fs not yet supported");
     
     // validate and normalize params
     if (path === undefined) path = "";
@@ -132,7 +137,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
     return wallet;
   }
   
-  static async createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language) {
+  static async createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, proxyToWorker, fs) {
+    if (proxyToWorker || fs) throw new Error("proxyToWorker || fs not yet supported");
     
     // validate and normalize params
     if (path === undefined) path = "";

@@ -11,7 +11,8 @@ const BINARY_BLOCK_CTX = { hasHex: false, headerIsFull: false, hasTxs: true, ctx
  */
 class TestMoneroDaemonRpc {
   
-  constructor() {
+  constructor(config) {
+    this.config = config;
     this.daemon = TestUtils.getDaemonRpc();
     TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
   }
@@ -19,8 +20,9 @@ class TestMoneroDaemonRpc {
   /**
    * Run all tests.
    */
-  runTests(config) {
+  runTests() {
     let that = this;
+    let config = this.config;
     let daemon = this.daemon;
     describe("TEST MONERO DAEMON RPC", function() {
       

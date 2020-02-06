@@ -1,34 +1,40 @@
 const TestMoneroWalletCommon = require("./TestMoneroWalletCommon");
 const MoneroWalletCore = require("../main/js/wallet/MoneroWalletCore");
+const MoneroDaemonRpcProxy = require("../main/js/daemon/MoneroDaemonRpcProxy");
 
 /**
  * Tests a Monero wallet using WebAssembly to bridge to monero-project's wallet2.
  */
 class TestMoneroWalletCore extends TestMoneroWalletCommon {
   
-  constructor() {
-    super(TestUtils.getDaemonRpc());
+  constructor(config) {
+    super(config);
   }
   
   async getTestWallet() {
-    return await TestUtils.getWalletCore();
+    return await TestUtils.getWalletCore(); // TODO: honor config
+  }
+  
+  async getTestDaemon() {
+    if (!this.daemon) this.daemon = new MoneroDaemonRpc(Object.assign(TestUtils.DAEMON_RPC_CONFIG, {proxyToWorker: this.config.proxyToWorker}));
+    return this.daemon;
   }
   
   async openWallet(path) {
-    let wallet = await MoneroWalletCore.openWallet(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection());
+    let wallet = await MoneroWalletCore.openWallet(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection(), this.config.proxyToWorker);
     //await wallet.startSyncing();  // TODO
     return wallet;
   }
   
   async openWalletCustom(path, password, networkType, daemonConnection) {
-    let wallet = await MoneroWalletCore.openWallet(path, password, networkType, daemonConnection);
+    let wallet = await MoneroWalletCore.openWallet(path, password, networkType, daemonConnection, this.config.proxyToWorker);
     //await wallet.startSyncing();  // TODO
     return wallet;
   }
   
   async createWalletRandom() {
     let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4();
-    let wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection());
+    let wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpc().getRpcConnection(), undefined, this.config.proxyToWorker);
     assert.equal(await wallet.getPath(), path);
     //await wallet.startSyncing();  // TODO
     return wallet;
@@ -39,7 +45,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
    */
   async createWalletRandomCustom(password, networkType, daemonConnection, language) {
     let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4();
-    let wallet = await MoneroWalletCore.createWalletRandom(path, password, networkType, daemonConnection, language);
+    let wallet = await MoneroWalletCore.createWalletRandom(path, password, networkType, daemonConnection, language, this.config.proxyToWorker);
     assert.equal(await wallet.getPath(), path);
     //await wallet.startSyncing();  // TODO
     return wallet;
@@ -47,7 +53,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   
   async createWalletFromMnemonic(mnemonic, restoreHeight, seedOffset) {
     let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4();
-    let wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, mnemonic, TestUtils.getDaemonRpc().getRpcConnection(), restoreHeight, seedOffset);
+    let wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, mnemonic, TestUtils.getDaemonRpc().getRpcConnection(), restoreHeight, seedOffset, this.config.proxyToWorker);
     assert.equal(await wallet.getPath(), path);
     //await wallet.startSyncing();  // TODO
     return wallet;
@@ -58,7 +64,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
    */
   async createWalletFromMnemonicCustom(password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset) {
     let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4();
-    let wallet = await MoneroWalletCore.createWalletFromMnemonic(path, password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset);
+    let wallet = await MoneroWalletCore.createWalletFromMnemonic(path, password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset, this.config.proxyToWorker);
     assert.equal(await wallet.getPath(), path);
     //await wallet.startSyncing();  // TODO
     return wallet;
@@ -66,7 +72,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   
   async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
     let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4();
-    let wallet = await MoneroWalletCore.createWalletFromKeys(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language);
+    let wallet = await MoneroWalletCore.createWalletFromKeys(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language, this.config.proxyToWorker);
     assert.equal(await wallet.getPath(), path);
     //await wallet.startSyncing();  // TODO
     return wallet;
@@ -74,7 +80,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   
   async createWalletFromKeysCustom(password, networkType, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
     let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4();
-    let wallet = await MoneroWalletCore.createWalletFromKeys(path, password, networkType, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language);
+    let wallet = await MoneroWalletCore.createWalletFromKeys(path, password, networkType, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language, this.config.proxyToWorker);
     assert.equal(await wallet.getPath(), path);
     //await wallet.startSyncing();  // TODO
     return wallet;
@@ -82,7 +88,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   
   async createWalletGroundTruth(networkType, mnemonic, restoreHeight) {
     let path = TestUtils.TEST_WALLETS_DIR + "/gt_wallet_" + GenUtils.uuidv4();
-    let gtWallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, networkType, mnemonic, (await TestUtils.getDaemonRpc()).getRpcConnection(), restoreHeight, undefined);
+    let gtWallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, networkType, mnemonic, (await TestUtils.getDaemonRpc()).getRpcConnection(), restoreHeight, undefined, this.config.proxyToWorker);
     assert.equal(await gtWallet.getRestoreHeight(), restoreHeight === undefined ? 0 : restoreHeight);
     await gtWallet.sync();
     //await gtWallet.startSyncing();  // TODO
@@ -104,7 +110,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   
   // ------------------------------- BEGIN TESTS ------------------------------
   
-  runTests(config) {
+  runTests() {
     let that = this;
     describe("TEST MONERO WALLET CORE", function() {
       
@@ -112,6 +118,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       before(async function() {
         try {
           that.wallet = await that.getTestWallet();
+          that.daemon = await that.getTestDaemon();
         } catch (e) {
           console.log("ERROR before!!!");
           console.log(e.message);
@@ -134,15 +141,16 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       });
       
       // run tests specific to wallet wasm
-      that._testWalletCore(config);
+      that._testWalletCore();
       
       // run common tests
-      that.runCommonTests(config);
+      that.runCommonTests();
     });
   }
   
-  _testWalletCore(config) {
+  _testWalletCore() {
     let that = this;
+    let config = this.config;
     let daemon = this.daemon;
     describe("Tests specific to Core wallet", function() {
       
