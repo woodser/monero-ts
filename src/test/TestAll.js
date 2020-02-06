@@ -47,7 +47,7 @@ new TestMoneroUtils().runTests();
 
 // test core wallet
 new TestMoneroWalletCore({
-  liteMode: true,
+  liteMode: false,
   testNonRelays: true,
   testRelays: false,
   testResets: false,

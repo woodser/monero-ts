@@ -30,9 +30,9 @@ EM_JS(const char*, js_send_json_request, (const char* http_client_id, const char
     let agent = new Http.Agent({keepAlive: false, maxSockets: 1});  // TODO: use one common connection and keep alive
 
     // initialize request config
-    this.config = {};
-    this.config.user = UTF8ToString(username);
-    this.config.pass = UTF8ToString(password);
+    let config = {};
+    config.user = UTF8ToString(username);
+    config.pass = UTF8ToString(password);
 
     // build request which gets json response as text
     let opts = {
@@ -42,11 +42,11 @@ EM_JS(const char*, js_send_json_request, (const char* http_client_id, const char
       agent: agent,
       resolveWithFullResponse: true
     };
-    if (this.config.user) {
+    if (config.user) {
       opts.forever = true;
       opts.auth = {
-        user: this.config.user,
-        pass: this.config.pass,
+        user: config.user,
+        pass: config.pass,
         sendImmediately: false
       }
     }
@@ -138,9 +138,9 @@ EM_JS(const char*, js_send_binary_request, (const char* http_client_id, const ch
     let agent = new Http.Agent({keepAlive: false, maxSockets: 1});
 
     // initialize request config // TODO: use set_server config
-    this.config = {};
-    this.config.user = UTF8ToString(username);
-    this.config.pass = UTF8ToString(password);
+    let config = {};
+    config.user = UTF8ToString(username);
+    config.pass = UTF8ToString(password);
 
     // load wasm module then convert from json to binary
     MoneroUtils.loadWasmModule().then(module => {
@@ -163,11 +163,11 @@ EM_JS(const char*, js_send_binary_request, (const char* http_client_id, const ch
         resolveWithFullResponse: true,
         encoding: null
       };
-      if (this.config.user) {
+      if (config.user) {
         opts.forever = true;
         opts.auth = {
-          user: this.config.user,
-          pass: this.config.pass,
+          user: config.user,
+          pass: config.pass,
           sendImmediately: false
         }
       }
