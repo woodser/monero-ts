@@ -74,38 +74,37 @@ class TestUtils {
   /**
    * Create or open a core wallet with default test configuration.
    * 
-   * @param {bool} proxyToWorker proxies the core wallet to a web worker if true (default = false)
-   * @param {FileSystem} fs is a file system to read/write the wallet (default = require('fs'))
    * @return {MoneroWalletCore} is the created or opened core wallet
-   * 
-   * TODO: cache wallets per unique proxyToWorker/fs config? wallets can become unsynced if used at different spots and saved
    */
-  static async getWalletCore(proxyToWorker, fs) {
-    
-    // create wallet from mnemonic phrase if it doesn't exist
-    if (!await MoneroWalletCore.walletExists(TestUtils.WALLET_WASM_PATH_1, fs)) {
+  static async getWalletCore() {
+    if (!TestUtils.walletCore || await TestUtils.walletCore.isClosed()) {
       
-      // create directory for test wallets if it doesn't exist
-      if (!fs.existsSync(TestUtils.TEST_WALLETS_DIR)) {
-        if (!fs.existsSync(process.cwd())) fs.mkdirSync(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
-        fs.mkdirSync(TestUtils.TEST_WALLETS_DIR);
+      // create wallet from mnemonic phrase if it doesn't exist
+      if (!await MoneroWalletCore.walletExists(TestUtils.WALLET_WASM_PATH_1, TestUtils.FS)) {
+        
+        // create directory for test wallets if it doesn't exist
+        if (!TestUtils.FS.existsSync(TestUtils.TEST_WALLETS_DIR)) {
+          if (!TestUtils.FS.existsSync(process.cwd())) TestUtils.FS.mkdirSync(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
+          TestUtils.FS.mkdirSync(TestUtils.TEST_WALLETS_DIR);
+        }
+        
+        // create wallet with connection
+        let wallet = await MoneroWalletCore.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
+        assert.equal(await wallet.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
+        await wallet.sync(new WalletSyncPrinter());
+        await wallet.startSyncing();
+        return wallet;
       }
       
-      // create wallet with connection
-      let wallet = await MoneroWalletCore.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, proxyToWorker, fs);
-      assert.equal(await wallet.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
-      await wallet.sync(new WalletSyncPrinter());
-      await wallet.startSyncing();
-      return wallet;
+      // otherwise open existing wallet
+      else {
+        let wallet = await MoneroWalletCore.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.PROXY_TO_WORKER, TestUtils.FS);
+        await wallet.sync(new WalletSyncPrinter());
+        await wallet.startSyncing();
+        return wallet;
+      }
     }
-    
-    // otherwise open existing wallet
-    else {
-      let wallet = await MoneroWalletCore.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, (await TestUtils.getDaemonRpc()).getRpcConnection(), proxyToWorker, fs);
-      await wallet.sync(new WalletSyncPrinter());
-      await wallet.startSyncing();
-      return wallet;
-    }
+    return TestUtils.walletCore;
   }
   
   static testUnsignedBigInteger(num, nonZero) {
@@ -169,6 +168,9 @@ TestUtils.DAEMON_RPC_CONFIG = {
 
 // used to track which wallets are in sync with pool so associated txs in the pool do not need to be waited on
 TestUtils.TX_POOL_WALLET_TRACKER = new TxPoolWalletTracker();
+
+TestUtils.PROXY_TO_WORKER = false;
+TestUtils.FS = require('fs');
 
 //utils/TestUtils.DAEMON_RPC_CONFIG = {
 //  uri: "http://node.xmrbackb.one:28081",
