@@ -169,6 +169,7 @@ To build this project's WebAssembly files from source code:
 	5. `make release-static -j8` (builds translations directory even if build does not finish)
 	6. `cd ../../../../`
 7. Build Boost using emscripten: `./bin/build-boost-emscripten.h`
+8. Build OpenSSL using emscripten: `./bin/build-openssl-emscripten.sh`
 8. Build WebAssembly files to ./build/: `./bin/build-emcpp.sh`
 
 ## See Also
