@@ -308,7 +308,7 @@ class TestMoneroWalletCommon {
         
         // record the wallet's path then save and close
         let path = await wallet.getPath();
-        await that.wallet.close(true);
+        await wallet.close(true);
         
         // re-open the wallet using its path
         wallet = await that.openWallet(path);

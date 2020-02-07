@@ -11,13 +11,11 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   }
   
   async getTestWallet() {
-    if (!this.testWallet) this.testWallet = await TestUtils.getWalletCore();
-    return this.testWallet;
+    return await TestUtils.getWalletCore();
   }
   
   async getTestDaemon() {
-    if (!this.daemon) this.daemon = await TestUtils.getDaemonRpc();
-    return this.daemon;
+    return await TestUtils.getDaemonRpc();
   }
   
   async openWallet(path) {
