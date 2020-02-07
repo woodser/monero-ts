@@ -88,13 +88,6 @@ class TestMoneroWalletCommon {
   }
   
   /**
-   * Save a wallet using a custom method to not assume a file system (e.g. a web wallet).
-   */
-  async saveWallet(wallet) {
-    await wallet.save();  // default implementation
-  }
-  
-  /**
    * Get the wallet's supported languages for the mnemonic phrase.  This is an
    * instance method for wallet rpc and a static utility for other wallets.
    * 
@@ -315,8 +308,7 @@ class TestMoneroWalletCommon {
         
         // record the wallet's path then save and close
         let path = await wallet.getPath();
-        await that.saveWallet(wallet);
-        await that.wallet.close();
+        await that.wallet.close(true);
         
         // re-open the wallet using its path
         wallet = await that.openWallet(path);
@@ -2070,7 +2062,7 @@ class TestMoneroWalletCommon {
         
         // set the attribute and close with saving
         await wallet.setAttribute("id", uuid);
-        await that.saveWallet(wallet);
+        await wallet.save();
         await wallet.close();
         
         // re-open the wallet and ensure attribute was saved
@@ -3499,7 +3491,7 @@ class TestMoneroWalletCommon {
     // set name attribute of test wallet at beginning of test
     let BEGIN_MULTISIG_NAME = "begin_multisig_wallet";
     await this.wallet.setAttribute("name", BEGIN_MULTISIG_NAME);
-    await that.saveWallet(this.wallet);
+    await this.wallet.save();
     //await this.wallet.close();
     
     // create n wallets and prepare multisig hexes
@@ -3512,8 +3504,7 @@ class TestMoneroWalletCommon {
       preparedMultisigHexes.push(await this.wallet.prepareMultisig());
       //console.log("PREPARED HEX: " + preparedMultisigHexes[preparedMultisigHexes.length - 1]);
       
-      await that.wallet.saveWallet(this.wallet);
-      await this.wallet.close();
+      await this.wallet.close(true);
     }
 
     // make wallets multisig
@@ -3580,7 +3571,7 @@ class TestMoneroWalletCommon {
             exchangeMultisigHexes.push(result.getMultisigHex());
           }
           
-          //await that.saveWallet(this.wallet);
+          //await this.wallet.save();
           await this.wallet.close();
         }
         
@@ -3720,7 +3711,7 @@ class TestMoneroWalletCommon {
       console.log("Submitting");
       curWallet = await this.openWallet(walletIds[0]);
       let txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
-      await that.saveWallet(curWallet);
+      await curWallet.save();
       
       // synchronize the multisig participants since spending outputs
       console.log("Synchronizing participants");
@@ -3754,7 +3745,7 @@ class TestMoneroWalletCommon {
       console.log("Submitting sweep output");
       curWallet = await this.openWallet(walletIds[0]);
       txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
-      await that.saveWallet(curWallet);
+      await curWallet.save();
       
       // synchronize the multisig participants since spending outputs
       console.log("Synchronizing participants");
@@ -3793,7 +3784,7 @@ class TestMoneroWalletCommon {
       console.log("Submitting sweep");
       curWallet = await this.openWallet(walletIds[0]);
       txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
-      await that.saveWallet(curWallet);
+      await curWallet.save();
       
       // synchronize the multisig participants since spending outputs
       console.log("Synchronizing participants");
@@ -3803,8 +3794,7 @@ class TestMoneroWalletCommon {
       multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
       assert.equal(txHashes.length, multisigTxs.length);
       
-      await that.saveWallet(curWallet);
-      await curWallet.close();
+      await curWallet.close(true);
     }
     
     // re-open main test wallet
@@ -3824,8 +3814,7 @@ class TestMoneroWalletCommon {
       let wallet = await this.openWallet(walletId);
       await this.wallet.sync();
       multisigHexes.push(await this.wallet.getMultisigHex());
-      await that.saveWallet(this.wallet);
-      await this.wallet.close();
+      await this.wallet.close(true);
     }
     
     // import each wallet's peer multisig hexIt 
@@ -3835,8 +3824,7 @@ class TestMoneroWalletCommon {
       let wallet = await this.openWallet(walletIds[i]);
       await this.wallet.importMultisigHex(peerMultisigHexes);
       await this.wallet.sync();
-      await that.saveWallet(this.wallet);
-      await this.wallet.close();
+      await this.wallet.close(true);
     }
     
     // re-open current wallet and return

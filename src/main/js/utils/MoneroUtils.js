@@ -47,7 +47,7 @@ class MoneroUtils {
         
         // lookup wallet id, callback function, and this arg
         let thisArg = null;
-        let callbackFn = MoneroUtils.WORKER_OBJECTS[e.data[0]].callbacks[e.data[1]]; // look up by wallet id then by function name
+        let callbackFn = MoneroUtils.WORKER_OBJECTS[e.data[0]].callbacks[e.data[1]]; // look up by object id then by function name
         if (callbackFn === undefined) throw new Error("No worker callback function defined for key '" + e.data[1] + "'");
         if (callbackFn instanceof Array) {  // this arg may be stored with callback function
           thisArg = callbackFn[1];
