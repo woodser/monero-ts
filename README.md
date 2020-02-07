@@ -156,7 +156,7 @@ To build this project's WebAssembly files from source code:
 	4. `./emsdk install latest`
 	5. `./emsdk activate latest`
 	6. `source ./emsdk_env.sh`
-	7. `export EMSCRIPTEN=<emsdk_root>/fastcomp/emscripten`
+	7. `export EMSCRIPTEN=/absolute/path/to/emsdk/fastcomp/emscripten` (set for your system)
 2. `cd <monero_javascript_root>`
 3. Update submodules: `./bin/update_submodules`
 4. Download Boost from https://www.boost.org/users/download/ to ./external/monero-cpp-library/external/boost-sdk/
