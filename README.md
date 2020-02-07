@@ -153,10 +153,10 @@ To build this project's WebAssembly files from source code:
 	1. Clone the emscripten project repository: `git clone https://github.com/emscripten-core/emsdk.git`
 	2. `cd emsdk`
 	3. `git pull`
-	4. `./emsdk install latest`
-	5. `./emsdk activate latest`
+	4. `./emsdk install latest-upstream`
+	5. `./emsdk activate latest-upstream`
 	6. `source ./emsdk_env.sh`
-	7. `export EMSCRIPTEN=/absolute/path/to/emsdk/fastcomp/emscripten` (set for your system)
+	7. `export EMSCRIPTEN=/absolute/path/to/emsdk/upstream/emscripten` (set for your system)
 2. `cd /path/to/monero-javascript`
 3. Update submodules: `./bin/update_submodules`
 4. Download Boost from https://www.boost.org/users/download/ to ./external/monero-cpp-library/external/boost-sdk/
