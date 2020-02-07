@@ -16,7 +16,7 @@ EM_JS(const char*, js_send_json_request, (const char* http_client_id, const char
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
 
-    const Http = require('http');
+    //const Http = require('http');
     const Request = require("request-promise");
     const PromiseThrottle = require("promise-throttle");
 
@@ -26,8 +26,8 @@ EM_JS(const char*, js_send_json_request, (const char* http_client_id, const char
       promiseImplementation: Promise
     });
 
-    // initialize http agent  // TODO: use common
-    let agent = new Http.Agent({keepAlive: false, maxSockets: 1});  // TODO: use one common connection and keep alive
+    // get common http(s) agent
+    let agent = UTF8ToString(uri).toLowerCase().startsWith("https") ? MoneroUtils.getHttpsAgent() : MoneroUtils.getHttpAgent();
 
     // initialize request config
     let config = {};
@@ -124,7 +124,6 @@ EM_JS(const char*, js_send_binary_request, (const char* http_client_id, const ch
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
 
-    const Http = require('http');
     const Request = require("request-promise");
     const PromiseThrottle = require("promise-throttle");
 
@@ -134,8 +133,8 @@ EM_JS(const char*, js_send_binary_request, (const char* http_client_id, const ch
       promiseImplementation: Promise
     });
 
-    // initialize http agent  // TODO: use common
-    let agent = new Http.Agent({keepAlive: false, maxSockets: 1});
+    // get common http(s) agent
+    let agent = UTF8ToString(uri).toLowerCase().startsWith("https") ? MoneroUtils.getHttpsAgent() : MoneroUtils.getHttpAgent();
 
     // initialize request config // TODO: use set_server config
     let config = {};
