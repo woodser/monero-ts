@@ -271,17 +271,43 @@ self.getTxPool = async function(daemonId) {
 //  throw new MoneroError("Not implemented");
 //}
 //
-//async startDaemonMining(address, numThreads, isBackground, ignoreBattery) {
+//async daemonStartMining(address, numThreads, isBackground, ignoreBattery) {
 //  throw new MoneroError("Not implemented");
 //}
 //
-//async stopDaemonMining() {
+//async daemonStopMining() {
 //  throw new MoneroError("Not implemented");
 //}
 //
-//async getDaemonMiningStatus() {
+//async daemonGetMiningStatus() {
 //  throw new MoneroError("Not implemented");
 //}
+
+self.daemonStartMining = async function(daemonId, address, numThreads, isBackground, ignoreBattery) {
+  try {
+    postMessage([daemonId, "onDaemonStartMining", {result: await self.WORKER_OBJECTS[daemonId].startMining(address, numThreads, isBackground, ignoreBattery)}]);
+  } catch (e) {
+    postMessage([daemonId, "onDaemonStartMining", {error: e.message}]);
+  }
+}
+
+self.daemonStopMining = async function(daemonId) {
+  try {
+    postMessage([daemonId, "onDaemonStopMining", {result: await self.WORKER_OBJECTS[daemonId].stopMining()}]);
+  } catch (e) {
+    postMessage([daemonId, "onDaemonStopMining", {error: e.message}]);
+  }
+}
+
+
+self.daemonGetMiningStatus = async function(daemonId) {
+  try {
+    postMessage([daemonId, "onDaemonGetMiningStatus", {result: (await self.WORKER_OBJECTS[daemonId].getMiningStatus()).toJson()}]);
+  } catch (e) {
+    postMessage([daemonId, "onDaemonGetMiningStatus", {error: e.message}]);
+  }
+}
+
 //
 //async submitBlocks(blockBlobs) {
 //  throw new MoneroError("Not implemented");
