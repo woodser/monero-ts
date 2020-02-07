@@ -277,7 +277,7 @@ class TestMoneroDaemonRpc {
       it("Can get a transaction by hash with and without pruning", async function() {
         
         // fetch transaction hashes to test
-        let txHashes = await getConfirmedTxIds(daemon);
+        let txHashes = await getConfirmedTxIds(that.daemon);
         
         // fetch each tx by hash without pruning
         for (let txHash of txHashes) {
@@ -304,7 +304,7 @@ class TestMoneroDaemonRpc {
       it ("Can get transactions by hashes with and without pruning", async function() {
         
         // fetch transaction hashes to test
-        let txHashes = await getConfirmedTxIds(daemon);
+        let txHashes = await getConfirmedTxIds(that.daemon);
         
         // fetch txs by hash without pruning
         let txs = await that.daemon.getTxs(txHashes);
@@ -362,7 +362,7 @@ class TestMoneroDaemonRpc {
       it("Can get a transaction hex by hash with and without pruning", async function() {
         
         // fetch transaction hashes to test
-        let txHashes = await getConfirmedTxIds(daemon);
+        let txHashes = await getConfirmedTxIds(that.daemon);
         
         // fetch each tx hex by hash with and without pruning
         let hexes = []
@@ -395,7 +395,7 @@ class TestMoneroDaemonRpc {
       it("Can get transaction hexes by hashes with and without pruning", async function() {
         
         // fetch transaction hashes to test
-        let txHashes = await getConfirmedTxIds(daemon);
+        let txHashes = await getConfirmedTxIds(that.daemon);
         
         // fetch tx hexes by hash with and without pruning
         let hexes = await that.daemon.getTxHexes(txHashes);
@@ -614,7 +614,7 @@ class TestMoneroDaemonRpc {
         
         // collect key images of confirmed txs
         keyImages = [];
-        txs = await getConfirmedTxs(daemon, 10);
+        txs = await getConfirmedTxs(that.daemon, 10);
         for (let tx of txs) {
           for (let input of tx.getInputs()) keyImages.push(input.getKeyImage().getHex());
         }
