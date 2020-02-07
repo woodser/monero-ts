@@ -3,8 +3,16 @@
  */
 class MoneroMiningStatus {
   
-  constructor() {
-    this.state = {};
+  constructor(state) {
+    if (!state) state = {};
+    else if (state instanceof MoneroMiningStatus) state = state.toJson();
+    else if (typeof state === "object") state = Object.assign({}, state);
+    else throw new MoneroError("state must be a MoneroMiningStatus or JavaScript object");
+    this.state = state;
+  }
+  
+  toJson() {
+    return Object.assign({}, this.state);
   }
   
   isActive() {

@@ -1567,15 +1567,15 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async startMining(address, numThreads, isBackground, ignoreBattery) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonStartMining", Array.from(arguments));
   }
   
   async stopMining() {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonStopMining")
   }
   
   async getMiningStatus() {
-    throw new MoneroError("Not implemented");
+    return new MoneroMiningStatus(await this._invokeWorker("daemonGetMiningStatus"));
   }
   
   async submitBlocks(blockBlobs) {
