@@ -14,15 +14,23 @@ const TxPoolWalletTracker = require("./TxPoolWalletTracker");
 class TestUtils {
   
   /**
-   * Get a daemon RPC singleton instance shared among tests.
+   * Get a singleton daemon RPC instance shared among tests.
+   * 
+   * @return {MoneroDaemonRpc} a daemon RPC instance
    */
-  static getDaemonRpc() {
-    if (TestUtils.daemonRpc === undefined) TestUtils.daemonRpc = new MoneroDaemonRpc(TestUtils.DAEMON_RPC_CONFIG);
+  static async getDaemonRpc() {
+    if (TestUtils.daemonRpc === undefined) TestUtils.daemonRpc = await MoneroDaemonRpc.create(Object.assign({proxyToWorker: TestUtils.PROXY_TO_WORKER}, TestUtils.DAEMON_RPC_CONFIG));
     return TestUtils.daemonRpc;
   }
   
+  static getDaemonRpcConnection() {
+    return new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG);
+  }
+  
   /**
-   * Get a singleton instance of a wallet supported by RPC.
+   * Get a singleton wallet RPC instanced shared among tests.
+   * 
+   * @return {MoneroWalletRpc} a wallet RPC instance
    */
   static async getWalletRpc() {
     if (TestUtils.walletRpc === undefined) {
@@ -60,21 +68,9 @@ class TestUtils {
   }
   
   /**
-   * Get a singleton instance of a keys-only wallet shared among tests.
-   */
-  static async getWalletKeys() {
-    if (TestUtils.walletKeys === undefined) {
-      
-      // create wallet from mnemonic
-      TestUtils.walletKeys = MoneroWalletKeys.createWalletFromMnemonic(TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC);
-    }
-    return TestUtils.walletKeys;
-  }
-  
-  /**
-   * Create or open a core wallet with default test configuration.
+   * Get a singleton core wallet instance shared among tests.
    * 
-   * @return {MoneroWalletCore} is the created or opened core wallet
+   * @return {MoneroWalletCore} a core wallet instance
    */
   static async getWalletCore() {
     if (!TestUtils.walletCore || await TestUtils.walletCore.isClosed()) {
@@ -89,7 +85,7 @@ class TestUtils {
         }
         
         // create wallet with connection
-        let wallet = await MoneroWalletCore.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
+        let wallet = await MoneroWalletCore.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
         assert.equal(await wallet.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
         await wallet.sync(new WalletSyncPrinter());
         await wallet.startSyncing();
@@ -98,13 +94,27 @@ class TestUtils {
       
       // otherwise open existing wallet
       else {
-        let wallet = await MoneroWalletCore.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.PROXY_TO_WORKER, TestUtils.FS);
+        let wallet = await MoneroWalletCore.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpcConnection(), TestUtils.PROXY_TO_WORKER, TestUtils.FS);
         await wallet.sync(new WalletSyncPrinter());
         await wallet.startSyncing();
         return wallet;
       }
     }
     return TestUtils.walletCore;
+  }
+  
+  /**
+   * Get a singleton keys-only wallet instance shared among tests.
+   * 
+   * @return {MoneroWalletKeys} a keys-only wallet instance
+   */
+  static async getWalletKeys() {
+    if (TestUtils.walletKeys === undefined) {
+      
+      // create wallet from mnemonic
+      TestUtils.walletKeys = MoneroWalletKeys.createWalletFromMnemonic(TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC);
+    }
+    return TestUtils.walletKeys;
   }
   
   static testUnsignedBigInteger(num, nonZero) {

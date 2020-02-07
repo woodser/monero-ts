@@ -17,7 +17,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   static async openWallet(path, password, networkType, daemonUriOrConnection, proxyToWorker, fs) {
-    if (proxyToWorker) return MoneroWalletCoreProxy.openWallet(path, password, networkType, daemonUriOrConnection, fs);
     
     // read wallet files
     if (path && !fs) fs = require('fs');
@@ -1957,8 +1956,8 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async close(save) {
+    if (save) await this.save();
     await this._invokeWorker("close");
-    if (save) throw new Error("Save on close not implemented");
     delete this.wrappedListeners;
     delete MoneroUtils.WORKER_OBJECTS[this.walletId];
   }

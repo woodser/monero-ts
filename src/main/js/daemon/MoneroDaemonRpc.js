@@ -26,6 +26,21 @@
 class MoneroDaemonRpc extends MoneroDaemon {
   
   /**
+   * Utility to create a daemon RPC instance from config.
+   * 
+   * Allows the daemon to be created on a proxy worker.
+   * 
+   * TODO: could technically support new MoneroDaemonRpc({proxyToWorker: true}) by saving creation promise then await and proxy every call...
+   * 
+   * @param {object} config is the creation configuration
+   * @return {MoneroDaemonRpc} a daemon instance created from configuration
+   */
+  static async create(config) {
+    if (config && config.proxyToWorker) return MoneroDaemonRpcProxy.createDaemonRpc(config);
+    return new MoneroDaemonRpc(config);
+  }
+  
+  /**
    * Constructs the daemon.
    * 
    * TODO: support config = MoneroRpcConnection with test
@@ -56,8 +71,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
     this.listeners = [];  // block listeners
     this.cachedHeaders = {};  // cached headers for fetching blocks in manageable chunks
     this.initPromise = this._initOneTime();
-    
-    if (this.config.proxyToWorker) throw new Error("MoneroDaemonRpc proxyToWorker support not implemented");
   }
   
   /**
@@ -65,7 +78,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * 
    * @return {MoneroRpcConnection} the daemon's rpc connection
    */
-  getRpcConnection() {
+  async getRpcConnection() {
     return this.config.rpc;
   }
   
@@ -1346,6 +1359,11 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
     this.worker = worker;
   }
   
+  async getRpcConnection() {
+    let config = await this._invokeWorker("getRpcConnection");
+    return new MoneroRpcConnection(config);
+  }
+  
   async isConnected() {
     throw new MoneroError("Not implemented");
   }
@@ -1414,16 +1432,8 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
     throw new MoneroError("Not implemented");
   }
   
-  async getTx(txHash, prune = false) {
-    return (await this.getTxs([txHash], prune))[0];
-  }
-  
   async getTxs(txHashes, prune = false) {
     throw new MoneroError("Not implemented");
-  }
-  
-  async getTxHex(txHash, prune = false) {
-    return (await this.getTxHexes([txHash], prune))[0];
   }
   
   async getTxHexes(txHashes, prune = false) {
@@ -1440,11 +1450,6 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   
   async submitTxHex(txHex, doNotRelay) {
     throw new MoneroError("Not implemented");
-  }
-  
-  async relayTxByHash(txHash) {
-    assert.equal(typeof txHash, "string", "Must provide a transaction hash");
-    await this.relayTxsByHash([txHash]);
   }
   
   async relayTxsByHash(txHashes) {
@@ -1469,10 +1474,6 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   
   async flushTxPool(hashes) {
     throw new MoneroError("Not implemented");
-  }
-  
-  async getKeyImageSpentStatus(keyImage) {
-    return (await this.getKeyImageSpentStatuses([keyImage]))[0];
   }
   
   async getKeyImageSpentStatuses(keyImages) {
@@ -1573,10 +1574,6 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   
   async getMiningStatus() {
     throw new MoneroError("Not implemented");
-  }
-  
-  async submitBlock(blockBlob) {
-    await this.submitBlocks([blockBlob]);
   }
   
   async submitBlocks(blockBlobs) {

@@ -39,6 +39,14 @@ self.createDaemonRpc = async function(daemonId, daemonUriOrConfig) {
   }
 }
 
+self.getRpcConnection = async function(daemonId) {
+  try {
+    postMessage([daemonId, "onGetRpcConnection", {result: (await self.WORKER_OBJECTS[daemonId].getRpcConnection()).getConfig()}]);
+  } catch (e) {
+    postMessage([daemonId, "onGetRpcConnection", {error: e.message}]);
+  }
+}
+
 self.getNextBlockHeader = async function(daemonId) {
   try {
     postMessage([daemonId, "onGetNextBlockHeader", {result: (await self.WORKER_OBJECTS[daemonId].getNextBlockHeader()).toJson()}]);
