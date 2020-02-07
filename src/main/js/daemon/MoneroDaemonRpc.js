@@ -1360,12 +1360,12 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getRpcConnection() {
-    let config = await this._invokeWorker("getRpcConnection");
+    let config = await this._invokeWorker("daemonGetRpcConnection");
     return new MoneroRpcConnection(config);
   }
   
   async isConnected() {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonIsConnected");
   }
   
   async getVersion() {
@@ -1377,7 +1377,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getHeight() {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonGetHeight");
   }
   
   async getBlockHash(height) {
@@ -1457,7 +1457,9 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getTxPool() {
-    throw new MoneroError("Not implemented");
+    let blockJson = await this._invokeWorker("getTxPool");
+    let txs = new MoneroBlock(blockJson).getTxs();
+    return txs ? txs : [];
   }
   
   async getTxPoolHashes() {
@@ -1593,7 +1595,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getNextBlockHeader() {
-    let blockHeaderJson = await this._invokeWorker("getNextBlockHeader");
+    let blockHeaderJson = await this._invokeWorker("daemonGetNextBlockHeader");
     console.log("Got next block header:");
     console.log(blockHeaderJson);
     return new MoneroBlockHeader(blockHeaderJson);
