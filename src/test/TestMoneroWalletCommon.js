@@ -30,7 +30,7 @@ class TestMoneroWalletCommon {
    * 
    * @return the daemon to test
    */
-  getTestDaemon() {
+  async getTestDaemon() {
     return TestUtils.getDaemonRpc();
   }
   
@@ -219,7 +219,7 @@ class TestMoneroWalletCommon {
           let privateSpendKey = await that.wallet.getPrivateSpendKey();
           
           // recreate test wallet from keys
-          that.wallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, privateSpendKey, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+          that.wallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, privateSpendKey, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
           let e2 = undefined;
           try {
             assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
@@ -252,7 +252,7 @@ class TestMoneroWalletCommon {
           let privateViewKey = await that.wallet.getPrivateViewKey();
 
           // create watch-only wallet by witholding spend key
-          that.wallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, undefined, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+          that.wallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, undefined, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
           let e2 = undefined;
           try {
             assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
@@ -2703,7 +2703,7 @@ class TestMoneroWalletCommon {
           await that.wallet.close();
 
           // create watch-only wallet by witholding spend key and importing key images
-          that.wallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, undefined, (await TestUtils.getDaemonRpc()).getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+          that.wallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, undefined, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
           
           // try...catch...finally to close watch-only wallet in case of error
           let e2 = undefined;

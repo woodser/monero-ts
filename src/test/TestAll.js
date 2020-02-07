@@ -8,11 +8,14 @@ const TestMoneroWalletRpc = require("./TestMoneroWalletRpc");
 const TestMoneroWalletKeys = require("./TestMoneroWalletKeys");
 const TestMoneroWalletCore = require("./TestMoneroWalletCore");
 
+// test config
+//TestUtils.FS = require('memfs');    // use in-memory file system needed for tests since running in the browser
+
 //// test sample code for readme
 //new TestSampleCode().runTests();
 
-// test utilitiles
-new TestMoneroUtils().runTests();
+//// test utilitiles
+//new TestMoneroUtils().runTests();
 
 //// test daemon rpc
 //new TestMoneroDaemonRpc({
@@ -51,8 +54,6 @@ new TestMoneroWalletCore({
   testNonRelays: true,
   testRelays: false,
   testResets: false,
-  testNotifications: false,
-  fs: require('memfs')        // optionally use in-memory filesystem
 }).runTests();
 
 // test scratchpad

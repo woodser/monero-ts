@@ -59,7 +59,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * 
    * @return {MoneroWalletRpc} the wallet's rpc connection
    */
-  getRpcConnection() {
+  async getRpcConnection() {
     return this.config.rpc;
   }
   
