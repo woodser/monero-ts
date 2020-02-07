@@ -1,11 +1,11 @@
 require("monero-javascript");
 
 /**
- * Web worker to manage a core wallet and/or daemon with messages off the main chain.
+ * Web worker to manage a daemon and core wallet off the main chain with messages.
  * 
  * Required message format: e.data[0] = object id, e.data[1] = function name, e.data[2+] = function args
 
- * This file must be copied to the web app root.  // TODO: exportable in MoneroModel.js?
+ * This file must be browserified and placed in the web app root.  // TODO: exportable in MoneroModel.js?
  * 
  * TODO: refactor try..catches to common method which takes function and args to execute
  */
@@ -39,21 +39,283 @@ self.createDaemonRpc = async function(daemonId, daemonUriOrConfig) {
   }
 }
 
-self.getRpcConnection = async function(daemonId) {
+self.daemonGetRpcConnection = async function(daemonId) {
   try {
-    postMessage([daemonId, "onGetRpcConnection", {result: (await self.WORKER_OBJECTS[daemonId].getRpcConnection()).getConfig()}]);
+    postMessage([daemonId, "onDaemonGetRpcConnection", {result: (await self.WORKER_OBJECTS[daemonId].getRpcConnection()).getConfig()}]);
   } catch (e) {
-    postMessage([daemonId, "onGetRpcConnection", {error: e.message}]);
+    postMessage([daemonId, "onDaemonGetRpcConnection", {error: e.message}]);
   }
 }
 
-self.getNextBlockHeader = async function(daemonId) {
+self.daemonIsConnected = async function(daemonId) {
   try {
-    postMessage([daemonId, "onGetNextBlockHeader", {result: (await self.WORKER_OBJECTS[daemonId].getNextBlockHeader()).toJson()}]);
+    postMessage([daemonId, "onDaemonIsConnected", {result: await self.WORKER_OBJECTS[daemonId].isConnected()}]);
   } catch (e) {
-    postMessage([daemonId, "onGetNextBlockHeader", {error: e.message}]);
+    postMessage([daemonId, "onDaemonIsConnected", {error: e.message}]);
   }
 }
+
+//async daemonGetVersion() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async daemonIsTrusted() {
+//  throw new MoneroError("Not implemented");
+//}
+
+self.daemonGetHeight = async function(daemonId) {
+  try {
+    postMessage([daemonId, "onDaemonGetHeight", {result: await self.WORKER_OBJECTS[daemonId].getHeight()}]);
+  } catch (e) {
+    postMessage([daemonId, "onDaemonGetHeight", {error: e.message}]);
+  }
+}
+
+//async getBlockHash(height) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getBlockTemplate(walletAddress, reserveSize) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getLastBlockHeader() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getBlockHeaderByHash(blockHash) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getBlockHeaderByHeight(height) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getBlockHeadersByRange(startHeight, endHeight) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getBlockByHash(blockHash) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getBlocksByHash(blockHashes, startHeight, prune) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getBlockByHeight(height) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getBlocksByHeight(heights) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getBlocksByRange(startHeight, endHeight) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getBlocksByRangeChunked(startHeight, endHeight, maxChunkSize) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getBlockHashes(blockHashes, startHeight) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async daemonGetTxs(txHashes, prune = false) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async daemonGetTxHashes(txHashes, prune = false) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getMinerTxSum(height, numBlocks) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getFeeEstimate(graceBlocks) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async submitTxHex(txHex, doNotRelay) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async relayTxsByHash(txHashes) {
+//  throw new MoneroError("Not implemented");
+//}
+
+self.getTxPool = async function(daemonId) {
+  try {
+    
+    // get txs in pool
+    let txs = await self.WORKER_OBJECTS[daemonId].getTxPool();
+    
+    // collect txs in block
+    let block = new MoneroBlock();
+    for (let tx of txs) {
+      tx.setBlock(block)
+      block.getTxs().push(tx);
+    }
+    
+    // serialize block
+    postMessage([daemonId, "onGetTxPool", {result: block.toJson()}]);
+  } catch (e) {
+    postMessage([daemonId, "onGetTxPool", {error: e.message}]);
+  }
+}
+
+//async getTxPoolHashes() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getTxPoolBacklog() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getTxPoolStats() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async flushTxPool(hashes) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getKeyImageSpentStatuses(keyImages) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getOutputs(outputs) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getOutputHistogram(amounts, minCount, maxCount, isUnlocked, recentCutoff) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getOutputDistribution(amounts, cumulative, startHeight, endHeight) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getInfo() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getSyncInfo() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getHardForkInfo() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getAltChains() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getAltBlockIds() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getDownloadLimit() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async setDownloadLimit(limit) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async resetDownloadLimit() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getUploadLimit() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async setUploadLimit(limit) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async resetUploadLimit() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getKnownPeers() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getConnections() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async setOutgoingPeerLimit(limit) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async setIncomingPeerLimit(limit) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getPeerBans() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async setPeerBan(ban) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async setPeerBans(bans) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async startDaemonMining(address, numThreads, isBackground, ignoreBattery) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async stopDaemonMining() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async getDaemonMiningStatus() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async submitBlocks(blockBlobs) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async checkForUpdate() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async downloadUpdate(path) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//async stop() {
+//  throw new MoneroError("Not implemented");
+//}
+//
+
+self.daemonGetNextBlockHeader = async function(daemonId) {
+  try {
+    postMessage([daemonId, "onDaemonGetNextBlockHeader", {result: (await self.WORKER_OBJECTS[daemonId].getNextBlockHeader()).toJson()}]);
+  } catch (e) {
+    postMessage([daemonId, "onDaemonGetNextBlockHeader", {error: e.message}]);
+  }
+}
+
+//
+//addBlockListener(listener) {
+//  throw new MoneroError("Not implemented");
+//}
+//
+//removeBlockListener(listener) {
+//  throw new MoneroError("Not implemented");
+//}
 
 //------------------------------ WALLET METHODS -------------------------------
 
@@ -155,12 +417,19 @@ self.getPrivateViewKey = async function(walletId) {
 }
 
 self.getPublicViewKey = async function(walletId) {
+  //return self.tryPostMessage(walletId, onGetPublicViewKey)
   try {
     postMessage([walletId, "onGetPublicViewKey", {result: await self.WORKER_OBJECTS[walletId].getPublicViewKey()}]);
   } catch (e) {
     postMessage([walletId, "onGetPublicViewKey", {error: e.message}]);
   }
 }
+
+//self.tryPostMessage = async function(objectId, fnName, promise) {
+//  try {
+//    self.WORKER_OBJECTS[objectId] = await promise();
+//  }
+//}
 
 self.getPublicSpendKey = async function(walletId) {
   try {
