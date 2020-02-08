@@ -1003,7 +1003,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
        */
       
     if (config.testNotifications)
-      it("TEST THIS Notification test #1: notifies listeners of outputs sent from/to the same account using local wallet data", async function() {
+      it("Notification test #1: notifies listeners of outputs sent from/to the same account using local wallet data", async function() {
         let issues = await testOutputNotifications(true);
         if (issues === undefined) return;
         let msg = "testOutputNotificationsSameAccounts() generated " + issues.length + " issues:\n" + issuesToStr(issues);
@@ -1012,7 +1012,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       });
       
     if (config.testNotifications)
-      it("TEST THIS Notification test #2: notifies listeners of outputs sent from/to different accounts using local wallet data", async function() {
+      it("Notification test #2: notifies listeners of outputs sent from/to different accounts using local wallet data", async function() {
         let issues = await testOutputNotifications(false);
         if (issues === undefined) return;
         let msg = "testOutputNotificationsDifferentAccounts() generated " + issues.length + " issues:\n" + issuesToStr(issues);
@@ -1180,7 +1180,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         if (err) throw err;
       });
       
-      it("TEST THIS Supports multisig sample code", async function() {
+      it("Supports multisig sample code", async function() {
         await testCreateMultisigWallet(2, 2);
         await testCreateMultisigWallet(2, 3);
         await testCreateMultisigWallet(2, 4);

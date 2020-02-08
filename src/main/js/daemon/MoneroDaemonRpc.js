@@ -1595,10 +1595,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getNextBlockHeader() {
-    let blockHeaderJson = await this._invokeWorker("daemonGetNextBlockHeader");
-    console.log("Got next block header:");
-    console.log(blockHeaderJson);
-    return new MoneroBlockHeader(blockHeaderJson);
+    return new MoneroBlockHeader(await this._invokeWorker("daemonGetNextBlockHeader"));
   }
   
   addBlockListener(listener) {
