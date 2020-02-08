@@ -27,7 +27,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
     return this._openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs);
   }
   
-  // TODO: this should take path too probably?
   static async openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs) {
     assert(password);
     return MoneroWalletCore._openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs);
