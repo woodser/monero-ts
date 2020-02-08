@@ -9,7 +9,7 @@ const TestMoneroWalletKeys = require("./TestMoneroWalletKeys");
 const TestMoneroWalletCore = require("./TestMoneroWalletCore");
 
 // test config
-//TestUtils.FS = require('memfs');    // use in-memory file system needed for tests since running in the browser
+//TestUtils.FS = require('memfs');  // use in-memory file system
 
 //// test sample code for readme
 //new TestSampleCode().runTests();
@@ -27,7 +27,7 @@ const TestMoneroWalletCore = require("./TestMoneroWalletCore");
 //
 //// test wallet rpc
 //new TestMoneroWalletRpc({
-//  liteMode: false, // skips some lengthy but detailed tests
+//  liteMode: true, // skips some lengthy but detailed tests
 //  testNonRelays: true,
 //  testRelays: true,
 //  testNotifications: false,
