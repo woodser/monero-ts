@@ -45,14 +45,14 @@ const TestMoneroWalletCore = require("./TestMoneroWalletCore");
 
 // test core wallet
 new TestMoneroWalletCore({
-  liteMode: true,
+  liteMode: false,
   testNonRelays: true,
   testRelays: false,
   testResets: false,
   testNotifications: true
 }).runTests();
 
-// test scratchpad
+//// test scratchpad
 //require("./Scratchpad");
 
 ////test boolean set (data structure used by wallet to track progress)
