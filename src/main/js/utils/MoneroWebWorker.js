@@ -21,10 +21,6 @@ self.initOneTime = async function() {
   if (!self.isInitialized) {
     self.WORKER_OBJECTS = {};
     self.isInitialized = true;
-    console.log("WORKER loading scripts and module");
-    self.importScripts('monero-javascript-wasm.js');  // TODO: move to top?
-    await MoneroUtils.loadWasmModule(); // TODO: only necessary if using wasm, wasteful if using daemon rpc
-    console.log("done loading scripts and module");
   }
 }
 

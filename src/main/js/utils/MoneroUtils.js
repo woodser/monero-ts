@@ -297,7 +297,7 @@ class MoneroUtils {
    * Load the WebAssembly module one time.
    */
   static async loadWasmModule() {
-    if (MoneroUtils.WASM_MODULE === undefined) {
+    if (!MoneroUtils.WASM_MODULE) {
       MoneroUtils.WASM_MODULE = await require("../../../../build/monero-javascript-wasm")().ready;
       
       // initialize data structure to synchronize access to wasm module
@@ -335,7 +335,7 @@ class MoneroUtils {
       // catch worker messages
       MoneroUtils.WORKER.onmessage = function(e) {
         
-        // lookup wallet id, callback function, and this arg
+        // lookup object id, callback function, and this arg
         let thisArg = null;
         let callbackFn = MoneroUtils.WORKER_OBJECTS[e.data[0]].callbacks[e.data[1]]; // look up by object id then by function name
         if (callbackFn === undefined) throw new Error("No worker callback function defined for key '" + e.data[1] + "'");
