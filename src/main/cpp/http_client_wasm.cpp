@@ -16,16 +16,6 @@ EM_JS(const char*, js_send_json_request, (const char* http_client_id, const char
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
 
-    //const Http = require('http');
-    const Request = require("request-promise");
-    const PromiseThrottle = require("promise-throttle");
-
-    // initialize promise throttler // TODO: use common
-    this.promiseThrottle = new PromiseThrottle({
-      requestsPerSecond: 500,
-      promiseImplementation: Promise
-    });
-
     // get common http(s) agent
     let agent = UTF8ToString(uri).toLowerCase().startsWith("https") ? MoneroUtils.getHttpsAgent() : MoneroUtils.getHttpAgent();
 
@@ -53,18 +43,9 @@ EM_JS(const char*, js_send_json_request, (const char* http_client_id, const char
 
     //console.log("Timeout: " + timeout); // TODO: use timeout
 
-    /**
-     * Makes a throttled request.
-     *
-     * TODO: move to common
-     */
-    function _throttledRequest(opts) {
-      return this.promiseThrottle.add(function(opts) { return Request(opts); }.bind(this, opts));
-    }
-
     // send throttled request
     let wakeUpCalled = false;
-    _throttledRequest(opts).then(resp => {
+    MoneroUtils.throttledRequest(opts).then(resp => {
       //console.log("RESPONSE:");
       //console.log(JSON.stringify(resp));
 
@@ -124,15 +105,6 @@ EM_JS(const char*, js_send_binary_request, (const char* http_client_id, const ch
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
 
-    const Request = require("request-promise");
-    const PromiseThrottle = require("promise-throttle");
-
-    // initialize promise throttler // TODO: use common
-    this.promiseThrottle = new PromiseThrottle({
-      requestsPerSecond: 500,
-      promiseImplementation: Promise
-    });
-
     // get common http(s) agent
     let agent = UTF8ToString(uri).toLowerCase().startsWith("https") ? MoneroUtils.getHttpsAgent() : MoneroUtils.getHttpAgent();
 
@@ -171,18 +143,9 @@ EM_JS(const char*, js_send_binary_request, (const char* http_client_id, const ch
         }
       }
 
-      /**
-       * Makes a throttled request.
-       *
-       * TODO: move to common
-       */
-      function _throttledRequest(opts) {
-        return this.promiseThrottle.add(function(opts) { return Request(opts); }.bind(this, opts));
-      }
-
       // send throttled request
       let wakeUpCalled = false;
-      _throttledRequest(opts).then(resp => {
+      MoneroUtils.throttledRequest(opts).then(resp => {
 
         // write binary body to heap and pass back pointer
         let nDataBytes = resp.body.length * resp.body.BYTES_PER_ELEMENT;

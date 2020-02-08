@@ -1,7 +1,29 @@
+const PromiseThrottle = require("promise-throttle");
+const Request = require("request-promise");
+
 /**
  * Collection of Monero utilities.
  */
 class MoneroUtils {
+  
+  /**
+   * Get a singleton instance of a PromiseThrottle to throttle promises.
+   * 
+   * @param {PromiseThrottle} throttles promises
+   */
+  static getPromiseThrottle() {
+    if (!MoneroUtils.PROMISE_THROTTLE) {
+      MoneroUtils.PROMISE_THROTTLE = new PromiseThrottle({
+        requestsPerSecond: MoneroUtils.MAX_REQUESTS_PER_SECOND,
+        promiseImplementation: Promise
+      });
+    }
+    return MoneroUtils.PROMISE_THROTTLE;
+  }
+  
+  static throttledRequest(opts) {
+    return MoneroUtils.getPromiseThrottle().add(function(opts) { return Request(opts); }.bind(this, opts));
+  }
   
   /**
    * Load the WebAssembly module one time.
@@ -320,5 +342,6 @@ class MoneroUtils {
 MoneroUtils.NUM_MNEMONIC_WORDS = 25;
 MoneroUtils.WALLET_REFRESH_RATE = 10000;  // 10 seconds
 MoneroUtils.RING_SIZE = 12;
+MoneroUtils.MAX_REQUESTS_PER_SECOND = 50;
 
 module.exports = MoneroUtils;
