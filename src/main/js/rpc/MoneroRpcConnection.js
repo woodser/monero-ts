@@ -1,6 +1,3 @@
-const Request = require("request-promise");
-const PromiseThrottle = require("promise-throttle");
-
 /**
  * Default RPC configuration.
  */
@@ -11,7 +8,6 @@ const MoneroRpcConfigDefault = {
     port: 18081,
     user: undefined,
     pass: undefined,
-    maxRequestsPerSecond: 50,
     rejectUnauthorized: true  // reject self-signed certificates if true
 }
 
@@ -66,12 +62,6 @@ class MoneroRpcConnection {
       let http = require('http');
       this.agent = MoneroUtils.getHttpAgent();
     }
-    
-    // initialize promise throttler
-    this.promiseThrottle = new PromiseThrottle({
-      requestsPerSecond: this.config.maxRequestsPerSecond,
-      promiseImplementation: Promise
-    });
   }
   
   getUri() {
@@ -125,7 +115,7 @@ class MoneroRpcConnection {
     
     // send request and await response
     try {
-      let resp = await this._throttledRequest(opts);
+      let resp = await MoneroUtils.throttledRequest(opts);
       resp = JSON.parse(resp.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
       //console.log(JSON.stringify(resp));
       if (resp.error) {
@@ -168,7 +158,7 @@ class MoneroRpcConnection {
     
     // send request and await response
     try {
-      let resp = await this._throttledRequest(opts);
+      let resp = await MoneroUtils.throttledRequest(opts);
       resp = JSON.parse(resp.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
       if (typeof resp === "string") resp = JSON.parse(resp);  // TODO: some responses returned as strings?
       if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
@@ -216,20 +206,13 @@ class MoneroRpcConnection {
     
     // send request and store binary response as Uint8Array
     try {
-      let resp = await this._throttledRequest(opts);
+      let resp = await MoneroUtils.throttledRequest(opts);
       if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
       return new Uint8Array(resp, 0, resp.length);
     } catch (e) {
       if (e instanceof MoneroRpcError) throw e;
       else throw new MoneroRpcError(e, undefined, path, params);
     }
-  }
-  
-  /**
-   * Makes a throttled request.
-   */
-  _throttledRequest(opts) {
-    return this.promiseThrottle.add(function(opts) { return Request(opts); }.bind(this, opts));
   }
 }
 
