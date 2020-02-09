@@ -176,7 +176,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           // set daemon uri
           await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_CONFIG.uri);
           assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG.uri).getConfig());
-          await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_CONFIG.uri, TestUtils.DAEMON_RPC_CONFIG.username, TestUtils.DAEMON_RPC_CONFIG.password);
+          await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_CONFIG.uri, TestUtils.DAEMON_RPC_CONFIG.user, TestUtils.DAEMON_RPC_CONFIG.pass);
           assert(await wallet.isConnected());
           
           // nullify daemon connection
