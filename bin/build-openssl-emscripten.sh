@@ -19,7 +19,7 @@ cd "$SRC_PATH"
 
 #linux-generic32 \
 
-emconfigure ./Configure \
+emconfigure perl ./Configure \
 	linux-generic32 \
 	-no-asm no-ssl2 no-ssl3 no-comp no-engine no-deprecated no-tests no-dso no-shared no-threads disable-shared \
 	--prefix="$INSTALL_PATH" \
@@ -31,12 +31,18 @@ if [ $? != 0 ]; then
   exit 1
 fi
 
-# set CROSS_COMPILE to blank
+echo "* set CROSS_COMPILE to blank"
 to_cross_compile_line='CROSS_COMPILE='
 sed -i.bak 's/^CROSS_COMPILE=\/.*$/'"$to_cross_compile_line"'/' Makefile #must match whole line with start char or we might do it repeatedly .. though this particular one would be idempotent anyway
 # ^-- not 'g' b/c we only expect one
 
-# set define_atomics
+echo "* set define_atomics"
+[ ! -f include/internal/refcount.h ] \
+  && {
+    echo "openssl - wrong version. We need openssl >= 1.1.1"
+    exit 1
+  }
+
 to_defined_atomics_line='\&\& !defined(__STDC_NO_ATOMICS__) \&\& !defined(__EMSCRIPTEN__)'
 sed -i.bak 's/\&\&\ !defined(__STDC_NO_ATOMICS__)$/'"$to_defined_atomics_line"'/' include/internal/refcount.h #the pattern is relying here on the fact the "ATOMICS__)" comes at the end of the line
 # ^-- not 'g' b/c we only expect one
