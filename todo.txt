@@ -1,21 +1,23 @@
 HIGH (WASM)
-wallet core tests
-MoneroWalletWebWorker.js for web apps
-keys-only vs full wallet build and merge to master
+wallet proxied browser tests
+daemon proxied browser tests
+collapse experimental support into master
 update documentation: daemon isConnected, other top level methods
 in-memory wallet; wallet2 password is required to create valid cache file on creation (start with tests)
 hardcode block hash instead of miner::find_nonce
 rebase, cleanup, and submit core pr
 
+sync end height != daemon height for long syncs
+notification tests fails when tx not confirmed first block, make more lenient
+long sync will give 100% notifications for blocks since sync started; re-compute based on daemon height toward end
 recover from failed background syncing
-run tests in browser?
+test changing ports
 overload toJson() model protos and use JSON.stringify() instead of class toJsons()
+66kb vs 17 mb wallet file size
 master sort MoneroWallet.js with top level methods
 startSynchronizing() should use pre-started loop so it's a random start time like core
 update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic like monero_wallet_core::get_txs()
 todos throughout code
-long sync() does not end at current daemon height but starting end height?
-long sync will give 100% notifications for blocks since sync started; re-compute based on daemon height toward end
 monero_wallet_core get_keys_file_buffer/get_cache_file_buffer use m_password instead of arg
 update java
 http_client_wasm factor common js
