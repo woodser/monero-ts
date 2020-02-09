@@ -17,9 +17,9 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   static async openWallet(path, password, networkType, daemonUriOrConnection, proxyToWorker, fs) {
+    if (!await this.walletExists(path, fs)) throw new MoneroError("Wallet does not exist at path: " + path);
     
     // read wallet files
-    if (path && !fs) fs = require('fs');
     let keysData = fs.readFileSync(path + ".keys");
     let cacheData = fs.readFileSync(path);
     
