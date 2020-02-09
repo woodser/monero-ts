@@ -14,4 +14,4 @@ mkdir -p build &&
 cd build && 
 emconfigure cmake .. && 
 emmake cmake --build . && 
-emmake make -j8 .
+emmake make -j$(nproc) .
