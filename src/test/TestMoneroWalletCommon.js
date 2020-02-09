@@ -411,7 +411,7 @@ class TestMoneroWalletCommon {
           subaddress = await that.wallet.getAddressIndex(nonWalletAddress);
           throw new Error("fail");
         } catch (e) {
-          assert.equal("Address doesn't belong to the wallet", e.message);
+          assert.equal(e.message, "Address doesn't belong to the wallet");
         }
         
         // test invalid address
@@ -419,7 +419,7 @@ class TestMoneroWalletCommon {
           subaddress = await that.wallet.getAddressIndex("this is definitely not an address");
           throw new Error("fail");
         } catch (e) {
-          assert.equal("Invalid address", e.message);
+          assert.equal(e.message, "Invalid address");
         }
       });
       
