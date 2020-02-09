@@ -9,7 +9,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   // TODO: look for keys file
   static async walletExists(path, fs) {
-    assert(path, "Must specify path to test for existence");
+    assert(path, "Must provide a path to look for a wallet");
     if (!fs) fs = require('fs');
     let exists = fs.existsSync(path);
     console.log("Wallet exists at " + path + ": " + exists);
@@ -28,7 +28,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   static async openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs) {
-    assert(password);
     return MoneroWalletCore._openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs);
   }
   
@@ -37,8 +36,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
     if (proxyToWorker) return MoneroWalletCoreProxy.openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, fs);
     
     // validate and normalize parameters
-    if (password === undefined) password = "";
-    if (networkType === undefined) throw new MoneroError("Must provide a network type");
+    assert(password, "Must provide a password to open the wallet");
+    if (networkType === undefined) throw new MoneroError("Must provide the wallet's network type");
     MoneroNetworkType.validate(networkType);
     let daemonConnection = typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection;
     let daemonUri = daemonConnection && daemonConnection.getUri() ? daemonConnection.getUri() : "";
@@ -70,7 +69,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     // validate and normalize params
     if (path && !fs) fs = require('fs');
     if (path === undefined) path = "";
-    if (password === undefined) password = "";
+    assert(password, "Must provide a password to create the wallet with");
     MoneroNetworkType.validate(networkType);
     if (language === undefined) language = "English";
     let daemonConnection = typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection;
@@ -106,7 +105,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // validate and normalize params
     if (path === undefined) path = "";
-    if (password === undefined) password = "";
+    assert(password, "Must provide a password to create the wallet with");
     MoneroNetworkType.validate(networkType);
     let daemonConnection = typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection;
     let daemonUri = daemonConnection && daemonConnection.getUri() ? daemonConnection.getUri() : "";
@@ -143,7 +142,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // validate and normalize params
     if (path === undefined) path = "";
-    if (password === undefined) password = "";
+    assert(password, "Must provide a password to create the wallet with");
     MoneroNetworkType.validate(networkType);
     if (address === undefined) address = "";
     if (viewKey === undefined) viewKey = "";

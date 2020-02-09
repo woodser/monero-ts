@@ -948,7 +948,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         try {
           
           // create a test wallet
-          wallet = await that.createWalletRandomCustom(TestUtils.WALLET_RPC_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpcConnection());
+          wallet = await that.createWalletRandomCustom(TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpcConnection());
           let path = await wallet.getPath();
           console.log(await wallet.getDaemonConnection());
           await wallet.sync();
@@ -973,7 +973,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           catch (e) { assert.equal(e.message, "Wallet is closed"); }
           
           // re-open the wallet
-          wallet = await that.openWalletCustom(path, TestUtils.WALLET_RPC_PASSWORD, TestUtils.NETWORK_TYPE, await that.daemon.getRpcConnection());
+          wallet = await that.openWalletCustom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, await that.daemon.getRpcConnection());
           await wallet.sync();
           assert.equal(await wallet.getHeight(), await wallet.getDaemonHeight());
           assert.equal(await wallet.isClosed(), false);
