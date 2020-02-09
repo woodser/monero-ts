@@ -1,7 +1,5 @@
 #!/bin/sh
 
-source "$(realpath $(dirname $0))/emsdk-inc.sh"
-
 PLATFORM="emscripten"
 
 SRC_DIR="external/monero-cpp-library/external/boost-sdk"
