@@ -2,6 +2,8 @@
 
 #EMCC_DEBUG=1 
 
+source "$(realpath $(dirname $0))/emsdk-inc.sh"
+
 export BOOSTROOT="build/boost/lib"
 export BOOST_ROOT=$BOOSTROOT
 export BOOST_LIB=$BOOSTROOT/lib
