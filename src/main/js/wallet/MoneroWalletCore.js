@@ -1932,8 +1932,8 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     return await this._invokeWorker("getData");
   }
   
-  async isClosed() {
-    return await this._invokeWorker("isClosed");
+  async moveTo(path, password) {
+    throw new Error("MoneroWalletCoreProxy.moveTo() not implemented");
   }
   
   // TODO: better way than all but duplicating MoneroWalletCore class save()?
@@ -1951,6 +1951,10 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     let data = await this.getData();
     this.fs.writeFileSync(path + ".keys", data[0], "binary");
     this.fs.writeFileSync(path, data[1], "binary");
+  }
+  
+  async isClosed() {
+    return await this._invokeWorker("isClosed");
   }
   
   async close(save) {
