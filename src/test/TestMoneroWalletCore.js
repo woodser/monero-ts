@@ -898,7 +898,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           
           // create wallet at the path
           let restoreHeight = await that.daemon.getHeight() - 200;
-          wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, undefined, restoreHeight, undefined);
+          wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, undefined, restoreHeight, undefined, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
           let subaddressLabel = "Move test wallet subaddress!";
           let account = await wallet.createAccount(subaddressLabel);
           await wallet.save();
@@ -919,7 +919,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           assert(await MoneroWalletCore.walletExists(movedPath));
           
           // re-open and test wallet
-          wallet = await MoneroWalletCore.openWallet(movedPath, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE);
+          wallet = await MoneroWalletCore.openWallet(movedPath, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
           assert.equal(await wallet.getSubaddress(account.getIndex(), 0).getLabel(), subaddressLabel);
           
           // move wallet back
@@ -937,7 +937,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         }
         
         // final cleanup
-        await wallet.close();
+        if (wallet) await wallet.close();
         if (err) throw err;
       });
       
