@@ -263,7 +263,6 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       
       if (config.testNonRelays)
       it("Can create a core wallet from mnemonic", async function() {
-        console.log("Start test can create a core wallet from mnemonic");
         
         // create wallet with mnemonic and defaults
         let wallet = await that.createWalletFromMnemonicCustom(TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC);
