@@ -93,10 +93,6 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
     return gtWallet;
   }
   
-  async getPath(wallet) {
-    return await wallet.getPath();
-  }
-  
   async getMnemonicLanguages() {
     return await MoneroWalletCore.getMnemonicLanguages();
   }
@@ -178,15 +174,16 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           assert.equal(await wallet.getDaemonConnection(), undefined);
           
           // set daemon uri
-          await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_URI);
-          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_URI).getConfig());
-          assert(await that.daemon.isConnected());
+          await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_CONFIG.uri);
+          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG.uri).getConfig());
+          await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_CONFIG.uri, TestUtils.DAEMON_RPC_CONFIG.username, TestUtils.DAEMON_RPC_CONFIG.password);
+          assert(await wallet.isConnected());
           
           // nullify daemon connection
           await wallet.setDaemonConnection(undefined);
           assert.equal(await wallet.getDaemonConnection(), undefined);
-          await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_URI);
-          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_URI).getConfig());
+          await wallet.setDaemonConnection(TestUtils.DAEMON_RPC_CONFIG.uri);
+          assert.deepEqual((await wallet.getDaemonConnection()).getConfig(), new MoneroRpcConnection(TestUtils.DAEMON_RPC_CONFIG.uri).getConfig());
           await wallet.setDaemonConnection(undefined);
           assert.equal(await wallet.getDaemonConnection(), undefined);
           
@@ -310,7 +307,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         assert.equal(await wallet.getMnemonicLanguage(), "English");
         assert.equal(await wallet.getHeight(), 1); // TODO monero core: why does height of new unsynced wallet start at 1?
         assert.equal(await wallet.getRestoreHeight(), restoreHeight);
-        let path = await await that.getPath(wallet);
+        let path = await await wallet.getPath();
         await wallet.close(true);
         wallet = await that.openWalletCustom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE);
         assert(!(await wallet.isConnected()));
@@ -951,8 +948,9 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         try {
           
           // create a test wallet
-          wallet = await that.createWalletRandomCustom(TestUtils.WALLET_RPC_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.DAEMON_RPC_URI);
-          let path = await that.getPath(wallet);
+          wallet = await that.createWalletRandomCustom(TestUtils.WALLET_RPC_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpcConnection());
+          let path = await wallet.getPath();
+          console.log(await wallet.getDaemonConnection());
           await wallet.sync();
           assert(await wallet.getHeight() > 1);
           assert(await wallet.isSynced());
@@ -980,6 +978,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           assert.equal(await wallet.getHeight(), await wallet.getDaemonHeight());
           assert.equal(await wallet.isClosed(), false);
         } catch (e) {
+          console.log(e);
           err = e;
         }
         
