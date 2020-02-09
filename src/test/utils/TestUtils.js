@@ -135,11 +135,6 @@ class TestUtils {
 // TODO: export these to key/value properties file for tests
 // TODO: in properties, define {network: stagnet, network_configs: { stagnet: { daemonRpc: { host: _, port: _ ... etc
 
-// monero daemon rpc endpoint configuration (adjust per your configuration)
-TestUtils.DAEMON_RPC_URI = "http://localhost:38081";
-TestUtils.DAEMON_RPC_USERNAME = undefined;
-TestUtils.DAEMON_RPC_PASSWORD = undefined;
-
 TestUtils.TEST_WALLETS_DIR = "./test_wallets";
 TestUtils.WALLET_WASM_PATH_1 = TestUtils.TEST_WALLETS_DIR + "/test_wallet_1";
 
