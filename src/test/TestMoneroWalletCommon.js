@@ -513,7 +513,7 @@ class TestMoneroWalletCommon {
           await that.wallet.getBalance(undefined, 0);
           throw new Error("Should have failed");
         } catch(e) {
-          assert.notEqual("Should have failed", e.message);
+          assert.notEqual(e.message, "Should have failed");
         }
       });
       
@@ -1023,7 +1023,7 @@ class TestMoneroWalletCommon {
         
         // fetch unknown tx hash using query
         try {
-          await that.wallet.getTxs(new MoneroTxQuery().setTxId(unknownId1));
+          await that.wallet.getTxs(new MoneroTxQuery().setTxHash(unknownId1));
           throw new Error("Should have thrown error getting tx hash unknown to wallet");
         } catch (e) {
           assert.equal(e.message, "Tx not found in wallet: " + unknownId1);
