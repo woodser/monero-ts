@@ -150,7 +150,7 @@ self.getTxPool = async function(daemonId) {
     let txs = await self.WORKER_OBJECTS[daemonId].getTxPool();
     
     // collect txs in block
-    let block = new MoneroBlock().setTxs(tx);
+    let block = new MoneroBlock().setTxs(txs);
     for (let tx of txs) tx.setBlock(block)
     
     // serialize block
