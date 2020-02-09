@@ -3155,7 +3155,10 @@ class TestMoneroWalletCommon {
     if (isExpected === true) assert(txs.length > 0);
     for (let tx of txs) await this._testTxWallet(tx, Object.assign({wallet: wallet}, query));
     testGetTxsStructure(txs, query);
-    if (query !== undefined) assert.deepEqual(query, copy);
+    if (query !== undefined) {
+      if (query instanceof MoneroTxQuery) assert.deepEqual(query.toJson(), copy.toJson());
+      else assert.deepEqual(query, copy);
+    }
     return txs;
   }
 
