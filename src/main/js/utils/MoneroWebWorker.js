@@ -471,7 +471,7 @@ self.getAddress = async function(walletId, accountIdx, subaddressIdx) {
 
 self.getAddressIndex = async function(walletId, address) {
   try {
-    postMessage([walletId, "onGetAddressIndex", {result: await self.WORKER_OBJECTS[walletId].getAddressIndex(address)}]);
+    postMessage([walletId, "onGetAddressIndex", {result: (await self.WORKER_OBJECTS[walletId].getAddressIndex(address)).toJson()}]);
   } catch (e) {
     postMessage([walletId, "onGetAddressIndex", {error: e.message}]);
   }

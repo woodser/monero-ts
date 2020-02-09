@@ -11,6 +11,7 @@ sync end height != daemon height for long syncs
 notification tests fails when tx not confirmed first block, make more lenient
 long sync will give 100% notifications for blocks since sync started; re-compute based on daemon height toward end
 recover from failed background syncing
+detect/recover from failure on send
 test changing ports
 overload toJson() model protos and use JSON.stringify() instead of class toJsons()
 66kb vs 17 mb wallet file size

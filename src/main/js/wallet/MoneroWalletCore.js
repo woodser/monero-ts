@@ -1509,7 +1509,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getNetworkType() {
-    return await this._invokeWorker("getNetworkType");
+    return this._invokeWorker("getNetworkType");
   }
   
   async getVersion() {
@@ -1521,39 +1521,40 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getMnemonic() {
-    return await this._invokeWorker("getMnemonic");
+    return this._invokeWorker("getMnemonic");
   }
   
   async getMnemonicLanguage() {
-    return await this._invokeWorker("getMnemonicLanguage");
+    return this._invokeWorker("getMnemonicLanguage");
   }
   
   async getMnemonicLanguages() {
-    return await this._invokeWorker("getMnemonicLanguages");
+    return this._invokeWorker("getMnemonicLanguages");
   }
   
   async getPrivateSpendKey() {
-    return await this._invokeWorker("getPrivateSpendKey");
+    return this._invokeWorker("getPrivateSpendKey");
   }
   
   async getPrivateViewKey() {
-    return await this._invokeWorker("getPrivateViewKey");
+    return this._invokeWorker("getPrivateViewKey");
   }
   
   async getPublicViewKey() {
-    return await this._invokeWorker("getPublicViewKey");
+    return this._invokeWorker("getPublicViewKey");
   }
   
   async getPublicSpendKey() {
-    return await this._invokeWorker("getPublicSpendKey");
+    return this._invokeWorker("getPublicSpendKey");
   }
   
   async getAddress(accountIdx, subaddressIdx) {
-    return await this._invokeWorker("getAddress", Array.from(arguments));
+    return this._invokeWorker("getAddress", Array.from(arguments));
   }
   
   async getAddressIndex(address) {
-    return await this._invokeWorker("getAddressIndex", Array.from(arguments));
+    let subaddressJson = await this._invokeWorker("getAddressIndex", Array.from(arguments));
+    return MoneroWalletCore._sanitizeSubaddress(new MoneroSubaddress(subaddressJson));
   }
   
   async setDaemonConnection(uriOrRpcConnection, username, password) {
@@ -1570,31 +1571,31 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async isConnected() {
-    return await this._invokeWorker("isConnected");
+    return this._invokeWorker("isConnected");
   }
   
   async getRestoreHeight() {
-    return await this._invokeWorker("getRestoreHeight");
+    return this._invokeWorker("getRestoreHeight");
   }
   
   async setRestoreHeight(restoreHeight) {
-    return await this._invokeWorker("setRestoreHeight", [restoreHeight]);
+    return this._invokeWorker("setRestoreHeight", [restoreHeight]);
   }
   
   async getDaemonHeight() {
-    return await this._invokeWorker("getDaemonHeight");
+    return this._invokeWorker("getDaemonHeight");
   }
   
   async getDaemonMaxPeerHeight() {
-    return await this._invokeWorker("getDaemonMaxPeerHeight");
+    return this._invokeWorker("getDaemonMaxPeerHeight");
   }
   
   async isDaemonSynced() {
-    return await this._invokeWorker("isDaemonSynced");
+    return this._invokeWorker("isDaemonSynced");
   }
   
   async getHeight() {
-    return await this._invokeWorker("getHeight");
+    return this._invokeWorker("getHeight");
   }
   
   async addListener(listener) {
@@ -1631,7 +1632,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async isSynced() {
-    return await this._invokeWorker("isSynced");
+    return this._invokeWorker("isSynced");
   }
   
   async sync(listenerOrStartHeight, startHeight) {
@@ -1661,11 +1662,11 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async startSyncing() {
-    return await this._invokeWorker("startSyncing");  // TODO: don't need to await
+    return this._invokeWorker("startSyncing");  // TODO: don't need to await
   }
     
   async stopSyncing() {
-    return await this._invokeWorker("stopSyncing");
+    return this._invokeWorker("stopSyncing");
   }
   
   // rescanSpent
@@ -1873,27 +1874,27 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getAttribute(key) {
-    return await this._invokeWorker("getAttribute", Array.from(arguments));
+    return this._invokeWorker("getAttribute", Array.from(arguments));
   }
   
   async setAttribute(key, val) {
-    return await this._invokeWorker("setAttribute", Array.from(arguments));
+    return this._invokeWorker("setAttribute", Array.from(arguments));
   }
   
   async startMining(numThreads, backgroundMining, ignoreBattery) {
-    return await this._invokeWorker("startMining", Array.from(arguments));
+    return this._invokeWorker("startMining", Array.from(arguments));
   }
   
   async stopMining() {
-    return await this._invokeWorker("stopMining", Array.from(arguments));
+    return this._invokeWorker("stopMining", Array.from(arguments));
   }
   
   async isMultisigImportNeeded() {
-    return await this._invokeWorker("isMultisigImportNeeded");
+    return this._invokeWorker("isMultisigImportNeeded");
   }
   
   async isMultisig() {
-    return await this._invokeWorker("isMultisig");
+    return this._invokeWorker("isMultisig");
   }
   
   async getMultisigInfo() {
@@ -1929,7 +1930,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getData() {
-    return await this._invokeWorker("getData");
+    return this._invokeWorker("getData");
   }
   
   async moveTo(path, password) {
@@ -1954,7 +1955,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async isClosed() {
-    return await this._invokeWorker("isClosed");
+    return this._invokeWorker("isClosed");
   }
   
   async close(save) {
