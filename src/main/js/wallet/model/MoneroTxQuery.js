@@ -15,7 +15,9 @@ class MoneroTxQuery extends MoneroTxWallet {
     
     // deserialize if necessary
     if (this.state.transferQuery && !(this.state.transferQuery instanceof MoneroTransferQuery)) this.state.transferQuery = new MoneroTransferQuery(this.state.transferQuery);
+    if (this.state.transferQuery) this.state.transferQuery.setTxQuery(this);
     if (this.state.outputQuery && !(this.state.outputQuery instanceof MoneroOutputQuery)) this.state.outputQuery = new MoneroOutputQuery(this.state.outputQuery);
+    if (this.state.outputQuery) this.state.outputQuery.setTxQuery(this);
     
     // alias 'txHash' to txHashes
     if (this.state.txHash) {
@@ -63,7 +65,7 @@ class MoneroTxQuery extends MoneroTxWallet {
     return this;
   }
   
-  setTxId(txHash) {
+  setTxHash(txHash) {
     if (txHash === undefined) return this.setTxHashes(undefined);
     assert(typeof txHash === "string");
     return this.setTxHashes([txHash]);

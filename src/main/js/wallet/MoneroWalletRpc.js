@@ -523,7 +523,7 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTransfers(query) {
     
-    // copy and normalize query up to block
+    // copy and normalize query up to block // TODO: factor out this common code with MoneroWalletCore into MoneroWallet
     if (query === undefined) query = new MoneroTransferQuery();
     else if (query instanceof MoneroTransferQuery) {
       if (query.getTxQuery() === undefined) query = query.copy();

@@ -720,6 +720,11 @@ class MoneroWalletCore extends MoneroWalletKeys {
     // copy and normalize query up to block
     query = MoneroWalletCore._normalizeTransferQuery(query);
     
+    // minimal validation // TODO: validate all uints for c++
+    if (query.getAccountIndex() !== undefined) assert(query.getAccountIndex() >= 0);
+    if (query.getSubaddressIndex() !== undefined) assert(query.getSubaddressIndex() >= 0);
+    if (query.getSubaddressIndices() !== undefined) for (let subaddressIdx of query.getSubaddressIndices()) assert(subaddressIdx >= 0);
+    
     // return promise which resolves on callback
     let that = this;
     return that.module.queueTask(async function() {
