@@ -38,9 +38,19 @@ class MoneroUtils {
   }
   
   // TODO: beef this up, will require knowing network type
+  static isValidAddress(address) {
+    try {
+      MoneroUtils.validateAddress(address);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  
   static validateAddress(address) {
-    assert(address);
-    assert(address.length > 0);
+    assert(typeof address === "string", "Address is not string");
+    assert(address.length > 0, "Address is empty");
+    assert(GenUtils.isBase58(address), "Address is not base 58");
   }
   
   static isValidPaymentId(paymentId) {
@@ -48,7 +58,6 @@ class MoneroUtils {
       MoneroUtils.validatePaymentId(paymentId);
       return true;
     } catch (e) {
-      console.log(e);
       return false;
     }
   }

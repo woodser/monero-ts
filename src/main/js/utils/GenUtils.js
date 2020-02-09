@@ -172,7 +172,7 @@ class GenUtils {
    * @param msg is the message to throw if the argument is not hex
    */
   static assertHex(str, msg) {
-    assertTrue(isHex(str), msg ? msg : "Argument asserted as hex but is not hex");
+    GenUtils.assertTrue(isHex(str), msg ? msg : "Argument asserted as hex but is not hex");
   }
 
   /**
@@ -194,7 +194,7 @@ class GenUtils {
    */
   static isBase32(str) {
     if (typeof str !== 'string') return false;
-    assertTrue(str.length > 0, "Cannot determine if empty string is base32");
+    GenUtils.assertTrue(str.length > 0, "Cannot determine if empty string is base32");
     return /^[ABCDEFGHIJKLMNOPQRSTUVWXYZ234567]+$/.test(str);
   }
 
@@ -205,7 +205,7 @@ class GenUtils {
    * @param msg is the message to throw if the argument is not base58
    */
   static assertBase58(str, msg) {
-    assertTrue(isBase58(str), msg ? msg : "Argument asserted as base58 but is not base58");
+    GenUtils.assertTrue(isBase58(str), msg ? msg : "Argument asserted as base58 but is not base58");
   }
 
   /**
@@ -213,7 +213,7 @@ class GenUtils {
    */
   static isBase58(str) {
     if (typeof str !== 'string') return false;
-    assertTrue(str.length > 0, "Cannot determine if empty string is base58");
+    GenUtils.assertTrue(str.length > 0, "Cannot determine if empty string is base58");
     return /^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$/.test(str);
   }
 
@@ -224,7 +224,7 @@ class GenUtils {
    * @param msg is the message to throw if the argument is not base64
    */
   static assertBase64(str, msg) {
-    assertTrue(isBase64(str), msg ? msg : "Argument asserted as base64 but is not base64");
+    GenUtils.assertTrue(isBase64(str), msg ? msg : "Argument asserted as base64 but is not base64");
   }
 
   /**
@@ -232,7 +232,7 @@ class GenUtils {
    */
   static isBase64(str) {
     if (typeof str !== 'string') return false;
-    assertTrue(str.length > 0, "Cannot determine if empty string is base64");
+    GenUtils.assertTrue(str.length > 0, "Cannot determine if empty string is base64");
     try {
       return btoa(atob(str)) == str;
     } catch (err) {
@@ -496,7 +496,7 @@ class GenUtils {
   static getPowerSetOfLength(arr, size) {
     assertInitialized(arr);
     assertInitialized(size);
-    assertTrue(size >= 1);
+    GenUtils.assertTrue(size >= 1);
     let powerSet = getPowerSet(arr);
     let powerSetOfLength = [];
     for (let i = 0; i < powerSet.length; i++) {
@@ -722,7 +722,7 @@ class GenUtils {
     // validate input
     assertInitialized(arr);
     assertInitialized(combinationSize);
-    assertTrue(combinationSize >= 1);
+    GenUtils.assertTrue(combinationSize >= 1);
     
     // get combinations of array indices of the given size
     let indexCombinations = getPowerSetOfLength(getIndices(arr.length), combinationSize);
@@ -1097,7 +1097,7 @@ class GenUtils {
     
     // listify paths
     if (!GenUtils.isArray(paths)) {
-      assertTrue(isString(paths));
+      GenUtils.assertTrue(isString(paths));
       paths = [paths];
     }
     
