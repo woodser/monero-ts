@@ -263,8 +263,8 @@ namespace monero {
     void set_tx_note(const string& tx_hash, const string& note);
     void set_tx_notes(const vector<string>& tx_hashes, const vector<string>& notes);
     vector<monero_address_book_entry> get_address_book_entries(const vector<uint64_t>& indices) const;
-    uint64_t add_address_book_entry(const string& address, const string& description, const string& payment_id = "");
-    void edit_address_book_entry(uint64_t index, bool set_address, const string& address, bool set_description, const string& description, bool set_payment_id = false, const string& payment_id = "");
+    uint64_t add_address_book_entry(const string& address, const string& description);
+    void edit_address_book_entry(uint64_t index, bool set_address, const string& address, bool set_description, const string& description);
     void delete_address_book_entry(uint64_t index);
     string create_payment_uri(const monero_send_request& request) const;
     shared_ptr<monero_send_request> parse_payment_uri(const string& uri) const;
