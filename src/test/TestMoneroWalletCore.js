@@ -949,7 +949,6 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           // create a test wallet
           wallet = await that.createWalletRandomCustom(TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpcConnection());
           let path = await wallet.getPath();
-          console.log(await wallet.getDaemonConnection());
           await wallet.sync();
           assert(await wallet.getHeight() > 1);
           assert(await wallet.isSynced());
