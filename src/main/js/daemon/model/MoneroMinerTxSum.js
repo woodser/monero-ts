@@ -3,8 +3,20 @@
  */
 class MoneroMinerTxSum {
   
-  constructor() {
-    this.state = {};
+  constructor(state) {
+    state = Object.assign({}, state);
+    this.state = state;
+    
+    // deserialize BigIntegers
+    if (state.emissionSum !== undefined && !(state.emissionSum instanceof BigInteger)) state.emissionSum = BigInteger.parse(state.emissionSum);
+    if (state.feeSum !== undefined && !(state.feeSum instanceof BigInteger)) state.feeSum = BigInteger.parse(state.feeSum);
+  }
+  
+  toJson() {
+    let json = Object.assign({}, this.state);
+    if (this.getEmissionSum()) json.emissionSum = this.getEmissionSum().toString();
+    if (this.getFeeSum()) json.feeSum = this.getFeeSum().toString();
+    return json;
   }
   
   getEmissionSum() {
