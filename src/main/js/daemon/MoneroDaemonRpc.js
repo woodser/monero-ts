@@ -1222,7 +1222,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     for (let key of Object.keys(rpcPeer)) {
       let val = rpcPeer[key];
       if (key === "host") peer.setHost(val);
-      else if (key === "id") peer.setId("" + val);  // TODO monero-wallet-rpc: peer id is big integer but string in `get_connections`
+      else if (key === "id") peer.setId("" + val);  // TODO monero-wallet-rpc: peer id is BigInteger but string in `get_connections`
       else if (key === "ip") {} // host used instead which is consistently a string
       else if (key === "last_seen") peer.setLastSeenTimestamp(val);
       else if (key === "port") peer.setPort(val);
@@ -1369,11 +1369,12 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getVersion() {
-    throw new MoneroError("Not implemented");
+    let versionJson = await this._invokeWorker("daemonGetVersion");
+    return new MoneroVersion(versionJson.number, versionJson.isRelease);
   }
   
   async isTrusted() {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonIsTrusted");
   }
   
   async getHeight() {
@@ -1381,89 +1382,110 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getBlockHash(height) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonGetBlockHash", Array.from(arguments));
   }
   
   async getBlockTemplate(walletAddress, reserveSize) {
-    throw new MoneroError("Not implemented");
+    return new MoneroBlockTemplate(await this._invokeWorker("daemonGetBlockTemplate", Array.from(arguments)));
   }
   
   async getLastBlockHeader() {
-    throw new MoneroError("Not implemented");
+    return new MoneroBlockHeader(await this._invokeWorker("daemonGetLastBlockHeader"));
   }
   
   async getBlockHeaderByHash(blockHash) {
-    throw new MoneroError("Not implemented");
+    return new MoneroBlockHeader(await this._invokeWorker("daemonGetBlockHeaderByHash", Array.from(arguments)));
   }
   
   async getBlockHeaderByHeight(height) {
-    throw new MoneroError("Not implemented");
+    return new MoneroBlockHeader(await this._invokeWorker("daemonGetBlockHeaderByHeight", Array.from(arguments)));
   }
   
   async getBlockHeadersByRange(startHeight, endHeight) {
-    throw new MoneroError("Not implemented");
+    let blockHeadersJson = await this._invokeWorker("daemonGetBlockHeadersByRange", Array.from(arguments));
+    let headers = [];
+    for (let blockHeaderJson of blockHeadersJson) headers.push(new MoneroBlockHeader(blockHeaderJson));
+    return headers;
   }
   
   async getBlockByHash(blockHash) {
-    throw new MoneroError("Not implemented");
+    return new MoneroBlock(await this._invokeWorker("daemonGetBlockByHash", Array.from(arguments)));
   }
   
   async getBlocksByHash(blockHashes, startHeight, prune) {
-    throw new MoneroError("Not implemented");
+    let blocksJson = await this._invokeWorker("daemonGetBlocksByHash", Array.from(arguments));
+    let blocks = [];
+    for (let blockJson of blocksJson) blocks.push(new MoneroBlock(blockJson));
+    return blocks;
   }
   
   async getBlockByHeight(height) {
-    throw new MoneroError("Not implemented");
+    return new MoneroBlock(await this._invokeWorker("daemonGetBlockByHeight", Array.from(arguments)));
   }
   
   async getBlocksByHeight(heights) {
-    throw new MoneroError("Not implemented");
+    let blocksJson = await this._invokeWorker("daemonGetBlocksByHeight", Array.from(arguments));
+    let blocks = [];
+    for (let blockJson of blocksJson) blocks.push(new MoneroBlock(blockJson));
+    return blocks;
   }
   
   async getBlocksByRange(startHeight, endHeight) {
-    throw new MoneroError("Not implemented");
+    let blocksJson = await this._invokeWorker("daemonGetBlocksByRange", Array.from(arguments));
+    let blocks = [];
+    for (let blockJson of blocksJson) blocks.push(new MoneroBlock(blockJson));
+    return blocks;
   }
   
   async getBlocksByRangeChunked(startHeight, endHeight, maxChunkSize) {
-    throw new MoneroError("Not implemented");
+    let blocksJson = await this._invokeWorker("daemonGetBlocksByRangeChunked", Array.from(arguments));
+    let blocks = [];
+    for (let blockJson of blocksJson) blocks.push(new MoneroBlock(blockJson));
+    return blocks;
   }
   
   async getBlockHashes(blockHashes, startHeight) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonGetBlockHashes", Array.from(arguments));
   }
   
   async getTxs(txHashes, prune = false) {
-    throw new MoneroError("Not implemented");
+    let blockJsons = await this._invokeWorker("daemonGetTxs", Array.from(arguments));
+    let txs = [];
+    for (let blockJson of blockJsons) {
+      let block = new MoneroBlocK(blockJson);
+      for (let tx of block.getTxs()) txs.push(tx);
+    }
+    return txs;
   }
   
   async getTxHexes(txHashes, prune = false) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonGetTxHexes", Array.from(arguments));
   }
   
   async getMinerTxSum(height, numBlocks) {
-    throw new MoneroError("Not implemented");
+    return new MoneroMinerTxSum(await this._invokeWorker("daemonGetMinerTxSum", Array.from(arguments)));
   }
   
   async getFeeEstimate(graceBlocks) {
-    throw new MoneroError("Not implemented");
+    return new BigInteger(await this._invokeWorker("daemonGetFeeEstimate", Array.from(arguments)));
   }
   
   async submitTxHex(txHex, doNotRelay) {
-    throw new MoneroError("Not implemented");
+    return new MoneroSubmitTxResult(await this._invokeWorker("daemonSubmitTxHex", Array.from(arguments)));
   }
   
   async relayTxsByHash(txHashes) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonRelayTxsByHash", Array.from(arguments));
   }
   
   async getTxPool() {
-    let blockJson = await this._invokeWorker("getTxPool");
+    let blockJson = await this._invokeWorker("daemonGetTxPool");
     let txs = new MoneroBlock(blockJson).getTxs();
     return txs ? txs : [];
   }
   
   async getTxPoolHashes() {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonGetTxPoolHashes", Array.from(arguments));
   }
   
   async getTxPoolBacklog() {
@@ -1475,7 +1497,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async flushTxPool(hashes) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonFlushTxPool", Array.from(arguments));
   }
   
   async getKeyImageSpentStatuses(keyImages) {
@@ -1495,47 +1517,50 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getInfo() {
-    throw new MoneroError("Not implemented");
+    return new MoneroDaemonInfo(await this._invokeWorker("daemonGetInfo"));
   }
   
   async getSyncInfo() {
-    throw new MoneroError("Not implemented");
+    return new MoneroDaemonSyncInfo(await this._invokeWorker("daemonGetSyncInfo"));
   }
   
   async getHardForkInfo() {
-    throw new MoneroError("Not implemented");
+    return new getHardForkInfo(await this._invokeWorker("daemonGetHardForkInfo"));
   }
   
   async getAltChains() {
-    throw new MoneroError("Not implemented");
+    let altChainsJson = await this._invokeWorker("daemonGetAltChains");
+    let altChains = [];
+    for (let altChainJson of altChainJsons) altChains.push(new MoneroAltChain(altChainJson));
+    return altChains;
   }
   
   async getAltBlockIds() {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonGetAltBlockIds");
   }
   
   async getDownloadLimit() {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonGetDownloadLimit");
   }
   
   async setDownloadLimit(limit) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonSetDownloadLimit", Array.from(arguments));
   }
   
   async resetDownloadLimit() {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonResetDownloadLimit");
   }
   
   async getUploadLimit() {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonGetUploadLimit");
   }
   
   async setUploadLimit(limit) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonSetUploadLimit", Array.from(arguments));
   }
   
   async resetUploadLimit() {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonResetUploadLimit");
   }
   
   async getKnownPeers() {
@@ -1591,7 +1616,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async stop() {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonStop");
   }
   
   async getNextBlockHeader() {
