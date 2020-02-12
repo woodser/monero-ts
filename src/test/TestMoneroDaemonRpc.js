@@ -39,7 +39,7 @@ class TestMoneroDaemonRpc {
       // -------------------------- TEST NON RELAYS ---------------------------
       
       if (config.testNonRelays)
-      it("Can get the that.daemon's version", async function() {
+      it("Can get the daemon's version", async function() {
         let version = await that.daemon.getVersion();
         assert(version.getNumber() > 0);
         assert.equal(typeof version.isRelease(), "boolean");

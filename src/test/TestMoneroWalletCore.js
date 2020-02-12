@@ -645,7 +645,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         try {
           assert.notEqual(await wallet.getMnemonic(), undefined);
           assert.equal(await wallet.getHeight(), 1);
-          assert.equal(await wallet.getBalance(), new BigInteger("0"));
+          assert.equal(await wallet.getBalance(), BigInteger.parse("0"));
           await wallet.startSyncing();
         } catch (e1) {  // first error is expected
           try {
@@ -670,7 +670,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           assert.equal(await wallet.getHeight(), 1);
           let chainHeight = await wallet.getDaemonHeight();
           assert(!(await wallet.isSynced()));
-          assert.equal(await wallet.getBalance(), new BigInteger("0"));
+          assert.equal(await wallet.getBalance(), BigInteger.parse("0"));
           
           // sleep for a moment
           await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // in ms
@@ -709,7 +709,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           assert.equal(await wallet.getHeight(), 1);
           let chainHeight = await wallet.getDaemonHeight();
           assert(!(await wallet.isSynced()));
-          assert.equal(await wallet.getBalance(), new BigInteger("0"));
+          assert.equal(await wallet.getBalance(), BigInteger.parse("0"));
           await wallet.setRestoreHeight(chainHeight - 3);
           assert.equal(await wallet.getRestoreHeight(), chainHeight - 3);
           assert.equal((await wallet.getDaemonConnection()).getUri(), (await that.daemon.getRpcConnection()).getUri());
@@ -1054,7 +1054,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         let unlockedBalanceAfter = await wallet.getUnlockedBalance();
         let balanceAfterExpected = balanceBefore.subtract(tx.getFee());  // txs sent from/to same wallet so only decrease in balance is tx fee
         if (!balanceAfterExpected.compare(balanceAfter) === 0) errors.push("WARNING: wallet balance immediately after send expected to be " + balanceAfterExpected + " but was " + balanceAfter);
-        if (unlockedBalanceBefore.compare(unlockedBalanceAfter) <= 0 && unlockedBalanceBefore.compare(new BigInteger("0")) !== 0) errors.push("WARNING: Wallet unlocked balance immediately after send was expected to decrease but changed from " + unlockedBalanceBefore + " to " + unlockedBalanceAfter);
+        if (unlockedBalanceBefore.compare(unlockedBalanceAfter) <= 0 && unlockedBalanceBefore.compare(BigInteger.parse("0")) !== 0) errors.push("WARNING: Wallet unlocked balance immediately after send was expected to decrease but changed from " + unlockedBalanceBefore + " to " + unlockedBalanceAfter);
             
         // wait for wallet to send notifications
         if (listener.getOutputsSpent().length === 0) {
@@ -1091,7 +1091,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         }
         
         // since sending from/to the same wallet, the net amount spent = tx fee = outputs spent - outputs received
-        let netAmount = new BigInteger("0");
+        let netAmount = BigInteger.parse("0");
         for (let outputSpent of listener.getOutputsSpent()) netAmount = netAmount.add(outputSpent.getAmount());
         for (let outputReceived of listener.getOutputsReceived()) netAmount = netAmount.subtract(outputReceived.getAmount());
         if (tx.getFee().compare(netAmount) !== 0) {
@@ -1103,7 +1103,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         balanceAfter = await wallet.getBalance();
         unlockedBalanceAfter = await wallet.getUnlockedBalance();
         if (!balanceAfterExpected.compare(balanceAfter) === 0) errors.push("WARNING: Wallet balance after confirmation expected to be " + balanceAfterExpected + " but was " + balanceAfter);
-        if (unlockedBalanceBefore.compare(unlockedBalanceAfter) <= 0 && unlockedBalanceBefore.compare(new BigInteger("0")) !== 0) errors.push("WARNING: Wallet unlocked balance immediately after send was expected to decrease but changed from " + unlockedBalanceBefore + " to " + unlockedBalanceAfter);
+        if (unlockedBalanceBefore.compare(unlockedBalanceAfter) <= 0 && unlockedBalanceBefore.compare(BigInteger.parse("0")) !== 0) errors.push("WARNING: Wallet unlocked balance immediately after send was expected to decrease but changed from " + unlockedBalanceBefore + " to " + unlockedBalanceAfter);
 
         // return all errors and warnings as single string
         return errors;
@@ -1369,8 +1369,8 @@ class WalletSyncTester extends SyncProgressTester {
     super(wallet, startHeight, endHeight);
     assert(startHeight >= 0);
     assert(endHeight >= 0);
-    this.incomingTotal = new BigInteger("0");
-    this.outgoingTotal = new BigInteger("0");
+    this.incomingTotal = BigInteger.parse("0");
+    this.outgoingTotal = BigInteger.parse("0");
   }
   
   onNewBlock(height) {

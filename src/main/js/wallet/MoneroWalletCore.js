@@ -1678,8 +1678,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   // rescanBlockchain
   
   async getBalance(accountIdx, subaddressIdx) {
-    let balanceStr = await this._invokeWorker("getBalance", Array.from(arguments));
-    return new BigInteger(balanceStr);
+    return new BigInteger(await this._invokeWorker("getBalance", Array.from(arguments)));
   }
   
   async getUnlockedBalance(accountIdx, subaddressIdx) {
@@ -1721,19 +1720,19 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   async getTxs(query) {
     query = MoneroWalletCore._normalizeTxQuery(query);
     let blockJsons = await this._invokeWorker("getTxs", [query.getBlock().toJson()]);
-    return MoneroWalletCore._blocksJsonToTxs(query, JSON.stringify({blocks: blockJsons})); // initialize txs from blocks json string // TODO: using internal private method, make public? TODO: this stringifies then utility parses, avoid
+    return MoneroWalletCore._blocksJsonToTxs(query, JSON.stringify({blocks: blockJsons})); // initialize txs from blocks json string TODO: this stringifies then utility parses, avoid
   }
   
   async getTransfers(query) {
     query = MoneroWalletCore._normalizeTransferQuery(query);
     let blockJsons = await this._invokeWorker("getTransfers", [query.getTxQuery().getBlock().toJson()]);
-    return MoneroWalletCore._blocksJsonToTransfers(query, JSON.stringify({blocks: blockJsons})); // initialize transfers from blocks json string // TODO: using internal private method, make public? TODO: this stringifies then utility parses, avoid
+    return MoneroWalletCore._blocksJsonToTransfers(query, JSON.stringify({blocks: blockJsons})); // initialize transfers from blocks json string TODO: this stringifies then utility parses, avoid
   }
   
   async getOutputs(query) {
     query = MoneroWalletCore._normalizeOutputQuery(query);
     let blockJsons = await this._invokeWorker("getOutputs", [query.getTxQuery().getBlock().toJson()]);
-    return MoneroWalletCore._blocksJsonToOutputs(query, JSON.stringify({blocks: blockJsons})); // initialize transfers from blocks json string // TODO: using internal private method, make public? TODO: this stringifies then utility parses, avoid
+    return MoneroWalletCore._blocksJsonToOutputs(query, JSON.stringify({blocks: blockJsons})); // initialize transfers from blocks json string TODO: this stringifies then utility parses, avoid
   }
   
   async getOutputsHex() {

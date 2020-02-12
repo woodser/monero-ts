@@ -57,14 +57,14 @@ class WalletEqualityUtils {
         await WalletEqualityUtils._testAccountEqualOnChain(accounts1[i], accounts2[i]);
       } else if (i >= accounts1.length) {
         for (let j = i; j < accounts2.length; j++) {
-          assert.equal(accounts2[j].getBalance().toString(), new BigInteger("0").toString());
+          assert.equal(accounts2[j].getBalance().toString(), BigInteger.parse("0").toString());
           assert(accounts2[j].getSubaddresses().length >= 1);
           for (let subaddress of accounts2[j].getSubaddresses()) assert(!subaddress.isUsed());
         }
         return;
       } else {
         for (let j = i; j < accounts1.length; j++) {
-          assert.equal(accounts1[j].getBalance().toString(), new BigInteger("0"));
+          assert.equal(accounts1[j].getBalance().toString(), BigInteger.parse("0"));
           assert(accounts1[j].getSubaddresses().length >= 1);
           for (let subaddress of accounts1[j].getSubaddresses()) assert(!subaddress.isUsed());
         }
@@ -94,13 +94,13 @@ class WalletEqualityUtils {
         await WalletEqualityUtils._testSubaddressesEqualOnChain(subaddresses1[i], subaddresses2[i]);
       } else if (i >= subaddresses1.length) {
         for (let j = i; j < subaddresses2.length; j++) {
-          assert.equal(new BigInteger("0"), subaddresses2[j].getBalance().toString());
+          assert.equal(BigInteger.parse("0"), subaddresses2[j].getBalance().toString());
           assert(!subaddresses2[j].isUsed());
         }
         return;
       } else {
         for (let j = i; j < subaddresses1.length; j++) {
-          assert.equal(new BigInteger("0"), subaddresses1[i].getBalance());
+          assert.equal(BigInteger.parse("0"), subaddresses1[i].getBalance());
           assert(!subaddresses1[j].isUsed());
         }
         return;
