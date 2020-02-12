@@ -3,8 +3,27 @@
  */
 class MoneroBlockTemplate {
   
-  constructor() {
-    this.state = {};
+  constructor(state) {
+    state = Object.assign({}, state);
+    this.state = state;
+    
+    // deserialize BigIntegers
+    if (state.expectedReward !== undefined && !(state.expectedReward instanceof BigInteger)) state.expectedReward = BigInteger.parse(state.expectedReward);
+    if (state.difficulty !== undefined && !(state.difficulty instanceof BigInteger)) state.difficulty = BigInteger.parse(state.difficulty);
+  }
+  
+  toJson() {
+    let json = Object.assign({}, this.state);
+    if (this.getExpectedReward()) json.expectedReward = this.getExpectedReward().toString();
+    if (this.getDifficulty()) json.difficulty = this.getDifficulty().toString();
+    return json;
+  }
+  
+  toJson() {
+    let json = Object.assign({}, this.state);
+    if (json.expectedReward) json.expectedReward = json.expectedReward.toString();
+    if (json.difficulty) json.difficulty = json.difficulty.toString();
+    return json;
   }
   
   getBlockTemplateBlob() {

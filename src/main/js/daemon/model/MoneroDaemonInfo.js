@@ -3,8 +3,18 @@
  */
 class MoneroDaemonInfo {
   
-  constructor() {
-    this.state = {};
+  constructor(state) {
+    state = Object.assign({}, state);
+    this.state = state;
+    
+    // deserialize BigIntegers
+    if (state.credits !== undefined && !(state.credits instanceof BigInteger)) state.credits = BigInteger.parse(state.credits);
+  }
+  
+  toJson() {
+    let json = Object.assign([], this.state);
+    if (json.credits) json.credits = json.credits.toString();
+    return json;
   }
   
   getVersion() {

@@ -17,7 +17,7 @@ class MoneroBlockHeader {
     else throw new MoneroError("state must be a MoneroBlockHeader or JavaScript object");
     this.state = state;
     
-    // deserialize big integers
+    // deserialize BigIntegers
     if (state.difficulty !== undefined && !(state.difficulty instanceof BigInteger)) state.difficulty = BigInteger.parse(state.difficulty);
     if (state.cumulativeDifficulty !== undefined && !(state.cumulativeDifficulty instanceof BigInteger)) state.cumulativeDifficulty = BigInteger.parse(state.cumulativeDifficulty);
     if (state.reward !== undefined && !(state.reward instanceof BigInteger)) state.reward = BigInteger.parse(state.reward);
