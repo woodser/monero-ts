@@ -1449,13 +1449,11 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getTxs(txHashes, prune = false) {
-    let blockJsons = await this._invokeWorker("daemonGetTxs", Array.from(arguments));
-    let txs = [];
-    for (let blockJson of blockJsons) {
-      let block = new MoneroBlocK(blockJson);
-      for (let tx of block.getTxs()) txs.push(tx);
+    let blocks = [];
+    for (let blockJson of await this._invokeWorker("daemonGetTxs", Array.from(arguments))) {
+      blocks.push(new MoneroBlock(blockJson));
     }
-    return txs;
+    return blocks;
   }
   
   async getTxHexes(txHashes, prune = false) {
