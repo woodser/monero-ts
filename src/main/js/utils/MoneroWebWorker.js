@@ -126,13 +126,31 @@ self.daemonGetBlockHashes = async function(daemonId, blockHashes, startHeight) {
   throw new Error("worker.getBlockHashes not implemented");
 }
 
+// TODO: factor common code with self.getTxs()
 self.daemonGetTxs = async function(daemonId, txHashes, prune) {
   
   // get txs
   let txs = await self.WORKER_OBJECTS[daemonId].getTxs(txHashes, prune);
   
-  // TODO
-  throw new Error("Daemon RPC getTxs() does not return blocks with txs");
+  // collect unique blocks to preserve model relationships as trees (based on monero_wasm_bridge.cpp::get_txs)
+  let blocks = [];
+  let unconfirmedBlock = undefined
+  let seenBlocks = new Set();
+  for (let tx of txs) {
+    if (!tx.getBlock()) {
+      if (!unconfirmedBlock) unconfirmedBlock = new MoneroBlock().setTxs([]);
+      tx.setBlock(unconfirmedBlock);
+      unconfirmedBlock.getTxs().push(tx);
+    }
+    if (!seenBlocks.has(tx.getBlock())) {
+      seenBlocks.add(tx.getBlock());
+      blocks.push(tx.getBlock());
+    }
+  }
+  
+  // serialize blocks to json
+  for (let i = 0; i < blocks.length; i++) blocks[i] = blocks[i].toJson();
+  return blocks;
 }
 
 self.daemonGetTxHashes = async function(daemonId, txHashes, prune) {
@@ -544,9 +562,9 @@ self.getTxs = async function(walletId, blockJsonQuery) {
   let txs = await self.WORKER_OBJECTS[walletId].getTxs(query);
   
   // collect unique blocks to preserve model relationships as trees (based on monero_wasm_bridge.cpp::get_txs)
+  let seenBlocks = new Set();
   let unconfirmedBlock = undefined;
   let blocks = [];
-  let seenBlocks = new Set();
   for (let tx of txs) {
     if (!tx.getBlock()) {
       if (!unconfirmedBlock) unconfirmedBlock = new MoneroBlock().setTxs([]);
