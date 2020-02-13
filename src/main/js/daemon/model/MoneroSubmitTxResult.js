@@ -4,11 +4,17 @@
 class MoneroSubmitTxResult {
   
   constructor(state) {
-    this.state = Object.assign({}, state);
+    state = Object.assign({}, state);
+    this.state = state;
+    
+    // deserialize BigIntegers
+    if (state.credits !== undefined && !(state.credits instanceof BigInteger)) state.credits = BigInteger.parse(state.credits);
   }
   
   toJson() {
-    return Object.assign({}, this.state);
+    let json = Object.assign({}, this.state);
+    if (json.credits) json.credits = json.credits.toString();
+    return json;
   }
   
   isGood() {
