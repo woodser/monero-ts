@@ -1,5 +1,8 @@
 #!/bin/sh
 
+#source "$(realpath $(dirname $0))/emsdk-inc.sh"
+source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/emsdk-inc.sh"
+
 PLATFORM="emscripten"
 
 SRC_DIR="external/monero-cpp-library/external/boost-sdk"
@@ -8,6 +11,22 @@ INSTALL_DIR="build/boost"
 SRC_PATH="$(pwd)/$SRC_DIR"
 INSTALL_PATH="$(pwd)/$INSTALL_DIR"
 JAM_CONFIG_PATH="$(pwd)/configs/$PLATFORM.jam"
+
+[ ! -d ${SRC_PATH} -o $# -ge 1 ] \
+  && {
+    case "$1" in
+      "github")
+        get_boost_github ${SRC_PATH} || exit 1
+        ;;
+      "source")
+        get_boost_source ${SRC_PATH} || exit 1
+        ;;
+      *)
+        echo "Unknown parameter: $1"
+        exit 1
+        ;;
+    esac
+  }
 
 if [ ! -d "$SRC_PATH" ]; then
   echo "SOURCE NOT FOUND!"
