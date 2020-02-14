@@ -77,7 +77,7 @@ self.daemonGetLastBlockHeader = async function(daemonId) {
 }
 
 self.daemonGetBlockHeaderByHash = async function(daemonId, hash) {
-  return (await self.WORKER_OBJECTS[daemonId].daemonGetBlockHeaderByHash(hash)).toJson();
+  return (await self.WORKER_OBJECTS[daemonId].getBlockHeaderByHash(hash)).toJson();
 }
 
 self.daemonGetBlockHeaderByHeight = async function(daemonId, height) {
@@ -116,9 +116,9 @@ self.daemonGetBlocksByRange = async function(daemonId, startHeight, endHeight) {
   return blocksJson;
 }
 
-self.daemonGetBlocksByRangeChuncked = async function(daemonId, startHeight, endHeight, maxChunkSize) {
+self.daemonGetBlocksByRangeChunked = async function(daemonId, startHeight, endHeight, maxChunkSize) {
   let blocksJson = [];
-  for (let block of await self.WORKER_OBJECTS[daemonId].daemonGetBlocksByRangeChuncked(startHeight, endHeight, maxChunkSize)) blocksJson.push(block.toJson());
+  for (let block of await self.WORKER_OBJECTS[daemonId].getBlocksByRangeChunked(startHeight, endHeight, maxChunkSize)) blocksJson.push(block.toJson());
   return blocksJson;
 }
 
@@ -153,8 +153,8 @@ self.daemonGetTxs = async function(daemonId, txHashes, prune) {
   return blocks;
 }
 
-self.daemonGetTxHashes = async function(daemonId, txHashes, prune) {
-  throw new Error("worker.daemonGetTxHashes not implemented");
+self.daemonGetTxHexes = async function(daemonId, txHashes, prune) {
+  return self.WORKER_OBJECTS[daemonId].getTxHexes(txHashes, prune);
 }
 
 self.daemonGetMinerTxSum = async function(daemonId, height, numBlocks) {
@@ -225,7 +225,7 @@ self.daemonGetHardForkInfo = async function(daemonId) {
   return (await self.WORKER_OBJECTS[daemonId].daemonGetHardForkInfo()).toJson();
 }
 
-self.getAltChains = async function(daemonId) {
+self.daemonGetAltChains = async function(daemonId) {
   let altChainsJson = [];
   for (let altChain of await self.WORKER_OBJECTS[daemonId].getAltChains()) altChainsJson.push(altChain.toJson());
   return altChainsJson;
@@ -243,7 +243,7 @@ self.daemonSetDownloadLimit = async function(daemonId, limit) {
   return self.WORKER_OBJECTS[daemonId].setDownloadLimit(limit);
 }
 
-self.resetDownloadLimit = async function(daemonId) {
+self.daemonResetDownloadLimit = async function(daemonId) {
   return self.WORKER_OBJECTS[daemonId].resetDownloadLimit();
 }
 
@@ -255,7 +255,7 @@ self.daemonSetUploadLimit = async function(daemonId, limit) {
   return self.WORKER_OBJECTS[daemonId].setUploadLimit(limit);
 }
 
-self.resetUploadLimit = async function(daemonId) {
+self.daemonResetUploadLimit = async function(daemonId) {
   return self.WORKER_OBJECTS[daemonId].resetUploadLimit();
 }
 

@@ -253,11 +253,11 @@ class MoneroDaemonRpc extends MoneroDaemon {
   
   async getTxs(txHashes, prune) {
     await this._initOneTime();
-    
+        
     // validate input
     assert(Array.isArray(txHashes) && txHashes.length > 0, "Must provide an array of transaction hashes");
     assert(prune === undefined || typeof prune === "boolean", "Prune must be a boolean or undefined");
-    
+        
     // fetch transactions
     let resp = await this.config.rpc.sendPathRequest("get_transactions", {
       txs_hashes: txHashes,
@@ -270,7 +270,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       if (e.message.indexOf("Failed to parse hex representation of transaction hash") >= 0) throw new MoneroError("Invalid transaction hash");
       throw e;
     }
-    
+        
     // build transaction models
     let txs = [];
     if (resp.txs) {
@@ -1449,11 +1449,19 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getTxs(txHashes, prune = false) {
+    
+    // deserialize txs from blocks
     let blocks = [];
     for (let blockJson of await this._invokeWorker("daemonGetTxs", Array.from(arguments))) {
       blocks.push(new MoneroBlock(blockJson));
     }
-    return blocks;
+    
+    // collect txs
+    let txs = [];
+    for (let block of blocks) {
+      for (let tx of block.getTxs()) txs.push(tx);
+    }
+    return txs;
   }
   
   async getTxHexes(txHashes, prune = false) {
