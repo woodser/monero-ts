@@ -1,0 +1,26 @@
+{
+  "TEST_WALLETS_DIR"      : "./test_wallets",
+  "WALLET_WASM_PATH_1"    : "./test_wallets/test_wallet_1",
+  "NETWORK_TYPE"          : "stagenet",
+  "MNEMONIC"              : "goblet went maze cylinder stockpile twofold fewest jaded lurk rally espionage grunt aunt puffin kickoff refer shyness tether building eleven lopped dawn tasked toolbox grunt",
+  "ADDRESS"               : "52aPELZwrwvVBNK4pvRZPNj4U5EEkZBsNTR2jozCLYyrhQySvYbWebTQEdt7RS9nFnRY9r88eFpt6UcsHKnVpCQDAFKu1Az",
+  "FIRST_RECEIVE_HEIGHT"  : 531333,
+  "WALLET_RPC_NAME_1"     : "test_wallet_1",
+  "WALLET_RPC_NAME_2"     : "test_wallet_2",
+  "WALLET_PASSWORD"       : "supersecretpassword123",
+
+  "WALLET_RPC_CONFIG"     : {
+    "uri": "http://localhost:38083",
+    "user": "rpc_user",
+    "pass": "abc123",
+    "maxRequestsPerSecond": 500,
+    "rejectUnauthorized": true
+  },
+  "DAEMON_RPC_CONFIG" : {
+    "uri": "http://localhost:38081",
+    "user": "superuser",
+    "pass": "abctesting123",
+    "maxRequestsPerSecond": 500,
+    "rejectUnauthorized": true
+  }
+}

@@ -9,6 +9,7 @@
   "scripts": {
     "start": "todo",
     "build": "webpack",
+    "debug": "NODE_DEBUG=1 node --inspect-brk --experimental-wasm-threads --experimental-wasm-bulk-memory node_modules/mocha/bin/_mocha 'src/test/TestAll' --timeout 3000000 --exit",
     "test": "node --experimental-wasm-threads --experimental-wasm-bulk-memory node_modules/mocha/bin/_mocha 'src/test/TestAll' --timeout 3000000 --exit"
   },
   "build": {
@@ -21,7 +22,7 @@
     ]
   },
   "engines": {
-    "node": "7.4.0"
+    "node": ">=7.4.0"
   },
   "dependencies": {
     "ajv": "^6.12.0",

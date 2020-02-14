@@ -7,3 +7,4 @@ test_products
 **/tests_config.js
 /test_wallets/
 /build
+env.json

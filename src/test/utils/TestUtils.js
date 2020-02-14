@@ -129,31 +129,58 @@ class TestUtils {
     let wallet = await MoneroWalletKeys.createWalletRandom(TestUtils.NETWORK_TYPE);
     return await wallet.getPrimaryAddress();
   }
+
+  static getNetTypeNumber(type) {
+    if (typeof type === "string") {
+      switch(type) {
+        case "mainnet":
+          return MoneroNetworkType.MAINNET;
+          break;
+        case "testnet":
+          return MoneroNetworkType.TESTNET;
+          break;
+        case "stagenet":
+          return MoneroNetworkType.STAGENET;
+          break;
+        default:
+          console.log("Invalid nettype ", type, "\nSetting nettype to \"stagenet\"");
+          return MoneroNetworkType.STAGENET;
+        }
+    } else {
+      return type;
+    }
+  }
+
+  static getConfig() {
+    return TestUtils.config;
+  }
 }
 
 // ---------------------------- STATIC TEST CONFIG ----------------------------
 
 // TODO: export these to key/value properties file for tests
 // TODO: in properties, define {network: stagnet, network_configs: { stagnet: { daemonRpc: { host: _, port: _ ... etc
+const config = JSON.parse(FS.readFileSync('env.json', 'utf-8'))
+TestUtils.cofig = config;
 
-TestUtils.TEST_WALLETS_DIR = "./test_wallets";
-TestUtils.WALLET_WASM_PATH_1 = TestUtils.TEST_WALLETS_DIR + "/test_wallet_1";
+TestUtils.TEST_WALLETS_DIR = config.TEST_WALLETS_DIR          || "./test_wallets";
+TestUtils.WALLET_WASM_PATH_1 = config.WALLET_WASM_PATH_1      || TestUtils.TEST_WALLETS_DIR + "./test_wallet_1";
 
 TestUtils.MAX_FEE = new BigInteger(7500000).multiply(new BigInteger(10000));
-TestUtils.NETWORK_TYPE = MoneroNetworkType.STAGENET;
+TestUtils.NETWORK_TYPE = TestUtils.getNetTypeNumber(config.NETWORK_TYPE) || MoneroNetworkType.STAGENET;
 
 // default keypair to test
-TestUtils.MNEMONIC = "goblet went maze cylinder stockpile twofold fewest jaded lurk rally espionage grunt aunt puffin kickoff refer shyness tether building eleven lopped dawn tasked toolbox grunt";
-TestUtils.ADDRESS = "52aPELZwrwvVBNK4pvRZPNj4U5EEkZBsNTR2jozCLYyrhQySvYbWebTQEdt7RS9nFnRY9r88eFpt6UcsHKnVpCQDAFKu1Az";
-TestUtils.FIRST_RECEIVE_HEIGHT = 531333;   // NOTE: this value MUST be the height of the wallet's first tx for tests
+TestUtils.MNEMONIC = config.MNEMONIC                          || "goblet went maze cylinder stockpile twofold fewest jaded lurk rally espionage grunt aunt puffin kickoff refer shyness tether building eleven lopped dawn tasked toolbox grunt";
+TestUtils.ADDRESS = config.ADDRESS                            || "52aPELZwrwvVBNK4pvRZPNj4U5EEkZBsNTR2jozCLYyrhQySvYbWebTQEdt7RS9nFnRY9r88eFpt6UcsHKnVpCQDAFKu1Az";
+TestUtils.FIRST_RECEIVE_HEIGHT = config.FIRST_RECEIVE_HEIGHT  || 531333;   // NOTE: this value MUST be the height of the wallet's first tx for tests
 
 //wallet rpc test wallet filenames and passwords
-TestUtils.WALLET_RPC_NAME_1 = "test_wallet_1";
-TestUtils.WALLET_RPC_NAME_2 = "test_wallet_2";
-TestUtils.WALLET_PASSWORD = "supersecretpassword123";
+TestUtils.WALLET_RPC_NAME_1 = config.WALLET_RPC_NAME_1 || "test_wallet_1";
+TestUtils.WALLET_RPC_NAME_2 = config.WALLET_RPC_NAME_2 || "test_wallet_2";
+TestUtils.WALLET_PASSWORD = config.WALLET_PASSWORD || "supersecretpassword123";
 
 // wallet RPC config
-TestUtils.WALLET_RPC_CONFIG = {
+TestUtils.WALLET_RPC_CONFIG = config.WALLET_RPC_CONFIG || {
   uri: "http://localhost:38083",
   user: "rpc_user",
   pass: "abc123",
@@ -162,7 +189,7 @@ TestUtils.WALLET_RPC_CONFIG = {
 };
 
 // daemon RPC config
-TestUtils.DAEMON_RPC_CONFIG = {
+TestUtils.DAEMON_RPC_CONFIG = config.DAEMON_RPC_CONFIG || {
   uri: "http://localhost:38081",
   user: "superuser",
   pass: "abctesting123",
