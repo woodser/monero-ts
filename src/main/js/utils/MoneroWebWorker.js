@@ -158,7 +158,7 @@ self.daemonGetTxHexes = async function(daemonId, txHashes, prune) {
 }
 
 self.daemonGetMinerTxSum = async function(daemonId, height, numBlocks) {
-  return (await self.WORKER_OBJECTS[daemonId].getMinerTxSum()).toJson();
+  return (await self.WORKER_OBJECTS[daemonId].getMinerTxSum(Array.from(arguments))).toJson();
 }
 
 self.daemonGetFeeEstimate = async function(daemonId, graceBlocks) {
