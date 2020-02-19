@@ -45,7 +45,8 @@ self.createDaemonRpc = async function(daemonId, daemonUriOrConfig) {
 }
 
 self.daemonGetRpcConnection = async function(daemonId) {
-  return (await self.WORKER_OBJECTS[daemonId].getRpcConnection()).getConfig();
+  let connection = await self.WORKER_OBJECTS[daemonId].getRpcConnection();
+  return connection ? connection.getConfig() : undefined;
 }
 
 self.daemonIsConnected = async function(daemonId) {
@@ -413,7 +414,8 @@ self.setDaemonConnection = async function(walletId, config) {
 }
 
 self.getDaemonConnection = async function(walletId) {
-  return (await self.WORKER_OBJECTS[walletId].getDaemonConnection()).getConfig();
+  let connection = await self.WORKER_OBJECTS[walletId].getDaemonConnection();
+  return connection ? connection.getConfig() : undefined;
 }
 
 self.isConnected = async function(walletId) {

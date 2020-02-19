@@ -1611,14 +1611,14 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     MoneroUtils.WORKER_OBJECTS[this.walletId].callbacks["onOutputReceived_" + listenerId] = [wrappedListener.onOutputReceived, wrappedListener];
     MoneroUtils.WORKER_OBJECTS[this.walletId].callbacks["onOutputSpent_" + listenerId] = [wrappedListener.onOutputSpent, wrappedListener];
     this.wrappedListeners.push(wrappedListener);
-    this.worker.postMessage([this.walletId, "addListener", listenerId]);
+    return this._invokeWorker("addListener", [listenerId]);
   }
   
   async removeListener(listener) {
     for (let i = 0; i < this.wrappedListeners.length; i++) {
       if (this.wrappedListeners[i].getListener() === listener) {
         let listenerId = this.wrappedListeners[i].getId();
-        this.worker.postMessage([this.walletId, "removeListener", listenerId]);
+        await this._invokeWorker("removeListener", [listenerId]);
         delete MoneroUtils.WORKER_OBJECTS[this.walletId].callbacks["onSyncProgress_" + listenerId];
         delete MoneroUtils.WORKER_OBJECTS[this.walletId].callbacks["onNewBlock_" + listenerId];
         delete MoneroUtils.WORKER_OBJECTS[this.walletId].callbacks["onOutputReceived_" + listenerId];
