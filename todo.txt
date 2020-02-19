@@ -8,7 +8,6 @@ hardcode block hash instead of miner::find_nonce
 rebase, cleanup, and submit core pr
 
 daemon rpc getTxs() does not return tx blocks
-daemon.getAltBlockIds() -> daemon.getAltBlockHashes()
 sync end height != daemon height for long syncs
 notification tests fails when tx not confirmed first block, make more lenient
 long sync will give 100% notifications for blocks since sync started; re-compute based on daemon height toward end

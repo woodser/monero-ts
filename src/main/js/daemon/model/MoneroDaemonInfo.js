@@ -216,11 +216,11 @@ class MoneroDaemonInfo {
   }
   
   getTopBlockHash() {
-    return this.state.topBlockId;
+    return this.state.topBlockHash;
   }
   
-  setTopBlockHash(topBlockId) {
-    this.state.topBlockId = topBlockId;
+  setTopBlockHash(topBlockHash) {
+    this.state.topBlockHash = topBlockHash;
     return this;
   }
   

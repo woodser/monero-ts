@@ -497,7 +497,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return chains;
   }
   
-  async getAltBlockIds() {
+  async getAltBlockHashes() {
     
 //    // mocked response for test
 //    let resp = {
@@ -1541,8 +1541,8 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
     return altChains;
   }
   
-  async getAltBlockIds() {
-    return this._invokeWorker("daemonGetAltBlockIds");
+  async getAltBlockHashes() {
+    return this._invokeWorker("daemonGetAltBlockHashes");
   }
   
   async getDownloadLimit() {

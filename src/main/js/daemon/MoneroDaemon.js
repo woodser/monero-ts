@@ -445,7 +445,7 @@ class MoneroDaemon {
    * 
    * @return {string[]} are the known block hashes which are not on the main chain
    */
-  async getAltBlockIds() {
+  async getAltBlockHashes() {
     throw new MoneroError("Subclass must implement");
   }
   
