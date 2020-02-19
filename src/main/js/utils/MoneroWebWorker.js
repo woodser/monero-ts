@@ -232,8 +232,8 @@ self.daemonGetAltChains = async function(daemonId) {
   return altChainsJson;
 }
 
-self.daemonGetAltBlockIds = async function(daemonId) {
-  return self.WORKER_OBJECTS[daemonId].getAltBlockIds();
+self.daemonGetAltBlockHashes = async function(daemonId) {
+  return self.WORKER_OBJECTS[daemonId].getAltBlockHashes();
 }
 
 self.daemonGetDownloadLimit = async function(daemonId) {

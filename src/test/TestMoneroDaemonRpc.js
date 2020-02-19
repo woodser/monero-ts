@@ -707,11 +707,11 @@ class TestMoneroDaemonRpc {
       
       if (config.testNonRelays)
       it("Can get alternative block hashes", async function() {
-        let altBlockIds = await that.daemon.getAltBlockIds();
-        assert(Array.isArray(altBlockIds) && altBlockIds.length >= 0);
-        for (let altBlockId of altBlockIds) {
-          assert.equal(typeof altBlockId, "string");
-          assert.equal(altBlockId.length, 64);  // TODO: common validation
+        let altBlockHashes = await that.daemon.getAltBlockHashes();
+        assert(Array.isArray(altBlockHashes) && altBlockHashes.length >= 0);
+        for (let altBlockHash of altBlockHashes) {
+          assert.equal(typeof altBlockHash, "string");
+          assert.equal(altBlockHash.length, 64);  // TODO: common validation
         }
       });
       
