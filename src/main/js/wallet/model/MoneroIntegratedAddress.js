@@ -3,42 +3,44 @@
  */
 class MoneroIntegratedAddress {
   
-  constructor(standardAddress, paymentId, integratedAddress) {
-    this.json = {};
-    this.json.standardAddress = standardAddress;
-    this.json.paymentId = paymentId;
-    this.json.integratedAddress = integratedAddress;
+  constructor(state) {
+    if (!state) throw new Error("NO STATE!!!");
+    this.state = Object.assign({}, state);
+  }
+  
+  toJson() {
+    return Object.assign({}, this.state);
   }
 
   getStandardAddress() {
-    return this.json.standardAddress;
+    return this.state.standardAddress;
   }
   
   setStandardAddress(standardAddress) {
-    this.json.standardAddress = standardAddress;
+    this.state.standardAddress = standardAddress;
     return this;
   }
   
   getPaymentId() {
-    return this.json.paymentId;
+    return this.state.paymentId;
   }
   
   setPaymentId(paymentId) {
-    this.json.paymentId = this.json.paymentId;
+    this.state.paymentId = this.state.paymentId;
     return this;
   }
   
   getIntegratedAddress() {
-    return this.json.integratedAddress;
+    return this.state.integratedAddress;
   }
   
   setIntegratedAddress(integratedAddress) {
-    this.json.integratedAddress = integratedAddress;
+    this.state.integratedAddress = integratedAddress;
     return this;
   }
   
   toString() {
-    return this.json.integratedAddress;
+    return this.state.integratedAddress;
   }
 }
 

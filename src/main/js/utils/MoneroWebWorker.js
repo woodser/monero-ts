@@ -410,13 +410,13 @@ self.getAddressIndex = async function(walletId, address) {
   return (await self.WORKER_OBJECTS[walletId].getAddressIndex(address)).toJson();
 }
 
-//getAccounts() {
-//  throw new Error("Not implemented");
-//}
-//
-//async setDaemonConnection(uriOrRpcConnection, username, password) {
-//  throw new Error("Not implemented");
-//}
+self.getIntegratedAddress = async function(walletId, paymentId) {
+  return (await self.WORKER_OBJECTS[walletId].getIntegratedAddress(paymentId)).toJson();
+}
+
+self.decodeIntegratedAddress = async function(walletId, integratedAddress) {
+  return (await self.WORKER_OBJECTS[walletId].decodeIntegratedAddress(integratedAddress)).toJson();
+}
 
 self.setDaemonConnection = async function(walletId, config) {
   return self.WORKER_OBJECTS[walletId].setDaemonConnection(config ? new MoneroRpcConnection(config) : undefined);

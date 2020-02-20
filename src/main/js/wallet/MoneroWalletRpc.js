@@ -238,7 +238,7 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async decodeIntegratedAddress(integratedAddress) {
     let resp = await this.config.rpc.sendJsonRequest("split_integrated_address", {integrated_address: integratedAddress});
-    return new MoneroIntegratedAddress(resp.result.standard_address, resp.result.payment_id, integratedAddress);
+    return new MoneroIntegratedAddress().setStandardAddress(resp.result.standard_address).setPaymentId(resp.result.payment_id).setIntegratedAddress(integratedAddress);
   }
   
   async getHeight() {

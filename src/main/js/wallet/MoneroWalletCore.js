@@ -476,11 +476,27 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async getIntegratedAddress(paymentId) {
-    throw new MoneroError("MoneroWalletCore getIntegratedAddress(paymentId) not implemented");
+    this._assertNotClosed();
+    let that = this;
+    return that.module.queueTask(async function() {
+      try {
+        return new MoneroIntegratedAddress(JSON.parse(that.module.get_integrated_address(that.cppAddress, "", paymentId ? paymentId : "")));
+      } catch (e) {
+        throw new Error("Invalid payment ID: " + paymentId);
+      }
+    });
   }
   
   async decodeIntegratedAddress(integratedAddress) {
-    throw new MoneroError("MoneroWalletCore decodeIntegratedAddress() not implemented");
+    this._assertNotClosed();
+    let that = this;
+    return that.module.queueTask(async function() {
+      try {
+        return new MoneroIntegratedAddress(JSON.parse(that.module.decode_integrated_address(that.cppAddress, integratedAddress)));
+      } catch (e) {
+        throw new Error("Invalid integrated address: " + integratedAddress);
+      }
+    });
   }
   
   async getHeight() {
@@ -1571,11 +1587,11 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getIntegratedAddress(paymentId) {
-    throw new MoneroError("MoneroWalletCoreProxy getIntegratedAddress(paymentId) not implemented");
+    return new MoneroIntegratedAddress(await this._invokeWorker("getIntegratedAddress", Array.from(arguments)));
   }
   
   async decodeIntegratedAddress(integratedAddress) {
-    throw new MoneroError("MoneroWalletCoreProxy decodeIntegratedAddress() not implemented");
+    return new MoneroIntegratedAddress(await this._invokeWorker("decodeIntegratedAddress", Array.from(arguments)));
   }
   
   async setDaemonConnection(uriOrRpcConnection, username, password) {
