@@ -1499,7 +1499,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getTxPoolStats() {
-    throw new MoneroError("Not implemented");
+    return new MoneroTxPoolStats(await this._invokeWorker("daemonGetTxPoolStats"));
   }
   
   async flushTxPool(hashes) {

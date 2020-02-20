@@ -3,8 +3,15 @@
  */
 class MoneroTxPoolStats {
   
-  constructor() {
-    this.state = {};
+  constructor(state) {
+    this.state = Object.assign({}, state);
+    if (this.state.feeTotal !== undefined && !(this.state.feeTotal instanceof BigInteger)) this.state.feeTotal = BigInteger.parse(this.state.feeTotal);
+  }
+  
+  toJson() {
+    let json = Object.assign({}, this.state);
+    if (json.feeTotal) json.feeTotal = json.feeTotal.toString();
+    return json;
   }
   
   getNumTxs() {
