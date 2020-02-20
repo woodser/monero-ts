@@ -110,7 +110,7 @@ class MoneroTransfer {
     this.setAccountIndex(GenUtils.reconcile(this.getAccountIndex(), transfer.getAccountIndex()));
     
     // TODO monero core: failed tx in pool (after testUpdateLockedDifferentAccounts()) causes non-originating saved wallets to return duplicate incoming transfers but one has amount/numSuggestedConfirmations of 0
-    if (this.getAmount() !== undefined && transfer.getAmount() !== undefined && this.getAmount().compare(transfer.getAmount()) !== 0 && (this.getAmount().compare(new BigInteger(0)) === 0 || transfer.getAmount().compare(new BigInteger(0)) === 0)) {
+    if (this.getAmount() !== undefined && transfer.getAmount() !== undefined && this.getAmount().compare(transfer.getAmount()) !== 0 && (this.getAmount().compare(BigInteger.parse("0")) === 0 || transfer.getAmount().compare(BigInteger.parse("0")) === 0)) {
       this.setAmount(GenUtils.reconcile(this.getAmount(), transfer.getAmount(), {resolveMax: true}));
       this.setNumSuggestedConfirmations(GenUtils.reconcile(this.getNumSuggestedConfirmations(), transfer.getNumSuggestedConfirmations(), {resolveMax: true}));
       console.log("WARNING: failed tx in pool causes non-originating wallets to return duplicate incoming transfers but with one amount/numSuggestedConfirmations of 0");

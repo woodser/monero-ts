@@ -11,13 +11,13 @@ class MoneroSendRequest {
    * Examples of invoking this constructor:
    * 
    *  new MoneroSendRequest();
-   *  new MoneroSendRequest({accountIndex: 0, address: "59aZULsUF3YN...", amount: new BigInteger(5), priority: MoneroSendPriority.NORMAL});
+   *  new MoneroSendRequest({accountIndex: 0, address: "59aZULsUF3YN...", amount: BigInteger.parse("5"), priority: MoneroSendPriority.NORMAL});
    *  new MoneroSendRequest(0);  // create request with account 0
    *  new MoneroSendRequest("59aZULsUF3YN..."); // create request with destination with address
-   *  new MoneroSendRequest(0, "59aZULsUF3YN...", new BigInteger(5));
-   *  new MoneroSendRequest(0, "59aZULsUF3YN...", new BigInteger(5), MoneroSendPriority.NORMAL);
-   *  new MoneroSendRequest("59aZULsUF3YN...", new BigInteger(5));
-   *  new MoneroSendRequest("59aZULsUF3YN...", new BigInteger(5), MoneroSendPriority.NORMAL);
+   *  new MoneroSendRequest(0, "59aZULsUF3YN...", BigInteger.parse("5"));
+   *  new MoneroSendRequest(0, "59aZULsUF3YN...", BigInteger.parse("5"), MoneroSendPriority.NORMAL);
+   *  new MoneroSendRequest("59aZULsUF3YN...", BigInteger.parse("5"));
+   *  new MoneroSendRequest("59aZULsUF3YN...", BigInteger.parse("5"), MoneroSendPriority.NORMAL);
    * 
    * @param {json|uint|string| param1 is request json, an account index, a string address
    * @param {string|BigInteger} param2 is an address to send to or the requested amount to send

@@ -16,7 +16,7 @@ class MoneroDaemonSyncInfo {
         }
       }
     }
-    if (state.span) {
+    if (state.spans) {
       for (let i = 0; i < state.spans.length; i++) {
         if (!(state.spans[i] instanceof MoneroDaemonConnectionSpan)) {
           state.spans[i] = new MoneroDaemonConnectionSpan(state.spans[i]);

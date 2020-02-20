@@ -817,7 +817,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "num_txes") GenUtils.safeSet(header, header.getNumTxs, header.setNumTxs, val);
       else if (key === "orphan_status") GenUtils.safeSet(header, header.getOrphanStatus, header.setOrphanStatus, val);
       else if (key === "prev_hash" || key === "prev_id") GenUtils.safeSet(header, header.getPrevHash, header.setPrevHash, val);
-      else if (key === "reward") GenUtils.safeSet(header, header.getReward, header.setReward, new BigInteger(val));
+      else if (key === "reward") GenUtils.safeSet(header, header.getReward, header.setReward, BigInteger.parse(val));
       else if (key === "timestamp") GenUtils.safeSet(header, header.getTimestamp, header.setTimestamp, val);
       else if (key === "block_weight") GenUtils.safeSet(header, header.getWeight, header.setWeight, val);
       else if (key === "long_term_weight") GenUtils.safeSet(header, header.getLongTermWeight, header.setLongTermWeight, val);
@@ -900,7 +900,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "as_hex" || key === "tx_blob") GenUtils.safeSet(tx, tx.getFullHex, tx.setFullHex, val ? val : undefined);
       else if (key === "blob_size") GenUtils.safeSet(tx, tx.getSize, tx.setSize, val);
       else if (key === "weight") GenUtils.safeSet(tx, tx.getWeight, tx.setWeight, val);
-      else if (key === "fee") GenUtils.safeSet(tx, tx.getFee, tx.setFee, new BigInteger(val));
+      else if (key === "fee") GenUtils.safeSet(tx, tx.getFee, tx.setFee, BigInteger.parse(val));
       else if (key === "relayed") GenUtils.safeSet(tx, tx.isRelayed, tx.setIsRelayed, val);
       else if (key === "output_indices") GenUtils.safeSet(tx, tx.getOutputIndices, tx.setOutputIndices, val);
       else if (key === "do_not_relay") GenUtils.safeSet(tx, tx.getDoNotRelay, tx.setDoNotRelay, val);
@@ -971,7 +971,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
         GenUtils.safeSet(output, output.getKeyImage, output.setKeyImage, new MoneroKeyImage(val.k_image));
         GenUtils.safeSet(output, output.getRingOutputIndices, output.setRingOutputIndices, val.key_offsets);
       }
-      else if (key === "amount") GenUtils.safeSet(output, output.getAmount, output.setAmount, new BigInteger(val));
+      else if (key === "amount") GenUtils.safeSet(output, output.getAmount, output.setAmount, BigInteger.parse(val));
       else if (key === "target") GenUtils.safeSet(output, output.getStealthPublicKey, output.setStealthPublicKey, val.key);
       else console.log("WARNING: ignoring unexpected field output: " + key + ": " + val);
     }
@@ -984,7 +984,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       let val = rpcTemplate[key];
       if (key === "blockhashing_blob") template.setBlockTemplateBlob(val);
       else if (key === "blocktemplate_blob") template.setBlockHashingBlob(val);
-      else if (key === "difficulty") template.setDifficulty(new BigInteger(val));
+      else if (key === "difficulty") template.setDifficulty(BigInteger.parse(val));
       else if (key === "expected_reward") template.setExpectedReward(val);
       else if (key === "difficulty") { }  // handled by wide_difficulty
       else if (key === "difficulty_top64") { }  // handled by wide_difficulty
@@ -1021,7 +1021,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "cumulative_difficulty_top64") { } // handled by wide_cumulative_difficulty
       else if (key === "wide_difficulty") info.setDifficulty(GenUtils.reconcile(info.getDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
       else if (key === "wide_cumulative_difficulty") info.setCumulativeDifficulty(GenUtils.reconcile(info.getCumulativeDifficulty(), MoneroDaemonRpc._prefixedHexToBI(val)));
-      else if (key === "free_space") info.setFreeSpace(new BigInteger(val));
+      else if (key === "free_space") info.setFreeSpace(BigInteger.parse(val));
       else if (key === "database_size") info.setDatabaseSize(val);
       else if (key === "grey_peerlist_size") info.setNumOfflinePeers(val);
       else if (key === "height") info.setHeight(val);
@@ -1045,7 +1045,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "mainnet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.MAINNET); }
       else if (key === "testnet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.TESTNET); }
       else if (key === "stagenet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.STAGENET); }
-      else if (key === "credits") info.setCredits(new BigInteger(val));
+      else if (key === "credits") info.setCredits(BigInteger.parse(val));
       else if (key === "top_block_hash" || key === "top_hash") info.setTopBlockHash(GenUtils.reconcile(info.getTopBlockHash(), "" === val ? undefined : val))
       else console.log("WARNING: Ignoring unexpected info field: " + key + ": " + val);
     }
@@ -1062,7 +1062,11 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let syncInfo = new MoneroDaemonSyncInfo();
     for (let key of Object.keys(rpcSyncInfo)) {
       let val = rpcSyncInfo[key];
-      if (key === "height") syncInfo.setHeight(new BigInteger(val));
+      if (key === "height") {
+        console.log("SETTING HEIGHT TO: " + val);
+        console.log(typeof val);
+        syncInfo.setHeight(val);
+      }
       else if (key === "peers") {
         syncInfo.setConnections([]);
         let rpcConnections = val;
@@ -1077,7 +1081,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
           syncInfo.getSpans().push(MoneroDaemonRpc._convertRpcConnectionSpan(rpcSpan));
         }
       } else if (key === "status") {}   // handled elsewhere
-      else if (key === "target_height") syncInfo.setTargetHeight(new BigInteger(val));
+      else if (key === "target_height") syncInfo.setTargetHeight(BigInteger.parse(val));
       else if (key === "next_needed_pruning_seed") syncInfo.setNextNeededPruningSeed(val);
       else if (key === "overview") {  // this returns [] without pruning
         let overview;
@@ -1088,7 +1092,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
           console.log("WARNING: failed to parse 'overview' field: " + overview + ": " + e.message);
         }
       }
-      else if (key === "credits") syncInfo.setCredits(new BigInteger(val));
+      else if (key === "credits") syncInfo.setCredits(BigInteger.parse(val));
       else if (key === "top_hash") syncInfo.setTopBlockHash("" === val ? undefined : val);
       else if (key === "untrusted") {}  // handled elsewhere
       else console.log("WARNING: ignoring unexpected field in sync info: " + key + ": " + val);
@@ -1110,7 +1114,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "votes") info.setNumVotes(val);
       else if (key === "voting") info.setVoting(val);
       else if (key === "window") info.setWindow(val);
-      else if (key === "credits") info.setCredits(new BigInteger(val));
+      else if (key === "credits") info.setCredits(BigInteger.parse(val));
       else if (key === "top_hash") info.setTopBlockHash("" === val ? undefined : val);
       else console.log("WARNING: ignoring unexpected field in hard fork info: " + key + ": " + val);
     }
@@ -1137,7 +1141,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let entry = new MoneroOutputHistogramEntry();
     for (let key of Object.keys(rpcEntry)) {
       let val = rpcEntry[key];
-      if (key === "amount") entry.setAmount(new BigInteger(val));
+      if (key === "amount") entry.setAmount(BigInteger.parse(val));
       else if (key === "total_instances") entry.setNumInstances(val);
       else if (key === "unlocked_instances") entry.setNumUnlockedInstances(val);
       else if (key === "recent_instances") entry.setNumRecentInstances(val);
@@ -1163,7 +1167,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "reason") result.setReason(val === "" ? undefined : val);
       else if (key === "too_big") result.setIsTooBig(val);
       else if (key === "sanity_check_failed") result.setSanityCheckFailed(val);
-      else if (key === "credits") result.setCredits(new BigInteger(val))
+      else if (key === "credits") result.setCredits(BigInteger.parse(val))
       else if (key === "status" || key === "untrusted") {}  // handled elsewhere
       else if (key === "top_hash") result.setTopBlockHash("" === val ? undefined : val);
       else console.log("WARNING: ignoring unexpected field in submit tx hex result: " + key + ": " + val);
@@ -1187,7 +1191,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "num_not_relayed") stats.setNumNotRelayed(val);
       else if (key === "oldest") stats.setOldestTimestamp(val);
       else if (key === "txs_total") stats.setNumTxs(val);
-      else if (key === "fee_total") stats.setFeeTotal(new BigInteger(val));
+      else if (key === "fee_total") stats.setFeeTotal(BigInteger.parse(val));
       else if (key === "histo") throw new MoneroError("Not implemented");
       else console.log("WARNING: ignoring unexpected field in tx pool stats: " + key + ": " + val);
     }
@@ -1224,7 +1228,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "port") peer.setPort(val);
       else if (key === "rpc_port") peer.setRpcPort(val);
       else if (key === "pruning_seed") peer.setPruningSeed(val);
-      else if (key === "rpc_credits_per_hash") peer.setRpcCreditsPerHash(new BigInteger(val));
+      else if (key === "rpc_credits_per_hash") peer.setRpcCreditsPerHash(BigInteger.parse(val));
       else console.log("WARNING: ignoring unexpected field in rpc peer: " + key + ": " + val);
     }
     return peer;
@@ -1260,7 +1264,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "state") connection.setState(val);
       else if (key === "support_flags") connection.setNumSupportFlags(val);
       else if (key === "pruning_seed") peer.setPruningSeed(val);
-      else if (key === "rpc_credits_per_hash") peer.setRpcCreditsPerHash(new BigInteger(val));
+      else if (key === "rpc_credits_per_hash") peer.setRpcCreditsPerHash(BigInteger.parse(val));
       else if (key === "address_type") connection.setType(val);
       else console.log("WARNING: ignoring unexpected field in connection: " + key + ": " + val);
     }
