@@ -159,11 +159,11 @@ self.daemonGetTxHexes = async function(daemonId, txHashes, prune) {
 }
 
 self.daemonGetMinerTxSum = async function(daemonId, height, numBlocks) {
-  return (await self.WORKER_OBJECTS[daemonId].getMinerTxSum(Array.from(arguments))).toJson();
+  return (await self.WORKER_OBJECTS[daemonId].getMinerTxSum(height, numBlocks)).toJson();
 }
 
 self.daemonGetFeeEstimate = async function(daemonId, graceBlocks) {
-  return (await self.WORKER_OBJECTS[daemonId].getFeeEstimate(graceBlocks())).toString();
+  return (await self.WORKER_OBJECTS[daemonId].getFeeEstimate(graceBlocks)).toString();
 }
 
 self.daemonSubmitTxHex = async function(daemonId, txHex, doNotRelay) {
@@ -197,33 +197,38 @@ self.daemonFlushTxPool = async function(daemonId, hashes) {
   return self.WORKER_OBJECTS[daemonId].flushTxPool(hashes);
 }
 
-//
-//async getKeyImageSpentStatuses(keyImages) {
-//  throw new MoneroError("Not implemented");
-//}
+self.daemonGetKeyImageSpentStatuses = async function(daemonId, keyImages) {
+  return self.WORKER_OBJECTS[daemonId].getKeyImageSpentStatuses(keyImages);
+}
+
 //
 //async getOutputs(outputs) {
 //  throw new MoneroError("Not implemented");
 //}
-//
-//async getOutputHistogram(amounts, minCount, maxCount, isUnlocked, recentCutoff) {
-//  throw new MoneroError("Not implemented");
-//}
+
+self.daemonGetOutputHistogram = async function(daemonId, amounts, minCount, maxCount, isUnlocked, recentCutoff) {
+  let entriesJson = [];
+  for (let entry of await self.WORKER_OBJECTS[daemonId].getOutputHistogram(amounts, minCount, maxCount, isUnlocked, recentCutoff)) {
+    entriesJson.push(entry.toJson());
+  }
+  return entriesJson;
+}
+
 //
 //async getOutputDistribution(amounts, cumulative, startHeight, endHeight) {
 //  throw new MoneroError("Not implemented");
 //}
 
 self.daemonGetInfo = async function(daemonId) {
-  return (await self.WORKER_OBJECTS[daemonId].getDaemonInf()).toJson();
+  return (await self.WORKER_OBJECTS[daemonId].getInfo()).toJson();
 }
 
 self.daemonGetSyncInfo = async function(daemonId) {
-  return (await self.WORKER_OBJECTS[daemonId].daemonGetSyncInfo()).toJson();
+  return (await self.WORKER_OBJECTS[daemonId].getSyncInfo()).toJson();
 }
 
 self.daemonGetHardForkInfo = async function(daemonId) {
-  return (await self.WORKER_OBJECTS[daemonId].daemonGetHardForkInfo()).toJson();
+  return (await self.WORKER_OBJECTS[daemonId].getHardForkInfo()).toJson();
 }
 
 self.daemonGetAltChains = async function(daemonId) {
