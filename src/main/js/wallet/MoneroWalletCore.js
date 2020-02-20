@@ -475,6 +475,14 @@ class MoneroWalletCore extends MoneroWalletKeys {
     return this.path;
   }
   
+  async getIntegratedAddress(paymentId) {
+    throw new MoneroError("MoneroWalletCore getIntegratedAddress(paymentId) not implemented");
+  }
+  
+  async decodeIntegratedAddress(integratedAddress) {
+    throw new MoneroError("MoneroWalletCore decodeIntegratedAddress() not implemented");
+  }
+  
   async getHeight() {
     this._assertNotClosed();
     let that = this;
@@ -1560,6 +1568,14 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   async getAddressIndex(address) {
     let subaddressJson = await this._invokeWorker("getAddressIndex", Array.from(arguments));
     return MoneroWalletCore._sanitizeSubaddress(new MoneroSubaddress(subaddressJson));
+  }
+  
+  async getIntegratedAddress(paymentId) {
+    throw new MoneroError("MoneroWalletCoreProxy getIntegratedAddress(paymentId) not implemented");
+  }
+  
+  async decodeIntegratedAddress(integratedAddress) {
+    throw new MoneroError("MoneroWalletCoreProxy decodeIntegratedAddress() not implemented");
   }
   
   async setDaemonConnection(uriOrRpcConnection, username, password) {
