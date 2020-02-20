@@ -596,7 +596,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       }
       
       // parse json string to BigInteger
-      return new BigInteger(JSON.parse(balanceStr).balance);
+      return BigInteger.parse(JSON.parse(balanceStr).balance);
     });
   }
   
@@ -619,7 +619,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       }
       
       // parse json string to BigInteger
-      return new BigInteger(JSON.parse(unlockedBalanceStr).unlockedBalance);
+      return BigInteger.parse(JSON.parse(unlockedBalanceStr).unlockedBalance);
     });
   }
   
@@ -1381,7 +1381,7 @@ class WalletWasmListener {
     
     // build received output
     let output = new MoneroOutputWallet();
-    output.setAmount(new BigInteger(amountStr));
+    output.setAmount(BigInteger.parse(amountStr));
     output.setAccountIndex(accountIdx);
     output.setSubaddressIndex(subaddressIdx);
     let tx = new MoneroTxWallet();
@@ -1404,7 +1404,7 @@ class WalletWasmListener {
     
     // build spent output
     let output = new MoneroOutputWallet();
-    output.setAmount(new BigInteger(amountStr));
+    output.setAmount(BigInteger.parse(amountStr));
     output.setAccountIndex(accountIdx);
     output.setSubaddressIndex(subaddressIdx);
     let tx = new MoneroTxWallet();
@@ -1678,12 +1678,12 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   // rescanBlockchain
   
   async getBalance(accountIdx, subaddressIdx) {
-    return new BigInteger(await this._invokeWorker("getBalance", Array.from(arguments)));
+    return BigInteger.parse(await this._invokeWorker("getBalance", Array.from(arguments)));
   }
   
   async getUnlockedBalance(accountIdx, subaddressIdx) {
     let unlockedBalanceStr = await this._invokeWorker("getUnlockedBalance", Array.from(arguments));
-    return new BigInteger(unlockedBalanceStr);
+    return BigInteger.parse(unlockedBalanceStr);
   }
   
   async getAccounts(includeSubaddresses, tag) {

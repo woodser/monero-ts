@@ -3,8 +3,46 @@
  */
 class MoneroDaemonSyncInfo {
   
-  constructor() {
-    this.state = {};
+  constructor(state) {
+    
+    // copy state
+    state = Object.assign({}, state);
+    
+    // deserialize if necessary
+    if (state.connections) {
+      for (let i = 0; i < state.connections.length; i++) {
+        if (!(state.connections[i] instanceof MoneroDaemonConnection)) {
+          state.connections[i] = new MoneroDaemonConnection(state.connections[i]);
+        }
+      }
+    }
+    if (state.span) {
+      for (let i = 0; i < state.spans.length; i++) {
+        if (!(state.spans[i] instanceof MoneroDaemonConnectionSpan)) {
+          state.spans[i] = new MoneroDaemonConnectionSpan(state.spans[i]);
+        }
+      }
+    }
+    if (state.credits !== undefined && !(state.credits instanceof BigInteger)) state.credits = BigInteger.parse(state.credits);
+    
+    // assign internal state
+    this.state = state;
+  }
+  
+  toJson() {
+    let json = Object.assign({}, this.state);
+    if (json.connections) {
+      for (let i = 0; i < json.connections.length; i++) {
+        json.connections[i] = json.connections[i].toJson();
+      }
+    }
+    if (json.spans) {
+      for (let i = 0; i < json.spans.length; i++) {
+        json.spans[i] = json.spans[i].toJson();
+      }
+    }
+    if (json.credits) json.credits = json.credits.toString();
+    return json;
   }
   
   getHeight() {
@@ -17,11 +55,11 @@ class MoneroDaemonSyncInfo {
   }
   
   getConnections() {
-    return this.state.peers;
+    return this.state.connections;
   }
   
-  setConnections(peers) {
-    this.state.peers = peers;
+  setConnections(connections) {
+    this.state.connections = connections;
     return this;
   }
   

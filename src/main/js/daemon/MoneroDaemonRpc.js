@@ -1473,7 +1473,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getFeeEstimate(graceBlocks) {
-    return new BigInteger(await this._invokeWorker("daemonGetFeeEstimate", Array.from(arguments)));
+    return BigInteger.parse(await this._invokeWorker("daemonGetFeeEstimate", Array.from(arguments)));
   }
   
   async submitTxHex(txHex, doNotRelay) {
@@ -1507,7 +1507,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getKeyImageSpentStatuses(keyImages) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonGetKeyImageSpentStatuses", Array.from(arguments));
   }
   
   async getOutputs(outputs) {
@@ -1515,7 +1515,11 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getOutputHistogram(amounts, minCount, maxCount, isUnlocked, recentCutoff) {
-    throw new MoneroError("Not implemented");
+    let entries = [];
+    for (let entryJson of await this._invokeWorker("daemonGetOutputHistogram", [amounts, minCount, maxCount, isUnlocked, recentCutoff])) {
+      entries.push(new MoneroOutputHistogramEntry(entryJson));
+    }
+    return entries;
   }
   
   async getOutputDistribution(amounts, cumulative, startHeight, endHeight) {
@@ -1535,9 +1539,8 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getAltChains() {
-    let altChainsJson = await this._invokeWorker("daemonGetAltChains");
     let altChains = [];
-    for (let altChainJson of altChainJsons) altChains.push(new MoneroAltChain(altChainJson));
+    for (let altChainJson of await this._invokeWorker("daemonGetAltChains")) altChains.push(new MoneroAltChain(altChainJson));
     return altChains;
   }
   
