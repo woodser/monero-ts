@@ -556,7 +556,7 @@ class MoneroDaemon {
    * @param {MoneroBan} ban contains information about a node to ban
    */
   async setPeerBan(ban) {
-    throw new MoneroError("Subclass must implement");
+    return await this.setPeerBans([ban]);
   }
   
   /**

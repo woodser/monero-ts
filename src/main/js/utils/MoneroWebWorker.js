@@ -265,33 +265,37 @@ self.daemonResetUploadLimit = async function(daemonId) {
   return self.WORKER_OBJECTS[daemonId].resetUploadLimit();
 }
 
-//async getKnownPeers() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getConnections() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async setOutgoingPeerLimit(limit) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async setIncomingPeerLimit(limit) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getPeerBans() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async setPeerBan(ban) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async setPeerBans(bans) {
-//  throw new MoneroError("Not implemented");
-//}
+self.daemonGetKnownPeers = async function(daemonId) {
+  let peersJson = [];
+  for (let peer of await self.WORKER_OBJECTS[daemonId].getKnownPeers()) peersJson.push(peer.toJson());
+  return peersJson;
+}
+
+self.daemonGetConnections = async function(daemonId) {
+  let connectionsJson = [];
+  for (let connection of await self.WORKER_OBJECTS[daemonId].getConnections()) connectionsJson.push(connection.toJson());
+  return connectionsJson;
+}
+
+self.daemonSetOutgoingPeerLimit = async function(daemonId, limit) {
+  return self.WORKER_OBJECTS[daemonId].setOutgoingPeerLimit(limit);
+}
+
+self.daemonSetIncomingPeerLimit = async function(daemonId, limit) {
+  return self.WORKER_OBJECTS[daemonId].setIncomingPeerLimit(limit);
+}
+
+self.daemonGetPeerBans = async function(daemonId) {
+  let bansJson = [];
+  for (let ban of await self.WORKER_OBJECTS[daemonId].getPeerBans()) bansJson.push(ban.toJson());
+  return bansJson;
+}
+
+self.daemonSetPeerBans = async function(daemonId, bansJson) {
+  let bans = [];
+  for (let banJson of bansJson) bans.push(new MoneroBan(banJson));
+  return self.WORKER_OBJECTS[daemonId].setPeerBans(bans);
+}
 
 self.daemonStartMining = async function(daemonId, address, numThreads, isBackground, ignoreBattery) {
   return self.WORKER_OBJECTS[daemonId].startMining(address, numThreads, isBackground, ignoreBattery);

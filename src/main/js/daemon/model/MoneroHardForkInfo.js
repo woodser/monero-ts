@@ -3,8 +3,15 @@
  */
 class MoneroHardForkInfo {
   
-  constructor() {
-    this.state = {};
+  constructor(state) {
+    this.state = Object.assign({}, state);
+    if (this.state.amount !== undefined && !(this.state.amount instanceof BigInteger)) this.state.amount = BigInteger.parse(this.state.amount);
+  }
+  
+  toJson() {
+    let json = Object.assign({}, this.state);
+    if (json.credits) json.credits = json.credits.toString();
+    return json;
   }
   
   getEarliestHeight() {
