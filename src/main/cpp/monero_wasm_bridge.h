@@ -80,10 +80,10 @@ namespace monero_wasm_bridge
   void get_txs(int handle, const string& tx_query_json, emscripten::val callback);
   void get_transfers(int handle, const string& transfer_query_json, emscripten::val callback);
   void get_outputs(int handle, const string& output_query_json, emscripten::val callback);
-  //  emscripten::function("get_outputs_hex", &monero_wasm_bridge::get_outputs_hex);
-  //  emscripten::function("import_outputs_hex", &monero_wasm_bridge::import_outputs_hex);
-  //  emscripten::function("get_key_images", &monero_wasm_bridge::get_key_images);
-  //  emscripten::function("import_key_images", &monero_wasm_bridge::import_key_images);
+  void get_outputs_hex(int handle, emscripten::val callback);
+  void import_outputs_hex(int handle, const string& outputs_hex, emscripten::val callback);
+  void get_key_images(int handle, emscripten::val callback);
+  void import_key_images(int handle, const string& key_images_str, emscripten::val callback);
   //  emscripten::function("get_new_key_images_from_last_import", &monero_wasm_bridge::get_new_key_images_from_last_import);
   //  emscripten::function("relay_txs", &monero_wasm_bridge::relay_txs);
   void send_split(int handle, const string& send_request_json, emscripten::val callback);

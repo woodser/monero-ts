@@ -543,6 +543,9 @@ void monero_wasm_bridge::get_transfers(int handle, const string& transfer_query_
   callback(monero_utils::serialize(doc));
 }
 
+//  emscripten::function("get_incoming_transfers", &monero_wasm_bridge::TODO);
+//  emscripten::function("get_outgoing_transfers", &monero_wasm_bridge::TODO);
+
 void monero_wasm_bridge::get_outputs(int handle, const string& output_query_json, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
 
@@ -572,13 +575,33 @@ void monero_wasm_bridge::get_outputs(int handle, const string& output_query_json
   callback(monero_utils::serialize(doc));
 }
 
-//  emscripten::function("get_txs", &monero_wasm_bridge::get_txs);
-//  emscripten::function("get_transfers", &monero_wasm_bridge::get_transfers);
-//  emscripten::function("get_incoming_transfers", &monero_wasm_bridge::TODO);
-//  emscripten::function("get_outgoing_transfers", &monero_wasm_bridge::TODO);
-//  emscripten::function("get_outputs", &monero_wasm_bridge::get_outputs);
-//  emscripten::function("get_outputs_hex", &monero_wasm_bridge::get_outputs_hex);
-//  emscripten::function("import_outputs_hex", &monero_wasm_bridge::import_outputs_hex);
+void monero_wasm_bridge::get_outputs_hex(int handle, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  callback(wallet->get_outputs_hex());
+}
+
+void monero_wasm_bridge::import_outputs_hex(int handle, const string& outputs_hex, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  callback(wallet->import_outputs_hex(outputs_hex));
+}
+
+void monero_wasm_bridge::get_key_images(int handle, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  vector<shared_ptr<monero_key_image>> key_images = wallet->get_key_images();
+
+  // wrap and serialize key images
+  rapidjson::Document doc;
+  doc.SetObject();
+  doc.AddMember("keyImages", monero_utils::to_rapidjson_val(doc.GetAllocator(), key_images), doc.GetAllocator());
+  callback(monero_utils::serialize(doc));
+}
+
+void monero_wasm_bridge::import_key_images(int handle, const string& key_images_str, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  vector<shared_ptr<monero_key_image>> key_images = monero_key_image::deserialize_key_images(key_images_str);
+  callback(wallet->import_key_images(key_images));
+}
+
 //  emscripten::function("get_key_images", &monero_wasm_bridge::get_key_images);
 //  emscripten::function("import_key_images", &monero_wasm_bridge::import_key_images);
 //  emscripten::function("get_new_key_images_from_last_import", &monero_wasm_bridge::get_new_key_images_from_last_import);
