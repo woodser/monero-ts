@@ -1062,11 +1062,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let syncInfo = new MoneroDaemonSyncInfo();
     for (let key of Object.keys(rpcSyncInfo)) {
       let val = rpcSyncInfo[key];
-      if (key === "height") {
-        console.log("SETTING HEIGHT TO: " + val);
-        console.log(typeof val);
-        syncInfo.setHeight(val);
-      }
+      if (key === "height") syncInfo.setHeight(val);
       else if (key === "peers") {
         syncInfo.setConnections([]);
         let rpcConnections = val;
@@ -1489,11 +1485,8 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   
   async getTxPool() {
     let blockJson = await this._invokeWorker("daemonGetTxPool");
-    console.log("TX POOL BLOCK");
-    console.log(blockJson);
     let txs = new MoneroBlock(blockJson).getTxs();
     for (let tx of txs) tx.setBlock(undefined);
-    console.log("TX blocks nulled out...");
     return txs ? txs : [];
   }
   
