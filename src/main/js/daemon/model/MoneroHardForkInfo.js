@@ -5,7 +5,7 @@ class MoneroHardForkInfo {
   
   constructor(state) {
     this.state = Object.assign({}, state);
-    if (this.state.amount !== undefined && !(this.state.amount instanceof BigInteger)) this.state.amount = BigInteger.parse(this.state.amount);
+    if (this.state.credits !== undefined && !(this.state.credits instanceof BigInteger)) this.state.credits = BigInteger.parse(this.state.credits);
   }
   
   toJson() {

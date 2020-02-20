@@ -8,11 +8,15 @@ class MoneroDaemonInfo {
     this.state = state;
     
     // deserialize BigIntegers
+    if (state.difficulty !== undefined && !(state.difficulty instanceof BigInteger)) state.difficulty = BigInteger.parse(state.difficulty);
+    if (state.cumulativeDifficulty !== undefined && !(state.cumulativeDifficulty instanceof BigInteger)) state.cumulativeDifficulty = BigInteger.parse(state.cumulativeDifficulty);
     if (state.credits !== undefined && !(state.credits instanceof BigInteger)) state.credits = BigInteger.parse(state.credits);
   }
   
   toJson() {
     let json = Object.assign([], this.state);
+    if (json.difficulty) json.difficulty = json.difficulty.toString();
+    if (json.cumulativeDifficulty) json.cumulativeDifficulty = json.cumulativeDifficulty.toString();
     if (json.credits) json.credits = json.credits.toString();
     return json;
   }

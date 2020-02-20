@@ -5,10 +5,13 @@ class MoneroDaemonConnection {
   
   constructor(state) {
     this.state = Object.assign({}, state);
+    if (this.state.peer !== undefined && !(this.state.peer instanceof MoneroDaemonPeer)) this.state.peer = new MoneroDaemonPeer(this.state.peer);
   }
   
   toJson() {
-    return Object.assign({}, this.state);
+    let json = Object.assign({}, this.state);
+    if (json.peer) json.peer = json.peer.toJson();
+    return json;
   }
   
   getPeer() {
