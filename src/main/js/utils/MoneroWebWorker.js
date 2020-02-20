@@ -188,10 +188,10 @@ self.daemonGetTxPoolHashes = async function(daemonId) {
 //async getTxPoolBacklog() {
 //  throw new MoneroError("Not implemented");
 //}
-//
-//async getTxPoolStats() {
-//  throw new MoneroError("Not implemented");
-//}
+
+self.daemonGetTxPoolStats = async function(daemonId) {
+  return (await self.WORKER_OBJECTS[daemonId].getTxPoolStats()).toJson();
+}
 
 self.daemonFlushTxPool = async function(daemonId, hashes) {
   return self.WORKER_OBJECTS[daemonId].flushTxPool(hashes);
