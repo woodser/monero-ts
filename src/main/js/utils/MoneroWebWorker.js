@@ -407,7 +407,7 @@ self.getAddress = async function(walletId, accountIdx, subaddressIdx) {
 }
 
 self.getAddressIndex = async function(walletId, address) {
-  return self.WORKER_OBJECTS[walletId].getAddressIndex(address).toJson();
+  return (await self.WORKER_OBJECTS[walletId].getAddressIndex(address)).toJson();
 }
 
 //getAccounts() {
