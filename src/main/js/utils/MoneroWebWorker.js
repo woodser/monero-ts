@@ -653,23 +653,26 @@ self.getOutputs = async function(walletId, blockJsonQuery) {
   return blocks;
 }
 
-//
-//async getOutputsHex() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async importOutputsHex(outputsHex) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getKeyImages() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async importKeyImages(keyImages) {
-//  throw new MoneroError("Not implemented");
-//}
-//
+self.getOutputsHex = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].getOutputsHex();
+}
+
+self.importOutputsHex = async function(walletId, outputsHex) {
+  return self.WORKER_OBJECTS[walletId].importOutputsHex(outputsHex);
+}
+
+self.getKeyImages = async function(walletId) {
+  let keyImagesJson = [];
+  for (let keyImage of await self.WORKER_OBJECTS[walletId].getKeyImages()) keyImagesJson.push(keyImage.toJson());
+  return keyImagesJson;
+}
+
+self.importKeyImages = async function(walletId, keyImagesJson) {
+  let keyImages = [];
+  for (let keyImageJson of keyImagesJson) keyImages.push(new MoneroKeyImage(keyImageJson));
+  return (await self.WORKER_OBJECTS[walletId].importKeyImages(keyImages)).toJson();
+}
+
 //async getNewKeyImagesFromLastImport() {
 //  throw new MoneroError("Not implemented");
 //}

@@ -811,22 +811,50 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async getOutputsHex() {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        that.module.get_outputs_hex(that.cppAddress, function(outputsHex) { resolve(outputsHex); });
+      });
+    });
   }
   
   async importOutputsHex(outputsHex) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        that.module.import_outputs_hex(that.cppAddress, outputsHex, function(numImported) { resolve(numImported); });
+      });
+    });
   }
   
   async getKeyImages() {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        let callback = function(keyImagesStr) {
+          let keyImages = [];
+          for (let keyImageJson of JSON.parse(keyImagesStr).keyImages) keyImages.push(new MoneroKeyImage(keyImageJson));
+          resolve(keyImages);
+        }
+        that.module.get_key_images(that.cppAddress, callback);
+      });
+    });
   }
   
   async importKeyImages(keyImages) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        let callback = function(keyImageImportResultStr) {
+          return new MoneroKeyImageImportResult(JSON.parse(keyImageImportResultStr));
+        }
+        that.module.import_key_images(that.cppAddress, JSON.stringify(keyImages), callback);
+      });
+    });
   }
   
   async getNewKeyImagesFromLastImport() {
@@ -1768,19 +1796,23 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getOutputsHex() {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("getOutputsHex");
   }
   
   async importOutputsHex(outputsHex) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("importOutputsHex", [outputsHex]);
   }
   
   async getKeyImages() {
-    throw new MoneroError("Not implemented");
+    let keyImages = [];
+    for (let keyImageJson of await this._invokeWorker("getKeyImages")) keyImages.push(new MoneroKeyImage(keyImageJson));
+    return keyImages;
   }
   
   async importKeyImages(keyImages) {
-    throw new MoneroError("Not implemented");
+    let keyImagesJson = [];
+    for (let keyImage of keyImages) keyImagesJson.push(keyImage.toJson());
+    return new MoneroKeyImageImportResult(await this._invokeWorker("importKeyImages", [keyImagesJson]));
   }
   
   async getNewKeyImagesFromLastImport() {
