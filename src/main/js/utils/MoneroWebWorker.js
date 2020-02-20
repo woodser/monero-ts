@@ -560,7 +560,7 @@ self.getSubaddresses = async function(walletId, accountIdx, subaddressIndices) {
 }
 
 self.createSubaddress = async function(walletId, accountIdx, label) {
-  return;(await self.WORKER_OBJECTS[walletId].createSubaddress(accountIdx, label)).toJson();
+  return (await self.WORKER_OBJECTS[walletId].createSubaddress(accountIdx, label)).toJson();
 }
 
 // TODO: easier or more efficient way than serializing from root blocks?
