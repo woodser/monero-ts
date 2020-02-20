@@ -3,8 +3,15 @@
  */
 class MoneroDaemonPeer {
   
-  constructor() {
-    this.state = {};
+  constructor(state) {
+    this.state = Object.assign({}, state);
+    if (this.state.rpcCreditsPerHash !== undefined && !(this.state.rpcCreditsPerHash instanceof BigInteger)) this.state.rpcCreditsPerHash = BigInteger.parse(this.state.rpcCreditsPerHash);
+  }
+  
+  toJson() {
+    let json = Object.assign({}, this.state);
+    if (json.rpcCreditsPerHash) json.rpcCreditsPerHash = json.rpcCreditsPerHash.toString();
+    return json;
   }
   
   getId() {

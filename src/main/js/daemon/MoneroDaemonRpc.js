@@ -603,10 +603,6 @@ class MoneroDaemonRpc extends MoneroDaemon {
     return bans;
   }
   
-  async setPeerBan(ban) {
-    return await this.setPeerBans([ban]);
-  }
-  
   async setPeerBans(bans) {
     let rpcBans = [];
     for (let ban of bans) rpcBans.push(MoneroDaemonRpc._convertToRpcBan(ban));
@@ -1535,7 +1531,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getHardForkInfo() {
-    return new getHardForkInfo(await this._invokeWorker("daemonGetHardForkInfo"));
+    return new MoneroHardForkInfo(await this._invokeWorker("daemonGetHardForkInfo"));
   }
   
   async getAltChains() {
@@ -1573,31 +1569,35 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async getKnownPeers() {
-    throw new MoneroError("Not implemented");
+    let peers = [];
+    for (let peerJson of await this._invokeWorker("daemonGetKnownPeers")) peers.push(new MoneroDaemonPeer(peerJson));
+    return peers;
   }
   
   async getConnections() {
-    throw new MoneroError("Not implemented");
+    let connections = [];
+    for (let connectionJson of await this._invokeWorker("daemonGetConnections")) connections.push(new MoneroDaemonConnection(connectionJson));
+    return connections;
   }
   
   async setOutgoingPeerLimit(limit) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonSetIncomingPeerLimit", Array.from(arguments));
   }
   
   async setIncomingPeerLimit(limit) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("daemonSetIncomingPeerLimit", Array.from(arguments));
   }
   
   async getPeerBans() {
-    throw new MoneroError("Not implemented");
+    let bans = [];
+    for (let banJson of await this._invokeWorker("daemonGetPeerBans")) bans.push(new MoneroBan(banJson));
+    return bans;
   }
 
-  async setPeerBan(ban) {
-    throw new MoneroError("Not implemented");
-  }
-  
   async setPeerBans(bans) {
-    throw new MoneroError("Not implemented");
+    let bansJson = [];
+    for (let ban of bans) bansJson.push(ban.toJson());
+    return this._invokeWorker("daemonSetPeerBans", [bansJson]);
   }
   
   async startMining(address, numThreads, isBackground, ignoreBattery) {
