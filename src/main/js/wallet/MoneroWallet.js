@@ -110,17 +110,6 @@ class MoneroWallet {
   }
   
   /**
-   * Get an integrated address based on this wallet's primary address and a
-   * randomly generated payment ID.  Generates a random payment ID if none is
-   * given.
-   * 
-   * @return {MoneroIntegratedAddress} the integrated address
-   */
-  async getIntegratedAddress() {
-    throw new MoneroError("Subclass must implement");
-  }
-  
-  /**
    * Get an integrated address based on this wallet's primary address and the
    * given payment ID.  Generates a random payment ID if none is given.
    * 
