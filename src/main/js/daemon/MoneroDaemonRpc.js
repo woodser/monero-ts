@@ -1459,7 +1459,10 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
     // collect txs
     let txs = [];
     for (let block of blocks) {
-      for (let tx of block.getTxs()) txs.push(tx);
+      for (let tx of block.getTxs()) {
+        if (!tx.isConfirmed()) tx.setBlock(undefined);
+        txs.push(tx);
+      }
     }
     return txs;
   }
@@ -1486,7 +1489,11 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   
   async getTxPool() {
     let blockJson = await this._invokeWorker("daemonGetTxPool");
+    console.log("TX POOL BLOCK");
+    console.log(blockJson);
     let txs = new MoneroBlock(blockJson).getTxs();
+    for (let tx of txs) tx.setBlock(undefined);
+    console.log("TX blocks nulled out...");
     return txs ? txs : [];
   }
   

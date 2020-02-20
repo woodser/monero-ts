@@ -1,7 +1,7 @@
 HIGH (WASM)
 wallet proxied browser tests
 daemon proxied browser tests
-collapse experimental support into master
+collapse experimental support into master, export to dist folder
 update documentation: daemon isConnected, other top level methods, add_address_book edit_address_book no longer takes payment id
 hardcode block hash instead of miner::find_nonce
 
