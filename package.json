@@ -38,7 +38,6 @@
     "uuid": "3.3.2"
   },
   "devDependencies": {
-    "monero-javascript": "^0.2.2",
     "babel-core": "6.26.3",
     "babel-loader": "8.0.2",
     "babel-minify": "0.4.3",
