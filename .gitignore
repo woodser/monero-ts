@@ -6,5 +6,4 @@ npm-debug.log
 test_products
 **/tests_config.js
 /test_wallets/
-
-/build/*
+/build
