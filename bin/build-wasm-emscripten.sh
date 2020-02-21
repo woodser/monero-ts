@@ -12,4 +12,10 @@ mkdir -p build &&
 cd build && 
 emconfigure cmake .. && 
 emmake cmake --build . && 
-emmake make -j$(nproc) .
+emmake make -j$HOST_NCORES .
+
+# move wasm files to /dist
+cd ../ &&
+mkdir -p dist &&
+mv ./build/monero-javascript-wasm.js ./dist/ &&
+mv ./build/monero-javascript-wasm.wasm ./dist/
