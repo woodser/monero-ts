@@ -307,7 +307,7 @@ class MoneroUtils {
    */
   static async loadWasmModule() {
     if (!MoneroUtils.WASM_MODULE) {
-      MoneroUtils.WASM_MODULE = await require("../../../../build/monero-javascript-wasm")().ready;
+      MoneroUtils.WASM_MODULE = await require("../../../../dist/monero-javascript-wasm")().ready;
       
       // initialize data structure to synchronize access to wasm module
       const async = require("async");
@@ -338,7 +338,7 @@ class MoneroUtils {
     
     // one time initialization
     if (!MoneroUtils.WORKER) {
-      MoneroUtils.WORKER = new Worker("MoneroWebWorker.js");
+      MoneroUtils.WORKER = new Worker("MoneroWebWorker.dist.js");
       MoneroUtils.WORKER_OBJECTS = {};  // store per object running in the worker
       
       // catch worker messages

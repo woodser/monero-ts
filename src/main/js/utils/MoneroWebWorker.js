@@ -1,4 +1,5 @@
-require("monero-javascript");
+const assert = require("assert");
+require("../MoneroModel")();
 
 /**
  * Web worker to manage a daemon and core wallet off the main chain with messages.
