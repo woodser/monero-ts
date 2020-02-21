@@ -1,4 +1,3 @@
-const assert = require("assert");
 require("../MoneroModel")();
 
 /**
@@ -7,8 +6,6 @@ require("../MoneroModel")();
  * Required message format: e.data[0] = object id, e.data[1] = function name, e.data[2+] = function args
 
  * This file must be browserified and placed in the web app root.  // TODO: exportable in MoneroModel.js?
- * 
- * TODO: refactor try..catches to common method which takes function and args to execute
  */
 onmessage = async function(e) {
   
