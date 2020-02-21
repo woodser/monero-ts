@@ -5,9 +5,10 @@
   "license": "MIT",
   "repository": "https://github.com/monero-ecosystem/monero-javascript",
   "private": false,
-  "main": "src/main/js/index.js",
+  "main": "index.js",
   "scripts": {
     "start": "todo",
+    "build": "webpack",
     "test": "node --experimental-wasm-threads --experimental-wasm-bulk-memory node_modules/mocha/bin/_mocha 'src/test/TestAll' --timeout 3000000 --exit"
   },
   "build": {
@@ -37,6 +38,7 @@
     "uuid": "3.3.2"
   },
   "devDependencies": {
+    "monero-javascript": "^0.2.2",
     "babel-core": "6.26.3",
     "babel-loader": "8.0.2",
     "babel-minify": "0.4.3",
