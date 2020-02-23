@@ -3158,22 +3158,15 @@ namespace monero {
   }
 
   std::string monero_wallet_core::get_keys_file_buffer(const epee::wipeable_string& password, bool watch_only) const {
-    wallet2::keys_file_data keys_file_data = {};
-    bool r = m_w2->get_keys_file_data(password, watch_only, keys_file_data);
+    boost::optional<wallet2::keys_file_data> keys_file_data = m_w2->get_keys_file_data(password, watch_only);
     std::string buf;
-    ::serialization::dump_binary(keys_file_data, buf);
+    ::serialization::dump_binary(keys_file_data.get(), buf);
     return buf;
   }
 
   std::string monero_wallet_core::get_cache_file_buffer(const epee::wipeable_string& password) const {
     wallet2::cache_file_data cache_file_data = {};
     bool r = m_w2->get_cache_file_data(password, cache_file_data);
-
-//    std::ostringstream oss;
-//    binary_archive<true> oar(oss);
-//    bool success = ::serialization::serialize(oar, cache_file_data);
-//    return oss.str();
-
     std::string buf;
     ::serialization::dump_binary(cache_file_data, buf);
     return buf;
