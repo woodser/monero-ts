@@ -19,3 +19,6 @@ cd ../ &&
 mkdir -p dist &&
 mv ./build/monero-javascript-wasm.js ./dist/ &&
 mv ./build/monero-javascript-wasm.wasm ./dist/
+
+# web worker must be re-built
+./bin/build-web-worker.sh
