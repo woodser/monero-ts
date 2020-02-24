@@ -214,6 +214,7 @@ set(
     ${MONERO_CORE}/contrib/epee/src/memwipe.c
     ${MONERO_CORE}/contrib/epee/src/mlocker.cpp
     ${MONERO_CORE}/contrib/epee/src/wipeable_string.cpp
+    ${MONERO_CORE}/contrib/epee/src/abstract_http_client.cpp
     ${MONERO_CORE_SRC}/device/device.cpp
     ${MONERO_CORE_SRC}/device/device_default.cpp
     ${MONERO_CORE_SRC}/multisig/multisig.cpp
