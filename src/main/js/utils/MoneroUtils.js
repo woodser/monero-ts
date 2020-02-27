@@ -305,9 +305,9 @@ class MoneroUtils {
   /**
    * Load the WebAssembly module one time.
    */
-  static async loadWasmModule() {
+  static async loadWasmModule(wasmFile) {
     if (!MoneroUtils.WASM_MODULE) {
-      MoneroUtils.WASM_MODULE = await require("../../../../dist/monero-javascript-wasm")().ready;
+      MoneroUtils.WASM_MODULE = await require("../../../../dist/" + wasmFile ? wasmFile : "monero_wallet_keys_wasm")().ready;
       
       // initialize data structure to synchronize access to wasm module
       const async = require("async");
