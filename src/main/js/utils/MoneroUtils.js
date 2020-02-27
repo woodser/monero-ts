@@ -315,6 +315,7 @@ class MoneroUtils {
     
     // load module
     MoneroUtils.WASM_MODULE = await require("../../../../dist/" + (loadCore ? "monero_wallet_core_wasm" : "monero_wallet_keys_wasm"))().ready;
+    MoneroUtils.CORE_LOADED = !!loadCore;
     
     // initialize data structure to synchronize access to wasm module
     const async = require("async");
