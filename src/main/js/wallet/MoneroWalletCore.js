@@ -1,5 +1,3 @@
-const MONERO_WALLET_CORE_WASM = "monero_wallet_core_wasm";  // name of wasm file used by core wallet
-
 /**
  * Implements a MoneroWallet using WebAssembly to bridge to monero-project's wallet2.
  * 
@@ -47,7 +45,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
     
     // load wasm module
-    let module = await MoneroUtils.loadWasmModule(MONERO_WALLET_CORE_WASM);
+    let module = await MoneroUtils.loadWasmModule(true);
     
     // open wallet in queue
     return module.queueTask(async function() {
@@ -80,7 +78,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
     
     // load wasm module
-    let module = await MoneroUtils.loadWasmModule(MONERO_WALLET_CORE_WASM);
+    let module = await MoneroUtils.loadWasmModule(true);
     
     // create wallet in queue
     let wallet = await module.queueTask(async function() {
@@ -117,7 +115,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     if (seedOffset === undefined) seedOffset = "";
     
     // load wasm module
-    let module = await MoneroUtils.loadWasmModule(MONERO_WALLET_CORE_WASM);
+    let module = await MoneroUtils.loadWasmModule(true);
     
     // create wallet in queue
     let wallet = await module.queueTask(async function() {
@@ -157,7 +155,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     if (language === undefined) language = "English";
     
     // load wasm module
-    let module = await MoneroUtils.loadWasmModule(MONERO_WALLET_CORE_WASM);
+    let module = await MoneroUtils.loadWasmModule(true);
     
     // create wallet in queue
     let wallet = await module.queueTask(async function() {
@@ -180,7 +178,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   static async getMnemonicLanguages() {
-    let module = await MoneroUtils.loadWasmModule(MONERO_WALLET_CORE_WASM);  // load wasm module
+    let module = await MoneroUtils.loadWasmModule(true);
     return module.queueTask(async function() {
       return JSON.parse(module.get_keys_wallet_mnemonic_languages()).languages;
     });

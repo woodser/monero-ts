@@ -303,29 +303,36 @@ class MoneroUtils {
   }
   
   /**
-   * Load the WebAssembly module one time.
+   * Load the WebAssembly module with caching.
+   * 
+   * @param {boolean} loadCore specifies if the larger wasm file containing wallet2 should be loaded
    */
-  static async loadWasmModule(wasmFile) {
-    if (!MoneroUtils.WASM_MODULE) {
-      MoneroUtils.WASM_MODULE = await require("../../../../dist/" + wasmFile ? wasmFile : "monero_wallet_keys_wasm")().ready;
-      
-      // initialize data structure to synchronize access to wasm module
-      const async = require("async");
-      MoneroUtils.WASM_MODULE.taskQueue = async.queue(function(asyncFn, callback) {
-        if (asyncFn.then) throw new Error("Can only queue asynchronous functions");
-        asyncFn().then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
-      }, 1);
-      
-      // initialize method to synchronize access to wasm module
-      MoneroUtils.WASM_MODULE.queueTask = async function(asyncFn) {
-        return new Promise(function(resolve, reject) {
-          MoneroUtils.WASM_MODULE.taskQueue.push(asyncFn, function(resp, err) {
-            if (err !== undefined) reject(err);
-            else resolve(resp);
-          });
+  static async loadWasmModule(loadCore) {
+    
+    // use cache if suitable
+    // core module supersedes keys module because it is superset
+    if (MoneroUtils.WASM_MODULE && (!loadCore || MoneroUtils.CORE_LOADED)) return MoneroUtils.WASM_MODULE;
+    
+    // load module
+    MoneroUtils.WASM_MODULE = await require("../../../../dist/" + (loadCore ? "monero_wallet_core_wasm" : "monero_wallet_keys_wasm"))().ready;
+    
+    // initialize data structure to synchronize access to wasm module
+    const async = require("async");
+    MoneroUtils.WASM_MODULE.taskQueue = async.queue(function(asyncFn, callback) {
+      if (asyncFn.then) throw new Error("Can only queue asynchronous functions");
+      asyncFn().then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
+    }, 1);
+    
+    // initialize method to synchronize access to wasm module
+    MoneroUtils.WASM_MODULE.queueTask = async function(asyncFn) {
+      return new Promise(function(resolve, reject) {
+        MoneroUtils.WASM_MODULE.taskQueue.push(asyncFn, function(resp, err) {
+          if (err !== undefined) reject(err);
+          else resolve(resp);
         });
-      }
+      });
     }
+    
     return MoneroUtils.WASM_MODULE;
   }
   

@@ -83,7 +83,7 @@ class MoneroWalletKeys extends MoneroWallet {
   }
   
   static async getMnemonicLanguages() {
-    let module = await MoneroUtils.loadWasmModule();  // load wasm module
+    let module = await MoneroUtils.loadWasmModule();
     return module.queueTask(async function() {
       return JSON.parse(module.get_keys_wallet_mnemonic_languages()).languages;
     });
