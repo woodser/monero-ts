@@ -62,20 +62,6 @@ include_directories("${MONERO_CORE}/contrib/epee/include/net")
 include_directories("${MONERO_CORE}/build/release/translations")
 
 #############
-# MyMonero
-#############
-
-#set(MYMONERO_JS "external/mymonero-core-js")
-#set(MYMONERO_JS_SRC "${MYMONERO_JS}/src")
-#set(MYMONERO_CPP "${MYMONERO_JS_SRC}/submodules/mymonero-core-cpp")
-#set(MYMONERO_CPP_SRC "${MYMONERO_CPP}/src")
-#set(MYMONERO_CORE "${MYMONERO_CPP}/contrib/monero-core-custom")
-#set(MYMONERO_CORE_SRC "${MYMONERO_CORE}/src")
-
-#include_directories("${MYMONERO_JS_SRC}")
-#include_directories("${MYMONERO_CPP_SRC}")
-
-#############
 # OpenSSL
 #############
 
@@ -148,39 +134,30 @@ set_target_properties(
     #${BOOST}/lib/libboost_atomic.a
 #)
 
-####################
-# Source files
-####################
+################################
+# Keys-only wallet source files
+################################
 
 set(
-    SRC_FILES
+    WALLET_KEYS_SRC_FILES
     
     # monero-javascript WASM bridge
     src/main/cpp/index.cpp
+    src/main/cpp/http_client_wasm.cpp		# TODO: not needed by keys wallet but used in common monero_wasm_bridge.cpp, could split bridge..
     src/main/cpp/monero_wasm_bridge.cpp
-    src/main/cpp/http_client_wasm.cpp
+    
     
     # monero-cpp-library (modified for WASM)
     ${MONERO_CPP_SRC}/utils/monero_utils.cpp
     ${MONERO_CPP_SRC}/daemon/monero_daemon_model.cpp
     ${MONERO_CPP_SRC}/wallet/monero_wallet_model.cpp
     ${MONERO_CPP_SRC}/wallet/monero_wallet_keys.cpp
-    ${MONERO_CPP_SRC}/wallet/monero_wallet_core.cpp
     ${MONERO_CPP}/external/libsodium/src/crypto_verify/verify.c
     
     # monero-project (modified for WASM)
-    ${MONERO_CORE_SRC}/wallet/wallet2.cpp
-    ${MONERO_CORE_SRC}/wallet/message_store.cpp
-    ${MONERO_CORE_SRC}/wallet/message_transporter.cpp
-    ${MONERO_CORE_SRC}/wallet/node_rpc_proxy.cpp
-    ${MONERO_CORE_SRC}/wallet/wallet_rpc_payments.cpp
-    ${MONERO_CORE}/external/db_drivers/liblmdb/mdb.c
-    ${MONERO_CORE}/external/db_drivers/liblmdb/midl.c
-    #${MONERO_CORE_SRC}/blockchain_db/lmdb/db_lmdb.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/account.cpp
     ${MONERO_CORE_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
-    ${MONERO_CORE_SRC}/checkpoints/checkpoints.cpp
     ${MONERO_CORE_SRC}/crypto/crypto.cpp
     ${MONERO_CORE_SRC}/crypto/hash.c
     ${MONERO_CORE_SRC}/crypto/slow-hash.c
@@ -202,23 +179,15 @@ set(
     ${MONERO_CORE_SRC}/crypto/jh.c
     ${MONERO_CORE_SRC}/crypto/skein.c
     ${MONERO_CORE_SRC}/cryptonote_core/cryptonote_tx_utils.cpp
-    ${MONERO_CORE_SRC}/common/perf_timer.cpp
-    ${MONERO_CORE_SRC}/common/base58.cpp
-    ${MONERO_CORE_SRC}/common/threadpool.cpp
-    ${MONERO_CORE_SRC}/common/aligned.c
-    ${MONERO_CORE_SRC}/common/util.cpp
-    ${MONERO_CORE_SRC}/common/i18n.cpp
     ${MONERO_CORE}/contrib/epee/src/hex.cpp
-    #${MONERO_CORE}/contrib/epee/src/http_auth.cpp
     ${MONERO_CORE}/contrib/epee/src/string_tools.cpp
     ${MONERO_CORE}/contrib/epee/src/memwipe.c
     ${MONERO_CORE}/contrib/epee/src/mlocker.cpp
     ${MONERO_CORE}/contrib/epee/src/wipeable_string.cpp
-    ${MONERO_CORE}/contrib/epee/src/abstract_http_client.cpp
+    ${MONERO_CORE_SRC}/common/base58.cpp
     ${MONERO_CORE_SRC}/device/device.cpp
     ${MONERO_CORE_SRC}/device/device_default.cpp
     ${MONERO_CORE_SRC}/multisig/multisig.cpp
-    ${MONERO_CORE_SRC}/rpc/rpc_payment_signature.cpp
     ${MONERO_CORE_SRC}/ringct/rctOps.cpp
     ${MONERO_CORE_SRC}/ringct/rctTypes.cpp
     ${MONERO_CORE_SRC}/ringct/rctCryptoOps.c
@@ -227,6 +196,39 @@ set(
     ${MONERO_CORE_SRC}/ringct/multiexp.cc
     ${MONERO_CORE_SRC}/mnemonics/electrum-words.cpp
     ${MONERO_CORE}/external/easylogging++/easylogging++.cc
+)
+
+################################
+# Core wallet source files
+################################
+
+set(
+    WALLET_CORE_SRC_FILES
+    
+    # monero-javascript WASM bridge
+    
+    # monero-cpp-library (modified for WASM)
+    ${MONERO_CPP_SRC}/wallet/monero_wallet_core.cpp
+    
+    # monero-project (modified for WASM)
+    ${MONERO_CORE}/external/db_drivers/liblmdb/mdb.c
+    ${MONERO_CORE}/external/db_drivers/liblmdb/midl.c
+    ${MONERO_CORE}/contrib/epee/src/abstract_http_client.cpp
+    #${MONERO_CORE}/contrib/epee/src/http_auth.cpp
+    ${MONERO_CORE_SRC}/wallet/wallet2.cpp
+    ${MONERO_CORE_SRC}/wallet/message_store.cpp
+    ${MONERO_CORE_SRC}/wallet/message_transporter.cpp
+    ${MONERO_CORE_SRC}/wallet/node_rpc_proxy.cpp
+    ${MONERO_CORE_SRC}/wallet/wallet_rpc_payments.cpp
+    #${MONERO_CORE_SRC}/blockchain_db/lmdb/db_lmdb.cpp
+    ${MONERO_CORE_SRC}/cryptonote_core/cryptonote_tx_utils.cpp
+    ${MONERO_CORE_SRC}/checkpoints/checkpoints.cpp
+    ${MONERO_CORE_SRC}/common/perf_timer.cpp
+    ${MONERO_CORE_SRC}/common/threadpool.cpp
+    ${MONERO_CORE_SRC}/common/aligned.c
+    ${MONERO_CORE_SRC}/common/util.cpp
+    ${MONERO_CORE_SRC}/common/i18n.cpp
+    ${MONERO_CORE_SRC}/rpc/rpc_payment_signature.cpp
     ${MONERO_CORE_SRC}/wallet/ringdb.cpp
 )
 
@@ -268,21 +270,7 @@ set (
     # -s SAFE_HEAP=1 \
     # -g \
 )
-set(
-    EMCC_LINKER_FLAGS__ASMJS
-    "${EMCC_LINKER_FLAGS___BASE} \
--s WASM=0 \
--Os \
---separate-asm \
--s AGGRESSIVE_VARIABLE_ELIMINATION=1 \
--s ALLOW_MEMORY_GROWTH=1 \
---memory-init-file 0 \
-"
-    # --memory-init-file is explicitly set to 0 because optimization level is Oz, and some clients like React Native have trouble loading .mem files
-    # .... it also didn't seem to have a giant impact on perf. but this should be tested again
-    #
-    # --closure 1 \
-)
+
 set(
     EMCC_LINKER_FLAGS__WASM
     "${EMCC_LINKER_FLAGS___BASE} \
@@ -293,27 +281,30 @@ set(
 "
     # -g \
 )
-#
-#    -s EXPORTED_FUNCTIONS='[\"_sc_reduce\", \"_sc_reduce32\", \"_sc_check\", \"_sc_add\", \"_ge_fromfe_frombytes_vartime\", \"_ge_mul8\", \"_ge_p1p1_to_p3\", \"_ge_p3_tobytes\", \"_ge_scalarmult\", \"_ge_tobytes\", \"_sc_sub\", \"_sc_mulsub\", \"_ge_scalarmult_base\", \"_sc_0\", \"_ge_double_scalarmult_base_vartime\", \"_ge_double_scalarmult_precomp_vartime\", \"_ge_frombytes_vartime\", \"_ge_dsm_precomp\"]' \
-#
-#
 message(STATUS "EMCC_LINKER_FLAGS__WASM ${EMCC_LINKER_FLAGS__WASM}")
-message(STATUS "EMCC_LINKER_FLAGS__ASMJS ${EMCC_LINKER_FLAGS__ASMJS}")
-#
-
-#add_library(ssl STATIC IMPORTED)
-#set_target_properties(ssl PROPERTIES IMPORTED_LOCATION
-#    ${MONERO_CORE}/external-libs/openssl/libssl.a)
 
 ####################
 # Build targets
 ####################
 
-# WASM
-add_executable(monero-javascript-wasm ${SRC_FILES})
-set_target_properties(monero-javascript-wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__WASM}")
+# monero_wallet_keys
+add_executable(monero_wallet_keys_wasm ${WALLET_KEYS_SRC_FILES})
+set_target_properties(monero_wallet_keys_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__WASM}")
 target_link_libraries(
-    monero-javascript-wasm
+    monero_wallet_keys_wasm
+    #
+    boost_chrono
+    boost_system
+    boost_thread
+    #
+    ${log-lib}
+)
+
+# monero_wallet_core
+add_executable(monero_wallet_core_wasm ${WALLET_KEYS_SRC_FILES} ${WALLET_CORE_SRC_FILES})
+set_target_properties(monero_wallet_core_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__WASM}")
+target_link_libraries(
+    monero_wallet_core_wasm
     #
     #openssl_ssl
     #openssl_crypto
@@ -328,15 +319,6 @@ target_link_libraries(
     #
     ${log-lib}
 )
-
-# ASMJS
-#add_executable(monero-javascript_ASMJS ${SRC_FILES})
-#set_target_properties(monero-javascript_ASMJS PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__ASMJS}")
-#target_link_libraries(
-	#monero-javascript_ASMJS
-    ##
-    #${log-lib}
-#)
 
 # build to bitcode instead of wasm
 #SET(CMAKE_EXECUTABLE_SUFFIX ".bc")	
