@@ -35,6 +35,7 @@ set(MONERO_CORE "${MONERO_CPP}/external/monero-core")
 set(MONERO_CORE_SRC "${MONERO_CORE}/src")
 
 # headers
+include_directories("src/main/cpp")
 include_directories("${MONERO_CORE_SRC}/")
 include_directories("${MONERO_CORE_SRC}/checkpoints")
 include_directories("${MONERO_CORE_SRC}/common")
@@ -143,9 +144,7 @@ set(
     
     # monero-javascript WASM bridge
     src/main/cpp/index.cpp
-    src/main/cpp/http_client_wasm.cpp		# TODO: not needed by keys wallet but used in common monero_wasm_bridge.cpp, could split bridge..
     src/main/cpp/monero_wasm_bridge.cpp
-    
     
     # monero-cpp-library (modified for WASM)
     ${MONERO_CPP_SRC}/utils/monero_utils.cpp
@@ -206,6 +205,7 @@ set(
     WALLET_CORE_SRC_FILES
     
     # monero-javascript WASM bridge
+    src/main/cpp/http_client_wasm.cpp
     
     # monero-cpp-library (modified for WASM)
     ${MONERO_CPP_SRC}/wallet/monero_wallet_core.cpp
@@ -300,6 +300,7 @@ target_link_libraries(
     ${log-lib}
 )
 
+#[[	--- START BLOCK COMMENT ---
 # monero_wallet_core
 add_executable(monero_wallet_core_wasm ${WALLET_KEYS_SRC_FILES} ${WALLET_CORE_SRC_FILES})
 set_target_properties(monero_wallet_core_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__WASM}")
@@ -319,6 +320,7 @@ target_link_libraries(
     #
     ${log-lib}
 )
+#]] #--- END BLOCK COMMENT ---
 
 # build to bitcode instead of wasm
 #SET(CMAKE_EXECUTABLE_SUFFIX ".bc")	
