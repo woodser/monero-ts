@@ -114,7 +114,7 @@ EM_JS(const char*, js_send_binary_request, (const char* http_client_id, const ch
     config.pass = UTF8ToString(password);
 
     // load wasm module then convert from json to binary
-    MoneroUtils.loadWasmModule().then(module => {
+    MoneroUtils.loadWasmModule(true).then(module => {
 
       let ptr = body;
       let length = body_length;

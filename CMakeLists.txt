@@ -204,11 +204,11 @@ set(
 set(
     WALLET_CORE_SRC_FILES
     
-    # monero-javascript WASM bridge
-    src/main/cpp/http_client_wasm.cpp
-    
     # monero-cpp-library (modified for WASM)
     ${MONERO_CPP_SRC}/wallet/monero_wallet_core.cpp
+    
+    # monero-javascript WASM bridge
+    src/main/cpp/http_client_wasm.cpp
     
     # monero-project (modified for WASM)
     ${MONERO_CORE}/external/db_drivers/liblmdb/mdb.c
@@ -232,20 +232,24 @@ set(
     ${MONERO_CORE_SRC}/wallet/ringdb.cpp
 )
 
+####################
+# Build parameters
+####################
+
 #-s USE_PTHREADS=1 \
 #-s PTHREAD_POOL_SIZE=2 \
 #-s PROXY_TO_PTHREAD \
 #-s DISABLE_EXCEPTION_CATCHING=0 \
+#-s ASYNCIFY=1 \
+#-s 'ASYNCIFY_IMPORTS=[\"js_send_json_request\",\"js_send_binary_request\",\"emscripten_sleep\"]' \
 
-####################
-# Build parameters
-####################
 set (
-    EMCC_LINKER_FLAGS___BASE
-    #unsure if the -I...boost..include is necessary here due to include above
-    #
-    # TODO? does EXPORT_NAME need to be the same for both targets? (or should it be set per-target with …_WASM, …_ASMJS?)
-    "-Wall -std=c++11 \
+EMCC_LINKER_FLAGS_BASE
+
+# unsure if the -I...boost..include is necessary here due to include above
+# TODO? does EXPORT_NAME need to be the same for both targets? (or should it be set per-target with …_WASM, …_ASMJS?)
+
+"-Wall -std=c++11 \
 --bind -s MODULARIZE=1 \
 -Oz \
 -s 'EXPORT_NAME=\"monero_javascript\"' \
@@ -253,8 +257,6 @@ set (
 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 -s ASSERTIONS=2 \
 -s EXIT_RUNTIME=0 \
--s ASYNCIFY=1 \
--s 'ASYNCIFY_IMPORTS=[\"js_send_json_request\",\"js_send_binary_request\",\"emscripten_sleep\"]' \
 -s PRECISE_F32=1 \
 -s EXCEPTION_DEBUG=1 \
 -s DEMANGLE_SUPPORT=1 \
@@ -262,6 +264,10 @@ set (
 -s NODEJS_CATCH_EXIT=0 \
 -s RESERVED_FUNCTION_POINTERS=5 \
 -s EXTRA_EXPORTED_RUNTIME_METHODS='[\"UTF8ToString\",\"stringToUTF8\",\"lengthBytesUTF8\",\"intArrayToString\",\"makeBigInt\",\"getTempRet0\",\"addFunction\"]' \
+-s WASM=1 \
+-s ALLOW_MEMORY_GROWTH=0 \
+-s TOTAL_MEMORY=512MB \
+--post-js ${CMAKE_CURRENT_LIST_DIR}/src/main/js/module-post.js \
 "
     # • Disabling exception catching does not introduce silent failures 
     # • Probably don't need PRECISE_F32 but wouldn't want to not use it
@@ -272,24 +278,30 @@ set (
 )
 
 set(
-    EMCC_LINKER_FLAGS__WASM
-    "${EMCC_LINKER_FLAGS___BASE} \
--s WASM=1 \
--s ALLOW_MEMORY_GROWTH=0 \
--s TOTAL_MEMORY=512MB \
---post-js ${CMAKE_CURRENT_LIST_DIR}/src/main/js/module-post.js \
+EMCC_LINKER_FLAGS_KEYS
+"${EMCC_LINKER_FLAGS_BASE} \
 "
-    # -g \
 )
-message(STATUS "EMCC_LINKER_FLAGS__WASM ${EMCC_LINKER_FLAGS__WASM}")
+
+set(
+EMCC_LINKER_FLAGS_CORE
+"${EMCC_LINKER_FLAGS_BASE} \
+-s ASYNCIFY=1 \
+-s 'ASYNCIFY_IMPORTS=[\"js_send_json_request\",\"js_send_binary_request\",\"emscripten_sleep\"]' \
+"
+)
+
+message(STATUS "EMCC_LINKER_FLAGS_KEYS ${EMCC_LINKER_FLAGS_KEYS}")
+message(STATUS "EMCC_LINKER_FLAGS_CORE ${EMCC_LINKER_FLAGS_CORE}")
 
 ####################
 # Build targets
 ####################
 
+##[[	--- START BLOCK COMMENT ---
 # monero_wallet_keys
 add_executable(monero_wallet_keys_wasm ${WALLET_KEYS_SRC_FILES})
-set_target_properties(monero_wallet_keys_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__WASM}")
+set_target_properties(monero_wallet_keys_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_KEYS}")
 target_link_libraries(
     monero_wallet_keys_wasm
     #
@@ -299,11 +311,13 @@ target_link_libraries(
     #
     ${log-lib}
 )
+##]] #--- END BLOCK COMMENT ---
 
-#[[	--- START BLOCK COMMENT ---
+##[[	--- START BLOCK COMMENT ---
 # monero_wallet_core
-add_executable(monero_wallet_core_wasm ${WALLET_KEYS_SRC_FILES} ${WALLET_CORE_SRC_FILES})
-set_target_properties(monero_wallet_core_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS__WASM}")
+add_executable(monero_wallet_core_wasm ${WALLET_CORE_SRC_FILES} ${WALLET_KEYS_SRC_FILES})
+set_target_properties(monero_wallet_core_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE}")
+target_compile_definitions(monero_wallet_core_wasm PRIVATE BUILD_CORE_WALLET=1)
 target_link_libraries(
     monero_wallet_core_wasm
     #
@@ -320,7 +334,7 @@ target_link_libraries(
     #
     ${log-lib}
 )
-#]] #--- END BLOCK COMMENT ---
+##]] #--- END BLOCK COMMENT ---
 
 # build to bitcode instead of wasm
 #SET(CMAKE_EXECUTABLE_SUFFIX ".bc")	
