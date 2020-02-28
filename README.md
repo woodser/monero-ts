@@ -161,11 +161,11 @@ To build this project's WebAssembly files from source code:
 3. Update submodules: `./bin/update_submodules`
 4. Download Boost from https://www.boost.org/users/download/ to ./external/monero-cpp-library/external/boost-sdk/
 5. Download OpenSSL from https://github.com/openssl/openssl to ./external/monero-cpp-library/external/openssl-sdk/
-6. Checkout and build a branch of monero-project which has [minor modifications](https://github.com/monero-project/monero/compare/master...woodser:wasm68_onward) for compatibility with WebAssembly:
+6. Checkout and build a branch of monero-project which has [minor modifications](https://github.com/monero-project/monero/compare/master...woodser:wasm_modifications) for compatibility with WebAssembly:
 	1. `cd ./external/monero-cpp-library/external/monero-core`
 	2. `git submodule update --init --force`
 	3. `git fetch`
-	4. `git checkout wasm68_onward`
+	4. `git checkout wasm_modifications`
 	5. `make release-static -j8` (builds translations directory even if build does not finish)
 	6. `cd ../../../../`
 7. Build Boost using emscripten: `./bin/build-boost-emscripten.h`
