@@ -185,7 +185,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let respBin = await this.config.rpc.sendBinaryRequest("get_blocks_by_height.bin", {heights: heights});
     
     // load wasm module
-    await MoneroUtils.loadWasmModule();
+    await MoneroUtils.loadKeysModule();
     
     // convert binary blocks to json
     let rpcBlocks = MoneroUtils.binaryBlocksToJson(respBin);

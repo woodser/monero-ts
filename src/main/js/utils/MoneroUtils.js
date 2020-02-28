@@ -135,7 +135,7 @@ class MoneroUtils {
   static jsonToBinary(json) {
     
     // wasm module must be pre-loaded
-    if (MoneroUtils.WASM_MODULE === undefined) throw MoneroError("WASM module is not loaded; call 'await MoneroUtils.loadWasmModule()' to load");
+    if (MoneroUtils.WASM_MODULE === undefined) throw MoneroError("WASM module is not loaded; call 'await MoneroUtils.loadKeysModule()' to load");
     
     // serialize json to binary which is stored in c++ heap
     let binMemInfoStr = MoneroUtils.WASM_MODULE.malloc_binary_from_json(JSON.stringify(json));
@@ -167,7 +167,7 @@ class MoneroUtils {
   static binaryToJson(uint8arr) {
     
     // wasm module must be pre-loaded
-    if (MoneroUtils.WASM_MODULE === undefined) throw MoneroError("WASM module is not loaded; call 'await MoneroUtils.loadWasmModule()' to load");
+    if (MoneroUtils.WASM_MODULE === undefined) throw MoneroError("WASM module is not loaded; call 'await MoneroUtils.loadKeysModule()' to load");
     
     // allocate space in c++ heap for binary
     let ptr = MoneroUtils.WASM_MODULE._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
@@ -199,7 +199,7 @@ class MoneroUtils {
   static binaryBlocksToJson(uint8arr) {
     
     // wasm module must be pre-loaded
-    if (MoneroUtils.WASM_MODULE === undefined) throw MoneroError("WASM module is not loaded; call 'await MoneroUtils.loadWasmModule()' to load");
+    if (MoneroUtils.WASM_MODULE === undefined) throw MoneroError("WASM module is not loaded; call 'await MoneroUtils.loadKeysModule()' to load");
     
     // allocate space in c++ heap for binary
     let ptr = MoneroUtils.WASM_MODULE._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);  // TODO: this needs deleted
@@ -303,38 +303,63 @@ class MoneroUtils {
   }
   
   /**
-   * Load the WebAssembly module with caching.
-   * 
-   * @param {boolean} loadCore specifies if the larger wasm file containing wallet2 should be loaded
+   * Load the WebAssembly keys module with caching.
    */
-  static async loadWasmModule(loadCore) {
+  static async loadKeysModule() {
     
-    // use cache if suitable
-    // core module supersedes keys module because it is superset
-    if (MoneroUtils.WASM_MODULE && (!loadCore || MoneroUtils.CORE_LOADED)) return MoneroUtils.WASM_MODULE;
+//    // use cache if suitable, core module supersedes keys module because it is superset
+//    if (MoneroUtils.WASM_MODULE) return MoneroUtils.WASM_MODULE;
+//    
+//    // load module
+//    delete MoneroUtils.WASM_MODULE;
+//    MoneroUtils.WASM_MODULE = await require("../../../../dist/monero_keys_wasm")().ready;
+//    MoneroUtils._initWasmModule(MoneroUtils.WASM_MODULE);
+//    return MoneroUtils.WASM_MODULE;
+    
+    return MoneroUtils.loadCoreModule();
+  }
+  
+  /**
+   * Load the WebAssembly core module with caching.
+   * 
+   * The core module is a superset of the keys module and overrides it.
+   * 
+   * TODO: this is separate static function from loadKeysModule() because webpack cannot bundle WebWorker using runtime param for conditional import
+   */
+  static async loadCoreModule() {
+    
+    // use cache if suitable, core module supersedes keys module because it is superset
+    if (MoneroUtils.WASM_MODULE && MoneroUtils.CORE_LOADED) return MoneroUtils.WASM_MODULE;
     
     // load module
-    MoneroUtils.WASM_MODULE = await require("../../../../dist/" + (loadCore ? "monero_wallet_core_wasm" : "monero_wallet_keys_wasm"))().ready;
-    MoneroUtils.CORE_LOADED = !!loadCore;
+    delete MoneroUtils.WASM_MODULE;
+    MoneroUtils.WASM_MODULE = await require("../../../../dist/monero_core_wasm")().ready;
+    MoneroUtils.CORE_LOADED = true;
+    MoneroUtils._initWasmModule(MoneroUtils.WASM_MODULE);
+    return MoneroUtils.WASM_MODULE;
+  }
+  
+  /**
+   * Private helper to initializes the wasm module with data structures to synchronize access.
+   */
+  static _initWasmModule(wasmModule) {
     
     // initialize data structure to synchronize access to wasm module
     const async = require("async");
-    MoneroUtils.WASM_MODULE.taskQueue = async.queue(function(asyncFn, callback) {
+    wasmModule.taskQueue = async.queue(function(asyncFn, callback) {
       if (asyncFn.then) throw new Error("Can only queue asynchronous functions");
       asyncFn().then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
     }, 1);
     
     // initialize method to synchronize access to wasm module
-    MoneroUtils.WASM_MODULE.queueTask = async function(asyncFn) {
+    wasmModule.queueTask = async function(asyncFn) {
       return new Promise(function(resolve, reject) {
-        MoneroUtils.WASM_MODULE.taskQueue.push(asyncFn, function(resp, err) {
+        wasmModule.taskQueue.push(asyncFn, function(resp, err) {
           if (err !== undefined) reject(err);
           else resolve(resp);
         });
       });
     }
-    
-    return MoneroUtils.WASM_MODULE;
   }
   
   /**
