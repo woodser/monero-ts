@@ -2,19 +2,19 @@
 
 # Monero JavaScript Library
 
-This project is a library for using a Monero wallet and daemon in JavaScript using RPC and WebAssembly bindings to [Monero Core](https://github.com/monero-project/monero).
+This project is a library for using a Monero wallet and daemon in JavaScript using RPC and WebAssembly bindings to [monero-project](https://github.com/monero-project/monero).
 
 In addition, this project conforms to an [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and suitable for long-term use in the Monero project.
 
 ## Main Features
 
 - Build NodeJS and [web applications](https://github.com/woodser/xmr-sample-app) using Monero
-- Manage a Monero wallet and daemon using RPC
-- Manage a keys-only wallet using WebAssembly bindings to Monero Core
-- Cohesive APIs with rigorous focus on ease-of-use
+- Manage a Monero wallet using RPC and WebAssembly bindings to monero-project
+- Manage a Monero daemon using RPC bindings to monero-project
+- Cohesive APIs with focus on ease-of-use
 - Fetch and process binary data from the daemon (e.g. raw blocks)
 - Query wallet transactions, transfers, and outputs by their attributes
-- Be notified when blocks are added to the chain
+- Receive notifications when blocks are added to the chain
 - Full multisig support
 - Over 150 passing Mocha test cases
 
