@@ -4,11 +4,15 @@
 class MoneroAltChain {
   
   constructor(state) {
-    this.state = Object.assign({}, state);
+    state = Object.assign({}, state);
+    if (state.difficulty !== undefined && !(state.difficulty instanceof BigInteger)) state.difficulty = BigInteger.parse(state.difficulty);
+    this.state = state;
   }
   
   toJson() {
-    return Object.assign({}, this.state);
+    let json = Object.assign({}, this.state);
+    if (this.getDifficulty()) json.difficulty = this.getDifficulty().toString();
+    return json;
   }
   
   getBlockHashes(blockHashes) {
