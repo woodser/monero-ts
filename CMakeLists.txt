@@ -204,11 +204,11 @@ set(
 set(
     WALLET_CORE_SRC_FILES
     
-    # monero-cpp-library (modified for WASM)
-    ${MONERO_CPP_SRC}/wallet/monero_wallet_core.cpp
-    
     # monero-javascript WASM bridge
     src/main/cpp/http_client_wasm.cpp
+    
+    # monero-cpp-library (modified for WASM)
+    ${MONERO_CPP_SRC}/wallet/monero_wallet_core.cpp
     
     # monero-project (modified for WASM)
     ${MONERO_CORE}/external/db_drivers/liblmdb/mdb.c
@@ -300,10 +300,10 @@ message(STATUS "EMCC_LINKER_FLAGS_CORE ${EMCC_LINKER_FLAGS_CORE}")
 
 ##[[	--- START BLOCK COMMENT ---
 # monero_wallet_keys
-add_executable(monero_wallet_keys_wasm ${WALLET_KEYS_SRC_FILES})
-set_target_properties(monero_wallet_keys_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_KEYS}")
+add_executable(monero_keys_wasm ${WALLET_KEYS_SRC_FILES})
+set_target_properties(monero_keys_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_KEYS}")
 target_link_libraries(
-    monero_wallet_keys_wasm
+    monero_keys_wasm
     #
     boost_chrono
     boost_system
@@ -315,11 +315,11 @@ target_link_libraries(
 
 ##[[	--- START BLOCK COMMENT ---
 # monero_wallet_core
-add_executable(monero_wallet_core_wasm ${WALLET_CORE_SRC_FILES} ${WALLET_KEYS_SRC_FILES})
-set_target_properties(monero_wallet_core_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE}")
-target_compile_definitions(monero_wallet_core_wasm PRIVATE BUILD_CORE_WALLET=1)
+add_executable(monero_core_wasm ${WALLET_CORE_SRC_FILES} ${WALLET_KEYS_SRC_FILES})
+set_target_properties(monero_core_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE}")
+target_compile_definitions(monero_core_wasm PRIVATE BUILD_CORE_WALLET=1)
 target_link_libraries(
-    monero_wallet_core_wasm
+    monero_core_wasm
     #
     #openssl_ssl
     #openssl_crypto

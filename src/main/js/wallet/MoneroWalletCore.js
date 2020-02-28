@@ -45,7 +45,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
     
     // load wasm module
-    let module = await MoneroUtils.loadWasmModule(true);
+    let module = await MoneroUtils.loadCoreModule();
     
     // open wallet in queue
     return module.queueTask(async function() {
@@ -78,7 +78,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     let daemonPassword = daemonConnection && daemonConnection.getPassword() ? daemonConnection.getPassword() : "";
     
     // load wasm module
-    let module = await MoneroUtils.loadWasmModule(true);
+    let module = await MoneroUtils.loadCoreModule();
     
     // create wallet in queue
     let wallet = await module.queueTask(async function() {
@@ -115,7 +115,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     if (seedOffset === undefined) seedOffset = "";
     
     // load wasm module
-    let module = await MoneroUtils.loadWasmModule(true);
+    let module = await MoneroUtils.loadCoreModule();
     
     // create wallet in queue
     let wallet = await module.queueTask(async function() {
@@ -155,7 +155,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     if (language === undefined) language = "English";
     
     // load wasm module
-    let module = await MoneroUtils.loadWasmModule(true);
+    let module = await MoneroUtils.loadCoreModule();
     
     // create wallet in queue
     let wallet = await module.queueTask(async function() {
@@ -178,7 +178,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   static async getMnemonicLanguages() {
-    let module = await MoneroUtils.loadWasmModule(true);
+    let module = await MoneroUtils.loadCoreModule();
     return module.queueTask(async function() {
       return JSON.parse(module.get_keys_wallet_mnemonic_languages()).languages;
     });

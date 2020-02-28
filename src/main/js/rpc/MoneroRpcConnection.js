@@ -180,7 +180,7 @@ class MoneroRpcConnection {
     //console.log("sendBinaryRequest(" + path + ", " + JSON.stringify(params) + ")");
     
     // load wasm module
-    await MoneroUtils.loadWasmModule();
+    await MoneroUtils.loadKeysModule();
     
     // serialize params
     let paramsBin = MoneroUtils.jsonToBinary(params);
