@@ -4,7 +4,6 @@
 class MoneroIntegratedAddress {
   
   constructor(state) {
-    if (!state) throw new Error("NO STATE!!!");
     this.state = Object.assign({}, state);
   }
   
@@ -26,7 +25,7 @@ class MoneroIntegratedAddress {
   }
   
   setPaymentId(paymentId) {
-    this.state.paymentId = this.state.paymentId;
+    this.state.paymentId = paymentId;
     return this;
   }
   
