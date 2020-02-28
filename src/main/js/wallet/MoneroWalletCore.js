@@ -1,7 +1,5 @@
 /**
  * Implements a MoneroWallet using WebAssembly to bridge to monero-project's wallet2.
- * 
- * TODO: add assertNotClosed() per JNI
  */
 class MoneroWalletCore extends MoneroWalletKeys {
   
