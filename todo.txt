@@ -1,12 +1,15 @@
 HIGH (WASM)
 wallet proxied browser tests
 daemon proxied browser tests
-collapse experimental support into master
-	export to dist folder
-	namespace exported types to object instead of this.?
+update readme with core wasm support
 update documentation: daemon isConnected, other top level methods, add_address_book edit_address_book no longer takes payment id
-hardcode block hash instead of miner::find_nonce
+update sample code like jni
+organize todos including todos throughout code
+test jni
+release
 
+namespace exported types to object instead of this.?
+"Can update a locked tx sent from/to the same account as blocks are added to the chain" sometimes gets stuck waiting for updates, possibly because tx was rejected with double spend? 
 replace every new BigInteger() -> BigInteger.parse()
 in-memory wallet; wallet2 password is required to create valid cache file on creation (start with tests)
 daemon rpc getTxs() does not return tx blocks
@@ -21,9 +24,7 @@ overload toJson() model protos and use JSON.stringify() instead of class toJsons
 master sort MoneroWallet.js with top level methods
 startSynchronizing() should use pre-started loop so it's a random start time like core
 update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic like monero_wallet_core::get_txs()
-todos throughout code
 monero_wallet_core get_keys_file_buffer/get_cache_file_buffer use m_password instead of arg
-update java
 http_client_wasm factor common js
 production vs dev build to export tests, etc
 assert(!(await...) -> assert.equal(await ..., false) in tests, otherwise things like isClosed() with undefined pass
