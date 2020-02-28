@@ -307,16 +307,14 @@ class MoneroUtils {
    */
   static async loadKeysModule() {
     
-//    // use cache if suitable, core module supersedes keys module because it is superset
-//    if (MoneroUtils.WASM_MODULE) return MoneroUtils.WASM_MODULE;
-//    
-//    // load module
-//    delete MoneroUtils.WASM_MODULE;
-//    MoneroUtils.WASM_MODULE = await require("../../../../dist/monero_keys_wasm")().ready;
-//    MoneroUtils._initWasmModule(MoneroUtils.WASM_MODULE);
-//    return MoneroUtils.WASM_MODULE;
+    // use cache if suitable, core module supersedes keys module because it is superset
+    if (MoneroUtils.WASM_MODULE) return MoneroUtils.WASM_MODULE;
     
-    return MoneroUtils.loadCoreModule();
+    // load module
+    delete MoneroUtils.WASM_MODULE;
+    MoneroUtils.WASM_MODULE = await require("../../../../dist/monero_keys_wasm")().ready;
+    MoneroUtils._initWasmModule(MoneroUtils.WASM_MODULE);
+    return MoneroUtils.WASM_MODULE;
   }
   
   /**
