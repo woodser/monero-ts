@@ -939,7 +939,10 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async getTxKey(txHash) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.get_tx_key(that.cppAddress, txHash);
+    });
   }
   
   async checkTxKey(txHash, txKey, address) {
@@ -984,12 +987,18 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async getTxNotes(txHashes) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return JSON.parse(that.module.get_tx_notes(that.cppAddress, JSON.stringify({txHashes: txHashes}))).txNotes;
+    });
   }
   
   async setTxNotes(txHashes, notes) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      that.module.set_tx_notes(that.cppAddress, JSON.stringify({txHashes: txHashes, txNotes: notes}));
+    });
   }
   
   async getAddressBookEntries() {
@@ -1888,11 +1897,11 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getTxNotes(txHashes) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("getTxNotes", Array.from(arguments));
   }
   
   async setTxNotes(txHashes, notes) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("setTxNotes", Array.from(arguments));
   }
   
   async getAddressBookEntries() {
