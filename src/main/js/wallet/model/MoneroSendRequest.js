@@ -102,6 +102,7 @@ class MoneroSendRequest {
   }
   
   setDestinations(destinations) {
+    if (arguments.length > 1) destinations = Array.from(arguments);
     this.state.destinations = destinations;
     return this;
   }
@@ -156,6 +157,7 @@ class MoneroSendRequest {
   }
   
   setSubaddressIndices(subaddressIndices) {
+    if (arguments.length > 1) subaddressIndices = Array.from(arguments);
     this.state.subaddressIndices = subaddressIndices;
     return this;
   }
