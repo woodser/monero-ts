@@ -11,8 +11,8 @@ const TestMoneroWalletCore = require("./TestMoneroWalletCore");
 // test config
 //TestUtils.FS = require('memfs');  // use in-memory file system
 
-//// test sample code for readme
-//new TestSampleCode().runTests();
+// test sample code for readme
+new TestSampleCode().runTests();
 
 // test utilitiles
 new TestMoneroUtils().runTests();
@@ -52,8 +52,8 @@ new TestMoneroWalletCore({
   testNotifications: true
 }).runTests();
 
-//// test scratchpad
-//require("./Scratchpad");
+// test scratchpad
+require("./Scratchpad");
 
 ////test boolean set (data structure used by wallet to track progress)
 //require("./TestBooleanSet");

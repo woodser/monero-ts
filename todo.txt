@@ -3,7 +3,6 @@ wallet proxied browser tests
 daemon proxied browser tests
 update readme with core wasm support
 update documentation: daemon isConnected, other top level methods, add_address_book edit_address_book no longer takes payment id
-update sample code like jni
 organize todos including todos throughout code
 test jni
 release
