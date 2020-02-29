@@ -743,6 +743,15 @@ self.sendSplit = async function(walletId, requestOrAccountIndex, address, amount
 //async checkReserveProof(address, message, signature) {
 //  throw new MoneroError("Not implemented");
 //}
+
+self.getTxNotes = async function(walletId, txHashes) {
+  return self.WORKER_OBJECTS[walletId].getTxNotes(txHashes);
+}
+
+self.setTxNotes = async function(walletId, txHashes, txNotes) {
+  return self.WORKER_OBJECTS[walletId].setTxNotes(txHashes, txNotes);
+}
+
 //
 //async getTxNotes(txHashes) {
 //  throw new MoneroError("Not implemented");

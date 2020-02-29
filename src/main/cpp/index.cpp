@@ -90,8 +90,8 @@ EMSCRIPTEN_BINDINGS(module)
 //  emscripten::function("get_reserve_proof_wallet", &monero_wasm_bridge::get_reserve_proof_wallet);
 //  emscripten::function("get_reserve_proof_account", &monero_wasm_bridge::get_reserve_proof_account);
 //  emscripten::function("check_reserve_proof", &monero_wasm_bridge::check_reserve_proof);
-//  emscripten::function("get_tx_notes", &monero_wasm_bridge::get_tx_notes);
-//  emscripten::function("set_tx_notes", &monero_wasm_bridge::set_tx_notes);
+  emscripten::function("get_tx_notes", &monero_wasm_bridge::get_tx_notes);
+  emscripten::function("set_tx_notes", &monero_wasm_bridge::set_tx_notes);
 //  emscripten::function("get_address_book_entries", &monero_wasm_bridge::get_address_book_entries);
 //  emscripten::function("add_address_book_entry", &monero_wasm_bridge::add_address_book_entry);
 //  emscripten::function("delete_address_book_entry", &monero_wasm_bridge::delete_address_book_entry);

@@ -657,8 +657,52 @@ void monero_wasm_bridge::send_split(int handle, const string& send_request_json,
 //  emscripten::function("get_reserve_proof_wallet", &monero_wasm_bridge::get_reserve_proof_wallet);
 //  emscripten::function("get_reserve_proof_account", &monero_wasm_bridge::get_reserve_proof_account);
 //  emscripten::function("check_reserve_proof", &monero_wasm_bridge::check_reserve_proof);
-//  emscripten::function("get_tx_notes", &monero_wasm_bridge::get_tx_notes);
-//  emscripten::function("set_tx_notes", &monero_wasm_bridge::set_tx_notes);
+
+string monero_wasm_bridge::get_tx_notes(int handle, const string& args) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+
+  // deserialize args to property tree
+  std::istringstream iss = std::istringstream(args);
+  boost::property_tree::ptree node;
+  boost::property_tree::read_json(iss, node);
+
+  // get tx hashes from args
+  vector<string> tx_hashes;
+  boost::property_tree::ptree tx_hashes_node = node.get_child("txHashes");
+  for (const auto& child : tx_hashes_node) tx_hashes.push_back(child.second.get_value<string>());
+
+  // get tx notes
+  vector<string> notes = wallet->get_tx_notes(tx_hashes);
+
+  // wrap and serialize notes
+  rapidjson::Document doc;
+  doc.SetObject();
+  doc.AddMember("txNotes", monero_utils::to_rapidjson_val(doc.GetAllocator(), notes), doc.GetAllocator());
+  return monero_utils::serialize(doc);
+}
+
+void monero_wasm_bridge::set_tx_notes(int handle, const string& args) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+
+  // deserialize args to property tree
+  std::istringstream iss = std::istringstream(args);
+  boost::property_tree::ptree node;
+  boost::property_tree::read_json(iss, node);
+
+  // get tx hashes from args
+  vector<string> tx_hashes;
+  boost::property_tree::ptree tx_hashes_node = node.get_child("txHashes");
+  for (const auto& child : tx_hashes_node) tx_hashes.push_back(child.second.get_value<string>());
+
+  // get tx notes from args
+  vector<string> tx_notes;
+  boost::property_tree::ptree tx_notes_node = node.get_child("txNotes");
+  for (const auto& child : tx_notes_node) tx_notes.push_back(child.second.get_value<string>());
+
+  // set tx notes
+  wallet->set_tx_notes(tx_hashes, tx_notes);
+}
+
 //  emscripten::function("get_address_book_entries", &monero_wasm_bridge::get_address_book_entries);
 //  emscripten::function("add_address_book_entry", &monero_wasm_bridge::add_address_book_entry);
 //  emscripten::function("delete_address_book_entry", &monero_wasm_bridge::delete_address_book_entry);
