@@ -93,7 +93,8 @@ get_boost_source() {
   || {
     echo "Downloading boost from boost.org..."
     # "https://github.com/boostorg/boost/archive/boost-1.72.0.tar.gz"
-    wget -P ${SDK_PATH} "https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2" \
+    # "https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2"
+    wget -P ${SDK_PATH} "https://github.com/boostorg/boost/archive/boost-1.72.0.tar.gz" \
     || {
       echo "Download failed.."
       return 1
@@ -101,7 +102,7 @@ get_boost_source() {
   }
 
   mkdir ${SDK_PATH}/boost-sdk
-  tar -C ${SDK_PATH}/boost-sdk --strip-components=1 -xvf "${SDK_PATH}/boost_1_72_0.tar.bz2" || return 1
+  tar -C ${SDK_PATH}/boost-sdk --strip-components=1 -xvf "${SDK_PATH}/boost_1_72_0.tar.gz" || return 1
 
   return 0
 }
