@@ -3,8 +3,15 @@
  */
 class MoneroCheckTx extends MoneroCheck {
   
-  constructor() {
-    super();
+  constructor(state) {
+    super(state);
+    if (this.state.receivedAmount !== undefined && !(this.state.receivedAmount instanceof BigInteger)) this.state.receivedAmount = BigInteger.parse(this.state.receivedAmount);
+  }
+  
+  toJson() {
+    let json = Object.assign({}, state);
+    if (this.getReceivedAmount()) json.receivedAmount = this.getReceivedAmount().toString();
+    return json;
   }
 
   inTxPool() {

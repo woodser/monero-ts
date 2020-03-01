@@ -699,50 +699,50 @@ self.sendSplit = async function(walletId, requestOrAccountIndex, address, amount
 //async sweepDust(doNotRelay) {
 //  throw new MoneroError("Not implemented");
 //}
-//
-//async sign(message) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async verify(message, address, signature) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getTxKey(txHash) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async checkTxKey(txHash, txKey, address) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getTxProof(txHash, address, message) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async checkTxProof(txHash, address, message, signature) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getSpendProof(txHash, message) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async checkSpendProof(txHash, message, signature) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getReserveProofWallet(message) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getReserveProofAccount(accountIdx, amount, message) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async checkReserveProof(address, message, signature) {
-//  throw new MoneroError("Not implemented");
-//}
+
+self.sign = async function(walletId, message) {
+  return self.WORKER_OBJECTS[walletId].sign(message);
+}
+
+self.verify = async function(walletId, message, address, signature) {
+  return self.WORKER_OBJECTS[walletId].verify(message, address, signature);
+}
+
+self.getTxKey = async function(walletId, txHash) {
+  return self.WORKER_OBJECTS[walletId].getTxKey(txHash);
+}
+
+self.checkTxKey = async function(walletId, txHash, txKey, address) {
+  return (await self.WORKER_OBJECTS[walletId].checkTxKey(txHash, txKey, address)).toJson();
+}
+
+self.getTxProof = async function(walletId, txHash, address, message) {
+  return self.WORKER_OBJECTS[walletId].getTxProof(txHash, address, message);
+}
+
+self.checkTxProof = async function(walletId, txHash, address, message, signature) {
+  return (self.WORKER_OBJECTS[walletId].checkTxProof(txHash, address, message, signature)).toJson();
+}
+
+self.getSpendProof = async function(walletId, txHash, message) {
+  return self.WORKER_OBJECTS[walletId].getSpendProof(txHash, message);
+}
+
+self.checkSpendProof = async function(walletId, txHash, message, signature) {
+  return self.WORKER_OBJECTS[walletId].checkSpendProof(txHash, message, signature);
+}
+
+self.getReserveProofWallet = async function(walletId, message) {
+  return self.WORKER_OBJECTS[walletId].getReserveProofWallet(message);
+}
+
+self.getReserveProofAccount = async function(walletId, accountIdx, amount, message) {
+  return self.WORKER_OBJECTS[walletId].getReserveProofAccount(accountIdx, amount, message);
+}
+
+self.checkReserveProof = async function(walletId, address, message, signature) {
+  return (await self.WORKER_OBJECTS[walletId].checkReserveProof(address, message, signature)).toJson();
+}
 
 self.getTxNotes = async function(walletId, txHashes) {
   return self.WORKER_OBJECTS[walletId].getTxNotes(txHashes);
@@ -752,15 +752,6 @@ self.setTxNotes = async function(walletId, txHashes, txNotes) {
   return self.WORKER_OBJECTS[walletId].setTxNotes(txHashes, txNotes);
 }
 
-//
-//async getTxNotes(txHashes) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async setTxNotes(txHashes, notes) {
-//  throw new MoneroError("Not implemented");
-//}
-//
 //async getAddressBookEntries() {
 //  throw new MoneroError("Not implemented");
 //}

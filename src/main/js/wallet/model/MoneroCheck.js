@@ -3,8 +3,8 @@
  */
 class MoneroCheck {
   
-  constructor() {
-    this.state = {};
+  constructor(state) {
+    this.state = Object.assign({}, state);
   }
 
   isGood() {
