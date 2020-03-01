@@ -952,6 +952,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async checkTxKey(txHash, txKey, address) {
+    throw new Error("MoneroWalletCore.checkTxKey() not implemented because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html")
     this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
