@@ -627,12 +627,9 @@ void monero_wasm_bridge::import_key_images(int handle, const string& key_images_
 
 void monero_wasm_bridge::send_split(int handle, const string& send_request_json, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-//  cout << "monero_wasm_bridge::send_split()" << endl;
-//  cout << send_request_json << endl;
 
   // deserialize send request
   shared_ptr<monero_send_request> send_request = monero_send_request::deserialize(send_request_json);
-//  cout << "Deserialized send request, re-serialized: " << send_request->serialize() << endl;
 
   // submit send request
   cout << "Calling send_split() " << endl;
@@ -646,17 +643,61 @@ void monero_wasm_bridge::send_split(int handle, const string& send_request_json,
 //  emscripten::function("sweep_output", &monero_wasm_bridge::sweep_output);
 //  emscripten::function("sweep_unlocked", &monero_wasm_bridge::sweep_unlocked);
 //  emscripten::function("sweep_dust", &monero_wasm_bridge::sweep_dust);
-//  emscripten::function("sign", &monero_wasm_bridge::sign);
-//  emscripten::function("verify", &monero_wasm_bridge::verify);
-//  emscripten::function("get_tx_key", &monero_wasm_bridge::get_tx_key);
-//  emscripten::function("check_tx_key", &monero_wasm_bridge::check_tx_key);
-//  emscripten::function("get_tx_proof", &monero_wasm_bridge::get_tx_proof);
-//  emscripten::function("check_tx_proof", &monero_wasm_bridge::check_tx_proof);
-//  emscripten::function("get_spend_proof", &monero_wasm_bridge::get_spend_proof);
-//  emscripten::function("check_spend_proof", &monero_wasm_bridge::check_spend_proof);
-//  emscripten::function("get_reserve_proof_wallet", &monero_wasm_bridge::get_reserve_proof_wallet);
-//  emscripten::function("get_reserve_proof_account", &monero_wasm_bridge::get_reserve_proof_account);
-//  emscripten::function("check_reserve_proof", &monero_wasm_bridge::check_reserve_proof);
+
+string monero_wasm_bridge::sign(int handle, const string& msg) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->sign(msg);
+}
+
+bool monero_wasm_bridge::verify(int handle, const string& msg, const string& address, const string& signature) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->verify(msg, address, signature);
+}
+
+string monero_wasm_bridge::get_tx_key(int handle, const string& tx_hash) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->get_tx_key(tx_hash);
+}
+
+string monero_wasm_bridge::check_tx_key(int handle, const string& tx_hash, const string& tx_key, const string& address) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->check_tx_key(tx_hash, tx_key, address)->serialize();
+}
+
+string monero_wasm_bridge::get_tx_proof(int handle, const string& tx_hash, const string& address, const string& message) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->get_tx_proof(tx_hash, address, message);
+}
+
+string monero_wasm_bridge::check_tx_proof(int handle, const string& tx_hash, const string& address, const string& message, const string& signature) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->check_tx_proof(tx_hash, address, message, signature)->serialize();
+}
+
+string monero_wasm_bridge::get_spend_proof(int handle, const string& tx_hash, const string& message) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->get_spend_proof(tx_hash, message);
+}
+
+bool monero_wasm_bridge::check_spend_proof(int handle, const string& tx_hash, const string& message, const string& signature) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->check_spend_proof(tx_hash, message, signature);
+}
+
+string monero_wasm_bridge::get_reserve_proof_wallet(int handle, const string& message) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->get_reserve_proof_wallet(message);
+}
+
+string monero_wasm_bridge::get_reserve_proof_account(int handle, uint32_t account_idx, uint64_t amount, const string& message) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->get_reserve_proof_account(account_idx, amount, message);
+}
+
+string monero_wasm_bridge::check_reserve_proof(int handle, const string& address, const string& message, const string& signature) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->check_reserve_proof(address, message, signature)->serialize();
+}
 
 string monero_wasm_bridge::get_tx_notes(int handle, const string& args) {
   monero_wallet* wallet = (monero_wallet*) handle;

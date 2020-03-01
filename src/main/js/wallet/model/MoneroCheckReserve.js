@@ -3,8 +3,17 @@
  */
 class MoneroCheckReserve extends MoneroCheck {
   
-  constructor() {
-    super();
+  constructor(state) {
+    super(state);
+    if (this.state.totalAmount !== undefined && !(this.state.totalAmount instanceof BigInteger)) this.state.totalAmount = BigInteger.parse(this.state.totalAmount);
+    if (this.state.unconfirmedSpentAmount !== undefined && !(this.state.unconfirmedSpentAmount instanceof BigInteger)) this.state.unconfirmedSpentAmount = BigInteger.parse(this.state.unconfirmedSpentAmount);
+  }
+  
+  toJson() {
+    let json = Object.assign({}, this.state);
+    if (this.getTotalAmount()) json.totalAmount = this.getTotalAmount().toString();
+    if (this.getUnconfirmedSpentAmount()) json.unconfirmedSpentAmount = this.getUnconfirmedSpentAmount().toString();
+    return json;
   }
   
   getTotalAmount() {

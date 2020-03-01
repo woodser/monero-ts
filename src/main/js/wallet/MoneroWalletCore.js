@@ -929,12 +929,18 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async sign(message) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.sign(that.cppAddress, message);
+    });
   }
   
   async verify(message, address, signature) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.verify(that.cppAddress, message, address, signature);
+    });
   }
   
   async getTxKey(txHash) {
@@ -947,42 +953,66 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async checkTxKey(txHash, txKey, address) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new MoneroCheckTx(JSON.parse(that.module.check_tx_key(that.cppAddress, txHash, txKey, address)));
+    });
   }
   
   async getTxProof(txHash, address, message) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.get_tx_proof(that.cppAddress, txHash, address, message);
+    });
   }
   
   async checkTxProof(txHash, address, message, signature) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new MoneroCheckTx(JSON.parse(that.module.check_tx_proof(that.cppAddress, txHash, address, message, signature)));
+    });
   }
   
   async getSpendProof(txHash, message) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.get_spend_proof(that.cppAddress, txHash, message);
+    });
   }
   
   async checkSpendProof(txHash, message, signature) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.check_spend_proof(that.cppAddress, txHash, message, signature);
+    });
   }
   
   async getReserveProofWallet(message) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.get_reserve_proof_wallet(that.cppAddress, message);
+    });
   }
   
   async getReserveProofAccount(accountIdx, amount, message) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.get_reserve_proof_account(that.cppAddress, accountIdx, amount.toString(), message);
+    });
   }
 
   async checkReserveProof(address, message, signature) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new MoneroCheckReserve(JSON.parse(that.module.check_reserve_proof(that.cppAddress, address, message, signature)));
+    });
   }
   
   async getTxNotes(txHashes) {
@@ -1853,47 +1883,47 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async sign(message) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("sign", Array.from(arguments));
   }
   
   async verify(message, address, signature) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("verify", Array.from(arguments));
   }
   
   async getTxKey(txHash) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("getTxKey", Array.from(arguments));
   }
   
   async checkTxKey(txHash, txKey, address) {
-    throw new MoneroError("Not implemented");
+    return new MoneroCheckTx(await this._invokeWorker("checkTxKey", Array.from(arguments)));
   }
   
   async getTxProof(txHash, address, message) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("getTxProof", Array.from(arguments));
   }
   
   async checkTxProof(txHash, address, message, signature) {
-    throw new MoneroError("Not implemented");
+    return new MoneroCheckTx(await this._invokeWorker("checkTxProof", Array.from(arguments)));
   }
   
   async getSpendProof(txHash, message) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("getSpendProof", Array.from(arguments));
   }
   
   async checkSpendProof(txHash, message, signature) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("checkSpendProof", Array.from(arguments));
   }
   
   async getReserveProofWallet(message) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("getReserveProofWallet", Array.from(arguments));
   }
   
   async getReserveProofAccount(accountIdx, amount, message) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("getReserveProofAccount", Array.from(arguments));
   }
 
   async checkReserveProof(address, message, signature) {
-    throw new MoneroError("Not implemented");
+    return new MoneroCheckReserve(await this._invokeWorker("checkReserveProof", Array.from(arguments)));
   }
   
   async getTxNotes(txHashes) {
