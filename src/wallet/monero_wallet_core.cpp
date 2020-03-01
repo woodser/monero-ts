@@ -2579,22 +2579,28 @@ namespace monero {
   shared_ptr<monero_check_tx> monero_wallet_core::check_tx_key(const string& tx_hash, const string& tx_key, const string& address) const {
     MTRACE("monero_wallet_core::check_tx_key()");
 
+    cout << "check tx key 1" << endl;
+
     // validate and parse tx hash
     crypto::hash _tx_hash;
     if (!epee::string_tools::hex_to_pod(tx_hash, _tx_hash)) {
       throw runtime_error("TX hash has invalid format");
     }
 
+    cout << "check tx key 2" << endl;
+
     // validate and parse tx key
     epee::wipeable_string tx_key_str = tx_key;
     if (tx_key_str.size() < 64 || tx_key_str.size() % 64) {
       throw runtime_error("Tx key has invalid format");
     }
+    cout << "check tx key 3" << endl;
     const char *data = tx_key_str.data();
     crypto::secret_key _tx_key;
     if (!epee::wipeable_string(data, 64).hex_to_pod(unwrap(unwrap(_tx_key)))) {
       throw runtime_error("Tx key has invalid format");
     }
+    cout << "check tx key 4" << endl;
 
     // get additional keys
     size_t offset = 64;
@@ -2606,24 +2612,30 @@ namespace monero {
       }
       offset += 64;
     }
+    cout << "check tx key 5" << endl;
 
     // validate and parse address
     cryptonote::address_parse_info info;
     if (!get_account_address_from_str(info, m_w2->nettype(), address)) {
       throw runtime_error("Invalid address");
     }
+    cout << "check tx key 6" << endl;
 
     // initialize and return tx check using wallet2
     uint64_t received_amount;
     bool in_tx_pool;
     uint64_t num_confirmations;
+    cout << "check tx key 7" << endl;
     m_w2->check_tx_key(_tx_hash, _tx_key, additional_tx_keys, info.address, received_amount, in_tx_pool, num_confirmations);
-    shared_ptr<monero_check_tx> checkTx = make_shared<monero_check_tx>();
-    checkTx->m_is_good = true; // check is good if we get this far
-    checkTx->m_received_amount = received_amount;
-    checkTx->m_in_tx_pool = in_tx_pool;
-    checkTx->m_num_confirmations = num_confirmations;
-    return checkTx;
+    cout << "check tx key 8" << endl;
+    shared_ptr<monero_check_tx> check_tx = make_shared<monero_check_tx>();
+    cout << "check tx key 9" << endl;
+    check_tx->m_is_good = true; // check is good if we get this far
+    check_tx->m_received_amount = received_amount;
+    check_tx->m_in_tx_pool = in_tx_pool;
+    check_tx->m_num_confirmations = num_confirmations;
+    cout << "check tx key 10" << endl;
+    return check_tx;
   }
 
   string monero_wallet_core::get_tx_proof(const string& tx_hash, const string& address, const string& message) const {
@@ -2660,17 +2672,17 @@ namespace monero {
     }
 
     // initialize and return tx check using wallet2
-    shared_ptr<monero_check_tx> checkTx = make_shared<monero_check_tx>();
+    shared_ptr<monero_check_tx> check_tx = make_shared<monero_check_tx>();
     uint64_t received_amount;
     bool in_tx_pool;
     uint64_t num_confirmations;
-    checkTx->m_is_good = m_w2->check_tx_proof(_tx_hash, info.address, info.is_subaddress, message, signature, received_amount, in_tx_pool, num_confirmations);
-    if (checkTx->m_is_good) {
-      checkTx->m_received_amount = received_amount;
-      checkTx->m_in_tx_pool = in_tx_pool;
-      checkTx->m_num_confirmations = num_confirmations;
+    check_tx->m_is_good = m_w2->check_tx_proof(_tx_hash, info.address, info.is_subaddress, message, signature, received_amount, in_tx_pool, num_confirmations);
+    if (check_tx->m_is_good) {
+      check_tx->m_received_amount = received_amount;
+      check_tx->m_in_tx_pool = in_tx_pool;
+      check_tx->m_num_confirmations = num_confirmations;
     }
-    return checkTx;
+    return check_tx;
   }
 
   string monero_wallet_core::get_spend_proof(const string& tx_hash, const string& message) const {

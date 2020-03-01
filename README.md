@@ -11,7 +11,7 @@ This library may be used to build Monero-related applications, such as GUIs, lib
 ## Main Features
 
 - Manage Monero wallets which connect to a daemon
-- Cohesive APIs and models with rigorous focus on ease-of-use
+- Cohesive APIs and models with focus on ease-of-use
 - Query wallet transactions, transfers, and outputs by their attributes
 - Be notified when blocks are added to the chain, as the wallet synchronizes, or when the wallet sends or receives funds
 - Full multisig support
@@ -187,7 +187,7 @@ This project is licensed under MIT.
 
 ## Donate
 
-If you get value from this library, please consider donating.  Thank you.
+If you get value from this library, please consider donating.  Thank you!
 
 <p align="center">
 	<img src="donate.png" width="115" height="115"/>

@@ -87,7 +87,7 @@ int main(int argc, const char* argv[]) {
   uint64_t random_height = wallet_random->get_height();
   bool random_is_synced = wallet_random->is_synced();
 
-  // be notified when the wallet receives funds
+  // receive notifications when the wallet receives funds
   struct : monero_wallet_listener {
     void on_output_received(const monero_output_wallet& output) {
       cout << "Wallet received funds!" << endl;

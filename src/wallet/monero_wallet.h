@@ -1159,22 +1159,13 @@ namespace monero {
      * Check a transaction in the blockchain with its secret key.
      *
      * @param tx_hash specifies the transaction to check
-     * @param txKey is the transaction's secret key
+     * @param tx_key is the transaction's secret key
      * @param address is the destination public address of the transaction
      * @return the result of the check
      */
-    virtual shared_ptr<monero_check_tx> check_tx_key(const string& tx_hash, const string& txKey, const string& address) const {
+    virtual shared_ptr<monero_check_tx> check_tx_key(const string& tx_hash, const string& tx_key, const string& address) const {
       throw runtime_error("check_tx_key() not supported");
     }
-
-//    /**
-//     * Get a transaction signature to prove it.
-//     *
-//     * @param tx_hash specifies the transaction to prove
-//     * @param address is the destination public address of the transaction
-//     * @return the transaction signature
-//     */
-//    string get_tx_proof(const string& tx_hash, const string& address) const;
 
     /**
      * Get a transaction signature to prove it.
@@ -1200,14 +1191,6 @@ namespace monero {
     virtual shared_ptr<monero_check_tx> check_tx_proof(const string& tx_hash, const string& address, const string& message, const string& signature) const {
       throw runtime_error("check_tx_proof() not supported");
     }
-
-//    /**
-//     * Generate a signature to prove a spend. Unlike proving a transaction, it does not require the destination public address.
-//     *
-//     * @param tx_hash specifies the transaction to prove
-//     * @return the transaction signature
-//     */
-//    string get_spend_proof(const string& tx_hash) const;
 
     /**
      * Generate a signature to prove a spend. Unlike proving a transaction, it does not require the destination public address.
