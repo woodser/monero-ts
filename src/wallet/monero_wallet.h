@@ -1441,7 +1441,7 @@ namespace monero {
       throw runtime_error("is_multisig_import_needed() not supported");
     }
 
-    // bool is_multisig()
+    // TODO: bool is_multisig()
 
     /**
      * Get multisig info about this wallet.
