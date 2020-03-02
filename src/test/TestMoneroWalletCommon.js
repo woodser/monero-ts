@@ -3502,12 +3502,12 @@ class TestMoneroWalletCommon {
     let walletIds = [];
     for (let i = 0; i < n; i++) {
       let wallet = await this.createWalletRandom();
-      walletIds.push(await this.wallet.getPath());
-      await this.wallet.setAttribute("name", await this.wallet.getPath());  // set the name of each wallet as an attribute
-      preparedMultisigHexes.push(await this.wallet.prepareMultisig());
+      walletIds.push(await wallet.getPath());
+      await wallet.setAttribute("name", await wallet.getPath());  // set the name of each wallet as an attribute
+      preparedMultisigHexes.push(await wallet.prepareMultisig());
       //console.log("PREPARED HEX: " + preparedMultisigHexes[preparedMultisigHexes.length - 1]);
       
-      await this.wallet.close(true);
+      await wallet.close(true);
     }
 
     // make wallets multisig
@@ -3517,20 +3517,20 @@ class TestMoneroWalletCommon {
       
       // open the wallet
       let wallet = await this.openWallet(walletIds[i]);
-      assert.equal(await this.wallet.getAttribute("name"), walletIds[i]);
+      assert.equal(await wallet.getAttribute("name"), walletIds[i]);
       
       // collect prepared multisig hexes from wallet's peers
       let peerMultisigHexes = [];
       for (let j = 0; j < walletIds.length; j++) if (j !== i) peerMultisigHexes.push(preparedMultisigHexes[j]);
 
       // make the wallet multisig
-      let result = await this.wallet.makeMultisig(peerMultisigHexes, m, TestUtils.WALLET_PASSWORD);
+      let result = await wallet.makeMultisig(peerMultisigHexes, m, TestUtils.WALLET_PASSWORD);
       //console.log("MADE RESULT: " + JsonUtils.serialize(result));
       if (address === undefined) address = result.getAddress();
       else assert.equal(result.getAddress(), address);
       madeMultisigHexes.push(result.getMultisigHex());
       
-      await this.wallet.close();
+      await wallet.close(true);
     }
     
     // handle m/n which exchanges keys n - m times
@@ -3550,14 +3550,14 @@ class TestMoneroWalletCommon {
           
           // open the wallet
           let wallet = await this.openWallet(walletId);
-          assert.equal(await this.wallet.getAttribute("name"), walletIds[j]);
+          assert.equal(await wallet.getAttribute("name"), walletIds[j]);
           
           // collect the multisig hexes of the wallet's peers from last round
           let peerMultisigHexes = [];
           for (let k = 0; k < walletIds.length; k++) if (k !== j) peerMultisigHexes.push(prevMultisigHexes[k]);
           
           // import the multisig hexes of the wallet's peers
-          let result = await this.wallet.exchangeMultisigKeys(peerMultisigHexes, TestUtils.WALLET_PASSWORD);
+          let result = await wallet.exchangeMultisigKeys(peerMultisigHexes, TestUtils.WALLET_PASSWORD);
           //console.log("EXCHANGED MULTISIG KEYS RESULT: " + JsonUtils.serialize(result));
           
           // test result
@@ -3574,8 +3574,8 @@ class TestMoneroWalletCommon {
             exchangeMultisigHexes.push(result.getMultisigHex());
           }
           
-          //await this.wallet.save();
-          await this.wallet.close();
+          //await wallet.save();
+          await wallet.close(true);
         }
         
         // use results for next round of exchange
@@ -3641,7 +3641,7 @@ class TestMoneroWalletCommon {
         else {
           
           // print num confirmations
-          let height = await that.daemon.getHeight();
+          let height = await this.daemon.getHeight();
           let numConfirmations = height - outputs[0].getTx().getHeight();
           if (lastNumConfirmations === undefined || lastNumConfirmations !== numConfirmations) console.log("Output has " + (height - outputs[0].getTx().getHeight()) + " confirmations");
           lastNumConfirmations = numConfirmations;
@@ -3655,7 +3655,7 @@ class TestMoneroWalletCommon {
       }
         
       // stop mining
-      await that.daemon.stopMining();
+      await this.daemon.stopMining();
       
       // multisig wallet should have unlocked balance in account 1 subaddresses 0-3
       assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
