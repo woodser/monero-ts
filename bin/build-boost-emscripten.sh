@@ -38,7 +38,11 @@ if [ -z "$EMSCRIPTEN" ]; then
   exit -1  
 fi
 
-cd $EMSCRIPTEN; ./embuilder.py build zlib
+cd $EMSCRIPTEN; python ./embuilder.py build zlib \
+|| {
+  echo "EMSDK build zlib failed.."
+  exit 1
+}
 
 # ---
 
