@@ -1,5 +1,8 @@
 #!/bin/sh
 
+#source "$(realpath $(dirname $0))/emsdk-inc.sh"
+source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/emsdk-inc.sh"
+
 #EMCC_DEBUG=1 
 
 export BOOSTROOT="build/boost/lib"
