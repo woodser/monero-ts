@@ -27,6 +27,12 @@
     echo "EMSCRIPTEN Environment OK"
   }
 
+[ ${EMCC_DEBUG} -ge 1 ] \
+  && {
+    echo "Running make clean in build directory.."
+    make -C ./build clean
+  }
+
 get_boost_github() {
   local SDK_PATH=$1
   [ -z ${SDK_PATH} ] && { echo "get_boost_github: Missing SDK_PATH parameter..."; return 1; }
