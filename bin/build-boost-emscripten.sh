@@ -21,6 +21,8 @@ JAM_CONFIG_PATH="$(pwd)/configs/$PLATFORM.jam"
       "source")
         get_boost_source ${SRC_PATH} || exit 1
         ;;
+      "")
+        ;;
       *)
         echo "Unknown parameter: $1"
         exit 1
