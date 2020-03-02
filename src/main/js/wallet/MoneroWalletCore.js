@@ -977,7 +977,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async getSpendProof(txHash, message) {
-    throw new Error("MoneroWalletCore.getSpendProof() not implemented because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html")
+    throw new Error("MoneroWalletCore.getSpendProof() not implemented because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html");  // TODO
     this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
@@ -994,7 +994,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async getReserveProofWallet(message) {
-    throw new Error("MoneroWalletCore.getReserveProofWallet() not implemented because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html")
+    throw new Error("MoneroWalletCore.getReserveProofWallet() not implemented because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html");  // TODO
     this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
@@ -1003,7 +1003,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async getReserveProofAccount(accountIdx, amount, message) {
-    throw new Error("MoneroWalletCore.getReserveProofAccount() not implemented because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html")
+    throw new Error("MoneroWalletCore.getReserveProofAccount() not implemented because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html"); // TODO
     this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
@@ -1124,52 +1124,81 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async isMultisigImportNeeded() {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.is_multisig_import_needed(that.cppAddress);
+    });
   }
   
   async isMultisig() {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.is_multisig(that.cppAddress);
+    });
   }
   
   async getMultisigInfo() {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new MoneroMultisigInfo(JSON.parse(that.module.get_multisig_info(that.cppAddress)));
+    });
   }
   
   async prepareMultisig() {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.prepare_multisig(that.cppAddress);
+    });
   }
   
   async makeMultisig(multisigHexes, threshold, password) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new MoneroMultisigInitResult(JSON.parse(that.module.make_multisig(that.cppAddress, JSON.stringify({multisigHexes: multisigHexes, threshold: threshold, password: password}))));
+    });
   }
   
   async exchangeMultisigKeys(multisigHexes, password) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new MoneroMultisigInitResult(JSON.parse(that.module.exchange_multisig_keys(that.cppAddress, JSON.stringify({multisigHexes: multisigHexes, password: password}))));
+    });
   }
   
   async getMultisigHex() {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.get_multisig_hex(that.cppAddress);
+    });
   }
   
   async importMultisigHex(multisigHexes) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    return that.module.queueTask(async function() {
+      return that.module.import_multisig_hex(that.cppAddress, JSON.stringify({multisigHexes: multisigHexes}));
+    });
   }
   
   async signMultisigTxHex(multisigTxHex) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new MoneroMultisigSignResult(JSON.parse(that.module.sign_multisig_tx_hex(that.cppAddress, multisigTxHex)));
+    });
   }
   
   async submitMultisigTxHex(signedMultisigTxHex) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return JSON.parse(that.module.submit_multisig_tx_hex(that.cppAddress, signedMultisigTxHex)).txHashes;
+    });
   }
   
   /**
@@ -2007,35 +2036,35 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getMultisigInfo() {
-    throw new MoneroError("Not implemented");
+    return new MoneroMultisigInfo(await this._invokeWorker("getMultisigInfo"));
   }
   
   async prepareMultisig() {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("prepareMultisig");
   }
   
   async makeMultisig(multisigHexes, threshold, password) {
-    throw new MoneroError("Not implemented");
+    return new MoneroMultisigInitResult(await this._invokeWorker("makeMultisig", Array.from(arguments)));
   }
   
   async exchangeMultisigKeys(multisigHexes, password) {
-    throw new MoneroError("Not implemented");
+    return new MoneroMultisigInitResult(await this._invokeWorker("exchangeMultisigKeys", Array.from(arguments)));
   }
   
   async getMultisigHex() {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("getMultisigHex");
   }
   
   async importMultisigHex(multisigHexes) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("importMultisigHex", Array.from(multisigHexes));
   }
   
   async signMultisigTxHex(multisigTxHex) {
-    throw new MoneroError("Not implemented");
+    return new MoneroMultisigSignResult(await this._invokeWorker("signMultisigTxHex", Array.from(arguments)));
   }
   
   async submitMultisigTxHex(signedMultisigTxHex) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("submitMultisigTxHex", Array.from(signedMultisigTxHex));
   }
   
   async getData() {

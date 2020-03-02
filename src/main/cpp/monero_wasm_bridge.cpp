@@ -756,7 +756,6 @@ void monero_wasm_bridge::set_tx_notes(int handle, const string& args) {
 //  emscripten::function("set_account_tag_label", &monero_wasm_bridge::set_account_tag_label);
 //  emscripten::function("create_payment_uri", &monero_wasm_bridge::create_payment_uri);
 //  emscripten::function("parse_payment_uri", &monero_wasm_bridge::parse_payment_uri);
-//  emscripten::function("get_attribute", &monero_wasm_bridge::get_attribute);
 
 string monero_wasm_bridge::get_attribute(int handle, const string& key) {
   monero_wallet* wallet = (monero_wallet*) handle;
@@ -770,19 +769,101 @@ void monero_wasm_bridge::set_attribute(int handle, const string& key, const stri
   wallet->set_attribute(key, val);
 }
 
-//  emscripten::function("start_mining", &monero_wasm_bridge::start_mining);
-//  emscripten::function("stop_mining", &monero_wasm_bridge::stop_mining);
-//  emscripten::function("is_multisig_import_needed", &monero_wasm_bridge::is_multisig_import_needed);
-//  emscripten::function("is_multisig", &monero_wasm_bridge::is_multisig);
-//  emscripten::function("get_multisig_info", &monero_wasm_bridge::get_multisig_info);
-//  emscripten::function("prepare_multisig", &monero_wasm_bridge::prepare_multisig);
-//  emscripten::function("make_multisig", &monero_wasm_bridge::make_multisig);
-//  emscripten::function("exchange_multisig_keys", &monero_wasm_bridge::exchange_multisig_keys);
-//  emscripten::function("get_multisig_hex", &monero_wasm_bridge::get_multisig_hex);
-//  emscripten::function("import_multisig_hex", &monero_wasm_bridge::import_multisig_hex);
-//  emscripten::function("sign_multisig_tx_hex", &monero_wasm_bridge::sign_multisig_tx_hex);
-//  emscripten::function("submit_multisig_tx_hex", &monero_wasm_bridge::submit_multisig_tx_hex);
-//  emscripten::function("save", &monero_wasm_bridge::save);
+bool monero_wasm_bridge::is_multisig_import_needed(int handle) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->is_multisig_import_needed();
+}
+
+string monero_wasm_bridge::get_multisig_info(int handle) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->get_multisig_info().serialize();
+}
+
+string monero_wasm_bridge::prepare_multisig(int handle) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->prepare_multisig();
+}
+
+string monero_wasm_bridge::make_multisig(int handle, const string& args) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+
+  // deserialize args to property tree
+  std::istringstream iss = std::istringstream(args);
+  boost::property_tree::ptree node;
+  boost::property_tree::read_json(iss, node);
+
+  // get multisig hexes from args
+  vector<string> multisig_hexes;
+  boost::property_tree::ptree multisig_hexes_node = node.get_child("multisigHexes");
+  for (const auto& child : multisig_hexes_node) multisig_hexes.push_back(child.second.get_value<string>());
+
+  // get threshold and password from args
+  int threshold = node.get_child("threshold").get_value<int>();
+  string password = node.get_child("password").get_value<string>();
+
+  // make multisig
+  return wallet->make_multisig(multisig_hexes, threshold, password).serialize();
+}
+
+string monero_wasm_bridge::exchange_multisig_keys(int handle, const string& args) {
+
+  monero_wallet* wallet = (monero_wallet*) handle;
+
+  // deserialize args to property tree
+  std::istringstream iss = std::istringstream(args);
+  boost::property_tree::ptree node;
+  boost::property_tree::read_json(iss, node);
+
+  // get multisig hexes from args
+  vector<string> multisig_hexes;
+  boost::property_tree::ptree multisig_hexes_node = node.get_child("multisigHexes");
+  for (const auto& child : multisig_hexes_node) multisig_hexes.push_back(child.second.get_value<string>());
+  
+  // get password from args
+  string password = node.get_child("password").get_value<string>();
+
+  // exchange multisig keys
+  return wallet->exchange_multisig_keys(multisig_hexes, password).serialize();
+}
+
+string monero_wasm_bridge::get_multisig_hex(int handle) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->prepare_multisig();
+}
+
+int monero_wasm_bridge::import_multisig_hex(int handle, const string& args) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+
+  // deserialize args to property tree
+  std::istringstream iss = std::istringstream(args);
+  boost::property_tree::ptree node;
+  boost::property_tree::read_json(iss, node);
+
+  // get multisig hexes from args
+  vector<string> multisig_hexes;
+  boost::property_tree::ptree multisig_hexes_node = node.get_child("multisigHexes");
+  for (const auto& child : multisig_hexes_node) multisig_hexes.push_back(child.second.get_value<string>());
+
+  // import multisig hex
+  return wallet->import_multisig_hex(multisig_hexes);
+}
+
+string monero_wasm_bridge::sign_multisig_tx_hex(int handle, const string& multisig_tx_hex) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  monero_multisig_sign_result result = wallet->sign_multisig_tx_hex(multisig_tx_hex);
+  return result.serialize();
+}
+
+string monero_wasm_bridge::submit_multisig_tx_hex(int handle, const string& signed_multisig_tx_hex) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  vector<string> tx_hashes = wallet->submit_multisig_tx_hex(signed_multisig_tx_hex);
+
+  // wrap and serialize tx hashes
+  rapidjson::Document doc;
+  doc.SetObject();
+  doc.AddMember("txHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_hashes), doc.GetAllocator());
+  return monero_utils::serialize(doc);
+}
 
 void monero_wasm_bridge::close(int handle, bool save, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;

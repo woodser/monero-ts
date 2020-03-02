@@ -813,46 +813,45 @@ self.stopMining = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].stopMining();
 }
 
-//
-//async isMultisigImportNeeded() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async isMultisig() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getMultisigInfo() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async prepareMultisig() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async makeMultisig(multisigHexes, threshold, password) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async exchangeMultisigKeys(multisigHexes, password) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getMultisigHex() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async importMultisigHex(multisigHexes) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async signMultisigTxHex(multisigTxHex) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async submitMultisigTxHex(signedMultisigTxHex) {
-//  throw new MoneroError("Not implemented");
-//}
+self.isMultisigImportNeeded = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].isMultisigImportNeeded();
+}
+
+self.isMultisig = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].isMultisig();
+}
+
+self.getMultisigInfo = async function(walletId) {
+  return (await self.WORKER_OBJECTS[walletId].getMultisigInfo()).toJson();
+}
+
+self.prepareMultisig = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].prepareMultisig();
+}
+
+self.makeMultisig = async function(walletId, multisigHexes, threshold, password) {
+  return (await self.WORKER_OBJECTS[walletId].makeMultisig(multisigHexes, threshold, password)).toJson();
+}
+
+self.exchangeMultisigKeys = async function(walletId, multisigHexes, password) {
+  return (await self.WORKER_OBJECTS[walletId].exchangeMultisigKeys(multisigHexes, password)).toJson();
+}
+
+self.getMultisigHex = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].getMultisigHex();
+}
+
+self.importMultisigHex = async function(walletId, multisigHexes) {
+  return self.WORKER_OBJECTS[walletId].importMultisigHex(multisigHexes);
+}
+
+self.signMultisigTxHex = async function(walletId, multisigTxHex) {
+  return (await self.WORKER_OBJECTS[walletId].signMultisigTxHex(multisigTxHex)).toJson();
+}
+
+self.submitMultisigTxHex = async function(walletId, signedMultisigTxHex) {
+  return self.WORKER_OBJECTS[walletId].submitMultisigTxHex(signedMultisigTxHex);
+}
 
 self.getData = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].getData();
