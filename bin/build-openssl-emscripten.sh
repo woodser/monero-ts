@@ -20,6 +20,8 @@ INSTALL_PATH="$(pwd)/$INSTALL_DIR"
       "source")
         get_openssl_source ${SRC_PATH} || exit 1
         ;;
+      "")
+        ;;
       *)
         echo "Unknown parameter: $1"
         exit 1
@@ -72,8 +74,7 @@ sed -i.bak 's/\&\&\ !defined(__STDC_NO_ATOMICS__)$/'"$to_defined_atomics_line"'/
 rm -rf "$INSTALL_PATH"
 mkdir "$INSTALL_PATH"
 
-emmake make -j1 \ # Force one thread to preserve memory (emscripten)
-  2>&1
+emmake make -j1 2>&1
 
 
 if [ $? != 0 ]; then
