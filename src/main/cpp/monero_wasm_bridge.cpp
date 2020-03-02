@@ -689,8 +689,11 @@ string monero_wasm_bridge::get_reserve_proof_wallet(int handle, const string& me
   return wallet->get_reserve_proof_wallet(message);
 }
 
-string monero_wasm_bridge::get_reserve_proof_account(int handle, uint32_t account_idx, uint64_t amount, const string& message) {
+string monero_wasm_bridge::get_reserve_proof_account(int handle, uint32_t account_idx, const string& amount_str, const string& message) {
   monero_wallet* wallet = (monero_wallet*) handle;
+  std::stringstream sstr(amount_str);
+  uint64_t amount;
+  sstr >> amount;
   return wallet->get_reserve_proof_account(account_idx, amount, message);
 }
 

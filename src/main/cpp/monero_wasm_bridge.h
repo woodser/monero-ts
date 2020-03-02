@@ -99,7 +99,7 @@ namespace monero_wasm_bridge
   string get_spend_proof(int handle, const string& tx_hash, const string& message);
   bool check_spend_proof(int handle, const string& tx_hash, const string& message, const string& signature);
   string get_reserve_proof_wallet(int handle, const string& message);
-  string get_reserve_proof_account(int handle, uint32_t account_idx, uint64_t amount, const string& message);
+  string get_reserve_proof_account(int handle, uint32_t account_idx, const string& amount_str, const string& message);
   string check_reserve_proof(int handle, const string& address, const string& message, const string& signature);
   string get_tx_notes(int handle, const string& args);
   void set_tx_notes(int handle, const string& args);
