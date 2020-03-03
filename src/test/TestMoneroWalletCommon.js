@@ -2009,16 +2009,15 @@ class TestMoneroWalletCommon {
         request2 = await that.wallet.parsePaymentUri(uri);
         GenUtils.deleteUndefinedKeys(request1);
         GenUtils.deleteUndefinedKeys(request2);
-        assert.deepEqual(request2, request1);
+        assert.deepEqual(JSON.parse(JSON.stringify(request2)), JSON.parse(JSON.stringify(request1)));
         
         // test with undefined address
         let address = request1.getDestinations()[0].getAddress();
         request1.getDestinations()[0].setAddress(undefined);
         try {
           await that.wallet.createPaymentUri(request1);
-          fail("Should have thrown RPC exception with invalid parameters");
+          fail("Should have thrown exception with invalid parameters");
         } catch (e) {
-          assert.equal(e.getCode(), -11);
           assert(e.message.indexOf("Cannot make URI from supplied parameters") >= 0);
         }
         request1.getDestinations()[0].setAddress(address);
@@ -2027,9 +2026,8 @@ class TestMoneroWalletCommon {
         request1.setPaymentId("bizzup");
         try {
           await that.wallet.createPaymentUri(request1);
-          fail("Should have thrown RPC exception with invalid parameters");
+          fail("Should have thrown exception with invalid parameters");
         } catch (e) {
-          assert.equal(e.getCode(), -11);
           assert(e.message.indexOf("Cannot make URI from supplied parameters") >= 0);
         }
       });
@@ -2078,7 +2076,7 @@ class TestMoneroWalletCommon {
       
       // TODO: test sending to multiple accounts
       
-      if (config.testNotifications)
+      if (config.testRelays && config.testNotifications)
       it("Can update a locked tx sent from/to the same account as blocks are added to the chain", async function() {
         let request = new MoneroSendRequest(0, await that.wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
@@ -2086,7 +2084,7 @@ class TestMoneroWalletCommon {
         await testSendAndUpdateTxs(request);
       });
       
-      if (config.testNotifications && !config.liteMode)
+      if (config.testRelays && config.testNotifications && !config.liteMode)
       it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
         let request = new MoneroSendRequest(0, await that.wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
@@ -2094,7 +2092,7 @@ class TestMoneroWalletCommon {
         await testSendAndUpdateTxs(request);
       });
       
-      if (config.testNotifications && !config.liteMode)
+      if (config.testRelays && config.testNotifications && !config.liteMode)
       it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
         let request = new MoneroSendRequest(0, (await that.wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
@@ -2102,7 +2100,7 @@ class TestMoneroWalletCommon {
         await testSendAndUpdateTxs(request);
       });
       
-      if (config.testNotifications && !config.liteMode)
+      if (config.testRelays && config.testNotifications && !config.liteMode)
       it("Can update locked, split txs sent from/to different accounts as blocks are added to the chain", async function() {
         let request = new MoneroSendRequest(0, (await that.wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
@@ -2859,7 +2857,6 @@ class TestMoneroWalletCommon {
         }
       });
       
-      if (config.testRelays && !config.liteMode)
       it("Supports multisig wallets", async function() {
         let err;
         try {
@@ -2875,7 +2872,7 @@ class TestMoneroWalletCommon {
           //_testMultisig(5, 6, false);
           
           // test m/n
-          await that._testMultisig(2, 4, true);
+          await that._testMultisig(2, 4, config.testRelays && !config.liteMode);
           //_testMultisig(3, 5, false);
           //_testMultisig(3, 7, false);
         } catch (e) {

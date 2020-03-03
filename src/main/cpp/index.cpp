@@ -79,6 +79,9 @@ EMSCRIPTEN_BINDINGS(module)
 //  emscripten::function("sweep_output", &monero_wasm_bridge::sweep_output);
 //  emscripten::function("sweep_unlocked", &monero_wasm_bridge::sweep_unlocked);
 //  emscripten::function("sweep_dust", &monero_wasm_bridge::sweep_dust);
+  emscripten::function("parse_tx_set", &monero_wasm_bridge::parse_tx_set);
+  emscripten::function("sign_txs", &monero_wasm_bridge::sign_txs);
+  emscripten::function("submit_txs", &monero_wasm_bridge::submit_txs);
   emscripten::function("sign", &monero_wasm_bridge::sign);
   emscripten::function("verify", &monero_wasm_bridge::verify);
   emscripten::function("get_tx_key", &monero_wasm_bridge::get_tx_key);

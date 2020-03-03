@@ -731,15 +731,6 @@ class MoneroWallet {
    * 
    * NOTE: Dust only exists pre RCT, so this method will throw "no dust to sweep" on new wallets.
    * 
-   * @return {MoneroTxSet} a tx set with the requested transactions if possible
-   */
-  async sweepDust() {
-    throw new MoneroError("Not supported");
-  }
-  
-  /**
-   * Sweep all unmixable dust outputs back to the wallet to make them easier to spend and mix.
-   * 
    * @param {boolean} doNotRelay specifies if the resulting transaction should not be relayed (defaults to false i.e. relayed)
    * @return {MoneroTxSet} a tx set with the requested transactions if possible
    */

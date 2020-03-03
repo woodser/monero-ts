@@ -480,7 +480,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       try {
         return new MoneroIntegratedAddress(JSON.parse(that.module.get_integrated_address(that.cppAddress, "", paymentId ? paymentId : "")));
       } catch (e) {
-        throw new Error("Invalid payment ID: " + paymentId);
+        throw new MoneroError("Invalid payment ID: " + paymentId);
       }
     });
   }
@@ -492,7 +492,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       try {
         return new MoneroIntegratedAddress(JSON.parse(that.module.decode_integrated_address(that.cppAddress, integratedAddress)));
       } catch (e) {
-        throw new Error("Invalid integrated address: " + integratedAddress);
+        throw new MoneroError("Invalid integrated address: " + integratedAddress);
       }
     });
   }
@@ -848,7 +848,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     return that.module.queueTask(async function() {
       return new Promise(function(resolve, reject) {
         let callback = function(keyImageImportResultStr) {
-          return new MoneroKeyImageImportResult(JSON.parse(keyImageImportResultStr));
+          resolve(new MoneroKeyImageImportResult(JSON.parse(keyImageImportResultStr)));
         }
         that.module.import_key_images(that.cppAddress, JSON.stringify(keyImages), callback);
       });
@@ -917,14 +917,38 @@ class MoneroWalletCore extends MoneroWalletKeys {
     throw new MoneroError("Not implemented");
   }
   
-  async sweepDust() {
+  async sweepDust(doNotRelay) {
     this._assertNotClosed();
     throw new MoneroError("Not implemented");
   }
   
-  async sweepDust(doNotRelay) {
+  async parseTxSet(txSet) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new MoneroTxSet(JSON.parse(that.module.parse_tx_set(that.cppAddress, JSON.stringify(txSet.toJson()))));
+    });
+  }
+  
+  async signTxs(unsignedTxHex) {
+    this._assertNotClosed();
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.sign_txs(that.cppAddress, unsignedTxHex);
+    });
+  }
+  
+  async submitTxs(signedTxHex) {
+    this._assertNotClosed();
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        let callbackFn = function(resp) {
+          resolve(JSON.parse(resp).txHashes);
+        }
+        that.module.submit_txs(that.cppAddress, signedTxHex, callbackFn);
+      });
+    });
   }
   
   async sign(message) {
@@ -1120,7 +1144,11 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
-      return that.module.create_payment_uri(that.cppAddress, request.toJson());
+      try {
+        return that.module.create_payment_uri(that.cppAddress, JSON.stringify(request.toJson()));
+      } catch (e) {
+        throw new MoneroError("Cannot make URI from supplied parameters");
+      }
     });
   }
   
@@ -1128,7 +1156,11 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
-      return new MoneroSendRequest(JSON.parse(that.module.parse_payment_uri(that.cppAddress, uri)));
+      try {
+        return new MoneroSendRequest(JSON.parse(that.module.parse_payment_uri(that.cppAddress, uri)));
+      } catch (e) {
+        throw new MoneroError(e.message);
+      }
     });
   }
   
@@ -2051,7 +2083,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async parsePaymentUri(uri) {
-    return new MoneroSendRequest(JSON.parse(this._invokeWorker("parsePaymentUri", Array.from(arguments))));
+    return new MoneroSendRequest(await this._invokeWorker("parsePaymentUri", Array.from(arguments)));
   }
   
   async getAttribute(key) {
