@@ -31,7 +31,7 @@ class MoneroWallet {
    * @return {MoneroVersion} the version of the wallet
    */
   async getVersion() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -40,7 +40,7 @@ class MoneroWallet {
    * @return {string} the path the wallet can be opened with
    */
   async getPath() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -49,7 +49,7 @@ class MoneroWallet {
    * @return {string} the wallet's mnemonic phrase
    */
   async getMnemonic() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -58,7 +58,7 @@ class MoneroWallet {
    * @return {string} the language of the wallet's mnemonic phrase
    */
   async getMnemonicLanguage() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -67,7 +67,7 @@ class MoneroWallet {
    * @return {string} the wallet's private view key
    */
   async getPrivateViewKey() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -76,7 +76,7 @@ class MoneroWallet {
    * @return {string} the wallet's private spend key
    */
   async getPrivateSpendKey() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
     
   /**
@@ -96,7 +96,7 @@ class MoneroWallet {
    * @return {string} the receive address of the specified subaddress
    */
   async getAddress(accountIdx, subaddressIdx) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -106,7 +106,7 @@ class MoneroWallet {
    * @return {MoneroSubaddress} the account and subaddress indices
    */
   async getAddressIndex(address) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -117,7 +117,7 @@ class MoneroWallet {
    * @return {MoneroIntegratedAddress} the integrated address
    */
   async getIntegratedAddress(paymentId) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -127,7 +127,7 @@ class MoneroWallet {
    * @return {MoneroIntegratedAddress} the decoded integrated address including standard address and payment id
    */
   async decodeIntegratedAddress(integratedAddress) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -136,7 +136,7 @@ class MoneroWallet {
    * @return {int} the height of the last block processed by the wallet
    */
   async getHeight() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -145,7 +145,7 @@ class MoneroWallet {
    * @return {int} the blockchain's height
    */
   async getDaemonHeight() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -155,14 +155,14 @@ class MoneroWallet {
    * @param {number} startHeight is the startHeight if not given in first arg (defaults to last synced block)
    */
   async sync(listenerOrStartHeight, startHeight) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
    * Start an asynchronous thread to continuously synchronize the wallet with the daemon.
    */
   async startSyncing() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -175,7 +175,7 @@ class MoneroWallet {
    * daemon.  This method should be manually invoked to rescan outputs.
    */
   async rescanSpent() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -186,7 +186,7 @@ class MoneroWallet {
    * tx notes, etc.
    */
   async rescanBlockchain() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -195,7 +195,7 @@ class MoneroWallet {
    * @return {BigInteger} the wallet's balance
    */
   async getBalance() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -205,7 +205,7 @@ class MoneroWallet {
    * @return {BigInteger} the account's balance
    */
   async getBalance(accountIdx) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -216,7 +216,7 @@ class MoneroWallet {
    * @return {BigInteger} the subaddress's balance
    */
   async getBalance(accountIdx, subaddressIdx) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -225,7 +225,7 @@ class MoneroWallet {
    * @return {BigInteger} the wallet's unlocked balance
    */
   async getUnlockedBalance() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -235,7 +235,7 @@ class MoneroWallet {
    * @return {BigInteger} the account's unlocked balance
    */
   async getUnlockedBalance(accountIdx) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -246,7 +246,7 @@ class MoneroWallet {
    * @return {BigInteger} the subaddress's balance
    */
   async getUnlockedBalance(accountIdx, subaddressIdx) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -255,7 +255,7 @@ class MoneroWallet {
    * @return {MoneroAccount[]} all accounts
    */
   async getAccounts() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   // TODO: overloaded getAccounts() probably are not needed, only one is used in RPC and WASM implementations
@@ -267,7 +267,7 @@ class MoneroWallet {
    * @return {MoneroAccount[]} all accounts
    */
   async getAccounts(includeSubaddresses) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -277,7 +277,7 @@ class MoneroWallet {
    * @return {MoneroAccount[]} all accounts with the given tag
    */
   async getAccounts(tag) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -288,7 +288,7 @@ class MoneroWallet {
    * @return {MoneroAccount[]} all accounts with the given tag
    */
   async getAccounts(includeSubaddresses, tag) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -298,7 +298,7 @@ class MoneroWallet {
    * @return {MoneroAccount} the retrieved account
    */
   async getAccount(accountIdx) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -309,7 +309,7 @@ class MoneroWallet {
    * @return {MoneroAccount} the retrieved account
    */
   async getAccount(accountIdx, includeSubaddresses) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -318,7 +318,7 @@ class MoneroWallet {
    * @return {MoneroAccount} the created account
    */
   async createAccount() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
 
   /**
@@ -328,7 +328,7 @@ class MoneroWallet {
    * @return {MoneroAccount} the created account
    */
   async createAccount(label) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -338,7 +338,7 @@ class MoneroWallet {
    * @return {MoneroSubaddress[]} the retrieved subaddresses
    */
   async getSubaddresses(accountIdx) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -349,7 +349,7 @@ class MoneroWallet {
    * @return {MoneroSubaddress[]} the retrieved subaddresses
    */
   async getSubaddresses(accountIdx, subaddressIndices) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -372,7 +372,7 @@ class MoneroWallet {
    * @return {MoneroSubaddress} the created subaddress
    */
   async createSubaddress(accountIdx) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -383,7 +383,7 @@ class MoneroWallet {
    * @return {MoneroSubaddress} the created subaddress
    */
   async createSubaddress(accountIdx, label) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -429,7 +429,7 @@ class MoneroWallet {
    * @return {MoneroTxWallet[]} are wallet transactions per the configuration
    */
   async getTxs(query) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
 
   /**
@@ -459,7 +459,7 @@ class MoneroWallet {
    * @return {MoneroTransfer[]} are wallet transfers per the configuration
    */
   async getTransfers(query) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -504,7 +504,7 @@ class MoneroWallet {
    * @return {MoneroOutputWallet[]} are queried outputs
    */
   async getOutputs(query) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -513,7 +513,7 @@ class MoneroWallet {
    * @return {string} all outputs in hex format, undefined if no outputs
    */
   async getOutputsHex() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -523,7 +523,7 @@ class MoneroWallet {
    * @return {int} the number of outputs imported
    */
   async importOutputsHex(outputsHex) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -532,7 +532,7 @@ class MoneroWallet {
    * @return {MoneroKeyImage[]} the wallet's signed key images
    */
   async getKeyImages() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -542,7 +542,7 @@ class MoneroWallet {
    * @return {MoneroKeyImageImportResult} results of the import
    */
   async importKeyImages(keyImages) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -551,7 +551,7 @@ class MoneroWallet {
    * @return {MoneroKeyImage[]} the key images from the last imported outputs
    */
   async getNewKeyImagesFromLastImport() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -619,7 +619,7 @@ class MoneroWallet {
    * @return {string[]} the hashes of the relayed txs
    */
   async relayTxs(txsOrMetadatas) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
 
   /**
@@ -661,7 +661,7 @@ class MoneroWallet {
    * @return {MoneroTxSet} a tx set with the requested transactions
    */
   async sendSplit(requestOrAccountIndex, address, amount, priority) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -673,7 +673,7 @@ class MoneroWallet {
    * @return {MoneroTxSet} a tx set with the requested transaction
    */
   async sweepOutput(requestOrAddress, keyImage, priority) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -723,7 +723,7 @@ class MoneroWallet {
    * @return {MoneroTxSet[]} the tx sets with the requested transactions
    */
   async sweepUnlocked(request) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -734,7 +734,7 @@ class MoneroWallet {
    * @return {MoneroTxSet} a tx set with the requested transactions if possible
    */
   async sweepDust() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -744,7 +744,7 @@ class MoneroWallet {
    * @return {MoneroTxSet} a tx set with the requested transactions if possible
    */
   async sweepDust(doNotRelay) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -754,7 +754,7 @@ class MoneroWallet {
    * @return {MoneroTxSet} the parsed tx set containing structured transactions
    */
   async parseTxSet(txSet) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -764,7 +764,7 @@ class MoneroWallet {
    * @return {string} the signed transaction hex
    */
   async signTxs(unsignedTxHex) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -774,7 +774,7 @@ class MoneroWallet {
    * @return {string[]} the resulting transaction hashes
    */
   async submitTxs(signedTxHex) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -784,7 +784,7 @@ class MoneroWallet {
    * @return {string} the signature
    */
   async sign(message) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -796,7 +796,7 @@ class MoneroWallet {
    * @return {boolean} true if the signature is good, false otherwise
    */
   async verify(message, address, signature) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -806,7 +806,7 @@ class MoneroWallet {
    * @return {string} is the transaction's secret key
    */
   async getTxKey(txHash) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -818,7 +818,7 @@ class MoneroWallet {
    * @return {MoneroCheckTx} the result of the check
    */
   async checkTxKey(txHash, txKey, address) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -830,7 +830,7 @@ class MoneroWallet {
    * @return {string} the transaction signature
    */
   async getTxProof(txHash, address, message) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -843,7 +843,7 @@ class MoneroWallet {
    * @return {MoneroCheckTx} the result of the check
    */
   async checkTxProof(txHash, address, message, signature) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -854,7 +854,7 @@ class MoneroWallet {
    * @return {string} the transaction signature
    */
   async getSpendProof(txHash, message) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -866,7 +866,7 @@ class MoneroWallet {
    * @return {boolean} true if the signature is good, false otherwise
    */
   async checkSpendProof(txHash, message, signature) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -876,7 +876,7 @@ class MoneroWallet {
    * @return the reserve proof signature
    */
   async getReserveProofWallet(message) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -888,7 +888,7 @@ class MoneroWallet {
    * @return {string} the reserve proof signature
    */
   async getReserveProofAccount(accountIdx, amount, message) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
 
   /**
@@ -900,7 +900,7 @@ class MoneroWallet {
    * @return {MoneroCheckReserve} the result of checking the signature proof
    */
   async checkReserveProof(address, message, signature) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -920,7 +920,7 @@ class MoneroWallet {
    * @return {string[]} notes for the transactions
    */
   async getTxNotes(txHashes) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -940,16 +940,7 @@ class MoneroWallet {
    * @param {string[]} notes are the notes to set for the transactions
    */
   async setTxNotes(txHashes, notes) {
-    throw new MoneroError("Subclass must implement");
-  }
-  
-  /**
-   * Get all address book entries.
-   * 
-   * @return {MoneroAddressBookEntry[]} the address book entries
-   */
-  async getAddressBookEntries() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -959,7 +950,7 @@ class MoneroWallet {
    * @return {MoneroAddressBookEntry[]} the address book entries
    */
   async getAddressBookEntries(entryIndices) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -970,7 +961,7 @@ class MoneroWallet {
    * @return {int} the index of the added entry
    */
   async addAddressBookEntry(address, description) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -981,23 +972,9 @@ class MoneroWallet {
    * @param address is the updated address
    * @param setDescription specifies if the description should be updated
    * @param description is the updated description
-   * @param setPaymentId specifies if the payment id should be updated
-   * @param paymentId is the updated payment id
    */
-  async editAddressBookEntry(index, setAddress, address, setDescription, description, setPaymentId, paymentId) {
-    throw new MoneroError("Subclass must implement");
-  }
-  
-  /**
-   * Add an address book entry.
-   * 
-   * @param {string} address is the entry address
-   * @param {string} description is the entry description (optional)
-   * @param {string} paymentId is the entry paymet id (optional)
-   * @return {int} the index of the added entry
-   */
-  async addAddressBookEntry(address, description, paymentId) {
-    throw new MoneroError("Subclass must implement");
+  async editAddressBookEntry(index, setAddress, address, setDescription, description) {
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1006,7 +983,7 @@ class MoneroWallet {
    * @param {int} entryIdx is the index of the entry to delete
    */
   async deleteAddressBookEntry(entryIdx) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1016,7 +993,7 @@ class MoneroWallet {
    * @param {int[]} accountIndices are the indices of the accounts to tag
    */
   async tagAccounts(tag, accountIndices) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
 
   /**
@@ -1025,7 +1002,7 @@ class MoneroWallet {
    * @param {int[]}  accountIndices are the indices of the accounts to untag
    */
   async untagAccounts(accountIndices) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   /**
    * Return all account tags.
@@ -1033,7 +1010,7 @@ class MoneroWallet {
    * @return {MoneroAccountTag[]} the wallet's account tags
    */
   async getAccountTags() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
 
   /**
@@ -1043,7 +1020,7 @@ class MoneroWallet {
    * @param {string} label is the label to set for the tag
    */
   async setAccountTagLabel(tag, label) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1053,7 +1030,7 @@ class MoneroWallet {
    * @return {string} the payment uri
    */
   async createPaymentUri(request) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1063,7 +1040,7 @@ class MoneroWallet {
    * @return {MoneroSendRequest} the send configuration parsed from the uri
    */
   async parsePaymentUri(uri) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1073,7 +1050,7 @@ class MoneroWallet {
    * @return {string} the attribute's value
    */
   async getAttribute(key) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1083,7 +1060,7 @@ class MoneroWallet {
    * @param {string} val is the attribute value
    */
   async setAttribute(key, val) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1094,14 +1071,14 @@ class MoneroWallet {
    * @param {boolean} ignoreBattery specifies if the battery should be ignored for mining (optional)
    */
   async startMining(numThreads, backgroundMining, ignoreBattery) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
    * Stop mining.
    */
   async stopMining() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1110,7 +1087,7 @@ class MoneroWallet {
    * @return {boolean} true if importing multisig data is needed for returning a correct balance, false otherwise
    */
   async isMultisigImportNeeded() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1119,7 +1096,7 @@ class MoneroWallet {
    * @return {boolean} true if this is a multisig wallet, false otherwise
    */
   async isMultisig() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1128,7 +1105,7 @@ class MoneroWallet {
    * @return {MoneroMultisigInfo} multisig info about this wallet
    */
   async getMultisigInfo() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1138,7 +1115,7 @@ class MoneroWallet {
    * @return {string} this wallet's multisig hex to share with participants
    */
   async prepareMultisig() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1150,7 +1127,7 @@ class MoneroWallet {
    * @return {MoneroMultisigInitResult} the result which has the multisig's address xor this wallet's multisig hex to share with participants iff not N/N
    */
   async makeMultisig(multisigHexes, threshold, password) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1163,7 +1140,7 @@ class MoneroWallet {
    * @return {MoneroMultisigInitResult} the result which has the multisig's address xor this wallet's multisig hex to share with participants iff not done
    */
   async exchangeMultisigKeys(multisigHexes, password) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1172,7 +1149,7 @@ class MoneroWallet {
    * @return {string} this wallet's multisig info as hex for other participants
    */
   async getMultisigHex() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1182,7 +1159,7 @@ class MoneroWallet {
    * @return {int} the number of outputs signed with the given multisig hex
    */
   async importMultisigHex(multisigHexes) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1192,7 +1169,7 @@ class MoneroWallet {
    * @return {MoneroMultisigSignResult} the result of signing the multisig transactions
    */
   async signMultisigTxHex(multisigTxHex) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1202,14 +1179,14 @@ class MoneroWallet {
    * @return {string[]} the resulting transaction hashes
    */
   async submitMultisigTxHex(signedMultisigTxHex) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
 
   /**
    * Save the wallet at its current path.
    */
   save() {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   /**
@@ -1218,7 +1195,7 @@ class MoneroWallet {
    * @param {boolean} save specifies if the wallet should be saved before being closed (default false)
    */
   async close(save) {
-    throw new MoneroError("Subclass must implement");
+    throw new MoneroError("Not supported");
   }
   
   // -------------------------------- PRIVATE ---------------------------------
