@@ -3,46 +3,47 @@
  */
 class MoneroAddressBookEntry {
   
-  constructor(index, address, description, paymentId) {
-    this.index = index;
-    this.address = address;
-    this.description = description;
-    this.paymentId = paymentId;
+  constructor(state) {
+    this.state = Object.assign({}, state);
+  }
+  
+  toJson() {
+    return Object.assign({}, this.state);
   }
   
   getIndex() {
-    return this.index;
+    return this.state.index;
   }
   
   setIndex(index) {
-    this.index = index;
+    this.state.index = index;
     return this;
   }
   
   getAddress() {
-    return this.address;
+    return this.state.address;
   }
   
   setAddress(address) {
-    this.address = address;
+    this.state.address = address;
     return this;
   }
   
   getDescription() {
-    return this.description;
+    return this.state.description;
   }
   
   setDescription(description) {
-    this.description = description;
+    this.state.description = description;
     return this;
   }
   
   getPaymentId() {
-    return this.paymentId;
+    return this.state.paymentId;
   }
   
   setPaymentId(paymentId) {
-    this.paymentId = paymentId;
+    this.state.paymentId = paymentId;
     return this;
   }
 }

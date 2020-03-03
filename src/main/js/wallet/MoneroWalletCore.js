@@ -1035,59 +1035,101 @@ class MoneroWalletCore extends MoneroWalletKeys {
     });
   }
   
-  async getAddressBookEntries() {
-    this._assertNotClosed();
-    throw new MoneroError("Not implemented");
-  }
-  
   async getAddressBookEntries(entryIndices) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    if (!entryIndices) entryIndices = [];
+    let that = this;
+    return that.module.queueTask(async function() {
+      let entries = [];
+      for (let entryJson of JSON.parse(that.module.get_address_book_entries(that.cppAddress, JSON.stringify({entryIndices: entryIndices}))).entries) {
+        entries.push(new MoneroAddressBookEntry(entryJson));
+      }
+      return entries;
+    });
   }
   
   async addAddressBookEntry(address, description) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    if (!address) address = "";
+    if (!description) description = "";
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.add_address_book_entry(that.cppAddress, address, description);
+    });
   }
   
-  async addAddressBookEntry(address, description, paymentId) {
-    this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+  async editAddressBookEntry(index, setAddress, address, setDescription, description) {
+    if (!setAddress) setAddress = false;
+    if (!address) address = "";
+    if (!setDescription) setDescription = false;
+    if (!description) description = "";
+    let that = this;
+    return that.module.queueTask(async function() {
+      that.module.edit_address_book_entry(that.cppAddress, index, setAddress, address, setDescription, description);
+    });
   }
   
   async deleteAddressBookEntry(entryIdx) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      that.module.delete_address_book_entry(that.cppAddress, entryIdx);
+    });
   }
   
   async tagAccounts(tag, accountIndices) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    if (!tag) tag = "";
+    if (!accountIndices) accountIndices = [];
+    let that = this;
+    return that.module.queueTask(async function() {
+      that.module.tag_accounts(that.cppAddress, JSON.stringify({tag: tag, accountIndices: accountIndices}));
+    });
   }
 
   async untagAccounts(accountIndices) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    if (!accountIndices) accountIndices = [];
+    let that = this;
+    return that.module.queueTask(async function() {
+      that.module.tag_accounts(that.cppAddress, JSON.stringify({accountIndices: accountIndices}));
+    });
   }
   
   async getAccountTags() {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      let accountTags = [];
+      for (let accountTagJson of JSON.parse(that.module.get_account_tags(that.cppAddress)).accountTags) accountTags.push(new MoneroAccountTag(accountTagJson));
+      return accountTags;
+    });
   }
 
   async setAccountTagLabel(tag, label) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    if (!tag) tag = "";
+    if (!llabel) label = "";
+    let that = this;
+    return that.module.queueTask(async function() {
+      that.module.set_account_tag_label(that.cppAddress, tag, label);
+    });
   }
   
   async createPaymentUri(request) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.create_payment_uri(that.cppAddress, request.toJson());
+    });
   }
   
   async parsePaymentUri(uri) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new MoneroSendRequest(JSON.parse(that.module.parse_payment_uri(that.cppAddress, uri)));
+    });
   }
   
   async getAttribute(key) {
@@ -1967,48 +2009,49 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     return this._invokeWorker("setTxNotes", Array.from(arguments));
   }
   
-  async getAddressBookEntries() {
-    throw new MoneroError("Not implemented");
-  }
-  
   async getAddressBookEntries(entryIndices) {
-    throw new MoneroError("Not implemented");
+    if (!entryIndices) entryIndices = [];
+    let entries = [];
+    for (let entryJson of await this._invokeWorker("getAddressBookEntries", Array.from(arguments))) {
+      entries.push(new MoneroAddressBookEntry(entryJson));
+    }
+    return entries;
   }
   
   async addAddressBookEntry(address, description) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("addAddressBookEntry", Array.from(arguments));
   }
   
-  async addAddressBookEntry(address, description, paymentId) {
-    throw new MoneroError("Not implemented");
+  async editAddressBookEntry(index, setAddress, address, setDescription, description) {
+    return this._invokeWorker("editAddressBookEntry", Array.from(arguments));
   }
   
   async deleteAddressBookEntry(entryIdx) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("deleteAddressBookEntry", Array.from(arguments));
   }
   
   async tagAccounts(tag, accountIndices) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("tagAccounts", Array.from(arguments));
   }
 
   async untagAccounts(accountIndices) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("untagAccounts", Array.from(arguments));
   }
   
   async getAccountTags() {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("getAccountTags", Array.from(arguments));
   }
 
   async setAccountTagLabel(tag, label) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("setAccountTagLabel", Array.from(arguments));
   }
   
   async createPaymentUri(request) {
-    throw new MoneroError("Not implemented");
+    return this._invokeWorker("createPaymentUri", [request.toJson()]);
   }
   
   async parsePaymentUri(uri) {
-    throw new MoneroError("Not implemented");
+    return new MoneroSendRequest(JSON.parse(this._invokeWorker("parsePaymentUri", Array.from(arguments))));
   }
   
   async getAttribute(key) {

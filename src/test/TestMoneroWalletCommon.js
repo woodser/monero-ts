@@ -1914,7 +1914,7 @@ class TestMoneroWalletCommon {
         
         // edit each address book entry
         for (let idx of indices) {
-          await that.wallet.editAddressBookEntry(idx, false, undefined, true, "hello there!!", false, undefined);
+          await that.wallet.editAddressBookEntry(idx, false, undefined, true, "hello there!!");
         }
         entries = await that.wallet.getAddressBookEntries(indices);
         for (let entry of entries) {
