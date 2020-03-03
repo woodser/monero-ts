@@ -153,6 +153,7 @@ void monero_wasm_bridge::create_core_wallet_from_mnemonic(const string& password
 
 void monero_wasm_bridge::create_core_wallet_from_keys(const string& password, int network_type, const string& address, const string& view_key, const string& spend_key, const string& daemon_uri, const string& daemon_username, const string& daemon_password, long restore_height, const string& language, emscripten::val callback) {
 #if defined BUILD_CORE_WALLET
+  cout << "create_core_wallet_from_keys address: " << address << endl;
   monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
   monero_wallet* wallet = monero_wallet_core::create_wallet_from_keys("", password, static_cast<monero_network_type>(network_type), address, view_key, spend_key, daemon_connection, restore_height, language, std::unique_ptr<http_client_wasm>(new http_client_wasm()));
   callback((int) wallet); // callback with wallet memory address
@@ -617,7 +618,7 @@ void monero_wasm_bridge::get_key_images(int handle, emscripten::val callback) {
 void monero_wasm_bridge::import_key_images(int handle, const string& key_images_str, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   vector<shared_ptr<monero_key_image>> key_images = monero_key_image::deserialize_key_images(key_images_str);
-  callback(wallet->import_key_images(key_images));
+  callback(wallet->import_key_images(key_images)->serialize());
 }
 
 //  emscripten::function("get_key_images", &monero_wasm_bridge::get_key_images);
@@ -643,6 +644,29 @@ void monero_wasm_bridge::send_split(int handle, const string& send_request_json,
 //  emscripten::function("sweep_output", &monero_wasm_bridge::sweep_output);
 //  emscripten::function("sweep_unlocked", &monero_wasm_bridge::sweep_unlocked);
 //  emscripten::function("sweep_dust", &monero_wasm_bridge::sweep_dust);
+
+string monero_wasm_bridge::parse_tx_set(int handle, const string& tx_set_str) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  monero_tx_set tx_set = monero_tx_set::deserialize(tx_set_str);
+  monero_tx_set parsed_tx_set = wallet->parse_tx_set(tx_set);
+  return parsed_tx_set.serialize();
+}
+
+string monero_wasm_bridge::sign_txs(int handle, const string& unsigned_tx_hex) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->sign_txs(unsigned_tx_hex);
+}
+
+void monero_wasm_bridge::submit_txs(int handle, const string& signed_tx_hex, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  vector<string> tx_hashes = wallet->submit_txs(signed_tx_hex);
+
+  // wrap and serialize tx hashes
+  rapidjson::Document doc;
+  doc.SetObject();
+  doc.AddMember("txHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_hashes), doc.GetAllocator());
+  callback(monero_utils::serialize(doc));
+}
 
 string monero_wasm_bridge::sign(int handle, const string& msg) {
   monero_wallet* wallet = (monero_wallet*) handle;

@@ -90,6 +90,9 @@ namespace monero_wasm_bridge
   //  emscripten::function("sweep_output", &monero_wasm_bridge::sweep_output);
   //  emscripten::function("sweep_unlocked", &monero_wasm_bridge::sweep_unlocked);
   //  emscripten::function("sweep_dust", &monero_wasm_bridge::sweep_dust);
+  string parse_tx_set(int handle, const string& tx_set_str);
+  string sign_txs(int handle, const string& unsigned_tx_hex);
+  void submit_txs(int handle, const string& signed_tx_hex, emscripten::val callback);
   string sign(int handle, const string& msg);
   bool verify(int handle, const string& msg, const string& address, const string& signature);
   string get_tx_key(int handle, const string& tx_hash);
