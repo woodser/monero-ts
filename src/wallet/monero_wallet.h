@@ -1306,7 +1306,7 @@ namespace monero {
      * @param description is the entry description (optional)
      * @return the index of the added entry
      */
-    virtual uint64_t add_address_book_entry(const string& address, const string& description, const string& payment_id = "") {
+    virtual uint64_t add_address_book_entry(const string& address, const string& description) {
       throw runtime_error("add_address_book_entry() not supported");
     }
 
@@ -1318,10 +1318,8 @@ namespace monero {
      * @param address is the updated address
      * @param set_description specifies if the description should be updated
      * @param description is the updated description
-     * @param set_payment_id specifies if the payment id should be updated
-     * @param payment_id is the updated payment id
      */
-    virtual void edit_address_book_entry(uint64_t index, bool set_address, const string& address, bool set_description, const string& description, bool set_payment_id = false, const string& payment_id = "") {
+    virtual void edit_address_book_entry(uint64_t index, bool set_address, const string& address, bool set_description, const string& description) {
       throw runtime_error("edit_address_book_entry() not supported");
     }
 
