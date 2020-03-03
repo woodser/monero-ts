@@ -752,50 +752,47 @@ self.setTxNotes = async function(walletId, txHashes, txNotes) {
   return self.WORKER_OBJECTS[walletId].setTxNotes(txHashes, txNotes);
 }
 
-//async getAddressBookEntries() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getAddressBookEntries(entryIndices) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async addAddressBookEntry(address, description) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async addAddressBookEntry(address, description, paymentId) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async deleteAddressBookEntry(entryIdx) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async tagAccounts(tag, accountIndices) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async untagAccounts(accountIndices) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getAccountTags() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async setAccountTagLabel(tag, label) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async createPaymentUri(request) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async parsePaymentUri(uri) {
-//  throw new MoneroError("Not implemented");
-//}
+self.getAddressBookEntries = async function(walletId, entryIndices) {
+  let entriesJson = [];
+  for (let entry of await self.WORKER_OBJECTS[walletId].getAddressBookEntries(entryIndices)) entriesJson.push(entry.toJson());
+  return entriesJson;
+}
 
+self.addAddressBookEntry = async function(walletId, address, description) {
+  return self.WORKER_OBJECTS[walletId].addAddressBookEntry(address, description);
+}
+
+self.editAddressBookEntry = async function(walletId, index, setAddress, address, setDescription, description) {
+  return self.WORKER_OBJECTS[walletId].editAddressBookEntry(index, setAddress, address, setDescription, description);
+}
+
+self.deleteAddressBookEntry = async function(walletId, index) {
+  return self.WORKER_OBJECTS[walletId].deleteAddressBookEntry(index);
+}
+
+self.tagAccounts = async function(walletId, tag, accountIndices) {
+  throw new Error("Not implemented");
+}
+
+self.untagAccounts = async function(walletId, accountIndices) {
+  throw new Error("Not implemented");
+}
+
+self.getAccountTags = async function(walletId) {
+  throw new Error("Not implemented");
+}
+
+self.setAccountTagLabel = async function(walletId, tag, label) {
+  throw new Error("Not implemented");
+}
+
+self.createPaymentUri = async function(walletId, requestJson) {
+  return self.WORKER_OBJECTS[walletId].createPaymentUri(index, new MoneroSendRequest(requestJson));
+}
+
+self.parsePaymentUri = async function(walletId, uri) {
+  return (await self.WORKER_OBJECTS[walletId].parsePaymentUri(uri)).toJson();
+}
 
 self.getAttribute = async function(walletId, key) {
   return self.WORKER_OBJECTS[walletId].getAttribute(key);

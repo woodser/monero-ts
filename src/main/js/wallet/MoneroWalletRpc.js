@@ -1188,23 +1188,21 @@ class MoneroWalletRpc extends MoneroWallet {
     if (!resp.result.entries) return [];
     let entries = [];
     for (let rpcEntry of resp.result.entries) {
-      entries.push(new MoneroAddressBookEntry(rpcEntry.index, rpcEntry.address, rpcEntry.description, rpcEntry.payment_id));
+      entries.push(new MoneroAddressBookEntry().setIndex(rpcEntry.index).setAddress(rpcEntry.address).setDescription(rpcEntry.description).setPaymentId(rpcEntry.payment_id));
     }
     return entries;
   }
   
-  async addAddressBookEntry(address, description, paymentId) {
-    let resp = await this.config.rpc.sendJsonRequest("add_address_book", {address: address, description: description, payment_id: paymentId});
+  async addAddressBookEntry(address, description) {
+    let resp = await this.config.rpc.sendJsonRequest("add_address_book", {address: address, description: description});
     return resp.result.index;
   }
   
-  async editAddressBookEntry(index, setAddress, address, setDescription, description, setPaymentId, paymentId) {
+  async editAddressBookEntry(index, setAddress, address, setDescription, description) {
     let resp = await this.config.rpc.sendJsonRequest("edit_address_book", {
       index: index,
       set_address: setAddress,
       address: address,
-      set_payment_id: setPaymentId,
-      payment_id: paymentId,
       set_description: setDescription,
       description: description
     });
