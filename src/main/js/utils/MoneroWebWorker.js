@@ -787,7 +787,7 @@ self.setAccountTagLabel = async function(walletId, tag, label) {
 }
 
 self.createPaymentUri = async function(walletId, requestJson) {
-  return self.WORKER_OBJECTS[walletId].createPaymentUri(index, new MoneroSendRequest(requestJson));
+  return self.WORKER_OBJECTS[walletId].createPaymentUri(new MoneroSendRequest(requestJson));
 }
 
 self.parsePaymentUri = async function(walletId, uri) {
