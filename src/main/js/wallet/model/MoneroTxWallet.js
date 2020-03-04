@@ -43,6 +43,27 @@ class MoneroTxWallet extends MoneroTx {
         }
       }
     }
+    
+    // deserialize BigIntegers
+    if (state.inputSum !== undefined && !(state.inputSum instanceof BigInteger)) state.inputSum = BigInteger.parse(state.inputSum);
+    if (state.outputSum !== undefined && !(state.outputSum instanceof BigInteger)) state.outputSum = BigInteger.parse(state.outputSum);
+    if (state.changeAmount !== undefined && !(state.changeAmount instanceof BigInteger)) state.changeAmount = BigInteger.parse(state.changeAmount);
+  }
+  
+  // TODO: not serializing state.inputs or state.outputs using toJson(), test
+  toJson() {
+    let json = Object.assign({}, this.state, super.toJson()); // merge json onto inherited state
+    if (this.getIncomingTransfers()) {
+      json.incomingTransfers = [];
+      for (let incomingTransfer of this.getIncomingTransfers()) json.incomingTransfers.push(incomingTransfer.toJson());
+    }
+    if (this.getOutgoingTransfer()) json.outgoingTransfer = this.getOutgoingTransfer().toJson();
+    if (this.getInputSum()) json.inputSum = this.getInputSum().toString();
+    if (this.getOutputSum()) json.outputSum = this.getOutputSum().toString();
+    if (this.getChangeAmount()) json.changeAmount = this.getChangeAmount().toString();
+    delete json.block;  // do not serialize parent block
+    delete json.txSet;  // do not serialize parent tx set
+    return json;
   }
   
   getTxSet() {
@@ -187,17 +208,6 @@ class MoneroTxWallet extends MoneroTx {
   
   copy() {
     return new MoneroTxWallet(this);
-  }
-  
-  toJson() {
-    let json = Object.assign({}, this.state, super.toJson()); // merge json onto inherited state
-    if (this.getIncomingTransfers()) {
-      json.incomingTransfers = [];
-      for (let incomingTransfer of this.getIncomingTransfers()) json.incomingTransfers.push(incomingTransfer.toJson());
-    }
-    if (this.getOutgoingTransfer()) json.outgoingTransfer = this.getOutgoingTransfer().toJson();
-    delete json.block;  // do not serialize parent block
-    return json;
   }
   
   /**

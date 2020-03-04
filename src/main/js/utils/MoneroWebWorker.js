@@ -752,50 +752,47 @@ self.setTxNotes = async function(walletId, txHashes, txNotes) {
   return self.WORKER_OBJECTS[walletId].setTxNotes(txHashes, txNotes);
 }
 
-//async getAddressBookEntries() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getAddressBookEntries(entryIndices) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async addAddressBookEntry(address, description) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async addAddressBookEntry(address, description, paymentId) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async deleteAddressBookEntry(entryIdx) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async tagAccounts(tag, accountIndices) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async untagAccounts(accountIndices) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getAccountTags() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async setAccountTagLabel(tag, label) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async createPaymentUri(request) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async parsePaymentUri(uri) {
-//  throw new MoneroError("Not implemented");
-//}
+self.getAddressBookEntries = async function(walletId, entryIndices) {
+  let entriesJson = [];
+  for (let entry of await self.WORKER_OBJECTS[walletId].getAddressBookEntries(entryIndices)) entriesJson.push(entry.toJson());
+  return entriesJson;
+}
 
+self.addAddressBookEntry = async function(walletId, address, description) {
+  return self.WORKER_OBJECTS[walletId].addAddressBookEntry(address, description);
+}
+
+self.editAddressBookEntry = async function(walletId, index, setAddress, address, setDescription, description) {
+  return self.WORKER_OBJECTS[walletId].editAddressBookEntry(index, setAddress, address, setDescription, description);
+}
+
+self.deleteAddressBookEntry = async function(walletId, index) {
+  return self.WORKER_OBJECTS[walletId].deleteAddressBookEntry(index);
+}
+
+self.tagAccounts = async function(walletId, tag, accountIndices) {
+  throw new Error("Not implemented");
+}
+
+self.untagAccounts = async function(walletId, accountIndices) {
+  throw new Error("Not implemented");
+}
+
+self.getAccountTags = async function(walletId) {
+  throw new Error("Not implemented");
+}
+
+self.setAccountTagLabel = async function(walletId, tag, label) {
+  throw new Error("Not implemented");
+}
+
+self.createPaymentUri = async function(walletId, requestJson) {
+  return self.WORKER_OBJECTS[walletId].createPaymentUri(new MoneroSendRequest(requestJson));
+}
+
+self.parsePaymentUri = async function(walletId, uri) {
+  return (await self.WORKER_OBJECTS[walletId].parsePaymentUri(uri)).toJson();
+}
 
 self.getAttribute = async function(walletId, key) {
   return self.WORKER_OBJECTS[walletId].getAttribute(key);
@@ -813,46 +810,45 @@ self.stopMining = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].stopMining();
 }
 
-//
-//async isMultisigImportNeeded() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async isMultisig() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getMultisigInfo() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async prepareMultisig() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async makeMultisig(multisigHexes, threshold, password) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async exchangeMultisigKeys(multisigHexes, password) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async getMultisigHex() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async importMultisigHex(multisigHexes) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async signMultisigTxHex(multisigTxHex) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async submitMultisigTxHex(signedMultisigTxHex) {
-//  throw new MoneroError("Not implemented");
-//}
+self.isMultisigImportNeeded = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].isMultisigImportNeeded();
+}
+
+self.isMultisig = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].isMultisig();
+}
+
+self.getMultisigInfo = async function(walletId) {
+  return (await self.WORKER_OBJECTS[walletId].getMultisigInfo()).toJson();
+}
+
+self.prepareMultisig = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].prepareMultisig();
+}
+
+self.makeMultisig = async function(walletId, multisigHexes, threshold, password) {
+  return (await self.WORKER_OBJECTS[walletId].makeMultisig(multisigHexes, threshold, password)).toJson();
+}
+
+self.exchangeMultisigKeys = async function(walletId, multisigHexes, password) {
+  return (await self.WORKER_OBJECTS[walletId].exchangeMultisigKeys(multisigHexes, password)).toJson();
+}
+
+self.getMultisigHex = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].getMultisigHex();
+}
+
+self.importMultisigHex = async function(walletId, multisigHexes) {
+  return self.WORKER_OBJECTS[walletId].importMultisigHex(multisigHexes);
+}
+
+self.signMultisigTxHex = async function(walletId, multisigTxHex) {
+  return (await self.WORKER_OBJECTS[walletId].signMultisigTxHex(multisigTxHex)).toJson();
+}
+
+self.submitMultisigTxHex = async function(walletId, signedMultisigTxHex) {
+  return self.WORKER_OBJECTS[walletId].submitMultisigTxHex(signedMultisigTxHex);
+}
 
 self.getData = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].getData();

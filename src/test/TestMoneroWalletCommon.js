@@ -1745,7 +1745,7 @@ class TestMoneroWalletCommon {
         }
       });
       
-      if (config.testNonRelays && false)  // TODO: re-enable this after 14.x point release which fixes this
+      if (config.testNonRelays)  // TODO: re-enable this after 14.x point release which fixes this
       it("Can prove reserves in an account", async function() {
         
         // test proofs of accounts
@@ -1914,7 +1914,7 @@ class TestMoneroWalletCommon {
         
         // edit each address book entry
         for (let idx of indices) {
-          await that.wallet.editAddressBookEntry(idx, false, undefined, true, "hello there!!", false, undefined);
+          await that.wallet.editAddressBookEntry(idx, false, undefined, true, "hello there!!");
         }
         entries = await that.wallet.getAddressBookEntries(indices);
         for (let entry of entries) {
@@ -2009,16 +2009,15 @@ class TestMoneroWalletCommon {
         request2 = await that.wallet.parsePaymentUri(uri);
         GenUtils.deleteUndefinedKeys(request1);
         GenUtils.deleteUndefinedKeys(request2);
-        assert.deepEqual(request2, request1);
+        assert.deepEqual(JSON.parse(JSON.stringify(request2)), JSON.parse(JSON.stringify(request1)));
         
         // test with undefined address
         let address = request1.getDestinations()[0].getAddress();
         request1.getDestinations()[0].setAddress(undefined);
         try {
           await that.wallet.createPaymentUri(request1);
-          fail("Should have thrown RPC exception with invalid parameters");
+          fail("Should have thrown exception with invalid parameters");
         } catch (e) {
-          assert.equal(e.getCode(), -11);
           assert(e.message.indexOf("Cannot make URI from supplied parameters") >= 0);
         }
         request1.getDestinations()[0].setAddress(address);
@@ -2027,9 +2026,8 @@ class TestMoneroWalletCommon {
         request1.setPaymentId("bizzup");
         try {
           await that.wallet.createPaymentUri(request1);
-          fail("Should have thrown RPC exception with invalid parameters");
+          fail("Should have thrown exception with invalid parameters");
         } catch (e) {
-          assert.equal(e.getCode(), -11);
           assert(e.message.indexOf("Cannot make URI from supplied parameters") >= 0);
         }
       });
@@ -2078,7 +2076,7 @@ class TestMoneroWalletCommon {
       
       // TODO: test sending to multiple accounts
       
-      if (config.testNotifications)
+      if (config.testRelays && config.testNotifications)
       it("Can update a locked tx sent from/to the same account as blocks are added to the chain", async function() {
         let request = new MoneroSendRequest(0, await that.wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
@@ -2086,7 +2084,7 @@ class TestMoneroWalletCommon {
         await testSendAndUpdateTxs(request);
       });
       
-      if (config.testNotifications && !config.liteMode)
+      if (config.testRelays && config.testNotifications && !config.liteMode)
       it("Can update split locked txs sent from/to the same account as blocks are added to the chain", async function() {
         let request = new MoneroSendRequest(0, await that.wallet.getPrimaryAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
@@ -2094,7 +2092,7 @@ class TestMoneroWalletCommon {
         await testSendAndUpdateTxs(request);
       });
       
-      if (config.testNotifications && !config.liteMode)
+      if (config.testRelays && config.testNotifications && !config.liteMode)
       it("Can update a locked tx sent from/to different accounts as blocks are added to the chain", async function() {
         let request = new MoneroSendRequest(0, (await that.wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
@@ -2102,7 +2100,7 @@ class TestMoneroWalletCommon {
         await testSendAndUpdateTxs(request);
       });
       
-      if (config.testNotifications && !config.liteMode)
+      if (config.testRelays && config.testNotifications && !config.liteMode)
       it("Can update locked, split txs sent from/to different accounts as blocks are added to the chain", async function() {
         let request = new MoneroSendRequest(0, (await that.wallet.getSubaddress(1, 0)).getAddress(), TestUtils.MAX_FEE);
         request.setUnlockTime(3);
@@ -2859,7 +2857,6 @@ class TestMoneroWalletCommon {
         }
       });
       
-      if (config.testRelays && !config.liteMode)
       it("Supports multisig wallets", async function() {
         let err;
         try {
@@ -2875,7 +2872,7 @@ class TestMoneroWalletCommon {
           //_testMultisig(5, 6, false);
           
           // test m/n
-          await that._testMultisig(2, 4, true);
+          await that._testMultisig(2, 4, config.testRelays && !config.liteMode);
           //_testMultisig(3, 5, false);
           //_testMultisig(3, 7, false);
         } catch (e) {
@@ -3502,12 +3499,12 @@ class TestMoneroWalletCommon {
     let walletIds = [];
     for (let i = 0; i < n; i++) {
       let wallet = await this.createWalletRandom();
-      walletIds.push(await this.wallet.getPath());
-      await this.wallet.setAttribute("name", await this.wallet.getPath());  // set the name of each wallet as an attribute
-      preparedMultisigHexes.push(await this.wallet.prepareMultisig());
+      walletIds.push(await wallet.getPath());
+      await wallet.setAttribute("name", await wallet.getPath());  // set the name of each wallet as an attribute
+      preparedMultisigHexes.push(await wallet.prepareMultisig());
       //console.log("PREPARED HEX: " + preparedMultisigHexes[preparedMultisigHexes.length - 1]);
       
-      await this.wallet.close(true);
+      await wallet.close(true);
     }
 
     // make wallets multisig
@@ -3517,20 +3514,20 @@ class TestMoneroWalletCommon {
       
       // open the wallet
       let wallet = await this.openWallet(walletIds[i]);
-      assert.equal(await this.wallet.getAttribute("name"), walletIds[i]);
+      assert.equal(await wallet.getAttribute("name"), walletIds[i]);
       
       // collect prepared multisig hexes from wallet's peers
       let peerMultisigHexes = [];
       for (let j = 0; j < walletIds.length; j++) if (j !== i) peerMultisigHexes.push(preparedMultisigHexes[j]);
 
       // make the wallet multisig
-      let result = await this.wallet.makeMultisig(peerMultisigHexes, m, TestUtils.WALLET_PASSWORD);
+      let result = await wallet.makeMultisig(peerMultisigHexes, m, TestUtils.WALLET_PASSWORD);
       //console.log("MADE RESULT: " + JsonUtils.serialize(result));
       if (address === undefined) address = result.getAddress();
       else assert.equal(result.getAddress(), address);
       madeMultisigHexes.push(result.getMultisigHex());
       
-      await this.wallet.close();
+      await wallet.close(true);
     }
     
     // handle m/n which exchanges keys n - m times
@@ -3550,14 +3547,14 @@ class TestMoneroWalletCommon {
           
           // open the wallet
           let wallet = await this.openWallet(walletId);
-          assert.equal(await this.wallet.getAttribute("name"), walletIds[j]);
+          assert.equal(await wallet.getAttribute("name"), walletIds[j]);
           
           // collect the multisig hexes of the wallet's peers from last round
           let peerMultisigHexes = [];
           for (let k = 0; k < walletIds.length; k++) if (k !== j) peerMultisigHexes.push(prevMultisigHexes[k]);
           
           // import the multisig hexes of the wallet's peers
-          let result = await this.wallet.exchangeMultisigKeys(peerMultisigHexes, TestUtils.WALLET_PASSWORD);
+          let result = await wallet.exchangeMultisigKeys(peerMultisigHexes, TestUtils.WALLET_PASSWORD);
           //console.log("EXCHANGED MULTISIG KEYS RESULT: " + JsonUtils.serialize(result));
           
           // test result
@@ -3574,8 +3571,8 @@ class TestMoneroWalletCommon {
             exchangeMultisigHexes.push(result.getMultisigHex());
           }
           
-          //await this.wallet.save();
-          await this.wallet.close();
+          //await wallet.save();
+          await wallet.close(true);
         }
         
         // use results for next round of exchange
@@ -3641,7 +3638,7 @@ class TestMoneroWalletCommon {
         else {
           
           // print num confirmations
-          let height = await that.daemon.getHeight();
+          let height = await this.daemon.getHeight();
           let numConfirmations = height - outputs[0].getTx().getHeight();
           if (lastNumConfirmations === undefined || lastNumConfirmations !== numConfirmations) console.log("Output has " + (height - outputs[0].getTx().getHeight()) + " confirmations");
           lastNumConfirmations = numConfirmations;
@@ -3655,7 +3652,7 @@ class TestMoneroWalletCommon {
       }
         
       // stop mining
-      await that.daemon.stopMining();
+      await this.daemon.stopMining();
       
       // multisig wallet should have unlocked balance in account 1 subaddresses 0-3
       assert.equal(await curWallet.getAttribute("name"), walletIds[0]);

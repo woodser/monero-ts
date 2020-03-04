@@ -3,10 +3,14 @@
  */
 class MoneroMultisigSignResult {
   
-  constructor() {
-    this.state = {};
+  constructor(state) {
+    this.state = Object.assign({}, state);
   }
-
+  
+  toJson() {
+    return Object.assign({}, this.state);
+  }
+  
   getSignedMultisigTxHex() {
     return this.state.signedMultisigTxHex;
   }
