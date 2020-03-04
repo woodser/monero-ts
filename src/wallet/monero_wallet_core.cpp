@@ -3165,10 +3165,9 @@ namespace monero {
   }
 
   std::string monero_wallet_core::get_cache_file_buffer(const epee::wipeable_string& password) const {
-    wallet2::cache_file_data cache_file_data = {};
-    bool r = m_w2->get_cache_file_data(password, cache_file_data);
+    boost::optional<wallet2::cache_file_data> cache_file_data = m_w2->get_cache_file_data(password);
     std::string buf;
-    ::serialization::dump_binary(cache_file_data, buf);
+    ::serialization::dump_binary(cache_file_data.get(), buf);
     return buf;
   }
 
