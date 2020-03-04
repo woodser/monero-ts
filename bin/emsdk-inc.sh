@@ -1,5 +1,7 @@
 #!/bin/sh
 
+EMCC_DEBUG=${EMCC_DEBUG:-0}
+
 [ -z ${EMSDK} ] \
   && {
     echo "Missing EMSDK Environment variable.."
