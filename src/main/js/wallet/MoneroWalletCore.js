@@ -976,7 +976,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async checkTxKey(txHash, txKey, address) {
-    throw new Error("MoneroWalletCore.checkTxKey() not implemented because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html")
+    throw new Error("MoneroWalletCore.checkTxKey() not supported because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html")
     this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
@@ -985,6 +985,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async getTxProof(txHash, address, message) {
+    throw new Error("MoneroWalletCore.checkTxKey() not supported because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html")
     this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
@@ -1001,7 +1002,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async getSpendProof(txHash, message) {
-    throw new Error("MoneroWalletCore.getSpendProof() not implemented because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html");  // TODO
+    throw new Error("MoneroWalletCore.getSpendProof() not supported because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html");  // TODO
     this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
@@ -1018,7 +1019,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async getReserveProofWallet(message) {
-    throw new Error("MoneroWalletCore.getReserveProofWallet() not implemented because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html");  // TODO
+    throw new Error("MoneroWalletCore.getReserveProofWallet() not supported because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html");  // TODO
     this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
@@ -1027,7 +1028,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   async getReserveProofAccount(accountIdx, amount, message) {
-    throw new Error("MoneroWalletCore.getReserveProofAccount() not implemented because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html"); // TODO
+    throw new Error("MoneroWalletCore.getReserveProofAccount() not supported because of possible bug in emscripten: https://www.mail-archive.com/emscripten-discuss@googlegroups.com/msg08964.html"); // TODO
     this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {

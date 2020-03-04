@@ -10,6 +10,7 @@ class MoneroTxWallet extends MoneroTx {
    */
   constructor(state) {
     super(state);
+    if (state instanceof MoneroTxWallet && state.getTxSet()) this.setTxSet(state.getTxSet()); // preserve reference to tx set
     state = this.state;
     
     // deserialize incoming transfers

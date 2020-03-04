@@ -2695,7 +2695,7 @@ class TestMoneroWalletCommon {
         try {
           
           // collect info from main online test wallet and close
-          let keyImages = await that.wallet.getKeyImages();          
+          let keyImages = await that.wallet.getKeyImages();	// TODO: this will break if test_wallet_1 background syncing  
           let primaryAddress = await that.wallet.getPrimaryAddress();
           let privateViewKey = await that.wallet.getPrivateViewKey()
           await that.wallet.close();
