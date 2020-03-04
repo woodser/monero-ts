@@ -29,6 +29,12 @@ EMCC_DEBUG=${EMCC_DEBUG:-0}
     echo "EMSCRIPTEN Environment OK"
   }
 
+[ ${EMCC_DEBUG} -ge 1 ] \
+  && {
+    echo "Running make clean in build directory.."
+    make -C ./build clean
+  }
+
 get_boost_github() {
   local SDK_PATH=$1
   [ -z ${SDK_PATH} ] && { echo "get_boost_github: Missing SDK_PATH parameter..."; return 1; }
@@ -42,7 +48,7 @@ get_boost_github() {
   [ -d ${SDK_PATH} ] || { echo "get_boost_github: Missing directory: ${SDK_PATH}"; return 1; }
 
   echo "Downloading boost from GitHub..."
-  git clone --recursive https://github.com/boostorg/boost.git "${SDK_PATH}/boost-sdk" \
+  git clone --recursive https://github.com/boostorg/boost.git --branch "boost-1.72.0" "${SDK_PATH}/boost-sdk" \
   || {
     echo "Download failed.."
     return 1
@@ -91,11 +97,12 @@ get_boost_source() {
   
   [ -d ${SDK_PATH} ] || { echo "get_boost_source: Missing directory: ${SDK_PATH}"; return 1; }
 
-  [ -f "${SDK_PATH}/boost_1_72_0.tar.bz2" ] \
+  [ -f "${SDK_PATH}/boost-1.72.0.tar.gz" ] \
   || {
     echo "Downloading boost from boost.org..."
     # "https://github.com/boostorg/boost/archive/boost-1.72.0.tar.gz"
-    wget -P ${SDK_PATH} "https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2" \
+    # "https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2"
+    wget -P ${SDK_PATH} "https://github.com/boostorg/boost/archive/boost-1.72.0.tar.gz" \
     || {
       echo "Download failed.."
       return 1
@@ -103,7 +110,7 @@ get_boost_source() {
   }
 
   mkdir ${SDK_PATH}/boost-sdk
-  tar -C ${SDK_PATH}/boost-sdk --strip-components=1 -xvf "${SDK_PATH}/boost_1_72_0.tar.bz2" || return 1
+  tar -C ${SDK_PATH}/boost-sdk --strip-components=1 -xvf "${SDK_PATH}/boost-1.72.0.tar.gz" || return 1
 
   return 0
 }
