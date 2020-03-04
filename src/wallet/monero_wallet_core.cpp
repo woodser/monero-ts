@@ -2579,28 +2579,22 @@ namespace monero {
   shared_ptr<monero_check_tx> monero_wallet_core::check_tx_key(const string& tx_hash, const string& tx_key, const string& address) const {
     MTRACE("monero_wallet_core::check_tx_key()");
 
-    cout << "check tx key 1" << endl;
-
     // validate and parse tx hash
     crypto::hash _tx_hash;
     if (!epee::string_tools::hex_to_pod(tx_hash, _tx_hash)) {
       throw runtime_error("TX hash has invalid format");
     }
 
-    cout << "check tx key 2" << endl;
-
     // validate and parse tx key
     epee::wipeable_string tx_key_str = tx_key;
     if (tx_key_str.size() < 64 || tx_key_str.size() % 64) {
       throw runtime_error("Tx key has invalid format");
     }
-    cout << "check tx key 3" << endl;
     const char *data = tx_key_str.data();
     crypto::secret_key _tx_key;
     if (!epee::wipeable_string(data, 64).hex_to_pod(unwrap(unwrap(_tx_key)))) {
       throw runtime_error("Tx key has invalid format");
     }
-    cout << "check tx key 4" << endl;
 
     // get additional keys
     size_t offset = 64;
@@ -2612,29 +2606,23 @@ namespace monero {
       }
       offset += 64;
     }
-    cout << "check tx key 5" << endl;
 
     // validate and parse address
     cryptonote::address_parse_info info;
     if (!get_account_address_from_str(info, m_w2->nettype(), address)) {
       throw runtime_error("Invalid address");
     }
-    cout << "check tx key 6" << endl;
 
     // initialize and return tx check using wallet2
     uint64_t received_amount;
     bool in_tx_pool;
     uint64_t num_confirmations;
-    cout << "check tx key 7" << endl;
     m_w2->check_tx_key(_tx_hash, _tx_key, additional_tx_keys, info.address, received_amount, in_tx_pool, num_confirmations);
-    cout << "check tx key 8" << endl;
     shared_ptr<monero_check_tx> check_tx = make_shared<monero_check_tx>();
-    cout << "check tx key 9" << endl;
     check_tx->m_is_good = true; // check is good if we get this far
     check_tx->m_received_amount = received_amount;
     check_tx->m_in_tx_pool = in_tx_pool;
     check_tx->m_num_confirmations = num_confirmations;
-    cout << "check tx key 10" << endl;
     return check_tx;
   }
 
