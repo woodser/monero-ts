@@ -2512,14 +2512,52 @@ namespace monero {
     }
   }
 
+  // implementation based on monero-project wallet_rpc_server.cpp::on_sign_transfer()
   string monero_wallet_core::sign_txs(const string& unsigned_tx_hex) {
-    cout << "monero_wallet_core::sign_txs()" << endl;
-    throw runtime_error("Not implemented");
+    if (m_w2->key_on_device()) throw runtime_error("command not supported by HW wallet");
+    if (m_w2->watch_only()) throw runtime_error("command not supported by watch-only wallet");
+
+    cryptonote::blobdata blob;
+    if (!epee::string_tools::parse_hexstr_to_binbuff(unsigned_tx_hex, blob)) throw runtime_error("Failed to parse hex.");
+
+    tools::wallet2::unsigned_tx_set exported_txs;
+    if(!m_w2->parse_unsigned_tx_from_str(blob, exported_txs)) throw runtime_error("cannot load unsigned_txset");
+
+    std::vector<tools::wallet2::pending_tx> ptxs;
+    try {
+      tools::wallet2::signed_tx_set signed_txs;
+      std::string ciphertext = m_w2->sign_tx_dump_to_str(exported_txs, ptxs, signed_txs);
+      if (ciphertext.empty()) throw runtime_error("Failed to sign unsigned tx");
+      return epee::string_tools::buff_to_hex_nodelimer(ciphertext);
+    } catch (const std::exception &e) {
+      throw runtime_error(std::string("Failed to sign unsigned tx: ") + e.what());
+    }
   }
 
+  // implementation based on monero-project wallet_rpc_server.cpp::on_submit_transfer()
   vector<string> monero_wallet_core::submit_txs(const string& signed_tx_hex) {
-    cout << "monero_wallet_core::submit_txs()" << endl;
-    throw runtime_error("Not implemented");
+    if (m_w2->key_on_device()) throw runtime_error("command not supported by HW wallet");
+
+    cryptonote::blobdata blob;
+    if (!epee::string_tools::parse_hexstr_to_binbuff(signed_tx_hex, blob)) throw runtime_error("Failed to parse hex.");
+
+    std::vector<tools::wallet2::pending_tx> ptx_vector;
+    try {
+      if (!m_w2->parse_tx_from_str(blob, ptx_vector, NULL)) throw runtime_error("Failed to parse signed tx data.");
+    } catch (const std::exception &e) {
+      throw runtime_error(std::string("Failed to parse signed tx: ") + e.what());
+    }
+
+    try {
+      vector<string> tx_hashes;
+      for (auto &ptx: ptx_vector) {
+        m_w2->commit_tx(ptx);
+        tx_hashes.push_back(epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(ptx.tx)));
+      }
+      return tx_hashes;
+    } catch (const std::exception &e) {
+      throw runtime_error(std::string("Failed to submit signed tx: ") + e.what());
+    }
   }
 
   string monero_wallet_core::sign(const string& msg) const {
