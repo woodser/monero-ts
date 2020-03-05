@@ -1110,7 +1110,7 @@ namespace monero {
      * @return the signed transaction hex
      */
     virtual string sign_txs(const string& unsigned_tx_hex) {
-      throw runtime_error("parse_tx_set() not supported");
+      throw runtime_error("sign_txs() not supported");
     }
 
     /**
@@ -1119,8 +1119,8 @@ namespace monero {
      * @param signed_tx_hex is signed transaction hex from signTxs()
      * @return the resulting transaction hashes
      */
-    vector<string> submit_txs(const string& signed_tx_hex) {
-      throw runtime_error("parse_tx_set() not supported");
+    virtual vector<string> submit_txs(const string& signed_tx_hex) {
+      throw runtime_error("submit_txs() not supported");
     }
 
     /**
