@@ -1990,6 +1990,18 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     throw new MoneroError("Not implemented");
   }
   
+  async parseTxSet(txSet) {
+    return new MoneroTxSet(JSON.parse(await this._invokeWorker("parseTxSet", [txSet.toJson()])));
+  }
+  
+  async signTxs(unsignedTxHex) {
+    return this._invokeWorker("signTxs", Array.from(arguments));
+  }
+  
+  async submitTxs(signedTxHex) {
+    return this._invokeWorker("submitTxs", Array.from(arguments));
+  }
+  
   async sign(message) {
     return this._invokeWorker("sign", Array.from(arguments));
   }
