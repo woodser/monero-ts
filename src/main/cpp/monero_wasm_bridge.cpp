@@ -360,9 +360,17 @@ void monero_wasm_bridge::sync(int handle, long start_height, emscripten::val cal
   callback(result.serialize());
 }
 
-//  emscripten::function("start_syncing", &monero_wasm_bridge::start_syncing);
-//  emscripten::function("rescan_spent", &monero_wasm_bridge::rescan_spent);
-//  emscripten::function("rescan_blockchain", &monero_wasm_bridge::rescan_blockchain);
+void monero_wasm_bridge::rescan_spent(int handle, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  wallet->rescan_spent();
+  callback();
+}
+
+void monero_wasm_bridge::rescan_blockchain(int handle, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  wallet->rescan_blockchain();
+  callback();
+}
 
 string monero_wasm_bridge::get_balance_wallet(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;

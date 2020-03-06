@@ -596,8 +596,27 @@ class MoneroWalletCore extends MoneroWalletKeys {
     }
   }
   
-  // rescanSpent
-  // rescanBlockchain
+  async rescanSpent() {
+    this._assertNotClosed();
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        let callbackFn = function() { resolve(); }
+        that.module.rescan_spent(that.cppAddress, callbackFn);
+      });
+    });
+  }
+  
+  async rescanBlockchain() {
+    this._assertNotClosed();
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        let callbackFn = function() { resolve(); }
+        that.module.rescan_blockchain(that.cppAddress, callbackFn);
+      });
+    });
+  }
   
   async getBalance(accountIdx, subaddressIdx) {
     this._assertNotClosed();
@@ -1879,8 +1898,13 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     return this._invokeWorker("stopSyncing");
   }
   
-  // rescanSpent
-  // rescanBlockchain
+  async rescanSpent() {
+    return this._invokeWorker("rescanSpent");
+  }
+    
+  async rescanBlockchain() {
+    return this._invokeWorker("rescanBlockchain");
+  }
   
   async getBalance(accountIdx, subaddressIdx) {
     return BigInteger.parse(await this._invokeWorker("getBalance", Array.from(arguments)));

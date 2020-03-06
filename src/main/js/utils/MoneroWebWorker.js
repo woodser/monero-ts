@@ -526,8 +526,13 @@ self.stopSyncing = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].stopSyncing();
 }
 
-//// rescanSpent
-//// rescanBlockchain
+self.rescanSpent = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].rescanSpent();
+}
+
+self.rescanBlockchain = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].rescanBlockchain();
+}
 
 self.getBalance = async function(walletId, accountIdx, subaddressIdx) {
   return (await self.WORKER_OBJECTS[walletId].getBalance(accountIdx, subaddressIdx)).toString();
