@@ -558,11 +558,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
               await that.daemon.getNextBlockHeader();
               
               // ensure wallet has time to detect new block
-              try {
-                await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // sleep for the wallet interval
-              } catch (e) {
-                throw new Error(e.message);
-              }
+              await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // sleep for the wallet interval
               
               // test that wallet listener's onSyncProgress() and onNewBlock() were invoked after previous completion
               assert(walletSyncTester.getOnSyncProgressAfterDone());
@@ -1237,7 +1233,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           assert(info.isMultisig());
           assert(info.isReady());
           assert.equal(info.getThreshold(), M);
-          assertEquals(info.getNumParticipants(), N);
+          assert.equal(info.getNumParticipants(), N);
           await wallet.close(true);
         }
       }

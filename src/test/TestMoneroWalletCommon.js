@@ -2045,7 +2045,7 @@ class TestMoneroWalletCommon {
         
         // create a random wallet
         let wallet = await that.createWalletRandom();
-        let path = await that.wallet.getPath();
+        let path = await wallet.getPath();
                 
         // set an attribute
         let uuid = GenUtils.uuidv4();
