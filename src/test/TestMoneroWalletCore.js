@@ -1128,40 +1128,30 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         let err;
         let myWallet;
         try {
-          console.log("Can be created and receive funds 1");
           
           // create a random stagenet wallet
           myWallet = await that.createWalletRandomCustom("mysupersecretpassword123", MoneroNetworkType.STAGENET, TestUtils.getDaemonRpcConnection());
           await myWallet.startSyncing();
           
-          console.log("Can be created and receive funds 2");
-          
           // listen for received outputs
           let myListener = new OutputNotificationCollector();
           await myWallet.addListener(myListener);
           
-          console.log("Can be created and receive funds 3");
-          
           // send funds to the created wallet
           await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
           let sentTx = (await that.wallet.send(0, await myWallet.getPrimaryAddress(), TestUtils.MAX_FEE)).getTxs()[0];
-          console.log("Can be created and receive funds 4");
           
           // wait until block added to the chain
           // TODO monero core: notify on refresh from pool instead instead of confirmation
           try { await StartMining.startMining(); } catch (e) { }
           await that.daemon.getNextBlockHeader();
           try { await that.daemon.stopMining(); } catch (e) { }
-          console.log("Can be created and receive funds 5");
           
           // give wallets time to observe block
           await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // in ms
-          console.log("Can be created and receive funds 6");
 
           // tx is now confirmed
-          console.log("Can be created and receive funds 6.1");
           assert((await that.wallet.getTx(sentTx.getHash())).isConfirmed()); // TODO: tx is not guaranteed to confirm, which can cause occasional test failure
-          console.log("Can be created and receive funds 7");
           
           // created wallet should have notified listeners of received outputs
           assert(myListener.getOutputsReceived().length > 0);
