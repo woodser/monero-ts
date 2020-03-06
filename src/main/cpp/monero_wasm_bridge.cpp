@@ -153,7 +153,6 @@ void monero_wasm_bridge::create_core_wallet_from_mnemonic(const string& password
 
 void monero_wasm_bridge::create_core_wallet_from_keys(const string& password, int network_type, const string& address, const string& view_key, const string& spend_key, const string& daemon_uri, const string& daemon_username, const string& daemon_password, long restore_height, const string& language, emscripten::val callback) {
 #if defined BUILD_CORE_WALLET
-  cout << "create_core_wallet_from_keys address: " << address << endl;
   monero_rpc_connection daemon_connection = monero_rpc_connection(daemon_uri, daemon_username, daemon_password);
   monero_wallet* wallet = monero_wallet_core::create_wallet_from_keys("", password, static_cast<monero_network_type>(network_type), address, view_key, spend_key, daemon_connection, restore_height, language, std::unique_ptr<http_client_wasm>(new http_client_wasm()));
   callback((int) wallet); // callback with wallet memory address
@@ -277,17 +276,9 @@ string monero_wasm_bridge::get_address(int handle, const uint32_t account_idx, c
 }
 
 string monero_wasm_bridge::get_address_index(int handle, const string& address) {
-  cout << "monero_wasm_bridge::get_address_index(" << address << ")" << endl;
   monero_wallet* wallet = (monero_wallet*) handle;
-  try {
-    cout << "get_address_index 1" << endl;
-    monero_subaddress subaddress = wallet->get_address_index(address);
-    cout << "get_address_index 2" << endl;
-    return subaddress.serialize();
-  } catch (...) { // TODO: could replace with std::exception const& e
-    cout << "CAUGHT EXCEPTION" << endl;
-    return "BAD ADDRESS";
-  }
+  monero_subaddress subaddress = wallet->get_address_index(address);
+  return subaddress.serialize();
 }
 
 string monero_wasm_bridge::get_integrated_address(int handle, const string& standardAddress, const string& payment_id) {
