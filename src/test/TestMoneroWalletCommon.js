@@ -2732,10 +2732,12 @@ class TestMoneroWalletCommon {
             assert(signedTxHex);
             
             // submit signed tx set
-            let txHashes = await that.wallet.submitTxs(signedTxHex);
-            assert.equal(txHashes.length, 1);
-            assert(typeof txHashes[0] === "string");
-            assert(txHashes[0].length === 64);
+            if (config.testRelays) {
+              let txHashes = await that.wallet.submitTxs(signedTxHex);
+              assert.equal(txHashes.length, 1);
+              assert(typeof txHashes[0] === "string");
+              assert(txHashes[0].length === 64);
+            }
           } catch (e) {
             e2 = e;
           }
