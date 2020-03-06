@@ -869,7 +869,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
         let callback = function(keyImageImportResultStr) {
           resolve(new MoneroKeyImageImportResult(JSON.parse(keyImageImportResultStr)));
         }
-        that.module.import_key_images(that.cppAddress, JSON.stringify(keyImages), callback);
+        that.module.import_key_images(that.cppAddress, JSON.stringify({keyImages: keyImages.map(keyImage => keyImage.toJson())}), callback);
       });
     });
   }
