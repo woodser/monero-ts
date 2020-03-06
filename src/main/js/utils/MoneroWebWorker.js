@@ -700,6 +700,18 @@ self.sendSplit = async function(walletId, requestOrAccountIndex, address, amount
 //  throw new MoneroError("Not implemented");
 //}
 
+self.parseTxSet = async function(walletId, txSetJson) {
+  return (await self.WORKER_OBJECTS[walletId].parseTxSet(new MoneroTxSet(txSetJson))).toJson();
+}
+
+self.signTxs = async function(walletId, unsignedTxHex) {
+  return self.WORKER_OBJECTS[walletId].signTxs(unsignedTxHex);
+}
+
+self.submitTxs = async function(walletId, signedTxHex) {
+  return self.WORKER_OBJECTS[walletId].submitTxs(signedTxHex);
+}
+
 self.sign = async function(walletId, message) {
   return self.WORKER_OBJECTS[walletId].sign(message);
 }
