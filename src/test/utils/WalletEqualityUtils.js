@@ -142,7 +142,7 @@ class WalletEqualityUtils {
           }
           
           // test tx equality
-          assert(GenUtils.equals(tx2.toJson(), tx1.toJson()));  // TODO: this ignores differences between undefined vs non-existent properties, desired?
+          assert.deepEqual(JSON.parse(JSON.stringify(tx2.toJson())), JSON.parse(JSON.stringify(tx1.toJson())));
           found = true;
           
           // test block equality except txs to ignore order
