@@ -945,7 +945,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
-      return new MoneroTxSet(that.module.parse_tx_set(that.cppAddress, JSON.stringify(txSet.toJson())));
+      return new MoneroTxSet(JSON.parse(that.module.parse_tx_set(that.cppAddress, JSON.stringify(txSet.toJson()))));
     });
   }
   
@@ -2015,7 +2015,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async parseTxSet(txSet) {
-    return new MoneroTxSet(JSON.parse(await this._invokeWorker("parseTxSet", [txSet.toJson()])));
+    return new MoneroTxSet(await this._invokeWorker("parseTxSet", [txSet.toJson()]));
   }
   
   async signTxs(unsignedTxHex) {
