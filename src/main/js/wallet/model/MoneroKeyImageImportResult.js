@@ -18,29 +18,29 @@ class MoneroKeyImageImportResult {
   }
   
   getHeight() {
-    return this.height;
+    return this.state.height;
   }
   
   setHeight(height) {
-    this.height = height;
+    this.state.height = height;
     return this;
   }
   
   getSpentAmount() {
-    return this.spentAmount;
+    return this.state.spentAmount;
   }
   
   setSpentAmount(spentAmount) {
-    this.spentAmount = spentAmount;
+    this.state.spentAmount = spentAmount;
     return this;
   }
   
   getUnspentAmount() {
-    return this.unspentAmount;
+    return this.state.unspentAmount;
   }
   
   setUnspentAmount(unspentAmount) {
-    this.unspentAmount = unspentAmount;
+    this.state.unspentAmount = unspentAmount;
     return this;
   }
 }

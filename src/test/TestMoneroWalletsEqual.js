@@ -62,6 +62,7 @@ class TestMoneroWalletsEqual {
     await testTransfersEqualOnChain(await this.w1.getTransfers(transferQuery), await this.w2.getTransfers(transferQuery));
     let outputQuery = new MoneroOutputQuery().setTxQuery(new MoneroTxQuery().setIsConfirmed(true));
     await testOutputWalletsEqualOnChain(await this.w1.getOutputs(outputQuery), await this.w2.getOutputs(outputQuery));
+    assert.deepEqual(await this.w1.getKeyImages(), await this.w2.getKeyImages());
   }
   
   async testAccountsEqualOnChain(accounts1, accounts2) {
