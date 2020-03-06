@@ -52,9 +52,8 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("set_restore_height", &monero_wasm_bridge::set_restore_height);
   emscripten::function("set_listener", &monero_wasm_bridge::set_listener);
   emscripten::function("sync", &monero_wasm_bridge::sync);
-//  emscripten::function("start_syncing", &monero_wasm_bridge::start_syncing);
-//  emscripten::function("rescan_spent", &monero_wasm_bridge::rescan_spent);
-//  emscripten::function("rescan_blockchain", &monero_wasm_bridge::rescan_blockchain);
+  emscripten::function("rescan_spent", &monero_wasm_bridge::rescan_spent);
+  emscripten::function("rescan_blockchain", &monero_wasm_bridge::rescan_blockchain);
   emscripten::function("get_balance_wallet", &monero_wasm_bridge::get_balance_wallet);
   emscripten::function("get_balance_account", &monero_wasm_bridge::get_balance_account);
   emscripten::function("get_balance_subaddress", &monero_wasm_bridge::get_balance_subaddress);
