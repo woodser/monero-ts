@@ -1244,6 +1244,62 @@ class TestMoneroWalletCommon {
       });
       
       if (config.testNonRelays)
+      it("Can get incoming and outgoing transfers using convenience methods", async function() {
+        let accountIdx = 1;
+        let subaddressIdx = 1;
+        
+        // get incoming transfers
+        let inTransfers = await that.wallet.getIncomingTransfers();
+        assert(inTransfers.length > 0);
+        for (let transfer of inTransfers) {
+          assert(transfer.isIncoming());
+          testTransfer(transfer, undefined);
+        }
+        
+        // get incoming transfers with query
+        inTransfers = await that.wallet.getIncomingTransfers(new MoneroTransferQuery().setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx));
+        assert(inTransfers.length > 0);
+        for (let transfer of inTransfers) {
+          assert(transfer.isIncoming());
+          assert.equal(transfer.getAccountIndex(), accountIdx);
+          assert.equal(transfer.getSubaddressIndex(), subaddressIdx);
+          testTransfer(transfer, undefined);
+        }
+        
+        // get incoming transfers with contradictory query
+        try {
+          inTransfers = await that.wallet.getIncomingTransfers(new MoneroTransferQuery().setIsIncoming(false));
+        } catch (e) {
+          assert.equal(e.message, "Transfer query contradicts getting incoming transfers");
+        }
+        
+        // get outgoing transfers
+        let outTransfers = await that.wallet.getOutgoingTransfers();
+        assert(outTransfers.length > 0);
+        for (let transfer of outTransfers) {
+          assert(transfer.isOutgoing());
+          testTransfer(transfer, undefined);
+        }
+        
+        // get outgoing transfers with query
+        outTransfers = await that.wallet.getOutgoingTransfers(new MoneroTransferQuery().setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx));
+        assert(outTransfers.length > 0);
+        for (let transfer of outTransfers) {
+          assert(transfer.isOutgoing());
+          assert.equal(transfer.getAccountIndex(), accountIdx);
+          assert(transfer.getSubaddressIndices().includes(subaddressIdx));
+          testTransfer(transfer, undefined);
+        }
+        
+        // get outgoing transfers with contradictory query
+        try {
+          outTransfers = await that.wallet.getOutgoingTransfers(new MoneroTransferQuery().setIsOutgoing(false));
+        } catch (e) {
+          assert.equal(e.message, "Transfer query contradicts getting outgoing transfers");
+        }
+      });
+      
+      if (config.testNonRelays)
       it("Can get outputs in the wallet, accounts, and subaddresses", async function() {
 
         // get all outputs
