@@ -469,7 +469,22 @@ class MoneroWallet {
    * @return {MoneroIncomingTransfer[]} the wallet's incoming transfers
    */
   async getIncomingTransfers(query) {
-    throw new MoneroError("Not implemented");
+    
+    // copy query and set direction
+    let _query;
+    if (query === undefined) _query = new MoneroTransferQuery();
+    else {
+      if (query.isIncoming() === false) throw new MoneroError("Transfer query contradicts getting incoming transfers");
+      _query = query.copy();
+    }
+    _query.setIsIncoming(true);
+    
+    // fetch and cast transfers
+    let inTransfers = [];
+    for (let transfer of await this.getTransfers(_query)) {
+      inTransfers.push(transfer);
+    }
+    return inTransfers;
   }
   
   /**
@@ -479,7 +494,22 @@ class MoneroWallet {
    * @return {MoneroOutgoingTransfer[]} the wallet's outgoing transfers
    */
   async getOutgoingTransfers(query) {
-    throw new MoneroError("Not implemented");
+    
+    // copy query and set direction
+    let _query;
+    if (query === undefined) _query = new MoneroTransferQuery();
+    else {
+      if (query.isOutgoing() === false) throw new MoneroError("Transfer query contradicts getting outgoing transfers");
+      _query = query.copy();
+    }
+    _query.setIsOutgoing(true);
+    
+    // fetch and cast transfers
+    let outTransfers = [];
+    for (let transfer of await this.getTransfers(_query)) {
+      outTransfers.push(transfer);
+    }
+    return outTransfers;
   }
   
   /**
