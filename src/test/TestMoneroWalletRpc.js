@@ -28,7 +28,8 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
     return this.wallet;
   }
   
-  async createWalletFromMnemonic(mnemonic, restoreHeight, seedOffset) {
+  async createWalletFromMnemonic(mnemonic, daemonConnection, restoreHeight, seedOffset) {
+    assert.equal(daemonConnection, undefined, "Cannot specify daemon connection when creating rpc wallet");
     await this.wallet.createWalletFromMnemonic(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, mnemonic, restoreHeight, undefined, seedOffset);
     return this.wallet;
   }

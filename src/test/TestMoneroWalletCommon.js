@@ -159,7 +159,7 @@ class TestMoneroWalletCommon {
           let privateSpendKey = await that.wallet.getPrivateSpendKey();
           
           // recreate test wallet from mnemonic
-          that.wallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
+          that.wallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, await that.daemon.getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT);
           let e2 = undefined;
           try {
             assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
@@ -186,7 +186,7 @@ class TestMoneroWalletCommon {
         try {
           
           // create test wallet with offset
-          that.wallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT, "my secret offset!");
+          that.wallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, await that.daemon.getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, "my secret offset!");
           let e2 = undefined;
           try {
             MoneroUtils.validateMnemonic(await that.wallet.getMnemonic());
@@ -2808,6 +2808,40 @@ class TestMoneroWalletCommon {
         // open main test wallet for other tests
         that.wallet = await that.getTestWallet();
         if (e1) throw e1;
+      });
+      
+      if (config.testNonRelays)
+      it("Supports offline functionality", async function() {
+        
+        // export outputs and key images from live wallet
+        let balance = await that.wallet.getBalance();
+        assert(balance.compare(BigInteger.parse("0")) > 0);
+        let txs = await that.wallet.getTxs();
+        assert(txs.length > 0);
+        let outputsHex = await that.wallet.getOutputsHex();
+        let keyImages = await that.wallet.getKeyImages();
+        
+        // create offline wallet
+        let offlineWallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, undefined, TestUtils.FIRST_RECEIVE_HEIGHT, "");
+        assert.equal((await offlineWallet.getTxs()).length, 0);
+        
+        // import outputs and key images
+        await offlineWallet.importOutputsHex(outputsHex);
+        await offlineWallet.importKeyImages(keyImages);
+        
+        // wallet knows balance and transactions
+        assert.equal((await offlineWallet.getBalance()).toString(), balance.toString());
+        assert.equal((await offlineWallet.getUnlockedBalance()).toString(), "0");
+        
+        // TODO: create tx offline?
+//        // create a tx
+//        let txSet = await offlineWallet.createTx(0, await offlineWallet.getPrimaryAddress(), TestUtils.MAX_FEE.multiply(BigInteger.parse("3")));
+//        console.log(txSet.toJson());
+//        throw new Error("Not implemented");
+        
+        // open main test wallet for other tests
+        await offlineWallet.close();
+        that.wallet = await that.getTestWallet();
       });
       
       if (config.testRelays)
