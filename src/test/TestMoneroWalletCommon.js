@@ -2812,36 +2812,43 @@ class TestMoneroWalletCommon {
       
       if (config.testNonRelays)
       it("Supports offline functionality", async function() {
-        
-        // export outputs and key images from live wallet
-        let balance = await that.wallet.getBalance();
-        assert(balance.compare(BigInteger.parse("0")) > 0);
-        let txs = await that.wallet.getTxs();
-        assert(txs.length > 0);
-        let outputsHex = await that.wallet.getOutputsHex();
-        let keyImages = await that.wallet.getKeyImages();
-        
-        // create offline wallet
-        let offlineWallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, undefined, TestUtils.FIRST_RECEIVE_HEIGHT, "");
-        assert.equal((await offlineWallet.getTxs()).length, 0);
-        
-        // import outputs and key images
-        await offlineWallet.importOutputsHex(outputsHex);
-        await offlineWallet.importKeyImages(keyImages);
-        
-        // wallet knows balance and transactions
-        assert.equal((await offlineWallet.getBalance()).toString(), balance.toString());
-        assert.equal((await offlineWallet.getUnlockedBalance()).toString(), "0");
-        
-        // TODO: create tx offline?
-//        // create a tx
-//        let txSet = await offlineWallet.createTx(0, await offlineWallet.getPrimaryAddress(), TestUtils.MAX_FEE.multiply(BigInteger.parse("3")));
-//        console.log(txSet.toJson());
-//        throw new Error("Not implemented");
+        let offlineWallet;
+        let err;
+        try {
+          
+          // export outputs and key images from live wallet
+          let balance = await that.wallet.getBalance();
+          assert(balance.compare(BigInteger.parse("0")) > 0);
+          let txs = await that.wallet.getTxs();
+          assert(txs.length > 0);
+          let outputsHex = await that.wallet.getOutputsHex();
+          let keyImages = await that.wallet.getKeyImages();
+          
+          // create offline wallet
+          offlineWallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, undefined, TestUtils.FIRST_RECEIVE_HEIGHT, "");
+          assert.equal((await offlineWallet.getTxs()).length, 0);
+          
+          // import outputs and key images
+          await offlineWallet.importOutputsHex(outputsHex);
+          await offlineWallet.importKeyImages(keyImages);
+          
+          // wallet knows balance and transactions
+          assert.equal((await offlineWallet.getBalance()).toString(), balance.toString());
+          assert.equal((await offlineWallet.getUnlockedBalance()).toString(), "0");
+          
+          // TODO: create tx offline?
+//          // create a tx
+//          let txSet = await offlineWallet.createTx(0, await offlineWallet.getPrimaryAddress(), TestUtils.MAX_FEE.multiply(BigInteger.parse("3")));
+//          console.log(txSet.toJson());
+//          throw new Error("Not implemented");
+        } catch (e) {
+          err = e;
+        }
         
         // open main test wallet for other tests
-        await offlineWallet.close();
+        if (offlineWallet) await offlineWallet.close();
         that.wallet = await that.getTestWallet();
+        if (err) throw err;
       });
       
       if (config.testRelays)
