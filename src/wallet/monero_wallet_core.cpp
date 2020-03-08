@@ -1556,7 +1556,7 @@ namespace monero {
     }
 
     // get unconfirmed incoming transfers
-    if (is_pool) {
+    if (is_pool && is_connected()) {
 
       // update pool state TODO monero-core: this should be encapsulated in wallet when unconfirmed transfers queried
       std::vector<std::pair<cryptonote::transaction, bool>> process_txs;
@@ -1737,7 +1737,7 @@ namespace monero {
 
     // import key images
     uint64_t spent = 0, unspent = 0;
-    uint64_t height = m_w2->import_key_images(ski, 0, spent, unspent); // TODO: use offset? refer to wallet_rpc_server::on_import_key_images() req.offset
+    uint64_t height = m_w2->import_key_images(ski, 0, spent, unspent, is_connected()); // TODO: use offset? refer to wallet_rpc_server::on_import_key_images() req.offset
 
     // translate results
     shared_ptr<monero_key_image_import_result> result = make_shared<monero_key_image_import_result>();
