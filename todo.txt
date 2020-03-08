@@ -7,6 +7,7 @@ organize todos including todos throughout code
 test jni
 release
 
+support setDaemonConnection in MoneroWalletRpc and port to java
 re-test with pthread and compare performance, could load pthreaded library if nodejs or browser supports
 Can parse, sign, submit test errors if test_wallet_1 is background syncing
 namespace exported types to object instead of this.?

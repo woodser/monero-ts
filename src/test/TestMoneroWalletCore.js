@@ -49,9 +49,9 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
     return wallet;
   }
   
-  async createWalletFromMnemonic(mnemonic, restoreHeight, seedOffset) {
+  async createWalletFromMnemonic(mnemonic, daemonConnection, restoreHeight, seedOffset) {
     let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4();
-    let wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, mnemonic, TestUtils.getDaemonRpcConnection(), restoreHeight, seedOffset, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
+    let wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, mnemonic, daemonConnection, restoreHeight, seedOffset, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
     assert.equal(await wallet.getPath(), path);
     //await wallet.startSyncing();  // TODO
     return wallet;
