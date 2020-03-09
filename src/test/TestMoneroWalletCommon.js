@@ -2563,7 +2563,7 @@ class TestMoneroWalletCommon {
       });
       
       if (config.testRelays)
-      it("Can send to multiple addresses in split transactions", async function() {
+      it("Can send to multiple addresses in split transactions.", async function() {
         await testSendToMultiple(3, 5, true);
       });
       
