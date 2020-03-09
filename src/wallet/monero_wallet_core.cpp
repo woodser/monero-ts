@@ -1020,7 +1020,7 @@ namespace monero {
   }
 
   string monero_wallet_core::get_mnemonic_language() const {
-    if (m_w2->watch_only()) throw runtime_error("The wallet is watch-only. Cannot retrieve mnemonic language.");
+    if (m_w2->watch_only()) return "";
     return m_w2->get_seed_language();
   }
 
