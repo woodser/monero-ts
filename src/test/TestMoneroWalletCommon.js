@@ -2717,14 +2717,17 @@ class TestMoneroWalletCommon {
         try {
           
           // create and sync watch-only wallet
-          watchOnlyWallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, undefined, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+          watchOnlyWallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, undefined, await TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
           assert.equal(await watchOnlyWallet.getPrimaryAddress(), primaryAddress);
           assert.equal(await watchOnlyWallet.getPrivateViewKey(), privateViewKey);
           assert.equal(await watchOnlyWallet.getPrivateSpendKey(), undefined);
           assert.equal(await watchOnlyWallet.getMnemonic(), undefined);
           assert.equal(await watchOnlyWallet.getMnemonicLanguage(), undefined);
           assert(await watchOnlyWallet.isWatchOnly());
-          assert(await watchOnlyWallet.isConnected());
+          if (!await watchOnlyWallet.isConnected()) {
+            assert(watchOnlyWallet instanceof MoneroWalletRpc, "Watch-only wallet is not connected to daemon"); // only MoneroWalletRpc in the browser should fail
+            throw new Error("Watch-only wallet is not connected to daemon (known to fail with monero-wallet-rpc in the browser)"); // TODO monero-wallet-core: fix, failure to start ./monerod --stagenet --rpc-access-control-origins http://localhost:9100
+          }
           assert.equal(await watchOnlyWallet.getMnemonic(), undefined);
           let watchOnlyPath = await watchOnlyWallet.getPath();
           await watchOnlyWallet.sync();
