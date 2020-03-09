@@ -117,6 +117,24 @@ class MoneroWallet {
   async getPrivateSpendKey() {
     throw new MoneroError("Not supported");
   }
+  
+  /**
+   * Get the wallet's public view key.
+   * 
+   * @return {string} the wallet's public view key
+   */
+  async getPublicViewKey() {
+    throw new MoneroError("Not supported");
+  }
+  
+  /**
+   * Get the wallet's public spend key.
+   * 
+   * @return {string} the wallet's public spend key
+   */
+  async getPublicSpendKey() {
+    throw new MoneroError("Not supported");
+  }
     
   /**
    * Get the wallet's primary address.
