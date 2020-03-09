@@ -179,12 +179,14 @@ namespace monero {
 
     // initialize remaining wallet
     wallet->m_network_type = network_type;
-    wallet->m_language = language;
-    epee::wipeable_string wipeable_mnemonic;
-    if (!crypto::ElectrumWords::bytes_to_words(spend_key_sk, wipeable_mnemonic, wallet->m_language)) {
-      throw runtime_error("Failed to create mnemonic from private spend key for language: " + string(wallet->m_language));
+    if (!spend_key.empty()) {
+      wallet->m_language = language;
+      epee::wipeable_string wipeable_mnemonic;
+      if (!crypto::ElectrumWords::bytes_to_words(spend_key_sk, wipeable_mnemonic, wallet->m_language)) {
+        throw runtime_error("Failed to create mnemonic from private spend key for language: " + string(wallet->m_language));
+      }
+      wallet->m_mnemonic = string(wipeable_mnemonic.data(), wipeable_mnemonic.size());
     }
-    wallet->m_mnemonic = string(wipeable_mnemonic.data(), wipeable_mnemonic.size());
     wallet->init_common();
 
     return wallet;
