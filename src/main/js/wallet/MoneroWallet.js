@@ -26,6 +26,16 @@
 class MoneroWallet {
   
   /**
+   * Indicates if the wallet is watch-only, meaning it does have the private
+   * spend key and can therefore only observe incoming outputs.
+   * 
+   * @return {bool} true if the wallet is watch-only, false otherwise
+   */
+  async isWatchOnly() {
+    return undefined === await this.getMnemonic();
+  }
+  
+  /**
    * Gets the version of the wallet.
    * 
    * @return {MoneroVersion} the version of the wallet
