@@ -2,7 +2,7 @@ HIGH (WASM)
 wallet proxied browser tests
 daemon proxied browser tests
 update readme with core wasm support
-update documentation: daemon isConnected, other top level methods, add_address_book edit_address_book no longer takes payment id
+update documentation: daemon isConnected, other top level methods, add_address_book edit_address_book no longer takes payment id, setDaemonConnection
 organize todos including todos throughout code
 test jni
 release
@@ -15,6 +15,7 @@ namespace exported types to object instead of this.?
 replace every new BigInteger() -> BigInteger.parse()
 in-memory wallet; wallet2 password is required to create valid cache file on creation (start with tests)
 daemon rpc getTxs() does not return tx blocks
+new BigInteger("X") -> BigInteger.parse("X")
 sync end height != daemon height for long syncs
 notification tests fails when tx not confirmed first block, make more lenient
 long sync will give 100% notifications for blocks since sync started; re-compute based on daemon height toward end

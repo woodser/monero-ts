@@ -1303,6 +1303,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   async getData() {
     
     // queue call to wasm module
+    let watchOnly = await this.isWatchOnly();
     let that = this;
     return that.module.queueTask(async function() {
 
@@ -1325,7 +1326,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       views.push(Buffer.from(view.buffer));
       
       // malloc keys buffer and get buffer location in c++ heap
-      let keysBufferLoc = JSON.parse(that.module.get_keys_file_buffer(that.cppAddress, that.password, false));
+      let keysBufferLoc = JSON.parse(that.module.get_keys_file_buffer(that.cppAddress, that.password, watchOnly));
       
       // read binary data from heap to DataView
       view = new DataView(new ArrayBuffer(keysBufferLoc.length)); // TODO: improve performance using DataView instead of Uint8Array?, TODO: rename to length

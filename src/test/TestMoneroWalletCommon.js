@@ -2746,108 +2746,83 @@ class TestMoneroWalletCommon {
       }
       
       if (config.testNonRelays)
-      it("Can parse, sign, and submit an unsigned tx set from a watch-only wallet", async function() {
-        let e1 = undefined;
-        try {
-          
-          // collect info from main online test wallet and close
-          let keyImages = await that.wallet.getKeyImages();	// TODO: this will break if test_wallet_1 background syncing  
-          let primaryAddress = await that.wallet.getPrimaryAddress();
-          let privateViewKey = await that.wallet.getPrivateViewKey()
-          await that.wallet.close();
-
-          // create watch-only wallet by witholding spend key and importing key images
-          that.wallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, undefined, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
-          
-          // try...catch...finally to close watch-only wallet in case of error
-          let e2 = undefined;
-          let unsignedTxSet = undefined;
-          try {
-            
-            // sync watch-only wallet and import key images
-            await that.wallet.sync();
-            await that.wallet.importKeyImages(keyImages);
-          
-            // create unsigned transaction
-            unsignedTxSet = await that.wallet.createTx(0, primaryAddress, TestUtils.MAX_FEE.multiply(new BigInteger(3)));
-            
-            // test resulting tx set
-            assert.equal(typeof unsignedTxSet.getUnsignedTxHex(), "string")
-            assert(unsignedTxSet.getUnsignedTxHex());
-              
-            // switch to main online test wallet
-            that.wallet = await that.getTestWallet();
-            
-            // parse tx set
-            let parsedTxSet = await that.wallet.parseTxSet(unsignedTxSet);
-            testParsedTxSet(parsedTxSet);
-            
-            // sign tx set
-            let signedTxHex = await that.wallet.signTxs(unsignedTxSet.getUnsignedTxHex());
-            assert.equal(typeof signedTxHex, "string");
-            assert(signedTxHex);
-            
-            // submit signed tx set
-            if (config.testRelays) {
-              let txHashes = await that.wallet.submitTxs(signedTxHex);
-              assert.equal(txHashes.length, 1);
-              assert(typeof txHashes[0] === "string");
-              assert(txHashes[0].length === 64);
-            }
-          } catch (e) {
-            e2 = e;
-          }
-          
-          // final cleanup
-          await that.wallet.close();
-          if (e2) throw e2;
-        } catch (e) {
-          e1 = e;
-        }
+      it("Can create, sign, and submit transactions using watch-only and offline wallets", async function() {
         
-        // open main test wallet for other tests
-        that.wallet = await that.getTestWallet();
-        if (e1) throw e1;
-      });
-      
-      if (config.testNonRelays)
-      it("Supports offline functionality", async function() {
+        // collect info from main test wallet
+        let primaryAddress = await that.wallet.getPrimaryAddress();
+        let privateViewKey = await that.wallet.getPrivateViewKey();
+        let privateSpendKey = await that.wallet.getPrivateSpendKey();
+        await that.wallet.close();
+        
+        //  create, sign, and submit transactions using watch-only and offline wallets
+        let watchOnlyWallet;
         let offlineWallet;
         let err;
         try {
           
-          // export outputs and key images from live wallet
-          let balance = await that.wallet.getBalance();
-          assert(balance.compare(BigInteger.parse("0")) > 0);
-          let txs = await that.wallet.getTxs();
-          assert(txs.length > 0);
-          let outputsHex = await that.wallet.getOutputsHex();
-          let keyImages = await that.wallet.getKeyImages();
+          // create and sync watch-only wallet
+          watchOnlyWallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, undefined, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+          assert(await watchOnlyWallet.isConnected());
+          assert(await watchOnlyWallet.isWatchOnly());
+          assert.equal(await watchOnlyWallet.getMnemonic(), undefined);
+          let watchOnlyPath = await watchOnlyWallet.getPath();
+          await watchOnlyWallet.sync();
+          assert((await watchOnlyWallet.getTxs()).length > 0);
+          
+          // export outputs from watch-only wallet
+          let outputsHex = await watchOnlyWallet.getOutputsHex();
           
           // create offline wallet
-          offlineWallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, undefined, TestUtils.FIRST_RECEIVE_HEIGHT, "");
+          await watchOnlyWallet.close(true);  // only one wallet open at a time to accomodate wallet rpc
+          offlineWallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, privateSpendKey, undefined, 0, undefined);
+          assert(!await offlineWallet.isConnected());
+          assert(!await offlineWallet.isWatchOnly());
+          assert.equal(await offlineWallet.getMnemonic(), TestUtils.MNEMONIC);
+          let offlineWalletPath = await offlineWallet.getPath();
           assert.equal((await offlineWallet.getTxs()).length, 0);
           
-          // import outputs and key images
+          // import outputs to offline wallet
           await offlineWallet.importOutputsHex(outputsHex);
-          await offlineWallet.importKeyImages(keyImages);
           
-          // wallet knows balance and transactions
-          assert.equal((await offlineWallet.getBalance()).toString(), balance.toString());
-          assert.equal((await offlineWallet.getUnlockedBalance()).toString(), "0");
+          // export key images from offline wallet
+          let keyImages = await offlineWallet.getKeyImages();
           
-          // TODO: create tx offline?
-//          // create a tx
-//          let txSet = await offlineWallet.createTx(0, await offlineWallet.getPrimaryAddress(), TestUtils.MAX_FEE.multiply(BigInteger.parse("3")));
-//          console.log(txSet.toJson());
-//          throw new Error("Not implemented");
+          // import key images to watch-only wallet
+          await offlineWallet.close(true);
+          watchOnlyWallet = await that.openWallet(watchOnlyPath);
+          await watchOnlyWallet.importKeyImages(keyImages);
+          
+          // create unsigned tx using watch-only wallet
+          let unsignedTxSet = await watchOnlyWallet.createTx(0, primaryAddress, TestUtils.MAX_FEE.multiply(BigInteger.parse("3")));
+          assert.equal(typeof unsignedTxSet.getUnsignedTxHex(), "string")
+          assert(unsignedTxSet.getUnsignedTxHex());
+          
+          // sign tx using offline wallet
+          await watchOnlyWallet.close(true);
+          offlineWallet = await that.openWallet(offlineWalletPath);
+          let signedTxHex = await offlineWallet.signTxs(unsignedTxSet.getUnsignedTxHex());
+          assert(signedTxHex.length > 0);
+          
+          // parse or "describe" unsigned tx set
+          let parsedTxSet = await offlineWallet.parseTxSet(unsignedTxSet);
+          testParsedTxSet(parsedTxSet);
+          
+          // submit signed tx using watch-only wallet
+          if (config.testRelays) {
+            await offlineWallet.close();
+            watchOnlyWallet = await that.openWallet(watchOnlyPath);
+            let txHashes = await watchOnlyWallet.submitTxs(signedTxHex);
+            assert.equal(txHashes.length, 1);
+            assert.equal(txHashes[0].length, 64);
+          }
         } catch (e) {
           err = e;
         }
         
-        // open main test wallet for other tests
-        if (offlineWallet) await offlineWallet.close();
-        that.wallet = await that.getTestWallet();
+        // finally
+        try { await watchOnlyWallet.close(); } catch (e) { }
+        try { await offlineWallet.close(); } catch (e) { }
+        that.wallet = await that.getTestWallet(); // open main test wallet for other tests
         if (err) throw err;
       });
       
