@@ -1013,7 +1013,7 @@ namespace monero {
   }
 
   string monero_wallet_core::get_mnemonic() const {
-    if (m_w2->watch_only()) throw runtime_error("The wallet is watch-only. Cannot retrieve mnemonic.");
+    if (m_w2->watch_only()) return "";
     epee::wipeable_string wipeable_mnemonic;
     m_w2->get_seed(wipeable_mnemonic);
     return string(wipeable_mnemonic.data(), wipeable_mnemonic.size());
