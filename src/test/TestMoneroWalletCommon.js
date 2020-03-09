@@ -159,7 +159,7 @@ class TestMoneroWalletCommon {
           let privateSpendKey = await that.wallet.getPrivateSpendKey();
           
           // recreate test wallet from mnemonic
-          that.wallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, await that.daemon.getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT);
+          that.wallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, await TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT);
           let e2 = undefined;
           try {
             assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
@@ -186,7 +186,7 @@ class TestMoneroWalletCommon {
         try {
           
           // create test wallet with offset
-          that.wallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, await that.daemon.getRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, "my secret offset!");
+          that.wallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, await TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, "my secret offset!");
           let e2 = undefined;
           try {
             MoneroUtils.validateMnemonic(await that.wallet.getMnemonic());

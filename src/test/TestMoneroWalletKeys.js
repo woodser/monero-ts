@@ -26,7 +26,7 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
     return await MoneroWalletKeys.createWalletRandom(TestUtils.NETWORK_TYPE);
   }
   
-  async createWalletFromMnemonic(mnemonic, restoreHeight, seedOffset) {
+  async createWalletFromMnemonic(mnemonic, daemonConnection, restoreHeight, seedOffset) {
     return await MoneroWalletKeys.createWalletFromMnemonic(TestUtils.NETWORK_TYPE, mnemonic, seedOffset);
   }
   
