@@ -210,70 +210,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
   // ------------ WALLET METHODS SPECIFIC TO WASM IMPLEMENTATION --------------
   
   /**
-   * Set the wallet's daemon connection.
-   * 
-   * @param {string|MoneroRpcConnection} uriOrRpcConnection is the daemon's URI or instance of MoneroRpcConnection
-   * @param {string} username is the username to authenticate with the daemon (optional)
-   * @param {string} password is the password to authenticate with the daemon (optional)
-   */
-  async setDaemonConnection(uriOrRpcConnection, username, password) {
-    this._assertNotClosed();
-    
-    // normalize uri, username, and password
-    let uri;
-    if (typeof uriOrRpcConnection == "string") uri = uriOrRpcConnection;
-    else if (uriOrRpcConnection instanceof MoneroRpcConnection) {
-      if (username || password) throw new MoneroError("Cannot specify username or password if first arg is MoneroRpcConnection");
-      uri = uriOrRpcConnection.getUri();
-      username = uriOrRpcConnection.getUsername();
-      password = uriOrRpcConnection.getPassword();
-    }
-    if (!uri) uri = "";
-    if (!username) username = "";
-    if (!password) password = "";
-    
-    // set connection in queue
-    let that = this;
-    return that.module.queueTask(async function() {
-      return new Promise(function(resolve, reject) {
-      
-        // define callback for wasm
-        let callbackFn = function(resp) {
-          resolve();
-        }
-        
-        // sync wallet in wasm and invoke callback when done
-        that.module.set_daemon_connection(that.cppAddress, uri, username, password, callbackFn);
-      });
-    });
-  }
-  
-  /**
-   * Get the wallet's daemon connection.
-   * 
-   * @return {MoneroRpcConnection} the wallet's daemon connection
-   */
-  async getDaemonConnection() {
-    this._assertNotClosed();
-    let that = this;
-    return that.module.queueTask(async function() {
-      return new Promise(function(resolve, reject) {
-        let connectionContainerStr = that.module.get_daemon_connection(that.cppAddress);
-        if (!connectionContainerStr) {
-          resolve();
-          return; // TODO: switch to await new Promise
-        }
-        let connectionContainer = JSON.parse(connectionContainerStr);
-        resolve(new MoneroRpcConnection({  // TODO: reconcile username vs user, password vs pass, then can pass container directly to MoneroRpcConnection (breaking change)
-          uri: connectionContainer.uri,
-          user: connectionContainer.username,
-          pass: connectionContainer.password
-        }));
-      });
-    });
-  }
-  
-  /**
    * Get the maximum height of the peers the wallet's daemon is connected to.
    *
    * @return {number} the maximum height of the peers the wallet's daemon is connected to
@@ -440,6 +376,58 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   // -------------------------- COMMON WALLET METHODS -------------------------
+  
+  async setDaemonConnection(uriOrRpcConnection, username, password) {
+    this._assertNotClosed();
+    
+    // normalize uri, username, and password
+    let uri;
+    if (typeof uriOrRpcConnection == "string") uri = uriOrRpcConnection;
+    else if (uriOrRpcConnection instanceof MoneroRpcConnection) {
+      if (username || password) throw new MoneroError("Cannot specify username or password if first arg is MoneroRpcConnection");
+      uri = uriOrRpcConnection.getUri();
+      username = uriOrRpcConnection.getUsername();
+      password = uriOrRpcConnection.getPassword();
+    }
+    if (!uri) uri = "";
+    if (!username) username = "";
+    if (!password) password = "";
+    
+    // set connection in queue
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+      
+        // define callback for wasm
+        let callbackFn = function(resp) {
+          resolve();
+        }
+        
+        // sync wallet in wasm and invoke callback when done
+        that.module.set_daemon_connection(that.cppAddress, uri, username, password, callbackFn);
+      });
+    });
+  }
+  
+  async getDaemonConnection() {
+    this._assertNotClosed();
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        let connectionContainerStr = that.module.get_daemon_connection(that.cppAddress);
+        if (!connectionContainerStr) {
+          resolve();
+          return; // TODO: switch to await new Promise
+        }
+        let connectionContainer = JSON.parse(connectionContainerStr);
+        resolve(new MoneroRpcConnection({  // TODO: reconcile username vs user, password vs pass, then can pass container directly to MoneroRpcConnection (breaking change)
+          uri: connectionContainer.uri,
+          user: connectionContainer.username,
+          pass: connectionContainer.password
+        }));
+      });
+    });
+  }
   
   async isConnected() {
     this._assertNotClosed();

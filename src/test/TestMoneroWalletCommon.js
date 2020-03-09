@@ -2702,6 +2702,7 @@ class TestMoneroWalletCommon {
       
       if (config.testNonRelays)
       it("Supports watch-only and offline wallets to create, sign, and submit transactions", async function() {
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         
         // collect info from main test wallet
         let primaryAddress = await that.wallet.getPrimaryAddress();
@@ -2737,7 +2738,7 @@ class TestMoneroWalletCommon {
           offlineWallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, privateSpendKey, undefined, 0, undefined);
           assert(!await offlineWallet.isConnected());
           assert(!await offlineWallet.isWatchOnly());
-          assert.equal(await offlineWallet.getMnemonic(), TestUtils.MNEMONIC);
+          if (!(offlineWallet instanceof MoneroWalletRpc)) assert.equal(await offlineWallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-core: cannot get mnemonic from offline wallet rpc
           let offlineWalletPath = await offlineWallet.getPath();
           assert.equal((await offlineWallet.getTxs()).length, 0);
           

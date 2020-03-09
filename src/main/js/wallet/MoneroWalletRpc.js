@@ -129,11 +129,10 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param address is the address of the wallet to construct
    * @param viewKey is the view key of the wallet to construct
    * @param spendKey is the spend key of the wallet to construct or null to create a view-only wallet
-   * @param daemonConnection is connection configuration to a daemon (default = an unconnected wallet)
    * @param restoreHeight is the block height to restore (i.e. scan the chain) from (default = 0)
    * @param language is the wallet and mnemonic's language (default = "English")
    */
-  async createWalletFromKeys(name, password, address, viewKey, spendKey, daemonConnection, restoreHeight, language, saveCurrent) {
+  async createWalletFromKeys(name, password, address, viewKey, spendKey, restoreHeight, language, saveCurrent) {
     if (restoreHeight === undefined) restoreHeight = 0;
     if (language === undefined) language = MoneroWallet.DEFAULT_LANGUAGE;
     await this.config.rpc.sendJsonRequest("generate_from_keys", {
@@ -149,8 +148,43 @@ class MoneroWalletRpc extends MoneroWallet {
     this.path = name;
   }
   
+  async isWatchOnly() {
+    try {
+      await this.config.rpc.sendJsonRequest("query_key", {key_type: "mnemonic"});
+      return false; // key retrieval succeeds if not watch only
+    } catch (e) {
+      if (e.getCode() === -29) return true;  // wallet is watch-only
+      if (e.getCode() === -1) return false;  // wallet is offline but not watch-only
+      throw e;
+    }
+  }
+  
+  async setDaemonConnection(daemonUriOrConnection, isTrusted, sslOptions) {
+    if (!sslOptions) sslOptions = new SslOptions();
+    let daemonConnection = typeof daemonUriOrConnection === "string" ? new MoneroDaemonConnection(daemonUriOrConnection) : (daemonUriOrConnection ? daemonUriOrConnection : undefined);
+    let params = {};
+    params.address = !daemonConnection ? "bad_uri" : daemonConnection.getUri(); // TODO monero-wallet-rpc: bad daemon uri necessary for offline?
+    params.trusted = isTrusted;
+    params.ssl_support = "autodetect";
+    params.ssl_private_key_path = sslOptions.getPrivateKeyPath();
+    params.ssl_certificate_path  = sslOptions.getCertificatePath();
+    params.ssl_ca_file = sslOptions.getCertificateAuthorityFile();
+    params.ssl_allowed_fingerprints = sslOptions.getAllowedFingerprints();
+    params.ssl_allow_any_cert = sslOptions.getAllowAnyCert();
+    await this.config.rpc.sendJsonRequest("set_daemon", params);
+  }
+  
+  async getDaemonConnection() {
+    throw new MoneroError("Not implemented");
+  }
+  
   async isConnected() {
-    throw new Error("Not implemented");
+    try {
+      await this.sync(); // wallet rpc auto syncs so worst case this call blocks and blocks upfront  TODO: better way to determine if wallet rpc is connected to daemon?
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
   
   async getVersion() {
@@ -554,10 +588,15 @@ class MoneroWalletRpc extends MoneroWallet {
     let txQuery = query.getTxQuery();
     txQuery.setTransferQuery(undefined); // break circular link for meetsCriteria()
     
+    // check if pool txs explicitly requested without daemon connection
+    if (txQuery.inTxPool() !== undefined && txQuery.inTxPool() && !await this.isConnected()) {
+      throw new MoneroError("Cannot fetch pool transactions because because wallet has no daemon connection");
+    }
+    
     // build params for get_transfers rpc call
     let params = {};
     let canBeConfirmed = txQuery.isConfirmed() !== false && txQuery.inTxPool() !== true && txQuery.isFailed() !== true && txQuery.isRelayed() !== false;
-    let canBeInTxPool = txQuery.isConfirmed() !== true && txQuery.inTxPool() !== false && txQuery.isFailed() !== true && txQuery.isRelayed() !== false && txQuery.getHeight() === undefined && txQuery.getMinHeight() === undefined && txQuery.getMaxHeight() === undefined;
+    let canBeInTxPool = await this.isConnected() && txQuery.isConfirmed() !== true && txQuery.inTxPool() !== false && txQuery.isFailed() !== true && txQuery.isRelayed() !== false && txQuery.getHeight() === undefined && txQuery.getMinHeight() === undefined && txQuery.getMaxHeight() === undefined;
     let canBeIncoming = query.isIncoming() !== false && query.isOutgoing() !== true && query.hasDestinations() !== true;
     let canBeOutgoing = query.isOutgoing() !== false && query.isIncoming() !== true;
     params.in = canBeIncoming && canBeConfirmed;
@@ -1875,7 +1914,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsFailed(false);
       tx.setIsMinerTx(false);
     } else if (rpcType === "out") {
-    	isOutgoing = true;
+      isOutgoing = true;
       tx.setIsConfirmed(true);
       tx.setInTxPool(false);
       tx.setIsRelayed(true);
@@ -1883,7 +1922,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsFailed(false);
       tx.setIsMinerTx(false);
     } else if (rpcType === "pool") {
-    	isOutgoing = false;
+      isOutgoing = false;
       tx.setIsConfirmed(false);
       tx.setInTxPool(true);
       tx.setIsRelayed(true);
@@ -1891,7 +1930,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsFailed(false);
       tx.setIsMinerTx(false);  // TODO: but could it be?
     } else if (rpcType === "pending") {
-    	isOutgoing = true;
+      isOutgoing = true;
       tx.setIsConfirmed(false);
       tx.setInTxPool(true);
       tx.setIsRelayed(true);
@@ -1899,7 +1938,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsFailed(false);
       tx.setIsMinerTx(false);
     } else if (rpcType === "block") {
-    	isOutgoing = false;
+      isOutgoing = false;
       tx.setIsConfirmed(true);
       tx.setInTxPool(false);
       tx.setIsRelayed(true);
@@ -1907,7 +1946,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setIsFailed(false);
       tx.setIsMinerTx(true);
     } else if (rpcType === "failed") {
-    	isOutgoing = true;
+      isOutgoing = true;
       tx.setIsConfirmed(false);
       tx.setInTxPool(false);
       tx.setIsRelayed(true);

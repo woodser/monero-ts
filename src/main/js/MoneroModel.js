@@ -71,6 +71,7 @@ module.exports = function() {
   // export rpc
   this.MoneroRpcConnection = require("./rpc/MoneroRpcConnection");
   this.MoneroRpcError = require("./rpc/MoneroRpcError");
+  this.SslOptions = require("./rpc/SslOptions");
 
   // export daemon, wallet, and utils classes
   this.MoneroUtils = require("./utils/MoneroUtils");
