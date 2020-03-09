@@ -26,15 +26,6 @@
 class MoneroWallet {
   
   /**
-   * Indicates if the wallet is connected to daemon.
-   * 
-   * @return {boolean} true if the wallet is connected to a daemon, false otherwise
-   */
-  async isConnected() {
-    throw new MoneroError("Not supported");
-  }
-  
-  /**
    * Indicates if the wallet is watch-only, meaning it does have the private
    * spend key and can therefore only observe incoming outputs.
    * 
@@ -42,6 +33,35 @@ class MoneroWallet {
    */
   async isWatchOnly() {
     return undefined === await this.getMnemonic();
+  }
+  
+  /**
+   * Set the wallet's daemon connection.
+   * 
+   * @param {string|MoneroRpcConnection} uriOrConnection is the daemon's URI or connection (defaults to offline)
+   * @param {string} username is the username to authenticate with the daemon (optional)
+   * @param {string} password is the password to authenticate with the daemon (optional)
+   */
+  async setDaemonConnection(uriOrConnection, username, password) {
+    throw new MoneroError("Not supported");
+  }
+  
+  /**
+   * Get the wallet's daemon connection.
+   * 
+   * @return {MoneroRpcConnection} the wallet's daemon connection
+   */
+  async getDaemonConnection() {
+    throw new MoneroError("Not supported");
+  }
+  
+  /**
+   * Indicates if the wallet is connected to daemon.
+   * 
+   * @return {boolean} true if the wallet is connected to a daemon, false otherwise
+   */
+  async isConnected() {
+    throw new MoneroError("Not supported");
   }
   
   /**
