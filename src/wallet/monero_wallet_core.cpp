@@ -1508,9 +1508,14 @@ namespace monero {
       subaddress_indices.insert(_query->m_subaddress_indices[i]);
     }
 
+    // check if pool txs explicitly requested without connection to daemon
+    if (tx_query->m_in_tx_pool != boost::none && tx_query->m_in_tx_pool.get() && !is_connected()) {
+      throw runtime_error("Cannot fetch pool transactions because daemon is not connected");
+    }
+
     // translate from monero_tx_query to in, out, pending, pool, failed terminology used by monero-wallet-rpc
     bool can_be_confirmed = !bool_equals(false, tx_query->m_is_confirmed) && !bool_equals(true, tx_query->m_in_tx_pool) && !bool_equals(true, tx_query->m_is_failed) && !bool_equals(false, tx_query->m_is_relayed);
-    bool can_be_in_tx_pool = !bool_equals(true, tx_query->m_is_confirmed) && !bool_equals(false, tx_query->m_in_tx_pool) && !bool_equals(true, tx_query->m_is_failed) && !bool_equals(false, tx_query->m_is_relayed) && tx_query->get_height() == boost::none && tx_query->m_min_height == boost::none;
+    bool can_be_in_tx_pool = is_connected() && !bool_equals(true, tx_query->m_is_confirmed) && !bool_equals(false, tx_query->m_in_tx_pool) && !bool_equals(true, tx_query->m_is_failed) && !bool_equals(false, tx_query->m_is_relayed) && tx_query->get_height() == boost::none && tx_query->m_min_height == boost::none;
     bool can_be_incoming = !bool_equals(false, _query->m_is_incoming) && !bool_equals(true, _query->is_outgoing()) && !bool_equals(true, _query->m_has_destinations);
     bool can_be_outgoing = !bool_equals(false, _query->is_outgoing()) && !bool_equals(true, _query->m_is_incoming);
     bool is_in = can_be_incoming && can_be_confirmed;
@@ -1556,7 +1561,7 @@ namespace monero {
     }
 
     // get unconfirmed incoming transfers
-    if (is_pool && is_connected()) {
+    if (is_pool) {
 
       // update pool state TODO monero-core: this should be encapsulated in wallet when unconfirmed transfers queried
       std::vector<std::pair<cryptonote::transaction, bool>> process_txs;
