@@ -50,7 +50,7 @@ class MoneroDestination {
   
   toJson() {
     let json = Object.assign({}, this.state);
-    if (this.getAmount()) json.amount = this.getAmount().toString()
+    if (this.getAmount()) json.amount = this.getAmount().toString();
     return json;
   }
   

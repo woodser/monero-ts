@@ -684,9 +684,9 @@ self.importKeyImages = async function(walletId, keyImagesJson) {
 //  throw new MoneroError("Not implemented");
 //}
 
-self.sendSplit = async function(walletId, requestOrAccountIndex, address, amount, priority) {
+self.sendSplit = async function(walletId, requestOrAccountIndex, address, amountStr, priority) {
   if (typeof requestOrAccountIndex === "object") requestOrAccountIndex = new MoneroSendRequest(requestOrAccountIndex);
-  return (await self.WORKER_OBJECTS[walletId].sendSplit(requestOrAccountIndex, address, amount, priority)).toJson();
+  return (await self.WORKER_OBJECTS[walletId].sendSplit(requestOrAccountIndex, address, amountStr ? BigInteger.parse(amountStr) : undefined, priority)).toJson();
 }
 
 //async sweepOutput(requestOrAddress, keyImage, priority) {

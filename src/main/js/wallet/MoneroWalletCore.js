@@ -887,6 +887,9 @@ class MoneroWalletCore extends MoneroWalletKeys {
       request.setCanSplit(true);
     }
     
+    // check for payment id to avoid error in wasm 
+    if (request.getPaymentId()) throw new MoneroError("Standalone payment IDs are obsolete. Use subaddresses or integrated addresses instead");
+    
     // return promise which resolves on callback
     let that = this;
     return that.module.queueTask(async function() {
@@ -1977,8 +1980,8 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async sendSplit(requestOrAccountIndex, address, amount, priority) {
-    requestOrAccountIndex = requestOrAccountIndex instanceof MoneroSendRequest ? requestOrAccountIndex.toJson() : requestOrAccountIndex;
-    let txSetJson = await this._invokeWorker("sendSplit", [requestOrAccountIndex, address, amount, priority]);
+    if (typeof requestOrAccountIndex === "object" && !(requestOrAccountIndex instanceof MoneroSendRequest)) requestOrAccountIndex = new MoneroSendRequest(requestOrAccountIndex).toJson();
+    let txSetJson = await this._invokeWorker("sendSplit", [requestOrAccountIndex, address, amount ? amount.toString() : amount, priority]);
     return new MoneroTxSet(txSetJson);
   }
   
