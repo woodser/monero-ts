@@ -1508,7 +1508,7 @@ namespace monero {
       subaddress_indices.insert(_query->m_subaddress_indices[i]);
     }
 
-    // check if pool txs explicitly requested without connection to daemon
+    // check if pool txs explicitly requested without daemon connection
     if (tx_query->m_in_tx_pool != boost::none && tx_query->m_in_tx_pool.get() && !is_connected()) {
       throw runtime_error("Cannot fetch pool transactions because daemon is not connected");
     }
