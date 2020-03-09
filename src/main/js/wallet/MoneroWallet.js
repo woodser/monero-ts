@@ -26,6 +26,15 @@
 class MoneroWallet {
   
   /**
+   * Indicates if the wallet is connected to daemon.
+   * 
+   * @return {boolean} true if the wallet is connected to a daemon, false otherwise
+   */
+  async isConnected() {
+    throw new MoneroError("Not supported");
+  }
+  
+  /**
    * Indicates if the wallet is watch-only, meaning it does have the private
    * spend key and can therefore only observe incoming outputs.
    * 

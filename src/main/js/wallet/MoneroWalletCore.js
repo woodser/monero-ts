@@ -274,28 +274,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   /**
-   * Indicates if the wallet is connected to daemon.
-   * 
-   * @return {boolean} true if the wallet is connected to a daemon, false otherwise
-   */
-  async isConnected() {
-    this._assertNotClosed();
-    let that = this;
-    return that.module.queueTask(async function() {
-      return new Promise(function(resolve, reject) {
-      
-        // define callback for wasm
-        let callbackFn = function(resp) {
-          resolve(resp);
-        }
-        
-        // sync wallet in wasm and invoke callback when done
-        that.module.is_connected(that.cppAddress, callbackFn);
-      });
-    });
-  }
-  
-  /**
    * Get the maximum height of the peers the wallet's daemon is connected to.
    *
    * @return {number} the maximum height of the peers the wallet's daemon is connected to
@@ -462,6 +440,23 @@ class MoneroWalletCore extends MoneroWalletKeys {
   }
   
   // -------------------------- COMMON WALLET METHODS -------------------------
+  
+  async isConnected() {
+    this._assertNotClosed();
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+      
+        // define callback for wasm
+        let callbackFn = function(resp) {
+          resolve(resp);
+        }
+        
+        // sync wallet in wasm and invoke callback when done
+        that.module.is_connected(that.cppAddress, callbackFn);
+      });
+    });
+  }
   
   async getVersion() {
     this._assertNotClosed();
