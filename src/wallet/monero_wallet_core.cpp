@@ -1510,7 +1510,7 @@ namespace monero {
 
     // check if pool txs explicitly requested without daemon connection
     if (tx_query->m_in_tx_pool != boost::none && tx_query->m_in_tx_pool.get() && !is_connected()) {
-      throw runtime_error("Cannot fetch pool transactions because daemon is not connected");
+      throw runtime_error("Cannot fetch pool transactions because wallet has no daemon connection");
     }
 
     // translate from monero_tx_query to in, out, pending, pool, failed terminology used by monero-wallet-rpc
