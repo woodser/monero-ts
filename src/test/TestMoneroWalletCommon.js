@@ -244,51 +244,6 @@ class TestMoneroWalletCommon {
       });
       
       if (config.testNonRelays)
-      it("Can create a wallet without the spend key", async function() {
-        let e1 = undefined;
-        try {
-          
-          let primaryAddress = await that.wallet.getPrimaryAddress();
-          let privateViewKey = await that.wallet.getPrivateViewKey();
-
-          // create watch-only wallet by witholding spend key
-          that.wallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, undefined, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
-          let e2 = undefined;
-          try {
-            assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
-            assert.equal(await that.wallet.getPrivateViewKey(), privateViewKey);
-            assert.equal(await that.wallet.getPrivateSpendKey(), undefined);
-            
-            // cannot get mnemonic of watch-only wallet
-            try {
-              await that.wallet.getMnemonic();
-              throw Error("should have thrown error");
-            } catch (e) {
-              //assert.equal(e.message, "The wallet is watch-only. Cannot retrieve mmnemonic.");    // TODO: test error message?
-              if ("Should have thrown error" === e.message) throw e;
-            }
-            try {
-              await wallet.getMnemonicLanguage();
-              throw Error("should have thrown error");
-            } catch (e) {
-              //assert.equal(e.getMessage(), "The wallet is watch-only. Cannot retrieve mnemonic language.");
-              if ("Should have thrown error" === e.message) throw e;
-            }
-          } catch (e) {
-            e2 = e;
-          }
-          await that.wallet.close();
-          if (e2 !== undefined) throw e2;
-        } catch (e) {
-          e1 = e;
-        }
-        
-        // open main test wallet for other tests
-        that.wallet = await that.getTestWallet();
-        if (e1 !== undefined) throw e1;
-      });
-      
-      if (config.testNonRelays)
       it("Can get the wallet's version", async function() {
         let version = await that.wallet.getVersion();
         assert.equal(typeof version.getNumber(), "number");
@@ -2746,7 +2701,7 @@ class TestMoneroWalletCommon {
       }
       
       if (config.testNonRelays)
-      it("Can create, sign, and submit transactions using watch-only and offline wallets", async function() {
+      it("Supports watch-only and offline wallets to create, sign, and submit transactions", async function() {
         
         // collect info from main test wallet
         let primaryAddress = await that.wallet.getPrimaryAddress();
@@ -2762,8 +2717,13 @@ class TestMoneroWalletCommon {
           
           // create and sync watch-only wallet
           watchOnlyWallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, undefined, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
-          assert(await watchOnlyWallet.isConnected());
+          assert.equal(await watchOnlyWallet.getPrimaryAddress(), primaryAddress);
+          assert.equal(await watchOnlyWallet.getPrivateViewKey(), privateViewKey);
+          assert.equal(await watchOnlyWallet.getPrivateSpendKey(), undefined);
+          assert.equal(await watchOnlyWallet.getMnemonic(), undefined);
+          assert.equal(await watchOnlyWallet.getMnemonicLanguage(), undefined);
           assert(await watchOnlyWallet.isWatchOnly());
+          assert(await watchOnlyWallet.isConnected());
           assert.equal(await watchOnlyWallet.getMnemonic(), undefined);
           let watchOnlyPath = await watchOnlyWallet.getPath();
           await watchOnlyWallet.sync();

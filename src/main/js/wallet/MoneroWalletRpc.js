@@ -149,6 +149,10 @@ class MoneroWalletRpc extends MoneroWallet {
     this.path = name;
   }
   
+  async isConnected() {
+    throw new Error("Not implemented");
+  }
+  
   async getVersion() {
     let resp = await this.config.rpc.sendJsonRequest("get_version");
     return new MoneroVersion(resp.result.version, resp.result.release);
@@ -159,11 +163,17 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async getMnemonic() {
-    let resp = await this.config.rpc.sendJsonRequest("query_key", { key_type: "mnemonic" });
-    return resp.result.key;
+    try {
+      let resp = await this.config.rpc.sendJsonRequest("query_key", { key_type: "mnemonic" });
+      return resp.result.key;
+    } catch (e) {
+      if (e.getCode() === -29) return undefined;  // wallet is watch-only
+      throw e;
+    }
   }
   
   async getMnemonicLanguage() {
+    if (await this.getMnemonic() === undefined) return undefined;
     throw new MoneroError("MoneroWalletRpc.getMnemonicLanguage() not supported");
   }
 
