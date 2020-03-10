@@ -1,3 +1,4 @@
 [submodule "external/monero-cpp-library"]
 	path = external/monero-cpp-library
 	url = https://github.com/woodser/monero-cpp-library.git
+	ignore = dirty
