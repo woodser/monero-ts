@@ -1260,6 +1260,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async importMultisigHex(multisigHexes) {
     this._assertNotClosed();
+    let that = this;
     return that.module.queueTask(async function() {
       return that.module.import_multisig_hex(that.cppAddress, JSON.stringify({multisigHexes: multisigHexes}));
     });
