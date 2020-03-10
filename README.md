@@ -128,7 +128,7 @@ let request = new MoneroSendRequest()
 // create the transaction, confirm with the user, and relay to the network
 let createdTx = (await walletRpc.createTx(request)).getTxs()[0];
 let fee = createdTx.getFee();  // "Are you sure you want to send ...?"
-await walletRpc.relayTx(createdTx); // submit the transaction which will notify the JNI wallet
+await walletRpc.relayTx(createdTx); // submit the transaction which will notify the core wallet
 
 // core wallet will receive notification of incoming output after a moment
 await new Promise(function(resolve) { setTimeout(resolve, 10000); });
