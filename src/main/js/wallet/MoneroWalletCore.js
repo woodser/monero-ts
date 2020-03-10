@@ -1981,7 +1981,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   
   async sendSplit(requestOrAccountIndex, address, amount, priority) {
     if (requestOrAccountIndex instanceof MoneroSendRequest) requestOrAccountIndex = requestOrAccountIndex.toJson();
-    else if (typeof requestOrAccountIndex === "object") request = new MoneroSendRequest(requestOrAccountIndex).toJson();
+    else if (typeof requestOrAccountIndex === "object") requestOrAccountIndex = new MoneroSendRequest(requestOrAccountIndex).toJson();
     let txSetJson = await this._invokeWorker("sendSplit", [requestOrAccountIndex, address, amount ? amount.toString() : amount, priority]);
     return new MoneroTxSet(txSetJson);
   }
