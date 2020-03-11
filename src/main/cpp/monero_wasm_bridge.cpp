@@ -910,7 +910,7 @@ string monero_wasm_bridge::exchange_multisig_keys(int handle, const string& args
 
 string monero_wasm_bridge::get_multisig_hex(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->prepare_multisig();
+  return wallet->get_multisig_hex();
 }
 
 int monero_wasm_bridge::import_multisig_hex(int handle, const string& args) {
