@@ -12,6 +12,12 @@ class TestSampleCode {
         try {
           await TestUtils.getWalletKeys();
           TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
+          
+          // create directory for test wallets if it doesn't exist
+          if (!TestUtils.FS.existsSync(TestUtils.TEST_WALLETS_DIR)) {
+            if (!TestUtils.FS.existsSync(process.cwd())) TestUtils.FS.mkdirSync(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
+            TestUtils.FS.mkdirSync(TestUtils.TEST_WALLETS_DIR);
+          }
         } catch (e) {
           console.log(e);
         }
@@ -24,7 +30,7 @@ class TestSampleCode {
         //require("monero-javascript"); // *** USE IN README SAMPLE ***
         
         // connect to a daemon
-        let daemon = new MoneroDaemonRpc("http://localhost:38081");
+        let daemon = new MoneroDaemonRpc({uri: "http://localhost:38081", user: "superuser", pass: "abctesting123"});  // TODO: support 3 string args
         let height = await daemon.getHeight();                 // 1523651
         let feeEstimate = await daemon.getFeeEstimate(); // 1014313512
         
