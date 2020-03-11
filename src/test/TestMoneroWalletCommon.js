@@ -2737,7 +2737,7 @@ class TestMoneroWalletCommon {
           let outputsHex = await watchOnlyWallet.getOutputsHex();
           
           // create offline wallet
-          await watchOnlyWallet.close(true);  // only one wallet open at a time to accomodate wallet rpc
+          await watchOnlyWallet.close(true);  // only one wallet open at a time to accommodate testing wallet rpc
           offlineWallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, privateSpendKey, undefined, 0, undefined);
           assert(!await offlineWallet.isConnected());
           assert(!await offlineWallet.isWatchOnly());
@@ -2910,7 +2910,7 @@ class TestMoneroWalletCommon {
           //_testMultisig(5, 6, false);
           
           // test m/n
-          await that._testMultisig(2, 4, config.testRelays && !config.liteMode);
+          await that._testMultisig(2, 4, false && config.testRelays && !config.liteMode); // TODO: finish implementation
           //_testMultisig(3, 5, false);
           //_testMultisig(3, 7, false);
         } catch (e) {
@@ -3475,6 +3475,7 @@ class TestMoneroWalletCommon {
     if (!ctx.isCopy) await this._testTxWalletCopy(tx, ctx);
   }
   
+  // TODO: move below _testTxWalletCopy
   async _testTxWalletCopy(tx, ctx) {
     
     // copy tx and assert deep equality
