@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.4.1)
 
 project(monero-javascript-wasm)
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
-#find_package(Threads)
-#find_package(Backtrace)
+# build with exception whitelist from file
+file(STRINGS wasm_exception_whitelist.txt WASM_EXCEPTION_WHITELIST)
+string(REPLACE ";" "," WASM_EXCEPTION_WHITELIST "${WASM_EXCEPTION_WHITELIST}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 --bind -s DISABLE_EXCEPTION_CATCHING=2 -s EXCEPTION_CATCHING_WHITELIST='[${WASM_EXCEPTION_WHITELIST}]'")
 
 add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP)
 
@@ -250,9 +250,8 @@ EMCC_LINKER_FLAGS_BASE
 # unsure if the -I...boost..include is necessary here due to include above
 # TODO? does EXPORT_NAME need to be the same for both targets? (or should it be set per-target with …_WASM, …_ASMJS?)
 
-"-Wall -std=c++11 \
+"-Wall -Werror -std=c++11 -Oz \
 --bind -s MODULARIZE=1 \
--Oz \
 -s 'EXPORT_NAME=\"monero_javascript\"' \
 --llvm-lto 1 \
 -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
@@ -268,7 +267,6 @@ EMCC_LINKER_FLAGS_BASE
 -s WASM=1 \
 -s ALLOW_MEMORY_GROWTH=0 \
 -s TOTAL_MEMORY=512MB \
---post-js ${CMAKE_CURRENT_LIST_DIR}/src/main/js/module-post.js \
 "
     # • Disabling exception catching does not introduce silent failures 
     # • Probably don't need PRECISE_F32 but wouldn't want to not use it
