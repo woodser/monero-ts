@@ -138,19 +138,20 @@ get_boost_source() {
   [ -f "${SDK_PATH}/boost-1.72.0.tar.gz" ] \
   && {
     echo "boost source is already in ${SDK_PATH}"
-  }
+  } \
   || {
     echo "Downloading boost source..."
-    # "https://github.com/boostorg/boost/archive/boost-1.72.0.tar.gz"
-    # "https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2"
     
-    local DL_URL="https://github.com/boostorg/boost/archive/boost-1.72.0.tar.gz"
+    # Github source is missing stuff
+    #local DL_URL="https://github.com/boostorg/boost/archive/boost-1.72.0.tar.gz"
+    local DL_URL="https://dl.bintray.com/boostorg/release/1.72.0/source"
+    local DL_FILE="boost_1_72_0.tar.gz"
 
-    download_source ${DL_URL} ${SDK_PATH} || return 1
+    download_source ${DL_URL}/${DL_FILE} ${SDK_PATH} || return 1
   }
 
   mkdir ${SDK_PATH}/boost-sdk
-  tar -C ${SDK_PATH}/boost-sdk --strip-components=1 -xvf "${SDK_PATH}/boost-1.72.0.tar.gz" || return 1
+  tar -C ${SDK_PATH}/boost-sdk --strip-components=1 -xvf "${SDK_PATH}/${DL_FILE}" || return 1
 
   return 0
 }
