@@ -228,6 +228,7 @@ set(
     ${MONERO_CORE_SRC}/common/aligned.c
     ${MONERO_CORE_SRC}/common/util.cpp
     ${MONERO_CORE_SRC}/common/i18n.cpp
+    ${MONERO_CORE_SRC}/common/combinator.cpp
     ${MONERO_CORE_SRC}/rpc/rpc_payment_signature.cpp
     ${MONERO_CORE_SRC}/wallet/ringdb.cpp
 )

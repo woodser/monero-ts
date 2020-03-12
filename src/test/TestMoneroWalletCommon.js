@@ -2910,7 +2910,7 @@ class TestMoneroWalletCommon {
           //_testMultisig(5, 6, false);
           
           // test m/n
-          await that._testMultisig(2, 4, false && config.testRelays && !config.liteMode); // TODO: finish implementation
+          await that._testMultisig(2, 4, config.testRelays && !config.liteMode);
           //_testMultisig(3, 5, false);
           //_testMultisig(3, 7, false);
         } catch (e) {
@@ -3528,10 +3528,11 @@ class TestMoneroWalletCommon {
     console.log("_testMultisig(" + m + ", " + n + ")");
     
     // set name attribute of test wallet at beginning of test
+    console.log("starting multisig wallet: " + await this.wallet.getPath());
     let BEGIN_MULTISIG_NAME = "begin_multisig_wallet";
     await this.wallet.setAttribute("name", BEGIN_MULTISIG_NAME);
     await this.wallet.save();
-    //await this.wallet.close();
+    await this.wallet.close();  // TODO: if closing it causes resolves issue, then wallets are interfering with each other
     
     // create n wallets and prepare multisig hexes
     let preparedMultisigHexes = [];
@@ -3695,7 +3696,7 @@ class TestMoneroWalletCommon {
       // multisig wallet should have unlocked balance in account 1 subaddresses 0-3
       assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
       for (let i = 0; i < 3; i++) {
-        assert((await curWallet.getUnlockedBalance(1, i)).compare(new BigInteger(0)) > 0);
+        assert((await curWallet.getUnlockedBalance(1, i)).compare(BigInteger.parse("0")) > 0);
       }
       let outputs = await curWallet.getOutputs(new MoneroOutputQuery().setAccountIndex(1));
       assert(outputs.length > 0);
@@ -3847,36 +3848,33 @@ class TestMoneroWalletCommon {
   
   async _synchronizeMultisigParticipants(currentWallet, walletIds) {
     
-    console.log("1");
-    
     // close the current wallet
     let path = await currentWallet.getPath();
     await currentWallet.close(true);
     
-    console.log("2");
-
     // collect multisig hex of all participants to synchronize
     let multisigHexes = [];
     for (let walletId of walletIds) {
       let wallet = await this.openWallet(walletId);
       await wallet.sync();
-      multisigHexes.push(await wallet.getMultisigHex());
+      let hex = await wallet.getMultisigHex();
+      console.log("got hex for wallet " + walletId + ": " + hex);
+      multisigHexes.push(hex);
       await wallet.close(true);
     }
-    
-    console.log("3");
     
     // import each wallet's peer multisig hexIt 
     for (let i = 0; i < walletIds.length; i++) {
       let peerMultisigHexes = [];
       for (let j = 0; j < walletIds.length; j++) if (j !== i) peerMultisigHexes.push(multisigHexes[j]);
       let wallet = await this.openWallet(walletIds[i]);
-      await wallet.importMultisigHex(peerMultisigHexes);
+      console.log("TEST CALLING IMPORTMULTISIGHEX");
+      console.log(peerMultisigHexes);
+      let numOutputsSigned = await wallet.importMultisigHex(peerMultisigHexes);
+      assert(numOutputsSigned > 0);
       await wallet.sync();
       await wallet.close(true);
     }
-    
-    console.log("4");
     
     // re-open current wallet and return
     let endWallet = await this.openWallet(path);
