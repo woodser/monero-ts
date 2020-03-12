@@ -171,7 +171,7 @@ get_openssl_source() {
   [ -f ${SDK_PATH}/OpenSSL_1_1_1d.tar.gz ] \
   && {
     echo "openssl source is already in ${SDK_PATH}"
-  }
+  } \
   || {
     echo "Downloading openssl source..."
     local DL_URL="https://github.com/openssl/openssl/archive/OpenSSL_1_1_1d.tar.gz"
