@@ -1262,7 +1262,10 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
-      return that.module.import_multisig_hex(that.cppAddress, JSON.stringify({multisigHexes: multisigHexes}));
+      return new Promise(function(resolve, reject) {
+        let callbackFn = function(resp) { resolve(resp); }
+        that.module.import_multisig_hex(that.cppAddress, JSON.stringify({multisigHexes: multisigHexes}), callbackFn);
+      });
     });
   }
   
@@ -1278,7 +1281,10 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
-      return JSON.parse(that.module.submit_multisig_tx_hex(that.cppAddress, signedMultisigTxHex)).txHashes;
+      return new Promise(function(resolve, reject) {
+        let callbackFn = function(resp) { resolve(JSON.parse(resp).txHashes); }
+        that.module.submit_multisig_tx_hex(that.cppAddress, signedMultisigTxHex, callbackFn);
+      });
     });
   }
   
@@ -2157,7 +2163,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async importMultisigHex(multisigHexes) {
-    return this._invokeWorker("importMultisigHex", Array.from(multisigHexes));
+    return this._invokeWorker("importMultisigHex", Array.from(arguments));
   }
   
   async signMultisigTxHex(multisigTxHex) {
@@ -2165,7 +2171,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async submitMultisigTxHex(signedMultisigTxHex) {
-    return this._invokeWorker("submitMultisigTxHex", Array.from(signedMultisigTxHex));
+    return this._invokeWorker("submitMultisigTxHex", Array.from(arguments));
   }
   
   async getData() {

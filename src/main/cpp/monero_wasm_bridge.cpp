@@ -913,8 +913,11 @@ string monero_wasm_bridge::get_multisig_hex(int handle) {
   return wallet->get_multisig_hex();
 }
 
-int monero_wasm_bridge::import_multisig_hex(int handle, const string& args) {
+void monero_wasm_bridge::import_multisig_hex(int handle, const string& args, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
+
+  cout << "wasm bridge importing multisig hex: " << endl;
+  cout << args << endl;
 
   // deserialize args to property tree
   std::istringstream iss = std::istringstream(args);
@@ -926,8 +929,11 @@ int monero_wasm_bridge::import_multisig_hex(int handle, const string& args) {
   boost::property_tree::ptree multisig_hexes_node = node.get_child("multisigHexes");
   for (const auto& child : multisig_hexes_node) multisig_hexes.push_back(child.second.get_value<string>());
 
+  for (const auto& child : multisig_hexes) cout << "Gonna import multisig hex: " << child << endl;
+
   // import multisig hex
-  return wallet->import_multisig_hex(multisig_hexes);
+  cout << "wasm bridge calling import_multisig_hex" << endl;
+  callback(wallet->import_multisig_hex(multisig_hexes));
 }
 
 string monero_wasm_bridge::sign_multisig_tx_hex(int handle, const string& multisig_tx_hex) {
@@ -936,7 +942,7 @@ string monero_wasm_bridge::sign_multisig_tx_hex(int handle, const string& multis
   return result.serialize();
 }
 
-string monero_wasm_bridge::submit_multisig_tx_hex(int handle, const string& signed_multisig_tx_hex) {
+void monero_wasm_bridge::submit_multisig_tx_hex(int handle, const string& signed_multisig_tx_hex, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   vector<string> tx_hashes = wallet->submit_multisig_tx_hex(signed_multisig_tx_hex);
 
@@ -944,7 +950,7 @@ string monero_wasm_bridge::submit_multisig_tx_hex(int handle, const string& sign
   rapidjson::Document doc;
   doc.SetObject();
   doc.AddMember("txHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_hashes), doc.GetAllocator());
-  return monero_utils::serialize(doc);
+  callback(monero_utils::serialize(doc));
 }
 
 void monero_wasm_bridge::close(int handle, bool save, emscripten::val callback) {
