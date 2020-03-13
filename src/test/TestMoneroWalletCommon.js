@@ -3528,7 +3528,6 @@ class TestMoneroWalletCommon {
     console.log("_testMultisig(" + m + ", " + n + ")");
     
     // set name attribute of test wallet at beginning of test
-    console.log("starting multisig wallet: " + await this.wallet.getPath());
     let BEGIN_MULTISIG_NAME = "begin_multisig_wallet";
     await this.wallet.setAttribute("name", BEGIN_MULTISIG_NAME);
     await this.wallet.save();
@@ -3543,7 +3542,6 @@ class TestMoneroWalletCommon {
       await wallet.setAttribute("name", await wallet.getPath());  // set the name of each wallet as an attribute
       preparedMultisigHexes.push(await wallet.prepareMultisig());
       //console.log("PREPARED HEX: " + preparedMultisigHexes[preparedMultisigHexes.length - 1]);
-      
       await wallet.close(true);
     }
 
@@ -3730,6 +3728,7 @@ class TestMoneroWalletCommon {
       
       // parse multisig tx hex and test
       testParsedTxSet(await curWallet.parseTxSet(txSet));
+      await curWallet.close(true);
       
       // sign the tx with participants 1 through m - 1 to meet threshold
       let multisigTxHex = txSet.getMultisigTxHex();
@@ -3763,7 +3762,6 @@ class TestMoneroWalletCommon {
       outputs = await curWallet.getOutputs(new MoneroOutputQuery().setAccountIndex(1).setSubaddressIndex(1));
       assert(outputs.length > 0);
       assert(outputs[0].isSpent() === false);
-      console.log("sweeping output...");
       txSet = await curWallet.sweepOutput(returnAddress, outputs[0].getKeyImage().getHex());
       assert.notEqual(txSet.getMultisigTxHex(), undefined);
       assert.equal(txSet.getSignedTxHex(), undefined);
@@ -3853,7 +3851,6 @@ class TestMoneroWalletCommon {
       let wallet = await this.openWallet(walletId);
       await wallet.sync();
       let hex = await wallet.getMultisigHex();
-      console.log("got hex for wallet " + walletId + ": " + hex);
       multisigHexes.push(hex);
       await wallet.close(true);
     }
@@ -3863,11 +3860,8 @@ class TestMoneroWalletCommon {
       let peerMultisigHexes = [];
       for (let j = 0; j < walletIds.length; j++) if (j !== i) peerMultisigHexes.push(multisigHexes[j]);
       let wallet = await this.openWallet(walletIds[i]);
-      console.log("TEST CALLING IMPORTMULTISIGHEX");
-      console.log(peerMultisigHexes);
-      let numOutputsSigned = await wallet.importMultisigHex(peerMultisigHexes);
-      assert(numOutputsSigned > 0);
       await wallet.sync();
+      await wallet.importMultisigHex(peerMultisigHexes);
       await wallet.close(true);
     }
     

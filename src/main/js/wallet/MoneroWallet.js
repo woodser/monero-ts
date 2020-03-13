@@ -32,7 +32,7 @@ class MoneroWallet {
    * @return {bool} true if the wallet is watch-only, false otherwise
    */
   async isWatchOnly() {
-    return undefined === await this.getMnemonic();
+    throw new MoneroError("Not supported");
   }
   
   /**

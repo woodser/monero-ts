@@ -945,7 +945,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
           if (txSetsJson.charAt(0) !== '{') reject(new MoneroError(txSetsJson)); // json expected, else error
           else {
             let txSets = [];
-            for (let txSetJson of JSON.parse(txSetsJson).txSets) txSets.push(new MoneroTxSet(txSet));
+            for (let txSetJson of JSON.parse(txSetsJson).txSets) txSets.push(new MoneroTxSet(txSetJson));
             resolve(txSets);
           }
         }
