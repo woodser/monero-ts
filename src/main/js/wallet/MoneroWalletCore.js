@@ -868,7 +868,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     }
     
     // check for payment id to avoid error in wasm 
-    if (request.getPaymentId()) throw new MoneroError("Standalone payment IDs are obsolete. Use subaddresses or integrated addresses instead");
+    if (request.getPaymentId()) throw new MoneroError("Standalone payment IDs are obsolete. Use subaddresses or integrated addresses instead"); // TODO: this should no longer be necessary, remove and re-test
     
     // return promise which resolves on callback
     let that = this;
@@ -889,17 +889,91 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async sweepOutput(requestOrAddress, keyImage, priority) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    
+    // normalize and validate request // TODO: this is copied from MoneroWalletRpc.sweepOutput(), factor to super class which calls this with normalized request?
+    let request;
+    if (requestOrAddress instanceof MoneroSendRequest) {
+      assert.equal(arguments.length, 1, "sweepOutput() requires a send request or parameters but both");
+      request = requestOrAddress;
+    } else {
+      if (requestOrAddress instanceof Object) request = new MoneroSendRequest(requestOrAddress);
+      else {
+        request = new MoneroSendRequest(requestOrAddress, undefined, priority);
+        request.setKeyImage(keyImage);
+      }
+    }
+    assert.equal(request.getSweepEachSubaddress(), undefined);
+    assert.equal(request.getBelowAmount(), undefined);
+    assert.equal(request.getCanSplit(), undefined, "Splitting is not applicable when sweeping output");
+    
+    // return promise which resolves on callback
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        
+        // define callback for wasm
+        let callbackFn = function(txSetJsonStr) {
+          if (txSetJsonStr.charAt(0) !== '{') reject(new MoneroError(txSetJsonStr)); // json expected, else error
+          else resolve(new MoneroTxSet(JSON.parse(txSetJsonStr)));
+        }
+        
+        // sync wallet in wasm and invoke callback when done
+        that.module.sweep_output(that.cppAddress, JSON.stringify(request.toJson()), callbackFn);
+      });
+    });
   }
 
   async sweepUnlocked(request) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    
+    // validate request // TODO: this is copied from MoneroWalletRpc.sweepUnlocked(), factor to super class which calls this with normalized request?
+    if (request === undefined) throw new MoneroError("Must specify sweep request");
+    if (request.getDestinations() === undefined || request.getDestinations().length != 1) throw new MoneroError("Must specify exactly one destination to sweep to");
+    if (request.getDestinations()[0].getAddress() === undefined) throw new MoneroError("Must specify destination address to sweep to");
+    if (request.getDestinations()[0].getAmount() !== undefined) throw new MoneroError("Cannot specify amount in sweep request");
+    if (request.getKeyImage() !== undefined) throw new MoneroError("Key image defined; use sweepOutput() to sweep an output by its key image");
+    if (request.getSubaddressIndices() !== undefined && request.getSubaddressIndices().length === 0) request.setSubaddressIndices(undefined);
+    if (request.getAccountIndex() === undefined && request.getSubaddressIndices() !== undefined) throw new MoneroError("Must specify account index if subaddress indices are specified");
+    
+    // return promise which resolves on callback
+    let that = this;
+    return that.module.queueTask(async function() { // TODO: could factor this pattern out, invoked with module params and callback handler
+      return new Promise(function(resolve, reject) {
+        
+        // define callback for wasm
+        let callbackFn = function(txSetsJson) {
+          if (txSetsJson.charAt(0) !== '{') reject(new MoneroError(txSetsJson)); // json expected, else error
+          else {
+            let txSets = [];
+            for (let txSetJson of JSON.parse(txSetsJson).txSets) txSets.push(new MoneroTxSet(txSet));
+            resolve(txSets);
+          }
+        }
+        
+        // sync wallet in wasm and invoke callback when done
+        that.module.sweep_unlocked(that.cppAddress, JSON.stringify(request.toJson()), callbackFn);
+      });
+    });
   }
   
   async sweepDust(doNotRelay) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    
+    // return promise which resolves on callback
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        
+        // define callback for wasm
+        let callbackFn = function(txSetJsonStr) {
+          if (txSetJsonStr.charAt(0) !== '{') reject(new MoneroError(txSetJsonStr)); // json expected, else error
+          else resolve(new MoneroTxSet(JSON.parse(txSetJsonStr)));
+        }
+        
+        // sync wallet in wasm and invoke callback when done
+        that.module.sweep_dust(that.cppAddress, doNotRelay, callbackFn);
+      });
+    });
   }
   
   async parseTxSet(txSet) {

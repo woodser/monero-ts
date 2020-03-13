@@ -644,9 +644,54 @@ void monero_wasm_bridge::send_split(int handle, const string& send_request_json,
   }
 }
 
-//  emscripten::function("sweep_output", &monero_wasm_bridge::sweep_output);
-//  emscripten::function("sweep_unlocked", &monero_wasm_bridge::sweep_unlocked);
-//  emscripten::function("sweep_dust", &monero_wasm_bridge::sweep_dust);
+void monero_wasm_bridge::sweep_output(int handle, const string& send_request_json, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+
+    // deserialize send request
+    shared_ptr<monero_send_request> send_request = monero_send_request::deserialize(send_request_json);
+
+    // submit send request
+    monero_tx_set tx_set = wallet->sweep_output(*send_request);
+
+    // serialize and return tx set
+    callback(tx_set.serialize());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
+
+void monero_wasm_bridge::sweep_unlocked(int handle, const string& send_request_json, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+
+    // deserialize send request
+    shared_ptr<monero_send_request> send_request = monero_send_request::deserialize(send_request_json);
+
+    // submit send request
+    vector<monero_tx_set> tx_sets = wallet->sweep_unlocked(*send_request);
+
+    // wrap and serialize tx sets
+    rapidjson::Document doc;
+    doc.SetObject();
+    doc.AddMember("txSets", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_sets), doc.GetAllocator());
+    callback(monero_utils::serialize(doc));
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
+
+void monero_wasm_bridge::sweep_dust(int handle, bool doNotRelay, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+    monero_tx_set tx_set = wallet->sweep_dust(doNotRelay);
+
+    // serialize and return tx set
+    callback(tx_set.serialize());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
 
 string monero_wasm_bridge::parse_tx_set(int handle, const string& tx_set_str) {
   monero_wallet* wallet = (monero_wallet*) handle;
