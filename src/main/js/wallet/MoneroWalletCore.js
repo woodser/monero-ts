@@ -718,18 +718,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
         
         // define callback for wasm
         let callbackFn = function(blocksJsonStr) {
-          
-          // check for error  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
-          if (blocksJsonStr.charAt(0) !== "{") {
-            reject(new MoneroError(blocksJsonStr));
-            return;
-          }
-          
-          // initialize txs from blocks json string
-          let txs = MoneroWalletCore._blocksJsonToTxs(query, blocksJsonStr);
-          
-          // resolve promise with txs
-          resolve(txs);
+          if (blocksJsonStr.charAt(0) !== "{") reject(new MoneroError(blocksJsonStr));  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
+          else resolve(MoneroWalletCore._blocksJsonToTxs(query, blocksJsonStr));
         }
         
         // sync wallet in wasm and invoke callback when done
@@ -756,18 +746,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
         
         // define callback for wasm
         let callbackFn = function(blocksJsonStr) {
-          
-          // check for error  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
-          if (blocksJsonStr.charAt(0) !== "{") {
-            reject(new MoneroError(blocksJsonStr));
-            return;
-          }
-          
-          // initialize transfers from blocks json string
-          let transfers = MoneroWalletCore._blocksJsonToTransfers(query, blocksJsonStr)
-          
-          // resolve promise with transfers
-          resolve(transfers);
+          if (blocksJsonStr.charAt(0) !== "{") reject(new MoneroError(blocksJsonStr));  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
+          else resolve(MoneroWalletCore._blocksJsonToTransfers(query, blocksJsonStr));
         }
         
         // sync wallet in wasm and invoke callback when done
@@ -897,13 +877,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
         
         // define callback for wasm
         let callbackFn = function(txSetJsonStr) {
-          
-          // json string expected // TODO: use error handling when supported in wasm
-          if (txSetJsonStr.charAt(0) !== '{') throw new Error(txSetJsonStr);
-          
-          // deserialize tx set
-          let txSet = new MoneroTxSet(JSON.parse(txSetJsonStr));
-          resolve(txSet);
+          if (txSetJsonStr.charAt(0) !== '{') reject(new MoneroError(txSetJsonStr)); // json expected, else error
+          else resolve(new MoneroTxSet(JSON.parse(txSetJsonStr)));
         }
         
         // sync wallet in wasm and invoke callback when done
@@ -1263,7 +1238,10 @@ class MoneroWalletCore extends MoneroWalletKeys {
     let that = this;
     return that.module.queueTask(async function() {
       return new Promise(function(resolve, reject) {
-        let callbackFn = function(resp) { resolve(resp); }
+        let callbackFn = function(resp) {
+          if (typeof resp === "string") reject(new MoneroError(resp));
+          else resolve(resp);
+        }
         that.module.import_multisig_hex(that.cppAddress, JSON.stringify({multisigHexes: multisigHexes}), callbackFn);
       });
     });

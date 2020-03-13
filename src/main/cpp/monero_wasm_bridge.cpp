@@ -627,17 +627,21 @@ void monero_wasm_bridge::import_key_images(int handle, const string& key_images_
 
 void monero_wasm_bridge::send_split(int handle, const string& send_request_json, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
+  try {
 
-  // deserialize send request
-  shared_ptr<monero_send_request> send_request = monero_send_request::deserialize(send_request_json);
+    // deserialize send request
+    shared_ptr<monero_send_request> send_request = monero_send_request::deserialize(send_request_json);
 
-  // submit send request
-  cout << "Calling send_split() " << endl;
-  monero_tx_set tx_set = wallet->send_split(*send_request);
-  cout << "Returned from send_split(), calling tx_set serialize()" << endl;
+    // submit send request
+    cout << "Calling send_split() " << endl;
+    monero_tx_set tx_set = wallet->send_split(*send_request);
+    cout << "Returned from send_split(), calling tx_set serialize()" << endl;
 
-  // serialize and return tx set
-  callback(tx_set.serialize());
+    // serialize and return tx set
+    callback(tx_set.serialize());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 //  emscripten::function("sweep_output", &monero_wasm_bridge::sweep_output);
@@ -915,25 +919,33 @@ string monero_wasm_bridge::get_multisig_hex(int handle) {
 
 void monero_wasm_bridge::import_multisig_hex(int handle, const string& args, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+      cout << "wasm bridge importing multisig hex: " << endl;
+      cout << args << endl;
 
-  cout << "wasm bridge importing multisig hex: " << endl;
-  cout << args << endl;
+      // deserialize args to property tree
+      std::istringstream iss = std::istringstream(args);
+      boost::property_tree::ptree node;
+      boost::property_tree::read_json(iss, node);
 
-  // deserialize args to property tree
-  std::istringstream iss = std::istringstream(args);
-  boost::property_tree::ptree node;
-  boost::property_tree::read_json(iss, node);
+      // get multisig hexes from args
+      vector<string> multisig_hexes;
+      boost::property_tree::ptree multisig_hexes_node = node.get_child("multisigHexes");
+      for (const auto& child : multisig_hexes_node) multisig_hexes.push_back(child.second.get_value<string>());
 
-  // get multisig hexes from args
-  vector<string> multisig_hexes;
-  boost::property_tree::ptree multisig_hexes_node = node.get_child("multisigHexes");
-  for (const auto& child : multisig_hexes_node) multisig_hexes.push_back(child.second.get_value<string>());
+      for (const auto& child : multisig_hexes) cout << "Gonna import multisig hex: " << child << endl;
 
-  for (const auto& child : multisig_hexes) cout << "Gonna import multisig hex: " << child << endl;
-
-  // import multisig hex
-  cout << "wasm bridge calling import_multisig_hex" << endl;
-  callback(wallet->import_multisig_hex(multisig_hexes));
+      // import multisig hex
+      cout << "wasm bridge calling import_multisig_hex" << endl;
+      callback(wallet->import_multisig_hex(multisig_hexes));
+  } catch (exception& e) {
+      cout << "CAUGHT ERROR IMPORTING MULTISIG HEX!" << endl;
+      cout << e.what() << endl;
+      callback(string("error 1!"));
+  } catch (...) {
+      cout << "CAUGHT ERROR IMPORTING MULTISIG HEX WITH ... EXCEPTION" << endl;
+      callback(string("error 2!"));
+  }
 }
 
 string monero_wasm_bridge::sign_multisig_tx_hex(int handle, const string& multisig_tx_hex) {
