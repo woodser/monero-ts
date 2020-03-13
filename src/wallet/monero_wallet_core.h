@@ -173,6 +173,7 @@ namespace monero {
     /**
      * Supported wallet methods.
      */
+    bool is_watch_only() const { return m_w2->watch_only(); }
     void set_daemon_connection(const string& uri, const string& username = "", const string& password = "");
     void set_daemon_connection(const boost::optional<monero_rpc_connection>& connection);
     boost::optional<monero_rpc_connection> get_daemon_connection() const;

@@ -130,6 +130,16 @@ namespace monero {
     virtual ~monero_wallet() {}
 
     /**
+     * Indicates if the wallet is watch-only, meaning it does have the private
+     * spend key and can therefore only observe incoming outputs.
+     *
+     * @return true if the wallet is watch-only, false otherwise
+     */
+    virtual bool is_watch_only() const {
+      throw runtime_error("is_watch_only() not supported");
+    }
+
+    /**
      * Set the wallet's daemon connection.
      *
      * @param uri is the daemon's URI

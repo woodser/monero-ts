@@ -116,6 +116,7 @@ namespace monero {
     /**
      * Supported wallet methods.
      */
+    bool is_watch_only() const { return m_is_watch_only; }
     monero_version get_version() const;
     monero_network_type get_network_type() const { return m_network_type; }
     string get_mnemonic() const { return m_mnemonic; }
@@ -137,6 +138,7 @@ namespace monero {
     // --------------------------------- PRIVATE --------------------------------
 
   private:
+    bool m_is_watch_only;
     monero_network_type m_network_type;
     cryptonote::account_base m_account;
     string m_mnemonic;
