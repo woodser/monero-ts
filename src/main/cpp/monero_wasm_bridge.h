@@ -34,6 +34,7 @@ namespace monero_wasm_bridge
 
   // ----------------------- WALLET INSTANCE METHODS --------------------------
 
+  bool is_watch_only(int handle);
   void set_daemon_connection(int handle, const string& uri, const string& username, const string& password, emscripten::val callback);
   string get_daemon_connection(int handle);
   void is_connected(int handle, emscripten::val callback);

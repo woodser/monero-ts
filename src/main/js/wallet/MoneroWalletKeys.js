@@ -107,6 +107,14 @@ class MoneroWalletKeys extends MoneroWallet {
     if (!this.module.create_core_wallet_from_mnemonic) throw new Error("WASM module not loaded - create wallet instance using static utilities");  // static utilites pre-load wasm module
   }
   
+  async isWatchOnly() {
+    this._assertNotClosed();
+    let that = this;
+    return that.module.queueTask(async function() {
+      return that.module.is_watch_only(that.cppAddress);
+    });
+  }
+  
   async getVersion() {
     this._assertNotClosed();
     let that = this;

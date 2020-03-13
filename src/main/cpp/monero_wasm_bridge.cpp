@@ -196,6 +196,11 @@ string monero_wasm_bridge::get_keys_wallet_mnemonic_languages() {
 
 // ------------------------ WALLET INSTANCE METHODS ---------------------------
 
+bool monero_wasm_bridge::is_watch_only(int handle) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->is_watch_only();
+}
+
 void monero_wasm_bridge::set_daemon_connection(int handle, const string& uri, const string& username, const string& password, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   wallet->set_daemon_connection(uri, username, password);
@@ -965,31 +970,21 @@ string monero_wasm_bridge::get_multisig_hex(int handle) {
 void monero_wasm_bridge::import_multisig_hex(int handle, const string& args, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   try {
-      cout << "wasm bridge importing multisig hex: " << endl;
-      cout << args << endl;
 
-      // deserialize args to property tree
-      std::istringstream iss = std::istringstream(args);
-      boost::property_tree::ptree node;
-      boost::property_tree::read_json(iss, node);
+    // deserialize args to property tree
+    std::istringstream iss = std::istringstream(args);
+    boost::property_tree::ptree node;
+    boost::property_tree::read_json(iss, node);
 
-      // get multisig hexes from args
-      vector<string> multisig_hexes;
-      boost::property_tree::ptree multisig_hexes_node = node.get_child("multisigHexes");
-      for (const auto& child : multisig_hexes_node) multisig_hexes.push_back(child.second.get_value<string>());
+    // get multisig hexes from args
+    vector<string> multisig_hexes;
+    boost::property_tree::ptree multisig_hexes_node = node.get_child("multisigHexes");
+    for (const auto& child : multisig_hexes_node) multisig_hexes.push_back(child.second.get_value<string>());
 
-      for (const auto& child : multisig_hexes) cout << "Gonna import multisig hex: " << child << endl;
-
-      // import multisig hex
-      cout << "wasm bridge calling import_multisig_hex" << endl;
-      callback(wallet->import_multisig_hex(multisig_hexes));
+    // import multisig hex
+    callback(wallet->import_multisig_hex(multisig_hexes));
   } catch (exception& e) {
-      cout << "CAUGHT ERROR IMPORTING MULTISIG HEX!" << endl;
-      cout << e.what() << endl;
-      callback(string("error 1!"));
-  } catch (...) {
-      cout << "CAUGHT ERROR IMPORTING MULTISIG HEX WITH ... EXCEPTION" << endl;
-      callback(string("error 2!"));
+    callback(string(e.what()));
   }
 }
 
