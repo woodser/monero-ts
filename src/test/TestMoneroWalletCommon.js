@@ -3707,18 +3707,13 @@ class TestMoneroWalletCommon {
       // wallet requires importing multisig to be reliable
       assert(await curWallet.isMultisigImportNeeded());
       
-      // TODO: enable when able to recover from send failure
-//      // attempt creating and relaying transaction without synchronizing with participants
-//      try {
-//        console.log("Attempting to create and relay transaction without synchronizing with participants (exception excected");
-//        let txSet = await curWallet.sendSplit(1, returnAddress, TestUtils.MAX_FEE.multiply(new BigInteger(3)));
-//        console.log("WARNING: wallet returned a tx set from sendSplit() even though it has not been synchronized with participants, expected exception: " + JSON.stringify(txSet));  // TODO monero core: wallet_rpc_server.cpp:995 should throw if no txs created
-//        //throw new RuntimeException("Should have failed sending funds without synchronizing with peers");
-//      } catch (e) {
-//        if (e.message.indexOf("Should have failed") < 0) { // TODO: remove this check when wallet rpc throws exception as expected
-//          assert.equal(e.message, "No transaction created");
-//        }
-//      }
+      // attempt creating and relaying transaction without synchronizing with participants
+      try {
+        await curWallet.sendSplit(1, returnAddress, TestUtils.MAX_FEE.multiply(new BigInteger(3)));
+        throw new Error("Should have failed sending funds without synchronizing with peers");
+      } catch (e) {
+        assert.equal(e.message, "No transaction created");
+      }
       
       // synchronize the multisig participants since receiving outputs
       console.log("Synchronizing participants");
