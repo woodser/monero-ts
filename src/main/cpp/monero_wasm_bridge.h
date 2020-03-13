@@ -86,9 +86,9 @@ namespace monero_wasm_bridge
   //  emscripten::function("get_new_key_images_from_last_import", &monero_wasm_bridge::get_new_key_images_from_last_import);
   //  emscripten::function("relay_txs", &monero_wasm_bridge::relay_txs);
   void send_split(int handle, const string& send_request_json, emscripten::val callback);
-  //  emscripten::function("sweep_output", &monero_wasm_bridge::sweep_output);
-  //  emscripten::function("sweep_unlocked", &monero_wasm_bridge::sweep_unlocked);
-  //  emscripten::function("sweep_dust", &monero_wasm_bridge::sweep_dust);
+  void sweep_output(int handle, const string& send_requet_json, emscripten::val callback);
+  void sweep_unlocked(int handle, const string& send_requet_json, emscripten::val callback);
+  void sweep_dust(int handle, bool doNotRelay, emscripten::val callback);
   string parse_tx_set(int handle, const string& tx_set_str);
   string sign_txs(int handle, const string& unsigned_tx_hex);
   void submit_txs(int handle, const string& signed_tx_hex, emscripten::val callback);
