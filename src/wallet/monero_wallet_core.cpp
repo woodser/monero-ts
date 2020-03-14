@@ -3348,9 +3348,9 @@ namespace monero {
     try {
       m_w2->refresh(m_w2->is_trusted_daemon(), sync_start_height, result.m_num_blocks_fetched, result.m_received_money, true);
       if (!m_is_synced) m_is_synced = true;
-    } catch (const exception& e) {
-      MERROR("Caught error refreshing m_w2: " << e.what());
-      cout << "ERROR: caught error refreshing m_w2: " << e.what() << endl;
+    } catch (exception& e) {
+      m_w2_listener->on_sync_end(); // signal end of sync to reset listener's start and end heights
+      throw;
     }
 
     // find and save rings
