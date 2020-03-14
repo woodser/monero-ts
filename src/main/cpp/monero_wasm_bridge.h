@@ -85,7 +85,7 @@ namespace monero_wasm_bridge
   void get_key_images(int handle, emscripten::val callback);
   void import_key_images(int handle, const string& key_images_str, emscripten::val callback);
   //  emscripten::function("get_new_key_images_from_last_import", &monero_wasm_bridge::get_new_key_images_from_last_import);
-  //  emscripten::function("relay_txs", &monero_wasm_bridge::relay_txs);
+  void relay_txs(int handle, const string& args, emscripten::val callback);
   void send_split(int handle, const string& send_request_json, emscripten::val callback);
   void sweep_output(int handle, const string& send_requet_json, emscripten::val callback);
   void sweep_unlocked(int handle, const string& send_requet_json, emscripten::val callback);

@@ -359,6 +359,10 @@ self.createWalletFromKeys = async function(walletId, password, networkType, addr
   self.WORKER_OBJECTS[walletId] = await MoneroWalletCore.createWalletFromKeys("", password, networkType, address, viewKey, spendKey, daemonConnection, restoreHeight, language);
 }
 
+self.isWatchOnly = async function(walletId) {
+  return self.WORKER_OBJECTS[walletId].isWatchOnly();
+}
+
 self.getNetworkType = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].getNetworkType();
 }
@@ -679,31 +683,31 @@ self.importKeyImages = async function(walletId, keyImagesJson) {
 //async getNewKeyImagesFromLastImport() {
 //  throw new MoneroError("Not implemented");
 //}
-//
-//async relayTxs(txsOrMetadatas) {
-//  throw new MoneroError("Not implemented");
-//}
+
+self.relayTxs = async function(walletId, txMetadatas) {
+  return self.WORKER_OBJECTS[walletId].relayTxs(txMetadatas);
+}
 
 self.sendSplit = async function(walletId, requestOrAccountIndex, address, amountStr, priority) {
   if (typeof requestOrAccountIndex === "object") requestOrAccountIndex = new MoneroSendRequest(requestOrAccountIndex);
   return (await self.WORKER_OBJECTS[walletId].sendSplit(requestOrAccountIndex, address, amountStr ? BigInteger.parse(amountStr) : undefined, priority)).toJson();
 }
 
-//async sweepOutput(requestOrAddress, keyImage, priority) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async sweepUnlocked(request) {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async sweepDust() {
-//  throw new MoneroError("Not implemented");
-//}
-//
-//async sweepDust(doNotRelay) {
-//  throw new MoneroError("Not implemented");
-//}
+self.sweepOutput = async function(walletId, requestOrAddress, keyImage, priority) {
+  if (typeof requestOrAddress === "object") requestOrAddress = new MoneroSendRequest(requestOrAddress);
+  return (await self.WORKER_OBJECTS[walletId].sweepOutput(requestOrAddress, keyImage, priority)).toJson();
+}
+
+self.sweepUnlocked = async function(walletId, request) {
+  if (typeof request === "object") request = new MoneroSendRequest(request);
+  let txSetsJson = [];
+  for (let txSet of await self.WORKER_OBJECTS[walletId].sweepUnlocked(request)) txSetsJson.push(txSet.toJson());
+  return txSetsJson;
+}
+
+self.sweepDust = async function(walletId, doNotRelay) {
+  return (await self.WORKER_OBJECTS[walletId].sweepDust(doNotRelay)).toJson();
+}
 
 self.parseTxSet = async function(walletId, txSetJson) {
   return (await self.WORKER_OBJECTS[walletId].parseTxSet(new MoneroTxSet(txSetJson))).toJson();
