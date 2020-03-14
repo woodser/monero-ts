@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#EMCC_DEBUG=1 
+#EMCC_DEBUG=1
 
 export BOOSTROOT="build/boost/lib"
 export BOOST_ROOT=$BOOSTROOT

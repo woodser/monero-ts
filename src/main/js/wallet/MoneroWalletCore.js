@@ -535,18 +535,22 @@ class MoneroWalletCore extends MoneroWalletKeys {
     
     // sync wallet
     let that = this;
-    let result = await that.module.queueTask(async function() {
+    return await that.module.queueTask(async function() {
       return new Promise(function(resolve, reject) {
       
         // define callback for wasm
         let callbackFn = async function(resp) {
-          let respJson = JSON.parse(resp);
-          let result = new MoneroSyncResult(respJson.numBlocksFetched, respJson.receivedMoney);
-          let err;
-          try {
-            resolve(result);
-          } catch (e) {
-            reject(e);
+          
+          // unregister sync listener wrapper
+          if (syncListenerWrapper !== undefined) {  // TODO: test that this is executed with error e.g. sync an unconnected wallet
+            await that.removeListener(syncListenerWrapper); // unregister sync listener
+          }
+          
+          // handle response from wasm module
+          if (resp.charAt(0) !== "{") reject(new MoneroError(resp));
+          else {
+            let respJson = JSON.parse(resp);
+            resolve(new MoneroSyncResult(respJson.numBlocksFetched, respJson.receivedMoney));
           }
         }
         
@@ -554,13 +558,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
         that.module.sync(that.cppAddress, startHeight, callbackFn);
       });
     });
-    
-    // unregister sync listener wrapper
-    if (syncListenerWrapper !== undefined) {  // TODO: test that this is executed with error e.g. sync an unconnected wallet
-      await that.removeListener(syncListenerWrapper); // unregister sync listener
-    }
-    
-    return result;
   }
   
   async startSyncing() {
@@ -718,7 +715,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
         
         // define callback for wasm
         let callbackFn = function(blocksJsonStr) {
-          if (blocksJsonStr.charAt(0) !== "{") reject(new MoneroError(blocksJsonStr));  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
+          if (blocksJsonStr.charAt(0) !== "{") reject(new MoneroError(blocksJsonStr));
           else resolve(MoneroWalletCore._blocksJsonToTxs(query, blocksJsonStr));
         }
         
@@ -1443,8 +1440,12 @@ class MoneroWalletCore extends MoneroWalletKeys {
       if (this._syncingThreadDone) break;
       await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
       if (this._syncingEnabled) {
-        console.log("Background synchronizing " + await this.getPath());
-        await this.sync();
+        try {
+          console.log("Background synchronizing " + await this.getPath());
+          await this.sync();
+        } catch (e) {
+          console.log("Failed to background synchronize: " + e.message);
+        }
       }
     }
   }
@@ -1934,16 +1935,23 @@ class MoneroWalletCoreProxy extends MoneroWallet {
       await this.addListener(syncListenerWrapper);
     }
     
-    // sync the wallet in worker
-    let resultJson = await this._invokeWorker("sync", [startHeight]);
-    let result = new MoneroSyncResult(resultJson.numBlocksFetched, resultJson.receivedMoney);
+    // sync wallet in worker 
+    let err;
+    let result;
+    try {
+      let resultJson = await this._invokeWorker("sync", [startHeight]);
+      result = new MoneroSyncResult(resultJson.numBlocksFetched, resultJson.receivedMoney);
+    } catch (e) {
+      err = e;
+    }
     
     // unregister sync listener wrapper
     if (syncListenerWrapper !== undefined) {  // TODO: test that this is executed with error e.g. sync an unconnected wallet
       await this.removeListener(syncListenerWrapper); // unregister sync listener
     }
     
-    return result;
+    // return result or error if it occurred
+    return err ? err : result;
   }
   
   async startSyncing() {
