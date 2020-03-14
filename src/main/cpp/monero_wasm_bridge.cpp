@@ -352,8 +352,12 @@ int monero_wasm_bridge::set_listener(int wallet_handle, int old_listener_handle,
 
 void monero_wasm_bridge::sync(int handle, long start_height, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  monero_sync_result result = wallet->sync(start_height);
-  callback(result.serialize());
+  try {
+    monero_sync_result result = wallet->sync(start_height);
+    callback(result.serialize());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
 }
 
 void monero_wasm_bridge::rescan_spent(int handle, emscripten::val callback) {
