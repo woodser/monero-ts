@@ -1950,8 +1950,9 @@ class MoneroWalletCoreProxy extends MoneroWallet {
       await this.removeListener(syncListenerWrapper); // unregister sync listener
     }
     
-    // return result or error if it occurred
-    return err ? err : result;
+    // throw error if it occurred
+    if (err) throw err;
+    return result;
   }
   
   async startSyncing() {
