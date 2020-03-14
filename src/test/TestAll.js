@@ -27,7 +27,7 @@ new TestMoneroDaemonRpc({
 
 // test wallet rpc
 new TestMoneroWalletRpc({
-  liteMode: true, // skips some lengthy but detailed tests
+  liteMode: false, // skips some lengthy but detailed tests
   testNonRelays: true,
   testRelays: true,
   testNotifications: false,
@@ -52,8 +52,8 @@ new TestMoneroWalletCore({
   testNotifications: true
 }).runTests();
 
-// test scratchpad
-require("./Scratchpad");
+//// test scratchpad
+//require("./Scratchpad");
 
 ////test boolean set (data structure used by wallet to track progress)
 //require("./TestBooleanSet");

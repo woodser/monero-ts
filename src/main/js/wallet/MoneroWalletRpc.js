@@ -527,7 +527,8 @@ class MoneroWalletRpc extends MoneroWallet {
     query.setOutputQuery(outputQuery);
     
     // filter txs that don't meet transfer query
-    transferQuery.setTxQuery(undefined);    // break circular reference for meets criteria TODO: meetsCriteria should handle loop
+    transferQuery.setTxQuery(undefined);  // break circular reference for meets criteria TODO: meetsCriteria should handle loop
+    outputQuery.setTxQuery(undefined);
     let txsQueried = [];
     for (let tx of txs) {
       if (query.meetsCriteria(tx)) txsQueried.push(tx);
