@@ -844,7 +844,19 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   async relayTxs(txsOrMetadatas) {
     this._assertNotClosed();
-    throw new MoneroError("Not implemented");
+    assert(Array.isArray(txsOrMetadatas), "Must provide an array of txs or their metadata to relay");
+    let txMetadatas = [];
+    for (let txOrMetadata of txsOrMetadatas) txMetadatas.push(txOrMetadata instanceof MoneroTxWallet ? txOrMetadata.getMetadata() : txOrMetadata);
+    let that = this;
+    return that.module.queueTask(async function() {
+      return new Promise(function(resolve, reject) {
+        let callback = function(txHashesJson) {
+          if (txHashesJson.charAt(0) !== "{") reject(new MoneroError(txHashesJson));
+          else resolve(JSON.parse(txHashesJson).txHashes);
+        }
+        that.module.relay_txs(that.cppAddress, JSON.stringify({txMetadatas: txMetadatas}), callback);
+      });
+    });
   }
   
   async sendSplit(requestOrAccountIndex, address, amount, priority) {
@@ -893,7 +905,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     // normalize and validate request // TODO: this is copied from MoneroWalletRpc.sweepOutput(), factor to super class which calls this with normalized request?
     let request;
     if (requestOrAddress instanceof MoneroSendRequest) {
-      assert.equal(arguments.length, 1, "sweepOutput() requires a send request or parameters but both");
+      assert(keyImage === undefined && priority === undefined, "sweepOutput() requires a send request or parameters but not both");
       request = requestOrAddress;
     } else {
       if (requestOrAddress instanceof Object) request = new MoneroSendRequest(requestOrAddress);
@@ -1481,15 +1493,9 @@ class MoneroWalletCore extends MoneroWalletKeys {
   
   static _deserializeBlocks(blocksJsonStr, txType) {
     if (txType === undefined) txType = MoneroBlock.DeserializationType.TX_WALLET;
-    
-    // parse string to json
     let blocksJson = JSON.parse(blocksJsonStr);
-    
-    // initialize blocks
     let blocks = [];
-    for (let blockJson of blocksJson.blocks) {
-      blocks.push(new MoneroBlock(blockJson, txType));
-    }
+    for (let blockJson of blocksJson.blocks) blocks.push(new MoneroBlock(blockJson, txType));
     return blocks
   }
   
@@ -1775,6 +1781,10 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     assert(walletId); // TODO: remove this (bad wallet ids will be part of error message)
   }
   
+  async isWatchOnly() {
+    return this._invokeWorker("isWatchOnly");
+  }
+  
   async getNetworkType() {
     return this._invokeWorker("getNetworkType");
   }
@@ -2035,7 +2045,10 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async relayTxs(txsOrMetadatas) {
-    throw new MoneroError("Not implemented");
+    assert(Array.isArray(txsOrMetadatas), "Must provide an array of txs or their metadata to relay");
+    let txMetadatas = [];
+    for (let txOrMetadata of txsOrMetadatas) txMetadatas.push(txOrMetadata instanceof MoneroTxWallet ? txOrMetadata.getMetadata() : txOrMetadata);
+    return this._invokeWorker("relayTxs", [txMetadatas]);
   }
   
   async sendSplit(requestOrAccountIndex, address, amount, priority) {
@@ -2046,19 +2059,22 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async sweepOutput(requestOrAddress, keyImage, priority) {
-    throw new MoneroError("Not implemented");
+    if (requestOrAddress instanceof MoneroSendRequest) requestOrAddress = requestOrAddress.toJson();
+    else if (typeof requestOrAddress === "object") requestOrAddress = new MoneroSendRequest(requestOrAddress).toJson();
+    let txSetJson = await this._invokeWorker("sweepOutput", [requestOrAddress, keyImage, priority]);
+    return new MoneroTxSet(txSetJson);
   }
 
   async sweepUnlocked(request) {
-    throw new MoneroError("Not implemented");
-  }
-  
-  async sweepDust() {
-    throw new MoneroError("Not implemented");
+    if (request instanceof MoneroSendRequest) request = request.toJson();
+    else if (typeof request === "object") request = new MoneroSendRequest(request).toJson();
+    let txSets = [];
+    for (let txSetJson of await this._invokeWorker("sweepUnlocked", [request])) txSets.push(new MoneroTxSet(txSetJson));
+    return txSets;
   }
   
   async sweepDust(doNotRelay) {
-    throw new MoneroError("Not implemented");
+    return new MoneroTxSet(await this._invokeWorker("sweepDust", [doNotRelay]));
   }
   
   async parseTxSet(txSet) {

@@ -74,7 +74,7 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("get_key_images", &monero_wasm_bridge::get_key_images);
   emscripten::function("import_key_images", &monero_wasm_bridge::import_key_images);
 //  emscripten::function("get_new_key_images_from_last_import", &monero_wasm_bridge::get_new_key_images_from_last_import);
-//  emscripten::function("relay_txs", &monero_wasm_bridge::relay_txs);
+  emscripten::function("relay_txs", &monero_wasm_bridge::relay_txs);
   emscripten::function("send_split", &monero_wasm_bridge::send_split);
   emscripten::function("sweep_output", &monero_wasm_bridge::sweep_output);
   emscripten::function("sweep_unlocked", &monero_wasm_bridge::sweep_unlocked);

@@ -625,10 +625,34 @@ void monero_wasm_bridge::import_key_images(int handle, const string& key_images_
   callback(wallet->import_key_images(key_images)->serialize());
 }
 
-//  emscripten::function("get_key_images", &monero_wasm_bridge::get_key_images);
-//  emscripten::function("import_key_images", &monero_wasm_bridge::import_key_images);
 //  emscripten::function("get_new_key_images_from_last_import", &monero_wasm_bridge::get_new_key_images_from_last_import);
-//  emscripten::function("relay_txs", &monero_wasm_bridge::relay_txs);
+
+void monero_wasm_bridge::relay_txs(int handle, const string& args, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+
+    // deserialize args to property tree
+    std::istringstream iss = std::istringstream(args);
+    boost::property_tree::ptree node;
+    boost::property_tree::read_json(iss, node);
+
+    // get tx metadatas from args
+    vector<string> tx_metadatas;
+    boost::property_tree::ptree tx_metadatas_node = node.get_child("txMetadatas");
+    for (const auto& child : tx_metadatas_node) tx_metadatas.push_back(child.second.get_value<string>());
+
+    // relay txs
+    vector<string> tx_hashes = wallet->relay_txs(tx_metadatas);
+
+    // wrap and serialize tx hashes
+    rapidjson::Document doc;
+    doc.SetObject();
+    doc.AddMember("txHashes", monero_utils::to_rapidjson_val(doc.GetAllocator(), tx_hashes), doc.GetAllocator());
+    callback(monero_utils::serialize(doc));
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
 
 void monero_wasm_bridge::send_split(int handle, const string& send_request_json, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
@@ -638,9 +662,7 @@ void monero_wasm_bridge::send_split(int handle, const string& send_request_json,
     shared_ptr<monero_send_request> send_request = monero_send_request::deserialize(send_request_json);
 
     // submit send request
-    cout << "Calling send_split() " << endl;
     monero_tx_set tx_set = wallet->send_split(*send_request);
-    cout << "Returned from send_split(), calling tx_set serialize()" << endl;
 
     // serialize and return tx set
     callback(tx_set.serialize());

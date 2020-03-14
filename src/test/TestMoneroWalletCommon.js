@@ -3526,317 +3526,321 @@ class TestMoneroWalletCommon {
   
   async _testMultisig(m, n, testTx) {
     console.log("_testMultisig(" + m + ", " + n + ")");
-    
-    // set name attribute of test wallet at beginning of test
     let BEGIN_MULTISIG_NAME = "begin_multisig_wallet";
-    await this.wallet.setAttribute("name", BEGIN_MULTISIG_NAME);
-    await this.wallet.save();
-    await this.wallet.close();  // TODO: if closing it causes resolves issue, then wallets are interfering with each other
-    
-    // create n wallets and prepare multisig hexes
-    let preparedMultisigHexes = [];
-    let walletIds = [];
-    for (let i = 0; i < n; i++) {
-      let wallet = await this.createWalletRandom();
-      walletIds.push(await wallet.getPath());
-      await wallet.setAttribute("name", await wallet.getPath());  // set the name of each wallet as an attribute
-      preparedMultisigHexes.push(await wallet.prepareMultisig());
-      //console.log("PREPARED HEX: " + preparedMultisigHexes[preparedMultisigHexes.length - 1]);
-      await wallet.close(true);
-    }
+    let err;  // try...finally
+    try {
+      
+      // set name attribute of test wallet at beginning of test
+      await this.wallet.setAttribute("name", BEGIN_MULTISIG_NAME);
+      await this.wallet.save();
+      await this.wallet.close();  // TODO: if closing it causes resolves issue, then wallets are interfering with each other
+      
+      // create n wallets and prepare multisig hexes
+      let preparedMultisigHexes = [];
+      let walletIds = [];
+      for (let i = 0; i < n; i++) {
+        let wallet = await this.createWalletRandom();
+        walletIds.push(await wallet.getPath());
+        await wallet.setAttribute("name", await wallet.getPath());  // set the name of each wallet as an attribute
+        preparedMultisigHexes.push(await wallet.prepareMultisig());
+        //console.log("PREPARED HEX: " + preparedMultisigHexes[preparedMultisigHexes.length - 1]);
+        await wallet.close(true);
+      }
 
-    // make wallets multisig
-    let address = undefined;
-    let madeMultisigHexes = [];
-    for (let i = 0; i < walletIds.length; i++) {
-      
-      // open the wallet
-      let wallet = await this.openWallet(walletIds[i]);
-      assert.equal(await wallet.getAttribute("name"), walletIds[i]);
-      
-      // collect prepared multisig hexes from wallet's peers
-      let peerMultisigHexes = [];
-      for (let j = 0; j < walletIds.length; j++) if (j !== i) peerMultisigHexes.push(preparedMultisigHexes[j]);
-
-      // make the wallet multisig
-      let result = await wallet.makeMultisig(peerMultisigHexes, m, TestUtils.WALLET_PASSWORD);
-      //console.log("MADE RESULT: " + JsonUtils.serialize(result));
-      if (address === undefined) address = result.getAddress();
-      else assert.equal(result.getAddress(), address);
-      madeMultisigHexes.push(result.getMultisigHex());
-      await wallet.close(true);
-    }
-    
-    // handle m/n which exchanges keys n - m times
-    if (m !== n) {
-      address = undefined;
-      
-      // exchange keys n - m times
-      assert.equal(madeMultisigHexes.length, n);
-      let prevMultisigHexes = madeMultisigHexes;
-      for (let i = 0; i < n - m; i++) {
-        //console.log("Exchanging multisig keys round " + (i + 1) + " / " + (n - m));
+      // make wallets multisig
+      let address = undefined;
+      let madeMultisigHexes = [];
+      for (let i = 0; i < walletIds.length; i++) {
         
-        // exchange multisig keys with each wallet and collect results
-        let exchangeMultisigHexes = [];
-        for (let j = 0; j < walletIds.length; j++) {
-          let walletId = walletIds[j];
+        // open the wallet
+        let wallet = await this.openWallet(walletIds[i]);
+        assert.equal(await wallet.getAttribute("name"), walletIds[i]);
+        
+        // collect prepared multisig hexes from wallet's peers
+        let peerMultisigHexes = [];
+        for (let j = 0; j < walletIds.length; j++) if (j !== i) peerMultisigHexes.push(preparedMultisigHexes[j]);
+
+        // make the wallet multisig
+        let result = await wallet.makeMultisig(peerMultisigHexes, m, TestUtils.WALLET_PASSWORD);
+        //console.log("MADE RESULT: " + JsonUtils.serialize(result));
+        if (address === undefined) address = result.getAddress();
+        else assert.equal(result.getAddress(), address);
+        madeMultisigHexes.push(result.getMultisigHex());
+        await wallet.close(true);
+      }
+      
+      // handle m/n which exchanges keys n - m times
+      if (m !== n) {
+        address = undefined;
+        
+        // exchange keys n - m times
+        assert.equal(madeMultisigHexes.length, n);
+        let prevMultisigHexes = madeMultisigHexes;
+        for (let i = 0; i < n - m; i++) {
+          //console.log("Exchanging multisig keys round " + (i + 1) + " / " + (n - m));
           
-          // open the wallet
-          let wallet = await this.openWallet(walletId);
-          assert.equal(await wallet.getAttribute("name"), walletIds[j]);
-          
-          // collect the multisig hexes of the wallet's peers from last round
-          let peerMultisigHexes = [];
-          for (let k = 0; k < walletIds.length; k++) if (k !== j) peerMultisigHexes.push(prevMultisigHexes[k]);
-          
-          // import the multisig hexes of the wallet's peers
-          let result = await wallet.exchangeMultisigKeys(peerMultisigHexes, TestUtils.WALLET_PASSWORD);
-          //console.log("EXCHANGED MULTISIG KEYS RESULT: " + JsonUtils.serialize(result));
-          
-          // test result
-          if (i === n - m - 1) {  // result on last round has address and not multisig hex to share
-            assert.notEqual(result.getAddress(), undefined);
-            assert(result.getAddress().length > 0);
-            if (address === undefined) address = result.getAddress();
-            else assert.equal(result.getAddress(), address);
-            assert.equal(result.getMultisigHex(), undefined);
-          } else {
-            assert.notEqual(result.getMultisigHex(), undefined);
-            assert(result.getMultisigHex().length > 0);
-            assert.equal(result.getAddress(), undefined);
-            exchangeMultisigHexes.push(result.getMultisigHex());
+          // exchange multisig keys with each wallet and collect results
+          let exchangeMultisigHexes = [];
+          for (let j = 0; j < walletIds.length; j++) {
+            let walletId = walletIds[j];
+            
+            // open the wallet
+            let wallet = await this.openWallet(walletId);
+            assert.equal(await wallet.getAttribute("name"), walletIds[j]);
+            
+            // collect the multisig hexes of the wallet's peers from last round
+            let peerMultisigHexes = [];
+            for (let k = 0; k < walletIds.length; k++) if (k !== j) peerMultisigHexes.push(prevMultisigHexes[k]);
+            
+            // import the multisig hexes of the wallet's peers
+            let result = await wallet.exchangeMultisigKeys(peerMultisigHexes, TestUtils.WALLET_PASSWORD);
+            //console.log("EXCHANGED MULTISIG KEYS RESULT: " + JsonUtils.serialize(result));
+            
+            // test result
+            if (i === n - m - 1) {  // result on last round has address and not multisig hex to share
+              assert.notEqual(result.getAddress(), undefined);
+              assert(result.getAddress().length > 0);
+              if (address === undefined) address = result.getAddress();
+              else assert.equal(result.getAddress(), address);
+              assert.equal(result.getMultisigHex(), undefined);
+            } else {
+              assert.notEqual(result.getMultisigHex(), undefined);
+              assert(result.getMultisigHex().length > 0);
+              assert.equal(result.getAddress(), undefined);
+              exchangeMultisigHexes.push(result.getMultisigHex());
+            }
+            
+            //await wallet.save();
+            await wallet.close(true);
           }
           
-          //await wallet.save();
-          await wallet.close(true);
-        }
-        
-        // use results for next round of exchange
-        prevMultisigHexes = exchangeMultisigHexes;
-      }
-    }
-    
-    // print final multisig address
-    let curWallet = await this.openWallet(walletIds[0]);
-    assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
-    //console.log("FINAL MULTISIG ADDRESS: " + await curWallet.getPrimaryAddress());
-    await curWallet.close();
-    
-    // test sending a multisig transaction if configured
-    if (testTx) {
-      
-      console.log("Creating account");
-      
-      // create an account in the first multisig wallet to receive funds to
-      curWallet = await this.openWallet(walletIds[0]);
-      assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
-      await curWallet.createAccount();
-      
-      // get destinations to subaddresses within the account of the multisig wallet
-      let accountIdx = 1;
-      let destinations = [];
-      for (let i = 0; i < 3; i++) {
-        await curWallet.createSubaddress(accountIdx);
-        destinations.push(new MoneroDestination(await curWallet.getAddress(accountIdx, i), TestUtils.MAX_FEE.multiply(new BigInteger(2))));
-      }
-      await curWallet.close(true);
-      
-      console.log("Sending funds from main wallet");
-      
-      // send funds from the main test wallet to destinations in the first multisig wallet
-      curWallet = await this.getTestWallet();  // get / open the main test wallet
-      assert.equal(await curWallet.getAttribute("name"), BEGIN_MULTISIG_NAME);
-      assert((await curWallet.getBalance()).compare(new BigInteger(0)) > 0);
-      await curWallet.send(new MoneroSendRequest().setAccountIndex(0).setDestinations(destinations));
-      let returnAddress = await curWallet.getPrimaryAddress(); // funds will be returned to this address from the multisig wallet
-      
-      // open the first multisig participant
-      curWallet = await this.openWallet(walletIds[0]);
-      assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
-      this._testMultisigInfo(await curWallet.getMultisigInfo(), m, n);
-      await curWallet.startSyncing();
-      
-      console.log("Starting mining");
-      
-      // start mining to push the network along
-      await StartMining.startMining();
-      
-      // wait for the multisig wallet's funds to unlock // TODO: could replace with condition_variable and notify
-      let lastNumConfirmations = undefined;
-      while (true) {
-        
-        // wait for a moment
-        await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
-        
-        // fetch and test outputs
-        let outputs = await curWallet.getOutputs();
-        if (outputs.length === 0) console.log("No outputs reported yet");
-        else {
-          
-          // print num confirmations
-          let height = await this.daemon.getHeight();
-          let numConfirmations = height - outputs[0].getTx().getHeight();
-          if (lastNumConfirmations === undefined || lastNumConfirmations !== numConfirmations) console.log("Output has " + (height - outputs[0].getTx().getHeight()) + " confirmations");
-          lastNumConfirmations = numConfirmations;
-          
-          // outputs are not spent
-          for (let output of outputs) assert(output.isSpent() === false);
-          
-          // break if output is unlocked
-          if (!outputs[0].isLocked()) break;
+          // use results for next round of exchange
+          prevMultisigHexes = exchangeMultisigHexes;
         }
       }
+      
+      // print final multisig address
+      let curWallet = await this.openWallet(walletIds[0]);
+      assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
+      //console.log("FINAL MULTISIG ADDRESS: " + await curWallet.getPrimaryAddress());
+      await curWallet.close();
+      
+      // test sending a multisig transaction if configured
+      if (testTx) {
         
-      // stop mining
-      await this.daemon.stopMining();
-      
-      // multisig wallet should have unlocked balance in account 1 subaddresses 0-3
-      assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
-      for (let i = 0; i < 3; i++) {
-        assert((await curWallet.getUnlockedBalance(1, i)).compare(BigInteger.parse("0")) > 0);
-      }
-      let outputs = await curWallet.getOutputs(new MoneroOutputQuery().setAccountIndex(1));
-      assert(outputs.length > 0);
-      if (outputs.length < 3) console.log("WARNING: not one output per subaddress?");
-      //assert(outputs.length >= 3);  // TODO
-      for (let output of outputs) assert.equal(output.isLocked(), false);
-      
-      // wallet requires importing multisig to be reliable
-      assert(await curWallet.isMultisigImportNeeded());
-      
-      // attempt creating and relaying transaction without synchronizing with participants
-      try {
-        await curWallet.sendSplit(1, returnAddress, TestUtils.MAX_FEE.multiply(new BigInteger(3)));
-        throw new Error("Should have failed sending funds without synchronizing with peers");
-      } catch (e) {
-        assert.equal(e.message, "No transaction created");
-      }
-      
-      // synchronize the multisig participants since receiving outputs
-      console.log("Synchronizing participants");
-      curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
-      assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
-      
-      // send funds from a subaddress in the multisig wallet
-      console.log("Sending");
-      let txSet = await curWallet.sendSplit(new MoneroSendRequest(returnAddress, TestUtils.MAX_FEE).setAccountIndex(1).setSubaddressIndex(0));
-      assert.notEqual(txSet.getMultisigTxHex(), undefined);
-      assert.equal(txSet.getSignedTxHex(), undefined);
-      assert.equal(txSet.getUnsignedTxHex(), undefined);
-      assert(txSet.getTxs().length > 0);
-      
-      // parse multisig tx hex and test
-      testParsedTxSet(await curWallet.parseTxSet(txSet));
-      await curWallet.close(true);
-      
-      // sign the tx with participants 1 through m - 1 to meet threshold
-      let multisigTxHex = txSet.getMultisigTxHex();
-      console.log("Signing");
-      for (let i = 1; i < m; i++) {
-        curWallet = await this.openWallet(walletIds[i]);
-        let result = await curWallet.signMultisigTxHex(multisigTxHex);
-        multisigTxHex = result.getSignedMultisigTxHex();
+        console.log("Creating account");
+        
+        // create an account in the first multisig wallet to receive funds to
+        curWallet = await this.openWallet(walletIds[0]);
+        assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
+        await curWallet.createAccount();
+        
+        // get destinations to subaddresses within the account of the multisig wallet
+        let accountIdx = 1;
+        let destinations = [];
+        for (let i = 0; i < 3; i++) {
+          await curWallet.createSubaddress(accountIdx);
+          destinations.push(new MoneroDestination(await curWallet.getAddress(accountIdx, i), TestUtils.MAX_FEE.multiply(new BigInteger(2))));
+        }
+        await curWallet.close(true);
+        
+        console.log("Sending funds from main wallet");
+        
+        // send funds from the main test wallet to destinations in the first multisig wallet
+        curWallet = await this.getTestWallet();  // get / open the main test wallet
+        assert.equal(await curWallet.getAttribute("name"), BEGIN_MULTISIG_NAME);
+        assert((await curWallet.getBalance()).compare(new BigInteger(0)) > 0);
+        await curWallet.send(new MoneroSendRequest().setAccountIndex(0).setDestinations(destinations));
+        let returnAddress = await curWallet.getPrimaryAddress(); // funds will be returned to this address from the multisig wallet
+        
+        // open the first multisig participant
+        curWallet = await this.openWallet(walletIds[0]);
+        assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
+        this._testMultisigInfo(await curWallet.getMultisigInfo(), m, n);
+        await curWallet.startSyncing();
+        
+        console.log("Starting mining");
+        
+        // start mining to push the network along
+        await StartMining.startMining();
+        
+        // wait for the multisig wallet's funds to unlock // TODO: could replace with condition_variable and notify
+        let lastNumConfirmations = undefined;
+        while (true) {
+          
+          // wait for a moment
+          await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
+          
+          // fetch and test outputs
+          let outputs = await curWallet.getOutputs();
+          if (outputs.length === 0) console.log("No outputs reported yet");
+          else {
+            
+            // print num confirmations
+            let height = await this.daemon.getHeight();
+            let numConfirmations = height - outputs[0].getTx().getHeight();
+            if (lastNumConfirmations === undefined || lastNumConfirmations !== numConfirmations) console.log("Output has " + (height - outputs[0].getTx().getHeight()) + " confirmations");
+            lastNumConfirmations = numConfirmations;
+            
+            // outputs are not spent
+            for (let output of outputs) assert(output.isSpent() === false);
+            
+            // break if output is unlocked
+            if (!outputs[0].isLocked()) break;
+          }
+        }
+          
+        // stop mining
+        await this.daemon.stopMining();
+        
+        // multisig wallet should have unlocked balance in account 1 subaddresses 0-3
+        assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
+        for (let i = 0; i < 3; i++) {
+          assert((await curWallet.getUnlockedBalance(1, i)).compare(BigInteger.parse("0")) > 0);
+        }
+        let outputs = await curWallet.getOutputs(new MoneroOutputQuery().setAccountIndex(1));
+        assert(outputs.length > 0);
+        if (outputs.length < 3) console.log("WARNING: not one output per subaddress?");
+        //assert(outputs.length >= 3);  // TODO
+        for (let output of outputs) assert.equal(output.isLocked(), false);
+        
+        // wallet requires importing multisig to be reliable
+        assert(await curWallet.isMultisigImportNeeded());
+        
+        // attempt creating and relaying transaction without synchronizing with participants
+        try {
+          await curWallet.sendSplit(1, returnAddress, TestUtils.MAX_FEE.multiply(new BigInteger(3)));
+          throw new Error("Should have failed sending funds without synchronizing with peers");
+        } catch (e) {
+          assert.equal(e.message, "No transaction created");
+        }
+        
+        // synchronize the multisig participants since receiving outputs
+        console.log("Synchronizing participants");
+        curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
+        assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
+        
+        // send funds from a subaddress in the multisig wallet
+        console.log("Sending");
+        let txSet = await curWallet.sendSplit(new MoneroSendRequest(returnAddress, TestUtils.MAX_FEE).setAccountIndex(1).setSubaddressIndex(0));
+        assert.notEqual(txSet.getMultisigTxHex(), undefined);
+        assert.equal(txSet.getSignedTxHex(), undefined);
+        assert.equal(txSet.getUnsignedTxHex(), undefined);
+        assert(txSet.getTxs().length > 0);
+        
+        // parse multisig tx hex and test
+        testParsedTxSet(await curWallet.parseTxSet(txSet));
+        await curWallet.close(true);
+        
+        // sign the tx with participants 1 through m - 1 to meet threshold
+        let multisigTxHex = txSet.getMultisigTxHex();
+        console.log("Signing");
+        for (let i = 1; i < m; i++) {
+          curWallet = await this.openWallet(walletIds[i]);
+          let result = await curWallet.signMultisigTxHex(multisigTxHex);
+          multisigTxHex = result.getSignedMultisigTxHex();
+          await curWallet.close(true);
+        }
+        
+        //console.log("Submitting signed multisig tx hex: " + multisigTxHex);
+        
+        // submit the signed multisig tx hex to the network
+        console.log("Submitting");
+        curWallet = await this.openWallet(walletIds[0]);
+        let txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
+        await curWallet.save();
+        
+        // synchronize the multisig participants since spending outputs
+        console.log("Synchronizing participants");
+        curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
+        
+        // fetch the wallet's multisig txs
+        let multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
+        assert.equal(txHashes.length, multisigTxs.length);
+        
+        // sweep an output from subaddress [1,1]
+        outputs = await curWallet.getOutputs(new MoneroOutputQuery().setAccountIndex(1).setSubaddressIndex(1));
+        assert(outputs.length > 0);
+        assert(outputs[0].isSpent() === false);
+        txSet = await curWallet.sweepOutput(returnAddress, outputs[0].getKeyImage().getHex());
+        assert.notEqual(txSet.getMultisigTxHex(), undefined);
+        assert.equal(txSet.getSignedTxHex(), undefined);
+        assert.equal(txSet.getUnsignedTxHex(), undefined);
+        assert(txSet.getTxs().length > 0);
+        
+        // sign the tx with participants 1 through m - 1 to meet threshold
+        multisigTxHex = txSet.getMultisigTxHex();
+        console.log("Signing sweep output");
+        for (let i = 1; i < m; i++) {
+          curWallet = await this.openWallet(walletIds[i]);
+          let result = await curWallet.signMultisigTxHex(multisigTxHex);
+          multisigTxHex = result.getSignedMultisigTxHex();
+          await curWallet.close(true);
+        }
+        
+        // submit the signed multisig tx hex to the network
+        console.log("Submitting sweep output");
+        curWallet = await this.openWallet(walletIds[0]);
+        txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
+        await curWallet.save();
+        
+        // synchronize the multisig participants since spending outputs
+        console.log("Synchronizing participants");
+        curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
+        
+        // fetch the wallet's multisig txs
+        multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
+        assert.equal(txHashes.length, multisigTxs.length);
+        
+        // sweep remaining balance
+        console.log("Sweeping");
+        let txSets = await curWallet.sweepUnlocked(new MoneroSendRequest(returnAddress).setAccountIndex(1)); // TODO: test multisig with sweepEachSubaddress which will generate multiple tx sets without synchronizing participants
+        assert.equal(txSets.length, 1); // only one tx set created per account
+        txSet = txSets[0];
+        assert.notEqual(txSet.getMultisigTxHex(), undefined);
+        assert.equal(txSet.getSignedTxHex(), undefined);
+        assert.equal(txSet.getUnsignedTxHex(), undefined);
+        assert(txSet.getTxs().length > 0);
+        
+        // parse each multisig tx hex and test
+        for (let sweepTxSet of txSets) {
+          testParsedTxSet(await curWallet.parseTxSet(sweepTxSet));
+        }
+        
+        // sign the tx with participants 1 through m - 1 to meet threshold
+        multisigTxHex = txSet.getMultisigTxHex();
+        console.log("Signing sweep");
+        for (let i = 1; i < m; i++) {
+          curWallet = await this.openWallet(walletIds[i]);
+          let result = await curWallet.signMultisigTxHex(multisigTxHex);
+          multisigTxHex = result.getSignedMultisigTxHex();
+          await curWallet.close(true);
+        }
+        
+        // submit the signed multisig tx hex to the network
+        console.log("Submitting sweep");
+        curWallet = await this.openWallet(walletIds[0]);
+        txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
+        await curWallet.save();
+        
+        // synchronize the multisig participants since spending outputs
+        console.log("Synchronizing participants");
+        curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
+        
+        // fetch the wallet's multisig txs
+        multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
+        assert.equal(txHashes.length, multisigTxs.length);
+        
         await curWallet.close(true);
       }
-      
-      //console.log("Submitting signed multisig tx hex: " + multisigTxHex);
-      
-      // submit the signed multisig tx hex to the network
-      console.log("Submitting");
-      curWallet = await this.openWallet(walletIds[0]);
-      let txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
-      await curWallet.save();
-      
-      // synchronize the multisig participants since spending outputs
-      console.log("Synchronizing participants");
-      curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
-      
-      // fetch the wallet's multisig txs
-      console.log("fetching wallet's multisig txs...");
-      let multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
-      assert.equal(txHashes.length, multisigTxs.length);
-      
-      // sweep an output from subaddress [1,1]
-      console.log("fetching wallet's outputs...");
-      outputs = await curWallet.getOutputs(new MoneroOutputQuery().setAccountIndex(1).setSubaddressIndex(1));
-      assert(outputs.length > 0);
-      assert(outputs[0].isSpent() === false);
-      txSet = await curWallet.sweepOutput(returnAddress, outputs[0].getKeyImage().getHex());
-      assert.notEqual(txSet.getMultisigTxHex(), undefined);
-      assert.equal(txSet.getSignedTxHex(), undefined);
-      assert.equal(txSet.getUnsignedTxHex(), undefined);
-      assert(txSet.getTxs().length > 0);
-      
-      // sign the tx with participants 1 through m - 1 to meet threshold
-      multisigTxHex = txSet.getMultisigTxHex();
-      console.log("Signing sweep output");
-      for (let i = 1; i < m; i++) {
-        curWallet = await this.openWallet(walletIds[i]);
-        let result = await curWallet.signMultisigTxHex(multisigTxHex);
-        multisigTxHex = result.getSignedMultisigTxHex();
-        await curWallet.close(true);
-      }
-      
-      // submit the signed multisig tx hex to the network
-      console.log("Submitting sweep output");
-      curWallet = await this.openWallet(walletIds[0]);
-      txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
-      await curWallet.save();
-      
-      // synchronize the multisig participants since spending outputs
-      console.log("Synchronizing participants");
-      curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
-      
-      // fetch the wallet's multisig txs
-      multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
-      assert.equal(txHashes.length, multisigTxs.length);
-      
-      // sweep remaining balance
-      console.log("Sweeping");
-      let txSets = await curWallet.sweepUnlocked(new MoneroSendRequest(returnAddress).setAccountIndex(1)); // TODO: test multisig with sweepEachSubaddress which will generate multiple tx sets without synchronizing participants
-      assert.equal(txSets.length, 1); // only one tx set created per account
-      txSet = txSets[0];
-      assert.notEqual(txSet.getMultisigTxHex(), undefined);
-      assert.equal(txSet.getSignedTxHex(), undefined);
-      assert.equal(txSet.getUnsignedTxHex(), undefined);
-      assert(txSet.getTxs().length > 0);
-      
-      // parse each multisig tx hex and test
-      for (let sweepTxSet of txSets) {
-        testParsedTxSet(await curWallet.parseTxSet(sweepTxSet));
-      }
-      
-      // sign the tx with participants 1 through m - 1 to meet threshold
-      multisigTxHex = txSet.getMultisigTxHex();
-      console.log("Signing sweep");
-      for (let i = 1; i < m; i++) {
-        curWallet = await this.openWallet(walletIds[i]);
-        let result = await curWallet.signMultisigTxHex(multisigTxHex);
-        multisigTxHex = result.getSignedMultisigTxHex();
-        await curWallet.close(true);
-      }
-      
-      // submit the signed multisig tx hex to the network
-      console.log("Submitting sweep");
-      curWallet = await this.openWallet(walletIds[0]);
-      txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
-      await curWallet.save();
-      
-      // synchronize the multisig participants since spending outputs
-      console.log("Synchronizing participants");
-      curWallet = await this._synchronizeMultisigParticipants(curWallet, walletIds);
-      
-      // fetch the wallet's multisig txs
-      multisigTxs = await curWallet.getTxs(new MoneroTxQuery().setTxHashes(txHashes));
-      assert.equal(txHashes.length, multisigTxs.length);
-      
-      await curWallet.close(true);
+    } catch (e) {
+      err = e;
     }
     
     // re-open main test wallet
     this.wallet = await this.getTestWallet();
     assert.equal(await this.wallet.getAttribute("name"), BEGIN_MULTISIG_NAME);
+    if (err) throw err;
   }
   
   async _synchronizeMultisigParticipants(currentWallet, walletIds) {
