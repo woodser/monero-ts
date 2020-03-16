@@ -5,7 +5,7 @@ EMCC_DEBUG=${EMCC_DEBUG:-0}
 [ -z ${EMSDK} ] \
   && {
     echo "Missing EMSDK Environment variable.."
-    echo "Did you remember to run '/path/to/emsdk/emsdk_env.sh' ?"
+    echo "Did you remember to run 'source /path/to/emsdk/emsdk_env.sh' ?"
     [ "$(basename $0)" = "bash" ] \
     || { 
       echo "Terminating..."
@@ -135,18 +135,17 @@ get_boost_source() {
   
   [ -d ${SDK_PATH} ] || { echo "get_boost_source: Missing directory: ${SDK_PATH}"; return 1; }
 
-  [ -f "${SDK_PATH}/boost-1.72.0.tar.gz" ] \
+  # Github source is missing stuff
+  #local DL_URL="https://github.com/boostorg/boost/archive/boost-1.72.0.tar.gz"
+  local DL_URL="https://dl.bintray.com/boostorg/release/1.72.0/source"
+  local DL_FILE="boost_1_72_0.tar.gz"
+
+  [ -f "${SDK_PATH}/${DL_FILE}" ] \
   && {
     echo "boost source is already in ${SDK_PATH}"
   } \
   || {
     echo "Downloading boost source..."
-    
-    # Github source is missing stuff
-    #local DL_URL="https://github.com/boostorg/boost/archive/boost-1.72.0.tar.gz"
-    local DL_URL="https://dl.bintray.com/boostorg/release/1.72.0/source"
-    local DL_FILE="boost_1_72_0.tar.gz"
-
     download_source ${DL_URL}/${DL_FILE} ${SDK_PATH} || return 1
   }
 
@@ -168,19 +167,52 @@ get_openssl_source() {
   
   [ -d ${SDK_PATH} ] || { echo "get_openssl_source: Missing directory: ${SDK_PATH}"; return 1; }
 
-  [ -f ${SDK_PATH}/OpenSSL_1_1_1d.tar.gz ] \
+  local DL_URL="https://github.com/openssl/openssl/archive"
+  local DL_FILE="OpenSSL_1_1_1d.tar.gz"
+
+  [ -f "${SDK_PATH}/${DL_FILE}" ] \
   && {
     echo "openssl source is already in ${SDK_PATH}"
   } \
   || {
     echo "Downloading openssl source..."
-    local DL_URL="https://github.com/openssl/openssl/archive/OpenSSL_1_1_1d.tar.gz"
-
-    download_source ${DL_URL} ${SDK_PATH}  || return 1
+    download_source "${DL_URL}/${DL_FILE}" "${SDK_PATH}"  || return 1
   }
 
   mkdir ${SDK_PATH}/openssl-sdk
   tar -C ${SDK_PATH}/openssl-sdk --strip-components=1 -xvf ${SDK_PATH}/OpenSSL_1_1_1d.tar.gz || return 1
 
   return 0
+}
+
+# emsdk is memory hungry, and will fail if not enough
+# memory available. Adding a temporary swap-file
+# can solve that problem.
+# Just need to figure out exactly how much is needed.
+
+# How many GB disk available on current partition
+disk_free() {
+  local DISK_FREE=echo $(( $(stat -f --format="%a*%S" .) / $((1024 * 1024 * 1024))+1 )) || return 1
+  echo ${DISK_FREE}
+  return 0
+}
+
+# How many MB swap space available
+swap_free() {
+  local SWAP_FREE=$(free -m | awk '/^Swap:/ { print $4 }') || return 1
+  echo "${SWAP_FREE}"
+  return 0
+}
+
+# input GB, return number of 1KB blocks
+gb_to_blocks() {
+  [ $1 -gt 1 ] || return 1
+  echo $(( $1 * $((1024 * 1024 )) ))
+}
+# Add (n) GB swap file on current partition
+swap_add() {
+  local SWAP_SIZE=$1
+  [ $( disk_free ) -gt $(( ${SWAP_SIZE} * 2 )) ] \
+  || { echo "Not enough disk free to add swapfile"; return 1; }
+
 }
