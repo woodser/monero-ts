@@ -184,35 +184,3 @@ get_openssl_source() {
 
   return 0
 }
-
-# emsdk is memory hungry, and will fail if not enough
-# memory available. Adding a temporary swap-file
-# can solve that problem.
-# Just need to figure out exactly how much is needed.
-
-# How many GB disk available on current partition
-disk_free() {
-  local DISK_FREE=echo $(( $(stat -f --format="%a*%S" .) / $((1024 * 1024 * 1024))+1 )) || return 1
-  echo ${DISK_FREE}
-  return 0
-}
-
-# How many MB swap space available
-swap_free() {
-  local SWAP_FREE=$(free -m | awk '/^Swap:/ { print $4 }') || return 1
-  echo "${SWAP_FREE}"
-  return 0
-}
-
-# input GB, return number of 1KB blocks
-gb_to_blocks() {
-  [ $1 -gt 1 ] || return 1
-  echo $(( $1 * $((1024 * 1024 )) ))
-}
-# Add (n) GB swap file on current partition
-swap_add() {
-  local SWAP_SIZE=$1
-  [ $( disk_free ) -gt $(( ${SWAP_SIZE} * 2 )) ] \
-  || { echo "Not enough disk free to add swapfile"; return 1; }
-
-}
