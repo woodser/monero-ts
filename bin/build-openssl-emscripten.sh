@@ -81,13 +81,13 @@ sed -i.bak 's/\&\&\ !defined(__STDC_NO_ATOMICS__)$/'"$to_defined_atomics_line"'/
 rm -rf "$INSTALL_PATH"
 mkdir "$INSTALL_PATH"
 
-emmake make -j1 2>&1
+HOST_NCORES=$(nproc 2>/dev/null|| shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
 
-
-if [ $? != 0 ]; then
-  echo "ERROR: emmake OpenSSL FAILED!"
+emmake make -j${HOST_NCORES} \
+|| {
+  echo "Make openssl failed..."
   exit 1
-fi
+}
 
 # now we must move build products by manually calling make install
 
