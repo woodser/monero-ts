@@ -85,18 +85,18 @@ rm -rf "$INSTALL_PATH"
 mkdir "$INSTALL_PATH"
 
 
-HOST_NCORES=$(shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
+HOST_NCORES=$(nproc 2>/dev/null|| shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
 
 
 # threading=single \
-./b2 -q -a -j$HOST_NCORES    \
-  toolset=clang-emscripten   \
-  threading=single			 \
-  link=static                \
-  optimization=space         \
-  variant=release            \
-  stage                      \
-  --stagedir="$INSTALL_PATH" \
+./b2 -q -a -j$HOST_NCORES     \
+  toolset=clang-emscripten    \
+  threading=single			      \
+  link=static                 \
+  optimization=space          \
+  variant=release             \
+  stage                       \
+  --stagedir="$INSTALL_PATH"  \
   2>&1
 
 unset NO_BZIP2
