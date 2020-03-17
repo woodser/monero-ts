@@ -22,6 +22,11 @@ JAM_CONFIG_PATH="$(pwd)/configs/$PLATFORM.jam"
         get_boost_source ${SRC_PATH} || exit 1
         ;;
       "")
+        [ -d ${SRC_PATH} ] \
+        || {
+          echo "* Missing $(basename ${SRC_PATH}) Downloading..."
+          get_boost_source ${SRC_PATH} || exit 1
+        }
         ;;
       *)
         echo "Unknown parameter: $1"
@@ -40,7 +45,9 @@ if [ -z "$EMSCRIPTEN" ]; then
   exit -1  
 fi
 
-cd $EMSCRIPTEN; python ./embuilder.py build zlib \
+cd $EMSCRIPTEN
+
+python ./embuilder.py build zlib \
 || {
   echo "EMSDK build zlib failed.."
   exit 1

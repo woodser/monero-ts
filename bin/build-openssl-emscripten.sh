@@ -11,6 +11,7 @@ INSTALL_DIR="build/openssl"
 SRC_PATH="$(pwd)/$SRC_DIR"
 INSTALL_PATH="$(pwd)/$INSTALL_DIR"
 
+
 [ ! -d ${SRC_PATH} -o $# -ge 1 ] \
   && {
     case "$1" in
@@ -21,6 +22,11 @@ INSTALL_PATH="$(pwd)/$INSTALL_DIR"
         get_openssl_source ${SRC_PATH} || exit 1
         ;;
       "")
+        [ -d ${SRC_PATH} ] \
+        || {
+          echo "* Missing $(basename ${SRC_PATH}) Downloading..."
+          get_openssl_source ${SRC_PATH} || exit 1
+        }
         ;;
       *)
         echo "Unknown parameter: $1"
@@ -34,11 +40,12 @@ if [ ! -d "$SRC_PATH" ]; then
   exit 1
 fi
 
-# ---
+if [ -z "$EMSCRIPTEN" ]; then
+  echo "EMSCRIPTEN MUST BE DEFINED!"
+  exit -1  
+fi
 
 cd "$SRC_PATH"
-
-#linux-generic32 \
 
 emconfigure perl ./Configure \
 	linux-generic32 \
