@@ -91,7 +91,7 @@ download_source() { # url, destination
 
   $(which wget 2>&1 > /dev/null) \
   && {
-    wget -nc -P ${SDK_PATH} ${DL_URL} \
+    wget -N -P ${SDK_PATH} ${DL_URL} \
     && {
       return 0
     } \
@@ -118,12 +118,14 @@ download_source() { # url, destination
 
   [ -f "${SDK_PATH}/$(basename ${DL_URL})" ] \
   || {
-    echo "Both wget and curl are missing. Don't know how to proseed."
+    echo "Both wget and curl failed. Don't know how to proseed."
     return 1
   }
 }
 
 check_archive() {
+  [ -f "$1" ] || return 1
+
   gzip -t "$1" 2>&1 > /dev/null \
   && return 0 \
   || {
