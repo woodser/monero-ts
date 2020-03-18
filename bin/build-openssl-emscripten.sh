@@ -2,6 +2,7 @@
 
 #source "$(realpath $(dirname $0))/emsdk-inc.sh"
 source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/emsdk-inc.sh"
+[ -f $(dirname $0)/colors.sh ] && source $(dirname $0)/colors.sh
 
 PLATFORM="emscripten"
 
@@ -15,11 +16,27 @@ INSTALL_PATH="$(pwd)/$INSTALL_DIR"
 [ ! -d ${SRC_PATH} -o $# -ge 1 ] \
   && {
     case "$1" in
-      "github")
-        get_openssl_github ${SRC_PATH} || exit 1
+      "github"|"clone")
+        shift
+        [ -d ${SRC_PATH} -a "$1" = "force" ] \
+        && {
+          get_openssl_github ${SRC_PATH} || exit 1
+        } \
+        || {
+          echo "${RED}Target directory exists.${WHITE} Will not proceed without ${YELLOW}'force'${RESTORE}"
+          exit 1
+        }
         ;;
-      "source")
-        get_openssl_source ${SRC_PATH} || exit 1
+      "archive")
+        shift
+        [ -d ${SRC_PATH} -a "$1" = "force" ] \
+        && {
+          get_openssl_source ${SRC_PATH} || exit 1
+        } \
+        || {
+          echo "${RED}Target directory exists.${WHITE} Will not proceed without ${YELLOW}'force'${RESTORE}"
+          exit 1
+        }
         ;;
       "")
         [ -d ${SRC_PATH} ] \
