@@ -91,7 +91,7 @@ download_source() { # url, destination
 
   $(which wget 2>&1 > /dev/null) \
   && {
-    wget -P ${SDK_PATH} ${DL_URL} \
+    wget -nc -P ${SDK_PATH} ${DL_URL} \
     && {
       return 0
     } \
@@ -123,6 +123,16 @@ download_source() { # url, destination
   }
 }
 
+check_archive() {
+  gzip -t "$1" 2>&1 > /dev/null \
+  && return 0 \
+  || {
+    echo "${RED}Corrupt file detected:${WHITE}Deleting ${YELLOW}$(basename $1)${RESTORE}"
+    rm -fr $1
+    return 1
+  }
+}
+
 get_boost_source() {
   local SDK_PATH=$1
   [ -z ${SDK_PATH} ] && { echo "get_boost_source: Missing SDK_PATH parameter..."; return 1; }
@@ -140,9 +150,9 @@ get_boost_source() {
   local DL_URL="https://dl.bintray.com/boostorg/release/1.72.0/source"
   local DL_FILE="boost_1_72_0.tar.gz"
 
-  [ -f "${SDK_PATH}/${DL_FILE}" ] \
+  check_archive "${SDK_PATH}/${DL_FILE}" \
   && {
-    echo "boost source is already in ${SDK_PATH}"
+    echo "${DL_FILE} is already in ${SDK_PATH}"
   } \
   || {
     echo "Downloading boost source..."
@@ -170,9 +180,9 @@ get_openssl_source() {
   local DL_URL="https://github.com/openssl/openssl/archive"
   local DL_FILE="OpenSSL_1_1_1d.tar.gz"
 
-  [ -f "${SDK_PATH}/${DL_FILE}" ] \
+  check_archive "${SDK_PATH}/${DL_FILE}" \
   && {
-    echo "openssl source is already in ${SDK_PATH}"
+    echo "${DL_FILE} is already in ${SDK_PATH}"
   } \
   || {
     echo "Downloading openssl source..."
