@@ -89,7 +89,7 @@ download_source() { # url, destination
   local DL_URL=$1
   local SDK_PATH=$2
 
-  $(which wget 2>&1 > /dev/null) \
+  which wget 2>&1 > /dev/null \
   && {
     wget -N -P ${SDK_PATH} ${DL_URL} \
     && {
@@ -101,11 +101,11 @@ download_source() { # url, destination
     }
   }
 
-  $(which curl 2>&1 > /dev/null) \
+  which curl 2>&1 > /dev/null \
   && {
     (
       cd ${SDK_PATH}
-      curl -O ${DL_URL} \
+      curl -L -O ${DL_URL} \
       && {
       return 0
       } \
