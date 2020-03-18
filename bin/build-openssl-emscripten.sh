@@ -18,24 +18,26 @@ INSTALL_PATH="$(pwd)/$INSTALL_DIR"
     case "$1" in
       "github"|"clone")
         shift
-        [ -d ${SRC_PATH} -a "$1" = "force" ] \
+        [ -d ${SRC_PATH} -a "$1" != "force" ] \
         && {
-          get_openssl_github ${SRC_PATH} || exit 1
-        } \
-        || {
           echo "${RED}Target directory exists.${WHITE} Will not proceed without ${YELLOW}'force'${RESTORE}"
           exit 1
         }
-        ;;
-      "archive")
-        shift
-        [ -d ${SRC_PATH} -a "$1" = "force" ] \
+        [ ! -d ${SRC_PATH} -o "$1" = "force" ] \
         && {
-          get_openssl_source ${SRC_PATH} || exit 1
-        } \
-        || {
+          get_openssl_github ${SRC_PATH} || exit 1
+        }
+        ;;
+      "archive"|"source")
+        shift
+        [ -d ${SRC_PATH} -a "$1" != "force" ] \
+        && {
           echo "${RED}Target directory exists.${WHITE} Will not proceed without ${YELLOW}'force'${RESTORE}"
           exit 1
+        }
+        [ ! -d ${SRC_PATH} -o "$1" = "force" ] \
+        && {
+          get_openssl_source ${SRC_PATH} || exit 1
         }
         ;;
       "")
