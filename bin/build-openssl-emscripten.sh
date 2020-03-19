@@ -2,6 +2,7 @@
 
 #source "$(realpath $(dirname $0))/emsdk-inc.sh"
 source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/emsdk-inc.sh"
+[ -f $(dirname $0)/colors.sh ] && source $(dirname $0)/colors.sh
 
 PLATFORM="emscripten"
 
@@ -11,16 +12,40 @@ INSTALL_DIR="build/openssl"
 SRC_PATH="$(pwd)/$SRC_DIR"
 INSTALL_PATH="$(pwd)/$INSTALL_DIR"
 
+
 [ ! -d ${SRC_PATH} -o $# -ge 1 ] \
   && {
     case "$1" in
-      "github")
-        get_openssl_github ${SRC_PATH} || exit 1
+      "github"|"clone")
+        shift
+        [ -d ${SRC_PATH} -a "$1" != "force" ] \
+        && {
+          echo "${RED}Target directory exists.${WHITE} Will not proceed without ${YELLOW}'force'${RESTORE}"
+          exit 1
+        }
+        [ ! -d ${SRC_PATH} -o "$1" = "force" ] \
+        && {
+          get_openssl_github ${SRC_PATH} || exit 1
+        }
         ;;
-      "source")
-        get_openssl_source ${SRC_PATH} || exit 1
+      "archive"|"source")
+        shift
+        [ -d ${SRC_PATH} -a "$1" != "force" ] \
+        && {
+          echo "${RED}Target directory exists.${WHITE} Will not proceed without ${YELLOW}'force'${RESTORE}"
+          exit 1
+        }
+        [ ! -d ${SRC_PATH} -o "$1" = "force" ] \
+        && {
+          get_openssl_source ${SRC_PATH} || exit 1
+        }
         ;;
       "")
+        [ -d ${SRC_PATH} ] \
+        || {
+          echo "* Missing $(basename ${SRC_PATH}) Downloading..."
+          get_openssl_source ${SRC_PATH} || exit 1
+        }
         ;;
       *)
         echo "Unknown parameter: $1"
@@ -34,11 +59,12 @@ if [ ! -d "$SRC_PATH" ]; then
   exit 1
 fi
 
-# ---
+if [ -z "$EMSCRIPTEN" ]; then
+  echo "EMSCRIPTEN MUST BE DEFINED!"
+  exit -1  
+fi
 
 cd "$SRC_PATH"
-
-#linux-generic32 \
 
 emconfigure perl ./Configure \
 	linux-generic32 \
@@ -74,13 +100,13 @@ sed -i.bak 's/\&\&\ !defined(__STDC_NO_ATOMICS__)$/'"$to_defined_atomics_line"'/
 rm -rf "$INSTALL_PATH"
 mkdir "$INSTALL_PATH"
 
-emmake make -j1 2>&1
+HOST_NCORES=$(nproc 2>/dev/null|| shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
 
-
-if [ $? != 0 ]; then
-  echo "ERROR: emmake OpenSSL FAILED!"
+emmake make -j${HOST_NCORES} \
+|| {
+  echo "Make openssl failed..."
   exit 1
-fi
+}
 
 # now we must move build products by manually calling make install
 

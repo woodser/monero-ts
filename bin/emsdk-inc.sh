@@ -89,9 +89,9 @@ download_source() { # url, destination
   local DL_URL=$1
   local SDK_PATH=$2
 
-  $(which wget 2>&1 > /dev/null) \
+  which wget 2>&1 > /dev/null \
   && {
-    wget -P ${SDK_PATH} ${DL_URL} \
+    wget -N -P ${SDK_PATH} ${DL_URL} \
     && {
       return 0
     } \
@@ -101,11 +101,11 @@ download_source() { # url, destination
     }
   }
 
-  $(which curl 2>&1 > /dev/null) \
+  which curl 2>&1 > /dev/null \
   && {
     (
       cd ${SDK_PATH}
-      curl -O ${DL_URL} \
+      curl -L -O ${DL_URL} \
       && {
       return 0
       } \
@@ -118,7 +118,19 @@ download_source() { # url, destination
 
   [ -f "${SDK_PATH}/$(basename ${DL_URL})" ] \
   || {
-    echo "Both wget and curl are missing. Don't know how to proseed."
+    echo "Both wget and curl failed. Don't know how to proseed."
+    return 1
+  }
+}
+
+check_archive() {
+  [ -f "$1" ] || return 1
+
+  gzip -t "$1" 2>&1 > /dev/null \
+  && return 0 \
+  || {
+    echo "${RED}Corrupt file detected:${WHITE}Deleting ${YELLOW}$(basename $1)${RESTORE}"
+    rm -fr $1
     return 1
   }
 }
@@ -140,9 +152,9 @@ get_boost_source() {
   local DL_URL="https://dl.bintray.com/boostorg/release/1.72.0/source"
   local DL_FILE="boost_1_72_0.tar.gz"
 
-  [ -f "${SDK_PATH}/${DL_FILE}" ] \
+  check_archive "${SDK_PATH}/${DL_FILE}" \
   && {
-    echo "boost source is already in ${SDK_PATH}"
+    echo "${DL_FILE} is already in ${SDK_PATH}"
   } \
   || {
     echo "Downloading boost source..."
@@ -170,9 +182,9 @@ get_openssl_source() {
   local DL_URL="https://github.com/openssl/openssl/archive"
   local DL_FILE="OpenSSL_1_1_1d.tar.gz"
 
-  [ -f "${SDK_PATH}/${DL_FILE}" ] \
+  check_archive "${SDK_PATH}/${DL_FILE}" \
   && {
-    echo "openssl source is already in ${SDK_PATH}"
+    echo "${DL_FILE} is already in ${SDK_PATH}"
   } \
   || {
     echo "Downloading openssl source..."

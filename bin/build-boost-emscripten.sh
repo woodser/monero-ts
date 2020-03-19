@@ -2,6 +2,7 @@
 
 #source "$(realpath $(dirname $0))/emsdk-inc.sh"
 source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/emsdk-inc.sh"
+[ -f $(dirname $0)/colors.sh ] && source $(dirname $0)/colors.sh
 
 PLATFORM="emscripten"
 
@@ -15,13 +16,36 @@ JAM_CONFIG_PATH="$(pwd)/configs/$PLATFORM.jam"
 [ ! -d ${SRC_PATH} -o $# -ge 1 ] \
   && {
     case "$1" in
-      "github")
-        get_boost_github ${SRC_PATH} || exit 1
+      "github"|"clone")
+        shift
+        [ -d ${SRC_PATH} -a "$1" != "force" ] \
+        && {
+          echo "${RED}Target directory exists.${WHITE} Will not proceed without ${YELLOW}'force'${RESTORE}"
+          exit 1
+        }
+        [ ! -d ${SRC_PATH} -o "$1" = "force" ] \
+        && {
+          get_boost_github ${SRC_PATH} || exit 1
+        }
         ;;
-      "source")
-        get_boost_source ${SRC_PATH} || exit 1
+      "archive"|"source")
+        shift
+        [ -d ${SRC_PATH} -a "$1" != "force" ] \
+        && {
+          echo "${RED}Target directory exists.${WHITE} Will not proceed without ${YELLOW}'force'${RESTORE}"
+          exit 1
+        }
+        [ ! -d ${SRC_PATH} -o "$1" = "force" ] \
+        && {
+          get_boost_source ${SRC_PATH} || exit 1
+        }
         ;;
       "")
+        [ -d ${SRC_PATH} ] \
+        || {
+          echo "* Missing $(basename ${SRC_PATH}) Downloading..."
+          get_boost_source ${SRC_PATH} || exit 1
+        }
         ;;
       *)
         echo "Unknown parameter: $1"
@@ -40,7 +64,9 @@ if [ -z "$EMSCRIPTEN" ]; then
   exit -1  
 fi
 
-cd $EMSCRIPTEN; python ./embuilder.py build zlib \
+cd $EMSCRIPTEN
+
+python ./embuilder.py build zlib \
 || {
   echo "EMSDK build zlib failed.."
   exit 1
@@ -78,18 +104,18 @@ rm -rf "$INSTALL_PATH"
 mkdir "$INSTALL_PATH"
 
 
-HOST_NCORES=$(shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
+HOST_NCORES=$(nproc 2>/dev/null|| shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
 
 
 # threading=single \
-./b2 -q -a -j$HOST_NCORES    \
-  toolset=clang-emscripten   \
-  threading=single			 \
-  link=static                \
-  optimization=space         \
-  variant=release            \
-  stage                      \
-  --stagedir="$INSTALL_PATH" \
+./b2 -q -a -j$HOST_NCORES     \
+  toolset=clang-emscripten    \
+  threading=single			      \
+  link=static                 \
+  optimization=space          \
+  variant=release             \
+  stage                       \
+  --stagedir="$INSTALL_PATH"  \
   2>&1
 
 unset NO_BZIP2
