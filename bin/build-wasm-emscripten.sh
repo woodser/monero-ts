@@ -32,12 +32,12 @@ mkdir -p ./dist || exit 1
 
 [ -f ./build/monero_core_wasm.js ] \
   && {
-    mv ./build/monero_core_wasm.js ./dist/ &&
+    mv ./build/monero_core_wasm.js ./dist/
   } || exit 1
 
 [ -f ./build/monero_core_wasm.wasm ] \
   && {
-    mv ./build/monero_core_wasm.wasm ./dist/ &&
+    mv ./build/monero_core_wasm.wasm ./dist/
   } || exit 1
 
 # web worker must be re-built
