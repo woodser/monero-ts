@@ -17,28 +17,28 @@ emconfigure cmake .. || exit 1
 emmake cmake --build . || exit 1
 emmake make -j$HOST_NCORES . || exit 1
 
-# move wasm files to /dist
+# move available wasm files to /dist
 cd ..
 mkdir -p ./dist || exit 1
 [ -f ./build/monero_keys_wasm.js ] \
   && {
     mv ./build/monero_keys_wasm.js ./dist/
-  } || exit 1
+  }
 
 [ -f ./build/monero_keys_wasm.wasm ] \
   && {
     mv ./build/monero_keys_wasm.wasm ./dist/
-  } || exit 1
+  }
 
 [ -f ./build/monero_core_wasm.js ] \
   && {
     mv ./build/monero_core_wasm.js ./dist/
-  } || exit 1
+  }
 
 [ -f ./build/monero_core_wasm.wasm ] \
   && {
     mv ./build/monero_core_wasm.wasm ./dist/
-  } || exit 1
+  }
 
-# web worker must be re-built
+# re-build web worker
 ./bin/build-web-worker.sh
