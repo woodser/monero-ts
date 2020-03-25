@@ -25,6 +25,22 @@ namespace epee
         ~http_client_wasm() {
           disconnect();
         }
+
+        http_client_wasm(const http_client_wasm& other)
+          : abstract_http_client()
+          , m_host(other.m_host)
+          , m_port(other.m_port)
+          , m_user(other.m_user)
+          , m_ssl_enabled(other.m_ssl_enabled)
+          , m_is_connected(other.m_is_connected)
+          , m_response_info(other.m_response_info)
+        {}
+
+        abstract_http_client* clone() const override
+        {
+          return new http_client_wasm(*this);
+        }
+
         void set_server(std::string host, std::string port, boost::optional<login> user, ssl_options_t ssl_options = ssl_support_t::e_ssl_support_autodetect) override;
         void set_auto_connect(bool auto_connect) override;
         bool connect(std::chrono::milliseconds timeout) override;
@@ -43,6 +59,7 @@ namespace epee
         bool m_ssl_enabled;
         bool m_is_connected;
         http_response_info m_response_info;
+        bool m_auto_connect;
 
         bool invoke_json(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params);
         bool invoke_binary(const boost::string_ref uri, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params);

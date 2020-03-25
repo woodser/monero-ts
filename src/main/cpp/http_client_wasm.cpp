@@ -220,8 +220,7 @@ void http_client_wasm::set_server(std::string host, std::string port, boost::opt
 }
 
 void http_client_wasm::set_auto_connect(bool auto_connect) {
-  cout << "set_auto_connect()" << endl;
-  throw runtime_error("http_client_wasm::set_auto_connect() not implemented");
+  m_auto_connect = auto_connect;
 }
 
 // TODO: this method gets called repeatedly, so need to cache
@@ -362,10 +361,25 @@ bool http_client_wasm::invoke_binary(const boost::string_ref path, const boost::
 bool http_client_wasm::invoke(const boost::string_ref path, const boost::string_ref method, const std::string& body, std::chrono::milliseconds timeout, const http_response_info** ppresponse_info, const fields_list& additional_params) {
   //cout << "invoke(" << path << ", " << method << ", ...)" << endl;
 
-  // return false if unconnected
-  if (!is_connected()) {
-    cout << "invoke() called but client is not connected so returning false" << endl;
-    return false;
+//  // return false if unconnected
+//  if (!is_connected()) {
+//    cout << "invoke() called but client is not connected so returning false" << endl;
+//    return false;
+//  }
+
+  if(!is_connected())
+  {
+    if (!m_auto_connect && false)
+    {
+      MWARNING("Auto connect attempt to " << m_host << ":" << m_port << " disabled");
+      return false;
+    }
+    MDEBUG("Reconnecting...");
+    if(!connect(timeout))
+    {
+      MDEBUG("Failed to connect to " << m_host << ":" << m_port);
+      return false;
+    }
   }
 
   // invoke http call
