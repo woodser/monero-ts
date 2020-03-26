@@ -1,12 +1,24 @@
 HIGH (WASM)
-wallet proxied browser tests
-daemon proxied browser tests
 update readme with core wasm support
 update documentation: daemon isConnected, other top level methods, add_address_book edit_address_book no longer takes payment id, setDaemonConnection
 organize todos including todos throughout code
 test jni
 release
 
+new test wallet before receiving funds breaks tests
+find boost version in cmake lists
+externalize test config
+MoneroDaemonRpc support 3 string args, just like MoneroWalletRpc, embarassing
+Can prove reserves in an account
+MoneroWalletWasm, monero_wasm.js, monero_wasm.wasm, monero_wasm_keys.js, monero_wasm_keys.wasm
+web worker getPath()?
+createTx, createTxs, sendTx, sendTxs() instead of send(), sendSplit()?
+await MoneroWallet.create({type: "wasm", networkType:, 2, connectionUri: connection: {uri: : daemonUri: "...", mnemonic: "})
+100% sync
+open bug on check key no funds received despite transfer - caused by importing key images?
+getNetworkType on top level wallet
+fix notification failures
+add exception handling to all wasm methods
 support setDaemonConnection in MoneroWalletRpc and port to java
 re-test with pthread and compare performance, could load pthreaded library if nodejs or browser supports
 Can parse, sign, submit test errors if test_wallet_1 is background syncing
