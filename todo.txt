@@ -5,6 +5,7 @@ organize todos including todos throughout code
 test jni
 release
 
+browser bundle with tests part of monero-javascript
 new test wallet before receiving funds breaks tests
 find boost version in cmake lists
 externalize test config
