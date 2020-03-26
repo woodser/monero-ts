@@ -14,7 +14,6 @@ MoneroWalletWasm, monero_wasm.js, monero_wasm.wasm, monero_wasm_keys.js, monero_
 web worker getPath()?
 createTx, createTxs, sendTx, sendTxs() instead of send(), sendSplit()?
 await MoneroWallet.create({type: "wasm", networkType:, 2, connectionUri: connection: {uri: : daemonUri: "...", mnemonic: "})
-100% sync
 open bug on check key no funds received despite transfer - caused by importing key images?
 getNetworkType on top level wallet
 fix notification failures

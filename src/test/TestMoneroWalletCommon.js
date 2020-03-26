@@ -426,7 +426,7 @@ class TestMoneroWalletCommon {
       });
       
       if (config.testNonRelays)
-      it("Can get the current height that the wallet is synchronized to", async function() {
+      it("Can get the height that the wallet is synchronized to", async function() {
         let height = await that.wallet.getHeight();
         assert(height >= 0);
       });
