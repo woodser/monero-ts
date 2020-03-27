@@ -339,8 +339,8 @@ class MoneroWalletRpc extends MoneroWallet {
       // these fields are not initialized if subaddress is unused and therefore not returned from `get_balance`
       for (let account of accounts) {
         for (let subaddress of account.getSubaddresses()) {
-          subaddress.setBalance(new BigInteger(0));
-          subaddress.setUnlockedBalance(new BigInteger(0));
+          subaddress.setBalance(BigInteger.parse(0));
+          subaddress.setUnlockedBalance(BigInteger.parse(0));
           subaddress.setNumUnspentOutputs(0);
           subaddress.setNumBlocksToUnlock(0);
         }
@@ -383,7 +383,7 @@ class MoneroWalletRpc extends MoneroWallet {
   async createAccount(label) {
     label = label ? label : undefined;
     let resp = await this.config.rpc.sendJsonRequest("create_account", {label: label});
-    return new MoneroAccount(resp.result.account_index, resp.result.address, new BigInteger(0), new BigInteger(0));
+    return new MoneroAccount(resp.result.account_index, resp.result.address, BigInteger.parse(0), BigInteger.parse(0));
   }
 
   async getSubaddresses(accountIdx, subaddressIndices, skipBalances) {
@@ -407,8 +407,8 @@ class MoneroWalletRpc extends MoneroWallet {
       
       // these fields are not initialized if subaddress is unused and therefore not returned from `get_balance`
       for (let subaddress of subaddresses) {
-        subaddress.setBalance(new BigInteger(0));
-        subaddress.setUnlockedBalance(new BigInteger(0));
+        subaddress.setBalance(BigInteger.parse(0));
+        subaddress.setUnlockedBalance(BigInteger.parse(0));
         subaddress.setNumUnspentOutputs(0);
         subaddress.setNumBlocksToUnlock(0);
       }
@@ -462,8 +462,8 @@ class MoneroWalletRpc extends MoneroWallet {
     subaddress.setIndex(resp.result.address_index);
     subaddress.setAddress(resp.result.address);
     subaddress.setLabel(label ? label : undefined);
-    subaddress.setBalance(new BigInteger(0));
-    subaddress.setUnlockedBalance(new BigInteger(0));
+    subaddress.setBalance(BigInteger.parse(0));
+    subaddress.setUnlockedBalance(BigInteger.parse(0));
     subaddress.setNumUnspentOutputs(0);
     subaddress.setIsUsed(false);
     subaddress.setNumBlocksToUnlock(0);
@@ -557,7 +557,7 @@ class MoneroWalletRpc extends MoneroWallet {
     
     // order txs if tx hashes given then return
     if (query.getTxHashes() && query.getTxHashes().length > 0) {
-      let txsById = new Map()  // store txs in temporary map for sorting
+      let txsById = new Map();  // store txs in temporary map for sorting
       for (let tx of txs) txsById.set(tx.getHash(), tx);
       let orderedTxs = [];
       for (let txHash of query.getTxHashes()) if (txsById.get(txHash)) orderedTxs.push(txsById.get(txHash));
@@ -639,9 +639,9 @@ class MoneroWalletRpc extends MoneroWallet {
         // replace transfer amount with destination sum
         // TODO monero-wallet-rpc: confirmed tx from/to same account has amount 0 but cached transfers
         if (tx.getOutgoingTransfer() !== undefined && tx.isRelayed() && !tx.isFailed() &&
-            tx.getOutgoingTransfer().getDestinations() && tx.getOutgoingAmount().compare(new BigInteger(0)) === 0) {
+            tx.getOutgoingTransfer().getDestinations() && tx.getOutgoingAmount().compare(BigInteger.parse(0)) === 0) {
           let outgoingTransfer = tx.getOutgoingTransfer();
-          let transferTotal = new BigInteger(0);
+          let transferTotal = BigInteger.parse(0);
           for (let destination of outgoingTransfer.getDestinations()) transferTotal = transferTotal.add(destination.getAmount());
           tx.getOutgoingTransfer().setAmount(transferTotal);
         }
@@ -776,7 +776,7 @@ class MoneroWalletRpc extends MoneroWallet {
       if (query.getSubaddressIndices() !== undefined) query.getSubaddressIndices().map(subaddressIdx => subaddressIndices.add(subaddressIdx));
       indices.set(query.getAccountIndex(), subaddressIndices.size ? Array.from(subaddressIndices) : undefined);  // undefined will fetch from all subaddresses
     } else {
-      assert.equal(query.getSubaddressIndex(), undefined, "Query specifies a subaddress index but not an account index")
+      assert.equal(query.getSubaddressIndex(), undefined, "Query specifies a subaddress index but not an account index");
       assert(query.getSubaddressIndices() === undefined || query.getSubaddressIndices().length === 0, "Query specifies subaddress indices but not an account index");
       indices = await this._getAccountIndices();  // fetch all account indices without subaddresses
     }
@@ -823,7 +823,7 @@ class MoneroWalletRpc extends MoneroWallet {
       }
       
       // remove excluded outputs
-      tx.setOutputs(tx.getOutputs().filter(function(output) { return !toRemoves.includes(output); }))
+      tx.setOutputs(tx.getOutputs().filter(function(output) { return !toRemoves.includes(output); }));
       
       // remove excluded txs from block
       if ((tx.getOutputs() === undefined || tx.getOutputs().length === 0) && tx.getBlock() !== undefined) {
@@ -857,8 +857,8 @@ class MoneroWalletRpc extends MoneroWallet {
     // build and return result
     let importResult = new MoneroKeyImageImportResult();
     importResult.setHeight(resp.result.height);
-    importResult.setSpentAmount(new BigInteger(resp.result.spent));
-    importResult.setUnspentAmount(new BigInteger(resp.result.unspent));
+    importResult.setSpentAmount(BigInteger.parse(resp.result.spent));
+    importResult.setUnspentAmount(BigInteger.parse(resp.result.unspent));
     return importResult;
   }
   
@@ -1006,17 +1006,17 @@ class MoneroWalletRpc extends MoneroWallet {
         let subaddressIndices = [];
         indices.set(request.getAccountIndex(), subaddressIndices);
         for (let subaddress of await this.getSubaddresses(request.getAccountIndex())) {
-          if (subaddress.getUnlockedBalance().compare(new BigInteger(0)) > 0) subaddressIndices.push(subaddress.getIndex());
+          if (subaddress.getUnlockedBalance().compare(BigInteger.parse(0)) > 0) subaddressIndices.push(subaddress.getIndex());
         }
       }
     } else {
       let accounts = await this.getAccounts(true);
       for (let account of accounts) {
-        if (account.getUnlockedBalance().compare(new BigInteger(0)) > 0) {
+        if (account.getUnlockedBalance().compare(BigInteger.parse(0)) > 0) {
           let subaddressIndices = [];
           indices.set(account.getIndex(), subaddressIndices);
           for (let subaddress of account.getSubaddresses()) {
-            if (subaddress.getUnlockedBalance().compare(new BigInteger(0)) > 0) subaddressIndices.push(subaddress.getIndex());
+            if (subaddress.getUnlockedBalance().compare(BigInteger.parse(0)) > 0) subaddressIndices.push(subaddress.getIndex());
           }
         }
       }
@@ -1078,7 +1078,7 @@ class MoneroWalletRpc extends MoneroWallet {
       unsigned_txset: unsignedTxHex,
       export_raw: false
     });
-    return resp.result.signed_txset
+    return resp.result.signed_txset;
   }
   
   async submitTxs(signedTxHex) {
@@ -1119,7 +1119,7 @@ class MoneroWalletRpc extends MoneroWallet {
       check.setIsGood(true);
       check.setNumConfirmations(resp.result.confirmations);
       check.setInTxPool(resp.result.in_pool);
-      check.setReceivedAmount(new BigInteger(resp.result.received));
+      check.setReceivedAmount(BigInteger.parse(resp.result.received));
       return check;
     } catch (e) {
       if (e instanceof MoneroRpcError && e.getCode() === -8 && e.message.includes("TX ID has invalid format")) e = new MoneroRpcError("TX hash has invalid format", e.getCode(), e.getRpcMethod(), e.getRpcParams());  // normalize error message
@@ -1155,7 +1155,7 @@ class MoneroWalletRpc extends MoneroWallet {
       if (isGood) {
         check.setNumConfirmations(resp.result.confirmations);
         check.setInTxPool(resp.result.in_pool);
-        check.setReceivedAmount(new BigInteger(resp.result.received));
+        check.setReceivedAmount(BigInteger.parse(resp.result.received));
       }
       return check;
     } catch (e) {
@@ -1219,8 +1219,8 @@ class MoneroWalletRpc extends MoneroWallet {
     let check = new MoneroCheckReserve();
     check.setIsGood(isGood);
     if (isGood) {
-      check.setUnconfirmedSpentAmount(new BigInteger(resp.result.spent));
-      check.setTotalAmount(new BigInteger(resp.result.total));
+      check.setUnconfirmedSpentAmount(BigInteger.parse(resp.result.spent));
+      check.setTotalAmount(BigInteger.parse(resp.result.total));
     }
     return check;
   }
@@ -1300,7 +1300,7 @@ class MoneroWalletRpc extends MoneroWallet {
   async parsePaymentUri(uri) {
     assert(uri, "Must provide URI to parse");
     let resp = await this.config.rpc.sendJsonRequest("parse_uri", {uri: uri});
-    let request = new MoneroSendRequest(resp.result.uri.address, new BigInteger(resp.result.uri.amount));
+    let request = new MoneroSendRequest(resp.result.uri.address, BigInteger.parse(resp.result.uri.amount));
     request.setPaymentId(resp.result.uri.payment_id);
     request.setRecipientName(resp.result.uri.recipient_name);
     request.setNote(resp.result.uri.tx_description);
@@ -1437,8 +1437,8 @@ class MoneroWalletRpc extends MoneroWallet {
   async _getBalances(accountIdx, subaddressIdx) {
     if (accountIdx === undefined) {
       assert.equal(subaddressIdx, undefined, "Must provide account index with subaddress index");
-      let balance = new BigInteger(0);
-      let unlockedBalance = new BigInteger(0);
+      let balance = BigInteger.parse(0);
+      let unlockedBalance = BigInteger.parse(0);
       for (let account of await this.getAccounts()) {
         balance = balance.add(account.getBalance());
         unlockedBalance = unlockedBalance.add(account.getUnlockedBalance());
@@ -1447,8 +1447,8 @@ class MoneroWalletRpc extends MoneroWallet {
     } else {
       let params = {account_index: accountIdx, address_indices: subaddressIdx === undefined ? undefined : [subaddressIdx]};
       let resp = await this.config.rpc.sendJsonRequest("get_balance", params);
-      if (subaddressIdx === undefined) return [new BigInteger(resp.result.balance), new BigInteger(resp.result.unlocked_balance)];
-      else return [new BigInteger(resp.result.per_subaddress[0].balance), new BigInteger(resp.result.per_subaddress[0].unlocked_balance)];
+      if (subaddressIdx === undefined) return [BigInteger.parse(resp.result.balance), BigInteger.parse(resp.result.unlocked_balance)];
+      else return [BigInteger.parse(resp.result.per_subaddress[0].balance), BigInteger.parse(resp.result.per_subaddress[0].unlocked_balance)];
     }
   }
   
@@ -1537,7 +1537,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let transfer = tx.getOutgoingTransfer();
       transfer.setAccountIndex(request.getAccountIndex());
       if (request.getSubaddressIndices().length === 1) transfer.setSubaddressIndices(request.getSubaddressIndices()); // TODO: deep copy
-      let destination = new MoneroDestination(request.getDestinations()[0].getAddress(), new BigInteger(transfer.getAmount()));
+      let destination = new MoneroDestination(request.getDestinations()[0].getAddress(), BigInteger.parse(transfer.getAmount()));
       transfer.setDestinations([destination]);
       tx.setOutgoingTransfer(transfer);
       tx.setPaymentId(request.getPaymentId());
@@ -1550,7 +1550,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return txSet;
     
     // initialize txs from response
-    let txs = MoneroWalletRpc._convertRpcSentTxWallets(result, undefined);
+    //let txs = MoneroWalletRpc._convertRpcSentTxWallets(result, undefined);
   }
   
   // ---------------------------- PRIVATE STATIC ------------------------------
@@ -1560,8 +1560,8 @@ class MoneroWalletRpc extends MoneroWallet {
     for (let key of Object.keys(rpcAccount)) {
       let val = rpcAccount[key];
       if (key === "account_index") account.setIndex(val);
-      else if (key === "balance") account.setBalance(new BigInteger(val));
-      else if (key === "unlocked_balance") account.setUnlockedBalance(new BigInteger(val));
+      else if (key === "balance") account.setBalance(BigInteger.parse(val));
+      else if (key === "unlocked_balance") account.setUnlockedBalance(BigInteger.parse(val));
       else if (key === "base_address") account.setPrimaryAddress(val);
       else if (key === "tag") account.setTag(val);
       else if (key === "label") { } // label belongs to first subaddress
@@ -1578,8 +1578,8 @@ class MoneroWalletRpc extends MoneroWallet {
       if (key === "account_index") subaddress.setAccountIndex(val);
       else if (key === "address_index") subaddress.setIndex(val);
       else if (key === "address") subaddress.setAddress(val);
-      else if (key === "balance") subaddress.setBalance(new BigInteger(val));
-      else if (key === "unlocked_balance") subaddress.setUnlockedBalance(new BigInteger(val));
+      else if (key === "balance") subaddress.setBalance(BigInteger.parse(val));
+      else if (key === "unlocked_balance") subaddress.setUnlockedBalance(BigInteger.parse(val));
       else if (key === "num_unspent_outputs") subaddress.setNumUnspentOutputs(val);
       else if (key === "label") { if (val) subaddress.setLabel(val); }
       else if (key === "used") subaddress.setIsUsed(val);
@@ -1665,7 +1665,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let blobs = rpcTxs.tx_blob_list;
     let metadatas = rpcTxs.tx_metadata_list;
     let fees = rpcTxs.fee_list;
-    let amounts = rpcTxs.amount_list
+    let amounts = rpcTxs.amount_list;
     
     // ensure all lists are the same size
     let sizes = new Set();
@@ -1692,10 +1692,10 @@ class MoneroWalletRpc extends MoneroWallet {
       if (keys !== undefined) tx.setKey(keys[i]);
       if (blobs !== undefined) tx.setFullHex(blobs[i]);
       if (metadatas !== undefined) tx.setMetadata(metadatas[i]);
-      tx.setFee(new BigInteger(fees[i]));
+      tx.setFee(BigInteger.parse(fees[i]));
       tx.setIsOutgoing(true);
-      if (tx.getOutgoingTransfer() !== undefined) tx.getOutgoingTransfer().setAmount(new BigInteger(amounts[i]));
-      else tx.setOutgoingTransfer(new MoneroOutgoingTransfer().setTx(tx).setAmount(new BigInteger(amounts[i])));
+      if (tx.getOutgoingTransfer() !== undefined) tx.getOutgoingTransfer().setAmount(BigInteger.parse(amounts[i]));
+      else tx.setOutgoingTransfer(new MoneroOutgoingTransfer().setTx(tx).setAmount(BigInteger.parse(amounts[i])));
       tx.setTxSet(txSet); // link tx to parent set
     }
     
@@ -1741,7 +1741,7 @@ class MoneroWalletRpc extends MoneroWallet {
       let val = rpcTx[key];
       if (key === "txid") tx.setHash(val);
       else if (key === "tx_hash") tx.setHash(val);
-      else if (key === "fee") tx.setFee(new BigInteger(val));
+      else if (key === "fee") tx.setFee(BigInteger.parse(val));
       else if (key === "note") { if (val) tx.setNote(val); }
       else if (key === "tx_key") tx.setKey(val);
       else if (key === "type") { } // type already handled
@@ -1775,7 +1775,7 @@ class MoneroWalletRpc extends MoneroWallet {
       }
       else if (key === "amount") {
         if (transfer === undefined) transfer = (isOutgoing ? new MoneroOutgoingTransfer() : new MoneroIncomingTransfer()).setTx(tx);
-        transfer.setAmount(new BigInteger(val));
+        transfer.setAmount(BigInteger.parse(val));
       }
       else if (key === "address") {
         if (!isOutgoing) {
@@ -1808,7 +1808,7 @@ class MoneroWalletRpc extends MoneroWallet {
           destinations.push(destination);
           for (let destinationKey of Object.keys(rpcDestination)) {
             if (destinationKey === "address") destination.setAddress(rpcDestination[destinationKey]);
-            else if (destinationKey === "amount") destination.setAmount(new BigInteger(rpcDestination[destinationKey]));
+            else if (destinationKey === "amount") destination.setAmount(BigInteger.parse(rpcDestination[destinationKey]));
             else throw new MoneroError("Unrecognized transaction destination field: " + destinationKey);
           }
         }
@@ -1817,10 +1817,10 @@ class MoneroWalletRpc extends MoneroWallet {
       }
       else if (key === "multisig_txset" && val !== undefined) {} // handled elsewhere; this method only builds a tx wallet
       else if (key === "unsigned_txset" && val !== undefined) {} // handled elsewhere; this method only builds a tx wallet
-      else if (key === "amount_in") tx.setInputSum(new BigInteger(val));
-      else if (key === "amount_out") tx.setOutputSum(new BigInteger(val));
+      else if (key === "amount_in") tx.setInputSum(BigInteger.parse(val));
+      else if (key === "amount_out") tx.setOutputSum(BigInteger.parse(val));
       else if (key === "change_address") tx.setChangeAddress(val === "" ? undefined : val);
-      else if (key === "change_amount") tx.setChangeAmount(new BigInteger(val));
+      else if (key === "change_amount") tx.setChangeAmount(BigInteger.parse(val));
       else if (key === "dummy_outputs") tx.setNumDummyOutputs(val);
       else if (key === "extra") tx.setExtraHex(val);
       else if (key === "ring_size") tx.setRingSize(val);
@@ -1858,7 +1858,7 @@ class MoneroWalletRpc extends MoneroWallet {
     let output = new MoneroOutputWallet({tx: tx});
     for (let key of Object.keys(rpcOutput)) {
       let val = rpcOutput[key];
-      if (key === "amount") output.setAmount(new BigInteger(val));
+      if (key === "amount") output.setAmount(BigInteger.parse(val));
       else if (key === "spent") output.setIsSpent(val);
       else if (key === "key_image") output.setKeyImage(new MoneroKeyImage(val));
       else if (key === "global_index") output.setIndex(val);
