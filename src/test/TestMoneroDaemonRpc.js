@@ -158,7 +158,7 @@ class TestMoneroDaemonRpc {
       if (config.testNonRelays)
       it("Can get blocks by hash which includes transactions (binary)", async function() {
         throw new Error("Not implemented");
-      })
+      });
       
       if (config.testNonRelays)
       it("Can get a block by height", async function() {
@@ -365,7 +365,7 @@ class TestMoneroDaemonRpc {
         let txHashes = await getConfirmedTxIds(that.daemon);
         
         // fetch each tx hex by hash with and without pruning
-        let hexes = []
+        let hexes = [];
         let hexesPruned = [];
         for (let txHash of txHashes) {
           hexes.push(await that.daemon.getTxHex(txHash));
@@ -664,14 +664,14 @@ class TestMoneroDaemonRpc {
       if (config.testNonRelays)
       it("Can get an output distribution (binary)", async function() {
         let amounts = [];
-        amounts.push(new BigInteger(0));
-        amounts.push(new BigInteger(1));
-        amounts.push(new BigInteger(10));
-        amounts.push(new BigInteger(100));
-        amounts.push(new BigInteger(1000));
-        amounts.push(new BigInteger(10000));
-        amounts.push(new BigInteger(100000));
-        amounts.push(new BigInteger(1000000));
+        amounts.push(BigInteger.parse(0));
+        amounts.push(BigInteger.parse(1));
+        amounts.push(BigInteger.parse(10));
+        amounts.push(BigInteger.parse(100));
+        amounts.push(BigInteger.parse(1000));
+        amounts.push(BigInteger.parse(10000));
+        amounts.push(BigInteger.parse(100000));
+        amounts.push(BigInteger.parse(1000000));
         let entries = await that.daemon.getOutputDistribution(amounts);
         for (let entry of entries) {
           testOutputDistributionEntry(entry);
@@ -961,7 +961,7 @@ class TestMoneroDaemonRpc {
         testUpdateDownloadResult(result);
         
         // download to defined path
-        let path = "test_download_" + +new Date().getTime() + ".tar.bz2";
+        let path = "test_download_" + new Date().getTime() + ".tar.bz2";
         result = await that.daemon.downloadUpdate(path);
         testUpdateDownloadResult(result, path);
         
@@ -980,7 +980,7 @@ class TestMoneroDaemonRpc {
       if (config.testNonRelays)
       it("Can be stopped", async function() {
         return; // test is disabled to not interfere with other tests
-        
+        /** Dead code
         // give the that.daemon time to shut down
         await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); });
         
@@ -998,6 +998,7 @@ class TestMoneroDaemonRpc {
           console.log(e);
           assert.notEqual("Should have thrown error", e.message);
         }
+        **/
       });
       
       // ---------------------------- TEST RELAYS -----------------------------
@@ -1133,7 +1134,7 @@ class TestMoneroDaemonRpc {
           let listener = function(header) {
             listenerHeader = header;
             that.daemon.removeBlockListener(listener); // otherwise that.daemon will keep polling
-          }
+          };
           that.daemon.addBlockListener(listener);
           
           // wait for next block notification
@@ -1198,7 +1199,7 @@ function testBlock(block, ctx) {
     assert(block.getHex());
     assert(block.getHex().length > 1);
   } else {
-    assert(block.getHex() === undefined)
+    assert(block.getHex() === undefined);
   }
   
   if (ctx.hasTxs) {
@@ -1308,18 +1309,18 @@ function testTx(tx, ctx) {
   
   // test miner tx
   if (tx.isMinerTx()) {
-    assert.equal(tx.getFee().compare(new BigInteger(0)), 0);
+    assert.equal(tx.getFee().compare(BigInteger.parse(0)), 0);
     assert(tx.getIncomingTransfers().length > 0); // TODO: MoneroTx does not have getIncomingTransfers() but this doesn't fail?
     assert.equal(tx.getInputs(), undefined);
     assert.equal(tx.getSignatures(), undefined);
   } else {
-    if (tx.getSignatures() !== undefined) assert(tx.getSignatures().length > 0)
+    if (tx.getSignatures() !== undefined) assert(tx.getSignatures().length > 0);
   }
   
   // test failed  // TODO: what else to test associated with failed
   if (tx.isFailed()) {
     assert(tx.getOutgoingTransfer() instanceof MoneroTransfer); // TODO: MoneroTx does not have getOutgoingTransfer() but this doesn't fail?
-    assert(tx.getReceivedTimestamp() > 0)
+    assert(tx.getReceivedTimestamp() > 0);
   } else {
     if (tx.isRelayed() === undefined) assert.equal(tx.getDoNotRelay(), undefined); // TODO monero-daemon-rpc: add relayed to get_transactions
     else if (tx.isRelayed()) assert.equal(tx.isDoubleSpendSeen(), false);
@@ -1421,7 +1422,7 @@ function testInfo(info) {
   assert(info.getBlockSizeMedian());
   assert(info.getBootstrapDaemonAddress() === undefined || (typeof info.getBootstrapDaemonAddress() === "string" && info.getBootstrapDaemonAddress().length > 0));
   assert(info.getCumulativeDifficulty());
-  assert(info.getCumulativeDifficulty() instanceof BigInteger)
+  assert(info.getCumulativeDifficulty() instanceof BigInteger);
   assert(info.getFreeSpace());
   assert(info.getNumOfflinePeers() >= 0);
   assert(info.getNumOnlinePeers() >= 0);
@@ -1617,7 +1618,7 @@ function testVin(input, ctx) {
   testKeyImage(input.getKeyImage(), ctx);
   assert(input.getRingOutputIndices() && Array.isArray(input.getRingOutputIndices()) && input.getRingOutputIndices().length > 0);
   for (let index of input.getRingOutputIndices()) {
-    assert.equal(typeof index, "number")
+    assert.equal(typeof index, "number");
     assert(index >= 0);
   }
 }
