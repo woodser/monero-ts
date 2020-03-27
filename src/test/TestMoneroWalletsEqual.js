@@ -12,7 +12,7 @@ class TestMoneroWalletsEqual {
   //private static final Logger LOGGER = Logger.getLogger(TestMoneroWalletsEqual.class); // logger
 
   getWallet1() {
-    return this.w1
+    return this.w1;
   }
   
   setWallet1(w1) {
@@ -71,14 +71,14 @@ class TestMoneroWalletsEqual {
         await testAccountsEqualOnChain(accounts1[i], accounts2[i]);
       } else if (i >= accounts1.length) {
         for (let j = i; j < accounts2.length; j++) {
-          assert.equal(accounts2[j].getBalance(), new BigInteger(0));
+          assert.equal(accounts2[j].getBalance(), BigInteger.parse(0));
           assert(accounts2[j].getSubaddresses().length >= 1);
           for (let subaddress of accounts2[j].getSubaddresses()) assert(!subaddress.isUsed());
         }
         return;
       } else {
         for (let j = i; j < accounts1.length; j++) {
-          assert.equal(new BigInteger(0), accounts1[j].getBalance());
+          assert.equal(BigInteger.parse(0), accounts1[j].getBalance());
           assert(accounts1[j].getSubaddresses().length >= 1);
           for (let subaddress of accounts1[j].getSubaddresses()) assert(!subaddress.isUsed());
         }
@@ -90,7 +90,7 @@ class TestMoneroWalletsEqual {
   async testAccountsEqualOnChain(account1, account2) {
     
     // nullify off-chain data for comparison
-    let = account1.getSubaddresses();
+    let subaddresses1 = account1.getSubaddresses();
     let subaddresses2 = account2.getSubaddresses();
     account1.setSubaddresses(undefined);
     account2.setSubaddresses(undefined);
@@ -108,13 +108,13 @@ class TestMoneroWalletsEqual {
         await testSubaddressesEqualOnChain(subaddresses1[i], subaddresses2[i]);
       } else if (i >= subaddresses1.length) {
         for (let j = i; j < subaddresses2.length; j++) {
-          assert.equal(new BigInteger(0), subaddresses2[j].getBalance());
+          assert.equal(BigInteger.parse(0), subaddresses2[j].getBalance());
           assert(!subaddresses2[j].isUsed());
         }
         return;
       } else {
         for (let j = i; j < subaddresses1.length; j++) {
-          assert.equal(new BigInteger(0), subaddresses1[i].getBalance());
+          assert.equal(BigInteger.parse(0), subaddresses1[i].getBalance());
           assert(!subaddresses1[j].isUsed());
         }
         return;
