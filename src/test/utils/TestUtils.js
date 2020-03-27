@@ -2,7 +2,7 @@ const FS = require("fs");
 const MoneroDaemonRpc = require("../../main/js/daemon/MoneroDaemonRpc");
 const MoneroWalletRpc = require("../../main/js/wallet/MoneroWalletRpc");
 const MoneroWalletKeys = require("../../main/js/wallet/MoneroWalletKeys");
-const MoneroWalletCore = require("../../main/js/wallet/MoneroWalletCore")
+const MoneroWalletCore = require("../../main/js/wallet/MoneroWalletCore");
 
 const TxPoolWalletTracker = require("./TxPoolWalletTracker");
 
@@ -119,7 +119,7 @@ class TestUtils {
   static testUnsignedBigInteger(num, nonZero) {
     assert(num);
     assert(num instanceof BigInteger);
-    let comparison = num.compare(new BigInteger(0));
+    let comparison = num.compare(BigInteger.parse(0));
     assert(comparison >= 0);
     if (nonZero === true) assert(comparison > 0);
     if (nonZero === false) assert(comparison === 0);
@@ -139,7 +139,7 @@ class TestUtils {
 TestUtils.TEST_WALLETS_DIR = "./test_wallets";
 TestUtils.WALLET_WASM_PATH_1 = TestUtils.TEST_WALLETS_DIR + "/test_wallet_1";
 
-TestUtils.MAX_FEE = new BigInteger(7500000).multiply(new BigInteger(10000));
+TestUtils.MAX_FEE = BigInteger.parse(7500000).multiply(BigInteger.parse(10000));
 TestUtils.NETWORK_TYPE = MoneroNetworkType.STAGENET;
 
 // default keypair to test
