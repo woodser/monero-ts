@@ -243,6 +243,8 @@ set(
 #-s DISABLE_EXCEPTION_CATCHING=0 \
 #-s ASYNCIFY=1 \
 #-s 'ASYNCIFY_IMPORTS=[\"js_send_json_request\",\"js_send_binary_request\",\"emscripten_sleep\"]' \
+#-s ALLOW_MEMORY_GROWTH=0 \
+#-s INITIAL_MEMORY=1536MB \
 
 set (
 EMCC_LINKER_FLAGS_BASE
@@ -265,8 +267,7 @@ EMCC_LINKER_FLAGS_BASE
 -s RESERVED_FUNCTION_POINTERS=5 \
 -s EXTRA_EXPORTED_RUNTIME_METHODS='[\"UTF8ToString\",\"stringToUTF8\",\"lengthBytesUTF8\",\"intArrayToString\",\"makeBigInt\",\"getTempRet0\",\"addFunction\"]' \
 -s WASM=1 \
--s ALLOW_MEMORY_GROWTH=0 \
--s TOTAL_MEMORY=1536MB \
+-s ALLOW_MEMORY_GROWTH=1 \
 "
     # • Disabling exception catching does not introduce silent failures 
     # • Probably don't need PRECISE_F32 but wouldn't want to not use it
