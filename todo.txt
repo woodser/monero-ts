@@ -5,16 +5,16 @@ organize todos including todos throughout code
 test jni
 release
 
+await MoneroWallet.create({type: "wasm", networkType:, 2, connectionUri: connection: {uri: : daemonUri: "...", mnemonic: "})
+MoneroDaemonRpc support 3 string args, just like MoneroWalletRpc or factor method?
 browser bundle with tests part of monero-javascript
 new test wallet before receiving funds breaks tests
 find boost version in cmake lists
 externalize test config
-MoneroDaemonRpc support 3 string args, just like MoneroWalletRpc, embarassing
 Can prove reserves in an account
 MoneroWalletWasm, monero_wasm.js, monero_wasm.wasm, monero_wasm_keys.js, monero_wasm_keys.wasm
 web worker getPath()?
 createTx, createTxs, sendTx, sendTxs() instead of send(), sendSplit()?
-await MoneroWallet.create({type: "wasm", networkType:, 2, connectionUri: connection: {uri: : daemonUri: "...", mnemonic: "})
 open bug on check key no funds received despite transfer - caused by importing key images?
 getNetworkType on top level wallet
 fix notification failures
