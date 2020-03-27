@@ -307,15 +307,15 @@ class MoneroDaemonRpc extends MoneroDaemon {
     let resp = await this.config.rpc.sendJsonRequest("get_coinbase_tx_sum", {height: height, count: numBlocks});
     MoneroDaemonRpc._checkResponseStatus(resp.result);
     let txSum = new MoneroMinerTxSum();
-    txSum.setEmissionSum(new BigInteger(resp.result.emission_amount));
-    txSum.setFeeSum(new BigInteger(resp.result.fee_amount));
+    txSum.setEmissionSum(BigInteger.parse(resp.result.emission_amount));
+    txSum.setFeeSum(BigInteger.parse(resp.result.fee_amount));
     return txSum;
   }
   
   async getFeeEstimate(graceBlocks) {
     let resp = await this.config.rpc.sendJsonRequest("get_fee_estimate", {grace_blocks: graceBlocks});
     MoneroDaemonRpc._checkResponseStatus(resp.result);
-    return new BigInteger(resp.result.fee);
+    return BigInteger.parse(resp.result.fee);
   }
   
   async submitTxHex(txHex, doNotRelay) {
@@ -370,6 +370,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
 
   async getTxPoolStats() {
     throw new MoneroError("Response contains field 'histo' which is binary'");
+    /** dead code
     let resp = await this.config.rpc.sendPathRequest("get_transaction_pool_stats");
     MoneroDaemonRpc._checkResponseStatus(resp);
     let stats = MoneroDaemonRpc._convertRpcTxPoolStats(resp.pool_stats);
@@ -385,6 +386,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
     }
     
     return stats;
+    **/
   }
   
   async flushTxPool(hashes) {
@@ -664,7 +666,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       let listener = function(header) {
         resolve(header);
         that.removeBlockListener(listener);
-      }
+      };
       that.addBlockListener(listener);
     });
   }
@@ -967,7 +969,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       let val = rpcOutput[key];
       if (key === "gen") throw new MoneroError("Output with 'gen' from daemon rpc is miner tx which we ignore (i.e. each miner input is undefined)");
       else if (key === "key") {
-        GenUtils.safeSet(output, output.getAmount, output.setAmount, new BigInteger(val.amount));
+        GenUtils.safeSet(output, output.getAmount, output.setAmount, BigInteger.parse(val.amount));
         GenUtils.safeSet(output, output.getKeyImage, output.setKeyImage, new MoneroKeyImage(val.k_image));
         GenUtils.safeSet(output, output.getRingOutputIndices, output.setRingOutputIndices, val.key_offsets);
       }
@@ -1046,7 +1048,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "testnet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.TESTNET); }
       else if (key === "stagenet") { if (val) GenUtils.safeSet(info, info.getNetworkType, info.setNetworkType, MoneroNetworkType.STAGENET); }
       else if (key === "credits") info.setCredits(BigInteger.parse(val));
-      else if (key === "top_block_hash" || key === "top_hash") info.setTopBlockHash(GenUtils.reconcile(info.getTopBlockHash(), "" === val ? undefined : val))
+      else if (key === "top_block_hash" || key === "top_hash") info.setTopBlockHash(GenUtils.reconcile(info.getTopBlockHash(), "" === val ? undefined : val));
       else console.log("WARNING: Ignoring unexpected info field: " + key + ": " + val);
     }
     return info;
@@ -1163,7 +1165,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
       else if (key === "reason") result.setReason(val === "" ? undefined : val);
       else if (key === "too_big") result.setIsTooBig(val);
       else if (key === "sanity_check_failed") result.setSanityCheckFailed(val);
-      else if (key === "credits") result.setCredits(BigInteger.parse(val))
+      else if (key === "credits") result.setCredits(BigInteger.parse(val));
       else if (key === "status" || key === "untrusted") {}  // handled elsewhere
       else if (key === "top_hash") result.setTopBlockHash("" === val ? undefined : val);
       else console.log("WARNING: ignoring unexpected field in submit tx hex result: " + key + ": " + val);
@@ -1609,7 +1611,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   }
   
   async stopMining() {
-    return this._invokeWorker("daemonStopMining")
+    return this._invokeWorker("daemonStopMining");
   }
   
   async getMiningStatus() {
