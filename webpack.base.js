@@ -1,3 +1,5 @@
+"use strict"
+
 const path = require("path");
 
 let configBase = {
@@ -33,13 +35,4 @@ let configBase = {
     context: __dirname
 };
 
-let configMoneroWebWorker = Object.assign({}, configBase, {
-    name: "Monero web worker config",
-    entry: "./src/main/js/utils/MoneroWebWorker.js",
-    output: {
-      path: path.resolve(__dirname, "dist"),
-      filename: "MoneroWebWorker.dist.js"
-    },
-});
-
-module.exports = [configMoneroWebWorker];
+module.exports = configBase;

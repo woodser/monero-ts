@@ -3,4 +3,4 @@
 #EMCC_DEBUG=1 
 
 # build web app dependencies
-npm run build
+npm run build-web-worker
