@@ -5,6 +5,7 @@ organize todos including todos throughout code
 test jni
 release
 
+low severity vulnerabilities
 resolve "can sync a wallet" test failures caused by block being added to chain
 await MoneroWallet.create({type: "wasm", networkType:, 2, connectionUri: connection: {uri: : daemonUri: "...", mnemonic: "})
 MoneroDaemonRpc support 3 string args, just like MoneroWalletRpc or factor method?
