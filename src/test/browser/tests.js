@@ -5,10 +5,7 @@ require("../../../index.js");
 
 // import test types
 require("../utils/TestUtilsModule")();
-const TestMoneroDaemonRpc = require("../TestMoneroDaemonRpc");
-const TestMoneroWalletRpc = require("../TestMoneroWalletRpc");
-const TestMoneroWalletKeys = require("../TestMoneroWalletKeys");
-const TestMoneroWalletCore = require("../TestMoneroWalletCore");
+require("../MoneroTestModel")();
 
 /**
  * Run tests when document ready.
