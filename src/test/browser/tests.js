@@ -1,8 +1,4 @@
-/**
- * Sample browser application which uses a JavaScript library to interact
- * with a Monero daemon using RPC and a Monero wallet using RPC and WASM
- * bindings.
- */
+// TODO: combine with ../TestAll.js
 
 // import library models
 require("../../../index.js");
