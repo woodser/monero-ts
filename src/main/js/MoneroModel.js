@@ -11,6 +11,7 @@ module.exports = function() {
   this.BigInteger = require("./utils/biginteger").BigInteger;
   this.Filter = require("./utils/Filter");
   this.MoneroError = require("./utils/MoneroError");
+  this.HttpClient = require("./utils/HttpClient");
   
   // export daemon models
   this.ConnectionType = require("./daemon/model/ConnectionType");

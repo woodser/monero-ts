@@ -3644,12 +3644,12 @@ class TestMoneroWalletCommon {
         }
         await curWallet.close(true);
         
-        console.log("Sending funds from main wallet");
-        
         // send funds from the main test wallet to destinations in the first multisig wallet
         curWallet = await this.getTestWallet();  // get / open the main test wallet
         assert.equal(await curWallet.getAttribute("name"), BEGIN_MULTISIG_NAME);
+        await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(curWallet);
         assert((await curWallet.getBalance()).compare(new BigInteger(0)) > 0);
+        console.log("Sending funds from main wallet");
         await curWallet.send(new MoneroSendRequest().setAccountIndex(0).setDestinations(destinations));
         let returnAddress = await curWallet.getPrimaryAddress(); // funds will be returned to this address from the multisig wallet
         

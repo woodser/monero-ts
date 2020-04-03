@@ -39,6 +39,3 @@ mkdir -p ./dist || exit 1
   && {
     mv ./build/monero_core_wasm.wasm ./dist/
   }
-
-# re-build web worker
-./bin/build-web-worker.sh

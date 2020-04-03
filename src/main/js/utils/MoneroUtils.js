@@ -1,6 +1,3 @@
-const PromiseThrottle = require("promise-throttle");
-const Request = require("request-promise");
-
 /**
  * Collection of Monero utilities.
  */
@@ -228,81 +225,6 @@ class MoneroUtils {
   // ---------------------------- LIBRARY UTILS -------------------------------
   
   /**
-   * Get a singleton instance of an HTTP client to share.
-   * 
-   * @return {http.Agent} a shared agent for network requests among library instances
-   */
-  static getHttpAgent() {
-    if (!MoneroUtils.HTTP_AGENT) {
-      let http = require('http');
-      MoneroUtils.HTTP_AGENT = new http.Agent({keepAlive: true});
-    }
-    return MoneroUtils.HTTP_AGENT;
-  }
-  
-  /**
-   * Get a singleton instance of an HTTPS client to share.
-   * 
-   * @return {https.Agent} a shared agent for network requests among library instances
-   */
-  static getHttpsAgent() {
-    if (!MoneroUtils.HTTPS_AGENT) {
-      let https = require('https');
-      MoneroUtils.HTTPS_AGENT = new https.Agent({keepAlive: true});
-    }
-    return MoneroUtils.HTTPS_AGENT;
-  }
-
-  /**
-   * Executes network requests serially and with rate limiting.
-   * 
-   * @param {object} opts is the config for the Request interface
-   * 
-   * TODO: only requests per endpoint need to be executed serially and with rate limiting, this is global
-   */
-  static async throttledRequest(opts) {
-    
-    // initialize promise throttle one time
-    if (!MoneroUtils.PROMISE_THROTTLE) {
-      MoneroUtils.PROMISE_THROTTLE = new PromiseThrottle({
-        requestsPerSecond: MoneroUtils.MAX_REQUESTS_PER_SECOND,
-        promiseImplementation: Promise
-      });
-    }
-    
-    // queue and throttle requests to execute in serial and rate limited
-    return MoneroUtils.queueTask(async function() {
-      return MoneroUtils.PROMISE_THROTTLE.add(function(opts) { return Request(opts); }.bind(this, opts));
-    });
-  }
-  
-  /**
-   * Executes given tasks serially (first in, first out).
-   * 
-   * @param {function} asyncFn is an asynchronous function to execute after previously given tasks
-   */
-  static async queueTask(asyncFn) {
-    
-    // initialize task queue one time
-    if (!MoneroUtils.TASK_QUEUE) {
-      const async = require("async");
-      MoneroUtils.TASK_QUEUE = async.queue(function(asyncFn, callback) {
-        if (asyncFn.then) throw new Error("Can only queue asynchronous functions");
-        asyncFn().then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
-      }, 1);
-    }
-    
-    // return promise which resolves when task is executed
-    return new Promise(function(resolve, reject) {
-      MoneroUtils.TASK_QUEUE.push(asyncFn, function(resp, err) {
-        //error !== undefined ? reject(err) : resolve(resp);  // TODO: one line
-        if (err !== undefined) reject(err);
-        else resolve(resp);
-      });
-    });
-  }
-  
-  /**
    * Load the WebAssembly keys module with caching.
    */
   static async loadKeysModule() {
@@ -357,8 +279,8 @@ class MoneroUtils {
     // initialize data structure to synchronize access to wasm module
     const async = require("async");
     wasmModule.taskQueue = async.queue(function(asyncFn, callback) {
-      if (asyncFn.then) throw new Error("Can only queue asynchronous functions");
-      asyncFn().then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
+      if (asyncFn.then) asyncFn.then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
+      else asyncFn().then(resp => { callback(resp); }).catch(err => { callback(undefined, err); });
     }, 1);
     
     // initialize method to synchronize access to wasm module

@@ -53,15 +53,6 @@ class MoneroRpcConnection {
     } else {
       this.config.uri = this.config.protocol + "://" + this.config.host + ":" + this.config.port;
     }
-    
-    // initialize http agent
-    if (this.config.uri.startsWith("https")) {
-      let https = require('https');
-      this.agent = MoneroUtils.getHttpsAgent();
-    } else {
-      let http = require('http');
-      this.agent = MoneroUtils.getHttpAgent();
-    }
   }
   
   getUri() {
@@ -90,39 +81,25 @@ class MoneroRpcConnection {
   async sendJsonRequest(method, params) {
     //console.log("sendJsonRequest(" + method + ", " + JSON.stringify(params) + ")");
     
-    // build request which gets json response as text
-    let opts = {
-      method: "POST",
-      uri: this.config.uri + "/json_rpc",
-      body: JSON.stringify({  // body is stringified so text/plain is returned so BigIntegers are properly parsed because JS numbers are limited to 53 bits which can lose precision
-        id: "0",
-        jsonrpc: "2.0",
-        method: method,
-        params: params
-      }),
-      agent: this.agent,
-      rejectUnauthorized: this.config.rejectUnauthorized,
-      requestCert: true
-    };
-    if (this.config.user) {
-      opts.forever = true;
-      opts.auth = {
-          user: this.config.user,
-          pass: this.config.pass,
-          sendImmediately: false
-      }
-    }
-    
-    // send request and await response
     try {
-      let resp = await MoneroUtils.throttledRequest(opts);
-      resp = JSON.parse(resp.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
-      //console.log(JSON.stringify(resp));
-      if (resp.error) {
-        //console.error("Request failed: " + resp.error.code + ": " + resp.error.message);
-        //console.error(opts);
-        throw new MoneroRpcError(resp.error.message, resp.error.code, method, params);
-      }
+      // send request
+      let resp = await HttpClient.request({
+        method: "POST",
+        uri: this.getUri() + '/json_rpc',
+        username: this.getUsername(),
+        password: this.getPassword(),
+        body: JSON.stringify({  // body is stringified so text/plain is returned so BigIntegers are preserved
+          id: "0",
+          jsonrpc: "2.0",
+          method: method,
+          params: params
+        }),
+        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010  // TODO: detect firefox specifically
+      });
+      
+      // process response
+      resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
+      if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, method, params);
       return resp;
     } catch (e) {
       if (e instanceof MoneroRpcError) throw e;
@@ -138,28 +115,19 @@ class MoneroRpcConnection {
   async sendPathRequest(path, params) {
     //console.log("sendPathRequest(" + path + ", " + JSON.stringify(params) + ")");
     
-    // build request which gets json response as text
-    let opts = {
-      method: "POST",
-      uri: this.config.uri + "/" + path,
-      body: JSON.stringify(params),
-      agent: this.agent,
-      rejectUnauthorized: this.config.rejectUnauthorized,
-      requestCert: true
-    };
-    if (this.config.user) {
-      opts.forever = true;
-      opts.auth = {
-        user: this.config.user,
-        pass: this.config.pass,
-        sendImmediately: false
-      }
-    }
-    
-    // send request and await response
     try {
-      let resp = await MoneroUtils.throttledRequest(opts);
-      resp = JSON.parse(resp.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
+      // send request
+      let resp = await HttpClient.request({
+        method: "POST",
+        uri: this.getUri() + '/' + path,
+        username: this.getUsername(),
+        password: this.getPassword(),
+        body: JSON.stringify(params),  // body is stringified so text/plain is returned so BigIntegers are preserved
+        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"
+      });
+      
+      // process response
+      resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // replace 16 or more digits with strings and parse
       if (typeof resp === "string") resp = JSON.parse(resp);  // TODO: some responses returned as strings?
       if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
       return resp;
@@ -185,30 +153,25 @@ class MoneroRpcConnection {
     // serialize params
     let paramsBin = MoneroUtils.jsonToBinary(params);
     
-    // build request
-    let opts = {
-      method: "POST",
-      uri: this.config.uri + "/" + path,
-      agent: this.agent,
-      encoding: null,
-      body: paramsBin,
-      rejectUnauthorized: this.config.rejectUnauthorized,
-      requestCert: true
-    };
-    if (this.config.user) {
-      opts.forever = true;
-      opts.auth = {
-        user: this.config.user,
-        pass: this.config.pass,
-        sendImmediately: false
-      }
-    }
-    
-    // send request and store binary response as Uint8Array
     try {
-      let resp = await MoneroUtils.throttledRequest(opts);
+      // send request
+      let resp = await HttpClient.request({
+        method: "POST",
+        uri: this.getUri() + '/' + path,
+        username: this.getUsername(),
+        password: this.getPassword(),
+        body: paramsBin,
+        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"
+      });
+      
+      // process response
+      resp = resp.body;
+      if (!(resp instanceof Uint8Array)) {
+        console.error("resp is not uint8array");
+        console.log(resp);
+      }
       if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
-      return new Uint8Array(resp, 0, resp.length);
+      return resp;
     } catch (e) {
       if (e instanceof MoneroRpcError) throw e;
       else throw new MoneroRpcError(e, undefined, path, params);

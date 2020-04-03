@@ -235,7 +235,7 @@ class TestMoneroDaemonRpc {
       it("Can get blocks by range using chunked requests", async function() {
         
         // get long height range
-        let numBlocks = 2160; // test ~3 days of blocks
+        let numBlocks = 1000;
         assert(numBlocks > 0);
         let height = await that.daemon.getHeight();
         assert(height - numBlocks - 1 < height);
@@ -243,13 +243,13 @@ class TestMoneroDaemonRpc {
         let endHeight = height - 1;
         
         // test known start and end heights
-        testGetBlocksRange(startHeight, endHeight, height, true);
+        await testGetBlocksRange(startHeight, endHeight, height, true);
         
         // test unspecified start
-        testGetBlocksRange(undefined, numBlocks - 1, height, true);
+        await testGetBlocksRange(undefined, numBlocks - 1, height, true);
         
         // test unspecified end
-        testGetBlocksRange(endHeight - numBlocks - 1, undefined, height, true);
+        await testGetBlocksRange(endHeight - numBlocks - 1, undefined, height, true);
       });
       
       async function testGetBlocksRange(startHeight, endHeight, chainHeight, chunked) {
@@ -1737,7 +1737,7 @@ async function getConfirmedTxIds(daemon) {
   
   // get valid height range
   let height = await daemon.getHeight();
-  let numBlocks = 200;
+  let numBlocks = 50;
   let numBlocksAgo = 200;
   assert(numBlocks > 0);
   assert(numBlocksAgo >= numBlocks);
@@ -1750,7 +1750,7 @@ async function getConfirmedTxIds(daemon) {
   
   // collect tx hashes
   let txHashes = blocks.map(block => block.getTxHashes()).reduce((a, b) => { a.push.apply(a, b); return a; });
-  assert(txHashes.length > 0, "No transactions found in the range [" + startHeight + ", " + endHeight + "]");  // TODO: this fails if no txs in last 100 blocks
+  assert(txHashes.length > 0, "No transactions found in the range [" + startHeight + ", " + endHeight + "]");  // TODO: this fails if no txs in last numBlocks blocks
   return txHashes;
 }
 

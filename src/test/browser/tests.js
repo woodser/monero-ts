@@ -4,8 +4,8 @@
 require("../../../index.js");
 
 // import test types
-require("../utils/TestUtilsModule")();
 require("../MoneroTestModel")();
+require("../utils/TestUtilsModule")();
 
 /**
  * Run tests when document ready.
@@ -38,7 +38,7 @@ function runTests() {
   
   // test daemon rpc
   new TestMoneroDaemonRpc({
-    liteMode: true,          // skips some thorough but lengthy tests
+    liteMode: false,          // skips some thorough but lengthy tests
     testNonRelays: true,
     testRelays: true,         // creates and relays outgoing txs
     testNotifications: true,
@@ -46,7 +46,7 @@ function runTests() {
   
   // test wallet rpc
   new TestMoneroWalletRpc({
-    liteMode: false, // skips some lengthy but detailed tests
+    liteMode: true, // skips some lengthy but detailed tests
     testNonRelays: true,
     testRelays: true,
     testNotifications: false,
@@ -70,6 +70,9 @@ function runTests() {
     testResets: false,
     testNotifications: true,
   }).runTests();
+  
+//  // test scratchpad
+//  require("../Scratchpad");
   
   // run tests
   mocha.run();

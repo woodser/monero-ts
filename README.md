@@ -195,7 +195,7 @@ To build this project's WebAssembly files from source code:
 	6. `cd ../../../../`
 7. Build Boost using emscripten: `./bin/build-boost-emscripten.h`
 8. Build OpenSSL using emscripten: `./bin/build-openssl-emscripten.sh`
-8. Build WebAssembly files to ./dist/: `./bin/build-wasm-emscripten.sh`
+8. Build WebAssembly files to ./dist/: `./bin/build-dist.sh`
 
 ## See Also
 
