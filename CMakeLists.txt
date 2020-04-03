@@ -8,8 +8,8 @@ string(REPLACE ";" "," WASM_EXCEPTION_WHITELIST "${WASM_EXCEPTION_WHITELIST}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Oz --bind -s DISABLE_EXCEPTION_CATCHING=2 -s EXCEPTION_CATCHING_WHITELIST='[${WASM_EXCEPTION_WHITELIST}]'")
 add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP -DNO_AES)
 
-set(BUILD_WALLET_KEYS ON)
-set(BUILD_WALLET_CORE ON)
+set(BUILD_MONERO_KEYS_WASM ON)
+set(BUILD_MONERO_CORE_WASM ON)
 
 ##############
 # C++ bridge
@@ -142,7 +142,7 @@ set_target_properties(
 ################################
 
 set(
-    WALLET_KEYS_SRC_FILES
+    MONERO_KEYS_SRC_FILES
     
     # monero-javascript WASM bridge
     src/main/cpp/index.cpp
@@ -162,7 +162,6 @@ set(
     ${MONERO_CORE_SRC}/crypto/crypto.cpp
     ${MONERO_CORE_SRC}/crypto/hash.c
     ${MONERO_CORE_SRC}/crypto/slow-hash.c
-    #${MONERO_CORE_SRC}/crypto/slow-hash-dummied.cpp
     ${MONERO_CORE_SRC}/crypto/oaes_lib.c
     ${MONERO_CORE_SRC}/crypto/crypto-ops.c
     ${MONERO_CORE_SRC}/crypto/crypto-ops-data.c
@@ -204,7 +203,7 @@ set(
 ################################
 
 set(
-    WALLET_CORE_SRC_FILES
+    MONERO_CORE_SRC_FILES
     
     # monero-javascript WASM bridge
     src/main/cpp/http_client_wasm.cpp
@@ -303,11 +302,11 @@ message(STATUS "EMCC_LINKER_FLAGS_CORE ${EMCC_LINKER_FLAGS_CORE}")
 # Build targets
 ####################
 
-if (BUILD_WALLET_KEYS)
-	add_executable(monero_keys_wasm ${WALLET_KEYS_SRC_FILES})
-	set_target_properties(monero_keys_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_KEYS}")
+if (BUILD_MONERO_KEYS_WASM)
+	add_executable(monero_keys ${MONERO_KEYS_SRC_FILES})
+	set_target_properties(monero_keys PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_KEYS}")
 	target_link_libraries(
-	    monero_keys_wasm
+	    monero_keys
 	    #
 	    boost_chrono
 	    boost_system
@@ -317,12 +316,12 @@ if (BUILD_WALLET_KEYS)
 	)
 endif()
 
-if (BUILD_WALLET_CORE)
-	add_executable(monero_core_wasm ${WALLET_CORE_SRC_FILES} ${WALLET_KEYS_SRC_FILES})
-	set_target_properties(monero_core_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE}")
-	target_compile_definitions(monero_core_wasm PRIVATE BUILD_CORE_WALLET=1)
+if (BUILD_MONERO_CORE_WASM)
+	add_executable(monero_core ${MONERO_CORE_SRC_FILES} ${MONERO_KEYS_SRC_FILES})
+	set_target_properties(monero_core PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE}")
+	target_compile_definitions(monero_core PRIVATE BUILD_CORE_WALLET=1)
 	target_link_libraries(
-	    monero_core_wasm
+	    monero_core
 	    #
 	    #openssl_ssl
 	    #openssl_crypto
