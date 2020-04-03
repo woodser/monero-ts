@@ -23,6 +23,7 @@ class TestSampleCode {
         }
       });
       
+      // TODO: wrap test in try...catch and close core wallet
       it("Can be demonstrated with sample code", async function() {
         
         // import library
@@ -31,7 +32,7 @@ class TestSampleCode {
         
         // connect to a daemon
         let daemon = new MoneroDaemonRpc({uri: "http://localhost:38081", user: "superuser", pass: "abctesting123"});  // TODO: support 3 string args
-        let height = await daemon.getHeight();                 // 1523651
+        let height = await daemon.getHeight();           // 1523651
         let feeEstimate = await daemon.getFeeEstimate(); // 1014313512
         
         // get transactions in the pool
@@ -109,14 +110,14 @@ class TestSampleCode {
         let numThreads = 7;
         let isBackground = false;
         let ignoreBattery = false;
-        await walletRpc.startMining(numThreads, isBackground, ignoreBattery);
+        try { await walletRpc.startMining(numThreads, isBackground, ignoreBattery); } catch(e) { }
         
         // wait for the next block to be added to the chain
         let nextBlockHeader = await daemon.getNextBlockHeader();
         let nextNumTxs = nextBlockHeader.getNumTxs();
         
         // stop mining
-        await walletRpc.stopMining();
+        try { await walletRpc.stopMining(); } catch(e) { }
         
         // the transaction is (probably) confirmed
         await new Promise(function(resolve) { setTimeout(resolve, 10000); });  // wait 10s for auto refresh

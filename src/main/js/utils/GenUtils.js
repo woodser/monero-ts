@@ -1224,6 +1224,26 @@ class GenUtils {
       return v.toString(16);
     });
   }
+  
+  /**
+   * Indicates if the current environment is a browser.
+   * 
+   * @return {boolean} true if the environment is a browser, false otherwise
+   */
+  static isBrowser() {
+    let isWorker = typeof importScripts === 'function';
+    let isBrowserMain = new Function("try {return this===window;}catch(e){return false;}")();
+    return isWorker || isBrowserMain;
+  }
+  
+  /**
+   * Indicates if the current environment is a firefox-based browser.
+   * 
+   * @return {boolean} true if the environment is a firefox-based browser, false otherwise
+   */
+  static isFirefox() {
+    return this.isBrowser() && navigator.userAgent.indexOf("Firefox") > 0;
+  }
 
   /**
    * Gets the IE version number.

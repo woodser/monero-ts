@@ -690,14 +690,20 @@ class MoneroDaemonRpc extends MoneroDaemon {
     assert(!this.isPollingHeaders, "Daemon is already polling block headers");
     
     // get header to detect changes while polling
-    let lastHeader = await this.getLastBlockHeader();
+    let lastHeader = await this.getLastBlockHeader(); // TODO: this should be passed in
     
     // poll until stopped
     let that = this;
     this.isPollingHeaders = true;
     while (this.isPollingHeaders) {
       await new Promise(function(resolve) { setTimeout(resolve, interval); });
-      let header = await this.getLastBlockHeader();
+      let header;
+      try {
+        header = await this.getLastBlockHeader();
+      } catch (e) {
+        console.error("Failed to poll last block header, retrying...");
+        continue;
+      }
       if (header.getHash() !== lastHeader.getHash()) {
         lastHeader = header;
         for (let listener of this.listeners) {

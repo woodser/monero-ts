@@ -6,8 +6,10 @@ project(monero-javascript-wasm)
 file(STRINGS wasm_exception_whitelist.txt WASM_EXCEPTION_WHITELIST)
 string(REPLACE ";" "," WASM_EXCEPTION_WHITELIST "${WASM_EXCEPTION_WHITELIST}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Oz --bind -s DISABLE_EXCEPTION_CATCHING=2 -s EXCEPTION_CATCHING_WHITELIST='[${WASM_EXCEPTION_WHITELIST}]'")
+add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP -DNO_AES)
 
-add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP)
+set(BUILD_WALLET_KEYS ON)
+set(BUILD_WALLET_CORE ON)
 
 ##############
 # C++ bridge
@@ -231,6 +233,9 @@ set(
     ${MONERO_CORE_SRC}/common/combinator.cpp
     ${MONERO_CORE_SRC}/rpc/rpc_payment_signature.cpp
     ${MONERO_CORE_SRC}/wallet/ringdb.cpp
+    ${MONERO_CORE_SRC}/cryptonote_basic/miner.cpp
+    ${MONERO_CORE_SRC}/cryptonote_basic/difficulty.cpp
+    ${MONERO_CORE_SRC}/cryptonote_core/tx_sanity_check.cpp
 )
 
 ####################
@@ -298,43 +303,41 @@ message(STATUS "EMCC_LINKER_FLAGS_CORE ${EMCC_LINKER_FLAGS_CORE}")
 # Build targets
 ####################
 
-##[[	--- START BLOCK COMMENT ---
-# monero_wallet_keys
-add_executable(monero_keys_wasm ${WALLET_KEYS_SRC_FILES})
-set_target_properties(monero_keys_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_KEYS}")
-target_link_libraries(
-    monero_keys_wasm
-    #
-    boost_chrono
-    boost_system
-    boost_thread
-    #
-    ${log-lib}
-)
-##]] #--- END BLOCK COMMENT ---
+if (BUILD_WALLET_KEYS)
+	add_executable(monero_keys_wasm ${WALLET_KEYS_SRC_FILES})
+	set_target_properties(monero_keys_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_KEYS}")
+	target_link_libraries(
+	    monero_keys_wasm
+	    #
+	    boost_chrono
+	    boost_system
+	    boost_thread
+	    #
+	    ${log-lib}
+	)
+endif()
 
-##[[	--- START BLOCK COMMENT ---
-# monero_wallet_core
-add_executable(monero_core_wasm ${WALLET_CORE_SRC_FILES} ${WALLET_KEYS_SRC_FILES})
-set_target_properties(monero_core_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE}")
-target_compile_definitions(monero_core_wasm PRIVATE BUILD_CORE_WALLET=1)
-target_link_libraries(
-    monero_core_wasm
-    #
-    #openssl_ssl
-    #openssl_crypto
-    #
-    boost_chrono
-    boost_system
-    boost_thread
-    boost_serialization
-    #boost_filesystem
-    boost_regex
-    #boost_atomic
-    #
-    ${log-lib}
-)
-##]] #--- END BLOCK COMMENT ---
+if (BUILD_WALLET_CORE)
+	add_executable(monero_core_wasm ${WALLET_CORE_SRC_FILES} ${WALLET_KEYS_SRC_FILES})
+	set_target_properties(monero_core_wasm PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE}")
+	target_compile_definitions(monero_core_wasm PRIVATE BUILD_CORE_WALLET=1)
+	target_link_libraries(
+	    monero_core_wasm
+	    #
+	    #openssl_ssl
+	    #openssl_crypto
+	    #
+	    boost_chrono
+	    boost_system
+	    boost_thread
+	    boost_serialization
+	    #boost_filesystem
+	    boost_regex
+	    #boost_atomic
+	    #
+	    ${log-lib}
+	)
+endif()
 
 # build to bitcode instead of wasm
 #SET(CMAKE_EXECUTABLE_SUFFIX ".bc")	

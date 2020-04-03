@@ -5,18 +5,23 @@ organize todos including todos throughout code
 test jni
 release
 
-low severity vulnerabilities
-resolve "can sync a wallet" test failures caused by block being added to chain
+xhr ssl certificates for firefox
+parse big integers in http_client_wasm by calling to external function
+test onOuputSent() when swept
+MoneroWalletCore, MoneroWalletKeys, monero_core.js, monero_core.wasm, monero_keys.js, monero_keys.wasm
+createTx, createTxs, sendTx, sendTxs() instead of send(), sendSplit()?
+only send({relay: true, canSplit: true, ...}) with defaults, library assumes defaults?
+new BigInteger("X") -> BigInteger.parse("X")
 await MoneroWallet.create({type: "wasm", networkType:, 2, connectionUri: connection: {uri: : daemonUri: "...", mnemonic: "})
 MoneroDaemonRpc support 3 string args, just like MoneroWalletRpc or factor method?
-browser bundle with tests part of monero-javascript
+remaining daemon rpc proxy implementations
+low severity vulnerabilities
 new test wallet before receiving funds breaks tests
 find boost version in cmake lists
+resolve "can sync a wallet" test failures caused by block being added to chain
 externalize test config
 Can prove reserves in an account
-MoneroWalletWasm, monero_wasm.js, monero_wasm.wasm, monero_wasm_keys.js, monero_wasm_keys.wasm
 web worker getPath()?
-createTx, createTxs, sendTx, sendTxs() instead of send(), sendSplit()?
 open bug on check key no funds received despite transfer - caused by importing key images?
 getNetworkType on top level wallet
 fix notification failures
@@ -29,7 +34,6 @@ namespace exported types to object instead of this.?
 replace every new BigInteger() -> BigInteger.parse()
 in-memory wallet; wallet2 password is required to create valid cache file on creation (start with tests)
 daemon rpc getTxs() does not return tx blocks
-new BigInteger("X") -> BigInteger.parse("X")
 sync end height != daemon height for long syncs
 notification tests fails when tx not confirmed first block, make more lenient
 long sync will give 100% notifications for blocks since sync started; re-compute based on daemon height toward end
@@ -43,7 +47,6 @@ startSynchronizing() should use pre-started loop so it's a random start time lik
 update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic like monero_wallet_core::get_txs()
 monero_wallet_core get_keys_file_buffer/get_cache_file_buffer use m_password instead of arg
 http_client_wasm factor common js
-production vs dev build to export tests, etc
 assert(!(await...) -> assert.equal(await ..., false) in tests, otherwise things like isClosed() with undefined pass
 deprecate .user, .pass with .username and .password and log error then eventually remove
 support MoneroWalletRpc(string uri, string username, string password) like java
@@ -63,7 +66,6 @@ port testSyncWithPoolSubmit from java
 monero_wallet_core::set_daemon_connection is_local_address() uses common/util which requires libunbound
 remove dummy methods
 test performance of DISABLE_EXCEPTION_CATCHING
-nginx monerod to support firefox
 update instructions to run library in browser
 compare sync performance with multithreading vs singlethreading - build both?
 compare sync performance with emscripten_fetch

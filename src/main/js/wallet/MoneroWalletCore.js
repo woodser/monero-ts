@@ -538,7 +538,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     let result;
     try {
       let that = this;
-      result = await that.module.queueTask(async function() {
+      result = await that.module.queueTask(async function() { // TODO: async function not necessary
         return new Promise(function(resolve, reject) {
         
           // define callback for wasm

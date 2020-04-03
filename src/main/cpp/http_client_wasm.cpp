@@ -16,46 +16,22 @@ EM_JS(const char*, js_send_json_request, (const char* http_client_id, const char
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
 
-    // get common http(s) agent
-    let agent = UTF8ToString(uri).toLowerCase().startsWith("https") ? MoneroUtils.getHttpsAgent() : MoneroUtils.getHttpAgent();
-
-    // initialize request config
-    let config = {};
-    config.user = UTF8ToString(username);
-    config.pass = UTF8ToString(password);
-
-    // build request which gets json response as text
-    let opts = {
+    // make request and process response or error
+    let wakeUpCalled = false;
+    HttpClient.request({
       method: UTF8ToString(method),
       uri: UTF8ToString(uri),
+      username: UTF8ToString(username),
+      password: UTF8ToString(password),
       body: UTF8ToString(body),
-      agent: agent,
-      resolveWithFullResponse: true
-    };
-    if (config.user) {
-      opts.forever = true;
-      opts.auth = {
-        user: config.user,
-        pass: config.pass,
-        sendImmediately: false
-      }
-    }
-
-    //console.log("Timeout: " + timeout); // TODO: use timeout
-
-    // send throttled request
-    let wakeUpCalled = false;
-    MoneroUtils.throttledRequest(opts).then(resp => {
-      //console.log("RESPONSE:");
-      //console.log(JSON.stringify(resp));
-
-      // replace 16 or more digits with strings and parse
-      //resp = JSON.parse(resp.body.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));  // TODO: get this to compile in C++ or move to JS file
+      resolveWithFullResponse: true,
+      requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010  // TODO: detect firefox specifically
+    }).then(resp => {
 
       // build response container
       let respContainer = {
         code: resp.statusCode,
-        message: resp.statusMessage,
+        message: resp.statusText,
         body: resp.body,
         headers: resp.headers
       };
@@ -69,16 +45,14 @@ EM_JS(const char*, js_send_json_request, (const char* http_client_id, const char
         wakeUpCalled = true;
         wakeUp(ptr);
       } else {
-          console.log("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 1 ***");
-          throw new Error("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 1 ***");
-          //wakeUp(0);
+        console.log("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 1 ***");
+        throw new Error("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 1 ***");
+        //wakeUp(0);
       }
     }).catch(err => {
-//      console.log("ERROR!!!");
-//      console.log(err);
       if (wakeUpCalled) {
-          console.log("Error caught in JS after previously calling wakeUp(): " + err);
-          throw new Error("Error caught in JS after previously calling wakeUp(): " + err);
+        console.log("Error caught in JS after previously calling wakeUp(): " + err);
+        throw new Error("Error caught in JS after previously calling wakeUp(): " + err);
       }
       let str = err.message ? err.message : ("" + err); // get error message
       str = JSON.stringify({error: str});               // wrap error in object
@@ -90,9 +64,9 @@ EM_JS(const char*, js_send_json_request, (const char* http_client_id, const char
         wakeUpCalled = true;
         wakeUp(ptr);
       } else {
-          console.log("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 2 ***");
-          throw new Error("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 2 ***");
-          //wakeUp(0);
+        console.log("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 2 ***");
+        throw new Error("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 2 ***");
+        //wakeUp(0);
       }
     });
   });
@@ -105,61 +79,47 @@ EM_JS(const char*, js_send_binary_request, (const char* http_client_id, const ch
   // use asyncify to synchronously return to C++
   return Asyncify.handleSleep(function(wakeUp) {
 
-    // get common http(s) agent
-    let agent = UTF8ToString(uri).toLowerCase().startsWith("https") ? MoneroUtils.getHttpsAgent() : MoneroUtils.getHttpAgent();
-
-    // initialize request config // TODO: use set_server config
-    let config = {};
-    config.user = UTF8ToString(username);
-    config.pass = UTF8ToString(password);
-
     // load wasm module then convert from json to binary
     MoneroUtils.loadCoreModule().then(module => {
 
+      // read binary data from heap to Uint8Array
       let ptr = body;
       let length = body_length;
-
-      // read binary data from heap to Uint8Array
       let view = new Uint8Array(length);
       for (let i = 0; i < length; i++) {
         view[i] = Module.HEAPU8[ptr / Uint8Array.BYTES_PER_ELEMENT + i];
       }
 
-      // build request which gets json response as text
-      let opts = {
+      // make request and process response or error
+      let wakeUpCalled = false;
+      HttpClient.request({
         method: UTF8ToString(method),
         uri: UTF8ToString(uri),
+        username: UTF8ToString(username),
+        password: UTF8ToString(password),
         body: view,
-        agent: agent,
         resolveWithFullResponse: true,
-        encoding: null
-      };
-      if (config.user) {
-        opts.forever = true;
-        opts.auth = {
-          user: config.user,
-          pass: config.pass,
-          sendImmediately: false
+        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010  // TODO: detect firefox specifically
+      }).then(resp => {
+
+        // write binary body to heap to pass back pointer
+        let respBin = resp.body;
+        if (!(respBin instanceof Uint8Array)) {
+          console.error("resp is not uint8array");
+          console.log(respBin);
         }
-      }
-
-      // send throttled request
-      let wakeUpCalled = false;
-      MoneroUtils.throttledRequest(opts).then(resp => {
-
-        // write binary body to heap and pass back pointer
-        let nDataBytes = resp.body.length * resp.body.BYTES_PER_ELEMENT;
+        let nDataBytes = respBin.length * respBin.BYTES_PER_ELEMENT;
         let bodyPtr = Module._malloc(nDataBytes);
         let heap = new Uint8Array(Module.HEAPU8.buffer, bodyPtr, nDataBytes);
-        heap.set(new Uint8Array(resp.body.buffer, resp.body.byteOffset, nDataBytes));
+        heap.set(new Uint8Array(respBin.buffer, respBin.byteOffset, nDataBytes));
 
         // build response container
         let respContainer = {
           code: resp.statusCode,
-          message: resp.statusMessage,
+          message: resp.statusText,
           headers: resp.headers,
           bodyPtr: bodyPtr,
-          bodyLength: resp.body.length
+          bodyLength: respBin.length
         };
 
         // serialize response container to heap // TODO: more efficient way?
@@ -172,13 +132,11 @@ EM_JS(const char*, js_send_binary_request, (const char* http_client_id, const ch
           wakeUpCalled = true;
           wakeUp(ptr);
         } else {
-            console.log("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 3 ***");
-            throw new Error("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 3 ***");
-            //wakeUp(0);
+          console.log("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 3 ***");
+          throw new Error("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 3 ***");
+          //wakeUp(0);
         }
       }).catch(err => {
-//        console.log("ERROR!!!");
-//        console.log(err);
         if (wakeUpCalled) {
           console.log("Error caught in JS after previously calling wakeUp(): " + err);
           throw new Error("Error caught in JS after previously calling wakeUp(): " + err);
@@ -193,11 +151,13 @@ EM_JS(const char*, js_send_binary_request, (const char* http_client_id, const ch
           wakeUpCalled = true;
           wakeUp(ptr);
         } else {
-            console.log("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 4 ***");
-            throw new Error("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 4 ***");
-            //wakeUp(0);
+          console.log("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 2 ***");
+          throw new Error("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 2 ***");
+          //wakeUp(0);
         }
       });
+    }).catch(err => {
+      throw new Error("Could not load core wasm module");
     });
   });
 });

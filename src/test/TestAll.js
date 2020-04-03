@@ -2,11 +2,8 @@
 require("../../index.js");
 
 // import test types
+require("./MoneroTestModel")();
 require("./utils/TestUtilsModule")();
-const TestMoneroDaemonRpc = require("./TestMoneroDaemonRpc");
-const TestMoneroWalletRpc = require("./TestMoneroWalletRpc");
-const TestMoneroWalletKeys = require("./TestMoneroWalletKeys");
-const TestMoneroWalletCore = require("./TestMoneroWalletCore");
 
 // test config
 //TestUtils.FS = require('memfs');  // use in-memory file system
