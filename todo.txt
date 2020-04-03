@@ -8,7 +8,6 @@ release
 xhr ssl certificates for firefox
 parse big integers in http_client_wasm by calling to external function
 test onOuputSent() when swept
-MoneroWalletCore, MoneroWalletKeys, monero_core.js, monero_core.wasm, monero_keys.js, monero_keys.wasm
 createTx, createTxs, sendTx, sendTxs() instead of send(), sendSplit()?
 only send({relay: true, canSplit: true, ...}) with defaults, library assumes defaults?
 new BigInteger("X") -> BigInteger.parse("X")
