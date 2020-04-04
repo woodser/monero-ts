@@ -22,15 +22,6 @@ new TestMoneroDaemonRpc({
   testNotifications: true
 }).runTests();
 
-// test wallet rpc
-new TestMoneroWalletRpc({
-  liteMode: false, // skips some lengthy but detailed tests
-  testNonRelays: true,
-  testRelays: true,
-  testNotifications: false,
-  testResets: false
-}).runTests();
-
 // test keys-only wallet
 new TestMoneroWalletKeys({
   liteMode: false,
@@ -47,6 +38,15 @@ new TestMoneroWalletCore({
   testRelays: true,
   testResets: false,
   testNotifications: true
+}).runTests();
+
+//test wallet rpc
+new TestMoneroWalletRpc({
+  liteMode: false, // skips some lengthy but detailed tests
+  testNonRelays: true,
+  testRelays: true,
+  testNotifications: false,
+  testResets: false
 }).runTests();
 
 //// test scratchpad

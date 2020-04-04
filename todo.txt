@@ -5,6 +5,7 @@ organize todos including todos throughout code
 test jni
 release
 
+isolate and debug remaining request/synchronization issue
 xhr ssl certificates for firefox
 parse big integers in http_client_wasm by calling to external function
 test onOuputSent() when swept

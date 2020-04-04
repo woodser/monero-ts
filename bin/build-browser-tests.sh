@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# delete old browser build
+# delete contents of old browser build
 mkdir -p ./browser_build/ || exit 1
 rm -r ./browser_build/ || exit 1
 
@@ -16,4 +16,4 @@ cp node_modules/mocha/mocha.js browser_build/mocha.js || exit 1
 cp node_modules/mocha/mocha.css browser_build/mocha.css || exit 1
 
 # start server
-./bin/start_dev_server.sh
+./bin/start-dev-server.sh
