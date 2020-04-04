@@ -5,6 +5,8 @@ organize todos including todos throughout code
 test jni
 release
 
+build boost and openssl in ./bin/build_dist.sh only if necessary
+delete old branches
 isolate and debug remaining request/synchronization issue
 xhr ssl certificates for firefox
 parse big integers in http_client_wasm by calling to external function
