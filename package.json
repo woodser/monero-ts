@@ -8,8 +8,8 @@
   "main": "index.js",
   "scripts": {
     "start": "todo",
-    "build-web-worker": "webpack --config ./webpack.worker.js",
-    "build-web-tests": "webpack --config ./webpack.tests.js",
+    "build_web_worker": "webpack --config ./webpack.worker.js",
+    "build_web_tests": "webpack --config ./webpack.tests.js",
     "test": "node --experimental-wasm-threads --experimental-wasm-bulk-memory node_modules/mocha/bin/_mocha 'src/test/TestAll' --timeout 3000000 --exit"
   },
   "build": {

@@ -8,7 +8,10 @@ export BOOST_LIB=$BOOSTROOT/lib
 export BOOST_IGNORE_SYSTEM_PATHS=1
 export BOOST_LIBRARYDIR=$BOOSTROOT/lib
 
-HOST_NCORES=$(nproc 2>/dev/null|| shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
+# delete emscripten cache to force refresh external js in em_js
+rm -rf ~/.emscripten_cache || exit
+
+HOST_NCORES=$(nproc 2>/dev/null || shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
 
 [ -d build ] || mkdir -p build || exit 1
 
@@ -17,7 +20,7 @@ emconfigure cmake .. || exit 1
 emmake cmake --build . || exit 1
 emmake make -j$HOST_NCORES . || exit 1
 
-# move available wasm files to /dist
+# move available wasm files to ./dist
 cd ..
 mkdir -p ./dist || exit 1
 [ -f ./build/monero_keys.js ] \
