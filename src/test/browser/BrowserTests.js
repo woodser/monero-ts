@@ -44,15 +44,6 @@ function runTests() {
     testNotifications: true,
   }).runTests();
   
-  // test wallet rpc
-  new TestMoneroWalletRpc({
-    liteMode: true, // skips some lengthy but detailed tests
-    testNonRelays: true,
-    testRelays: true,
-    testNotifications: false,
-    testResets: false
-  }).runTests();
-  
   // test keys-only wallet
   new TestMoneroWalletKeys({
     liteMode: false,
@@ -69,6 +60,15 @@ function runTests() {
     testRelays: true,
     testResets: false,
     testNotifications: true,
+  }).runTests();
+  
+  // test wallet rpc
+  new TestMoneroWalletRpc({
+    liteMode: true, // skips some lengthy but detailed tests
+    testNonRelays: true,
+    testRelays: true,
+    testNotifications: false,
+    testResets: false
   }).runTests();
   
 //  // test scratchpad
