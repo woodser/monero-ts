@@ -11,6 +11,7 @@ isolate and debug remaining request/synchronization issue
 xhr ssl certificates for firefox
 parse big integers in http_client_wasm by calling to external function
 test onOuputSent() when swept
+some wallet still syncing after all browser tests
 createTx, createTxs, sendTx, sendTxs() instead of send(), sendSplit()?
 only send({relay: true, canSplit: true, ...}) with defaults, library assumes defaults?
 new BigInteger("X") -> BigInteger.parse("X")
