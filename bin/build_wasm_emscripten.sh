@@ -8,8 +8,8 @@ export BOOST_LIB=$BOOSTROOT/lib
 export BOOST_IGNORE_SYSTEM_PATHS=1
 export BOOST_LIBRARYDIR=$BOOSTROOT/lib
 
-# delete emscripten cache to force refresh external js in em_js
-rm -rf ~/.emscripten_cache || exit
+# delete emscripten cache (enable if modifying em_js or its dependencies for full refresh)
+#rm -rf ~/.emscripten_cache || exit
 
 HOST_NCORES=$(nproc 2>/dev/null || shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
 
