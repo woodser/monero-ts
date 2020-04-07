@@ -8,6 +8,10 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++11 -F/Library/Frameworks -
 
 project(MoneroCppLibrary)
 
+set(BUILD_LIBRARY ON)
+set(BUILD_SAMPLE ON)
+set(BUILD_SCRATCHPAD ON)
+
 ###################
 # monero-project
 ###################
@@ -235,180 +239,173 @@ set_target_properties(randomx PROPERTIES IMPORTED_LOCATION
 # Build c++ library
 ########################
 
-set(
-    LIBRARY_SRC_FILES
-    src/utils/gen_utils.cpp
-    src/utils/monero_utils.cpp
-    src/daemon/monero_daemon_model.cpp
-    src/daemon/monero_daemon.cpp
-    src/wallet/monero_wallet_model.cpp
-    src/wallet/monero_wallet_keys.cpp
-    src/wallet/monero_wallet_core.cpp
-)
+if (BUILD_LIBRARY)
 
-add_library(monero-cpp SHARED ${LIBRARY_SRC_FILES})
-
-target_link_libraries(monero-cpp
-
-	hidapi
+	set(
+	    LIBRARY_SRC_FILES
+	    src/utils/gen_utils.cpp
+	    src/utils/monero_utils.cpp
+	    src/daemon/monero_daemon_model.cpp
+	    src/daemon/monero_daemon.cpp
+	    src/wallet/monero_wallet_model.cpp
+	    src/wallet/monero_wallet_keys.cpp
+	    src/wallet/monero_wallet_core.cpp
+	)
 	
-	boost_chrono
-	boost_date_time
-	boost_filesystem
-	boost_program_options
-	boost_regex
-	boost_serialization
-	boost_wserialization
-	boost_system
-	boost_thread
+	add_library(monero-cpp SHARED ${LIBRARY_SRC_FILES})
 	
-	ssl
-	crypto
+	target_link_libraries(monero-cpp
 	
-	wallet_merged
-	#wallet_api
-	wallet
-	lmdb
-	epee
-	unbound
-	sodium
-	easylogging
-	
-	cryptonote_core
-	cryptonote_basic
-	mnemonics
-	ringct
-	ringct_basic
-	common
-	cncrypto
-	blockchain_db
-	blocks
-	checkpoints
-	device
-	device_trezor
-	multisig
-	version
-	randomx
-	
-	${EXTRA_LIBRARIES}
-)
+		hidapi
+		
+		boost_chrono
+		boost_date_time
+		boost_filesystem
+		boost_program_options
+		boost_regex
+		boost_serialization
+		boost_wserialization
+		boost_system
+		boost_thread
+		
+		ssl
+		crypto
+		
+		wallet_merged
+		#wallet_api
+		wallet
+		lmdb
+		epee
+		unbound
+		sodium
+		easylogging
+		
+		cryptonote_core
+		cryptonote_basic
+		mnemonics
+		ringct
+		ringct_basic
+		common
+		cncrypto
+		blockchain_db
+		blocks
+		checkpoints
+		device
+		device_trezor
+		multisig
+		version
+		randomx
+		
+		${EXTRA_LIBRARIES}
+	)
+endif()
 
 ########################
 # Build C++ Sample Code
 ########################
 
-#[[	--- START BLOCK COMMENT ---
-
-set(
-    SAMPLE_CODE_SRC_FILES
-    test/sample_code.cpp
-)
-
-add_executable(sample_code ${SAMPLE_CODE_SRC_FILES} ${LIBRARY_SRC_FILES})
-
-target_link_libraries(sample_code
-
-	hidapi
+if (BUILD_SAMPLE)
+	set(SAMPLE_CODE_SRC_FILES test/sample_code.cpp)
 	
-	boost_chrono
-	boost_date_time
-	boost_filesystem
-	boost_program_options
-	boost_regex
-	boost_serialization
-	boost_wserialization
-	boost_system
-	boost_thread
+	add_executable(sample_code ${SAMPLE_CODE_SRC_FILES} ${LIBRARY_SRC_FILES})
 	
-	ssl
-	crypto
+	target_link_libraries(sample_code
 	
-	wallet_merged
-	#wallet_api
-	wallet
-	lmdb
-	epee
-	unbound
-	sodium
-	easylogging
-	
-	cryptonote_core
-	cryptonote_basic
-	mnemonics
-	ringct
-	ringct_basic
-	common
-	cncrypto
-	blockchain_db
-	blocks
-	checkpoints
-	device
-	device_trezor
-	multisig
-	version
-	randomx
-	
-	${EXTRA_LIBRARIES}
-)
-
-#]]	# --- END BLOCK COMMENT ---
+		hidapi
+		
+		boost_chrono
+		boost_date_time
+		boost_filesystem
+		boost_program_options
+		boost_regex
+		boost_serialization
+		boost_wserialization
+		boost_system
+		boost_thread
+		
+		ssl
+		crypto
+		
+		wallet_merged
+		#wallet_api
+		wallet
+		lmdb
+		epee
+		unbound
+		sodium
+		easylogging
+		
+		cryptonote_core
+		cryptonote_basic
+		mnemonics
+		ringct
+		ringct_basic
+		common
+		cncrypto
+		blockchain_db
+		blocks
+		checkpoints
+		device
+		device_trezor
+		multisig
+		version
+		randomx
+		
+		${EXTRA_LIBRARIES}
+	)
+endif()
 
 ########################
 # Build C++ scratchpad
 ########################
 
-#[[	--- START BLOCK COMMENT ---
-
-set(
-    SCRATCHPAD_SRC_FILES
-    test/scratchpad.cpp
-)
-
-add_executable(scratchpad ${SCRATCHPAD_SRC_FILES} ${LIBRARY_SRC_FILES})
-
-target_link_libraries(scratchpad
-
-	hidapi
+if (BUILD_SCRATCHPAD)
+	set(SCRATCHPAD_SRC_FILES test/scratchpad.cpp)
 	
-	boost_chrono
-	boost_date_time
-	boost_filesystem
-	boost_program_options
-	boost_regex
-	boost_serialization
-	boost_wserialization
-	boost_system
-	boost_thread
+	add_executable(scratchpad ${SCRATCHPAD_SRC_FILES} ${LIBRARY_SRC_FILES})
 	
-	ssl
-	crypto
+	target_link_libraries(scratchpad
 	
-	wallet_merged
-	#wallet_api
-	wallet
-	lmdb
-	epee
-	unbound
-	sodium
-	easylogging
-	
-	cryptonote_core
-	cryptonote_basic
-	mnemonics
-	ringct
-	ringct_basic
-	common
-	cncrypto
-	blockchain_db
-	blocks
-	checkpoints
-	device
-	device_trezor
-	multisig
-	version
-	randomx
-	
-	${EXTRA_LIBRARIES}
-)
-
-#]]	# --- END BLOCK COMMENT ---
+		hidapi
+		
+		boost_chrono
+		boost_date_time
+		boost_filesystem
+		boost_program_options
+		boost_regex
+		boost_serialization
+		boost_wserialization
+		boost_system
+		boost_thread
+		
+		ssl
+		crypto
+		
+		wallet_merged
+		#wallet_api
+		wallet
+		lmdb
+		epee
+		unbound
+		sodium
+		easylogging
+		
+		cryptonote_core
+		cryptonote_basic
+		mnemonics
+		ringct
+		ringct_basic
+		common
+		cncrypto
+		blockchain_db
+		blocks
+		checkpoints
+		device
+		device_trezor
+		multisig
+		version
+		randomx
+		
+		${EXTRA_LIBRARIES}
+	)
+endif()
