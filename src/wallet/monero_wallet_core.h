@@ -99,21 +99,6 @@ namespace monero {
     static monero_wallet_core* open_wallet(const string& path, const string& password, const monero_network_type network_type);
 
     /**
-     * Open an in-memory wallet from existing data buffers.
-     *
-     * TODO: support path = "" which autosaves?
-     *
-     * @param password is the password of the wallet file to open
-     * @param network_type is the wallet's network type
-     * @param keys_data contains the contents of the ".keys" file
-     * @param cache_data contains the contents of the wallet cache file (no extension)
-     * @param daemon_connection is connection information to a daemon (default = an unconnected wallet)
-     * @param http_client_factory allows use of custom http clients
-     * @return a pointer to the wallet instance
-     */
-    static monero_wallet_core* open_wallet(const string& password, const monero_network_type, const string& keys_data, const string& cache_data, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), unique_ptr<epee::net_utils::http::http_client_factory> http_client_factory = nullptr);
-
-    /**
      * Create a new wallet with a randomly generated seed.
      *
      * @param path is the path to create the wallet ("" for an in-memory wallet)
@@ -121,10 +106,9 @@ namespace monero {
      * @param network_type is the wallet's network type's
      * @param daemon_connection is connection information to a daemon (defaults to an unconnected wallet)
      * @param language is the wallet and mnemonic's language (defaults to "English")
-     * @param http_client_factory allows use of custom http clients
      * @return a pointer to the wallet instance
      */
-    static monero_wallet_core* create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), const string& language = "English", unique_ptr<epee::net_utils::http::http_client_factory> http_client_factory = nullptr);
+    static monero_wallet_core* create_wallet_random(const string& path, const string& password, const monero_network_type network_type, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), const string& language = "English");
 
     /**
      * Create a wallet from an existing mnemonic phrase.
@@ -135,10 +119,9 @@ namespace monero {
      * @param daemon_connection is connection information to a daemon (defaults to an unconnected wallet)
      * @param restore_height is the block height to restore from (default = 0)
      * @param seed_offset is the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase (default = "")
-     * @param http_client_factory allows use of custom http clients
      * @return a pointer to the wallet instance
      */
-    static monero_wallet_core* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), uint64_t restore_height = 0, const string& seed_offset = "", unique_ptr<epee::net_utils::http::http_client_factory> http_client_factory = nullptr);
+    static monero_wallet_core* create_wallet_from_mnemonic(const string& path, const string& password, const monero_network_type network_type, const string& mnemonic, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), uint64_t restore_height = 0, const string& seed_offset = "");
 
     /**
      * Create a wallet from an address, view key, and spend key.
@@ -152,10 +135,9 @@ namespace monero {
      * @param daemon_connection is connection information to a daemon (defaults to an unconnected wallet)
      * @param restore_height is the block height to restore (i.e. scan the chain) from (default = 0)
      * @param language is the wallet and mnemonic's language (defaults to "English")
-     * @param http_client_factory allows use of custom http clients
      * @return a pointer to the wallet instance
      */
-    static monero_wallet_core* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), uint64_t restore_height = 0, const string& language = "English", unique_ptr<epee::net_utils::http::http_client_factory> http_client_factory = nullptr);
+    static monero_wallet_core* create_wallet_from_keys(const string& path, const string& password, const monero_network_type network_type, const string& address, const string& view_key, const string& spend_key, const monero_rpc_connection& daemon_connection = monero_rpc_connection(), uint64_t restore_height = 0, const string& language = "English");
 
     /**
      * Get a list of available languages for the wallet's mnemonic phrase.
@@ -287,12 +269,6 @@ namespace monero {
     void save();
     void move_to(string path, string password);
     void close(bool save = false);
-
-    /**
-     * Wallet import and export using buffers and not the file system.
-     */
-    std::string get_keys_file_buffer(const epee::wipeable_string& password, bool watch_only) const;
-    std::string get_cache_file_buffer(const epee::wipeable_string& password) const;
 
     // --------------------------------- PRIVATE --------------------------------
 
