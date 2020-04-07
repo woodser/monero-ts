@@ -164,7 +164,7 @@ The following dependencies must be set up before running this project.
        Mac: installed through homebrew at /usr/local/Cellar/libsodium/1.0.17/lib/libsodium.a
 5. Set up Monero Core
     1. Initialize submodules: `git submodule update --init --recursive`
-    2. cd ./submodules/monero-core
+    2. cd ./external/monero-core
     3. Modify CMakeLists.txt: `option(BUILD_GUI_DEPS "Build GUI dependencies." ON)`.
     4. Build twice to create libwallet_merged.a in addition to other .a libraries: `make release-static -j8`.
 6. Build this project as a dynamic library at `./build/libmonero-cpp.dylib`: `./bin/build-libmonero-cpp.sh`.
