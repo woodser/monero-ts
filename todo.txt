@@ -6,6 +6,7 @@ test jni
 release
 
 build boost and openssl in ./bin/build_dist.sh only if necessary
+test queuing sync requests
 delete old branches
 isolate and debug remaining request/synchronization issue
 xhr ssl certificates for firefox
