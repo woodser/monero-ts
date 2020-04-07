@@ -170,9 +170,7 @@ Or
 
 This project uses WebAssembly to package and execute monero-project's source code for use in a browser or other WebAssembly-supported environment.
 
-For convenience, pre-built WebAssembly files for this project's source code are committed to ./dist, but these files can be built independently from source code.
-
-To build this project's WebAssembly files from source code:
+For convenience, pre-built WebAssembly files for this project's source code are committed to ./dist, but these files can be built independently from source code with the following steps:
 
 1. Install and activate emscripten:
 	1. Clone the emscripten project repository: `git clone https://github.com/emscripten-core/emsdk.git`
@@ -183,18 +181,17 @@ To build this project's WebAssembly files from source code:
 	6. `source ./emsdk_env.sh`
 	7. `export EMSCRIPTEN=/absolute/path/to/emsdk/upstream/emscripten` (set for your system)
 2. `cd /path/to/monero-javascript`
-3. Update submodules: `./bin/update_submodules`
-4. Download Boost from https://www.boost.org/users/download/ to ./external/monero-cpp-library/external/boost-sdk/
-5. Download OpenSSL from https://github.com/openssl/openssl to ./external/monero-cpp-library/external/openssl-sdk/
-6. Checkout and build a branch of monero-project which has [minor modifications](https://github.com/monero-project/monero/compare/master...woodser:wasm_modifications) for compatibility with WebAssembly:
+3. Update submodules: `./bin/update_submodules.sh`
+4. Checkout and build a branch of monero-project which has [minor modifications](https://github.com/monero-project/monero/compare/master...woodser:wasm_modifications) for compatibility with WebAssembly:
 	1. `cd ./external/monero-cpp-library/external/monero-core`
 	2. `git submodule update --init --force`
 	3. `git fetch`
 	4. `git checkout wasm_modifications`
 	5. `make release-static -j8` (builds translations directory even if build does not finish)
 	6. `cd ../../../../`
-7. Build Boost using emscripten: `./bin/build_boost_emscripten.h`
-8. Build OpenSSL using emscripten: `./bin/build_openssl_emscripten.sh`
+5. Checkout branch of monero-cpp-library with modifications for WebAssembly: `git --git-dir ./external/monero-cpp-library/.git checkout wasm_modifications`
+6. Download and build Boost using emscripten: `./bin/build_boost_emscripten.h`
+7. Download and build OpenSSL using emscripten: `./bin/build_openssl_emscripten.sh`
 8. Build WebAssembly files to ./dist/: `./bin/build_dist.sh`
 
 ## See Also
