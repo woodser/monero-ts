@@ -590,7 +590,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       it("Can sync a wallet created from keys", async function() {
         
         // recreate test wallet from keys
-        let walletKeys = await that.createWalletFromKeysCustom(TestUtils.WALLET_PASSWORD,  await that.wallet.getNetworkType(), await that.wallet.getPrimaryAddress(), await that.wallet.getPrivateViewKey(), await that.wallet.getPrivateSpendKey(), await that.wallet.getDaemonConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+        let walletKeys = await MoneroWalletCore.createWalletFromKeys(TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, await that.wallet.getNetworkType(), await that.wallet.getPrimaryAddress(), await that.wallet.getPrivateViewKey(), await that.wallet.getPrivateSpendKey(), await that.wallet.getDaemonConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
         
         // create ground truth wallet for comparison
         let walletGt = await that.createWalletGroundTruth(TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
@@ -639,7 +639,8 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         
         // test unconnected wallet
         let err;  // used to emulate Java's try...catch...finally
-        let wallet = await that.createWalletRandomCustom(TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, undefined, undefined);
+        let path = TestMoneroWalletCore._getRandomWalletPath();
+        let wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, undefined, undefined);
         try {
           assert.notEqual(await wallet.getMnemonic(), undefined);
           assert.equal(await wallet.getHeight(), 1);
@@ -657,32 +658,54 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         await wallet.close();
         if (err) throw err;
         
-        // test that sync starts automatically
-        let restoreHeight = await that.daemon.getHeight() - 100;
-        wallet = await that.createWalletFromMnemonicCustom(TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, await that.daemon.getRpcConnection(), restoreHeight, undefined);
+        // test connected wallet
+        path = TestMoneroWalletCore._getRandomWalletPath();
+        wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, undefined, undefined);
         try {
-          
-          // start syncing
-          assert.equal(await wallet.getRestoreHeight(), restoreHeight);
+          assert.notEqual(wallet.getMnemonic(), undefined);
+          await wallet.setDaemonConnection(await that.daemon.getRpcConnection());
           await wallet.startSyncing();
           assert.equal(await wallet.getHeight(), 1);
           let chainHeight = await wallet.getDaemonHeight();
+          assert(!await wallet.isSynced());
+          assert.equal((await wallet.getBalance()).compare(new BigInteger(0)), 0);
+          await wallet.setRestoreHeight(chainHeight - 3);
+          assert.equal(await wallet.getRestoreHeight(), chainHeight - 3);
+          assert.equal((await wallet.getDaemonConnection()).getUri(), (await that.daemon.getRpcConnection()).getUri()); // TODO: replace with config comparison
+          assert.equal((await wallet.getDaemonConnection()).getUsername(), (await that.daemon.getRpcConnection()).getUsername());
+          assert.equal((await wallet.getDaemonConnection()).getPassword(), (await that.daemon.getRpcConnection()).getPassword());
+          await wallet.stopSyncing();
+          await wallet.sync();
+        } catch (e) {
+          err = e;
+        }
+        
+        // finally
+        await wallet.close();
+        if (err) throw err;
+        
+        // test that sync starts automatically
+        let restoreHeight = await that.daemon.getHeight() - 100;
+        path = TestMoneroWalletCore._getRandomWalletPath();
+        wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, await that.daemon.getRpcConnection(), restoreHeight, undefined);
+        try {
+          
+          // start syncing
+          assert.equal(await wallet.getHeight(), 1);
+          assert.equal(await wallet.getRestoreHeight(), restoreHeight);
+          await wallet.startSyncing();
+          let chainHeight = await wallet.getDaemonHeight();
           assert(!(await wallet.isSynced()));
-          assert.equal(await wallet.getBalance(), BigInteger.parse("0"));
+          assert.equal(await wallet.getBalance(), new BigInteger(0));
           
           // sleep for a moment
-          await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // in ms
+          await new Promise(function(resolve) { setTimeout(resolve, 15000); }); // in ms
           
-          // TODO: reconcile diffs with JNI
           // test that wallet has started syncing
           assert(await wallet.getHeight() > 1);
-          chainHeight = await wallet.getDaemonHeight();
-          //assert(await wallet.isSynced());
-          //assert.equal(await wallet.getHeight(), await that.daemon.getHeight());
           
           // stop syncing
           await wallet.stopSyncing();
-          //assert(await wallet.isSynced()); // wallet is still synced
           
        // TODO monero core: wallet.cpp m_synchronized only ever set to true, never false
 //          // wait for block to be added to chain
@@ -690,31 +713,6 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
 //          
 //          // wallet is no longer synced
 //          assert(!(await wallet.isSynced()));  
-        } catch (e) {
-          err = e;
-        }
-                
-        // finally
-        await wallet.close();
-        if (err) throw err;
-        
-        // test connected wallet
-        wallet = await that.createWalletRandomCustom(TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, undefined, undefined);
-        try {
-          assert.notEqual(await wallet.getMnemonic(), undefined);
-          await wallet.setDaemonConnection(await that.daemon.getRpcConnection());
-          await wallet.startSyncing();
-          assert.equal(await wallet.getHeight(), 1);
-          let chainHeight = await wallet.getDaemonHeight();
-          assert(!(await wallet.isSynced()));
-          assert.equal(await wallet.getBalance(), BigInteger.parse("0"));
-          await wallet.setRestoreHeight(chainHeight - 3);
-          assert.equal(await wallet.getRestoreHeight(), chainHeight - 3);
-          assert.equal((await wallet.getDaemonConnection()).getUri(), (await that.daemon.getRpcConnection()).getUri());
-          assert.equal((await wallet.getDaemonConnection()).getUsername(), (await that.daemon.getRpcConnection()).getUsername());
-          assert.equal((await wallet.getDaemonConnection()).getPassword(), (await that.daemon.getRpcConnection()).getPassword());
-          await wallet.stopSyncing();
-          await wallet.sync();
         } catch (e) {
           err = e;
         }
@@ -781,7 +779,14 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
                 seedOffset);
         
         // deep compare
-        await WalletEqualityUtils.testWalletEqualityOnChain(walletRpc, walletCore);
+        let err;
+        try {
+          await WalletEqualityUtils.testWalletEqualityOnChain(walletRpc, walletCore);
+        } catch (e) {
+          err = e;
+        }
+        await walletCore.close();
+        if (err) throw err;
       });
       
       if (config.testNonRelays)
