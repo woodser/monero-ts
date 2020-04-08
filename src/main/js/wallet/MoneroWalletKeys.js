@@ -108,17 +108,17 @@ class MoneroWalletKeys extends MoneroWallet {
   }
   
   async isWatchOnly() {
-    this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
+      that._assertNotClosed();
       return that.module.is_watch_only(that.cppAddress);
     });
   }
   
   async getVersion() {
-    this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
+      that._assertNotClosed();
       let versionStr = that.module.get_version(that.cppAddress);
       let versionJson = JSON.parse(versionStr);
       return new MoneroVersion(versionJson.number, versionJson.isRelease);
@@ -131,60 +131,60 @@ class MoneroWalletKeys extends MoneroWallet {
   }
   
   async getMnemonic() {
-    this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
+      that._assertNotClosed();
       let mnemonic = that.module.get_mnemonic(that.cppAddress);
       return mnemonic ? mnemonic : undefined;
     });
   }
   
   async getMnemonicLanguage() {
-    this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
+      that._assertNotClosed();
       let mnemonicLanguage = that.module.get_mnemonic_language(that.cppAddress);
       return mnemonicLanguage ? mnemonicLanguage : undefined;
     });
   }
   
   async getMnemonicLanguages() {
-    this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
+      that._assertNotClosed();
       return JSON.parse(that.module.get_mnemonic_languages(that.cppAddress)); // TODO: return native vector<string> in c++
     });
   }
   
   async getPrivateSpendKey() {
-    this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
+      that._assertNotClosed();
       let privateSpendKey = that.module.get_private_spend_key(that.cppAddress);
       return privateSpendKey ? privateSpendKey : undefined;
     });
   }
   
   async getPrivateViewKey() {
-    this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
+      that._assertNotClosed();
       return that.module.get_private_view_key(that.cppAddress);
     });
   }
   
   async getPublicViewKey() {
-    this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
+      that._assertNotClosed();
       return that.module.get_public_view_key(that.cppAddress);
     });
   }
   
   async getPublicSpendKey() {
-    this._assertNotClosed();
     let that = this;
     return that.module.queueTask(async function() {
+      that._assertNotClosed();
       return that.module.get_public_spend_key(that.cppAddress);
     });
   }
@@ -194,6 +194,7 @@ class MoneroWalletKeys extends MoneroWallet {
     assert(typeof accountIdx === "number");
     let that = this;
     return that.module.queueTask(async function() {
+      that._assertNotClosed();
       return that.module.get_address(that.cppAddress, accountIdx, subaddressIdx);
     });
   }
@@ -203,6 +204,7 @@ class MoneroWalletKeys extends MoneroWallet {
     if (!MoneroUtils.isValidAddress(address)) throw new MoneroError("Invalid address");
     let that = this;
     return that.module.queueTask(async function() {
+      that._assertNotClosed();
       try {
         let subaddressJson = JSON.parse(that.module.get_address_index(that.cppAddress, address));
         return new MoneroSubaddress(subaddressJson);
@@ -217,7 +219,7 @@ class MoneroWalletKeys extends MoneroWallet {
     throw new Error("MoneroWalletKeys does not support getting an enumerable set of accounts; query specific accounts");
   }
   
-  // getIntegratedAddress(paymentId)
+  // getIntegratedAddress(paymentId)  // TODO
   // decodeIntegratedAddress
   
   async close(save) {
@@ -230,6 +232,10 @@ class MoneroWalletKeys extends MoneroWallet {
     let that = this;
     return that.module.queueTask(async function() {
       return new Promise(function(resolve, reject) {
+        if (that._isClosed) {
+          resolve();
+          return;
+        }
         
         // define callback for wasm
         let callbackFn = async function() {

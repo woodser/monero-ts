@@ -16,7 +16,7 @@ new TestMoneroUtils().runTests();
 
 // test daemon rpc
 new TestMoneroDaemonRpc({
-  liteMode: true,  // skips some thorough but lengthy tests
+  liteMode: true,   // skips some lengthy but thorough tests
   testNonRelays: true,
   testRelays: true, // creates and relays outgoing txs
   testNotifications: true
@@ -42,7 +42,7 @@ new TestMoneroWalletCore({
 
 //test wallet rpc
 new TestMoneroWalletRpc({
-  liteMode: false, // skips some lengthy but detailed tests
+  liteMode: false,
   testNonRelays: true,
   testRelays: true,
   testNotifications: false,

@@ -730,7 +730,6 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         // create 2 wallets with a recent restore height
         let height = await that.daemon.getHeight();
         let restoreHeight = height - 5;
-        await that.wallet.isSynced();
         let wallet1 = await that.createWalletFromMnemonicCustom(TestUtils.WALLET_PASSWORD, MoneroNetworkType.STAGENET, TestUtils.MNEMONIC, await that.daemon.getRpcConnection(), restoreHeight, undefined);
         let wallet2 = await that.createWalletFromMnemonicCustom(TestUtils.WALLET_PASSWORD, MoneroNetworkType.STAGENET, TestUtils.MNEMONIC, await that.daemon.getRpcConnection(), restoreHeight, undefined);
         
@@ -997,8 +996,8 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
        * For example, two wallets may be instantiated with the same mnemonic,
        * so neither is privy to the local wallet data of the other.
        */
-      
-    if (config.testNotifications)
+    
+      if (!config.liteMode && config.testNotifications)
       it("Notification test #1: notifies listeners of outputs sent from/to the same account using local wallet data", async function() {
         let issues = await testOutputNotifications(true);
         if (issues === undefined) return;
@@ -1007,7 +1006,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         assert(!msg.includes("ERROR:"), msg);
       });
       
-    if (config.testNotifications)
+      if (!config.liteMode && config.testNotifications)
       it("Notification test #2: notifies listeners of outputs sent from/to different accounts using local wallet data", async function() {
         let issues = await testOutputNotifications(false);
         if (issues === undefined) return;
