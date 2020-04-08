@@ -94,7 +94,7 @@ class MoneroRpcConnection {
           method: method,
           params: params
         }),
-        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010  // TODO: detect firefox specifically
+        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
       });
       
       // process response
