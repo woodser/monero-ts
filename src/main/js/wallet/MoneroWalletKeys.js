@@ -250,6 +250,10 @@ class MoneroWalletKeys extends MoneroWallet {
     });
   }
   
+  async isClosed() {
+    return this._isClosed;
+  }
+  
   // ----------------------------- PRIVATE HELPERS ----------------------------
   
   _assertNotClosed() {

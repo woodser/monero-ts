@@ -1418,6 +1418,15 @@ class MoneroWalletRpc extends MoneroWallet {
     await this.config.rpc.sendJsonRequest("close_wallet", {autosave_current: save});
   }
   
+  async isClosed() {
+    try {
+      await this.getPrimaryAddress();
+    } catch (e) {
+      return e instanceof MoneroRpcError && e.getCode() === -13 && e.message.indexOf("No wallet file") > -1;
+    }
+    return false;
+  }
+  
   /**
    * Save and close the current wallet and stop the RPC server.
    */

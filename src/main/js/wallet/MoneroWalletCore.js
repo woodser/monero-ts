@@ -2285,10 +2285,6 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     this.fs.writeFileSync(path, data[1], "binary");
   }
   
-  async isClosed() {
-    return this._invokeWorker("isClosed");
-  }
-  
   async close(save) {
     if (save) await this.save();
     await this._invokeWorker("close");

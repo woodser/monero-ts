@@ -3837,7 +3837,7 @@ class TestMoneroWalletCommon {
     }
     
     // re-open main test wallet
-    //if (curWallet && !await curWallet.isClosed()) await curWallet.close();  // TODO: MoneroWallet.isClosed()
+    if (curWallet && !await curWallet.isClosed()) await curWallet.close();
     this.wallet = await this.getTestWallet();
     assert.equal(await this.wallet.getAttribute("name"), BEGIN_MULTISIG_NAME);
     if (err) throw err;

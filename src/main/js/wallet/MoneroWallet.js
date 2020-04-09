@@ -1276,6 +1276,15 @@ class MoneroWallet {
     throw new MoneroError("Not supported");
   }
   
+  /**
+   * Indicates if this wallet is closed or not.
+   * 
+   * @return {boolean} true if the wallet is closed, false otherwise
+   */
+  async isClosed() {
+    throw new MoneroError("Not supported");
+  }
+  
   // -------------------------------- PRIVATE ---------------------------------
   
   static _normalizeSendRequest(requestOrAccountIndex, address, amount, priority) {
