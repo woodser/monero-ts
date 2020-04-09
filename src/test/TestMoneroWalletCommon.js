@@ -225,7 +225,7 @@ class TestMoneroWalletCommon {
             assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
             assert.equal(await that.wallet.getPrivateViewKey(), privateViewKey);
             assert.equal(await that.wallet.getPrivateSpendKey(), privateSpendKey);
-            assert(await that.wallet.isConnected());
+            assert.equal(await that.wallet.isConnected(), !(that.wallet instanceof MoneroWalletKeys));  // keys wallet is never connected
             if (!(that.wallet instanceof MoneroWalletRpc)) {
               assert.equal(await that.wallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
               assert.equal(await that.wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);
