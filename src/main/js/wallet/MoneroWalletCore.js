@@ -360,15 +360,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
     throw new Error("Not implemented");
   }
   
-  /**
-   * Indicates if this wallet is closed or not.
-   * 
-   * @return {boolean} true if the wallet is closed, false otherwise
-   */
-  async isClosed() {
-    return this._isClosed;
-  }
-  
   // -------------------------- COMMON WALLET METHODS -------------------------
   
   async setDaemonConnection(uriOrRpcConnection, username, password) {
