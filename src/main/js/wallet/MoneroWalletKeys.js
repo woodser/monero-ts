@@ -115,6 +115,10 @@ class MoneroWalletKeys extends MoneroWallet {
     });
   }
   
+  async isConnected() {
+    return false;
+  }
+  
   async getVersion() {
     let that = this;
     return that.module.queueTask(async function() {

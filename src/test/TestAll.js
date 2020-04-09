@@ -40,7 +40,7 @@ new TestMoneroWalletCore({
   testNotifications: true
 }).runTests();
 
-//test wallet rpc
+// test wallet rpc
 new TestMoneroWalletRpc({
   liteMode: false,
   testNonRelays: true,
