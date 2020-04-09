@@ -640,7 +640,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         // test unconnected wallet
         let err;  // used to emulate Java's try...catch...finally
         let path = TestMoneroWalletCore._getRandomWalletPath();
-        let wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, undefined, undefined);
+        let wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, undefined, undefined, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
         try {
           assert.notEqual(await wallet.getMnemonic(), undefined);
           assert.equal(await wallet.getHeight(), 1);
@@ -660,7 +660,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         
         // test connected wallet
         path = TestMoneroWalletCore._getRandomWalletPath();
-        wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, undefined, undefined);
+        wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, undefined, undefined, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
         try {
           assert.notEqual(wallet.getMnemonic(), undefined);
           await wallet.setDaemonConnection(await that.daemon.getRpcConnection());
@@ -687,7 +687,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         // test that sync starts automatically
         let restoreHeight = await that.daemon.getHeight() - 100;
         path = TestMoneroWalletCore._getRandomWalletPath();
-        wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, await that.daemon.getRpcConnection(), restoreHeight, undefined);
+        wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, await that.daemon.getRpcConnection(), restoreHeight, undefined, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
         try {
           
           // start syncing
