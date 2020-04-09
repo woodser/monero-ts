@@ -30,13 +30,13 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   
   async createWalletFromMnemonic(mnemonic, daemonConnection, restoreHeight, seedOffset) {
     await this.wallet.createWalletFromMnemonic(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, mnemonic, restoreHeight, undefined, seedOffset);
-    await this.wallet.setDaemonConnection(daemonConnection); // TODO monero-wallet-rpc: ability to set connection before creating if offline wallet
+    await this.wallet.setDaemonConnection(daemonConnection);  // TODO monero-wallet-rpc: ability to set connection before creating if offline wallet
     return this.wallet;
   }
   
   async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
     await this.wallet.createWalletFromKeys(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, address, privateViewKey, privateSpendKey, firstReceiveHeight, language);
-    await this.wallet.setDaemonConnection(daemonConnection);
+    await this.wallet.setDaemonConnection(daemonConnection);  // TODO: causes wallet to have no connection if authenticating
     return this.wallet;
   }
   

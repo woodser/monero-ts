@@ -225,6 +225,7 @@ class TestMoneroWalletCommon {
             assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
             assert.equal(await that.wallet.getPrivateViewKey(), privateViewKey);
             assert.equal(await that.wallet.getPrivateSpendKey(), privateSpendKey);
+            assert(await that.wallet.isConnected());
             if (!(that.wallet instanceof MoneroWalletRpc)) {
               assert.equal(await that.wallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
               assert.equal(await that.wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);
@@ -2724,10 +2725,7 @@ class TestMoneroWalletCommon {
           assert.equal(await watchOnlyWallet.getMnemonic(), undefined);
           assert.equal(await watchOnlyWallet.getMnemonicLanguage(), undefined);
           assert(await watchOnlyWallet.isWatchOnly());
-          if (!await watchOnlyWallet.isConnected()) {
-            assert(watchOnlyWallet instanceof MoneroWalletRpc, "Watch-only wallet is not connected to daemon"); // only MoneroWalletRpc in the browser should fail
-            throw new Error("Watch-only wallet is not connected to daemon (known to fail with monero-wallet-rpc in the browser)"); // TODO monero-wallet-core: fix, failure to start ./monerod --stagenet --rpc-access-control-origins http://localhost:9100
-          }
+          assert(await watchOnlyWallet.isConnected());  // TODO: this fails with monero-wallet-rpc and monerod with authentication
           assert.equal(await watchOnlyWallet.getMnemonic(), undefined);
           let watchOnlyPath = await watchOnlyWallet.getPath();
           await watchOnlyWallet.sync();
@@ -3528,6 +3526,7 @@ class TestMoneroWalletCommon {
     console.log("_testMultisig(" + m + ", " + n + ")");
     let BEGIN_MULTISIG_NAME = "begin_multisig_wallet";
     let err;  // try...finally
+    let curWallet;
     try {
       
       // set name attribute of test wallet at beginning of test
@@ -3620,7 +3619,7 @@ class TestMoneroWalletCommon {
       }
       
       // print final multisig address
-      let curWallet = await this.openWallet(walletIds[0]);
+      curWallet = await this.openWallet(walletIds[0]);
       assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
       //console.log("FINAL MULTISIG ADDRESS: " + await curWallet.getPrimaryAddress());
       await curWallet.close();
@@ -3838,6 +3837,7 @@ class TestMoneroWalletCommon {
     }
     
     // re-open main test wallet
+    //if (curWallet && !await curWallet.isClosed()) await curWallet.close();  // TODO: MoneroWallet.isClosed()
     this.wallet = await this.getTestWallet();
     assert.equal(await this.wallet.getAttribute("name"), BEGIN_MULTISIG_NAME);
     if (err) throw err;
