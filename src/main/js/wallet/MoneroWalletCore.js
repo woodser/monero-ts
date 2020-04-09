@@ -2292,6 +2292,10 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     delete MoneroUtils.WORKER_OBJECTS[this.walletId];
   }
   
+  async isClosed() {
+    return this._invokeWorker("isClosed");
+  }
+  
   // --------------------------- PRIVATE HELPERS ------------------------------
   
   async _invokeWorker(fnName, args) {
