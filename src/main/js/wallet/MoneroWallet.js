@@ -307,37 +307,6 @@ class MoneroWallet {
   }
   
   /**
-   * Get all accounts.
-   * 
-   * @return {MoneroAccount[]} all accounts
-   */
-  async getAccounts() {
-    throw new MoneroError("Not supported");
-  }
-  
-  // TODO: overloaded getAccounts() probably are not needed, only one is used in RPC and WASM implementations
-  
-  /**
-   * Get all accounts.
-   * 
-   * @param {boolean} includeSubaddresses specifies if subaddresses should be included
-   * @return {MoneroAccount[]} all accounts
-   */
-  async getAccounts(includeSubaddresses) {
-    throw new MoneroError("Not supported");
-  }
-  
-  /**
-   * Get accounts with a given tag.
-   * 
-   * @param {string} tag is the tag for filtering accounts, all accounts if undefined
-   * @return {MoneroAccount[]} all accounts with the given tag
-   */
-  async getAccounts(tag) {
-    throw new MoneroError("Not supported");
-  }
-  
-  /**
    * Get accounts with a given tag.
    * 
    * @param {boolean} includeSubaddresses specifies if subaddresses should be included
@@ -345,16 +314,6 @@ class MoneroWallet {
    * @return {MoneroAccount[]} all accounts with the given tag
    */
   async getAccounts(includeSubaddresses, tag) {
-    throw new MoneroError("Not supported");
-  }
-  
-  /**
-   * Get an account without subaddress information.
-   * 
-   * @param {int} accountIdx specifies the account to get
-   * @return {MoneroAccount} the retrieved account
-   */
-  async getAccount(accountIdx) {
     throw new MoneroError("Not supported");
   }
   
@@ -370,31 +329,12 @@ class MoneroWallet {
   }
   
   /**
-   * Create a new account.
-   * 
-   * @return {MoneroAccount} the created account
-   */
-  async createAccount() {
-    throw new MoneroError("Not supported");
-  }
-
-  /**
    * Create a new account with a label for the first subaddress.
    * 
    * @param {string} label specifies the label for account's first subaddress (optional)
    * @return {MoneroAccount} the created account
    */
   async createAccount(label) {
-    throw new MoneroError("Not supported");
-  }
-  
-  /**
-   * Get all subaddresses in an account.
-   * 
-   * @param {int} accountIdx specifies the account to get subaddresses within
-   * @return {MoneroSubaddress[]} the retrieved subaddresses
-   */
-  async getSubaddresses(accountIdx) {
     throw new MoneroError("Not supported");
   }
   
@@ -420,16 +360,6 @@ class MoneroWallet {
     assert(accountIdx >= 0);
     assert(subaddressIdx >= 0);
     return (await this.getSubaddresses(accountIdx, subaddressIdx))[0];
-  }
-  
-  /**
-   * Create a subaddress within an account and without a label.
-   * 
-   * @param {int} accountIdx specifies the index of the account to create the subaddress within
-   * @return {MoneroSubaddress} the created subaddress
-   */
-  async createSubaddress(accountIdx) {
-    throw new MoneroError("Not supported");
   }
   
   /**

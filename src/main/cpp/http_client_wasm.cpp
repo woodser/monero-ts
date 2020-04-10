@@ -7,8 +7,6 @@
 
 using namespace std;
 
-// TODO: factor js code to js file, possible use by MoneroRpcConnection, or change MoneroRpcConnection interface
-
 EM_JS(const char*, js_send_json_request, (const char* http_client_id, const char* uri, const char* username, const char* password, const char* method, const char* body, std::chrono::milliseconds timeout), {
   //console.log("EM_JS js_send_json_request(" + UTF8ToString(http_client_id) + ", " + UTF8ToString(uri) + ", " + UTF8ToString(username) + ", " + UTF8ToString(password) + ", " + UTF8ToString(method) + ")");
   const httpClientId = UTF8ToString(http_client_id);
@@ -25,7 +23,7 @@ EM_JS(const char*, js_send_json_request, (const char* http_client_id, const char
       password: UTF8ToString(password),
       body: UTF8ToString(body),
       resolveWithFullResponse: true,
-      requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010  // TODO: detect firefox specifically
+      requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
     }).then(resp => {
 
       // build response container
@@ -99,7 +97,7 @@ EM_JS(const char*, js_send_binary_request, (const char* http_client_id, const ch
         password: UTF8ToString(password),
         body: view,
         resolveWithFullResponse: true,
-        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010  // TODO: detect firefox specifically
+        requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
       }).then(resp => {
 
         // write binary body to heap to pass back pointer
