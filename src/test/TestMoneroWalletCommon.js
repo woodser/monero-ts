@@ -3766,6 +3766,7 @@ class TestMoneroWalletCommon {
         assert.equal(txSet.getSignedTxHex(), undefined);
         assert.equal(txSet.getUnsignedTxHex(), undefined);
         assert(txSet.getTxs().length > 0);
+        await curWallet.close(true);
         
         // sign the tx with participants 1 through m - 1 to meet threshold
         multisigTxHex = txSet.getMultisigTxHex();
@@ -3805,6 +3806,7 @@ class TestMoneroWalletCommon {
         for (let sweepTxSet of txSets) {
           testParsedTxSet(await curWallet.parseTxSet(sweepTxSet));
         }
+        await curWallet.close(true);
         
         // sign the tx with participants 1 through m - 1 to meet threshold
         multisigTxHex = txSet.getMultisigTxHex();
