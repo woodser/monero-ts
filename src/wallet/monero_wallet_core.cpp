@@ -800,7 +800,7 @@ namespace monero {
   }
 
   monero_wallet_core* monero_wallet_core::open_wallet(const string& path, const string& password, const monero_network_type network_type) {
-    MTRACE("open_wallet(" << path << ")");
+    MTRACE("open_wallet(" << path << ", ***, " << network_type << ")");
     monero_wallet_core* wallet = new monero_wallet_core();
     wallet->m_w2 = unique_ptr<tools::wallet2>(new tools::wallet2(static_cast<cryptonote::network_type>(network_type), 1, true));
     wallet->m_w2->load(path, password);
@@ -918,7 +918,7 @@ namespace monero {
   }
 
   void monero_wallet_core::set_daemon_connection(const string& uri, const string& username, const string& password) {
-    MTRACE("set_daemon_connection(" << uri << ", " << username << ", " << password << ")");
+    MTRACE("set_daemon_connection(" << uri << ", " << username << ", " << "***" << ")");
 
     // prepare uri, login, and is_trusted for wallet2
     boost::optional<epee::net_utils::http::login> login{};
