@@ -110,7 +110,7 @@ class HttpClient {
     
     // queue and throttle request to execute in serial and rate limited
     let resp = await HttpClient._queueTask(async function() {
-      return HttpClient.PROMISE_THROTTLE.add(function() {  // TODO: could pass promise directly
+      return HttpClient.PROMISE_THROTTLE.add(function() {
         return new Promise(function(resolve, reject) {
           let digestAuthRequest = new HttpClient.digestAuthRequest(method, uri, username, password);
           digestAuthRequest.request(function(resp) {

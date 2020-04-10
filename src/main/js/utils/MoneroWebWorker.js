@@ -5,7 +5,7 @@ require("../MoneroModel")();
  * 
  * Required message format: e.data[0] = object id, e.data[1] = function name, e.data[2+] = function args
 
- * This file must be browserified and placed in the web app root.  // TODO: exportable in MoneroModel.js?
+ * This file must be browserified and placed in the web app root.
  */
 onmessage = async function(e) {
   
@@ -371,10 +371,6 @@ self.getNetworkType = async function(walletId) {
 //async getVersion() {
 //  throw new Error("Not implemented");
 //}
-//
-//getPath() {
-//  throw new Error("Not implemented");
-//}
 
 self.getMnemonic = async function(walletId) {
   return self.WORKER_OBJECTS[walletId].getMnemonic();
@@ -511,7 +507,7 @@ self.removeListener = async function(walletId, listenerId) {
     self.listeners.splice(i, 1);
     return;
   }
-  throw new MoneroError("Listener is not registered to wallet");  // TODO: call onAddListener, onRemoveListener which can catch exception
+  throw new MoneroError("Listener is not registered to wallet");
 }
 
 self.isSynced = async function(walletId) {

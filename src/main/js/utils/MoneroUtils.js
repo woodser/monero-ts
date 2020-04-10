@@ -199,7 +199,7 @@ class MoneroUtils {
     if (MoneroUtils.WASM_MODULE === undefined) throw MoneroError("WASM module is not loaded; call 'await MoneroUtils.loadKeysModule()' to load");
     
     // allocate space in c++ heap for binary
-    let ptr = MoneroUtils.WASM_MODULE._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);  // TODO: this needs deleted
+    let ptr = MoneroUtils.WASM_MODULE._malloc(uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
     let heap = new Uint8Array(MoneroUtils.WASM_MODULE.HEAPU8.buffer, ptr, uint8arr.length * uint8arr.BYTES_PER_ELEMENT);
     
     // write binary to heap
