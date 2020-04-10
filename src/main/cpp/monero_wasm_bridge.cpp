@@ -236,18 +236,6 @@ string monero_wasm_bridge::get_mnemonic_language(int handle) {
   return wallet->get_mnemonic_language();
 }
 
-//string monero_wasm_bridge::get_mnemonic_languages(int handle) {
-//  monero_wallet* wallet = (monero_wallet*) handle;
-//  vector<string> languages = wallet->get_mnemonic_languages();
-//
-//  // serialize languages as json string array
-//  rapidjson::Document doc;
-//  doc.SetObject();
-//  rapidjson::Value val = monero_utils::to_rapidjson_val(doc.GetAllocator(), languages);
-//  val.Swap(doc);
-//  return monero_utils::serialize(doc);
-//}
-
 string monero_wasm_bridge::get_public_view_key(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
   return wallet->get_public_view_key();
