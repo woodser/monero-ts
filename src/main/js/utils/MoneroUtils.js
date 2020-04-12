@@ -338,7 +338,7 @@ class MoneroUtils {
     let worker = MoneroUtils.getWorker();
     if (!MoneroUtils.WORKER_OBJECTS[objectId]) MoneroUtils.WORKER_OBJECTS[objectId] = {callbacks: {}};
     return new Promise(function(resolve, reject) {
-      MoneroUtils.WORKER_OBJECTS[objectId].callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) {
+      MoneroUtils.WORKER_OBJECTS[objectId].callbacks["on" + fnName.charAt(0).toUpperCase() + fnName.substring(1)] = function(resp) {  // TODO: this defines function once per callback
         resp ? (resp.error ? reject(new MoneroError(resp.error)) : resolve(resp.result)) : resolve();
       };
       worker.postMessage([objectId, fnName].concat(args === undefined ? [] : GenUtils.listify(args)));

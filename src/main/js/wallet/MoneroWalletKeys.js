@@ -152,14 +152,6 @@ class MoneroWalletKeys extends MoneroWallet {
     });
   }
   
-  async getMnemonicLanguages() {
-    let that = this;
-    return that.module.queueTask(async function() {
-      that._assertNotClosed();
-      return JSON.parse(that.module.get_mnemonic_languages(that.cppAddress)); // TODO: return native vector<string> in c++
-    });
-  }
-  
   async getPrivateSpendKey() {
     let that = this;
     return that.module.queueTask(async function() {

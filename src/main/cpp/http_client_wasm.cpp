@@ -23,6 +23,7 @@ EM_JS(const char*, js_send_json_request, (const char* http_client_id, const char
       password: UTF8ToString(password),
       body: UTF8ToString(body),
       resolveWithFullResponse: true,
+      rejectUnauthorized: MoneroWalletCore.REJECT_UNAUTHORIZED,
       requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
     }).then(resp => {
 
@@ -97,6 +98,7 @@ EM_JS(const char*, js_send_binary_request, (const char* http_client_id, const ch
         password: UTF8ToString(password),
         body: view,
         resolveWithFullResponse: true,
+        rejectUnauthorized: MoneroWalletCore.REJECT_UNAUTHORIZED,
         requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
       }).then(resp => {
 

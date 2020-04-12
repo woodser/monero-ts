@@ -182,7 +182,7 @@ class TestMoneroWalletsEqual {
           tgt.getIncomingTransfers().push(inTransfer);
         }
       }
-      Collections.sort(tgt.getIncomingTransfers(), new IncomingTransferComparator()); // TODO: sort this
+      Collections.sort(tgt.getIncomingTransfers(), new IncomingTransferComparator());
     }
     
     // transfer info to outgoing transfer

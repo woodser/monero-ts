@@ -31,7 +31,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   }
   
   async createWalletRandom() {
-    let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4();
+    let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.getUUID();
     let wallet = await MoneroWalletCore.createWalletRandom(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpcConnection(), undefined, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
     assert.equal(await wallet.getPath(), path);
     if (await wallet.isConnected()) await wallet.startSyncing();
@@ -42,7 +42,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
    * Create a random wallet with custom configuration using a method which subclasses may override.
    */
   async createWalletRandomCustom(password, networkType, daemonConnection, language) {
-    let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4();
+    let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.getUUID();
     let wallet = await MoneroWalletCore.createWalletRandom(path, password, networkType, daemonConnection, language, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
     assert.equal(await wallet.getPath(), path);
     if (await wallet.isConnected()) await wallet.startSyncing();
@@ -50,7 +50,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   }
   
   async createWalletFromMnemonic(mnemonic, daemonConnection, restoreHeight, seedOffset) {
-    let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4();
+    let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.getUUID();
     let wallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, mnemonic, daemonConnection, restoreHeight, seedOffset, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
     assert.equal(await wallet.getPath(), path);
     if (await wallet.isConnected()) await wallet.startSyncing();
@@ -61,7 +61,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
    * Create a wallet from mnemonic with custom configuration using a method which subclasses may override.
    */
   async createWalletFromMnemonicCustom(password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset) {
-    let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4();
+    let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.getUUID();
     let wallet = await MoneroWalletCore.createWalletFromMnemonic(path, password, networkType, mnemonic, daemonConnection, restoreHeight, seedOffset, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
     assert.equal(await wallet.getPath(), path);
     if (await wallet.isConnected()) await wallet.startSyncing();
@@ -69,7 +69,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   }
   
   async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
-    let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4();
+    let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.getUUID();
     let wallet = await MoneroWalletCore.createWalletFromKeys(path, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
     assert.equal(await wallet.getPath(), path);
     if (await wallet.isConnected()) await wallet.startSyncing();
@@ -77,7 +77,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   }
   
   async createWalletFromKeysCustom(password, networkType, address, privateViewKey, privateSpendKey, daemonConnection, restoreHeight, language) {
-    let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4();
+    let path = TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.getUUID();
     let wallet = await MoneroWalletCore.createWalletFromKeys(path, password, networkType, address, privateViewKey, privateSpendKey, daemonConnection, restoreHeight, language, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
     assert.equal(await wallet.getPath(), path);
     if (await wallet.isConnected()) await wallet.startSyncing();
@@ -85,7 +85,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   }
   
   async createWalletGroundTruth(networkType, mnemonic, restoreHeight) {
-    let path = TestUtils.TEST_WALLETS_DIR + "/gt_wallet_" + GenUtils.uuidv4();
+    let path = TestUtils.TEST_WALLETS_DIR + "/gt_wallet_" + GenUtils.getUUID();
     let gtWallet = await MoneroWalletCore.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, networkType, mnemonic, TestUtils.getDaemonRpcConnection(), restoreHeight, undefined, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
     assert.equal(await gtWallet.getRestoreHeight(), restoreHeight === undefined ? 0 : restoreHeight);
     await gtWallet.sync();
@@ -590,7 +590,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
       it("Can sync a wallet created from keys", async function() {
         
         // recreate test wallet from keys
-        let walletKeys = await MoneroWalletCore.createWalletFromKeys(TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, await that.wallet.getNetworkType(), await that.wallet.getPrimaryAddress(), await that.wallet.getPrivateViewKey(), await that.wallet.getPrivateSpendKey(), await that.wallet.getDaemonConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
+        let walletKeys = await MoneroWalletCore.createWalletFromKeys(TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.getUUID(), TestUtils.WALLET_PASSWORD, await that.wallet.getNetworkType(), await that.wallet.getPrimaryAddress(), await that.wallet.getPrivateViewKey(), await that.wallet.getPrivateSpendKey(), await that.wallet.getDaemonConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
         
         // create ground truth wallet for comparison
         let walletGt = await that.createWalletGroundTruth(TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
@@ -767,7 +767,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         
         // create rpc wallet with offset
         let walletRpc = await TestUtils.getWalletRpc();
-        await walletRpc.createWalletFromMnemonic(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, await walletRpc.getMnemonic(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, seedOffset, undefined);
+        await walletRpc.createWalletFromMnemonic(GenUtils.getUUID(), TestUtils.WALLET_PASSWORD, await walletRpc.getMnemonic(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, seedOffset, undefined);
         
         // create wasm wallet with offset
         let walletCore = await that.createWalletFromMnemonicCustom(
@@ -891,7 +891,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         try {
           
           // create unique name for test wallet
-          let walletName = "test_wallet_" + GenUtils.uuidv4();
+          let walletName = "test_wallet_" + GenUtils.getUUID();
           let path = TestUtils.TEST_WALLETS_DIR + "/" + walletName;
           
           // wallet does not exist
@@ -1121,7 +1121,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         return str;
       }
       
-      function hasOutput(outputs, accountIdx, subaddressIdx, amount) { // TODO: use comon filter?
+      function hasOutput(outputs, accountIdx, subaddressIdx, amount) { // TODO: use common filter?
         let query = new MoneroOutputQuery().setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx).setAmount(amount);
         for (let output of outputs) {
           if (query.meetsCriteria(output)) return true;
@@ -1239,7 +1239,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
   //----------------------------- PRIVATE HELPERS -----------------------------
   
   static _getRandomWalletPath() {
-    return TestUtils.TEST_WALLETS_DIR + "/test_wallet_" + GenUtils.uuidv4();
+    return TestUtils.TEST_WALLETS_DIR + "/test_wallet_" + GenUtils.getUUID();
   }
   
   // possible configuration: on chain xor local wallet data ("strict"), txs ordered same way? TBD
@@ -1311,7 +1311,7 @@ class SyncProgressTester extends MoneroWalletListener {
     if (this.prevCompleteHeight !== undefined && startHeight === this.prevCompleteHeight) this.startHeight = startHeight;  
     
     // if sync is complete, record completion height for subsequent start heights
-    if (percentDone === 1) this.prevCompleteHeight = endHeight; // TODO: Double.compare(x,y) === 0 to not lose precision?
+    if (percentDone === 1) this.prevCompleteHeight = endHeight;
     
     // otherwise start height is equal to previous completion height
     else if (this.prevCompleteHeight !== undefined) assert.equal(startHeight, this.prevCompleteHeight);

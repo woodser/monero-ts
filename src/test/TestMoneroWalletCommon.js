@@ -225,7 +225,7 @@ class TestMoneroWalletCommon {
             assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
             assert.equal(await that.wallet.getPrivateViewKey(), privateViewKey);
             assert.equal(await that.wallet.getPrivateSpendKey(), privateSpendKey);
-            assert.equal(await that.wallet.isConnected(), !(that.wallet instanceof MoneroWalletKeys));  // keys wallet is never connected
+            assert.equal(await that.wallet.isConnected(), !(that.wallet instanceof MoneroWalletKeys), "Wallet created from keys is not connected to authenticated daemon");  // TODO
             if (!(that.wallet instanceof MoneroWalletRpc)) {
               assert.equal(await that.wallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-wallet-rpc: cannot get mnemonic from wallet created from keys?
               assert.equal(await that.wallet.getMnemonicLanguage(), MoneroWallet.DEFAULT_LANGUAGE);
@@ -259,7 +259,7 @@ class TestMoneroWalletCommon {
         let wallet = await that.createWalletRandom();
         
         // set a random attribute
-        let uuid = GenUtils.uuidv4();
+        let uuid = GenUtils.getUUID();
         await wallet.setAttribute("uuid", uuid);
         
         // record the wallet's path then save and close
@@ -523,7 +523,7 @@ class TestMoneroWalletCommon {
         
         // create account with label
         let accountsBefore = await that.wallet.getAccounts();
-        let label = GenUtils.uuidv4();
+        let label = GenUtils.getUUID();
         let createdAccount = await that.wallet.createAccount(label);
         testAccount(createdAccount);
         assert.equal((await that.wallet.getAccounts()).length - 1, accountsBefore.length);
@@ -619,7 +619,7 @@ class TestMoneroWalletCommon {
           
           // create subaddress with label
           subaddresses = await that.wallet.getSubaddresses(accountIdx);
-          let uuid = GenUtils.uuidv4();
+          let uuid = GenUtils.getUUID();
           subaddress = await that.wallet.createSubaddress(accountIdx, uuid);
           assert.equal(uuid, subaddress.getLabel());
           testSubaddress(subaddress);
@@ -1474,9 +1474,9 @@ class TestMoneroWalletCommon {
         let txs = await getRandomTransactions(that.wallet, undefined, 1, 5);
         
         // set notes
-        let uuid = GenUtils.uuidv4();
+        let uuid = GenUtils.getUUID();
         for (let i = 0; i < txs.length; i++) {
-          await that.wallet.setTxNote(txs[i].getHash(), uuid + i); // TODO: can we not iterate over awaits?
+          await that.wallet.setTxNote(txs[i].getHash(), uuid + i);
         }
         
         // get notes
@@ -1490,7 +1490,7 @@ class TestMoneroWalletCommon {
       it("Can get and set multiple transaction notes", async function() {
         
         // set tx notes
-        let uuid = GenUtils.uuidv4();
+        let uuid = GenUtils.getUUID();
         let txs = await getCachedTxs();
         assert(txs.length >= 3, "Test requires 3 or more wallet transactions; run send tests");
         let txHashes = [];
@@ -1948,7 +1948,7 @@ class TestMoneroWalletCommon {
         let integratedDescriptions = {};
         for (let i = 0; i < NUM_ENTRIES; i++) {
           let integratedAddress = await that.wallet.getIntegratedAddress(paymentId + i); // create unique integrated address
-          let uuid = GenUtils.uuidv4();
+          let uuid = GenUtils.getUUID();
           let idx = await that.wallet.addAddressBookEntry(integratedAddress.toString(), uuid);
           indices.push(idx);
           integratedAddresses[idx] = integratedAddress;
@@ -1987,7 +1987,7 @@ class TestMoneroWalletCommon {
         let attrs = {};
         for (let i = 0; i < 5; i++) {
           let key = "attr" + i;
-          let val = GenUtils.uuidv4();
+          let val = GenUtils.getUUID();
           attrs[key] = val;
           await that.wallet.setAttribute(key, val);
         }
@@ -2060,7 +2060,7 @@ class TestMoneroWalletCommon {
         let path = await wallet.getPath();
                 
         // set an attribute
-        let uuid = GenUtils.uuidv4();
+        let uuid = GenUtils.getUUID();
         await wallet.setAttribute("id", uuid);
         
         // close the wallet without saving
@@ -2168,9 +2168,6 @@ class TestMoneroWalletCommon {
             
             // give wallet time to catch up, otherwise incoming tx may not appear
             await new Promise(function(resolve) { setTimeout(resolve, MoneroUtils.WALLET_REFRESH_RATE); }); // TODO: this lets block slip, okay?
-            
-            // TODO: manually syncing because core wallet startSyncing() not implemented
-            await that.wallet.sync();
             
             // get incoming/outgoing txs with sent hashes
             let txQuery = new MoneroTxQuery();
@@ -2725,7 +2722,7 @@ class TestMoneroWalletCommon {
           assert.equal(await watchOnlyWallet.getMnemonic(), undefined);
           assert.equal(await watchOnlyWallet.getMnemonicLanguage(), undefined);
           assert(await watchOnlyWallet.isWatchOnly());
-          assert(await watchOnlyWallet.isConnected());  // TODO: this fails with monero-wallet-rpc and monerod with authentication
+          assert(await watchOnlyWallet.isConnected(), "Wallet created from keys is not connected to authenticated daemon");  // TODO
           assert.equal(await watchOnlyWallet.getMnemonic(), undefined);
           let watchOnlyPath = await watchOnlyWallet.getPath();
           await watchOnlyWallet.sync();
@@ -3486,7 +3483,7 @@ class TestMoneroWalletCommon {
       assert(tx.getOutgoingTransfer() !== copy.getOutgoingTransfer());
       assert(tx.getOutgoingTransfer().getTx() !== copy.getOutgoingTransfer().getTx());
       //assert(tx.getOutgoingTransfer().getAmount() !== copy.getOutgoingTransfer().getAmount());  // TODO: BI 0 === BI 0?, testing this instead:
-      if (tx.getOutgoingTransfer().getAmount() === copy.getOutgoingTransfer().getAmount()) assert(tx.getOutgoingTransfer().getAmount().compare(BigInteger(0)) === 0);
+      if (tx.getOutgoingTransfer().getAmount() === copy.getOutgoingTransfer().getAmount()) assert(tx.getOutgoingTransfer().getAmount().compare(new BigInteger(0)) === 0);
       if (tx.getOutgoingTransfer().getDestinations()) {
         assert(tx.getOutgoingTransfer().getDestinations() !== copy.getOutgoingTransfer().getDestinations());
         for (let i = 0; i < tx.getOutgoingTransfer().getDestinations().length; i++) {
@@ -3532,7 +3529,7 @@ class TestMoneroWalletCommon {
       // set name attribute of test wallet at beginning of test
       await this.wallet.setAttribute("name", BEGIN_MULTISIG_NAME);
       await this.wallet.save();
-      await this.wallet.close();  // TODO: if closing it causes resolves issue, then wallets are interfering with each other
+      await this.wallet.close();
       
       // create n wallets and prepare multisig hexes
       let preparedMultisigHexes = [];
@@ -3663,7 +3660,7 @@ class TestMoneroWalletCommon {
         // start mining to push the network along
         await StartMining.startMining();
         
-        // wait for the multisig wallet's funds to unlock // TODO: could replace with condition_variable and notify
+        // wait for the multisig wallet's funds to unlock
         let lastNumConfirmations = undefined;
         while (true) {
           

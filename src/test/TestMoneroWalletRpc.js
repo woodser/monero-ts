@@ -24,18 +24,18 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   }
   
   async createWalletRandom() {
-    await this.wallet.createWalletRandom(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD);
+    await this.wallet.createWalletRandom(GenUtils.getUUID(), TestUtils.WALLET_PASSWORD);
     return this.wallet;
   }
   
   async createWalletFromMnemonic(mnemonic, daemonConnection, restoreHeight, seedOffset) {
-    await this.wallet.createWalletFromMnemonic(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, mnemonic, restoreHeight, undefined, seedOffset);
+    await this.wallet.createWalletFromMnemonic(GenUtils.getUUID(), TestUtils.WALLET_PASSWORD, mnemonic, restoreHeight, undefined, seedOffset);
     await this.wallet.setDaemonConnection(daemonConnection);  // TODO monero-wallet-rpc: ability to set connection before creating if offline wallet
     return this.wallet;
   }
   
   async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
-    await this.wallet.createWalletFromKeys(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, address, privateViewKey, privateSpendKey, firstReceiveHeight, language);
+    await this.wallet.createWalletFromKeys(GenUtils.getUUID(), TestUtils.WALLET_PASSWORD, address, privateViewKey, privateSpendKey, firstReceiveHeight, language);
     await this.wallet.setDaemonConnection(daemonConnection);  // TODO: causes wallet to have no connection if authenticating
     return this.wallet;
   }
@@ -94,7 +94,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         try {
           
           // create random wallet with defaults
-          let path = GenUtils.uuidv4();
+          let path = GenUtils.getUUID();
           await that.wallet.createWalletRandom(path, TestUtils.WALLET_PASSWORD);
           let mnemonic = await that.wallet.getMnemonic();
           MoneroUtils.validateMnemonic(mnemonic);
@@ -104,7 +104,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           await that.wallet.close();
 
           // create random wallet with non defaults
-          path = GenUtils.uuidv4();
+          path = GenUtils.getUUID();
           await that.wallet.createWalletRandom(path, TestUtils.WALLET_PASSWORD, "Spanish");
           MoneroUtils.validateMnemonic(await that.wallet.getMnemonic());
           assert.notEqual(await that.wallet.getMnemonic(), mnemonic);
@@ -133,7 +133,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         try {
           
           // create wallet with mnemonic and defaults
-          let path = GenUtils.uuidv4();
+          let path = GenUtils.getUUID();
           await that.wallet.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
           assert.equal(await that.wallet.getMnemonic(), TestUtils.MNEMONIC);
           assert.equal(await that.wallet.getPrimaryAddress(), TestUtils.ADDRESS);
@@ -147,7 +147,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           await that.wallet.close();
           
           // create wallet with non-defaults
-          path = GenUtils.uuidv4();
+          path = GenUtils.getUUID();
           await that.wallet.createWalletFromMnemonic(path, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT, "German", "my offset!", false);
           MoneroUtils.validateMnemonic(await that.wallet.getMnemonic());
           assert.notEqual(await that.wallet.getMnemonic(), TestUtils.MNEMONIC);  // mnemonic is different because of offset
@@ -172,7 +172,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           // create names of test wallets
           let numTestWallets = 3;
           let names = [];
-          for (let i = 0; i < numTestWallets; i++) names.add(GenUtils.uuidv4());
+          for (let i = 0; i < numTestWallets; i++) names.add(GenUtils.getUUID());
           
           // create test wallets
           let mnemonics = [];
@@ -218,7 +218,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
       });
       
       it("Can indicate if multisig import is needed for correct balance information", async function() {
-        assert.equal(await that.wallet.isMultisigImportNeeded(), false); // TODO: test with multisig wallet
+        assert.equal(await that.wallet.isMultisigImportNeeded(), false);
       });
 
       it("Can tag accounts and query accounts by tag", async function() {
@@ -228,7 +228,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         assert(accounts.length >= 3, "Not enough accounts to test; run create account test");
         
         // tag some of the accounts
-        let tag = new MoneroAccountTag("my_tag_" + GenUtils.uuidv4(), "my tag label", [0, 1]);
+        let tag = new MoneroAccountTag("my_tag_" + GenUtils.getUUID(), "my tag label", [0, 1]);
         await that.wallet.tagAccounts(tag.getTag(), tag.getAccountIndices());
         
         // query accounts by tag
@@ -247,7 +247,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         assert(GenUtils.arrayContains(tags, tag));
         
         // re-tag an account
-        let tag2 = new MoneroAccountTag("my_tag_" + GenUtils.uuidv4(), "my tag label 2", [1]);
+        let tag2 = new MoneroAccountTag("my_tag_" + GenUtils.getUUID(), "my tag label 2", [1]);
         await that.wallet.tagAccounts(tag2.getTag(), tag2.getAccountIndices());
         let taggedAccounts2 = await that.wallet.getAccounts(undefined, tag2.getTag())
         assert.equal(taggedAccounts2.length, 1);
@@ -310,7 +310,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
       it("Can close a wallet", async function() {
         
         // create a test wallet
-        let path = GenUtils.uuidv4();
+        let path = GenUtils.getUUID();
         await that.wallet.createWalletRandom(path, TestUtils.WALLET_PASSWORD);
         await that.wallet.sync();
         assert((await that.wallet.getHeight()) > 1);
