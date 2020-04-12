@@ -137,7 +137,7 @@ await walletCore.close(true);
 - [MoneroDaemonRpc.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/daemon/MoneroDaemonRpc.js) - implements a MoneroDaemon.js using a monero-daemon-rpc back-end
 - [MoneroWalletRpc.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/wallet/MoneroWalletRpc.js) - implements MoneroWallet.js using a monero-wallet-rpc back-end
 - [MoneroWalletCore.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/wallet/MoneroWalletCore.js) - implements MoneroWallet.js using client-side WebAssembly bindings to [wallet2.h](https://github.com/woodser/monero/blob/master/src/wallet/wallet2.h)
-- [MoneroWalletKeys.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/wallet/MoneroWalletCore.js) - client-side wallet using WebAssembly which only manages keys
+- [MoneroWalletKeys.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/wallet/MoneroWalletKeys.js) - client-side wallet using WebAssembly which only manages keys
 
 ## How to Run This Library
 
