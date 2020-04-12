@@ -2,19 +2,17 @@
 
 This project is a JavaScript library for using a Monero wallet and daemon with RPC or WebAssembly bindings to [Monero Core v0.15.0.5 Carbon Chameleon](https://web.getmonero.org/downloads/).
 
-- Supports RPC bindings to monero-wallet-rpc (MoneroWalletRpc.js) and monero-daemon-rpc (MoneroDaemonRpc.js)
-- Supports fully client-side wallets in NodeJS and web apps using WebAssembly bindings to Monero Core (MoneroWalletCore.js)
+- Supports RPC bindings to monero-wallet-rpc and monero-daemon-rpc
+- Supports WebAssembly bindings to Monero Core for fully client-side wallets in NodeJS and web apps
 - Supports multisig, offline, and watch-only wallets
+- Conforms to an [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and suitable for long-term use
 - Query wallet transactions, transfers, and outputs by their many attributes
 - Fetch and process binary data from the daemon (e.g. raw blocks)
 - Receive notifications when blocks are added to the chain or when wallets sync, send, or receive
-- Implements an [API specification](http://moneroecosystem.org/monero-java/monero-spec.pdf) intended to be intuitive, robust, and suitable for long-term use
-- Wallet implementations are interchangeable because they conform to the same interface (MoneroWallet.js)
+- Wallet implementations are interchangeable because they conform to a common interface
 - Over 230 passing Mocha test cases
 
 ## Sample Code
-
-This code demonstrates the API.  See the [jsdoc](https://moneroecosystem.org/monero-javascript/), [specification PDF](http://moneroecosystem.org/monero-java/monero-spec.pdf), or [Mocha tests](src/test/) for more details.
 
 ```js
 // import library
@@ -131,6 +129,15 @@ assert(TestSampleCode.CORE_OUTPUT_RECEIVED);
 // save and close the core wallet
 await walletCore.close(true);
 ```
+
+## JSDoc for wallet and daemon methods and creating new instances:
+
+- [MoneroWallet.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/wallet/MoneroWallet.js) - common interface for wallet implementations
+- [MoneroDaemon.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/daemon/MoneroDaemon.js) - common interface for daemon implementations
+- [MoneroDaemonRpc.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/daemon/MoneroDaemonRpc.js) - implements a MoneroDaemon.js using a monero-daemon-rpc back-end
+- [MoneroWalletRpc.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/wallet/MoneroWalletRpc.js) - implements MoneroWallet.js using a monero-wallet-rpc back-end
+- [MoneroWalletCore.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/wallet/MoneroWalletCore.js) - implements MoneroWallet.js using client-side WebAssembly bindings to [wallet2.h](https://github.com/woodser/monero/blob/master/src/wallet/wallet2.h)
+- [MoneroWalletKeys.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/wallet/MoneroWalletCore.js) - client-side wallet using WebAssembly which only manages keys
 
 ## How to Run This Library
 
