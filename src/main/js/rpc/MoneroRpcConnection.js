@@ -3,7 +3,7 @@
  */
 const MoneroRpcConfigDefault = {
     uri: undefined,
-    protocol: "http",
+    protocol: "http", // TODO: use only uri, delete protocol, host port? part of username/password change
     host: "localhost",
     port: 18081,
     user: undefined,
@@ -94,6 +94,7 @@ class MoneroRpcConnection {
           method: method,
           params: params
         }),
+        rejectUnauthorized: this.config.rejectUnauthorized,
         requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"  // firefox issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1491010
       });
       
@@ -123,6 +124,7 @@ class MoneroRpcConnection {
         username: this.getUsername(),
         password: this.getPassword(),
         body: JSON.stringify(params),  // body is stringified so text/plain is returned so BigIntegers are preserved
+        rejectUnauthorized: this.config.rejectUnauthorized,
         requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"
       });
       
@@ -161,6 +163,7 @@ class MoneroRpcConnection {
         username: this.getUsername(),
         password: this.getPassword(),
         body: paramsBin,
+        rejectUnauthorized: this.config.rejectUnauthorized,
         requestApi: GenUtils.isFirefox() ? "xhr" : "fetch"
       });
       

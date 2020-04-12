@@ -472,15 +472,8 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTxs(query) {
     
-    // normalize tx query
-    if (query instanceof MoneroTxQuery) query = query.copy();
-    else if (Array.isArray(query)) query = new MoneroTxQuery().setTxHashes(query);
-    else {
-      query = Object.assign({}, query);
-      query = new MoneroTxQuery(query);
-    }
-    if (query.getTransferQuery() === undefined) query.setTransferQuery(new MoneroTransferQuery());
-    if (query.getOutputQuery() === undefined) query.setOutputQuery(new MoneroOutputQuery());
+    // copy and normalize query up to block
+    query = MoneroWallet._normalizeTxQuery(query);
     
     // temporarily disable transfer and output queries in order to collect all tx information
     let transferQuery = query.getTransferQuery();
@@ -568,24 +561,8 @@ class MoneroWalletRpc extends MoneroWallet {
   
   async getTransfers(query) {
     
-    // copy and normalize query up to block // TODO: factor out this common code with MoneroWalletCore into MoneroWallet
-    if (query === undefined) query = new MoneroTransferQuery();
-    else if (query instanceof MoneroTransferQuery) {
-      if (query.getTxQuery() === undefined) query = query.copy();
-      else {
-        let txQuery = query.getTxQuery().copy();
-        if (query.getTxQuery().getTransferQuery() === query) query = txQuery.getTransferQuery();
-        else {
-          assert.equal(query.getTxQuery().getTransferQuery(), undefined, "Transfer query's tx query must be circular reference or null");
-          query = query.copy();
-          query.setTxQuery(txQuery);
-        }
-      }
-    } else {
-      query = Object.assign({}, query);
-      query = new MoneroTransferQuery(query).setTxQuery(new MoneroTxQuery(query));
-    }
-    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
+    // copy and normalize query up to block
+    query = MoneroWallet._normalizeTransferQuery(query);
     let txQuery = query.getTxQuery();
     txQuery.setTransferQuery(undefined); // break circular link for meetsCriteria()
     
@@ -689,15 +666,6 @@ class MoneroWalletRpc extends MoneroWallet {
       if (tx.getBlock() !== undefined && tx.getOutgoingTransfer() === undefined && tx.getIncomingTransfers() === undefined) {
         tx.getBlock().getTxs().splice(tx.getBlock().getTxs().indexOf(tx), 1);
       }
-      
-//      if (tx.getHeight() === 364866) {
-//        console.log("HERE IS TX WITH HEIGHT");
-//        if (query.meetsCriteria(tx.getOutgoingTransfer())) console.log("Outgoing transfer met!!!");
-//        else console.log("Outgoing transfer not met!");
-//        assert(query.meetsCriteria(tx.getOutgoingTransfer()));
-//      }
-//      if (query.meetsCriteria(tx.getOutgoingTransfer())) transfers.push(tx.getOutgoingTransfer());
-//      if (tx.getIncomingTransfers()) Filter.apply(query, tx.getIncomingTransfers()).map(transfer => transfers.push(transfer));
     }
     
     return transfers;
@@ -706,67 +674,9 @@ class MoneroWalletRpc extends MoneroWallet {
   async getOutputs(query) {
     
     // copy and normalize query up to block
-    if (query === undefined) query = new MoneroOutputQuery();
-    else if (query instanceof MoneroOutputQuery) {
-      if (query.getTxQuery() === undefined) query = query.copy();
-      else {
-        let txQuery = query.getTxQuery().copy();
-        if (query.getTxQuery().getOutputQuery() === query) query = txQuery.getOutputQuery();
-        else {
-          assert.equal(query.getTxQuery().getOutputQuery(), undefined, "Output query's tx query must be circular reference or null");
-          query = query.copy();
-          query.setTxQuery(txQuery);
-        }
-      }
-    } else {
-      query = Object.assign({}, query);
-      query = new MoneroOutputQuery(query).setTxQuery(new MoneroTxQuery(query));
-    }
-    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
+    query = MoneroWallet._normalizeOutputQuery(query);
     let txQuery = query.getTxQuery();
     txQuery.setOutputQuery(undefined); // break circular link for meetsCriteria()
-    
-//    // normalize output request
-//    if (request instanceof MoneroOutputRequest) { }
-//    else {
-//      request = Object.assign({}, request);
-//      request = new MoneroOutputRequest(request).setTxRequest(new MoneroTxRequest(request));
-//    }
-//    if (!request.getTxRequest()) request.setTxRequest(new MoneroTxRequest());
-//    
-//    // copy and normalize query up to block
-//    if (query === undefined) query = new MoneroOutputQuery();
-//    else {
-//      if (query.getTxQuery() === undefined) query = query.copy();
-//      else {
-//        let txQuery = query.getTxQuery().copy();
-//        if (query.getTxQuery().getOutputQuery() === query) query = txQuery.getOutputQuery();
-//        else {
-//          assert.equal(query.getTxQuery().getOutputQuery(), undefined, "Transfer request's tx request must be circular reference or null");
-//          query = query.copy();
-//          query.setTxQuery(txQuery);
-//        }
-//      }
-//    }
-//    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
-//    let txQuery = query.getTxQuery();
-//    
-//    // copy and normalize query up to block
-//    if (query === undefined) query = new MoneroOutputQuery();
-//    else {
-//      if (query.getTxQuery() === undefined) query = query.copy();
-//      else {
-//        let txQuery = query.getTxQuery().copy();
-//        if (query.getTxQuery().getOutputQuery() === query) query = txQuery.getOutputQuery();
-//        else {
-//          assert.equal(query.getTxQuery().getOutputQuery(), undefined, "Transfer request's tx request must be circular reference or null");
-//          query = query.copy();
-//          query.setTxQuery(txQuery);
-//        }
-//      }
-//    }
-//    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
-//    let txQuery = query.getTxQuery();
     
     // determine account and subaddress indices to be queried
     let indices = new Map();
@@ -880,21 +790,8 @@ class MoneroWalletRpc extends MoneroWallet {
   async sendSplit(requestOrAccountIndex, address, amount, priority) {
     
     // validate, copy, and normalize request
-    let request;
-    if (requestOrAccountIndex instanceof MoneroSendRequest) {
-      assert(address === undefined && amount === undefined && priority === undefined, "Sending requires a send request or parameters but not both");
-      request = requestOrAccountIndex;
-    } else {
-      if (requestOrAccountIndex instanceof Object) request = new MoneroSendRequest(requestOrAccountIndex);
-      else request = new MoneroSendRequest(requestOrAccountIndex, address, amount, priority);
-    }
-    assert.notEqual(request.getDestinations(), undefined, "Must specify destinations");
-    assert.equal(request.getSweepEachSubaddress(), undefined);
-    assert.equal(request.getBelowAmount(), undefined);
-    if (request.getCanSplit() === undefined) {
-      request = request.copy();
-      request.setCanSplit(true);
-    }
+    let request = MoneroWallet._normalizeSendRequest(requestOrAccountIndex, address, amount, priority);
+    if (request.getCanSplit() === undefined) request.setCanSplit(true);
 
     // determine account and subaddresses to send from
     let accountIdx = request.getAccountIndex();
@@ -945,20 +842,7 @@ class MoneroWalletRpc extends MoneroWallet {
   async sweepOutput(requestOrAddress, keyImage, priority) {
     
     // normalize and validate request
-    let request;
-    if (requestOrAddress instanceof MoneroSendRequest) {
-      assert.equal(arguments.length, 1, "sweepOutput() requires a send request or parameters but not both");
-      request = requestOrAddress;
-    } else {
-      if (requestOrAddress instanceof Object) request = new MoneroSendRequest(requestOrAddress);
-      else {
-        request = new MoneroSendRequest(requestOrAddress, undefined, priority);
-        request.setKeyImage(keyImage);
-      }
-    }
-    assert.equal(request.getSweepEachSubaddress(), undefined);
-    assert.equal(request.getBelowAmount(), undefined);
-    assert.equal(request.getCanSplit(), undefined, "Splitting is not applicable when sweeping output");
+    let request = MoneroWallet._normalizeSweepOutputRequest(requestOrAddress, keyImage, priority);
     
     // build request parameters
     let params = {};
@@ -1088,7 +972,6 @@ class MoneroWalletRpc extends MoneroWallet {
     return resp.result.tx_hash_list;
   }
   
-  // TODO: rename to signMessage(), verifyMessage()?
   async sign(message) {
     let resp = await this.config.rpc.sendJsonRequest("sign", {data: message});
     return resp.result.signature;
@@ -1545,7 +1428,7 @@ class MoneroWalletRpc extends MoneroWallet {
       tx.setRingSize(MoneroUtils.RING_SIZE);
       let transfer = tx.getOutgoingTransfer();
       transfer.setAccountIndex(request.getAccountIndex());
-      if (request.getSubaddressIndices().length === 1) transfer.setSubaddressIndices(request.getSubaddressIndices()); // TODO: deep copy
+      if (request.getSubaddressIndices().length === 1) transfer.setSubaddressIndices(request.getSubaddressIndices());
       let destination = new MoneroDestination(request.getDestinations()[0].getAddress(), new BigInteger(transfer.getAmount()));
       transfer.setDestinations([destination]);
       tx.setOutgoingTransfer(transfer);

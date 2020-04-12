@@ -1,37 +1,48 @@
 HIGH (WASM)
-update to monero current version: 0.15.0.4
+https xhr
+MoneroWalletCore rename other member variables with "_*", be consistent
+only send({relay: true, canSplit: true, ...}) with defaults, library assumes defaults?
 fix consistent failures in tests (notification failures)
 monero_wasm_bridge serialize bigintegers as strings
 log wallet id when background synchronizing
+sample code try...catch to close wallet
 test onOuputSent() when swept
 new test wallet before receiving funds breaks tests
 remaining daemon rpc proxy implementations
 in-memory wallet; wallet2 password is required to create valid cache file on creation (start with tests)
 startSynchronizing() should use pre-started loop so it's a random start time like core
-rename GenUtils.uuidv4() -> GenUtils.getUUID();
 pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
 C++ MTRACE statements execute argument which could be major performance hit
 monero.common package which is where MoneroUtils, MoneroException go
 export MoneroWebWorker in MoneroModel.js?
-
-await MoneroWallet.create({type: "wasm", networkType:, 2, connectionUri: connection: {uri: : daemonUri: "...", mnemonic: "})
-MoneroDaemonRpc support 3 string args, just like MoneroWalletRpc or factor method?
-support MoneroWalletRpc(string uri, string username, string password) like java
-createTx, createTxs, sendTx, sendTxs() instead of send(), sendSplit()?
-only send({relay: true, canSplit: true, ...}) with defaults, library assumes defaults?
-deprecate .user, .pass with .username and .password and log error then eventually remove
+proxied txs, transfers, outputs are unnecessariliy stringified then parsed
+rename sign/verify to signMessage(), verifyMessage()?
+bundle web worker with MoneroModel?
+output query setMinAmount(), setMaxAmount()
+deprecate .user, .pass with .username and .password and log error then eventually remove, remove protocol, host, port from MoneroRpcConnection
+combine TestAll and BrowserTests
+MoneroSyncResult received_money -> received_amount for consistency
+re-enable test reserves or report issue
+report issue of keys wallet setDaemonConnection not working with authentication
+finalize daemon and wallet creation api
+restore height is refresh height - getSyncHeight(), setSyncHeight()?
 
 update readme with core wasm support
-organize todos including todos throughout code
-test jni
+update jsdocs
+full tests including jni
 release
 
+update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic like monero_wallet_core::get_txs()
+sync end height != daemon height for long syncs
+compare sync performance with multithreading vs singlethreading - build both?
+await MoneroWallet.create({type: "wasm", networkType:, 2, connectionUri: connection: {uri: : daemonUri: "...", mnemonic: "})
+MoneroDaemonRpc support 3 string args, just like MoneroWalletRpc or factor method? copy constructor?
+support MoneroWalletRpc(string uri, string username, string password) like java
 build boost and openssl in ./bin/build_dist.sh only if necessary
 emscripten logging
 delete old branches
 test queuing sync requests in test which opens and closes multiple wallets
-xhr ssl certificates for firefox
 low severity vulnerabilities
 find boost version in cmake lists
 externalize test config
@@ -41,24 +52,16 @@ re-test with pthread and compare performance, could load pthreaded library if no
 namespace exported types to object instead of this.?
 "Can update a locked tx sent from/to the same account as blocks are added to the chain" sometimes gets stuck waiting for updates, possibly because tx was rejected with double spend? 
 daemon rpc getTxs() does not return tx blocks
-sync end height != daemon height for long syncs
-long sync will give 100% notifications for blocks since sync started; re-compute based on daemon height toward end
 overload toJson() model protos and use JSON.stringify() instead of class toJsons()
 master sort MoneroWallet.js with top level methods
-update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic like monero_wallet_core::get_txs()
 monero_wallet_core get_keys_file_buffer/get_cache_file_buffer use m_password instead of arg
 overload create_wallet_* instead of http_client=null?
-monero_wallet_core takes const abstract_http_client& ref = 0, client is created on wallet creation and deleted on close in wasm bridge
 compare sync speeds with and without notifications
 compare performance with dynamic memory growth
-restore height is refresh height - getSyncHeight(), setSyncHeight()?
 update assert.equal(BI, BI) -> assert.equal(BI.toString(), BI.toString()) in tests
 port pool relay tests from java TestMoneroWalletCommon.java
 port testSyncWithPoolSubmit from java
 monero_wallet_core::set_daemon_connection is_local_address() uses common/util which requires libunbound
-compare sync performance with multithreading vs singlethreading - build both?
-why does de-ref tx block in getOutputs() cause failure?
-optimize file data read/write with different view
 libsodium dependency in monero-cpp-library, why doesn't monero-project's work?
 test "Can get transactions by id" passes tx query where txs is array of characters
 mymonero monero_wallet_utils.cpp 182 mnemonic sanitation
@@ -77,8 +80,6 @@ MoneroTxConfig isCompatible(MoneroWalletTx)
 wallet.getTxById() for convenience?
 commonTxSets
 send priority has no default, must pick one
-wallet.close() is common?
-MoneroSyncResult received_money -> received_amount for consistency
 don't differentiate in spec uint vs long, BigInteger? or specify detailed types (uint64)
 class diagram query txs, transfers, vouts
 checkTxProof(signature, ...)?

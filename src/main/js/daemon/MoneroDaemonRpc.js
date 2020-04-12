@@ -1348,7 +1348,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   // --------------------------- STATIC UTILITIES -----------------------------
   
   static async createDaemonRpc(config) {
-    let daemonId = GenUtils.uuidv4();
+    let daemonId = GenUtils.getUUID();
     await MoneroUtils.invokeWorker(daemonId, "createDaemonRpc", Array.from(arguments));
     return new MoneroDaemonRpcProxy(daemonId, MoneroUtils.getWorker());
   }

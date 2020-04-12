@@ -75,7 +75,7 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
         
         // create rpc wallet with offset
         let walletRpc = await TestUtils.getWalletRpc();
-        await walletRpc.createWalletFromMnemonic(GenUtils.uuidv4(), TestUtils.WALLET_PASSWORD, await walletRpc.getMnemonic(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, seedOffset, undefined);
+        await walletRpc.createWalletFromMnemonic(GenUtils.getUUID(), TestUtils.WALLET_PASSWORD, await walletRpc.getMnemonic(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, seedOffset, undefined);
         
         // create keys-only wallet with offset
         let walletKeys = await MoneroWalletKeys.createWalletFromMnemonic(

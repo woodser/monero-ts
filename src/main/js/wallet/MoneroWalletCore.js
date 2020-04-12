@@ -202,7 +202,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this.password = password;
     this.listeners = [];
     this.fs = fs ? fs : require('fs');
-    this._isClosed = false; // TODO: rename other member variables with "_*", be consistent
+    this._isClosed = false;
     this.wasmListener = new WalletWasmListener(this); // receives notifications from wasm c++
     this.wasmListenerHandle = 0;                      // memory address of the wallet listener in c++
   }
@@ -698,7 +698,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     
     // copy and normalize query up to block
-    query = MoneroWalletCore._normalizeTxQuery(query);
+    query = MoneroWallet._normalizeTxQuery(query);
     
     // schedule task
     let that = this;
@@ -722,9 +722,9 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     
     // copy and normalize query up to block
-    query = MoneroWalletCore._normalizeTransferQuery(query);
+    query = MoneroWallet._normalizeTransferQuery(query);
     
-    // minimal validation // TODO: validate all uints for c++
+    // minimal validation
     if (query.getAccountIndex() !== undefined) assert(query.getAccountIndex() >= 0);
     if (query.getSubaddressIndex() !== undefined) assert(query.getSubaddressIndex() >= 0);
     if (query.getSubaddressIndices() !== undefined) for (let subaddressIdx of query.getSubaddressIndices()) assert(subaddressIdx >= 0);
@@ -737,7 +737,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
         
         // define callback for wasm
         let callbackFn = function(blocksJsonStr) {
-          if (blocksJsonStr.charAt(0) !== "{") reject(new MoneroError(blocksJsonStr));  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
+          if (blocksJsonStr.charAt(0) !== "{") reject(new MoneroError(blocksJsonStr));
           else resolve(MoneroWalletCore._blocksJsonToTransfers(query, blocksJsonStr));
         }
         
@@ -751,7 +751,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     this._assertNotClosed();
     
     // copy and normalize query up to block
-    query = MoneroWalletCore._normalizeOutputQuery(query);
+    query = MoneroWallet._normalizeOutputQuery(query);
     
     // return promise which resolves on callback
     let that = this;
@@ -762,7 +762,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
         // define callback for wasm
         let callbackFn = function(blocksJsonStr) {
           
-          // check for error  // TODO: return {blocks: [...], errorMsg: "..."} then parse and check for it
+          // check for error
           if (blocksJsonStr.charAt(0) !== "{") {
             reject(new MoneroError(blocksJsonStr));
             return;
@@ -855,22 +855,9 @@ class MoneroWalletCore extends MoneroWalletKeys {
   async sendSplit(requestOrAccountIndex, address, amount, priority) {
     this._assertNotClosed();
     
-    // validate, copy, and normalize request  // TODO: this is copied from MoneroWalletRpc.sendSplit(), factor to super class which calls this with normalized request?
-    let request;
-    if (requestOrAccountIndex instanceof MoneroSendRequest) {
-      assert(address === undefined && amount === undefined && priority === undefined, "Sending requires a send request or parameters but not both");
-      request = requestOrAccountIndex;
-    } else {
-      if (requestOrAccountIndex instanceof Object) request = new MoneroSendRequest(requestOrAccountIndex);
-      else request = new MoneroSendRequest(requestOrAccountIndex, address, amount, priority);
-    }
-    assert.notEqual(request.getDestinations(), undefined, "Must specify destinations");
-    assert.equal(request.getSweepEachSubaddress(), undefined);
-    assert.equal(request.getBelowAmount(), undefined);
-    if (request.getCanSplit() === undefined) {
-      request = request.copy();
-      request.setCanSplit(true);
-    }
+    // validate, copy, and normalize request
+    let request = MoneroWallet._normalizeSendRequest(requestOrAccountIndex, address, amount, priority);
+    if (request.getCanSplit() === undefined) request.setCanSplit(true);
     
     // check for payment id to avoid error in wasm 
     if (request.getPaymentId()) throw new MoneroError("Standalone payment IDs are obsolete. Use subaddresses or integrated addresses instead"); // TODO: this should no longer be necessary, remove and re-test
@@ -896,21 +883,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
   async sweepOutput(requestOrAddress, keyImage, priority) {
     this._assertNotClosed();
     
-    // normalize and validate request // TODO: this is copied from MoneroWalletRpc.sweepOutput(), factor to super class which calls this with normalized request?
-    let request;
-    if (requestOrAddress instanceof MoneroSendRequest) {
-      assert(keyImage === undefined && priority === undefined, "sweepOutput() requires a send request or parameters but not both");
-      request = requestOrAddress;
-    } else {
-      if (requestOrAddress instanceof Object) request = new MoneroSendRequest(requestOrAddress);
-      else {
-        request = new MoneroSendRequest(requestOrAddress, undefined, priority);
-        request.setKeyImage(keyImage);
-      }
-    }
-    assert.equal(request.getSweepEachSubaddress(), undefined);
-    assert.equal(request.getBelowAmount(), undefined);
-    assert.equal(request.getCanSplit(), undefined, "Splitting is not applicable when sweeping output");
+    // normalize and validate request
+    let request = MoneroWallet._normalizeSweepOutputRequest(requestOrAddress, keyImage, priority);
     
     // return promise which resolves on callback
     let that = this;
@@ -1385,7 +1359,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
       let keysBufferLoc = JSON.parse(that.module.get_keys_file_buffer(that.cppAddress, that.password, watchOnly));
       
       // read binary data from heap to DataView
-      view = new DataView(new ArrayBuffer(keysBufferLoc.length)); // TODO: improve performance using DataView instead of Uint8Array?, TODO: rename to length
+      view = new DataView(new ArrayBuffer(keysBufferLoc.length));
       for (let i = 0; i < keysBufferLoc.length; i++) {
         view.setInt8(i, that.module.HEAPU8[keysBufferLoc.pointer / Uint8Array.BYTES_PER_ELEMENT + i]);
       }
@@ -1419,7 +1393,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     if (this._isClosed || this._syncingThreadDone) return; // closing a closed wallet has no effect
     this._syncingThreadDone = true;
     this._syncingEnabled = false;
-    await this._setIsListening(false);  // TODO: port to jni
+    await this._setIsListening(false);
     await this.stopSyncing();
     await super.close(save);
     delete this.path;
@@ -1496,67 +1470,8 @@ class MoneroWalletCore extends MoneroWalletKeys {
     if (txType === undefined) txType = MoneroBlock.DeserializationType.TX_WALLET;
     let blocksJson = JSON.parse(blocksJsonStr);
     let blocks = [];
-    for (let blockJson of blocksJson.blocks) blocks.push(new MoneroBlock(blockJson, txType));
+    for (let blockJson of blocksJson.blocks) blocks.push(MoneroWalletCore._sanitizeBlock(new MoneroBlock(blockJson, txType)));
     return blocks
-  }
-  
-  static _normalizeTxQuery(query) {
-    if (query instanceof MoneroTxQuery) query = query.copy();
-    else if (Array.isArray(query)) query = new MoneroTxQuery().setTxHashes(query);
-    else {
-      query = Object.assign({}, query);
-      query = new MoneroTxQuery(query);
-    }
-    if (query.getBlock() === undefined) query.setBlock(new MoneroBlock().setTxs([query]));
-    if (query.getTransferQuery() === undefined) query.setTransferQuery(new MoneroTransferQuery());
-    if (query.getOutputQuery() === undefined) query.setOutputQuery(new MoneroOutputQuery());
-    return query;
-  }
-  
-  static _normalizeTransferQuery(query) {
-    if (query === undefined) query = new MoneroTransferQuery();
-    else if (query instanceof MoneroTransferQuery) {
-      if (query.getTxQuery() === undefined) query = query.copy();
-      else {
-        let txQuery = query.getTxQuery().copy();
-        if (query.getTxQuery().getTransferQuery() === query) query = txQuery.getTransferQuery();
-        else {
-          assert.equal(query.getTxQuery().getTransferQuery(), undefined, "Transfer query's tx query must be circular reference or null");
-          query = query.copy();
-          query.setTxQuery(txQuery);
-        }
-      }
-    } else {
-      query = Object.assign({}, query);
-      query = new MoneroTransferQuery(query).setTxQuery(new MoneroTxQuery(query));
-    }
-    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
-    query.getTxQuery().setTransferQuery(query);
-    if (query.getTxQuery().getBlock() === undefined) query.getTxQuery().setBlock(new MoneroBlock().setTxs([query.getTxQuery()]));
-    return query;
-  }
-  
-  static _normalizeOutputQuery(query) {
-    if (query === undefined) query = new MoneroOutputQuery();
-    else if (query instanceof MoneroOutputQuery) {
-      if (query.getTxQuery() === undefined) query = query.copy();
-      else {
-        let txQuery = query.getTxQuery().copy();
-        if (query.getTxQuery().getOutputQuery() === query) query = txQuery.getOutputQuery();
-        else {
-          assert.equal(query.getTxQuery().getOutputQuery(), undefined, "Output query's tx query must be circular reference or null");
-          query = query.copy();
-          query.setTxQuery(txQuery);
-        }
-      }
-    } else {
-      query = Object.assign({}, query);
-      query = new MoneroOutputQuery(query).setTxQuery(new MoneroTxQuery(query));
-    }
-    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
-    query.getTxQuery().setOutputQuery(query);
-    if (query.getTxQuery().getBlock() === undefined) query.getTxQuery().setBlock(new MoneroBlock().setTxs([query.getTxQuery()]));
-    return query;
   }
   
   static _blocksJsonToTxs(query, blocksJsonStr) {
@@ -1567,14 +1482,13 @@ class MoneroWalletCore extends MoneroWalletKeys {
     // collect txs
     let txs = [];
     for (let block of blocks) {
-        MoneroWalletCore._sanitizeBlock(block); // TODO: this should be part of deserializeBlocks()
         for (let tx of block.getTxs()) {
         if (block.getHeight() === undefined) tx.setBlock(undefined); // dereference placeholder block for unconfirmed txs
         txs.push(tx);
       }
     }
   
-    // re-sort txs which is lost over wasm serialization  // TODO: why would order be lost? confirm
+    // re-sort txs which is lost over wasm serialization  // TODO: confirm that order is lost
     if (query.getTxHashes() !== undefined) {
       let txMap = new Map();
       for (let tx of txs) txMap[tx.getHash()] = tx;
@@ -1594,7 +1508,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
     // collect transfers
     let transfers = [];
     for (let block of blocks) {
-      MoneroWalletCore._sanitizeBlock(block);
       for (let tx of block.getTxs()) {
         if (block.getHeight() === undefined) tx.setBlock(undefined); // dereference placeholder block for unconfirmed txs
         if (tx.getOutgoingTransfer() !== undefined) transfers.push(tx.getOutgoingTransfer());
@@ -1615,7 +1528,6 @@ class MoneroWalletCore extends MoneroWalletKeys {
     // collect outputs
     let outputs = [];
     for (let block of blocks) {
-      MoneroWalletCore._sanitizeBlock(block);
       for (let tx of block.getTxs()) {
         for (let output of tx.getOutputs()) outputs.push(output);
       }
@@ -1694,8 +1606,6 @@ class WalletWasmListener {
 
 /**
  * Wraps a sync listener as a general wallet listener.
- * 
- * TODO: is this type necessary in JS?
  */
 class SyncListenerWrapper extends MoneroWalletListener {
   
@@ -1712,21 +1622,17 @@ class SyncListenerWrapper extends MoneroWalletListener {
 /**
  * Implements a MoneroWallet by proxying requests to a web worker which runs a core wallet.
  * 
- * TODO: extends MoneroWallet
  * TODO: sort these methods according to master sort in MoneroWallet.js
  * TODO: probably only allow one listener to web worker then propogate to registered listeners for performance
  * TODO: ability to recycle worker for use in another wallet
- * TODO: factor all is*() to common method handler e.g. registerBoolFn("isSynced", "onIsSynced")
- * TODO: on* callbacks only need to be defined once, instead they are defined once per call
  * TODO: using MoneroUtils.WORKER_OBJECTS directly
- * TODO: format some methods as single lines?
  */
 class MoneroWalletCoreProxy extends MoneroWallet {
   
   // -------------------------- WALLET STATIC UTILS ---------------------------
   
   static async openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, fs) {
-    let walletId = GenUtils.uuidv4();
+    let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await MoneroUtils.invokeWorker(walletId, "openWalletData", [password, networkType, keysData, cacheData, daemonUriOrConfig]);
     let wallet = new MoneroWalletCoreProxy(walletId, MoneroUtils.getWorker(), path, fs);
@@ -1735,7 +1641,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   static async createWalletRandom(path, password, networkType, daemonUriOrConnection, language, fs) {
-    let walletId = GenUtils.uuidv4();
+    let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await MoneroUtils.invokeWorker(walletId, "createWalletRandom", [password, networkType, daemonUriOrConfig, language]);
     let wallet = new MoneroWalletCoreProxy(walletId, MoneroUtils.getWorker(), path, fs);
@@ -1744,7 +1650,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, fs) {
-    let walletId = GenUtils.uuidv4();
+    let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await MoneroUtils.invokeWorker(walletId, "createWalletFromMnemonic", [password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset]);
     let wallet = new MoneroWalletCoreProxy(walletId, MoneroUtils.getWorker(), path, fs);
@@ -1753,7 +1659,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   static async createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, fs) {
-    let walletId = GenUtils.uuidv4();
+    let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await MoneroUtils.invokeWorker(walletId, "createWalletFromKeys", [password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language]);
     let wallet = new MoneroWalletCoreProxy(walletId, MoneroUtils.getWorker(), path, fs);
@@ -1779,7 +1685,6 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     this.path = path;
     this.fs = fs;
     this.wrappedListeners = [];
-    assert(walletId); // TODO: remove this (bad wallet ids will be part of error message)
   }
   
   async isWatchOnly() {
@@ -1946,7 +1851,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     }
     
     // unregister sync listener wrapper
-    if (syncListenerWrapper !== undefined) {  // TODO: test that this is executed with error e.g. sync an unconnected wallet
+    if (syncListenerWrapper !== undefined) {
       await this.removeListener(syncListenerWrapper); // unregister sync listener
     }
     
@@ -1956,7 +1861,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async startSyncing() {
-    return this._invokeWorker("startSyncing");  // TODO: don't need to await
+    return this._invokeWorker("startSyncing");
   }
     
   async stopSyncing() {
@@ -2012,19 +1917,19 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   }
   
   async getTxs(query) {
-    query = MoneroWalletCore._normalizeTxQuery(query);
+    query = MoneroWallet._normalizeTxQuery(query);
     let blockJsons = await this._invokeWorker("getTxs", [query.getBlock().toJson()]);
     return MoneroWalletCore._blocksJsonToTxs(query, JSON.stringify({blocks: blockJsons})); // initialize txs from blocks json string TODO: this stringifies then utility parses, avoid
   }
   
   async getTransfers(query) {
-    query = MoneroWalletCore._normalizeTransferQuery(query);
+    query = MoneroWallet._normalizeTransferQuery(query);
     let blockJsons = await this._invokeWorker("getTransfers", [query.getTxQuery().getBlock().toJson()]);
     return MoneroWalletCore._blocksJsonToTransfers(query, JSON.stringify({blocks: blockJsons})); // initialize transfers from blocks json string TODO: this stringifies then utility parses, avoid
   }
   
   async getOutputs(query) {
-    query = MoneroWalletCore._normalizeOutputQuery(query);
+    query = MoneroWallet._normalizeOutputQuery(query);
     let blockJsons = await this._invokeWorker("getOutputs", [query.getTxQuery().getBlock().toJson()]);
     return MoneroWalletCore._blocksJsonToOutputs(query, JSON.stringify({blocks: blockJsons})); // initialize transfers from blocks json string TODO: this stringifies then utility parses, avoid
   }
@@ -2259,7 +2164,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     throw new Error("MoneroWalletCoreProxy.moveTo() not implemented");
   }
   
-  // TODO: better way than all but duplicating MoneroWalletCore class save()?
+  // TODO: factor this duplicate code with MoneroWalletCore save(), common util
   async save() {
     assert(!await this.isClosed(), "Wallet is closed");
     
@@ -2300,7 +2205,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
 class WalletWorkerListener {
   
   constructor(listener) {
-    this.id = GenUtils.uuidv4();
+    this.id = GenUtils.getUUID();
     this.listener = listener;
   }
   
@@ -2330,5 +2235,8 @@ class WalletWorkerListener {
     this.listener.onOutputSpent(block.getTxs()[0].getInputs()[0]);
   }
 }
+
+// reject self-signed certificates if true
+MoneroWalletCore.REJECT_UNAUTHORIZED = false;  // TODO: default to true, allow configuration per instance
 
 module.exports = MoneroWalletCore;

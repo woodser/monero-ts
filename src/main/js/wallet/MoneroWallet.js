@@ -583,7 +583,7 @@ class MoneroWallet {
    */
   async createTx(requestOrAccountIndex, address, amount, priority) {
     let request = MoneroWallet._normalizeSendRequest(requestOrAccountIndex, address, amount, priority);
-    if (request.getCanSplit() === true) throw new MoneroException("Cannot request split transactions with createTx() which prevents splitting; use createTxs() instead");
+    if (request.getCanSplit() !== undefined) assert.equal(request.getCanSplit(), false, "Cannot request split transactions with createTx() which prevents splitting; use createTxs() instead");
     request.setCanSplit(false);
     return await this.createTxs(request);
   }
@@ -649,20 +649,11 @@ class MoneroWallet {
    * @return {MoneroTxSet} a tx set with the requested transactions
    */
   async send(requestOrAccountIndex, address, amount, priority) {
-
-    // normalize and validate request
-    let request;
-    if (requestOrAccountIndex instanceof MoneroSendRequest) {
-      assert.equal(arguments.length, 1, "Sending requires a send request or parameters but not both");
-      request = requestOrAccountIndex;
-    } else {
-      if (requestOrAccountIndex instanceof Object) request = new MoneroSendRequest(requestOrAccountIndex);
-      else request = new MoneroSendRequest(requestOrAccountIndex, address, amount, priority);
-    }
-    if (request.getCanSplit() !== undefined) assert.equal(request.getCanSplit(), false, "Cannot request split transactions with send() which prevents splitting; use sendSplit() instead");
     
-    // copy request and specify splitting
-    request = request.copy().setCanSplit(false);
+    // normalize send request
+    let request = MoneroWallet._normalizeSendRequest(requestOrAccountIndex, address, amount, priority);
+    if (request.getCanSplit() !== undefined) assert.equal(request.getCanSplit(), false, "Cannot request split transactions with send() which prevents splitting; use sendSplit() instead");
+    request = request.setCanSplit(false);
     
     // call common send function
     return await this.sendSplit(request);
@@ -1217,16 +1208,96 @@ class MoneroWallet {
   
   // -------------------------------- PRIVATE ---------------------------------
   
+  static _normalizeTxQuery(query) {
+    if (query instanceof MoneroTxQuery) query = query.copy();
+    else if (Array.isArray(query)) query = new MoneroTxQuery().setTxHashes(query);
+    else {
+      query = Object.assign({}, query);
+      query = new MoneroTxQuery(query);
+    }
+    if (query.getBlock() === undefined) query.setBlock(new MoneroBlock().setTxs([query]));
+    if (query.getTransferQuery() === undefined) query.setTransferQuery(new MoneroTransferQuery());
+    if (query.getOutputQuery() === undefined) query.setOutputQuery(new MoneroOutputQuery());
+    return query;
+  }
+  
+  static _normalizeTransferQuery(query) {
+    if (query === undefined) query = new MoneroTransferQuery();
+    else if (query instanceof MoneroTransferQuery) {
+      if (query.getTxQuery() === undefined) query = query.copy();
+      else {
+        let txQuery = query.getTxQuery().copy();
+        if (query.getTxQuery().getTransferQuery() === query) query = txQuery.getTransferQuery();
+        else {
+          assert.equal(query.getTxQuery().getTransferQuery(), undefined, "Transfer query's tx query must be circular reference or null");
+          query = query.copy();
+          query.setTxQuery(txQuery);
+        }
+      }
+    } else {
+      query = Object.assign({}, query);
+      query = new MoneroTransferQuery(query).setTxQuery(new MoneroTxQuery(query));
+    }
+    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
+    query.getTxQuery().setTransferQuery(query);
+    if (query.getTxQuery().getBlock() === undefined) query.getTxQuery().setBlock(new MoneroBlock().setTxs([query.getTxQuery()]));
+    return query;
+  }
+  
+  static _normalizeOutputQuery(query) {
+    if (query === undefined) query = new MoneroOutputQuery();
+    else if (query instanceof MoneroOutputQuery) {
+      if (query.getTxQuery() === undefined) query = query.copy();
+      else {
+        let txQuery = query.getTxQuery().copy();
+        if (query.getTxQuery().getOutputQuery() === query) query = txQuery.getOutputQuery();
+        else {
+          assert.equal(query.getTxQuery().getOutputQuery(), undefined, "Output query's tx query must be circular reference or null");
+          query = query.copy();
+          query.setTxQuery(txQuery);
+        }
+      }
+    } else {
+      query = Object.assign({}, query);
+      query = new MoneroOutputQuery(query).setTxQuery(new MoneroTxQuery(query));
+    }
+    if (query.getTxQuery() === undefined) query.setTxQuery(new MoneroTxQuery());
+    query.getTxQuery().setOutputQuery(query);
+    if (query.getTxQuery().getBlock() === undefined) query.getTxQuery().setBlock(new MoneroBlock().setTxs([query.getTxQuery()]));
+    return query;
+  }
+  
   static _normalizeSendRequest(requestOrAccountIndex, address, amount, priority) {
     if (requestOrAccountIndex === undefined) throw new MoneroError("First argument cannot be undefined");
     let request;
     if (requestOrAccountIndex instanceof MoneroSendRequest) {
+      assert(address === undefined && amount === undefined && priority === undefined, "Sending requires a send request or parameters but not both");
       request = requestOrAccountIndex.copy();
-    } else if (typeof requestOrAccountIndex === "number") {
-      request = new MoneroSendRequest().setAccountIndex(requestOrAccountIndex).setDestinations([new MoneroDestination(address, amount)]).setPriority(priority);
     } else {
-      throw new MoneroException("First argument is invalid: " + requestOrAccountIndex);
+      if (requestOrAccountIndex instanceof Object) request = new MoneroSendRequest(requestOrAccountIndex);
+      else request = new MoneroSendRequest(requestOrAccountIndex, address, amount, priority);
     }
+    assert.notEqual(request.getDestinations(), undefined, "Must specify destinations");
+    assert.equal(request.getSweepEachSubaddress(), undefined);
+    assert.equal(request.getBelowAmount(), undefined);
+    return request;
+  }
+  
+  static _normalizeSweepOutputRequest(requestOrAddress, keyImage, priority) {
+    let request;
+    if (requestOrAddress instanceof MoneroSendRequest) {
+      assert(keyImage === undefined && priority === undefined, "sweepOutput() requires a send request or parameters but not both");
+      request = requestOrAddress;
+    } else {
+      if (requestOrAddress instanceof Object) request = new MoneroSendRequest(requestOrAddress);
+      else {
+        request = new MoneroSendRequest(requestOrAddress, undefined, priority);
+        request.setKeyImage(keyImage);
+      }
+    }
+    assert.equal(request.getSweepEachSubaddress(), undefined);
+    assert.equal(request.getBelowAmount(), undefined);
+    assert.equal(request.getCanSplit(), undefined, "Splitting is not applicable when sweeping output");
     return request;
   }
 }

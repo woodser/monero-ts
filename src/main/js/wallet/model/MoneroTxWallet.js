@@ -51,7 +51,6 @@ class MoneroTxWallet extends MoneroTx {
     if (state.changeAmount !== undefined && !(state.changeAmount instanceof BigInteger)) state.changeAmount = BigInteger.parse(state.changeAmount);
   }
   
-  // TODO: not serializing state.inputs or state.outputs using toJson(), test
   toJson() {
     let json = Object.assign({}, this.state, super.toJson()); // merge json onto inherited state
     if (this.getIncomingTransfers()) {
