@@ -28,6 +28,8 @@ report issue of keys wallet setDaemonConnection not working with authentication
 finalize daemon and wallet creation api
 restore height is refresh height - getSyncHeight(), setSyncHeight()?
 
+js sample code uses js objects instead of send request
+update sample code
 update readme with core wasm support
 update jsdocs
 full tests including jni
