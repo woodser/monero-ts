@@ -1,5 +1,4 @@
 HIGH (WASM)
-MoneroWalletCore rename other member variables with "_*", be consistent
 only send({relay: true, canSplit: true, ...}) with defaults, library assumes defaults?
 fix consistent failures in tests (notification failures)
 monero_wasm_bridge serialize bigintegers as strings
