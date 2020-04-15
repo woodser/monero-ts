@@ -3,11 +3,8 @@
  */
 const MoneroRpcConfigDefault = {
     uri: undefined,
-    protocol: "http", // TODO: use only uri, delete protocol, host port? part of username/password change
-    host: "localhost",
-    port: 18081,
-    user: undefined,
-    pass: undefined,
+    username: undefined,
+    password: undefined,
     rejectUnauthorized: true  // reject self-signed certificates if true
 }
 
@@ -19,40 +16,23 @@ class MoneroRpcConnection {
   /**
    * Constructs a RPC connection using the given config.
    * 
-   * @param {object}  config defines the rpc configuration
-   * @param {string}  config.uri is the uri of the rpc endpoint
-   * @param {string}  config.protocol is the protocol of the rpc endpoint
-   * @param {string}  config.host is the host of the rpc endpoint
-   * @param {int}     config.port is the port of the rpc endpoint
-   * @param {string}  config.user is a username to authenticate with the rpc endpoint
-   * @param {string}  config.pass is a password to authenticate with the rpc endpoint
-   * @param {string}  config.maxRequestsPerSecond is the maximum requests per second to allow
+   * @param {object} config defines the rpc configuration
+   * @param {string} config.uri is the uri of the rpc endpoint
+   * @param {string} config.username is a username to authenticate with the rpc endpoint
+   * @param {string} config.password is a password to authenticate with the rpc endpoint
+   * @param {string} config.rejectUnauthorized rejects self-signed certificates if true
    */
   constructor(config) {
     
     // normalize config
     if (typeof config === "string") this.config = {uri: config};
-    else {
-      if (config && config.uri) assert(!config.host && !config.protocol && !config.port, "Can specify either uri or protocol, host, and port but not both");
-      this.config = Object.assign({}, config);
-    }
+    else this.config = Object.assign({}, config);
     
     // merge config with defaults
     this.config = Object.assign({}, MoneroRpcConfigDefault, this.config);
     
-    // delete protocol, host, and port if uri given
-    if (this.config.uri) {
-      delete this.config.protocol;
-      delete this.config.host;
-      delete this.config.port;
-    }
-    
     // standardize uri
-    if (this.config.uri) {
-      this.config.uri = this.config.uri.replace(/\/$/, ""); // strip trailing slash
-    } else {
-      this.config.uri = this.config.protocol + "://" + this.config.host + ":" + this.config.port;
-    }
+    if (this.config.uri) this.config.uri = this.config.uri.replace(/\/$/, ""); // strip trailing slash
   }
   
   getUri() {
@@ -60,11 +40,11 @@ class MoneroRpcConnection {
   }
   
   getUsername() {
-    return this.config.user;
+    return this.config.username;
   }
   
   getPassword() {
-    return this.config.pass;
+    return this.config.password;
   }
   
   getConfig() {
