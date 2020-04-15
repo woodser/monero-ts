@@ -4,7 +4,21 @@
 class MoneroWalletConfig {
   
   constructor(config) {
-    throw new MoneroError("Not implemented");
+    
+    // initialize internal config
+    if (!config) config = {};
+    else if (config instanceof MoneroWalletConfig) config = config.toJson();
+    else if (typeof config === "object") config = Object.assign({}, config);
+    else throw new MoneroError("config must be a MoneroWalletConfig or JavaScript object");
+    this.config = config;
+    
+    // normalize server config
+    if (config.server) this.setServer(config.server);
+    delete config.server;
+  }
+  
+  toJson() {
+    return Object.assign({}, this.state);
   }
   
   getPath() {
@@ -39,10 +53,11 @@ class MoneroWalletConfig {
   }
   
   setServer(server) {
+    if (server && !(server instanceof MoneroRpcConnection)) server = new MoneroRpcConnection(server);
     this.serverUri = server === undefined ? undefined : server.getUri();
     this.serverUsername = server === undefined ? undefined : server.getUsername();
     this.serverPassword = server === undefined ? undefined : server.getPassword();
-    this.rejectUnauthorized = server === undefined ? undefined : server.getConfig().rejectUnauthorized;
+    this.rejectUnauthorized = server === undefined ? undefined : server.getRejectUnauthorized();
     return this;
   }
   
