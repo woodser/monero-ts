@@ -47,6 +47,10 @@ class MoneroRpcConnection {
     return this.config.password;
   }
   
+  getRejectUnauthorized() {
+    return this.config.rejectUnauthorized;
+  }
+  
   getConfig() {
     return this.config;
   }
