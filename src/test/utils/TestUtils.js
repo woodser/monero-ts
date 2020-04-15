@@ -134,7 +134,6 @@ class TestUtils {
 // ---------------------------- STATIC TEST CONFIG ----------------------------
 
 // TODO: export these to key/value properties file for tests
-// TODO: in properties, define {network: stagnet, network_configs: { stagnet: { daemonRpc: { host: _, port: _ ... etc
 
 TestUtils.TEST_WALLETS_DIR = "./test_wallets";
 TestUtils.WALLET_WASM_PATH_1 = TestUtils.TEST_WALLETS_DIR + "/test_wallet_1";
