@@ -37,7 +37,7 @@ class MoneroSendRequest {
         this.setDestinations(this.state.destinations.map(destination => destination instanceof MoneroDestination ? destination : new MoneroDestination(destination)));
       }
       
-      // alias 'address' and 'amount' to single destination to support e.g. send({address: "..."})
+      // alias 'address' and 'amount' to single destination to support e.g. sendTx({address: "..."})
       if (this.state.address || this.state.amount) {
         assert(!this.state.destinations, "Send configuration may specify destinations or an address/amount but not both");
         this.setDestinations([new MoneroDestination(this.state.address, this.state.amount)]);

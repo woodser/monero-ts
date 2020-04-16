@@ -2,7 +2,7 @@
  * Groups transactions who share common hex data which is needed in order to
  * sign and submit the transactions.
  * 
- * For example, multisig transactions created from sendSplit() share a common
+ * For example, multisig transactions created from sendTxs() share a common
  * hex string which is needed in order to sign and submit the multisig
  * transactions.
  */

@@ -1606,7 +1606,7 @@ function testTxPoolStats(stats) {
 async function getUnrelayedTx(wallet, accountIdx) {
   let request = new MoneroSendRequest(accountIdx, await wallet.getPrimaryAddress(), TestUtils.MAX_FEE); 
   request.setDoNotRelay(true);
-  let tx = (await wallet.send(request)).getTxs()[0];
+  let tx = (await wallet.sendTx(request)).getTxs()[0];
   assert(tx.getFullHex());
   assert.equal(tx.getDoNotRelay(), true);
   return tx;

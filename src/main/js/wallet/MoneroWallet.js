@@ -607,7 +607,7 @@ class MoneroWallet {
     request.setDoNotRelay(true);
     
     // invoke common method which doesn't relay
-    let txSet = await this.sendSplit(request);
+    let txSet = await this.sendTxs(request);
     
     // restore doNotRelay of request and txs
     request.setDoNotRelay(requestedDoNotRelay);
@@ -648,15 +648,15 @@ class MoneroWallet {
    * @param {BigInteger} sendAmount is the amount to send (required iff no request given)
    * @return {MoneroTxSet} a tx set with the requested transactions
    */
-  async send(requestOrAccountIndex, address, amount, priority) {
+  async sendTx(requestOrAccountIndex, address, amount, priority) {
     
     // normalize send request
     let request = MoneroWallet._normalizeSendRequest(requestOrAccountIndex, address, amount, priority);
-    if (request.getCanSplit() !== undefined) assert.equal(request.getCanSplit(), false, "Cannot request split transactions with send() which prevents splitting; use sendSplit() instead");
+    if (request.getCanSplit() !== undefined) assert.equal(request.getCanSplit(), false, "Cannot request split transactions with sendTx() which prevents splitting; use sendTxs() instead");
     request = request.setCanSplit(false);
     
     // call common send function
-    return await this.sendSplit(request);
+    return await this.sendTxs(request);
   }
   
   /**
@@ -668,7 +668,7 @@ class MoneroWallet {
    * @param {BigInteger} sendAmount is the amount to send (required iff no request given)
    * @return {MoneroTxSet} a tx set with the requested transactions
    */
-  async sendSplit(requestOrAccountIndex, address, amount, priority) {
+  async sendTxs(requestOrAccountIndex, address, amount, priority) {
     throw new MoneroError("Not supported");
   }
   

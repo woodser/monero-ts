@@ -1,5 +1,4 @@
 HIGH (WASM)
-only send({relay: true, canSplit: true, ...}) with defaults, library assumes defaults?
 fix consistent failures in tests (notification failures)
 monero_wasm_bridge serialize bigintegers as strings
 log wallet id when background synchronizing
@@ -16,6 +15,7 @@ optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.h
 C++ MTRACE statements execute argument which could be major performance hit
 monero.common package which is where MoneroUtils, MoneroException go
 export MoneroWebWorker in MoneroModel.js?
+all-in-one wasm build script
 proxied txs, transfers, outputs are unnecessariliy stringified then parsed
 rename sign/verify to signMessage(), verifyMessage()?
 bundle web worker with MoneroModel?
