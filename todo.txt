@@ -4,7 +4,6 @@ core wasm_modifiations broken
 no need for custom create functions in tests
 fix consistent failures in tests (notification failures)
 monero_wasm_bridge serialize bigintegers as strings
-log wallet id when background synchronizing
 verify and document tx signing, message signing, proof of reserves, etc in readm
 sample code try...catch to close wallet
 replace MoneroWalletcore.REJECT_UNAUTHORIZED with config per instance by constructing http_client_wasm with wallet id, then lookup wallet by id and get rejectUnauthorized config for instance
