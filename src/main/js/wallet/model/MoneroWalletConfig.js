@@ -12,14 +12,15 @@ class MoneroWalletConfig {
     else throw new MoneroError("config must be a MoneroWalletConfig or JavaScript object");
     this.config = config;
     
-    // normalize server config
+    // normalize config
+    this.setNetworkType(config.networkType);
     if (config.server) this.setServer(config.server);
     delete this.config.server;
     
-    // verify no unsupported fields
+    // check for unsupported fields
     for (let key of Object.keys(this.config)) {
       if (!GenUtils.arrayContains(MoneroWalletConfig.FIELDS, key)) {
-        throw new MoneroError("Unsupported wallet configuration field: '" + key + "'");
+        throw new MoneroError("Unsupported field in wallet config: '" + key + "'");
       }
     }
   }
@@ -213,6 +214,6 @@ class MoneroWalletConfig {
   }
 }
 
-MoneroWalletConfig.FIELDS = ["path", "password", "networkType", "serverUri", "serverUsername", "serverPassword", "mnemonic", "seedOffset", "primaryAddress", "privateViewKey", "privateSpendKey", "restoreHeight", "language", "saveCurrent", "proxyToWorker", "fs", "keysData", "cacheData"];
+MoneroWalletConfig.FIELDS = ["path", "password", "networkType", "serverUri", "serverUsername", "serverPassword", "rejectUnauthorized", "mnemonic", "seedOffset", "primaryAddress", "privateViewKey", "privateSpendKey", "restoreHeight", "language", "saveCurrent", "proxyToWorker", "fs", "keysData", "cacheData"];
 
 module.exports = MoneroWalletConfig;
