@@ -1,7 +1,9 @@
 HIGH (WASM)
+rename EMCC_LINKER_FLAGS_KEYS
+monero.common package which is where MoneroUtils, MoneroException go
+export MoneroWebWorker in MoneroModel.js?
 core wasm_modifiations broken
 no need for custom create functions in tests
-rename EMCC_LINKER_FLAGS_KEYS
 fix consistent failures in tests (notification failures)
 monero_wasm_bridge serialize bigintegers as strings
 log wallet id when background synchronizing
@@ -16,8 +18,6 @@ startSynchronizing() should use pre-started loop so it's a random start time lik
 pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
 C++ MTRACE statements execute argument which could be major performance hit
-monero.common package which is where MoneroUtils, MoneroException go
-export MoneroWebWorker in MoneroModel.js?
 all-in-one wasm build script
 proxied txs, transfers, outputs are unnecessariliy stringified then parsed
 rename sign/verify to signMessage(), verifyMessage()?
