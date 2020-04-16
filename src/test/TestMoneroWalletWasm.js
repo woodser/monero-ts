@@ -139,7 +139,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
   _testWalletCore() {
     let that = this;
     let config = this.config;
-    describe("Tests specific to Core wallet", function() {
+    describe("Tests specific to WebAssembly wallet", function() {
       
       if (config.testNonRelays)
       it("Can get the daemon's height", async function() {
