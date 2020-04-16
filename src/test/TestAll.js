@@ -49,8 +49,8 @@ new TestMoneroWalletRpc({
   testResets: false
 }).runTests();
 
-//// test scratchpad
-//require("./Scratchpad");
+// test scratchpad
+require("./Scratchpad");
 
 ////test boolean set (data structure used by wallet to track progress)
 //require("./TestBooleanSet");
