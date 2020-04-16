@@ -34,7 +34,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     if (config.getLanguage() !== undefined) throw new MoneroError("Cannot specify language when opening wallet");
     if (config.getSaveCurrent() === true) throw new MoneroError("Cannot save current wallet when opening JNI wallet");
     
-    // open wallet from data if given
+    // open wallet from data if given	 // TODO: only call openWalletData once, read files if no data not given
     if (config.getKeysData()) return MoneroWalletWasm.openWalletData(config.getPath(), config.getPassword(), config.getNetworkType(), config.getKeysData(), config.getCacheData(), config.getServer(), config.getProxyToWorker(), config.getFs());
     
     // read wallet files
@@ -1796,7 +1796,7 @@ class MoneroWalletCoreProxy extends MoneroWallet {
   async setDaemonConnection(uriOrRpcConnection, username, password) {
     if (!uriOrRpcConnection) await this._invokeWorker("setDaemonConnection");
     else {
-      let connection = uriOrRpcConnection instanceof MoneroRpcConnection? uriOrRpcConnection : new MoneroRpcConnection({uri: uriOrRpcConnection, user: username, pass: password});
+      let connection = uriOrRpcConnection instanceof MoneroRpcConnection? uriOrRpcConnection : new MoneroRpcConnection({uri: uriOrRpcConnection, username: username, pass: password});
       await this._invokeWorker("setDaemonConnection", connection.getConfig());
     }
   }
