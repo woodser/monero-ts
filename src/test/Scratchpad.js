@@ -5,7 +5,7 @@ describe("Scratchpad", function() {
     // initialize daemon, wallet, and direct rpc interface
     let daemon = await TestUtils.getDaemonRpc();
     let walletRpc = await TestUtils.getWalletRpc();
-    let walletCore = await TestUtils.getWalletWasm();
+    let walletWasm = await TestUtils.getWalletWasm();
     
 //    // create a wallet
 //    let myWallet = await MoneroWalletWasm.createWallet({
@@ -25,12 +25,12 @@ describe("Scratchpad", function() {
     
 //    // send a transaction to the test wallet
 //    console.log("Daemon height: " + await daemon.getHeight());
-//    let txSet = await walletCore.sendTx(0, "54tjXUgQVYNXQCJM4CatRQZMacZ2Awq4NboKiUYtUJrhgYZjiDhMz4ccuYRcMTno6V9mzKFXzfY8pbPnGmu2ukfWABV75k4", (await walletCore.getUnlockedBalance(0)).divide(2));
+//    let txSet = await walletWasm.sendTx(0, "54tjXUgQVYNXQCJM4CatRQZMacZ2Awq4NboKiUYtUJrhgYZjiDhMz4ccuYRcMTno6V9mzKFXzfY8pbPnGmu2ukfWABV75k4", (await walletWasm.getUnlockedBalance(0)).divide(2));
 //    console.log(txSet);
     
-//    for (let account of await walletCore.getAccounts(true)) {
+//    for (let account of await walletWasm.getAccounts(true)) {
 //      for (let subaddress of account.getSubaddresses()) {
-//        let outputs = await walletCore.getOutputs(new MoneroOutputQuery().setAccountIndex(subaddress.getAccountIndex()).setSubaddressIndex(subaddress.getIndex()).setIsLocked(false));
+//        let outputs = await walletWasm.getOutputs(new MoneroOutputQuery().setAccountIndex(subaddress.getAccountIndex()).setSubaddressIndex(subaddress.getIndex()).setIsLocked(false));
 //        for (let output of outputs) {
 //          assert(!output.isLocked());
 //        }

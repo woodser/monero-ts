@@ -101,7 +101,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
   
   runTests() {
     let that = this;
-    describe("TEST MONERO WALLET CORE", function() {
+    describe("TEST MONERO WALLET WASM", function() {
       
       // initialize wallet
       before(async function() {
@@ -216,7 +216,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       });
       
       if (config.testNonRelays)
-      it("Can create a random core wallet", async function() {
+      it("Can create a random wasm wallet", async function() {
         
         // create random wallet with defaults
         let wallet = await that.createWalletRandomCustom(TestUtils.WALLET_PASSWORD, MoneroNetworkType.MAINNET);
@@ -264,7 +264,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       });
       
       if (config.testNonRelays)
-      it("Can create a core wallet from mnemonic", async function() {
+      it("Can create a wasm wallet from mnemonic", async function() {
         
         // create wallet with mnemonic and defaults
         let wallet = await that.createWalletFromMnemonicCustom(TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC);
@@ -336,7 +336,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       });
       
       if (config.testNonRelays)
-      it("Can create a core wallet from keys", async function() {
+      it("Can create a wasm wallet from keys", async function() {
         
         // recreate test wallet from keys
         let wallet = that.wallet;
@@ -770,7 +770,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         await walletRpc.createWalletFromMnemonic(GenUtils.getUUID(), TestUtils.WALLET_PASSWORD, await walletRpc.getMnemonic(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, seedOffset, undefined);
         
         // create wasm wallet with offset
-        let walletCore = await that.createWalletFromMnemonicCustom(
+        let walletWasm = await that.createWalletFromMnemonicCustom(
                 TestUtils.WALLET_PASSWORD,
                 TestUtils.NETWORK_TYPE,
                 TestUtils.MNEMONIC,
@@ -781,11 +781,11 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         // deep compare
         let err;
         try {
-          await WalletEqualityUtils.testWalletEqualityOnChain(walletRpc, walletCore);
+          await WalletEqualityUtils.testWalletEqualityOnChain(walletRpc, walletWasm);
         } catch (e) {
           err = e;
         }
-        await walletCore.close();
+        await walletWasm.close();
         if (err) throw err;
       });
       

@@ -53,7 +53,7 @@ function runTests() {
     testNotifications: false
   }).runTests();
   
-  // test core wallet
+  // test wasm wallet
   new TestMoneroWalletWasm({
     liteMode: false,
     testNonRelays: true,
@@ -62,7 +62,7 @@ function runTests() {
     testNotifications: true,
   }).runTests();
   
-  // test wallet rpc
+  // test rpc wallet
   new TestMoneroWalletRpc({
     liteMode: false, // skips some lengthy but detailed tests
     testNonRelays: true,

@@ -31,7 +31,7 @@ new TestMoneroWalletKeys({
   testNotifications: false
 }).runTests();
 
-// test core wallet
+// test wasm wallet
 new TestMoneroWalletWasm({
   liteMode: false,
   testNonRelays: true,
