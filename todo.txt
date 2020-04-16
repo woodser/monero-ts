@@ -1,4 +1,7 @@
 HIGH (WASM)
+core wasm_modifiations broken
+no need for custom create functions in tests
+rename EMCC_LINKER_FLAGS_KEYS
 fix consistent failures in tests (notification failures)
 monero_wasm_bridge serialize bigintegers as strings
 log wallet id when background synchronizing
