@@ -154,18 +154,16 @@ TestUtils.WALLET_PASSWORD = "supersecretpassword123";
 // wallet RPC config
 TestUtils.WALLET_RPC_CONFIG = {
   uri: "http://localhost:38083",
-  user: "rpc_user",
-  pass: "abc123",
-  maxRequestsPerSecond: 500,
+  username: "rpc_user",
+  password: "abc123",
   rejectUnauthorized: true // reject self-signed certificates if true
 };
 
 // daemon RPC config
 TestUtils.DAEMON_RPC_CONFIG = {
   uri: "http://localhost:38081",
-  user: "superuser",
-  pass: "abctesting123",
-  maxRequestsPerSecond: 500,
+  username: "superuser",
+  password: "abctesting123",
   rejectUnauthorized: true // reject self-signed certificates if true
 };
 

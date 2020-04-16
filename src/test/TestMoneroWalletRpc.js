@@ -24,18 +24,18 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
   }
   
   async createWalletRandom() {
-    await this.wallet.createWalletRandom(GenUtils.getUUID(), TestUtils.WALLET_PASSWORD);
+    await this.wallet.createWallet({path: GenUtils.getUUID(), password: TestUtils.WALLET_PASSWORD});
     return this.wallet;
   }
   
   async createWalletFromMnemonic(mnemonic, daemonConnection, restoreHeight, seedOffset) {
-    await this.wallet.createWalletFromMnemonic(GenUtils.getUUID(), TestUtils.WALLET_PASSWORD, mnemonic, restoreHeight, undefined, seedOffset);
+    await this.wallet.createWallet({path: GenUtils.getUUID(), password: TestUtils.WALLET_PASSWORD, mnemonic: mnemonic, restoreHeight: restoreHeight, seedOffset: seedOffset});
     await this.wallet.setDaemonConnection(daemonConnection);  // TODO monero-wallet-rpc: ability to set connection before creating if offline wallet
     return this.wallet;
   }
   
-  async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
-    await this.wallet.createWalletFromKeys(GenUtils.getUUID(), TestUtils.WALLET_PASSWORD, address, privateViewKey, privateSpendKey, firstReceiveHeight, language);
+  async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, restoreHeight, language) {
+    await this.wallet.createWallet({path: GenUtils.getUUID(), password: TestUtils.WALLET_PASSWORD, primaryAddress: address, privateViewKey: privateViewKey, privateSpendKey: privateSpendKey, restoreHeight: restoreHeight, language: language});
     await this.wallet.setDaemonConnection(daemonConnection);  // TODO: causes wallet to have no connection if authenticating
     return this.wallet;
   }
