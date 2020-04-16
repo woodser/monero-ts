@@ -34,13 +34,12 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     if (config.getLanguage() !== undefined) throw new MoneroError("Cannot specify language when opening wallet");
     if (config.getSaveCurrent() === true) throw new MoneroError("Cannot save current wallet when opening JNI wallet");
     
-    // open wallet from data if given	 // TODO: only call openWalletData once, read files if no data not given
-    if (config.getKeysData()) return MoneroWalletWasm.openWalletData(config.getPath(), config.getPassword(), config.getNetworkType(), config.getKeysData(), config.getCacheData(), config.getServer(), config.getProxyToWorker(), config.getFs());
-    
-    // read wallet files
-    if (!await this.walletExists(config.getPath(), config.getFs())) throw new MoneroError("Wallet does not exist at path: " + config.getPath());
-    config.setKeysData(config.getFs().readFileSync(config.getPath() + ".keys"));
-    config.setCacheData(config.getFs().readFileSync(config.getPath()));
+    // read wallet data if not given
+    if (!config.getKeysData()) {
+      if (!await this.walletExists(config.getPath(), config.getFs())) throw new MoneroError("Wallet does not exist at path: " + config.getPath());
+      config.setKeysData(config.getFs().readFileSync(config.getPath() + ".keys"));
+      config.setCacheData(config.getFs().readFileSync(config.getPath()));
+    }
     
     // open wallet from data
     return MoneroWalletWasm._openWalletData(config.getPath(), config.getPassword(), config.getNetworkType(), config.getKeysData(), config.getCacheData(), config.getServer(), config.getProxyToWorker(), config.getFs());
