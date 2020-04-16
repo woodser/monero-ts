@@ -5,7 +5,7 @@ describe("Scratchpad", function() {
     // initialize daemon, wallet, and direct rpc interface
     let daemon = await TestUtils.getDaemonRpc();
     let walletRpc = await TestUtils.getWalletRpc();
-    let walletCore = await TestUtils.getWalletCore();
+    let walletCore = await TestUtils.getWalletWasm();
     
 //    // create a wallet
 //    let myWallet = await MoneroWalletWasm.createWallet({
