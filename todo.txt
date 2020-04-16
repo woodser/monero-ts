@@ -2,6 +2,7 @@ HIGH (WASM)
 export MoneroWebWorker in MoneroModel.js?
 core wasm_modifiations broken
 no need for custom create functions in tests
+test create/openWallet(config) api
 fix consistent failures in tests (notification failures)
 monero_wasm_bridge serialize bigintegers as strings
 verify and document tx signing, message signing, proof of reserves, etc in readm
