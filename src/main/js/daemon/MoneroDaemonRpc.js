@@ -1648,7 +1648,7 @@ class MoneroDaemonRpcProxy extends MoneroDaemon {
   
   // --------------------------- PRIVATE HELPERS ------------------------------
   
-  // TODO: duplicated with MoneroWalletCoreProxy
+  // TODO: duplicated with MoneroWalletWasmProxy
   async _invokeWorker(fnName, args) {
     return MoneroUtils.invokeWorker(this.daemonId, fnName, args);
   }
