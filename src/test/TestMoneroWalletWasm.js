@@ -11,7 +11,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
   }
   
   async getTestWallet() {
-    return await TestUtils.getWalletCore();
+    return await TestUtils.getWalletWasm();
   }
   
   async getTestDaemon() {

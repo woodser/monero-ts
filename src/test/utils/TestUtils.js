@@ -72,7 +72,7 @@ class TestUtils {
    * 
    * @return {MoneroWalletWasm} a core wallet instance
    */
-  static async getWalletCore() {
+  static async getWalletWasm() {
     if (!TestUtils.walletCore || await TestUtils.walletCore.isClosed()) {
       
       // create wallet from mnemonic phrase if it doesn't exist
