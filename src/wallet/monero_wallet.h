@@ -945,8 +945,8 @@ namespace monero {
      * @param request configures the transaction
      * @return a tx set with the requested transaction if possible
      */
-    virtual monero_tx_set send(const monero_send_request& request) {
-      throw runtime_error("send() not supported");
+    virtual monero_tx_set send_tx(const monero_send_request& request) {
+      throw runtime_error("send_tx() not supported");
     }
 
     /**
@@ -958,8 +958,8 @@ namespace monero {
      * @param amount is the amount being sent
      * @return a tx set with the requested transaction if possible
      */
-    virtual monero_tx_set send(uint32_t account_index, string address, uint64_t amount) {
-      throw runtime_error("send() not supported");
+    virtual monero_tx_set send_tx(uint32_t account_index, string address, uint64_t amount) {
+      throw runtime_error("send_tx() not supported");
     }
 
     /**
@@ -972,8 +972,8 @@ namespace monero {
      * @param priority is the send priority (default normal)
      * @return a tx set with the requested transaction if possible
      */
-    virtual monero_tx_set send(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority) {
-      throw runtime_error("send() not supported");
+    virtual monero_tx_set send_tx(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority) {
+      throw runtime_error("send_tx() not supported");
     }
 
     /**
@@ -983,8 +983,8 @@ namespace monero {
      * @param request configures the transaction
      * @return a tx set with the requested transactions if possible
      */
-    virtual monero_tx_set send_split(const monero_send_request& request) {
-      throw runtime_error("send_split() not supported");
+    virtual monero_tx_set send_txs(const monero_send_request& request) {
+      throw runtime_error("send_txs() not supported");
     }
 
     //    /**
@@ -996,7 +996,7 @@ namespace monero {
     //     * @param sendAmount is the amount being sent
     //     * @return the resulting transactions
     //     */
-    //    public List<monero_tx_wallet> send_split(int account_index, string address, BigInteger sendAmount);
+    //    public List<monero_tx_wallet> send_txs(int account_index, string address, BigInteger sendAmount);
     //
     //    /**
     //     * Create and relay one or more transactions which transfer funds from this
@@ -1008,7 +1008,7 @@ namespace monero {
     //     * @param priority is the send priority (default normal)
     //     * @return the resulting transactions
     //     */
-    //    public List<monero_tx_wallet> send_split(int account_index, string address, BigInteger sendAmount, monero_send_priority priority);
+    //    public List<monero_tx_wallet> send_txs(int account_index, string address, BigInteger sendAmount, monero_send_priority priority);
 
     /**
      * Sweep unlocked funds according to the given request.

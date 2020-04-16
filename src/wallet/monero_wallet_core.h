@@ -237,10 +237,10 @@ namespace monero {
     string relay_tx(const monero_tx_wallet& tx);
     vector<string> relay_txs(const vector<string>& tx_metadatas);
     vector<string> relay_txs(const vector<shared_ptr<monero_tx_wallet>>& txs);
-    monero_tx_set send(const monero_send_request& request);
-    monero_tx_set send(uint32_t account_index, string address, uint64_t amount);
-    monero_tx_set send(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority);
-    monero_tx_set send_split(const monero_send_request& request);
+    monero_tx_set send_tx(const monero_send_request& request);
+    monero_tx_set send_tx(uint32_t account_index, string address, uint64_t amount);
+    monero_tx_set send_tx(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority);
+    monero_tx_set send_txs(const monero_send_request& request);
     vector<monero_tx_set> sweep_unlocked(const monero_send_request& request);
     monero_tx_set sweep_output(const monero_send_request& request);
     monero_tx_set sweep_dust(bool do_not_relay = false);

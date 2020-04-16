@@ -297,7 +297,7 @@ namespace monero {
    * Groups transactions who share common hex data which is needed in order to
    * sign and submit the transactions.
    *
-   * For example, multisig transactions created from send_split() share a common
+   * For example, multisig transactions created from send_txs() share a common
    * hex string which is needed in order to sign and submit the multisig
    * transactions.
    */

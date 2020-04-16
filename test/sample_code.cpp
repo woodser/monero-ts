@@ -100,7 +100,7 @@ int main(int argc, const char* argv[]) {
   wallet_random->add_listener(my_listener);
 
   // send funds from the restored wallet to the random wallet
-  shared_ptr<monero_tx_wallet> sent_tx = wallet_restored->send(0, wallet_random->get_address(1, 0), 50000).m_txs[0];
+  shared_ptr<monero_tx_wallet> sent_tx = wallet_restored->send_tx(0, wallet_random->get_address(1, 0), 50000).m_txs[0];
   bool in_pool = sent_tx->m_in_tx_pool.get();  // true
 
   // mine with 7 threads to push the network along

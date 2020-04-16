@@ -1776,7 +1776,7 @@ namespace monero {
     request.m_do_not_relay = true;
 
     // invoke common method which doesn't relay
-    monero_tx_set tx_set = send_split(request);
+    monero_tx_set tx_set = send_txs(request);
 
     // restore doNotRelay of request and txs
     request.m_do_not_relay = requested_do_not_relay;
@@ -1840,27 +1840,27 @@ namespace monero {
     return relay_txs(tx_hexes);
   }
 
-  monero_tx_set monero_wallet_core::send(const monero_send_request& request) {
-    if (request.m_can_split != boost::none && request.m_can_split.get()) throw runtime_error("Cannot request split transactions with send() which prevents splitting; use sendSplit() instead");
+  monero_tx_set monero_wallet_core::send_tx(const monero_send_request& request) {
+    if (request.m_can_split != boost::none && request.m_can_split.get()) throw runtime_error("Cannot request split transactions with send_tx() which prevents splitting; use sendSplit() instead");
     monero_send_request copy = request.copy();
     copy.m_can_split = false;
-    return send_split(copy);
+    return send_txs(copy);
   }
 
-  monero_tx_set monero_wallet_core::send(uint32_t account_index, string address, uint64_t amount) {
-    return send(account_index, address, amount, monero_send_priority::NORMAL);
+  monero_tx_set monero_wallet_core::send_tx(uint32_t account_index, string address, uint64_t amount) {
+    return send_tx(account_index, address, amount, monero_send_priority::NORMAL);
   }
 
-  monero_tx_set monero_wallet_core::send(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority) {
+  monero_tx_set monero_wallet_core::send_tx(uint32_t account_index, string address, uint64_t amount, monero_send_priority priority) {
     monero_send_request req;
     req.m_account_index = account_index;
     req.m_destinations.push_back(make_shared<monero_destination>(address, amount));
     req.m_priority = priority;
-    return send(req);
+    return send_tx(req);
   }
 
-  monero_tx_set monero_wallet_core::send_split(const monero_send_request& request) {
-    MTRACE("monero_wallet_core::send_split(request)");
+  monero_tx_set monero_wallet_core::send_txs(const monero_send_request& request) {
+    MTRACE("monero_wallet_core::send_txs(request)");
     MTRACE("monero_send_request: " << request.serialize());
 
     // validate request
@@ -1898,7 +1898,7 @@ namespace monero {
 
     // check if request cannot be fulfilled due to splitting
     if (request.m_can_split != boost::none && request.m_can_split.get() == false && ptx_vector.size() != 1) {
-      throw runtime_error("Transaction would be too large.  Try send_split()");
+      throw runtime_error("Transaction would be too large.  Try send_txs()");
     }
 
     // config for fill_response()
@@ -2214,7 +2214,7 @@ namespace monero {
       throw runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
-    // build sent txs from results  // TODO: use common utility with send_split() to avoid code duplication
+    // build sent txs from results  // TODO: use common utility with send_txs() to avoid code duplication
     vector<shared_ptr<monero_tx_wallet>> txs;
     auto tx_hashes_iter = tx_hashes.begin();
     auto tx_keys_iter = tx_keys.begin();
@@ -2301,7 +2301,7 @@ namespace monero {
       throw runtime_error("need to handle error filling response!");  // TODO: return err message
     }
 
-    // build sent txs from results  // TODO: use common utility with send_split() to avoid code duplication
+    // build sent txs from results  // TODO: use common utility with send_txs() to avoid code duplication
     vector<shared_ptr<monero_tx_wallet>> txs;
     auto tx_hashes_iter = tx_hashes.begin();
     auto tx_keys_iter = tx_keys.begin();
