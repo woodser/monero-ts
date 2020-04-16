@@ -1,13 +1,19 @@
 HIGH (WASM)
+block.toString() undefineds
+verify block.toJson();
 export MoneroWebWorker in MoneroModel.js?
 core wasm_modifiations broken
+monero_wasm_bridge serialize bigintegers as strings
+verify and document tx signing, message signing, proof of reserves, etc in readme
+replace MoneroWalletcore.REJECT_UNAUTHORIZED with config per instance by constructing http_client_wasm with wallet id, then lookup wallet by id and get rejectUnauthorized config for instance
+output query setMinAmount(), setMaxAmount()
+re-enable test reserves or report issue
+
+log error if unsported fields (e.g. .user or .pass) config given to MoneroRpcConnection
 no need for custom create functions in tests
 test create/openWallet(config) api
 fix consistent failures in tests (notification failures)
-monero_wasm_bridge serialize bigintegers as strings
-verify and document tx signing, message signing, proof of reserves, etc in readm
 sample code try...catch to close wallet
-replace MoneroWalletcore.REJECT_UNAUTHORIZED with config per instance by constructing http_client_wasm with wallet id, then lookup wallet by id and get rejectUnauthorized config for instance
 test onOuputSent() when swept
 new test wallet before receiving funds breaks tests
 remaining daemon rpc proxy implementations
@@ -20,12 +26,8 @@ all-in-one wasm build script
 proxied txs, transfers, outputs are unnecessariliy stringified then parsed
 rename sign/verify to signMessage(), verifyMessage()?
 architecture document
-bundle web worker with MoneroModel?
-output query setMinAmount(), setMaxAmount()
-deprecate .user, .pass with .username and .password and log error then eventually remove, remove protocol, host, port from MoneroRpcConnection
 combine TestAll and BrowserTests
 MoneroSyncResult received_money -> received_amount for consistency
-re-enable test reserves or report issue
 report issue of keys wallet setDaemonConnection not working with authentication
 finalize daemon and wallet creation api
 restore height is refresh height - getSyncHeight(), setSyncHeight()?
