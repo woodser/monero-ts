@@ -23,7 +23,7 @@ class TestSampleCode {
         }
       });
       
-      // TODO: wrap test in try...catch and close core wallet
+      // TODO: wrap test in try...catch and close wasm wallet
       it("Can be demonstrated with sample code", async function() {
         
         // import library
@@ -75,21 +75,21 @@ class TestSampleCode {
         let outputs = await walletRpc.getOutputs(outputQuery);
         
         // create a wallet from a mnemonic phrase using WebAssembly bindings to monero-project
-        let walletCore = await MoneroWalletWasm.createWalletFromMnemonic("./test_wallets/" + GenUtils.getUUID(), "supersecretpassword123", TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, "", TestUtils.PROXY_TO_WORKER, TestUtils.FS);
-        //let walletCore = await MoneroWalletWasm.createWalletFromMnemonic("MyWallet", "supersecretpassword123", MoneroNetworkType.STAGENET, "hefty value ...", new MoneroRpcConnection("http://localhost:38081"), 501788);
+        let walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("./test_wallets/" + GenUtils.getUUID(), "supersecretpassword123", TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, "", TestUtils.PROXY_TO_WORKER, TestUtils.FS);
+        //let walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("MyWallet", "supersecretpassword123", MoneroNetworkType.STAGENET, "hefty value ...", new MoneroRpcConnection("http://localhost:38081"), 501788);
         
         // synchronize the wallet and receive progress notifications
-        await walletCore.sync(new class extends MoneroSyncListener {
+        await walletWasm.sync(new class extends MoneroSyncListener {
           onSyncProgress(height, startHeight, endHeight, percentDone, message) {
             // feed a progress bar?
           }
         });
         
         // start syncing the wallet continuously in the background
-        await walletCore.startSyncing();
+        await walletWasm.startSyncing();
         
-        // receive notifications when the core wallet receives funds
-        await walletCore.addListener(new class extends MoneroWalletListener {
+        // receive notifications when the wasm wallet receives funds
+        await walletWasm.addListener(new class extends MoneroWalletListener {
           
           onOutputReceived(output) {
             console.log("Wallet received funds!");
@@ -100,9 +100,9 @@ class TestSampleCode {
           }
         });
         
-        // send funds from the RPC wallet to the core wallet
+        // send funds from the RPC wallet to the wasm wallet
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(walletRpc); // wait for txs to clear pool *** REMOVE FROM README SAMPLE ***
-        let txSet = await walletRpc.sendTx(0, await walletCore.getPrimaryAddress(), BigInteger.parse("50000"));
+        let txSet = await walletRpc.sendTx(0, await walletWasm.getPrimaryAddress(), BigInteger.parse("50000"));
         let sentTx = txSet.getTxs()[0];  // send methods return tx set(s) which contain sent txs unless further steps needed in a multisig or watch-only wallet
         assert(sentTx.inTxPool());
         
@@ -123,26 +123,26 @@ class TestSampleCode {
         await new Promise(function(resolve) { setTimeout(resolve, 10000); });  // wait 10s for auto refresh
         let isConfirmed = (await walletRpc.getTx(sentTx.getHash())).isConfirmed();
         
-        // create a request to send funds from the RPC wallet to multiple destinations in the core wallet
+        // create a request to send funds from the RPC wallet to multiple destinations in the wasm wallet
         let request = new MoneroSendRequest()
                 .setAccountIndex(1)                           // send from account 1
                 .setSubaddressIndices([0, 1])                 // send from subaddresses in account 1
                 .setPriority(MoneroSendPriority.UNIMPORTANT)  // no rush
                 .setDestinations([
-                        new MoneroDestination(await walletCore.getAddress(1, 0), BigInteger.parse("50000")),
-                        new MoneroDestination(await walletCore.getAddress(2, 0), BigInteger.parse("50000"))]);
+                        new MoneroDestination(await walletWasm.getAddress(1, 0), BigInteger.parse("50000")),
+                        new MoneroDestination(await walletWasm.getAddress(2, 0), BigInteger.parse("50000"))]);
         
         // create the transaction, confirm with the user, and relay to the network
         let createdTx = (await walletRpc.createTx(request)).getTxs()[0];
         let fee = createdTx.getFee();  // "Are you sure you want to send ...?"
         await walletRpc.relayTx(createdTx); // submit the transaction which will notify the JNI wallet
         
-        // core wallet will receive notification of incoming output after a moment
+        // wasm wallet will receive notification of incoming output after a moment
         await new Promise(function(resolve) { setTimeout(resolve, 10000); });
         assert(TestSampleCode.CORE_OUTPUT_RECEIVED);
         
-        // save and close the core wallet
-        await walletCore.close(true);
+        // save and close the wasm wallet
+        await walletWasm.close(true);
       });
     });
   }

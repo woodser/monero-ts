@@ -1,7 +1,7 @@
 require("../MoneroModel")();
 
 /**
- * Web worker to manage a daemon and core wallet off the main chain with messages.
+ * Web worker to manage a daemon and wasm wallet off the main chain with messages.
  * 
  * Required message format: e.data[0] = object id, e.data[1] = function name, e.data[2+] = function args
 
