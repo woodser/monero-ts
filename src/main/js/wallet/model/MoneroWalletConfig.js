@@ -14,160 +14,205 @@ class MoneroWalletConfig {
     
     // normalize server config
     if (config.server) this.setServer(config.server);
-    delete config.server;
+    delete this.config.server;
+    
+    // verify no unsupported fields
+    for (let key of Object.keys(this.config)) {
+      if (!GenUtils.arrayContains(MoneroWalletConfig.FIELDS, key)) {
+        throw new MoneroError("Unsupported wallet configuration field: '" + key + "'");
+      }
+    }
   }
   
   toJson() {
-    return Object.assign({}, this.state);
+    return Object.assign({}, this.config);
   }
   
   getPath() {
-    return path;
+    return this.config.path;
   }
   
   setPath(path) {
-    this.path = path;
+    this.config.path = path;
     return this;
   }
   
   getPassword() {
-    return password;
+    return this.config.password;
   }
   
   setPassword(password) {
-    this.password = password;
+    this.config.password = password;
     return this;
   }
   
-  public MoneroNetworkType getNetworkType() {
-    return networkType;
+  getNetworkType() {
+    return this.config.networkType;
   }
   
   setNetworkType(networkTypeOrStr) {
-    this.networkType = typeof networkTypeOrStr === "string" ? MoneroNetworkType.parse(networkTypeOrStr) : networkTypeOrStr;
+    this.config.networkType = typeof networkTypeOrStr === "string" ? MoneroNetworkType.parse(networkTypeOrStr) : networkTypeOrStr;
     return this;
   }
   
   getServer() {
-    return new MoneroRpcConnection({uri: this.serverUri, username: this.serverUsername, password: this.serverPassword, rejectUnauthorized: this.rejectUnauthorized});
+    return new MoneroRpcConnection({uri: this.config.serverUri, username: this.config.serverUsername, password: this.config.serverPassword, rejectUnauthorized: this.config.rejectUnauthorized});
   }
   
   setServer(server) {
     if (server && !(server instanceof MoneroRpcConnection)) server = new MoneroRpcConnection(server);
-    this.serverUri = server === undefined ? undefined : server.getUri();
-    this.serverUsername = server === undefined ? undefined : server.getUsername();
-    this.serverPassword = server === undefined ? undefined : server.getPassword();
-    this.rejectUnauthorized = server === undefined ? undefined : server.getRejectUnauthorized();
+    this.config.serverUri = server === undefined ? undefined : server.getUri();
+    this.config.serverUsername = server === undefined ? undefined : server.getUsername();
+    this.config.serverPassword = server === undefined ? undefined : server.getPassword();
+    this.config.rejectUnauthorized = server === undefined ? undefined : server.getRejectUnauthorized();
     return this;
   }
   
   getServerUri() {
-    return serverUri;
+    return this.config.serverUri;
   }
   
   setServerUri(serverUri) {
-    this.serverUri = serverUri;
+    this.config.serverUri = serverUri;
     return this;
   }
   
   getServerUsername() {
-    return serverUsername;
+    return this.config.serverUsername;
   }
   
   setServerUsername(serverUsername) {
-    this.serverUsername = serverUsername;
+    this.config.serverUsername = serverUsername;
     return this;
   }
   
   getServerPassword() {
-    return serverPassword;
+    return this.config.serverPassword;
   }
   
   setServerPassword(serverPassword) {
-    this.serverPassword = serverPassword;
+    this.config.serverPassword = serverPassword;
     return this;
   }
   
   getRejectUnauthorized() {
-    return this.rejectUnauthorized;
+    return this.config.rejectUnauthorized;
   }
   
   setRejectUnauthorized(rejectUnauthorized) {
-    this.rejectUnauthorized = rejectUnauthorized;
+    this.config.rejectUnauthorized = rejectUnauthorized;
     return this;
   }
   
   getMnemonic() {
-    return mnemonic;
+    return this.config.mnemonic;
   }
   
   setMnemonic(mnemonic) {
-    this.mnemonic = mnemonic;
+    this.config.mnemonic = mnemonic;
     return this;
   }
   
   getSeedOffset() {
-    return seedOffset;
+    return this.config.seedOffset;
   }
   
   setSeedOffset(seedOffset) {
-    this.seedOffset = seedOffset;
+    this.config.seedOffset = seedOffset;
     return this;
   }
   
   getPrimaryAddress() {
-    return primaryAddress;
+    return this.config.primaryAddress;
   }
   
   setPrimaryAddress(primaryAddress) {
-    this.primaryAddress = primaryAddress;
+    this.config.primaryAddress = primaryAddress;
     return this;
   }
   
   getPrivateViewKey() {
-    return privateViewKey;
+    return this.config.privateViewKey;
   }
   
   setPrivateViewKey(privateViewKey) {
-    this.privateViewKey = privateViewKey;
+    this.config.privateViewKey = privateViewKey;
     return this;
   }
   
   getPrivateSpendKey() {
-    return privateSpendKey;
+    return this.config.privateSpendKey;
   }
   
   setPrivateSpendKey(privateSpendKey) {
-    this.privateSpendKey = privateSpendKey;
+    this.config.privateSpendKey = privateSpendKey;
     return this;
   }
   
   getRestoreHeight() {
-    return restoreHeight;
+    return this.config.restoreHeight;
   }
   
   setRestoreHeight(restoreHeight) {
-    this.restoreHeight = restoreHeight;
+    this.config.restoreHeight = restoreHeight;
     return this;
   }
   
   getLanguage() {
-    return language;
+    return this.config.language;
   }
   
   setLanguage(language) {
-    this.language = language;
+    this.config.language = language;
     return this;
   }
   
   getSaveCurrent() {
-    return saveCurrent;
+    return this.config.saveCurrent;
   }
   
   setSaveCurrent(saveCurrent) {
-    this.saveCurrent = saveCurrent;
+    this.config.saveCurrent = saveCurrent;
+    return this;
+  }
+  
+  getProxyToWorker() {
+    return this.config.proxyToWorker;
+  }
+  
+  setProxyToWorker(proxyToWorker) {
+    this.config.proxyToWorker = proxyToWorker;
+    return this;
+  }
+  
+  getFs() {
+    return this.config.fs;
+  }
+  
+  setFs(fs) {
+    this.config.fs = fs;
+    return this;
+  }
+  
+  getKeysData() {
+    return this.config.keysData;
+  }
+  
+  setKeysData(keysData) {
+    this.config.keysData = keysData;
+    return this;
+  }
+  
+  getCacheData() {
+    return this.config.cacheData;
+  }
+  
+  setCacheData(cacheData) {
+    this.config.cacheData = cacheData;
     return this;
   }
 }
+
+MoneroWalletConfig.FIELDS = ["path", "password", "networkType", "serverUri", "serverUsername", "serverPassword", "mnemonic", "seedOffset", "primaryAddress", "privateViewKey", "privateSpendKey", "restoreHeight", "language", "saveCurrent", "proxyToWorker", "fs", "keysData", "cacheData"];
 
 module.exports = MoneroWalletConfig;

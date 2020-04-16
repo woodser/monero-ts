@@ -31,7 +31,7 @@ class TestSampleCode {
         //require("monero-javascript"); // *** USE IN README SAMPLE ***
         
         // connect to a daemon
-        let daemon = new MoneroDaemonRpc({uri: "http://localhost:38081", user: "superuser", pass: "abctesting123"});  // TODO: support 3 string args
+        let daemon = new MoneroDaemonRpc({uri: "http://localhost:38081", username: "superuser", password: "abctesting123"});  // TODO: support 3 string args
         let height = await daemon.getHeight();           // 1523651
         let feeEstimate = await daemon.getFeeEstimate(); // 1014313512
         
