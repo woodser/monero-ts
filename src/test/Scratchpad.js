@@ -25,7 +25,7 @@ describe("Scratchpad", function() {
     
 //    // send a transaction to the test wallet
 //    console.log("Daemon height: " + await daemon.getHeight());
-//    let txSet = await walletCore.send(0, "54tjXUgQVYNXQCJM4CatRQZMacZ2Awq4NboKiUYtUJrhgYZjiDhMz4ccuYRcMTno6V9mzKFXzfY8pbPnGmu2ukfWABV75k4", (await walletCore.getUnlockedBalance(0)).divide(2));
+//    let txSet = await walletCore.sendTx(0, "54tjXUgQVYNXQCJM4CatRQZMacZ2Awq4NboKiUYtUJrhgYZjiDhMz4ccuYRcMTno6V9mzKFXzfY8pbPnGmu2ukfWABV75k4", (await walletCore.getUnlockedBalance(0)).divide(2));
 //    console.log(txSet);
     
 //    for (let account of await walletCore.getAccounts(true)) {

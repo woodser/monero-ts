@@ -810,7 +810,7 @@ class MoneroWalletRpc extends MoneroWallet {
     return txHashes;
   }
 
-  async sendSplit(requestOrAccountIndex, address, amount, priority) {
+  async sendTxs(requestOrAccountIndex, address, amount, priority) {
     
     // validate, copy, and normalize request
     let request = MoneroWallet._normalizeSendRequest(requestOrAccountIndex, address, amount, priority);

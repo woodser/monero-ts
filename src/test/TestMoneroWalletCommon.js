@@ -2141,7 +2141,7 @@ class TestMoneroWalletCommon {
         try {
           
           // send transactions
-          let sentTxs = (await (request.getCanSplit() !== false ? that.wallet.sendSplit(request) : that.wallet.send(request))).getTxs();
+          let sentTxs = (await (request.getCanSplit() !== false ? that.wallet.sendTxs(request) : that.wallet.sendTx(request))).getTxs();
           
           // test sent transactions
           for (let tx of sentTxs) {
@@ -2271,7 +2271,7 @@ class TestMoneroWalletCommon {
         let unlockedBalance1 = await that.wallet.getUnlockedBalance();
         
         // send funds to external address
-        let tx = (await that.wallet.send(0, await TestUtils.getRandomWalletAddress(), TestUtils.MAX_FEE.multiply(new BigInteger(3)))).getTxs()[0];
+        let tx = (await that.wallet.sendTx(0, await TestUtils.getRandomWalletAddress(), TestUtils.MAX_FEE.multiply(new BigInteger(3)))).getTxs()[0];
         
         // collect balances after
         let balance2 = await that.wallet.getBalance();
@@ -2341,10 +2341,10 @@ class TestMoneroWalletCommon {
         let reqCopy = request.copy();
         let txs = [];
         if (request.getCanSplit() !== false) {
-          let txSet = await that.wallet.sendSplit(request);
+          let txSet = await that.wallet.sendTxs(request);
           for (let tx of txSet.getTxs()) txs.push(tx);
         } else {
-          let txSet = await that.wallet.send(request);
+          let txSet = await that.wallet.sendTx(request);
           for (let tx of txSet.getTxs()) txs.push(tx);
         }
         if (request.getCanSplit() === false) assert.equal(txs.length, 1);  // must have exactly one tx if no split
@@ -2462,12 +2462,12 @@ class TestMoneroWalletCommon {
         let reqCopy = request.copy();
         
         // send to self
-        // can use create() or send() because request's doNotRelay is used, but exercise both calls
+        // can use createTx() or sendTx() because request's doNotRelay is used, but exercise both calls
         if (request.getCanSplit() !== false) {
-          let txSet = await (request.getDoNotRelay() ? that.wallet.createTxs(request) : that.wallet.sendSplit(request));
+          let txSet = await (request.getDoNotRelay() ? that.wallet.createTxs(request) : that.wallet.sendTxs(request));
           for (let tx of txSet.getTxs()) txs.push(tx);
         } else {
-          let txSet = await (request.getDoNotRelay() ? that.wallet.createTx(request) : that.wallet.send(request));
+          let txSet = await (request.getDoNotRelay() ? that.wallet.createTx(request) : that.wallet.sendTx(request));
           for (let tx of txSet.getTxs()) txs.push(tx);
         }
         if (request.getCanSplit() === false) assert.equal(txs.length, 1);  // must have exactly one tx if no split
@@ -2659,10 +2659,10 @@ class TestMoneroWalletCommon {
         // send tx(s) with request xor js object
         let txs = [];
         if (canSplit) {
-          let txSet = await that.wallet.sendSplit(useJsConfig ? jsConfig : request);
+          let txSet = await that.wallet.sendTxs(useJsConfig ? jsConfig : request);
           for (let tx of txSet.getTxs()) txs.push(tx);
         } else {
-          let txSet = await that.wallet.send(useJsConfig ? jsConfig : request)
+          let txSet = await that.wallet.sendTx(useJsConfig ? jsConfig : request)
           for (let tx of txSet.getTxs()) txs.push(tx);
         }
         
@@ -3646,7 +3646,7 @@ class TestMoneroWalletCommon {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(curWallet);
         assert((await curWallet.getBalance()).compare(new BigInteger(0)) > 0);
         console.log("Sending funds from main wallet");
-        await curWallet.send(new MoneroSendRequest().setAccountIndex(0).setDestinations(destinations));
+        await curWallet.sendTx(new MoneroSendRequest().setAccountIndex(0).setDestinations(destinations));
         let returnAddress = await curWallet.getPrimaryAddress(); // funds will be returned to this address from the multisig wallet
         
         // open the first multisig participant
@@ -3705,7 +3705,7 @@ class TestMoneroWalletCommon {
         
         // attempt creating and relaying transaction without synchronizing with participants
         try {
-          await curWallet.sendSplit(1, returnAddress, TestUtils.MAX_FEE.multiply(new BigInteger(3)));
+          await curWallet.sendTxs(1, returnAddress, TestUtils.MAX_FEE.multiply(new BigInteger(3)));
           throw new Error("Should have failed sending funds without synchronizing with peers");
         } catch (e) {
           assert.equal(e.message, "No transaction created");
@@ -3718,7 +3718,7 @@ class TestMoneroWalletCommon {
         
         // send funds from a subaddress in the multisig wallet
         console.log("Sending");
-        let txSet = await curWallet.sendSplit(new MoneroSendRequest(returnAddress, TestUtils.MAX_FEE).setAccountIndex(1).setSubaddressIndex(0));
+        let txSet = await curWallet.sendTxs(new MoneroSendRequest(returnAddress, TestUtils.MAX_FEE).setAccountIndex(1).setSubaddressIndex(0));
         assert.notEqual(txSet.getMultisigTxHex(), undefined);
         assert.equal(txSet.getSignedTxHex(), undefined);
         assert.equal(txSet.getUnsignedTxHex(), undefined);

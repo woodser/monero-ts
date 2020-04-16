@@ -102,7 +102,7 @@ class TestSampleCode {
         
         // send funds from the RPC wallet to the core wallet
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(walletRpc); // wait for txs to clear pool *** REMOVE FROM README SAMPLE ***
-        let txSet = await walletRpc.send(0, await walletCore.getPrimaryAddress(), BigInteger.parse("50000"));
+        let txSet = await walletRpc.sendTx(0, await walletCore.getPrimaryAddress(), BigInteger.parse("50000"));
         let sentTx = txSet.getTxs()[0];  // send methods return tx set(s) which contain sent txs unless further steps needed in a multisig or watch-only wallet
         assert(sentTx.inTxPool());
         

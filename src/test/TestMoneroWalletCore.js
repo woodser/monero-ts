@@ -1049,7 +1049,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
         await wallet.startSyncing();
         
         // send tx
-        let tx = (await wallet.send(request)).getTxs()[0];
+        let tx = (await wallet.sendTx(request)).getTxs()[0];
         
         // test wallet's balance
         let balanceAfter = await wallet.getBalance();
@@ -1145,7 +1145,7 @@ class TestMoneroWalletCore extends TestMoneroWalletCommon {
           
           // send funds to the created wallet
           await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
-          let sentTx = (await that.wallet.send(0, await myWallet.getPrimaryAddress(), TestUtils.MAX_FEE)).getTxs()[0];
+          let sentTx = (await that.wallet.sendTx(0, await myWallet.getPrimaryAddress(), TestUtils.MAX_FEE)).getTxs()[0];
           
           // wait until block added to the chain
           // TODO monero core: notify on refresh from pool instead instead of confirmation

@@ -684,9 +684,9 @@ self.relayTxs = async function(walletId, txMetadatas) {
   return self.WORKER_OBJECTS[walletId].relayTxs(txMetadatas);
 }
 
-self.sendSplit = async function(walletId, requestOrAccountIndex, address, amountStr, priority) {
+self.sendTxs = async function(walletId, requestOrAccountIndex, address, amountStr, priority) {
   if (typeof requestOrAccountIndex === "object") requestOrAccountIndex = new MoneroSendRequest(requestOrAccountIndex);
-  return (await self.WORKER_OBJECTS[walletId].sendSplit(requestOrAccountIndex, address, amountStr ? BigInteger.parse(amountStr) : undefined, priority)).toJson();
+  return (await self.WORKER_OBJECTS[walletId].sendTxs(requestOrAccountIndex, address, amountStr ? BigInteger.parse(amountStr) : undefined, priority)).toJson();
 }
 
 self.sweepOutput = async function(walletId, requestOrAddress, keyImage, priority) {

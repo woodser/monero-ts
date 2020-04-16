@@ -639,7 +639,7 @@ void monero_wasm_bridge::relay_txs(int handle, const string& args, emscripten::v
   }
 }
 
-void monero_wasm_bridge::send_split(int handle, const string& send_request_json, emscripten::val callback) {
+void monero_wasm_bridge::send_txs(int handle, const string& send_request_json, emscripten::val callback) {
   monero_wallet* wallet = (monero_wallet*) handle;
   try {
 
@@ -647,7 +647,7 @@ void monero_wasm_bridge::send_split(int handle, const string& send_request_json,
     shared_ptr<monero_send_request> send_request = monero_send_request::deserialize(send_request_json);
 
     // submit send request
-    monero_tx_set tx_set = wallet->send_split(*send_request);
+    monero_tx_set tx_set = wallet->send_txs(*send_request);
 
     // serialize and return tx set
     callback(tx_set.serialize());

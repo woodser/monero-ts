@@ -866,7 +866,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
     });
   }
   
-  async sendSplit(requestOrAccountIndex, address, amount, priority) {
+  async sendTxs(requestOrAccountIndex, address, amount, priority) {
     this._assertNotClosed();
     
     // validate, copy, and normalize request
@@ -889,7 +889,7 @@ class MoneroWalletCore extends MoneroWalletKeys {
         }
         
         // sync wallet in wasm and invoke callback when done
-        that._module.send_split(that._cppAddress, JSON.stringify(request.toJson()), callbackFn);
+        that._module.send_txs(that._cppAddress, JSON.stringify(request.toJson()), callbackFn);
       });
     });
   }
@@ -2010,10 +2010,10 @@ class MoneroWalletCoreProxy extends MoneroWallet {
     return this._invokeWorker("relayTxs", [txMetadatas]);
   }
   
-  async sendSplit(requestOrAccountIndex, address, amount, priority) {
+  async sendTxs(requestOrAccountIndex, address, amount, priority) {
     if (requestOrAccountIndex instanceof MoneroSendRequest) requestOrAccountIndex = requestOrAccountIndex.toJson();
     else if (typeof requestOrAccountIndex === "object") requestOrAccountIndex = new MoneroSendRequest(requestOrAccountIndex).toJson();
-    let txSetJson = await this._invokeWorker("sendSplit", [requestOrAccountIndex, address, amount ? amount.toString() : amount, priority]);
+    let txSetJson = await this._invokeWorker("sendTxs", [requestOrAccountIndex, address, amount ? amount.toString() : amount, priority]);
     return new MoneroTxSet(txSetJson);
   }
   
