@@ -175,8 +175,8 @@ TestUtils.FS = require('fs');
 
 //utils/TestUtils.DAEMON_RPC_CONFIG = {
 //  uri: "http://node.xmrbackb.one:28081",
-//  //user: "superuser",
-//  //pass: "abctesting123",
+//  //username: "superuser",
+//  //password: "abctesting123",
 //  maxRequestsPerSecond: 1
 //};
 

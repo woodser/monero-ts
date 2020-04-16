@@ -32,7 +32,7 @@ new TestMoneroWalletKeys({
 }).runTests();
 
 // test core wallet
-new TestMoneroWalletCore({
+new TestMoneroWalletWasm({
   liteMode: false,
   testNonRelays: true,
   testRelays: true,
