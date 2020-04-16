@@ -33,7 +33,7 @@ MoneroNetworkType = {
         case "mainnet": return MoneroNetworkType.MAINNET;
         case "testnet": return MoneroNetworkType.TESTNET;
         case "stagenet": return MoneroNetworkType.STAGENET;
-        default: throw new MoneroError("Invalid network type: '" + networkTypeStr + "'");
+        default: throw new MoneroError("Invalid network type to parse: '" + networkTypeStr + "'");
       }
     }
 }
