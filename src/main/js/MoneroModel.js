@@ -7,11 +7,11 @@ module.exports = function() {
   
   // import utils
   this.assert = require("assert");
-  this.GenUtils = require("./utils/GenUtils");
-  this.BigInteger = require("./utils/biginteger").BigInteger;
-  this.Filter = require("./utils/Filter");
-  this.MoneroError = require("./utils/MoneroError");
-  this.HttpClient = require("./utils/HttpClient");
+  this.GenUtils = require("./common/GenUtils");
+  this.BigInteger = require("./common/biginteger").BigInteger;
+  this.Filter = require("./common/Filter");
+  this.MoneroError = require("./common/MoneroError");
+  this.HttpClient = require("./common/HttpClient");
   
   // export daemon models
   this.ConnectionType = require("./daemon/model/ConnectionType");
@@ -71,12 +71,12 @@ module.exports = function() {
   this.MoneroWalletConfig = require("./wallet/model/MoneroWalletConfig");
   
   // export rpc
-  this.MoneroRpcConnection = require("./rpc/MoneroRpcConnection");
-  this.MoneroRpcError = require("./rpc/MoneroRpcError");
-  this.SslOptions = require("./rpc/SslOptions");
+  this.MoneroRpcConnection = require("./common/MoneroRpcConnection");
+  this.MoneroRpcError = require("./common/MoneroRpcError");
+  this.SslOptions = require("./common/SslOptions");
 
   // export daemon, wallet, and utils classes
-  this.MoneroUtils = require("./utils/MoneroUtils");
+  this.MoneroUtils = require("./common/MoneroUtils");
   this.MoneroDaemon = require("./daemon/MoneroDaemon");
   this.MoneroWallet = require("./wallet/MoneroWallet");
   this.MoneroDaemonRpc = require("./daemon/MoneroDaemonRpc");

@@ -1,5 +1,4 @@
 HIGH (WASM)
-monero.common package which is where MoneroUtils, MoneroException go
 export MoneroWebWorker in MoneroModel.js?
 core wasm_modifiations broken
 no need for custom create functions in tests

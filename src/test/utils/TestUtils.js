@@ -173,7 +173,7 @@ TestUtils.TX_POOL_WALLET_TRACKER = new TxPoolWalletTracker();
 TestUtils.PROXY_TO_WORKER = false;
 TestUtils.FS = require('fs');
 
-//utils/TestUtils.DAEMON_RPC_CONFIG = {
+//TestUtils.DAEMON_RPC_CONFIG = {
 //  uri: "http://node.xmrbackb.one:28081",
 //  //username: "superuser",
 //  //password: "abctesting123",
