@@ -234,7 +234,7 @@ class MoneroUtils {
     
     // load module
     delete MoneroUtils.WASM_MODULE;
-    MoneroUtils.WASM_MODULE = require("../../../../dist/monero_keys")();
+    MoneroUtils.WASM_MODULE = require("../../../../dist/monero_core_keys")();
     return new Promise(function(resolve, reject) {
       MoneroUtils.WASM_MODULE.then(module => {
         MoneroUtils.WASM_MODULE = module

@@ -8,7 +8,7 @@ string(REPLACE ";" "," WASM_EXCEPTION_WHITELIST "${WASM_EXCEPTION_WHITELIST}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Oz --bind -s DISABLE_EXCEPTION_CATCHING=2 -s EXCEPTION_CATCHING_WHITELIST='[${WASM_EXCEPTION_WHITELIST}]'")
 add_definitions(-DAUTO_INITIALIZE_EASYLOGGINGPP -DNO_AES)
 
-set(BUILD_MONERO_KEYS_WASM ON)
+set(BUILD_MONERO_CORE_KEYS_WASM ON)
 set(BUILD_MONERO_CORE_WASM ON)
 
 ##############
@@ -142,7 +142,7 @@ set_target_properties(
 ################################
 
 set(
-    MONERO_KEYS_SRC_FILES
+    MONERO_CORE_KEYS_SRC_FILES
     
     # monero-javascript WASM bridge
     src/main/cpp/index.cpp
@@ -302,11 +302,11 @@ message(STATUS "EMCC_LINKER_FLAGS_CORE ${EMCC_LINKER_FLAGS_CORE}")
 # Build targets
 ####################
 
-if (BUILD_MONERO_KEYS_WASM)
-	add_executable(monero_keys ${MONERO_KEYS_SRC_FILES})
-	set_target_properties(monero_keys PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_KEYS}")
+if (BUILD_MONERO_CORE_KEYS_WASM)
+	add_executable(monero_core_keys ${MONERO_CORE_KEYS_SRC_FILES})
+	set_target_properties(monero_core_keys PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_KEYS}")
 	target_link_libraries(
-	    monero_keys
+	    monero_core_keys
 	    #
 	    boost_chrono
 	    boost_system
@@ -317,7 +317,7 @@ if (BUILD_MONERO_KEYS_WASM)
 endif()
 
 if (BUILD_MONERO_CORE_WASM)
-	add_executable(monero_core ${MONERO_CORE_SRC_FILES} ${MONERO_KEYS_SRC_FILES})
+	add_executable(monero_core ${MONERO_CORE_SRC_FILES} ${MONERO_CORE_KEYS_SRC_FILES})
 	set_target_properties(monero_core PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS_CORE}")
 	target_compile_definitions(monero_core PRIVATE BUILD_CORE_WALLET=1)
 	target_link_libraries(
