@@ -18,6 +18,7 @@ export MoneroWebWorker in MoneroModel.js?
 all-in-one wasm build script
 proxied txs, transfers, outputs are unnecessariliy stringified then parsed
 rename sign/verify to signMessage(), verifyMessage()?
+architecture document
 bundle web worker with MoneroModel?
 output query setMinAmount(), setMaxAmount()
 deprecate .user, .pass with .username and .password and log error then eventually remove, remove protocol, host, port from MoneroRpcConnection

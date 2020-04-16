@@ -8,7 +8,7 @@ describe("Scratchpad", function() {
     let walletCore = await TestUtils.getWalletCore();
     
 //    // create a wallet
-//    let myWallet = await MoneroWalletCore.createWallet({
+//    let myWallet = await MoneroWalletWasm.createWallet({
 //      path: "./test_wallets/" + GenUtils.getUUID(),
 //      password: "abctesting123",
 //      networkType: "stagenet",

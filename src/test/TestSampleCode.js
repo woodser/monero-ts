@@ -75,8 +75,8 @@ class TestSampleCode {
         let outputs = await walletRpc.getOutputs(outputQuery);
         
         // create a wallet from a mnemonic phrase using WebAssembly bindings to monero-project
-        let walletCore = await MoneroWalletCore.createWalletFromMnemonic("./test_wallets/" + GenUtils.getUUID(), "supersecretpassword123", TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, "", TestUtils.PROXY_TO_WORKER, TestUtils.FS);
-        //let walletCore = await MoneroWalletCore.createWalletFromMnemonic("MyWallet", "supersecretpassword123", MoneroNetworkType.STAGENET, "hefty value ...", new MoneroRpcConnection("http://localhost:38081"), 501788);
+        let walletCore = await MoneroWalletWasm.createWalletFromMnemonic("./test_wallets/" + GenUtils.getUUID(), "supersecretpassword123", TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, "", TestUtils.PROXY_TO_WORKER, TestUtils.FS);
+        //let walletCore = await MoneroWalletWasm.createWalletFromMnemonic("MyWallet", "supersecretpassword123", MoneroNetworkType.STAGENET, "hefty value ...", new MoneroRpcConnection("http://localhost:38081"), 501788);
         
         // synchronize the wallet and receive progress notifications
         await walletCore.sync(new class extends MoneroSyncListener {

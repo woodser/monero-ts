@@ -62,7 +62,7 @@ let outputQuery = new MoneroOutputQuery().setIsSpent(false);
 let outputs = await walletRpc.getOutputs(outputQuery);
 
 // create a wallet from a mnemonic phrase using WebAssembly bindings to monero-project
-let walletCore = await MoneroWalletCore.createWalletFromMnemonic("MyWallet", "supersecretpassword123", MoneroNetworkType.STAGENET, "hefty value ...", new MoneroRpcConnection("http://localhost:38081"), 501788);
+let walletCore = await MoneroWalletWasm.createWalletFromMnemonic("MyWallet", "supersecretpassword123", MoneroNetworkType.STAGENET, "hefty value ...", new MoneroRpcConnection("http://localhost:38081"), 501788);
 
 // synchronize the wallet and receive progress notifications
 await walletCore.sync(new class extends MoneroSyncListener {
@@ -136,7 +136,7 @@ await walletCore.close(true);
 - [MoneroDaemon.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/daemon/MoneroDaemon.js) - common interface for daemon implementations
 - [MoneroDaemonRpc.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/daemon/MoneroDaemonRpc.js) - implements a MoneroDaemon.js using a monero-daemon-rpc back-end
 - [MoneroWalletRpc.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/wallet/MoneroWalletRpc.js) - implements MoneroWallet.js using a monero-wallet-rpc back-end
-- [MoneroWalletCore.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/wallet/MoneroWalletCore.js) - implements MoneroWallet.js using client-side WebAssembly bindings to [wallet2.h](https://github.com/woodser/monero/blob/master/src/wallet/wallet2.h)
+- [MoneroWalletWasm.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/wallet/MoneroWalletWasm.js) - implements MoneroWallet.js using client-side WebAssembly bindings to [wallet2.h](https://github.com/woodser/monero/blob/master/src/wallet/wallet2.h)
 - [MoneroWalletKeys.js](https://github.com/monero-ecosystem/monero-javascript/blob/master/src/main/js/wallet/MoneroWalletKeys.js) - client-side wallet using WebAssembly which only manages keys
 
 ## How to Run This Library
