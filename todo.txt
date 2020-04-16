@@ -1,6 +1,10 @@
 HIGH (WASM)
+/Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
+Source is too large querying daemon blocks from scratchpad
 block.toString() undefineds
 verify block.toJson();
+501 server errors, gone with built worker
+
 export MoneroWebWorker in MoneroModel.js?
 core wasm_modifiations broken
 monero_wasm_bridge serialize bigintegers as strings
@@ -9,7 +13,7 @@ replace MoneroWalletcore.REJECT_UNAUTHORIZED with config per instance by constru
 output query setMinAmount(), setMaxAmount()
 re-enable test reserves or report issue
 
-log error if unsported fields (e.g. .user or .pass) config given to MoneroRpcConnection
+log error if unsupported fields (e.g. .user or .pass) config given to MoneroRpcConnection
 no need for custom create functions in tests
 test create/openWallet(config) api
 fix consistent failures in tests (notification failures)
