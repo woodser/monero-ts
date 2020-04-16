@@ -6,10 +6,14 @@ describe("Scratchpad", function() {
     let daemon = await TestUtils.getDaemonRpc();
     let walletRpc = await TestUtils.getWalletRpc();
     let walletCore = await TestUtils.getWalletCore();
-    let rpc = new MoneroRpcConnection(TestUtils.WALLET_RPC_CONFIG);
     
-    // create wallet with connection
-//    let walletCore = await MoneroWalletCore.createWalletFromMnemonic("", TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
+//    // create a wallet
+//    let myWallet = await MoneroWalletCore.createWallet({
+//      path: "./test_wallets/" + GenUtils.getUUID(),
+//      password: "abctesting123",
+//      networkType: "stagenet",
+//      server: TestUtils.DAEMON_RPC_CONFIG
+//    });
     
 //  try { await wallet.startMining(8, false, true); }
 //  catch (e) { }

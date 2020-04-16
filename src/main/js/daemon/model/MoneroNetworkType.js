@@ -22,6 +22,19 @@ MoneroNetworkType = {
      */
     isValid: function(networkType) {
       return networkType === 0 || networkType === 1 || networkType === 2;
+    },
+    
+    /**
+     * Parse the given string as a network type.
+     */
+    parse: function(networkTypeStr) {
+      let str = ("" + networkTypeStr).toLowerCase();
+      switch (str) {
+        case "mainnet": return MoneroNetworkType.MAINNET;
+        case "testnet": return MoneroNetworkType.TESTNET;
+        case "stagenet": return MoneroNetworkType.STAGENET;
+        default: throw new MoneroError("Invalid network type: '" + networkTypeStr + "'");
+      }
     }
 }
 
