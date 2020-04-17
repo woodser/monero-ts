@@ -71,8 +71,8 @@ function runTests() {
     testResets: false
   }).runTests();
   
-//  // test scratchpad
-//  require("../Scratchpad");
+  // test scratchpad
+  require("../Scratchpad");
   
   // run tests
   mocha.run();
