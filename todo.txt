@@ -1,9 +1,8 @@
 HIGH (WASM)
 /Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
 Source is too large querying daemon blocks from scratchpad
-block.toString() undefineds
-verify block.toJson();
 501 server errors, gone with built worker
+verify block.toJson();
 
 export MoneroWebWorker in MoneroModel.js?
 core wasm_modifiations broken
