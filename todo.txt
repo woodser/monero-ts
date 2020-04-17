@@ -4,6 +4,8 @@ Source is too large querying daemon blocks from scratchpad
 501 server errors, gone with built worker
 verify block.toJson();
 git clone includes .git directory which is 95mbs
+remove BooleanSet
+resolve problem with wasm_pr_4 - cryptonote_tx_utils.cpp?
 
 export MoneroWebWorker in MoneroModel.js?
 core wasm_modifiations broken

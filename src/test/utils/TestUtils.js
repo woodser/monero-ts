@@ -76,16 +76,17 @@ class TestUtils {
     if (!TestUtils.walletWasm || await TestUtils.walletWasm.isClosed()) {
       
       // create wallet from mnemonic phrase if it doesn't exist
-      if (!await MoneroWalletWasm.walletExists(TestUtils.WALLET_WASM_PATH_1, TestUtils.FS)) {
+      if (!await MoneroWalletWasm.walletExists(TestUtils.WALLET_WASM_PATH_1, MoneroUtils.getDefaultFs())) {
         
         // create directory for test wallets if it doesn't exist
-        if (!TestUtils.FS.existsSync(TestUtils.TEST_WALLETS_DIR)) {
-          if (!TestUtils.FS.existsSync(process.cwd())) TestUtils.FS.mkdirSync(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
-          TestUtils.FS.mkdirSync(TestUtils.TEST_WALLETS_DIR);
+        let fs = MoneroUtils.getDefaultFs();
+        if (!fs.existsSync(TestUtils.TEST_WALLETS_DIR)) {
+          if (!fs.existsSync(process.cwd())) fs.mkdirSync(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
+          fs.mkdirSync(TestUtils.TEST_WALLETS_DIR);
         }
         
         // create wallet with connection
-        TestUtils.walletWasm = await MoneroWalletWasm.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, TestUtils.PROXY_TO_WORKER, TestUtils.FS);
+        TestUtils.walletWasm = await MoneroWalletWasm.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, TestUtils.PROXY_TO_WORKER, MoneroUtils.getDefaultFs());
         assert.equal(await TestUtils.walletWasm.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
         await TestUtils.walletWasm.sync(new WalletSyncPrinter());
         await TestUtils.walletWasm.save();
@@ -94,7 +95,7 @@ class TestUtils {
       
       // otherwise open existing wallet
       else {
-        TestUtils.walletWasm = await MoneroWalletWasm.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpcConnection(), TestUtils.PROXY_TO_WORKER, TestUtils.FS);
+        TestUtils.walletWasm = await MoneroWalletWasm.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpcConnection(), TestUtils.PROXY_TO_WORKER, MoneroUtils.getDefaultFs());
         await TestUtils.walletWasm.sync(new WalletSyncPrinter());
         await TestUtils.walletWasm.startSyncing();
       }
@@ -167,17 +168,14 @@ TestUtils.DAEMON_RPC_CONFIG = {
   rejectUnauthorized: true // reject self-signed certificates if true
 };
 
-// used to track which wallets are in sync with pool so associated txs in the pool do not need to be waited on
-TestUtils.TX_POOL_WALLET_TRACKER = new TxPoolWalletTracker();
-
-TestUtils.PROXY_TO_WORKER = false;
-TestUtils.FS = require('fs');
-
 //TestUtils.DAEMON_RPC_CONFIG = {
-//  uri: "http://node.xmrbackb.one:28081",
-//  //username: "superuser",
-//  //password: "abctesting123",
-//  maxRequestsPerSecond: 1
+//uri: "http://node.xmrbackb.one:28081",
+////username: "superuser",
+////password: "abctesting123",
+//maxRequestsPerSecond: 1
 //};
+
+TestUtils.TX_POOL_WALLET_TRACKER = new TxPoolWalletTracker(); // used to track which wallets are in sync with pool so associated txs in the pool do not need to be waited on
+TestUtils.PROXY_TO_WORKER = false;
 
 module.exports = TestUtils;

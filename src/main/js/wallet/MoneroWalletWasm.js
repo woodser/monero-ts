@@ -7,7 +7,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   
   static async walletExists(path, fs) {
     assert(path, "Must provide a path to look for a wallet");
-    if (!fs) fs = require('fs');
+    if (!fs) fs = MoneroUtils.getDefaultFs();
     let exists = fs.existsSync(path); // TODO: look for keys file
     console.log("Wallet exists at " + path + ": " + exists);
     return exists;
@@ -78,7 +78,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     if (proxyToWorker) return MoneroWalletWasmProxy.createWalletRandom(path, password, networkType, daemonUriOrConnection, language, fs);
     
     // validate and normalize params
-    if (path && !fs) fs = require('fs');
+    if (path && !fs) fs = MoneroUtils.getDefaultFs();
     if (path === undefined) path = "";
     assert(password, "Must provide a password to create the wallet with");
     MoneroNetworkType.validate(networkType);
@@ -207,14 +207,14 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * @param {int} cppAddress is the address of the wallet instance in C++
    * @param {string} path is the path of the wallet instance
    * @param {string} password is the password of the wallet instance
-   * @param {FileSystem} fs provides a minimal file system interface (read, write, delete, exists) (defaults to require('fs'))
+   * @param {FileSystem} fs provides a minimal file system interface (read, write, delete, exists) (defaults to MoneroUtils.getDefaultFs())
    */
   constructor(cppAddress, path, password, fs) {
     super(cppAddress);
     this._path = path;
     this._password = password;
     this._listeners = [];
-    this._fs = fs ? fs : require('fs');
+    this._fs = fs ? fs : MoneroUtils.getDefaultFs();
     this._isClosed = false;
     this._wasmListener = new WalletWasmListener(this); // receives notifications from wasm c++
     this._wasmListenerHandle = 0;                      // memory address of the wallet listener in c++
