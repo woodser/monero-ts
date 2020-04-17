@@ -1,7 +1,5 @@
 HIGH (WASM)
 /Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
-Source is too large querying daemon blocks from scratchpad
-501 server errors, gone with built worker
 verify block.toJson();
 git clone includes .git directory which is 95mbs
 remove BooleanSet
