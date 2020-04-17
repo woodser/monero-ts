@@ -214,7 +214,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     this._path = path;
     this._password = password;
     this._listeners = [];
-    this._fs = fs ? fs : MoneroUtils.getDefaultFs();
+    this._fs = fs ? fs : (path ? MoneroUtils.getDefaultFs() : undefined);
     this._isClosed = false;
     this._wasmListener = new WalletWasmListener(this); // receives notifications from wasm c++
     this._wasmListenerHandle = 0;                      // memory address of the wallet listener in c++
@@ -1737,7 +1737,7 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     this._walletId = walletId;
     this._worker = worker;
     this._path = path;
-    this._fs = fs;
+    this._fs = fs ? fs : (path ? MoneroUtils.getDefaultFs() : undefined);
     this._wrappedListeners = [];
   }
   
