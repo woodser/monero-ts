@@ -36,9 +36,10 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     
     // read wallet data if not given
     if (!config.getKeysData()) {
-      if (!await this.walletExists(config.getPath(), config.getFs())) throw new MoneroError("Wallet does not exist at path: " + config.getPath());
-      config.setKeysData(config.getFs().readFileSync(config.getPath() + ".keys"));
-      config.setCacheData(config.getFs().readFileSync(config.getPath()));
+      let fs = config.getFs() ? config.getFs() : MoneroUtils.getDefaultFs();
+      if (!await this.walletExists(config.getPath(), fs)) throw new MoneroError("Wallet does not exist at path: " + config.getPath());
+      config.setKeysData(fs.readFileSync(config.getPath() + ".keys"));
+      config.setCacheData(fs.readFileSync(config.getPath()));
     }
     
     // open wallet from data
@@ -78,7 +79,6 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     if (proxyToWorker) return MoneroWalletWasmProxy.createWalletRandom(path, password, networkType, daemonUriOrConnection, language, fs);
     
     // validate and normalize params
-    if (path && !fs) fs = MoneroUtils.getDefaultFs();
     if (path === undefined) path = "";
     assert(password, "Must provide a password to create the wallet with");
     MoneroNetworkType.validate(networkType);
