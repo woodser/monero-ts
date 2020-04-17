@@ -14,9 +14,10 @@ class TestSampleCode {
           TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
           
           // create directory for test wallets if it doesn't exist
-          if (!TestUtils.FS.existsSync(TestUtils.TEST_WALLETS_DIR)) {
-            if (!TestUtils.FS.existsSync(process.cwd())) TestUtils.FS.mkdirSync(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
-            TestUtils.FS.mkdirSync(TestUtils.TEST_WALLETS_DIR);
+          let fs = MoneroUtils.getDefaultFs();
+          if (!fs.existsSync(TestUtils.TEST_WALLETS_DIR)) {
+            if (!fs.existsSync(process.cwd())) fs.mkdirSync(process.cwd(), { recursive: true });  // create current process directory for relative paths which does not exist in memory fs
+            fs.mkdirSync(TestUtils.TEST_WALLETS_DIR);
           }
         } catch (e) {
           console.log(e);
@@ -75,7 +76,7 @@ class TestSampleCode {
         let outputs = await walletRpc.getOutputs(outputQuery);
         
         // create a wallet from a mnemonic phrase using WebAssembly bindings to monero-project
-        let walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("./test_wallets/" + GenUtils.getUUID(), "supersecretpassword123", TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, "", TestUtils.PROXY_TO_WORKER, TestUtils.FS);
+        let walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("./test_wallets/" + GenUtils.getUUID(), "supersecretpassword123", TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, "", TestUtils.PROXY_TO_WORKER, MoneroUtils.getDefaultFs());
         //let walletWasm = await MoneroWalletWasm.createWalletFromMnemonic("MyWallet", "supersecretpassword123", MoneroNetworkType.STAGENET, "hefty value ...", new MoneroRpcConnection("http://localhost:38081"), 501788);
         
         // synchronize the wallet and receive progress notifications

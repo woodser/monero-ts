@@ -5,9 +5,6 @@ require("../../index.js");
 require("./MoneroTestModel")();
 require("./utils/TestUtilsModule")();
 
-// test config
-//TestUtils.FS = require('memfs');  // use in-memory file system
-
 // test sample code for readme
 new TestSampleCode().runTests();
 

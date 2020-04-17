@@ -225,6 +225,16 @@ class MoneroUtils {
   // ---------------------------- LIBRARY UTILS -------------------------------
   
   /**
+   * Get a default file system.  Uses an in-memory file system if running in the browser.
+   * 
+   * @return nodejs-compatible file system
+   */
+  static getDefaultFs() {
+    if (!MoneroUtils.FS) MoneroUtils.FS = GenUtils.isBrowser() ? require('memfs') : require('fs');
+    return MoneroUtils.FS;
+  }
+  
+  /**
    * Load the WebAssembly keys module with caching.
    */
   static async loadKeysModule() {
