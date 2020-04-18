@@ -5,10 +5,9 @@ git clone includes .git directory which is 95mbs
 remove BooleanSet
 resolve problem with wasm_pr_4 - cryptonote_tx_utils.cpp?
 
-export MoneroWebWorker in MoneroModel.js?
 core wasm_modifiations broken
 monero_wasm_bridge serialize bigintegers as strings
-verify and document tx signing, message signing, proof of reserves, etc in readme
+wasm checkTxKey(), getTxProof(), checkTxProof(), getSpendProof(), getReserveProofWallet()
 replace MoneroWalletcore.REJECT_UNAUTHORIZED with config per instance by constructing http_client_wasm with wallet id, then lookup wallet by id and get rejectUnauthorized config for instance
 output query setMinAmount(), setMaxAmount()
 re-enable test reserves or report issue
