@@ -2,10 +2,10 @@ describe("Scratchpad", function() {
   
   it("Can be scripted easily", async function() {
     
-    // initialize daemon, rpc wallet, and wasm wallet
-    let daemon = await TestUtils.getDaemonRpc();
-    let walletRpc = await TestUtils.getWalletRpc();
-    let walletWasm = await TestUtils.getWalletWasm();
+//    // initialize daemon, rpc wallet, and wasm wallet
+//    let daemon = await TestUtils.getDaemonRpc();
+//    let walletRpc = await TestUtils.getWalletRpc();
+//    let walletWasm = await TestUtils.getWalletWasm();
     
     // create in-memory wallet
     let myWallet = await MoneroWalletWasm.createWallet({
