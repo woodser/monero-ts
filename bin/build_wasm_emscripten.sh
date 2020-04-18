@@ -16,7 +16,7 @@ HOST_NCORES=$(nproc 2>/dev/null || shell nproc 2>/dev/null || sysctl -n hw.ncpu 
 [ -d build ] || mkdir -p build || exit 1
 
 cd build || exit 1
-emconfigure cmake .. || exit 1
+emcmake cmake .. || exit 1
 emmake cmake --build . || exit 1
 emmake make -j$HOST_NCORES . || exit 1
 
