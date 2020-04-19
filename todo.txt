@@ -1,8 +1,6 @@
 HIGH (WASM)
 /Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
-verify block.toJson();
 git clone includes .git directory which is 95mbs
-remove BooleanSet
 resolve problem with wasm_pr_4 - cryptonote_tx_utils.cpp?
 
 core wasm_modifiations broken
@@ -33,7 +31,6 @@ combine TestAll and BrowserTests
 MoneroSyncResult received_money -> received_amount for consistency
 report issue of keys wallet setDaemonConnection not working with authentication
 finalize daemon and wallet creation api
-restore height is refresh height - getSyncHeight(), setSyncHeight()?
 
 js sample code uses js objects instead of send request
 update sample code
