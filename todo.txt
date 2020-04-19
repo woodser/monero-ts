@@ -2,14 +2,13 @@ HIGH (WASM)
 /Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
 git clone includes .git directory which is 95mbs
 resolve problem with wasm_pr_4 - cryptonote_tx_utils.cpp?
-
+comment wallet creation and open methods
 core wasm_modifiations broken
 monero_wasm_bridge serialize bigintegers as strings
 wasm checkTxKey(), getTxProof(), checkTxProof(), getSpendProof(), getReserveProofWallet()
 replace MoneroWalletcore.REJECT_UNAUTHORIZED with config per instance by constructing http_client_wasm with wallet id, then lookup wallet by id and get rejectUnauthorized config for instance
 output query setMinAmount(), setMaxAmount()
 re-enable test reserves or report issue
-
 log error if unsupported fields (e.g. .user or .pass) config given to MoneroRpcConnection
 no need for custom create functions in tests
 test create/openWallet(config) api
@@ -52,6 +51,7 @@ test queuing sync requests in test which opens and closes multiple wallets
 low severity vulnerabilities
 find boost version in cmake lists
 externalize test config
+support new MoneroDaemonRpc({proxyToWorker: true}) by saving creation promise then await and proxy every call?
 Can prove reserves in an account
 open bug on check key no funds received despite transfer - caused by importing key images?
 re-test with pthread and compare performance, could load pthreaded library if nodejs or browser supports

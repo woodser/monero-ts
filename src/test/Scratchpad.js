@@ -2,18 +2,37 @@ describe("Scratchpad", function() {
   
   it("Can be scripted easily", async function() {
     
-//    // initialize daemon, rpc wallet, and wasm wallet
+    // get test wasm wallet
 //    let daemon = await TestUtils.getDaemonRpc();
 //    let walletRpc = await TestUtils.getWalletRpc();
 //    let walletWasm = await TestUtils.getWalletWasm();
     
-    // create in-memory wallet
-    let myWallet = await MoneroWalletWasm.createWallet({
+    // initialize daemon rpc client
+    let daemon = await MoneroDaemonRpc.connect({
+      uri: "http://localhost:38081",
+      username: "superuser",
+      password: "abctesting123"
+    });
+    console.log("Daemon height: " + await daemon.getHeight());
+    
+    // initialize wallet rpc client
+    let walletRpc = await MoneroWalletRpc.connect({
+      uri: "http://localhost:38083",
+      username: "rpc_user",
+      password: "abc123"
+    });
+    console.log("RPC wallet mnemonic: " + await walletRpc.getMnemonic());
+    
+    // create in-memory wallet with random mnemonic
+    let walletWasm = await MoneroWalletWasm.createWallet({
+      //path: "./test_wallets/" + GenUtils.getUUID(), // default to in-memory wallet if not given
       password: "abctesting123",
       networkType: "stagenet",
-      server: TestUtils.DAEMON_RPC_CONFIG
+      server: TestUtils.DAEMON_RPC_CONFIG,
+      language: "Spanish"
     });
-    await myWallet.close();
+    console.log("WASM wallet mnemonic: " + await walletWasm.getMnemonic());
+    await walletWasm.close();
     
 //    // sleep for a moment
 //    await new Promise(function(resolve) { setTimeout(resolve, 10000 }); // 10s

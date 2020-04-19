@@ -1,5 +1,5 @@
 /**
- * Implements a MoneroWallet using WebAssembly to bridge to monero-project's wallet2.
+ * Implements a MoneroWallet using WebAssembly bindings to monero-project's wallet2.
  */
 class MoneroWalletWasm extends MoneroWalletKeys {
   
@@ -1237,13 +1237,13 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   
   async startMining(numThreads, backgroundMining, ignoreBattery) {
     this._assertNotClosed();
-    let daemon = new MoneroDaemonRpc((await this.getDaemonConnection()).getConfig()); // TODO: accept daemon connection
+    let daemon = new MoneroDaemonRpc(await this.getDaemonConnection());
     await daemon.startMining(await this.getPrimaryAddress(), numThreads, backgroundMining, ignoreBattery);
   }
   
   async stopMining() {
     this._assertNotClosed();
-    let daemon = new MoneroDaemonRpc((await this.getDaemonConnection()).getConfig()); // TODO: accept daemon connection
+    let daemon = new MoneroDaemonRpc(await this.getDaemonConnection());
     await daemon.stopMining();
   }
   
