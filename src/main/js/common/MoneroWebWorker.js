@@ -38,8 +38,8 @@ self.initOneTime = async function() {
 
 //----------------------------- DAEMON METHODS --------------------------------
 
-self.createDaemonRpc = async function(daemonId, daemonUriOrConfig) {
-  self.WORKER_OBJECTS[daemonId] = new MoneroDaemonRpc(daemonUriOrConfig);
+self.connectDaemonRpc = async function(daemonId, config) {
+  self.WORKER_OBJECTS[daemonId] = new MoneroDaemonRpc(config);
 }
 
 self.daemonGetRpcConnection = async function(daemonId) {

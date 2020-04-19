@@ -39,7 +39,7 @@ class HttpClient {
     req = Object.assign(HttpClient.DEFAULT_REQUEST, req);
     
     // validate request
-    try { let url = new URL(req.uri); } catch (e) { throw new Error("Invalid request URL: " + url); }
+    try { new URL(req.uri); } catch (e) { throw new Error("Invalid request URL: " + req.uri); }
     if (req.body && !(typeof req.body === "string" || typeof req.body === "object")) {
       throw new Error("Request body type is not string or object");
     }

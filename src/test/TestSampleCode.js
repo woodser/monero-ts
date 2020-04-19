@@ -32,7 +32,7 @@ class TestSampleCode {
         //require("monero-javascript"); // *** USE IN README SAMPLE ***
         
         // connect to a daemon
-        let daemon = new MoneroDaemonRpc({uri: "http://localhost:38081", username: "superuser", password: "abctesting123"});  // TODO: support 3 string args
+        let daemon = await MoneroDaemonRpc.connect("http://localhost:38081", "superuser", "abctesting123");
         let height = await daemon.getHeight();           // 1523651
         let feeEstimate = await daemon.getFeeEstimate(); // 1014313512
         
@@ -51,7 +51,7 @@ class TestSampleCode {
         }
         
         // connect to a monero-wallet-rpc endpoint with authentication
-        let walletRpc = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");
+        let walletRpc = await MoneroWalletRpc.connect("http://localhost:38083", "rpc_user", "abc123");
         
         // open a wallet on the server
         await walletRpc.openWallet("test_wallet_1", "supersecretpassword123");

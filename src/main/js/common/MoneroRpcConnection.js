@@ -33,6 +33,9 @@ class MoneroRpcConnection {
     
     // standardize uri
     if (this.config.uri) this.config.uri = this.config.uri.replace(/\/$/, ""); // strip trailing slash
+    
+    // fail with friendly message if using old api
+    if (config.user || config.pass) throw new MoneroError("Authentication fields 'user' and 'pass' have been renamed to 'username' and 'password'.  Please update to the new api");
   }
   
   getUri() {
@@ -165,5 +168,7 @@ class MoneroRpcConnection {
     }
   }
 }
+
+MoneroRpcConnection.SUPPORTED_FIELDS = ["uri", "username", "password", "rejectUnauthorized"];
 
 module.exports = MoneroRpcConnection;
