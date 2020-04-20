@@ -15,6 +15,8 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     super(state);
     
     // deserialize if necessary
+    if (this.state.minAmount !== undefined && !(this.state.minAmount instanceof BigInteger)) this.state.minAmount = BigInteger.parse(this.state.minAmount);
+    if (this.state.maxAmount !== undefined && !(this.state.maxAmount instanceof BigInteger)) this.state.maxAmount = BigInteger.parse(this.state.maxAmount);
     if (this.state.txQuery && !(this.state.txQuery instanceof MoneroTxQuery)) this.state.txQuery = new MoneroTxQuery(this.state.outputQuery);
   }
   
@@ -24,8 +26,28 @@ class MoneroOutputQuery extends MoneroOutputWallet {
   
   toJson() {
     let json = Object.assign({}, this.state, super.toJson());
+    if (this.getMinAmount()) json.minAmount = this.getMinAmount().toString();
+    if (this.getMaxAmount()) json.maxAmount = this.getMaxAmount().toString();
     delete json.txQuery;
     return json;
+  }
+  
+  getMinAmount() {
+    return this.state.minAmount;
+  }
+
+  setMinAmount(minAmount) {
+    this.state.minAmount = minAmount;
+    return this;
+  }
+
+  getMaxAmount() {
+    return this.state.maxAmount;
+  }
+
+  setMaxAmount(maxAmount) {
+    this.state.maxAmount = maxAmount;
+    return this;
   }
   
   getTxQuery() {
@@ -89,6 +111,10 @@ class MoneroOutputQuery extends MoneroOutputWallet {
     
     // filter with tx query
     if (this.getTxQuery() && !this.getTxQuery().meetsCriteria(output.getTx())) return false;
+    
+    // filter on remaining fields
+    if (this.getMinAmount() !== undefined && (output.getAmount() === undefined || output.getAmount().compare(this.getMinAmount()) < 0)) return false;
+    if (this.getMaxAmount() !== undefined && (output.getAmount() === undefined || output.getAmount().compare(this.getMaxAmount()) > 0)) return false;
     
     // output meets query
     return true;

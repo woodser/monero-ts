@@ -1,4 +1,5 @@
 HIGH (WASM)
+monero-java & monero-cpp-library scripts use underscore like monero-javascript
 /Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
 git clone includes .git directory which is 95mbs
 resolve problem with wasm_pr_4 - cryptonote_tx_utils.cpp?
@@ -7,9 +8,7 @@ core wasm_modifiations broken
 monero_wasm_bridge serialize bigintegers as strings
 wasm checkTxKey(), getTxProof(), checkTxProof(), getSpendProof(), getReserveProofWallet()
 replace MoneroWalletcore.REJECT_UNAUTHORIZED with config per instance by constructing http_client_wasm with wallet id, then lookup wallet by id and get rejectUnauthorized config for instance
-output query setMinAmount(), setMaxAmount()
 re-enable test reserves or report issue
-log error if unsupported fields (e.g. .user or .pass) config given to MoneroRpcConnection
 no need for custom create functions in tests
 test create/openWallet(config) api
 fix consistent failures in tests (notification failures)
@@ -31,6 +30,7 @@ MoneroSyncResult received_money -> received_amount for consistency
 report issue of keys wallet setDaemonConnection not working with authentication
 finalize daemon and wallet creation api
 
+document outputQuery.setMinAmount()
 js sample code uses js objects instead of send request
 update sample code
 update readme with core wasm support
