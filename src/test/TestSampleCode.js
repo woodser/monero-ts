@@ -10,7 +10,6 @@ class TestSampleCode {
       // initialize wallet
       before(async function() {
         try {
-          await TestUtils.getWalletKeys();
           TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
           
           // create directory for test wallets if it doesn't exist
@@ -28,11 +27,15 @@ class TestSampleCode {
       it("Can be demonstrated with sample code", async function() {
         
         // import library
-        require("../../index.js");
-        //require("monero-javascript"); // *** USE IN README SAMPLE ***
+        //require("monero-javascript"); // *** USE IN README.MD ***
         
         // connect to a daemon
-        let daemon = await MoneroDaemonRpc.connect("http://localhost:38081", "superuser", "abctesting123");
+        let daemon = await MoneroDaemonRpc.connect({
+          uri: "http://localhost:38081", 
+          username: "superuser",
+          password: "abctesting123",
+          proxyToWorker: TestUtils.PROXY_TO_WORKER       // *** REMOVE FROM README.MD ***
+        });
         let height = await daemon.getHeight();           // 1523651
         let feeEstimate = await daemon.getFeeEstimate(); // 1014313512
         
@@ -76,13 +79,14 @@ class TestSampleCode {
         let outputs = await walletRpc.getOutputs(outputQuery);
         
         // create a wallet from a mnemonic phrase using WebAssembly bindings to monero-project
-        let walletWasm = await MoneroWalletWasm.createWallet({  // ** replace with below for readme **
+        let walletWasm = await MoneroWalletWasm.createWallet({  // *** REPLACE WITH BELOW FOR README.MD ***
           path: "./test_wallets/" + GenUtils.getUUID(),
           password: "supersecretpassword123",
           networkType: TestUtils.NETWORK_TYPE,
           mnemonic: TestUtils.MNEMONIC,
           server: TestUtils.getDaemonRpcConnection(),
-          restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT
+          restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT,
+          proxyToWorker: TestUtils.PROXY_TO_WORKER
         });
 //        let walletWasm = await MoneroWalletWasm.createWallet({
 //          path: "MyWallet",
@@ -105,7 +109,6 @@ class TestSampleCode {
         
         // receive notifications when the wasm wallet receives funds
         await walletWasm.addListener(new class extends MoneroWalletListener {
-          
           onOutputReceived(output) {
             console.log("Wallet received funds!");
             let txHash = output.getTx().getHash();
