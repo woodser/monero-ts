@@ -1,5 +1,4 @@
 HIGH (WASM)
-monero-java & monero-cpp-library scripts use underscore like monero-javascript
 comment wallet creation and open methods
 no need for custom create methods in tests
 sample code try...catch to close wallet
