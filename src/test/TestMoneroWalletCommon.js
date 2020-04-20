@@ -1339,11 +1339,13 @@ class TestMoneroWalletCommon {
         let query = new MoneroOutputQuery();
         query.setAccountIndex(accountIdx).setSubaddressIndex(subaddressIdx);
         query.setTxQuery(new MoneroTxQuery().setIsConfirmed(true));
+        query.setMinAmount(TestUtils.MAX_FEE);
         outputs = await that._getAndTestOutputs(that.wallet, query, true);
         for (let output of outputs) {
           assert.equal(output.getAccountIndex(), accountIdx);
           assert.equal(output.getSubaddressIndex(), subaddressIdx);
           assert.equal(output.getTx().isConfirmed(), true);
+          assert(output.getAmount().compare(TestUtils.MAX_FEE) >= 0);
         }
         
         // get output by key image

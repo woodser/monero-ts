@@ -21,6 +21,17 @@ class MoneroTransfer {
     if (state.amount !== undefined && !(state.amount instanceof BigInteger)) state.amount = BigInteger.parse(state.amount);
   }
   
+  copy() {
+    return new MoneroTransfer(this);
+  }
+  
+  toJson() {
+    let json = Object.assign({}, this.state);
+    if (this.getAmount()) json.amount = this.getAmount().toString()
+    delete json.tx; // parent tx is not serialized
+    return json;
+  }
+  
   getTx() {
     return this.state.tx;
   }
@@ -75,17 +86,6 @@ class MoneroTransfer {
     return this;
   }
   
-  copy() {
-    return new MoneroTransfer(this);
-  }
-  
-  toJson() {
-    let json = Object.assign({}, this.state);
-    if (this.getAmount()) json.amount = this.getAmount().toString()
-    delete json.tx; // parent tx is not serialized
-    return json;
-  }
-
   /**
    * Updates this transaction by merging the latest information from the given
    * transaction.

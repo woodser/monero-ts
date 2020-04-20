@@ -44,7 +44,7 @@ class TestUtils {
     } catch (e) {
       if (!(e instanceof MoneroRpcError)) throw e;
       
-      // -1 returned when the wallet does not exist or it's open by another application
+      // -1 returned when wallet does not exist or fails to open e.g. it's already open by another application
       if (e.getCode() === -1) {
         
         // create wallet
