@@ -5,6 +5,13 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   
   // --------------------------- STATIC UTILITIES -----------------------------
   
+  /**
+   * Check if a wallet exists at a given path.
+   * 
+   * @param {string} path is the path of the wallet on the file system
+   * @param {File System} is a node-js compatible file system to use (optional, defaults to disk if nodejs, in-memory FS if browser)
+   * @return {boolean} true if a wallet exists at the given path, false otherwise
+   */
   static async walletExists(path, fs) {
     assert(path, "Must provide a path to look for a wallet");
     if (!fs) fs = MoneroUtils.getDefaultFs();
@@ -13,6 +20,33 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     return exists;
   }
   
+  /**
+   * Open a wallet using WebAssembly bindings to monero-core.
+   * 
+   * All supported configuration:
+   *  {string} path - path of the wallet to open (optional if 'keysData' provided)
+   *  {string} password - password of the wallet to open
+   *  {string|number} networkType - network type of the wallet to open (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
+   *  {Uint8Array} keysData - data from a wallet keys file to open (optional if path provided)
+   *  {Uint8Array} cacheData - data from a wallet cache file to open (optional if path provided)
+   *  {string} serverUri - uri of the wallet's daemon (optional)
+   *  {string} serverUsername - username to authenticate with the daemon (optional)
+   *  {string} serverPassword - password to authenticate with the daemon (optional)
+   *  {MoneroRpcObject|object} server - MoneroRpcConnection or equivalent object providing server configuration (optional)
+   *  {boolean} rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
+   *  {boolean} proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (default: false)
+   * 
+   * For example:
+   *  let wallet = await MoneroWalletWasm.openWallet({path: "mywallet", password: "abc123", networkType: MoneroNetworkType.STAGENET, ...});
+   *  let wallet = await MoneroWalletWasm.openWallet("mywallet", password: "abc123", networkType: MoneroNetworkType.STAGENET);
+   *  
+   * @param {MoneroWalletConfig|object|string} configOrPath is a MoneroWalletConfig or equivalent JS object or a path to a wallet to open
+   * @param {string} password is the password of the wallet to open
+   * @param {string|number} networkType is the network type of the wallet to open
+   * @param {string|MoneroRpcConnection} daemonUriOrConnection is a daemon URI or MoneroRpcConnection
+   * @param {boolean} proxyToWorker proxies wallet operations to a web worker in order to not block the browser's main thread (default: false)
+   * @param {File System} fs is a node-js compatible file system to use (defaults to disk or in-memory FS if browser)
+   */
   static async openWallet(configOrPath, password, networkType, daemonUriOrConnection, proxyToWorker, fs) {
 
     // normalize and validate config
@@ -50,6 +84,33 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     return MoneroWalletWasm._openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs);
   }
   
+  /**
+   * Create a wallet using WebAssembly bindings to monero-core.
+   * 
+   * All supported configuration:
+   *  {string} path - path of the wallet to create (optional, in-memory wallet if not given)
+   *  {string} password - password of the wallet to create
+   *  {string|number} networkType - network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
+   *  {string} mnemonic - mnemonic of the wallet to create (optional)
+   *  {string} seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
+   *  {string} primaryAddress - primary address of the wallet to create if restoring from keys
+   *  {string} privateViewKey - private view key of the wallet to create (optional)
+   *  {string} privateSpendKey - private spend key of the wallet to create (optional)
+   *  {number} restoreHeight - block height to scan from when restoring a wallet (defaults to 0 unless generating random wallet)
+   *  {string} language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+   *  {string} serverUri - uri of the wallet's daemon (optional)
+   *  {string} serverUsername - username to authenticate with the daemon (optional)
+   *  {string} serverPassword - password to authenticate with the daemon (optional)
+   *  {MoneroRpcObject|object} server - MoneroRpcConnection or equivalent object providing server configuration (optional)
+   *  {boolean} rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
+   *  {boolean} proxyToWorker - proxies wallet operations to a web worker in order to not block the browser's main thread (defaults to false)
+   *  {File System} fs - node-js compatible file system to use (defaults to disk or in-memory FS if browser)
+   * 
+   * For example:
+   *  let wallet = await MoneroWalletWasm.createWallet({path: "mywallet", password: "abc123", networkType: MoneroNetworkType.STAGENET, ...});
+   *  
+   * @param {MoneroWalletConfig|object} is a MoneroWalletConfig or equivalent JS object configuring the object to create
+   */
   static async createWallet(config) {
     
     // normalize and validate config
