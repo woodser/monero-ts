@@ -89,7 +89,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    *  {string|number} networkType - network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
    *  {string} mnemonic - mnemonic of the wallet to create (optional)
    *  {string} seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
-   *  {string} primaryAddress - primary address of the wallet to create if restoring from keys
+   *  {string} primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
    *  {string} privateViewKey - private view key of the wallet to create (optional)
    *  {string} privateSpendKey - private spend key of the wallet to create (optional)
    *  {number} restoreHeight - block height to scan from when restoring a wallet (defaults to 0 unless generating random wallet)
