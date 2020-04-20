@@ -40,7 +40,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    *  let wallet = await MoneroWalletWasm.openWallet({path: "mywallet", password: "abc123", networkType: MoneroNetworkType.STAGENET, ...});
    *  let wallet = await MoneroWalletWasm.openWallet("mywallet", password: "abc123", networkType: MoneroNetworkType.STAGENET);
    *  
-   * @param {MoneroWalletConfig|object|string} configOrPath is a MoneroWalletConfig or equivalent JS object or a path to a wallet to open
+   * @param {MoneroWalletConfig|object|string} configOrPath is a MoneroWalletConfig or equivalent config object or a path to a wallet to open
    * @param {string} password is the password of the wallet to open
    * @param {string|number} networkType is the network type of the wallet to open
    * @param {string|MoneroRpcConnection} daemonUriOrConnection is a daemon URI or MoneroRpcConnection
@@ -80,10 +80,6 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     return MoneroWalletWasm._openWalletData(config.getPath(), config.getPassword(), config.getNetworkType(), config.getKeysData(), config.getCacheData(), config.getServer(), config.getProxyToWorker(), config.getFs());
   }
   
-  static async openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs) {
-    return MoneroWalletWasm._openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs);
-  }
-  
   /**
    * Create a wallet using WebAssembly bindings to monero-core.
    * 
@@ -109,7 +105,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
    * For example:
    *  let wallet = await MoneroWalletWasm.createWallet({path: "mywallet", password: "abc123", networkType: MoneroNetworkType.STAGENET, ...});
    *  
-   * @param {MoneroWalletConfig|object} is a MoneroWalletConfig or equivalent JS object configuring the object to create
+   * @param {MoneroWalletConfig|object} is a MoneroWalletConfig or equivalent config object
    */
   static async createWallet(config) {
     
@@ -134,6 +130,11 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot provide restoreHeight when creating random wallet");
       return MoneroWalletWasm.createWalletRandom(config.getPath(), config.getPassword(), config.getNetworkType(), config.getServer(), config.getLanguage(), config.getProxyToWorker(), config.getFs());
     }
+  }
+  
+  // TODO: remove, use openWallet(config) instead?
+  static async openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs) {
+    return MoneroWalletWasm._openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs);
   }
   
   static async createWalletRandom(path, password, networkType, daemonUriOrConnection, language, proxyToWorker, fs) {

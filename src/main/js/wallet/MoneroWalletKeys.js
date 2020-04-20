@@ -5,6 +5,24 @@ class MoneroWalletKeys extends MoneroWallet {
   
   // --------------------------- STATIC UTILITIES -----------------------------
   
+  /**
+   * Create a wallet using WebAssembly bindings to monero-core.
+   * 
+   * All supported configuration:
+   *  {string} password - password of the wallet to create
+   *  {string|number} networkType - network type of the wallet to create (one of "mainnet", "testnet", "stagenet" or MoneroNetworkType.MAINNET|TESTNET|STAGENET)
+   *  {string} mnemonic - mnemonic of the wallet to create (optional)
+   *  {string} seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
+   *  {string} primaryAddress - primary address of the wallet to create if restoring from keys
+   *  {string} privateViewKey - private view key of the wallet to create (optional)
+   *  {string} privateSpendKey - private spend key of the wallet to create (optional)
+   *  {string} language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+   * 
+   * For example:
+   *  let wallet = await MoneroWalletKeys.createWallet({password: "abc123", networkType: MoneroNetworkType.STAGENET, mnemonic: "..."});
+   *  
+   * @param {MoneroWalletConfig|object} is a MoneroWalletConfig or equivalent config object
+   */
   static async createWallet(config) {
     
     // normalize and validate config
