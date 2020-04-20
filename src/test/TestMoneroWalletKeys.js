@@ -23,15 +23,15 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
   }
   
   async createWalletRandom() {
-    return await MoneroWalletKeys.createWalletRandom(TestUtils.NETWORK_TYPE);
+    return await MoneroWalletKeys.createWallet({networkType: TestUtils.NETWORK_TYPE});
   }
   
   async createWalletFromMnemonic(mnemonic, daemonConnection, restoreHeight, seedOffset) {
-    return await MoneroWalletKeys.createWalletFromMnemonic(TestUtils.NETWORK_TYPE, mnemonic, seedOffset);
+    return await MoneroWalletKeys.createWallet({networkType: TestUtils.NETWORK_TYPE, mnemonic: mnemonic, seedOffset: seedOffset});
   }
   
   async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {  // TODO: daemonConnection placeholder not applicable for this method, use wallet creation config?
-    return await MoneroWalletKeys.createWalletFromKeys(TestUtils.NETWORK_TYPE, address, privateViewKey, privateSpendKey, language);
+    return await MoneroWalletKeys.createWallet({networkType: TestUtils.NETWORK_TYPE, primaryAddress: address, privateViewKey: privateViewKey, privateSpendKey: privateSpendKey, language: language});
   }
   
   async getMnemonicLanguages() {

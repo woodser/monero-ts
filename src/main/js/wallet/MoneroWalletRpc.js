@@ -92,25 +92,25 @@ class MoneroWalletRpc extends MoneroWallet {
   async createWallet(config) {
     
     // normalize and validate config
-    if (config === undefined) throw new MoneroError("Must specify config to create wallet");
+    if (config === undefined) throw new MoneroError("Must provide config to create wallet");
     config = config instanceof MoneroWalletConfig ? config : new MoneroWalletConfig(config);
-    if (config.getNetworkType() !== undefined) throw new MoneroError("Cannot specify networkType when creating RPC wallet because server's network type is already set");
     if (config.getMnemonic() !== undefined && (config.getPrimaryAddress() !== undefined || config.getPrivateViewKey() !== undefined || config.getPrivateSpendKey() !== undefined)) {
       throw new MoneroError("Wallet may be initialized with a mnemonic or keys but not both");
     }
+    if (config.getNetworkType() !== undefined) throw new MoneroError("Cannot provide networkType when creating RPC wallet because server's network type is already set");
     if (config.getServerUri() !== undefined || config.getServerUsername() !== undefined || config.getServerPassword() !== undefined) {
-      throw new MoneroError("Cannot specify server configuration when creating RPC wallet");  // TODO: test setting wallet-rpc's daemon to support this field
+      throw new MoneroError("Cannot provide server configuration when creating RPC wallet");  // TODO: test setting wallet-rpc's daemon to support this field
     }
     
     // create wallet
     if (config.getMnemonic() !== undefined) {
       return this.createWalletFromMnemonic(config.getPath(), config.getPassword(), config.getMnemonic(), config.getRestoreHeight(), config.getLanguage(), config.getSeedOffset(), config.getSaveCurrent());
     } else if (config.getPrimaryAddress() !== undefined) {
-      if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot specify seed offset when creating wallet from keys");
+      if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating wallet from keys");
       return this.createWalletFromKeys(config.getPath(), config.getPassword(), config.getPrimaryAddress(), config.getPrivateViewKey(), config.getPrivateSpendKey(), config.getRestoreHeight(), config.getLanguage(), config.getSaveCurrent());
     } else {
-      if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot specify seed offset when creating random wallet");
-      if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot specify restoreHeight when creating random wallet");
+      if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating random wallet");
+      if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot provide restoreHeight when creating random wallet");
       if (config.getSaveCurrent() === false) throw new MoneroError("Current wallet is saved automatically when creating random wallet");
       return this.createWalletRandom(config.getPath(), config.getPassword(), config.getLanguage());
     }

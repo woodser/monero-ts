@@ -53,24 +53,24 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   static async createWallet(config) {
     
     // normalize and validate config
-    if (config === undefined) throw new MoneroError("Must specify config to create wallet");
+    if (config === undefined) throw new MoneroError("Must provide config to create wallet");
     config = config instanceof MoneroWalletConfig ? config : new MoneroWalletConfig(config);
-    if (config.getNetworkType() === undefined) throw new MoneroError("Must specify a network type: 'mainnet', 'testnet' or 'stagenet'");
     if (config.getMnemonic() !== undefined && (config.getPrimaryAddress() !== undefined || config.getPrivateViewKey() !== undefined || config.getPrivateSpendKey() !== undefined)) {
       throw new MoneroError("Wallet may be initialized with a mnemonic or keys but not both");
-    }
-    if (config.getSaveCurrent() === true) throw new MoneroError("Cannot save current wallet when creating JNI wallet");
+    } // TODO: factor this much out to common
+    if (config.getNetworkType() === undefined) throw new MoneroError("Must provide a networkType: 'mainnet', 'testnet' or 'stagenet'");
+    if (config.getSaveCurrent() === true) throw new MoneroError("Cannot save current wallet when creating WASM wallet");
     
     // create wallet
     if (config.getMnemonic() !== undefined) {
-      if (config.getLanguage() !== undefined) throw new MoneroError("Cannot specify language when creating wallet from mnemonic");
+      if (config.getLanguage() !== undefined) throw new MoneroError("Cannot provide language when creating wallet from mnemonic");
       return MoneroWalletWasm.createWalletFromMnemonic(config.getPath(), config.getPassword(), config.getNetworkType(), config.getMnemonic(), config.getServer(), config.getRestoreHeight(), config.getSeedOffset(), config.getProxyToWorker(), config.getFs());
     } else if (config.getPrimaryAddress() !== undefined) {
-      if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot specify seed offset when creating wallet from keys");
+      if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating wallet from keys");
       return MoneroWalletWasm.createWalletFromKeys(config.getPath(), config.getPassword(), config.getNetworkType(), config.getPrimaryAddress(), config.getPrivateViewKey(), config.getPrivateSpendKey(), config.getServer(), config.getRestoreHeight(), config.getLanguage(), config.getProxyToWorker(), config.getFs());
     } else {
-      if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot specify seed offset when creating random wallet");
-      if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot specify restore height when creating random wallet");
+      if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating random wallet");
+      if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot provide restoreHeight when creating random wallet");
       return MoneroWalletWasm.createWalletRandom(config.getPath(), config.getPassword(), config.getNetworkType(), config.getServer(), config.getLanguage(), config.getProxyToWorker(), config.getFs());
     }
   }
