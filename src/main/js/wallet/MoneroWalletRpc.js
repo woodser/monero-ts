@@ -76,7 +76,9 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   /**
-   * Open an existing wallet on the RPC server.
+   * Open an existing wallet with monero-wallet-rpc.
+   * 
+   * TODO: support configuration object
    * 
    * @param {string} name is the name of the wallet file to open
    * @param {string} password is the password to decrypt the wallet file
@@ -89,6 +91,26 @@ class MoneroWalletRpc extends MoneroWallet {
     this.path = name;
   }
   
+  /**
+   * Create a wallet with monero-wallet-rpc.
+   * 
+   * All supported configuration:
+   *  {string} path - path of the wallet to create (optional, in-memory wallet if not given)
+   *  {string} password - password of the wallet to create
+   *  {string} mnemonic - mnemonic of the wallet to create (optional)
+   *  {string} seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
+   *  {string} primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
+   *  {string} privateViewKey - private view key of the wallet to create (optional)
+   *  {string} privateSpendKey - private spend key of the wallet to create (optional)
+   *  {number} restoreHeight - block height to scan from when restoring a wallet (defaults to 0 unless generating random wallet)
+   *  {string} language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+   * 
+   * For example:
+   *  let wallet = await MoneroWalletRpc.connect({uri: "http://localhost:38083", username: "rpc_user", password: "abc123"});
+   *  await wallet.createWallet({path: "mywallet", password: "abc123", networkType: MoneroNetworkType.STAGENET});
+   *  
+   * @param {MoneroWalletConfig|object} is a MoneroWalletConfig or equivalent config object
+   */
   async createWallet(config) {
     
     // normalize and validate config
