@@ -111,7 +111,7 @@ class TestUtils {
     if (TestUtils.walletKeys === undefined) {
       
       // create wallet from mnemonic
-      TestUtils.walletKeys = MoneroWalletKeys.createWalletFromMnemonic(TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC);
+      TestUtils.walletKeys = MoneroWalletKeys.createWallet({networkType: TestUtils.NETWORK_TYPE, mnemonic: TestUtils.MNEMONIC});
     }
     return TestUtils.walletKeys;
   }

@@ -5,6 +5,31 @@ class MoneroWalletKeys extends MoneroWallet {
   
   // --------------------------- STATIC UTILITIES -----------------------------
   
+  static async createWallet(config) {
+    
+    // normalize and validate config
+    if (config === undefined) throw new MoneroError("Must provide config to create wallet");
+    config = config instanceof MoneroWalletConfig ? config : new MoneroWalletConfig(config);
+    if (config.getMnemonic() !== undefined && (config.getPrimaryAddress() !== undefined || config.getPrivateViewKey() !== undefined || config.getPrivateSpendKey() !== undefined)) {
+      throw new MoneroError("Wallet may be initialized with a mnemonic or keys but not both");
+    }
+    if (config.getNetworkType() === undefined) throw new MoneroError("Must provide a networkType: 'mainnet', 'testnet' or 'stagenet'");
+    if (config.getSaveCurrent() === true) throw new MoneroError("Cannot save current wallet when creating keys-only wallet");
+    
+    // create wallet
+    if (config.getMnemonic() !== undefined) {
+      if (config.getLanguage() !== undefined) throw new MoneroError("Cannot provide language when creating wallet from mnemonic");
+      return MoneroWalletKeys.createWalletFromMnemonic(config.getNetworkType(), config.getMnemonic(), config.getSeedOffset());
+    } else if (config.getPrimaryAddress() !== undefined) {
+      if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating wallet from keys");
+      return MoneroWalletKeys.createWalletFromKeys(config.getNetworkType(), config.getPrimaryAddress(), config.getPrivateViewKey(), config.getPrivateSpendKey(), config.getLanguage());
+    } else {
+      if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating random wallet");
+      if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot provide restoreHeight when creating random wallet");
+      return MoneroWalletKeys.createWalletRandom(config.getNetworkType(), config.getLanguage());
+    }
+  }
+  
   static async createWalletRandom(networkType, language) {
 
     // validate and sanitize params
