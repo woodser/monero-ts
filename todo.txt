@@ -1,35 +1,32 @@
 HIGH (WASM)
 monero-java & monero-cpp-library scripts use underscore like monero-javascript
+comment wallet creation and open methods
+no need for custom create methods in tests
+sample code try...catch to close wallet
+remaining daemon rpc proxy implementations
+core wasm_modifications broken - cryptonote_tx_utils.cpp?
+replace MoneroWalletcore.REJECT_UNAUTHORIZED with config per instance by constructing http_client_wasm with wallet id, then lookup wallet by id and get rejectUnauthorized config for instance
+test onOuputSent() when swept
+all-in-one wasm build script
+fix consistent failures in tests (notification failures)
+rename sign/verify to signMessage(), verifyMessage();
+MoneroSyncResult received_money -> received_amount for consistency
+monero_wasm_bridge serialize bigintegers as strings
+new test wallet before receiving funds breaks tests
+combine TestAll and BrowserTests
+C++ MTRACE statements execute argument which could be major performance hit
+proxied txs, transfers, outputs are unnecessariliy stringified then parsed
+wasm checkTxKey(), getTxProof(), checkTxProof(), getSpendProof(), getReserveProofWallet()
+re-enable test reserves or report issue
 /Users/xxx/git/monero-javascript/external/monero-cpp-library/external/monero-core/external/rapidjson/include/rapidjson/document.h,2485,GetAllocator
 git clone includes .git directory which is 95mbs
-resolve problem with wasm_pr_4 - cryptonote_tx_utils.cpp?
-comment wallet creation and open methods
-core wasm_modifiations broken
-monero_wasm_bridge serialize bigintegers as strings
-wasm checkTxKey(), getTxProof(), checkTxProof(), getSpendProof(), getReserveProofWallet()
-replace MoneroWalletcore.REJECT_UNAUTHORIZED with config per instance by constructing http_client_wasm with wallet id, then lookup wallet by id and get rejectUnauthorized config for instance
-re-enable test reserves or report issue
-no need for custom create functions in tests
-test create/openWallet(config) api
-fix consistent failures in tests (notification failures)
-sample code try...catch to close wallet
-test onOuputSent() when swept
-new test wallet before receiving funds breaks tests
-remaining daemon rpc proxy implementations
-in-memory wallet; wallet2 password is required to create valid cache file on creation (start with tests)
 startSynchronizing() should use pre-started loop so it's a random start time like core
 pre-compress wasm file so server is not compressing when requested: https://emscripten.org/docs/compiling/WebAssembly.html?highlight=wasm
 optimize asyncify, see https://kripken.github.io/blog/wasm/2019/07/16/asyncify.html
-C++ MTRACE statements execute argument which could be major performance hit
-all-in-one wasm build script
-proxied txs, transfers, outputs are unnecessariliy stringified then parsed
-rename sign/verify to signMessage(), verifyMessage()?
-architecture document
-combine TestAll and BrowserTests
-MoneroSyncResult received_money -> received_amount for consistency
-report issues: keys wallet setDaemonConnection not working with authentication
 
+architecture document
 document outputQuery.setMinAmount()
+report issues: keys wallet setDaemonConnection not working with authentication
 js sample code uses js objects instead of send request
 update sample code
 update readme with core wasm support
@@ -45,6 +42,7 @@ MoneroDaemonRpc support 3 string args, just like MoneroWalletRpc or factor metho
 support MoneroWalletRpc(string uri, string username, string password) like java
 build boost and openssl in ./bin/build_dist.sh only if necessary
 emscripten logging
+in-memory wallet; wallet2 password is required to create valid cache file on creation (start with tests)
 delete old branches
 test queuing sync requests in test which opens and closes multiple wallets
 low severity vulnerabilities
