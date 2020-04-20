@@ -224,6 +224,8 @@ namespace monero {
    */
   struct monero_output_query : public monero_output_wallet {
     vector<uint32_t> m_subaddress_indices;
+    boost::optional<uint64_t> m_min_amount;
+    boost::optional<uint64_t> m_max_amount;
     boost::optional<shared_ptr<monero_tx_query>> m_tx_query;
 
     //boost::property_tree::ptree to_property_tree() const;

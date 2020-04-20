@@ -935,6 +935,11 @@ namespace monero {
     // set sub-arrays
     if (!m_subaddress_indices.empty()) root.AddMember("subaddressIndices", monero_utils::to_rapidjson_val(allocator, m_subaddress_indices), allocator);
 
+    // set num values
+    rapidjson::Value value_num(rapidjson::kNumberType);
+    if (m_min_amount != boost::none) monero_utils::addJsonMember("minAmount", m_min_amount.get(), allocator, root, value_num);
+    if (m_max_amount != boost::none) monero_utils::addJsonMember("maxAmount", m_max_amount.get(), allocator, root, value_num);
+
     // return root
     return root;
   }
@@ -946,6 +951,8 @@ namespace monero {
     for (boost::property_tree::ptree::const_iterator it = node.begin(); it != node.end(); ++it) {
       string key = it->first;
       if (key == string("subaddressIndices")) for (boost::property_tree::ptree::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) output_query->m_subaddress_indices.push_back(it2->second.get_value<uint32_t>());
+      else if (key == string("minAmount")) output_query->m_min_amount = it->second.get_value<uint64_t>();
+      else if (key == string("maxAmount")) output_query->m_max_amount = it->second.get_value<uint64_t>();
       else if (key == string("txQuery")) {} // ignored
     }
   }
@@ -1000,6 +1007,8 @@ namespace monero {
 
     // copy extensions
     if (!src->m_subaddress_indices.empty()) tgt->m_subaddress_indices = vector<uint32_t>(src->m_subaddress_indices);
+    tgt->m_min_amount = src->m_min_amount;
+    tgt->m_max_amount = src->m_max_amount;
     return tgt;
   };
 
@@ -1020,6 +1029,8 @@ namespace monero {
 
     // filter on extensions
     if (!m_subaddress_indices.empty() && find(m_subaddress_indices.begin(), m_subaddress_indices.end(), *output->m_subaddress_index) == m_subaddress_indices.end()) return false;
+    if (m_min_amount != boost::none && (output->m_amount == boost::none || output->m_amount.get() < m_min_amount.get())) return false;
+    if (m_max_amount != boost::none && (output->m_amount == boost::none || output->m_amount.get() > m_max_amount.get())) return false;
 
     // filter with tx query
     if (m_tx_query != boost::none && !(*m_tx_query)->meets_criteria(static_pointer_cast<monero_tx_wallet>(output->m_tx).get())) return false;
