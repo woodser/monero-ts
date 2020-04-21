@@ -20,7 +20,7 @@ class MoneroWalletConfig {
     // check for unsupported fields
     for (let key of Object.keys(this.config)) {
       if (!GenUtils.arrayContains(MoneroWalletConfig.SUPPORTED_FIELDS, key)) {
-        throw new MoneroError("Wallet config includes supported field: '" + key + "'");
+        throw new MoneroError("Wallet config includes unsupported field: '" + key + "'");
       }
     }
   }

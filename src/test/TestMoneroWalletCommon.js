@@ -55,35 +55,20 @@ class TestMoneroWalletCommon {
   /**
    * Open a test wallet.
    * 
-   * @param path identifies the test wallet to open
-   * @return MoneroWallet returns a reference to the opened wallet
+   * @param config configures the wallet to open
+   * @return MoneroWallet is the opened wallet
    */
-  async openWallet(path) {
+  async openWallet(config) {
     throw new Error("Subclass must implement");
   }
   
   /**
-   * Create and open a random test wallet.
+   * Create a test wallet.
    * 
-   * @return the random test wallet
+   * @param config configures the wallet to create
+   * @return MoneroWallet is the created wallet
    */
-  async createWalletRandom() {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
-   * Create and open a test wallet from a mnemonic phrase.
-   * 
-   * @return the created test wallet
-   */
-  async createWalletFromMnemonic(mnemonic, restoreHeight, seedOffset) {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
-   * Create a wallet from keys.
-   */
-  async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {
+  async createWallet(config) {
     throw new Error("Subclass must implement");
   }
   
@@ -126,7 +111,7 @@ class TestMoneroWalletCommon {
       it("Can create a random wallet", async function() {
         let e1 = undefined;
         try {
-          that.wallet = await that.createWalletRandom();
+          that.wallet = await that.createWallet();
           let e2 = undefined;
           try {
             MoneroUtils.validateAddress(await that.wallet.getPrimaryAddress());
@@ -159,7 +144,7 @@ class TestMoneroWalletCommon {
           let privateSpendKey = await that.wallet.getPrivateSpendKey();
           
           // recreate test wallet from mnemonic
-          that.wallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, await TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT);
+          that.wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
           let e2 = undefined;
           try {
             assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
@@ -186,7 +171,7 @@ class TestMoneroWalletCommon {
         try {
           
           // create test wallet with offset
-          that.wallet = await that.createWalletFromMnemonic(TestUtils.MNEMONIC, await TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, "my secret offset!");
+          that.wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, seedOffset: "my secret offset!"});
           let e2 = undefined;
           try {
             MoneroUtils.validateMnemonic(await that.wallet.getMnemonic());
@@ -219,7 +204,7 @@ class TestMoneroWalletCommon {
           let privateSpendKey = await that.wallet.getPrivateSpendKey();
           
           // recreate test wallet from keys
-          that.wallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, privateSpendKey, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+          that.wallet = await that.createWallet({primaryAddress: primaryAddress, privateViewKey: privateViewKey, privateSpendKey: privateSpendKey, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
           let e2 = undefined;
           try {
             assert.equal(await that.wallet.getPrimaryAddress(), primaryAddress);
@@ -256,7 +241,7 @@ class TestMoneroWalletCommon {
       it("Can get the wallet's path", async function() {
         
         // create a random wallet
-        let wallet = await that.createWalletRandom();
+        let wallet = await that.createWallet();
         
         // set a random attribute
         let uuid = GenUtils.getUUID();
@@ -267,7 +252,7 @@ class TestMoneroWalletCommon {
         await wallet.close(true);
         
         // re-open the wallet using its path
-        wallet = await that.openWallet(path);
+        wallet = await that.openWallet({path: path});
         
         // test the attribute
         assert.equal(await wallet.getAttribute("uuid"), uuid);
@@ -2058,7 +2043,7 @@ class TestMoneroWalletCommon {
       it("Can save and close the wallet in a single call", async function() {
         
         // create a random wallet
-        let wallet = await that.createWalletRandom();
+        let wallet = await that.createWallet();
         let path = await wallet.getPath();
                 
         // set an attribute
@@ -2069,7 +2054,7 @@ class TestMoneroWalletCommon {
         await wallet.close();
         
         // re-open the wallet and ensure attribute was not saved
-        wallet = await that.openWallet(path);
+        wallet = await that.openWallet({path: path});
         assert.equal(await wallet.getAttribute("id"), undefined);
         
         // set the attribute and close with saving
@@ -2078,7 +2063,7 @@ class TestMoneroWalletCommon {
         await wallet.close();
         
         // re-open the wallet and ensure attribute was saved
-        wallet = await that.openWallet(path);
+        wallet = await that.openWallet({path: path});
         assert.equal(await wallet.getAttribute("id"), uuid);
         
         // re-open main test wallet
@@ -2717,7 +2702,7 @@ class TestMoneroWalletCommon {
         try {
           
           // create and sync watch-only wallet
-          watchOnlyWallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, undefined, await TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined);
+          watchOnlyWallet = await that.createWallet({primaryAddress: primaryAddress, privateViewKey: privateViewKey, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
           assert.equal(await watchOnlyWallet.getPrimaryAddress(), primaryAddress);
           assert.equal(await watchOnlyWallet.getPrivateViewKey(), privateViewKey);
           assert.equal(await watchOnlyWallet.getPrivateSpendKey(), undefined);
@@ -2735,7 +2720,7 @@ class TestMoneroWalletCommon {
           
           // create offline wallet
           await watchOnlyWallet.close(true);  // only one wallet open at a time to accommodate testing wallet rpc
-          offlineWallet = await that.createWalletFromKeys(primaryAddress, privateViewKey, privateSpendKey, undefined, 0, undefined);
+          offlineWallet = await that.createWallet({primaryAddress: primaryAddress, privateViewKey: privateViewKey, privateSpendKey: privateSpendKey, serverUri: "", restoreHeight: 0});
           assert(!await offlineWallet.isConnected());
           assert(!await offlineWallet.isWatchOnly());
           if (!(offlineWallet instanceof MoneroWalletRpc)) assert.equal(await offlineWallet.getMnemonic(), TestUtils.MNEMONIC); // TODO monero-core: cannot get mnemonic from offline wallet rpc
@@ -2750,7 +2735,7 @@ class TestMoneroWalletCommon {
           
           // import key images to watch-only wallet
           await offlineWallet.close(true);
-          watchOnlyWallet = await that.openWallet(watchOnlyPath);
+          watchOnlyWallet = await that.openWallet({path: watchOnlyPath});
           await watchOnlyWallet.importKeyImages(keyImages);
           
           // create unsigned tx using watch-only wallet
@@ -2760,7 +2745,7 @@ class TestMoneroWalletCommon {
           
           // sign tx using offline wallet
           await watchOnlyWallet.close(true);
-          offlineWallet = await that.openWallet(offlineWalletPath);
+          offlineWallet = await that.openWallet({path: offlineWalletPath});
           let signedTxHex = await offlineWallet.signTxs(unsignedTxSet.getUnsignedTxHex());
           assert(signedTxHex.length > 0);
           
@@ -2771,7 +2756,7 @@ class TestMoneroWalletCommon {
           // submit signed tx using watch-only wallet
           if (config.testRelays) {
             await offlineWallet.close();
-            watchOnlyWallet = await that.openWallet(watchOnlyPath);
+            watchOnlyWallet = await that.openWallet({path: watchOnlyPath});
             let txHashes = await watchOnlyWallet.submitTxs(signedTxHex);
             assert.equal(txHashes.length, 1);
             assert.equal(txHashes[0].length, 64);
@@ -3537,7 +3522,7 @@ class TestMoneroWalletCommon {
       let preparedMultisigHexes = [];
       let walletIds = [];
       for (let i = 0; i < n; i++) {
-        let wallet = await this.createWalletRandom();
+        let wallet = await this.createWallet();
         walletIds.push(await wallet.getPath());
         await wallet.setAttribute("name", await wallet.getPath());  // set the name of each wallet as an attribute
         preparedMultisigHexes.push(await wallet.prepareMultisig());
@@ -3551,7 +3536,7 @@ class TestMoneroWalletCommon {
       for (let i = 0; i < walletIds.length; i++) {
         
         // open the wallet
-        let wallet = await this.openWallet(walletIds[i]);
+        let wallet = await this.openWallet({path: walletIds[i]});
         assert.equal(await wallet.getAttribute("name"), walletIds[i]);
         
         // collect prepared multisig hexes from wallet's peers
@@ -3583,7 +3568,7 @@ class TestMoneroWalletCommon {
             let walletId = walletIds[j];
             
             // open the wallet
-            let wallet = await this.openWallet(walletId);
+            let wallet = await this.openWallet({path: walletId});
             assert.equal(await wallet.getAttribute("name"), walletIds[j]);
             
             // collect the multisig hexes of the wallet's peers from last round
@@ -3618,7 +3603,7 @@ class TestMoneroWalletCommon {
       }
       
       // print final multisig address
-      curWallet = await this.openWallet(walletIds[0]);
+      curWallet = await this.openWallet({path: walletIds[0]});
       assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
       //console.log("FINAL MULTISIG ADDRESS: " + await curWallet.getPrimaryAddress());
       await curWallet.close();
@@ -3629,7 +3614,7 @@ class TestMoneroWalletCommon {
         console.log("Creating account");
         
         // create an account in the first multisig wallet to receive funds to
-        curWallet = await this.openWallet(walletIds[0]);
+        curWallet = await this.openWallet({path: walletIds[0]});
         assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
         await curWallet.createAccount();
         
@@ -3652,7 +3637,7 @@ class TestMoneroWalletCommon {
         let returnAddress = await curWallet.getPrimaryAddress(); // funds will be returned to this address from the multisig wallet
         
         // open the first multisig participant
-        curWallet = await this.openWallet(walletIds[0]);
+        curWallet = await this.openWallet({path: walletIds[0]});
         assert.equal(await curWallet.getAttribute("name"), walletIds[0]);
         this._testMultisigInfo(await curWallet.getMultisigInfo(), m, n);
         await curWallet.startSyncing();
@@ -3734,7 +3719,7 @@ class TestMoneroWalletCommon {
         let multisigTxHex = txSet.getMultisigTxHex();
         console.log("Signing");
         for (let i = 1; i < m; i++) {
-          curWallet = await this.openWallet(walletIds[i]);
+          curWallet = await this.openWallet({path: walletIds[i]});
           let result = await curWallet.signMultisigTxHex(multisigTxHex);
           multisigTxHex = result.getSignedMultisigTxHex();
           await curWallet.close(true);
@@ -3744,7 +3729,7 @@ class TestMoneroWalletCommon {
         
         // submit the signed multisig tx hex to the network
         console.log("Submitting");
-        curWallet = await this.openWallet(walletIds[0]);
+        curWallet = await this.openWallet({path: walletIds[0]});
         let txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
         await curWallet.save();
         
@@ -3771,7 +3756,7 @@ class TestMoneroWalletCommon {
         multisigTxHex = txSet.getMultisigTxHex();
         console.log("Signing sweep output");
         for (let i = 1; i < m; i++) {
-          curWallet = await this.openWallet(walletIds[i]);
+          curWallet = await this.openWallet({path: walletIds[i]});
           let result = await curWallet.signMultisigTxHex(multisigTxHex);
           multisigTxHex = result.getSignedMultisigTxHex();
           await curWallet.close(true);
@@ -3779,7 +3764,7 @@ class TestMoneroWalletCommon {
         
         // submit the signed multisig tx hex to the network
         console.log("Submitting sweep output");
-        curWallet = await this.openWallet(walletIds[0]);
+        curWallet = await this.openWallet({path: walletIds[0]});
         txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
         await curWallet.save();
         
@@ -3811,7 +3796,7 @@ class TestMoneroWalletCommon {
         multisigTxHex = txSet.getMultisigTxHex();
         console.log("Signing sweep");
         for (let i = 1; i < m; i++) {
-          curWallet = await this.openWallet(walletIds[i]);
+          curWallet = await this.openWallet({path: walletIds[i]});
           let result = await curWallet.signMultisigTxHex(multisigTxHex);
           multisigTxHex = result.getSignedMultisigTxHex();
           await curWallet.close(true);
@@ -3819,7 +3804,7 @@ class TestMoneroWalletCommon {
         
         // submit the signed multisig tx hex to the network
         console.log("Submitting sweep");
-        curWallet = await this.openWallet(walletIds[0]);
+        curWallet = await this.openWallet({path: walletIds[0]});
         txHashes = await curWallet.submitMultisigTxHex(multisigTxHex);
         await curWallet.save();
         
@@ -3853,7 +3838,7 @@ class TestMoneroWalletCommon {
     // collect multisig hex of all participants to synchronize
     let multisigHexes = [];
     for (let walletId of walletIds) {
-      let wallet = await this.openWallet(walletId);
+      let wallet = await this.openWallet({path: walletId});
       await wallet.sync();
       let hex = await wallet.getMultisigHex();
       multisigHexes.push(hex);
@@ -3864,14 +3849,14 @@ class TestMoneroWalletCommon {
     for (let i = 0; i < walletIds.length; i++) {
       let peerMultisigHexes = [];
       for (let j = 0; j < walletIds.length; j++) if (j !== i) peerMultisigHexes.push(multisigHexes[j]);
-      let wallet = await this.openWallet(walletIds[i]);
+      let wallet = await this.openWallet({path: walletIds[i]});
       await wallet.sync();
       await wallet.importMultisigHex(peerMultisigHexes);
       await wallet.close(true);
     }
     
     // re-open current wallet and return
-    let endWallet = await this.openWallet(path);
+    let endWallet = await this.openWallet({path: path});
     await endWallet.sync();
     return endWallet;
   }
