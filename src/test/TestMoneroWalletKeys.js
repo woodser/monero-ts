@@ -18,22 +18,24 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
     throw new Error("TestMoneroWalletKeys.getTestDaemon() not applicable");
   }
   
-  async openWallet(path) {
-    throw new Error("TestMoneroWalletKeys.openWallet(path) not applicable");
+  async openWallet(config) {
+    throw new Error("TestMoneroWalletKeys.openWallet(config) not applicable");
   }
   
-  async createWalletRandom() {
-    return await MoneroWalletKeys.createWallet({networkType: TestUtils.NETWORK_TYPE});
+  async createWallet(config) {
+    
+    // default config
+    if (!config) config = {};
+    config = Object.assign({
+      password: TestUtils.WALLET_PASSWORD,
+      networkType: TestUtils.NETWORK_TYPE
+    }, config);
+    if (config.server || config.serverUri) throw new Error("Cannot initialize keys wallet with connection");
+    
+    // create wallet
+    return await MoneroWalletKeys.createWallet(config);
   }
-  
-  async createWalletFromMnemonic(mnemonic, daemonConnection, restoreHeight, seedOffset) {
-    return await MoneroWalletKeys.createWallet({networkType: TestUtils.NETWORK_TYPE, mnemonic: mnemonic, seedOffset: seedOffset});
-  }
-  
-  async createWalletFromKeys(address, privateViewKey, privateSpendKey, daemonConnection, firstReceiveHeight, language) {  // TODO: daemonConnection placeholder not applicable for this method, use wallet creation config?
-    return await MoneroWalletKeys.createWallet({networkType: TestUtils.NETWORK_TYPE, primaryAddress: address, privateViewKey: privateViewKey, privateSpendKey: privateSpendKey, language: language});
-  }
-  
+
   async getMnemonicLanguages() {
     return await MoneroWalletKeys.getMnemonicLanguages();
   }
@@ -75,13 +77,14 @@ class TestMoneroWalletKeys extends TestMoneroWalletCommon {
         
         // create rpc wallet with offset
         let walletRpc = await TestUtils.getWalletRpc();
-        await walletRpc.createWalletFromMnemonic(GenUtils.getUUID(), TestUtils.WALLET_PASSWORD, await walletRpc.getMnemonic(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, seedOffset, undefined);
+        await walletRpc.createWallet({path: GenUtils.getUUID(), password: TestUtils.WALLET_PASSWORD, mnemonic: await walletRpc.getMnemonic(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, seedOffset: seedOffset});
         
         // create keys-only wallet with offset
-        let walletKeys = await MoneroWalletKeys.createWalletFromMnemonic(
-            TestUtils.NETWORK_TYPE,
-            TestUtils.MNEMONIC,
-            seedOffset);
+        let walletKeys = await MoneroWalletKeys.createWallet({
+            networkType: TestUtils.NETWORK_TYPE,
+            mnemonic: TestUtils.MNEMONIC,
+            seedOffset: seedOffset
+        });
         
         // deep compare
         await WalletEqualityUtils.testWalletEqualityKeys(walletRpc, walletKeys);

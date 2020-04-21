@@ -120,8 +120,8 @@ class MoneroWalletRpc extends MoneroWallet {
       throw new MoneroError("Wallet may be initialized with a mnemonic or keys but not both");
     }
     if (config.getNetworkType() !== undefined) throw new MoneroError("Cannot provide networkType when creating RPC wallet because server's network type is already set");
-    if (config.getServerUri() !== undefined || config.getServerUsername() !== undefined || config.getServerPassword() !== undefined) {
-      throw new MoneroError("Cannot provide server configuration when creating RPC wallet");  // TODO: test setting wallet-rpc's daemon to support this field
+    if (config.getServerUri() || config.getServerUsername() || config.getServerPassword()) {
+      //throw new MoneroError("Cannot provide server configuration when creating RPC wallet");  // TODO: test setting wallet-rpc's daemon to support this field
     }
     
     // create wallet
