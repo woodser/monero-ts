@@ -139,11 +139,6 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     }
   }
   
-  // TODO: remove, use openWallet(config) instead?
-  static async openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs) {
-    return MoneroWalletWasm._openWalletData(path, password, networkType, keysData, cacheData, daemonUriOrConnection, proxyToWorker, fs);
-  }
-  
   static async createWalletRandom(path, password, networkType, daemonUriOrConnection, language, proxyToWorker, fs) {
     if (proxyToWorker) return MoneroWalletWasmProxy.createWalletRandom(path, password, networkType, daemonUriOrConnection, language, fs);
     
