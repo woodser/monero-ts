@@ -44,15 +44,6 @@ class TestMoneroWalletCommon {
   }
   
   /**
-   * Get the daemon being used during tests.
-   * 
-   * @return the daemon being used
-   */
-  async getTestDaemon() {
-    throw new Error("Subclass must implement");
-  }
-  
-  /**
    * Open a test wallet with default configuration for each wallet type.
    * 
    * @param config configures the wallet to open
