@@ -40,7 +40,7 @@ class TestUtils {
     
     // attempt to open test wallet
     try {
-      await TestUtils.walletRpc.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+      await TestUtils.walletRpc.openWallet({path: TestUtils.WALLET_RPC_NAME_1, password: TestUtils.WALLET_PASSWORD});
     } catch (e) {
       if (!(e instanceof MoneroRpcError)) throw e;
       
@@ -48,7 +48,7 @@ class TestUtils {
       if (e.getCode() === -1) {
         
         // create wallet
-        await TestUtils.walletRpc.createWalletFromMnemonic(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD, TestUtils.MNEMONIC, TestUtils.FIRST_RECEIVE_HEIGHT);
+        await TestUtils.walletRpc.createWallet({path: TestUtils.WALLET_RPC_NAME_1, password: TestUtils.WALLET_PASSWORD, mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
       } else {
         throw e;
       }
@@ -85,7 +85,7 @@ class TestUtils {
         }
         
         // create wallet with connection
-        TestUtils.walletWasm = await MoneroWalletWasm.createWalletFromMnemonic(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.MNEMONIC, TestUtils.getDaemonRpcConnection(), TestUtils.FIRST_RECEIVE_HEIGHT, undefined, TestUtils.PROXY_TO_WORKER);
+        TestUtils.walletWasm = await MoneroWalletWasm.createWallet({path: TestUtils.WALLET_WASM_PATH_1, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, mnemonic: TestUtils.MNEMONIC, server: TestUtils.getDaemonRpcConnection(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER});
         assert.equal(await TestUtils.walletWasm.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
         await TestUtils.walletWasm.sync(new WalletSyncPrinter());
         await TestUtils.walletWasm.save();
@@ -94,7 +94,7 @@ class TestUtils {
       
       // otherwise open existing wallet
       else {
-        TestUtils.walletWasm = await MoneroWalletWasm.openWallet(TestUtils.WALLET_WASM_PATH_1, TestUtils.WALLET_PASSWORD, TestUtils.NETWORK_TYPE, TestUtils.getDaemonRpcConnection(), TestUtils.PROXY_TO_WORKER);
+        TestUtils.walletWasm = await MoneroWalletWasm.openWallet({path: TestUtils.WALLET_WASM_PATH_1, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, server: TestUtils.getDaemonRpcConnection(), proxyToWorker: TestUtils.PROXY_TO_WORKER});
         await TestUtils.walletWasm.sync(new WalletSyncPrinter());
         await TestUtils.walletWasm.startSyncing();
       }

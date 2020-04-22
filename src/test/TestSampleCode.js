@@ -84,7 +84,7 @@ class TestSampleCode {
           password: "supersecretpassword123",
           networkType: TestUtils.NETWORK_TYPE,
           mnemonic: TestUtils.MNEMONIC,
-          server: TestUtils.getDaemonRpcConnection(),
+          server: await daemon.getRpcConnection(),
           restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT,
           proxyToWorker: TestUtils.PROXY_TO_WORKER
         });
@@ -93,7 +93,7 @@ class TestSampleCode {
 //          password: "supersecretpassword123",
 //          networkType: MoneroNetworkType.STAGENET,
 //          mnemonic: "hefty value ...",
-//          server: "http://localhost:38081",
+//          server: await daemon.getRpcConnection(),
 //          restoreHeight: 501788
 //        });
         

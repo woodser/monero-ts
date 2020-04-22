@@ -35,7 +35,7 @@ class MoneroRpcConnection {
     if (this.config.uri) this.config.uri = this.config.uri.replace(/\/$/, ""); // strip trailing slash
     
     // fail with friendly message if using old api
-    if (config.user || config.pass) throw new MoneroError("Authentication fields 'user' and 'pass' have been renamed to 'username' and 'password'.  Please update to the new api");
+    if (this.config.user || this.config.pass) throw new MoneroError("Authentication fields 'user' and 'pass' have been renamed to 'username' and 'password'.  Please update to the new api");
   }
   
   getUri() {

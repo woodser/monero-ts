@@ -18,40 +18,36 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
     return await TestUtils.getDaemonRpc();
   }
   
-  async openWallet(config) {
+  async openWallet(config, startSyncing) {
     
     // assign defaults
-    if (!config) config = {};
-    config = Object.assign({
-      password: TestUtils.WALLET_PASSWORD,
-      networkType: TestUtils.NETWORK_TYPE,
-      proxyToWorker: TestUtils.PROXY_TO_WORKER,
-      server: config.serverUri !== undefined || config.server !== undefined ? undefined : TestUtils.getDaemonRpcConnection()
-    }, config);
+    config = new MoneroWalletConfig(config);
+    if (!config.getPassword()) config.setPassword(TestUtils.WALLET_PASSWORD);
+    if (config.getNetworkType() === undefined) config.setNetworkType(TestUtils.NETWORK_TYPE);
+    if (!config.getProxyToWorker()) config.setProxyToWorker(TestUtils.PROXY_TO_WORKER);
+    if (!config.getServer() && config.getServerUri() === undefined) config.setServer(TestUtils.getDaemonRpcConnection());
     
     // open wallet
     let wallet = await MoneroWalletWasm.openWallet(config);
-    if (await wallet.isConnected()) await wallet.startSyncing();
+    if (startSyncing !== false && await wallet.isConnected()) await wallet.startSyncing();
     return wallet;
   }
   
   async createWallet(config, startSyncing) {
     
-    // default config
-    if (!config) config = {};
-    let random = !config.mnemonic && !config.primaryAddress;
-    config = Object.assign({
-      path: TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.getUUID(),
-      password: TestUtils.WALLET_PASSWORD,
-      networkType: TestUtils.NETWORK_TYPE,
-      proxyToWorker: TestUtils.PROXY_TO_WORKER,
-      server: config.serverUri !== undefined || config.server !== undefined ? undefined : TestUtils.getDaemonRpcConnection(),
-      restoreHeight: random ? undefined : 0
-    }, config);
+    // assign defaults
+    config = new MoneroWalletConfig(config);
+    let random = !config.getMnemonic() && !config.getPrimaryAddress();
+    if (!config.getPath()) config.setPath(TestUtils.TEST_WALLETS_DIR + "/" + GenUtils.getUUID());
+    if (!config.getPassword()) config.setPassword(TestUtils.WALLET_PASSWORD);
+    if (config.getNetworkType() === undefined) config.setNetworkType(TestUtils.NETWORK_TYPE);
+    if (!config.getRestoreHeight() && !random) config.setRestoreHeight(0);
+    if (!config.getServer() && config.getServerUri() === undefined) config.setServer(TestUtils.getDaemonRpcConnection());
+    if (config.getProxyToWorker() === undefined) config.setProxyToWorker(TestUtils.PROXY_TO_WORKER); 
     
     // create wallet
     let wallet = await MoneroWalletWasm.createWallet(config);
-    if (!random) assert.equal(await wallet.getRestoreHeight(), config.restoreHeight === undefined ? 0 : config.restoreHeight);
+    if (!random) assert.equal(await wallet.getRestoreHeight(), config.getRestoreHeight() === undefined ? 0 : config.getRestoreHeight());
     if (startSyncing !== false && await wallet.isConnected()) await wallet.startSyncing();
     return wallet;
   }

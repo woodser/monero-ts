@@ -57,7 +57,7 @@ class MoneroWalletConfig {
   }
   
   getServer() {
-    return new MoneroRpcConnection({uri: this.config.serverUri, username: this.config.serverUsername, password: this.config.serverPassword, rejectUnauthorized: this.config.rejectUnauthorized});
+    return !this.config.serverUri ? undefined : new MoneroRpcConnection({uri: this.config.serverUri, username: this.config.serverUsername, password: this.config.serverPassword, rejectUnauthorized: this.config.rejectUnauthorized})
   }
   
   setServer(server) {

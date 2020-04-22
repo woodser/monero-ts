@@ -53,7 +53,7 @@ class TestMoneroWalletCommon {
   }
   
   /**
-   * Open a test wallet.
+   * Open a test wallet with default configuration for each wallet type.
    * 
    * @param config configures the wallet to open
    * @return MoneroWallet is the opened wallet
@@ -63,7 +63,7 @@ class TestMoneroWalletCommon {
   }
   
   /**
-   * Create a test wallet.
+   * Create a test wallet with default configuration for each wallet type.
    * 
    * @param config configures the wallet to create
    * @return MoneroWallet is the created wallet
