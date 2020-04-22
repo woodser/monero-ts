@@ -18,7 +18,7 @@ class TestUtils {
    * @return {MoneroDaemonRpc} a daemon RPC instance
    */
   static async getDaemonRpc() {
-    if (TestUtils.daemonRpc === undefined) TestUtils.daemonRpc = await MoneroDaemonRpc.connect(Object.assign({proxyToWorker: TestUtils.PROXY_TO_WORKER}, TestUtils.DAEMON_RPC_CONFIG));
+    if (TestUtils.daemonRpc === undefined) TestUtils.daemonRpc = new MoneroDaemonRpc(Object.assign({proxyToWorker: TestUtils.PROXY_TO_WORKER}, TestUtils.DAEMON_RPC_CONFIG));
     return TestUtils.daemonRpc;
   }
   

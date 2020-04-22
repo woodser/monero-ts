@@ -654,7 +654,7 @@ class MoneroDaemon {
    * 
    * @param {function} listener({MoneroBlockHeader}) is invoked when blocks are added to the chain
    */
-  addBlockListener(listener) {
+  async addBlockListener(listener) {
     throw new MoneroError("Subclass must implement");
   }
   
@@ -663,7 +663,7 @@ class MoneroDaemon {
    * 
    * @param {function} listener is a previously registered listener to be unregistered
    */
-  removeBlockListener(listener) {
+  async removeBlockListener(listener) {
     throw new MoneroError("Subclass must implement");
   }
   

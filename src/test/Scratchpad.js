@@ -8,15 +8,16 @@ describe("Scratchpad", function() {
 //    let walletWasm = await TestUtils.getWalletWasm();
     
     // initialize daemon rpc client
-    let daemon = await MoneroDaemonRpc.connect({
+    let daemon = new MoneroDaemonRpc({
       uri: "http://localhost:38081",
       username: "superuser",
-      password: "abctesting123"
+      password: "abctesting123",
+      proxyToWorker: TestUtils.PROXY_TO_WORKER
     });
     console.log("Daemon height: " + await daemon.getHeight());
     
     // initialize wallet rpc client
-    let walletRpc = await MoneroWalletRpc.connect({
+    let walletRpc = new MoneroWalletRpc({
       uri: "http://localhost:38083",
       username: "rpc_user",
       password: "abc123"
@@ -29,7 +30,8 @@ describe("Scratchpad", function() {
       password: "abctesting123",
       networkType: "stagenet",
       server: TestUtils.DAEMON_RPC_CONFIG,
-      language: "Spanish"
+      language: "Spanish",
+      proxyToWorker: TestUtils.PROXY_TO_WORKER
     });
     console.log("WASM wallet mnemonic: " + await walletWasm.getMnemonic());
     await walletWasm.close();
