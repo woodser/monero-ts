@@ -26,19 +26,20 @@
 class MoneroWalletRpc extends MoneroWallet {
   
   /**
-   * Create a client connected to monero-wallet-rpc initialized from a config
-   * object, params, or an existing MoneroRpcConnection.
+   * Create a client connected to monero-wallet-rpc.
    * 
-   * e.g. connect("http://localhost:38083", "rpc_user", "supersecretpassword");
+   * Examples:
+   *   let wallet = await MoneroWalletRpc.connect("http://localhost:38083", "rpc_user", "abc123");
+   *   let wallet = await MoneorWalletRpc.connect({uri: "http://localhost:38083", rejectUnauthorized: false}); 
    * 
-   * @param {object|string|MoneroRpcConnection} configOrUriOrConnection is a configuration object or uri or existing MoneroRpcConnection
+   * @param {string|MoneroRpcConnection|object} uriOrConnectionOrConfig is a uri or MoneroRpcConnection or equivalent JS object
    * @param {string} username is the username to authenticate with the daemon
    * @param {string} password is the password to authenticate with the daemon
    * @param {boolean} rejectUnauthorized rejects unauthorized certificates if true
    * @return {MoneroWalletRpc} a wallet client created from configuration
    */
-  static async connect(configOrUriOrConnection, username, password, rejectUnauthorized) {
-    return new MoneroWalletRpc(configOrUriOrConnection, username, password, rejectUnauthorized);
+  static async connect(uriOrConnectionOrConfig, username, password, rejectUnauthorized) {
+    return new MoneroWalletRpc(uriOrConnectionOrConfig, username, password, rejectUnauthorized);
   }
   
   /**
@@ -76,40 +77,72 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   /**
-   * Open an existing wallet with monero-wallet-rpc.
+   * Open an existing wallet on the monero-wallet-rpc server.
    * 
-   * TODO: support configuration object
+   * Examples:
+   *   let wallet = await MoneroWalletRpc.connect("http://localhost:38083", "rpc_user", "abc123");
+   *   await wallet.openWallet("mywallet", "supersecretpassword");
+   *   await wallet.openWallet({path: "mywallet", password: "supersecretpassword", serverUri: "http://locahost:38081", rejectUnauthorized: false});
    * 
-   * @param {string} name is the name of the wallet file to open
-   * @param {string} password is the password to decrypt the wallet file
+   * All supported configuration:
+   *   {string} path - path of the wallet to create (optional, in-memory wallet if not given)
+   *   {string} password - password of the wallet to create
+   *   {string} serverUri - uri of a daemon to use (optional, monero-wallet-rpc usually started with daemon config)
+   *   {string} serverUsername - username to authenticate with the daemon (optional)
+   *   {string} serverPassword - password to authenticate with the daemon (optional)
+   *   {boolean} rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
+   *   {MoneroRpcObject|object} server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
+   * 
+   * @param {string|MoneroWalletConfig|object} pathOrConfig is the wallet's name or configuration to open
+   * @param {string} password is the wallet's password
    */
-  async openWallet(name, password) {
-    if (!name) throw new MoneroError("Must provide name of wallet to open");
-    if (!password) throw new MoneroError("Must provide password of wallet to open");
-    await this.rpc.sendJsonRequest("open_wallet", {filename: name, password: password});
+  async openWallet(pathOrConfig, password) {
+    
+    // normalize and validate config
+    let config = new MoneroWalletConfig(typeof pathOrConfig === "string" ? {path: pathOrConfig, password: password} : pathOrConfig);
+    // TODO: ensure other fields are uninitialized?
+    
+    // open wallet on rpc server
+    if (!config.getPath()) throw new MoneroError("Must provide name of wallet to open");
+    if (!config.getPassword()) throw new MoneroError("Must provide password of wallet to open");
+    await this.rpc.sendJsonRequest("open_wallet", {filename: config.getPath(), password: config.getPassword()});
     this._clear();
-    this.path = name;
+    this.path = config.getPath();
+    
+    // set daemon if provided
+    if (config.getServer()) return this.setDaemonConnection(config.getServer());
   }
   
   /**
-   * Create a wallet with monero-wallet-rpc.
+   * Create and open a wallet on the monero-wallet-rpc server.
+   * 
+   * Example:
+   *   let wallet = await MoneroWalletRpc.connect("http://localhost:38083", "rpc_user", "abc123");
+   *   await wallet.createWallet({
+   *     path: "mywallet",
+   *     password: "abc123",
+   *     networkType: MoneroNetworkType.STAGENET,
+   *     mnemonic: "coexist igloo pamphlet lagoon...",
+   *     restoreHeight: 1543218l
+   *   });
    * 
    * All supported configuration:
-   *  {string} path - path of the wallet to create (optional, in-memory wallet if not given)
-   *  {string} password - password of the wallet to create
-   *  {string} mnemonic - mnemonic of the wallet to create (optional)
-   *  {string} seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
-   *  {string} primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
-   *  {string} privateViewKey - private view key of the wallet to create (optional)
-   *  {string} privateSpendKey - private spend key of the wallet to create (optional)
-   *  {number} restoreHeight - block height to scan from when restoring a wallet (defaults to 0 unless generating random wallet)
-   *  {string} language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
-   * 
-   * For example:
-   *  let wallet = await MoneroWalletRpc.connect({uri: "http://localhost:38083", username: "rpc_user", password: "abc123"});
-   *  await wallet.createWallet({path: "mywallet", password: "abc123", networkType: MoneroNetworkType.STAGENET});
+   *   {string} path - path of the wallet to create (optional, in-memory wallet if not given)
+   *   {string} password - password of the wallet to create
+   *   {string} mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
+   *   {string} seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
+   *   {string} primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
+   *   {string} privateViewKey - private view key of the wallet to create (optional)
+   *   {string} privateSpendKey - private spend key of the wallet to create (optional)
+   *   {number} restoreHeight - block height to start scanning from (defaults to 0 unless generating random wallet)
+   *   {string} language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+   *   {string} serverUri - uri of a daemon to use (optional, monero-wallet-rpc usually started with daemon config)
+   *   {string} serverUsername - username to authenticate with the daemon (optional)
+   *   {string} serverPassword - password to authenticate with the daemon (optional)
+   *   {boolean} rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
+   *   {MoneroRpcObject|object} server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
    *  
-   * @param {MoneroWalletConfig|object} is a MoneroWalletConfig or equivalent config object
+   * @param {MoneroWalletConfig|object} is a MoneroWalletConfig or equivalent JS object
    */
   async createWallet(config) {
     
@@ -120,22 +153,22 @@ class MoneroWalletRpc extends MoneroWallet {
       throw new MoneroError("Wallet may be initialized with a mnemonic or keys but not both");
     }
     if (config.getNetworkType() !== undefined) throw new MoneroError("Cannot provide networkType when creating RPC wallet because server's network type is already set");
-    if (config.getServerUri() || config.getServerUsername() || config.getServerPassword()) {
-      //throw new MoneroError("Cannot provide server configuration when creating RPC wallet");  // TODO: test setting wallet-rpc's daemon to support this field
-    }
     
     // create wallet
     if (config.getMnemonic() !== undefined) {
-      return this.createWalletFromMnemonic(config.getPath(), config.getPassword(), config.getMnemonic(), config.getRestoreHeight(), config.getLanguage(), config.getSeedOffset(), config.getSaveCurrent());
+      await this.createWalletFromMnemonic(config.getPath(), config.getPassword(), config.getMnemonic(), config.getRestoreHeight(), config.getLanguage(), config.getSeedOffset(), config.getSaveCurrent());
     } else if (config.getPrimaryAddress() !== undefined) {
       if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating wallet from keys");
-      return this.createWalletFromKeys(config.getPath(), config.getPassword(), config.getPrimaryAddress(), config.getPrivateViewKey(), config.getPrivateSpendKey(), config.getRestoreHeight(), config.getLanguage(), config.getSaveCurrent());
+      await this.createWalletFromKeys(config.getPath(), config.getPassword(), config.getPrimaryAddress(), config.getPrivateViewKey(), config.getPrivateSpendKey(), config.getRestoreHeight(), config.getLanguage(), config.getSaveCurrent());
     } else {
       if (config.getSeedOffset() !== undefined) throw new MoneroError("Cannot provide seedOffset when creating random wallet");
       if (config.getRestoreHeight() !== undefined) throw new MoneroError("Cannot provide restoreHeight when creating random wallet");
       if (config.getSaveCurrent() === false) throw new MoneroError("Current wallet is saved automatically when creating random wallet");
-      return this.createWalletRandom(config.getPath(), config.getPassword(), config.getLanguage());
+      await this.createWalletRandom(config.getPath(), config.getPassword(), config.getLanguage());
     }
+    
+    // set daemon if provided
+    if (config.getServer()) return this.setDaemonConnection(config.getServer());
   }
   
   /**
@@ -221,8 +254,9 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   async setDaemonConnection(daemonUriOrConnection, isTrusted, sslOptions) {
+    let daemonConnection = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection : new MoneroRpcConnection(daemonUriOrConnection);
+    if (daemonConnection.getUsername()) throw new MoneroError("monero-wallet-rpc does not support setting daemon connection with authentication");
     if (!sslOptions) sslOptions = new SslOptions();
-    let daemonConnection = typeof daemonUriOrConnection === "string" ? new MoneroDaemonConnection(daemonUriOrConnection) : (daemonUriOrConnection ? daemonUriOrConnection : undefined);
     let params = {};
     params.address = !daemonConnection ? "bad_uri" : daemonConnection.getUri(); // TODO monero-wallet-rpc: bad daemon uri necessary for offline?
     params.trusted = isTrusted;

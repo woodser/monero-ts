@@ -1,4 +1,5 @@
 HIGH (WASM)
+update monero-core to master and remove wasm_modifications branches :)
 comment wallet creation and open methods
 no need for custom create methods in tests
 sample code try...catch to close wallet
@@ -33,6 +34,8 @@ update jsdocs
 full tests including jni
 release
 
+testCheckForUpdate returns confusing error if offline
+don't run non-applicable tests in TestMoneroWalletKeys
 update MoneroWalletRpc/MoneroWalletJni getTxs() to use missing tx hash logic like monero_wallet_core::get_txs()
 sync end height != daemon height for long syncs
 compare sync performance with multithreading vs singlethreading - build both?
