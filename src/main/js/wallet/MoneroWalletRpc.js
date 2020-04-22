@@ -26,43 +26,20 @@
 class MoneroWalletRpc extends MoneroWallet {
   
   /**
-   * Create a client connected to monero-wallet-rpc.
+   * Construct a wallet RPC client.
    * 
    * Examples:
-   *   let wallet = await MoneroWalletRpc.connect("http://localhost:38083", "rpc_user", "abc123");
-   *   let wallet = await MoneorWalletRpc.connect({uri: "http://localhost:38083", rejectUnauthorized: false}); 
+   *   let walletRpc = new MoneroWalletRpc("http://localhost:38081", "superuser", "abctesting123", true);
+   *   let walletRpc = new MoneroWalletRpc({uri: "http://localhost:38081", rejectUnauthorized: false, ...}); // e.g. local development
    * 
-   * @param {string|MoneroRpcConnection|object} uriOrConnectionOrConfig is a uri or MoneroRpcConnection or equivalent JS object
-   * @param {string} username is the username to authenticate with the daemon
-   * @param {string} password is the password to authenticate with the daemon
-   * @param {boolean} rejectUnauthorized rejects unauthorized certificates if true
-   * @return {MoneroWalletRpc} a wallet client created from configuration
+   * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection is the uri of monero-wallet-rpc or JS config object or MoneroRpcConnection
+   * @param {string} username is a username to authenticate with monero-wallet-rpc (optional)
+   * @param {string} password is a password to authenticate with monero-wallet-rpc (optional)
+   * @param {boolean} rejectUnauthorized rejects self-signed certificates if true (default true)
    */
-  static async connect(uriOrConnectionOrConfig, username, password, rejectUnauthorized) {
-    return new MoneroWalletRpc(uriOrConnectionOrConfig, username, password, rejectUnauthorized);
-  }
-  
-  /**
-   * Construct a MoneroWalletRpc instance.
-   * 
-   * @param {object|string} configOrUri is a config object or the uri to monero-wallet-rpc
-   * @param {string} username is the username to authenticate with (optional)
-   * @param {string} password is the password to authenticate with (optional)
-   * @param {boolean} rejectUnauthorized specifies if self-signed certificates should be rejected
-   */
-  constructor(configOrUriOrConnection, username, password, rejectUnauthorized) {
+  constructor(uriOrConfigOrConnection, username, password, rejectUnauthorized) {
     super();
-    
-    // validate and normalize config
-    if (typeof configOrUriOrConnection === "string") this.config = {uri: configOrUriOrConnection, username: username, password: password, rejectUnauthorized: rejectUnauthorized};
-    else if (configOrUriOrConnection instanceof MoneroRpcConnection) this.config = Object.assign({}, configOrUriOrConnection.getConfig());
-    else {
-      if (typeof configOrUriOrConnection !== "object") throw new MoneroError("Invalid configuration to create wallet rpc client; must be string, object, or MoneroRpcConnection");
-      this.config = Object.assign({}, configOrUriOrConnection);
-      if (username || password || rejectUnauthorized) throw new MoneroError("Can provide this.config object or params on MoneroWalletRpc.connnect(...) but not both");
-    }
-    
-    // initialize other instance variables
+    this.config = MoneroDaemonRpc._normalizeConfig(uriOrConfigOrConnection, username, password, rejectUnauthorized);
     this.rpc = new MoneroRpcConnection(this.config);
     this.addressCache = {}; // avoid unecessary requests for addresses
   }
@@ -80,7 +57,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * Open an existing wallet on the monero-wallet-rpc server.
    * 
    * Examples:
-   *   let wallet = await MoneroWalletRpc.connect("http://localhost:38083", "rpc_user", "abc123");
+   *   let wallet = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");
    *   await wallet.openWallet("mywallet", "supersecretpassword");
    *   await wallet.openWallet({path: "mywallet", password: "supersecretpassword", serverUri: "http://locahost:38081", rejectUnauthorized: false});
    * 
@@ -117,7 +94,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * Create and open a wallet on the monero-wallet-rpc server.
    * 
    * Example:
-   *   let wallet = await MoneroWalletRpc.connect("http://localhost:38083", "rpc_user", "abc123");
+   *   let wallet = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");
    *   await wallet.createWallet({
    *     path: "mywallet",
    *     password: "abc123",
