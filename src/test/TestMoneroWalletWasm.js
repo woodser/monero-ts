@@ -273,7 +273,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         assert(!(await wallet.isConnected()));
         assert(!(await wallet.isSynced()));
         assert.equal(await wallet.getHeight(), 1);
-        assert.equal(await wallet.getRestoreHeight(), restoreHeight); // TODO: restore height is lost after closing in JNI?
+        assert.equal(await wallet.getRestoreHeight(), restoreHeight);
         await wallet.close();
 
         // create wallet with mnemonic, connection, and restore height
