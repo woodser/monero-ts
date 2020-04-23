@@ -1044,12 +1044,12 @@ class MoneroWalletRpc extends MoneroWallet {
     return resp.result.tx_hash_list;
   }
   
-  async sign(message) {
+  async signMessage(message) {
     let resp = await this.rpc.sendJsonRequest("sign", {data: message});
     return resp.result.signature;
   }
   
-  async verify(message, address, signature) {
+  async verifyMessage(message, address, signature) {
     let resp = await this.rpc.sendJsonRequest("verify", {data: message, address: address, signature: signature});
     return resp.result.good;
   }

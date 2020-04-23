@@ -1864,10 +1864,10 @@ class TestMoneroWalletCommon {
       if (config.testNonRelays)
       it("Can sign and verify messages", async function() {
         let msg = "This is a super important message which needs to be signed and verified.";
-        let signature = await that.wallet.sign(msg);
-        let verified = await that.wallet.verify(msg, await that.wallet.getAddress(0, 0), signature);
+        let signature = await that.wallet.signMessage(msg);
+        let verified = await that.wallet.verifyMessage(msg, await that.wallet.getAddress(0, 0), signature);
         assert.equal(verified, true);
-        verified = await that.wallet.verify(msg, await TestUtils.getRandomWalletAddress(), signature);
+        verified = await that.wallet.verifyMessage(msg, await TestUtils.getRandomWalletAddress(), signature);
         assert.equal(verified, false);
       });
       

@@ -12,8 +12,7 @@ start a new test wallet, new test wallet before receiving funds breaks tests
 handle rejectUnauthorized for firefox (don't expose, log warning, replace MoneroWalletcore.REJECT_UNAUTHORIZED with config per instance by constructing http_client_wasm with wallet id, then lookup wallet by id and get rejectUnauthorized config for instance)
 test onOuputSent() when swept
 all-in-one wasm build script
-fix consistent failures in tests (notification failures)
-rename sign/verify to signMessage(), verifyMessage();
+fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)
 MoneroSyncResult received_money -> received_amount for consistency
 monero_wasm_bridge serialize bigintegers as strings
 combine TestAll and BrowserTests
