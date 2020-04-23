@@ -3195,7 +3195,7 @@ namespace monero {
   }
 
   void monero_wallet_core::move_to(string path, string password) {
-    MTRACE("move_to(" << path << ", " << password << ")");
+    MTRACE("move_to(" << path << ", ***)");
     m_w2->store_to(path, password);
   }
 
