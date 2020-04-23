@@ -1,5 +1,13 @@
 HIGH (WASM)
+out of memory error
+full tests stopping/slowing in chrome
+Can create a core wallet from mnemonic difference from jni, remembers restore height..
+createWallet should fail if wallet already exists
 update monero-core to master and remove wasm_modifications branches :)
+make: make -j8 . at end of wasm build
+wallets interchangeable java/js/rpc/native?
+remove wallet.getRestoreHeight()?
+wallet rpc multisig test tx rejected when run with other tests
 start a new test wallet, new test wallet before receiving funds breaks tests
 handle rejectUnauthorized for firefox (don't expose, log warning, replace MoneroWalletcore.REJECT_UNAUTHORIZED with config per instance by constructing http_client_wasm with wallet id, then lookup wallet by id and get rejectUnauthorized config for instance)
 test onOuputSent() when swept
