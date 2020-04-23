@@ -248,7 +248,7 @@ HttpClient.digestAuthRequest = function(method, url, username, password) {
       try {
         self.data = data instanceof Uint8Array || typeof data === "string" ? data : JSON.stringify(data);
       } catch (e) {
-        console.log(e);
+        console.error(e);
         throw e;
       }
     }
