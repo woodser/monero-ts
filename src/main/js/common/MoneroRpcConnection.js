@@ -158,7 +158,7 @@ class MoneroRpcConnection {
       resp = resp.body;
       if (!(resp instanceof Uint8Array)) {
         console.error("resp is not uint8array");
-        console.log(resp);
+        console.error(resp);
       }
       if (resp.error) throw new MoneroRpcError(resp.error.message, resp.error.code, path, params);
       return resp;

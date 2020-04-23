@@ -44,7 +44,7 @@ EM_JS(const char*, js_send_json_request, (const char* http_client_id, const char
         wakeUpCalled = true;
         wakeUp(ptr);
       } else {
-        console.log("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 1 ***");
+        console.log("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 1 ***");  // TODO: this isn't called
         throw new Error("*** HTTP CLIENT " + httpClientId + " HAS DISCONNECTED SO IGNORE RESPONSE 1 ***");
         //wakeUp(0);
       }
@@ -106,7 +106,7 @@ EM_JS(const char*, js_send_binary_request, (const char* http_client_id, const ch
         let respBin = resp.body;
         if (!(respBin instanceof Uint8Array)) {
           console.error("resp is not uint8array");
-          console.log(respBin);
+          console.error(respBin);
         }
         let nDataBytes = respBin.length * respBin.BYTES_PER_ELEMENT;
         let bodyPtr = Module._malloc(nDataBytes);
