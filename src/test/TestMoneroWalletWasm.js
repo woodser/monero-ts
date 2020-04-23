@@ -345,7 +345,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
 
         // create test wallet
         let restoreHeight = await that.daemon.getHeight();
-        let wallet = await that.createWallet();
+        let wallet = await that.createWallet({}, false);
 
         // test wallet's height before syncing
         let walletGt;
@@ -440,7 +440,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         if (startHeight !== undefined && restoreHeight != undefined) assert(startHeight <= TestUtils.FIRST_RECEIVE_HEIGHT || restoreHeight <= TestUtils.FIRST_RECEIVE_HEIGHT);
         
         // create wallet from mnemonic
-        let wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: restoreHeight});
+        let wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC, restoreHeight: restoreHeight}, false);
         
         // sanitize expected sync bounds
         if (restoreHeight === undefined) restoreHeight = 0;
