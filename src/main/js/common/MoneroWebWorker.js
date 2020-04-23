@@ -341,7 +341,7 @@ self.daemonGetNextBlockHeader = async function(daemonId) {
 
 self.openWalletData = async function(walletId, path, password, networkType, keysData, cacheData, daemonUriOrConfig) {
   let daemonConnection = daemonUriOrConfig ? new MoneroRpcConnection(daemonUriOrConfig) : undefined;
-  self.WORKER_OBJECTS[walletId] = await MoneroWalletWasm.openWalletData("", password, networkType, keysData, cacheData, daemonConnection);
+  self.WORKER_OBJECTS[walletId] = await MoneroWalletWasm.openWallet({path: "", password: password, networkType: networkType, keysData: keysData, cacheData: cacheData, server: daemonConnection});
   self.WORKER_OBJECTS[walletId]._setBrowserMainPath(path);
 }
 
