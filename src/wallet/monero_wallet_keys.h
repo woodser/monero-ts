@@ -131,8 +131,8 @@ namespace monero {
     monero_integrated_address decode_integrated_address(const string& integrated_address) const;
     monero_account get_account(const uint32_t account_idx, bool include_subaddresses) const;
     vector<monero_subaddress> get_subaddresses(const uint32_t account_idx, const vector<uint32_t>& subaddress_indices) const;
-    string sign(const string& msg) const;
-    bool verify(const string& msg, const string& address, const string& signature) const;
+    string sign_message(const string& msg) const;
+    bool verify_message(const string& msg, const string& address, const string& signature) const;
     void close(bool save = false);
 
     // --------------------------------- PRIVATE --------------------------------

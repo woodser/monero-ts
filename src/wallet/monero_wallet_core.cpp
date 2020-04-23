@@ -2549,11 +2549,11 @@ namespace monero {
     }
   }
 
-  string monero_wallet_core::sign(const string& msg) const {
+  string monero_wallet_core::sign_message(const string& msg) const {
     return m_w2->sign(msg);
   }
 
-  bool monero_wallet_core::verify(const string& msg, const string& address, const string& signature) const {
+  bool monero_wallet_core::verify_message(const string& msg, const string& address, const string& signature) const {
 
     // validate and parse address or url
     cryptonote::address_parse_info info;
