@@ -1861,7 +1861,7 @@ namespace monero {
 
   monero_tx_set monero_wallet_core::send_txs(const monero_send_request& request) {
     MTRACE("monero_wallet_core::send_txs(request)");
-    MTRACE("monero_send_request: " << request.serialize());
+    //MTRACE("monero_send_request: " << request.serialize());
 
     // validate request
     if (request.m_account_index == boost::none) throw runtime_error("Must specify account index to sweep from");
@@ -2157,7 +2157,7 @@ namespace monero {
 
   monero_tx_set monero_wallet_core::sweep_output(const monero_send_request& request)  {
     MTRACE("sweep_output()");
-    MTRACE("monero_send_request: " << request.serialize());
+    //MTRACE("monero_send_request: " << request.serialize());
 
     // validate input request
     if (request.m_key_image == boost::none || request.m_key_image.get().empty()) throw runtime_error("Must provide key image of output to sweep");
