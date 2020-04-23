@@ -13,7 +13,6 @@ handle rejectUnauthorized for firefox (don't expose, log warning, replace Monero
 test onOuputSent() when swept
 all-in-one wasm build script
 fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)
-MoneroSyncResult received_money -> received_amount for consistency
 monero_wasm_bridge serialize bigintegers as strings
 combine TestAll and BrowserTests
 C++ MTRACE statements execute argument which could be major performance hit
