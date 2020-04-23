@@ -247,8 +247,8 @@ namespace monero {
     monero_tx_set parse_tx_set(const monero_tx_set& tx_set);
     string sign_txs(const string& unsigned_tx_hex);
     vector<string> submit_txs(const string& signed_tx_hex);
-    string sign(const string& msg) const;
-    bool verify(const string& msg, const string& address, const string& signature) const;
+    string sign_message(const string& msg) const;
+    bool verify_message(const string& msg, const string& address, const string& signature) const;
     string get_tx_key(const string& tx_hash) const;
     shared_ptr<monero_check_tx> check_tx_key(const string& tx_hash, const string& txKey, const string& address) const;
     string get_tx_proof(const string& tx_hash, const string& address, const string& message) const;

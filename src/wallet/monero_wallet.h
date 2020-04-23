@@ -1139,8 +1139,8 @@ namespace monero {
      * @param msg is the message to sign
      * @return the signature
      */
-    virtual string sign(const string& msg) const {
-      throw runtime_error("sign() not supported");
+    virtual string sign_message(const string& msg) const {
+      throw runtime_error("sign_message() not supported");
     }
 
     /**
@@ -1151,8 +1151,8 @@ namespace monero {
      * @param signature is the signature
      * @return true if the signature is good, false otherwise
      */
-    virtual bool verify(const string& msg, const string& address, const string& signature) const {
-      throw runtime_error("verify() not supported");
+    virtual bool verify_message(const string& msg, const string& address, const string& signature) const {
+      throw runtime_error("verify_message() not supported");
     }
 
     /**

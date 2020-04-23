@@ -269,14 +269,14 @@ namespace monero {
     return subaddresses;
   }
 
-  string monero_wallet_keys::sign(const string& msg) const {
-    cout << "monero_wallet_keys::sign()" << endl;
-    throw runtime_error("monero_wallet_keys::sign() not implemented");
+  string monero_wallet_keys::sign_message(const string& msg) const {
+    cout << "monero_wallet_keys::sign_message()" << endl;
+    throw runtime_error("monero_wallet_keys::sign_message() not implemented");
   }
 
-  bool monero_wallet_keys::verify(const string& msg, const string& address, const string& signature) const {
-    cout << "monero_wallet_keys::verify()" << endl;
-    throw runtime_error("monero_wallet_keys::verify() not implemented");
+  bool monero_wallet_keys::verify_message(const string& msg, const string& address, const string& signature) const {
+    cout << "monero_wallet_keys::verify_message()" << endl;
+    throw runtime_error("monero_wallet_keys::verify_message() not implemented");
   }
 
   void monero_wallet_keys::close(bool save) {
