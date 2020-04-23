@@ -728,14 +728,14 @@ void monero_wasm_bridge::submit_txs(int handle, const string& signed_tx_hex, ems
   callback(monero_utils::serialize(doc));
 }
 
-string monero_wasm_bridge::sign(int handle, const string& msg) {
+string monero_wasm_bridge::sign_message(int handle, const string& msg) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->sign(msg);
+  return wallet->sign_message(msg);
 }
 
-bool monero_wasm_bridge::verify(int handle, const string& msg, const string& address, const string& signature) {
+bool monero_wasm_bridge::verify_message(int handle, const string& msg, const string& address, const string& signature) {
   monero_wallet* wallet = (monero_wallet*) handle;
-  return wallet->verify(msg, address, signature);
+  return wallet->verify_message(msg, address, signature);
 }
 
 string monero_wasm_bridge::get_tx_key(int handle, const string& tx_hash) {

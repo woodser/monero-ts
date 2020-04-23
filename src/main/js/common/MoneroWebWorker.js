@@ -721,12 +721,12 @@ self.submitTxs = async function(walletId, signedTxHex) {
   return self.WORKER_OBJECTS[walletId].submitTxs(signedTxHex);
 }
 
-self.sign = async function(walletId, message) {
-  return self.WORKER_OBJECTS[walletId].sign(message);
+self.signMessage = async function(walletId, message) {
+  return self.WORKER_OBJECTS[walletId].signMessage(message);
 }
 
-self.verify = async function(walletId, message, address, signature) {
-  return self.WORKER_OBJECTS[walletId].verify(message, address, signature);
+self.verifyMessage = async function(walletId, message, address, signature) {
+  return self.WORKER_OBJECTS[walletId].verifyMessage(message, address, signature);
 }
 
 self.getTxKey = async function(walletId, txHash) {

@@ -1062,19 +1062,19 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     });
   }
   
-  async sign(message) {
+  async signMessage(message) {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.sign(that._cppAddress, message);
+      return that._module.sign_message(that._cppAddress, message);
     });
   }
   
-  async verify(message, address, signature) {
+  async verifyMessage(message, address, signature) {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return that._module.verify(that._cppAddress, message, address, signature);
+      return that._module.verify_message(that._cppAddress, message, address, signature);
     });
   }
   
@@ -2121,12 +2121,12 @@ class MoneroWalletWasmProxy extends MoneroWallet {
     return this._invokeWorker("submitTxs", Array.from(arguments));
   }
   
-  async sign(message) {
-    return this._invokeWorker("sign", Array.from(arguments));
+  async signMessage(message) {
+    return this._invokeWorker("signMessage", Array.from(arguments));
   }
   
-  async verify(message, address, signature) {
-    return this._invokeWorker("verify", Array.from(arguments));
+  async verifyMessage(message, address, signature) {
+    return this._invokeWorker("verifyMessage", Array.from(arguments));
   }
   
   async getTxKey(txHash) {

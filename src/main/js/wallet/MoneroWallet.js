@@ -782,7 +782,7 @@ class MoneroWallet {
    * @param {string} msg is the message to sign
    * @return {string} the signature
    */
-  async sign(message) {
+  async signMessage(message) {
     throw new MoneroError("Not supported");
   }
   
@@ -794,7 +794,7 @@ class MoneroWallet {
    * @param {string} signature is the signature
    * @return {boolean} true if the signature is good, false otherwise
    */
-  async verify(message, address, signature) {
+  async verifyMessage(message, address, signature) {
     throw new MoneroError("Not supported");
   }
   
