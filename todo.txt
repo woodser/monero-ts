@@ -11,7 +11,6 @@ test onOuputSent() when swept
 monero_wasm_bridge serialize bigintegers as strings
 combine TestAll and BrowserTests
 
-make: make -j8 . at end of wasm build
 all-in-one wasm build script
 fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)
 proxied txs, transfers, outputs are unnecessariliy stringified then parsed
