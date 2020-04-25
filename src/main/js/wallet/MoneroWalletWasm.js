@@ -1,5 +1,7 @@
 /**
  * Implements a MoneroWallet using WebAssembly bindings to monero-project's wallet2.
+ * 
+ * @implements {MoneroWallet}
  */
 class MoneroWalletWasm extends MoneroWalletKeys {
   

@@ -22,6 +22,8 @@
 
 /**
  * Monero wallet interface and default implementations.
+ * 
+ * @interface
  */
 class MoneroWallet {
   

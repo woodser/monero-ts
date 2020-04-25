@@ -22,6 +22,8 @@
 
 /**
  * Implements a MoneroDaemon as a client of monero-daemon-rpc.
+ * 
+ * @implements {MoneroDaemon}
  */
 class MoneroDaemonRpc extends MoneroDaemon {
   
