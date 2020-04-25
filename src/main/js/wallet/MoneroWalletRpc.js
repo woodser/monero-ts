@@ -22,6 +22,8 @@
 
 /**
  * Implements a MoneroWallet as a client of monero-wallet-rpc.
+ * 
+ * @implements {MoneroWallet}
  */
 class MoneroWalletRpc extends MoneroWallet {
   

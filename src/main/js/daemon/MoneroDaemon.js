@@ -22,6 +22,8 @@
 
 /**
  * Monero daemon interface and default implementations.
+ * 
+ * @interface
  */
 class MoneroDaemon {
   

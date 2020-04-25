@@ -1,5 +1,7 @@
 /**
  * Implements a MoneroWallet which only manages keys using WebAssembly.
+ * 
+ * @implements {MoneroWallet}
  */
 class MoneroWalletKeys extends MoneroWallet {
   
