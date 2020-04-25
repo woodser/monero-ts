@@ -688,7 +688,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       }
       
       // parse json string to BigInteger
-      return BigInteger.parse(JSON.parse(balanceStr).balance);
+      return BigInteger.parse(JSON.parse(MoneroUtils.stringifyBIs(balanceStr)).balance);
     });
   }
   
@@ -709,7 +709,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       }
       
       // parse json string to BigInteger
-      return BigInteger.parse(JSON.parse(unlockedBalanceStr).unlockedBalance);
+      return BigInteger.parse(JSON.parse(MoneroUtils.stringifyBIs(unlockedBalanceStr)).unlockedBalance);
     });
   }
   
@@ -719,7 +719,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       that._assertNotClosed();
       let accountsStr = that._module.get_accounts(that._cppAddress, includeSubaddresses ? true : false, tag ? tag : "");
       let accounts = [];
-      for (let accountJson of JSON.parse(accountsStr).accounts) {
+      for (let accountJson of JSON.parse(MoneroUtils.stringifyBIs(accountsStr)).accounts) {
         accounts.push(MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson)));
       }
       return accounts;
@@ -731,7 +731,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       let accountStr = that._module.get_account(that._cppAddress, accountIdx, includeSubaddresses ? true : false);
-      let accountJson = JSON.parse(accountStr);
+      let accountJson = JSON.parse(MoneroUtils.stringifyBIs(accountStr));
       return MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson));
     });
 
@@ -743,7 +743,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       let accountStr = that._module.create_account(that._cppAddress, label);
-      let accountJson = JSON.parse(accountStr);
+      let accountJson = JSON.parse(MoneroUtils.stringifyBIs(accountStr));
       return MoneroWalletWasm._sanitizeAccount(new MoneroAccount(accountJson));
     });
   }
@@ -753,7 +753,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      let subaddressesJson = JSON.parse(that._module.get_subaddresses(that._cppAddress, JSON.stringify(args))).subaddresses;
+      let subaddressesJson = JSON.parse(MoneroUtils.stringifyBIs(that._module.get_subaddresses(that._cppAddress, JSON.stringify(args)))).subaddresses;
       let subaddresses = [];
       for (let subaddressJson of subaddressesJson) subaddresses.push(MoneroWalletWasm._sanitizeSubaddress(new MoneroSubaddress(subaddressJson)));
       return subaddresses;
@@ -766,7 +766,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       let subaddressStr = that._module.create_subaddress(that._cppAddress, accountIdx, label);
-      let subaddressJson = JSON.parse(subaddressStr);
+      let subaddressJson = JSON.parse(MoneroUtils.stringifyBIs(subaddressStr));
       return MoneroWalletWasm._sanitizeSubaddress(new MoneroSubaddress(subaddressJson));
     });
   }
@@ -885,7 +885,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       return new Promise(function(resolve, reject) {
         let callback = function(keyImagesStr) {
           let keyImages = [];
-          for (let keyImageJson of JSON.parse(keyImagesStr).keyImages) keyImages.push(new MoneroKeyImage(keyImageJson));
+          for (let keyImageJson of JSON.parse(MoneroUtils.stringifyBIs(keyImagesStr)).keyImages) keyImages.push(new MoneroKeyImage(keyImageJson));
           resolve(keyImages);
         }
         that._module.get_key_images(that._cppAddress, callback);
@@ -899,7 +899,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
       that._assertNotClosed();
       return new Promise(function(resolve, reject) {
         let callback = function(keyImageImportResultStr) {
-          resolve(new MoneroKeyImageImportResult(JSON.parse(keyImageImportResultStr)));
+          resolve(new MoneroKeyImageImportResult(JSON.parse(MoneroUtils.stringifyBIs(keyImageImportResultStr))));
         }
         that._module.import_key_images(that._cppAddress, JSON.stringify({keyImages: keyImages.map(keyImage => keyImage.toJson())}), callback);
       });
@@ -948,7 +948,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         // define callback for wasm
         let callbackFn = function(txSetJsonStr) {
           if (txSetJsonStr.charAt(0) !== '{') reject(new MoneroError(txSetJsonStr)); // json expected, else error
-          else resolve(new MoneroTxSet(JSON.parse(txSetJsonStr)));
+          else resolve(new MoneroTxSet(JSON.parse(MoneroUtils.stringifyBIs(txSetJsonStr))));
         }
         
         // sync wallet in wasm and invoke callback when done
@@ -972,7 +972,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         // define callback for wasm
         let callbackFn = function(txSetJsonStr) {
           if (txSetJsonStr.charAt(0) !== '{') reject(new MoneroError(txSetJsonStr)); // json expected, else error
-          else resolve(new MoneroTxSet(JSON.parse(txSetJsonStr)));
+          else resolve(new MoneroTxSet(JSON.parse(MoneroUtils.stringifyBIs(txSetJsonStr))));
         }
         
         // sync wallet in wasm and invoke callback when done
@@ -1004,7 +1004,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
           if (txSetsJson.charAt(0) !== '{') reject(new MoneroError(txSetsJson)); // json expected, else error
           else {
             let txSets = [];
-            for (let txSetJson of JSON.parse(txSetsJson).txSets) txSets.push(new MoneroTxSet(txSetJson));
+            for (let txSetJson of JSON.parse(MoneroUtils.stringifyBIs(txSetsJson)).txSets) txSets.push(new MoneroTxSet(txSetJson));
             resolve(txSets);
           }
         }
@@ -1024,7 +1024,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
         // define callback for wasm
         let callbackFn = function(txSetJsonStr) {
           if (txSetJsonStr.charAt(0) !== '{') reject(new MoneroError(txSetJsonStr)); // json expected, else error
-          else resolve(new MoneroTxSet(JSON.parse(txSetJsonStr)));
+          else resolve(new MoneroTxSet(JSON.parse(MoneroUtils.stringifyBIs(txSetJsonStr))));
         }
         
         // sync wallet in wasm and invoke callback when done
@@ -1037,7 +1037,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return new MoneroTxSet(JSON.parse(that._module.parse_tx_set(that._cppAddress, JSON.stringify(txSet.toJson()))));
+      return new MoneroTxSet(JSON.parse(MoneroUtils.stringifyBIs(that._module.parse_tx_set(that._cppAddress, JSON.stringify(txSet.toJson())))));
     });
   }
   
@@ -1091,7 +1091,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return new MoneroCheckTx(JSON.parse(that._module.check_tx_key(that._cppAddress, txHash, txKey, address)));
+      return new MoneroCheckTx(JSON.parse(MoneroUtils.stringifyBIs(that._module.check_tx_key(that._cppAddress, txHash, txKey, address))));
     });
   }
   
@@ -1108,7 +1108,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return new MoneroCheckTx(JSON.parse(that._module.check_tx_proof(that._cppAddress, txHash, address, message, signature)));
+      return new MoneroCheckTx(JSON.parse(MoneroUtils.stringifyBIs(that._module.check_tx_proof(that._cppAddress, txHash, address, message, signature))));
     });
   }
   
@@ -1151,7 +1151,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     let that = this;
     return that._module.queueTask(async function() {
       that._assertNotClosed();
-      return new MoneroCheckReserve(JSON.parse(that._module.check_reserve_proof(that._cppAddress, address, message, signature)));
+      return new MoneroCheckReserve(JSON.parse(MoneroUtils.stringifyBIs(that._module.check_reserve_proof(that._cppAddress, address, message, signature))));
     });
   }
   
@@ -1270,7 +1270,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     return that._module.queueTask(async function() {
       that._assertNotClosed();
       try {
-        return new MoneroSendRequest(JSON.parse(that._module.parse_payment_uri(that._cppAddress, uri)));
+        return new MoneroSendRequest(JSON.parse(MoneroUtils.stringifyBIs(that._module.parse_payment_uri(that._cppAddress, uri))));
       } catch (e) {
         throw new MoneroError(e.message);
       }
@@ -1577,7 +1577,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
   
   static _deserializeBlocks(blocksJsonStr, txType) {
     if (txType === undefined) txType = MoneroBlock.DeserializationType.TX_WALLET;
-    let blocksJson = JSON.parse(blocksJsonStr);
+    let blocksJson = JSON.parse(MoneroUtils.stringifyBIs(blocksJsonStr));
     let blocks = [];
     for (let blockJson of blocksJson.blocks) blocks.push(MoneroWalletWasm._sanitizeBlock(new MoneroBlock(blockJson, txType)));
     return blocks

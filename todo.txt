@@ -1,4 +1,6 @@
 HIGH (WASM)
+jsdoc broke
+testAccountsEqualOnChain let syntax error
 out of memory error, full tests stopping/slowing in chrome
 createWallet should fail if wallet already exists
 update monero-core to master and remove wasm_modifications branches :)
@@ -8,9 +10,9 @@ wallet rpc multisig test tx rejected when run with other tests
 start a new test wallet, new test wallet before receiving funds breaks tests
 handle rejectUnauthorized for firefox (don't expose, log warning, replace MoneroWalletcore.REJECT_UNAUTHORIZED with config per instance by constructing http_client_wasm with wallet id, then lookup wallet by id and get rejectUnauthorized config for instance)
 test onOuputSent() when swept
-monero_wasm_bridge serialize bigintegers as strings
 combine TestAll and BrowserTests
 
+rename monero_wallet_core.h to monero_wallet_w2.h?
 all-in-one wasm build script
 fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)
 proxied txs, transfers, outputs are unnecessariliy stringified then parsed
@@ -32,6 +34,7 @@ update jsdocs
 full tests including jni
 release
 
+compare performance with pthreads
 wallet2.h updates: wallet_rpc on_sweep_all now sweeps all subaddresses by default, res.signature = m_wallet->sign(req.data, {req.account_index, req.address_index});, on_estimate_tx_size_and_weight
 testCheckForUpdate returns confusing error if offline
 don't run non-applicable tests in TestMoneroWalletKeys
