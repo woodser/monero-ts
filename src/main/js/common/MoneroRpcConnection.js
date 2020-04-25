@@ -14,22 +14,26 @@ const MoneroRpcConfigDefault = {
 class MoneroRpcConnection {
   
   /**
-   * Constructs a RPC connection using the given config.
+   * Construct a RPC connection.
    * 
-   * @param {object} config defines the rpc configuration
-   * @param {string} config.uri is the uri of the rpc endpoint
-   * @param {string} config.username is a username to authenticate with the rpc endpoint
-   * @param {string} config.password is a password to authenticate with the rpc endpoint
-   * @param {string} config.rejectUnauthorized rejects self-signed certificates if true
+   * @param {string|object|uriOrConfigOrConnection} uriOrConfigOrConnection is the rpc endpoint uri or MoneroRpcConnection or equivalent JS object
+   * @param {string} username is the username to authenticate with the rpc endpoint (optional)
+   * @param {string} password is the password to authenticate with the rpc endpoint (optional)
+   * @param {boolean} rejectUnauthorized rejects self-signed certificates if true
    */
-  constructor(config) {
+  constructor(uriOrConfigOrConnection, username, password, rejectUnauthorized) {
     
-    // normalize config
-    if (typeof config === "string") this.config = {uri: config};
-    else this.config = Object.assign({}, config);
+    // validate and normalize config
+    if (typeof uriOrConfigOrConnection === "string") this.config = {uri: uriOrConfigOrConnection, username: username, password: password, rejectUnauthorized: rejectUnauthorized};
+    else {
+      if (typeof uriOrConfigOrConnection !== "object") throw new MoneroError("Invalid configuration to MoneroRpcConnection; must be string or MoneroRpcConnection or equivalent JS object");
+      if (username || password || rejectUnauthorized) throw new MoneroError("Can provide config object or params but not both");
+      if (uriOrConfigOrConnection instanceof MoneroRpcConnection) this.config = Object.assign({}, uriOrConfigOrConnection.getConfig());
+      else this.config = Object.assign({}, uriOrConfigOrConnection);
+    }
     
-    // merge config with defaults
-    this.config = Object.assign({}, MoneroRpcConfigDefault, this.config);
+    // merge default config
+    this.config = Object.assign(MoneroRpcConfigDefault, this.config);
     
     // standardize uri
     if (this.config.uri) this.config.uri = this.config.uri.replace(/\/$/, ""); // strip trailing slash
