@@ -160,7 +160,12 @@ class MoneroWalletRpc extends MoneroWallet {
     if (!password) throw new MoneroError("Password is not initialized");
     if (!language) language = MoneroWallet.DEFAULT_LANGUAGE;
     let params = { filename: name, password: password, language: language };
-    await this.rpc.sendJsonRequest("create_wallet", params);
+    try {
+      await this.rpc.sendJsonRequest("create_wallet", params);
+    } catch (e) {
+      if (e.message === "Cannot create wallet. Already exists.") throw new MoneroError("Wallet already exists: " + name);
+      throw e;
+    }
     this._clear();
     this.path = name;
   }
@@ -178,15 +183,20 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {boolean} saveCurrent specifies if the current RPC wallet should be saved before being closed
    */
   async createWalletFromMnemonic(name, password, mnemonic, restoreHeight, language, seedOffset, saveCurrent) {
-    await this.rpc.sendJsonRequest("restore_deterministic_wallet", {
-      filename: name,
-      password: password,
-      seed: mnemonic,
-      seed_offset: seedOffset,
-      restore_height: restoreHeight,
-      language: language,
-      autosave_current: saveCurrent
-    });
+    try {
+      await this.rpc.sendJsonRequest("restore_deterministic_wallet", {
+        filename: name,
+        password: password,
+        seed: mnemonic,
+        seed_offset: seedOffset,
+        restore_height: restoreHeight,
+        language: language,
+        autosave_current: saveCurrent
+      });
+    } catch (e) {
+      if (e.message === "Cannot create wallet. Already exists.") throw new MoneroError("Wallet already exists: " + name);
+      throw e;
+    }
     this._clear();
     this.path = name;
   }
@@ -206,15 +216,20 @@ class MoneroWalletRpc extends MoneroWallet {
   async createWalletFromKeys(name, password, address, viewKey, spendKey, restoreHeight, language, saveCurrent) {
     if (restoreHeight === undefined) restoreHeight = 0;
     if (language === undefined) language = MoneroWallet.DEFAULT_LANGUAGE;
-    await this.rpc.sendJsonRequest("generate_from_keys", {
-      filename: name,
-      password: password,
-      address: address,
-      viewkey: viewKey,
-      spendkey: spendKey,
-      restore_height: restoreHeight,
-      autosave_current: saveCurrent
-    });
+    try {
+      await this.rpc.sendJsonRequest("generate_from_keys", {
+        filename: name,
+        password: password,
+        address: address,
+        viewkey: viewKey,
+        spendkey: spendKey,
+        restore_height: restoreHeight,
+        autosave_current: saveCurrent
+      });
+    } catch (e) {
+      if (e.message === "Cannot create wallet. Already exists.") throw new MoneroError("Wallet already exists: " + name);
+      throw e;
+    }
     this._clear();
     this.path = name;
   }

@@ -125,7 +125,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
           try {
             await that.createWallet({path: path, language: "Spanish"});
           } catch (e) {
-            assert.equal(e.getCode(), -21);
+            assert.equal(e.message, "Wallet already exists: " + path);
           }
         } catch (e) {
           err = e;
