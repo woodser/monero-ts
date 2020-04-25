@@ -90,7 +90,7 @@ class TestMoneroWalletsEqual {
   async testAccountsEqualOnChain(account1, account2) {
     
     // nullify off-chain data for comparison
-    let = account1.getSubaddresses();
+    let subaddresses1 = account1.getSubaddresses();
     let subaddresses2 = account2.getSubaddresses();
     account1.setSubaddresses(undefined);
     account2.setSubaddresses(undefined);
@@ -102,7 +102,7 @@ class TestMoneroWalletsEqual {
     await testSubaddressesEqualOnChain(subaddresses1, subaddresses2);
   }
   
-  await testSubaddressesEqualOnChain(subaddresses1, subaddresses2) {
+  async testSubaddressesEqualOnChain(subaddresses1, subaddresses2) {
     for (let i = 0; i < Math.max(subaddresses1.length, subaddresses2.length); i++) {
       if (i < subaddresses1.length && i < subaddresses2.length) {
         await testSubaddressesEqualOnChain(subaddresses1[i], subaddresses2[i]);
