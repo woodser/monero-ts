@@ -144,6 +144,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     
     // validate and normalize params
     if (path === undefined) path = "";
+    if (path && await MoneroWalletWasm.walletExists(path)) throw new Error("Wallet already exists: " + path);
     assert(password, "Must provide a password to create the wallet with");
     MoneroNetworkType.validate(networkType);
     if (language === undefined) language = "English";
@@ -180,6 +181,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     
     // validate and normalize params
     if (path === undefined) path = "";
+    if (path && await MoneroWalletWasm.walletExists(path)) throw new Error("Wallet already exists: " + path);
     assert(password, "Must provide a password to create the wallet with");
     MoneroNetworkType.validate(networkType);
     let daemonConnection = typeof daemonUriOrConnection === "string" ? new MoneroRpcConnection(daemonUriOrConnection) : daemonUriOrConnection;
@@ -217,6 +219,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     
     // validate and normalize params
     if (path === undefined) path = "";
+    if (path && await MoneroWalletWasm.walletExists(path)) throw new Error("Wallet already exists: " + path);
     assert(password, "Must provide a password to create the wallet with");
     MoneroNetworkType.validate(networkType);
     if (address === undefined) address = "";
@@ -1759,6 +1762,7 @@ class MoneroWalletWasmProxy extends MoneroWallet {
   }
   
   static async createWalletRandom(path, password, networkType, daemonUriOrConnection, language, fs) {
+    if (path && await MoneroWalletWasm.walletExists(path)) throw new Error("Wallet already exists: " + path);
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await MoneroUtils.invokeWorker(walletId, "createWalletRandom", [path, password, networkType, daemonUriOrConfig, language]);
@@ -1768,6 +1772,7 @@ class MoneroWalletWasmProxy extends MoneroWallet {
   }
   
   static async createWalletFromMnemonic(path, password, networkType, mnemonic, daemonUriOrConnection, restoreHeight, seedOffset, fs) {
+    if (path && await MoneroWalletWasm.walletExists(path)) throw new Error("Wallet already exists: " + path);
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
     await MoneroUtils.invokeWorker(walletId, "createWalletFromMnemonic", [path, password, networkType, mnemonic, daemonUriOrConfig, restoreHeight, seedOffset]);
@@ -1777,8 +1782,10 @@ class MoneroWalletWasmProxy extends MoneroWallet {
   }
   
   static async createWalletFromKeys(path, password, networkType, address, viewKey, spendKey, daemonUriOrConnection, restoreHeight, language, fs) {
+    if (path && await MoneroWalletWasm.walletExists(path)) throw new Error("Wallet already exists: " + path);
     let walletId = GenUtils.getUUID();
     let daemonUriOrConfig = daemonUriOrConnection instanceof MoneroRpcConnection ? daemonUriOrConnection.getConfig() : daemonUriOrConnection;
+    console.log("CREATING WALLET FROM KEYS: " + path);
     await MoneroUtils.invokeWorker(walletId, "createWalletFromKeys", [path, password, networkType, address, viewKey, spendKey, daemonUriOrConfig, restoreHeight, language]);
     let wallet = new MoneroWalletWasmProxy(walletId, MoneroUtils.getWorker(), path, fs);
     if (path) await wallet.save();

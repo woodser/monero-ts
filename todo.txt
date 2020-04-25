@@ -1,6 +1,5 @@
 HIGH (WASM)
 out of memory error, full tests stopping/slowing in chrome
-createWallet should fail if wallet already exists
 update monero-core to master and remove wasm_modifications branches :)
 wallets interchangeable java/js/rpc/native?
 remove wallet.getRestoreHeight()?
@@ -10,6 +9,7 @@ handle rejectUnauthorized for firefox (don't expose, log warning, replace Monero
 test onOuputSent() when swept
 combine TestAll and BrowserTests
 
+test syncing from 0
 rename monero_wallet_core.h to monero_wallet_w2.h?
 all-in-one wasm build script
 fix consistent failures in tests (notification failures, Can sync a wallet created from keys numConfirmations increased by two)
@@ -32,7 +32,6 @@ update jsdocs
 full tests including jni
 release
 
-compare performance with pthreads
 wallet2.h updates: wallet_rpc on_sweep_all now sweeps all subaddresses by default, res.signature = m_wallet->sign(req.data, {req.account_index, req.address_index});, on_estimate_tx_size_and_weight
 testCheckForUpdate returns confusing error if offline
 don't run non-applicable tests in TestMoneroWalletKeys
@@ -50,7 +49,7 @@ test queuing sync requests in test which opens and closes multiple wallets
 low severity vulnerabilities
 find boost version in cmake lists
 externalize test config
-support new MoneroDaemonRpc({proxyToWorker: true}) by saving creation promise then await and proxy every call?
+filesystem can be used in emscripten for wasm wallet, possibly supports memfs: https://emscripten.org/docs/api_reference/Filesystem-API.html
 Can prove reserves in an account
 open bug on check key no funds received despite transfer - caused by importing key images?
 re-test with pthread and compare performance, could load pthreaded library if nodejs or browser supports
