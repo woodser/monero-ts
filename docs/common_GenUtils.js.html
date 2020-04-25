@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: utils/GenUtils.js</title>
+    <title>JSDoc: Source: common/GenUtils.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: utils/GenUtils.js</h1>
+    <h1 class="page-title">Source: common/GenUtils.js</h1>
 
     
 
@@ -121,6 +121,7 @@ class GenUtils {
    * Indicates if the given argument is an array.
    * 
    * TODO: remove this entirely since just a direct wrapper?
+   * TODO: this method returns true for object
    * 
    * @param arg is the argument to test as being an array
    * @returns true if the argument is an array, false otherwise
@@ -200,7 +201,7 @@ class GenUtils {
    * @param msg is the message to throw if the argument is not hex
    */
   static assertHex(str, msg) {
-    assertTrue(isHex(str), msg ? msg : "Argument asserted as hex but is not hex");
+    GenUtils.assertTrue(isHex(str), msg ? msg : "Argument asserted as hex but is not hex");
   }
 
   /**
@@ -222,7 +223,7 @@ class GenUtils {
    */
   static isBase32(str) {
     if (typeof str !== 'string') return false;
-    assertTrue(str.length > 0, "Cannot determine if empty string is base32");
+    GenUtils.assertTrue(str.length > 0, "Cannot determine if empty string is base32");
     return /^[ABCDEFGHIJKLMNOPQRSTUVWXYZ234567]+$/.test(str);
   }
 
@@ -233,7 +234,7 @@ class GenUtils {
    * @param msg is the message to throw if the argument is not base58
    */
   static assertBase58(str, msg) {
-    assertTrue(isBase58(str), msg ? msg : "Argument asserted as base58 but is not base58");
+    GenUtils.assertTrue(isBase58(str), msg ? msg : "Argument asserted as base58 but is not base58");
   }
 
   /**
@@ -241,7 +242,7 @@ class GenUtils {
    */
   static isBase58(str) {
     if (typeof str !== 'string') return false;
-    assertTrue(str.length > 0, "Cannot determine if empty string is base58");
+    GenUtils.assertTrue(str.length > 0, "Cannot determine if empty string is base58");
     return /^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$/.test(str);
   }
 
@@ -252,7 +253,7 @@ class GenUtils {
    * @param msg is the message to throw if the argument is not base64
    */
   static assertBase64(str, msg) {
-    assertTrue(isBase64(str), msg ? msg : "Argument asserted as base64 but is not base64");
+    GenUtils.assertTrue(isBase64(str), msg ? msg : "Argument asserted as base64 but is not base64");
   }
 
   /**
@@ -260,7 +261,7 @@ class GenUtils {
    */
   static isBase64(str) {
     if (typeof str !== 'string') return false;
-    assertTrue(str.length > 0, "Cannot determine if empty string is base64");
+    GenUtils.assertTrue(str.length > 0, "Cannot determine if empty string is base64");
     try {
       return btoa(atob(str)) == str;
     } catch (err) {
@@ -524,7 +525,7 @@ class GenUtils {
   static getPowerSetOfLength(arr, size) {
     assertInitialized(arr);
     assertInitialized(size);
-    assertTrue(size >= 1);
+    GenUtils.assertTrue(size >= 1);
     let powerSet = getPowerSet(arr);
     let powerSetOfLength = [];
     for (let i = 0; i &lt; powerSet.length; i++) {
@@ -677,9 +678,11 @@ class GenUtils {
     if (GenUtils.isObject(arg1) &amp;&amp; GenUtils.isObject(arg2)) return GenUtils.objectsEqual(arg1, arg2);
     return arg1 === arg2;
   }
-
+  
   /**
    * Determines if two objects are deep equal.
+   * 
+   * Undefined values are considered equal to non-existent keys.
    * 
    * @param map1 is a map to compare
    * @param map2 is a map to compare
@@ -687,16 +690,47 @@ class GenUtils {
    */
   static objectsEqual(map1, map2) {
     let keys1 = Object.keys(map1);
-    if (keys1.length !== Object.keys(map2).length) return false;
-    for (let i = 0; i &lt; keys1.length; i++) {
-      let key = Object.keys(map1)[i];
-      if (!GenUtils.equals(map1[key], map2[key])) return false;
+    let keys2 = Object.keys(map2);
+    
+    // compare each key1 to keys2
+    for (let key1 of keys1) {
+      let found = false;
+      for (let key2 of keys2) {
+        if (key1 === key2) {
+          if (!GenUtils.equals(map1[key1], map2[key2])) return false;
+          found = true;
+          break;
+        }
+      }
+      if (!found &amp;&amp; map1[key1] !== undefined) return false; // allows undefined values to equal non-existent keys
+    }
+    
+    // compare each key2 to keys1
+    for (let key2 of keys2) {
+      let found = false;
+      for (let key1 of keys1) {
+        if (key1 === key2) {
+          found = true; // no need to re-compare which was done earlier
+          break;
+        }
+      }
+      if (!found &amp;&amp; map2[key2] !== undefined) return false; // allows undefined values to equal non-existent keys
     }
     return true;
+    
+    // TODO: support strict option?
+//    if (strict) {
+//      let keys1 = Object.keys(map1);
+//      if (keys1.length !== Object.keys(map2).length) return false;
+//      for (let i = 0; i &lt; keys1.length; i++) {
+//        let key = Object.keys(map1)[i];
+//        if (!GenUtils.equals(map1[key], map2[key])) return false;
+//      }
+//    }
   }
   
   /**
-   * Deletes properties from the object that undefined.
+   * Deletes properties from the object that are undefined.
    * 
    * @param obj is the object to delete undefined keys from
    */
@@ -717,7 +751,7 @@ class GenUtils {
     // validate input
     assertInitialized(arr);
     assertInitialized(combinationSize);
-    assertTrue(combinationSize >= 1);
+    GenUtils.assertTrue(combinationSize >= 1);
     
     // get combinations of array indices of the given size
     let indexCombinations = getPowerSetOfLength(getIndices(arr.length), combinationSize);
@@ -1092,7 +1126,7 @@ class GenUtils {
     
     // listify paths
     if (!GenUtils.isArray(paths)) {
-      assertTrue(isString(paths));
+      GenUtils.assertTrue(isString(paths));
       paths = [paths];
     }
     
@@ -1212,11 +1246,31 @@ class GenUtils {
    * 
    * Source: https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
    */
-  static uuidv4() {
+  static getUUID() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r &amp; 0x3 | 0x8);
       return v.toString(16);
     });
+  }
+  
+  /**
+   * Indicates if the current environment is a browser.
+   * 
+   * @return {boolean} true if the environment is a browser, false otherwise
+   */
+  static isBrowser() {
+    let isWorker = typeof importScripts === 'function';
+    let isBrowserMain = new Function("try {return this===window;}catch(e){return false;}")();
+    return isWorker || isBrowserMain;
+  }
+  
+  /**
+   * Indicates if the current environment is a firefox-based browser.
+   * 
+   * @return {boolean} true if the environment is a firefox-based browser, false otherwise
+   */
+  static isFirefox() {
+    return this.isBrowser() &amp;&amp; navigator.userAgent.indexOf("Firefox") > 0;
   }
 
   /**
@@ -1444,13 +1498,13 @@ module.exports = GenUtils;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BooleanSet.html">BooleanSet</a></li><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonConnectionSpan.html">MoneroDaemonConnectionSpan</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMinerTxSum.html">MoneroMinerTxSum</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroMultisigInfo.html">MoneroMultisigInfo</a></li><li><a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a></li><li><a href="MoneroMultisigSignResult.html">MoneroMultisigSignResult</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputQuery.html">MoneroOutputQuery</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendRequest.html">MoneroSendRequest</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroTxQuery.html">MoneroTxQuery</a></li><li><a href="MoneroTxSet.html">MoneroTxSet</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroUtilsWasm.html">MoneroUtilsWasm</a></li><li><a href="MoneroVersion.html">MoneroVersion</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletCore.html">MoneroWalletCore</a></li><li><a href="MoneroWalletKeys.html">MoneroWalletKeys</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletWasmBase.html">MoneroWalletWasmBase</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ConnectionType">ConnectionType</a></li><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Filter.html">Filter</a></li><li><a href="GenUtils.html">GenUtils</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="MoneroAccount.html">MoneroAccount</a></li><li><a href="MoneroAccountTag.html">MoneroAccountTag</a></li><li><a href="MoneroAddressBookEntry.html">MoneroAddressBookEntry</a></li><li><a href="MoneroAltChain.html">MoneroAltChain</a></li><li><a href="MoneroBan.html">MoneroBan</a></li><li><a href="MoneroBlock.html">MoneroBlock</a></li><li><a href="MoneroBlockHeader.html">MoneroBlockHeader</a></li><li><a href="MoneroBlockTemplate.html">MoneroBlockTemplate</a></li><li><a href="MoneroCheck.html">MoneroCheck</a></li><li><a href="MoneroCheckReserve.html">MoneroCheckReserve</a></li><li><a href="MoneroCheckTx.html">MoneroCheckTx</a></li><li><a href="MoneroDaemon.html">MoneroDaemon</a></li><li><a href="MoneroDaemonConnection.html">MoneroDaemonConnection</a></li><li><a href="MoneroDaemonConnectionSpan.html">MoneroDaemonConnectionSpan</a></li><li><a href="MoneroDaemonInfo.html">MoneroDaemonInfo</a></li><li><a href="MoneroDaemonPeer.html">MoneroDaemonPeer</a></li><li><a href="MoneroDaemonRpc.html">MoneroDaemonRpc</a></li><li><a href="MoneroDaemonRpcProxy.html">MoneroDaemonRpcProxy</a></li><li><a href="MoneroDaemonSyncInfo.html">MoneroDaemonSyncInfo</a></li><li><a href="MoneroDaemonUpdateCheckResult.html">MoneroDaemonUpdateCheckResult</a></li><li><a href="MoneroDaemonUpdateDownloadResult.html">MoneroDaemonUpdateDownloadResult</a></li><li><a href="MoneroDestination.html">MoneroDestination</a></li><li><a href="MoneroError.html">MoneroError</a></li><li><a href="MoneroHardForkInfo.html">MoneroHardForkInfo</a></li><li><a href="MoneroIncomingTransfer.html">MoneroIncomingTransfer</a></li><li><a href="MoneroIntegratedAddress.html">MoneroIntegratedAddress</a></li><li><a href="MoneroKeyImage.html">MoneroKeyImage</a></li><li><a href="MoneroKeyImageImportResult.html">MoneroKeyImageImportResult</a></li><li><a href="MoneroMinerTxSum.html">MoneroMinerTxSum</a></li><li><a href="MoneroMiningStatus.html">MoneroMiningStatus</a></li><li><a href="MoneroMultisigInfo.html">MoneroMultisigInfo</a></li><li><a href="MoneroMultisigInitResult.html">MoneroMultisigInitResult</a></li><li><a href="MoneroMultisigSignResult.html">MoneroMultisigSignResult</a></li><li><a href="MoneroOutgoingTransfer.html">MoneroOutgoingTransfer</a></li><li><a href="MoneroOutput.html">MoneroOutput</a></li><li><a href="MoneroOutputHistogramEntry.html">MoneroOutputHistogramEntry</a></li><li><a href="MoneroOutputQuery.html">MoneroOutputQuery</a></li><li><a href="MoneroOutputWallet.html">MoneroOutputWallet</a></li><li><a href="MoneroRpcConnection.html">MoneroRpcConnection</a></li><li><a href="MoneroRpcError.html">MoneroRpcError</a></li><li><a href="MoneroSendRequest.html">MoneroSendRequest</a></li><li><a href="MoneroSubaddress.html">MoneroSubaddress</a></li><li><a href="MoneroSubmitTxResult.html">MoneroSubmitTxResult</a></li><li><a href="MoneroSyncListener.html">MoneroSyncListener</a></li><li><a href="MoneroSyncResult.html">MoneroSyncResult</a></li><li><a href="MoneroTransfer.html">MoneroTransfer</a></li><li><a href="MoneroTransferQuery.html">MoneroTransferQuery</a></li><li><a href="MoneroTx.html">MoneroTx</a></li><li><a href="MoneroTxPoolStats.html">MoneroTxPoolStats</a></li><li><a href="MoneroTxQuery.html">MoneroTxQuery</a></li><li><a href="MoneroTxSet.html">MoneroTxSet</a></li><li><a href="MoneroTxWallet.html">MoneroTxWallet</a></li><li><a href="MoneroUtils.html">MoneroUtils</a></li><li><a href="MoneroVersion.html">MoneroVersion</a></li><li><a href="MoneroWallet.html">MoneroWallet</a></li><li><a href="MoneroWalletConfig.html">MoneroWalletConfig</a></li><li><a href="MoneroWalletKeys.html">MoneroWalletKeys</a></li><li><a href="MoneroWalletListener.html">MoneroWalletListener</a></li><li><a href="MoneroWalletRpc.html">MoneroWalletRpc</a></li><li><a href="MoneroWalletWasm.html">MoneroWalletWasm</a></li><li><a href="MoneroWalletWasmProxy.html">MoneroWalletWasmProxy</a></li><li><a href="SslOptions.html">SslOptions</a></li><li><a href="SyncListenerWrapper.html">SyncListenerWrapper</a></li><li><a href="WalletWasmListener.html">WalletWasmListener</a></li><li><a href="WalletWorkerHelperListener.html">WalletWorkerHelperListener</a></li><li><a href="WalletWorkerListener.html">WalletWorkerListener</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ConnectionType">ConnectionType</a></li><li><a href="global.html#MoneroKeyImageSpentStatus">MoneroKeyImageSpentStatus</a></li><li><a href="global.html#MoneroNetworkType">MoneroNetworkType</a></li><li><a href="global.html#MoneroRpcConfigDefault">MoneroRpcConfigDefault</a></li><li><a href="global.html#MoneroSendPriority">MoneroSendPriority</a></li><li><a href="global.html#onmessage">onmessage</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Mon Dec 16 2019 15:29:08 GMT-0500 (Eastern Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Sat Apr 25 2020 10:17:08 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
