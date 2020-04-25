@@ -1,6 +1,4 @@
 HIGH (WASM)
-jsdoc broke
-testAccountsEqualOnChain let syntax error
 out of memory error, full tests stopping/slowing in chrome
 createWallet should fail if wallet already exists
 update monero-core to master and remove wasm_modifications branches :)
