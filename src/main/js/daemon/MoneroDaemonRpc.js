@@ -30,7 +30,7 @@ class MoneroDaemonRpc extends MoneroDaemon {
    * 
    * Examples:
    *   let daemon = new MoneroDaemonRpc("http://localhost:38081", "superuser", "abctesting123", ...);
-   *   let daemon = new MoneroDaemonRpc({uri: "http://localhost:38081", proxyToWorker: true, ...});
+   *   let daemon = new MoneroDaemonRpc({proxyToWorker: true, server: new MoneroRpcConnection("http://localhost:38081", "superuser", "abctesting123")});
    * 
    * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection is the uri of monero-daemon-rpc or JS config object or MoneroRpcConnection
    * @param {string} username is a username to authenticate with monero-daemon-rpc (optional)
@@ -819,11 +819,15 @@ class MoneroDaemonRpc extends MoneroDaemon {
     if (typeof uriOrConfigOrConnection === "string") config = {uri: uriOrConfigOrConnection, username: username, password: password, proxyToWorker: proxyToWorker, rejectUnauthorized: rejectUnauthorized, pollInterval: pollInterval};
     else {
       if (typeof uriOrConfigOrConnection !== "object") throw new MoneroError("Invalid configuration to create daemon rpc client; must be string, object, or MoneroRpcConnection");
-      if (username || password || rejectUnauthorized || pollInterval || proxyToWorker) throw new MoneroError("Can provide config object or params on new MoneroDaemonRpc(...) but not both");
+      if (username || password || rejectUnauthorized || pollInterval || proxyToWorker) throw new MoneroError("Can provide config object or params or new MoneroDaemonRpc(...) but not both");
       if (uriOrConfigOrConnection instanceof MoneroRpcConnection) config = Object.assign({}, uriOrConfigOrConnection.getConfig());
       else config = Object.assign({}, uriOrConfigOrConnection);
     }
     if (config.pollInterval === undefined) config.pollInterval = 5000; // TODO: move to config
+    if (config.server) {
+      config = Object.assign(config, new MoneroRpcConnection(config.server).getConfig());
+      delete config.server;
+    }
     return config;
   }
   
