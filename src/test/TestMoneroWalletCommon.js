@@ -2615,7 +2615,7 @@ class TestMoneroWalletCommon {
             break;
           }
         }
-        assert(hasBalance, "Wallet does not have enough balance; load '" + TestUtils.WALLET_RPC_NAME_1 + "' with XMR in order to test sending");
+        assert(hasBalance, "Wallet does not have enough balance; load '" + TestUtils.WALLET_NAME + "' with XMR in order to test sending");
         assert(srcAccount, "Wallet is waiting on unlocked funds");
         let balance = srcAccount.getBalance();
         let unlockedBalance = srcAccount.getUnlockedBalance();

@@ -40,7 +40,7 @@ class TestUtils {
     
     // attempt to open test wallet
     try {
-      await TestUtils.walletRpc.openWallet({path: TestUtils.WALLET_RPC_NAME_1, password: TestUtils.WALLET_PASSWORD});
+      await TestUtils.walletRpc.openWallet({path: TestUtils.WALLET_NAME, password: TestUtils.WALLET_PASSWORD});
     } catch (e) {
       if (!(e instanceof MoneroRpcError)) throw e;
       
@@ -48,7 +48,7 @@ class TestUtils {
       if (e.getCode() === -1) {
         
         // create wallet
-        await TestUtils.walletRpc.createWallet({path: TestUtils.WALLET_RPC_NAME_1, password: TestUtils.WALLET_PASSWORD, mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
+        await TestUtils.walletRpc.createWallet({path: TestUtils.WALLET_NAME, password: TestUtils.WALLET_PASSWORD, mnemonic: TestUtils.MNEMONIC, restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT});
       } else {
         throw e;
       }
@@ -75,7 +75,7 @@ class TestUtils {
     if (!TestUtils.walletWasm || await TestUtils.walletWasm.isClosed()) {
       
       // create wallet from mnemonic phrase if it doesn't exist
-      if (!await MoneroWalletWasm.walletExists(TestUtils.WALLET_WASM_PATH_1)) {
+      if (!await MoneroWalletWasm.walletExists(TestUtils.WALLET_WASM_PATH)) {
         
         // create directory for test wallets if it doesn't exist
         let fs = MoneroUtils.getDefaultFs();
@@ -85,7 +85,7 @@ class TestUtils {
         }
         
         // create wallet with connection
-        TestUtils.walletWasm = await MoneroWalletWasm.createWallet({path: TestUtils.WALLET_WASM_PATH_1, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, mnemonic: TestUtils.MNEMONIC, server: TestUtils.getDaemonRpcConnection(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER});
+        TestUtils.walletWasm = await MoneroWalletWasm.createWallet({path: TestUtils.WALLET_WASM_PATH, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, mnemonic: TestUtils.MNEMONIC, server: TestUtils.getDaemonRpcConnection(), restoreHeight: TestUtils.FIRST_RECEIVE_HEIGHT, proxyToWorker: TestUtils.PROXY_TO_WORKER});
         assert.equal(await TestUtils.walletWasm.getRestoreHeight(), TestUtils.FIRST_RECEIVE_HEIGHT);
         await TestUtils.walletWasm.sync(new WalletSyncPrinter());
         await TestUtils.walletWasm.save();
@@ -94,7 +94,7 @@ class TestUtils {
       
       // otherwise open existing wallet
       else {
-        TestUtils.walletWasm = await MoneroWalletWasm.openWallet({path: TestUtils.WALLET_WASM_PATH_1, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, server: TestUtils.getDaemonRpcConnection(), proxyToWorker: TestUtils.PROXY_TO_WORKER});
+        TestUtils.walletWasm = await MoneroWalletWasm.openWallet({path: TestUtils.WALLET_WASM_PATH, password: TestUtils.WALLET_PASSWORD, networkType: TestUtils.NETWORK_TYPE, server: TestUtils.getDaemonRpcConnection(), proxyToWorker: TestUtils.PROXY_TO_WORKER});
         await TestUtils.walletWasm.sync(new WalletSyncPrinter());
         await TestUtils.walletWasm.startSyncing();
       }
@@ -135,8 +135,11 @@ class TestUtils {
 
 // TODO: export these to key/value properties file for tests
 
+// test wallet config
+TestUtils.WALLET_NAME = "test_wallet_1";
+TestUtils.WALLET_PASSWORD = "supersecretpassword123";
 TestUtils.TEST_WALLETS_DIR = "./test_wallets";
-TestUtils.WALLET_WASM_PATH_1 = TestUtils.TEST_WALLETS_DIR + "/test_wallet_1";
+TestUtils.WALLET_WASM_PATH = TestUtils.TEST_WALLETS_DIR + "/" + TestUtils.WALLET_NAME;
 
 TestUtils.MAX_FEE = new BigInteger(7500000).multiply(new BigInteger(10000));
 TestUtils.NETWORK_TYPE = MoneroNetworkType.STAGENET;
@@ -145,11 +148,6 @@ TestUtils.NETWORK_TYPE = MoneroNetworkType.STAGENET;
 TestUtils.MNEMONIC = "biggest duets beware eskimos coexist igloo pamphlet lagoon odometer hounded jukebox enough pride cocoa nylon wolf geometry buzzer vivid federal idols gang semifinal subtly coexist";
 TestUtils.ADDRESS = "555zgduFhmKd2o8rPUzWLjNMrBWsRpgqb6CsmHUwhR3ABd4rPJeddAiN7DWDFozU9hZ9c8x3F4rKgPEJoUMyQ17oNr2SUq2";
 TestUtils.FIRST_RECEIVE_HEIGHT = 545232;   // NOTE: this value MUST be the height of the wallet's first tx for tests
-
-//wallet rpc test wallet filenames and passwords
-TestUtils.WALLET_RPC_NAME_1 = "test_wallet_1";
-TestUtils.WALLET_RPC_NAME_2 = "test_wallet_2";
-TestUtils.WALLET_PASSWORD = "supersecretpassword123";
 
 // wallet RPC config
 TestUtils.WALLET_RPC_CONFIG = {
