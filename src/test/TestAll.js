@@ -48,6 +48,3 @@ new TestMoneroWalletRpc({
 
 // test scratchpad
 require("./Scratchpad");
-
-////test boolean set (data structure used by wallet to track progress)
-//require("./TestBooleanSet");
