@@ -9,10 +9,10 @@ Monero-javascript features a web assembly (WASM)-based wallet implementation. Th
 # 2. Initial setup
 ## 2.1: Required software
 In order to obtain and use the monero-javascript starter project, you need to have the following software installed on your computer:
+* [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 * [Python](https://www.python.org/downloads/)
 * [node.js and the node package manager (npm)](https://nodejs.org/en/)
 * [the Monero command line tools](https://web.getmonero.org/downloads/#cli)
-* [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
 Each item in the list above links to the corresponding software download page.
 
@@ -22,6 +22,18 @@ Each item in the list above links to the corresponding software download page.
 ## Installing required software
 
 Follow the instructions in this quick guide if you need assistance installing any of the software.
+
+### Installing Git
+#### Windows
+1. [Download the Git for Windows installer](https://git-scm.com/download/win) from the git website.
+2. Open the installer and click “I agree” when prompted with the license agreement.
+#### Linux
+1. Open a terminal.
+2. Use the package manager to install git:
+  For Debian/Ubuntu:
+  `$ sudo apt-get install git-all`
+  For Fedora:
+  `$ sudo dnf install git-all`
 
 ### Installing Python
 #### Windows
@@ -42,22 +54,9 @@ Follow the instructions in this quick guide if you need assistance installing an
   `$ sudo apt-get install python3`
   For Fedora:
   `$ sudo dnf install python3`
-
-###Installing Git
-####Windows
-1. [Download the Git for Windows installer](https://git-scm.com/download/win) from the git website.
-2. Open the installer and click “I agree” when prompted with the license agreement.
-####Linux
-1. Open a terminal.
-2. Use the package manager to install git:
-  For Debian/Ubuntu:
-  `$ sudo apt-get install git-all`
-  For Fedora:
-  `$ sudo dnf install git-all`
   
-###Installing node.js and npm
+### Installing node.js and npm
 #### Windows
-##### Install node.js and npm
 1. [Download the node.js Windows installer](https://nodejs.org/en/download/) from the node.js website.
 2. Open the installer.
 3. Click “next”.
@@ -68,16 +67,18 @@ Follow the instructions in this quick guide if you need assistance installing an
 8. Click “Install”.
 9. Click “Finish” after the installation process completes.
 #### Linux
-  **Debian** (Ubuntu, etc.)
+  ##### Debian (Ubuntu, etc.)
   1. Install node.js:
     `$ sudo apt-get install nodejs`
   2. Install npm:
     `$ sudo apt-get install npm`
-  **Fedora**
+  ##### Fedora
   1. Install node.js:
     `$ sudo dnf install nodejs`
   2. Install npm:
     `$ sudo dnf install npm`
+    
+### Installing the Monero Command Line Tools
 
 ---
 
@@ -109,7 +110,8 @@ It runs the monero-javascript program in an asynchronous function.
 
 Most monero-javascript methods are asynchronous, so you should call them from an asynchronous function - in this case, “runMain()” is that function.
 
-<!-- aside box →
+---
+**NOTE**
 ### Asynchronous methods
 In Javascript, asynchronous functions emulate multithreading. In other words, they act like they are running multiple blocks of code simultaneously. This behavior is useful when you need a script to perform some behavior in the background without forcing the main program to halt execution until the background code finishes.
 
@@ -135,12 +137,14 @@ Preceding a function definition with the “asynchronous” keyword tells Javasc
 ```
 async function functionName() {}
 ```
+---
 
-<!-- /aside box -->
 3.2: Creating an offline wallet
 Monero-javascript provides a minimal Monero wallet implementation called a keys-only wallet. We will use the keys-only wallet to program an offline wallet generator. 
 
-<!-- aside box -->
+---
+**NOTE**
+
 Keys-only wallets have the following limitations:
 They do not store and can not import transaction or output data
 They can not connect to nodes or RPC wallet servers
@@ -148,7 +152,8 @@ They can not send XMR
 They can not report their balances
 
 The tradeoff for these limitations is the keys-only wallet’s small memory footprint, which allows it to load much faster than a full WASM wallet. Use keys-only wallets when your application doesn’t need to make use of any of the aforementioned missing features. One such case is an offline wallet generator, because it does not need to communicate with the blockchain. 
-<!-- /aside box →
+
+---
 
 There are two steps to create a view-only wallet:
 Load the WASM module
