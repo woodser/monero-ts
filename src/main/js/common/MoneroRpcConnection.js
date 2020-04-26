@@ -24,10 +24,14 @@ class MoneroRpcConnection {
   constructor(uriOrConfigOrConnection, username, password, rejectUnauthorized) {
     
     // validate and normalize config
-    if (typeof uriOrConfigOrConnection === "string") this.config = {uri: uriOrConfigOrConnection, username: username, password: password, rejectUnauthorized: rejectUnauthorized};
-    else {
+    if (typeof uriOrConfigOrConnection === "string") {
+      this.config = {uri: uriOrConfigOrConnection};
+      if (username !== undefined) this.config.username = username;
+      if (password !== undefined) this.config.password = password;
+      if (rejectUnauthorized !== undefined) this.config.rejectUnauthorized = rejectUnauthorized;
+    } else {
       if (typeof uriOrConfigOrConnection !== "object") throw new MoneroError("Invalid configuration to MoneroRpcConnection; must be string or MoneroRpcConnection or equivalent JS object");
-      if (username || password || rejectUnauthorized) throw new MoneroError("Can provide config object or params but not both");
+      if (username !== undefined || password !== undefined || rejectUnauthorized !== undefined) throw new MoneroError("Can provide config object or params but not both");
       if (uriOrConfigOrConnection instanceof MoneroRpcConnection) this.config = Object.assign({}, uriOrConfigOrConnection.getConfig());
       else this.config = Object.assign({}, uriOrConfigOrConnection);
     }
