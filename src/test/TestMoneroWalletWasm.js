@@ -185,7 +185,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       });
       
       if (config.testNonRelays)
-      it("Can create a random native wallet", async function() {
+      it("Can create a random WASM wallet", async function() {
         
         // create unconnected random wallet
         let wallet = await that.createWallet({networkType: MoneroNetworkType.MAINNET, serverUri: ""});
@@ -233,7 +233,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       });
       
       if (config.testNonRelays)
-      it("Can create a native wallet from mnemonic", async function() {
+      it("Can create a WASM wallet from mnemonic", async function() {
         
         // create unconnected wallet with mnemonic
         let wallet = await that.createWallet({mnemonic: TestUtils.MNEMONIC, serverUri: ""});
@@ -305,7 +305,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       });
       
       if (config.testNonRelays)
-      it("Can create a native wallet from keys", async function() {
+      it("Can create a WASM wallet from keys", async function() {
         
         // recreate test wallet from keys
         let wallet = that.wallet;
