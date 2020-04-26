@@ -33,7 +33,7 @@ class MoneroRpcConnection {
     }
     
     // merge default config
-    this.config = Object.assign(MoneroRpcConfigDefault, this.config);
+    this.config = Object.assign({}, MoneroRpcConfigDefault, this.config);
     
     // standardize uri
     if (this.config.uri) this.config.uri = this.config.uri.replace(/\/$/, ""); // strip trailing slash
