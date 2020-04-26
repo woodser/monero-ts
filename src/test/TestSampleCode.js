@@ -122,7 +122,7 @@ class TestSampleCode {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(walletRpc); // wait for txs to clear pool *** REMOVE FROM README SAMPLE ***
         let txSet = await walletRpc.sendTx(0, await walletWasm.getPrimaryAddress(), BigInteger.parse("50000"));
         let sentTx = txSet.getTxs()[0];  // send methods return tx set(s) which contain sent txs unless further steps needed in a multisig or watch-only wallet
-        assert(sentTx.inTxPool());
+        assert(sentTx.inTxPool(), "Sent transaction is not in the tx pool");
         
         // mine with 7 threads to push the network along
         let numThreads = 7;
@@ -157,7 +157,7 @@ class TestSampleCode {
         
         // wasm wallet will receive notification of incoming output after a moment
         await new Promise(function(resolve) { setTimeout(resolve, 10000); });
-        assert(TestSampleCode.CORE_OUTPUT_RECEIVED);
+        assert(TestSampleCode.CORE_OUTPUT_RECEIVED, "Output not received");
         
         // save and close the wasm wallet
         await walletWasm.close(true);
