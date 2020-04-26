@@ -8,7 +8,6 @@ start a new test wallet, new test wallet before receiving funds breaks tests
 handle rejectUnauthorized for firefox (don't expose, log warning, replace MoneroWalletcore.REJECT_UNAUTHORIZED with config per instance by constructing http_client_wasm with wallet id, then lookup wallet by id and get rejectUnauthorized config for instance)
 test onOuputSent() when swept
 combine TestAll and BrowserTests
-update to python 3
 
 test syncing from 0
 rename monero_wallet_core.h to monero_wallet_w2.h?

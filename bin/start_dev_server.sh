@@ -1,4 +1,4 @@
 #!/bin/sh
 
 # start server
-cd browser_build && python ../bin/run_server.py
+cd browser_build && python3 ../bin/run_server.py
