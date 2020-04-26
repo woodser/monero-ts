@@ -5,7 +5,7 @@ const configBase = require("./webpack.base.js");
 
 let configBrowserTest = Object.assign({}, configBase, {
   name: "Test config",
-  entry: "./src/test/browser/BrowserTests.js",
+  entry: "./src/test/browser/tests.js",
   output: {
     path: path.resolve(__dirname, "browser_build"),
     filename: "monero-javascript-tests.js"
