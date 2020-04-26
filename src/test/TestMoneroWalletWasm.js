@@ -75,6 +75,16 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
         TestUtils.TX_POOL_WALLET_TRACKER.reset(); // all wallets need to wait for txs to confirm to reliably sync
       });
       
+      // delete non-main test wallets after each test
+      afterEach(async function() {
+        let fs = MoneroUtils.getDefaultFs();
+        let items = fs.readdirSync(TestUtils.TEST_WALLETS_DIR);
+        for (let item of items) {
+          if (item === TestUtils.WALLET_NAME || item === TestUtils.WALLET_NAME + ".keys" || item === TestUtils.WALLET_NAME + ".address.txt") continue;
+          fs.unlinkSync(TestUtils.TEST_WALLETS_DIR + "/" + item);
+        }
+      });
+      
       // save wallet after tests
       after(async function() {
         console.log("Saving and closing wallet on shut down");
@@ -175,7 +185,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       });
       
       if (config.testNonRelays)
-      it("Can create random native wallet", async function() {
+      it("Can create a random native wallet", async function() {
         
         // create unconnected random wallet
         let wallet = await that.createWallet({networkType: MoneroNetworkType.MAINNET, serverUri: ""});
@@ -321,7 +331,7 @@ class TestMoneroWalletWasm extends TestMoneroWalletCommon {
       // TODO monero core: cannot re-sync from lower block height after wallet saved
       if (config.testNonRelays && !config.liteMode && false)
       it("Can re-sync an existing wallet from scratch", async function() {
-        let wallet = await that.openWallet({path: TestUtils.WALLET_WASM_PATH_1, password: TestUtils.WALLET_PASSWORD, networkType: MoneroNetworkType.STAGENET});  // wallet must already exist
+        let wallet = await that.openWallet({path: TestUtils.WALLET_WASM_PATH, password: TestUtils.WALLET_PASSWORD, networkType: MoneroNetworkType.STAGENET});  // wallet must already exist
         await wallet.setDaemonConnection(TestUtils.getDaemonRpcConnection());
         //long startHeight = TestUtils.TEST_RESTORE_HEIGHT;
         let startHeight = 0;

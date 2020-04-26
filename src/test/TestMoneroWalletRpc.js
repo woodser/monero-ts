@@ -132,7 +132,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         }
           
         // open main test wallet for other tests
-        await that.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+        await that.wallet.openWallet(TestUtils.WALLET_NAME, TestUtils.WALLET_PASSWORD);
         
         // throw error if there was one
         if (err) throw err;
@@ -167,7 +167,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         }
         
         // open main test wallet for other tests
-        await that.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+        await that.wallet.openWallet(TestUtils.WALLET_NAME, TestUtils.WALLET_PASSWORD);
         
         // throw error if there was one
         if (err) throw err;
@@ -216,7 +216,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         
         // open main test wallet for other tests
         try {
-          await that.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+          await that.wallet.openWallet(TestUtils.WALLET_NAME, TestUtils.WALLET_PASSWORD);
         } catch (e) {
           assert.equal(e.getCode(), -1); // ok if wallet is already open
         }
@@ -355,7 +355,7 @@ class TestMoneroWalletRpc extends TestMoneroWalletCommon {
         await that.wallet.close();
         
         // re-open main test wallet for other tests
-        await that.wallet.openWallet(TestUtils.WALLET_RPC_NAME_1, TestUtils.WALLET_PASSWORD);
+        await that.wallet.openWallet(TestUtils.WALLET_NAME, TestUtils.WALLET_PASSWORD);
       });
       
       if (false)  // disabled so server not actually stopped
