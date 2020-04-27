@@ -1,4 +1,4 @@
-# 1. The monero-javascript library
+# 1. Introduction to the monero-javascript library
 The monero-javascript library enables web developers to implement Monero functionality in javascript browser and node.js applications, such as interacting with Monero wallets, nodes, and RPC servers.
 
 The library’s object and method hierarchy is derived from [The Hidden Model](https://moneroecosystem.org/monero-java/monero-spec.pdf), a concise, self-consistent, and intuitive representation of the underlying structure of the Monero software and the basis for the [monero-cpp](https://github.com/woodser/monero-cpp-library) and [monero-java](https://monero-ecosystem/monero-java) libraries.
@@ -8,53 +8,46 @@ Monero-javascript features a web assembly (WASM)-based wallet implementation. Th
 (software architecture diagram)[./img/monero-javascript-diagram.png] caption:  Monero-javascript can interact with monero both via connection to RPC-servers and daemons and a direct bridge to the native wallet code via the monero c++ wallet implementation
 
 # 2. Initial Setup
-## 2.1: Required software
-In order to install and use the monero-javascript library, you need to download and install [node.js and the node package manager (npm)](https://nodejs.org/en/)
-* [the Monero command line tools](https://web.getmonero.org/downloads/#cli). In addition, you need the [Monero command line interface tools](http://getmonero.org/downloads) to host RPC wallet and daemon servers. 
-## 2.2: Installing the monero-javascript libary
 
-# 3. Write a simple monero-javascript program
-## 3.1: Building the monero-javascript template
-1. 
-Open the file “index.js” in your IDE or text editor of choice to edit the template application’s code. Note that the unmodified template script does not take advantage of any of monero-javascript’s functionality. The script only provides the basic boilerplate code needed by every program that uses the monero-javascript library. The template program carries out two essential tasks:
+### Installing node.js and npm
+In order to install and use the monero-javascript library, you need to download and install node.js and the node package manager (npm). 
 
-It imports the monero-javascript library.
-`require(“monero-javascript”)`
-It runs the monero-javascript program in an asynchronous function.
-`async function runMain() {`
+#### Windows
+1. [Download the node.js Windows installer](https://nodejs.org/en/download/) from the node.js website.
+2. Open the installer.
+3. Click “next”.
+4. Click the checkbox next to “I accept the terms in this license agreement.” and click “next”.
+5. Click “next” to install node.js to the default directory.
+6. Make sure that npm is listed as one of the installation packages, then click “next”.
+7. Click “next”.
+8. Click “Install”.
+9. Click “Finish” after the installation process completes.
 
-Most monero-javascript methods are asynchronous, so you should call them from an asynchronous function - in this case, “runMain()” is that function.
+#### Linux
+  ##### Debian (Ubuntu, etc.)
+  1. Install node.js:
+    `$ sudo apt-get install nodejs`
+  2. Install npm:
+    `$ sudo apt-get install npm`
+  ##### Fedora
+  1. Install node.js:
+    `$ sudo dnf install nodejs`
+  2. Install npm:
+    `$ sudo dnf install npm`
 
----
-**NOTE**
-### Asynchronous methods
-In Javascript, asynchronous functions emulate multithreading. In other words, they act like they are running multiple blocks of code simultaneously. This behavior is useful when you need a script to perform some behavior in the background without forcing the main program to halt execution until the background code finishes.
+### 2.2: Installing the monero-javascript libary
 
-However, you will encounter situations where the behavior of your program’s main thread depends on the result that an asynchronous function returns. Consider the following example:
+To install the libary, open the command prompt (Windows) or a terminal (linux) and enter the command `npm install monero-javascript`.
 
-```
-number = 0;
+# 3. Write a monero-javascript program
 
-async function getNumberSlowly() {
-  for(var i = 0; i < 100000; i++) {
-    console.log(“Wasting time!”);
-  }
-  return(5);
-}
+## 3.1: The essential monero-javascript program template
 
-number = getNumberSlowly();
-console.log(number);
-```
+Every monero-javascript program must have two essential components:
+1. A "require" statement to import the library
+2. An asynchronous "main" function to handle all monero-javascript operations
 
-You might expect this code to print the number “5” to the console, but it will actually print “0”. Because getNumberSlowly() is an asynchronous function, javascript will not wait for it to return before executing the next line of code. Thus, the “getNumberSlowly()” function will still be running through its 
-Preceding a function definition with the “asynchronous” keyword tells Javascript to run this function concurrently with the main thread.
-
-```
-async function functionName() {}
-```
----
-
-3.2: Creating an offline wallet
+## 3.2: Creating-an-offline-wallet
 Monero-javascript provides a minimal Monero wallet implementation called a keys-only wallet. We will use the keys-only wallet to program an offline wallet generator. 
 
 ---
