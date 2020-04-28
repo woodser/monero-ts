@@ -417,7 +417,7 @@ class MoneroWalletWasm extends MoneroWalletKeys {
     this._assertNotClosed();
     let idx = this._listeners.indexOf(listener);
     if (idx > -1) this._listeners.splice(idx, 1);
-    else throw new MoneroError("Listener is not registered to wallet");
+    else throw new MoneroError("Listener is not registered with wallet");
     if (this._listeners.length === 0) await this._setIsListening(false);
   }
   
@@ -1940,7 +1940,7 @@ class MoneroWalletWasmProxy extends MoneroWallet {
         return;
       }
     }
-    throw new MoneroError("Listener is not registered to wallet");
+    throw new MoneroError("Listener is not registered with wallet");
   }
   
   getListeners() {
