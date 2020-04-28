@@ -92,7 +92,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {string} pathOrConfig.serverUsername - username to authenticate with the daemon (optional)
    * @param {string} pathOrConfig.serverPassword - password to authenticate with the daemon (optional)
    * @param {boolean} pathOrConfig.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
-   * @param {MoneroRpcObject|object} pathOrConfig.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
+   * @param {MoneroRpcConnection|object} pathOrConfig.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
    * @param {string} password is the wallet's password
    */
   async openWallet(pathOrConfig, password) {
@@ -145,7 +145,7 @@ class MoneroWalletRpc extends MoneroWallet {
    * @param {string} config.serverUsername - username to authenticate with the daemon (optional)
    * @param {string} config.serverPassword - password to authenticate with the daemon (optional)
    * @param {boolean} config.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
-   * @param {MoneroRpcObject|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
+   * @param {MoneroRpcConnection|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
    */
   async createWallet(config) {
     
