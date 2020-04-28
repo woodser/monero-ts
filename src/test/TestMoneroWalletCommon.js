@@ -2709,7 +2709,6 @@ class TestMoneroWalletCommon {
         }
       }
       
-      if (config.testNonRelays)
       it("Supports watch-only and offline wallets to create, sign, and submit transactions", async function() {
         await TestUtils.TX_POOL_WALLET_TRACKER.waitForWalletTxsToClearPool(that.wallet);
         
