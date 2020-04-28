@@ -56,16 +56,30 @@
 class MoneroWalletRpc extends MoneroWallet {
   
   /**
-   * Construct a wallet RPC client.
+   * &lt;p>Construct a wallet RPC client.&lt;/p>
    * 
-   * Examples:
-   *   let walletRpc = new MoneroWalletRpc("http://localhost:38081", "superuser", "abctesting123", true);
-   *   let walletRpc = new MoneroWalletRpc({uri: "http://localhost:38081", rejectUnauthorized: false, ...}); // e.g. local development
+   * &lt;p>Examples:&lt;/p>
    * 
-   * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection is the uri of monero-wallet-rpc or JS config object or MoneroRpcConnection
-   * @param {string} username is a username to authenticate with monero-wallet-rpc (optional)
-   * @param {string} password is a password to authenticate with monero-wallet-rpc (optional)
-   * @param {boolean} rejectUnauthorized rejects self-signed certificates if true (default true)
+   * &lt;code>
+   * let walletRpc = new MoneroWalletRpc("http://localhost:38081", "superuser", "abctesting123");&lt;br>&lt;br>
+   * 
+   * &amp;sol;&amp;sol; --- or ---&lt;br>&lt;br>
+   * 
+   * let walletRpc = new MoneroWalletRpc({&lt;br>
+   * &amp;nbsp;&amp;nbsp; uri: "http://localhost:38081",&lt;br>
+   * &amp;nbsp;&amp;nbsp; username: "superuser",&lt;br>
+   * &amp;nbsp;&amp;nbsp; password: "abctesting123",&lt;br>
+   * &amp;nbsp;&amp;nbsp; rejectUnauthorized: false // e.g. local development&lt;br>
+   * });
+   * &lt;/code>
+   * 
+   * @param {string|object|MoneroRpcConnection} uriOrConfigOrConnection - uri of monero-wallet-rpc or JS config object or MoneroRpcConnection
+   * @param {string} uriOrConfigOrConnection.username - username to authenticate with monero-wallet-rpc (optional)
+   * @param {string} uriOrConfigOrConnection.password - password to authenticate with monero-wallet-rpc (optional)
+   * @param {boolean} uriOrConfigOrConnection.rejectUnauthorized - rejects self-signed certificates if true (default true)
+   * @param {string} username - username to authenticate with monero-wallet-rpc (optional)
+   * @param {string} password - password to authenticate with monero-wallet-rpc (optional)
+   * @param {boolean} rejectUnauthorized - rejects self-signed certificates if true (default true)
    */
   constructor(uriOrConfigOrConnection, username, password, rejectUnauthorized) {
     super();
@@ -84,23 +98,29 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   /**
-   * Open an existing wallet on the monero-wallet-rpc server.
+   * &lt;p>Open an existing wallet on the monero-wallet-rpc server.&lt;/p>
    * 
-   * Examples:
-   *   let wallet = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");
-   *   await wallet.openWallet("mywallet", "supersecretpassword");
-   *   await wallet.openWallet({path: "mywallet", password: "supersecretpassword", serverUri: "http://locahost:38081", rejectUnauthorized: false});
+   * &lt;p>Examples:&lt;p>
    * 
-   * All supported configuration:
-   *   {string} path - path of the wallet to create (optional, in-memory wallet if not given)
-   *   {string} password - password of the wallet to create
-   *   {string} serverUri - uri of a daemon to use (optional, monero-wallet-rpc usually started with daemon config)
-   *   {string} serverUsername - username to authenticate with the daemon (optional)
-   *   {string} serverPassword - password to authenticate with the daemon (optional)
-   *   {boolean} rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
-   *   {MoneroRpcObject|object} server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
+   * &lt;code>
+   * let wallet = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");&lt;br>
+   * await wallet.openWallet("mywallet1", "supersecretpassword");&lt;br>
+   * await wallet.openWallet({&lt;br>
+   * &amp;nbsp;&amp;nbsp; path: "mywallet2",&lt;br>
+   * &amp;nbsp;&amp;nbsp; password: "supersecretpassword",&lt;br>
+   * &amp;nbsp;&amp;nbsp; serverUri: "http://locahost:38081",&lt;br>
+   * &amp;nbsp;&amp;nbsp; rejectUnauthorized: false&lt;br>
+   * });&lt;br>
+   * &lt;/code>
    * 
-   * @param {string|MoneroWalletConfig|object} pathOrConfig is the wallet's name or configuration to open
+   * @param {string|object|MoneroWalletConfig} pathOrConfig  - the wallet's name or configuration to open
+   * @param {string} pathOrConfig.path - path of the wallet to create (optional, in-memory wallet if not given)
+   * @param {string} pathOrConfig.password - password of the wallet to create
+   * @param {string} pathOrConfig.serverUri - uri of a daemon to use (optional, monero-wallet-rpc usually started with daemon config)
+   * @param {string} pathOrConfig.serverUsername - username to authenticate with the daemon (optional)
+   * @param {string} pathOrConfig.serverPassword - password to authenticate with the daemon (optional)
+   * @param {boolean} pathOrConfig.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
+   * @param {MoneroRpcObject|object} pathOrConfig.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
    * @param {string} password is the wallet's password
    */
   async openWallet(pathOrConfig, password) {
@@ -121,35 +141,39 @@ class MoneroWalletRpc extends MoneroWallet {
   }
   
   /**
-   * Create and open a wallet on the monero-wallet-rpc server.
+   * &lt;p>Create and open a wallet on the monero-wallet-rpc server.&lt;p>
    * 
-   * Example:
-   *   let wallet = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");
-   *   await wallet.createWallet({
-   *     path: "mywallet",
-   *     password: "abc123",
-   *     networkType: MoneroNetworkType.STAGENET,
-   *     mnemonic: "coexist igloo pamphlet lagoon...",
-   *     restoreHeight: 1543218l
-   *   });
+   * &lt;p>Example:&lt;p>
    * 
-   * All supported configuration:
-   *   {string} path - path of the wallet to create (optional, in-memory wallet if not given)
-   *   {string} password - password of the wallet to create
-   *   {string} mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
-   *   {string} seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
-   *   {string} primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
-   *   {string} privateViewKey - private view key of the wallet to create (optional)
-   *   {string} privateSpendKey - private spend key of the wallet to create (optional)
-   *   {number} restoreHeight - block height to start scanning from (defaults to 0 unless generating random wallet)
-   *   {string} language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
-   *   {string} serverUri - uri of a daemon to use (optional, monero-wallet-rpc usually started with daemon config)
-   *   {string} serverUsername - username to authenticate with the daemon (optional)
-   *   {string} serverPassword - password to authenticate with the daemon (optional)
-   *   {boolean} rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
-   *   {MoneroRpcObject|object} server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
-   *  
-   * @param {MoneroWalletConfig|object} is a MoneroWalletConfig or equivalent JS object
+   * &lt;code>
+   * &amp;sol;&amp;sol; construct client to monero-wallet-rpc&lt;br>
+   * let walletRpc = new MoneroWalletRpc("http://localhost:38083", "rpc_user", "abc123");&lt;br>&lt;br>
+   * 
+   * &amp;sol;&amp;sol; create and open wallet on monero-wallet-rpc&lt;br>
+   * await walletRpc({&lt;br>
+   * &amp;nbsp;&amp;nbsp; path: "mywallet",&lt;br>
+   * &amp;nbsp;&amp;nbsp; password: "abc123",&lt;br>
+   * &amp;nbsp;&amp;nbsp; networkType: MoneroNetworkType.STAGENET,&lt;br>
+   * &amp;nbsp;&amp;nbsp; mnemonic: "coexist igloo pamphlet lagoon...",&lt;br>
+   * &amp;nbsp;&amp;nbsp; restoreHeight: 1543218l&lt;br>
+   * });
+   *  &lt;/code>
+   * 
+   * @param {object|MoneroWalletConfig} config - MoneroWalletConfig or equivalent JS object
+   * @param {string} config.path - path of the wallet to create (optional, in-memory wallet if not given)
+   * @param {string} config.password - password of the wallet to create
+   * @param {string} config.mnemonic - mnemonic of the wallet to create (optional, random wallet created if neither mnemonic nor keys given)
+   * @param {string} config.seedOffset - the offset used to derive a new seed from the given mnemonic to recover a secret wallet from the mnemonic phrase
+   * @param {string} config.primaryAddress - primary address of the wallet to create (only provide if restoring from keys)
+   * @param {string} config.privateViewKey - private view key of the wallet to create (optional)
+   * @param {string} config.privateSpendKey - private spend key of the wallet to create (optional)
+   * @param {number} config.restoreHeight - block height to start scanning from (defaults to 0 unless generating random wallet)
+   * @param {string} config.language - language of the wallet's mnemonic phrase (defaults to "English" or auto-detected)
+   * @param {string} config.serverUri - uri of a daemon to use (optional, monero-wallet-rpc usually started with daemon config)
+   * @param {string} config.serverUsername - username to authenticate with the daemon (optional)
+   * @param {string} config.serverPassword - password to authenticate with the daemon (optional)
+   * @param {boolean} config.rejectUnauthorized - reject self-signed server certificates if true (defaults to true)
+   * @param {MoneroRpcObject|object} config.server - MoneroRpcConnection or equivalent JS object providing daemon configuration (optional)
    */
   async createWallet(config) {
     
@@ -2066,7 +2090,7 @@ module.exports = MoneroWalletRpc;</code></pre>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Apr 28 2020 10:55:51 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Apr 28 2020 12:16:52 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
